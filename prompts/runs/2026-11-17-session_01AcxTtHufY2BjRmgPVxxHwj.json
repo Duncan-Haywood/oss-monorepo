@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtHufY2BjRmgPVxxHwj",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T13:06:29Z",
+  "ended": "2026-11-17T13:55:32Z",
+  "wall_minutes": 49.31,
+  "tokens_in": 18626357,
+  "tokens_out": 142623,
+  "cost_usd": 8.5774,
+  "tool_calls": 109,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16955",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Barnard tie tolerance computed as 1e-12*|T| became Infinity-Infinity=NaN when the observed unpooled statistic was infinite (e.g. 10/10 vs 0/10), dropping the observed table from its own region; caught by the reference comparison and fixed in engine and reference script.",
+    "First dense-grid reference ran out of memory on the 4,526-subject Berkeley table; rewritten to bucket by total successes and cap unconditional tests at 500x500.",
+    "A hand-typed reference value for log(200000!) in a unit test was wrong; replaced with Python's math.lgamma output.",
+    "The brute-force r x c reference first compared a log-probability without its constant against one with it (returned p = 1); fixed before any value was used."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Useful: it caught an unguarded smooth scroll and an unrounded percentage that the venture's own tests could not see; each needed one preflight rerun (about 6 minutes each because of the build step)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook refused `pkill -f '[r]eference.py'` because the same word appeared later in the command line; TaskStop on the background task was the working route."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-fishers-exact-test-spends-under-half-its-error-budget.md",
+    "ventures/contingency-table-tests/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: exact and stratified contingency-table tests as a research-algorithm tool (ventures/contingency-table-tests); no venture ran Fisher's exact, Barnard, Boschloo, CMH or McNemar. Verified vs scipy 1.18.1/statsmodels 0.15.0 (69 2x2, 8 strata sets, 5 paired), brute-force enumeration (16 r x c) and R's documented examples. Finding (eval/size.mjs, exact): at 20 per group Fisher's real size averages 1.9% (max 2.5%) at nominal 5%; Boschloo exact with 49% vs 41% power for 20% vs 50%; Pearson chi-square up to 6.5% at 25 per group. Discrepancy: scipy barnard_exact low in 22 of 272 p-values, all from exactly-tied mirror tables rounded 1 ulp below (checked with fractions). Local checks: 46 venture tests, meta-analysis tests, run_venture_tests, check_post_links, venture-preflight clean (build + check.mjs). No external outreach.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dc3dc79b-637d-5232-a6e1-7981335f862f",
+    "transcripts": 1,
+    "first": "2026-11-17T13:06:29Z",
+    "last": "2026-11-17T13:55:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 106,
+        "input": 204,
+        "output": 142623,
+        "thinking": 24944,
+        "cache_read": 18369885,
+        "cache_write_5m": 0,
+        "cache_write_1h": 256268,
+        "api_equivalent_usd": 8.5774,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 106,
+      "input": 204,
+      "output": 142623,
+      "thinking": 24944,
+      "cache_read": 18369885,
+      "cache_write_5m": 0,
+      "cache_write_1h": 256268,
+      "api_equivalent_usd": 8.5774,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 109,
+    "tools": {
+      "Bash": 99,
+      "Write": 5,
+      "Read": 2,
+      "TaskStop": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 49.31,
+      "active_minutes": 49.31,
+      "model_minutes": 23.04,
+      "tool_minutes": 26.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 40.0,
+      "basis": "a statistician implementing and cross-validating Fisher/Barnard/Boschloo/network r x c/CMH/McNemar with a page and size study",
+      "rate_usd_per_hour": 100.0,
+      "usd": 4000.0
+    },
+    "leverage": 466.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

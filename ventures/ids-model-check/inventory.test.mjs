@@ -86,7 +86,8 @@ test("an opened IDS with a project's own set becomes an editable row and writes 
   const reqs = r.state.specs[0].reqs;
   assert.deepEqual(reqs.slice(0, 3).map((x) => [x.custom, x.set, x.name, x.dataType, x.mode]), [[true, "Acme_Wall", "FireCompartment", "IFCLABEL", "equals"], [true, "Acme_Wall", "Cover", "IFCLENGTHMEASURE", "range"], [true, "Acme_Wall", "Note", "", "any"]]);
   assert.ok(reqs[3].fixed, "a misspelt Pset_ name stays as written (the audit flags it)");
-  assert.ok(reqs[4].fixed, "a value with no dataType stays as written");
+  assert.deepEqual([reqs[4].fixed, reqs[4].untyped, reqs[4].dataType, reqs[4].mode, reqs[4].equals], [undefined, true, "", "equals", "X"], "a value with no dataType is a row that keeps no dataType");
+  assert.ok(!buildIds(stateToDoc(r.state, L4), S4).includes('<property dataType=""'));
   const back = parseIds(buildIds(stateToDoc(r.state, L4), S4));
   assert.deepEqual(back.specs[0].requirements.map((f) => f.describe()).sort(), parsed.specs[0].requirements.map((f) => f.describe()).sort());
 });
@@ -125,7 +126,8 @@ test("the inventory lists each property's values as the checker reads them, meas
   const fire = modelValueOffer(prop("Pset_WallCommon", "FireRating"), "text", null);
   assert.deepEqual(fire.oneOf, ["60 min"]);
   const range = modelValueOffer(len, "number", null);
-  assert.deepEqual([range.min, range.max, range.rangeMin, range.rangeMax, range.oneOf], [6, 6, "6", "6", null]);
+  assert.deepEqual([range.min, range.max, range.rangeMin, range.rangeMax, range.oneOf], [6, 6, "6", "6", ["6"]], "a short list of numbers is offered as a one-of too");
+  assert.deepEqual(len.exact, ["6"], "the exact numbers held, for a one-of a checker without tolerance passes");
   const doc = { title: "From the model", schema: "IFC4", specs: [{ ...blankSpec(), name: "Walls", cls: "IFCWALL", withSub: false, reqs: [
     { ...blankReq(), set: "Pset_WallCommon", name: "FireRating", cardinality: "optional", mode: "oneOf", oneOf: fire.oneOf },
     { ...blankReq(), set: "Qto_WallBaseQuantities", name: "Length", cardinality: "optional", mode: "range", min: range.rangeMin, max: range.rangeMax },
@@ -296,14 +298,105 @@ test("an opened IDS's applicability facets beyond the class open as editable row
   const loadFor = (id) => ({ S: R.schemas[id], psets: R.psets[id], tm: R.typeMap });
   const imp = importIds(parsed, loadFor);
   const [s] = imp.state.specs;
-  assert.deepEqual(s.app.map((r) => `${r.kind}:${r.mode}`), ["classification:any", "attribute:equals", "property:true", "property:any"]);
+  assert.deepEqual(s.app.map((r) => `${r.kind}:${r.mode}`), ["classification:any", "attribute:equals", "property:true", "property:any", "property:range"]);
   assert.ok(s.app[3].custom, "a project's own set");
-  // The exclusive bound has no control on the page: kept as written.
-  assert.deepEqual(s.fixedApp.map((f) => f.kind), ["property"]);
+  // An exclusive bound is a range row with "more than" since 2026-11-17 (it was kept as written).
+  assert.deepEqual([s.app[4].min, s.app[4].minEx, s.app[4].max, s.app[4].maxEx], ["3", true, "", false]);
+  assert.deepEqual(s.fixedApp, []);
   const back = parseIds(buildIds(stateToDoc(imp.state, loadFor("IFC4")), S4));
   const said = (sp) => sp.applicability.map((f) => `${f.kind} ${f.dataType || ""} ${f.describe()}`).sort();
   assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]));
   // Run on the model, the narrowed specification applies to the external solid walls only.
   const got = check(xml.replace(/<property><propertySet><simpleValue>Acme_Wall[^]*?<\/property>\s*<property dataType="IFCLENGTHMEASURE"[^]*?<\/property>/, ""), uncoded).specs[0];
   assert.equal(got.applicable, 2);
+});
+
+// A model of `n` doors (and `w` windows) with Pset_Warranty dates spread over
+// several years, and a warranty period on each: more values than the
+// inventory lists (MAX_LISTED) or tracks (MAX_TRACKED), so the earliest and
+// latest must come from every value, not the listed ones.
+function warrantyModel(n, w = 0, odd = null) {
+  const iso = (t) => new Date(t).toISOString().slice(0, 10);
+  const gid = (k) => ("3Wty" + String(k).padStart(18, "0")).slice(0, 22);
+  let out = "", id = 5000;
+  for (let i = 0; i < n + w; i++) {
+    const start = Date.parse("2022-01-01") + ((i * 37) % 1826) * 86400000 + (i === 7 ? -400 * 86400000 : 0);
+    const e = id++, ps = id++, a = id++, p = id++, rel = id++;
+    out += i < n ? `#${e}=IFCDOOR('${gid(e)}',$,'D-${i}',$,$,$,$,$,2100.,900.,.DOOR.,.SINGLE_SWING_LEFT.,$);\n`
+      : `#${e}=IFCWINDOW('${gid(e)}',$,'W-${i}',$,$,$,$,$,1200.,900.,.WINDOW.,.SINGLE_PANEL.,$);\n`;
+    out += `#${ps}=IFCPROPERTYSET('${gid(ps)}',$,'Pset_Warranty',$,(#${a},#${p}));\n`;
+    const v = odd && i === n + w - 1 ? odd : `IFCDATE('${i === n + w - 1 && w ? "2031-02-03" : iso(start)}')`;
+    out += `#${a}=IFCPROPERTYSINGLEVALUE('WarrantyStartDate',$,${v},$);\n`;
+    out += `#${p}=IFCPROPERTYSINGLEVALUE('WarrantyPeriod',$,IFCDURATION('P${1 + (i % 4)}Y${i === 3 ? "6M" : ""}'),$);\n`;
+    out += `#${rel}=IFCRELDEFINESBYPROPERTIES('${gid(rel)}',$,$,$,(#${e}),#${ps});\n`;
+  }
+  return house.replace(/ENDSEC;\s*END-ISO-10303-21;\s*$/, `${out}ENDSEC;\nEND-ISO-10303-21;\n`);
+}
+
+test("Use the model's range on dates and durations: the earliest and latest of every value, and the range passes the model", async () => {
+  const { temporalType } = await import("./editor.mjs");
+  const text = warrantyModel(600);
+  const inv = modelInventory(new Model(text, R.schemas), R.measureUnits);
+  const sets = modelSets(inv, ["IFCDOOR"], setsFor(R.psets.IFC4, S4, "IFCDOOR"));
+  const prop = (name) => sets.find((s) => s.name === "Pset_Warranty").props.find((p) => p.name === name);
+  const start = prop("WarrantyStartDate");
+  assert.ok(start.more && start.values.length <= 50, "more values than are listed or tracked");
+  // Door 7 is moved 400 days earlier, to the earliest; worked out here from
+  // every door's date, apart from the inventory.
+  const all = [...text.matchAll(/'WarrantyStartDate',\$,IFCDATE\('([^']+)'\)/g)].map((m) => m[1]).sort();
+  assert.deepEqual([all.length, all[0], all.at(-1)], [600, "2021-08-13", "2026-12-30"]);
+  assert.deepEqual([start.tkind, start.tmin, start.tmax], ["date", "2021-08-13", "2026-12-30"]);
+  const o = modelValueOffer(start, "text", null, temporalType("IFCDATE"));
+  assert.deepEqual([o.tmin, o.tmax, o.oneOf], ["2021-08-13", "2026-12-30", null]);
+  // A row of another form gets no range, and a text row none at all.
+  assert.deepEqual([modelValueOffer(start, "text", null, "dateTime").tmin, modelValueOffer(start, "text", null).tmin], [null, null]);
+  const period = modelValueOffer(prop("WarrantyPeriod"), "text", null, temporalType("IFCDURATION"));
+  assert.deepEqual([period.tmin, period.tmax], ["P1Y", "P4Y6M"], "door 3 holds P4Y6M, the longest");
+  assert.deepEqual(period.oneOf, ["P1Y", "P2Y", "P3Y", "P4Y", "P4Y6M"], "a complete list keeps its one-of offer too");
+
+  const row = (name, o2, extra = {}) => ({ ...blankReq(), set: "Pset_Warranty", name, cardinality: "optional", mode: "range", min: o2.tmin, max: o2.tmax, ...extra });
+  const doc = { title: "warranty", schema: "IFC4", specs: [{ ...blankSpec(), name: "Doors", cls: "IFCDOOR", withSub: false, reqs: [row("WarrantyStartDate", o), row("WarrantyPeriod", period)] }] };
+  const xml = buildIds(stateToDoc(doc, L4), S4);
+  assert.match(xml, /<xs:restriction base="xs:date">\s*<xs:minInclusive value="2021-08-13"\/>\s*<xs:maxInclusive value="2026-12-30"\/>/);
+  assert.deepEqual(auditIds(parseIds(xml), { schemas: { IFC4: S4 }, typeMap: R.typeMap, psets: R.psets }).filter((w) => w.severity === "error"), []);
+  const r = check(xml, text);
+  assert.equal(r.specs[0].status, "pass", "every one of the 600 doors passes (the sample house's own door has no warranty: optional) the model's own range");
+  // A door one day past the latest fails it.
+  assert.equal(check(xml, text.replace("IFCDATE('2026-12-30')", "IFCDATE('2026-12-31')")).specs[0].status, "fail");
+  // The applicability count agrees: the range keeps every door.
+  assert.equal(appMatchCount(start, modelValueOffer(start, "text", null, "date"), { kind: "property", mode: "range", min: o.tmin, max: o.tmax }), null, "an incomplete list cannot be counted");
+  const small = modelInventory(new Model(warrantyModel(12), R.schemas), R.measureUnits);
+  const sp = modelSets(small, ["IFCDOOR"], []).find((s) => s.name === "Pset_Warranty").props.find((p) => p.name === "WarrantyStartDate");
+  const so = modelValueOffer(sp, "text", null, "date");
+  assert.equal(appMatchCount(sp, so, { kind: "property", mode: "range", min: so.tmin, max: so.tmax }), 12);
+});
+
+test("the model's date range merges across classes, and a value of another form leaves no range", () => {
+  const inv = modelInventory(new Model(warrantyModel(10, 3), R.schemas), R.measureUnits);
+  const both = modelSets(inv, ["IFCDOOR", "IFCWINDOW"], []).find((s) => s.name === "Pset_Warranty").props.find((p) => p.name === "WarrantyStartDate");
+  assert.deepEqual([both.tkind, both.tmin, both.tmax], ["date", "2021-08-13", "2031-02-03"], "the latest is a window's");
+  const doors = modelSets(inv, ["IFCDOOR"], []).find((s) => s.name === "Pset_Warranty").props.find((p) => p.name === "WarrantyStartDate");
+  assert.equal(doors.tmax < "2031", true);
+  // One window writes its start as a label, not a date: no range passes it.
+  const mixed = modelInventory(new Model(warrantyModel(10, 3, "IFCLABEL('TBC')"), R.schemas), R.measureUnits);
+  const m = modelSets(mixed, ["IFCDOOR", "IFCWINDOW"], []).find((s) => s.name === "Pset_Warranty").props.find((p) => p.name === "WarrantyStartDate");
+  assert.deepEqual([m.tkind, m.tmin], ["mixed", null]);
+  assert.equal(modelValueOffer(m, "text", null, "date").tmin, null);
+  // ...while the doors alone still have theirs.
+  const d = modelSets(mixed, ["IFCDOOR"], []).find((s) => s.name === "Pset_Warranty").props.find((p) => p.name === "WarrantyStartDate");
+  assert.equal(d.tkind, "date");
+});
+
+test("the inventory keeps each number exactly as held, beside its 12-digit tally, up to MAX_EXACT", async () => {
+  const { MAX_EXACT } = await import("./inventory.mjs");
+  const { modelAttributes } = await import("./editor.mjs");
+  // Door heights as unit round trips leave them: 2.4000000000000004 is 2.4 at 12 digits.
+  const doors = ["2.4", "2.4000000000000004", "2.8000000001193297"].map((h, i) => `#${900 + i}=IFCDOOR('0Door${i}xxxxxxxxxxxxxxx',$,'D${i}',$,$,$,$,$,${h},1.,$,$,$);`).join("\n");
+  const text = house.replace(/ENDSEC;\s*END-ISO/, doors + "\nENDSEC;\nEND-ISO");
+  assert.notEqual(text, house);
+  const inv = modelInventory(new Model(text, R.schemas));
+  const h = modelAttributes(inv, ["IFCDOOR"]).find((a) => a.name === "OverallHeight");
+  assert.ok(h.values.some(([v, n]) => v === "2.4" && n === 2), "2.4 and 2.4000000000000004 share a 12-digit tally");
+  for (const x of ["2.4", "2.4000000000000004", "2.8000000001193297"]) assert.ok(h.exact.includes(x), x);
+  assert.ok(MAX_EXACT >= 24);
 });

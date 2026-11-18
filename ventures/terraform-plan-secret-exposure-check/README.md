@@ -44,7 +44,8 @@ they catch different things and a CI pipeline commonly wants both.
 
 [`index.html`](index.html) reads a plan file you load or paste entirely in
 the browser, and reports every unmarked attribute matching a known secret
-shape, redacted to the first and last four characters. No fetch happens from
+shape, redacted to at most the first and last four characters (a URL keeps its
+scheme, user and host, never its password). No fetch happens from
 the page itself, so nothing you load ever leaves your device.
 
 ## Quickstart (CLI)

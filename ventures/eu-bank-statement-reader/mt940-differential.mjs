@@ -95,7 +95,7 @@ export function generate(seed, variations = []) {
   } else text = messages.map((L) => L.join("\n") + "\n-").join(on("blank") ? "\n\n" : "\n");
   if (on("ws")) text = text.split("\n").map((l) => l + (rnd() < 0.3 ? "  " : "")).join("\n");
   if (on("noterm") && !on("envelope")) text = text.replace(/\n-$/, "");
-  if (on("bom")) text = "﻿" + text;
+  if (on("bom")) text = "\uFEFF" + text;
   if (on("crlf") && rnd() < 0.5) text = text.replace(/\n/g, "\r\n");
   else if (on("cr") && rnd() < 0.3) text = text.replace(/\n/g, "\r");
   // "mangle" damages the file (deleted, doubled or swapped characters), so the truth no longer holds:

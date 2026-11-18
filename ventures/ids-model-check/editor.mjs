@@ -9,6 +9,9 @@
 // misspelt set, a property the set lacks or a dataType the standard does not
 // give: the faults auditIds() finds in 21 of 64 public IDS files.
 
+import { temporalKind, temporalKey } from "./temporal.mjs";
+import { nearName } from "./audit.mjs";
+
 const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
 
 // The ifcVersion token IDS 1.0 accepts for each schema id.
@@ -96,6 +99,76 @@ export function propertiesOf(psets, S, setName) {
   });
 }
 
+// The XSD date, time or duration a dataType holds (IDS's DataTypes table:
+// IFCDATE xs:date, IFCDATETIME xs:dateTime, IFCTIME xs:time, IFCDURATION
+// xs:duration), or null. IFC writes them as strings; ids.mjs orders range
+// bounds on them as dates, times and durations (temporal.mjs).
+const TEMPORAL = { IFCDATE: "date", IFCDATETIME: "dateTime", IFCTIME: "time", IFCDURATION: "duration" };
+export const temporalType = (dataType) => (dataType && Object.hasOwn(TEMPORAL, String(dataType).toUpperCase()) ? TEMPORAL[String(dataType).toUpperCase()] : null);
+// An example of each form, for a range row's placeholders and hints.
+export const TEMPORAL_EXAMPLE = { date: ["2024-01-01", "2030-12-31"], dateTime: ["2024-01-01T00:00:00", "2030-12-31T23:59:59"], time: ["07:00:00", "19:00:00"], duration: ["PT30M", "P1Y"] };
+
+// An XSD pattern that matches the ISO dates (YYYY-MM-DD, with or without a
+// time zone) a date range asks for, or null when a bound is not a plain date.
+// IfcTester 0.9.0 reads range bounds only as numbers (float("2024-01-01")
+// fails), so it fails every object on an xs:date range that this checker and
+// IDS 1.0's DataTypes table accept; a pattern both read the same way
+// (eval/date-ranges-2026-11-17.md). Fixed-width dates order as strings, so the
+// pattern is the lexical range between the bounds, built digit by digit.
+// Exclusive bounds move one day inward. The pattern matches only well-formed
+// dates' shape between the bounds; it does not check a day exists.
+const DAY = 86400000;
+const PLAIN_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const isoDay = (t) => new Date(t).toISOString().slice(0, 10);
+function lexRange(lo, hi) {
+  // Strings of one shape (digits and fixed separators) from lo to hi inclusive.
+  if (lo === hi) return lo;
+  const any = (s) => s.replace(/\d/g, "\\d");
+  let i = 0;
+  while (lo[i] === hi[i]) i++;
+  const pre = lo.slice(0, i);
+  if (!/\d/.test(lo[i])) return null;
+  const a = +lo[i], b = +hi[i];
+  const geq = (s) => {
+    // Strings of s's shape at or above s.
+    if (!s) return "";
+    const j = s.search(/\d/);
+    if (j < 0) return s;
+    const head = s.slice(0, j), d = +s[j], rest = s.slice(j + 1);
+    if (!/[1-9]/.test(rest.replace(/[^\d]/g, "")) && !rest.replace(/[\d]/g, "").length) return head + (d === 9 ? "9" : `[${d}-9]`) + any(rest);
+    const alts = [s[j] + geq(rest)];
+    if (d < 9) alts.push((d + 1 === 9 ? "9" : `[${d + 1}-9]`) + any(rest));
+    return head + (alts.length > 1 ? `(${alts.join("|")})` : alts[0]);
+  };
+  const leq = (s) => {
+    if (!s) return "";
+    const j = s.search(/\d/);
+    if (j < 0) return s;
+    const head = s.slice(0, j), d = +s[j], rest = s.slice(j + 1);
+    if (!/[0-8]/.test(rest.replace(/[^\d]/g, "")) && !rest.replace(/[\d]/g, "").length) return head + (d === 0 ? "0" : `[0-${d}]`) + any(rest);
+    const alts = [s[j] + leq(rest)];
+    if (d > 0) alts.unshift((d - 1 === 0 ? "0" : `[0-${d - 1}]`) + any(rest));
+    return head + (alts.length > 1 ? `(${alts.join("|")})` : alts[0]);
+  };
+  const restLo = lo.slice(i + 1), restHi = hi.slice(i + 1);
+  const alts = [String(a) + geq(restLo)];
+  if (b - a > 1) alts.push((b - a === 2 ? String(a + 1) : `[${a + 1}-${b - 1}]`) + any(restLo));
+  alts.push(String(b) + leq(restHi));
+  return pre + `(${alts.join("|")})`;
+}
+export function datePattern(min, max, minEx = false, maxEx = false) {
+  const blank = (x) => x === "" || x == null;
+  if (blank(min) && blank(max)) return null;
+  if ((!blank(min) && !PLAIN_DATE.test(min)) || (!blank(max) && !PLAIN_DATE.test(max))) return null;
+  const t = (d) => Date.parse(d + "T00:00:00Z");
+  if ((!blank(min) && Number.isNaN(t(min))) || (!blank(max) && Number.isNaN(t(max)))) return null;
+  const lo = blank(min) ? "0000-00-00" : minEx ? isoDay(t(min) + DAY) : min;
+  const hi = blank(max) ? "9999-99-99" : maxEx ? isoDay(t(max) - DAY) : max;
+  if (lo > hi) return null;
+  const body = lexRange(lo, hi);
+  return body === null ? null : `${body}(Z|[+\\-]\\d{2}:\\d{2})?`;
+}
+
 // The XSD base IDS uses for a value restriction on this dataType.
 export function xsBase(S, dataType) {
   const p = dataType ? S.prim(dataType) : "string";
@@ -107,13 +180,14 @@ const escAttr = (s) => escText(s).replace(/"/g, "&quot;");
 
 // An IDS value element body for a restriction:
 //   { equals: "x" } | { oneOf: ["a", "b"] } | { pattern: "..." } |
-//   { min: "1", max: "9" } (either may be absent; inclusive) |
+//   { min: "1", max: "9", minEx, maxEx } (either bound may be absent; inclusive
+//   unless minEx / maxEx is true, then xs:minExclusive / xs:maxExclusive) |
 //   { r: { base, enumeration, pattern, minInclusive, maxInclusive,
 //          minExclusive, maxExclusive, length, minLength, maxLength } }
 //   (any restriction, as an opened IDS file had it; its own base wins);
 //   { equals: "", exact: true } writes an empty simpleValue an opened file had
 // Returns "" for no restriction.
-const R_BOUNDS = ["minInclusive", "maxInclusive", "minExclusive", "maxExclusive", "length", "minLength", "maxLength"];
+const R_BOUNDS = ["minInclusive", "minExclusive", "maxInclusive", "maxExclusive", "length", "minLength", "maxLength"];
 function valueXml(v, base) {
   if (!v) return "";
   if (v.equals !== undefined && (v.equals !== "" || v.exact)) return `<simpleValue>${escText(v.equals)}</simpleValue>`;
@@ -124,11 +198,18 @@ function valueXml(v, base) {
     for (const k of R_BOUNDS) if (v.r[k] !== undefined && v.r[k] !== null) parts.push(`<xs:${k} value="${escAttr(v.r[k])}"/>`);
     if (v.r.base) base = "xs:" + v.r.base;
     if (!parts.length) return `<xs:restriction base="${base}"/>`;
-  } else if (v.oneOf && v.oneOf.length) for (const x of v.oneOf) parts.push(`<xs:enumeration value="${escAttr(x)}"/>`);
+  } else if (v.oneOf && v.oneOf.length) {
+    // A one-of on a date, time or duration is written on that XSD base (or on
+    // xs:string, as an opened file had it: `oneOfBase`).
+    if (v.base) base = v.base;
+    for (const x of v.oneOf) parts.push(`<xs:enumeration value="${escAttr(x)}"/>`);
+  }
   else if (v.pattern) parts.push(`<xs:pattern value="${escAttr(v.pattern)}"/>`);
   else {
-    if (v.min !== undefined && v.min !== "") parts.push(`<xs:minInclusive value="${escAttr(v.min)}"/>`);
-    if (v.max !== undefined && v.max !== "") parts.push(`<xs:maxInclusive value="${escAttr(v.max)}"/>`);
+    // A range on a date, time or duration is written on that XSD base.
+    if (v.base) base = v.base;
+    if (v.min !== undefined && v.min !== "") parts.push(`<xs:${v.minEx ? "minExclusive" : "minInclusive"} value="${escAttr(v.min)}"/>`);
+    if (v.max !== undefined && v.max !== "") parts.push(`<xs:${v.maxEx ? "maxExclusive" : "maxInclusive"} value="${escAttr(v.max)}"/>`);
   }
   if (!parts.length) return "";
   return `<xs:restriction base="${base}">${parts.join("")}</xs:restriction>`;
@@ -241,7 +322,7 @@ export function entityFacet(S, cls, { withSubclasses = false, predefinedType = n
 // requirement rows with a value "mode". stateToDoc() turns it into the shape
 // buildIds() writes; importIds() turns an opened IDS file into it.
 
-export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
+export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, untyped: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", minEx: false, maxEx: false, pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
 export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], withSub: true, predefinedType: "", reqs: [blankReq()], app: [] });
 
 // ------------------------------------------------- several classes per spec --
@@ -265,10 +346,44 @@ export function specClassNames(S, spec) {
   return [...new Set([...first, ...(spec.also || []).filter(Boolean)])];
 }
 
+// Classes in a loaded model (inv.classes: [{ cls, count }]) that are a
+// subclass of a class the specification names but are not named themselves:
+// IDS has no inheritance, so a facet naming IFCWALL never looks at the
+// model's IFCWALLSTANDARDCASE objects (most walls in Revit's IFC2X3 exports;
+// eval/corpus-crosscheck-2026-11-17.md). [{ cls, count, via }], most first.
+export function modelSubclassesLeftOut(S, spec, invClasses) {
+  const named = new Set(specClassNames(S, spec));
+  const bases = specBases(spec).filter((c) => S.entities[c]);
+  const out = [];
+  for (const { cls, count } of invClasses || []) {
+    if (!count || named.has(cls) || !S.entities[cls]) continue;
+    const up = ancestors(S, cls);
+    const via = bases.find((b) => up.includes(b));
+    if (via) out.push({ cls, count, via });
+  }
+  return out.sort((x, y) => y.count - x.count || (x.cls < y.cls ? -1 : 1));
+}
+
+// The specification "Add a specification" starts from a class in the open
+// model's list: the class, plus the model's own objects of its subclasses
+// (IFCWALL with the model's IFCWALLSTANDARDCASE), so the new specification
+// does not open with a "would not check" warning to click away. Only classes
+// the model has: the schema's other subclasses stay behind the checkbox.
+export function modelSpec(S, cls, invClasses) {
+  const nice = S.entities[cls] ? S.entities[cls].name.replace(/^Ifc/, "") : cls;
+  const spec = { ...blankSpec(), name: `${nice} requirements`, cls, withSub: false };
+  spec.also = modelSubclassesLeftOut(S, spec, invClasses).map((x) => x.cls);
+  return spec;
+}
+
 // Standard sets every one of `classes` can carry.
+// A specification with no class applies to every object the other
+// applicability facets select (IDS 1.0), so any standard set may be named:
+// every set a template gives to some class.
 export function commonSets(L, classes) {
   const cs = classes.filter(Boolean);
-  if (!cs.length || !cs.every((c) => knownClass(L, c))) return [];
+  if (!cs.length) return anySets(L.psets);
+  if (!cs.every((c) => knownClass(L, c))) return [];
   let out = setsFor(L.psets, L.S, cs[0], L.tm);
   for (const c of cs.slice(1)) { const s = new Set(setsFor(L.psets, L.S, c, L.tm)); out = out.filter((x) => s.has(x)); }
   return out;
@@ -279,7 +394,8 @@ export function commonSets(L, classes) {
 // a beam); sameAttributeType() says when one enumeration can be offered.
 export function commonAttributes(S, classes) {
   const cs = classes.filter(Boolean);
-  if (cs.length <= 1) return editableAttributes(S, cs[0]);
+  if (!cs.length) return anyAttributes(S);
+  if (cs.length === 1) return editableAttributes(S, cs[0]);
   return editableAttributes(S, cs[0]).filter((n) => cs.every((c) => editableAttributes(S, c).includes(n)));
 }
 const attrType = (S, c, n) => (S.entities[c] ? (S.attrs(c).find((a) => a.name === n) || {}).type : undefined);
@@ -293,14 +409,25 @@ export const sameAttributeType = (S, classes, n) => classes.filter(Boolean).ever
 // bounds restriction on a measure attribute). Classes that type the attribute
 // differently, or an attribute the schema does not know, stay free text.
 export function attributeValueKind(S, classes, name) {
-  const cs = (Array.isArray(classes) ? classes : [classes]).filter(Boolean);
+  let cs = (Array.isArray(classes) ? classes : [classes]).filter(Boolean);
+  // No class: the attribute on every class that has it, typed only when
+  // every one of them gives it the same single, stored type (Version is
+  // IFCLABEL on all three classes that have it; Name is a label on most
+  // classes but IFCSIUNITNAME on IFCSIUNIT, so it stays free text).
+  if (!cs.length && name) {
+    const occ = attributeOccurrences(S).get(name);
+    if (!occ || occ.types.size !== 1 || occ.mixed || !occ.editable) return { kind: "text", enumVals: null, base: "xs:string" };
+    const k = attributeValueKind(S, [occ.firstEditable], name);
+    return occ.derivedOn.length ? { ...k, derivedOn: [...occ.derivedOn] } : k;
+  }
   const a = name && S.entities[cs[0]] && sameAttributeType(S, cs, name) && S.attrs(cs[0]).find((x) => x.name === name);
   if (!a) return { kind: "text", enumVals: null, base: "xs:string" };
   const t = S.types[a.type];
   if (t && t.kind === "enum") return { kind: "text", enumVals: t.values, base: "xs:string" };
   const prim = S.prim(a.type);
   const kind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
-  return { kind, enumVals: null, base: kind === "text" ? "xs:string" : xsBase(S, a.type) };
+  const temporal = kind === "text" ? temporalType(a.type) : null;
+  return { kind, enumVals: null, base: kind === "text" ? "xs:string" : xsBase(S, a.type), ...(temporal ? { temporal } : {}) };
 }
 
 // Predefined types every one of `classes` allows (one predefinedType applies
@@ -315,6 +442,46 @@ export function commonPredefinedTypes(S, classes) {
 
 // Splits what an author typed for "also applies to" into class names.
 export const parseClassList = (text) => [...new Set(String(text || "").toUpperCase().split(/[\s,;]+/).filter(Boolean))];
+
+// For a specification with no class (an applicability of attributes or
+// properties alone, as buildingSMART's IDS-Audit-tool RichFileAttribute files
+// write it): every attribute the page could edit on some class, and how each
+// is typed across all the classes that have it. Cached per schema.
+const occCache = new WeakMap();
+function attributeOccurrences(S) {
+  let m = occCache.get(S);
+  if (m) return m;
+  m = new Map();
+  for (const cls of Object.keys(S.entities)) {
+    const ok = new Set(editableAttributes(S, cls));
+    for (const a of S.attrs(cls)) {
+      let o = m.get(a.name);
+      if (!o) m.set(a.name, (o = { types: new Set(), editable: false, mixed: false, firstEditable: null, derivedOn: [] }));
+      o.types.add(a.type);
+      // A subclass that redeclares the attribute as derived, in the same type
+      // (CoordinateSpaceDimension and Precision on
+      // IfcGeometricRepresentationSubContext): its objects always fail a
+      // value check (IDS's derived-attributes test case) but the attribute is
+      // still the same number everywhere it is stored, so it stays typed.
+      if (ok.has(a.name)) { o.editable = true; o.firstEditable = o.firstEditable || cls; }
+      else if (a.derived && !a.aggregate) o.derivedOn.push(cls);
+      else o.mixed = true;
+    }
+  }
+  occCache.set(S, m);
+  return m;
+}
+// The four IfcRoot names most specifications use first, then the rest A to Z.
+const ROOT_ATTRS = ["Name", "Description", "ObjectType", "Tag"];
+export function anyAttributes(S) {
+  const m = attributeOccurrences(S);
+  const rest = [...m].filter(([n, o]) => o.editable && !ROOT_ATTRS.includes(n)).map(([n]) => n).sort();
+  return [...ROOT_ATTRS.filter((n) => m.has(n)), ...rest];
+}
+export function anySets(psets) {
+  return Object.keys(psets || {}).filter((n) => psets[n].classes && psets[n].classes.length)
+    .sort((a, b) => (a.startsWith("Qto_") - b.startsWith("Qto_")) || a.localeCompare(b));
+}
 
 // Attributes the page offers for a class: stored, single, comparable by value.
 export function editableAttributes(S, cls) {
@@ -371,7 +538,7 @@ export function modelSets(inv, classes, standardSets = []) {
 // Value tallies (inventory.mjs) merged across classes. A class's list holds
 // its MAX_LISTED commonest values; one that lists fewer than it holds
 // (`distinct`) leaves the merged list incomplete.
-const blankTally = () => ({ count: 0, empty: 0, vals: new Map(), distinct: 0, more: false, min: null, max: null });
+const blankTally = () => ({ count: 0, empty: 0, vals: new Map(), distinct: 0, more: false, min: null, max: null, exact: new Set(), exactNone: false, tkind: null, tmin: null, tmax: null });
 function mergeTally(q, p) {
   q.count += p.count;
   q.empty += p.empty || 0;
@@ -380,10 +547,23 @@ function mergeTally(q, p) {
   if (p.more || (p.distinct || 0) > (p.values || []).length) q.more = true;
   if (p.min !== null && p.min !== undefined) q.min = q.min === null ? p.min : Math.min(q.min, p.min);
   if (p.max !== null && p.max !== undefined) q.max = q.max === null ? p.max : Math.max(q.max, p.max);
+  // The exact numbers (inventory.mjs MAX_EXACT): unknown once any class's are.
+  if (p.exact === null || (p.min != null && !Array.isArray(p.exact))) q.exactNone = true;
+  else for (const x of p.exact || []) q.exact.add(x);
+  // Temporal ranges: one form across every class, else "mixed".
+  if (p.tkind && q.tkind !== "mixed") {
+    if (p.tkind === "mixed" || (q.tkind && q.tkind !== p.tkind)) { q.tkind = "mixed"; q.tmin = q.tmax = null; }
+    else {
+      q.tkind = p.tkind;
+      if (q.tmin === null || temporalKey(p.tmin) < temporalKey(q.tmin)) q.tmin = p.tmin;
+      if (q.tmax === null || temporalKey(p.tmax) > temporalKey(q.tmax)) q.tmax = p.tmax;
+    }
+  }
 }
 function tallyOut(q) {
   const values = [...q.vals.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  return { count: q.count, empty: q.empty, values, distinct: Math.max(q.distinct, values.length), more: q.more, min: q.min, max: q.max };
+  return { count: q.count, empty: q.empty, values, distinct: Math.max(q.distinct, values.length), more: q.more, min: q.min, max: q.max,
+    exact: q.exactNone ? null : [...q.exact].sort((a, b) => Number(a) - Number(b)), tkind: q.tkind, tmin: q.tmin, tmax: q.tmax };
 }
 function mergeBy(inv, classes, field, key) {
   if (!inv) return [];
@@ -421,10 +601,18 @@ export const modelCodes = (inv, classes) => mergeBy(inv, classes, "codes", "syst
 //     enumeration lacks (a check limited to it fails those objects),
 //     complete: every value the model holds is listed, min, max,
 //     oneOf: the values a "one of" restriction should list to pass the model
-//     as it is (null when the list is incomplete or the kind is not text),
+//     as it is (null when the list is incomplete, the kind is bool, or a
+//     number row holds more than NUMBER_ONEOF_MAX values at 12 digits or
+//     twice that exactly; a number list names the exact values, mp.exact),
 //     empty: objects that carry it with no value (an empty attribute, a
-//     classification with no code), which any value check fails }
-export function modelValueOffer(mp, kind, enumVals = null) {
+//     classification with no code), which any value check fails,
+//     tmin, tmax: for a row of temporal type (temporalType(): "date",
+//     "dateTime", "time", "duration"), the earliest and latest value when
+//     every value the model holds has that form, else null; a range between
+//     them, inclusive, passes every object that carries a value (IDS
+//     compares temporal bounds exactly, so no rounding outward is needed) }
+export const NUMBER_ONEOF_MAX = 12;
+export function modelValueOffer(mp, kind, enumVals = null, temporal = null) {
   if (!mp || !mp.values || !mp.values.length || !kind) return null;
   const isNum = (v) => v.trim() !== "" && Number.isFinite(Number(v));
   const fits = kind === "number" ? (v) => isNum(v) : kind === "bool" ? (v) => v === "true" || v === "false" : () => true;
@@ -432,10 +620,25 @@ export function modelValueOffer(mp, kind, enumVals = null) {
   const values = enumVals ? usable.filter(([v]) => enumVals.includes(v)) : usable;
   const outside = enumVals ? usable.filter(([v]) => !enumVals.includes(v)) : [];
   const complete = !mp.more && usable.length === mp.values.length && mp.values.length >= (mp.distinct || 0);
-  const oneOf = kind === "text" && complete && !outside.length && values.length ? values.map(([v]) => v).sort() : null;
+  // A number list is offered when it is short (a handful of standard sizes),
+  // naming every value exactly as the model holds it (`exact`: Revit's
+  // 2.8000000001193297 next to 2.8), so a checker comparing without IDS's
+  // tolerance (IfcTester 0.9.0) passes it too; a long one is a range's job.
+  const exact = kind === "number" && Array.isArray(mp.exact) && mp.exact.length <= 2 * NUMBER_ONEOF_MAX ? mp.exact : null;
+  const oneOf = !complete || outside.length || !values.length ? null
+    : kind === "text" ? values.map(([v]) => v).sort()
+    : kind === "number" && values.length <= NUMBER_ONEOF_MAX && exact ? [...exact] : null;
   const num = kind === "number" && typeof mp.min === "number" && typeof mp.max === "number";
   return { values, outside, complete, min: num ? mp.min : null, max: num ? mp.max : null,
-    rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf, empty: mp.empty || 0 };
+    rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf, empty: mp.empty || 0,
+    ...modelTemporalRange(mp, temporal) };
+}
+
+// { tmin, tmax } of a value tally for a row of temporal form `temporal`, or
+// nulls when the model holds anything else in it.
+function modelTemporalRange(mp, temporal) {
+  const ok = temporal && mp.tkind === temporal && typeof mp.tmin === "string" && typeof mp.tmax === "string";
+  return { tmin: ok ? mp.tmin : null, tmax: ok ? mp.tmax : null };
 }
 
 // How many of the model's objects an applicability row lets through, from the
@@ -463,9 +666,19 @@ export function appMatchCount(mp, offer, r, valueKind = "text") {
   if (r.mode === "true" || r.mode === "false") return tally((v) => v === r.mode);
   if (r.mode === "oneOf") return tally((v) => r.oneOf.some((w) => same(v, w)));
   if (r.mode === "range") {
+    const blank = (x) => x === "" || x == null;
+    // Dates, times and durations: the bounds and the model's values in one
+    // ISO form, ordered as ids.mjs orders them (temporal.mjs).
+    const tk = [r.min, r.max].filter((x) => !blank(x)).map((x) => temporalKind(String(x)));
+    if (tk.length && tk.every(Boolean)) {
+      if (tk.some((k) => k !== tk[0])) return 0;
+      const lo = blank(r.min) ? -Infinity : temporalKey(String(r.min)), hi = blank(r.max) ? Infinity : temporalKey(String(r.max));
+      const key = (v) => (temporalKind(v) === tk[0] ? temporalKey(v) : NaN);
+      return tally((v) => { const k = key(v); return (r.minEx ? k > lo : k >= lo) && (r.maxEx ? k < hi : k <= hi); });
+    }
     const lo = r.min === "" || r.min == null ? -Infinity : Number(r.min), hi = r.max === "" || r.max == null ? Infinity : Number(r.max);
     if (Number.isNaN(lo) || Number.isNaN(hi)) return null;
-    return tally((v) => Number(v) >= lo && Number(v) <= hi);
+    return tally((v) => (r.minEx ? Number(v) > lo : Number(v) >= lo) && (r.maxEx ? Number(v) < hi : Number(v) <= hi));
   }
   if (r.mode === "pattern") {
     let re;
@@ -499,42 +712,81 @@ export function outwardBound(v, dir) {
 export function valueChoices(L, cls, r) {
   const classes = Array.isArray(cls) ? cls : [cls];
   cls = classes[0];
-  let kind = "text", enumVals = null, p = null;
-  if (r.kind === "property" && r.custom) {
+  let kind = "text", enumVals = null, p = null, temporal = null, integer = false;
+  if (r.kind === "property" && r.untyped) {
+    // A value with no dataType, as an opened file wrote it: IDS 1.0 allows it
+    // and a checker compares the value with whatever type the model holds, so
+    // the page offers the text modes and writes no dataType (typeRow adds one).
+    p = r.custom ? { name: r.name, dataType: null, dataTypes: [], enum: null } : (r.set ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null) || null;
+  } else if (r.kind === "property" && r.custom) {
     const dt = r.dataType && L.S.types[r.dataType] ? r.dataType : null;
     p = { name: r.name, dataType: dt, dataTypes: dt ? [dt] : [], enum: null };
     const prim = dt ? L.S.prim(dt) : null;
     kind = !dt ? null : prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+    temporal = temporalType(dt);
+    integer = prim === "integer";
   } else if (r.kind === "property") {
     p = r.set ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
+    // A standard property in the dataType the opened file gave it, not the
+    // template's (fileTypeOf): the row offers that type's values and keeps it.
+    if (p && r.fileType) p = fileTypeProp(L, p, r.fileType);
     if (!p || !p.dataType) kind = null;
     else {
       const prim = L.S.prim(p.dataType);
       kind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
       enumVals = p.enum;
+      temporal = temporalType(p.dataType);
+      integer = prim === "integer";
     }
   } else if (r.kind === "attribute") {
-    ({ kind, enumVals } = attributeValueKind(L.S, classes, r.name));
+    let base;
+    ({ kind, enumVals, temporal = null, base } = attributeValueKind(L.S, classes, r.name));
+    integer = base === "xs:integer" || (kind === "number" && r.numBase === "xs:integer");
   } else if (r.kind === "partOf") kind = null;
   const modes = [];
   if (kind) {
     modes.push("any", "equals");
-    // "one of" a standard's enumeration, or of values the author lists (text).
-    if (enumVals || kind === "text") modes.push("oneOf");
-    if (kind === "number") modes.push("range");
+    // "one of" a standard's enumeration, or of values the author lists (text
+    // or numbers: a cardinal point 1 to 9, a few standard thicknesses).
+    if (enumVals || kind === "text" || kind === "number") modes.push("oneOf");
+    // A date, time or duration (IFCDATE, IFCDATETIME, IFCTIME, IFCDURATION)
+    // takes a range too: "built after 2024-01-01", "a warranty of at least P2Y".
+    if (kind === "number" || temporal) modes.push("range");
     if (kind === "text" && !enumVals) modes.push("pattern");
     if (kind === "bool") modes.splice(1, 1, "true", "false");
   }
-  return { kind, enumVals, modes, prop: p };
+  return { kind, enumVals, modes, prop: p, temporal, integer: kind === "number" && integer };
 }
 
+// Why a value listed on a number row cannot be written as it is, or null:
+// IDS reads an xs:double literal like 42.3 or 1e-3 (no thousands separator,
+// no unit) and an xs:integer one as digits only, as the audit checks them.
+// NaN and INF are valid xs:double but match no measured value, so the row
+// refuses them too.
+export function numberValueProblem(text, integer = false) {
+  const t = String(text);
+  if (integer) return /^[-+]?[0-9]+$/.test(t) ? null : /^[-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][-+]?[0-9]+)?$/.test(t) && Number.isInteger(Number(t)) ? `${t} is a whole number written with a point or exponent; an integer is written as digits only (${Number(t)})` : `${t} is not an integer`;
+  return /^[-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+)([eE][-+]?[0-9]+)?$/.test(t) ? null : `${t} is not a number IDS can read (write it like 42.3, with a point and no thousands separator or unit)`;
+}
+
+// A range row's value: inclusive bounds unless the row says a bound is
+// exclusive ("more than" / "less than"), as IDS's restriction test cases write them.
+const rangeValue = (r, temporal) => ({ min: r.min, max: r.max, ...(r.minEx ? { minEx: true } : {}), ...(r.maxEx ? { maxEx: true } : {}), ...(temporal ? { base: "xs:" + temporal } : {}) });
+// A one-of row's value. On a date, time or duration (IFCDATE, IFCDATETIME,
+// IFCTIME, IFCDURATION) the enumeration takes the XSD base IDS 1.0's DataTypes
+// table gives that type (xs:date, ...), as it does for a range; a row opened
+// from a file that wrote it on xs:string keeps that (`oneOfBase`), so the file
+// is written back as it was.
+const oneOfValue = (r, temporal) => ({ oneOf: r.oneOf, ...(temporal ? { base: r.oneOfBase || "xs:" + temporal } : {}) });
 function reqFacet(L, r, classes = []) {
   if (r.fixed) return r.fixed;
-  const p = r.kind !== "property" ? null : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
-  const value = r.cardinality === "prohibited" || (p && !p.dataType) ? null
+  const p = r.kind !== "property" ? null : r.untyped ? { dataType: null, untyped: true } : r.custom ? { dataType: r.dataType && L.S.types[r.dataType] ? r.dataType : null } : r.fileType ? { dataType: r.fileType } : propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  const temporal = r.mode !== "oneOf" && r.mode !== "range" ? null : r.kind === "property" ? temporalType(p && p.dataType) : r.kind === "attribute" ? attributeValueKind(L.S, classes, r.name).temporal || null : null;
+  const value = r.cardinality === "prohibited" || (p && !p.dataType && !p.untyped) ? null
     : r.mode === "equals" ? { equals: r.equals } : r.mode === "true" || r.mode === "false" ? { equals: r.mode }
-    : r.mode === "oneOf" ? { oneOf: r.oneOf } : r.mode === "range" ? { min: r.min, max: r.max } : r.mode === "pattern" ? { pattern: r.pattern } : null;
-  const base = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name).base : undefined;
+    : r.mode === "oneOf" ? oneOfValue(r, temporal) : r.mode === "range" ? rangeValue(r, temporal) : r.mode === "pattern" ? { pattern: r.pattern } : null;
+  const k = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name) : null;
+  const base = k ? (k.kind === "number" && r.numBase) || k.base : undefined;
   return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
 }
 
@@ -542,6 +794,124 @@ function reqFacet(L, r, classes = []) {
 // cardinality (IDS 1.0 applicability facets have none; an object either
 // matches the facet or the specification does not apply to it).
 const appFacet = (L, r, classes = []) => reqFacet(L, { ...r, cardinality: "required" }, classes);
+
+// A property row with no dataType (`untyped`, as an opened file had it)
+// given the dataType the page would write: the template's for a standard
+// property, the model's for an own-set one (`modelType`, when it is a type the
+// page offers). The value carries over when it fits the type: TRUE/FALSE in
+// any case to true/false, numbers to equals or one of when every value is
+// written as IDS reads that number type (otherwise "any value" with `dropped`
+// set), an enumeration's members as they are. Returns
+// { row, dropped } or null when no type is known.
+export function typeRow(L, r, modelType = null) {
+  if (r.kind !== "property" || !r.untyped) return null;
+  let dt = null, enumVals = null;
+  if (r.custom) dt = modelType && valueTypes(L.S).includes(modelType) ? modelType : null;
+  else {
+    const p = r.set ? propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name) : null;
+    if (p) { dt = p.dataType; enumVals = p.enum; }
+  }
+  if (!dt) return null;
+  const row = { ...r, untyped: false, dataType: r.custom ? dt : r.dataType };
+  return carryValue(L, r, row, null, dt, enumVals);
+}
+
+// A row's value moved from data type `from` (null: no dataType) to `dt`, with
+// `enumVals` the enumeration the new type offers. It carries over when it fits
+// the new type: TRUE/FALSE in any case to true/false, numbers to equals or one
+// of (and a range's bounds) when each is written as IDS reads that number
+// type, text values when the enumeration has them, a pattern when there is no
+// enumeration, a date range to the same kind of date. Otherwise the row asks
+// for any value and `dropped` is set. Returns { row, dropped }.
+function carryValue(L, r, row, from, dt, enumVals) {
+  const prim = L.S.prim(dt);
+  const kind = prim === "double" || prim === "integer" ? "number" : prim === "boolean" || prim === "logical" ? "bool" : "text";
+  const vals = r.mode === "equals" ? [r.equals] : r.mode === "oneOf" ? r.oneOf : r.mode === "true" || r.mode === "false" ? [r.mode] : [];
+  const temporal = temporalType(dt);
+  let keep = r.mode === "any" || !r.mode;
+  if (kind === "bool" && vals.length === 1 && /^(true|false)$/i.test(vals[0])) { row.mode = vals[0].toLowerCase(); keep = true; }
+  else if (kind === "number" && (r.mode === "equals" || r.mode === "oneOf") && vals.length && vals.every((v) => !numberValueProblem(v, prim === "integer"))) keep = true;
+  else if (kind === "number" && r.mode === "range" && !temporalType(from) && [r.min, r.max].every((v) => v === "" || v === undefined || !numberValueProblem(v, prim === "integer"))) keep = true;
+  else if (kind === "text" && temporal && r.mode === "range" && temporalType(from) === temporal) keep = true;
+  else if (kind === "text" && (r.mode === "true" || r.mode === "false") && !enumVals) { row.mode = "equals"; row.equals = r.mode; keep = true; }
+  else if (kind === "text" && (r.mode === "equals" || r.mode === "oneOf") && (!enumVals || vals.every((v) => enumVals.includes(v)))) keep = true;
+  else if (kind === "text" && !enumVals && r.mode === "pattern") keep = true;
+  // A date one-of keeps an xs:string base only on a date type that had it.
+  if (row.oneOfBase && (!temporal || temporalType(from) !== temporal)) delete row.oneOfBase;
+  if (!keep) { row.mode = "any"; row.equals = ""; row.oneOf = []; row.pattern = ""; row.min = ""; row.max = ""; row.minEx = false; row.maxEx = false; delete row.oneOfBase; }
+  return { row, dropped: !keep };
+}
+
+// The template's property as a row with the file's dataType (`fileType`)
+// sees it: that one type, and the template's enumeration only while the file's
+// type holds text.
+function fileTypeProp(L, p, fileType) {
+  const prim = L.S.prim(fileType);
+  const text = !["double", "integer", "boolean", "logical"].includes(prim);
+  return { ...p, dataType: fileType, dataTypes: [fileType], enum: text ? p.enum : null };
+}
+
+// The dataType an opened file gave a standard property when it is not the one
+// the page writes for it (the template's first), and the schema knows it:
+// Pset_ManufacturerOccurrence.SerialNumber as IFCTEXT (template IFCIDENTIFIER),
+// Spain's Qto_SpaceBaseQuantities.NetFloorArea as IFCREAL. The row keeps it,
+// so the file is written back as it was; when the templates do not allow it
+// the audit's pset-datatype error stands and templateTypeRow offers the fix.
+export function fileTypeOf(L, set, name, dataType) {
+  if (!dataType || !set || !name || !L.S.types[dataType]) return null;
+  const p = propertiesOf(L.psets, L.S, set).find((x) => x.name === name);
+  return p && p.dataType !== dataType ? dataType : null;
+}
+
+// Whether a fileType row's type is one the templates refuse (the audit's
+// pset-datatype error), rather than one they also allow.
+export function fileTypeRefused(L, r) {
+  if (!r || r.kind !== "property" || !r.fileType || r.custom || r.untyped) return false;
+  const p = propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  return !!(p && p.dataTypes.length && !p.dataTypes.includes(r.fileType));
+}
+
+// "Use the template's type": a row kept in the file's dataType (fileType)
+// moved to the template's, the value carried over as carryValue says.
+// Returns { row, dropped, dataType } or null when the row has no file type or
+// the template gives no single type.
+export function templateTypeRow(L, r) {
+  if (r.kind !== "property" || !r.fileType || r.custom || r.untyped || r.fixed) return null;
+  const p = propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  if (!p || !p.dataType) return null;
+  const row = { ...r };
+  delete row.fileType;
+  return { ...carryValue(L, r, row, r.fileType, p.dataType, p.enum), dataType: p.dataType };
+}
+
+// The other way: a standard-set row whose model writes the property in a
+// data type the template does not give (`modelType`; Revit writes
+// Pset_*Common.Reference as IFCLABEL where IFC2X3 says IFCIDENTIFIER). A
+// requirement with the template's dataType fails every such object, and one
+// with the model's dataType is a template error in the audit. Without a
+// dataType the property is checked whatever type it holds. Returns
+// { row, dropped } with the row untyped (the text modes, written with no
+// dataType: presence only audits clean, a value draws the value-no-datatype
+// warning), or null when the row is not such a row. A text value carries
+// over; true/false becomes that literal; a range cannot (untyped rows offer
+// no range), nor can any value on a real-number model type (`real`), so
+// those become "any value" with `dropped` set. typeRow turns it back.
+export function untypeRow(L, r, modelType) {
+  if (r.kind !== "property" || r.custom || r.untyped || r.fixed || !r.set || !r.name || !modelType) return null;
+  const p = propertiesOf(L.psets, L.S, r.set).find((x) => x.name === r.name);
+  if (!p || !p.dataTypes.length || p.dataTypes.includes(String(modelType).toUpperCase())) return null;
+  const row = { ...r, untyped: true, dataType: "" };
+  delete row.fileType;
+  // A real number written with no dataType is where checkers part: this one
+  // reads Revit's IFCPOSITIVELENGTHMEASURE(29.99999999999999) mm as 0.03 m
+  // and matches "0.03", IfcTester 0.8.0 does not
+  // (eval/model-any-type-2026-11-17.md), so only presence carries over.
+  const real = (L.S.types[String(modelType).toUpperCase()] && L.S.prim(String(modelType).toUpperCase())) === "double";
+  let keep = !r.mode || r.mode === "any" || (!real && (r.mode === "equals" || r.mode === "oneOf" || r.mode === "pattern"));
+  if (!real && (r.mode === "true" || r.mode === "false")) { row.mode = "equals"; row.equals = r.mode; keep = true; }
+  if (!keep) { row.mode = "any"; row.equals = ""; row.oneOf = []; row.pattern = ""; row.min = ""; row.max = ""; }
+  return { row, dropped: !keep, real };
+}
 
 export const reqComplete = (r) => r.fixed || (r.kind === "property" ? r.set && r.name : r.kind === "attribute" ? r.name : r.kind === "partOf" ? r.entity : true);
 
@@ -596,6 +966,15 @@ function editableRow(L, classes, f) {
       if (!ownSetName(r.set) || (f.dataType && !valueTypes(L.S).includes(f.dataType))) return null;
       r.custom = true; r.dataType = f.dataType || "";
     }
+    // A standard property with no dataType stays without one (valueChoices,
+    // typeRow), with a value or without: a presence-only requirement written
+    // with no dataType accepts the property in any type, and the template's
+    // dataType would narrow it (Rotterdam's permit checks, bim2sim's window
+    // ThermalTransmittance).
+    if (!f.dataType && (!r.custom || (f.value && f.value.present))) r.untyped = true;
+    // A standard property in a dataType the page would not write for it: the
+    // row keeps the file's (templateTypeRow offers the template's).
+    if (!r.custom && f.dataType) { const ft = fileTypeOf(L, r.set, r.name, f.dataType); if (ft) r.fileType = ft; }
   } else if (f.kind === "attribute") {
     r.name = simpleOf(f.name);
     if (!r.name || !commonAttributes(L.S, classes).includes(r.name)) return null;
@@ -608,8 +987,14 @@ function editableRow(L, classes, f) {
     if (!r.entity) return null;
     return r;
   }
-  const ch = valueChoices(L, classes, r);
   const v = f.value;
+  // A number attribute of an EXPRESS NUMBER type (IfcCountMeasure in IFC2X3
+  // and IFC4: BarCount, CountValue) the file restricts on xs:integer: the row
+  // keeps that base and asks for whole numbers, so it writes back the same.
+  // A checker reads each value against the attribute's own type, so 27 on
+  // xs:integer and 27 on xs:double ask for the same thing.
+  if (f.kind === "attribute" && v && v.r && v.r.base === "integer" && attributeValueKind(L.S, classes, r.name).base === "xs:double") r.numBase = "xs:integer";
+  const ch = valueChoices(L, classes, r);
   if (!v || !v.present) return r;
   if (r.cardinality === "prohibited" || !ch.kind) return null;
   const s = simpleOf(v), en = onlyEnum(v);
@@ -619,24 +1004,132 @@ function editableRow(L, classes, f) {
     else return null;
   } else if (en) {
     if (!ch.modes.includes("oneOf") || (ch.enumVals && !en.every((x) => ch.enumVals.includes(x)))) return null;
+    // A number one-of opens as a row only when every listed value is one the
+    // row would accept; otherwise the audit's fault is kept as written.
+    if (ch.kind === "number" && en.some((x) => numberValueProblem(x, ch.integer))) return null;
     r.mode = "oneOf"; r.oneOf = [...en];
+    // A date, time or duration one-of: on its DataTypes base, or on xs:string
+    // (the editor wrote that before 2026-11-17; kept so it writes back the same).
+    if (ch.temporal && v.r.base === "string") r.oneOfBase = "xs:string";
   } else if (v.r.pattern.length === 1 && !v.r.enumeration.length && R_BOUNDS.every((k) => v.r[k] === undefined)) {
     if (!ch.modes.includes("pattern")) return null;
     r.mode = "pattern"; r.pattern = v.r.pattern[0];
-  } else if (!v.r.enumeration.length && !v.r.pattern.length && ["minExclusive", "maxExclusive", "length", "minLength", "maxLength"].every((k) => v.r[k] === undefined)) {
+  } else if (!v.r.enumeration.length && !v.r.pattern.length && ["length", "minLength", "maxLength"].every((k) => v.r[k] === undefined)
+    && (v.r.minInclusive === undefined || v.r.minExclusive === undefined) && (v.r.maxInclusive === undefined || v.r.maxExclusive === undefined)) {
+    // A range: each bound inclusive or exclusive, at most one of each per side.
     if (!ch.modes.includes("range")) return null;
-    r.mode = "range"; r.min = v.r.minInclusive ?? ""; r.max = v.r.maxInclusive ?? "";
+    r.mode = "range"; r.min = v.r.minInclusive ?? v.r.minExclusive ?? ""; r.max = v.r.maxInclusive ?? v.r.maxExclusive ?? "";
+    r.minEx = v.r.minExclusive !== undefined; r.maxEx = v.r.maxExclusive !== undefined;
   } else return null;
   return r;
 }
 
+// The standard set and property a kept property facet most likely meant,
+// when it names a Pset_/Qto_ set the templates lack (Pset_WallComon) or a
+// property its set's template lacks (Portugal's Qto_DuctSegmentBaseQuantities
+// Lenght, Rotterdam's AkousticRating): { set, name, fromSet, fromName }, or
+// null. The audit's nearName picks the name (same letters ignoring case, or
+// one slip on a short name, two on a long one; null on a tie), so the page
+// offers exactly the audit's "did you mean". A standard set the class cannot
+// carry, or a word that is no slip (Mark, Verblijfsruimte), gets none.
+export function nameSuggestion(L, classes, f) {
+  if (!f || f.kind !== "property") return null;
+  const set = simpleOf(f.propertySet), name = simpleOf(f.baseName);
+  if (!set || !name) return null;
+  const sets = commonSets(L, classes);
+  let toSet = set;
+  if (!sets.includes(set)) {
+    if (!/^(Pset|Qto)_/.test(set) || own(L.psets, set)) return null;
+    toSet = nearName(set, sets);
+    if (!toSet) return null;
+  }
+  const props = propertiesOf(L.psets, L.S, toSet).map((p) => p.name);
+  const toName = props.includes(name) ? name : nearName(name, props);
+  if (!toName || (toSet === set && toName === name)) return null;
+  return { set: toSet, name: toName, fromSet: set, fromName: name };
+}
+
+// A parsed facet with the suggested set and property names, everything else
+// as written.
+const renamedFacet = (f, sug) => ({ ...f, propertySet: { present: true, simple: sug.set }, baseName: { present: true, simple: sug.name } });
+
+// A kept requirement with a nameSuggestion: { kind, fixed, rename }, where
+// rename.row is the editable row the corrected facet opens as (when the page
+// writes it back unchanged bar the names) and rename.fixed the corrected facet
+// kept as written otherwise. renameRow() applies it.
+function keptRequirement(L, classes, f) {
+  const out = { kind: f.kind, fixed: facetFromParsed(f) };
+  const sug = nameSuggestion(L, classes, f);
+  if (!sug) return out;
+  const g = renamedFacet(f, sug);
+  const row = editableRow(L, classes, g);
+  const ok = row && facetXml(reqFacet(L, row, classes), L.S, true) === facetXml(facetFromParsed(g), L.S, true);
+  out.rename = { ...sug, row: ok ? row : null, fixed: facetFromParsed(g) };
+  return out;
+}
+
+// The rename a requirement row offers: a kept facet's (keptRequirement, set
+// when the file was opened), or, on an editable standard row whose property
+// its set's template lacks (Rotterdam's AkousticRating written with no
+// dataType opens as a row), the audit's nearest name. Null otherwise.
+export function renameSuggestion(L, classes, r) {
+  if (!r || r.kind !== "property") return null;
+  if (r.fixed) return r.rename || null;
+  if (r.custom || !r.set || !r.name) return null;
+  const props = propertiesOf(L.psets, L.S, r.set).map((p) => p.name);
+  if (!props.length || props.includes(r.name)) return null;
+  const name = nearName(r.name, props);
+  return name ? { set: r.set, name, fromSet: r.set, fromName: r.name } : null;
+}
+
+// "Use Length": the row moved to the name renameSuggestion offers, as an
+// editable row when it opens as one, the corrected facet kept as written
+// otherwise; null when it has none. A row with no dataType keeps none (and
+// its value): only the name changes. A typed editable row with a property
+// the template lacks does not write back unchanged, so it was kept on open.
+export function renameRow(L, classes, r) {
+  const sug = renameSuggestion(L, classes, r);
+  if (!sug) return null;
+  if (r.fixed) return r.rename.row ? { ...r.rename.row } : { kind: r.kind, fixed: r.rename.fixed };
+  const row = { ...r, set: sug.set, name: sug.name };
+  delete row.fileType;
+  return row;
+}
+
 // The schema an opened IDS is mostly written for: the one most specifications
 // name first (IFC4 on a tie or when none is named).
+const vid = (v) => (v.startsWith("IFC4X3") ? "IFC4X3" : v === "IFC4" ? "IFC4" : v === "IFC2X3" ? "IFC2X3" : null);
+// The schema ids an ifcVersion list names ("IFC2X3 IFC4" -> IFC2X3, IFC4).
+export const schemaIdsOf = (ifcVersion) => [...new Set((ifcVersion || []).map(vid).filter(Boolean))];
 export function idsSchema(parsed) {
-  const vid = (v) => (v.startsWith("IFC4X3") ? "IFC4X3" : v === "IFC4" ? "IFC4" : v === "IFC2X3" ? "IFC2X3" : null);
   const tally = {};
   for (const s of parsed.specs) { const id = s.ifcVersion.map(vid).find(Boolean); if (id) tally[id] = (tally[id] || 0) + 1; }
   return Object.entries(tally).sort((a, b) => b[1] - a[1] || (a[0] === "IFC4" ? -1 : b[0] === "IFC4" ? 1 : 0))[0]?.[0] || "IFC4";
+}
+
+// The schemas the page audits a draft against, as the CLI's audit does: the
+// page's own, and every one a specification's own ifcVersion names (an
+// "IFC2X3 IFC4" specification is valid when either schema has what it asks).
+// In the CLI's order (IFC2X3, IFC4, IFC4X3), which decides which schema's
+// reason an error names when every schema has one.
+export const auditSchemaIds = (doc) => {
+  const want = new Set([doc.schema, ...(doc.specs || []).flatMap((s) => schemaIdsOf(s.ifcVersion))]);
+  return ["IFC2X3", "IFC4", "IFC4X3"].filter((id) => want.has(id));
+};
+
+// The schemas every specification of an opened IDS is written for (a
+// specification naming none fits any). The page edits in one schema, so a
+// file whose specifications all say "IFC2X3 IFC4" can be opened in either;
+// importIds picks the one that leaves the most facets editable. Empty when no
+// schema is named by them all; then idsSchema's pick stands.
+export function idsSchemaChoices(parsed) {
+  let common = null;
+  for (const s of parsed.specs) {
+    const ids = schemaIdsOf(s.ifcVersion);
+    if (!ids.length) continue;
+    common = common ? common.filter((x) => ids.includes(x)) : ids;
+  }
+  return common || [];
 }
 
 // An opened IDS file as page state. `parsed` is parseIds(text); `loadFor(id)`
@@ -648,7 +1141,23 @@ export function idsSchema(parsed) {
 // The state is built so that, written back, the IDS asks for what it asked
 // before; a facet the page's controls would change is kept as written.
 export function importIds(parsed, loadFor) {
-  const schema = idsSchema(parsed);
+  // Several schemas every specification names (IFC2X3 IFC4): open in the one
+  // that edits most, the usual pick on a tie. The audit reads each
+  // specification in every schema it names, so a standard set IFC4 has and
+  // IFC2X3 lacks (Qto_SpaceBaseQuantities) is valid there and editable here.
+  const first = idsSchema(parsed);
+  const choices = idsSchemaChoices(parsed);
+  if (choices.length > 1) {
+    const order = [first, "IFC4", "IFC4X3", "IFC2X3"];
+    const tried = choices.sort((a, b) => order.indexOf(a) - order.indexOf(b)).map((id) => importIdsAs(parsed, loadFor, id));
+    const best = tried.reduce((a, b) => (b.rows > a.rows ? b : a));
+    return { ...best, schemaRows: Object.fromEntries(tried.map((t) => [t.state.schema, t.rows])) };
+  }
+  return importIdsAs(parsed, loadFor, first);
+}
+
+// importIds in a given schema (eval/multi-version.mjs compares the picks).
+export function importIdsAs(parsed, loadFor, schema) {
   const L = loadFor(schema);
   const info = { ...(parsed.info || {}) };
   delete info.title; delete info.description;
@@ -700,7 +1209,7 @@ export function importIds(parsed, loadFor) {
       const row = editableRow(L, specBases(spec), f);
       // The row must write the same XML the facet had, or it is kept as written.
       if (row && facetXml(reqFacet(L, row, specBases(spec)), L.S, true) === facetXml(facetFromParsed(f), L.S, true)) { spec.reqs.push(row); rows++; }
-      else { spec.reqs.push({ kind: f.kind, fixed: facetFromParsed(f) }); kept++; }
+      else { spec.reqs.push(keptRequirement(L, specBases(spec), f)); kept++; }
     }
     state.specs.push(spec);
   }

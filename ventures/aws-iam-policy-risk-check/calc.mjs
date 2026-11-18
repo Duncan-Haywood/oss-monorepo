@@ -29,7 +29,7 @@ const readOnly = (a) => /^[a-z0-9-]+:(describe|list|get|batchget|lookup|search|h
 // Accepts a policy, an array of policies, or a wrapper such as {PolicyDocument: {...}} from the AWS CLI.
 export function parsePolicies(text) {
   let data;
-  try { data = JSON.parse(String(text ?? "").replace(/^﻿/, "")); }
+  try { data = JSON.parse(String(text ?? "").replace(/^\uFEFF/, "")); }
   catch (e) { return { error: `Not valid JSON (${e.message}). Paste a policy document such as {"Version":"2012-10-17","Statement":[...]}.` }; }
   const out = [];
   const visit = (d, label) => {

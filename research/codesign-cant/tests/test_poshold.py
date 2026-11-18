@@ -248,3 +248,23 @@ def test_milestone_7l_score_passes_perr_max_and_accepts_a_per_design_clip():
     both = poshold.score(x, 4, 5, perr_max=clip[:, None, None], **kw)[0]
     alone = [poshold.score(x[i:i + 1], 4, 5, perr_max=float(clip[i]), **kw)[0][0] for i in range(2)]
     assert np.allclose(both, alone)
+
+
+def test_trace_is_inert_and_matches_the_position_rms():
+    """Milestone 7y: `rollout(trace=...)` records one (N, E, 2) position per step, NaN after divergence, and changes nothing else."""
+    from codesign_cant import aero
+    rng = np.random.default_rng(3)
+    x = rng.uniform(0.3, 0.7, (2, 12)); x[:, 2] = 0.4
+    L = aero.L_RANGE[0] + x[:, 0] * (aero.L_RANGE[1] - aero.L_RANGE[0])
+    D = aero.D_RANGE[0] + x[:, 1] * (aero.D_RANGE[1] - aero.D_RANGE[0])
+    sz = aero.size(L, D, np.deg2rad(80.0) * x[:, 2], kappa_per_d=0.081, actuator="hover")
+    g = poshold.phys_gains(x[:, 3:12])
+    tr = []
+    a = poshold.rollout(sz, g, 0.081 * D, 3, 7, steps=500)
+    b = poshold.rollout(sz, g, 0.081 * D, 3, 7, steps=500, trace=tr)
+    assert np.array_equal(a["pos"], b["pos"]) and np.array_equal(a["dead_ep"], b["dead_ep"])
+    p = np.stack(tr, 0)
+    assert p.shape == (500, 2, 3, 2)
+    alive = ~b["dead_ep"]
+    rms = np.sqrt((p ** 2).sum(-1).mean(0))
+    assert np.allclose(rms[alive], b["pos_ep"][alive])

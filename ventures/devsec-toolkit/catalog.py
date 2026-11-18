@@ -266,9 +266,15 @@ CHECKS = [
                                fix=lambda i: f"Move to a supported {i.get('image')} release (source: {i.get('source')}).")),
     dict(id="docker-base-image-pin", venture="docker-base-image-pin-check", category="containers",
          title="Base images referenced by a mutable tag", applies=DOCKERFILES, **_py("docker-base-image-pin-check"),
-         adapt=classified_list("classification", {"mutable": "low"},
-                               message=lambda i: f"FROM {i.get('image')}:{i.get('tag')} is a mutable tag: a rebuild can silently pull a different image.",
-                               fix=lambda i: f"Pin by digest (image:tag@sha256:...). Resolve it with: {i.get('remediation')}")),
+         adapt=classified_list("classification", {"mutable": "low", "unresolved": "low"},
+                               message=lambda i: (
+                                   f"FROM {i.get('image')} uses a build arg with no default, so nothing in the file shows it is pinned."
+                                   if i.get("classification") == "unresolved" else
+                                   f"FROM {i.get('image')}:{i.get('tag')} is a mutable tag: a rebuild can silently pull a different image."),
+                               fix=lambda i: (
+                                   f"Give the build arg a default pinned by digest ({i.get('note')})."
+                                   if i.get("classification") == "unresolved" else
+                                   f"Pin by digest (image:tag@sha256:...). Resolve it with: {i.get('remediation')}"))),
 
     # Kubernetes
     dict(id="k8s-pod-security", venture="k8s-pod-security-check", category="kubernetes",

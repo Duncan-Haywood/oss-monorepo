@@ -1,0 +1,538 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyebsK5nHteWPrZYEna",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T14:39:28Z",
+  "ended": "2026-11-17T14:39:56Z",
+  "wall_minutes": 20.38,
+  "tokens_in": 7548485,
+  "tokens_out": 39579,
+  "cost_usd": 3.1774,
+  "tool_calls": 77,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16971",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A kill loop over `ps aux | grep oauth-setup.mjs` matched its own bash command line and killed the shell (exit 144) before the edit ran; reran with pgrep -f '[o]auth-setup.mjs$'.",
+    "Orphaned oauth-setup.mjs processes from a hung manual mutant check held port 8789, making the default-port test skip until they were killed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "rerun took over 7 minutes for three fast suites and reported line-21 mutants of oauth-setup.mjs as caught_after_fix: true while the test actually hung on them (a by-hand check showed the hang); a mutant that makes a spawned script wait forever needs the suite to time out on its own, and the tool's verdict should not be trusted for it without a manual check."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix open entries first, but all 11 open entries are control-plane edits needing owner approval, so step 0 is a no-op for most runs; the list could mark control-plane entries as 'awaiting owner' so runs don't re-read them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not fix the 11 open defects; every one is a .github/workflows, prompts/ or control_plane_guard.py change that needs the owner's approval in its own PR.",
+      "did": "Left them open, spent the run on new targets and a class guard.",
+      "result": "5 new real defects fixed, contract widened to 195 more files."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-an-untested-oauth-setup-script-and-195-usage-counters.md"
+  ],
+  "goal": null,
+  "notes": "Guard added (4b): platform/ci/usage_contract.mjs checkParamModule covers the recordUsage(storage, optedOut, event)/readOptOut/writeOptOut design (195 copies, unchecked before; 1084 -> 1279 files under contract), run in CI by check_storage_guard.py. First run caught 3 copies keeping a stored non-object counter (fixed). test_check_storage_guard.py: 43 tests OK, including 6 param-design mutants that must fail the contract. Venture suites: sales-agent 588 tests, mini-split 130, snow-plow 32, einvoice-preflight 2652, vpat-acr-generator 37, ada-title-ii-evidence 34, all passing (run_venture_tests.py).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/snow-plow-contract-calculator/engine.mjs",
+        "test": "node --test ventures/snow-plow-contract-calculator/**/*.test.mjs  (in .)",
+        "seed": 981690015,
+        "commit": "b41b8396b",
+        "sites": 365,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 33,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "mediumDepth: 4,",
+            "after": "mediumDepth: 5,",
+            "line_text": "  mediumDepth: 4,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 116,
+            "col": 16,
+            "operator": "neq-flip",
+            "before": "if (raw.probs !== undefined && raw.probs !== null && raw.probs !== \"\") {",
+            "after": "if (raw.probs === undefined && raw.probs !== null && raw.probs !== \"\") {",
+            "line_text": "  if (raw.probs !== undefined && raw.probs !== null && raw.probs !== \"\") {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 156,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "if (!quotedAt[k] && !quotedAt[k + 1] && /^\\$\\d{1,3}$/.test(out[k]) && /^\\d{3}(\\.\\d*)?$/.test(out[k + 1])) {",
+            "after": "if (!quotedAt[k] && !quotedAt[k + 2] && /^\\$\\d{1,3}$/.test(out[k]) && /^\\d{3}(\\.\\d*)?$/.test(out[k + 1])) {",
+            "line_text": "    if (!quotedAt[k] && !quotedAt[k + 1] && /^\\$\\d{1,3}$/.test(out[k]) && /^\\d{3}(\\.\\d*)?$/.test(out[k + 1])) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: a quoted field after $1 must not trip the thousands-comma check, and an unquoted 200 followed by a quoted field must; new engine.test.mjs test."
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 201,
+            "col": 25,
+            "operator": "or-to-and",
+            "before": "if (d < site.trigger || counts[i] <= 0) return;",
+            "after": "if (d < site.trigger && counts[i] <= 0) return;",
+            "line_text": "    if (d < site.trigger || counts[i] <= 0) return;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 268,
+            "col": 69,
+            "operator": "eq-flip",
+            "before": "worstYear: YEARS.reduce((a, y) => (effective[y] !== null && (a === null || effective[y] < a) ? effective[y] : a), null),",
+            "after": "worstYear: YEARS.reduce((a, y) => (effective[y] !== null && (a !== null || effective[y] < a) ? effective[y] : a), null),",
+            "line_text": "      worstYear: YEARS.reduce((a, y) => (effective[y] !== null && (a === null || effective[y] < a) ? effective[y] : a), null),",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: worstYear must equal the minimum non-null effective rate; new test over every model."
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 289,
+            "col": 91,
+            "operator": "div-to-times",
+            "before": "walkAway: seasons.normal.cost + seasons.normal.hours * o.targetHourly * (o.walkAwayPct / 100),",
+            "after": "walkAway: seasons.normal.cost + seasons.normal.hours * o.targetHourly * (o.walkAwayPct * 100),",
+            "line_text": "    walkAway: seasons.normal.cost + seasons.normal.hours * o.targetHourly * (o.walkAwayPct / 100),",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 329,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "if (typeof f === \"string\") { errors.push(`Line ${i + 1}: ${f}`); return; }",
+            "after": "if (typeof f !== \"string\") { errors.push(`Line ${i + 1}: ${f}`); return; }",
+            "line_text": "    if (typeof f === \"string\") { errors.push(`Line ${i + 1}: ${f}`); return; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/snow-plow-contract-calculator/engine.mjs",
+            "line": 376,
+            "col": 43,
+            "operator": "minus-to-plus",
+            "before": "const worst = a.byModel[a.byModel.length - 1];",
+            "after": "const worst = a.byModel[a.byModel.length + 1];",
+            "line_text": "  const worst = a.byModel[a.byModel.length - 1];",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/sales-agent/self-host/oauth-setup.mjs",
+        "test": "node --test ventures/sales-agent/**/*.test.mjs  (in .)",
+        "seed": 304923064,
+        "commit": "b41b8396b",
+        "sites": 15,
+        "baseline_seconds": 3.6,
+        "mutants": [
+          {
+            "file": "ventures/sales-agent/self-host/oauth-setup.mjs",
+            "line": 8,
+            "col": 60,
+            "operator": "or-to-and",
+            "before": "const env = process.env, port = Number(env.OAUTH_SETUP_PORT || 8789), redirect = `http://127.0.0.1:${port}/callback`;",
+            "after": "const env = process.env, port = Number(env.OAUTH_SETUP_PORT && 8789), redirect = `http://127.0.0.1:${port}/callback`;",
+            "line_text": "const env = process.env, port = Number(env.OAUTH_SETUP_PORT || 8789), redirect = `http://127.0.0.1:${port}/callback`;",
+            "caught": false,
+            "seconds": 3.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: oauth-setup.mjs had no test at all; oauth-setup.test.mjs runs the script against a local token endpoint."
+          },
+          {
+            "file": "ventures/sales-agent/self-host/oauth-setup.mjs",
+            "line": 8,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "const env = process.env, port = Number(env.OAUTH_SETUP_PORT || 8789), redirect = `http://127.0.0.1:${port}/callback`;",
+            "after": "const env = process.env, port = Number(env.OAUTH_SETUP_PORT || 8790), redirect = `http://127.0.0.1:${port}/callback`;",
+            "line_text": "const env = process.env, port = Number(env.OAUTH_SETUP_PORT || 8789), redirect = `http://127.0.0.1:${port}/callback`;",
+            "caught": false,
+            "seconds": 3.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: oauth-setup.mjs had no test at all; oauth-setup.test.mjs runs the script against a local token endpoint."
+          },
+          {
+            "file": "ventures/sales-agent/self-host/oauth-setup.mjs",
+            "line": 13,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (u.pathname !== \"/callback\") { res.writeHead(404); return res.end(); }",
+            "after": "if (u.pathname === \"/callback\") { res.writeHead(404); return res.end(); }",
+            "line_text": "  if (u.pathname !== \"/callback\") { res.writeHead(404); return res.end(); }",
+            "caught": false,
+            "seconds": 4.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: oauth-setup.mjs had no test at all; oauth-setup.test.mjs runs the script against a local token endpoint."
+          },
+          {
+            "file": "ventures/sales-agent/self-host/oauth-setup.mjs",
+            "line": 15,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "if (u.searchParams.get(\"state\") !== state) return done(400, \"state mismatch\");",
+            "after": "if (u.searchParams.get(\"state\") !== state) return done(401, \"state mismatch\");",
+            "line_text": "  if (u.searchParams.get(\"state\") !== state) return done(400, \"state mismatch\");",
+            "caught": false,
+            "seconds": 4.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: oauth-setup.mjs had no test at all; oauth-setup.test.mjs runs the script against a local token endpoint."
+          },
+          {
+            "file": "ventures/sales-agent/self-host/oauth-setup.mjs",
+            "line": 17,
+            "col": 77,
+            "operator": "or-to-and",
+            "before": "const token = await exchangeCode(env, { code: u.searchParams.get(\"code\") || \"\", redirect, verifier });",
+            "after": "const token = await exchangeCode(env, { code: u.searchParams.get(\"code\") && \"\", redirect, verifier });",
+            "line_text": "    const token = await exchangeCode(env, { code: u.searchParams.get(\"code\") || \"\", redirect, verifier });",
+            "caught": false,
+            "seconds": 3.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: oauth-setup.mjs had no test at all; oauth-setup.test.mjs runs the script against a local token endpoint."
+          },
+          {
+            "file": "ventures/sales-agent/self-host/oauth-setup.mjs",
+            "line": 19,
+            "col": 76,
+            "operator": "const-plus-one",
+            "before": "} catch (e) { done(500, \"failed\"); console.error(e.message); process.exit(1); }",
+            "after": "} catch (e) { done(500, \"failed\"); console.error(e.message); process.exit(2); }",
+            "line_text": "  } catch (e) { done(500, \"failed\"); console.error(e.message); process.exit(1); }",
+            "caught": false,
+            "seconds": 3.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: oauth-setup.mjs had no test at all; oauth-setup.test.mjs runs the script against a local token endpoint."
+          },
+          {
+            "file": "ventures/sales-agent/self-host/oauth-setup.mjs",
+            "line": 21,
+            "col": 88,
+            "operator": "plus-to-minus",
+            "before": "srv.listen(port, \"127.0.0.1\", () => console.log(\"Open this URL and approve access:\\n\\n\" + authUrl(env, { redirect, state, challenge }) + \"\\n\"));",
+            "after": "srv.listen(port, \"127.0.0.1\", () => console.log(\"Open this URL and approve access:\\n\\n\" - authUrl(env, { redirect, state, challenge }) + \"\\n\"));",
+            "line_text": "srv.listen(port, \"127.0.0.1\", () => console.log(\"Open this URL and approve access:\\n\\n\" + authUrl(env, { redirect, state, challenge }) + \"\\n\"));",
+            "caught": false,
+            "seconds": 3.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: oauth-setup.mjs had no test at all; oauth-setup.test.mjs runs the script against a local token endpoint. This mutant prints a broken URL and the script waits forever: the first version of the test hung rather than failed (rerun still read caught, apparently via an orphaned process holding port 8789); added a 5 s limit and checked by hand that both line-21 mutants now fail in under a second."
+          },
+          {
+            "file": "ventures/sales-agent/self-host/oauth-setup.mjs",
+            "line": 21,
+            "col": 135,
+            "operator": "plus-to-minus",
+            "before": "srv.listen(port, \"127.0.0.1\", () => console.log(\"Open this URL and approve access:\\n\\n\" + authUrl(env, { redirect, state, challenge }) + \"\\n\"));",
+            "after": "srv.listen(port, \"127.0.0.1\", () => console.log(\"Open this URL and approve access:\\n\\n\" + authUrl(env, { redirect, state, challenge }) - \"\\n\"));",
+            "line_text": "srv.listen(port, \"127.0.0.1\", () => console.log(\"Open this URL and approve access:\\n\\n\" + authUrl(env, { redirect, state, challenge }) + \"\\n\"));",
+            "caught": false,
+            "seconds": 3.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: oauth-setup.mjs had no test at all; oauth-setup.test.mjs runs the script against a local token endpoint. This mutant prints a broken URL and the script waits forever: the first version of the test hung rather than failed (rerun still read caught, apparently via an orphaned process holding port 8789); added a 5 s limit and checked by hand that both line-21 mutants now fail in under a second."
+          }
+        ]
+      },
+      {
+        "target": "ventures/mini-split-bid-calculator/usage.mjs",
+        "test": "node --test ventures/mini-split-bid-calculator/**/*.test.mjs  (in .)",
+        "seed": 737862495,
+        "commit": "b41b8396b",
+        "sites": 22,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/mini-split-bid-calculator/usage.mjs",
+            "line": 20,
+            "col": 98,
+            "operator": "eq-flip",
+            "before": "return globalThis.navigator?.doNotTrack === '1' || globalThis.navigator?.globalPrivacyControl === true;",
+            "after": "return globalThis.navigator?.doNotTrack === '1' || globalThis.navigator?.globalPrivacyControl !== true;",
+            "line_text": "    return globalThis.navigator?.doNotTrack === '1' || globalThis.navigator?.globalPrivacyControl === true;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mini-split-bid-calculator/usage.mjs",
+            "line": 22,
+            "col": 11,
+            "operator": "false-to-true",
+            "before": "return false;",
+            "after": "return true;",
+            "line_text": "    return false;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: mini-split usage.test.mjs gained tests for a stored opt-out, a stored non-object counter, a blocked store and a throwing navigator; the same mutants are pinned in platform/ci/test_check_storage_guard.py against the shared contract."
+          },
+          {
+            "file": "ventures/mini-split-bid-calculator/usage.mjs",
+            "line": 26,
+            "col": 65,
+            "operator": "false-to-true",
+            "before": "export function recordUsage(storage = usageStorage(), optedOut = false, event = 'bid_calculated') {",
+            "after": "export function recordUsage(storage = usageStorage(), optedOut = true, event = 'bid_calculated') {",
+            "line_text": "export function recordUsage(storage = usageStorage(), optedOut = false, event = 'bid_calculated') {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mini-split-bid-calculator/usage.mjs",
+            "line": 28,
+            "col": 52,
+            "operator": "or-to-and",
+            "before": "if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;",
+            "after": "if (optedOut || !storage || readOptOut(storage) && honorsBrowserSignal()) return;",
+            "line_text": "    if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: mini-split usage.test.mjs gained tests for a stored opt-out, a stored non-object counter, a blocked store and a throwing navigator; the same mutants are pinned in platform/ci/test_check_storage_guard.py against the shared contract."
+          },
+          {
+            "file": "ventures/mini-split-bid-calculator/usage.mjs",
+            "line": 30,
+            "col": 69,
+            "operator": "or-to-and",
+            "before": "let current = JSON.parse(storage.getItem('mini-split-bid-usage') || '{}');",
+            "after": "let current = JSON.parse(storage.getItem('mini-split-bid-usage') && '{}');",
+            "line_text": "    let current = JSON.parse(storage.getItem('mini-split-bid-usage') || '{}');",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mini-split-bid-calculator/usage.mjs",
+            "line": 31,
+            "col": 48,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current !== 'object' && Array.isArray(current)) current = {};",
+            "line_text": "    if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: mini-split usage.test.mjs gained tests for a stored opt-out, a stored non-object counter, a blocked store and a throwing navigator; the same mutants are pinned in platform/ci/test_check_storage_guard.py against the shared contract."
+          },
+          {
+            "file": "ventures/mini-split-bid-calculator/usage.mjs",
+            "line": 32,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) + 2;",
+            "line_text": "    current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mini-split-bid-calculator/usage.mjs",
+            "line": 51,
+            "col": 11,
+            "operator": "false-to-true",
+            "before": "return false;",
+            "after": "return true;",
+            "line_text": "    return false;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: mini-split usage.test.mjs gained tests for a stored opt-out, a stored non-object counter, a blocked store and a throwing navigator; the same mutants are pinned in platform/ci/test_check_storage_guard.py against the shared contract."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/sales-agent/self-host/oauth.mjs",
+        "issue": "authUrl and exchangeCode threw a raw TypeError for an unknown OAUTH_PROVIDER (e.g. 'Google'), crashing oauth-setup.mjs after it opened its port; tokenProvider alone named the valid providers. Fixed with providerOf() and an up-front check in oauth-setup.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16971"
+      },
+      {
+        "file": "ventures/sales-agent/self-host/oauth-setup.mjs",
+        "issue": "A declined consent (?error=access_denied) posted an empty code to the token endpoint and reported its invalid_grant/invalid_request, which reads like a misconfigured app. Now answers 400 'Authorization was not granted' and exits 1 without calling the token endpoint.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16971"
+      },
+      {
+        "file": "ventures/einvoice-preflight/usage.mjs",
+        "issue": "A stored counter that was a JSON array was kept, so every later count was lost (JSON.stringify drops named keys on an array). Found by the new checkParamModule contract.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16971"
+      },
+      {
+        "file": "ventures/vpat-acr-generator/usage.mjs",
+        "issue": "A stored counter that was valid JSON but not a plain object ([], 5, \"text\", null, true) was kept; counting stopped for that visitor for good. Found by checkParamModule.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16971"
+      },
+      {
+        "file": "ventures/ada-title-ii-evidence/usage.mjs",
+        "issue": "Same as vpat-acr-generator (same vendored copy). Found by checkParamModule.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16971"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6136e1a9-9f5a-5a4a-aece-5e89558f4358",
+    "transcripts": 1,
+    "first": "2026-11-17T14:39:28Z",
+    "last": "2026-11-17T14:59:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 148,
+        "output": 39579,
+        "thinking": 8545,
+        "cache_read": 7436081,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112256,
+        "api_equivalent_usd": 3.1774,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 148,
+      "output": 39579,
+      "thinking": 8545,
+      "cache_read": 7436081,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112256,
+      "api_equivalent_usd": 3.1774,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 72,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.38,
+      "active_minutes": 20.38,
+      "model_minutes": 6.37,
+      "tool_minutes": 14.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: mutation triage of 3 files, a process-level test harness for the OAuth script, a new shared contract shape over 195 files and 5 fixes",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 188.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

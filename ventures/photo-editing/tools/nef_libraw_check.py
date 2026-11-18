@@ -26,7 +26,11 @@ black level, the CFA or the visible area differs (the white level is reported, n
 takes some bodies' from a per-model table). Real files used on 2026-11-14: the
 seven NEFs in drewnoakes/metadata-extractor-images (``nef/``),
 ``eval/nikon-nef-reader-2026-11-14.md``; visible area added 2026-11-15,
-``eval/nikon-nef-visible-area-2026-11-15.md``.
+``eval/nikon-nef-visible-area-2026-11-15.md``. Coolpix NRW and E-series NEF
+added 2026-11-18: thirteen files from raw.pixls.us (CC0),
+``eval/nikon-nrw-reader-2026-11-18.md``; LibRaw reads the P330's 16-bit words
+shifted down 4 bits and keeps the P7700's and P7800's whole, so a file whose
+sensels match LibRaw's after that shift passes with ``libraw_scale`` set.
 """
 
 from __future__ import annotations
@@ -65,9 +69,15 @@ def check(path: Path, engines: list[str]) -> dict:
         out[f"read_s_{engine}"] = round(time.perf_counter() - t, 2)
         ours = np.frombuffer(raw.values, dtype=np.uint16).reshape(raw.height, raw.width)
         same_shape = ours.shape == ref.shape
-        out[f"sensels_differing_{engine}"] = (
-            int((ours[:decoded] != ref[:decoded]).sum()) if same_shape else "shape differs"
-        )
+        differing = int((ours[:decoded] != ref[:decoded]).sum()) if same_shape else "shape differs"
+        if same_shape and differing and int(ours.max()) > 4095 and int(ref.max()) <= 4095:
+            # LibRaw shifts some 16-bit-word Coolpix bodies' sensels right by 4 (the P330; it keeps the P7700's
+            # and P7800's whole). We keep every body's words whole: compare at LibRaw's scale and say so.
+            scaled = int(((ours[:decoded] >> 4) != ref[:decoded]).sum())
+            if scaled == 0:
+                out["libraw_scale"] = "1/16 (LibRaw drops the low 4 bits of this body's words)"
+                differing = 0
+        out[f"sensels_differing_{engine}"] = differing
     out["sensels"] = int(ref.size)
     out["storage"] = raw.notes[0] if raw.notes else ""
     e = raw.ifd.entries
@@ -76,7 +86,7 @@ def check(path: Path, engines: list[str]) -> dict:
     cw = lib.camera_whitebalance
     lib_wb = [round(cw[0] / cw[1], 4), round(cw[2] / cw[1], 4)] if cw[1] else None
     out["wb_ours"], out["wb_libraw"] = ours_wb, lib_wb
-    out["black_ours"] = [int(b) for b in e[rd.TAG_BLACK_LEVEL]]
+    out["black_ours"] = [int(b) // (16 if "libraw_scale" in out else 1) for b in e[rd.TAG_BLACK_LEVEL]]
     out["black_libraw"] = [int(b) for b in lib.black_level_per_channel]
     pat = e[rd.TAG_CFA_PATTERN]
     out["cfa_ours"] = "".join(CFA_NAMES[p] for p in pat)

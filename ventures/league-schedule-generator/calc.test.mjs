@@ -392,10 +392,10 @@ test("the example league validates and uses a makeup round for the blackout", ()
 });
 
 test("share links round-trip every field, including non-ASCII names, and reject junk", () => {
-  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", pins: "A v B -> 2026-12-01", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", lateTeams: "2026-11-03 B", finishBy: "2026-12-15", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B", duties: "Snack stand: 2", sheetTitle: "Spring", sheetContact: "Sam" };
+  const f = { ...sampleFields(), teams: "Zoë's Ünited\nFC Ñandú\nA\nB", results: "A 1 - 0 B", pins: "A v B -> 2026-12-01", rainouts: "2026-10-13 A", withdrawals: "2026-11-03 B", lateTeams: "2026-11-03 B", finishBy: "2026-12-15", timeLimits: "A: 18:00", courtLimits: "A: Court 1", courtClosures: "Court 2: 2026-10-13", officials: "Pat (A): Tue max 4", grounds: "A, B", linked: "A, B", duties: "Snack stand: 2", sheetTitle: "Spring", sheetContact: "Sam", platformLocation: "Rec Center", teamSnapDivision: "Coed", teamSnapArrival: "30", sportsEngineIds: "A = 1" };
   const code = encodeFields(f);
   assert.match(code, /^[A-Za-z0-9_-]+$/);
-  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "", rounds: "", gamesPerNight: "", carryOver: false, carryOverPick: "balanced", carryOverKeep: "" });
+  assert.deepEqual(decodeFields(code), { ...f, seed: 1, minutes: 60, playoffDouble: false, playoffThird: false, scoring: "", rounds: "", balanceSeeds: false, gamesPerNight: "", carryOver: false, carryOverPick: "balanced", carryOverKeep: "" });
   assert.deepEqual(decodeFields("#s=" + code), decodeFields(code));
   assert.equal(decodeFields(encodeFields({ finishBy: "<b>" })).finishBy, "", "finishBy must be a date");
   const again = decodeFields(code);
@@ -2175,4 +2175,28 @@ test("every field the page reads survives a share link (lateTeams and finishBy w
   const back = decodeFields(encodeFields({ weekdays: ["Tue"] , ...Object.fromEntries(keys.map((k) => [k, k === "finishBy" ? "2026-12-15" : "x"])) }));
   const lost = keys.filter((k) => !(k in back));
   assert.deepEqual(lost, [], "add these to SHARE_KEYS and decodeFields in calc.mjs");
+});
+
+test("calendar ids name the fixture: a rainout keeps them, bumps SEQUENCE, and a withdrawal sends cancellations", () => {
+  const s = buildSchedule({ ...baseSpec(6), double: true });
+  const ids = s.rounds.flatMap((r) => r.matches.map((m) => m.fixture));
+  assert.equal(new Set(ids).size, ids.length);
+  const ev = (t) => new Map([...t.matchAll(/BEGIN:VEVENT\r\n([\s\S]*?)END:VEVENT/g)].map((m) => [m[1].match(/UID:(.*)\r\n/)[1], m[1]]));
+  const a = ev(scheduleIcs(s, 0, "20261001T000000Z"));
+  const day = s.rounds[0].day;
+  const r = applyRainouts(s, new Date(day * 86400000).toISOString().slice(0, 10));
+  assert.ok(r.moves.length > 0);
+  const b = ev(scheduleIcs(r.schedule, 0, "20261001T000000Z"));
+  assert.deepEqual([...b.keys()].sort(), [...a.keys()].sort());
+  const moved = [...b.values()].filter((x) => /SEQUENCE:1/.test(x));
+  assert.equal(moved.length, 1);
+  for (const x of a.values()) assert.match(x, /SEQUENCE:0/);
+  const w = applyWithdrawals(r.schedule, s.teams[5]);
+  const c = ev(scheduleIcs(w.schedule, 0, "20261001T000000Z"));
+  assert.deepEqual([...c.keys()].sort(), [...b.keys()].sort(), "withdrawn fixtures stay as cancelled events");
+  const cancelled = [...c.values()].filter((x) => /STATUS:CANCELLED/.test(x));
+  assert.equal(cancelled.length, 2);
+  for (const x of cancelled) assert.match(x, /SUMMARY:Cancelled: /);
+  const off = scheduleIcs(s, null, "20261001T000000Z", "Nobody");
+  assert.doesNotMatch(off, /STATUS:CANCELLED/);
 });

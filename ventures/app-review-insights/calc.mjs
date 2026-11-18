@@ -62,7 +62,7 @@ export function parseCsv(text) {
   // Each row carries a non-enumerable `line`: the file line it starts on,
   // so a reader can name it after blank lines or quoted line breaks.
   let row = [], field = "", quoted = false, line = 1, start = 1;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   // Some exports are tab or semicolon separated; take the delimiter the header line uses most.
   const head = src.split(/\r?\n/, 1)[0] || "";
   const count = (ch) => (head.match(new RegExp(ch === "\t" ? "\\t" : ch, "g")) || []).length;

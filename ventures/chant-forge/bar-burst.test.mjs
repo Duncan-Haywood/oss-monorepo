@@ -18,7 +18,8 @@ const read = (s, o) => { const j = U.indexOf(s), n = notes[j]; return readCoda(x
 
 test('lag and bob on D#4: a voice bar the closure rule misses, read as a nasal and as nothing, read as their stops with barBurst (the default)', () => {
   assert.equal(read('lag', { barBurst: false }).cls, 'nasal');
-  assert.equal(read('bob', { barBurst: false }).cls, 'none');
+  // the reader before barBurst had no lip-closure rule either: with lipShut alone the bar's entry reads as a nasal
+  assert.equal(read('bob', { barBurst: false, lipShut: false }).cls, 'none');
   const g = read('lag'), b = read('bob');
   assert.deepEqual([g.cls, g.voiced, g.place], ['stop', true, 'vel']);
   assert.deepEqual([b.cls, b.voiced, b.place], ['stop', true, 'lab']);

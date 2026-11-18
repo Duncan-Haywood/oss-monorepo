@@ -1,5 +1,29 @@
 # Research log
 
+## 2026-11-17 · A margin-backoff rule for an empty margin-shifted set: outcome. Development 32 of 34 (case73 API clean at round 8, +0.96 %), none lost; held-out it fires on 1 of 19 and changes no verdict
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_backoff.txt`. B1, B2, B4, B5, B6 held; B3, B7 refuted.
+- Rule B fires on case73 API and case24 API (margins halved once). case73 API finishes for the first time; case24 API finishes two rounds sooner at +0.17 % instead of +0.71 %. case240 TYP and SAD stay empty at an eighth of the margins, so the rule declines and their frozen finishes stand.
+- Held-out it fires only on case588 API: same round (19), cost +0.66 % instead of +0.87 %. The two-solver panel prevented PIPS-only firings on case179 SAD and case793 API. The check costs up to 57 minutes on a 1,354-bus case, so it is a stall diagnostic, not a per-case step.
+
+## 2026-11-17 · A margin-backoff rule for an empty margin-shifted set (plan)
+- Plan, rule B (a two-solver check of the margin-shifted AC OPF before round 1; on an empty set, halve every margin up to three times) and predictions B1 to B7: `research/infra-dcopf/LOG.md` (2026-11-17); script `research/infra-dcopf/experiments/run_backoff.py`. Frozen on the 34 development cases, scored on the held-out 24.
+
+## 2026-11-17 · Do the two development stalls come from the repair's own safety margins? Outcome. case73 API: its margin-shifted AC OPF has no solution on PIPS or IPOPT; case118 API: it solves; zero margins finish neither and lose 5 to 21 finishers
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_margin.txt`. A1, M2, Z3 held; M1, M3, Z1, Z2, Z4 refuted. Reproduction gate passed on all 34 cases.
+- case73 API's AC optimum sits on its voltage bounds (all 14 generator buses at the ceiling, 7 PQ buses at the floor) and 10 branch ends at their rating; pulling in thermal and voltage bounds together leaves no AC point (each alone is solvable, +0.41 % and +1.99 %). The repair stalls because it aims at an empty set.
+- The shifted OPF is empty on 4 of 34 cases by both solvers, and the repair still finishes 3 of them; the 0.001 pu voltage margin costs up to +6.9 % (case57 API) at the shifted optimum.
+
+## 2026-11-17 · Do the two development stalls come from the repair's own safety margins? (plan)
+- Plan and predictions A1, M1 to M3 (margin-shifted AC OPF) and Z1 to Z4 (the repair with margins removed): `research/infra-dcopf/LOG.md` (2026-11-17); script `research/infra-dcopf/experiments/run_margin.py`.
+
+## 2026-11-17 · What stalls the repair on case73 and case118 API: outcome. case73 API is a local infeasibility of the repair's controls (the l1 voltage violation is within 1.6 &times; 10<sup>&minus;5</sup> of stationary); case118 API is the acceptance test; acceptance on the penalty changes no verdict
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_elastic.txt`. S1, S2, V1 refuted; S3, S4, V2 held.
+- On case73 API from round 22 the elastic QP can lower the margin-shifted voltage violation by at most 8.8 &times; 10<sup>&minus;6</sup> at any box scale from 1 to 10<sup>&minus;3</sup>: two PQ buses sit up to 0.002 pu below V<sub>min</sub>, 14 of 33 setpoints are on their upper bound and the lines on their margins. Proposition 2 applies; the earlier Q7 reading (not stationary, because the step scales with the box) is withdrawn: the step moves along directions that leave the violation flat.
+- On case118 API every late elastic step lowers the QP's penalty (sum of overloads) and is rejected by the merit (worst overload). Accepting elastic rounds on the penalty instead finishes neither case and loses none of the 31 development finishers (one finishes a round later, +0.68 % instead of +0.34 %).
+
+## 2026-11-17 · Is case73 API's stall a stationary point of the elastic penalty? (plan)
+- Plan and predictions S1 to S4 (arm T, the elastic QP's own penalty logged per round with a box probe) and V1, V2 (arm P, acceptance on the penalty on elastic rounds): `research/infra-dcopf/LOG.md` (2026-11-17); script `research/infra-dcopf/experiments/run_elastic.py`.
+
 ## 2026-11-17 · Milestone 7, theory half: a step-based convergence statement replacing H4. Halvings bounded by a logarithm (H* &le; 12); accepted rounds, 162 of 228 misses, have no a priori bound; case73 API's stall is not first-order stationarity
 - Statement and proofs: [`theory.md`](theory.md) (Proposition 1, Theorems 1 to 3, Proposition 2; assumptions A1 smooth power flow along the steps, A2 hard-QP feasibility). Plan, predictions Q1 to Q7 and outcome: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_theory.txt` (from the 2026-11-13 traces, no new solves).
 - **Q1 to Q4 held:** halvings never exceed H&#770;* (range 1 to 12, observed 0 to 5); the finishing step is inside the worst-case radius on only 4 of 31 finishers; steps shrink before the finish on 28 of 28. **Q5 to Q7 refuted:** round 1's curvature does not predict the path (15 of 39); the path-length bound is 24x loose (median); case73 API's elastic step scales with its box over a 250-fold halving, so Proposition 2's d = 0 hypothesis is not met, which corrects the 2026-11-13 "stationary point" reading.

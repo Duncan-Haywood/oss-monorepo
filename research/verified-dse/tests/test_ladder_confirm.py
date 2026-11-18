@@ -17,7 +17,8 @@ def test_designs_are_unseen():
     run = _load("run")
     seen = set()
     for f in EXP.parent.glob("*/results*.jsonl"):
-        if f.parent.name == "ladder_confirm":
+        # later milestones rerun these same blind designs at other operating points (141 to 144); they are not prior exposure
+        if f.parent.name in ("ladder_confirm", "util65_blind", "util65_rest", "corner_ss_blind", "corner_ff_blind"):
             continue
         for line in f.read_text().splitlines():
             try:

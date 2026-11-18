@@ -213,6 +213,26 @@ export function suggestedAccessKit(access) {
 }
 
 /**
+ * Which restored (saved or shared) fields count as hand-entered. A value
+ * that differs from the kit its own restored selects would suggest is a
+ * rate the shop tuned and must survive the next kit apply; one equal to the
+ * suggestion is not, so changing a select on a later visit still moves it.
+ * Marking every restored field as edited froze the price after the first
+ * visit (quality audit 2026-11-17-patio-door-bid-calculator).
+ */
+export function restoredOverrides(values, choices = {}) {
+  const pick = (id) => values[id] ?? choices[id];
+  const kit = {
+    ...suggestedConfigKit(pick('config')),
+    ...suggestedFrameKit(pick('frame')),
+    ...suggestedGlazingKit(pick('glazing')),
+    ...suggestedInstallKit(pick('install')),
+    ...suggestedAccessKit(pick('access')),
+  };
+  return Object.keys(values).filter((id) => !(id in kit) || Number(values[id]) !== kit[id]);
+}
+
+/**
  * Price a sliding / patio-door replacement from the panels, the
  * extras past a brochure 6-foot vinyl hang, and the contractor's
  * own costs.
@@ -314,7 +334,7 @@ export function calculateBid(input) {
   const price = totalCost / (1 - targetMargin / 100);
   const profit = price - totalCost;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   const costShare = (amount) => (totalCost === 0 ? 0 : amount / totalCost * 100);

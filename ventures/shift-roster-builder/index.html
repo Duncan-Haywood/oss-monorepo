@@ -101,7 +101,7 @@
     <h2>Shifts to cover</h2>
     <label for="shifts">One requirement per line: day(s), start, end, people needed, label (optional)</label>
     <textarea id="shifts" spellcheck="false" placeholder="Mon-Fri, 6, 14, 2, open&#10;Sat, 12, 22, 2, close&#10;Fri, 22, 6, 1, night"></textarea>
-    <label for="import-shifts-file">…or convert a published-schedule export from another scheduler (one row per shift: date, start, end, position), or the saved JSON the 7shifts, When I Work or Square API returns for shifts (choose it together with the roles, positions or jobs and locations JSON for names, time zone and closing times)</label>
+    <label for="import-shifts-file">…or convert a published-schedule export from another scheduler (one row per shift: date, start, end, position), or the saved JSON the 7shifts, When I Work, Square or Deputy API returns for shifts (choose it together with the roles, positions, jobs or areas and locations JSON for names, time zone and closing times)</label>
     <input id="import-shifts-file" type="file" multiple accept=".csv,.tsv,.txt,.json,text/csv,text/plain,application/json">
     <p id="import-shifts-pick" class="note" hidden><label for="import-shifts-loc">Location</label> <select id="import-shifts-loc"></select> <label for="import-shifts-use">Read</label> <select id="import-shifts-use"></select></p>
     <p class="note">Days can be a range (<code>Mon-Fri</code>) or a list (<code>Mon/Wed/Fri</code>). Times can be <code>9</code>, <code>9:30</code> or <code>9am</code>. An end at or before the start runs overnight into the next day. People needed makes that many separate shifts. To lock a shift to someone, add <code>fixed: Ana</code> as a last cell (use <code>fixed: Ana + Ben</code> to pin two copies); the tool plans everyone else around it. Several shops? Add <code>site: Harbour</code> to each shift and <code>sites: Main | Harbour</code> to each person (no cell = anywhere): one build plans every site, so hour limits, rest and no double-booking hold across them, and the report splits hours and payroll by site. With split shifts allowed (rest lowered), set the travel time between sites so nobody is due at two shops minutes apart. Turn on paid travel to pay that trip as hours worked (it counts toward overtime), so the roster sends people across only when it is worth it. If one shop pays more (a city with a higher minimum wage, an airport premium), set wages by site: the roster then sends the people whose pay rises least to the dearer shop. Someone paid their own rate at one shop? Add <code>wage at Airport: 24</code> (or <code>+2</code>, <code>+10%</code>) to their row; a site's minimum still applies.</p>
@@ -328,6 +328,7 @@
     import { import7shifts, import7shiftsStaff } from "./import-7shifts.mjs";
     import { importWhenIWork, looksLikeWhenIWork } from "./import-wheniwork.mjs";
     import { importSquare, looksLikeSquare } from "./import-square.mjs";
+    import { importDeputy, looksLikeDeputy } from "./import-deputy.mjs";
     import { staffPackHtml } from "./staffpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
@@ -687,7 +688,7 @@
         const ta = document.createElement("textarea"); ta.readOnly = true; ta.rows = Math.min(8, m.text.split("\n").length + 1);
         ta.value = m.text; ta.setAttribute("aria-label", "Message for " + m.person); ta.style.width = "100%";
         const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = "Copy for " + m.person;
-        b.addEventListener("click", () => { ta.select(); try { navigator.clipboard.writeText(m.text); } catch (e) { document.execCommand("copy"); } record("messages_copied"); });
+        b.addEventListener("click", async () => { ta.select(); try { await navigator.clipboard.writeText(m.text); } catch (e) { ta.select(); if (!document.execCommand("copy")) { b.textContent = "Copy blocked: select the text and copy it"; return; } } b.textContent = "Copied"; record("messages_copied"); });
         row.append(ta, b); box.append(row);
       }
       record("messages_made");
@@ -702,7 +703,7 @@
       const ta = document.createElement("textarea"); ta.readOnly = true; ta.rows = Math.min(10, post.text.split("\n").length + 1);
       ta.value = post.text; ta.setAttribute("aria-label", "Post for the open shifts"); ta.style.width = "100%";
       const b = document.createElement("button"); b.type = "button"; b.className = "secondary"; b.textContent = "Copy the post";
-      b.addEventListener("click", () => { ta.select(); try { navigator.clipboard.writeText(post.text); } catch (e) { document.execCommand("copy"); } record("open_post_copied"); });
+      b.addEventListener("click", async () => { ta.select(); try { await navigator.clipboard.writeText(post.text); } catch (e) { ta.select(); if (!document.execCommand("copy")) { b.textContent = "Copy blocked: select the text and copy it"; return; } } b.textContent = "Copied"; record("open_post_copied"); });
       box.append(ta, b);
       record("open_post_made");
     });
@@ -725,11 +726,12 @@
     // Share link: the setup rides in the URL fragment, which browsers never send to a server.
     const b64 = (str) => btoa(String.fromCharCode(...new TextEncoder().encode(str))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
     const unb64 = (t) => new TextDecoder().decode(Uint8Array.from(atob(t.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0)));
-    $("#share-link").addEventListener("click", () => {
+    $("#share-link").addEventListener("click", async () => {
       const url = location.href.split("#")[0] + "#setup=" + b64(JSON.stringify(snapshot()));
-      try { navigator.clipboard.writeText(url); } catch (e) { /* shown below */ }
-      status.textContent = url.length > 8000 ? "That link is very long and some apps will cut it; use Save setup file instead." : "Share link copied. Anyone who opens it gets this setup; click the button to build.";
       try { history.replaceState(null, "", url); } catch (e) { /* optional */ }
+      // Awaited: a refused copy (iframe policy, lost focus, plain http) must not be reported as copied.
+      try { await navigator.clipboard.writeText(url); } catch (e) { status.textContent = "Copy was blocked by the browser. The share link is now in the address bar: copy it from there."; return; }
+      status.textContent = url.length > 8000 ? "That link is very long and some apps will cut it; use Save setup file instead." : "Share link copied. Anyone who opens it gets this setup; click the button to build.";
       record("share_link_copied");
     });
     const shareHash = /^#setup=([A-Za-z0-9_-]+)$/.exec(location.hash);
@@ -785,9 +787,10 @@
     const runShiftsImport = () => {
       if (!shiftsFile) return;
       const loc = $("#import-shifts-loc").value, use = $("#import-shifts-use").value;
-      // Saved Square, When I Work or 7shifts API responses are JSON (told apart by their fields, Square first since its
+      // Saved Deputy, Square, When I Work or 7shifts API responses are JSON (told apart by their fields; Deputy first, by its
+      // capitalised StartTime, then Square since its
       // locations response looks like When I Work's); everything else is read as a CSV export.
-      const r = shiftsFile.json ? (looksLikeSquare(shiftsFile.texts) ? importSquare : looksLikeWhenIWork(shiftsFile.texts) ? importWhenIWork : import7shifts)(shiftsFile.texts, { location: loc || undefined }) : importShiftsCsv(shiftsFile.text, { location: loc || undefined, use: use === "" ? undefined : use });
+      const r = shiftsFile.json ? (looksLikeDeputy(shiftsFile.texts) ? importDeputy : looksLikeSquare(shiftsFile.texts) ? importSquare : looksLikeWhenIWork(shiftsFile.texts) ? importWhenIWork : import7shifts)(shiftsFile.texts, { location: loc || undefined }) : importShiftsCsv(shiftsFile.text, { location: loc || undefined, use: use === "" ? undefined : use });
       if (r.shifts) { $("#shifts").value = r.shiftsText; persist(); }
       status.textContent = r.shifts ? `Imported ${r.shifts} shift ${r.shifts === 1 ? "line" : "lines"} from ${shiftsFile.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
       return r;

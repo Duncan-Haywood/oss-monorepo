@@ -19,6 +19,9 @@ function loadProviders(file) {
   if (!file) return merged;
   let over;
   try { over = JSON.parse(readFileSync(file, "utf8")); } catch (e) { fail(`could not read --prices ${file}: ${e.message}`); }
+  const isObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
+  if (!isObj(over)) fail(`--prices ${file} must be a JSON object of provider overrides, keyed by provider`);
+  for (const [k, v] of Object.entries(over)) if (!isObj(v)) fail(`--prices ${file}: "${k}" must be an object of rate fields`);
   for (const [k, v] of Object.entries(over)) merged[k] = { ...(merged[k] || { label: k, url: "", pct: 0, fixed: 0, intlPct: 0, extraPct: 0, mor: false }), ...v };
   return merged;
 }
@@ -40,6 +43,12 @@ const num = (k, d) => {
   if (!Number.isFinite(n) || n < 0) fail(`--${k} needs a non-negative number, got "${opt[k]}"`);
   return n;
 };
+// --months: a whole number of months, 1 or more (0 crashed with exit 1, read as a tripped gate; red team 2026-11-17).
+const monthsOpt = () => {
+  const m = num("months", 12);
+  if (!Number.isInteger(m) || m < 1) fail(`--months needs a whole number of months, 1 or more, got "${opt.months}"`);
+  return m;
+};
 const inputs = () => {
   const price = num("price", 4.99);
   if (price <= 0) fail("--price must be above 0");
@@ -56,14 +65,14 @@ if (cmd === "providers") {
   const providers = loadProviders(opt.prices);
   const input = { revenue: num("revenue"), ...inputs() };
   const rows = compare(input, providers);
-  const proj = project(input, num("growth", 0), num("months", 12), providers);
+  const proj = project(input, num("growth", 0), monthsOpt(), providers);
   const s = summarize(rows, { maxPct: opt["max-fee-pct"] === undefined ? null : num("max-fee-pct"), provider: opt.provider || null });
   if (s.status === "error" && !s.overLimit) fail(s.text);
   if (opt.json) console.log(JSON.stringify({ input, rows, projection: proj, summary: s }, null, 2));
   else {
     console.log(`${fmt(input.revenue)} a month, average sale ${fmt(input.avgPrice)}, ${input.intlShare}% international; ${fmt(input.selfTaxMonthly)}/mo tax filing if you are seller of record\n`);
     for (const r of rows) console.log(`${r.label.padEnd(66)} ${fmt(r.total).padStart(11)}/mo  ${String(r.effectivePct).padStart(5)}%  net ${fmt(r.net).padStart(12)}${r.extraVsBest ? `  (+${fmt(r.extraVsBest)})` : ""}`);
-    console.log(`\n${num("months", 12)}-month totals at ${num("growth", 0)}%/mo growth (${fmt(input.revenue)} -> ${fmt(proj.endRevenue)} a month):`);
+    console.log(`\n${monthsOpt()}-month totals at ${num("growth", 0)}%/mo growth (${fmt(input.revenue)} -> ${fmt(proj.endRevenue)} a month):`);
     for (const t of proj.totals) console.log(`${t.label.padEnd(66)} costs ${fmt(t.totalCost).padStart(13)}   keeps ${fmt(t.totalNet).padStart(14)}`);
     console.log(`\n${s.text}\n${PRICES_AS_OF}. Not a quote, not tax advice.`);
   }

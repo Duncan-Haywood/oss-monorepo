@@ -109,6 +109,107 @@ and run it yourself.
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
 
+## "The one where the halo was bigger": a version by how it compared (2026-11-18)
+
+Designers also point back by comparison: "the one where the halo was bigger",
+"when it sat lower", "when it was more expensive", "the version with the
+heavier fabric", "the cheapest one". Before, none of these found a version and
+some did harm: "the one where the price was higher" moved the print up and set
+the price to 1. `refer.mjs` (`comparedVersion`) reads artwork size and position
+(a named piece, followed by its id, or the selected one), price, fabric weight
+and run, and restores whole the most recent earlier version that compared that
+way with the present (superlatives: the session's extreme, latest among equals).
+The log gives the value then and now; nothing changes when no version compared
+that way. "The bigger one" stays an edit, since it may mean a variant on the
+panel. Hand-written eval, dev 9 to 20 of 20, held out (written first) 3 to 11 of
+12 on the first run, 12 after one vocabulary fix
+([`eval/compared-versions-2026-11-18.md`](eval/compared-versions-2026-11-18.md)).
+Also fixed: "raise the price" and "the price is higher than I want" moved the
+artwork.
+
+## "The one with the halo": a whole earlier version by what it had (2026-11-18)
+
+A designer who has moved on from a version points back at it by what it had:
+"the one with the halo", "the version without the text", "the tee with the
+wings", "when it still had the halo", "before I added the wings", "the one
+before we made it navy". The keyword reader took "with" as "add", so the first
+of those added a second halo. `refer.mjs` (`describedVersion`) now reads the
+description (motifs, text, an uploaded image, each optionally "on the back";
+garment; garment colour; decoration method; "without X" for what was absent)
+and returns the **most recent earlier version** that matches it, whole, as it
+was. The log says which version and how many changes ago, and lists its
+garment, colour and artwork; one undo brings the current version back. "Before
+X" returns the version just before X last appeared. When the current version
+already matches, or no version ever did, nothing changes and the log says so.
+"Back to the cream one" still restores only the colour (a value, not a version).
+
+`node eval/whole-versions.mjs` (`eval/whole-versions-2026-11-18.md`): on 23 dev
+sentences `main` read 6 (only the controls) and this reads 23; on 12 held-out
+sentences written before the code, 1 and 12. Before, 20 of the 29 version
+sentences were acted on wrongly. Our sentences, not a designer's.
+`refer.test.mjs` (13 tests).
+
+## "Go back to the cream": questions and earlier versions (2026-11-17)
+
+Designers ask and point back as often as they order. The keyword reader read
+every clause as an order, so "is embroidery more expensive?" switched the print
+to embroidery, "go back to the cream" ran one undo whatever the last change was,
+and "the previous colour", "undo the last two" and "start over" were not
+understood. `refer.mjs` now sorts each clause first:
+
+- **Questions for information** change nothing. The log answers them
+  (`answers.mjs`): cost questions are costed on your supplier sheet by applying
+  each named alternative to a copy of the design ("which is cheaper, dtg or
+  screen print?" gives both landed costs and the cheaper one; "how much does a
+  hoodie cost to make?" the difference), fabric and method questions give the
+  method note and the maker checks for that pairing, and colour, size and lead
+  time questions say where to look.
+- **Suggestions asked as questions** ("isn't navy better?", "what about a
+  crewneck", "why not embroider it", "wouldn't it look better in sage", "what if
+  we made it bigger") are tried, marked "Trying it (you asked)", and undoable.
+- **References to the history** are resolved against this session's versions:
+  "go back to the cream" or "the hoodie looked better" restores that value
+  only and says how many changes ago it was seen; "the previous colour", "the
+  original size", "the old position", "the other one" restore one attribute and
+  keep the rest; "undo the last two", "go back three steps" undo that many;
+  "back to the original" or "start over" returns to the session's first
+  version (one undo brings the current one back).
+
+`node eval/history-questions.mjs` (`eval/history-questions-2026-11-17.md`): on 41
+hand-written sentences `main` read 17 right and this reads 41; on 20 written
+after the code was frozen, 12 and 19 (the miss, "what if we did it in white",
+was fixed afterwards). Our sentences, not a designer's; real recorded feedback
+is still the test that matters. `refer.test.mjs`, `answers.test.mjs` (12 tests).
+
+## "Not black, make it cream": negated feedback (2026-11-17)
+
+Spoken feedback is full of refusals, and both keyword readers (`commands.mjs`
+in the studio, `guide.mjs` in the wardrobe chat) used to read a refused word as
+a request: "don't make it bigger" made the print 15% bigger, "no embroidery,
+screen print it" applied both methods, "not for men" chose men's fit and "not
+luxury" chose luxury. `negation.mjs` now cuts each negated stretch out first
+(from "not", "no", "don't", "never", "without", "nothing", "instead of",
+"rather than" and the like to the end of the clause: the next comma, "but",
+"and", "just", another negation, at most four words). Quoted text, names
+("call it Not Today") and phrases that only look negative ("not just", "no
+more than", "never mind", "not sure") are left alone.
+
+- **Studio:** a refused command is never applied; it is listed as "Left alone
+  (you said no)" in the command log (`parseCommand(...).declined`, also through
+  the optional model's rewrite).
+- **Wardrobe chat:** turning down the current answer undoes it ("not luxury"
+  sets the tier back to premium, the default) and the question is asked again;
+  a refused occasion comes off the list. "Skip", "not sure", "any" or "no
+  preference" in reply to a question keeps the current answer and moves on,
+  and "men ... women too" said apart reads as unisex.
+
+`node eval/negated-feedback.mjs` (`eval/negated-feedback-2026-11-17.md`): on 30
+hand-written studio sentences, `main` read 15 right and this reads 29; on 12
+wardrobe sentences, 3 and 12. The six controls without negation pass both.
+The one miss is a question ("isn't navy better", read as turning navy down).
+The sentences are ours, not a designer's: real recorded feedback is still the
+test that matters. `negation.test.mjs` (9 tests).
+
 ## Virtual drape: the pattern sewn onto a body (2026-11-13)
 
 `drape.mjs` and `drape.html`. The interviews asked to see a garment on the

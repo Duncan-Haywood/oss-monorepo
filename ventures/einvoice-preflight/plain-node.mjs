@@ -33,8 +33,8 @@ const loadRules = async (file) => {
 export const plainAvailable = () => load() !== null;
 
 // Same result shape as runSchematron(), asynchronously.
-export async function runPlain(xml) {
+export async function runPlain(xml, opts = {}) {
   const r = load();
   if (!r) return { status: "unavailable", syntax: "", findings: [], sets: [] };
-  return r.run(xml, loadRules);
+  return r.run(xml, loadRules, opts);
 }

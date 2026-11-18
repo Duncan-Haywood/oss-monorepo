@@ -1,0 +1,10 @@
+5zo post hoc (after the verdicts): set medians by node, every third node from the collector (1) to the separator (20)
+
+Ai2020: x_i(2) 0.58 0.59 0.62 0.67 0.75 0.85 0.98
+        o_i mV 0.01 0.01 0.06 0.08 0.01 -0.01 0.37   separator-side 4 nodes' share of a positive over-read: 0.74 (8 designs)
+Chen2020: x_i(2) 0.43 0.44 0.46 0.50 0.53 0.62 0.74
+          o_i mV 0.01 0.01 0.00 0.00 -0.00 0.15 0.00   separator-side 4 nodes' share of a positive over-read: 0.27 (11 designs)
+OKane2022: x_i(2) 0.39 0.40 0.42 0.50 0.50 0.61 0.68
+           o_i mV 0.05 0.04 0.04 0.00 0.02 0.17 0.35   separator-side 4 nodes' share of a positive over-read: 0.56 (12 designs)
+NCA_Kim2011: x_i(2) 0.34 0.34 0.35 0.37 0.45 0.50 0.56
+             o_i mV -0.35 0.24 0.47 -0.05 -0.39 -0.42 -0.12   separator-side 4 nodes' share of a positive over-read: -0.39 (4 designs)

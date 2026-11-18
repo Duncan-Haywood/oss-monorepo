@@ -52,6 +52,9 @@
     .chips li{border:1px solid var(--line);border-radius:999px;padding:.2rem .7rem;font-size:.85rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--code)}
     .split{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
     .split ul{margin:.25rem 0;padding-left:1.1rem}.split li{margin:.3rem 0}
+    .shot{margin:1rem 0 0}
+    .shot img{display:block;width:100%;max-width:760px;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+    .shot figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
     footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1.25rem;margin-top:2rem}
     @media (max-width:760px){
       .flow{grid-template-columns:1fr;gap:1.1rem}
@@ -88,12 +91,21 @@
     <p class="flow-note">One command runs all five; <code>launchd</code> can run it at 01:30 every night. A job that fails stops for a person and is listed for review instead of being guessed at.</p>
   </section>
 
+  <section aria-labelledby="report">
+    <h2 id="report">What a cull report looks like</h2>
+    <p>Two bursts from a real run of <code>shootflow cull --thumbs</code>. The original frame is kept in the first; the darkened copy is rejected for exposure and the softened one becomes an alternate. In the second, the blurred copy is rejected, and the keeper is a slightly reframed copy that tied the original at 0.79, so the report marks it a close call to check by eye.</p>
+    <figure class="shot">
+      <img src="cull-report.webp" width="1200" height="987" loading="lazy" decoding="async" alt="ShootFlow cull report: a summary line (13 photos in 5 groups: 5 keepers, 6 alternates, 2 rejects, 2 close calls) and a contact sheet of two bursts. Building: original kept with a green border (0.86), a softened copy and a 4% tighter reframe faded as alternates in the same group (0.79, 0.86). Butterfly: original kept (0.93), a dark copy rejected with a red border for bad exposure (0.57), a softened copy faded as an alternate (0.81).">
+      <figcaption>The full run was 13 frames made from five OpenCV sample photos (Apache-2.0) by blurring, darkening or reframing them, so every right answer is known. Two of its 13 calls fall short: a copy at 30% brightness was kept as an alternate instead of rejected, and a 4% reframe was split into its own group. <code>tools/cull_showcase.py</code> rebuilds this report; it has not been tested on a real wedding or event shoot.</figcaption>
+    </figure>
+  </section>
+
   <section aria-labelledby="what">
     <h2 id="what">What exists today</h2>
     <div class="cards">
       <article>
         <h3>Cull a folder offline</h3>
-        <p>Scores every still for sharpness and exposure, groups near-identical burst frames, keeps the best of each group and flags blurred or badly exposed frames. It writes an HTML report and, with <code>--write-xmp</code>, Lightroom and Bridge ratings (keeper 4 stars, alternate 2, reject −1).</p>
+        <p>Scores every still for sharpness and exposure, groups near-identical burst frames (including ones the camera panned or zoomed a few percent between), keeps the best of each group and flags blurred or badly exposed frames. It writes an HTML report and, with <code>--write-xmp</code>, Lightroom and Bridge ratings (keeper 4 stars, alternate 2, reject −1).</p>
         <p class="proof">Not yet measured on a real wedding or event shoot. Pass <code>--picks FILE</code> with the frames you would keep to see how often its keeper matched yours.</p>
       </article>
       <article>

@@ -98,7 +98,7 @@ test("a file with no revenue column says how to export the right one", () => {
 });
 
 test("semicolon decimal-comma files and UTF-8 BOM are read", () => {
-  const n = normalizeRows(parseCsv("﻿Video title;Views;Estimated revenue (EUR)\nA;1.200;3,50", ";"), { decimalComma: true });
+  const n = normalizeRows(parseCsv("\uFEFFVideo title;Views;Estimated revenue (EUR)\nA;1.200;3,50", ";"), { decimalComma: true });
   assert.equal(n.rows[0].views, 1200);
   near(n.rows[0].revenue, 3.5);
 });

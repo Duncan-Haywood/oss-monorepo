@@ -31,6 +31,7 @@ each step's `working-directory`, and reports which passed.
     python3 platform/ci/run_workflow_locally.py --for-changes
     python3 platform/ci/run_workflow_locally.py --tree
     python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
+    python3 platform/ci/run_workflow_locally.py doc-refs-ci prompts-ci   # several, in turn
     python3 platform/ci/run_workflow_locally.py --list portfolio-pages.yml
 
 Under an agent harness a run still going after 100 s detaches and prints
@@ -727,6 +728,8 @@ class Step:
         # (count, message) for each distinct error a failed step printed; see
         # failure_causes.
         self.causes = []
+        # {cause: first test that failed with it}; see failure_sites.
+        self.sites = {}
         # Repository paths a failed step's output names; see named_paths.
         self.paths = set()
         # env: entries to add for this step. Populated only from `vars.`
@@ -1263,13 +1266,16 @@ STALE_BASE_COMMITS = 30
 
 
 # The fetches `changed_paths` tries, in order, when `origin/<branch>` and HEAD
-# share no commit: the refresh the error used to print, then deeper history.
-# Runs kept hitting the error on a fresh shallow clone and typing the first
-# one by hand (friction 2026-11-12: "that step could be automatic").
-FETCH_STEPS = (("--depth=40",), ("--deepen=500",))
+# share no commit: fetch_ref.py (a day of history, never cutting what the clone
+# already holds), then deeper history. Runs kept hitting the error on a fresh
+# shallow clone and typing the first one by hand (friction 2026-11-12: "that
+# step could be automatic"). The first step was `--depth=40` until 2026-11-17,
+# which also cut a deepened main back to 40 commits (fetch_ref.py, "Why").
+FETCH_STEPS = (("fetch_ref",), ("--deepen=500",))
+FETCH_HINT = "python3 platform/ci/fetch_ref.py main"
 
 
-def _fetch_merge_base(base, git):
+def _fetch_merge_base(base, git, repo=None):
     """Fetch history until `base` and HEAD share a commit, for a remote ref.
 
     Returns the last `git merge-base` result. A local base (`main`) is left
@@ -1280,9 +1286,15 @@ def _fetch_merge_base(base, git):
         return nothing
     found = nothing
     for step in FETCH_STEPS:
-        print(f"run_workflow_locally: {base} and HEAD share no commit here; "
-              f"git fetch {' '.join(step)} {remote} {branch}", file=sys.stderr)
-        if git("fetch", "-q", *step, remote, branch).returncode != 0:
+        how = (f"python3 platform/ci/fetch_ref.py {branch}" if step == ("fetch_ref",)
+               else f"git fetch {' '.join(step)} {remote} {branch}")
+        print(f"run_workflow_locally: {base} and HEAD share no commit here; {how}", file=sys.stderr)
+        if step == ("fetch_ref",):
+            sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+            import fetch_ref
+            if fetch_ref.fetch_ref(branch, remote, cwd=repo or REPO, out=sys.stderr) == 1:
+                break
+        elif git("fetch", "-q", *step, remote, branch).returncode != 0:
             break
         found = git("merge-base", base, "HEAD")
         if found.returncode == 0 and found.stdout.strip():
@@ -1313,16 +1325,16 @@ def changed_paths(base: str, repo: str = REPO) -> list[str]:
 
     found = git("merge-base", base, "HEAD")
     if found.returncode != 0 or not found.stdout.strip():
-        found = _fetch_merge_base(base, git)
+        found = _fetch_merge_base(base, git, repo)
     if found.returncode != 0 or not found.stdout.strip():
         if git("rev-parse", "--verify", "--quiet", base).returncode != 0:
             raise SystemExit(f"run_workflow_locally: no ref {base!r}; "
-                             f"fetch it: git fetch --depth=40 origin main")
+                             f"fetch it: {FETCH_HINT}")
         raise SystemExit(
             f"run_workflow_locally: {base} and HEAD share no commit in this "
             f"clone (shallow, or {base} is stale), so a diff would count every "
             f"change on both sides.\n"
-            f"  Refresh it: git fetch --depth=40 origin main\n"
+            f"  Refresh it: {FETCH_HINT}\n"
             f"  Still none: git fetch --deepen=500 origin main, until "
             f"`git merge-base {base} HEAD` answers.")
     merge_base = found.stdout.strip()
@@ -1330,7 +1342,7 @@ def changed_paths(base: str, repo: str = REPO) -> list[str]:
     if ahead.isdigit() and int(ahead) > STALE_BASE_COMMITS:
         print(f"note: HEAD is {ahead} commits past its merge base with {base}; "
               f"if this branch is not that long, {base} is stale "
-              f"(git fetch --depth=40 origin main).", file=sys.stderr)
+              f"({FETCH_HINT}).", file=sys.stderr)
     done = git("diff", "--name-only", merge_base)
     if done.returncode != 0:
         raise SystemExit(f"run_workflow_locally: git diff against {base} failed:\n"
@@ -1373,7 +1385,41 @@ def runner_files() -> dict[str, str]:
             open(path, "a").close()
             _RUNNER_FILES[name] = path
         _RUNNER_FILES["RUNNER_TEMP"] = tmp
-    return {k: v for k, v in _RUNNER_FILES.items() if k not in os.environ}
+    files = {k: v for k, v in _RUNNER_FILES.items() if k not in os.environ}
+    files["GIT_CONFIG_GLOBAL"] = isolated_git_global(tmp=_RUNNER_FILES["RUNNER_TEMP"])
+    return files
+
+
+def global_git_config_paths(environ=os.environ) -> list[str]:
+    """The files `git config --global` reads, in git's order (later wins)."""
+    if environ.get("GIT_CONFIG_GLOBAL"):
+        return [environ["GIT_CONFIG_GLOBAL"]]
+    home = environ.get("HOME") or os.path.expanduser("~")
+    xdg = environ.get("XDG_CONFIG_HOME") or os.path.join(home, ".config")
+    return [os.path.join(xdg, "git", "config"), os.path.join(home, ".gitconfig")]
+
+
+def isolated_git_global(tmp: str, environ=os.environ) -> str:
+    """A per-run copy of the global git config that steps read and write.
+
+    CI steps write `git config --global`: portfolio-validate's supersede-check
+    step sets user.email ci@example.com and user.name CI, which a fresh
+    runner throws away. Run here, it overwrote the session's own ~/.gitconfig,
+    so the session's next commit went out as "CI <ci@example.com>",
+    Unverified, until amended (doc friction, run record 2026-11-17,
+    session_01XpHqye3mm8o2YXnvRwxsJV). Steps now see a copy, made once per
+    process: reads behave as before, writes land in RUNNER_TEMP.
+    """
+    path = os.path.join(tmp, "gitconfig-global")
+    if not os.path.exists(path):
+        with open(path, "w") as out:
+            for source in global_git_config_paths(environ):
+                try:
+                    with open(source) as f:
+                        out.write(f.read().rstrip("\n") + "\n")
+                except OSError:
+                    continue
+    return path
 
 
 # Why a failed step names its distinct errors, not only its last lines. A node
@@ -1384,8 +1430,18 @@ def runner_files() -> dict[str, str]:
 # over-long description, and 172 tests failed on that one error (measured by
 # seeding the fault, process run 2026-11-12). Grouped, the cause is one line.
 TAP_ERROR = re.compile(r"^\s+error:\s*(.*)$")
-PYTEST_FAILED = re.compile(r"^(?:FAILED|ERROR) \S+ - (.+)$")
+PYTEST_FAILED = re.compile(r"^(?:FAILED|ERROR) (\S+) - (.+)$")
 CAUSES_SHOWN = 3
+# Why each cause names the first test that hit it. A cause alone read
+# "1 x Expected values to be strictly equal", which says what but not where:
+# finding the test meant rerunning the 211 s platform/pages suite (doc
+# friction, run record 2026-11-17, session_01XpHqyfctr). Node's TAP gives the
+# test's name on its `not ok` line and its file:line in `location:`; pytest's
+# summary line starts with the test id. A parent test's own error, "1
+# subtest failed", repeats its child's and is not a cause.
+TAP_NOT_OK = re.compile(r"^\s*not ok \d+ - (.*)$")
+TAP_LOCATION = re.compile(r"^\s+location:\s*'?(.*?)'?$")
+SUBTESTS_FAILED = re.compile(r"^\d+ subtests? failed$")
 
 
 def _clean_cause(text: str) -> str:
@@ -1395,6 +1451,42 @@ def _clean_cause(text: str) -> str:
     return re.sub(r"^(?:\w*Error|Error): ", "", text).strip()
 
 
+def _scan_failures(lines, root: str = REPO):
+    """({cause: count}, {cause: first test that hit it}) for failure_causes
+    and failure_sites; insertion order is first appearance."""
+    counts: dict[str, int] = {}
+    sites: dict[str, str] = {}
+    test = where = ""
+    prefix = root.rstrip("/") + "/"
+    for i, line in enumerate(lines):
+        m = TAP_NOT_OK.match(line)
+        if m:
+            test, where = m.group(1).strip(), ""
+            continue
+        m = TAP_LOCATION.match(line)
+        if m and test:
+            where = m.group(1)
+            where = where[len(prefix):] if where.startswith(prefix) else where
+            continue
+        m = TAP_ERROR.match(line)
+        if m:
+            value = m.group(1).strip()
+            if value in ("|", "|-", ">", ">-", ""):
+                value = next((n for n in lines[i + 1:i + 3] if n.strip()), "")
+            site = f"{test} ({where})" if test and where else test
+        else:
+            m = PYTEST_FAILED.match(line)
+            if not m:
+                continue
+            site, value = m.group(1), m.group(2)
+        cause = _clean_cause(value)[:240]
+        if cause and not SUBTESTS_FAILED.match(cause):
+            counts[cause] = counts.get(cause, 0) + 1
+            if site:
+                sites.setdefault(cause, site[:200])
+    return counts, sites
+
+
 def failure_causes(lines) -> list[tuple[int, str]]:
     """Distinct error messages in a step's output, most frequent first.
 
@@ -1402,23 +1494,14 @@ def failure_causes(lines) -> list[tuple[int, str]]:
     block) and pytest's `FAILED test - message` summary lines. Empty when the
     output has neither, so other tools' reports are unchanged.
     """
-    counts: dict[str, int] = {}
-    for i, line in enumerate(lines):
-        m = TAP_ERROR.match(line)
-        if m:
-            value = m.group(1).strip()
-            if value in ("|", "|-", ">", ">-", ""):
-                value = next((n for n in lines[i + 1:i + 3] if n.strip()), "")
-        else:
-            m = PYTEST_FAILED.match(line)
-            if not m:
-                continue
-            value = m.group(1)
-        cause = _clean_cause(value)[:240]
-        if cause:
-            counts[cause] = counts.get(cause, 0) + 1
+    counts, _ = _scan_failures(lines)
     # Stable sort: ties keep the order the errors first appeared in.
     return [(n, c) for c, n in sorted(counts.items(), key=lambda kv: -kv[1])]
+
+
+def failure_sites(lines) -> dict[str, str]:
+    """{cause: the first test that failed with it, as "name (file:line)"}."""
+    return _scan_failures(lines)[1]
 
 
 # Why a sweep names the changed file several failed steps share. One post
@@ -1534,12 +1617,14 @@ def execute(step: Step, timeout: int) -> None:
                            if x).strip().splitlines()
         step.tail = output[-12:]
         step.causes = failure_causes(output)
+        step.sites = failure_sites(output)
         step.paths = named_paths(output)
         return
     step.seconds = time.monotonic() - start
     output = (done.stdout + done.stderr).strip().splitlines()
     step.tail = output[-12:]
     step.causes = failure_causes(output) if done.returncode else []
+    step.sites = failure_sites(output) if done.returncode else {}
     step.paths = named_paths(output) if done.returncode else set()
     if done.returncode == 0:
         step.status = "ok"
@@ -1839,6 +1924,8 @@ def report(name, steps, uses_skipped, forced) -> int:
                   "the most frequent:")
             for n, cause in step.causes[:CAUSES_SHOWN]:
                 print(f"          {n} x {cause}")
+                if cause in step.sites:
+                    print(f"              first in: {step.sites[cause]}")
             print("        A count this size is often one cause in your diff "
                   "that many tests share, not the environment.")
         for line in step.tail:
@@ -2020,6 +2107,13 @@ def run_for_changes(args) -> int:
               "itself is green, run --tree.")
         return 0
 
+    if not args.list and not getattr(args, "no_post_check", False):
+        failed, output = post_precheck(changed)
+        if failed:
+            print(output)
+            print(POST_PRECHECK_STOP, flush=True)
+            return 1
+
     selected, held = pick_workflows(lambda _n, wf: selects(wf, changed))
 
     workflows = {name for name, *_ in selected} | {name for name, *_ in held}
@@ -2030,6 +2124,47 @@ def run_for_changes(args) -> int:
     if hint:
         print(hint, flush=True)
     return _run_selected(args, selected, held, changed=changed)
+
+
+# A new post over a front-matter cap (description 160, seo_title 70) fails
+# check_post_frontmatter, the site-builder suite (~175 tests through one
+# shared fixture), three more Pages steps and shorts.test.mjs, so the run
+# shortens it and sweeps again: a second multi-minute sweep for a one-line
+# fix. Run records on 2026-11-16 and 11-17 report it in 33 of 714 runs, 23%
+# of polish runs and ~11% of redteam/perf/explore/creative ones (their start
+# tools do not print the caps; allocate.py and pick_track.py do, and
+# ventures/research sit at 1.7%). The check takes a quarter of a second, so
+# a sweep runs it on the diff's posts first and stops on a failure.
+POST_PRECHECK_STOP = (
+    "Stopped before the sweep: the post(s) above fail check_post_frontmatter, "
+    "which would fail several Pages and site steps too. Fix them and run "
+    "again (--no-post-check sweeps anyway).")
+
+
+def changed_posts(changed, repo: str = REPO) -> list[str]:
+    """The diff's posts that still exist: docs/posts/*.md, not nested."""
+    return [p for p in changed
+            if p.startswith("docs/posts/") and p.endswith(".md")
+            and p.count("/") == 2 and os.path.isfile(os.path.join(repo, p))]
+
+
+def post_precheck(changed, repo: str = REPO) -> tuple[bool, str]:
+    """(failed, output) of check_post_frontmatter on the diff's posts.
+
+    (False, "") when there are none or the checker cannot run: the sweep
+    runs it again in its own step, so a skipped precheck loses nothing."""
+    posts = changed_posts(changed, repo)
+    checker = os.path.join(repo, "platform", "ci", "check_post_frontmatter.py")
+    if not posts or not os.path.isfile(checker):
+        return False, ""
+    try:
+        done = subprocess.run([sys.executable, checker, *posts], cwd=repo,
+                              capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return False, ""
+    if done.returncode == 0:
+        return False, ""
+    return True, (done.stdout + done.stderr).rstrip()
 
 
 # A foreground tool call in a cloud session is cut off at 600 s. Runs kept
@@ -2254,7 +2389,28 @@ def checkout_drift(before, after) -> str | None:
         return None
     where = f": {moved}" if moved else ""
     same_head = "" if before.head != after.head else " (HEAD did not move)"
-    return f"tracked files changed while the sweep ran{same_head}{where}"
+    return f"tracked files changed while the sweep ran{same_head}{where}" + born_hint(before, after)
+
+
+def born_hint(before, after) -> str:
+    """A sentence when every moved path was created after the sweep started.
+
+    The hand-off note says committing written files is fine, and runs read
+    that as covering a run record they wrote *during* the sweep (2026-11-18:
+    three workflows voided). Such a file was neither tracked nor untracked at
+    the start, so steps before it and after it read different trees; the
+    drift stands, and naming the case says what to do next time.
+    """
+    old = dict(getattr(before, "paths", {}) or {})
+    loose = getattr(before, "untracked", {}) or {}
+    new = dict(getattr(after, "paths", {}) or {})
+    moved = [p for p in set(old) | set(new)
+             if (old[p] if p in old else loose.get(p)) != new.get(p)]
+    if moved and all(p not in old and p not in loose for p in moved):
+        return ("; every one is new since the sweep started: if you wrote it (the"
+                " run record, a post), write such files before starting a sweep or"
+                " commit them after it ends")
+    return ""
 
 
 # Why a sweep's budget is pooled. Each workflow had its own 300 s, so a
@@ -2520,8 +2676,10 @@ def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
                 "(repeat until it exits 0, or start it with run_in_background "
                 "--timeout 3600); the last line reads 'DONE exit <code>'.\n"
                 "  Until then, do not change tracked files here: an edit voids "
-                "every workflow still to finish. Committing files already "
-                "written is fine (it changes no byte a step reads).\n"
+                "every workflow still to finish. Committing files that were "
+                "already written when this started is fine (it changes no byte "
+                "a step reads); committing one created since, such as a new run "
+                "record, is an edit.\n"
                 "  Pass --foreground to run attached instead.\n")
             out.flush()
             return HANDED_OFF
@@ -2547,8 +2705,12 @@ def main(argv=None) -> int:
 def _main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("workflow", nargs="?",
-                    help="file name under .github/workflows/")
+    # Several names run one after another (friction 2026-11-16/17: "Takes one
+    # workflow per call", and a re-run of three voided workflows needed three
+    # invocations because --only was refused without a sweep).
+    ap.add_argument("workflow", nargs="*",
+                    help="file name(s) under .github/workflows/ (.yml "
+                         "optional); several run in turn, one verdict each")
     ap.add_argument("--for-changes", metavar="BASE", nargs="?", const="origin/main",
                     help="run every workflow the current diff against BASE "
                          "would start (default base origin/main)")
@@ -2565,9 +2727,21 @@ def _main(argv=None) -> int:
     ap.add_argument("--only", metavar="NAMES",
                     help="with --for-changes or --tree: run only these of the "
                          "selected workflows (comma-separated file names, "
-                         ".yml optional), e.g. --only doc-refs-ci,prompts-ci")
+                         ".yml optional), e.g. --only doc-refs-ci,prompts-ci; "
+                         "on its own: run these workflows by name")
+    # Friction 2026-11-17 (session_01XpHqybgdy): checking one supersede-check
+    # step meant a full portfolio-validate run past the 100 s handoff (~5 min).
+    ap.add_argument("--step", metavar="TEXT",
+                    help="with one named workflow: run only the steps whose "
+                         "'job / step name' contains TEXT (case-insensitive). "
+                         "Setup steps it skips (npm ci, pip install) are not "
+                         "run either, so include them in TEXT if it needs them")
     ap.add_argument("--force", action="store_true",
                     help="allow a workflow that is not verification-only")
+    ap.add_argument("--no-post-check", action="store_true",
+                    help="with --for-changes: sweep even when a changed post "
+                         "fails check_post_frontmatter (by default the sweep "
+                         "stops first; see POST_PRECHECK_STOP)")
     ap.add_argument("--timeout", type=int, default=900,
                     help="per-step timeout in seconds (default 900)")
     ap.add_argument("--workflow-timeout", type=int, default=300,
@@ -2581,6 +2755,12 @@ def _main(argv=None) -> int:
                          "HANDOFF_S); the default under an agent harness is "
                          "to detach after 100 s and print the log path")
     args = ap.parse_args(argv)
+
+    if args.step and (args.tree or args.for_changes or args.only
+                      or len(args.workflow) != 1):
+        print("--step needs exactly one workflow named, e.g. "
+              "portfolio-validate --step supersede", file=sys.stderr)
+        return 2
 
     if args.tree:
         if args.workflow or args.for_changes:
@@ -2603,22 +2783,67 @@ def _main(argv=None) -> int:
         args.for_changes = LOCAL_BASE["ref"] = "origin/main"
         return run_for_changes(args)
 
-    if args.only:
-        print("--only narrows a sweep: pass it with --for-changes or --tree",
-              file=sys.stderr)
+    if args.only and args.workflow:
+        print("name workflows or pass --only, not both (--only alone runs "
+              "the named workflows; with --for-changes or --tree it narrows "
+              "the sweep)", file=sys.stderr)
         return 2
+    names = sorted(only_names(args.only)) if args.only else list(args.workflow)
 
-    if not args.workflow:
+    if not names:
         print("name a workflow, --for-changes to select by diff, or --tree "
               "to sweep the whole checkout", file=sys.stderr)
         return 2
 
-    name = os.path.basename(args.workflow)
-    path = os.path.join(WORKFLOWS, name)
-    if not os.path.isfile(path):
-        print(f"no such workflow: .github/workflows/{name}", file=sys.stderr)
+    names = [workflow_file(n) for n in names]
+    missing = [n for n in names if not os.path.isfile(os.path.join(WORKFLOWS, n))]
+    if missing:
+        for n in missing:
+            print(f"no such workflow: .github/workflows/{n}", file=sys.stderr)
         return 2
+    if len(names) == 1:
+        return _run_one(names[0], args)
+    codes = []
+    for name in names:
+        codes.append((name, _run_one(name, args)))
+        print(flush=True)
+    return combine_named(codes)
 
+
+def pick_steps(steps, text: str):
+    """(steps whose label contains text, labels of the rest), case-insensitive.
+
+    The rest are reported as skipped, so a one-step run never reads as the
+    whole workflow passing."""
+    want = text.casefold()
+    picked = [s for s in steps if want in s.label.casefold()]
+    return picked, [s.label for s in steps if s not in picked]
+
+
+def workflow_file(name: str) -> str:
+    """`doc-refs-ci` or `.github/workflows/doc-refs-ci.yml` as `doc-refs-ci.yml`."""
+    name = os.path.basename(name.strip())
+    return name if name.endswith((".yml", ".yaml")) else name + ".yml"
+
+
+def combine_named(codes) -> int:
+    """One exit for several by-name runs: 0 only when every one passed.
+
+    A usage refusal (2) wins, then a failure (1), then the largest other
+    code; a summary line per workflow saves scrolling back for verdicts."""
+    print("Summary of the named workflows:")
+    for name, code in codes:
+        print(f"  exit {code}  {name}")
+    values = [c for _, c in codes]
+    for worst in (2, 1):
+        if worst in values:
+            return worst
+    return max(values)
+
+
+def _run_one(name: str, args) -> int:
+    """Run one workflow by name: the single-workflow path of `_main`."""
+    path = os.path.join(WORKFLOWS, name)
     workflow = load_workflow(path)
     only = None
     if name not in VERIFICATION_ONLY and not args.force:
@@ -2638,6 +2863,15 @@ def _main(argv=None) -> int:
             print(f"  [held  ] {name} / {job}: {why}; --force runs it too")
 
     steps, uses_skipped = collect(workflow, only=only)
+    if getattr(args, "step", None):
+        steps, unpicked = pick_steps(steps, args.step)
+        if not steps:
+            print(f"no step of {name} matches --step {args.step!r}; its steps:",
+                  file=sys.stderr)
+            for label in unpicked:
+                print(f"  {label}", file=sys.stderr)
+            return 2
+        uses_skipped += [f"{label}: not selected by --step" for label in unpicked]
 
     if args.list:
         for step in steps:

@@ -61,7 +61,7 @@ perfect and still risky, or structurally broken and harmless.
   straight into a shell.
 - **Detached background process** — `nohup ... &`, `setsid`, `screen -dm`,
   `tmux new-session -d`, or `at now` — a caution, since this shape is also
-  completely ordinary for a ­legitimate long-running dev-server hook.
+  completely ordinary for a legitimate long-running dev-server hook.
 
 ## Try it without installing anything
 

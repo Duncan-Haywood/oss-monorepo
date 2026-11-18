@@ -5,6 +5,7 @@ from decimal import Decimal
 from xml.etree import ElementTree
 from typing import Any
 
+from .xmlvalues import unreadable_leaves
 from .numbers import parse_decimal
 
 
@@ -78,16 +79,8 @@ def _party_identifier(party: ElementTree.Element) -> str:
     )
 
 
-def _party(element: ElementTree.Element) -> dict[str, Any]:
-    party = next(iter(_children(element, "Party")), element)
-    identifier = _party_identifier(party)
-    # XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
-    # may omit PartyName entirely, so that is a source for the name, not a
-    # reason to refuse the document.
-    name = _nested_text(party, "PartyName", "Name") or _nested_text(
-        party, "PartyLegalEntity", "RegistrationName"
-    ) or _text(party, "Name")
-    mapped: dict[str, Any] = {"id": identifier, "name": name}
+def _party_vat_id(party: ElementTree.Element) -> str:
+    """BT-31/BT-48/BT-63: the first VAT-scheme PartyTaxScheme/CompanyID."""
     vat_id = ""
     for scheme in _children(party, "PartyTaxScheme"):
         # A national tax number uses TaxScheme/ID "FC"; only VAT (or an
@@ -103,12 +96,74 @@ def _party(element: ElementTree.Element) -> dict[str, Any]:
             continue
         if vat_id:
             break
+    return vat_id
+
+
+def _party(element: ElementTree.Element) -> dict[str, Any]:
+    party = next(iter(_children(element, "Party")), element)
+    identifier = _party_identifier(party)
+    # XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
+    # may omit PartyName entirely, so that is a source for the name, not a
+    # reason to refuse the document.
+    name = _nested_text(party, "PartyName", "Name") or _nested_text(
+        party, "PartyLegalEntity", "RegistrationName"
+    ) or _text(party, "Name")
+    mapped: dict[str, Any] = {"id": identifier, "name": name}
+    vat_id = _party_vat_id(party)
     if vat_id:
         mapped["vat_id"] = vat_id
+    legal_id = _legal_id(party)
+    if legal_id:
+        mapped["legal_id"] = legal_id
+    party_ids = _party_ids(party)
+    if party_ids:
+        mapped["party_ids"] = party_ids
     endpoint = _endpoint(party)
     if endpoint:
         mapped["endpoint"] = endpoint
     return mapped
+
+
+def _scheme_attr(element: ElementTree.Element) -> str:
+    for key, attr in element.attrib.items():
+        if key.rsplit("}", 1)[-1] == "schemeID":
+            return (attr or "").strip()
+    return ""
+
+
+def _legal_id(party: ElementTree.Element) -> dict[str, str] | None:
+    """BT-30/BT-47: the first PartyLegalEntity's CompanyID and its schemeID.
+
+    Mirrors ubl.mjs so the CLI's INV-062 (endpoint.py) reads an XML file the
+    way the page does, not only a JSON invoice.
+    """
+    for entity in party.iter():
+        if entity.tag.rsplit("}", 1)[-1] != "PartyLegalEntity":
+            continue
+        for node in entity.iter():
+            if node.tag.rsplit("}", 1)[-1] != "CompanyID":
+                continue
+            value = (node.text or "").strip()
+            if not value:
+                return None
+            return {"id": value, "scheme": _scheme_attr(node)}
+    return None
+
+
+def _party_ids(party: ElementTree.Element) -> list[dict[str, str]]:
+    """BT-29/BT-46: every PartyIdentification/ID that names a scheme (ubl.mjs)."""
+    found: list[dict[str, str]] = []
+    for identification in party.iter():
+        if identification.tag.rsplit("}", 1)[-1] != "PartyIdentification":
+            continue
+        for node in identification:
+            if node.tag.rsplit("}", 1)[-1] != "ID":
+                continue
+            scheme = _scheme_attr(node)
+            value = (node.text or "").strip()
+            if scheme and value:
+                found.append({"id": value, "scheme": scheme})
+    return found
 
 
 def _endpoint(party: ElementTree.Element) -> dict[str, str] | None:
@@ -131,6 +186,23 @@ _DOCUMENT_ROOTS = {
     "CreditNote": ("credit_note", "CreditNoteLine", "CreditedQuantity"),
     "DebitNote": ("debit_note", "DebitNoteLine", "DebitedQuantity"),
 }
+
+
+def _line_scheme_ids(line: Any) -> list[dict[str, str]]:
+    # Every schemed EndpointID, PartyIdentification/ID and CompanyID inside a UBL
+    # line, in ubl.mjs's order: Peppol's COMMON id contexts name no parent, so a
+    # line-level Delivery/DeliveryParty or an Item's ManufacturerParty is checked too.
+    nodes = [node for node in line.iter() if _local(node) == "EndpointID"]
+    for identification in (node for node in line.iter() if _local(node) == "PartyIdentification"):
+        nodes.extend(child for child in identification if _local(child) == "ID")
+    nodes.extend(node for node in line.iter() if _local(node) == "CompanyID")
+    found: list[dict[str, str]] = []
+    for node in nodes:
+        scheme = (node.get("schemeID") or "").strip()
+        value = (node.text or "").strip()
+        if scheme and value:
+            found.append({"id": value, "scheme": scheme})
+    return found
 
 
 def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
@@ -183,6 +255,9 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         if line_adjustments:
             mapped_line["adjustments"] = line_adjustments
         mapped_line.update(_tax_category_fields(category))
+        scheme_ids = _line_scheme_ids(line)
+        if scheme_ids:
+            mapped_line["scheme_ids"] = scheme_ids
         lines.append(mapped_line)
 
     supplier = next(iter(_children(root, "AccountingSupplierParty")), root)
@@ -242,6 +317,38 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
             **_optional_monetary_totals(total),
         },
     }
+    # BG-10 payee and BG-11 tax representative: only their schemed ids (ubl.mjs).
+    for key, tag in (("payee_party", "PayeeParty"), ("tax_representative", "TaxRepresentativeParty")):
+        node = next((child for child in root if child.tag.rsplit("}", 1)[-1] == tag), None)
+        if node is None:
+            continue
+        side: dict[str, Any] = {}
+        legal = _legal_id(node)
+        if legal:
+            side["legal_id"] = legal
+        ids = _party_ids(node)
+        if ids:
+            side["party_ids"] = ids
+        if key == "tax_representative":
+            # BT-63, its VAT number (checks.py INV-022/023; ubl.mjs, 2026-11-17).
+            vat_id = _party_vat_id(node)
+            if vat_id:
+                side["vat_id"] = vat_id
+        if side:
+            invoice[key] = side
+    # cac:Delivery/cac:DeliveryParty: Peppol's PartyIdentification/ID and
+    # CompanyID contexts reach its ids too (ubl.mjs).
+    deliver_to: dict[str, Any] = {}
+    for delivery in (child for child in root if child.tag.rsplit("}", 1)[-1] == "Delivery"):
+        for node in (child for child in delivery if child.tag.rsplit("}", 1)[-1] == "DeliveryParty"):
+            legal = _legal_id(node)
+            if legal and "legal_id" not in deliver_to:
+                deliver_to["legal_id"] = legal
+            ids = _party_ids(node)
+            if ids:
+                deliver_to["party_ids"] = deliver_to.get("party_ids", []) + ids
+    if deliver_to:
+        invoice["delivery_party"] = deliver_to
     payment = _payee_payment(root)
     terms_days = _payment_terms_days(root)
     if terms_days:
@@ -270,6 +377,9 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     adjustments = _header_adjustments(root)
     if adjustments:
         invoice["adjustments"] = adjustments
+    unreadable = unreadable_leaves(root)
+    if unreadable:
+        invoice["xml_values"] = unreadable
     return invoice
 
 

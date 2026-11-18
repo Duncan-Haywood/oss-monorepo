@@ -231,6 +231,20 @@ survey's advice. On 72 simulated builds, every board set more than 15% off its
 survey was held, and none was held after a re-flash to the pick (worst spin error
 1.9%, against up to 16.1% if run anyway): firmware/esp32/README.md, "Checked
 before a calibration drill".
+
+Before trusting the contact-time survey, log one wheel's tach spinning steadily
+(`firmware/esp32/tach_log.py` from the ESP32's REPL) and run `tennisbots
+tach-jitter periods.txt`: it prints the tach's edge jitter and whether the survey
+can see through it. On the simulator the survey named and advised 14 of 18 spread
+contact times on a clean tach and none of 54 from 1.5 us of jitter, going quiet
+rather than wrong (firmware/esp32/README.md, "The take survey's jitter limit").
+If the log reads 0.55 us or more, log the same wheel again with
+`tach_log.run(34, 600, capture=True)`, which times the edges with the ESP32's
+MCPWM capture unit instead of the pin interrupt: if that reads lower, set
+`TACH_CAPTURE = True` in config.py. On the simulator the capture kept the survey
+naming 36 of 54 spread contacts at 1.5-3 us of handler jitter (the pin interrupt:
+0 of 54); it is off by default because it has not run on a board yet
+(firmware/esp32/README.md, "A tach timed in hardware").
 [`firmware/esp32/README.md`](firmware/esp32/README.md), "Shot log", "The
 drop from the pulse times" and "A recovery shaped by the loop's own commands".
 

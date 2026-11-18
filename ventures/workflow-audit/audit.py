@@ -23,10 +23,12 @@ patterns line by line. A clean report means these patterns were absent.
 """
 import argparse
 import hashlib
+import os
 import json
 import re
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -134,9 +136,13 @@ def normalise(name, field, severities, raw, root):
 
 
 def audit(root):
+    # The checks are independent subprocesses, so run them at once; map keeps
+    # CHECKS order, so findings and errors come out exactly as a serial loop.
+    workers = max(1, min(len(CHECKS), os.cpu_count() or 1))
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        results = list(pool.map(lambda c: run_check(c[0], root), CHECKS))
     findings, errors = [], []
-    for name, field, sev in CHECKS:
-        raw, err = run_check(name, root)
+    for (name, field, sev), (raw, err) in zip(CHECKS, results):
         if err:
             errors.append(err)
             continue

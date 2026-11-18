@@ -1,0 +1,440 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtKQTRZQhb6c1Sbwyb9",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T23:06:35Z",
+  "ended": "2026-11-17T23:08:54Z",
+  "wall_minutes": 9.24,
+  "tokens_in": 7391916,
+  "tokens_out": 38148,
+  "cost_usd": 3.1793,
+  "tool_calls": 69,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17099",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "python3 -m unittest platform/ci/test_x.py fails (platform shadows the stdlib module); ran the file directly.",
+    "Local origin/main ref was stale at start; branch had to be rebuilt on fresh main, which conflicted with a concurrent rev-rec mixed-currency fix (kept main's version, dropped this run's duplicate)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list is 11 entries, all control-plane edits already in owner-gated PRs; the prompt says fix them first, but a run cannot land any of them, so step 0 is re-reading the same list every run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'git fetch --depth=40 origin <branch>' advice does not say to refresh origin/main before branching; a stale origin/main cost a rebase and a conflict with concurrent work on the same venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 entries are all control plane with existing owner-gated PRs",
+      "did": "checked each still reproduces (they do), left patched:false, pointed to the open PRs in the PR body",
+      "result": "no duplicate control-plane PRs opened"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "rerun marked mutant 0/1 caught_after_fix false because the fix (+0 normalisation) made it equivalent",
+      "did": "re-triaged it equivalent with a note; caught values untouched",
+      "result": "catch_rate_after_fix 1.0 with the reason recorded"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-twelve-thousand-yen-read-as-120.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/rev-rec (changed on main today). Guard added: platform/ci/test_stripe_zero_decimal.py, which flagged rev-rec/revrec.mjs, mrr-pulse/metrics.mjs and cancel-flow/admin.mjs on the pre-fix tree and passes after. Checks run: run_venture_tests.py rev-rec mrr-pulse cancel-flow (57/66/64 ok), the lint, check_posts.py, check_post_frontmatter.py.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/rev-rec/revrec.mjs",
+        "test": "node --test ventures/rev-rec/**/*.test.mjs  (in .)",
+        "seed": 636253775,
+        "commit": "f8bfceebf",
+        "sites": 90,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 16,
+            "col": 71,
+            "operator": "minus-to-plus",
+            "before": "const days = line.end > line.start ? Math.max(1, Math.ceil((line.end - start) / DAY)) : 1;",
+            "after": "const days = line.end > line.start ? Math.max(1, Math.ceil((line.end + start) / DAY)) : 1;",
+            "line_text": "  const days = line.end > line.start ? Math.max(1, Math.ceil((line.end - start) / DAY)) : 1;",
+            "caught": true,
+            "seconds": 6.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 19,
+            "col": 22,
+            "operator": "lt-to-le",
+            "before": "const sign = amount < 0 ? -1 : 1, abs = Math.abs(amount);",
+            "after": "const sign = amount <= 0 ? -1 : 1, abs = Math.abs(amount);",
+            "line_text": "  const sign = amount < 0 ? -1 : 1, abs = Math.abs(amount);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "Before the fix it made spread({amount:0}) return -0 per month (only visible to Object.is; schedule's 0 + -0 is 0). The fix normalises every part with + 0, so on the patched code a zero amount gives +0 under either sign and the mutant is now equivalent; rerun's caught_after_fix false is that, not a missing test."
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 20,
+            "col": 104,
+            "operator": "times-to-div",
+            "before": "const parts = Object.entries(perMonth).map(([m, d]) => ({ m, v: Math.floor((abs * d) / days), r: (abs * d) % days }));",
+            "after": "const parts = Object.entries(perMonth).map(([m, d]) => ({ m, v: Math.floor((abs * d) / days), r: (abs / d) % days }));",
+            "line_text": "  const parts = Object.entries(perMonth).map(([m, d]) => ({ m, v: Math.floor((abs * d) / days), r: (abs * d) % days }));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 21,
+            "col": 44,
+            "operator": "plus-to-minus",
+            "before": "let left = abs - parts.reduce((a, p) => a + p.v, 0);",
+            "after": "let left = abs - parts.reduce((a, p) => a - p.v, 0);",
+            "line_text": "  let left = abs - parts.reduce((a, p) => a + p.v, 0);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 36,
+            "col": 39,
+            "operator": "lt-to-le",
+            "before": "const orig = l.credits && l.amount < 0 ? byId.get(l.credits) : undefined;",
+            "after": "const orig = l.credits && l.amount <= 0 ? byId.get(l.credits) : undefined;",
+            "line_text": "    const orig = l.credits && l.amount < 0 ? byId.get(l.credits) : undefined;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "only changes a zero-amount credit line: its spread is all zeros wherever it is placed, and the moved window starts at or after orig.start and ends at orig.end, which orig already spans, so no month total or schedule range changes."
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 37,
+            "col": 28,
+            "operator": "gt-to-ge",
+            "before": "if (!orig || !(orig.end > orig.start) || !(l.start < orig.end)) return l;",
+            "after": "if (!orig || !(orig.end >= orig.start) || !(l.start < orig.end)) return l;",
+            "line_text": "    if (!orig || !(orig.end > orig.start) || !(l.start < orig.end)) return l;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a credit linked to a one-off charge (end == start) dated before it was moved onto the charge's date; new test pins it to its own month."
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 49,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "billed[b] = (billed[b] || 0) + Math.round(l.amount);",
+            "after": "billed[b] = (billed[b] && 0) + Math.round(l.amount);",
+            "line_text": "    billed[b] = (billed[b] || 0) + Math.round(l.amount);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 54,
+            "col": 14,
+            "operator": "gt-to-ge",
+            "before": "if (lastRec > last) last = lastRec;",
+            "after": "if (lastRec >= last) last = lastRec;",
+            "line_text": "  if (lastRec > last) last = lastRec;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "when lastRec === last the assignment writes the same value."
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 59,
+            "col": 92,
+            "operator": "gt-to-ge",
+            "before": "out.push({ month, opening, billed: bi, recognized: ri, closing: deferred, future: month > monthOf(asOf) });",
+            "after": "out.push({ month, opening, billed: bi, recognized: ri, closing: deferred, future: month >= monthOf(asOf) });",
+            "line_text": "    out.push({ month, opening, billed: bi, recognized: ri, closing: deferred, future: month > monthOf(asOf) });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 67,
+            "col": 36,
+            "operator": "gt-to-ge",
+            "before": "return rows.filter((r) => r.month > cur && r.recognized !== 0).map((r) => ({ month: r.month, recognized: r.recognized }));",
+            "after": "return rows.filter((r) => r.month >= cur && r.recognized !== 0).map((r) => ({ month: r.month, recognized: r.recognized }));",
+            "line_text": "  return rows.filter((r) => r.month > cur && r.recognized !== 0).map((r) => ({ month: r.month, recognized: r.recognized }));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/rev-rec/csv.mjs",
+        "test": "node --test ventures/rev-rec/**/*.test.mjs  (in .)",
+        "seed": 906696654,
+        "commit": "f8bfceebf",
+        "sites": 81,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 11,
+            "col": 68,
+            "operator": "eq-flip",
+            "before": "else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && s[i + 1] === \"\\n\") i++; row.push(cur); if (row.some((x) => x.trim())) rows.push(row); row = []; cur = \"\"; }",
+            "after": "else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && s[i + 1] !== \"\\n\") i++; row.push(cur); if (row.some((x) => x.trim())) rows.push(row); row = []; cur = \"\"; }",
+            "line_text": "    else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && s[i + 1] === \"\\n\") i++; row.push(cur); if (row.some((x) => x.trim())) rows.push(row); row = []; cur = \"\"; }",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a lone CR row ending (old Mac exports) ate the next row's first character; new parseCsv test."
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 28,
+            "col": 21,
+            "operator": "or-to-and",
+            "before": "const x = String(v || \"\").trim();",
+            "after": "const x = String(v && \"\").trim();",
+            "line_text": "  const x = String(v || \"\").trim();",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 39,
+            "col": 69,
+            "operator": "lt-to-le",
+            "before": "const missing = [\"amount\", \"billed\", \"start\"].filter((k) => col[k] < 0);",
+            "after": "const missing = [\"amount\", \"billed\", \"start\"].filter((k) => col[k] <= 0);",
+            "line_text": "  const missing = [\"amount\", \"billed\", \"start\"].filter((k) => col[k] < 0);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 48,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "if (!Number.isFinite(raw)) return skipped.push({ line: i + 2, why: \"amount is not a number\" });",
+            "after": "if (!Number.isFinite(raw)) return skipped.push({ line: i + 3, why: \"amount is not a number\" });",
+            "line_text": "    if (!Number.isFinite(raw)) return skipped.push({ line: i + 2, why: \"amount is not a number\" });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "skipped rows' file line numbers were never asserted; new test checks lines 2, 3, 4."
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 49,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "if (billedAt === null) return skipped.push({ line: i + 2, why: \"billing date is not a date\" });",
+            "after": "if (billedAt !== null) return skipped.push({ line: i + 2, why: \"billing date is not a date\" });",
+            "line_text": "    if (billedAt === null) return skipped.push({ line: i + 2, why: \"billing date is not a date\" });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 50,
+            "col": 54,
+            "operator": "plus-to-minus",
+            "before": "if (start === null) return skipped.push({ line: i + 2, why: \"period start is not a date\" });",
+            "after": "if (start === null) return skipped.push({ line: i - 2, why: \"period start is not a date\" });",
+            "line_text": "    if (start === null) return skipped.push({ line: i + 2, why: \"period start is not a date\" });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same test as above covers the period-start line."
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 52,
+            "col": 51,
+            "operator": "plus-to-minus",
+            "before": "if (end < start) return skipped.push({ line: i + 2, why: \"period end is before period start\" });",
+            "after": "if (end < start) return skipped.push({ line: i - 2, why: \"period end is before period start\" });",
+            "line_text": "    if (end < start) return skipped.push({ line: i + 2, why: \"period end is before period start\" });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same test covers the end-before-start line."
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 64,
+            "col": 94,
+            "operator": "const-plus-one",
+            "before": "const start = now - (30 + ((i * 53) % 480)) * DAY, annual = i % 4 === 0, price = annual ? 290 : [29, 79, 249][i % 3];",
+            "after": "const start = now - (30 + ((i * 53) % 480)) * DAY, annual = i % 4 === 0, price = annual ? 291 : [29, 79, 249][i % 3];",
+            "line_text": "    const start = now - (30 + ((i * 53) % 480)) * DAY, annual = i % 4 === 0, price = annual ? 290 : [29, 79, 249][i % 3];",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "the sample fixture's annual price (290 vs 291) has no specification; every property tests assert (parses cleanly, rolls forward, closes at 0) holds for any price. Judgment call, noted."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/rev-rec/revrec.mjs",
+        "issue": "formatMoney and journal divided every amount by 100, but Stripe sends zero-decimal currencies (JPY, KRW, VND...) in whole units: a 12,000 yen invoice showed as \u00a5120 on the dashboard and journaled as 120.00. Fixed with minorExponent (0/2/3 by Stripe's list), journal takes currency, server passes the synced currency.",
+        "patched": true
+      },
+      {
+        "file": "ventures/rev-rec/page.mjs",
+        "issue": "scheduleTable printed '+' and '-' before the formatted amount, so a credit-only month read '+-$79' billed and '--$79' recognised. Fixed with one sign per cell.",
+        "patched": true
+      },
+      {
+        "file": "ventures/rev-rec/page.mjs",
+        "issue": "the self-hosted dashboard still said 'Credit notes reduce revenue in the month they are issued', but linkCredits (2026-11-17) spreads a linked credit over the credited line's remaining period. Reworded to match the code and the FAQ.",
+        "patched": true
+      },
+      {
+        "file": "ventures/mrr-pulse/metrics.mjs",
+        "issue": "same divide-by-100 for zero-decimal currencies in formatMoney, monthsCsv and the CSV import (README listed it as a known gap). Fixed with minorExponent; cancel-flow/admin.mjs money() had drifted from flow.mjs's zero-decimal list and is fixed too. Guard: platform/ci/test_stripe_zero_decimal.py.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "755e6371-5f22-5cdb-a643-a9eaf3b80f4a",
+    "transcripts": 1,
+    "first": "2026-11-17T23:06:35Z",
+    "last": "2026-11-17T23:15:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 132,
+        "output": 38148,
+        "thinking": 8528,
+        "cache_read": 7271603,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120181,
+        "api_equivalent_usd": 3.1793,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 132,
+      "output": 38148,
+      "thinking": 8528,
+      "cache_read": 7271603,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120181,
+      "api_equivalent_usd": 3.1793,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 64,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.24,
+      "active_minutes": 9.24,
+      "model_minutes": 6.75,
+      "tool_minutes": 2.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: audit, 4 fixes across 3 ventures, tests, lint, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 188.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

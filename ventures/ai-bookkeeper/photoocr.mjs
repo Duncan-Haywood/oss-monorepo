@@ -5,6 +5,7 @@
 // `loadEngine` is injectable so the tests can run without a network.
 import { cleanOcr } from "./cleanocr.mjs";
 import { parseReceipt, parseReceiptPasses } from "./receipts.mjs";
+import { RAPID_URLS, createRapidOcr, rapidRows, bgrFromRgba } from "./rapidocr-web.mjs";
 
 const CDN = "https://cdn.jsdelivr.net/npm";
 export const OCR_URLS = {
@@ -72,6 +73,118 @@ export async function loadEngine(onProgress = () => {}) {
   };
 }
 
+// RapidOCR (PaddleOCR's PP-OCRv4 models through ONNX Runtime Web; rapidocr-web.mjs), the
+// engine the CLI's `receipts --rapidocr` runs. Its reading goes first and tesseract's four
+// vote after it, as `--rapidocr --four-pass` does: on SRD's 195 labelled US photos the page's
+// settled total goes from tesseract's alone to RapidOCR first (eval/rapidocr-web-2026-11-17.md).
+// The runtime and the models (about 16 MB) come from jsDelivr when the first photo is read
+// with it.
+//
+// It runs in a Web Worker (rapidocr-worker.mjs) when the browser can start one, so the tab
+// keeps responding while a photo is read (in headless Chromium the page's longest stall went
+// from about the whole read to a few tens of milliseconds, eval/rapidocr-worker-2026-11-17.md);
+// the page only draws the photo and hands the pixels over. Where a worker cannot start or
+// load the reader, it runs on the page as before (loadRapidInPage); `how` on the engine says
+// which ("worker" or "page"). `makeWorker` and `fetchBytes` are injectable for tests.
+export async function loadRapidEngine({ makeWorker = defaultMakeWorker, fetchBytes = defaultFetchBytes, inPage = loadRapidInPage } = {}) {
+  let w = null;
+  try {
+    w = makeWorker();
+    if (w) return await loadRapidWorker(w);
+  } catch (e) {
+    w?.terminate?.();
+    // the reader could not be downloaded: the page would fail the same way
+    if (/could not download/.test(String(e?.message ?? e))) throw e;
+  }
+  return inPage({ fetchBytes });
+}
+
+function defaultMakeWorker() {
+  if (typeof Worker === "undefined") return null;
+  return new Worker(new URL("./rapidocr-worker.mjs", import.meta.url), { type: "module" });
+}
+
+// drives a started rapidocr-worker.mjs: open, then one read per photo, matched by id
+export async function loadRapidWorker(worker, { draw = drawPixels } = {}) {
+  const waiting = new Map();
+  let nextId = 1, ready = null, dead = null;
+  const fail = (why) => {
+    dead = new Error(why);
+    for (const w of waiting.values()) w.reject(dead);
+    waiting.clear();
+    ready?.reject(dead);
+  };
+  worker.onmessage = (ev) => {
+    const m = ev.data;
+    if (m.type === "ready") ready?.resolve();
+    else if (m.type === "rows") { waiting.get(m.id)?.resolve(m.text); waiting.delete(m.id); }
+    else if (m.type === "error") {
+      if (m.id != null) { waiting.get(m.id)?.reject(new Error(m.message)); waiting.delete(m.id); }
+      else ready?.reject(new Error(m.message));
+    }
+  };
+  // a module the worker cannot load (an old browser, a blocked script) arrives as an error event
+  worker.onerror = (ev) => { ev?.preventDefault?.(); fail(`the RapidOCR worker stopped (${ev?.message || "it could not start"})`); };
+  await new Promise((resolve, reject) => { ready = { resolve, reject }; worker.postMessage({ type: "open" }); });
+  ready = null;
+  return {
+    how: "worker",
+    read: async (file) => {
+      if (dead) throw dead;
+      const { rgba, width, height } = await draw(file);
+      // the worker can die while the photo is drawn: a message to it now would never be answered
+      if (dead) throw dead;
+      const id = nextId++;
+      return new Promise((resolve, reject) => {
+        waiting.set(id, { resolve, reject });
+        worker.postMessage({ type: "read", id, width, height, rgba }, [rgba.buffer]);
+      });
+    },
+    close: async () => { worker.terminate(); fail("closed"); },
+  };
+}
+
+// the photo as the browser draws it (EXIF orientation applied), as RGBA pixels
+async function drawPixels(file) {
+  const bmp = await createImageBitmap(file);
+  const c = document.createElement("canvas");
+  c.width = bmp.width; c.height = bmp.height;
+  const g = c.getContext("2d", { willReadFrequently: true });
+  g.drawImage(bmp, 0, 0);
+  bmp.close?.();
+  return { rgba: g.getImageData(0, 0, c.width, c.height).data, width: c.width, height: c.height };
+}
+
+// RapidOCR on the page's own thread (the tab stalls while a photo is read): the fallback
+export async function loadRapidInPage({ fetchBytes = defaultFetchBytes } = {}) {
+  if (!globalThis.ort) await loadScript(RAPID_URLS.ort);
+  const ort = globalThis.ort;
+  ort.env.wasm.wasmPaths = RAPID_URLS.wasm;
+  // threads need a cross-origin-isolated page, which a static page is not
+  ort.env.wasm.numThreads = globalThis.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 1) : 1;
+  const [det, cls, rec, keys] = await Promise.all([
+    fetchBytes(RAPID_URLS.det), fetchBytes(RAPID_URLS.cls), fetchBytes(RAPID_URLS.rec),
+    fetchBytes(RAPID_URLS.keys).then((b) => new TextDecoder().decode(b)),
+  ]);
+  const engine = createRapidOcr({ ort, models: { det, cls, rec }, keys });
+  await engine.open();
+  return {
+    how: "page",
+    // the photo as the browser draws it, read into rows of text
+    read: async (file) => {
+      const { rgba, width, height } = await drawPixels(file);
+      return rapidRows(await engine.read(bgrFromRgba(rgba, width, height)));
+    },
+    close: () => engine.close(),
+  };
+}
+
+async function defaultFetchBytes(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`could not download the RapidOCR reader (${r.status})`);
+  return new Uint8Array(await r.arrayBuffer());
+}
+
 // A grey copy of the photo drawn on a canvas with its long side at `side` pixels,
 // enlarged or shrunk, or null when the photo is exactly that size.
 async function greyCopy(file, side) {
@@ -136,8 +249,8 @@ const tidy = (raw) => cleanOcr(String(raw || "")).split(/\r?\n/).map((l) => l.tr
 // total (the receipt's own arithmetic confirms it), that reading's total line
 // replaces the first reading's, and the result is checked to read that total.
 // `note` says what changed, for the status line.
-export function settleReadings(readings) {
-  const out = settleTax(settleTotals(readings), readings);
+export function settleReadings(readings, { lead = false } = {}) {
+  const out = settleTax(settleTotals(readings, lead), readings, lead);
   const guess = out.text ? guessedTotal(out.text) : null;
   return guess ? { ...out, note: out.note ? `${out.note}; ${guess}` : guess } : out;
 }
@@ -157,41 +270,50 @@ export function guessedTotal(text) {
 // on (receipts.mjs voteTax) goes into it as a line: the first reading's own tax line is
 // swapped for it, or a "Tax" line goes in just above the total line. Left alone when
 // the text would not then read that tax (README, "Tax on receipt photos").
-function settleTax(settled, readings) {
+function settleTax(settled, readings, lead = false) {
   const t = readings.map(tidy).filter(Boolean);
   if (t.length < 2 || !settled.text) return settled;
-  const both = parseReceiptPasses(t), now = parseReceipt(settled.text);
+  const both = parseReceiptPasses(t, { lead }), now = parseReceipt(settled.text);
   if (both.taxCents === null || both.taxCents === now.taxCents || now.cents !== both.cents) return settled;
-  const line = `Tax ${(both.taxCents / 100).toFixed(2)}`;
   const lines = settled.text.split("\n");
-  let at = now.taxLine ? lines.findLastIndex((l) => l.trim() === now.taxLine.trim()) : -1;
-  let out;
-  if (at >= 0) out = [...lines.slice(0, at), line, ...lines.slice(at + 1)];
-  else {
-    at = now.totalLine ? lines.findLastIndex((l) => l.trim() === now.totalLine.trim()) : -1;
-    out = at >= 0 ? [...lines.slice(0, at), line, ...lines.slice(at)] : [...lines, line];
-  }
-  const text = out.join("\n");
-  const back = parseReceipt(text);
-  if (back.taxCents !== both.taxCents || back.cents !== now.cents) return settled;
+  const taxAt = now.taxLine ? lines.findLastIndex((l) => l.trim() === now.taxLine.trim()) : -1;
+  const totalAt = now.totalLine ? lines.findLastIndex((l) => l.trim() === now.totalLine.trim()) : -1;
+  const put = (line) => (taxAt >= 0 ? [...lines.slice(0, taxAt), line, ...lines.slice(taxAt + 1)] : totalAt >= 0 ? [...lines.slice(0, totalAt), line, ...lines.slice(totalAt)] : [...lines, line]).join("\n");
+  const reads = (x) => { const b = parseReceipt(x); return b.taxCents === both.taxCents && b.cents === now.cents; };
+  let text = put(`Tax ${(both.taxCents / 100).toFixed(2)}`);
+  // on a whole-unit slip (rupiah) "Tax 8728.00" does not read back as 8,728: write it in the
+  // slip's own style, as settleTotals does a total. The page kept none of the 7 taxes the
+  // other readings added on CORD train shard 0 before this (eval/cord-shard0-lead-2026-11-17.md)
+  if (!reads(text) && both.taxCents >= 100 && both.taxCents % 100 === 0) text = put(`Tax ${(both.taxCents / 100).toLocaleString("en-US")}`);
+  if (!reads(text)) return settled;
   return { ...settled, text, taxNote: `tax read as ${now.taxCents === null ? "none" : (now.taxCents / 100).toFixed(2)} first; kept ${(both.taxCents / 100).toFixed(2)}, which the other readings or the receipt's own sums support: check it` };
 }
 
-function settleTotals(readings) {
+function settleTotals(readings, lead = false) {
   const t = readings.map(tidy).filter(Boolean);
   if (t.length < 2) return { text: t[0] ?? "", note: null };
-  const one = parseReceipt(t[0]), both = parseReceiptPasses(t);
+  const one = parseReceipt(t[0]), both = parseReceiptPasses(t, { lead });
   // a merchant only another reading found goes on top, where the reader looks for it
   const first = !one.merchant && both.merchant ? `${both.merchant}\n${t[0]}` : t[0];
+  // the lead reading's total kept over an unconfirmed majority (receipts.mjs `lead`) still warns
+  const kept = both.cents !== null && both.cents === one.cents ? both.notes.find((n) => /from the first engine's reading/.test(n)) : null;
+  if (kept) return { text: first, note: kept.replace(/^OCR readings/, "the readings") };
   if (both.cents === null || both.cents === one.cents) return { text: first, note: null };
   const money = (c) => c === null ? "none" : (c / 100).toFixed(2);
   // the winning reading's own total line, or, when its total came from the
   // arithmetic and no line printed it (a cash line less change), a plain one
-  const line = both.totalLine ?? `Total ${money(both.cents)}`;
+  // a whole-unit total (rupiah) with no line of its own is written with thousands
+  // separators and no decimals when "Total 110000.00" would not read back on that slip
+  // (not a total under 100 units: a digit kept from a damaged amount, receipts.mjs tinyWhole)
+  // (CORD train shards 1-3, eval/cord-train-shards-2026-11-17.md)
   const lines = first.split("\n");
   const at = one.totalLine ? lines.findLastIndex((l) => l.trim() === one.totalLine.trim()) : -1;
-  const swapped = at >= 0 ? [...lines.slice(0, at), line, ...lines.slice(at + 1)] : [...lines, line];
-  const text = swapped.join("\n");
+  const put = (line) => (at >= 0 ? [...lines.slice(0, at), line, ...lines.slice(at + 1)] : [...lines, line]).join("\n");
+  let text = put(both.totalLine ?? `Total ${money(both.cents)}`);
+  if (!both.totalLine && both.cents >= 10000 && both.cents % 100 === 0 && parseReceipt(text).cents !== both.cents) {
+    const whole = put(`Total ${(both.cents / 100).toLocaleString("en-US")}`);
+    if (parseReceipt(whole).cents === both.cents) text = whole;
+  }
   if (parseReceipt(text).cents !== both.cents) return { note: `the two readings disagree on the total (${money(one.cents)} and ${money(both.cents)}): check it`, text: first };
   const said = t.length === 2 ? `${money(one.cents)} once and ${money(both.cents)} once` : `${money(one.cents)} first and ${money(both.cents)} in ${t.map((x) => parseReceipt(x).cents).filter((c) => c === both.cents).length} of ${t.length} readings`;
   return { text, note: `total read as ${said}; kept ${money(both.cents)}, which the receipt's own arithmetic${t.length > 2 ? " and the other readings" : ""} confirm${t.length > 2 ? "" : "s"}: check it` };
@@ -201,19 +323,32 @@ function settleTotals(readings) {
 // Photos that are not images, or that read as empty, come back in `skipped`.
 // Each photo is read once per mode in `passes` and the readings settled
 // (settleReadings); `notes` lists, per photo, where the readings disagreed.
-export async function readPhotos(files, { loadEngine: load = loadEngine, onProgress = () => {}, passes = null } = {}) {
+// `rapid` (default on) reads each photo with RapidOCR first (loadRapidEngine); when that
+// reader cannot be loaded (offline, an old browser) the photos are read with tesseract alone
+// and `rapidError` says why. `rapid: false` is tesseract alone.
+export async function readPhotos(files, { loadEngine: load = loadEngine, loadRapid = loadRapidEngine, rapid = true, onProgress = () => {}, passes = null } = {}) {
   const list = [...files];
   const images = list.filter((f) => IMAGE_TYPES.test(f.type || ""));
   const skipped = list.filter((f) => !images.includes(f)).map((f) => ({ name: f.name, why: "not a PNG, JPEG, WebP, BMP or GIF image" }));
   if (!images.length) return { text: "", read: 0, skipped, notes: [] };
-  const engine = await load(onProgress);
+  let lead = null, rapidError = null;
+  // the two readers download side by side
+  const leading = rapid ? (onProgress({ status: "loading rapidocr" }), Promise.resolve().then(() => loadRapid()).then((x) => x, (e) => { rapidError = String(e?.message ?? e).replace(/^Error: /, ""); return null; })) : null;
+  let engine;
+  try { engine = await load(onProgress); }
+  catch (e) { (await leading)?.close?.(); throw e; }
+  lead = await leading;
   const blocks = [], notes = [];
+  let rapidRead = 0;
   let readingsDone = 0, shaded = 0;
   try {
     for (const [i, f] of images.entries()) {
       onProgress({ status: "reading", index: i, total: images.length, name: f.name });
       const readings = [];
+      let led = false;
       // one photo the reader cannot open is skipped; the others are still read
+      // RapidOCR reads in its worker while tesseract reads in its own, then leads the vote
+      const rapidText = lead ? lead.read(f).then((t) => t, () => null) : null;
       try {
         const first = [];
         // the passes for this photo: as given, or by how evenly it is lit (an engine
@@ -231,12 +366,17 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, onProgr
           readingsDone++;
         }
         readings.unshift(...first);
+        // RapidOCR's reading leads the vote; a photo it cannot read keeps tesseract's
+        if (lead) {
+          const t = await rapidText;
+          if (t && tidy(t)) { readings.unshift(t); readingsDone++; rapidRead++; led = true; }
+        }
       }
       catch (e) { skipped.push({ name: f.name, why: `could not be read (${String(e?.message ?? e).replace(/^Error: /, "")})` }); continue; }
-      const { text, note, taxNote } = settleReadings(readings);
+      const { text, note, taxNote } = settleReadings(readings, { lead: led });
       if (text) { blocks.push(text); if (note) notes.push({ name: f.name, note }); if (taxNote) notes.push({ name: f.name, note: taxNote }); }
       else skipped.push({ name: f.name, why: "no text found in the photo" });
     }
-  } finally { await engine.close?.(); }
-  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes };
+  } finally { await engine.close?.(); await lead?.close?.(); }
+  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, shaded, skipped, notes, rapid: rapidRead, rapidError, rapidHow: lead?.how ?? null };
 }

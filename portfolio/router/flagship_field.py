@@ -64,6 +64,28 @@ it was over: three runs on 2026-11-16 overran it by 14 to 47 characters and
 had to guess how much to cut. Both refusals now give the overrun, the
 landed clauses to cut and, with one --replace, the longest NEW that fits;
 reading or writing either field prints how many characters are left.
+
+Even so the rows never left the cap: --make-room parked only until the row
+fitted, so the next run found it at 1,990+ again and paid the same refusal
+or park. On 2026-11-17 11 of 12 rows sat at 1,814 to 1,999 characters and
+`friction_rank.py --live --ungated --days 3` ranked "next: at the cap" first,
+18 sessions in three days, after a "by-design" verdict. So a park now goes
+down to FLAGSHIP_NEXT_TARGET (1,700), leaving room for the next few runs'
+edits, and a `--replace`/`--set` on `next:` that would pass the cap parks by
+itself (as --make-room did) instead of refusing; `--no-make-room` keeps the
+refusal. `--trim` parks a row that is over the target down to it now.
+
+That overshot the other way. In the day after it (2026-11-17..18), ten run
+records said an edit that only passed the cap parked four to eight items
+(one parked about 900 characters for a 120-character replacement), that it
+happened without --make-room although allocate.py's hint said it was
+opt-in, and that it moved landed results into NEXT.md as if they were open
+items. An implicit park (a `--replace`/`--set` with no --make-room) now
+parks only until the row fits under the cap, so it moves one or two items,
+not eight; FLAGSHIP_NEXT_TARGET's headroom is what an explicit --make-room
+or --trim asks for. A clause reporting landed work is never parked (cut it,
+`--landed` lists them). Every park says up front how many items and
+characters it moves, and `--dry-run` shows that without writing.
 """
 from __future__ import annotations
 
@@ -81,6 +103,9 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from validate import FLAGSHIP_BUILDABLE_MAX, FLAGSHIP_NEXT_MAX, FLAGSHIPS_PATH  # noqa: E402
 
+# Where a park leaves `next:`: room under the cap for the next runs' edits,
+# so a row is not refused or parked again on every landing (see the docstring).
+FLAGSHIP_NEXT_TARGET = 1700
 INDENT = " " * 6
 WIDTH = 84
 # A word ending in a hyphen at the end of a folded line, continued on the next.
@@ -220,21 +245,75 @@ def landed_hint(value: str, over: int = 0) -> str:
     return "\n".join([head + ":"] + rows)
 
 
+def split_items(value: str) -> list[str]:
+    """The `; `-separated items of `value`, splitting only outside brackets.
+
+    A plain split broke items at a "; " inside "(...)": the first --trim of
+    the real rows (2026-11-17) offered "the Nexus 5X carries ForwardMatrix)"
+    and "--baritones, ... (TTBB" as items, which would have parked half an
+    item and left an unclosed bracket in `next:`."""
+    out, depth, start = [], 0, 0
+    v = " ".join(value.split())
+    for i, ch in enumerate(v):
+        if ch in "([{":
+            depth += 1
+        elif ch in ")]}":
+            depth = max(depth - 1, 0)
+        elif ch == ";" and depth == 0 and v.startswith("; ", i):
+            out.append(v[start:i])
+            start = i + 2
+    out.append(v[start:])
+    return out
+
+
+def _balanced(text: str) -> bool:
+    depth = 0
+    for ch in text:
+        depth += ch in "([{"
+        depth -= ch in ")]}"
+        if depth < 0:
+            return False
+    return depth == 0
+
+
+# A full stop inside an item joins two thoughts the `; ` split could not part
+# ("...carry-forward. joint drift ... Open: (0) drift model ..."): parking it
+# would take the next sentence's label ("Open:") with it, so it is not offered.
+SENTENCE = re.compile(r"[a-z0-9)\]]\. (?=[A-Za-z(])")
+
+
 def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[tuple[str, int]]:
     """(item, room it frees) for the `; `-separated items of `value`, last first,
     until together they free `over` characters. The history pointer that opens
     a row, the NEXT.md pointer and any item holding text in `keep` (the NEW of
     the run's own --replace) are never offered. Rows list their most
     useful items first ("Next, most valuable first: ..."), so the tail is the
-    usual place to cut, but which one to park stays the run's call."""
-    items = [i for i in " ".join(value.split()).split("; ") if i]
+    usual place to cut, but which one to park stays the run's call.
+
+    The item just before the run's own text is kept too: a run edits in
+    context, and that clause is often the heading its text continues. On
+    2026-11-17 (PR #16944) --make-room parked "control series: ... synthetic
+    control ...: CA rank 1 of 39" and left the run's "MA, AZ, OR ranks 6-13;
+    covariates ... failed" under the previous item's "its AR(1) term", so
+    the run needed a second --replace to restore the heading."""
+    items = [i for i in split_items(value) if i]
+
+    def _body(item: str) -> str:
+        return ROW_NOTE.sub("", item.replace(PARK_POINTER, "")).strip().rstrip(". ")
+
+    def _mine(item: str) -> bool:
+        body = _body(item)
+        return any(k and (k in item or (body and body in k)) for k in keep)
+
+    held = {j - 1 for j, item in enumerate(items) if j and _mine(item)}
     out: list[tuple[str, int]] = []
     freed = 0
     for i, item in enumerate(reversed(items)):
-        first = i == len(items) - 1
-        body = ROW_NOTE.sub("", item.replace(PARK_POINTER, "")).strip().rstrip(". ")
-        mine = any(k and (k in item or body in k) for k in keep)
-        if first or mine or not body or POINTER.match(body) or len(body) < 12:
+        j = len(items) - 1 - i
+        body = _body(item)
+        if (j == 0 or j in held or _mine(item) or not body or POINTER.match(body)
+                or LANDED.search(body)
+                or len(body) < 12 or not _balanced(body) or SENTENCE.search(body)):
             continue
         gain = len(body) + 2
         out.append((body, gain))
@@ -352,17 +431,22 @@ def park_text(existing: str | None, venture: str, items: list[str], day: str) ->
     return body + add
 
 
-def make_room(value: str, keep: tuple[str, ...] = ()) -> tuple[str, list[str]]:
-    """(`value` with items parked from the end until it and the NEXT.md pointer
-    fit under the cap, the items parked). Unchanged when it already fits.
-    Raises ValueError when the parkable items cannot free enough."""
+def make_room(value: str, keep: tuple[str, ...] = (),
+              trigger: int = FLAGSHIP_NEXT_MAX,
+              target: int = FLAGSHIP_NEXT_TARGET) -> tuple[str, list[str]]:
+    """(`value` with items parked from the end, the items parked). Unchanged
+    when it is at most `trigger` characters; otherwise items go until it and
+    the NEXT.md pointer fit under `target` (FLAGSHIP_NEXT_TARGET for an
+    explicit --make-room or --trim, the cap for an edit's implicit park), or,
+    when the parkable items cannot free that much, under the cap. Raises
+    ValueError when even the cap cannot be reached."""
     value = " ".join(value.split())
-    if len(value) <= FLAGSHIP_NEXT_MAX:
+    if len(value) <= trigger:
         return value, []
     parked: list[str] = []
     for _ in range(50):
         room = 0 if PARK_POINTER in value else len(PARK_POINTER) + 1
-        over = len(value) + room - FLAGSHIP_NEXT_MAX
+        over = len(value) + room - target
         if over <= 0:
             return value, parked
         cands = [c for c, _ in park_candidates(value, over, keep)]
@@ -370,8 +454,11 @@ def make_room(value: str, keep: tuple[str, ...] = ()) -> tuple[str, list[str]]:
             break
         value = remove_items(value, cands)
         parked += cands
+    if len(value) <= FLAGSHIP_NEXT_MAX:
+        return value, parked
     raise ValueError(f"--make-room: parking every item it may move still leaves `next:` at "
-                     f"{len(value)} of {FLAGSHIP_NEXT_MAX} characters; shorten the new text")
+                     f"{len(value)} of {FLAGSHIP_NEXT_MAX} characters; shorten the new text, or cut "
+                     "landed clauses (`--landed` lists them; they are never parked)")
 
 
 def with_pointer(value: str) -> str:
@@ -437,6 +524,20 @@ def stray_separators(text: str) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Run the CLI. A write attempt (--set/--replace/--park/--make-room) that
+    fails ends with one NOT WRITTEN line, so a refusal is not mistaken for a
+    write (doc_friction 2026-11-16 and 2026-11-17: a refusal's park
+    suggestions read as output, and two runs only saw nothing had changed by
+    re-reading the row)."""
+    argv = sys.argv[1:] if argv is None else argv
+    rc = _main(argv)
+    writes = {"--set", "--replace", "--park", "--make-room", "--trim"}
+    if rc != 0 and "--dry-run" not in argv and any(a.split("=", 1)[0] in writes for a in argv):
+        print(f"NOT WRITTEN: exit {rc}, no file was changed", file=sys.stderr)
+    return rc
+
+
+def _main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("venture", nargs="?")
     ap.add_argument("--field", default="next")
@@ -452,6 +553,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--make-room", action="store_true",
                     help="when `next:` would pass the cap, park items from the end of the row "
                          "(never your own NEW text) until it and the NEXT.md pointer fit")
+    ap.add_argument("--no-make-room", action="store_true",
+                    help="refuse a `next:` edit over the cap instead of parking by itself")
+    ap.add_argument("--trim", action="store_true",
+                    help=f"park items from the end of `next:` until it is at most "
+                         f"{FLAGSHIP_NEXT_TARGET} characters (no other edit needed)")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="say what a `next:` edit would park and how long the row would be; write nothing")
     ap.add_argument("--file", type=Path, default=FLAGSHIPS_PATH)
     ap.add_argument("--ventures-dir", type=Path, default=REPO_ROOT / "ventures", help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
@@ -473,6 +581,14 @@ def main(argv: list[str] | None = None) -> int:
     try:
         current = read_value(text, args.venture, args.field)
         mine = tuple(" ".join(rep.split()) for _, rep in args.replace or [])
+        # A `next:` edit that would pass the cap parks by itself unless told
+        # not to (FLAGSHIP_NEXT_TARGET, docstring); a fitting edit is unchanged.
+        explicit = args.make_room or args.trim
+        if (args.field == "next" and current is not None and not args.no_make_room
+                and (args.set is not None or args.replace)):
+            args.make_room = True
+        if args.trim:
+            args.make_room = True
         if args.landed:
             if current is None:
                 print(f"{args.venture} has no `{args.field}:`", file=sys.stderr)
@@ -501,17 +617,30 @@ def main(argv: list[str] | None = None) -> int:
             if parks:
                 new = remove_items(new, parks)
             if args.make_room:
-                new, auto = make_room(new, mine)
+                before = len(" ".join(new.split()))
+                new, auto = make_room(new, mine,
+                                      FLAGSHIP_NEXT_TARGET if args.trim else FLAGSHIP_NEXT_MAX,
+                                      FLAGSHIP_NEXT_TARGET if explicit else FLAGSHIP_NEXT_MAX)
+                if auto:
+                    how = ("--make-room" if explicit else
+                           "the edit passes the cap, so it parks by itself (--no-make-room refuses instead)")
+                    print(f"{'would park' if args.dry_run else 'parking'} {len(auto)} item(s), "
+                          f"{sum(len(i) + 2 for i in auto)} chars: `next:` was {before} of "
+                          f"{FLAGSHIP_NEXT_MAX} after the edit; {how}", file=sys.stderr)
                 for item in auto:
                     print(f"--make-room parked ({len(item) + 2} chars): {item}", file=sys.stderr)
                 parks += auto
+            if args.dry_run:
+                shown = with_pointer(new) if parks else " ".join(new.split())
+                print(f"dry run: {args.venture}.next would be {len(shown)}"
+                      f"{cap_note('next', len(shown))}; {len(parks)} item(s) to NEXT.md; nothing written")
+                return 0
             if not parks:
                 # it already fitted: an ordinary edit, no NEXT.md entry
                 new = " ".join(new.split())
                 out = set_value(text, args.venture, "next", new, mine)
                 args.file.write_text(out)
-                print(f"wrote {args.venture}.next: {len(new)} of {FLAGSHIP_NEXT_MAX} characters "
-                      "(fits; nothing parked)")
+                print(f"wrote {args.venture}.next: {len(new)}{cap_note('next', len(new))}")
                 return 0
             args.park = parks
             new = with_pointer(new)
@@ -524,7 +653,7 @@ def main(argv: list[str] | None = None) -> int:
             args.file.write_text(out)
             dest.write_text(parked)
             print(f"parked {len(args.park)} item(s) in {dest.relative_to(dest.parents[2])}; "
-                  f"wrote {args.venture}.next: {len(new)} of {FLAGSHIP_NEXT_MAX} characters")
+                  f"wrote {args.venture}.next: {len(new)}{cap_note('next', len(new))}")
             if PARK_POINTER not in new:
                 print(f"note: no room for the pointer {PARK_POINTER!r}; park one more item "
                       "or shorten one so readers know NEXT.md exists", file=sys.stderr)
@@ -546,6 +675,11 @@ def main(argv: list[str] | None = None) -> int:
                 return 1
             new = new.replace(old, rep, 1)
         out = set_value(text, args.venture, args.field, new, mine)
+        if args.dry_run:
+            n = len(" ".join(new.split()))
+            print(f"dry run: {args.venture}.{args.field} would be {n}{cap_note(args.field, n)}; "
+                  "nothing written")
+            return 0
     except (KeyError, ValueError) as e:
         print(e, file=sys.stderr)
         return 1

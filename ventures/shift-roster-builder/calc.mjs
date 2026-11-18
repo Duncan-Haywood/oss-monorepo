@@ -2769,6 +2769,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   const incHours = Math.floor(incumbent / BIG + 1e-9);
   let banned = null, bannedCount = 0; // (person, shift) pairs ruled out by reduced-cost fixing
   let dualBranchStats = null, coverBranchStats = null, coverLPStats = null, lpOwner = null;
+  let rowFirst = null; // { r, proven }: the open-hours row tried before the dual branch, its answer reused below
   let scoreDual = -Infinity; // whole-score floor from pricing shifts (see priceScoreBound)
   // Branch-and-price by column generation (bnp.mjs columnGenerationOpen, pricing oracle makeSetPricer) on the least open hours.
   const runColumnGeneration = () => {
@@ -2782,14 +2783,29 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     const pf = priceOpenFloor(ctx, { incumbentOpen: incHours, incumbentScore: o.scoreDual === false ? null : incumbent, cutoff: o.reducedCostFixing === false ? null : incumbent - tolerance - 1e-9 });
     if (pf) {
       if (pf.scoreBound != null) scoreDual = pf.scoreBound;
-      if (pf.dual && o.dualBranch !== false && scoreDual < incumbent - tolerance - 1e-9) {
+      const unit = [1, 0.5, 0.25].find((u) => len.every((h) => Math.abs(h / u - Math.round(h / u)) < 1e-9)); // open hours come in whole shifts
+      const pfOpen = lift(unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6));
+      // The open-hours row before the dual branch (2026-11-18, docs/history/ci-perf-2026-11-18-shift-roster-row-before-dual.md):
+      // when the priced floor already reaches the incumbent's open hours, nothing below can raise it (the cover branch, the cover
+      // LP and the coverage pass all need a floor under the incumbent's hours) and the incumbent is still the best roster, so
+      // `onFloor` would get the same (hours, best) after the dual branch as now. If its bound proves the roster the dual branch
+      // (up to dualBranchMs, 8 s) is skipped; otherwise its answer is kept for the call below and the dual branch runs as before.
+      // The call-out week with Cleo off Saturday, earlyFloor: false: 8.1 s of dual branch, then the row proved it in 0.1 s.
+      if (onFloor && o.rowBeforeDual !== false && pfOpen > 0 && pfOpen >= incHours - 1e-9 && scoreDual < incumbent - tolerance - 1e-9) {
+        rowFirst = { r: onFloor(pfOpen, incumbent) };
+        const r = rowFirst.r;
+        if (r) {
+          const own = r.owner ? scoreOwner(ctx, r.owner).total : Infinity;
+          rowFirst.proven = Math.max(scoreDual, r.bound) >= Math.min(incumbent, own < incumbent - 1e-9 ? own : incumbent) - tolerance - 1e-9;
+        }
+      }
+      if (pf.dual && o.dualBranch !== false && !rowFirst?.proven && scoreDual < incumbent - tolerance - 1e-9) {
         const db = branchDual(ctx, pf.dual, scoreDual, incumbent, incumbent - tolerance - 1e-9, { maxNodes: o.dualBranchNodes, ms: o.dualBranchMs });
         dualBranchStats = db.stats;
         if (db.bound > scoreDual) scoreDual = db.bound;
       }
       if (pf.banned) { banned = pf.banned; bannedCount = pf.banCount; }
-      const unit = [1, 0.5, 0.25].find((u) => len.every((h) => Math.abs(h / u - Math.round(h / u)) < 1e-9)); // open hours come in whole shifts
-      minOpenH = lift(unit ? Math.ceil(pf.floor / unit - 1e-6) * unit : Math.max(0, pf.floor - 1e-6));
+      minOpenH = pfOpen;
       // Branch on the open-hours price itself: every held set is worth 0 and an open shift costs BIG x its hours, so the same
       // branch-and-bound as above bounds the least open hours and closes part of the integrality gap the root price leaves.
       if (o.coverBranch !== false && minOpenH < incHours - 1e-9) {
@@ -2879,12 +2895,13 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // The open-hours floor is final here. `onFloor(hours, best)` (buildRoster's open-hours row, bnp.mjs `openFloor`) may return a
   // whole-score bound that knows it, { bound, owner }; when that bound reaches the best roster the tree below is not needed.
   if (onFloor && minOpenH > 0 && scoreDual < best - tolerance - 1e-9) {
-    const r = onFloor(minOpenH, best);
+    // Tried before the dual branch with these same (hours, best): the floor and the incumbent cannot have moved since (see there).
+    const r = rowFirst ? rowFirst.r : onFloor(minOpenH, best);
     if (r) {
       if (r.owner) { const total = scoreOwner(ctx, r.owner).total; if (total < best - 1e-9) { best = total; bestOwner = r.owner; } }
       if (r.bound > scoreDual) scoreDual = r.bound;
       rootBound = Math.max(rootBound, scoreDual);
-      if (scoreDual >= best - tolerance - 1e-9) return { proven: true, banned: bannedCount, nodes: coverNodes, coverNodes, coverOpen: minOpenH, rootBound, coverBranchStats, coverLPStats, owner: bestOwner, score: bestOwner ? best : null };
+      if (scoreDual >= best - tolerance - 1e-9) return { proven: true, banned: bannedCount, nodes: coverNodes, coverNodes, coverOpen: minOpenH, rootBound, coverBranchStats, coverLPStats, owner: bestOwner, score: bestOwner ? best : null, rowBeforeDual: !!rowFirst?.proven };
     }
   }
   rec(0, 0);
@@ -4168,7 +4185,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       coverGuided,
       coverRepairReserveMs: repairReserveMs,
       coverRepair: repairStats,
-      openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms } : null,
+      openRow: cgRow ? { openFloor: cgRow.openFloor, proven: cgRow.proven, rootLP: cgRow.rootLP, bound: cgRow.floor, nodes: cgRow.stats.nodes, ms: cgRow.stats.ms, beforeDual: !!ex.rowBeforeDual } : null,
     };
   }
   // Call-out slack, priced (2026-11-13). Runs last, on the best roster the search (and any proof) reached, so a week built

@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtHyL49B7jyfKXnDL1T",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T16:07:26Z",
+  "ended": "2026-11-17T16:16:09Z",
+  "wall_minutes": 9.55,
+  "tokens_in": 6684562,
+  "tokens_out": 39487,
+  "cost_usd": 3.3018,
+  "tool_calls": 57,
+  "task": "ids-model-check (flagship 12): duplicate GlobalIds across federated models, buildable item",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16988",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The buildable hint named the federated-GlobalIds item but not which public sets are actually federated; I had to discover that bSI Simple-Scene is one scene per schema (mixing schemas produces 30 bogus revision pairs)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-model-check-one-wall-in-two-discipline-models.md",
+    "ventures/ids-model-check/eval/federated-globalids-2026-11-17.md"
+  ],
+  "goal": "Deepen flagship 12 with a working slice: cross-model GlobalId check in CI",
+  "notes": "Local: run_venture_tests.py ids-model-check: 166 tests ok, 0 failed. node --test federation.test.mjs 5/5. Real data: HHS Office architect+MEP+structural via ci-cli: 1 shared wall (Basic Wall:STB 30.0:573321), 7 frame, 2.1 s whole run; adding *2.ifc gives 3 revision pairs. bSI Simple-Scene per schema 31-35 same-class conflicts (8 elements). Cross-model step 177 ms on 42 models / 171,528 GlobalIds. venture-preflight run in background (result in PR summary).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fc9db2ef-d457-5541-b1eb-b10be606061a",
+    "transcripts": 1,
+    "first": "2026-11-17T16:07:26Z",
+    "last": "2026-11-17T16:16:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 106,
+        "output": 39487,
+        "thinking": 8660,
+        "cache_read": 6533851,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150605,
+        "api_equivalent_usd": 3.3018,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 106,
+      "output": 39487,
+      "thinking": 8660,
+      "cache_read": 6533851,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150605,
+      "api_equivalent_usd": 3.3018,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.55,
+      "active_minutes": 9.55,
+      "model_minutes": 7.42,
+      "tool_minutes": 2.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior BIM tooling dev: design cross-model GUID check, wire into 6 CI outputs, tests, run on 3 public corpora, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 302.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

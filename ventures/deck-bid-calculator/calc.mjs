@@ -275,7 +275,7 @@ export function calculateBid(input) {
   const pricePerSf = deckSquareFeet === 0 ? null : price / deckSquareFeet;
   const effectiveHourlyRate = laborHours === 0 ? null : price / laborHours;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   return {

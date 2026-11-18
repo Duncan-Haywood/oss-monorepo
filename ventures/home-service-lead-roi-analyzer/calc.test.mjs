@@ -8,7 +8,7 @@ const near = (a, b, e = 0.005) => assert.ok(Math.abs(a - b) < e, `${a} !~ ${b}`)
 
 test("CSV parsing handles quoted fields, delimiters, BOM and UTF-16", () => {
   assert.deepEqual(parseCsv('a,b\n"x, y","say ""hi"""\n')[1], ["x, y", 'say "hi"']);
-  assert.equal(parseCsv("﻿x,y\r\n1,2\r\n")[0][0], "x");
+  assert.equal(parseCsv("\uFEFFx,y\r\n1,2\r\n")[0][0], "x");
   assert.equal(detectDelimiter("a;b\n1;2"), ";");
   assert.equal(parseNumber("$1,234.56"), 1234.56);
   assert.equal(parseNumber("(50)"), -50);

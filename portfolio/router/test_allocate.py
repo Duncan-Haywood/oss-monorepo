@@ -789,6 +789,21 @@ class FlagshipTests(unittest.TestCase):
                                         "https://archive.org/"])
         self.assertEqual(row_hosts(self.flag("plain", 1, "README.md, flagships.yaml, v1.40")), [])
 
+    def test_row_hosts_reads_the_hosts_a_named_script_fetches(self):
+        # friction 2026-11-17: the row named eval/cord_images.py, not huggingface.co
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "books"
+            (root / "eval").mkdir(parents=True)
+            (root / "eval" / "cord_images.py").write_text(
+                "# Licence: https://creativecommons.org/licenses/by/4.0/\n"
+                "#   https://huggingface.co/datasets/x/resolve/abc/test.parquet\n"
+                "LOCAL = 'http://localhost:8000/'\n")
+            v = self.flag("books", 0, "x")
+            v.flagship_buildable = "CORD photos (eval/cord_images.py); eval/missing.py; ../../etc/passwd.sh"
+            self.assertEqual(row_hosts(v, ventures_dir=Path(d)), ["https://huggingface.co/"])
+            v.flagship_hosts = ["https://huggingface.co/x"]
+            self.assertEqual(row_hosts(v, ventures_dir=Path(d)), ["https://huggingface.co/x"])
+
     def test_venture_report_probes_the_row_hosts_only_when_asked(self):
         v = self.flag("deep", 0, "history")
         v.flagship_hosts = ["https://archive.org/", "https://github.com/"]
@@ -858,6 +873,15 @@ class OpenPrClaimTest(unittest.TestCase):
         search.assert_not_called()
         self.assertEqual(got, [(16190, "shift-roster-builder: claim", "2026-11-15T10:58:20Z")])
 
+    def test_drops_prs_already_squashed_or_merged_on_main(self):
+        """#16521 showed as an OPEN PR while its squash commit sat on main (2026-11-17)."""
+        import allocate
+        prs = [(16521, "a: landed", "x"), (16522, "b: open", "x"), (16523, "c: merged", "x")]
+        subjects = ["a: thing (#16521)", "Merge pull request #16523 from x/y", "mentions (#16522) mid-line only"]
+        self.assertEqual(allocate.drop_landed(prs, subjects), [(16522, "b: open", "x")])
+        self.assertIsNone(allocate.drop_landed(None, subjects))
+        self.assertEqual(allocate.drop_landed(prs, []), prs)
+
     def test_falls_back_to_search_when_the_pulls_list_is_unreadable(self):
         from unittest import mock
         import allocate
@@ -920,6 +944,96 @@ class StartHereTests(unittest.TestCase):
                          start_here(queue, {}, now=now, session="abc"))
         # One free row: every session gets it.
         self.assertEqual(start_here(queue[:2], {}, now=now, session="abc"), (1, "v0"))
+
+
+class LeastClaimedTests(unittest.TestCase):
+    def test_names_the_row_whose_newest_claim_is_oldest_when_none_is_free(self):
+        from datetime import datetime, timezone
+        from allocate import least_claimed
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        queue = [
+            {"venture": "a", "flagship": True, "task": "Deepen (flagship 1): x"},
+            {"venture": "stuck", "flagship": True, "task": "Inputs only (flagship 2): x"},
+            {"venture": "b", "flagship": True, "task": "Deepen (flagship 3): x"},
+            {"venture": "c", "flagship": True, "task": "Deepen (flagship 4): x"},
+        ]
+        claims = {"a": [(10, "a: x", "2026-11-17T11:30:00Z")],
+                  "b": [(11, "b: x", "2026-11-17T07:00:00Z"), (12, "b: y", "2026-11-17T10:00:00Z")],
+                  "c": [(13, "c: x", "2026-11-17T11:00:00Z"), (9, "c: old", "2026-11-01T00:00:00Z")]}
+        self.assertIsNone(start_here(queue, claims, now=now))
+        # b's newest claim (#12, 2 h) is older than c's (1 h) and a's (0.5 h).
+        self.assertEqual(least_claimed(queue, claims, now=now), (3, "b", 12, 2.0))
+        # Sessions spread over the least contested rows, never the inputs-only one.
+        picks = {least_claimed(queue, claims, now=now, session=f"s{n}", spread=2)[:2] for n in range(40)}
+        self.assertEqual(picks, {(3, "b"), (4, "c")})
+        # A free row means start_here answers, so there is no fallback.
+        self.assertIsNone(least_claimed(queue, {"a": claims["a"]}, now=now))
+        self.assertIsNone(least_claimed(queue, None, now=now))
+
+
+class LeftRowsTests(unittest.TestCase):
+    def _runs(self, records):
+        d = tempfile.TemporaryDirectory()
+        self.addCleanup(d.cleanup)
+        for i, (date, rec) in enumerate(records):
+            Path(d.name, f"{date}-session_{i}.json").write_text(json.dumps(rec))
+        return Path(d.name)
+
+    def test_counts_departures_not_claim_races_or_old_records(self):
+        from datetime import datetime, timezone
+        from allocate import left_rows, left_note
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        dev = lambda why, f="portfolio/router/allocate.py": {"file": f, "why": why}
+        runs = self._runs([
+            ("2026-11-17", {"projects": ["ids-model-check"], "deviations": [
+                dev("Start here named roster; nothing buildable, ids-model-check had an item")]}),
+            ("2026-11-16", {"projects": ["ventures/ids-model-check"], "deviations": [
+                dev("roster's next: is solver tuning", "prompts/ventures/prompt-2.md")]}),
+            # A claim race, an unrelated file, and a record too old are not departures.
+            ("2026-11-17", {"projects": ["bk"], "deviations": [
+                dev("roster was claimed by PR #1 a minute earlier")]}),
+            ("2026-11-17", {"projects": ["bk"], "deviations": [
+                dev("roster: skipped the post", "docs/posts")]}),
+            ("2026-11-14", {"projects": ["bk"], "deviations": [dev("roster had nothing")]}),
+            # Worked the row it names: not a departure.
+            ("2026-11-17", {"projects": ["roster"], "deviations": [dev("roster first, then bk")]}),
+            ("2026-11-17", "not a record"),
+        ])
+        left = left_rows(["roster", "ids-model-check", "bk"], runs, now=now)
+        self.assertEqual([(d, t) for d, t, _ in left["roster"]],
+                         [("2026-11-16", "ids-model-check"), ("2026-11-17", "ids-model-check")])
+        self.assertEqual(set(left), {"roster"})
+        note = left_note("roster", left)
+        self.assertIn("2 session(s)", note)
+        self.assertIn("ids-model-check (2)", note)
+        self.assertIn("nothing buildable", note)  # the newest reason
+        self.assertIsNone(left_note("bk", left))
+
+    def test_worked_count_puts_leaves_in_proportion(self):
+        from datetime import datetime, timezone
+        from allocate import left_rows, left_note, worked_rows
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        dev = {"file": "portfolio/router/allocate.py", "why": "roster had nothing buildable"}
+        runs = self._runs([
+            ("2026-11-17", {"projects": ["bk"], "deviations": [dev]}),
+            ("2026-11-17", {"projects": ["roster"]}),
+            ("2026-11-16", {"projects": ["ventures/roster"]}),
+            ("2026-11-14", {"projects": ["roster"]}),  # outside the window
+        ])
+        worked = worked_rows(["roster", "bk"], runs, now=now)
+        self.assertEqual(worked, {"roster": 2, "bk": 1})
+        left = left_rows(["roster", "bk"], runs, now=now)
+        note = left_note("roster", left, worked=worked["roster"], has_buildable=True)
+        self.assertIn("2 record(s) worked roster", note)
+        self.assertIn("Most sessions sent here found work", note)
+        self.assertIn("refresh its `buildable:`", note)
+        note = left_note("roster", left, worked=0)
+        self.assertNotIn("Most sessions", note)
+        self.assertIn("add `buildable:` or `inputs_only:`", note)
+
+    def test_no_runs_dir_means_no_hint(self):
+        from allocate import left_rows
+        self.assertEqual(left_rows(["x"], Path("/nonexistent-runs-dir")), {})
 
 
 class VentureReportTests(unittest.TestCase):
@@ -1212,6 +1326,102 @@ class PostLimitsLineTests(unittest.TestCase):
         line = post_limits_line()
         self.assertTrue(line.startswith("post front matter:"))
         self.assertIn(f"seo_title <= {cpf.LIMITS['seo_title']}", line)
+
+
+class MainFlagshipsTest(unittest.TestCase):
+    """refresh_tip + main_flagships: rows come from origin/main when a sibling's merge
+    changed flagships.yaml after this clone (four claims of just-merged items, 2026-11-16/17)."""
+
+    def git(self, cwd, *args):
+        import subprocess
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=cwd,
+                       check=True, capture_output=True, text=True)
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        t = Path(self.tmp.name)
+        self.remote, self.sibling, self.clone = t / "remote.git", t / "sibling", t / "clone"
+        self.git(t, "init", "-q", "--bare", "-b", "main", str(self.remote))
+        self.git(t, "clone", "-q", str(self.remote), str(self.sibling))
+        (self.sibling / "portfolio").mkdir()
+        self.write(self.sibling, "flagships:\n- venture: a\n  next: old item\n")
+        self.git(self.sibling, "add", "-A")
+        self.git(self.sibling, "commit", "-qm", "first")
+        self.git(self.sibling, "push", "-q", "origin", "HEAD:main")
+        self.git(t, "clone", "-q", str(self.remote), str(self.clone))
+        # A sibling session merges a change to the row after this clone was made.
+        self.write(self.sibling, "flagships:\n- venture: a\n  next: new item\n")
+        self.git(self.sibling, "commit", "-qam", "a: old item landed (#9)")
+        self.git(self.sibling, "push", "-q", "origin", "HEAD:main")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def write(self, repo, text):
+        (repo / "portfolio" / "flagships.yaml").write_text(text)
+
+    def test_reads_main_after_a_sibling_merge(self):
+        from allocate import main_flagships, refresh_tip
+        self.assertEqual(main_flagships(self.clone), (None, ""))  # origin/main not fetched yet
+        self.assertTrue(refresh_tip(self.clone))
+        self.assertFalse(refresh_tip(self.clone))  # already the tip: no second fetch
+        text, note = main_flagships(self.clone)
+        self.assertIn("new item", text)
+        self.assertIn("1 commit(s)", note)
+        self.assertIn("old item landed (#9)", note)
+
+    def test_keeps_a_sessions_own_edits(self):
+        from allocate import main_flagships, refresh_tip
+        refresh_tip(self.clone)
+        self.write(self.clone, "flagships:\n- venture: a\n  next: my claim\n")
+        text, note = main_flagships(self.clone)
+        self.assertIsNone(text)
+        self.assertIn("uncommitted edits", note)
+        self.git(self.clone, "commit", "-qam", "mine")
+        text, note = main_flagships(self.clone)
+        self.assertIsNone(text)
+        self.assertIn("git merge origin/main", note)
+
+    def test_override_reaches_the_loaders(self):
+        import allocate
+        allocate._FLAGSHIPS_TEXT = "flagships:\n- venture: zz\n  next: from main\n"
+        try:
+            self.assertEqual(load_flagships(FLAGSHIPS_PATH), {"zz": (0, "from main")})
+        finally:
+            allocate._FLAGSHIPS_TEXT = None
+        self.assertNotIn("zz", load_flagships(FLAGSHIPS_PATH))
+
+
+class FoldedRowsTests(unittest.TestCase):
+    """The default table folds rows whose task is shared advice (2026-11-18: 1,326
+    such rows were 545 KB of a 578 KB table, past the tool output cap)."""
+
+    def test_kinds(self):
+        from allocate import folded_kind, MAINTAIN_TASK, NO_HYPOTHESIS_PREFIX
+        self.assertIsNotNone(folded_kind(MAINTAIN_TASK))
+        self.assertIsNotNone(folded_kind(NO_HYPOTHESIS_PREFIX + " -- add one"))
+        self.assertIsNotNone(folded_kind('Explore (awaiting visitors; x): "y"'))
+        self.assertIsNone(folded_kind("Deepen (flagship 1): BUILDABLE HERE: z"))
+        self.assertIsNone(folded_kind('Explore: test the untested hypothesis -- "q"'))
+
+    def test_real_table_stays_small_and_all_lists_every_row(self):
+        import contextlib
+        import io
+        from allocate import main
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(main(["--no-deepen", "--no-claims"]), 0)
+        text = out.getvalue()
+        self.assertLess(len(text), 120_000, "default table grew past the fold")
+        self.assertIn("Deepen (flagship", text)
+        folded = sum(int(line.split()[2]) for line in text.splitlines()
+                     if line.startswith("... and "))
+        full = io.StringIO()
+        with contextlib.redirect_stdout(full):
+            main(["--no-deepen", "--no-claims", "--all"])
+        self.assertNotIn("\n... and ", full.getvalue())
+        self.assertEqual(len(full.getvalue().splitlines()) - len(text.splitlines()),
+                         folded - sum(1 for l in text.splitlines() if l.startswith("... and ")))
 
 
 if __name__ == "__main__":

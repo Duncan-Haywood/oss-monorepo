@@ -1,0 +1,65 @@
+name: propensity-score
+description: >-
+  Free browser tool, CLI and agent call for epidemiologists, health services
+  and policy researchers, economists, product analysts and students with
+  observational data where the treatment was chosen, not randomised: upload
+  one row per unit with a 0/1 treatment, an outcome and pre-treatment
+  covariates, and get inverse probability weighting, regression adjustment,
+  doubly robust AIPW and nearest-neighbour matching for the ATE, ATT and ATC,
+  with standard errors that count the estimated score, covariate balance,
+  overlap and trimming. Matches statsmodels' TreatmentEffect. Nothing is
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-18 on an explore run, as a research algorithm tool beside
+# regression-discontinuity, difference-in-differences and synthetic-control;
+# no venture README mentioned propensity scores (1,398 searched). Implemented
+# from the papers' definitions; no third-party code was ported. statsmodels
+# 0.15.0 (BSD-3) was run only as an external program to produce
+# eval/reference.json. Example data are simulated (eval/simulate.py;
+# data/SOURCE.md).
+#
+# First visitor: searches such as "propensity score matching online",
+# "propensity score calculator", "inverse probability weighting calculator",
+# "doubly robust estimator", "standardized mean difference calculator";
+# students in epidemiology and causal inference courses and analysts without
+# R or Stata. Volume not measured with an external tool.
+#
+# Alternatives: R MatchIt, WeightIt and cobalt; Stata teffects; Python
+# statsmodels TreatmentEffect, DoWhy and causalml (all need an environment
+# and code). Not surveyed for hosted web versions. The differentiators here
+# are no install, all four estimators and the balance and overlap checks on
+# one page with a reading in words, and tests pinned to statsmodels.
+#
+# Liability: statistical output from supplied data, not medical, policy,
+# legal or financial advice; the page states the no-unmeasured-confounding
+# assumption in the result itself. Data never leave the browser (tests
+# assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts and students with observational treatment data will use a
+      no-install tool that puts weighting, regression adjustment, AIPW and
+      matching side by side with balance diagnostics, and will link or cite it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports estimates that disagree with statsmodels or Stata teffects on the same data and specification, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/propensity-score/
+  analytics: null

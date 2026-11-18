@@ -11,7 +11,7 @@ export function decodeBuffer(buf) {
   if (bytes[0] === 0xfe && bytes[1] === 0xff) return new TextDecoder("utf-16be").decode(bytes.subarray(2));
   let text;
   try { text = new TextDecoder("utf-8", { fatal: true }).decode(bytes); } catch { text = new TextDecoder("windows-1252").decode(bytes); }
-  return text.replace(/^﻿/, "");
+  return text.replace(/^\uFEFF/, "");
 }
 
 export function detectDelimiter(text) {
@@ -193,7 +193,7 @@ function guessTrnType(cents, desc) {
 export function convert(text, options = {}) {
   const findings = [];
   const add = (severity, title, detail, line) => findings.push({ severity, title, detail, line: line || null });
-  const clean = String(text || "").replace(/^﻿/, "");
+  const clean = String(text || "").replace(/^\uFEFF/, "");
   const delimiter = options.delimiter || detectDelimiter(clean);
   let rows = parseCsv(clean, delimiter).filter((r) => r.some((c) => c.trim() !== ""));
   const result = { delimiter, columns: {}, transactions: [], findings, summary: { rows: 0, imported: 0, skipped: 0, credits: 0, debits: 0, net: 0, from: null, to: null, dateOrder: null } };
@@ -330,7 +330,9 @@ export function toOfx(result, o = {}) {
     `<BANKTRANLIST><DTSTART>${ymd(first)}120000<DTEND>${ymd(last)}120000`,
   ];
   for (const t of tx) {
-    const name = ofxEsc(t.desc.slice(0, 32));
+    // Runs of spaces collapse first (as the BAI2 and camt.053 converters do), so a padded bank description
+    // ("AMAZON      MKTPLACE") does not spend the 32 characters on blanks.
+    const name = ofxEsc(t.desc.replace(/\s+/g, " ").trim().slice(0, 32));
     lines.push(`<STMTTRN><TRNTYPE>${t.type}<DTPOSTED>${ymd(t.date)}120000<TRNAMT>${money(t.cents)}<FITID>${t.fitid}` + (t.check ? `<CHECKNUM>${t.check}` : "") + `<NAME>${name}` + (t.memo || t.desc.length > 32 ? `<MEMO>${ofxEsc((t.memo || t.desc).slice(0, 255))}` : "") + "</STMTTRN>");
   }
   lines.push("</BANKTRANLIST>");

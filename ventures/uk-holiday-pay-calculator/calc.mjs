@@ -13,7 +13,7 @@ export const MAX_DAYS = 28;
 export const ACCRUAL = 0.1207;
 export const MAX_HOURS_YEAR = 8784; // 366 days of 24 hours, an upper sanity bound
 
-const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }));
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 const r2 = (n) => Math.round(n * 100) / 100;
 const roundUpHalf = (n) => Math.ceil(r2(n) * 2 - 1e-9) / 2;
 

@@ -97,7 +97,7 @@ const num = (v, where) => {
 export function supplierFromCsv(text) {
   const s = { id: "imported", name: "Imported sheet", example: false, currency: "EUR", moq: 1, leadTimeDays: null,
     cutAndSew: {}, metresPerGarment: {}, wastagePct: 0, fabrics: {}, methods: {}, trimsPerUnit: 0, packagingPerUnit: 0, freightPerUnit: 0, dutyPct: 0 };
-  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/);
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r?\n/);
   lines.forEach((raw, i) => {
     const line = raw.trim();
     if (!line || i === 0 && line.toLowerCase().startsWith("kind,")) return;

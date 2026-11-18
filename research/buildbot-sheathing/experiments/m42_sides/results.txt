@@ -1,0 +1,92 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 42: the zero-press lean or the controller's sides?
+## A. 'hold-min' sides (light leg joints): robot | joint | milestone 38 | milestone 41
+  g1 left_hip_roll_joint          +1 -1  <- flipped
+  g1 left_hip_yaw_joint           -1 -1
+  g1 left_ankle_roll_joint        -1 +1  <- flipped
+  g1 right_hip_roll_joint         -1 +1  <- flipped
+  g1 right_hip_yaw_joint          -1 -1
+  g1 right_ankle_roll_joint       -1 +1  <- flipped
+  h1 left_hip_yaw                 -1 -1
+  h1 left_hip_roll                +1 +1
+  h1 right_hip_yaw                -1 -1
+  h1 right_hip_roll               +1 +1
+
+## B. No-hose clean-sheet stack, 'braked': robot | pose | m32 lean + m38 sides (milestone 40) | zero lean + m38 sides | m32 lean + m41 sides | zero lean + m41 sides (milestone 41) | re-leaned
+  g1 [0.4, -0.15] | 0.9582 | 0.9582 | 0.9582 | 0.9582
+  g1 [0.4, 0.0] | 0.9534 | 0.9534 | 0.9534 | 0.9534
+  g1 [0.4, 0.15] | 0.9543 | 0.9543 | 0.9543 | 0.9543
+  g1 [0.6, -0.15] | 0.9609 | 0.9609 | 0.9609 | 0.9609
+  g1 [0.6, 0.0] | 0.9566 | 0.9566 | 0.9566 | 0.9566
+  g1 [0.6, 0.15] | 0.9579 | 0.9579 | 0.9579 | 0.9579
+  g1 [0.8, -0.15] | 0.9539 | 0.9539 | 0.9539 | 0.9539
+  g1 [0.8, 0.0] | 0.9597 | 0.9597 | 0.9597 | 0.9597
+  g1 [0.8, 0.15] | 0.9592 | 0.9592 | 0.9592 | 0.9592
+  g1 [1.0, -0.15] | 0.9534 | 0.9503 | 0.9534 | 0.9503 | yes
+  g1 [1.0, 0.0] | 0.9516 | 0.9484 | 0.9516 | 0.9484 | yes
+  g1 [1.0, 0.15] | 0.9468 | 0.9547 | 0.9468 | 0.9547 | yes
+  g1 [1.2, -0.15] | 0.9358 | 0.9418 | 0.9358 | 0.9418 | yes
+  g1 [1.2, 0.0] | 0.9160 | 0.9030 | 0.9160 | 0.9030 | yes
+  g1 [1.2, 0.15] | 0.9480 |    -   | 0.9480 | 0.9363 | yes
+  h1 [0.4, -0.15] |    -   |    -   |    -   |    -  
+  h1 [0.4, 0.0] | 0.9765 | 0.9765 | 0.9765 | 0.9765
+  h1 [0.4, 0.15] | 0.9725 | 0.9725 | 0.9725 | 0.9725
+  h1 [0.6, -0.15] | 0.9799 | 0.9799 | 0.9799 | 0.9799
+  h1 [0.6, 0.0] | 0.9766 | 0.9766 | 0.9766 | 0.9766
+  h1 [0.6, 0.15] | 0.9821 | 0.9821 | 0.9821 | 0.9821
+  h1 [0.8, -0.15] | 0.9795 | 0.9795 | 0.9795 | 0.9795
+  h1 [0.8, 0.0] | 0.9764 | 0.9764 | 0.9764 | 0.9764
+  h1 [0.8, 0.15] | 0.9829 | 0.9829 | 0.9829 | 0.9829
+  h1 [1.0, -0.15] | 0.9785 | 0.9785 | 0.9785 | 0.9785
+  h1 [1.0, 0.0] | 0.9765 | 0.9765 | 0.9765 | 0.9765
+  h1 [1.0, 0.15] | 0.9845 | 0.9845 | 0.9845 | 0.9845
+  h1 [1.2, -0.15] | 0.9765 | 0.9765 | 0.9765 | 0.9765
+  h1 [1.2, 0.0] | 0.9771 | 0.9771 | 0.9771 | 0.9771
+  h1 [1.2, 0.15] | 0.9725 | 0.9725 | 0.9725 | 0.9725
+  h1 [1.4, -0.15] | 0.9632 | 0.9620 | 0.9632 | 0.9620 | yes
+  h1 [1.4, 0.0] | 0.9744 | 0.9734 | 0.9744 | 0.9734 | yes
+  h1 [1.4, 0.15] | 0.9765 | 0.9756 | 0.9765 | 0.9756 | yes
+  h1 [1.6, -0.15] | 0.9564 |    -   | 0.9564 |    -   | yes
+  h1 [1.6, 0.0] | 0.9638 | 0.9610 | 0.9638 | 0.9610 | yes
+  h1 [1.6, 0.15] | 0.9677 | 0.9655 | 0.9677 | 0.9655 | yes
+
+## C. Worst pose over the set, and the split at the G1's worst pose (points of clean sheets)
+  g1 lean m32  sides m38: worst 0.9160 at [1.2, 0.0]; poses 15
+  g1 lean m32  sides m41: worst 0.9160 at [1.2, 0.0]; poses 15
+  g1 lean zero sides m38: worst 0.9030 at [1.2, 0.0]; poses 14 (1 with no 'hold-min' solution)
+  g1 lean zero sides m41: worst 0.9030 at [1.2, 0.0]; poses 15
+  h1 lean m32  sides m38: worst 0.9564 at [1.6, -0.15]; poses 20 (1 with no 'hold-min' solution)
+  h1 lean m32  sides m41: worst 0.9564 at [1.6, -0.15]; poses 20 (1 with no 'hold-min' solution)
+  h1 lean zero sides m38: worst 0.9610 at [1.6, 0.0]; poses 19 (2 with no 'hold-min' solution)
+  h1 lean zero sides m41: worst 0.9610 at [1.6, 0.0]; poses 19 (2 with no 'hold-min' solution)
+  g1 at [1.2, 0.0]: loss both +1.30 = lean +1.30 + sides +0.00 + interaction +0.00
+  g1 worst over the set: loss both +1.30, lean only +1.30, sides only +0.00
+  h1 at [1.2, 0.0]: loss both +0.00 = lean +0.00 + sides +0.00 + interaction +0.00
+  h1 worst over the set: loss both -0.46, lean only -0.46, sides only +0.00
+check: zero lean + milestone 41 sides reproduce milestone 41's g1 stacks to 0.0e+00 (expect 0)
+check: zero lean + milestone 41 sides reproduce milestone 41's h1 stacks to 0.0e+00 (expect 0)
+check: m32 lean + milestone 38 sides reproduce milestone 40's g1 stacks to 9.7e-03 (expect 0)
+check: m32 lean + milestone 38 sides reproduce milestone 40's h1 stacks to 9.1e-03 (expect 0)
+
+## D. Hypotheses (registered in LOG.md before this run)
+H161 (old sides kept: the re-lean alone costs the G1's worst pose at least 0.65 points): +1.30 -> held
+H162 (milestone 32's leans: the new sides move the G1's worst-pose stack by at most 0.5 points): +0.00 -> held
+H163 (|interaction| at the G1's worst pose at most 0.3 points): +0.00 -> held
+H164 (milestone 38's G1 sides keep a 'hold-min' solution at all six re-leaned G1 poses): lost at [[1.2, 0.15]] -> refuted
+
+(run time 93 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

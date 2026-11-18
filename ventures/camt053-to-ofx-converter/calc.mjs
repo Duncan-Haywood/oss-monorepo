@@ -248,10 +248,10 @@ function parseMt940(text, add) {
 export function analyze(text) {
   const findings = [];
   const add = (severity, code, line, title, detail = "") => findings.push({ severity, code, line, title, detail });
-  const trimmed = text.replace(/^﻿/, "").trim();
+  const trimmed = text.replace(/^\uFEFF/, "").trim();
   if (!trimmed) { add("error", "EMPTY", 0, "Nothing to read"); return { findings, statements: [], format: "", summary: summarize([], "") }; }
   const isXml = trimmed.startsWith("<");
-  const parsed = isXml ? parseCamt(text.replace(/^﻿/, ""), add) : parseMt940(text.replace(/^﻿/, ""), add);
+  const parsed = isXml ? parseCamt(text.replace(/^\uFEFF/, ""), add) : parseMt940(text.replace(/^\uFEFF/, ""), add);
   if (!isXml && !parsed.statements.length) add("error", "STRUCTURE", 1, "No MT940 statement found", "Expected tagged lines like :20:REF, :25:ACCOUNT, :60F:C261001EUR100,00, :61: entries and :62F: closing balance. camt files start with <.");
 
   const stmts = parsed.statements;
@@ -334,7 +334,7 @@ export function findingsCsv(result) {
 }
 
 export function decodeBuffer(buf) {
-  return new TextDecoder("utf-8").decode(buf).replace(/^﻿/, "");
+  return new TextDecoder("utf-8").decode(buf).replace(/^\uFEFF/, "");
 }
 
 // ---------------------------------------------------------------- converters
@@ -342,6 +342,10 @@ export function decodeBuffer(buf) {
 // Quicken import one account per file.
 const ascii = (s) => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ß/g, "ss").replace(/[^\x20-\x7e]/g, "?");
 const ofxText = (s) => ascii(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\s+/g, " ").trim();
+// OFX caps MEMO at 255 characters. The cut used to come after escaping, so an & near character 255 was
+// written as a bare "&am" that importers reject; cut the plain text so even the escaped text fits (as the BAI2
+// converter does), never ending inside an "&amp;".
+const ofxCut = (s, n) => { let t = ascii(s).replace(/\s+/g, " ").trim().slice(0, n); while (ofxText(t).length > n) t = t.slice(0, -1); return ofxText(t); };
 const ymd = (iso) => iso.replace(/-/g, "");
 
 function hash36(str) {
@@ -393,8 +397,8 @@ export function toOfx(statement, o = {}) {
     `<BANKTRANLIST><DTSTART>${ymd(first)}120000<DTEND>${ymd(last)}120000`,
   ];
   for (const e of rows) {
-    const memo = ofxText(e.text || e.ref || "");
-    L.push(`<STMTTRN><TRNTYPE>${e.amount < 0 ? "DEBIT" : "CREDIT"}<DTPOSTED>${ymd(e.date)}120000<TRNAMT>${dec(e.amount, e.currency)}<FITID>${e.fitid}<NAME>${ofxText(ascii(e.name).slice(0, 32))}${memo ? `<MEMO>${memo.slice(0, 255)}` : ""}</STMTTRN>`);
+    const memo = ofxCut(e.text || e.ref || "", 255);
+    L.push(`<STMTTRN><TRNTYPE>${e.amount < 0 ? "DEBIT" : "CREDIT"}<DTPOSTED>${ymd(e.date)}120000<TRNAMT>${dec(e.amount, e.currency)}<FITID>${e.fitid}<NAME>${ofxText(ascii(e.name).replace(/\s+/g, " ").trim().slice(0, 32))}${memo ? `<MEMO>${memo}` : ""}</STMTTRN>`);
   }
   L.push("</BANKTRANLIST>");
   if (statement.closing) L.push(`<LEDGERBAL><BALAMT>${dec(statement.closing.amount, statement.closing.currency)}<DTASOF>${ymd(statement.closing.date || last)}120000</LEDGERBAL>`);

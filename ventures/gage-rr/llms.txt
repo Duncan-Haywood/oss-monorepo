@@ -1,0 +1,28 @@
+# Gage R&R calculator: ANOVA method, crossed and nested, with confidence intervals
+
+> Free online Gage R&R (gauge repeatability and reproducibility, measurement system analysis) by the ANOVA method. Paste a crossed study (every operator measures every part several times) or a nested one (destructive testing, each operator has own parts) and get the ANOVA table, variance components for repeatability, reproducibility, operator, part by operator interaction and part-to-part, %contribution, %study variation, %tolerance (precision-to-tolerance ratio), %process, the number of distinct categories (1.41 × part SD / gauge SD, AIAG MSA 4th edition), and confidence intervals for every component: exact chi-square for repeatability, modified large-sample (Graybill & Wang 1980; Ting et al. 1990; Burdick, Borror & Montgomery 2003) for the rest. Sums of squares match statsmodels to 1e-9; simulated 95% interval coverage 94.5% to 97.7%. Example: a real study of three ways to time a JavaScript function (gauge R&R 22.5% of study variation, 6 distinct categories). Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). A statistical estimate, not engineering certification, quality-system or other professional advice. Balanced studies only; one row per reading with part, operator and measurement columns. A missing reading is an error, not a zero.
+
+## Pages
+
+- [The tool](https://marisstella.app/gage-rr/)
+
+## Use it from code
+
+- `node cli.mjs study.csv [--part COL --operator COL --measurement COL] [--nested] [--lsl A --usl B] [--process-sd S] [--k 6|5.15] [--interaction auto|keep|pool] [--json]`
+- `node platform/agents/tools.mjs call gage-rr analyze --input '{"text":"part,operator,measurement\n1,A,10.1\n1,A,10.2\n..."}'` (or `{"obs":[{"part":"1","operator":"A","y":10.1}, ...]}`)
+- From JavaScript: `analyze({text | obs, design, lsl, usl, processSd, k, interaction, poolAlpha, confidence})`, `report(result)`, `mlsInterval(terms, alpha)`.
+
+## What it answers
+
+- Is my gauge acceptable for this tolerance (%tolerance, P/T ratio)?
+- How much of the variation is repeatability (equipment) and how much reproducibility (appraiser)?
+- How many distinct categories of parts can the gauge tell apart?
+- How sure is the study: what is the confidence interval for gauge R&R?
+- How do I run a Gage R&R for destructive testing (nested design)?
+- Should the part by operator interaction be pooled?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gage-rr): MIT licensed.

@@ -922,29 +922,29 @@ def test_report_without_a_snapshot_argument_defaults_to_unknown_not_current():
 
 
 def test_render_shows_the_snapshot_row_in_every_state():
-    for state in ("current", "stale", "unknown", "absent"):
+    for state in ("current", "deploying", "stale", "unknown", "absent"):
         out = sg.render(sg.report(_entries(), 1.0, snapshot=(state, "why")))
         assert f"published snapshot ............. {state}" in out
 
 
-def _pages_state():
-    """Import `pages_state` the way `published_snapshot` does.
+def _ci_starvation():
+    """Import `ci_starvation` the way `published_snapshot` does.
 
-    A bare `import pages_state` here passes only when some earlier test in the
-    session has already called `sg.published_snapshot()` and left that path on
-    `sys.path` — so the test would go green in a full run and fail on its own,
-    which is the least useful way for a test to be wrong.
+    A bare `import ci_starvation` here passes only when some earlier test in
+    the session has already called `sg.published_snapshot()` and left that
+    path on `sys.path`, so the test would go green in a full run and fail on
+    its own.
     """
     sys.path.insert(0, str(sg.REPO / "platform" / "ci"))
-    import pages_state
+    import ci_starvation
 
-    return pages_state
+    return ci_starvation
 
 
 def test_published_snapshot_returns_unknown_when_no_token_is_available(monkeypatch):
-    pages_state = _pages_state()
+    ci_starvation = _ci_starvation()
 
-    monkeypatch.setattr(pages_state, "api_token", lambda *_a, **_k: None)
+    monkeypatch.setattr(ci_starvation, "api_token", lambda *_a, **_k: None)
     state, reason = sg.published_snapshot()
     assert state == "unknown"
     assert "GH_TOKEN" in reason
@@ -952,17 +952,109 @@ def test_published_snapshot_returns_unknown_when_no_token_is_available(monkeypat
 
 def test_published_snapshot_swallows_a_failure_rather_than_crashing_the_gate(monkeypatch):
     """A network hiccup in a reporting helper must not take the gate down."""
-    pages_state = _pages_state()
+    ci_starvation = _ci_starvation()
 
-    monkeypatch.setattr(pages_state, "api_token", lambda *_a, **_k: "t")
+    monkeypatch.setattr(ci_starvation, "api_token", lambda *_a, **_k: "t")
+    monkeypatch.setattr(ci_starvation, "resolve_repo", lambda *_a, **_k: "o/r")
 
-    def boom(*_a, **_k):
+    def boom(_path):
         raise RuntimeError("connection reset")
 
-    monkeypatch.setattr(pages_state, "collect", boom)
+    monkeypatch.setattr(ci_starvation, "http_api_for", lambda *_a, **_k: boom)
     state, reason = sg.published_snapshot()
     assert state == "unknown"
     assert "connection reset" in reason
+
+
+def test_published_snapshot_reads_the_deploy_runs_not_gh_pages(monkeypatch):
+    """The gh-pages route is retired; the reading comes from portfolio-pages.yml."""
+    ci_starvation = _ci_starvation()
+    asked = []
+
+    def api(path):
+        asked.append(path)
+        if "branches/main" in path:
+            return {"commit": {"sha": "abc12345ffff"}}
+        return {"workflow_runs": [_run("success", "abc12345ffff", minutes_ago=5)]}
+
+    monkeypatch.setattr(ci_starvation, "api_token", lambda *_a, **_k: "t")
+    monkeypatch.setattr(ci_starvation, "resolve_repo", lambda *_a, **_k: "o/r")
+    monkeypatch.setattr(ci_starvation, "http_api_for", lambda *_a, **_k: api)
+    state, _reason = sg.published_snapshot()
+    assert state == "current"
+    assert sorted(asked) == sorted([sg.DEPLOY_RUNS_PATH, sg.MAIN_BRANCH_PATH])
+    assert not any("gh-pages" in path for path in asked)
+
+
+# --- deploy_freshness: the reading itself --------------------------------------
+
+_NOW = 1_800_000_000.0
+
+
+def _run(conclusion, sha, minutes_ago=10, status="completed", run_id=1):
+    stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(_NOW - minutes_ago * 60))
+    return {
+        "id": run_id,
+        "status": status,
+        "conclusion": conclusion,
+        "head_sha": sha,
+        "updated_at": stamp,
+    }
+
+
+def test_deploy_at_the_tip_is_current():
+    state, reason = sg.deploy_freshness([_run("success", "tip")], "tip", now=_NOW)
+    assert state == "current"
+    assert "tip of `main`" in reason
+
+
+def test_cancelled_runs_are_the_concurrency_group_not_a_failure():
+    runs = [
+        _run(None, "tip", status="in_progress", run_id=3),
+        _run("cancelled", "mid", run_id=2),
+        _run("success", "old", run_id=1),
+    ]
+    state, reason = sg.deploy_freshness(runs, "tip", now=_NOW)
+    assert state == "deploying"
+    assert "run 3" in reason
+
+
+def test_a_failed_run_since_the_last_deploy_is_stale_even_with_one_in_flight():
+    runs = [
+        _run(None, "tip", status="queued", run_id=3),
+        _run("failure", "mid", run_id=2),
+        _run("success", "old", run_id=1),
+    ]
+    state, reason = sg.deploy_freshness(runs, "tip", now=_NOW)
+    assert state == "stale"
+    assert "run 2" in reason and "`failure`" in reason
+
+
+def test_an_old_last_deploy_is_stale_even_at_the_tip():
+    runs = [_run("success", "tip", minutes_ago=sg.DEPLOY_MAX_AGE_HOURS * 60 + 30)]
+    state, reason = sg.deploy_freshness(runs, "tip", now=_NOW)
+    assert state == "stale"
+    assert "deploys have stopped" in reason
+
+
+def test_behind_with_nothing_in_flight_is_stale():
+    state, _ = sg.deploy_freshness([_run("success", "old")], "tip", now=_NOW)
+    assert state == "stale"
+
+
+def test_no_success_or_no_tip_is_unknown_never_current():
+    assert sg.deploy_freshness([_run("failure", "tip")], "tip", now=_NOW)[0] == "unknown"
+    assert sg.deploy_freshness([], "tip", now=_NOW)[0] == "unknown"
+    assert sg.deploy_freshness([_run("success", "tip")], None, now=_NOW)[0] == "unknown"
+
+
+def test_deploying_adds_no_reason_and_no_warning_marker():
+    r = sg.report(_entries(), 1.0, snapshot=("deploying", "run 3 is catching up"))
+    assert not any("Published-snapshot state" in reason for reason in r["reasons"])
+    assert not any("BEHIND" in reason for reason in r["reasons"])
+    out = sg.render(r)
+    assert "the live site is not known to match" not in out
+    assert "catching up" in out
 
 
 def test_main_propagates_the_snapshot_reading(monkeypatch, capsys):

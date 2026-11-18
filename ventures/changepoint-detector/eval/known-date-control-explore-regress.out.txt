@@ -1,0 +1,3 @@
+# control series, seed base 61000, 100 pairs per cell, 199 replicates; arms regress
+## Size (no change in the treated series beyond what the control shares)
+S1 common AR .9, shared slope  n 120  regress  18.0% of 100 tested ( 18.0% of all; refused 0, cut 0)

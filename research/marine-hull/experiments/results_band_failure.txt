@@ -1,0 +1,232 @@
+Milestone 6zzzd: why no rule beats B at the eight band points pooled (hi8); k = 3 sets, AT_90 for reference; 2005 to 2014 scored, 2015 to 2024 climatology (50 W)
+band points: P-60, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska; 168 cells = 21 shapes x 2 halves x 4 packs
+
+Checks:
+  nasa AT_90 hi8 0 (6zzzc 0)  ok
+  nasa AP hi8    0.0 [0, 0] (6zzzc (0.0, 0, 0))  ok
+  nasa AK hi8    0.0 [0, 0] (6zzzc (0.0, 0, 0))  ok
+  nasa A1 hi8    0.0 [0, 0] (6zzzc (0.0, 0, 0))  ok
+  nasa C15 hi8    0.0 [0, 0] (6zzzc (0.0, 0, 0))  ok
+  cross AT_90 hi8 0 (6zzzc 0)  ok
+  cross AP hi8   36.2 [22, 49] (6zzzc (36.2, 22, 49))  ok
+  cross AK hi8   47.0 [21, 71] (6zzzc (47.0, 21, 71))  ok
+  cross A1 hi8   45.1 [21, 70] (6zzzc (45.1, 21, 70))  ok
+  cross C15 hi8    7.9 [3, 15] (6zzzc (7.9, 3, 15))  ok
+  reverse AT_90 hi8 0 (6zzzc 0)  ok
+  reverse AP hi8    0.0 [0, 0] (6zzzc (0.0, 0, 0))  ok
+  reverse AK hi8    0.0 [0, 0] (6zzzc (0.0, 0, 0))  ok
+  reverse A1 hi8    0.0 [0, 0] (6zzzc (0.0, 0, 0))  ok
+  reverse C15 hi8    0.0 [0, 0] (6zzzc (0.0, 0, 0))  ok
+  all checks passed
+
+== nasa world ==
+B on hi8: excess dark exactly 0 in 0 of 168 cells; median excess dark 23.0 h [8.4, 52.0]; median km 485
+B excess dark exactly 0, per point (of 168): P-60 0, P+50 168, P+60 147, A-50 0, A+50 168, A+60 147, North-Sea 84, Gulf-of-Alaska 168; P-30 0
+Pooled hi8 modes, mean [min, max] over the 10 sets (AT_90 one value): won / km-short only / dark-over only / both
+  AT_90: 0 / 168 / 0 / 0
+  AP   :    0.0 [0, 0] /  168.0 [168, 168] /    0.0 [0, 0] /    0.0 [0, 0]
+  AK   :    0.0 [0, 0] /  168.0 [168, 168] /    0.0 [0, 0] /    0.0 [0, 0]
+  A1   :    0.0 [0, 0] /  168.0 [168, 168] /    0.0 [0, 0] /    0.0 [0, 0]
+  C15  :    0.0 [0, 0] /  168.0 [168, 168] /    0.0 [0, 0] /    0.0 [0, 0]
+Median over the 168 cells of km/B and of excess dark minus B's (h), mean [min, max] over the sets
+  AT_90: km/B 0.2205; dark -22.0 h
+  AP   : km/B   0.249 [0.223, 0.289]; dark -21.705 [-22.619, -20.403] h
+  AK   : km/B   0.266 [0.210, 0.354]; dark -21.242 [-22.619, -19.900] h
+  A1   : km/B   0.272 [0.214, 0.354]; dark -21.123 [-22.619, -19.426] h
+  C15  : km/B   0.271 [0.214, 0.354]; dark -21.167 [-22.619, -19.426] h
+Pooled wins with a relaxed test (dark + 24 / 120 / 480 h per pool; km - 1% / 2%)
+  AT_90: 0 / 0 / 0 / 0 / 0
+  AP   :    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0]
+  AK   :    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0]
+  A1   :    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0]
+  C15  :    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0]
+Per point (each band point on its own totals, 168 cells each): won / km / dark / both, mean over sets
+  AT_90 P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  AT_90 P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AT_90 P+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AT_90 A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  AT_90 A+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AT_90 A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AT_90 North-Sea      :  88.0 /  73.0 /   7.0 /   0.0
+  AT_90 Gulf-of-Alaska : 168.0 /   0.0 /   0.0 /   0.0
+  AP    P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  AP    P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AP    P+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AP    A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  AP    A+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AP    A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AP    North-Sea      :  92.3 /  62.6 /  12.6 /   0.5
+  AP    Gulf-of-Alaska : 168.0 /   0.0 /   0.0 /   0.0
+  AK    P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  AK    P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AK    P+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AK    A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  AK    A+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AK    A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AK    North-Sea      :  96.3 /  59.1 /  12.4 /   0.2
+  AK    Gulf-of-Alaska : 168.0 /   0.0 /   0.0 /   0.0
+  A1    P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  A1    P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  A1    P+60           : 147.0 /  21.0 /   0.0 /   0.0
+  A1    A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  A1    A+50           : 168.0 /   0.0 /   0.0 /   0.0
+  A1    A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  A1    North-Sea      :  97.0 /  58.4 /  12.6 /   0.0
+  A1    Gulf-of-Alaska : 168.0 /   0.0 /   0.0 /   0.0
+  C15   P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  C15   P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  C15   P+60           : 147.0 /  21.0 /   0.0 /   0.0
+  C15   A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  C15   A+50           : 168.0 /   0.0 /   0.0 /   0.0
+  C15   A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  C15   North-Sea      :  96.9 /  58.5 /  12.6 /   0.0
+  C15   Gulf-of-Alaska : 168.0 /   0.0 /   0.0 /   0.0
+P-30 on its own totals, won / km / dark / both: AT_90 45 / 123 / 0 / 0; AP 101.0 / 67.0 / 0.0 / 0.0; AK 112.8 / 54.1 / 1.1 / 0.0; A1 118.2 / 46.4 / 3.4 / 0.0; C15 118.6 / 46.0 / 3.4 / 0.0
+
+== cross world ==
+B on hi8: excess dark exactly 0 in 0 of 168 cells; median excess dark 83.4 h [30.0, 224.4]; median km 3443
+B excess dark exactly 0, per point (of 168): P-60 0, P+50 168, P+60 42, A-50 0, A+50 147, A+60 147, North-Sea 105, Gulf-of-Alaska 84; P-30 0
+Pooled hi8 modes, mean [min, max] over the 10 sets (AT_90 one value): won / km-short only / dark-over only / both
+  AT_90: 0 / 168 / 0 / 0
+  AP   :   36.2 [22, 49] /  131.8 [119, 146] /    0.0 [0, 0] /    0.0 [0, 0]
+  AK   :   47.0 [21, 71] /  117.5 [97, 126] /    3.5 [0, 21] /    0.0 [0, 0]
+  A1   :   45.1 [21, 70] /  117.6 [98, 126] /    5.3 [0, 21] /    0.0 [0, 0]
+  C15  :    7.9 [3, 15] /  160.1 [153, 165] /    0.0 [0, 0] /    0.0 [0, 0]
+Median over the 168 cells of km/B and of excess dark minus B's (h), mean [min, max] over the sets
+  AT_90: km/B 0.1871; dark -71.3 h
+  AP   : km/B   0.705 [0.605, 0.791]; dark -38.802 [-44.377, -32.890] h
+  AK   : km/B   0.809 [0.695, 0.860]; dark -32.992 [-37.470, -30.022] h
+  A1   : km/B   0.816 [0.701, 0.870]; dark -32.338 [-37.785, -29.892] h
+  C15  : km/B   0.561 [0.521, 0.603]; dark -52.766 [-55.283, -49.928] h
+Pooled wins with a relaxed test (dark + 24 / 120 / 480 h per pool; km - 1% / 2%)
+  AT_90: 0 / 0 / 0 / 0 / 0
+  AP   :   36.2 [22, 49] /   36.2 [22, 49] /   36.2 [22, 49] /   37.6 [23, 51] /   39.5 [25, 52]
+  AK   :   50.5 [42, 71] /   50.5 [42, 71] /   50.5 [42, 71] /   49.2 [21, 72] /   51.8 [21, 74]
+  A1   :   50.4 [42, 70] /   50.4 [42, 70] /   50.4 [42, 70] /   46.6 [21, 70] /   49.4 [21, 72]
+  C15  :    7.9 [3, 15] /    7.9 [3, 15] /    7.9 [3, 15] /    8.6 [3, 15] /    9.5 [4, 17]
+Per point (each band point on its own totals, 168 cells each): won / km / dark / both, mean over sets
+  AT_90 P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  AT_90 P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AT_90 P+60           :  42.0 / 126.0 /   0.0 /   0.0
+  AT_90 A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  AT_90 A+50           : 147.0 /  21.0 /   0.0 /   0.0
+  AT_90 A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AT_90 North-Sea      :  93.0 /  57.0 /  18.0 /   0.0
+  AT_90 Gulf-of-Alaska :  84.0 /  84.0 /   0.0 /   0.0
+  AP    P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  AP    P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AP    P+60           :  97.2 /  42.0 /  28.8 /   0.0
+  AP    A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  AP    A+50           : 147.0 /  21.0 /   0.0 /   0.0
+  AP    A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AP    North-Sea      :  97.0 /  32.9 /  38.1 /   0.0
+  AP    Gulf-of-Alaska :  92.6 /  75.4 /   0.0 /   0.0
+  AK    P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  AK    P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AK    P+60           :  76.1 /  34.7 /  57.2 /   0.0
+  AK    A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  AK    A+50           : 147.0 /  21.0 /   0.0 /   0.0
+  AK    A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AK    North-Sea      :  94.9 /  33.6 /  39.5 /   0.0
+  AK    Gulf-of-Alaska :  96.2 /  71.4 /   0.4 /   0.0
+  A1    P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  A1    P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  A1    P+60           :  74.4 /  36.1 /  57.5 /   0.0
+  A1    A-50           :   3.4 / 164.6 /   0.0 /   0.0
+  A1    A+50           : 147.0 /  21.0 /   0.0 /   0.0
+  A1    A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  A1    North-Sea      :  94.9 /  33.6 /  39.5 /   0.0
+  A1    Gulf-of-Alaska :  95.7 /  71.4 /   0.9 /   0.0
+  C15   P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  C15   P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  C15   P+60           :  66.9 /  99.7 /   1.4 /   0.0
+  C15   A-50           :   1.0 / 167.0 /   0.0 /   0.0
+  C15   A+50           : 147.0 /  21.0 /   0.0 /   0.0
+  C15   A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  C15   North-Sea      :  95.2 /  33.4 /  39.4 /   0.0
+  C15   Gulf-of-Alaska :  95.6 /  71.6 /   0.8 /   0.0
+P-30 on its own totals, won / km / dark / both: AT_90 56 / 112 / 0 / 0; AP 67.4 / 98.6 / 2.0 / 0.0; AK 77.5 / 85.2 / 5.3 / 0.0; A1 78.7 / 81.9 / 7.4 / 0.0; C15 78.8 / 81.9 / 7.3 / 0.0
+
+== reverse world ==
+B on hi8: excess dark exactly 0 in 0 of 168 cells; median excess dark 23.0 h [8.4, 53.2]; median km 485
+B excess dark exactly 0, per point (of 168): P-60 0, P+50 168, P+60 147, A-50 0, A+50 168, A+60 147, North-Sea 84, Gulf-of-Alaska 168; P-30 0
+Pooled hi8 modes, mean [min, max] over the 10 sets (AT_90 one value): won / km-short only / dark-over only / both
+  AT_90: 0 / 168 / 0 / 0
+  AP   :    0.0 [0, 0] /  168.0 [168, 168] /    0.0 [0, 0] /    0.0 [0, 0]
+  AK   :    0.0 [0, 0] /  168.0 [168, 168] /    0.0 [0, 0] /    0.0 [0, 0]
+  A1   :    0.0 [0, 0] /  168.0 [168, 168] /    0.0 [0, 0] /    0.0 [0, 0]
+  C15  :    0.0 [0, 0] /  168.0 [168, 168] /    0.0 [0, 0] /    0.0 [0, 0]
+Median over the 168 cells of km/B and of excess dark minus B's (h), mean [min, max] over the sets
+  AT_90: km/B 0.3277; dark -20.2 h
+  AP   : km/B   0.279 [0.227, 0.350]; dark -20.979 [-22.505, -19.312] h
+  AK   : km/B   0.261 [0.197, 0.340]; dark -21.065 [-22.638, -19.371] h
+  A1   : km/B   0.261 [0.197, 0.340]; dark -21.044 [-22.638, -19.371] h
+  C15  : km/B   0.262 [0.197, 0.340]; dark -21.103 [-22.638, -19.371] h
+Pooled wins with a relaxed test (dark + 24 / 120 / 480 h per pool; km - 1% / 2%)
+  AT_90: 0 / 0 / 0 / 0 / 0
+  AP   :    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0]
+  AK   :    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0]
+  A1   :    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0]
+  C15  :    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0] /    0.0 [0, 0]
+Per point (each band point on its own totals, 168 cells each): won / km / dark / both, mean over sets
+  AT_90 P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  AT_90 P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AT_90 P+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AT_90 A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  AT_90 A+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AT_90 A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AT_90 North-Sea      :  93.0 /  73.0 /   2.0 /   0.0
+  AT_90 Gulf-of-Alaska : 168.0 /   0.0 /   0.0 /   0.0
+  AP    P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  AP    P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AP    P+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AP    A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  AP    A+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AP    A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AP    North-Sea      :  96.2 /  59.4 /  12.4 /   0.0
+  AP    Gulf-of-Alaska : 168.0 /   0.0 /   0.0 /   0.0
+  AK    P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  AK    P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AK    P+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AK    A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  AK    A+50           : 168.0 /   0.0 /   0.0 /   0.0
+  AK    A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  AK    North-Sea      :  96.6 /  58.8 /  12.6 /   0.0
+  AK    Gulf-of-Alaska : 168.0 /   0.0 /   0.0 /   0.0
+  A1    P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  A1    P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  A1    P+60           : 147.0 /  21.0 /   0.0 /   0.0
+  A1    A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  A1    A+50           : 168.0 /   0.0 /   0.0 /   0.0
+  A1    A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  A1    North-Sea      :  96.6 /  58.8 /  12.6 /   0.0
+  A1    Gulf-of-Alaska : 168.0 /   0.0 /   0.0 /   0.0
+  C15   P-60           :   0.0 / 168.0 /   0.0 /   0.0
+  C15   P+50           : 168.0 /   0.0 /   0.0 /   0.0
+  C15   P+60           : 147.0 /  21.0 /   0.0 /   0.0
+  C15   A-50           :   0.0 / 168.0 /   0.0 /   0.0
+  C15   A+50           : 168.0 /   0.0 /   0.0 /   0.0
+  C15   A+60           : 147.0 /  21.0 /   0.0 /   0.0
+  C15   North-Sea      :  96.6 /  58.8 /  12.6 /   0.0
+  C15   Gulf-of-Alaska : 168.0 /   0.0 /   0.0 /   0.0
+P-30 on its own totals, won / km / dark / both: AT_90 30 / 138 / 0 / 0; AP 96.0 / 72.0 / 0.0 / 0.0; AK 115.3 / 51.5 / 1.2 / 0.0; A1 118.4 / 44.8 / 4.8 / 0.0; C15 118.5 / 45.4 / 4.1 / 0.0
+
+Predictions
+P1 nasa dark-only > km-only for AP, AK, A1, C15: refuted (AP 0.0 vs 168.0, AK 0.0 vs 168.0, A1 0.0 vs 168.0, C15 0.0 vs 168.0)
+P2 nasa B excess dark 0 in >= 42 cells: refuted (0)
+P3 nasa AP wins >= 84 with 24 h dark tolerance: refuted (0.0)
+P4 nasa AP median km/B >= 1.000: refuted (0.2486)
+P5 nasa AP per point wins >= 84 of 168 at some band point: held (best P+50 168.0)
+P6 cross AP dark-only > km-only: refuted (0.0 vs 131.8)
+
+Post hoc, nasa world, real shape, ten years x four packs per point: km and excess dark (h)
+  point            lat  |  B km  B dark | AT_90 km  dark | AP k=3 km  dark | km share of B's hi8 total
+  P-60             -60 |    1367     62 |      74      1 |       79      1 |  0.18
+  P-30             -30 |  114144    700 |  109668    298 |   117526    333 |   -  
+  P+50             +50 |       0      0 |       0      0 |        0      0 |  0.00
+  P+60             +60 |      37      1 |       0      0 |        0      0 |  0.00
+  A-50             -50 |    1786     64 |     356      6 |      372      7 |  0.23
+  A+50             +50 |       0      0 |       0      0 |        0      0 |  0.00
+  A+60             +60 |      48      1 |       0      0 |        0      0 |  0.01
+  North-Sea        +55 |    4456     78 |    2276     19 |     2821     27 |  0.58
+  Gulf-of-Alaska   +60 |       0      0 |       0      0 |        0      0 |  0.00

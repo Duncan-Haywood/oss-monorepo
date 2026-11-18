@@ -396,6 +396,56 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    one of 15 poses. The 0.3–0.8 mm left is in the waist and arm joints, which the ground reaction cannot move; a hedged
    compensator does not help. Still open: a two-handed squeeze to preload the arms, the paper's headline for a
    tool-point spec, and the nailer's recoil.
+38. **A two-hand squeeze** (done 2026-11-17, `experiments/m38_squeeze/`): a force pair along the line between the grip
+   points has no net wrench, so it moves only the arm joints (to 1e-16 N m elsewhere). Chosen from the plan within
+   10 N it clears all 14 arm flips and, with milestone 37's leg preload and the FT 300, takes the 0–20 N stack loss
+   from 1.64 points to 0.05 (G1) and 2.19 to 0.02 (H1); the G1's worst residual at a 5 N drag falls from 0.83 to
+   0.49 mm. The 0.48–0.50 mm left is in the waist and the H1's torso. Side finding: the G1's wrist pitch carries more
+   than its 5 N m MJCF rating at 7 of 14 poses. Still open: the paper's headline for a tool-point spec, a grip that
+   changes the waist's share, and the nailer's recoil.
+39. **The waist's gap** (done 2026-11-17, `experiments/m39_waist/`): at milestone 38's 10 N squeeze and leg preload, a
+   braked waist takes the G1's worst residual at a 5 N drag from 0.485 to 0.012 mm and its 0–10 N stack loss from 5.80
+   to 0.04 points; a 1 arcmin waist gearbox gives 0.106 mm and 0.11 points. Locking waist roll and pitch, as on the base
+   G1, changes nothing: the yaw is the joint that flips. The pre-2017 sensor still leaves 0.87 mm. Still open: the
+   paper's headline for a tool-point spec, and the nailer's recoil.
+40. **The recoil's lift-off** (done 2026-11-17, `experiments/m40_liftoff/`): the recoil, bracketed from published
+   measurements at 0.09–8.7 N s (nail momentum at chronograph speeds; Lowe et al. 2014's force plate), lifts the nose,
+   so each press rises again from zero. That rise sets none of the 56 loose nose-moving joints (36 change sign inside
+   the window), so milestone 39's 0.012 mm stands; a 20 N drag lets it set one wrist joint (0.203 mm for a compensator
+   that does not plan the rise). At 12 of 35 poses the leaned stance balances only above 3.7–11.8 N of press, so it
+   cannot be used with a tool that lifts off. Still open: the paper's headline for a tool-point spec, and a stance that
+   balances at zero press.
+41. **A stance that stands at zero press** (done 2026-11-17, `experiments/m41_stance0/`): all 12 poses that needed a
+   press can be re-leaned (9.9–39.1 mm back) to balance over 0–50 N; the window's width is (m + m_tool) g × sole / grip
+   height, so a zero-press stance reaching 50 N exists only below 1.225 m (G1) and 1.883 m (H1) grip height, and the G1
+   at 1.2 m keeps 1.6 N of margin. The braked spec holds (G1 0.011 mm, H1 0.019 mm at a 5 N drag); one H1 pose loses its
+   controller and the G1's worst no-hose stack falls 1.3 points (0.9160 to 0.9030).
+42. **The lean or the controller's sides?** (done 2026-11-17, `experiments/m42_sides/`): a 2 × 2 (leans × 'hold-min'
+   sides) puts all of the G1's 1.30-point loss on the lean (sides 0.00, interaction 0.00); the four flipped roll sides
+   change no stack, but the old sides lose the controller at one re-leaned G1 pose. Post hoc, like for like, the H1's
+   re-lean costs 0.09–0.29 points per pose, not milestone 41's mixed-convention 0.1–0.9.
+43. **The spec's own stack on the zero-press poses** (done 2026-11-17, `experiments/m43_specstack/`): with the spec's
+   re-planned leg preload and squeeze the re-lean raises the G1's worst no-hose stack 0.97 points (braked, 0.9160 to
+   0.9257; stock +1.76), so milestones 41–42's 1.3-point loss is the 'hold-min' convention's; the H1 keeps a spec plan at
+   only 3 of 6 re-leaned poses, two because the stance allows only 0.033 and 0.095 N m of leg preload at 50 N.
+44. **A per-pose leg preload** (done 2026-11-17, `experiments/m44_legpreload/`): preloading each leg to 0.9 of what the
+   stance allows (0.030 and 0.085 N m) gives both dropped H1 poses a spec plan at no clean-sheet cost (the stack does not
+   move between 0 and 0.085 N m; −0.08 and −0.27 points against the old lean), but the worst residual along the wall
+   becomes 0.172 mm (0.241 at 20 N drag) against the spec's 0.019: (1.6 m, 0) is rescued (0.003 mm), (1.4 m, −0.15 m) is
+   not, because the joint that flips there is a hold-set joint the leg preload does not reach.
+45. **A hold-first preload** (done 2026-11-18, `experiments/m45_tiered/`): corrects milestone 44's post hoc (the flipping
+   right hip roll is a preloaded leg row whose margin, 0.030 N m, is under a 0.2 N sensor error's 0.033 N m shift). Even
+   with every other leg released, the stance caps it at 0.0339 N m, so the residual stays 0.172 mm (20 N drag: 0.241 to
+   0.172) at no stack cost; the pose needs a sensor z error under about 0.19 N (0.163 N m per N), a Mini45-class sensor.
+46. **The hold side** (done 2026-11-18, `experiments/m46_holdside/`): corrects milestone 45 (the per-robot hold side
+   pinned the right hip roll at τ_f; the controller wants −3.8 N m). Held on the other side the stance allows 2.29 N m
+   (from 0.033), the pose takes the full 0.1 N m preload and leaves 0.005 mm (from 0.172) with a 0.2 N sensor error, so
+   the H1 meets the tool-point spec at all 19 poses with an FT 300; the per-robot side is wrong at four more H1 poses.
+47. **Per-pose hold sides** (done 2026-11-18, `experiments/m47_poseside/`): the side combination with the largest
+   zero-drag common margin at each pose lifts every pose above the preload goal (smallest 0.886 N m), gives the two H1
+   poses milestone 38 skipped a plan (not yet swept), and cuts the H1's worst residual at 20 N drag from 0.032 to 0.010
+   mm; but the G1 rises from 0.011 to 0.037 mm at 20 N (a leg joint flips at three poses), so sides must be scored
+   under drag.
 
 ## Target venue
 

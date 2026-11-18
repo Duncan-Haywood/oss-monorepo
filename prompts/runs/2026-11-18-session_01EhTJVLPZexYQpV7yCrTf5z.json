@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVLPZexYQpV7yCrTf5z",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T00:53:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 9 (league-schedule-generator), top next item: bowling's 6 lane-pair balance misses.",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 17107,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "pysat's Cadical153/Cadical195 do not support interrupt; the threading.Timer in eval/bowling-lane-sat.py (and my first table script) raises in its thread and never stops a solve",
+      "fix": "eval/bowling-lane-table.py drops the timer; the limit is an outer `timeout` per season"
+    },
+    {
+      "what": "the per-case SAT batch was killed at the 30-minute background cap with 13 seasons unrun",
+      "fix": "recorded as 'not run' in eval/bowling-lane-table.txt and named in flagships next"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Allocator's row 1 (ai-bookkeeper) had only a receipts-OCR buildable item needing huggingface.co, which refused; 26 records worked it in 2 days. Took row 5 (league-schedule-generator), whose top item needed no outside data.",
+      "did": "league-schedule-generator bowling lanes",
+      "result": "36 of 36 seasons at the bound, merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-bowling-lanes-every-season-even.md"
+  ],
+  "goal": "Every measured bowling season with every team at the lane-pair bound.",
+  "notes": "Verification: node --test bowling.test.mjs 13/13; run_venture_tests.py league-schedule-generator ok (592 tests, 405 s); venture-preflight clean; eval/browser-bowling.mjs 10/10; check_posts ok; flagships validate ok. eval/bowling-lanes.txt: polished 36 of 36 at the bound (was 30), worst spread 1, repeats 392 (was 340), 638 ms/season. Tried and dropped: tabu swap search (4 of 6, stalls on exact seasons), breakout weighting (worse), perfect P-week blocks (UNSAT for circle-method rounds, 32 of 32 checks). Grid of 507 seasons: 90 misses, 28 SAT stored, 35 UNSAT, 27 no answer.",
+  "corrections": [],
+  "redteam": null
+}

@@ -160,3 +160,31 @@ test('every gallery still has a close crop on disk (polish-2026-11-17-gallery-cr
     .map((s) => s.slug);
   assert.deepEqual(missing, []);
 });
+
+test('a crop with a 1,200 px twin gets a srcset, and a missing twin drops out (polish-2026-11-17-hero-srcset.md)', async () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'showcase-wide-'));
+  for (const f of ['a.webp', 'a-hero.webp', 'a-hero-1200.webp', 'b.webp', 'b-hero.webp']) writeFileSync(path.join(dir, f), 'x');
+  writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({
+    shots: [
+      { slug: 'a', file: 'a.webp', caption: 'A', hero: 'a-hero.webp', heroWide: 'a-hero-1200.webp' },
+      { slug: 'b', file: 'b.webp', caption: 'B', hero: 'b-hero.webp', heroWide: 'b-hero-1200-never-captured.webp' },
+    ],
+  }));
+  const showcase = loadShowcase(['a', 'b'], dir);
+  assert.equal('heroWide' in showcase.shots[1], false);
+  const gallery = renderShowcaseSection(showcase);
+  assert.match(gallery, /src="showcase\/a-hero\.webp" srcset="showcase\/a-hero\.webp 600w, showcase\/a-hero-1200\.webp 1200w" sizes="[^"]+" width="600" height="375"/);
+  assert.match(gallery, /src="showcase\/b-hero\.webp" width="600" height="375"/);
+  assert.match(renderHeroArt(showcase.shots, (s) => s, ['a', 'b']), /a-hero-1200\.webp 1200w" sizes="300px"/);
+  const out = mkdtempSync(path.join(os.tmpdir(), 'showcase-wide-out-'));
+  assert.equal(await copyShowcase(out, showcase, dir), 5);
+});
+
+test('every gallery crop has its 1,200 px twin on disk (polish-2026-11-17-hero-srcset.md)', async () => {
+  // A 290 px card on a 3x phone wants 870 px; the 600 px crop alone is soft there.
+  const manifest = JSON.parse(await fs.readFile(new URL('./showcase/manifest.json', import.meta.url), 'utf8'));
+  const missing = manifest.shots
+    .filter((s) => s.hero && (!s.heroWide || !existsSync(new URL(`./showcase/${s.heroWide}`, import.meta.url))))
+    .map((s) => s.slug);
+  assert.deepEqual(missing, []);
+});

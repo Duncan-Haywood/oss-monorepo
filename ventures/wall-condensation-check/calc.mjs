@@ -118,6 +118,13 @@ export function parseClimate(text, unit = "F") {
   return { months, errors: errs };
 }
 
+// A line with a semicolon comes from a comma-decimal locale (Excel writes 3.200,50;3.400,00): split on ; and tab only
+// and read "3.200,50" as 3200.5. Other lines split on , ; and tab as before (red team 2026-11-17).
+const splitCells = (line) => {
+  if (!line.includes(";")) return line.split(/[,;\t]/).map((c) => c.trim());
+  return line.split(/[;\t]/).map((c) => c.trim()).map((c) => (/^[-+]?(\d{1,3}(\.\d{3})+(,\d+)?|\d*,\d+)$/.test(c) ? c.replace(/\./g, "").replace(",", ".") : c));
+};
+
 /**
  * Parse layer lines, inside to outside: "name, R-value, permeance".
  * R is per layer (IP h·ft²·°F/Btu or SI m²K/W); permeance per layer (US perms or ng/(s·m²·Pa)).
@@ -129,7 +136,7 @@ export function parseLayers(text, rUnit = "IP", permUnit = "perm") {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line || line.startsWith("#")) continue;
-    const cells = line.split(/[,;\t]/).map((s) => s.trim());
+    const cells = splitCells(line);
     if (cells.length < 3) { errs.push(`Layer line ${i + 1}: need name, R-value, permeance`); continue; }
     const perm = cells.pop();
     const r = cells.pop();

@@ -79,7 +79,7 @@ export function forecast({ price, budget, percentComplete, actualCost, plannedPe
 
 // Status history: header period,percent_complete,actual_cost[,planned_percent]
 export function parseSnapshots(text) {
-  const rows = String(text).replace(/^﻿/, "").split(/\r?\n/).map((l) => l.split(/[,\t]/).map((c) => c.trim())).filter((r) => r.some(Boolean));
+  const rows = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).map((l) => l.split(/[,\t]/).map((c) => c.trim())).filter((r) => r.some(Boolean));
   if (rows.length < 3) return { error: "Need a header and at least two status rows." };
   const out = [];
   for (let i = 1; i < rows.length; i++) {

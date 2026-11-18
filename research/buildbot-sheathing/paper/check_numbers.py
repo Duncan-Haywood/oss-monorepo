@@ -37,6 +37,22 @@ M34 = E + "m34_windup/results.txt"
 M35 = E + "m35_hose/results.txt"
 M36 = E + "m36_wrist_ft/results.txt"
 M37 = E + "m37_preload/results.txt"
+M38 = E + "m38_squeeze/results.txt"
+M39 = E + "m39_waist/results.txt"
+M40 = E + "m40_liftoff/results.txt"
+M40P = E + "m40_liftoff/posthoc.txt"
+M41 = E + "m41_stance0/results.txt"
+M41P = E + "m41_stance0/posthoc.txt"
+M42 = E + "m42_sides/results.txt"
+M42P = E + "m42_sides/posthoc.txt"
+M43 = E + "m43_specstack/results.txt"
+M43P = E + "m43_specstack/posthoc.txt"
+M44 = E + "m44_legpreload/results.txt"
+M44P = E + "m44_legpreload/posthoc.txt"
+M45 = E + "m45_tiered/results.txt"
+M45P = E + "m45_tiered/posthoc.txt"
+M46 = E + "m46_holdside/results.txt"
+M47 = E + "m47_poseside/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -146,6 +162,65 @@ CHECKS = [
     (M37, "/ 0.830 (0.549) / 0.830 (0.282)", "(0.830 mm at 5 N, 1.64 points"),
     (M37, "g1  20.0 | m 0.1, g 0 |   1.64", "1.64 points\nover 0 to 20 N)"),
     (M37, "g1  0.10 | 14 (lost ['[1.0, 0.15]']) | 49.11 | 1.66", "for 1.66% more leg torque and one of 15 G1 poses"),
+    (M38, "largest leg or waist torque 1.1e-16 N m", "(at most 1.1e-16 N m per newton elsewhere)"),
+    (M38, "total S  10.0 | hold 0 / leg 2 / waist 9 / arm 0", "removes all 14 mispredicted arm joints"),
+    (M38, "total S   0.0 | hold 0 / leg 1 / waist 7 / arm 14", "removes all 14 mispredicted arm joints"),
+    (M38, "g1   5.0  0.2 | 0.830 (0.549) / 0.485 (0.099)", "falls from 0.830 to 0.485 mm"),
+    (M38, "g1  20.0 | S 10 |   0.05", "0.05 points instead of 1.64"),
+    (M38, "g1  20.0 | S 0 |   1.64", "0.05 points instead of 1.64"),
+    (M38, "h1  20.0 | S 10 |   0.02", "(the H1 0.02 instead of 2.19)"),
+    (M38, "h1  20.0 | S 0 |   2.19", "(the H1 0.02 instead of 2.19)"),
+    (M39, "g1   5.0  0.2 | 0.485 (0.099) / 0.485 (0.099) / 0.106 (0.020) / 0.012 (0.027)", "from 0.485 to 0.012 mm"),
+    (M39, "g1  10.0 | stock     |   5.80", "10 N stack loss from 5.80 to 0.04 points"),
+    (M39, "g1  10.0 | braked    |   0.04", "10 N stack loss from 5.80 to 0.04 points"),
+    (M39, "g1  10.0 | precision |   0.11", "gives 0.106 mm\nand 0.11 points"),
+    (M39, "g1   5.0  2.4 | 1.350 (0.922) / 1.350 (0.922) / 0.968 (0.679) / 0.873 (0.477)", "still leaves 0.873 mm"),
+    (M40, "0.129-0.160 N s (Buchalter et al. 2002)", "carries 0.129 to 0.160 N s, a floor"),
+    (M40, "force-plate unloading 8.70 N s per transfer phase", "gives at most about 8.70 N s a nail"),
+    (M40, "H151 (F_r 0 sets at least half the loose nose-moving joints): 0 of 56", "rise sets none of the 56 nose-moving joints"),
+    (M40P, "56 loose; 11 below tau_f, 2 set on entering the window, 7 rise through it, 36 change sign",
+     "loose: 36 change sign inside the 25"),
+    (M40, "in the window 0.159 N m", "peak at 0.159 N m"),
+    (M40, "  g1 braked   5.0 | 0.012 / 0.012 / 0.012", "keeps 0.012 mm at a 5 N drag"),
+    (M40, "  g1 braked  20.0 | 0.012 / 0.203 / 0.012", "which costs 0.203 mm"),
+    (M40, "h1: lowest balancing press > 0 at z 1.4 m 3.7 N", "balances only above 3.7 to"),
+    (M40, "z 1.2 m 11.8 N", "11.8 N of press"),
+    (M41, "lean moved back 9.9-39.1 mm", "back 9.9 to 39.1 mm"),
+    (M41P, "ceiling for 0-50 N: grip height 1.225 m", "below a grip height of 1.225 m on the G1"),
+    (M41P, "ceiling for 0-50 N: grip height 1.883 m", "1.883 m on the\nH1"),
+    (M41, "  g1 1.2 +0.00 |  123.3 [ 11.6,   63.4] |   84.8 [ 0.0,   51.6] | yes |   51.7 vs   51.7", "keeps 1.6 N above"),
+    (M41, "  g1   5.0 | 0.011 (0.012)", "leaves the G1 0.011 mm"),
+    (M41, "  h1   5.0 | 0.019 (0.019)", "the H1 0.019 mm at a 5 N drag"),
+    (M41, "g1: worst pose over all 0.9030 (milestone 40 0.9160)", "from 0.9160 to 0.9030"),
+    (M42, "g1 at [1.2, 0.0]: loss both +1.30 = lean +1.30 + sides +0.00 + interaction +0.00",
+     "the lean costs 1.30 points, the sides 0.00 and the\ninteraction 0.00"),
+    (M42, "lost at [[1.2, 0.15]] -> refuted", "the re-leaned G1 at (1.2 m, +0.15 m) has no solution"),
+    (M42P, "h1: 5 lose 0.09-0.29 points, 0 gain -", "costs the H1 0.09 to 0.29 points per pose"),
+    (M42P, "g1: 4 lose 0.31-1.30 points, 2 gain 0.60-0.79", "G1 0.31 to 1.30 points at four poses while gaining 0.60 to 0.79 at two"),
+    (M43, "  g1 braked zero | 0.9257 | [1.2, -0.15] | 15", "rises from 0.9160 to 0.9257 with the braked waist"),
+    (M43, "  g1 stock  m32  | 0.9081 | [1.2, 0.0] | 14", "from 0.9081 to 0.9257\nwith the stock one"),
+    (M43, "0.9300, 2.70 points -> refuted", "the\ntwo conventions now differ by 2.70 points"),
+    (M43P, "  h1 [1.4, -0.15] | zero | 50 | ok | 0.0333", "the stance allows 0.033 and 0.095 N m"),
+    (M43P, "  h1 [1.6, 0.0] | zero | 50 | ok | 0.0946", "the stance allows 0.033 and 0.095 N m"),
+    (M43, "  h1 [1.6, 0.15] | 0.9677 | 0.9655 | -0.22 | -0.22 | +7.80 | yes", "those lose 0.09 to 0.22 points"),
+    (M44, "  h1 [1.4, -0.15] | 0.0333 | 0.0300", "(0.030 and 0.085 N m)"),
+    (M44, "  h1 [1.6, 0.0] | 0.0946 | 0.0851", "(0.030 and 0.085 N m)"),
+    (M44, "  h1 [1.6, 0.0] | braked | 0.00 | 0.0000 | 0.9668", "do not move between no preload and 0.085 N m"),
+    (M44, "    5.0 | 0.172 | 0.019 (0.019) | 0.172 at [1.4, -0.15]", "worst becomes 0.172 mm, against 0.019 mm"),
+    (M44P, "  0.90 |  0.0 | [1.4, -0.15] | 0.0300 | 0.172 (phi 0) | 6 of 6 | 1/0/0/0", "a joint in the controller's hold set flips"),
+    (M44P, "  0.90 |  0.0 | [1.6, 0.0] | 0.0851 | 0.003 (phi 0)", "the residual is 0.003 mm"),
+    (M45, "  h1 [1.4, -0.15] | 0.0333 | 0.0339 | right_hip_roll (50 N) | 0.0305 | 0.1904", "raises that margin only to 0.0339 N m"),
+    (M45, "  h1 [1.4, -0.15] | 0.0333 | 0.0339 | right_hip_roll (50 N) | 0.0305 | 0.1904", "the other legs had 0.19 N m to spare"),
+    (M45, "H177 ((1.4, -0.15) at most 0.03 / 0.03 / 0.05 mm at 0 / 5 / 20 N): 0.172, 0.172, 0.172", "the residual stays 0.172 mm at every hose drag"),
+    (M45P, "  [0, 0, -1] | -0.1629 | -0.1629", "moves 0.163 N m per newton of sensor error along z"),
+    (M45P, "  0.90 | 0.15 |  5.0 | 0.004", "0.004 mm at 0.15 N"),
+    (M46, "  flipped   | -3.6204, -3.7883 | 6.1546, 2.2900", "puts it at −3.79 N m"),
+    (M46, "  flipped   | -3.6204, -3.7883 | 6.1546, 2.2900", "of 2.29 N m at a 50 N press"),
+    (M46, "H182 ((1.4, -0.15) at most 0.03 / 0.03 / 0.05 mm at 0 / 5 / 20 N): 0.005, 0.005, 0.005", "the wall is 0.005 mm at every hose drag"),
+    (M46, "  other poses with a hold-set joint on the wrong side at both ends: 4", "at four other H1 poses"),
+    (M47, "H187 (every pose's S* margin at least 0.1111): smallest 0.8858", "(smallest 0.886 N m)"),
+    (M47, "  h1 |  20.0 | 0.010 ([1.6, 0.15], phi 90) | 0.032", "at 20 N of hose drag from 0.032 to 0.010 mm"),
+    (M47, "  g1 |  20.0 | 0.037 ([0.6, -0.15], phi 225) | 0.011", "residual at 20 N rises from 0.011 to 0.037 mm"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

@@ -45,6 +45,10 @@ Options:
   --slope-breaks [n]        test for up to n (default 3) changes of the growth rate on the differences (use with --log for a percentage growth): each break is dated and has a Wald statistic against a calibrated bar of 11; 40 or more points
   --hinge-test              test for one change of slope on the levels, with AR(1) noise and a bootstrap p-value: far more power than --slope-breaks on a series that wanders about a trend (temperature), and refuses one whose residuals look like a unit root (GDP); 30 to 600 points
   --known-date <label>      test for a step and a change of slope at a date you name (a law, launch or price change; the label is the first row after it), against the line before it, AR(1) noise and a bootstrap p-value; takes --period and --log; refuses a series that wanders like a random walk
+  --donors <a,b,...|all>   with --known-date and --column: a synthetic control instead (Abadie et al. 2010): the treated column against a weighted mix of these donor columns in the same CSV, fitted on every point before the date, with a placebo test that gives each donor the same date (floored ratio); 4 or more donors, no blanks
+  --covariates <file.csv>   with --donors: one row per unit (the column name, then numbers, e.g. income, price), printed as a balance table of the fit with a warning where the treated unit is matched worse than 80% of the donors are by their own fits; changes no p
+  --window <from:to>        with --donors: use only the rows from label from to label to (either side may be left empty)
+  --anticipation <N|a-b>   with --donors: end the fit N points before --known-date, for a change people saw coming (an announced law); the gap and the test read from there. Unsure of the lead? a range such as 0-4 fits every lead, prints them together and one range p
   --two-hinge-test          test for two changes of slope against a straight line on the levels (speeds up then levels off; rises, holds, falls), same AR(1) noise, bootstrap and unit-root guard as --hinge-test; 30 to 300 points
   --knot-margin f          with --trend bend(s): keep this fraction of the series clear at each end when looking for knots (default 0.1 = knots at 10 to 90%; 0.2 = the old 20 to 80%)
   --joint-knots             with --trend bends: also score every pair of knots, not only the greedy search's (slower, about 2 s per 240 points)
@@ -84,7 +88,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   let json = false;
   let example = false;
   let agreed = true;
-  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate' };
+  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate', '--donors': 'donors', '--covariates': 'covariates', '--window': 'window', '--anticipation': 'anticipation' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
@@ -148,6 +152,14 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     out((json ? JSON.stringify(r, null, 2) : driftText(r)) + '\n');
     return 0;
   }
+  if (opt.knownDate != null && opt.donors != null) {
+    const { synthResult, synthText } = await import('./synth-cli.mjs');
+    const covariatesCsv = opt.covariates != null ? await readFile(opt.covariates, 'utf8') : null;
+    const r = synthResult({ csv: opt.csv, column: opt.column, labelColumn: opt.labelColumn, date: opt.knownDate, donors: opt.donors.split(',').map((d) => d.trim()).filter(Boolean), window: opt.window, log: opt.log, covariatesCsv, anticipation: opt.anticipation ?? 0 });
+    out((json ? JSON.stringify(r, null, 2) : synthText(r)) + '\n');
+    return 0;
+  }
+  if (opt.donors != null || opt.covariates != null || opt.window != null || opt.anticipation != null) throw new Error('--donors, --covariates, --window and --anticipation go with --known-date (a synthetic control); --covariates, --window and --anticipation also need --donors.');
   if (opt.knownDate != null) {
     const { knownDateResult, knownDateText } = await import('./known-date-cli.mjs');
     const r = knownDateResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, labelColumn: opt.labelColumn, date: opt.knownDate, period: opt.period, log: opt.log });

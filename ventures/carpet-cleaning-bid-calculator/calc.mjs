@@ -165,8 +165,7 @@ export function calculateJob(input) {
   const quotedPrice = Math.max(targetPrice, minimumCharge);
   const profit = quotedPrice - jobCost;
 
-  const hasProposed =
-    input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   return {

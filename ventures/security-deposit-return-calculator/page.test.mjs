@@ -123,3 +123,12 @@ test("Clear resets the interest fields along with the deposit and deductions", (
 test("index links ../roommate-rent-splitter/ so a shared-lease reader reaches it in one hop", () => {
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/roommate-rent-splitter\/"/);
 });
+
+test("deduction descriptions are escaped before they reach innerHTML (red-team run 2026-11-17)", () => {
+  // Typing "Replace <oven> knob" rendered "Replace knob": the description went
+  // into the settlement table's innerHTML as markup.
+  const html = page("index.html");
+  assert.match(html, /function escapeHtml\(/);
+  assert.doesNotMatch(html, /\$\{d\.description \|\|/, "render d.description through escapeHtml()");
+  assert.doesNotMatch(html, /value="\$\{description\}"/, "escape the prefilled description attribute too");
+});

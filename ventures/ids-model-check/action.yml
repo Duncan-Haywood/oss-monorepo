@@ -17,6 +17,21 @@ inputs:
   fail-on:
     description: '"error" fails the step when a required or prohibited specification fails, an IDS is invalid or a file cannot be read; "warning" also on optional ones; "never" only reports.'
     default: error
+  fail-on-unchecked:
+    description: '"true" also fails the step when a specification left elements unchecked because its entity facet names a parent class (IFCWALL) and not theirs (IFCWALLSTANDARDCASE); IDS entity names do not include subclasses. Off by default: a warning annotation either way.'
+    default: 'false'
+  fail-on-audit-warnings:
+    description: '"true" also fails the step when the IDS audit warns that a specification is valid but probably does not check what was meant (an entity facet naming an abstract class such as IFCBUILDINGELEMENT selects nothing; a value no enumeration member can equal). Off by default: a warning annotation on the specification''s line in the IDS file either way.'
+    default: 'false'
+  fail-on-duplicate-globalids:
+    description: '"true" also fails the step when two elements of a model share a GlobalId (IFC requires them unique; BCF viewpoints and model diffs find elements by it). Off by default: a warning annotation on the model either way.'
+    default: 'false'
+  fail-on-shared-globalids:
+    description: '"true" also fails the step when, with two or more models, a GlobalId held in one model is also in another (the same element in two disciplines'' files, or two different elements), or two models are one model twice. Shared project, site, building, storey, space and grid GlobalIds of the same class are not counted. Off by default: a warning annotation either way.'
+    default: 'false'
+  shared-globalids-allow:
+    description: 'Path (from the repository root) to a team allow list of GlobalIds shared between models on purpose, one rule per line: a GlobalId, a class (IFCGRID), a class and a quoted name (IFCBUILDINGELEMENTPROXY "origin", "*" in the name matches any run) or * and a name. A shared element every holder of which matches is not counted, nor are the types and relationships that only follow it. Rules that match nothing are listed in the summary. Empty for none.'
+    default: ''
   junit:
     description: Path for a JUnit XML report (empty for none).
     default: ids-report.xml
@@ -26,6 +41,9 @@ inputs:
   json:
     description: Path for the full JSON results (empty for none).
     default: ''
+  max-failures:
+    description: Failing elements kept per specification in the reports (counts stay exact), so one specification matching every entity of a large export cannot exhaust memory.
+    default: '1000'
 outputs:
   result:
     description: '"pass" or "fail".'
@@ -45,6 +63,18 @@ outputs:
   elements-failed:
     description: Failing element results summed over all checks.
     value: ${{ steps.check.outputs.elements-failed }}
+  not-checked:
+    description: Elements left unchecked because the entity facet names a parent class and not theirs, summed over all checks.
+    value: ${{ steps.check.outputs.not-checked }}
+  audit-warnings:
+    description: IDS audit warnings, counted once per IDS file and specification however many models it was checked against.
+    value: ${{ steps.check.outputs.audit-warnings }}
+  duplicate-globalids:
+    description: GlobalIds shared by more than one element, counted once per model however many IDS files it was checked against.
+    value: ${{ steps.check.outputs.duplicate-globalids }}
+  shared-globalids:
+    description: GlobalIds held in more than one of the models (frame elements excluded), plus pairs of models that are one model twice.
+    value: ${{ steps.check.outputs.shared-globalids }}
 runs:
   using: composite
   steps:
@@ -58,11 +88,22 @@ runs:
         IDS_JUNIT: ${{ inputs.junit }}
         IDS_BCF: ${{ inputs.bcf-dir }}
         IDS_JSON: ${{ inputs.json }}
+        IDS_MAX_FAILURES: ${{ inputs.max-failures }}
+        IDS_FAIL_ON_UNCHECKED: ${{ inputs.fail-on-unchecked }}
+        IDS_FAIL_ON_AUDIT: ${{ inputs.fail-on-audit-warnings }}
+        IDS_FAIL_ON_DUPLICATES: ${{ inputs.fail-on-duplicate-globalids }}
+        IDS_FAIL_ON_SHARED: ${{ inputs.fail-on-shared-globalids }}
+        IDS_SHARED_ALLOW: ${{ inputs.shared-globalids-allow }}
       run: |
         major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
         if [ "$major" -lt 18 ]; then echo "::error title=IDS model check::needs Node 18 or newer (add actions/setup-node before this step)"; exit 2; fi
-        set -- --models "$IDS_MODELS" --ids "$IDS_IDS" --pairing "$IDS_PAIRING" --fail-on "$IDS_FAIL_ON"
+        set -- --models "$IDS_MODELS" --ids "$IDS_IDS" --pairing "$IDS_PAIRING" --fail-on "$IDS_FAIL_ON" --max-failures "${IDS_MAX_FAILURES:-1000}"
         [ -n "$IDS_JUNIT" ] && set -- "$@" --junit "$IDS_JUNIT"
         [ -n "$IDS_BCF" ] && set -- "$@" --bcf-dir "$IDS_BCF"
         [ -n "$IDS_JSON" ] && set -- "$@" --json "$IDS_JSON"
+        [ "$IDS_FAIL_ON_UNCHECKED" = "true" ] && set -- "$@" --fail-on-unchecked
+        [ "$IDS_FAIL_ON_AUDIT" = "true" ] && set -- "$@" --fail-on-audit-warnings
+        [ "$IDS_FAIL_ON_DUPLICATES" = "true" ] && set -- "$@" --fail-on-duplicate-globalids
+        [ "$IDS_FAIL_ON_SHARED" = "true" ] && set -- "$@" --fail-on-shared-globalids
+        [ -n "$IDS_SHARED_ALLOW" ] && set -- "$@" --shared-globalids-allow "$IDS_SHARED_ALLOW"
         node "$GITHUB_ACTION_PATH/ci-cli.mjs" "$@"

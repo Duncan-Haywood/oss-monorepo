@@ -91,7 +91,7 @@ feature that exists yet.
 
 The model here is that we don't host anything. Each app is an open-source
 business that anyone can host in one click. The code is already MIT, at the
-root and in all <!-- count:ventures -->1,366<!-- /count --> ventures. MIT lets anyone copy, modify, host and sell
+root and in all <!-- count:ventures -->1,394<!-- /count --> ventures. MIT lets anyone copy, modify, host and sell
 it, so no license change is needed. The deployer keeps the copyright notice,
 and the license's no-warranty clause protects us. Whoever clicks Deploy
 becomes the operator of their copy. They are responsible for its domain,
@@ -584,6 +584,10 @@ Ship when every line is true:
       commit** with `python3 platform/ci/publish_surface.py --write`, and say
       in the PR what it can publish (`none` for a test-only workflow);
       `--check` fails until the snapshot names it, by design.
+- [ ] `node platform/pages/register-tool.mjs <slug>` (about 10 s, once the
+      page exists): adds the launch date and opt-out switch line, names
+      the missing sibling link and the CSV-guard and row-spread hits for
+      this slug; `--research` for a research-algorithm tool.
 - [ ] `node platform/pages/venture-preflight.mjs <slug>` is clean (add
       `--skip-build` for the one-minute pass). It runs the repository-wide
       gates a new venture trips in CI that its own tests cannot see:

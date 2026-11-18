@@ -163,7 +163,7 @@ export function readMailTexts(files, opts = {}) {
   let truncated = 0;
   for (const f of files) {
     if (isMbox(f.text)) { const s = new MboxSplitter((raw) => c.add(raw), opts); s.push(f.text); s.end(); truncated += s.truncated; }
-    else c.add(f.text.replace(/^﻿/, ""));
+    else c.add(f.text.replace(/^\uFEFF/, ""));
   }
   const r = c.finish();
   r.stats.truncated += truncated;

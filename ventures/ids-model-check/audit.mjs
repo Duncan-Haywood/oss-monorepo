@@ -165,6 +165,61 @@ function entityNameIssues(f, ctx, where) {
   return issues;
 }
 
+// An entity facet naming an abstract class (IFC2X3's IFCBUILDINGELEMENT,
+// IFCELEMENT, IFCPRODUCT): no object has it as its own class, and IDS class
+// names do not take in subclasses, so the name matches nothing. Valid IDS,
+// so a warning; a required specification whose every name is abstract fails
+// on every model as "nothing applicable". Found on the Dutch RVB BIM Norm IDS
+// (eval/abstract-classes-2026-11-17.md). Not for patterns: a pattern that
+// also matches concrete classes is how an author asks for a family.
+function concreteBelow(S, cls) {
+  return Object.keys(S.entities).filter((c) => c !== cls && !S.entities[c].abstract && isA(S, c, cls)).sort();
+}
+
+function abstractIssues(f, ctx, where, spec, isApplicability) {
+  const names = listedNames(f.name);
+  if (!names) return [];
+  const known = names.filter((n) => ctx.list.some(({ S }) => S.has(n)));
+  const abstractIn = (n) => ctx.list.filter(({ S }) => S.has(n) && S.entities[n].abstract).map(({ id }) => id);
+  const flagged = known.filter((n) => abstractIn(n).length);
+  if (!flagged.length) return [];
+  // Does every listed name match nothing in some audited schema?
+  const deadIn = ctx.list.filter(({ id, S }) => names.every((n) => !S.has(n) ? !(id === "IFC2X3" && own(ctx.typeMap, n)) : S.entities[n].abstract)).map(({ id }) => id);
+  return flagged.map((n) => {
+    const ids = abstractIn(n);
+    const { S } = ctx.list.find(({ id }) => id === ids[0]);
+    const sub = concreteBelow(S, n);
+    const inSchemas = ids.length === ctx.list.length ? "" : ` in ${ids.join(" and ")}`;
+    const subs = sub.length ? `; to check the objects below it, name their classes (${sub.slice(0, 8).join(", ")}${sub.length > 8 ? ` and ${sub.length - 8} more` : ""})` : "";
+    let what;
+    if (!isApplicability) what = `no element is part of an object of exactly that class, so this partOf facet never matches${deadIn.length ? "" : " through that name"}`;
+    else if (deadIn.length) what = `this specification applies to nothing${deadIn.length === ctx.list.length ? "" : ` in ${deadIn.join(" and ")} models`}${spec.optionality === "required" ? `, and being required it fails on every such model as "nothing applicable"` : ""}`;
+    else what = "the facet matches only its other class names";
+    return { level: "warning", code: "class-abstract", message: `${where}${n} is abstract${inSchemas}: no object has it as its own class, and IDS class names do not include subclasses, so ${what}${subs}` };
+  });
+}
+
+// A required entity requirement whose every name is abstract, under an
+// applicability with no entity facet (with one, entityContradiction already
+// catches it): no object is of an abstract class itself, so every applicable
+// element fails for a fault in the IDS. Invalid, like entityContradiction;
+// in a schema where some name is concrete, a warning from the applicability
+// rule's wording instead.
+function abstractRequirement(f, spec, ctx) {
+  if (f.cardinality === "optional" || f.cardinality === "prohibited") return [];
+  if (spec.applicability.some((x) => x.kind === "entity")) return [];
+  const names = listedNames(f.name);
+  if (!names) return [];
+  const dead = (id, S, n) => (!S.has(n) ? !(id === "IFC2X3" && own(ctx.typeMap, n)) : S.entities[n].abstract && !(id === "IFC2X3" && own(ctx.typeMap, n)));
+  const deadIn = ctx.list.filter(({ id, S }) => names.every((n) => dead(id, S, n))).map(({ id }) => id);
+  if (!deadIn.length || !names.some((n) => ctx.list.some(({ S }) => S.has(n) && S.entities[n].abstract))) return [];
+  const { S } = ctx.list.find(({ id }) => id === deadIn[0]);
+  const sub = [...new Set(names.flatMap((n) => (S.has(n) ? concreteBelow(S, n) : [])))];
+  const subs = sub.length ? `; to require objects below it, name their classes (${sub.slice(0, 8).join(", ")}${sub.length > 8 ? ` and ${sub.length - 8} more` : ""})` : "";
+  const all = deadIn.length === ctx.list.length;
+  return [{ level: all ? "error" : "warning", code: "class-abstract", message: `the requirement asks for entity ${f.name}, which is abstract${all ? "" : ` in ${deadIn.join(" and ")}`}: no object has it as its own class, and IDS class names do not include subclasses, so every applicable element${all ? "" : ` in ${deadIn.join(" and ")} models`} would fail${subs}` }];
+}
+
 // A required entity facet that no applicable class can satisfy: the
 // applicability picks exact classes, and the requirement names others (a
 // subclass is not its parent; IFCSLAB is never IFCWALL). Every applicable
@@ -196,6 +251,14 @@ function attributeIssues(f, spec, ctx) {
       const all = attributeIndex(S);
       const bad = names.filter((n) => !all.has(n));
       outcomes.push(bad.length === names.length ? { code: "attribute-unknown", message: `no ${id} class has an attribute ${JSON.stringify(bad[0])}` } : null);
+      // A value on an attribute that is a list (or an object, a select,
+      // binary) on every class storing it: every object it applies to fails
+      // (IDS's value_checks_always_fail_for_lists test case). A warning, not
+      // an error: with no class named, the IDS-Audit-tool accepts it.
+      if (f.value.present && bad.length < names.length) {
+        const why = uncomparable(S, names.filter((n) => all.has(n)));
+        if (why) warnings.push(`${why}; ${(spec.applicability || []).includes(f) ? "so this applicability selects nothing" : "every object this checks fails it"} (${id})`);
+      }
       continue;
     }
     for (const cls of classes) {
@@ -233,6 +296,29 @@ function attributeIssues(f, spec, ctx) {
   return issues;
 }
 
+// For attribute names with no class: why none of them can be compared with a
+// value on any class that stores it ("TexCoordsList is a list on every class
+// that has it (IfcIndexedTextureMap)"), or null when one can.
+function uncomparable(S, names) {
+  const what = new Map();
+  for (const [cls, e] of Object.entries(S.entities)) {
+    for (const a of S.attrs(cls)) {
+      if (!names.includes(a.name) || a.derived) continue;
+      const prim = S.prim(a.type);
+      const k = a.aggregate || prim === "aggregate" ? "a list" : prim === "entity" ? "an object" : prim === "select" ? "a select" : prim === "binary" ? "binary" : null;
+      if (!k) return null;
+      if (!what.has(a.name)) what.set(a.name, { k: new Set(), on: [] });
+      const w = what.get(a.name);
+      w.k.add(k);
+      if (e.attrs.some((x) => x.name === a.name)) w.on.push(e.name || cls);
+    }
+  }
+  if (!what.size) return null;
+  const [n, w] = [...what][0];
+  const kinds = [...w.k];
+  return `${n} is ${kinds.length === 1 ? kinds[0] : kinds.join(" or ")} on every class that has it (${w.on.slice(0, 3).join(", ")}${w.on.length > 3 ? ", ..." : ""}); IDS cannot compare it with a value`;
+}
+
 function enumOf(S, type) {
   for (let t = type, g = 0; t && g < 20; g++) {
     const d = S.types[t];
@@ -255,18 +341,23 @@ function attributeIndex(S) {
   return s;
 }
 
-// Levenshtein distance, capped: returns cap + 1 once it is exceeded.
+// Edit distance with adjacent transpositions (optimal string alignment:
+// Lenght and Length are one slip apart, not two), capped: returns cap + 1
+// once it is exceeded.
 function editDistance(a, b, cap = 2) {
   if (Math.abs(a.length - b.length) > cap) return cap + 1;
+  let prev2 = null;
   let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
   for (let i = 1; i <= a.length; i++) {
     const cur = [i];
     let best = i;
     for (let j = 1; j <= b.length; j++) {
       cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (prev2 && i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) cur[j] = Math.min(cur[j], prev2[j - 2] + 1);
       if (cur[j] < best) best = cur[j];
     }
     if (best > cap) return cap + 1;
+    prev2 = prev;
     prev = cur;
   }
   return prev[b.length];
@@ -275,7 +366,7 @@ function editDistance(a, b, cap = 2) {
 // The standard name a misspelt one most likely meant: same letters ignoring
 // case, or one or two edits away (only for names long enough that two edits
 // are a slip, not another word). Null when none, or when two tie.
-function nearName(name, candidates) {
+export function nearName(name, candidates) {
   const lower = name.toLowerCase();
   const exact = candidates.filter((c) => c.toLowerCase() === lower);
   if (exact.length) return exact[0];
@@ -365,7 +456,14 @@ function templateIssues(f, spec, ctx, where) {
         // templates) are not compared.
         const allowed = (tpl.types || (tpl.type ? [tpl.type] : [])).filter((t) => S.types[t]);
         if (f.dataType && allowed.length && !allowed.includes(f.dataType)) return { error: { code: "pset-datatype", message: `${setName}.${pn} is ${allowed.join(" or ")} in the ${id} templates, not ${f.dataType}, so a model that follows the standard can never pass` } };
-        if (!f.dataType && allowed.length && f.value.present) warning ||= { code: "value-no-datatype", message: `property ${setName}.${pn} has a value but no dataType; IDS 1.0 expects one, and the ${id} templates give ${allowed.join(" or ")}` };
+        if (!f.dataType && allowed.length && f.value.present) {
+          // TRUE or True on a boolean: IDS writes booleans true/false, and with
+          // no dataType checkers part ways (this one matches no object,
+          // IfcTester 0.8.0 matches the true ones; README, 2026-11-17).
+          const sv = f.value.simple;
+          const caps = typeof sv === "string" && /^(true|false)$/i.test(sv) && sv !== sv.toLowerCase() && allowed.some((t) => ["boolean", "logical"].includes(S.prim(t)));
+          warning ||= { code: "value-no-datatype", message: `property ${setName}.${pn} has a value but no dataType; IDS 1.0 expects one, and the ${id} templates give ${allowed.join(" or ")}${caps ? `. ${sv} is not how IDS writes a boolean (${sv.toLowerCase()}): with no dataType, checkers disagree on whether it matches` : ""}` };
+        }
         if (tpl.enum && tpl.enum.length && f.value.present) {
           const listed = listedNames(f.value);
           if (listed && !listed.some((v) => tpl.enum.includes(v))) warning ||= { code: "value-never", message: `${setName}.${pn} is an enumeration (${tpl.enum.slice(0, 8).join(", ")}${tpl.enum.length > 8 ? ", ..." : ""}); ${listed.length === 1 ? JSON.stringify(listed[0]) + " is" : "none of the listed values is"} not a member, so a model that follows the standard cannot match` };
@@ -423,7 +521,9 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
         const issues = [];
         if (f.kind === "entity") {
           issues.push(...entityNameIssues(f, ctx, ""));
+          if (where === "applicability" && !issues.some((x) => x.level === "error")) issues.push(...abstractIssues(f, ctx, "", spec, true));
           if (where === "requirements" && !issues.some((x) => x.level === "error")) issues.push(...entityContradiction(f, spec, ctx));
+          if (where === "requirements" && !issues.some((x) => x.level === "error")) issues.push(...abstractRequirement(f, spec, ctx));
         }
         else if (f.kind === "attribute") issues.push(...attributeIssues(f, spec, ctx));
         else if (f.kind === "property") issues.push(...propertyIssues(f, ctx, spec, where));
@@ -431,7 +531,11 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
         else if (f.kind === "partOf") {
           if (f.relation === "IFCRELVOIDSELEMENT" || f.relation === "IFCRELFILLSELEMENT") issues.push({ level: "error", code: "relation-voids-fills", message: `partOf relation ${f.relation} on its own is not an IDS 1.0 value, and tools that validate against ids.xsd (IfcTester among them) refuse the file; write relation="IFCRELVOIDSELEMENT IFCRELFILLSELEMENT" for an element in an opening of another` });
           else if (f.relation && !PARTOF_RELS.includes(f.relation)) issues.push({ level: "error", code: "relation-unknown", message: `partOf relation ${f.relation} is not one of ${PARTOF_RELS.map((r) => JSON.stringify(r)).join(", ")}` });
-          if (f.entity) issues.push(...entityNameIssues(f.entity, ctx, "partOf: "));
+          if (f.entity) {
+            const named = entityNameIssues(f.entity, ctx, "partOf: ");
+            issues.push(...named);
+            if (!named.some((x) => x.level === "error")) issues.push(...abstractIssues(f.entity, ctx, "partOf: ", spec, false));
+          }
         }
         for (const x of issues) add(where + " " + f.describe(), x);
       }

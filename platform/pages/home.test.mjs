@@ -15,7 +15,7 @@ import {
 
 test('every catalogue section the hub draws has its own icon', () => {
   for (const id of ['self-hosted', 'marketplace', 'trades', 'food-service', 'services', 'logistics', 'evidence',
-    'uk-tax', 'backoffice', 'ci', 'solo-earner', 'research-algorithms', 'learning', 'more', 'apps', 'cli']) {
+    'personal-tax', 'household', 'uk-tax', 'backoffice', 'ci', 'solo-earner', 'research-algorithms', 'learning', 'more', 'apps', 'cli']) {
     assert.ok(ICON_NAMES.includes(id), `${id} has no icon`);
   }
   const svg = icon('trades');

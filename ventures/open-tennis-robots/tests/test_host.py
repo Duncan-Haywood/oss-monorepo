@@ -4,6 +4,7 @@ pieces it leans on: the period tachometer, the wheel speed loop and the steady-w
 import json
 import math
 import os
+import statistics
 import tempfile
 import unittest
 
@@ -1283,6 +1284,50 @@ class PulseDropTest(unittest.TestCase):
         self.assertTrue(all(n < 8 for n in got[0][1]), got[0][1])
         self.assertEqual(got[0][2], 0)
 
+    def test_slow_wheel_is_watched_through_the_next_speed_change(self):
+        """2026-11-17, firmware/esp32/README.md "The fit floor on held-out builds": the Pi's hold made the shot after a
+        slow one late. With LOOP_THROUGH_CHANGE the board watches the slow wheel on through the next shot's speed change
+        (the loop fit models the commands), so the Pi sends the next speeds straight away: the second shot releases
+        sooner and the slow wheel's drop still reads within 1%. Off by default on both sides."""
+        self.assertFalse(controller.LOOP_THROUGH_CHANGE)
+        self.assertFalse(host.LOOP_THROUGH_CHANGE)
+        spec = {"machine": {"y": 0.0, "height": 1.0}, "interval": 3.0,
+                "shots": [{"x": 9.0, "y": 0.0, "speed": 22, "topspin": 3000},
+                          {"x": 10.5, "y": 0.0, "speed": 26, "topspin": 0}]}
+        shots = host.plan_drill(spec)
+        got = {}
+        try:
+            for through in (False, True):
+                controller.LOOP_THROUGH_CHANGE = host.LOOP_THROUGH_CHANGE = through
+                sim = SimFeeder(balls=None)
+                truth = []
+                take = sim._take_momentum
+
+                def taken():
+                    before = sim.wheel[1]
+                    take()
+                    truth.append(1 - sim.wheel[1] / before)
+                sim._take_momentum = taken
+                res = host.run_drill(host.FeederLink(sim, sim.clock), shots, sim.sleep)
+                self.assertTrue(res.ok, res.aborted)
+                rec = res.launches[0]
+                got[through] = (res.shots[1].released_at - res.shots[0].released_at, rec["drop_bottom"] / truth[0],
+                                rec["loop_bottom"], sim.hw.launch.extended)
+        finally:
+            controller.LOOP_THROUGH_CHANGE = host.LOOP_THROUGH_CHANGE = False
+        held, thru = got[False], got[True]
+        self.assertLess(thru[0], held[0] - 0.5)
+        self.assertTrue(thru[2] and thru[3] >= 1, thru)
+        self.assertLess(abs(thru[1] - 1), 0.01, thru)
+
+    def test_a_stop_still_ends_the_watch_through_changes(self):
+        """A coast down is the ESC's braking, which no command describes: LOOP_THROUGH_CHANGE keeps watching through a
+        change of speed, never through a stop."""
+        self.assertTrue(controller._stopped((5000, 600), (0, 0)))
+        self.assertTrue(controller._stopped((5000, 600), (5000, 0)))
+        self.assertFalse(controller._stopped((5000, 600), (4000, 4000)))
+        self.assertFalse(controller._stopped((0, 600), (0, 4000)))
+
     def test_hold_matches_the_board(self):
         """The Pi's hold and the board's watch past the verdict count the same revolutions over the same time."""
         self.assertEqual(host.LOOP_AFTER_REVS, controller.LOOP_AFTER_REVS)
@@ -1364,6 +1409,42 @@ class LoopDropTest(unittest.TestCase):
         self.assertTrue(all(s is None for s in steps[:-1]))
         self.assertLessEqual(len(steps) - 1, 40)              # 5 + 7 time constants x 3 t0 grids
 
+    def test_polish_finds_the_ball_between_grid_points(self):
+        # README "Not the simulator's step either": the 3-level t0 grid's last step (1/64 of a revolution) left a 0.3%
+        # scatter on noise-free wheels; one solve at the parabola's vertex halves it and adds no step
+        for rpm in (2500, 5000):
+            errs = {}
+            for polish in (False, True):
+                errs[polish] = []
+                for i in range(16):                        # the ball at 16 moments across a revolution or two
+                    ps, ticks = self._wheel(rpm, 0.08, 0.3, 9000, ball_ms=1500 + i)
+                    errs[polish].append(controller.drop_from_commands(ps, ticks, polish=polish)[0] / 0.08 - 1)
+            sd = {p: statistics.pstdev(e) for p, e in errs.items()}
+            self.assertLess(sd[True], 0.6 * sd[False], rpm)
+            self.assertLess(max(map(abs, errs[True])), 0.004, rpm)
+        ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)
+        self.assertEqual(len(list(controller.drop_from_commands_steps(ps, ticks))),
+                         len(list(controller.drop_from_commands_steps(ps, ticks, polish=False))))
+
+    def test_the_record_fit_reads_a_longer_window_through_tach_jitter(self):
+        # 2026-11-18 (README "The record's drop fit and its window"): 24 revolutions after the ball average a jittery
+        # tach that 8 do not; held out on the simulator the jitter builds' rms fell from 0.62% to 0.47%
+        import random
+        self.assertEqual(controller.LOOP_FIT_AFTER, 24)
+        rng = random.Random(5)
+        errs = {8: [], controller.LOOP_FIT_AFTER: []}
+        for i in range(24):
+            ps, ticks = self._wheel(4500, 0.08, 0.45, 9000, ball_ms=1500 + i * 0.37, total_ms=1950)
+            edges = [0.0]
+            for p in ps:
+                edges.append(edges[-1] + p)
+            edges = [e + rng.gauss(0, 3.0) for e in edges]             # a 3 us (sd) edge timer
+            jit = [b - a for a, b in zip(edges, edges[1:])]
+            for a in errs:
+                errs[a].append(controller.drop_from_commands(jit, ticks, after=a)[0] / 0.08 - 1)
+        rms = {a: math.sqrt(statistics.fmean([e * e for e in v])) for a, v in errs.items()}
+        self.assertLess(rms[controller.LOOP_FIT_AFTER], 0.9 * rms[8], rms)
+
     def test_no_fit_without_commands_or_revolutions(self):
         ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)
         self.assertIsNone(controller.drop_from_commands(ps, []))
@@ -1428,7 +1509,9 @@ class EscSurveyTest(unittest.TestCase):
         sv = res.esc_survey
         self.assertIsNotNone(sv)
         self.assertGreaterEqual(sv["wheels"], 16)
-        self.assertEqual(sim.hw.launch.survey_cut, 0)
+        # the refined survey (36 steps a fit) outlasts the gap between rally balls: some queued surveys give way
+        # (controller.SURVEY_QUEUE, README "The ESC-lag survey's search, traced"), never the records
+        self.assertLessEqual(sim.hw.launch.survey_cut, 8)
         self.assertEqual(sv["least_ms"], 100)
         self.assertAlmostEqual(sv["refined_ms"], 80, delta=12)
         self.assertEqual(len(sv["rms_ppm"]), P.ESC_SURVEY_LAGS)
@@ -1438,22 +1521,65 @@ class EscSurveyTest(unittest.TestCase):
         self.assertEqual(sv["refined_ms"], 0)
         self.assertIn("keep ESC_TAU_US = 0", host.esc_survey_advice(sv))
 
-    def test_a_new_stroke_cuts_the_survey_not_the_record(self):
+    def test_a_long_esc_lag_on_a_slow_wheel_is_named(self):
+        # 2026-11-18 (README "Long ESC lags: the survey read too little of the recovery"): reading 8 revolutions after
+        # the ball, an untold 180 ms ESC on a 0.35 s wheel picked 106 ms on the calibration drill; the board's refits
+        # now read ESC_SURVEY_AFTER = 16 and it picks 182
+        import esc_survey_sweep as S
+        self.assertEqual(controller.ESC_SURVEY_AFTER, 16)
+        sv = S.drill(S.sim_for({"esc_tau_s": 0.18}, 0.35, 0.95, 0.65), "drill.calibration.json").esc_survey
+        self.assertGreaterEqual(sv["wheels"], host.ESC_SURVEY_MIN_WHEELS)
+        self.assertAlmostEqual(sv["refined_ms"], 180, delta=27)
+
+    def test_a_new_stroke_pauses_the_survey_not_the_record(self):
+        # 2026-11-18 (README "The ESC-lag survey's search, traced"): a new stroke no longer cuts the last ball's
+        # survey; no survey step runs while the stroke is under way, and it resumes once the stroke's verdict is in.
         import esc_survey_sweep as S
         sim = S.sim_for({}, 0.4, 0.95, 0.65)
         lc = sim.hw.launch
         S.drill(sim, "drill.rally.json")
-        n = lc.survey_n
-        lc.surveying = iter([None] * 1000)        # a survey under way ...
+        cut = lc.survey_cut
+        it = iter([None] * 10)
+        lc.surveying = it                         # a survey under way ...
         lc.start((3000, 2000), 0)                 # ... and a new stroke
-        self.assertIsNone(lc.surveying)
-        self.assertEqual((lc.survey_cut, lc.survey_n), (1, n))
+        self.assertIs(lc.surveying, it)
+        self.assertFalse(lc.step())               # paused during the stroke
+        self.assertEqual(len(list(iter(it))), 10)  # not one step was taken
+        it = iter([None] * 10)
+        lc.surveying = it
+        lc.cancel()                               # the stroke is over
+        self.assertTrue(lc.step())
+        self.assertEqual(len(list(it)), 9)
+        self.assertEqual(lc.survey_cut, cut)
+
+    def test_waiting_surveys_queue_and_the_oldest_gives_way(self):
+        import esc_survey_sweep as S
+        lc = S.sim_for({}, 0.4, 0.95, 0.65).hw.launch
+        ran = []
+
+        def survey(name, n):
+            for _ in range(n):
+                ran.append(name)
+                yield None
+        lc.queue_survey(survey("a", 2))
+        for name in "bcd":                        # b and c each give way to the next; d waits behind a
+            lc.queue_survey(survey(name, 1))
+        self.assertEqual((lc.survey_cut, len(lc.survey_queue)), (2, controller.SURVEY_QUEUE - 1))
+        while lc.step():
+            pass
+        self.assertEqual(ran, ["a", "a", "d"])
+        self.assertIsNone(lc.surveying)           # the running survey, then each waiting one, ran to the end
 
     def test_advice_waits_for_enough_wheels_and_frame_round_trips(self):
         self.assertIsNone(host.esc_survey_advice(None))
         self.assertIn("run more balls", host.esc_survey_advice({"wheels": 6, "least_ms": 50, "refined_ms": 44}))
         self.assertIn("already matches", host.esc_survey_advice({"wheels": 30, "least_ms": 50, "refined_ms": 44}, 45))
-        frame = P.encode(P.ESC_SURVEY, 30, 100, 79, 817, 808, 361, 290, 566, 65535)
+        # a pick at the grid's last lag names no number (README "Long ESC lags: the survey read too little of the
+        # recovery"): the advice says to scope the ESC, and the calibration drill is not held on it
+        end = {"wheels": 30, "least_ms": 400, "refined_ms": 400}
+        self.assertIn("cannot name it", host.esc_survey_advice(end))
+        self.assertIsNone(host.esc_lag_check(end, 0))
+        frame = P.encode(P.ESC_SURVEY, 30, 100, 79, 817, 808, 361, 290, 330, 566, 65535)
         (cmd, vals), = list(P.Decoder().feed(frame))
         self.assertEqual((cmd, vals[:3]), (P.ESC_SURVEY, (30, 100, 79)))
 
@@ -1529,8 +1655,8 @@ class EscSurveyTest(unittest.TestCase):
         # README "One wheel's misses outvoted the drill": eight wheels fit 100 ms best by 20-30%; one with misses 30
         # times theirs fits 0 best by 5%. The plain sum of squares followed the one; the trimmed sum follows the eight.
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5)
-        good = [r * 1e-8 for r in (1.6, 1.4, 1.25, 1.0, 1.3, 1.5)]
-        bad = [r * 9e-6 for r in (1.0, 1.01, 1.02, 1.05, 1.06, 1.07)]
+        good = [r * 1e-8 for r in (1.6, 1.4, 1.25, 1.0, 1.15, 1.3, 1.5)]       # 0 / 20 / 50 / 100 / 150 / 200 / 400 ms
+        bad = [r * 9e-6 for r in (1.0, 1.01, 1.02, 1.05, 1.055, 1.06, 1.07)]
         for _ in range(8):
             lc.survey_add(good)
         lc.survey_add(bad)
@@ -1644,6 +1770,26 @@ class LoopFitUnsureTest(unittest.TestCase):
         self.assertIn("2 of 12 wheel readings marked unsure", two.note)
         self.assertAlmostEqual(two.speed_efficiency, 0.8, places=6)
 
+    def test_unsure_weight_scales_a_marked_reading(self):
+        # 2026-11-17, firmware/esp32/README.md "Unsure marks on the noisy wheels": a marked reading counts w times
+        from tennisbots import launcher
+        r_w = launcher.WheelLauncher().wheel_radius
+        recs = []
+        for top, bot in ((3000, 3000), (4500, 3000), (3000, 4500), (5000, 5000), (6000, 4000), (4000, 6000)):
+            def drop(w, sign):
+                k = launcher.BALL_KG * r_w ** 2 / (launcher.WHEEL_INERTIA_KGM2 * w)
+                return k * (0.8 * (top + bot) / 4 + sign * 0.5 * (top - bot) / 6)
+            recs.append({"launched": True, "rpm_top": top, "rpm_bottom": bot, "drop_top": drop(top, 1),
+                         "drop_bottom": drop(bot, -1), "fit_top": True, "fit_bottom": True})
+        recs[1] = dict(recs[1], drop_top=recs[1]["drop_top"] * 1.1, unsure_top=True)   # 10% high, inside TRIM
+        full = launcher.fit_from_drops(recs)
+        half = launcher.fit_from_drops(recs, unsure_weight=0.5)
+        none = launcher.fit_from_drops(recs, unsure_weight=0.0)
+        self.assertEqual(launcher.fit_from_drops(recs, unsure_weight=1.0), full)
+        self.assertGreater(abs(full.spin_efficiency - 0.5), abs(half.spin_efficiency - 0.5))
+        self.assertAlmostEqual(none.spin_efficiency, 0.5, places=6)    # set aside: the clean rows alone
+        self.assertAlmostEqual(none.speed_efficiency, 0.8, places=6)
+
 
 class RefitTest(unittest.TestCase):
     """2026-11-16, firmware/esp32/README.md "Re-planning a drill from its own shots": host.Refitter fits the launcher's
@@ -1718,3 +1864,97 @@ class RefitTest(unittest.TestCase):
                 fh.writelines(json.dumps(r) + "\n" for r in recs)
             self.assertAlmostEqual(host.recovery_from_log(path), 0.3, delta=0.03)
             self.assertIsNone(host.recovery_from_log(os.path.join(d, "missing.jsonl")))
+
+
+class SpreadTakeTest(unittest.TestCase):
+    """SimFeeder(take_ms=) spreads the ball's take over its contact time (tests/take_spread.py): the same rpm leaves
+    the wheels as an instant take, only later, and the force profile sets how it is shared out."""
+
+    def _take(self, take_ms, shape="halfsine"):
+        sim = SimFeeder(take_ms=take_ms, take_shape=shape, wheel_tau_s=1e9)   # a wheel that neither speeds up nor coasts
+        sim.wheel, sim._drive = [5000.0, 3000.0], [0.0, 0.0]
+        sim._take_momentum()
+        trace = []
+        for _ in range(8):
+            sim.run_ms(1)
+            trace.append(sim.wheel[0])
+        return sim, trace
+
+    def test_spread_take_removes_the_instant_takes_rpm(self):
+        inst, _ = self._take(0.0)
+        for shape in ("halfsine", "front"):
+            sim, trace = self._take(4.0, shape)
+            self.assertEqual(sim.taken, inst.taken)                # the same momentum, recorded at first contact
+            self.assertAlmostEqual(trace[3], inst.wheel[0], places=6)   # all of it gone after 4 ms
+            self.assertGreater(trace[0], trace[3])                 # but not at once
+            self.assertEqual(sim._takes, [])
+
+    def test_front_profile_takes_more_early(self):
+        _, half = self._take(4.0, "halfsine")
+        _, front = self._take(4.0, "front")
+        self.assertLess(front[0], half[0])                         # 7/16 of it in the first ms against 15%
+
+
+class TakeSurveyTest(unittest.TestCase):
+    """2026-11-17, firmware/esp32/README.md "The contact time surveyed on the board": with SURVEY_TAKE on, the board
+    refits each launched wheel at seven contact times, the TAKE_SURVEY frame carries the sums to the Pi, and the Pi says
+    which TAKE_US the balls pick."""
+
+    def test_frames_round_trip(self):
+        (cmd, vals), = list(P.Decoder().feed(P.encode(P.SURVEY_TAKE, 1)))
+        self.assertEqual((cmd, vals), (P.SURVEY_TAKE, (1,)))
+        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 650, 620, 600, 590, 588, 640)
+        (cmd, vals), = list(P.Decoder().feed(frame))
+        self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 4 + P.TAKE_SURVEY_TIMES))
+        self.assertEqual(len(controller.TAKE_SURVEY_GRID_US), P.TAKE_SURVEY_TIMES)
+        self.assertEqual(tuple(g // 1000 for g in controller.TAKE_SURVEY_GRID_US), host.TAKE_SURVEY_MS)
+
+    def test_advice(self):
+        sv = {"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0,
+              "rms_ppm": [136, 140, 119, 98, 95, 50, 112]}
+        self.assertIsNone(host.take_survey_advice(None))
+        self.assertIn("run more balls", host.take_survey_advice(dict(sv, wheels=6)))
+        self.assertIn("set TAKE_US = 5500", host.take_survey_advice(sv))
+        self.assertIn("already matches", host.take_survey_advice(dict(sv, board_ms10=60)))
+        self.assertIn("keep TAKE_US = 0", host.take_survey_advice(dict(sv, least_ms10=0, refined_ms10=0)))
+        # an instant take's build on the simulator: 3 ms fits 25% better than the step, under the margin
+        flat = dict(sv, least_ms10=30, refined_ms10=26, rms_ppm=[68, 62, 51, 75, 81, 107, 197])
+        self.assertIn("keep TAKE_US = 0", host.take_survey_advice(flat))
+        self.assertIn("only 25% less", host.take_survey_advice(flat))
+        self.assertIn("set TAKE_US = 0", host.take_survey_advice(dict(sv, least_ms10=0, refined_ms10=0, board_ms10=40)))
+
+    def test_board_off_by_default_and_on_for_a_calibration_drill(self):
+        import esc_survey_sweep as S
+        sim = S.sim_for({}, 0.4, 0.95, 0.65)
+        shots = host.plan_drill(S.load("drill.calibration.json"))[:3]
+        res = host.run_drill(host.FeederLink(sim, sim.clock), shots, sim.sleep)
+        self.assertTrue(res.ok, res.aborted)
+        self.assertIsNone(res.take_survey)                     # not asked for: no survey, no extra board time
+        sim = S.sim_for({}, 0.4, 0.95, 0.65)
+        res = host.run_drill(host.FeederLink(sim, sim.clock), shots, sim.sleep, take_survey=True)
+        self.assertTrue(res.ok, res.aborted)
+        sv = res.take_survey
+        self.assertIsNotNone(sv)
+        self.assertGreaterEqual(sv["wheels"], 4)               # the Pi waits for each ball's survey before the next
+        self.assertEqual(sim.hw.launch.survey_cut, 0)
+        self.assertEqual(len(sv["rms_ppm"]), P.TAKE_SURVEY_TIMES)
+        sim.sleep(0.05)                                        # the board reads the drill's last frame
+        self.assertFalse(sim.hw.launch.take_on)                # turned off at the drill's end
+
+    def test_take_us_sets_the_record_fit(self):
+        lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_us=6000)
+        self.assertEqual(lc.take(), controller.take_offsets(6000))
+        self.assertEqual(lc.take_ms10(), 60)
+        self.assertEqual(controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5).take(), controller.LOOP_TAKE)
+
+    def test_survey_kept_in_the_shot_log(self):
+        res = host.DrillResult(launches=[{"seq": 1, "rpm_top": 4000, "rpm_bottom": 3000, "drop_top": 0.08,
+                                          "drop_bottom": 0.09, "launched": True, "shot": 0}],
+                               take_survey={"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0})
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "shots.jsonl")
+            self.assertIsNone(host.last_take_survey_from_log(path))
+            host.append_shot_log(path, res, "drill.calibration.json")
+            self.assertEqual(len(host.read_shot_log(path)), 1)
+            self.assertEqual(host.last_take_survey_from_log(path)["refined_ms10"], 57)
+            self.assertIsNone(host.last_survey_from_log(path))

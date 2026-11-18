@@ -6,8 +6,16 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), "check_thousands_input.mjs");
+
+// The checker drives Chromium. unwired_checks.py runs this suite on every pull
+// request (ventures-tests.yml), whose runner has no playwright: say so as a
+// named skip rather than failing on a missing module.
+let NO_PLAYWRIGHT = false;
+try { createRequire(SCRIPT).resolve("playwright"); }
+catch { NO_PLAYWRIGHT = "playwright is not installed here"; }
 
 const page = (parse) => `<!doctype html><html><body>
 <label for="a">Amount</label><input id="a" type="text" inputmode="decimal">
@@ -20,7 +28,7 @@ document.getElementById("go").addEventListener("click", () => {
 });
 </script></body></html>`;
 
-test("flags parseFloat that reads 1,200 as 1 and passes a parser that strips separators", () => {
+test("flags parseFloat that reads 1,200 as 1 and passes a parser that strips separators", { skip: NO_PLAYWRIGHT }, () => {
   const dir = mkdtempSync(join(tmpdir(), "thousands-"));
   try {
     mkdirSync(join(dir, "pages"));

@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">KOMBUCHA BREWERY PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>How many gallons a week does your kombucha brewery have to sell to break even, and how much cash does the ramp-up eat?</h1>
+    <h1>How many gallons a week does your kombucha brewery have to sell to break even?</h1>
     <p>Enter your fermenter capacity, how full you fill it, how long a batch takes, what you sell for, and what packaging, labour and rent cost. You get <strong>gallons a week</strong>, <strong>monthly profit</strong> at full production, <strong>break-even gallons</strong>, the <strong>price change that hits your target margin</strong>, how an <strong>power-price swing</strong> moves profit, a sixty-month <strong>ramp-up</strong> with the lowest cash point and payback, and <strong>loan coverage</strong>.</p>
     <p class="note">It works from your own figures. It does not know what kombucha sells for near you, how your batches will perform, whether a batch will test above the legal alcohol limit, or whether you can find buyers for every gallon.</p>
   </header>
@@ -99,7 +99,7 @@
       <button type="button" class="secondary" id="load-ok">Load an example</button>
       <button type="button" class="secondary" id="clear-all">Clear</button>
     </p>
-    <p class="note" id="form-status">Fill in your brewery, then click Work out the brewery. Growing area, plants per square foot, days to harvest and a price are required; the rest default to zero or the neutral choice.</p>
+    <p class="note" id="form-status">Fill in your brewery, then click Work out the brewery. Fermenter capacity, batch fill, brew days and a price for at least one channel are required; the rest default to zero or the neutral choice.</p>
   </section>
 
   <section class="card" id="report" aria-live="polite" hidden>
@@ -164,7 +164,7 @@
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
     const map = { tankgal: "tankGal", fillpct: "fillPct", brewdays: "brewDays", turndays: "turnDays", losspct: "lossPct", wholesalepct: "wholesalePct", wholesaleprice: "wholesalePrice", retailprice: "retailPrice", feespct: "feesPct", returnspct: "returnsPct", ingredientspergal: "ingredientsPerGal", flavorpergal: "flavorPerGal", packagingpergal: "packagingPerGal", deliverypergal: "deliveryPerGal", labormin: "laborMinPerGal", wage: "wage", rentmonthly: "rentMonthly", chillerkw: "chillerKw", chillerhours: "chillerHours", kwhprice: "kwhPrice", equipmentpct: "equipmentPct", waterothermonthly: "waterOtherMonthly", managermonthly: "managerMonthly", insuranceyear: "insuranceYear", othermonthly: "otherMonthly", buildoutpergal: "buildoutPerGal", equipmenttotal: "equipmentTotal", launch: "launch", depositmonths: "depositMonths", contingencypct: "contingencyPct", startpct: "startPct", rampmonths: "rampMonths", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", targetmargin: "targetMargin" };
-    const IDLE = "Fill in your brewery, then click Work out the brewery. Growing area, plants per square foot, days to harvest and a price are required; the rest default to zero or the neutral choice.";
+    const IDLE = "Fill in your brewery, then click Work out the brewery. Fermenter capacity, batch fill, brew days and a price for at least one channel are required; the rest default to zero or the neutral choice.";
     const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
     const pct = (n) => (n * 100).toFixed(1) + "%";
     const sgn = (n) => (n > 0 ? "+" : "") + n + "%";

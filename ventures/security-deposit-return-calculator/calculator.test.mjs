@@ -138,8 +138,10 @@ test("deposit interest: half a year at a stated rate is half the annual interest
   assert.equal(result.interestAmount, 10);
 });
 
-test("deposit interest: no rate entered is zero interest and no finding", () => {
-  const result = computeDepositInterest({ depositAmount: 1500, annualRatePercent: 0, daysHeld: 365 });
+test("deposit interest: no rate and no days entered is zero interest and no finding", () => {
+  // Days held with no rate is now flagged (see the audit test at the end of
+  // this file), so the silent case is the one where both are blank.
+  const result = computeDepositInterest({ depositAmount: 1500, annualRatePercent: 0, daysHeld: 0 });
   assert.equal(result.interestAmount, 0);
   assert.equal(result.findings.length, 0);
 });
@@ -270,4 +272,30 @@ test("statement: missing or malformed input does not throw", () => {
   assert.doesNotThrow(() => formatItemizedStatement(undefined, undefined));
   assert.doesNotThrow(() => formatItemizedStatement({}, { depositAmount: NaN }));
   assert.match(formatItemizedStatement({}, {}), /Security deposit held: \$0\.00/);
+});
+
+// Audit 2026-11-17 (portfolio/quality/audits/2026-11-17-security-deposit-return-calculator.json):
+// the daily rate was rounded to cents before multiplying, so a full 31-day
+// month at $1,850 billed $1,850.08 -- more than the monthly rent.
+test("a full month never prorates to more than the monthly rent when rent/days is not a whole cent", () => {
+  assert.equal(computeProratedRent({ monthlyRent: 1850, daysInMonth: 31, daysOccupied: 31 }).proratedAmount, 1850);
+  assert.equal(computeProratedRent({ monthlyRent: 2195, daysInMonth: 31, daysOccupied: 31 }).proratedAmount, 2195);
+});
+
+test("a partial month prorates as rent x days / days-in-month, rounded once", () => {
+  // 1850 x 17 / 31 = 1014.516...
+  assert.equal(computeProratedRent({ monthlyRent: 1850, daysInMonth: 31, daysOccupied: 17 }).proratedAmount, 1014.52);
+});
+
+// vs-a-spreadsheet.html promises a day count with no rate is flagged too.
+test("days held entered without an interest rate is flagged, not a silent zero", () => {
+  const result = computeDepositInterest({ depositAmount: 2000, annualRatePercent: 0, daysHeld: 400 });
+  assert.equal(result.interestAmount, 0);
+  assert.ok(findingIds(result).includes("interest-days-without-rate"));
+});
+
+test("interest under one dollar is still credited (red-team run 2026-11-17)", () => {
+  const r = computeDepositSettlement({ depositAmount: 1000, deductions: [], depositInterest: 0.5 });
+  assert.equal(r.depositInterest, 0.5);
+  assert.equal(r.refundDue, 1000.5);
 });

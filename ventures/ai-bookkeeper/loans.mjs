@@ -156,7 +156,7 @@ export function loanRegister(books) {
 // differs by more than `tolerance` cents (default 2), and `notes` a plain-words guess at why
 // (payment size, day-count interest, rounding, early payoff). It never edits the loan.
 export function checkLenderSchedule(loan, text, { tolerance = 2 } = {}) {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
   if (lines.length < 2) throw new Error("Paste the lender's schedule with a header row and at least one payment.");
   const delim = [",", ";", "\t"].map((d) => [d, lines[0].split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
   const cells = (l) => l.split(delim).map((c) => c.trim().replace(/^"|"$/g, ""));

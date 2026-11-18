@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 139 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 144 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -161,6 +161,51 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **At the fast corner the ladder's edge is smaller on add-chain shift amounts, but it does not lose on most of them (milestone 145,
+  flow run, blind, four of seven predictions held; the primary failed).** On 20 fresh 128-bit designs at ff_n40C_1v95, SWC loses
+  to equal-cost random routing on 3 of 10 designs whose amount is a chain of multi-bit adds and on 0 of 10 compare, select or
+  divide chains (Fisher p = 0.105). Its mean advantage is 1.57 points on add chains against 8.83 on the others (permutation
+  p = 0.026), and the mapped rung's rank correlation with routing is lower there (median tau-b 0.27 against 0.47). Overall SWC wins
+  16 to 3 (sign p = 0.0044). Caveat: every add-chain design maps to a shorter critical path than every control, so structure and
+  delay are confounded. Yosys 0.71 (earlier ff runs: 0.70):
+  [`experiments/addchain_ff/`](experiments/addchain_ff/results.txt).
+- **At the fast corner, SKY130 ff_n40C_1v95, the clipped ladder still beats equal-cost random routing on 20 of 27 blind designs
+  (milestone 144, flow run, six of seven predictions held).** Only the liberty changes, as at ss. The routed ranking between tt and
+  ff shares almost nothing (median tau-b 0.19, lower than tt against ss at 0.34; the routed-best sequence differs on all 27), and
+  random routing does worse at ff (10.06% mean regret against 6.35% at tt), while SWC has 4.03% (sign p = 0.019; interval of the
+  mean difference -10.06 to -1.14 points). Over tt 40%, tt 65%, ss and ff on these 27 designs SWC is ahead at all four on 14 and
+  behind at all four on none. Post hoc: all three carry-save adders and all three dot products lose at ff (division, the weak tt
+  family, wins all five by a mean 18.5 points). Some ff baselines are slower than tt (four 256-bit left clamps, 1.6 to 2.0 times)
+  because ABC maps a different netlist against the ff liberty, not because the cells are slower: on the same netlist ff is 42%
+  faster. The stopping rule was set after an interim look at 14 designs (written down in
+  [`STOP_RULE.md`](experiments/corner_ff_blind/STOP_RULE.md)):
+  [`experiments/corner_ff_blind/`](experiments/corner_ff_blind/results.txt).
+- **At a second library corner, SKY130 ss_100C_1v60, the clipped ladder beats equal-cost random routing on 24 of 27 blind
+  designs, although the routed ranking barely carries over between corners (milestone 143, flow run, six of seven predictions
+  held).** Only the liberty changes (40% utilisation, clocks from each design's own ss baseline, a median 2.19 times the tt
+  period). The routed score's median tau-b between tt and ss is 0.34, against 0.74 for 40% to 65%, and the routed-best sequence is
+  the same at both corners on 3 of 27 designs; with nothing retuned SWC has 1.96% mean regret against 6.11% (sign p = 0.00005;
+  tt on the same designs 2.76% against 6.35%, 22 to 5). The losing designs at tt and at ss do not overlap: division, the weak
+  family at tt, wins all five of its designs at ss (the refuted prediction), and the carry-save adders lose two of three:
+  [`experiments/corner_ss_blind/`](experiments/corner_ss_blind/results.txt).
+- **On 26 more blind designs at 65% placement utilisation the clipped ladder beats equal-cost random routing 22 to 4, and over
+  46 designs at 65% it wins 38 to 8 with the same edge as at 40% (milestone 142, flow run, all eight predictions held).** The rest
+  of milestone 141's seeded order (26 of 32 finished): SWC 2.41% mean regret against 5.75% (sign p = 0.0005). Over all 46: 2.46%
+  against 6.35%; the change from 40% is -0.61 points (95% interval -1.60 to +0.37) and the sign agrees on 39 of 46. Division is
+  the one family where SWC is no better than random on the mean:
+  [`experiments/util65_rest/`](experiments/util65_rest/results.txt).
+- **At a second operating point, 65% placement utilisation, the clipped ladder still beats equal-cost random routing on 16 of 20
+  blind designs, with the same size of edge as at 40% (milestone 141, flow run, all seven predictions held).** Routing is dearer
+  (median routed/r2 7.56 against 5.29) and the routed ranking moves (median tau-b 0.74 against the 40% table), yet SWC has 2.52%
+  mean regret against 7.13% (sign p = 0.012); the change from 40% is -0.47 points (95% interval -1.82 to +1.06). Its losses are
+  the 256-bit dividers. One 256-bit design lost most points to pin placement at 65%; without it, 15 to 4:
+  [`experiments/util65_blind/`](experiments/util65_blind/results.txt).
+- **Milestone 138's set run to completion: the clipped ladder beats equal-cost random routing on 34 of 40 blind designs, and on
+  55 of 73 over every blind set with the mean's interval clear of zero (milestone 140, flow run, all seven predictions held).**
+  The 15 designs milestone 138's time limit cut, resumed with the same run.py: SWC 2.23% mean regret against 6.25%, better on
+  13, worse on 2 (sign p = 0.0074). Over 73 blind designs: 55 better, 15 worse (p = 0.000002), design-level mean -2.79 points
+  (95% interval -3.98 to -1.59). Above a routing-cost ratio of 6 it wins 18 of 19 cells:
+  [`experiments/ladder_rest/`](experiments/ladder_rest/results.txt).
 - **The clipped ladder's losses sit near the switch threshold, not at the tight clock, and a raised threshold buys nothing
   (milestone 139, replay, pre-registered).** Milestone 138's post-hoc reading tested on the 99 earlier ladder-branch cells that
   did not suggest it. Clock: refuted (failure rate 14/51 tight against 11/48 relaxed, Fisher p = 0.39; paired by design 19

@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyfqSuu4GwJi3VuqQdx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T03:38:40Z",
+  "ended": "2026-11-18T04:02:21Z",
+  "wall_minutes": 23.82,
+  "tokens_in": 4265786,
+  "tokens_out": 23219,
+  "cost_usd": 2.1537,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17163",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First 7l test compared float design rows with ==; fixed with pytest.approx.",
+    "A foreground gc.build call to verify the AZPN largest size timed out at 110 s; took the figure (75.6 L/min) from LOG.md 7g instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The heavy-hydraulics cell cache must be rebuilt from Hugging Face on every fresh container (~25 min on 4 cores here, LOG says 14); nothing says so up front, so the time cost only shows once the reproduction is running."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-one-datasheet-point-is-not-enough-for-gear-pump-drag.md",
+    "research/heavy-hydraulics/LOG.md (7l entry)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7l of heavy-hydraulics: predictions PX1-PX7 registered and pushed before any computation; 7k's results reproduced byte for byte; drag read at the picks' median (72 L/min) gives ratio 1.06 but owdq (A) RMS 0.0065 against 0.0056 for owdw/owh; Danfoss 0.0142. 3 of 7 held. Checks: heavy-hydraulics pytest 152 passed, 4 skipped; paper/check_numbers.py 339 claims 0 missing; build.py ok; check_md_links ok; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "198198b1-18a7-5f0a-9903-de624bd1d934",
+    "transcripts": 1,
+    "first": "2026-11-18T03:38:40Z",
+    "last": "2026-11-18T04:02:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 79,
+        "output": 23219,
+        "thinking": 2756,
+        "cache_read": 4158544,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107163,
+        "api_equivalent_usd": 2.1537,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 79,
+      "output": 23219,
+      "thinking": 2756,
+      "cache_read": 4158544,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107163,
+      "api_equivalent_usd": 2.1537,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.82,
+      "active_minutes": 23.82,
+      "model_minutes": 3.69,
+      "tool_minutes": 20.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a research engineer re-running a pre-registered model-selection experiment, writing it up and updating the paper",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 278.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

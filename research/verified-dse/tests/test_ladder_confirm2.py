@@ -17,7 +17,8 @@ def test_designs_are_unseen():
     run = _load("run")
     seen = set()
     for f in EXP.parent.glob("*/results*.jsonl"):
-        if f.parent.name == "ladder_confirm2":
+        # ladder_rest holds milestone 140's rows of the same designs; milestones 141 to 144 rerun them at other operating points
+        if f.parent.name in ("ladder_confirm2", "ladder_rest", "util65_blind", "util65_rest", "corner_ss_blind", "corner_ff_blind"):
             continue
         for line in f.read_text().splitlines():
             try:

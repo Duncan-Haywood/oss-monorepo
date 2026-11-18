@@ -102,18 +102,24 @@ corruption rate, 14 honest / 3 lazy / 3 colluding / 2 adversarial verifiers)
 | Correlated Agreement | +23.63 | +27.51 | **+27.29** | -24.82 | **-3.87** |
 
 PTS stays robustly incentive-compatible even under a heavy, simultaneous
-mix of deviating strategies. CA does not — see **Limitations** below; this
-is a real, reproducible finding, not a tuning artifact (see
-`tests/test_simulation.py::test_ca_is_vulnerable_to_simultaneous_correlated_deviation`).
+mix of deviating strategies. CA does not — see **Limitations** below. **Caveat (quality audit
+2026-11-17):** this CA pays only the same-task bonus `Delta[x][y]` and omits
+the penalty term of published Correlated Agreement (Shnayder et al. 2016;
+Dasgupta & Ghosh 2013), which subtracts the score on a pair of distinct tasks.
+With that term restored on the same reports and the same delta matrix, honest
+beats every deviation by +153 (sign of Delta) or +7.3 (Delta itself), so the
+vulnerability shown here is a property of the bonus-only variant, not of CA
+as published (`portfolio/quality/audits/2026-11-17-decentralized-verification-markets.json`).
 
 **Aggregate accuracy**: the LMSR market's price tracks ground truth with a
 Brier score of **0.0203** (0 = perfect, 0.25 = an uninformative 50/50
 market), and a simple majority vote over all 22 verifiers' reports is wrong
 on only **1.75%** of tasks.
 
-**Audit cost savings**: with a 5% audit fraction, **95%** of training steps
-never need full ground-truth recomputation — peer prediction and the market
-price stand in for it.
+**Audit cost savings**: with a 5% audit fraction, 95% of training steps
+skip ground-truth recomputation. That figure is `1 - audit_fraction` by
+construction (`metrics.py`); no mechanism here yet uses the audited tasks, so
+it is not evidence that peer prediction or the market can stand in for them.
 
 **Manipulation vulnerability** (majority-vote error vs. the Credibly
 Neutral AI Oracles `eps * (1 - eps)` bound, swept over the fraction `eps`
@@ -127,8 +133,8 @@ of non-honest verifiers, 1200 tasks, 20% corruption rate):
 | 0.60 | 0.2000 | 0.2400 |
 | 0.80 | 0.2000 | 0.1600 |
 
-The empirical majority-vote error stays *below* the theoretical bound
-across the swept range, and (as expected) degrades sharply once non-honest
+The empirical majority-vote error stays below the theoretical bound for
+eps <= 0.6 and exceeds it at eps = 0.8 (0.200 against 0.160), and (as expected) degrades sharply once non-honest
 verifiers are the majority (`eps >= 0.5`) — majority vote has no reason to
 track truth once honest reporters are outnumbered. Note the bound in
 Credibly Neutral AI Oracles is proved for a different mechanism
@@ -181,7 +187,11 @@ scored on the held-out remainder; reproduce with
 | market | Brier score (scoring window) |
 |---|---|
 | LMSR, plain | 0.0207 |
-| LMSR, trust-weighted | **0.0107** (48% lower) |
+| LMSR, trust-weighted | **0.0107** |
+
+The plain row uses liquidity b = 5. A plain market tuned to b = 2 scores
+0.0112 on the same window (quality audit 2026-11-17), so most of the gap
+above comes from the choice of b, not from trust weighting.
 
 Average calibration-window trust weight by strategy also separates cleanly
 without being told which strategy is which ahead of time: honest ~0.95,

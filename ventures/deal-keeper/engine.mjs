@@ -266,13 +266,28 @@ export function syntheticState(now, { closed = 220, open = 24, seed = 7, signal 
  * and, when present, marks the row as having exact stage dates (needed for the dwell-time and backtest features).
  */
 export function parseCsv(text, stages = DEFAULT_STAGES) {
-  const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean), errors = [], state = newState(stages);
+  // Quote-aware over the whole text (red-team 2026-11-17): a quoted name or
+  // next_step that spans lines stays one deal; "" is a literal quote. Each
+  // record keeps the file line it starts on for error messages.
+  const records = [], src = String(text || "");
+  { let row = [], cur = "", q = false, line = 1, start = 1;
+    const end = () => { row.push(cur.trim()); if (row.some((c) => c !== "")) records.push({ v: row, line: start }); row = []; cur = ""; };
+    for (let i = 0; i < src.length; i++) {
+      const ch = src[i];
+      if (ch === "\n") line++;
+      if (q) { if (ch === '"' && src[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') q = false; else if (!(ch === "\r" && src[i + 1] === "\n")) cur += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === ",") { row.push(cur.trim()); cur = ""; }
+      else if (ch === "\n" || ch === "\r") { if (ch === "\r" && src[i + 1] === "\n") { i++; line++; } end(); start = line; }
+      else cur += ch;
+    }
+    end(); }
+  const errors = [], state = newState(stages);
   const cols = ["id", "name", "stage", "amount", "status", "created", "closed", "close_date", "last_activity", "next_step", "stage_since", "stage_history"];
   let order = cols;
-  if (lines.length && /^id\s*,/i.test(lines[0])) order = lines.shift().split(",").map((c) => c.trim().toLowerCase());
-  const split = (line) => { const out = []; let cur = "", q = false; for (const ch of line) { if (ch === '"') q = !q; else if (ch === "," && !q) { out.push(cur.trim()); cur = ""; } else cur += ch; } out.push(cur.trim()); return out; };
-  lines.forEach((line, n) => {
-    const v = split(line), g = (c) => { const j = order.indexOf(c); return j < 0 || v[j] === undefined || v[j] === "" ? undefined : v[j]; };
+  if (records.length && /^id$/i.test(records[0].v[0])) order = records.shift().v.map((c) => c.toLowerCase());
+  records.forEach(({ v, line }) => {
+    const g = (c) => { const j = order.indexOf(c); return j < 0 || v[j] === undefined || v[j] === "" ? undefined : v[j]; };
     try {
       const created = g("created") && toMs(g("created"));
       if (!g("id") || !Number.isFinite(created)) throw fail("needs an id and a valid created date");
@@ -290,7 +305,7 @@ export function parseCsv(text, stages = DEFAULT_STAGES) {
         made.history = hist.split(";").map((p) => { const [s, d] = p.split("@"); const i = stages.indexOf(s.trim().toLowerCase()), t = toMs(d); if (i < 0 || !Number.isFinite(t)) throw fail(`stage_history entry "${p}" is not stage@date`); return [i, t]; });
         for (const [, t] of made.history) touch(made, t);
       } else if (stages.indexOf(stage) > 0) made.history = [[stages.indexOf(stage), deal.stageAt ?? created]];
-    } catch (e) { errors.push(`Line ${n + 1}: ${e.message}`); }
+    } catch (e) { errors.push(`Line ${line}: ${e.message}`); }
   });
   return { state, errors };
 }

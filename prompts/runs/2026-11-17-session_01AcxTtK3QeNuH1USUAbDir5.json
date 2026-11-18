@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtK3QeNuH1USUAbDir5",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T23:06:30Z",
+  "ended": "2026-11-17T23:17:03Z",
+  "wall_minutes": 20.16,
+  "tokens_in": 5470616,
+  "tokens_out": 28226,
+  "cost_usd": 2.4489,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17098",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/test_checks_refuse_empty_root.py",
+      "issue": "Fails on main for check_posts.py (added by PR #17091 after the ratchet), so run_workflow_locally reports ventures-tests red on any PR touching a venture; not caused by this diff."
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The swept-audits list does not mention data-figure checks (check_irs_table_figures.py, now check_plan_limits_2026.py); I spent a few calls confirming the timezone sweep already existed before picking a topic."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-2026-retirement-limits-against-the-irs-notice.md",
+    "docs/reports/2026-11-17-plan-limits-2026-check.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: pin 2026 retirement/HSA limits from IRS Notice 2025-67 and Rev. Proc. 2025-19 (irs.gov PDFs answered 200, read with pdftotext) and sweep venture text for 2026 sentences with 2025 figures. One real fault (mega-backdoor-roth FAQ IRA $7,000/$1,000 for 2026, twice), fixed; five limit tables read by hand all matched; ai-bookkeeper's 'from memory' warning updated. Verification: pytest test_check_plan_limits_2026.py 12 passed; node --test mega-backdoor-roth (36 pass) and ai-bookkeeper retirement tests (5 pass); check_posts.py ok; run_workflow_locally --for-changes: portfolio-validate 99/99, pages 6/6, page-integrity, sibling-links, agent-permission-harness passed; ventures-tests 4/5, the failure is test_checks_refuse_empty_root.py flagging check_posts.py (pre-existing on main).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "68d8ac27-c5a5-5bed-abb9-49a603cce59d",
+    "transcripts": 1,
+    "first": "2026-11-17T23:06:30Z",
+    "last": "2026-11-17T23:26:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 118,
+        "output": 28226,
+        "thinking": 6302,
+        "cache_read": 5369240,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101258,
+        "api_equivalent_usd": 2.4489,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 118,
+      "output": 28226,
+      "thinking": 6302,
+      "cache_read": 5369240,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101258,
+      "api_equivalent_usd": 2.4489,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 55,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__monorepo-projects-tools__search_tools": 1,
+      "mcp__monorepo-projects-tools__describe_tool": 1,
+      "mcp__monorepo-projects-tools__call_tool": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.16,
+      "active_minutes": 20.16,
+      "model_minutes": 5.19,
+      "tool_minutes": 14.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "read two IRS notices, write and test a pattern check, fix and re-source two ventures, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 204.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

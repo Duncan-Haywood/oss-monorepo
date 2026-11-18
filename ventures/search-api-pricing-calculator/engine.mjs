@@ -54,7 +54,8 @@ export function project(records, searches, growthPct = 0, months = 12, providers
   const g = 1 + Math.max(-50, Number(growthPct) || 0) / 100;
   const path = [];
   for (let m = 0; m < months; m++) path.push({ records: Math.round(nn(records) * g ** m), searches: Math.round(nn(searches) * g ** m) });
-  const end = path[path.length - 1];
+  // No months (months < 1) means no spend; the end volumes are today's.
+  const end = path.length ? path[path.length - 1] : { records: Math.round(nn(records)), searches: Math.round(nn(searches)) };
   const totals = Object.entries(providers).map(([key, p]) => ({
     key, label: p.label, total: round2(path.reduce((n, x) => n + providerCost(p, x.records, x.searches), 0)), endMonthly: providerCost(p, end.records, end.searches),
   }));

@@ -91,10 +91,14 @@ export function kWeightedEnergy(x, fs) {
 }
 
 // Integrated loudness with the absolute (-70) and relative (-10 LU) gates.
-export function integratedLufs(channels, fs) {
+// `cum` (optional) is channels.map((c) => kWeightedEnergy(c, fs)) already computed:
+// analyze() reads four loudness figures from one signal and passes the same running
+// sums to each, so the filter runs once per channel instead of four times. Passing it
+// gives the same doubles as leaving it out (master.test.mjs pins it).
+export function integratedLufs(channels, fs, cum) {
   const n = channels[0].length, blk = Math.round(0.4 * fs), hop = Math.round(0.1 * fs);
   if (n < blk) return { lufs: -Infinity, blocks: 0 };
-  const cum = channels.map((c) => kWeightedEnergy(c, fs));
+  cum = cum || channels.map((c) => kWeightedEnergy(c, fs));
   const z = [];
   for (let s = 0; s + blk <= n; s += hop) z.push(cum.reduce((t, c) => t + (c[s + blk] - c[s]) / blk, 0));
   const lk = (e) => -0.691 + 10 * Math.log10(e);
@@ -226,7 +230,8 @@ export function platformPlayback(lufs, platforms = PLATFORMS, truePeakDb = null)
   });
 }
 export function analyze({ rate, channels }, targets = TARGETS) {
-  const { lufs } = integratedLufs(channels, rate);
+  const cum = channels.map((c) => kWeightedEnergy(c, rate)); // shared by the four loudness readings below
+  const { lufs } = integratedLufs(channels, rate, cum);
   const tp = channels.length ? channels.reduce((m, c) => truePeak(c, 4, 16, m), 0) : -Infinity;
   const n = channels[0].length;
   let mono = null, corr = null;
@@ -244,9 +249,9 @@ export function analyze({ rate, channels }, targets = TARGETS) {
     seconds: n / rate, rate, channels: channels.length,
     lufs, truePeakDb: db(tp), monoLossDb: mono, correlation: corr, clipRuns: clips,
     // loudest 400 ms and 3 s windows (EBU Tech 3341 momentary and short-term max)
-    maxMomentaryLufs: maxWindowLoudness(channels, rate, 0.4), maxShortTermLufs: maxWindowLoudness(channels, rate, 3),
+    maxMomentaryLufs: maxWindowLoudness(channels, rate, 0.4, cum), maxShortTermLufs: maxWindowLoudness(channels, rate, 3, cum),
     // EBU Tech 3342 loudness range: how far the short-term level moves (LU); reported, not checked
-    loudnessRange: loudnessRange(channels, rate).lra,
+    loudnessRange: loudnessRange(channels, rate, { cum }).lra,
   };
   r.platforms = platformPlayback(lufs, PLATFORMS, r.truePeakDb);
   r.suggestedGainDb = suggestGain(lufs, r.truePeakDb, targets);
@@ -300,10 +305,10 @@ export function truePeakAnnex2(x) {
 // tone at offsets of 150 ms and 20 ms that a 100 ms grid would straddle (up to
 // -0.58 dB on case 13). Ungated, channels summed with weight 1 (stereo).
 // Returns -Infinity for silence or a signal shorter than the window.
-export function maxWindowLoudness(channels, fs, seconds) {
+export function maxWindowLoudness(channels, fs, seconds, cum) {
   const n = channels[0].length, w = Math.round(seconds * fs);
   if (n < w || w < 1) return -Infinity;
-  const cum = channels.map((c) => kWeightedEnergy(c, fs));
+  cum = cum || channels.map((c) => kWeightedEnergy(c, fs));
   let best = 0;
   for (let s = 0; s + w <= n; s++) {
     let e = 0;
@@ -343,16 +348,17 @@ export function windowLoudnessRange(channels, fs, seconds, from = 0, hop = 1) {
 // sorted; lra is null when nothing passes the -70 gate.
 // `relativeGateLu` exists to show the gate matters: with BS.1770's -10 LU, Tech 3342
 // case 3 drops its -40 dBFS tone (eval/ebu-tech3342.mjs).
-export function loudnessRange(channels, fs, { hopSeconds = 0.1, tailSeconds = 0, relativeGateLu = -20 } = {}) {
+// `cum` is used only when there is no tail padding (the padded signal has its own sums).
+export function loudnessRange(channels, fs, { hopSeconds = 0.1, tailSeconds = 0, relativeGateLu = -20, cum = null } = {}) {
   const pad = Math.round(tailSeconds * fs);
   const src = pad > 0 ? channels.map((c) => { const y = new Float64Array(c.length + pad); y.set(c); return y; }) : channels;
   const n = src[0].length, w = Math.round(3 * fs), hop = Math.max(1, Math.round(hopSeconds * fs));
   const st = [];
   if (n >= w) {
-    const cum = src.map((c) => kWeightedEnergy(c, fs));
+    const sums = pad === 0 && cum ? cum : src.map((c) => kWeightedEnergy(c, fs));
     for (let s = 0; s + w <= n; s += hop) {
       let e = 0;
-      for (const c of cum) e += c[s + w] - c[s];
+      for (const c of sums) e += c[s + w] - c[s];
       st.push(e > 0 ? -0.691 + 10 * Math.log10(e / w) : -Infinity);
     }
   }

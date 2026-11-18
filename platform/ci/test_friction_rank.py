@@ -77,8 +77,8 @@ def test_changes_drops_shallow_boundary(tmp_path):
 
 
 class _Done:
-    def __init__(self, out="", code=0):
-        self.stdout, self.returncode = out, code
+    def __init__(self, out="", code=0, err=""):
+        self.stdout, self.returncode, self.stderr = out, code, err
 
 
 def test_revs_adds_origin_main_only_when_it_exists():
@@ -112,6 +112,39 @@ def test_deepen_fetches_a_day_before_the_report_capped(tmp_path):
     def boom(*a, **k):
         raise fr.subprocess.TimeoutExpired("git", 1)
     assert fr.deepen("2026-11-10", root=tmp_path, run=boom, today=today) is False
+
+
+def test_deepen_waits_for_a_parallel_fetchs_lock_and_says_why_it_failed(tmp_path, capsys):
+    (tmp_path / ".git").mkdir()
+    lock = tmp_path / ".git" / "shallow.lock"
+    lock.write_text("")
+    seen, t = [], [0.0]
+
+    def sleep(s):
+        t[0] += s
+        if t[0] >= 10:
+            lock.unlink()  # the other fetch finishes after 10 s
+
+    def run(cmd, **kw):
+        seen.append(t[0])
+        return _Done()
+    today = dt.date(2026, 11, 17)
+    assert fr.deepen("2026-11-15", root=tmp_path, run=run, today=today, sleep=sleep, clock=lambda: t[0])
+    assert seen == [10.0]  # fetched only once the lock was gone
+
+    lost = iter([_Done(code=128, err="fatal: Unable to create '.git/shallow.lock': File exists."), _Done()])
+    assert fr.deepen("2026-11-15", root=tmp_path, run=lambda *a, **k: next(lost), today=today,
+                     sleep=sleep, clock=lambda: t[0])  # lost the race once, retried
+
+    lock.write_text("")
+    assert not fr.deepen("2026-11-15", root=tmp_path, run=run, today=today,
+                         sleep=lambda s: t.__setitem__(0, t[0] + s), clock=lambda: t[0])
+    assert "held .git/shallow.lock" in capsys.readouterr().err
+
+    gone = iter([_Done(code=128, err="fatal: unable to access: Could not resolve host")])
+    lock.unlink()
+    assert not fr.deepen("2026-11-15", root=tmp_path, run=lambda *a, **k: next(gone), today=today)
+    assert "fetch failed: fatal: unable to access" in capsys.readouterr().err
 
 
 def test_main_deepens_only_when_reports_predate_the_edge(tmp_path, monkeypatch):
@@ -272,3 +305,36 @@ def test_real_verdicts_file_is_well_formed_and_each_matches_a_report():
     for v in loaded:
         assert v["verdict"] in fr.VERDICT_KINDS and v.get("by")
         assert any(f == v["file"] and v["re"].search(i) for _, _, f, i, _ in reports), v["match"]
+
+
+def test_fix_hints_need_a_fix_track_commit_on_the_reported_file_after_the_report():
+    commits = [("2026-11-14T12:00:00+00:00", "aaa", "process: one entry per line + post", ["v/PRODUCTION.md"]),
+               ("2026-11-14T11:00:00+00:00", "bbb", "v: episode 12 + post", ["v/PRODUCTION.md"]),
+               ("2026-11-14T10:00:00+00:00", "ccc", "perf: faster build", ["v/build.mjs"]),
+               ("2026-11-13T09:00:00+00:00", "ddd", "process: older fix", ["v/PRODUCTION.md"])]
+    hit = {"file": "v/PRODUCTION.md", "last_at": "2026-11-13T10:00:00Z"}
+    late = {"file": "v/PRODUCTION.md", "last_at": "2026-11-14T13:00:00Z"}
+    other = {"file": "v/README.md", "last_at": "2026-11-13T10:00:00Z"}
+    fr.fix_hints([hit, late, other], commits)
+    assert [f[1] for f in hit["fixes"]] == ["aaa"]  # not the venture run, not the older fix
+    assert late["fixes"] == [] and other["fixes"] == []
+
+
+def test_live_lists_hinted_rows_after_the_others(tmp_path, capsys, monkeypatch):
+    runs = tmp_path / "runs"
+    runs.mkdir()
+    for i, f in enumerate(["a.md", "a.md", "a.md", "b.md", "b.md"]):
+        write(runs, f"r{i}.json", "2026-11-10", [{"file": f, "issue": "the done list is very long"}])
+    commits = [("2026-11-12T00:00:00+00:00", "abc123", "process: shorter done list", ["a.md"])]
+    monkeypatch.setattr(fr, "changes", lambda since, rev: (commits, None))
+    monkeypatch.setattr(fr, "revs", lambda: ["HEAD"])
+    monkeypatch.setattr(fr, "basename_counts", lambda: {})
+    base = ["--runs", str(runs), "--days", "0", "--no-prs", "--no-fetch",
+            "--verdicts", str(tmp_path / "none.json")]
+    assert fr.main(base + ["--json"]) == 0
+    assert [c["file"] for c in json.loads(capsys.readouterr().out)] == ["a.md", "b.md"]
+    assert fr.main(base + ["--json", "--live"]) == 0
+    out = json.loads(capsys.readouterr().out)
+    assert [c["file"] for c in out] == ["b.md", "a.md"] and out[1]["fixes"][0][1] == "abc123"
+    assert fr.main(base + ["--live"]) == 0
+    assert "edited since by a fix commit: 2026-11-12 abc123 process: shorter done list" in capsys.readouterr().out

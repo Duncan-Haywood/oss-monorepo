@@ -177,17 +177,26 @@ pronunciation); its docstring has the setup.
 
 Done episodes are in `episodes/`; the list entries they came from, with the
 sources each used and the sequels it left for another night, are in
-[DONE.md](DONE.md). Next up, roughly in order (claim one by writing it; skip
-any already in `episodes/`). Mark one you finish `- *(Done: episode N,
-Title.)*` at the start of its line, then run `node list_done.mjs` to move it
-to DONE.md (`node --test` fails while one is left here):
+[DONE.md](DONE.md). Next up, roughly in order, one entry per line (claim one by
+writing it; skip any already in `episodes/`). Mark one you finish `- *(Done:
+episode N, Title.)*` at the start of its line, then run `node list_done.mjs` to
+move it to DONE.md (`node --test` fails while one is left here). Add the
+sequels your episode leaves as new lines, so the list never runs down to one:
 
-- Next up, suggestions: Egeria at Epiphany in Bethlehem (Travels, chapters 24-26); more saints' lives (Saint Theognius or Saint Abraamius, Cyril's other short desert lives; Saint Cyriacus the Anchorite, whose Life Cyril also wrote; Saint Joseph of Thessalonica, Theodore's hymn-writing brother)
+- Egeria and Lent with the bishop's catechesis (Travels, chapters 27-28 and 45-46; a sequel to episode 133).
+- Valerius of Bierzo and the letter in praise of the blessed Egeria, the seventh-century Spanish monk who gave her name back (Valerius's letter to the monks of the Bierzo; a coda to episodes 127-137).
+- The Queen of Sheba and the hard questions (First Kings 10 and Second Chronicles 9, with Matthew 12:42; left by episode 138).
+- Saint Theognius or Saint Abraamius, Cyril of Scythopolis's other short desert lives.
+- Saint Cyriacus the Anchorite, whose Life Cyril also wrote.
+- Saint Joseph of Thessalonica, Theodore the Studite's hymn-writing brother.
+- Jethro and the judges for the small cases, Moses at the seat from morning till evening (Exodus 18; left by episode 139).
+- Nathan and the ewe lamb, the prophet who told King David a story about a poor man (Second Samuel 12; left by episode 139).
+- Saint Silvanus of Tarsus and the councils of Seleucia, the bishop who would not silence a guest (Theodoret, Sozomen and Socrates on the council of three hundred and fifty-nine; a sequel to episode 136).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 134 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 134.
+Audio: 29 of 139 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 139.
 <!-- /audio-status -->
 
 The creative prompt's 400 MB line was written for GitHub Pages; audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the only cost left is git history ([`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md)). Voicing the backlog in episode order, about 60 MB a run, is a good run on its own (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.

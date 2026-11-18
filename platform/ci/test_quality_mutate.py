@@ -157,5 +157,35 @@ class MainTest(Fixture):
         assert not qm.ran_no_tests("Ran 10 tests in 0.1s")
 
 
+class TimeoutTest(Fixture):
+    def test_mutant_timeout_scales_with_the_baseline(self):
+        self.assertEqual(qm.mutant_timeout(None, 900), 900)
+        self.assertEqual(qm.mutant_timeout(2.0, 900), 38)
+        self.assertEqual(qm.mutant_timeout(400.0, 900), 900)
+
+    def test_a_hang_under_a_shell_wrapper_is_killed_and_caught(self):
+        # The mutant makes the import sleep; a `cd ... &&` command runs through
+        # bash as a compound (bash forks), so the timeout must kill the python
+        # under it, not just bash, or it is orphaned and runs on.
+        import time
+        orig = qm.mutant_timeout
+        qm.mutant_timeout = lambda b, cap: 3
+        try:
+            out = io.StringIO()
+            start = time.monotonic()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                code = qm.main([str(self.repo / "ventures/a/calc.py"), "--old", "def fee(x):",
+                                "--new", "import time; time.sleep(60)\ndef fee(x):", "--json", "--",
+                                "cd", "ventures/a", "&&", sys.executable, "-m", "unittest", "-q"])
+            took = time.monotonic() - start
+        finally:
+            qm.mutant_timeout = orig
+        self.assertEqual(code, 0)
+        row = json.loads(out.getvalue().strip().splitlines()[-1])
+        self.assertTrue(row["caught"])
+        self.assertIn("timed out after 3 s", row["note"])
+        self.assertLess(took, 30)
+
+
 if __name__ == "__main__":
     unittest.main()

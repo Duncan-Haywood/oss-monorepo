@@ -485,6 +485,23 @@ MANUSCRIPT_CHECKS = [
     ("(0.0034 against 0.0022)", "gear_pump_pickdrag_results.txt", "held (7a)    diagonal RMS: one 0.0113, two 0.0022, w 0.0017, dw 0.0034, dww 0.0034"),
     ("(median 151 bar)", "gear_pump_pickdrag_results.txt", "p10 142, median 151, p90 171 bar"),
     ("sits 0.0068 below it", "gear_pump_pickdrag_results.txt", "refuted (-0.0068;"),
+    # milestone 7g
+    ("E<sub>50</sub> = 0.7562 + 0.0182 kW<sub>o</sub> &minus; 0.4269 k<sub>w</sub>", "gear_pump_holddrag_results.txt", "ow  : coefficients +0.7562, +0.0182, -0.4269"),
+    ("RMS is 0.0056, 34% below the drag rule", "gear_pump_holddrag_results.txt", "OD2 pooled ow diagonal RMS at least 20% below two-number: held (0.0056 against 0.0084, -34%)"),
+    ("gives 0.0018 and 0.0030", "gear_pump_holddrag_results.txt", "OD6 spun and geared panels, ow below w on both: held (spun (7b) 0.0018 against 0.0026; geared (7c) 0.0030 against 0.0042)"),
+    ("sits 0.0065 below it", "gear_pump_holddrag_results.txt", "refuted (-0.0065;"),
+    ("With the pick-weighted drag kW<sub>w</sub> in the idle term the fitted ratio is 1.02", "gear_pump_ratio_results.txt", "owh 1.22, owhw 1.02"),
+    ("E<sub>50</sub> = 0.8208 + 0.0359 H (kW<sub>w</sub> &minus; P<sub>LS</sub>)", "gear_pump_ratio_results.txt", "owdw  +0.8208, +0.0359, -0.4350"),
+    ("slope of kW<sub>w</sub> on kW<sub>o</sub> 0.880)", "gear_pump_ratio_results.txt", "pooled with condition fixed effects 0.880"),
+    ("Danfoss family (0.0080 against 0.0061)", "gear_pump_ratio_results.txt", "danfoss                       0.0061 / 0.0080 / 0.0080"),
+    # milestone 7l
+    ("(ratio 1.06)", "gear_pump_onepoint_results.txt", "owh 1.22, owhq 1.06"),
+    ("left-out RMS rises to 0.0065", "gear_pump_onepoint_results.txt", "owdq  0.0065  (max 0.0085"),
+    ("the Danfoss family's to 0.0142", "gear_pump_onepoint_results.txt", "danfoss                       0.0061 / 0.0080 / 0.0142"),
+    # milestone 7m
+    ("(64 and 79 L/min)", "gear_pump_twopoint_results.txt", "q25 = 64, q* (median) = 72, q75 = 79 L/min"),
+    ("carries only 0.859 kW", "gear_pump_twopoint_results.txt", "pooled with condition fixed effects 0.859"),
+    ("left-out RMS stays at 0.0066", "gear_pump_twopoint_results.txt", "owd2  0.0066  (max 0.0084"),
 ]
 
 

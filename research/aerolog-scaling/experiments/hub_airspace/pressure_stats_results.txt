@@ -1,0 +1,93 @@
+# Milestone 11ak: pressure-reference mismatch from NOAA ISD 2014 METAR/SPECI (MA1 group), five NYC airports
+# delta in metres = 8.32 m/hPa x (setting - true QNH); true QNH = station pressure + station median offset,
+# interpolated linearly between reports <= 180 min apart. Samples every minute of 2014 where defined.
+
+## Stations
+  JFK  744860-94789  lat 40.639 lon -73.762  reports 10088 (alt 10088, stn 10088)  median report gap 60 min  alt-stn offset 0.8 hPa
+  LGA  725030-14732  lat 40.779 lon -73.880  reports 10486 (alt 10486, stn 10474)  median report gap 60 min  alt-stn offset 1.1 hPa
+  EWR  725020-14734  lat 40.683 lon -74.169  reports 10273 (alt 10273, stn 10268)  median report gap 60 min  alt-stn offset 1.1 hPa
+  NYC  725053-94728  lat 40.779 lon -73.969  reports 10869 (alt 10869, stn 10862)  median report gap 60 min  alt-stn offset 5.8 hPa
+  TEB  725025-94741  lat 40.850 lon -74.061  reports 10776 (alt 10776, stn 10763)  median report gap 60 min  alt-stn offset 0.2 hPa
+
+## S1 stale setting (own airport)
+  JFK  n 525540  mean  +0.33  sd  2.93  exkurt   5.31  P(>3sd) 0.0166  P(|d|>3m) 0.2066  P(|d|>5m) 0.0881
+  LGA  n 525540  mean  -0.18  sd  2.92  exkurt   5.01  P(>3sd) 0.0169  P(|d|>3m) 0.2058  P(|d|>5m) 0.0891
+  EWR  n 525540  mean  -0.18  sd  2.91  exkurt   4.56  P(>3sd) 0.0163  P(|d|>3m) 0.2073  P(|d|>5m) 0.0897
+  NYC  n 507066  mean  -0.29  sd  2.87  exkurt   5.51  P(>3sd) 0.0166  P(|d|>3m) 0.1996  P(|d|>5m) 0.0835
+  TEB  n 524700  mean  +0.27  sd  2.90  exkurt   4.38  P(>3sd) 0.0167  P(|d|>3m) 0.2074  P(|d|>5m) 0.0888
+
+## S2 stale and distant: setting from A, drones near B (raw; and with the pair's mean offset removed)
+  JFK -> LGA   18.5 km  raw: mean  +3.54  sd  4.19  exkurt   1.71  P(>3sd) 0.0095  P(|d|>3m) 0.5961  P(|d|>5m) 0.3684
+                       centred: mean  +0.00  sd  4.19  exkurt   1.71  P(>3sd) 0.0095  P(|d|>3m) 0.4194  P(|d|>5m) 0.1927
+  JFK -> EWR   34.7 km  raw: mean  +1.99  sd  5.41  exkurt   1.55  P(>3sd) 0.0097  P(|d|>3m) 0.5617  P(|d|>5m) 0.3481
+                       centred: mean  +0.00  sd  5.41  exkurt   1.55  P(>3sd) 0.0097  P(|d|>3m) 0.5350  P(|d|>5m) 0.3081
+  JFK -> NYC   23.4 km  raw: mean  -3.77  sd  4.90  exkurt   0.88  P(>3sd) 0.0069  P(|d|>3m) 0.6617  P(|d|>5m) 0.4493
+                       centred: mean  -0.00  sd  4.90  exkurt   0.88  P(>3sd) 0.0069  P(|d|>3m) 0.5073  P(|d|>5m) 0.2852
+  JFK -> TEB   34.4 km  raw: mean  +4.94  sd  5.53  exkurt   1.17  P(>3sd) 0.0083  P(|d|>3m) 0.7298  P(|d|>5m) 0.5364
+                       centred: mean  +0.00  sd  5.53  exkurt   1.17  P(>3sd) 0.0083  P(|d|>3m) 0.5486  P(|d|>5m) 0.3124
+  LGA -> JFK   18.5 km  raw: mean  -3.39  sd  3.71  exkurt   3.34  P(>3sd) 0.0133  P(|d|>3m) 0.5898  P(|d|>5m) 0.3130
+                       centred: mean  -0.00  sd  3.71  exkurt   3.34  P(>3sd) 0.0133  P(|d|>3m) 0.3462  P(|d|>5m) 0.1299
+  LGA -> EWR   26.6 km  raw: mean  -1.73  sd  4.47  exkurt   2.05  P(>3sd) 0.0110  P(|d|>3m) 0.4886  P(|d|>5m) 0.2589
+                       centred: mean  -0.00  sd  4.47  exkurt   2.05  P(>3sd) 0.0110  P(|d|>3m) 0.4371  P(|d|>5m) 0.2156
+  LGA -> NYC    7.5 km  raw: mean  -7.50  sd  4.07  exkurt   1.51  P(>3sd) 0.0101  P(|d|>3m) 0.8820  P(|d|>5m) 0.7703
+                       centred: mean  -0.00  sd  4.07  exkurt   1.51  P(>3sd) 0.0101  P(|d|>3m) 0.4173  P(|d|>5m) 0.1784
+  LGA -> TEB   17.2 km  raw: mean  +1.22  sd  4.16  exkurt   1.88  P(>3sd) 0.0106  P(|d|>3m) 0.4584  P(|d|>5m) 0.2160
+                       centred: mean  -0.00  sd  4.16  exkurt   1.88  P(>3sd) 0.0106  P(|d|>3m) 0.4120  P(|d|>5m) 0.1884
+  EWR -> JFK   34.7 km  raw: mean  -1.84  sd  3.90  exkurt   1.68  P(>3sd) 0.0099  P(|d|>3m) 0.4412  P(|d|>5m) 0.2140
+                       centred: mean  -0.00  sd  3.90  exkurt   1.68  P(>3sd) 0.0099  P(|d|>3m) 0.3974  P(|d|>5m) 0.1796
+  EWR -> LGA   26.6 km  raw: mean  +1.37  sd  3.16  exkurt   1.71  P(>3sd) 0.0092  P(|d|>3m) 0.3488  P(|d|>5m) 0.1288
+                       centred: mean  -0.00  sd  3.16  exkurt   1.71  P(>3sd) 0.0092  P(|d|>3m) 0.3067  P(|d|>5m) 0.0957
+  EWR -> NYC   19.9 km  raw: mean  -5.97  sd  3.93  exkurt   0.73  P(>3sd) 0.0062  P(|d|>3m) 0.8065  P(|d|>5m) 0.6389
+                       centred: mean  -0.00  sd  3.93  exkurt   0.73  P(>3sd) 0.0062  P(|d|>3m) 0.4376  P(|d|>5m) 0.1939
+  EWR -> TEB   20.7 km  raw: mean  +2.77  sd  3.29  exkurt   2.02  P(>3sd) 0.0109  P(|d|>3m) 0.5490  P(|d|>5m) 0.2439
+                       centred: mean  -0.00  sd  3.29  exkurt   2.02  P(>3sd) 0.0109  P(|d|>3m) 0.3064  P(|d|>5m) 0.1178
+  NYC -> JFK   23.4 km  raw: mean  +3.80  sd  4.19  exkurt   1.98  P(>3sd) 0.0093  P(|d|>3m) 0.6680  P(|d|>5m) 0.4244
+                       centred: mean  -0.00  sd  4.19  exkurt   1.98  P(>3sd) 0.0093  P(|d|>3m) 0.4154  P(|d|>5m) 0.2077
+  NYC -> LGA    7.5 km  raw: mean  +7.01  sd  3.72  exkurt   2.49  P(>3sd) 0.0107  P(|d|>3m) 0.8779  P(|d|>5m) 0.7394
+                       centred: mean  -0.00  sd  3.72  exkurt   2.49  P(>3sd) 0.0107  P(|d|>3m) 0.3864  P(|d|>5m) 0.1367
+  NYC -> EWR   19.9 km  raw: mean  +5.49  sd  4.77  exkurt   2.08  P(>3sd) 0.0104  P(|d|>3m) 0.7743  P(|d|>5m) 0.6117
+                       centred: mean  -0.00  sd  4.77  exkurt   2.08  P(>3sd) 0.0104  P(|d|>3m) 0.4364  P(|d|>5m) 0.2611
+  NYC -> TEB   11.1 km  raw: mean  +8.44  sd  4.60  exkurt   1.55  P(>3sd) 0.0085  P(|d|>3m) 0.9066  P(|d|>5m) 0.8056
+                       centred: mean  +0.00  sd  4.60  exkurt   1.55  P(>3sd) 0.0085  P(|d|>3m) 0.5079  P(|d|>5m) 0.2546
+  TEB -> JFK   34.4 km  raw: mean  -4.35  sd  4.48  exkurt   2.41  P(>3sd) 0.0106  P(|d|>3m) 0.6767  P(|d|>5m) 0.4462
+                       centred: mean  -0.00  sd  4.48  exkurt   2.41  P(>3sd) 0.0106  P(|d|>3m) 0.4510  P(|d|>5m) 0.2186
+  TEB -> LGA   17.2 km  raw: mean  -1.13  sd  3.19  exkurt   2.76  P(>3sd) 0.0108  P(|d|>3m) 0.3364  P(|d|>5m) 0.1284
+                       centred: mean  +0.00  sd  3.19  exkurt   2.76  P(>3sd) 0.0108  P(|d|>3m) 0.2918  P(|d|>5m) 0.0959
+  TEB -> EWR   20.7 km  raw: mean  -2.69  sd  3.69  exkurt   3.24  P(>3sd) 0.0135  P(|d|>3m) 0.5216  P(|d|>5m) 0.2522
+                       centred: mean  -0.00  sd  3.69  exkurt   3.24  P(>3sd) 0.0135  P(|d|>3m) 0.3195  P(|d|>5m) 0.1437
+  TEB -> NYC   11.1 km  raw: mean  -8.47  sd  4.12  exkurt   1.11  P(>3sd) 0.0081  P(|d|>3m) 0.9098  P(|d|>5m) 0.8161
+                       centred: mean  -0.00  sd  4.12  exkurt   1.11  P(>3sd) 0.0081  P(|d|>3m) 0.4596  P(|d|>5m) 0.2101
+
+## Monthly sd (m): S1 JFK, S2 JFK -> LGA centred
+  01  S1  3.95  S2  5.11
+  02  S1  3.95  S2  4.48
+  03  S1  3.56  S2  5.06
+  04  S1  3.39  S2  5.06
+  05  S1  2.37  S2  3.71
+  06  S1  1.97  S2  3.62
+  07  S1  2.25  S2  3.63
+  08  S1  1.87  S2  3.06
+  09  S1  2.31  S2  3.57
+  10  S1  2.33  S2  3.60
+  11  S1  3.12  S2  4.29
+  12  S1  3.10  S2  3.82
+
+## Daily sd of S2 JFK -> LGA centred (distribution over days)
+  days 365  median 3.00  p90 4.64  p99 6.54  max 7.14 m
+
+## S0 take-off-zero drift (individual error), u uniform on (0, T]
+  T 15 min  JFK  n 3153183  mean  -0.00  sd  0.82  exkurt   8.38  P(>3sd) 0.0180  P(|d|>3m) 0.0089  P(|d|>5m) 0.0010
+  T 15 min  LGA  n 3153183  mean  -0.00  sd  0.84  exkurt  11.56  P(>3sd) 0.0177  P(|d|>3m) 0.0092  P(|d|>5m) 0.0012
+  T 15 min  EWR  n 3153183  mean  -0.00  sd  0.83  exkurt   9.28  P(>3sd) 0.0178  P(|d|>3m) 0.0089  P(|d|>5m) 0.0009
+  T 15 min  NYC  n 3041937  mean  -0.00  sd  0.83  exkurt  10.96  P(>3sd) 0.0178  P(|d|>3m) 0.0094  P(|d|>5m) 0.0012
+  T 15 min  TEB  n 3148029  mean  -0.00  sd  0.84  exkurt   9.47  P(>3sd) 0.0179  P(|d|>3m) 0.0091  P(|d|>5m) 0.0011
+  T 30 min  JFK  n 3153135  mean  -0.00  sd  1.59  exkurt   7.00  P(>3sd) 0.0176  P(|d|>3m) 0.0644  P(|d|>5m) 0.0154
+  T 30 min  LGA  n 3153135  mean  -0.00  sd  1.62  exkurt   7.31  P(>3sd) 0.0175  P(|d|>3m) 0.0669  P(|d|>5m) 0.0160
+  T 30 min  EWR  n 3153135  mean  -0.00  sd  1.61  exkurt   6.55  P(>3sd) 0.0176  P(|d|>3m) 0.0669  P(|d|>5m) 0.0155
+  T 30 min  NYC  n 3041505  mean  -0.00  sd  1.60  exkurt   7.16  P(>3sd) 0.0179  P(|d|>3m) 0.0652  P(|d|>5m) 0.0157
+  T 30 min  TEB  n 3147885  mean  -0.00  sd  1.62  exkurt   6.62  P(>3sd) 0.0177  P(|d|>3m) 0.0682  P(|d|>5m) 0.0161
+  T 60 min  JFK  n 3153042  mean  -0.00  sd  3.05  exkurt   5.97  P(>3sd) 0.0176  P(|d|>3m) 0.2197  P(|d|>5m) 0.0930
+  T 60 min  LGA  n 3153042  mean  -0.00  sd  3.09  exkurt   5.74  P(>3sd) 0.0175  P(|d|>3m) 0.2236  P(|d|>5m) 0.0961
+  T 60 min  EWR  n 3153042  mean  -0.00  sd  3.08  exkurt   5.11  P(>3sd) 0.0174  P(|d|>3m) 0.2253  P(|d|>5m) 0.0967
+  T 60 min  NYC  n 3040668  mean  -0.01  sd  3.05  exkurt   5.55  P(>3sd) 0.0177  P(|d|>3m) 0.2195  P(|d|>5m) 0.0923
+  T 60 min  TEB  n 3147606  mean  -0.00  sd  3.10  exkurt   5.14  P(>3sd) 0.0176  P(|d|>3m) 0.2289  P(|d|>5m) 0.0984

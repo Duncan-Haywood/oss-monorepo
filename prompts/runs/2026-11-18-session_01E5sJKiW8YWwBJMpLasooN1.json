@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKiW8YWwBJMpLasooN1",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T03:09:02Z",
+  "ended": "2026-11-18T03:33:59Z",
+  "wall_minutes": 25.13,
+  "tokens_in": 2720224,
+  "tokens_out": 15800,
+  "cost_usd": 1.3475,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17159",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/venture_suite_times.json",
+      "issue": "No column for 'perf passes on record'; I joined it against docs/history/*perf*.md counts by hand to find untouched suites (suite_file_times.py does this per slug only, after you pick one)."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a one-venture + docs diff also ran the cad workflow's build123d install, adding many minutes after every relevant workflow had passed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-a-swiss-round-that-took-seven-seconds-to-pair.md",
+    "docs/history/ci-perf-2026-11-18-tournament-pairing-presorted-rows.md"
+  ],
+  "goal": null,
+  "notes": "Metric: tournament-pairing-manager calc.test.mjs wall time, node --test on an idle 4-core container. Before 4.5 s (suite_file_times.py, 65 tests); after 1.35/1.35/1.37 s (3 runs, 66 tests incl. new pin test). Scratch benchmark 114 events 140.3 s -> 17.5 s, sha256 of all pairSwissRound results identical (4098a306...). Worst single round on the page: 63 players 6.7 s -> 0.28 s; 31 players 2.0 s -> 0.15 s. Change: bestMatching cost table + per-row presort. Local: run_workflow_locally --for-changes: ventures-tests 5/5, pages 6/6, portfolio-validate 100/100, readme-live-links 4/4, sibling-links 2/2, page-integrity 2/2, agent-permission-harness 5/5 run: steps passed (uses: steps not run). Backlog perf items P063/P064 are owner-gated (.github/).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f3cffceb-91e7-526a-b11c-673bc06bb83a",
+    "transcripts": 1,
+    "first": "2026-11-18T03:09:02Z",
+    "last": "2026-11-18T03:34:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 74,
+        "output": 15800,
+        "thinking": 2043,
+        "cache_read": 2657686,
+        "cache_write_5m": 0,
+        "cache_write_1h": 62464,
+        "api_equivalent_usd": 1.3475,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 74,
+      "output": 15800,
+      "thinking": 2043,
+      "cache_read": 2657686,
+      "cache_write_5m": 0,
+      "cache_write_1h": 62464,
+      "api_equivalent_usd": 1.3475,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 34,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.13,
+      "active_minutes": 25.13,
+      "model_minutes": 3.91,
+      "tool_minutes": 21.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, refactor a branch-and-bound search with an exactness pin, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 222.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

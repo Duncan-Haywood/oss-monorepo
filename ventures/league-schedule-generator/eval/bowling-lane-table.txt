@@ -1,0 +1,134 @@
+# Bowling lane balance: where the page's search misses, what a SAT solver says, and the page now (2026-11-18).
+# Grid: node eval/bowling-lane-grid.mjs 4 6 ... 28 (even teams, 2-40 round-robin weeks; before the table, with the walk).
+# SAT: eval/bowling-lane-table.py per miss under `timeout 420` (CaDiCaL 1.5.3 via python-sat, 4 cores shared).
+# "off" = total out-of-bounds count over every team and pair (0 = every team at the bound).
+# 507 seasons on the grid; the search missed 90.
+
+teams weeks exact | off before | SAT answer           | off now
+    4     2   yes |          4 | UNSAT in 0.1 s       | 4
+    4     3   no  |          2 | UNSAT in 0.1 s       | 2
+    4     4   yes |          4 | UNSAT in 0.1 s       | 4
+    4     8   yes |          4 | UNSAT in 0.1 s       | 4
+    4     9   no  |          2 | UNSAT in 0.1 s       | 2
+    4    10   yes |          4 | UNSAT in 0.1 s       | 4
+    4    14   yes |          4 | UNSAT in 0.1 s       | 4
+    4    15   no  |          2 | UNSAT in 0.2 s       | 2
+    4    16   yes |          4 | UNSAT in 0.2 s       | 4
+    4    20   yes |          4 | UNSAT in 0.4 s       | 4
+    4    21   no  |          2 | UNSAT in 0.6 s       | 2
+    4    22   yes |          4 | UNSAT in 0.9 s       | 4
+    4    26   yes |          4 | UNSAT in 2.2 s       | 4
+    4    27   no  |          2 | UNSAT in 4.2 s       | 2
+    4    28   yes |          4 | UNSAT in 2.4 s       | 4
+    4    32   yes |          4 | UNSAT in 5.2 s       | 4
+    4    33   no  |          2 | UNSAT in 19.2 s      | 2
+    4    34   yes |          4 | UNSAT in 3.6 s       | 4
+    4    38   yes |          4 | UNSAT in 21.7 s      | 4
+    4    39   no  |          2 | UNSAT in 32.4 s      | 2
+    4    40   yes |          4 | UNSAT in 20.8 s      | 4
+    6     3   yes |          4 | UNSAT in 0.1 s       | 4
+    6     9   yes |          4 | UNSAT in 0.1 s       | 4
+    8     3   no  |          1 | UNSAT in 0.0 s       | 1
+    8     4   yes |          8 | UNSAT in 0.0 s       | 8
+   10     5   yes |          8 | UNSAT in 0.0 s       | 8
+   12     5   no  |          1 | UNSAT in 0.0 s       | 1
+   12     6   yes |         12 | UNSAT in 0.1 s       | 12
+   12    18   yes |          4 | SAT in 0.6 s         | 0
+   12    24   yes |          4 | SAT in 0.6 s         | 0
+   12    30   yes |          4 | SAT in 1.6 s         | 0
+   14     7   yes |         12 | UNSAT in 0.1 s       | 12
+   14    14   yes |          4 | SAT in 0.2 s         | 0
+   14    21   yes |          6 | SAT in 0.7 s         | 0
+   14    28   yes |          4 | SAT in 2.6 s         | 0
+   14    35   yes |          6 | SAT in 3.8 s         | 0
+   16     8   yes |         16 | UNSAT in 0.1 s       | 16
+   16    16   yes |          6 | SAT in 1.1 s         | 0
+   16    24   yes |          8 | SAT in 25.4 s        | 0
+   16    32   yes |          8 | SAT in 3.2 s         | 0
+   16    40   yes |          8 | not run              | 8
+   18     8   no  |          1 | SAT in 4.0 s         | 0
+   18     9   yes |         16 | UNSAT in 0.2 s       | 16
+   18    17   no  |          1 | SAT in 29.3 s        | 0
+   18    18   yes |         14 | SAT in 0.6 s         | 0
+   18    27   yes |         12 | SAT in 4.3 s         | 0
+   18    36   yes |         12 | SAT in 21.4 s        | 0
+   20     9   no  |          1 | SAT in 7.1 s         | 0
+   20    10   yes |         22 | UNSAT in 0.1 s       | 22
+   20    11   no  |          1 | SAT in 1.6 s         | 0
+   20    19   no  |          1 | SAT in 8.3 s         | 0
+   20    20   yes |         18 | SAT in 8.0 s         | 0
+   20    21   no  |          1 | SAT in 24.1 s        | 0
+   20    29   no  |          1 | SAT in 48.7 s        | 0
+   20    30   yes |         22 | SAT in 31.2 s        | 0
+   20    40   yes |         14 | SAT in 399.2 s       | 0
+   22    10   no  |          2 | no answer in 420 s   | 2
+   22    11   yes |         24 | UNSAT in 0.2 s       | 24
+   22    12   no  |          1 | SAT in 144.7 s       | 0
+   22    21   no  |          2 | no answer in 420 s   | 2
+   22    22   yes |         22 | SAT in 125.6 s       | 0
+   22    23   no  |          2 | SAT in 186.9 s       | 0
+   22    32   no  |          1 | SAT in 97.1 s        | 0
+   22    33   yes |         18 | no answer in 420 s   | 18
+   22    34   no  |          1 | no answer in 420 s   | 1
+   24    11   no  |          4 | no answer in 420 s   | 4
+   24    12   yes |         28 | UNSAT in 2.1 s       | 28
+   24    13   no  |          3 | SAT in 378.4 s       | 0
+   24    23   no  |          4 | no answer in 420 s   | 3
+   24    24   yes |         30 | no answer in 420 s   | 30
+   24    25   no  |          3 | no answer in 420 s   | 2
+   24    35   no  |          2 | no answer in 420 s   | 2
+   24    36   yes |         26 | no answer in 420 s   | 26
+   24    37   no  |          2 | no answer in 420 s   | 2
+   26    12   no  |          5 | no answer in 420 s   | 5
+   26    13   yes |         30 | UNSAT in 3.5 s       | 30
+   26    14   no  |          4 | no answer in 420 s   | 4
+   26    25   no  |          3 | not run              | 3
+   26    26   yes |         32 | not run              | 32
+   26    27   no  |          3 | not run              | 3
+   26    38   no  |          4 | not run              | 4
+   26    39   yes |         30 | not run              | 30
+   26    40   no  |          5 | not run              | 5
+   28    12   no  |          1 | not run              | 1
+   28    13   no  |          6 | not run              | 6
+   28    14   yes |         44 | not run              | 44
+   28    15   no  |          4 | not run              | 4
+   28    27   no  |          3 | not run              | 3
+   28    28   yes |         40 | not run              | 40
+   28    29   no  |          6 | not run              | 6
+
+SAT 28 (stored in bowling-lane-table.mjs), UNSAT 35 (the bound is impossible for these rounds), no answer 27.
+Now at the bound: 28 of the 90 misses; still off: 62 (35 of them proved impossible).
+
+## Blocks: python3 eval/bowling-lane-blocks.py <teams> <seed> (seed 0 = the first P rounds; 1-3 = random P rounds)
+teams 6 seed 0: UNSAT
+teams 6 seed 1: UNSAT
+teams 6 seed 2: UNSAT
+teams 6 seed 3: UNSAT
+teams 8 seed 0: UNSAT
+teams 8 seed 1: UNSAT
+teams 8 seed 2: UNSAT
+teams 8 seed 3: UNSAT
+teams 10 seed 0: UNSAT
+teams 10 seed 1: UNSAT
+teams 10 seed 2: UNSAT
+teams 10 seed 3: UNSAT
+teams 12 seed 0: UNSAT
+teams 12 seed 1: UNSAT
+teams 12 seed 2: UNSAT
+teams 12 seed 3: UNSAT
+teams 14 seed 0: UNSAT
+teams 14 seed 1: UNSAT
+teams 14 seed 2: UNSAT
+teams 14 seed 3: UNSAT
+teams 16 seed 0: UNSAT
+teams 16 seed 1: UNSAT
+teams 16 seed 2: UNSAT
+teams 16 seed 3: UNSAT
+teams 18 seed 0: UNSAT
+teams 18 seed 1: UNSAT
+teams 18 seed 2: UNSAT
+teams 18 seed 3: UNSAT
+teams 20 seed 0: UNSAT
+teams 20 seed 1: UNSAT
+teams 20 seed 2: UNSAT
+teams 20 seed 3: UNSAT

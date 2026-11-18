@@ -1,0 +1,8 @@
+# Milestone 11aa post hoc: zone quadrature, en-route totals (all pairs) at K = 8 and K = 32
+idx   K   enr_all   enr_even  enr_odd   all_zones   CPU s
+12:1202   8  13.48903  13.31004  13.66803  30.04014   1987
+12:1202  32  13.49678  13.45479  13.53878  30.04014   4250
+16:1603   8  9.70982  9.68181  9.73783  20.25986   1856
+16:1603  32  9.71071  9.70406  9.71736  20.25986   4044
+layout 12:1202: K=8 / K=32 en-route 0.99943; K=32 even/odd sub-rules / K=32: 0.99689 1.00311
+layout 16:1603: K=8 / K=32 en-route 0.99991; K=32 even/odd sub-rules / K=32: 0.99932 1.00068

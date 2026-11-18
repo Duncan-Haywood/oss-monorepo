@@ -16,6 +16,7 @@ by default). The serial line is two byte queues. The contactor's coil (sensed on
 """
 
 import importlib.util
+import math
 import os
 import random
 import shutil
@@ -41,7 +42,8 @@ SHUTTLE_DROP_S = 0.14
 class SimFeeder:
     def __init__(self, elev_mode="pot", az_start_deg=12.0, wheel_tau_s=WHEEL_TAU_S, wheel_max_rpm=WHEEL_MAX_RPM,
                  rpm_full=None, jam_log=None, balls=None, wheel_inertia=0.00155, launch_eff=1.0,
-                 true_launcher=None, tach_jitter_us=0.0, esc_tau_s=0.0, seed=0):
+                 true_launcher=None, tach_jitter_us=0.0, esc_tau_s=0.0, seed=0, take_ms=0.0, take_shape="halfsine",
+                 tach_capture=False, tach_sensor_jitter_us=0.0):
         self.us = 1_000_000            # board clock, microseconds
         self.rx = bytearray()          # Pi -> board
         self.tx = bytearray()          # board -> Pi
@@ -106,7 +108,12 @@ class SimFeeder:
             def read_uv(self):          # GPIO 36, the battery divider (100k/10k)
                 return int((sim.pack_mv + (sim.brake_rise_mv if sim.braking() else 0)) * 1000 / 11)
 
-        machine = types.SimpleNamespace(Pin=Pin, PWM=PWM, ADC=ADC, UART=object)
+        class Mem(dict):               # machine.mem32: the registers capture.py writes and reads (2026-11-18)
+            def __missing__(self, addr):
+                return 0
+
+        self.mem32 = Mem()
+        machine = types.SimpleNamespace(Pin=Pin, PWM=PWM, ADC=ADC, UART=object, mem32=self.mem32)
         fake_time = types.SimpleNamespace(sleep_us=lambda us: None, sleep_ms=lambda ms: None,
                                           ticks_ms=lambda: state.us // 1000, ticks_us=lambda: state.us,
                                           ticks_diff=lambda a, b: a - b)
@@ -123,10 +130,12 @@ class SimFeeder:
             weakref.finalize(self, shutil.rmtree, flash, True)
             jam_log = os.path.join(flash, "lift_jams.json")
         self.cfg.LIFT_JAM_LOG = jam_log
+        self.cfg.TACH_CAPTURE = tach_capture
         with open(os.path.join(FW, "main.py")) as f:
             src = f.read().rstrip()
         src = src[:-len("run()")]
-        saved = {k: sys.modules.get(k) for k in ("machine", "time", "config")}
+        saved = {k: sys.modules.get(k) for k in ("machine", "time", "config", "capture")}
+        sys.modules.pop("capture", None)   # imported afresh on this sim's registers
         sys.modules.update(machine=machine, time=fake_time, config=self.cfg)
         try:
             ns = {"__name__": "fw_main"}
@@ -168,7 +177,18 @@ class SimFeeder:
         # Plants that are not the first-order lag (2026-11-16, tests/loop_residual_sweep.py): each tach edge moved by a
         # normal error of `tach_jitter_us`, and an ESC whose own speed control lags its command by `esc_tau_s`.
         self.tach_jitter_us, self.esc_tau = tach_jitter_us, esc_tau_s
+        # A tach timed by MCPWM capture (2026-11-18, `tach_capture`, firmware/esp32/capture.py): the edge's true time,
+        # in 80 MHz ticks, is latched in the capture register before the handler runs, so `tach_jitter_us` (the time
+        # the handler reads ticks_us(): its latency's spread) no longer reaches the periods. `tach_sensor_jitter_us`
+        # moves the edge itself (the sensor's own error), which both paths see.
+        self.tach_sensor_jitter_us = tach_sensor_jitter_us
         self._drive = [0.0, 0.0]
+        # The ball's take spread over `take_ms` (2026-11-17, tests/take_spread.py): 0 takes it at one instant, as since
+        # 2026-11-16; otherwise each plant step removes the share of the take that the force profile `take_shape`
+        # ("halfsine", or "front": a force falling linearly from its peak at first contact) puts inside that step.
+        self.take_ms, self.take_shape = take_ms, take_shape
+        self._takes = []               # [start us, (drop rpm top, drop rpm bottom)] of takes still under way
+        self.taken = []                # (wheel rpm at contact, total rpm taken) per ball, both wheels: the true drop
         self._rng = random.Random(seed)
         self._under_col_ms = 0
         self.shuttle_out_s, self.shuttle_back_s = SHUTTLE_OUT_S, SHUTTLE_BACK_S
@@ -208,15 +228,21 @@ class SimFeeder:
                     self._drive[i] = hw.esc_cmd[i]
                 target = self.wheel_max * self._drive[i]
                 self.wheel[i] += (target - self.wheel[i]) * 0.001 / self.wheel_tau
+                if self._takes:
+                    self.wheel[i] = max(0.0, self.wheel[i] - self._take_share(i, t0, t0 + 1000))
                 before = self.rev[i]
                 self.rev[i] += self.wheel[i] / 60000.0
                 if int(self.rev[i]) > int(before):   # one pulse per revolution, timed within the millisecond
                     frac = (int(self.rev[i]) - before) / (self.rev[i] - before)
                     self.us = t0 + int(frac * 1000)
+                    if tach.cap is not None or self.tach_sensor_jitter_us:
+                        self._edge(tach, t0, frac * 1000)
                     if self.tach_jitter_us:
                         self.us += int(round(self._rng.gauss(0.0, self.tach_jitter_us)))
                     tach._p(None)
             self.us = t0 + 1000
+            if self._takes:
+                self._takes = [tk for tk in self._takes if self.us - tk[0] < self.take_ms * 1000]
             if hw.elev.mode != controller.ELEV_RC and not self.elev_jammed:
                 d = hw.elev.duty
                 v = self.cfg.ELEV_SPEED_EXT_MM_S if d > 0 else self.cfg.ELEV_SPEED_RET_MM_S
@@ -250,6 +276,15 @@ class SimFeeder:
             else:
                 self._under_col_ms = 0
 
+    def _edge(self, tach, t0, off):
+        """A tach edge `off` us after t0 (2026-11-18): moved by the sensor's own error, and latched in the capture
+        register when the tach is timed by MCPWM capture (tests/reading_floor.py's finer plant step calls this too)."""
+        if self.tach_sensor_jitter_us:
+            off += self._rng.gauss(0.0, self.tach_sensor_jitter_us)
+            self.us = t0 + math.floor(off)
+        if tach.cap is not None:
+            self.mem32[tach.cap.reg] = (t0 * 80 + math.floor(off * 80)) & 0xFFFFFFFF
+
     def _take_momentum(self):
         """The ball leaves with the launcher model's speed and spin for the wheels' speeds now; the wheels lose the
         momentum it carries (a thin shell: I_b = 2/3 m r^2), split by the spin."""
@@ -259,6 +294,28 @@ class SimFeeder:
         self.exits.append((v, spin))
         lin = ball.mass * v
         rot = 2.0 / 3.0 * ball.mass * ball.radius * spin
+        dws, at = [], tuple(self.wheel)
         for i, j in enumerate(((lin + rot) / 2, (lin - rot) / 2)):
             dw = self.launch_eff * j * lm.wheel_radius / self.wheel_inertia * 30 / 3.141592653589793
-            self.wheel[i] = max(0.0, self.wheel[i] - dw)
+            dws.append(min(dw, max(self.wheel[i], 0.0)))
+            if not self.take_ms:
+                self.wheel[i] = max(0.0, self.wheel[i] - dw)
+        self.taken.append((at, tuple(dws)))
+        if self.take_ms:
+            self._takes.append([self.us, tuple(dws)])
+
+    def _take_cdf(self, x):
+        """The share of a take done by fraction x (0..1) of its contact time."""
+        import math
+        x = min(max(x, 0.0), 1.0)
+        if self.take_shape == "front":
+            return 1.0 - (1.0 - x) ** 2
+        if self.take_shape == "halfsine":
+            return (1.0 - math.cos(math.pi * x)) / 2
+        raise ValueError(self.take_shape)
+
+    def _take_share(self, i, a_us, b_us):
+        """rpm the takes under way remove from wheel i between board times a_us and b_us."""
+        T = self.take_ms * 1000
+        return sum(dw[i] * (self._take_cdf((b_us - t) / T) - self._take_cdf((a_us - t) / T))
+                   for t, dw in self._takes)

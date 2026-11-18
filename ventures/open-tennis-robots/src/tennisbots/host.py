@@ -82,6 +82,11 @@ HOLD_RPM = 3000.0
 BALL_LEAD_S = 0.14
 LOOP_AFTER_REVS = 8
 HOLD_MAX_S = 0.25 + 1.2
+# Set when the board runs with controller.LOOP_THROUGH_CHANGE (2026-11-17, firmware/esp32/README.md "The fit floor on
+# held-out builds"; off by default, like the board's): its slow wheel's watch goes on through the next shot's speed
+# change, so the next shot's speeds go out straight after the release instead of after hold_s. The hold before the
+# drill's final stop stays (a stop ends the watch), and a re-planned drill still waits for the verdict.
+LOOP_THROUGH_CHANGE = False
 HOPPER_EMPTY = ("hopper empty: the feed stroke put no ball through the wheels (the launcher wheels did not slow); "
                 "refill the tub, or check the outlet for a bridge of balls and the hose for a stuck one")
 
@@ -136,6 +141,8 @@ class DrillResult:
     refits: list = field(default_factory=list)     # Refitter.events, when the run re-planned from its own shots
     esc_survey: dict | None = None  # the board's ESC-lag survey at the drill's end (ESC_SURVEY frame), if it sent one
     esc_tau_ms: int | None = None   # the ESC lag the board's drop fit ran with (ESC_TAU frame), if it reports one
+    take_survey: dict | None = None  # the board's contact-time survey at the drill's end (TAKE_SURVEY frame), if any
+    survey_wait_s: float = 0.0       # how long the drill held its balls for the board's contact-time survey
     held: bool = False              # stopped before the first ball by the ESC-lag check (`aborted` says why); no e-stop
 
     @property
@@ -327,19 +334,26 @@ def _fit_dict(fit: launcher.DropFit) -> dict:
             "recovery_s": r(fit.recovery_s), "rms_drop": r(fit.rms), "shots": fit.shots, "note": fit.note}
 
 
-ESC_SURVEY_GRID_MS = (0, 20, 50, 100, 200, 400)   # the firmware's ESC_SURVEY_GRID_US, in ms
-ESC_SURVEY_S = 4.0            # how long the drill's end waits for the board's survey of the last ball
+ESC_SURVEY_GRID_MS = (0, 20, 50, 100, 150, 200, 400)   # the firmware's ESC_SURVEY_GRID_US, in ms (150 since 2026-11-18)
+# How long the drill's end waits for the board's surveys of the last balls. 4 s until 2026-11-18: the survey's refined
+# fits (36 steps, about 2.2 s a wheel) now queue behind the strokes (controller.SURVEY_QUEUE, up to 4 balls), and the
+# wait ends sooner once no count has risen for SURVEY_QUIET_S (README "The ESC-lag survey's search, traced").
+ESC_SURVEY_S = 20.0
+SURVEY_QUIET_S = 3.0          # longer than one wheel's ESC-lag survey, so the wait does not stop between two wheels
 ESC_SURVEY_MIN_WHEELS = 16    # fewer wheels than this and the survey's pick is reported but not advised
 
 
 def survey(link, clock, sleep, tick_s, timeout=ESC_SURVEY_S):
-    """Poll until the board's ESC_SURVEY wheel count stops rising for half a second (the last ball's survey is done
-    or there was none), or `timeout`."""
+    """Poll until the board's ESC_SURVEY and TAKE_SURVEY wheel counts stop rising for SURVEY_QUIET_S (the last balls'
+    surveys are done or there were none), or `timeout`."""
+    def count():
+        return (link.esc_survey["wheels"] if link.esc_survey else -1,
+                link.take_survey["wheels"] if link.take_survey else -1)
     start = last = clock()
-    n = link.esc_survey["wheels"] if link.esc_survey else -1
-    while clock() - start < timeout and clock() - last < 0.5:
+    n = count()
+    while clock() - start < timeout and clock() - last < SURVEY_QUIET_S:
         link.poll()
-        m = link.esc_survey["wheels"] if link.esc_survey else -1
+        m = count()
         if m != n:
             n, last = m, clock()
         sleep(tick_s)
@@ -363,6 +377,8 @@ def esc_lag_check(sv: dict | None, board_ms: int | None) -> str | None:
     if not sv or (sv.get("wheels") or 0) < ESC_SURVEY_MIN_WHEELS:
         return None
     pick = sv["refined_ms"]
+    if pick >= ESC_SURVEY_GRID_MS[-1]:
+        return None        # the grid's last lag names no number to set (esc_survey_advice says to scope the ESC)
     when = f" ({sv['wheels']} wheels{', ' + sv['at'] if sv.get('at') else ''})"
     if board_ms is None:
         return (f"the board does not report its ESC_TAU_US (firmware older than 2026-11-16): the last survey{when} picks "
@@ -373,11 +389,59 @@ def esc_lag_check(sv: dict | None, board_ms: int | None) -> str | None:
             f"{pick * 1000} in config.py and re-flash, or this drill's drop fits read spin far off")
 
 
+TAKE_SURVEY_MS = (0, 2, 3, 4, 5, 6, 8)   # the firmware's TAKE_SURVEY_GRID_US, in ms
+TAKE_SURVEY_S = 16.0          # a contact-time survey (5 t0 levels a fit, 2026-11-18) is the board's work after the last ball
+# Advise a contact time only when the survey's best candidate misses by at most this share of the step's rms (README
+# "The contact time surveyed on the board"): on the simulator 4 of 6 builds with an instant take picked 1.5-2.5 ms at
+# 0.66-0.76 of the step's rms and read worse told it, while most spread takes fell to 0.29-0.6. Chosen on wheel lag 0.3 s,
+# checked on 0.6 s (eval/take-survey-heldout-2026-11-17.txt).
+TAKE_ADVISE_RATIO = 0.6
+# The longest a calibration drill holds a ball for the last one's surveys: 8 s until the take survey's refits went to 5
+# t0 levels (2026-11-18, README "The first-order take misfit traced"), about 10 s of control ticks a two-wheel ball.
+TAKE_WAIT_S = 12.0
+
+
+def _take_count(link) -> int:
+    return link.take_survey["wheels"] if link.take_survey else 0
+
+
+def take_survey_advice(sv: dict | None) -> str | None:
+    """One line on the board's contact-time survey (firmware/esp32/README.md "The contact time surveyed on the board"):
+    the contact time its balls pick and whether config.TAKE_US should change. None without a survey. Times are in ms;
+    the frame carries 0.1 ms. The pick is rounded to 0.5 ms: on the simulator the drop's scatter was flat within
+    0.02 points over +-0.5 ms of the true time (tests/take_fit.py's 5 and 6 ms candidates on a 6 ms take)."""
+    if not sv:
+        return None
+    n = sv.get("wheels") or 0
+    pick = round(2 * sv["refined_ms10"] / 10) / 2
+    board = (sv.get("board_ms10") or 0) / 10
+    if n < ESC_SURVEY_MIN_WHEELS:
+        return (f"contact-time survey: {n} wheels so far pick {pick:g} ms; run more balls ({ESC_SURVEY_MIN_WHEELS} "
+                f"wheels) before setting TAKE_US")
+    rms = [v for v in (sv.get("rms_ppm") or ()) if v is not None]
+    gain = min(rms) / rms[0] if rms and rms[0] else 0.0
+    if pick > 0 and gain > TAKE_ADVISE_RATIO:
+        return (f"contact-time survey: {n} wheels pick {pick:g} ms, but its fits miss only {1 - gain:.0%} less than the "
+                f"step's (an instant take's builds reached 34% on the simulator): " +
+                ("keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash"))
+    if pick == 0:
+        return f"contact-time survey: {n} wheels pick an instant take; " + (
+            "keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash")
+    if abs(pick - board) <= 0.5:
+        return f"contact-time survey: {n} wheels pick {pick:g} ms; TAKE_US already matches ({board:g} ms)"
+    return (f"contact-time survey: {n} wheels pick {pick:g} ms (least on the grid {sv['least_ms10'] / 10:g} ms); "
+            f"set TAKE_US = {int(pick * 1000)} in config.py and re-flash")
+
+
 def esc_survey_advice(sv: dict | None, esc_tau_ms: float = 0.0) -> str | None:
     """One line on the board's ESC-lag survey (firmware/esp32/README.md "The ESC lag surveyed on the board"): the lag
     its balls pick and whether config.ESC_TAU_US should change. None without a survey. The survey sums each wheel's
-    fit residual at six lags; on the simulator its refined lag came within 10% of the true one (30-150 ms) and 0 on a
-    wheel with no ESC lag. `esc_tau_ms` is what the board ran with: the survey refits from the raw commands, so its
+    fit residual at seven lags (150 ms added 2026-11-18, README "The ESC-lag survey between 100 and 200 ms"); on the
+    simulator its refined lag came within 15% of the true one up to 150 ms and 0 on a wheel with no ESC lag; 165-300 ms
+    on slow wheels read 20-60% off on some drills until the board's refits read 16 revolutions after the ball, not 8
+    (2026-11-18, README "Long ESC lags: the survey read too little of the recovery"): then 70 of 70 simulated drills
+    with ESC lags of 0-250 ms came within 15%. A pick at the grid's last lag (400 ms) only says the lag is long.
+    `esc_tau_ms` is what the board ran with: the survey refits from the raw commands, so its
     pick does not depend on it."""
     if not sv or not sv.get("wheels"):
         return None
@@ -388,6 +452,9 @@ def esc_survey_advice(sv: dict | None, esc_tau_ms: float = 0.0) -> str | None:
     if pick == 0:
         return f"ESC lag survey: {n} wheels pick no ESC lag; keep ESC_TAU_US = 0" + (
             f" (the board ran with {esc_tau_ms:g} ms: set it back to 0)" if esc_tau_ms else "")
+    if pick >= ESC_SURVEY_GRID_MS[-1]:
+        return (f"ESC lag survey: {n} wheels pick the grid's last lag, {pick} ms: the ESC's lag is long and this survey "
+                f"cannot name it; log the ESC's step response on a scope before setting ESC_TAU_US")
     same = esc_tau_ms and esc_tau_matches(pick, esc_tau_ms)
     return (f"ESC lag survey: {n} wheels pick {pick} ms (least on the grid {sv['least_ms']} ms)"
             + ("; ESC_TAU_US already matches" if same else f"; set ESC_TAU_US = {pick * 1000} in config.py and re-flash"))
@@ -407,6 +474,8 @@ class FeederLink:
         self.esc_survey: dict | None = None   # the last ESC_SURVEY frame (firmware/esp32/README.md "The ESC lag surveyed
                                               # on the board"), with the clock it came at
         self.esc_tau_ms: int | None = None    # the board's ESC_TAU_US in ms (ESC_TAU frame); None until one arrives
+        self.take_survey: dict | None = None  # the last TAKE_SURVEY frame (README "The contact time surveyed on the
+                                              # board"), with the clock it came at
 
     def send(self, cmd, *values):
         self.port.write(P.encode(cmd, *values))
@@ -421,6 +490,9 @@ class FeederLink:
                 self.last = Telemetry(now, *vals)
             elif cmd == P.ESC_TAU:
                 self.esc_tau_ms = vals[0]
+            elif cmd == P.TAKE_SURVEY:
+                self.take_survey = {"t": now, "wheels": vals[0], "least_ms10": vals[1], "refined_ms10": vals[2],
+                                    "board_ms10": vals[3], "rms_ppm": [None if v == 65535 else v for v in vals[4:]]}
             elif cmd == P.ESC_SURVEY:
                 self.esc_survey = {"t": now, "wheels": vals[0], "least_ms": vals[1], "refined_ms": vals[2],
                                    "rms_ppm": [None if v == 65535 else v for v in vals[3:]]}
@@ -485,12 +557,15 @@ def hold_s(shot) -> float:
 
 def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, ready_timeout_s=10.0,
               release_timeout_s=2.0, link_timeout_s=0.5, tick_s=0.01, log=None, replan=None, prior_survey=None,
-              hold_on_esc_lag=False) -> DrillResult:
+              hold_on_esc_lag=False, take_survey=False) -> DrillResult:
     """Run planned shots on the feeder. The first shot gets longer to be ready: the axes home at power-up.
 
     `prior_survey` (the last ESC_SURVEY from the shot log) is checked against the lag the board reports once it is
     connected (`esc_lag_check`): a mismatch is a warning, and with `hold_on_esc_lag` (a calibration drill) the run
     stops before its first ball with `held` set, the wheels never spun and no e-stop sent.
+
+    `take_survey` (a calibration drill) asks the board to survey the ball's contact time too (SURVEY_TAKE) and turns it
+    off again at the end; the drill's last TAKE_SURVEY frame is kept in `take_survey`.
 
     `replan(launches, remaining) -> list | None` (a `Refitter`), if given, is called before each shot after the first
     with this run's launch records so far and the shots not yet fed; a list it returns replaces them."""
@@ -566,6 +641,8 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
             res.warnings.append(why)
             if log:
                 log(f"warning: {why}")
+        if take_survey:
+            link.send(P.SURVEY_TAKE, 1)
         last_release = None
         shots = list(shots)
         for k in range(len(shots)):
@@ -579,7 +656,8 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                 if new is not None:
                     shots[k:] = new
             shot = shots[k]
-            if k > 0 and last_release is not None and replan is None and _slow_wheel(shots[k - 1]):
+            if k > 0 and last_release is not None and replan is None and _slow_wheel(shots[k - 1]) \
+                    and not LOOP_THROUGH_CHANGE:
                 h = hold_s(shots[k - 1])
                 wait(lambda t: t.t >= last_release + h, h + 1.0, f"shot {shots[k - 1].index}'s launch check")
             link.send(P.SET_WHEELS, shot.rpm_top, shot.rpm_bottom)
@@ -594,6 +672,17 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
                 due = last_release + shot.interval_s
                 ready = wait(lambda t: clock() >= due and _wheels_ok(t, shot), shot.interval_s + ready_timeout_s,
                              f"{label} interval")
+                if take_survey:
+                    # The board's surveys of the last ball take about 7 s of control ticks after its verdict and a
+                    # new stroke cuts them, so a calibration drill feeds once the contact-time count has risen by the
+                    # last shot's turning wheels (README "The contact time surveyed on the board"), or after
+                    # TAKE_WAIT_S more; a wheel whose fit failed is never counted, hence the cap.
+                    need = surveyed + sum(1 for r in (res.fed[-1].rpm_top, res.fed[-1].rpm_bottom) if r > 0)
+                    held = clock()
+                    ready = wait(lambda t: (_take_count(link) >= need or clock() >= held + TAKE_WAIT_S)
+                                 and _wheels_ok(t, shot), TAKE_WAIT_S + ready_timeout_s, f"{label} survey")
+                    res.survey_wait_s += clock() - held
+            surveyed = _take_count(link)
             link.send(P.FEED, 1)
             fed_shots.append(shot.index)
             res.fed.append(shot)
@@ -617,9 +706,13 @@ def run_drill(link: FeederLink, shots: list, sleep, *, first_timeout_s=30.0, rea
         if last_release is not None:  # the last stroke's verdict (the stop above freezes it, it cannot fake a ball)
             wait(lambda t: t.t >= last_release + VERDICT_S, VERDICT_S + 1.0, "last shot's launch check")
             loop_fits()
-            survey(link, clock, sleep, tick_s)
+            survey(link, clock, sleep, tick_s, TAKE_SURVEY_S if take_survey else ESC_SURVEY_S)
             if link.esc_survey is not None and link.esc_survey["t"] >= fed_at:
                 res.esc_survey = {k: v for k, v in link.esc_survey.items() if k != "t"}
+            if link.take_survey is not None and link.take_survey["t"] >= fed_at:
+                res.take_survey = {k: v for k, v in link.take_survey.items() if k != "t"}
+        if take_survey:
+            link.send(P.SURVEY_TAKE, 0)
     except HopperEmpty:
         # Not a fault: nothing is queued (one FEED at a time) and nothing is wrong with the machine, so the wheels are
         # stopped without latching the e-stop; refill and run the drill again.
@@ -692,6 +785,8 @@ def append_shot_log(path, res: DrillResult, drill: str = "") -> int:
         if res.esc_survey:
             fh.write(json.dumps({"esc_survey": res.esc_survey, "esc_tau_ms": res.esc_tau_ms, "at": stamp,
                                  "drill": drill}) + "\n")
+        if res.take_survey:
+            fh.write(json.dumps({"take_survey": res.take_survey, "at": stamp, "drill": drill}) + "\n")
     return len(res.launches)
 
 
@@ -702,7 +797,19 @@ def _read_log_lines(path) -> list:
 
 def read_shot_log(path) -> list:
     """The launch records of a shot log (survey lines left out)."""
-    return [r for r in _read_log_lines(path) if "esc_survey" not in r]
+    return [r for r in _read_log_lines(path) if "esc_survey" not in r and "take_survey" not in r]
+
+
+def last_take_survey_from_log(path) -> dict | None:
+    """The newest contact-time survey a shot log holds (the TAKE_SURVEY dict plus `at` and `drill`), or None."""
+    try:
+        lines = _read_log_lines(path)
+    except (OSError, ValueError):
+        return None
+    for r in reversed(lines):
+        if isinstance(r.get("take_survey"), dict):
+            return dict(r["take_survey"], at=r.get("at"), drill=r.get("drill"))
+    return None
 
 
 def last_survey_from_log(path) -> dict | None:
@@ -745,6 +852,6 @@ def run_file(path, device, log=print, *, refit_after: int | None = None, recover
     link = FeederLink(SerialPort(device), time.monotonic)
     refit = Refitter(spec, after=refit_after, recovery_s=recovery_s, inertia=inertia, log=log) if refit_after else None
     res = run_drill(link, shots, time.sleep, log=log, replan=refit, prior_survey=prior_survey,
-                    hold_on_esc_lag=is_calibration(spec) and not esc_lag_ok)
+                    hold_on_esc_lag=is_calibration(spec) and not esc_lag_ok, take_survey=is_calibration(spec))
     res.refits = refit.events if refit else []
     return res

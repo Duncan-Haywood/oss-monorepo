@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtKFuEaFar2GPCYr2Ze",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T19:07:44Z",
+  "ended": "2026-11-17T19:17:54Z",
+  "wall_minutes": 10.6,
+  "tokens_in": 16748167,
+  "tokens_out": 178026,
+  "cost_usd": 10.5926,
+  "tool_calls": 201,
+  "task": "quality census, seed 2026-11-17-5b6c (mode draw: census)",
+  "projects": [
+    "research/ambient-crossfit",
+    "ventures/terraform-plan-secret-exposure-check",
+    "ventures/atm-route-margin",
+    "ventures/jwt-verification-misuse-check",
+    "research/osrobot-leannoise",
+    "research/sensing-burst"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17037",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First ran the terraform CLI as `node cli.mjs <file>`; it needs the `check` subcommand. Reran it correctly: old engine exits 1, new exits 0 on a correctly marked output.",
+      "cost": "one call"
+    },
+    {
+      "what": "Wrote the Node JWT test against f.code; findings use f.type. Fixed it to use the suite's lines() helper.",
+      "cost": "one call"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Census mode has no stated post-name convention (the README names sample and fix posts only); followed the 2026-11-17-quality-census-* files on disk."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says to fix small things and send large ones to Known gaps. For ambient-crossfit and sensing-burst the fix (damped Newton; drop the clamp) is one line but changes published results, so a rerun and a rewrite of the results are needed.",
+      "did": "Added a README warning, Known gaps and a homepage caveat rather than rerunning and rewriting results in a quality PR.",
+      "result": "The reader is warned now. The rerun is left to the project's next session."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-optimiser-that-never-converged.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-17-5b6c, census mode (mode draw). Subjects: research/ambient-crossfit, ventures/terraform-plan-secret-exposure-check, ventures/atm-route-margin, ventures/jwt-verification-misuse-check, research/osrobot-leannoise, research/sensing-burst. 0 of 6 meet the bar, 6 of 6 finished; seeded mutants caught 10 of 34. Sampled share unchanged 33/306 (8%-15%). Fix PR: #17037 (all fixes in this PR): atm hourly rate double-counted labour (+test); terraform outputs with after_sensitive flagged as leaks and an explainer page claiming show -json hides values (+test); JWT Go rule disabled by net/http r.Method (+tests in both engines) and llms.txt boilerplate; osrobot-leannoise delay claim was a start-pose clamp artefact (README corrected, test pinning 138/200); ambient-crossfit diverging Newton fit_map (README warning, homepage caveat, Known gaps; ~10 sibling ambient-* projects share it); sensing-burst zero-clamp asymmetry (Known gaps). Spot-checks I reran: atm defaults hourly 46.33 vs 71.33; terraform CLI exit 1 -> 0; leannoise probe (1.00 safe at all delays from y=0); sensing-burst clamp at P=30 (18.70/15.98/16.83); ambient-crossfit weights [-369,-69,-173,-554]. Local checks: atm 83/83, terraform 51/51, jwt node 32/32 + pytest 32/32, leannoise 5/5 unittest; quality_audit validate 0 problems; post front-matter/links/similarity clean; research homepage builds (1080 projects).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "605c905c-910b-5bcb-9f40-06c5f7dbbc9f",
+    "transcripts": 7,
+    "first": "2026-11-17T19:07:44Z",
+    "last": "2026-11-17T19:18:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 194,
+        "input": 388,
+        "output": 178026,
+        "thinking": 52778,
+        "cache_read": 16056092,
+        "cache_write_5m": 571402,
+        "cache_write_1h": 120285,
+        "api_equivalent_usd": 10.5926,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 194,
+      "input": 388,
+      "output": 178026,
+      "thinking": 52778,
+      "cache_read": 16056092,
+      "cache_write_5m": 571402,
+      "cache_write_1h": 120285,
+      "api_equivalent_usd": 10.5926,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.959,
+    "tool_calls": 201,
+    "tools": {
+      "Bash": 182,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "ReadNotifications": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__claude-code-remote__add_repo": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.6,
+      "active_minutes": 7.04,
+      "model_minutes": 6.04,
+      "tool_minutes": 1.01,
+      "waiting_on_human_minutes": 3.55,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 27.8
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "six first audits at about 2 h each by a senior reviewer plus four small fixes with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 151.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

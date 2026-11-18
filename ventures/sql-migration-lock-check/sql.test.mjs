@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { maskNonCode, splitStatements, normalize, leadingKeyword } from './sql.mjs';
+import { maskNonCode, splitStatements, normalize, leadingKeyword, transactionEffect } from './sql.mjs';
 
 // The splitter's whole job is deciding which characters are code. Everything
 // below is a way that question has a non-obvious answer -- and every one of
@@ -121,4 +121,40 @@ test('an unterminated dollar quote does not hang or split', () => {
 test('an unterminated string literal does not hang', () => {
   const statements = splitStatements("SELECT 'unterminated ; text");
   assert.equal(statements.length, 1);
+});
+
+// Red-team gap tests, 2026-11-18: mutants that survived the suite above.
+
+test('a semicolon at the very start of the file ends an empty statement', () => {
+  // The loop must look at offset 0: `;SELECT 1` is one statement, `SELECT 1`.
+  const statements = splitStatements(';SELECT 1');
+  assert.equal(statements.length, 1);
+  assert.equal(statements[0].text, 'SELECT 1');
+});
+
+test('a stray COMMIT outside any block does not swallow the next BEGIN', () => {
+  // COMMIT with no open block only warns in PostgreSQL; the BEGIN after it
+  // still opens a block, so the statement after that is inside one.
+  const statements = splitStatements('COMMIT; BEGIN; CREATE INDEX CONCURRENTLY i ON t (a);');
+  assert.equal(statements[2].inTransaction, true);
+});
+
+test('transactionEffect follows PostgreSQL: flat blocks, savepoints, ABORT, AND CHAIN', () => {
+  assert.equal(transactionEffect('BEGIN'), 'begin');
+  assert.equal(transactionEffect('start transaction isolation level serializable'), 'begin');
+  for (const end of ['COMMIT', 'END', 'ROLLBACK', 'ABORT', 'COMMIT WORK', 'ROLLBACK AND NO CHAIN']) {
+    assert.equal(transactionEffect(end), 'end', end);
+  }
+  assert.equal(transactionEffect('COMMIT AND CHAIN'), 'chain');
+  assert.equal(transactionEffect('ROLLBACK TRANSACTION AND CHAIN'), 'chain');
+  for (const none of ['ROLLBACK TO SAVEPOINT a', 'ROLLBACK TO a', 'ROLLBACK WORK TO SAVEPOINT a',
+    "COMMIT PREPARED 'x'", "ROLLBACK PREPARED 'x'", 'SAVEPOINT a', 'RELEASE SAVEPOINT a', 'ENDPOINT', 'SELECT 1']) {
+    assert.equal(transactionEffect(none), null, none);
+  }
+});
+
+test('a second BEGIN does not nest, and ROLLBACK TO SAVEPOINT leaves the block open', () => {
+  const st = splitStatements('BEGIN; BEGIN; COMMIT; SELECT 1; BEGIN; SAVEPOINT a; ROLLBACK TO a; SELECT 2;');
+  assert.equal(st[3].inTransaction, false, 'one COMMIT ends the block');
+  assert.equal(st[7].inTransaction, true, 'ROLLBACK TO undoes work, not the block');
 });

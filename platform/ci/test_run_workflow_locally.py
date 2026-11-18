@@ -13,6 +13,7 @@ import textwrap
 import time
 import unittest
 from unittest import mock
+from unittest import mock
 
 import run_workflow_locally as runner
 import yaml
@@ -516,6 +517,55 @@ class Execute(unittest.TestCase):
                             '&& echo ok >> "$GITHUB_STEP_SUMMARY" && test -d "$RUNNER_TEMP"')
         self.assertEqual(step.status, "ok", step.tail)
 
+    def fake_home(self, gitconfig):
+        """A HOME holding `gitconfig`, a fresh runner temp dir, and no
+        inherited GIT_CONFIG_GLOBAL/XDG_CONFIG_HOME, all undone on cleanup."""
+        home = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, home, True)
+        with open(os.path.join(home, ".gitconfig"), "w") as f:
+            f.write(gitconfig)
+        env = mock.patch.dict(os.environ, {"HOME": home})
+        env.start()
+        self.addCleanup(env.stop)
+        for key in ("GIT_CONFIG_GLOBAL", "XDG_CONFIG_HOME"):
+            os.environ.pop(key, None)
+        files = mock.patch.dict(runner._RUNNER_FILES, clear=True)
+        files.start()
+        self.addCleanup(files.stop)
+        return home
+
+    def test_a_global_git_config_write_does_not_reach_the_sessions_config(self):
+        """portfolio-validate's supersede-check step runs `git config --global
+        user.email ci@example.com`; run here it overwrote ~/.gitconfig and the
+        session's next commit went out as CI, Unverified (run record
+        2026-11-17, session_01XpHqye3mm8o2YXnvRwxsJV)."""
+        original = "[user]\n\tname = Session\n\temail = session@example.org\n"
+        home = self.fake_home(original)
+        step = self.run_one('git config --global user.email "ci@example.com" '
+                            '&& git config --global user.name CI '
+                            '&& test "$(git config --global user.email)" = ci@example.com')
+        self.assertEqual(step.status, "ok", step.tail)
+        with open(os.path.join(home, ".gitconfig")) as f:
+            self.assertEqual(f.read(), original)
+
+    def test_a_step_still_reads_the_sessions_global_git_config(self):
+        self.fake_home("[user]\n\temail = session@example.org\n")
+        step = self.run_one('test "$(git config --global user.email)" = session@example.org')
+        self.assertEqual(step.status, "ok", step.tail)
+
+    def test_an_exported_git_config_global_is_copied_not_written(self):
+        self.fake_home("")
+        mine = os.path.join(tempfile.mkdtemp(), "mine")
+        self.addCleanup(shutil.rmtree, os.path.dirname(mine), True)
+        with open(mine, "w") as f:
+            f.write("[user]\n\temail = mine@example.org\n")
+        os.environ["GIT_CONFIG_GLOBAL"] = mine
+        step = self.run_one('test "$(git config --global user.email)" = mine@example.org '
+                            '&& git config --global user.email ci@example.com')
+        self.assertEqual(step.status, "ok", step.tail)
+        with open(mine) as f:
+            self.assertIn("mine@example.org", f.read())
+
     def test_a_resolved_variable_reaches_the_step_as_empty(self):
         step = runner.Step("j", "n", 'test -z "${BASE_URL-unset}"', ".")
         step.env = {"BASE_URL": ""}
@@ -921,11 +971,55 @@ class AgainstThisRepository(unittest.TestCase):
         self.assertIn("[held  ] uitest-ci.yml / manual", out.getvalue())
         self.assertNotIn("manual /", out.getvalue().split("[held", 1)[0])
 
-    def test_only_needs_a_sweep(self):
+    def test_only_and_names_together_are_refused(self):
         err = io.StringIO()
         with contextlib.redirect_stderr(err):
             code = runner.main(["--only", "doc-refs-ci", "doc-refs-ci.yml"])
         self.assertEqual(code, 2)
+
+    def test_several_names_list_in_turn(self):
+        """Friction 2026-11-16/17: one workflow per call. Names (with or
+        without .yml) now run in turn, each with its own steps."""
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner.main(["--list", "doc-refs-ci", "uitest-ci.yml"])
+        self.assertEqual(code, 0)
+        self.assertIn("[held  ] uitest-ci.yml / manual", out.getvalue())
+        self.assertIn("exit 0  doc-refs-ci.yml", out.getvalue())
+
+    def test_only_alone_runs_the_named_workflows(self):
+        calls = []
+        with mock.patch.object(runner, "_run_one",
+                               side_effect=lambda n, a: calls.append(n) or 0):
+            self.assertEqual(runner.main(["--only", "uitest-ci,doc-refs-ci"]), 0)
+        self.assertEqual(calls, ["doc-refs-ci.yml", "uitest-ci.yml"])
+
+    def test_a_missing_name_is_refused_before_anything_runs(self):
+        err = io.StringIO()
+        with mock.patch.object(runner, "_run_one") as one, \
+                contextlib.redirect_stderr(err):
+            code = runner.main(["doc-refs-ci", "no-such-workflow"])
+        self.assertEqual(code, 2)
+        one.assert_not_called()
+        self.assertIn("no-such-workflow.yml", err.getvalue())
+
+
+class CombineNamed(unittest.TestCase):
+    def combine(self, *codes):
+        with contextlib.redirect_stdout(io.StringIO()):
+            return runner.combine_named([(f"w{i}.yml", c) for i, c in enumerate(codes)])
+
+    def test_all_pass_is_zero(self):
+        self.assertEqual(self.combine(0, 0), 0)
+
+    def test_a_failure_beats_no_verdict(self):
+        self.assertEqual(self.combine(4, 1, 0), 1)
+
+    def test_usage_error_wins(self):
+        self.assertEqual(self.combine(1, 2), 2)
+
+    def test_otherwise_the_largest(self):
+        self.assertEqual(self.combine(0, 4, 3), 4)
 
 
 class OnlyFilter(unittest.TestCase):
@@ -2015,6 +2109,25 @@ class TrackedContent(unittest.TestCase):
         self.run("commit", "-qm", "theirs")
         self.assertIn("theirs.md", runner.checkout_drift(before, self.fingerprint()))
 
+    def test_a_file_written_mid_sweep_says_when_to_write_it(self):
+        # 2026-11-18: a run record created after the sweep started, then
+        # committed, voided three workflows; the hand-off note had said
+        # committing written files was fine.
+        before = self.fingerprint(untracked=True)
+        self.write("record.json", "{}\n")
+        self.run("add", "record.json")
+        self.run("commit", "-qm", "the record")
+        drift = runner.checkout_drift(before, self.fingerprint())
+        self.assertIn("record.json", drift)
+        self.assertIn("before starting a sweep", drift)
+
+    def test_an_edit_of_a_file_that_existed_gets_no_written_hint(self):
+        before = self.fingerprint(untracked=True)
+        self.write("kept.txt", "edited\n")
+        drift = runner.checkout_drift(before, self.fingerprint())
+        self.assertIn("kept.txt", drift)
+        self.assertNotIn("before starting a sweep", drift)
+
     def test_an_edit_changes_the_path_it_touched(self):
         before = self.digest()
         self.write("kept.txt", "edited\n")
@@ -2195,7 +2308,8 @@ class Handoff(unittest.TestCase):
         # Editing mid-sweep voided eleven runs' verdicts: say so while it runs,
         # and say that committing (which they are told to do) is not an edit.
         self.assertIn("do not change tracked files", text)
-        self.assertIn("Committing files already written is fine", text)
+        self.assertIn("already written when this started is fine", text)
+        self.assertIn("created since, such as a new run record, is an edit", text)
 
     def test_the_child_ends_with_a_line_wait_for_accepts(self):
         import wait_for
@@ -2234,16 +2348,40 @@ class FailureCauses(unittest.TestCase):
     def test_output_without_either_gives_nothing(self):
         self.assertEqual(runner.failure_causes(["boom", "exit 1"]), [])
 
+    def test_each_cause_names_the_first_test_that_hit_it(self):
+        lines = ["    not ok 1 - inner adds",
+                 "      ---",
+                 f"      location: '{runner.REPO}/platform/pages/a.test.mjs:2:36'",
+                 "      error: |-",
+                 "        Expected values to be strictly equal:",
+                 "not ok 1 - outer",
+                 "  location: '/elsewhere/a.test.mjs:2:1'",
+                 "  error: '1 subtest failed'",
+                 "not ok 2 - second",
+                 "  error: |-",
+                 "    Expected values to be strictly equal:"]
+        # The parent's "1 subtest failed" repeats its child; it is no cause.
+        self.assertEqual(runner.failure_causes(lines),
+                         [(2, "Expected values to be strictly equal:")])
+        self.assertEqual(runner.failure_sites(lines), {
+            "Expected values to be strictly equal:":
+                "inner adds (platform/pages/a.test.mjs:2:36)"})
+        pytest = ["FAILED tests/test_a.py::test_x - AssertionError: 2 != 3"]
+        self.assertEqual(runner.failure_sites(pytest),
+                         {"2 != 3": "tests/test_a.py::test_x"})
+
     def test_report_prints_the_cause_above_the_tail(self):
         step = runner.Step("test", "Test the site builder", "node --test", ".")
         step.status, step.reason = "failed", "exit 1"
         step.causes = runner.failure_causes(self.TAP)
+        step.sites = runner.failure_sites(self.TAP)
         step.tail = ["# fail 4"]
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
             runner.report("portfolio-pages.yml", [step], [], False)
         text = out.getvalue()
         self.assertIn("4 error(s), 2 distinct", text)
+        self.assertIn("first in: builds the writing index", text)
         self.assertLess(text.index("3 x docs/posts/x.md"), text.index("# fail 4"))
 
     def test_named_paths_reads_relative_and_absolute_paths(self):
@@ -2312,6 +2450,7 @@ class FailureCauses(unittest.TestCase):
             runner.execute(step, 60)
         self.assertEqual(step.status, "failed")
         self.assertEqual(step.causes, [(2, "one shared cause")])
+        self.assertTrue(step.sites["one shared cause"].startswith(f"t1 ({path}:2:"))
 
 
 class PinnedTools(unittest.TestCase):
@@ -2395,6 +2534,96 @@ class PinnedTools(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("pip install ruff==0.15.8", out.getvalue())
         self.assertIn("Not a green check", out.getvalue())
+
+
+class PickSteps(unittest.TestCase):
+    """--step runs one step of a named workflow, and says what it left out."""
+
+    def test_matches_label_case_insensitively_and_lists_the_rest(self):
+        a = runner.Step("validate", "Supersede check", "true", ".")
+        b = runner.Step("validate", "Build", "true", ".")
+        picked, rest = runner.pick_steps([a, b], "supersede")
+        self.assertEqual(picked, [a])
+        self.assertEqual(rest, ["validate / Build"])
+
+    def test_step_needs_exactly_one_workflow(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            self.assertEqual(runner.main(["--for-changes", "--step", "x"]), 2)
+            self.assertEqual(runner.main(["a", "b", "--step", "x"]), 2)
+        self.assertIn("--step needs exactly one workflow", err.getvalue())
+
+    def test_list_with_step_shows_only_the_picked_step(self):
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            self.assertEqual(runner.main(
+                ["portfolio-validate", "--list", "--step", "zzz-none"]), 2)
+            self.assertEqual(runner.main(
+                ["portfolio-validate", "--list", "--step", "supersede"]), 0)
+        self.assertIn("matches --step 'zzz-none'", err.getvalue())
+        runs = [l for l in out.getvalue().splitlines() if l.startswith("  [run")]
+        self.assertTrue(runs)
+        self.assertTrue(all("upersede" in l for l in runs), runs)
+        self.assertIn("not selected by --step", out.getvalue())
+
+
+class PostPrecheck(unittest.TestCase):
+    """A diff's post over a front-matter cap stops --for-changes before the sweep."""
+
+    def setUp(self):
+        self.repo = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.repo, True)
+        os.makedirs(os.path.join(self.repo, "platform", "ci"))
+        os.makedirs(os.path.join(self.repo, "docs", "posts"))
+        shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 "check_post_frontmatter.py"),
+                    os.path.join(self.repo, "platform", "ci"))
+
+    def post(self, description):
+        path = "docs/posts/2026-11-01-a-post.md"
+        with open(os.path.join(self.repo, path), "w") as f:
+            f.write(f"---\ntitle: A post\ndate: 2026-11-01\n"
+                    f"description: {description}\ntags: [process]\n---\n\nBody.\n")
+        return path
+
+    def test_an_over_long_description_fails_and_names_the_post(self):
+        path = self.post("x" * 170)
+        failed, out = runner.post_precheck([path, "README.md"], repo=self.repo)
+        self.assertTrue(failed)
+        self.assertIn("2026-11-01-a-post.md", out)
+
+    def test_a_clean_post_and_a_postless_diff_pass(self):
+        path = self.post("A description that is long enough to pass the minimum "
+                         "the checker asks for and well under the cap.")
+        self.assertEqual(runner.post_precheck([path], repo=self.repo), (False, ""))
+        self.assertEqual(runner.post_precheck(["README.md"], repo=self.repo), (False, ""))
+
+    def test_deleted_and_nested_paths_are_not_posts(self):
+        self.assertEqual(runner.changed_posts(
+            ["docs/posts/gone.md", "docs/posts/sub/x.md"], repo=self.repo), [])
+
+    def _sweep(self, **kw):
+        args = argparse.Namespace(for_changes="origin/main", list=False,
+                                  workflow_timeout=0, **kw)
+        out = io.StringIO()
+        with mock.patch.object(runner, "changed_paths", return_value=["docs/posts/p.md"]), \
+             mock.patch.object(runner, "post_precheck", return_value=(True, "docs/posts/p.md: too long")), \
+             mock.patch.object(runner, "pick_workflows", return_value=([], [])) as pick, \
+             mock.patch.object(runner, "_run_selected", return_value=0), \
+             contextlib.redirect_stdout(out):
+            code = runner.run_for_changes(args)
+        return code, out.getvalue(), pick
+
+    def test_the_sweep_stops_before_selecting_workflows(self):
+        code, out, pick = self._sweep()
+        self.assertEqual(code, 1)
+        self.assertIn("Stopped before the sweep", out)
+        pick.assert_not_called()
+
+    def test_no_post_check_sweeps_anyway(self):
+        code, _, pick = self._sweep(no_post_check=True)
+        self.assertEqual(code, 0)
+        pick.assert_called_once()
 
 
 if __name__ == "__main__":

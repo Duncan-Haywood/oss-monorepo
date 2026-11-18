@@ -64,7 +64,7 @@ test("the source never uses floating-point parsing for money", () => {
 // ---- csv, dates, countries, columns --------------------------------------------------------
 
 test("parseCsv keeps line numbers across quoted newlines, CRLF, BOM and blank lines", () => {
-  const text = '﻿Date,Note,Amount\r\n2026-01-01,"a\nb",1\r\n\r\n2026-01-02,"say ""hi""",2\r\n';
+  const text = '\uFEFFDate,Note,Amount\r\n2026-01-01,"a\nb",1\r\n\r\n2026-01-02,"say ""hi""",2\r\n';
   const { records, delimiter } = parseCsv(text);
   assert.equal(delimiter, ",");
   assert.deepEqual(records.map((r) => r.line), [1, 2, 5]);

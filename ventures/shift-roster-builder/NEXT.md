@@ -13,3 +13,8 @@
 - (2026-11-16) order-free pair check played: no gain, stays opt-in (README "The order-free pass played")
 - (2026-11-16) second call-outs priced, off by default (README "The pair price in played weeks": fewer open hours on 3 of 4 weeks)
 - (2026-11-17) --cover-price moves two shifts together (README "Moving two shifts together")
+- (2026-11-17) a real Square account via --import-square (README "Reading Square's schedule")
+- (2026-11-17) a real Deputy install via --import-deputy (README "Reading Deputy directly")
+- (2026-11-17) Homebase (docs need an account)
+- (2026-11-17) a real When I Work account or response through --import-wheniwork (README "Reading When I Work directly")
+- (2026-11-17) a real 7shifts account through --import-7shifts (README "Reading 7shifts directly")

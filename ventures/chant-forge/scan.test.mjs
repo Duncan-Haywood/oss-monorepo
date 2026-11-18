@@ -298,6 +298,44 @@ test('a one-step cephalicus is read as its head and then the small note a step b
   assert.ok(!off.notes.some((n) => n.shape === 'liquescent' && n.x < 400), 'the reader before the rule finds no liquescent there');
 });
 
+// The same, with the small note drawn hollow (GregoBase 3478 e kj~, 3481
+// cer- ed~, 3448 in gf~): its upper rows are two bars either side of a white
+// counter and only its bottom rows are solid, too few for the rule until the
+// counter is bridged (ONE_STEP.gap; eval/one-step-hollow-check.md).
+test('a one-step cephalicus whose small note has a white counter is read', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const cy = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, []);
+  const x = 300;
+  rect(img, x, cy(3) - 0.38 * S, 22, 0.72 * S); // head in the space (pos 3)
+  rect(img, x, cy(3), 3, 1.3 * S); // hairline stem
+  rect(img, x + 11, cy(3), 11, cy(2) - cy(3) + 0.3 * S); // small note, solid
+  rect(img, x + 14, cy(3) + 0.38 * S, 3, 0.32 * S, 225); // its white counter
+  const pgm = readPgm(toPgm(img));
+  const at = (st) => st.notes.filter((n) => n.x >= x - 10 && n.x <= x + 40).map((n) => `${n.rel + 6}${n.shape === 'liquescent' ? '~' : ''}`);
+  assert.deepEqual(at(readPage(pgm)[0]), ['3', '2~']);
+  const off = at(readPage(pgm, { oneStepGap: false })[0]); assert.ok(!off.some((n) => n.endsWith('~')), `without the bridge the counter hides it: ${off}`);
+});
+
+// A worn square on a line, split by a white fleck below the line into two
+// halves each narrower than the 0.25-space cut: the halves are joined
+// (FLECK; GregoBase 3439 nae, leaf 598; eval/fleck-check.md).
+test('a head split by a white fleck is read', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const cy = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, [[200, 4]]);
+  const x = 300;
+  rect(img, x, cy(2) - H / 2, 20, H); // a narrow square on the second line
+  rect(img, x + 8, cy(2) + 2, 4, 5, 225); // the fleck: 4 white columns under the line
+  rect(img, 420, cy(3) - H / 2, 22, H); // a plain head after it, one step up
+  const pgm = readPgm(toPgm(img));
+  const rels = (st) => st.notes.map((n) => n.rel + 6);
+  assert.deepEqual(rels(readPage(pgm)[0]), [4, 2, 3]);
+  assert.deepEqual(rels(readPage(pgm, { fleck: false })[0]), [4, 3], 'without the join the halves are both too narrow');
+});
+
 // turn a drawn page by `deg` degrees about its centre (bilinear, as a
 // scanner's slightly turned page would come out)
 function rotate(img, deg) {

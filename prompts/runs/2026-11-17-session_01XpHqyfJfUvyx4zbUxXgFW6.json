@@ -1,0 +1,514 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyfJfUvyx4zbUxXgFW6",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T09:39:35Z",
+  "ended": "2026-11-17T09:41:34Z",
+  "wall_minutes": 6.74,
+  "tokens_in": 4035724,
+  "tokens_out": 23596,
+  "cost_usd": 1.9363,
+  "tool_calls": 48,
+  "task": "redteam ids-model-check zip/xml/bcf",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16895",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` takes --under but no way to list a single file's time; probing ventures/changepoint-detector printed 40 lines of '>20s' before I could tell the whole venture is too slow."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 11 open entries are control-plane workflow or prompts/ changes needing owner approval, so none was attempted; went straight to seeding.",
+      "did": "Left them open, noted here.",
+      "result": "Run time went to two real BCF defects instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-bcf-export-failed-its-own-schema.md",
+    "ventures/ids-model-check/README.md (testing section)"
+  ],
+  "goal": null,
+  "notes": "Targets: ids-model-check zip.mjs/xml.mjs/bcf.mjs (never campaigned; 1.5 s suite). Hunted by validating the BCF export against buildingSMART BCF-XML release_2_1 schemas with xmllint: every markup.bcf failed on IfcProject=\"\". Guard added: eval/fetch-bcf-schemas.sh + an XSD test in engine.test.mjs (skips without schemas/xmllint), plus schema-free tests for the IfcProject attribute and XML-forbidden characters. Follow-up for a control-plane PR: have the ids-model-check CI step run eval/fetch-bcf-schemas.sh (alongside the open 2026-11-16 fetch-testcases entry). Verification: node --test engine.test.mjs 32 pass; run_venture_tests.py ids-model-check ok (128 tests); both defect tests and the XSD test fail on the old bcf.mjs.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ids-model-check/zip.mjs",
+        "test": "node --test ventures/ids-model-check/**/*.test.mjs  (in .)",
+        "seed": 695978945,
+        "commit": "7199ad31c",
+        "sites": 136,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "ventures/ids-model-check/zip.mjs",
+            "line": 13,
+            "col": 89,
+            "operator": "const-plus-one",
+            "before": "const u32 = (b, o) => (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24)) >>> 0;",
+            "after": "const u32 = (b, o) => (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24)) >>> 1;",
+            "line_text": "const u32 = (b, o) => (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24)) >>> 0;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/zip.mjs",
+            "line": 18,
+            "col": 85,
+            "operator": "const-plus-one",
+            "before": "return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 3 && bytes[3] === 4;",
+            "after": "return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 4 && bytes[3] === 4;",
+            "line_text": "  return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 3 && bytes[3] === 4;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/zip.mjs",
+            "line": 18,
+            "col": 96,
+            "operator": "const-plus-one",
+            "before": "return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 3 && bytes[3] === 4;",
+            "after": "return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 3 && bytes[4] === 4;",
+            "line_text": "  return bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 3 && bytes[3] === 4;",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/zip.mjs",
+            "line": 29,
+            "col": 27,
+            "operator": "eq-flip",
+            "before": "if (p === MAX32 || count === 0xffff) {",
+            "after": "if (p === MAX32 || count !== 0xffff) {",
+            "line_text": "  if (p === MAX32 || count === 0xffff) {",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/zip.mjs",
+            "line": 53,
+            "col": 50,
+            "operator": "plus-to-minus",
+            "before": "for (let x = p + 46 + nlen, end = x + xlen; x + 4 <= end; ) {",
+            "after": "for (let x = p + 46 + nlen, end = x + xlen; x - 4 <= end; ) {",
+            "line_text": "    for (let x = p + 46 + nlen, end = x + xlen; x + 4 <= end; ) {",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "x - 4 <= end only lets the loop read one more 4-byte header past the extra field; for a well-formed entry that is the comment or the next PK\\x01\\x02 signature (tag 0x4b50, not 1), and once a zip64 block was read size/csize/offset are no longer 0xFFFFFFFF, so nothing it reads is used."
+          },
+          {
+            "file": "ventures/ids-model-check/zip.mjs",
+            "line": 53,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "for (let x = p + 46 + nlen, end = x + xlen; x + 4 <= end; ) {",
+            "after": "for (let x = p + 46 + nlen, end = x + xlen; x + 5 <= end; ) {",
+            "line_text": "    for (let x = p + 46 + nlen, end = x + xlen; x + 4 <= end; ) {",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "x + 5 <= end skips only a trailing extra block whose header ends exactly at end, i.e. a zero-length block; a zip64 block (tag 1) always carries >= 8 bytes, so no readable archive changes."
+          },
+          {
+            "file": "ventures/ids-model-check/zip.mjs",
+            "line": 64,
+            "col": 19,
+            "operator": "plus-to-minus",
+            "before": "p += 46 + nlen + xlen + clen;",
+            "after": "p += 46 + nlen - xlen + clen;",
+            "line_text": "    p += 46 + nlen + xlen + clen;",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/zip.mjs",
+            "line": 81,
+            "col": 18,
+            "operator": "plus-to-minus",
+            "before": "const start = o + 30 + u16(bytes, o + 26) + u16(bytes, o + 28);",
+            "after": "const start = o - 30 + u16(bytes, o + 26) + u16(bytes, o + 28);",
+            "line_text": "  const start = o + 30 + u16(bytes, o + 26) + u16(bytes, o + 28);",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/ids-model-check/xml.mjs",
+        "test": "node --test ventures/ids-model-check/**/*.test.mjs  (in .)",
+        "seed": 892197956,
+        "commit": "7199ad31c",
+        "sites": 63,
+        "baseline_seconds": 1.1,
+        "mutants": [
+          {
+            "file": "ventures/ids-model-check/xml.mjs",
+            "line": 23,
+            "col": 10,
+            "operator": "lt-to-le",
+            "before": "if (i < 0) throw new Error(`unterminated ${label} at character ${from}`);",
+            "after": "if (i <= 0) throw new Error(`unterminated ${label} at character ${from}`);",
+            "line_text": "    if (i < 0) throw new Error(`unterminated ${label} at character ${from}`);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "upTo is always called with from >= 1 (lt+2, lt+4, lt+9, q), so indexOf never returns 0 and i <= 0 equals i < 0."
+          },
+          {
+            "file": "ventures/ids-model-check/xml.mjs",
+            "line": 38,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "top().text += text.slice(lt + 9, e);",
+            "after": "top().text += text.slice(lt + 10, e);",
+            "line_text": "      top().text += text.slice(lt + 9, e);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/xml.mjs",
+            "line": 42,
+            "col": 86,
+            "operator": "plus-to-minus",
+            "before": "if (text.startsWith(\"<?\", lt)) { p = upTo(\"?>\", lt + 2, \"processing instruction\") + 2; continue; }",
+            "after": "if (text.startsWith(\"<?\", lt)) { p = upTo(\"?>\", lt + 2, \"processing instruction\") - 2; continue; }",
+            "line_text": "    if (text.startsWith(\"<?\", lt)) { p = upTo(\"?>\", lt + 2, \"processing instruction\") + 2; continue; }",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A processing instruction inside an element leaked \"?>...\" into the element text; new test parseXml: comments and processing instructions inside an element leave its text alone."
+          },
+          {
+            "file": "ventures/ids-model-check/xml.mjs",
+            "line": 44,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (text[lt + 1] === \"/\") {",
+            "after": "if (text[lt + 2] === \"/\") {",
+            "line_text": "    if (text[lt + 1] === \"/\") {",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/xml.mjs",
+            "line": 69,
+            "col": 82,
+            "operator": "plus-to-minus",
+            "before": "const node = { name, local: name.includes(\":\") ? name.slice(name.indexOf(\":\") + 1) : name, attrs, children: [], text: \"\" };",
+            "after": "const node = { name, local: name.includes(\":\") ? name.slice(name.indexOf(\":\") - 1) : name, attrs, children: [], text: \"\" };",
+            "line_text": "    const node = { name, local: name.includes(\":\") ? name.slice(name.indexOf(\":\") + 1) : name, attrs, children: [], text: \"\" };",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/xml.mjs",
+            "line": 69,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "const node = { name, local: name.includes(\":\") ? name.slice(name.indexOf(\":\") + 1) : name, attrs, children: [], text: \"\" };",
+            "after": "const node = { name, local: name.includes(\":\") ? name.slice(name.indexOf(\":\") + 2) : name, attrs, children: [], text: \"\" };",
+            "line_text": "    const node = { name, local: name.includes(\":\") ? name.slice(name.indexOf(\":\") + 1) : name, attrs, children: [], text: \"\" };",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/xml.mjs",
+            "line": 72,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "p = close + 1;",
+            "after": "p = close + 2;",
+            "line_text": "    p = close + 1;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/xml.mjs",
+            "line": 80,
+            "col": 81,
+            "operator": "eq-flip",
+            "before": "export const kids = (node, local) => (node ? node.children.filter((c) => c.local === local) : []);",
+            "after": "export const kids = (node, local) => (node ? node.children.filter((c) => c.local !== local) : []);",
+            "line_text": "export const kids = (node, local) => (node ? node.children.filter((c) => c.local === local) : []);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/ids-model-check/bcf.mjs",
+        "test": "node --test ventures/ids-model-check/**/*.test.mjs  (in .)",
+        "seed": 276602390,
+        "commit": "7199ad31c",
+        "sites": 67,
+        "baseline_seconds": 1.1,
+        "mutants": [
+          {
+            "file": "ventures/ids-model-check/bcf.mjs",
+            "line": 14,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;",
+            "after": "for (let k = 1; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;",
+            "line_text": "      for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/bcf.mjs",
+            "line": 19,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);",
+            "after": "for (let i = 1; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);",
+            "line_text": "  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/bcf.mjs",
+            "line": 29,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "const u32 = (v) => [v & 0xff, (v >>> 8) & 0xff, (v >>> 16) & 0xff, (v >>> 24) & 0xff];",
+            "after": "const u32 = (v) => [v & 0xff, (v >>> 8) & 0xff, (v >>> 17) & 0xff, (v >>> 24) & 0xff];",
+            "line_text": "  const u32 = (v) => [v & 0xff, (v >>> 8) & 0xff, (v >>> 16) & 0xff, (v >>> 24) & 0xff];",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/bcf.mjs",
+            "line": 34,
+            "col": 200,
+            "operator": "const-plus-one",
+            "before": "const head = new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(name.length), ...u16(0)]);",
+            "after": "const head = new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(name.length), ...u16(1)]);",
+            "line_text": "    const head = new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(data.length), ...u32(data.length), ...u16(name.length), ...u16(0)]);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/bcf.mjs",
+            "line": 40,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "const end = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(cdSize), ...u32(offset), ...u16(0)]);",
+            "after": "const end = new Uint8Array([...u32(0x06054b50), ...u16(1), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(cdSize), ...u32(offset), ...u16(0)]);",
+            "line_text": "  const end = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(cdSize), ...u32(offset), ...u16(0)]);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ids-model-check/bcf.mjs",
+            "line": 54,
+            "col": 70,
+            "operator": "const-plus-one",
+            "before": "if (c && c.getRandomValues) c.getRandomValues(b); else for (let i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256);",
+            "after": "if (c && c.getRandomValues) c.getRandomValues(b); else for (let i = 1; i < 16; i++) b[i] = Math.floor(Math.random() * 256);",
+            "line_text": "  if (c && c.getRandomValues) c.getRandomValues(b); else for (let i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Math.random fallback (no crypto) left byte 0 at zero; new test stubs crypto away and Math.random to 0.5 and checks every byte of the topic guid."
+          },
+          {
+            "file": "ventures/ids-model-check/bcf.mjs",
+            "line": 55,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "b[6] = (b[6] & 0x0f) | 0x40;",
+            "after": "b[6] = (b[7] & 0x0f) | 0x40;",
+            "line_text": "  b[6] = (b[6] & 0x0f) | 0x40;",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "getRandomValues path (http pages lack randomUUID) took the version nibble from byte 7; new test stubs getRandomValues and checks the exact guid."
+          },
+          {
+            "file": "ventures/ids-model-check/bcf.mjs",
+            "line": 67,
+            "col": 168,
+            "operator": "or-to-and",
+            "before": "const failures = s.failed.length ? s.failed : s.status === \"fail\" || s.status === \"invalid\" ? [{ id: null, type: null, globalId: null, name: null, reasons: [s.note || \"specification failed\"] }] : [];",
+            "after": "const failures = s.failed.length ? s.failed : s.status === \"fail\" || s.status === \"invalid\" ? [{ id: null, type: null, globalId: null, name: null, reasons: [s.note && \"specification failed\"] }] : [];",
+            "line_text": "    const failures = s.failed.length ? s.failed : s.status === \"fail\" || s.status === \"invalid\" ? [{ id: null, type: null, globalId: null, name: null, reasons: [s.note || \"specification failed\"] }] : [];",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A failed spec with no failing element and an empty note wrote an empty Description; new test checks \"specification failed\" for null and \"\" notes."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ids-model-check/bcf.mjs",
+        "issue": "Every markup.bcf in the BCF export wrote <File IfcProject=\"\">; BCF 2.1 markup.xsd types IfcProject as IfcGuid (length 22), so every topic file failed schema validation (xmllint against buildingSMART/BCF-XML release_2_1 markup.xsd: N of N fail). Fixed by dropping the optional attribute (the report carries no project GlobalId); all 9 files of the sample export now validate.",
+        "patched": true
+      },
+      {
+        "file": "ventures/ids-model-check/bcf.mjs",
+        "issue": "xml() escaped & < > \" but kept C0 control characters and lone surrogates; an IFC name with STEP \\X\\07 (decodeStepString gives U+0007) or a 250-char title cut through a surrogate pair made markup.bcf not well-formed XML, so BIM tools reject the topic. Fixed by dropping characters XML 1.0 cannot hold.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ec00dfdb-93ef-51de-aba5-cfa7aa20aae1",
+    "transcripts": 1,
+    "first": "2026-11-17T09:39:35Z",
+    "last": "2026-11-17T09:46:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 93,
+        "output": 23596,
+        "thinking": 6177,
+        "cache_read": 3951417,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84214,
+        "api_equivalent_usd": 1.9363,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 93,
+      "output": 23596,
+      "thinking": 6177,
+      "cache_read": 3951417,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84214,
+      "api_equivalent_usd": 1.9363,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.74,
+      "active_minutes": 6.74,
+      "model_minutes": 3.96,
+      "tool_minutes": 2.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: read three modules, set up BCF XSD validation, two fixes, six tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 206.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

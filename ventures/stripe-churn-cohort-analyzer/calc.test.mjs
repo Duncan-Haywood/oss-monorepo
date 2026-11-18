@@ -5,7 +5,7 @@ import { parseCsv, normalizeRows, analyze, sampleCsv, parseDate, simulatePriceIn
 const csv = (rows) => rows.join("\n");
 
 test("parseCsv handles quotes, embedded commas, CRLF and BOM", () => {
-  const t = parseCsv('﻿a,b\r\n"x, y","he said ""hi"""\r\n\r\n1,2');
+  const t = parseCsv('\uFEFFa,b\r\n"x, y","he said ""hi"""\r\n\r\n1,2');
   assert.deepEqual(t, [["a", "b"], ["x, y", 'he said "hi"'], ["1", "2"]]);
 });
 

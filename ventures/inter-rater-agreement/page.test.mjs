@@ -140,3 +140,13 @@ test("footer links the sibling research-algorithm tools", () => {
   const html = page("index.html");
   for (const s of ["changepoint-detector", "fdr-multiple-testing", "survival-analysis", "conformal-prediction-intervals", "spc-control-charts", "fuzzy-dedupe", "isolation-forest", "robust-pca", "mann-kendall-trend", "lomb-scargle-periodogram"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`), s);
 });
+
+test("links its sibling, the item response theory tool", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/item-response-theory\/"/);
+});
+
+test("links its sibling, the method comparison tool", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /href="\.\.\/method-comparison\/"/);
+});

@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqycTVDwMDvn9G9xHGD1",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T09:39:41Z",
+  "ended": "2026-11-17T09:48:20Z",
+  "wall_minutes": 15.16,
+  "tokens_in": 7608465,
+  "tokens_out": 32592,
+  "cost_usd": 3.2855,
+  "tool_calls": 63,
+  "task": "changepoint-detector (flagship 4): in-time placebo check beside --known-date",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16894",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "pkill -f with the bracketed pattern was refused by the hook because the same string appeared elsewhere in the command (a heredoc)",
+      "fix": "killed by pid, then reran"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill/pgrep hook note says to bracket the first letter, but the hook also refuses when the unbracketed name appears anywhere else in the command line; split into two calls."
+    },
+    {
+      "file": "ventures/changepoint-detector/eval/known-date-sim.mjs",
+      "issue": "Sims run single-threaded at ~1.5 min per 100-series cell when every placebo date is a new design shape (matchedMeans cache misses); added a KD_SHARD=i/m option to the new placebo sim to use all 4 cores."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-changepoint-in-time-placebos.md",
+    "ventures/changepoint-detector/README.md (In-time placebos)",
+    "ventures/changepoint-detector/eval/known-date-prereg-placebo-2026-11-17.md"
+  ],
+  "goal": "Deepen flagship 4 (allocate.py row 2): land the in-time placebo check its next: named after the control-series round failed its real placebo bar.",
+  "notes": "Pre-registered (eval/known-date-prereg-placebo-2026-11-17.md, committed e371c016c before the confirmatory run and the real series). Confirmatory seed base 87000, 200 series/cell: bar 1 false warnings 0-4.0% (<=8%); bar 2 bend 91.5% (>=70), early shock n240 92.5% (>=80), n120 44.5% (>=25); bar 3 677/1830 = 37.0% of false named-date rejections warned (>=25); bar 4 ratio warns, Nile and Nottingham x2 do not. Ships in CLI text/--json, analyze(), page. Limit stated: blind to bends after the date (3.5-19% warned where the named test fires 59-100%). Local: known-date-placebo.test.mjs 6/6; known-date*, page, cli tests 51/51; run_venture_tests.py changepoint-detector: ok, 807 tests, 247.6 s; venture-preflight.mjs changepoint-detector: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "245886bb-edad-5731-b54a-01bdaa196bf5",
+    "transcripts": 1,
+    "first": "2026-11-17T09:39:41Z",
+    "last": "2026-11-17T09:54:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 120,
+        "output": 32592,
+        "thinking": 7017,
+        "cache_read": 7465847,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142498,
+        "api_equivalent_usd": 3.2855,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 120,
+      "output": 32592,
+      "thinking": 7017,
+      "cache_read": 7465847,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142498,
+      "api_equivalent_usd": 3.2855,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.16,
+      "active_minutes": 15.16,
+      "model_minutes": 5.69,
+      "tool_minutes": 9.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician designing, pre-registering, simulating and wiring a falsification check into an existing ITS tool",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 182.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

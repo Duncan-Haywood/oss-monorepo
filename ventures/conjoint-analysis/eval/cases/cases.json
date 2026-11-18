@@ -1,0 +1,25 @@
+[
+ {
+  "name": "two-concepts-categorical",
+  "levels": "Brand: A, B, C\nColour: Red, Blue\nSize: S, M, L",
+  "numeric": [],
+  "price": ""
+ },
+ {
+  "name": "five-concepts-two-numeric",
+  "levels": "Price#: 20, 30, 40, 50\nStorage GB#: 64, 128, 256\nCamera: Basic, Dual, Triple\nBattery: Day, Two days",
+  "numeric": [
+   "Price",
+   "Storage GB"
+  ],
+  "price": "Price"
+ },
+ {
+  "name": "three-concepts-none-homogeneous",
+  "levels": "Plan: Basic, Plus, Pro\nSupport: Email, Chat, Phone\nPrice#: 5, 10, 15",
+  "numeric": [
+   "Price"
+  ],
+  "price": "Price"
+ }
+]

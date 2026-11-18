@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKnot14iajX4Eh9QLAq",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T19:18:40Z",
+  "ended": "2026-11-17T19:35:22Z",
+  "wall_minutes": 16.82,
+  "tokens_in": 3858784,
+  "tokens_out": 26059,
+  "cost_usd": 2.1811,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17040",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/llm-coding-inference/experiments/h7bb_second_phase.py",
+      "issue": "no friction worth a fix; the 7bb script was easy to extend. Bare python3 lacks numpy; /usr/bin/python3.13 has it, as research/CLAUDE.md says."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-reserved-labels-buy-reach-not-price.md",
+    "research/llm-coding-inference/LOG.md (7bc entry)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7bc of llm-coding-inference, pre-registered (commit d1d5a041f before any draw). 157 cells x 1,000 draws, about 12 min on 4 cores. P0 replay 157/157; P1 supported (rs10v2 lifts 4 of 7); P2 refuted for the checks (34.9%, 27.8%) and supported for reservation alone (97.7%); decision rule: none qualifies, default unchanged. Checks run here: test_llmci.py 42 passed; _homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter, links and similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d0087fd9-9039-53e0-9cfc-4e0f4c8933ba",
+    "transcripts": 1,
+    "first": "2026-11-17T19:18:40Z",
+    "last": "2026-11-17T19:35:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 70,
+        "output": 26059,
+        "thinking": 6757,
+        "cache_read": 3744875,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113839,
+        "api_equivalent_usd": 2.1811,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 70,
+      "output": 26059,
+      "thinking": 6757,
+      "cache_read": 3744875,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113839,
+      "api_equivalent_usd": 2.1811,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 33,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.82,
+      "active_minutes": 16.82,
+      "model_minutes": 3.91,
+      "tool_minutes": 12.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, code, run and write up one pre-registered simulation study extending an existing script",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 275.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

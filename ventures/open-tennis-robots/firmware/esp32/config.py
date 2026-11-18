@@ -6,6 +6,11 @@ ROLLER_DUTY = 0.7               # collector pickup roller PWM duty
 BATTERY_DIVIDER = 11.0          # battery volts per ADC volt (100k/10k divider)
 LOW_BATTERY_MV = 24000          # 8S LiFePO4 (25.6 V nominal): ~3.0 V/cell under load
 WHEEL_RPM_FULL = 9000          # launcher wheel free speed at full ESC throttle, no ball (measure it with the tach)
+# Launcher tachs timed by the ESP32's MCPWM capture unit rather than the pin interrupt's ticks_us() (firmware/esp32/
+# capture.py, README "A tach timed in hardware"): the edge time is latched in hardware, so the handler's latency drops
+# out. Not yet run on a board: log both ways with tach_log.run(34, 600) and tach_log.run(34, 600, capture=True), read
+# each with `tennisbots tach-jitter`, and turn it on only if the capture reads lower. Copy capture.py to the board too.
+TACH_CAPTURE = False
 # Launcher spin-up ramp (cad: Feeder.power_distribution): each wheel's target rises at most WHEEL_RAMP_MAX_RPM_S, and
 # above that at WHEEL_SPINUP_W of shaft power, so two wheels spinning up with everything else running stay under the
 # BMS's continuous limit. WHEEL_INERTIA_KGM2 is one wheel and its motor's rotor (cad Feeder.launch_wheel_kgm2): weigh
@@ -114,6 +119,15 @@ LAUNCH_CHECK_MS = 250
 # lags. The board reports it (ESC_TAU frame), and `tennisbots run` stops a calibration drill before its first ball
 # when it disagrees with the shot log's last survey (README "Checked before a calibration drill").
 ESC_TAU_US = 0
-# The survey's lags (six, the ESC_SURVEY frame's slots), or () to turn the survey off: it refits each turning wheel
-# six times after its record is out, one step a control tick, and a new stroke cuts a survey short.
-ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
+# The survey's lags (seven, the ESC_SURVEY frame's slots; 150 ms added 2026-11-18, README "The ESC-lag survey between
+# 100 and 200 ms"), or () to turn the survey off: it refits each turning wheel once a lag after its record is out, one
+# step a control tick, pausing while a stroke is under way.
+ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 150000, 200000, 400000)
+# The ball's contact time the drop fit models, microseconds (2026-11-17, firmware/esp32/README.md "A take that lasts a
+# few milliseconds" and "The contact time surveyed on the board"). 0 (the default) models the take as one step. A real
+# ball is in the wheels for a few ms, and on the simulator a 6 ms take read the drop 0.98% (sd) off as a step and 0.19%
+# told its contact time. `tennisbots run` on a calibration drill asks the board to survey it (SURVEY_TAKE) and prints
+# the contact time its balls pick; set it here and re-flash.
+TAKE_US = 0
+# The survey's contact times (seven, the TAKE_SURVEY frame's slots), or () to turn it off.
+TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 8000)

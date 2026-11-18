@@ -42,12 +42,15 @@ export class Schema {
     return a;
   }
   isA(type, ancestor) {
-    const key = type + ">" + ancestor;
-    let r = this._sub.get(key);
+    // Keyed type, then ancestor: a joined string key cost 5-8% of a 68-file
+    // run in string building alone (eval/psets-cache-2026-11-18.md).
+    let row = this._sub.get(type);
+    if (!row) this._sub.set(type, (row = new Map()));
+    let r = row.get(ancestor);
     if (r !== undefined) return r;
     r = false;
     for (let t = type; t; t = this.entities[t] && this.entities[t].super) if (t === ancestor) { r = true; break; }
-    this._sub.set(key, r);
+    row.set(ancestor, r);
     return r;
   }
   // The primitive a type name resolves to: string, double, integer, boolean,
@@ -96,6 +99,15 @@ export class Model {
     const sj = schemas[this.schemaId];
     if (!sj) throw new Error(`IFC schema ${raw || "(none)"} is not supported (IFC2X3, IFC4, IFC4X3)`);
     this.schema = sj instanceof Schema ? sj : new Schema(sj);
+    if (p.policy) {
+      const keep = new Map();
+      const S = this.schema;
+      p.policy.keep = (t) => {
+        let k = keep.get(t);
+        if (k === undefined) keep.set(t, (k = !S.isA(t, "IFCREPRESENTATIONITEM")));
+        return k;
+      };
+    }
     this.byType = new Map();
     for (const e of this.entities.values()) {
       let l = this.byType.get(e.type);
@@ -409,6 +421,23 @@ function predefinedType(model, e) {
   return r === undefined ? null : r;
 }
 
+// The IFC2X3 type mapping table indexed by occurrence class, rows in the
+// table's order. Building Object.entries(typeMap) for every entity was over
+// half the time of an IDS applying to every entity (eval/no-entity-facet-2026-11-17.md).
+const TYPE_MAP_INDEX = new WeakMap();
+function typeMapByOcc(typeMap) {
+  let idx = TYPE_MAP_INDEX.get(typeMap);
+  if (idx) return idx;
+  idx = new Map();
+  for (const [idsName, [occ, tyName]] of Object.entries(typeMap)) {
+    let rows = idx.get(occ);
+    if (!rows) idx.set(occ, (rows = []));
+    rows.push([tyName, idsName]);
+  }
+  TYPE_MAP_INDEX.set(typeMap, idx);
+  return idx;
+}
+
 export class EntityFacet {
   constructor(node) {
     this.kind = "entity";
@@ -419,10 +448,9 @@ export class EntityFacet {
   names(model, e, typeMap) {
     const out = [e.type];
     if (model.schemaId === "IFC2X3" && typeMap) {
-      const ty = model.typeOf.get(e.id);
-      for (const [idsName, [occ, tyName]] of Object.entries(typeMap)) {
-        if (e.type === occ && ty && ty.type === tyName) out.push(idsName);
-      }
+      const rows = typeMapByOcc(typeMap).get(e.type);
+      const ty = rows && model.typeOf.get(e.id);
+      if (ty) for (const [tyName, idsName] of rows) if (ty.type === tyName) out.push(idsName);
     }
     return out;
   }
@@ -464,16 +492,23 @@ export class AttributeFacet {
   }
   test(e, model) {
     const S = model.schema;
-    const attrs = S.attrs(e.type);
-    const hits = attrs.map((a, i) => [a, i]).filter(([a]) => this.name.matchString(a.name));
+    // The attributes the name takes depend only on the class (and schema), so
+    // they are found once per class and kept (eval/psets-cache-2026-11-18.md).
+    let byType = this._hits;
+    if (!byType || this._hitsSchema !== S) { byType = this._hits = new Map(); this._hitsSchema = S; }
+    let hits = byType.get(e.type);
+    if (!hits) byType.set(e.type, (hits = S.attrs(e.type).map((a, i) => [a, i]).filter(([a]) => this.name.matchString(a.name))));
     if (!hits.length) return { ok: false, absent: true, why: `has no attribute ${this.name}` };
-    const set = hits.filter(([a, i]) => !a.derived && !isNull(e.args[i]));
+    // Nothing below reads inside a list (only whether it is empty), so a lazy
+    // STEP entity may hand over its arguments with nested lists unread.
+    const args = e.shallowArgs || e.args;
+    const set = hits.filter(([a, i]) => !a.derived && !isNull(args[i]));
     if (!set.length) return { ok: false, absent: true, why: `attribute ${this.name} is not set` };
-    const present = set.filter(([, i]) => !isEmpty(e.args[i]));
+    const present = set.filter(([, i]) => !isEmpty(args[i]));
     if (present.length < set.length) return { ok: false, why: `attribute ${this.name} is empty or unknown` };
     if (!this.value.present) return { ok: true };
     for (const [a, i] of present) {
-      const v = e.args[i];
+      const v = args[i];
       const prim = S.prim(a.type);
       if (a.aggregate || Array.isArray(v)) return { ok: false, why: `${a.name} is a list; IDS cannot compare its value` };
       if (v && (v.ref !== undefined || v.typed)) return { ok: false, why: `${a.name} refers to an object or a select; IDS cannot compare its value` };
@@ -497,33 +532,77 @@ export const QUANTITY_MEASURE = {
   IFCQUANTITYNUMBER: ["NumberValue", "IFCNUMERICMEASURE"],
 };
 
-// Property sets of an element by name: {name -> {props: Map(name -> propEntity), entity}}
+// One property set's name and properties: {name, props: Map(name ->
+// propEntity)}; name is null when the set has no string Name, which psetsOf
+// skips. Not cached: on a 219 MB federated model a cache of every set kept
+// the run from fitting a 1 GB heap (eval/psets-cache-2026-11-18.md).
+export function psetInfo(model, pset) {
+  const name = model.attr(pset, "Name");
+  const props = new Map();
+  if (pset.type === "IFCPROPERTYSET" || pset.type === "IFCELEMENTQUANTITY" || pset.type === "IFCMATERIALPROPERTIES" || pset.type === "IFCEXTENDEDMATERIALPROPERTIES" || pset.type === "IFCPROFILEPROPERTIES") {
+    const listName = pset.type === "IFCELEMENTQUANTITY" ? "Quantities" : pset.type === "IFCEXTENDEDMATERIALPROPERTIES" ? "ExtendedProperties" : pset.type === "IFCPROPERTYSET" ? "HasProperties" : "Properties";
+    for (const p of model.refs(pset, listName)) {
+      const pn = model.attr(p, "Name");
+      if (typeof pn === "string") props.set(pn, p);
+    }
+  } else if (model.isA(pset, "IFCPREDEFINEDPROPERTYSET")) {
+    const attrs = model.schema.attrs(pset.type);
+    for (let i = 4; i < attrs.length; i++) props.set(attrs[i].name, { predefined: true, owner: pset, attr: attrs[i], value: pset.args[i] });
+  }
+  return { name: typeof name === "string" ? name : null, props };
+}
+
+// The property sets psetsOf reads for an element, in its order (later ones
+// override earlier ones of the same name): the element's type's, a type
+// object's own, the property relationships', a material's.
+export function psetSources(model, e, visit) {
+  const ty = model.typeOf.get(e.id);
+  if (ty) for (const p of model.refs(ty, "HasPropertySets")) visit(p);
+  if (model.isA(e, "IFCTYPEOBJECT")) for (const p of model.refs(e, "HasPropertySets")) visit(p);
+  const rel = model.psetRels.get(e.id);
+  if (rel) for (const p of rel) visit(p);
+  if (e.type === "IFCMATERIAL" || model.isA(e, "IFCMATERIALDEFINITION")) for (const p of model.materialProps.get(e.id) || []) visit(p);
+}
+
+// The elements that reach a property set of each name, through the sources
+// psetsOf reads: Map(name -> [element]), built once per model (it reads each
+// set's Name only). Sets with no string Name are left out, as psetsOf leaves
+// them out.
+export function psetHolders(model) {
+  if (model._psetHolders) return model._psetHolders;
+  const out = new Map();
+  const seen = new Set();
+  const consider = (e) => {
+    if (!e || seen.has(e.id)) return;
+    seen.add(e.id);
+    psetSources(model, e, (p) => {
+      const n = model.attr(p, "Name");
+      if (typeof n !== "string") return;
+      let l = out.get(n);
+      if (!l) out.set(n, (l = []));
+      if (l[l.length - 1] !== e) l.push(e);
+    });
+  };
+  for (const id of model.typeOf.keys()) consider(model.entities.get(id));
+  for (const id of model.psetRels.keys()) consider(model.entities.get(id));
+  for (const id of model.materialProps.keys()) consider(model.entities.get(id));
+  for (const [type, list] of model.byType) if (model.schema.isA(type, "IFCTYPEOBJECT")) for (const e of list) consider(e);
+  return (model._psetHolders = out);
+}
+
+// Property sets of an element by name: {name -> {props: Map(name -> propEntity), entities}}
 // Type psets are inherited and an occurrence's pset of the same name overrides
 // per property.
 export function psetsOf(model, e) {
   const out = new Map();
-  const add = (pset) => {
-    const name = model.attr(pset, "Name");
-    if (typeof name !== "string") return;
-    let slot = out.get(name);
-    if (!slot) out.set(name, (slot = { props: new Map(), entities: [] }));
+  psetSources(model, e, (pset) => {
+    const info = psetInfo(model, pset);
+    if (info.name === null) return;
+    const slot = out.get(info.name);
+    if (!slot) { out.set(info.name, { props: info.props, entities: [pset] }); return; }
     slot.entities.push(pset);
-    if (pset.type === "IFCPROPERTYSET" || pset.type === "IFCELEMENTQUANTITY" || pset.type === "IFCMATERIALPROPERTIES" || pset.type === "IFCEXTENDEDMATERIALPROPERTIES" || pset.type === "IFCPROFILEPROPERTIES") {
-      const listName = pset.type === "IFCELEMENTQUANTITY" ? "Quantities" : pset.type === "IFCEXTENDEDMATERIALPROPERTIES" ? "ExtendedProperties" : pset.type === "IFCPROPERTYSET" ? "HasProperties" : "Properties";
-      for (const p of model.refs(pset, listName)) {
-        const pn = model.attr(p, "Name");
-        if (typeof pn === "string") slot.props.set(pn, p);
-      }
-    } else if (model.isA(pset, "IFCPREDEFINEDPROPERTYSET")) {
-      const attrs = model.schema.attrs(pset.type);
-      for (let i = 4; i < attrs.length; i++) slot.props.set(attrs[i].name, { predefined: true, owner: pset, attr: attrs[i], value: pset.args[i] });
-    }
-  };
-  const ty = model.typeOf.get(e.id);
-  if (ty) for (const p of model.refs(ty, "HasPropertySets")) add(p);
-  if (model.isA(e, "IFCTYPEOBJECT")) for (const p of model.refs(e, "HasPropertySets")) add(p);
-  for (const p of model.psetRels.get(e.id) || []) add(p);
-  if (e.type === "IFCMATERIAL" || model.isA(e, "IFCMATERIALDEFINITION")) for (const p of model.materialProps.get(e.id) || []) add(p);
+    for (const [pn, p] of info.props) slot.props.set(pn, p);
+  });
   return out;
 }
 
@@ -856,8 +935,92 @@ function applies(spec, model, ctx) {
       if (c) { pool = c; break; }
     }
   }
-  if (!pool) pool = [...model.entities.values()];
-  return pool.filter((e) => spec.applicability.every((f) => f.test(e, model, ctx).ok));
+  // A cheap test per facet that reads no arguments (the entity's type, or
+  // whether it appears in a relationship index) and is false only where the
+  // facet's own test fails. Without an entity facet the pool is every entity
+  // in the model (3.7 million on a 219 MB federated model, three quarters of
+  // them geometry), so these keep the full tests, which parse arguments, to the
+  // entities that can match (eval/no-entity-facet-2026-11-17.md).
+  const pre = spec.applicability.map((f) => prefilter(f, model)).filter(Boolean);
+  const keep = (e) => pre.every((p) => p(e)) && spec.applicability.every((f) => f.test(e, model, ctx).ok);
+  if (!pool) {
+    const out = [];
+    for (const e of model.entities.values()) if (keep(e)) out.push(e);
+    return out;
+  }
+  return pool.filter(keep);
+}
+
+// IDS has no inheritance (user manual, entity facet, "Inheritance"):
+// IFCWALL does not take an IfcWallStandardCase. Revit's IFC2X3 exports write
+// most walls that way, so a specification naming IFCWALL can pass on 4 walls
+// while 101 were never looked at (eval/corpus-crosscheck-2026-11-17.md).
+// Returns, per class, the elements an entity facet leaves out only because
+// it names an ancestor of their class and not the class itself: every other
+// applicability facet, and the facet's predefined type, would take them.
+// The verdict does not change; the report says what was not checked.
+export function skippedSubclasses(spec, model, ctx) {
+  const ent = spec.applicability.find((f) => f.kind === "entity");
+  if (!ent || !ent.name.present) return [];
+  const S = model.schema;
+  const anyName = Object.assign(Object.create(EntityFacet.prototype), ent, { name: { matchString: () => true } });
+  const others = spec.applicability.filter((f) => f !== ent);
+  const out = [];
+  for (const [type, list] of model.byType) {
+    if (ent.name.matchString(type)) continue;
+    let via = null;
+    for (let t = S.entities[type] && S.entities[type].super; t && !via; t = S.entities[t] && S.entities[t].super) if (ent.name.matchString(t)) via = t;
+    if (!via) continue;
+    let count = 0;
+    for (const e of list) if (!ent.test(e, model, ctx).ok && anyName.test(e, model, ctx).ok && others.every((f) => f.test(e, model, ctx).ok)) count++;
+    if (count) out.push({ type, via, count });
+  }
+  return out.sort((a, b) => b.count - a.count || (a.type < b.type ? -1 : 1));
+}
+
+export function skippedNote(skipped) {
+  if (!skipped.length) return null;
+  const total = skipped.reduce((n, x) => n + x.count, 0);
+  const list = skipped.slice(0, 4).map((x) => `${x.count.toLocaleString("en-US")} ${x.type} (a subclass of ${x.via})`).join(", ") + (skipped.length > 4 ? `, and ${skipped.length - 4} more class(es)` : "");
+  return `not checked: ${total.toLocaleString("en-US")} element(s) of subclasses the entity facet does not name: ${list}. IDS entity names do not include subclasses; add these class names to the entity facet to check them`;
+}
+
+function prefilter(f, model) {
+  const m = model;
+  switch (f.kind) {
+    case "attribute": {
+      // AttributeFacet.test fails when the type has no attribute by that name.
+      const byType = new Map();
+      return (e) => {
+        let ok = byType.get(e.type);
+        if (ok === undefined) byType.set(e.type, (ok = m.schema.attrs(e.type).some((a) => f.name.matchString(a.name))));
+        return ok;
+      };
+    }
+    case "property": {
+      // PropertyFacet.test fails (absent) when no set psetsOf reads for the
+      // element has a name the facet takes. Each distinct set name is tested
+      // once (psetHolders), so most entities (geometry) cost one lookup, and
+      // psetsOf runs only where a set of a matching name exists
+      // (eval/psets-cache-2026-11-18.md).
+      const ids = new Set();
+      for (const [n, holders] of psetHolders(m)) if (f.propertySet.matchString(n)) for (const e of holders) ids.add(e.id);
+      return (e) => ids.has(e.id);
+    }
+    case "classification":
+      // classificationsOf: own associations, external references, the type's.
+      return (e) => m.classRels.has(e.id) || m.extRefs.has(e.id) || m.typeOf.has(e.id);
+    case "material":
+      // materialNames: own association or the type's.
+      return (e) => m.matRels.has(e.id) || m.typeOf.has(e.id);
+    case "partOf": {
+      // PartOfFacet.wholes takes its first step through these relationships.
+      const rels = (f.relation === VOIDS_FILLS ? ["IFCRELFILLSELEMENT", "IFCRELVOIDSELEMENT"] : f.relation ? [f.relation] : PARTOF_RELS).map((r) => m.parents[r]).filter(Boolean);
+      return (e) => rels.some((map) => map.has(e.id));
+    }
+    default:
+      return null;
+  }
 }
 
 function checkRequirement(f, e, model, ctx) {
@@ -896,30 +1059,66 @@ export function checkIds(idsText, ifcText, opts = {}) {
       s.status = "invalid";
       s.invalid = errors.map((x) => x.message);
       s.note = "invalid IDS, not checked: " + s.invalid.join("; ");
+      // A prohibited specification with requirements is invalid (buildingSMART's
+      // ids/invalid-prohibited_specifications_invalid_if_requirements_are_specified),
+      // but its intent is plain: nothing may match. Say how many elements do, so
+      // the report does not read as a clean model (eval/corpus-crosscheck-2026-11-17.md).
+      if (mine.some((x) => x.code === "prohibited-requirements")) {
+        const n = applies(spec, model, ctx).length;
+        s.matching = n;
+        s.note += `; ${n.toLocaleString("en-US")} element(s) in this model match its applicability${n ? " and would fail it once the requirements are removed" : ""}`;
+      }
       specs.push(s);
       continue;
     }
     const hits = applies(spec, model, ctx);
     s.applicable = hits.length;
+    const skipped = skippedSubclasses(spec, model, ctx);
+    if (skipped.length) { s.skippedSubclasses = skipped; s.hint = skippedNote(skipped); }
     if (spec.optionality === "prohibited") {
       if (hits.length) {
         s.status = "fail";
         s.note = `${hits.length} element(s) match a prohibited specification`;
-        s.failed = hits.slice(0, 500).map((e) => ({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons: ["matches the applicability of a prohibited specification"] }));
+        s.failed = hits.slice(0, Math.min(500, opts.maxFailed ?? 500)).map((e) => ({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons: ["matches the applicability of a prohibited specification"] }));
       }
       specs.push(s);
       continue;
     }
+    // opts.maxFailed keeps the first N failing elements of a spec and counts
+    // the rest in s.failedCount (set only when some were dropped). CI uses it:
+    // a spec with no entity facet applies to every entity, and on a 40 MB MEP
+    // export (665,224 entities) one such spec held ~440 MB of reasons.
+    const maxFailed = opts.maxFailed ?? Infinity;
+    let failing = 0;
+    // Where a requirement facet's prefilter is false the facet is absent, so
+    // its verdict follows from the cardinality alone, with no arguments read.
+    // An element is first judged that way, stopping at the first unmet
+    // requirement; the full tests run only to write the reasons of a failing
+    // element the report keeps. Specifications applying to every entity check
+    // millions of geometry items this way (eval/no-entity-facet-2026-11-17.md).
+    const reqPre = spec.requirements.map((f) => prefilter(f, model));
+    const meets = (e) => {
+      for (let k = 0; k < spec.requirements.length; k++) {
+        const f = spec.requirements[k];
+        const p = reqPre[k];
+        const pass = p && !p(e) ? f.cardinality === "prohibited" || f.cardinality === "optional" : checkRequirement(f, e, model, ctx).pass;
+        if (!pass) return false;
+      }
+      return true;
+    };
     for (const e of hits) {
+      if (meets(e)) { s.passed++; continue; }
+      if (failing >= maxFailed) { failing++; continue; }
       const reasons = [];
       for (const f of spec.requirements) {
         const r = checkRequirement(f, e, model, ctx);
         if (!r.pass) reasons.push(`${f.kind === "entity" ? "" : f.cardinality + " "}${f.describe()}: ${r.why || "not met"}`);
       }
-      if (reasons.length) s.failed.push({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons });
+      if (reasons.length) { if (failing++ < maxFailed) s.failed.push({ id: e.id, type: e.type, globalId: globalId(model, e), name: nameOf(model, e), reasons }); }
       else s.passed++;
     }
-    if (s.failed.length) s.status = "fail";
+    if (failing > s.failed.length) s.failedCount = failing;
+    if (failing) s.status = "fail";
     else if (spec.optionality === "required" && hits.length === 0) {
       s.status = "fail";
       s.note = "required, but nothing in the model matches the applicability";
@@ -932,11 +1131,101 @@ export function checkIds(idsText, ifcText, opts = {}) {
     schema: model.schemaRaw,
     entityCount: model.entities.size,
     parseErrors: model.parseErrors.slice(0, 20),
+    // A model fault, not an IDS verdict: it does not change pass (IDS checks
+    // what the IDS asks), but every rendering says so.
+    duplicateGlobalIds: duplicateGlobalIds(model),
     pass: counted.every((s) => s.status === "pass"),
     valid: !specs.some((s) => s.status === "invalid"),
     audit,
     specs,
   };
+}
+
+// IfcRoot's uniqueness rule UR1 (every schema: IFC2X3, IFC4, IFC4X3) says no
+// two rooted objects share a GlobalId. Real exports break it (the HHS Office
+// construction and MEP files, eval/duplicate-globalids-2026-11-17.md), and the
+// tools downstream key on it: a BCF topic selects components by IfcGuid, a
+// GitLab report and most model-diff tools match revisions by it, so a
+// duplicate makes those point at the wrong element or at two. Returns every
+// GlobalId held by more than one IfcRoot instance, each with its elements (by
+// #id), sorted by GlobalId; cached on the model, since CI checks one parsed
+// model against several IDS files.
+export function duplicateGlobalIds(model) {
+  if (model._dupGids) return model._dupGids;
+  const seen = new Map();
+  const dups = new Map();
+  for (const [type, list] of model.byType) {
+    if (!model.schema.isA(type, "IFCROOT")) continue;
+    const i = model.schema.attrs(type).index.get("GlobalId");
+    if (i === undefined) continue;
+    for (const e of list) {
+      const g = e.args[i];
+      if (typeof g !== "string" || g === "") continue;
+      const first = seen.get(g);
+      if (first === undefined) { seen.set(g, e); continue; }
+      let l = dups.get(g);
+      if (!l) dups.set(g, (l = [first]));
+      l.push(e);
+    }
+  }
+  const out = [...dups].sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)).map(([g, es]) => ({
+    globalId: g,
+    elements: es.sort((a, b) => a.id - b.id).map((e) => ({ id: e.id, type: e.type, name: nameOf(model, e) })),
+  }));
+  model._dupGids = out;
+  return out;
+}
+
+// Every GlobalId of an IfcRoot instance in the model, to the first element
+// holding it ({ id, type, name }). ci.mjs crossModelGlobalIds compares these
+// between the models of one run (a federated coordination set), where a
+// discipline file holding another file's GlobalId is the fault UR1 cannot see.
+// Cached on the parsed model; kept small so a run can hold one per model after
+// the model itself is dropped.
+export function globalIdIndex(model) {
+  if (model._gidIndex) return model._gidIndex;
+  const out = new Map();
+  for (const [type, list] of model.byType) {
+    if (!model.schema.isA(type, "IFCROOT")) continue;
+    const i = model.schema.attrs(type).index.get("GlobalId");
+    if (i === undefined) continue;
+    for (const e of list) {
+      const g = e.args[i];
+      if (typeof g !== "string" || g === "" || out.has(g)) continue;
+      const entry = { id: e.id, type: e.type, name: nameOf(model, e), kind: kindOf(type) };
+      if (model.schema.isA(type, "IFCRELATIONSHIP")) entry.refs = rootRefs(e);
+      out.set(g, entry);
+    }
+  }
+  model._gidIndex = out;
+  return out;
+  // The GlobalIds of the IfcRoot objects a relationship names (RelatedObjects,
+  // RelatingType, ...), so a relationship shared between federated models can
+  // be told apart as one that only follows shared elements (ci.mjs
+  // crossModelGlobalIds groups it under them).
+  function rootRefs(e) {
+    const refs = [];
+    const walk = (v) => {
+      if (Array.isArray(v)) { for (const x of v) walk(x); return; }
+      const t = model.get(v);
+      if (!t || !model.schema.isA(t.type, "IFCROOT")) return;
+      const gi = model.schema.attrs(t.type).index.get("GlobalId");
+      const g = gi === undefined ? null : t.args[gi];
+      if (typeof g === "string" && g) refs.push(g);
+    };
+    for (const a of e.args.slice(4)) walk(a);
+    return refs;
+  }
+  function kindOf(type) {
+    const S = model.schema;
+    // The shared frame a federated set is built on: project, site, building,
+    // storeys, spaces, facilities (IFC2X3 IfcSpatialStructureElement, IFC4
+    // IfcSpatialElement) and grids. Discipline files exported from one
+    // template or a copy-monitored link often hold these on purpose.
+    if (type === "IFCPROJECT" || S.isA(type, "IFCCONTEXT") || S.isA(type, "IFCSPATIALELEMENT") || S.isA(type, "IFCSPATIALSTRUCTUREELEMENT") || S.isA(type, "IFCGRID")) return "frame";
+    if (S.isA(type, "IFCELEMENT")) return "element";
+    return "other";
+  }
 }
 
 function globalId(model, e) {

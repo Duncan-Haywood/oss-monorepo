@@ -121,7 +121,7 @@ export function analyze(inputs) {
   const sum = (f) => rows.reduce((s, r) => s + f(r), 0);
   return {
     ok: true, warnings, rows,
-    totals: { visits: rows.length, units: sum((r) => r.units), perCodeUnits: sum((r) => r.perCodeUnits), revenue: sum((r) => r.revenue), revenuePerCode: sum((r) => r.revenuePerCode), over: sum((r) => r.over), nearMisses: rows.filter((r) => r.nearMiss).length },
+    totals: { visits: rows.length, units: sum((r) => r.units), perCodeUnits: sum((r) => r.perCodeUnits), revenue: sum((r) => r.revenue), revenuePerCode: sum((r) => r.revenuePerCode), over: sum((r) => r.over), overVisits: rows.filter((r) => r.over > 0).length, overAmount: sum((r) => (r.over > 0 ? Math.max(0, r.revenuePerCode - r.revenue) : 0)), nearMisses: rows.filter((r) => r.nearMiss).length },
   };
 }
 

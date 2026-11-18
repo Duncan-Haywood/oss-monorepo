@@ -1,0 +1,48 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 45: a hold-first two-tier preload (beta 0.9) on the poses milestone 44 re-planned
+## A. Tiers at zero hose force, exact sensor: robot | pose | t_min common (m44) | T_H | binding hold joint (window end) | m_H | T_L | m_L
+  h1 [1.4, -0.15] | 0.0333 | 0.0339 | right_hip_roll (50 N) | 0.0305 | 0.1904 | 0.1000
+  h1 [1.6, 0.0] | 0.0946 | 0.0960 | left_hip_roll (50 N) | 0.0864 | 0.6558 | 0.1000
+  (tiered poses are exactly milestone 44's two: True)
+
+## B. No-hose clean-sheet spec stack at the two poses: robot | pose | case | tiered | squeeze (N) | milestone 44 (common preload) | change (points)
+  h1 [1.4, -0.15] | stock  | 0.9715 | -10.00 | 0.9715 | +0.00
+  h1 [1.4, -0.15] | braked | 0.9715 | -10.00 | 0.9715 | +0.00
+  h1 [1.6, 0.0] | stock  | 0.9668 | -10.00 | 0.9668 | +0.00
+  h1 [1.6, 0.0] | braked | 0.9668 | -10.00 | 0.9668 | +0.00
+
+## C. H1 worst spec stack over its zero-press poses: case | worst | at | poses with a plan | milestone 44
+  stock  | 0.9655 | [1.6, 0.15] | 19 | 0.9655
+  braked | 0.9655 | [1.6, 0.15] | 19 | 0.9655
+
+(section D tasks: H 0 14 s, H 5 111 s, H 20 89 s)
+## D. H1 worst residual along the wall (mm), 'braked', |e| 0.2 N, S 10 N: H | all poses | other poses (milestone 41) | (1.4, -0.15) [flips hold/leg/waist/arm] | (1.6, 0) [flips] | milestone 44, the two | cases at the two poses with no plan
+    0.0 | 0.172 | 0.010 (0.010) | 0.172 (phi 0) [1/0/0/0] | 0.003 (phi 0) [0/0/0/0] | 0.172 | 0 of 12
+    5.0 | 0.172 | 0.019 (0.019) | 0.172 (phi 135) [1/0/0/0] | 0.014 (phi 270) [0/1/0/0] | 0.172 | 5 of 96
+   20.0 | 0.172 | 0.032 (0.032) | 0.172 (phi 225) [1/0/0/0] | 0.003 (phi 90) [0/0/0/0] | 0.241 | 19 of 96
+check: the other poses reproduce milestone 41's H1 worst residual to 0.000 mm (expect 0.000)
+
+## E. Hypotheses (registered in LOG.md before this run)
+H175 (T_H at (1.4, -0.15) at least 0.05 N m): 0.0339 -> refuted
+H176 (both poses have a tiered plan, T_L >= 0): [1.4, -0.15] T_L 0.1904, [1.6, 0.0] T_L 0.6558 -> held
+H177 ((1.4, -0.15) at most 0.03 / 0.03 / 0.05 mm at 0 / 5 / 20 N): 0.172, 0.172, 0.172 -> refuted
+H178 (the H1's worst residual at most 0.03 mm at 5 N and 0.05 mm at 20 N): 0.172, 0.172 -> refuted
+H179 (cases at the two poses with no plan at most milestone 44's 24): 24 of 204 -> held
+H180 ('braked': each pose within 0.1 points of milestone 44's stack): 0.00, 0.00 -> held
+
+(run time 189 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

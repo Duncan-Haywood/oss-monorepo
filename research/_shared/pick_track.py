@@ -557,6 +557,43 @@ def free_choice_lines(progs, contention=contention_lines):
           "is least likely to collide with a sibling run):"] + ranked if ranked else [])
 
 
+def track_fallback_lines(t, progs_here, down, all_progs=None, claimed=open_prs_for,
+                         unreachable=unreachable_hosts, contention=contention_lines, show=3):
+    """When no open programme of track `t` can be taken here (each is BLOCKED, OFFLINE
+    in this session or named by an open PR), the least contended takeable programme
+    elsewhere, so the run does not hand-scan PROGRAMMES.md. [] when one is takeable.
+
+    Friction 2026-11-17 (research/_shared/pick_track.py, two reports): a track-20 draw whose
+    programmes were build-data (OFFLINE) and buildbot-sheathing (draft PR #16769) only said
+    `--new` draws again; the run scanned PROGRAMMES.md and recent PRs by hand instead.
+    A focus track's fallback stays among the FOCUS programmes while one is takeable."""
+    if not progs_here:
+        return []
+    why = {}
+    for s in progs_here:
+        if is_blocked(s):
+            why[s] = "BLOCKED"
+        elif down.get(s):
+            why[s] = "OFFLINE"
+        elif claimed(s):
+            why[s] = f"claimed by {claimed(s)[0].split(' ', 1)[0]}"
+        else:
+            return []
+    if all_progs is None:
+        all_progs = [s for s, _ in programmes()]
+    rest = [s for s in all_progs if s not in progs_here and not is_blocked(s) and not claimed(s)]
+    rest = [s for s in rest if not unreachable(s)]
+    if t != "free" and PREFIX[t - 1] in FOCUS and any(is_focus(s) for s in rest):
+        rest = [s for s in rest if is_focus(s)]
+    head = ("  no programme for track " + str(t) + " can be taken here ("
+            + ", ".join(f"{s}: {w}" for s, w in why.items()) + ")")
+    if not rest:
+        return [head + "; none elsewhere either: open a new programme for this track (PROPOSAL.md + a "
+                "PROGRAMMES.md row), or `--new` draws again"]
+    return [head + "; least contended takeable programme(s) elsewhere (open PRs, then commits in 6 h, "
+            "then longest idle), or open a new one for this track:"] + contention(rest, show=show)
+
+
 def recent_landed(slug, n=3):
     """Newest commits on origin/main that touch research/<slug>, as 'age: subject' lines.
 
@@ -594,6 +631,32 @@ def milestones(prefix):
     marked = {slug for slug, rest in found
               if re.match(r"\s*\((done|landed)\b", rest) or re.match(r"\s*\([^)]*\blanded in\b", rest)}
     return listed, [x for x in listed if x not in marked and not (RESEARCH / x).is_dir()]
+
+
+def milestone_lines(prefix, takeable=(), found=None, logs=None):
+    """The PROJECTS.md milestone line for a track draw.
+
+    When the track has an open programme this session can take, its LOG 'Next' is the
+    step to land and the milestone list is only for a run that opens a new programme:
+    the plain line ("milestones: 2/9 ... next free: aerolog-sizing") read as the next
+    step and sent runs to a new slug (doc friction 2026-11-11 and 2026-11-17,
+    research/_shared/pick_track.py). `takeable` is the track's programmes that are
+    neither BLOCKED nor OFFLINE here; `found` and `logs` replace milestones() and
+    mentioned_in_logs() in tests."""
+    listed, free = found if found is not None else milestones(prefix)
+    logs = logs or mentioned_in_logs
+    if takeable:
+        head = (f"milestones (PROJECTS.md, for a run that opens a new programme; advancing "
+                f"{', '.join(takeable[:3])} comes first, from its LOG.md 'Next'): ")
+    else:
+        head = "milestones: "
+    if not listed:
+        return [head + "no list found in PROJECTS.md; take a 'Next steps' item or ask a new question"]
+    if free:
+        named = logs(free[0])
+        seen = f" (named in {', '.join(named[:3])}: check it has not already run there)" if named else ""
+        return [head + f"{len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}{seen}"]
+    return [head + f"all {len(listed)} listed are on this checkout; take a 'Next steps' item or ask a new question"]
 
 
 def mentioned_in_logs(slug):
@@ -637,7 +700,17 @@ def next_steps(name, width=400):
     if not readme.is_file():
         return ""
     m = re.search(r"^#+ *Next steps[^\n]*\n(.*?)(?=^#|\Z)", readme.read_text(), re.M | re.S)
-    text = " ".join(m.group(1).split()) if m else ""
+    if not m:
+        return ""
+    # A numbered or bulleted list shows every item's head, so a cut never hides
+    # the later items (doc friction 2026-11-17: item 6's open threads were cut off).
+    items = [" ".join(x.split()) for x in
+             re.split(r"^\s*(?:\d+[.)]|[-*]) +", m.group(1), flags=re.M)[1:] if x.strip()]
+    if len(items) > 1:
+        each = max(80, width // len(items))
+        return " | ".join(f"{i}) " + (x if len(x) <= each else x[:each].rstrip() + "...")
+                          for i, x in enumerate(items, 1))
+    text = " ".join(m.group(1).split())
     return text if len(text) <= width else text[:width].rstrip() + "..."
 
 
@@ -785,7 +858,7 @@ if __name__ == "__main__":
     behind = commits_behind()
     if behind:
         print(f"WARNING: this checkout is {behind} commit(s) behind origin/main, so the lists below may "
-              "name projects that already landed. `git fetch --depth=40 origin main && git merge origin/main` first.")
+              "name projects that already landed. `python3 platform/ci/fetch_ref.py main && git merge origin/main` first.")
     if t != "free":
         print(f"track runs open a programme in this area or advance one (research/PROGRAMMES.md); "
               "the listed milestones are raw material, not separate projects")
@@ -796,8 +869,8 @@ if __name__ == "__main__":
                   + ", ".join(programme_label(s, down.get(s)) for s in progs_here)
                   + "; advancing one is the default: read research/<slug>/PROPOSAL.md and its "
                   "newest LOG.md entries, and prefer its next step over a free milestone below")
-            if progs_here and all(is_blocked(s) or down.get(s) for s in progs_here):
-                print("  every open programme here is BLOCKED or OFFLINE in this session: `--new` draws again")
+            for line in track_fallback_lines(t, progs_here, down):
+                print(line)
             for s in progs_here:
                 if not is_blocked(s) and not down.get(s):
                     for line in newest_log_entries(s, n=2):
@@ -813,15 +886,9 @@ if __name__ == "__main__":
         shallow = is_shallow()
         label = "some (shallow clone: commit dates are flattened, so this is not newest-first)" if shallow else "newest"
         print(f"{n} `{PREFIX[t - 1]}-*` projects on this checkout; {label}: {', '.join(newest) or 'none'}")
-        listed, free = milestones(PREFIX[t - 1])
-        if not listed:
-            print("milestones: no list found in PROJECTS.md; take a 'Next steps' item or ask a new question")
-        elif free:
-            logs = mentioned_in_logs(free[0])
-            seen = f" (named in {', '.join(logs[:3])}: check it has not already run there)" if logs else ""
-            print(f"milestones: {len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}{seen}")
-        else:
-            print(f"milestones: all {len(listed)} listed are on this checkout; take a 'Next steps' item or ask a new question")
+        takeable = [s for s in progs_here if not is_blocked(s) and not down.get(s)] if progs_here else []
+        for line in milestone_lines(PREFIX[t - 1], takeable):
+            print(line)
         if newest:
             note = " (shallow clone: not necessarily the newest; unshallow first for that)" if shallow else ""
             if n >= SATURATED:
@@ -829,7 +896,7 @@ if __name__ == "__main__":
                 print(f"track {t} has {n} projects (>= {SATURATED}); redrawing is fine. Fewest: "
                       + ", ".join(f"track {i} ({c})" for c, i in counts[:3]))
             print(f"next step if milestones are done: research/{newest[0]}/README.md, 'Next steps'{note}")
-            if not free:
+            if not milestones(PREFIX[t - 1])[1]:
                 for name in newest[:3]:
                     print(f"  {name}: {next_steps(name) or '(no Next steps section)'}")
     print(post_limits_line())

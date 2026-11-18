@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVLLYL7ixVSyWENFMGZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled ventures prompt: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (stored routine prompt)",
+  "input_sha256": "0c9e38d661abef0168924be4031b90ff39cc50ffddad2df09a598705de895544",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T02:06:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10) open-tennis-robots: the ESC-lag survey's inputs at 4-5 levels (it picked 11-12 ms on a plant with none)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17138",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First version (refine 5 alone) failed 3 of the venture's own EscSurveyTest tests: the longer survey was cut on drills without a hold (4 of 32 rally wheels, under the 16 the pre-calibration check needs). Caught by run_venture_tests before merge; fixed by pausing and queueing surveys and a longer Pi end wait."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "open-tennis-robots buildable named the item as 'rerun at 4-5 levels' (the take survey's fix); the real cause was the skipped tau refinement, and the item undersold it: the survey was also wrong on 50 ms ESC builds (23-25 ms), visible in an existing eval file nobody had read for that field."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No agent doc in docs/reports/: the firmware README section and the test's docstring hold everything the next run needs, as the venture's earlier runs did.",
+      "did": "Wrote the README section, eval files and a post instead.",
+      "result": "Flagship buildable points to the README section."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No llms.txt or marketing-page change: a firmware estimator fix changes nothing a user reads on the product page.",
+      "did": "Left both untouched.",
+      "result": "n/a"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship pointed at depth (t0 levels); the trace showed the tau refinement was the cause, and the fix needed a scheduling change (pause/queue) beyond the item's scope.",
+      "did": "Shipped refine 5 plus the survey queue and longer end wait, all measured.",
+      "result": "Venture tests green; held-out picks 36/36."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-tennis-feeders-esc-lag-survey-was-covering-for-a-coarse-grid.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (section 'The ESC-lag survey's search, traced')"
+  ],
+  "goal": "Find why the board's ESC-lag survey names a lag where there is none, fix it, and check the fix held out",
+  "notes": "Prediction written in tests/esc_misfit_trace.py before each part. Part 1: refine 5 alone fixed 12/12 first-order (0 ms) and 12/12 ESC 50 ms (42-55 ms); 5 t0 levels alone changed nothing; the survey's first check missed it because its wheel lags sat on the tau grid. Cost broke the count (venture tests failed); a bracket-around-record-tau search at the old cost was tried and dropped (untold 80 ms read 13-57). Shipped: surveys pause during strokes and queue (SURVEY_QUEUE=2), host.ESC_SURVEY_S 4->20 s with SURVEY_QUIET_S 3 s. Held out: picks 36/36 with 18-20 wheels a drill without a hold; calibration drill as run: 12/12, 24/24 wheels, holds 79->~106 s. Rally: old 83-86 ms for 50, now 49-51. Open miss: untold 150 ms ESC on 0.6 s wheel reads 188. Venture tests: 364 run, 0 failed (58 skipped: build123d). venture-preflight: clean.",
+  "corrections": [],
+  "redteam": null
+}

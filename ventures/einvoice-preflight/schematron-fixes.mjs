@@ -460,6 +460,11 @@ Object.assign(FIXES, {
 });
 
 const FAMILIES = [
+  // Factur-X 1.09.2 EXTENDED's structure and code-list checks (facturx-extended-cii.json): the
+  // message says only "Value of '@schemeID' is not allowed" or "Element 'ram:X' must occur
+  // exactly 1 times"; the path says where. Code lists move between releases (the Leitweg
+  // scheme 9958 became 0204), so older ZUGFeRD 2.0/2.1 samples fail them.
+  [/^FX-SCH-A-/, "Factur-X EXTENDED (1.09.2): at the path shown, either a code is not on the current Factur-X code list (a retired scheme such as 9958, now 0204 for a Leitweg-ID, an old unit or allowance reason code) or an element occurs more or fewer times than the profile allows. Use a code from the current list, or add or remove the element, and re-run the check."],
   [/^BR-RO-DT/, "Romania (RO e-Factura): write the date as YYYY-MM-DD, for example 2026-03-31, with no time or time zone."],
   [/^BR-RO-L\d/, "Romania (RO e-Factura) caps this text field at the length in the message (ANAF rejects longer values than the EN 16931 standard allows). Shorten it."],
   [/^BR-RO-A\d/, "Romania (RO e-Factura) caps how many times this group may repeat. Merge or drop the extra entries."],
@@ -494,4 +499,19 @@ export function plainFix(ruleId) {
 
 export function hasSpecificFix(ruleId) {
   return Object.hasOwn(FIXES, String(ruleId || ""));
+}
+
+// Peppol BIS Self-Billing reuses Billing's rule ids with its own identifiers and type
+// codes, so these few get their own advice (2026-11-18). The buyer issues the invoice.
+const SELF_BILLING_FIXES = {
+  "PEPPOL-EN16931-R001": "Set the business process (BT-23) to urn:fdc:peppol.eu:2017:poacc:selfbilling:01:1.0.",
+  "PEPPOL-EN16931-R007": "Write the business process (BT-23) as urn:fdc:peppol.eu:2017:poacc:selfbilling:01:1.0. Billing's urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 is not accepted on a self-billing document.",
+  "PEPPOL-EN16931-R004": "Set the specification identifier (BT-24) to urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:selfbilling:3.0, with nothing after it.",
+  "PEPPOL-EN16931-P0100": "A self-billing invoice uses type code 389 (self-billed invoice) or 527 (self-billed debit note); 380 is for ordinary Peppol BIS Billing.",
+  "PEPPOL-EN16931-P0101": "A self-billing credit note uses type code 261 (self-billed credit note); 381 is for ordinary Peppol BIS Billing.",
+};
+
+/** The Self-Billing advice for a rule id, or null where Billing's advice holds. */
+export function selfBillingFix(ruleId) {
+  return SELF_BILLING_FIXES[String(ruleId || "")] || null;
 }

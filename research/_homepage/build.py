@@ -13,7 +13,9 @@ research/<slug>/. Directories under research/ starting with `_` or `.` are not p
 projects.json or README.md, or if either lists a project that does not exist.
 """
 import argparse
+import fnmatch
 import html
+import os
 import json
 import re
 import shutil
@@ -39,10 +41,50 @@ def readme_ledes():
     return ledes
 
 
+_TREE = None
+
+
+def research_tree():
+    """One walk of research/ for the three readers that each used to rglob it (2026-11-17: 2,161
+    rglob walks of the 456 MB tree were a third of the build). Returns (py, dirs, files_by_slug):
+    `py` is every entry anywhere under research/ whose name matches *.py, `dirs` every directory
+    name below research/, and files_by_slug[slug] every file under research/<slug>/ as relative
+    parts. Same match rules as Path.rglob: hidden entries included, symlinked dirs not entered."""
+    global _TREE
+    if _TREE is None:
+        py, dirs, by_slug = [], set(), {}
+        stack = [((), RESEARCH)]
+        while stack:
+            rel, path = stack.pop()
+            try:
+                with os.scandir(path) as it:
+                    entries = list(it)
+            except PermissionError:
+                continue
+            for e in entries:
+                is_dir = e.is_dir(follow_symlinks=False)
+                if fnmatch.fnmatchcase(e.name, "*.py"):
+                    py.append(e.name)
+                if is_dir:
+                    dirs.add(e.name)
+                    stack.append((rel + (e.name,), e.path))
+                elif rel and e.is_file():
+                    by_slug.setdefault(rel[0], []).append(rel[1:] + (e.name,))
+        _TREE = (py, dirs, by_slug)
+    return _TREE
+
+
+def slug_files(slug, pattern):
+    """Path.rglob(pattern) over research/<slug>/, files only, from the shared walk."""
+    root = RESEARCH / slug
+    return [root.joinpath(*parts) for parts in research_tree()[2].get(slug, ())
+            if fnmatch.fnmatchcase(parts[-1], pattern)]
+
+
 def test_count(slug):
     return sum(
         len(re.findall(r"^\s*def test_", f.read_text(errors="ignore"), re.M))
-        for f in (RESEARCH / slug).rglob("test*.py")
+        for f in slug_files(slug, "test*.py")
     )
 
 
@@ -58,8 +100,8 @@ _OWN = None
 def own_modules():
     global _OWN
     if _OWN is None:
-        _OWN = ({f.stem for f in RESEARCH.rglob("*.py")}
-                | {d.name for d in RESEARCH.rglob("*") if d.is_dir()})
+        py, dirs, _ = research_tree()
+        _OWN = {Path(n).stem for n in py} | dirs
     return _OWN
 
 
@@ -67,7 +109,7 @@ def third_party_imports(slug):
     std = set(sys.stdlib_module_names) | {"__future__"}
     found = set()
     root = RESEARCH / slug
-    for f in root.rglob("*.py"):
+    for f in slug_files(slug, "*.py"):
         parts = f.relative_to(root).parts
         if "tests" in parts or "__pycache__" in parts:
             continue
@@ -106,7 +148,26 @@ def validate(data, ledes):
             for k in ("slug", "title", "summary"):
                 if not p.get(k):
                     errors.append(f"projects.json: research/{p.get('slug')} has no {k}")
+            errors += [f"research/{p.get('slug')}: {e}" for e in card_text_errors(p.get("summary", ""))]
     return errors
+
+
+# A sed replacement containing `&` expands each `&` to the matched text, which
+# turned "4&ndash;5" into "4<old phrase>ndash;5" in 11 summaries and pasted
+# 70 KB of other cards into one (quality audit 2026-11-17, ambient-startcount).
+BARE_ENTITY_RE = re.compile(r"(?<=[\w)%])(?:nbsp|ndash|mdash|minus|times|thinsp|plusmn|rsquo|radic|le|ge|lt|gt);(?=\S)")
+
+
+def card_text_errors(summary):
+    """Signs of a corrupted card summary: an HTML entity whose `&` was eaten,
+    or other cards' markup pasted in."""
+    errs = []
+    m = BARE_ENTITY_RE.search(summary)
+    if m:
+        errs.append(f"summary has an entity without its '&' near {summary[max(0, m.start() - 40):m.end() + 10]!r}")
+    if "<h2>" in summary:
+        errs.append(f"summary holds page markup ({len(summary)} characters)")
+    return errs
 
 
 # One page per theme at research/topics/<id>/: the level between the index and a project.

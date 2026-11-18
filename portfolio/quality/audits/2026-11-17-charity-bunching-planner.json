@@ -1,0 +1,263 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/charity-bunching-planner",
+ "stratum": "venture",
+ "seed": "2026-11-17-7c9d",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a CPA or EA doing year-end charitable planning for households near the standard deduction; first checks: the 2026 constants and OBBBA charitable rules (0.5%-of-AGI floor for itemizers, 1,000/2,000 non-itemizer cash deduction that excludes DAFs and is not indexed, 60% cash / 30% appreciated-stock AGI limits, 35% cap on itemized benefit in the 37% bracket), whether the saving is a bracket-based tax difference or a flat-rate shortcut, and whether 'tax saved' is measured against a no-gift baseline",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed by hand from 2026 law (Rev. Proc. 2025-32 MFJ standard deduction 32,200 and brackets 24,800/100,800/211,400/403,550; IRC 170(b)(1)(I) 0.5% floor and 170(p) 2,000 MFJ non-itemizer cash deduction as added by OBBBA, P.L. 119-21; from the auditor's knowledge, irs.gov not fetched) with `node /tmp/cbp-audit/hand.mjs` and `node /tmp/cbp-audit/brackets.mjs`. Case A (AGI 200k, other 20k, gift 10k, 2 years, 22%): direct 2x(2,000x0.22)=880; bunch year 1 deposits 18,000, 20,000+18,000-1,000-32,200=4,800 x0.22=1,056, plus 440 -> 1,496, gain 616: tool matches to the cent, and the real-bracket return agrees (all in the 22% band). The tool's chosen years also match a real-bracket re-ranking of every allowed schedule in two 6- and 8-year cases (years 1,4 and 1,5). Not a 3: (1) when other itemized deductions exceed the standard deduction the 'tax saved' headline counts deductions unrelated to giving (other 60k, one year, gift 8k: tool says 12,987 saved by giving directly; the gift causes (8,000-900)x0.37=2,627, 4.9x overstated, calc.mjs:69, index.html:134); (2) the dollar figures use one flat rate, so a bunched deduction that drops through a bracket is overstated: AGI 140k, 3-year bunch of 41,000, tool gain 5,676 vs 3,566 from the MFJ bracket table (59% high) and 11,352 vs 7,132 over 6 years; disclosed on the page; (3) the shipped example pairs a 32% federal rate with AGI 180k and a 32,000 (MFJ-sized) standard deduction, whose real 2026 MFJ marginal rate is 22%; the example gain 9,253 is 6,752 at 22%+5%.",
+  "completeness": "Every claimed feature runs end to end through analyze(): exhaustive schedule search up to 15 years under a gap limit (15 years, 0.14 s), direct-every-year baseline, every-k-years cycles with best offset, 0.5% floor, 60% ceiling with a warning above it, non-itemizer cash cap with DAF excluded, inflation of deductions/AGI, DAF growth reported as money left, appreciated-stock gain avoided, CSV export, opt-out local usage counter. No stubs or TODOs. Served copy clean (`node platform/pages/served-copy.mjs charity-bunching-planner`: no placeholder or retired origin). Small gaps: the years label says '2 to 15' but 1 is accepted; the README's own 'path to revenue' items (bracket mode, stock limits, carryforward, preparer printout) are listed as not built, honestly.",
+  "verification": "`cd ventures/charity-bunching-planner && node --test '*.test.mjs'`: 30 tests, 30 pass, ~230 ms. Tests pin yearSaving with hand numbers (floor, cap, ceiling), deposit sizing, search vs an enumeration, and page invariants. Six seeded mutants via platform/ci/quality_mutate.py: covered-year direct gift -> 0 caught; stock saving without the stock share caught; tail-gap rule <= maxGap -> <= maxGap+1 SURVIVED; standard deduction no longer inflated SURVIVED; 60%-AGI warning threshold 0.6 -> 0.7 SURVIVED; itemized flag >= -> > survived (near-equivalent, display only). No test runs a multi-year case with a hand-checked total, and none exercises inflation.",
+  "craft": "Read calc.mjs (215 lines), calc.test.mjs, page.test.mjs, usage.mjs, index.html script. Pure functions, no dependencies, output escaped, storage access guarded, exhaustive search small enough to be exact. Defects: blank or unparsable fields silently become the example values (index.html:121), so clearing 'Other itemized deductions' computes on 22,000 and analyze()'s missing-input warnings are unreachable from a blank field; `first = mask.indexOf(true)` recomputed inside the year loop (calc.mjs:97, harmless); comments call the 170(p) deduction 'above-the-line' though it is taken in computing taxable income, not AGI (calc.mjs:12).",
+  "claims": "Backed: 'searches every schedule' (calc.mjs:145, exhaustive, exact for the model), floor/ceiling/non-itemizer rules (checked above), DAF excluded from the non-itemizer deduction, growth not counted as saving, 'Not decided' list names the flat rate, AMT, the high-earner cap, the stock AGI limit, carryforward, state rules and irrevocability; disclaimer on page, README and llms.txt; privacy line matches usage.mjs (local storage, DNT/GPC honoured, opt-out); served origins clean. Not backed: README:22 'verified against an independent brute force' (the test enumerates masks but scores them with the same evaluate(), so it checks the search loop, not the arithmetic); the verdict's 'saves $X in tax' is relative to the standard deduction, not to not giving, which misstates the figure for itemizers (see correctness).",
+  "fitness": "Job walked through: a preparer with an MFJ client near the standard deduction types gift, other itemized, AGI, rate and the 2,000 cap and gets the deposit years, per-year deposit/direct/grant table, cycle comparison and a CSV; the years chosen held up under a real-bracket re-ranking in the cases tried, so the timing answer is usable. Hit in the first hour: the dollar saving needs brackets (the client's bunch year usually crosses one); no filing-status selector or constants, so the user must know the 2026 figures; a 37% client gets the 2/37 benefit haircut ignored; stock-funded deposits are held to the 60% cash limit instead of 30% (the 60% warning does not fire between 30% and 60%); no carryforward valuation; the 'tax saved' total misleads for a client who already itemizes.",
+  "domain": "Matches the 2026 rules where it models them: 0.5%-of-AGI floor applied only when itemizing, 170(p) non-itemizer deduction kept flat (not indexed) and denied for DAF deposits, cash gifts to a DAF sponsor at the 60% limit, 'give min(gift, cap) directly in off years' is the right post-OBBBA tactic. Departures from how a CPA would run it: flat marginal rate instead of a with/without tax computation; OBBBA 35% cap on itemized benefit (37% bracket) not modelled; 30% AGI limit for appreciated stock to a DAF not applied; the floor/ceiling ordering above 60% and the carryforward are only warned about; a state rate is simply added to the federal rate and applied to the federal deduction difference."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "2-year bunch, MFJ AGI 200k, other 20k, gift 10k, 22%: base, plan and gain",
+   "method": "hand from Rev. Proc. 2025-32 MFJ std 32,200 and brackets, IRC 170(b)(1)(I) floor, 170(p) 2,000 cap",
+   "command": "node /tmp/cbp-audit/hand.mjs",
+   "expected": "880 / 1,496 / gain 616",
+   "observed": "880.00 / 1,496.00 / 616.00",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "3-year bunch crossing the 22%->12% bracket, MFJ AGI 140k, other 20k, gift 15k",
+   "method": "with/without tax on the Rev. Proc. 2025-32 MFJ bracket table",
+   "command": "node /tmp/cbp-audit/hand.mjs",
+   "expected": "gain 3,566",
+   "observed": "gain 5,676 (flat 22%; limit disclosed on page)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'tax saved' when other itemized (60k) exceed the standard deduction, 1 year, gift 8k, 37%",
+   "method": "hand: saving caused by the gift = (8,000 - 0.5% x 180,000) x 0.37",
+   "command": "node /tmp/cbp-audit/hand.mjs",
+   "expected": "2,627",
+   "observed": "12,987",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "shipped example: federal rate vs the example's own AGI and MFJ standard deduction",
+   "method": "2026 MFJ bracket table: taxable 145,800 is in the 22% band",
+   "command": "node /tmp/cbp-audit/hand.mjs",
+   "expected": "22% federal; example gain 6,752 at 22%+5%",
+   "observed": "32% federal; example gain 9,253",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "chosen deposit years under real brackets (6-year and 8-year MFJ cases)",
+   "method": "re-rank every allowed schedule with the 2026 MFJ bracket table",
+   "command": "node /tmp/cbp-audit/brackets.mjs",
+   "expected": "years 1,4 and 1,5",
+   "observed": "years 1,4 and 1,5 (gain overstated 11,352 vs 7,132 and 11,022 vs 9,012)",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "non-itemizer cash cap not indexed and DAF deposits excluded",
+   "method": "IRC 170(p) as added by OBBBA sec. 70424",
+   "command": "node -e 'import(\"/home/user/oss-monorepo/ventures/charity-bunching-planner/calc.mjs\").then(m=>console.log(m.analyze({years:3,inflationPct:10,maxGap:3}).best.rows.map(r=>r.direct)))'",
+   "expected": "cap stays 2,000 each covered year; 0 for a DAF-only year",
+   "observed": "[0, 2000, 2000]",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "35% cap on itemized benefit for the 37% bracket",
+   "method": "OBBBA sec. 70111 (IRC 68 as amended)",
+   "command": "grep -n 'cap on the benefit' ventures/charity-bunching-planner/index.html",
+   "expected": "modelled or disclosed",
+   "observed": "not modelled; disclosed in 'Not decided'",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "30% AGI limit for appreciated stock given to a DAF",
+   "method": "IRC 170(b)(1)(C)",
+   "command": "read calc.mjs:68,192",
+   "expected": "stock share deducted at 30% of AGI, or a warning",
+   "observed": "60% applied to all deposits; disclosed in 'Not decided' only",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/charity-bunching-planner && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "30/30 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served origins in llms.txt, sitemap, robots, canonical",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs charity-bunching-planner",
+   "expected": "no placeholder origin",
+   "observed": "none left",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README 'verified against an independent brute force'",
+   "method": "read calc.test.mjs:49-60",
+   "command": "sed -n 49,60p ventures/charity-bunching-planner/calc.test.mjs",
+   "expected": "an independent scorer",
+   "observed": "same evaluate() scores both sides; only the enumeration is independent",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and privacy on page, README, llms.txt",
+   "method": "read; page.test.mjs",
+   "command": "cd ventures/charity-bunching-planner && node --test '*.test.mjs'",
+   "expected": "present and matching usage.mjs",
+   "observed": "present; DNT/GPC and opt-out match usage.mjs",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "blank input field",
+   "method": "read index.html:121",
+   "command": "sed -n 121p ventures/charity-bunching-planner/index.html",
+   "expected": "blank is a warning or 0",
+   "observed": "blank silently becomes the example value",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "years field limits",
+   "method": "run analyze({years:1})",
+   "command": "node -e 'import(\"/home/user/oss-monorepo/ventures/charity-bunching-planner/calc.mjs\").then(m=>console.log(m.analyze({years:1}).warnings))'",
+   "expected": "label says 2 to 15",
+   "observed": "1 accepted with no warning",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:108",
+   "change": "covered-year direct = min(gift, cap) -> 0",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:138",
+   "change": "tail gap <= maxGap -> <= maxGap + 1",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:84",
+   "change": "standard deduction no longer grows with inflation",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:71",
+   "change": "useItemized >= -> > (near-equivalent, display flag only)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:194",
+   "change": "stock saving drops the stock share factor",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:192",
+   "change": "60%-of-AGI warning threshold 0.6 -> 0.7",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "'Tax saved' is measured against the standard deduction, not against not giving: when other itemized deductions exceed the standard deduction the headline counts them as saving from giving (60k other, 8k gift: 12,987 shown vs 2,627 caused by the gift). The gain is still right.",
+   "where": "ventures/charity-bunching-planner/calc.mjs:69",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "One flat marginal rate: a bunched deduction that crosses a bracket overstates the dollar saving (59% in a 3-year MFJ case at AGI 140k). Disclosed on the page, but the only fix a preparer would accept is a bracket mode.",
+   "where": "ventures/charity-bunching-planner/calc.mjs:72",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The shipped example combines a 32% federal rate with AGI 180k and an MFJ-sized 32,000 standard deduction; the real 2026 MFJ marginal rate there is 22%, so the example overstates the gain (9,253 vs 6,752). The standard deduction default 32,000 is neither the 2026 32,200 nor the 2025 31,500.",
+   "where": "ventures/charity-bunching-planner/calc.mjs:36",
+   "category": "source-data",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16945"
+  },
+  {
+   "severity": "medium",
+   "what": "Blank or unparsable fields silently become the example values (clearing 'Other itemized' computes on 22,000), so the missing-input warnings never fire from a blank field.",
+   "where": "ventures/charity-bunching-planner/index.html:121",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Stock-funded deposits are held to the 60% cash limit; the 30% limit for appreciated stock to a DAF is not applied and the 60% warning does not fire between 30% and 60% of AGI. Disclosed in 'Not decided'. The OBBBA 35% cap on itemized benefit for the 37% bracket is likewise only disclosed.",
+   "where": "ventures/charity-bunching-planner/calc.mjs:192",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Seeded changes to the tail-gap rule, the inflation of the standard deduction and the 60%-AGI warning threshold all left every test green; no multi-year case has a hand-checked total.",
+   "where": "ventures/charity-bunching-planner/calc.test.mjs:49",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README says the optimum is verified against an 'independent brute force', but the test scores both sides with the same evaluate().",
+   "where": "ventures/charity-bunching-planner/README.md:22",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16945"
+  },
+  {
+   "severity": "low",
+   "what": "Years label says '2 to 15' but 1 is accepted without a warning.",
+   "where": "ventures/charity-bunching-planner/index.html:64",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Comments call the 170(p) non-itemizer deduction 'above-the-line'; it is taken in computing taxable income, not AGI (no effect on the numbers, since the floor uses AGI).",
+   "where": "ventures/charity-bunching-planner/calc.mjs:12",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16945"],
+ "verdict": "A clean, honest bunching solver whose arithmetic is exact for its stated model (a 2-year case recomputed by hand from the 2026 tables matches to the cent, and its chosen deposit years survived a real-bracket re-ranking), with the post-OBBBA rules a CPA checks first modelled correctly: 0.5% floor for itemizers only, the non-indexed 2,000 non-itemizer cash deduction that excludes DAFs, and the 60% cash ceiling. It misses the bar on correctness and verification: the 'tax saved' headline is measured against the standard deduction rather than against not giving (4.9x overstated for an itemizer), the flat rate overstates bracket-crossing savings (59% in a common case, disclosed), the shipped example pairs a 32% rate with a 22%-bracket household, and four of six seeded mutants (one near-equivalent) survived. Finished for what it claims; not yet a preparer-grade dollar figure."
+}

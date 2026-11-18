@@ -21,7 +21,7 @@
 // opt-out.
 
 import { verificationHead } from './site-verification.mjs';
-import { promises as fs, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { promises as fs, existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { execFileSync, spawn } from 'node:child_process';
 import { loadLastChanged } from './lastmod.mjs';
 import { generateVenturePages } from './generated-pages.mjs';
@@ -515,7 +515,102 @@ function shipsDeployableApp(slug) {
 }
 
 // Tools that implement a published paper (portfolio/research-tools/README.md).
-export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering', 'kalman-smoother', 'extreme-value-analysis', 'meta-analysis', 'dynamic-time-warping'];
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'cost-sharing-calculator', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering', 'kalman-smoother', 'extreme-value-analysis', 'meta-analysis', 'dynamic-time-warping', 'stable-matching', 'kriging-interpolation', 'scale-reliability', 'item-response-theory', 'difference-in-differences', 'method-comparison', 'regression-discontinuity', 'contingency-table-tests', 'propensity-score', 'gage-rr', 'conjoint-analysis'];
+
+// The `personal-tax` section's members (CATEGORY_RULES, below). A Set so the rule is one lookup.
+const PERSONAL_TAX_SLUGS = new Set([
+      '401k-loan-vs-withdrawal-calculator',
+      '529-to-roth-rollover-calculator',
+      'aca-subsidy-cliff-calculator',
+      'auto-loan-interest-deduction-calculator',
+      'backdoor-roth-pro-rata-calculator',
+      'bonus-take-home-gross-up-calculator',
+      'charitable-deduction-calculator',
+      'charity-bunching-planner',
+      'child-tax-credit-calculator',
+      'coast-fire-calculator',
+      'cobra-vs-marketplace-calculator',
+      'crypto-cost-basis-calculator',
+      'dependent-care-fsa-vs-credit-calculator',
+      'eitc-calculator',
+      'espp-tax-calculator',
+      'estate-tax-exemption-calculator',
+      'estimated-tax-penalty-calculator',
+      'fbar-8938-checker',
+      'fers-retirement-planner',
+      'gambling-loss-deduction-calculator',
+      'gift-vs-inherit-basis-calculator',
+      'home-sale-exclusion-calculator',
+      'hsa-contribution-limit-calculator',
+      'hsa-shoebox-reimbursement-planner',
+      'inherited-ira-10-year-withdrawal-planner',
+      'iso-exercise-amt-calculator',
+      'job-offer-total-comp-calculator',
+      'medicaid-lookback-penalty-calculator',
+      'medicare-irmaa-cliff-calculator',
+      'mega-backdoor-roth-calculator',
+      'nanny-tax-calculator',
+      'niit-calculator',
+      'no-tax-on-tips-overtime-calculator',
+      'nua-employer-stock-calculator',
+      'pension-lump-sum-vs-annuity-calculator',
+      'qcd-calculator',
+      'real-estate-professional-status-calculator',
+      'retirement-withdrawal-sequencer',
+      'rmd-calculator',
+      'roth-conversion-bracket-fill-calculator',
+      'rsu-withholding-gap-calculator',
+      'rule-72t-sepp-calculator',
+      'salt-cap-calculator',
+      'section-1256-futures-tax-calculator',
+      'section-83b-election-calculator',
+      'senior-deduction-calculator',
+      'social-security-benefits-tax-calculator',
+      'social-security-claiming-age-calculator',
+      'social-security-earnings-test-calculator',
+      'social-security-survivor-spousal-benefit-calculator',
+      'tax-loss-harvesting-calculator',
+      'tax-lot-sale-optimizer',
+      'trump-account-calculator',
+      'wash-sale-checker',
+]);
+
+// The `household` section's members (CATEGORY_RULES, below): one household's home, loans, bills and
+// family money that is not a tax return. A Set so the rule is one lookup.
+const HOUSEHOLD_SLUGS = new Set([
+      'adu-payback-calculator',
+      'aid-award-letter-comparator',
+      'car-lease-deal-checker',
+      'card-bonus-planner',
+      'cd-treasury-ladder-planner',
+      'cheap-meal-plan-optimizer',
+      'estate-item-divider',
+      'estate-sale-net-proceeds-calculator',
+      'funeral-price-list-checker',
+      'heat-pump-vs-furnace-calculator',
+      'heloc-vs-cash-out-refinance-calculator',
+      'home-battery-planner',
+      'home-sale-net-proceeds-calculator',
+      'injury-settlement-net-proceeds-calculator',
+      'insurance-denial-appeal-builder',
+      'medical-bill-error-checker',
+      'mortgage-escrow-analysis-checker',
+      'mortgage-extra-payment-vs-invest-calculator',
+      'mortgage-points-break-even-calculator',
+      'property-tax-appeal-calculator',
+      'pslf-vs-refinance-calculator',
+      'rent-vs-buy-breakeven-calculator',
+      'roommate-rent-splitter',
+      'schengen-90-180-day-calculator',
+      'solar-payback-calculator',
+      'structured-settlement-buyout-calculator',
+      'student-loan-rap-ibr-standard-calculator',
+      'subscription-audit-from-statement',
+      'tenant-security-deposit-deadline-checker',
+      'texas-electricity-plan-checker',
+      'tfsa-over-contribution-checker',
+      'wedding-budget-allocator',
+]);
 
 const CATEGORY_RULES = [
   {
@@ -687,7 +782,7 @@ const CATEGORY_RULES = [
     // `clothing-design-studio` joined 2026-11-03: a brand designing and costing its own
     // garments and sunglasses to sell, the same cost-of-goods-to-shelf-price job as
     // `print-on-demand` and `wholesale-line-sheet` here, rather than a shop quoting a customer.
-    test: (slug) => /^(demand-forecast-backtester|grailed-fee-calculator|tcgplayer-fee-calculator|reseller-books|axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|payment-processor-fee-comparison|1099k-reconciliation-worksheet|wholesale-vs-retail-pricing-calculator|severance-package-calculator|chargeback-ratio-monitor|app-review-insights|commercial-lease-abstract-reader|vendor-contract-clause-reader|business-insurance-policy-reader|workers-comp-audit-dispute-checker|percentage-rent-audit-checker|bail-bond-agency-exposure-calculator|midterm-rental|amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|music-distribution|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|rv-rental-host|glamping-unit-payback|turo-host|kdp|whatnot|poshmark|storage-auction|tax-deed-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|discogs|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven|wholesale-line-sheet|clothing-design-studio)/.test(slug),
+    test: (slug) => /^(demand-forecast-backtester|grailed-fee-calculator|tcgplayer-fee-calculator|reseller-books|1099k-reconciliation-worksheet|wholesale-vs-retail-pricing-calculator|chargeback-ratio-monitor|app-review-insights|midterm-rental|amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|music-distribution|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|rv-rental-host|glamping-unit-payback|turo-host|kdp|whatnot|poshmark|storage-auction|tax-deed-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|discogs|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven|wholesale-line-sheet|clothing-design-studio)/.test(slug),
   },
   {
     id: 'trades',
@@ -812,7 +907,7 @@ const CATEGORY_RULES = [
     // beside `concrete-maturity` and the excavation and grading bid calculators.
     // `ids-model-check` joined 2026-11-16 on its first commit: checking a design team's IFC
     // model against a client's buildingSMART IDS, beside the IFC reader in `wall-framing-takeoff`.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'concrete-maturity' || slug === 'earthwork-cut-fill' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'concrete-maturity' || slug === 'earthwork-cut-fill' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -1082,9 +1177,6 @@ const CATEGORY_RULES = [
       // `time-off-request-planner` joined 2026-10-01 on its first commit: decides which
       // leave requests fit a team's minimum cover; the same owner as the shift tools above.
       'time-off-request-planner',
-      // `retirement-withdrawal-sequencer` joined 2026-10-01 on its first commit: whole-retirement
-      // withdrawal-order comparison, beside `roth-conversion-bracket-fill-calculator`.
-      'retirement-withdrawal-sequencer',
       // `production-mix-optimizer` added 2026-10-01: which products a bakery or
       // small food maker should bake when oven and labour hours run out; the
       // same owner as the menu and pour-cost tools above.
@@ -1418,16 +1510,6 @@ const CATEGORY_RULES = [
     // `massage-therapist-profit-calculator` and `nail-tech-booth-rent-calculator`, the same solo appointment-service pricing job.
     // `pte-tax-election-calculator` joined 2026-10-08 on its first commit: a pass-through owner weighing a state tax election is a service-business
     // owner's pricing-of-their-own-books decision; filed here because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    // `commercial-lease-abstract-reader` joined 2026-10-08 on its first commit: a small-business tenant abstracting a lease into dates and clauses is a
-    // service-business owner's own-books decision; filed here because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    // `percentage-rent-audit-checker` joined 2026-10-12 on its first commit: a tenant checking a landlord's percentage-rent statement is the same own-books decision as
-    // `commercial-lease-abstract-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    // `workers-comp-audit-dispute-checker` joined 2026-10-12 on its first commit: a small employer disputing a premium audit is the same own-books decision as
-    // `business-insurance-policy-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    // `business-insurance-policy-reader` joined 2026-10-12 on its first commit: a small owner checking a liability policy against a client's required limits is the same
-    // own-books decision as `vendor-contract-clause-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    // `vendor-contract-clause-reader` joined 2026-10-12 on its first commit: a small buyer reading an auto-renewing vendor agreement is the same own-books
-    // decision as `commercial-lease-abstract-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
     // `wedding-venue-date-pricing-optimizer` joined 2026-10-09 on its first commit: a venue owner pricing dates by demand is a small-operator
     // pricing job beside `escape-room-pricing-capacity-planner`; filed here because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
     // `capex-budget-prioritizer` joined 2026-10-09 on its first commit: a small owner choosing which upgrades to fund sits beside the payback calculators; filed here for the same bundle-ceiling reason.
@@ -1494,7 +1576,7 @@ const CATEGORY_RULES = [
     test: (slug) =>
       // `school-timetable-builder` joined 2026-11-16 on its first commit: a school office turning lessons, teachers and rooms into a
       // clash-free week is the same organiser scheduling job as `league-schedule-generator` and `volunteer-shift-scheduler` here.
-      /^(youth-lineup-rotator|school-timetable-builder|local-site-studio|review-reply-desk|bowling-center-profit-calculator|padel-club-profit-calculator|pet-boarding-daycare-profit-calculator|arcade-game-payback-calculator|self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|sales-quota-capacity-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|indoor-play-center-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|gift-vs-inherit-basis-calculator|qcd-calculator|fbar-8938-checker|niit-calculator|sbir-budget-builder|401k-loan-vs-withdrawal-calculator|529-to-roth-rollover-calculator|speaker-fee-calculator|nanny-tax-calculator|recipe-costing-calculator|real-estate-professional-status-calculator|bonus-take-home-gross-up-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|tenant-security-deposit-deadline-checker|pay-application-generator|lien-waiver-checker|medicaid-lookback-penalty-calculator|injury-settlement-net-proceeds-calculator|employment-contract-checker|worker-classification-checker|freelance-contract-checker|freelance-proposal-maker|nua-employer-stock-calculator|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-budget-allocator|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
+      /^(youth-lineup-rotator|axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|bail-bond-agency-exposure-calculator|school-timetable-builder|local-site-studio|review-reply-desk|bowling-center-profit-calculator|padel-club-profit-calculator|pet-boarding-daycare-profit-calculator|arcade-game-payback-calculator|self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|sales-quota-capacity-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|indoor-play-center-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|sbir-budget-builder|speaker-fee-calculator|recipe-costing-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|pay-application-generator|lien-waiver-checker|employment-contract-checker|worker-classification-checker|freelance-contract-checker|freelance-proposal-maker|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
         slug,
       ),
   },
@@ -1863,6 +1945,36 @@ const CATEGORY_RULES = [
       || slug === 'google-contacts-csv-check',
   },
   {
+    // US personal tax, pay and retirement, split out 2026-11-17. These are one household's own
+    // return, paycheck, benefits and retirement accounts. They had been parked in `services`
+    // (11), `backoffice` (34), `solo-earner` (7) and `food-service` (1) for offline-bundle room,
+    // so a retiree's RMD sat beside dock-door bids in the breadcrumb, the `BreadcrumbList`
+    // JSON-LD and the category page. Exact list, first-match placed before `uk-tax`; the slugs
+    // were taken out of the earlier rules so the code says where each tool lives. Business-side
+    // tax tools (self-employment tax, quarterly estimates, solo 401(k), R&D credit, payroll
+    // deposits, freelancer set-asides) stay in `backoffice`, which is the owner's books.
+    id: 'personal-tax',
+    title: 'US personal tax, pay & retirement',
+    accent: '#4a5a12',
+    blurb: 'Your own return, paycheck, equity comp, Social Security, Medicare and retirement accounts: RMDs, Roth conversions, IRMAA cliffs, RSU withholding, credits and deductions, worked with IRS and SSA figures in your browser.',
+    test: (slug) => PERSONAL_TAX_SLUGS.has(slug),
+  },
+  {
+    // Household money, split out 2026-11-17, the same move as `personal-tax` above. A patient's
+    // medical bill and denial appeal, a tenant's deposit deadline, a homeowner's escrow statement,
+    // mortgage points, rent-vs-buy and a family's funeral quote were filed in `backoffice` (12),
+    // `services` (4) and `solo-earner` (15) for offline-bundle room, so their breadcrumb and
+    // `BreadcrumbList` JSON-LD said "Back-office money" or "Creator & solo earner income" to a
+    // reader who is neither. Exact list, placed before the business sections; the slugs were taken
+    // out of those rules. Landlord, investor and employer tools (rent rolls, house hacking, H-1B
+    // lottery odds, security-deposit math for landlords) stay where the owner of the books browses.
+    id: 'household',
+    title: 'Household money, home & health bills',
+    accent: '#6a3d1a',
+    blurb: 'Your own mortgage, rent, loans, utility and medical bills: escrow shortages, mortgage points, rent vs buy, student-loan plans, medical bill errors, insurance denial appeals, tenant deposit deadlines, funeral quotes, worked from your own numbers in your browser.',
+    test: (slug) => HOUSEHOLD_SLUGS.has(slug),
+  },
+  {
     // UK tax, pay and benefits, split out of `backoffice` 2026-10-17: 52 `uk-`
     // calculators had taken that category's offline bundle past its 4 MiB
     // gzipped bound (build.test.mjs), and a UK visitor looking for take-home
@@ -1960,6 +2072,15 @@ const CATEGORY_RULES = [
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
       || slug === '1099k-reconciliation-worksheet'
+      // Back from `marketplace` 2026-11-17 (polish): these seven are a small business's own contracts, insurance, card fees and
+      // payroll, the reader this section names. They were parked under "Marketplace seller tools" while `backoffice` sat over
+      // its old 3 MB offline ceiling (now 4 MiB, build.test.mjs, with the UK tax tools split out to `uk-tax`), so a tenant
+      // reading a lease saw "Marketplace seller tools" as the first link on the page.
+      || /^(payment-processor-fee-comparison|severance-package-calculator|commercial-lease-abstract-reader|vendor-contract-clause-reader|business-insurance-policy-reader|workers-comp-audit-dispute-checker|percentage-rent-audit-checker)/.test(slug)
+      // `cash-application-matcher` joined 2026-11-17 on its first commit: it
+      // applies bank receipts to open invoices, the receivables side of the
+      // same reconciliation job as `payment-reconciliation-workbench`.
+      || slug === 'cash-application-matcher'
       // `nacha-file-validator` joined 2026-10-04 on its first commit: it checks the ACH payment file a bookkeeper
       // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
       // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.
@@ -2147,8 +2268,6 @@ const CATEGORY_RULES = [
       || slug === 'uk-take-home-pay-calculator'
       // `uk-dividend-tax-calculator` joined 2026-10-13 on its first commit: UK personal-tax arithmetic for directors and investors, sibling of the capital-gains and sole-trader tools.
       || slug === 'uk-dividend-tax-calculator'
-      // `tfsa-over-contribution-checker` joined 2026-10-13 on its first commit: Canadian personal-tax room and penalty arithmetic, a sibling of the Canada GST/HST checker.
-      || slug === 'tfsa-over-contribution-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
       || slug === 'uk-statutory-sick-pay-calculator'
       // `au-redundancy-pay-calculator` joined 2026-10-13 on its first commit: employer termination-pay compliance arithmetic, same back-office job.
@@ -2186,10 +2305,6 @@ const CATEGORY_RULES = [
       // `us-substantial-presence-test-calculator` joined 2026-10-19 on its first commit: the inbound US
       // residency day count, the counterpart of the 330-day FEIE count above.
       || slug === 'us-substantial-presence-test-calculator'
-      // `cheap-meal-plan-optimizer` joined 2026-10-01 on its first commit: a household's food budget as a
-      // minimum-cost linear program -- a personal money decision rather than an operator pricing food, so it
-      // sits here and not under `food-service`, which is for people who sell food.
-      || slug === 'cheap-meal-plan-optimizer'
       // `self-employed-schedule-c-categorizer` is the same bank-file-to-tax-lines job for a sole proprietor's
       // Schedule C, and its page sits next to `1099k-reconciliation-worksheet` and the landlord version.
       || slug === 'self-employed-schedule-c-categorizer'
@@ -2528,7 +2643,7 @@ const CATEGORY_RULES = [
       // `texas-electricity-plan-checker` joined 2026-11-14 on its first commit: a household's own usage billed on
       // each retail plan's label terms, the same own-numbers utility-bill decision as `solar-payback-calculator`
       // and `heat-pump-vs-furnace-calculator`.
-      || /^(hard-money-loan-cost-calculator|wash-sale-checker|inherited-ira-10-year-withdrawal-planner|cobra-vs-marketplace-calculator|nsa-idr-offer-calculator|adu-payback-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|scope-creep-change-order-calculator|freelance-project-picker|like-kind-exchange|syndication-waterfall|med-spa-treatment-profit-calculator|fractional-executive-rate-calculator|grant-writer-proposal-price-calculator|chiropractor-new-patient-roi-calculator|dependent-care-fsa-vs-credit-calculator|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|turo-earnings-report|substack-subscriber-export|ghost-members-export|app-store-sales-report|era-835-underpayment-finder|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|early-pay-discount-picker|cam-|saas-seat|saas-renewal-planner|vendor-contract-clause-reader|saas-annual-plan|saas-efficiency-metrics-calculator|saas-cac-payback|stripe-churn-cohort|ebay-promoted-listings-roi|etsy-ads-roi|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|booking-request-chooser|market-event-picker|consignment-markdown-planner|trade-show-roi-calculator|dog-grooming-day-planner|str-turnover-scheduler|midterm-rental-calculator|support-staffing-planner|lot-split-calculator|csa-share-pricing-calculator|seller-net-sheet|property-tax-appeal-calculator|aca-subsidy-cliff-calculator|medical-bill-error-checker|insurance-denial-appeal-builder|mortgage-escrow-analysis-checker|social-security-claiming-age-calculator|social-security-survivor-spousal-benefit-calculator|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|equipment-lease-vs-buy|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|cannabis-280e-tax-calculator|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|business-vehicle-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator|solo-401k-contribution-calculator|sep-ira-vs-solo-401k-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|estimated-tax-penalty-calculator|self-employment-tax-calculator|backdoor-roth-pro-rata-calculator|roth-conversion-bracket-fill-calculator|rsu-withholding-gap-calculator|iso-exercise-amt-calculator|job-offer-total-comp-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|solar-payback-calculator|heat-pump-vs-furnace-calculator|texas-electricity-plan-checker|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|espp-tax-calculator|tax-loss-harvesting-calculator|crypto-cost-basis-calculator|home-sale-exclusion-calculator|medicare-irmaa-cliff-calculator|coast-fire-calculator|rmd-calculator|rental-dscr-calculator|commercial-property-cap-rate-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|section-83b-election-calculator|pslf-vs-refinance-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|rule-72t-sepp-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|business-loan-offer-comparator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|investor-update-builder|online-business-valuation-calculator|customer-lifetime-value-predictor|icp-lens|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|donor-acknowledgment-letter-generator|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
+      || /^(hard-money-loan-cost-calculator|nsa-idr-offer-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|scope-creep-change-order-calculator|freelance-project-picker|like-kind-exchange|syndication-waterfall|med-spa-treatment-profit-calculator|fractional-executive-rate-calculator|grant-writer-proposal-price-calculator|chiropractor-new-patient-roi-calculator|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|turo-earnings-report|substack-subscriber-export|ghost-members-export|app-store-sales-report|era-835-underpayment-finder|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|early-pay-discount-picker|cam-|saas-seat|saas-renewal-planner|vendor-contract-clause-reader|saas-annual-plan|saas-efficiency-metrics-calculator|saas-cac-payback|stripe-churn-cohort|ebay-promoted-listings-roi|etsy-ads-roi|stripe-failed-payment|google-ads-wasted-spend|subscription-price|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|booking-request-chooser|market-event-picker|consignment-markdown-planner|trade-show-roi-calculator|dog-grooming-day-planner|str-turnover-scheduler|midterm-rental-calculator|support-staffing-planner|lot-split-calculator|csa-share-pricing-calculator|seller-net-sheet|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|equipment-lease-vs-buy|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|cannabis-280e-tax-calculator|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|tip-pool-compliance-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|business-vehicle-depreciation-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|solo-401k-contribution-calculator|sep-ira-vs-solo-401k-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|self-employment-tax-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|rental-dscr-calculator|commercial-property-cap-rate-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|business-loan-offer-comparator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|investor-update-builder|online-business-valuation-calculator|customer-lifetime-value-predictor|icp-lens|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|donor-acknowledgment-letter-generator|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -3702,8 +3817,7 @@ const CATEGORY_RULES = [
         // bound; a self-employed filer's vehicle deduction and a freelancer's proposal are one person earning from their own work.
         'mileage-deduction-calculator',
         'proposal-maker',
-        // Joined 2026-10-18 to bring the catch-all back under its bound: one person comparing their own aid letters / turning their own meeting notes into actions.
-        'aid-award-letter-comparator',
+        // Joined 2026-10-18 to bring the catch-all back under its bound: one person turning their own meeting notes into actions.
         'meeting-action-items',
         // `wholesale-real-estate-offer-calculator`: one wholesaler pricing their own assignment deal; left the catch-all 2026-10-16.
         'wholesale-real-estate-offer-calculator',
@@ -3711,8 +3825,6 @@ const CATEGORY_RULES = [
         'clergy-housing-allowance-calculator',
         // `retreat-profit-pricing-calculator` joined 2026-10-09 on its first commit: one teacher or coach costing and pricing their own event.
         'retreat-profit-pricing-calculator',
-        // `card-bonus-planner` joined 2026-10-09 on its first commit. Back-office is over its 3 MB offline bound on main; one person scheduling their own sign-up bonuses is an individual earning from their own spending, not a business back office.
-        'card-bonus-planner',
         // `greenhouse-bench-planner` joined 2026-10-07 on its first commit. Back-office was at its 3 MB offline bound; a
         // grower selling transplants on fixed dates is one person pricing their own season's space.
         // `contract-vs-fte-rate-calculator` joined 2026-10-08 on its first commit: one person working out what a contract rate must be to match a salary.
@@ -3722,46 +3834,12 @@ const CATEGORY_RULES = [
         'mobile-home-park-valuation-calculator',
         // `cell-tower-lease-buyout-calculator` joined 2026-10-08 on its first commit, same reason: one landowner weighing a buyout of their own lease income.
         'cell-tower-lease-buyout-calculator',
-        // `pension-lump-sum-vs-annuity-calculator` joined 2026-10-08 on its first commit: one retiree weighing a buyout of their own pension income, beside the lease buyout tools.
-        'pension-lump-sum-vs-annuity-calculator',
-        // `fers-retirement-planner` joined 2026-10-09 on its first commit: one federal employee comparing retirement ages on their own pension, beside the pension buyout tool.
-        'fers-retirement-planner',
         // `401k-plan-fee-calculator` joined 2026-10-10 on its first commit: filed here because `backoffice` is at its 3 MB gzipped offline bound; one plan sponsor sizing their own retirement plan's cost, beside the other retirement planners.
         '401k-plan-fee-calculator',
-        // `tax-lot-sale-optimizer` joined 2026-10-08 on its first commit: one investor choosing which lots of their own holding to sell, beside the other single-person tax and income-timing tools.
-        'tax-lot-sale-optimizer',
-        // `mortgage-extra-payment-vs-invest-calculator` joined 2026-10-08 on its first commit: one homeowner deciding what to do with their own spare cash against their own loan, beside the other single-person money-decision tools.
-        'mortgage-extra-payment-vs-invest-calculator',
         // `covered-call-wheel-calculator` joined 2026-10-08 on its first commit: one investor ranking option quotes on their own holding, beside the other single-person investing and income-timing tools.
         'covered-call-wheel-calculator',
-        // `rent-vs-buy-breakeven-calculator` joined 2026-10-08 on its first commit: one household deciding whether to buy, beside the home-sale and mortgage tools.
-        'rent-vs-buy-breakeven-calculator',
-        // `car-lease-deal-checker` joined 2026-10-11 on its first commit: one shopper checking their own lease quote, beside the other single-household money-decision tools.
-        'car-lease-deal-checker',
-        // `home-sale-net-proceeds-calculator` joined 2026-10-11 on its first commit: one seller's net sheet and tax estimate, beside the other single-household money-decision tools.
-        'home-sale-net-proceeds-calculator',
-        // `roommate-rent-splitter` joined 2026-10-11 on its first commit: roommates dividing their own rent, beside the other single-household money-decision tools.
-        'roommate-rent-splitter',
-        // `estate-item-divider` joined 2026-11-13 on its first commit: heirs dividing their own family's belongings, beside the roommate rent splitter (same fairness family).
-        'estate-item-divider',
-        // `funeral-price-list-checker` joined 2026-10-12 on its first commit: one family checking their own funeral quote line by line, beside the other single-household money-decision tools.
-        'funeral-price-list-checker',
-        // `cd-treasury-ladder-planner` joined 2026-10-08 on its first commit: one saver laddering their own cash, beside the other single-person investing and income-timing tools.
-        'cd-treasury-ladder-planner',
-        // `hsa-shoebox-reimbursement-planner` joined 2026-10-08 on its first commit: one HSA owner valuing their own unreimbursed receipts, beside the other single-person tax and income-timing tools.
-        'hsa-shoebox-reimbursement-planner',
-        // `student-loan-rap-ibr-standard-calculator` joined 2026-10-08 on its first commit: one borrower choosing between repayment plans on their own federal loans, beside the other single-person money-decision tools.
-        'student-loan-rap-ibr-standard-calculator',
-        // `charity-bunching-planner` joined 2026-10-08 on its first commit: one donor timing gifts into a donor-advised fund, beside the other single-person tax and income-timing tools.
-        'charity-bunching-planner',
-        // `structured-settlement-buyout-calculator` joined 2026-10-08 on its first commit: one payee weighing a factoring company's cash offer for settlement payments, beside the buyout tools.
-        'structured-settlement-buyout-calculator',
         // `film-tax-credit-net-value-calculator` joined 2026-10-08 on its first commit: one producer turning their own production's incentive into net cash, the catch-all being at its bound.
         'film-tax-credit-net-value-calculator',
-        // `mortgage-points-break-even-calculator` joined 2026-10-08 on its first commit: one buyer weighing points on their own loan estimate, beside the other lump-sum-for-income decisions.
-        'mortgage-points-break-even-calculator',
-        // `heloc-vs-cash-out-refinance-calculator` joined 2026-10-08 on its first commit: one homeowner pricing their own two ways to borrow against equity, beside the mortgage points tool.
-        'heloc-vs-cash-out-refinance-calculator',
         // `oil-gas-mineral-rights-offer-calculator` joined 2026-10-08 on its first commit: one owner weighing a buyout of their own royalty income, beside the tower-lease tool.
         'oil-gas-mineral-rights-offer-calculator',
         // `tax-lien-certificate-yield-calculator` joined 2026-10-08: the catch-all hit its bound of 5 when it graduated; one investor working out the yield on their own certificate.
@@ -3828,8 +3906,6 @@ const CATEGORY_RULES = [
         'uk-sole-trader-vs-limited-company-calculator',
         // `uk-mtd-income-tax-checker` joined 2026-10-13 on its first commit: UK sole traders and landlords checking their Making Tax Digital start date, the same solo earner.
         'uk-mtd-income-tax-checker',
-        // `schengen-90-180-day-calculator` joined 2026-10-13 on its first commit: remote workers and nomads tracking Schengen days, the same solo earner.
-        'schengen-90-180-day-calculator',
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
@@ -3856,9 +3932,6 @@ const CATEGORY_RULES = [
         // `youtube-sponsorship-rate-calculator` joined 2026-10-15 on its first commit: a creator pricing their own sponsored video is one person working out their own income.
         'youtube-sponsorship-rate-calculator',
         'sponsor-ready',
-        // `section-1256-futures-tax-calculator` joined 2026-10-08 on its first commit: back-office was at its 3 MB offline bound,
-        // and a futures trader pricing what the 60/40 rule leaves them is one person working out their own income.
-        'section-1256-futures-tax-calculator',
         // `sep-ira-contribution-calculator` landed 2026-10-08 from a stranded branch: back-office was at its 3 MB offline bound,
         // and a self-employed filer sizing their own retirement contribution is one person working out their own income.
         'sep-ira-contribution-calculator',
@@ -3873,11 +3946,9 @@ const CATEGORY_RULES = [
         'tutoring-group-schedule-optimizer',
         // `rush-job-sequencer` joined 2026-10-09 on its first commit: a small shop ordering its own job queue, one hop from the scheduling optimizers above.
         'rush-job-sequencer',
-        // `patreon-fee-calculator` and the two Social Security calculators were filed here 2026-10-09 because the catch-all hit 6:
-        // each is one individual working out what their own creator income or benefit actually nets.
+        // `patreon-fee-calculator` was filed here 2026-10-09 because the catch-all hit 6: one creator working out what their own
+        // income actually nets. (The two Social Security calculators filed with it moved to `personal-tax` 2026-11-17.)
         'patreon-fee-calculator',
-        'social-security-benefits-tax-calculator',
-        'social-security-earnings-test-calculator',
         'voiceover-project-rate-calculator',
         // The three below joined 2026-10-15 when they got landing pages and the catch-all hit 8: one photographer or one frequent traveler running their own kit.
         'garmin-world-traveler-watchface',
@@ -4774,6 +4845,22 @@ export function groupGuidesByCategory(groups) {
  * that carries it twice is what search engines truncate.
  */
 const CATEGORY_PAGE_COPY = {
+  'personal-tax': {
+    title: 'Free US personal tax, paycheck and retirement calculators',
+    description:
+      'Free US calculators for your own return and retirement: RMDs, Roth conversions, Social Security claiming age, IRMAA, RSU and ESPP tax, credits, deductions, NIIT.',
+    intro:
+      'Each tool works one household tax, pay or retirement question with the IRS or SSA figures it names, shows the arithmetic, and says which tax year it assumes. Nothing you type leaves your browser.',
+    audience: 'US employees, retirees, investors and families doing their own numbers',
+  },
+  household: {
+    title: 'Free household money calculators: home, loans, medical bills',
+    description:
+      'Free household money tools: mortgage points and escrow, rent vs buy, student-loan plans, medical bill errors, insurance denial appeals and deposit deadlines.',
+    intro:
+      'Each tool works one household money question from your own figures (a loan estimate, an escrow statement, an itemized bill, a lease) and shows the arithmetic and the rule it applies. Nothing you type leaves your browser.',
+    audience: 'Homeowners, renters, borrowers, patients and families checking their own bills and decisions',
+  },
   'uk-tax': {
     title: 'Free UK tax, pay and benefits calculators',
     description:
@@ -4959,12 +5046,13 @@ const SUBCATEGORY_RULES = {
       // closer to a panel or EV-charger job than to anything in the other groups.
       // `service-load-check` (2026-11-11): the NEC service load check electricians run before an EV charger or heat pump job.
       // `pv-string-sizer` (2026-11-11): PV string sizing (cold Voc, hot Vmp, strings per MPPT) for solar installers.
+      // `voltage-drop-calculator` (2026-11-17): voltage drop and wire size for DC, single and three-phase runs, the conductor step after the service and string sizing.
       // `hvac-load-calc` (2026-11-11): room-by-room heating and cooling loads, the sizing step before a heat pump, mini-split or furnace bid.
       // `wall-condensation-check` (2026-11-11): the moisture check on the same wall `hvac-load-calc` sizes heat for.
       // `water-supply-sizing` (2026-11-13): peak water demand and supply pipe sizes, the plumbing step beside the water heater and softener bids.
       // `sprinkler-hydraulic-calc` (2026-11-13): fire sprinkler hydraulics for trees, loops and grids, the pipe work beside the domestic water sizing.
       // `elevator-traffic-analysis` (2026-11-14): up-peak lift traffic (round trip time, interval, handling capacity), the vertical transportation step of the same building services.
-      test: (slug) => /^(hvac-load-calc|water-supply-sizing|sprinkler-hydraulic-calc|elevator-traffic-analysis|wall-condensation-check|service-load-check|pv-string-sizer|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      test: (slug) => /^(hvac-load-calc|water-supply-sizing|sprinkler-hydraulic-calc|elevator-traffic-analysis|wall-condensation-check|service-load-check|pv-string-sizer|voltage-drop-calculator|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -5059,15 +5147,21 @@ async function exists(target) {
   }
 }
 
-/** Every file under `dir`, recursively. */
+/**
+ * Every file under `dir`, recursively, in depth-first `readdir` order.
+ * Sibling directories are read concurrently (one awaited `readdir` at a time
+ * left three of libuv's four I/O threads idle); `Promise.all` keeps each
+ * subtree in its entry's place, so the list is the same as the serial walk's
+ * (docs/history/pages-build-perf-2026-11-11-concurrent-walks.md).
+ */
 export async function listFiles(dir) {
-  const out = [];
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const parts = await Promise.all(entries.map((entry) => {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await listFiles(full)));
-    else if (entry.isFile()) out.push(full);
-  }
-  return out;
+    if (entry.isDirectory()) return listFiles(full);
+    return entry.isFile() ? [full] : [];
+  }));
+  return parts.flat();
 }
 
 /**
@@ -5756,18 +5850,14 @@ export function listProse(items) {
  */
 export async function publishedPages(dir, prefix = '') {
   const entries = await fs.readdir(dir, { withFileTypes: true });
-  const pages = [];
-
-  for (const entry of entries) {
+  // Subdirectories are read concurrently, as in `listFiles`; the result is
+  // sorted, so the order they finish in cannot show.
+  const parts = await Promise.all(entries.map((entry) => {
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) {
-      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
-    } else if (entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html') {
-      pages.push(relative);
-    }
-  }
-
-  return pages.sort();
+    if (entry.isDirectory()) return publishedPages(path.join(dir, entry.name), relative);
+    return entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html' ? [relative] : [];
+  }));
+  return parts.flat().sort();
 }
 
 // ---------------------------------------------------------------------------
@@ -5873,7 +5963,58 @@ export function copiesDir(name) {
   return !name.startsWith('.') || PUBLISHABLE_DOT_DIRS.has(name);
 }
 
-export async function copyTree(from, to, baseUrl) {
+/**
+ * Git-ignored, untracked paths under `dir` that a fresh checkout does not
+ * have, as absolute paths (a directory without its trailing `/`).
+ *
+ * The published site is built in CI from a fresh checkout, so a file git
+ * ignores (a fetched eval corpus, a cargo `target/`, a dataset download) is
+ * never in it. A local build copied them all the same, and `check.mjs` then
+ * failed on types like `.csproj` or `.ids` that CI never sees: four sessions
+ * on 2026-11-16/17 lost a local `run_workflow_locally.py` round to
+ * ids-model-check's eval/corpus and csshound's target/. Leaving them out makes
+ * the local artifact the one CI builds.
+ *
+ * `checkIgnoreOutput` is `git check-ignore -v --no-index --stdin` over
+ * `git ls-files --others --ignored --exclude-standard --directory`, both run
+ * at the repository root: lines `source:line:pattern<TAB>path`. A root
+ * `.gitignore` rule that names a `ventures/` path is a build output CI makes
+ * too (einvoice-preflight/browser/), so those stay, the same rule
+ * venture-preflight.mjs applies. Taken before the build generates anything,
+ * so what the build itself writes is copied as before.
+ */
+export function parseLocalOnly(checkIgnoreOutput, repoRoot) {
+  const paths = new Set();
+  for (const line of (checkIgnoreOutput || '').split('\n')) {
+    const tab = line.indexOf('\t');
+    if (tab < 0) continue;
+    const [source, , ...pattern] = line.slice(0, tab).split(':');
+    if (source === '.gitignore' && pattern.join(':').includes('ventures/')) continue;
+    const rel = line.slice(tab + 1).trim().replace(/\/$/, '');
+    if (rel) paths.add(path.join(repoRoot, rel));
+  }
+  return paths;
+}
+
+/** `parseLocalOnly` for the working tree holding `dir`; empty outside git or with PAGES_KEEP_IGNORED=1. */
+export function localOnlyPaths(dir) {
+  if (process.env.PAGES_KEEP_IGNORED === '1') return new Set();
+  try {
+    const git = (cwd, args, input = '') => execFileSync('git', args, {
+      cwd, encoding: 'utf8', input, maxBuffer: 1 << 26, stdio: ['pipe', 'pipe', 'ignore'],
+    });
+    const top = git(dir, ['rev-parse', '--show-toplevel']).trim();
+    const rel = path.relative(top, path.resolve(dir)) || '.';
+    const listed = git(top, ['ls-files', '--others', '--ignored', '--exclude-standard', '--directory', '--', rel]);
+    if (!listed.trim()) return new Set();
+    // Every listed path matches a rule, so check-ignore exits 0 here.
+    return parseLocalOnly(git(top, ['check-ignore', '-v', '--no-index', '--stdin'], listed), top);
+  } catch {
+    return new Set();
+  }
+}
+
+export async function copyTree(from, to, baseUrl, skip = null) {
   await fs.mkdir(to, { recursive: true });
   const entries = await fs.readdir(from, { withFileTypes: true });
   const copied = [];
@@ -5881,10 +6022,11 @@ export async function copyTree(from, to, baseUrl) {
   for (const entry of entries) {
     const src = path.join(from, entry.name);
     const dest = path.join(to, entry.name);
+    if (skip?.has(src)) continue;
 
     if (entry.isDirectory()) {
       if (!copiesDir(entry.name)) continue;
-      const nested = await copyTree(src, dest, baseUrl);
+      const nested = await copyTree(src, dest, baseUrl, skip);
       // A directory that held only CLI source leaves an empty shell behind.
       if (nested.length === 0) await fs.rm(dest, { recursive: true, force: true });
       copied.push(...nested);
@@ -6214,6 +6356,7 @@ const CATEGORY_STYLE = `
     .start-grid a:hover, .start-grid a:focus-visible { color: var(--accent); text-decoration: underline; }
     .start-grid p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
     .start-grid .meta { font-size: .8rem; color: var(--soft); }
+    .start-here .starting { margin-top: 16px; }
     .answers { margin: 30px 0 0; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; }
     .answers ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px 22px;
                   grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
@@ -6234,7 +6377,7 @@ const CATEGORY_STYLE = `
  * tools answer" lists the tools' own guide pages (`discoverGuides`), so every
  * line is a page that shipped, in that page's own words.
  */
-export function renderAudienceLead({ start = [], questions = [], toRoot = '../../', who = '', total = 0 }) {
+export function renderAudienceLead({ start = [], questions = [], toRoot = '../../', who = '', total = 0, starting = '' }) {
   if (!start.length) return '';
   const cards = start
     .map(
@@ -6270,7 +6413,12 @@ ${questions
       <p class="sub">The fullest tools on this page, with the most worked questions behind them.</p>
       <ol class="start-grid">
 ${cards}
-      </ol>
+      </ol>${
+        starting
+          ? `
+      <p class="starting">${escapeHtml(starting)}</p>`
+          : ''
+      }
     </section>${answers}
     <h2 class="all-tools">All ${formatCount(total)} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
 `;
@@ -6422,7 +6570,7 @@ ${subItems.map(renderCard).join('\n')}
   const otherAudiences = audiences.filter(({ audience }) => audiencePageId(audience) !== category.id);
   const audienceLinks = otherAudiences.length
     ? `    <section class="siblings">
-      <h2>Free tools by trade and business</h2>
+      <h2>Free tools by trade, business and who you are</h2>
       <ul>
 ${otherAudiences
   .map(
@@ -6595,6 +6743,7 @@ export function renderAudiencePage({ audience, items, groups, baseUrl, audiences
     questions: audienceQuestions(exampleTools(items, items.length), guides),
     who: audience.who,
     total: items.length,
+    starting: audience.starting,
   });
   const byCategory = groupByCategory(items);
   const subgroups =
@@ -6615,7 +6764,11 @@ export function renderAudiencePage({ audience, items, groups, baseUrl, audiences
       title: audience.title,
       description: audience.description,
       intro: audience.intro,
-      starting: audience.starting,
+      // With a "Start here" row the note goes under it (renderAudienceLead):
+      // in the hero it pushed the first card below a 360x780 phone's screen
+      // on 20 of 31 pages (polish-2026-11-18-fold-check.md), and its advice,
+      // "run a few sample jobs through these", is about those cards.
+      starting: lead ? '' : audience.starting,
       audience: audience.who,
       lead,
     },
@@ -9248,7 +9401,7 @@ ${
   audiencePages.length
     ? `    <section class="band" id="for" aria-labelledby="for-h">
       <p class="section-eyebrow">Who it is for</p>
-      <h2 id="for-h">Find the tools for your trade or business</h2>
+      <h2 id="for-h">Find the tools for your trade, business or stage of life</h2>
       <p class="band-lede">The same tools, filed by who they are for. Each page lists the calculators that kind of business uses, and what to price first if you are just starting one.</p>
       <ul class="for-list">
 ${audiencePages
@@ -12174,7 +12327,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Work queue](${baseUrl}${QUEUE_PATH}): a read-only view of what the agents work on next and in what order (owner ideas, website requests, flagship projects, research programmes), with what is in flight and what waits on the owner.`,
-    `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
+    `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Each says what the product does, what the free tool does, and when the paid product is the right answer, so it answers "is there a free alternative to X?" with what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
     // question an assistant is actually asked is about one product ("a free
     // alternative to Jobber?"), and a bare link to a 167-entry index makes it
@@ -12183,9 +12336,12 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     // page that carries the detail if it needs it. Only the multi-tool
     // products: a product with a single comparison is already reachable
     // through the index and would pad this file without adding an answer.
+    // What every comparison page says is stated once, on the parent line:
+    // repeating it on each product line cost ~130 bytes a line and pushed
+    // the file past its 50,000-byte budget on 2026-11-18.
     ...compareProductGroups.map(
       (group) =>
-        `  - [${group.subject}](${baseUrl}${comparisonProductPath(group.key)}): ${group.items.length} tools here have a side-by-side page against ${group.subject}, each saying what it does, what the free tool does, and when ${group.subject} is the right answer.`,
+        `  - [${group.subject}](${baseUrl}${comparisonProductPath(group.key)}): ${group.items.length} tools here have a side-by-side page against ${group.subject}.`,
     ),
     // The informational half of the catalogue, which this file named nowhere
     // until 2026-09-07. Measured against a fresh build that day: 0 of the 173
@@ -12620,6 +12776,8 @@ export async function buildSite({
   // false skips drawing share cards (tags are still written): fixture builds
   // in the tests that read markup only (setCardDrawing in share.mjs).
   cards = true,
+  // Slugs to build, for a preview only (--only=a,b): see onlySurfaces.
+  only = null,
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   setCardDrawing(cards);
@@ -12627,7 +12785,7 @@ export async function buildSite({
   SITE_FEEDBACK_URL = normaliseCounterUrl(feedbackUrl);
   const pending = {};
   try {
-    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending });
+    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending, only });
   } finally {
     // The research builder runs beside the JS passes; when one of those throws,
     // wait for it to stop writing into outDir before the caller cleans up.
@@ -12638,7 +12796,26 @@ export async function buildSite({
   }
 }
 
-async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending = {} }) {
+// A preview build of a few ventures (`build.mjs --only=slug[,slug]`). Polish
+// runs measuring a page edit in the site chrome had only the full build, 5 to
+// 12 min, once before and once after (run records 2026-11-16, two sessions:
+// "no way to rebuild only a few venture pages"). The hub, sitemap and search
+// then list only these slugs, and links to a venture left out are repointed
+// at the repository, so the output is for looking at those pages, never for
+// deploying or for check.mjs. An unknown slug throws, so a typo is not an
+// empty site.
+export function onlySurfaces(discovered, only) {
+  if (!only || only.length === 0) return discovered;
+  const known = new Set(discovered.map((s) => s.slug));
+  const missing = only.filter((slug) => !known.has(slug));
+  if (missing.length > 0) {
+    throw new Error(`--only: no published venture named ${missing.join(', ')}`);
+  }
+  const keep = new Set(only);
+  return discovered.filter((s) => keep.has(s.slug));
+}
+
+async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending = {}, only = null }) {
 
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(outDir, { recursive: true });
@@ -12649,8 +12826,19 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   pending.research = researchBuild;
   researchBuild.catch(() => {});
 
+  // Listed before the generators run, and anything they rewrite is kept:
+  // only what was already on disk, and not the build's own output, is skipped.
+  const localOnly = localOnlyPaths(venturesDir);
+  const generatedFrom = Date.now() - 1000;
   generateVenturePages(venturesDir);
-  const discovered = await discoverSurfaces(venturesDir);
+  for (const p of localOnly) {
+    try { if (statSync(p).mtimeMs >= generatedFrom) localOnly.delete(p); } catch { localOnly.delete(p); }
+  }
+  if (localOnly.size) {
+    const shown = [...localOnly].slice(0, 3).map((p) => path.relative(REPO_ROOT, p)).join(', ');
+    log(`Left out ${localOnly.size} git-ignored local-only path(s) a fresh checkout lacks (${shown}${localOnly.size > 3 ? ', ...' : ''}); PAGES_KEEP_IGNORED=1 keeps them.`);
+  }
+  const discovered = onlySurfaces(await discoverSurfaces(venturesDir), only);
   const launched = await loadLaunchDates();
   const surfaces = [];
   const repairs = [];
@@ -12685,7 +12873,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // `docs/history/pages-build-perf-2026-11-11-parallel-copy.md`). Pass 2 below
   // runs its link repairs to completion before it writes any file another
   // surface could link to (see there).
-  await mapLimit(discovered, 16, (surface) => copyTree(surface.sourceDir, path.join(outDir, surface.slug), base));
+  await mapLimit(discovered, 16, (surface) => copyTree(surface.sourceDir, path.join(outDir, surface.slug), base, localOnly));
 
   // A handful of ventures (currently: ai-engineering-academy, tender-radar,
   // quote-margin-check, shopify-permission-drift, mcp-supply-chain-watch,
@@ -12718,7 +12906,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // deliverable), so the specific files a venture's own page offers as a
   // download have to be published here instead, ahead of `repairLinks`, or
   // the CTA's link 404s for every visitor against this private repository.
+  const discoveredSlugs = new Set(discovered.map((s) => s.slug));
   for (const [slug, files] of Object.entries(DOWNLOADABLE_CLI_FILES)) {
+    if (!discoveredSlugs.has(slug)) continue; // left out by --only
     for (const name of files) {
       const from = path.join(venturesDir, slug, name);
       const to = path.join(outDir, slug, name);
@@ -13196,7 +13386,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
     highlighted, narrowed, embedded, sponsored, noscripted, offline, comparisons, shareCards, audio, retitled,
-    preloads,
+    preloads, only: only && only.length > 0 ? only : null,
   };
 }
 
@@ -13295,6 +13485,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   process.on('exit', releaseLock);
   for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { releaseLock(); process.exit(130); });
 
+  const cliOnly = process.argv.find((a) => a.startsWith('--only='))?.slice('--only='.length)
+    .split(',').map((x) => x.trim()).filter(Boolean) ?? null;
   const result = await buildSite({
     baseUrl: argBase || process.env.PAGES_BASE_URL || DEFAULT_BASE_URL,
     outDir: cliOutDir,
@@ -13306,6 +13498,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       ?? process.env.PAGES_FEEDBACK_URL
       ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'edge', 'site.json'), 'utf8')).url,
     audioCdn: process.argv.includes('--audio-cdn'),
+    only: cliOnly,
+    // A preview is for looking at pages; the share-card PNGs (thousands, for
+    // posts and research too) are its slowest part and no page shows them.
+    cards: !cliOnly,
     log: console.log,
   });
 
@@ -13326,4 +13522,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Added a JavaScript-needed notice to ${result.noscripted.length} page(s).`);
   console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
   console.log(`Module preload: ${result.preloads.links} link(s) on ${result.preloads.pages} page(s); deepest import chain ${result.preloads.deepest}.`);
+  if (result.only) {
+    console.log(`\nPREVIEW ONLY (--only=${result.only.join(',')}): the hub, sitemap and search list just these, `
+      + 'links to other ventures point at the repository and no share cards were drawn; '
+      + 'look at the pages, but do not deploy it or run check.mjs on it.');
+  }
 }

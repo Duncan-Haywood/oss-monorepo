@@ -1,0 +1,217 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/simdesign-filletfloor",
+ "stratum": "research",
+ "seed": "2026-11-17-7c9d",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior mechanical/FEA engineer who does stress-constrained shape optimisation; first checks: is the governing stress (the inner-fillet peak) mesh-converged at the mesh the optimiser uses, do the 'feasible' designs actually meet the limit on a converged mesh, do the beam-theory far-field stresses and the tip deflection agree with hand calculations, and is the hypothesis test designed so it could fail",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Independent recomputations on the peak/floor 0.2/seed 0 design from results.json (w 11.634, r 8.455, b 3), `/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/83ac84c5-274c-5b3a-a43b-e032fdbf7d7e/scratchpad/ff/check.py`: (1) closed-form area L w + (H-w) w + r^2(1-pi/4) times b times 7.85e-3 gives 41.0119 g vs code 41.0119 g (pass); (2) Euler-Bernoulli bending plus axial in the vertical arm at y=45, 6F(L-w/2)/(b w^2) + F/(b w) = 112.5 MPa vs FE max centroid 110.2 (2% low, centroid offset; pass); horizontal arm at x=50, 6F(L-x)/(b w^2) = 44.33 vs FE 44.27 (pass); (3) tip deflection 0.617 mm lies between the frame bounds 0.542 (rigid corner, clear lengths L-w, H-w) and 0.692 (centreline lengths), as expected for a filleted rigid-ish joint (pass). (4) Re-ran three experiment tasks (`/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/83ac84c5-274c-5b3a-a43b-e032fdbf7d7e/scratchpad/ff/rerun.py`): masses 41.012/41.012/35.821 g and check stresses 132.909/145.757 MPa reproduce results.json exactly, and floors 0.2 and 1.0 give the identical seed-0 design as claimed. Not a 3: the quantity the conclusions rest on is wrong as engineering. Mesh convergence of the fillet peak on the same design (h 2.5/1.25/0.8/0.55/0.4 -> 99.8/122.3/126.7/132.9/135.3 MPa, Richardson estimate about 137) shows the h=2.5 search mesh underestimates the governing stress by about 27%, so the search 'passes' a design at 99.8 MPa whose converged peak is ~37% over the 100 MPa limit. results.json shows every one of the 20 peak-searched designs at 112-146 MPa at h=0.55 and every patch-searched design at 103-111 MPa: the prices compare designs that all violate the stated limit, by design-dependent amounts.",
+  "completeness": "Everything the README says it did runs: 6 tests pass; run.py tasks reproduce results.json exactly (three tasks rerun); results.txt matches the README table row by row (prices, sd, ranges, fillet radii, masses 33.3-41.0 and twin 33.6-35.8); figure.py parses results.txt; the consistency claim against simdesign-patchsearch holds (its results.txt laser A prices 1.145 1.054 0.990, P 1.050 1.046 1.049); served page https://marisstella.app/research/simdesign-filletfloor/ returns 200 with the 'simulated or stylised' notice. Runtime claim ~12 min on 4 cores fits 2652 s total task time. No stubs. Gap: run.py computes check-mesh stresses that the README never reports.",
+  "verification": "`cd research/simdesign-filletfloor && /usr/bin/python3.13 -m pytest -q tests`: 6 passed, 1.55 s. Four seeded mutants via platform/ci/quality_mutate.py, all SURVIVED: plane-stress lambda removed (plane strain), optimiser keeps the heaviest feasible gauge instead of the lightest, clamp-zone exclusion removed, patch_max searched from only the single top centroid. Two of the six tests assert constants (r_min == 0.2, PATCH_RHO == 3.0); none checks a stress or deflection against an analytic value or a minimum-mass outcome, and nothing covers optimise() at all.",
+  "craft": "Read model.py, measures.py, dfm.py, optimise.py, run.py, test_filletfloor.py. The model is byte-identical to simdesign-patchsearch's (`diff` empty) and is copied into dozens of sibling simdesign-* projects, so a fix must be made N times. model.py:105 and :107 are dead assignments (`... if False else None`, unused `fb`). make_mesh crashes for h <= ~0.3 mm on this design (model.py:71 sets d=None when the distance matrix exceeds 4e7 entries, then `d > 0.6*h` raises TypeError), which blocks the very convergence study a reviewer asks for. Otherwise clean: dataclasses, injectable process rules, deterministic seeds, results parsed not retyped.",
+  "claims": "Backed by files: the results table (results.txt), 'floors 0.2 and 1.0 give identical designs' (results.json, rerun), 'designs are not near-sharp' (fillets 7.6-14.3 mm), consistency with patchsearch, the limitations (five seeds, uncalibrated patch limit, stylised 2D), AI-assistance and simulation-only notices. Not backed or misleading: Method says 'Each design is re-solved at h = 0.55 mm for the ratios in results.json', but no ratio is reported and the omitted numbers show every design over the limit (peak 1.12-1.46x, patch 1.03-1.11x); 'suggests the scatter is a property of the search landscape' while the project's own data point to search-mesh under-resolution of the peak (search peak sits at the limit, check peak 112-146 varying by design), which the later simdesign-gaugemesh confirmed ('every gauge-2 design feasible on the 2.5 mm search mesh is infeasible on finer meshes').",
+  "fitness": "Researcher job walked through: take the result and build on it. Nearest prior work is stress-constrained shape/topology optimisation, where mesh dependence and the singular/under-resolved stress constraint are long-standing topics (Duysinx and Bendsoe 1998, IJNME 43:1453; Le, Norato, Bruns, Ha and Tortorelli 2010, SMO 41:605, p-norm/patch aggregation; Holmberg, Torstenfelt and Klarbring 2013, SMO 48:33); none is cited. The result is a negative answer to a hypothesis that was already refutable from simdesign-patchsearch's committed results.json (its laser A rules designs have r = 8.46, 13.59, 10.74 mm, far above 0.2), so the 44 CPU-minute experiment added little new; the sound and useful finding (the search mesh accepts designs 12-46% over the limit) is in the data but not in the write-up. Not new, and not a base a researcher could cite without redoing the convergence.",
+  "domain": "Compared against standard FEA practice (mesh convergence at the governing stress location before using it as a constraint; ASME V&V 10 style verification; surface or extrapolated nodal stress, not element-centroid stress, at a fillet). Sound: P2 plane-stress elements, load as a uniform end traction, clamp-zone exclusion, beam far field matches theory. Departures: optimisation constraint evaluated on an unconverged coarse mesh (h 2.5 mm against fillet radii of 1-14 mm), centroid stress about 0.2h inside the surface, polygonal 24-segment fillet, no stress-concentration chart or converged reference, and the uncalibrated patch limit (acknowledged). A senior FEA reviewer would reject the masses as feasible designs."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Mass of the peak/0.2/seed-0 design",
+   "method": "closed-form area of a filleted L section, L w + (H-w) w + r^2(1-pi/4), times depth and 7.85e-3 g/mm3",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/83ac84c5-274c-5b3a-a43b-e032fdbf7d7e/scratchpad/ff/check.py",
+   "expected": "41.0119 g",
+   "observed": "41.0119 g (code and results.json)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Far-field bending stress, vertical arm (y=45) and horizontal arm (x=50)",
+   "method": "Euler-Bernoulli beam theory: 6M/(b w^2) + F/(b w), M = F(L-w/2); 6F(L-x)/(b w^2)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/83ac84c5-274c-5b3a-a43b-e032fdbf7d7e/scratchpad/ff/check.py",
+   "expected": "112.5 MPa; 44.33 MPa",
+   "observed": "110.2 MPa (centroid, 2% low); 44.27 MPa",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Tip deflection",
+   "method": "two-member frame by hand, F a^3/(3EI) + F a^2 c/(EI) with centreline lengths (upper bound) and clear lengths (rigid-corner lower bound)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/83ac84c5-274c-5b3a-a43b-e032fdbf7d7e/scratchpad/ff/check.py",
+   "expected": "between 0.542 and 0.692 mm",
+   "observed": "0.617 mm",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Mesh convergence of the governing fillet peak at the search mesh",
+   "method": "h-refinement 2.5 to 0.4 mm with Richardson extrapolation (observed order ~2.5)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/83ac84c5-274c-5b3a-a43b-e032fdbf7d7e/scratchpad/ff/check.py",
+   "expected": "search-mesh peak within a few % of the converged value if the constraint is to mean 'meets 100 MPa'",
+   "observed": "99.8 at h=2.5 vs 132.9 (h 0.55), 135.3 (h 0.4), ~137 extrapolated: 27% under",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Do 'feasible' designs meet the 100 MPa limit at the check mesh",
+   "method": "results.json peak_check / patch_check against sigma_allow",
+   "command": "/usr/bin/python3.13 -c \"import json;r=json.load(open('research/simdesign-filletfloor/experiments/results.json'));print(sorted(round(x['peak_check']) for x in r if x['measure']=='peak'),sorted(round(x['patch_check']) for x in r if x['measure']=='patch'))\"",
+   "expected": "<= 100 MPa",
+   "observed": "peak 112-146 for all 20; patch 103-111 for all 20",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Experiment reproduces results.json",
+   "method": "rerun run.task for (peak,0.2,0), (peak,1.0,0), (peak,free,0)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/83ac84c5-274c-5b3a-a43b-e032fdbf7d7e/scratchpad/ff/rerun.py",
+   "expected": "41.012, 41.012, 35.821 g; identical designs at floors 0.2 and 1.0",
+   "observed": "identical to results.json, including check stresses",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Consistency with simdesign-patchsearch",
+   "method": "compare with research/simdesign-patchsearch/experiments/results.txt",
+   "command": "sed -n 4p research/simdesign-patchsearch/experiments/results.txt; sed -n 8p research/simdesign-patchsearch/experiments/results.txt",
+   "expected": "peak 1.145 1.054 0.990; patch 1.050 1.046 1.049",
+   "observed": "match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Each design is re-solved at h = 0.55 mm for the ratios in results.json'",
+   "method": "read README results and limitations for the check ratios",
+   "command": "grep -n 'peak_check\\|ratio\\|over the limit' research/simdesign-filletfloor/README.md",
+   "expected": "check ratios reported, with the fact that all exceed 1",
+   "observed": "not reported anywhere",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd research/simdesign-filletfloor && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "pass",
+   "observed": "6 passed in 1.55 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Was the hypothesis already refuted by existing data",
+   "method": "read simdesign-patchsearch results.json fillet radii of the laser A rules designs",
+   "command": "/usr/bin/python3.13 -c \"import json;R=json.load(open('research/simdesign-patchsearch/experiments/results.json'));print([round(x['r'],2) for x in R if x['setting']=='A' and x['process']=='laser cutting' and x['kind']=='rules'])\"",
+   "expected": "near 0.2 mm if the hypothesis were live",
+   "observed": "[8.46, 13.59, 10.74]",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "Mesher at fine h (needed for convergence)",
+   "method": "solve the seed-0 design at h=0.3",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/83ac84c5-274c-5b3a-a43b-e032fdbf7d7e/scratchpad/ff/check.py",
+   "expected": "a solution",
+   "observed": "TypeError at model.py:73 ('>' between NoneType and float)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page and disclaimers",
+   "method": "load the live page",
+   "command": "curl -sS https://marisstella.app/research/simdesign-filletfloor/ | grep -io 'simulated[^<]\\{0,60\\}'",
+   "expected": "200 and a simulation-only notice",
+   "observed": "200; 'simulated or stylised unless the abstract says otherwise'",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/simdesign_filletfloor/model.py:102",
+   "change": "plane-stress effective lambda line -> pass (plane strain)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_filletfloor/optimise.py:39",
+   "change": "e[\"mass_g\"] < best[1][\"mass_g\"] -> e[\"mass_g\"] > best[1][\"mass_g\"]",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_filletfloor/model.py:131",
+   "change": "free = cen[1] < p.H - p.w -> free = cen[1] < p.H",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_filletfloor/measures.py:17",
+   "change": "for i in idx[np.argsort(vm[idx])[-200:]]: -> for i in idx[np.argsort(vm[idx])[-1:]]:",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Every 'feasible' design behind the price table exceeds the 100 MPa limit at the check mesh (peak-searched 112-146 MPa, patch-searched 103-111 MPa, results.json); the h=2.5 search mesh underestimates the converged fillet peak by ~27% (99.8 vs ~137 MPa on seed 0). The README computes these check values but reports none, so the prices compare under-designed parts by design-dependent margins.",
+   "where": "research/simdesign-filletfloor/README.md:10",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Conclusion that the peak scatter 'is a property of the search landscape' ignores the confound visible in the project's own data: search-mesh peak error varies by design (check peak 112-146 MPa for designs all at the limit on the search mesh); simdesign-gaugemesh later found the gauge-2 region is itself a mesh effect.",
+   "where": "research/simdesign-filletfloor/README.md:32",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "The tested hypothesis (near-sharp 0.2 mm fillet floor drives the scatter) was already refuted by simdesign-patchsearch's committed results.json (laser A fillets 8.46/13.59/10.74 mm); the experiment re-derives it at ~44 CPU-minutes without saying so.",
+   "where": "research/simdesign-filletfloor/README.md:3",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Four of four seeded mutants in core logic (plane-stress lambda, lightest-gauge selection, clamp-zone exclusion, patch search) leave all 6 tests green; two tests only assert constants, none checks a stress or deflection against an analytic value or covers optimise().",
+   "where": "research/simdesign-filletfloor/tests/test_filletfloor.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "make_mesh crashes for fine meshes (h <= ~0.3 mm on these designs): the distance matrix is skipped above 4e7 entries, leaving d=None, then `d > 0.6*h` raises TypeError, so the convergence study the README's next steps call for cannot be run with this code.",
+   "where": "research/simdesign-filletfloor/src/simdesign_filletfloor/model.py:71",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Dead code in solve(): `fb = ... if False else None` and an unused `fb = basis.boundary(...)`; the whole engine is a byte-identical copy of simdesign-patchsearch's, duplicated across many simdesign-* projects.",
+   "where": "research/simdesign-filletfloor/src/simdesign_filletfloor/model.py:105",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "No prior work on stress-constrained shape/topology optimisation or the mesh dependence of stress constraints is cited (e.g. Duysinx and Bendsoe 1998; Le et al. 2010; Holmberg et al. 2013); only software citations.",
+   "where": "research/simdesign-filletfloor/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The code computes what it says, and it reproduces: three reruns match results.json exactly, the README table matches results.txt, and mass, far-field beam stresses (112.5 vs 110.2 MPa, 44.33 vs 44.27 MPa) and the tip deflection (0.617 mm inside the 0.542-0.692 hand-frame bounds) agree with hand calculations. The narrow negative result also stands: peak-searched designs have 7.6-14.3 mm fillets, so a 0.2 or 1.0 mm floor cannot bind. But a senior FEA engineer would stop at the stress constraint. The 2.5 mm search mesh reads the governing fillet peak about 27% low (99.8 MPa there, about 137 converged on seed 0), and the project's own check-mesh numbers, which the README leaves out, put every one of its 40 'feasible' designs over the 100 MPa limit (peak 112-146, patch 103-111). That under-resolution, which differs from design to design, is the obvious candidate for the scatter the README attributes to the search landscape. The hypothesis was also already refutable from simdesign-patchsearch's committed data, the related optimisation literature is not cited, and none of four seeded mutants is caught by the six tests. Finished as described, below the bar."
+}

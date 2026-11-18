@@ -154,3 +154,19 @@ test("the plan is single-storey and sleeping rooms have closets", () => {
     assert.ok(r.rooms.some((c) => (c.kind === "closet" && c.owner === b.id) || (b.kind === "primary" && c.kind === "wic")), b.name);
   }
 });
+
+test("the parameter gate rejects exactly the candidates, for exactly the reasons, that building the rooms did", () => {
+  // Counts recorded from the search before skeletonGate existed, when every
+  // constraint was checked mid-build (docs/history/ci-perf-2026-11-18-open-house-plans-gate.md).
+  const golden = [
+    [{ beds: 3, baths: 2, garage: 0 }, { evaluated: 38064, feasible: 2984, why: { "!suite": 736, "L < 3": 4248, "dep > 16.5": 1368, "e1 - e0 < 3": 4680, "entryY[0] < by0 - 1e-9 || entryY[1] > by1 + 1e-9": 736, "hall meets kitchen": 11628, "row does not fit": 11620, "row too shallow for bed": 768 } }],
+    [{ beds: 4, baths: 2.5, garage: 2, accessible: true }, { evaluated: 32088, feasible: 2674, why: { "!suite": 2628, "L < 3": 648, "backU1 - backU0 < 9 || backU1 - backU0 > 22": 5328, "dep > 16.5": 1632, "entryY[0] < by0 - 1e-9 || entryY[1] > by1 + 1e-9": 2628, "hall meets kitchen": 8064, "row does not fit": 10080, "row too shallow for bed": 1008 } }],
+    [{ beds: 1, baths: 1, garage: 1 }, { evaluated: 290, feasible: 182, why: { "backU1 - backU0 < 9 || backU1 - backU0 > 22": 42, "flexKind === 'bed' && flex < 11": 66 } }],
+  ];
+  for (const [input, want] of golden) {
+    const { brief } = normalizeBrief(input);
+    const why = {};
+    const r = searchDesigns(brief, { keep: 1, why });
+    assert.deepEqual({ evaluated: r.evaluated, feasible: r.feasible, why: Object.fromEntries(Object.entries(why).sort()) }, want, JSON.stringify(input));
+  }
+});

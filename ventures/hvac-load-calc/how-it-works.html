@@ -70,9 +70,13 @@
   </table>
   <p>The heating load is 26,901 Btu/h. The 1-ton-per-500-ft² rule of thumb would have put a 3.5 to 4 ton unit in this house; the load says a 2.5 ton unit covers it, at about 820 ft² per ton. That gap is the reason to run the numbers: an oversized system costs more, short-cycles and pulls less moisture out of the air. Adding up each room's own peak gives 17,910 Btu/h sensible, against 16,987 for the same rooms at the house's 3 pm peak (both before ventilation and ducts), a 5% gap: most of this house's glass faces south and west, so its rooms peak within a few hours of each other. A house with large east glass would show a bigger gap.</p>
 
+  <h2>Overhangs</h2>
+  <p>Give a wall an overhang depth, the gap from the window head up to the overhang and the window height, and each hour the calculator works out where the shadow edge falls. It drops below the overhang by <em>depth × tan(altitude) ÷ cos(sun azimuth − wall azimuth)</em>, the sun's height seen square-on to the wall. The shaded share of the window's height gets no direct sun; the sky and ground light are kept in full, which slightly overstates the load. The overhang is assumed to run well past both sides of the window.</p>
+  <p>On the example house a 2 ft eave 1 ft above every 5 ft window lowers the 3 pm sensible peak by 3.3% (19,732 to 19,072 Btu/h). The south rooms drop 7 to 13%, because the high midday sun is what an eave stops; west glass at 3 pm barely changes, because that sun is low enough to get under it.</p>
+
   <h2>What it leaves out</h2>
   <ul>
-    <li>Overhangs, trees and neighbouring buildings shading windows (it assumes full sun, which overstates the load of shaded glass).</li>
+    <li>Side fins, trees and neighbouring buildings shading windows (it assumes full sun on glass with no overhang, which overstates the load of shaded glass). Overhangs are modelled: see below.</li>
     <li>Basements and below-grade walls; multi-storey stack effects beyond the N factor; skylights.</li>
     <li>Heat stored in furniture and floors (it treats window sun as an instant load, which overstates the peak slightly).</li>
     <li>Duct leakage modelled in detail; it takes a percentage.</li>

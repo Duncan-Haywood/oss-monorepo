@@ -467,3 +467,140 @@ ALTER TABLE users DROP COLUMN legacy;
 COMMIT;`;
   assert.ok(has(sql, 'many-locks-one-transaction'));
 });
+
+// Red-team gap tests, 2026-11-18: mutants that survived the suite above.
+
+test('NOT VALID outside a block, VALIDATE inside a later one, is not the same transaction', () => {
+  const sql = `SET lock_timeout='3s';
+ALTER TABLE users ADD CONSTRAINT fk1 FOREIGN KEY (org_id) REFERENCES orgs (id) NOT VALID;
+BEGIN;
+ALTER TABLE users VALIDATE CONSTRAINT fk1;
+COMMIT;`;
+  assert.ok(!has(sql, 'validate-in-same-transaction'));
+});
+
+test('ADD PRIMARY KEY USING INDEX with no concurrent build names the index in the impact', () => {
+  const sql = "SET lock_timeout='3s';\nALTER TABLE users ADD CONSTRAINT users_pk PRIMARY KEY USING INDEX users_pk_idx;";
+  const f = analyzeSql(sql).findings.find((x) => x.id === 'add-key-builds-index');
+  assert.ok(f, 'an index built elsewhere is still reported');
+  assert.match(f.impact, /USING INDEX users_pk_idx/);
+});
+
+// Real defects found 2026-11-18: transaction-block tracking. PostgreSQL has one
+// flat transaction block, ended by COMMIT, END, ROLLBACK or ABORT; it does not
+// nest, and ROLLBACK TO SAVEPOINT does not end it.
+
+test('ROLLBACK TO SAVEPOINT does not end the block: a later CONCURRENTLY still fails', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+SAVEPOINT before_index;
+ROLLBACK TO SAVEPOINT before_index;
+CREATE INDEX CONCURRENTLY idx ON users (email);
+COMMIT;`;
+  assert.ok(has(sql, 'create-index-concurrently-in-tx'));
+});
+
+test('ROLLBACK TO SAVEPOINT keeps NOT VALID and VALIDATE in the same transaction', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+ALTER TABLE users ADD CONSTRAINT fk1 FOREIGN KEY (org_id) REFERENCES orgs (id) NOT VALID;
+SAVEPOINT s;
+ROLLBACK TO s;
+ALTER TABLE users VALIDATE CONSTRAINT fk1;
+COMMIT;`;
+  assert.ok(has(sql, 'validate-in-same-transaction'));
+});
+
+test('ABORT ends a block like ROLLBACK', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+ABORT;
+CREATE INDEX CONCURRENTLY idx ON users (email);`;
+  assert.ok(!has(sql, 'create-index-concurrently-in-tx'));
+});
+
+test('a second BEGIN does not nest: one COMMIT ends the block', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+BEGIN;
+COMMIT;
+CREATE INDEX CONCURRENTLY idx ON users (email);`;
+  assert.ok(!has(sql, 'create-index-concurrently-in-tx'));
+});
+
+test('COMMIT AND CHAIN opens a new block at once', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+COMMIT AND CHAIN;
+CREATE INDEX CONCURRENTLY idx ON users (email);
+COMMIT;`;
+  assert.ok(has(sql, 'create-index-concurrently-in-tx'));
+});
+
+// ---------------------------------------------------------------------------
+// Red team 2026-11-18: guards for mutants that escaped the suite.
+// ---------------------------------------------------------------------------
+
+test('a non-concurrent REINDEX needs a lock_timeout like any exclusive lock', () => {
+  assert.ok(has('REINDEX TABLE users;', 'no-lock-timeout'));
+  assert.ok(!has('REINDEX TABLE CONCURRENTLY users;', 'no-lock-timeout'));
+});
+
+test('COMMIT ends the lock grouping: one exclusive lock in each of two transactions is not "many locks"', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+TRUNCATE a;
+COMMIT;
+BEGIN;
+TRUNCATE b;
+COMMIT;`;
+  assert.ok(!has(sql, 'many-locks-one-transaction'));
+});
+
+test('COMMIT AND CHAIN ends the lock grouping too', () => {
+  const sql = `SET lock_timeout='3s';
+BEGIN;
+TRUNCATE a;
+COMMIT AND CHAIN;
+TRUNCATE b;
+COMMIT;`;
+  assert.ok(!has(sql, 'many-locks-one-transaction'));
+});
+
+test('analyzeSources: a single warning across all files makes the verdict "review"', () => {
+  const r = analyzeSources([
+    { name: 'a.sql', text: 'SELECT 1;' },
+    { name: 'b.sql', text: "SET lock_timeout='3s';\nALTER TABLE t RENAME COLUMN a TO b;" },
+  ]);
+  assert.deepEqual(r.counts, { risk: 0, warn: 1 });
+  assert.equal(r.verdict, 'review');
+});
+
+// Real defect (red team 2026-11-18): a lock_timeout, once seen, protected every
+// later statement in the file, even after the file turned it off again or the
+// transaction that set it ended. PostgreSQL scopes it: SET LOCAL lasts until
+// COMMIT/ROLLBACK, a ROLLBACK undoes a SET made inside the block, and
+// `SET ... = 0`, `TO DEFAULT`, `RESET lock_timeout` and `RESET ALL` switch it off.
+const RENAME = 'ALTER TABLE t RENAME COLUMN a TO b;';
+test('turning lock_timeout off again leaves the next exclusive lock unprotected', () => {
+  for (const off of ['SET lock_timeout = 0;', "SET lock_timeout = '0';", 'SET lock_timeout TO DEFAULT;', 'RESET lock_timeout;', 'RESET ALL;']) {
+    assert.ok(has(`SET lock_timeout='3s';\n${off}\n${RENAME}`, 'no-lock-timeout'), off);
+  }
+  assert.ok(!has(`SET lock_timeout = 0;\nSET lock_timeout='3s';\n${RENAME}`, 'no-lock-timeout'));
+});
+
+test('SET LOCAL lock_timeout stops applying when its transaction ends', () => {
+  assert.ok(!has(`BEGIN;\nSET LOCAL lock_timeout='3s';\n${RENAME}\nCOMMIT;`, 'no-lock-timeout'));
+  assert.ok(has(`BEGIN;\nSET LOCAL lock_timeout='3s';\nCOMMIT;\n${RENAME}`, 'no-lock-timeout'));
+  // A session-level timeout survives COMMIT, and a SET LOCAL 0 only hides it inside its block.
+  assert.ok(!has(`BEGIN;\nSET lock_timeout='3s';\nCOMMIT;\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(has(`SET lock_timeout='3s';\nBEGIN;\nSET LOCAL lock_timeout = 0;\n${RENAME}\nCOMMIT;`, 'no-lock-timeout'));
+  assert.ok(!has(`SET lock_timeout='3s';\nBEGIN;\nSET LOCAL lock_timeout = 0;\nCOMMIT;\n${RENAME}`, 'no-lock-timeout'));
+  // Without an explicit BEGIN, a migration runner's own transaction is assumed: still protected.
+  assert.ok(!has(`SET LOCAL lock_timeout='3s';\n${RENAME}`, 'no-lock-timeout'));
+});
+
+test('ROLLBACK undoes a SET lock_timeout made inside the block', () => {
+  assert.ok(has(`BEGIN;\nSET lock_timeout='3s';\nROLLBACK;\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(!has(`SET lock_timeout='3s';\nBEGIN;\nRESET lock_timeout;\nROLLBACK;\n${RENAME}`, 'no-lock-timeout'));
+});

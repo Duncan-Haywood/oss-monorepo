@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtL7FMopneb7JbGvDYv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T01:06:57Z",
+  "ended": "2026-11-18T01:52:57Z",
+  "wall_minutes": 46.34,
+  "tokens_in": 12510832,
+  "tokens_out": 46712,
+  "cost_usd": 4.6405,
+  "tool_calls": 101,
+  "task": "Deepen flagship chant-forge (allocate row 7): the OMR item 'liquescentTail claiming a one-step cephalicus (3439, 3357)'",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17125",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "chant-forge's next/buildable named 3439 and 3357 as liquescentTail claiming a one-step cephalicus; aligned pair by pair, 3439 is a lost square after the cephalicus (a white fleck) and 3357 a GABC/print mismatch. The row's diagnosis came from eval/one-step-hollow-check.md's table without an alignment dump; corrected in the row and in eval/fleck-check.md."
+    },
+    {
+      "file": "eval/one-step-check.mjs (chant-forge)",
+      "issue": "its 'changed notes' table keys notes by leaf/staff/x/shape, so a podatus upper head added at the same x as a lower head shows as a 'moved' note (g -> h); cost a detour to check those were additions, not moves."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace parked five items from the row to NEXT.md without --make-room being passed (the default makes room); fine here, but it moves unrelated items silently unless you read the output."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (chant-forge buildable item)",
+      "why": "the named fault did not exist at either place; fixing what the misses actually were (a width cut dropping split heads) served the reader better than tuning liquescentTail",
+      "did": "added the FLECK split-head join in scan.mjs with a tuning-list measurement and a held-out check registered before download",
+      "result": "tuning lists +30 agreeing notes, -31 GABC-only; held out 13 of 13 added notes real, three predictions held"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-chant-forge-notes-lost-to-a-white-fleck.md",
+    "ventures/chant-forge/eval/fleck-check.md"
+  ],
+  "goal": "flagship depth: chant-forge OMR accuracy",
+  "notes": "Verification: node --test scan.test.mjs 32/32; python3 platform/ci/run_venture_tests.py chant-forge ok (320 tests, 52.5 s); run_workflow_locally.py --for-changes 10/10 passed (agent-cross-review and portfolio-pages deploy jobs not runnable locally); check_posts ok. Tuning (128 pieces): agree 24,367->24,397, differ 82->83, GABC only 603->572, scan only 88->89, one-step cephalici 77->78 of 84, false liquescents 13->12; 20/20 random additions outside aligned pieces looked at and real; one false join (bold lyric, leaf 356) removed by FLECK.reach before freezing. Held out (eval/fleck-leaves.json, registered in f5722381a before download): 29 leaves, 236 staves, +13 notes all real, 2 false liquescents (quilisma podatus) became plain heads, nothing moved or removed. No agent doc in docs/reports: the eval doc and the flagship row carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5839d2e8-d786-5f78-b32e-77ed358ec492",
+    "transcripts": 1,
+    "first": "2026-11-18T01:06:57Z",
+    "last": "2026-11-18T01:53:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 96,
+        "input": 183,
+        "output": 46712,
+        "thinking": 15971,
+        "cache_read": 12356373,
+        "cache_write_5m": 0,
+        "cache_write_1h": 154276,
+        "api_equivalent_usd": 4.6405,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 96,
+      "input": 183,
+      "output": 46712,
+      "thinking": 15971,
+      "cache_read": 12356373,
+      "cache_write_5m": 0,
+      "cache_write_1h": 154276,
+      "api_equivalent_usd": 4.6405,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 88,
+      "Read": 7,
+      "Edit": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 46.34,
+      "active_minutes": 46.34,
+      "model_minutes": 11.31,
+      "tool_minutes": 35.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OMR engineer diagnosing two misses from crops, writing and tuning the join, sampling crops and a registered held-out check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 215.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -5,6 +5,7 @@ import {
   seedPositions, buildBracket, resolveBracket, pruneResults, bracketText, roundName,
   standingsCsv, pairingsText, serializeState, parseState, sampleFields, BYE,
 } from "./calc.mjs";
+import { createHash } from "node:crypto";
 
 function rng(seed) {
   let s = seed >>> 0;
@@ -116,6 +117,31 @@ for (const n of [4, 5, 6, 7, 8, 9, 11, 12, 15, 16, 17, 24, 31, 32]) {
     for (const c of v.byes.values()) assert.equal(c, 1);
   });
 }
+
+// Pins every pairing, bye and note of eight seeded events to the digest the
+// pre-2026-11-18 search produced (it rebuilt and re-sorted each node's
+// candidates; the search now presorts each row once). Any change to which
+// pairing the search picks changes this digest.
+test("Swiss pairings match the pinned digest of eight seeded events", () => {
+  const h = createHash("sha256");
+  for (const n of [9, 15, 24, 31]) for (const colours of [false, true]) {
+    const players = mk(n);
+    const rand = rng(n * 104729 + (colours ? 1 : 0));
+    const rounds = [];
+    for (let r = 0; r < recommendedSwissRounds(n) + 1; r++) {
+      const p = pairSwissRound(players, rounds, { colours });
+      h.update(JSON.stringify(p));
+      rounds.push({
+        pairings: p.pairings.map((x) => {
+          const u = rand();
+          return { ...x, result: u < 0.15 ? "draw" : u < 0.6 ? "a" : "b" };
+        }),
+        byes: p.byes,
+      });
+    }
+  }
+  assert.equal(h.digest("hex"), "d66e65df32f47f1a3869bfd007d5177b25b59003dfe7acdf5e2f1d33ecf5b8df");
+});
 
 test("score groups stay tight: after strict-seed results the leaders meet", () => {
   const players = mk(8);

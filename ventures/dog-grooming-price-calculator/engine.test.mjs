@@ -83,3 +83,12 @@ test("empty inputs summarize safely", () => {
   assert.equal(summarizeCompare(compare({ classes: [] })).status, "empty");
   assert.equal(summarizeAudit(audit({ appointments: [] })).status, "empty");
 });
+
+test("quoted CSV cells from a booking export stay one field (redteam 2026-11-17)", () => {
+  const a = parseAppointments('breed_class,price,minutes\n"Poodle, Standard","$1,050",120\n"Lab ""Max""",85,90');
+  assert.deepEqual(a.errors, []);
+  assert.deepEqual(a.appointments.map((x) => [x.name, x.price, x.minutes]), [["Poodle, Standard", 1050, 120], ['Lab "Max"', 85, 90]]);
+  const c = parseClasses('"Doodle, large",140,150');
+  assert.deepEqual(c.errors, []);
+  assert.equal(c.classes[0].name, "Doodle, large");
+});

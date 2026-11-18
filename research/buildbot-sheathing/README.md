@@ -501,6 +501,127 @@ model and the 0.2 N m threshold are modelled, not measured; statics only.
 
 ![Worst residual along the wall against the preload margin for two sensors, and the hedged compensator](experiments/m37_preload/figure.png)
 
+**Milestone 38: can a two-hand squeeze preload the arms?** A force pair along the line between the two grip points
+pushes the hands together (or apart) without changing the tool's wrench, so it moves only the arm joints: the base,
+legs and waist see at most 1e-16 N m per newton (H141 held). Chosen by the controller from its plan, a squeeze of up to
+**10 N** clears all 14 arm flips (H143 held). With milestone 37's leg preload and the FT 300, the G1's worst residual at a
+5 N drag falls from 0.83 to **0.49 mm** (H144 held) and at 20 N from 0.29 to 0.01 mm, and the 0–20 N stack loss from
+**1.64 to 0.05 points** (H1: 2.19 to 0.02). The G1's arm margin at 20 N is 0.07 N m at its worst pose, not the 0.1
+registered (H142 refuted). What is left, up to **0.50 mm**, is in the waist (the H1's torso), which no squeeze or ground
+reaction can move (H145 held). With the pre-2017 sensor the squeeze makes some cells worse. Side finding: holding the
+3.4 kg nailer, the G1's right wrist pitch already exceeds its 5 N m model rating at 7 of 14 poses, so the squeeze is
+not allowed to push any joint further past its limit. Grip force is swept (no hand publishes one), the squeeze is an
+ideal force pair, statics only.
+
+![Worst residual along the wall against the squeeze bound for two sensors, and which joints still flip](experiments/m38_squeeze/figure.png)
+
+**Milestone 39: what does the waist's backlash cost, and does a brake fix it?** Milestone 38 left up to 0.50 mm in the
+waist joints, whose torque only the tool's load sets. With its 10 N squeeze, milestone 37's leg preload and the FT 300,
+a **braked waist** (no gap) takes the G1's worst residual at a 5 N hose drag from 0.485 to **0.012 mm** (H146 held) and
+its 0–10 N stack loss from 5.80 to **0.04 points**; the H1 at 5 N goes from 0.501 to 0.019 mm. A **1 arcmin** waist
+gearbox gives 0.106 mm and 0.11 points (H148 held). Locking waist roll and pitch, as on the base G1 (one waist joint,
+unitree.com/g1), **changes nothing**: the joint that flips is the yaw (H147 held). With the pre-2017 sensor a braked
+waist still leaves 0.87 mm (H150 held). All five registered hypotheses held. The brake is ideal and locks at the posed
+angle (poses not re-solved); waist backlash is swept, not published; statics only.
+
+![Worst residual along the wall for each waist case and two sensors, and the clean-sheet loss over a drag range](experiments/m39_waist/figure.png)
+
+**Milestone 40: does the nailer's recoil undo the spec?** No figure for a framing nailer's recoil had been found, so
+it is bracketed from published measurements: an 8d nail at chronograph speeds (29.8–36.9 m/s, Buchalter et al. 2002)
+carries 0.13–0.16 N s, a floor, and Lowe et al. (2014)'s force-plate data give at most about 8.7 N s per nail. That
+straddles the 0.25–1 N s at which [`buildbot-recoil`](../buildbot-recoil)'s nose leaves the wall, so each nail
+starts from a lifted nose and a press that rises again. That rise **sets none** of the joints milestones 30–39 scored
+as loose (H151 refuted): of 56 loose nose-moving joints, 36 change sign and 7 rise through the holding threshold
+inside the 25–50 N window, so where they sit depends on the firing force, and the 11 below it peak at 0.16 N m on the
+rise against a 0.2 N m threshold. With the spec (FT 300, leg preload, 10 N squeeze, braked waist) the G1's worst
+residual at a 5 N drag stays **0.012 mm** (H152 refuted, H153 held); only at a 20 N drag does the rise set one wrist
+joint, leaving 0.203 mm unless the compensator plans the rise. The finding with consequences is the stance: at
+**12 of 35 poses** (the G1 at 1.0–1.2 m, milestone 30's calibration pose among them; the H1 at 1.4–1.6 m) the leaned
+stance balances only above 3.7–11.8 N of press, so a recoil that lifts the nose leaves the robot leaning on nothing.
+Quasi-static rise, no recoil transient simulated; the holding threshold is unsourced.
+
+![Lowest press each leaned stance balances at, and how close the loose joints come to the holding threshold on the re-press](experiments/m40_liftoff/figure.png)
+
+**Milestone 41: can every stance stand when the nose lifts?** Yes, by leaning less, but near the top of the wall
+only just. Each of milestone 40's 12 press-dependent poses was re-leaned to the furthest-forward lean that still stands
+at zero press: the centre of mass moves back 10–39 mm and every one then balances over the whole 0–50 N (H156 held;
+H157, "at most 20 mm", refuted). The window's width is exactly (m + m_tool) g × sole length / grip height, so the
+ceiling is a formula: a zero-press stance that still takes a 50 N press exists only below a **1.225 m** grip on the
+G1 and **1.883 m** on the H1, and the G1 at 1.2 m keeps **1.6 N** to spare. With milestone 38's setup rebuilt on the
+new poses, the braked spec holds (G1 **0.011 mm**, H1 0.019 mm at a 5 N drag; H159 held), one H1 pose loses its
+controller (H158 refuted), and the G1's worst no-hose stack falls **1.3 points**, 0.9160 to 0.9030 (H160 refuted).
+Statics; the lean's and the controller's side choice's shares of that loss are not separated.
+
+![Press range each stance balances, before and after re-leaning to stand at zero press, against the rigid-body width](experiments/m41_stance0/figure.png)
+
+**Milestone 42: is that 1.3-point loss the stance or the controller?** The stance. Re-leaning flipped four of the
+G1's six held leg-joint sides (both hip rolls, both ankle rolls), so a 2 × 2 (leans × sides) separates them: at the
+G1's worst pose the lean costs **1.30 points** and the sides **0.00**, with no interaction (H161–H163 held), and at
+every pose where both side choices solve they give the same stack to the printed digit, because a side says which way
+a joint is held, not whether. The flip still matters: with the old sides one re-leaned G1 pose has no controller
+solution (H164 refuted). A post hoc check also corrects milestone 41's per-pose figures, which compared stacks from
+two torque conventions: like for like, the re-lean costs the H1 **0.09–0.29 points** per pose (not 0.1–0.9), and the
+G1 loses 0.31–1.30 at four poses and gains 0.60–0.79 at two. Statics, 'hold-min' torques without the leg preload.
+
+![The no-hose clean-sheet stack at each re-leaned pose in the four lean × sides cells: the sides never move a bar](experiments/m42_sides/figure.png)
+
+**Milestone 43: what does the zero-press stance cost in the spec's own plan?** On the G1, nothing: it gains. Milestones
+41 and 42 used the controller's 'hold-min' torques; the spec re-plans its 0.1 N m leg preload and 10 N squeeze for each
+stance, and with those the G1's worst no-hose stack rises from 0.9160 to **0.9257** with the braked waist (+0.97
+points) and from 0.9081 to 0.9257 with the stock one, over the same poses plus one the old lean could not plan. At the
+worst pose the two conventions now differ by 2.70 points (0.9300 against 0.9030). The cost moves to the H1 near the top
+of its reach: two re-leaned poses keep a controller but cannot carry the 0.1 N m leg preload at a 50 N press (the
+stance allows 0.033 and 0.095 N m), so only 3 of its 6 re-leaned poses have a spec plan; those lose 0.09–0.22 points.
+H166–H168 held, H165 and H169 refuted. Statics, zero hose force, exact sensor.
+
+![The no-hose clean-sheet stack at each re-leaned pose, spec plan against 'hold-min' torques, before and after the re-lean](experiments/m43_specstack/figure.png)
+
+**Milestone 44: can a smaller leg preload rescue the H1's two dropped poses?** One of them. Preloading each leg to 0.9
+of what the stance allows (0.030 and 0.085 N m instead of 0.1) gives both poses a spec plan, and the clean-sheet stack
+does not move at all between 0 and 0.085 N m (0.9715 and 0.9668, 0.08 and 0.27 points under the old lean). But with a
+0.2 N sensor error the worst residual along the wall becomes **0.172 mm** (0.241 mm at 20 N of hose drag), against
+0.019 mm on the other poses. Post hoc, all of it is at (1.4 m, −0.15 m), where a joint in the controller's hold set
+flips under the sensor error and the leg preload cannot reach it; at (1.6 m, 0) the residual is 0.003 mm. So the
+zero-press stance keeps a spec-grade plan at 4 of the H1's 6 re-leaned poses. H170, H172 and H173 held, H171 and H174
+refuted. Statics.
+
+![The H1's worst residual along the wall: 0.010 to 0.032 mm on the other poses, 0.17 to 0.24 mm on the re-planned ones](experiments/m44_legpreload/figure.png)
+
+**Milestone 45: can a hold-first preload rescue (1.4 m, −0.15 m)?** No; the pose needs a better wrist sensor instead.
+The joint that flips there is the right hip roll, a joint the controller holds and one the leg preload already
+reached (milestone 44's post hoc was wrong to say otherwise): planned 0.030 N m above its friction threshold, a 0.2 N
+sensor error moves it 0.033. Giving the hold set its own margin first, with every other leg allowed down to its
+threshold, raises it only to **0.0339 N m** (from 0.0333): the stance itself caps that joint, while the other legs
+had 0.19 N m to spare. So the residual stays **0.172 mm** at 0, 5 and 20 N of hose drag (20 N falls from 0.241), at
+no stack cost. Post hoc, the joint moves 0.163 N m per newton of sensor z error, so the pose meets the spec only
+with a z error under about 0.19 N: 0.001–0.004 mm at 0.05–0.15 N (an ATI Mini45-class sensor), 0.172 mm at an FT
+300's 0.2 N. H176, H179 and H180 held, H175, H177 and H178 refuted. Statics.
+
+![Where the margin is at H1 (1.4 m, −0.15 m), and the worst residual along the wall with the hold-first tiers](experiments/m45_tiered/figure.png)
+
+**Milestone 46: was the right hip roll held on the wrong side?** Yes, and with it on the other side the pose meets the
+spec with an FT 300. Milestones 32 to 45 chose each held joint's side once per robot. At (1.4 m, −0.15 m) that side
+pins the right hip roll at exactly its friction threshold, while the torque-minimising controller wants −3.8 N m.
+Held on the other side, the stance allows a common leg margin of **2.29 N m** at 50 N (from 0.033), the pose takes the
+spec's full 0.1 N m preload, and its worst residual along the wall falls from 0.172 to **0.005 mm** at 0, 5 and 20 N
+of hose drag with a 0.2 N sensor error. The H1's worst over all 19 poses returns to 0.010 / 0.019 / 0.032 mm, at no
+stack cost (0.9716). Milestone 45's sensor bound belonged to the wrong side. The per-robot side is also wrong at both
+window ends at four other H1 poses, which still meet the spec, so per-pose sides are the next step. H181 to H185
+held, H186 refuted. Statics.
+
+![The right hip roll's hold side at H1 (1.4 m, −0.15 m): the margin the stance allows and the worst residual along the wall](experiments/m46_holdside/figure.png)
+
+**Milestone 47: should each pose choose its own hold sides?** For the H1 yes, for the G1 not by this score. Each pose
+took the hold-side combination with the largest common leg margin at zero hose force. Every pose of both robots then
+clears the spec preload's goal (smallest margin 0.886 N m, from 0.033), the two H1 poses that had no plan on the
+per-robot sides get one (margins 12.8 and 6.6 N m), and the H1's worst residual along the wall with a 0.2 N sensor
+error falls to 0.010 / 0.014 / **0.010 mm** at 0 / 5 / 20 N of hose drag (from 0.010 / 0.019 / 0.032), at no stack
+cost. The G1 goes the other way: 0.011 / 0.025 / **0.037 mm** (from 0.016 / 0.011 / 0.011), over the 0.03 mm spec at
+20 N, because at three poses a leg joint the zero-drag score never looked at flips under drag. Sides should be scored
+at the loads the robot meets. H187 to H189, H191 and H192 held, H190 refuted. Statics.
+
+![Common leg margin at every pose on one side per robot against per-pose sides, and each robot's worst residual along the wall](experiments/m47_poseside/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

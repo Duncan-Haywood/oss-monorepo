@@ -1,0 +1,447 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyeNh3s4LdgitDBE7ME",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T00:37:45Z",
+  "ended": "2026-11-18T00:38:10Z",
+  "wall_minutes": 4.78,
+  "tokens_in": 2819122,
+  "tokens_out": 19987,
+  "cost_usd": 1.5159,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17117",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix the open list first, but all 11 entries are control-plane edits that wait on owner approval; several already have patches or PRs from earlier runs. The step could say to skip entries whose fix already sits in a pending control-plane PR or patch."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not re-fix the 11 open entries. All need control-plane PRs (workflows, prompts/redteam.py, control_plane_guard.py), most already written up or opened by earlier runs.",
+      "did": "Checked each still reproduces on main (grep of the named files), then moved on to seeding.",
+      "result": "Run time went to a real user-facing defect instead."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b: no automated guard added. Running the lock checker over our own Prisma migrations finds 3 risks in already-applied migrations, so it would not start green, and a diff-only check needs a workflow step (control plane).",
+      "did": "Wrote the idea up in docs/reports/redteam-2026-11-18-sql-migration-lock-check.md.",
+      "result": "Left for a control-plane PR."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-rollback-to-savepoint-is-not-a-rollback.md",
+    "docs/reports/redteam-2026-11-18-sql-migration-lock-check.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: sql.mjs 5/10, engine.mjs 8/10 caught. 4 gaps fixed with tests, 3 equivalent. Real defect: flat transaction blocks (ROLLBACK TO SAVEPOINT, ABORT, nested BEGIN, AND CHAIN), patched via shared transactionEffect(). Venture suite 132/132 (run_venture_tests.py sql-migration-lock-check).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/sql-migration-lock-check/sql.mjs",
+        "test": "node --test ventures/sql-migration-lock-check/**/*.test.mjs  (in .)",
+        "seed": 536269593,
+        "commit": "a7e10cd98",
+        "sites": 120,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 68,
+            "col": 11,
+            "operator": "lt-to-le",
+            "before": "while (i < n) {",
+            "after": "while (i <= n) {",
+            "line_text": "  while (i < n) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "while (i <= n): the extra pass reads text[n] (undefined) and writes out[n] = undefined, which Array.join turns into ''; masked text is unchanged."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 86,
+            "col": 38,
+            "operator": "plus-to-minus",
+            "before": "if (text[j] === '/' && text[j + 1] === '*') { depth += 1; j += 2; continue; }",
+            "after": "if (text[j] === '/' && text[j - 1] === '*') { depth += 1; j += 2; continue; }",
+            "line_text": "        if (text[j] === '/' && text[j + 1] === '*') { depth += 1; j += 2; continue; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 87,
+            "col": 20,
+            "operator": "eq-flip",
+            "before": "if (text[j] === '*' && text[j + 1] === '/') { depth -= 1; j += 2; continue; }",
+            "after": "if (text[j] !== '*' && text[j + 1] === '/') { depth -= 1; j += 2; continue; }",
+            "line_text": "        if (text[j] === '*' && text[j + 1] === '/') { depth -= 1; j += 2; continue; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 98,
+            "col": 15,
+            "operator": "lt-to-le",
+            "before": "while (j < n) {",
+            "after": "while (j <= n) {",
+            "line_text": "      while (j < n) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "unterminated-literal scan j <= n: j only overshoots to n+1, blank() is bounded by k < n and the outer loop ends; output unchanged."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 154,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < offset && i < text.length; i += 1) if (text[i] === '\\n') line += 1;",
+            "after": "for (let i = 0; i < offset && i < text.length; i += 2) if (text[i] === '\\n') line += 1;",
+            "line_text": "  for (let i = 0; i < offset && i < text.length; i += 1) if (text[i] === '\\n') line += 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 194,
+            "col": 39,
+            "operator": "minus-to-plus",
+            "before": "const leading = maskedSlice.length - maskedSlice.trimStart().length;",
+            "after": "const leading = maskedSlice.length + maskedSlice.trimStart().length;",
+            "line_text": "    const leading = maskedSlice.length - maskedSlice.trimStart().length;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 198,
+            "col": 35,
+            "operator": "lt-to-le",
+            "before": "for (let k = from; k < to && k < text.length; k += 1) {",
+            "after": "for (let k = from; k < to && k <= text.length; k += 1) {",
+            "line_text": "    for (let k = from; k < to && k < text.length; k += 1) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "k <= text.length is never reached: the first clause k < to stops first, since push is only called with to <= text.length."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 213,
+            "col": 71,
+            "operator": "max-to-min",
+            "before": "else if (/^\\s*(COMMIT|END|ROLLBACK)\\b/i.test(stmt.masked)) depth = Math.max(0, depth - 1);",
+            "after": "else if (/^\\s*(COMMIT|END|ROLLBACK)\\b/i.test(stmt.masked)) depth = Math.min(0, depth - 1);",
+            "line_text": "    else if (/^\\s*(COMMIT|END|ROLLBACK)\\b/i.test(stmt.masked)) depth = Math.max(0, depth - 1);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Math.min(0, depth-1) let a stray COMMIT drive depth negative. Test: 'a stray COMMIT outside any block does not swallow the next BEGIN'. The line was then replaced by transactionEffect() (the real-defect fix), which removes depth entirely."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 216,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < masked.length; i += 1) {",
+            "after": "for (let i = 1; i < masked.length; i += 1) {",
+            "line_text": "  for (let i = 0; i < masked.length; i += 1) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "loop from i=1 skipped a semicolon at offset 0. Test: 'a semicolon at the very start of the file ends an empty statement'."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 217,
+            "col": 18,
+            "operator": "eq-flip",
+            "before": "if (masked[i] === ';') {",
+            "after": "if (masked[i] !== ';') {",
+            "line_text": "    if (masked[i] === ';') {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/sql-migration-lock-check/engine.mjs",
+        "test": "node --test ventures/sql-migration-lock-check/**/*.test.mjs  (in .)",
+        "seed": 1038350735,
+        "commit": "a7e10cd98",
+        "sites": 67,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 136,
+            "col": 17,
+            "operator": "false-to-true",
+            "before": "if (!m) return false;",
+            "after": "if (!m) return true;",
+            "line_text": "  if (!m) return false;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 141,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "return !/^0(\\s*(ms|s|min))?$/i.test(value) && value.toLowerCase() !== 'default';",
+            "after": "return !/^1(\\s*(ms|s|min))?$/i.test(value) && value.toLowerCase() !== 'default';",
+            "line_text": "  return !/^0(\\s*(ms|s|min))?$/i.test(value) && value.toLowerCase() !== 'default';",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 141,
+            "col": 45,
+            "operator": "and-to-or",
+            "before": "return !/^0(\\s*(ms|s|min))?$/i.test(value) && value.toLowerCase() !== 'default';",
+            "after": "return !/^0(\\s*(ms|s|min))?$/i.test(value) || value.toLowerCase() !== 'default';",
+            "line_text": "  return !/^0(\\s*(ms|s|min))?$/i.test(value) && value.toLowerCase() !== 'default';",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 147,
+            "col": 4,
+            "operator": "or-to-and",
+            "before": "|| /\\bON\\s+([A-Za-z0-9_.\"]+)/i.exec(masked);",
+            "after": "&& /\\bON\\s+([A-Za-z0-9_.\"]+)/i.exec(masked);",
+            "line_text": "    || /\\bON\\s+([A-Za-z0-9_.\"]+)/i.exec(masked);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 240,
+            "col": 20,
+            "operator": "true-to-false",
+            "before": "lockTimeout = true;",
+            "after": "lockTimeout = false;",
+            "line_text": "      lockTimeout = true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 282,
+            "col": 39,
+            "operator": "and-to-or",
+            "before": "if (prior && prior.inTransaction && st.inTransaction) {",
+            "after": "if (prior && prior.inTransaction || st.inTransaction) {",
+            "line_text": "      if (prior && prior.inTransaction && st.inTransaction) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "&& to || flagged VALIDATE in a block after a NOT VALID outside one. Test: 'NOT VALID outside a block, VALIDATE inside a later one, is not the same transaction'."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 381,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const col = setNotNull[1].replace(/\"/g, '').toLowerCase();",
+            "after": "const col = setNotNull[2].replace(/\"/g, '').toLowerCase();",
+            "line_text": "        const col = setNotNull[1].replace(/\"/g, '').toLowerCase();",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 404,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "const adopted = usingIndex && concurrentIndexes.has(usingIndex[1].replace(/\"/g, '').toLowerCase());",
+            "after": "const adopted = usingIndex && concurrentIndexes.has(usingIndex[2].replace(/\"/g, '').toLowerCase());",
+            "line_text": "        const adopted = usingIndex && concurrentIndexes.has(usingIndex[1].replace(/\"/g, '').toLowerCase());",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 407,
+            "col": 382,
+            "operator": "const-plus-one",
+            "before": "impact: `Adding a ${addKey[1].toUpperCase().includes('PRIMARY') ? 'primary key' : 'unique'} constraint builds the index it needs while holding an ACCESS EXCLUSIVE lock, so reads and writes block for the whole build \u2014 the same cost as a non-concurrent \\`CREATE INDEX\\`, reached by a different statement.${usingIndex ? ` This statement does say \\`USING INDEX ${usingIndex[1]}\\`, but nothing earlier in this file builds that index concurrently, so either it is built elsewhere \u2014 fine, and worth a comment \u2014 or the name is wrong.` : ''}`,",
+            "after": "impact: `Adding a ${addKey[1].toUpperCase().includes('PRIMARY') ? 'primary key' : 'unique'} constraint builds the index it needs while holding an ACCESS EXCLUSIVE lock, so reads and writes block for the whole build \u2014 the same cost as a non-concurrent \\`CREATE INDEX\\`, reached by a different statement.${usingIndex ? ` This statement does say \\`USING INDEX ${usingIndex[2]}\\`, but nothing earlier in this file builds that index concurrently, so either it is built elsewhere \u2014 fine, and worth a comment \u2014 or the name is wrong.` : ''}`,",
+            "line_text": "            impact: `Adding a ${addKey[1].toUpperCase().includes('PRIMARY') ? 'primary key' : 'unique'} constraint builds the index it needs while holding an ACCESS EXCLUSIVE lock, so reads and writes block for the whole build \u2014 the same cost as a non-concurrent \\`CREATE INDEX\\`, reached by a different statement.${usingIndex ? ` This statement does say \\`USING INDEX ${usingIndex[1]}\\`, but nothing earlier in this file builds that index concurrently, so either it is built elsewhere \u2014 fine, and worth a comment \u2014 or the name is wrong.` : ''}`,",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "usingIndex[2] printed 'undefined' as the index name. Test: 'ADD PRIMARY KEY USING INDEX with no concurrent build names the index in the impact'."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 442,
+            "col": 30,
+            "operator": "gt-to-ge",
+            "before": "const verdict = counts.risk > 0 ? 'can-block' : counts.warn > 0 ? 'review' : 'clean';",
+            "after": "const verdict = counts.risk >= 0 ? 'can-block' : counts.warn > 0 ? 'review' : 'clean';",
+            "line_text": "  const verdict = counts.risk > 0 ? 'can-block' : counts.warn > 0 ? 'review' : 'clean';",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/sql-migration-lock-check/sql.mjs",
+        "issue": "Transaction-block tracking diverged from PostgreSQL in sql.mjs and engine.mjs: ROLLBACK TO SAVEPOINT closed the block (a CREATE INDEX CONCURRENTLY that PostgreSQL refuses read clean, and NOT VALID + VALIDATE in one block went unflagged), ABORT was not recognised (false create-index-concurrently-in-tx), BEGIN nested by depth (BEGIN; BEGIN; COMMIT left a block open), and COMMIT AND CHAIN closed the block. Fixed with a shared transactionEffect() and 5 failing-first engine tests plus 2 sql tests.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17117"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3cec07e8-67ba-55e0-a56e-8a7a7a7376b4",
+    "transcripts": 1,
+    "first": "2026-11-18T00:37:45Z",
+    "last": "2026-11-18T00:42:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 75,
+        "output": 19987,
+        "thinking": 4325,
+        "cache_read": 2748268,
+        "cache_write_5m": 0,
+        "cache_write_1h": 70779,
+        "api_equivalent_usd": 1.5159,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 75,
+      "output": 19987,
+      "thinking": 4325,
+      "cache_read": 2748268,
+      "cache_write_5m": 0,
+      "cache_write_1h": 70779,
+      "api_equivalent_usd": 1.5159,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.78,
+      "active_minutes": 4.78,
+      "model_minutes": 3.2,
+      "tool_minutes": 1.58,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: mutation triage, PostgreSQL transaction semantics, fix and tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 197.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

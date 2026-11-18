@@ -111,6 +111,23 @@ export function angleModifier(cosInc, b0 = 0.1) {
 }
 const DIFFUSE_MODIFIER = 0.9;
 
+// Fraction of a window's height in the shadow of a horizontal overhang, for
+// beam sun only. The overhang projects depthFt from the wall, its underside
+// gapFt above the window head, and is taken to run well past both sides of the
+// window (no end effects, the usual long-overhang assumption). The shadow edge
+// drops depth × tan(profile angle) below the overhang, where the profile angle
+// is the sun's altitude seen in the plane normal to the wall:
+// tan Ω = tan(altitude) / cos(azimuth − wall azimuth). Sun behind the wall, or
+// below the horizon, puts no beam on the glass, so the fraction is moot there
+// and returned as 0.
+export function overhangShadedFraction(sun, surfaceAz, { depthFt, gapFt = 0, windowHeightFt }) {
+  if (!(depthFt > 0) || !(windowHeightFt > 0) || sun.altitude <= 0) return 0;
+  const cosRel = Math.cos((sun.azimuth - surfaceAz) * deg);
+  if (cosRel <= 1e-9) return 0;
+  const drop = depthFt * Math.tan(sun.altitude * deg) / cosRel;
+  return Math.max(0, Math.min(1, (drop - gapFt) / windowHeightFt));
+}
+
 function merge(input) {
   const site = { ...DEFAULTS.site, ...(input.site || {}) };
   const envelope = { ...DEFAULTS.envelope, ...(input.envelope || {}) };
@@ -172,6 +189,12 @@ export function validate(input) {
       if (w.heightFt != null) num(w.heightFt, `${wn} height`, errs, { min: 1, max: 40 });
       num(w.windowFt2 ?? 0, `${wn} window area`, errs, { min: 0, max: 5000 });
       num(w.doorFt2 ?? 0, `${wn} door area`, errs, { min: 0, max: 500 });
+      if (w.overhangFt != null) num(w.overhangFt, `${wn} overhang depth`, errs, { min: 0, max: 30 });
+      if (w.overhangGapFt != null) num(w.overhangGapFt, `${wn} gap from window head to overhang`, errs, { min: 0, max: 30 });
+      if (w.windowHeightFt != null) {
+        num(w.windowHeightFt, `${wn} window height`, errs, { min: 0.5, max: 40 });
+        if (w.windowHeightFt > (w.heightFt ?? r.ceilingFt ?? 8)) errs.push(`${wn}: window height exceeds the wall height`);
+      }
       const gross = w.lengthFt * (w.heightFt ?? r.ceilingFt ?? 8);
       if ((w.windowFt2 ?? 0) + (w.doorFt2 ?? 0) > gross + 1e-9) errs.push(`${wn}: windows and doors (${(w.windowFt2 ?? 0) + (w.doorFt2 ?? 0)} ft²) exceed the wall's ${round(gross)} ft²`);
     });
@@ -205,12 +228,14 @@ export function calculate(input) {
   const facingSolar = {};
   for (const [f, az] of Object.entries(FACINGS)) {
     const irr = suns.map(s => irradiance(s, az, 90));
-    const window = irr.map(i => i.beam * angleModifier(i.cosIncidence) + (i.diffuse + i.reflected) * DIFFUSE_MODIFIER);
+    const windowBeam = irr.map(i => i.beam * angleModifier(i.cosIncidence));
+    const windowDiffuse = irr.map(i => (i.diffuse + i.reflected) * DIFFUSE_MODIFIER);
+    const window = windowBeam.map((b, k) => b + windowDiffuse[k]);
     const solAir = irr.map((i, k) => outdoor[k] + alphaWall * (i.beam + i.diffuse + i.reflected) / H_OUT);
     const mean = solAir.reduce((a, b) => a + b, 0) / 24;
     // Inside-surface driving temperature: the mean plus a lagged, damped swing.
     const driving = hours.map((_, k) => mean + response.decrement * (solAir[(k - response.lag + 24) % 24] - mean));
-    facingSolar[f] = { window, driving, peakWindow: Math.max(...window) };
+    facingSolar[f] = { window, windowBeam, windowDiffuse, driving, peakWindow: Math.max(...window) };
   }
 
   // Indoor humidity at the cooling set point, outdoor at the design dew point.
@@ -229,7 +254,7 @@ export function calculate(input) {
     const ceilingH = r.ceilingFt ?? 8;
     const heat = { walls: 0, windows: 0, doors: 0, ceiling: 0, floor: 0, infiltration: 0 };
     const cool = hours.map(() => ({ walls: 0, windows: 0, windowSolar: 0, doors: 0, ceiling: 0, infiltration: 0, internal: 0 }));
-    let windowArea = 0, netWall = 0;
+    let windowArea = 0, netWall = 0, shadedSolarSaved = 0;
     for (const w of r.walls || []) {
       const gross = w.lengthFt * (w.heightFt ?? ceilingH);
       const win = w.windowFt2 ?? 0, door = w.doorFt2 ?? 0, net = gross - win - door;
@@ -238,10 +263,16 @@ export function calculate(input) {
       heat.windows += env.windowU * win * dTheat;
       heat.doors += env.doorU * door * dTheat;
       const fs = own(facingSolar, w.facing);
+      // Per-hour sunlit share of the beam on this wall's glass (1 = no overhang).
+      const shade = w.overhangFt > 0
+        ? suns.map(sun => 1 - overhangShadedFraction(sun, own(FACINGS, w.facing), { depthFt: w.overhangFt, gapFt: w.overhangGapFt ?? 1, windowHeightFt: w.windowHeightFt ?? 5 }))
+        : null;
       hours.forEach((_, k) => {
         cool[k].walls += Uwall * net * (fs.driving[k] - site.indoorCoolF);
         cool[k].windows += env.windowU * win * (outdoor[k] - site.indoorCoolF);
-        cool[k].windowSolar += win * env.windowSHGC * env.interiorShade * fs.window[k];
+        const solar = shade ? fs.windowBeam[k] * shade[k] + fs.windowDiffuse[k] : fs.window[k];
+        cool[k].windowSolar += win * env.windowSHGC * env.interiorShade * solar;
+        shadedSolarSaved += win * env.windowSHGC * env.interiorShade * (fs.window[k] - solar);
         cool[k].doors += env.doorU * door * (outdoor[k] - site.indoorCoolF);
       });
     }
@@ -266,7 +297,7 @@ export function calculate(input) {
     return {
       name: r.name || `Room ${idx + 1}`, areaFt2: r.areaFt2, windowArea, netWall, infiltrationCFM: cfm,
       heating: { ...heat, total: heatTotal },
-      cooling: { peakHour: peakK + 1, sensible: hourlySensible[peakK], latent, breakdown: cool[peakK], hourly: hourlySensible, byHour: cool },
+      cooling: { peakHour: peakK + 1, sensible: hourlySensible[peakK], latent, breakdown: cool[peakK], hourly: hourlySensible, byHour: cool, overhangSavedBtuDay: shadedSolarSaved },
     };
   });
 

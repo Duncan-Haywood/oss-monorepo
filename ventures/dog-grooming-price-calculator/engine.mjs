@@ -61,7 +61,26 @@ export function normalizeOptions(raw = {}) {
   return o;
 }
 
-const splitLine = (line) => line.split(",").map((s) => s.trim());
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" stays one field ("" inside quotes is a literal quote).
+const splitLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
 
 /** Parse class rows. Never throws; errors carry line numbers. */
 export function parseClasses(text, raw = {}) {

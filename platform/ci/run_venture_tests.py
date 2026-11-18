@@ -13,6 +13,8 @@ runner would report (docs/history/ci-local-first-2026-10-29.md).
     python3 platform/ci/run_venture_tests.py --slowest 30    # also end with the 30 slowest suites
     python3 platform/ci/run_venture_tests.py --write-times   # every venture, saving each suite's time
     python3 platform/ci/run_venture_tests.py --times 30      # the 30 slowest from that file, no run
+    python3 platform/ci/run_venture_tests.py --no-page-checks slug  # without the site page checks
+    python3 platform/ci/suite_file_times.py <slug>           # then its files, each timed alone
 
 Suite times live in platform/ci/venture_suite_times.json (TIMES_FILE), so a
 perf run can pick its target without a full run: perf runs timed suites by
@@ -71,6 +73,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import inherited_keys
+import suite_file_times
 
 ROOT = Path(__file__).resolve().parents[2]
 VENTURES = ROOT / "ventures"
@@ -83,6 +86,14 @@ NULL_SHA = "0" * 40
 SUITE_TIMEOUT = 1200
 TIMES_FILE = ROOT / "platform" / "ci" / "venture_suite_times.json"
 ON_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
+# Site-builder checks that read every venture's hand-written HTML. They run in
+# portfolio-pages.yml, not in a venture's own suite, so a session checking its
+# venture locally never saw them: editing a visible FAQ answer without its
+# FAQPage JSON-LD twin passed `run_venture_tests.py <slug>` and went red in CI
+# (four run records 2026-11-17/18 name faq-visible.test.mjs as a CI-only
+# failure). Together they take about 3 s, so a named local run includes them.
+PAGES = ROOT / "platform" / "pages"
+PAGE_CHECKS = ("faq-visible.test.mjs", "secondary-schema.test.mjs", "css-lint.test.mjs")
 
 
 def git(*args):
@@ -340,7 +351,7 @@ def changed_slugs(base_ref="origin/main"):
         raise SystemExit(
             f"run_venture_tests: no merge base between {base_ref} and HEAD "
             "(shallow clone, or the ref is missing/stale).\n"
-            "  Refresh it: git fetch --depth=40 origin main\n"
+            "  Refresh it: python3 platform/ci/fetch_ref.py main\n"
             "  Still none: git fetch --deepen=500 origin main, until "
             f"`git merge-base {base_ref} HEAD` answers.\n"
             "  Or name the ventures: run_venture_tests.py <slug> [<slug> ...]")
@@ -585,13 +596,36 @@ def failures(out, context=30):
     return "\n".join(red) if red else out[-3000:]
 
 
-def slowest_table(times, n):
+def page_checks(slugs):
+    """Run PAGE_CHECKS once when a named venture ships HTML or CSS.
+
+    Returns (ran, ok, out). They scan the whole portfolio, so a red line can
+    name another venture's page; CI would fail on it all the same.
+    """
+    present = [name for name in PAGE_CHECKS if (PAGES / name).is_file()]
+    shipped = any(any((VENTURES / s).rglob(pat)) for s in slugs for pat in ("*.html", "*.css"))
+    if not present or not shipped:
+        return False, True, ""
+    ok, out = run_one(["node", "--test", *present], PAGES, SUITE_TIMEOUT)
+    return True, ok, out
+
+
+def slowest_table(times, n, passes=None):
     """The n slowest suites as a Markdown table. Perf runs re-timed suites by
     hand because no list of suite times existed (doc friction 2026-11-11);
-    `--slowest 30` over every venture makes that one command."""
+    `--slowest 30` over every venture makes that one command.
+
+    `passes(slug)` (suite_file_times.perf_history) adds how many ci-perf
+    write-ups name each suite: the top three had 16 to 25 passes by
+    2026-11-17 and the 10-20 s tier one or two, where a run found a 7x win in
+    minutes (perf run records 2026-11-16/17)."""
     rows = sorted(times.items(), key=lambda kv: (-kv[1], kv[0]))[:n]
-    return "\n".join(["| venture | seconds |", "|---|---:|",
-                      *(f"| {slug} | {secs:.1f} |" for slug, secs in rows)])
+    if passes is None:
+        return "\n".join(["| venture | seconds |", "|---|---:|",
+                          *(f"| {slug} | {secs:.1f} |" for slug, secs in rows)])
+    return "\n".join(["| venture | seconds | perf write-ups | latest |", "|---|---:|---:|---|",
+                      *(f"| {slug} | {secs:.1f} | {len(passes(slug))} | {passes(slug)[0][0] if passes(slug) else ''} |"
+                        for slug, secs in rows)])
 
 
 def load_times(path=None):
@@ -619,7 +653,9 @@ def write_times(times, failed, jobs, path=None, full=False):
     data = {
         "about": "Wall seconds per venture test suite, from run_venture_tests.py --write-times. "
                  "Times taken with `jobs` suites in parallel on `cpus` cores, so they are "
-                 "relative, not a single-suite benchmark.",
+                 "relative, not a single-suite benchmark. `seconds` maps slug to wall seconds, slowest first; "
+                 "`failed` lists suites that failed in that run. Read it with `run_venture_tests.py --times N`; "
+                 "time one suite's files alone with `suite_file_times.py <slug>`.",
         "taken": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"),
         "commit": commit, "cpus": os.cpu_count(), "jobs": jobs,
         "failed": sorted(set(failed) | kept_failed),
@@ -643,6 +679,9 @@ def main(argv):
                     help="print the N slowest suites from that file and exit (no run)")
     ap.add_argument("--no-elsewhere", action="store_true",
                     help="skip the Python test steps a named venture's own workflow runs")
+    ap.add_argument("--no-page-checks", action="store_true",
+                    help="skip the platform/pages checks that scan venture HTML (PAGE_CHECKS), "
+                    "which a named local run otherwise adds")
     ap.add_argument("--no-unwired", action="store_true",
                     help="with --since, skip the check_*.py scripts, unit tests and doc_index check "
                     "no workflow runs (unwired_checks.py)")
@@ -654,7 +693,10 @@ def main(argv):
             return 1
         print(f"{len(data['seconds'])} suites timed {data.get('taken')} at {data.get('commit')} "
               f"({data.get('jobs')} jobs on {data.get('cpus')} cores)")
-        print(slowest_table(data["seconds"], args.times))
+        print(slowest_table(data["seconds"], args.times, passes=functools.lru_cache(None)(
+            suite_file_times.perf_history)))
+        print("\nTimes are relative (suites ran in parallel). Which file is slow, timed alone: "
+              "python3 platform/ci/suite_file_times.py <slug>")
         return 0
 
     if args.since is not None and args.since.strip("0 "):
@@ -738,6 +780,18 @@ def main(argv):
         if ON_ACTIONS:
             for rel, line, lookup in lint:
                 print(f"::error file={rel},line={line},title=inherited key::{lookup} needs Object.hasOwn")
+    # Local runs that name ventures, including `--since` under
+    # run_workflow_locally.py --for-changes (which skipped them on a venture
+    # FAQ edit, friction 2026-11-18). On Actions, portfolio-pages.yml runs them.
+    page_red = False
+    if named and not ON_ACTIONS and not args.no_page_checks:
+        ran, ok, out = page_checks(lint_slugs)
+        if ran:
+            page_red = not ok
+            print(f"{'ok  ' if ok else 'FAIL'} site page checks (platform/pages: "
+                  f"{', '.join(PAGE_CHECKS)})", flush=True)
+            if not ok:
+                print(failures(out))
     # `--since` is CI's mode (ventures-tests.yml): also run the tree checks no
     # workflow names, which no PR ran before 2026-11-12 (unwired_checks.py).
     unwired_red = False
@@ -757,7 +811,7 @@ def main(argv):
         print(f"{sum(rc == 0 for _, rc, _ in results) - len(skips)}/{len(results)} unwired tree "
               f"checks and tests pass" + (f", {len(skips)} skipped (missing pytest or a package: "
                                           f"{' '.join(n for n, _ in skips)})" if skips else ""))
-    return 1 if failed or lint or unwired_red or unknown else 0
+    return 1 if failed or lint or unwired_red or unknown or page_red else 0
 
 
 if __name__ == "__main__":

@@ -1,0 +1,9 @@
+# python3 eval/bowling-lane-sat.py <teams> <weeks> 240, on the six seasons of eval/bowling-lanes.txt where
+# the page's search leaves some team off the bound (2026-11-17, CaDiCaL 1.5.3 via python-sat).
+# SAT = an assignment with every team at the bound exists for these round-robin pairings.
+teams 10 pairs 5 weeks 30 counts 6..6: SAT
+teams 12 pairs 6 weeks 30 counts 5..5: SAT
+teams 16 pairs 8 weeks 32 counts 4..4: SAT
+teams 18 pairs 9 weeks 26 counts 2..3: SAT
+teams 20 pairs 10 weeks 30 counts 3..3: SAT
+teams 24 pairs 12 weeks 34 counts 2..3: SAT

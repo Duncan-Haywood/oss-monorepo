@@ -37,14 +37,21 @@ export function percentile(sorted, q) {
 
 export function nelderMead(f, x0, { iter = 600, step = 0.4, tol = 1e-12 } = {}) {
   const n = x0.length;
-  let pts = [x0.slice()];
+  const pts = [x0.slice()];
   for (let i = 0; i < n; i++) { const p = x0.slice(); p[i] += step; pts.push(p); }
-  let vals = pts.map(f);
+  const vals = pts.map(f);
+  const c = new Array(n);
   for (let k = 0; k < iter; k++) {
-    const order = vals.map((v, i) => i).sort((i, j) => vals[i] - vals[j]);
-    pts = order.map((i) => pts[i]); vals = order.map((i) => vals[i]);
+    // Stable insertion sort of the n + 1 vertices by value, in place: the same
+    // order the stable Array.prototype.sort gave, without four arrays a step.
+    for (let i = 1; i <= n; i++) {
+      const v = vals[i], p = pts[i];
+      let j = i - 1;
+      while (j >= 0 && vals[j] > v) { vals[j + 1] = vals[j]; pts[j + 1] = pts[j]; j--; }
+      vals[j + 1] = v; pts[j + 1] = p;
+    }
     if (Math.abs(vals[n] - vals[0]) < tol * (1 + Math.abs(vals[0]))) break;
-    const c = new Array(n).fill(0);
+    c.fill(0);
     for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) c[j] += pts[i][j] / n;
     const at = (t) => c.map((cj, j) => cj + t * (pts[n][j] - cj));
     const xr = at(-1), fr = f(xr);
@@ -111,12 +118,23 @@ export function fitCurve(points, type, { starts = null, iter = 600 } = {}) {
   const sS = mean(points.map((p) => p.s)) || 1, rS = mean(points.map((p) => p.r)) || 1;
   const pts = points.map((p) => ({ s: p.s / sS, r: p.r / rS }));
   const maxR = Math.max(...pts.map((p) => p.r), 1e-9);
-  const m = pts.length, xs = new Float64Array(m), ys = new Float64Array(m);
-  for (let i = 0; i < m; i++) { xs[i] = pts[i].s; ys[i] = pts[i].r; }
+  // A bootstrap resample repeats about a third of its weeks, so the curve is
+  // evaluated once per distinct spend (gv) and the squared errors are still
+  // summed point by point in the original order: the same sum, bit for bit.
+  const m = pts.length, ys = new Float64Array(m), idx = new Int32Array(m);
+  const seen = new Map(), ux = [];
+  for (let i = 0; i < m; i++) {
+    const x = pts[i].s;
+    let j = seen.get(x);
+    if (j === undefined) { j = ux.length; seen.set(x, j); ux.push(x); }
+    idx[i] = j; ys[i] = pts[i].r;
+  }
+  const U = ux.length, xs = Float64Array.from(ux), gv = new Float64Array(U);
   const sse = (z) => {
     const g = C.bind(C.toP(z));
+    for (let k = 0; k < U; k++) gv[k] = g(xs[k]);
     let t = 0;
-    for (let i = 0; i < m; i++) { const e = ys[i] - g(xs[i]); t += e * e; }
+    for (let i = 0; i < m; i++) { const e = ys[i] - gv[idx[i]]; t += e * e; }
     return Number.isFinite(t) ? t : 1e30;
   };
   let init = starts;
@@ -309,7 +327,7 @@ function money2(s) {
 }
 
 export function parseSpend(text) {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
   if (lines.length < 2) return { error: "Paste or upload rows with a date, a channel, the spend and the revenue." };
   const first = lines[0];
   const d = [",", "\t", ";"].map((c) => [c, first.split(c).length]).sort((a, b) => b[1] - a[1])[0][0];

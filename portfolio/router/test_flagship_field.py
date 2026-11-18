@@ -248,8 +248,8 @@ def test_replace_and_park_in_one_call(tmp_path):
     longer = "(3) item 3 landed (README); next a much longer follow-up " + "z" * 150
     old = "(3) item 3 " + "w" * 183
     base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
-    # alone, the longer wording is refused and nothing is written
-    assert ff.main(base + ["--replace", old, longer]) == 1
+    # with --no-make-room, the longer wording is refused and nothing is written
+    assert ff.main(base + ["--replace", old, longer, "--no-make-room"]) == 1
     assert f.read_text() == doc
     item9 = "(9) item 9 " + "w" * 183
     assert ff.main(base + ["--replace", old, longer, "--park", item9]) == 0
@@ -397,3 +397,138 @@ def test_buildable_read_shows_cap(tmp_path, capsys):
     f.write_text(DOC)
     assert ff.main(["a", "--field", "buildable", "--file", str(f)]) == 0
     assert f"-- 15 of {ff.FLAGSHIP_BUILDABLE_MAX} characters" in capsys.readouterr().err
+
+
+def test_cli_refused_write_says_not_written(tmp_path, capsys):
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", _full_row(10, 195))))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    old = "(3) item 3 " + "w" * 183
+    assert ff.main(["b", "--file", str(f), "--replace", old, old + " " + "z" * 300]) == 1
+    assert "NOT WRITTEN" in capsys.readouterr().err and f.read_text() == doc
+    # a read or a --check that fails is not a write attempt
+    assert ff.main(["nosuch", "--file", str(f), "--field", "next"]) == 1
+    assert "NOT WRITTEN" not in capsys.readouterr().err
+
+
+def test_make_room_parks_down_to_the_target_not_just_the_cap():
+    # Rows parked only to the cap were full again for the next run (18
+    # sessions in 3 days, friction_rank.py 2026-11-17); a park leaves headroom.
+    v = _full_row(11, 190)
+    got, parked = ff.make_room(v)
+    assert len(ff.with_pointer(got)) <= ff.FLAGSHIP_NEXT_TARGET
+    # a row under the cap is left alone unless the trigger is the target
+    row = _full_row(10, 185)
+    assert ff.FLAGSHIP_NEXT_TARGET < len(row) <= ff.FLAGSHIP_NEXT_MAX
+    assert ff.make_room(row) == (row, [])
+    got, parked = ff.make_room(row, trigger=ff.FLAGSHIP_NEXT_TARGET)
+    assert parked and len(ff.with_pointer(got)) <= ff.FLAGSHIP_NEXT_TARGET
+
+
+def test_make_room_settles_for_the_cap_when_the_target_is_out_of_reach():
+    mine = "(1) item 1 " + "m" * 1750
+    v = f"History: README. Next: {mine}; (2) a short tail item"
+    got, parked = ff.make_room(v + "q" * 300, keep=(mine,))
+    assert ff.FLAGSHIP_NEXT_TARGET < len(got) <= ff.FLAGSHIP_NEXT_MAX and parked
+
+
+def test_replace_over_the_cap_parks_by_itself(tmp_path, capsys):
+    row = _full_row(10, 195)
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    old = "(3) item 3 " + "w" * 183
+    longer = "(3) item 3 landed (README); next a much longer follow-up " + "z" * 150
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
+    assert ff.main(base + ["--replace", old, longer]) == 0
+    got = ff.read_value(f.read_text(), "b", "next")
+    # an implicit park moves only what the cap needs (ten run records,
+    # 2026-11-17..18: it parked four to eight items for one longer clause)
+    assert longer in got and ff.FLAGSHIP_NEXT_TARGET < len(got) <= ff.FLAGSHIP_NEXT_MAX
+    err = capsys.readouterr().err
+    assert "--make-room parked" in err and "parking 1 item(s)" in err
+    assert "parks by itself" in err
+    assert (tmp_path / "ventures" / "b" / "NEXT.md").exists()
+
+
+def test_trim_parks_a_full_row_to_the_target(tmp_path):
+    row = _full_row(10, 185)
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
+    assert ff.main(base + ["--trim"]) == 0
+    got = ff.read_value(f.read_text(), "b", "next")
+    assert len(got) <= ff.FLAGSHIP_NEXT_TARGET and got.endswith(ff.PARK_POINTER)
+    assert ff.read_value(f.read_text(), "a", "next") == ff.read_value(doc, "a", "next")
+
+
+def test_items_split_only_outside_brackets():
+    v = "History: README. Next: (a) one (with x; y inside); (b) two [p; q]; (c) three."
+    assert ff.split_items(v) == ["History: README. Next: (a) one (with x; y inside)",
+                                 "(b) two [p; q]", "(c) three."]
+    got = [c for c, _ in ff.park_candidates(v, 1000)]
+    assert "(b) two [p; q]" in got and not any(c.endswith("inside)") and "(with" not in c for c in got)
+
+
+def test_make_room_keeps_the_heading_the_runs_text_continues():
+    # PR #16944: the run's NEW continued the clause before it ("synthetic
+    # control: CA rank 1"; "MA, AZ, OR ranks 6-13; covariates failed"), and
+    # --make-room parked that heading, leaving NEW under the wrong item.
+    head = "(9) synthetic control: CA rank 1 of 39 " + "h" * 150
+    mine = "MA, AZ, OR ranks 6-13; covariates failed " + "m" * 150
+    v = _full_row(9, 190)[:-1] + "; " + head + "; " + mine + "."
+    assert len(v) > ff.FLAGSHIP_NEXT_MAX
+    got, parked = ff.make_room(v, keep=(mine,))
+    assert parked and head in got and mine in got
+    assert got.index(head) + len(head) + 2 == got.index(mine)
+
+
+def test_park_candidates_skip_an_item_spanning_two_sentences():
+    # "...carry-forward. joint drift ... Open: (0) drift model" is one `; `
+    # item but two sentences; parking it would take the "Open:" label along.
+    two = "next a real carry-forward. Open: (0) drift model " + "d" * 150
+    v = _full_row(9, 190)[:-1] + "; " + two + "."
+    cands = [c for c, _ in ff.park_candidates(v, 100)]
+    assert cands and not any("carry-forward" in c for c in cands)
+    # a version number or file name is not a sentence break
+    assert not ff.SENTENCE.search("ships v1.2 and reads a.csv files")
+
+
+def test_explicit_make_room_still_parks_to_the_target(tmp_path):
+    row = _full_row(10, 195)
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    old = "(3) item 3 " + "w" * 183
+    longer = "(3) item 3 next a much longer follow-up " + "z" * 170
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
+    assert ff.main(base + ["--replace", old, longer, "--make-room"]) == 0
+    assert len(ff.read_value(f.read_text(), "b", "next")) <= ff.FLAGSHIP_NEXT_TARGET
+
+
+def test_park_candidates_never_offer_a_landed_clause():
+    # 2026-11-18: an implicit park moved landed results into NEXT.md as if
+    # they were open items; a landed clause is cut, not parked.
+    landed = "(10) odd leagues landed: 8 on 2x6 UNSAT " + "l" * 150
+    v = _full_row(9, 190)[:-1] + "; " + landed + "."
+    cands = [c for c, _ in ff.park_candidates(v, 400)]
+    assert cands and not any("landed" in c for c in cands)
+
+
+def test_dry_run_writes_nothing(tmp_path, capsys):
+    row = _full_row(10, 195)
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    old = "(3) item 3 " + "w" * 183
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures"), "--dry-run"]
+    assert ff.main(base + ["--replace", old, old + " " + "z" * 100]) == 0
+    assert "would park" in capsys.readouterr().err
+    assert f.read_text() == doc and not (tmp_path / "ventures" / "b" / "NEXT.md").exists()
+    assert ff.main(base + ["--field", "buildable", "--replace", "x", "y"]) in (0, 1)
+    assert f.read_text() == doc

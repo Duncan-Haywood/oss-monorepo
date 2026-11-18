@@ -16,7 +16,7 @@ never holds the literal placeholder origin the site check refuses.
     python3 platform/ci/check_post_frontmatter.py --fix docs/posts/NEW.md   # house tag spellings, then check
 
 Named posts are checked alone, and the cross-post checks (tag spellings,
-shared descriptions) report only groups that include one of them. Runs kept
+shared descriptions, shared page titles) report only groups that include one of them. Runs kept
 passing a file and getting a usage error (two friction reports, 2026-11-10).
 
 Agent reports in docs/reports/ get `doc_index.py`'s front-matter check here
@@ -60,13 +60,19 @@ REQUIRED = ("title", "date", "description", "tags")
 LIMITS = {"title": 110, "description": 160, "seo_title": 70}
 MIN_DESCRIPTION = 60
 PLACEHOLDER = "https://example.invalid"  # platform/pages/check.mjs PLACEHOLDER_ORIGIN
+# build.test.mjs's "no paywall language" test runs this on the hub, which shows
+# the three newest posts' title and description (home.mjs renderLatestWriting).
+# A post titled "A free trial is not churn" passed every post check and turned
+# PR #17115's site build red (2026-11-18). Kept in step by test_check_post_frontmatter.py.
+PAYWALL = re.compile(r"\bsubscribe\b|upgrade to|paid plan|\bfree trial\b", re.I)
 ENTITY = re.compile(r"&(#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);", re.I)  # entities.mjs DOUBLE_ESCAPED, unescaped
 
 
 def limits_line():
     return (f"front matter: title <= {LIMITS['title']} chars, description {MIN_DESCRIPTION} to "
             f"{LIMITS['description']}, seo_title <= {LIMITS['seo_title']} (needed when a title over "
-            f"{LIMITS['seo_title']} has no clean cut at ': '), date = `date -u +%F`, tags: [a, b]")
+            f"{LIMITS['seo_title']} has no clean cut at ': '), date = `date -u +%F`, tags: [a, b]; "
+            f"once written: python3 platform/ci/check_posts.py (front matter, links, near-copies)")
 
 
 def problems(name, text, today=None):
@@ -105,6 +111,11 @@ def problems(name, text, today=None):
     # main_health ran it: a title over 70 with no seo_title and no clean cut to 70.
     if not seo and len(title) > 70 and not _cut(title):
         out.append(f"title is {len(title)} characters with no clean cut to 70; add `seo_title:` (70 max)")
+    for key, value in (("title", title), ("description", desc)):
+        hit = PAYWALL.search(value)
+        if hit:
+            out.append(f"{key} holds `{hit.group(0)}`, which the hub shows and build.test.mjs's "
+                       "'no paywall language' test refuses; reword it")
     tags = fields.get("tags")
     if tags and not re.fullmatch(r"\[\s*[^\]\s][^\]]*\]", tags):
         out.append("`tags` is not a non-empty [list]")
@@ -217,6 +228,56 @@ def duplicate_descriptions(texts):
     return [v for v in seen.values() if len(v) > 1]
 
 
+SITE_NAME = "Maris Stella Labs"  # platform/pages/site-nav.mjs
+
+
+_YAML_ESCAPES = {'"': '"', "\\": "\\", "/": "/", "n": "\n", "t": "\t", "r": "\r", "0": "\0"}
+
+
+def _unquote(value):
+    """writing.mjs unquoteYamlScalar: a quoted title loses its quotes and escapes as the page shows it."""
+    if len(value) >= 2 and value[0] == value[-1] == '"':
+        return re.sub(r"\\(.)", lambda m: _YAML_ESCAPES.get(m.group(1), m.group(0)), value[1:-1])
+    if len(value) >= 2 and value[0] == value[-1] == "'":
+        return value[1:-1].replace("''", "'")
+    return value
+
+
+def page_title(text):
+    """The post's <title> as writing.mjs builds it (loadPost's seoTitle, then postPageTitle), or None."""
+    m = re.match(r"---\n(.*?)\n---\n", text, re.S)
+    if not m:
+        return None
+    fields = {}
+    for line in m.group(1).splitlines():
+        kv = re.match(r"([A-Za-z_][\w-]*):\s*(.*)$", line)
+        if kv:
+            fields[kv.group(1)] = _unquote(kv.group(2).strip())
+    title, seo = fields.get("title", ""), fields.get("seo_title", "")
+    head = seo or (_cut(title) if len(title) > LIMITS["seo_title"] else None) or title
+    if not head:
+        return None
+    full = f"{head} · {SITE_NAME}"
+    return full if len(full) <= LIMITS["seo_title"] else head
+
+
+def duplicate_page_titles(texts):
+    """{page title: [post names]} for titles two posts would share ({name: post text}).
+
+    check.mjs fails a pull request's site build on a duplicate <title>, and
+    the build renames a post only when it clashes with a tool page, never
+    with another post. Runs met it after the ~10-minute local build: a
+    seo_title copied from a same-day sibling post (run record for PR #16945,
+    2026-11-17). This catches it from the files, in a second.
+    """
+    seen = {}
+    for name, text in texts.items():
+        t = page_title(text)
+        if t:
+            seen.setdefault(t, []).append(name)
+    return {t: v for t, v in seen.items() if len(v) > 1}
+
+
 def landed_broken(since, ref="origin/main", root=ROOT):
     """[(commit line, post name, problems)] for posts that failed this check in the commit that added them.
 
@@ -283,7 +344,7 @@ def main(argv=None):
     if args.limits:
         print(limits_line())
         return 0
-    bad, own, first = 0, False, None
+    bad, own, owned = 0, False, []
     texts = {f.name: f.read_text(encoding="utf-8") for f in sorted((Path(args.root) / "docs" / "posts").glob("*.md"))}
     named, reports = set(), []
     for p in args.posts:
@@ -313,7 +374,7 @@ def main(argv=None):
             continue
         for p in problems(name, text):
             print(f"{name}: {p}")
-            first = first or f"{name}: {p}"
+            owned.append(f"{name}: {p}")
             bad += 1
             own = True
     own_tags = set()
@@ -336,6 +397,12 @@ def main(argv=None):
             continue
         print(f"one description on {len(group)} posts: {', '.join(group)}; word each for its own post")
         bad += 1
+    for title, group in duplicate_page_titles(texts).items():
+        if args.posts and not named & set(group):
+            continue
+        print(f"one page title on {len(group)} posts, which fails the site build (check.mjs): \"{title}\" "
+              f"on {', '.join(group)}; give the newer post its own `seo_title:` ({LIMITS['seo_title']} max)")
+        bad += 1
     for line in report_problems(Path(args.root), reports if args.posts else None):
         print(line)
         bad += 1
@@ -343,8 +410,11 @@ def main(argv=None):
         print(limits_line())
         # The caps line alone was last, so `| tail -1` showed the limits but
         # not which field failed (run-record doc friction, 2026-11-15: two
-        # fix-and-rerun rounds). End on the count and the first problem.
-        print(f"FAIL: {bad} problem(s); first: {first}")
+        # fix-and-rerun rounds). End on the count and the field problems, all
+        # of them: naming only the first left a second (seo_title length) for
+        # a rerun (run-record doc friction, 2026-11-16).
+        shown = " | ".join(owned[:4]) + (f" | +{len(owned) - 4} more above" if len(owned) > 4 else "")
+        print(f"FAIL: {bad} problem(s): {shown}")
     if not bad:
         # A clean pass printed nothing, so in a tail it looked like a run that
         # never started (run-record doc friction, 2026-11-14; one re-run).

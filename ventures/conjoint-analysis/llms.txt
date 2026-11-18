@@ -1,0 +1,29 @@
+# Conjoint analysis tool: choice-based conjoint design, part-worths, willingness to pay, market simulator
+
+> Free online choice-based conjoint (CBC, discrete choice experiment) tool. Design a survey from an attribute list (balanced overlap, D-efficient, expected standard errors and respondents needed), then paste the answers (long format: respondent, task, concept, attributes, chosen; or wide answers merged with the design) and get an aggregate multinomial (conditional) logit by exact maximum likelihood: part-worth utilities with cluster-robust standard errors, attribute importance, willingness to pay against a numeric price attribute, a "none" constant, and a market share simulator, with respondent-bootstrap intervals. Coefficients match statsmodels ConditionalLogit to 1e-7; simulated 95% interval coverage 95.0% (model-based) and 94.8% (cluster-robust). Example: a simulated meal-kit study with known utilities. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). A statistical estimate from stated choices, not a sales forecast, financial or other professional advice. One segment (aggregate logit, IIA); no hierarchical Bayes or latent class yet.
+
+## Pages
+
+- [The tool](https://marisstella.app/conjoint-analysis/)
+
+## Use it from code
+
+- `node cli.mjs answers.csv [--levels levels.txt] [--numeric A,B] [--price NAME] [--bootstrap N] [--product JSON]... [--json]`
+- `node cli.mjs design levels.txt [--versions 10 --tasks 12 --concepts 3 --no-none --seed 1]` (design CSV on stdout)
+- `node cli.mjs merge design.csv answers-wide.csv` (long CSV on stdout)
+- `node platform/agents/tools.mjs call conjoint-analysis analyze --input '{"text":"respondent,task,Price,Plan,chosen\n...","levels":"Price#: 9, 15\nPlan: A, B","price":"Price"}'`
+- From JavaScript: `analyze({text, levels, numeric, price, bootstrap, confidence, products})`, `simulateShares(result, products)`, `generateDesign({attributes, versions, tasks, concepts, none, seed})`, `parseAttributes(text)`, `designCsv(design)`, `mergeResponses(designCsv, answersCsv)`, `report(result)`.
+
+## What it answers
+
+- Which product features matter most to buyers (attribute importance)?
+- How much would customers pay for a feature, plan or option (willingness to pay)?
+- What share would my product get against rivals at a given price (share of preference)?
+- How should I design a conjoint survey, and how many respondents do I need?
+- How do I analyse choice-based conjoint data without paid software?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/conjoint-analysis): MIT licensed.

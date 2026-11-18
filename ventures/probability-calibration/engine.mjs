@@ -129,7 +129,7 @@ function splitLine(line, delim) {
 
 export function parseCsv(text) {
   const lines = String(text ?? "")
-    .replace(/^﻿/, "")
+    .replace(/^\uFEFF/, "")
     .split(/\r?\n/)
     .filter((l) => l.trim() !== "" && !/^\s*#/.test(l));
   if (lines.length < 2) throw new Error("Paste a header row and at least a few rows of data.");
@@ -622,9 +622,13 @@ export function analyze(input = {}) {
   let meta;
   if (Array.isArray(input.p) && Array.isArray(input.y)) {
     if (input.p.length !== input.y.length) throw new Error("p and y must be the same length.");
-    p = input.p.map(Number);
-    y = input.y.map((v) => (v === true || v === 1 || v === "1" ? 1 : 0));
+    // Number(null) is 0 and anything but true/1/"1" used to count as a non-event: a missing
+    // forecast or an outcome written "yes" must not silently become a 0.
+    p = input.p.map((v) => (typeof v === "number" ? v : typeof v === "string" && !v.trim().endsWith("%") ? toNumber(v) : NaN));
+    y = input.y.map((v) => (v === true ? 1 : v === false ? 0 : typeof v === "number" || typeof v === "string" ? toOutcome(v) : null));
     if (p.some((v) => !(v >= 0 && v <= 1))) throw new Error("Every forecast in p must be between 0 and 1.");
+    const badY = y.findIndex((v) => v === null);
+    if (badY >= 0) throw new Error(`Outcome ${badY + 1} in y (${JSON.stringify(input.y[badY])}) is not readable as yes/no or 1/0.`);
     if (p.length < 10) throw new Error(`Need at least 10 forecasts with an outcome; found ${p.length}.`);
     const ev = y.reduce((s, v) => s + v, 0);
     if (ev === 0 || ev === y.length) throw new Error("Every outcome is the same, so calibration cannot be judged: the table needs both events and non-events.");

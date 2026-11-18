@@ -15,7 +15,18 @@ PR = "experiments/m6_prior/results/summary.md"
 KS = "experiments/m6_kindsel/results/summary.md"
 FR = "experiments/m6_fresh_items/results/summary.md"
 DV = "experiments/m6_design_variance/results/summary.md"
+DS = "experiments/m6_design_shrinkage/results/summary.md"
+LL = "experiments/m5_local_llm/results/summary.md"
 CHECKS = [
+    (LL, "| LLM15 | 0.569 (", "median AUC of 0.569"),
+    (LL, "| GBM_full | 0.780 (", "0.780 for the transferred model"),
+    (LL, "| LLM15 | 0.569 (0.537&ndash;0.589) | 32.84 (", "32.84 points zero-shot"),
+    (LL, "| 0.990 (0.984", "variance ratio 0.990"),
+    (LL, "Spearman(predicted gap, true gap) = 0.345", "Spearman 0.345"),
+    (LL, "slope of predicted on true gap 0.09", "slope of 0.09"),
+    (LL, "| LLM15_shift | &mdash; | 9.35 (", "misses by 9.35 points"),
+    (LL, "| GBM_full | 0.780 (0.755&ndash;0.790) | 5.11 (", "against 5.11 for the transferred model"),
+    (LL, "74 cells (pair x item)", "Over 74 cells"),
     (SB, "241 cells", "241 source-to-target cells"),
     (SB, "| E0 transfer as is | 5.59 |", "5.59 points on average"),
     (SB, "median |A-hat| (covariate shift, label-free) 0.83 points; |A-hat| < |B-hat| in 77% of cells", "|Â| < |B̂| in 77% of cells"),
@@ -98,6 +109,24 @@ CHECKS = [
     (DV, "| 400 | 217 | 0.110 | 0.830 | 0.863 (0.836 to 0.882) | 1.085 | 0.989 | 0.849 |", "Kish variance falls to 0.849"),
     (DV, "| 400 | period | 34 | 0.238 | 0.865 | 1.185 |", "1.17 to 1.19"),
     (DV, "| 400 | generation | 34 | 0.227 | 0.901 | 1.165 |", "1.17 to 1.19"),
+    (DS, "228 of 228 cells matched", "all 228 cells of Section 6 refitted and matched"),
+    (DS, "median V_f / V_y: 0.209", "median V_f/V_y 0.209"),
+    (DS, "median correlation of eps_f and eps_y: 0.453", "correlation of the two errors 0.453"),
+    (DS, "| share of D's population MSE that is V_y | 0.039 |", "against 4% of D's"),
+    (DS, "| share of P0's population MSE that is phase 1 | 0.030 |", "phase 1 is 3% of the shrunk"),
+    (DS, "| sample share | 0.472 |", "0.471 against 0.472"),
+    (DS, "| population share | 0.471 |", "0.471 against 0.472"),
+    (DS, "| population share, Kish gamma | 0.635 |", "0.635 against 0.641"),
+    (DS, "| RULE | population | 0.649 |", "0.649 against 0.648"),
+    (DS, "| COL | population | 0.767 | 0.792 | 0.839 | 1.015 | 0.265 |", "period COL 0.265"),
+    (DS, "| robust EB, Kish v, scored on the population share | 96.6% | 94.5% | 93.0% | 93.6% |", "averages 93.0% at n̄ = 200 and 93.6% at 400"),
+    (DS, "| 10th percentile, Kish v, population | 95.3% | 91.5% | 89.6% | 90.6% |", "lowest decile of 89.6 to 90.6%"),
+    (DS, "| generation | 33 | 92.6% | 94.9% | 0.197 |", "92.6% and 92.5%"),
+    (DS, "| period | 8 | 92.5% | 95.6% | 0.215 |", "92.6% and 92.5%"),
+    (DS, "| robust EB, design-aware (v + V_y) | 96.8% | 95.1% | 94.1% | 95.0% |", "restores 96.8%, 95.1%, 94.1% and 95.0%"),
+    (DS, "| median half-width design-aware / Kish | 1.009 | 1.015 | 1.028 | 1.034 |", "0.9 to 3.4% more width"),
+    (DS, "| median half-width design-aware / D's | 0.839 | 0.877 | 0.935 | 0.984 |", "0.839 of D's width at 50 and 0.984 at 400"),
+    (DS, "| D, Kish interval | 94.6% | 94.2% | 93.6% | 93.5% |", "covers 93.5% at 400"),
 ]
 
 

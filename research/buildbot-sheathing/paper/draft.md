@@ -646,6 +646,91 @@ threshold removes all of them and gives back the re-solved figures (0.830 mm at 
 over 0 to 20 N), for 1.66% more leg torque and one of 15 G1 poses. The 0.3 to 0.8 mm that remains
 comes from waist and arm joints, which the ground reaction cannot reach.
 
+The arms take a different preload (milestone 38). A squeeze between the two hands along the line
+joining the grip points has no net force or moment, so it changes only the arm joints' torques
+(at most 1.1e-16 N m per newton elsewhere). Chosen by the controller from its plan within 10 N,
+it removes all 14 mispredicted arm joints; with the leg preload and the FT 300 the G1's worst
+residual at a 5 N drag falls from 0.830 to 0.485 mm, and over 0 to 20 N the worst pose loses
+0.05 points instead of 1.64 (the H1 0.02 instead of 2.19). The floor that remains comes from the
+waist, which only the tool's wrench loads. Holding the nailer, the G1's wrist pitch already
+exceeds its 5 N m rating in the model at 7 of 14 poses.
+
+That floor is the waist's own backlash (milestone 39). With the squeeze and the leg preload, a
+braked waist takes the G1's worst residual at a 5 N drag from 0.485 to 0.012 mm and its 0 to
+10 N stack loss from 5.80 to 0.04 points; a waist gearbox with 1 arcmin of backlash gives 0.106 mm
+and 0.11 points. Making only the waist roll and pitch rigid, as on the base G1, leaves 0.485 mm:
+the joint that flips is the yaw. With the pre-2017 sensor a braked waist still leaves 0.873 mm.
+
+Every nail but the first starts from a lifted nose (milestone 40). No recoil figure for a framing
+nailer is published; an 8d nail fired at chronograph speeds of 29.8 to 36.9 m/s [Buchalter et al.
+2002] carries 0.129 to 0.160 N s, a floor, and the force-plate unloading of Lowe et al. [2014]
+gives at most about 8.70 N s a nail, a bracket that straddles the 0.25 to 1 N s at which a
+simulated G1 arm loses the wall. The press then rises from zero. Modelled quasi-statically, that
+rise sets none of the 56 nose-moving joints the window leaves loose: 36 change sign inside the 25
+to 50 N window, and the 11 that stay below the holding threshold peak at 0.159 N m on the rise.
+So the braked spec keeps 0.012 mm at a 5 N drag with either compensator; only at a 20 N drag does
+the rise set one wrist joint, which costs 0.203 mm unless the compensator plans the rise. What the
+lift-off does change is the stance: at 12 of 35 poses the leaned stance balances only above 3.7 to
+11.8 N of press, so it cannot be used with a tool that lifts off.
+
+Leaning less fixes that (milestone 41). Re-leaned to the furthest-forward lean that still stands
+at zero press, each of the 12 stances moves its centre of mass back 9.9 to 39.1 mm and then
+balances over the whole of 0 to 50 N. The window's width is the rigid-body figure
+(m + m_tool) g × sole length / grip height to the printed digit, so a stance that stands at zero
+press and still takes 50 N exists only below a grip height of 1.225 m on the G1 and 1.883 m on the
+H1; the G1 at its 1.2 m poses keeps 1.6 N above the press window. Rebuilt on the re-leaned poses,
+the braked spec leaves the G1 0.011 mm and the H1 0.019 mm at a 5 N drag, but one H1 pose loses
+its balance controller and the G1's worst no-hose stack falls from 0.9160 to 0.9030.
+
+That loss is the stance, not the controller (milestone 42). The new pose set flips four of the
+G1's six held leg-joint sides (both hip rolls and both ankle rolls), so a two-by-two of leans and
+sides separates them: at the G1's worst pose the lean costs 1.30 points, the sides 0.00 and the
+interaction 0.00. At every pose where both side choices have a solution they give the same stack,
+because a side sets which way a joint is held and the stack counts only the loose ones. The sides
+still decide feasibility: with the old ones the re-leaned G1 at (1.2 m, +0.15 m) has no solution.
+Compared in one torque convention, the re-lean costs the H1 0.09 to 0.29 points per pose, and the
+G1 0.31 to 1.30 points at four poses while gaining 0.60 to 0.79 at two.
+
+Those figures use the controller's 'hold-min' torques; the spec re-plans its leg preload and
+squeeze for each stance (milestone 43). In that convention the re-lean does not cost the G1: its
+worst no-hose stack rises from 0.9160 to 0.9257 with the braked waist and from 0.9081 to 0.9257
+with the stock one, over the same poses plus one the old lean could not plan, and at its worst pose
+the two conventions now differ by 2.70 points. The price is paid by the H1 near the top of its
+reach. Two of its re-leaned poses keep a balance controller but cannot carry the 0.1 N m leg
+preload at a 50 N press (the stance allows 0.033 and 0.095 N m), so only three of its six re-leaned
+poses have a plan, and those lose 0.09 to 0.22 points.
+
+A per-pose preload of 0.9 of what each stance allows (0.030 and 0.085 N m) returns a plan at both
+poses (milestone 44), and their stacks do not move between no preload and 0.085 N m, so the stack
+alone cannot tell the two apart. The residual along the wall can. With a 0.2 N sensor error the
+H1's worst becomes 0.172 mm, against 0.019 mm on its other poses, all of it at (1.4 m, −0.15 m),
+where a joint in the controller's hold set flips and the leg preload cannot reach it; at (1.6 m, 0)
+the residual is 0.003 mm. The zero-press stance therefore keeps a spec-grade plan at four of the
+H1's six re-leaned poses.
+
+The joint that flips at (1.4 m, −0.15 m) is the right hip roll, which the controller holds and the
+leg preload does reach: it is planned 0.030 N m above its threshold and a 0.2 N sensor error moves
+it 0.033 N m. A hold-first preload (milestone 45), which gives the held joints the largest margin
+the stance allows before the other legs take theirs, raises that margin only to 0.0339 N m, while
+the other legs had 0.19 N m to spare, so the residual stays 0.172 mm at every hose drag. The joint
+moves 0.163 N m per newton of sensor error along z, so that pose holds the spec only with a z error
+under about 0.19 N: 0.004 mm at 0.15 N, an ATI Mini45-class figure, against 0.172 mm at 0.2 N.
+
+That bound belongs to the hold side, not the pose (milestone 46). The controller held each joint on
+one side per robot, and at this pose that side pins the right hip roll at its threshold, while the
+torque-minimising plan puts it at −3.79 N m. Held on that side, the stance allows a common leg margin
+of 2.29 N m at a 50 N press, the pose takes the full 0.1 N m preload, and its worst residual along
+the wall is 0.005 mm at every hose drag with a 0.2 N sensor error. The H1 then meets the tool-point
+spec at all 19 poses with an FT 300-class sensor. The per-robot side also disagrees with the
+torque-minimising one at both press ends at four other H1 poses, which a per-pose rule would fix.
+
+A per-pose rule helps the H1 and hurts the G1 (milestone 47). Choosing at each pose the hold sides
+with the largest common leg margin at zero hose force lifts every pose of both robots above the
+preload goal (smallest 0.886 N m), gives the two H1 poses that had no plan one, and lowers the H1's
+worst residual along the wall at 20 N of hose drag from 0.032 to 0.010 mm. On the G1 the worst
+residual at 20 N rises from 0.011 to 0.037 mm: at three poses a leg joint that the zero-drag score
+does not weigh flips under drag. Hold sides should be scored at the loads the controller will meet.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
@@ -861,8 +946,10 @@ BibTeX entries are in `paper/references.bib`. Identifiers were checked by
 - Chase, K.W., Parkinson, A.R. (1991). A survey of research in the application of tolerance analysis to the design of mechanical assemblies. *Research in Engineering Design* 3, 23–37. doi:10.1007/BF01580066.
 - Cote, N., Tish, D., Koehle, M., Koga, Y., Chitta, S. (2024). Adaptive robotic construction of wood frames. *Construction Robotics* 8, 8. doi:10.1007/s41693-024-00122-0.
 - Giftthaler, M., et al. (2017). Mobile robotic fabrication at 1:1 scale: the In situ Fabricator. *Construction Robotics*. doi:10.1007/s41693-017-0003-5.
+- Buchalter, G.M., Johnson, L.P., Reichman, M.V., Jacobs, J.B. (2002). Penetrating trauma to the head and neck from a nail gun: a unique mechanism of injury. *Ear, Nose & Throat Journal* 81(11), 779–783. (Nail velocities seen as quoted by NIOSH's 2013 Science Blog post on nail-gun speed; the article itself not read.)
 - Kumagai, I., et al. (2019). Toward industrialization of humanoid robots: autonomous plasterboard installation to improve safety and efficiency. *IEEE Robotics & Automation Magazine* 26(4), 20–29.
 - Lachmayer, L., Recker, T., Dielemans, G., Dörfler, K., Raatz, A. (2022). Autonomous sensing and localization of a mobile robot for multi-step additive manufacturing in construction. *ISPRS Archives* XLIII-B1-2022, 453–458. doi:10.5194/isprs-archives-XLIII-B1-2022-453-2022.
+- Lowe, B.D., Albers, J., Hudock, S.D. (2014). A biomechanical assessment of hand/arm force with pneumatic nail gun actuation systems. *International Journal of Industrial Ergonomics* 44(5), 715–722. doi:10.1016/j.ergon.2014.06.007.
 - Sandy, T., Giftthaler, M., Dörfler, K., Kohler, M., Buchli, J. (2016). Autonomous repositioning and localization of an in situ fabricator. ICRA 2016, 2852–2858.
 - Tobin, J., et al. (2017). Domain randomization for transferring deep neural networks from simulation to the real world. arXiv:1703.06907.
 - Todorov, E., Erez, T., Tassa, Y. (2012). MuJoCo: a physics engine for model-based control. IROS. doi:10.1109/IROS.2012.6386109.

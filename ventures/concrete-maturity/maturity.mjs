@@ -136,7 +136,7 @@ function elapsedScale(h) {
 export function parseLoggerCsv(text, { unit = 'auto', dayFirst = false } = {}) {
   const notes = [];
   const errors = [];
-  const lines = String(text ?? '').replace(/^﻿/, '').split(/\r?\n/).filter(l => l.trim() !== '');
+  const lines = String(text ?? '').replace(/^\uFEFF/, '').split(/\r?\n/).filter(l => l.trim() !== '');
   if (lines.length < 2) return { sensors: [], start: null, notes, errors: ['The file needs a header row and at least one reading.'] };
   const delim = detectDelimiter(lines);
   const rows = lines.map(l => splitRow(l, delim));

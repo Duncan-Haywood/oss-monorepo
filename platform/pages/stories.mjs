@@ -12,7 +12,7 @@
  * The agents that write them run under `prompts/creative/` (owner,
  * 2026-10-21: about a tenth of scheduled runs; `prompts/routing.json`).
  */
-import { promises as fs } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc } from '../devlog/markdown.mjs';
@@ -50,6 +50,15 @@ const TITLE = `Stories · ${SITE_NAME}`;
 const DESCRIPTION =
   'Free AI-written fiction with audio: hopeful science fiction, stories for AI agents, and Catholic bedtime stories of the saints. CC BY-SA 4.0.';
 
+/**
+ * A shelf's cover thumbnail, site-relative, or null when the file is missing. The 320 px WebPs
+ * (5 to 7 KB each) sit beside the 1,400 px podcast covers (19 to 139 KB), which podcast apps need
+ * whole; the hero shows each at about 150 CSS px.
+ */
+function coverThumb(ventureRoot, prefix, rel) {
+  return existsSync(path.join(ventureRoot, rel)) ? `${prefix}${rel}` : null;
+}
+
 /** Everything the page shows, read from the ventures' own sources. */
 export function loadFiction(root = DEFAULT_ROOT) {
   const hearthRoot = path.join(root, 'ventures', HEARTH);
@@ -67,8 +76,11 @@ export function loadFiction(root = DEFAULT_ROOT) {
       tagline: shelf.tagline,
       description: shelf.description,
       audience: shelf.audience,
-      href: `${HEARTH}/`,
+      // Its own section of the venture index: the three shelves share that page, and the first
+      // holds 300+ stories, so the bare index buried Little Lamps and For Other Minds below it.
+      href: `${HEARTH}/#${shelf.id}`,
       feed: `${HEARTH}/${feedPath(shelf.id)}`,
+      cover: coverThumb(hearthRoot, `${HEARTH}/`, `covers/thumbs/${shelf.id}.webp`),
       count: mine.length,
       withAudio: mine.filter((s) => storyAudio[s.slug]).length,
       items: mine.map((s) => ({
@@ -91,6 +103,7 @@ export function loadFiction(root = DEFAULT_ROOT) {
     audience: 'For children and grown-ups at bedtime',
     href: `${SAINTS}/`,
     feed: `${SAINTS}/feed.xml`,
+    cover: coverThumb(saintsRoot, `${SAINTS}/`, 'cover-320.webp'),
     count: eps.length,
     withAudio: eps.filter((e) => episodeAudio[e.slug]).length,
     items: eps.map((e) => ({
@@ -119,10 +132,33 @@ const STYLE = `
   .jump { display:flex; flex-wrap:wrap; gap:8px; margin:1.2em 0 0; padding:0; list-style:none; }
   .jump a { display:inline-block; padding:5px 12px; border:1px solid var(--line); border-radius:999px; background:var(--panel);
     text-decoration:none; color:var(--ink); font-size:.9rem; }
+  /* The shelves as their podcast covers, in the hero's right half on wide screens. Until
+     2026-11-17 that half was empty at 1,280 px: the jump links were a row of text chips under
+     the dek. One list, two looks: chips on a phone (the covers stay display:none, and lazy
+     images that are not rendered are not fetched), a 2 x 2 of covers from 900 px. */
+  .jump img { display:none; }
+  @media (min-width: 900px) {
+    .pf-hero.has-covers { display:grid; grid-template-columns:minmax(0,1fr) 288px; column-gap:40px; align-items:center; }
+    .pf-hero.has-covers > .jump { margin:0; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .has-covers .jump a { display:block; padding:0; border:0; background:none; border-radius:12px; color:var(--muted); font-size:.82rem; line-height:1.35; }
+    .has-covers .jump img { display:block; width:100%; height:auto; aspect-ratio:1; border-radius:10px; border:1px solid var(--line);
+      box-shadow:0 6px 18px rgba(0,0,0,.35); margin:0 0 6px; transition:transform .15s, border-color .15s; }
+    .has-covers .jump a:hover img, .has-covers .jump a:focus-visible img { transform:translateY(-2px); border-color:var(--accent); }
+    .has-covers .jump a:hover, .has-covers .jump a:focus-visible { color:var(--ink); }
+    .has-covers .jump a:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .jump img { transition:none; } .has-covers .jump a:hover img { transform:none; } }
   .shelf { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin:0 0 18px; scroll-margin-top:16px; }
   h2 a { color:var(--ink); text-decoration:none; }
   h2 a:hover, h2 a:focus-visible { color:var(--accent); text-decoration:underline; text-underline-offset:.18em; }
   .tagline { margin:0; color:var(--muted); font-weight:600; }
+  /* Each shelf wears its cover beside its title. Until 2026-11-18 the covers were only in
+     the hero, so a reader who scrolled past it (or arrived at #little-lamps from a link) saw
+     four look-alike white panels. Same 320 px thumbnails as the hero, so a wide screen
+     fetches nothing new; a phone fetches each (5 to 7 KB) only as its shelf nears the screen. */
+  .shelf-title { display:flex; align-items:center; gap:14px; }
+  .shelf-title img { flex:none; width:56px; height:56px; border-radius:8px; border:1px solid var(--line); }
+  @media (min-width: 900px) { .shelf-title { gap:16px; } .shelf-title img { width:72px; height:72px; border-radius:10px; } }
   .shelf > p, .shelf-intro > p { max-width:68ch; }
   .shelf-intro > p.meta { max-width:none; }
   /* "Listen": the shelf's newest recorded pieces, playable in place. Until
@@ -207,8 +243,10 @@ function renderShelf(shelf, toRoot) {
   return `<section class="shelf" id="${esc(shelf.id)}" aria-labelledby="${esc(shelf.id)}-h">
 <div class="shelf-head${listen ? ' has-listen' : ''}">
 <div class="shelf-intro">
+<div class="shelf-title">${shelf.cover ? `<img src="${esc(toRoot + shelf.cover)}" alt="" width="72" height="72" loading="lazy" decoding="async">` : ''}<div>
 <h2 id="${esc(shelf.id)}-h"><a href="${esc(toRoot + shelf.href)}">${esc(shelf.title)}</a></h2>
 <p class="tagline">${esc(shelf.tagline)}</p>
+</div></div>
 <p>${esc(shelf.description)}</p>
 <p class="meta">${esc(shelf.audience)} · ${plural(shelf.count, 'story', 'stories')}, ${shelf.withAudio} with audio · <a href="${esc(toRoot + shelf.feed)}">Podcast RSS feed</a></p>
 </div>
@@ -258,13 +296,15 @@ ${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}${so
 </head>
 <body>
 <div class="wrap">
-<header class="pf-hero">
+<header class="pf-hero${shelves.every((s) => s.cover) ? ' has-covers' : ''}">
+<div class="hero-text">
 <p class="eyebrow">Fiction</p>
 <h1>Stories</h1>
 <p class="dek">Free fiction written by AI agents in this repository and read aloud by a synthetic voice: hopeful science fiction,
 stories written for AI agents, and bedtime stories of the saints. ${plural(total, 'story', 'stories')} so far, ${audio} with audio.
 Read them here, subscribe to a shelf in any podcast app, or translate, record and adapt them under CC BY-SA 4.0.</p>
-<ul class="jump">${shelves.map((s) => `<li><a href="#${esc(s.id)}">${esc(s.title)} (${s.count})</a></li>`).join('')}</ul>
+</div>
+<ul class="jump">${shelves.map((s) => `<li><a href="#${esc(s.id)}">${s.cover ? `<img src="${esc(toRoot + s.cover)}" alt="" width="160" height="160" loading="lazy" decoding="async">` : ''}${esc(s.title)} (${s.count})</a></li>`).join('')}</ul>
 </header>
 <main>
 ${shelves.map((s) => renderShelf(s, toRoot)).join('\n')}

@@ -10,8 +10,86 @@ field robot to accept or reject the update.
 
 **Paper draft (milestone 7):** [`paper/draft.md`](paper/draft.md) pulls milestones 1–6b into one
 RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with every quoted number
-checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (288 of 288,
-revised with milestones 4e–4s and 3b–3f) and a list of what a submission still needs.
+checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
+revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
+
+**Milestone 3m headline** (does that gyro fix survive a wrong gyro? the same windows with the gyro rotated 1&ndash;10&deg; off the
+camera, scaled 2&ndash;5% or 2&ndash;20 ms late): **misalignment and timing are forgiving; a wrong readout is not.** Against the same
+window with an exact gyro, a 3&deg; camera&ndash;IMU rotation moves f a median 0.15% and 10&deg; 0.42%; a 5 ms time offset 0.14%,
+10 ms 0.35%, 20 ms 0.83%, all below the 1.1% the window's own noise leaves. A gyro scale 5% high with the readout held at its true
+value moves f by 1.23%, negative in all 30 windows (2%: 0.50%); since the model sees only rate &times; readout, that is also the cost of a
+readout taken 5% too long, and it is a bias, so pooling windows will not average it out. With the readout left free, the scale error
+is absorbed to 1e-10, and the free readout also shrinks the misalignment's shift (10&deg;: 0.29%). So: estimate the readout in the
+window, align the gyro to a few degrees, sync it within 10 ms. Four of six predictions held. [Log](LOG.md).
+
+![Gyro faults against the rolling-shutter window solve: median focal shift per fault, and shift against rate error for time offsets](experiments/m3m_gyrofault/gyrofault.png)
+
+**Milestone 3l headline** (can a robot undo the rolling-shutter error with the gyro it already carries? milestone 3k's synthetic
+windows re-solved with a rolling-shutter term driven by per-keyframe gyro rates): **mostly, and one 1.2 s window measures the
+readout time itself.** With random hand-held rates of 0.3 rad/s per axis and a 1/30 s readout, the gyro term cuts the median focal
+shift from 4.17% to 1.14% (0.27&times;, just short of the pre-registered 0.25&times;), and to 0.71% with a free linear velocity per
+keyframe; noise-free, the full model recovers f to 1e-8, so what is left is pixel noise on a larger model, not bias. Left free, the
+readout comes back at 33.4 ms (median error 3.6%, sd 0.23 ms) at no cost in f, and on global-shutter data it stays within
+&plusmn;0.4 ms of zero in all 30 windows. A 1 or 5 &deg;/s gyro bias changes nothing. At 1 rad/s hand-held, where the plain solve
+diverged in 9 of 30 windows, the gyro solve converges in all 30 (median 1.0%). One trap: a constant pitch rate makes the readout
+and the focal length trade off (estimated readout 24 ms, 27% off), so a calibration manoeuvre should not be a steady tilt. Five of
+six predictions held. [Log](LOG.md).
+
+![Gyro-aided rolling-shutter solve: focal shift by model, and the readout time estimated from one window](experiments/m3l_gyro/gyro.png)
+
+**Milestone 3k headline** (could a rolling shutter be what a 1.2 s natural-feature window's focal length compensates? synthetic
+windows rendered through a rolling-shutter camera and solved with this project's global-shutter bundle adjustment): **it could, and
+the window's mean rotation rate cannot rule it out.** With random hand-held rates of 0.3 rad/s per axis and a 1/30 s readout the
+focal length shifts a median 4.2% (TUM's observed error is 5.25%); 1% at 0.1 rad/s. Pitch and yaw both move f by about 1.3&times;
+the rotation during readout, amplified about 5&times; over a simple stretch model, with a sign set by each window's geometry
+(&minus;9% to +11% across seeds at 1 rad/s pitch), so the mean rate does not predict the shift (R<sup>2</sup> 0.03) and a mean-rate
+bound on the TUM windows (median 0.5%) is not a bound. The shift is 4&ndash;39 times the solver's own sd. Two of five predictions
+held. Settling it needs TUM's 100 Hz motion capture and a rolling-shutter term in the model. [Log](LOG.md).
+
+![Rolling shutter: focal shift by axis and rate, hand-held random rates, and the TUM mean-rate check](experiments/m3k_shutter/shutter.png)
+
+**Milestone 3j headline** (do the first-order verdicts of milestones 3g and 3i survive a real re-solve? each of the 57 TUM RGB-D
+natural-feature windows re-solved by bundle adjustment with the board's distortion, principal point or both pinned): **yes, and
+the distortion verdict is sharper.** Pinning the board's k<sub>1</sub>, k<sub>2</sub> doubles the median focal error (5.25% to
+10.5%; fr1/xyz 18%) and leaves f above the board's in 52 of 53 windows; the principal point alone is mildly worse (5.87%; it helps
+fr3/stf, 7.2% to 5.9%, and hurts both fr1 sequences); all four 10.7%. First order gets the size about right (median re-solved/predicted
+step 0.91, 1.01, 0.87) but the direction wrong in a quarter of the distortion re-solves (sign agreement 74%; on board windows 99%).
+Rule for a robot: in a short natural-feature window, do not import the board's distortion. Five of six predictions held.
+[Log](LOG.md).
+
+![TUM windows: first-order against re-solved focal step for each pin, and the focal error free and pinned](experiments/m3j_tumpin/tumpin.png)
+
+**Milestone 3i headline** (is the principal point what a short natural-feature window's focal length compensates? the
+board's (c<sub>x</sub>, c<sub>y</sub>) pinned, first order on the 57 TUM RGB-D windows and re-solved on milestone 3h's 149 board windows):
+**no.** On the TUM windows pinning the board's principal point raises the median focal error from 5.25% to 6.76% (with the
+distortion pinned too, 7.17%), and the step it makes is barely related to the error it should correct (Spearman &minus;0.22).
+The windows' principal points sit up to 33 px from the board's (fr1/xyz c<sub>y</sub>), but f hardly leans on them (correlation
+&minus;0.1 to &minus;0.3). On clean board windows the same pin, re-solved, does help (0.55% to 0.37%), and the first-order step
+matches the re-solve (ratio 1.02). With milestones 3f&ndash;3h this rules out, at first order, the board's static intrinsics as a fix; the rolling
+shutter, the motion and track bias remain. Three of seven predictions held.
+
+![Board windows: first-order against re-solved focal step with the principal point pinned; TUM windows: focal error before and after pinning](experiments/m3i_principal/principal.png)
+
+**Milestone 3h headline** (milestones 3f and 3g predicted to first order where a window's focal length moves when its
+lens distortion is pinned; is that prediction what the re-solve gives? checked on the real OpenCV stereo images, where the
+pinned bundle adjustment can be run, 149 windows of 4&ndash;8 views, 1043 pinned re-solves): **yes in direction, and in size
+up to a few percent, but it overshoots large steps.** The re-solved step is 0.97 of the predicted one at the board's
+distortion (sign agreed in 99% of windows), 0.85 at 2&ndash;5% of f and 0.74 at 5&ndash;10%; the narrowed error bar is real (re-solved
+sd ratio 0.976 against 0.962 predicted). Shrinking milestone 3g's TUM steps by that overshoot (post hoc) still leaves the
+board prior worse than none (median 7.1% against 5.25%; fr1/xyz +10%), and even on clean board windows pinning the
+board's distortion moves f slightly away from Zhang's (0.55% to 0.65%). Four of five predictions held.
+
+![First-order predicted against re-solved focal-length step when k1 and k2 are pinned, and their ratio by step size](experiments/m3h_linear/linear.png)
+
+**Milestone 3g headline** (does pinning *both* distortion terms at a past board calibration fix natural-feature
+self-calibration's focal error? first-order conditioning of the same 57 TUM RGB-D window solves on k<sub>1</sub> and
+k<sub>2</sub> together, using the full covariances milestone 3b stored): **no; it is worse than pinning one term, which was
+worse than pinning none.** The median focal error rises from 5.25% to 8.72% (fr1/xyz +12.9%), every sequence's f is pushed
+up, and the conditional error bar shrinks by about 40%, so five pooled windows are confidently wrong (rms z 3.07 against
+1.10). Milestone 3f's rule "pin the prior whole" does not survive; leave distortion free in short windows and pool. One of
+five predictions held; the re-solve (milestone 3h) waits for the TUM host.
+
+![Focal error before and after conditioning on the board's k1 alone and on k1 and k2 together](experiments/m3g_condk12/condk12.png)
 
 **Milestone 3f headline** (if a robot already knows its lens distortion from a past calibration, does pinning k<sub>1</sub> fix
 natural-feature self-calibration's focal error? first-order conditioning of milestone 3c's 57 stored TUM RGB-D window solves):
@@ -964,6 +1042,17 @@ python3 experiments/m3d_pool/pool.py         # seconds; summary.json, pool.png
 OMP_NUM_THREADS=1 python3 experiments/m3e_axis/run.py <tum dir> 4   # ~10 min; results.json
 python3 experiments/m3e_axis/analyse.py      # seconds; summary.json, axis.png
 python3 experiments/m3f_condk1/analyse.py    # seconds, no video needed; summary.json, condk1.png
+python3 experiments/m3g_condk12/analyse.py   # seconds, no video needed; summary.json, condk12.png
+OMP_NUM_THREADS=1 python3 experiments/m3h_linear/run.py   # ~2 min on 4 cores, board images in data/; results.json
+python3 experiments/m3h_linear/analyse.py    # seconds; summary.json, linear.png
+python3 experiments/m3i_principal/tum.py      # seconds, no video needed; tum_summary.json
+OMP_NUM_THREADS=1 python3 experiments/m3i_principal/run.py   # ~2 min on 4 cores; results.json
+python3 experiments/m3i_principal/analyse.py  # seconds; board_summary.json, principal.png
+OMP_NUM_THREADS=1 python3 experiments/m3l_gyro/run.py 4   # under 20 min on 4 cores, no video; results.json
+python3 experiments/m3l_gyro/analyse.py        # seconds; summary.json, gyro.png
+python3 experiments/m3l_gyro/explore.py        # ~5 min; post hoc noise-off check, explore.json
+OMP_NUM_THREADS=1 python3 experiments/m3m_gyrofault/run.py 4   # ~6 min on 4 cores, no video; results.json
+python3 experiments/m3m_gyrofault/analyse.py   # seconds; summary.json, gyrofault.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1067,6 +1156,43 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
 
 ## Next steps
 
+After milestone 3m: the gyro fix tolerates a few degrees of camera&ndash;IMU rotation and up to 10 ms of time offset, but a
+readout (or gyro scale) held fixed and 5% wrong biases f by 1.2% in one direction, so the readout should be estimated. Next: the TUM
+test as specified below, readout free; a readout too short (s &lt; 1) and why the scale bias has one sign; estimating the time
+offset in the window (it is identifiable in principle from a smooth path); vibration within a frame; an outlier-laden SIFT front end.
+
+After milestone 3l: with a gyro, a rolling-shutter term in the window solve removes most of the shift (4.17% to 1.14%; 0.71%
+with a free linear velocity) and one hand-held window estimates the readout to 3.6% without a false shutter on global-shutter
+data. So the TUM test is now specified: when the TUM host answers, take each keyframe's angular velocity from the 100 Hz motion
+capture (rotated into the camera frame with TUM's mocap-to-camera calibration), solve the 57 windows with the readout free, and ask
+whether the readout comes back near a constant across windows and sequences and whether f's error falls. A readout near zero says
+the Kinect's error is not a shutter; a consistent nonzero one says it is, and gives the number no datasheet here supplied. Before
+that, synthetic: a wrong shutter model (vibration within a frame, a gyro time offset) and an outlier-laden SIFT front end.
+
+After milestone 3k: a rolling shutter is not ruled out (random 0.3 rad/s hand-held rates move a synthetic window's f a median
+4.2% at a 1/30 s readout), and the window's mean rate is the wrong predictor. When the TUM host answers: read each keyframe's
+angular velocity from the 100 Hz motion capture, find a source for the Kinect's and Xtion's readout times, and add a
+rolling-shutter term (known per-frame rate, readout free or fixed) to the window model; then the track-bias re-track and longer
+windows. fr3/stf, the slowest sequence with the largest error, is the case a rolling-shutter explanation has to survive.
+
+After milestone 3j: the re-solve on the TUM video confirms 3g and 3i (board distortion pinned: 10.5% median error; principal
+point: 5.87%; free: 5.25%). The TUM video now downloads, so the remaining candidates for what a window's f compensates can be
+tested on it directly: a rolling-shutter term in the window model (which TUM camera has one needs a source first), track bias
+in the SIFT front end (re-track with a different detector and compare f), and longer windows.
+
+After milestone 3i: the principal point is ruled out too (pinned at the board's value it raises the TUM median error to
+6.76%, while helping clean board windows), so the next candidates sit outside the pinhole-plus-radial model: a rolling-shutter
+term (which of the TUM cameras has a rolling shutter needs a source before it is modelled), and track bias in the natural-feature front end. The re-solve on the TUM video (now milestone 3j) waits for the host.
+
+After milestone 3h: the first-order conditioning is a fair guide to the pinned re-solve (it overshoots by about a quarter
+at 5&ndash;10% steps), and shrinking 3g's steps by that still leaves fr1/xyz +10%, so the re-solve on the TUM video (now
+milestone 3i) is a confirmation rather than the open question; the open question is what f compensates in a short
+natural-feature window, with a principal-point prior and a rolling-shutter term the next candidates.
+
+After milestone 3g: pinning both k<sub>1</sub> and k<sub>2</sub> is worse at first order (median 8.72%, fr1/xyz +12.9%), so
+the re-solve (now milestone 3h, needs the TUM video) asks whether the linearisation misleads or the windows and the board
+really disagree; a principal-point or rolling-shutter term in the window model is the next candidate for what f compensates.
+
 After milestone 3f: pinning k<sub>1</sub> alone at the prior calibration makes the Kinect's windows worse (+12.4% on fr1/xyz),
 so the next step (3g) re-solves every window with k<sub>1</sub> and k<sub>2</sub> both pinned, and with the distortion curve pinned,
 once the TUM host answers; storing the full intrinsics covariance per window would let the two-term conditioning be
@@ -1134,7 +1260,7 @@ whether any start beats the cold one on the Kinect.
 
 ## References
 
-Zhang (2000), *IEEE TPAMI* 22(11); Sturm et al. (2012), IROS, the TUM RGB-D benchmark, [doi:10.1109/IROS.2012.6385773](https://doi.org/10.1109/IROS.2012.6385773) (milestone 4j's data, CC BY 4.0); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
+Zhang (2000), *IEEE TPAMI* 22(11); Karpenko, Jacobs, Baek and Levoy (2011), *Digital video stabilization and rolling shutter correction using gyroscopes*, Stanford CS tech report CSTR 2011-03 (gyro-driven shutter correction, readout estimated from video); Hedborg, Forss&eacute;n, Felsberg and Ringaby (2012), *Rolling shutter bundle adjustment*, CVPR; Oth, Furgale, Kneip and Siegwart (2013), *Rolling shutter camera calibration*, CVPR (readout estimated with a target) (milestone 3l; these three were not looked up from this session); Sturm et al. (2012), IROS, the TUM RGB-D benchmark, [doi:10.1109/IROS.2012.6385773](https://doi.org/10.1109/IROS.2012.6385773) (milestone 4j's data, CC BY 4.0); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
 synthesis; Strobl and Hirzinger (2011), ICCV workshops; Nobre, Kasper and Heckman (2017),
 ICRA; the full list with notes is in [`PROPOSAL.md`](PROPOSAL.md). Earlier synthetic work in
 this repository: [`sensing-bafocal`](../sensing-bafocal/README.md),

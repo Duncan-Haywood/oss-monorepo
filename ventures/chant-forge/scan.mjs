@@ -224,7 +224,10 @@ export const STROKE_TOP_FALL = 0.4;
 // least minFall spaces, and the wide rest starts within join spaces of its
 // right end's height. Set from one stroke (GregoBase 3679, leaf 721).
 export const BROKEN_STROKE = { minFall: 0.15, join: 0.35 };
-export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true, brokenStroke = true, hookOnLine = true, oneStep = true } = {}) {
+// Set on the twelve tuning lists (eval/fleck-check.md): a fleck is 1-4 px at
+// 37 px a space; a head is 0.5-0.65 spaces wide.
+export const FLECK = { gap: 0.12, dc: 0.15, minW: 0.4, maxW: 0.8, fill: 0.4, reach: 1.0 };
+export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = true, brokenStroke = true, hookOnLine = true, oneStep = true, oneStepGap = true, fleck = true } = {}) {
   const { width, ink } = bin;
   const s = staff.space;
   const y0 = Math.max(0, Math.round(staff.top - 2.1 * s));
@@ -271,6 +274,50 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = tru
   const out = [];
   const posOf = (c) => Math.round((staff.bottom - c) / (s / 2));
   const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+  // A head split by a white fleck (FLECK): worn print leaves a few white
+  // columns inside a square, every run in them falls under minH, and the two
+  // halves are each narrower than the 0.25-space cut, so the note was lost
+  // (GregoBase 3439 nae, leaf 598; eval/fleck-check.md). Two pieces that are
+  // both under the cut, a gap of at most FLECK.gap spaces apart, at the same
+  // height (centres within FLECK.dc spaces) and together a head's width are
+  // joined into one, when every column between them is inked over FLECK.fill
+  // of the head's height and the head lies within FLECK.reach spaces of the staff.
+  if (fleck) {
+    for (let i = 0; i < heads.length; i++) {
+      const p = heads[i];
+      if (!p || p.lastX - p.x0 + 1 >= 0.25 * s) continue;
+      for (let j = 0; j < heads.length; j++) {
+        const q = heads[j];
+        if (!q || q === p || q.lastX - q.x0 + 1 >= 0.25 * s) continue;
+        const gap = q.x0 - p.lastX - 1;
+        if (gap < 1 || gap > FLECK.gap * s) continue;
+        if (Math.abs(mean(q.cs) - mean(p.cs)) > FLECK.dc * s) continue;
+        // on or near the staff: the lyric under it is set in bold letters
+        // that come apart into pieces of a head's height (leaf 356, staff 8)
+        const cm = mean([...p.cs, ...q.cs]);
+        if (cm > staff.bottom + FLECK.reach * s || cm < staff.top - FLECK.reach * s) continue;
+        const w = q.lastX - p.x0 + 1;
+        if (w < FLECK.minW * s || w > FLECK.maxW * s) continue;
+        // the fleck is inside the head: every column between the pieces has
+        // ink over FLECK.fill of the head's height (two letters of the lyric
+        // under a staff have white between them)
+        const top = Math.min(...p.runs.map((r) => r.a), ...q.runs.map((r) => r.a));
+        const bot = Math.max(...p.runs.map((r) => r.b), ...q.runs.map((r) => r.b));
+        let filled = true;
+        for (let x = p.lastX + 1; x < q.x0 && filled; x++) {
+          let n = 0;
+          for (let y = top; y <= bot; y++) n += isInk(x, y) ? 1 : 0;
+          if (n < FLECK.fill * (bot - top + 1)) filled = false;
+        }
+        if (!filled) continue;
+        heads[i] = { x0: p.x0, lastX: q.lastX, cs: [...p.cs, ...q.cs], runs: [...p.runs, ...q.runs], fleck: true };
+        heads[j] = null;
+        i--;
+        break;
+      }
+    }
+    for (let i = heads.length - 1; i >= 0; i--) if (!heads[i]) heads.splice(i, 1);
+  }
   for (const h of heads) {
     const w = h.lastX - h.x0 + 1;
     if (w < 0.25 * s) continue; // rhombi keep only a few full-height columns
@@ -374,7 +421,7 @@ export function readStaff(bin, staff, { minH = 0.4, maxH = 0.85, strokeTop = tru
   if (oneStep) {
     for (const o of [...out]) {
       if (!o.feat || o.liq || o.strokeTop || o.brokenStroke || !out.includes(o)) continue;
-      const t = oneStepCephalicus(isInk, o, staff, y0, y1);
+      const t = oneStepCephalicus(isInk, o, staff, y0, y1, { gap: oneStepGap });
       if (!t) continue;
       o.liq = t;
       o.oneStep = true;
@@ -619,7 +666,8 @@ export function liquescentTail(isInk, h, heads, staff, y0, y1, { onLine = true, 
 // down sits and the head's own ink has ended:
 //   - the head's right part (from ONE_STEP.split of its width) has rows
 //     inked across at least half its columns, in a run noteW spaces or
-//     wider (a podatus's stem is narrower), for minRows spaces or more,
+//     wider (a podatus's stem is narrower; a white counter up to gap
+//     spaces inside the small note is bridged), for minRows spaces or more,
 //   - its left part (past the stem) is at most maxLeft inked, so it is not
 //     a second full head (a podatus or two touching heads),
 //   - the right part's ink stops by ONE_STEP.maxEnd spaces (not a longer
@@ -630,8 +678,8 @@ export function liquescentTail(isInk, h, heads, staff, y0, y1, { onLine = true, 
 //     is a hairline (stemW spaces or less across) beside the small note:
 //     the upper head of a quilisma podatus has the quilisma there.
 // The small note is read one step under the head.
-export const ONE_STEP = { from: 0.55, to: 0.85, split: 0.45, minRows: 0.15, maxLeft: 0.3, maxEnd: 0.95, stem: 0.95, stemW: 0.2, noteW: 0.18, maxFall: 0.12, lowFrom: 0.3, lowTo: 0.9 };
-export function oneStepCephalicus(isInk, h, staff, y0, y1) {
+export const ONE_STEP = { from: 0.55, to: 0.85, split: 0.45, minRows: 0.15, maxLeft: 0.3, maxEnd: 0.95, stem: 0.95, stemW: 0.2, noteW: 0.18, maxFall: 0.12, lowFrom: 0.3, lowTo: 0.9, gap: 0.1 };
+export function oneStepCephalicus(isInk, h, staff, y0, y1, { gap = true } = {}) {
   const s = staff.space;
   const c = h.y, w = h.x1 - h.x0 + 1;
   if (w < 0.35 * s) return null;
@@ -642,9 +690,19 @@ export function oneStepCephalicus(isInk, h, staff, y0, y1) {
   const ya = Math.round(c + ONE_STEP.from * s), yb = Math.min(y1, Math.round(c + ONE_STEP.to * s));
   // the longest run of ink across a row, from a little left of the right
   // part to a little past the head (a small note is wider than a stem)
+  // A gap of up to ONE_STEP.gap spaces inside the run is bridged: some
+  // printings draw the small note with a white counter, so only its bottom
+  // rows are solid and its upper rows are two bars either side of the
+  // counter (GregoBase 3478 e, 3481 cer-, 3448 in; eval/one-step-hollow-check.md).
+  const gapMax = gap ? Math.round(ONE_STEP.gap * s) : 0;
   const runIn = (y, xa, xb) => {
-    let best = 0, run = 0;
-    for (let x = xa; x <= xb; x++) { if (isInk(x, y)) { run++; if (run > best) best = run; } else run = 0; }
+    let best = 0, start = -1, last = -1;
+    for (let x = xa; x <= xb; x++) {
+      if (!isInk(x, y)) continue;
+      if (start < 0 || x - last - 1 > gapMax) start = x;
+      last = x;
+      if (last - start + 1 > best) best = last - start + 1;
+    }
     return best;
   };
   const rxa = Math.round(rx0 - 0.1 * s), rxb = Math.round(h.x1 + 0.1 * s);

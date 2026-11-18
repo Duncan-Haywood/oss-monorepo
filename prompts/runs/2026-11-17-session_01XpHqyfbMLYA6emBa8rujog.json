@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyfbMLYA6emBa8rujog",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T12:39:44Z",
+  "ended": "2026-11-17T13:44:18Z",
+  "wall_minutes": 64.81,
+  "tokens_in": 10900399,
+  "tokens_out": 108430,
+  "cost_usd": 8.6084,
+  "tool_calls": 140,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16937",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "The track prompt describes only the sample round; the mode draw (README 'Five modes') sent this run to census, so the steps and the post name came from the README, not the prompt."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes on a 4-subject diff took over 15 minutes (portfolio-pages build 170 s, site-builder tests); fine in background but the 'verify' step is the longest part of a quality run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/quality_audit.py census",
+      "why": "README suggests census --n 6; drew 4 so each subject could be fixed in the same session",
+      "did": "census --n 4, four parallel auditors, fixes in the same PR",
+      "result": "4 audits, 14 of 30 defects fixed with tests"
+    },
+    {
+      "file": "research/mimic-twinswinggrid/experiments/results.txt",
+      "why": "its line 2 is a label printed by run.py quoting mimic-twinswing's grid size and best cost, both wrong",
+      "did": "corrected the label text in run.py and results.txt by hand without a ~minutes-long rerun; no computed number changed",
+      "result": "label matches the code"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-791a.md"
+  ],
+  "goal": null,
+  "notes": "Mode census (quality_audit.py mode). Seed 2026-11-17-791a. Subjects: ventures/bonus-depreciation-calculator, ventures/discogs-fee-calculator, research/hanger-yieldcost, research/mimic-twinswing. Meeting the bar: 0 of 4 (census, outside the sampled share, which stays 33 of 306, Wilson 8% to 15%). All 4 finished. Seeded bugs caught 9 of 22. Fix PR: #16937 (this PR) fixes 14 of 30 defects: bonus 50%-rule wording + land-improvement warning + comments; discogs crate thousands-comma parse (high) + floor test; hanger-yieldcost 5 README/docstring errors + intermediate-tau tests (sign-flip mutant now caught, verified with quality_mutate.py); mimic-twinswing 60->90-point grid and 0.353->0.355 across 2 projects and the homepage. Spot checks by the orchestrator: bonus $3M asset -> 179 saving 525,000 (confirms high defect); discogs $25+$5 -> fee 2.70 / processing 1.17; hanger results.txt redirect range 0.17-15.08. Local checks: run_workflow_locally --for-changes, every finished workflow passed (uses: steps not run); remote CI green on the earlier head. Agent doc: none, the audit files and README known-gaps carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2d2e6a91-ab4e-5afb-9d66-7868d2f21338",
+    "transcripts": 5,
+    "first": "2026-11-17T12:39:44Z",
+    "last": "2026-11-17T13:44:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 130,
+        "input": 265,
+        "output": 108430,
+        "thinking": 24661,
+        "cache_read": 10080390,
+        "cache_write_5m": 711775,
+        "cache_write_1h": 107969,
+        "api_equivalent_usd": 8.6084,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 130,
+      "input": 265,
+      "output": 108430,
+      "thinking": 24661,
+      "cache_read": 10080390,
+      "cache_write_5m": 711775,
+      "cache_write_1h": 107969,
+      "api_equivalent_usd": 8.6084,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.925,
+    "tool_calls": 140,
+    "tools": {
+      "Bash": 117,
+      "Agent": 4,
+      "WebFetch": 4,
+      "SubagentHandback": 4,
+      "Read": 3,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 64.81,
+      "active_minutes": 19.55,
+      "model_minutes": 4.72,
+      "tool_minutes": 14.83,
+      "waiting_on_human_minutes": 45.26,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 60.08
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four first audits with recomputation and seeded bugs (~2 h each) plus fixes and tests (~2 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 116.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

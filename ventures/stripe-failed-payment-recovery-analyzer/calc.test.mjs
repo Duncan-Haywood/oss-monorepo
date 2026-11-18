@@ -6,7 +6,7 @@ const HEAD = "id,Created (UTC),Amount,Currency,Status,Customer ID,Invoice ID,Dec
 const load = (body) => normalizeRows(parseCsv(HEAD + body));
 
 test("parseCsv handles quotes, CRLF and BOM", () => {
-  assert.deepEqual(parseCsv('﻿a,"b,c"\r\n"d""e",f\r\n'), [["a", "b,c"], ['d"e', "f"]]);
+  assert.deepEqual(parseCsv('\uFEFFa,"b,c"\r\n"d""e",f\r\n'), [["a", "b,c"], ['d"e', "f"]]);
 });
 
 test("decline reasons normalise and map to an action", () => {

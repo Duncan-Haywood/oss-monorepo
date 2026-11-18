@@ -8,6 +8,7 @@ H = 100
 EPS = [0.002, 0.005, 0.02]
 PRIORS = {"uninformed": PRIOR_W, "informed": INFORMED_W}
 out = []
+paired = []  # (prior, eps, cap, per-seed cross - plug utility differences)
 
 
 def log(s=""):
@@ -37,6 +38,13 @@ for pname, pw in PRIORS.items():
                 w = fits[H][k]
                 res[k][0].append(run_fixed(wd, held[s], w).sum() / 100)
                 res[k][1].append(np.linalg.norm(w - wo))
+        for c in ("5", "20", "100", "inf"):
+            paired.append((pname, eps, c, np.array(res[f"cross{c}"][0]) - np.array(res[f"plug{c}"][0])))
         for k in FIT_NAMES:
             log(f"{pname:11s} {eps:6.3f} {k:>15s} {ms(res[k][0]):>15s} {ms(res[k][1]):>16s} {np.mean(nl):9.0f}")
+log()
+log("paired cross - plug held-out utility/h over the same 20 seeds: mean, std, t = mean / (std / sqrt(n)), two-sided |t| > 2.09 is p < 0.05 (t, 19 df)")
+for pname, eps, c, dlt in paired:
+    sd = np.std(dlt, ddof=1); t = np.mean(dlt) / (sd / np.sqrt(len(dlt))) if sd > 0 else 0.0
+    log(f"{pname:11s} {eps:6.3f} cap {c:>4s} {np.mean(dlt):+7.3f} {sd:6.3f} t {t:+6.2f}")
 open("experiments/results.txt", "w").write("\n".join(out) + "\n")

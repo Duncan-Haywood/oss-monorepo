@@ -204,7 +204,7 @@ test('applyTerms writes the fields and lets the page recompute', () => {
 test('the note names the box on screen, not the id in the markup', () => {
   const long = 'x'.repeat(MAX_TERM_TEXT + 1);
   assert.equal(overlongTermsNote({ paymentTerms: 'Net 30.' }), '');
-  assert.match(overlongTermsNote({ paymentTerms: long }), /^your payment terms is too long/);
+  assert.match(overlongTermsNote({ paymentTerms: long }), /^your payment terms are too long/);
   assert.match(
     overlongTermsNote({ paymentTerms: long, proposalNotes: long }),
     /^your payment terms and notes are too long/,

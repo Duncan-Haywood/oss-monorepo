@@ -137,7 +137,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
     let last = null;
     const map = { year: "year", salary: "salary", method: "method", contribution: "contribution", childBenefit: "childBenefit", childcare: "childcare" };
     const IDLE = "Fill in the figures, then click Check my band.";

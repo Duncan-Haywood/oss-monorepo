@@ -295,20 +295,32 @@ export function sinkhorn(a, b, C, eps, opts = {}) {
   };
   // Log-domain half-steps: used to recentre the potentials when a kernel row
   // or column underflows to zero, so the scaling step cannot divide by zero.
+  // log a_i and log b_j are taken once, not once per (i, j). logG reads C row
+  // by row (a column walk strides n*m*8 bytes through C), staging the terms
+  // in K, which is free here: every call is followed by build(), which
+  // rewrites all of K. Each column's max and sum still run over i ascending,
+  // so g is bit-identical to the column-by-column form.
+  const la = Float64Array.from(a, Math.log), lb = Float64Array.from(b, Math.log);
   const tmp = new Float64Array(Math.max(n, m));
+  const mxg = new Float64Array(m);
   const logG = (e) => {
-    for (let j = 0; j < m; j++) {
-      let mx = -Infinity;
-      for (let i = 0; i < n; i++) { const t = Math.log(a[i]) + (f[i] - C[i * m + j]) / e; tmp[i] = t; if (t > mx) mx = t; }
-      let s = 0;
-      for (let i = 0; i < n; i++) s += Math.exp(tmp[i] - mx);
-      g[j] = -e * (mx + Math.log(s));
+    mxg.fill(-Infinity);
+    for (let i = 0; i < n; i++) {
+      const row = i * m, lai = la[i], fi = f[i];
+      for (let j = 0; j < m; j++) { const t = lai + (fi - C[row + j]) / e; K[row + j] = t; if (t > mxg[j]) mxg[j] = t; }
     }
+    tmp.fill(0, 0, m);
+    for (let i = 0; i < n; i++) {
+      const row = i * m;
+      for (let j = 0; j < m; j++) tmp[j] += Math.exp(K[row + j] - mxg[j]);
+    }
+    for (let j = 0; j < m; j++) g[j] = -e * (mxg[j] + Math.log(tmp[j]));
   };
   const logF = (e) => {
     for (let i = 0; i < n; i++) {
+      const row = i * m;
       let mx = -Infinity;
-      for (let j = 0; j < m; j++) { const t = Math.log(b[j]) + (g[j] - C[i * m + j]) / e; tmp[j] = t; if (t > mx) mx = t; }
+      for (let j = 0; j < m; j++) { const t = lb[j] + (g[j] - C[row + j]) / e; tmp[j] = t; if (t > mx) mx = t; }
       let s = 0;
       for (let j = 0; j < m; j++) s += Math.exp(tmp[j] - mx);
       f[i] = -e * (mx + Math.log(s));
@@ -561,7 +573,7 @@ function splitLine(line, delim) {
 
 /** Parse a delimited table with a header row (comma, tab or semicolon). */
 export function parseCsv(text) {
-  const raw = String(text ?? "").replace(/^﻿/, "");
+  const raw = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = raw.split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
   if (!lines.length) return { error: "The data is empty. Paste a CSV with a header row, a group column and at least one numeric column." };
   const delim = ["\t", ";", ","].map((dl) => [dl, splitLine(lines[0], dl).length]).sort((a, b) => b[1] - a[1])[0][0];

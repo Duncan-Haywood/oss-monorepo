@@ -146,6 +146,109 @@ export function fitRow(row, L) {
 // ---------------------------------------------------------------------------
 // Skeleton: zones and rooms from parameters.
 
+/** The suite's own constraints (buildSuite), or null when it fits. */
+function suiteReason(D, w, bedBack, entryY) {
+  const bedDepth = Math.min(16, Math.max(12, D - 8.5));
+  const bd = D - bedDepth;
+  if (bd < 8 || w < 12) return "bd < 8 || w < 12";
+  const wic = Math.min(7, Math.max(5, q(w * 0.4)));
+  if (w - wic < 6.5) return "bathW < 6.5";
+  const [by0, by1] = bedBack ? [bd, D] : [0, bedDepth];
+  if (entryY[0] < by0 - 1e-9 || entryY[1] > by1 + 1e-9) return "entryY[0] < by0 - 1e-9 || entryY[1] > by1 + 1e-9";
+  return null;
+}
+
+/**
+ * Every constraint of buildSkeleton, checked in buildSkeleton's order from the
+ * parameters alone, before any room is built. About nine in ten of the
+ * search's candidates fail one, and used to fail only after the garage, great
+ * room and suite were built (docs/history/ci-perf-2026-11-18-open-house-plans-gate.md).
+ * Returns { fail } with the reasons buildSkeleton counts (a suite's own reason
+ * then "!suite"), or { rows }: each wing row ordered and fitted, null for the
+ * stack.
+ * @returns {{ fail: string[] } | { rows: ({ row: string[], widths: number[] } | null)[] | null }}
+ */
+export function skeletonGate(p, prog) {
+  const D = p.D;
+  const pub = p.pub;
+  const yk = D - pub.kd;
+  if (yk < 10.5) return { fail: ["yk < 10.5"] };
+  const backU0 = 0, backU1 = p.Wg > 0 && prog.kind !== "small" ? p.Wq - 7 : p.Wq;
+  if (pub.layout === "P1") {
+    if (pub.kw < 10 || backU1 - backU0 - pub.kw < 9.5) return { fail: ["kw < 10 || span - kw < 9.5"] };
+  } else if (backU1 - backU0 < 9 || backU1 - backU0 > 22) return { fail: ["backU1 - backU0 < 9 || backU1 - backU0 > 22"] };
+  if (p.arrangement === "split") {
+    const y0 = 3, y1 = Math.min(yk, D) - 1;
+    const bedDepth = Math.min(16, Math.max(12, D - 8.5));
+    const [by0, by1] = p.suite.bedBack ? [D - bedDepth, D] : [0, bedDepth];
+    const e0 = Math.max(y0, by0 + 0.5), e1 = Math.min(y1, by1 - 0.5);
+    if (e1 - e0 < 3) return { fail: ["e1 - e0 < 3"] };
+    const r = suiteReason(D, p.suite.w, p.suite.bedBack, [e0, e1]);
+    if (r) return { fail: [r, "!suite"] };
+  }
+  if (p.arrangement === "small") {
+    const order = p.stack.order;
+    const fixed = { bath: prog.accessible ? 8.5 : 7.5, half: 5, laundry: 6 };
+    const flexKind = order.includes("bed") ? "bed" : "closet";
+    const flex = D - order.reduce((s, c) => s + (c === flexKind ? 0 : fixed[c] || 0), 0);
+    if (flexKind === "bed" && flex < 11) return { fail: ["flexKind === 'bed' && flex < 11"] };
+    if (flexKind === "closet" && (flex < 3 || flex > 8)) return { fail: ["flexKind === 'closet' && (flex < 3 || flex > 8)"] };
+    return { rows: null };
+  }
+  const hw = p.hall, df = p.df;
+  const db = D - df - hw;
+  const endW = p.arrangement === "linear" && p.suite ? p.suite.w : 0;
+  const L = p.Lw - endW;
+  if (L < 3) return { fail: ["L < 3"] };
+  if (df + hw > yk - 0.5) return { fail: ["hall meets kitchen"] };
+  for (const [row, dep] of [[p.split.front, df], [p.split.back, db]]) {
+    for (const c of row) if (dep < CELL[c].depth) return { fail: [`row too shallow for ${c}`] };
+    if (dep > 16.5) return { fail: ["dep > 16.5"] };
+  }
+  const rows = [];
+  for (const row0 of [p.split.front, p.split.back]) {
+    if (!row0.length) { rows.push(null); continue; }
+    const fitted = fitOrderedRow(row0, p.wetAt, L);
+    if (!fitted) return { fail: ["row does not fit"] };
+    rows.push(fitted);
+  }
+  if (endW) {
+    const r = suiteReason(D, endW, p.suite.bedBack, [df, df + hw]);
+    if (r) return { fail: [r, "!suite"] };
+  }
+  return { rows };
+}
+
+/**
+ * A wing row ordered (orderRow) and fitted (fitRow) to length L, with a linen
+ * closet added when the rooms alone cannot stretch to L: { row, widths }, or
+ * null when it does not fit. Pure in (row0's cells, wetAt, L). The search asks
+ * for the same few row arrays (rowSplits makes them once per search) at the
+ * same few lengths across every D, df, suite and great-room option, so the
+ * answer is memoised on the row array itself: no key string, no re-sort.
+ * Callers only read the result; it is frozen so a write would throw.
+ */
+const fittedMemo = new WeakMap();
+export function fitOrderedRow(row0, wetAt, L) {
+  let m = fittedMemo.get(row0);
+  if (!m) { m = new Map(); fittedMemo.set(row0, m); }
+  const key = wetAt === "start" ? L : -1 - L; // L > 0, so the two never collide
+  let r = m.get(key);
+  if (r === undefined) {
+    r = null;
+    let row = orderRow(row0, wetAt);
+    let widths = fitRow(row, L);
+    if (!widths) {
+      // a linen closet takes up length the rooms cannot
+      row = wetAt === "start" ? ["linen", ...row] : [...row, "linen"];
+      widths = fitRow(row, L);
+    }
+    if (widths) r = Object.freeze({ row: Object.freeze(row), widths: Object.freeze(widths) });
+    m.set(key, r);
+  }
+  return r;
+}
+
 let uid = 0;
 function room(kind, poly, extra = {}) {
   return { id: `${kind}-${++uid}`, kind, name: NAMES[kind], poly: clean(poly), ...extra };
@@ -160,8 +263,12 @@ function room(kind, poly, extra = {}) {
  * Returns { W, D, rooms, zones, links } or null when a constraint fails.
  */
 export function buildSkeleton(p, prog, why = null) {
+  const gate = skeletonGate(p, prog);
+  if ("fail" in gate) {
+    if (why) for (const reason of gate.fail) why[reason] = (why[reason] || 0) + 1;
+    return null;
+  }
   uid = 0;
-  const fail = (reason) => { if (why) why[reason] = (why[reason] || 0) + 1; return null; };
   const D = p.D;
   const rooms = [];
   const links = []; // [roomA, roomB, kind]: 'door' | 'open' | 'cased'
@@ -193,7 +300,6 @@ export function buildSkeleton(p, prog, why = null) {
   const pub = p.pub;
   const kd = pub.kd;
   const yk = D - kd; // living occupies y in [0, yk]
-  if (yk < 10.5) return fail("yk < 10.5");
   const pubRooms = {};
   let mud = null;
   let backU0 = 0, backU1 = p.Wq; // back strip available for kitchen and dining
@@ -209,7 +315,6 @@ export function buildSkeleton(p, prog, why = null) {
   if (pub.layout === "P1") {
     const span = backU1 - backU0;
     const kw = pub.kw;
-    if (kw < 10 || span - kw < 9.5) return fail("kw < 10 || span - kw < 9.5");
     let k0, k1, d0, d1;
     if (pub.kitchenSide === "wing") { k0 = backU0; k1 = backU0 + kw; d0 = k1; d1 = backU1; }
     else { k1 = backU1; k0 = backU1 - kw; d0 = backU0; d1 = k0; }
@@ -221,7 +326,6 @@ export function buildSkeleton(p, prog, why = null) {
     if (mud) links.push([mud.id, pub.kitchenSide === "far" ? pubRooms.kitchen.id : pubRooms.dining.id, "cased"]);
   } else {
     // P2: kitchen across the back, living and dining together at the front
-    if (backU1 - backU0 < 9 || backU1 - backU0 > 22) return fail("backU1 - backU0 < 9 || backU1 - backU0 > 22");
     pubRooms.living = room("living", rect(pu(0), 0, pu(p.Wq), yk), { name: "Living / dining" });
     pubRooms.kitchen = room("kitchen", rect(pu(backU0), yk, pu(backU1), D));
     rooms.push(pubRooms.living, pubRooms.kitchen);
@@ -236,13 +340,9 @@ export function buildSkeleton(p, prog, why = null) {
   const buildSuite = (toX, w, bedBack, entryRoom, entryY) => {
     const bedDepth = Math.min(16, Math.max(12, D - 8.5));
     const bd = D - bedDepth; // depth of the bath + closet strip
-    if (bd < 8 || w < 12) return fail("bd < 8 || w < 12");
     const wic = Math.min(7, Math.max(5, q(w * 0.4)));
-    const bathW = w - wic;
-    if (bathW < 6.5) return fail("bathW < 6.5");
     const [by0, by1] = bedBack ? [bd, D] : [0, bedDepth];
     const [sy0, sy1] = bedBack ? [0, bd] : [bedDepth, D];
-    if (entryY[0] < by0 - 1e-9 || entryY[1] > by1 + 1e-9) return fail("entryY[0] < by0 - 1e-9 || entryY[1] > by1 + 1e-9");
     const bed = room("primary", rect(toX(0), by0, toX(w), by1));
     const wicR = room("wic", rect(toX(0), sy0, toX(wic), sy1));
     const ens = room("ensuite", rect(toX(wic), sy0, toX(w), sy1));
@@ -259,9 +359,7 @@ export function buildSkeleton(p, prog, why = null) {
     const bedDepth = Math.min(16, Math.max(12, D - 8.5));
     const [by0, by1] = p.suite.bedBack ? [D - bedDepth, D] : [0, bedDepth];
     const e0 = Math.max(y0, by0 + 0.5), e1 = Math.min(y1, by1 - 0.5);
-    if (e1 - e0 < 3) return fail("e1 - e0 < 3");
     suite = buildSuite(toX, p.suite.w, p.suite.bedBack, great.living, [e0, e1]);
-    if (!suite) return fail("!suite");
   }
 
   // --- wing or stack ---
@@ -275,8 +373,6 @@ export function buildSkeleton(p, prog, why = null) {
     const depths = order.map((c) => (c === flexKind ? null : fixed[c]));
     const fixedSum = depths.reduce((s, v) => s + (v || 0), 0);
     const flex = D - fixedSum;
-    if (flexKind === "bed" && flex < 11) return fail("flexKind === 'bed' && flex < 11");
-    if (flexKind === "closet" && (flex < 3 || flex > 8)) return fail("flexKind === 'closet' && (flex < 3 || flex > 8)");
     depths[order.indexOf(flexKind)] = flex;
     let y = 0;
     for (let i = 0; i < order.length; i++) {
@@ -306,31 +402,17 @@ export function buildSkeleton(p, prog, why = null) {
   } else {
     const hw = p.hall;
     const df = p.df;
-    const db = D - df - hw;
     const endW = p.arrangement === "linear" && p.suite ? p.suite.w : 0;
     const L = p.Lw - endW;
-    if (L < 3) return fail("L < 3");
     const hallY = [df, df + hw];
     // the hall must open onto the living area, not the kitchen
-    if (df + hw > yk - 0.5) return fail("hall meets kitchen");
-    for (const [row, dep] of [[p.split.front, df], [p.split.back, db]]) {
-      for (const c of row) if (dep < CELL[c].depth) return fail(`row too shallow for ${c}`);
-      if (dep > 16.5) return fail("dep > 16.5");
-    }
     const hall = room("hall", rect(wu(0), df, wu(L), df + hw));
     rooms.push(hall);
     wing.hall = hall;
     links.push([great.living.id, hall.id, "open"]);
-    for (const [rowName, row0, y0, y1] of [["front", p.split.front, 0, df], ["back", p.split.back, df + hw, D]]) {
-      if (!row0.length) continue;
-      let row = orderRow(row0, p.wetAt);
-      let widths = fitRow(row, L);
-      if (!widths) {
-        // a linen closet takes up length the rooms cannot
-        row = p.wetAt === "start" ? ["linen", ...row] : [...row, "linen"];
-        widths = fitRow(row, L);
-      }
-      if (!widths) return fail("row does not fit");
+    for (const [rowName, fitted, y0, y1] of [["front", gate.rows[0], 0, df], ["back", gate.rows[1], df + hw, D]]) {
+      if (!fitted) continue;
+      const { row, widths } = fitted;
       let u = 0;
       row.forEach((c, i) => {
         const w = widths[i];
@@ -358,7 +440,6 @@ export function buildSkeleton(p, prog, why = null) {
     if (endW) {
       const toX = (u) => wu(L + u);
       suite = buildSuite(toX, endW, p.suite.bedBack, hall, hallY);
-      if (!suite) return fail("!suite");
     }
   }
 

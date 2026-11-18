@@ -55,6 +55,62 @@
    "by": "PR #16456",
    "at": "2026-11-16T04:46:10Z",
    "note": "selects() reads only the pull_request block when one exists; post diffs still select portfolio-pages as PR CI does"
+  },
+  {
+   "file": "portfolio/flagships.yaml",
+   "match": "(?i)next:[^.]*(2,?000|cap|19\\d\\d (of|/))",
+   "verdict": "fixed",
+   "by": "portfolio/router/flagship_field.py FLAGSHIP_NEXT_TARGET (parks to 1,700, auto make-room) + one-time --trim of 11 rows",
+   "at": "2026-11-17T08:01:02Z",
+   "note": "Rows sat at the cap because parks stopped at 2,000; they now stop at 1,700 and all rows were trimmed to 1,502-1,692 on 2026-11-17."
+  },
+  {
+   "file": "docs/posts",
+   "match": "160-character description limit",
+   "verdict": "fixed",
+   "by": "check_post_frontmatter.py LIMITS + venture-preflight step 3 (posts the branch edits)",
+   "at": "2026-11-17T12:12:41Z",
+   "note": "2026-11-17 reports postdate the check; it already fails a 161-char description in under a second when run on the post"
+  },
+  {
+   "file": "research/heavy-hydraulics/HOSTS",
+   "match": "hugging ?face",
+   "verdict": "fixed",
+   "by": "315b8d30b",
+   "at": "2026-11-17T14:11:43Z",
+   "note": "HOSTS no longer asserts reachability; pick_track probes the host each run"
+  },
+  {
+   "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+   "match": "suggestions' line|one 'suggestions'|next-up list",
+   "verdict": "fixed",
+   "by": "a07dbbade",
+   "at": "2026-11-17T14:11:43Z",
+   "note": "next-up list is one entry per line (#16880)"
+  },
+  {
+   "file": "platform/pages/README.md",
+   "match": "rebuild only a few|only a few venture pages",
+   "verdict": "fixed",
+   "by": "76d819e8f",
+   "at": "2026-11-17T14:11:43Z",
+   "note": "build.mjs --only=slug previews a few pages (#16813)"
+  },
+  {
+   "file": "portfolio/flagships.yaml",
+   "match": "chant-forge.*archive\\.org",
+   "verdict": "fixed",
+   "by": "e37d6c1ff",
+   "at": "2026-11-17T14:11:44Z",
+   "note": "chant-forge row has hosts: [archive.org], probed live by allocate.py (#16347)"
+  },
+  {
+   "file": "portfolio/research-tools/README.md",
+   "match": "registrations",
+   "verdict": "fixed",
+   "by": "9d92f5600",
+   "at": "2026-11-17T14:11:57Z",
+   "note": "README line 62 names register-tool.mjs; reports after it were sessions started before #16932 merged"
   }
  ]
 }

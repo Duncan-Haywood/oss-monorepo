@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKksoqfJUpqoCVuV3fa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T04:17:40Z",
+  "ended": "2026-11-18T04:29:02Z",
+  "wall_minutes": 11.71,
+  "tokens_in": 10320381,
+  "tokens_out": 40774,
+  "cost_usd": 4.1353,
+  "tool_calls": 81,
+  "task": "einvoice-preflight (flagship 5, allocator row 3): Peppol BIS Self-Billing files got Billing's rules; compile OpenPeppol's Self-Billing 3.0.2 and 3.1.0 sets and route self-billing files to them",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17176",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First test draft used String.replace on the example, which hit the XML comment before the element (2 failing tests)",
+      "fix": "replaceAll / element-anchored replace"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml (einvoice-preflight buildable)",
+      "issue": "The self-billing item said 'if the checker reads self-billing'; it did not need a condition: the checker read every self-billing file with the wrong (Billing) rules and rejected all of them. Saying 'self-billing files get Billing's rules today' would have made the item's value obvious; three recent sessions left this row believing nothing was buildable."
+    },
+    {
+      "file": "ventures/einvoice-preflight/eval/phive-corpus.mjs",
+      "issue": "Running the whole preflight on a folder needs a hand-written loop; eval/peppol-next-diff.mjs or phive-corpus need a phive layout. A generic 'run a folder' script would save a few minutes."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-einvoice-peppol-self-billing.md",
+    "ventures/einvoice-preflight/eval/peppol-self-billing-2026-11-18.md"
+  ],
+  "goal": "Deepen a flagship with a working slice that fixes a real false rejection",
+  "notes": "Before: OpenPeppol's 9 Self-Billing examples (branch selfbilling-2026-Q2-QA) all drew fatal PEPPOL-EN16931-R004/R007 and 8 drew P0112 from the Billing add-on. After: 0 official findings on 3.0.2 and 3.1.0. Unit tests: 219/219 (SB 3.0.2, bd9f24e), 349/349 (SB 3.1.0, 387676d), Billing 3.0.22 still 1048/1048 on master. Venture suite: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok, 2739 tests. check_posts ok; validate.py ok. Also fixed built-in INV-034 on debit notes sent as UBL Invoice (383/527). venture-preflight.mjs: see PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a23db6c5-6ef9-55c2-901a-a23f52b89454",
+    "transcripts": 1,
+    "first": "2026-11-18T04:17:40Z",
+    "last": "2026-11-18T04:29:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 150,
+        "output": 40774,
+        "thinking": 8510,
+        "cache_read": 10159308,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160923,
+        "api_equivalent_usd": 4.1353,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 150,
+      "output": 40774,
+      "thinking": 8510,
+      "cache_read": 10159308,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160923,
+      "api_equivalent_usd": 4.1353,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 79,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.71,
+      "active_minutes": 11.71,
+      "model_minutes": 8.21,
+      "tool_minutes": 3.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an e-invoicing engineer locating the Self-Billing branches, compiling and unit-testing two rule sets, wiring routing and fixes, tests and write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 241.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

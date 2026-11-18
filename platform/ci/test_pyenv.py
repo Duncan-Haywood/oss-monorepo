@@ -1,5 +1,6 @@
 """Tests for pyenv.py with a fake subprocess runner."""
 import os
+import shutil
 import stat
 import sys
 import tempfile
@@ -8,6 +9,10 @@ import unittest.mock
 from pathlib import Path
 
 import pyenv
+
+# Tests must never touch the machine's real dist-packages (pip_install backs it
+# up and main() heals it); the shared-dir tests below point at a temp tree.
+pyenv.SHARED_DIST = os.path.join(tempfile.gettempdir(), "pyenv-test-no-such-shared-dist")
 
 
 class Result:
@@ -406,6 +411,41 @@ class T(unittest.TestCase):
         self.assertEqual(pyenv.missing(sys.executable, ["json", "no_such_module_xyz"]),
                          ["no_such_module_xyz"])
 
+    def _fake_dist(self, top_level=True):
+        """A site dir holding distribution `fake-dist-xyz` whose package is `zzpkg_xyz`."""
+        site = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, site, True)
+        os.makedirs(os.path.join(site, "zzpkg_xyz"))
+        Path(site, "zzpkg_xyz", "__init__.py").write_text("")
+        info = Path(site, "fake_dist_xyz-1.0.dist-info")
+        info.mkdir()
+        info.joinpath("METADATA").write_text("Metadata-Version: 2.1\nName: fake-dist-xyz\nVersion: 1.0\n")
+        if top_level:
+            info.joinpath("top_level.txt").write_text("zzpkg_xyz\n")
+        info.joinpath("RECORD").write_text("zzpkg_xyz/__init__.py,,\nfake_dist_xyz-1.0.dist-info/METADATA,,\n")
+        patch = unittest.mock.patch.dict(os.environ, {"PYTHONPATH": site})
+        patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_a_pip_name_whose_import_name_differs_is_found(self):
+        # 2026-11-17: `pyenv.py python-sat` guessed `python_sat` (the package is
+        # `pysat`) and reported no interpreter after a good install.
+        mod = pyenv.import_name("fake-dist-xyz")
+        self.assertEqual(mod, "fake_dist_xyz")
+        self.assertFalse(pyenv.imports(sys.executable, [mod]))  # not on the path yet
+        self._fake_dist()
+        self.assertTrue(pyenv.imports(sys.executable, ["json", mod]))
+        self.assertEqual(pyenv.missing(sys.executable, ["json", mod, "no_such_module_xyz"]),
+                         ["no_such_module_xyz"])
+
+    def test_record_files_stand_in_for_a_missing_top_level(self):
+        self._fake_dist(top_level=False)
+        self.assertTrue(pyenv.imports(sys.executable, [pyenv.import_name("fake-dist-xyz")]))
+
+    def test_python_sat_installs_and_checks_as_pysat(self):
+        self.assertEqual(pyenv.import_name("python-sat"), "pysat")
+        self.assertEqual(pyenv.dist_name("pysat"), "python-sat")
+
     def test_heartbeat_logs_until_stopped(self):
         logs = []
         stop = pyenv.heartbeat(logs.append, every=0.01)
@@ -413,6 +453,66 @@ class T(unittest.TestCase):
         time.sleep(0.1)
         stop.set()
         self.assertTrue(any("still installing" in m for m in logs))
+
+
+class SharedDistTest(unittest.TestCase):
+    """2026-11-17: python3.13's pip uninstalled Debian's setuptools from the
+    dist-packages every python3.x shares, orphaning distutils-precedence.pth."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.shared = Path(self.tmp.name)
+        (self.shared / "_distutils_hack").mkdir()
+        (self.shared / "_distutils_hack" / "__init__.py").write_text("x = 1\n")
+        (self.shared / "setuptools").mkdir()
+        (self.shared / "setuptools" / "__init__.py").write_text("")
+        (self.shared / "setuptools-68.1.2.egg-info").mkdir()
+        (self.shared / "distutils-precedence.pth").write_text("import os\n")
+        (self.shared / "numpy").mkdir()
+        self.old, pyenv.SHARED_DIST = pyenv.SHARED_DIST, str(self.shared)
+
+    def tearDown(self):
+        pyenv.SHARED_DIST = self.old
+        self.tmp.cleanup()
+
+    def pip_that_uninstalls_setuptools(self, cmd, **kw):
+        if cmd[1:3] == ["-m", "pip"]:
+            for name in ("_distutils_hack", "setuptools", "setuptools-68.1.2.egg-info"):
+                shutil.rmtree(self.shared / name)
+            return Result(0)
+        raise AssertionError(cmd)
+
+    def test_pip_install_puts_back_what_pip_removed(self):
+        logs = []
+        self.assertTrue(pyenv.pip_install("/usr/bin/python3.13", ["torch"],
+                                          self.pip_that_uninstalls_setuptools, logs.append, lambda: True))
+        self.assertEqual((self.shared / "_distutils_hack" / "__init__.py").read_text(), "x = 1\n")
+        self.assertTrue((self.shared / "setuptools-68.1.2.egg-info").is_dir())
+        self.assertTrue(any("restored" in m for m in logs), logs)
+
+    def test_untouched_shared_dir_logs_nothing(self):
+        logs = []
+        pyenv.pip_install("/p/python3", ["numpy"], FakeRun(pip_ok={"/p/python3"}), logs.append)
+        self.assertEqual(logs, [])
+        self.assertEqual(sorted(p.name for p in self.shared.iterdir()),
+                         ["_distutils_hack", "distutils-precedence.pth", "numpy",
+                          "setuptools", "setuptools-68.1.2.egg-info"])
+
+    def test_orphaned_pth_is_parked(self):
+        shutil.rmtree(self.shared / "_distutils_hack")
+        self.assertTrue(pyenv.heal_orphan_pth(log=quiet))
+        self.assertFalse((self.shared / "distutils-precedence.pth").exists())
+        self.assertTrue((self.shared / "distutils-precedence.pth.orphaned").exists())
+
+    def test_healthy_pth_is_left_alone(self):
+        self.assertFalse(pyenv.heal_orphan_pth(log=quiet))
+        self.assertTrue((self.shared / "distutils-precedence.pth").exists())
+
+    def test_missing_shared_dir_is_a_no_op(self):
+        pyenv.SHARED_DIST = str(self.shared / "absent")
+        self.assertIsNone(pyenv.backup_shared())
+        self.assertEqual(pyenv.restore_shared(None), [])
+        self.assertFalse(pyenv.heal_orphan_pth(log=quiet))
 
 
 if __name__ == "__main__":

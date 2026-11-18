@@ -1,0 +1,12 @@
+# control series, seed base 67000, 400 pairs per cell, 199 replicates; arms plain
+## Size (no change in the treated series beyond what the control shares)
+S1 common AR .9, shared slope  n 120  plain  11.5% of 392 tested ( 11.3% of all; refused 7, cut 1)
+S2 common walk, shared step 2  n 120  plain  22.6% of 279 tested ( 15.8% of all; refused 96, cut 25)
+S3 common walk                 n  60  plain  20.0% of 215 tested ( 10.8% of all; refused 150, cut 35)
+S4 common AR .8                n  40  plain   5.5% of 329 tested (  4.5% of all; refused 71, cut 0)
+S5 common AR .5                n 120  plain   9.3% of 400 tested (  9.3% of all; refused 0, cut 0)
+S6 common walk, control x2     n 120  plain  12.9% of 278 tested (  9.0% of all; refused 98, cut 24)
+## Power (a step of 2 innovation sd in the treated series only)
+P1 common walk, step 2         n 120  plain  16.7% of 258 tested ( 10.8% of all; refused 125, cut 17)
+P2 common AR .9, shared slope, step 2 n 120  plain  20.4% of 388 tested ( 19.8% of all; refused 11, cut 1)
+P3 common AR .8, step 2        n  40  plain   5.7% of 298 tested (  4.3% of all; refused 100, cut 2)

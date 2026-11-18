@@ -228,3 +228,70 @@ test("checkFeed: totals and itemsWithErrors add up across a mixed feed", () => {
   assert.equal(result.itemsWithErrors, 1);
   assert.ok(result.totalErrors >= 1);
 });
+
+// --- Red-team 2026-11-17: boundaries and totals the suite let through ------
+
+test("checkItem: id of exactly 50 characters passes, 51 is an error", () => {
+  assert.ok(!checkItem(validItem({ id: "x".repeat(50) })).errors.some((e) => e.code === "id-too-long"));
+  assert.ok(checkItem(validItem({ id: "x".repeat(51) })).errors.some((e) => e.code === "id-too-long"));
+});
+
+test("checkItem: title of exactly 150 characters passes", () => {
+  assert.ok(!checkItem(validItem({ title: "Shirt ".repeat(25) })).errors.some((e) => e.code === "title-too-long"));
+});
+
+test("checkItem: a 20-character description is not 'too short', 19 is", () => {
+  const short = (d) => checkItem(validItem({ description: d })).warnings.some((w) => w.code === "description-too-short");
+  assert.equal(short("a".repeat(20)), false);
+  assert.equal(short("a".repeat(19)), true);
+});
+
+test("gtinChecksumValid: a real 12-digit UPC-A validates", () => {
+  assert.equal(gtinChecksumValid("036000291452"), true);
+  assert.equal(gtinChecksumValid("036000291453"), false);
+});
+
+test("checkFeed: an image shared by exactly 5 ids warns, 4 does not", () => {
+  const feed = (n) => Array.from({ length: n }, (_, i) => validItem({ id: `sku-${i}`, image_link: "https://shop.example.test/images/same.jpg" }));
+  assert.equal(checkFeed(feed(5)).feedWarnings.length, 1);
+  assert.equal(checkFeed(feed(4)).feedWarnings.length, 0);
+});
+
+test("checkFeed: totals include feed-level errors and warnings", () => {
+  const img = "https://shop.example.test/images/same.jpg";
+  const items = [
+    validItem({ id: "dup", image_link: img }),
+    validItem({ id: "dup", image_link: img }),
+    ...Array.from({ length: 5 }, (_, i) => validItem({ id: `sku-${i}`, image_link: img })),
+  ];
+  const result = checkFeed(items);
+  assert.equal(result.feedErrors.length, 1);
+  assert.equal(result.feedWarnings.length, 1);
+  assert.equal(result.totalErrors, 1);
+  assert.equal(result.totalWarnings, 1);
+});
+
+// --- Red-team 2026-11-17: real defects ---------------------------------------
+
+test("checkItem: Google's underscore availability values (in_stock, out_of_stock) are valid", () => {
+  for (const v of ["in_stock", "out_of_stock", "In_Stock"]) {
+    assert.ok(!checkItem(validItem({ availability: v })).errors.some((e) => e.code === "invalid-availability"), v);
+  }
+  assert.ok(checkItem(validItem({ availability: "in-stock-ish" })).errors.some((e) => e.code === "invalid-availability"));
+});
+
+test("parseFeed: a quoted CSV field spanning lines stays one item", () => {
+  const csv =
+    'id,title,description,price\r\n' +
+    'a1,Shirt,"Line one of the description.\r\nLine two, with a comma.",9.99 USD\r\n' +
+    'a2,Hat,A warm wool hat,5.00 USD\n';
+  const items = parseFeed(csv);
+  assert.deepEqual(items.map((i) => i.id), ["a1", "a2"]);
+  assert.equal(items[0].description, "Line one of the description.\nLine two, with a comma.");
+  assert.equal(items[0].price, "9.99 USD");
+});
+
+test("parseFeed: a JSON item that is not an object is a readable error, not a TypeError", () => {
+  assert.throws(() => parseFeed("[null]"), /item 1 is not an object/);
+  assert.throws(() => parseFeed('[{"id":"a"}, 5]'), /item 2 is not an object/);
+});

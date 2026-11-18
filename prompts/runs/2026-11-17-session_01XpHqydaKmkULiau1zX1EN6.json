@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqydaKmkULiau1zX1EN6",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T12:39:19Z",
+  "ended": "2026-11-17T13:02:58Z",
+  "wall_minutes": 23.89,
+  "tokens_in": 5448341,
+  "tokens_out": 29739,
+  "cost_usd": 2.6485,
+  "tool_calls": 52,
+  "task": "research/sensing-selfcal milestone 3j: re-solve the 57 TUM natural-feature windows with the board's k, c or both pinned",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16939",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "research/_shared/pick_track.py crashed at the end of a track draw with NameError: name 'free' is not defined",
+      "fix": "compute it from milestones(PREFIX[t - 1])[1]; 78 pick_track tests pass"
+    },
+    {
+      "what": "matplotlib in /usr/bin/python3.13 rejects boxplot(labels=)",
+      "fix": "tick_labels="
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "track draw ended in a NameError traceback (undefined `free`) after printing the useful lines; fixed in this PR"
+    },
+    {
+      "file": "research/sensing-selfcal/LOG.md",
+      "issue": "three milestones (3g-3i) recorded the TUM host as refused; pick_track's HOSTS RECHECK correctly flagged that it now answers, which unblocked this milestone. Worth probing a 'refused' host at the start of each run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/LOG.md (3j plan)",
+      "why": "the plan said the free f would be asserted equal to milestone 3c's; 2 of 57 rebuilt windows differ (0.18%, 3.35%) under this session's OpenCV SIFT build",
+      "did": "reported the deviation and scored every hypothesis on all 57 and on the 55 reproduced windows",
+      "result": "every verdict identical on both sets"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-re-solving-the-tum-windows-with-the-board-calibration-pinned.md",
+    "research/sensing-selfcal/LOG.md (3j planned + result)"
+  ],
+  "goal": null,
+  "notes": "Checks run here: tests/test_m3j.py, test_m3i.py, test_m3h.py 12 passed; research/_shared/test_pick_track.py 78 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter/links/similarity ok. H161-H163, H165, H166 held; H164 (sign agreement >= 90%) refuted for k (74%) and ck (70%). No agent doc in docs/reports: the LOG.md and README Next steps carry what the next run needs (TUM host answers again; fetch.sh works).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6eeafa0f-4429-5a71-84ce-f1a1ac0866eb",
+    "transcripts": 1,
+    "first": "2026-11-17T12:39:19Z",
+    "last": "2026-11-17T13:03:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 101,
+        "output": 29739,
+        "thinking": 4816,
+        "cache_read": 5324689,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123551,
+        "api_equivalent_usd": 2.6485,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 101,
+      "output": 29739,
+      "thinking": 4816,
+      "cache_read": 5324689,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123551,
+      "api_equivalent_usd": 2.6485,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.89,
+      "active_minutes": 23.89,
+      "model_minutes": 4.66,
+      "tool_minutes": 19.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "re-running a published bundle-adjustment study on 1.3 GB of video with three pinned variants, pre-registration, analysis and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 377.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

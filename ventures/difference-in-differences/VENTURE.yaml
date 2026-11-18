@@ -1,0 +1,64 @@
+name: difference-in-differences
+description: >-
+  Free browser tool, CLI and agent call for economists, policy analysts,
+  students and operations or marketing teams whose units adopted a change at
+  different times: upload a panel and get Callaway and Sant'Anna group-time
+  effects, an event study with a simultaneous band, a parallel-trends
+  pre-test, the two-way fixed effects estimate and its Goodman-Bacon
+  decomposition. Checked against csdid (a port of R's did) and pyfixest.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-17 on an explore run, as a research algorithm tool beside
+# synthetic-control (one treated unit); this one is for many units treated at
+# different times. Implemented from the papers' definitions; no third-party
+# code was ported. csdid 0.4.5 (MIT) and pyfixest 0.70.0 (MIT) were used only
+# to produce eval/reference.json, which the tests check against. Example data:
+# Cheng & Hoekstra's castle-doctrine panel from the MIT-licensed causaldata
+# package; source in data/SOURCE.md.
+#
+# First visitor: searches such as "difference in differences calculator",
+# "staggered difference in differences online", "Callaway Sant'Anna
+# estimator", "Goodman-Bacon decomposition", "event study plot parallel
+# trends"; students in applied econometrics courses and analysts without R or
+# Stata. Volume not measured with an external tool.
+#
+# Alternatives: R's did, fixest, bacondecomp and did2s, Stata's csdid and
+# bacondecomp, Python's csdid, differences and pyfixest (all need an
+# environment and code). Not surveyed for hosted web versions. The
+# differentiators here are no install, the decomposition and the clean
+# estimator side by side, a reading in words, and tests pinned to the
+# reference implementations.
+#
+# Liability: statistical output from supplied data, not policy, legal or
+# financial advice; the page states the identification limits. Data never
+# leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts and students with staggered-adoption panels will use a
+      no-install tool that shows the clean group-time estimates beside the
+      two-way fixed effects regression and its decomposition, and will link
+      or cite it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports estimates that disagree with R's did or fixest on the same data and specification, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/difference-in-differences/
+  analytics: null

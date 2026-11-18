@@ -38,6 +38,23 @@ python experiments/run.py            # writes experiments/results.txt and result
 - The peak-scatter cause is not identified; this project only rules out one explanation.
 - Stylised 2D plane stress, assumed rule values and materials, polygonal fillet. Nothing was made or tested. Simulated results only.
 
+## Known gaps (quality audit 2026-11-17)
+
+From [`portfolio/quality/audits/2026-11-17-simdesign-filletfloor.json`](../../portfolio/quality/audits/2026-11-17-simdesign-filletfloor.json):
+
+- **No "feasible" design meets the 100 MPa limit on a converged mesh.** The optimiser's 2.5 mm mesh reads the
+  fillet stress about 27% low (seed 0: 99.8 MPa there, 122 at 1.25 mm, about 137 extrapolated). The
+  `peak_check` values in `experiments/results.json` for the peak-measure designs run 113 to 146 MPa, so the
+  price ratios above compare parts that all fail the limit by different amounts.
+- **The scatter has a more likely cause than the search landscape:** the coarse-mesh error differs design
+  to design (`simdesign-gaugemesh` later confirmed a mesh effect).
+- **The hypothesis was already answered on disk:** `simdesign-patchsearch/experiments/results.json` has the
+  laser designs at fillets of 8.5 to 13.6 mm. No stress-constrained optimisation literature is cited
+  (Duysinx and Bendsoe 1998; Le et al. 2010; Holmberg et al. 2013).
+- All four seeded mutants (plane strain, heaviest gauge kept, clamp exclusion removed, top-element patch)
+  leave the 6 tests green; no test compares a stress or deflection with beam theory.
+- The mesher raises a TypeError at h = 0.3 mm (`model.py:71`), which blocks the convergence study.
+
 ## Next steps
 Find the cause of the peak-measure scatter (per-gauge sub-search results, more seeds, or a different optimiser); calibrate a patch limit against a graded-mesh converged solution or a cited stress-concentration chart; apply the patch measure to `simdesign-holes`.
 

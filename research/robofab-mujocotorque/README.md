@@ -4,8 +4,8 @@ A follow-up to `research/robofab-torquebound`, `robofab-peakcheck` and `robofab-
 
 **Live page:** https://marisstella.app/research/robofab-mujocotorque/
 
-- **The hand-written torques match MuJoCo.** For all 108 profiles (3 arm sizes x jaw cap k = 2, 5 or none x 6 printed parts x {best trapezoid, time-optimal}), MuJoCo's inverse dynamics and the hand-written model differ by at most 1.8e-5 N m at any of 4,000 samples along the move (trapezoid: at most 4.8e-6), against a 5 N m limit. The wrist position agrees with the hand-written forward kinematics to 1e-9 m.
-- **Torque limit, as MuJoCo sees it.** Where only torque binds (jaw cap none, 18 profiles per type) the best trapezoid's MuJoCo peak is 4.97 to 5.04 N m: 5 of 18 exceed 5 N m, by at most 0.73% (0.12 m, `finger_a`: 5.025; worst 5.037). The time-optimal profile's peak is 5.000 to 5.011 N m, 18 of 18 above 5 N m by at most 0.21%. That is the trapezoid's remaining ramp-sampling gap and the solver's n = 1600 discretisation, which `robofab-peakcheck` and `robofab-toppconv` bound separately; they are tiny next to the edge. In the 36 jaw-capped profiles per type the jaw force binds first and the torque peak is 0.38 to 1.9 N m.
+- **The hand-written torques match MuJoCo.** For all 108 profiles (3 arm sizes x jaw cap k = 2, 5 or none x 6 printed parts x {best trapezoid, time-optimal}), MuJoCo's inverse dynamics and the hand-written model differ by at most 1.8e-5 N m at any sample checked (4,000 midpoints plus ramp corners for a trapezoid, the 1,601 solver nodes for a time-optimal profile; trapezoid: at most 4.8e-6), against a 5 N m limit. The wrist position agrees with the hand-written forward kinematics to 1e-9 m.
+- **Torque limit, as MuJoCo sees it.** Where only torque binds (jaw cap none, 18 profiles per type) the best trapezoid's MuJoCo peak is 4.97 to 5.04 N m: 5 of 18 exceed 5 N m, by at most 0.73% (0.12 m, `finger_a`: 5.025; worst 5.037). The time-optimal profile's peak is 5.000 to 5.011 N m, 18 of 18 above 5 N m by at most 0.21%. That is the trapezoid's remaining ramp-sampling gap and the solver's n = 1600 discretisation, which `robofab-peakcheck` and `robofab-toppconv` bound separately; they are tiny next to the edge. In the 36 jaw-capped profiles per type the jaw force binds first and the torque peak is 0.25 to 1.9 N m.
 - **Open-loop replay.** Applying each plan's torque to MuJoCo's arm (RK4, 0.1 ms step, no feedback, zero-order hold between plan samples) from the planned start state, the arm stays within 0.023 rad of the plan (trapezoid: 0.009 rad) and ends within 1.43 mm of the target (trapezoid: 0.70 mm). The time-optimal moves, which end at higher accelerations and are shorter, drift more. I did not separate plan-sample hold error from integration error, so this is an upper bound on how well the plan can be tracked feed-forward, not a measure of either.
 - **Not checked here:** the jaw-force bound (a friction-pad formula, not a MuJoCo contact test; `robofab-liftload` and `robofab-graspmove` test grips in MuJoCo), the motor torque-speed line of `robofab-motorcurve`, and anything about real servos.
 - **Reading:** the track's central modelling assumption (planar rigid two-link arm, rods plus a point-mass payload) is implemented consistently by two independent codes, so the earlier edges are not an artefact of a dynamics bug. This does not validate the toy against a physical arm.
@@ -43,13 +43,13 @@ Full per-profile output is in `experiments/results.txt` and `results.json`. Wors
 | 0.2 | none | trapezoid | 8.9e-7 | 5.033 | 0.0047 | 0.61 |
 | 0.2 | none | time-optimal | 1.5e-6 | 5.007 | 0.0041 | 0.51 |
 
-The six jaw-capped rows (k = 2 or 5) have worst differences from 1.5e-7 to 2.8e-6 N m, torque peaks from 0.38 to 1.9 N m, and replay deviations up to 0.008 rad.
+The twelve jaw-capped rows (k = 2 or 5) have worst differences from 8.6e-8 to 2.8e-6 N m, torque peaks from 0.25 to 1.9 N m, and replay deviations up to 0.008 rad.
 
 ## Limitations
 
 - Stylised toy arm with assumed parameters. Agreement of two implementations of the same equations of motion shows the equations are implemented as intended; it does not show they describe a real arm.
 - Only joint torques are compared. The jaw-force bound, friction, contact, joint damping and motor dynamics are not in this check.
-- The 1e-5 N m differences are largest for the time-optimal profiles, which have the highest accelerations; I did not investigate their source.
+- The differences come from this model, not from either dynamics code: the payload's regularising inertia (`diaginertia='1e-9 1e-9 1e-9'`, `mj.py`) has a component about the hinge axis, so MuJoCo adds exactly 1e-9 (qdd1 + qdd2) N m to both joint torques, which is why they grow with acceleration and peak on the time-optimal profiles. With that term subtracted the residual is about 6.5e-13 N m, and with the payload inertia set to 1e-15 the two codes agree to about 1e-10 N m (independent quality audit, `portfolio/quality/audits/2026-11-17-robofab-mujocotorque.json`). The table's differences are therefore an upper bound set by the regulariser, not a disagreement in the equations of motion.
 - The replay is open loop with held samples; its deviations bound nothing about a feedback-controlled arm.
 - Simulated results are not claims about physical arms or grippers.
 

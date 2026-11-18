@@ -72,12 +72,16 @@ test('the scheduled, emergency, and ran-long figures cited on the page match the
   assert.ok(Math.abs(scheduled.profit - 227.976) < 0.01, `expected scheduled profit near $227.98, got ${scheduled.profit.toFixed(2)}`);
   assert.ok(Math.abs(scheduled.profitMarginPct - 40.71) < 0.01, `expected scheduled margin near 40.71%, got ${scheduled.profitMarginPct.toFixed(2)}`);
 
-  assert.equal(emergency.quotedPrice, 560);
+  // The page's flat-card figures: the storm call held at the $560 rate card.
+  const flat = emergency.rateCardPrice;
+  assert.equal(flat, 560);
   assert.ok(Math.abs(emergency.cost - 425.32) < 0.01, `expected emergency cost near $425.32, got ${emergency.cost.toFixed(2)}`);
-  assert.ok(Math.abs(emergency.profit - 134.68) < 0.01, `expected emergency profit near $134.68, got ${emergency.profit.toFixed(2)}`);
-  assert.ok(Math.abs(emergency.profitMarginPct - 24.05) < 0.01, `expected emergency margin near 24.05%, got ${emergency.profitMarginPct.toFixed(2)}`);
-  assert.ok(emergency.belowTargetMargin, 'the emergency call should fall below the target-margin price at the flat quote');
-  assert.ok(Math.abs(emergency.shortfallVsTarget - 47.6) < 0.01, `expected shortfall vs target near $47.60, got ${emergency.shortfallVsTarget.toFixed(2)}`);
+  assert.ok(Math.abs(flat - emergency.cost - 134.68) < 0.01, `expected flat-card emergency profit near $134.68, got ${(flat - emergency.cost).toFixed(2)}`);
+  assert.ok(Math.abs((flat - emergency.cost) / flat * 100 - 24.05) < 0.01, 'expected flat-card emergency margin near 24.05%');
+  assert.ok(Math.abs(emergency.targetPrice - flat - 47.6) < 0.01, `expected flat-card shortfall vs target near $47.60, got ${(emergency.targetPrice - flat).toFixed(2)}`);
+  // What this calculator itself quotes for the storm call.
+  assert.ok(Math.abs(emergency.quotedPrice - 693.28) < 0.01, `expected storm quote near $693.28, got ${emergency.quotedPrice.toFixed(2)}`);
+  assert.equal(emergency.belowTargetMargin, false);
 
   assert.equal(ranLong.quotedPrice, 560);
   assert.ok(Math.abs(ranLong.actual.cost - 484.344) < 0.01, `expected ran-long actual cost near $484.34, got ${ranLong.actual.cost.toFixed(2)}`);

@@ -80,7 +80,7 @@ function splitRow(line, sep) {
 // and `section` are optional. Blank lines and lines starting with # are skipped. Returns
 // { singers: [{ row, name, section, low, high }], sectioned } or throws with the row number.
 export function parseSingers(text) {
-  const lines = String(text ?? '').replace(/^﻿/, '').split(/\r?\n/).map((l, i) => ({ l, row: i + 1 })).filter((x) => x.l.trim() && !x.l.trim().startsWith('#'));
+  const lines = String(text ?? '').replace(/^\uFEFF/, '').split(/\r?\n/).map((l, i) => ({ l, row: i + 1 })).filter((x) => x.l.trim() && !x.l.trim().startsWith('#'));
   if (!lines.length) throw new Error('singers file: no rows');
   const head = lines[0].l;
   const sep = head.includes('\t') ? '\t' : head.includes(';') && !head.includes(',') ? ';' : ',';

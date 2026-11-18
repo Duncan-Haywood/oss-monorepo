@@ -1,4 +1,4 @@
-"""Command line: `tennisbots aim | drill | run | fit-launcher | catch-study | collect`."""
+"""Command line: `tennisbots aim | drill | run | esc-lag | tach-jitter | fit-launcher | catch-study | collect`."""
 
 from __future__ import annotations
 
@@ -113,6 +113,9 @@ def cmd_run(a: argparse.Namespace) -> int:
     advice = host.esc_survey_advice(res.esc_survey, res.esc_tau_ms or 0)
     if advice:
         print(advice)
+    advice = host.take_survey_advice(res.take_survey)
+    if advice:
+        print(advice)
     return 0
 
 
@@ -127,6 +130,23 @@ def cmd_esc_lag(a: argparse.Namespace) -> int:
     ran = sv.get("esc_tau_ms")
     print(json.dumps({k: sv.get(k) for k in ("at", "drill", "wheels", "least_ms", "refined_ms", "esc_tau_ms")}))
     print(host.esc_survey_advice(sv, ran or 0))
+    tv = host.last_take_survey_from_log(a.log)
+    if tv is not None:
+        print(host.take_survey_advice(tv))
+    return 0
+
+
+def cmd_tach_jitter(a: argparse.Namespace) -> int:
+    """A tach's edge jitter from a steady wheel's logged periods (firmware/esp32/README.md "The take survey's jitter
+    limit"; log them with firmware/esp32/tach_log.py)."""
+    from . import tach
+    try:
+        est = tach.edge_jitter(tach.read_periods(a.periods))
+    except (OSError, ValueError) as e:
+        print(f"tach-jitter: {e}", file=sys.stderr)
+        return 1
+    print(json.dumps(est))
+    print(tach.jitter_advice(est["jitter_us"]))
     return 0
 
 
@@ -300,6 +320,11 @@ def build_parser() -> argparse.ArgumentParser:
                                        "change")
     s.add_argument("log", help="JSON-lines shot log written by `run --shot-log`")
     s.set_defaults(func=cmd_esc_lag)
+
+    s = sub.add_parser("tach-jitter", help="a launcher tach's edge jitter from a steady wheel's logged periods, and "
+                                           "whether the contact-time survey can see through it")
+    s.add_argument("periods", help="text file of periods in us, one per line (firmware/esp32/tach_log.py's output)")
+    s.set_defaults(func=cmd_tach_jitter)
 
     s = sub.add_parser("fit-launcher", help="the launcher's speed and spin efficiency from a shot log's wheel speed "
                                             "drops, no radar gun")

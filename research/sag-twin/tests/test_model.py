@@ -1,7 +1,7 @@
 import math
 import unittest
 
-from sag_twin.model import (current, voltage, twin_current, eta, s_cut, max_power, endurance, twin_endurance, simulate,
+from sag_twin.model import (cold_endurance, current, voltage, twin_current, eta, s_cut, max_power, endurance, twin_endurance, simulate,
                             fit_resistance, emf, VC)
 
 
@@ -62,6 +62,15 @@ class T(unittest.TestCase):
 
     def test_twin_current_is_lower(self):
         self.assertLess(twin_current(0.7, 0.3), current(0.7, 0.3))
+
+    def test_cold_cell_ratio_is_warm_ratio_at_k_u0(self):
+        # Quality audit 2026-11-17: run.py compared the cold cell's time in its own (k times longer) units
+        # with the twin's warm units, understating real/twin by a factor k (0.286 instead of 0.571 at k = 2).
+        for k in (1.0, 1.5, 2.0, 3.0):
+            cold = cold_endurance(k, 0.2) / twin_endurance(0.2)
+            warm = endurance(k * 0.2) / twin_endurance(k * 0.2)
+            self.assertAlmostEqual(cold, warm, places=9)
+        self.assertAlmostEqual(cold_endurance(2.0, 0.2) / twin_endurance(0.2), 0.5712, places=4)
 
 
 if __name__ == "__main__":

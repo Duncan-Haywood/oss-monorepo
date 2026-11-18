@@ -178,3 +178,8 @@ test('index links one hop to the water-softener-bid-calculator sibling', () => {
     'index must link ../water-softener-bid-calculator/ so crawlers reach the softener calculator in one hop',
   );
 });
+
+test('the drafted scope promises to supply the heater only when its cost is on the bid', () => {
+  const suggest = /function suggestScope\(result\) \{([\s\S]*?)\n    \}/.exec(proposalScript);
+  assert.match(suggest[1], /heaterHardware > 0 \? 'Supply and install' : 'Install the customer-supplied'/);
+});

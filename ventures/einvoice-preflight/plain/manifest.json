@@ -1,5 +1,5 @@
 {
-  "built": "2026-11-14",
+  "built": "2026-11-18",
   "sets": {
     "en16931-ubl": {
       "source": "eInvoicing-EN16931 (EUPL-1.2)",
@@ -224,6 +224,68 @@
       "source": "HR-CIUS 2025 + HR extension (Porezna uprava HRUBLSchematron 13.03.2026, phive 1.0.4) via phive-rules-eracun 4.6.4 on Maven Central; reproduced with the source named, per porezna.gov.hr",
       "from": "HR-CIUS-EXT-EN16931-UBL.xslt",
       "checks": 73
+    },
+    "cius-fr-ubl": {
+      "source": "FNFE-MPE BR-FR (XP Z12-012) 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "BR-FR-Flux2-Schematron-UBL.sch",
+      "checks": 175
+    },
+    "cius-fr-cii": {
+      "source": "FNFE-MPE BR-FR (XP Z12-012) 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "BR-FR-Flux2-Schematron-CII.sch",
+      "checks": 171
+    },
+    "cdar-fr": {
+      "source": "FNFE-MPE BR-FR-CDV (CDAR life-cycle statuses) 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "BR-FR-CDV-Schematron-CDAR.sch",
+      "checks": 43
+    },
+    "extended-ctc-fr-ubl": {
+      "source": "FNFE-MPE EXTENDED-CTC-FR 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "EXTENDED-CTC-FR-UBL.sch",
+      "checks": 953
+    },
+    "extended-ctc-fr-cii": {
+      "source": "FNFE-MPE EXTENDED-CTC-FR 1.4.0.04, github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "EXTENDED-CTC-FR-CII.sch",
+      "checks": 773
+    },
+    "facturx-extended-cii": {
+      "source": "Factur-X EXTENDED 1.09.2 (FNFE-MPE), github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "FACTUR-X_EXTENDED.sch",
+      "checks": 1464
+    },
+    "flux10-fr": {
+      "source": "FNFE-MPE Flux 10 e-reporting (PPF Annexe 7 v1.8 controls), github.com/fnfempe/France_RFE (Apache-2.0)",
+      "commit": "97ba0f3d4ef2abed5780e9490d5c3a2be832ab1d",
+      "from": "Flux10.sch",
+      "checks": 150
+    },
+    "peppol-next-ubl": {
+      "source": "peppol-bis-invoice-3 branch 2026-Q4-QA2, BIS Billing 3.1.0 (MPL-2.0)",
+      "commit": "90f078a801c865b78bd9af628d7cd8a69aecfe84",
+      "checks": 294
+    },
+    "peppol-next-cii": {
+      "source": "peppol-bis-invoice-3 branch 2026-Q4-QA2, BIS Billing 3.1.0 (MPL-2.0)",
+      "commit": "90f078a801c865b78bd9af628d7cd8a69aecfe84",
+      "checks": 95
+    },
+    "peppol-sb-ubl": {
+      "source": "peppol-bis-invoice-3 branch selfbilling-2026-Q2-QA, BIS Self-Billing 3.0.2 (MPL-2.0)",
+      "commit": "bd9f24ed25cb32f46df9a12f234d3a80b20a699d",
+      "checks": 62
+    },
+    "peppol-sb-next-ubl": {
+      "source": "peppol-bis-invoice-3 branch selfbilling-2026-Q4-QA2, BIS Self-Billing 3.1.0 (MPL-2.0)",
+      "commit": "387676dae962c5b978f2dc1f805d20a3157c4fa3",
+      "checks": 185
     }
   },
   "fontoxpath": "3.34.0"

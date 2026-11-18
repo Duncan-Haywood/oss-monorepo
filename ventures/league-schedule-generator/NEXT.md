@@ -9,3 +9,13 @@
 - (2026-11-16) 18 and 24 teams: 318 and 570 are the least starters (eval/starter-exhaust.txt), so lower needs non-starter moves
 - (2026-11-16) a real league's travel and blackout list
 - (2026-11-17) 12 teams 124-132 open (132 by eval/window-refill.c): below 132, or 124-130 ruled out
+- (2026-11-17) home-and-away breaks exact since 2026-11-13 (pairLeastBreaks, eval/pair-exact.txt): a floor-priced home-and-away timetable search on it, and its cost at 18-20 teams (26-76 s, PAIR_EXACT_NODES) cut
+- (2026-11-17) the walk's last heavy tail (22 teams: 20 of 280 walks out of budget either way, eval/walk-guide.txt)
+- (2026-11-17) next is fewer trials, judged on seasons
+- (2026-11-17) a cheaper 30-team step: stopping refused trials early and exact window bounds measured, not kept (eval/trial-cutoff.txt; refusals miss by 1-5 breaks)
+- (2026-11-17) 30 teams in the page since 2026-11-17 (README "A trial's steps kept in the module": chained trials, 30 teams 62 s, 28 teams 30 s; 29 skipped, 1 of 3 seeds)
+- (2026-11-17) the rest of the 20-team gap (40 to 44 still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter family climbed with the floor as its score)
+- (2026-11-17) 49 on 8x9 (orbit ~11 h est.; 4 solvers x 2 h no answer, a turn-fixed night never lays out when fully booked, eval/odd-orbit-sym.txt; next: a split or resumable search, or window shapes fixed first)
+- (2026-11-17) 47 on 8x9 (13 of 16; LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new model, orbit or symmetry-broken night)
+- (2026-11-18) repeats in the SAT-table seasons (9-39 vs 6-21)
+- (2026-11-18) SAT answers for the 27 unanswered grid seasons (16x40, 22-28 teams; eval/bowling-lane-table.txt)

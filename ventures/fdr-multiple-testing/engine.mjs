@@ -157,7 +157,7 @@ function splitLine(line, delim) {
  * column named "value". Returns { columns, rows, numeric, list }.
  */
 export function parseCsv(text) {
-  const raw = String(text ?? "").replace(/^﻿/, "");
+  const raw = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = raw.split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
   if (!lines.length) return { error: "The data is empty. Paste p-values, one per line, or a CSV with a header row and a p-value column." };
   const tokens = raw.split(/[\s,;]+/).filter(Boolean);
@@ -298,8 +298,16 @@ export function histogram(p, bins = 20) {
 function readValues(input, kind) {
   let labels, rawValues, valueCol = "value", labelCol = null, dropped = 0;
   if (Array.isArray(input.values)) {
-    rawValues = input.values.map(Number);
-    labels = Array.isArray(input.labels) ? input.labels.map(String) : rawValues.map((_, i) => `#${i + 1}`);
+    // A missing entry (null, undefined, "", "NA", ...) is left out and counted, as on the CSV path;
+    // Number(null) and Number("") are 0, which would turn a missing test into a certain discovery.
+    const given = Array.isArray(input.labels) ? input.labels.map(String) : null;
+    labels = [];
+    rawValues = [];
+    input.values.forEach((v, i) => {
+      if (v === null || v === undefined || (typeof v !== "number" && (isMissing(v) || !isNum(v)))) { dropped++; return; }
+      rawValues.push(Number(v));
+      labels.push(given ? given[i] : `#${i + 1}`);
+    });
   } else {
     const parsed = parseCsv(input.csv);
     if (parsed.error) return { error: parsed.error };

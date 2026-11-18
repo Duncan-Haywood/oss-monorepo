@@ -47,3 +47,26 @@ test("an API error carries the status", async () => {
   const s = createStripe({ key: "rk_x", fetchImpl: async () => ({ ok: false, status: 401, json: async () => ({ error: { message: "bad key" } }) }) });
   await assert.rejects(() => s.listLines(), (e) => e.status === 401 && e.message === "bad key");
 });
+
+test("normalizeCreditNote keeps the credited invoice line id", () => {
+  const out = normalizeCreditNote({ id: "cn_2", invoice: "in_1", created: 1700100000, lines: { data: [{ id: "cnl_2", amount: 500, invoice_line_item: "il_9" }] } });
+  assert.equal(out[0].credits, "il_9");
+});
+
+test("normalizeCreditNote: exclusive tax and a zero discount change nothing, the currency is kept", () => {
+  const out = normalizeCreditNote({ id: "cn_3", invoice: "in_1", created: 1700100000, currency: "eur", lines: { data: [{ id: "cnl_3", amount: 3000, discount_amounts: [{ amount: 0 }, { amount: 500 }], tax_amounts: [{ amount: 600, inclusive: false }, { amount: 100, inclusive: true }] }] } });
+  assert.equal(out[0].amount, -2400);
+  assert.equal(out[0].currency, "eur");
+  assert.equal(normalizeCreditNote({ id: "cn_4", created: 1, lines: { data: [{ id: "l", amount: 1 }] } })[0].currency, "usd");
+});
+
+// Stripe API 2025-03-31 (basil) and later replace tax_amounts[{inclusive}] with
+// taxes[{tax_behavior}] on invoice and credit note lines. An unpinned key gets the
+// account's version, so a new account sent inclusive VAT straight into revenue
+// (red team 2026-11-18).
+test("normalizeLine and normalizeCreditNote net inclusive tax in the basil `taxes` shape", () => {
+  const l = normalizeLine(inv, { id: "il_9", amount: 12000, period: { start: 1700000000, end: 1731536000 }, discount_amounts: [{ amount: 2000 }], taxes: [{ amount: 500, tax_behavior: "inclusive" }, { amount: 900, tax_behavior: "exclusive" }] });
+  assert.equal(l.amount, 9500);
+  const cn = normalizeCreditNote({ id: "cn_9", invoice: "in_1", created: 1700100000, currency: "usd", lines: { data: [{ id: "cnl_9", amount: 3000, taxes: [{ amount: 200, tax_behavior: "inclusive" }, { amount: 50, tax_behavior: "exclusive" }] }] } });
+  assert.equal(cn[0].amount, -2800);
+});

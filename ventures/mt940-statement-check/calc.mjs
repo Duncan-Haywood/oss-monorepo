@@ -8,7 +8,7 @@ export function decodeBuffer(buf) {
   const b = new Uint8Array(buf);
   if (b[0] === 0xff && b[1] === 0xfe) return new TextDecoder("utf-16le").decode(b.subarray(2));
   if (b[0] === 0xfe && b[1] === 0xff) return new TextDecoder("utf-16be").decode(b.subarray(2));
-  const utf8 = new TextDecoder("utf-8", { fatal: false }).decode(b).replace(/^﻿/, "");
+  const utf8 = new TextDecoder("utf-8", { fatal: false }).decode(b).replace(/^\uFEFF/, "");
   return utf8.includes("�") ? new TextDecoder("windows-1252").decode(b) : utf8;
 }
 
@@ -59,7 +59,7 @@ const TXN_RE = /^(\d{6})(\d{4})?(RC|RD|C|D)([A-Z])?(\d+[,.]\d*|\d+)([A-Z])([A-Z0
 // Lines -> statements. A statement starts at :20: and holds its tags in order; a line that does not start a
 // tag continues the previous one (that is how :86: runs over several lines).
 export function parseMt940(text) {
-  const raw = String(text).replace(/^﻿/, "").split(/\r\n|\n|\r/);
+  const raw = String(text).replace(/^\uFEFF/, "").split(/\r\n|\n|\r/);
   const statements = [], stray = [];
   let st = null, tag = null;
   raw.forEach((ln, i) => {
@@ -227,7 +227,7 @@ export function validate(text) {
 // Repairs only what is provable: period -> comma decimals in :61:/:60:/:62: and a closing "-" line.
 export function repair(text) {
   const changes = [];
-  const lines = String(text).replace(/^﻿/, "").split(/\r\n|\n|\r/);
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r\n|\n|\r/);
   const out = lines.map((ln, i) => {
     const m = /^(:(?:60[FM]|62[FM]|64|65):[CD]\d{6}[A-Z]{3})(\d+)\.(\d{0,3})$/.exec(ln);
     if (m) { changes.push(`Line ${i + 1}: balance amount ${m[2]}.${m[3]} written with a comma`); return `${m[1]}${m[2]},${m[3]}`; }

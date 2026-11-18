@@ -557,7 +557,8 @@
     import { MOTIFS, PUBLIC_DOMAIN_SOURCES } from "./motifs.mjs";
     import { printResolution, resolutionSummary, takeHandoff } from "./artwork.mjs";
     import { newDesign, History, variants, applyOp, encodeDesign, decodeDesign, sanitizeDesign, OpError } from "./design.mjs";
-    import { EXAMPLES } from "./commands.mjs";
+    import { EXAMPLES, parseClause } from "./commands.mjs";
+    import { answerQuestion } from "./answers.mjs";
     import { interpret } from "./ai.mjs";
     import { renderDesign, placementBox, esc } from "./render.mjs";
     import { renderTurntable } from "./turntable.mjs";
@@ -644,14 +645,15 @@
 
     async function runCommand(text, via = "typed") {
       if (!text.trim()) return;
-      const out = await interpret(text, d(), aiConfig());
+      const out = await interpret(text, d(), aiConfig(), { timeline: [...history.past, history.present] });
       recordUsage(via === "voice" ? "voice_command" : "command");
       const engine = out.source === "model" ? `model (${out.local ? "on your computer" : $("#ai-provider").value})` : "built-in";
       $("#engine-label").textContent = `Last command: ${engine}${out.error ? ` (model failed: ${out.error}; used built-in)` : ""}`;
       for (const step of out.result.steps) {
         let err = null;
         for (const u of step.ui) {
-          if (u.ui === "undo") { history.undo(); render(); }
+          if (u.ui === "undo") { for (let i = 0; i < (u.count ?? 1); i++) history.undo(); render(); }
+          else if (u.ui === "restore") { const t = [...history.past, history.present][u.index]; if (t && t !== history.present) { history.replace(t); render(); } }
           else if (u.ui === "redo") { history.redo(); render(); }
           else if (u.ui === "variants") showVariants();
           else if (u.ui === "pick") pickVariant(u.index - 1);
@@ -661,6 +663,11 @@
         if (step.ops.length) err = commit(step.ops, "command_op");
         log(`${err ? `<span class="miss">Could not: ${esc(err)}</span>` : esc(step.did)} <span class="words">“${esc(step.words)}”</span> <span class="engine">${engine}</span>`);
       }
+      for (const q of out.result.questions || []) {
+        recordUsage("question_answered");
+        log(`<span class="engine">You asked:</span> <span class="words">“${esc(q.words)}”</span> ${esc(answerQuestion(q, d(), { parse: parseClause, sheet }).text)}`);
+      }
+      for (const no of out.result.declined || []) log(`<span class="miss">Left alone (you said no):</span> <span class="words">“${esc(no.words)}”</span>`);
       for (const miss of out.result.unmatched) log(`<span class="miss">Not understood:</span> <span class="words">“${esc(miss)}”</span> <span class="engine">Try one of the examples, or add a model below.</span>`);
     }
 

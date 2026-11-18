@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKj6BRTDQuyUMAprvYj",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T21:17:55Z",
+  "ended": "2026-11-17T21:45:16Z",
+  "wall_minutes": 27.58,
+  "tokens_in": 2250105,
+  "tokens_out": 33364,
+  "cost_usd": 1.8211,
+  "tool_calls": 28,
+  "task": "Saints by Candlelight episode 138, Solomon and the House That Heaven Cannot Contain",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17072",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest without a new piece' mostly cycles between Hearth & Horizon and Saints by Candlelight, because the writing podcast is permanently skipped while audio is over the cap. The rule could say so outright."
+    },
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The 5,500 to 8,500 word target sits beside a --check-script that passes 9,000+ words, and recent episodes (137 at 9,691) run past it. Either the target or the check is stale."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "why": "The episode is about 9,150 words, over the 8,500 target, so that all of the dedication prayer's petitions could be kept",
+      "did": "kept the length; --check-script passes",
+      "result": "tests pass; at narrator pace about 59 minutes, still inside the 30 to 60 minute brief"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-saints-by-candlelight-solomon-and-the-house-heaven-cannot-contain.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, project saints-by-candlelight, slug solomon-and-the-house-that-heaven-cannot-contain (episode 138, text only; audio folders at 577 MB, over the 400 MB cap). Route: security queue empty; IDEAS.md and website requests empty; weighted draw gave creative. Saints was the project with the oldest latest piece (#17054 vs #17058). Scripture was re-read adversarially against First Kings 3, 5-9 and 11, Second Chronicles 1-7 and Second Maccabees 2, and four wording fixes were made (the carvings in both rooms, the thirteen years in the next verse, nearly four hundred years, Matthew 12:42 not placed in the Temple courts). Checks: check-script ok at 9148 words; node --test 18/18; post front matter and links clean; run_workflow_locally --for-changes had every completed workflow green (pages, ventures-tests, portfolio-validate 99/99, and others) 19 workflows' verdicts stand; 4 (open-tennis-robots, photo-editing, portfolio-pages, einvoice-preflight) were voided only because the run record was written mid-run, none had failed, and PR CI covers them. No agent doc: there is nothing new for the next run beyond the PRODUCTION.md list.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1a509f2a-7a77-5f87-ac14-6b37d204d4ca",
+    "transcripts": 1,
+    "first": "2026-11-17T21:17:55Z",
+    "last": "2026-11-17T21:45:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 25,
+        "input": 52,
+        "output": 33364,
+        "thinking": 8808,
+        "cache_read": 2159853,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90200,
+        "api_equivalent_usd": 1.8211,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 25,
+      "input": 52,
+      "output": 33364,
+      "thinking": 8808,
+      "cache_read": 2159853,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90200,
+      "api_equivalent_usd": 1.8211,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 24,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.58,
+      "active_minutes": 27.58,
+      "model_minutes": 5.67,
+      "tool_minutes": 21.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a careful writer drafting and fact-checking a 9,000-word scripture-based script",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 549.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

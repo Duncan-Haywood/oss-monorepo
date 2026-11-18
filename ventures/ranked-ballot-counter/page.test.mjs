@@ -62,3 +62,11 @@ test("the usage events named in the footer are the ones the page records", () =>
   const recorded = [...html.matchAll(/record\("([a-z_]+)"\)/g)].map((m) => m[1]);
   for (const e of new Set(recorded)) assert.ok(html.includes(`<code>${e}</code>`), e);
 });
+
+// Sibling: the other group-decision tool from social choice and game theory
+// (who pays for a shared cost, rather than who wins).
+test("footer links one hop to the cost-sharing-calculator sibling", () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/cost-sharing-calculator\/"/);
+  assert.match(html, /fair cost sharing calculator/);
+});
