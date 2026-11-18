@@ -38,11 +38,41 @@ export function researchTracks(root = DEFAULT_ROOT) {
     .map(([prefix, projects]) => ({ prefix, projects: projects.sort() }));
 }
 
+/**
+ * For each post, the slugs `s` for which `post.body.includes(`research/${s}`)`.
+ * Same answer as testing every slug against every body (6.4 million
+ * substring scans, about 6 s on 5,920 posts and 1,089 projects), from one
+ * scan per `research/` mention: every character of a matching slug is a
+ * character some slug uses, so a slug matches a mention exactly when it is a
+ * prefix of the run of slug characters that follows it.
+ */
+export function postsLinkingSlugs(posts, slugs) {
+  const known = new Set(slugs);
+  const chars = new Set(slugs.join(''));
+  const maxLen = Math.max(0, ...slugs.map((s) => s.length));
+  const MARK = 'research/';
+  return posts.map(({ body }) => {
+    const found = new Set();
+    for (let at = body.indexOf(MARK); at !== -1; at = body.indexOf(MARK, at + 1)) {
+      const start = at + MARK.length;
+      let end = start;
+      while (end < body.length && end - start < maxLen && chars.has(body[end])) end += 1;
+      for (let k = start + 1; k <= end; k += 1) {
+        const candidate = body.slice(start, k);
+        if (known.has(candidate)) found.add(candidate);
+      }
+    }
+    return found;
+  });
+}
+
 /** Each track with the posts that link one of its projects, uncovered and largest first. */
 export function writingBacklog(root = DEFAULT_ROOT, today = new Date().toISOString().slice(0, 10)) {
   const posts = loadPosts(root);
-  const tracks = researchTracks(root).map((t) => {
-    const covered = posts.filter((p) => t.projects.some((slug) => p.body.includes(`research/${slug}`)));
+  const research = researchTracks(root);
+  const linked = postsLinkingSlugs(posts, research.flatMap((t) => t.projects));
+  const tracks = research.map((t) => {
+    const covered = posts.filter((_, i) => t.projects.some((slug) => linked[i].has(slug)));
     return { prefix: t.prefix, projects: t.projects.length, posts: covered.map((p) => p.slug) };
   });
   tracks.sort((a, b) => (a.posts.length > 0) - (b.posts.length > 0) || b.projects - a.projects || a.prefix.localeCompare(b.prefix));
