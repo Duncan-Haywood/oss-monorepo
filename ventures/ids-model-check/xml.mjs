@@ -4,6 +4,12 @@
 // stripped in `local`. No DTD support (IDS files have none).
 //
 // parseXml(text) -> root node {name, local, attrs, children, text}
+// parseXml(text, { onClose, spans }): onClose(node, stack) is called as each
+//   element closes, with its open ancestors (stack[0] is the document); when
+//   it returns true the element is dropped from its parent, so a caller that
+//   reads each subtree as it closes never holds the whole tree (the ifcXML
+//   reader, eval/lazy-ifcxml-2026-11-18.md). With spans: true each node gets
+//   `at` and `end`, its start and end offsets in text.
 
 const ENT = { lt: "<", gt: ">", amp: "&", quot: '"', apos: "'" };
 
@@ -14,7 +20,8 @@ export function decodeEntities(s) {
   });
 }
 
-export function parseXml(text) {
+export function parseXml(text, opts = {}) {
+  const { onClose, spans } = opts;
   // Every construct must be closed: a truncated file (an upload cut short, a
   // half-written commit) once sent indexOf's -1 back to the start and looped
   // forever, freezing the page or hanging a CI job.
@@ -45,8 +52,10 @@ export function parseXml(text) {
       const e = upTo(">", lt, "end tag");
       const name = text.slice(lt + 2, e).trim();
       const node = stack.pop();
-      if (!node || node.name !== name) throw new Error(`mismatched </${name}>`);
+      if (!node || node.name !== name || !stack.length) throw new Error(`mismatched </${name}>`);
       p = e + 1;
+      if (spans) node.end = p;
+      if (onClose && onClose(node, stack)) top().children.pop();
       continue;
     }
     const tag = /<([^\s/>]+)/y;
@@ -68,8 +77,10 @@ export function parseXml(text) {
     const selfClosing = text[close - 1] === "/";
     const node = { name, local: name.includes(":") ? name.slice(name.indexOf(":") + 1) : name, attrs, children: [], text: "" };
     top().children.push(node);
-    if (!selfClosing) stack.push(node);
     p = close + 1;
+    if (spans) { node.at = lt; node.end = p; }
+    if (!selfClosing) stack.push(node);
+    else if (onClose && onClose(node, stack)) top().children.pop();
   }
   if (stack.length !== 1) throw new Error(`unclosed <${top().name}>`);
   const el = root.children.find((c) => c.local);

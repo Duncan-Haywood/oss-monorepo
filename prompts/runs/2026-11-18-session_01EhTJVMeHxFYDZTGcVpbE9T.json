@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVMeHxFYDZTGcVpbE9T",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue-generating products); routed to research",
+  "input_sha256": "46ebc6c9dd703aebf6da7acd99c3909e584f505d839cd78c99a8a41be117511b",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T11:12:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/sensing-selfcal milestone 3o: estimate the gyro-camera time offset in the 1.2 s window (synthetic; TUM host refused)",
+  "projects": [
+    "sensing-selfcal"
+  ],
+  "pr": 17271,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "TUM hosts (cvg.cit.tum.de, webshare.cvg.cit.tum.de, vision.in.tum.de) CONNECT 403 again, so the real-data offset step was run synthetically first",
+    "system python lacked pytest/scipy/cv2; installed into /usr/bin/python3.13"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "the scheduled input asks for revenue product work while the router drew research; followed the router as prompt.md says"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-a-free-gyro-time-offset-fixes-the-focal-length-but-lies-about-itself.md"
+  ],
+  "goal": null,
+  "notes": "Plan with H189-H194 committed and pushed before the full run. 630/630 solves converged. Held: H190, H191 (20 ms offset focal shift 0.81% -> 0.05%), H192, H194 (-0.32). Refuted: H189 (offset error 2.8-3.6 ms vs 2 ms bar), H193 (z robust sd 9.9). Post hoc diag.py: the 3 ms is not noise (no-noise 2.97 ms), it is the unmodelled linear velocity (u=0: 0.00 ms; free u: 0.49 ms with honest sd 0.66). Local checks: pytest tests/test_m3o.py tests/test_m3m.py 8 passed; research/_homepage/build.py ok; check_md_links ok; check_posts ok; research_live_links --write ok. No new citations.",
+  "corrections": [],
+  "redteam": null
+}

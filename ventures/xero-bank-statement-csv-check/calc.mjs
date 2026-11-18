@@ -277,6 +277,8 @@ export function repair(text, opts = {}) {
   const proven = dateOrder(dates).order;
   const order = proven === "dmy" || proven === "mdy" ? proven : opts.order;
   let nAmt = 0, nDate = 0;
+  const both = [];
+  let emptied = 0;
   const out = [cols.map(q).join(a.delim === "\t" ? "," : ",")];
   body.forEach((r, ri) => {
     const row = cols.map((c) => {
@@ -284,8 +286,22 @@ export function repair(text, opts = {}) {
       if (c === "*Amount") {
         if (split) {
           const dv = String(r.cells[a.debit] ?? "").trim(), cv = String(r.cells[a.credit] ?? "").trim();
+          if (dv && cv) {
+            // Both filled (validate reports it as an error). Write Credit minus Debit, exactly, and say so: the old
+            // code wrote the Debit unsigned, as money in, and a second repair then rewrote it (fuzz find, 2026-11-18).
+            const pd = normalizeAmount(dv), pc = normalizeAmount(cv);
+            if (!pd || !pc) return dv + " / " + cv;
+            pd.raw = dv; pc.raw = cv;
+            const digits = (x) => (x.fixed ?? x.raw).replace(/^[-+]/, "");
+            const dec = Math.max(...[digits(pd), digits(pc)].map((d) => (d.split(".")[1] || "").length));
+            const scaled = (x) => BigInt(digits(x).replace(".", "") + "0".repeat(dec - (digits(x).split(".")[1] || "").length)) * (x.value < 0 ? -1n : 1n);
+            const net = scaled(pc) - scaled(pd);
+            const abs = (net < 0n ? -net : net).toString().padStart(dec + 1, "0");
+            both.push(r.line);
+            return (net < 0n ? "-" : "") + (dec ? abs.slice(0, -dec) + "." + abs.slice(-dec) : abs);
+          }
           const p = normalizeAmount(dv || cv);
-          if (!p || (dv && cv)) return dv || cv;
+          if (!p) return (dv ? "-" : "") + (dv || cv).replace(/^[-+]/, "");
           return (dv ? "-" : "") + (p.fixed ?? (dv || cv)).replace(/^[-+]/, "");
         }
         const p = normalizeAmount(v);
@@ -306,9 +322,13 @@ export function repair(text, opts = {}) {
       }
       return v;
     });
+    // Cells in dropped columns were the row's only content: it is blank now, so drop it in this pass.
+    if (!row.some((c) => String(c ?? "").trim())) { emptied++; return; }
     out.push(row.map(q).join(","));
   });
+  if (emptied) changes.push(`Removed ${emptied} row(s) left blank once the columns Xero does not read were dropped.`);
   if (nAmt) changes.push(`${nAmt} amount(s) written as plain decimals.`);
+  if (both.length) changes.push(`Line(s) ${both.join(", ")}: Debit and Credit were both filled; wrote Credit minus Debit. Check them against the bank.`);
   if (nDate) changes.push(`${nDate} date(s) rewritten as ${opts.dateFormat}${order ? ` (read as ${order === "dmy" ? "day/month" : "month/day"}${proven === order ? ", proven by the file" : ", the order you chose"})` : ""}.`);
   return { text: out.join("\r\n") + "\r\n", changes };
 }

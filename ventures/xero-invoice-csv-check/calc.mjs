@@ -196,6 +196,8 @@ export function validate(input) {
   if (delim !== ",") add("warning", 1, `The file is ${delim === ";" ? "semicolon" : "tab"}-separated`, "Xero expects commas. Excel in many locales saves CSV with semicolons because the comma is the decimal separator. Apply safe fixes rewrites it with commas.");
   if (/[ÃÂ]|â€/.test(text)) add("warning", 0, "Text looks mis-decoded", "Characters such as Ã or â€ usually mean a UTF-8 file was opened and saved as another encoding, so names like Müller turn into MÃ¼ller. Re-export as CSV UTF-8.");
 
+  // A quote that never closes can swallow the whole file, header included (fuzz find, 2026-11-18: this threw).
+  if (!rows.length) { if (!parsed.unterminated) add("error", 1, "No rows could be read", "The file has text but no line reads as a CSV row."); return empty; }
   const header = rows[0].cells.map((h) => h.trim());
   const { idx, dups } = columnMap(header);
   const unknown = [];

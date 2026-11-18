@@ -9,6 +9,7 @@ node platform/pages/build.mjs                    # build into platform/pages/dis
 node platform/pages/check.mjs                    # check that artifact (--dist=DIR for another)
 node platform/pages/served-copy.mjs <slug>      # one product as the deploy writes it, in under a second
 node platform/pages/build.mjs --only=<slug>[,<slug>] --out=DIR   # preview: those pages in full site chrome, ~30 s
+node platform/pages/build.mjs --only=c/for-homeowners --out=DIR   # preview: a category or audience page with all its tools, ~20 s
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
@@ -18,6 +19,12 @@ on the same container (2026-11-17; two polish runs on 2026-11-16 saw 5 to 12
 min per full build). The hub, sitemap and search then list only those slugs,
 links to other ventures point at the repository and no share cards are drawn,
 so never deploy it or run `check.mjs` on it; it says so when it finishes.
+An entry `c/<id>` (a category such as `c/household`, or an audience page such
+as `c/for-homeowners`) stands for every tool that page lists. Measured
+2026-11-18 against a full build of the same tree: for both of those pages
+everything through `</main>` was byte-identical, and only the "Other tools on
+this site" list after it differed (it counts the preview); 20 s against 132 s
+for the full build on an idle container.
 
 The site's experiments live in the lab (`lab/`, built by `lab.mjs`); its charter, roadmap and log are in [`LAB.md`](LAB.md).
 

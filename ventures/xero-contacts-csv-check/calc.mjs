@@ -125,6 +125,8 @@ export function validate(input) {
   const bytes = new TextEncoder().encode(text).length;
   if (bytes > SIZE_LIMIT) add("warning", 0, `The file is ${(bytes / 1048576).toFixed(1)} MB`, "Xero's help pages describe a size cap on a contacts import file (about 3 MB when this was read; check the current figure). Split the file and import the parts one at a time.");
 
+  // A quote that never closes can swallow the whole file, header included (fuzz find, 2026-11-18: this threw).
+  if (!rows.length) { if (!parsed.unterminated) add("error", 1, "No rows could be read", "The file has text but no line reads as a CSV row."); return empty; }
   const header = rows[0].cells.map((h) => h.trim());
   const { idx, dups } = columnMap(header);
   const spelled = [];

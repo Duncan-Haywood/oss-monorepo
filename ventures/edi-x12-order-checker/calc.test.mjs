@@ -216,3 +216,9 @@ test("empty input yields a finding rather than throwing", () => {
   assert.doesNotThrow(() => validate(""));
   assert.ok(codes(validate("")).includes("EMPTY"));
 });
+
+test("a damaged ISA never yields a letter as a delimiter, so repair cannot split ISA apart (fuzz find, 2026-11-18)", () => {
+  const x = "ISA**** *ZZ*ACMEWIDGETS    *ZZ*BIGRETAILER    *261003*0830*U*00401*000000101*O*ACMEWIDGETS*BIGRETAILER*202";
+  const r = repair(x);
+  assert.ok(r.text === null || r.text.startsWith("ISA"), r.text);
+});
