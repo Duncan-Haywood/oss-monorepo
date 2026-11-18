@@ -13578,7 +13578,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
   console.log(`Made the sponsor link countable on ${result.sponsored.length} page(s).`);
   console.log(`Added a JavaScript-needed notice to ${result.noscripted.length} page(s).`);
-  console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
+  // A preview (--only) plans the cards but does not draw them (cards: false
+  // above); saying "Drew N" there contradicted the PREVIEW ONLY note below
+  // (run record 2026-11-18, session_01XpHqygH4H).
+  console.log(`${result.only ? 'Planned (not drawn)' : 'Drew'} ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
   console.log(`Module preload: ${result.preloads.links} link(s) on ${result.preloads.pages} page(s); deepest import chain ${result.preloads.deepest}.`);
   if (result.only) {
     console.log(`\nPREVIEW ONLY (--only=${result.only.join(',')}): the hub, sitemap and search list just these, `
