@@ -57,6 +57,16 @@ const onEnd = await page.evaluate(() => [...document.querySelectorAll("#sched tb
 check(onEnd === 0, `limits: Pin Pals never on Lanes 7-8 (${onEnd})`);
 const dash = await page.evaluate(() => [...document.querySelectorAll("#counts tbody tr")].find((tr) => tr.cells[0].textContent === "Pin Pals").cells[4].textContent);
 check(dash === "\u2013", `limits: avoided pair shown as a dash (${dash})`);
+// 20 teams x 30 weeks with one team off both end pairs: the search alone left a team or two off
+// its share; the page now deals the team a stored shape answer's slot (bowling-avoid-shapes.mjs).
+const savedWeeks = await page.inputValue("#weeks");
+await page.fill("#teams", Array.from({ length: 20 }, (_, i) => `Team ${i + 1}`).join("\n"));
+await page.fill("#weeks", "30");
+await page.fill("#avoid", "Team 7: ends");
+await page.click("#build");
+await page.waitForFunction(() => /Lane limits kept/.test(document.querySelector("#summary").textContent) && /20 of 20 teams are inside/.test(document.querySelector("#summary").textContent), null, { timeout: 30000 });
+check(true, "limits: 20 teams x 30 weeks, one team off both ends, 20 of 20 in share");
+await page.fill("#weeks", savedWeeks);
 await page.fill("#avoid", "Nobody: 1");
 await page.click("#build");
 await page.waitForFunction(() => /not one of the teams/.test(document.querySelector("#status").textContent));
