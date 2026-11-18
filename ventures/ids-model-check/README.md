@@ -896,6 +896,16 @@ text is now copied in runs. Every report is identical.
    680 MB ifcXML, which main refused (string length limit), checks against
    the starter IDS in 25.6 s. Reports from 68 IDS files hash the same on
    three models; times are unchanged within noise.
+16. **White space between XML elements skipped** (2026-11-18,
+   `eval/xml-whitespace-2026-11-18.md`). Inside an element that has had a
+   child element, a text run of only white space is not decoded or kept;
+   leaf text, CDATA and character references are kept exactly. On main, the
+   `<uos>` element's text grew by one piece per entity until the file ended.
+   The XML reader alone now needs 2-4 MB of working heap instead of 40-106 MB
+   and is 5-29% faster. The 455 MB indented federated ifcXML parses in 416 MB
+   (was 480) and checks against all 68 IDS files in 448 MB (was 512).
+   Reports from 68 IDS files hash the same on four models, flat and
+   indented.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
