@@ -8,7 +8,9 @@
 // the rule ids a mutant adds over its unmutated file, or a reader error. "After" is
 // whether INV-065 names the mutated leaf's path. Text leaves get a trailing U+00A0 as
 // a control: INV-065 must not fire on them. --out writes DIR/mutants.jsonl in the
-// format eval/nbsp-amounts-saxonc.py reads.
+// format eval/nbsp-amounts-saxonc.py reads, and DIR/leaves.jsonl, every distinct leaf
+// value with whether CASTABLE takes it, for eval/castable-coverage-saxonc.py (2026-11-17,
+// xs:dateTime run: eval/datetime-leaves-2026-11-18.md).
 import { readdirSync, readFileSync, statSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, basename } from "node:path";
 import { checkFatturaPa, looksLikeFatturaPa } from "../fatturapa.mjs";
@@ -63,6 +65,7 @@ function run(check, xml) {
 
 const tally = { byFormat: {}, control: { mutants: 0, inv065: 0 } };
 const rows = [];
+const leafValues = new Map();
 for (const input of inputs) {
   for (const file of walk(input)) {
     const xml = readFileSync(file, "utf8");
@@ -79,6 +82,8 @@ for (const input of inputs) {
       const value = leaf.raw.replace(XML_TRIM, "");
       if (!value || leaf.raw.includes("&")) continue;
       const castable = CASTABLE.test(value);
+      const key = `${fname}\u0000${leaf.name}\u0000${value}`;
+      if (!leafValues.has(key)) leafValues.set(key, { format: fname, element: leaf.name, value, castable, file: basename(file) });
       if (castable) t.castableLeaves++;
       for (const [variant, write] of VARIANTS) {
         if (!castable && variant !== "trailing U+00A0") continue;
@@ -105,7 +110,7 @@ for (const input of inputs) {
         if (before === "newRule") t.beforeNewRule++;
         if (before === "readerError") t.beforeReaderError++;
         if (after) { t.after++; v.after++; }
-        rows.push({ file, format: fname, xpath: leaf.path, element: leaf.name, variant, original: value, mutated: decode(mutatedRaw), before, after: after ? "inv065OnPath" : "inv065Missing", error: result.error || null });
+        rows.push({ kind: /T|^\d{2}:/.test(value) && /:/.test(value) ? "time" : "other", file, format: fname, xpath: leaf.path, element: leaf.name, variant, original: value, mutated: decode(mutatedRaw), before, after: after ? "inv065OnPath" : "inv065Missing", error: result.error || null });
       }
     }
   }
@@ -116,4 +121,5 @@ for (const r of missed.slice(0, 20)) console.log(`not INV-065: ${basename(r.file
 if (outDir) {
   mkdirSync(outDir, { recursive: true });
   writeFileSync(join(outDir, "mutants.jsonl"), rows.map((r) => JSON.stringify(r)).join("\n") + "\n");
+  writeFileSync(join(outDir, "leaves.jsonl"), [...leafValues.values()].map((r) => JSON.stringify(r)).join("\n") + "\n");
 }

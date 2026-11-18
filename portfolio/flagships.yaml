@@ -236,10 +236,10 @@ flagships:
       the publishers' examples: PINT/ZATCA, CIUS-RO/PT/HR, NLCIUS
       (eval/cius-whitespace-2026-11-17.md) and the French sets (BR-FR,
       EXTENDED-CTC-FR, Factur-X EXTENDED, CDAR, Flux 10), with INV-065 now in the
-      Flux 10 and CDAR readers (eval/french-whitespace-2026-11-17.md). Next:
-      xs:dateTime leaves (FA(3), NAV timestamps) now in CASTABLE: measure them as
-      eval/nbsp-other-formats-2026-11-17.md does. No network beyond PyPI, Maven and
-      GitHub.
+      Flux 10 and CDAR readers (eval/french-whitespace-2026-11-17.md). CASTABLE
+      matches SaxonC on all 1,695 leaf values of 113 files and 5,024 of 5,075 swept
+      dates (eval/datetime-leaves-2026-11-18.md): the whitespace line is done. No
+      network beyond PyPI, Maven and GitHub.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
