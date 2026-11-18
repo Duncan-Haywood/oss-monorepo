@@ -521,16 +521,15 @@ flagships:
       from the root, not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB
       1,770 to 1,481 MB, fits 768 MB). nested ifcXML read as it closes 2026-11-18
       (eval/nested-early-2026-11-18.md: same numbers and notes on 57 files; smallest
-      heap 160 to 96 MB on C20, federated unchanged at 704 MB). memory 2026-11-18:
-      README 'How it was checked' 11-14; STEP from bytes
-      (eval/step-bytes-2026-11-18.md: the file never one string; 219 MB parses in
-      512 to 304 MB, 68 IDS 640 to 448 MB; a 670 MB STEP past V8's string limit now
-      checks). ifcXML from bytes 2026-11-18 (eval/ifcxml-bytes-2026-11-18.md: a 680
-      MB ifcXML now checks). xs:pattern as XML Schema regex 2026-11-18
+      heap 160 to 96 MB on C20, federated unchanged at 704 MB). STEP and ifcXML from
+      bytes 2026-11-18 (eval/step-bytes-*, eval/ifcxml-bytes-*: 670/680 MB files
+      check). xs:pattern as XML Schema regex 2026-11-18
       (eval/xsd-regex-2026-11-18.md: same verdict as elementpath on 78 of 78 corpus
       patterns; anchors, (?: and \/ flagged and repaired; 4 of 65 public IDS read
       differently per tool). Editor repairs a file on open 2026-11-18
       (eval/editor-open-repair-2026-11-18.md: 9 to 0 pattern findings written back,
       65 public IDS). Bare \w/\s 2026-11-18 (eval/word-class-2026-11-18.md: page
       asks IfcTester's or the standard's meaning; 1,500 of 1,500 patterns then read
-      alike). next: an RVB/ILS author on \s. More open items: NEXT.md.
+      alike). Subclass box per class 2026-11-18 (eval/also-subclasses-2026-11-18.md:
+      506 to 368 names listed). next: an RVB/ILS author on \s; deprecated subclasses
+      in a ticked box (a real model first). More open items: NEXT.md.

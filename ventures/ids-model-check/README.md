@@ -76,6 +76,13 @@ open. MIT licensed, no dependencies, nothing uploaded.
   specifications in 11 public files, 81.1% of the public files' facets editable
   (was 79.4%), every file still writing back the same and none made invalid
   against `ids.xsd`. `eval/several-classes-2026-11-17.md`.
+  **A subclass box per class** (2026-11-18): every further class gets its own
+  "and its subclasses" box, not only the first, and an opened class list that
+  names a class with all its concrete subclasses opens with that box ticked
+  (`classListBases`). The two 147-class bSDD-Toolkit templates open as 79
+  classes, 11 ticked; on the public files the names listed fall from 506 to
+  368, every file still writing back the same.
+  `eval/also-subclasses-2026-11-18.md`.
   **A model's values** (2026-11-17): with a model open, each property row
   says what values the model holds ("In the model: 3 different values: REI 60
   (12), ...") and offers them: **Allow exactly these values** writes a one-of
@@ -1057,7 +1064,6 @@ faster than IfcTester; its point is needing no install.
   `eval/template-type-2026-11-17.md`): a "did you mean" for a property the
   template lacks (Portugal's `Lenght` for Length, 8 facets);
   a real IFC4 export with dates to try the range on;
-  a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check: buildingSMART's IFC 4.3

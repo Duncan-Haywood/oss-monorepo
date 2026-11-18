@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, templateTypeRow, fileTypeRefused, fileTypeOf, nameSuggestion, renameSuggestion, renameRow, specBases, blankReq, blankSpec, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
+import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, templateTypeRow, fileTypeRefused, fileTypeOf, nameSuggestion, renameSuggestion, renameRow, specBases, blankReq, blankSpec, classListBases, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -871,4 +871,34 @@ test("a property one slip from the template's name gets the audit's 'did you mea
 test("the audit reads a swapped pair of letters as one slip (Lenght: did you mean Length?)", () => {
   const xml = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS"><info><title>t</title></info><specifications><specification name="d" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name><simpleValue>IFCDUCTSEGMENT</simpleValue></name></entity></applicability><requirements><property dataType="IFCLENGTHMEASURE"><propertySet><simpleValue>Qto_DuctSegmentBaseQuantities</simpleValue></propertySet><baseName><simpleValue>Lenght</simpleValue></baseName></property></requirements></specification></specifications></ids>`;
   assert.match(audit(xml).map((x) => x.message).join(" "), /no standard property Lenght; did you mean Length\?/);
+});
+
+test("each further class has its own subclass box: a list of classes with their subclasses opens as those classes, ticked", () => {
+  // IFCWALL and IFCSLAB each with every concrete subclass, IFCBEAM alone,
+  // and IFCBEAMSTANDARDCASE exact (IFCBEAM's other subclass is missing).
+  const walls = ["IFCWALL", ...subclasses(S4, "IFCWALL")], slabs = ["IFCSLAB", ...subclasses(S4, "IFCSLAB")];
+  assert.ok(subclasses(S4, "IFCSLAB").length >= 2);
+  assert.deepEqual(classListBases(S4, [...walls, ...slabs, "IFCBEAMSTANDARDCASE", "IFCDOOR"]),
+    [{ cls: "IFCWALL", withSub: true }, { cls: "IFCSLAB", withSub: true }, { cls: "IFCBEAMSTANDARDCASE", withSub: false }, { cls: "IFCDOOR", withSub: false }]);
+  // A subclass group inside a larger one is not ticked twice.
+  const flows = ["IFCFLOWTERMINAL", ...subclasses(S4, "IFCFLOWTERMINAL")];
+  const tops = classListBases(S4, ["IFCDISTRIBUTIONFLOWELEMENT", ...subclasses(S4, "IFCDISTRIBUTIONFLOWELEMENT"), ...flows]);
+  assert.deepEqual(tops, [{ cls: "IFCDISTRIBUTIONFLOWELEMENT", withSub: true }]);
+  // The written class list is the same set either way.
+  const spec = { cls: "IFCWALL", withSub: true, also: ["IFCSLAB", "IFCDOOR"], alsoSub: ["IFCSLAB"] };
+  assert.deepEqual(new Set(specClassNames(S4, spec)), new Set([...walls, ...slabs, "IFCDOOR"]));
+  assert.deepEqual(specClassNames(S4, { ...spec, alsoSub: [] }), [...walls, "IFCSLAB", "IFCDOOR"]);
+  // Opened from a file: the page lists IFCWALL and IFCSLAB, both ticked, and
+  // writes back the same classes.
+  const enumOf = (cs) => `<xs:restriction base="xs:string">${cs.map((c) => `<xs:enumeration value="${c}"/>`).join("")}</xs:restriction>`;
+  const xml = `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>Groups</title></info><specifications>
+    <specification name="walls and slabs" ifcVersion="IFC4"><applicability minOccurs="1" maxOccurs="unbounded"><entity><name>${enumOf([...walls, "IFCDOOR", ...slabs])}</name></entity></applicability>
+      <requirements><attribute><name><simpleValue>Name</simpleValue></name></attribute></requirements></specification>
+  </specifications></ids>`;
+  const { parsed, imp, back } = reopen(xml);
+  const [sp] = imp.state.specs;
+  assert.deepEqual([sp.cls, sp.withSub, sp.also, sp.alsoSub], ["IFCWALL", true, ["IFCDOOR", "IFCSLAB"], ["IFCSLAB"]]);
+  assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]));
+  // A blank specification starts with no further class ticked.
+  assert.deepEqual(blankSpec().alsoSub, []);
 });
