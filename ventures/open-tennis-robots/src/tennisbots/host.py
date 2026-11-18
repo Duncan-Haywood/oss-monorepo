@@ -336,7 +336,7 @@ def _fit_dict(fit: launcher.DropFit) -> dict:
 
 ESC_SURVEY_GRID_MS = (0, 20, 50, 100, 150, 200, 400)   # the firmware's ESC_SURVEY_GRID_US, in ms (150 since 2026-11-18)
 # How long the drill's end waits for the board's surveys of the last balls. 4 s until 2026-11-18: the survey's refined
-# fits (36 steps, about 2.2 s a wheel) now queue behind the strokes (controller.SURVEY_QUEUE, up to 4 balls), and the
+# fits (36 steps, about 2.2 s a wheel) now queue behind the strokes (controller.SURVEY_QUEUE, 3 since 2026-11-18), and the
 # wait ends sooner once no count has risen for SURVEY_QUIET_S (README "The ESC-lag survey's search, traced").
 ESC_SURVEY_S = 20.0
 SURVEY_QUIET_S = 3.0          # longer than one wheel's ESC-lag survey, so the wait does not stop between two wheels
