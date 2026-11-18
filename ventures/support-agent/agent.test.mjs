@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseKnowledge, buildAgent, decide, handoffReasons, sensitiveData, passagesOf, looksLikeInjection, normalise, synonymMap, DEFAULT_CALIBRATION, DEFAULT_CALIBRATION_EXAMPLES } from "./agent.mjs";
+import { parseKnowledge, buildAgent, decide, handoffReasons, sensitiveData, passagesOf, looksLikeInjection, normalise, synonymMap, DEFAULT_CALIBRATION, DEFAULT_CALIBRATION_EXAMPLES, extract, features, rankArticles } from "./agent.mjs";
 
 const kb = readFileSync(new URL("./fixtures/sample-kb.md", import.meta.url), "utf8");
 const articles = parseKnowledge(kb);
@@ -127,4 +127,41 @@ test("confidence is a probability and the built-in bars come from the fitted mod
     const c = decide(agent, q).confidence; assert.ok(c >= 0 && c <= 1, `${q}: ${c}`);
   }
   assert.equal(buildAgent(articles).threshold, DEFAULT_CALIBRATION.bar);
+});
+
+// Red-team 2026-11-18: a card number typed with its security code or expiry after it ran on into one long digit run
+// that failed the Luhn check, so the agent searched, answered and logged the number instead of handing off.
+test("a card number followed by its security code or expiry is still caught", () => {
+  for (const t of ["card 4111 1111 1111 1111 123", "4111 1111 1111 1111 12 29 please charge it", "4111-1111-1111-1111-123", "order 12 card 4111 1111 1111 1111"]) {
+    assert.deepEqual(sensitiveData(t), ["card"], t);
+    const d = decide(agent, `update my card ${t}`);
+    assert.equal(d.action, "handoff"); assert.equal(d.reasons[0].id, "sensitive");
+    assert.match(d.text, /do not send card or ID numbers/); assert.doesNotMatch(d.text, /4111/);
+  }
+  assert.deepEqual(sensitiveData("tracking 1234 5678 9012 3456 789"), [], "no group sequence passes Luhn: a tracking number");
+  assert.deepEqual(sensitiveData("call 555 123 4567 or 555 765 4321"), [], "phone numbers are not cards");
+});
+
+test("social security numbers are caught with dashes or spaces, phone numbers are not", () => {
+  assert.deepEqual(sensitiveData("my ssn is 123-45-6789"), ["ssn"]);
+  assert.deepEqual(sensitiveData("my ssn is 123 45 6789"), ["ssn"]);
+  assert.deepEqual(sensitiveData("ssn 123-45-67890"), [], "too many digits");
+  assert.deepEqual(sensitiveData("call 555-123-4567"), []);
+  const d = decide(agent, "my social is 123-45-6789, can you check my order?");
+  assert.equal(d.reasons[0].id, "sensitive"); assert.match(d.reasons[0].label, /social security number/);
+  assert.match(d.text, /do not send card or ID numbers/);
+  const upset = decide(agent, "this is a scam");
+  assert.doesNotMatch(upset.text, /card or ID numbers/, "only a sensitive message gets the do-not-send warning");
+});
+
+test("an extract that runs from a lead-in into a numbered step keeps the steps on their own lines", () => {
+  const steps = buildAgent(parseKnowledge("# Reset your password\nTo reset your password, follow these steps.\n1. Open Settings and tap Security.\n2. Tap Reset password. We email a link that works for one hour.\n"));
+  const out = extract(steps, "how do I reset my password", "reset-your-password", 2);
+  assert.equal(out, "To reset your password, follow these steps.\n1. Open Settings and tap Security.");
+});
+
+test("features with no past-question votes give no past-question signal", () => {
+  const q = "how long does shipping take";
+  const f = features(agent, q, rankArticles(agent, q, 5, { votes: new Map(), best: 0 }));
+  assert.equal(f.exSim, 0); assert.equal(f.exAgree, 0); assert.equal(f.exHandoff, 0);
 });
