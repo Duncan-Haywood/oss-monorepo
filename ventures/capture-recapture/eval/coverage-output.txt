@@ -1,0 +1,44 @@
+# 1000 simulated studies per scenario, 95% intervals; seed 20261118
+# coverage = share of intervals holding the true N; an unbounded upper limit counts as holding it
+# median and mean relative error of the point estimate; 'none' = share with no finite estimate
+
+M0: N=200, k=4, p=0.2
+estimator,coverage_pct,median_rel_err_pct,mean_rel_err_pct,none_pct
+M0,95.5,-0.5,0.8,0.0
+Mt,95.5,-1.0,0.3,0.0
+Mb,95.3,-2.5,9.5,0.1
+AIC-best,92.6,-1.0,3.2,0.0
+Chao,80.6,13.9,16.4,0.0
+
+Mt: N=200, k=4, p=0.10/0.30/0.20/0.25
+estimator,coverage_pct,median_rel_err_pct,mean_rel_err_pct,none_pct
+M0,94.8,3.0,3.5,0.0
+Mt,94.6,-1.0,-0.3,0.0
+Mb,45.0,152.5,34998.4,19.6
+AIC-best,94.6,-1.0,-0.3,0.0
+Chao,75.6,15.4,17.6,0.0
+
+Mb (trap-shy): N=200, k=5, p=0.30, c=0.15
+estimator,coverage_pct,median_rel_err_pct,mean_rel_err_pct,none_pct
+M0,0.3,37.5,38.0,0.0
+Mt,0.4,36.0,36.7,0.0
+Mb,94.5,-1.5,-0.0,0.0
+AIC-best,85.9,-0.5,3.1,0.0
+Chao,0.2,49.0,50.4,0.0
+
+Mh: N=200, k=5, p ~ Beta(2, 6), mean 0.25
+estimator,coverage_pct,median_rel_err_pct,mean_rel_err_pct,none_pct
+M0,2.7,-19.0,-19.4,0.0
+Mt,2.4,-19.5,-19.6,0.0
+Mb,49.9,-18.5,-17.7,0.0
+AIC-best,13.4,-19.0,-18.4,0.0
+Chao,85.5,-7.6,-7.5,0.0
+
+Two samples: N=500, k=2, p=0.2
+estimator,coverage_pct,median_rel_err_pct,mean_rel_err_pct,none_pct
+M0,95.2,-0.8,2.3,0.0
+Mt,94.9,-1.4,1.9,0.0
+Mb,96.2,-13.2,19028.6,4.8
+AIC-best,92.0,-3.8,-2.9,0.0
+Chao,25.8,64.0,70.5,0.0
+Chapman,90.4,-3.4,-0.7,0.0

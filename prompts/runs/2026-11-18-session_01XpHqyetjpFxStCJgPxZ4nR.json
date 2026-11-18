@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyetjpFxStCJgPxZ4nR",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T11:37:39Z",
+  "ended": "2026-11-18T11:58:10Z",
+  "wall_minutes": 21.61,
+  "tokens_in": 14726696,
+  "tokens_out": 98429,
+  "cost_usd": 6.569,
+  "tool_calls": 102,
+  "task": "explore: new research-algorithm tool ventures/capture-recapture",
+  "projects": [
+    "capture-recapture",
+    "survival-analysis"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17287",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 43,
+  "outcome": "success",
+  "errors": [
+    "First interval test failed: the engine measured the profile-likelihood drop from the whole-number maximum, not the continuous one; limits were off by ~1e-3 against the scipy reference. Fixed.",
+    "An engine warning claimed every estimate is unbounded with no recaptures; Mb (the removal method) is still finite. Warning and test corrected.",
+    "venture-preflight.mjs failed check_alias_priority.py on the freq-column lookup (leftmost column, not first alias). Fixed and rerun.",
+    "check_posts.py: the post's seo_title (76) and description (170) were over the limits. Shortened.",
+    "Preflight then caught a literal U+FEFF in the BOM-strip regex (check_hidden_unicode.py) and a .grid pane with [hidden] that the hidden-vs-display lint did not credit to the generic [hidden] rule. Both fixed; the fourth preflight run was clean."
+  ],
+  "integrity_issues": [
+    "Chao (1987) prints the cottontail log-transformed interval as (103, 202); the engine gives 102.4 to 202.4. This is reported in the README and post as an untraced gap, not hidden.",
+    "The whole-number Mt MLE (148 for 60/55/22) differs from Darroch's closed-form equation (150); the README says so."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "It runs main_health.py and says 'this branch edits platform/ci' when the branch touches only platform/pages and platform/privacy. It outlasts the 120 s tool timeout, so it has to run in the background. It is worth running, though: it caught the alias-priority lint that the venture's own tests could not see."
+    },
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "register-tool.mjs's TODO list is good, but it does not run check_alias_priority.py or check_posts.py, which surfaced later in preflight and validate."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "The MCP search_pull_requests tool is unavailable in cloud sessions, so the duplicate-PR search used gh api search/issues instead.",
+      "did": "gh api -X GET search/issues for 'capture recapture'",
+      "result": "No duplicate found."
+    },
+    {
+      "file": "ventures/README.md",
+      "why": "The catalogue says it is generated ('when this list was last generated'), so the new tool's line was not added by hand.",
+      "did": "left it for the generator",
+      "result": "unknown until the next regeneration"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-how-many-frogs-did-nobody-catch.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: capture-recapture (closed-population abundance) as a research-algorithm tool (ventures/capture-recapture). 0 of 1,403 venture READMEs mentioned capture-recapture or Lincoln-Petersen. It implements Lincoln-Petersen and Chapman with Seber's variance, M0/Mt/Mb by exact whole-number ML with profile-likelihood CIs and AIC weights, Chao 1987 with its log CI, and the Burnham-Overton jackknife; there is a group column per closed period. Example: the USGS Lily Pond chorus frog release (Muths 2020, public domain), 29 seasons. Findings: in 2010 Mt gives 539 (455-656) against 270 frogs seen; in 1999 Mb wins with weight 0.95 at 135 while Mt says 493; in 2007, with one recapture in 88 frogs, the CI is 474 to ~33,300. Verification: scipy 1.18.1 multinomial reference on 6 studies (MLE exact, limits 1e-6); Chao 1987's cottontail N=134 and normal CI (87,181) reproduced, log CI 102.4 vs the printed 103; coverage over 5 scenarios x 1,000: each model's own CI covers 94.5-95.5%, under heterogeneity M0/Mt/AIC-best cover 2-13% and Chao 85.5%, and Chao overestimates by 14-64% under homogeneity with few occasions. run_venture_tests.py capture-recapture survival-analysis: 43+54 pass. Playwright at 1200/375 px: no console errors or overflow (the dots chart got a narrow layout after the first phone screenshot). Inbound link added from survival-analysis. Next: Mh two-class mixture likelihood, then Mth. venture-preflight.mjs capture-recapture: clean on the 4th run (build + check.mjs included).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c03a7c11-40d5-5625-b020-86fe5746635e",
+    "transcripts": 1,
+    "first": "2026-11-18T11:37:39Z",
+    "last": "2026-11-18T11:59:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 94,
+        "input": 187,
+        "output": 98429,
+        "thinking": 19520,
+        "cache_read": 14514414,
+        "cache_write_5m": 0,
+        "cache_write_1h": 212095,
+        "api_equivalent_usd": 6.569,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 94,
+      "input": 187,
+      "output": 98429,
+      "thinking": 19520,
+      "cache_read": 14514414,
+      "cache_write_5m": 0,
+      "cache_write_1h": 212095,
+      "api_equivalent_usd": 6.569,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 85,
+      "WebSearch": 7,
+      "Read": 4,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.61,
+      "active_minutes": 21.61,
+      "model_minutes": 15.16,
+      "tool_minutes": 6.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 40.0,
+      "basis": "a statistician building and validating a closed-population estimator page with reference checks and coverage simulation",
+      "rate_usd_per_hour": 100.0,
+      "usd": 4000.0
+    },
+    "leverage": 608.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
