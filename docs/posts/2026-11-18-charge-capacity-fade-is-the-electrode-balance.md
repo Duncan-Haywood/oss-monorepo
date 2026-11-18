@@ -1,5 +1,5 @@
 ---
-title: "A battery's charge-capacity fade follows its electrode balance, and that still doesn't fix the plating forecast"
+title: "A battery's charge-capacity fade follows its electrode balance, but that doesn't fix the plating forecast"
 seo_title: "Charge-capacity fade follows the electrode balance"
 date: 2026-11-18
 tags: [research, batteries, pybamm, lithium-plating, negative-result]
