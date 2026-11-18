@@ -1921,7 +1921,8 @@ every storage, including a split row coded with the scaling table, and runs the 
 the CLI and both decoders.
 
 Not done: colour is only as good as the profile you supply (no profile ships here); Nikon's
-high-efficiency NEF (Z bodies) and Coolpix NEFs are refused with a message to convert to DNG.
+high-efficiency NEF (Z bodies) is refused with a message to convert to DNG. (This line used to say
+Coolpix NEFs were refused too; they were not, they were misread: see "Coolpix NRW" below.)
 
 ### Real split rows, the Z 6II's lossy curve and 12-bit black levels (2026-11-15)
 
@@ -1951,6 +1952,40 @@ notes say how many columns were left out. Against LibRaw's table: seven of seven
 alone at 0, 3 and 6 stops under, it cut nothing in 21 of 21 cases; on a very dark frame it keeps a
 margin rather than guess. `eval/nikon-nef-visible-area-2026-11-15.md`, `tools/nef_libraw_check.py`
 (now gates on the visible area too), `tests/test_nef.py` `VisibleAreaTests`.
+
+### Coolpix NRW and the E-series NEFs (2026-11-18)
+
+Nikon's compacts write raws too: `.NRW` from the P6000 (2008) on, `.NEF` before that (E5400 to
+E8800). They are TIFFs laid out like a NEF, so the reader took them, but not one of twelve real
+files read right: their sensors are stored in layouts no D-series body uses, and the reader
+decoded them as if they were D-series data. 8.0 to 20.1 M sensels wrong per frame (a picture of
+noise), no white balance on four bodies, black 0 on seven, and the P6000's CFA tag puts
+green on the wrong diagonal. Nothing errored, and the card copy keeps `.NRW` files (2026-11-16),
+so a Coolpix shooter got a confident, wrong develop.
+
+What is read now (`src/shootflow/nef.py`, "Coolpix NRW"): 12-bit samples packed MSB first (P330
+and P340, though their raw IFD says Nikon-compressed; E8800, its even rows stored before its odd
+ones); the same packing inside little-endian 32-bit words (P6000, P7000, P7100, P950, P1000, B700);
+one 16-bit word per sensel, little-endian (A1000) or big-endian with the value in the top 12 bits
+(P330, P7700, P7800). The byte count tells packed from 16-bit, and the byte order is chosen from
+the sensels: decoded each way, a band of rows from the middle of the frame is a picture in one
+and noise in the other. The black level and the as-shot balance come from the maker note's NRW
+colour block (tag 0x0014) when tag 0x000C is missing; the 4032-wide bodies carry no level and take
+200 (on the 12-bit scale). When the CFA tag's green diagonal disagrees with the sensels' (the
+P6000), the sensels win. `.nrw` is now a developable path for `shootflow develop` and the
+pipeline's grade stage (with the camera's `.dcp`, as for every NEF).
+
+How it was checked (`eval/nikon-nrw-reader-2026-11-18.md`, `tools/nef_libraw_check.py`): thirteen
+Coolpix files from raw.pixls.us (CC0), twelve bodies plus the Coolpix A (a DX NEF the reader
+already got right), against LibRaw 0.22. Before: 12 of 13 wrong. After: 13 of 13 equal in every
+sensel on both decoders, and in black level, white balance, CFA pattern and visible area (the
+P330 at LibRaw's scale: LibRaw drops the low 4 bits of its words and keeps the P7700's and
+P7800's; here all three keep them). The seven D-series NEFs of 2026-11-14 still read equal.
+`tests/test_nef.py` `CoolpixTests` (8 tests) writes each layout.
+
+Not done: no Coolpix colour profile ships (Adobe's DNG Converter installs them). One file per
+body was checked; P7000 and P7100 frames at ISO 400 and over (where dcraw assumed a black of 255,
+which LibRaw now calls "probably obsolete") and bodies with no public sample are unchecked.
 
 ## The CR2 brightness gap was the check (2026-11-12)
 
