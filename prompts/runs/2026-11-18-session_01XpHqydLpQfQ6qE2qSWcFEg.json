@@ -50,7 +50,7 @@
       "file": "CLAUDE.md",
       "why": "Fixed an unrelated one-character red-main fault (conjoint-analysis BOM regex) in this creative PR rather than a separate PR, since it blocked this PR's ventures-tests.",
       "did": "Replaced the literal U+FEFF with \\uFEFF; conjoint-analysis node --test 44/44, check_hidden_unicode ok.",
-      "result": "ventures-tests unblocked"
+      "result": "ventures-tests unblocked locally; main landed the identical one-line fix in parallel, so the change merges as a no-op"
     }
   ],
   "writeups": [
