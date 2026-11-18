@@ -1,0 +1,320 @@
+{
+ "corner": "ff_n40C_1v95",
+ "util": 40,
+ "liberty_sha256": "fb61d91c55a7f85b1989e8149d040b13ba5e7f5478f5bf0c3c16c5da30720139",
+ "tools": {
+  "yosys": "Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)",
+  "openroad": "26Q3"
+ },
+ "base_period_ns": {
+  "wsum6": 8.73,
+  "rng10r": 17.58,
+  "csum10": 14.79,
+  "div11r": 28.91,
+  "wsum4": 7.8,
+  "rng5r": 16.72,
+  "sad5": 9.51,
+  "mod14": 20.57,
+  "dot5r": 7.22,
+  "clamp5r": 24.43,
+  "avg16": 8.69,
+  "max6": 19.38,
+  "dot10r": 7.71,
+  "clamp8r": 30.2,
+  "csum5": 11.25,
+  "div9r": 29.04,
+  "sad3": 9.05,
+  "max10": 22.18,
+  "avg12": 6.94,
+  "amin10": 23.19
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "order_seed": 145,
+ "order": [
+  "wsum6",
+  "rng10r",
+  "csum10",
+  "div11r",
+  "wsum4",
+  "rng5r",
+  "sad5",
+  "mod14",
+  "dot5r",
+  "clamp5r",
+  "avg16",
+  "max6",
+  "dot10r",
+  "clamp8r",
+  "csum5",
+  "div9r",
+  "sad3",
+  "max10",
+  "avg12",
+  "amin10"
+ ],
+ "clock": {
+  "csum5": "tight",
+  "csum10": "relaxed",
+  "dot5r": "tight",
+  "dot10r": "relaxed",
+  "wsum4": "tight",
+  "wsum6": "relaxed",
+  "avg12": "tight",
+  "avg16": "relaxed",
+  "sad3": "tight",
+  "sad5": "relaxed",
+  "div9r": "tight",
+  "div11r": "relaxed",
+  "clamp5r": "tight",
+  "clamp8r": "relaxed",
+  "rng5r": "tight",
+  "rng10r": "relaxed",
+  "amin10": "tight",
+  "max6": "relaxed",
+  "max10": "tight",
+  "mod14": "relaxed"
+ },
+ "group": {
+  "csum5": "ADD",
+  "csum10": "ADD",
+  "dot5r": "ADD",
+  "dot10r": "ADD",
+  "wsum4": "ADD",
+  "wsum6": "ADD",
+  "avg12": "ADD",
+  "avg16": "ADD",
+  "sad3": "ADD",
+  "sad5": "ADD",
+  "div9r": "CTRL",
+  "div11r": "CTRL",
+  "clamp5r": "CTRL",
+  "clamp8r": "CTRL",
+  "rng5r": "CTRL",
+  "rng10r": "CTRL",
+  "amin10": "CTRL",
+  "max6": "CTRL",
+  "max10": "CTRL",
+  "mod14": "CTRL"
+ },
+ "designs": {
+  "csum5": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 5
+   },
+   ""
+  ],
+  "csum10": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 10
+   },
+   ""
+  ],
+  "dot5r": [
+   "dotsh_w",
+   "dotsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 5,
+    "R": 1
+   },
+   ""
+  ],
+  "dot10r": [
+   "dotsh_w",
+   "dotsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 10,
+    "R": 1
+   },
+   ""
+  ],
+  "wsum4": [
+   "wsumsh_w",
+   "wsumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "OW": 12,
+    "K": 4
+   },
+   ""
+  ],
+  "wsum6": [
+   "wsumsh_w",
+   "wsumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "OW": 12,
+    "K": 6
+   },
+   ""
+  ],
+  "avg12": [
+   "avgsh_w",
+   "avgsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NB": 12
+   },
+   ""
+  ],
+  "avg16": [
+   "avgsh_w",
+   "avgsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NB": 16
+   },
+   ""
+  ],
+  "sad3": [
+   "sadsh_w",
+   "sadsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 3
+   },
+   ""
+  ],
+  "sad5": [
+   "sadsh_w",
+   "sadsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 5
+   },
+   ""
+  ],
+  "div9r": [
+   "divsh_w",
+   "divsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 9,
+    "NB": 4,
+    "R": 1
+   },
+   ""
+  ],
+  "div11r": [
+   "divsh_w",
+   "divsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 11,
+    "NB": 4,
+    "R": 1
+   },
+   ""
+  ],
+  "clamp5r": [
+   "clampsh_w",
+   "clampsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 5,
+    "NB": 8,
+    "R": 1
+   },
+   ""
+  ],
+  "clamp8r": [
+   "clampsh_w",
+   "clampsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 8,
+    "NB": 8,
+    "R": 1
+   },
+   ""
+  ],
+  "rng5r": [
+   "rngsh_w",
+   "rngsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 5,
+    "NB": 8,
+    "R": 1
+   },
+   ""
+  ],
+  "rng10r": [
+   "rngsh_w",
+   "rngsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 10,
+    "NB": 8,
+    "R": 1
+   },
+   ""
+  ],
+  "amin10": [
+   "argminsh_w",
+   "argminsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 10,
+    "NB": 6
+   },
+   ""
+  ],
+  "max6": [
+   "maxsh_w",
+   "maxsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 6
+   },
+   ""
+  ],
+  "max10": [
+   "maxsh_w",
+   "maxsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 10
+   },
+   ""
+  ],
+  "mod14": [
+   "modsh_w",
+   "modsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 14,
+    "M": 97
+   },
+   ""
+  ]
+ }
+}

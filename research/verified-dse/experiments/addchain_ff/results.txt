@@ -1,0 +1,87 @@
+# Milestone 145: add-chain against other shift amounts at SKY130 ff_n40C_1v95, 20 fresh designs (flow run)
+
+theta = 3; seed-145 interleaved order over 20 designs
+
+complete designs (ORDER prefix): 20 of 20
+tools: {'yosys': 'Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)', 'openroad': '26Q3'}
+
+design | group | clock | base period ns | routed/r2 | tau-b r2 vs routed | random % | SWC % | d
+avg16 | ADD | relaxed | 8.690 | 5.31 | 0.210 | 13.60 | 0.00 | -13.60
+sad5 | ADD | relaxed | 9.510 | 5.24 | 0.276 | 7.60 | 0.00 | -7.60
+csum10 | ADD | relaxed | 14.790 | 5.26 | 0.264 | 6.51 | 0.00 | -6.51
+wsum6 | ADD | relaxed | 8.730 | 5.82 | 0.484 | 5.66 | 0.00 | -5.66
+sad3 | ADD | tight | 9.050 | 5.28 | 0.292 | 4.76 | 0.00 | -4.76
+avg12 | ADD | tight | 6.940 | 5.40 | 0.353 | 7.55 | 6.77 | -0.78
+dot10r | ADD | relaxed | 7.710 | 4.53 | 0.187 | 4.52 | 3.81 | -0.71
+dot5r | ADD | tight | 7.220 | 4.58 | 0.228 | 9.88 | 15.03 | +5.15
+wsum4 | ADD | tight | 7.800 | 5.71 | 0.349 | 3.60 | 11.70 | +8.10
+csum5 | ADD | tight | 11.250 | 4.60 | 0.080 | 8.45 | 19.06 | +10.61
+div11r | CTRL | relaxed | 28.910 | 3.99 | 0.217 | 18.04 | 0.00 | -18.04
+rng10r | CTRL | relaxed | 17.580 | 7.44 | 0.564 | 16.23 | 0.00 | -16.23
+max6 | CTRL | relaxed | 19.380 | 5.71 | 0.198 | 12.69 | 0.00 | -12.69
+rng5r | CTRL | tight | 16.720 | 7.04 | 0.562 | 9.20 | 0.00 | -9.20
+clamp8r | CTRL | relaxed | 30.200 | 6.12 | 0.520 | 8.82 | 0.00 | -8.82
+amin10 | CTRL | tight | 23.190 | 4.10 | 0.507 | 7.26 | 0.00 | -7.26
+max10 | CTRL | tight | 22.180 | 5.33 | 0.184 | 11.83 | 5.56 | -6.27
+div9r | CTRL | tight | 29.040 | 4.36 | 0.363 | 5.53 | 0.00 | -5.53
+clamp5r | CTRL | tight | 24.430 | 5.65 | 0.466 | 4.27 | 0.00 | -4.27
+mod14 | CTRL | relaxed | 20.570 | 2.46 | 0.475 | 7.75 | 7.75 | +0.00
+
+ADD: 10 designs; mean regret SWC 5.64%, random 7.21%; mean d -1.57; SWC better on 7, worse on 3, tied on 0; sign p = 0.3438; median tau-b r2 vs routed 0.270
+CTRL: 10 designs; mean regret SWC 1.33%, random 10.16%; mean d -8.83; SWC better on 9, worse on 0, tied on 1; sign p = 0.0039; median tau-b r2 vs routed 0.471
+all: SWC better on 16, worse on 3, tied on 1; sign p = 0.0044; mean regret SWC 3.48%, random 8.69%
+losses: ADD 3 of 10, CTRL 0 of 10; one-sided Fisher p = 0.1053
+difference of mean d, ADD - CTRL: +7.26 points; permutation p = 0.0258
+ladder branch: 19 of 20 (lowest routed/r2 2.46)
+
+## Milestone 144's four run-but-unanalysed designs (Yosys 0.70; eqc16 left out)
+
+design | group | routed/r2 | random % | SWC % | d
+dot8l | ADD | 8.88 | 7.09 | 8.61 | +1.52
+dot12r | ADD | 4.57 | 4.48 | 0.00 | -4.48
+clamp3r | CTRL | 5.28 | 3.32 | 0.00 | -3.32
+
+## Descriptive pool (not a test: half its grouping was read off milestone 144's table)
+
+ADD: 18 designs, SWC loses on 10, mean d +1.72
+CTRL: 32 designs, SWC loses on 1, mean d -9.51
+one-sided Fisher p = 0.00004
+
+## Post hoc: the delay confound (added after the results were read)
+
+no-wire base period here: ADD 6.94 to 14.79 ns, CTRL 16.72 to 30.20 ns (no overlap)
+pool designs with base period <= 15.12 ns (the slowest ADD design): ADD 18, SWC loses on 10; CTRL 3 (gtc12r -2.45, gtc24r -6.82, gtc8r -5.08), SWC loses on 0
+
+## Failed points
+
+design | usable points | failed
+wsum6 | 103 | 17
+rng10r | 103 | 17
+csum10 | 103 | 17
+div11r | 103 | 17
+wsum4 | 103 | 17
+rng5r | 101 | 19
+sad5 | 103 | 17
+mod14 | 103 | 17
+dot5r | 103 | 17
+clamp5r | 103 | 17
+avg16 | 103 | 17
+max6 | 103 | 17
+dot10r | 103 | 17
+clamp8r | 103 | 17
+csum5 | 103 | 17
+div9r | 103 | 17
+sad3 | 102 | 18
+max10 | 103 | 17
+avg12 | 103 | 17
+amin10 | 103 | 17
+
+## Predictions
+
+(1) every cell on the ladder branch: False (19 of 20)
+(2) PRIMARY: SWC loses on a larger share of ADD than CTRL, Fisher p < 0.05: False (3 of 10 against 0 of 10, p = 0.1053)
+(3) SWC loses on at least half of ADD: False (3 of 10)
+(4) SWC better on at least 8 of 10 CTRL designs: True (9 of 10)
+(5) mean d ADD > CTRL with permutation p < 0.05: True (p = 0.0258)
+(6) median tau-b r2 vs routed lower for ADD than CTRL: True (0.270 against 0.471)
+(7) SWC better on more designs than worse overall: True (16 to 3)

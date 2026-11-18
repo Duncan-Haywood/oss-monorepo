@@ -161,6 +161,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **At the fast corner the ladder's edge is smaller on add-chain shift amounts, but it does not lose on most of them (milestone 145,
+  flow run, blind, four of seven predictions held; the primary failed).** On 20 fresh 128-bit designs at ff_n40C_1v95, SWC loses
+  to equal-cost random routing on 3 of 10 designs whose amount is a chain of multi-bit adds and on 0 of 10 compare, select or
+  divide chains (Fisher p = 0.105). Its mean advantage is 1.57 points on add chains against 8.83 on the others (permutation
+  p = 0.026), and the mapped rung's rank correlation with routing is lower there (median tau-b 0.27 against 0.47). Overall SWC wins
+  16 to 3 (sign p = 0.0044). Caveat: every add-chain design maps to a shorter critical path than every control, so structure and
+  delay are confounded. Yosys 0.71 (earlier ff runs: 0.70):
+  [`experiments/addchain_ff/`](experiments/addchain_ff/results.txt).
 - **At the fast corner, SKY130 ff_n40C_1v95, the clipped ladder still beats equal-cost random routing on 20 of 27 blind designs
   (milestone 144, flow run, six of seven predictions held).** Only the liberty changes, as at ss. The routed ranking between tt and
   ff shares almost nothing (median tau-b 0.19, lower than tt against ss at 0.34; the routed-best sequence differs on all 27), and

@@ -145,6 +145,18 @@ def main(dst):
             f"ADD: {len(pa)} designs, SWC loses on {lpa}, mean d {statistics.mean(dd[x] for x in pa):+.2f}",
             f"CTRL: {len(pc)} designs, SWC loses on {lpc}, mean d {statistics.mean(dd[x] for x in pc):+.2f}",
             f"one-sided Fisher p = {fisher_greater(lpa, len(pa) - lpa, lpc, len(pc) - lpc):.5f}"]
+    # Post hoc (added after the results above were read, not a test): every ADD design here maps to a shorter no-wire period than
+    # every CTRL design, so the grouping is confounded with the amount cone's delay. Milestone 144's table has short non-ADD designs.
+    b44 = json.loads(m144.run.META.read_text())["base_period_ns"]
+    bp = {x: meta["base_period_ns"][x] for x in done} | {x: b44[x] for x in d44}
+    cut = max(bp[x] for x in pa)
+    sa = sorted(x for x in pa if bp[x] <= cut)
+    sc = sorted(x for x in pc if bp[x] <= cut)
+    out += ["", "## Post hoc: the delay confound (added after the results were read)", "",
+            f"no-wire base period here: ADD {min(bp[x] for x in add):.2f} to {max(bp[x] for x in add):.2f} ns, CTRL "
+            f"{min(bp[x] for x in ctl):.2f} to {max(bp[x] for x in ctl):.2f} ns (no overlap)",
+            f"pool designs with base period <= {cut:.2f} ns (the slowest ADD design): ADD {len(sa)}, SWC loses on {losses(sa, dd)}; "
+            f"CTRL {len(sc)} ({', '.join(f'{x} {dd[x]:+.2f}' for x in sc)}), SWC loses on {losses(sc, dd)}"]
     fails = {}
     for r in rs:
         if r["design"] in set(done) and r["status"] != "ok":
