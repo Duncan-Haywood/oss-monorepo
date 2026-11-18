@@ -147,7 +147,7 @@ def boot(v, seed=SEED, n=BOOT):
 
 
 def name(g):
-    return g if g == "SWC" else f"GC({g[0]}, {g[1]})"
+    return g if g in ("SWC", "rand") else f"GC({g[0]}, {g[1]})"
 
 
 def main(dst):
@@ -217,7 +217,7 @@ def main(dst):
     out += ["", "## Mechanism: does a tau-b reading see SWC's losses?", "",
             f"ladder-branch designs where SWC loses to random: {len(losers)}; wins or ties: {len(winners)}",
             f"full-pool tau-b (r2c vs routed): median {statistics.median(ft[k] for k in losers):.3f} on losers, "
-            f"{statistics.median(ft[k] for k in winners):.3f} on the rest; AUC (lower on losers) {a:.3f}",
+            f"{statistics.median(ft[k] for k in winners):.3f} on the rest; AUC (lower on losers) {a:.4f}",
             "fall-back share by outcome (mean over designs): grid entry | losers | rest"]
     for g in GRID[1:]:
         if g[1] == -1:
@@ -230,6 +230,20 @@ def main(dst):
     for cut in (0.1, 0.2, 0.3, 0.4, 0.5):
         v = [reg[k]["rand"] if (k in lad and ft[k] < cut) else reg[k]["SWC"] for k in keys]
         out.append(f"{cut} | {statistics.mean(v):.2f} | {sum(k in lad and ft[k] < cut for k in keys)}")
+    # Post hoc (added after the first run read the results; not a test): the ceiling for ANY detector that falls back to random,
+    # i.e. one that knew which designs SWC loses on, and what the losers cost each rule.
+    perfect = [reg[k]["rand"] if k in set(losers) else reg[k]["SWC"] for k in keys]
+    out += ["", "post hoc ceiling (not a test): a detector that falls back exactly on the losers: "
+            f"{statistics.mean(perfect):.2f}% (SWC {sl:.2f}%); on the {len(losers)} losers SWC "
+            f"{statistics.mean(reg[k]['SWC'] for k in losers):.2f}%, random {statistics.mean(reg[k]['rand'] for k in losers):.2f}%; "
+            f"on the {len(winners)} others SWC {statistics.mean(reg[k]['SWC'] for k in winners):.2f}%, "
+            f"random {statistics.mean(reg[k]['rand'] for k in winners):.2f}%"]
+    gain = statistics.mean(reg[k]["SWC"] - reg[k]["rand"] for k in losers)
+    cost = statistics.mean(reg[k]["rand"] - reg[k]["SWC"] for k in winners)
+    ratio = len(losers) * gain / (len(winners) * cost)
+    out.append(f"break-even (post hoc): a fall-back saves {gain:.2f} points on a loser and costs {cost:.2f} on any other design, so "
+               f"a guard helps only if its false-alarm rate is below {ratio:.3f} x its hit rate; GC(6, 0.2): hit {fl:.3f}, "
+               f"false alarm {fw:.3f} (needs below {ratio * fl:.3f})")
     out += ["", "## Per design", "", "milestone | design | routed/r2 | full tau-b | random % | SWC % | GC(6, 0.2) % | fall-back | LOMO guard %"]
     cmap = {(ms, x): c for ms, x, c, _ in P}
     for k in sorted(keys, key=lambda k: (k[0], d[k])):
@@ -240,7 +254,7 @@ def main(dst):
     out += ["", "## Predictions", "",
             f"(1) PRIMARY: LOMO guard pooled mean regret below SWC's: {gl < sl} ({gl:.2f} against {sl:.2f})",
             f"(2) bootstrap interval of guard - SWC below 0: {hi < 0} ({lo:+.2f} to {hi:+.2f})",
-            f"(3) full-pool tau-b AUC >= 0.70: {a >= 0.70} ({a:.3f})",
+            f"(3) full-pool tau-b AUC >= 0.70: {a >= 0.70} ({a:.4f})",
             f"(4) GC(6, 0.2) fall-back share at least 0.15 higher on losers: {fl - fw >= 0.15} ({fl:.3f} against {fw:.3f})",
             f"(5) LOMO guard better than random on more designs than worse: {bR > wR} ({bR} to {wR})",
             f"(6) in sample, no grid entry beats SWC: {not better_in} ({', '.join(name(g) for g in better_in) or 'none'})",

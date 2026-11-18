@@ -161,6 +161,13 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **A routed-pilot rank check does not fix the ladder's fast-corner losses (milestone 148, replay of 77 ff designs, two of seven
+  predictions held; the primary failed).** A guard that routes a few random points and falls back to random routing when the
+  clipped mapped score ranks them badly, chosen leave-one-milestone-out, has 4.21% mean regret against the unguarded SWC's 2.98%
+  (random 8.95%; difference +1.23 points, interval +0.12 to +3.09), and no setting beats SWC even in sample. The pilot does see
+  the weak rung (it falls back on 30% of draws where SWC loses, 18% elsewhere), but a fall-back costs 9.39 points where SWC wins
+  and saves only 6.77 where it loses, so a guard would need a false-alarm rate below 0.17 times its hit rate:
+  [`experiments/pilot_tau_ff/`](experiments/pilot_tau_ff/results.txt).
 - **On fresh designs neither add-chain structure nor short mapped delay explains the ladder's fast-corner losses (milestone 147,
   flow run, blind 2 x 2, three of eight predictions held; the primary failed).** At ff_n40C_1v95, a rule fixed in advance put fresh
   128-bit designs in four cells: add-chain or compare-chain amount, by a short (<= 15 ns) or long (>= 16.5 ns) mapped no-wire
