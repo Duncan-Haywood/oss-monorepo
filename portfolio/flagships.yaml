@@ -450,8 +450,9 @@ flagships:
       rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
       staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
-      squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
-      tuning misses left, 3408's strokes, 3464's cephalicus. More open items:
+      squares, hollow small notes bridged 2026-11-18 (77 of 84,
+      eval/one-step-hollow-check.md), next liquescentTail claiming a one-step
+      cephalicus (3439, 3357), 3408's strokes, 3464's cephalicus. More open items:
       NEXT.md.
     buildable: >-
       Coda reader, no outside input: a held-out part built on
@@ -460,8 +461,9 @@ flagships:
       -um", "A /u/ release read as a nasal"). The cluster-onset -um misses are a
       synthesis fault (the murmur's darkness follows the closure's phase in the
       voices' beating, eval/cluster-um-report.md): a murmur dark in every phase,
-      sing.mjs. OMR (scan.mjs) items in next: one-step cephalici, 10 of 84 tuning
-      misses, 3408's strokes, 3464's cephalicus.
+      sing.mjs. OMR (scan.mjs) items in next: liquescentTail taking a one-step
+      cephalicus (3439, 3357; eval/one-step-hollow-check.md), 3408's strokes, 3464's
+      cephalicus.
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
