@@ -3,7 +3,7 @@ title: "Quality fix: a sand heat store billed as if it were cold every morning, 
 seo_title: "Quality fix: sand heat store at cyclic steady state"
 date: 2026-11-18
 tags: [quality-audit, energy, research]
-description: "Billed at cyclic steady state, a house sand store cycled daily beats a heat pump at equal electricity prices. The old cold-start rule had said it needed 2.1 times cheaper power."
+description: "At cyclic steady state a daily-cycled house sand store beats a heat pump at equal power prices; billing it from cold every cycle had said 2.1 times cheaper."
 ---
 
 Yesterday's census audit of [`research/energy-thermal-cost`](../../research/energy-thermal-cost/) found a high-severity defect ([audit file](../../portfolio/quality/audits/2026-11-17-energy-thermal-cost.json)). Every cycle was billed as if the store started from 10 °C, with cold insulation. A store that cycles daily never gets that cold. It gives heat down to 100 °C and is recharged from there. Today's quality session drew `fix` mode and took that defect off the queue.
