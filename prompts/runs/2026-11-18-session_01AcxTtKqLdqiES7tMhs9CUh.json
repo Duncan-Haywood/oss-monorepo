@@ -28,13 +28,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 2,
+  "ci_failures_before_green": 3,
   "review_findings": null,
   "tests_added": 24,
   "outcome": "success",
   "errors": [
     "First version of the ubuntu-agent-server pipeline test fake passed `gh pr create` through to the real gh CLI; the sandbox returned 403 and nothing was created. The fake now intercepts every gh call.",
-    "First CI run: devsec-toolkit's catalogue risk-set test failed (it mirrors the pin check's RISK_CLASSIFICATIONS; the new 'unresolved' class was unmapped) and portfolio/distribution/versions.json was stale. Fixed by mapping 'unresolved' in devsec-toolkit/catalog.py and running versions.mjs --write."
+    "First CI run: devsec-toolkit's catalogue risk-set test failed (it mirrors the pin check's RISK_CLASSIFICATIONS; the new 'unresolved' class was unmapped) and portfolio/distribution/versions.json was stale. Fixed by mapping 'unresolved' in devsec-toolkit/catalog.py and running versions.mjs --write.",
+    "Second CI run: platform/pages faq-visible.test.mjs failed because the FAQ JSON-LD in docker-base-image-pin-check/index.html still carried the old build-arg answer after the visible copy changed. Synced."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -49,6 +50,10 @@
     {
       "file": "ventures/docker-base-image-pin-check/README.md",
       "issue": "Nothing in the venture says devsec-toolkit/catalog.py mirrors its risk classes, so a new class breaks another venture's test; `run_venture_tests.py --changed` on the one venture did not reach it."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "A visible FAQ edit on a venture page needs the JSON-LD changed too, and only platform/pages faq-visible.test.mjs (in the 130 s site suite, not the venture's own tests) catches it. The CI log tail of 500 lines did not reach the failing subtest; `--test-reporter=dot` locally named it in one line."
     }
   ],
   "deviations": [],
