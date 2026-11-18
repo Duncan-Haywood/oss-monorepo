@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, offBound, boundOutOfReach, VACANCY, laneTargets, parseLaneAvoid, matchShape, avoidShapeSlots } from "./bowling.mjs";
+import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, offBound, boundOutOfReach, VACANCY, laneTargets, parseLaneAvoid, matchShape, avoidShapeSlots, feasibleDealing } from "./bowling.mjs";
 import { LANE_SHAPES } from "./bowling-avoid-shapes.mjs";
 import { LANE_TABLE } from "./bowling-lane-table.mjs";
 import { OUT_OF_REACH } from "./bowling-proofs.mjs";
@@ -384,4 +384,40 @@ test("lane-limit shapes that are UNSAT on slots 0 and 1 are stored on other slot
     const met = new Set();
     for (const wk of s.weeks.slice(0, n - 1)) for (const m of wk.matches) { const k = Math.min(m.a, m.b) * n + Math.max(m.a, m.b); assert.ok(!met.has(k)); met.add(k); }
   }
+});
+
+test("five or more limited teams: a week with no legal deal on slot t = team t is re-dealt, and a provably impossible one still refused", () => {
+  const spread = (n, k, pairsOf) => {
+    const avoid = Array.from({ length: n }, () => []);
+    for (let i = 0; i < k; i++) avoid[(i * 7 + 3) % n] = pairsOf(n / 2);
+    return avoid;
+  };
+  // 10 teams, five off the last pair: slot t = team t puts the five in five different matches in
+  // week 1 (refused before); another dealing gives every round a match of two unlimited teams.
+  for (const [n, k, pairsOf, weeks] of [[10, 5, (P) => [P - 1], 26], [16, 7, (P) => [0, P - 1], 30]]) {
+    const avoid = spread(n, k, pairsOf);
+    const s = bowlingSchedule({ teams: names(n), weeks, start: START, laneAvoid: avoid });
+    assert.deepEqual(s.errors, [], `${n} teams`);
+    assert.equal(s.redealt, true);
+    const meet = new Map();
+    for (const wk of s.weeks) for (const m of wk.matches) {
+      assert.ok(!avoid[m.a].includes(m.pair) && !avoid[m.b].includes(m.pair), "a limit broken");
+      const key = [m.a, m.b].sort((x, y) => x - y).join("-");
+      meet.set(key, (meet.get(key) ?? 0) + 1);
+    }
+    // still a round robin: every two teams meet floor or ceil of weeks / (n - 1) times
+    assert.equal(meet.size, (n * (n - 1)) / 2);
+    const lo = Math.floor(weeks / (n - 1)), hi = Math.ceil(weeks / (n - 1));
+    for (const c of meet.values()) assert.ok(c >= lo && c <= hi);
+  }
+  // A season whose identity dealing already has a deal every week is untouched.
+  const ok = spread(12, 5, (P) => [P - 1]);
+  assert.deepEqual(feasibleDealing(12, 26, ok, 6), Array.from({ length: 12 }, (_, t) => t));
+  assert.equal(bowlingSchedule({ teams: names(12), weeks: 26, start: START, laneAvoid: ok }).redealt, false);
+  // 8 teams, four off the last pair: the four others meet 6 times a cycle, 7 rounds need one each.
+  const no = spread(8, 4, (P) => [P - 1]);
+  assert.equal(feasibleDealing(8, 26, no, 4), null);
+  assert.match(bowlingSchedule({ teams: names(8), weeks: 26, start: START, laneAvoid: no }).errors[0], /no dealing of the teams/);
+  // ...but a 6-week season plays only six of the seven rounds, and has a dealing.
+  assert.ok(feasibleDealing(8, 6, no, 4));
 });

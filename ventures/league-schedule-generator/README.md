@@ -191,6 +191,45 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## Five or more limited teams: a refused week re-dealt (2026-11-18, latest)
+
+The stored shape answers cover up to four limited teams; with five or more the page runs the
+search on slot t = team t of the circle method. That dealing can make a week impossible that
+another dealing would not: in a 10-team league with five teams off the last pair, the last pair
+needs a match of two unlimited teams every week, and week 1 put all five limited teams in five
+different matches. The page refused the season ("Week 1: ... loosen a limit") though the five
+unlimited teams meet 10 times in a 9-round cycle, enough for one each round.
+
+`feasibleDealing` (in `bowling.mjs`) checks every round the season plays for a legal lane deal
+(a maximum bipartite matching of matches to allowed pairs, `weekShortfall`), and if one is
+short, hill-climbs over dealings: swap a limited team's slot with another slot, keep the swap if
+the summed shortfall does not rise, seeded restarts, a fixed work budget (about 3e7 matching
+steps, so the same input gives the same season on any machine). Identity is tried first, so a
+season that already had a deal every week is byte-identical. `bowlingSchedule` uses it after the
+shape answers and reports `redealt`. Every team still meets every other as often as before.
+
+**Measured** (`node eval/bowling-many-limits.mjs`, `eval/bowling-many-limits.txt`; 10-24 teams x
+26-34 weeks x four kinds of 5+ limit: five teams off the last pair, five off a random pair each,
+six off both ends, eight off a random pair each; 112 seasons):
+
+| | seasons built | refused | limits broken |
+|---|---|---|---|
+| before | 100 | 12 | 0 |
+| now | 104 | 8 | 0 |
+
+The four 10-team seasons now built have 8-9 of 10 teams in target (11 counts off over the kind,
+was 3 on the 24 it built before). The 8 still refused are out of reach for every dealing, by
+counting: six teams off both end pairs need two all-unlimited matches every round, and 4 or 6
+unlimited teams meet only 6 or 15 times in a 9- or 11-round cycle (18 and 22 needed). The
+142-season grid (at most three limited teams) re-run: every row identical. The two random kinds
+are every team in target in 56 of 56. Tests: `bowling.test.mjs` (10 x 26 five off the last pair
+and 16 x 30 seven off both ends built and still round robins, a feasible season untouched, 8
+teams four off the last pair refused with the new message, its 6-week season dealt).
+
+Open: the dealing search picks the first legal dealing, not the most even one (five teams off
+the last pair: 22 of 28 in target); scoring dealings by the search's balance, or SAT answers for
+5+ limited shapes on the misses (14, 16, 18 x 30 with six off both ends).
+
 ## Lane rotation solved on counts, not weeks: the last limit misses proved, 16 x 40 and 24 x 35 stored (2026-11-18, latest)
 
 The SAT models so far (`eval/bowling-avoid-shapes.py`, `eval/bowling-lane-table.py`) pick a pair for
