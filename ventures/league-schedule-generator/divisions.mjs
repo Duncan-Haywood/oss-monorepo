@@ -1126,6 +1126,134 @@ export function divisionsPlayoffs(result, { perDivision = 2, wildcards = 0, sepa
 }
 
 /**
+ * Promotion and relegation into next season for tiered divisions ("Premier > Division 1 > Division 2").
+ * From `divisionsStandings(...)` on the finished (or nearly finished) season: the top `up` teams of each
+ * division below the top move up one tier, and the bottom `down` teams of each division above the last move
+ * down one. Divisions not named in the ladder (age groups, say) are copied unchanged.
+ *
+ * With `playoff: true` each boundary also has a play-off between the last team that stays up (place
+ * size - down) and the first team that stays down (place up + 1); `winners` lists play-off winners by name.
+ * A play-off with no winner named is left as the table has it (the upper team stays) and listed as pending.
+ * `leaving` names teams that will not return (dropped from next season); `joining` adds new entrants,
+ * one "Division: Team, Team" line each.
+ *
+ * Never guesses at a boundary: a place decided only by entry order (level on every tie-break), and games still
+ * to play, come back as warnings; a team name already used in its new division is an error and no text is made.
+ * Returns { divisionsText, moves: [{team, from, to, reason}], playoffs: [{upper, lower, upperDivision,
+ * lowerDivision, winner}], warnings, errors, text }.
+ */
+export function divisionsPromotion(schedule, result, { ladder = "", up = 1, down = null, playoff = false, winners = "", leaving = "", joining = "" } = {}) {
+  const errors = [], warnings = [], moves = [], playoffs = [];
+  const nUp = Math.max(0, Math.trunc(Number(up)) || 0);
+  const nDown = down === null || down === "" || down === undefined ? nUp : Math.max(0, Math.trunc(Number(down)) || 0);
+  const byName = new Map(schedule.divisions.map((d, i) => [d.name.toLowerCase(), i]));
+  const tableOf = new Map(result.tables.map((t) => [t.division.toLowerCase(), t]));
+  const tierNames = String(ladder || "").split(/>|\r?\n/).map((s) => s.trim()).filter(Boolean);
+  const tiers = tierNames.length ? tierNames : schedule.divisions.map((d) => d.name);
+  const tierIdx = [];
+  for (const n of tiers) {
+    const i = byName.get(n.toLowerCase());
+    if (i === undefined) errors.push(`Ladder: no division called "${n}".`);
+    else if (tierIdx.includes(i)) errors.push(`Ladder: "${n}" is named twice.`);
+    else tierIdx.push(i);
+  }
+  if (!errors.length && tierIdx.length < 2) errors.push("Ladder: name at least two divisions, top first, like \"Premier > Division 1\".");
+  const fail = () => ({ divisionsText: "", moves, playoffs, warnings, errors, text: "" });
+  if (errors.length) return fail();
+  const next = schedule.divisions.map((d) => ({ name: d.name, double: Boolean(d.double), teams: [...d.teams] }));
+  const ranked = tierIdx.map((i) => {
+    const t = tableOf.get(schedule.divisions[i].name.toLowerCase());
+    return t ? t.rows.map((r) => r.name) : [...schedule.divisions[i].teams];
+  });
+  tierIdx.forEach((i, k) => {
+    const div = schedule.divisions[i], size = div.teams.length;
+    const moveUp = k > 0 ? nUp : 0, moveDown = k < tierIdx.length - 1 ? nDown : 0;
+    const extra = playoff ? (moveUp ? 1 : 0) + (moveDown ? 1 : 0) : 0;
+    if (moveUp + moveDown + extra > size) errors.push(`${div.name}: ${moveUp} up and ${moveDown} down${extra ? ` plus ${extra} play-off place${extra === 1 ? "" : "s"}` : ""} is more than its ${size} teams.`);
+    const t = tableOf.get(div.name.toLowerCase());
+    if (!t || !t.rows.some((r) => r.played)) { warnings.push(`${div.name}: no results, so its places are entry order, not a table.`); return; }
+    const left = remainingFixtures(div, []).length - t.rows.reduce((a, r) => a + r.played, 0) / 2;
+    if (left > 0) warnings.push(`${div.name}: ${left} game${left === 1 ? "" : "s"} still to play, so these places can change.`);
+    const notes = tieBreakNotes(t.rows);
+    const cuts = [];
+    if (moveUp) cuts.push(moveUp);
+    if (moveDown) cuts.push(size - moveDown);
+    if (playoff && moveUp) cuts.push(moveUp + 1);
+    if (playoff && moveDown) cuts.push(size - moveDown - 1);
+    for (const c of cuts) {
+      const n = notes.find((x) => x.rank === c && x.unresolved);
+      if (n) warnings.push(`${div.name}: ${n.above} and ${n.below} are level on every tie-break at place ${c}, a promotion or relegation line. Decide it (a play-off or a draw), then type the result or a points adjustment.`);
+    }
+  });
+  if (errors.length) return fail();
+  const winnerSet = new Set(String(winners || "").split(/[,\n]/).map((s) => s.trim().toLowerCase()).filter(Boolean));
+  const usedWinners = new Set();
+  // Who goes where, decided on this season's tables before any team moves.
+  const goes = [];
+  for (let k = 0; k + 1 < tierIdx.length; k++) {
+    const upper = schedule.divisions[tierIdx[k]], lower = schedule.divisions[tierIdx[k + 1]];
+    const uRank = ranked[k], lRank = ranked[k + 1];
+    const downers = nDown ? uRank.slice(uRank.length - nDown) : [];
+    const uppers = nUp ? lRank.slice(0, nUp) : [];
+    for (const t of downers) goes.push({ team: t, from: upper.name, to: lower.name, fromI: tierIdx[k], toI: tierIdx[k + 1], reason: `place ${uRank.indexOf(t) + 1} of ${uRank.length}, relegated` });
+    for (const t of uppers) goes.push({ team: t, from: lower.name, to: upper.name, fromI: tierIdx[k + 1], toI: tierIdx[k], reason: `place ${lRank.indexOf(t) + 1} of ${lRank.length}, promoted` });
+    if (playoff && nUp && nDown && uRank.length - nDown - 1 >= 0 && lRank.length > nUp) {
+      const a = uRank[uRank.length - nDown - 1], b = lRank[nUp];
+      const win = winnerSet.has(a.toLowerCase()) ? a : winnerSet.has(b.toLowerCase()) ? b : null;
+      if (winnerSet.has(a.toLowerCase()) && winnerSet.has(b.toLowerCase())) { errors.push(`Play-off ${a} v ${b}: both are named as winners.`); continue; }
+      if (win) usedWinners.add(win.toLowerCase());
+      playoffs.push({ upper: a, lower: b, upperDivision: upper.name, lowerDivision: lower.name, winner: win });
+      if (win === b) {
+        goes.push({ team: b, from: lower.name, to: upper.name, fromI: tierIdx[k + 1], toI: tierIdx[k], reason: `place ${nUp + 1} of ${lRank.length}, won the play-off against ${a}` });
+        goes.push({ team: a, from: upper.name, to: lower.name, fromI: tierIdx[k], toI: tierIdx[k + 1], reason: `place ${uRank.length - nDown} of ${uRank.length}, lost the play-off to ${b}` });
+      }
+    }
+  }
+  for (const w of winnerSet) if (!usedWinners.has(w)) errors.push(`Play-off winner "${w}" is not in any play-off${playoff ? "" : " (tick the play-off option)"}.`);
+  for (const g of goes) next[g.fromI].teams = next[g.fromI].teams.filter((t) => t !== g.team);
+  for (const g of goes) {
+    if (next[g.toI].teams.some((t) => t.toLowerCase() === g.team.toLowerCase())) errors.push(`${g.team} cannot move to ${g.to}: a team of that name is already there. Rename one of them first.`);
+    else next[g.toI].teams.push(g.team);
+    moves.push({ team: g.team, from: g.from, to: g.to, reason: g.reason });
+  }
+  for (const raw of String(leaving || "").split(/[,\n]/)) {
+    const name = raw.trim();
+    if (!name) continue;
+    const m = name.match(/^([^/]+)\/(.+)$/);
+    const hits = next.filter((d) => (!m || d.name.toLowerCase() === m[1].trim().toLowerCase()) && d.teams.some((t) => t.toLowerCase() === (m ? m[2] : name).trim().toLowerCase()));
+    if (!hits.length) { errors.push(`Leaving: no team "${name}".`); continue; }
+    if (hits.length > 1) { errors.push(`Leaving: "${name}" is in ${hits.map((d) => d.name).join(" and ")}; write it as Division/Team.`); continue; }
+    const t = (m ? m[2] : name).trim().toLowerCase();
+    hits[0].teams = hits[0].teams.filter((x) => x.toLowerCase() !== t);
+    moves.push({ team: name.replace(/^[^/]+\//, ""), from: hits[0].name, to: null, reason: "leaving" });
+  }
+  for (const raw of String(joining || "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const m = line.match(/^([^:]+):(.*)$/);
+    const d = m && next.find((x) => x.name.toLowerCase() === m[1].trim().toLowerCase());
+    if (!d) { errors.push(`Joining "${line}": start it with a division, like "${tiers[tiers.length - 1]}: New Team".`); continue; }
+    for (const t of m[2].split(",").map((s) => s.trim()).filter(Boolean)) {
+      if (d.teams.some((x) => x.toLowerCase() === t.toLowerCase())) { errors.push(`Joining: ${d.name} already has ${t}.`); continue; }
+      d.teams.push(t);
+      moves.push({ team: t, from: null, to: d.name, reason: "new entrant" });
+    }
+  }
+  for (const d of next) if (d.teams.length < 2) errors.push(`${d.name}: only ${d.teams.length} team${d.teams.length === 1 ? "" : "s"} next season; a division needs two.`);
+  if (errors.length) return fail();
+  const divisionsText = next.map((d) => `${d.name}: ${d.teams.join(", ")}${d.double ? " (double)" : ""}`).join("\n");
+  const say = (m) => m.from && m.to ? `${m.team}: ${m.from} -> ${m.to} (${m.reason})` : m.to ? `${m.team}: joins ${m.to}` : `${m.team}: leaves ${m.from}`;
+  const lines = [];
+  if (moves.length) lines.push("Changes for next season:", ...moves.map((m) => "  " + say(m)));
+  else lines.push("No team changes division.");
+  const pend = playoffs.filter((p) => !p.winner);
+  if (pend.length) lines.push("", "Play-offs still to play (the upper team is kept until a winner is named):", ...pend.map((p) => `  ${p.upper} (${p.upperDivision}) v ${p.lower} (${p.lowerDivision})`));
+  if (warnings.length) lines.push("", ...warnings.map((w) => "Check: " + w));
+  lines.push("", "Next season's divisions:", divisionsText);
+  return { divisionsText, moves, playoffs, warnings, errors, text: lines.join("\n") + "\n" };
+}
+
+/**
  * The weekly group-chat post for a multi-division league: for each division, last round's scores,
  * the top of its table and the next round's fixtures (the single-league `weeklyUpdate`, run per
  * division on the results typed in `divisionsStandings` format). Results that `divisionsStandings`
@@ -1892,7 +2020,7 @@ export function rainoutOptions(f) {
   return { balance: on(f.balance), flip: on(f.flip), relocate: on(f.relocate), swapNights: on(f.swapNights) };
 }
 
-// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --deadline DATE for whether the season ends in time (exit 2 if not), --bookings for a per-venue facility booking request, --cost rates.txt [--extra N] [--split games] for the season facility cost and a fee per team (exit 2 if a venue has no rate), --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
+// node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --deadline DATE for whether the season ends in time (exit 2 if not), --bookings for a per-venue facility booking request, --cost rates.txt [--extra N] [--split games] for the season facility cost and a fee per team (exit 2 if a venue has no rate), --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, --results results.txt --promote [N] for next season's divisions after promotion and relegation (spec fields ladder, promote, relegate, playoff, playoffWinners, leaving, joining), or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
 if (typeof process !== "undefined" && process.argv && process.argv[1] && import.meta.url === (await import("node:url")).pathToFileURL(process.argv[1]).href) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
@@ -2030,6 +2158,15 @@ if (typeof process !== "undefined" && process.argv && process.argv[1] && import.
       process.exit(0);
     }
     const r = divisionsStandings(s, readFileSync(rf, "utf8"), { points: raw.points || "3-1-0", headToHead: !!raw.headToHead });
+    if (process.argv.includes("--promote")) {
+      const n = process.argv[process.argv.indexOf("--promote") + 1];
+      const up = n && /^\d+$/.test(n) ? n : raw.promote ?? 1;
+      const pr = divisionsPromotion(s, r, { ladder: raw.ladder || "", up, down: raw.relegate ?? null, playoff: !!raw.playoff, winners: raw.playoffWinners || "", leaving: raw.leaving || "", joining: raw.joining || "" });
+      for (const e of [...r.errors, ...pr.errors]) console.error(`Promotion: ${e}`);
+      if (pr.errors.length) process.exit(1);
+      process.stdout.write(pr.text);
+      process.exit(0);
+    }
     const pi = process.argv.indexOf("--playoffs");
     if (pi > 0) {
       const wi = process.argv.indexOf("--wildcards");

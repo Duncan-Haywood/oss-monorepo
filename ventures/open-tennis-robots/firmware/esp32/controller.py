@@ -681,13 +681,27 @@ def _anchor(periods, back=None, steps=2):
     return k
 
 
-def take_offsets(take_us, shape="halfsine", parts=4):
+# Half-sine take offsets stretched to the profile's own spread (2026-11-18, README "The take fit's four parts and its
+# high reading"; on by its pre-registered rule). Four equal shares at the half-sine's quantile midpoints carry a
+# variance of 0.0397 T^2 against the profile's 0.0474 T^2, so the fit matched a true take with a contact time about 9%
+# longer: held out (tests/take_parts_refit.py, 54 simulated survey drills) the survey's residual least read off-grid
+# takes +0.31 ms high on the capture tach; stretched about T/2 by sqrt(0.0474 / 0.0397) it read -0.07 (16 parts: 0.00),
+# the board's verdict came within 0.5 ms on 46 builds of 54 against 41, and within 1 ms on 54 as before. The drop read
+# at the true contact time moved by 0.03 points or less (tests/take_parts_refit.py --drops). Same four fits a wheel.
+# False gives the midpoints as before; "front" is not stretched (not tested).
+TAKE_MATCH_SPREAD = True
+_HALF_SINE_VAR = 0.25 - 2.0 / (math.pi * math.pi)
+
+
+def take_offsets(take_us, shape="halfsine", parts=4, match_spread=None):
     """The offsets (us after first contact) of `parts` equal shares of a ball's take that lasts `take_us`, at the
     quantile midpoints of its force profile: "halfsine" (force rising and falling symmetrically) or "front" (force at
-    its peak at first contact, falling linearly). For drop_from_commands_steps(take=); 0 us gives () (one step)."""
+    its peak at first contact, falling linearly). For drop_from_commands_steps(take=); 0 us gives () (one step).
+    `match_spread` (default TAKE_MATCH_SPREAD) stretches the half-sine's offsets about the take's middle so that they
+    carry the profile's own variance."""
     if take_us <= 0:
         return ()
-    out = []
+    xs = []
     for i in range(parts):
         q = (i + 0.5) / parts
         if shape == "front":
@@ -696,8 +710,12 @@ def take_offsets(take_us, shape="halfsine", parts=4):
             x = math.acos(1.0 - 2.0 * q) / math.pi
         else:
             raise ValueError(shape)
-        out.append(x * take_us)
-    return tuple(out)
+        xs.append(x)
+    if shape == "halfsine" and (TAKE_MATCH_SPREAD if match_spread is None else match_spread):
+        var = sum((x - 0.5) * (x - 0.5) for x in xs) / parts
+        k = math.sqrt(_HALF_SINE_VAR / var) if var > 0 else 1.0
+        xs = [0.5 + (x - 0.5) * k for x in xs]
+    return tuple(x * take_us for x in xs)
 
 
 def _stopped(was, now):

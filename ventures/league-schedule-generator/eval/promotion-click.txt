@@ -1,0 +1,9 @@
+ok   A4 relegated
+ok   C1 promoted
+ok   next Premier listed
+ok   no warnings on a finished season
+ok   start-next-season button shown
+ok   divisions box filled: "Premier: A1, A2, A3, B1\nDivision 1: B2, B3, A4, C1\nDivision 2: C2, C3, C4, B4, New Town"
+ok   results and start cleared
+ok   next season builds with the new entrant
+ok   no page errors 

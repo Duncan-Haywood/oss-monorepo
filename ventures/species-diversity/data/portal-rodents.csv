@@ -1,0 +1,306 @@
+plot,treatment,species,scientific_name,individuals
+1,All rodents removed,PP,Chaetodipus penicillatus,102
+1,All rodents removed,PE,Peromyscus eremicus,44
+1,All rodents removed,PB,Chaetodipus baileyi,33
+1,All rodents removed,RM,Reithrodontomys megalotis,31
+1,All rodents removed,OT,Onychomys torridus,20
+1,All rodents removed,PM,Peromyscus maniculatus,14
+1,All rodents removed,DM,Dipodomys merriami,9
+1,All rodents removed,PF,Perognathus flavus,5
+1,All rodents removed,NA,Neotoma albigula,4
+1,All rodents removed,DO,Dipodomys ordii,3
+1,All rodents removed,PL,Peromyscus leucopus,3
+1,All rodents removed,PH,Chaetodipus hispidus,2
+1,All rodents removed,AH,Ammospermophilus harrisi,1
+2,Kangaroo rats removed,PP,Chaetodipus penicillatus,137
+2,Kangaroo rats removed,PB,Chaetodipus baileyi,37
+2,Kangaroo rats removed,PE,Peromyscus eremicus,36
+2,Kangaroo rats removed,RM,Reithrodontomys megalotis,17
+2,Kangaroo rats removed,NA,Neotoma albigula,16
+2,Kangaroo rats removed,OT,Onychomys torridus,13
+2,Kangaroo rats removed,PM,Peromyscus maniculatus,6
+2,Kangaroo rats removed,PL,Peromyscus leucopus,4
+2,Kangaroo rats removed,RO,Reithrodontomys montanus,2
+2,Kangaroo rats removed,PF,Perognathus flavus,1
+2,Kangaroo rats removed,PH,Chaetodipus hispidus,1
+3,Kangaroo rats removed,PP,Chaetodipus penicillatus,170
+3,Kangaroo rats removed,DM,Dipodomys merriami,26
+3,Kangaroo rats removed,PB,Chaetodipus baileyi,23
+3,Kangaroo rats removed,DO,Dipodomys ordii,11
+3,Kangaroo rats removed,RM,Reithrodontomys megalotis,11
+3,Kangaroo rats removed,PF,Perognathus flavus,9
+3,Kangaroo rats removed,OT,Onychomys torridus,7
+3,Kangaroo rats removed,BA,Baiomys taylori,6
+3,Kangaroo rats removed,PE,Peromyscus eremicus,4
+3,Kangaroo rats removed,OL,Onychomys leucogaster,2
+3,Kangaroo rats removed,PM,Peromyscus maniculatus,1
+3,Kangaroo rats removed,RO,Reithrodontomys montanus,1
+3,Kangaroo rats removed,SH,Sigmodon hispidus,1
+4,Unmanipulated control,PP,Chaetodipus penicillatus,159
+4,Unmanipulated control,DM,Dipodomys merriami,92
+4,Unmanipulated control,DO,Dipodomys ordii,21
+4,Unmanipulated control,OT,Onychomys torridus,20
+4,Unmanipulated control,PB,Chaetodipus baileyi,10
+4,Unmanipulated control,RM,Reithrodontomys megalotis,7
+4,Unmanipulated control,RO,Reithrodontomys montanus,4
+4,Unmanipulated control,PE,Peromyscus eremicus,3
+4,Unmanipulated control,PF,Perognathus flavus,2
+4,Unmanipulated control,BA,Baiomys taylori,1
+4,Unmanipulated control,DS,Dipodomys spectabilis,1
+4,Unmanipulated control,NA,Neotoma albigula,1
+4,Unmanipulated control,RF,Reithrodontomys fulvescens,1
+4,Unmanipulated control,SF,Sigmodon fulviventer,1
+4,Unmanipulated control,SS,Spermophilus spilosoma,1
+5,Unmanipulated control,PP,Chaetodipus penicillatus,102
+5,Unmanipulated control,DM,Dipodomys merriami,87
+5,Unmanipulated control,OT,Onychomys torridus,17
+5,Unmanipulated control,DO,Dipodomys ordii,15
+5,Unmanipulated control,PE,Peromyscus eremicus,12
+5,Unmanipulated control,PB,Chaetodipus baileyi,7
+5,Unmanipulated control,RM,Reithrodontomys megalotis,4
+5,Unmanipulated control,NA,Neotoma albigula,3
+5,Unmanipulated control,PF,Perognathus flavus,2
+5,Unmanipulated control,SH,Sigmodon hispidus,2
+5,Unmanipulated control,RF,Reithrodontomys fulvescens,1
+5,Unmanipulated control,SF,Sigmodon fulviventer,1
+6,Unmanipulated control,PP,Chaetodipus penicillatus,107
+6,Unmanipulated control,DM,Dipodomys merriami,68
+6,Unmanipulated control,OT,Onychomys torridus,14
+6,Unmanipulated control,PB,Chaetodipus baileyi,10
+6,Unmanipulated control,PE,Peromyscus eremicus,7
+6,Unmanipulated control,DO,Dipodomys ordii,6
+6,Unmanipulated control,NA,Neotoma albigula,6
+6,Unmanipulated control,RM,Reithrodontomys megalotis,4
+6,Unmanipulated control,OL,Onychomys leucogaster,3
+6,Unmanipulated control,SS,Spermophilus spilosoma,2
+6,Unmanipulated control,PL,Peromyscus leucopus,1
+7,Unmanipulated control,PP,Chaetodipus penicillatus,154
+7,Unmanipulated control,DM,Dipodomys merriami,77
+7,Unmanipulated control,DO,Dipodomys ordii,56
+7,Unmanipulated control,OT,Onychomys torridus,17
+7,Unmanipulated control,PE,Peromyscus eremicus,14
+7,Unmanipulated control,PB,Chaetodipus baileyi,10
+7,Unmanipulated control,PM,Peromyscus maniculatus,5
+7,Unmanipulated control,RM,Reithrodontomys megalotis,4
+7,Unmanipulated control,OL,Onychomys leucogaster,3
+7,Unmanipulated control,SH,Sigmodon hispidus,3
+7,Unmanipulated control,NA,Neotoma albigula,1
+7,Unmanipulated control,PH,Chaetodipus hispidus,1
+7,Unmanipulated control,PL,Peromyscus leucopus,1
+8,Kangaroo rats removed,PP,Chaetodipus penicillatus,146
+8,Kangaroo rats removed,PB,Chaetodipus baileyi,54
+8,Kangaroo rats removed,OT,Onychomys torridus,16
+8,Kangaroo rats removed,RM,Reithrodontomys megalotis,13
+8,Kangaroo rats removed,DO,Dipodomys ordii,5
+8,Kangaroo rats removed,PE,Peromyscus eremicus,5
+8,Kangaroo rats removed,DM,Dipodomys merriami,4
+8,Kangaroo rats removed,PF,Perognathus flavus,2
+8,Kangaroo rats removed,PL,Peromyscus leucopus,2
+8,Kangaroo rats removed,BA,Baiomys taylori,1
+8,Kangaroo rats removed,OL,Onychomys leucogaster,1
+8,Kangaroo rats removed,PH,Chaetodipus hispidus,1
+8,Kangaroo rats removed,RF,Reithrodontomys fulvescens,1
+8,Kangaroo rats removed,RO,Reithrodontomys montanus,1
+8,Kangaroo rats removed,SH,Sigmodon hispidus,1
+9,All rodents removed,PP,Chaetodipus penicillatus,133
+9,All rodents removed,DM,Dipodomys merriami,58
+9,All rodents removed,DO,Dipodomys ordii,45
+9,All rodents removed,OT,Onychomys torridus,25
+9,All rodents removed,RM,Reithrodontomys megalotis,20
+9,All rodents removed,PB,Chaetodipus baileyi,16
+9,All rodents removed,PF,Perognathus flavus,6
+9,All rodents removed,RO,Reithrodontomys montanus,5
+9,All rodents removed,PE,Peromyscus eremicus,4
+9,All rodents removed,SS,Spermophilus spilosoma,3
+9,All rodents removed,OL,Onychomys leucogaster,1
+10,All rodents removed,PP,Chaetodipus penicillatus,60
+10,All rodents removed,RM,Reithrodontomys megalotis,18
+10,All rodents removed,PF,Perognathus flavus,11
+10,All rodents removed,PE,Peromyscus eremicus,8
+10,All rodents removed,DM,Dipodomys merriami,4
+10,All rodents removed,AH,Ammospermophilus harrisi,1
+10,All rodents removed,BA,Baiomys taylori,1
+10,All rodents removed,OT,Onychomys torridus,1
+10,All rodents removed,PB,Chaetodipus baileyi,1
+11,Unmanipulated control,PP,Chaetodipus penicillatus,93
+11,Unmanipulated control,DM,Dipodomys merriami,72
+11,Unmanipulated control,DO,Dipodomys ordii,20
+11,Unmanipulated control,OT,Onychomys torridus,9
+11,Unmanipulated control,PB,Chaetodipus baileyi,8
+11,Unmanipulated control,DS,Dipodomys spectabilis,4
+11,Unmanipulated control,RM,Reithrodontomys megalotis,4
+11,Unmanipulated control,SS,Spermophilus spilosoma,3
+11,Unmanipulated control,PE,Peromyscus eremicus,2
+11,Unmanipulated control,RO,Reithrodontomys montanus,1
+12,All rodents removed,PP,Chaetodipus penicillatus,87
+12,All rodents removed,RM,Reithrodontomys megalotis,48
+12,All rodents removed,PE,Peromyscus eremicus,44
+12,All rodents removed,DM,Dipodomys merriami,40
+12,All rodents removed,OT,Onychomys torridus,16
+12,All rodents removed,DO,Dipodomys ordii,8
+12,All rodents removed,NA,Neotoma albigula,6
+12,All rodents removed,SH,Sigmodon hispidus,4
+12,All rodents removed,PM,Peromyscus maniculatus,3
+12,All rodents removed,BA,Baiomys taylori,2
+12,All rodents removed,PB,Chaetodipus baileyi,2
+12,All rodents removed,SF,Sigmodon fulviventer,2
+12,All rodents removed,AH,Ammospermophilus harrisi,1
+12,All rodents removed,OL,Onychomys leucogaster,1
+12,All rodents removed,SS,Spermophilus spilosoma,1
+13,Unmanipulated control,PP,Chaetodipus penicillatus,113
+13,Unmanipulated control,DO,Dipodomys ordii,38
+13,Unmanipulated control,DM,Dipodomys merriami,34
+13,Unmanipulated control,PE,Peromyscus eremicus,18
+13,Unmanipulated control,OT,Onychomys torridus,16
+13,Unmanipulated control,RM,Reithrodontomys megalotis,7
+13,Unmanipulated control,PB,Chaetodipus baileyi,6
+13,Unmanipulated control,AH,Ammospermophilus harrisi,2
+13,Unmanipulated control,NA,Neotoma albigula,1
+13,Unmanipulated control,PM,Peromyscus maniculatus,1
+13,Unmanipulated control,SS,Spermophilus spilosoma,1
+14,Unmanipulated control,PP,Chaetodipus penicillatus,112
+14,Unmanipulated control,DM,Dipodomys merriami,101
+14,Unmanipulated control,OT,Onychomys torridus,20
+14,Unmanipulated control,DO,Dipodomys ordii,17
+14,Unmanipulated control,RM,Reithrodontomys megalotis,10
+14,Unmanipulated control,PB,Chaetodipus baileyi,6
+14,Unmanipulated control,PE,Peromyscus eremicus,5
+14,Unmanipulated control,SS,Spermophilus spilosoma,5
+14,Unmanipulated control,AH,Ammospermophilus harrisi,2
+14,Unmanipulated control,OL,Onychomys leucogaster,2
+14,Unmanipulated control,PM,Peromyscus maniculatus,1
+14,Unmanipulated control,RO,Reithrodontomys montanus,1
+14,Unmanipulated control,SH,Sigmodon hispidus,1
+15,Kangaroo rats removed,PP,Chaetodipus penicillatus,126
+15,Kangaroo rats removed,DM,Dipodomys merriami,20
+15,Kangaroo rats removed,AH,Ammospermophilus harrisi,13
+15,Kangaroo rats removed,PE,Peromyscus eremicus,11
+15,Kangaroo rats removed,OT,Onychomys torridus,10
+15,Kangaroo rats removed,RM,Reithrodontomys megalotis,9
+15,Kangaroo rats removed,PB,Chaetodipus baileyi,3
+15,Kangaroo rats removed,PF,Perognathus flavus,3
+15,Kangaroo rats removed,SH,Sigmodon hispidus,3
+15,Kangaroo rats removed,DO,Dipodomys ordii,2
+15,Kangaroo rats removed,OL,Onychomys leucogaster,1
+15,Kangaroo rats removed,RF,Reithrodontomys fulvescens,1
+15,Kangaroo rats removed,RO,Reithrodontomys montanus,1
+15,Kangaroo rats removed,SF,Sigmodon fulviventer,1
+16,All rodents removed,PP,Chaetodipus penicillatus,110
+16,All rodents removed,DM,Dipodomys merriami,53
+16,All rodents removed,RM,Reithrodontomys megalotis,21
+16,All rodents removed,PE,Peromyscus eremicus,20
+16,All rodents removed,OT,Onychomys torridus,16
+16,All rodents removed,PB,Chaetodipus baileyi,4
+16,All rodents removed,DO,Dipodomys ordii,2
+16,All rodents removed,PF,Perognathus flavus,2
+16,All rodents removed,PM,Peromyscus maniculatus,2
+16,All rodents removed,RO,Reithrodontomys montanus,2
+16,All rodents removed,AH,Ammospermophilus harrisi,1
+16,All rodents removed,NA,Neotoma albigula,1
+16,All rodents removed,OL,Onychomys leucogaster,1
+16,All rodents removed,PL,Peromyscus leucopus,1
+16,All rodents removed,RF,Reithrodontomys fulvescens,1
+17,Unmanipulated control,PP,Chaetodipus penicillatus,120
+17,Unmanipulated control,DM,Dipodomys merriami,107
+17,Unmanipulated control,OT,Onychomys torridus,23
+17,Unmanipulated control,PB,Chaetodipus baileyi,7
+17,Unmanipulated control,OL,Onychomys leucogaster,5
+17,Unmanipulated control,RM,Reithrodontomys megalotis,5
+17,Unmanipulated control,AH,Ammospermophilus harrisi,4
+17,Unmanipulated control,DO,Dipodomys ordii,3
+17,Unmanipulated control,PE,Peromyscus eremicus,3
+17,Unmanipulated control,SH,Sigmodon hispidus,2
+17,Unmanipulated control,PL,Peromyscus leucopus,1
+17,Unmanipulated control,PM,Peromyscus maniculatus,1
+17,Unmanipulated control,RO,Reithrodontomys montanus,1
+18,Unmanipulated control,PP,Chaetodipus penicillatus,99
+18,Unmanipulated control,DM,Dipodomys merriami,89
+18,Unmanipulated control,NA,Neotoma albigula,12
+18,Unmanipulated control,OT,Onychomys torridus,10
+18,Unmanipulated control,SH,Sigmodon hispidus,9
+18,Unmanipulated control,RM,Reithrodontomys megalotis,7
+18,Unmanipulated control,PE,Peromyscus eremicus,6
+18,Unmanipulated control,PB,Chaetodipus baileyi,5
+18,Unmanipulated control,SS,Spermophilus spilosoma,4
+18,Unmanipulated control,RO,Reithrodontomys montanus,2
+18,Unmanipulated control,AH,Ammospermophilus harrisi,1
+18,Unmanipulated control,OL,Onychomys leucogaster,1
+18,Unmanipulated control,SF,Sigmodon fulviventer,1
+19,Kangaroo rats removed,PP,Chaetodipus penicillatus,110
+19,Kangaroo rats removed,DM,Dipodomys merriami,27
+19,Kangaroo rats removed,PB,Chaetodipus baileyi,20
+19,Kangaroo rats removed,PE,Peromyscus eremicus,11
+19,Kangaroo rats removed,RM,Reithrodontomys megalotis,11
+19,Kangaroo rats removed,OT,Onychomys torridus,9
+19,Kangaroo rats removed,SH,Sigmodon hispidus,3
+19,Kangaroo rats removed,SS,Spermophilus spilosoma,3
+19,Kangaroo rats removed,PF,Perognathus flavus,2
+19,Kangaroo rats removed,PM,Peromyscus maniculatus,2
+19,Kangaroo rats removed,RO,Reithrodontomys montanus,2
+19,Kangaroo rats removed,AH,Ammospermophilus harrisi,1
+19,Kangaroo rats removed,PH,Chaetodipus hispidus,1
+19,Kangaroo rats removed,PL,Peromyscus leucopus,1
+20,Kangaroo rats removed,PP,Chaetodipus penicillatus,130
+20,Kangaroo rats removed,PB,Chaetodipus baileyi,40
+20,Kangaroo rats removed,DM,Dipodomys merriami,17
+20,Kangaroo rats removed,PE,Peromyscus eremicus,16
+20,Kangaroo rats removed,OT,Onychomys torridus,15
+20,Kangaroo rats removed,RM,Reithrodontomys megalotis,14
+20,Kangaroo rats removed,PF,Perognathus flavus,4
+20,Kangaroo rats removed,DO,Dipodomys ordii,2
+20,Kangaroo rats removed,PL,Peromyscus leucopus,2
+20,Kangaroo rats removed,PM,Peromyscus maniculatus,2
+20,Kangaroo rats removed,SF,Sigmodon fulviventer,2
+20,Kangaroo rats removed,BA,Baiomys taylori,1
+20,Kangaroo rats removed,RO,Reithrodontomys montanus,1
+21,Kangaroo rats removed,PP,Chaetodipus penicillatus,124
+21,Kangaroo rats removed,PB,Chaetodipus baileyi,62
+21,Kangaroo rats removed,RM,Reithrodontomys megalotis,14
+21,Kangaroo rats removed,DM,Dipodomys merriami,6
+21,Kangaroo rats removed,PE,Peromyscus eremicus,6
+21,Kangaroo rats removed,PF,Perognathus flavus,5
+21,Kangaroo rats removed,OT,Onychomys torridus,4
+21,Kangaroo rats removed,PM,Peromyscus maniculatus,3
+21,Kangaroo rats removed,BA,Baiomys taylori,2
+21,Kangaroo rats removed,SS,Spermophilus spilosoma,2
+21,Kangaroo rats removed,AH,Ammospermophilus harrisi,1
+21,Kangaroo rats removed,RO,Reithrodontomys montanus,1
+21,Kangaroo rats removed,SF,Sigmodon fulviventer,1
+22,Kangaroo rats removed,PP,Chaetodipus penicillatus,101
+22,Kangaroo rats removed,PB,Chaetodipus baileyi,66
+22,Kangaroo rats removed,OT,Onychomys torridus,15
+22,Kangaroo rats removed,PE,Peromyscus eremicus,9
+22,Kangaroo rats removed,RM,Reithrodontomys megalotis,9
+22,Kangaroo rats removed,PF,Perognathus flavus,8
+22,Kangaroo rats removed,OL,Onychomys leucogaster,5
+22,Kangaroo rats removed,RO,Reithrodontomys montanus,5
+22,Kangaroo rats removed,PH,Chaetodipus hispidus,2
+22,Kangaroo rats removed,DM,Dipodomys merriami,1
+23,All rodents removed,PP,Chaetodipus penicillatus,126
+23,All rodents removed,DM,Dipodomys merriami,71
+23,All rodents removed,PE,Peromyscus eremicus,31
+23,All rodents removed,PB,Chaetodipus baileyi,27
+23,All rodents removed,RM,Reithrodontomys megalotis,24
+23,All rodents removed,OT,Onychomys torridus,17
+23,All rodents removed,PM,Peromyscus maniculatus,5
+23,All rodents removed,DO,Dipodomys ordii,3
+23,All rodents removed,PF,Perognathus flavus,3
+23,All rodents removed,SH,Sigmodon hispidus,3
+23,All rodents removed,BA,Baiomys taylori,2
+23,All rodents removed,RO,Reithrodontomys montanus,2
+23,All rodents removed,NA,Neotoma albigula,1
+23,All rodents removed,OL,Onychomys leucogaster,1
+23,All rodents removed,SF,Sigmodon fulviventer,1
+24,Unmanipulated control,PP,Chaetodipus penicillatus,88
+24,Unmanipulated control,DM,Dipodomys merriami,77
+24,Unmanipulated control,PE,Peromyscus eremicus,31
+24,Unmanipulated control,OT,Onychomys torridus,23
+24,Unmanipulated control,DO,Dipodomys ordii,19
+24,Unmanipulated control,RM,Reithrodontomys megalotis,9
+24,Unmanipulated control,OL,Onychomys leucogaster,5
+24,Unmanipulated control,SH,Sigmodon hispidus,5
+24,Unmanipulated control,PB,Chaetodipus baileyi,4
+24,Unmanipulated control,AH,Ammospermophilus harrisi,2
+24,Unmanipulated control,NA,Neotoma albigula,2
+24,Unmanipulated control,PM,Peromyscus maniculatus,2
+24,Unmanipulated control,PL,Peromyscus leucopus,1
