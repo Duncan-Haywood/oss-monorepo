@@ -29,3 +29,4 @@
 - (2026-11-18) IDS structure against ids.xsd landed (structure.mjs, eval/ids-structure-2026-11-18.md: same verdict as IfcTester on 3,080 of 3,080 files; 12 of 65 public IDS break it). Next: an editor "fix it" for the common ones (move minOccurs from <specification> to <applicability>, IFC4X3 to IFC4X3_ADD2, the namespace), and XSD regex validity of xs:pattern values checked against the same validator.
 - (2026-11-18) IFC 4.3 infra/HVAC cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*)
 - (2026-11-18) 43 IFC4 STEP/ifcXML twins 2026-11-18 (eval/ifcxml-twins-2026-11-18.md: verdicts 108 to 129 of 129; href refs, decimal commas, flat point lists; B-spline rows from knot counts)
+- (2026-11-18) a model's property values 2026-11-17 (eval/model-values-2026-11-17.md: one-of or range from the model, ranges rounded outward, 1,014 of 1,014 pass their model; 82.0% of public facets editable)
