@@ -49,8 +49,11 @@ def michell_r(length, n, sep, k, interf, speeds):
 
 
 def swath_r(speeds):
-    rs.SPEEDS = speeds
-    tab, _, _ = rs.swath_tables(4.0, 0.6, 0.25, 0.5)
+    old, rs.SPEEDS = rs.SPEEDS, speeds
+    try:
+        tab, _, _ = rs.swath_tables(4.0, 0.6, 0.25, 0.5)
+    finally:
+        rs.SPEEDS = old
     return [rs.swath_r(row, 0.10, 1.0) for row in tab]
 
 
