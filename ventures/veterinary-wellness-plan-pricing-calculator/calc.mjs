@@ -138,7 +138,7 @@ export function analyze(inputs) {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["service", "qty_per_year", "list_total", "cost_total", "item_margin_pct"].join(",")];
   for (const r of a.lines) lines.push([q(r.name), r.qty, r.listTotal.toFixed(2), r.costTotal.toFixed(2), (r.marginPct * 100).toFixed(1)].join(","));
   lines.push("");

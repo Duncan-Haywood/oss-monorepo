@@ -132,6 +132,8 @@ test("parse errors and RFC restrictions become findings", () => {
   assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=MONTHLY;BYSETPOS=1").includes("setpos-alone"));
   assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=DAILY;COUNT=3;UNTIL=20260201T000000").includes("count-and-until"));
   assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=DAILY;UNTIL=20260201").includes("until-type"));
+  // The hint names the exact replacement value a user can paste.
+  assert.match(analyze({ text: "DTSTART:20260105T090000\nRRULE:FREQ=DAILY;UNTIL=20260201" }).findings.find((f) => f.code === "until-type").detail, /write UNTIL=20260201T235959 instead\.$/);
   assert.ok(codes("DTSTART;TZID=Europe/Paris:20260105T090000\nRRULE:FREQ=DAILY;UNTIL=20260201T090000").includes("until-not-utc"));
   assert.ok(codes("DTSTART;TZID=Mars/Olympus:20260105T090000\nRRULE:FREQ=DAILY;COUNT=2").includes("bad-tzid"));
   assert.ok(codes("DTSTART;VALUE=DATE:20260105\nRRULE:FREQ=HOURLY;COUNT=2").includes("subdaily-on-date"));

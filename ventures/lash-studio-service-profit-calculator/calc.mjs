@@ -152,7 +152,7 @@ export function compare(services, rawShared) {
 
 export function toCsv(cmp) {
   if (!cmp || !cmp.ranked.length) return "";
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return [
     "service,price,expected_revenue,card_fee,supplies,contribution,chair_hours,studio_cost_per_hour,take_home_per_hour,menu_hourly,price_for_target,break_even_bookings,value_per_client",
     ...cmp.ranked.map((r) => {

@@ -133,6 +133,6 @@ export function summaryText(r) {
 }
 
 export function claimsCsv(r) {
-  const q = (c) => `"${String(c).replace(/"/g, '""')}"`;
+  const q = (c) => { let v = String(c); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["applies_from,kind,claim,rule,instead", ...r.hits.map((c) => [APPLIES_FROM, c.kind, c.label, c.rule, c.fix].map(q).join(","))].join("\n");
 }

@@ -323,6 +323,6 @@ export function summaryText(r) {
 }
 
 export function dutiesCsv(r) {
-  const q = (c) => `"${String(c).replace(/"/g, '""')}"`;
+  const q = (c) => { let v = String(c); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["role,article,duty", ...r.duties.map((d) => [d.who, d.article, d.text].map(q).join(","))].join("\n");
 }

@@ -469,7 +469,7 @@ export function verifyPlan(s, res) {
 }
 
 export function planCsv(s, res) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["Female", "Male", "Offspring", "Chance per egg", "Expected hatchlings", "Price", "Price listed", "Expected net revenue", "Chance of at least one in the clutch"].join(",")];
   for (const p of res.ranked) {
     for (const r of p.rows) {

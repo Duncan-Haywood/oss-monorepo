@@ -554,7 +554,7 @@ export function optimize(input, o = {}) {
 }
 
 export function dispatchCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = ["crew,stop,job,arrive,depart,miles_from_previous,hours_on_site"];
   for (const c of r.crews) {
     c.stops.forEach((s, i) => lines.push([q(c.name), i + 1, q(s.name), fmtTime(s.arriveMinute), fmtTime(s.departMinute), s.legMiles.toFixed(1), s.hours].join(",")));

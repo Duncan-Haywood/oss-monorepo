@@ -276,7 +276,7 @@ export function repair(text, options = {}) {
 }
 
 export function findingsCsv(result) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["severity,line,title,detail", ...result.findings.map((f) => [f.severity, f.line || "", f.title, f.detail].map(q).join(","))].join("\n") + "\n";
 }
 

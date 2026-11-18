@@ -118,7 +118,7 @@ export function sampleInput() {
 }
 
 export function reportCsv(a) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const r = (label, v) => `${q(label)},${q(v)}`;
   const lines = [
     "Item,Value",

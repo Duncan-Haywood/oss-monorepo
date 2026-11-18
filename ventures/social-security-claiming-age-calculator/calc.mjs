@@ -249,7 +249,7 @@ export function analyze(raw) {
 }
 
 export function reportCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["claim_age", "monthly_benefit", "percent_of_full", "lifetime_total_today_dollars", "present_value_today_dollars"].join(",")];
   for (const r of a.single.rows) lines.push([q(r.label), r.monthly.toFixed(0), (r.factor * 100).toFixed(1), r.total.toFixed(0), r.pv.toFixed(0)].join(","));
   if (a.couple) {

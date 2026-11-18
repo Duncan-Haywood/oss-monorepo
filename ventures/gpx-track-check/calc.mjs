@@ -251,7 +251,7 @@ export function thin(text, maxPoints) {
 }
 
 export function findingsCsv(result) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["line,severity,code,message", ...result.findings.map((f) => [f.line, f.severity, f.code, q(f.message)].join(","))].join("\r\n") + "\r\n";
 }
 

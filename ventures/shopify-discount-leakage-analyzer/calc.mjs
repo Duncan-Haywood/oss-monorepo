@@ -269,7 +269,7 @@ export function analyze(orders, { cogsPct = null, feePct = 0.029, fixedFee = 0.3
 }
 
 export function codesCsv(result) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const head = "code,orders,list_price_sales,discount_given,discount_rate,average_order_value,refund_rate,new_sales_share_needed";
   return [head].concat(result.byCode.map((c) => [q(c.key), c.orders, c.gross.toFixed(2), c.discount.toFixed(2), c.rate.toFixed(4), c.aov.toFixed(2), c.refundRate.toFixed(4), c.breakEven === null ? "" : c.breakEven === Infinity ? "never" : c.breakEven.toFixed(4)].join(","))).join("\n");
 }

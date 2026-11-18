@@ -133,7 +133,7 @@ export function resultText(r) {
 export function resultCsv(r) {
   const head = "rank,item,units,invested,revenue,handling,card_fees,losses,storage,cash_per_year,depreciation,profit_per_year,roi,payback_years,breakeven_rentals,minimum_price";
   const num = (v) => (v === null ? "" : Math.round(v * 10000) / 10000);
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = r.ranked.map((x) => [x.rank, q(x.name), x.units, num(x.invested), num(x.revenue), num(x.handling), num(x.processing), num(x.losses), num(x.storage), num(x.cash), num(x.depreciation), num(x.profit), num(x.roi), num(x.paybackYears), num(x.breakevenRentals), num(x.minPrice)].join(","));
   return [head, ...rows].join("\n");
 }

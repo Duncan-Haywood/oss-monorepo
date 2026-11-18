@@ -125,7 +125,7 @@ export function sampleInput() {
   return { entity: "sole", netProfit: "58000", wages: "", otherWages: "", retirement: "4000", medical: "9600", medicare: "", ltc: "", age: "47", ineligibleMonths: "0", fedRate: "22", stateRate: "5" };
 }
 
-const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
 export function reportCsv(a) {
   const rows = [["Item", "Amount"],
     ["Premiums paid", round2(a.paid)],

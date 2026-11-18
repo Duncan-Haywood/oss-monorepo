@@ -550,7 +550,7 @@ export function optimize(input, o = {}) {
 }
 
 export function stockCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["part", "quantity", "unit cost", "total cost", "shelf slots", "jobs needing it", "jobs lost if dropped"].join(",")];
   for (const s of r.stock) rows.push([q(s.name), s.qty, s.unitCost.toFixed(2), s.cost.toFixed(2), s.space, s.jobsNeeding, s.jobsLostIfDropped].join(","));
   rows.push("");

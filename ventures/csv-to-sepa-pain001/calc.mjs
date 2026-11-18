@@ -286,7 +286,7 @@ export function buildXml({ instant = false, version, v, msgId, created, date, de
 }
 
 export function findingsCsv(result) {
-  const q = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s ?? ""); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["severity,line,title,detail", ...result.findings.map((f) => [f.severity, f.line ?? "", q(f.title), q(f.detail)].join(","))].join("\n") + "\n";
 }
 
