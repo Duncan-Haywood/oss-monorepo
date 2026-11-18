@@ -16,6 +16,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 // (which crashed the league page once anyone answered for that game). defineProperty makes "__proto__" an
 // ordinary own key, which JSON.stringify writes and JSON.parse reads back the same way.
 const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
+const ownList = (o, k) => { const v = own(o, k); return Array.isArray(v) ? v : []; };
 const ownOrSet = (o, k, make) => {
   if (!Object.hasOwn(o, k)) Object.defineProperty(o, k, { value: make(), enumerable: true, writable: true, configurable: true });
   return o[k];
@@ -165,7 +166,7 @@ export function parseRosters(text, teams) {
     if (at < 0) { errors.push(`"${line.slice(0, 40)}": write it as Team: name, name`); continue; }
     const team = byKey.get(line.slice(0, at).trim().toLocaleLowerCase());
     if (!team) { errors.push(`Roster for "${line.slice(0, at).trim().slice(0, 40)}": no team of that name`); continue; }
-    const list = (rosters[team] ||= []);
+    const list = ownOrSet(rosters, team, () => []);
     for (const part of line.slice(at + 1).split(",")) {
       if (!part.trim()) continue;
       const n = cleanName(part);
@@ -180,8 +181,8 @@ export function parseRosters(text, teams) {
 
 /** Roster names on `team` with no answer yet for `fixture`, in roster order. */
 export function notAnswered(store, fixture, team, rosters) {
-  const said = new Set((store?.[fixture]?.[team] || []).map((e) => e.name.toLocaleLowerCase()));
-  return (rosters?.[team] || []).filter((n) => !said.has(n.toLocaleLowerCase()));
+  const said = new Set((ownList(own(store, fixture), team)).map((e) => e.name.toLocaleLowerCase()));
+  return ownList(rosters, team).filter((n) => !said.has(n.toLocaleLowerCase()));
 }
 
 /**
@@ -189,7 +190,7 @@ export function notAnswered(store, fixture, team, rosters) {
  * point the name box at the picked team's list. Without script the box still takes any name.
  */
 export function rosterPickerHtml(games, rosters) {
-  const teams = [...new Set(games.flatMap((g) => [g.homeName, g.awayName]))].filter((t) => rosters?.[t]?.length);
+  const teams = [...new Set(games.flatMap((g) => [g.homeName, g.awayName]))].filter((t) => ownList(rosters, t).length);
   if (!teams.length) return "";
   const idx = new Map(teams.map((t, i) => [t, i]));
   const lists = teams.map((t) => `<datalist id="roster-${idx.get(t)}">${rosters[t].map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`).join("");
@@ -210,7 +211,7 @@ const isoDay = (day) => new Date(day * 86400000).toISOString().slice(0, 10);
 export function availabilityCsv(store, games, rosters = {}) {
   const rows = [["date", "time", "court", "team", "opponent", "player", "answer", "answered_at"]];
   for (const g of games) for (const [team, opp] of [[g.homeName, g.awayName], [g.awayName, g.homeName]]) {
-    for (const e of store?.[g.fixture]?.[team] || []) rows.push([isoDay(g.day), g.time, g.court, team, opp, e.name, e.status, e.at ? new Date(e.at).toISOString() : ""]);
+    for (const e of ownList(own(store, g.fixture), team)) rows.push([isoDay(g.day), g.time, g.court, team, opp, e.name, e.status, e.at ? new Date(e.at).toISOString() : ""]);
     for (const n of notAnswered(store, g.fixture, team, rosters)) rows.push([isoDay(g.day), g.time, g.court, team, opp, n, "no answer", ""]);
   }
   return rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
@@ -232,7 +233,7 @@ export function parseContacts(text, teams) {
     for (const part of line.slice(at + 1).split(/[,;\s]+/)) {
       if (!part) continue;
       if (!EMAIL.test(part) || part.length > 200) { errors.push(`${team}: "${part.slice(0, 60)}" is not an email address`); continue; }
-      (contacts[team] ||= []).includes(part) || contacts[team].push(part);
+      { const list = ownOrSet(contacts, team, () => []); if (!list.includes(part)) list.push(part); }
     }
   }
   return { contacts, errors };
@@ -256,7 +257,7 @@ export function remindersDue(store, games, { minPlayers = 0, today, daysAhead = 
     if (r.day < today || r.day > today + daysAhead) continue;
     const key = `${r.fixture}|${r.team}`;
     if (sent[key]) continue;
-    const to = [...(contacts[r.team] || [])];
+    const to = [...ownList(contacts, r.team)];
     if (organiser && !to.includes(organiser)) to.push(organiser);
     if (!to.length) continue;
     const quiet = notAnswered(store, r.fixture, r.team, rosters);

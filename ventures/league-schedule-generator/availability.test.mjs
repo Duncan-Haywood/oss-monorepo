@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
 import { readSpec, buildSchedule, sampleFields, applyRainouts } from "./calc.mjs";
-import { upcomingGames, cleanName, parseAvailability, recordAvailability, teamAnswers, shortTeams, availabilityHtml, shortTeamsHtml, nudgeText, MAX_NAMES } from "./availability.mjs";
+import { upcomingGames, cleanName, parseAvailability, recordAvailability, teamAnswers, shortTeams, availabilityHtml, shortTeamsHtml, nudgeText, MAX_NAMES, notAnswered, rosterPickerHtml, parseRosters, availabilityCsv, parseContacts, remindersDue } from "./availability.mjs";
 import { handler, emptyState } from "./server.mjs";
 
 const sample = () => buildSchedule(readSpec(sampleFields()).spec);
@@ -167,5 +167,20 @@ test("team names that are Object.prototype keys record, render and count like an
     // the state file round-trips the answers
     assert.deepEqual(teamAnswers(JSON.parse(JSON.stringify(store)), "f1", evil), { in: ["cy"], maybe: [], out: [] }, evil);
     assert.equal(({}).length, undefined, "Object.prototype untouched");
+    // rosters, contacts, the CSV export and reminders key by the same typed names
+    const noRoster = availabilityHtml(store, games, { minPlayers: 2, rosters: {} });
+    assert.match(noRoster, new RegExp(`${evil}: 1 in of 2`), evil);
+    assert.deepEqual(notAnswered(store, "f1", evil, {}), [], evil);
+    assert.equal(rosterPickerHtml(games, {}), "", evil);
+    const pr = parseRosters(`${evil}: Cy, Dee`, [evil, "Owls"]);
+    assert.deepEqual(pr.errors, [], evil);
+    assert.deepEqual(notAnswered(store, "f1", evil, pr.rosters), ["Dee"], evil);
+    assert.deepEqual(notAnswered(JSON.parse(JSON.stringify(store)), "f1", evil, JSON.parse(JSON.stringify(pr.rosters))), ["Dee"], evil);
+    assert.match(availabilityCsv(store, games, {}), new RegExp(`,${evil.replace(/_/g, "_")},Owls,cy,in,`), evil);
+    const pc = parseContacts(`${evil}: cap@example.org, cap@example.org`, [evil, "Owls"]);
+    assert.deepEqual([pc.errors, pc.contacts[evil]], [[], ["cap@example.org"]], evil);
+    const due = remindersDue(store, games, { minPlayers: 3, today: 20000, contacts: {}, organiser: "org@example.org" });
+    assert.deepEqual(due.map((d) => d.to), [["org@example.org"], ["org@example.org"]], evil);
+    assert.equal(remindersDue(store, games, { minPlayers: 3, today: 20000, contacts: {} }).length, 0, evil);
   }
 });

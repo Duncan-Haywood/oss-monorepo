@@ -48,6 +48,13 @@ key. The saved state file format did not change: `JSON.stringify` writes such
 a key and `JSON.parse` reads it back as an ordinary one, and a test now
 checks that round trip.
 
+While this run was going, another session added rosters, team contacts, a CSV
+export and email reminders to the same file, and they looked names up the
+same way. The new test caught it in CI the first time the branch was tested
+against the updated `main`: an inherited `constructor` reached `notAnswered`,
+which tried to call `.map` on a function. Every lookup by a typed name in the
+file now goes through the same three own-key helpers.
+
 ## The same bug, quieter, next door
 
 The multi-division side of the generator shares duties (snack stand,

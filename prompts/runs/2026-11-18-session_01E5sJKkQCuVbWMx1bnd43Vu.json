@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
@@ -35,6 +35,10 @@
     {
       "what": "First campaign started in the foreground with timeout 580 s; the venture suite's baseline alone is 232 s, so 8 mutants could not fit and the call was killed (file restored, clean).",
       "fix": "Re-ran with run_in_background."
+    },
+    {
+      "what": "First CI run red: changed-ventures failed because main had gained notAnswered/rosters/contacts code with the same inherited-key lookup, which the new test exercised.",
+      "fix": "Merged main, routed every typed-name lookup in availability.mjs through own/ownList/ownOrSet, extended the test."
     }
   ],
   "integrity_issues": [],
@@ -196,7 +200,7 @@
     "real_defects": [
       {
         "file": "ventures/league-schedule-generator/availability.mjs",
-        "issue": "Availability store looked up team names as plain object keys, so a team named constructor, toString, valueOf, hasOwnProperty or __proto__ got an inherited Object.prototype member: recording an answer for it threw (list.findIndex is not a function), and once anyone answered for that game the public league page and the admin page threw while rendering (function is not iterable). Reproduced with node; failing test 'team names that are Object.prototype keys...'. Fixed with own-key reads (Object.hasOwn) and defineProperty writes, so the JSON state file format is unchanged.",
+        "issue": "Availability store looked up team names as plain object keys, so a team named constructor, toString, valueOf, hasOwnProperty or __proto__ got an inherited Object.prototype member: recording an answer for it threw (list.findIndex is not a function), and once anyone answered for that game the public league page and the admin page threw while rendering (function is not iterable). Reproduced with node; failing test 'team names that are Object.prototype keys...'. Fixed with own-key reads (Object.hasOwn) and defineProperty writes, so the JSON state file format is unchanged. After merging main, the roster, contacts, CSV export and reminder code added there the same day (notAnswered, parseRosters, parseContacts, availabilityCsv, remindersDue, rosterPickerHtml) repeated the pattern; CI's merge run caught it through this run's new test (notAnswered threw), and the same own-key helpers now cover those paths, with the test extended to them.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17289"
       },
