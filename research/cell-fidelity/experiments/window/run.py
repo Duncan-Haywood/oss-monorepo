@@ -3,6 +3,7 @@ capacity factor that 5zq's straight line under-read?
 
     python experiments/window/run.py rows      # per design: forecasts A, N, NE, AE, FE, PE (stdlib)
     python experiments/window/run.py report    # H220 to H223 -> results.txt, summary.json
+    python experiments/window/run.py posthoc   # after the verdicts: the factors along the path -> posthoc.txt
 
     eta_n     = 5zc's solve_eta(n_Li - L_n, q_ch(n)), n = 2..10   symmetric cut-off shift putting 5r's open-circuit
                                                                   window capacity at the measured CC charge Ah
@@ -195,5 +196,46 @@ def report():
     print("\n".join(L))
 
 
+def _qpath(r, bal, ocp, cycles=(10, 20, 30, 50, 75, 99)):
+    b = CN._b(bal, ocp, (r["cond"], r["j"]))
+    q_ch = WL.q_ch(r["current_A"], r["t_ch"])
+    lost = r["lost_mol"]
+    eta = LD.eta_of(q_ch, lost, b, K)
+    l2, n_li = lost[1], b["n_li"]
+    ns = range(2, K + 1)
+    a, s = line_fit([lost[n - 1] for n in ns], [LD.solve_eta(n_li - lost[n - 1], b, q_ch[n - 1]) for n in ns])
+    cap = lambda nl, e: LD.cap_eta(nl, b, e)
+    qE = window_factor(cap, n_li, l2, clamp_line(a, s, 0.49 * (b["vhi"] - b["vlo"])))
+    qB = window_factor(cap, n_li, l2, lambda l: eta)
+    qm = RT.q_measured(lost, q_ch)
+    eta99 = LD.solve_eta(n_li - lost[TO - 2], b, q_ch[TO - 2])
+    out = dict(set=SK.pset(r["cond"]), eta99=1e3 * eta99)
+    for n in cycles:
+        l = lost[n - 1]
+        out[f"E{n}"], out[f"B{n}"] = PL.lnabs(qE(l) / qm(l)), PL.lnabs(qB(l) / qm(l))
+        out[f"sE{n}"], out[f"sB{n}"] = qE(l) / qm(l) - 1.0, qB(l) / qm(l) - 1.0
+    return out
+
+
+def posthoc():
+    """Post hoc, after the verdicts: signed q_E/q_M - 1 and q_B/q_M - 1 along the path, and the eta cycle 99 needs."""
+    runs = [r for r in B._load(EXP / "depth" / "bench.jsonl") if r.get("ok") and r.get("ok_cycles", 0) >= 100]
+    bals = {s: WL.SF._bal(EXP / s) for s in ("crossset", "calmap")}
+    rs = [_qpath(r, *bals[WL.SRC.get(r["cond"], "crossset")]) for r in runs]
+    med = PL._med
+    cyc = (10, 20, 30, 50, 75, 99)
+    L = ["cell-fidelity 5zr post hoc (after the verdicts): set median signed q_X(L_n)/q_M(L_n) - 1 along the path,",
+         "X = E (window with the ten-cycle eta line) or B (window with eta held at the law's mean); eta99 = the eta",
+         "the cycle-99 charge Ah needs (mV), against the line's forecast in results.txt.", "",
+         f"{'set':12s}{'X':>3s}" + "".join(f"{'n=' + str(n):>8s}" for n in cyc) + f"{'eta99':>9s}"]
+    for st in SETS:
+        t = [r for r in rs if r["set"] == st]
+        for x in ("E", "B"):
+            L.append(f"{st:12s}{x:>3s}" + "".join(f"{med(r[f's{x}{n}'] for r in t):8.3f}" for n in cyc)
+                     + (f"{med(r['eta99'] for r in t):9.2f}" if x == "E" else ""))
+    (HERE / "posthoc.txt").write_text("\n".join(L) + "\n")
+    print("\n".join(L))
+
+
 if __name__ == "__main__":
-    {"rows": rows, "report": report}[sys.argv[1] if len(sys.argv) > 1 else "report"]()
+    {"rows": rows, "report": report, "posthoc": posthoc}[sys.argv[1] if len(sys.argv) > 1 else "report"]()

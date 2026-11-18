@@ -1,0 +1,39 @@
+cell-fidelity milestone 5zr: the electrode-balance window with a ten-cycle line in eta (q_E) as the law's
+capacity factor, against 5zq's straight line (q_10) and 5zp's measured factor (q_M). 5zk's records, 40 designs,
+no new simulation. Set medians.
+
+set           n    e_A    e_N   e_NQ   e_NE   e_AE   e_FE   e_PE   e_PQ   NE<A   NE<N   AE<A
+Ai2020        8  0.083  0.023  0.086  0.028  0.068  0.086  0.060  0.080   6/8    2/8    7/8 
+Chen2020     12  0.082  0.059  0.055  0.054  0.101  0.082  0.023  0.014   5/12   6/12   2/12
+OKane2022    12  0.059  0.076  0.068  0.081  0.094  0.100  0.034  0.015   2/12   7/12   2/12
+NCA_Kim2011   8  0.022  0.048  0.101  0.057  0.020  0.057  0.013  0.011   1/8    4/8    6/8 
+
+set           e_NE30  e_NE50  e_AE30  e_AE50   e_A30   e_A50
+Ai2020         0.029   0.015   0.036   0.026   0.039   0.032
+Chen2020       0.052   0.035   0.059   0.030   0.046   0.020
+OKane2022      0.041   0.027   0.042   0.017   0.028   0.017
+NCA_Kim2011    0.023   0.012   0.011   0.007   0.013   0.011
+
+set             qE10    qM10    qE99    qB99  q10_99    qM99   qerrE   qerrB  qerr10
+Ai2020         1.058   1.046   1.863   2.071   1.196   1.921   0.076   0.040   0.512
+Chen2020       1.047   1.047   1.410   1.686   1.350   1.539   0.067   0.034   0.161
+OKane2022      1.048   1.045   1.403   1.638   1.344   1.532   0.068   0.024   0.157
+NCA_Kim2011    1.281   1.273   1.870   2.003   1.585   1.999   0.036   0.071   0.232
+
+set                eta2      eta10    eta_law      s_eta eta_line99
+Ai2020           150.52     143.74     147.16      -0.92     105.52
+Chen2020         388.23     382.18     385.96      -0.60     340.72
+OKane2022        397.07     391.53     394.43      -0.57     348.65
+NCA_Kim2011      196.23     178.45     182.83      -1.20     155.47
+
+(e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3, line through cycles 2..10 unless suffixed; A = 5zd's lever,
+ N = 5zn's node lever, both with the law's factor; NQ = N with 5zq's q_10; NE, AE = N, A with q_E;
+ FE = 5zq's F lever (N + D_10) with q_E; PE, PQ = 5zp's measured overpotential with q_E, q_M (read cycle 99);
+ q_E, q_B, q_10, q_M = window, balance-only, straight-line and measured q_ch(2)/q_ch(n) at L_10 or L_99;
+ qerrX = |ln(qX/q_M)| at L_99; eta2, eta10 = eta_n at cycles 2 and 10, eta_law = its ten-cycle mean,
+ eta_line99 = the ten-cycle eta line at L_99, all mV; s_eta in mV per mmol lost)
+
+H220 (|ln(q_E/q_M)| at 99 <= 0.10 on >= 3 of 4 sets): supported (4 <= 0.10, 0 > 0.25)
+H221 (q_E closer than q_10 on >= 3 of 4 sets): supported (4/4)
+H222 (e_NE below e_A on >= 3 of 4 sets): inconclusive (2/4)
+H223 (e_NE < e_A on >= 26 of 40 designs): refuted (14/40)
