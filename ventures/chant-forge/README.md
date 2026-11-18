@@ -1304,7 +1304,33 @@ The reference fix, measured but not registered:
   none with the rule) and c's C3 quarters (nasals still read, stops and others unmoved). Reader only; nothing in the
   synthesis changed. Not listened to.
 
-#### A murmur dark in every phase (2026-11-18, latest; opt-in)
+#### One voice at the chorus's level (2026-11-18, latest; opt-in)
+
+The round below left a question: the one-voice murmur gained on the dark-vowel parts but lost the Graduale nasals
+at final D3 (held-out D 12 to 8 of 12). `eval/murmur-one-diag.mjs` reads part D's final nasals both ways. All four
+losses are 242 ms eighth notes, and on each the one-voice murmur came out 7 to 11 dB louder against its vowel than
+the chorus's, too loud for the reader's level rule (a murmur more than 5 dB under the vowel). The cause is the
+divisor. `'one'` sets the voice at the chorus's *average* power, but on a short D3 note the five voices (0.6 to 2 Hz
+apart at the fundamental) barely drift in phase, so each note's chorus is frozen at one random alignment, its low
+band anywhere from near nothing to five times the average. The vowel shares that alignment; the one voice did not.
+
+`murmurSource: 'match'` (`--murmur match`) keeps the single voice but follows the chorus's low-passed power,
+averaged over 20 ms, and holds that gain from the moment a coda's murmur starts. Pre-registered before any other
+part was run with it ([`eval/murmur-match-check.md`](eval/murmur-match-check.md)), then the full read-back:
+
+- **More nasals read than either.** Summed over every nasal row: 2,220 against the default's 2,141 and `one`'s 2,163.
+  Held-out D 12 of 12, E 20 to 22 of 22, F 209 to 213 of 218, the dark-vowel parts a-d 116/133/123/136 to
+  134/137/135/141 of 144.
+- **No vowel-only control moved** (all 108 control and bare-vowel cells identical).
+- **But the registration partly failed.** R's nasal codas 48 to 47 of 48 and Z's 46 to 44 of 48, where it predicted no
+  loss, and the tuned set A 179 to 177 of 180 (E2 *am*, *an* read as a voiced labial stop). So it stays opt-in.
+
+Four of the five new misses read as a voiced labial stop: perhaps a held-level murmur fading with the release looks
+like a voice bar and a burst. Next: test that on fresh cells. Not listened to: `--murmur match` is the version to
+play first. `murmur-match.test.mjs` (2 tests): the level follows the chorus note by note (12 D3 seeds: `one` up to
+8 dB off, `match` within 5), and everything before the closure is the same samples.
+
+#### A murmur dark in every phase (2026-11-18; opt-in)
 
 The round above traced the cluster-onset -um misses to the synthesis: the murmur is the five detuned voices
 low-passed, the voices beat, and where the closure lands in the beating decides how dark the murmur is.
@@ -1324,9 +1350,7 @@ the same samples. Measured in [`eval/murmur-one-check.md`](eval/murmur-one-check
 - **Louder is worse.** At the level `nasalGain` assumes (the voice not divided), B's nasals fell 37 to 15 of 39: the
   reader needs the murmur well under the vowel.
 
-Next: find why the D3 Graduale nasals lose with a steady murmur (their misses, `eval/dark-nasal-diag.mjs` with
-`--opt`), then pre-register a rule or a level and run it on a part built on fresh cells. Not listened to:
-`--murmur one` is the comparison to play first. `murmur-one.test.mjs` (3 tests).
+Why the D3 Graduale nasals lose, and a level that fixes most of it: the round above. `murmur-one.test.mjs` (3 tests).
 
 #### A /u/ release read as a nasal (2026-11-17; registration untested, opt-in)
 

@@ -49,4 +49,10 @@ def test_warm_start_matches_cold_on_a_converged_set():
     w = tu.sc.selfcal_fixed_best(obs[list(v)], size, run.F_PRIOR, nk=1, refs=(0, len(v) // 2))
     assert cold[v]["status"] > 0 and w["status"] > 0
     assert w["f"] == pytest.approx(cold[v]["f"], rel=1e-6)
-    assert w["nfev"] <= cold[v]["nfev"]
+    # The evaluation count is compared with a cold solve run here, not with the stored one:
+    # MINPACK's LM path differs by SciPy/BLAS build, and on SciPy 1.18.1 / NumPy 2.5.3 this
+    # set takes 47 cold and 42 warm against the stored 22 and 12 (only 22 and 16 of 41 fr3
+    # 6-view counts matched the stored cold and warm ones, 2026-11-18). f agrees to 1e-6.
+    c = tu.sc.selfcal_fixed_best(obs[list(v)], size, tu.f0("fr3"), nk=1, refs=(0, len(v) // 2))
+    assert c["status"] > 0 and c["f"] == pytest.approx(cold[v]["f"], rel=1e-6)
+    assert w["nfev"] <= c["nfev"]

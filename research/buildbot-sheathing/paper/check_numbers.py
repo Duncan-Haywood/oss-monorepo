@@ -55,6 +55,8 @@ M46 = E + "m46_holdside/results.txt"
 M47 = E + "m47_poseside/results.txt"
 M48 = E + "m48_loadside/results.txt"
 M48P = E + "m48_loadside/posthoc.txt"
+M49 = E + "m49_backload/results.txt"
+M49P = E + "m49_backload/posthoc.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -229,6 +231,11 @@ CHECKS = [
     (M48, "  h1: poses on S_H 17 of 19", "At 8 of 34 poses no side has a plan"),
     (M48P, "  g1: 258 of 1530 pose-cases dropped", "the G1 has none in 258 of 1530 swept pose-cases"),
     (M48P, "  h1: 41 of 1938 pose-cases dropped", "the H1 in 41 of 1938"),
+    (M49, "50 N end: 0 of 24 cells balance; best cone slack -23.77 to -0.10 N", "(best cone slack −23.77 to −0.10 N)"),
+    (M49, "25 N end: 24 of 24 cells balance", "while the 25 N end balances at every cell"),
+    (M49P, "largest |F_h|/F_z 0.189 (mu 0.5)", "at most 0.189 of the\nvertical"),
+    (M49P, "  g1 [1.2, -0.15] | 20 | 180 | -20.0, +0.0, -11.7 | False | > 5 | 36.4 | 51.6", "falls from 51.6 to 36.4 N"),
+    (M49P, "  h1 [1.6, 0.0] | 20 | 180 | -20.0, +0.0, -13.8 | True | > 5 | 42.8 | 58.7", "58.7 to 42.8 N"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

@@ -594,7 +594,9 @@ const WALL = WALLARG === 'on' ? true : WALLARG === 'coda' ? 'coda' : false;
 // --local off: readCoda's closure and nasal levels against the reference alone (`localRef: false`, before the fourteenth round)
 // --murmur one: a nasal's murmur sung from one voice, not the beating chorus (sing.mjs `murmurSource: 'one'`, the
 // twenty-eighth round; README "A murmur dark in every phase")
-const MURMUR = args.includes('--murmur') && args[args.indexOf('--murmur') + 1] === 'one' ? 'one' : null;
+// --murmur match: the same voice, its level matched to the chorus's just before the murmur (`murmurSource: 'match'`,
+// README "One voice at the chorus's level")
+const MURMUR = args.includes('--murmur') && ['one', 'match'].includes(args[args.indexOf('--murmur') + 1]) ? args[args.indexOf('--murmur') + 1] : null;
 const LOCALARG = args.includes('--local') ? args[args.indexOf('--local') + 1] : '';
 // --anchor on: the closure rule against the last vowel-like frames, band by band (`closeAnchor: true`, the parallel rule)
 const ANCHORARG = args.includes('--anchor') ? args[args.indexOf('--anchor') + 1] : '';

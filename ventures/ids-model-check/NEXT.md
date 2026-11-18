@@ -25,3 +25,4 @@
 - (2026-11-18) facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: 68 IDS on HHS MEP 11.4M facet tests to 3.7M, 6.3-7.0 to 5.0-5.3 s; 219 MB 60.4 to 43.1 s, fits 1 GB)
 - (2026-11-18) property sets indexed by name 2026-11-18 (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same reports)
 - (2026-11-18) 65 public IDS vs IfcTester 2026-11-17 (1,661 of 1,736 same; unchecked subclasses reported, eval/corpus-crosscheck-*)
+- (2026-11-18) IDS editor 2026-11-16 (203,433 offered specs audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and classification-system gaps, eval/editor-2026-11-16.md)
