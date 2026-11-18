@@ -37,6 +37,29 @@ third party: zero dependencies, one JSON file on a disk you own.
 - **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
 - **Captain links and confirmed scores (2026-11-18, `confirm.mjs`):** `/admin` lists one captain link per team (`/league?t=LEAGUE_TOKEN&c=KEY`; the key is an HMAC of the team name under `ADMIN_KEY`, 22 characters, nothing stored), and with SMTP on, **Email each team its captain link** sends each team's link to its contacts only. A captain's page shows their team's games from the last 21 days, each with its state and a score form. When the other captain sends the same score, the line (`Hawks 3 - 1 Owls`, home first) goes into Results straight away and the game is closed, so it cannot be added twice (reports are keyed by fixture id, which follows a rained-out game). Different scores, and games only one captain has reported, wait in `/admin` under **Captain reports** with both scores side by side and **Use Hawks's** / **Use Owls's** / **Clear reports** buttons; a captain can resend to fix a typo until the game is closed. A wrong captain key counts as a wrong link for the lockout. What this replaces: the organiser typing or approving every score, which is the chore score-confirmation in paid league apps exists to remove. Limits: anyone holding a team's captain link can report for that team (the same trust as the league link), a score the organiser typed by hand is not matched to a fixture, so do not also approve that game from captain reports, and nothing here is a dispute process: the organiser's choice is final. Tested in `confirm.test.mjs` (keys, confirm and dispute, the 21-day window, the full server flow and the emails); not yet used by a real league.
+- **Move requests (2026-11-18, latest, `reschedule.mjs`):** a captain's page lists their team's next 12 games, each
+  with **Ask to move this game**: pick a later date (up to 180 days on) and an optional note. The date is checked
+  against the live season before the request is stored: the season is rebuilt with the Rainouts line the organiser
+  would type (`2026-10-20 Hawks, Owls -> 2026-10-22`), and the request is refused with the reason unless the game
+  lands on that date (both teams free, not blacked out, a court and slot open, the team limits kept) and no other game
+  moves. The other captain sees the request on their own captain link, with the note, and clicks **Agree** or
+  **Decline**; with SMTP on, their team's contacts get one email with their captain link. An agreed move shows in
+  `/admin` under **Move requests** with **Approve the move** and **Refuse**. Approve re-checks the date against the
+  season as it is now, appends the line to Rainouts (so it stays visible and editable), and, with SMTP on, sends both
+  teams the usual change email; a date that no longer fits closes the request with the reason. Only later dates
+  (the rainout mover's rule); a night when either team plays twice is refused, since a rainout line names teams, not one
+  game. Requests are keyed by fixture id and dropped when the game passes or another edit moves it. Captains can
+  withdraw their own; one open request per game; 200 at most in the state file.
+  - Alternatives: LeagueApps and TeamSnap handle reschedules as messages between coaches and an admin who edits the
+    game by hand; a group chat does the same with no check that the new date is free. This checks the date first, gets
+    both captains' agreement in the open, and turns the organiser's part into one click.
+  - Checked: `reschedule.test.mjs` (9 tests: a free day lands with no other fixture moved and the schedule valid; a
+    night either team plays, an earlier date, a blacked-out team and a doubleheader night are refused; the request
+    state machine (only the other captain answers, only the asker withdraws, one open request a game, re-asking after a
+    decline); pruning; escaping of the note; and through the HTTP server: ask, agree, approve with the line written,
+    the game on its new date and three emails sent; a misfit date refused at once; another team's captain and the plain
+    link refused; approval before agreement refused; refuse shown to captains; a blackout added after agreement making
+    approval fail). No real league has used it yet.
 - **Who's playing (2026-11-18):** the player page lists the games on the next two match days with a count per team (`5 in of 7, 1 maybe, 2 out`, then the names), and one form: pick the game and team, type a first name, choose In, Maybe or Out. The same name (any case) answering again changes its answer; answers are keyed by the fixture id, so they follow a rained-out game to its new date; answers for games no longer coming up are pruned on every write, and a team takes at most 60 names a game, so the state file stays small. In `/admin`, set **Players a team needs on the night**: the admin page then lists every team below it for those games (`Owls: 3 in, short 4; 2 maybe, 1 out`) with a message to paste into that team's chat, so a forfeit is seen days ahead, not at the court. Anyone with the player link can answer for any name, the same trust as the link itself; there are no accounts. `availability.mjs`, tests in `availability.test.mjs`.
 - **Subs (2026-11-18):** the player page has a **Subs** section: anyone free on one of the next match nights types a first name and clicks **I can sub** (or **Take me off**). In `/admin`, every team short of players shows the subs free that night, each with a **Place** button; placing one writes an In answer for that team's game marked `(sub)`, so the team stops showing as short, the counts on the league page include them, and the CSV says `in (sub)`. A sub already In for their own team that night, or already placed, is not offered again. The copy-ready nudge and the reminder email list the free subs too (`Subs free that night: Dee, Eli.`). A placed sub who takes themselves off also comes off that team, so the team shows short again. The pool keeps only the coming nights and at most 40 names a night. `subs.mjs`, tests in `subs.test.mjs`.
 - **Alternatives for subs:** a spreadsheet or group chat of "sub list" names, matched by hand to whoever is short; team apps track RSVPs per team, not a pool across the league. This matches the pool to the short teams by night.
@@ -94,7 +117,7 @@ third party: zero dependencies, one JSON file on a disk you own.
     and its formula guard; the per-address limit; the payment-link filter; the confirmation email; and through the
     HTTP server: closed by default, sign-up, waitlist, kept values on a bad form, admin approve, decline, paid and CSV,
     and saving the settings). No real league has used it yet.
-- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs registration.test.mjs`.
+- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs registration.test.mjs confirm.test.mjs reschedule.test.mjs`.
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
