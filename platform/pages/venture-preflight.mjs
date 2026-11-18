@@ -117,7 +117,14 @@ function changedText(...pathspecs) {
 
 function changedTextFiltered(filter, ...pathspecs) {
   const git = (args) => spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
-  let diff = git(['diff', '--name-only', `--diff-filter=${filter}`, 'origin/main', '--', ...pathspecs]);
+  // --merge-base: from where the branch left main, not main's tip. Once
+  // origin/main moves on, a plain `diff origin/main` lists main's own new files
+  // as this branch's: on an untouched branch it named 30 platform/ci files, so
+  // treeCheckArgs ran all 174 unit-test files anyway (2026-11-18). A shallow
+  // clone often has no merge base: then the tip diff (over-inclusive, so only
+  // slower), then HEAD.
+  let diff = git(['diff', '--name-only', `--diff-filter=${filter}`, '--merge-base', 'origin/main', '--', ...pathspecs]);
+  if (diff.status !== 0) diff = git(['diff', '--name-only', `--diff-filter=${filter}`, 'origin/main', '--', ...pathspecs]);
   if (diff.status !== 0) diff = git(['diff', '--name-only', `--diff-filter=${filter}`, 'HEAD', '--', ...pathspecs]);
   const untracked = git(['ls-files', '--others', '--exclude-standard', '--', ...pathspecs]);
   return [diff.stdout, untracked.stdout];
