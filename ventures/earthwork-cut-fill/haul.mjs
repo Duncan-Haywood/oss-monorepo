@@ -255,5 +255,8 @@ export function haulCsv(h, units) {
   for (const m of h.moves) rows.push(['haul', f(m.from[0]), f(m.from[1]), f(m.to[0]), f(m.to[1]), f(m.volume), f(m.distance, 2)]);
   for (const e of h.exports) rows.push(['export', f(e.from[0]), f(e.from[1]), '', '', f(e.volume), '']);
   for (const e of h.imports) rows.push(['import', '', '', f(e.to[0]), f(e.to[1]), f(e.volume), '']);
-  return rows.map(r => r.join(',')).join('\n') + '\n';
+  // Formula-injection guard: every cell here is a number or a fixed word, but
+  // a text cell that starts like a formula is defused anyway.
+  const cell = v => (typeof v === 'number' ? String(v) : /^[=+\-@\t\r]/.test(String(v)) ? `'${v}` : String(v));
+  return rows.map(r => r.map(cell).join(',')).join('\n') + '\n';
 }
