@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, offBound, boundOutOfReach, VACANCY, laneTargets, parseLaneAvoid, matchShape, avoidShapeSlots, feasibleDealing } from "./bowling.mjs";
+import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, offBound, boundOutOfReach, VACANCY, laneTargets, parseLaneAvoid, matchShape, avoidShapeSlots, feasibleDealing, cutRepeats, laneLimits } from "./bowling.mjs";
 import { LANE_SHAPES } from "./bowling-avoid-shapes.mjs";
 import { LANE_TABLE } from "./bowling-lane-table.mjs";
 import { OUT_OF_REACH } from "./bowling-proofs.mjs";
@@ -262,6 +262,39 @@ test("the season polish keeps back-to-back repeats low (12 teams, 30 weeks: 17 r
   const r = laneReport(s);
   assert.ok(r.worstSpread <= 2, `spread ${r.worstSpread}`);
   assert.ok(r.repeats <= 17, `repeats ${r.repeats}`);
+});
+
+const repeatsOf = (plan, n) => {
+  const last = new Array(n).fill(-1); let r = 0;
+  for (const wk of plan) for (const [a, b, p] of wk) for (const t of [a, b]) { if (last[t] === p) r++; last[t] = p; }
+  return r;
+};
+const plainRounds = (n, W) => { const cyc = roundRobin(n); return Array.from({ length: W }, (_, k) => cyc[k % cyc.length].matches); };
+
+test("the repeat anneal never unbalances a season or adds a repeat, keeps lane limits, and cuts repeats (6 teams, 26 weeks)", () => {
+  for (const [n, W] of [[6, 26], [8, 34], [10, 26]]) {
+    const P = n / 2;
+    const before = assignLanes(plainRounds(n, W), n, P, { anneal: false });
+    const lim = laneLimits(before, n, P, null);
+    const after = cutRepeats(before, n, P, 1, 200000, lim);
+    assert.equal(offBound(after, n, P), 0, `${n}x${W} balance`);
+    assert.ok(repeatsOf(after, n) <= repeatsOf(before, n), `${n}x${W} repeats`);
+    after.forEach((wk, w) => { assert.equal(new Set(wk.map((m) => m[2])).size, P); assert.deepEqual(wk.map(([a, b]) => [a, b]), before[w].map(([a, b]) => [a, b])); });
+  }
+  const P = 3, before = assignLanes(plainRounds(6, 26), 6, P, { anneal: false });
+  assert.ok(repeatsOf(cutRepeats(before, 6, P, 1, 200000, laneLimits(before, 6, P, null)), 6) < repeatsOf(before, 6));
+  // With lane limits the anneal still never puts a team on a pair it avoids.
+  const s = bowlingSchedule({ teams: names(8), weeks: 30, start: START, laneAvoid: "Team 1: last\nTeam 2: 1-2" });
+  assert.deepEqual(validateBowling(s), []);
+  for (const wk of s.weeks) for (const m of wk.matches) {
+    if (m.a === 0 || m.b === 0) assert.notEqual(m.pair, 3);
+    if (m.a === 1 || m.b === 1) assert.notEqual(m.pair, 0);
+  }
+  // An unbalanced season is returned as it is.
+  const off = [[[0, 1, 0], [2, 3, 1]], [[0, 2, 0], [1, 3, 1]], [[0, 3, 0], [1, 2, 1]]];
+  const lim = laneLimits(off, 4, 2, null);
+  assert.ok(offBound(off, 4, 2) > 0);
+  assert.deepEqual(cutRepeats(off, 4, 2, 1, 1000, lim), off);
 });
 
 test("lane limits: a team never bowls on a pair it avoids, and every team lands in its fair share", () => {
