@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtGkgGCjVeQ5pE3Z2nk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T00:15:08Z",
+  "ended": "2026-11-18T01:45:08Z",
+  "wall_minutes": 92.72,
+  "tokens_in": 18669354,
+  "tokens_out": 70049,
+  "cost_usd": 6.7095,
+  "tool_calls": 122,
+  "task": "photo-editing (flagship 7) buildable: card-level noise floor on real multi-frame raw.pixls.us sets",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17112",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Scratchpad manifest used relative paths; card_scenes.py run from the venture dir skipped all 158 files until made absolute.",
+    "xargs -P children sharing stdout merged two JSON rows into one line (print writes row and newline separately); repaired by splitting at '}{' and fixed in the tool with emit().",
+    "fit assumed a 'true' arm; a --cap sweep has none (fixed).",
+    "The fresh fetch reached 10 GB of 12 GB free disk; it finished on its own at 521 files."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The buildable item said 'real multi-frame raw.pixls.us sets' without warning that most of them are one scene saved several ways (ISO series, bit depths, aspect ratios); a floor over those strips nothing. Found only after downloading."
+    },
+    {
+      "file": "ventures/photo-editing/eval/noise-scale-per-frame-2026-11-17.md",
+      "issue": "Reproduce commands pipe four xargs processes into one stdout; that interleaves rows (now fixed with emit())."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No marketing page or llms.txt change: this run landed an evaluation and tools, not a user-facing feature; the develop is unchanged.",
+      "did": "Wrote README, NEXT.md, eval note and post instead.",
+      "result": "No user-facing surface changed."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No venture-preflight run: no page or product surface changed, only tools/, eval/, tests and docs.",
+      "did": "Ran the photo-editing test suite and check_posts.",
+      "result": "run_venture_tests.py photo-editing: ok, 1312 tests (9 skipped), 170 s; check_posts ok."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-photo-editing-card-noise-floor-three-rules-none-passed.md",
+    "ventures/photo-editing/eval/noise-card-floor-real-2026-11-18.md"
+  ],
+  "goal": "Deepen flagship 7: test whether a card-level noise floor makes the frame-read noise model safe enough to raise its gain.",
+  "notes": "Negative result under three pre-committed rules (each committed before its scored rows existed; rule 2 and 3 after earlier held rows were seen, disclosed). cap@1.5 on 153 fresh bodies: 24 -> 7 rows worse than directional, 0 added, -0.0148 dB luma vs a 0.01 bar. Shipped default worse than directional >0.1 dB on 42 of 5,312 real rows. raw.pixls.us: 75/158 and 142/513 files repeat a scene. Verification: run_venture_tests.py photo-editing ok (1312 tests, 9 skipped); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7bdde61a-dd9b-51ee-bebf-0326237c860e",
+    "transcripts": 1,
+    "first": "2026-11-18T00:15:08Z",
+    "last": "2026-11-18T01:47:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 120,
+        "input": 231,
+        "output": 70049,
+        "thinking": 16368,
+        "cache_read": 18467359,
+        "cache_write_5m": 0,
+        "cache_write_1h": 201764,
+        "api_equivalent_usd": 6.7095,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 120,
+      "input": 231,
+      "output": 70049,
+      "thinking": 16368,
+      "cache_read": 18467359,
+      "cache_write_5m": 0,
+      "cache_write_1h": 201764,
+      "api_equivalent_usd": 6.7095,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 122,
+    "tools": {
+      "Bash": 114,
+      "ToolSearch": 3,
+      "Write": 3,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 92.72,
+      "active_minutes": 92.72,
+      "model_minutes": 13.78,
+      "tool_minutes": 78.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a researcher fetching and deduplicating ~680 raws from 182 bodies, writing the grouping tool, three pre-registered sweeps and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 238.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
