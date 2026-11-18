@@ -3,7 +3,7 @@
 // per month, created/endedAt in ms (endedAt null while alive).
 
 const DAYS_PER_MONTH = 30.4375;
-const PER_MONTH = { day: DAYS_PER_MONTH, week: DAYS_PER_MONTH / 7, month: 1, year: 1 / 12 };
+export const PER_MONTH = { day: DAYS_PER_MONTH, week: DAYS_PER_MONTH / 7, month: 1, year: 1 / 12 };
 
 // Minor units per month for one price line. Unknown intervals count as 0
 // rather than guessing, so a bad row cannot inflate the headline number.
