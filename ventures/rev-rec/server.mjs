@@ -41,6 +41,7 @@ export async function sync(cfg) {
   return { lines: Object.keys(st.lines).length, added: fresh.length, skipped: st.skipped, full };
 }
 
+const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
 const usable = (st) => Object.values(st.lines).filter((l) => l.currency === st.currency);
 
 // cfg: {state, save, stripe, adminKey, company, currency, now, accounts}
@@ -58,14 +59,16 @@ export function handler(cfg) {
       if (!authorized(req.headers.authorization, cfg.adminKey)) return send(401, "sign in with ADMIN_KEY as the password\n", "text/plain", { "www-authenticate": 'Basic realm="Rev Rec", charset="UTF-8"' });
       const now = cfg.now(), lines = usable(cfg.state);
       const closedThrough = url.searchParams.get("closed_through") || cfg.closedThrough || null;
-      if (closedThrough && !/^\d{4}-(0[1-9]|1[0-2])$/.test(closedThrough)) return send(400, "closed_through must be YYYY-MM\n", "text/plain");
+      if (closedThrough && !MONTH.test(closedThrough)) return send(400, "closed_through must be YYYY-MM\n", "text/plain");
       const rows = schedule(lines, { asOf: now, closedThrough });
       if (req.method === "GET" && url.pathname === "/") {
         return send(200, renderDashboard({ company: cfg.company || "Your company", summary: rows.length ? summary(rows, now) : null, rows, currency: cfg.state.currency || "usd", lastSyncAt: cfg.state.lastSyncAt, lineCount: lines.length, skipped: cfg.state.skipped }), "text/html; charset=utf-8", { "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
       }
       if (req.method === "GET" && url.pathname === "/v1/schedule") return send(200, { currency: cfg.state.currency, lastSyncAt: cfg.state.lastSyncAt, summary: rows.length ? summary(rows, now) : null, months: rows });
       if (req.method === "GET" && url.pathname === "/v1/journal.csv") {
+        // Months compare as text, so "2026-3" or "March" would keep every month (red team 2026-11-18).
         const through = url.searchParams.get("through");
+        if (through && !MONTH.test(through)) return send(400, "through must be YYYY-MM\n", "text/plain");
         const rs = rows.filter((r) => !r.future && (!through || r.month <= through));
         return send(200, journalCsv(journal(rs, { ...cfg.accounts, currency: cfg.state.currency || "usd" })), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="rev-rec-journal.csv"' });
       }
