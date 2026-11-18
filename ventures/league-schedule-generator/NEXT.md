@@ -19,3 +19,7 @@
 - (2026-11-17) 47 on 8x9 (13 of 16; LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new model, orbit or symmetry-broken night)
 - (2026-11-18) repeats in the SAT-table seasons (9-39 vs 6-21)
 - (2026-11-18) SAT answers for the 27 unanswered grid seasons (16x40, 22-28 teams; eval/bowling-lane-table.txt)
+- (2026-11-18) proved impossible: 7, 9 on 2x6
+- (2026-11-18) on 9 slots 11, 13 teams on 2 courts, 17 on 3
+- (2026-11-18) 8 on 2x6, 12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25 teams 0 waits on 6 slots
+- (2026-11-18) availability follow-ups (availability.mjs): an optional roster per team so a name picks from a list, a reminder on the deployer's own SMTP (env vars, off by default) two days before a short team's game, and a CSV of the answers for the organiser

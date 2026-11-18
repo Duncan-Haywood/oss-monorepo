@@ -1,4 +1,4 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -7,7 +7,15 @@ import { readApp, titleOf, descriptionOf, MAX_FILES } from './catalog.mjs';
 import { build, loadTemplates } from './build.mjs';
 import { composeRepo } from './compose.mjs';
 
-const tmp = () => fs.mkdtemp(path.join(os.tmpdir(), 'deploy-'));
+// Every directory made here is removed after the file: the built catalogues
+// are about 110 MB, and until 2026-11-18 every run left them in the temp dir.
+const made = [];
+const tmp = async () => {
+  const d = await fs.mkdtemp(path.join(os.tmpdir(), 'deploy-'));
+  made.push(d);
+  return d;
+};
+after(() => Promise.all(made.map((d) => fs.rm(d, { recursive: true, force: true }))));
 
 test('titleOf / descriptionOf read the page head', () => {
   const html = '<title> A  B </title><meta name="description" content="does a thing">';

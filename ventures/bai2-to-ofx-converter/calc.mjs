@@ -213,6 +213,7 @@ export function validate(text, opts = {}) {
         else if (declaredCount !== actualCount) add("error", "49-RECORDS", r.line, `Account trailer says ${declaredCount} records, the account has ${actualCount}`, "The count includes the 03 record, every 16, every 88 continuation and the 49 itself. A deleted or wrapped line is the usual cause.");
         account.declared = Number.isNaN(declared) ? 0 : declared;
         account.convention = matched ? matched[0] : null;
+        account.conventions = Number.isNaN(declared) ? [] : Object.entries(options).filter(([, v]) => v === declared).map(([k]) => k);
         account.trailer = r;
         // Balance roll-forward: opening ledger + net detail = closing ledger.
         const open = account.statuses.find((s) => s.code === 10), close = account.statuses.find((s) => s.code === 15);
@@ -228,7 +229,7 @@ export function validate(text, opts = {}) {
           if (seen.has(k)) add("warning", "DUP", t.line, "Possible duplicate transaction", `Line ${seen.get(k)} has the same type, amount and bank reference ${t.bankRef}. Check it is not posted twice.`);
           else seen.set(k, t.line);
         }
-        summary.accountList.push({ number: account.number, masked: mask(account.number), currency: account.currency, date: group.asOf, line: account.rec.line, txns: account.txns, statuses: account.statuses, summaries: account.summaries, count: account.txns.length, credit: account.txns.filter((t) => t.kind === "credit").reduce((s, t) => s + t.amount, 0), debit: account.txns.filter((t) => t.kind === "debit").reduce((s, t) => s + t.amount, 0), declared: account.declared, convention: account.convention });
+        summary.accountList.push({ number: account.number, masked: mask(account.number), currency: account.currency, date: group.asOf, line: account.rec.line, txns: account.txns, statuses: account.statuses, summaries: account.summaries, count: account.txns.length, credit: account.txns.filter((t) => t.kind === "credit").reduce((s, t) => s + t.amount, 0), debit: account.txns.filter((t) => t.kind === "debit").reduce((s, t) => s + t.amount, 0), declared: account.declared, convention: account.convention, conventions: account.conventions });
         group.accounts.push(account);
         account = null;
         break;
@@ -287,8 +288,12 @@ export function repair(text) {
   if (!parsed.length || parsed[0].code !== "01") return { text: null, changes: [], error: "A file header (01) is needed before trailers can be rebuilt." };
   // Which 49 convention does the file use? The one most accounts already follow; default to summaries + detail.
   const votes = {};
-  for (const g of res.summary.accountList) if (g.convention) votes[g.convention] = (votes[g.convention] || 0) + 1;
-  const convention = Object.keys(votes).sort((a, b) => votes[b] - votes[a])[0] || "summaries and detail";
+  // An account whose total fits several conventions (all zero, say) votes for each, and a tie goes to the default,
+  // so the trailers a repair writes vote the same way on the next pass (fuzz find, 2026-11-18: a tie used to go to
+  // whichever account came first, and a second repair rewrote what the first had written).
+  for (const g of res.summary.accountList) for (const c of g.conventions || []) votes[c] = (votes[c] || 0) + 1;
+  const DEFAULT = "summaries and detail";
+  const convention = Object.keys(votes).sort((a, b) => votes[b] - votes[a] || (b === DEFAULT) - (a === DEFAULT))[0] || DEFAULT;
 
   const out = [];
   const changes = [];

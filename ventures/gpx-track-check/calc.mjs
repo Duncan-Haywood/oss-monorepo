@@ -152,19 +152,26 @@ export function repair(text) {
   const changes = [];
   if (!g.root) return { text, changes };
   let out = text;
-  // 1. Drop exact no-fix (0,0) points, byte-identical consecutive duplicates and empty segments.
-  const drop = [];
-  for (const seg of g.segments) {
-    if (!seg.points.length) { if (seg.kind === "trkseg") drop.push({ raw: seg.raw, why: `removed an empty <trkseg> (line ${seg.line})` }); continue; }
-    let prevRaw = null;
-    for (const pt of seg.points) {
-      const norm = pt.raw.replace(/\s+/g, " ");
-      if (pt.lat === 0 && pt.lon === 0) drop.push({ raw: pt.raw, why: `removed the 0,0 no-fix point on line ${pt.line}` });
-      else if (prevRaw !== null && norm === prevRaw) drop.push({ raw: pt.raw, why: `removed an exact duplicate of the previous point on line ${pt.line}`, dup: true });
-      prevRaw = norm;
+  // 1. Drop exact no-fix (0,0) points, byte-identical consecutive duplicates and empty segments. Repeat until
+  // nothing more drops: a segment whose only points were 0,0 is empty once they go, and used to survive until a
+  // second repair (fuzz find, 2026-11-18). Line numbers after the first round are in the partly cleaned file.
+  for (let round = 0, gg = g; round < 8; round++, gg = parse(out)) {
+    const was = out;
+    const after = round ? " after the removals above" : "";
+    const drop = [];
+    for (const seg of gg.segments) {
+      if (!seg.points.length) { if (seg.kind === "trkseg") drop.push({ raw: seg.raw, why: `removed an empty <trkseg> (line ${seg.line}${after})` }); continue; }
+      let prevRaw = null;
+      for (const pt of seg.points) {
+        const norm = pt.raw.replace(/\s+/g, " ");
+        if (pt.lat === 0 && pt.lon === 0) drop.push({ raw: pt.raw, why: `removed the 0,0 no-fix point on line ${pt.line}${after}` });
+        else if (prevRaw !== null && norm === prevRaw) drop.push({ raw: pt.raw, why: `removed an exact duplicate of the previous point on line ${pt.line}${after}`, dup: true });
+        prevRaw = norm;
+      }
     }
+    for (const d of drop) { const i = out.indexOf(d.raw); if (i >= 0) { const before = out.length; out = out.slice(0, i) + out.slice(i + d.raw.length); if (out.length < before) changes.push(d.why); } }
+    if (out === was) break;
   }
-  for (const d of drop) { const i = out.indexOf(d.raw); if (i >= 0) { const before = out.length; out = out.slice(0, i) + out.slice(i + d.raw.length); if (out.length < before) changes.push(d.why); } }
   // 2. Root element: version, creator, xmlns.
   const r = /<gpx\b([^>]*)>/.exec(out);
   let attrs = r[1];

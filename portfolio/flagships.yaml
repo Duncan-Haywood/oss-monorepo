@@ -381,27 +381,27 @@ flagships:
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
       schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
       eval/platform-templates-2026-11-17.md; calendar ids per fixture,
-      eval/ics-stable-uids.txt; bowling seasons, lane pairs rotated evenly: 36 of 36
-      at the bound 2026-11-18 via a focused walk and stored SAT answers, P-week
-      seasons proved UNSAT, eval/bowling-lane-table.txt). 3-game nights
+      eval/ics-stable-uids.txt; In/Maybe/Out per game and short teams on the league
+      page, availability.mjs 2026-11-18; bowling seasons, lane pairs rotated evenly:
+      36 of 36 at the bound 2026-11-18 via a focused walk and stored SAT answers,
+      P-week seasons proved UNSAT, eval/bowling-lane-table.txt). 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
-      every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6,
-      12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
-      teams 0 waits on 6 slots; on 9 slots 11, 13 teams on 2 courts, 17 on 3; proved
-      impossible: 7, 9 on 2x6; 5, 7 on 1x9; 7 on 2x9. Night by night
-      (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6; fails at <=3 spare slots
-      (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37 on
-      6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0 waits
-      (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9
-      0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with the
-      short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Bowling seasons
-      proved uneven (SAT, 44 of 4-32 teams x 1-60 weeks, page says so;
-      eval/bowling-bound-proof.txt). Lane limits (team avoids a pair, hard;
-      eval/bowling-lane-avoid.txt). Limits per shape
+      every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on
+      1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6;
+      fails at <=3 spare slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on
+      4x9, 31 on 5x9, 37 on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46
+      on 3 sessions 0 waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits
+      (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
+      eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
+      (odd-orbit.py, 9,849 s). Bowling seasons proved uneven (SAT, 44 of 4-32 teams
+      x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Lane limits (team
+      avoids a pair, hard; eval/bowling-lane-avoid.txt). Limits per shape
       (eval/bowling-avoid-shapes.txt), on other slots and symmetry-broken
       (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. 6x32 2
       teams, 6x26 random: UNSAT every dealing (eval/bowling-count-model.py); 16x40,
-      24x35 stored. Next: 5+ limited teams. More open items: NEXT.md.
+      24x35 stored. 5+ limited: refused weeks re-dealt
+      (eval/bowling-many-limits.txt); next: most even dealing. More open items:
+      NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:

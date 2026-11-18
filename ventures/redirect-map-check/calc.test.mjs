@@ -157,3 +157,10 @@ test("repair says when temporary rows are written as 301", () => {
   assert.match(r.text, /\/sale,\/promo,301/);
   assert.ok(r.changes.some((c) => /temporary .* as 301/.test(c)));
 });
+
+test("a loop through a target without its leading slash is a loop, not a self-redirect in the repair (fuzz find, 2026-11-18)", () => {
+  const input = "/about-us,/about\r\n/about,about-us";
+  assert.ok(validate(input).findings.some((f) => f.code === "loop"));
+  const out = repair(input).text;
+  assert.ok(!/\/about-us,\/about-us/.test(out), "the repair must never write a self-redirect");
+});

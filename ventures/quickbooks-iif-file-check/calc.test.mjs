@@ -111,3 +111,10 @@ test("normalizeAmount, findingsCsv and decodeBuffer", () => {
   assert.match(findingsCsv(validate(sampleBrokenFile())), /^severity,line,problem,detail,auto_fixable/);
   assert.equal(decodeBuffer(new TextEncoder().encode("!TRNS\tX")), "!TRNS\tX");
 });
+
+test("ACCNT rows before any !ACCNT header are reported, not a crash (fuzz find, 2026-11-18)", () => {
+  const text = ["ACCNT\tOffice Supplies\tEXP", "ACCNT\tConsulting Income\tINCOME", T("!SPL", "TRNSTYPE", "DATE", "ACCNT", "NAME", "AMOUNT", "DOCNUM", "MEMO")].join("\r\n");
+  const r = validate(text);
+  assert.ok(titles(r).includes('Row type "ACCNT" has no header row'));
+  assert.ok(!titles(r).includes("Duplicate account in !ACCNT list"), "headerless rows have no NAME to compare");
+});

@@ -158,3 +158,10 @@ test("an empty file still exports a header-only transaction CSV", () => {
   // The empty-file early return once left summary.transactionList undefined, so transactionsCsv threw (red team 2026-11-17).
   assert.equal(transactionsCsv(validate("")), "account,date,type_code,description,direction,amount,bank_reference,customer_reference,text\n");
 });
+
+test("a tie between 49 conventions goes to the default, so a second repair keeps the trailers (fuzz find, 2026-11-18)", async () => {
+  const { repair: rep } = await import("./calc.mjs");
+  const x = "01,123456789,ACMEGARAGE,261003,0600,1,,,2/\n02,ACMEGARAGE,123456789,1,261002,2359,USD,/\n03,0001234567,USD,010000,3,,400,518300,3,/\n49,2656600,8/\n03,0007654321,USD,010,52000,,,015,61500,,,100,20000,1,,400,10500,1,/\n49,61000,4/";
+  const a = rep(x).text;
+  assert.equal(rep(a).text, a);
+});

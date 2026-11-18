@@ -138,3 +138,7 @@ test("decodeBuffer and the column list", () => {
   assert.ok(COLUMNS.includes("First Name") && COLUMNS.includes("Group Membership"));
   assert.equal(toCsv([["a,b", "c"]]), '"a,b",c\r\n');
 });
+
+test("a quote that never closes, header included, is a finding and not a crash (fuzz find, 2026-11-18)", () => {
+  for (const x of ['A,"B\nx,y\n', '"', ',"\n']) assert.ok(validate(x).findings.some((f) => f.title === "A quoted cell is never closed"), x);
+});

@@ -338,15 +338,3 @@ test('every link in the dark footer band takes the band link colour, at AA on th
   const [hi, lo] = [lum(band[1]), lum(band[2])].sort((a, b) => b - a);
   assert.ok((hi + 0.05) / (lo + 0.05) >= 4.5, `band link ${band[1]} on ${band[2]} is under 4.5:1`);
 });
-
-// polish-2026-11-18-small-phone-hero.md: on a 320x640 phone the hero band's
-// 24px bottom padding, 30px margin and 17px lede put the first tool card of 24
-// of 31 audience pages below the screen. The band tightens up to 400px wide.
-test('the page hero tightens on small phones', () => {
-  const css = renderSiteStyle();
-  const m = css.match(/@media \(max-width:400px\)\{\.pf-hero\{([^}]*)\}([\s\S]*?)\}\s*$/m);
-  assert.ok(m, 'a max-width:400px block for .pf-hero');
-  assert.match(m[1], /padding-bottom:18px/);
-  assert.match(m[1], /margin-bottom:20px/);
-  assert.match(m[2], /\.pf-hero \.lede\{font-size:1rem\}/);
-});

@@ -328,3 +328,7 @@ test("mapAccountNames swaps an exact account name for its code and nothing else"
   assert.match(out.text, /Mystery/);
   assert.doesNotMatch(out.text, /,Sales,/);
 });
+
+test("a quote that never closes, header included, is a finding and not a crash (fuzz find, 2026-11-18)", () => {
+  for (const x of ['A,"B\nx,y\n', '"', ',"\n']) assert.ok(validate(x).findings.some((f) => f.title === "A quoted cell is never closed"), x);
+});
