@@ -93,3 +93,24 @@ test('covariates: decimal commas in a semicolon file, quoted names, and rows tha
   assert.throws(() => parseCovariates('unit,x\nA,1\na,2\n'), /two rows for a/);
   assert.throws(() => parseCovariates('unit,x,y\na,1\n'), /row for a needs 2 numbers/);
 });
+
+test('--anticipation N: the fit ends N points early; California 1989 keeps rank 1 backdated to 1987 (README "A shock before the date")', () => {
+  const r = JSON.parse(cli([...caArgs, '--anticipation', '1', '--json']));
+  assert.equal(r.anticipation, 1);
+  assert.equal(r.fitEnd, '1987');
+  assert.equal(r.rank, 1);
+  assert.equal(r.p.toFixed(3), '0.026');
+  assert.equal(r.gapFromDate.toFixed(1), '-19.7');
+  const t = cli([...caArgs, '--anticipation', '2']);
+  assert.match(t, /Backdated \(--anticipation 2\): fitted on the points up to 1986/);
+  assert.doesNotMatch(t, /rerun with --anticipation N/);
+  assert.match(cli(caArgs), /rerun with --anticipation N/);
+  // without it the named date's gap is the effect average
+  const r0 = JSON.parse(cli([...caArgs, '--json']));
+  assert.equal(r0.anticipation, 0);
+  assert.ok(Math.abs(r0.gapFromDate - r0.effectAverage) < 1e-9);
+  const csv = readFileSync(PACKS, 'utf8');
+  assert.throws(() => synthResult({ csv, column: 'CA', date: '1989', window: '1970:2000', donors: pool, anticipation: 15 }), /needs at least 5/);
+  assert.throws(() => synthResult({ csv, column: 'CA', date: '1989', window: '1970:2000', donors: pool, anticipation: 'x' }), /whole number/);
+  assert.throws(() => cli([PACKS, '--column', 'CA', '--anticipation', '1']), /go with --known-date/);
+});

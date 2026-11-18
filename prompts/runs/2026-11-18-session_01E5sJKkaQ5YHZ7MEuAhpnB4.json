@@ -17,7 +17,7 @@
   "tokens_out": 23714,
   "cost_usd": 1.8884,
   "tool_calls": 56,
-  "task": "polish: audience-page intros pushed the first Start-here card below a phone's first screen (item 2 of polish-2026-11-18-homeowners-audience.md)",
+  "task": "polish: audience pages, first Start-here card on a phone's first screen; duplicated PR #17145's intro fix, consolidated to the starting-note trims it left",
   "projects": [
     "platform/pages"
   ],
@@ -29,12 +29,16 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 1,
-  "outcome": "success",
+  "tests_added": 0,
+  "outcome": "partial",
   "errors": [
     {
       "what": "post description was 194 chars; build.test.mjs fails 165 tests on one over-160 post description",
       "fix": "shortened to 149 chars before merge; caught only because I re-ran build.test.mjs after writing the post"
+    },
+    {
+      "what": "duplicate work: PR #17145 (same item, same day) merged the intro fix while this PR was in CI; my branch conflicted on audiences.mjs, its test and the report filename",
+      "fix": "merged main, took #17145's intros, test and report; kept only the retirees/parents starting-note trims (its item 1) plus a follow-up report; dropped my duplicate post, screenshots and MAX_*_WORDS caps"
     }
   ],
   "integrity_issues": [],
@@ -46,6 +50,10 @@
     {
       "file": "docs/reports/polish-2026-11-18-homeowners-audience.md",
       "issue": "measured lede height (~350 px) as the problem; the deciding number is the first Start-here card's page y (978 px), and two pages also needed the starting callout trimmed"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "says search open PRs for polish/the slug before starting, which I did (list_pull_requests): #17145 was not open yet. Two polish runs picked the same 'Still weakest' item from the same report within the hour; the report's queue has no claim step"
     }
   ],
   "deviations": [
@@ -54,14 +62,19 @@
       "why": "did not run run_workflow_locally.py --for-changes (17 workflows, 164 steps) locally",
       "did": "ran the site build, check.mjs, the full platform/pages test suite and build.test.mjs+audiences.test.mjs on the final tree; left the rest to PR CI",
       "result": "see PR checks"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "no new blog post: my post duplicated docs/posts/2026-11-18-shorter-intros-on-the-for-pages.md from #17145, and the remaining change (two callout notes) is not worth a separate reader post",
+      "did": "dropped the post; wrote docs/reports/polish-2026-11-18-audience-starting-notes.md",
+      "result": "one fewer post today"
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-18-the-first-tool-should-be-on-the-first-screen.md",
-    "docs/reports/polish-2026-11-18-audience-intros.md"
+    "docs/reports/polish-2026-11-18-audience-starting-notes.md"
   ],
   "goal": null,
-  "notes": "Playwright 390x844 on all 31 c/for-*/ pages: first Start-here card y before homeowners 978, parents 951, retirees 951, job-changers 873 (other 27 <= 820); after 794/820/820/794, max 820 across all 31. node --test 'platform/pages/*.test.mjs': 1799/1799 (started before the post existed); build.test.mjs + audiences.test.mjs on final tree: 335/335. check.mjs: publishable, 11313 pages, no dead links.",
+  "notes": "Playwright 390x844, first Start-here card y with main's intros: retirees 872 -> 821, parents 819 -> 794 (starting 42->29, 45->35 words); deepest of 31 now ~821. Earlier on this branch (before consolidating): full node --test 'platform/pages/*.test.mjs' 1799/1799, build.test.mjs+audiences.test.mjs 335/335, check.mjs publishable; PR CI on adc8390 all green. After the merge: audiences.test.mjs 13/13; see PR CI for the rest.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -11,3 +11,10 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rev-rec): MIT licensed.
+
+## What it counts
+
+- Paid Stripe invoice lines, billed on the paid date, spread evenly per UTC day across the service period.
+- Net of discounts and of tax included in the price (both Stripe tax shapes: `tax_amounts[].inclusive` and, from API version 2025-03-31, `taxes[].tax_behavior`).
+- Credit notes as negative billings; one linked to an invoice line reverses that line's unearned remainder.
+- The self-hosted server syncs every few hours and re-reads everything at least once a day, so invoices paid weeks after they were issued and credit notes voided later are counted correctly.
