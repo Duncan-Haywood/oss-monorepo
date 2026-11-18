@@ -3,7 +3,10 @@ import datetime as dt
 import io
 import unittest
 
-from polish_queue import key_words, main, parts, picks, queue, similar, weakest
+import io as _io
+import json
+
+from polish_queue import claims, key_words, main, open_prs, parts, picks, queue, refs, similar, weakest
 
 
 def report(title, lead, items):
@@ -84,9 +87,53 @@ class Queue(unittest.TestCase):
     def test_main_prints_a_summary(self):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            self.assertEqual(main(["--days", "2", "--taken"], texts=TEXTS, today=dt.date(2026, 11, 16)), 0)
+            self.assertEqual(main(["--days", "2", "--taken"], texts=TEXTS, today=dt.date(2026, 11, 16), prs=[]), 0)
         self.assertIn("3 polish reports since 2026-11-15", out.getvalue())
         self.assertIn("Taken:", out.getvalue())
+        self.assertIn("Claim before you build", out.getvalue())
+
+    def test_offline_says_the_prs_were_not_read(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            main(["--offline"], texts=TEXTS, today=dt.date(2026, 11, 16))
+        self.assertIn("open PRs: not read (--offline)", out.getvalue())
+
+
+class Claims(unittest.TestCase):
+    # On 2026-11-18 PRs #17145, #17146 and #17147 took one item within five minutes:
+    # none could see the others until each PR opened after its build.
+    OPEN = [("polish-2026-11-18-homeowners-audience.md", 1, "**Renters page: 3 tools** (roommate-rent-splitter)", ""),
+            ("polish-2026-11-18-homeowners-audience.md", 2,
+             "**The audience intro runs to about 350 px on a phone** (here and on retirees)", ""),
+            ("polish-2026-11-16-b.md", 2, "**The reel still dates from October**", "")]
+
+    def test_body_ref_claims_the_item(self):
+        prs = [(17200, "polish: draft", 'Picked item 1 of "Still weakest" in `polish-2026-11-18-homeowners-audience.md`.', "b1")]
+        self.assertEqual(claims(self.OPEN, prs), {0: "claimed by open PR #17200: leave it"})
+
+    def test_title_match_is_a_maybe_and_plurals_fold(self):
+        prs = [(17145, "polish: audience intros capped at 50 words; household pages show tools on a phone's first screen + post", "", "b2")]
+        self.assertEqual(claims(self.OPEN, prs), {1: "maybe claimed: open PR #17145's title looks like it"})
+
+    def test_own_branch_is_not_a_claim(self):
+        prs = [(17200, "polish: x", "item 1 of `polish-2026-11-18-homeowners-audience.md`", "mine")]
+        self.assertEqual(claims(self.OPEN, prs, own_branch="mine"), {})
+
+    def test_refs_reads_both_phrasings(self):
+        self.assertEqual(refs("`polish-2026-11-16-b.md`, item 2; items 1 and 3 of `polish-2026-11-15-a.md`"),
+                         {("polish-2026-11-16-b.md", 2), ("polish-2026-11-15-a.md", 1), ("polish-2026-11-15-a.md", 3)})
+
+    def test_open_prs_keeps_polish_titles_and_says_none_on_error(self):
+        batch = [{"number": 1, "title": "polish: a", "body": None, "head": {"ref": "x"}},
+                 {"number": 2, "title": "research/foo: b", "body": "", "head": {"ref": "y"}}]
+
+        def opener(url, timeout):
+            return contextlib.nullcontext(_io.StringIO(json.dumps(batch)))
+        self.assertEqual(open_prs(opener=opener), [(1, "polish: a", "", "x")])
+
+        def broken(url, timeout):
+            raise OSError("403")
+        self.assertIsNone(open_prs(opener=broken))
 
 
 if __name__ == "__main__":
