@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, localOnlyFiles, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckProblem } from './venture-preflight.mjs';
+import { buildProblem, localOnlyFiles, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, mainHealthArgs, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -169,4 +169,11 @@ test('splitLocalOnly demotes check.mjs lines on a local-only file, also under a 
   assert.deepEqual(real, [lines[1]]);
   assert.deepEqual(local, [lines[0], lines[2]]);
   assert.deepEqual(splitLocalOnly(lines, 'v', []).real, lines);
+});
+
+test('mainHealthArgs skips the platform/ci unit tests unless the branch edits platform/ci', () => {
+  assert.deepEqual(mainHealthArgs('', ''), ['--checks-only']);
+  assert.deepEqual(mainHealthArgs('ventures/x/index.html\n', ''), ['--checks-only']);
+  assert.deepEqual(mainHealthArgs('', 'platform/ci/check_new.py\n'), []);
+  assert.deepEqual(mainHealthArgs('docs/posts/a.md\nplatform/ci/main_health.py\n', ''), []);
 });

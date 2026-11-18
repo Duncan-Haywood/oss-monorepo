@@ -29,7 +29,8 @@
 //      2000-character cap failed CI for runs that appended to it (three run
 //      records on 2026-11-13).
 //      Also every argument-free platform/ci/check_*.py, through
-//      `main_health.py` (about 20 s on 4 cores): the elevator-traffic run
+//      `main_health.py --checks-only` (about 45 s on 4 cores; its unit tests
+//      too when the branch edits platform/ci): the elevator-traffic run
 //      (#15700, 2026-11-14) passed this preflight and then failed CI on
 //      check_step_grid.py and check_doc_counts.py, two of the ~60 tree checks
 //      CI runs that the steps above did not.
@@ -61,7 +62,8 @@
 // wrong, or a site test fails (CI runs the same tests on the PR, so a red
 // one fails it whoever caused it; the message says whether it names the slug).
 // Problems check.mjs finds on other slugs are printed as notes and do not fail you.
-// `--skip-build` runs steps 1, 3 and 4 only (about a minute).
+// `--skip-build` runs steps 1, 3 and 4 only (96 s on an idle 4-core container,
+// 2026-11-18; 155 s before main_health got --checks-only; more under load).
 
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -112,7 +114,10 @@ export function changedPostPaths(...outputs) {
 /** Paths under `pathspecs` this branch adds or edits, as diff + untracked text. */
 function changedText(...pathspecs) {
   const git = (args) => spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
-  let diff = git(['diff', '--name-only', '--diff-filter=AM', 'origin/main', '--', ...pathspecs]);
+  // --merge-base: from where the branch left main, not main's tip; once
+  // origin/main moves on, a plain `diff origin/main` lists main's own new files
+  // as this branch's (2026-11-18: 30 platform/ci files on an untouched branch).
+  let diff = git(['diff', '--name-only', '--diff-filter=AM', '--merge-base', 'origin/main', '--', ...pathspecs]);
   if (diff.status !== 0) diff = git(['diff', '--name-only', '--diff-filter=AM', 'HEAD', '--', ...pathspecs]);
   const untracked = git(['ls-files', '--others', '--exclude-standard', '--', ...pathspecs]);
   return [diff.stdout, untracked.stdout];
@@ -123,6 +128,16 @@ function changedPosts() {
 }
 
 /** Whether the diff text names portfolio/flagships.yaml or a ventures/<slug>/VENTURE.yaml. */
+// main_health.py also runs the 174 platform/ci/test_*.py files unless given
+// --checks-only (added 2026-11-14). Those test the CI scripts, not a venture,
+// and took this "one-minute" --skip-build pass to about five minutes (run
+// records 2026-11-18T09:20 and others; 98 checks alone: 45 s on 4 cores). A
+// branch that edits platform/ci still gets them.
+export function mainHealthArgs(...outputs) {
+  const touched = outputs.join('\n').split('\n').some((l) => l.trim().startsWith('platform/ci/'));
+  return touched ? [] : ['--checks-only'];
+}
+
 export function touchesRouterInputs(...outputs) {
   return outputs.some((out) => (out || '').split('\n').some((line) =>
     /^(portfolio\/flagships\.yaml|ventures\/[^/]+\/VENTURE\.yaml)$/.test(line.trim())));
@@ -374,8 +389,9 @@ async function main(argv) {
     if (problem) failures.push(problem);
   }
   {
-    console.log('   repository checks (platform/ci/main_health.py, about 20 s)');
-    const r = spawnSync('python3', ['platform/ci/main_health.py'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 26 });
+    const args = mainHealthArgs(...changedText('platform/ci'));
+    console.log(`   repository checks (platform/ci/main_health.py ${args.join(' ')}; ${args.length ? 'about 45 s' : 'the branch edits platform/ci, so its unit tests too: several minutes'})`);
+    const r = spawnSync('python3', ['platform/ci/main_health.py', ...args], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 26 });
     const problem = treeCheckProblem(r.status, (r.stdout || '') + (r.stderr || ''), slug);
     if (problem) failures.push(problem);
   }
