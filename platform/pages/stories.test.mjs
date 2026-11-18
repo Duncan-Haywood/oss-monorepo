@@ -153,6 +153,27 @@ test('the hero shows each shelf as its cover: small thumbnails the ventures ship
   assert.doesNotMatch(renderStoriesPage(bare), /pf-hero has-covers/);
 });
 
+test('each shelf wears its cover beside its title, the same lazy, sized, decorative thumbnail the hero uses', () => {
+  const shelves = loadFiction();
+  const html = renderStoriesPage(shelves);
+  for (const shelf of shelves) {
+    const section = new RegExp(`<section class="shelf" id="${shelf.id}"[\\s\\S]*?</section>`).exec(html)[0];
+    const title = /<div class="shelf-title">([\s\S]*?)<\/div><\/div>/.exec(section);
+    assert.ok(title, `${shelf.id} has a title block`);
+    const img = /<img [^>]*>/.exec(title[1])?.[0];
+    assert.ok(img, `${shelf.id} shows its cover`);
+    assert.ok(img.includes(`src="../${shelf.cover}"`), `${shelf.id}: the hero's thumbnail, not a new file`);
+    assert.match(img, /alt=""/, 'decorative: the h2 beside it names the shelf');
+    assert.match(img, /loading="lazy"/);
+    assert.match(img, /width="\d+" height="\d+"/);
+    assert.ok(title[1].indexOf('<img') < title[1].indexOf(`<h2 id="${shelf.id}-h"`), 'cover first, then the heading');
+  }
+  // A shelf whose thumbnail is missing keeps a bare heading, no broken image.
+  const bare = renderStoriesPage(shelves.map((s, i) => (i ? s : { ...s, cover: null })));
+  const first = new RegExp(`<section class="shelf" id="${shelves[0].id}"[\\s\\S]*?</section>`).exec(bare)[0];
+  assert.doesNotMatch(first, /<img /);
+});
+
 // Red team 2026-11-17: five seeded faults in the page's stylesheet (`border:0` -> `border:1`,
 // `margin:.8em 0 0` -> `.8em 0 1`, `.shelf-intro > p` -> `>= p` ...) passed this suite. Each makes
 // the browser drop a declaration or a whole rule without a word.

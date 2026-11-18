@@ -152,6 +152,13 @@ const STYLE = `
   h2 a { color:var(--ink); text-decoration:none; }
   h2 a:hover, h2 a:focus-visible { color:var(--accent); text-decoration:underline; text-underline-offset:.18em; }
   .tagline { margin:0; color:var(--muted); font-weight:600; }
+  /* Each shelf wears its cover beside its title. Until 2026-11-18 the covers were only in
+     the hero, so a reader who scrolled past it (or arrived at #little-lamps from a link) saw
+     four look-alike white panels. Same 320 px thumbnails as the hero, so a wide screen
+     fetches nothing new; a phone fetches each (5 to 7 KB) only as its shelf nears the screen. */
+  .shelf-title { display:flex; align-items:center; gap:14px; }
+  .shelf-title img { flex:none; width:56px; height:56px; border-radius:8px; border:1px solid var(--line); }
+  @media (min-width: 900px) { .shelf-title { gap:16px; } .shelf-title img { width:72px; height:72px; border-radius:10px; } }
   .shelf > p, .shelf-intro > p { max-width:68ch; }
   .shelf-intro > p.meta { max-width:none; }
   /* "Listen": the shelf's newest recorded pieces, playable in place. Until
@@ -236,8 +243,10 @@ function renderShelf(shelf, toRoot) {
   return `<section class="shelf" id="${esc(shelf.id)}" aria-labelledby="${esc(shelf.id)}-h">
 <div class="shelf-head${listen ? ' has-listen' : ''}">
 <div class="shelf-intro">
+<div class="shelf-title">${shelf.cover ? `<img src="${esc(toRoot + shelf.cover)}" alt="" width="72" height="72" loading="lazy" decoding="async">` : ''}<div>
 <h2 id="${esc(shelf.id)}-h"><a href="${esc(toRoot + shelf.href)}">${esc(shelf.title)}</a></h2>
 <p class="tagline">${esc(shelf.tagline)}</p>
+</div></div>
 <p>${esc(shelf.description)}</p>
 <p class="meta">${esc(shelf.audience)} · ${plural(shelf.count, 'story', 'stories')}, ${shelf.withAudio} with audio · <a href="${esc(toRoot + shelf.feed)}">Podcast RSS feed</a></p>
 </div>
