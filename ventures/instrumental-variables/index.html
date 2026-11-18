@@ -113,6 +113,7 @@
     <ul>
       <li><strong>Exclusion cannot be tested.</strong> That the instrument reaches the outcome only through the regressor is an argument you make, not something these statistics show. The overidentification tests only ask whether several instruments agree.</li>
       <li><strong>Effects differ by person.</strong> With heterogeneous effects, IV estimates the effect for the people the instrument moves (a local average treatment effect; Imbens &amp; Angrist 1994), not for everyone, and different instruments can legitimately disagree.</li>
+      <li><strong>The robust Anderson-Rubin set is not exact.</strong> Its coverage does not depend on instrument strength, but with clustered errors it rests on an estimated cluster covariance: in this tool's simulation with 150 clusters it covered 92% to 94% of the time, not 95%.</li>
       <li><strong>Few clusters.</strong> Clustered errors are unreliable with fewer than about 30 to 50 clusters; the page warns below 30.</li>
       <li><strong>Linear model, one equation.</strong> No GMM point estimates, no panel fixed effects (add indicators as columns), no weights, no HAC errors; the Anderson-Rubin set is for one endogenous regressor.</li>
     </ul>

@@ -109,7 +109,57 @@ LIML; and the distribution quantiles hit textbook values.
 (3,000 people in 150 counties, seed 11) and checks the clustered 95%
 intervals against the true 0.08. Output in `eval/coverage-output.txt`:
 
-COVERAGE_TABLE
+```
+example strength: median effective first-stage F 113.2 (10th-90th percentile 85.6 to 144.7); 206 s
+| Interval | Median estimate | Median bias | Coverage | Median length (AR: bounded intervals only) |
+|---|---|---|---|---|
+| OLS, clustered Wald | 0.1094 | 0.0294 | 0.0% | 0.0160 |
+| 2SLS, clustered Wald | 0.0788 | -0.0012 | 94.5% | 0.0854 |
+| LIML, clustered Wald | 0.0785 | -0.0015 | 94.3% | 0.0860 |
+| Fuller (a = 1), clustered Wald | 0.0786 | -0.0014 | 94.4% | 0.0856 |
+| Anderson-Rubin set, clustered | n/a | n/a | 93.9% | 0.1004 (interval 983, empty 17) |
+| Anderson-Rubin set, clustered, small-sample factor | n/a | n/a | 94.0% | 0.1011 (interval 983, empty 17) |
+
+weak (first-stage effects x 0.3): median effective first-stage F 10.4 (10th-90th percentile 5.1 to 17.9); 197 s
+| Interval | Median estimate | Median bias | Coverage | Median length (AR: bounded intervals only) |
+|---|---|---|---|---|
+| OLS, clustered Wald | 0.1112 | 0.0312 | 0.0% | 0.0160 |
+| 2SLS, clustered Wald | 0.0827 | 0.0027 | 95.0% | 0.2861 |
+| LIML, clustered Wald | 0.0792 | -0.0008 | 95.7% | 0.3123 |
+| Fuller (a = 1), clustered Wald | 0.0813 | 0.0013 | 95.2% | 0.2954 |
+| Anderson-Rubin set, clustered | n/a | n/a | 92.2% | 0.3888 (interval 959, empty 16, two rays 6, whole line 16, unbounded 3) |
+| Anderson-Rubin set, clustered, small-sample factor | n/a | n/a | 92.4% | 0.3914 (interval 957, unbounded 5, empty 16, two rays 6, whole line 16) |
+
+weak (x 0.3) and strongly endogenous (ability effect on wages 0.12 -> 0.6): median effective first-stage F 11.0 (10th-90th percentile 5.8 to 18.8); 185 s
+| Interval | Median estimate | Median bias | Coverage | Median length (AR: bounded intervals only) |
+|---|---|---|---|---|
+| OLS, clustered Wald | 0.2356 | 0.1556 | 0.0% | 0.0254 |
+| 2SLS, clustered Wald | 0.0930 | 0.0130 | 94.7% | 0.3833 |
+| LIML, clustered Wald | 0.0829 | 0.0029 | 95.5% | 0.4118 |
+| Fuller (a = 1), clustered Wald | 0.0910 | 0.0110 | 94.9% | 0.3896 |
+| Anderson-Rubin set, clustered | n/a | n/a | 92.6% | 0.5197 (empty 11, interval 974, two rays 6, whole line 6, unbounded 3) |
+| Anderson-Rubin set, clustered, small-sample factor | n/a | n/a | 93.1% | 0.5234 (empty 11, interval 973, two rays 7, whole line 6, unbounded 3) |
+
+Monte Carlo standard error of a coverage near 95%: 0.7 points.
+```
+
+What this says, honestly:
+
+- **OLS never covers** (bias +0.03, or +0.16 with strong endogeneity); 2SLS,
+  LIML and Fuller are close to unbiased and their clustered intervals cover
+  94.3% to 95.7% in every design, including the weak one (median effective F
+  about 10). This design is not adversarial enough to break the 2SLS
+  interval: the textbook failure needs a weaker first stage or stronger
+  endogeneity than an F of 10 with this error correlation.
+- **The clustered Anderson-Rubin set undercovers by 1 to 3 points** (93.9%,
+  92.2%, 92.6%; Monte Carlo SE 0.7). Part of it is the overidentified AR set
+  coming out empty (11 to 17 draws in 1,000), which counts as a miss; the rest
+  is the Wald form of the test with a cluster covariance estimated from 150
+  clusters. The n / (n - L) and G / (G - 1) factors barely help (+0.1 to
+  +0.5 points). The AR set's guarantee is about instrument strength, not about
+  how well the cluster covariance is estimated. When the first stage is weak
+  it still widens as it should (two rays or the whole line in 12 to 22 draws
+  out of 1,000), where the Wald interval stays narrow.
 
 ## What the example shows
 
