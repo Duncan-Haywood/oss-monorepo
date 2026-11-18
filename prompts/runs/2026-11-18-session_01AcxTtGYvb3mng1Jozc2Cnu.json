@@ -35,20 +35,31 @@
   "integrity_issues": [],
   "doc_friction": [
     {
-      "file": "portfolio/router/allocate.py",
-      "issue": "Start here kept naming chant-forge (16 left vs 9 worked in 2 days); the Left recently hint relied on a leaver editing the row, which none did. Fixed here with mostly_left()."
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Searched open PRs for allocate/Start here before building and found none, yet PR #17307 (same fix, same numbers) merged 5 minutes before mine was ready; a draft-PR claim right after picking the lens would have shown it to the sibling or to me. The prompt says check open PRs before you start, which catches only PRs already opened."
+    },
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "--live --ungated still listed the linefig.py colour/legend friction (fixed by #17229) under 'Doc friction by file' in measure; a run checked it by hand. Its own cluster was hidden correctly; the measure per-file list is what misled."
     },
     {
       "file": ".github/prompts/cloud-session.md",
-      "issue": "Bare python3 has no pytest; test_allocate ran fine with python3 -m unittest (42 s), no pyenv needed."
+      "issue": "Bare python3 lacks pytest but /usr/bin/python3.13 has pytest and yaml; test_flagship_field.py ran there in 0.5 s with no pyenv install."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "My first change (allocate.py mostly_left) duplicated PR #17307, which merged while I verified. Rather than land a duplicate or end with nothing, I merged main, took its version, dropped my post and shipped a second, unrelated live fix (flagship_field.py over-parking) in the same PR.",
+      "did": "Merged main with its allocate.py/test_allocate.py; new fix + post on flagship_field.py.",
+      "result": "One non-duplicate fix landed; about 15 minutes spent on the duplicate."
+    }
+  ],
   "writeups": [
-    "docs/posts/2026-11-18-process-start-here-stops-sending-runs-where-most-leave.md"
+    "docs/posts/2026-11-18-process-park-only-the-items-the-cap-needs.md"
   ],
   "goal": null,
-  "notes": "Critique mode (backlog: owner rows only). Security queue empty; IDEAS.md and website requests empty. main_health.py 272/272 green. Lens: allocate.py doc_friction. Measured left_rows/worked_rows: chant-forge 16/9, others worked more than left. Added mostly_left() and demote= to start_here; test_allocate 129 OK; real allocate.py --no-claims run moved chant-forge behind. No agent doc: the post and docstring carry the finding. No backlog ids touched.",
+  "notes": "Critique mode (backlog: owner rows only). Security queue empty; IDEAS.md and website requests empty. main_health.py 272/272 green. First fix (allocate.py Start here demotes rows left more than worked) duplicated PR #17307, merged first; took main's version. Shipped instead: flagship_field.park_candidates drops tail items the final pick makes redundant (2026-11-18 friction reports at 04:57 and 12:17). Replay on main's 12 rows, room 20..400 step 20, 199 cases: items parked 585->434, chars 62,532->54,422, 85 cases fewer; new pick always a subset that still frees enough. test_flagship_field.py 55 passed (/usr/bin/python3.13 -m pytest). Earlier: run_workflow_locally --for-changes 9/9 pass on the first diff; test_allocate 129 OK. No backlog ids touched. No agent doc: post and code comment carry it.",
   "corrections": [],
   "redteam": null,
   "usage": {
@@ -56,45 +67,47 @@
     "session_id": "749e11f4-f04a-5425-8af9-db8ea2d95a7c",
     "transcripts": 1,
     "first": "2026-11-18T13:06:09Z",
-    "last": "2026-11-18T13:10:15Z",
+    "last": "2026-11-18T13:27:21Z",
     "primary_model": "claude-opus-5-5",
     "models": {
       "claude-opus-5-5": {
-        "requests": 23,
-        "input": 46,
-        "output": 8813,
-        "thinking": 924,
-        "cache_read": 1603317,
+        "requests": 49,
+        "input": 94,
+        "output": 19726,
+        "thinking": 3541,
+        "cache_read": 4396329,
         "cache_write_5m": 0,
-        "cache_write_1h": 55726,
-        "api_equivalent_usd": 0.9429,
+        "cache_write_1h": 96950,
+        "api_equivalent_usd": 2.0498,
         "fast_requests": 0
       }
     },
     "totals": {
-      "requests": 23,
-      "input": 46,
-      "output": 8813,
-      "thinking": 924,
-      "cache_read": 1603317,
+      "requests": 49,
+      "input": 94,
+      "output": 19726,
+      "thinking": 3541,
+      "cache_read": 4396329,
       "cache_write_5m": 0,
-      "cache_write_1h": 55726,
-      "api_equivalent_usd": 0.9429,
+      "cache_write_1h": 96950,
+      "api_equivalent_usd": 2.0498,
       "api_equivalent_complete": true
     },
-    "cache_hit_share": 0.966,
-    "tool_calls": 23,
+    "cache_hit_share": 0.978,
+    "tool_calls": 50,
     "tools": {
-      "Bash": 21,
+      "Bash": 44,
+      "mcp__github__pull_request_read": 3,
       "ToolSearch": 1,
-      "mcp__github__create_pull_request": 1
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
     },
     "web_searches": 0,
     "time": {
-      "wall_minutes": 4.09,
-      "active_minutes": 4.09,
-      "model_minutes": 1.88,
-      "tool_minutes": 2.21,
+      "wall_minutes": 21.2,
+      "active_minutes": 21.2,
+      "model_minutes": 4.66,
+      "tool_minutes": 16.54,
       "waiting_on_human_minutes": 0.0,
       "human_prompts": 1,
       "stalls": 0,
@@ -105,12 +118,12 @@
       "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
     },
     "human_equivalent": {
-      "hours": 2.0,
-      "basis": "measure friction, change router pick, test, post",
+      "hours": 3.0,
+      "basis": "measure friction, two tool fixes with tests and replay, post",
       "rate_usd_per_hour": 100.0,
-      "usd": 200.0
+      "usd": 300.0
     },
-    "leverage": 212.1,
+    "leverage": 146.4,
     "certainty": {
       "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
       "model": "high: the `model` field on each API response, not the configured model",

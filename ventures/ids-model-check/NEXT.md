@@ -22,3 +22,6 @@
 - (2026-11-18) number one-of rows 2026-11-17 (eval/number-oneof-2026-11-17.md: 663 of 663 offers pass, IfcTester 646)
 - (2026-11-18) duplicate GlobalIds in a model (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI 2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers, eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23)
 - (2026-11-18) file-order candidate lists 2026-11-18 (eval/file-order-candidates-2026-11-18.md: pooled specs 2.9x on HHS MEP, same reports)
+- (2026-11-18) facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: 68 IDS on HHS MEP 11.4M facet tests to 3.7M, 6.3-7.0 to 5.0-5.3 s; 219 MB 60.4 to 43.1 s, fits 1 GB)
+- (2026-11-18) property sets indexed by name 2026-11-18 (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same reports)
+- (2026-11-18) 65 public IDS vs IfcTester 2026-11-17 (1,661 of 1,736 same; unchecked subclasses reported, eval/corpus-crosscheck-*)

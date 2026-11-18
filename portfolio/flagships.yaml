@@ -494,7 +494,9 @@ flagships:
     buildable: >-
       IFC4X3 ifcXML: none public (searched 2026-11-18); B-spline control points cut
       into rows from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); more
-      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs;
+      IFC4/IFC4X3 STEP exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as
+      nested ifcXML through eval/ifc4-layout.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -510,18 +512,18 @@ flagships:
       2026-11-16 (203,433 offered specs audit clean, 15,102 valid in ids.xsd; found
       voids/fills token pair and classification-system gaps,
       eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC cross-check 2026-11-17 (348 of
-      348, eval/infra-mep-crosscheck-*); 65 public IDS vs IfcTester 2026-11-17
-      (1,661 of 1,736 same; unchecked subclasses reported,
-      eval/corpus-crosscheck-*); several IFC versions per spec 2026-11-17
+      348, eval/infra-mep-crosscheck-*); several IFC versions per spec 2026-11-17
       (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
       audit in every named schema, false page errors 18 to 0 on 18 public files).
       attribute facets read geometry shallow 2026-11-18
       (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
-      same reports); property sets indexed by name 2026-11-18
-      (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same
-      reports); facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: 68
-      IDS on HHS MEP 11.4M facet tests to 3.7M, 6.3-7.0 to 5.0-5.3 s; 219 MB 60.4 to
-      43.1 s, fits 1 GB); ifcXML streams 2026-11-18 (eval/lazy-ifcxml-2026-11-18.md:
-      374 MB federated ifcXML 4.0 to 1.5 GB peak, fits 1 GB; strings keep
-      whitespace, 731 MEP labels). next: attribute value tests on every entity;
-      IFC4-layout ifcXML at scale. More open items: NEXT.md.
+      same reports); ifcXML streams 2026-11-18 (eval/lazy-ifcxml-2026-11-18.md: 374
+      MB federated ifcXML 4.0 to 1.5 GB peak, fits 1 GB; strings keep whitespace,
+      731 MEP labels). nested IFC4 ifcXML at scale 2026-11-18
+      (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3 exports nested,
+      857,301 entities and 2,160 of 2,160 verdicts as STEP; schema from the root,
+      not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB 1,770 to 1,481
+      MB, fits 768 MB). attribute (any) = X shares one shape read per entity
+      2026-11-18 (eval/attribute-shape-2026-11-18.md; STEP strings no longer kept as
+      per-character chains). next: nested property sets held until the root closes.
+      More open items: NEXT.md.

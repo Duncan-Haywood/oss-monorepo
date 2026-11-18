@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKm5zpHVzC2GvgmiHwU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T12:21:31Z",
+  "ended": "2026-11-18T12:30:18Z",
+  "wall_minutes": 33.94,
+  "tokens_in": 11760363,
+  "tokens_out": 57349,
+  "cost_usd": 4.758,
+  "tool_calls": 97,
+  "task": "Deepen (flagship 12) ids-model-check: attribute value tests on every entity",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17296",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First version (a Uint8Array per attribute name) ran the 219 MB federated model out of memory under a 1 GB heap; replaced by keeping the shape in the verdict bytes' spare bits.",
+    "That version still ran out of memory at 1 GB; a heap snapshot diff traced it to decodeStepString keeping strings as one-character cons chains, which main's regex tests had been flattening by accident. Fixed in step.mjs.",
+    "A results script that truncated its log with ': > $L' was refused by the safety check; rewritten as a script file with no truncation."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/applies-cache-2026-11-18.md",
+      "issue": "Its 'fits 1 GB' claim for the federated run had about 40 MB of headroom (main peaks at 1,040 MB sampled, 984 MB live after mark-compact). Any change that allocates faster can tip it, so a memory check on that run is worth doing for every perf change."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-ids-attribute-tests-share-one-reading.md",
+    "ventures/ids-model-check/eval/attribute-shape-2026-11-18.md"
+  ],
+  "goal": "Deepen flagship 12 (ids-model-check) with the next item in its row",
+  "notes": "Measured against origin/main 8bd1b8ba4 and main plus only the step.mjs fix, interleaved runs on HHS MEP/architect/construction, Schultz and the 219 MB federated model; all report hashes identical. node --test *.test.mjs: 204 pass, 2 skipped. 12 of 13 planted faults caught; the 13th changes no verdict. venture-preflight: clean. run_workflow_locally --for-changes: pages.yml 6/6 run steps passed; its ventures-tests leg was stopped once GitHub CI went green (all 20 check runs success or skipped, changed-ventures included).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1b13f605-d8b3-5837-a30d-f68e5ef7adf1",
+    "transcripts": 1,
+    "first": "2026-11-18T12:21:31Z",
+    "last": "2026-11-18T12:55:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 174,
+        "output": 57349,
+        "thinking": 15600,
+        "cache_read": 11598869,
+        "cache_write_5m": 0,
+        "cache_write_1h": 161320,
+        "api_equivalent_usd": 4.758,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 174,
+      "output": 57349,
+      "thinking": 15600,
+      "cache_read": 11598869,
+      "cache_write_5m": 0,
+      "cache_write_1h": 161320,
+      "api_equivalent_usd": 4.758,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 87,
+      "Write": 3,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 33.94,
+      "active_minutes": 33.94,
+      "model_minutes": 11.79,
+      "tool_minutes": 22.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior JS perf engineer: profile, design a shared cache, chase a heap regression to a string-building leak, tests with planted faults, benchmarks on 5 models",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 210.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

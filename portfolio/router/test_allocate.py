@@ -1004,25 +1004,26 @@ class DateGateTests(unittest.TestCase):
         self.assertEqual(start_here(queue[:1], {}, now=now), (1, "dated"))
         self.assertEqual(start_here(queue[:1], {}, now=now, session="s1"), (1, "dated"))
 
-    def test_start_here_moves_mostly_left_rows_behind(self):
+
+    def test_start_here_puts_declined_rows_last(self):
         from datetime import datetime, timezone
-        from allocate import mostly_left
         now = datetime(2026, 11, 18, 10, 0, tzinfo=timezone.utc)
-        hit = ("2026-11-18", "other", "nothing buildable")
-        left = {"chant": [hit] * 16, "roster": [hit] * 5, "bk": [hit] * 2}
-        worked = {"chant": 9, "roster": 8, "bk": 0}
-        # chant: left more than worked; roster: worked more; bk: too few leaves.
-        self.assertEqual(mostly_left(left, worked), {"chant"})
-        self.assertEqual(mostly_left(None, None), set())
-        task = "Deepen (flagship {}): x"
-        queue = [{"venture": "chant", "flagship": True, "task": task.format(1)},
-                 {"venture": "roster", "flagship": True, "task": task.format(2)}]
-        self.assertEqual(start_here(queue, {}, now=now, demote={"chant"}), (2, "roster"))
-        picks = {start_here(queue, {}, now=now, session=f"s{n}", spread=1, demote={"chant"})
+        task = "Deepen (flagship {}): BUILDABLE HERE: y -- Context: z"
+        queue = [{"venture": "left", "flagship": True, "task": task.format(1)},
+                 {"venture": "ok", "flagship": True, "task": task.format(2)}]
+        self.assertEqual(start_here(queue, {}, now=now, declined={"left"}), (2, "ok"))
+        picks = {start_here(queue, {}, now=now, session=f"s{n}", spread=1, declined={"left"})
                  for n in range(20)}
-        self.assertEqual(picks, {(2, "roster")})
-        # Alone, a demoted row is still named.
-        self.assertEqual(start_here(queue[:1], {}, now=now, demote={"chant"}), (1, "chant"))
+        self.assertEqual(picks, {(2, "ok")})
+        # Still named when nothing else is free.
+        self.assertEqual(start_here(queue[:1], {}, now=now, declined={"left"}), (1, "left"))
+
+    def test_declined_rows_needs_more_leaves_than_works(self):
+        from allocate import declined_rows
+        hits = lambda n: [("2026-11-18", "x", "why")] * n
+        left = {"cf": hits(16), "ei": hits(6), "few": hits(2)}
+        worked = {"cf": 9, "ei": 18, "few": 0}
+        self.assertEqual(declined_rows(left, worked), {"cf"})
 
 
 class LeastClaimedTests(unittest.TestCase):

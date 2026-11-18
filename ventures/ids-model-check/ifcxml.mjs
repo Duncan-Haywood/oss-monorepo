@@ -3,7 +3,8 @@
 // checker runs on it unchanged.
 //
 // ifcXMLSchemaId(text) -> "IFC2X3" | "IFC4" | "IFC4X3" | null
-// parseIfcXml(text, schema, { eager }) -> { schema, entities: Map<id, {id, type, args}>, errors }
+// parseIfcXml(text, schema, { eager }) -> { schema, entities: Map<id, {id, type, args}>, errors, stubbed }
+//   stubbed: nested geometry elements cut to their span as they closed
 //   schema: a Schema (ids.mjs) for that version; it gives each attribute's
 //   position and type, which ifcXML does not carry.
 //
@@ -32,13 +33,20 @@
 import { parseXml } from "./xml.mjs";
 import { EMPTY_LIST, SKIPPED_LIST } from "./step.mjs";
 
+// The schema is named by the root element's namespace or schemaLocation, or
+// IFC2X3's <uos configuration="i_ifc2x3">, and read from those start tags
+// first. Searching the whole first 4,000 characters read an IFC4 file as
+// IFC2X3 when the model itself said "IFC2x3" there: ARCHICAD's IFC4 export
+// writes ApplicationIdentifier="IFC2x3 add-on version: 4009", and the nested
+// IFC4 layout puts the owner history near the top, so 760,438 of 1,207,966
+// entities of one federated file went unread (eval/ifc4-layout-scale-2026-11-18.md).
+// Only when those tags name no version is the rest of the head searched.
+const versionIn = (s) => (/IFC4X3|IFC4_3|IFC4x3/i.test(s) ? "IFC4X3" : /IFC2X3/i.test(s) ? "IFC2X3" : /IFC4/i.test(s) ? "IFC4" : null);
+const ROOT_TAG = /<(?:[\w.-]+:)?(?:iso_10303_28|ifcXML|uos)(?=[\s>\/])[^>]*>/gi;
 export function ifcXmlSchemaId(text) {
   const head = text.slice(0, 4000);
   if (!/^\s*(\uFEFF)?\s*</.test(head)) return null;
-  if (/IFC4X3|IFC4_3|IFC4x3/i.test(head)) return "IFC4X3";
-  if (/IFC2X3/i.test(head)) return "IFC2X3";
-  if (/IFC4/i.test(head)) return "IFC4";
-  return null;
+  return versionIn((head.match(ROOT_TAG) || []).join(" ")) || versionIn(head);
 }
 
 export function looksLikeXml(text) {
@@ -284,8 +292,18 @@ export function parseIfcXml(text, schema, opts = {}) {
     return j;
   }
 
+  // A geometry element nested in a larger one, cut down as it closed to its
+  // span (see onClose below): parsed again from the text when the walk
+  // reaches it, so the tree under one top-level element is never held whole.
+  function expand(el) {
+    const sub = parseXml(text.slice(el.at, el.end), { spans: true, base: el.at });
+    hrefToRef(sub);
+    return sub;
+  }
+
   // Builds an entity from an element; returns its id.
   function entity(el, type) {
+    if (el.stub) el = expand(el);
     if (re && el !== re.root) {
       // A re-read builds only its own arguments; nested entities exist.
       return el.attrs.id !== undefined ? num(el.attrs.id) : inlineIds.get(re.base + el.at);
@@ -423,11 +441,35 @@ export function parseIfcXml(text, schema, opts = {}) {
     if (a._c === undefined) a._c = !entityName(xsiType(a) || a.local) && !/header$/i.test(a.local);
     return a._c;
   };
+  // IFC4 writers nest a whole model under one element (the IfcProject's
+  // IsDecomposedBy, ContainsElements, IsDefinedBy: 96-99.9% of the file in
+  // GeometryGymIFC's output, buildingSMART's Annex E and
+  // eval/ifc4-layout.mjs), so reading by top-level element alone held nearly
+  // the whole tree. A geometry element there is cut to a stub as it closes:
+  // its span, and only the attributes that say what it is. The walk still
+  // runs parent first, so entities are numbered as before.
+  let stubbed = 0;
+  const STUB_KEEP = (k) => k === "id" || k === "ref" || k === "href" || (local(k) === "type" && k.includes(":"));
+  function stub(node) {
+    if (node.attrs.ref !== undefined || node.attrs.href !== undefined) return;
+    const t = entityName(xsiType(node) || node.local);
+    if (!t || keeps(t)) return;
+    const attrs = {};
+    for (const k of Object.keys(node.attrs)) if (STUB_KEEP(k)) attrs[k] = node.attrs[k];
+    node.attrs = attrs;
+    node.children = [];
+    node.text = "";
+    node.stub = true;
+    stubbed++;
+  }
   parseXml(text, {
     spans: !eager,
     onClose(node, stack) {
       if (stack.length < 2) return false; // the root element
-      for (let i = 2; i < stack.length; i++) if (!isContainer(stack[i])) return false;
+      for (let i = 2; i < stack.length; i++) if (!isContainer(stack[i])) {
+        if (!eager) stub(node);
+        return false;
+      }
       const ent = entityName(xsiType(node) || node.local);
       if (ent) {
         if (node.attrs.ref === undefined) {
@@ -454,5 +496,5 @@ export function parseIfcXml(text, schema, opts = {}) {
   }
   for (const s of ids.keys()) if (!entities.has(ids.get(s))) errors.push(`ref="${s}" points at no element`);
   if (commaNumbers) errors.push(`${commaNumbers} number(s) written with a decimal comma (e.g. "${commaExample}"), read with a decimal point`);
-  return { schema: null, entities, errors };
+  return { schema: null, entities, errors, stubbed };
 }
