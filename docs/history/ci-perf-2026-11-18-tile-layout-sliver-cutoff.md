@@ -86,4 +86,9 @@ The page (what visitors wait on) gets the full saving on every recompute.
    only with a deliberate re-pin of tied cut plans.
 3. The earlier tile notes' clipping and full-tile run items
    (`ci-perf-2026-11-16-tile-layout-skip-missed-tiles.md`) still stand.
-4. P063 and P064 remain owner-gated.
+4. **changepoint-detector per-file reading** (this run, each file alone, while
+   other work ran, so upper bounds): `engine.test.mjs` 40.3 s,
+   `engine-trend-bends` 31.0, `engine-trend-joint-knots` 26.1, `synth-cli` 26.1,
+   `synth-control` 22.0, `watch-workflow` 21.6, `drift-warning-null195-ar1`
+   20.7, `drift-warning-null195` 18.9. Not profiled; `engine.test.mjs` first.
+5. P063 and P064 remain owner-gated.

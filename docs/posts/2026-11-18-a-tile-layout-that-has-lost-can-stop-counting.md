@@ -3,7 +3,7 @@ title: "A tile layout that has already lost can stop counting"
 seo_title: "Pruning a tile layout search with the sliver count"
 date: 2026-11-18
 tags: [tile-layout-planner, perf, algorithms]
-description: "The tile layout planner ranks layouts by thin cuts first. Stopping a candidate once it has more thin cuts than the best so far made the search up to 6x faster, same plans."
+description: "Layouts rank by thin cuts first, so a candidate with more than the best so far has lost. Stopping it there made the search up to 6x faster, same plans."
 ---
 
 The [tile layout planner](https://marisstella.app/tile-layout-planner/) looks
