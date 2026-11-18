@@ -107,7 +107,7 @@ export function normalizeAwards(rows) {
 export function parseCsv(text) {
   const rows = [];
   let field = "", row = [], q = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i += 1) {
     const c = s[i];
     if (q) {

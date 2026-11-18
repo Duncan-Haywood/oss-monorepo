@@ -57,7 +57,7 @@ function fundsExtra(fields, i) {
 }
 
 export function splitRecords(text) {
-  let raw = String(text).replace(/^﻿/, "");
+  let raw = String(text).replace(/^\uFEFF/, "");
   let lines = raw.split(/\r\n|\n|\r/).map((l) => l.trim()).filter((l) => l.length);
   // A file delivered as one unbroken string: cut after each slash that precedes a record code.
   if (lines.length === 1 && /\/\s*(01|02|03|16|49|88|98|99),/.test(lines[0])) {

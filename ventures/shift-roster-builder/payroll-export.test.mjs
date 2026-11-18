@@ -8,7 +8,7 @@ import { serve } from "./hub-worker.mjs";
 const fieldOf = (headers, ov) => matchColumns(headers, ov).map((c) => c.field ?? (c.value != null ? `=${c.value}` : null));
 
 test("the header row: separator, quotes and a byte-order mark", () => {
-  assert.deepEqual(readTemplate('﻿"Employee ID","Last, First",Regular Hours\r\n1,2,3').headers, ["Employee ID", "Last, First", "Regular Hours"]);
+  assert.deepEqual(readTemplate('\uFEFF"Employee ID","Last, First",Regular Hours\r\n1,2,3').headers, ["Employee ID", "Last, First", "Regular Hours"]);
   assert.equal(readTemplate("Name\tRegular Hours\tOvertime Hours").sep, "\t");
   assert.equal(readTemplate("Name;Regular Hours;Overtime Hours").sep, ";");
   assert.match(readTemplate("\n \n").error, /empty/);

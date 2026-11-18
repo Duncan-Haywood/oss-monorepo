@@ -248,10 +248,10 @@ function parseMt940(text, add) {
 export function analyze(text) {
   const findings = [];
   const add = (severity, code, line, title, detail = "") => findings.push({ severity, code, line, title, detail });
-  const trimmed = text.replace(/^﻿/, "").trim();
+  const trimmed = text.replace(/^\uFEFF/, "").trim();
   if (!trimmed) { add("error", "EMPTY", 0, "Nothing to read"); return { findings, statements: [], format: "", summary: summarize([], "") }; }
   const isXml = trimmed.startsWith("<");
-  const parsed = isXml ? parseCamt(text.replace(/^﻿/, ""), add) : parseMt940(text.replace(/^﻿/, ""), add);
+  const parsed = isXml ? parseCamt(text.replace(/^\uFEFF/, ""), add) : parseMt940(text.replace(/^\uFEFF/, ""), add);
   if (!isXml && !parsed.statements.length) add("error", "STRUCTURE", 1, "No MT940 statement found", "Expected tagged lines like :20:REF, :25:ACCOUNT, :60F:C261001EUR100,00, :61: entries and :62F: closing balance. camt files start with <.");
 
   const stmts = parsed.statements;
@@ -334,7 +334,7 @@ export function findingsCsv(result) {
 }
 
 export function decodeBuffer(buf) {
-  return new TextDecoder("utf-8").decode(buf).replace(/^﻿/, "");
+  return new TextDecoder("utf-8").decode(buf).replace(/^\uFEFF/, "");
 }
 
 // ---------------------------------------------------------------- converters

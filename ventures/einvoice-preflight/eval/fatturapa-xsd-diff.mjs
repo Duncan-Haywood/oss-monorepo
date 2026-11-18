@@ -36,7 +36,7 @@ const ours = (xml) => checkFatturaPa(xml).findings.filter((f) => /^IT-(018|019|0
 function* walk(d) { for (const n of readdirSync(d)) { const p = join(d, n); if (statSync(p).isDirectory()) yield* walk(p); else if (n.endsWith(".xml")) yield p; } }
 const seeds = [];
 for (const p of walk(dir)) {
-  let xml = readFileSync(p, "utf8").replace(/^﻿/, "");
+  let xml = readFileSync(p, "utf8").replace(/^\uFEFF/, "");
   if (p.endsWith("FPR02.xml")) xml = xml.replace(/(\s*<PECDestinatario>[\s\S]*?<\/PECDestinatario>)(\s*<ContattiTrasmittente>[\s\S]*?<\/ContattiTrasmittente>)/, "$2$1");
   if (xmllintOk(xml)) seeds.push([p.split("/").pop(), xml]);
 }

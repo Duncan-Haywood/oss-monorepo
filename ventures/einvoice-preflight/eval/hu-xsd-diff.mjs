@@ -37,7 +37,7 @@ const ours = (xml) => !checkNavInvoiceData(xml).findings.some((f) => SCHEMA_RULE
 
 const seeds = [];
 for (const n of readdirSync(seedDir).filter((n) => n.endsWith(".xml")).sort()) {
-  const xml = readFileSync(join(seedDir, n), "utf8").replace(/^﻿/, "");
+  const xml = readFileSync(join(seedDir, n), "utf8").replace(/^\uFEFF/, "");
   if (xmllintOk(xml) && ours(xml)) seeds.push([n, xml]);
 }
 const LEAF = /<((?:\w+:)?[a-z]\w*)>[^<]*<\/\1>/g;

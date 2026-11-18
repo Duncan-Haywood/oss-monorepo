@@ -1,0 +1,68 @@
+Milestone 6g: each twin's density cost against the HERMES transit-density curve (3.6 m corridor)
+Twin runs: 20 seeds x 80 cells, 120 s, warm-up 40 s. B = 2000.
+
+Part A: real crossings (HERMES 3.6 m), T(rho) = a + b rho + c rho^2 fitted per walker
+  free: 1084 crossings in 5 runs; density 5th/50th/95th pct 0.370/1.120/1.980 /m^2; coef +5.331, -0.102, +1.852
+    bo-360-050-050: 118 crossings, mean density 0.433, mean transit 5.44 s
+    bo-360-075-075: 136 crossings, mean density 0.460, mean transit 5.58 s
+    bo-360-090-090: 214 crossings, mean density 0.830, mean transit 6.32 s
+    bo-360-120-120: 307 crossings, mean density 1.377, mean transit 8.97 s
+    bo-360-160-160: 309 crossings, mean density 1.721, mean transit 11.06 s
+    T(0.35) = 5.52 s [5.18, 5.84]
+    T(0.60) = 5.94 s [5.71, 6.22]
+    T(0.85) = 6.58 s [6.21, 7.06]
+    T(1.10) = 7.46 s [7.01, 8.02]
+    T(1.35) = 8.57 s [8.08, 9.22]
+    T(1.60) = 9.91 s [9.25, 10.70]
+    T(1.85) = 11.48 s [10.36, 12.71]
+  symmetric: 1917 crossings in 8 runs; density 5th/50th/95th pct 0.441/1.555/2.830 /m^2; coef +4.979, +0.560, +1.514
+    bot-360-050-050: 130 crossings, mean density 0.411, mean transit 5.32 s
+    bot-360-075-075: 127 crossings, mean density 0.612, mean transit 6.12 s
+    bot-360-090-090: 212 crossings, mean density 0.888, mean transit 6.65 s
+    bot-360-120-120: 309 crossings, mean density 1.457, mean transit 9.67 s
+    bot-360-120-120v2: 221 crossings, mean density 1.355, mean transit 8.45 s
+    bot-360-160-160: 306 crossings, mean density 1.856, mean transit 12.04 s
+    bot-360-200-200: 308 crossings, mean density 2.218, mean transit 14.15 s
+    bot-360-250-250: 304 crossings, mean density 2.312, mean transit 14.14 s
+    T(0.45) = 5.54 s [5.23, 5.84]
+    T(0.70) = 6.11 s [5.91, 6.34]
+    T(0.95) = 6.88 s [6.58, 7.22]
+    T(1.20) = 7.83 s [7.43, 8.29]
+    T(1.45) = 8.98 s [8.50, 9.52]
+    T(1.70) = 10.31 s [9.81, 10.89]
+    T(1.95) = 11.83 s [11.35, 12.39]
+    T(2.20) = 13.54 s [13.09, 14.04]
+    T(2.45) = 15.44 s [14.98, 15.92]
+    T(2.70) = 17.53 s [16.99, 18.05]
+  free: dT/drho at the median density 1.120: +4.047 s per /m^2 [+3.280, +4.877]
+
+Part B: twin runs 1600, failed 0
+  social force x0.75: density 5th/95th 0.187/1.035; coef +7.029, -5.103, +8.938; curve gap vs free over [0.37, 1.04]: 2.18 s [1.81, 2.52]
+    entrance 0.9: N10: 0.19/m2 6.43s; N16: 0.28/m2 6.41s; N20: 0.35/m2 6.47s; N24: 0.40/m2 6.53s; N30: 0.48/m2 6.65s; N40: 0.61/m2 7.63s; N48: 0.63/m2 7.45s; N60: 0.72/m2 8.56s; N75: 0.80/m2 9.31s; N90: 0.78/m2 8.95s
+    entrance 1.6: N10: 0.19/m2 6.51s; N16: 0.28/m2 6.34s; N20: 0.35/m2 6.70s; N24: 0.40/m2 6.52s; N30: 0.48/m2 6.58s; N40: 0.62/m2 7.13s; N48: 0.72/m2 8.08s; N60: 0.82/m2 8.83s; N75: 0.89/m2 9.43s; N90: 0.98/m2 10.17s
+    cost at entrance 0.9, N 30 vs 24: twin +0.12 s [-0.26, +0.51] (density 0.477 vs 0.398); real (free) at those densities +0.12 s [-0.01, +0.26]; symmetric +0.15 s; transit at N: twin 6.65 s, real curve 5.70 s
+    cost at entrance 1.6, N 60 vs 48: twin +0.74 s [-0.46, +1.98] (density 0.823 vs 0.715); real (free) at those densities +0.30 s [+0.21, +0.40]; symmetric +0.31 s; transit at N: twin 8.83 s, real curve 6.50 s
+  collision-free speed x0.5: density 5th/95th 0.196/1.357; coef +8.119, -4.186, +6.601; curve gap vs free over [0.37, 1.36]: 3.34 s [2.92, 3.68]
+    entrance 0.9: N10: 0.20/m2 7.05s; N16: 0.30/m2 7.57s; N20: 0.37/m2 7.88s; N24: 0.44/m2 8.07s; N30: 0.55/m2 8.37s; N40: 0.72/m2 8.71s; N48: 0.84/m2 9.06s; N60: 0.96/m2 10.00s; N75: 0.96/m2 10.01s; N90: 1.28/m2 15.32s
+    entrance 1.6: N10: 0.19/m2 6.88s; N16: 0.30/m2 7.26s; N20: 0.37/m2 7.53s; N24: 0.44/m2 7.78s; N30: 0.55/m2 8.22s; N40: 0.73/m2 8.74s; N48: 0.87/m2 9.51s; N60: 1.09/m2 11.08s; N75: 1.25/m2 12.11s; N90: 1.56/m2 18.09s
+    cost at entrance 0.9, N 20 vs 16: twin +0.31 s [+0.10, +0.51] (density 0.374 vs 0.299); real (free) at those densities +0.09 s [-0.06, +0.24] OUTSIDE the real 5-95% range; symmetric +0.12 s; transit at N: twin 7.88 s, real curve 5.55 s
+    cost at entrance 1.6, N 60 vs 48: twin +1.57 s [+1.26, +1.94] (density 1.086 vs 0.869); real (free) at those densities +0.76 s [+0.63, +0.92]; symmetric +0.76 s; transit at N: twin 11.08 s, real curve 7.40 s
+  ORCA x0.02: density 5th/95th 0.190/1.176; coef +8.760, -13.252, +19.502; curve gap vs free over [0.37, 1.18]: 6.01 s [4.96, 7.25]
+    entrance 0.9: N10: 0.19/m2 6.32s; N16: 0.29/m2 6.40s; N20: 0.36/m2 7.02s; N24: 0.43/m2 7.03s; N30: 0.51/m2 7.46s; N40: 0.66/m2 8.05s; N48: 0.78/m2 8.89s; N60: 0.92/m2 12.15s; N75: 1.11/m2 17.80s; N90: 0.86/m2 19.20s
+    entrance 1.6: N10: 0.19/m2 6.37s; N16: 0.30/m2 6.66s; N20: 0.35/m2 6.87s; N24: 0.42/m2 7.26s; N30: 0.52/m2 7.54s; N40: 0.67/m2 8.27s; N48: 0.80/m2 9.45s; N60: 0.94/m2 10.75s; N75: 1.03/m2 16.25s; N90: 0.97/m2 20.26s
+    cost at entrance 0.9, N 30 vs 24: twin +0.44 s [-0.04, +0.99] (density 0.507 vs 0.427); real (free) at those densities +0.13 s [+0.01, +0.27]; symmetric +0.16 s; transit at N: twin 7.46 s, real curve 5.76 s
+    cost at entrance 1.6, N 60 vs 48: twin +1.31 s [-0.50, +3.12] (density 0.940 vs 0.800); real (free) at those densities +0.43 s [+0.34, +0.55]; symmetric +0.45 s; transit at N: twin 10.75 s, real curve 6.87 s
+  ORCA x1.0: density 5th/95th 0.193/1.188; coef +8.259, -7.540, +6.131; curve gap vs free over [0.37, 1.19]: 0.31 s [0.23, 0.66]
+    entrance 0.9: N10: 0.19/m2 6.36s; N16: 0.30/m2 6.38s; N20: 0.37/m2 6.39s; N24: 0.43/m2 6.48s; N30: 0.54/m2 6.48s; N40: 0.70/m2 6.53s; N48: 0.81/m2 6.58s; N60: 0.96/m2 6.65s; N75: 1.06/m2 6.66s; N90: 1.10/m2 7.84s
+    entrance 1.6: N10: 0.19/m2 6.54s; N16: 0.29/m2 6.40s; N20: 0.36/m2 6.37s; N24: 0.43/m2 6.44s; N30: 0.53/m2 6.44s; N40: 0.70/m2 6.53s; N48: 0.82/m2 6.53s; N60: 0.99/m2 6.61s; N75: 1.15/m2 6.67s; N90: 1.24/m2 7.98s
+    cost at entrance 0.9, N 30 vs 24: twin -0.00 s [-0.08, +0.09] (density 0.541 vs 0.435); real (free) at those densities +0.18 s [+0.03, +0.36]; symmetric +0.22 s; transit at N: twin 6.48 s, real curve 5.82 s
+    cost at entrance 1.6, N 60 vs 48: twin +0.08 s [-0.01, +0.16] (density 0.993 vs 0.824); real (free) at those densities +0.55 s [+0.45, +0.68]; symmetric +0.56 s; transit at N: twin 6.61 s, real curve 7.06 s
+
+Registered predictions (LOG.md):
+D1 (real dT/drho at the median density has an interval above 0): held ([+3.280, +4.877])
+D2 (real cost at N 60 between social force's and street-like ORCA's twin costs): refuted (sf +0.74 (real +0.30), ORCA x0.02 +1.31 (real +0.43))
+D3 (collision-free speed has the smallest curve gap): refuted (social force x0.75 2.18 s; collision-free speed x0.5 3.34 s; ORCA x0.02 6.01 s; ORCA x1.0 0.31 s)
+D4 (social force twin cost at N 60 below the real cost's interval): refuted (twin +0.74, real +0.30 [+0.21, +0.40])
+D5 (street-like ORCA twin cost at N 60 above the real cost's interval): held (twin +1.31, real +0.43 [+0.34, +0.55])
+D6 (every setting's curve gap exceeds 0.5 s): refuted (2.18; 3.34; 6.01; 0.31)
+D7 (symmetric runs' cost at N 60 within 30% of the free runs' cost): held (social force x0.75: free +0.30, symmetric +0.31; collision-free speed x0.5: free +0.76, symmetric +0.76; ORCA x0.02: free +0.43, symmetric +0.45; ORCA x1.0: free +0.55, symmetric +0.56)

@@ -41,16 +41,27 @@ export function linkCredits(lines) {
   });
 }
 
-export function schedule(lines, { asOf = Date.now() } = {}) {
+// Period lock: with closedThrough "YYYY-MM", months up to and including it are
+// closed (their journal was exported). A line billed after the close cannot
+// rewrite them: what it would recognise or bill in a closed month is booked
+// as a catch-up in the first open month instead, the way an accountant posts
+// a late item to the current period rather than reopening a closed one. Lines
+// billed in or before the close keep their schedule, so a closed month only
+// changes if Stripe's history of an already-closed invoice changes.
+export function schedule(lines, { asOf = Date.now(), closedThrough = null } = {}) {
   if (!lines.length) return [];
+  if (closedThrough != null && !/^\d{4}-(0[1-9]|1[0-2])$/.test(closedThrough)) throw new Error(`closedThrough must be YYYY-MM, got ${closedThrough}`);
   lines = linkCredits(lines);
   const billed = {}, rec = {};
+  const open = closedThrough ? nextMonth(closedThrough) : null;
+  const late = (l) => open && monthOf(l.billedAt) >= open;
+  const into = (l, m) => (late(l) && m < open ? open : m);
   let first = monthOf(asOf), last = monthOf(asOf);
   for (const l of lines) {
-    const b = monthOf(l.billedAt);
+    const b = into(l, monthOf(l.billedAt));
     billed[b] = (billed[b] || 0) + Math.round(l.amount);
-    for (const [m, v] of Object.entries(spread(l))) rec[m] = (rec[m] || 0) + v;
-    for (const m of [b, monthOf(l.start)]) if (m < first) first = m;
+    for (const [m0, v] of Object.entries(spread(l))) { const m = into(l, m0); rec[m] = (rec[m] || 0) + v; }
+    for (const m of [b, into(l, monthOf(l.start))]) if (m < first) first = m;
   }
   const lastRec = Object.keys(rec).sort().pop();
   if (lastRec > last) last = lastRec;
@@ -69,11 +80,13 @@ export function backlog(rows, asOf = Date.now()) {
   return rows.filter((r) => r.month > cur && r.recognized !== 0).map((r) => ({ month: r.month, recognized: r.recognized }));
 }
 
-// Double-entry rows per month, balanced by construction. Billing: debit the
-// receivable/cash account, credit deferred revenue. Recognition: debit
+// Double-entry rows per month, balanced by construction. Billing: debit cash
+// (the Stripe balance: lines are dated when the invoice was paid, so the money
+// is already in; debiting a receivable left AR growing forever, quality audit
+// 2026-11-17), credit deferred revenue. Recognition: debit
 // deferred revenue, credit revenue. Month-end dates, amounts in major units
 // of `currency` (minor units per minorExponent).
-export function journal(rows, { cash = "Accounts receivable", deferred = "Deferred revenue", revenue = "Subscription revenue", currency = "usd" } = {}) {
+export function journal(rows, { cash = "Stripe balance", deferred = "Deferred revenue", revenue = "Subscription revenue", currency = "usd" } = {}) {
   const out = [], exp = minorExponent(currency);
   const major = (n) => (Math.abs(n) / 10 ** exp).toFixed(exp);
   const push = (date, memo, dr, cr, n) => { if (n === 0) return; out.push(n > 0 ? { date, memo, account: dr, debit: major(n), credit: "" } : { date, memo, account: dr, debit: "", credit: major(n) }, n > 0 ? { date, memo, account: cr, debit: "", credit: major(n) } : { date, memo, account: cr, debit: major(n), credit: "" }); };

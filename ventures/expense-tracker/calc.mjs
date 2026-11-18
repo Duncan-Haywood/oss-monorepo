@@ -159,7 +159,7 @@ export function suggestCategory(text) {
 // Minimal RFC 4180 parser: quoted fields, doubled quotes, CRLF.
 export function parseCsv(text) {
   const rows = []; let row = [], f = "", q = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) {

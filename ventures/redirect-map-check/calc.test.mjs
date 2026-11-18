@@ -116,7 +116,7 @@ test("render: each format", () => {
 test("utf-16 and BOM input decode", () => {
   const u16 = new Uint8Array([0xff, 0xfe, ...Buffer.from("from,to\n/a,/b\n", "utf16le")]);
   assert.match(decodeBuffer(u16), /^from,to/);
-  assert.ok(validate("﻿from,to\n/a,/b\n").findings.some((f) => f.code === "bom"));
+  assert.ok(validate("\uFEFFfrom,to\n/a,/b\n").findings.some((f) => f.code === "bom"));
 });
 
 test("splitUrl handles hosts, schemes, queries and fragments", () => {

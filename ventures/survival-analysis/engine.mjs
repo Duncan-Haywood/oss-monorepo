@@ -113,7 +113,7 @@ function splitLine(line, delim) {
  * lineNo, numeric (per-column flag) }.
  */
 export function parseCsv(text) {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
   if (!lines.length) return { error: "The data is empty. Paste a CSV with a header row: a time column, an event column, and optionally a group and covariates." };
   const first = lines[0];
   const delim = [",", "\t", ";"].map((d) => [d, first.split(d).length]).sort((a, b) => b[1] - a[1])[0][0];

@@ -25,7 +25,7 @@ test("commission is on the price and processing on price plus shipping plus tax 
 test("CSV parsing handles quoted fields, delimiters, BOM and UTF-16", () => {
   const rows = parseCsv('a,b\n"Card, rare","say ""hi"""\n');
   assert.deepEqual(rows[1], ["Card, rare", 'say "hi"']);
-  assert.equal(parseCsv("﻿x,y\r\n1,2\r\n")[0][0], "x");
+  assert.equal(parseCsv("\uFEFFx,y\r\n1,2\r\n")[0][0], "x");
   assert.equal(detectDelimiter("a;b\n1;2"), ";");
   assert.equal(parseNumber("$1,234.56"), 1234.56);
   assert.equal(parseNumber("(4.00)"), -4);

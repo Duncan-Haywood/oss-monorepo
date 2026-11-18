@@ -138,7 +138,7 @@ export function parseInstance(text) {
   const warnings = [];
   const sides = [];
   let cur = null;
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/);
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/);
   lines.forEach((raw, idx) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;

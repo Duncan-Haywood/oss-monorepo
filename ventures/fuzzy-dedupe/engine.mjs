@@ -68,7 +68,7 @@ export const DEFAULTS = {
 // CSV
 
 export function parseCsv(text) {
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   const firstLine = s.split(/\r?\n/, 1)[0] || "";
   const delim = [",", ";", "\t", "|"].map((d) => [d, firstLine.split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
   const rows = [];

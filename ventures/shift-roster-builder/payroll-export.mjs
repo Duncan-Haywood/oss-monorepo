@@ -53,7 +53,7 @@ export function splitCsvLine(line, sep = ",") {
 // The header row of an uploaded template: the first non-empty line, with its separator (comma, tab or semicolon,
 // whichever splits it into the most cells). A UTF-8 byte-order mark is dropped.
 export function readTemplate(text) {
-  const line = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/).find((l) => l.trim() !== "");
+  const line = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/).find((l) => l.trim() !== "");
   if (!line) return { error: "The template is empty: upload your payroll provider's blank CSV template or paste its first row." };
   let best = { sep: ",", cells: splitCsvLine(line, ",") };
   for (const sep of ["\t", ";"]) { const cells = splitCsvLine(line, sep); if (cells.length > best.cells.length) best = { sep, cells }; }

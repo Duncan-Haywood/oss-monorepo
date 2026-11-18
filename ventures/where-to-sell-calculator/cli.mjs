@@ -84,7 +84,7 @@ function splitLine(line) {
 }
 
 export function parseItems(text) {
-  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim() !== "");
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim() !== "");
   if (lines.length < 2) return { error: "Give a header row and at least one item." };
   const header = splitLine(lines[0]).map((h) => ALIASES[h.toLowerCase().replace(/[\s_-]/g, "")] ?? null);
   if (!header.includes("price") || !header.includes("itemCost")) {

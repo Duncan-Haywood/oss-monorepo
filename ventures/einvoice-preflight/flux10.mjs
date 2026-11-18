@@ -50,7 +50,7 @@ const payment = (node) => {
 };
 
 export function readFlux10(source) {
-  const raw = (typeof source === "string" ? source : new TextDecoder().decode(source)).replace(/^﻿/, "");
+  const raw = (typeof source === "string" ? source : new TextDecoder().decode(source)).replace(/^\uFEFF/, "");
   const tree = parseXmlTree(raw);
   const root = tree.children.find((c) => local(c.name) === "Report");
   if (!root || !kid(root, "ReportDocument")) throw new Error("not a Flux 10 e-reporting file (Report > ReportDocument)");

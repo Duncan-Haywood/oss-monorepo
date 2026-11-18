@@ -129,7 +129,7 @@ function splitLine(line, delim) {
 
 export function parseCsv(text) {
   const lines = String(text ?? "")
-    .replace(/^﻿/, "")
+    .replace(/^\uFEFF/, "")
     .split(/\r?\n/)
     .filter((l) => l.trim() !== "" && !/^\s*#/.test(l));
   if (lines.length < 2) throw new Error("Paste a header row and at least a few rows of data.");

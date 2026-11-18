@@ -10,7 +10,7 @@ export const HORIZONS = [5, 10, 20];
 // ---- CSV -------------------------------------------------------------------------------
 // RFC 4180: quoted fields, doubled quotes, commas and newlines inside quotes, CRLF or LF.
 export function parseCsv(text) {
-  const s = String(text).replace(/^﻿/, '');
+  const s = String(text).replace(/^\uFEFF/, '');
   const rows = [];
   let row = [];
   let field = '';

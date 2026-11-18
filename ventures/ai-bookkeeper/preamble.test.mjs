@@ -22,7 +22,7 @@ for (const f of ["knab-nl.csv", "postfinance-account.tsv"]) {
 
 test("MT940 with a byte-order mark reads the same rows", () => {
   const t = fx("checking.mt940");
-  assert.equal(readStatement("﻿" + t).rows.length, readStatement(t).rows.length);
+  assert.equal(readStatement("\uFEFF" + t).rows.length, readStatement(t).rows.length);
   assert.ok(readStatement(t).rows.length > 0);
 });
 

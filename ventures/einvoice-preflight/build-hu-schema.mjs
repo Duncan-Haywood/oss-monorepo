@@ -38,7 +38,7 @@ if (!dir) {
   const sha = execFileSync("git", ["-C", join(tmp, "oi"), "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
   source = `nav-gov-hu/Online-Invoice ${sha.slice(0, 12)}`;
 }
-const read = (f) => readFileSync(join(dir, f), "utf8").replace(/^﻿/, "").replace(/\r\n/g, "\n");
+const read = (f) => readFileSync(join(dir, f), "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
 const commonText = read("common.xsd");
 const got = createHash("sha256").update(commonText).digest("hex");
 if (got !== COMMON_SHA256) throw new Error(`common.xsd SHA-256 ${got} is not the NTCA common 1.0 file this table was checked against`);

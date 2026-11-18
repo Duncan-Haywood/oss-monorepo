@@ -11,7 +11,7 @@
 const HEAD = /^(01|07)\d{5}.{4}\d{5}[A-Z]{3}\d\s.{11}.{2}\d{6}/;
 const MOVE = /^04\d{5}.{4}\d{5}[A-Z]{3}\d\s.{11}.{2}\d{6}/;
 export function isCfonb(text) {
-  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
   return lines.some((l) => l.length >= 104 && HEAD.test(l) && l.startsWith("01")) && lines.some((l) => l.length >= 104 && MOVE.test(l));
 }
 
@@ -37,7 +37,7 @@ const clean = (s) => s.replace(/\s+/g, " ").trim();
 export function readCfonb(text) {
   const problems = [], rows = [];
   let accounts = 0, statement = null, last = null, currency = null;
-  String(text).replace(/^﻿/, "").split(/\r?\n/).forEach((raw, i) => {
+  String(text).replace(/^\uFEFF/, "").split(/\r?\n/).forEach((raw, i) => {
     const l = raw.replace(/\s+$/, "");
     if (!l) return;
     const line = i + 1, kind = l.slice(0, 2);

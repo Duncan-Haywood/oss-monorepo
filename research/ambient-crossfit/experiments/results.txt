@@ -2,52 +2,52 @@ oracle weights [score, keyword, others, intercept] = [1.998, 2.263, -0.019, -6.0
 20 seeds, fits at hour 100; scored on fresh 100 h held-out streams with no exploration; '+-' is the std over seeds
 columns: held-out utility/h | L2 distance of weights to oracle weights | labelled windows
 prior          eps             fit       utility/h   dist to oracle  labelled
-uninformed   0.002          biased   1.59 +-  5.70  178.93 +- 46.21       814
-uninformed   0.002          clip10 -33.17 +- 22.09 573.57 +- 105.11       814
-uninformed   0.002           plug5 -22.71 +- 22.90 7277.59 +- 7450.32       814
-uninformed   0.002          plug20 -19.33 +- 18.92 7471.10 +- 7558.35       814
-uninformed   0.002         plug100 -34.90 +- 55.66 7232.40 +- 7423.16       814
-uninformed   0.002         pluginf -48.77 +- 72.71 7157.26 +- 8924.84       814
-uninformed   0.002          cross5 -20.57 +- 23.44 8428.44 +- 7811.75       814
-uninformed   0.002         cross20 -14.33 +- 19.75 8922.64 +- 8382.32       814
-uninformed   0.002        cross100 -40.51 +- 50.11 7820.53 +- 7252.04       814
-uninformed   0.002        crossinf -44.31 +- 77.17 4736.35 +- 5489.54       814
-uninformed   0.002  random_matched  12.15 +-  0.75    1.21 +-  0.39       814
-uninformed   0.002            full  12.72 +-  0.58    0.15 +-  0.05       814
-uninformed   0.005          biased  -0.15 +-  6.29  260.74 +- 63.32       932
-uninformed   0.005          clip10 -62.95 +- 34.21 1067.93 +- 180.91       932
-uninformed   0.005           plug5 -18.23 +- 23.11 12353.43 +- 6407.75       932
-uninformed   0.005          plug20 -17.66 +- 21.32 12922.89 +- 6868.78       932
-uninformed   0.005         plug100 -31.14 +- 55.03 8325.15 +- 9434.14       932
-uninformed   0.005         pluginf -15.89 +- 53.58 4014.92 +- 8328.09       932
-uninformed   0.005          cross5 -20.71 +- 24.05 14045.49 +- 6421.49       932
-uninformed   0.005         cross20 -27.92 +- 24.49 13083.17 +- 6332.21       932
-uninformed   0.005        cross100 -61.74 +- 70.48 7052.32 +- 7228.69       932
-uninformed   0.005        crossinf -42.46 +- 77.36 5655.02 +- 8726.96       932
-uninformed   0.005  random_matched  12.18 +-  0.75    1.08 +-  0.31       932
-uninformed   0.005            full  12.72 +-  0.58    0.15 +-  0.05       932
-uninformed   0.020          biased -13.08 +-  8.66  658.15 +- 58.98      2691
-uninformed   0.020          clip10 -96.19 +- 87.83 2930.85 +- 2430.53      2691
-uninformed   0.020           plug5 -29.56 +- 67.25 11873.71 +- 5923.81      2691
-uninformed   0.020          plug20 -18.07 +- 56.84 12449.85 +- 7723.40      2691
-uninformed   0.020         plug100 -49.54 +- 77.25 5317.46 +- 6569.04      2691
-uninformed   0.020         pluginf -49.54 +- 77.25 5317.46 +- 6569.04      2691
-uninformed   0.020          cross5 -13.09 +- 29.59 16100.12 +- 6606.57      2691
-uninformed   0.020         cross20 -51.85 +- 47.55 14548.37 +- 5262.68      2691
-uninformed   0.020        cross100 -59.33 +- 77.49 6057.38 +- 6600.35      2691
-uninformed   0.020        crossinf -59.33 +- 77.49 6057.38 +- 6600.35      2691
-uninformed   0.020  random_matched  12.52 +-  0.65    0.65 +-  0.24      2691
-uninformed   0.020            full  12.72 +-  0.58    0.15 +-  0.05      2691
+uninformed   0.002          biased  10.63 +-  0.77    2.68 +-  0.21      1685
+uninformed   0.002          clip10  11.70 +-  0.80    2.03 +-  0.33      1685
+uninformed   0.002           plug5  11.68 +-  0.80    2.04 +-  0.32      1685
+uninformed   0.002          plug20  11.74 +-  0.77    2.01 +-  0.33      1685
+uninformed   0.002         plug100  11.82 +-  0.87    1.81 +-  0.40      1685
+uninformed   0.002         pluginf   9.40 +-  3.58   19.24 +- 39.14      1685
+uninformed   0.002          cross5  11.61 +-  0.77    2.13 +-  0.31      1685
+uninformed   0.002         cross20  11.66 +-  0.77    2.10 +-  0.31      1685
+uninformed   0.002        cross100  11.75 +-  0.89    1.90 +-  0.38      1685
+uninformed   0.002        crossinf   9.26 +-  3.72   24.20 +- 43.43      1685
+uninformed   0.002  random_matched  12.51 +-  0.64    0.79 +-  0.23      1685
+uninformed   0.002            full  12.72 +-  0.58    0.15 +-  0.05      1685
+uninformed   0.005          biased  10.85 +-  0.79    2.56 +-  0.21      1757
+uninformed   0.005          clip10  12.14 +-  0.73    1.49 +-  0.31      1757
+uninformed   0.005           plug5  12.15 +-  0.74    1.51 +-  0.31      1757
+uninformed   0.005          plug20  12.17 +-  0.72    1.43 +-  0.33      1757
+uninformed   0.005         plug100  12.04 +-  0.74    1.04 +-  0.43      1757
+uninformed   0.005         pluginf  11.00 +-  1.39    2.88 +-  2.88      1757
+uninformed   0.005          cross5  12.10 +-  0.73    1.60 +-  0.29      1757
+uninformed   0.005         cross20  12.13 +-  0.73    1.52 +-  0.31      1757
+uninformed   0.005        cross100  12.02 +-  0.77    1.08 +-  0.43      1757
+uninformed   0.005        crossinf  10.92 +-  1.45    3.61 +-  5.01      1757
+uninformed   0.005  random_matched  12.48 +-  0.58    0.79 +-  0.25      1757
+uninformed   0.005            full  12.72 +-  0.58    0.15 +-  0.05      1757
+uninformed   0.020          biased  11.44 +-  0.78    2.16 +-  0.18      2174
+uninformed   0.020          clip10  12.51 +-  0.59    0.72 +-  0.25      2174
+uninformed   0.020           plug5  12.50 +-  0.63    0.77 +-  0.25      2174
+uninformed   0.020          plug20  12.53 +-  0.57    0.64 +-  0.24      2174
+uninformed   0.020         plug100  12.36 +-  0.57    0.84 +-  0.34      2174
+uninformed   0.020         pluginf  12.36 +-  0.57    0.84 +-  0.34      2174
+uninformed   0.020          cross5  12.50 +-  0.66    0.82 +-  0.24      2174
+uninformed   0.020         cross20  12.51 +-  0.56    0.68 +-  0.25      2174
+uninformed   0.020        cross100  12.33 +-  0.55    0.85 +-  0.36      2174
+uninformed   0.020        crossinf  12.33 +-  0.55    0.85 +-  0.36      2174
+uninformed   0.020  random_matched  12.47 +-  0.64    0.73 +-  0.25      2174
+uninformed   0.020            full  12.72 +-  0.58    0.15 +-  0.05      2174
 informed     0.002          biased  10.62 +-  0.77    2.67 +-  0.22      1688
 informed     0.002          clip10  11.70 +-  0.78    2.01 +-  0.33      1688
 informed     0.002           plug5  11.68 +-  0.78    2.02 +-  0.33      1688
 informed     0.002          plug20  11.74 +-  0.76    1.99 +-  0.34      1688
 informed     0.002         plug100  11.84 +-  0.87    1.80 +-  0.41      1688
-informed     0.002         pluginf   0.26 +- 41.08 622.23 +- 2608.93      1688
+informed     0.002         pluginf   9.27 +-  3.53   22.85 +- 46.42      1688
 informed     0.002          cross5  11.63 +-  0.76    2.10 +-  0.31      1688
 informed     0.002         cross20  11.68 +-  0.76    2.07 +-  0.32      1688
 informed     0.002        cross100  11.79 +-  0.89    1.87 +-  0.39      1688
-informed     0.002        crossinf   1.53 +- 34.80 617.53 +- 2564.38      1688
+informed     0.002        crossinf   9.12 +-  3.65   28.13 +- 52.67      1688
 informed     0.002  random_matched  12.48 +-  0.63    0.76 +-  0.22      1688
 informed     0.002            full  12.72 +-  0.58    0.15 +-  0.05      1688
 informed     0.005          biased  10.84 +-  0.81    2.55 +-  0.21      1757
@@ -74,3 +74,29 @@ informed     0.020        cross100  12.34 +-  0.54    0.86 +-  0.37      2178
 informed     0.020        crossinf  12.34 +-  0.54    0.86 +-  0.37      2178
 informed     0.020  random_matched  12.48 +-  0.66    0.71 +-  0.24      2178
 informed     0.020            full  12.72 +-  0.58    0.15 +-  0.05      2178
+
+paired cross - plug held-out utility/h over the same 20 seeds: mean, std, t = mean / (std / sqrt(n)), two-sided |t| > 2.09 is p < 0.05 (t, 19 df)
+uninformed   0.002 cap    5  -0.069  0.078 t  -3.90
+uninformed   0.002 cap   20  -0.078  0.076 t  -4.62
+uninformed   0.002 cap  100  -0.066  0.072 t  -4.12
+uninformed   0.002 cap  inf  -0.141  0.357 t  -1.77
+uninformed   0.005 cap    5  -0.057  0.053 t  -4.83
+uninformed   0.005 cap   20  -0.039  0.082 t  -2.13
+uninformed   0.005 cap  100  -0.019  0.085 t  -1.03
+uninformed   0.005 cap  inf  -0.081  0.212 t  -1.72
+uninformed   0.020 cap    5  -0.002  0.047 t  -0.14
+uninformed   0.020 cap   20  -0.016  0.041 t  -1.75
+uninformed   0.020 cap  100  -0.029  0.061 t  -2.12
+uninformed   0.020 cap  inf  -0.029  0.061 t  -2.12
+informed     0.002 cap    5  -0.048  0.071 t  -3.02
+informed     0.002 cap   20  -0.060  0.085 t  -3.17
+informed     0.002 cap  100  -0.052  0.083 t  -2.79
+informed     0.002 cap  inf  -0.156  0.328 t  -2.12
+informed     0.005 cap    5  -0.056  0.060 t  -4.20
+informed     0.005 cap   20  -0.052  0.070 t  -3.33
+informed     0.005 cap  100  +0.001  0.077 t  +0.06
+informed     0.005 cap  inf  -0.037  0.196 t  -0.84
+informed     0.020 cap    5  -0.017  0.042 t  -1.81
+informed     0.020 cap   20  -0.005  0.044 t  -0.51
+informed     0.020 cap  100  -0.004  0.065 t  -0.27
+informed     0.020 cap  inf  -0.004  0.065 t  -0.27

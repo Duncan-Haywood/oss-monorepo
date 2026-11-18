@@ -10,7 +10,7 @@ export function decodeBuffer(buf) {
   const b = new Uint8Array(buf);
   if (b[0] === 0xff && b[1] === 0xfe) return new TextDecoder("utf-16le").decode(b.subarray(2));
   if (b[0] === 0xfe && b[1] === 0xff) return new TextDecoder("utf-16be").decode(b.subarray(2));
-  const utf8 = new TextDecoder("utf-8", { fatal: false }).decode(b).replace(/^﻿/, "");
+  const utf8 = new TextDecoder("utf-8", { fatal: false }).decode(b).replace(/^\uFEFF/, "");
   return utf8.includes("�") ? new TextDecoder("windows-1252").decode(b) : utf8;
 }
 
@@ -44,7 +44,7 @@ export function normalizeAmount(raw) {
 // not `records`, so a category description is never checked as a date or an account type as an amount.
 export const LIST_TYPES = new Set(["cat", "class", "memorized", "security", "prices", "payee", "tag", "account"]);
 export function parseQif(text) {
-  const lines = String(text).replace(/^﻿/, "").split(/\r\n|\n|\r/);
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r\n|\n|\r/);
   const records = [], headers = [];
   let rec = null, type = null;
   lines.forEach((raw, i) => {

@@ -96,7 +96,7 @@ export function parseBallots(text, options = {}) {
     return index.get(key);
   };
   for (const c of options.candidates || []) if (clean(c)) id(c);
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = src.split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
   const raw = []; // [{ groups: [[name, ...], ...], count, line }]
   let format;
