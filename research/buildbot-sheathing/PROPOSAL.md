@@ -459,6 +459,10 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    backward-drag headroom for forward. The drag each pose tolerates is linear in its press headroom (H206 held): the
    G1 at 1.2 m grips 4.0 N straight back, 11.4 to 13.4 N in every direction at its best lean; every pose that has a
    plan tolerates at least 20.1 N. Next: a hose-management rule (dragged length or reel tension per pose).
+51. **Drag envelope** (done 2026-11-18, `experiments/m51_envelope/`): every swept case past milestone 50's drag
+   limits (at the pose or the calibration pose) has no plan (G1 162 of 162, H1 36 of 36); inside them the G1 plans
+   93.0% (83.1% overall), the H1 99.7%, in spec (H209 held). 101 cases inside have no plan (H208 refuted), 75 of the
+   G1's 96 at its one calibration pose. Next: calibrate with the hose slack and rerun the sweep.
 
 ## Target venue
 
