@@ -1,0 +1,37 @@
+# Milestone 11al: planners under a shared take-off-zero barometric drift (drift_share.py). Z = 7.62 m, H = 120 m, 30 spacings, best of 200 descents, 48 layouts, 4000 Monte Carlo draws per operator pair
+# aware = per-pair tables (shared field: time part over the take-off difference + space part at the hub separation, plus N(0, 2 sigma_n^2) noise); none = 11ai at sigma_n; indep = 11ai at sqrt(sigma_n^2 + s0^2).
+# All plans scored under the aware (shared-field) F. F_none0 = the none plan under its own model (no pressure).
+
+## M = 12 (24 layouts)
+  sigma_n  mission  s0_med  pair_sd_med  h*_aware  bands  h*_none  same_h  none/aware  max   h*_indep  indep/aware  max    aware/F_none0
+  0.50     deliv    0.250    0.544        13.33    5.0    13.33   22/24   1.0000   1.0076   13.33    1.0000   1.0186   1.0000
+  0.50     T30      1.557    1.191        13.33    5.0    13.33   17/24   1.0000   1.0617   13.33    1.0000   1.0912   1.0027
+  0.50     T60      2.986    2.169        13.33    5.0    13.33   17/24   1.0021   1.1184   17.14    1.1062   1.2452   1.0232
+  1.00     deliv    0.250    0.544        13.33    5.0    13.33   24/24   1.0000   1.0076   13.33    1.0000   1.0028   1.0001
+  1.00     T30      1.557    1.191        13.33    5.0    13.33   24/24   1.0000   1.0090   17.14    1.0454   1.1204   1.0047
+  1.00     T60      2.986    2.169        13.33    5.0    13.33   24/24   1.0000   1.0272   17.14    1.1201   1.2364   1.0266
+  aware h* distribution per condition (h: layouts)
+    0.50 deliv  9.23: 5, 13.33: 19
+    0.50 T30    13.33: 24
+    0.50 T60    13.33: 24
+    1.00 deliv  13.33: 24
+    1.00 T30    13.33: 24
+    1.00 T60    13.33: 24
+
+## M = 16 (24 layouts)
+  sigma_n  mission  s0_med  pair_sd_med  h*_aware  bands  h*_none  same_h  none/aware  max   h*_indep  indep/aware  max    aware/F_none0
+  0.50     deliv    0.253    0.542        13.33    5.0     9.23   21/24   1.0000   1.0249   13.33    1.0000   1.0453   1.0049
+  0.50     T30      1.554    1.201        13.33    5.0     9.23   11/24   1.0101   1.1205   13.33    1.0000   1.0931   1.0070
+  0.50     T60      2.981    2.177        13.33    5.0     9.23   11/24   1.0580   1.2088   17.14    1.1332   1.2779   1.0293
+  1.00     deliv    0.253    0.542        13.33    5.0    13.33   24/24   1.0000   1.0043   13.33    1.0000   1.0050   1.0001
+  1.00     T30      1.554    1.201        13.33    5.0    13.33   24/24   1.0000   1.0044   13.33    1.0046   1.0993   1.0051
+  1.00     T60      2.981    2.177        13.33    5.0    13.33   24/24   1.0001   1.0089   17.14    1.1236   1.2723   1.0272
+  aware h* distribution per condition (h: layouts)
+    0.50 deliv  9.23: 11, 13.33: 13
+    0.50 T30    9.23: 1, 13.33: 23
+    0.50 T60    9.23: 1, 13.33: 23
+    1.00 deliv  13.33: 24
+    1.00 T30    13.33: 24
+    1.00 T60    13.33: 24
+
+# analysis CPU s per layout: median 12
