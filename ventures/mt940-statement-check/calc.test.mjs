@@ -127,3 +127,9 @@ test("decodeBuffer reads UTF-8, UTF-16 and falls back to Windows-1252", () => {
   assert.equal(decodeBuffer(new TextEncoder().encode(":20:É")), ":20:É");
   assert.equal(decodeBuffer(new Uint8Array([0x3a, 0xe9])), ":é");
 });
+
+test("repairing a clean file adds no blank line, and a second repair changes nothing (fuzz find, 2026-11-18)", () => {
+  const a = repair(sampleFile()).text;
+  assert.ok(!a.endsWith("\r\n\r\n"));
+  assert.equal(repair(a).text, a);
+});

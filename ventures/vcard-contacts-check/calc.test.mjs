@@ -86,3 +86,10 @@ test("findings export as CSV with quoting", () => {
   const csv = findingsCsv(validate(sampleBrokenFile()));
   assert.match(csv, /^severity,line,title,detail,auto_fixed\r\n/);
 });
+
+test("cards that only match once FN and N are fixed are deduplicated in one pass (fuzz find, 2026-11-18)", () => {
+  const x = "BEGIN:VCARD\nVERSION:3.0\nFN:Lee Chen\nN:Chen;Lee;;;\nEND:VCARD\nBEGIN:VCARD\nVERSION:3.0\nN:Chen;Lee\nEND:VCARD";
+  const a = repair(x);
+  assert.equal((a.text.match(/BEGIN:VCARD/g) || []).length, 1);
+  assert.equal(repair(a.text).text, a.text, "a second repair changes nothing");
+});

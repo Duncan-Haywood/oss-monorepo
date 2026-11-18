@@ -99,6 +99,8 @@ export function classify(raw) {
     const digits = sci[1] + (sci[2] || "");
     const exp = Number(sci[3]);
     if (digits.length > exp + 1) return { kind: "bad", why: "scientific notation with a fractional part" };
+    // No GTIN has more than 14 digits; a huge exponent (03600e3036000291452) used to build a string too long to allocate.
+    if (exp + 1 > 14) return { kind: "bad", why: "scientific notation for a number longer than any GTIN (14 digits)" };
     const full = digits.padEnd(exp + 1, "0");
     const lost = exp + 1 - digits.length;
     const test = tryDigits(full);
