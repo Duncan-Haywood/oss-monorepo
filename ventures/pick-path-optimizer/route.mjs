@@ -80,7 +80,6 @@ function verticalOptions(col, backAisle) {
   return opts;
 }
 
-const key = (s) => `${s.da}${s.db}${s.la}${s.lb}${s.closed ? 1 : 0}`;
 
 function normalise(s) {
   // Relabel so the first label seen is 1: states that differ only in label
@@ -130,6 +129,34 @@ function applyHorizontal(s, f, g) {
   return { da: parity(0, f), db: parity(0, g), la: f > 0 ? la : 0, lb: g > 0 ? lb : 0, closed: false };
 }
 
+// A normalised state packed into one small integer (labels are 0..2 after
+// normalise, degrees 0..2; every closed state is the same all-zero state).
+const code = (s) => (s.closed ? 1 << 8 : (((s.da * 3 + s.db) * 4 + s.la) * 4 + s.lb));
+const H_BACK = [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]];
+const H_FRONT = [[0, 0], [1, 0], [2, 0]];
+const H_LAST = [[0, 0]];
+
+// normalise(applyHorizontal(applyVertical(s, opt), f, g)) depends only on the
+// state, on opt's addA, addB, join and whether its cost is zero, and on f, g.
+// There are a few hundred such combinations, so the DP computes each once per
+// process and shares the resulting (read-only) state object. Iteration order
+// and tie-breaking in the DP are unchanged, so routes are byte-identical.
+const STEP = new Map();
+function step(s, sc, opt, f, g) {
+  const k = ((((sc * 3 + opt.addA) * 3 + opt.addB) * 2 + (opt.join ? 1 : 0)) * 2 + (opt.cost === 0 ? 1 : 0)) * 9 + f * 3 + g;
+  let r = STEP.get(k);
+  if (r === undefined) {
+    const v = applyVertical(s, opt);
+    const h = v && applyHorizontal(v, f, g);
+    if (h) {
+      const ns = normalise(h);
+      r = { s: ns, c: code(ns) };
+    } else r = null;
+    STEP.set(k, r);
+  }
+  return r;
+}
+
 /**
  * Shortest closed walk from the depot through every point.
  * points: [{x, y}] with 0 <= y <= aisleLength and x one of layout.aisleXs.
@@ -137,46 +164,55 @@ function applyHorizontal(s, f, g) {
  * Returns {length, path: [{x,y}], order: indices into points in visit order}.
  */
 export function optimalRoute(points, layout) {
-  const backAisle = layout.backAisle !== false;
   if (!points.length) return { length: 0, path: [{ x: layout.depotX, y: 0 }], order: [] };
-  const cols = columnsFor(points, layout);
-  let layer = new Map([[key({ da: 0, db: 0, la: 0, lb: 0, closed: false }), { s: { da: 0, db: 0, la: 0, lb: 0, closed: false }, cost: 0, back: null }]]);
-  const trail = [];
-  for (let j = 0; j < cols.length; j++) {
-    const col = cols[j];
-    const opts = verticalOptions(col, backAisle);
-    const last = j === cols.length - 1;
-    const dx = last ? 0 : cols[j + 1].x - col.x;
-    const next = new Map();
-    for (const [, entry] of layer) {
-      for (const opt of opts) {
-        if (entry.s.closed && col.picks.length) continue;
-        const v = applyVertical(entry.s, opt);
-        if (!v) continue;
-        const hs = last ? [[0, 0]] : backAisle ? [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]] : [[0, 0], [1, 0], [2, 0]];
-        for (const [f, g] of hs) {
-          const h = applyHorizontal(v, f, g);
-          if (!h) continue;
-          const ns = normalise(h);
-          const cost = entry.cost + opt.cost + (f + g) * dx;
-          const k = key(ns);
-          const prev = next.get(k);
-          if (!prev || cost < prev.cost - 1e-9) next.set(k, { s: ns, cost, back: { entry, opt, f, g } });
-        }
-      }
-    }
-    trail.push(next);
-    layer = next;
-  }
-  let best = null;
-  for (const [, e] of layer) if (e.s.closed && (!best || e.cost < best.cost)) best = e;
-  if (!best) throw new Error("no closed tour found");
+  const { cols, best } = bestTour(points, layout);
   // Recover the chosen pattern in each column.
   const chosen = [];
   for (let e = best, j = cols.length - 1; e && e.back; e = e.back.entry, j--) chosen[j] = e.back;
   const path = eulerWalk(cols, chosen, layout.aisleLength);
   const order = visitOrder(points, path);
   return { length: best.cost, path, order };
+}
+
+/**
+ * optimalRoute(points, layout).length without building the walk: the batch
+ * search scores thousands of candidate carts and only needs the length.
+ */
+export function optimalLength(points, layout) {
+  return points.length ? bestTour(points, layout).best.cost : 0;
+}
+
+/** The Ratliff-Rosenthal DP: the columns and the cheapest closed final state. */
+function bestTour(points, layout) {
+  const backAisle = layout.backAisle !== false;
+  const cols = columnsFor(points, layout);
+  const start = { da: 0, db: 0, la: 0, lb: 0, closed: false };
+  let layer = new Map([[code(start), { s: start, cost: 0, back: null }]]);
+  for (let j = 0; j < cols.length; j++) {
+    const col = cols[j];
+    const opts = verticalOptions(col, backAisle);
+    const last = j === cols.length - 1;
+    const dx = last ? 0 : cols[j + 1].x - col.x;
+    const hs = last ? H_LAST : backAisle ? H_BACK : H_FRONT;
+    const next = new Map();
+    for (const [sc, entry] of layer) {
+      if (entry.s.closed && col.picks.length) continue;
+      for (const opt of opts) {
+        for (const [f, g] of hs) {
+          const r = step(entry.s, sc, opt, f, g);
+          if (!r) continue;
+          const cost = entry.cost + opt.cost + (f + g) * dx;
+          const prev = next.get(r.c);
+          if (!prev || cost < prev.cost - 1e-9) next.set(r.c, { s: r.s, cost, back: { entry, opt, f, g } });
+        }
+      }
+    }
+    layer = next;
+  }
+  let best = null;
+  for (const [, e] of layer) if (e.s.closed && (!best || e.cost < best.cost)) best = e;
+  if (!best) throw new Error("no closed tour found");
+  return { cols, best };
 }
 
 /** Turn the chosen multigraph into one walk from the depot (Hierholzer). */
