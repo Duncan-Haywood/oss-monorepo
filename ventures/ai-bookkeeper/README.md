@@ -1748,7 +1748,10 @@ reads text-layer PDFs only. Tests: `scanned-statement.test.mjs` (stubbed tools,
 plus one real ImageMagick, pdftoppm and tesseract run when installed). OCR is
 slow, about 5 s a page on 4 cores, and two tesseract processes at once on the same
 cores slowed to minutes a page here (OpenMP threads competing; `OMP_THREAD_LIMIT=1`
-is tesseract's advice for running several at once).
+is tesseract's advice for running several at once). Since 2026-11-18 every OCR command
+the CLI runs gets `OMP_THREAD_LIMIT=1` unless your environment sets it, and a time limit
+(`OCR_TIMEOUT` seconds, default 120, `0` for none), so a stalled read ends with a
+message (README "OCR time limit", eval/ocr-time-limit-2026-11-18.md).
 
 ## Switching from QuickBooks or Xero
 
