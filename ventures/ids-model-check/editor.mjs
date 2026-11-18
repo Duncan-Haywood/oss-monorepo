@@ -324,7 +324,7 @@ export function entityFacet(S, cls, { withSubclasses = false, predefinedType = n
 // buildIds() writes; importIds() turns an opened IDS file into it.
 
 export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, untyped: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", minEx: false, maxEx: false, pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
-export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], withSub: true, predefinedType: "", reqs: [blankReq()], app: [] });
+export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], alsoSub: [], withSub: true, predefinedType: "", reqs: [blankReq()], app: [] });
 
 // ------------------------------------------------- several classes per spec --
 // A specification may apply to several classes (IFCSLAB, IFCBEAM, IFCCOLUMN):
@@ -344,7 +344,32 @@ export const specBases = (spec) => [...new Set([spec.cls, ...(spec.also || [])].
 export function specClassNames(S, spec) {
   if (!spec.cls) return [];
   const first = spec.withSub && S.entities[spec.cls] ? [spec.cls, ...subclasses(S, spec.cls)] : [spec.cls];
-  return [...new Set([...first, ...(spec.also || []).filter(Boolean)])];
+  const ticked = new Set(spec.alsoSub || []);
+  const rest = (spec.also || []).filter(Boolean).flatMap((c) => (ticked.has(c) && S.entities[c] ? [c, ...subclasses(S, c)] : [c]));
+  return [...new Set([...first, ...rest])];
+}
+
+// An entity facet's class list read back as the classes a person picked:
+// [{ cls, withSub }] in the file's order. A name whose concrete subclasses are
+// all in the list (and that is not itself below another such name) stands for
+// itself and its subclasses; the subclasses it covers are not listed again;
+// every other name is an exact class. So `IFCWALL IFCWALLSTANDARDCASE
+// IFCWALLELEMENTEDCASE IFCSLAB IFCSLABSTANDARDCASE IFCSLABELEMENTEDCASE`
+// opens as IFCWALL and IFCSLAB, each with its subclasses ticked, not as six
+// exact classes. The written facet names the same set of classes.
+export function classListBases(S, names) {
+  const up = [...new Set(names)];
+  const inList = new Set(up);
+  const subsOf = new Map();
+  for (const c of up) {
+    if (!S.entities[c]) continue;
+    const subs = subclasses(S, c);
+    if (subs.length && subs.every((x) => inList.has(x))) subsOf.set(c, subs);
+  }
+  // Only the topmost: IFCBUILTELEMENT's group already holds IFCWALL's.
+  const top = [...subsOf.keys()].filter((c) => !ancestors(S, c).some((a) => a !== c && subsOf.has(a)));
+  const covered = new Set(top.flatMap((c) => subsOf.get(c)));
+  return up.filter((c) => top.includes(c) || !covered.has(c)).map((cls) => ({ cls, withSub: top.includes(cls) }));
 }
 
 // Classes in a loaded model (inv.classes: [{ cls, count }]) that are a
@@ -1200,18 +1225,21 @@ export function importIdsAs(parsed, loadFor, schema) {
         const up = names ? [...new Set(names)] : [];
         // Otherwise several classes: the first named, then the rest as
         // written, each an exact class.
-        let cls = null, withSub = false, also = [];
+        // Each class whose concrete subclasses are all listed opens with its
+        // subclass box ticked (classListBases).
+        let cls = null, withSub = false, also = [], alsoSub = [];
         if (up.length === 1) cls = up[0];
         else if (up.length > 1) {
-          const base = up.find((c) => L.S.entities[c] && [c, ...subclasses(L.S, c)].sort().join() === [...up].sort().join());
-          if (base) { cls = base; withSub = true; }
-          else { cls = up[0]; also = up.slice(1); }
+          const bases = classListBases(L.S, up);
+          cls = bases[0].cls; withSub = bases[0].withSub;
+          also = bases.slice(1).map((b) => b.cls);
+          alsoSub = bases.slice(1).filter((b) => b.withSub).map((b) => b.cls);
         }
         const pt = f.predefinedType.present ? simpleOf(f.predefinedType) : "";
         const known = cls && [cls, ...also].every((c) => knownClass(L, c));
         const ptOk = !f.predefinedType.present || (pt && cls && commonPredefinedTypes(L.S, [cls, ...also]).includes(pt));
         if (known && ptOk) {
-          spec.cls = cls; spec.also = also; spec.withSub = withSub; spec.predefinedType = pt;
+          spec.cls = cls; spec.also = also; spec.alsoSub = alsoSub; spec.withSub = withSub; spec.predefinedType = pt;
           rows++;
           continue;
         }
