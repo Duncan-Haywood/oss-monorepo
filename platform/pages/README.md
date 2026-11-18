@@ -2069,13 +2069,19 @@ node platform/pages/sticky-fit-check.mjs
 listing any page whose first tool card (`.start-grid li`, else `main .card`)
 starts later than 828 px, i.e. with less than 16 px of it on screen. The rule
 lives in `fold.mjs` (tested by `fold.test.mjs`); its header says why the card,
-not the "Start here" heading and not a word count, is what gets measured. Same
-`BASE_URL` / `DIST` / `PLAYWRIGHT` variables as `sideways.mjs`, plus `WIDTH`,
-`HEIGHT` and `ONLY_SLUGS` (`for-retirees,for-parents`). Not in CI (Playwright);
-waiting with `framerate` for the control-plane PR that registers browser checks.
+not the "Start here" heading and not a word count, is what gets measured. It
+serves `DIST` on a free local port itself (set `BASE_URL` to check a server you
+started, or the live site). `--widths 320,360,375,390` checks several phones in
+one browser, and `--all` prints every page's first-card top and the px it has
+to spare at each width, a before/after table without a hand-written probe.
+Same `DIST` / `PLAYWRIGHT` variables as `sideways.mjs`, plus `WIDTHS` (or
+`WIDTH`), `HEIGHT`, `ALL=1` and `ONLY_SLUGS` (`for-retirees,for-parents`). Not
+in CI (Playwright); waiting with `framerate` for the control-plane PR that
+registers browser checks.
 
 ```
 node platform/pages/fold-check.mjs
+node platform/pages/fold-check.mjs --widths 320,360,375,390 --all
 ```
 
 ### Lighthouse on the pages a visitor sees first

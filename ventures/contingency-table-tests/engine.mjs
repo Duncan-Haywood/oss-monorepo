@@ -553,6 +553,14 @@ export function fisherRxC(t, { maxWork = 5e6, maxMs = 6000 } = {}) {
     for (const cap of caps.slice().sort((u, v) => v - u)) { const t = Math.min(cap, left); s += lfact(t); left -= t; if (!left) break; }
     return -s;
   };
+  // Key of a node within one stage: its sorted remaining row margins, packed base (largest margin + 1) into one
+  // number when that is exact (below 2^53), else joined as text. Either spelling is one-to-one, and a stage's
+  // nodes are visited in insertion order, so the key's type changes nothing but the cost of the lookup.
+  const nr = r.length, base = Math.max(...r) + 1;
+  const nodeKey = base ** nr < 2 ** 53
+    ? (R2) => { let k = 0; for (let i = 0; i < nr; i++) k = k * base + R2[i]; return k; }
+    : (R2) => R2.join(",");
+  const scratch = new Array(nr).fill(0);
   const boundMemo = new Map();
   function bounds(j, R) {
     if (j === K) return [0, 0];
@@ -584,15 +592,22 @@ export function fisherRxC(t, { maxWork = 5e6, maxMs = 6000 } = {}) {
         if (!expand.length) continue;
         for (const x of partitions(cols[j], R)) {
           if (++work > maxWork) throw new Error("work");
-          const R2 = R.map((u, i) => u - x[i]);
+          // Sort once: the sorted remaining margins are both the node's key and its stored R.
+          const R2 = scratch;
+          for (let i = 0; i < nr; i++) {
+            const u = R[i] - x[i];
+            let q = i;
+            while (q > 0 && R2[q - 1] > u) { R2[q] = R2[q - 1]; q--; }
+            R2[q] = u;
+          }
           const ct = colTerm(x);
-          const k2 = key(j + 1, R2);
+          const k2 = nodeKey(R2);
           let node = next.get(k2);
-          if (!node) { node = { R: R2.slice().sort((u, v) => u - v), pasts: new Map() }; next.set(k2, node); }
+          if (!node) { node = { R: R2.slice(), pasts: new Map() }; next.set(k2, node); }
           for (const { v, w } of expand) {
             if (++work > maxWork || ((work & 0xffff) === 0 && Date.now() - started > maxMs)) throw new Error("work");
             const nv = v + ct;
-            const pk = nv.toFixed(9);
+            const pk = pastKey(nv);
             const e = node.pasts.get(pk);
             if (e) e.w += w; else node.pasts.set(pk, { v: nv, w });
           }
@@ -607,6 +622,20 @@ export function fisherRxC(t, { maxWork = 5e6, maxMs = 6000 } = {}) {
     if (e.message === "work") return null;
     throw e;
   }
+}
+
+/**
+ * The merge key of a partial log-probability: the integer nv.toFixed(9) spells, without building the string
+ * on the common path. nv * 1e9 is within 1e-5 of the exact scaled value for |nv| < 1e6, so away from a
+ * rounding tie (a fraction within 1e-3 of one half) its nearest integer is the one toFixed rounds to; near a
+ * tie, and for huge values, the string decides. Two values share a key exactly when their toFixed(9) strings
+ * match (nv is 0 or at most -log 2 here, so the "-0.000000000" spelling never arises).
+ */
+function pastKey(nv) {
+  if (!(Math.abs(nv) < 1e6)) return nv.toFixed(9);
+  const y = nv * 1e9, fl = Math.floor(y), f = y - fl;
+  if (Math.abs(f - 0.5) < 1e-3) return Math.round(Number(nv.toFixed(9)) * 1e9);
+  return f < 0.5 ? fl : fl + 1;
 }
 
 function mulberry32(seed) {

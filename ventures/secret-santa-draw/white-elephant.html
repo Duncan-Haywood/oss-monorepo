@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b717e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>White Elephant Game Host — turn order, steals and frozen gifts</title>
+  <meta name="description" content="Free white elephant gift exchange host for one screen. Draws the turn order, tracks who holds which gift, enforces steal limits, frozen gifts and no stealing back, and runs the final swap. No sign-up, nothing uploaded.">
+  <meta property="og:title" content="White elephant game host: turn order, steals and frozen gifts">
+  <meta property="og:description" content="Draw numbers, track every steal and freeze gifts automatically. Free, in your browser, on one screen.">
+  <link rel="canonical" href="./white-elephant.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"White Elephant Game Host","applicationCategory":"GameApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free white elephant gift exchange host: draws the turn order, tracks steals, freezes gifts after a set number of steals, blocks stealing straight back and runs the final swap.","featureList":"white elephant turn order, steal tracker, frozen gifts, no steal back, steals per turn limit, final swap, undo, results export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do steals work in white elephant?","acceptedAnswer":{"@type":"Answer","text":"On your turn you either open a wrapped gift or steal an opened one. If you steal, the person you took it from gets the same choice right away: open a new gift or steal from someone else. The turn ends when somebody opens a new gift."}},{"@type":"Question","name":"What does it mean when a gift is frozen?","acceptedAnswer":{"@type":"Answer","text":"A frozen gift has been stolen the most times your group allows, usually three, and stays with whoever holds it. The host marks it frozen the moment the last allowed steal happens."}},{"@type":"Question","name":"Can you steal a gift straight back?","acceptedAnswer":{"@type":"Answer","text":"Most groups say no: if someone takes your gift, you cannot take that same gift back in the same turn. You can steal it back on a later turn if it is not frozen. The host enforces this rule unless you switch it off."}},{"@type":"Question","name":"Does the first player get a final turn?","acceptedAnswer":{"@type":"Answer","text":"In many groups, yes. Player one never had a gift to steal from, so once every gift is open they may swap once with any gift that is not frozen, or keep theirs. Switch the final swap off if your group does not play it."}},{"@type":"Question","name":"Is anything uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The game runs in your browser and is saved only on this device, so you can refresh or come back after dinner. There are no accounts, emails or ads."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #2a1f1f; background: #fbf5f2; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    a { color: #9a1d2c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #6e1420; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #6e1420; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a4646; }
+    .card { background: #fff; border: 1px solid #e6d3cf; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #6e142012; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    label.check { font-weight: 400; display: flex; gap: 8px; align-items: center; }
+    input[type=text], select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7a5f5f; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { min-height: 120px; resize: vertical; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a1d2c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; font-size: 15px; }
+    button.secondary { background: #f1e1de; color: #6e1420; }
+    button.small { padding: 7px 11px; margin: 0; font-size: 14px; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    [hidden] { display: none !important; }
+    .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    .now { text-align: center; }
+    .now .who { font-size: clamp(2rem, 8vw, 3.6rem); font-weight: 800; color: #9a1d2c; margin: 4px 0; overflow-wrap: anywhere; }
+    .bad { background: #fbe0e0; border-radius: 10px; padding: 10px 14px; margin: 10px 0; color: #6b1212; }
+    .open-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; justify-content: center; }
+    .open-row input { max-width: 340px; }
+    .open-row button { margin: 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #f1e1de; vertical-align: middle; }
+    .tag { display: inline-block; font-size: .78rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: #e3eef6; color: #133e5e; }
+    .tag.frozen { background: #dbeefa; color: #0b4a6f; }
+    .why { font-size: .8rem; color: #5a4646; }
+    ol.order { columns: 2; padding-left: 1.4em; }
+    .log { max-height: 220px; overflow: auto; font-size: .9rem; }
+    footer { margin-top: 28px; border-top: 1px solid #e6d3cf; padding-top: 16px; }
+    code { background: #f6ebe8; padding: 1px 5px; border-radius: 4px; }
+    @media (max-width: 720px) { body { padding: 16px; } ol.order { columns: 1; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note"><a href="./">SECRET SANTA DRAW</a> · WHITE ELEPHANT HOST · RUNS IN YOUR BROWSER</p>
+    <h1>White elephant game host: turn order, steals and frozen gifts, on one screen</h1>
+    <p>Put this on a phone, laptop or the TV at the party. It draws the turn order, shows whose move it is, and keeps track of who holds which gift, how many times each gift has been stolen, and which gifts are frozen. It enforces your house rules, so nobody has to argue about whether a steal counts. No sign-up, nothing uploaded.</p>
+    <p class="note">Want everyone to buy for one person instead? Use the <a href="./">Secret Santa generator</a>. Choosing a steal limit? See <a href="./white-elephant-rules-steal-limits.html">white elephant rules and how long the game takes</a>.</p>
+  </header>
+
+  <main>
+  <section class="card" id="setup">
+    <h2>1. Players</h2>
+    <label for="names">Names, one per line (or separated by commas)</label>
+    <textarea id="names" placeholder="Ann&#10;Ben&#10;Cara&#10;Dev"></textarea>
+    <h2 style="margin-top:20px">2. House rules</h2>
+    <div class="row">
+      <div>
+        <label for="maxSteals">A gift is frozen after</label>
+        <select id="maxSteals">
+          <option value="2">2 steals</option>
+          <option value="3" selected>3 steals</option>
+          <option value="4">4 steals</option>
+          <option value="1">1 steal</option>
+          <option value="0">Never frozen</option>
+        </select>
+      </div>
+      <div>
+        <label for="perTurn">Steals in one turn</label>
+        <select id="perTurn">
+          <option value="0" selected>No limit</option>
+          <option value="1">1, then someone opens</option>
+          <option value="2">2, then someone opens</option>
+          <option value="3">3, then someone opens</option>
+        </select>
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" id="noStealBack" checked> No stealing straight back in the same turn</label>
+    <label class="check"><input type="checkbox" id="finalSwap" checked> Player one gets a final swap when every gift is open</label>
+    <button type="button" id="start">Draw turn order and start</button>
+    <button type="button" class="secondary" id="start-asis">Start in the order typed</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <p id="setup-status" role="status" class="note">Add at least two names.</p>
+  </section>
+
+  <section class="card" id="game" hidden>
+    <div class="now">
+      <p id="phase-line" class="note"></p>
+      <p style="margin:0" id="your-move">Your move</p>
+      <div class="who" id="now-who" aria-live="polite"></div>
+      <p id="now-hint" class="note"></p>
+      <div class="open-row" id="open-row">
+        <div style="flex:1 1 220px;max-width:340px;text-align:left">
+          <label for="gift-label">What was in it? (optional)</label>
+          <input type="text" id="gift-label" maxlength="60" placeholder="Fuzzy socks">
+        </div>
+        <button type="button" id="open-gift">Open a new gift</button>
+      </div>
+      <button type="button" id="keep" hidden>Keep my gift and end the game</button>
+      <p id="game-status" role="status" class="bad" hidden></p>
+    </div>
+    <h2 style="margin-top:22px">Gifts</h2>
+    <table>
+      <thead><tr><th>Gift</th><th>Held by</th><th>Steals</th><th><span class="note">Action</span></th></tr></thead>
+      <tbody id="gift-rows"></tbody>
+    </table>
+    <p id="no-gifts" class="note">No gifts open yet.</p>
+    <button type="button" class="secondary" id="undo">Undo last move</button>
+    <button type="button" class="secondary" id="show-order">Turn order</button>
+    <button type="button" class="secondary" id="new-game">New game</button>
+    <div id="order-box" hidden><ol class="order" id="order-list"></ol></div>
+    <h2 style="margin-top:22px">What happened</h2>
+    <ol class="log" id="log"></ol>
+  </section>
+
+  <section class="card" id="done" hidden>
+    <h2>Final gifts</h2>
+    <table><thead><tr><th>Player</th><th>Goes home with</th><th>Times stolen</th></tr></thead><tbody id="final-rows"></tbody></table>
+    <button type="button" id="dl-csv">Download CSV</button>
+    <button type="button" class="secondary" id="copy-res">Copy as text</button>
+    <p id="copy-status" role="status" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>How it works</h2>
+    <p><strong>A turn.</strong> The player whose turn it is opens a wrapped gift or steals an opened one. Whoever was stolen from moves next with the same choice. The turn ends when someone opens a gift, and the next number in the order goes.</p>
+    <p><strong>Rules it enforces.</strong> A gift is frozen once it has been stolen the number of times you set. With no stealing straight back, a player cannot take back the gift that was just taken from them in the same turn. With a per-turn limit, once that many steals have happened someone must open. The table shows why each steal button is greyed out.</p>
+    <p><strong>Saved on this device.</strong> The game is kept in this browser's storage after every move, so a refresh or a dead battery does not lose it. Undo steps back one move at a time.</p>
+    <p><strong>Checked:</strong> the test suite plays 3,000 random games with random house rules and checks after every move that nobody holds two gifts, everyone who has had a turn holds one, no gift is stolen past its limit, every refused steal is refused with a reason, and no game runs longer than the rules allow.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do steals work in white elephant?</h3>
+    <p>On your turn you either open a wrapped gift or steal an opened one. If you steal, the person you took it from gets the same choice right away: open a new gift or steal from someone else. The turn ends when somebody opens a new gift.</p>
+    <h3>What does it mean when a gift is frozen?</h3>
+    <p>A frozen gift has been stolen the most times your group allows, usually three, and stays with whoever holds it. The host marks it frozen the moment the last allowed steal happens.</p>
+    <h3>Can you steal a gift straight back?</h3>
+    <p>Most groups say no: if someone takes your gift, you cannot take that same gift back in the same turn. You can steal it back on a later turn if it is not frozen. The host enforces this rule unless you switch it off.</p>
+    <h3>Does the first player get a final turn?</h3>
+    <p>In many groups, yes. Player one never had a gift to steal from, so once every gift is open they may swap once with any gift that is not frozen, or keep theirs. Switch the final swap off if your group does not play it.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. The game runs in your browser and is saved only on this device, so you can refresh or come back after dinner. There are no accounts, emails or ads.</p>
+  </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It keeps score for a friendly party game. It is not legal, financial or tax advice, and you are responsible for anything you buy, spend or agree to because of it.</p>
+    <p><strong>Independent.</strong> Not affiliated with any gift-exchange service, retailer or brand, and none is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. A game is saved only in this browser.</p>
+    <p>Everything runs in your browser. Names and gifts are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>we_started</code>, <code>we_opened</code>, <code>we_stolen</code>, <code>we_undo</code>, <code>we_finished</code>, <code>we_example</code>) are counted in your own browser's local storage and are never sent anywhere.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseNames, mulberry32 } from "./calc.mjs";
+    import { newGame, apply, moves, stealBlock, frozen, results, resultsCsv, resultsText, drawOrder, EXAMPLE } from "./elephant.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (s) => document.querySelector(s);
+    const SAVE = "secret-santa-draw-white-elephant";
+    const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const newSeed = () => { try { return crypto.getRandomValues(new Uint32Array(1))[0]; } catch { return Math.floor(Math.random() * 4294967296); } };
+    let history = [];
+    let S = null;
+
+    const save = () => { try { localStorage.setItem(SAVE, JSON.stringify({ S, history: history.slice(-200) })); } catch { /* storage is optional */ } };
+    const clearSave = () => { try { localStorage.removeItem(SAVE); } catch { /* storage is optional */ } };
+
+    function begin(shuffle) {
+      const p = parseNames($("#names").value);
+      if (p.errors.length) { $("#setup-status").textContent = p.errors.join(" "); return; }
+      const rules = { maxSteals: Number($("#maxSteals").value), perTurn: Number($("#perTurn").value), noStealBack: $("#noStealBack").checked, finalSwap: $("#finalSwap").checked };
+      if (rules.maxSteals === 0 && rules.perTurn === 0) $("#setup-status").textContent = "Heads up: with gifts never frozen and no per-turn limit, a game can go round in circles.";
+      const order = shuffle ? drawOrder(p.names.length, mulberry32(newSeed())) : undefined;
+      const g = newGame({ names: p.names, order, rules });
+      if (!g.ok) { $("#setup-status").textContent = g.message; return; }
+      S = g.state; history = [];
+      record("we_started");
+      save(); render(); showOrder(true);
+      $("#game").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+
+    function act(a) {
+      const r = apply(S, a);
+      if (!r.ok) { const st = $("#game-status"); st.hidden = false; st.textContent = r.message; return; }
+      history.push(S); S = r.state;
+      record(a.type === "open" ? "we_opened" : a.type === "steal" ? "we_stolen" : "we_finished");
+      if (S.phase === "done" && a.type !== "keep") record("we_finished");
+      $("#gift-label").value = "";
+      save(); render();
+    }
+
+    function render() {
+      $("#game").hidden = !S;
+      $("#done").hidden = !S || S.phase !== "done";
+      if (!S) return;
+      $("#game-status").hidden = true;
+      const m = moves(S);
+      const n = S.names.length;
+      if (S.phase === "play") {
+        const bits = [`Turn ${S.turn + 1} of ${n}`];
+        if (S.order[S.turn] !== S.active) bits.push(`${S.names[S.order[S.turn]]}'s turn`);
+        if (S.turnSteals) bits.push(`${S.turnSteals} steal${S.turnSteals > 1 ? "s" : ""} so far`);
+        $("#phase-line").textContent = bits.join(" · ");
+        $("#now-who").textContent = S.names[S.active];
+        $("#now-hint").textContent = m.steal.length ? "Open a new gift, or steal one from the table below." : "Open a new gift.";
+      } else if (S.phase === "final") {
+        $("#phase-line").textContent = "Every gift is open · final swap";
+        $("#now-who").textContent = S.names[S.active];
+        $("#now-hint").textContent = "Swap once with any gift that is not frozen, or keep yours. Then the game ends.";
+      } else {
+        $("#phase-line").textContent = "Game over";
+        $("#now-who").textContent = "Happy holidays";
+        $("#now-hint").textContent = "Final gifts are below.";
+      }
+      $("#open-row").hidden = S.phase !== "play";
+      $("#your-move").hidden = S.phase === "done";
+      $("#keep").hidden = S.phase !== "final";
+      $("#undo").disabled = !history.length;
+      const rows = S.gifts.map((g, i) => {
+        const why = S.phase === "done" ? "" : stealBlock(S, i);
+        const label = S.phase === "final" ? "Swap" : "Steal";
+        const btn = S.phase === "done" ? "" : why ? `<span class="why">${esc(why)}</span>` : `<button type="button" class="small" data-steal="${i}">${label}</button>`;
+        const fz = frozen(S, i) ? ` <span class="tag frozen">frozen</span>` : "";
+        return `<tr><td>${esc(g.label)}</td><td>${esc(S.names[g.holder])}</td><td>${g.steals}${S.rules.maxSteals ? " of " + S.rules.maxSteals : ""}${fz}</td><td>${btn}</td></tr>`;
+      }).join("");
+      $("#gift-rows").innerHTML = rows;
+      $("#no-gifts").hidden = S.gifts.length > 0;
+      $("#log").innerHTML = S.log.map((l) => `<li>${esc(l)}</li>`).join("");
+      $("#order-list").innerHTML = S.order.map((p) => `<li>${esc(S.names[p])}</li>`).join("");
+      if (S.phase === "done") {
+        $("#final-rows").innerHTML = results(S).map((r) => `<tr><td>${esc(r.name)}</td><td>${esc(r.gift)}</td><td>${r.steals}</td></tr>`).join("");
+      }
+    }
+    function showOrder(open) { $("#order-box").hidden = !open; }
+
+    $("#gift-rows").addEventListener("click", (e) => { const b = e.target.closest("[data-steal]"); if (b) act({ type: "steal", gift: Number(b.dataset.steal) }); });
+    $("#open-gift").addEventListener("click", () => act({ type: "open", label: $("#gift-label").value }));
+    $("#gift-label").addEventListener("keydown", (e) => { if (e.key === "Enter") act({ type: "open", label: $("#gift-label").value }); });
+    $("#keep").addEventListener("click", () => act({ type: "keep" }));
+    $("#undo").addEventListener("click", () => { if (!history.length) return; S = history.pop(); record("we_undo"); save(); render(); });
+    $("#show-order").addEventListener("click", () => showOrder($("#order-box").hidden));
+    $("#new-game").addEventListener("click", () => {
+      if (S && S.phase !== "done" && !confirm("Start over? This game will be cleared from this device.")) return;
+      S = null; history = []; clearSave(); render();
+      $("#setup").scrollIntoView({ block: "start" });
+    });
+    $("#start").addEventListener("click", () => begin(true));
+    $("#start-asis").addEventListener("click", () => begin(false));
+    $("#load-example").addEventListener("click", () => { $("#names").value = EXAMPLE.names; record("we_example"); $("#setup-status").textContent = "Example loaded: ten players. Press Draw turn order and start."; });
+    $("#dl-csv").addEventListener("click", () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([resultsCsv(S)], { type: "text/csv" })); a.download = "white-elephant.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); });
+    $("#copy-res").addEventListener("click", async () => { try { await navigator.clipboard.writeText(resultsText(S)); $("#copy-status").textContent = "Copied."; } catch { $("#copy-status").textContent = "Your browser blocked copying. Use Download CSV."; } });
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(SAVE) || "null");
+      if (saved && saved.S && Array.isArray(saved.S.names) && Array.isArray(saved.S.gifts)) { S = saved.S; history = Array.isArray(saved.history) ? saved.history : []; $("#names").value = S.names.join("\n"); }
+    } catch { /* storage is optional */ }
+    render();
+
+    $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
