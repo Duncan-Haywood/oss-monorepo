@@ -19,6 +19,7 @@ from shootflow.frame_analysis import (
     hamming_distance,
     metrics_from_frames,
     noise_sigma_from_frame,
+    pan_distance,
     tilt_from_frame,
     zoom_dhashes,
     zoom_distance,
@@ -262,6 +263,32 @@ class CropHashTests(unittest.TestCase):
         crops = _ints(crop_dhashes(_view(_scene(4), 0.0, 0.0, 1.0)))
         self.assertEqual(crop_distance((), crops), 64)
         self.assertEqual(crop_distance(crops, crops[:4]), 64)
+
+
+class PanWindowTests(unittest.TestCase):
+    def test_a_ten_percent_pan_matches_off_centre_windows(self) -> None:
+        # A 10% pan moves the content 11.1% of the frame, past the 6% the centre window reaches.
+        scene = _scene(8)
+        left, right = _view(scene, 0.0, 0.05, 0.9), _view(scene, 0.1, 0.05, 0.9)
+        crops_l, crops_r = _ints(crop_dhashes(left)), _ints(crop_dhashes(right))
+        panned = pan_distance(crops_l, crops_r)
+        self.assertLessEqual(panned, 4)
+        self.assertLess(panned, crop_distance(crops_l, crops_r))
+        self.assertEqual(panned, pan_distance(crops_r, crops_l))
+
+    def test_missing_crops_never_match(self) -> None:
+        crops = _ints(crop_dhashes(_view(_scene(9), 0.0, 0.0, 1.0)))
+        self.assertEqual(pan_distance((), crops), 64)
+        self.assertEqual(pan_distance(crops, crops[:4]), 64)
+
+    def test_every_far_offset_has_one_pair(self) -> None:
+        from shootflow.frame_analysis import CROP_STEPS, _PAN_PAIRS
+
+        n, c = CROP_STEPS, CROP_STEPS // 2
+        offsets = {(a % n - b % n, a // n - b // n) for a, b in _PAN_PAIRS}
+        self.assertEqual(len(offsets), len(_PAN_PAIRS))
+        self.assertEqual(len(offsets), (2 * n - 1) ** 2 - (2 * c + 1) ** 2)
+        self.assertTrue(all(abs(dx) > c or abs(dy) > c for dx, dy in offsets))
 
 
 class ZoomHashTests(unittest.TestCase):

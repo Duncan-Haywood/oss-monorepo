@@ -451,6 +451,53 @@ def crop_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
     return best
 
 
+def _pan_pairs() -> tuple[tuple[int, int], ...]:
+    """(window of a, window of b) for each window offset ``crop_distance`` cannot reach.
+
+    ``crop_distance`` holds one frame at its centre window, so it reaches
+    offsets of up to half the margin. A wider pan needs an off-centre window on
+    both sides: for each offset beyond that, the one pair nearest the middle of
+    both frames.
+    """
+
+    n, c = CROP_STEPS, CROP_STEPS // 2
+    out = []
+    for dy in range(1 - n, n):
+        for dx in range(1 - n, n):
+            if abs(dx) <= c and abs(dy) <= c:
+                continue
+            candidates = [
+                (ay * n + ax, (ay - dy) * n + (ax - dx))
+                for ay in range(n)
+                for ax in range(n)
+                if 0 <= ay - dy < n and 0 <= ax - dx < n
+            ]
+
+            def spread(pair: tuple[int, int]) -> int:
+                return sum(abs(k // n - c) + abs(k % n - c) for k in pair)
+
+            out.append(min(candidates, key=spread))
+    return tuple(out)
+
+
+_PAN_PAIRS = _pan_pairs()
+
+
+def pan_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
+    """Smallest Hamming distance over the window pairs offset further than ``crop_distance`` reaches.
+
+    A pan of s keeps 1 - s of the scene, so after scaling to the frame the
+    content moves s / (1 - s): 8.7% for an 8% pan and 11.1% for 10%, past the
+    6% the centre window reaches with a 12% margin. Both directions are covered
+    because ``_PAN_PAIRS`` holds every offset with its opposite. Returns 64 when
+    either frame has no crop hashes (eval/cull-pan-windows-2026-11-18.md).
+    """
+
+    if len(crops_a) != CROP_STEPS * CROP_STEPS or len(crops_b) != len(crops_a):
+        return 64
+    return min((crops_a[x] ^ crops_b[y]).bit_count() for x, y in _PAN_PAIRS)
+
+
 # Zoom windows (2026-11-18, eval/cull-zoom-windows-2026-11-18.md): the equal-size
 # crop windows line up a pan exactly but a zoom only roughly, so a frame zoomed
 # in by z is compared whole against the other frame's window of size 1 - z.

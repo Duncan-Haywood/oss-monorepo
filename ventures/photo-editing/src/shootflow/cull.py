@@ -38,6 +38,7 @@ from shootflow.frame_analysis import (
     ZoomIndex,
     analyze_media,
     crop_distance,
+    pan_distance,
     zoom_distance_within,
     zoom_index,
 )
@@ -60,6 +61,13 @@ CROP_MIN_GAIN = 5
 ZOOM_CANDIDATE_MAX_DISTANCE = 28
 ZOOM_MAX_DISTANCE = 6
 ZOOM_MIN_GAIN = 6
+# Wide-pan pass (eval/cull-pan-windows-2026-11-18.md): a pair up to
+# PAN_CANDIDATE_MAX_DISTANCE apart also groups when two 88% windows offset
+# further than the crop pass reaches are within PAN_MAX_DISTANCE and that is at
+# least PAN_MIN_GAIN closer than the whole frames. Picked on the same 165 tune photos.
+PAN_CANDIDATE_MAX_DISTANCE = 0
+PAN_MAX_DISTANCE = 0
+PAN_MIN_GAIN = 0
 BLURRY_BELOW = 0.2
 BAD_EXPOSURE_BELOW = 0.25
 CLOSED_EYES_BELOW = 0.3
@@ -307,6 +315,15 @@ def zoom_match(distance: int, hash_a: int, index_a: ZoomIndex, hash_b: int, inde
     return zoom_distance_within(hash_a, index_a, hash_b, index_b, limit) <= limit
 
 
+def pan_match(distance: int, crops_a: Sequence[int], crops_b: Sequence[int]) -> bool:
+    """The wide-pan pass (8-10% pans) for a pair whose whole-frame hashes are ``distance`` apart."""
+
+    if distance > PAN_CANDIDATE_MAX_DISTANCE:
+        return False
+    shifted = pan_distance(crops_a, crops_b)
+    return shifted <= PAN_MAX_DISTANCE and shifted <= distance - PAN_MIN_GAIN
+
+
 def burst_match(
     distance: int,
     hash_a: int, crops_a: Sequence[int], index_a: ZoomIndex,
@@ -317,6 +334,7 @@ def burst_match(
     return (
         distance <= NEAR_DUPLICATE_MAX_DISTANCE
         or crop_match(distance, crops_a, crops_b)
+        or pan_match(distance, crops_a, crops_b)
         or zoom_match(distance, hash_a, index_a, hash_b, index_b)
     )
 
