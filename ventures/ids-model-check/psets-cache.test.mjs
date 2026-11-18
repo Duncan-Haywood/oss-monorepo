@@ -1,6 +1,6 @@
-// The cached property-set reader (psetInfo, psetsOf sharing a set's props) and
-// the property prefilter built from psetHolders must give what the uncached
-// reader gave: eval/psets-cache-2026-11-18.md.
+// psetsOf (rebuilt on psetSources and psetInfo) and the property prefilter
+// built from psetHolders, the per-model index of set names, must give what
+// the reader on main gave: eval/psets-cache-2026-11-18.md.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { psetsOf, psetHolders } from "./ids.mjs";
@@ -10,8 +10,8 @@ const HEAD = "ISO-10303-21;\nHEADER;\nFILE_DESCRIPTION((''),'2;1');\nFILE_NAME('
 const ifc = (lines) => HEAD + lines.join("\n") + "\nENDSEC;\nEND-ISO-10303-21;\n";
 const ids = (specs) => `<?xml version="1.0"?><ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema"><info><title>t</title></info><specifications>${specs}</specifications></ids>`;
 
-// The reader as it was before the cache (main at aebd459df), kept here as the reference.
-function psetsOfUncached(model, e) {
+// The reader as it was on main at aebd459df, kept here as the reference.
+function psetsOfMain(model, e) {
   const out = new Map();
   const add = (pset) => {
     const name = model.attr(pset, "Name");
@@ -63,10 +63,10 @@ const MODEL = ifc([
 
 const plain = (m) => JSON.stringify([...m].map(([n, s]) => [n, [...s.props].map(([pn, p]) => [pn, p.id])]));
 
-test("psetsOf with cached sets equals the uncached reader on every entity, and leaves the shared sets unchanged", () => {
+test("psetsOf equals the reader on main on every entity, and an override leaves the type's set unchanged", () => {
   const m = parseModel(MODEL);
   const before = plain(psetsOf(m, m.entities.get(5)));
-  for (const e of m.entities.values()) assert.equal(plain(psetsOf(m, e)), plain(psetsOfUncached(m, e)), `#${e.id}`);
+  for (const e of m.entities.values()) assert.equal(plain(psetsOf(m, e)), plain(psetsOfMain(m, e)), `#${e.id}`);
   // D2's override must not have written EI60 into the type's cached set.
   assert.equal(plain(psetsOf(m, m.entities.get(5))), before);
   assert.equal(psetsOf(m, m.entities.get(5)).get("Pset_DoorCommon").props.get("FireRating").id, 1);
@@ -79,7 +79,7 @@ test("psetHolders names exactly the entities psetsOf gives a set of that name", 
   const fromHolders = new Map();
   for (const [n, list] of holders) for (const e of list) (fromHolders.get(e.id) || fromHolders.set(e.id, new Set()).get(e.id)).add(n);
   for (const e of m.entities.values()) {
-    const names = [...psetsOfUncached(m, e).keys()].sort();
+    const names = [...psetsOfMain(m, e).keys()].sort();
     assert.deepEqual([...(fromHolders.get(e.id) || [])].sort(), names, `#${e.id}`);
   }
 });

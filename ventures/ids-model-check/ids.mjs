@@ -532,16 +532,11 @@ export const QUANTITY_MEASURE = {
   IFCQUANTITYNUMBER: ["NumberValue", "IFCNUMERICMEASURE"],
 };
 
-// One property set's name and properties, read once per model and shared by
-// every element and specification that reaches it (a type's sets reach all
-// its occurrences; 68 public IDS files read each set hundreds of times,
-// eval/psets-cache-2026-11-18.md). {name, props: Map(name -> propEntity)};
-// name is null when the set has no string Name, which psetsOf skips.
+// One property set's name and properties: {name, props: Map(name ->
+// propEntity)}; name is null when the set has no string Name, which psetsOf
+// skips. Not cached: on a 219 MB federated model a cache of every set kept
+// the run from fitting a 1 GB heap (eval/psets-cache-2026-11-18.md).
 export function psetInfo(model, pset) {
-  let cache = model._psetInfo;
-  if (!cache) cache = model._psetInfo = new Map();
-  let info = cache.get(pset.id);
-  if (info) return info;
   const name = model.attr(pset, "Name");
   const props = new Map();
   if (pset.type === "IFCPROPERTYSET" || pset.type === "IFCELEMENTQUANTITY" || pset.type === "IFCMATERIALPROPERTIES" || pset.type === "IFCEXTENDEDMATERIALPROPERTIES" || pset.type === "IFCPROFILEPROPERTIES") {
@@ -554,9 +549,7 @@ export function psetInfo(model, pset) {
     const attrs = model.schema.attrs(pset.type);
     for (let i = 4; i < attrs.length; i++) props.set(attrs[i].name, { predefined: true, owner: pset, attr: attrs[i], value: pset.args[i] });
   }
-  info = { name: typeof name === "string" ? name : null, props };
-  cache.set(pset.id, info);
-  return info;
+  return { name: typeof name === "string" ? name : null, props };
 }
 
 // The property sets psetsOf reads for an element, in its order (later ones
@@ -572,8 +565,9 @@ export function psetSources(model, e, visit) {
 }
 
 // The elements that reach a property set of each name, through the sources
-// psetsOf reads: Map(name -> [element]), built once per model. Sets with no
-// string Name are left out, as psetsOf leaves them out.
+// psetsOf reads: Map(name -> [element]), built once per model (it reads each
+// set's Name only). Sets with no string Name are left out, as psetsOf leaves
+// them out.
 export function psetHolders(model) {
   if (model._psetHolders) return model._psetHolders;
   const out = new Map();
@@ -582,8 +576,8 @@ export function psetHolders(model) {
     if (!e || seen.has(e.id)) return;
     seen.add(e.id);
     psetSources(model, e, (p) => {
-      const n = psetInfo(model, p).name;
-      if (n === null) return;
+      const n = model.attr(p, "Name");
+      if (typeof n !== "string") return;
       let l = out.get(n);
       if (!l) out.set(n, (l = []));
       if (l[l.length - 1] !== e) l.push(e);
@@ -598,16 +592,14 @@ export function psetHolders(model) {
 
 // Property sets of an element by name: {name -> {props: Map(name -> propEntity), entities}}
 // Type psets are inherited and an occurrence's pset of the same name overrides
-// per property. A name held by one set returns that set's cached props Map,
-// which callers must not change; a second set of the same name gets a copy.
+// per property.
 export function psetsOf(model, e) {
   const out = new Map();
   psetSources(model, e, (pset) => {
     const info = psetInfo(model, pset);
     if (info.name === null) return;
     const slot = out.get(info.name);
-    if (!slot) { out.set(info.name, { props: info.props, entities: [pset], shared: true }); return; }
-    if (slot.shared) { slot.props = new Map(slot.props); slot.shared = false; }
+    if (!slot) { out.set(info.name, { props: info.props, entities: [pset] }); return; }
     slot.entities.push(pset);
     for (const [pn, p] of info.props) slot.props.set(pn, p);
   });
@@ -1007,9 +999,9 @@ function prefilter(f, model) {
     }
     case "property": {
       // PropertyFacet.test fails (absent) when no set psetsOf reads for the
-      // element has a name the facet takes. Each set's name is tested once
-      // (psetInfo), and the elements that can match are gathered once from
-      // the relationship indexes, so most entities (geometry) cost one lookup
+      // element has a name the facet takes. Each distinct set name is tested
+      // once (psetHolders), so most entities (geometry) cost one lookup, and
+      // psetsOf runs only where a set of a matching name exists
       // (eval/psets-cache-2026-11-18.md).
       const ids = new Set();
       for (const [n, holders] of psetHolders(m)) if (f.propertySet.matchString(n)) for (const e of holders) ids.add(e.id);
