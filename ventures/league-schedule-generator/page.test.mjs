@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, validateSchedule, dayLabel, parseDate } from "./calc.mjs";
+import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, validateSchedule, dayLabel, parseDate, dayIso } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-round-robin-schedule.html";
@@ -884,4 +884,29 @@ test("single-league page: duty box and team sheets reuse the multi-division code
   assert.match(html, /const errors = validateDivisionDuties\(shaped, pd\.duties, result\)/);
   assert.match(html, /if \(td\.errors\.length\) \{ \$\("#duty-line"\)\.textContent = "Not downloaded/);
   assert.match(html, /record\("team_sheets_downloaded"\)/);
+});
+
+test("the tennis guide's limits example matches buildSchedule(), keeps every limit and its conflict quote is what the tool says", async () => {
+  const { limitConflicts } = await import("./calc.mjs");
+  const name = "tennis-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Aces", "Baseliners", "Net Rushers", "Topspin", "Love All", "Deuce Crew", "Slice Squad", "Drop Volleys"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2027-04-06", weekdays: ["Tue"], courts: "Court 1\nCourt 2", times: "18:30\n20:00", minutes: 90, timeLimits: html.match(/<pre>(.*?)<\/pre>/s)[1], courtLimits: "Slice Squad: Court 2" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.deepEqual(validateSchedule(s).errors, []);
+  assert.deepEqual(s.notices, []);
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.number}</td><td>${dayIso(r.day)}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  });
+  const c = limitConflicts([...teams, "Night Owls"], { times: ["18:30", "20:00"], courts: ["Court 1", "Court 2"], timeLimits: { 0: ["18:30"], 3: ["18:30"], 8: ["20:00"] } });
+  assert.ok(c.some((x) => html.includes(`<em>${x.text.replace(/ Give one.*$/, "")}</em>`)));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });
