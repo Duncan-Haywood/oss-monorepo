@@ -107,6 +107,15 @@ Unit cases in `peppol-next.test.mjs` (9 with `zatca-cents.test.mjs`): R058 LU VA
 Belgian 0208 must start with 0 or 1 (a mod-97 failure was already fatal and is not
 marked new).
 
+## A page bug found on the way
+
+Checked in a real browser (Playwright, the page served over HTTP): a pasted Peppol file
+with a 19-digit 0088 address shows PEPPOL-COMMON-R040 marked "New in Peppol BIS 3.1.0,
+rejected from 2027-02-24". The first try showed no official findings at all: the page
+named pasted text \`pasted.json\` whatever it held, and \`addOfficialFindings\` skips
+\`.json\` names, so **pasted UBL or CII never got the official Schematron**, only dropped
+files did. Pasted text that starts with \`<\` is now named \`pasted.xml\`.
+
 ## Open
 
 - The branch is the release candidate. When 3.1.0 is tagged on master (expected

@@ -495,7 +495,8 @@
         inputs.push({ name: file.name, source: new Uint8Array(await file.arrayBuffer()) });
       }
       const pasted = paste.value.trim();
-      if (pasted) inputs.push({ name: "pasted.json", source: pasted });
+      // Pasted XML is named .xml: the official rules skip a .json name, so pasted UBL/CII never got them (2026-11-18).
+      if (pasted) inputs.push({ name: /^\s*(?:\uFEFF)?</.test(pasted) ? "pasted.xml" : "pasted.json", source: pasted });
       return inputs;
     }
 

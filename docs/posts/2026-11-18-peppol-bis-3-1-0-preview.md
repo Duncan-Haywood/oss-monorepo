@@ -33,6 +33,10 @@ One unit test out of 1,138 failed at first. LU00000101 is a valid Luxembourg VAT
 
 The same call sat inside our compiler's stand-in for `format-number`, which fontoxpath lacks. So 15.05 came out as "15.5". Only the Saudi ZATCA rules use `format-number`. In ZATCA's copies of BR-CO-17 and BR-S-09, which check that subtotal VAT equals taxable amount times rate, the bug moved the expected value by up to 0.45. Take 15% of 100.35: the right answer is 15.05, the checker read it as 15.5, and a stated VAT of 15.40 passed. The compiler now pads the zeros itself, the ZATCA rules are rebuilt, and a test that failed on the old rules now passes.
 
+## The third thing: pasted XML never got the official rules
+
+Trying the new box in a real browser turned up an older fault. The page named any pasted text `pasted.json`, and the step that runs the official rules skips JSON files. So a UBL or CII invoice pasted into the box was checked by the built-in rules only, never by the EN 16931, XRechnung or Peppol Schematron. A dropped file was fine. Pasted text that starts with `<` is now treated as XML.
+
 ## Limits
 
 The branch is OpenPeppol's release candidate. Once 3.1.0 is tagged we will rebuild from the tag and compare the two. This is a preflight check, not an access point's verdict, and we have not yet run a real business's invoices through the comparison. Details and numbers are in `ventures/einvoice-preflight/eval/peppol-bis-3.1.0-2026-11-18.md`.

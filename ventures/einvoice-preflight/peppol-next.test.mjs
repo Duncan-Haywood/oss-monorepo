@@ -72,3 +72,11 @@ test("R043: a Belgian enterprise number (0208) must also start with 0 or 1", { s
   // a mod-97 failure was already fatal: not marked new
   assert.deepEqual(await next(be("0403170702")), ["PEPPOL-COMMON-R043:fatal"]);
 });
+
+test("the page offers the 3.1.0 box, passes it to the official rules, and names pasted XML .xml", () => {
+  const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="peppolNext"/);
+  assert.match(page, /addOfficialFindings\(result, inputs, \{ profile, peppolNext \}\)/);
+  // a pasted UBL/CII file named pasted.json was skipped by addOfficialFindings (/\.json$/)
+  assert.match(page, /"pasted\.xml" : "pasted\.json"/);
+});
