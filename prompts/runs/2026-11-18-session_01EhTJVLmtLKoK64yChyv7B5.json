@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVLmtLKoK64yChyv7B5",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T20:08:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: chant-forge ep-queue test, cover glow mirrored and releaseKit analysis reused",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": 17409,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "record --model was left empty: the session's harness asks that no model identifier be pushed in any artifact",
+      "did": "model null",
+      "result": "record validates without it"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-18-chant-forge-cover-mirror-and-shared-analysis.md",
+    "docs/posts/2026-11-18-chant-forge-a-cover-that-is-three-quarters-copies.md"
+  ],
+  "goal": null,
+  "notes": "Metric: chant-forge ep-queue.test.mjs wall seconds, and coverPixels ms at 3000 px. Before: ep-queue 15.6 s (node --cpu-prof run) / 15.9 s (suite_file_times.py chant-forge), coverPixels 904/917 ms (old module, two calls). After: ep-queue 12.7/12.8 s (node --test, twice) and 13.0 s (suite_file_times), coverPixels 258/261 ms; ep-page.test.mjs 7.7 -> 4.9 s. Suite summed 115.1 s (53 files) -> 111.5 s (54 files incl. new 1.4 s pin test); sing.test.mjs swings 14.7-18.5 s run to run. Same output: new ep-core-shortcuts.test.mjs compares bytes with the old coverPixels verbatim at 7 sizes x 3 note sets (two mirror mutations caught) and checkReleaseWith with/without a handed-in analysis; 36/36 scratch byte comparisons; ep-queue's page-vs-CLI file equality still passes. Full chant-forge suite passes locally (54/54 files ok). Looked at and left: wall-framing sheathing-fuzz (takeoff already memoized; knapsack running-sum bound skips only 13% of cells), ai-bookkeeper/einvoice flat start-up bound.",
+  "corrections": [],
+  "redteam": null
+}
