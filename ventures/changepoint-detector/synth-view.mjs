@@ -22,10 +22,25 @@ export const FEW_POWER = [
 export function fewPowerRow(units) {
   return FEW_POWER.reduce((best, r) => (Math.abs(r.units - units) < Math.abs(best.units - units) ? r : best));
 }
+// TWO_SHOCK: the same step with two donors each shocked by the step's size after the date (eval/synth-two-shock-confirm.out.txt,
+// pre-registered eval/synth-two-shock-prereg-2026-11-18.md, all eight bars passed): rank-1 shares at 11 and 16 units
+// with both in the pool (twoShocked), with only one of them left out beforehand (oneLeftOut), and with both left out
+// (bothLeftOut, the PDD cells' exclAll). bestMatchErr: the mean absolute error of the gap when the shocked donor is the
+// treated fit's heaviest, against clean donors (cleanErr), and with that donor left out beforehand (bestLeftOutErr).
+export const TWO_SHOCK = [
+  { units: 11, twoShocked: 28.0, oneLeftOut: 35.0, bothLeftOut: 52.5, cleanErr: 0.507, bestMatchErr: 0.673, bestLeftOutErr: 0.689 },
+  { units: 16, twoShocked: 27.3, oneLeftOut: 35.8, bothLeftOut: 55.5, cleanErr: 0.417, bestMatchErr: 0.657, bestLeftOutErr: 0.568 },
+];
+export function twoShockRow(units) {
+  return TWO_SHOCK.reduce((best, r) => (Math.abs(r.units - units) < Math.abs(best.units - units) ? r : best));
+}
+// A donor listed above the treated unit that also carries this much of its synthetic control's weight moves the
+// estimated gap as well as the rank (README "Two shocked donors, and a shocked best match").
+export const HEAVY_WEIGHT = 0.2;
 export function fewDonorsNote(h) {
   if (!(h.minP > 0.05)) return null;
-  const pw = fewPowerRow(h.donors + 1), pc = (v) => `${Math.round(v)}%`;
-  return `With ${h.donors + 1} units the placebo p cannot go below ${f(h.minP, 3)}: p <= 0.05 is out of reach whatever happened, so rank 1 (p ${f(h.minP, 3)}) is the strongest result this test can give, not a near-miss. In simulation with ${pw.units} units (eval/synth-few-power-confirm.out.txt, pre-registered), a real step of two noise sd reached rank 1 ${pc(pw.clean)} of the time; when one donor had its own shock of the same size after the date, ${pc(pw.oneShocked)}; twice the size, ${pc(pw.twiceShocked)}; with that donor left out of the pool before the fit, ${pc(pw.excluded)}. So leave out of --donors, before fitting, any unit whose own event after the date you already know of, and say so; dropping one after seeing the ranks is not a test. On two real 17-unit panels (West Germany 1990, the Basque Country 1970) a donor or two with large gaps of their own put the treated unit 3rd and 4th; read the units ranked above it.`;
+  const pw = fewPowerRow(h.donors + 1), tw = twoShockRow(h.donors + 1), pc = (v) => `${Math.round(v)}%`;
+  return `With ${h.donors + 1} units the placebo p cannot go below ${f(h.minP, 3)}: p <= 0.05 is out of reach whatever happened, so rank 1 (p ${f(h.minP, 3)}) is the strongest result this test can give, not a near-miss. In simulation with ${pw.units} units (eval/synth-few-power-confirm.out.txt, pre-registered), a real step of two noise sd reached rank 1 ${pc(pw.clean)} of the time; when one donor had its own shock of the same size after the date, ${pc(pw.oneShocked)}; twice the size, ${pc(pw.twiceShocked)}; with that donor left out of the pool before the fit, ${pc(pw.excluded)}. With two donors shocked (eval/synth-two-shock-confirm.out.txt, ${tw.units} units), ${pc(tw.twoShocked)}; leaving out only one of the two, ${pc(tw.oneLeftOut)}; both, ${pc(tw.bothLeftOut)}: leaving out the one event you know of is not enough when another donor had one too. So leave out of --donors, before fitting, any unit whose own event after the date you already know of, and say so; dropping one after seeing the ranks is not a test. On two real 17-unit panels (West Germany 1990, the Basque Country 1970) a donor or two with large gaps of their own put the treated unit 3rd and 4th; read the units ranked above it.`;
 }
 
 // The placebos whose statistic is at least the treated unit's (synthResult's h.above), largest first: a description,
@@ -34,7 +49,13 @@ export function fewDonorsNote(h) {
 export function aboveNote(h, max = 5) {
   if (!h.above?.length) return null;
   const shown = h.above.slice(0, max).map((q) => `${q.name} ${f(q.statistic, 1)} (before-gap ${g(q.preRmspe)}, after ${g(q.postRmspe)})`).join(', ');
-  return `Ranked at or above ${h.treated} (statistic ${f(h.tests[h.statistic].value, 1)}; before-gap ${g(h.preRmspe)}, after ${g(h.postRmspe)}): ${shown}${h.above.length > max ? `, +${h.above.length - max} more` : ''}. If one of these had a change of its own after the date, the test counts it against ${h.treated}; that is a reason to look into it and say so, not to drop it from the pool after seeing the result (a pool chosen after the result is not a test).`;
+  return `Ranked at or above ${h.treated} (statistic ${f(h.tests[h.statistic].value, 1)}; before-gap ${g(h.preRmspe)}, after ${g(h.postRmspe)}): ${shown}${h.above.length > max ? `, +${h.above.length - max} more` : ''}. If one of these had a change of its own after the date, the test counts it against ${h.treated}; that is a reason to look into it and say so, not to drop it from the pool after seeing the result (a pool chosen after the result is not a test).${heavyNote(h, h.above)}`;
+}
+function heavyNote(h, list) {
+  const heavy = list.filter((q) => q.weight >= HEAVY_WEIGHT);
+  if (!heavy.length) return '';
+  const t = twoShockRow(h.donors + 1), x = (v) => `${f(v / t.cleanErr, 1)}x`;
+  return ` ${heavy.map((q) => `${q.name} (weight ${f(q.weight, 2)})`).join(' and ')} ${heavy.length > 1 ? 'are' : 'is'} also part of ${h.treated}'s synthetic control, so an event of ${heavy.length > 1 ? 'their' : 'its'} own after the date moves the estimated gap too (by about the weight times that event's size), not only the rank. In simulation (eval/synth-two-shock-confirm.out.txt, ${t.units} units) a shock on the heaviest donor raised the gap's error to ${x(t.bestMatchErr)} the clean-donor error, and leaving that donor out beforehand left it at ${x(t.bestLeftOutErr)} (the fit is worse without it): report the gap both with and without it.`;
 }
 
 // Treated series (dark) and its synthetic (dashed red) on one axis, the date as a vertical rule.
