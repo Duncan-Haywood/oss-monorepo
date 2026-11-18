@@ -42,6 +42,9 @@ export const STORY_VENTURES = Object.freeze({
 });
 // How many of each shelf's newest pieces the page lists; the rest are one click away.
 const NEWEST = 6;
+// How many of those a phone shows. Six cards a shelf in one column made the page about 8,300 px
+// to "How these are made" at 390 px (2026-11-18); three keep the newest and the "All N" link.
+export const PHONE_NEWEST = 3;
 // How many of each shelf's newest recorded pieces its "Listen" panel plays in place.
 export const LISTEN = 2;
 
@@ -200,6 +203,8 @@ const STYLE = `
   .items .when { margin:.2em 0 0; font-size:.8rem; color:var(--muted); display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; }
   .items .audio { padding:0 8px; border-radius:999px; border:1px solid var(--line); background:var(--panel); color:var(--ink); }
   @media (prefers-reduced-motion: reduce) { .items li { transition:none; } }
+  /* One column (below ~600 px): the PHONE_NEWEST newest cards; "All N" below opens the rest. */
+  @media (max-width: 599px) { .items li:nth-child(n+${PHONE_NEWEST + 1}) { display:none; } }
   .more { margin:.9em 0 0; }
   footer { margin-top:3em; font-size:.82rem; color:var(--muted); }
 `;
@@ -262,7 +267,7 @@ ${items
   )
   .join('\n')}
 </ul>` : '<p class="meta">Nothing on this shelf yet.</p>'}
-<p class="more"><a href="${esc(toRoot + shelf.href)}">${shelf.count > items.length ? `All ${shelf.count} on ${esc(shelf.title)} →` : `Open ${esc(shelf.title)} →`}</a></p>
+<p class="more"><a href="${esc(toRoot + shelf.href)}">${shelf.count > Math.min(items.length, PHONE_NEWEST) ? `All ${shelf.count} on ${esc(shelf.title)} →` : `Open ${esc(shelf.title)} →`}</a></p>
 </section>`;
 }
 
