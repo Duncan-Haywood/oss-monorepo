@@ -36,6 +36,7 @@ is a proxy; the analysis payload says so.
 from __future__ import annotations
 
 import math
+import operator
 import re
 import subprocess
 from dataclasses import dataclass
@@ -481,6 +482,9 @@ def _pan_pairs() -> tuple[tuple[int, int], ...]:
 
 
 _PAN_PAIRS = _pan_pairs()
+# itemgetter and map keep the comparison in C: the cull runs it for most pairs.
+_PAN_A = operator.itemgetter(*(x for x, _ in _PAN_PAIRS))
+_PAN_B = operator.itemgetter(*(y for _, y in _PAN_PAIRS))
 
 
 def pan_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
@@ -495,7 +499,63 @@ def pan_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
 
     if len(crops_a) != CROP_STEPS * CROP_STEPS or len(crops_b) != len(crops_a):
         return 64
-    return min((crops_a[x] ^ crops_b[y]).bit_count() for x, y in _PAN_PAIRS)
+    return min(map(int.bit_count, map(int.__xor__, _PAN_A(crops_a), _PAN_B(crops_b))))
+
+
+# Packed form for the cull's all-pairs scan: each frame's windows in _PAN_PAIRS
+# order as one integer of 64-bit lanes, so one XOR compares all 56 pairs and a
+# lane-wise (SWAR) popcount answers "is any lane within the limit" in about a
+# dozen big-integer operations instead of 56 Python-level ones.
+_PAN_LANES = len(_PAN_PAIRS)
+
+
+def _lanes(byte: int) -> int:
+    """``byte`` repeated in every byte of every lane."""
+
+    return int.from_bytes(bytes([byte]) * (8 * _PAN_LANES), "little")
+
+
+_M1, _M2, _M4 = _lanes(0x55), _lanes(0x33), _lanes(0x0F)
+_LANE_LOW = sum(0xFF << (64 * k) for k in range(_PAN_LANES))
+_LANE_ONE = _LANE_LOW // 0xFF  # 1 in each lane's low byte
+_LANE_HIGH = _LANE_ONE * 0x80
+
+
+def _pack(hashes: Sequence[int]) -> int:
+    out = 0
+    for k, h in enumerate(hashes):
+        out |= h << (64 * k)
+    return out
+
+
+def pan_pack(crops: Sequence[int]) -> tuple[int, ...]:
+    """(a side, b side) of a frame's crop hashes packed for ``pan_within``; () when incomplete."""
+
+    if len(crops) != CROP_STEPS * CROP_STEPS:
+        return ()
+    return (_pack(_PAN_A(crops)), _pack(_PAN_B(crops)))
+
+
+def pan_within(packed_a: tuple[int, ...], packed_b: tuple[int, ...], limit: int) -> bool:
+    """Whether ``pan_distance`` of the two frames is at most ``limit`` (0-63), from ``pan_pack`` of each.
+
+    Same decision as ``pan_distance(a, b) <= limit``; False when either frame
+    has no crop hashes.
+    """
+
+    if not packed_a or not packed_b or limit < 0:
+        return False
+    x = packed_a[0] ^ packed_b[1]
+    x -= (x >> 1) & _M1
+    x = (x & _M2) + ((x >> 2) & _M2)
+    x = (x + (x >> 4)) & _M4
+    x += x >> 8
+    x += x >> 16
+    x += x >> 32
+    # Each lane's low byte is now its popcount (0-64). Adding 127 - limit sets
+    # the byte's top bit exactly when the count is above the limit.
+    counts = (x & _LANE_LOW) + _LANE_ONE * (127 - limit)
+    return counts & _LANE_HIGH != _LANE_HIGH
 
 
 # Zoom windows (2026-11-18, eval/cull-zoom-windows-2026-11-18.md): the equal-size
