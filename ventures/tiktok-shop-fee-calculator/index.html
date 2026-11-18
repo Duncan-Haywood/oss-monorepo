@@ -76,6 +76,8 @@
     .result a { color: inherit; text-decoration: underline; }
     /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
     .result table { display: block; overflow-x: auto; max-width: 100%; }
+    /* A display:block table sizes its caption to the grid, not the box: keep it in view. */
+    .result caption { display: block; position: sticky; left: 0; }
     .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -105,7 +107,7 @@
    `min-width:0` for the same reason. Scoped to these containers rather
    than `*`: the blanket version fixed three more pages and clipped text on
    four others. */
-@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}caption{display:block;position:sticky;left:0}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
 </style>
 </head>
 <body>
