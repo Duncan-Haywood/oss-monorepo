@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": 17364,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,24 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "outcome": "success",
+  "errors": [
+    "First venture-tests run flagged two unguarded object-map lookups (inherited_keys.py); fixed with Object.hasOwn.",
+    "First preflight flagged the post description at 173 chars; cut to under 160."
+  ],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row was chant-forge, which 18 sessions in 2 days left because only narrow coda/OMR tuning is buildable. I took the open owner request R-0005 (clothing-design-studio) instead: it had no open PR, and prompt.md ranks website requests ahead of flagships.",
+      "did": "Built colour comparisons for version history in clothing-design-studio",
+      "result": "Held-out sentences went from 2 of 12 to 12 of 12 (7 on the first run); merged in PR 17364"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Verification: node eval/colour-versions.mjs dev 16/16, held 12/12; compared-versions 20/20+12/12, whole-versions 23/23+12/12, history-questions 41/41+20/20; run_venture_tests.py clothing-design-studio exit 0; venture-preflight failures were only the post description length (fixed, check_posts ok) and this unfilled record.",
   "corrections": [],
   "redteam": null
 }

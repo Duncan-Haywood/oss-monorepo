@@ -3,7 +3,7 @@ title: "\"When it was darker\": finding an earlier design by its colour"
 seo_title: "Reading colour comparisons in design feedback with CIELAB"
 date: 2026-11-18
 tags: [clothing-design-studio, natural-language, colour, design-tools]
-description: "Designers point back at versions by colour. The studio now reads darker, paler, more muted and warmer on CIELAB; held out, 2 of 12 sentences right before and 12 of 12 after."
+description: "Designers point back at versions by colour. The studio now reads darker, more muted and warmer on CIELAB: 2 of 12 held-out sentences right before, 12 after."
 ---
 
 The [Clothing Design Studio](../../ventures/clothing-design-studio/README.md) lets a
