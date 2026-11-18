@@ -105,6 +105,17 @@ def fly(d, law, test):
     return r
 
 
+def rnd(o):
+    """Floats to 5 significant digits for results.json (per-episode lists; full precision made it 2.2 MB)."""
+    if isinstance(o, float):
+        return float(f"{o:.5g}") if np.isfinite(o) else o
+    if isinstance(o, list):
+        return [rnd(v) for v in o]
+    if isinstance(o, dict):
+        return {k: rnd(v) for k, v in o.items()}
+    return o
+
+
 def med(v):
     v = np.asarray(v, float)
     return float(np.nanmedian(v)) if np.isfinite(v).any() else float("nan")
@@ -147,5 +158,5 @@ if __name__ == "__main__":
     lines = summarise(out) + [f"wall time {time.time() - t0:.0f} s"]
     sfx = "_smoke" if SMOKE else ""
     open(os.path.join(HERE, f"results{sfx}.txt"), "w").write("\n".join(lines) + "\n")
-    json.dump(dict(laws=LAWS, tests=TESTS, ep=EP, seed=SEED, runs=out), open(os.path.join(HERE, f"results{sfx}.json"), "w"))
+    json.dump(rnd(dict(laws=LAWS, tests=TESTS, ep=EP, seed=SEED, runs=out)), open(os.path.join(HERE, f"results{sfx}.json"), "w"), separators=(",", ":"))
     print("\n".join(lines))

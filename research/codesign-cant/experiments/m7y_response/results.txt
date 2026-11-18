@@ -84,4 +84,4 @@ Milestone 7y: lever 1, 45 deg, cap, integrator feed-forward, plant 'wide', 64 ep
    id 39.1 ms D^0 below aware lag52: peak 2.0 cm (per seed 2.2, 1.6, 2.2, 1.5, 1.9, 2.1); rms 1.4 cm; resid 1.6 cm; dead 0
    id 39.1 ms D^0 below aware lag60: peak 2.4 cm (per seed 2.9, 2.0, 2.7, 1.1, 1.7, 2.7); rms 1.8 cm; resid 1.8 cm; dead 0
 
-wall time 144 s
+wall time 137 s
