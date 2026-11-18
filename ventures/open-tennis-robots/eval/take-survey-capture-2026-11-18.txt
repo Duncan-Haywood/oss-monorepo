@@ -1,0 +1,32 @@
+# tests/take_survey_jitter.py --tach-capture, 2026-11-18 (firmware/esp32/README.md "A tach timed in hardware")
+
+The same 72 survey drills as eval/take-survey-jitter-2026-11-18.txt, with the edge times taken from the simulated
+MCPWM capture register (feeder_sim tach_capture=True, firmware/esp32/capture.py and controller.CaptureClock on the
+board's own Tach) instead of the handler's ticks_us(). The jitter column is now the handler's read error only: it
+moves ticks_us() (the tach's `since`, LaunchCheck's tick log) but not the periods.
+
+## design: --capture --tach-capture --lag 0.3 --seed 7, then --score
+72 survey drills (wheel lag 0.3 s, seed 7), the board's window of 8; each build's pick (refined, to 0.5 ms), best / step share and the advice (advised when the share is at most 0.6)
+  instant       | 0 us: 0/1.00 0/1.00 0/1.00 | 0.5 us: 0/1.00 0/1.00 0/1.00 | 1 us: 0/1.00 0/1.00 0/1.00 | 1.5 us: 0/1.00 0/1.00 1/0.97 | 2 us: 0/1.00 0/1.00 1/1.00 | 3 us: 0/1.00 0/1.00 0/1.00
+  halfsine 3 ms | 0 us: 3/0.65 3/0.86 3/0.62 | 0.5 us: 3/0.94 3/0.88 3/0.61 | 1 us: 2.5/0.92 3/0.80 3/0.60 | 1.5 us: 2.5/0.97 3/0.80 3/0.64 | 2 us: 2.5/0.97 3/0.80 3/0.66 | 3 us: 2.5/0.97 3/0.80 3/0.59*
+  halfsine 6 ms | 0 us: 6/0.22* 6/0.43* 6/0.22* | 0.5 us: 6.5/0.25* 6/0.39* 6/0.23* | 1 us: 6/0.25* 6/0.45* 6/0.28* | 1.5 us: 6/0.23* 6/0.45* 6/0.28* | 2 us: 6.5/0.25* 6/0.36* 6/0.29* | 3 us: 6.5/0.23* 6/0.44* 6/0.27*
+  front 4 ms    | 0 us: 5/0.72 4.5/0.94 5/0.36* | 0.5 us: 4.5/0.74 5/0.89 4.5/0.30* | 1 us: 4.5/0.75 5.5/0.87 4.5/0.32* | 1.5 us: 4.5/0.77 4.5/0.92 4.5/0.32* | 2 us: 4.5/0.73 5.5/0.87 4.5/0.34* | 3 us: 5/0.74 5.5/0.87 4.5/0.35*
+  (pick ms / share per launcher 0, 1, 2; * = advised)
+
+Per jitter: spread takes named within 1 ms and advised (of 9); instant builds advised (of 3, a wrong re-flash); picks within 1 ms (of 12); mean best / step share on the spread takes
+    0 us: named and advised 4, instant advised 0, within 1 ms 12 of 12, mean share 0.56
+  0.5 us: named and advised 4, instant advised 0, within 1 ms 12 of 12, mean share 0.58
+    1 us: named and advised 4, instant advised 0, within 1 ms 11 of 12, mean share 0.58
+  1.5 us: named and advised 4, instant advised 0, within 1 ms 12 of 12, mean share 0.60
+    2 us: named and advised 4, instant advised 0, within 1 ms 11 of 12, mean share 0.59
+    3 us: named and advised 5, instant advised 0, within 1 ms 11 of 12, mean share 0.58
+
+## Pre-registration (written and committed before the held-out capture ran)
+
+Held out: the same 72 builds at wheel lag 0.45 s, seed 11, capture on. PREDICTION: (a) at 1.5, 2 and 3 us of handler
+jitter the survey names and advises at least 3 of the 9 spread takes at each (the interrupt path advised 0 at each,
+both sets); (b) no instant build is advised at any jitter; (c) the mean share on spread takes at 3 us is within 0.1 of
+its value at 0 us; (d) the count named and advised varies by at most 2 across the six jitters. DECISION RULE: if (a) and
+(b) hold, the README says the capture keeps the survey's voice through handler jitter and `tennisbots tach-jitter`
+names TACH_CAPTURE when a log reads 0.55 us or more; TACH_CAPTURE stays off by default either way (never run on a
+board). If (a) fails, the README reports the miss and the advice line is not added.
