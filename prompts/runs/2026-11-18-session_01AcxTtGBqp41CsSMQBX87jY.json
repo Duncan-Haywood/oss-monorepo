@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtGBqp41CsSMQBX87jY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T04:06:16Z",
+  "ended": "2026-11-18T04:57:26Z",
+  "wall_minutes": 51.43,
+  "tokens_in": 12790918,
+  "tokens_out": 59844,
+  "cost_usd": 5.0593,
+  "tool_calls": 95,
+  "task": "league-schedule-generator flagship: bowling lane limits at 20x30 (SAT: deal exists, search misses)",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17169",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first xargs runner for SAT shapes wrote every answer to one file (a $(...) in sh -c evaluated wrongly), losing 8 of 9 answers",
+      "fix": "reran with a script that names each output by job index; cost ~3 min"
+    },
+    {
+      "what": "restarted walk and a breakout-weighted walk tried first did not close 20x30 one team off both ends (80 restarts)",
+      "fix": "replaced by SAT answers per limit shape, fitted by renaming teams"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace that went 67 chars over the cap parked 147 chars (two whole items) and left 86 free; parking only what fits would keep more open items in flagships.yaml"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "the flagship item named 20x30 only; the shape idea covered every hard season length cheaply, so I ran the SAT shapes over all 28 hard lengths (12-18 teams fully, 20-24 teams for the measured misses)",
+      "did": "171 stored shape answers instead of 9",
+      "result": "hard-length grid 60 to 106 of 112 every team in target, 142-season grid 133 to 137"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-bowling-lane-limits-solved-once-per-shape.md",
+    "ventures/league-schedule-generator/README.md (Lane limits on the hard season lengths)"
+  ],
+  "goal": null,
+  "notes": "Verified locally: run_venture_tests.py league-schedule-generator 605 tests pass (279.6 s); venture-preflight exit 0; eval/browser-bowling.mjs 16/16; check_posts ok; validate.py ok. Back-to-back repeats rose 2,338 to 2,436 on the 142-season grid (reported in README and post). No agent doc in docs/reports: the README section and flagships next carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e6dced6d-ca18-5943-ac98-76deb27aac2a",
+    "transcripts": 1,
+    "first": "2026-11-18T04:06:16Z",
+    "last": "2026-11-18T04:57:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 176,
+        "output": 59844,
+        "thinking": 18598,
+        "cache_read": 12623622,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167120,
+        "api_equivalent_usd": 5.0593,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 176,
+      "output": 59844,
+      "thinking": 18598,
+      "cache_read": 12623622,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167120,
+      "api_equivalent_usd": 5.0593,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 91,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 51.43,
+      "active_minutes": 51.43,
+      "model_minutes": 11.36,
+      "tool_minutes": 40.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OR engineer: diagnose the search miss, design the shape/renaming idea, SAT encode, 240 solves, matcher, tests, evals, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 197.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

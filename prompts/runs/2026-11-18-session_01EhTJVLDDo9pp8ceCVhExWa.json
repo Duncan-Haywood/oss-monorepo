@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVLDDo9pp8ceCVhExWa",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue products); merge when done",
+  "input_sha256": "8b42e855a2429af66e3b20054d99534e9e901c55f99740939d7647c8fa3a6342",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T05:06:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: clothing-design-studio (R-0005) comparisons in history references",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 17184,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/requests/requests.json",
+      "issue": "Edited by string replace first and broke the JSON (unescaped quotes); json.dumps(indent=1) round-trips the file byte for byte and is the safe way to edit it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Explore track: took the owner's R-0005 request (not a flagship row) instead of the allocator's pick (einvoice-preflight), as the explore prompt allows.",
+      "did": "comparison reader for the clothing studio",
+      "result": "merged with eval 20/20 dev, 12/12 held out (11/12 first run)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-one-where-the-halo-was-bigger.md",
+    "ventures/clothing-design-studio/eval/compared-versions-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Idea: designers point back at earlier versions by comparison ('the one where the halo was bigger', 'when it was more expensive', 'the cheapest one'); refer.mjs comparedVersion restores the latest earlier version that compared that way. Eval hand-written, held out written before the code: before 9/20 dev, 3/12 held (accidental); first run 18/20, 11/12; after a question-rule fix and a trailing-'more' fix 20/20, 12/12. Found and fixed: 'raise the price' moved the artwork. Checks: venture suite 723 tests pass; older evals unchanged; inherited_keys clean; run_workflow_locally --for-changes pages.yml 6/6 run steps (uses: not run). run_workflow_locally --for-changes: 10/10 selected workflows passed (pytest steps for break-even/session-gate unrun: no pytest; uses: steps, cross-review and deploy jobs not run).",
+  "corrections": [],
+  "redteam": null
+}

@@ -14,7 +14,7 @@ Free and open source (MIT). Results are estimates from an open first-principles 
 
 - Site: latitude, elevation, winter and summer design temperatures, daily range, summer design dew point, indoor set points.
 - Shell: wall cavity and continuous R, stud depth, wall colour and type, attic R, roof colour, crawl floor R, slab F-factor, window U and SHGC, interior shades, door U, ACH50 and N factor, ventilation cfm and recovery, duct loss and gain percentages, supply ΔT.
-- Rooms: floor area, ceiling height, attic above, floor type, slab perimeter, people, appliance Btu/h, outside walls.
+- Rooms: floor area, ceiling height, attic above, floor type, slab perimeter, people, appliance Btu/h, outside walls (each with an optional overhang: depth, gap above the window and window height, which shades the window's direct sun hour by hour).
 
 ## Source
 

@@ -38,6 +38,8 @@ from shootflow.frame_analysis import (
     ZoomIndex,
     analyze_media,
     crop_distance,
+    pan_pack,
+    pan_within,
     zoom_distance_within,
     zoom_index,
 )
@@ -60,6 +62,13 @@ CROP_MIN_GAIN = 5
 ZOOM_CANDIDATE_MAX_DISTANCE = 28
 ZOOM_MAX_DISTANCE = 6
 ZOOM_MIN_GAIN = 6
+# Wide-pan pass (eval/cull-pan-windows-2026-11-18.md): a pair up to
+# PAN_CANDIDATE_MAX_DISTANCE apart also groups when two 88% windows offset
+# further than the crop pass reaches are within PAN_MAX_DISTANCE and that is at
+# least PAN_MIN_GAIN closer than the whole frames. Picked on the same 165 tune photos.
+PAN_CANDIDATE_MAX_DISTANCE = 44
+PAN_MAX_DISTANCE = 5
+PAN_MIN_GAIN = 6
 BLURRY_BELOW = 0.2
 BAD_EXPOSURE_BELOW = 0.25
 CLOSED_EYES_BELOW = 0.3
@@ -307,16 +316,33 @@ def zoom_match(distance: int, hash_a: int, index_a: ZoomIndex, hash_b: int, inde
     return zoom_distance_within(hash_a, index_a, hash_b, index_b, limit) <= limit
 
 
+def pan_match(distance: int, pans_a: tuple[int, ...], pans_b: tuple[int, ...]) -> bool:
+    """The wide-pan pass (8-10% pans) for a pair ``distance`` apart on the whole frame (``pan_pack`` of each)."""
+
+    if distance > PAN_CANDIDATE_MAX_DISTANCE:
+        return False
+    return pan_within(pans_a, pans_b, min(PAN_MAX_DISTANCE, distance - PAN_MIN_GAIN))
+
+
 def burst_match(
     distance: int,
     hash_a: int, crops_a: Sequence[int], index_a: ZoomIndex,
     hash_b: int, crops_b: Sequence[int], index_b: ZoomIndex,
+    pans_a: tuple[int, ...] | None = None, pans_b: tuple[int, ...] | None = None,
 ) -> bool:
-    """Whether two frames ``distance`` apart on the whole frame belong to one burst."""
+    """Whether two frames ``distance`` apart on the whole frame belong to one burst.
+
+    ``pans_a`` / ``pans_b`` are ``pan_pack`` of the crops, computed here when not given.
+    """
 
     return (
         distance <= NEAR_DUPLICATE_MAX_DISTANCE
         or crop_match(distance, crops_a, crops_b)
+        or pan_match(
+            distance,
+            pan_pack(crops_a) if pans_a is None else pans_a,
+            pan_pack(crops_b) if pans_b is None else pans_b,
+        )
         or zoom_match(distance, hash_a, index_a, hash_b, index_b)
     )
 
@@ -339,12 +365,13 @@ def _group(
     hashes = [int(row[1].dhash, 16) for row in ordered]
     crops = [tuple(int(h, 16) for h in getattr(row[1], "dhash_crops", ())) for row in ordered]
     zooms = [zoom_index(tuple(int(h, 16) for h in getattr(row[1], "dhash_zooms", ()))) for row in ordered]
+    pans = [pan_pack(c) for c in crops]
     for i in range(len(hashes)):
         hi = hashes[i]
         for j in range(i + 1, len(hashes)):
             distance = (hi ^ hashes[j]).bit_count()
             if distance > NEAR_DUPLICATE_MAX_DISTANCE and not burst_match(
-                distance, hi, crops[i], zooms[i], hashes[j], crops[j], zooms[j]
+                distance, hi, crops[i], zooms[i], hashes[j], crops[j], zooms[j], pans[i], pans[j]
             ):
                 continue
             a, b = find(i), find(j)

@@ -253,7 +253,9 @@ export function parseClause(raw, design) {
   if (/\b(down|lower)\b/.test(noChest)) dirs.push(["dy", 1, "down"]);
   if (/\bleft\b/.test(noChest)) dirs.push(["dx", -1, "left"]);
   if (/\bright\b/.test(noChest)) dirs.push(["dx", 1, "right"]);
-  if (dirs.length && !/\b(pick|choose|go with|rotate|tilt|turn|clockwise)\b/.test(c)) {
+  // "raise the price", "the price is higher", "lower the run": the direction is the number's, not the artwork's.
+  const notArt = /\b(?:raise|up|higher|lower|down|drop|bump)\b\s+(?:(?:the|my|our)\s+)?(?:selling\s+|retail\s+)?(?:price|cost|gsm|weight|quantity|run|order)\b|\b(?:price|cost|gsm|weight|quantity|run|order)\b\s+(?:[a-z']+\s+){0,2}(?:up|higher|lower|down)\b/.test(noChest);
+  if (dirs.length && !notArt && !/\b(pick|choose|go with|rotate|tilt|turn|clockwise)\b/.test(c)) {
     const d = distanceCm(c);
     const op = { op: "move", dx: 0, dy: 0 };
     for (const [k, s] of dirs) op[k] += s * d;

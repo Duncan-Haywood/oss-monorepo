@@ -36,8 +36,10 @@
 - (2026-11-17) Crop-tolerant grouping shipped (eval/cull-crop-grouping-2026-11-17.md): held-out burst-pair recall
   0.40 to 0.72. The showcase's 4% corner reframe still splits (whole 13, windows 7, rule needs 6): zooms are matched
   by equal-size windows only. Zoom windows shipped 2026-11-18 (eval/cull-zoom-windows-2026-11-18.md): held-out
-  recall 0.72 to 0.91, zooms of 3-10% 0.98-1.00, the showcase's reframe now groups. Open: pans of 8-10%
-  (0.07-0.33; a wider pan window set, or matching the overlap strip); single-linkage chaining measured on a real shoot; sunsets and dark-ground horizons are where the
+  recall 0.72 to 0.91, zooms of 3-10% 0.98-1.00, the showcase's reframe now groups. Pans of 8-10% shipped the
+  same day (eval/cull-pan-windows-2026-11-18.md): off-centre window pairs, held-out recall 0.91 to 0.985, those
+  pans 0.86-1.00. Open: 6% pans (0.85-0.86, the shift falls between grid steps; a 7 x 7 grid?), the pan pass's
+  cost (+4 s per 2,000 frames, about 1.8 us a pair; a prefilter that skips most distinct pairs); single-linkage chaining measured on a real shoot; sunsets and dark-ground horizons are where the
   distinct-photo false merges sit.
 - A copy at 30% brightness (exposure 0.28) stayed an alternate; it lost its group, so harmless, but the reject line
   for exposure may sit too low.

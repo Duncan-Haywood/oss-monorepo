@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, offBound, boundOutOfReach, VACANCY, laneTargets, parseLaneAvoid } from "./bowling.mjs";
+import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, offBound, boundOutOfReach, VACANCY, laneTargets, parseLaneAvoid, matchShape, avoidShapeSlots } from "./bowling.mjs";
+import { LANE_SHAPES } from "./bowling-avoid-shapes.mjs";
 import { LANE_TABLE } from "./bowling-lane-table.mjs";
 import { OUT_OF_REACH } from "./bowling-proofs.mjs";
 import { toDay, roundRobin } from "./calc.mjs";
@@ -320,4 +321,44 @@ test("the search with limits honours them on every week of a grid, and an odd le
   assert.match(odd.errors[0], /"Vacancy" is not one of the teams/);
   const none = bowlingSchedule({ teams: names(8), weeks: 15, start: START, laneAvoid: "  \n" });
   assert.equal(none.avoid, null);
+});
+
+test("lane-limit shapes match up to renaming teams and pairs, and nothing else", () => {
+  const avoid = (n, list) => { const a = Array.from({ length: n }, () => []); for (const [t, ps] of list) a[t].push(...ps); return a; };
+  // Two teams on one pair: any two teams, any pair.
+  assert.deepEqual(matchShape(avoid(20, [[6, [4]], [13, [4]]]), "0:0;1:0", 10), { slotTeam: [6, 13], pairOf: [4] });
+  assert.equal(matchShape(avoid(20, [[6, [4]], [13, [5]]]), "0:0;1:0", 10), null);
+  // A team on two pairs and a team on one of them: the slots follow the shape, not the input order.
+  assert.deepEqual(matchShape(avoid(20, [[2, [7]], [9, [7, 1]]]), "0:0,1;1:0", 10), { slotTeam: [9, 2], pairOf: [7, 1] });
+  assert.equal(matchShape(avoid(20, [[2, [7]], [9, [3, 1]]]), "0:0,1;1:0", 10), null);
+  assert.equal(matchShape(avoid(20, [[2, [7]]]), "0:0;1:0", 10), null);
+  // Dealing: the limited teams take the shape's slots, the rest keep their order.
+  const slots = avoidShapeSlots(20, 30, avoid(20, [[19, [9]]]), 10);
+  assert.ok(slots, "20 x 30 has a stored answer for one team off one pair");
+  assert.deepEqual(slots, [19, ...Array.from({ length: 19 }, (_, i) => i)]);
+  assert.equal(avoidShapeSlots(20, 29, avoid(20, [[19, [9]]]), 10), null);
+});
+
+test("20 teams x 30 weeks with lane limits: every team in target from a stored shape answer (the search alone misses)", () => {
+  assert.ok(Object.keys(LANE_SHAPES).some((k) => k.startsWith("20,30|")));
+  for (const laneAvoid of ["Team 7: last", "Team 3: last\nTeam 12: last", "Team 7: ends"]) {
+    for (const seed of [1, 2]) {
+      const s = bowlingSchedule({ teams: names(20), weeks: 30, start: START, laneAvoid, seed });
+      assert.deepEqual(s.errors, [], laneAvoid);
+      assert.deepEqual(validateBowling(s), [], laneAvoid);
+      for (const wk of s.weeks) for (const m of wk.matches) for (const t of [m.a, m.b]) assert.ok(!s.avoid[t].includes(m.pair), `${laneAvoid}: week ${wk.week}`);
+      const r = laneReport(s);
+      assert.equal(r.rows.filter((x) => x.inTarget).length, 20, `${laneAvoid} seed ${seed}`);
+      // Still a double-and-a-bit round robin: every pair of teams meets once or twice.
+      const met = new Map();
+      for (const wk of s.weeks) for (const m of wk.matches) { const k = Math.min(m.a, m.b) * 20 + Math.max(m.a, m.b); met.set(k, (met.get(k) ?? 0) + 1); }
+      assert.equal(met.size, 190);
+      for (const c of met.values()) assert.ok(c === 1 || c === 2);
+    }
+  }
+  // With no limits the fixtures are the plain circle method, as before.
+  const plain = bowlingSchedule({ teams: names(20), weeks: 30, start: START });
+  const cyc = roundRobin(20);
+  const key = (ms) => ms.map(([a, b]) => `${Math.min(a, b)}-${Math.max(a, b)}`).sort().join(" ");
+  assert.equal(key(plain.weeks[0].matches.map((m) => [m.a, m.b])), key(cyc[0].matches));
 });
