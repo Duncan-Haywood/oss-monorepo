@@ -495,6 +495,17 @@ take a list go from 896 to 305 ms of `applies`, and on the 219 MB federated
 model from 6.1 to 2.2 s (whole run 56.2 to 49.6 s); those that apply to most
 of the model still walk. Every report is identical.
 
+Since 2026-11-18 (`eval/applies-cache-2026-11-18.md`) a parsed model keeps
+what repeats between specifications and between IDS files: each distinct
+applicability's result (a result taking most of the model kept as the
+entities it leaves out), and, for a facet run over more than a quarter of the
+model, one byte per entity for its verdict (at most 8 facets, the least
+recently used dropped). On HHS MEP the 68 files ran 11.4 million facet tests,
+7.9 million of them repeats; they now run 3.7 million. The 68 files take
+4.5-4.7 s there, where main took 6.2-6.7 s, and 2.4-2.5 s on Schultz
+Residence, where it took 3.3 s. Every report is identical, and
+`check(..., { facetCache: false })` turns the caches off.
+
 ## How it was checked
 
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones
