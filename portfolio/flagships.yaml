@@ -526,7 +526,7 @@ flagships:
       entity 2026-11-18 (eval/entity-table-2026-11-18.md: STEP records in a
       number-indexed array, 3 fields; kept after parse 444 to 350 MB on 219 MB,
       smallest heap 704 to 576 MB, same reports). checks' own memory 2026-11-18
-      (eval/shared-values-2026-11-18.md: lists at their length, shared small values,
-      relationships not kept; 219 MB with 68 IDS needs 896 to 704 MB, same reports).
-      next: a compact per-set record for properties (kept arguments, 17-39% slower
-      without). More open items: NEXT.md.
+      (eval/shared-values-2026-11-18.md, eval/pset-records-2026-11-18.md:
+      exact-length lists, shared values, relationships and property sets not kept,
+      one record per set; 219 MB with 68 IDS 896 to 608 MB, same speed and reports).
+      next: the parse's own 512 MB. More open items: NEXT.md.
