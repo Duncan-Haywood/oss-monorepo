@@ -2447,6 +2447,49 @@ class PowerBomTest(unittest.TestCase):
         self.assertEqual(listed, Counter(b["fuse_a"] for b in Feeder().power_distribution()["branches"]))
 
 
+class EstopResetTest(unittest.TestCase):
+    """Reset at the machine (2026-11-18, `estop_reset_chain`, `check_estop_reset`; quality audit 2026-11-08)."""
+
+    def test_defaults_pass_and_the_build_runs_the_check(self):
+        import inspect
+        self.assertEqual(Feeder().check_estop_reset(), [])
+        self.assertIn("self.check_estop_reset()", inspect.getsource(Feeder.check))
+
+    def test_release_never_powers_the_bus_and_reset_does(self):
+        p = Feeder()
+        d = p.precharge_delay_s
+        r = p.estop_reset()
+        self.assertEqual(r["power_up"]["spans"], [])
+        self.assertEqual(r["reset_held"]["spans"], [])                 # held: nothing until it is let go
+        self.assertEqual(r["reset"]["spans"], [(round(1.3 + d, 3), None)])
+        for k in ("estop_released", "fob_restored", "reset_taped_down"):
+            self.assertEqual(r[k]["spans"], [(round(1.3 + d, 3), 4.0)], k)
+        self.assertEqual(r["reset_after_release"]["spans"][-1], (round(8.2 + d, 3), None))
+        self.assertEqual(r["reset_while_running"]["spans"][0][1], 4.0)  # pressing RESET while running drops the bus
+        # RESET pressed while the e-stop is still down sets nothing: the release afterwards stays dark
+        held = p.estop_reset_chain([(1.0, "estop", True), (2.0, "reset", True), (2.2, "reset", False),
+                                    (3.0, "estop", False)], 10.0)
+        self.assertEqual(held["spans"], [])
+
+    def test_the_old_wiring_and_a_welded_contact_re_power_on_release(self):
+        old = Feeder(estop_reset_latch=False)
+        r = old.estop_reset_chain([(4.0, "estop", True), (5.0, "estop", False)], 10.0)
+        self.assertEqual(r["spans"][-1], (5.0 + old.precharge_delay_s, None))
+        self.assertTrue(old.check_estop_reset())
+        w = Feeder().estop_reset()["no_welded"]["spans"]
+        self.assertEqual(w[-1][1], None)                                 # the one fault that defeats the latch
+
+    def test_contact_ratings_are_checked(self):
+        self.assertTrue(any("RESET's NC" in b for b in Feeder(reset_button_dc_a=0.2).check_estop_reset()))
+        self.assertTrue(any("K0" in b for b in Feeder(latch_relay_a=0.1).check_estop_reset()))
+
+    def test_bom_lists_the_latch_and_the_button(self):
+        from otr_cad.feeder import COTS_EXTRA
+        names = [n for n, _, _ in COTS_EXTRA]
+        self.assertTrue(any("RESET" in n and "1 NO + 1 NC" in n for n in names), names)
+        self.assertTrue(any("reset latch K0" in use for _, _, use in COTS_EXTRA))
+
+
 class DeckCableParamsTest(unittest.TestCase):
     """The deck-side cable run (2026-11-14): routing, ties and lead losses on the routed lengths."""
 

@@ -43,12 +43,17 @@ class SimFeeder:
     def __init__(self, elev_mode="pot", az_start_deg=12.0, wheel_tau_s=WHEEL_TAU_S, wheel_max_rpm=WHEEL_MAX_RPM,
                  rpm_full=None, jam_log=None, balls=None, wheel_inertia=0.00155, launch_eff=1.0,
                  true_launcher=None, tach_jitter_us=0.0, esc_tau_s=0.0, seed=0, take_ms=0.0, take_shape="halfsine",
-                 tach_capture=False, tach_sensor_jitter_us=0.0, tach_capture_sub=None):
+                 tach_capture=False, tach_sensor_jitter_us=0.0, tach_capture_sub=None, reset_latch=True):
         self.us = 1_000_000            # board clock, microseconds
         self.rx = bytearray()          # Pi -> board
         self.tx = bytearray()          # board -> Pi
-        self.estop_button = False
-        self.fob_cut = False           # wireless e-stop: drops the contactor's coil, the board sees no switch (2026-11-14)
+        # Reset at the machine (2026-11-18, cad Feeder.estop_reset_chain): the e-stop and the fob feed a latch relay
+        # that only RESET on the feeder sets, so after either is released the contactor's coil stays off until
+        # press_reset(). The sim starts latched (someone pressed RESET at switch-on). reset_latch=False is the old wiring.
+        self.reset_latch = reset_latch
+        self.latched = True
+        self._estop_button = False
+        self._fob_cut = False          # wireless e-stop: drops the contactor's coil, the board sees no switch (2026-11-14)
         self.drop_cmd = None           # set to a command byte to lose the next such frame on the wire
         self.pot_broken = False
         self.pot_pickup = None         # f(duty, read index) -> volts added to each pot reading (tests/pot_pickup_sweep.py)
@@ -72,8 +77,8 @@ class SimFeeder:
                         return 1 if sim.estop_button else 0
                     if self.n == 0:
                         return 0 if sim.lift_over else 1
-                    if self.n == 15:           # contactor coil sense, low while energised: the wired e-stop and the
-                        return 1 if sim.estop_button or sim.fob_cut else 0   # wireless fob are both in its series
+                    if self.n == 15:           # contactor coil sense, low while energised: the wired e-stop, the
+                        return 0 if sim.coil_on() else 1    # wireless fob and the reset latch are all in its series
                     return self.v
                 self.v = v
 
@@ -196,6 +201,35 @@ class SimFeeder:
         self.shuttle_out_s, self.shuttle_back_s = SHUTTLE_OUT_S, SHUTTLE_BACK_S
         self.ctl = controller.Controller(hw, controller.ROLE_FEEDER, self.us // 1000)
         self._last_update_ms = self.us // 1000
+
+    @property
+    def estop_button(self):
+        return self._estop_button
+
+    @estop_button.setter
+    def estop_button(self, v):
+        self._estop_button = bool(v)
+        if v and self.reset_latch:
+            self.latched = False
+
+    @property
+    def fob_cut(self):
+        return self._fob_cut
+
+    @fob_cut.setter
+    def fob_cut(self, v):
+        self._fob_cut = bool(v)
+        if v and self.reset_latch:
+            self.latched = False
+
+    def coil_on(self):
+        """The contactor's coil (the timer's 0.5 s after a release is not modelled, as before 2026-11-18)."""
+        return not self._estop_button and not self._fob_cut and (self.latched or not self.reset_latch)
+
+    def press_reset(self):
+        """RESET on the feeder, pressed and let go: sets the latch if the e-stop and the fob are both released."""
+        if not self._estop_button and not self._fob_cut:
+            self.latched = True
 
     def braking(self):
         """An ESC brakes when it is driven (non-zero throttle) slower than its wheel turns; zero throttle coasts."""

@@ -2345,7 +2345,9 @@ COTS_EXTRA = [
     ("TCRT5000 reflective sensor", 2, "wheel tachometers"),
     ("22 mm NC mushroom e-stop + 24 V coil contactor, 30 A DC or more", 1, "hard power cut; everything but the Pi's buck is after it; its coil through the on-delay timer (manifest inrush line)"),
     ("Precharge resistor 4.7 ohm, aluminium-housed 50 W class", 1, "across the contactor's contacts in series with the precharge relay; must survive the manifest inrush line's fault energy or fail open"),
-    ("24 V relay, 10 A contacts", 1, "precharge relay: its coil through the e-stop, ahead of the contactor"),
+    ("24 V relay, 10 A contacts", 1, "precharge relay: its coil through the e-stop, the reset latch and RESET's NC contact, ahead of the contactor"),
+    ("24 V relay, 10 A contacts (SPDT or better)", 1, "reset latch K0: coil after the e-stop and the fob through RESET's NO contact in parallel with its own NO hold contact; feeds the precharge relay and the timer through RESET's NC contact (manifest estop reset line)"),
+    ("22 mm momentary push button, 1 NO + 1 NC, flush, blue, labelled RESET", 1, "on the feeder beside the e-stop: the motors get power only when it is pressed and let go at the machine (hardware/electronics.md \"Reset at the machine\")"),
     ("24 V on-delay timer relay module, set 0.5 s", 1, "closes the contactor's coil after the precharge (manifest inrush line)"),
     ("PC817 optocoupler + 10k 0.5 W resistor", 1, "contactor coil sense: LED across the coil through the 10k, transistor from ESP32 GPIO 15 to GND (cad/README.md \"Stepper ENABLE after the contactor\")"),
     ("4.7k resistor", 1, "stepper driver EN pull-up to 3.3 V, EN to ESP32 GPIO 5: the driver stays off until the contactor has closed"),
@@ -2632,6 +2634,21 @@ def regen_line(p: Feeder) -> str:
     return s
 
 
+def estop_reset_line(p: Feeder) -> str:
+    if not p.estop_reset_latch:
+        return "estop reset: no latch; releasing the e-stop or the fob re-powers the motors"
+    r = p.estop_reset()
+    return (f"estop reset: the e-stop and the fob feed a latch relay (K0) that holds through its own contact and is set "
+            f"only by RESET on the feeder; the precharge relay and the timer take their feed through RESET's NC contact, "
+            f"so power returns {p.precharge_delay_s:g} s after RESET is let go, never while it is held. Simulated: no "
+            f"power at switch-on, none after an e-stop or fob release, none with RESET held or taped down, none from a "
+            f"CLEAR_ESTOP alone; RESET pressed while running drops the bus. K0's hold contact and RESET's NC carry "
+            f"{r['feed_a']:.2f} A of coil current (assumed: precharge relay {p.precharge_coil_a:g} A, timer "
+            f"{p.timer_module_a:g} A, contactor coil {p.contactor_coil_a:g} A; RESET rated {p.reset_button_dc_a:g} A DC). "
+            f"One fault defeats it: RESET's NO contact welded, which is the old wiring's behaviour (a release re-powers "
+            f"the bus) with the board's CLEAR_ESTOP still needed")
+
+
 def inrush_line(p: Feeder) -> str:
     d = p.contactor_inrush()
     dr, pre = d["direct"], d["precharge"]
@@ -2810,6 +2827,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     checks.insert(-3, power_line(p))
     checks.insert(-3, inrush_line(p))
     checks.insert(-3, regen_line(p))
+    checks.insert(-3, estop_reset_line(p))
     checks.insert(-3, trough_line(p))
     checks.insert(-3, lift_line(p))
     checks.insert(-3, lift_jam_line(p))

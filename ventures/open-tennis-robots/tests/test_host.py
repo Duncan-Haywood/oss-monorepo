@@ -124,8 +124,12 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
         self.assertEqual(sim.hw.az_enable.v, 1)
         self.assertFalse(sim.hw.azim.homed)
         self.assertEqual(sim.hw.feeding, 0)
-        sim.fob_cut = False                               # fob released: the bus returns, but nothing was queued
+        sim.fob_cut = False                               # fob released: the bus stays off until RESET (2026-11-18)
         sim.run_ms(2000)
+        self.assertTrue(sim.hw.flags() & P.FLAG_BUS_OFF)
+        sim.press_reset()                                 # RESET at the machine: the bus returns, but nothing was queued
+        sim.run_ms(2000)
+        self.assertFalse(sim.hw.flags() & P.FLAG_BUS_OFF)
         self.assertEqual(len(sim.released), 2)
 
     def test_lost_feed_frame_aborts_and_drops_the_queued_ball(self):
@@ -208,6 +212,55 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
     def test_plan_rejects_a_shot_it_cannot_make(self):
         with self.assertRaisesRegex(ValueError, "shot 1"):
             host.plan_drill({"shots": [{"x": 9.5, "y": 0, "speed": 20}, {"x": 9.5, "y": 0, "speed": 80}]})
+
+
+class ResetAtTheMachineTest(unittest.TestCase):
+    """2026-11-18 (hardware/electronics.md "Reset at the machine"): after the e-stop or the fob, releasing it and a
+    CLEAR_ESTOP from the Pi are not enough to power the motors; RESET pressed at the feeder is."""
+
+    def _estop_and_release(self, sim, what):
+        res, _ = run(sim, drill()[:1])
+        self.assertTrue(res.ok, res.aborted)
+        setattr(sim, what, True)
+        sim.run_ms(200)
+        setattr(sim, what, False)
+        sim.write(P.encode(P.CLEAR_ESTOP))
+        sim.run_ms(1000)
+
+    def test_release_and_clear_leave_the_bus_off_and_a_drill_says_press_reset(self):
+        for what in ("estop_button", "fob_cut"):
+            sim = SimFeeder()
+            self._estop_and_release(sim, what)
+            self.assertFalse(sim.ctl.estop)                       # the board's own stop is cleared
+            self.assertTrue(sim.hw.flags() & P.FLAG_BUS_OFF)      # but the contactor is open
+            n = len(sim.released)
+            res, _ = run(sim, drill())
+            self.assertFalse(res.ok)
+            self.assertIn("press and let go of RESET on the feeder", res.aborted)
+            self.assertEqual(len(sim.released), n)
+            sim.run_ms(20)
+            self.assertTrue(sim.ctl.estop)                        # the aborted connect sent ESTOP, as any abort does
+            sim.press_reset()                                     # RESET at the machine, then Clear stop as usual
+            sim.write(P.encode(P.CLEAR_ESTOP))
+            sim.run_ms(300)
+            res, _ = run(sim, drill())
+            self.assertTrue(res.ok, res.aborted)
+            self.assertEqual(len(sim.released), n + 4)
+
+    def test_reset_does_nothing_while_the_estop_is_down(self):
+        sim = SimFeeder()
+        sim.estop_button = True
+        sim.press_reset()
+        sim.estop_button = False
+        sim.run_ms(500)
+        self.assertTrue(sim.hw.flags() & P.FLAG_BUS_OFF)
+
+    def test_old_wiring_comes_back_on_release(self):
+        sim = SimFeeder(reset_latch=False)
+        self._estop_and_release(sim, "estop_button")
+        self.assertFalse(sim.hw.flags() & P.FLAG_BUS_OFF)
+        res, _ = run(sim, drill())
+        self.assertTrue(res.ok, res.aborted)
 
 
 class ShuttleTimesTest(unittest.TestCase):
@@ -648,6 +701,7 @@ class LiftJamTest(unittest.TestCase):
         sim.estop_button = True                      # a person presses the e-stop: the contactor drops the bus
         self._beat(sim, 200)
         sim.estop_button = False
+        sim.press_reset()
         sim.write(P.encode(P.CLEAR_ESTOP))
         self._beat(sim, 400)
         self.assertFalse(hw.flags() & P.FLAG_LIFT_JAM)
@@ -703,6 +757,7 @@ class LiftJamTest(unittest.TestCase):
             sim.estop_button = True
             self._beat(sim, 200)
             sim.estop_button = False
+            sim.press_reset()
             sim.write(P.encode(P.CLEAR_ESTOP))
             self._beat(sim, 600)
             logs = []

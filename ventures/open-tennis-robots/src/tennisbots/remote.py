@@ -19,7 +19,8 @@ Safety model (README "Running a drill from the page"):
   server's own origin; the Host header must be an IP address, `localhost`, a `.local` name or one passed with
   `--allow-host` (a DNS-rebinding page arrives under its own name).
 * **A software stop stays latched.** Clearing it is a separate button that sends `CLEAR_ESTOP`, which the firmware
-  refuses while the physical e-stop is pressed.
+  refuses while the physical e-stop is pressed. After the physical e-stop or the fob, the motors also need RESET
+  pressed at the feeder (2026-11-18): the page can clear the board's stop but cannot power the motors.
 
 The physical e-stop and the wireless fob remain the safety stop; this page is a convenience, not a safety device.
 """
@@ -117,7 +118,11 @@ class DrillServer:
         if frame.flags & P.FLAG_ESTOP:
             return {"cleared": False, "message": "the board still holds its e-stop: release the physical button "
                                                  "(or the fob), then clear again"}
-        return {"cleared": True, "message": "stop cleared; the machine can run a drill"}
+        if frame.flags & P.FLAG_BUS_OFF:
+            # 2026-11-18: the board's stop is cleared, but the contactor stays open until RESET is pressed at the
+            # machine (hardware/electronics.md "Reset at the machine"), so a phone alone cannot re-power the motors.
+            return {"cleared": True, "powered": False, "message": f"stop cleared on the board, but {host.RESET_HINT}"}
+        return {"cleared": True, "powered": True, "message": "stop cleared; the machine can run a drill"}
 
     def join(self, timeout=None):
         t = self._thread
@@ -162,8 +167,8 @@ class DrillServer:
         elif res.aborted == STOPPED:
             state, msg = "stopped", "stopped from the page: ESTOP sent (wheels halted); press Clear stop to run again"
         elif res.aborted:
-            state, msg = "aborted", (f"aborted, ESTOP sent: {res.aborted}; fix the cause, release the e-stop if "
-                                     f"pressed, then Clear stop")
+            state, msg = "aborted", (f"aborted, ESTOP sent: {res.aborted}; fix the cause, release the e-stop or fob "
+                                     f"if used and press RESET on the feeder, then Clear stop")
         else:
             state, msg = "done", f"{len(res.shots)} balls fed; {res.link_errors} bad frames on the link"
         advice = [a for a in (host.esc_survey_advice(res.esc_survey, res.esc_tau_ms or 0),
@@ -326,7 +331,8 @@ input,textarea{font:inherit;width:100%;padding:.4em;border:1px solid var(--line)
 </style></head><body><main>
 <h1>Run a drill on this feeder</h1>
 <p class="mut">The physical e-stop and the fob are the safety stop. This page is a convenience: keep people clear of the
-launcher whenever its wheels can turn. No warranty.</p>
+launcher whenever its wheels can turn. After the e-stop or the fob, the motors stay unpowered until someone presses
+RESET on the feeder; this page cannot power them. No warranty.</p>
 <button id="stop">STOP</button>
 <div class="card"><b id="state">...</b> <span id="count"></span><div id="result"></div></div>
 <div class="card"><h2 style="font-size:1.05rem;margin:0 0 6px">Drill</h2>

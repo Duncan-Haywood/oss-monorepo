@@ -33,7 +33,60 @@ through a 4.7 ohm resistor, and a 0.5 s on-delay timer module, which then
 closes the contactor's coil. Pressing the e-stop drops both. The wireless
 e-stop relay stays in series ahead of them. The ESP32 also reads the switch (GPIO 4) so it
 latches a software e-stop and reports it in telemetry; clearing needs the
-button released *and* a `CLEAR_ESTOP` command.
+button released *and* a `CLEAR_ESTOP` command. Since 2026-11-18 the feeder
+also needs RESET pressed at the machine before its motors get power again
+(next section).
+
+## Reset at the machine (feeder, 2026-11-18)
+
+Before this, releasing the e-stop (or the fob) re-powered the motors at once,
+and the only other step was a `CLEAR_ESTOP`, which can come from a phone or a
+script anywhere on the network (the 2026-11-08 quality audit named it). An
+emergency stop's reset should not restart a machine, and the restart should be
+a deliberate act at the machine (ISO 13850 asks the same). Now:
+
+```
+ +24 V --[fob relay]--[e-stop NC]--S--+--[RESET NO]--+--H--+--(K0 coil)-- 0 V
+                                      |              |     |
+                                      +--[K0 NO]-----+     +--[RESET NC]--P--+--(precharge relay coil)
+                                         (hold)                              +--(0.5 s timer)--(contactor coil)
+```
+
+- **K0** is a small 24 V relay (the same 10 A class as the precharge relay).
+  Its coil is on node S, after the fob and the e-stop, through RESET's NO
+  contact in parallel with K0's own NO contact, so once set it holds itself.
+  Any cut of S (e-stop, fob, a broken wire, the pack disconnected) drops it,
+  and nothing but RESET sets it again.
+- **RESET** is a 22 mm momentary push button with one NO and one NC contact,
+  mounted beside the e-stop. Its NC contact feeds the precharge relay and the
+  timer from K0's node. Pressing RESET sets K0 but opens P, so power comes back
+  0.5 s after the button is **let go**, never while it is held: a button jammed
+  or taped down never powers the motors. Pressing it while the machine runs
+  drops the bus, like the fob.
+- **At switch-on** K0 is open, so the motors have no power until someone presses
+  RESET. The Pi and the ESP32 are before the contactor and start as before.
+- **What the board sees.** Nothing new is wired to the ESP32 (it has no free
+  pin): with K0 open the contactor's coil is off, so GPIO 15 reads it and
+  telemetry carries `FLAG_BUS_OFF`. `CLEAR_ESTOP` still clears the board's own
+  latch, but the motors stay unpowered; the drill runner and the phone page
+  (`tennisbots serve`) now say to press RESET on the feeder.
+- **The fault that defeats it:** RESET's NO contact welded shut with the button
+  let go. Then K0 sets itself on any release and the machine behaves as the
+  old wiring did (power on release, `CLEAR_ESTOP` still needed). A safety relay
+  module with a monitored manual reset (one that resets only on the button's
+  falling edge and checks its own contacts) closes that too, at more cost;
+  check yours on every build: press the e-stop, release it, and confirm the
+  wheels do not turn and the page reports the bus off until RESET.
+
+`Feeder.estop_reset_chain` (cad) steps this logic at 1 ms and
+`check_estop_reset` runs it through switch-on, RESET held, e-stop and fob
+releases, RESET taped down, RESET while running and the welded contact; the
+build fails if a release re-powers the bus by itself, or if the coil current
+the hold contact and RESET's NC carry (about 0.32 A with assumed coils: the
+precharge relay 0.04 A, the timer 0.03 A, the contactor 0.25 A) passes their
+ratings. The simulated feeder (`tests/feeder_sim.py`) has the latch too
+(`press_reset()`). Coil currents and contact ratings are assumptions: read your
+parts' sheets.
 
 ## ESP32 pins, feeder role
 
