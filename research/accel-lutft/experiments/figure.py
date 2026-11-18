@@ -27,9 +27,9 @@ def main():
             ys.append(float(m.group(3)))
     if not series:
         raise SystemExit("no rows parsed")
-    lines("Accel-lutft: accuracy against table bit width",
-          "Line plot of test accuracy against lookup-table weight width of 2, 4 and 8 bits for post-training quantisation and fine-tuning at 0 and 75 percent sparsity: fine-tuning helps most at 2 bits and at 75 percent sparsity both reach about 0.95 at 4 bits",
-          "table weight width (bits)", "test accuracy (mean of 10 splits)", "lutft.svg",
+    lines("Accel-lutft: accuracy against codebook size K",
+          "Line plot of test accuracy against codebook size K of 2, 4 and 8 shared values per layer for post-training quantisation and fine-tuning at 0 and 75 percent sparsity: fine-tuning helps most at K = 2 and at 75 percent sparsity both reach about 0.95 at K = 4",
+          "codebook size K (shared values per layer)", "test accuracy (mean of 10 splits)", "lutft.svg",
           series_=[(k, v[0], v[1]) for k, v in series.items()])
 
 

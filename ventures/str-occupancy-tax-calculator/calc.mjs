@@ -71,7 +71,7 @@ function readNumber(raw, limits, key, errors, rowLabel) {
   // leaves the cell empty rather than typing a nought, and a calculator that
   // refused to compute over an empty cell would be unusable.
   if (text === '' || text === null || text === undefined) return 0;
-  const value = typeof text === 'number' ? text : Number.parseFloat(text);
+  const value = typeof text === 'number' ? text : Number(text); // Number, not parseFloat: '1,200' must be an error, not 1
   const where = rowLabel ? `${rowLabel}: ` : '';
   if (!Number.isFinite(value)) {
     errors.push({ field: key, message: `${where}${spec.label} needs a number.` });

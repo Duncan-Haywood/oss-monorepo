@@ -17,7 +17,7 @@ build step, no dependencies.
 - [`share.mjs`](share.mjs) — saves a stay to this browser and to a shareable link
 
 ```
-node --test          # 46 assertions across calc, pages, usage and share
+node --test '*.test.mjs'   # 55 tests across calc, pages, usage and share
 ```
 
 Open `index.html` in a browser to use it — there is no build step.
@@ -53,6 +53,20 @@ every rate, and every "platform collects" percentage, is an input the host
 supplies from the taxing authority's own guidance and the platform's own tax
 pages for that specific address. This is the same reasoning the IFTA quarterly
 fuel tax calculator elsewhere in this portfolio applies to fuel-tax rates.
+
+## Known gaps
+
+From the quality census of 2026-11-15
+([`portfolio/quality/audits/2026-11-15-str-occupancy-tax-calculator.json`](../../portfolio/quality/audits/2026-11-15-str-occupancy-tax-calculator.json)):
+
+- **No length-of-stay rule.** Many jurisdictions exempt long stays (Texas: 30
+  or more consecutive days) or tax only the first part of one (Tennessee's
+  local tax: the first 30 days), and platforms stop collecting on long stays.
+  The tool taxes every night of every stay, so a 30-night Texas stay shows tax
+  to file that is not owed. Check the authority's own long-stay rule.
+- **No guest-fee line.** The taxable base is nightly rate times nights plus
+  cleaning; where the platform's guest service fee is taxable (e.g. Tennessee),
+  add it to the cleaning-fee field yourself.
 
 ## What it is not
 

@@ -256,3 +256,9 @@ test("a sales row dated 30 February is skipped, not counted in the week of 2 Mar
   assert.equal(s.weeks[0].units, 5);
   assert.equal(parseSales("date,price,units\n2024-02-29,10,5\n").weeks.length, 1);
 });
+
+test("a positive or zero elasticity is an error, not a full-price plan (quality census 2026-11-15)", () => {
+  assert.match(planMarkdown({ ...base, elasticity: 2.2 }).error, /must be negative/);
+  assert.match(planMarkdown({ ...base, elasticity: 0 }).error, /must be negative/);
+  assert.ok(!planMarkdown({ ...base, elasticity: -0.01 }).error);
+});

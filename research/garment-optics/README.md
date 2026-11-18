@@ -9,7 +9,7 @@ Eighth milestone of the engineered-clothing track (`PROJECTS.md`, track 6), **RF
 ## Method (`src/garment_optics/model.py`)
 - Yarn resistance per metre `R'` from conductivity and cross-section (solid wire, or a thin metal coating of thickness t on a non-conductive core, area pi d t).
 - Square weave, both directions, ideal contact at crossings: sheet resistance `Rs = R' p`.
-- SE of a thin sheet: `20 log10(1 + Z0 / (2 Rs))`, Z0 = 376.73 ohm. Aperture bound: `20 log10(lambda / (2 g))`, gap `g = p - d`. The reported fabric SE is the **smaller** of the two, a conservative combination that is my simplification.
+- SE of a thin sheet: `20 log10(1 + Z0 / (2 Rs))`, Z0 = 376.73 ohm. Aperture bound: `20 log10(lambda / (2 g))`, gap `g = p - d`. The reported fabric SE is the **smaller** of the two, a simplification. It is **not** conservative: Casey's inductive wire-mesh model (K. F. Casey, IEEE Trans. EMC 30(3), 1988) gives about 6 dB less at 1 mm pitch (30.2 vs 36.4 dB at 2.4 GHz for 50 um wire; quality census, `portfolio/quality/audits/2026-11-15-garment-optics.json`).
 - Metal areal mass `2 rho A / p`, ignoring crimp and crossings.
 - Breakage: an n x n resistor grid (nodes = crossings, unit-resistor segments), each segment removed with probability f, solved by sparse linear algebra with bus bars on two sides; compared with the effective-medium estimate `1/(1-2f)`.
 - Material constants (Cu, Ag, 316 stainless conductivity and density) are handbook values recalled from memory, not sourced. **No prices are given**: I have no dated, cited price source, so cost is left to an owner step.
@@ -24,7 +24,7 @@ python3 experiments/run.py          # seconds; writes experiments/results.txt
 
 ## Results (from `experiments/results.txt`)
 - Sheet resistance needed: 30 dB needs about 6.2 ohm/sq, 40 dB 1.9, 60 dB 0.19.
-- Every design tried has a sheet SE of 54 to 87 dB, far above the target. **The aperture bound is what limits them**: at 2.4 GHz a 1 mm pitch gives 36.4 dB, 0.3 mm gives 48 to 50 dB; at 28 GHz the 1 mm designs fall to about 15 dB. So pitch, not yarn conductivity, sets SE above ~1 GHz. (Whether the aperture bound is too pessimistic for a woven mesh whose gaps are not slots is untested here.)
+- Every design tried has a sheet SE of 54 to 87 dB, far above the target. **The aperture bound is what limits them**: at 2.4 GHz a 1 mm pitch gives 36.4 dB, 0.3 mm gives 48 to 50 dB; at 28 GHz the 1 mm designs fall to about 15 dB. So pitch, not yarn conductivity, sets SE above ~1 GHz. (Casey's 1988 wire-mesh model gives about 6 dB less at 1 mm pitch, e.g. 30.2 vs 36.4 dB at 2.4 GHz and about 9 vs 15 dB at 28 GHz, so these figures are likely optimistic, not pessimistic.)
 - Mass: 1 um of silver on 100 um nylon at 1 mm pitch is 6.6 g/m2 of silver and gives 36.8 dB at 2.4 GHz (model); 0.2 um at 0.5 mm pitch is 2.6 g/m2 and 43.9 dB. Solid 50 um wire at 1 mm pitch is 31 to 35 g/m2 for similar SE.
 - Breakage: on a 30 x 30 grid the median effective sheet resistance follows the effective-medium estimate `1/(1-2f)` to within a few percent up to f = 0.3 (2.55 vs 2.50) and exceeds it near the threshold (5.8 vs 5.0 at 0.4); at f = 0.5, 13 of 20 draws had no conducting path and by 0.6 all 20 did not (bond percolation threshold of the square lattice is 1/2). In dB, with breaks on stainless 50 um @0.3 mm, the sheet SE drops 64.4 to 48.3 dB at 40% broken segments, but the aperture bound (which ignores breaks) still dominates, so **modelled SE degrades gracefully until near the threshold, then collapses**.
 

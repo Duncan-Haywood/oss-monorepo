@@ -1,0 +1,257 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/str-occupancy-tax-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-15-225c",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a state and local tax (SALT) accountant who files lodging and occupancy tax returns for short-term-rental hosts. They would check first (1) what the taxable base includes (cleaning fee, guest/service fees, other charges), (2) the length-of-stay exemption that removes long stays from occupancy tax (Texas 30 consecutive days, Florida over 182 nights, Tennessee 89 nights / local first-30-days), and (3) which layers the platform actually collects for the listing's address, before trusting any per-layer split",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran calc.mjs on 10 probes (node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/str-occ/probe/probes.mjs). Rates and collection status were taken from sources the author did not write: Airbnb Help Center articles 2301 (Florida), 2331 (Texas), 2330 (Tennessee), fetched 2026-11-15; Texas Comptroller hotel-tax page and FAQ (6 percent; houses rented 30+ consecutive days not taxed); Florida DOR discretionary sales surtax page (surtax applies to transient rentals). Passes: (P2) Lee County FL stay, $180 x 3 + $95 cleaning, 6% state + 0.5% surtax + 5% TDT all collected by Airbnb per article 2301: hand 635 base, 38.10 + 3.18 + 31.75 = 73.03, host 0; tool identical. (P7) mixed rates 6.35%/2.75% on 533.28 plus $2/night flat fee half collected: hand 33.86 + 14.67 + 10 = 58.53, host 19.67; tool identical. (P1) worked example 1150 x 6% = 69, x 5% = 57.50: identical. Fails: (P3) a 30-night Texas stay is taxed $487.50 with $262.50 shown as the host's own filing; the Comptroller exempts stays of 30+ consecutive days and Airbnb collects only on reservations of 29 nights and shorter, so the correct figure is $0, and no warning appears. (P5) Tennessee local occupancy tax applies to the first 30 days only (article 2330); a 45-night $100 stay at 5% should be $150, tool $225. (P4) Tennessee taxes the listing price including guest fees; there is no guest-fee input, so a $570 charge is taxed on $500 ($35.00 vs $39.90). The arithmetic is exact; the outputs are wrong whenever stay length or base composition matters, with no warning. Score 2.",
+  "completeness": "Claimed features checked against the code and by running: up to four named layers with per-layer platform share (works, P1/P2/P7); flat per-night fee with its own platform share (works, P7); monthly rollup (works, calc.test.mjs:26-28); split / host-remits-all / platform-remits-all / zero-rate warnings (work); share link and browser save (share.test.mjs passes); local opt-out usage counter (usage.test.mjs passes); three article pages present and linked; served page and llms.txt load at marisstella.app (200). One claimed feature does not exist: the comparison page says the calculator flags 'a layer entered at a rate but never marked as either fully covered or fully uncovered ... on every stay' (vs-tracking-it-in-a-spreadsheet.html:79), but a blank platform share silently reads as 0% (calc.mjs:73) and only the ordinary split warning fires (P6). README test count is stale (46 stated, 53 run). Score 3.",
+  "verification": "`cd ventures/str-occupancy-tax-calculator && node --test '*.test.mjs'`: 53 tests, 53 pass, 0.15 s. Five mutants with platform/ci/quality_mutate.py: 3 caught (cleaning fee dropped from base :153, round2 epsilon removed :37, host share = full amount :99), 2 survived (flat-fee platform share forced to 0 :157, lower-bound check loosened to min-1 :80). The only flat-fee test uses a 0% platform share (calc.test.mjs:53), so a bug that ignored the platform's share of the flat fee would ship. All tests are the author's own example; none uses a long stay or a published jurisdiction's rates. Score 2.",
+  "craft": "Read calc.mjs (219 lines), index.html (486), share.mjs, usage.mjs and the test files. Pure, dependency-free, half-away-from-zero rounding documented and correct, bounds-checked inputs, labelled per-row errors, output written with textContent. Defects: readNumber uses Number.parseFloat (calc.mjs:74), so '1,200' is read as 1 and '12abc' as 12 without an error (P8; the page's type=number inputs mostly shield this, the engine and share decode do not); fractional nights accepted (P9); blank platform share is indistinguishable from an explicit 0%. Score 3.",
+  "claims": "Backed: no-warranty and 'makes no determination' disclaimers on every page (page.test.mjs:113); no network requests (grep and page.test.mjs:123); worked-example figures on README, index and both articles match calc.mjs (page.test.mjs:92-108, :169); 'most jurisdictions tax the cleaning fee' (Airbnb FL/TX/TN articles all say 'including any cleaning fee'); the FL pattern of state collected and county TDT not is real for counties absent from Airbnb article 2301 (e.g. Walton, Okaloosa, Monroe, Duval). Unbacked: the 'raises that flag on every stay' feature (vs-tracking-it-in-a-spreadsheet.html:79 and its JSON-LD, P6); 'A platform's payout summary and 1099-K report what it paid you and what it remitted on your behalf' (how-much-occupancy-tax-will-i-have-to-self-file-this-year.html:36): IRS 1099-K instructions, Box 1a, report gross payment transactions, with no remitted-tax box; the default row labelled 'Florida state sales tax' at 6% omits the 0.5-1.5% discretionary surtax that Florida DOR applies to transient rentals; README '46 assertions' (README.md:20) vs 53 tests. Score 2.",
+  "fitness": "Job: a host with a listing in an uncovered county wants to know what to set aside and file each period. For an ordinary stay under 30 nights the tool gives the right per-layer split once the host has found the rates and the platform's coverage themselves (the hard part; the how-to article points to the right places). It cannot take the filing period's actual bookings (only one representative stay times bookings per month), has no guest/other-fee base, and on monthly or mid-term stays it reports a tax the host does not owe. A SALT accountant would use it as a scratch split for short stays, not as a return worksheet. Score 2.",
+  "domain": "Compared with the Texas Comptroller (HOT 6%, stays of 30+ consecutive days not taxed), Florida DOR (surtax on transient rentals) and Airbnb's per-state collection articles (FL 182-night, TX 29-night, TN 89-night thresholds; TN base includes guest fees; TN local occupancy on first 30 days only). The per-authority collection model and inclusion of the cleaning fee match practice. Departures: no length-of-stay exemption or day cap of any kind (nights accepted to 365, calc.mjs:55); taxable base fixed to nightly x nights + cleaning (calc.mjs:153) with no guest-fee or other-fee line; flat fee modelled per night only (not per room-night or per stay); per-stay layer rounding rather than the return-level computation a filing uses. Score 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Lee County FL stay, all three layers collected by Airbnb",
+   "method": "Airbnb Help article 2301 (FL transient rental tax 6%, surtax 0.5-1.5%, Lee TDT 5%, all incl. cleaning, <=182 nights); hand: 635 x (6%, 0.5%, 5%) = 38.10 + 3.18 + 31.75",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/str-occ/probe/probes.mjs (P2)",
+   "expected": "total 73.03, platform 73.03, host 0",
+   "observed": "total 73.03, plat 73.03, host 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Mixed rates plus half-collected $2/night flat fee",
+   "method": "hand: 499.95 + 33.33 = 533.28; x6.35% = 33.86, x2.75% = 14.67 (14.6652), flat 10 split 5/5",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/str-occ/probe/probes.mjs (P7)",
+   "expected": "total 58.53, host 19.67",
+   "observed": "total 58.53, host 19.67",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Worked example on the page",
+   "method": "hand: 4 x 250 + 150 = 1150; 6% = 69.00; 5% = 57.50",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/str-occ/probe/probes.mjs (P1)",
+   "expected": "126.50 / 69.00 / 57.50",
+   "observed": "126.5 / 69 / 57.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "30-night Texas stay, state 6% collected, city 7% not",
+   "method": "Texas Comptroller hotel FAQ: houses rented for 30+ consecutive days not taxed; Airbnb article 2331: TX taxes only reservations of 29 nights and shorter",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/str-occ/probe/probes.mjs (P3)",
+   "expected": "tax 0, host remits 0 (or an exemption warning)",
+   "observed": "total 487.50, host must remit 262.50, no warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Tennessee local occupancy tax on a 45-night stay",
+   "method": "Airbnb article 2330: TN local occupancy taxes apply 'for the first 30 days of the reservation'; hand 30 x 100 x 5% = 150",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/str-occ/probe/probes.mjs (P5)",
+   "expected": "150.00",
+   "observed": "225.00",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Tennessee base includes guest fees",
+   "method": "Airbnb article 2330: TN state sales tax 7% of listing price 'including any cleaning fees and guest fees'; hand (400 + 100 + 70) x 7% = 39.90",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/str-occ/probe/probes.mjs (P4)",
+   "expected": "39.90",
+   "observed": "35.00 (no guest-fee input)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Nightly rate typed with a thousands separator",
+   "method": "hand: '1,200' is 1200 or an error, not 1",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/str-occ/probe/probes.mjs (P8)",
+   "expected": "base 2400 or an input error",
+   "observed": "base 2, tax 0.12, no error",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/str-occupancy-tax-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "53/53 pass, 0.15 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Flag for a layer whose platform share was never marked (claimed on comparison page)",
+   "method": "run engine with a blank platformCollectsPercent",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/str-occ/probe/probes.mjs (P6)",
+   "expected": "a warning naming the unmarked layer",
+   "observed": "blank read as 0%, only split-remittance warning",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "1099-K reports what the platform remitted on your behalf",
+   "method": "IRS Instructions for Form 1099-K (irs.gov/instructions/i1099k), Box 1a: gross amount of reportable transactions",
+   "command": "curl -s https://www.irs.gov/instructions/i1099k | grep 'Box 1a'",
+   "expected": "a box for tax remitted",
+   "observed": "gross payment amounts only; no remitted-tax box",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Default 'Florida state sales tax' 6% row describes a Florida stay's state-administered tax",
+   "method": "Florida DOR discretionary sales surtax page (surtax applies to transient rentals); Airbnb article 2301 (6% + 0.5-1.5% surtax)",
+   "command": "grep -n 'Florida state sales tax' ventures/str-occupancy-tax-calculator/index.html",
+   "expected": "6% plus county surtax layer",
+   "observed": "6% only (index.html:111)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "No-warranty disclaimer and nothing uploaded",
+   "method": "read pages; page.test.mjs:113 and :123",
+   "command": "cd ventures/str-occupancy-tax-calculator && node --test page.test.mjs",
+   "expected": "present, no fetch/XHR",
+   "observed": "present, tests pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README test count",
+   "method": "run suite",
+   "command": "grep -n '46 assertions' ventures/str-occupancy-tax-calculator/README.md",
+   "expected": "matches 53",
+   "observed": "README.md:20 says 46",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page and llms.txt",
+   "method": "load https://marisstella.app/str-occupancy-tax-calculator/ and llms.txt",
+   "command": "curl -s https://marisstella.app/str-occupancy-tax-calculator/llms.txt",
+   "expected": "200, marisstella.app links",
+   "observed": "200; links rewritten to marisstella.app (source github.io host is source-only)",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Length-of-stay exemption modelled",
+   "method": "Texas Comptroller FAQ (30 consecutive days); Airbnb FL 182 / TX 29 / TN 89 nights",
+   "command": "grep -n -i 'exempt\\|consecutive\\|long stay' ventures/str-occupancy-tax-calculator/calc.mjs",
+   "expected": "a threshold input or warning",
+   "observed": "none; nights accepted to 365 (calc.mjs:55)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:153",
+   "change": "round2(nightlyRate * nights + cleaningFee) -> round2(nightlyRate * nights)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:157",
+   "change": "round2(flatFeeAmount * rate(flatFeePlatformCollectsPercent)) -> 0",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:37",
+   "change": "Math.round(scaled + Number.EPSILON * scaled) -> Math.round(scaled)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:80",
+   "change": "if (value < spec.min) { -> if (value < spec.min - 1) {",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:99",
+   "change": "const hostAmount = round2(amount - platformAmount); -> const hostAmount = round2(amount);",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "No length-of-stay exemption or day cap: a 30-night Texas stay shows $262.50 the host must self-file although Texas does not tax stays of 30+ consecutive days (Comptroller) and Airbnb taxes only <=29 nights; Tennessee local tax on the first 30 days only is also overstated. No warning is shown.",
+   "where": "ventures/str-occupancy-tax-calculator/calc.mjs:153",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Taxable base is fixed to nightly x nights + cleaning; no guest/service-fee or other-fee line, though Tennessee (Airbnb article 2330) taxes guest fees",
+   "where": "ventures/str-occupancy-tax-calculator/calc.mjs:153",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Comparison page claims the calculator flags a layer whose platform share was never marked, 'on every stay'; no such check exists, a blank share silently reads as 0%",
+   "where": "ventures/str-occupancy-tax-calculator/vs-tracking-it-in-a-spreadsheet.html:79",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "The flat-fee platform share is untested: forcing it to 0 leaves all 53 tests green (only test uses 0%)",
+   "where": "ventures/str-occupancy-tax-calculator/calc.test.mjs:53",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Article says the 1099-K reports what the platform remitted on the host's behalf; Form 1099-K Box 1a reports gross transactions only",
+   "where": "ventures/str-occupancy-tax-calculator/how-much-occupancy-tax-will-i-have-to-self-file-this-year.html:36",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "readNumber uses Number.parseFloat, so '1,200' is read as 1 and '12abc' as 12 with no error (reachable through the engine and share-link decode)",
+   "where": "ventures/str-occupancy-tax-calculator/calc.mjs:74",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Default 'Florida state sales tax' row at 6% omits the 0.5-1.5% county discretionary surtax Florida applies to transient rentals",
+   "where": "ventures/str-occupancy-tax-calculator/index.html:111",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README says 46 assertions; the suite runs 53 tests",
+   "where": "ventures/str-occupancy-tax-calculator/README.md:20",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, clean, honest-in-tone per-layer occupancy-tax splitter whose arithmetic is exact: three stays recomputed from Airbnb's own Florida rates and by hand (73.03, 58.53, 126.50) match to the cent. It misses what a SALT accountant checks first. There is no length-of-stay rule: a 30-night Texas stay shows $262.50 to self-file where the Comptroller says no tax is due, and Tennessee's first-30-days local cap is ignored ($225 vs $150). The base cannot include guest fees, which Tennessee taxes. The comparison page claims an 'unmarked layer' flag that does not exist, and an article misdescribes the 1099-K. 53/53 tests pass; 2 of 5 seeded mutants survive, including the flat fee's platform share. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 2. Finished by its own feature list, not at the bar."
+}

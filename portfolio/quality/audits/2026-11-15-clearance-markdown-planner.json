@@ -1,0 +1,278 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/clearance-markdown-planner",
+ "stratum": "venture",
+ "seed": "2026-11-15-225c",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior retail merchandise planner / markdown pricing analyst who runs end-of-season clearance for a chain. They would check first that the optimiser is the textbook finite-horizon markdown DP (markdown-only ladder, salvage at the horizon) and that its value is right, that the elasticity read from history separates price from seasonal fade, and that an obviously wrong input (a positive elasticity, a mis-read date) is refused rather than planned on",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Independent Python re-implementation (/tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/indep.py), written from the textbook finite-horizon markdown DP (Gallego & van Ryzin 1994; Talluri & van Ryzin 2004 ch. 5) with full-support Poisson/NB pmfs and closed-form OLS / Frisch-Waugh. (1) Poisson case, 30 units, $20, 3 weeks, e=-2.5, decay 0.9, salvage $3: engine 447.9826, independent 447.9830 (the engine truncates the pmf at +-5 sd). (2) NB k=0.3, 40 units, $50, 4 weeks, $15 change cost: engine 1505.87 vs 1505.96; its four baselines match to <0.01% (hold 1435.99/1436.16, one cut 1486.59/1486.68, half price 1324.38/1324.47). (3) DP beats the best of all 15 monotone open-loop paths (447.98 > 443.84), as a closed-loop policy must. (4) OLS slope -2.48814, base 34.424, and the normal-normal posterior -2.4774 (sd 0.1483, 80% band -2.668..-2.287) match by hand; with a trend, elasticity -2.0310, decay 0.94959 and next-week base 25.426 match Frisch-Waugh exactly. Defects: a positive elasticity is silently clamped to -0.05 (calc.mjs:376), so a user who types 2.3 for -2.3 gets a hold-full-price plan (value 13,199 vs 15,329); dd/mm dates are read as mm/dd with no warning; exp(intercept) is the geometric not arithmetic mean (baseWeekly 0.91x the true mean at residual sd 0.5); 1,501 units are modelled as 1,502 in lots.",
+  "completeness": "Every README/page feature exercised through the engine: weekly aggregation from day rows (pass), elasticity fit with time trend and shrinkage (pass), DP schedule (pass), four baseline rules evaluated by the same recursion (pass, independently recomputed), behind/ahead checkpoints (pass, monotone), 4,000-run simulation (default simRuns 4000), 80% robustness table (pass), price floor (levels stop at $35 for a $33 floor on $50), lots above 1,000 units (pass), CSV download (7 columns). No stubs or TODOs. Served page https://marisstella.app/clearance-markdown-planner/ returned 200 with the disclaimer; served llms.txt links the marisstella.app host.",
+  "verification": "`cd ventures/clearance-markdown-planner && node --test '*.test.mjs'`: 47 tests, 47 pass, 1.8 s. Strong anchors: a one-week closed form, DP value vs Monte Carlo of its own policy, sell-through vs simulation, optimal >= every baseline. Seven mutants via platform/ci/quality_mutate.py (test cmd `node --test calc.test.mjs`): 2 caught (allowing price increases :305, zero salvage :281), 5 survived: Z80 1.2816 -> 1.6449 (:15), NB variance (k*mu)^2 -> k*mu^2 (:268), SE floor 0.15 -> 0.5 (:182), change cost dropped from the baseline evaluation (:303), elasticity clamp -0.05 -> -0.5 (:376). The optimiser core is guarded; the uncertainty band, dispersion and input guard are not.",
+  "craft": "Read calc.mjs (494 lines), index.html (251), calc.test.mjs, page.test.mjs, usage.mjs. Pure, dependency-free ES module, typed arrays in the DP, one recursion reused for optimal, baselines and robustness (no copied engine), output escaped. Defects: the clamp at calc.mjs:376 runs before validate(), so the 'Elasticity must be negative' check (:366) is dead; the page notice at index.html:192 (fit.refPrice !== price) can never fire because the page passes the current price as refPrice; simulate() destructures `{ lo, pmf }` and reaches for pmf?.lo with a fallback that is never used (:320); I0 = round(units/lot) silently changes the unit count (:249).",
+  "claims": "Checked against files: 'evaluated exactly by the same recursion' (solve() with forced, :277-315; independently matched), '80% range' (Z80 = 1.28155, :15), 'correlation above 0.85 ... fewer than 10 weeks' (:174), 'standard error floor 0.15' (:182), 'prior -2.0, sd 1.0, a judgement' (:13-14), 'default 0.25' dispersion (:261 and page), '4,000 simulated seasons' (:374), 'above 1,000 units ... lots' (MAX_LOTS :16), 'nothing uploaded' (page.test.mjs asserts no fetch/XHR), disclaimer and not-affiliated lines present, unverified status stated on page and README. Gaps: 'Elasticity must be negative' is promised by the input label and validator but a positive value is clamped silently; the Not-modelled list omits inventory-dependent demand (broken assortment), which practitioners expect named.",
+  "fitness": "Walked the job of a boutique owner with 400 units, 10 weeks and 16 weeks of sales (the sample): paste history, get elasticity -2.23 (raw -2.24, planted -2.3), base 31.0/week (true 30.2), a 10->30% ladder, a behind/ahead table to read each Monday, a comparison to round-number rules and a CSV. That is a usable weekly plan for one SKU. Limits a user hits: one SKU at a time, US date order only (a UK/EU seller's 03/06 is read as 6 March), and a sign slip on the manual elasticity silently produces a no-markdown plan.",
+  "domain": "Compared with the clearance-pricing literature: Gallego & van Ryzin (1994) / Talluri & van Ryzin (2004) finite-horizon DP with monotone markdowns and salvage, which this implements correctly on a discrete 10% ladder with optional relabel cost; elasticity from a log-log regression with a time trend and Bayesian shrinkage, a defensible small-data practice with the prior disclosed as a judgement. Departures: no inventory-dependent demand / broken-assortment effect (Smith & Achabal 1998, Management Science 44(3)), which a fashion or seasonal planner models first; no log-retransformation (Duan 1983 smearing) correction, so base demand is understated by about exp(-s^2/2); no warning when the current price lies outside the price range the elasticity was fitted on. Strategic waiting, competitors and price points are disclosed as not modelled."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "DP expected revenue+salvage, Poisson, 30 units $20 3 wks e=-2.5 decay 0.9 salvage $3, ladder 0-40%",
+   "method": "independent Python DP from Gallego & van Ryzin 1994 / Talluri & van Ryzin 2004 ch. 5, full-support Poisson",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe.mjs (P1); python3 /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/indep.py",
+   "expected": "447.9830",
+   "observed": "447.9826",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "DP value with NB k=0.3 and $15 change cost, 40 units $50 4 wks",
+   "method": "same independent Python DP, NB r=1/k^2",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe.mjs (P2); python3 /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/indep.py",
+   "expected": "1505.96",
+   "observed": "1505.87",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Baseline rules in P2 (hold / one cut 30% from week 3 / half price from week 3)",
+   "method": "independent Python DP with forced policy",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe.mjs (P2); python3 /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/indep.py",
+   "expected": "1436.16 / 1486.68 / 1324.47",
+   "observed": "1435.99 / 1486.59 / 1324.38",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Closed-loop DP beats every open-loop monotone price path",
+   "method": "brute force over all 15 monotone 3-week paths in the independent DP",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/indep.py",
+   "expected": ">= 443.84",
+   "observed": "447.98",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Elasticity, posterior and 80% band on a 9-week history (no trend)",
+   "method": "hand closed-form OLS slope/SE and normal-normal posterior with SE floor 0.15, z=1.2816",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe.mjs (P3); python3 /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/indep.py",
+   "expected": "raw -2.48814, post -2.47740, band -2.6675..-2.2873, base 34.424",
+   "observed": "raw -2.48814, post -2.47740, band -2.6675..-2.2873, base 34.424",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Elasticity, decay and next-week base with a time trend (12 weeks)",
+   "method": "Frisch-Waugh-Lovell partialling by hand",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe.mjs (P4); python3 /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/indep.py",
+   "expected": "-2.03100, 0.949585, 25.426",
+   "observed": "-2.03100, 0.949585, 25.426",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Manual elasticity typed without its sign (2.3)",
+   "method": "validator at calc.mjs:366 and the page label say it must be negative",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe2.mjs",
+   "expected": "error 'Elasticity must be negative'",
+   "observed": "planned with -0.05: hold full price all 10 weeks, value 13,199 (vs 15,329 at -2.3)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Day-first date 03/06/2026 (UK/EU export)",
+   "method": "hand: 3 June 2026 is in week of 2026-06-01",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe.mjs (P7)",
+   "expected": "week 2026-06-01 or a warning about ambiguous order",
+   "observed": "week 2026-03-02, no warning (13/06 row skipped as unreadable)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Base weekly demand under mean-preserving lognormal noise sd 0.5",
+   "method": "Duan (1983) smearing: exp(intercept) estimates the median; mean/median = exp(s^2/2)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe2.mjs",
+   "expected": "ratio ~1.0 to the true mean",
+   "observed": "0.912 averaged over 200 seeds",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Unit count with 1,501 units (lots of 2)",
+   "method": "hand: 1501 units",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe.mjs (P5)",
+   "expected": "1501 at start",
+   "observed": "1502 at start; expectedLeftover computed against 1501",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Price floor $33 on a $50 ladder",
+   "method": "hand: 30% off = $35 >= 33, 40% off = $30 < 33",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe.mjs (P6)",
+   "expected": "levels 0,10,20,30%",
+   "observed": "levels 0,10,20,30%",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/clearance-markdown-planner && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "47/47 pass, 1.8 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page and llms.txt",
+   "method": "curl https://marisstella.app/clearance-markdown-planner/ and /llms.txt",
+   "command": "curl -sS https://marisstella.app/clearance-markdown-planner/llms.txt",
+   "expected": "200, disclaimer, marisstella.app host",
+   "observed": "200, 'No warranty' present, llms.txt links marisstella.app",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Method-section constants (0.85 corr, 10 weeks, SE floor 0.15, prior -2/1, k 0.25, 4,000 runs, 1,000-unit lots, 80% band)",
+   "method": "read calc.mjs lines 13-16, 174, 182, 261, 374",
+   "command": "grep -n 'Z80\\|MAX_LOTS\\|0.85\\|0.15\\|simRuns' ventures/clearance-markdown-planner/calc.mjs",
+   "expected": "each matches the page",
+   "observed": "each matches",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Elasticity must be negative' guard implied by label and validator",
+   "method": "probe",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe.mjs (P8)",
+   "expected": "refused",
+   "observed": "no error, clamped",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Sample job end to end: 16-week history, 400 units, 10 weeks",
+   "method": "planted elasticity -2.3 and mean 58*0.96^16 = 30.18 in sampleText()",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/clearance/probe2.mjs",
+   "expected": "elasticity near -2.3, base near 30.2, a usable ladder",
+   "observed": "-2.231, 31.00, ladder 10,10,10,10,20,20,20,20,20,30%",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:305",
+   "change": "for (let j = i; ...) -> for (let j = 0; ...) (allow price increases)",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:281",
+   "change": "fill(salv * I) -> fill(0) (drop terminal salvage)",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:15",
+   "change": "Z80 1.2815515655446004 -> 1.6448536269514722",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:268",
+   "change": "mu + (k * mu) ** 2 -> mu + k * mu ** 2",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:182",
+   "change": "Math.max(fit.se[1], 0.15) -> Math.max(fit.se[1], 0.5)",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:303",
+   "change": "best = Q[bj][I] - (bj > i ? cc : 0) -> best = Q[bj][I]",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:376",
+   "change": "Math.min(inp.elasticity, -0.05) -> Math.min(inp.elasticity, -0.5)",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "A positive elasticity (sign forgotten in the manual field) is silently clamped to -0.05 before validate() runs, so the 'must be negative' error never fires and the user gets a hold-full-price plan (value 13,199 vs 15,329 at -2.3). Fix: `if (inp.elasticity < 0) inp.elasticity = Math.min(inp.elasticity, -0.05);`",
+   "where": "ventures/clearance-markdown-planner/calc.mjs:376",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Day-first dates (03/06/2026) are read as month-first with no warning; days above 12 are dropped as unreadable, so a UK/EU export is silently mis-weeked",
+   "where": "ventures/clearance-markdown-planner/calc.mjs:48",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "5 of 7 seeded mutants survive: the 80% band z-value, the NB variance formula, the SE floor, the change cost in baseline evaluation and the elasticity clamp are all untested",
+   "where": "ventures/clearance-markdown-planner/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Base weekly demand is exp(intercept) of a log regression, the geometric mean; no smearing correction, so it understates mean demand by about exp(-s^2/2) (0.91x measured at residual sd 0.5)",
+   "where": "ventures/clearance-markdown-planner/calc.mjs:199",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Inventory-dependent demand (broken assortment, Smith & Achabal 1998) is neither modelled nor listed under 'Not modelled'",
+   "where": "ventures/clearance-markdown-planner/index.html:125",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "No warning when the current price lies outside the price range of the history; the fit extrapolates (history $30-50, current $20 gives 193 units/week)",
+   "where": "ventures/clearance-markdown-planner/calc.mjs:169",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Lot rounding changes the unit count (1,501 units modelled as 1,502) while sell-through and leftover divide by the typed count",
+   "where": "ventures/clearance-markdown-planner/calc.mjs:249",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Dead notice: fit.refPrice !== price can never be true because the page passes the current price as refPrice",
+   "where": "ventures/clearance-markdown-planner/index.html:192",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The optimiser is right: an independent Python DP reproduces the plan value and all baselines to within 0.01%, the closed-loop plan beats every open-loop path, and the elasticity fit, trend and Bayesian shrinkage match hand OLS exactly. Features claimed on the page all work and its method section matches the code. It misses the bar on verification: 5 of 7 seeded mutants survive (the uncertainty band, dispersion, SE floor, baseline change cost and input clamp are untested), and that gap hides the worst defect, a positive elasticity silently clamped to -0.05 that turns a sign slip into a no-markdown plan. Also: day-first dates misread silently, no log-retransformation correction, and no broken-assortment effect. A merchandise planner would use it for one SKU with US dates once the sign guard is fixed."
+}

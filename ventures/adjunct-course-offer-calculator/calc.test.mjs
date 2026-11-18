@@ -49,6 +49,18 @@ test("max students is the class size where the hourly equals the target", () => 
   assert.ok(courseEconomics(o, n + 1).hourly < 40);
 });
 
+test("max students rounds down when the spare hours fall between two class sizes", () => {
+  // Quality census 2026-11-15: spare 51.75 h at 1 h per student, so 51; rounding would give 52, below the target.
+  const o = { ...plain, pay: 4070 };
+  assert.equal(maxStudents(o, 40), 51);
+  assert.ok(courseEconomics(o, 52).hourly < 40);
+});
+
+test("an online section with no class hours leaves the contract rate blank, not NaN", () => {
+  const csv = toCsv(compare([{ name: "async", ...plain, classHours: 0 }], {}));
+  assert.doesNotMatch(csv, /NaN/);
+});
+
 test("max students is null when even an empty class misses the target, infinite with no grading", () => {
   assert.equal(maxStudents({ ...plain, pay: 500 }, 40), null);
   assert.equal(maxStudents({ ...plain, gradeMin: 0 }, 10), Infinity);

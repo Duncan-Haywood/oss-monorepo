@@ -1,0 +1,216 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/adjunct-course-offer-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-15-225c",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a faculty-union contract analyst / higher-ed HR compensation specialist who prices adjunct per-course contracts. They would check first that the effective hourly arithmetic is right (pay over all hours, grading scaling with enrolment), how the tool treats hours for ACA employer-mandate purposes (IRS final regulations, 79 FR 8544, Feb 12 2014: 1 hour plus 2.25 hours per classroom hour, the reason colleges cap adjunct loads below 30 hours/week), and whether a 'minimum wage' comparison is legally framed (FLSA exempts teachers, 29 CFR 541.303; ordinary commuting is not hours worked, 29 CFR 785.35)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the shipped engine on probes (/tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/adjunct/probes.mjs, probe2.mjs). Defaults recomputed by hand: weekly 3+3+1+1+25*12/60=13 h, work 16*13+10=218 h, commute 16*2*60/60=32 h, all 250 h; expected pay 3000*0.9=2700, direct 16*2*12=384, net 2316, real hourly 2316/250=9.264, contract rate 3000/48=62.50; tool matches exactly. Pay for $30/h: (30*250+384)/0.9=8760, tool 8760. Largest class at $9/h: 2316/9=257.33 h available, 170 h at zero students, 3.2 h per student -> floor(27.29)=27; tool 27, hourly at 27 = 9.03, at 28 = 8.92. Boundary cases (P6b, exact integer spare at targets 33/30/27.5/22/11) all return the largest n with hourly >= target. Default minimum wage 7.25 matches FLSA 29 USC 206(a)(1)(C). Faults: an asynchronous online section (0 live hours, common) gives contract rate NaN, shown as '$NaN' on the page (index.html:203) and 'NaN' in the CSV (calc.mjs:162); a blank field silently takes the example value (blank travel -> 60 min, $12/day, 2 days). Score 3: every number recomputed was right; the faults are display and input handling.",
+  "completeness": "Claimed features (README, index.html, JSON-LD featureList) checked by probe: effective hourly (works), rank up to three offers (compare, works), pay for target rate (works), largest class at target (works, null/Infinity edges handled), enrolment ladder 10-40 (works), annual totals (works), CSV export (works except NaN contract rate for 0 live hours), cancellation risk and kill fee (works), local-only usage counter with opt-out (usage.mjs, tests). No TODOs or stubs. Async online sections are a gap a user hits in the first hour.",
+  "verification": "`cd ventures/adjunct-course-offer-calculator && node --test '*.test.mjs'`: 30 tests, 30 pass, ~0.1 s. Five mutants via platform/ci/quality_mutate.py: 2 caught (kill-fee weighting calc.mjs:80, per-week trip cost calc.mjs:81), 3 survived: Math.floor -> Math.round in maxStudents (calc.mjs:111, a real bug that would recommend a class one student over target; the only test, calc.test.mjs:45-50, sits on an exact-integer boundary), inflated-contract-rate threshold 3 -> 5 (calc.mjs:131), min-wage < -> <= (calc.mjs:128). Tests recompute the author's formula, no external benchmark; no test for 0 class hours or blank fields.",
+  "craft": "Read calc.mjs (166 lines), calc.test.mjs, page.test.mjs, usage.mjs, index.html script (lines 170-230). Pure, dependency-free, output escaped with esc(), one engine imported by page and tests. Defects: quotedHourly NaN not guarded at render/CSV (index.html:203, calc.mjs:162); readOffer falls back to defaults for any blank field with no warning (calc.mjs:54); negative pay is silently filtered in compare (calc.mjs:146) rather than reported in bad; kill fee above pay not warned.",
+  "claims": "Checked: 'nothing uploaded' (page.test asserts no fetch/XHR/sendBeacon; imports only ./calc.mjs, ./usage.mjs: backed); usage events named match recorded ones (test: backed); 'ranks up to three offers', 'pay that would reach your target', 'largest class worth accepting', 'table of hourly pay from 10 to 40' (calc.mjs:114 enrolmentLadder steps 10..40: backed); 'Federal is $7.25' (29 USC 206: backed); disclaimer, no-warranty and 'Not decided' limits (tax, benefits, loan forgiveness) present on page and README. llms.txt links the github.io host; the deploy rewrites hosts (build_pages_site.py rewrite_base_urls), so not filed (source-only). No unbacked claim found.",
+  "fitness": "Job: an adjunct holding two offers (on-campus $3000 with a 60-min drive, online $2600) wants to know which pays more per real hour and how big a class to accept. Walked through with the example offers in the engine: the tool ranks them, shows hours by category, pay needed and the class ladder; a decision can be made. Gaps the user hits: async online courses show $NaN contract rate; blank fields silently become example figures; no ACA hours check when stacking sections at one college; every section in an offer treated as identical (stated).",
+  "domain": "Compared with practice: the 'real hourly wage' method (net pay over all hours incl. prep, grading per student, office hours) is the standard adjunct-advocacy calculation and is implemented correctly. Departures: (1) ACA hours are not computed; IRS final regs (79 FR 8544, preamble on adjunct faculty) credit 1 + 2.25 hours per classroom hour, so the default 3-hour section counts 9.75 h/week and two sections at one employer 19.5 h, under 30; a union analyst checks this first, since it decides health coverage. Stated in 'Not decided' but absent. (2) The 'below the minimum wage' warning (calc.mjs:128) compares an hourly that includes commuting and travel costs with a minimum wage; under the FLSA teachers are exempt (29 CFR 541.303) and ordinary commuting is not hours worked (29 CFR 785.35), so the message reads as a legal finding it is not. (3) No per-credit-hour or contact-hour normalisation of pay, the unit contracts and union scales quote."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Real hourly, net and contract rate for the default offer",
+   "method": "hand recomputation: (3000*0.9 - 16*2*12) / (16*(3+3+1+1+25*12/60)+10+16*2*60/60) = 2316/250",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/adjunct/probes.mjs (P1)",
+   "expected": "net 2316, all hours 250, hourly 9.264, contract 62.50",
+   "observed": "net 2316, allHours 250, hourly 9.264, quotedHourly 62.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Per-course pay needed for a $30/h target on the default offer",
+   "method": "hand: (30*250 + 384 - 0) / (1 - 0.10)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/adjunct/probes.mjs (P1)",
+   "expected": "8760",
+   "observed": "8760",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Largest class at $9/h on the default offer",
+   "method": "hand: floor((2316/9 - 170) / (16*12/60)) = floor(27.29); hourly at 27 >= 9 > hourly at 28",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/adjunct/probes.mjs (P2)",
+   "expected": "27 (9.03 at 27, 8.92 at 28)",
+   "observed": "27 (9.0328, 8.9214)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Default minimum wage",
+   "method": "FLSA 29 USC 206(a)(1)(C): $7.25/h federal",
+   "command": "grep -n minWage calc.mjs",
+   "expected": "7.25",
+   "observed": "7.25",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Asynchronous online section with 0 live class hours",
+   "method": "hand: contract rate per class hour is undefined; should show a dash or be omitted",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/adjunct/probes.mjs (P3)",
+   "expected": "'-' or blank",
+   "observed": "money2 -> '$NaN' on page; CSV contract_hourly 'NaN'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Blank travel fields",
+   "method": "hand: a cleared field means zero or should be flagged",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/adjunct/probe2.mjs",
+   "expected": "0 or a warning",
+   "observed": "tripCost 12, commuteMin 60, trips 2 silently (example values)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "ACA hours credited for one 3-hour section",
+   "method": "IRS final regulations under 4980H, 79 FR 8544 (Feb 12 2014), preamble: 1 + 2.25 hours per classroom hour",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6c791d2a-28ff-5e31-aaa5-e982a8d2dec3/scratchpad/adjunct/probes.mjs (P7)",
+   "expected": "9.75 h/week shown or compared with 30 h/week",
+   "observed": "not computed (tool weekly work 13 h, no ACA figure); listed under 'Not decided'",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Minimum-wage warning framing",
+   "method": "29 CFR 541.303 (teachers exempt), 29 CFR 785.35 (commuting not hours worked)",
+   "command": "sed -n 128p calc.mjs",
+   "expected": "benchmark labelled as not a legal minimum-wage test",
+   "observed": "'below the $7.25 minimum wage you entered' on an hourly that includes commute and travel costs",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/adjunct-course-offer-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "30/30 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Nothing uploaded / no network calls",
+   "method": "read index.html script and calc.mjs; page.test.mjs asserts it",
+   "command": "node --test page.test.mjs",
+   "expected": "no fetch/XHR, local imports only",
+   "observed": "backed",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Enrolment ladder 10 to 40 as the FAQ says",
+   "method": "read calc.mjs:114",
+   "command": "grep -n enrolmentLadder calc.mjs",
+   "expected": "10..40",
+   "observed": "[10,15,20,25,30,40]",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and stated limits on page and README",
+   "method": "read index.html footer, 'Not decided' section, README",
+   "command": "grep -n 'No warranty' index.html README.md",
+   "expected": "present",
+   "observed": "present",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:80",
+   "change": "o.killFee * c; -> o.killFee * (1 - c);",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:81",
+   "change": "o.weeks * o.trips * o.tripCost + o.fees -> o.trips * o.tripCost + o.fees",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:111",
+   "change": "Math.floor(spare / perStudent) -> Math.round(spare / perStudent)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:131",
+   "change": "e.quotedHourly / e.hourly > 3 -> > 5",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:128",
+   "change": "e.hourly < shared.minWage -> e.hourly <= shared.minWage",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Max-class test uses an exact-integer boundary (pay 4000, target 40 -> spare 50 h, 1 h/student), so replacing Math.floor with Math.round in maxStudents survives; that bug would recommend a class one student above the target rate.",
+   "where": "ventures/adjunct-course-offer-calculator/calc.test.mjs:45",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "A blank offer field silently takes the example value (blank travel -> 60 min round trip, 2 days, $12/day), so a user who clears a field meaning zero gets a lower hourly with no warning.",
+   "where": "ventures/adjunct-course-offer-calculator/calc.mjs:54",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Asynchronous online section (0 live class hours) shows contract rate '$NaN' on the page and 'NaN' in the CSV.",
+   "where": "ventures/adjunct-course-offer-calculator/calc.mjs:162",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "No ACA hours figure: the IRS 1 + 2.25 hours per classroom hour crediting (79 FR 8544) that decides health coverage when stacking sections at one college is not computed; listed only under 'Not decided'.",
+   "where": "ventures/adjunct-course-offer-calculator/calc.mjs:73",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Minimum-wage warning compares an hourly that includes commuting and travel costs with 'the minimum wage', though the FLSA exempts teachers (29 CFR 541.303) and commuting is not hours worked (29 CFR 785.35); reads as a legal finding.",
+   "where": "ventures/adjunct-course-offer-calculator/calc.mjs:128",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Negative pay is filtered out silently instead of being reported with the offer's warnings; a kill fee above the pay is not flagged.",
+   "where": "ventures/adjunct-course-offer-calculator/calc.mjs:146",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, clean, correct calculator: every output recomputed by hand (real hourly 9.264, pay for target 8760, largest class 27) matched, claims are backed and limits stated. It misses the bar on verification: 3 of 5 seeded mutants survived, including Math.floor -> Math.round in the largest-class solver, because the only test sits on an exact-integer boundary. Domain is 2: a union contract analyst would first ask for ACA-credited hours (1 + 2.25 per classroom hour) and would object to a 'minimum wage' warning on a commute-inclusive hourly for an FLSA-exempt teacher. Async online sections show $NaN and blank fields silently take example values."
+}
