@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": 13,
   "outcome": "success",
@@ -50,7 +50,7 @@
     "ventures/photo-editing/eval/kodak-dcr-reader-2026-11-18.md"
   ],
   "goal": null,
-  "notes": "Kodak DCR (DCS Pro SLR/n, compression 65000) read directly: 0 of 13,601,232 sensels differ from LibRaw 0.22 (rawpy 0.28) on the one public DCR (drewnoakes/metadata-extractor-images); CFA, white 3700, black 0 and as-shot WB equal (WB to 1e-6, LibRaw float32). C decoder 0.13 s, pure Python 5.1 s, identical. Develop with LibRaw's matrix as stand-in profile: chroma gap 0.0023 (gate 0.02). tests/test_kodak.py 13 passed with and without the native build. raw.pixls.us refused connections, so no second body.",
+  "notes": "Kodak DCR (DCS Pro SLR/n, compression 65000) read directly: 0 of 13,601,232 sensels differ from LibRaw 0.22 (rawpy 0.28) on the one public DCR (drewnoakes/metadata-extractor-images); CFA, white 3700, black 0 and as-shot WB equal (WB to 1e-6, LibRaw float32). C decoder 0.13 s, pure Python 5.1 s, identical. Develop with LibRaw's matrix as stand-in profile: chroma gap 0.0023 (gate 0.02). tests/test_kodak.py 13 passed with and without the native build. raw.pixls.us refused connections, so no second body. Full venture suite (run_venture_tests.py photo-editing, 1421 tests) found one failure, test_camera_profiles' hardcoded format list; fixed and re-run green (25 passed in the two touched files).",
   "corrections": [],
   "redteam": null
 }
