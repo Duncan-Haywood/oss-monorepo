@@ -38,7 +38,7 @@
   <section id="faq">
     <h2>Questions</h2>
     <h3>What happens if the import crashes halfway?</h3>
-    <p>Every file's state is recorded in a manifest on disk. Run the same <code>run</code> command again and it resumes from the manifest instead of starting over. After Ctrl-C, a crash or a Photos.app timeout, files that were mid-import are sent again, and Photos may already hold some of them, so check for duplicates after an interrupted run.</p>
+    <p>Every file's state is recorded in a manifest on disk. Run the same <code>run</code> command again and it resumes from the manifest instead of starting over. After Ctrl-C, a crash or a Photos.app timeout, files that were mid-import are sent again with Photos' own duplicate check turned on, because Photos may already hold some of them. Photos, not this tool, makes that call, so spot-check after an interrupted run.</p>
     <h3>Will it import the same photo twice?</h3>
     <p>The manifest stops files it has recorded as imported from being sent again. A batch interrupted mid-import can be sent twice (see the README's "Known gaps"). A file left <code>uncertain</code> by a Photos.app timeout may have been imported anyway, so the <code>preflight</code> command matches your files against the Photos library before you retry, and <code>skip-uncertain</code> clears them once you have decided.</p>
     <h3>Does it handle RAW files as well as JPEG?</h3>
