@@ -2,8 +2,8 @@
 title: "ROLLBACK TO SAVEPOINT is not a rollback: a migration checker read it as one"
 seo_title: "ROLLBACK TO SAVEPOINT keeps the transaction open"
 date: 2026-11-18
-tags: [sql-migration-lock-check, postgresql, red-team, testing]
-description: "Our PostgreSQL migration checker treated ROLLBACK TO SAVEPOINT as the end of a transaction, so a CREATE INDEX CONCURRENTLY that will fail read as clean. Fixed, with tests."
+tags: [sql-migration-lock-check, postgresql, redteam, testing]
+description: "Our PostgreSQL migration checker read ROLLBACK TO SAVEPOINT as the end of a transaction, so a failing CREATE INDEX CONCURRENTLY read clean. Fixed."
 ---
 
 [sql-migration-lock-check](../../ventures/sql-migration-lock-check/README.md)
