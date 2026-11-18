@@ -526,13 +526,13 @@ flagships:
       README 'How it was checked' 11-14; STEP from bytes
       (eval/step-bytes-2026-11-18.md: the file never one string; 219 MB parses in
       512 to 304 MB, 68 IDS 640 to 448 MB; a 670 MB STEP past V8's string limit now
-      checks). ifcXML from bytes 2026-11-18 (eval/ifcxml-bytes-2026-11-18.md: 374 MB
-      ifcXML parses 800 to 448 MB, 68 IDS 832 to 448 MB; a 680 MB ifcXML now
-      checks). xs:pattern as XML Schema regex 2026-11-18
+      checks). ifcXML from bytes 2026-11-18 (eval/ifcxml-bytes-2026-11-18.md: a 680
+      MB ifcXML now checks). xs:pattern as XML Schema regex 2026-11-18
       (eval/xsd-regex-2026-11-18.md: same verdict as elementpath on 78 of 78 corpus
       patterns; anchors, (?: and \/ flagged and repaired; 4 of 65 public IDS read
-      differently per tool). XML white space between elements skipped 2026-11-18
-      (eval/xml-whitespace-2026-11-18.md: reader heap 40-106 to 2-4 MB; 455 MB
-      indented ifcXML, 68 IDS, 512 to 448 MB). next: IfcTester's narrower bare \w;
+      differently per tool). XML white space skipped 2026-11-18
+      (eval/xml-whitespace-2026-11-18.md: heap 40-106 to 2-4 MB). Editor repairs a
+      file on open 2026-11-18 (eval/editor-open-repair-2026-11-18.md: 9 to 0 pattern
+      findings written back, 65 public IDS). next: IfcTester's narrower bare \w;
       ifcXML all-space strings read as "" (STEP keeps them). More open items:
       NEXT.md.
