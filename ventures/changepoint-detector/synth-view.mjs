@@ -3,7 +3,7 @@
 // Pure functions of the result, so page tests read them without a browser (synth-page.test.mjs).
 import { esc, fmt } from './report.mjs';
 // What the range test (--anticipation a-b) measured (eval/synth-lead-range-confirm.out.txt), shared with the CLI.
-export const LEAD_RANGE_NOTE = '@@NOTE@@';
+export const LEAD_RANGE_NOTE = 'In simulation (39 units; eval/synth-lead-range-confirm.out.txt, pre-registered) with leads 0-4: no effect, it reached p <= 0.05 on 3.8% of panels (3.3% with a covariate shock 4 points early), against 5.3% and 7.8% for the smallest p of the five; an effect that began 2 or 4 points early was found 55% and 56% of the time, against 35% and 28% at the stated date and 57% and 59% backdated by the true lead; one that began on the date, 54% against 59%. Give the range from what is known (when the law passed, when the rise was announced), not from trying several.';
 
 const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3);
 

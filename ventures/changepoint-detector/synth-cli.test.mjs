@@ -128,5 +128,5 @@ test('--anticipation 0-2: every lead together with one range p; California 1989 
   const csv = readFileSync(PACKS, 'utf8');
   assert.throws(() => synthResult({ csv, column: 'CA', date: '1989', window: '1970:2000', donors: pool, anticipation: '3-1' }), /smaller lead first/);
   assert.throws(() => synthResult({ csv, column: 'CA', date: '1989', window: '1970:2000', donors: pool, anticipation: '0-15' }), /at most 13 leads/);
-  assert.throws(() => synthResult({ csv, column: 'CA', date: '1989', window: '1970:2000', donors: pool, anticipation: '2-16' }), /needs at least 5/);
+  assert.throws(() => synthResult({ csv, column: 'CA', date: '1989', window: '1970:2000', donors: pool, anticipation: '6-16' }), /needs at least 5/);
 });
