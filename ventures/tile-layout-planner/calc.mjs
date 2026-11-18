@@ -208,6 +208,14 @@ export function reuseTiles(items, tw, th, allowRotate, minUseful = 20) {
 // coordinates; angle 45 turns the lattice about the middle of the floor and (ox, oy)
 // are lattice coordinates measured from that middle.
 export function evaluateLayout(spec, lay, keep = false) {
+  return evaluateBounded(spec, lay, keep, Infinity);
+}
+
+// evaluateLayout with a cut-off for the search: once more than `maxSlivers` cuts are
+// thinner than minCut, the layout cannot beat one with `maxSlivers` (betterLayout
+// ranks slivers first and the count only grows), so it returns null instead of
+// finishing the floor and the offcut plan. Infinity never cuts off. (perf, 2026-11-18)
+function evaluateBounded(spec, lay, keep, maxSlivers) {
   const reg = regionOf(spec);
   const obs = clippedObstacles(spec);
   const tw = lay.swap ? spec.tileH : spec.tileW;
@@ -237,6 +245,7 @@ export function evaluateLayout(spec, lay, keep = false) {
   const jmax = Math.ceil((vmax - lay.oy) / py) + 1;
   let full = 0;
   const cuts = [];
+  let thin = 0;
   const cells = keep ? [] : null;
   let visible = 0;
 
@@ -330,6 +339,7 @@ export function evaluateLayout(spec, lay, keep = false) {
       }
       const cut = { w: ux1 - ux0, h: uy1 - uy0, thick, vis };
       cuts.push(cut);
+      if (thick < minCut - 1e-6 && ++thin > maxSlivers) return null;
       if (cells) cells.push({ kind: thick < minCut - 1e-6 ? "sliver" : "cut", tile: poly, pieces, thick });
     }
   }
@@ -379,7 +389,7 @@ export function layoutFor(spec, kind, opts = {}) {
   return { angle: 0, swap, ox: mod(ox, px), oy: mod(oy, py) };
 }
 
-function axisCandidates(spec, axis, lay, n) {
+export function axisCandidates(spec, axis, lay, n) {
   const reg = regionOf(spec);
   const tw = lay.swap ? spec.tileH : spec.tileW;
   const th = lay.swap ? spec.tileW : spec.tileH;
@@ -428,9 +438,9 @@ export function searchBest(spec, opts = {}) {
     const ys = axisCandidates(spec, 1, base, n);
     for (const ox of xs) {
       for (const oy of ys) {
-        const r = evaluateLayout(spec, { ...base, ox, oy });
+        const r = evaluateBounded(spec, { ...base, ox, oy }, false, best ? best.slivers : Infinity);
         tried++;
-        if (!best || betterLayout(r, best)) best = r;
+        if (r && (!best || betterLayout(r, best))) best = r;
       }
     }
   }
