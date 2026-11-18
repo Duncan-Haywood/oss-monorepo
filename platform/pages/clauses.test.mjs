@@ -321,6 +321,24 @@ test('--changed-since ignores files directly under ventures/', async () => {
   }
 });
 
+test('--changed-since sees uncommitted and, off Actions, untracked venture edits', async () => {
+  // run_workflow_locally.py --for-changes selects ventures-tests.yml from the
+  // working tree; a base..HEAD diff then checked nothing (process run 2026-11-18).
+  const { root, base } = fixtureRepo({ 'ventures/CLAUDE.md': 'notes\n' });
+  try {
+    writeFileSync(path.join(root, 'ventures/clean-tool/index.html'), SLA_ONLY);
+    mkdirSync(path.join(root, 'ventures/new-tool'), { recursive: true });
+    writeFileSync(path.join(root, 'ventures/new-tool/index.html'), SLA_ONLY);
+    assert.deepEqual(touchedVentures(base, { repoRoot: root, onActions: false }), ['clean-tool', 'new-tool']);
+    assert.deepEqual(touchedVentures(base, { repoRoot: root, onActions: true }), ['clean-tool']);
+    const { code, err } = await run(['--changed-since', base], { repoRoot: root });
+    assert.equal(code, 1);
+    assert.match(err, /new-tool\/index\.html/);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('--changed-since with no usable base checks every venture', () => {
   assert.equal(touchedVentures(''), null);
   assert.equal(touchedVentures('0000000000000000000000000000000000000000'), null);

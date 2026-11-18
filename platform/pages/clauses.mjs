@@ -2704,12 +2704,15 @@ async function isVenture(venturesDir, slug) {
  * reading of "unknown change". Slugs whose directory the change deleted are
  * dropped: a venture that no longer exists publishes nothing.
  */
-export function touchedVentures(base, { repoRoot = REPO_ROOT } = {}) {
+export function touchedVentures(base, { repoRoot = REPO_ROOT, onActions = process.env.GITHUB_ACTIONS === 'true' } = {}) {
   if (!base || /^0+$/.test(base)) return null;
-  const out = execFileSync('git', ['diff', '--name-only', base, 'HEAD', '--', 'ventures'], {
-    cwd: repoRoot,
-    encoding: 'utf8',
-  });
+  // Against the working tree, not `base..HEAD`: the same on a CI checkout,
+  // but under run_workflow_locally.py --for-changes an uncommitted page edit
+  // was selected and then never checked (process run 2026-11-18). Untracked
+  // files count locally only; a CI step's untracked output is no PR change.
+  const git = (args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' });
+  let out = git(['diff', '--name-only', base, '--', 'ventures']);
+  if (!onActions) out += '\n' + git(['ls-files', '--others', '--exclude-standard', '--', 'ventures']);
   const slugs = new Set();
   for (const line of out.split('\n')) {
     // A file directly under ventures/ (its CLAUDE.md) belongs to no venture.
@@ -2722,7 +2725,7 @@ export function touchedVentures(base, { repoRoot = REPO_ROOT } = {}) {
 /**
  * `node clauses.mjs`                        every surface
  * `node clauses.mjs <slug> [<slug> ...]`    those ventures
- * `node clauses.mjs --changed-since <sha>`  every venture `git diff <sha> HEAD` touched
+ * `node clauses.mjs --changed-since <sha>`  every venture changed since <sha> (locally incl. uncommitted)
  *
  * The last form is what `ventures-tests.yml` runs on every PR and push that
  * touches `ventures/**`. It replaced a step copied into 281 `<slug>-ci.yml`
@@ -2739,7 +2742,7 @@ export async function main(
   const sinceAt = argv.indexOf('--changed-since');
   let slugs;
   if (sinceAt !== -1) {
-    const touched = touchedVentures(argv[sinceAt + 1], { repoRoot });
+    const touched = touchedVentures(argv[sinceAt + 1], { repoRoot, onActions: env.GITHUB_ACTIONS === 'true' });
     if (touched !== null && touched.length === 0) {
       log('no venture touched, nothing to check');
       return 0;
