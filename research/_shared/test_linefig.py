@@ -56,6 +56,53 @@ class LineFig(unittest.TestCase):
         # x = 6 lies past the data, so the right-most point no longer sits at the plot's edge
         self.assertNotIn('<circle cx="624.0"', two)
 
+    def test_table_xtext_keeps_category_labels(self):
+        rows = ["== C", "cause effect", "seed -0.4", "robot 1.2", "steer 0.3"]
+        xs, ys = linefig.table(rows, "== C", 0, [1], xtext=True)
+        self.assertEqual((xs, ys), (["seed", "robot", "steer"], [[-0.4, 1.2, 0.3]]))
+        # a header row whose y cell is text still drops out
+        self.assertNotIn("cause", xs)
+
+    def test_table_xtext_with_pipe_labels_containing_spaces(self):
+        rows = ["== P", "| method | v |", "|---|---|", "| social force | 2.5 |", "| ORCA, fitted | 3.5 |"]
+        xs, ys = linefig.table(rows, "== P", 0, [1], sep="|", xtext=True)
+        self.assertEqual((xs, ys), (["social force", "ORCA, fitted"], [[2.5, 3.5]]))
+
+    def test_bars_one_rect_per_value_and_no_legend_for_one_series(self):
+        svg = linefig.svg_bars("T", "alt", "v", ["a", "b", "c"], [("s", [1, 2, 3])])
+        self.assertEqual(len(re.findall(r'<rect x="[\d.]+" y="[\d.]+" width', svg)), 3)
+        self.assertNotIn('height="10" fill=', svg)  # legend swatch
+
+    def test_bars_grouped_with_legend_whiskers_and_ref(self):
+        series = [("one", [1.0, -2.0]), ("two", [0.5, 0.25])]
+        errs = [[(0.8, 1.2), (-2.5, -1.5)], None]
+        svg = linefig.svg_bars("T", "alt", "v", ["x", "y"], series, errs=errs, ref=1.5)
+        self.assertEqual(svg.count('stroke-width="1.5"'), 2)
+        self.assertEqual(svg.count('stroke-dasharray'), 1)
+        self.assertEqual(svg.count('height="10" fill='), 2)
+        self.assertIn(">-2<", svg)
+
+    def test_bars_negative_bar_sits_left_of_zero(self):
+        svg = linefig.svg_bars("T", "alt", "v", ["neg", "pos"], [("s", [-1.0, 1.0])])
+        zero = float(re.search(r'<line x1="([\d.]+)" x2="\1" y1="\d+" y2="\d+" stroke="#555"/>', svg).group(1))
+        rects = [(float(x), float(w)) for x, w in re.findall(r'<rect x="([\d.]+)" y="[\d.]+" width="([\d.]+)" height="1', svg)]
+        self.assertAlmostEqual(rects[0][0] + rects[0][1], zero, places=0)
+        self.assertAlmostEqual(rects[1][0], zero, places=0)
+
+    def test_bars_escape_labels_and_check_lengths(self):
+        svg = linefig.svg_bars("A & B", "a<b", "v", ["x<y"], [("s", [1])])
+        self.assertIn("A &amp; B", svg)
+        self.assertIn("x&lt;y", svg)
+        with self.assertRaises(ValueError):
+            linefig.svg_bars("T", "a", "v", ["x", "y"], [("s", [1])])
+
+    def test_bars_fit_the_width(self):
+        names = ["series number %d" % k for k in range(6)]
+        series = [(n, [k + 1.0, -k - 0.5]) for k, n in enumerate(names)]
+        svg = linefig.svg_bars("T", "a", "v", ["a long category label", "b"], series)
+        xs = [float(x) for x in re.findall(r'<(?:rect|text) x="([\d.]+)"', svg)]
+        self.assertTrue(all(0 <= x <= 640 for x in xs), max(xs))
+
     def test_svg_has_series_and_alt(self):
         svg = linefig.svg_lines("T", "alt text", "x", "y", [("s", [1, 2, 3], [2, 4, 8])])
         self.assertIn('aria-label="alt text"', svg)
