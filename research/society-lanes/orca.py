@@ -259,12 +259,13 @@ def _clamp(v, m):
 def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
              warmup=40.0, duration=160.0, dt=0.1, steer_every=0.1, record_every=0.1,
              exit_frac=0.25, rule="always", max_neighbors=MAX_NEIGHBORS, robots=0, policy="crowd",
-             robot_speed=None, passes=False):
+             robot_speed=None, passes=False, tau=TAU):
     """One closed-loop corridor under ORCA; same loop and statistics as plaw.simulate.
 
     robots, policy, robot_speed, passes: milestone 5b, as sftwin.simulate (robots.py). Robots are
     ORCA agents too, so robot and crowd share one planner; with robots = 0 and passes off the run
-    is unchanged, random draws included."""
+    is unchanged, random draws included. tau: the agent-agent time horizon (s), milestone 6h's
+    spacing parameter (RVO2's example value TAU by default)."""
     if rule not in S.RULES:
         raise ValueError(f"rule must be one of {S.RULES}")
     import robots as R
@@ -378,7 +379,7 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
         dist = np.linalg.norm(to, axis=1)
         pref = to / np.maximum(dist, 1e-9)[:, None] * v0[:, None]
         vmax = MAX_SPEED_RATIO * v0
-        new_v = orca_velocities(P, V, pref, vmax, rad, float(width), TAU, TAU_OBST, dt, RANGE,
+        new_v = orca_velocities(P, V, pref, vmax, rad, float(width), float(tau), TAU_OBST, dt, RANGE,
                                 max_neighbors)
         acc = _clamp((new_v - V) / dt, MAX_ACC)
         V = _clamp(V + acc * dt, vmax)

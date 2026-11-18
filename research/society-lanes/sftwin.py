@@ -120,8 +120,11 @@ def right_offset(y, d, width):
 def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
              warmup=40.0, duration=160.0, dt=0.01, steer_every=0.1, record_every=0.1,
              model="sf", exit_frac=0.25, rule="always", robots=0, policy="crowd",
-             robot_speed=None, passes=False):
+             robot_speed=None, passes=False, agent_scale=None, time_gap=None):
     """Run one closed-loop corridor. Returns per-run statistics (dict).
+
+    agent_scale (social force, Helbing's A in N; JuPedSim default 2000) and time_gap (collision-free
+    speed, s; default CFSM_TIME_GAP): milestone 6h's spacing parameters; None keeps the defaults.
 
     model: "sf" (JuPedSim SocialForceModel, Helbing et al. 2000 defaults, radius 0.25 m) or
     "avm" (JuPedSim AnticipationVelocityModel, Xu, Chraibi and Seyfried 2021, JuPedSim
@@ -163,11 +166,12 @@ def simulate(n_walkers, width, length, entrance, beta, seed, goals=False,
         if model == "sf":
             par = jps.SocialForceModelAgentParameters(
                 journey_id=journey, stage_id=stage, position=(float(x), float(y)),
-                orientation=(float(d), 0.0), desired_speed=float(v0), radius=radius)
+                orientation=(float(d), 0.0), desired_speed=float(v0), radius=radius,
+                **({} if agent_scale is None else {"agent_scale": float(agent_scale)}))
         elif model == "cfsm":
             par = jps.CollisionFreeSpeedModelAgentParameters(
                 journey_id=journey, stage_id=stage, position=(float(x), float(y)),
-                time_gap=CFSM_TIME_GAP, desired_speed=float(v0), radius=radius)
+                time_gap=CFSM_TIME_GAP if time_gap is None else float(time_gap), desired_speed=float(v0), radius=radius)
         else:
             par = jps.AnticipationVelocityModelAgentParameters(
                 journey_id=journey, stage_id=stage, position=(float(x), float(y)),
