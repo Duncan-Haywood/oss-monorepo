@@ -1,0 +1,72 @@
+Rule S: accept a repair step on the summed thermal excess, not the worst one (research/grid-linopf)
+Plan, rule S and predictions S1 to S6: LOG.md 2026-11-18 (committed before this ran).
+
+Development: 34 cases, 30-round budget; frozen merit (worst excess) vs rule S (summed excess)
+  case               kind   frozen@  S@    cost% over AC optimum frozen / S
+  case118_ieee       api     None None   - / -
+  case14_ieee        api        3    3   +1.127 / +1.127
+  case162_ieee_dtc   api       11   10   +0.317 / +0.338  <-
+  case200_activ      api       10   10   +0.130 / +0.130
+  case240_pserc      api       17   17   +0.052 / +0.052
+  case24_ieee_rts    api       10   10   +0.711 / +0.711
+  case300_ieee       api       12   12   +1.017 / +1.017
+  case30_ieee        api        7    7   +0.337 / +0.337
+  case39_epri        api        7    7   +0.073 / +0.073
+  case57_ieee        api       12   12   +0.710 / +0.710
+  case73_ieee_rts    api     None None   - / -
+  case118_ieee       sad       12   12   +0.379 / +0.379
+  case14_ieee        sad        2    2   +3.845 / +3.845
+  case162_ieee_dtc   sad       10   10   +0.514 / +0.514
+  case179_goc        sad       11   11   +0.830 / +0.830
+  case200_activ      sad        3    3   +0.004 / +0.004
+  case240_pserc      sad       20   20   +0.374 / +0.374
+  case24_ieee_rts    sad        6    6   +0.208 / +0.208
+  case30_ieee        sad        7    7   +0.076 / +0.076
+  case39_epri        sad        3    3   +0.112 / +0.112
+  case57_ieee        sad        7    7   +0.033 / +0.033
+  case73_ieee_rts    sad        8    8   +0.182 / +0.182
+  case118_ieee       typ       11   11   +0.087 / +0.087
+  case14_ieee        typ        4    4   +0.034 / +0.034
+  case162_ieee_dtc   typ        8    8   +0.261 / +0.261
+  case179_goc        typ       10   10   +0.003 / +0.003
+  case200_activ      typ        1    1   +0.039 / +0.039
+  case240_pserc      typ       15   15   +0.303 / +0.303
+  case24_ieee_rts    typ        2    2   +0.158 / +0.158
+  case300_ieee       typ     None None   - / -
+  case30_ieee        typ        6    6   +0.076 / +0.076
+  case39_epri        typ        6    6   +0.021 / +0.021
+  case57_ieee        typ       12   12   +0.057 / +0.057
+  case73_ieee_rts    typ        6    6   +0.040 / +0.040
+  finishers: frozen 31 of 34, rule S 31; gained 0, lost 0 (sign test on finish/no-finish, P = 1.000)
+  on the 31 cases both finish: rounds S minus frozen mean -0.03, median +0.0 (S faster on 1, slower on 0, sign test P = 1.000); cost points mean +0.001, max |.| 0.020
+
+Held-out: 19 cases, 20-round budget; frozen merit (worst excess) vs rule S (summed excess)
+  case               kind   frozen@  S@    cost% over AC optimum frozen / S
+  case1354_pegase    api     None None   - / -
+  case1888_rte       api       13   15   +0.617 / +0.447  <-
+  case500_goc        api       14   18   +0.805 / +0.491  <-
+  case588_sdet       api       19   19   +0.868 / +0.868
+  case793_goc        api       17 None   +0.254 / -  <-
+  case1354_pegase    sad     None None   - / -
+  case1888_rte       sad     None None   - / -
+  case1951_rte       sad       20   20   +0.050 / +0.050
+  case2000_goc       sad     None None   - / -
+  case500_goc        sad     None None   - / -
+  case588_sdet       sad     None None   - / -
+  case793_goc        sad       16   18   +0.865 / +0.302  <-
+  case1354_pegase    typ     None None   - / -
+  case1888_rte       typ     None None   - / -
+  case1951_rte       typ       17   17   +0.019 / +0.019
+  case2000_goc       typ     None None   - / -
+  case500_goc        typ       10   10   +0.029 / +0.029
+  case588_sdet       typ       20 None   +2.124 / -  <-
+  case793_goc        typ       17   17   +0.140 / +0.140
+  finishers: frozen 10 of 19, rule S 8; gained 0, lost 2 (sign test on finish/no-finish, P = 0.500)
+  on the 8 cases both finish: rounds S minus frozen mean +1.00, median +0.0 (S faster on 0, slower on 3, sign test P = 0.250); cost points mean -0.131, max |.| 0.563
+
+S1 (case118 API fully clean within 30 rounds under S): refuted (None; last {"n_over": 1, "max_load": 1.0026830914399931, "load_exc_sum": 0.002683091439993124, "slack_out_mw": 0.0, "n_ang": 0, "vviol": 0, "v_exc_pu": 0.0, "qviol": 0, "q_exc_mvar": 0.0})
+S2 (case73 API still does not finish): held (None)
+S3 (development: at most 1 of the frozen finishers lost): held (0)
+S4 (development, cases both finish: median rounds S minus frozen <= 0): held (+0.0)
+S5 (development, cases both finish: mean cost within 0.1 points of frozen): held (+0.001)
+S6 (held-out: gains at least 1 finisher and loses none): refuted (gained 0, lost 2; 19 cases scored)

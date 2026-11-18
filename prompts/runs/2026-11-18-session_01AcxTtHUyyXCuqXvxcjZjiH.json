@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtHUyyXCuqXvxcjZjiH",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T10:06:38Z",
+  "ended": "2026-11-18T10:14:43Z",
+  "wall_minutes": 8.27,
+  "tokens_in": 3690200,
+  "tokens_out": 15709,
+  "cost_usd": 1.712,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17262",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First post description was 161 characters; check_posts caught it before merge.",
+    "First post description said 'most of that time' was platform/ci tests; measured share is about a third idle, corrected before merge.",
+    "Portfolio Pages 'test' failed once in CI on build.test.mjs:3509 'an identical build produces an identical cache name' (portfolio-6f1447ec1479 vs portfolio-4ed71ef6cc1c, no edited-input note); unrelated to this diff, the site tests pass locally (1797/1797 non-build). Re-ran the failed job."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "Called venture-preflight --skip-build 'the one-minute pass'; it ran main_health with 174 platform/ci unit-test files (92 s idle, ~5 min under load). Fixed in this PR."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Said main_health takes 'about 20 s'; measured 92 s full / 43 s --checks-only on an idle 4-core container. Fixed in this PR."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again (13 open); Critique via measure's per-file friction list found an ungated fix quickly."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "'an identical build produces an identical cache name' flaked in CI with no edited input on 2026-11-18 here and in session 01XpHqygQTXPft1TX3kXDVzK; 7 run records since 2026-11-15 mention it. The two concurrent builds seem to differ for a reason editedDuringRun() does not detect; worth a determinism investigation."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-the-preflight-quick-pass-ran-tests-for-code-it-never-touched.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (no agent-owned backlog item). Security queue empty; IDEAS.md and website requests empty. main_health on main: 272/272 green. Timings: main_health full 92.3 s, --checks-only 42.6 s; venture-preflight 1099-k-threshold-checker --skip-build with the change 98.3 s, clean. node --test venture-preflight.test.mjs 22/22. No backlog ids touched. CI: all checks green except one known build-determinism flake in Portfolio Pages test, re-run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "322a6391-fa92-5efd-a64e-fd82dd4f14f3",
+    "transcripts": 1,
+    "first": "2026-11-18T10:06:38Z",
+    "last": "2026-11-18T10:14:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 81,
+        "output": 15709,
+        "thinking": 3086,
+        "cache_read": 3605570,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84549,
+        "api_equivalent_usd": 1.712,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 81,
+      "output": 15709,
+      "thinking": 3086,
+      "cache_read": 3605570,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84549,
+      "api_equivalent_usd": 1.712,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.27,
+      "active_minutes": 8.27,
+      "model_minutes": 4.12,
+      "tool_minutes": 4.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "profile a CLI step, add a conditional flag with tests, fix a regex, write a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 116.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
