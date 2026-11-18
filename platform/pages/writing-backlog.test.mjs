@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { researchTracks, writingBacklog } from './writing-backlog.mjs';
+import { postsLinkingSlugs, researchTracks, writingBacklog } from './writing-backlog.mjs';
 
 function repo({ projects = [], posts = {} }) {
   const root = mkdtempSync(path.join(os.tmpdir(), 'writing-backlog-'));
@@ -69,4 +69,22 @@ test('CLI summary agrees with the JSON report: open count, and single-project pr
 test('a digit-leading research directory is a track; a dot-leading one is not', () => {
   const root = repo({ projects: ['9lives-a', '.hidden-a'] });
   assert.deepEqual(researchTracks(root).map((t) => t.prefix), ['9lives']);
+});
+
+test('postsLinkingSlugs gives the same answer as testing every slug with includes', () => {
+  const slugs = ['house-a', 'house-ab', 'chip-x', 'c', 'eda_z.v2', '9lives-a'];
+  const bodies = [
+    'See research/house-abc/ and research/house-a.',
+    'research/research/chip-x research/',
+    'research/c research/chip-xy research/eda_z.v2/README.md',
+    'no links; Research/house-a; research /chip-x',
+    'research/9lives-a-and-more research/house-ab',
+    'research/',
+    '',
+  ];
+  const posts = bodies.map((body) => ({ body }));
+  const got = postsLinkingSlugs(posts, slugs).map((s) => [...s].sort());
+  const want = bodies.map((b) => slugs.filter((s) => b.includes(`research/${s}`)).sort());
+  assert.deepEqual(got, want);
+  assert.deepEqual(postsLinkingSlugs(posts, []).map((s) => s.size), bodies.map(() => 0));
 });
