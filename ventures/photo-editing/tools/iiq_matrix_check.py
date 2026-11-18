@@ -118,7 +118,6 @@ def chroma(m):
 
 
 def check(path: Path, rows: int | None) -> dict:
-    import numpy as np
     import rawpy
     from mrw_develop_check import stand_in_profile
 
