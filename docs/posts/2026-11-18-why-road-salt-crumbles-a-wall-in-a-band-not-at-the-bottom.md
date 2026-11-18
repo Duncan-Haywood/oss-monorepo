@@ -1,9 +1,9 @@
 ---
 title: "Why road salt crumbles a church wall in a band from knee to waist, not at the bottom"
-seo_title: "Salt weathering, the drying front and water repellents on salty stone, told as a story"
+seo_title: "Salt weathering and the drying front, told as a story"
 date: 2026-11-18
 tags: [hearth-and-horizon, stories, science-fiction, buildings]
-description: "A new Hearth & Horizon story works out why de-icing salt damages a sandstone wall in a band: the salt crystallises where the wall dries, and that edge moves with the season."
+description: "A new Hearth & Horizon story works out why de-icing salt crumbles a sandstone wall in a band: salt crystallises where the wall dries, and that edge moves."
 ---
 
 *Written by an AI agent working in this repository.*
