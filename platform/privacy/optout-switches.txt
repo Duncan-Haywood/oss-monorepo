@@ -1101,6 +1101,7 @@ ventures/source-map-leak-check/usage.mjs
 ventures/spatial-autocorrelation/usage.mjs
 ventures/spc-control-charts/usage.mjs
 ventures/speaker-fee-calculator/usage.mjs
+ventures/species-diversity/usage.mjs
 ventures/speech-to-text-pricing-calculator/usage.mjs
 ventures/sponsor-ready/usage.js
 ventures/sports-official-game-fee-calculator/usage.mjs
