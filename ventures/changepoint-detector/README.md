@@ -3537,6 +3537,87 @@ succeeded payments. The quiet is optimistic: these shops have no weekly cycle, p
 real shop has and which the watch's own history replay (`--suggest`) is there to measure. Next: a real shop's
 daily Stripe series (a deployer's, or a public one) through `--suggest`, and a weekly cycle (`--period 7`) per column.
 
+## A real shop's daily series through `--suggest` (2026-11-18, pre-registered; all three bars fail; a weekly-cycle line ships)
+
+The Stripe section above ended on "Next: a real shop's daily series (a deployer's, or a public one) through
+`--suggest`, and a weekly cycle (`--period 7`) per column". No deployer's account exists yet, so this uses a public
+one: **UCI Online Retail** (Chen, Sain and Guo 2012, CC BY 4.0), every invoice line of a UK online gift shop from
+2010-12-01 to 2011-12-09. `eval/real-shop-daily.py` turns its 541,909 lines into `data/online-retail-daily.csv` in
+the shape `stripe-metrics.mjs` writes: one row per calendar day, zeros on days with nothing, with `orders`,
+`revenue` (GBP), `cancellations` and `new_customers`. The shop never trades on a Saturday. It was also shut for
+Christmas (2010-12-24 to 2011-01-03) and on six one-day UK bank holidays.
+
+The bars were written and committed before any watch ran (`eval/real-shop-suggest.prereg.md`). The run was
+`eval/real-shop-suggest.mjs`, output in `eval/real-shop-suggest.out.txt`, which lists every alert with its date and the
+28-day mean before and after it. The watch starts at day 74 (2011-02-13) and then makes 300 daily checks. Columns use the
+Stripe workflow's models (counts Poisson, revenue mean).
+
+| column | Quiet, no period | Quiet, `--period 7` | Eager, no period | Eager, `--period 7` |
+|---|---|---|---|---|
+| orders | 37 | 4 | 42 | 12 |
+| revenue | 0 | 2 | 8 | 12 |
+| cancellations | 20 | 14 | 41 | 21 |
+| new_customers | 4 | 2 | 19 | 9 |
+
+- **B1 fails** (Quiet at most 2 per 100 checks on every column, no period): orders 12.3, cancellations 6.7.
+- **B2 fails** (`--period 7` cuts Quiet's sum by 25% or more and no column rises). The sum fell from 61 to 22
+  (-64%), but revenue rose from 0 to 2, and both of those alerts are poor: a March dip, and an April change that was
+  only sent in August.
+- **B3 fails** (no alert within a day of a one-day bank holiday at the suggested setting). Nine of the sixteen
+  column, period and budget cells have one or two, chiefly Easter (2011-04-22/25) and the early May holiday (2011-05-02).
+
+What the alerts show:
+
+- **The weekly cycle is the whole of the orders problem.** Without a period, all 37 of Quiet's order alerts are
+  dated on a Sunday or a Monday. Every week the zero Saturday reads as a step down and Monday's orders as a step back
+  up. With `--period 7` four remain: the two around the May bank holidays, one in June, and **2011-09-01**, sent
+  2011-09-05 (28-day mean 43 to 59 orders a day). That last one is the start of the Christmas build-up, which is the
+  change a shop owner would want to hear about.
+- **Revenue at Quiet and Middle is deaf to the build-up.** Daily revenue went from about £26k to £39k (September) and
+  then £50k (November), and neither setting alerted with or without a period. Only Eager (PELT) heard it, on
+  2011-09-19 and 2011-11-07, at 2.7 to 4.0 alerts per 100 checks. Revenue here has heavy tails (single wholesale
+  orders), and the AR(1) default reads the slow climb as sticky noise. This is unfixed and written down as the next
+  item.
+- **One-day closures still alert, even with the cycle removed.** A closed weekday is a single-point outlier that the
+  count model cannot absorb. A deployer whose shop closes on holidays should expect an alert around each one.
+
+**What ships: a weekly-cycle line in `--suggest`** (watch-core.mjs `weekdayBunching`, `weekdayEffect`; also on the
+page, which prints the same `eagernessText`). It applies when the labels are consecutive calendar days and no period
+is given. If a setting's replayed alerts fall on one pair of adjacent weekdays far more often than chance, the replay
+adds: "Weekly cycle: 37 of these 37 alerts are dated on a Sunday or Monday ... Replay with --period 7."
+The test has two parts:
+
+1. The alert dates: the most-hit adjacent weekday pair against Binomial(n, 2/7), Bonferroni over the 7 pairs, p < 0.01,
+   with at least 6 alerts.
+2. The history itself: a weekday effect at p < 0.001. Each day less its centred 7-day mean, ranked, then
+   Kruskal-Wallis across the weekdays (chi-square with 6 df).
+
+The alert test alone was not enough. On synthetic series with no weekly cycle, a busy watch spaces its alerts about a
+week apart (confirm 5, tolerance 5), so half of them landed on one weekday pair by chance and the alert test fired on 4
+of 60 replays. Adding part 2 fixed that. The rule was set on one seed set and then checked on fresh seeds
+(`eval/weekday-bunching.mjs`, output `eval/weekday-bunching.out.txt`; 300-day clumpy Poisson series on a wandering
+level, both settings replayed):
+
+| series | seeds | replays | alert-date test alone | the shipped line (both parts) |
+|---|---|---|---|---|
+| no weekly cycle | design (20261118) | 60 | 4 | **0** |
+| closed every Saturday | design | 60 | 53 | **53** |
+| no weekly cycle | fresh (777) | 200 | 6 | **0** |
+| closed every Saturday | fresh | 200 | 180 | **180** |
+| weekend 30% lower | fresh | 200 | 14 | **14** |
+
+So on fresh series it raised no false warnings and caught a closed day in 9 of 10 replays. A mild weekend dip is
+mostly missed (14 of 200), because a 30% dip in noisy counts rarely moves the alerts onto fixed weekdays. The line is
+a check for the case seen on the real shop, not a general seasonality test.
+
+**Checked:** `real-shop.test.mjs` (4 tests). The CSV's zero Saturdays and Christmas closure; orders without a period
+give 37 Quiet alerts, all on Sunday or Monday, and the line; with `--period 7` there are 4 alerts and no line; and the
+test's guards (dates only, at least 6 alerts, no line when the history has no weekday effect).
+
+Next: revenue's deafness to a slow seasonal climb at Quiet and Middle (a heavy-tailed column; try `--log` and a
+pre-registered bar on a second shop); one-day closures (a `--closed` list of dates treated as missing, pre-registered,
+on a second shop); a deployer's real Stripe series.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
@@ -6587,3 +6668,68 @@ the confirmatory file and re-checks every bar.
 label less reliably), two non-step shapes, independent loadings, one shocked donor. **Next:** a real deployer's panel
 of stores or regions (short after-periods, where the word should help); a slope or pulse on two donors; a shape word
 read against the panel's own trend (detrended thirds) for long compounding series.
+
+## Currency pegs: the update-rate check against documented dates (2026-11-18, pre-registered; D1 fails, a hang fixed)
+
+The update-rate check ("When a series starts updating less often") had only ever been scored in
+simulation; on real series it was descriptive, because nothing labelled when a real feed began or
+stopped repeating. A currency peg is a public, dated change in how often a price moves: while a
+central bank holds the rate, the Federal Reserve's daily noon quote repeats; when the peg ends it
+moves. `eval/update-rate-pegs.mjs` (header committed in 72a54cb22 before the script first ran on the
+data) wrote down seven peg dates from the historical record, before any series was looked at, and
+ran the shipped check, unchanged, on the H.10 daily rates (via FRED, repackaged under the PDDL by
+github.com/datasets/exchange-rates; `sh eval/fx-pegs-fetch.sh fx-data`, not committed, 7.6 MB). An
+event counts as dated when a change in the stated direction has a date range within 10 trading
+days of it. Bars: D1, at least 5 of 7 dated; D2, median range width at most 60 rows.
+
+| event | documented | the check (`eval/update-rate-pegs.out.txt`) |
+|---|---|---|
+| E1 China, peg ends | 2005-07-21 | **dated** 2005-07-22, range 07-14 to 07-29 (11 rows), repeats 88% to 6% |
+| E2 China, re-peg near 6.83 | mid-2008 | missed |
+| E3 China, re-peg ends | 2010-06-21 | missed |
+| E4 Malaysia, peg at 3.80 | 1998-09-02 | **dated** 1998-09-09, range 08-31 to 09-10 (8 rows), 2% to 91% |
+| E5 Malaysia, peg ends | 2005-07-21 | **dated** 2005-07-22, range 07-19 to 07-27 (6 rows), 91% to 7% |
+| E6 Venezuela, fixed rate | 2003-02-05 | **dated** 2003-01-23, range 01-14 to 01-27 (9 rows), 8% to 91% |
+| E7 Thailand, baht floated | 1997-07-02 | missed (a change on 1997-04-24, range to 05-27) |
+
+**Verdict: D1 fails (4 of 7), D2 passes (median width 8.5 rows).** Nothing in the check changes on
+this file. Where a peg froze the quote, the check dated it to within one to two weeks, and the
+ranges held the date three times of four (E6's documented date, 2003-02-05, is when the fixed rate
+was set; trading had been suspended on 2003-01-22, inside the range).
+
+**Why the three misses** (post hoc, looked at after the verdict, deciding nothing):
+
+- **E2, E3.** From mid-2008 to mid-2010 the yuan was held near 6.83, but the New York noon quote kept
+  moving by a few hundredths every day (6.8215, 6.8429, 6.8510 in the first days of 2008-09): 0 to 6
+  repeats a month before, during and after. In this record the second peg did not change how often the
+  quote repeated, so silence is the right answer for an update-rate check; the event list assumed a
+  peg means repeats, and for a band held by intervention it does not. A level or volatility model is
+  the tool for that one.
+- **E7.** The baht left its basket in practice before the announcement: speculative attacks from May
+  1997 and a two-tier market from 1997-05-15 made the quote move daily (25.37 on 05-15, 22.75 on
+  06-17). The check's change is dated 1997-04-24 with a range to 05-27, which holds the attacks, not
+  the float. The record is right; the documented date is not when the quote changed.
+- **The changes no event names** (D3, descriptive) are mostly real too: the yuan's 1994-02-15 change
+  (61% to 12%) follows the 1994-01-01 unification of its official and swap rates; the Australian
+  dollar's 1972-01 to 1974-12 stretch of 85% repeats is its fixed US dollar link from the Smithsonian
+  agreement to the trade-weighted basket of 1974-09-25 (dated late, 1974-12-24, range from 10-31). The
+  other floating currencies' changes are all in the 1970s, where repeats fell from 4-24% to 1-6%,
+  consistent with quotes gaining precision; nothing here labels them.
+
+**A hang, found and fixed.** Cut to its 1998-1999 window, the ringgit series made the check run for
+hours (the whole 55-year series escaped only because its pegged stretch, 1998-09 to 2005-07, has a
+median move of 4.5 ticks, so the one-tick test never ran on it; the first six months move 1 tick). One day of the peg reads
+3.8950 among a hundred 3.8000s, 950 ticks off. The pegged stretch moves mostly one tick, so the
+one-tick stale-feed likelihood ran on it, and its grid's kernel spans the stretch's largest move: the
+work grows roughly with that move's square (on 120 steps, 16 s at 5 ticks, about a minute at 20 to 40),
+so a pasted pegged-currency series would hang the CLI and the page's worker. `staleLRMarkov` now has
+`maxJump: 50`: a stretch with a move over 50 ticks is not a slow walk, so the test is not run (null),
+as for a stretch too short or too long, and the median-move test alone decides "rounding". Every
+simulated series in the threshold's calibration and the pre-registered rounds (seeds 6, 31, 20261216,
+20261217, all cells) moves at most 45 ticks anywhere, so no committed verdict moves; the peg run's
+output is byte-identical with and without the cap. Test: `update-rate-pegs.test.mjs` (the 1998 window
+dated and finishing in milliseconds, Venezuela 2003, the cap, the committed verdict).
+
+Next: an update-rate check that can be wrong about a band, not only a fixed quote, needs a fresh
+labelled set of documented feed changes (a provider's announced switch from daily to weekly
+publication, a sensor's logged firmware change), not more pegs.

@@ -284,7 +284,8 @@ GITHUB_TOKEN_EXPRESSION = re.compile(r"\$\{\{\s*secrets\.GITHUB_TOKEN\s*\}\}")
 #
 # One difference stays: a step that runs `git diff "$BASE" HEAD` sees
 # committed work only. `--for-changes` selects workflows from the working
-# tree, so commit before relying on such a step's verdict.
+# tree, so commit before relying on such a step's verdict (uncommitted_note
+# says so at the start of a run).
 LOCAL_BASE = {"ref": "origin/main"}
 # A lone `}` may sit inside one (format's `{0}`); only `}}` closes it.
 CONTEXT_EXPRESSION = re.compile(r"\$\{\{\s*((?:[^}]|\}(?!\}))*?)\s*\}\}")
@@ -2123,7 +2124,32 @@ def run_for_changes(args) -> int:
                        args.list)
     if hint:
         print(hint, flush=True)
+    note = uncommitted_note(changed)
+    if note:
+        print(note, flush=True)
     return _run_selected(args, selected, held, changed=changed)
+
+
+# Workflows are picked from the working tree, but a step that diffs
+# `"$BASE" HEAD` sees commits only. run_venture_tests.py --since and
+# clauses.mjs --changed-since read the working tree locally since
+# 2026-11-18 (an uncommitted venture edit ran "0 suites run, 0 failed",
+# exit 0); ventures-tests.yml's tsc step and browser_state.py still diff
+# HEAD, so an uncommitted change is named before the sweep, not after a pass.
+def uncommitted_note(changed, repo: str = REPO) -> str | None:
+    """One line naming the diff's files not yet committed, else None."""
+    done = subprocess.run(["git", "status", "--porcelain", "--untracked-files=all"],
+                          cwd=repo, capture_output=True, text=True)
+    if done.returncode != 0:
+        return None
+    dirty = {line[3:].split(" -> ")[-1].strip('"') for line in done.stdout.splitlines() if line[3:]}
+    loose = sorted(p for p in changed if p in dirty)
+    if not loose:
+        return None
+    shown = ", ".join(loose[:3]) + (f" and {len(loose) - 3} more" if len(loose) > 3 else "")
+    return (f"note: {len(loose)} changed file(s) are not committed ({shown}); steps that "
+            f"diff \"$BASE\" HEAD (the tsc step in ventures-tests.yml) will not see them. "
+            f"Commit first for a full verdict.")
 
 
 # A new post over a front-matter cap (description 160, seo_title 70) fails

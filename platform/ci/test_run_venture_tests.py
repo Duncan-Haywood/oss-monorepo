@@ -319,6 +319,29 @@ class Selection(unittest.TestCase):
             self.assertEqual(rvt.with_dependents(["other"], root=root), ["other"])
             self.assertEqual(rvt.with_dependents([], root=root), [])
 
+    def test_since_sees_uncommitted_edits_and_untracked_files_off_actions(self):
+        # run_workflow_locally.py --for-changes selects ventures-tests.yml from
+        # the working tree; a base..HEAD diff then ran "0 suites run, 0 failed"
+        # on an uncommitted venture edit (process run 2026-11-18).
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            run = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                                            cwd=root, check=True, capture_output=True, text=True).stdout
+            (root / "ventures/edited").mkdir(parents=True)
+            (root / "ventures/edited/calc.mjs").write_text("export const x = 1;\n")
+            run("init", "-q")
+            run("add", "-A")
+            run("commit", "-qm", "base")
+            base = run("rev-parse", "HEAD").strip()
+            (root / "ventures/edited/calc.mjs").write_text("export const x = 2;\n")
+            (root / "ventures/brand-new").mkdir()
+            (root / "ventures/brand-new/calc.mjs").write_text("export const y = 1;\n")
+            with mock.patch.object(rvt, "ROOT", root), mock.patch.object(rvt, "ON_ACTIONS", False):
+                self.assertEqual(rvt.since_slugs(base), ["brand-new", "edited"])
+            with mock.patch.object(rvt, "ROOT", root), mock.patch.object(rvt, "ON_ACTIONS", True):
+                self.assertEqual(rvt.since_slugs(base), ["edited"])
+
     def test_no_merge_base_says_how_to_fix_it_instead_of_a_traceback(self):
         # A shallow cloud clone shares no commit with origin/main (run record
         # 2026-11-11: CalledProcessError).

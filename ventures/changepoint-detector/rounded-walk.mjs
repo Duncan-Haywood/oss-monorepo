@@ -259,7 +259,13 @@ export function roundedWalkLogLikMarkov(k, s, pEnter, pStay, G = 10, nu = Infini
 // M1 fit, so l1 here >= round four's l1 >= l0. Returns round four's result with `lr` replaced by the
 // Markov statistic and round four's kept as `lrIid`. Under M0 (pEnter = 0) pStay is not identified, so
 // the boundary mix does not apply; the threshold is set by simulation (eval/update-rate-stale-lr-5.mjs).
-export const STALE_LR_MARKOV = { ...STALE_LR_HEAVY, markov: true };
+// maxJump (2026-11-18, README "Currency pegs: the update-rate check against documented dates"): the grid's
+// kernel spans the stretch's largest move, and the work grows roughly with its square (5 ticks 16 s, 20 to
+// 40 ticks about a minute on 120 steps); a pegged rate with one bad print 950 ticks off (Malaysia,
+// 1998-1999) ran for hours. A one-tick stretch with a move over 50 ticks is not a slow walk, so the test
+// is not run (null), as for a stretch too short or long. Every simulated cell the threshold and the
+// pre-registered rounds used moves at most 45 ticks (seeds 6, 31, 20261216, 20261217), so no verdict moves.
+export const STALE_LR_MARKOV = { ...STALE_LR_HEAVY, markov: true, maxJump: 50 };
 // The test is a pure function of the ticks and the options, and one analysis asks it the same
 // question many times: consensus re-runs the update-rate check under each of its settings on the
 // same stretch (frozen-juice's ppi: 7 calls, one distinct stretch, 3.6 s each). The last few
@@ -276,8 +282,9 @@ export function staleLRMarkov(k, opts = {}) {
   return r && { ...r };
 }
 function staleLRMarkovFit(k, opts) {
-  const o = { ...STALE_LR, ...STALE_LR_HEAVY, ...opts };
+  const o = { ...STALE_LR, ...STALE_LR_HEAVY, maxJump: STALE_LR_MARKOV.maxJump, ...opts };
   if (k.length - 1 < o.minSteps || k.length - 1 > o.maxSteps) return null;
+  if (o.maxJump != null) for (let t = 1; t < k.length; t++) if (Math.abs(k[t] - k[t - 1]) > o.maxJump) return null;
   const ls = [Math.log(o.sMin), Math.log(o.sMax)];
   let best0 = null, best1 = null, bestM = null;
   for (const nu of o.nus) {

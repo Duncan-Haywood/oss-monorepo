@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { optimalRoute, sShapeRoute, largestGapRoute, returnRoute, pathLength, distance } from "./route.mjs";
+import { optimalRoute, optimalLength, sShapeRoute, largestGapRoute, returnRoute, pathLength, distance } from "./route.mjs";
 
 function rng(seed) {
   let s = seed >>> 0;
@@ -104,4 +104,19 @@ test("a worked case by hand", () => {
   assert.equal(route.length, 140);
   assert.equal(returnRoute([{ x: 0, y: 45 }, { x: 20, y: 45 }], layout).length, 90 + 20 + 90 + 20 - 20 + 20); // 2*45 + 2*45 + 2*20
   assert.equal(optimalRoute([], layout).length, 0);
+});
+
+test("optimalLength is optimalRoute's length, with and without a back aisle", () => {
+  const r = rng(4242);
+  for (const backAisle of [true, false]) {
+    for (const depotX of [0, 35, 90]) {
+      const layout = { aisleXs: Array.from({ length: 10 }, (_, i) => i * 10), aisleLength: 60, depotX, backAisle };
+      assert.equal(optimalLength([], layout), 0);
+      for (let t = 0; t < 200; t++) {
+        const n = 1 + Math.floor(r() * 25);
+        const pts = Array.from({ length: n }, () => ({ x: 10 * Math.floor(r() * 10), y: Math.floor(r() * 16) * 4 }));
+        assert.equal(optimalLength(pts, layout), optimalRoute(pts, layout).length);
+      }
+    }
+  }
 });

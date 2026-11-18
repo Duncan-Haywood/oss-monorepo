@@ -7,6 +7,7 @@ import io
 import contextlib
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import textwrap
@@ -2624,6 +2625,40 @@ class PostPrecheck(unittest.TestCase):
         code, _, pick = self._sweep(no_post_check=True)
         self.assertEqual(code, 0)
         pick.assert_called_once()
+
+
+class UncommittedNote(unittest.TestCase):
+    """--for-changes names uncommitted files a `"$BASE" HEAD` step cannot see."""
+
+    def _repo(self, d):
+        run = lambda *a: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                                        cwd=d, check=True, capture_output=True, text=True)
+        os.makedirs(os.path.join(d, "ventures", "a"))
+        with open(os.path.join(d, "ventures", "a", "x.mjs"), "w") as f:
+            f.write("1\n")
+        run("init", "-q")
+        run("add", "-A")
+        run("commit", "-qm", "base")
+        return run
+
+    def test_clean_tree_says_nothing(self):
+        with tempfile.TemporaryDirectory() as d:
+            self._repo(d)
+            self.assertIsNone(runner.uncommitted_note(["ventures/a/x.mjs"], repo=d))
+
+    def test_edited_and_untracked_files_are_named(self):
+        with tempfile.TemporaryDirectory() as d:
+            self._repo(d)
+            with open(os.path.join(d, "ventures", "a", "x.mjs"), "w") as f:
+                f.write("2\n")
+            os.makedirs(os.path.join(d, "ventures", "b"))
+            with open(os.path.join(d, "ventures", "b", "y.mjs"), "w") as f:
+                f.write("3\n")
+            note = runner.uncommitted_note(["ventures/a/x.mjs", "ventures/b/y.mjs", "docs/z.md"], repo=d)
+            self.assertIn("2 changed file(s) are not committed", note)
+            self.assertIn("ventures/a/x.mjs", note)
+            self.assertIn("ventures/b/y.mjs", note)
+            self.assertNotIn("docs/z.md", note)
 
 
 if __name__ == "__main__":

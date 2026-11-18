@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVP7R8vEyMtfhWyygrL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine prompt, abridged)",
+  "input_sha256": "7c9e01961453f2e7128cae064d423c3f16588d99931b9e99063ee828e1ea1079",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T08:55:57Z",
+  "ended": "2026-11-18T09:11:14Z",
+  "wall_minutes": 30.46,
+  "tokens_in": 9488538,
+  "tokens_out": 44211,
+  "cost_usd": 3.9262,
+  "tool_calls": 81,
+  "task": "Deepen (flagship 4) changepoint-detector: a real shop's daily series through --suggest, and a weekly cycle per column (README Stripe section's named next)",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17243",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First weekday-bunching rule (alert dates only, binomial at 1%) fired on 4 of 60 null replays",
+      "fix": "added a weekday effect test on the history itself; checked on fresh seeds after fixing the rule: 0 of 200 false"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pgrep hook rule ('bracket the first letter') also refuses a command where the unbracketed name appears elsewhere in the line (e.g. the output file name); cost two retries. Worth saying in cloud-session.md."
+    },
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "The Stripe section's 'Next' names a public real shop as an option but no host for one; archive.ics.uci.edu, huggingface.co and zenodo answer 403 through the proxy, raw.githubusercontent.com works (databricks/Spark-The-Definitive-Guide carries UCI Online Retail)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/real-shop-suggest.prereg.md",
+      "why": "The pre-registration said a failed B2 changes nothing. All bars failed, but a diagnostic line (warn of a weekly cycle and suggest --period 7) was shipped anyway",
+      "did": "The line changes no default and no setting; it reports a measured fact about the replay, with its own calibration set on design seeds and checked on fresh seeds (0/200 false, 180/200 closed-day caught)",
+      "result": "shipped with tests; defaults untouched"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The scheduled prompt asks for revenue work; every monetization next step waits on the owner's payout link (monetization.py next), so the run took the allocator's flagship on the product path (a Stripe-fed sales watch is the paid-use case)",
+      "did": "flagship deepen",
+      "result": "merged work on the watch's real-shop behaviour"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-a-real-shop-and-the-weekly-cycle.md",
+    "ventures/changepoint-detector/README.md section \"A real shop's daily series through --suggest\""
+  ],
+  "goal": null,
+  "notes": "Pre-registered (commit before any run) three bars on UCI Online Retail daily orders/revenue/cancellations/new_customers; all three failed (B1 orders Quiet 12.3/100, B2 sum 61->22 but revenue 0->2, B3 bank-holiday alerts in 9 cells). Without --period 7 all 37 Quiet order alerts fall on Sun/Mon; with it 4, incl. the Christmas build-up 2011-09-01. Revenue Quiet/Middle deaf to 26k->50k/day climb. Shipped: weekdayBunching/weekdayEffect weekly-cycle line in --suggest and the page. Verification: real-shop.test.mjs 4/4; watch*/page/cli/analyze-worker tests 153/153; run_venture_tests.py changepoint-detector: ok, 871 tests, 247 s; site page checks ok; check_posts ok; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3be3da64-c473-5aa5-bb54-573d1247f32c",
+    "transcripts": 1,
+    "first": "2026-11-18T08:55:57Z",
+    "last": "2026-11-18T09:26:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 153,
+        "output": 44211,
+        "thinking": 10450,
+        "cache_read": 9341755,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146630,
+        "api_equivalent_usd": 3.9262,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 153,
+      "output": 44211,
+      "thinking": 10450,
+      "cache_read": 9341755,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146630,
+      "api_equivalent_usd": 3.9262,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 74,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "TaskList": 1,
+      "TaskStop": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.46,
+      "active_minutes": 30.46,
+      "model_minutes": 8.28,
+      "tool_minutes": 22.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "data prep, pre-registration, replay eval, calibrated diagnostic with tests, README and post: about a day and a half for a statistician-engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 254.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

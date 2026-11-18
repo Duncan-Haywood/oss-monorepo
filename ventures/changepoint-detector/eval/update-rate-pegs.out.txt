@@ -1,0 +1,58 @@
+Pegged series, every change the check reports
+China: n 11966 (1981-01-02..2026-11-13), repeats 3587 (30%)
+  1986-07-03 [1986-06-18..1986-07-21, 23 rows] less often 58% -> 91%
+  1991-04-09 [1991-02-18..1991-04-30, 51 rows] more often 91% -> 61%
+  1994-02-15 [1994-01-11..1994-02-24, 32 rows] more often 61% -> 12%
+  1997-12-05 [1997-11-19..1997-12-17, 20 rows] less often 12% -> 79%
+  1998-10-06 [1998-09-21..1998-10-16, 19 rows] more often 79% -> 22%
+  2003-08-18 [2002-09-09..2004-07-09, 479 rows] less often 22% -> 39% (rounding: tick 0.0001)
+  2004-09-22 [2004-09-14..2004-09-28, 10 rows] less often 39% -> 88%
+  2005-07-22 [2005-07-14..2005-07-29, 11 rows] more often 88% -> 6%
+Malaysia: n 14575 (1971-01-04..2026-11-13), repeats 2725 (19%)
+  1974-09-27 [1974-08-19..1974-12-24, 91 rows] more often 32% -> 15%
+  1977-07-01 [1977-02-24..1978-08-16, 384 rows] more often 15% -> 7%
+  1993-08-03 [1991-12-24..1995-01-13, 798 rows] more often 7% -> 2%
+  1998-09-09 [1998-08-31..1998-09-10, 8 rows] less often 2% -> 91%
+  2005-07-22 [2005-07-19..2005-07-27, 6 rows] more often 91% -> 7%
+Venezuela: n 7010 (2000-01-03..2026-11-13), repeats 3916 (56%)
+  2003-01-23 [2003-01-14..2003-01-27, 9 rows] less often 8% -> 91%
+  2018-02-05 [2017-11-10..2018-02-22, 74 rows] more often 91% -> 78%
+  2018-08-17 [2018-08-08..2018-08-28, 14 rows] more often 78% -> 40%
+  2019-01-18 [2019-01-16..2019-05-07, 79 rows] more often 40% -> 3%
+  2022-10-12 [2022-04-18..2022-11-15, 151 rows] less often 3% -> 10%
+Thailand: n 11966 (1981-01-02..2026-11-13), repeats 1876 (16%)
+  1985-01-15 [1984-12-21..1985-02-01, 30 rows] more often 88% -> 17%
+  1997-04-24 [1996-10-18..1997-05-27, 157 rows] more often 17% -> 5%
+
+Events
+E1 China      2005-07-21             more often window 2005-07-07..2005-08-04: DATED at 2005-07-22 [2005-07-14..2005-07-29], width 11 rows
+E2 China      2008-06-01..2008-10-31 less often window 2008-05-19..2008-11-14: missed
+E3 China      2010-06-21             more often window 2010-06-07..2010-07-05: missed
+E4 Malaysia   1998-09-02             less often window 1998-08-19..1998-09-16: DATED at 1998-09-09 [1998-08-31..1998-09-10], width 8 rows
+E5 Malaysia   2005-07-21             more often window 2005-07-07..2005-08-04: DATED at 2005-07-22 [2005-07-19..2005-07-27], width 6 rows
+E6 Venezuela  2003-02-05             less often window 2003-01-22..2003-02-19: DATED at 2003-01-23 [2003-01-14..2003-01-27], width 9 rows
+E7 Thailand   1997-07-02             more often window 1997-06-18..1997-07-16: missed
+
+D1 dated 4 of 7 (bar >= 5): FAIL
+D2 median range width 8.5 rows (bar <= 60): pass
+
+D3 (descriptive) changes matching no event on the pegged series:
+  China: 1986-07-03 less often; 1991-04-09 more often; 1994-02-15 more often; 1997-12-05 less often; 1998-10-06 more often; 2003-08-18 less often; 2004-09-22 less often
+  Malaysia: 1974-09-27 more often; 1977-07-01 more often; 1993-08-03 more often
+  Venezuela: 2018-02-05 more often; 2018-08-17 more often; 2019-01-18 more often; 2022-10-12 less often
+  Thailand: 1985-01-15 more often; 1997-04-24 more often
+D3 (descriptive) floating controls:
+  Japan: n 14575 (1971-01-04..2026-11-13), repeats 379 (3%)
+  1976-08-06 [1976-05-25..1976-09-01, 71 rows] more often 16% -> 1%
+  United Kingdom: n 14575 (1971-01-04..2026-11-13), repeats 361 (2%)
+  1972-06-09 [1971-08-12..1972-09-18, 287 rows] more often 24% -> 6%
+  1977-12-01 [1977-07-25..1980-09-25, 828 rows] more often 6% -> 1%
+  Canada: n 14575 (1971-01-04..2026-11-13), repeats 224 (2%)
+  1976-03-23 [1973-12-12..1977-01-21, 812 rows] more often 5% -> 1%
+  Switzerland: n 14575 (1971-01-04..2026-11-13), repeats 197 (1%)
+  1977-05-20 [1977-03-31..1987-07-07, 2678 rows] more often 4% -> 1%
+  Australia: n 14575 (1971-01-04..2026-11-13), repeats 882 (6%)
+  1972-01-27 [1971-12-31..1972-02-01, 22 rows] less often 20% -> 85%
+  1973-06-22 [1973-05-28..1973-07-20, 39 rows] more often 85% -> 58%
+  1974-12-24 [1974-10-31..1975-01-02, 45 rows] more often 58% -> 8%
+  1981-02-09 [1980-10-17..1983-05-18, 673 rows] more often 8% -> 1%

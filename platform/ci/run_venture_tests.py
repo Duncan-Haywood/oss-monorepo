@@ -9,7 +9,7 @@ runner would report (docs/history/ci-local-first-2026-10-29.md).
     python3 platform/ci/run_venture_tests.py slug-a slug-b   # named ventures
     python3 platform/ci/run_venture_tests.py --changed       # vs merge-base with origin/main,
                                                              # uncommitted edits included
-    python3 platform/ci/run_venture_tests.py --since BASE    # ventures BASE..HEAD touched (CI)
+    python3 platform/ci/run_venture_tests.py --since BASE    # ventures changed since BASE (CI; locally incl. uncommitted)
     python3 platform/ci/run_venture_tests.py --slowest 30    # also end with the 30 slowest suites
     python3 platform/ci/run_venture_tests.py --write-times   # every venture, saving each suite's time
     python3 platform/ci/run_venture_tests.py --times 30      # the 30 slowest from that file, no run
@@ -337,7 +337,19 @@ def with_dependents(slugs, root=None):
 
 
 def since_slugs(base):
-    return with_dependents(slugs_in(git("diff", "--name-only", base, "HEAD", "--", "ventures").splitlines()))
+    """Ventures changed since `base`, for CI's `--since` mode.
+
+    Against the working tree, not `base..HEAD`: on a CI checkout the two are
+    the same, but under `run_workflow_locally.py --for-changes` an
+    uncommitted venture edit selected ventures-tests.yml and then ran
+    "0 suites run, 0 failed", exit 0 (process run 2026-11-18). Untracked
+    files count too, locally only: a CI step's untracked output is not a
+    change the PR made.
+    """
+    paths = git("diff", "--name-only", base, "--", "ventures").splitlines()
+    if not ON_ACTIONS:
+        paths += git("ls-files", "--others", "--exclude-standard", "--", "ventures").splitlines()
+    return with_dependents(slugs_in(paths))
 
 
 def changed_slugs(base_ref="origin/main"):

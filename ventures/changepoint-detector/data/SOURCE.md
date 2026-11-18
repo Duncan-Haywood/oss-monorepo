@@ -779,3 +779,18 @@ averaged 1981-89, schooling 1980 and 1985, investment 1980-84 and GDP per head 1
   *Am. Econ. Rev.* 93(1), 113-132. doi:10.1257/000282803321455188. Abadie, A., Diamond, A. and Hainmueller, J. (2015).
   Comparative politics and the synthetic control method. *Am. J. Polit. Sci.* 59(2), 495-510. doi:10.1111/ajps.12116.
 - **Used by:** `eval/synth-few-donors-real.mjs`, `synth-few-donors.test.mjs` (README "Few donors").
+
+## online-retail-daily.csv
+
+- **Source:** UCI Machine Learning Repository, "Online Retail" (dataset 352), CC BY 4.0: every invoice line of a UK
+  online gift retailer, 2010-12-01 to 2011-12-09 (541,909 lines). Fetched 2026-11-18 from the copy in
+  databricks/Spark-The-Definitive-Guide, `data/retail-data/all/online-retail-dataset.csv` (sha256 `a2f79bbdd4463df6db8a3f5a50b9c980ae8f645a370bf5e2c0d6097f9e817b05`; the UCI host
+  was not reachable from this session).
+- **Reshaped** by `python3 eval/real-shop-daily.py online-retail-dataset.csv data/online-retail-daily.csv`: one row per
+  calendar day, zeros on days with nothing; `orders` = distinct invoices not starting with C that have a line of
+  positive quantity and price, `revenue` = their gross (quantity x unit price, GBP), `cancellations` = distinct C
+  invoices, `new_customers` = customer ids on their first day in the file.
+- **Cite:** Chen, D., Sain, S. L. and Guo, K. (2012). Data mining for the online retail industry: a case study of RFM
+  model-based customer segmentation using data mining. *J. Database Marketing and Customer Strategy Management* 19(3),
+  197-208. doi:10.1057/dbm.2012.17.
+- **Used by:** `eval/real-shop-suggest.mjs`, `real-shop.test.mjs` (README "A real shop's daily series").
