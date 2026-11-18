@@ -22,15 +22,15 @@
 <circle cx="64.0" cy="322.9" r="3" fill="#1f6fb2"/>
 <circle cx="344.0" cy="324.0" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="324.0" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">Chicago, kraft</text>
+<rect x="184.8" y="32" width="14" height="10" fill="#1f6fb2"/><text x="204.8" y="41" font-family="sans-serif" font-size="11">Chicago, kraft</text>
 <polyline points="64.0,71.2 344.0,147.0 624.0,218.7" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="344.0" cy="147.0" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="218.7" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">Duluth, paint</text>
+<rect x="305.6" y="32" width="14" height="10" fill="#2e8b57"/><text x="325.6" y="41" font-family="sans-serif" font-size="11">Duluth, paint</text>
 <polyline points="64.0,291.5 344.0,305.2 624.0,318.5" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="291.5" r="3" fill="#8e44ad"/>
 <circle cx="344.0" cy="305.2" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="318.5" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">Duluth, kraft</text>
+<rect x="420.2" y="32" width="14" height="10" fill="#8e44ad"/><text x="440.2" y="41" font-family="sans-serif" font-size="11">Duluth, kraft</text>
 </svg>

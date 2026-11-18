@@ -37,7 +37,7 @@
 <circle cx="344.0" cy="72.9" r="3" fill="#1f6fb2"/>
 <circle cx="484.0" cy="71.2" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">equal numbers per group</text>
+<rect x="265.4" y="32" width="14" height="10" fill="#1f6fb2"/><text x="285.4" y="41" font-family="sans-serif" font-size="11">equal numbers per group</text>
 <polyline points="64.0,212.2 204.0,242.9 344.0,263.8 484.0,276.9 624.0,280.8 64.0,80.0 204.0,79.3 344.0,74.2 484.0,71.2 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="212.2" r="3" fill="#2e8b57"/>
 <circle cx="204.0" cy="242.9" r="3" fill="#2e8b57"/>
@@ -49,5 +49,5 @@
 <circle cx="344.0" cy="74.2" r="3" fill="#2e8b57"/>
 <circle cx="484.0" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">optimal share (oracle)</text>
+<rect x="442" y="32" width="14" height="10" fill="#2e8b57"/><text x="462" y="41" font-family="sans-serif" font-size="11">optimal share (oracle)</text>
 </svg>

@@ -81,7 +81,7 @@
 <circle cx="585.4" cy="90.5" r="3" fill="#1f6fb2"/>
 <circle cx="604.7" cy="107.2" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="82.0" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">detector explains (d2i)</text>
+<rect x="129" y="32" width="14" height="10" fill="#1f6fb2"/><text x="149" y="41" font-family="sans-serif" font-size="11">detector explains (d2i)</text>
 <polyline points="64.0,91.6 83.3,71.2 102.6,86.2 121.9,78.7 141.2,78.3 160.6,94.9 179.9,73.1 199.2,77.9 218.5,100.1 237.8,92.2 257.1,80.3 276.4,81.5 295.7,83.6 315.0,82.0 334.3,76.7 353.7,79.3 373.0,72.6 392.3,84.2 411.6,102.2 430.9,99.3 450.2,96.8 469.5,89.5 488.8,80.9 508.1,97.1 527.4,93.3 546.8,87.8 566.1,88.1 585.4,83.8 604.7,85.3 624.0,92.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="91.6" r="3" fill="#2e8b57"/>
 <circle cx="83.3" cy="71.2" r="3" fill="#2e8b57"/>
@@ -113,7 +113,7 @@
 <circle cx="585.4" cy="83.8" r="3" fill="#2e8b57"/>
 <circle cx="604.7" cy="85.3" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="92.9" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">imitator shares code (i2d)</text>
+<rect x="305.6" y="32" width="14" height="10" fill="#2e8b57"/><text x="325.6" y="41" font-family="sans-serif" font-size="11">imitator shares code (i2d)</text>
 <polyline points="64.0,102.4 83.3,88.0 102.6,93.1 121.9,81.0 141.2,74.1 160.6,75.1 179.9,85.7 199.2,98.1 218.5,113.3 237.8,103.1 257.1,104.1 276.4,86.2 295.7,106.9 315.0,89.0 334.3,96.2 353.7,91.1 373.0,110.7 392.3,91.4 411.6,97.0 430.9,89.4 450.2,88.0 469.5,87.6 488.8,81.6 508.1,79.3 527.4,92.7 546.8,78.8 566.1,97.5 585.4,90.4 604.7,85.2 624.0,98.8" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="102.4" r="3" fill="#8e44ad"/>
 <circle cx="83.3" cy="88.0" r="3" fill="#8e44ad"/>
@@ -145,5 +145,5 @@
 <circle cx="585.4" cy="90.4" r="3" fill="#8e44ad"/>
 <circle cx="604.7" cy="85.2" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="98.8" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">both</text>
+<rect x="500.8" y="32" width="14" height="10" fill="#8e44ad"/><text x="520.8" y="41" font-family="sans-serif" font-size="11">both</text>
 </svg>

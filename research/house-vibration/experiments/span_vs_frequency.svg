@@ -38,7 +38,7 @@
 <circle cx="512.0" cy="123.5" r="3" fill="#1f6fb2"/>
 <circle cx="568.0" cy="135.1" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="144.9" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">2x10 @16 in</text>
+<rect x="160" y="32" width="14" height="10" fill="#1f6fb2"/><text x="180" y="41" font-family="sans-serif" font-size="11">2x10 @16 in</text>
 <polyline points="64.0,118.1 120.0,118.1 176.0,118.1 232.0,118.1 288.0,118.1 344.0,118.1 400.0,118.1 456.0,130.3 512.0,143.1 568.0,153.5 624.0,162.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="118.1" r="3" fill="#2e8b57"/>
 <circle cx="120.0" cy="118.1" r="3" fill="#2e8b57"/>
@@ -51,7 +51,7 @@
 <circle cx="512.0" cy="143.1" r="3" fill="#2e8b57"/>
 <circle cx="568.0" cy="153.5" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="162.3" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">2x10 @24 in</text>
+<rect x="262.2" y="32" width="14" height="10" fill="#2e8b57"/><text x="282.2" y="41" font-family="sans-serif" font-size="11">2x10 @24 in</text>
 <polyline points="64.0,84.8 120.0,84.8 176.0,84.8 232.0,84.8 288.0,84.8 344.0,84.8 400.0,84.8 456.0,99.5 512.0,114.1 568.0,126.2 624.0,136.4" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="84.8" r="3" fill="#8e44ad"/>
 <circle cx="120.0" cy="84.8" r="3" fill="#8e44ad"/>
@@ -64,5 +64,5 @@
 <circle cx="512.0" cy="114.1" r="3" fill="#8e44ad"/>
 <circle cx="568.0" cy="126.2" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="136.4" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">2x12 @24 in</text>
+<rect x="364.4" y="32" width="14" height="10" fill="#8e44ad"/><text x="384.4" y="41" font-family="sans-serif" font-size="11">2x12 @24 in</text>
 </svg>

@@ -24,17 +24,17 @@
 <circle cx="144.0" cy="232.3" r="3" fill="#1f6fb2"/>
 <circle cx="304.0" cy="190.8" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="107.5" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">3-bit</text>
+<rect x="178.6" y="32" width="14" height="10" fill="#1f6fb2"/><text x="198.6" y="41" font-family="sans-serif" font-size="11">3-bit</text>
 <polyline points="64.0,247.1 144.0,225.0 304.0,184.8 624.0,102.1" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="247.1" r="3" fill="#2e8b57"/>
 <circle cx="144.0" cy="225.0" r="3" fill="#2e8b57"/>
 <circle cx="304.0" cy="184.8" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="102.1" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">4-bit</text>
+<rect x="243.6" y="32" width="14" height="10" fill="#2e8b57"/><text x="263.6" y="41" font-family="sans-serif" font-size="11">4-bit</text>
 <polyline points="64.0,216.4 144.0,194.1 304.0,154.7 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="216.4" r="3" fill="#8e44ad"/>
 <circle cx="144.0" cy="194.1" r="3" fill="#8e44ad"/>
 <circle cx="304.0" cy="154.7" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">8-bit</text>
+<rect x="308.6" y="32" width="14" height="10" fill="#8e44ad"/><text x="328.6" y="41" font-family="sans-serif" font-size="11">8-bit</text>
 </svg>

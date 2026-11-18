@@ -26,19 +26,19 @@
 <circle cx="344.0" cy="207.5" r="3" fill="#1f6fb2"/>
 <circle cx="204.0" cy="136.0" r="3" fill="#1f6fb2"/>
 <circle cx="64.0" cy="99.8" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">share along epipolar line</text>
+<rect x="178.6" y="32" width="14" height="10" fill="#1f6fb2"/><text x="198.6" y="41" font-family="sans-serif" font-size="11">share along epipolar line</text>
 <polyline points="624.0,294.4 484.0,260.3 344.0,237.4 204.0,244.3 64.0,254.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="624.0" cy="294.4" r="3" fill="#2e8b57"/>
 <circle cx="484.0" cy="260.3" r="3" fill="#2e8b57"/>
 <circle cx="344.0" cy="237.4" r="3" fill="#2e8b57"/>
 <circle cx="204.0" cy="244.3" r="3" fill="#2e8b57"/>
 <circle cx="64.0" cy="254.9" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">share near (10-40 px)</text>
+<rect x="367.6" y="32" width="14" height="10" fill="#2e8b57"/><text x="387.6" y="41" font-family="sans-serif" font-size="11">share near (10-40 px)</text>
 <polyline points="624.0,71.2 484.0,142.4 344.0,225.3 204.0,289.9 64.0,315.3" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="484.0" cy="142.4" r="3" fill="#8e44ad"/>
 <circle cx="344.0" cy="225.3" r="3" fill="#8e44ad"/>
 <circle cx="204.0" cy="289.9" r="3" fill="#8e44ad"/>
 <circle cx="64.0" cy="315.3" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">share far</text>
+<rect x="531.8" y="32" width="14" height="10" fill="#8e44ad"/><text x="551.8" y="41" font-family="sans-serif" font-size="11">share far</text>
 </svg>

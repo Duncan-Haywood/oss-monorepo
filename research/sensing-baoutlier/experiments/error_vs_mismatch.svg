@@ -26,19 +26,19 @@
 <circle cx="204.0" cy="262.1" r="3" fill="#1f6fb2"/>
 <circle cx="344.0" cy="218.1" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="143.8" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">Cauchy BA</text>
+<rect x="147.6" y="32" width="14" height="10" fill="#1f6fb2"/><text x="167.6" y="41" font-family="sans-serif" font-size="11">Cauchy BA</text>
 <polyline points="64.0,320.5 120.0,317.2 204.0,315.0 344.0,256.5 624.0,177.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="320.5" r="3" fill="#2e8b57"/>
 <circle cx="120.0" cy="317.2" r="3" fill="#2e8b57"/>
 <circle cx="204.0" cy="315.0" r="3" fill="#2e8b57"/>
 <circle cx="344.0" cy="256.5" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="177.8" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">RANSAC init only</text>
+<rect x="237.4" y="32" width="14" height="10" fill="#2e8b57"/><text x="257.4" y="41" font-family="sans-serif" font-size="11">RANSAC init only</text>
 <polyline points="64.0,323.6 120.0,317.9 204.0,312.7 344.0,239.2 624.0,180.8" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="323.6" r="3" fill="#8e44ad"/>
 <circle cx="120.0" cy="317.9" r="3" fill="#8e44ad"/>
 <circle cx="204.0" cy="312.7" r="3" fill="#8e44ad"/>
 <circle cx="344.0" cy="239.2" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="180.8" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">RANSAC init + Cauchy BA</text>
+<rect x="370.6" y="32" width="14" height="10" fill="#8e44ad"/><text x="390.6" y="41" font-family="sans-serif" font-size="11">RANSAC init + Cauchy BA</text>
 </svg>
