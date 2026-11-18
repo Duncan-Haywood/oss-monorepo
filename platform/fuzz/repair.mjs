@@ -23,7 +23,7 @@
 // CLI sweep over every venture that qualifies:  node platform/fuzz/repair.mjs [--n 1500] [--seed N] [slug ...]
 
 const TOKENS = ["\n", "\r\n", "\r", ",", ";", "\t", "\"", "\"\"", ":", "-", ".", "0", "9", " ", "  ", "/", "=", "é",
-  "﻿", "<", ">", "*", "~", "^", "BEGIN:VCARD", "END:VCARD", "BEGIN:VEVENT", "END:VEVENT"];
+  "\uFEFF", "<", ">", "*", "~", "^", "BEGIN:VCARD", "END:VCARD", "BEGIN:VEVENT", "END:VEVENT"];
 
 export function rng(seed = 1) {
   let s = seed >>> 0 || 1;
@@ -98,7 +98,7 @@ export function describe(failures) {
 }
 
 // CLI: sweep every venture whose calc.mjs exports repair() and a sample*().
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === (await import("node:url")).pathToFileURL(process.argv[1]).href) {
   const { readdirSync, readFileSync, existsSync } = await import("node:fs");
   const { join, dirname } = await import("node:path");
   const { fileURLToPath, pathToFileURL } = await import("node:url");

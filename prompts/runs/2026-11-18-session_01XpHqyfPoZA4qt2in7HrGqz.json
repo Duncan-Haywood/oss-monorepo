@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First CI run of changed-ventures failed on the new platform/fuzz/repair.mjs: a literal U+FEFF in the token list (check_hidden_unicode) and a file:// string entry guard (check_cli_entry). Both fixed in a follow-up commit; neither check runs in run_venture_tests, so the local pass missed them."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "prompts/explore/prompt-0.md",
       "issue": "The list of clean sweeps is long and all static HTML; nothing points runs at behavioural properties of venture logic (idempotence, no-throw), which is where this run found 15 defects."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "A local pass of the named venture suites does not run the unwired tree checks (hidden unicode, CLI entry guards) that the changed-ventures CI job runs, so a new platform/ file can pass locally and fail CI."
     }
   ],
   "deviations": [],
