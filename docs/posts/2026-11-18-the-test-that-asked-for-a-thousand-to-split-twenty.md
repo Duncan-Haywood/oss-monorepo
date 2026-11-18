@@ -3,7 +3,7 @@ title: "The test that capped each channel at 1,000 to split a budget of 20"
 seo_title: "Halving an ad-spend optimizer's test suite without changing an answer"
 date: 2026-11-18
 tags: [performance, ad-spend-saturation-optimizer, testing, optimisation]
-description: "Half of the ad-spend optimizer's test time was one test building 80,000 budget totals to read one. Lowering a cap that could never bind, plus two bit-identical fixes to the curve fits, took the suite from 10.5 s to 5.1 s."
+description: "One test built 80,000 budget totals to read one. A cap that could never bind, plus two bit-identical fit fixes, took the suite from 10.5 s to 5.1 s."
 ---
 
 The [ad-spend saturation optimizer](../../ventures/ad-spend-saturation-optimizer/README.md)
