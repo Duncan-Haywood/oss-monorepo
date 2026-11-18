@@ -43,6 +43,14 @@ import numpy as np
 SCALES = (0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25)
 
 
+def emit(row: dict) -> None:
+    """One JSON row in a single write: ``xargs -P`` children share stdout, and ``print`` writes the row and its
+    newline separately, which merged two rows into one line on 2026-11-18."""
+
+    sys.stdout.write(json.dumps(row) + "\n")
+    sys.stdout.flush()
+
+
 def seed_of(*parts) -> int:
     return int(hashlib.sha1(repr(parts).encode()).hexdigest()[:8], 16)
 
@@ -255,7 +263,7 @@ def sweep(argv) -> int:
             truth_full = _truth(path, args.cache)
             gains = gains_of(path)
         except Exception as exc:  # noqa: BLE001
-            print(json.dumps({"file": name, "skipped": f"{type(exc).__name__}: {exc}"}), flush=True)
+            emit({"file": name, "skipped": f"{type(exc).__name__}: {exc}"})
             continue
         for (ty, tx), truth in tiles(truth_full, args.tile, args.crops):
             clean = chk.mosaic(truth, pat)
@@ -273,9 +281,8 @@ def sweep(argv) -> int:
                     if args.features_only:
                         from shootflow.noise_pca import sigma18
 
-                        print(json.dumps({"file": name, "card": card_of(name, cards), "tile": [ty, tx], "snr": snr,
-                                          "scenario": sc, "true18": round(sigma18(tuple(model)), 6),
-                                          "feat": features(c, pat)}), flush=True)
+                        emit({"file": name, "card": card_of(name, cards), "tile": [ty, tx], "snr": snr,
+                              "scenario": sc, "true18": round(sigma18(tuple(model)), 6), "feat": features(c, pat)})
                         continue
                     b = chk.ours_bilinear(c, pat)
                     d = directional(c, pat)
@@ -288,13 +295,13 @@ def sweep(argv) -> int:
                     for arm, arr in arms.items():
                         s = chk.scores(arr, truth)
                         cps[arm], lps[arm] = s["cpsnr"], s["lpsnr"]
-                    print(json.dumps({
+                    emit({
                         "layout": "bayer" if args.bayer else "xtrans", "file": name,
                         "split": split_of(card_of(name, cards)), **({"card": card_of(name, cards)} if cards else {}),
                         "tile": [ty, tx], "snr": snr, "scenario": sc, "cpsnr": cps, "lpsnr": lps,
                         **({"feat": feat} if feat else {}),
                         "s": round(time.perf_counter() - t0, 2),
-                    }), flush=True)
+                    })
     return 0
 
 
