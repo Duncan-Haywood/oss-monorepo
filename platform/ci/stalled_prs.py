@@ -21,8 +21,18 @@ This prints those PRs, sorted into the buckets land-your-work.md uses:
   * **red** / **conflicted** / **no checks**: quiet 2+ h but needs work first
     (merge main in, fix forward, or verify locally when CI was starved:
     `ci_starvation.py`);
+  * **unfinished**: its own run record (`prompts/runs/*.json`) still has
+    `outcome: null`, so the session died mid-run: finish the work, or close;
   * **blocked**: its title or body names a blocker ("parked", "do not merge",
     "waiting on the owner", "[in progress]"): left open on purpose.
+
+The unfinished bucket came from the 2026-11-18 sweep
+(docs/reports/process-2026-11-18-stalled-pr-sweep.md): #16116 and #16245 were
+listed as orphan drafts to "mark ready, merge"; both were quality censuses whose
+sessions had died with 5 of 6 audits done and a record whose `outcome` and `pr`
+were null. Marked ready, both went red on `promptctl validate` and had to go
+back to draft. Merging one means doing the missing work and filling the
+record, which is a run's task, not a merge.
 
 PRs still moving (pushed under 2 h ago, or a draft under 24 h) and PRs that
 touch a CODEOWNERS path (owner_held_prs.py) are left out. Fork PRs are skipped:
@@ -39,6 +49,7 @@ GitHub cannot be read.
 from __future__ import annotations
 
 import argparse
+import base64
 import datetime as dt
 import json
 import re
@@ -58,11 +69,14 @@ BLOCKER = re.compile(
     r"|waiting (?:on|for) the owner|blocked (?:on|by)\b|needs the owner",
     re.I)
 
-ORDER = ["ready", "orphan draft", "red", "conflicted", "no checks", "pending", "blocked"]
+ORDER = ["ready", "orphan draft", "unfinished", "red", "conflicted", "no checks", "pending", "blocked"]
 WHAT = {
     "ready": ("read the diff (scope, disclaimer, usage tracking), then merge; "
               "a head quiet for days: merge main in first so CI runs on today's tree"),
     "orphan draft": "mark ready, merge main in, verify, merge; or close with a reason",
+    "unfinished": ("its session died mid-run (run record outcome null): finish what the "
+                   "record's track and the last commits name, fill the record, then land; "
+                   "marking it ready as-is fails promptctl validate"),
     "red": "classify with ci_starvation.py --run <id>; fix forward or close",
     "conflicted": "merge main in and resolve (a conflict is not a reason to close)",
     "no checks": "CI never ran on this head: verify locally or push a merge of main",
@@ -104,17 +118,39 @@ def classify(pr: dict, checks: str, head_time: dt.datetime, now: dt.datetime) ->
     return {"green": "ready", "red": "red", "pending": "pending", "none": "no checks"}[checks]
 
 
+RUN_RECORD = re.compile(r"^prompts/runs/[^/]+\.json$")
+
+
+def unfinished_record(files: list[dict], sha: str, record_of) -> str | None:
+    """The first run record this PR adds or changes whose `outcome` is still
+    null (its session never got to step 3), or None. A record that cannot be
+    read or parsed is skipped: the bucket it would have had stands."""
+    for f in files:
+        name = f.get("filename", "")
+        if not RUN_RECORD.match(name) or f.get("status") == "removed":
+            continue
+        try:
+            rec = record_of(name, sha)
+        except Exception:
+            continue
+        if isinstance(rec, dict) and rec.get("outcome") is None:
+            return name
+    return None
+
+
 def stalled(prs: list[dict], files_of, detail_of, checks_of, head_time_of, rules,
-            now: dt.datetime) -> list[dict]:
+            now: dt.datetime, record_of=None) -> list[dict]:
     """Rows for the same-repo open PRs that touch no owned path and are not
-    moving, in ORDER then oldest first."""
+    moving, in ORDER then oldest first. `record_of(path, sha)` returns a run
+    record's JSON at that commit; without it no PR is marked unfinished."""
     same = [pr for pr in prs if not ohp.is_fork(pr)]
     with ThreadPoolExecutor(max_workers=16) as pool:
         listed = list(pool.map(lambda pr: files_of(pr["number"]), same))
-    unowned = [pr for pr, files in zip(same, listed)
+    unowned = [(pr, files) for pr, files in zip(same, listed)
                if not any(cpg.owners_for(f["filename"], rules) for f in files)]
 
-    def one(pr):
+    def one(item):
+        pr, files = item
         sha = pr["head"]["sha"]
         head_time = head_time_of(sha)
         quiet_h = (now - head_time).total_seconds() / 3600
@@ -126,9 +162,15 @@ def stalled(prs: list[dict], files_of, detail_of, checks_of, head_time_of, rules
             bucket = classify(detail_of(pr["number"]), checks_state(checks_of(sha)), head_time, now)
         if bucket is None:
             return None
+        record = None
+        if bucket != "blocked" and record_of is not None:
+            record = unfinished_record(files, sha, record_of)
+            if record:
+                bucket = "unfinished"
         return {"number": pr["number"], "title": pr.get("title", ""), "bucket": bucket,
                 "draft": bool(pr.get("draft")), "created_at": pr.get("created_at", ""),
-                "quiet_hours": round(quiet_h, 1), "branch": pr["head"].get("ref", "")}
+                "quiet_hours": round(quiet_h, 1), "branch": pr["head"].get("ref", ""),
+                **({"record": record} if record else {})}
 
     with ThreadPoolExecutor(max_workers=16) as pool:
         rows = [r for r in pool.map(one, unowned) if r]
@@ -173,6 +215,8 @@ def main(argv: list[str] | None = None) -> int:
                 ohp.get(f"/repos/{repo}/commits/{sha}")["commit"]["committer"]["date"]),
             rules=rules,
             now=dt.datetime.now(dt.timezone.utc),
+            record_of=lambda path, sha: json.loads(base64.b64decode(
+                ohp.get(f"/repos/{repo}/contents/{path}?ref={sha}")["content"])),
         )
     except Exception as e:  # network, proxy, rate limit
         print(f"stalled_prs: could not read GitHub ({e}); list open PRs by hand", file=sys.stderr)

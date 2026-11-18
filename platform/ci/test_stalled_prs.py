@@ -28,7 +28,7 @@ GREEN = [{"status": "completed", "conclusion": "success"},
          {"status": "completed", "conclusion": "skipped"}]
 
 
-def run(prs, files=None, checks=None):
+def run(prs, files=None, checks=None, records=None):
     by_n = {p["number"]: p for p in prs}
     by_sha = {p["head"]["sha"]: p for p in prs}
     files = files or {}
@@ -39,7 +39,8 @@ def run(prs, files=None, checks=None):
         detail_of=lambda n: by_n[n],
         checks_of=lambda sha: checks.get(sha, GREEN),
         head_time_of=lambda sha: NOW - dt.timedelta(hours=by_sha[sha]["_quiet"]),
-        rules=RULES, now=NOW)
+        rules=RULES, now=NOW,
+        record_of=None if records is None else lambda path, sha: records[(path, sha)])
 
 
 class ChecksState(unittest.TestCase):
@@ -87,6 +88,39 @@ class Buckets(unittest.TestCase):
         self.assertIsNone(self.bucket(rows, 1), "touches an owned path: owner_held_prs.py lists it")
         self.assertEqual(self.bucket(rows, 2), "ready", "prompts/runs/ is unowned")
         self.assertIsNone(self.bucket(rows, 3), "fork PRs are never merged here")
+
+    def test_dead_session_draft_is_unfinished_not_orphan(self):
+        # 2026-11-18: #16116/#16245 were listed "mark ready, merge"; their records
+        # had outcome null and marking them ready failed promptctl validate.
+        rec = "prompts/runs/2026-11-15-session_x.json"
+        files = {1: ["ventures/x/a.mjs", rec], 2: ["ventures/x/a.mjs", rec],
+                 3: ["ventures/x/a.mjs", rec], 4: [rec]}
+        records = {(rec, "s1"): {"outcome": None, "pr": None},
+                   (rec, "s2"): {"outcome": "partial"},
+                   (rec, "s4"): {"outcome": None}}
+        rows = run([pr(1, 30, draft=True), pr(2, 30, draft=True), pr(3, 30, draft=True),
+                    pr(4, 5)], files=files, records=records)
+        self.assertEqual(self.bucket(rows, 1), "unfinished")
+        self.assertEqual(next(r for r in rows if r["number"] == 1)["record"], rec)
+        self.assertEqual(self.bucket(rows, 2), "orphan draft", "a filled record is a finished run")
+        self.assertEqual(self.bucket(rows, 3), "orphan draft", "an unreadable record changes nothing")
+        self.assertEqual(self.bucket(rows, 4), "unfinished", "non-drafts too: CI would be red")
+        self.assertIn("## unfinished (2)", sp.render(rows))
+
+    def test_unfinished_needs_a_record_and_a_reader(self):
+        rec = "prompts/runs/r.json"
+        self.assertEqual(self.bucket(run([pr(1, 30, draft=True)], files={1: [rec]}), 1),
+                         "orphan draft", "no record_of: the old buckets stand")
+        rows = run([pr(1, 30, draft=True), pr(2, 50, title="parked: x")],
+                   files={1: ["prompts/runs/sub/r.json"], 2: [rec]},
+                   records={(rec, "s2"): {"outcome": None}})
+        self.assertEqual(self.bucket(rows, 1), "orphan draft", "only top-level records count")
+        self.assertEqual(self.bucket(rows, 2), "blocked", "a named blocker still wins")
+
+    def test_removed_record_is_ignored(self):
+        self.assertIsNone(sp.unfinished_record(
+            [{"filename": "prompts/runs/r.json", "status": "removed"}], "s",
+            lambda p, s: {"outcome": None}))
 
     def test_order_ready_first_then_oldest(self):
         rows = run([pr(3, 30, draft=True), pr(2, 5), pr(1, 5)])
