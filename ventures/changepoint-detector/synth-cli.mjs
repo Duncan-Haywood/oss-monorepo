@@ -3,7 +3,7 @@
 // README "A floored ratio"), and with `--covariates file.csv` the covariate balance of that fit with the placebo
 // warning (README "Covariate balance" and "Which imbalance biases the gap"). The balance table changes no p.
 import { parseColumns } from './multivariate.mjs';
-import { synthControlTest, synthLeadRange, covariateBalance } from './synth-control.mjs';
+import { synthControlTest, synthLeadRange, covariateBalance, gapStraight } from './synth-control.mjs';
 import { splitLine, numCell } from './engine.mjs';
 import { LEAD_RANGE_NOTE, fewDonorsNote, aboveNote } from './synth-view.mjs';
 
@@ -118,7 +118,9 @@ export function placebosAbove(r, shapeWord = 'plain') {
     .map((q) => ({ name: q.name, statistic: val(q), preRmspe: q.preRmspe, postRmspe: q.postRmspe, weight: r.donorWeights?.[q.name] ?? 0, gapShape: wordOf(q, shapeWord),
       // under --shape-word panel each listed unit also carries its plain word (README "The panel word scored where it
       // switches on": the panel word called a donor's own big slope 'held' 90% of the time, the plain word 'grew' 92%)
-      ...(shapeWord === 'panel' ? { plainShape: wordOf(q, 'plain') } : {}) }));
+      // and its gap's bend and whether it grew along a straight line (README "A curvature word": a donor's own slope was
+      // read straight 73% of the time on compounding panels, units with no event 37%)
+      ...(shapeWord === 'panel' ? { plainShape: wordOf(q, 'plain'), bend: q.gapShape?.bend ?? null, straight: gapStraight(q.gapShape) } : {}) }));
 }
 
 const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3);

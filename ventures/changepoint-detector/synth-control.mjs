@@ -222,6 +222,15 @@ export function gapBend(after) {
   if (!(Math.abs(rise) > 1e-12 * (Math.abs(a) + Math.abs(c)))) return null;
   return (b - (a + c) / 2) / rise;
 }
+// 'straight' (README "A curvature word"): the plain word is 'grew' and the bend lies in STRAIGHT_BAND, a gap that grew
+// along a straight line from the date, the shape of a slope of the unit's own, rather than bending like a compounding
+// panel's gaps (each a smooth random path that bends either way). The band was read off an exploratory run
+// (eval/synth-shape-curve-explore.out.txt) and frozen in eval/synth-shape-curve-prereg-2026-11-18.md; all six bars held
+// on the confirmatory run. A pointer for the "ranked above" note under --shape-word panel; it changes no p.
+export const STRAIGHT_BAND = [-0.15, 0.1];
+export function gapStraight(shape) {
+  return !!shape && shape.shape === 'grew' && shape.bend != null && shape.bend >= STRAIGHT_BAND[0] && shape.bend <= STRAIGHT_BAND[1];
+}
 
 // The same word read against the panel's own trend (README "The shape word against the panel's own trend"). On series
 // whose gaps spread with time (GDP that compounds, a growth rate that wanders), most units' gaps grow whatever
