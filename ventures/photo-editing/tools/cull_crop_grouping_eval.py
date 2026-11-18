@@ -13,8 +13,9 @@ even index are the tune half (where the constants in ``cull.py`` were picked),
 odd ones the held-out half.
 
 It reports, per half, burst-pair recall and false merges for the whole-frame
-rule alone (distance <= NEAR_DUPLICATE_MAX_DISTANCE) and for the shipped rule
-(that, or ``crop_match``), then recall by variant kind. Single linkage can
+rule alone (distance <= NEAR_DUPLICATE_MAX_DISTANCE), with the equal-size crop
+windows (2026-11-17, ``crop_match``) and for the shipped rule (``burst_match``:
+those, or the zoom windows of 2026-11-18), then recall by variant kind. Single linkage can
 chain merges in a real shoot; this scores pairs only. The pans and zooms are
 cut from one exposure, so subject motion, parallax and lens changes between
 real burst frames are not in it.
@@ -29,11 +30,12 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from shootflow.cull import NEAR_DUPLICATE_MAX_DISTANCE, crop_match
-from shootflow.frame_analysis import FRAME_HEIGHT, FRAME_WIDTH, crop_dhashes, dhash_hex
+from shootflow.cull import NEAR_DUPLICATE_MAX_DISTANCE, burst_match, crop_match
+from shootflow.frame_analysis import FRAME_HEIGHT, FRAME_WIDTH, crop_dhashes, dhash_hex, zoom_dhashes, zoom_index
 
 PANS = (0.02, 0.04, 0.06, 0.08, 0.10)
-ZOOMS = (0.03, 0.04, 0.06, 0.08, 0.10)
+# 0.05, 0.07 and 0.09 added 2026-11-18 after the zoom windows (sizes 0.96-0.90) were picked on the other sizes.
+ZOOMS = (0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10)
 
 
 def variants() -> list[tuple[str, float, float, float, float]]:
@@ -50,6 +52,9 @@ def variants() -> list[tuple[str, float, float, float, float]]:
     for z in ZOOMS:
         w = 1 - z
         out += [(f"zoomC{z}", w, z / 2, z / 2, 0), (f"zoomBR{z}", w, z, z, 0), (f"zoomTL{z}", w, 0, 0, 0)]
+        # Off-grid crops (added 2026-11-18, after the zoom windows' 0 / half / whole offsets were chosen):
+        # the kept part sits a quarter of the way in on one axis and three quarters on the other.
+        out += [(f"zoomQ{z}", w, z / 4, 3 * z / 4, 0), (f"zoomP{z}", w, 3 * z / 4, z / 4, 0)]
     return out + [("dark", 1, 0, 0, -0.15), ("bright", 1, 0, 0, 0.12)]
 
 
@@ -61,6 +66,7 @@ def pairs() -> list[tuple[str, str, str]]:
         out += [("pan-h", f"panL{s}", f"panR{s}"), ("pan-v", f"panU{s}", f"panD{s}"), ("pan-diag", f"panTL{s}", f"panBR{s}")]
     for z in ZOOMS:
         out += [(f"zoom-{where}", "full", f"zoom{where}{z}") for where in ("C", "BR", "TL")]
+        out += [("zoom-off", "full", f"zoom{where}{z}") for where in ("Q", "P")]
     return out + [("brightness", "full", "dark"), ("brightness", "full", "bright")]
 
 
@@ -110,12 +116,21 @@ def main() -> int:
     for ident in ids:
         for name, *_ in variants():
             frame = (args.work / "frames" / f"{ident}_{name}.gray").read_bytes()
-            hashes[(ident, name)] = (int(dhash_hex(frame), 16), tuple(int(h, 16) for h in crop_dhashes(frame)))
+            hashes[(ident, name)] = (
+                int(dhash_hex(frame), 16),
+                tuple(int(h, 16) for h in crop_dhashes(frame)),
+                zoom_index(tuple(int(h, 16) for h in zoom_dhashes(frame))),
+            )
 
-    def judge(a: tuple[int, tuple[int, ...]], b: tuple[int, tuple[int, ...]]) -> tuple[int, bool, bool]:
+    Hashes = tuple[int, tuple[int, ...], tuple]
+
+    def judge(a: Hashes, b: Hashes) -> tuple[int, bool, bool, bool]:
+        """Distance; whole frame only; with crop windows (2026-11-17); shipped (crop and zoom windows)."""
+
         distance = (a[0] ^ b[0]).bit_count()
         old = distance <= NEAR_DUPLICATE_MAX_DISTANCE
-        return distance, old, old or crop_match(distance, a[1], b[1])
+        crops = old or crop_match(distance, a[1], b[1])
+        return distance, old, crops, burst_match(distance, a[0], a[1], a[2], b[0], b[1], b[2])
 
     def half(ident: str) -> str:
         return "tune" if int(ident) % 2 == 0 else "held"
@@ -134,16 +149,18 @@ def main() -> int:
         neg = [r for r in rows["neg"] if r[0] == name]
         print(f"{name}: {len(pos)} burst pairs, {len(neg)} distinct-photo pairs")
         print(f"  whole frame only: recall {sum(r[4] for r in pos) / len(pos):.3f}, false merges {sum(r[4] for r in neg)}")
-        print(f"  shipped rule:     recall {sum(r[5] for r in pos) / len(pos):.3f}, false merges {sum(r[5] for r in neg)}")
-        by = collections.defaultdict(lambda: [0, 0, 0])
+        print(f"  crop windows:     recall {sum(r[5] for r in pos) / len(pos):.3f}, false merges {sum(r[5] for r in neg)}")
+        print(f"  shipped rule:     recall {sum(r[6] for r in pos) / len(pos):.3f}, false merges {sum(r[6] for r in neg)}")
+        by = collections.defaultdict(lambda: [0, 0, 0, 0])
         for r in pos:
-            size = r[2].lstrip("panLRUDTBzomC") or r[2]
+            size = r[2].lstrip("panLRUDTBzomCQP") or r[2]
             key = (r[1], size)
             by[key][0] += 1
             by[key][1] += r[4]
             by[key][2] += r[5]
-        for (kind, size), (n, old, new) in sorted(by.items()):
-            print(f"    {kind:10s} {size:6s} n={n:3d}  {old / n:.2f} -> {new / n:.2f}")
+            by[key][3] += r[6]
+        for (kind, size), (n, old, crops, new) in sorted(by.items()):
+            print(f"    {kind:10s} {size:6s} n={n:3d}  {old / n:.2f} -> {crops / n:.2f} -> {new / n:.2f}")
     if args.json:
         args.json.write_text(json.dumps(rows))
     return 0

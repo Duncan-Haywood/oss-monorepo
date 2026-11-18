@@ -312,8 +312,9 @@ flagships:
       maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
       synthetic files so far, or the SDK to check them; lateral colour measured on a
       real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; a real tiled CR3 (C-RAW tiles 2026-11-16, eval/canon-cr3-*tiled-*).
-      More open items: NEXT.md.
+      chooser; a real tiled CR3 (C-RAW tiles 2026-11-16, eval/canon-cr3-*tiled-*);
+      cull: zoom windows 2026-11-18 (eval/cull-zoom-windows-*), next pans of 8-10%
+      and a real shoot's picks. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
