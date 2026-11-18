@@ -39,3 +39,54 @@ the six jitters (0.50, 0.48, 0.56, 0.54, 0.45, 0.43). DECISION RULE: if (b) fail
 `tennisbots tach-jitter`'s clean reference names the finer floor; TACH_CAPTURE itself stays off (never run on a board).
 If (a) fails with (b) holding, the README reports no measured gain and TACH_CAPTURE_SUB stays 8 only for the finer
 jitter reading.
+
+## held out: --capture --tach-capture --sub 8 --lag 0.45 --seed 11, then --score (run after the pre-registration was committed, 202d274ec; 72 drills)
+72 survey drills (wheel lag 0.45 s, seed 11), the board's window of 8; each build's pick (refined, to 0.5 ms), best / step share and the advice (advised when the share is at most 0.6)
+  instant       | 0 us: 0/1.00 3.5/0.57* 0/1.00 | 0.5 us: 0/1.00 1/0.86 0/1.00 | 1 us: 0/1.00 1/1.00 0/1.00 | 1.5 us: 0/1.00 0/1.00 0/1.00 | 2 us: 0/1.00 0/1.00 0/1.00 | 3 us: 0/1.00 0/1.00 0/1.00
+  halfsine 3 ms | 0 us: 0/1.00 3.5/0.89 5.5/0.83 | 0.5 us: 3.5/1.00 5.5/0.83 1.5/0.75 | 1 us: 0/1.00 1/1.00 5.5/0.83 | 1.5 us: 3.5/0.88 0/1.00 1.5/0.83 | 2 us: 3.5/1.00 0/1.00 3/0.71 | 3 us: 0/1.00 0/1.00 4.5/0.56*
+  halfsine 6 ms | 0 us: 4.5/0.83 1/0.80 0/1.00 | 0.5 us: 0/1.00 1/0.80 8/0.71 | 1 us: 6.5/1.00 1/0.83 2.5/0.86 | 1.5 us: 6.5/0.86 0/1.00 3/0.83 | 2 us: 6.5/0.75 0/1.00 4/1.00 | 3 us: 4/0.75 5/1.00 4/0.75
+  front 4 ms    | 0 us: 4/0.30* 5/0.12* 3.5/0.31* | 0.5 us: 0/1.00 6/0.44* 3.5/0.39* | 1 us: 4/0.26* 5/0.16* 3.5/0.39* | 1.5 us: 4/0.26* 0/1.00 3.5/0.47* | 2 us: 4/0.56* 5/0.14* 3.5/0.38* | 3 us: 4/0.56* 5/0.13* 0/1.00
+  (pick ms / share per launcher 0, 1, 2; * = advised)
+
+Per jitter: spread takes named within 1 ms and advised (of 9); instant builds advised (of 3, a wrong re-flash); picks within 1 ms (of 12); mean best / step share on the spread takes
+    0 us: named and advised 3, instant advised 1, within 1 ms 6 of 12, mean share 0.68
+  0.5 us: named and advised 1, instant advised 0, within 1 ms 5 of 12, mean share 0.77
+    1 us: named and advised 3, instant advised 0, within 1 ms 7 of 12, mean share 0.70
+  1.5 us: named and advised 2, instant advised 0, within 1 ms 7 of 12, mean share 0.79
+    2 us: named and advised 3, instant advised 0, within 1 ms 9 of 12, mean share 0.73
+    3 us: named and advised 2, instant advised 0, within 1 ms 6 of 12, mean share 0.75
+
+Control, the same held-out builds rerun with --sub 1 through this branch's code: 7, 7, 6, 7, 8, 8 named and advised,
+mean share 0.50, 0.48, 0.56, 0.54, 0.45, 0.43, identical to eval/take-survey-capture-2026-11-18.txt (the default path is
+unchanged).
+
+Result: (a) FAILED, 14 of 54 named and advised (3, 1, 3, 2, 3, 2) against 43; (b) FAILED, launcher 1's instant build
+advised at 0 us (picked 3.5 ms, share 0.57); (c) FAILED, mean share 0.68-0.79, higher than whole microseconds' at all
+six. By the decision rule config.TACH_CAPTURE_SUB goes back to 1. The sub option stays in controller.py, main.py and
+tach_log.py (default 1, bit-identical): a 1/8 us capture log reads the edge jitter without the floor's 0.29 us.
+
+What the board's rms rows show (ppm of the pre-ball speed, candidates 0, 2, 3, 4, 5, 6, 8 ms; jitter 0; whole us then 1/8 us):
+  halfsine 6 ms, launcher 0  [130, 130, 121, 99, 70, 47, 80]   [6, 7, 7, 5, 5, 6, 8]
+  halfsine 6 ms, launcher 1  [118, 118, 118, 91, 65, 41, 72]   [5, 4, 7, 8, 7, 6, 8]
+  halfsine 6 ms, launcher 2  [82, 81, 81, 73, 53, 33, 66]      [4, 7, 9, 8, 6, 8, 7]
+  halfsine 3 ms, launcher 0  [43, 41, 33, 38, 70, 112, 215]    [6, 7, 9, 7, 30, 67, 146]
+  front 4 ms, launcher 1     [121, 117, 85, 46, 40, 89, 225]   [50, 50, 49, 25, 6, 28, 111]
+With exact periods the 6 ms takes fit every candidate from 0 to 8 ms to within 5-9 ppm: the fit's free terms absorb the
+take's shape, and nothing is left to tell candidates apart. With whole microseconds the same wheels' rows fall steeply
+to the right answer. The floor's error is 0.29 us per edge, about 30-50 ppm of a 6-9 ms period, the size of the
+separation it shows, so the floored periods are not just noisier: something in the fit's path reads them differently.
+Window traced, and not the cause (tests/take_survey_sub_anchor.py, the held-out half-sine 6 ms build on launcher 0,
+22 take-survey wheels each way): controller._anchor picks the same slowest revolution at sub 1 and sub 8 on 21 of 22
+wheels, so the fit's window does not move. What differs is each wheel's row (sqrt of the board's squared rms, 1e-6 of
+the speed, candidates 0, 2, 3, 4, 5, 6, 8 ms):
+  wheel 1  sub 1 [4849, 4849, 4856, 4849, 4849, 4849, 4870]   sub 8 [1357, 3306, 2602, 1357, 1357, 1357, 3398]
+  wheel 3  sub 1 [3548, 3548, 3548, 4275, 3548, 4040, 4584]   sub 8 [1949, 1949, 3138, 1949, 2615, 1949, 1949]
+  wheel 6  sub 1 [4935, 4935, 5374, 4935, 4935, 4935, 5521]   sub 8 [2297, 2867, 1943, 3378, 1943, 2777, 2476]
+At both units several candidates reach the identical residual to four digits (a 0 ms and a 6 ms take fitting the same
+wheel equally), and the others jump above it by amounts that do not follow the candidate: the take appears not to enter
+those fits at all, and the jumps look like the tau search's other basins (tests/take_misfit_trace.py's "cliffs"). At
+whole microseconds the floor lifts every candidate to a common level and the jumps are small beside it; at 1/8 us the
+level falls 2-4 times and the jumps dominate. So the survey's verdict at sub 1 is the trimmed sum of small, mostly
+take-blind rows, and this run cannot say how much of its 43 of 54 the take itself earned. Next: why the residual is
+identical across candidates (whether drop_from_commands_steps' t0 lands where take_offsets' parts all fall in one
+revolution, or the take columns drop out of the solve), traced on these 22 wheels.
