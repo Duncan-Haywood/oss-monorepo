@@ -931,3 +931,28 @@ test("the waiver guide's worked example matches waiverStatus() and is linked and
   assert.match(page("sitemap.xml"), /how-to-collect-player-waivers-for-a-rec-league\.html/);
   assert.match(page("index.html"), /href="\.\/how-to-collect-player-waivers-for-a-rec-league\.html"/);
 });
+
+test("the sportsmanship guide's worked table matches spiritTable() and is linked and in the sitemap", async () => {
+  const { recordSpirit, spiritTable } = await import("./spirit.mjs");
+  const name = "how-to-run-sportsmanship-ratings-in-a-rec-league.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, new RegExp(`<link rel="canonical" href="\\./${name.replace(/\./g, "\\.")}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const sched = { teams: ["Hawks", "Owls", "Wrens", "Kites"], rounds: [
+    { day: 20400, matches: [{ fixture: "0-1-0", home: 0, away: 1 }, { fixture: "2-3-0", home: 2, away: 3 }] },
+    { day: 20407, matches: [{ fixture: "0-2-0", home: 0, away: 2 }, { fixture: "3-1-0", home: 3, away: 1 }] }] };
+  const sp = {};
+  for (const [f, side, scores] of [["0-1-0", "home", [2, 2, 3, 2, 2]], ["0-1-0", "away", [2, 1, 2, 1, 2]], ["2-3-0", "home", [3, 2, 2, 3, 3]], ["2-3-0", "away", [2, 2, 2, 2, 2]],
+    ["0-2-0", "home", [2, 2, 2, 2, 3]], ["0-2-0", "away", [1, 0, 1, 1, 2]], ["3-1-0", "home", [2, 3, 2, 2, 2]], ["3-1-0", "away", [1, 1, 1, 2, 1]]]) recordSpirit(sp, { fixture: f, side, scores, comment: "" }, "categories", 0);
+  const n = (x) => (Number.isInteger(x) ? String(x) : x.toFixed(2));
+  const rows = spiritTable(sp, sched, "categories");
+  assert.deepEqual(rows.map((r) => r.name), ["Owls", "Wrens", "Kites", "Hawks"]);
+  for (const r of rows) {
+    const tr = `<tr><td>${r.name}</td><td>${r.received}</td><td>${n(r.avg)}</td>${r.cats.map((c) => `<td>${n(c)}</td>`).join("")}<td>${r.low}</td><td>${n(r.avgGiven)}</td></tr>`;
+    assert.ok(html.includes(tr), tr);
+  }
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(/\./g, "\\.")));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(/\./g, "\\.")}"`));
+});

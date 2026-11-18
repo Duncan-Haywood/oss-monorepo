@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Run Sportsmanship Ratings In A Rec League, Free</title>
+  <meta name="description" content="Run spirit or sportsmanship ratings in a rec league: captains rate opponents after each game, you see averages, low ratings and who has not rated.">
+  <meta property="og:title" content="How To Run Sportsmanship Ratings In A Rec League, Free">
+  <meta property="og:description" content="Captains rate the other team after each game from their own link; the organiser sees averages, hard markers and low ratings. Self-hosted and free.">
+  <link rel="canonical" href="./how-to-run-sportsmanship-ratings-in-a-rec-league.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a spirit score in a rec league?", "acceptedAnswer": {"@type": "Answer", "text": "After each game, each team's captain rates the other team's sportsmanship. In ultimate the usual sheet has five categories (rules knowledge and use, fouls and body contact, fair-mindedness, positive attitude and self-control, communication) scored 0 to 4, where 2 is a normal good game, so a total of 10 is ordinary. Many kickball, soccer and social leagues use one score from 1 to 5 instead."}}, {"@type": "Question", "name": "Can teams see the comments other teams write about them?", "acceptedAnswer": {"@type": "Answer", "text": "No. Comments go to the organiser only. Players see nothing unless the organiser ticks Show the sportsmanship table, and then they see each team's number of games rated and its average, never the individual ratings or comments."}}, {"@type": "Question", "name": "How do I spot a team that marks everyone low?", "acceptedAnswer": {"@type": "Answer", "text": "The organiser table lists, next to each team's average received, how many ratings it gave and the average it gives. A team whose average given sits well below everyone else's may be marking hard rather than meeting poor sports, and its low ratings are worth reading with that in mind."}}, {"@type": "Question", "name": "Does this decide a spirit award for me?", "acceptedAnswer": {"@type": "Answer", "text": "It ranks teams by the average their opponents gave them. Whether that names your spirit award, and what minimum number of rated games counts, is your league's rule. Ties and close calls are yours to settle."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to run sportsmanship ratings in a rec league</h1>
+  <p>Ultimate leagues have long asked each captain to score the other team's spirit after every game, and plenty of kickball, soccer and social leagues run a sportsmanship award the same way. The scoring is the easy part. The work is collecting a sheet from every captain every week, typing it into a spreadsheet, and noticing the one rating that says something went wrong on the field.</p>
+  <p>The free, self-hosted league page now collects the ratings for you. Each captain rates the other team from the captain link they already use to report scores. You see each team's average, the categories behind it, the low ratings with their comments, and which captains have not rated yet.</p>
+  <p><a class="cta" href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#run-your-own-league-page-self-hosted" rel="noopener">Run your own league page</a> (MIT licensed, one small Node server, your own disk)</p>
+  <h2>How it works</h2>
+  <ol>
+    <li><strong>Pick a scale.</strong> In the organiser page, under Sportsmanship ratings, choose five categories scored 0 to 4 (the shape of the spirit sheet ultimate uses; 2 in every category, a total of 10, is a normal good game) or one score from 1 to 5. It is off until you choose.</li>
+    <li><strong>Captains rate the other team.</strong> On their captain link, each of their games from the last three weeks has a rating form that starts at a normal game. They move a category up for a standout and down for a problem, add a comment if they want, and send. They can change it while the game is in the three-week window.</li>
+    <li><strong>Read the organiser table.</strong> Each team's games rated, its average, the average per category, how many low ratings it got, how many it gave and the average it gives.</li>
+    <li><strong>Read the low ones.</strong> A rating with a 0 in any category or a total of 6 or less (2 or less on the 1-to-5 scale) is listed with its comment, newest first.</li>
+    <li><strong>Chase the missing.</strong> Teams that played in the last three weeks and have not rated are listed by game. Download every rating as a CSV for the season record.</li>
+    <li><strong>Publish if you want.</strong> Tick Show and the league page gets a sportsmanship table with each team's games rated and average. Comments are never shown to players.</li>
+  </ol>
+  <h2>A worked example: four teams, two weeks</h2>
+  <p>Hawks, Owls, Wrens and Kites play two weeks on the five-category scale. In week two, the Wrens rate the Hawks 1, 0, 1, 1, 2 (a total of 5) with a note about shoving, and the Owls rate the Kites 1, 1, 1, 2, 1 (a total of 6). Everything else is close to a normal game. The organiser table:</p>
+  <table>
+    <thead><tr><th>Team</th><th>Rated</th><th>Average</th><th>Rules</th><th>Fouls</th><th>Fair</th><th>Attitude</th><th>Comms</th><th>Low</th><th>Average given</th></tr></thead>
+    <tbody>
+      <tr><td>Owls</td><td>2</td><td>11</td><td>2</td><td>2.50</td><td>2.50</td><td>2</td><td>2</td><td>0</td><td>7</td></tr>
+      <tr><td>Wrens</td><td>2</td><td>10.50</td><td>2</td><td>2</td><td>2</td><td>2</td><td>2.50</td><td>0</td><td>9</td></tr>
+      <tr><td>Kites</td><td>2</td><td>9.50</td><td>2</td><td>1.50</td><td>1.50</td><td>2.50</td><td>2</td><td>1</td><td>10.50</td></tr>
+      <tr><td>Hawks</td><td>2</td><td>6.50</td><td>1.50</td><td>0.50</td><td>1.50</td><td>1</td><td>2</td><td>1</td><td>11</td></tr>
+    </tbody>
+  </table>
+  <p>Two things stand out. The Hawks' 6.50 comes from one bad night, and the 0.50 under fouls and body contact says what kind. The Owls top the table yet give the lowest average of anyone, 7: their 6 for the Kites may say more about how the Owls mark than about the Kites, so read that rating's comment before acting on it. A test recomputes this table from the same code the server runs.</p>
+  <h2>What it does not do</h2>
+  <p>It does not hold a spirit timeout, run a captains' conversation, or decide a dispute or an award: it records what each captain said and adds it up. Anyone holding a team's captain link can rate for that team, the same trust as reporting a score. The category names follow the general shape of the ultimate spirit sheet; the official sheet's guidance text is not reproduced here, so point captains to your governing body's version if you follow it formally.</p>
+  <h2>Questions</h2>
+  <h3>What is a spirit score in a rec league?</h3>
+  <p>After each game, each team's captain rates the other team's sportsmanship. In ultimate the usual sheet has five categories (rules knowledge and use, fouls and body contact, fair-mindedness, positive attitude and self-control, communication) scored 0 to 4, where 2 is a normal good game, so a total of 10 is ordinary. Many kickball, soccer and social leagues use one score from 1 to 5 instead.</p>
+  <h3>Can teams see the comments other teams write about them?</h3>
+  <p>No. Comments go to the organiser only. Players see nothing unless the organiser ticks Show the sportsmanship table, and then they see each team's number of games rated and its average, never the individual ratings or comments.</p>
+  <h3>How do I spot a team that marks everyone low?</h3>
+  <p>The organiser table lists, next to each team's average received, how many ratings it gave and the average it gives. A team whose average given sits well below everyone else's may be marking hard rather than meeting poor sports, and its low ratings are worth reading with that in mind.</p>
+  <h3>Does this decide a spirit award for me?</h3>
+  <p>It ranks teams by the average their opponents gave them. Whether that names your spirit award, and what minimum number of rated games counts, is your league's rule. Ties and close calls are yours to settle.</p>
+  <p>Related: <a href="./how-to-collect-player-waivers-for-a-rec-league.html">how to collect player waivers</a> and <a href="./how-to-break-ties-in-league-standings.html">how to break ties in league standings</a>.</p>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. An organising aid: how ratings are used, and any award or sanction, are your league's decisions. Not affiliated with WFDF, USA Ultimate or any governing body. The example teams and ratings are invented.</p>
+    <p>The schedule tool runs in your browser. Ratings live on the league page you host yourself, in one state file on your own server; nothing is sent to us. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

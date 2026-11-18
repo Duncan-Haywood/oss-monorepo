@@ -18,6 +18,8 @@
 // Team sign-ups (registration.mjs): /register is public while the organiser has sign-ups open in /admin.
 // Waivers (waivers.mjs): the organiser's own text, versioned by its hash; players sign at /league/waiver,
 // captains on the sign-up form, and /admin shows who on each roster has not signed.
+// Sportsmanship ratings (spirit.mjs): off by default; each captain rates the other team after a game from
+// their captain link, the organiser sees averages, low ratings with comments and who has not rated.
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
@@ -30,6 +32,7 @@ import { scheduleChanges, changeEmails, changeSummary } from "./changes.mjs";
 import { captainKey, captainTeam, reportableGames, parseReport, recordReport, reportLine, settle, openReports, adminReportsHtml, captainLinksHtml, captainHtml, captainLinkEmail } from "./confirm.mjs";
 import { movableGames, tryMove, parseMoveRequest, recordMove, pruneMoves, openMoves, adminMovesHtml, captainMovesHtml, moveAskedEmail } from "./reschedule.mjs";
 import { parseNotice, addNotice, removeNotice, noticesHtml, adminNoticesHtml, noticeEmails } from "./announcements.mjs";
+import { spiritSettings, parseSpirit, recordSpirit, pruneSpirit, spiritTable, captainSpiritHtml, leagueSpiritHtml, adminSpiritHtml, spiritCsv, SPIRIT_MODES } from "./spirit.mjs";
 import { cleanWaiverText, currentVersion, rememberVersion, parseSignature, parseWaiverForm, recordSignature, removeSignature, waiverFormHtml, registerWaiverHtml, waiverLinkHtml, adminWaiversHtml, waiversCsv, versionText } from "./waivers.mjs";
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
@@ -41,7 +44,7 @@ const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(Strin
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
-export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, moves: {}, availability: {}, subs: {}, remindersSent: {}, notices: [], noticeSeq: 0, registrations: [], approvedSignups: [], regSeq: 0, waivers: [], waiverVersions: {}, waiverSeq: 0 }; }
+export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, moves: {}, availability: {}, subs: {}, remindersSent: {}, notices: [], noticeSeq: 0, registrations: [], approvedSignups: [], regSeq: 0, waivers: [], waiverVersions: {}, waiverSeq: 0, spirit: {} }; }
 
 const MAX_PENDING = 100;
 /** A score a team captain sends from the league page, as a pending request: team indexes and goals, nothing free-form. */
@@ -117,7 +120,9 @@ function leaguePage(state, token, base = null, today = dayNumber(Date.now()), ca
   const cap = captain ? captainHtml(state.reports || {}, reportableGames(out.schedule, today), captain.team, out.schedule.teams, { token, cap: captain.key }) + captainMovesHtml(state.moves || {}, movableGames(out.schedule, today), captain.team, { token, cap: captain.key }) : "";
   const news = noticesHtml(state.notices, today, captain ? out.schedule.teams[captain.team] : null);
   const waiver = waiverLinkHtml(state, token, captain ? { team: out.schedule.teams[captain.team], rosters } : {});
-  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("</h1>", `</h1>${news}`).replace("<footer>", `${cap}${waiver}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
+  const sp = spiritSettings(state.fields);
+  const spirit = (captain && sp.mode ? captainSpiritHtml(state.spirit || {}, reportableGames(out.schedule, today), captain.team, sp.mode, { token, cap: captain.key }) : "") + (sp.show ? leagueSpiritHtml(spiritTable(state.spirit || {}, out.schedule, sp.mode), sp.mode) : "");
+  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("</h1>", `</h1>${news}`).replace("<footer>", `${cap}${spirit}${waiver}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
 }
 
 function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = process.env, base = null) {
@@ -139,6 +144,9 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const rs = regSettings(f), signups = adminRegistrationsHtml(state, key);
   const notices = adminNoticesHtml(state, key, names, today, { canEmail: !!(smtp && !smtp.error) });
   const waivers = adminWaiversHtml(state, key, rp.rosters, names);
+  const sp = spiritSettings(f);
+  const spiritAdmin = sp.mode && built.schedule && state.published ? adminSpiritHtml(state.spirit || {}, built.schedule, sp.mode, today, key) : "";
+  const spiritOpts = [["", "Off"], ...Object.entries(SPIRIT_MODES).map(([v, m]) => [v, m.label])].map(([v, l]) => `<option value="${v}"${(sp.mode || "") === v ? " selected" : ""}>${esc(l)}</option>`).join("");
   return page("League admin", `${note}${signups}${waiting}${short}${csv}${parseNotes ? `<ul class="err">${parseNotes}</ul>` : ""}
 <form method="post" action="/admin/save?key=${k}">
 <label>Season start (YYYY-MM-DD)<input name="start" value="${esc(f.start)}"></label>
@@ -156,10 +164,14 @@ ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}
 <p class="note">Approve adds the team to Teams, its players to Rosters and the captain's email to Contacts. Fees are paid on your own payment page; this server never sees a card, and you tick Paid by hand.${f.regPayUrl && !rs.payUrl ? " The payment page address is not a plain https link, so it is not shown." : ""}</p></fieldset>
 <fieldset><legend>Waiver (optional)</legend>
 <label>Your waiver, release or code-of-conduct text, as players should read it. Leave empty for none<textarea name="waiverText" maxlength="12000" style="min-height:8rem;font-family:inherit">${esc(f.waiverText ?? "")}</textarea></label>
-<p class="note">Players sign at <code>/league/waiver?t=LEAGUE_TOKEN</code> (linked from the league page) and captains on the sign-up form. Each signature keeps the exact text it agreed to: changing the text starts a new version, and earlier signatures show as "signed an earlier version". This page records who agreed to text you wrote; it does not write a waiver and is not legal advice. Whether a waiver holds, and the age at which a player can sign for themselves, depend on where you play: ask a lawyer or your league's insurer.</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
+<p class="note">Players sign at <code>/league/waiver?t=LEAGUE_TOKEN</code> (linked from the league page) and captains on the sign-up form. Each signature keeps the exact text it agreed to: changing the text starts a new version, and earlier signatures show as "signed an earlier version". This page records who agreed to text you wrote; it does not write a waiver and is not legal advice. Whether a waiver holds, and the age at which a player can sign for themselves, depend on where you play: ask a lawyer or your league's insurer.</p></fieldset>
+<fieldset><legend>Sportsmanship ratings (optional)</legend>
+<label>After each game, each captain rates the other team from their captain link<select name="spiritMode">${spiritOpts}</select></label>
+<label><input type="checkbox" name="spiritShow" value="1" style="width:auto" ${f.spiritShow ? "checked" : ""}> Show the sportsmanship table (averages only, never comments) on the league page</label>
+<p class="note">The five-category scale follows the shape of the score sheet ultimate leagues use (rules, fouls and contact, fair-mindedness, attitude, communication; 0 to 4 each, 2 for a normal game). Switching the scale starts the averages again; earlier ratings stay in the state file.</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
 <label><input type="checkbox" name="notify" value="1" style="width:auto"${state.published ? "" : " disabled"}> Email teams whose upcoming games this save moves, cancels or adds (one email per team, to its contacts${smtp && !smtp.error ? "" : "; needs SMTP, see above"})</label>
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
-${notices}${waivers}${capLinks}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}).</p>`);
+${spiritAdmin}${notices}${waivers}${capLinks}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}).</p>`);
 }
 
 async function readForm(req) {
@@ -259,6 +271,22 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         } else if (w.status === "disputed") msg = `Sent: ${line}. The other captain sent a different score, so the organiser will decide. If yours was a typo, send it again.`;
         save();
         return send(200, page(w.status === "confirmed" ? "Result in the table" : "Score sent", `<p class="${w.status === "disputed" ? "err" : "ok"}">${esc(msg)}</p>${back}`));
+      }
+      if (req.method === "POST" && url.pathname === "/league/spirit") {
+        if (!captain) return send(401, "captain link required\n", "text/plain");
+        const sp = spiritSettings(state.fields), out = buildLeague(state.fields);
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const back = `<p><a href="/league?t=${esc(encodeURIComponent(t))}&amp;c=${esc(encodeURIComponent(c))}#spirit">Back to your team's page</a></p>`;
+        const games = reportableGames(out.schedule, dayNumber(clock()));
+        const r = parseSpirit(body, games, captain.team, sp.mode);
+        if (r.error) return send(400, page("Rating not sent", `<p class="err">${esc(r.error)}</p>${back}`));
+        state.spirit = state.spirit || {};
+        pruneSpirit(state.spirit, out.schedule);
+        const w = recordSpirit(state.spirit, r.req, sp.mode, clock());
+        save();
+        const total = r.req.scores.reduce((a, b) => a + b, 0);
+        return send(200, page("Rating sent", `<p class="ok">${w.replaced ? "Rating changed" : "Rating sent"}: ${esc(out.schedule.teams[r.req.rated])}, ${total} of ${SPIRIT_MODES[sp.mode].total}. Only the organiser sees it.</p>${back}`));
       }
       if (req.method === "POST" && url.pathname === "/league/move") {
         if (!captain) return send(401, "captain link required\n", "text/plain");
@@ -400,6 +428,8 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       for (const k of ["regFee", "regPayUrl", "regCloses"]) f[k] = String(form.get(k) ?? "").trim().slice(0, 500);
       f.regMaxTeams = regSettings({ regMaxTeams: form.get("regMaxTeams") }).maxTeams;
       f.waiverText = cleanWaiverText(form.get("waiverText"));
+      f.spiritMode = SPIRIT_MODES[form.get("spiritMode")] ? String(form.get("spiritMode")) : "";
+      f.spiritShow = form.get("spiritShow") === "1";
       const wasPublished = state.published, prev = wasPublished ? buildLeague(state.fields) : null;
       state.fields = f;
       rememberVersion(state, clock());
@@ -432,6 +462,11 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         }
       }
       return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent((out.error ? "Saved, but: " + out.error : "Saved." + (out.warnings.length ? " " + out.warnings.length + " warning(s): " + out.warnings[0] : "")) + changeNote)}` });
+    }
+    if (req.method === "GET" && url.pathname === "/admin/spirit.csv") {
+      const out = buildLeague(state.fields);
+      if (out.error) return send(404, "fix the league first\n", "text/plain");
+      return send(200, "\ufeff" + spiritCsv(state.spirit || {}, out.schedule, spiritSettings(state.fields).mode), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="sportsmanship.csv"', "cache-control": "no-store" });
     }
     if (req.method === "GET" && url.pathname === "/admin/waivers.csv") {
       return send(200, "\ufeff" + waiversCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="waivers.csv"', "cache-control": "no-store" });
