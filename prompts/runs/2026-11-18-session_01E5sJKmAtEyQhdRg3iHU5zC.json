@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKmAtEyQhdRg3iHU5zC",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T10:18:24Z",
+  "ended": "2026-11-18T11:29:30Z",
+  "wall_minutes": 71.41,
+  "tokens_in": 4039343,
+  "tokens_out": 26801,
+  "cost_usd": 2.9623,
+  "tool_calls": 38,
+  "task": "research/marine-hull milestone 6zzzh: 6zzzg's fixed clamp-width sweep rescored under the 2015 to 2024 climatology",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17264",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/experiments/run_width_oos.py",
+      "issue": "importing it switches the shared climatology to 2005 to 2014 as a side effect (through run_old_clim_2025), so reusing its configure() under another climatology needs an explicit use_clim() undo; a clim-neutral helpers module would avoid that"
+    },
+    {
+      "file": "research/marine-hull/experiments (--smoke)",
+      "issue": "the smoke estimate overstated the full run (119 min predicted, 66 min actual) because it times only real-shape keys at two packs"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/marine-hull/LOG.md (6zzzg Next)",
+      "why": "the Next item named 2010 to 2014 and 2025 under 6zzze's climatology; I also scored 2020 to 2024 so every 2020 to 2025 year pairs with 6zzzg's row and only the climatology differs",
+      "did": "11 scored years instead of 6",
+      "result": "the paired table separates the narrow optimum (unchanged) from the wide shoulder (lost 2 to 3 cases), which was the step's main finding"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-marine-hull-solar-boat-clamp-climatology.md",
+    "research/marine-hull/LOG.md (6zzzh entry)",
+    "research/marine-hull/paper/DRAFT.md item 21"
+  ],
+  "goal": null,
+  "notes": "Predictions committed in 20b6e43be before the full run (66 min on 4 cores, stdlib). All 14 reproduction checks against 6zzze passed; 9 of 10 predictions held (N8 refuted; N4 held only at rounding, reported as a tie). Local checks: new and neighbouring tests (19) pass, research/_homepage/build.py ok, check_posts ok, check_md_links ok, programme_check ok, research_live_links no change; full marine-hull suite (PYTHONPATH=src unittest discover): 283 of 294 pass; the 11 errors are pre-existing imports of pytest, absent from the system python, in modules this step does not touch (test_hull, test_foil, test_solar, ...).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c37624c8-4bd7-5561-9dd7-27d2cb0c25c1",
+    "transcripts": 1,
+    "first": "2026-11-18T10:18:24Z",
+    "last": "2026-11-18T11:29:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 75,
+        "output": 26801,
+        "thinking": 5789,
+        "cache_read": 3831819,
+        "cache_write_5m": 0,
+        "cache_write_1h": 207449,
+        "api_equivalent_usd": 2.9623,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 75,
+      "output": 26801,
+      "thinking": 5789,
+      "cache_read": 3831819,
+      "cache_write_5m": 0,
+      "cache_write_1h": 207449,
+      "api_equivalent_usd": 2.9623,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.949,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 33,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 71.41,
+      "active_minutes": 6.49,
+      "model_minutes": 4.89,
+      "tool_minutes": 1.59,
+      "waiting_on_human_minutes": 64.92,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, run and write-up of one pre-registered simulation milestone by a PhD student familiar with the codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 202.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

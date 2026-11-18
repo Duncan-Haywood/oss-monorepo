@@ -329,9 +329,9 @@ flagships:
       vignetting?); a second maker-against-lensfun DNG pair; a real DNG carrying any
       opcode run only on synthetic files so far, or the SDK to check them; lateral
       colour measured on a real frame with sharp corner edges; a real Adobe `.dcp`
-      through the profile chooser; a real tiled CR3 (C-RAW tiles 2026-11-16,
-      eval/canon-cr3-*tiled-*); cull: zoom, pan windows, the 44 crop gate and an
-      exact pair index 2026-11-18 (10,000 frames 251 to 42 s,
+      through the profile chooser; a CR3 a body writes in tiles (R5, R5 II: one
+      tile, eval/canon-cr3-r5-real-*); cull: zoom, pan windows, the 44 crop gate and
+      an exact pair index 2026-11-18 (10,000 frames 251 to 42 s,
       eval/cull-grouping-index-*) (6% pans 0.85 to 1.00, eval/cull-crop-gate-*),
       whole-percent window offsets 2026-11-18 (7-10% pans 0.78-0.95 to 0.99-1.00,
       eval/cull-fine-offsets-*); next a real shoot's picks. More open items:
@@ -406,11 +406,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Take-blind rows traced" (a take inside
-      one revolution fits as the step; the trim dropped the straddling wheels; trim
-      off, sub 8 on). Next: score only straddling wheels; the sub-8 advised instant
-      build; short ESC lags read ~10% low with 16; SURVEY_QUEUE 3's heap; ball hold:
-      WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own speed loop.
+      see firmware/esp32/README.md, latest "The take survey skips take-blind wheels"
+      (TAKE_SURVEY_BLIND 1.5: jittery-tach held out 12 to 26 of 54, no instant
+      advised). Next: count only kept wheels toward the 16-wheel minimum; the sub-8
+      advised instant build; short ESC lags read ~10% low with 16; SURVEY_QUEUE 3's
+      heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its
+      own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1393 when this list was last generated), grouped the way the live site
+Every tool in this folder (1396 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -13,7 +13,7 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 
 - [Self-hosted business apps](#self-hosted-business-apps) (35)
 - [Marketplace seller tools](#marketplace-seller-tools) (100)
-- [Trade & contractor bids](#trade--contractor-bids) (201)
+- [Trade & contractor bids](#trade--contractor-bids) (202)
 - [Restaurant, bar & food truck pricing](#restaurant-bar--food-truck-pricing) (69)
 - [Service business pricing & quotes](#service-business-pricing--quotes) (194)
 - [Logistics, freight & cloud cost](#logistics-freight--cloud-cost) (37)
@@ -24,7 +24,7 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [Back-office money & contracts](#back-office-money--contracts) (181)
 - [CI checks & developer gates](#ci-checks--developer-gates) (188)
 - [Creator & solo earner income](#creator--solo-earner-income) (73)
-- [Research algorithms & ML](#research-algorithms--ml) (37)
+- [Research algorithms & ML](#research-algorithms--ml) (38)
 - [Learning & practice](#learning--practice) (7)
 - [Open hardware, robots & house plans](#open-hardware-robots--house-plans) (4)
 - [Music & audio](#music--audio) (1)
@@ -239,6 +239,7 @@ Bid a job the way the trade does — materials, crew hours, burden, overhead, an
 - [Flat Roof Bid Calculator](https://marisstella.app/flat-roof-bid-calculator/) · [code](flat-roof-bid-calculator/)
 - [Flooring Bid Calculator](https://marisstella.app/flooring-bid-calculator/) · [code](flooring-bid-calculator/)
 - [Forestry Mulching Bid Calculator](https://marisstella.app/forestry-mulching-bid-calculator/) · [code](forestry-mulching-bid-calculator/)
+- [Formwork Pressure Calculator](https://marisstella.app/formwork-pressure/) · [code](formwork-pressure/)
 - [Foundation Repair Bid Calculator](https://marisstella.app/foundation-repair-bid-calculator/) · [code](foundation-repair-bid-calculator/)
 - [Freelance Rate Increase Calculator — free, private, in your browser](https://marisstella.app/freelance-rate-increase-calculator/) · [code](freelance-rate-increase-calculator/)
 - [Freelance Retainer Pricing Calculator](https://marisstella.app/freelance-retainer-calculator/) · [code](freelance-retainer-calculator/)
@@ -1454,6 +1455,7 @@ Methods from published research papers, run on your own data in your browser and
 - [Is this gauge good enough? Gage R&R by ANOVA, with intervals, in your browser](https://marisstella.app/gage-rr/) · [code](gage-rr/)
 - [Gaussian process regression in your browser: a curve, a band, and how far to trust it](https://marisstella.app/gaussian-process-regression/) · [code](gaussian-process-regression/)
 - [HDBSCAN in your browser: which groups are in my data, and which rows belong to none?](https://marisstella.app/hdbscan-clustering/) · [code](hdbscan-clustering/)
+- [Instrumental variables regression in your browser: 2SLS, LIML and weak-instrument-robust intervals](https://marisstella.app/instrumental-variables/) · [code](instrumental-variables/)
 - [Inter-rater agreement in your browser: do your coders agree beyond chance, and where do they not?](https://marisstella.app/inter-rater-agreement/) · [code](inter-rater-agreement/)
 - [Isolation forest in your browser: which rows of my data are unusual?](https://marisstella.app/isolation-forest/) · [code](isolation-forest/)
 - [Which test questions work? Item response theory in your browser](https://marisstella.app/item-response-theory/) · [code](item-response-theory/)

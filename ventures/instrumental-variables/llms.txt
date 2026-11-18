@@ -1,0 +1,25 @@
+# Instrumental variables regression: 2SLS, LIML and weak-instrument-robust inference
+
+> Free instrumental variables (IV) regression tool. Upload a CSV with an outcome, one or more endogenous regressors, excluded instruments and exogenous controls, and get OLS, two-stage least squares, LIML and Fuller (a = 1) side by side with unadjusted, heteroskedasticity-robust or cluster-robust standard errors; first-stage R-squared, partial R-squared, Shea's partial R-squared, the first-stage F and the Montiel Olea-Pflueger effective F; Sargan and Hansen J tests of the overidentifying restrictions; Durbin, Wu-Hausman and control-function tests of exogeneity; and the Anderson-Rubin confidence set (one endogenous regressor), which stays valid when instruments are weak. Matches linearmodels 7.1 within 1e-11. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/instrumental-variables/)
+
+## Use it from code
+
+- `node cli.mjs data.csv --outcome y --endogenous x --instruments z1,z2 --exogenous w1,w2 [--se unadjusted|robust|clustered] [--cluster id] [--estimator 2sls|liml|fuller] [--debiased] [--csv|--json]`
+- `node cli.mjs --example` for 3,000 simulated people in 150 counties (true return to schooling 0.08; OLS 0.107, 2SLS 0.064 with clustered SE 0.023)
+- `node platform/agents/tools.mjs call instrumental-variables analyze --input '{"csv":"...","outcome":"y","endogenous":"x","instruments":"z1,z2","exogenous":"w"}'`
+
+## What it answers
+
+- What does a regressor that people chose (schooling, price, dose, hours) do to the outcome, using instruments that move it and reach the outcome only through it?
+- Are the instruments strong enough (first-stage F, effective F), and if not, what interval is still valid (Anderson-Rubin)?
+- Do several instruments agree (Sargan, Hansen J), and is IV needed at all (Durbin, Wu-Hausman, control-function test)?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/instrumental-variables): MIT licensed.
