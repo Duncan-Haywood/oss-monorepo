@@ -55,4 +55,58 @@ Otherwise the shipped grid stays. The spline is reported, not decided.
 
 ## Results
 
-(filled in after the capture)
+Rows: `take-grid-fresh-g-2026-11-18.jsonl.gz`, `-h-` and `-i-`. Full tables, the by-take verdicts of both grids and
+the error measures: `take-grid-fresh-g-2026-11-18.txt`, `-h-` and `-i-`. No drill aborted (162 of 162). Each set
+took about 15 minutes to capture on four cores and about 3 to score.
+
+### The decision: the shipped grid stays
+
+Parabola, verdicts rounded to 0.5 ms:
+
+| | G (0.65 s, 67) | H (0.42 s, 71) | I (0.75 s, 73) | pooled |
+| --- | --- | --- | --- | --- |
+| builds off by more than 1 ms, shipped / nine-point | 5 / 5 | 4 / 3 | 5 / 4 | **14 / 12** |
+| mean absolute error, ms | 0.572 / 0.454 | 0.519 / 0.415 | 0.509 / 0.474 | 0.533 / 0.448 |
+| within 0.5 ms | 29 / 39 | 29 / 41 | 35 / 41 | 93 / 121 |
+| within 1 ms | 49 / 49 | 50 / 51 | 49 / 50 | 148 / 150 |
+| spread takes named within 1 ms and advised | 31 / 31 | 32 / 33 | 33 / 33 | 96 / 97 |
+| instant builds advised | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+
+Clause 1 needed at least 4 fewer large misses and got 2. Clauses 2 to 6 held. So `TAKE_SURVEY_GRID_US` stays 0, 2,
+3, 4, 5, 6, 8 ms and nothing in the firmware changes.
+
+### The predictions
+
+- (q1) **failed.** Fewer large misses, but by 2, not 4.
+- (q2) **held.** Mean absolute error 0.448 against 0.533 ms.
+- (q3) **half held.** No large miss at 7.45 ms on either grid, as predicted (the shipped grid read all 18 as 8.0,
+  0.55 off). But none at 0.8 ms either (read as 0, 0.8 off). The shipped grid's 14 large misses: 7 at 1.75 ms, 4 on
+  instant builds, 3 at 2.35 ms. The nine-point grid's 12: 7 at 1.75 ms, 4 on instant builds, 1 at 2.35 ms.
+- (q4) **held.** No instant build advised on either grid.
+
+### Why the large misses barely move: they are the fit's, not the grid's
+
+The two grids share most of their large misses. On 1.75 ms takes, 5 builds read 0 on *both* grids (G 2, H 2, I 1)
+and one I build read 3.5 on both; on instant builds, the same 4 builds read 1.5 to 2.5 ms on both. A grid point at 1 ms cannot help a wheel
+whose residual curve bottoms out at 0 or at 2.5: the error is in the survey's residual curve, below the pick. This
+matches `eval/take-survey-fresh-2026-11-18.md` (the dense least sits near the true take on the capture tach but
+wanders on the jittery one) and README "Take-blind rows traced". All 10 shared large misses are on takes under
+2 ms (instant builds included), on both tachs.
+
+### What the nine-point grid does buy (reported, not decided)
+
+Builds within 0.5 ms rose from 93 to 121, on a measure the D to F rule used and tied on. Here, with takes off the
+half-millisecond, the Pi's 0.5 ms rounding no longer hides the gaps: every 7.45 ms take read 8.0 on the shipped grid
+(18 of 18 outside 0.5 ms) and 15 of 18 read 7.0 or 7.5 on the nine-point grid; the 0.8 and 1.75 ms takes moved from 4
+within 0.5 ms to 17. Adopting on that measure after seeing it twice disagree (tie on D to F, +28 here) would be the
+forking path again. Two fresh questions follow, each needing its own pre-registered set: an eight-point grid that adds
+only 7 ms (one fit a wheel, not two, aimed at the grid's end bias), scored on builds within 0.5 ms at uniform takes;
+and the fit's take-blindness under 2.5 ms on the jittery tach, which no grid fixes.
+
+The spline (reported only) did worse with more candidates on large misses: 12 shipped against 16 nine-point, pooled.
+
+## Not known
+
+All simulated: the simulator's first-order wheel and continuous half-sine take. One seed per set, three sets, one
+draw of takes. The nine-point verdicts are offline refits of wheels the board surveyed on the shipped grid, not a
+nine-candidate board run end to end.
