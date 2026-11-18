@@ -755,6 +755,19 @@ off the JS heap, so the run fits as main's does). Every report is identical, and
    peak to 8.7 s and 681 MB; a 374 MB federated ifcXML: 4.0 GB peak (out of
    memory under a 1 GB heap) to 1.5 GB, and it finishes under 1 GB; every
    report identical.
+9. **The nested IFC4 ifcXML layout at scale** (2026-11-18,
+   `eval/ifc4-layout-scale-2026-11-18.md`). Real IFC4 writers put 96-99.9% of
+   a file under one element (the IfcProject), so reading by top-level element
+   held nearly the whole tree. `eval/ifc4-layout.mjs` writes four real IFC4
+   and IFC4X3 exports (10-32 MB as STEP) in that layout. They read back entity
+   for entity (857,301 of 857,301), and 2,160 of 2,160 verdicts from 68 IDS
+   files equal the STEP file's. Two faults fixed. First, the schema was taken
+   from any "IFC2x3" in the first 4,000 characters, and ARCHICAD's IFC4 export
+   names its "IFC2x3 add-on" there: 19 of 539 verdicts were wrong, with no
+   error shown. It is now read from the root element. Second, nested geometry
+   is cut to its span as it closes. A 166 MB federated file peaks at
+   1,770 MB before and 1,481 MB after, and fits a 768 MB heap, which it did
+   not before; reports are identical.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
@@ -815,7 +828,10 @@ faster than IfcTester; its point is needing no install.
   (with a note) when the counts do not multiply out. The ifcXML reader streams
   (2026-11-18, `eval/lazy-ifcxml-2026-11-18.md`): a 374 MB ifcXML checks under a
   1 GB heap, about twice the time of the same model as STEP; a file much past
-  500 MB cannot be read at all (a JavaScript string's length limit).
+  500 MB cannot be read at all (a JavaScript string's length limit). In the
+  nested IFC4 layout, property sets and relationships under the root are held
+  until it closes (geometry is not, `eval/ifc4-layout-scale-2026-11-18.md`):
+  a 166 MB federated file peaks 1.4x higher than the same model as STEP.
 - The model's text is held in memory with a small record per entity; an
   entity's arguments are read when a check first needs them, and geometry's
   are not kept (2026-11-17, `eval/heap-200mb-2026-11-17.md`). A 219 MB
