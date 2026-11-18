@@ -499,6 +499,7 @@ ventures/funeral-price-list-checker/usage.mjs
 ventures/furnace-bid-calculator/usage.mjs
 ventures/fuzzy-dedupe/usage.mjs
 ventures/gabor-granger-price-analyzer/usage.mjs
+ventures/gage-rr/usage.mjs
 ventures/gambling-loss-deduction-calculator/usage.mjs
 ventures/garage-door-bid-calculator/usage.mjs
 ventures/gaussian-process-regression/usage.mjs
