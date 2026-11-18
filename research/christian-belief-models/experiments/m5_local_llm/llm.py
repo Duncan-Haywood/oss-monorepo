@@ -5,8 +5,12 @@ and affiliation variables), then one short question suffix per item, scored in a
 reuses the prefix's key/value cache. P(yes) = softmax over the next-token logits of "Yes" and "No".
 """
 import math
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
+
+try:  # the profile text needs neither; tests run without them
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+except ImportError:  # pragma: no cover
+    torch = None
 
 SYSTEM = ('You predict how a respondent to the US General Social Survey answered a question, '
           'from a short description of the respondent. Reply with Yes or No only.')
@@ -88,7 +92,8 @@ def profile(r):
 
 
 class Scorer:
-    def __init__(self, model_dir, threads=4, dtype=torch.bfloat16):
+    def __init__(self, model_dir, threads=4, dtype=None):
+        dtype = dtype or torch.bfloat16
         torch.set_num_threads(threads)
         self.tok = AutoTokenizer.from_pretrained(model_dir)
         self.m = AutoModelForCausalLM.from_pretrained(model_dir, dtype=dtype).eval()
@@ -108,9 +113,12 @@ class Scorer:
         return self.tok('Question: ' + QUESTIONS[item] + '\nAnswer Yes or No.' + self.tail,
                         add_special_tokens=False).input_ids
 
-    @torch.inference_mode()
     def score(self, prof, items):
         """P(yes) for each item for one respondent. Prefix runs once; suffixes run as one batch."""
+        with torch.inference_mode():
+            return self._score(prof, items)
+
+    def _score(self, prof, items):
         pre = torch.tensor([self.prefix_ids(prof)])
         out = self.m(pre, use_cache=True)
         cache = out.past_key_values
@@ -129,9 +137,12 @@ class Scorer:
         d = z[:, self.yes[0]] - z[:, self.no[0]]
         return torch.sigmoid(d).tolist()
 
-    @torch.inference_mode()
     def score_plain(self, prof, item):
         """Reference path: the same token ids in one unbatched pass, no cache (checks the batched path)."""
+        with torch.inference_mode():
+            return self._score_plain(prof, item)
+
+    def _score_plain(self, prof, item):
         ids = torch.tensor([self.prefix_ids(prof) + self.suffix_ids(item)])
         z = self.m(ids).logits[0, -1].float()
         return float(torch.sigmoid(z[self.yes[0]] - z[self.no[0]]))
