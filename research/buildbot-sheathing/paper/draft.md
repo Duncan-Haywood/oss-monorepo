@@ -716,6 +716,14 @@ the other legs had 0.19 N m to spare, so the residual stays 0.172 mm at every ho
 moves 0.163 N m per newton of sensor error along z, so that pose holds the spec only with a z error
 under about 0.19 N: 0.004 mm at 0.15 N, an ATI Mini45-class figure, against 0.172 mm at 0.2 N.
 
+That bound belongs to the hold side, not the pose (milestone 46). The controller held each joint on
+one side per robot, and at this pose that side pins the right hip roll at its threshold, while the
+torque-minimising plan puts it at −3.79 N m. Held on that side, the stance allows a common leg margin
+of 2.29 N m at a 50 N press, the pose takes the full 0.1 N m preload, and its worst residual along
+the wall is 0.005 mm at every hose drag with a 0.2 N sensor error. The H1 then meets the tool-point
+spec at all 19 poses with an FT 300-class sensor. The per-robot side also disagrees with the
+torque-minimising one at both press ends at four other H1 poses, which a per-pose rule would fix.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
