@@ -193,14 +193,23 @@ function cellsFor(p, tile, layout) {
   return { cells: out, tw, th, px, py, rot };
 }
 
-function piecesFor(p, tile, layout) {
+// lean: leave whole tiles out of `pieces` and only count them (fullCount). The
+// layout search scores thousands of layouts it then throws away; only the
+// finalists it re-evaluates need every piece.
+function piecesFor(p, tile, layout, lean = false) {
   const { cells, tw, th, rot } = cellsFor(p, tile, layout);
   const pieces = [];
+  let fullCount = 0;
   for (const cell of cells) {
     const clipped = intersect(cell, p.R);
     if (!clipped) continue;
     let rects = [clipped];
     for (const c of p.cutouts) {
+      // subtract() returns [r] itself for a rectangle the cut-out misses, so a
+      // cut-out that misses every piece leaves rects as it is: skip the copy.
+      let hit = false;
+      for (const r of rects) if (r.x0 < c.x1 && c.x0 < r.x1 && r.y0 < c.y1 && c.y0 < r.y1) { hit = true; break; }
+      if (!hit) continue;
       rects = rects.flatMap((r) => subtract(r, c));
       if (!rects.length) break;
     }
@@ -208,7 +217,10 @@ function piecesFor(p, tile, layout) {
     let kind = "complex", a = 0, b = 0;
     if (rects.length === 1) {
       const r = rects[0];
-      if (rw(r) === tw && rh(r) === th) kind = "full";
+      if (rw(r) === tw && rh(r) === th) {
+        if (lean) { fullCount++; continue; }
+        kind = "full";
+      }
       else {
         kind = "cut";
         a = rot ? rh(r) : rw(r);
@@ -217,7 +229,7 @@ function piecesFor(p, tile, layout) {
     }
     pieces.push({ id: pieces.length, cell, rects, kind, a, b, area: rects.reduce((s, r) => s + rarea(r), 0) });
   }
-  return { pieces, tw, th, rot };
+  return { pieces, fullCount, tw, th, rot };
 }
 
 // ---------- guillotine packing of cut pieces into tiles ----------
@@ -236,20 +248,30 @@ function mulberry32(seed) {
 function packOnce(cuts, W, H, kerf, rotateOK) {
   const bins = [];
   for (const piece of cuts) {
-    let best = null;
+    // Best fit over every free rectangle, upright then rotated, first strict
+    // minimum wins. Scalars instead of a per-candidate object and a per-free
+    // rotation array: same scores, same order, same choice.
+    const a = piece.a, b = piece.b;
+    let bestScore = 0, bestBi = -1, bestFi = 0, bestRot = false;
     for (let bi = 0; bi < bins.length; bi++) {
       const free = bins[bi].free;
+      const tie = bi * 1e-6;
       for (let fi = 0; fi < free.length; fi++) {
         const f = free[fi];
-        for (const rotated of rotateOK ? [false, true] : [false]) {
-          const pa = rotated ? piece.b : piece.a, pb = rotated ? piece.a : piece.b;
-          if (pa <= f.w && pb <= f.h) {
-            const score = Math.min(f.w - pa, f.h - pb) * 1e6 + Math.max(f.w - pa, f.h - pb) / 1e3 + bi * 1e-6;
-            if (!best || score < best.score) best = { bi, fi, rotated, score, pa, pb };
-          }
+        const fw = f.w, fh = f.h;
+        if (a <= fw && b <= fh) {
+          const dw = fw - a, dh = fh - b;
+          const score = Math.min(dw, dh) * 1e6 + Math.max(dw, dh) / 1e3 + tie;
+          if (bestBi < 0 || score < bestScore) { bestScore = score; bestBi = bi; bestFi = fi; bestRot = false; }
+        }
+        if (rotateOK && b <= fw && a <= fh) {
+          const dw = fw - b, dh = fh - a;
+          const score = Math.min(dw, dh) * 1e6 + Math.max(dw, dh) / 1e3 + tie;
+          if (bestBi < 0 || score < bestScore) { bestScore = score; bestBi = bi; bestFi = fi; bestRot = true; }
         }
       }
     }
+    let best = bestBi < 0 ? null : { bi: bestBi, fi: bestFi, rotated: bestRot, pa: bestRot ? b : a, pb: bestRot ? a : b };
     if (!best) {
       bins.push({ free: [{ x: 0, y: 0, w: W, h: H }], placed: [] });
       const bi = bins.length - 1;
@@ -308,10 +330,12 @@ function lowerBoundTiles(full, complex, cutAreaSum, tileArea) {
   return full + complex + Math.ceil(cutAreaSum / tileArea);
 }
 
-function evaluate(p, tile, layout, restarts, seed) {
-  const { pieces, tw, th, rot } = piecesFor(p, tile, layout);
+function evaluate(p, tile, layout, restarts, seed, lean = false) {
+  const { pieces, fullCount, tw, th, rot } = piecesFor(p, tile, layout, lean);
   const W = tile.w, H = tile.h; // tile frame
-  let full = 0, complex = 0, slivers = 0, narrowest = Infinity, usedArea = 0, cutAreaSum = 0;
+  // Areas are integers (hundredths of a millimetre squared), so adding the
+  // lean whole tiles up front gives the same sums as adding them in turn.
+  let full = fullCount, complex = 0, slivers = 0, narrowest = Infinity, usedArea = fullCount * tw * th, cutAreaSum = 0;
   const cuts = [];
   for (const pc of pieces) {
     usedArea += pc.area;
@@ -389,7 +413,9 @@ export function optimizeTile(p, tile, opts = {}) {
       for (const x0 of xs) for (const y0 of ys) candidates.push({ rot, bond, x0, y0 });
     }
   }
-  const quick = candidates.map((layout) => evaluate(p, tile, layout, 0, 1));
+  // Lean evaluations: these results only rank layouts; every plan returned
+  // below is re-evaluated in full from its layout.
+  const quick = candidates.map((layout) => evaluate(p, tile, layout, 0, 1, true));
   let ranked = quick.slice().sort((a, b) => (better(a, b) ? -1 : better(b, a) ? 1 : 0));
   // local refinement around the leaders
   const refined = [];
@@ -399,7 +425,7 @@ export function optimizeTile(p, tile, opts = {}) {
     for (const d of [Math.floor(px / (steps * 4)), Math.floor(px / (steps * 2))]) {
       for (const [sx, sy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1]]) {
         const l2 = { ...layout, x0: mod(layout.x0 + sx * d, px), y0: mod(layout.y0 + sy * Math.floor((d * py) / px), py) };
-        refined.push(evaluate(p, tile, l2, 0, 1));
+        refined.push(evaluate(p, tile, l2, 0, 1, true));
       }
     }
   }
