@@ -3,6 +3,7 @@
 
     python3 platform/ci/check_posts.py                       # posts this branch adds or edits
     python3 platform/ci/check_posts.py docs/posts/NEW.md     # just these
+    python3 platform/ci/check_posts.py --fix                 # respell their tags the house way, then check
 
 Most pull requests carry a post, and a post meets three checkers that runs
 had to find one by one: `check_post_frontmatter.py` (title, description and
@@ -55,7 +56,7 @@ def changed_files(root=ROOT, git=_git):
     return sorted(n for n in names if n.endswith(".md") and (Path(root) / n).is_file())
 
 
-def run(files, root=ROOT, strict=False, out=print):
+def run(files, root=ROOT, strict=False, out=print, fix=False):
     if not files:
         out("check_posts: no post or report differs from origin/main; nothing to check")
         return 0
@@ -69,7 +70,10 @@ def run(files, root=ROOT, strict=False, out=print):
     bad = 0
 
     out(f"== front matter ({len(paths)} file(s))")
-    if check_post_frontmatter.main(["--root", str(root), *paths]) != 0:
+    # --fix goes to the front-matter checker, whose tag-spelling failure says
+    # "`--fix <post>` respells ..."; reached through this command, that hint
+    # met "unrecognized arguments: --fix" (run record, 2026-11-18).
+    if check_post_frontmatter.main(["--root", str(root), *(["--fix"] if fix else []), *paths]) != 0:
         bad += 1
 
     if posts:
@@ -94,6 +98,8 @@ def main(argv=None):
     ap.add_argument("files", nargs="*", help="posts or reports to check (default: the ones this branch changes)")
     ap.add_argument("--root", default=str(ROOT))
     ap.add_argument("--strict", action="store_true", help="fail on a near-copy too")
+    ap.add_argument("--fix", action="store_true",
+                    help="respell the checked posts' tags the way other posts spell them, then check")
     args = ap.parse_args(argv)
     if not (Path(args.root) / "docs" / "posts").is_dir():
         # A wrong --root must not pass as "nothing changed" (test_checks_refuse_empty_root.py).
@@ -105,7 +111,7 @@ def main(argv=None):
         # files here for its one post (run record, 2026-11-17).
         print(f"check_posts: {len(files)} files differ from origin/main; if this branch adds fewer, "
               "origin/main is stale: `git fetch --depth=1 origin main` and rerun, or name the post")
-    return run(files, root=Path(args.root), strict=args.strict)
+    return run(files, root=Path(args.root), strict=args.strict, fix=args.fix)
 
 
 if __name__ == "__main__":

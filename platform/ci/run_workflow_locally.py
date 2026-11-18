@@ -2389,7 +2389,28 @@ def checkout_drift(before, after) -> str | None:
         return None
     where = f": {moved}" if moved else ""
     same_head = "" if before.head != after.head else " (HEAD did not move)"
-    return f"tracked files changed while the sweep ran{same_head}{where}"
+    return f"tracked files changed while the sweep ran{same_head}{where}" + born_hint(before, after)
+
+
+def born_hint(before, after) -> str:
+    """A sentence when every moved path was created after the sweep started.
+
+    The hand-off note says committing written files is fine, and runs read
+    that as covering a run record they wrote *during* the sweep (2026-11-18:
+    three workflows voided). Such a file was neither tracked nor untracked at
+    the start, so steps before it and after it read different trees; the
+    drift stands, and naming the case says what to do next time.
+    """
+    old = dict(getattr(before, "paths", {}) or {})
+    loose = getattr(before, "untracked", {}) or {}
+    new = dict(getattr(after, "paths", {}) or {})
+    moved = [p for p in set(old) | set(new)
+             if (old[p] if p in old else loose.get(p)) != new.get(p)]
+    if moved and all(p not in old and p not in loose for p in moved):
+        return ("; every one is new since the sweep started: if you wrote it (the"
+                " run record, a post), write such files before starting a sweep or"
+                " commit them after it ends")
+    return ""
 
 
 # Why a sweep's budget is pooled. Each workflow had its own 300 s, so a
@@ -2655,8 +2676,10 @@ def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
                 "(repeat until it exits 0, or start it with run_in_background "
                 "--timeout 3600); the last line reads 'DONE exit <code>'.\n"
                 "  Until then, do not change tracked files here: an edit voids "
-                "every workflow still to finish. Committing files already "
-                "written is fine (it changes no byte a step reads).\n"
+                "every workflow still to finish. Committing files that were "
+                "already written when this started is fine (it changes no byte "
+                "a step reads); committing one created since, such as a new run "
+                "record, is an edit.\n"
                 "  Pass --foreground to run attached instead.\n")
             out.flush()
             return HANDED_OFF
