@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "Duplicated PR #17262 (same --checks-only fix, opened ~10 minutes into this run): the open-PR search came after implementing, not before. Consolidated by rebuilding on its branch and keeping only the merge-base fix.",
-    "First rebuilt push needed a force push, which was refused; used an -s ours merge of the superseded tip instead (tree unchanged)."
+    "First rebuilt push needed a force push, which was refused; used an -s ours merge of the superseded tip instead (tree unchanged).",
+    "The -s ours merge of the superseded tip made main commit 8ac8da8 (#17259) an ancestor while keeping a tree without it, so PR #17266 showed 198 deletions and a merge of main would have silently reverted #17259. Caught by checking `git diff --cached origin/main --stat` before committing; the merge was rebuilt as main's tree plus this PR's three files."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +43,10 @@
     {
       "file": "prompts/process/prompt-1.md",
       "issue": "Backlog held only owner rows again; and two process runs picked the same top ungated friction row (venture-preflight) within minutes. The PR search should come before implementing, which the prompt says ('check open PRs before you start') but this run did it after."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "When a force push is refused, an `-s ours` merge of the old remote tip looks safe but drags that tip's base commits into ancestry; any main commit in it is then reverted by the next merge. Worth one line: diff the result against origin/main before pushing."
     }
   ],
   "deviations": [

@@ -56,6 +56,17 @@ const DATE_RES = [
   /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
   /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
 ];
+// RapidOCR drops the space between a date and the time after it ("25/12/20188:13:39PM",
+// "18-11-1813:58", "05Mar201818:24"), so the date patterns, which want no digit after the
+// year, missed the date or read the year as 1813 (SROIE through RapidOCR,
+// eval/sroie-five-readings-2026-11-18.md). A four-digit 20xx year is split off first, then a
+// two-digit one (a clock with dots, "8.08.53", counts as a time); a month name glued to its
+// day and year gets its spaces back. A year before 1990 is a misread, never a receipt's date.
+const MONTHS_RE = "jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec";
+export const unglueDate = (l) => String(l)
+  .replace(/(?<!\d)(\d{1,2}[\/.-]\d{1,2}[\/.-]20\d{2})(?=\d{1,2}(?::\d{2}|\.\d{2}[.:]\d{2}))/g, "$1 ")
+  .replace(/(?<!\d)(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2})(?=\d{1,2}(?::\d{2}|\.\d{2}[.:]\d{2}))/g, "$1 ")
+  .replace(new RegExp(`(?<![\\d\\p{L}])(\\d{1,2}) ?(${MONTHS_RE})([a-z]*) ?(20\\d{2})(?=\\d{1,2}:\\d{2}|(?![\\d\\p{L}]))`, "giu"), "$1 $2$3 $4 ");
 // Russian fiscal receipts print "ИТОГ =650.07" or "ИТОГО К ОПЛАТЕ =231.94"; an engine with no
 // Cyrillic model (RapidOCR's default, tesseract -l eng) prints the word in Latin look-alikes:
 // HTOr, MTOr, NTOr, UTOr, WTOr, VTOr, ИTOr, MTOrO, HTOF (cdek-ocr/receipt-ocr-ru photos,
@@ -145,7 +156,7 @@ const DAY_FIRST_LOCALE = /\b(?:rm|myr|sdn\.?\s*bhd|bhd|pty\.?\s*ltd|gbp|inr|rs)\
 function dayFirstOf(lines) {
   let dayFirst = 0, monthFirst = 0, tDay = 0, tMonth = 0;
   // "Time: 12-49-00" (OCR turns the colons to dashes) is a clock, not a month-first date
-  for (const l of lines) for (const m of l.replace(/\btime\W*\d{1,2}-\d{1,2}-\d{2}(?![\d/-])/gi, " ").matchAll(/(?<![\d-])(\d{1,2})[-/](\d{1,2})[-/](?:\d{4}|\d{2})(?![\d-])/g)) {
+  for (const l of lines.map(unglueDate)) for (const m of l.replace(/\btime\W*\d{1,2}-\d{1,2}-\d{2}(?![\d/-])/gi, " ").matchAll(/(?<![\d-])(\d{1,2})[-/](\d{1,2})[-/](?:\d{4}|\d{2})(?![\d-])/g)) {
     // a stamp followed by a clock time is the receipt's date; "CK 11-22-31 - 10/400" is a code
     const timed = /^\s*\d{1,2}:\d{2}/.test(l.slice(m.index + m[0].length));
     if (+m[1] > 12 && +m[2] <= 12) { dayFirst++; if (timed) tDay++; }
@@ -598,11 +609,12 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   // every dated line; the one labelled "date" wins, then a four-digit year (a
   // serial like "18/06/04" or a time-stamped code reads as a date too), then the first
   const cands = [];
-  lines.forEach((l, i) => {
+  lines.forEach((line, i) => {
+    const l = unglueDate(line);
     for (const re of DATE_RES) {
       const m = l.match(re);
       const d = m && parseDate(m[1], dmy || comma === true || (comma === "whole" && !m[1].includes("-")) || m[1].includes("."));
-      if (d) { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\bdate\b/i.test(l) ? 0 : 2) + (/\d{4}/.test(m[1].replace(/^\d{4}(?=[-/])/, "")) || /^\d{4}[-/]/.test(m[1]) ? 0 : 1) - (new RegExp(m[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\d{1,2}:\\d{2}").test(l) ? 0.5 : 0), i }); break; }
+      if (d && d >= "1990") { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\bdate\b/i.test(l) ? 0 : 2) + (/\d{4}/.test(m[1].replace(/^\d{4}(?=[-/])/, "")) || /^\d{4}[-/]/.test(m[1]) ? 0 : 1) - (new RegExp(m[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\d{1,2}:\\d{2}").test(l) ? 0.5 : 0), i }); break; }
     }
   });
   cands.sort((a, b) => a.rank - b.rank || a.i - b.i);
@@ -1253,7 +1265,14 @@ export function parseReceiptPasses(texts, opts = {}) {
   // outvote it with is taken only when the receipt's arithmetic confirms it: on 583 CORD
   // train photos the unconfirmed majority replaced a right lead total 19 times and a wrong
   // one 3 times (totals 526 to 542; eval/lead-vote-2026-11-17.md)
-  if (opts.lead && String(texts[0] ?? "").trim() && ps.length >= 3 && pick !== best && best.cents !== null && !support(pick.cents) && !pick.derived) { outvoted = pick.cents; pick = best; }
+  // Not when the lead read no total line and took its largest amount, that amount is a
+  // subtotal some reading prints, and the pick is a total line above it: the lead's guess is
+  // the subtotal, and the tax went with it (SRD 1009: `Tax` and `Total` with no amounts, so
+  // 28.48, the subtotal, over one tesseract reading's `Total $30.76`). The total line must be
+  // at most 35% above that subtotal (tax and a tip): SRD 1164's "I agree to pay above total
+  // 133" is no total over a 22.70 one (eval/sroie-five-readings-2026-11-18.md).
+  const leadTookSubtotal = guessedLargest(best) && pick.totalLine && pick.cents > best.cents && pick.cents <= best.cents * 1.35 && ps.some((q) => (q.subtotals ?? []).includes(best.cents));
+  if (opts.lead && String(texts[0] ?? "").trim() && ps.length >= 3 && pick !== best && best.cents !== null && !support(pick.cents) && !pick.derived && !leadTookSubtotal) { outvoted = pick.cents; pick = best; }
   const out = { ...best };
   if (outvoted !== null) out.notes = [...out.notes, `OCR readings disagree on the total (${ps.map((p) => p.cents === null ? "none" : (p.cents / 100).toFixed(2)).join(" vs ")}); kept ${(best.cents / 100).toFixed(2)} from the first engine's reading over ${(outvoted / 100).toFixed(2)}, which more readings give but no check confirms: check the total`];
   if (pick !== best) {

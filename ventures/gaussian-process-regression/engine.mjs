@@ -211,41 +211,72 @@ export function kernelAt(name, theta, r, withGrad = false) {
 
 /**
  * In-place lower Cholesky factor of a symmetric n x n matrix; returns false if
- * not positive definite. Below the diagonal, four rows are updated per pass so
- * each load of row j serves four dot products; every entry still subtracts its
- * products in the same k order, so the factor is bit-for-bit the one-row loop's.
+ * not positive definite. Columns are factored two at a time and, below them,
+ * four rows per pass, so each load of a row serves two dot products and each
+ * load of the two pivot rows serves four. Every entry still subtracts its
+ * products in the same k order (column j+1's k = j term last, as in the
+ * one-column loop), so the factor is bit-for-bit the plain loop's.
  */
 export function cholesky(A, n) {
-  for (let j = 0; j < n; j++) {
+  let j = 0;
+  for (; j + 1 < n; j += 2) {
+    const rj = j * n, rk = rj + n, j1 = j + 1;
+    let s = A[rj + j];
+    for (let k = 0; k < j; k++) s -= A[rj + k] * A[rj + k];
+    if (!(s > 0) || !Number.isFinite(s)) return false;
+    const d0 = Math.sqrt(s);
+    A[rj + j] = d0;
+    let t = A[rk + j];
+    for (let k = 0; k < j; k++) t -= A[rk + k] * A[rj + k];
+    const c = t / d0; // L[j+1][j]
+    A[rk + j] = c;
+    let s1 = A[rk + j1];
+    for (let k = 0; k < j1; k++) s1 -= A[rk + k] * A[rk + k];
+    if (!(s1 > 0) || !Number.isFinite(s1)) return false;
+    const d1 = Math.sqrt(s1);
+    A[rk + j1] = d1;
+    let i = j + 2;
+    for (; i + 3 < n; i += 4) {
+      const r0 = i * n, r1 = r0 + n, r2 = r1 + n, r3 = r2 + n;
+      let a0 = A[r0 + j], a1 = A[r1 + j], a2 = A[r2 + j], a3 = A[r3 + j];
+      let b0 = A[r0 + j1], b1 = A[r1 + j1], b2 = A[r2 + j1], b3 = A[r3 + j1];
+      for (let k = 0; k < j; k++) {
+        const p = A[rj + k], q = A[rk + k];
+        const l0 = A[r0 + k], l1 = A[r1 + k], l2 = A[r2 + k], l3 = A[r3 + k];
+        a0 -= l0 * p; b0 -= l0 * q;
+        a1 -= l1 * p; b1 -= l1 * q;
+        a2 -= l2 * p; b2 -= l2 * q;
+        a3 -= l3 * p; b3 -= l3 * q;
+      }
+      a0 /= d0; a1 /= d0; a2 /= d0; a3 /= d0;
+      A[r0 + j] = a0; A[r1 + j] = a1; A[r2 + j] = a2; A[r3 + j] = a3;
+      A[r0 + j1] = (b0 - a0 * c) / d1;
+      A[r1 + j1] = (b1 - a1 * c) / d1;
+      A[r2 + j1] = (b2 - a2 * c) / d1;
+      A[r3 + j1] = (b3 - a3 * c) / d1;
+    }
+    for (; i < n; i++) {
+      const ri = i * n;
+      let a0 = A[ri + j], b0 = A[ri + j1];
+      for (let k = 0; k < j; k++) {
+        const l = A[ri + k];
+        a0 -= l * A[rj + k];
+        b0 -= l * A[rk + k];
+      }
+      a0 /= d0;
+      A[ri + j] = a0;
+      A[ri + j1] = (b0 - a0 * c) / d1;
+    }
+    for (let k = j1; k < n; k++) A[rj + k] = 0;
+    for (let k = j1 + 1; k < n; k++) A[rk + k] = 0;
+  }
+  if (j < n) {
+    // the last column of an odd n: only its diagonal remains
     const rj = j * n;
     let s = A[rj + j];
     for (let k = 0; k < j; k++) s -= A[rj + k] * A[rj + k];
     if (!(s > 0) || !Number.isFinite(s)) return false;
-    const d = Math.sqrt(s);
-    A[rj + j] = d;
-    let i = j + 1;
-    for (; i + 3 < n; i += 4) {
-      const r0 = i * n, r1 = r0 + n, r2 = r1 + n, r3 = r2 + n;
-      let t0 = A[r0 + j], t1 = A[r1 + j], t2 = A[r2 + j], t3 = A[r3 + j];
-      for (let k = 0; k < j; k++) {
-        const a = A[rj + k];
-        t0 -= A[r0 + k] * a;
-        t1 -= A[r1 + k] * a;
-        t2 -= A[r2 + k] * a;
-        t3 -= A[r3 + k] * a;
-      }
-      A[r0 + j] = t0 / d;
-      A[r1 + j] = t1 / d;
-      A[r2 + j] = t2 / d;
-      A[r3 + j] = t3 / d;
-    }
-    for (; i < n; i++) {
-      const ri = i * n;
-      let t = A[ri + j];
-      for (let k = 0; k < j; k++) t -= A[ri + k] * A[rj + k];
-      A[ri + j] = t / d;
-    }
-    for (let k = j + 1; k < n; k++) A[rj + k] = 0;
+    A[rj + j] = Math.sqrt(s);
   }
   return true;
 }
@@ -272,9 +303,11 @@ function backward(L, n, b) {
 
 /**
  * K^-1 from its Cholesky factor: (L^-1)' L^-1, with L^-1 stored transposed so
- * every inner loop reads a row. Both passes work four rows at a time so each
- * load is shared by four sums; every sum still runs over k in the same order
- * from the same start, so the result is bit-for-bit the one-row loop's.
+ * every inner loop reads a row. Both passes work on a 2 x 4 tile (two rows
+ * against four), so each load is shared by two or four sums; every sum still
+ * runs over k in the same order from the same start (a sum's extra first or
+ * last term is added on its own, in its place), so the result is bit-for-bit
+ * the one-row loop's.
  */
 export function inverseFromCholesky(L, n) {
   const T = new Float64Array(n * n); // T[j][k] = (L^-1)[k][j], nonzero for k >= j
@@ -294,7 +327,42 @@ export function inverseFromCholesky(L, n) {
     const j3 = j + 3;
     for (let a = 0; a < 4; a++) rowPrefix(j + a, j3 + 1);
     const r0 = j * n, r1 = r0 + n, r2 = r1 + n, r3 = r2 + n;
-    for (let i = j3 + 1; i < n; i++) {
+    let i = j3 + 1;
+    for (; i + 1 < n; i += 2) {
+      // rows i and i+1 of L against T rows j..j+3; row i+1's k = i term comes last
+      const ri = i * n, rh = ri + n;
+      let s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+      let u0 = 0, u1 = 0, u2 = 0, u3 = 0;
+      s0 -= L[ri + j] * T[r0 + j];
+      u0 -= L[rh + j] * T[r0 + j];
+      s0 -= L[ri + j + 1] * T[r0 + j + 1];
+      s1 -= L[ri + j + 1] * T[r1 + j + 1];
+      u0 -= L[rh + j + 1] * T[r0 + j + 1];
+      u1 -= L[rh + j + 1] * T[r1 + j + 1];
+      s0 -= L[ri + j + 2] * T[r0 + j + 2];
+      s1 -= L[ri + j + 2] * T[r1 + j + 2];
+      s2 -= L[ri + j + 2] * T[r2 + j + 2];
+      u0 -= L[rh + j + 2] * T[r0 + j + 2];
+      u1 -= L[rh + j + 2] * T[r1 + j + 2];
+      u2 -= L[rh + j + 2] * T[r2 + j + 2];
+      for (let k = j3; k < i; k++) {
+        const t0 = T[r0 + k], t1 = T[r1 + k], t2 = T[r2 + k], t3 = T[r3 + k];
+        const l = L[ri + k], h = L[rh + k];
+        s0 -= l * t0; u0 -= h * t0;
+        s1 -= l * t1; u1 -= h * t1;
+        s2 -= l * t2; u2 -= h * t2;
+        s3 -= l * t3; u3 -= h * t3;
+      }
+      const d = L[ri + i];
+      const v0 = s0 / d, v1 = s1 / d, v2 = s2 / d, v3 = s3 / d;
+      T[r0 + i] = v0; T[r1 + i] = v1; T[r2 + i] = v2; T[r3 + i] = v3;
+      const h = L[rh + i], e = L[rh + i + 1];
+      T[r0 + i + 1] = (u0 - h * v0) / e;
+      T[r1 + i + 1] = (u1 - h * v1) / e;
+      T[r2 + i + 1] = (u2 - h * v2) / e;
+      T[r3 + i + 1] = (u3 - h * v3) / e;
+    }
+    for (; i < n; i++) {
       const ri = i * n;
       let s0 = 0, s1 = 0, s2 = 0, s3 = 0;
       s0 -= L[ri + j] * T[r0 + j];
@@ -319,32 +387,49 @@ export function inverseFromCholesky(L, n) {
   }
   for (; j < n; j++) rowPrefix(j, n);
   const inv = new Float64Array(n * n);
-  for (let i = 0; i < n; i++) {
-    const ri = i * n;
+  // One entry: sum over k >= i of T[i][k] T[j][k], in k order.
+  const entry = (i, j) => {
+    const ri = i * n, rj = j * n;
+    let s = 0;
+    for (let k = i; k < n; k++) s += T[ri + k] * T[rj + k];
+    inv[ri + j] = s;
+    inv[rj + i] = s;
+  };
+  let i = 0;
+  for (; i + 1 < n; i += 2) {
+    // rows i and i+1 against T rows j..j+3 (all <= i); row i's k = i term comes first
+    const ri = i * n, rh = ri + n, i1 = i + 1;
     let j = 0;
     for (; j + 3 <= i; j += 4) {
       const r0 = j * n, r1 = r0 + n, r2 = r1 + n, r3 = r2 + n;
+      const ti = T[ri + i];
       let s0 = 0, s1 = 0, s2 = 0, s3 = 0;
-      for (let k = i; k < n; k++) {
-        const t = T[ri + k];
-        s0 += t * T[r0 + k];
-        s1 += t * T[r1 + k];
-        s2 += t * T[r2 + k];
-        s3 += t * T[r3 + k];
+      let u0 = 0, u1 = 0, u2 = 0, u3 = 0;
+      s0 += ti * T[r0 + i];
+      s1 += ti * T[r1 + i];
+      s2 += ti * T[r2 + i];
+      s3 += ti * T[r3 + i];
+      for (let k = i1; k < n; k++) {
+        const t = T[ri + k], h = T[rh + k];
+        const t0 = T[r0 + k], t1 = T[r1 + k], t2 = T[r2 + k], t3 = T[r3 + k];
+        s0 += t * t0; u0 += h * t0;
+        s1 += t * t1; u1 += h * t1;
+        s2 += t * t2; u2 += h * t2;
+        s3 += t * t3; u3 += h * t3;
       }
       inv[ri + j] = s0; inv[r0 + i] = s0;
       inv[ri + j + 1] = s1; inv[r1 + i] = s1;
       inv[ri + j + 2] = s2; inv[r2 + i] = s2;
       inv[ri + j + 3] = s3; inv[r3 + i] = s3;
+      inv[rh + j] = u0; inv[r0 + i1] = u0;
+      inv[rh + j + 1] = u1; inv[r1 + i1] = u1;
+      inv[rh + j + 2] = u2; inv[r2 + i1] = u2;
+      inv[rh + j + 3] = u3; inv[r3 + i1] = u3;
     }
-    for (; j <= i; j++) {
-      const rj = j * n;
-      let s = 0;
-      for (let k = i; k < n; k++) s += T[ri + k] * T[rj + k];
-      inv[ri + j] = s;
-      inv[rj + i] = s;
-    }
+    for (let jj = j; jj <= i; jj++) entry(i, jj);
+    for (let jj = j; jj <= i1; jj++) entry(i1, jj);
   }
+  for (; i < n; i++) for (let jj = 0; jj <= i; jj++) entry(i, jj);
   return inv;
 }
 
@@ -458,25 +543,35 @@ function kernelPairs(name, theta, D, withGrad) {
  * respect to log theta (R&W eq. 5.9). Returns { lml, grad?, inv?, L, alpha }
  * or { lml: -Infinity } when K is not positive definite.
  */
-export function logMarginal(name, theta, x, y, { grad = false, jitter = DEFAULTS.jitter, D = null } = {}) {
+export function logMarginal(name, theta, x, y, { grad = false, jitter = DEFAULTS.jitter, D = null, factored = null } = {}) {
   const n = x.length;
   const P = theta.length;
   D = D || pairDistances(x);
   const noise = theta[P - 1];
   const { K: Kp, grads } = kernelPairs(name, theta, D, grad);
-  const L = new Float64Array(n * n);
-  let q = 0;
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j <= i; j++) L[i * n + j] = Kp[q++];
-    L[i * n + i] += noise + jitter;
+  let out;
+  if (factored) {
+    // A finite result of this call without grad at the same theta, x, y and
+    // jitter: K is a deterministic function of those, so its factor, alpha
+    // and lml are the ones the lines below would compute.
+    out = { lml: factored.lml, L: factored.L, alpha: factored.alpha };
+  } else {
+    const L = new Float64Array(n * n);
+    let q = 0;
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j <= i; j++) L[i * n + j] = Kp[q++];
+      L[i * n + i] += noise + jitter;
+    }
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) L[i * n + j] = L[j * n + i];
+    if (!cholesky(L, n)) return { lml: -Infinity };
+    const alpha = backward(L, n, forward(L, n, y));
+    let lml = 0;
+    for (let i = 0; i < n; i++) lml -= 0.5 * y[i] * alpha[i] + Math.log(L[i * n + i]);
+    lml -= 0.5 * n * LOG2PI;
+    out = { lml, L, alpha };
   }
-  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) L[i * n + j] = L[j * n + i];
-  if (!cholesky(L, n)) return { lml: -Infinity };
-  const alpha = backward(L, n, forward(L, n, y));
-  let lml = 0;
-  for (let i = 0; i < n; i++) lml -= 0.5 * y[i] * alpha[i] + Math.log(L[i * n + i]);
-  lml -= 0.5 * n * LOG2PI;
-  const out = { lml, L, alpha };
+  const { L, alpha } = out;
+  let q;
   if (grad) {
     const inv = inverseFromCholesky(L, n);
     // W = alpha alpha' - K^-1 on the packed lower triangle, off-diagonal counted twice.
@@ -648,13 +743,20 @@ export function fitKernel(name, x, y, { restarts = DEFAULTS.restarts, seed = DEF
   const spec = bounds || defaultBounds(name, x, { period: period ?? guessPeriod(x, y, rangeOf(x), minGapOf(x)), fixPeriod });
   const D = pairDistances(x);
   const lo = spec.map((s) => Math.log(s.lo)), hi = spec.map((s) => Math.log(s.hi));
+  // minimizeBox asks for the gradient only at a point its line search just
+  // accepted, so fg reuses that trial's Cholesky factor instead of refactoring
+  // the same matrix (about a third of a fit's linear algebra).
+  let last = null;
   const fg = (logT) => {
-    const r = logMarginal(name, logT.map(Math.exp), x, y, { grad: true, D, jitter });
+    const factored = last && last.logT === logT ? last.r : null;
+    last = null;
+    const r = logMarginal(name, logT.map(Math.exp), x, y, { grad: true, D, jitter, factored });
     if (!Number.isFinite(r.lml)) return [Infinity, logT.map(() => 0)];
     return [-r.lml, r.grad.map((g) => -g)];
   };
   const fOnly = (logT) => {
     const r = logMarginal(name, logT.map(Math.exp), x, y, { D, jitter });
+    last = Number.isFinite(r.lml) ? { logT, r } : null;
     return Number.isFinite(r.lml) ? -r.lml : Infinity;
   };
   const rand = rng(seed);

@@ -441,6 +441,7 @@ def check(ppc, pg, vg, warm=None):
     qexc = np.where(live, np.maximum(g[:, QG] - g[:, QMAX], g[:, QMIN] - g[:, QG]), -np.inf)
     out = {
         "n_over": int((load > 1.0 + TOL["load"]).sum()), "max_load": float(load.max()),
+        "load_exc_sum": float(np.maximum(load - 1.0, 0.0).sum()),
         "slack_out_mw": slack_out,
         "n_ang": int((aexc > TOL["ang"]).sum()), "ang_exc_deg": float(max(aexc.max(), 0.0)) if len(aexc) else 0.0,
         "vviol": int((vexc > TOL["v"]).sum()), "v_exc_pu": float(max(vexc.max(), 0.0)),
@@ -458,6 +459,12 @@ def merit(c, base_mva):
             + 10.0 * c["v_exc_pu"] + c["q_exc_mvar"] / base_mva)
 
 
+def merit_sum(c, base_mva):
+    """Rule S's merit (LOG.md 2026-11-18, a method change): `merit` with the worst thermal excess replaced by
+    the summed thermal excess over every rated branch, the thermal part of what the elastic QP minimises."""
+    return merit(c, base_mva) - max(c["max_load"] - 1.0, 0.0) + c["load_exc_sum"]
+
+
 ROUNDS = 10
 # Variant J-m (added after J's results, LOG.md 2026-11-12): bounds pulled inward so first-order
 # error lands inside the limit, not on it. Units: thermal fraction of rating, MW, deg, pu, MVAr.
@@ -467,13 +474,15 @@ VBOX = 0.03
 
 
 def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, screen=False, solver="pips",
-        record=False, warm=None, warm_check=False):
+        record=False, warm=None, warm_check=False, merit_fn=None):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
     Each history entry keeps its point under "pg" and "vg".
     warm: a power-flow result whose voltages start round 1's Newton (and the start's check);
     warm_check: start each new point's AC check at the current round's linearisation point.
-    Both default off, which is every arm before the homotopy start (LOG.md 2026-11-14)."""
+    Both default off, which is every arm before the homotopy start (LOG.md 2026-11-14).
+    merit_fn: the acceptance merit (default `merit`, the frozen test; `merit_sum` is rule S)."""
+    mf = merit_fn or merit
     lay = Layout(ppc)
     g = ppc["gen"]
     ptrust = np.maximum(0.2 * (g[:, PMAX] - g[:, PMIN]), 0.1)
@@ -508,7 +517,7 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
                      **c, "pg": xp.copy(), "vg": vg.copy()})
         if c["clean"]:
             break
-        if cur is None or merit(c, ppc["baseMVA"]) < merit(cur, ppc["baseMVA"]):
+        if cur is None or mf(c, ppc["baseMVA"]) < mf(cur, ppc["baseMVA"]):
             pg, v, cur = xp.copy(), xv.copy(), c
         else:
             ptrust, vtrust = ptrust / 2, vtrust / 2

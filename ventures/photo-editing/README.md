@@ -381,7 +381,13 @@ This repo currently contains the first testable core utilities:
   windows within 0-7 bits but whole frames 25-33 apart: held-out pair recall 0.985
   to 0.991, 6% pans 0.85-0.86 to 1.00, no added false merge in 13,695; both window
   matches now run as one packed comparison,
-  `eval/cull-crop-gate-2026-11-18.md`; since the same day, from 500 photos up, a
+  `eval/cull-crop-gate-2026-11-18.md`; and since the same day every other pair of
+  windows at those wide offsets counts too, within 5 and at least 10 closer than
+  the whole frames, because the one pair nearest the middle often sat 6-11 bits
+  apart while another row lined up: held-out pair recall 0.991 to 0.995, 10% pans
+  0.87 / 0.95 / 0.86 to 0.98 / 1.00 / 0.89 (horizontal / vertical / diagonal), no
+  added false merge in 13,695, grouping about 1.8x slower (5,000 frames 11.8 to
+  21.7 s), `eval/cull-pan-all-pairs-2026-11-18.md`; since the same day, from 500 photos up, a
   chunked hash index finds the only pairs any match could link instead of comparing
   every pair, with identical groups: 2,000 frames 10.0 to 3.6 s, 10,000 frames 251
   to 42 s, `eval/cull-grouping-index-2026-11-18.md`), keeps the best frame per group as the

@@ -163,8 +163,9 @@ class ShallowAndRefreshTest(unittest.TestCase):
     def test_shallow_clone_too_short_is_not_called_clear(self):
         pick_track._open_pr_titles.cache_clear()
         lines = ClaimCheckTest._run(None, [(1, "other")], covers=False)
-        self.assertEqual(len(lines), 1)
+        self.assertEqual(len(lines), 2)
         self.assertNotIn("clear", lines[0])
+        self.assertIn("CLAIM RACE", lines[1])
         self.assertIn("shallow-since", lines[0])
 
     def test_boundary_commit_is_dropped(self):
@@ -329,8 +330,22 @@ class ClaimCheckTest(unittest.TestCase):
 
     def test_says_clear_when_nothing_found(self):
         lines = self._run([(1, "other")])
-        self.assertEqual(len(lines), 1)
+        self.assertEqual(len(lines), 2)
         self.assertIn("clear", lines[0])
+        self.assertIn("CLAIM RACE", lines[1])
+
+    def test_race_line_on_an_active_programme_too(self):
+        # 2026-11-18: the claim_check.py pointer sat on the 'clear' line only, so a draw with
+        # recent merged commits (the programmes most likely to be drawn twice) never saw it.
+        lines = self._run([(1, "other")], recent=["abc 1 hour ago: m4 merged"])
+        self.assertTrue(any("portfolio/router/claim_check.py cell-fidelity" in l for l in lines))
+
+    def test_no_race_line_when_a_claim_is_already_listed(self):
+        lines = self._run([(9, "research/cell-fidelity: m2")])
+        self.assertFalse(any("CLAIM RACE" in l for l in lines))
+
+    def test_no_race_line_when_prs_cannot_be_read(self):
+        self.assertFalse(any("CLAIM RACE" in l for l in self._run(None)))
 
     def test_api_error_is_not_silent(self):
         lines = self._run(None)
