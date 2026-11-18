@@ -399,9 +399,11 @@ TAKE_ADVISE_RATIO = 0.6
 # The fewest wheels the take survey must have summed, after the take-blind ones were left out (controller.TAKE_SURVEY_BLIND),
 # before the Pi advises a contact time (2026-11-18, firmware/esp32/README.md "The take survey's verdict needs two
 # informative wheels"). ESC_SURVEY_MIN_WHEELS still counts every wheel surveyed. On the twelve stored sets a verdict that
-# rested on one summed wheel was wrong 12 times in 37, on two 3 in 67 (tests/take_survey_kept.py,
-# eval/take-survey-kept-2026-11-18.md). Older firmware sends no such count; then only the 16-wheel minimum applies.
-TAKE_SURVEY_MIN_KEPT = 2
+# rested on one summed wheel was wrong 12 times in 37, on two 3 in 67, so 2 was pre-registered; on the fresh held-out
+# set the six one-wheel verdicts were all right while 6 of 146 others were wrong, so by its rule it ships at 0 (off:
+# the count is reported, nothing is held; tests/take_survey_kept.py, eval/take-survey-kept-2026-11-18.md). Older
+# firmware sends no such count.
+TAKE_SURVEY_MIN_KEPT = 0
 # The longest a calibration drill holds a ball for the last one's surveys: 8 s until the take survey's refits went to 5
 # t0 levels (2026-11-18, README "The first-order take misfit traced"), about 10 s of control ticks a two-wheel ball.
 TAKE_WAIT_S = 12.0

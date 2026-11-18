@@ -2736,3 +2736,31 @@ blind (0 -> 1 of 9).
 the capture set sat at its ceiling and so could not show a gain; a verdict now rests on fewer wheels (on the jittery
 set 1149 of 1584 were left out), and `ESC_SURVEY_MIN_WHEELS` still counts all of them. Next: count only the kept wheels
 toward the 16-wheel minimum (a frame field), and the advised instant build of "Take-blind rows traced".
+
+## The take survey's verdict needs two informative wheels (2026-11-18, after "The take survey skips take-blind wheels"; built, kept off by its pre-registered rule)
+
+**The item.** The section above left `host.ESC_SURVEY_MIN_WHEELS` (16) counting every wheel the take survey saw,
+including the take-blind ones left out of its sums, and named next "count only the kept wheels toward the 16-wheel
+minimum (a frame field)".
+
+**The frame field ships.** `ResidualSurvey.kept_n` counts the wheels summed; the TAKE_SURVEY frame (0x84) carries it
+as a new last byte (to 255), and the Pi reads it into the survey (`"kept"`) and the shot log. The Pi still decodes the
+shorter frame of older firmware (`protocol.OLDER_FORMATS`), with `"kept": None`. `host.TAKE_SURVEY_MIN_KEPT` holds a
+verdict back, saying how many wheels told the contact times apart, when fewer than that many were summed.
+
+**Counting kept wheels toward 16 would silence the survey.** `tests/take_survey_kept.py` rescores stored captures'
+board rows at a minimum K on the kept wheels, at the drill's end and at every 16-wheel-or-longer prefix (a shorter
+drill). The jittery-tach drills keep a median of 3, 5 and 6 wheels of 22, so at K = 16 none of the three jittery sets'
+72 right end-of-drill verdicts is advised (eval/take-survey-kept-design-2026-11-18.txt). The 16-wheel minimum stays on
+every wheel surveyed.
+
+**A small minimum, pre-registered, failed held out.** On the twelve stored sets a prefix verdict resting on one kept
+wheel was wrong 12 times in 37 against about 1% on more, so K = 2 was pre-registered (eval/take-survey-kept-2026-11-18.md,
+committed before the capture): on a fresh jittery set (lag 0.7 s, seed 23) the one-wheel verdicts had to be wrong at
+three times the others' share. They were wrong 0 times in 6, the rest 6 in 140; end-of-drill verdicts were 21 right
+either way and no take was invented. By the rule the minimum ships at 0: the count is reported and nothing is held.
+
+**Not known.** Counted by drill, the design evidence was two wrong drills of 14 (prefixes of one drill are
+near-repeats), and held out two right of two, so whether one informative wheel is too few is not settled by these
+sets; a minimum would need drill-level counts over more fresh sets. Still open from before: the sub-8 advised instant
+build, and whether `TAKE_SURVEY_BLIND`'s 1.5 suits a real wheel.

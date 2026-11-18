@@ -1,4 +1,4 @@
-# The take survey's verdict needs two informative wheels (2026-11-18, firmware/esp32/README.md, same title)
+# The take survey's verdict needs two informative wheels: failed held out (2026-11-18, firmware/esp32/README.md, same title)
 
 ## The item
 
@@ -56,6 +56,33 @@ DECISION RULE: `host.TAKE_SURVEY_MIN_KEPT = 2` ships if (b) and (c) hold and (a)
 sets' evidence stands alone, and the README says so). If (a) fails or (b) fails, it ships at 0 (off; the frame field
 still goes out) and the README reports the miss.
 
-## Held-out result
+## Held-out result (captured after the pre-registration was committed, 759a4aafd)
 
-(Filled in after the capture.)
+`tests/take_survey_jitter.py --capture ... --lag 0.7 --seed 23 --procs 4`, 72 drills, none aborted; rows
+eval/take-survey-kept-heldout-2026-11-18.jsonl.gz, scored output eval/take-survey-kept-heldout-2026-11-18.txt.
+
+| | min kept 0 (today) | min kept 2 |
+| --- | --- | --- |
+| end of drill: right / wrong / invented / held | 21 / 1 / 0 / 0 | 21 / 1 / 0 / 0 |
+| prefixes: right / wrong / invented / held | 146 / 6 / 0 / 0 | 140 / 6 / 0 / 6 |
+
+Advised prefix verdicts by kept wheels: 1, 6 right and 0 wrong; 2, 10 and 0; 3, 18 and 6; 4, 45 and 0; 5, 23 and 0;
+6 or more, 44 and 0.
+
+- (a) **failed.** Six prefix verdicts rested on one kept wheel (not void), and none was wrong; those on two or more
+  were wrong 6 times in 140. The one-wheel share is not three times the rest's; it is zero.
+- (b) held: 21 right at the drill's end either way (of 54 spread takes).
+- (c) held: neither invents a take.
+
+**Decision, by the rule: `host.TAKE_SURVEY_MIN_KEPT = 0`.** The board's new frame byte (wheels summed) still ships and
+the Pi still reads it into the survey and the shot log, so a later minimum needs no firmware change; the hold is code
+that runs only with the constant raised.
+
+**What the miss says.** Counted by drill rather than by prefix the evidence was thin from the start: on the twelve
+design sets the 37 one-wheel prefix verdicts come from 14 drills, 12 right and 2 wrong (the 12 wrong prefixes were two
+drills read at 16-22 wheels each); held out, the 6 come from two drills (half-sine 6 ms, 0.5 and 3 us of jitter, both
+5.5 ms, right), and the 6 wrong ones from one drill (half-sine 6 ms at 2 us, 8 ms on three kept wheels). Prefixes of a
+drill are near-repeats, so the decision rule's shares weighed each drill by how early it reached a verdict. One wheel
+in 16 is wrong about one drill in seven on the design sets and none in two held out: no minimum on the kept count has
+shown it pays. The firmer finding is the negative one above: the literal item, 16 kept wheels, would have silenced every
+jittery-tach verdict.

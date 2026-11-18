@@ -1,0 +1,10 @@
+
+eval/take-survey-kept-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 21 right, 1 wrong, 0 invented, 0 held; prefixes 146 right, 6 wrong, 0 invented, 0 held
+  min kept 2: end of drill 21 right, 1 wrong, 0 invented, 0 held; prefixes 140 right, 6 wrong, 0 invented, 6 held
+    advised prefixes on 1 kept wheels: 6 right, 0 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 10 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 18 right, 6 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 45 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 23 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 44 right, 0 wrong, 0 invented

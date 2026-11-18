@@ -1926,16 +1926,22 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("set TAKE_US = 0", host.take_survey_advice(dict(sv, least_ms10=0, refined_ms10=0, board_ms10=40)))
 
     def test_verdict_needs_two_summed_wheels(self):
-        # 2026-11-18, README "The take survey's verdict needs two informative wheels": 24 wheels surveyed but one summed
-        # (the rest take-blind) is held back; two are enough; a frame from older firmware (no count) is not held.
+        # 2026-11-18, README "The take survey's verdict needs two informative wheels": with the minimum at 2, 24 wheels
+        # surveyed but one summed (the rest take-blind) is held back; two are enough; older firmware (no count) is not.
         sv = {"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0,
               "rms_ppm": [136, 140, 119, 98, 95, 50, 112]}
-        self.assertEqual(host.TAKE_SURVEY_MIN_KEPT, 2)
-        one = host.take_survey_advice(dict(sv, kept=1))
-        self.assertIn("only 1 told the contact times apart", one)
-        self.assertNotIn("set TAKE_US =", one)
-        self.assertIn("set TAKE_US = 5500", host.take_survey_advice(dict(sv, kept=2)))
-        self.assertIn("set TAKE_US = 5500", host.take_survey_advice(dict(sv, kept=None)))
+        self.assertEqual(host.TAKE_SURVEY_MIN_KEPT, 0)               # shipped off: failed held out (prediction (a))
+        self.assertIn("set TAKE_US = 5500", host.take_survey_advice(dict(sv, kept=1)))
+        saved = host.TAKE_SURVEY_MIN_KEPT
+        host.TAKE_SURVEY_MIN_KEPT = 2                                # the pre-registered value, opt-in
+        try:
+            one = host.take_survey_advice(dict(sv, kept=1))
+            self.assertIn("only 1 told the contact times apart", one)
+            self.assertNotIn("set TAKE_US =", one)
+            self.assertIn("set TAKE_US = 5500", host.take_survey_advice(dict(sv, kept=2)))
+            self.assertIn("set TAKE_US = 5500", host.take_survey_advice(dict(sv, kept=None)))
+        finally:
+            host.TAKE_SURVEY_MIN_KEPT = saved
 
     def test_older_frame_still_reads(self):
         # firmware before 2026-11-18 sends the frame without the summed-wheel byte: it decodes, and the Pi has no count
