@@ -66,31 +66,32 @@ export const SAMPLE_STUDY = {
 // ---------------------------------------------------------------- parsing
 
 export function parseCsv(text) {
-  const src = String(text ?? "").replace(/^﻿/, "");
-  const lines = src.split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
-  if (!lines.length) throw new Error("No data: paste a CSV with a header row.");
-  const head = lines[0];
-  const delim = head.includes("\t") ? "\t" : head.includes(";") && !head.includes(",") ? ";" : ",";
-  const split = (line) => {
-    const out = [];
-    let cur = "";
-    let q = false;
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (q) {
-        if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
-        else if (c === '"') q = false;
-        else cur += c;
-      } else if (c === '"') q = true;
-      else if (c === delim) { out.push(cur.trim()); cur = ""; }
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
+  const firstLine = src.split(/\r\n|\n|\r/).find((l) => l.trim() !== "");
+  if (firstLine == null) throw new Error("No data: paste a CSV with a header row.");
+  const delim = firstLine.includes("\t") ? "\t" : firstLine.includes(";") && !firstLine.includes(",") ? ";" : ",";
+  // One pass over the whole text, so a quoted field may hold a line break.
+  const records = [];
+  let row = [];
+  let cur = "";
+  let q = false;
+  const endField = () => { row.push(cur.trim()); cur = ""; };
+  const endRow = () => { endField(); if (row.some((c) => c !== "")) records.push(row); row = []; };
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i];
+    if (q) {
+      if (c === '"' && src[i + 1] === '"') { cur += '"'; i++; }
+      else if (c === '"') q = false;
       else cur += c;
-    }
-    out.push(cur.trim());
-    return out;
-  };
-  const header = split(head);
-  const rows = lines.slice(1).map(split);
-  return { header, rows, delim };
+    } else if (c === '"') q = true;
+    else if (c === delim) endField();
+    else if (c === "\n" || c === "\r") { if (c === "\r" && src[i + 1] === "\n") i++; endRow(); }
+    else cur += c;
+  }
+  if (q) throw new Error("A quoted field is never closed: check the quotes in the data.");
+  endRow();
+  if (!records.length) throw new Error("No data: paste a CSV with a header row.");
+  return { header: records[0], rows: records.slice(1), delim };
 }
 
 export function num(v, delim = ",") {

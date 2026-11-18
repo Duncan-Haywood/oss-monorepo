@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 43,
   "outcome": "success",
   "errors": [
     "Hand-worked 2x2x2 test expectations were wrong twice (within-cell SS 16 vs 8, total 61.5 vs 63.5); the engine and the statsmodels reference agreed, the hand arithmetic did not.",
-    "First nested reference used statsmodels C(operator)/C(part) with part labels unique to operator: rank-deficient, anova_lm crashed; replaced with differences of residual sums of squares between nested OLS fits."
+    "First nested reference used statsmodels C(operator)/C(part) with part labels unique to operator: rank-deficient, anova_lm crashed; replaced with differences of residual sums of squares between nested OLS fits.",
+    "GitHub CI changed-ventures failed test_csv_quoted_newlines: parseCsv split lines before reading quotes (the ratchet from the 2026-11-17 red team). Rewrote it as one quote-aware pass with a test; run_workflow_locally --for-changes had not reached that unwired check."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "prompt.md",
       "issue": "NIST/SEMATECH e-Handbook (itl.nist.gov), the natural public-domain source for gauge-study data, is refused by the proxy; cloud-session.md's 'Outbound hosts' list could name it."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes passed locally, but the unwired tree check test_csv_quoted_newlines.py (run inside changed-ventures on GitHub) failed; a new venture's parseCsv is exactly what it catches, so a hint in ventures/CLAUDE.md to run `run_venture_tests.py --since origin/main` (which runs unwired checks) would have caught it before push."
     }
   ],
   "deviations": [

@@ -145,6 +145,10 @@ test("CSV reading: header names, aliases, semicolons with decimal commas, quotes
   assert.equal(num("1,5", ","), NaN);
   const q = parseCsv('part,operator,measurement\n"a, b",x,1\n');
   assert.equal(q.rows[0][0], "a, b");
+  const multi = readStudy('part,operator,measurement,note\nP1,A,1,"line one\nline two"\nP1,A,2,ok\r\n');
+  assert.equal(multi.obs.length, 2);
+  assert.deepEqual(multi.obs.map((o) => o.y), [1, 2]);
+  assert.throws(() => parseCsv('part,operator,measurement\n"P1,A,1\n'), /never closed/);
   assert.throws(() => readStudy("part,operator,measurement\n1,A,\n"), /not a number/);
   assert.throws(() => readStudy("part,operator,measurement\n1,A,abc\n"), /not a number/);
   assert.throws(() => readStudy("a,b\n1,2\n"), /three columns/);
