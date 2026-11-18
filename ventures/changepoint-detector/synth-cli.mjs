@@ -92,7 +92,8 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
   };
   // --shape-word panel (opt-in, README "The shape word against the panel's own trend" and "The panel word as an
   // option"): every word above is read against the median unit's gap growth (panelShapes) once that median would
-  // itself be called 'grew'. Pre-registered bar 1 failed by 0.4 points, so it is not the default.
+  // itself be called 'grew'. Not the default: pre-registered bar 1 failed by 0.4 points, and the re-test scored where
+  // it switches on (eval/synth-shape-switch-prereg-2026-11-18.md) found it hides a donor's own slope (bars 3 and 4).
   if (shapeWord === 'panel') Object.assign(out, { shapeWord, shapeCentre: r.shapeCentre, shapeRelative: r.shapeRelative });
   if (lr) {
     out.leadRange = {
@@ -114,7 +115,10 @@ const wordOf = (q, shapeWord) => (q.gapShape ? (shapeWord === 'panel' ? q.gapSha
 export function placebosAbove(r, shapeWord = 'plain') {
   const val = (q) => (r.statistic === 'post' ? q.postRmspe : q[r.statistic]), own = r.tests[r.statistic].value;
   return r.placebos.filter((q) => val(q) >= own - 1e-12 * Math.abs(own)).sort((a, b) => val(b) - val(a))
-    .map((q) => ({ name: q.name, statistic: val(q), preRmspe: q.preRmspe, postRmspe: q.postRmspe, weight: r.donorWeights?.[q.name] ?? 0, gapShape: wordOf(q, shapeWord) }));
+    .map((q) => ({ name: q.name, statistic: val(q), preRmspe: q.preRmspe, postRmspe: q.postRmspe, weight: r.donorWeights?.[q.name] ?? 0, gapShape: wordOf(q, shapeWord),
+      // under --shape-word panel each listed unit also carries its plain word (README "The panel word scored where it
+      // switches on": the panel word called a donor's own big slope 'held' 90% of the time, the plain word 'grew' 92%)
+      ...(shapeWord === 'panel' ? { plainShape: wordOf(q, 'plain') } : {}) }));
 }
 
 const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3);

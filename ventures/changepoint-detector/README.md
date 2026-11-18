@@ -6765,6 +6765,63 @@ option's path through the CLI, the worker job and the page.
 **Not done:** the fresh pre-registration scored only where the rule switches on, which would decide whether the panel
 word can become the default.
 
+### The panel word scored where it switches on (2026-11-18, pre-registered; bars 3 and 4 fail, the plain word stays the default)
+
+"The panel word as an option" left one thing undone: a fresh pre-registration scored only on the panels where the rule
+switches on, to decide whether `--shape-word panel` can be the default. The two words are identical on every panel
+where the panel's centre stays under 6, so the earlier bar 1, pooled over all wandering panels, was diluted by panels
+where nothing could differ. This round scores only the switched panels, and asks a question the earlier one did not:
+is a donor with its own event worded **more often than a clean unit** where the panel word is in force?
+
+`eval/synth-shape-switch-sim.mjs` (pre-registration `eval/synth-shape-switch-prereg-2026-11-18.md`, committed after
+the exploratory run at base 89000 and before the confirmatory one) runs every cell of the earlier simulation plus two
+growing generators it did not have (growth deviations AR(0.7) and AR(0.97)), 80 cells. Confirmatory, base 93000, 400
+panels a cell, 32,000 panels (`eval/synth-shape-switch-confirm.out.txt`). The rule switched on in 41.5% of growing
+panels (28.5% at AR(0.7), 50.7% at AR(0.97)), 0.8% of wandering ones and 1 of 8,000 trendless ones. On the 5,982
+switched growing panels:
+
+| line | plain | panel |
+|---|---|---|
+| clean units given a word (all placebos / listed above the treated one) | 67.5% / 80.1% | **28.9% / 22.6%** |
+| pulse donors called 'faded'; lift over clean units | 71.5%; 68.7 pts | **92.6%; 77.1 pts** |
+| slope donors called 'grew'; lift over clean units | 86.6%; 21.9 pts | **8.6%; -4.9 pts** |
+| slope donors given any word; lift over clean units | 87.8%; 20.3 pts | **14.2%; -14.7 pts** |
+| big slope (twice the effect) called 'held' | 7.2% | **89.6%** |
+| step donors called 'held' | 69.8% | 63.9% |
+
+Bars: (1) clean units worded at least 25 points less: 38.6, holds. (2) pulse lift at least plain's: 77.1 against 68.7,
+holds. (3) slope lift at least plain's minus 5: -4.9 against 21.9, **fails**. (4) slope flag lift at least 0: -14.7,
+**fails**. (5) bar 1 in each growing generator: 37.7, 35.0 and 41.3 points, holds. The exploratory run had predicted
+3 and 4 would fail (slope flag lift -13.7); the pre-registration said so and kept the bars.
+
+**What it says.**
+- **Where it is in force, the panel word hides a donor's own slope.** A slope from the date grows linearly; a
+  compounding gap grows faster, so against the panel's centre a slope looks ordinary and reads 'held'. A big slope was
+  called 'held' 90% of the time, and slope donors were worded less often than units with no event of their own. The
+  earlier test's 33% 'grew' was pooled over growing panels where the rule mostly stayed off; where it was on, 9%.
+- **It is better at everything else.** Clean units worded 29% against 68%, pulses named 92.6% against 71.5%.
+- **Neither word is enough alone.** The plain word flags slopes (lift 20 points) but words two thirds of clean units;
+  the panel word is quiet and names pulses but cannot see slopes. Reading both is what tells them apart.
+
+**Shipped (decided in the pre-registration).** The plain word stays the default. Under `--shape-word panel`:
+- every unit in `above` (and `--json`) carries `plainShape`, its plain word, beside `gapShape`; the default result
+  has no `plainShape`, so default `--json` readers see no change;
+- where the rule is on and the two words differ, the "ranked above" list gives both: on West Germany 1990, "the
+  Netherlands ... its own gap held against the panel's growth, but grew towards the end on its own reading";
+- the note quotes the switched-panel rates (`PANEL_SHAPE` in `synth-view.mjs`, each pinned to the confirmatory block
+  "growing-all | switched"), says a big slope was called 'held' 90% of the time (plain 7%), and that a unit held
+  against the panel that grew on its own reading is the one to look into for a slope. The earlier rates, pooled over
+  panels where the rule was off, are no longer quoted.
+
+`synth-shape-switch.test.mjs` re-checks every bar against the confirmatory file, pins `PANEL_SHAPE` to it, and the
+simulation's 80 cells; `synth-shape-trend.test.mjs` pins `plainShape` and the two-word wording on West Germany and the
+Basque Country (centre 2.36: the words agree, so nothing changes).
+
+**Limits.** Twelve points after the date and thirds of four points each: a slope and a compounding gap differ in
+curvature, which four-point thirds barely see. One shape of slope (linear from the date). Wandering panels switched in
+81 of 9,600, too few for a bar. **Next:** a word that reads curvature (the middle third against the line through the
+outer two) so a linear slope can be told from compounding growth, pre-registered on these cells.
+
 ## Currency pegs: the update-rate check against documented dates (2026-11-18, pre-registered; D1 fails, a hang fixed)
 
 The update-rate check ("When a series starts updating less often") had only ever been scored in

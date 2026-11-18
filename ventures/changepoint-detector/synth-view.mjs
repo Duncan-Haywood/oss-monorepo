@@ -62,21 +62,28 @@ export function fewDonorsNote(h) {
 export function aboveNote(h, max = 5) {
   if (!h.above?.length) return null;
   const shapeWord = { faded: '; its own gap faded after the first points', grew: '; its own gap grew towards the end' };
-  const shown = h.above.slice(0, max).map((q) => `${q.name} ${f(q.statistic, 1)} (before-gap ${g(q.preRmspe)}, after ${g(q.postRmspe)}${shapeWord[q.gapShape] ?? ''})`).join(', ');
+  // under --shape-word panel, a unit whose plain word differs gets both (README "The panel word scored where it switches on")
+  const both = (q) => (h.shapeWord === 'panel' && h.shapeRelative && q.plainShape && q.plainShape !== q.gapShape
+    ? `; its own gap ${q.gapShape} against the panel's growth, but ${q.plainShape === 'grew' ? 'grew towards the end' : q.plainShape === 'faded' ? 'faded after the first points' : 'held'} on its own reading`
+    : shapeWord[q.gapShape] ?? '');
+  const shown = h.above.slice(0, max).map((q) => `${q.name} ${f(q.statistic, 1)} (before-gap ${g(q.preRmspe)}, after ${g(q.postRmspe)}${both(q)})`).join(', ');
   return `Ranked at or above ${h.treated} (statistic ${f(h.tests[h.statistic].value, 1)}; before-gap ${g(h.preRmspe)}, after ${g(h.postRmspe)}): ${shown}${h.above.length > max ? `, +${h.above.length - max} more` : ''}. If one of these had a change of its own after the date, the test counts it against ${h.treated}; that is a reason to look into it and say so, not to drop it from the pool after seeing the result (a pool chosen after the result is not a test).${h.shapeWord === 'panel' ? panelShapeNote(h, h.above.slice(0, max)) : shapeNote(h.above.slice(0, max), h.placeboShapes)}${heavyNote(h, h.above)}`;
 }
 // What the shape words mean and how far to trust them (README "A donor's own event that is not a step").
-// PANEL_SHAPE: the panel word's confirmatory rates (eval/synth-shape-trend-confirm.out.txt, pre-registered
-// eval/synth-shape-trend-prereg-2026-11-18.md; bar 1 failed by 0.4 points, so it is offered, not the default). On
-// compounding panels where the centre reached 6: listed units with no event of their own given a word, panel vs plain;
-// a donor's own big slope called 'grew' on growing panels and on wandering ones; a pulse called 'faded' on growing ones.
-export const PANEL_SHAPE = { cleanPanel: 22.2, cleanPlain: 80.2, growSlopePanel: 33.0, growSlopePlain: 96.0, allGrewPanel: 27.2, wanderSlopePanel: 68.8, wanderSlopePlain: 70.7, pulsePanel: 78.4, pulsePlain: 74.3 };
+// PANEL_SHAPE: the panel word's rates on the panels where it is in force, from the re-test scored only there
+// (eval/synth-shape-switch-confirm.out.txt, "growing-all | switched", pre-registered
+// eval/synth-shape-switch-prereg-2026-11-18.md; bars 3 and 4 failed, so it stays an option). The earlier rates
+// (eval/synth-shape-trend-confirm.out.txt) were pooled over growing panels where the rule mostly stayed off, but this
+// note prints them only where it is on. clean*: listed units with no event of their own given a word; pulse*: a pulse
+// that wore off called 'faded'; bigSlopeHeld*: a donor's own big slope called 'held'; slopeWordedPanel / cleanAllPanel:
+// slope donors and units with no event given any word, over all placebos.
+export const PANEL_SHAPE = { cleanPanel: 22.6, cleanPlain: 80.1, pulsePanel: 92.6, pulsePlain: 71.5, bigSlopeHeldPanel: 89.6, bigSlopeHeldPlain: 7.2, slopeWordedPanel: 14.2, cleanAllPanel: 28.9 };
 function panelShapeNote(h, list) {
   const r = PANEL_SHAPE, pc = (v) => `${Math.round(v)}%`, c = h.placeboShapes, n = c.faded + c.grew + c.held;
   if (h.shapeCentre == null) return '';
   const centre = Number(h.shapeCentre).toPrecision(3);
   if (!h.shapeRelative) return ` Words read against the panel (--shape-word panel): the median unit's gap grew ${centre} times in mean square from the first third of the after-points to the last, under 6, so each word is the plain one.${shapeNote(list, c)}`;
-  return ` Words read against the panel (--shape-word panel): the median unit's gap grew ${centre} times in mean square from the first third of the after-points to the last, so gaps that grow are this panel's rule, and each unit is worded by how far it stands from that: "grew" means its gap's growth (last third over first, in mean square) was at least 6 times the median's, "faded" at most a sixth of it, "held" in between. Of all ${n} donors' own gaps, ${c.faded} faded, ${c.grew} grew and ${c.held} held on this reading. In simulation on compounding panels like this one (eval/synth-shape-trend-confirm.out.txt), ${pc(r.cleanPanel)} of listed units with no event of their own got a word, against ${pc(r.cleanPlain)} for the plain word, and a pulse that wore off was still called faded ${pc(r.pulsePanel)} of the time (plain ${pc(r.pulsePlain)}). It cannot tell a donor's own slope from the panel's growth: a big one was called grew ${pc(r.growSlopePanel)} of the time, about the ${pc(r.allGrewPanel)} of all placebos that were, so "held" does not clear a unit of a slope of its own. It is an option, not the default, because on panels that wander it called a big slope grew ${r.wanderSlopePanel}% of the time against ${r.wanderSlopePlain}%, missing a pre-registered bar by 0.4 points.`;
+  return ` Words read against the panel (--shape-word panel): the median unit's gap grew ${centre} times in mean square from the first third of the after-points to the last, so gaps that grow are this panel's rule, and each unit is worded by how far it stands from that: "grew" means its gap's growth (last third over first, in mean square) was at least 6 times the median's, "faded" at most a sixth of it, "held" in between. Of all ${n} donors' own gaps, ${c.faded} faded, ${c.grew} grew and ${c.held} held on this reading. In simulation on compounding panels where this reading was in force (eval/synth-shape-switch-confirm.out.txt, pre-registered), ${pc(r.cleanPanel)} of listed units with no event of their own got a word, against ${pc(r.cleanPlain)} for the plain word, and a pulse that wore off was called faded ${pc(r.pulsePanel)} of the time (plain ${pc(r.pulsePlain)}). But it hides a donor's own slope from the date: a big one was called held ${pc(r.bigSlopeHeldPanel)} of the time (plain ${pc(r.bigSlopeHeldPlain)}), and slope donors got any word ${pc(r.slopeWordedPanel)} of the time, less often than units with no event of their own (${pc(r.cleanAllPanel)}). A linear slope grows more slowly than a compounding gap, so against this panel it looks ordinary. So "held" here does not clear a unit of a slope of its own; where the plain word differs it is given beside the panel word, and a unit held against the panel that grew on its own reading is the one to look into for a slope. That is why this is an option, not the default.`;
 }
 function shapeNote(list, counts) {
   if (!list.some((q) => q.gapShape === 'faded' || q.gapShape === 'grew')) return '';
