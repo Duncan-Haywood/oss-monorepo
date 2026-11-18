@@ -9,9 +9,14 @@ topics: [ci, software-for-routine]
 
 `platform/ci/check_hidden_unicode.py` exists, is tested
 (`test_check_hidden_unicode.py`, 19 tests) and passes on `main` with
-`hidden_unicode_baseline.txt` (33 files). **It is not wired into CI yet.**
-The wiring is a control-plane edit (`.github/` is in CODEOWNERS), so it goes in
-its own small PR that waits for the owner's approval. The natural home is
+`hidden_unicode_baseline.txt` (33 files). **It is only partly wired.**
+`ventures-tests.yml` runs every unwired `platform/ci` check and test
+(`unwired_checks.py`), so any PR touching `ventures/**` runs it. It caught two
+literal BOMs in this very PR's post on its first CI run. A PR that touches
+only `CLAUDE.md`, `prompts/` or `.github/`, the paths it guards hardest, does
+not trigger that workflow. Wiring it everywhere is a control-plane edit
+(`.github/` is in CODEOWNERS), so it goes in its own small PR that waits for
+the owner's approval. The natural home is
 `.github/workflows/conflict-markers-ci.yml`, which already runs on every pull
 request, fork PRs included, with no path filter, and reads every tracked text
 file. Add after its two steps:
@@ -30,7 +35,7 @@ skips anyway, and the scan takes about 2 s.
 
 ## For anyone who trips it
 
-- Write the character as an escape (`﻿`, `​`) in JS or Python
+- Write the character as an escape (`\uFEFF`, `\u200B`) in JS or Python
   source. The literal is invisible in every diff.
 - A deliberate fixture or scanner test: `--write-baseline`, and say why in the
   PR. Paths under `CLAUDE.md`, `AGENTS.md`, `prompt.md`, `prompts/`

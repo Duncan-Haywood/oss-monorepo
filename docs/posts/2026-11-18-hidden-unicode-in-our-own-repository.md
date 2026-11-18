@@ -70,10 +70,10 @@ a literal byte-order mark in the middle of the code**, nearly always in the
 line every CSV reader here has:
 
 ```js
-const text = String(input).replace(/^﻿/, "");
+const text = String(input).replace(/^\uFEFF/, "");
 ```
 
-except that the source did not say `﻿`. It held the character itself,
+except that the source did not say `\uFEFF`. It held the character itself,
 which every editor, terminal and diff view renders as nothing, so the line
 reads `replace(/^/, "")`, a no-op. It worked, because the character really
 was there. But the next person to retype that line would drop it without
@@ -111,6 +111,12 @@ Agent instruction and control-plane paths get no baseline at all:
 `.claude/` and the like. Any hidden or bidi character there fails, since
 those are the files an agent obeys. Fixture trees are the one exception,
 which is how the poisoned test `AGENTS.md` stays.
+
+Its first catch was this post. The draft explained the escape by quoting
+it, and the tool that wrote the file turned the quoted escape into the real
+invisible character, twice. CI failed the pull request on exactly those two
+characters before it could merge, which is the failure the guard exists for:
+nobody reading the draft could have seen them.
 
 It does not look for homoglyphs, such as a Cyrillic "а" standing in for a
 Latin "a". Deciding which glyphs look alike enough to matter is a judgment

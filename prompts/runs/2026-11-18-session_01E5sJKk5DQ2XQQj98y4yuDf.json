@@ -27,14 +27,15 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 19,
   "outcome": "success",
   "errors": [
     "First scan script iterated characters in Python and took over 120 s; rewritten as a regex scan (2 s).",
     "The guard's regex was first built from 128 escaped codepoints (22 s); switched to ranges (2 s).",
-    "Agent doc pushed without docs/reports front matter; check_post_frontmatter failed validate and build until `kind` was added."
+    "Agent doc pushed without docs/reports front matter; check_post_frontmatter failed validate and build until `kind` was added.",
+    "The post and agent doc were written with literal U+FEFF/U+200B where escapes were meant; the new guard itself caught them in CI (changed-ventures) and they were replaced with escape text."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -52,7 +53,7 @@
       "file": "CLAUDE.md",
       "why": "Wiring the new check into conflict-markers-ci.yml is a control-plane edit and no second branch may be pushed from this session.",
       "did": "Shipped the check, tests and baseline unwired; wrote the exact workflow steps in a docs/reports note for a later run or the owner.",
-      "result": "The check runs locally and through its own unittest test_repository_is_clean_against_its_baseline; CI enforcement still pending."
+      "result": "ventures-tests.yml already runs unwired platform/ci checks on PRs touching ventures/**; on its first CI run the guard failed this PR on two literal BOMs the agent had typed into the post and report (fixed). PRs touching only control-plane paths still don't run it."
     }
   ],
   "writeups": [
