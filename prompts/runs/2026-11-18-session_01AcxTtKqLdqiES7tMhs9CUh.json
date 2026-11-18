@@ -28,12 +28,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 24,
   "outcome": "success",
   "errors": [
-    "First version of the ubuntu-agent-server pipeline test fake passed `gh pr create` through to the real gh CLI; the sandbox returned 403 and nothing was created. The fake now intercepts every gh call."
+    "First version of the ubuntu-agent-server pipeline test fake passed `gh pr create` through to the real gh CLI; the sandbox returned 403 and nothing was created. The fake now intercepts every gh call.",
+    "First CI run: devsec-toolkit's catalogue risk-set test failed (it mirrors the pin check's RISK_CLASSIFICATIONS; the new 'unresolved' class was unmapped) and portfolio/distribution/versions.json was stale. Fixed by mapping 'unresolved' in devsec-toolkit/catalog.py and running versions.mjs --write."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "platform/ci/quality_audit.py",
       "issue": "`queue` marks rows an open PR's title names, but PR #17124 (ice-dam, Section 179, Obsidian) was not flagged in the queue output; I found the overlap only by searching PR titles by hand."
+    },
+    {
+      "file": "ventures/docker-base-image-pin-check/README.md",
+      "issue": "Nothing in the venture says devsec-toolkit/catalog.py mirrors its risk classes, so a new class breaks another venture's test; `run_venture_tests.py --changed` on the one venture did not reach it."
     }
   ],
   "deviations": [],
