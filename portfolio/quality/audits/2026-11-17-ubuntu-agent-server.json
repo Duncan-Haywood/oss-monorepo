@@ -175,28 +175,32 @@
    "what": "dry_run path unclaims the issue but adds no marker label, so the same issue is re-cloned, re-run by the agent and re-commented on every poll (3 polls -> 3 runs, 3 comments; 144/day at the default schedule), draining plan quota; the shipped monorepo entry is dry_run + self_directed",
    "where": "ventures/ubuntu-agent-server/roles/agent_runner/files/agent_runner.py:730",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
   },
   {
    "severity": "medium",
    "what": "no task creates the agent:in-progress / agent:pr-opened / agent:failed / agent:self-directed labels; gh issue edit/create with a missing label fails, so on a fresh repo claim_issue returns False and the runner silently never works anything",
    "where": "ventures/ubuntu-agent-server/roles/agent_runner/tasks/main.yml:1",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
   },
   {
    "severity": "medium",
    "what": "process_issue/_process_issue_inner (push/no-push, dry_run, secret-scan gate) has no test; mutants inverting dry_run and bypassing gitleaks both survive",
    "where": "ventures/ubuntu-agent-server/tests/test_agent_runner.py:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
   },
   {
    "severity": "medium",
    "what": "README says nothing gets worked twice and that Claude Code's headless flags were checked against vendor docs; both false (dry-run loop; stream-json without --verbose rejected)",
    "where": "ventures/ubuntu-agent-server/README.md:140",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
   },
   {
    "severity": "low",
@@ -225,9 +229,10 @@
    "what": "run_id() is called separately for workspace and log names, so they can differ by a second and the comment's log path may not match the workspace stamp",
    "where": "ventures/ubuntu-agent-server/roles/agent_runner/files/agent_runner.py:584",
    "category": "code-craft",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16857", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"],
  "verdict": "A carefully commented Ansible + systemd agent runner whose pure helpers are well tested (43 pass; sync/fold verified against real git with an upstream commit landing mid-run) and whose playbook parses and lints clean, but the primary paths fail when actually run: the real Claude Code CLI rejects claude.sh's flags ('stream-json requires --verbose'), dry_run re-runs the agent on the same issue every poll (harness: 3 polls, 3 runs, 3 comments), and the GitHub labels the claim step needs are never created, so a fresh repo is silently never worked. The guardrail code (dry_run, secret-scan gate) has no test and two mutants there survive. It does not meet the bar; a senior SRE would not enable it until those three are fixed and the CLI argv is exercised against the real binaries."
 }

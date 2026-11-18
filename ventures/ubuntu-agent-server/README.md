@@ -495,8 +495,11 @@ tests/                              unit tests for agent_runner.py's pure logic 
   All `roles/agent_runner/files/runners/*.sh` scripts pass `shellcheck`
   clean.
 - The exact headless/permission flags for Claude Code, Codex CLI, and
-  opencode were checked against each vendor's own current docs, not just
-  blog posts summarizing them. Antigravity CLI's were not fully
+  opencode were read from each vendor's own current docs, not just
+  blog posts summarizing them, but not run against the real CLIs: that
+  reading missed that Claude Code's `--output-format stream-json` with `-p`
+  needs `--verbose`, and every Claude run failed until PR #16857 added it.
+  Run one issue through each tool before trusting its flags. Antigravity CLI's were not fully
   confirmable that way — its docs site doesn't document headless flags in
   the sections available — so that integration is explicitly marked
   lower-confidence throughout rather than presented with false certainty.
