@@ -251,6 +251,14 @@ function attributeIssues(f, spec, ctx) {
       const all = attributeIndex(S);
       const bad = names.filter((n) => !all.has(n));
       outcomes.push(bad.length === names.length ? { code: "attribute-unknown", message: `no ${id} class has an attribute ${JSON.stringify(bad[0])}` } : null);
+      // A value on an attribute that is a list (or an object, a select,
+      // binary) on every class storing it: every object it applies to fails
+      // (IDS's value_checks_always_fail_for_lists test case). A warning, not
+      // an error: with no class named, the IDS-Audit-tool accepts it.
+      if (f.value.present && bad.length < names.length) {
+        const why = uncomparable(S, names.filter((n) => all.has(n)));
+        if (why) warnings.push(`${why}; ${(spec.applicability || []).includes(f) ? "so this applicability selects nothing" : "every object this checks fails it"} (${id})`);
+      }
       continue;
     }
     for (const cls of classes) {
@@ -286,6 +294,29 @@ function attributeIssues(f, spec, ctx) {
   if (outcomes.length && outcomes.every(Boolean)) issues.push({ level: "error", code: outcomes[0].code, message: outcomes[0].message });
   else if (warnings.length) issues.push({ level: "warning", code: "value-never", message: warnings[0] });
   return issues;
+}
+
+// For attribute names with no class: why none of them can be compared with a
+// value on any class that stores it ("TexCoordsList is a list on every class
+// that has it (IfcIndexedTextureMap)"), or null when one can.
+function uncomparable(S, names) {
+  const what = new Map();
+  for (const [cls, e] of Object.entries(S.entities)) {
+    for (const a of S.attrs(cls)) {
+      if (!names.includes(a.name) || a.derived) continue;
+      const prim = S.prim(a.type);
+      const k = a.aggregate || prim === "aggregate" ? "a list" : prim === "entity" ? "an object" : prim === "select" ? "a select" : prim === "binary" ? "binary" : null;
+      if (!k) return null;
+      if (!what.has(a.name)) what.set(a.name, { k: new Set(), on: [] });
+      const w = what.get(a.name);
+      w.k.add(k);
+      if (e.attrs.some((x) => x.name === a.name)) w.on.push(e.name || cls);
+    }
+  }
+  if (!what.size) return null;
+  const [n, w] = [...what][0];
+  const kinds = [...w.k];
+  return `${n} is ${kinds.length === 1 ? kinds[0] : kinds.join(" or ")} on every class that has it (${w.on.slice(0, 3).join(", ")}${w.on.length > 3 ? ", ..." : ""}); IDS cannot compare it with a value`;
 }
 
 function enumOf(S, type) {
