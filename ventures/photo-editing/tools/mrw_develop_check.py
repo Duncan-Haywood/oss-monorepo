@@ -42,6 +42,12 @@ def _read(blob: bytes) -> rd.Ifd:
         return rd.read_dcp(f.name)
 
 
+def lin(v):
+    import numpy as np
+
+    return np.where(v <= 0.04045, v / 12.92, ((v + 0.055) / 1.055) ** 2.4)
+
+
 def chroma(m):
     s = sum(m)
     return (m[0] / s, m[2] / s) if s else (0.0, 0.0)
@@ -65,7 +71,6 @@ def check(path: Path) -> dict:
     ours, theirs = ours / 65535, theirs / 65535
     # Linear light, and only pixels unclipped in both renders: the two treat clipped highlights differently.
     keep = (ours.max(axis=2) < 0.98) & (theirs.max(axis=2) < 0.98)
-    lin = lambda v: np.where(v <= 0.04045, v / 12.92, ((v + 0.055) / 1.055) ** 2.4)
     ours, theirs = lin(ours[keep]), lin(theirs[keep])
     m_ours = [float(ours[:, c].mean()) for c in range(3)]
     m_theirs = [float(theirs[:, c].mean()) for c in range(3)]
