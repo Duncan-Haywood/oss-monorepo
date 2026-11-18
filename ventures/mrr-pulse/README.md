@@ -32,7 +32,8 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
 - **MRR**: active and past-due subscriptions; every price normalised to a
   month (yearly / 12, weekly × 4.348 (30.4375 / 7), interval counts and seat quantities
   applied); percent-off coupons netted.
-- **Not counted**: trials, paused subscriptions, metered usage, tiered
+- **Not counted**: trials, paused subscriptions, incomplete and
+  incomplete-expired subscriptions (the first payment never succeeded), metered usage, tiered
   (graduated or volume) prices, fixed-amount
   coupons. (`COUNT_PAST_DUE=false` also drops past-due.)
 - **Movements**: new, expansion, contraction, churned and reactivated MRR,

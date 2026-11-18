@@ -34,14 +34,19 @@ export function liveMap(subs, { countPastDue = true } = {}) {
 // `created`: a trial is not revenue, and one canceled before it ever paid is
 // neither new MRR nor churn (red team 2026-11-18).
 export const paidFrom = (s) => Math.max(s.created || 0, s.trialEnd || 0);
-const neverPaid = (s) => Boolean(s.endedAt && s.endedAt <= paidFrom(s));
+// incomplete and incomplete_expired mean the first payment never succeeded
+// (Stripe expires one after about 23 hours), so it was never revenue, even
+// though Stripe gives it an ended_at (red team 2026-11-18, second pass: it read
+// as new MRR then churn across a month end, and from the CSV, as live MRR forever).
+const NEVER_PAID_STATUS = new Set(["incomplete", "incomplete_expired"]);
+const neverPaid = (s) => NEVER_PAID_STATUS.has(s.status) || Boolean(s.endedAt && s.endedAt <= paidFrom(s));
 
 export function mapAt(subs, t) {
   const out = {};
   for (const s of subs) {
-    if (!(s.mrr > 0) || !s.created || paidFrom(s) > t) continue;
+    if (!(s.mrr > 0) || !s.created || paidFrom(s) > t || NEVER_PAID_STATUS.has(s.status)) continue;
     if (s.endedAt && s.endedAt <= t) continue;
-    if (!s.endedAt && !["active", "past_due", "canceled", "incomplete_expired"].includes(s.status)) continue;
+    if (!s.endedAt && !["active", "past_due", "canceled"].includes(s.status)) continue;
     out[s.id] = s.mrr;
   }
   return out;
@@ -161,7 +166,7 @@ export function formatMoney(minor, currency = "usd") {
 export function cohorts(subs, now, months = 12) {
   const rows = [];
   const ends = monthEnds(now, months);
-  const eligible = subs.filter((s) => s.mrr > 0 && s.created && ["active", "past_due", "canceled", "incomplete_expired"].includes(s.status) && !neverPaid(s));
+  const eligible = subs.filter((s) => s.mrr > 0 && s.created && ["active", "past_due", "canceled"].includes(s.status) && !neverPaid(s));
   for (let i = 0; i < ends.length; i++) {
     const members = eligible.filter((s) => ym(paidFrom(s)) === ends[i].month);
     if (!members.length) { rows.push({ month: ends[i].month, size: 0, mrr: 0, logo: [], revenue: [] }); continue; }

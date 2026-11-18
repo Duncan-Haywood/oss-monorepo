@@ -315,3 +315,23 @@ test("edge amounts and defaults (red team 2026-11-18)", async () => {
   assert.equal(b.concentration.largest, 30);
   assert.equal(b.concentration.top1, 0.5);
 });
+
+// Red team 2026-11-18: every concentration test fed subscriptions already in
+// descending order, so a broken sort (`b + a`) still passed. Shuffled input.
+test("concentration ranks subscriptions largest first whatever order they arrive in", () => {
+  const c = concentration({ a: 100, b: 500, c: 300, d: 100 });
+  assert.equal(c.top1, 0.5);
+  assert.deepEqual(c.top, [0.5, 0.3, 0.1, 0.1]);
+  assert.equal(c.risk, "high");
+});
+
+// Stripe gives an incomplete_expired subscription an ended_at about 23 hours
+// after creation. Straddling a month end, it read as new MRR then churn.
+test("incomplete_expired from the API is neither new MRR nor churn, nor a cohort member", async () => {
+  const { cohorts } = await import("./metrics.mjs");
+  const s = { id: "x", mrr: 5000, status: "incomplete_expired", created: D(2026, 3, 31) + 12 * 3600e3, endedAt: D(2026, 4, 1) + 11 * 3600e3 };
+  assert.deepEqual(mapAt([s], D(2026, 4, 1) - 1), {});
+  const { months } = backfill([s], D(2026, 6, 15), 4);
+  assert.ok(months.every((m) => m.new === 0 && m.churn === 0 && m.mrr === 0));
+  assert.ok(cohorts([s], D(2026, 6, 15), 4).every((r) => r.size === 0));
+});

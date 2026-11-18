@@ -100,3 +100,15 @@ test("an impossible created date is skipped, not rolled into the next month (red
   assert.deepEqual(skipped.map((s) => s.why), ["created is not a date"]);
   assert.deepEqual(subs.map((s) => s.id), ["b"]);
 });
+
+// Red team 2026-11-18 (second pass): an incomplete_expired subscription is one
+// whose first payment never succeeded, so it was never revenue. From the CSV
+// export its end date was dropped (only "canceled" kept one) and mapAt then
+// counted it as live MRR every month from its creation: a $500 row that never
+// paid sat in the headline MRR for seven months.
+test("an incomplete_expired row never counts as MRR", () => {
+  const { subs } = subsFromCsv("id,status,amount,interval,created,ended at\nsub_a,active,100,month,2026-01-05,\nsub_b,incomplete_expired,500,month,2026-03-10,2026-03-11\n");
+  const { months } = backfill(subs, Date.UTC(2026, 9, 15), 10);
+  assert.deepEqual(months.map((m) => m.mrr), Array(10).fill(10000));
+  assert.ok(months.every((m) => m.new <= 10000 && m.churn === 0));
+});

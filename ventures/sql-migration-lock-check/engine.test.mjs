@@ -659,3 +659,11 @@ test('plain DROP INDEX needs a lock_timeout and counts toward one transaction\'s
   assert.ok(has('DROP INDEX i;', 'no-lock-timeout'));
   assert.ok(has("SET lock_timeout='3s';\nBEGIN;\nDROP INDEX i;\nTRUNCATE b;\nCOMMIT;", 'many-locks-one-transaction'));
 });
+
+// Red team 2026-11-18 (second pass): a stray ROLLBACK before any BEGIN
+// restores the timeout state "at BEGIN", which must start as off. Seeding
+// `sessionAtBegin = true` made the stray ROLLBACK switch the timeout on and
+// silenced every later finding; no test noticed.
+test('a stray ROLLBACK before any BEGIN does not invent a lock_timeout', () => {
+  assert.ok(has(`ROLLBACK;\n${RENAME}`, 'no-lock-timeout'));
+});
