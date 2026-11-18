@@ -128,13 +128,17 @@ test('an audience page carries its own title, description, canonical, JSON-LD an
   assert.match(html, /no warranty/i);
 });
 
-test('the starting note sits under "Start here" when the page has one, in the hero when it does not', () => {
+test('the starting note sits under "Start here" when the page has one, under the list when it does not', () => {
   // In the hero it pushed the first tool card below a 360x780 screen on 20 of
-  // 31 pages (docs/reports/polish-2026-11-18-starting-under-start-here.md).
+  // 31 pages (docs/reports/polish-2026-11-18-starting-under-start-here.md),
+  // and below 320x640 on all five short pages (polish-2026-11-18-short-audience-pages.md).
   const note = 'class="starting"';
   const short = renderAudiencePage({ audience: byId.roofers, items: roofTools, groups: [], baseUrl: BASE });
   const hero = short.slice(short.indexOf('<header class="pf-hero">'), short.indexOf('</header>'));
-  assert.ok(hero.includes(note), 'four tools: no Start here row, so the note stays in the hero');
+  assert.ok(!hero.includes(note), 'four tools: no Start here row, and still not in the hero');
+  assert.equal(short.split(note).length - 1, 1, 'short page: exactly once');
+  const main = short.slice(short.indexOf('<main>'), short.indexOf('</main>'));
+  assert.ok(main.lastIndexOf('class="card"') < main.indexOf(note), 'short page: after the last card, inside main');
   const many = [...roofTools, ...['skylight', 'siding', 'soffit', 'chimney'].map((w) => surface(`${w}-bid-calculator`))];
   const html = renderAudiencePage({ audience: byId.roofers, items: many, groups: [], baseUrl: BASE });
   const head = html.slice(html.indexOf('<header class="pf-hero">'), html.indexOf('</header>'));
@@ -143,6 +147,16 @@ test('the starting note sits under "Start here" when the page has one, in the he
   const start = html.slice(html.indexOf('<section class="start-here"'));
   assert.ok(start.indexOf('</ol>') < start.indexOf(note) && start.indexOf(note) < start.indexOf('</section>'),
     'after the cards, inside the Start here section');
+});
+
+test('a short audience page spanning two categories has its sections but no jump chips', () => {
+  const mixed = [...roofTools.slice(0, 3), surface('etsy-fee-calculator'), surface('ebay-fee-calculator')];
+  const html = renderAudiencePage({ audience: byId.roofers, items: mixed, groups: [], baseUrl: BASE });
+  assert.ok((html.match(/<section class="subgroup"/g) || []).length >= 2, 'still filed in sections');
+  assert.ok(!html.includes('<nav class="jumps"'), 'no chips above a list this short');
+  const many = [...mixed, ...['skylight', 'siding', 'soffit'].map((w) => surface(`${w}-bid-calculator`))];
+  const big = renderAudiencePage({ audience: byId.roofers, items: many, groups: [], baseUrl: BASE });
+  assert.ok(big.includes('<nav class="jumps"'), 'eight or more tools keep them');
 });
 
 test('the hub links every published audience page with a data-category the checker follows', () => {
