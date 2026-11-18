@@ -1,0 +1,43 @@
+# Milestone 11am: height-keeping error (FTE = altitude estimate - setpoint) on public PX4 Flight Review logs
+# index searched 'Mission' on 2026-11-18: 454 matching, 454 read, 118 kept (multirotor, not SITL, >= 2 min), 2 errors
+# duplicate uploads dropped (same n, mean and RMS under two ids): mission_enroute 1, mission_hover 0, pos_level 3
+# error kinds: missing topic 2
+
+## mission_enroute: 17 usable flights (>= 30 s qualifying)
+  qualifying seconds per flight: median 112 (38 to 936), total 3096
+  per-flight RMS (m): median 0.043 [95% CI 0.035, 0.050]; p10 0.027 p25 0.035 p75 0.050 p90 0.054 max 0.065
+  sigma_fleet = sqrt(mean RMS^2) = 0.044 m [95% CI 0.038, 0.049]
+  per-flight |mean| (m): median 0.009; per-flight sd: median 0.040; p95 |e| median 0.076; p99 |e| median 0.096
+  excess kurtosis: pooled (flights equal, 41 per flight) 0.62; within flight median -0.28 (17 flights)
+  pooled 1 Hz |e| beyond 3 sd: 0.57% (Gaussian 0.27%); pooled sd 0.047 m
+  1/e autocorrelation time (s): median 1.40 (p25 1.20, p75 1.71), 11 flights with a 20 s run
+  by airframe type: Quadrotor n=12 median RMS 0.040; Hexarotor n=4 median RMS 0.040; Octorotor n=1 median RMS 0.065
+  by PX4 version: 1.14 n=4 0.043; 1.15 n=4 0.047; 1.16 n=2 0.038; 1.17 n=4 0.032; 1.3 n=1 0.043; 1.7 n=1 0.050; 1.9 n=1 0.051
+
+## mission_hover: 5 usable flights (>= 30 s qualifying)
+  qualifying seconds per flight: median 102 (37 to 701), total 1092
+  per-flight RMS (m): median 0.029 [95% CI 0.016, 0.043]; p10 0.017 p25 0.020 p75 0.039 p90 0.041 max 0.043
+  sigma_fleet = sqrt(mean RMS^2) = 0.031 m [95% CI 0.021, 0.038]
+  per-flight |mean| (m): median 0.008; per-flight sd: median 0.027; p95 |e| median 0.059; p99 |e| median 0.072
+  excess kurtosis: pooled (flights equal, 45 per flight) 0.71; within flight median -0.18 (5 flights)
+  pooled 1 Hz |e| beyond 3 sd: 0.44% (Gaussian 0.27%); pooled sd 0.032 m
+  1/e autocorrelation time (s): median 1.36 (p25 1.26, p75 2.35), 3 flights with a 20 s run
+  by airframe type: Quadrotor n=4 median RMS 0.029; Hexarotor n=1 median RMS 0.029
+  by PX4 version: 1.11 n=1 0.020; 1.14 n=1 0.039; 1.16 n=1 0.016; 1.17 n=1 0.043; 1.7 n=1 0.029
+
+## pos_level: 13 usable flights (>= 30 s qualifying)
+  qualifying seconds per flight: median 54 (34 to 232), total 1135
+  per-flight RMS (m): median 0.034 [95% CI 0.023, 0.046]; p10 0.013 p25 0.023 p75 0.046 p90 0.053 max 0.057
+  sigma_fleet = sqrt(mean RMS^2) = 0.037 m [95% CI 0.029, 0.044]
+  per-flight |mean| (m): median 0.006; per-flight sd: median 0.033; p95 |e| median 0.073; p99 |e| median 0.094
+  excess kurtosis: pooled (flights equal, 38 per flight) 0.36; within flight median -0.22 (13 flights)
+  pooled 1 Hz |e| beyond 3 sd: 0.20% (Gaussian 0.27%); pooled sd 0.037 m
+  1/e autocorrelation time (s): median 1.43 (p25 0.98, p75 1.64), 10 flights with a 20 s run
+  by airframe type: Quadrotor n=9 median RMS 0.033; Hexarotor n=4 median RMS 0.037
+  by PX4 version: 1.13 n=1 0.046; 1.14 n=3 0.033; 1.15 n=1 0.057; 1.16 n=5 0.027; 1.17 n=2 0.032; 1.7 n=1 0.039
+
+# predictions (main set mission_enroute)
+  P1 median per-flight RMS in [0.10, 0.50]: 0.043 -> refuted
+  P2 sigma_fleet <= 1.0: 0.044 -> held
+  P3 pooled excess kurtosis > 3 and within-flight median < 3: 0.62, -0.28 -> split
+  P4 median 1/e time >= 2 s: 1.40 -> refuted

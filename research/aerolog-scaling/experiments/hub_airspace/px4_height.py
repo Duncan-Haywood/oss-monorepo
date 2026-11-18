@@ -209,8 +209,23 @@ def summarise(t, e):
 
 def reduce_log(path):
     """{set name: summary or None} plus meta for one ULog file."""
+    r = series(path)
+    if "error" in r:
+        return r
+    t, e, sets, airborne = r["t"], r["e"], r["sets"], r["airborne"]
+    out = {}
+    for name, m in sets.items():
+        s = summarise(t[m], e[m])
+        out[name] = s if s and s["seconds"] >= MIN_USABLE_S else None
+    out["airborne_s"] = float(np.sum(np.diff(t)[airborne[1:] & (np.diff(t) < 1.0)])) if len(t) > 1 else 0.0
+    return out
+
+
+def series(path, topics=TOPICS):
+    """The log's topics (multi_id 0), local-position times t (s), FTE e (m), the three sample sets' masks and the
+    airborne mask; {"error": ...} when a needed topic is missing."""
     from pyulog import ULog
-    u = ULog(path, TOPICS)
+    u = ULog(path, topics)
     D = {}
     for d in u.data_list:
         if d.multi_id == 0 and d.name not in D:
@@ -245,13 +260,8 @@ def reduce_log(path):
     e = z - zsp
     mis = nav == NAV_MISSION
     pos = np.isin(nav, NAV_POS)
-    out = {}
-    for name, m in (("mission_enroute", mis & enroute), ("mission_hover", mis & level & ~enroute),
-                    ("pos_level", pos & level)):
-        s = summarise(t[m], e[m])
-        out[name] = s if s and s["seconds"] >= MIN_USABLE_S else None
-    out["airborne_s"] = float(np.sum(np.diff(t)[airborne[1:] & (np.diff(t) < 1.0)])) if len(t) > 1 else 0.0
-    return out
+    sets = {"mission_enroute": mis & enroute, "mission_hover": mis & level & ~enroute, "pos_level": pos & level}
+    return {"D": D, "t": t, "e": e, "sets": sets, "airborne": airborne}
 
 
 def settled_reset(t, rc):

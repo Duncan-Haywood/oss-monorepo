@@ -85,3 +85,44 @@ def test_summarise_rms_includes_bias():
     assert abs(s["rms"] - math.sqrt(0.09 + 0.08)) < 0.01
     assert abs(s["mean"] - 0.3) < 0.01
     assert 95 <= len(s["e_1hz_cm"]) <= 100
+
+
+phs = _mod("px4_height_stats_test", "px4_height_stats.py")
+
+
+def test_fleet_sigma_and_kurtosis():
+    assert abs(phs.fleet_sigma([0.3, 0.4]) - math.sqrt(0.125)) < 1e-12
+    x = np.random.default_rng(1).normal(size=200000)
+    assert abs(phs.excess_kurtosis(x)) < 0.05
+
+
+def test_usable_drops_duplicate_uploads():
+    s = {"n": 10, "mean": 0.01, "rms": 0.04}
+    d = {"logs": [{"id": "a", "mission_enroute": dict(s)}, {"id": "b", "mission_enroute": dict(s)},
+                  {"id": "c", "mission_enroute": dict(s, rms=0.05)}, {"id": "d", "mission_enroute": None}]}
+    u = phs.usable(d, "mission_enroute")
+    assert [f["id"] for f in u] == ["a", "c"]
+
+
+def test_detrended_rms_removes_line():
+    pp = _mod("px4_height_posthoc_test", "px4_height_posthoc.py")
+    t = np.linspace(0, 100, 1001)
+    assert pp.detrended_rms(t, 3.0 + 0.02 * t) < 1e-9
+    x = 0.5 * np.sin(t)
+    assert abs(pp.detrended_rms(t, x + 0.1 * t) - 0.5 / math.sqrt(2)) < 0.02
+
+
+def test_mix_reduces_to_gaussian():
+    pr = _mod("px4_height_run_test", "px4_height_run.py")
+    ds = pr.ds
+    deltas = np.array([0.0, 0.3, -0.7])
+    gaps = np.array([0.0, 5.0, 10.0, 15.0])
+    one = ds.p_overlap(gaps, 7.62, 0.8, deltas)
+    assert np.allclose(pr.p_overlap_mix(gaps, 7.62, [0.8, 0.8], deltas), one)
+    sc = pr.mix_scales(np.array([0.1, 0.1, 0.1]), n=8)
+    assert np.allclose(sc, 0.1 * math.sqrt(2))
+    # a scale mixture puts more mass far out than a Gaussian of the same RMS
+    mix = pr.mix_scales(np.array([0.05, 0.05, 0.05, 2.0]), n=64)
+    rms = math.sqrt(np.mean(mix ** 2))
+    far = np.array([12.0])
+    assert pr.p_overlap_mix(far, 7.62, mix, np.zeros(1))[0] > ds.p_overlap(far, 7.62, rms, np.zeros(1))[0]
