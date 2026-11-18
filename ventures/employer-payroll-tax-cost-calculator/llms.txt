@@ -4,6 +4,10 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it answers
+
+In 2026 an employer pays 6.2% Social Security tax on each employee's first $184,500 of wages, 1.45% Medicare tax on all wages, and federal unemployment (FUTA) tax of 6% on the first $7,000. Paying state unemployment tax on time earns a credit of up to 5.4%, so FUTA is usually 0.6%, or $42 per employee a year, more in a credit-reduction state. Source: IRS Publication 15 (2026) and Publication 926 (2026). As of 2026-11-14.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/employer-payroll-tax-cost-calculator/)

@@ -1,0 +1,294 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtKZwgpi4s2ZdzhZsK2",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T12:05:56Z",
+  "ended": "2026-11-14T12:06:47Z",
+  "wall_minutes": 7.06,
+  "tokens_in": 4169130,
+  "tokens_out": 25666,
+  "cost_usd": 2.0322,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15845",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 11 entries, all control-plane workflow edits with PRs already waiting on the owner; the prompt asks each run to re-check them, which is nothing but a restated blocker. The list could mark entries that have an open control-plane PR as 'waiting' and skip them."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets` with no flags lists only 21 random files; finding the probe time for one venture needs --under and --limit, which the prompt doesn't mention together."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix the open defects first; all 11 are control-plane edits with open PRs awaiting owner approval.",
+      "did": "Checked open PRs for each, left them, and seeded 10 mutants instead of 8.",
+      "result": "No duplicate control-plane PRs opened."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-quick-pick-null-code.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/quick-pick-survey/site/rank-core.mjs (team-range code from #15820). Guard added: platform/ci/check_share_decoders.py (run by unwired_checks.py); first run: 204 modules, 205 decoders, 0 crashes. Verified: rank-core.test.mjs 29 pass; run_venture_tests.py quick-pick-survey ok; test_check_share_decoders, test_unwired_checks, test_main_health OK; check_post_frontmatter, check_post_links pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/quick-pick-survey/site/rank-core.mjs",
+        "test": "node --test ventures/quick-pick-survey/**/*.test.mjs  (in .)",
+        "seed": 2370709,
+        "commit": "f62cee773",
+        "sites": 469,
+        "baseline_seconds": 0.8,
+        "mutants": [
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 158,
+            "col": 32,
+            "operator": "times-to-div",
+            "before": "const y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-(z * z) / 2);",
+            "after": "const y = 1 - ((((1.061405429 / t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-(z * z) / 2);",
+            "line_text": "  const y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-(z * z) / 2);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 188,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "return ((t ^ (t >>> 14)) >>> 0) / 4294967296;",
+            "after": "return ((t ^ (t >>> 14)) >>> 1) / 4294967296;",
+            "line_text": "    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 212,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "asked.set(k, (asked.get(k) || 0) + 1);",
+            "after": "asked.set(k, (asked.get(k) && 0) + 1);",
+            "line_text": "    asked.set(k, (asked.get(k) || 0) + 1);",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "With && the first ask stores undefined+1 = NaN, and NaN || 0 reads 0, so the repeat penalty vanished. New test: a 0>1>2 chain asked twice each must next ask 0 vs 2, seeds 1-3."
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 223,
+            "col": 92,
+            "operator": "const-plus-one",
+            "before": "const score = (p * (1 - p) * v) / (1 + 0.5 * (asked.get(`${i},${j}`) || 0)) * (1 + 1e-6 * rand());",
+            "after": "const score = (p * (1 - p) * v) / (1 + 0.5 * (asked.get(`${i},${j}`) || 0)) * (1 + 1e-7 * rand());",
+            "line_text": "      const score = (p * (1 - p) * v) / (1 + 0.5 * (asked.get(`${i},${j}`) || 0)) * (1 + 1e-6 * rand());",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Jitter scale 1e-6 vs 1e-7 multiplies the same rand() draws; exact ties break the same way and the pick only changes when two scores differ by under 1e-6 relative, which no user can see in which pair is asked."
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 335,
+            "col": 38,
+            "operator": "plus-to-minus",
+            "before": "const m = f.mu.reduce((a, b) => a + b, 0) / n;",
+            "after": "const m = f.mu.reduce((a, b) => a - b, 0) / n;",
+            "line_text": "    const m = f.mu.reduce((a, b) => a + b, 0) / n;",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "fit()'s posterior mode is exactly zero-sum (iid zero-mean prior, shift-invariant likelihood; checked: sum -2.2e-16), so m is 0 whether the reduce adds or subtracts; the 'centred' test in combine passes either way."
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 350,
+            "col": 34,
+            "operator": "times-to-div",
+            "before": "sum += 1 - (6 * d2) / (n * (n * n - 1));",
+            "after": "sum += 1 - (6 * d2) / (n * (n / n - 1));",
+            "line_text": "    sum += 1 - (6 * d2) / (n * (n * n - 1));",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 464,
+            "col": 64,
+            "operator": "const-plus-one",
+            "before": "const B = Float64Array.from(J, (x, k) => t2 * x + (k % (n + 1) === 0 ? 1 : 0));",
+            "after": "const B = Float64Array.from(J, (x, k) => t2 * x + (k % (n + 2) === 0 ? 1 : 0));",
+            "line_text": "    const B = Float64Array.from(J, (x, k) => t2 * x + (k % (n + 1) === 0 ? 1 : 0));",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 466,
+            "col": 22,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < n; i++) ll -= Math.log(L[i * n + i]);",
+            "after": "for (let i = 0; i <= n; i++) ll -= Math.log(L[i * n + i]);",
+            "line_text": "    for (let i = 0; i < n; i++) ll -= Math.log(L[i * n + i]);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 472,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < n; i++) for (let j = 0; j < i; j++) { const s = (P[i * n + j] + P[j * n + i]) / 2; P[i * n + j] = s; P[j * n + i] = s; }",
+            "after": "for (let i = 0; i < n; i++) for (let j = 1; j < i; j++) { const s = (P[i * n + j] + P[j * n + i]) / 2; P[i * n + j] = s; P[j * n + i] = s; }",
+            "line_text": "  for (let i = 0; i < n; i++) for (let j = 0; j < i; j++) { const s = (P[i * n + j] + P[j * n + i]) / 2; P[i * n + j] = s; P[j * n + i] = s; }",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "P = sum B^-1 J is symmetric mathematically; skipping column 0 of the symmetrisation leaves only rounding-level (1e-16) asymmetry that cholesky and the logLik cannot show."
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 472,
+            "col": 48,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < n; i++) for (let j = 0; j < i; j++) { const s = (P[i * n + j] + P[j * n + i]) / 2; P[i * n + j] = s; P[j * n + i] = s; }",
+            "after": "for (let i = 0; i < n; i++) for (let j = 0; j <= i; j++) { const s = (P[i * n + j] + P[j * n + i]) / 2; P[i * n + j] = s; P[j * n + i] = s; }",
+            "line_text": "  for (let i = 0; i < n; i++) for (let j = 0; j < i; j++) { const s = (P[i * n + j] + P[j * n + i]) / 2; P[i * n + j] = s; P[j * n + i] = s; }",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "j <= i adds the diagonal, which averages P[i,i] with itself: no change."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+        "issue": "decodeAnswers read d.l on whatever JSON.parse returned, so a result code whose payload is JSON null (QP1.bnVsbA, a hand-edited or damaged code) threw TypeError inside the Combine click handler: the team box did nothing and showed no error for the other pasted codes. Fixed: non-object payloads return the 'damaged' error; test 'a result code whose payload is not an object is refused, not thrown' failed first.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3d6e0b55-6e89-58a8-8460-2590bbd98f9c",
+    "transcripts": 1,
+    "first": "2026-11-14T12:05:56Z",
+    "last": "2026-11-14T12:13:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 96,
+        "output": 25666,
+        "thinking": 7669,
+        "cache_read": 4081254,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87780,
+        "api_equivalent_usd": 2.0322,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 96,
+      "output": 25666,
+      "thinking": 7669,
+      "cache_read": 4081254,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87780,
+      "api_equivalent_usd": 2.0322,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 50,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.06,
+      "active_minutes": 7.06,
+      "model_minutes": 5.37,
+      "tool_minutes": 1.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "mutation triage, one bug fix with tests, new CI check with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 196.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKjC9bFtobSXMxVEvdD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T00:18:11Z",
+  "ended": "2026-11-11T00:36:50Z",
+  "wall_minutes": 19.62,
+  "tokens_in": 11009254,
+  "tokens_out": 54553,
+  "cost_usd": 4.652,
+  "tool_calls": 82,
+  "task": "ai-bookkeeper flagship item 0: card merchant category codes (MCC) for one-off merchants",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14646",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first full suite run failed page.test.mjs: mcc.mjs missing from the service worker shell",
+      "fix": "added to sw.js SHELL and bumped the cache to v11; rerun green"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "says probe hosts first; gov.uk, every Socrata open-data portal, Kaggle, Hugging Face and zenodo all refused through the proxy, only GitHub hosts answered; gh api search/code over CSV headers was what found a usable labelled MCC set (a mirror of gov.scot data on GitHub). Worth naming as the default route to real data."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the root CLAUDE.md suggests run_workflow_locally.py; it has no --dry-run, so the help text was the only way to see what --for-changes takes (a base ref)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "README.md (ai-bookkeeper, flagship next)",
+      "why": "the item named the fixed MCC table; dev data showed a fixed table is skewed by what a buyer uses cards for, so a per-book category memory was added on top",
+      "did": "table plus learned per-category memory (thresholds set before reading), design chosen on 2016-2019, read once on 2020-2026",
+      "result": "held-out first-seen merchants 41.4% to 66.0% right (table alone 52.4%)"
+    },
+    {
+      "file": "ventures/ai-bookkeeper/mcc.mjs",
+      "why": "five name normalisations and two catch-all drops (8999, 2741) were made after looking at the dev period's unread names and per-account precision",
+      "did": "changed on 2016-2019 only and disclosed in the README",
+      "result": "dev first-seen 62.3% to 63.0%; held-out read once afterwards"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-ai-bookkeeper-merchant-category-codes.md",
+    "ventures/ai-bookkeeper/README.md (Merchant category codes, on real purchasing-card books)"
+  ],
+  "goal": "deepen flagship 2 on real inputs",
+  "notes": "Data: OpenDataScotland/govspend.opendata.scot commit 33ab7a7, 124 monthly JSON files, 13,998 lines, 11,087 mapped. Held out 2020-01..2026-08: every line off 72.4/22.9, table 75.7/22.1, default 79.3/19.8; first seen (1,923) off 41.4/43.3, table 52.4/40.2, default 66.0/30.9 (right/wrong). Verification: node --test mcc.test.mjs 8/8; python3 platform/ci/run_venture_tests.py ai-bookkeeper: ok (2,997 tests, 40 s). Tinkoff CSV exports (which carry MCC) are not read by bank.mjs at all; a header probe returned no rows, left for a later run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d5aecc9e-5ada-53b2-9e9f-22d5641adfd8",
+    "transcripts": 1,
+    "first": "2026-11-11T00:18:11Z",
+    "last": "2026-11-11T00:37:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 145,
+        "output": 54553,
+        "thinking": 15013,
+        "cache_read": 10834938,
+        "cache_write_5m": 0,
+        "cache_write_1h": 174171,
+        "api_equivalent_usd": 4.652,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 145,
+      "output": 54553,
+      "thinking": 15013,
+      "cache_read": 10834938,
+      "cache_write_5m": 0,
+      "cache_write_1h": 174171,
+      "api_equivalent_usd": 4.652,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 75,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.62,
+      "active_minutes": 19.62,
+      "model_minutes": 11.83,
+      "tool_minutes": 7.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "data search, MCC table and name reader, per-book memory, dev/held-out eval, tests, README and post: a senior engineer's day plus",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 215.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

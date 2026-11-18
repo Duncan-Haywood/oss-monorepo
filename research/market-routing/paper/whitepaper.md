@@ -12,9 +12,9 @@ The entropic market (LMSR) yields dense softmax routing; the quadratic
 market yields sparsemax routing with exact zeros, i.e. fewer active modules.
 We verify the equivalence and both loss/regret bounds numerically, then show
 in a piecewise-stationary simulation that market forgetting drives
-switching-regret down ~5x, and that the quadratic market keeps sparse,
-low-regret routing at liquidity values where LMSR becomes diffuse and
-loses accuracy. This is a small-scale simulation; it motivates, but does not
+switching-regret down ~5x, and that the quadratic market's regret and sparsity are far less
+sensitive to the liquidity b; tuned per method, both reach the same regret
+(about 74) with about one active expert. This is a small-scale simulation; it motivates, but does not
 establish, behaviour on trained mixture-of-experts models.
 
 ## 1. Setup

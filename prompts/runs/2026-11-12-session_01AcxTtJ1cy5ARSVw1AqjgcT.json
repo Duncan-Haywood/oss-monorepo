@@ -1,0 +1,392 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJ1cy5ARSVw1AqjgcT",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T10:06:37Z",
+  "ended": "2026-11-12T10:07:21Z",
+  "wall_minutes": 5.02,
+  "tokens_in": 2573960,
+  "tokens_out": 16549,
+  "cost_usd": 1.3588,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15088",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix every open entry first, but all 5 open entries are control-plane fixes already sitting in owner-waiting PRs; the open list has no way to mark 'fix pending in PR #N', so every run re-checks them. redteam.py open could show a pending_pr field."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "targets --probe 20 | grep for a recently changed file printed nothing for files that are guarded (the listing is a random sample of 20, not the full list), which looked like 'not guarded'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (leave an automated guard): no class-wide lint added; the one class candidate (\\d{2,4} year regex in ~30 ventures) only parses machine exports that never carry 3-digit years, so a lint would be noise.",
+      "did": "fixed and tested the instances in the target; noted the sibling check in the post",
+      "result": "no new CI guard this run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-the-year-that-starts-on-a-wednesday.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: state-residency-day-counter/calc.mjs 6/8, coi-expiry-gap-checker/calc.mjs 7/8. Step 0: all five open entries still reproduce on main; each has an open owner-waiting control-plane PR (#14698, #14877, #14612, #12928), so none were touched. Tests: residency 106/106, coi 28/28 (node --test).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/state-residency-day-counter/calc.mjs",
+        "test": "node --test ventures/state-residency-day-counter/**/*.test.mjs  (in .)",
+        "seed": 744359442,
+        "commit": "42469d526",
+        "sites": 700,
+        "baseline_seconds": 1.1,
+        "mutants": [
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 193,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "return m ? { day: toDay(+m[1], +m[2], +m[3]), allDay: !/T\\d/.test(value) } : null;",
+            "after": "return m ? { day: toDay(+m[2], +m[2], +m[3]), allDay: !/T\\d/.test(value) } : null;",
+            "line_text": "  return m ? { day: toDay(+m[1], +m[2], +m[3]), allDay: !/T\\d/.test(value) } : null;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 342,
+            "col": 80,
+            "operator": "gt-to-ge",
+            "before": "if (year && (+dayIso(end).slice(0, 4) < +year || +dayIso(a.day).slice(0, 4) > +year)) { skipped++; continue; }",
+            "after": "if (year && (+dayIso(end).slice(0, 4) < +year || +dayIso(a.day).slice(0, 4) >= +year)) { skipped++; continue; }",
+            "line_text": "    if (year && (+dayIso(end).slice(0, 4) < +year || +dayIso(a.day).slice(0, 4) > +year)) { skipped++; continue; }",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 430,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < total; i++) {",
+            "after": "for (let i = 0; i <= total; i++) {",
+            "line_text": "  for (let i = 0; i < total; i++) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 439,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < total; i++) if (cover[i].length === 0) gapFlags[i] = 1;",
+            "after": "for (let i = 1; i < total; i++) if (cover[i].length === 0) gapFlags[i] = 1;",
+            "line_text": "  for (let i = 0; i < total; i++) if (cover[i].length === 0) gapFlags[i] = 1;",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 450,
+            "col": 29,
+            "operator": "plus-to-minus",
+            "before": "const dow = dayOfWeek(y0 + i);",
+            "after": "const dow = dayOfWeek(y0 - i);",
+            "line_text": "    const dow = dayOfWeek(y0 + i);",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "2025 starts on a Wednesday, so dayOfWeek(y0 - i) mirrors weekdays around Wednesday and maps Sat<->Sun, Mon<->Fri: the only workday test (2025) could not tell. Added a 2026 weekend/week/Wednesday workday test."
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 489,
+            "col": 16,
+            "operator": "gt-to-ge",
+            "before": "if (cum > rule.limit) { triggerDate = d; break; }",
+            "after": "if (cum >= rule.limit) { triggerDate = d; break; }",
+            "line_text": "        if (cum > rule.limit) { triggerDate = d; break; }",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 562,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "for (let d = new Date(Date.UTC(spec.year, 0, 1)); d.getUTCFullYear() === spec.year; d = new Date(d.getTime() + 86400000)) {",
+            "after": "for (let d = new Date(Date.UTC(spec.year, 1, 1)); d.getUTCFullYear() === spec.year; d = new Date(d.getTime() + 86400000)) {",
+            "line_text": "  for (let d = new Date(Date.UTC(spec.year, 0, 1)); d.getUTCFullYear() === spec.year; d = new Date(d.getTime() + 86400000)) {",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/state-residency-day-counter/calc.mjs",
+            "line": 773,
+            "col": 78,
+            "operator": "const-plus-one",
+            "before": "return JSON.stringify({ kind: \"state-residency-day-counter-setup\", version: 1, fields }, null, 2);",
+            "after": "return JSON.stringify({ kind: \"state-residency-day-counter-setup\", version: 2, fields }, null, 2);",
+            "line_text": "  return JSON.stringify({ kind: \"state-residency-day-counter-setup\", version: 1, fields }, null, 2);",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Saved setup files are a format contract with files people keep; nothing pinned the version. Added a test that the saved file says kind + version 1."
+          }
+        ]
+      },
+      {
+        "target": "ventures/coi-expiry-gap-checker/calc.mjs",
+        "test": "node --test ventures/coi-expiry-gap-checker/**/*.test.mjs  (in .)",
+        "seed": 396638456,
+        "commit": "42469d526",
+        "sites": 182,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/coi-expiry-gap-checker/calc.mjs",
+            "line": 82,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "const mult = m[2] === \"k\" ? 1e3 : m[2] ? 1e6 : 1;",
+            "after": "const mult = m[2] === \"k\" ? 1e3 : m[2] ? 1e6 : 2;",
+            "line_text": "  const mult = m[2] === \"k\" ? 1e3 : m[2] ? 1e6 : 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coi-expiry-gap-checker/calc.mjs",
+            "line": 95,
+            "col": 52,
+            "operator": "neq-flip",
+            "before": "if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) return NaN;",
+            "after": "if (dt.getUTCFullYear() !== y || dt.getUTCMonth() === m - 1 || dt.getUTCDate() !== d) return NaN;",
+            "line_text": "  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) return NaN;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coi-expiry-gap-checker/calc.mjs",
+            "line": 95,
+            "col": 62,
+            "operator": "or-to-and",
+            "before": "if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) return NaN;",
+            "after": "if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 && dt.getUTCDate() !== d) return NaN;",
+            "line_text": "  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== m - 1 || dt.getUTCDate() !== d) return NaN;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Year unchanged but month changed only happens through day overflow/underflow (d=0 or d past month end), which always changes the day-of-month too, so 'month differs AND day differs' equals 'month differs' here; month 0 or 13 changes the year, caught by the first clause."
+          },
+          {
+            "file": "ventures/coi-expiry-gap-checker/calc.mjs",
+            "line": 115,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "if (i >= 0 && !(field in idx)) { idx[field] = i; break; }",
+            "after": "if (i >= 1 && !(field in idx)) { idx[field] = i; break; }",
+            "line_text": "      if (i >= 0 && !(field in idx)) { idx[field] = i; break; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coi-expiry-gap-checker/calc.mjs",
+            "line": 194,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "if (inForce.length) return { p: inForce[0], state: \"inforce\" };",
+            "after": "if (inForce.length) return { p: inForce[1], state: \"inforce\" };",
+            "line_text": "      if (inForce.length) return { p: inForce[0], state: \"inforce\" };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coi-expiry-gap-checker/calc.mjs",
+            "line": 218,
+            "col": 90,
+            "operator": "and-to-or",
+            "before": "if (r.umbrellaCounts && c !== \"WC\" && c !== \"UMB\" && umbOk && umb.p.limit != null && umb.p.limit >= short) {",
+            "after": "if (r.umbrellaCounts && c !== \"WC\" && c !== \"UMB\" && umbOk && umb.p.limit != null || umb.p.limit >= short) {",
+            "line_text": "        if (r.umbrellaCounts && c !== \"WC\" && c !== \"UMB\" && umbOk && umb.p.limit != null && umb.p.limit >= short) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coi-expiry-gap-checker/calc.mjs",
+            "line": 239,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "for (let i = 1; i < ps.length; i++) {",
+            "after": "for (let i = 2; i < ps.length; i++) {",
+            "line_text": "      for (let i = 1; i < ps.length; i++) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/coi-expiry-gap-checker/calc.mjs",
+            "line": 263,
+            "col": 77,
+            "operator": "plus-to-minus",
+            "before": "const csv = (rows) => rows.map((r) => r.map(csvCell).join(\",\")).join(\"\\r\\n\") + \"\\r\\n\";",
+            "after": "const csv = (rows) => rows.map((r) => r.map(csvCell).join(\",\")).join(\"\\r\\n\") - \"\\r\\n\";",
+            "line_text": "const csv = (rows) => rows.map((r) => r.map(csvCell).join(\",\")).join(\"\\r\\n\") + \"\\r\\n\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/state-residency-day-counter/calc.mjs",
+        "issue": "findState's fallback took any capitalised pair as a state, so '2025-06-01 to 2025-06-05 XX' (or a typo like NU for NY) produced its own row with 5 days and no error, silently taking days from the real state; validateSpec only checked /^[A-Z]{2}$/. Fixed: first pair that is in STATE_NAMES, else a named error; validateSpec checks STATE_NAMES.",
+        "patched": true
+      },
+      {
+        "file": "ventures/state-residency-day-counter/calc.mjs",
+        "issue": "M/D/YYY with a three-digit year ('6/2/202') parsed as the year 202, so the stay fell outside the tax year and vanished with no error. Fixed: a three-digit year is reported as not a real calendar date.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2ef48f18-a0e2-59b2-8fd4-5bd125aa5978",
+    "transcripts": 1,
+    "first": "2026-11-12T10:06:37Z",
+    "last": "2026-11-12T10:11:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 70,
+        "output": 16549,
+        "thinking": 4894,
+        "cache_read": 2508157,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65733,
+        "api_equivalent_usd": 1.3588,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 70,
+      "output": 16549,
+      "thinking": 4894,
+      "cache_read": 2508157,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65733,
+      "api_equivalent_usd": 1.3588,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.02,
+      "active_minutes": 5.02,
+      "model_minutes": 3.55,
+      "tool_minutes": 1.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "two mutation campaigns, triage, two parser fixes with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 220.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+Milestone 6c: crowd-side robots as lane seeds, against a density-matched control (social force)
+HERMES 3.6 m corridor, 16 m; 20 seeds per cell (SEED0 20280000); 120 s runs, the first 40 s warm-up; robots 1.2 m/s; beta = multiplier x 0.1; bootstrap B = 2000 over seeds; runs pooled by the mean of their cell means
+
+== Cells, pooled over the two runs (people only; 95% bootstrap interval)
+  x0.25 beta 0.025 none     0.00  transit 9.984 [9.440, 10.505]  lane 0.694 [0.664, 0.724]  share 0.679 [0.628, 0.727]
+  x0.25 beta 0.025 control  0.10  transit 8.652 [8.122, 9.203]  lane 0.755 [0.718, 0.793]  share 0.720 [0.674, 0.767]
+  x0.25 beta 0.025 crowd    0.10  transit 9.023 [8.496, 9.553]  lane 0.754 [0.720, 0.787]  share 0.757 [0.706, 0.803]
+  x0.25 beta 0.025 opposite 0.10  transit 10.551 [9.868, 11.180]  lane 0.670 [0.645, 0.700]  share 0.467 [0.419, 0.513]
+  x0.25 beta 0.025 control  0.20  transit 8.600 [8.215, 8.965]  lane 0.763 [0.734, 0.794]  share 0.722 [0.672, 0.769]
+  x0.25 beta 0.025 crowd    0.20  transit 7.950 [7.424, 8.556]  lane 0.843 [0.805, 0.878]  share 0.855 [0.816, 0.888]
+  x0.25 beta 0.025 opposite 0.20  transit 9.826 [9.391, 10.271]  lane 0.710 [0.686, 0.733]  share 0.338 [0.299, 0.377]
+  x0.5  beta 0.050 none     0.00  transit 8.615 [8.205, 9.054]  lane 0.777 [0.752, 0.802]  share 0.810 [0.772, 0.843]
+  x0.5  beta 0.050 control  0.10  transit 7.730 [7.334, 8.137]  lane 0.826 [0.792, 0.858]  share 0.854 [0.818, 0.887]
+  x0.5  beta 0.050 crowd    0.10  transit 8.518 [7.831, 9.249]  lane 0.804 [0.760, 0.848]  share 0.846 [0.802, 0.887]
+  x0.5  beta 0.050 opposite 0.10  transit 9.964 [9.515, 10.423]  lane 0.685 [0.665, 0.705]  share 0.618 [0.575, 0.657]
+  x0.5  beta 0.050 control  0.20  transit 7.812 [7.459, 8.179]  lane 0.829 [0.800, 0.859]  share 0.860 [0.826, 0.893]
+  x0.5  beta 0.050 crowd    0.20  transit 7.704 [7.173, 8.382]  lane 0.873 [0.837, 0.904]  share 0.910 [0.880, 0.937]
+  x0.5  beta 0.050 opposite 0.20  transit 11.062 [10.629, 11.480]  lane 0.657 [0.634, 0.681]  share 0.534 [0.493, 0.573]
+  x0.75 beta 0.075 none     0.00  transit 7.172 [6.894, 7.477]  lane 0.885 [0.856, 0.912]  share 0.926 [0.899, 0.949]
+  x0.75 beta 0.075 control  0.10  transit 7.323 [7.015, 7.629]  lane 0.872 [0.842, 0.900]  share 0.924 [0.904, 0.943]
+  x0.75 beta 0.075 crowd    0.10  transit 7.270 [6.778, 7.848]  lane 0.896 [0.859, 0.931]  share 0.933 [0.908, 0.957]
+  x0.75 beta 0.075 opposite 0.10  transit 9.808 [9.304, 10.381]  lane 0.724 [0.696, 0.754]  share 0.731 [0.708, 0.755]
+  x0.75 beta 0.075 control  0.20  transit 7.061 [6.800, 7.356]  lane 0.880 [0.853, 0.906]  share 0.900 [0.859, 0.935]
+  x0.75 beta 0.075 crowd    0.20  transit 6.785 [6.575, 7.026]  lane 0.935 [0.918, 0.951]  share 0.968 [0.957, 0.977]
+  x0.75 beta 0.075 opposite 0.20  transit 10.981 [10.528, 11.466]  lane 0.688 [0.666, 0.710]  share 0.628 [0.589, 0.664]
+  x1.0  beta 0.100 none     0.00  transit 6.770 [6.440, 7.278]  lane 0.934 [0.901, 0.958]  share 0.958 [0.939, 0.973]
+  x1.0  beta 0.100 control  0.10  transit 6.722 [6.515, 6.977]  lane 0.934 [0.910, 0.954]  share 0.963 [0.945, 0.977]
+  x1.0  beta 0.100 crowd    0.10  transit 6.750 [6.479, 7.052]  lane 0.938 [0.915, 0.958]  share 0.967 [0.955, 0.978]
+  x1.0  beta 0.100 opposite 0.10  transit 9.510 [9.162, 9.859]  lane 0.726 [0.704, 0.747]  share 0.762 [0.732, 0.788]
+  x1.0  beta 0.100 control  0.20  transit 6.580 [6.412, 6.762]  lane 0.944 [0.928, 0.960]  share 0.964 [0.947, 0.978]
+  x1.0  beta 0.100 crowd    0.20  transit 6.544 [6.378, 6.715]  lane 0.961 [0.946, 0.974]  share 0.981 [0.970, 0.989]
+  x1.0  beta 0.100 opposite 0.20  transit 10.864 [10.482, 11.306]  lane 0.686 [0.664, 0.709]  share 0.712 [0.685, 0.738]
+
+== Effects (seed = crowd - control, density = control - none, total = crowd - none, opp = opposite - control)
+  x0.25 share 0.10  seed-transit +0.371 [-0.365, +1.141]  seed-lane -0.001 [-0.054, +0.049]  density-transit -1.333 [-2.053, -0.598]  density-lane +0.061 [+0.013, +0.108]  total-transit -0.961 [-1.700, -0.210]  total-lane +0.060 [+0.013, +0.103]  opp-transit +1.900 [+1.026, +2.745]  opp-lane -0.085 [-0.131, -0.036]
+  x0.25 share 0.20  seed-transit -0.650 [-1.293, +0.095]  seed-lane +0.080 [+0.031, +0.127]  density-transit -1.384 [-2.032, -0.722]  density-lane +0.069 [+0.029, +0.111]  total-transit -2.034 [-2.779, -1.182]  total-lane +0.149 [+0.098, +0.195]  opp-transit +1.226 [+0.644, +1.814]  opp-lane -0.053 [-0.093, -0.016]
+  x0.5  share 0.10  seed-transit +0.789 [-0.021, +1.588]  seed-lane -0.022 [-0.075, +0.034]  density-transit -0.885 [-1.476, -0.321]  density-lane +0.048 [+0.008, +0.089]  total-transit -0.096 [-0.929, +0.725]  total-lane +0.027 [-0.023, +0.077]  opp-transit +2.234 [+1.653, +2.826]  opp-lane -0.140 [-0.179, -0.101]
+  x0.5  share 0.20  seed-transit -0.108 [-0.738, +0.659]  seed-lane +0.044 [-0.003, +0.086]  density-transit -0.803 [-1.371, -0.257]  density-lane +0.052 [+0.014, +0.092]  total-transit -0.911 [-1.582, -0.107]  total-lane +0.096 [+0.052, +0.134]  opp-transit +3.250 [+2.703, +3.820]  opp-lane -0.172 [-0.209, -0.135]
+  x0.75 share 0.10  seed-transit -0.053 [-0.638, +0.595]  seed-lane +0.024 [-0.024, +0.069]  density-transit +0.151 [-0.271, +0.588]  density-lane -0.013 [-0.055, +0.028]  total-transit +0.097 [-0.470, +0.734]  total-lane +0.011 [-0.035, +0.055]  opp-transit +2.485 [+1.895, +3.153]  opp-lane -0.148 [-0.189, -0.108]
+  x0.75 share 0.20  seed-transit -0.276 [-0.643, +0.074]  seed-lane +0.055 [+0.024, +0.087]  density-transit -0.111 [-0.542, +0.319]  density-lane -0.006 [-0.045, +0.036]  total-transit -0.387 [-0.741, -0.036]  total-lane +0.049 [+0.018, +0.083]  opp-transit +3.920 [+3.388, +4.464]  opp-lane -0.192 [-0.225, -0.157]
+  x1.0  share 0.10  seed-transit +0.028 [-0.351, +0.394]  seed-lane +0.003 [-0.027, +0.035]  density-transit -0.048 [-0.598, +0.391]  density-lane +0.000 [-0.033, +0.037]  total-transit -0.020 [-0.593, +0.450]  total-lane +0.003 [-0.031, +0.041]  opp-transit +2.788 [+2.347, +3.193]  opp-lane -0.209 [-0.238, -0.176]
+  x1.0  share 0.20  seed-transit -0.037 [-0.290, +0.200]  seed-lane +0.016 [-0.005, +0.038]  density-transit -0.190 [-0.712, +0.204]  density-lane +0.010 [-0.019, +0.046]  total-transit -0.226 [-0.754, +0.136]  total-lane +0.026 [-0.001, +0.061]  opp-transit +4.284 [+3.838, +4.744]  opp-lane -0.258 [-0.285, -0.230]
+
+Predictions (LOG.md, milestone 6c):
+S1 (x0.5, 20%: crowd-side robots shorten people's transit against the density-matched control, 95% interval below 0): refuted (-0.108 s [-0.738, +0.659])
+S2 (x0.5, 20%: crowd-side robots raise people's lane order against the control, interval above 0): refuted (+0.044 [-0.003, +0.086])
+S3 (x0.5, 20%: density alone is less than half of the total transit change, and the total is a cut): refuted (total -0.911 s, density -0.803 s, fraction 0.88)
+S4 (the transit seeding effect is more negative at x0.25 and x0.5 than at x1.0): refuted (x0.25/x0.5 +0.371, -0.650, +0.789, -0.108; x1.0 +0.028, -0.037)
+S5 (opposite-side robots lengthen people's transit against the control, interval above 0, in all 8 multiplier-share cells): held (8 of 8)
+S6 (x0.25, no robots: share on own right below 0.75): held (0.679)

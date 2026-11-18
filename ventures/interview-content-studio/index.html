@@ -86,6 +86,20 @@
   </style>
 
 <style>@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important}}</style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #q-area:empty{min-height:261px}}
+@media (scripting:enabled) and (min-width:348px){html:not(.pf-rows-ready) #q-area:empty{min-height:171px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 520px) { div.row:has(#ai-provider) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 384px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -230,7 +244,7 @@ node cli.mjs studio.json --interview "Bakery launch" --format md</pre>
     const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
     const store = (() => { try { return window.localStorage; } catch { return null; } })();
     const AI_KEY = "interview-content-studio-ai";
-    const today = new Date().toISOString().slice(0, 10);
+    const today = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 
     let state = loadState(store) || emptyState(today);
     let qIndex = 0;

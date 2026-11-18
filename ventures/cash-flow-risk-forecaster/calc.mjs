@@ -4,6 +4,27 @@
 // or bill moves those odds most. Everything is arithmetic on the user's own lines; no network.
 
 const DAY = 86400000;
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" or "Smith, LLC" stays one field ("" inside quotes is a quote).
+const splitCsvLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
+
 export const MAX_TRIALS = 5000;
 
 export const SAMPLE = {
@@ -75,7 +96,7 @@ export function parseLines(text, label) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const row = raw.trim();
     if (!row || row.startsWith("#")) return;
-    const parts = row.split(",").map((p) => p.trim());
+    const parts = splitCsvLine(row);
     const at = `${label} line ${i + 1}`;
     if (parts.length < 3) { errors.push(`${at}: expected "date, description, amount" (YYYY-MM-DD).`); return; }
     const date = parseDate(parts[0]);

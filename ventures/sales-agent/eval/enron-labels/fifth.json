@@ -1,0 +1,809 @@
+{
+ "note": "Enron blobs/4* RE: replies (9,589). Union of stops fired by the round-3 rules (before) and round-4 rules (after), shuffled with a fixed seed, engine answers hidden, labelled once by a separate agent (same model family) with the writer-intent category. No text. eval/README.md \"Fourth round\".",
+ "rows": [
+  {
+   "id": "<12073889.1075845714900.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<15988264.1075846965524.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<17507161.1075859134075.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<26564671.1075859930782.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<23374608.1075855596304.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<25868722.1075842208594.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<32045526.1075844540970.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<5523884.1075857658455.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<3815385.1075840967332.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<16000333.1075853809544.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<22254048.1075841222350.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<24545540.1075853022691.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<23786588.1075841882158.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "none"
+  },
+  {
+   "id": "<8886796.1075842031552.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<1719259.1075853203041.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<19198420.1075860511861.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<10924530.1075849771311.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<19437500.1075856617951.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "left_company"
+  },
+  {
+   "id": "<12544274.1075857300772.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "left_company"
+  },
+  {
+   "id": "<17325714.1075840202853.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "none"
+  },
+  {
+   "id": "<31274995.1075842105800.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<918138.1075841490395.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<33268065.1075852028392.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<6068674.1075857598874.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<1681113.1075841285922.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<30059681.1075854842111.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<5569203.1075862421094.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<32029467.1075853263134.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<15621134.1075842632517.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<17124601.1075844191456.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<15967240.1075845626034.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "none"
+  },
+  {
+   "id": "<5878682.1075858717270.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<9477527.1075857613743.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<17793993.1075841424165.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "none"
+  },
+  {
+   "id": "<26464369.1075852177317.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<5116343.1075855198035.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<14851019.1075851632045.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<14171785.1075860473599.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<17228820.1075852134010.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "left_company"
+  },
+  {
+   "id": "<14648432.1075852913522.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<10125725.1075843957676.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<12615021.1075846820800.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<13724987.1075860333164.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<1872350.1075853443298.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<14852352.1075850030245.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<26834275.1075854028542.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<13077103.1075843863369.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<15656791.1075841700500.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<7060822.1075842512641.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<6428468.1075852878178.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "none"
+  },
+  {
+   "id": "<21511364.1075852714856.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<9228455.1075854076500.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<33176892.1075847759945.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<9152832.1075857601843.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<15820840.1075853446432.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<19850712.1075846707674.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<27822273.1075840846476.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<18712583.1075849308836.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<30368394.1075844540258.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<5489108.1075841663841.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "left_company"
+  },
+  {
+   "id": "<10995891.1075856071959.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<25710221.1075846665054.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<23157536.1075858818629.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<22307312.1075852508589.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<13950317.1075847395939.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<21057831.1075845703556.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<25316205.1075854319473.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "none"
+  },
+  {
+   "id": "<29877510.1075847078929.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<16585343.1075853072400.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<6400681.1075841478636.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<1184930.1075859202704.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<14758761.1075855715366.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "none"
+  },
+  {
+   "id": "<21403129.1075844560039.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<19415276.1075862296252.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<20690550.1075846819673.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<32447956.1075857576387.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "left_company"
+  },
+  {
+   "id": "<6083691.1075841476315.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<17081389.1075842361872.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<900301.1075845374081.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<23800462.1075862266935.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<6551896.1075855920551.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<7421319.1075857827234.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<27412553.1075841927781.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<10536739.1075858141698.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<9608918.1075841819776.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<6965209.1075841058112.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<6450376.1075852176362.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<13696607.1075853922773.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<5034932.1075847311679.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<2333871.1075861202965.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<21897378.1075858247850.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<4168711.1075854399948.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<28735198.1075853842963.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "none"
+  },
+  {
+   "id": "<14788248.1075857550935.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "left_company"
+  },
+  {
+   "id": "<26023009.1075863408346.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<30040801.1075852076405.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "out_of_office"
+  },
+  {
+   "id": "<30366240.1075841285607.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<21685668.1075847188994.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<22688320.1075858139601.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<13400855.1075857932083.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<27145699.1075846957750.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<27600964.1075857528032.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<5693877.1075861816798.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<26631845.1075849754991.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<15472094.1075843849042.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<15453786.1075857889953.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<32471544.1075858440634.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<14450913.1075862422340.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<8078332.1075844559305.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "none"
+  },
+  {
+   "id": "<13754567.1075846933859.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<29081587.1075857441640.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<6166248.1075843157571.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "none"
+  },
+  {
+   "id": "<30179141.1075855955499.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<15659471.1075852909611.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<640738.1075847030360.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<22245417.1075844928986.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "none"
+  },
+  {
+   "id": "<30978496.1075845811013.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "none"
+  },
+  {
+   "id": "<26896969.1075844420764.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<25459492.1075856052619.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<14522863.1075844297635.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": null,
+   "reader": "left_company"
+  },
+  {
+   "id": "<3242770.1075841249772.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<23766864.1075860789734.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<27748243.1075840740525.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<11576375.1075854974969.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "none"
+  },
+  {
+   "id": "<21497974.1075845665596.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": "out_of_office",
+   "reader": "none"
+  },
+  {
+   "id": "<24093603.1075842016841.JavaMail.evans@thyme>",
+   "before": "unsubscribe",
+   "after": "unsubscribe",
+   "reader": "unsubscribe"
+  },
+  {
+   "id": "<8610085.1075862012609.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<26365582.1075844970488.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<14499213.1075859178673.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "left_company"
+  },
+  {
+   "id": "<29840707.1075858863633.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": "not_interested",
+   "reader": "not_interested"
+  },
+  {
+   "id": "<10575517.1075845540904.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": "left_company",
+   "reader": "none"
+  },
+  {
+   "id": "<12359494.1075856078368.JavaMail.evans@thyme>",
+   "before": "out_of_office",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<86628.1075853698007.JavaMail.evans@thyme>",
+   "before": "not_interested",
+   "after": null,
+   "reader": "none"
+  },
+  {
+   "id": "<11144041.1075842193064.JavaMail.evans@thyme>",
+   "before": "left_company",
+   "after": null,
+   "reader": "left_company"
+  }
+ ]
+}

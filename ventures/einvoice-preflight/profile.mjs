@@ -10,6 +10,29 @@ const XRECHNUNG_SPEC = /^urn:cen\.eu:en16931:2017#(?:compliant|conformant)#urn:x
 
 const PEPPOL_SPEC = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0";
 const PEPPOL_PROCESS = "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0";
+// The business processes PEPPOL-EN16931-R007 admits since Peppol BIS Billing 3.0.21
+// (mandatory 2026-08-17; 3.0.22 hotfix 2026-11-04): profile 01, France's two temporary
+// profiles and profile 02, billing with response (which needs its own SMP registration).
+// Before 3.0.21 the rule took any urn:fdc:peppol.eu:2017:poacc:billing:NN:1.0.
+export const PEPPOL_PROCESSES = [
+  PEPPOL_PROCESS,
+  "urn:peppol:france:billing:regulated",
+  "urn:peppol:france:billing:non-regulated",
+  "urn:peppol:bis:billing_with_response",
+];
+// PEPPOL-EN16931-R004 since 3.0.21: BT-24 starts with the Peppol id and carries no
+// version suffix after a double colon (e.g. "...billing:3.0::2.1" is refused).
+export function isPeppolSpecification(value) {
+  const spec = typeof value === "string" ? value.trim() : "";
+  return (spec.startsWith(PEPPOL_SPEC) || isPeppolSelfBilling(spec)) && !spec.includes("::");
+}
+// Peppol BIS Self-Billing 3.0 (the buyer issues the invoice): its own BT-24 and its one
+// business process, which Self-Billing's R004 and R007 check in place of Billing's (2026-11-18).
+const PEPPOL_SB_SPEC = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:selfbilling:3.0";
+export const PEPPOL_SB_PROCESS = "urn:fdc:peppol.eu:2017:poacc:selfbilling:01:1.0";
+export function isPeppolSelfBilling(value) {
+  return (typeof value === "string" ? value.trim() : "").startsWith(PEPPOL_SB_SPEC);
+}
 
 function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
@@ -179,20 +202,24 @@ export function inspectPeppolProfile(invoice) {
   const findings = [];
 
   const process = str(invoice.profile_id);
-  if (process !== PEPPOL_PROCESS) {
+  const selfBilling = isPeppolSelfBilling(str(invoice.specification_id));
+  if (selfBilling ? process !== PEPPOL_SB_PROCESS : !PEPPOL_PROCESSES.includes(process)) {
     findings.push(finding(
       "PP-001",
-      process ? "Business process (BT-23) is not the Peppol billing process." : "Business process (BT-23) is missing.",
-      `Set the business process to ${PEPPOL_PROCESS} (UBL cbc:ProfileID, CII BusinessProcessSpecifiedDocumentContextParameter).`,
+      process ? "Business process (BT-23) is not a Peppol billing process." : "Business process (BT-23) is missing.",
+      selfBilling ? `A Peppol BIS Self-Billing document takes the business process ${PEPPOL_SB_PROCESS} (UBL cbc:ProfileID).`
+        : `Set the business process to ${PEPPOL_PROCESS} (UBL cbc:ProfileID, CII BusinessProcessSpecifiedDocumentContextParameter). Since Peppol BIS 3.0.21 the only others accepted are France's urn:peppol:france:billing:regulated and :non-regulated and urn:peppol:bis:billing_with_response.`,
       "/profile_id",
     ));
   }
 
   const spec = str(invoice.specification_id);
-  if (spec !== PEPPOL_SPEC) {
+  if (!isPeppolSpecification(spec)) {
     findings.push(finding(
       "PP-002",
-      spec ? "Specification identifier (BT-24) does not name Peppol BIS Billing 3.0." : "Specification identifier (BT-24) is missing.",
+      !spec ? "Specification identifier (BT-24) is missing."
+        : spec.startsWith(PEPPOL_SPEC) ? "Specification identifier (BT-24) carries a version suffix after '::', which Peppol BIS 3.0.21 refuses."
+        : "Specification identifier (BT-24) does not name Peppol BIS Billing 3.0.",
       `Set it to ${PEPPOL_SPEC}. An XRechnung identifier is only right for German buyers.`,
       "/specification_id",
     ));
@@ -380,6 +407,110 @@ export function inspectFrenchProfile(invoice) {
         "/notes",
       ));
     }
+  }
+  return findings;
+}
+
+// ---------------------------------------------------------------------------
+// Slovakia: domestic e-invoicing from 1 January 2027 (Act 385/2025, § 85o of the
+// VAT Act 222/2004). The format is EN 16931 over Peppol, so this profile runs the
+// Peppol rules above plus the fields the Financial Administration's table
+// "Transpozície štandardu Peppol BIS v podmienkach Slovenskej legislatívy"
+// (v1.13, 29 October 2026, column R "Povinná náležitosť faktúry podľa SK
+// legislatívy") marks required where EN 16931 leaves them optional. Rule ids are
+// SK-nnn. Offline observation, not a certified delivery service's validation and
+// not legal advice. Source and what was left out: eval/slovakia-act-385-2025-2026-11-16.md.
+
+export const SLOVAK_RULES = {
+  "SK-001": "Seller postal address lacks a street, city or postcode (BT-35, BT-37, BT-38; VAT Act § 74(1)(a)).",
+  "SK-002": "Buyer postal address lacks a street, city or postcode (BT-50, BT-52, BT-53; VAT Act § 74(1)(b)).",
+  "SK-003": "A Slovak party's electronic address uses a scheme other than 0245 (DIČ), the one the Slovak table names.",
+  "SK-004": "An electronic address with scheme 0245 is not a 10-digit DIČ.",
+  "SK-005": "No supplier payment account (BT-84); the Slovak table marks it required.",
+  "SK-006": "The seller's DIČ in its 0245 electronic address differs from the digits of its SK VAT number.",
+};
+
+function isSlovak(party) {
+  if (!isObject(party)) return false;
+  return str(party.country).toUpperCase() === "SK" || /^SK/i.test(str(party.vat_id));
+}
+
+function missingAddressParts(party) {
+  const p = isObject(party) ? party : {};
+  const out = [];
+  if (!str(p.street)) out.push("street (line 1)");
+  if (!str(p.city)) out.push("city");
+  if (!str(p.postal_code)) out.push("postcode");
+  return out;
+}
+
+export function slovakDicShapeValid(value) {
+  return /^\d{10}$/.test(digitsOnly(value));
+}
+
+export function inspectSlovakProfile(invoice) {
+  if (!isObject(invoice)) return [];
+  const findings = [];
+  const supplier = isObject(invoice.supplier) ? invoice.supplier : {};
+  const customer = isObject(invoice.customer) ? invoice.customer : {};
+
+  for (const [rule, role, party, path, para, bts] of [
+    ["SK-001", "Seller", supplier, "/supplier", "a", "BT-35, BT-37, BT-38"],
+    ["SK-002", "Buyer", customer, "/customer", "b", "BT-50, BT-52, BT-53"],
+  ]) {
+    const missing = missingAddressParts(party);
+    if (missing.length) {
+      findings.push(finding(
+        rule,
+        `${role} postal address has no ${missing.join(", ")} (${bts}). EN 16931 makes these optional; Slovak VAT Act § 74(1)(${para}) asks for the address.`,
+        `Fill ${path.slice(1)}.street, .city and .postal_code (UBL cac:PostalAddress cbc:StreetName, cbc:CityName, cbc:PostalZone).`,
+        path,
+      ));
+    }
+  }
+
+  for (const [role, party, path] of [["Seller", supplier, "/supplier/endpoint"], ["Buyer", customer, "/customer/endpoint"]]) {
+    const ep = isObject(party.endpoint) ? party.endpoint : null;
+    if (!ep || !str(ep.id)) continue; // PP-003 / PP-004 report a missing address
+    const scheme = str(ep.scheme);
+    if (scheme === "0245") {
+      if (!slovakDicShapeValid(ep.id)) {
+        findings.push(finding(
+          "SK-004",
+          `${role} electronic address has scheme 0245 (DIČ) but its id is not 10 digits.`,
+          "A Slovak DIČ is 10 digits with no SK prefix (the VAT number is SK plus the DIČ for most payers). Copy it from the tax registration.",
+          path,
+        ));
+      }
+    } else if (isSlovak(party)) {
+      findings.push({ ...finding(
+        "SK-003",
+        `${role} is Slovak but its electronic address uses scheme ${scheme || "(none)"}, not 0245 (DIČ).`,
+        "The Financial Administration's table names scheme 0245 = DIČ for Slovak parties. Check with your delivery service (digitálny poštár) which id you are registered under in the SMP.",
+        path,
+      ), severity: "warning" });
+    }
+  }
+
+  const sellerEp = isObject(supplier.endpoint) ? supplier.endpoint : {};
+  const vatDigits = /^SK/i.test(str(supplier.vat_id)) ? digitsOnly(str(supplier.vat_id).replace(/^SK/i, "")) : "";
+  if (str(sellerEp.scheme) === "0245" && slovakDicShapeValid(sellerEp.id) && /^\d{10}$/.test(vatDigits) && digitsOnly(sellerEp.id) !== vatDigits) {
+    findings.push({ ...finding(
+      "SK-006",
+      "The seller's 0245 electronic address and the digits of its SK VAT number differ.",
+      "For most payers the IČ DPH is SK followed by the DIČ. A VAT group has its own IČ DPH, so this can be right; otherwise one of the two is mistyped.",
+      "/supplier/endpoint",
+    ), severity: "warning" });
+  }
+
+  const payment = isObject(invoice.payment) ? invoice.payment : {};
+  if (!str(payment.iban) && str(invoice.document_type) !== "credit_note") {
+    findings.push({ ...finding(
+      "SK-005",
+      "No supplier payment account (BT-84) is given.",
+      "Add payment.iban (UBL cac:PayeeFinancialAccount/cbc:ID). The Slovak table marks the supplier's account as required; the VAT Act adds it to § 74(1) as letter q) from 1 July 2030.",
+      "/payment/iban",
+    ), severity: "warning" });
   }
   return findings;
 }

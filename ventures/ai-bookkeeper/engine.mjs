@@ -14,12 +14,13 @@
 
 import { readStatement, splitOfx, splitQif, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, cashFlowByMonth, ratios, breakEven, daysOutstanding, balances, natural, fmt, dollars } from "./ledger.mjs";
-import { suggest, trainClassifier, buildMemory, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
+import { suggest, trainClassifier, buildMemory, buildMccMemory, trainNewPayee, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation, s179IncomeLimit } from "./taxdepr.mjs";
 import { FX_ACCOUNT, fxEntries, docRevalEntries, fxRegister as fxReg, convertRow, fxCurrency, foreignBalance, addFxAccount, setRates, parseRates, rateOn } from "./fx.mjs";
 import { inventoryEntries, inventoryRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, INVENTORY_ACCOUNT } from "./inventory.mjs";
 import { prepaidEntries, prepaidRegister, addPrepaid, PREPAID_ACCOUNT } from "./prepaid.mjs";
+import { deferralEntries, deferredRegister, DEFERRED_ACCOUNT } from "./deferred.mjs";
 import { assetEntries, register, addAsset, disposeAsset, addAssetsCsv, ASSET_ACCOUNT } from "./assets.mjs";
 import { cashBasis } from "./cashbasis.mjs";
 import { payrollEntries } from "./payroll.mjs";
@@ -64,7 +65,7 @@ export function lockPeriod(booksIn, date) {
 // Rebuild the learned parts (memory, classifier) from the books' history.
 export function modelFor(books, skip = null) {
   const { rules, problems } = parseRules(books.rules, books.accounts);
-  return { rules, ruleProblems: problems, memory: buildMemory(books.history), classifier: trainClassifier(books.history), codes: new Set(books.accounts.map((a) => a.code)), ...(skip ? { skip: new Set(skip) } : {}) };
+  return { rules, ruleProblems: problems, memory: buildMemory(books.history), classifier: trainClassifier(books.history), newPayee: trainNewPayee(books.history), mccMemory: buildMccMemory(books.history), codes: new Set(books.accounts.map((a) => a.code)), ...(skip ? { skip: new Set(skip) } : {}) };
 }
 
 // A bank shows a card purchase as pending ("SQ *BLUE BOTTLE") and later posts it
@@ -123,7 +124,7 @@ export function importStatement(booksIn, csv, account, opts = {}) {
     if (books.lockedThrough && r.date <= books.lockedThrough) { locked++; return; }
     const conv = convertRow(books, account, r);
     if (!conv) { noRate++; return; }
-    books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: conv.cents, ...(conv.foreign ? { foreign: conv.foreign } : {}), balance: r.balance, ...(r.bankCat ? { bankCat: r.bankCat } : {}), status: "new" });
+    books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: conv.cents, ...(conv.foreign ? { foreign: conv.foreign } : {}), balance: r.balance, ...(r.bankCat ? { bankCat: r.bankCat } : {}), ...(r.mcc ? { mcc: r.mcc } : {}), ...(r.card ? { card: r.card } : {}), status: "new" });
     added++;
   });
   // Balances are kept debit-positive (what you own is positive, what you owe
@@ -374,7 +375,7 @@ export function journal(books, { withClosing = false } = {}) {
     const deb = cents > 0;
     entries.push({ id: `OPEN-${code}`, date, memo: `Opening balance, ${map.get(code).name}`, source: "opening", lines: [{ account: code, debit: deb ? cents : 0, credit: deb ? 0 : -cents }, { account: "3000", debit: deb ? 0 : -cents, credit: deb ? cents : 0 }] });
   }
-  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books), ...inventoryEntries(books), ...fxEntries(books), ...docRevalEntries(books), ...payrollEntries(books));
+  entries.push(...documentEntries(books), ...assetEntries(books), ...prepaidEntries(books), ...deferralEntries(books), ...inventoryEntries(books), ...fxEntries(books), ...docRevalEntries(books), ...payrollEntries(books));
   const seen = new Set();
   for (const t of books.transactions) {
     if (!t.posted || t.status === "review" || t.status === "new" || seen.has(t.id)) continue;
@@ -436,6 +437,13 @@ export function closeChecks(books, opts = {}) {
   if (books.prepaids?.length) {
     const ahead = prepaidRegister(books).remaining, ledger = b.get(PREPAID_ACCOUNT) ?? 0;
     if (ledger !== ahead) out.push({ severity: "low", check: "prepaid", message: `${map.get(PREPAID_ACCOUNT)?.name ?? PREPAID_ACCOUNT} is ${fmt(ledger)} in the ledger but the prepaid register has ${fmt(ahead)} still paid ahead. ${ledger > ahead ? "A payment filed there has no register row, so it is not being spread over its months." : "A register row has no payment filed to the account."}`, ids: [] });
+  }
+
+  // Unearned revenue: account 2400 (a liability, so a credit balance) should equal what the
+  // deferral register says is still to be earned or owed back.
+  if (books.deferrals?.length) {
+    const reg = deferredRegister(books), ledger = -(b.get(DEFERRED_ACCOUNT) ?? 0);
+    if (ledger !== reg.balance) out.push({ severity: "low", check: "deferred", message: `${map.get(DEFERRED_ACCOUNT)?.name ?? DEFERRED_ACCOUNT} is ${fmt(ledger)} in the ledger but the deferral register has ${fmt(reg.balance)} still to earn${reg.refundDue ? " or refund" : ""}. ${ledger > reg.balance ? "A receipt filed there has no register row, so it is never earned." : reg.refundDue ? "If a refund has been paid, record it with deferred refunded ID; otherwise a register row has no receipt filed to the account." : "A register row has no receipt filed to the account (file the customer's payment, or the invoice, to 2400)."}`, ids: [] });
   }
 
   // Inventory: account 1450 should equal the stock register's value.
@@ -514,7 +522,7 @@ const csvCell = (v) => { const s = String(v ?? ""); return /[",\n\r]/.test(s) ? 
 const csvRow = (cells) => cells.map(csvCell).join(",");
 // Text copied from a bank file opens in Excel or Sheets as a formula if it starts with = + - @ (or a tab/CR),
 // so exported text columns get a leading apostrophe (OWASP's CSV-injection advice). Amounts and dates stay bare.
-export const safeText = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? "'" + s : s; };
+export const safeText = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s; };
 const usDate = (iso) => `${iso.slice(5, 7)}/${iso.slice(8, 10)}/${iso.slice(0, 4)}`;
 const ukDate = (iso) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
 

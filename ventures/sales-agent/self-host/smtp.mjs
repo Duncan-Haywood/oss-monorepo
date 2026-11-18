@@ -18,7 +18,7 @@ const encWord = (s) => (/^[\x20-\x7e]*$/.test(s) ? s : `=?UTF-8?B?${Buffer.from(
 export function buildMessage({ from, to, subject, body, inReplyTo, references, unsubscribe, date = new Date(), domain }) {
   const f = addr(from), t = addr(to);
   if (!f || !t) throw new Error("from and to must be email addresses");
-  const u = addr(unsubscribe || f);
+  const u = addr(String(unsubscribe || f).replace(/^\s*<?\s*mailto:/i, "").replace(/[?>].*$/s, "")); // a bare address or a whole "<mailto:...?subject=...>" both give one clean header
   const id = `<${randomUUID()}@${domain || f.split("@")[1]}>`;
   const h = [
     `From: ${noCtl(from)}`, `To: ${t}`, `Subject: ${encWord(noCtl(subject))}`, `Date: ${date.toUTCString().replace("GMT", "+0000")}`, `Message-ID: ${id}`,
@@ -56,6 +56,7 @@ export async function sendMail({ host, port = 587, secure = false, starttls = tr
     say("EHLO sales-agent.local"); let caps = (await expect(["250"], "EHLO")).join(" ");
     if (!secure && starttls && /STARTTLS/i.test(caps)) {
       say("STARTTLS"); await expect(["220"], "STARTTLS");
+      if (buf) throw new Error("SMTP server sent data after its STARTTLS reply and before TLS began (possible injection, CVE-2011-0411 class); refusing");
       sock.removeAllListeners("data"); sock = tls.connect({ socket: sock, ...tlsOpts }); attach(); sock.on("error", (e) => failer.reject(e));
       say("EHLO sales-agent.local"); caps = (await expect(["250"], "EHLO")).join(" ");
     } else if (!secure && user && !/^(127\.|localhost$)/.test(host)) throw new Error("refusing to send a password without TLS (server offers no STARTTLS)");

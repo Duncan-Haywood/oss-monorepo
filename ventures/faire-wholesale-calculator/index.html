@@ -106,7 +106,7 @@
     body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 720px; margin-bottom: 26px; }
     .eyebrow { font-size: .78rem; letter-spacing: .08em; font-weight: 700; color: #6a5840; }
-    h1 { font-size: clamp(2rem, 5vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     nav { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 0; font-size: .92rem; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
@@ -407,7 +407,7 @@
   </footer>
   <script type="module">
     import { REGION_PRESETS, PAYOUT_PRESETS, compareBrandScenarios, compareFairePayNow, compareFairePromoted, compareFaireReturn, compareOpenHouse, comparePayoutSpeedsAfterFloat, compareRetailerLifetime, faireReturnNote, openHouseNote, payNowNote, promotedNote, summarizePayoutFloat, wholesaleForMargin } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
     import { encodeInputs, decodeInputs, FIELD_IDS } from "./share.mjs";
 
     const INPUTS_KEY = "faire-wholesale-brand-inputs";
@@ -641,8 +641,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

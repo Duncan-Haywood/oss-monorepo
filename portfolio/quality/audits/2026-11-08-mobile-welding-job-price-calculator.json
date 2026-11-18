@@ -51,6 +51,6 @@
       "where": "ventures/mobile-welding-job-price-calculator/llms.txt:6; calc.mjs:28-35"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [14670],
   "verdict": "Does not meet the bar (verification 2, claims 2; median 2); finished (completeness 3). The arithmetic is right: three jobs recomputed with an independent gross-up model agree to the cent (951.15, 992.15, a binding $150 minimum), the page loads in Chrome with no errors and every advertised section works, and the method matches how a mobile welder or shop estimator builds a price. What a user would trip on is not the math but the input handling: an emptied field silently uses the example value (materials blank gives $951 instead of $766), the README's open-the-file instruction fails over file://, and the headline margin is below the typed target. Of three seeded mutations the suite caught two; swapping rig wear from on-site to weld hours passed all 31 tests. Consumables defaults could not be checked against a cited table through the proxy; the repo calls them placeholders."
 }

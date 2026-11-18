@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVN74HE4Vn2HxKWaRrM",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue products; merge when done)",
+  "input_sha256": "a9a9daa2696b21f5a6de65087d5901b025a1f5dcb98e5fae4dfceb39e0bd31be",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T15:05:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "For Other Minds story 'The Seven Hundred and Fifty' (survey non-response) from the bible's open proposal, + post",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 15886,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The scheduled prompt asks for revenue-generating product work, but the router drew the creative track (weight 0.1); followed the router as prompt.md says, though the stored prompt's emphasis points to ventures."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Text only, no audio: audio folders total 474 MB, over the 400 MB cap.",
+      "did": "landed text, pages and feeds without audio",
+      "result": "story live on next build without MP3"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-seven-hundred-and-fifty.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, piece the-seven-hundred-and-fifty (For Other Minds, about 3,400 words). Numbers worked out in a script before drafting: 150/900 replied (123/18/9); bounds 13.7-97.0%; random follow-up 40 of 52 (14/17/9) -> 42.8% (30.8-54.8); about 103 interviews needed, worked out from the first 40; total 103 of 134 (33/47/23) -> 40.4% (33.4-47.3), against 40.0%, don't mind 19.6%; sensitivity for the 31 unreached 34-53%. An adversarial reread fixed a wrong sensitivity line (the first draft claimed about +3 points; the right figure is up to 53%), a 710/698 count slip and a first/second-draw slip. New For Other Minds proposal added (length-biased sampling). Verification: node --test in hearth-and-horizon 15/15; run_workflow_locally --for-changes 9/10 passed, portfolio-pages ran out of its local budget (left to CI).",
+  "corrections": [],
+  "redteam": null
+}

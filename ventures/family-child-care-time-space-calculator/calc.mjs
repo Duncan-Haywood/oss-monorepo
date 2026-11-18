@@ -28,7 +28,7 @@ export function parseRooms(text) {
   for (const raw of String(text || "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const cells = (line.includes("\t") ? line.split("\t") : line.split(",")).map((c) => c.trim().replace(/^"|"$/g, ""));
+    const cells = splitCells(line);
     if (cells.length < 2) { skipped++; continue; }
     const sqft = num(cells[1], NaN);
     if (!Number.isFinite(sqft)) { if (rows.length || !/sq|area|size|room/i.test(line)) skipped++; continue; }
@@ -162,6 +162,40 @@ export function reportCsv(r) {
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 
-export const money = (v) => "$" + Math.round(v).toLocaleString("en-US");
-export const money2 = (v) => "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (v) => {
+  const format = (v) => "$" + Math.round(v).toLocaleString("en-US");
+  if (!(Number(v) < 0)) return format(v);
+  const text = format(Math.abs(v));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
+export const money2 = (v) => {
+  const format = (v) => "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!(Number(v) < 0)) return format(v);
+  const text = format(Math.abs(v));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
+
+// One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so
+// "1,200" stays one number. Otherwise read it as CSV: a cell that starts with a double quote keeps
+// its commas (a spreadsheet's CSV export writes "$1,200") and "" inside it is a literal quote; a
+// quote later in a cell (17" rims) is text. Before 2026-11-11 a quoted "1,200" split in two and
+// shifted every later field (portfolio/quality, defect class input-handling).
+export function splitCells(line) {
+  const unq = (c) => { c = c.trim(); return /^".*"$/s.test(c) ? c.slice(1, -1).replace(/""/g, '"') : c; };
+  if (line.includes("\t")) return line.split("\t").map(unq);
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) {
+      if (ch !== '"') cur += ch;
+      else if (line[i + 1] === '"') { cur += '"'; i++; }
+      else q = false;
+    } else if (ch === '"' && cur.trim() === "") { cur = ""; q = true; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}

@@ -18,6 +18,7 @@ import { generateYear, toCsv, rng } from "./synth.mjs";
 import { newBooks, importStatement, confirm } from "../engine.mjs";
 import { aiSuggest } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
+import { pathToFileURL } from "node:url";
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
 const where = { checking: "1000", card: "2000" };
@@ -84,7 +85,7 @@ export async function runSeed(seed, { config, stub = null, from = 4, batch = 40,
   return t;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const SEEDS = +arg("--seeds", 2), FROM = +arg("--from", 4);
   const mode = arg("--mode", "fill");
   const stub = arg("--stub", null) === null ? null : +arg("--stub", 0.8);

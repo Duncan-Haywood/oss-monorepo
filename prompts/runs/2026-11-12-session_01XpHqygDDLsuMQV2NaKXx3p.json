@@ -1,0 +1,266 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqygDDLsuMQV2NaKXx3p",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T07:38:53Z",
+  "ended": "2026-11-12T07:40:09Z",
+  "wall_minutes": 4.67,
+  "tokens_in": 2481055,
+  "tokens_out": 16195,
+  "cost_usd": 1.3459,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15050",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets --probe 20 | grep <path>` printed nothing for ventures/ics-calendar-check/calc.mjs, so I passed --target without a probe; the baseline was fine (about 1 s)."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "I searched open PRs for 'ics' before starting, but #15047 (same session prefix, same day) was opened afterwards and merged first; the step 0 open list had no way to show that someone had claimed the entry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's ics folding entry was fixed concurrently by #15047; my duplicate fix was dropped in the merge instead of competing with it",
+      "did": "took main's version of all ten generators, the dogfood test and the old record",
+      "result": "no duplicate code; this PR is the checker fix and three tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-calendar-checker-that-rejected-interval-02.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: I folded the 10 .ics generators and tightened dogfood clean(), but PR #15047 merged the same fix while this run worked, so the merge of main kept #15047's version and this PR carries none of it. Campaign: 8 mutants on ics-calendar-check/calc.mjs, catch rate 5/8 -> 8/8 (rerun). Real defect: INTERVAL/COUNT with leading zeros were reported as errors (RFC 5545 allows 1*DIGIT); patched with posInt(). Local checks: run_venture_tests.py on the 10 generator ventures and ics-calendar-check, 11 suites ok; ics-calendar-check after the merge with main 95/95; post frontmatter, link and similarity checks clean. run_workflow_locally.py --for-changes hit my 500 s timeout without output. No CI check runs had started on the PR. Remaining open entries are control plane (workflows, prompts/) and need owner-approved PRs.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ics-calendar-check/calc.mjs",
+        "test": "node --test ventures/ics-calendar-check/**/*.test.mjs  (in .)",
+        "seed": 288462298,
+        "commit": "7470ebf9",
+        "sites": 322,
+        "baseline_seconds": 0.9,
+        "mutants": [
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 67,
+            "col": 22,
+            "operator": "eq-flip",
+            "before": "params[key] = key === \"VALUE\" ? val.toUpperCase() : val;",
+            "after": "params[key] = key !== \"VALUE\" ? val.toUpperCase() : val;",
+            "line_text": "    params[key] = key === \"VALUE\" ? val.toUpperCase() : val;",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 82,
+            "col": 61,
+            "operator": "minus-to-plus",
+            "before": "return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;",
+            "after": "return dt.getUTCFullYear() === y && dt.getUTCMonth() === m + 1 && dt.getUTCDate() === d;",
+            "line_text": "  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 122,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "if (h > 23 || mi > 59 || s > 60) return { error: `${value} has an impossible time of day` };",
+            "after": "if (h > 23 || mi > 59 || s > 61) return { error: `${value} has an impossible time of day` };",
+            "line_text": "    if (h > 23 || mi > 59 || s > 60) return { error: `${value} has an impossible time of day` };",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: added test that seconds=61 is rejected and 60 (leap second) accepted"
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 200,
+            "col": 51,
+            "operator": "eq-flip",
+            "before": "else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "after": "else if (m[1] !== undefined && (Number(m[1]) !== 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "line_text": "      else if (m[1] !== undefined && (Number(m[1]) === 0 || Math.abs(Number(m[1])) > 53)) out.push({ title: `bad BYDAY value ${x}`, detail: \"The number before the day must be 1 to 53 or -1 to -53.\" });",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 245,
+            "col": 137,
+            "operator": "true-to-false",
+            "before": "if (!ver) findings.push(F(\"error\", cal.line, \"VCALENDAR has no VERSION\", \"VERSION:2.0 is required. Added automatically.\", { fixable: true, code: \"version\" }));",
+            "after": "if (!ver) findings.push(F(\"error\", cal.line, \"VCALENDAR has no VERSION\", \"VERSION:2.0 is required. Added automatically.\", { fixable: false, code: \"version\" }));",
+            "line_text": "    if (!ver) findings.push(F(\"error\", cal.line, \"VCALENDAR has no VERSION\", \"VERSION:2.0 is required. Added automatically.\", { fixable: true, code: \"version\" }));",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: added test that every repair-able finding (version, prodid, uid, dtstamp) is fixable and the CSV says yes"
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 257,
+            "col": 29,
+            "operator": "and-to-or",
+            "before": "if (!tzDefined.has(tz) && !tz.startsWith(\"/\")) {",
+            "after": "if (!tzDefined.has(tz) || !tz.startsWith(\"/\")) {",
+            "line_text": "      if (!tzDefined.has(tz) && !tz.startsWith(\"/\")) {",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 283,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "if (s.kind === \"datetime\" && !s.utc && !ds.params.TZID) findings.push(F(\"info\", ds.line, `${at}floating time`, \"DTSTART has no Z and no TZID, so it means 'this local time wherever you are'. That is correct for some uses (a reminder at 9:00 anywhere) but a meeting will land at a different hour for people in other zones.\"));",
+            "after": "if (s.kind !== \"datetime\" && !s.utc && !ds.params.TZID) findings.push(F(\"info\", ds.line, `${at}floating time`, \"DTSTART has no Z and no TZID, so it means 'this local time wherever you are'. That is correct for some uses (a reminder at 9:00 anywhere) but a meeting will land at a different hour for people in other zones.\"));",
+            "line_text": "          if (s.kind === \"datetime\" && !s.utc && !ds.params.TZID) findings.push(F(\"info\", ds.line, `${at}floating time`, \"DTSTART has no Z and no TZID, so it means 'this local time wherever you are'. That is correct for some uses (a reminder at 9:00 anywhere) but a meeting will land at a different hour for people in other zones.\"));",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ics-calendar-check/calc.mjs",
+            "line": 318,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "if (r.INTERVAL && !/^[1-9]\\d*$/.test(r.INTERVAL)) findings.push(F(\"error\", rr.line, `${at}bad INTERVAL`, \"INTERVAL must be a positive whole number.\"));",
+            "after": "if (r.INTERVAL && !/^[1-10]\\d*$/.test(r.INTERVAL)) findings.push(F(\"error\", rr.line, `${at}bad INTERVAL`, \"INTERVAL must be a positive whole number.\"));",
+            "line_text": "            if (r.INTERVAL && !/^[1-9]\\d*$/.test(r.INTERVAL)) findings.push(F(\"error\", rr.line, `${at}bad INTERVAL`, \"INTERVAL must be a positive whole number.\"));",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: added INTERVAL accept/reject test. Line later rewritten to use posInt() by the INTERVAL=02 fix; rerun ran before that change"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ics-calendar-check/calc.mjs",
+        "issue": "INTERVAL=02 and COUNT=05 reported as errors although RFC 5545 3.3.10 defines both as 1*DIGIT (BYMONTHDAY=05 was already accepted). Fixed with posInt(); test covers 02, 05, 000, 1.5.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15050"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "53d1d04b-c96c-5f4f-abe1-638d076daf99",
+    "transcripts": 1,
+    "first": "2026-11-12T07:38:53Z",
+    "last": "2026-11-12T07:43:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 62,
+        "output": 16195,
+        "thinking": 2778,
+        "cache_read": 2413612,
+        "cache_write_5m": 0,
+        "cache_write_1h": 67381,
+        "api_equivalent_usd": 1.3459,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 62,
+      "output": 16195,
+      "thinking": 2778,
+      "cache_read": 2413612,
+      "cache_write_5m": 0,
+      "cache_write_1h": 67381,
+      "api_equivalent_usd": 1.3459,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.67,
+      "active_minutes": 4.67,
+      "model_minutes": 2.7,
+      "tool_minutes": 1.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "folding helper across 10 products, guard test, mutant triage, RFC check, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 297.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

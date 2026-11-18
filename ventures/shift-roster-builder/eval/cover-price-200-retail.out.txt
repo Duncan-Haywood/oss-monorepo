@@ -1,0 +1,7 @@
+BUILD retail price 0: score 2251.82, payroll $2250.00, open 0 h, risk n/a h on n/a/n/a person-days, moves 0 of 0 candidates, exposure 24 h, 1.0 s
+BUILD retail price 25: score 2257.64, payroll $2247.00, open 0 h, risk 0 h on 0/17 person-days, moves 1 of 33 candidates, exposure 0 h, 0.1 s
+  Call-out slack: 1 move cut the hours at risk from 36 to 0 (1 swapped two shifts between others so a stand-in had room), at $5.82 of score (pay plus penalties) at your price of $25.00 an hour at risk. No single call-out leaves a shift nobody else can take.
+PLAY call 0.01 extra 0 retail price 0 (risk n/a h, exposure 24 h, payroll $2250.00): 54 disrupted weeks, open hours added 66, changes to others 75, premiums $1207.00, proven 38/38
+PLAY call 0.01 extra 0 retail price 25 (risk 0 h, exposure 0 h, payroll $2247.00): 54 disrupted weeks, open hours added 18, changes to others 68, premiums $1124.00, proven 39/39
+PLAY call 0.084 extra 0 retail price 0 (risk n/a h, exposure 24 h, payroll $2250.00): 184 disrupted weeks, open hours added 354, changes to others 548, premiums $8982.00, proven 260/260
+PLAY call 0.084 extra 0 retail price 25 (risk 0 h, exposure 0 h, payroll $2247.00): 184 disrupted weeks, open hours added 249, changes to others 546, premiums $8978.00, proven 263/263

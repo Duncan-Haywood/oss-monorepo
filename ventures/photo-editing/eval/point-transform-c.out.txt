@@ -1,0 +1,3 @@
+predictor 1: new best 0.022 s median 0.023 s | old best 0.094 s median 0.098 s | x4.3 | identical to reference and source: True | sha256 2c90ad4ce3434315
+predictor 4: new best 0.022 s median 0.025 s | old best 0.670 s median 0.756 s | x30.8 | identical to reference and source: True | sha256 0a81232c9284fdde
+predictor 6: new best 0.014 s median 0.014 s | old best 0.725 s median 0.779 s | x54.0 | identical to reference and source: True | sha256 d2702770fad43e0b

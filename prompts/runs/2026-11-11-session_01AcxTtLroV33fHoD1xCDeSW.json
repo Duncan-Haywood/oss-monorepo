@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLroV33fHoD1xCDeSW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T10:06:33Z",
+  "ended": "2026-11-11T12:22:20Z",
+  "wall_minutes": 136.11,
+  "tokens_in": 14801839,
+  "tokens_out": 59203,
+  "cost_usd": 5.4126,
+  "tool_calls": 114,
+  "task": "research track draw: track 23 (marine), next free milestone 9 marine-detect",
+  "projects": [
+    "research/marine-detect"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14756",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "First evaluation counted zero floating obstacles: MaSTr1325 leaves an unknown margin round each object, so a 1-px ring saw only ignored pixels; fixed with a 3-px ring (stable 204 to 189 for rings 3 to 8) and reran all seeds (about 20 minutes lost).",
+    "Backgrounded a long training job with '&' once instead of run_in_background; killed and relaunched it properly."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says check 'python3 -c import torch' first; the default /usr/local/bin/python3 lacks torch and has a broken PIL under -I, while /usr/bin/python3 (3.13, where pip installs) got torch from the CPU index in about a minute. Naming /usr/bin/python3 as the interpreter to check would have saved several calls."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Downloaded-data rule (run Python with -I) breaks here: -I makes /usr/bin/python3 PIL imports fail via the distutils-precedence.pth hack; running from the repo cwd with paths as arguments works."
+    },
+    {
+      "file": ".github/workflows/research-ci.yml",
+      "issue": "Research CI runs the homepage build and programme check but no project tests, so the PR's 10 tests ran only locally."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "Milestone 9 says 'reproduce a published segmentation baseline'; WaSR needs the IMU channel and a ResNet-101 that a 4-core CPU cannot train in a session, and MODS evaluation was not attempted.",
+      "did": "Trained the published LR-ASPP MobileNetV3 architecture instead and labelled it a baseline, not a reproduction; MODS and WaSR listed as next steps.",
+      "result": "A complete 9a step with 3 seeds per model landed; comparison with published numbers still open."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-marine-detect-floating-obstacles-fog-glint.md",
+    "research/marine-detect/README.md",
+    "research/marine-detect/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Data: MaSTr1325 512x384 images+masks from data.vicos.si (CC BY 4.0), sha256 recorded in data.py. Local checks: pytest 10 passed (/usr/bin/python3), research/_homepage/build.py ok, research_live_links --write, check_md_links ok, programme_check ok, cite_check all 7 ids ok, post frontmatter/links/tag-balance ok. Training: 9 runs, 12-13 min per LR-ASPP run on 4 cores; total about 2 h. No agent doc in docs/reports: the README Next steps and LOG carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a0796a92-9246-5169-a73b-bc348ba12220",
+    "transcripts": 1,
+    "first": "2026-11-11T10:06:33Z",
+    "last": "2026-11-11T12:22:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 108,
+        "input": 212,
+        "output": 59203,
+        "thinking": 10841,
+        "cache_read": 14639150,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162477,
+        "api_equivalent_usd": 5.4126,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 108,
+      "input": 212,
+      "output": 59203,
+      "thinking": 10841,
+      "cache_read": 14639150,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162477,
+      "api_equivalent_usd": 5.4126,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 114,
+    "tools": {
+      "Bash": 96,
+      "Write": 11,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 136.11,
+      "active_minutes": 111.56,
+      "model_minutes": 12.91,
+      "tool_minutes": 98.64,
+      "waiting_on_human_minutes": 24.55,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "an ML engineer setting up data, split, metrics, 9 CPU trainings and the write-up: about three days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 443.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

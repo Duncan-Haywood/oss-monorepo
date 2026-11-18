@@ -59,3 +59,36 @@ test("sample runs and exports csv", () => {
   assert.ok(r.tax > 0);
   assert.match(toCsv(r), /^tier,barrels/);
 });
+
+// Boundary tests from the 2026-11-15 quality census (26 U.S.C. 5051(a), 27 CFR 25.164); each kills a mutant that survived.
+test("filing thresholds are inclusive at $1,000 and $50,000", () => {
+  assert.match(filingFrequency(1000), /Annual/);
+  assert.match(filingFrequency(1000.01), /Quarterly/);
+  assert.match(filingFrequency(50000), /Quarterly/);
+  assert.match(filingFrequency(50000.01), /semi-monthly/);
+});
+
+test("statutory tiers: 60k at $3.50, to 6M at $16, then $18", () => {
+  assert.equal(exciseTax({ barrels: 60000 }).marginal, 16);
+  assert.equal(exciseTax({ barrels: 59999 }).marginal, 3.5);
+  assert.equal(exciseTax({ barrels: 70000 }).tax, 60000 * 3.5 + 10000 * 16);
+  assert.equal(exciseTax({ barrels: 6.5e6 }).tax, 60000 * 3.5 + 5940000 * 16 + 500000 * 18);
+  assert.equal(exciseTax({ barrels: 2.5e6, small: false }).tax, 2.5e6 * 16);
+  assert.equal(exciseTax({ barrels: 70000, allotment: 80000 }).tax, 370000);
+});
+
+test("package conversions use 128 oz per gallon and 31-gallon barrels", () => {
+  assert.ok(Math.abs(toBarrels({ cases12: (31 * 128) / (24 * 12) }) - 1) < 1e-9);
+  assert.ok(Math.abs(toBarrels({ cases16: (31 * 128) / (24 * 16) }) - 1) < 1e-9);
+});
+
+test("a blank allotment keeps the statutory 60,000 (audit 2026-11-15)", () => {
+  assert.equal(plan({ halfKegs: 200, allotment: "" }).tax, 350);
+});
+
+test("growth rows above 2 million barrels lose the reduced rate (audit 2026-11-15)", () => {
+  const r = plan({ otherBarrels: 1e6, small: true });
+  assert.equal(r.growth[4].tax, 48e6);
+  assert.equal(r.growth[3].tax, 60000 * 3.5 + (2e6 - 60000) * 16);
+  assert.match(r.advice.join(" "), /2 million/);
+});

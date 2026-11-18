@@ -1,0 +1,25 @@
+R1 drivers - rear: date 1983-02 (k 169, n 192), logs, period 12
+  step -0.277 [-0.359, -0.196] p 0.0010; slope 0.0000 + -0.0002 [-0.0057, 0.0054] p 0.9520
+  joint F 70.72, bootstrap p 0.0010, F-table p 0.0000; rho 0.054
+  prediction: MET
+R2 front - rear: date 1983-02 (k 169, n 192), logs, period 12
+  step -0.360 [-0.448, -0.272] p 0.0010; slope -0.0009 + 0.0006 [-0.0059, 0.0070] p 0.8630
+  joint F 95.41, bootstrap p 0.0010, F-table p 0.0000; rho 0.175 (gated)
+  prediction: MET
+R3 placebo drivers - rear: date 1974-01 (k 60, n 169), logs, period 12, rows before 1983-02
+  step -0.012 [-0.066, 0.042] p 0.6750; slope 0.0015 + -0.0018 [-0.0032, -0.0005] p 0.0110
+  joint F 4.60, bootstrap p 0.0180, F-table p 0.0115; rho -0.012
+R3 placebo drivers - rear: date 1977-01 (k 96, n 169), logs, period 12, rows before 1983-02
+  step 0.038 [-0.009, 0.084] p 0.1140; slope 0.0005 + -0.0021 [-0.0031, -0.0010] p 0.0020
+  joint F 8.69, bootstrap p 0.0030, F-table p 0.0003; rho -0.054
+R3 placebo drivers - rear: date 1980-01 (k 132, n 169), logs, period 12, rows before 1983-02
+  step -0.054 [-0.109, 0.001] p 0.0550; slope 0.0005 + -0.0013 [-0.0036, 0.0011] p 0.2640
+  joint F 7.26, bootstrap p 0.0020, F-table p 0.0010; rho -0.038
+R3: 3 of 3 placebo dates with joint p <= 0.05 (prediction at most 1: NOT MET)
+R4 placebo male - female lung deaths: date 1976-01 (k 24, n 72), logs, period 12
+  step -0.043 [-0.105, 0.018] p 0.1430; slope 0.0028 + -0.0048 [-0.0083, -0.0013] p 0.0090
+  joint F 4.30, bootstrap p 0.0330, F-table p 0.0182; rho -0.148
+R4 placebo male - female lung deaths: date 1977-01 (k 36, n 72), logs, period 12
+  step 0.006 [-0.049, 0.060] p 0.8360; slope -0.0004 + -0.0027 [-0.0053, -0.0001] p 0.0460
+  joint F 2.39, bootstrap p 0.1160, F-table p 0.1009; rho -0.105
+R4: 1 of 2 placebo dates with joint p <= 0.05 (prediction at most 1: MET)

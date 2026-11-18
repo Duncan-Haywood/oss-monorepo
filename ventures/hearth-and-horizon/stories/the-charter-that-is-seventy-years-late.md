@@ -1,7 +1,7 @@
 ---
 title: The Charter That Is Seventy Years Late
 shelf: hearth-and-horizon
-setting: Saint Oswin's church (invented), near Hexham, Northumberland, Saturday 12 January 2055
+setting: Saint Oswin's church (invented), near Hexham, Northumberland, Saturday 9 January 2055
 published: 2026-11-08
 summary: A parish has a parchment charter dated 1189 and a jubilee banner already painted for 2089. A lab says the sheepskin is about 742 radiocarbon years old, which is the mid-thirteenth century, not 1189. The parish assistant has to say what the number can and cannot show, including the one thing that could have rescued the date.
 ---

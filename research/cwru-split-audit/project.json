@@ -1,0 +1,8 @@
+{
+ "theme": "sensing",
+ "title": "Does 99% accuracy on the CWRU bearing fault dataset survive a test on a bearing the model never saw?",
+ "summary": "Four classifiers (envelope-spectrum features + logistic regression, time statistics + random forest, log spectrum + MLP, log spectrum + 1-nearest-neighbour) are scored on the 40 standard 12&nbsp;kHz drive-end CWRU recordings under four splits, pre-registered. The spectrum models score 100.0% on the usual random window split and on a per-recording time split, and the MLP 99.4% with a whole motor load held out, because the same seeded bearing runs at every load. Holding out a fault size, so every faulty test window comes from an unseen bearing, drops them to 70.7% (MLP, 95% recording-bootstrap interval 56&ndash;85%) and 54.6% (1-NN) on normal/inner/ball/outer; the random forest falls from 97.5% to 44.2%. Two data quirks are documented: the normal baseline files are 48&nbsp;kHz, not 12&nbsp;kHz (a free cue if not decimated), and 98/99.mat carry no RPM. Limits: one rig, one normal bearing, seeded faults, no CNN trained, three folds in the held-out-size split.",
+ "lede": "does 99% on the CWRU bearing benchmark survive a test on an unseen bearing? No: spectrum models at 100% on random and time splits fall to 55-71% when a fault size is held out; a random forest falls from 97.5% to 44%.",
+ "programme": "none",
+ "why_standalone": "A one-session replication and benchmark-hygiene audit of a public dataset (free-choice draw); the natural follow-up (a split-by-bearing audit on Paderborn and a CNN baseline) could seed a condition-monitoring programme."
+}

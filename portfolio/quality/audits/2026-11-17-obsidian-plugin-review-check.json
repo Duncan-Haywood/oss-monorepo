@@ -1,0 +1,319 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/obsidian-plugin-review-check",
+ "stratum": "venture",
+ "seed": "2026-11-17-e4eb",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an Obsidian community-plugin reviewer (obsidianmd/obsidian-releases and the community.obsidian.md automated review) who first checks manifest.json against docs.obsidian.md/Reference/Manifest (required fields incl. isDesktopOnly, id/name forbidden words, x.y.z version), leftover sample-plugin content, and the Plugin guidelines' Security section (innerHTML/outerHTML/insertAdjacentHTML), the same ground eslint-plugin-obsidianmd's validate-manifest, sample-names and prefer-create-el rules cover",
+ "scores": {
+  "correctness": 1,
+  "completeness": 2,
+  "verification": 2,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Recomputed against sources the author did not write: the real template (git clone obsidianmd/obsidian-sample-plugin, master f8667ce 2026-04-24), docs.obsidian.md Manifest.md, Plugin guidelines.md and Submit your plugin.md (raw from obsidianmd/obsidian-developer-docs main), and eslint-plugin-obsidianmd docs/rules/validate-manifest.md. (1) The template's author has been \"Obsidian\" since 2020-10-28 (`git log -p -- manifest.json`; before that \"Licat\"), never \"Your Name\", so the author placeholder check can never fire on a real template; on the real template the tool flags id and name only and misses author \"Obsidian\" and the template description. (2) Manifest.md marks isDesktopOnly **Required: Yes**; the tool reports it as optional and exits 0 without it. (3) Constructed manifest {id:'my-obsidian-plugin', name:'Obsidian Plugin Helper', version:'v1.0', description:'this plugin does stuff', author:'Obsidian'} breaks five documented rules (id contains obsidian and ends with plugin; name contains Obsidian and Plugin; version not x.y.z; isDesktopOnly missing; description format per validate-manifest): `cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian && node /home/user/oss-monorepo/ventures/obsidian-plugin-review-check/check.mjs fx/a` -> all [OK], exit 0. (4) innerHTML detector on 6 hand-written lines: misses `el.innerHTML += userInput`, `const u = \"https://example.com\"; el.innerHTML = u;` (the `//` comment strip runs before string stripping and truncates the line), a two-line assignment and `el[\"innerHTML\"] =`, and flags only `/* el.innerHTML = commented */`, a false positive the stripper's own doc comment says it handles: observed unsafe lines [6], expected [1,2,3,5]. (5) versions.json: sample README says it exists 'so older versions of Obsidian can download an older version'; a plugin whose current minAppVersion equals the previous entry's is not blocked, yet `cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian && node /home/user/oss-monorepo/ventures/obsidian-plugin-review-check/check.mjs fx/c` exits 1 and calls it release-blocking; with no versions.json at all (Submit your plugin lists only README, LICENSE, manifest.json) it prints '[?] not checked' and still exits 1. Simple positive cases (plain innerHTML=, insertAdjacentHTML(, console.log, sample id/name) are right.",
+  "completeness": "Each README/index feature run: required-field check (works for its 6 fields), placeholder check (id/name work, author can never match the real template), versions.json cross-check (works as specified), innerHTML/outerHTML/insertAdjacentHTML (simple forms only), addEventListener and console.log notes (work), CLI --json and exit codes (work), browser folder picker and worked example (code read, shares scan.mjs; not clicked in a browser). Additional-manifest note works but the wrong manifest is chosen (see craft). The block-comment stripping promised in scan.mjs's stripCommentsAndStrings doc comment is not implemented. No stubs or TODOs; served page https://marisstella.app/obsidian-plugin-review-check/ returns 200.",
+  "verification": "`cd ventures/obsidian-plugin-review-check && node --test '*.test.mjs'` -> 63 pass, 0 fail. 5 mutants via quality_mutate.py: dropping outerHTML from the assignment regex caught; dropping the placeholder gate from ok caught; changing the author placeholder caught (the test pins the author's wrong value); deleting double-quote string stripping SURVIVED; widening CONSOLE_LOG to console.warn SURVIVED. Tests assert the author's beliefs ('Your Name', isDesktopOnly optional) rather than the template or the docs.",
+  "craft": "Read scan.mjs, check.mjs, index.html script, check.test.mjs, page.test.mjs. Small and readable, one shared scan.mjs for CLI and browser. Defects: check.mjs:106 takes the first manifest.json in walk order, so a subfolder fixture (aaa-test/manifest.json) is read and the root manifest is reported as 'additional ... not read' (`{C} fx/e`); scan.mjs:138 strips `//` before strings, so any URL string hides the rest of the line; no `/* */` stripping; the root main.js build bundle is scanned as source (`{C} fx/d` flags main.js:2), unlike eslint-plugin-obsidianmd's documented globalIgnores; index.html:240 writes manifest-derived text through td.innerHTML, the very pattern the tool flags; browser skip list (index.html:124) differs from the CLI's (all dot-dirs).",
+  "claims": "Disclaimer, no-warranty, non-affiliation and 'not a determination' text present on every page. Unbacked or false: 'the official obsidian-sample-plugin template ships ... author \"Your Name\"' (README.md:18, index.html:46 and :306, VENTURE.yaml:9) contradicted by the template's git history; 'one of the easiest release-blocking mistakes' (README.md:14, versions-json-missing-entry.html:36, check.mjs:165) contradicted by the sample README's stated purpose of versions.json; vs-guessing page: 'this tool's field list is checked against Obsidian's published guidelines' and 'both it and Obsidian's docs agree' (false: isDesktopOnly), 'runs the same field, placeholder, and API checks a reviewer would', and 'Obsidian's own developer documentation ... explains that versions.json needs its own matching entry for the current version' (not in Manifest.md, Submit your plugin.md or Plugin guidelines.md); vs-eslint page says 'five-check' / 'covers five things' and lists four; llms.txt:5 says 'Results are estimates from the numbers typed in' for a file scanner. Served llms.txt hosts are correct (served-copy.mjs: no placeholder origin).",
+  "fitness": "Job walked: a developer runs the checker before submitting. On the real sample template it correctly flags id/name and console.log. On fixture a, a manifest the automated review and validate-manifest reject on five counts, it reports clean and exits 0; on fixture c, a valid plugin without versions.json, it exits 1. A reviewer would get more from eslint-plugin-obsidianmd's validate-manifest (all 7 required fields, name/description word and format checks) plus its prefer-create-el rule; the tool's one unique check (versions.json entry) guards a non-blocking condition. Also the current Submit your plugin doc routes submissions through community.obsidian.md, while the pages describe only obsidian-releases PR comments.",
+  "domain": "Compared to docs.obsidian.md Manifest reference, Plugin guidelines (Security, Resource management, console logging), Submit your plugin, the obsidian-sample-plugin repo and eslint-plugin-obsidianmd validate-manifest. Departures: isDesktopOnly treated as optional; no id rules (lowercase/hyphens, no 'obsidian', not ending 'plugin'), no name rules (no Obsidian/Plugin), no x.y.z version check, no description format check, wrong author placeholder and no description placeholder; versions.json semantics overstated into a release gate; innerHTML heuristic misses `+=`, the most common append form. The innerHTML/outerHTML/insertAdjacentHTML guidance itself is correctly cited, and the addEventListener note matches the Resource management section."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Sample-plugin author placeholder value",
+   "method": "obsidianmd/obsidian-sample-plugin git history of manifest.json (git log -p), not written by the author",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian/sp && git log -p --format='%h %ad' --date=short -- manifest.json | grep author; cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian && node /home/user/oss-monorepo/ventures/obsidian-plugin-review-check/check.mjs sp",
+   "expected": "template author \"Obsidian\" in every commit since 2020-10-28; tool should flag author=\"Obsidian\"",
+   "observed": "never \"Your Name\"; tool flags only id and name",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "isDesktopOnly required status",
+   "method": "docs.obsidian.md Reference/Manifest.md plugin-specific table (isDesktopOnly: Required Yes); validate-manifest rule lists it as required",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian && node /home/user/oss-monorepo/ventures/obsidian-plugin-review-check/check.mjs fx/c",
+   "expected": "[X] missing required isDesktopOnly when absent",
+   "observed": "listed under optional '[i] ... not a rejection cause'; exit 0 on fixture a without it",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Manifest breaking documented id/name/version/description rules",
+   "method": "docs.obsidian.md Manifest.md (id can't contain obsidian or end with plugin; name no Obsidian/Plugin; version x.y.z) and eslint-plugin-obsidianmd validate-manifest.md",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian && node /home/user/oss-monorepo/ventures/obsidian-plugin-review-check/check.mjs fx/a; echo $?",
+   "expected": "non-zero exit with at least 5 findings",
+   "observed": "all [OK], exit 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "innerHTML detection on 6 constructed lines",
+   "method": "hand-labelled: lines 1 (+=), 2 (URL string then assignment), 3-4 (multi-line), 5 (bracket) are real uses; 6 is inside a block comment",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian && node /home/user/oss-monorepo/ventures/obsidian-plugin-review-check/check.mjs fx/b --json",
+   "expected": "unsafe lines [1,2,3,5], not 6",
+   "observed": "unsafe lines [6]",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Real obsidian-sample-plugin checkout",
+   "method": "cloned obsidianmd/obsidian-sample-plugin master; id 'sample-plugin' and name 'Sample Plugin' are template values and also break the Manifest.md id/name rules; src/main.ts:85 has console.log",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian && node /home/user/oss-monorepo/ventures/obsidian-plugin-review-check/check.mjs sp",
+   "expected": "flag id, name, console.log at src/main.ts:85; exit 1",
+   "observed": "flags id, name, console.log src/main.ts:85; exit 1",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "versions.json missing entry treated as release-blocking",
+   "method": "obsidian-sample-plugin README.md:33 (versions.json lets older Obsidian download an older compatible version); Submit your plugin.md lists only README, LICENSE, manifest.json",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian && node /home/user/oss-monorepo/ventures/obsidian-plugin-review-check/check.mjs fx/c (with and without versions.json {'1.0.0':'1.4.0'})",
+   "expected": "at most a warning; exit 0 when manifest is valid",
+   "observed": "exit 1 both ways; text calls it release-blocking",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Root manifest chosen when a subfolder also has one",
+   "method": "constructed repo with aaa-test/manifest.json",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian && node /home/user/oss-monorepo/ventures/obsidian-plugin-review-check/check.mjs fx/e",
+   "expected": "root manifest.json read",
+   "observed": "aaa-test/manifest.json read, root reported as 'additional ... not read'",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Built main.js excluded from source scan",
+   "method": "eslint-plugin-obsidianmd README globalIgnores guidance (main.js is the bundle)",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian && node /home/user/oss-monorepo/ventures/obsidian-plugin-review-check/check.mjs fx/d",
+   "expected": "main.js not scanned",
+   "observed": "main.js:2 flagged as innerHTML",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/obsidian-plugin-review-check && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "63 pass 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'author \"Your Name\"' is the template default (README.md:18, index.html:46/306, VENTURE.yaml:9)",
+   "method": "template git history",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f59c5cce-fbdc-5341-97d2-6a5629e767ca/scratchpad/obsidian/sp && grep -rn 'Your Name' .",
+   "expected": "present in template",
+   "observed": "no match",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'field list is checked against Obsidian's published guidelines' (vs-guessing-or-waiting-for-review.html)",
+   "method": "Manifest.md",
+   "command": "grep -n isDesktopOnly dl/*Manifest.md ventures/obsidian-plugin-review-check/scan.mjs",
+   "expected": "isDesktopOnly required in both",
+   "observed": "required in docs, recommended in scan.mjs:33",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'five-check pre-flight pass' (vs-eslint-plugin-obsidianmd.html:32/94/124)",
+   "method": "count of listed items and of report.ok gates",
+   "command": "grep -n 'five' ventures/obsidian-plugin-review-check/vs-eslint-plugin-obsidianmd.html",
+   "expected": "five items",
+   "observed": "four items listed",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'around 40 rules' in eslint-plugin-obsidianmd",
+   "method": "obsidianmd/eslint-plugin README rules table",
+   "command": "grep -c '^| \\[' dl/obsidianmd_eslint-plugin_master_README.md",
+   "expected": "~40",
+   "observed": "44",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "innerHTML/outerHTML/insertAdjacentHTML named in Obsidian's guidelines",
+   "method": "Plugin guidelines.md Security section",
+   "command": "grep -n insertAdjacentHTML dl/*Plugin_guidelines.md",
+   "expected": "named",
+   "observed": "'Avoid innerHTML, outerHTML and insertAdjacentHTML'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt / sitemap hosts",
+   "method": "platform/pages/served-copy.mjs",
+   "command": "node platform/pages/served-copy.mjs obsidian-plugin-review-check",
+   "expected": "no placeholder origin",
+   "observed": "none; marisstella.app URLs; live page 200",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and non-affiliation on every page",
+   "method": "read index.html, both vs- pages, versions-json-missing-entry.html, README",
+   "command": "grep -l 'Not affiliated' ventures/obsidian-plugin-review-check/*.html",
+   "expected": "all 4 pages",
+   "observed": "present",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "scan.mjs:127",
+   "change": "(?:innerHTML|outerHTML)\\s*=(?!=) -> (?:innerHTML)\\s*=(?!=)",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "scan.mjs:224",
+   "change": "drop 'samplePluginDefaults.length === 0 &&' from ok",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "scan.mjs:42",
+   "change": "author: 'Your Name' -> author: 'Obsidian'",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "scan.mjs:140",
+   "change": "delete the double-quoted string stripping .replace(...)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "scan.mjs:130",
+   "change": "CONSOLE_LOG /console\\.log/ -> /console\\.(?:log|warn)/",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Sample-plugin author placeholder is \"Your Name\", a value the official template has never shipped (author has been \"Obsidian\" since 2020-10-28); the check cannot fire on a real template and the real leftover (author \"Obsidian\", template description) passes. Stated as fact on README, index.html, VENTURE.yaml.",
+   "where": "ventures/obsidian-plugin-review-check/scan.mjs:42",
+   "category": "source-data",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
+  },
+  {
+   "severity": "high",
+   "what": "isDesktopOnly is required per docs.obsidian.md Manifest reference (and validate-manifest), but is reported as optional and never fails the check; a manifest missing it exits 0.",
+   "where": "ventures/obsidian-plugin-review-check/scan.mjs:33",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17124"
+  },
+  {
+   "severity": "high",
+   "what": "A manifest breaking five documented rules (id contains 'obsidian' and ends 'plugin', name contains Obsidian/Plugin, version 'v1.0' not x.y.z, no isDesktopOnly, self-referential description) reports clean and exits 0 as a CI gate.",
+   "where": "ventures/obsidian-plugin-review-check/scan.mjs:73",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17124"
+  },
+  {
+   "severity": "medium",
+   "what": "innerHTML heuristic misses `el.innerHTML += x` (regex requires = right after optional whitespace), and any line where a string containing '//' (a URL) precedes the assignment, because the line-comment strip runs before string stripping.",
+   "where": "ventures/obsidian-plugin-review-check/scan.mjs:127",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"
+  },
+  {
+   "severity": "low",
+   "what": "Block comments are not stripped although the doc comment says they are: `/* el.innerHTML = x */` is flagged as a failing finding.",
+   "where": "ventures/obsidian-plugin-review-check/scan.mjs:136",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "A missing current-version entry in versions.json, or no versions.json at all, fails the check and is called 'release-blocking'; per the sample plugin README versions.json is the fallback map for older app versions, and Submit your plugin does not require it.",
+   "where": "ventures/obsidian-plugin-review-check/scan.mjs:225",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "'one of the easiest release-blocking mistakes' and 'Obsidian's own developer documentation ... explains that versions.json needs its own matching entry for the current version' are not backed by any Obsidian doc.",
+   "where": "ventures/obsidian-plugin-review-check/versions-json-missing-entry.html:36",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "'this tool's field list is checked against Obsidian's published guidelines' / 'runs the same field, placeholder, and API checks a reviewer would' are false (isDesktopOnly, id/name/version rules).",
+   "where": "ventures/obsidian-plugin-review-check/vs-guessing-or-waiting-for-review.html:59",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "First manifest.json in walk order wins, so a subfolder manifest (test fixture, example vault) is checked and the root plugin manifest is ignored; browser uses the first in file order the same way.",
+   "where": "ventures/obsidian-plugin-review-check/check.mjs:106",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "The built main.js bundle in the plugin root is scanned as source, so bundled-library innerHTML fails the check after any local build.",
+   "where": "ventures/obsidian-plugin-review-check/check.mjs:66",
+   "category": "scope-gap",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'five-check pre-flight pass' / 'covers five things' then lists four.",
+   "where": "ventures/obsidian-plugin-review-check/vs-eslint-plugin-obsidianmd.html:94",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt boilerplate 'Results are estimates from the numbers typed in' does not describe a file scanner.",
+   "where": "ventures/obsidian-plugin-review-check/llms.txt:5",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "The results table writes manifest-derived text (version, field names) through td.innerHTML, the pattern the tool itself flags; self-XSS only, but a reviewer would note it.",
+   "where": "ventures/obsidian-plugin-review-check/index.html:240",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Pages describe review only as obsidian-releases PR comments; the current Submit your plugin doc routes submissions through community.obsidian.md with an automated review.",
+   "where": "ventures/obsidian-plugin-review-check/README.md:129",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Two seeded mutants survive (removing double-quote string stripping; widening console.log match): no test covers string stripping or the console pattern's boundaries.",
+   "where": "ventures/obsidian-plugin-review-check/scan.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16902", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17124"],
+ "verdict": "Does not meet the bar. The code is small, tidy and its 63 tests pass, but checked against the real obsidian-sample-plugin repository and docs.obsidian.md, its domain facts are wrong where it matters: the 'Your Name' author placeholder has never been in the template, isDesktopOnly is required but treated as optional, none of the documented id/name/version/description rules are checked (a manifest breaking five of them exits 0), the innerHTML heuristic misses `+=` and any line after a URL string, and its one check eslint-plugin-obsidianmd lacks (versions.json entry) guards a condition the docs do not treat as blocking while failing plugins that have no versions.json. Pages repeat the wrong facts as Obsidian's. Disclaimers and served URLs are fine."
+}

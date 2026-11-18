@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtHiYJXiqHXMznyW8qp",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T15:07:27Z",
+  "ended": "2026-11-16T15:29:28Z",
+  "wall_minutes": 22.37,
+  "tokens_in": 5896680,
+  "tokens_out": 44808,
+  "cost_usd": 3.1545,
+  "tool_calls": 56,
+  "task": "society-lanes milestone 5a: robots with four passing-side policies at three shares in the three JuPedSim crowd families",
+  "projects": [
+    "research/society-lanes"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16614",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "First figure render failed: a literal '<' in an SVG text label (fixed with &lt;)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py chose /usr/bin/python3.13, which lacks playwright; the figure check had to go through node's playwright instead. Harmless, but a one-line note on rendering SVGs to check them would save a step."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "'Compare against the strongest published methods' and the proposal's SARL baseline sit at milestone 6; nothing says whether milestone 5 needs a learned baseline, so I read it as no."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/society-lanes/PROPOSAL.md",
+      "why": "H5 is defined over families that pass H4, and none passed H3, so H5 is strictly vacuous. I scored it over the three JuPedSim families as a registered preview, labelled as such.",
+      "did": "Q7/Q8 registered as an H5 preview",
+      "result": "Both refuted; reported as a preview, milestone 6 keeps H5."
+    },
+    {
+      "file": "research/society-lanes/PROPOSAL.md",
+      "why": "Milestone 5 names all families; ORCA and the power law run on separate code, so this step covers the three JuPedSim families only (5a), leaving 5b for the two others.",
+      "did": "split milestone 5",
+      "result": "one milestone step per PR, as the research prompt asks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-which-side-should-a-corridor-robot-hold.md",
+    "research/society-lanes/LOG.md (milestone 5a entry)"
+  ],
+  "goal": "Advance the society-lanes programme to its robot half (milestone 5).",
+  "notes": "Routed research/0 by weighted draw; pick_track drew society-lanes. Security queue empty, IDEAS.md and website requests empty. Predictions Q1-Q8 committed (ca64e410d's parent) before the 2,040-run experiment. Q1, Q4, Q5 held; Q2, Q3, Q6, Q7, Q8 refuted. Checks run here: society-lanes tests 45 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; post front matter, links and similarity ok. Robots=0 reproduces milestone 3's 20-seed share 0.9718 exactly.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9e7a4e09-9a03-558b-ae55-b9cf80b15ffe",
+    "transcripts": 1,
+    "first": "2026-11-16T15:07:27Z",
+    "last": "2026-11-16T15:29:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 96,
+        "output": 44808,
+        "thinking": 12700,
+        "cache_read": 5758299,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138285,
+        "api_equivalent_usd": 3.1545,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 96,
+      "output": 44808,
+      "thinking": 12700,
+      "cache_read": 5758299,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138285,
+      "api_equivalent_usd": 3.1545,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 44,
+      "Write": 5,
+      "ToolSearch": 2,
+      "Read": 2,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.37,
+      "active_minutes": 22.37,
+      "model_minutes": 8.41,
+      "tool_minutes": 13.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a PhD student implementing robot policies and pass metrics in JuPedSim, running and writing up a 2,040-run study: about three days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 760.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

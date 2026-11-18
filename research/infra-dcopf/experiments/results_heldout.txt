@@ -1,0 +1,88 @@
+Milestone 6 of research/grid-linopf: held-out PGLib-OPF v23.07 cases, 500 to 2,000 buses, TYP/API/SAD.
+Frozen arms: S = DC dispatch at the file's setpoints; S+R = reactive stage on S; J = J-m-a (margins,
+analytic sensitivities, Clarabel), 20 rounds; J10 = its first 10 rounds; +R = reactive stage on
+the arm's best point. 'Fully clean' = vlin.check: no branch over rating, slack inside limits, angle,
+bus-voltage and unit-Q limits met. None of these cases was run by any earlier milestone.
+
+PIPS AC optimum against PGLib's published PowerModels/IPOPT objective (validation):
+  case500_goc      typ   500 buses  PIPS 454946  PGLib 454950  diff -0.001 %  (3 s)
+  case588_sdet     typ   588 buses  PIPS 313140  PGLib 313140  diff -0.000 %  (4 s)
+  case793_goc      typ   793 buses  PIPS 260198  PGLib 260200  diff -0.001 %  (4 s)
+  case1354_pegase  typ  1354 buses  PIPS 1.25884e+06  PGLib 1.2588e+06  diff +0.003 %  (16 s)
+  case1803_snem    typ  1803 buses  PIPS no AC optimum  PGLib 98335
+  case1888_rte     typ  1888 buses  PIPS no AC optimum  PGLib 1.4025e+06
+  case1951_rte     typ  1951 buses  PIPS no AC optimum  PGLib 2.0856e+06
+  case2000_goc     typ  2000 buses  PIPS 973432  PGLib 973430  diff +0.000 %  (35 s)
+  case500_goc      api   500 buses  PIPS 688286  PGLib 688290  diff -0.001 %  (3 s)
+  case588_sdet     api   588 buses  PIPS no AC optimum  PGLib 398760
+  case793_goc      api   793 buses  PIPS 379801  PGLib 379800  diff +0.000 %  (4 s)
+  case1354_pegase  api  1354 buses  PIPS no AC optimum  PGLib 1.6082e+06
+  case1803_snem    api  1803 buses  PIPS no AC optimum  PGLib 80240
+  case1888_rte     api  1888 buses  PIPS no AC optimum  PGLib 2.0197e+06
+  case1951_rte     api  1951 buses  PIPS no AC optimum  PGLib 2.4903e+06
+  case2000_goc     api  2000 buses  PIPS 1.48389e+06  PGLib 1.4839e+06  diff -0.001 %  (34 s)
+  case500_goc      sad   500 buses  PIPS 487397  PGLib 487400  diff -0.001 %  (3 s)
+  case588_sdet     sad   588 buses  PIPS 329356  PGLib 329360  diff -0.001 %  (4 s)
+  case793_goc      sad   793 buses  PIPS 285798  PGLib 285800  diff -0.001 %  (5 s)
+  case1354_pegase  sad  1354 buses  PIPS 1.25885e+06  PGLib 1.2588e+06  diff +0.004 %  (19 s)
+  case1803_snem    sad  1803 buses  PIPS no AC optimum  PGLib 106340
+  case1888_rte     sad  1888 buses  PIPS no AC optimum  PGLib 1.4139e+06
+  case1951_rte     sad  1951 buses  PIPS no AC optimum  PGLib 2.0924e+06
+  case2000_goc     sad  2000 buses  PIPS 992880  PGLib 992880  diff -0.000 %  (37 s)
+
+Reference bus with no live unit, moved by PYPOWER's own rule (pglib.fix_ref): case500_goc/typ bus 311 -> 272; case1888_rte/typ bus 1320 -> 46; case1951_rte/typ bus 1320 -> 46; case500_goc/api bus 311 -> 272; case1888_rte/api bus 1320 -> 46; case1951_rte/api bus 1320 -> 46; case500_goc/sad bus 311 -> 272; case1888_rte/sad bus 1320 -> 46; case1951_rte/sad bus 1320 -> 46.
+Cases: 24; no PIPS AC optimum 11 (case1803_snem/typ, case1888_rte/typ, case1951_rte/typ, case588_sdet/api, case1354_pegase/api, case1803_snem/api, case1888_rte/api, case1951_rte/api, case1803_snem/sad, case1888_rte/sad, case1951_rte/sad); no DC start 1 (case2000_goc/api); scored 12.
+
+case             kind      start    S  S+R   J10     J  J+R  J best: nOv maxLd% slkMW nAng V Q      cost    J s
+case500_goc      typ      DC+ang    -    -    no   @14    y    0   99.90    0.0    0   0   0     +0.018%     12
+case588_sdet     typ      DC+ang    -    -    no   @20    y    0   99.95    0.0    0   0   0     +1.921%     10
+case793_goc      typ      DC+ang    -    -    no   @17    y    0   99.93    0.0    0   0   0     +0.141%     10
+case1354_pegase  typ      DC+ang    -    -    no    no    -    4  115.22    0.0    0   0   0     +0.028%    122
+case2000_goc     typ      DC+ang    -    -    no    no    y    0   99.90    0.0    0   0   5     +0.024%     55
+case500_goc      api      DC+ang    -    -    no   @17    y    0   99.96    0.0    0   0   0     +0.745%     14
+case793_goc      api      DC+ang    -    -    no   @17    y    0   99.97    0.0    0   0   0     +0.282%     13
+case500_goc      sad  DC, no ang    -    -    no    no    -    0   97.25    0.0    2   0   0     -4.612%     25
+case588_sdet     sad  DC, no ang    -    -    no    no    -    5  113.59    0.0    2   0   0     +2.837%     14
+case793_goc      sad  DC, no ang    -    -    no   @16    y    0   99.96    0.0    0   0   0     +0.866%      9
+case1354_pegase  sad  DC, no ang    -    -    no    no    -    4  112.00    0.0    0   0   0     +0.172%    125
+case2000_goc     sad  DC, no ang    -    -    no    no    y    0   83.87    0.0    0   0   5     +0.280%     85
+
+Fully clean rate over scored cases (Wilson 95 %; cluster bootstrap resamples the 8 base networks):
+  TYP (5 cases):
+    S (DC at file setpoints)         0/5   = 0.000  Wilson [0.000, 0.434]
+    S or S+R                         0/5   = 0.000  Wilson [0.000, 0.434]
+    J, 10 rounds (H2 as written)     0/5   = 0.000  Wilson [0.000, 0.434]
+    J10 or J10+R                     2/5   = 0.400  Wilson [0.118, 0.769]
+    J, 20 rounds (frozen budget)     3/5   = 0.600  Wilson [0.231, 0.882]
+    J or J+R                         4/5   = 0.800  Wilson [0.376, 0.964]
+  API (2 cases):
+    S (DC at file setpoints)         0/2   = 0.000  Wilson [0.000, 0.658]
+    S or S+R                         0/2   = 0.000  Wilson [0.000, 0.658]
+    J, 10 rounds (H2 as written)     0/2   = 0.000  Wilson [0.000, 0.658]
+    J10 or J10+R                     1/2   = 0.500  Wilson [0.095, 0.905]
+    J, 20 rounds (frozen budget)     2/2   = 1.000  Wilson [0.342, 1.000]
+    J or J+R                         2/2   = 1.000  Wilson [0.342, 1.000]
+  SAD (5 cases):
+    S (DC at file setpoints)         0/5   = 0.000  Wilson [0.000, 0.434]
+    S or S+R                         0/5   = 0.000  Wilson [0.000, 0.434]
+    J, 10 rounds (H2 as written)     0/5   = 0.000  Wilson [0.000, 0.434]
+    J10 or J10+R                     1/5   = 0.200  Wilson [0.036, 0.624]
+    J, 20 rounds (frozen budget)     1/5   = 0.200  Wilson [0.036, 0.624]
+    J or J+R                         2/5   = 0.400  Wilson [0.118, 0.769]
+  ALL (12 cases):
+    S (DC at file setpoints)         0/12  = 0.000  Wilson [0.000, 0.242]  cluster [0.000, 0.000]
+    S or S+R                         0/12  = 0.000  Wilson [0.000, 0.242]  cluster [0.000, 0.000]
+    J, 10 rounds (H2 as written)     0/12  = 0.000  Wilson [0.000, 0.242]  cluster [0.000, 0.000]
+    J10 or J10+R                     4/12  = 0.333  Wilson [0.138, 0.609]  cluster [0.091, 0.636]
+    J, 20 rounds (frozen budget)     6/12  = 0.500  Wilson [0.254, 0.746]  cluster [0.100, 0.786]
+    J or J+R                         8/12  = 0.667  Wilson [0.391, 0.862]  cluster [0.364, 0.923]
+
+H1 / P6a: DC dispatch breaks a thermal, slack or angle limit in AC on 7 of 7 scored API and SAD cases (1.000; held >= 0.80, refuted < 0.50).
+H2 as written / P6b: J fully clean within 10 rounds on 0 of 12 (0.000; held >= 0.75, refuted < 0.50).
+P6c: J fully clean within 20 rounds on 6 of 12 (0.500; bar >= 0.75).
+P6d: J or J+R fully clean on 8 of 12 (0.667; bar >= 0.85).
+P6e: J+R vs S+R paired: 8 wins, 0 losses, exact sign test P = 0.0078 (bar: P < 0.05, no more losses than 2).
+P6f: cost of J's fully clean points over the AC optimum: 6 points, mean +0.662 %, median +0.514 %, range +0.018 to +1.921 %; within 0.1 %: 1; bar: mean <= +0.5 %.
+Late finishers (clean in rounds 11 to 20): 6 (case500_goc/typ @14, case588_sdet/typ @20, case793_goc/typ @17, case500_goc/api @17, case793_goc/api @17, case793_goc/sad @16).
+Rounds run: 221; elastic QPs among them: 98.
+Wall time: 1205 s summed over cases; J alone 495 s, slowest J 125 s.

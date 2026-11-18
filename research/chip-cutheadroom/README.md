@@ -22,7 +22,7 @@ Track 3 (LLM chip-design loops, `PROJECTS.md`). Why it seemed worth doing: `chip
 ## Reproduce
 ```
 apt-get install -y yosys
-python3 experiments/run.py && python3 experiments/figure.py   # about 1 minute; stdlib only
+python3 experiments/run.py && python3 experiments/figure.py   # about 5 seconds with Yosys 0.33; stdlib only
 python3 -m unittest discover -s tests
 ```
 
@@ -48,3 +48,7 @@ Cuts of 5 and 6 inputs with sampled SAT costs; allow duplication of shared logic
 
 ## Outside dependencies
 Yosys and ABC (apt). No LLM API, OpenROAD or PDK. Exact costs and `exact.py` are copied from `chip-exact4` (MIT).
+
+## Known gaps
+
+From the quality census of 2026-11-15 ([audit](../../portfolio/quality/audits/2026-11-15-chip-cutheadroom.json)): the cut-size bound, the cone-of-3 threshold behind headline 3 and the `$_ORNOT_` semantics can each be changed with every test green (the MFFC rule now has a test); exact-synthesis cut rewriting after ABC (Riener et al., DATE 2019, mockturtle; Haaswijk et al., TCAD 2020) is not yet cited or compared, and no standard benchmark (EPFL, ISCAS) is run; headline 3 rests on one single-pass, positive-gain measurement.

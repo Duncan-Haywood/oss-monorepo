@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 470" font-family="sans-serif" font-size="12">
+<rect width="680" height="470" fill="#fff"/>
+<text x="64" y="22" font-size="13">Held-out assigned-exit runs: two crowd models against the real corridors</text>
+<line x1="64" x2="440" y1="414.0" y2="414.0" stroke="#eee"/>
+<line x1="64.0" x2="64.0" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="418.0" text-anchor="end">0.4</text>
+<text x="64.0" y="432" text-anchor="middle">0.4</text>
+<line x1="64" x2="440" y1="351.7" y2="351.7" stroke="#eee"/>
+<line x1="126.7" x2="126.7" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="355.7" text-anchor="end">0.5</text>
+<text x="126.7" y="432" text-anchor="middle">0.5</text>
+<line x1="64" x2="440" y1="289.3" y2="289.3" stroke="#eee"/>
+<line x1="189.3" x2="189.3" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="293.3" text-anchor="end">0.6</text>
+<text x="189.3" y="432" text-anchor="middle">0.6</text>
+<line x1="64" x2="440" y1="227.0" y2="227.0" stroke="#eee"/>
+<line x1="252.0" x2="252.0" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="231.0" text-anchor="end">0.7</text>
+<text x="252.0" y="432" text-anchor="middle">0.7</text>
+<line x1="64" x2="440" y1="164.7" y2="164.7" stroke="#eee"/>
+<line x1="314.7" x2="314.7" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="168.7" text-anchor="end">0.8</text>
+<text x="314.7" y="432" text-anchor="middle">0.8</text>
+<line x1="64" x2="440" y1="102.3" y2="102.3" stroke="#eee"/>
+<line x1="377.3" x2="377.3" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="106.3" text-anchor="end">0.9</text>
+<text x="377.3" y="432" text-anchor="middle">0.9</text>
+<line x1="64" x2="440" y1="40.0" y2="40.0" stroke="#eee"/>
+<line x1="440.0" x2="440.0" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="44.0" text-anchor="end">1.0</text>
+<text x="440.0" y="432" text-anchor="middle">1.0</text>
+<line x1="64.0" y1="414.0" x2="440.0" y2="40.0" stroke="#555" stroke-dasharray="4 3"/>
+<text x="252.0" y="456" text-anchor="middle">observed share on own right</text>
+<text transform="translate(18 227.0) rotate(-90)" text-anchor="middle">simulated share (mean of 20 seeds)</text>
+<circle cx="179.7" cy="178.9" r="4.5" fill="#c0392b"/>
+<circle cx="218.0" cy="196.6" r="4.5" fill="#c0392b"/>
+<circle cx="212.4" cy="192.1" r="4.5" fill="#c0392b"/>
+<circle cx="125.7" cy="168.3" r="4.5" fill="#c0392b"/>
+<circle cx="153.6" cy="168.3" r="4.5" fill="#c0392b"/>
+<circle cx="108.2" cy="186.7" r="4.5" fill="#c0392b"/>
+<circle cx="140.9" cy="166.8" r="4.5" fill="#c0392b"/>
+<circle cx="155.6" cy="170.8" r="4.5" fill="#c0392b"/>
+<rect x="282.0" y="145.4" width="8" height="8" fill="#c0392b"/>
+<rect x="239.8" y="148.4" width="8" height="8" fill="#c0392b"/>
+<rect x="142.7" y="153.4" width="8" height="8" fill="#c0392b"/>
+<rect x="181.4" y="159.5" width="8" height="8" fill="#c0392b"/>
+<rect x="178.1" y="128.6" width="8" height="8" fill="#c0392b"/>
+<rect x="125.8" y="212.2" width="8" height="8" fill="#c0392b"/>
+<circle cx="179.7" cy="277.5" r="4.5" fill="#e67e22"/>
+<circle cx="218.0" cy="262.8" r="4.5" fill="#e67e22"/>
+<circle cx="212.4" cy="241.4" r="4.5" fill="#e67e22"/>
+<circle cx="125.7" cy="242.8" r="4.5" fill="#e67e22"/>
+<circle cx="153.6" cy="242.8" r="4.5" fill="#e67e22"/>
+<circle cx="108.2" cy="235.7" r="4.5" fill="#e67e22"/>
+<circle cx="140.9" cy="239.7" r="4.5" fill="#e67e22"/>
+<circle cx="155.6" cy="219.5" r="4.5" fill="#e67e22"/>
+<rect x="282.0" y="183.0" width="8" height="8" fill="#e67e22"/>
+<rect x="239.8" y="205.6" width="8" height="8" fill="#e67e22"/>
+<rect x="142.7" y="186.3" width="8" height="8" fill="#e67e22"/>
+<rect x="181.4" y="198.3" width="8" height="8" fill="#e67e22"/>
+<rect x="178.1" y="189.6" width="8" height="8" fill="#e67e22"/>
+<rect x="125.8" y="285.0" width="8" height="8" fill="#e67e22"/>
+<circle cx="179.7" cy="46.9" r="4.5" fill="#6c3483"/>
+<circle cx="218.0" cy="43.6" r="4.5" fill="#6c3483"/>
+<circle cx="212.4" cy="46.2" r="4.5" fill="#6c3483"/>
+<circle cx="125.7" cy="42.1" r="4.5" fill="#6c3483"/>
+<circle cx="153.6" cy="40.9" r="4.5" fill="#6c3483"/>
+<circle cx="108.2" cy="41.3" r="4.5" fill="#6c3483"/>
+<circle cx="140.9" cy="40.8" r="4.5" fill="#6c3483"/>
+<circle cx="155.6" cy="40.5" r="4.5" fill="#6c3483"/>
+<rect x="282.0" y="54.9" width="8" height="8" fill="#6c3483"/>
+<rect x="239.8" y="37.8" width="8" height="8" fill="#6c3483"/>
+<rect x="142.7" y="41.4" width="8" height="8" fill="#6c3483"/>
+<rect x="181.4" y="46.8" width="8" height="8" fill="#6c3483"/>
+<rect x="178.1" y="57.9" width="8" height="8" fill="#6c3483"/>
+<rect x="125.8" y="181.0" width="8" height="8" fill="#6c3483"/>
+<circle cx="456" cy="60" r="4.5" fill="#c0392b"/><text x="466" y="64" font-size="11">social force, exits 1/4 width in</text>
+<circle cx="456" cy="80" r="4.5" fill="#e67e22"/><text x="466" y="84" font-size="11">social force, exits at the walls</text>
+<circle cx="456" cy="100" r="4.5" fill="#6c3483"/><text x="466" y="104" font-size="11">anticipation velocity model</text>
+<circle cx="456" cy="130" r="4.5" fill="#777"/><text x="466" y="134" font-size="11">HERMES 2009</text>
+<rect x="452" y="146" width="8" height="8" fill="#777"/><text x="466" y="154" font-size="11">BaSiGo 2013</text>
+<text x="452" y="184" font-size="11">dashed: perfect twin; a point</text>
+<text x="452" y="198" font-size="11">above it keeps right more than</text>
+<text x="452" y="212" font-size="11">the people did</text>
+</svg>

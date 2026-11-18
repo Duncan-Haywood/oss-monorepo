@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marine-detect"
+version = "0.1.0"
+description = "Maritime obstacle segmentation on MaSTr1325: a CPU baseline and how fog, sun glint and object size cut recall"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "pillow", "torch", "torchvision"]
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

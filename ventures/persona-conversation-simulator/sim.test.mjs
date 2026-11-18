@@ -100,3 +100,15 @@ test("pair notes name the traits behind the friction", () => {
   assert.equal(g.pairs.length, 3);
   assert.ok(g.notes.some((n) => /speak least/.test(n)));
 });
+
+test("the airtime note agrees with the simulator's own turn shares (quality audit 2026-11-17)", () => {
+  const cast = [mk("loud", { extraversion: 95 }), mk("quiet", { extraversion: 5 }), mk("mid", { extraversion: 50 })];
+  const note = airtime(cast);
+  const sim = runMany(scenarioById("offsite"), cast, { runs: 1000, seed: "check" }).perPerson;
+  for (let i = 0; i < cast.length; i++) assert.ok(Math.abs(note[i].share - sim[i].airtime) < 0.04, `${note[i].share} vs ${sim[i].airtime}`);
+});
+
+test("long seeds still give every character a distinct id", () => {
+  const cast = makeCast("a-very-long-seed-string-that-runs-past-twenty-four-characters", 4);
+  assert.equal(new Set(cast.map((p) => p.id)).size, 4);
+});

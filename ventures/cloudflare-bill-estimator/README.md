@@ -20,15 +20,31 @@ Levers ranked by saving: cache at the edge, trim CPU time, cache hot KV keys, sk
 Each is computed alone under an assumption printed next to it (editable with
 `--assume`), so the savings **overlap and are not additive**.
 
-`--minimum USD` sets the plan floor (default $5). Exit 1 when `--budget` (monthly USD) is exceeded; 2 on bad input.
+`--subscription USD` sets the Workers Paid subscription added on top of usage (default $5; `0` for an R2-only account; `--minimum` is the old name). Exit 1 when `--budget` (monthly USD) is exceeded; 2 on bad input.
 
 ## What it is not
 
 Arithmetic on the numbers you give, at approximate public usage-based list prices
 dated in the source (`PRICES_AS_OF`) and editable with `--prices` (including the
-included allowances and the monthly minimum); check
+included allowances and the Workers Paid subscription); check
 <https://developers.cloudflare.com/workers/platform/pricing/>. It cannot see your plan, add-ons, contract or real invoice. Not a bill reader, a guarantee or advice. Not
 affiliated with Cloudflare.
+
+## Known gaps
+
+From the quality audit of 2026-11-13
+([`portfolio/quality/audits/2026-11-13-cloudflare-bill-estimator.json`](../../portfolio/quality/audits/2026-11-13-cloudflare-bill-estimator.json)):
+
+- The "cache at the edge" lever removes Worker requests as well as CPU time.
+  A Worker on a route runs (and is billed per request) even when it answers
+  from the Cache API, so for that case the lever overstates the saving; only
+  traffic that never reaches the Worker (static assets, a cache rule ahead of
+  it) saves the request charge.
+- Durable Objects, D1, Queues, KV storage, deletes and lists, and R2
+  Infrequent Access cannot be entered.
+- Fixed on 2026-11-13: the $5 Workers Paid charge was treated as a floor that
+  usage counted toward. Cloudflare bills it as a subscription on top of usage
+  (its own example: $5 + $1.50 + $1.50 = $8; the tool said $5).
 
 ## Privacy
 

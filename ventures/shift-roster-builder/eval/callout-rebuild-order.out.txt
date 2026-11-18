@@ -1,0 +1,46 @@
+  same open, other roster cafe 1 2 Fay 1503353.45 1503353.45
+  same open, other roster cafe 1 3 Ana 1503392.95 1503392.95
+  same open, other roster cafe 1 3 Dev 1503376.95 1503376.95
+  same open, other roster cafe 2 1 Fay 1503370.45 1503370.45
+  same open, other roster cafe 2 1 Gus 1503356.95 1503356.95
+  same open, other roster cafe 2 2 Fay 1503371.45 1503371.45
+  same open, other roster cafe 2 3 Dev 1503370.95 1503370.95
+  same open, other roster cafe 2 3 Gus 1503391.95 1503391.95
+  same open, other roster cafe 4 1 Dev 1503374.95 1503374.95
+  same open, other roster cafe 5 1 Fay 1503372.45 1503372.45
+  same open, other roster cafe 5 1 Gus 1503358.95 1503358.95
+  same open, other roster cafe 6 1 Fay 1503403.45 1503403.45
+  same open, other roster cafe 6 3 Ana 1503374.95 1503374.95
+  same open, other roster cafe 6 3 Fay 1503386.45 1503386.45
+  same open, other roster cafe 6 3 Gus 1503389.95 1503389.95
+cafe: 21568 ms -> 9946 ms
+  same open, other roster spare 1 3 Fay 303447.37 303447.37
+  same open, other roster spare 1 4 Dev 603373.60 603373.60
+  same open, other roster spare 1 4 Gus 303402.87 303402.87
+  same open, other roster spare 2 3 Fay 303447.37 303447.37
+  same open, other roster spare 2 4 Dev 603373.60 603373.60
+  same open, other roster spare 2 4 Gus 303402.87 303402.87
+  same open, other roster spare 3 3 Fay 303447.37 303447.37
+  same open, other roster spare 3 4 Dev 603373.60 603373.60
+  same open, other roster spare 3 4 Gus 303402.87 303402.87
+  same open, other roster spare 4 3 Fay 303447.37 303447.37
+  same open, other roster spare 4 4 Dev 603373.60 603373.60
+  same open, other roster spare 4 4 Gus 303402.87 303402.87
+  same open, other roster spare 5 3 Fay 303447.37 303447.37
+  same open, other roster spare 5 4 Dev 603373.60 603373.60
+  same open, other roster spare 5 4 Gus 303402.87 303402.87
+  same open, other roster spare 6 3 Fay 303447.37 303447.37
+  same open, other roster spare 6 4 Dev 603373.60 603373.60
+  same open, other roster spare 6 4 Gus 303402.87 303402.87
+spare: 29504 ms -> 11974 ms
+salon: 4607 ms -> 4558 ms
+retail: 11054 ms -> 2201 ms
+clinic: 4174 ms -> 2818 ms
+cases 570, mismatches 0, total 70907 -> 31497 ms
+
+whole --steady pick: old order -> now
+cafe: 21.0 s -> 14.4 s; rebuilds 101/101; same roster true; exposure 92/92; tied 92 >=92 >=92 >=92 >=92 >=92
+spare: 5.9 s -> 2.8 s; rebuilds 27/27; same roster true; exposure 54/54; tied 54
+salon: 2.3 s -> 2.2 s; rebuilds 30/30; same roster true; exposure 56/56; tied 56 >=56 >=56
+retail: 10.0 s -> 1.5 s; rebuilds 28/28; same roster true; exposure 24/24; tied 24 24 >=24 >=24 >=24 >=24
+clinic: 1.9 s -> 1.6 s; rebuilds 37/37; same roster true; exposure 30/30; tied 30 >=30 >=30 >=30 >=30 >=30

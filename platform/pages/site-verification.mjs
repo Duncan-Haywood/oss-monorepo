@@ -22,6 +22,16 @@ const TOKEN_RE = /^[A-Za-z0-9_-]{8,128}$/;
 
 export function verificationTags(conf) {
   const tags = [];
+  // A token under a misspelt key ("Google", "msvalidate.01") would publish
+  // nothing while the owner believes the site is verified: refuse it. Keys
+  // starting with "_" are comments.
+  for (const key of Object.keys(conf ?? {})) {
+    if (!key.startsWith('_') && !Object.hasOwn(META_NAME, key)) {
+      throw new Error(
+        `site-verification.json: unknown key "${key}" (expected ${Object.keys(META_NAME).join(', ')}, or _comment)`,
+      );
+    }
+  }
   for (const [engine, name] of Object.entries(META_NAME)) {
     const tokens = conf?.[engine] ?? [];
     if (!Array.isArray(tokens)) throw new Error(`site-verification.json: ${engine} must be a list`);

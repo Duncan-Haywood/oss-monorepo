@@ -14,6 +14,7 @@ recoverable -- it only reports what a run record and an artifact stat show.
 
 from __future__ import annotations
 
+import math
 from datetime import datetime, timezone
 from typing import Any
 
@@ -32,6 +33,19 @@ def _parse_timestamp(value: str) -> datetime:
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=timezone.utc)
     return parsed
+
+
+def _threshold(expected: dict[str, Any], name: str, reasons: list[str]) -> float | None:
+    """A threshold from the record, or None. NaN compares False both ways,
+    so a NaN, infinite or non-number threshold would switch its check off
+    (or crash it): name it as a reason instead, so the run cannot verify."""
+    value = expected.get(name)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
+        reasons.append(f"expected.{name} is {value!r}, not a finite number zero or greater, so it could not be checked")
+        return None
+    return value
 
 
 def classify_run(record: dict[str, Any], *, require_integrity: bool = False) -> dict[str, Any]:
@@ -143,7 +157,7 @@ def classify_run(record: dict[str, Any], *, require_integrity: bool = False) -> 
 
     expected = record.get("expected") or {}
     size_bytes = artifact.get("size_bytes")
-    min_size = expected.get("min_size_bytes")
+    min_size = _threshold(expected, "min_size_bytes", reasons)
     if min_size is not None and (size_bytes is None or size_bytes < min_size):
         # Same shape as the shrink-alert / markdown paths: never dump a raw
         # byte count into a reason the operator copies into a ticket.
@@ -165,7 +179,7 @@ def classify_run(record: dict[str, Any], *, require_integrity: bool = False) -> 
         except (ValueError, TypeError) as exc:
             reasons.append(f"artifact.modified_at is not a parseable timestamp: {exc}")
 
-    max_age_hours = expected.get("max_age_hours")
+    max_age_hours = _threshold(expected, "max_age_hours", reasons)
     if max_age_hours is not None:
         if not modified_at:
             reasons.append("expected.max_age_hours was set but the artifact has no modified_at to check")

@@ -19,7 +19,7 @@ test("the Romanian rules are an add-on chosen from BT-24, for UBL only", () => {
 test("a clean Romanian RON invoice passes the EU base and the 122 national checks, none skipped", { skip }, async () => {
   const r = await runPlain(read("ro-invoice.xml"));
   assert.equal(r.status, "ok");
-  assert.deepEqual(r.sets, ["en16931", "cius-ro"]);
+  assert.deepEqual(r.sets, ["en16931-1.3.8", "cius-ro"]);
   assert.deepEqual(r.findings, []);
   assert.deepEqual(r.skipped, []);
 });

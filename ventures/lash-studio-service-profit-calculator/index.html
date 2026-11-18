@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lash Studio Service Profit Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare lash services by take-home per chair hour after supplies, card fees, no-shows and studio costs, find the price for a target, and see the value of a returning client. Runs in your browser.","featureList":"Take-home per chair hour, side-by-side service ranking, price for a target, break-even bookings, client lifetime value, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a lash set really earn per hour?","acceptedAnswer":{"@type":"Answer","text":"Take what the client pays, subtract card fees and the lashes, glue and disposables, then divide by every minute of chair time including consult and clean-up, and subtract your rent and overhead spread over the hours you actually book. A $180 full set that looks like $90 an hour on the menu is often well under half of that in your pocket."}},{"@type":"Question","name":"Are fills or full sets more profitable?","acceptedAnswer":{"@type":"Answer","text":"Enter both. Fills use less time and fewer supplies but charge less, and a full set is a client who comes back for fills. The tool ranks services by take-home per chair hour and shows the lifetime value of a client at the number of visits you expect, which is the figure that decides how hard to discount a first set."}},{"@type":"Question","name":"How should I price a lash service?","acceptedAnswer":{"@type":"Answer","text":"Start from the take-home per hour you want. The tool shows the price that reaches it after supplies, card fees, no-shows and studio costs, and the number of bookings a month that cover your rent before you earn anything."}},{"@type":"Question","name":"How much do no-shows cost a lash artist?","acceptedAnswer":{"@type":"Answer","text":"A no-show leaves an empty slot that cannot be resold and, without a deposit, earns nothing. Enter the chance and the deposit you keep; the tool cuts the expected revenue accordingly while still counting the blocked hours."}},{"@type":"Question","name":"Is this tax or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Tax, licensing, insurance and what your state requires of a lash artist vary; check with a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e40af; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1c3ca5; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1c3ca5; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e40af; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e40af; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1c3ca5; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -145,11 +183,11 @@
       for (const r of cmp.bad) for (const w of r.a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(r.name)}: ${esc(w)}</div>`;
       if (!cmp.ranked.length) { if (!cmp.sharedWarnings.length) h += '<div class="finding"><span class="pill">Check</span> Enter a price above zero for at least one service.</div>'; $("result").innerHTML = h; $("out").hidden = false; return; }
       const s = cmp.shared, b = cmp.best;
-      h += `<div class="finding"><h4>${cmp.ranked.length > 1 ? "Best service per hour: " : ""}${esc(b.name)} takes home ${money2(b.a.e.takeHomePerHour)} an hour</h4><p>The menu says ${money2(b.a.e.menuHourly)} an hour. After card fees, supplies, no-shows and ${money2(b.a.e.overhead)} an hour of studio cost, ${money2(b.a.e.contribution)} is left per booking over ${b.a.e.hours.toFixed(1)} chair hours.</p></div>`;
-      h += `<div class="finding"><h4>The services side by side</h4>${table(["Service", "Price", "Kept per booking", "Menu $/hour", "Take-home $/hour", "Per client over time"], cmp.ranked.map((r) => [esc(r.name), money(r.a.opts.price), money2(r.a.e.contribution), money2(r.a.e.menuHourly), money2(r.a.e.takeHomePerHour), money(r.a.e.perClient)]))}</div>`;
+      h += `<div class="finding"><h3>${cmp.ranked.length > 1 ? "Best service per hour: " : ""}${esc(b.name)} takes home ${money2(b.a.e.takeHomePerHour)} an hour</h3><p>The menu says ${money2(b.a.e.menuHourly)} an hour. After card fees, supplies, no-shows and ${money2(b.a.e.overhead)} an hour of studio cost, ${money2(b.a.e.contribution)} is left per booking over ${b.a.e.hours.toFixed(1)} chair hours.</p></div>`;
+      h += `<div class="finding"><h3>The services side by side</h3>${table(["Service", "Price", "Kept per booking", "Menu $/hour", "Take-home $/hour", "Per client over time"], cmp.ranked.map((r) => [esc(r.name), money(r.a.opts.price), money2(r.a.e.contribution), money2(r.a.e.menuHourly), money2(r.a.e.takeHomePerHour), money(r.a.e.perClient)]))}</div>`;
       for (const r of cmp.ranked) {
         const e = r.a.e, o = r.a.opts;
-        h += `<div class="finding"><h4>${esc(r.name)}</h4>`;
+        h += `<div class="finding"><h3>${esc(r.name)}</h3>`;
         for (const w of r.a.warnings) h += `<p><span class="pill">Check</span> ${esc(w)}</p>`;
         h += `<p>To take home ${money2(s.targetHourly)} an hour this service would have to cost ${money2(r.a.targetPrice)} (it is ${money2(o.price)}). Selling only this service, ${be(r.a.breakEven)} a month cover your rent and other costs; the booked hours hold about ${Math.floor(r.a.capacity)}.</p>`;
         h += table(["Where the price goes", "Per booking"], [["Price", money2(o.price)], ["Lost to no-shows (net of deposit)", money2(o.price - e.expectedRevenue)], ["Card fees", money2(e.cardFee)], ["Supplies", money2(o.supplies)], ["Kept before the studio", money2(e.contribution)], ["Studio cost for this chair time", money2(e.overhead * e.hours)], ["Take-home", money2(e.takeHome)]]);

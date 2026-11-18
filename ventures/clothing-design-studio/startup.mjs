@@ -80,7 +80,7 @@ export function launchBudget({ items, landed, quantity, price, depositPct = 30, 
 
 /** Spreadsheet-safe CSV of the one-off lines. */
 export function budgetCsv(b) {
-  const safe = s => { const t = String(s ?? ""); return /^[=+\-@\t\r]/.test(t) ? "'" + t : t; };
+  const safe = s => { const t = String(s ?? ""); return /^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t) ? "'" + t : t; };
   const q = s => `"${safe(s).replace(/"/g, '""')}"`;
   const out = ["line,amount,qty,total,share_pct"];
   for (const l of b.lines) out.push([q(l.name), l.amount, l.qty, l.total, l.sharePct].join(","));

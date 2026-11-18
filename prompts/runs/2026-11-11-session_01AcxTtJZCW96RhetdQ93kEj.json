@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJZCW96RhetdQ93kEj",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T06:06:50Z",
+  "ended": "2026-11-11T06:19:37Z",
+  "wall_minutes": 13.18,
+  "tokens_in": 4394500,
+  "tokens_out": 27122,
+  "cost_usd": 2.3892,
+  "tool_calls": 42,
+  "task": "heavy-hydraulics milestone 5o: measure the motion threshold on the measured wheel loader and add a closing-law-free open-centre floor",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14712",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py printed /usr/bin/python3.13 (already had numpy/scipy/pytest); plain python3 lacks numpy, so every command needed the explicit interpreter. Not wrong, but the bare python3 in CLAUDE.md's check commands only works because they are stdlib."
+    },
+    {
+      "file": "research/heavy-hydraulics/README.md",
+      "issue": "tests need PYTHONPATH=src (package not installed); the README's reproduce block says so but a bare pytest run fails at collection."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "why": "5n's Next said 'replace q_min with the PVG 32 bypass-closing law'; on reflection any closing law gives pump pressure >= load pressure at full fixed flow, so the closing law cannot remove q_min (a property of the trace's noise).",
+      "did": "measured q_min as the data's noise floor and added a closing-law-free floor (dp_spool 0) instead",
+      "result": "all four registered predictions held; the open-centre spread narrowed to 1.37-1.67"
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Huova et al. 2018 (ASME, paywalled) not read",
+      "did": "stated it in LOG limits",
+      "result": "no outside fuel baseline yet"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-open-centre-floor-on-a-measured-wheel-loader.md",
+    "research/heavy-hydraulics/LOG.md (5o)",
+    "research/heavy-hydraulics/paper/draft.md section 3.6"
+  ],
+  "goal": null,
+  "notes": "Predictions Q1-Q4 committed and pushed (first commit of PR #14712) before the experiment ran; all held. Local checks: heavy-hydraulics tests 29 passed; paper/check_numbers.py 92 claims 0 missing; research/_homepage/build.py ok; check_md_links ok; cite_check 3 DOIs ok; post frontmatter/links/similarity ok. Dataset downloaded from Zenodo (96 MB, not committed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "41e97297-0c0f-507f-b1eb-b35d2c30b179",
+    "transcripts": 1,
+    "first": "2026-11-11T06:06:50Z",
+    "last": "2026-11-11T06:20:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 77,
+        "output": 27122,
+        "thinking": 5289,
+        "cache_read": 4270373,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124050,
+        "api_equivalent_usd": 2.3892,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 77,
+      "output": 27122,
+      "thinking": 5289,
+      "cache_read": 4270373,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124050,
+      "api_equivalent_usd": 2.3892,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 37,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.18,
+      "active_minutes": 13.18,
+      "model_minutes": 5.42,
+      "tool_minutes": 7.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "engineer: download and inspect dataset, define noise-floor and position motion rules, code + tests, write log/paper/post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 251.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -7,6 +7,27 @@
 // target (floor less your ask), the date to start negotiating, and an email draft.
 // Pure functions, no network, no dependencies; dates are calendar dates in UTC.
 
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" or "Smith, LLC" stays one field ("" inside quotes is a quote).
+const splitCsvLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
+
 export const MODEL_NOTE =
   "Do-nothing renewal = annual cost x (1 + uplift). Seats needed = used seats x (1 + buffer), rounded up, never above seats paid. " +
   "Floor target = seats needed x price per seat, no uplift. Stretch target = floor target x (1 - ask). Savings = do-nothing renewal minus target. " +
@@ -24,7 +45,7 @@ export const MAX_ROWS = 200;
 const DAY = 86400000;
 
 export const money = (v) =>
-  (v < 0 ? "-" : "") + "$" + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 export function parseDate(s) {
   const t = String(s ?? "").trim();
@@ -52,7 +73,7 @@ export function parseRenewals(text) {
   const lines = String(text ?? "").split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
   lines.forEach((line, idx) => {
     if (idx === 0 && /^vendor\b/i.test(line)) return;
-    const c = line.split(",").map((x) => x.trim());
+    const c = splitCsvLine(line);
     const n = idx + 1;
     if (c.length < 8) return errors.push(`Row ${n}: expected vendor,annual cost,renewal date,notice days,auto-renews,seats paid,seats used,uplift % (got ${c.length} fields)`);
     const [vendor, cost, date, notice, auto, paid, used, uplift] = c;
@@ -161,9 +182,22 @@ export function emailDraft(row, opts = {}) {
   return lines.join("\n");
 }
 
-const icsText = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const icsText = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 const icsDay = (iso) => iso.replace(/-/g, "");
 const addDay = (iso) => isoDate(parseDate(iso) + DAY);
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
 
 export function toIcs(p) {
   const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//saas-renewal-planner//EN", "CALSCALE:GREGORIAN"];
@@ -177,5 +211,5 @@ export function toIcs(p) {
     ev("notice", r.noticeDeadline, `${r.vendor}: LAST DAY to give notice`, `Renews ${r.renewsOnIso} at about ${money(r.doNothing)} unless you act.`);
   }
   out.push("END:VCALENDAR");
-  return out.join("\r\n") + "\r\n";
+  return foldIcs(out.join("\r\n")) + "\r\n";
 }

@@ -1,0 +1,70 @@
+# water-leaks step 15: localisation on the oracle residual (published minus leak-free L-TOWN_Real.inp, continuous two-year run, rounded to 0.01 m)
+# residuals over the 24 h from t (first hour of half-peak flow): d1 = step 11's D1 no-flow regression residual;
+#   o-all = mean D; o-inc (primary) = mean D minus mean D over the 24 h before the leak's onset
+# estimates: A = nominal L-TOWN.inp 24 h mean signatures, q = 5, argmax Pearson (step 11); S = same at the grid q nearest the leak's true mean flow;
+#   M = most-affected sensor; error = along-pipe distance to the leak pipe midpoint; rule 300 m; chance: Poisson-binomial over p_i
+
+gate: step 11's A and M estimates on the d1 residual reproduced for 32 of 32 leaks
+chance: expected 1.40 of 32 within 300 m
+
+## within 300 m, of 32 oracle-timed leaks (P(chance >=); median error m)
+  method                      |   d1 (step 11)        |   o-all               |   o-inc (primary)
+  A nominal, q = 5            | 15 (0.0000;   436)    |  2 (0.4130;   923)    | 16 (0.0000;   340)   
+  S nominal, oracle q         | 14 (0.0000;   449)    |  5 (0.0120;   934)    | 15 (0.0000;   401)   
+  M most-affected sensor      | 13 (0.0000;   420)    |  5 (0.0120;  1208)    | 14 (0.0000;   390)   
+
+## paired, 300 m hits (exact sign test on discordant leaks)
+  A on o-inc only 3, A on d1 only 2: P = 1.000
+  A on o-inc only 5, M on o-inc only 3: P = 0.727
+  S on o-inc only 5, M on o-inc only 4: P = 1.000
+  M on o-inc only 2, M on d1 only 1: P = 1.000
+
+## descriptive
+  best Pearson score of A on o-inc: median 0.966 (range 0.553 to 0.998)
+  Pearson correlation of the d1 residual with o-inc, per leak: median 0.870 (range -0.411 to 0.989)
+  oracle q grid used: 1: 0, 2: 2, 5: 10, 10: 7, 20: 8, 30: 5
+
+  pipe  year t                 peak  q_true | A d1 / o-inc err m | S o-inc err m | M d1 / o-inc err m | best r | corr(d1, o-inc) | visible +h
+   p232 2018 2018-02-02T15     26.1   18.7 |    157 /    246    |    246        |    404 /    404    | 0.998  | +0.951          | 2
+   p673 2018 2018-03-05T16     28.4   28.4 |     22 /    142    |     22        |     66 /     66    | 0.937  | +0.918          | 0
+   p461 2018 2018-03-09T04     30.5   15.5 |   2164 /   2125    |   2104        |   2080 /   2080    | 0.933  | +0.988          | 6
+   p427 2018 2018-04-18T21      5.1    2.6 |   1214 /   1626    |   1626        |   1328 /   1061    | 0.764  | +0.263          | 20
+   p628 2018 2018-05-12T08     35.4   19.5 |     28 /     85    |    142        |    399 /    399    | 0.991  | +0.982          | 2
+   p538 2018 2018-05-18T09     32.8   32.4 |    266 /     59    |    133        |    989 /    264    | 0.996  | +0.882          | 0
+   p866 2018 2018-06-01T09     20.6   20.3 |    198 /     19    |     19        |    198 /    198    | 0.994  | +0.561          | 0
+    p31 2018 2018-07-23T18     16.2    8.4 |    275 /     83    |    106        |    302 /    302    | 0.998  | +0.758          | 0
+   p183 2018 2018-08-07T03     16.5   16.3 |     31 /     80    |     31        |    128 /    128    | 0.776  | +0.858          | 0
+   p654 2018 2018-08-26T14      5.5    2.8 |   2017 /   1349    |   1304        |   1965 /   1965    | 0.972  | +0.237          | 11
+   p810 2018 2018-10-05T14      6.9    3.5 |    438 /    929    |    929        |    918 /    918    | 0.657  | +0.538          | 0
+   p158 2018 2018-10-06T03     24.8   24.5 |     83 /    189    |    189        |     83 /     83    | 0.997  | +0.903          | 0
+   p369 2018 2018-10-26T02     21.1   20.5 |    435 /    299    |     76        |    435 /    435    | 0.997  | +0.479          | 0
+   p523 2019 2019-01-15T23     28.4   28.2 |     22 /     22    |    226        |     86 /     86    | 0.987  | +0.980          | 0
+   p827 2019 2019-01-24T19     26.5   26.2 |    893 /    127    |     25        |    229 /    229    | 0.963  | +0.612          | 0
+   p280 2019 2019-02-10T13      5.3    5.2 |    460 /    381    |    381        |    775 /    381    | 0.998  | -0.070          | 0
+   p710 2019 2019-03-24T14      5.6    5.5 |    128 /    229    |    229        |    141 /    141    | 0.960  | +0.769          | 0
+   p514 2019 2019-04-02T21     15.6   15.5 |    244 /    230    |    168        |     77 /     77    | 0.984  | +0.928          | 0
+   p653 2019 2019-04-07T12     18.3    9.4 |    662 /    610    |    610        |    227 /    227    | 0.976  | +0.988          | 1
+   p331 2019 2019-04-20T10     10.9   10.5 |    799 /    130    |    420        |    277 /    277    | 0.969  | +0.938          | 0
+   p142 2019 2019-06-12T20     27.0   26.6 |    289 /   1361    |   1326        |    281 /    281    | 0.765  | +0.401          | 1
+   p193 2019 2019-07-05T22     10.4    5.3 |   1811 /   1684    |   1684        |   2682 /   2682    | 0.971  | +0.962          | 6
+   p680 2019 2019-07-10T09      5.4    5.4 |    439 /   1460    |   1460        |    109 /    109    | 0.553  | +0.620          | 0
+   p277 2019 2019-07-21T22      7.4    3.8 |   2788 /   1579    |   1579        |   2223 /    407    | 0.891  | -0.411          | 7
+   p586 2019 2019-08-18T21     20.5   10.7 |     82 /    232    |    182        |    193 /    940    | 0.869  | +0.923          | 0
+   p800 2019 2019-09-01T10     21.9   11.7 |    991 /    898    |    898        |   2070 /   2411    | 0.825  | +0.989          | 0
+   p721 2019 2019-09-08T03     13.2    6.7 |    875 /    446    |    446        |   1140 /   1140    | 0.753  | +0.733          | 0
+   p426 2019 2019-10-25T13     13.6   13.0 |     25 /   1046    |   1016        |    705 /   1013    | 0.938  | +0.212          | 0
+   p123 2019 2019-11-07T22      9.2    4.7 |   1033 /   1164    |   1164        |    599 /    599    | 0.894  | +0.889          | 0
+   p762 2019 2019-11-17T03     15.7    8.0 |    969 /   1015    |   1015        |   1840 /   1840    | 0.971  | +0.978          | 0
+   p455 2019 2019-11-24T22     11.1    5.6 |   2001 /   1975    |   1975        |   1309 /   1309    | 0.976  | +0.940          | 3
+   p879 2019 2019-12-19T21     10.9    5.7 |    195 /    249    |    249        |   3086 /    178    | 0.554  | -0.023          | 0
+
+## visibility: first hour from onset with D minus its pre-onset mean <= -0.05 m at some sensor for 3 h running (within 30 days)
+  visible within 30 days: 32 of 32; delay median 0 h (range 0 to 20)
+  D1-F: 13 detected 2019 leaks; alarm delay median 104 h; their visibility delay median 0 h; alarm later than visibility for 13
+  LILA-auto: 14 detected 2019 leaks; alarm delay median 138 h; their visibility delay median 0 h; alarm later than visibility for 14
+
+## pre-registered predictions (LOG.md, step 15 plan)
+  (a) A on o-inc puts more than 15 of 32 within 300 m: 16: HELD
+  (b) A on o-inc puts at least 16 of 32 within 300 m: 16: HELD
+  (c) A and M on o-inc not separable at P < 0.05: P = 0.727: HELD
+  (d) median best Pearson score of A on o-inc >= 0.9: 0.966: HELD

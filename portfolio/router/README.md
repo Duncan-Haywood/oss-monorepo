@@ -6,6 +6,38 @@ Decides which venture gets the next unit of agent effort.
 [`../flagships.yaml`](../flagships.yaml) rank ahead of all other startable
 work, in that file's order, with a "Deepen (flagship N)" task naming their
 next milestone. Edit that file to change what most venture runs work on.
+A flagship marked `inputs_only:` (every listed item needs a real outside
+input) ranks after the buildable flagships, with an "Inputs only" task.
+An optional `buildable:` line (what a cloud session can do now with no
+outside input) leads the row's task as "BUILDABLE HERE", and the table opens
+with a "Start here" line naming a Deepen flagship with no PR opened
+in the last 24 h: the first one, or, inside a harness session, one of the
+first six picked by a hash of the session id, so sessions started minutes
+apart (before either opens a PR) usually get different rows. When run
+records from today or yesterday show sessions sent to that row and leaving
+for another (a `deviations` entry on `allocate.py` or a ventures prompt that
+names the row first, not a claim race), a "Left recently" line follows with
+the count, where they went and the newest reason (`left_rows`); `--venture`
+prints it too. It is a hint, not a demotion: the same rows were also worked
+successfully many times. When every Deepen row has a PR from the last 24 h
+(the usual state by mid-day), "Start here" names the least contested row
+instead: the one whose newest claim is oldest, picked by session id among the
+six least contested (`least_claimed`), and asks for an item no open PR names.
+The table cuts each flagship's `next:` at 500 characters;
+`allocate.py --venture <slug>` prints one row in full, with the open PRs
+naming it and when work on it last landed on main. To edit a `next:` (or
+`buildable:`), use `flagship_field.py <slug> [--field F] --replace OLD NEW`
+(or `--set FILE`): it matches the unfolded text, rewraps without breaking at
+a hyphen (a hand-wrapped `wall-framing-` / `takeoff` reads back as
+`wall-framing- takeoff`; `validate.py` now fails on one). A `next:` edit that
+would pass the 2,000-character cap parks open items from the end of the row
+(never your own new text, the clause before it, or a clause reporting landed
+work) into `ventures/<slug>/NEXT.md`, just enough to fit, and says up front how
+many it moved. `--dry-run` previews that without writing, `--park ITEM` picks
+the item yourself, `--no-make-room` refuses instead, and `--make-room` or
+`--trim` parks down to 1,700 for headroom. Above the table, a "Website requests" line says which
+open entries in `portfolio/requests/requests.json` are flagship rows, so a
+run need not reconcile prompt.md's request-first order with the pick by hand.
 
 **2026-08-24 direction:** the router ranks work, but the fleet's default is
 product shipping, not router maintenance. Prefer dispatchable `in-repo`

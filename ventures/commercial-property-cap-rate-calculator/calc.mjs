@@ -35,7 +35,7 @@ export function parse(input) {
 }
 
 const r1 = (v) => Math.round(v * 10) / 10;
-export const money = (v) => (v < 0 ? "-$" : "$") + Math.abs(Math.round(v)).toLocaleString("en-US");
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(v)).toLocaleString("en-US"));
 export const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
 
 // Level monthly payment on a loan, annualised.

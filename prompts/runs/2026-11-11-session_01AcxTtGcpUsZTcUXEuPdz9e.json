@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtGcpUsZTcUXEuPdz9e",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T15:06:39Z",
+  "ended": "2026-11-11T15:14:58Z",
+  "wall_minutes": 8.45,
+  "tokens_in": 5842240,
+  "tokens_out": 36303,
+  "cost_usd": 2.8383,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14815",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Built box D in full, then found PR #14814 (another session) had landed box D on main 1h earlier; the merge conflicted. Restarted the branch from main and kept only the non-overlapping work: the January 31 rule, rate-format fix, line 1b question. About half the run's effort duplicated.",
+    "First box D test expectation ignored Section A line 14 carry; fixed before the restart."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "I searched open PRs before starting and none matched; the duplicate (#14814) was opened and merged while I worked. A check of main's recent commits on the venture right before pushing would have caught it about 40 minutes sooner."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: sits at the 2,000-character cap, so each slice has to trim wording."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-file-by-january-31.md",
+    "ventures/ai-bookkeeper/README.md (January 31 file-and-pay rule)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; ideas and website requests empty; routed ventures/1; flagship 2 (ai-bookkeeper) item 8b. irs.gov answered (f2210.pdf, i2210.pdf). Landed on top of #14814's box D: Jan 31 rule (withReturn payments by Jan 31 in column (d); worksheet never applies them to (d) twice), CLI --paid-with-return, page input, missing-rate warning formatting fix, line 1b withholding question in README. Verification: run_venture_tests.py ai-bookkeeper ok (39.1s); penalty2210/annualized/annualized-boxd/page tests 51 pass; check_post_frontmatter ok; venture-preflight clean (on pre-rebase branch; run again after the rebase if time allows); Playwright page check with no page errors; earlier PR CI green before the conflict.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6be3141b-ad56-52e5-abc0-3226068fc987",
+    "transcripts": 1,
+    "first": "2026-11-11T15:06:39Z",
+    "last": "2026-11-11T15:15:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 102,
+        "output": 36303,
+        "thinking": 9609,
+        "cache_read": 5721187,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120951,
+        "api_equivalent_usd": 2.8383,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 102,
+      "output": 36303,
+      "thinking": 9609,
+      "cache_read": 5721187,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120951,
+      "api_equivalent_usd": 2.8383,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.45,
+      "active_minutes": 8.45,
+      "model_minutes": 6.88,
+      "tool_minutes": 1.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "read Form 2210 box D and Jan 31 text, implement, test and document a tax worksheet change",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 211.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

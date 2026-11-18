@@ -1,0 +1,78 @@
+{
+ "base_period_ns": {
+  "mul2w": 13.96,
+  "mul3n": 18.17,
+  "wsum3w": 11.44,
+  "wsum4n": 13.6,
+  "xor8": 7.0,
+  "xor4": 9.95
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "wsum3w": [
+   "wsumsh_w",
+   "wsumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "OW": 32,
+    "K": 3
+   },
+   ""
+  ],
+  "wsum4n": [
+   "wsumsh_w",
+   "wsumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "OW": 7,
+    "K": 4
+   },
+   ""
+  ],
+  "mul2w": [
+   "mulsh_w",
+   "mulsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "OW": 12,
+    "K": 2
+   },
+   ""
+  ],
+  "mul3n": [
+   "mulsh_w",
+   "mulsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "OW": 7,
+    "K": 3
+   },
+   ""
+  ],
+  "xor4": [
+   "xorsh_w",
+   "xorsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 4
+   },
+   ""
+  ],
+  "xor8": [
+   "xorsh_w",
+   "xorsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 8
+   },
+   ""
+  ]
+ }
+}

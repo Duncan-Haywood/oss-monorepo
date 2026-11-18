@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"HSA Shoebox Planner","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Free HSA shoebox planner: list the medical receipts you paid out of pocket, then see how much tax you avoid by letting the HSA grow and reimbursing yourself later, versus reimbursing every year. Runs in your browser; nothing is uploaded.","featureList":"Receipt list parser, unreimbursed receipt total, tax-free withdrawal room, shoebox versus reimburse-as-you-go comparison, year-by-year table, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the HSA shoebox strategy?","acceptedAnswer":{"@type":"Answer","text":"You pay medical bills from your regular money, keep every receipt, and leave the HSA invested. The IRS sets no deadline for reimbursing yourself, so any qualified expense incurred after the HSA was opened can be withdrawn tax-free years later, in any amount up to the total of those receipts. The HSA keeps compounding tax-free in the meantime."}},{"@type":"Question","name":"How much does it actually save?","acceptedAnswer":{"@type":"Answer","text":"Only the tax on the growth of the dollars you would otherwise have reimbursed. If you reimburse yourself today and invest that cash in a taxable account, the gains are taxed at capital-gains rates; left inside the HSA they are not. The tool computes that difference for your balance, return and horizon. It is not free money from nowhere, and with a zero return or a zero tax rate it is zero."}},{"@type":"Question","name":"Is there a time limit on reimbursing myself?","acceptedAnswer":{"@type":"Answer","text":"Federal rules do not set one, as long as the expense happened after the HSA was established and you did not deduct or reimburse it elsewhere. You should keep documentation that would satisfy an audit, such as the receipt, the date and proof it was a qualified expense and was not reimbursed by insurance. Check current IRS guidance and your state's rules."}},{"@type":"Question","name":"Which expenses count and which receipts are left out?","acceptedAnswer":{"@type":"Answer","text":"Qualified medical expenses under IRS rules. Expenses incurred before the HSA was opened never qualify, so the tool leaves receipts dated before your opening date out of the pile. Anything already reimbursed is excluded too. Mark a line with the word reimbursed at the end of its note to exclude it."}},{"@type":"Question","name":"What if I need the money before retirement?","acceptedAnswer":{"@type":"Answer","text":"Withdrawals up to your total unreimbursed receipts are tax-free at any age. Withdrawing more than that for non-medical reasons is taxed as ordinary income, plus a 20% additional tax before age 65. The result shows what any excess over your receipts would cost at the age and tax rate you enter."}},{"@type":"Question","name":"Do all states treat the HSA the same?","acceptedAnswer":{"@type":"Answer","text":"No. A few states, including California and New Jersey, tax HSA contributions or earnings, which would reduce the saving. This tool models federal treatment only."}},{"@type":"Question","name":"Is this tax or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type: a constant return, annual steps, and a flat capital-gains rate. It does not know your eligibility, your plan's investment menu, or what the IRS will accept. Talk to a qualified tax professional before relying on it."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #0f766e; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #0a514c; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #0a514c; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f766e; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #0a514c; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -97,10 +135,10 @@
       let h = "";
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
-      h += `<div class="finding"><h4>Tax-free withdrawal room today</h4><p>${esc(money2(a.eligible))} of receipts can be reimbursed from the HSA tax-free (excluded: ${esc(money2(a.before))} before the HSA opened, ${esc(money2(a.done))} already reimbursed).</p></div>`;
-      h += `<div class="finding"><h4>Waiting ${a.years} years instead of reimbursing as you go</h4><p>Leaving the HSA invested ends about <strong>${esc(money(a.edge))}</strong> ahead after tax: the capital-gains tax you avoid on the growth of the reimbursed dollars. The HSA would be ${esc(money(a.end.hsaA))}, with ${esc(money(a.end.pile))} of receipts (${esc(money(a.taxFreeRoom))} usable) as tax-free withdrawal room.</p></div>`;
-      if (a.excess > 0) h += `<div class="finding"><h4>Balance beyond your receipts</h4><p>${esc(money(a.excess))} would exceed your receipts. Taken for non-medical use that costs about ${esc(money(a.excessCost))} in tax${a.penalty ? " and the 20% additional tax" : ""}; used for future medical costs it is tax-free.</p></div>`;
-      h += `<div class="finding"><h4>Year by year</h4>${table(["Year", "HSA, shoebox", "HSA, as you go", "Taxable, after tax", "Receipts pile", "Shoebox edge"], a.table.filter((t, i) => i === 0 || i === a.table.length - 1 || t.year % 5 === 0).map((t) => [t.year, money(t.hsaA), money(t.hsaB), money(t.taxableAfterTax), money(t.pile), money(t.edge)]))}<p><button type="button" class="secondary" id="csv">Download table (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>Tax-free withdrawal room today</h3><p>${esc(money2(a.eligible))} of receipts can be reimbursed from the HSA tax-free (excluded: ${esc(money2(a.before))} before the HSA opened, ${esc(money2(a.done))} already reimbursed).</p></div>`;
+      h += `<div class="finding"><h3>Waiting ${a.years} years instead of reimbursing as you go</h3><p>Leaving the HSA invested ends about <strong>${esc(money(a.edge))}</strong> ahead after tax: the capital-gains tax you avoid on the growth of the reimbursed dollars. The HSA would be ${esc(money(a.end.hsaA))}, with ${esc(money(a.end.pile))} of receipts (${esc(money(a.taxFreeRoom))} usable) as tax-free withdrawal room.</p></div>`;
+      if (a.excess > 0) h += `<div class="finding"><h3>Balance beyond your receipts</h3><p>${esc(money(a.excess))} would exceed your receipts. Taken for non-medical use that costs about ${esc(money(a.excessCost))} in tax${a.penalty ? " and the 20% additional tax" : ""}; used for future medical costs it is tax-free.</p></div>`;
+      h += `<div class="finding"><h3>Year by year</h3>${table(["Year", "HSA, shoebox", "HSA, as you go", "Taxable, after tax", "Receipts pile", "Shoebox edge"], a.table.filter((t, i) => i === 0 || i === a.table.length - 1 || t.year % 5 === 0).map((t) => [t.year, money(t.hsaA), money(t.hsaB), money(t.taxableAfterTax), money(t.pile), money(t.edge)]))}<p><button type="button" class="secondary" id="csv">Download table (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

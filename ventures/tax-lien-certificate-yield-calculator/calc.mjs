@@ -47,12 +47,12 @@ export function num(v) {
 export function money(x) {
   if (!Number.isFinite(x)) return "—";
   const r = Math.round(x);
-  return (r < 0 ? "-$" : "$") + Math.abs(r).toLocaleString("en-US");
+  return ((t) => (r < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(r).toLocaleString("en-US"));
 }
 
 export function money2(x) {
   if (!Number.isFinite(x)) return "—";
-  return (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
 const nn = (v, d) => {

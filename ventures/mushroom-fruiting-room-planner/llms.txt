@@ -1,4 +1,4 @@
-# What a block earns, how many flushes to run, how many blocks the room can carry, and the cash you need first.
+# What a block earns, the flushes to run and how many blocks the room can carry.
 
 > Free planner for small mushroom farms: profit per block and per fruiting-room slot-week, how many flushes to run, how many blocks the room can carry, the cash you need before the first sale, and the contamination rate and price that break even. Private, runs in your browser.
 

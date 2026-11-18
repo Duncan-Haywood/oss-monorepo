@@ -1,0 +1,6 @@
+48 weeks with both builds
+old: late >50 ms by the repair 6 [57, 63, 118, 136, 181, 245]; late by any stage 6 [57, 63, 118, 136, 181, 245]; repair ran 13, gains 12, stopped at deadline 0; open hours 12489; mean build 21.28 s, slowest 28.1 s; proven 7
+new: late >50 ms by the repair 0 []; late by any stage 0 []; repair ran 10, gains 13, stopped at deadline 5; open hours 12489; mean build 21.28 s, slowest 28.2 s; proven 7
+per week open hours new-old: []
+rule: (1) late by the repair 6 -> 0: pass; (2) open hours +0: pass; (3) mean build -0.01 s: pass
+KEEP ON

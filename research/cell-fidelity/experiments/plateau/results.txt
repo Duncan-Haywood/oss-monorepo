@@ -1,0 +1,26 @@
+cell-fidelity milestone 5zn: a plateau-aware node lever (the law's uniform shift read at each node's cycle-2
+stoichiometry, plating-weighted). 5zk's records, 5z's 40 designs, no new simulation. Set medians.
+
+set           n  rho10  rho20  rho30  rho50  rho99 |lnr10| |lnr99| d10law d10nod  mw10 x_top   x_w  sprd
+Ai2020        8   0.67   0.85   0.91   0.99   1.00   0.409   0.024   4.51  16.66 11.69 0.723 0.940 0.419
+Chen2020     12   0.81   0.82   0.85   0.88   0.98   0.220   0.095   0.42   3.25  2.88 0.468 0.620 0.370
+OKane2022    12   0.57   0.63   0.65   0.71   0.84   0.556   0.221   1.18   5.49  3.00 0.459 0.614 0.364
+NCA_Kim2011   8   0.99   1.04   1.08   1.13   1.18   0.160   0.167  44.56  44.29 41.32 0.395 0.439 0.459
+
+set             e_A    e_N    e_P  e_N10    e_W    N<A
+Ai2020        0.083  0.023  0.091  0.068  0.085   7/8 
+Chen2020      0.082  0.059  0.027  0.056  0.025   9/12
+OKane2022     0.059  0.076  0.044  0.039  0.019   5/12
+NCA_Kim2011   0.022  0.048  0.024  0.075  0.012   1/8 
+
+(rho_k = slope of Mw on D_node over n = 3..k; d10 = rise from cycle 2 to 10, mV (law = 5zd's lever, node =
+ dU_node, mw = measured plating-weighted); x_top = law's window top at cycle 2, x_w = Un^-1 of the
+ plating-weighted cycle-2 OCP, sprd = max - min of the node x_i(2); e = |ln(L_pred(99)/L_DFN(99))|, line
+ through cycles 2..10: A = 5zd's lever at 25.3, N = dU_node at 25.3, P = one-point variant at 25.3,
+ N10 = dU_node at 25.3 rho_10, W = 5zl's diagnosis (5zd's lever at kappa_w, reads cycle 99))
+
+H204 (|ln rho_node,99| <= 0.15 on >= 3 of 4 sets): inconclusive (2 <= 0.15, 0 > 0.3)
+H205 (|ln rho_node,10| <= 0.3 on >= 3 of 4 sets): inconclusive (2 <= 0.3, 0 > 0.6)
+H206 (N below A on >= 3 of 4 sets): inconclusive (2/4)
+H207 (N beats A on >= 26 of 40 designs): inconclusive (22/40, one-sided sign test p = 0.318)
+H208 (LG M50: e_N <= 1.5 x e_W on both): inconclusive (ratios 2.41, 3.93)

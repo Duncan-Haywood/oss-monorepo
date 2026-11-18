@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKiWS9eHAFwWFYucn8i",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T01:18:50Z",
+  "ended": "2026-11-17T01:27:46Z",
+  "wall_minutes": 9.27,
+  "tokens_in": 7340537,
+  "tokens_out": 40611,
+  "cost_usd": 3.3639,
+  "tool_calls": 63,
+  "task": "ids-model-check (flagship 12): the IDS editor offers a model's attribute values and classification codes",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16768",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "issue": "While drafting, I wrote three numbers that had not come from any output: '148 of 251' classified objects, 'Revit 2016' and 'Description empty on 135 objects'. I caught all three before committing, recomputed them from the models (143 of 210 elements, 93 of 134 types; Revit exporter 3.2.0.0 per FILE_NAME; Name/ObjectType empty on 68 of 146 proxies) and corrected README, llms.txt and the eval doc. None of them landed."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/model-values-2026-11-17.md",
+      "issue": "It names the four real exports but not their paths in opensourceBIM/IFC-files ('HHS Office/MEP.ifc' etc.; the directory also has *2.ifc copies). I had to pick the four by matching names. One sparse-clone command in the doc would save that step; added one to eval/model-attr-codes-2026-11-17.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-classified-in-uniformat-but-no-code-ids.md",
+    "ventures/ids-model-check/eval/model-attr-codes-2026-11-17.md"
+  ],
+  "goal": "Deepen a flagship: land the next buildable editor item on real models",
+  "notes": "Verification: node --test in ventures/ids-model-check (run_venture_tests.py: 89 tests ok, 1 skipped); eval/model-attr-codes.mjs on 4 real exports exits 0 (242/242 clean offers pass, 9/9 rows with empties fail on exactly those objects); eval/model-values.mjs still 1014/1014 after the shared merge refactor; Playwright at 390 px on an uncoded tiny-house copy: offers, Allow exactly these values, Require a code writes .+, scrollWidth 390, no console errors; check_post_frontmatter/links/similarity clean; validate.py ok; venture-preflight run in background (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4cdcec76-4e75-52fa-bc8b-eba1fc14af82",
+    "transcripts": 1,
+    "first": "2026-11-17T01:18:50Z",
+    "last": "2026-11-17T01:28:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 115,
+        "output": 40611,
+        "thinking": 9505,
+        "cache_read": 7201557,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138865,
+        "api_equivalent_usd": 3.3639,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 115,
+      "output": 40611,
+      "thinking": 9505,
+      "cache_read": 7201557,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138865,
+      "api_equivalent_usd": 3.3639,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 58,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.27,
+      "active_minutes": 9.27,
+      "model_minutes": 7.19,
+      "tool_minutes": 2.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a JS developer familiar with IFC/IDS: inventory + editor rows + eval on 4 models + tests + write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 178.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

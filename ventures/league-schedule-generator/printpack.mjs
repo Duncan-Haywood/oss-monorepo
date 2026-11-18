@@ -30,7 +30,7 @@ export function printPackHtml(schedule, o = {}) {
   const head = `<header class="bar">${logo ? `<img class="logo" src="${logo}" alt="">` : ""}<div><strong>${league}</strong>${season ? ` <span>${season}</span>` : ""}</div></header>`;
   const timed = schedule.rounds.some((r) => r.matches.some((m) => m.time));
   const full = schedule.rounds.map((r) => {
-    const rows = r.matches.map((m) => `<tr>${timed ? `<td>${htmlEsc(m.time)}</td>` : ""}<td>${htmlEsc(m.court)}</td><td>${htmlEsc(m.homeName)}</td><td>${htmlEsc(m.awayName)}</td></tr>`).join("");
+    const rows = r.matches.map((m) => `<tr>${timed ? `<td class="s">${htmlEsc(m.time)}</td>` : ""}<td class="s">${htmlEsc(m.court)}</td><td>${htmlEsc(m.homeName)}</td><td>${htmlEsc(m.awayName)}</td></tr>`).join("");
     const bye = r.bye !== null && r.bye !== undefined ? `<p class="bye">Bye: ${htmlEsc(teams[r.bye])}</p>` : "";
     return `<section class="round"><h3>${htmlEsc(r.label)} <span>${htmlEsc(dayLabel(r.day))}</span></h3><table><thead><tr>${timed ? "<th>Time</th>" : ""}<th>Court</th><th>Home</th><th>Away</th></tr></thead><tbody>${rows}</tbody></table>${bye}</section>`;
   }).join("\n");
@@ -39,7 +39,7 @@ export function printPackHtml(schedule, o = {}) {
       const m = r.matches.find((x) => x.home === i || x.away === i);
       if (m) {
         const home = m.home === i;
-        return `<tr><td>${htmlEsc(dayLabel(r.day))}</td>${timed ? `<td>${htmlEsc(m.time)}</td>` : ""}<td>${htmlEsc(m.court)}</td><td>${home ? "Home" : "Away"}</td><td>${htmlEsc(home ? m.awayName : m.homeName)}</td></tr>`;
+        return `<tr><td class="s">${htmlEsc(dayLabel(r.day))}</td>${timed ? `<td class="s">${htmlEsc(m.time)}</td>` : ""}<td class="s">${htmlEsc(m.court)}</td><td>${home ? "Home" : "Away"}</td><td>${htmlEsc(home ? m.awayName : m.homeName)}</td></tr>`;
       }
       return r.bye === i ? `<tr class="bye"><td>${htmlEsc(dayLabel(r.day))}</td><td colspan="${timed ? 4 : 3}">Bye</td></tr>` : "";
     }).join("");
@@ -49,7 +49,7 @@ export function printPackHtml(schedule, o = {}) {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${league}${season ? " " + season : ""}: season schedule</title>
-<style>:root{--a:${accent}}body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:50rem;padding:1rem;color:#1a1a1a;background:#fff}.bar{display:flex;align-items:center;gap:.75rem;border-bottom:4px solid var(--a);padding-bottom:.5rem;margin-bottom:1rem}.bar span{color:#555}.logo{max-height:3.5rem;max-width:8rem}h1,h2,h3{color:var(--a)}h3 span{font-weight:400;color:#555}table{border-collapse:collapse;width:100%;margin-bottom:.75rem}th,td{text-align:left;padding:.35rem .5rem;border-bottom:1px solid #ccc}th{border-bottom:2px solid var(--a)}.bye,.bye td{color:#555;font-style:italic}.cover{text-align:center;padding:4rem 0;page-break-after:always}.cover .logo{max-height:9rem;max-width:18rem;margin-bottom:1.5rem}.cover h1{font-size:2.4rem;margin:.2rem 0}.sheet{page-break-before:always}.round{break-inside:avoid}.contact{margin-top:1.5rem}footer{color:#555;font-size:.85rem;margin-top:2rem}@media print{body{max-width:none}}</style></head>
+<style>:root{--a:${accent}}body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:50rem;padding:1rem;color:#1a1a1a;background:#fff}.bar{display:flex;align-items:center;gap:.75rem;border-bottom:4px solid var(--a);padding-bottom:.5rem;margin-bottom:1rem}.bar span{color:#555}.logo{max-height:3.5rem;max-width:8rem}h1,h2,h3{color:var(--a)}h3 span{font-weight:400;color:#555}table{border-collapse:collapse;width:100%;margin-bottom:.75rem}th,td{text-align:left;padding:.35rem .5rem;border-bottom:1px solid #ccc}th{border-bottom:2px solid var(--a)}.bye,.bye td{color:#555;font-style:italic}.cover{text-align:center;padding:4rem 0;page-break-after:always}.cover .logo{max-height:9rem;max-width:18rem;margin-bottom:1.5rem}.cover h1{font-size:2.4rem;margin:.2rem 0}.sheet{page-break-before:always}.round{break-inside:avoid}.s{white-space:nowrap}h2,h3{break-after:avoid}.contact{margin-top:1.5rem}footer{color:#555;font-size:.85rem;margin-top:2rem}@media print{body{max-width:none}}</style></head>
 <body>
 <section class="cover">${logo ? `<img class="logo" src="${logo}" alt="">` : ""}<h1>${league}</h1>${season ? `<p>${season}</p>` : ""}<p>${teams.length} teams · ${schedule.rounds.length} rounds · ${htmlEsc(dayLabel(schedule.rounds[0]?.day ?? 0))} to ${htmlEsc(dayLabel(schedule.rounds[schedule.rounds.length - 1]?.day ?? 0))}</p>${contact ? `<p>${contact}</p>` : ""}</section>
 ${head}

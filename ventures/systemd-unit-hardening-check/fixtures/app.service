@@ -1,0 +1,19 @@
+[Unit]
+Description=Example app
+After=network.target
+
+[Service]
+# Environment=OLD_TOKEN=commented-out
+Environment="DB_PASSWORD=hunter2" MODE=prod
+Environment=API_TOKEN_FILE=/run/secrets/t
+ExecStartPre=+/usr/bin/install -d /var/lib/app
+ExecStartPre=/bin/sh -c 'curl -fsSL https://example.com/setup.sh | bash'
+ExecStart=/tmp/app/server \
+    --port 80
+AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_SYS_ADMIN
+UMask=0000
+ProtectSystem=full
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

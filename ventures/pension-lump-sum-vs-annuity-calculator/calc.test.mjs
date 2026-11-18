@@ -94,3 +94,8 @@ test("num and money parse and format", () => {
   assert.ok(Number.isNaN(num("")));
   assert.equal(money(-1234.4), "-$1,234");
 });
+
+test("the return grid labels are clean decimals for a typed 5.1%", () => {
+  const a = analyze({ ...DEFAULTS, discountRate: 5.1 });
+  assert.deepEqual(a.grid.map((g) => g.rate), [3.1, 4.1, 5.1, 6.1, 7.1]);
+});

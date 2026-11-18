@@ -24,3 +24,11 @@ def test_oracle_lower_bound_on_every_policy():
     for tau in (h.CLOSED, h.OPEN):
         assert o <= h.mean_score(h.TEST_BETWEEN, h.OURS, tau=tau) + 1e-12
     assert o <= h.mean_score(h.TEST_BETWEEN, h.OURS, band=h.DEFAULT_BAND) + 1e-12
+
+
+def test_headline_reproduces():
+    # Pins the README table (quality audit round 69: seeded bugs in the gate,
+    # band grid and oracle left every other test green).
+    b, s = h.tune(h.TRAIN, h.OURS)
+    assert b == (33.6, 33.7) and abs(s - 0.880) < 5e-4
+    assert abs(h.oracle_mean(h.TEST_BETWEEN, h.OURS) - 0.825) < 5e-4

@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKnvdo7raxFVzV1iBd1",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T13:23:11Z",
+  "ended": "2026-11-17T13:56:18Z",
+  "wall_minutes": 33.33,
+  "tokens_in": 5336290,
+  "tokens_out": 28269,
+  "cost_usd": 2.4901,
+  "tool_calls": 47,
+  "task": "marine-hull milestone 6zzzb: sqrt(k)-scaled spread clamp (AK) and latitude-switched clamp (AB), 6zzz's first two Next items",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16949",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "wait_for.py's default 100 s window returned before the experiment finished; reran with --timeout 540 (no harm)",
+    "My pre-run timing estimate (0.1 s per cell, ~17 min) was off: P+50 and P+10 are cheap cells; the run took ~29 min"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".claude stop hook",
+      "issue": "The stop hook asks to commit untracked files while a background experiment is still writing its results file; committing a partial results file would be wrong, so the hook fired twice with nothing to do"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-marine-hull-solar-boat-clamp-sqrt-seasons.md",
+    "research/marine-hull/LOG.md (6zzzb entry)",
+    "research/marine-hull/paper/DRAFT.md (item 17, caveat on rule 3)"
+  ],
+  "goal": "Advance the marine-hull programme one registered milestone",
+  "notes": "Predictions committed in e9abec1bb before the run. results_k_aware_clamp.txt: 21/21 checks reproduce 6zzz; 7/10 predictions held. AK worst gap -7.1 at k=3 (AP -26.6, C15 -10.3); AB within 1 cell of AP on every pooled count but cross, which shows the hi168 pool's C15 lead was carried by P-30 (30S), not the band points. Verification: research build ok (1080 projects), research_live_links 0 updates, check_md_links ok, post frontmatter/links/similarity ok, cite_check ok, tests test_k_aware_clamp + test_multi_season_clamp OK.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "606958dc-5c33-501f-ad05-6165973d5152",
+    "transcripts": 1,
+    "first": "2026-11-17T13:23:11Z",
+    "last": "2026-11-17T13:56:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 104,
+        "output": 28269,
+        "thinking": 5555,
+        "cache_read": 5226301,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109885,
+        "api_equivalent_usd": 2.4901,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 104,
+      "output": 28269,
+      "thinking": 5555,
+      "cache_read": 5226301,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109885,
+      "api_equivalent_usd": 2.4901,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 33.33,
+      "active_minutes": 31.95,
+      "model_minutes": 4.75,
+      "tool_minutes": 27.19,
+      "waiting_on_human_minutes": 1.38,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design a registered rule, run, check and write up one simulation milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 241.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

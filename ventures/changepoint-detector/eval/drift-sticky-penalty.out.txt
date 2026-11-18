@@ -1,0 +1,27 @@
+TCPD series where the sticky check fires: bank, children_per_woman, ratner_stock, scanline_42049 (pre-registered: bank, children_per_woman, ratner_stock, scanline_42049)
+
+TCPD sticky series: cuts / F1 / cover at 2, 3 and 4 log n (3 log n descriptive only)
+  bank                 n  581  repeats 42%  2:  63 0.031 0.048   3:  50 0.038 0.048   4:  43 0.044 0.048   annotators' median 0
+  children_per_woman   n  301  repeats 25%  2:  19 0.571 0.756   3:  14 0.628 0.781   4:   6 0.367 0.793   annotators' median 2
+  ratner_stock         n  600  repeats 23%  2:  30 0.324 0.592   3:   9 0.547 0.726   4:   3 0.308 0.746   annotators' median 2
+  scanline_42049       n  481  repeats 49%  2:  27 0.593 0.702   3:  13 0.700 0.740   4:   8 0.805 0.847   annotators' median 7
+  mean at 2 log n: F1 0.380  cover 0.524  cuts 139
+  mean at 3 log n: F1 0.478  cover 0.574  cuts 86
+  mean at 4 log n: F1 0.381  cover 0.609  cuts 60
+
+Frozen orange juice (612 months; freezes 1958-01 1963-01 1970-01 1977-02 1981-02 1984-01 1985-02 1990-01)
+  2 log n:  67 cuts, 8 of 8 freezes found (1958-01 1963-01 1970-01 1977-02 1981-02 1984-01 1985-02 1990-01), 11 cuts near a freeze
+  3 log n:  24 cuts, 6 of 8 freezes found (1958-01 1963-01 1977-02 1981-02 1984-01 1990-01), 8 cuts near a freeze
+  4 log n:   9 cuts, 5 of 8 freezes found (1963-01 1977-02 1981-02 1984-01 1990-01), 5 cuts near a freeze
+
+Decision rule:
+  R1 PASS: mean F1 0.381 at 4 log n vs 0.380 shipped
+  R2 PASS: mean cover 0.609 vs 0.524 shipped (allowed 0.02 lower)
+  R3 FAIL: 5 of 8 freezes found (need 7)
+  R4 PASS: 9 cuts vs 67 shipped (need at most half)
+  verdict: FAIL, the warning text is not changed
+
+Descriptive only: the 34 TCPD series where the check does not fire (what 4 log n would cost if applied everywhere)
+  2 log n: mean F1 0.697  cover 0.624  cuts 267
+  3 log n: mean F1 0.754  cover 0.681  cuts 124
+  4 log n: mean F1 0.706  cover 0.646  cuts 80

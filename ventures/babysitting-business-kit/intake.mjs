@@ -401,7 +401,7 @@ ${personal ? "" : `<p class="noprint"><a href="./index.html">Open the Babysittin
 }
 
 // `node intake.mjs --write` regenerates the published page; a test checks it is current.
-if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}` && process.argv.includes("--write")) {
+if (typeof process !== "undefined" && process.argv && process.argv[1] && import.meta.url === (await import("node:url")).pathToFileURL(process.argv[1]).href && process.argv.includes("--write")) {
   const { writeFileSync } = await import("node:fs");
   writeFileSync(new URL("./meet-and-greet.html", import.meta.url), meetAndGreetPage());
   console.log("wrote meet-and-greet.html");

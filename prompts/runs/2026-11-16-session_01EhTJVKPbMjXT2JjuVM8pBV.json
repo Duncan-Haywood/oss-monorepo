@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVKPbMjXT2JjuVM8pBV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T21:10:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10) open-tennis-robots: why the 0.8 s first-order slow drill aborts at shot 2",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16701",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The scheduled message asked for revenue-focused work; the allocator's flagship pick (open-tennis-robots, an open hardware project) was followed rather than starting a new revenue venture, because the root CLAUDE.md asks runs to deepen flagships and this item was a concrete, finishable bug.",
+      "did": "took the allocator's flagship item",
+      "result": "bug found and fixed, verified on the simulator"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-release-timeout-that-stopped-a-machine-doing-its-job.md"
+  ],
+  "goal": "Find and fix why one simulated build's slow drill always aborted at shot 2",
+  "notes": "Traced the abort frame by frame (tests/release_timeout_trace.py, eval/slow-drill-release-timeout-2026-11-16.txt): slow wheel undershoots 526 -> 507 rpm, gate passes on one reading, Pi feeds, gate resets and re-holds 684 ms, stroke ends ~27.5 s after the Pi's flat 2.0 s release timeout at 27.2 s. Fix in host.run_drill: release timeout counts from the last gate-shut frame, capped at ready_timeout_s. New test fails on main, passes now. Drill now finishes 30/30; min_fit_rpm_sweep on that build: 60 wheels within 2%, spin err 0.33% at the 1,000 floor. Verification: platform/ci/run_venture_tests.py open-tennis-robots -> ok, 345 tests, 58 skipped (build123d not installed). Post checks: frontmatter, links, similarity clean.",
+  "corrections": [],
+  "redteam": null
+}

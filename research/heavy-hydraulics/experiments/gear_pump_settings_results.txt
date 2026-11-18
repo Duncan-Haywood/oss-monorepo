@@ -1,0 +1,72 @@
+Milestone 7h: 7g's rules across the 18 idle settings of 6j (S = 0.38) and four other idle shares (central setting); 14 variants, 196 cells per condition
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py; neutral readings as excavator_idle_standby.py)
+
+Central ow coefficients (7g's pooled fit, frozen in (ii) and (iii)): +0.7562, +0.0182, -0.4269
+
+Per condition: LS standby kW; fixed-pump idle kW at 85 L/min over the 14 variants; diagonal E50 mean and range;
+(i) refitted pooled leave-one-maker-family-out diagonal RMS, two / w / o / ow, and ow against two;
+refitted ow slopes (kW_o, k_w); (ii) frozen central ow RMS (mean bias); (iii) frozen slopes, own intercept RMS
+  PVG32        sb 2.0  n 1.0  S 0.38  LS 2.96  kW 2.45-3.64
+    E50 mean 0.8088 (0.7879-0.8297);  (i) 0.0084 / 0.0069 / 0.0062 / 0.0056  ow/two -34%;  slopes +0.0182, -0.4269;  (ii) 0.0042 (-0.0002);  (iii) 0.0049
+  PVG32        sb 0.0  n 1.0  S 0.38  LS 2.89  kW 2.45-3.64
+    E50 mean 0.8102 (0.7889-0.8317);  (i) 0.0085 / 0.0069 / 0.0063 / 0.0056  ow/two -35%;  slopes +0.0183, -0.4255;  (ii) 0.0044 (+0.0012);  (iii) 0.0049
+  PVG32        sb 0.0  n 0.5  S 0.38  LS 1.44  kW 2.10-3.29
+    E50 mean 0.8374 (0.8158-0.8571);  (i) 0.0082 / 0.0071 / 0.0062 / 0.0062  ow/two -23%;  slopes +0.0194, -0.4214;  (ii) 0.0349 (+0.0346);  (iii) 0.0056
+  PVG32        sb 2.0  n 0.5  S 0.38  LS 1.51  kW 2.10-3.29
+    E50 mean 0.8356 (0.8150-0.8561);  (i) 0.0081 / 0.0069 / 0.0060 / 0.0059  ow/two -27%;  slopes +0.0192, -0.4125;  (ii) 0.0331 (+0.0328);  (iii) 0.0053
+  PVG32        sb 5.0  n 1.0  S 0.38  LS 3.06  kW 2.45-3.64
+    E50 mean 0.8067 (0.7855-0.8272);  (i) 0.0084 / 0.0069 / 0.0062 / 0.0056  ow/two -33%;  slopes +0.0180, -0.4276;  (ii) 0.0049 (-0.0023);  (iii) 0.0049
+  PVG32        sb 5.0  n 0.5  S 0.38  LS 1.61  kW 2.10-3.29
+    E50 mean 0.8334 (0.8128-0.8539);  (i) 0.0080 / 0.0068 / 0.0060 / 0.0058  ow/two -28%;  slopes +0.0190, -0.4124;  (ii) 0.0309 (+0.0306);  (iii) 0.0052
+  Salami-text  sb 0.0  n 1.0  S 0.38  LS 2.89  kW 1.83-3.01
+    E50 mean 0.7949 (0.7739-0.8186);  (i) 0.0085 / 0.0063 / 0.0063 / 0.0051  ow/two -41%;  slopes +0.0176, -0.4784;  (ii) 0.0051 (-0.0030);  (iii) 0.0045
+  Salami-text  sb 0.0  n 0.5  S 0.38  LS 1.44  kW 0.79-1.98
+    E50 mean 0.8116 (0.7914-0.8275);  (i) 0.0074 / 0.0068 / 0.0057 / 0.0061  ow/two -17%;  slopes +0.0176, -0.3897;  (ii) 0.0325 (+0.0321);  (iii) 0.0053
+  Salami-text  sb 2.0  n 1.0  S 0.38  LS 2.96  kW 1.83-3.01
+    E50 mean 0.7935 (0.7721-0.8175);  (i) 0.0086 / 0.0065 / 0.0065 / 0.0053  ow/two -39%;  slopes +0.0177, -0.4849;  (ii) 0.0062 (-0.0044);  (iii) 0.0047
+  Salami-text  sb 2.0  n 0.5  S 0.38  LS 1.51  kW 0.79-1.98
+    E50 mean 0.8099 (0.7903-0.8267);  (i) 0.0074 / 0.0067 / 0.0056 / 0.0059  ow/two -20%;  slopes +0.0177, -0.3900;  (ii) 0.0308 (+0.0305);  (iii) 0.0051
+  Salami-text  sb 5.0  n 1.0  S 0.38  LS 3.06  kW 1.83-3.01
+    E50 mean 0.7914 (0.7704-0.8153);  (i) 0.0084 / 0.0063 / 0.0064 / 0.0052  ow/two -39%;  slopes +0.0175, -0.4839;  (ii) 0.0077 (-0.0065);  (iii) 0.0046
+  Salami-text  sb 5.0  n 0.5  S 0.38  LS 1.61  kW 0.79-1.98
+    E50 mean 0.8077 (0.7878-0.8244);  (i) 0.0075 / 0.0067 / 0.0057 / 0.0059  ow/two -21%;  slopes +0.0175, -0.3902;  (ii) 0.0286 (+0.0283);  (iii) 0.0052
+  Salami-curve sb 0.0  n 1.0  S 0.38  LS 2.89  kW 1.97-3.16
+    E50 mean 0.7967 (0.7755-0.8208);  (i) 0.0086 / 0.0064 / 0.0065 / 0.0052  ow/two -40%;  slopes +0.0176, -0.4906;  (ii) 0.0056 (-0.0037);  (iii) 0.0046
+  Salami-curve sb 0.0  n 0.5  S 0.38  LS 1.44  kW 0.82-2.02
+    E50 mean 0.8120 (0.7921-0.8291);  (i) 0.0074 / 0.0067 / 0.0057 / 0.0059  ow/two -20%;  slopes +0.0177, -0.3922;  (ii) 0.0322 (+0.0319);  (iii) 0.0052
+  Salami-curve sb 2.0  n 1.0  S 0.38  LS 2.96  kW 1.97-3.16
+    E50 mean 0.7952 (0.7744-0.8200);  (i) 0.0086 / 0.0062 / 0.0064 / 0.0049  ow/two -43%;  slopes +0.0177, -0.4985;  (ii) 0.0067 (-0.0052);  (iii) 0.0044
+  Salami-curve sb 2.0  n 0.5  S 0.38  LS 1.51  kW 0.82-2.02
+    E50 mean 0.8104 (0.7904-0.8270);  (i) 0.0075 / 0.0067 / 0.0057 / 0.0059  ow/two -21%;  slopes +0.0176, -0.3900;  (ii) 0.0306 (+0.0303);  (iii) 0.0052
+  Salami-curve sb 5.0  n 1.0  S 0.38  LS 3.06  kW 1.97-3.16
+    E50 mean 0.7928 (0.7721-0.8175);  (i) 0.0086 / 0.0062 / 0.0064 / 0.0049  ow/two -43%;  slopes +0.0176, -0.4943;  (ii) 0.0086 (-0.0076);  (iii) 0.0044
+  Salami-curve sb 5.0  n 0.5  S 0.38  LS 1.61  kW 0.82-2.02
+    E50 mean 0.8083 (0.7883-0.8247);  (i) 0.0075 / 0.0068 / 0.0057 / 0.0060  ow/two -20%;  slopes +0.0175, -0.3897;  (ii) 0.0286 (+0.0282);  (iii) 0.0052
+  PVG32        sb 2.0  n 1.0  S 0.20  LS 2.96  kW 2.45-3.64
+    E50 mean 0.8162 (0.8000-0.8294);  (i) 0.0064 / 0.0051 / 0.0054 / 0.0047  ow/two -27%;  slopes +0.0087, -0.3783;  (ii) 0.0087 (+0.0072);  (iii) 0.0053
+  PVG32        sb 2.0  n 1.0  S 0.30  LS 2.96  kW 2.45-3.64
+    E50 mean 0.8131 (0.7939-0.8315);  (i) 0.0075 / 0.0061 / 0.0060 / 0.0052  ow/two -31%;  slopes +0.0136, -0.4096;  (ii) 0.0059 (+0.0041);  (iii) 0.0047
+  PVG32        sb 2.0  n 1.0  S 0.40  LS 2.96  kW 2.45-3.64
+    E50 mean 0.8075 (0.7856-0.8296);  (i) 0.0087 / 0.0071 / 0.0063 / 0.0057  ow/two -35%;  slopes +0.0195, -0.4354;  (ii) 0.0047 (-0.0015);  (iii) 0.0051
+  PVG32        sb 2.0  n 1.0  S 0.50  LS 2.96  kW 2.45-3.64
+    E50 mean 0.7989 (0.7742-0.8265);  (i) 0.0103 / 0.0083 / 0.0068 / 0.0064  ow/two -37%;  slopes +0.0275, -0.5487;  (ii) 0.0121 (-0.0101);  (iii) 0.0076
+
+Check, central condition against 7g: two -0.0000, w -0.0000, o -0.0000, ow -0.0000
+
+Scored conditions: 22 of 22
+  ow / two over conditions: min 0.57, median 0.68, max 0.83
+  (i) two RMS: median 0.0083, max 0.0103
+  (i) w   RMS: median 0.0067, max 0.0083
+  (i) o   RMS: median 0.0062, max 0.0068
+  (i) ow  RMS: median 0.0056, max 0.0064
+  (ii) frozen: median 0.0087, max 0.0349; (iii) frozen slopes: median 0.0051, max 0.0076
+
+Predictions (LOG.md 7h):
+  ST1 ow below two-number in all 22 conditions: held (22 of 22)
+  ST2 ow at least 20% below two-number in at least 18: held (20 of 22)
+  ST3 kW_o slope positive in all 22: held (22 of 22)
+  ST4 k_w coefficient negative in all 22: held (22 of 22)
+  ST5 frozen central rule RMS at most 0.010 in at least 11: held (12 of 22)
+  ST6 frozen slopes, own intercept within 1.25 x refitted ow in at least 18: held (22 of 22)
+
+Sources: as gear_pump_holddrag.py; idle settings as excavator_idle_standby.py (6j).

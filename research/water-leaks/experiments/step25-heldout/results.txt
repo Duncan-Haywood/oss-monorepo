@@ -1,0 +1,114 @@
+# water-leaks step 25: held-out check of step 24's rule. 64 injected leaks (8 sets of 8; type, diameter, rise
+# and duration resampled from BattLeDIM's 33; new junctions > 300 m from every real leak; new start times),
+# simulated through L-TOWN_Real.inp as emitters (Cd 0.75) and added to the published pressures; residual
+# D_inj = that minus the leak-free run; step 21's tracker and step 24's rules frozen; rule 300 m along pipes
+
+chance: expected 2.13 of 64 within 300 m
+
+## within 300 m (P(chance >=); median error m)
+  R30, primary (step 24, frozen)               25 of 64 (7.4e-21;   475); abrupt 12 of 27, incipient 13 of 37
+  ref: T-D latest onset (step 21)              16 of 64 (2e-10;   848); abrupt 11 of 27, incipient 5 of 37
+  ref: S30 steepest (step 22)                  21 of 64 (6.6e-16;   591); abrupt 9 of 27, incipient 12 of 37
+  ref: C30 shape-timed (step 23)               19 of 64 (1.3e-13;   672); abrupt 11 of 27, incipient 8 of 37
+
+## variants (no verdicts)
+  R30-S (ramp by 14-day least-squares slope)   25 of 64 (7.4e-21;   475); abrupt 12 of 27, incipient 13 of 37
+  R30-L (ramp by fitted level on day k)        24 of 64 (1.4e-19;   475); abrupt 12 of 27, incipient 12 of 37
+  R14 (onset within 14 days)                   22 of 64 (4.2e-17;   679); abrupt 12 of 27, incipient 10 of 37
+  R60 (onset within 60 days)                   28 of 64 (7.2e-25;   405); abrupt 13 of 27, incipient 15 of 37
+
+## paired, 300 m hits (exact sign test on discordant leaks)
+  R30 only 11, TD only 2: P = 0.022
+  R30 only 6, S30 only 2: P = 0.289
+  R30 only 8, C30 only 2: P = 0.109
+  S30 only 9, TD only 4: P = 0.267
+  per set, R30 hits [3, 4, 3, 3, 2, 4, 2, 4]; T-D [2, 2, 1, 3, 1, 3, 2, 2]
+
+## where the leak's atom is
+  a candidate within 300 m on day k: 34 of 64 (abrupt 15, incipient 19)
+  a ramp candidate within 300 m: 23 (abrupt 8, incipient 15); R30 hits 21 of them
+  leaks with any ramp candidate 43: R30 hits 21, T-D 12; with none 21: R30 4, T-D 4 (equal by construction)
+
+## injected leak sizes against the published ones (hourly mean flow, m3/h)
+  injected peak: median 16.2 (range 4.0 to 34.9); node pressure in the first week median 44.9 m
+  published 33 leaks' peak: median 15.7 (range 5.1 to 35.4)
+
+## control: the 32 real leaks on each set's tracker (hits within 300 m; step 24 on D: R30 15, T-D 13)
+  R30  [7, 15, 11, 13, 7, 15, 12, 6] (on D: 15)
+  TD   [5, 8, 6, 11, 8, 10, 11, 6] (on D: 13)
+  S30  [4, 10, 7, 11, 6, 11, 10, 8] (on D: 14)
+  C30  [7, 12, 11, 14, 10, 12, 14, 7] (on D: 13)
+
+  set node   kind       src start  k   | q_peak |  R30 |  T-D |  S30 |  C30 | cand | ramps | near
+    1 n574   abrupt      15   379  380 |   28.3 |  180 |  180 |  180 |  180 |    5 |     0 | cand
+    1 n70    abrupt      31    38   39 |   14.2 |  869 |  286 |  599 | 1444 |   12 |     1 | cand
+    1 n153   incipient   27   671  687 |   23.3 |  220 |  580 |  729 |  580 |    7 |     2 | ramp
+    1 n404   incipient   10   571  625 |    4.0 | 2148 |  599 | 2148 | 1380 |    6 |     1 | -
+    1 n201   incipient    9   576  602 |   18.8 | 1666 |  704 | 1030 | 1666 |    7 |     5 | -
+    1 n440   abrupt      13   474  475 |   22.3 |  880 |  364 |  880 |  880 |    7 |     2 | -
+    1 n636   incipient    2    33   37 |   25.8 |  102 | 1945 |  976 | 1945 |    7 |     4 | ramp
+    1 n256   incipient   26    96  134 |   14.0 | 1796 | 1602 | 1796 | 1602 |    9 |     3 | -
+    2 n58    incipient   27   195  212 |   22.2 |   57 |   57 |   57 |   57 |    2 |     1 | ramp
+    2 n622   incipient    9   295  321 |   19.2 | 1711 | 1711 | 1107 | 1711 |    3 |     0 | -
+    2 n300   abrupt      14    79   80 |   24.4 | 2609 | 1772 | 2609 | 2609 |    4 |     1 | -
+    2 n569   abrupt      19   595  596 |   15.5 |  205 | 1240 |  205 |  205 |    7 |     2 | ramp
+    2 n659   incipient   32   140  171 |   11.1 |  102 | 2048 |  102 |  102 |    2 |     1 | ramp
+    2 n256   incipient    6   475  485 |   34.9 | 1884 |  832 | 1884 |  832 |    7 |     3 | -
+    2 n70    abrupt      18   200  201 |    5.4 |  348 |  348 |  802 |  802 |    3 |     0 | -
+    2 n515   abrupt      24   323  324 |    6.6 |   45 |   45 |  679 |   45 |    4 |     0 | cand
+    3 n77    incipient   26    70  108 |   11.9 |  653 |  653 |  522 |  522 |    2 |     0 | -
+    3 n620   abrupt       7   143  144 |   33.3 |  274 | 1395 | 1354 | 1354 |    8 |     3 | ramp
+    3 n48    incipient   28   385  441 |    7.8 | 1017 | 1017 | 1017 | 1017 |    2 |     0 | -
+    3 n406   incipient    3   221  286 |    5.2 |  780 |  780 | 1591 | 2004 |    9 |     0 | cand
+    3 n570   incipient    5   440  511 |    7.0 | 1318 | 1318 | 1318 | 1318 |    2 |     1 | -
+    3 n429   abrupt      12   648  649 |   21.5 |  318 |  318 |  318 |  318 |    2 |     0 | -
+    3 n474   incipient    9   231  257 |   17.6 |  170 |  170 |  170 |  170 |    1 |     1 | ramp
+    3 n636   incipient   21   465  513 |    9.8 |    0 | 1945 |    0 |    0 |    3 |     1 | ramp
+    4 n659   abrupt      23   688  689 |   25.1 | 1389 |  102 |  102 |  102 |    6 |     2 | cand
+    4 n779   abrupt      16   686  687 |    5.8 |  736 | 1512 |  950 | 1512 |    4 |     2 | cand
+    4 n409   incipient   32    68   99 |    9.3 |  111 |  977 |  111 |  111 |    3 |     2 | ramp
+    4 n382   abrupt      20   216  217 |   10.1 |  392 |  392 |  392 |  392 |    4 |     1 | -
+    4 n447   abrupt      20   587  588 |   12.2 |  139 |  139 |  525 |  139 |    8 |     2 | ramp
+    4 n300   abrupt       7   402  403 |   28.1 |  705 |  705 | 2124 |  705 |    2 |     0 | -
+    4 n415   incipient   29    52  106 |   10.3 | 1075 | 1158 | 1075 |  584 |    5 |     2 | ramp
+    4 n570   incipient   30   258  298 |   16.0 |  154 |  154 |  154 |  154 |    5 |     1 | ramp
+    5 n25    incipient   22   531  583 |    9.0 | 2100 | 2100 | 1626 | 2100 |    2 |     0 | -
+    5 n428   incipient   26   324  363 |   11.5 |  266 | 1248 |  266 | 1248 |    5 |     1 | ramp
+    5 n779   abrupt      20   218  219 |   12.7 |  451 | 1508 |  451 | 1508 |    4 |     1 | -
+    5 n49    incipient    1    14   60 |   26.0 | 1363 |  873 | 1363 |  469 |    3 |     1 | -
+    5 n81    abrupt       4   728  729 |   32.3 |  240 |  240 |  240 |  240 |    2 |     0 | cand
+    5 n97    incipient   21   500  548 |    9.9 | 1028 | 1028 |  902 | 1028 |    3 |     0 | -
+    5 n202   incipient    9   309  335 |   19.0 | 1327 | 1327 | 1327 | 1327 |    2 |     0 | -
+    5 n668   incipient   32   133  164 |   10.9 | 2202 | 2202 |  257 |  257 |    3 |     0 | cand
+    6 n429   abrupt      14   398  399 |   23.6 |  318 |  318 |  318 |  318 |    4 |     1 | -
+    6 n381   abrupt      11   690  691 |   12.5 | 1759 |  441 | 1759 | 1759 |    4 |     1 | -
+    6 n469   incipient   32   139  170 |   11.3 |    0 | 2038 |    0 | 2038 |    2 |     1 | ramp
+    6 n574   abrupt      14   496  497 |   28.3 |  272 |  272 |  180 |  180 |    8 |     3 | ramp
+    6 n516   incipient   10   445  498 |    5.4 | 3317 |  873 |  635 |  635 |    7 |     2 | ramp
+    6 n467   abrupt      14   101  102 |   26.3 |  287 |   44 |   44 |   44 |    3 |     1 | ramp
+    6 n634   incipient    1   591  637 |   28.7 |  100 |  100 |  100 |  494 |    4 |     1 | ramp
+    6 n71    incipient   25   549  574 |   18.4 | 1473 | 1473 |  315 | 1473 |    6 |     0 | -
+    7 n516   abrupt      31   460  461 |   15.7 |    0 |    0 |  583 |    0 |    7 |     0 | cand
+    7 n616   incipient   29   384  438 |   11.5 | 1877 | 1877 | 2195 | 1456 |    3 |     0 | -
+    7 n50    incipient   27   170  186 |   18.1 | 1570 | 1570 | 1161 |  638 |    3 |     0 | -
+    7 n637   incipient    9   207  234 |   17.4 | 1873 | 1130 |  329 | 1130 |   14 |     3 | cand
+    7 n425   incipient   30    17   57 |   13.8 |  498 |  498 | 1217 | 1217 |    5 |     0 | cand
+    7 n303   abrupt      23   458  459 |   30.0 | 2872 | 2410 | 2410 | 2872 |    6 |     1 | -
+    7 n91    incipient   32   328  358 |   10.5 |   93 |   93 |   93 |   93 |    2 |     1 | ramp
+    7 n635   incipient   27   124  141 |   22.5 |  787 | 2088 |  787 | 2088 |   12 |     5 | -
+    8 n97    abrupt      23   247  248 |   25.5 |  111 |  205 |  111 |  205 |   12 |     2 | ramp
+    8 n261   incipient   32   132  163 |   12.5 |  418 | 2486 |  866 |  866 |    7 |     1 | -
+    8 n391   incipient   28    44  100 |    8.1 |  812 |  812 |  466 |  466 |    3 |     0 | -
+    8 n58    abrupt      12    42   43 |   23.4 |   57 |  863 |   57 |  863 |    8 |     2 | ramp
+    8 n720   incipient   17   332  368 |   16.3 |   96 | 2797 |   96 | 2797 |    4 |     1 | ramp
+    8 n201   abrupt       7   620  621 |   32.9 | 1666 | 1299 | 1666 |  391 |    9 |     1 | -
+    8 n453   abrupt       8   332  333 |   20.3 |   91 |   91 |   91 |   91 |    4 |     1 | ramp
+    8 n382   abrupt      14   446  447 |   20.8 |  430 |  430 |  430 |  430 |    0 |     0 | -
+
+## pre-registered predictions (LOG.md, step 25 plan)
+  (a) R30 beats chance at P < 0.001: P = 7.4e-21: HELD
+  (b) R30 puts at least 19 of 64 within 300 m: 25: HELD
+  (c) R30 has more hits than T-D: 25 against 16: HELD
+  (d) R30 beats T-D at P < 0.05: R30 only 11, T-D only 2, P = 0.022: HELD
+  (e) incipient hit share R30 > T-D: 0.35 against 0.14: HELD
+  (f) abrupt hits R30 >= T-D - 3: 12 against 11: HELD

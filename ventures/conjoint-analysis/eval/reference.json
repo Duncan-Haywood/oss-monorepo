@@ -1,0 +1,233 @@
+{
+ "versions": {
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "statsmodels": "0.15.0",
+  "pandas": "3.0.5"
+ },
+ "cases": [
+  {
+   "name": "meal-kit",
+   "file": "data/meal-kit-simulated.csv",
+   "levels": "Price per serving#: 7, 9, 11, 13\nRecipes per week: 2, 3, 4, 5\nMenu: Classic, Vegetarian-friendly, Chef's premium\nDelivery: Fixed weekly day, Pick any day\nPackaging: Standard, Compostable\n",
+   "numeric": [
+    "Price per serving"
+   ],
+   "price": "Price per serving",
+   "names": [
+    "Price per serving (per unit)",
+    "Recipes per week: 3",
+    "Recipes per week: 4",
+    "Recipes per week: 5",
+    "Menu: Vegetarian-friendly",
+    "Menu: Chef's premium",
+    "Delivery: Pick any day",
+    "Packaging: Compostable",
+    "None (no-choice constant)"
+   ],
+   "beta": [
+    -0.3923573763118953,
+    0.32141483816205274,
+    0.5281134763437267,
+    0.6649818164704624,
+    0.0067892185957384695,
+    0.3360430625717867,
+    0.42881276537078333,
+    0.14271171408669575,
+    0.44722553384886204
+   ],
+   "se": [
+    0.011374750949652106,
+    0.0677394722793796,
+    0.06579420683286497,
+    0.06485698498551196,
+    0.05347403683500807,
+    0.050139279073396485,
+    0.044323647511883696,
+    0.04524504312825706,
+    0.08318865170260847
+   ],
+   "se_robust": [
+    0.013891089496099294,
+    0.07430884702047251,
+    0.07525086502789591,
+    0.06777975475362633,
+    0.05879026256517051,
+    0.0537565522468275,
+    0.04990633895131453,
+    0.04947606096212441,
+    0.09717425286678175
+   ],
+   "llf": -3965.2401444098778,
+   "importance": {
+    "Price per serving": 59.95232854573925,
+    "Recipes per week": 16.9349045644415,
+    "Menu": 8.55791399590643,
+    "Delivery": 10.920453879645331,
+    "Packaging": 3.634399014267491
+   },
+   "wtp": {
+    "Recipes per week: 3": 0.8191889781283264,
+    "Recipes per week: 4": 1.3460011413775876,
+    "Recipes per week: 5": 1.6948370455557604,
+    "Menu: Vegetarian-friendly": 0.017303659891796042,
+    "Menu: Chef's premium": 0.856471887263965,
+    "Delivery: Pick any day": 1.0929137344162192,
+    "Packaging: Compostable": 0.3637288928480611,
+    "None (no-choice constant)": 1.139842299009948
+   }
+  },
+  {
+   "name": "two-concepts-categorical",
+   "levels": "Brand: A, B, C\nColour: Red, Blue\nSize: S, M, L",
+   "numeric": [],
+   "price": "",
+   "file": "eval/cases/two-concepts-categorical.csv",
+   "names": [
+    "Brand: B",
+    "Brand: C",
+    "Colour: Blue",
+    "Size: M",
+    "Size: L"
+   ],
+   "beta": [
+    0.7462570180087353,
+    -0.036307685659261804,
+    0.18113262487872406,
+    0.5710447954571639,
+    0.9048645425983851
+   ],
+   "se": [
+    0.14608444216352207,
+    0.13899302784734105,
+    0.10417156892513149,
+    0.14530728183921843,
+    0.14412376525083473
+   ],
+   "se_robust": [
+    0.15931437919176408,
+    0.13357720752342436,
+    0.11405157499457685,
+    0.13428665638449297,
+    0.14366718785098445
+   ],
+   "llf": -289.554904610267,
+   "importance": {
+    "Brand": 41.880588261624965,
+    "Colour": 9.693691585803416,
+    "Size": 48.42572015257162
+   },
+   "wtp": {}
+  },
+  {
+   "name": "five-concepts-two-numeric",
+   "levels": "Price#: 20, 30, 40, 50\nStorage GB#: 64, 128, 256\nCamera: Basic, Dual, Triple\nBattery: Day, Two days",
+   "numeric": [
+    "Price",
+    "Storage GB"
+   ],
+   "price": "Price",
+   "file": "eval/cases/five-concepts-two-numeric.csv",
+   "names": [
+    "Price (per unit)",
+    "Storage GB (per unit)",
+    "Camera: Dual",
+    "Camera: Triple",
+    "Battery: Two days",
+    "None (no-choice constant)"
+   ],
+   "beta": [
+    -0.030307906871259737,
+    0.00221468889125291,
+    0.3061337510793616,
+    0.14695279761780178,
+    -0.10787498364517491,
+    -5.537525676937856
+   ],
+   "se": [
+    0.002526476417089297,
+    0.00032805229631482794,
+    0.0669507412557982,
+    0.0684100675023835,
+    0.05395599205829912,
+    1.0015930401942827
+   ],
+   "se_robust": [
+    0.002190083391222895,
+    0.00123513633114998,
+    0.06183896922646531,
+    0.0645636275166201,
+    0.035329084699311376,
+    0.998129655364249
+   ],
+   "llf": -2315.892748808053,
+   "importance": {
+    "Price": 52.001989056839186,
+    "Storage GB": 24.319615968507208,
+    "Camera": 17.508702752255754,
+    "Battery": 6.169692222397856
+   },
+   "wtp": {
+    "Storage GB (per unit)": 0.07307297401501013,
+    "Camera: Dual": 10.100788298569734,
+    "Camera: Triple": 4.8486620419555795,
+    "Battery: Two days": -3.5593016734346037,
+    "None (no-choice constant)": -182.70894458201462
+   }
+  },
+  {
+   "name": "three-concepts-none-homogeneous",
+   "levels": "Plan: Basic, Plus, Pro\nSupport: Email, Chat, Phone\nPrice#: 5, 10, 15",
+   "numeric": [
+    "Price"
+   ],
+   "price": "Price",
+   "file": "eval/cases/three-concepts-none-homogeneous.csv",
+   "names": [
+    "Plan: Plus",
+    "Plan: Pro",
+    "Support: Chat",
+    "Support: Phone",
+    "Price (per unit)",
+    "None (no-choice constant)"
+   ],
+   "beta": [
+    0.6437989949598661,
+    0.9392411764789054,
+    0.16091002949501537,
+    0.0569457390823192,
+    -0.1324296537467807,
+    -0.005716446979096995
+   ],
+   "se": [
+    0.10841913054849311,
+    0.10247339029397977,
+    0.09622754102003635,
+    0.0969572059759542,
+    0.010266155723529635,
+    0.14173714141254118
+   ],
+   "se_robust": [
+    0.10747205290725788,
+    0.10229268683571723,
+    0.10175973933275305,
+    0.0967994860822958,
+    0.010957951678641447,
+    0.139741313363848
+   ],
+   "llf": -1065.1204220563934,
+   "importance": {
+    "Plan": 38.740417442265255,
+    "Support": 6.636976603446553,
+    "Price": 54.622605954288204
+   },
+   "wtp": {
+    "Plan: Plus": 4.8614413520319015,
+    "Plan: Pro": 7.092378103433181,
+    "Support: Chat": 1.2150604108857077,
+    "Support: Phone": 0.4300074603472527,
+    "None (no-choice constant)": -0.04316591350474598
+   }
+  }
+ ]
+}

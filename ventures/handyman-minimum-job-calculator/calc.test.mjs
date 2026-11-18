@@ -117,3 +117,14 @@ test("minimumTripCharge grosses the trip cost up for the card fee: tripCost / (1
   near(r.minimumTripCharge, r.tripCost / (1 - 0.03));
   assert.ok(r.minimumTripCharge > r.tripCost);
 });
+
+// Quality audit 2026-11-09 (portfolio/quality/audits/2026-11-09-handyman-minimum-job-calculator.json):
+// materials 1,200 / price 1,500 were read as materials 1 / price 200 with no warning.
+test("a thousands comma is read inside quotes or a tab paste, and refused when unquoted", () => {
+  assert.deepEqual(parseJobs('Deck,8,"1,200","$1,500"').rows[0], { label: "Deck", workHours: 8, materials: 1200, price: 1500 });
+  assert.equal(parseJobs("Deck\t8\t1,200\t1,500").rows[0].materials, 1200);
+  const bare = parseJobs("Deck,8,1,200,1,500\nFaucet,2,60,210");
+  assert.deepEqual(bare.rows.map((r) => r.label), ["Faucet"]);
+  assert.match(bare.warnings[0], /1 job line\(s\) not read: more values than columns/);
+  assert.match(parseJobs("Deck,8,$1,200").error, /comma inside a number/);
+});

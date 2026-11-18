@@ -19,6 +19,8 @@ const SGML_KEYS = ["OFXHEADER", "DATA", "VERSION", "SECURITY", "ENCODING", "CHAR
 const SGML_VERSIONS = new Set(["102", "151", "160"]);
 const XML_VERSIONS = new Set(["200", "201", "202", "203", "210", "211", "220"]);
 const ENTITY = /&(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);/y;
+// Characters in a value with each escape counted once ("&amp;" is one "&").
+const charLength = (v) => v.replace(/&(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);/g, "_").length;
 
 export function decodeBuffer(buf) {
   const b = new Uint8Array(buf);
@@ -412,9 +414,11 @@ function analyze(input) {
       if (fit.value.length > 255) add("error", fit.off, "FITID longer than 255 characters", "OFX limits FITID to 255 characters.");
       else if (fit.value.length > 32) add("warning", fit.off, "FITID longer than 32 characters", "OFX 1.x limits FITID to 32 characters and some importers truncate longer ones, which can create duplicates.");
     }
-    const nm = f.NAME?.value, mm = f.MEMO?.value;
-    if (nm && nm.length > 32) add("warning", f.NAME.off, "NAME longer than 32 characters", `${nm.length} characters. OFX 1.x allows 32; QuickBooks and Quicken truncate or reject longer payee names. Not changed.`);
-    if (mm && mm.length > 255) add("warning", f.MEMO.off, "MEMO longer than 255 characters", `${mm.length} characters; OFX allows 255. Not changed.`);
+    // A field's length is its characters once escapes are read: "AT&amp;T" is 4, as OFX 2's schema counts
+    // it (NAME is GenericNameType, maxLength 32, and an XSD facet applies to the parsed value).
+    const nm = f.NAME?.value && charLength(f.NAME.value), mm = f.MEMO?.value && charLength(f.MEMO.value);
+    if (nm && nm > 32) add("warning", f.NAME.off, "NAME longer than 32 characters", `${nm} characters. OFX 1.x allows 32; QuickBooks and Quicken truncate or reject longer payee names. Not changed.`);
+    if (mm && mm > 255) add("warning", f.MEMO.off, "MEMO longer than 255 characters", `${mm} characters; OFX allows 255. Not changed.`);
     if (!nm && !mm && f.FITID) add("info", t.off, "Transaction has no NAME or MEMO", "Importers show a blank description for it.");
   }
 

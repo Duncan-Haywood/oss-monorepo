@@ -22,6 +22,6 @@
     {"severity": "medium", "what": "Possible double counting of rent between room rate and fixed costs is not warned about", "where": "ventures/med-spa-treatment-profit-calculator/calc.mjs:53-100"},
     {"severity": "low", "what": "Negative inputs coerced to 0 and fee clamped to 99 without telling the user; targetPrice null gives no finding", "where": "ventures/med-spa-treatment-profit-calculator/calc.mjs:4,76"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14663"],
   "verdict": "The arithmetic is right and the model (contribution per occupied room hour, target-margin price) is what a med spa consultant would use; 25 tests pass and two seeded mutations were caught. It does not meet the bar because a very common input form, a price with a thousands comma, is silently misread into a wrong, confident result (violating the README's own 'never dropped' claim), and the page carries an unsourced margin benchmark. Finished as a prototype (completeness 3) but correctness and claims are 2."
 }

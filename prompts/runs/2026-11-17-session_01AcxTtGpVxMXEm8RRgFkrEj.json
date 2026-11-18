@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGpVxMXEm8RRgFkrEj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T08:07:31Z",
+  "ended": "2026-11-17T08:18:52Z",
+  "wall_minutes": 11.92,
+  "tokens_in": 10056065,
+  "tokens_out": 35906,
+  "cost_usd": 3.8638,
+  "tool_calls": 71,
+  "task": "changepoint-detector (flagship row 2): known-date bootstrap conditioned on the cut guard, plus page and engine wiring",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16871",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "stop hook (commit and push on every turn end)",
+      "issue": "It fires while a long background simulation is still running, so several tiny WIP commits landed; harmless under a squash merge, but noisy."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/README.md (pre-registration habit of the known-date rounds)",
+      "why": "The exploratory run showed the conditioned bootstrap has no power under any setting tried, so a pre-registered confirmatory bar would have been set to fail.",
+      "did": "Replicated the exploratory script unchanged on fresh seeds (base 45000) to fix the numbers the CLI and page quote, and labelled round 6 exploratory, not pre-registered.",
+      "result": "A negative result reported on fresh seeds; nothing ships on the conditioned p."
+    },
+    {
+      "file": "prompts/goals.md (Write about the work: agent doc)",
+      "why": "The README's Round 6 section and the flagship next: field carry everything the next run needs.",
+      "did": "No separate docs/reports file.",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-changepoint-known-date-conditioned-bootstrap.md",
+    "ventures/changepoint-detector/README.md (Round 6)"
+  ],
+  "goal": null,
+  "notes": "Conditional bootstrap (cutConditional) on series the random-walk cut admits, fresh seeds: 306 no-change series flagged 4.9% (round 5's p: 77.5%), 156 real steps flagged 2.6% (round 5: 91.0%); calibrated but blind because the admission event is the evidence. Variants ('sticky' conditioning, walk generator) no better on 25 series per cell. Shipped: knownDate in analyze() and on the page (Playwright smoke: Nile step -289, p 0.002, no page errors), usage event known_date_run, CLI and page warnings with fresh-seed numbers, llms.txt, flagships next. Local checks: known-date*.test.mjs pass; venture suite and preflight results in the PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8c0f1a2f-4dc2-5768-8734-8772f041a2bf",
+    "transcripts": 1,
+    "first": "2026-11-17T08:07:31Z",
+    "last": "2026-11-17T08:19:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 172,
+        "output": 35906,
+        "thinking": 7985,
+        "cache_read": 9910533,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145360,
+        "api_equivalent_usd": 3.8638,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 172,
+      "output": 35906,
+      "thinking": 7985,
+      "cache_read": 9910533,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145360,
+      "api_equivalent_usd": 3.8638,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 61,
+      "Monitor": 6,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.92,
+      "active_minutes": 9.66,
+      "model_minutes": 7.29,
+      "tool_minutes": 2.37,
+      "waiting_on_human_minutes": 2.26,
+      "human_prompts": 12,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, simulating and writing up a selective-inference check plus wiring a test into a web page",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 258.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

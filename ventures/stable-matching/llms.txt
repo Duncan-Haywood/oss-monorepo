@@ -1,0 +1,29 @@
+# Stable matching tool: Gale-Shapley deferred acceptance, every stable matching, and a blocking-pair check
+
+> Free online stable matching tool. Give both sides' ranked lists (applicants and programmes, students and schools, mentees and mentors, volunteers and shifts) and get the deferred acceptance matching (Gale & Shapley 1962) with capacities on the second side and either side proposing; every stable matching, listed by McVitie & Wilson's (1971) break-marriage search, with the egalitarian (Irving, Leather & Gusfield 1987), minimum-regret (Gusfield 1987) and balanced picks; the rural hospitals theorem (Roth 1986) checked on every result; and the blocking pairs in a matching you already have. Checked against the Python matching package on 250 instances and a brute-force search on 1,000. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Arithmetic on the lists you supply, not legal or professional advice. Not affiliated with any matching programme; couples, ties and quotas are not handled.
+
+## Pages
+
+- [The tool](https://marisstella.app/stable-matching/)
+
+## Use it from code
+
+- `node cli.mjs prefs.txt [--proposer A|B] [--check mine.txt]` (sections `[applicants]` and `[programmes]`, lines `ana: city > mercy`, capacities `city (2): ...`)
+- Add `--csv` or `--json` for machine output, `--no-enumerate` to skip the listing.
+- `node platform/agents/tools.mjs call stable-matching analyze --input '{"text":"[a]\nx: P > Q\ny: P\n[b]\nP: y > x\nQ: x"}'`
+- From JavaScript: `parseInstance(text)`, `deferredAcceptance(inst, "A")`, `allStableMatchings(inst)`, `checkStability(inst, aMatch)`.
+
+## What it answers
+
+- Who should be matched with whom so that no pair would rather have each other?
+- How does the Gale-Shapley algorithm (deferred acceptance) work on my lists?
+- How many stable matchings are there, and which is fairest to both sides?
+- Is the matching I made by hand stable, and which pairs block it?
+- Which side should propose, and who can gain by ranking dishonestly?
+- Why is the same person left without a place in every stable matching?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stable-matching): MIT licensed.

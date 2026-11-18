@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVMMf5yrMuhDAabMcv1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T13:19:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 9 (league-schedule-generator): low-break carry-over for the 20-team leg one and for odd leagues",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 14790,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-odd-leagues-need-no-back-to-back-home-games.md"
+  ],
+  "goal": "Flagship next item: odd leagues under a cap and a 20-team leg one at low breaks",
+  "notes": "Pattern-first 20-team leg one prototyped (fixed minimum-break home/away, penalty anneal of the timetable): 1,408-1,420 at 18 breaks, same as the capped search, so not landed (README). Found instead that assignVenues missed the zero-break orientation of odd circle timetables (46 breaks at 19 teams). Landed: a two-colouring start over bye-split stretches, run moves, keep-best, legacy fallback (never worse, tested); odd capped tries now run the capped search and keep the fewer-break of it and the old stand-in. eval/odd-capped.mjs/.txt; carry-over guide page, eval/carryover-real.txt and llms.txt re-measured (20-team whole season 1,678/124 -> 1,750/118). Full venture suite: 404 of 405 passed before the guide numbers were updated; the guide test then passed; the three carry-over test files rerun after the last change (see PR).",
+  "corrections": [],
+  "redteam": null
+}

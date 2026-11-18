@@ -1,0 +1,105 @@
+# Milestone 10: what the straight-stud ceiling is made of (buildbot-sheathing)
+ledger pipeline, single 2x, three stud reads, edge aim, 20,000 sheets, seed 7; tool 0.9 mm, stud read 0.5 mm, edge read 0.5 mm, slide 1.0 mm
+
+## A. Tool scatter alone against the closed form (straight studs, perfect pose and reads)
+closed form 0.9833; Monte Carlo 0.9838 [0.9820, 0.9855]; |diff| 0.0005 (bar 0.003)
+H45 -> held
+
+## B. Shapley shares of -ln(clean) on straight studs, six sources, all 64 subsets
+
+three-foot: clean with all six 0.7370 (-ln 0.3051)
+source   share    alone (clean)   all but this (clean)
+tool     44.6%    0.9838          0.9816
+stud      7.0%    1.0000          0.7796
+edge      5.0%    1.0000          0.7660
+slide    17.5%    1.0000          0.8390
+ledger    4.1%    1.0000          0.7585
+panel    21.9%    1.0000          0.8607
+pose (slide + ledger + panel) 43.5%; tool + reads 56.5%
+interaction: pose alone 0.9952 clean, tool and reads alone 0.9573, tool and pose 0.8054: neither group misses on its own; each narrows the window the other must hit
+
+smooth (Drake): clean with all six 0.8107 (-ln 0.2099)
+source   share    alone (clean)   all but this (clean)
+tool     46.9%    0.9838          0.9987
+stud      8.4%    1.0000          0.8498
+edge      6.1%    1.0000          0.8391
+slide    21.7%    1.0000          0.9049
+ledger    5.9%    1.0000          0.8369
+panel    11.0%    1.0000          0.8607
+pose (slide + ledger + panel) 38.6%; tool + reads 61.4%
+interaction: pose alone 1.0000 clean, tool and reads alone 0.9573, tool and pose 0.8741: neither group misses on its own; each narrows the window the other must hit
+
+H46: pose carries >= 50% of -ln(clean) in both rock models -> refuted
+
+## C. Placement remedies: clean sheets [95% Wilson] and missed nails a sheet
+rock            studs              remedy                       clean   [95%]            missed
+three-foot      straight           none                         0.7370 [0.731,0.743]  0.41
+three-foot      straight           slide 0.25 mm                0.8171 [0.812,0.822]  0.26
+three-foot      straight           slide 0.5 mm                 0.7976 [0.792,0.803]  0.29
+three-foot      straight           slide 1 mm                   0.7247 [0.718,0.731]  0.44
+three-foot      straight           shim 0.5 mm                  0.8653 [0.861,0.870]  0.17
+three-foot      straight           slide+shim 0.25 mm           0.9380 [0.935,0.941]  0.07
+three-foot      straight           slide+shim 0.5 mm            0.9180 [0.914,0.922]  0.09
+three-foot      straight           slide+shim 1 mm              0.8218 [0.816,0.827]  0.23
+three-foot      straight           slide+shim 0.5, dense reads  0.9370                  0.07
+three-foot      low, mid push      none                         0.7095 [0.703,0.716]  0.47
+three-foot      low, mid push      slide 0.25 mm                0.7880 [0.782,0.794]  0.30
+three-foot      low, mid push      slide 0.5 mm                 0.7689 [0.763,0.775]  0.34
+three-foot      low, mid push      slide 1 mm                   0.6994 [0.693,0.706]  0.50
+three-foot      low, mid push      shim 0.5 mm                  0.8375 [0.832,0.843]  0.21
+three-foot      low, mid push      slide+shim 0.25 mm           0.9163 [0.912,0.920]  0.09
+three-foot      low, mid push      slide+shim 0.5 mm            0.8932 [0.889,0.897]  0.12
+three-foot      low, mid push      slide+shim 1 mm              0.7896 [0.784,0.795]  0.29
+three-foot      low, mid push      slide+shim 0.5, dense reads  0.9224                  0.08
+three-foot      high, mid push     none                         0.6773 [0.671,0.684]  0.54
+three-foot      high, mid push     slide 0.25 mm                0.7561 [0.750,0.762]  0.36
+three-foot      high, mid push     slide 0.5 mm                 0.7368 [0.731,0.743]  0.40
+three-foot      high, mid push     slide 1 mm                   0.6666 [0.660,0.673]  0.57
+three-foot      high, mid push     shim 0.5 mm                  0.8092 [0.804,0.815]  0.26
+three-foot      high, mid push     slide+shim 0.25 mm           0.8883 [0.884,0.893]  0.13
+three-foot      high, mid push     slide+shim 0.5 mm            0.8656 [0.861,0.870]  0.16
+three-foot      high, mid push     slide+shim 1 mm              0.7607 [0.755,0.767]  0.35
+three-foot      high, mid push     slide+shim 0.5, dense reads  0.9012                  0.11
+smooth (Drake)  straight           none                         0.8107 [0.805,0.816]  0.25
+smooth (Drake)  straight           slide 0.25 mm                0.8853 [0.881,0.890]  0.13
+smooth (Drake)  straight           slide 0.5 mm                 0.8688 [0.864,0.873]  0.15
+smooth (Drake)  straight           slide 1 mm                   0.7983 [0.793,0.804]  0.27
+smooth (Drake)  straight           shim 0.5 mm                  0.8653 [0.861,0.870]  0.17
+smooth (Drake)  straight           slide+shim 0.25 mm           0.9380 [0.935,0.941]  0.07
+smooth (Drake)  straight           slide+shim 0.5 mm            0.9180 [0.914,0.922]  0.09
+smooth (Drake)  straight           slide+shim 1 mm              0.8218 [0.816,0.827]  0.23
+smooth (Drake)  straight           slide+shim 0.5, dense reads  0.9370                  0.07
+smooth (Drake)  low, mid push      none                         0.7820 [0.776,0.788]  0.31
+smooth (Drake)  low, mid push      slide 0.25 mm                0.8591 [0.854,0.864]  0.17
+smooth (Drake)  low, mid push      slide 0.5 mm                 0.8407 [0.836,0.846]  0.20
+smooth (Drake)  low, mid push      slide 1 mm                   0.7706 [0.765,0.776]  0.33
+smooth (Drake)  low, mid push      shim 0.5 mm                  0.8375 [0.832,0.843]  0.21
+smooth (Drake)  low, mid push      slide+shim 0.25 mm           0.9163 [0.912,0.920]  0.09
+smooth (Drake)  low, mid push      slide+shim 0.5 mm            0.8932 [0.889,0.897]  0.12
+smooth (Drake)  low, mid push      slide+shim 1 mm              0.7896 [0.784,0.795]  0.29
+smooth (Drake)  low, mid push      slide+shim 0.5, dense reads  0.9224                  0.08
+smooth (Drake)  high, mid push     none                         0.7498 [0.744,0.756]  0.37
+smooth (Drake)  high, mid push     slide 0.25 mm                0.8288 [0.824,0.834]  0.22
+smooth (Drake)  high, mid push     slide 0.5 mm                 0.8094 [0.804,0.815]  0.25
+smooth (Drake)  high, mid push     slide 1 mm                   0.7380 [0.732,0.744]  0.40
+smooth (Drake)  high, mid push     shim 0.5 mm                  0.8092 [0.804,0.815]  0.26
+smooth (Drake)  high, mid push     slide+shim 0.25 mm           0.8883 [0.884,0.893]  0.13
+smooth (Drake)  high, mid push     slide+shim 0.5 mm            0.8656 [0.861,0.870]  0.16
+smooth (Drake)  high, mid push     slide+shim 1 mm              0.7607 [0.755,0.767]  0.35
+smooth (Drake)  high, mid push     slide+shim 0.5, dense reads  0.9012                  0.11
+
+H47: slide (0.5 mm) gain on straight studs: three-foot +6.1 points, smooth (Drake) +5.8 points (bar +5) -> held
+H48: slide+shim 0.5 mm, mid push, low warp, smooth rock: 0.8932 (bar 0.95) -> refuted
+
+## D. Largest tool scatter (1 sigma, mm) that still gives 95% clean (bisection, 12 steps)
+rock            studs              remedy                 s_robot for 95%
+three-foot      straight           none                   0.477
+three-foot      straight           slide+shim 0.5 mm      0.839
+three-foot      low, mid push      none                   0.408
+three-foot      low, mid push      slide+shim 0.5 mm      0.794
+smooth (Drake)  straight           none                   0.661
+smooth (Drake)  straight           slide+shim 0.5 mm      0.839
+smooth (Drake)  low, mid push      none                   0.604
+smooth (Drake)  low, mid push      slide+shim 0.5 mm      0.794
+
+wall time 51 s

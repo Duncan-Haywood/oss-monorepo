@@ -1,0 +1,118 @@
+{
+ "Ai2020@0.75x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.8120525040000075,
+   "error": null,
+   "r_min": -1.8888843670556403e-14,
+   "current_A": 2.975827653359298
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.2335443350000048,
+   "error": null,
+   "r_min": 0.11842707929855606,
+   "current_A": 2.975827653359298
+  }
+ },
+ "Ai2020@0.25x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.91816939200001,
+   "error": null,
+   "r_min": 0.5746547755271856,
+   "current_A": 0.9919425511197659
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.5435539160000076,
+   "error": null,
+   "r_min": 0.5699031398408361,
+   "current_A": 0.9919425511197659
+  }
+ },
+ "NCA_Kim2011@0.5x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.8495276540000134,
+   "error": null,
+   "r_min": 0.29830945219303184,
+   "current_A": 0.6815968841285297
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.9817627820000041,
+   "error": null,
+   "r_min": 0.26500216459190373,
+   "current_A": 0.6815968841285297
+  }
+ },
+ "Chen2020@0.5x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.8251341810000099,
+   "error": null,
+   "r_min": 0.6892485538439361,
+   "current_A": 2.5
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.7816923710000196,
+   "error": null,
+   "r_min": 0.6733245824948282,
+   "current_A": 2.5
+  }
+ },
+ "Ecker2015@0.5x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.8081453359999955,
+   "error": null,
+   "r_min": 0.703228028820035,
+   "current_A": 0.20898247322297955
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.1601699520000182,
+   "error": null,
+   "r_min": 0.664096029017077,
+   "current_A": 0.20898247322297955
+  }
+ },
+ "OKane2022@1.5x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.7617317760000049,
+   "error": null,
+   "r_min": 0.20652389727713757,
+   "current_A": 7.5
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.2156681079999885,
+   "error": null,
+   "r_min": 0.24236135596463018,
+   "current_A": 7.5
+  }
+ },
+ "kept": [
+  "Ai2020@0.75x",
+  "Ai2020@0.25x",
+  "NCA_Kim2011@0.5x",
+  "Chen2020@0.5x",
+  "Ecker2015@0.5x",
+  "OKane2022@1.5x"
+ ]
+}

@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVPkwcWMeHZtdSJBJbi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T19:02:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "chant-forge flagship: four sections (TTBB) measured on the corpus against three",
+  "projects": [
+    "ventures/chant-forge"
+  ],
+  "pr": 15582,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ideas.py",
+      "issue": "Reports 'none open in requests.json' while requests.json holds five entries with status 'building'; the README says a run with no task builds the top request, so the two disagree about whether R-0001..R-0005 are open work."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-does-a-chant-need-four-mens-sections.md",
+    "ventures/chant-forge/eval/four-sections-report.md"
+  ],
+  "goal": "Land the chant-forge flagship's next item: a TTBB (second tenors) option and its corpus measurement against three sections",
+  "notes": "Added --second-tenors/--tenor2 (splitVoices option tenor2, 15 section sets, same exact DP), Second tenors MIDI track (ch 7), T1/T2 cue column, studio page TTBB choice, eval/four-sections.mjs. Result: octave-wide sections, splitting the tenors fits 65 of 67 files (64), one-section notes 29.9% -> 13.7%, changes of singer 484 -> 569; a section on top or textbook ranges gain nothing. Verification: node --test *.test.mjs in ventures/chant-forge 164 pass 0 fail (split.test.mjs 32 incl. 5 new); eval/browser-e2e.mjs 101 checks passed (3 new, TTBB downloads byte-equal to the CLI); post front matter, links and similarity checks clean; validate.py clean; venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null
+}

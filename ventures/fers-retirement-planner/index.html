@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "FERS Retirement Planner", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is a FERS pension calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Multiplier times high-3 times years of service. The multiplier is 1.0%, or 1.1% if you retire at 62 or later with at least 20 years. High-3 is your highest average basic pay over any three consecutive years. Unused sick leave is converted to months of service and added to the years used in the formula, but it does not help you qualify."}}, {"@type": "Question", "name": "When can I retire?", "acceptedAnswer": {"@type": "Answer", "text": "Immediately at your minimum retirement age (55 to 57 depending on birth year) with 30 years, at 60 with 20 years, or at 62 with 5 years. At your minimum retirement age with 10 to 29 years you can retire at once too (called MRA+10), but the annuity is cut 5% for every year you are under 62."}}, {"@type": "Question", "name": "What is the Special Retirement Supplement?", "acceptedAnswer": {"@type": "Answer", "text": "A bridge payment that stands in for the Social Security you earned in federal service, paid until 62. It goes to people retiring with 30 years at their minimum retirement age or with 20 years at 60. It is not paid with MRA+10, and it is reduced if you earn above the Social Security earnings limit."}}, {"@type": "Question", "name": "Why is there a jump at 62?", "acceptedAnswer": {"@type": "Answer", "text": "Two rules meet there: the 1.1% multiplier for people with 20 years, and the start of cost-of-living adjustments. The table shows the effect in dollars so you can weigh a year of work against it."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -97,15 +135,15 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const p = a.plan;
-      h += '<div class="finding"><h4>Your minimum retirement age is ' + ageStr(a.mra) + "</h4><p>You are " + ageStr(a.ageNow) + " now.</p></div>";
+      h += '<div class="finding"><h3>Your minimum retirement age is ' + ageStr(a.mra) + "</h3><p>You are " + ageStr(a.ageNow) + " now.</p></div>";
       if (p.eligible) {
-        h += '<div class="finding"><h4>Retiring at ' + ageStr(p.age) + ": " + money(p.pension) + " a year from FERS</h4><p>" + esc(KIND[p.kind]) + ". " + (p.annuityM / 12).toFixed(2) + " years of service used (" + Math.floor(p.sickM) + " months from sick leave), high-3 about " + money(p.high3) + ", multiplier " + p.mult + "%." + (p.reduction ? " Cut " + pct(p.reduction * 100) + " for retiring before 62." : "") + (p.survPct ? " After the " + p.survPct + "% survivor cost." : "") + "</p></div>";
-        h += '<div class="finding"><h4>Income: ' + money(p.income) + " a year, " + (p.replacement == null ? "" : pct(p.replacement * 100) + " of your final pay") + "</h4><p>FERS " + money(p.pension) + (p.supplement ? " + supplement " + money(p.supplement) + " until 62" : "") + " + TSP draw " + money(p.draw) + " from a projected " + money(p.tspBalance) + ". At 62, with Social Security claimed then: " + money(p.incomeAt62) + " a year" + (p.replacementAt62 == null ? "" : " (" + pct(p.replacementAt62 * 100) + ")") + ". FERS alone at 75: " + money(p.pensionAt(75)) + ", at 85: " + money(p.pensionAt(85)) + " with a " + pct(a.cola) + " COLA.</p></div>";
+        h += '<div class="finding"><h3>Retiring at ' + ageStr(p.age) + ": " + money(p.pension) + " a year from FERS</h3><p>" + esc(KIND[p.kind]) + ". " + (p.annuityM / 12).toFixed(2) + " years of service used (" + Math.floor(p.sickM) + " months from sick leave), high-3 about " + money(p.high3) + ", multiplier " + p.mult + "%." + (p.reduction ? " Cut " + pct(p.reduction * 100) + " for retiring before 62." : "") + (p.survPct ? " After the " + p.survPct + "% survivor cost." : "") + "</p></div>";
+        h += '<div class="finding"><h3>Income: ' + money(p.income) + " a year, " + (p.replacement == null ? "" : pct(p.replacement * 100) + " of your final pay") + "</h3><p>FERS " + money(p.pension) + (p.supplement ? " + supplement " + money(p.supplement) + " until 62" : "") + " + TSP draw " + money(p.draw) + " from a projected " + money(p.tspBalance) + ". At 62, with Social Security claimed then: " + money(p.incomeAt62) + " a year" + (p.replacementAt62 == null ? "" : " (" + pct(p.replacementAt62 * 100) + ")") + ". FERS alone at 75: " + money(p.pensionAt(75)) + ", at 85: " + money(p.pensionAt(85)) + " with a " + pct(a.cola) + " COLA.</p></div>";
       } else {
-        h += '<div class="finding"><h4>Retiring at ' + ageStr(p.age) + ": not eligible for an immediate annuity</h4><p>You would have " + (p.svcM / 12).toFixed(1) + " years of service. See the dates below for when you first qualify.</p></div>";
+        h += '<div class="finding"><h3>Retiring at ' + ageStr(p.age) + ": not eligible for an immediate annuity</h3><p>You would have " + (p.svcM / 12).toFixed(1) + " years of service. See the dates below for when you first qualify.</p></div>";
       }
-      if (a.firsts.length) h += '<div class="finding"><h4>When each kind of retirement first opens</h4>' + table(["Kind", "Earliest month", "Your age", "FERS a year", "Supplement a year"], a.firsts.map((f) => [esc(KIND[f.kind]), monthLabel(f.retM), ageStr(f.age), money(f.pension), f.supplement ? money(f.supplement) : "none"])) + "</div>";
-      h += '<div class="finding"><h4>Every retirement age</h4>' + table(["Age", "Kind", "FERS", "Supplement", "TSP at retirement", "Income", "Of final pay", "Extra from another year"], a.rows.map((r) => r.eligible
+      if (a.firsts.length) h += '<div class="finding"><h3>When each kind of retirement first opens</h3>' + table(["Kind", "Earliest month", "Your age", "FERS a year", "Supplement a year"], a.firsts.map((f) => [esc(KIND[f.kind]), monthLabel(f.retM), ageStr(f.age), money(f.pension), f.supplement ? money(f.supplement) : "none"])) + "</div>";
+      h += '<div class="finding"><h3>Every retirement age</h3>' + table(["Age", "Kind", "FERS", "Supplement", "TSP at retirement", "Income", "Of final pay", "Extra from another year"], a.rows.map((r) => r.eligible
         ? [r.age / 12, esc(KIND[r.kind]), money(r.pension), r.supplement ? money(r.supplement) : "-", money(r.tspBalance), money(r.income), r.replacement == null ? "" : pct(r.replacement * 100), r.gain == null ? "" : (r.gain >= 0 ? "+" : "") + money(r.gain)]
         : [r.age / 12, "not eligible", "-", "-", money(r.tspBalance), "-", "-", ""])) + "</div>";
       h += '<p class="note">Income before 62 includes the supplement, which stops at 62, so the extra from the year you turn 62 can look negative. The "At 62" figure above puts Social Security in its place.</p>';

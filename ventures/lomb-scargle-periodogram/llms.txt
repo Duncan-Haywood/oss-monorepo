@@ -1,0 +1,27 @@
+# Lomb-Scargle periodogram: find the periods in unevenly sampled data
+
+> Free online generalised Lomb-Scargle periodogram (Zechmeister & Kurster 2009) for measurements taken at uneven times, with errors as weights and one offset per instrument or site. It lists the strongest periods with amplitude and Baluev's (2008) false alarm probability, removes each and searches again (pre-whitening), and checks every period against the spectral window for sampling aliases. Power matches astropy 6.1.4's LombScargle to 1e-9. On 401 public radial velocities of HD 164922 it finds peaks at the periods of all four planets the NASA Exoplanet Archive lists. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A significant period is not proof of a cause; the false alarm probability assumes independent noise with the stated errors.
+
+## Pages
+
+- [The tool](https://marisstella.app/lomb-scargle-periodogram/)
+
+## Use it from code
+
+- `node cli.mjs series.csv [--time t] [--value y] [--error e] [--group site] [--min-period P] [--max-period P] [--signals 3] [--fap-level 0.01] [--jitter 0] [--csv|--json]`
+- `node platform/agents/tools.mjs call lomb-scargle-periodogram analyze --input '{"t":[0.1,1.3,2.2],"y":[5,7,4],"signals":2}'` (or `{"csv":"..."}`)
+- From JavaScript: `prepare(t, y, {e, g, jitter})` then `periodogram(P, f0, df, nf)` gives the power on a grid; `baluevFap(z, {n, groups, fmax, varT})` the false alarm probability; `spectralWindow(P, f0, df, nf)` the window.
+
+## What it answers
+
+- Which periods are in these unevenly spaced measurements, and how strong is each?
+- Could the strongest peak be noise (false alarm probability)?
+- With that period removed, is there another?
+- Is a period real, or an alias of the sampling (nightly, seasonal, weekly)?
+- What are the amplitude, phase and uncertainty of each period?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lomb-scargle-periodogram): MIT licensed.

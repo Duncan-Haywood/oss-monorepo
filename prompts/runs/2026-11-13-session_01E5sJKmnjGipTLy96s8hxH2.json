@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKmnjGipTLy96s8hxH2",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T16:05:42Z",
+  "ended": "2026-11-13T16:12:59Z",
+  "wall_minutes": 7.57,
+  "tokens_in": 9207509,
+  "tokens_out": 99506,
+  "cost_usd": 6.1815,
+  "tool_calls": 118,
+  "task": "quality audit round 67 (mode sample, seed 2026-11-13-m)",
+  "projects": [
+    "ventures/uk-vat-flat-rate-scheme-calculator",
+    "ventures/online-business-valuation-calculator",
+    "research/fog-twin",
+    "research/accel-planefpga"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15534",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "quality_mutate.py: passing `bash -c 'cd research/fog-twin && ...'` failed the baseline because the command already runs in the subject root; `env PYTHONPATH=src python3 -m unittest ...` worked."
+  ],
+  "integrity_issues": [
+    "The fog-twin auditor wrote that the WMO 5% visibility convention gives '31% lower extinction'; it is 23% lower (2.996/3.912 = 0.766), or 31% higher under the 2% constant. Corrected in the audit file text and the post before merge; scores were not changed."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "The usage line does not say the test command already runs in the subject root, so a `cd <subject>` in the command fails the baseline with a confusing 'suite is red' message."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "gov.uk is blocked by the proxy (connect_rejected), like irs.gov; UK tax audits can only confirm rules via search summaries or legislation.gov.uk text quoted in search results."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says to fix small defects 'in its own commit'; the fixes went in separate commits on the round's PR rather than separate PRs, to keep the control-plane-free work in one landing.",
+      "did": "one commit per subject fix, all in PR #15534",
+      "result": "fix_prs in each audit points at #15534"
+    },
+    {
+      "file": "research/accel-planefpga (audit)",
+      "why": "The auditor scored correctness 3 although Yosys/nextpnr could not be run; the 3 rests on RTL-derived flip-flop and cycle-count recomputations that match exactly. I kept the auditor's score and said plainly in the post that the synthesis numbers were not regenerated.",
+      "did": "kept score, disclosed limit",
+      "result": "open question for the next re-audit"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-67.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample, seed 2026-11-13-m, round 67. Subjects: ventures/uk-vat-flat-rate-scheme-calculator (2,2,2,3,2,2,2), ventures/online-business-valuation-calculator (2,3,1,2,2,2,2), research/fog-twin (3,3,2,3,2,2,2), research/accel-planefpga (3,3,1,3,3,2,2). Share meeting the bar: 0 of 4 this round; 31 of 282 overall sampled (Wilson 8%-15%). Seeded mutations caught 7 of 18. Lead spot-checks re-run: valuation SaaS lever (observed 50000, expected 92500: confirmed), VAT first-year LCT (16.5 vs 15.5 via SI 2017/295 found by web search; gov.uk 403), fog-twin results.txt rows (median 0.5000, mean 0.3446, bank -31.4%: confirmed), accel RTp P=8 pnr_lc 1042->601 = 42.3% (confirmed from results.json). Fix PR: #15534 (VAT 15.5% + 2 sectors, valuation lever = midpoint delta, fog-twin title/README + pinning test that kills the surviving bank mutant, accel 13-42% + known gaps). Local checks: node --test in both ventures (25 and 31 pass; new tests fail on old code), fog-twin unittest OK, quality_audit validate 322 files 0 problems, check_post_frontmatter and check_post_links clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1581af76-f13a-5804-b468-d70f5c8149dd",
+    "transcripts": 5,
+    "first": "2026-11-13T16:05:42Z",
+    "last": "2026-11-13T16:13:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 111,
+        "input": 225,
+        "output": 99506,
+        "thinking": 27358,
+        "cache_read": 8784782,
+        "cache_write_5m": 315488,
+        "cache_write_1h": 107014,
+        "api_equivalent_usd": 6.1815,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 111,
+      "input": 225,
+      "output": 99506,
+      "thinking": 27358,
+      "cache_read": 8784782,
+      "cache_write_5m": 315488,
+      "cache_write_1h": 107014,
+      "api_equivalent_usd": 6.1815,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.954,
+    "tool_calls": 118,
+    "tools": {
+      "Bash": 102,
+      "Agent": 4,
+      "Write": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.57,
+      "active_minutes": 5.72,
+      "model_minutes": 4.67,
+      "tool_minutes": 1.06,
+      "waiting_on_human_minutes": 1.85,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 12.05
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "four domain audits (~3 h each) plus five small fixes with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 258.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

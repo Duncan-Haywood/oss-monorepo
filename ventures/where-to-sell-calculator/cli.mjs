@@ -84,7 +84,7 @@ function splitLine(line) {
 }
 
 export function parseItems(text) {
-  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim() !== "");
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim() !== "");
   if (lines.length < 2) return { error: "Give a header row and at least one item." };
   const header = splitLine(lines[0]).map((h) => ALIASES[h.toLowerCase().replace(/[\s_-]/g, "")] ?? null);
   if (!header.includes("price") || !header.includes("itemCost")) {
@@ -158,7 +158,7 @@ function pickChannels(a) {
 }
 
 const r2 = (n) => Math.round(n * 100) / 100;
-export const money = (n) => `${n < 0 ? "-" : ""}$${Math.abs(n).toFixed(2)}`;
+export const money = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(n).toFixed(2)}`;
 
 export function analyze(items, channels, opts = {}) {
   const includeReturns = opts.includeReturns !== false;

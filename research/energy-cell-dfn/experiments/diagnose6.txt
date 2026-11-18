@@ -1,0 +1,26 @@
+diagnose6: 5 A charge, two cycles; Ah and minimum electrolyte concentration (mol/m3) per step
+
+bayes3   SPMe conductivity=default       D_e x1  c1 discharge 8.513 Ah c_e_min 72; c1 charge 4.675 Ah c_e_min -37; c2 discharge 0.082 Ah c_e_min -37; c2 charge 0.355 Ah c_e_min -9
+bayes3   SPMe conductivity=composite     D_e x1  c1 discharge 8.513 Ah c_e_min 72; c1 charge 4.675 Ah c_e_min -37; c2 discharge 0.082 Ah c_e_min -37; c2 charge 0.355 Ah c_e_min -9
+bayes3   SPMe conductivity=integrated    D_e x1  c1 discharge 8.500 Ah c_e_min 72; c1 charge 5.147 Ah c_e_min -37; c2 discharge 3.020 Ah c_e_min -37; c2 charge 3.192 Ah c_e_min -37
+bayes3   SPMe conductivity=leading order D_e x1  ERROR OptionError: electrolyte conductivity 'leading order' not suitable for SPMe
+bayes3   SPMe conductivity=default       D_e x2  c1 discharge 8.572 Ah c_e_min 489; c1 charge 6.335 Ah c_e_min 404; c2 discharge 6.237 Ah c_e_min 404; c2 charge 6.239 Ah c_e_min 404
+bayes3   SPMe conductivity=default       D_e x4  c1 discharge 8.587 Ah c_e_min 742; c1 charge 6.549 Ah c_e_min 672; c2 discharge 6.449 Ah c_e_min 672; c2 charge 6.448 Ah c_e_min 672
+bayes3   DFN  conductivity=default       D_e x1  c1 discharge 8.388 Ah c_e_min 4; c1 charge 5.579 Ah c_e_min 4; c2 discharge 5.579 Ah c_e_min 41; c2 charge 5.604 Ah c_e_min 41
+          DFN c1 charge at min c_e (t=0 s, node 59): negative-electrode |j| max/mean 1.29, collector-side/mean 0.63, separator-side/mean 1.22
+bayes3   DFN  conductivity=default       D_e x2  c1 discharge 8.570 Ah c_e_min 418; c1 charge 6.426 Ah c_e_min 418; c2 discharge 6.338 Ah c_e_min 418; c2 charge 6.352 Ah c_e_min 419
+          DFN c1 charge at min c_e (t=4627 s, node 0): negative-electrode |j| max/mean 1.28, collector-side/mean 1.01, separator-side/mean 0.84
+bayes3   DFN  conductivity=default       D_e x4  c1 discharge 8.588 Ah c_e_min 714; c1 charge 6.617 Ah c_e_min 675; c2 discharge 6.524 Ah c_e_min 692; c2 charge 6.539 Ah c_e_min 675
+          DFN c1 charge at min c_e (t=4208 s, node 0): negative-electrode |j| max/mean 1.24, collector-side/mean 1.02, separator-side/mean 1.24
+random1  SPMe conductivity=default       D_e x1  c1 discharge 7.066 Ah c_e_min -25; c1 charge 0.716 Ah c_e_min -25; c2 discharge 0.998 Ah c_e_min -23; c2 charge 0.716 Ah c_e_min -23
+random1  SPMe conductivity=composite     D_e x1  c1 discharge 7.066 Ah c_e_min -25; c1 charge 0.716 Ah c_e_min -25; c2 discharge 0.998 Ah c_e_min -23; c2 charge 0.716 Ah c_e_min -23
+random1  SPMe conductivity=integrated    D_e x1  c1 discharge 6.597 Ah c_e_min -25; c1 charge 2.377 Ah c_e_min -25; c2 discharge 2.188 Ah c_e_min -25; c2 charge 2.192 Ah c_e_min -25
+random1  SPMe conductivity=leading order D_e x1  ERROR OptionError: electrolyte conductivity 'leading order' not suitable for SPMe
+random1  SPMe conductivity=default       D_e x2  c1 discharge 8.593 Ah c_e_min 422; c1 charge 5.758 Ah c_e_min 422; c2 discharge 5.697 Ah c_e_min 422; c2 charge 5.733 Ah c_e_min 422
+random1  SPMe conductivity=default       D_e x4  c1 discharge 8.605 Ah c_e_min 692; c1 charge 6.021 Ah c_e_min 692; c2 discharge 5.951 Ah c_e_min 692; c2 charge 5.929 Ah c_e_min 692
+random1  DFN  conductivity=default       D_e x1  c1 discharge 8.536 Ah c_e_min 1; c1 charge 4.983 Ah c_e_min 2; c2 discharge 4.947 Ah c_e_min 24; c2 charge 4.944 Ah c_e_min 24
+          DFN c1 charge at min c_e (t=0 s, node 59): negative-electrode |j| max/mean 1.16, collector-side/mean 0.76, separator-side/mean 1.16
+random1  DFN  conductivity=default       D_e x2  c1 discharge 8.594 Ah c_e_min 383; c1 charge 5.876 Ah c_e_min 413; c2 discharge 5.814 Ah c_e_min 402; c2 charge 5.824 Ah c_e_min 415
+          DFN c1 charge at min c_e (t=0 s, node 59): negative-electrode |j| max/mean 1.44, collector-side/mean 0.79, separator-side/mean 1.44
+random1  DFN  conductivity=default       D_e x4  c1 discharge 8.606 Ah c_e_min 675; c1 charge 6.147 Ah c_e_min 689; c2 discharge 6.075 Ah c_e_min 680; c2 charge 6.092 Ah c_e_min 690
+          DFN c1 charge at min c_e (t=0 s, node 59): negative-electrode |j| max/mean 1.69, collector-side/mean 0.7, separator-side/mean 1.69

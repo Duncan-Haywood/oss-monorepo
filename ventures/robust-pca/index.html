@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2337306b'/%3E%3Crect%20x='6'%20y='6'%20width='20'%20height='20'%20fill='none'%20stroke='%23fff'%20stroke-width='2'/%3E%3Crect%20x='17'%20y='10'%20width='5'%20height='5'%20fill='%23f2a93b'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Robust PCA Online — find the cells that break a table's pattern, free</title>
+  <meta name="description" content="Free online robust PCA (principal component pursuit, Candès et al. 2011). Paste a table of days by hours, stores by weeks or sensors by readings and it splits it into the low-rank pattern every row shares plus the sparse cells that break it, fills empty cells, and certifies how close the split is to optimal. Checked against TensorLy. Runs in your browser.">
+  <meta property="og:title" content="Robust PCA in your browser: which cells of this table break the pattern the rest share?">
+  <meta property="og:description" content="Principal component pursuit splits a table into low rank plus sparse: the shared pattern, and the few cells that do not fit it, with empty cells filled and a certificate of optimality. Checked against TensorLy.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Robust PCA: low-rank plus sparse split of a table", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a numeric table. Principal component pursuit (Candès, Li, Ma and Wright 2011), solved by the inexact augmented Lagrange multiplier method (Lin, Chen and Ma 2010), splits it into a low-rank part and a sparse part, flags the cells that break the shared pattern, fills empty cells and reports a duality certificate. Runs in your browser.", "featureList": "robust PCA online, principal component pursuit, low-rank plus sparse decomposition, anomaly detection in a table, matrix completion, outlier cells, day by hour load profiles, singular value thresholding, duality gap certificate, CSV upload, CSV download", "citation": ["https://doi.org/10.1145/1970392.1970395", "https://arxiv.org/abs/1009.5055", "https://doi.org/10.1137/0106005"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does robust PCA do?", "acceptedAnswer": {"@type": "Answer", "text": "It splits a table into two tables that add back up to it. The low-rank part holds the few patterns that every row is a mix of, such as the shape of a weekday and of a weekend day. The sparse part holds the cells that no mix of those patterns explains: a spike, a sensor fault, a typing error, a day that behaved oddly for a few hours. Ordinary PCA lets one wild cell bend every pattern; robust PCA sets it aside."}}, {"@type": "Question", "name": "How is this different from flagging values far from the column average?", "acceptedAnswer": {"@type": "Answer", "text": "A column average does not know about the row. A load of 20,000 MW at 2 pm is ordinary on a hot day and strange on a mild one. Robust PCA compares each cell with what its own row's mix of shared patterns predicts, so it flags 2 pm only when the rest of that day says it should have been lower."}}, {"@type": "Question", "name": "Why are some flagged cells small?", "acceptedAnswer": {"@type": "Answer", "text": "Real tables are not exactly low rank plus sparse; they also carry small noise everywhere, and the method puts some of it in the sparse part. The tool draws a noise line at three robust standard deviations of the sparse part and counts only cells above it. The rows list ranks rows by the total size of their sparse cells, which is the more useful reading on noisy data."}}, {"@type": "Question", "name": "What does the sensitivity setting change?", "acceptedAnswer": {"@type": "Answer", "text": "It multiplies the weight lambda on the sparse part. The default, 1, is the weight Candès and colleagues proved works for any table: one over the square root of the longer side. At 2 a cell must break the pattern by more before it is moved to the sparse part, so fewer cells are flagged and the low-rank part takes more; at 0.5 more cells are flagged."}}, {"@type": "Question", "name": "What does certified within 0.01% mean?", "acceptedAnswer": {"@type": "Answer", "text": "The method solves a convex problem, so there is one best value of its objective. The solver's dual variable gives a lower bound on that best value and its split gives an upper bound. When the two are within 0.01% of each other the split is that close to optimal, whatever the data."}}, {"@type": "Question", "name": "How should I lay out my data?", "acceptedAnswer": {"@type": "Answer", "text": "One row per thing that repeats (a day, a store, a patient) and one column per measurement that lines up across rows (an hour, a week, a test). Cells in the same column must mean the same thing. If you have one long series with a cycle, such as hourly readings, set the fold length to the cycle (24) and the tool lays it out as days by hours."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and split by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1d1b2f; background: #f3f2f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #3d3480; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2a2459; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2a2459; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #514d66; }
+    .card { background: #fff; border: 1px solid #d9d6e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2a245910; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7a7596; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type="checkbox"] { width: auto; margin: 0 6px 0 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    fieldset { border: 1px solid #d9d6e8; border-radius: 9px; margin: 14px 0 0; padding: 8px 12px 12px; }
+    legend { font-weight: 600; padding: 0 4px; }
+    #features label { display: inline-flex; align-items: center; font-weight: 500; margin: 6px 14px 0 0; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3d3480; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e9e6f5; color: #2a2459; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ebe9f3; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #514d66; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d9d6e8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #7a7596; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f4f2fa; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #2a2459; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #514d66; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+    pre { background: #f5f4fa; border: 1px solid #e0ddec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ROBUST PCA · PRINCIPAL COMPONENT PURSUIT · LOW RANK + SPARSE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which cells of this table break the pattern the rest share?</h1>
+    <p>Paste a table whose rows repeat the same measurements: days by hours of electricity load, stores by weeks of sales, sensors by readings, students by test items. <strong>Robust PCA</strong>, here as principal component pursuit (Candès, Li, Ma &amp; Wright 2011), splits it into two tables that add back up to it: a <strong>low-rank</strong> part, the few shapes every row is a mix of, and a <strong>sparse</strong> part, the cells no mix of those shapes explains.</p>
+<p>You get the rows and cells that break the pattern most, by how much, the empty cells filled in, and a certificate of how close the split is to the best possible.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row: one row per day, store or unit, one numeric column per measurement (comma, tab or semicolon separated)</label>
+    <textarea id="csv" spellcheck="false" placeholder="store,week1,week2,week3&#10;north,120,131,118&#10;south,95,102,410&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: AEP electricity load, every day of 2017 by hour (PJM)</button>
+    <p class="note" id="data-status">Empty cells are allowed; the tool fills them from the low-rank part.</p>
+
+    <div class="grid">
+      <div><label for="label-col">Column that names the rows</label><select id="label-col"></select></div>
+      <div><label for="fold">Fold one long column into rows of (optional)</label><input id="fold" inputmode="numeric" placeholder="e.g. 24 for hours in a day"></div>
+    </div>
+    <fieldset>
+      <legend>Numeric columns that form the table</legend>
+      <div id="features"><span class="note">Paste data to choose columns.</span></div>
+    </fieldset>
+    <div class="grid">
+      <div><label for="scale">Column scaling</label><select id="scale"><option value="none" selected>None (columns share a unit)</option><option value="robust">Robust: median and MAD per column (different units)</option></select></div>
+      <div><label for="sensitivity">Sensitivity (multiplies lambda)</label><select id="sensitivity"><option value="0.5">0.5 (flag more)</option><option value="1" selected>1 (the paper's lambda)</option><option value="1.5">1.5</option><option value="2">2 (flag fewer)</option><option value="3">3</option></select></div>
+    </div>
+    <button type="button" id="analyze">Split the table</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>Where the table breaks its pattern</h3>
+    <p class="note"><span class="key" style="background:#e2852b"></span>above what the row's pattern predicts <span class="key" style="background:#6d64b3"></span>below it. Each cell is the sparse part S; white is zero. Click a row to see it below.</p>
+    <div id="heatmap" role="img" aria-label="Heat map of the sparse part, one row per table row and one column per table column, orange where the observed value is above the low-rank prediction and purple where it is below"></div>
+    <h3>One row: observed against the shared pattern</h3>
+    <div class="grid">
+      <div><label for="row-pick">Row</label><select id="row-pick"></select></div>
+    </div>
+    <div id="rowchart" role="img" aria-label="Line chart of one row's observed values and its low-rank prediction, with flagged cells marked"></div>
+    <p class="note" id="row-note"></p>
+    <h3>Rows that break the pattern most</h3>
+    <div class="scroll">
+      <table id="row-table">
+        <thead><tr><th>Row</th><th class="n">Flagged cells</th><th class="n">Net (flagged)</th><th class="n">Total |S|</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3>Largest single cells</h3>
+    <div class="scroll">
+      <table id="cell-table">
+        <thead><tr><th>Row</th><th>Column</th><th class="n">Observed</th><th class="n">Pattern predicts</th><th class="n">Sparse part</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="filled-block" hidden>
+      <h3>Empty cells, filled from the low-rank part</h3>
+      <div class="scroll">
+        <table id="filled-table">
+          <thead><tr><th>Row</th><th>Column</th><th class="n">Filled value</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download every cell: observed, low rank, sparse (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>The problem.</strong> Principal component pursuit (Candès, Li, Ma &amp; Wright 2011) looks for the split <code>M = L + S</code> that minimises <code>‖L‖* + λ‖S‖₁</code>: the nuclear norm of L (the sum of its singular values, which rewards few shared patterns) plus λ times the sum of the absolute values of S (which rewards few nonzero cells). With <code>λ = 1/√max(rows, columns)</code> the paper proves that, when the table really is a low-rank matrix plus a sparse set of gross errors in random places, this convex problem recovers both exactly, without being told the rank or how many cells are corrupted. Empty cells are dropped from the constraint (the paper's equation 1.4), so the low-rank part fills them.</p>
+    <p><strong>The solver.</strong> The inexact augmented Lagrange multiplier method (Lin, Chen &amp; Ma 2010, Algorithm 5) alternates two closed-form steps: L is the singular value thresholding of <code>M − S + Y/μ</code> at <code>1/μ</code>, S is the soft thresholding of <code>M − L + Y/μ</code> at <code>λ/μ</code>, then the multiplier Y moves by <code>μ(M − L − S)</code> and μ grows by a factor of 1.05. It stops when <code>‖M − L − S‖_F ≤ 10⁻⁷‖M‖_F</code>. The singular value decomposition is a one-sided Jacobi SVD (Hestenes 1958), warm-started from the previous iteration. Then the answer is <em>certified</em>: Y, scaled until <code>‖Y‖₂ ≤ 1</code> and <code>max|Yᵢⱼ| ≤ λ</code>, is a feasible point of the dual problem, so <code>⟨Y, M⟩</code> is a lower bound on the optimum, and the gap to the split's own objective is reported.</p>
+    <p><strong>Reading noisy data.</strong> Real tables are low rank plus sparse plus a little noise everywhere, and PCP puts some of the noise in S. Cells count as flagged when |S| is above three robust standard deviations (1.4826 × MAD) of S over the observed cells; that line is this tool's, not the paper's. Rows are ranked by the total |S| of all their cells.</p>
+    <p>Verified by tests in the source: the paper's Section 4.1 experiment (rank 0.05 n, 5% of cells corrupted to ±1, n = 100 and 150) is recovered to a relative error under 10⁻⁵ with the corrupted cells found exactly; a 60 × 40 case with missing cells matches <strong>TensorLy 0.10.0</strong>'s <code>robust_pca</code> to 10⁻⁶ in every cell; and on this page's example the split's objective is at or below TensorLy's, with every cell within 30 MW of it (under 0.2% of a typical hour). Using the paper's faster growth factor, 1.5, the solver met its stopping test while still 0.04 from TensorLy on the 60 × 40 case, which is why this tool grows μ more slowly and reports the gap.</p>
+    <h3>BibTeX</h3>
+    <pre>@article{candes2011robust,
+  author  = {Cand{\`e}s, Emmanuel J. and Li, Xiaodong and Ma, Yi and Wright, John},
+  title   = {Robust Principal Component Analysis?},
+  journal = {Journal of the ACM},
+  volume  = {58}, number = {3}, pages = {11:1--11:37}, year = {2011},
+  doi     = {10.1145/1970392.1970395}
+}
+@techreport{lin2010augmented,
+  author      = {Lin, Zhouchen and Chen, Minming and Ma, Yi},
+  title       = {The Augmented {L}agrange Multiplier Method for Exact Recovery of Corrupted Low-Rank Matrices},
+  institution = {University of Illinois at Urbana-Champaign},
+  number      = {UILU-ENG-09-2215}, year = {2010},
+  note        = {arXiv:1009.5055}
+}
+@article{hestenes1958inversion,
+  author  = {Hestenes, Magnus R.},
+  title   = {Inversion of Matrices by Biorthogonalization and Related Results},
+  journal = {Journal of the Society for Industrial and Applied Mathematics},
+  volume  = {6}, number = {1}, pages = {51--90}, year = {1958},
+  doi     = {10.1137/0106005}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>A flagged cell is unusual, not wrong.</strong> The sparse part says a cell does not fit the pattern its row shares with the others. It does not say why, or that the value is an error; check the source before you correct or drop anything.</li>
+      <li><strong>Whole-row shifts are not anomalies here.</strong> A day that is 10% lower in every hour is still a mix of the shared shapes, so it lands in the low-rank part. Robust PCA finds cells that break a row's own shape. To find rows whose level changed, use the <a href="../isolation-forest/">isolation forest</a> on the rows or the <a href="../changepoint-detector/">changepoint detector</a> on a series.</li>
+      <li><strong>Columns must line up.</strong> Every cell in a column should mean the same thing (the same hour, the same week). Columns in different units need the robust scaling, or the largest numbers decide everything.</li>
+      <li><strong>The guarantee is for random corruption.</strong> The exact-recovery theorem assumes the corrupted cells fall in random places and the low-rank part is spread out (incoherent). A whole column of bad data, or a pattern that lives in one row only, can be split either way.</li>
+      <li><strong>Size.</strong> Up to 250,000 cells, with the shorter side at most 400, in the browser; each iteration runs a full SVD of the table.</li>
+      <li>Not modelled: stable PCP with an explicit noise level (Zhou et al. 2010), time order within a row, more than two dimensions (tensors), and weights per cell.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does robust PCA do?</h3>
+    <p>It splits a table into two tables that add back up to it. The low-rank part holds the few patterns that every row is a mix of, such as the shape of a weekday and of a weekend day. The sparse part holds the cells that no mix of those patterns explains: a spike, a sensor fault, a typing error, a day that behaved oddly for a few hours. Ordinary PCA lets one wild cell bend every pattern; robust PCA sets it aside.</p>
+    <h3>How is this different from flagging values far from the column average?</h3>
+    <p>A column average does not know about the row. A load of 20,000 MW at 2 pm is ordinary on a hot day and strange on a mild one. Robust PCA compares each cell with what its own row's mix of shared patterns predicts, so it flags 2 pm only when the rest of that day says it should have been lower.</p>
+    <h3>Why are some flagged cells small?</h3>
+    <p>Real tables are not exactly low rank plus sparse; they also carry small noise everywhere, and the method puts some of it in the sparse part. The tool draws a noise line at three robust standard deviations of the sparse part and counts only cells above it. The rows list ranks rows by the total size of their sparse cells, which is the more useful reading on noisy data.</p>
+    <h3>What does the sensitivity setting change?</h3>
+    <p>It multiplies the weight lambda on the sparse part. The default, 1, is the weight Candès and colleagues proved works for any table: one over the square root of the longer side. At 2 a cell must break the pattern by more before it is moved to the sparse part, so fewer cells are flagged and the low-rank part takes more; at 0.5 more cells are flagged.</p>
+    <h3>What does certified within 0.01% mean?</h3>
+    <p>The method solves a convex problem, so there is one best value of its objective. The solver's dual variable gives a lower bound on that best value and its split gives an upper bound. When the two are within 0.01% of each other the split is that close to optimal, whatever the data.</p>
+    <h3>How should I lay out my data?</h3>
+    <p>One row per thing that repeats (a day, a store, a patient) and one column per measurement that lines up across rows (an hour, a week, a test). Cells in the same column must mean the same thing. If you have one long series with a cycle, such as hourly readings, set the fold length to the cycle (24) and the tool lays it out as days by hours.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and split by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: hourly load in megawatts of the American Electric Power (AEP) zone of PJM Interconnection for every day of 2017, one row per day and one column per hour ending (he01 is midnight to 1 am, he24 is 11 pm to midnight), from the Kaggle "Hourly Energy Consumption" extract of PJM data by Rob Mulla, released under CC0, retrieved for this repository in 2026. The extract skips the hour lost to daylight saving time on 12 March, which is left empty here, and repeats the hour gained on 5 November, of which the first reading is kept.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; a flagged cell is unusual against the table's pattern, not proof of an error or of a cause. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, PJM Interconnection, American Electric Power, Kaggle, the TensorLy project, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs table.csv</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/robust-pca" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns in a series, <a href="../survival-analysis/">survival analysis</a> estimates time to an event, <a href="../fdr-multiple-testing/">multiple testing correction</a> says which of many results still stand, <a href="../synthetic-control/">synthetic control</a> asks whether an intervention changed one unit's outcome, <a href="../stl-decomposition/">STL decomposition</a> separates trend from season, <a href="../fuzzy-dedupe/">fuzzy dedupe</a> finds rows that are the same person, <a href="../spc-control-charts/">control charts</a> tell a process change from noise, the <a href="../isolation-forest/">isolation forest</a> finds unusual rows, <a href="../gaussian-process-regression/">Gaussian process regression</a> fits a curve with an honest uncertainty band, the <a href="../wasserstein-distance/">Wasserstein distance</a> says how far apart two distributions are, and the <a href="../lomb-scargle-periodogram/">Lomb-Scargle periodogram</a> finds periods in unevenly spaced measurements.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, profileColumns, toCsv, fmt } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const pct = (g) => (g < 1e-4 ? "< 0.01%" : `${(100 * g).toFixed(g < 0.001 ? 3 : 2)}%`);
+    let last = null;
+    let parsed = null;
+
+    function refreshColumns() {
+      const p = parseCsv($("#csv").value);
+      if (p.error) {
+        parsed = null;
+        $("#features").innerHTML = `<span class="note">Paste data to choose columns.</span>`;
+        $("#label-col").innerHTML = "";
+        $("#data-status").textContent = $("#csv").value.trim() ? p.error : "Paste a table or load the example.";
+        return;
+      }
+      parsed = p;
+      const prof = profileColumns(p);
+      const text = prof.filter((c) => !c.numeric).map((c) => c.name);
+      const guess = text[0] || "";
+      $("#features").innerHTML = prof.map((c) => `<label><input type="checkbox" data-col="${esc(c.name)}"${c.numeric && c.name !== guess ? " checked" : ""}${c.numeric ? "" : " disabled"}>${esc(c.name)}${c.numeric ? "" : " (text)"}</label>`).join("");
+      $("#label-col").innerHTML = `<option value="">(row numbers)</option>` + p.columns.map((c) => `<option value="${esc(c)}"${c === guess ? " selected" : ""}>${esc(c)}</option>`).join("");
+      $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.columns.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#label-col").addEventListener("change", () => {
+      const g = $("#label-col").value;
+      document.querySelectorAll("#features input").forEach((el) => { if (el.dataset.col === g) el.checked = false; });
+    });
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      const cols = [...document.querySelectorAll("#features input:checked")].map((el) => el.dataset.col);
+      const fold = $("#fold").value.trim();
+      return {
+        csv: $("#csv").value,
+        labelColumn: $("#label-col").value || null,
+        columns: cols.length ? cols : undefined,
+        fold: fold === "" ? null : Number(fold.replace(/,/g, "")),
+        scale: $("#scale").value,
+        sensitivity: Number($("#sensitivity").value),
+        top: 25,
+      };
+    }
+
+    // colour for a sparse value s against the largest |S| shown
+    function shade(s, max) {
+      if (!s || !max) return "#ffffff";
+      const t = Math.min(1, Math.sqrt(Math.abs(s) / max));
+      const [r, g, b] = s > 0 ? [226, 133, 43] : [109, 100, 179];
+      const mix = (c) => Math.round(255 + (c - 255) * t);
+      return `rgb(${mix(r)},${mix(g)},${mix(b)})`;
+    }
+
+    function heatmap(r) {
+      // at most 366 drawn rows and 200 columns: a bin shows its largest |S|
+      const rb = Math.ceil(r.m / 366), cb = Math.ceil(r.n / 200);
+      const R = Math.ceil(r.m / rb), C = Math.ceil(r.n / cb);
+      const W = 920, L = 86, T = 8, B = 30, cw = (W - L - 10) / C, rh = Math.max(1.2, Math.min(14, 560 / R)), H = T + B + rh * R;
+      let max = 0;
+      for (let k = 0; k < r.S.length; k++) if (r.observed[k] && Math.abs(r.S[k]) > r.threshold) max = Math.max(max, Math.abs(r.S[k]));
+      let out = `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" xmlns="http://www.w3.org/2000/svg">`;
+      for (let bi = 0; bi < R; bi++) {
+        for (let bj = 0; bj < C; bj++) {
+          let best = 0;
+          for (let i = bi * rb; i < Math.min(r.m, (bi + 1) * rb); i++)
+            for (let j = bj * cb; j < Math.min(r.n, (bj + 1) * cb); j++) {
+              const k = i * r.n + j;
+              const s = r.observed[k] && Math.abs(r.S[k]) > r.threshold ? r.S[k] : 0;
+              if (Math.abs(s) > Math.abs(best)) best = s;
+            }
+          if (best) out += `<rect x="${(L + bj * cw).toFixed(1)}" y="${(T + bi * rh).toFixed(1)}" width="${(cw + 0.3).toFixed(2)}" height="${(rh + 0.3).toFixed(2)}" fill="${shade(best, max)}"/>`;
+        }
+        out += `<rect x="${L}" y="${(T + bi * rh).toFixed(1)}" width="${W - L - 10}" height="${rh.toFixed(2)}" fill="transparent" data-row="${bi * rb}" style="cursor:pointer"><title>${esc(r.rowLabels[bi * rb])}</title></rect>`;
+      }
+      out += `<rect x="${L}" y="${T}" width="${W - L - 10}" height="${(rh * R).toFixed(1)}" fill="none" stroke="#d9d6e8"/>`;
+      const ticks = Math.min(8, R);
+      for (let t = 0; t < ticks; t++) {
+        const bi = Math.round((t * (R - 1)) / Math.max(1, ticks - 1));
+        out += `<text x="${L - 6}" y="${(T + bi * rh + rh / 2 + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#514d66">${esc(String(r.rowLabels[bi * rb]).slice(0, 12))}</text>`;
+      }
+      const cticks = Math.min(12, C);
+      for (let t = 0; t < cticks; t++) {
+        const bj = Math.round((t * (C - 1)) / Math.max(1, cticks - 1));
+        out += `<text x="${(L + bj * cw + cw / 2).toFixed(1)}" y="${(H - 12).toFixed(1)}" text-anchor="middle" font-size="11" fill="#514d66">${esc(String(r.colLabels[bj * cb]).slice(0, 8))}</text>`;
+      }
+      return out + "</svg>";
+    }
+
+    function rowChart(r, i) {
+      const W = 920, H = 300, L = 70, R = 14, T = 14, B = 40;
+      const obs = [], low = [];
+      for (let j = 0; j < r.n; j++) { const k = i * r.n + j; obs.push(r.observed[k] ? r.M[k] : null); low.push(r.L[k]); }
+      const vals = [...obs.filter((v) => v !== null), ...low];
+      let lo = Math.min(...vals), hi = Math.max(...vals);
+      if (hi === lo) { lo -= 1; hi += 1; }
+      const pad = (hi - lo) * 0.06;
+      lo -= pad; hi += pad;
+      const sx = (j) => L + (r.n === 1 ? 0 : (j / (r.n - 1)) * (W - L - R));
+      const sy = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      out += `<rect x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="none" stroke="#e3e0ef"/>`;
+      for (const v of [lo + pad, (lo + hi) / 2, hi - pad]) out += `<text x="${L - 6}" y="${(sy(v) + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="#514d66">${esc(fmt(v))}</text>`;
+      const step = Math.max(1, Math.ceil(r.n / 12));
+      for (let j = 0; j < r.n; j += step) out += `<text x="${sx(j).toFixed(1)}" y="${H - 22}" text-anchor="middle" font-size="11" fill="#514d66">${esc(String(r.colLabels[j]).slice(0, 8))}</text>`;
+      out += `<path d="${low.map((v, j) => `${j ? "L" : "M"}${sx(j).toFixed(1)},${sy(v).toFixed(1)}`).join("")}" fill="none" stroke="#6d64b3" stroke-width="2" stroke-dasharray="5 4"/>`;
+      let d = "", pen = false;
+      obs.forEach((v, j) => { if (v === null) { pen = false; return; } d += `${pen ? "L" : "M"}${sx(j).toFixed(1)},${sy(v).toFixed(1)}`; pen = true; });
+      out += `<path d="${d}" fill="none" stroke="#1d1b2f" stroke-width="2"/>`;
+      obs.forEach((v, j) => {
+        const k = i * r.n + j;
+        if (v === null) out += `<circle cx="${sx(j).toFixed(1)}" cy="${sy(low[j]).toFixed(1)}" r="4" fill="#fff" stroke="#6d64b3" stroke-width="2"/>`;
+        else if (Math.abs(r.S[k]) > r.threshold && r.S[k] !== 0) out += `<circle cx="${sx(j).toFixed(1)}" cy="${sy(v).toFixed(1)}" r="4.5" fill="${r.S[k] > 0 ? "#e2852b" : "#6d64b3"}"/>`;
+      });
+      out += `<text x="${(L + W - R) / 2}" y="${H - 5}" text-anchor="middle" font-size="12" fill="#514d66">${esc(r.rowLabels[i])} · solid: observed · dashed: the low-rank pattern · dots: flagged cells (hollow: filled gap)</text>`;
+      return out + "</svg>";
+    }
+
+    function showRow(r, i) {
+      if (!(i >= 0 && i < r.m)) return;
+      $("#rowchart").innerHTML = rowChart(r, i);
+      let flagged = 0, net = 0;
+      for (let j = 0; j < r.n; j++) { const k = i * r.n + j; if (r.observed[k] && Math.abs(r.S[k]) > r.threshold && r.S[k] !== 0) { flagged++; net += r.S[k]; } }
+      $("#row-note").textContent = flagged ? `${r.rowLabels[i]}: ${flagged} cell${flagged === 1 ? "" : "s"} above the noise line, ${net >= 0 ? "+" : ""}${fmt(net)} in total against the pattern.` : `${r.rowLabels[i]}: every cell is within the noise line of its pattern.`;
+    }
+
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const stat = (v, l) => `<div class="stat"><b>${esc(v)}</b><span>${esc(l)}</span></div>`;
+      $("#stats").innerHTML =
+        stat(`${r.m.toLocaleString("en-US")} × ${r.n}`, "rows × columns") +
+        stat(`${r.rank}`, `rank of the low-rank part (${r.components99} hold${r.components99 === 1 ? "s" : ""} 99%)`) +
+        stat(`${r.flaggedCount.toLocaleString("en-US")}`, `cells above the noise line of ${fmt(r.threshold)}`) +
+        stat(pct(r.gap), "certified gap to the best split");
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#heatmap").innerHTML = heatmap(r);
+      $("#row-table tbody").innerHTML = r.rows.length ? r.rows.map((x) => `<tr><td><a href="#rowchart" data-pick="${x.i}">${esc(x.row)}</a></td><td class="n">${x.flagged}</td><td class="n">${x.net > 0 ? "+" : ""}${esc(fmt(x.net))}</td><td class="n">${esc(fmt(x.absSparse))}</td></tr>`).join("") : `<tr><td colspan="4">No row has a cell above the noise line.</td></tr>`;
+      $("#cell-table tbody").innerHTML = r.cells.map((c) => `<tr><td>${esc(c.row)}</td><td>${esc(c.column)}</td><td class="n">${esc(fmt(c.observed))}</td><td class="n">${esc(fmt(c.expected))}</td><td class="n">${c.sparse > 0 ? "+" : ""}${esc(fmt(c.sparse))}</td></tr>`).join("");
+      $("#filled-block").hidden = !r.filled.length;
+      $("#filled-table tbody").innerHTML = r.filled.map((f) => `<tr><td>${esc(f.row)}</td><td>${esc(f.column)}</td><td class="n">${esc(fmt(f.filled))}</td></tr>`).join("");
+      $("#row-pick").innerHTML = r.rowLabels.map((l, i) => `<option value="${i}">${esc(l)}</option>`).join("");
+      const first = r.rows.length ? r.rows[0].i : 0;
+      $("#row-pick").value = String(first);
+      showRow(r, first);
+      $("#settings-line").textContent = `lambda ${fmt(r.lambda)} (sensitivity ${r.sensitivity} × 1/√${Math.max(r.m, r.n)}), ${r.scale === "robust" ? "robust column scaling" : "no scaling"}, ${r.iterations} iterations, relative residual ${fmt(r.residual)}, objective ${fmt(r.objective)}, dual bound ${fmt(r.dualBound)}.`;
+    }
+
+    function run() {
+      $("#analyze").disabled = true;
+      $("#status").textContent = "Splitting… a large table can take a few seconds.";
+      setTimeout(() => {
+        try {
+          const r = analyze(inputs());
+          if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return; }
+          $("#status").textContent = "";
+          last = r;
+          show(r);
+          record("analysis_run");
+        } finally {
+          $("#analyze").disabled = false;
+        }
+      }, 30);
+    }
+
+    $("#analyze").addEventListener("click", () => { if (!parsed) refreshColumns(); run(); });
+    $("#row-pick").addEventListener("change", () => { if (last) showRow(last, Number($("#row-pick").value)); });
+    $("#heatmap").addEventListener("click", (event) => {
+      const i = event.target && event.target.dataset ? Number(event.target.dataset.row) : NaN;
+      if (last && Number.isInteger(i)) { $("#row-pick").value = String(i); showRow(last, i); }
+    });
+    $("#row-table").addEventListener("click", (event) => {
+      const a = event.target.closest("[data-pick]");
+      if (!a || !last) return;
+      const i = Number(a.dataset.pick);
+      $("#row-pick").value = String(i);
+      showRow(last, i);
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      $("#fold").value = "";
+      refreshColumns();
+      record("example_loaded");
+      run();
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last)], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "robust-pca.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23733a2a'/%3E%3Ctext%20x='16'%20y='22'%20font-size='13'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E3.1%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CVSS 3.0 vs 3.1: When Do the Scores Actually Differ?</title>
+  <meta name="description" content="CVSS 3.0 and 3.1 give the same base and temporal score for all 259,200 base and temporal vectors, checked exhaustively. Environmental scores differ by 0.1 when the modified scope is Changed, and naive 3.0 rounding is off on 228 temporal scores. The numbers, and how to check yours.">
+  <meta property="og:title" content="CVSS 3.0 vs 3.1: when do the scores actually differ?">
+  <meta property="og:description" content="Exhaustive over base and temporal vectors, sampled over environmental ones, checked against an independent implementation.">
+  <link rel="canonical" href="./cvss-3-0-vs-3-1-score-differences.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do CVSS 3.0 and 3.1 give different base scores?", "acceptedAnswer": {"@type": "Answer", "text": "No. For all 2,592 base vectors and all 259,200 base and temporal vectors, the base and temporal scores are identical under the v3.0 and v3.1 formulas when both are computed exactly. Relabelling a CVSS:3.0 vector as CVSS:3.1 does not change its base score."}}, {"@type": "Question", "name": "When do CVSS 3.0 and 3.1 environmental scores differ?", "acceptedAnswer": {"@type": "Answer", "text": "Only when the modified scope is Changed, because v3.1 rewrote the Modified Impact formula for that case. In 200,000 random full vectors, 12,623 environmental scores (6.3%) differed, always by 0.1: 11,155 were higher under 3.1 and 1,468 lower, and 610 (0.3%) landed in a different severity band."}}, {"@type": "Question", "name": "Why does a CVSS 3.0 calculator sometimes give 0.1 more than another?", "acceptedAnswer": {"@type": "Answer", "text": "Floating-point rounding. 5.0 times 0.92 is 4.6, but a computer stores it as 4.6000000000000005, and Math.ceil(x * 10) / 10 rounds that up to 4.7. Across the 259,200 v3.0 base and temporal vectors, that naive rounding gets 228 temporal scores wrong and no base scores. CVSS 3.1 defined Roundup with integer arithmetic to remove this."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #24191a; background: #f7f4f2; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    a { color: #8a3b24; }
+    h1 { font-size: clamp(1.7rem, 4.4vw, 2.4rem); line-height: 1.1; color: #4a2318; }
+    h2 { font-size: 1.2rem; margin-top: 28px; color: #4a2318; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.6; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #efe8e4; padding: 1px 4px; border-radius: 4px; word-break: break-all; }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e4d9d4; }
+    .note, footer { font-size: .86rem; color: #5d4b46; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    footer { margin-top: 28px; border-top: 1px solid #e4d9d4; padding-top: 16px; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./index.html">CVSS Vector Check</a> · guide</p>
+  <h1>CVSS 3.0 vs 3.1: when do the scores actually differ?</h1>
+  <p>Security teams hold advisories in both versions, and the usual question is whether a <code>CVSS:3.0</code> score can be compared with a <code>CVSS:3.1</code> one. We scored the whole space to find out. In short: for base and temporal scores, yes, always. For environmental scores, almost always, with one exception you can name.</p>
+
+  <h2>What we measured</h2>
+  <p>The <a href="./index.html">CVSS Vector Check</a> engine implements the formulas from FIRST's v3.0 and v3.1 specification documents. We scored every combination of the eight base and three temporal metrics (2,592 × 100 = 259,200 vectors) under each version, plus 200,000 random vectors with every environmental metric set. Each score was compared with Red Hat's open-source <code>cvss</code> Python package (version 3.6), an independent implementation. The two agreed on every score in both versions. The scripts are in the venture's <code>oracle/</code> folder, so anyone can rerun them.</p>
+
+  <table>
+    <thead><tr><th>Question</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Base score differs between 3.0 and 3.1</td><td>0 of 2,592 vectors</td></tr>
+      <tr><td>Temporal score differs between 3.0 and 3.1</td><td>0 of 259,200 vectors</td></tr>
+      <tr><td>Environmental score differs (random sample)</td><td>12,623 of 200,000 (6.3%), all with a Changed modified scope</td></tr>
+      <tr><td>Size of that difference</td><td>always 0.1: 11,155 higher under 3.1, 1,468 lower</td></tr>
+      <tr><td>Different severity band as a result</td><td>610 of 200,000 (0.3%)</td></tr>
+      <tr><td>Naive <code>Math.ceil(x*10)/10</code> 3.0 rounding wrong</td><td>228 of 259,200 temporal scores; 0 base scores</td></tr>
+    </tbody>
+  </table>
+  <p class="note">The random sample picks each metric value with equal probability, which is not how real advisories are distributed, so read the 6.3% as the share of the formula space, not the share of published scores.</p>
+
+  <h2>Why environmental scores move</h2>
+  <p>CVSS 3.1 changed one formula in the environmental group: the Modified Impact when the modified scope is Changed. Under 3.0 it mirrors the base formula, with the last term raised to the 15th power. Under 3.1 that term becomes <code>(MISS × 0.9731 − 0.02)^13</code>. With an Unchanged modified scope the formulas are identical, so the scores are too. One example from the sample: <code>CVSS:3.1/AV:P/AC:L/PR:H/UI:R/S:C/C:H/I:H/A:N/RC:U/CR:H/IR:M/AR:H/MAV:L/MAC:H/MUI:N/MS:C/MA:H</code> scores 7.0 (High) under 3.1 and 6.9 (Medium) under 3.0.</p>
+
+  <h2>Why some 3.0 calculators are 0.1 high</h2>
+  <p>Both versions round scores up to one decimal place. CVSS 3.0 defined this in words: the smallest one-decimal number equal to or higher than the input. Written as <code>Math.ceil(x * 10) / 10</code> in floating point, a product like 5.0 × 0.92, which is exactly 4.6, is stored as 4.6000000000000005 and rounds up to 4.7. CVSS 3.1 replaced the definition with an integer-arithmetic Roundup to remove exactly this problem. Across the 259,200 base and temporal vectors, the naive 3.0 rounding is off on 228 temporal scores, every one by 0.1, and none moved to a different severity band. No base score is affected.</p>
+  <p>If a 3.0 advisory you hold is 0.1 above what you compute, paste it into the audit box: the tool says when a stated score equals the naive-rounding result.</p>
+
+  <h2>Questions</h2>
+  <h3>Do CVSS 3.0 and 3.1 give different base scores?</h3>
+  <p>No. For all 2,592 base vectors and all 259,200 base and temporal vectors, the base and temporal scores are identical under the v3.0 and v3.1 formulas when both are computed exactly. Relabelling a CVSS:3.0 vector as CVSS:3.1 does not change its base score.</p>
+  <h3>When do CVSS 3.0 and 3.1 environmental scores differ?</h3>
+  <p>Only when the modified scope is Changed, because v3.1 rewrote the Modified Impact formula for that case. In 200,000 random full vectors, 12,623 environmental scores (6.3%) differed, always by 0.1: 11,155 were higher under 3.1 and 1,468 lower, and 610 (0.3%) landed in a different severity band.</p>
+  <h3>Why does a CVSS 3.0 calculator sometimes give 0.1 more than another?</h3>
+  <p>Floating-point rounding. 5.0 times 0.92 is 4.6, but a computer stores it as 4.6000000000000005, and Math.ceil(x * 10) / 10 rounds that up to 4.7. Across the 259,200 v3.0 base and temporal vectors, that naive rounding gets 228 temporal scores wrong and no base scores. CVSS 3.1 defined Roundup with integer arithmetic to remove this.</p>
+
+  <p><a href="./index.html">Score or compare a vector, or audit a report</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. They are not legal, security or professional advice, and a CVSS score measures technical severity, not the risk a vulnerability poses to you. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Independent.</strong> Not affiliated with or endorsed by FIRST (the Forum of Incident Response and Security Teams), NIST, the NVD, MITRE, Red Hat or any other vendor. CVSS is owned and managed by FIRST.Org, Inc.</p>
+  <p class="support">Free and open source under an MIT licence — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

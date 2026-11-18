@@ -1,0 +1,278 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtLuDqVmFzHQSE84FU9",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T00:06:11Z",
+  "ended": "2026-11-14T00:06:46Z",
+  "wall_minutes": 14.49,
+  "tokens_in": 3103596,
+  "tokens_out": 19347,
+  "cost_usd": 1.5237,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15658",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First post draft failed check_post_frontmatter.py (description 208 > 160, seo_title 73 > 70); platform/pages tests then failed 172 times fast on the same post. Fixed the front matter.",
+    "A new test's regex /0% at night/ also matched '100% at night', so it passed under the default-offset mutant until anchored."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests `git log --since=3.days --name-only origin/main` to pick a target, but the shallow clone has no history, so it prints nothing."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0: all 10 open entries are control-plane workflow edits that already have open PRs waiting on the owner. `redteam.py open` could show the PR it is waiting on so runs don't re-check each one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 entries all wait on owner-approved control-plane PRs that already exist",
+      "did": "Left them patched:false and checked the open PRs instead",
+      "result": "No duplicate control-plane PRs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-oncall-timezone-flag.md"
+  ],
+  "goal": null,
+  "notes": "Guard: added tests for --tz parsing and the exit-0 path. Same silent-default class fixed in postgres-index-auditor (--min-mb) and bid-leveling-worksheet (--unknown). 15 venture CLIs use Number(args[i+1]); the calculator ones with validating calc.mjs were not checked. Local: the three venture suites pass (28/29/30). run_workflow_locally --for-changes: 9/12 pass; the front-matter and site-builder failures came from the post and were fixed; site-builder suite re-run in full after the fix: 1616 pass, 1 fail ('an identical build produces an identical cache name', build.test.mjs:3437), which passes when run alone, so it is flaky under full-suite load and unrelated to this diff.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/oncall-load-analyzer/cli.mjs",
+        "test": "node --test ventures/oncall-load-analyzer/**/*.test.mjs  (in .)",
+        "seed": 514252895,
+        "commit": "eb9db1ce6",
+        "sites": 19,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/oncall-load-analyzer/cli.mjs",
+            "line": 8,
+            "col": 66,
+            "operator": "or-to-and",
+            "before": "const file = args.find((a, i) => !a.startsWith(\"--\") && (tzAt < 0 || i !== tzAt + 1));",
+            "after": "const file = args.find((a, i) => !a.startsWith(\"--\") && (tzAt < 0 && i !== tzAt + 1));",
+            "line_text": "const file = args.find((a, i) => !a.startsWith(\"--\") && (tzAt < 0 || i !== tzAt + 1));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/cli.mjs",
+            "line": 8,
+            "col": 82,
+            "operator": "const-plus-one",
+            "before": "const file = args.find((a, i) => !a.startsWith(\"--\") && (tzAt < 0 || i !== tzAt + 1));",
+            "after": "const file = args.find((a, i) => !a.startsWith(\"--\") && (tzAt < 0 || i !== tzAt + 2));",
+            "line_text": "const file = args.find((a, i) => !a.startsWith(\"--\") && (tzAt < 0 || i !== tzAt + 1));",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Re-applied by hand on the rewritten line (i !== tzAt + 2): 'an --tz before the file' test fails (reads '-5' as the file). caught_after_fix set from that hand run. [rerun: line changed; triaged by hand]"
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/cli.mjs",
+            "line": 12,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "const tz = tzAt >= 0 ? Number(args[tzAt + 1]) : 0;",
+            "after": "const tz = tzAt >= 1 ? Number(args[tzAt + 1]) : 0;",
+            "line_text": "const tz = tzAt >= 0 ? Number(args[tzAt + 1]) : 0;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Line rewritten to `if (tzAt >= 0) {`; hand mutant `tzAt >= 1` fails the '--tz -5 file' test. [rerun: line changed; triaged by hand]"
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/cli.mjs",
+            "line": 12,
+            "col": 42,
+            "operator": "const-plus-one",
+            "before": "const tz = tzAt >= 0 ? Number(args[tzAt + 1]) : 0;",
+            "after": "const tz = tzAt >= 0 ? Number(args[tzAt + 2]) : 0;",
+            "line_text": "const tz = tzAt >= 0 ? Number(args[tzAt + 1]) : 0;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Now `args[tzAt + 1] : args...`; hand mutant `args[tzAt + 2]` fails 2 tests (value read as missing). [rerun: line changed; triaged by hand]"
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/cli.mjs",
+            "line": 12,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const tz = tzAt >= 0 ? Number(args[tzAt + 1]) : 0;",
+            "after": "const tz = tzAt >= 0 ? Number(args[tzAt + 1]) : 1;",
+            "line_text": "const tz = tzAt >= 0 ? Number(args[tzAt + 1]) : 0;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Default is now `let tz = 0;`; hand mutant `let tz = 1;` fails 'with no --tz the night window is read in UTC'. That test first passed under the mutant because /0% at night/ matched '100% at night'; anchored to '; 0% at night'. [rerun: line changed; triaged by hand]"
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/cli.mjs",
+            "line": 13,
+            "col": 75,
+            "operator": "const-plus-one",
+            "before": "const r = analyze(n.incidents, { tzOffsetHours: Number.isFinite(tz) ? tz : 0 });",
+            "after": "const r = analyze(n.incidents, { tzOffsetHours: Number.isFinite(tz) ? tz : 1 });",
+            "line_text": "const r = analyze(n.incidents, { tzOffsetHours: Number.isFinite(tz) ? tz : 0 });",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": null,
+            "note": "The Number.isFinite(tz) ? tz : 0 fallback was the real defect (an unreadable --tz silently became UTC) and the fix deleted it; an unreadable or out-of-range --tz now exits 2, asserted by 'an unreadable or impossible --tz is a usage error'. No analog line remains to re-mutate, so caught_after_fix stays null. [rerun: line changed; triaged by hand]"
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/cli.mjs",
+            "line": 22,
+            "col": 50,
+            "operator": "const-plus-one",
+            "before": "process.exit(r.people.some((p) => p.overloaded) ? 1 : 0);",
+            "after": "process.exit(r.people.some((p) => p.overloaded) ? 2 : 0);",
+            "line_text": "process.exit(r.people.some((p) => p.overloaded) ? 1 : 0);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/oncall-load-analyzer/cli.mjs",
+            "line": 22,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "process.exit(r.people.some((p) => p.overloaded) ? 1 : 0);",
+            "after": "process.exit(r.people.some((p) => p.overloaded) ? 1 : 1);",
+            "line_text": "process.exit(r.people.some((p) => p.overloaded) ? 1 : 0);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test ran the not-overloaded path; added 'exits 0 when nobody is overloaded'."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/oncall-load-analyzer/cli.mjs",
+        "issue": "`--tz=-5`, `--tz abc`, `--tz` with no value and `--tz 99` all silently ran in UTC (or a nonsense offset): the sample's night share reads 45% instead of 36% for a UTC-5 team, with no warning. Fixed: --tz=N is accepted, anything unreadable or outside -12..14 exits 2 with the reason; the web page clamps its offset field to the same range.",
+        "patched": true
+      },
+      {
+        "file": "ventures/postgres-index-auditor/cli.mjs",
+        "issue": "`--min-mb abc` (or no value) was read as 0, listing every index with no warning. Fixed: exits 2 with the reason; test 'an unreadable --min-mb is a usage error, not 0' fails before the fix.",
+        "patched": true
+      },
+      {
+        "file": "ventures/bid-leveling-worksheet/cli.mjs",
+        "issue": "`--unknown abc` was silently read as 1, and weights outside the usage line's 0-1 were accepted. Fixed: exits 2 with the reason; new test fails before the fix.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7539dd7b-a316-5ec1-85ac-08bb878fb32e",
+    "transcripts": 1,
+    "first": "2026-11-14T00:06:11Z",
+    "last": "2026-11-14T00:20:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 19347,
+        "thinking": 4109,
+        "cache_read": 3037393,
+        "cache_write_5m": 0,
+        "cache_write_1h": 66124,
+        "api_equivalent_usd": 1.5237,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 19347,
+      "thinking": 4109,
+      "cache_read": 3037393,
+      "cache_write_5m": 0,
+      "cache_write_1h": 66124,
+      "api_equivalent_usd": 1.5237,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.49,
+      "active_minutes": 14.49,
+      "model_minutes": 3.54,
+      "tool_minutes": 10.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation run, three CLI fixes with tests, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 196.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -37,7 +37,11 @@ function stripComment(line) {
       if (ch === quote) quote = null;
       continue;
     }
-    if (ch === '"' || ch === "'") {
+    // A quote only opens a quoted scalar where one can start (line start,
+    // after a space, or after `[ { ,`). The apostrophe in a bare
+    // `note: it's here # comment` is text, and treating it as a quote kept
+    // the comment in the value.
+    if ((ch === '"' || ch === "'") && (i === 0 || /[\s[{,]/.test(line[i - 1]))) {
       quote = ch;
       continue;
     }
@@ -63,11 +67,24 @@ function parseScalar(raw) {
     // Single-quoted YAML escapes a quote by doubling it.
     return text[0] === "'" ? inner.replace(/''/g, "'") : inner.replace(/\\"/g, '"');
   }
-  if (text === 'true' || text === 'True') return true;
-  if (text === 'false' || text === 'False') return false;
-  if (text === 'null' || text === '~') return null;
-  if (/^-?\d+$/.test(text)) return Number(text);
-  if (/^-?\d*\.\d+$/.test(text)) return Number(text);
+  // Helm reads values.yaml with sigs.k8s.io/yaml, a go-yaml v2 fork that
+  // resolves plain scalars by YAML 1.1 rules: `yes`/`on`/`TRUE` are true,
+  // `NULL` is null, `0x1F` and `1e3` are numbers and a leading-zero `0755` is
+  // octal (493). Reading those as strings would report a type mismatch Helm
+  // never raises. (`y`/`n` are left as strings: whether a given Helm build
+  // treats them as booleans is not something this file can show.)
+  if (/^(?:true|True|TRUE|yes|Yes|YES|on|On|ON)$/.test(text)) return true;
+  if (/^(?:false|False|FALSE|no|No|NO|off|Off|OFF)$/.test(text)) return false;
+  if (/^(?:null|Null|NULL|~)$/.test(text)) return null;
+  if (/^[-+]?[0-9_]*[0-9][0-9_]*$/.test(text) || /^[-+]?0x[0-9a-fA-F_]+$/.test(text)) {
+    const digits = text.replace(/_/g, '');
+    const sign = digits.startsWith('-') ? -1 : 1;
+    const bare = digits.replace(/^[-+]/, '');
+    if (/^0x/.test(bare)) return sign * parseInt(bare.slice(2), 16);
+    if (/^0[0-7]+$/.test(bare)) return sign * parseInt(bare, 8);
+    return sign * Number(bare);
+  }
+  if (/^[-+]?(?:\.[0-9]+|[0-9]+(?:\.[0-9]*)?)(?:[eE][-+]?[0-9]+)?$/.test(text)) return Number(text);
   return text;
 }
 
@@ -180,11 +197,32 @@ function parseSequence(lines, start, indent) {
       continue;
     }
     // `- key: value` starts a mapping whose keys align after the dash.
-    const dashOffset = line.code.indexOf('-');
-    const itemIndent = dashOffset + line.code.trim().indexOf(rest) - line.code.trim().indexOf('-');
+    // Measured from the end, so a `rest` that also occurs earlier in the
+    // line (`- - x`) cannot pull the item's column left.
+    const itemIndent = line.indent + line.code.trim().length - rest.length;
+    if (/^-(\s|$)/.test(rest)) {
+      // `- - x`: a sequence nested inline, its siblings aligned after the dash.
+      const synthetic = lines.slice();
+      synthetic[i] = { ...line, indent: itemIndent, code: ' '.repeat(itemIndent) + rest };
+      const [value, next] = parseSequence(synthetic, i, itemIndent);
+      out.push(value);
+      i = next;
+      continue;
+    }
+    if (isUnclosedFlow(rest)) {
+      // `- [a,` with the rest of the flow collection on following lines.
+      let buffer = rest;
+      i++;
+      while (i < lines.length && isUnclosedFlow(buffer)) {
+        buffer += ' ' + lines[i].code.trim();
+        i++;
+      }
+      out.push(parseFlow(buffer));
+      continue;
+    }
     if (KEY_RE.test(rest) && !/^[[{]/.test(rest)) {
       const synthetic = lines.slice();
-      synthetic[i] = { indent: itemIndent, code: ' '.repeat(itemIndent) + rest };
+      synthetic[i] = { ...line, indent: itemIndent, code: ' '.repeat(itemIndent) + rest };
       const [value, next] = parseMapping(synthetic, i, itemIndent);
       out.push(value);
       i = next;
@@ -220,6 +258,18 @@ function parseMapping(lines, start, indent) {
     i++;
 
     if (inline === '') {
+      // A "compact" sequence sits at the key's own indent (`args:` then
+      // `- --foo` directly beneath it), the style kubectl and many charts and
+      // workflows use. parseBlock(indent + 1) would see a shallower line,
+      // return null and end the mapping, silently dropping every key after it.
+      let j = i;
+      while (j < lines.length && lines[j].code.trim() === '') j++;
+      if (j < lines.length && lines[j].indent === indent && /^-(\s|$)/.test(lines[j].code.trim())) {
+        const [value, next] = parseSequence(lines, j, indent);
+        out[key] = value;
+        i = next;
+        continue;
+      }
       const [value, next] = parseBlock(lines, i, indent + 1);
       out[key] = value;
       i = next;

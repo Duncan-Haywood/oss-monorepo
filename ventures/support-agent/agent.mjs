@@ -133,7 +133,15 @@ export function buildAgent(articles, { threshold, suggestBar = DEFAULT_SUGGEST_B
   return { articles, byId, passages, passageById, index, threshold, suggestBar, syn, calibration, examples: ex, exIndex };
 }
 // Email addresses, links and long numbers (phone, order, card) say nothing about the topic; they are left out of the search.
-const queryOf = (agent, q) => normalise(String(q ?? "").replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+|https?:\/\/\S+|\+?\d[\d ().-]{5,}\d/g, " "), agent.syn, { dropCommon: true });
+const queryOfUncached = (agent, q) => normalise(String(q ?? "").replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+|https?:\/\/\S+|\+?\d[\d ().-]{5,}\d/g, " "), agent.syn, { dropCommon: true });
+// One decision asks for the same question's normalised text about ten times (votes, ranking, coverage of each
+// candidate, features); a small per-agent cache, cleared at a cap, keeps that to one.
+const QUERY_CAP = 2000;
+const queryOf = (agent, q) => {
+  const cache = (agent._query ||= new Map()); let v = cache.get(q);
+  if (v === undefined) { if (cache.size >= QUERY_CAP) cache.clear(); v = queryOfUncached(agent, q); cache.set(q, v); }
+  return v;
+};
 
 // --- Handoff rules -------------------------------------------------------------------------------------------------
 // Checked before any search. Each is a case a knowledge base should not settle on its own: the customer asked for a

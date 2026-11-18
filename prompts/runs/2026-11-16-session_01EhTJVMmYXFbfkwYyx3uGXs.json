@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVMmYXFbfkwYyx3uGXs",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T09:12:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 11) chant-forge: /i/ read as a voiced fricative by the coda reader (83 of part K's 119 other and control misses)",
+  "projects": [
+    "ventures/chant-forge"
+  ],
+  "pr": 16518,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first patch of vnoisy matched readOnset's identical line instead of readCoda's",
+      "fix": "moved it to readCoda before any scored run; readOnset unchanged in the final diff"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-why-a-synthetic-choir-sang-i-like-a-z.md",
+    "ventures/chant-forge/README.md"
+  ],
+  "goal": "A coda reader that does not hear /i/ as z, checked on a new pre-registered held-out part",
+  "notes": "Cause: five detuned voices beat; /i/ keeps its energy in its lowest harmonics, so its low band sinks 8-18 dB and the high-band share passes the voiced-fricative (0.12) and fricative (0.5) bars. Change: readCoda frication needs >= 12 dB more energy above 5 kHz than the vowel (VFRIC_HI5), chosen on synthetic syllables at K's pitches (z/v frames +66..+110 dB, misreading /i/ frames -13..+3). Pre-registered in eval/coda-check.mjs header, committed (d31fd4294) before part L ran. Part L: /i/ 110->153/160, vowel-only /i/ 128->160/160, z/v 39->39/40, others 113->113/120; every other part rose (A 168->173/180, K others 166->198/220); K's other syllables read as nasal 6->7 (unregistered line, worse). Verification: node eval/coda-check.mjs (full, ~4 min) before and after; python3 platform/ci/run_venture_tests.py chant-forge: ok, 262 tests; post front matter, links and similarity checks clean; validate.py ok. vowel-check and consonant-check not rerun: readOnset code is unchanged and frameFeatures only gains a field.",
+  "corrections": [],
+  "redteam": null
+}

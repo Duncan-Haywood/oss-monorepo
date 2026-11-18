@@ -2,7 +2,9 @@
 
 > Paste a public tender and get a fast bid-readiness checklist for deadlines, bonds, insurance, certifications, questions, and submission instructions. Runs privately in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free and open source (MIT). Results are keyword matches in the text pasted in, not legal, tax, financial or professional advice.
+
+A signal the text appears to waive ("A bid bond is not required") is shown as "Stated as not required". The waiver is read in the clause holding the keyword, and a clause that both requires and waives counts as found.
 
 ## Pages
 

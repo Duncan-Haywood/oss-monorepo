@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23166534'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EN%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>nginx Misconfigurations Explained — Alias Slash, $uri, add_header Inheritance, proxy_pass SSRF</title>
+  <meta name="description" content="Field guide to the nginx settings that nginx -t accepts and attackers like: the alias off-by-slash traversal, $uri CRLF injection, add_header inheritance, proxy_pass SSRF, CORS reflecting $http_origin, allow/deny order, old TLS. What each exposes and the fix.">
+  <meta property="og:title" content="nginx misconfigurations explained: what each one exposes and the fix">
+  <meta property="og:description" content="The nginx behaviour behind every finding the nginx Config Security Check reports, with a worked example.">
+  <link rel="canonical" href="./nginx-misconfigurations-explained.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"nginx misconfigurations explained: what each one exposes and the fix","about":"nginx configuration security","author":{"@type":"Organization","name":"oss-monorepo contributors"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 860px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4.2vw, 2.4rem); line-height: 1.1; color: #17324a; }
+    h2 { font-size: 1.2rem; margin-top: 30px; color: #17324a; }
+    p, li { line-height: 1.6; }
+    code { overflow-wrap: anywhere; }
+    pre { background: #fff; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .86rem; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+<header>
+  <p class="note"><a href="./">nginx Config Security Check</a> · guide</p>
+  <h1>nginx misconfigurations explained: what each one exposes and the fix</h1>
+  <p>Every setting on this page passes <code>nginx -t</code>. nginx is doing exactly what the file says; the file says something its author did not mean. This guide gives the nginx behaviour behind each finding the <a href="./">checker</a> reports, so you can judge whether it applies to you. Behaviour is quoted or paraphrased from the <a href="https://nginx.org/en/docs/" rel="noopener">nginx module documentation</a>; several of the patterns were first catalogued by Yandex's <a href="https://github.com/yandex/gixy" rel="noopener">Gixy</a>.</p>
+</header>
+<main>
+
+<h2>A worked example</h2>
+<p>A shop serves its assets from a folder and wants them cached for a day. The server block sets two security headers:</p>
+<pre><code>server {
+    listen 443 ssl;
+    server_name shop.example.com;
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Content-Type-Options nosniff;
+
+    location /assets {
+        alias /srv/shop/assets/;
+        add_header Cache-Control "public, max-age=86400";
+    }
+}</code></pre>
+<p>What <code>node check.mjs shop.conf</code> prints:</p>
+<pre><code>shop.conf:8: [high] alias-path-traversal
+  location /assets has no trailing slash but alias /srv/shop/assets/ has one, so a request for /assets../ maps to the directory above the alias (the "off-by-slash" traversal): /assets../secret reads /srv/shop/assets/../secret.
+  fix: Make the two match: location /assets/ with alias /srv/shop/assets/, or drop the slash from both.
+shop.conf:9: [medium] add-header-drops-inherited
+  This location block sets its own add_header, so nginx stops sending the add_header lines from the enclosing level here: Strict-Transport-Security (shop.conf:4), X-Content-Type-Options (shop.conf:5). Responses from this block go out without them.
+  fix: On nginx 1.29.3 or later, add add_header_inherit merge; to this block or the http block. On older versions, repeat the dropped add_header lines in this block (an include file of shared headers keeps them in one place).
+2 findings: 1 high, 1 medium. (1 file read)</code></pre>
+<p>Two lines, two holes: anything in <code>/srv/shop/</code> beside the assets folder is downloadable, and every asset response goes out without HSTS or <code>nosniff</code>. Neither shows up in testing, because the site works.</p>
+
+<h2>alias-path-traversal: the off-by-slash</h2>
+<p>A prefix location matches any URI that starts with its string, and <code>alias</code> replaces that matched part with the alias path. With <code>location /assets</code> and <code>alias /srv/shop/assets/</code>, the URI <code>/assets../config.php</code> matches (it starts with <code>/assets</code>) and becomes <code>/srv/shop/assets/../config.php</code>, one level up. nginx does not collapse <code>assets..</code>, because that path segment is not <code>..</code> on its own. The fix is to make the slashes agree: <code>location /assets/</code> with <code>alias /srv/shop/assets/</code>. When the location path ends the same way as the alias path, <code>root</code> is simpler: <code>location /assets/ { root /srv/shop; }</code>.</p>
+
+<h2>crlf-injection-uri: $uri where $request_uri belonged</h2>
+<p>The core module documents <code>$uri</code> as the current URI "in request, normalized", and normalising decodes percent-escapes. So <code>%0d%0a</code> in the path becomes a real carriage return and line feed inside <code>$uri</code>. Put it in <code>return 301 https://$host$uri;</code> and a crafted link makes nginx send a <code>Location</code> header followed by headers the attacker wrote (a cookie, a second redirect, a cache directive). The same goes for <code>add_header</code>, a redirecting <code>rewrite</code>, <code>proxy_set_header</code> and the path part of <code>proxy_pass</code> (where it splits the request to your upstream). <code>$request_uri</code> is the full original request URI with its encoding intact, so the redirect is <code>return 301 https://$host$request_uri;</code>.</p>
+
+<h2>add-header-drops-inherited: one header switches off the rest</h2>
+<p>From <code>ngx_http_headers_module</code>: add_header directives "are inherited from the previous configuration level if and only if there are no add_header directives defined on the current level." A <code>location</code>, or an <code>if</code> inside one, that adds a single <code>Cache-Control</code> header loses every <code>add_header</code> from <code>server</code> and <code>http</code>. The checker lists which headers are dropped. nginx 1.29.3 added <code>add_header_inherit</code>: <code>merge</code> appends the inherited headers to this level's, and <code>off</code> drops them deliberately; the checker honours both. On older versions, keep shared headers in one include file and include it in every block that sets its own.</p>
+
+<h2>ssrf-upstream-from-request and ssrf-upstream-from-host</h2>
+<p>When <code>proxy_pass</code> contains variables, nginx builds the upstream address from them on every request (resolving names with the configured <code>resolver</code>). <code>proxy_pass http://$arg_target;</code> lets anyone pick the address: an internal admin panel, a database's HTTP port, a cloud metadata endpoint. <code>$http_*</code> headers and <code>$cookie_*</code> are just as client-controlled. <code>$host</code> is safer only if the server answers a fixed <code>server_name</code>, because nginx fills it from the request line or the <code>Host</code> header first. Proxy to a named <code>upstream</code> or a fixed host; if the target must vary, <code>map</code> the request value to an allow-list.</p>
+
+<h2>cors-reflects-any-origin and origin-regex-unanchored</h2>
+<p><code>add_header Access-Control-Allow-Origin $http_origin;</code> echoes whatever origin asked, which is the same as allowing every site. With <code>Access-Control-Allow-Credentials true</code> it is worse than <code>*</code> (which browsers refuse to combine with credentials): any page a logged-in user visits can read your API's responses as that user. Guards built from a regex often leak too. <code>if ($http_origin ~* "example.com")</code> also matches <code>https://example.com.attacker.net</code> (no <code>$</code>), <code>https://attacker.net/?example.com</code> (no <code>^</code>) and <code>https://exampleXcom.net</code> (unescaped dot). Anchor and escape it: <code>~ ^https://(www\.)?example\.com$</code>, ideally in a <code>map</code> whose result is the header value.</p>
+
+<h2>deny-after-allow-all</h2>
+<p><code>ngx_http_access_module</code> checks rules "in sequence until the first match is found". After <code>allow all;</code> nothing further is reached, so a later <code>deny 203.0.113.7;</code> never blocks anything. List the denies first, or flip the block to specific allows followed by <code>deny all;</code>.</p>
+
+<h2>autoindex-on and status-page-public</h2>
+<p><code>autoindex on</code> lists a directory's files when there is no index file, including backups, dumps and anything copied there by mistake. <code>stub_status</code> publishes active connections and request counts; harmless alone, but it should sit behind <code>allow</code>/<code>deny</code> or authentication like any other operational endpoint. The checker treats a server that listens only on <code>127.0.0.1</code>, <code>[::1]</code> or a Unix socket as private.</p>
+
+<h2>open-redirect</h2>
+<p><code>return 302 $arg_next;</code> sends visitors wherever the link says, on your domain's reputation: a classic phishing helper. Redirect to a fixed host, and pass the path as a parameter if you must.</p>
+
+<h2>ssl-protocol-broken, ssl-protocol-deprecated, ssl-cipher-weak</h2>
+<p>SSLv2 is prohibited by RFC 6176 and SSLv3 by RFC 7568; RFC 8996 deprecates TLS 1.0 and 1.1. nginx's default <code>ssl_protocols</code> has been <code>TLSv1.2 TLSv1.3</code> since 1.23.4, so the simplest fix is often to delete the line. RC4, DES and 3DES, export-grade, NULL and anonymous cipher suites are flagged unless they are excluded with <code>!</code>; a published profile such as Mozilla's "intermediate" is a sound starting point.</p>
+
+<h2>The low-severity ones</h2>
+<ul>
+  <li><strong>server-tokens-on</strong>: <code>server_tokens on</code> (the default) puts the version in the <code>Server</code> header and error pages. Hiding it does not fix a vulnerable version, but it stops advertising which one you run.</li>
+  <li><strong>host-header-spoofing</strong>: <code>proxy_set_header Host $http_host</code> forwards the client's header exactly, even when it names another site or is empty; <code>$host</code> falls back to the matched server name.</li>
+  <li><strong>upstream-tls-unverified</strong>: <code>proxy_ssl_verify</code> defaults to <code>off</code>, so <code>proxy_pass https://...</code> to another machine is encrypted but unauthenticated until you turn it on with a trusted CA file.</li>
+  <li><strong>valid-referers-none</strong>: <code>none</code> accepts requests with no <code>Referer</code>, which is what any script sends by leaving it out. Referer checks are hotlink deterrents, not access control.</li>
+  <li><strong>unbounded-request-body</strong>: <code>client_max_body_size 0</code> disables the body size check (the default is 1m).</li>
+</ul>
+
+<h2>What the checker cannot see</h2>
+<p>It reads files, so it does not know your nginx version, the values a <code>map</code>, <code>geo</code> or <code>set</code> produces, the application behind <code>proxy_pass</code>, or files you did not paste (an <code>include</code> that matches nothing is reported as a note). A clean scan means these patterns were not found, not that the server is secure. Run <code>nginx -t</code> as well, and check the headers your live server sends with the <a href="../security-headers-check/">Security Headers Check</a>.</p>
+<p><a href="./">Back to the nginx Config Security Check</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. They are not a security audit and do not replace a qualified security professional. <strong>You are responsible for reviewing and verifying anything here before relying on it.</strong></p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This page may move or go offline without notice. Not affiliated with nginx, F5, Yandex or the Gixy project.</p>
+  <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

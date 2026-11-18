@@ -1,0 +1,110 @@
+# Milestone 142: milestone 141's unrun designs at 65% placement utilisation, resumed (flow run, descriptive addition)
+
+theta = 3; milestone 141's seed-141 order over 52 designs
+
+milestone 141's analysed designs: 20; new complete designs (ORDER prefix past them): 26 of 32
+
+## New designs
+
+design | clock | routed/r2 40% | routed/r2 65% | tau-b routed 40 vs 65 | same best | random 40 | SWC 40 | random 65 | SWC 65 | d40 | d65
+rng12l | relaxed | 12.71 | 11.70 | 0.809 | True | 12.21 | 0.00 | 12.10 | 0.00 | -12.21 | -12.10
+rng12r | relaxed | 5.79 | 7.75 | 0.874 | False | 6.89 | 0.00 | 9.30 | 0.00 | -6.89 | -9.30
+clamp3r | relaxed | 4.28 | 6.13 | 0.820 | True | 7.53 | 0.00 | 7.36 | 0.00 | -7.53 | -7.36
+clamp6l | relaxed | 10.78 | 10.52 | 0.846 | True | 9.12 | 0.00 | 7.11 | 0.00 | -9.12 | -7.11
+amin12 | tight | 3.88 | 4.42 | 0.899 | True | 3.25 | 0.00 | 6.53 | 0.00 | -3.25 | -6.53
+clamp4r | tight | 4.90 | 6.49 | 0.852 | False | 2.94 | 0.00 | 6.46 | 0.00 | -2.94 | -6.46
+isq12 | relaxed | 3.90 | 5.36 | 0.805 | True | 7.16 | 4.42 | 13.07 | 6.83 | -2.74 | -6.24
+dot8l | tight | 7.27 | 10.16 | 0.378 | False | 4.34 | 0.00 | 6.02 | 0.00 | -4.34 | -6.02
+div8r | tight | 3.53 | 5.10 | 0.622 | False | 5.73 | 0.00 | 5.63 | 0.43 | -5.73 | -5.20
+gtc16l | tight | 6.10 | 9.02 | 0.766 | False | 6.56 | 5.00 | 4.75 | 0.00 | -1.56 | -4.75
+dot6l | relaxed | 8.24 | 10.06 | 0.532 | True | 3.84 | 0.00 | 4.46 | 0.00 | -3.84 | -4.46
+div10r | relaxed | 3.38 | 5.06 | 0.674 | True | 2.10 | 0.00 | 4.20 | 0.00 | -2.10 | -4.20
+dot12r | relaxed | 4.37 | 5.35 | 0.583 | False | 1.68 | 0.00 | 3.96 | 0.00 | -1.68 | -3.96
+rng4r | tight | 4.76 | 6.92 | 0.829 | True | 3.58 | 0.00 | 3.52 | 0.00 | -3.58 | -3.52
+div14r | relaxed | 3.62 | 4.98 | 0.700 | True | 5.51 | 3.80 | 5.70 | 2.25 | -1.70 | -3.46
+rng4l | tight | 12.35 | 11.79 | 0.753 | False | 11.68 | 0.00 | 3.76 | 0.31 | -11.68 | -3.45
+eqc16 | tight | 4.00 | 4.69 | 0.729 | False | 4.50 | 0.00 | 3.61 | 0.41 | -4.50 | -3.20
+div14l | relaxed | 7.88 | 7.76 | 0.745 | False | 3.78 | 0.00 | 3.55 | 0.63 | -3.78 | -2.92
+eqc24 | relaxed | 5.39 | 6.93 | 0.776 | False | 2.63 | 0.00 | 3.50 | 1.83 | -2.63 | -1.66
+isq10 | tight | 3.49 | 4.25 | 0.751 | True | 9.13 | 16.21 | 4.07 | 2.47 | +7.08 | -1.60
+gtc16r | tight | 3.79 | 4.79 | 0.794 | False | 5.91 | 7.48 | 4.04 | 2.57 | +1.56 | -1.47
+gtc8r | tight | 3.33 | 3.69 | 0.709 | False | 3.48 | 9.64 | 1.48 | 0.66 | +6.16 | -0.82
+isq14 | tight | 3.65 | 5.16 | 0.632 | True | 5.80 | 9.69 | 8.07 | 9.26 | +3.89 | +1.19
+dot12l | relaxed | 8.62 | 10.49 | 0.531 | False | 10.21 | 6.82 | 10.28 | 12.44 | -3.39 | +2.16
+dot8r | tight | 4.44 | 4.67 | 0.710 | True | 2.53 | 5.43 | 1.60 | 8.46 | +2.90 | +6.86
+div12r | tight | 3.35 | 4.89 | 0.663 | False | 2.11 | 7.47 | 5.35 | 14.18 | +5.36 | +8.82
+
+new, 65%: mean regret SWC 2.41%, random 5.75%; SWC better on 22, worse on 4, tied on 0; two-sided sign p = 0.0005; design-bootstrap 95% interval of mean d65 -5.01 to -1.49
+new, 40%: mean regret SWC 2.92%, random 5.55%; SWC better on 20, worse on 6, tied on 0; two-sided sign p = 0.0094
+all 46, 65%: mean regret SWC 2.46%, random 6.35%; SWC better on 38, worse on 8, tied on 0; two-sided sign p = 0.0000; design-bootstrap 95% interval of mean d65 -5.22 to -2.53
+all 46, 40%: mean regret SWC 2.77%, random 6.05%; SWC better on 37, worse on 9, tied on 0; two-sided sign p = 0.0000
+SWC fails (loses by > 1 point), all: 7 designs at 40%, 7 at 65%
+median routed/r2, new: 4.41 at 40%, 5.74 at 65%; new on the ladder branch at 65%: 26 of 26
+median tau-b of routed score 40% vs 65%, all: 0.744 (range 0.084 to 0.899); same routed-best sequence on 24 of 46
+change d65 - d40, all: mean -0.61 points, design-bootstrap 95% interval -1.60 to +0.37
+sign of d agrees on 39 of 46 designs untied at both points
+
+## Families, all analysed designs
+
+family | designs | mean d40 | mean d65 | SWC worse at 65%
+isq | 3 | +2.74 | -2.22 | 1
+amin | 1 | -3.25 | -6.53 | 0
+csum | 3 | -2.65 | -3.25 | 1
+eqc | 2 | -3.56 | -2.43 | 0
+div | 8 | -1.07 | +0.24 | 4
+clamp | 8 | -6.00 | -6.62 | 0
+rng | 7 | -8.79 | -7.86 | 0
+dot | 8 | -2.05 | -1.83 | 2
+gtc | 6 | -1.07 | -5.07 | 0
+
+## Ratio bands at 65%, all analysed designs
+
+band | cells | SWC % | random % | SWC better | SWC worse
+(3, 4] | 1 | 0.66 | 1.48 | 1 | 0
+(4, 6] | 17 | 2.76 | 5.51 | 14 | 3
+> 6 | 28 | 2.35 | 7.03 | 23 | 5
+
+## Failed points, new designs
+
+design | usable points | ABC failures | pin-placement failures
+rng12r | 103 | 17 | 0
+clamp6l | 103 | 17 | 0
+gtc8r | 103 | 17 | 0
+isq14 | 103 | 17 | 0
+div14r | 103 | 17 | 0
+clamp4r | 103 | 17 | 0
+div14l | 103 | 17 | 0
+dot8l | 103 | 17 | 0
+eqc16 | 103 | 17 | 0
+dot12r | 103 | 17 | 0
+clamp3r | 103 | 17 | 0
+rng4l | 103 | 17 | 0
+rng4r | 103 | 17 | 0
+dot12l | 103 | 17 | 0
+eqc24 | 103 | 17 | 0
+isq10 | 103 | 17 | 0
+div10r | 102 | 18 | 0
+dot6l | 103 | 17 | 0
+div8r | 103 | 17 | 0
+isq12 | 103 | 17 | 0
+gtc16l | 38 | 17 | 65
+div12r | 103 | 17 | 0
+amin12 | 103 | 17 | 0
+dot8r | 103 | 17 | 0
+rng12l | 103 | 17 | 0
+gtc16r | 103 | 17 | 0
+
+designs with any pin-placement failure: gtc16l, gtc8l
+without designs with fewer than 90 usable points at 65% (gtc16l, gtc8l): 44 designs; SWC better on 36, worse on 8, tied on 0; two-sided sign p = 0.000025; d65 - d40 interval -1.38 to +0.52
+designs where SWC loses at 65% (all): csum8, div10l, div12l, div12r, div8l, dot12l, dot8r, isq14
+
+## Predictions
+
+(1) median routed/r2 of the new designs higher at 65%: True (5.74 against 4.41)
+(2) every new 65% cell on the ladder branch: True (26 of 26; lowest 3.69)
+(3) PRIMARY: new designs, SWC better on more at 65% and sign p < 0.05: True (22 better, 4 worse, p = 0.000534)
+(4) new designs, SWC mean regret below random at 65%: True
+(5) all, interval of d65 - d40 contains zero: True (-1.60 to +0.37)
+(6) all, sign agrees on at least two thirds of untied designs: True (39 of 46)
+(7) all, division has the highest family mean d65: True (highest: div, +0.24)
+(8) pin-placement failures only on 256-bit designs: True (2 designs)

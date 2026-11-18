@@ -1,0 +1,377 @@
+[
+ {
+  "a5_binds_frames": 0,
+  "agree_a": 1,
+  "agree_b": 1,
+  "d": 1,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 0,
+  "e12_models_all_four": 1,
+  "e12_re_fails_with_A5": 0,
+  "examples_re_fail": [],
+  "frames_checked": 1,
+  "frames_counts_differ_from_e12": 0,
+  "full_frames": 1,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 1,
+  "models_all_four": 1,
+  "re_fails_with_A5": 0,
+  "seconds": 0.0,
+  "w": 1
+ },
+ {
+  "a5_binds_frames": 0,
+  "agree_a": 6,
+  "agree_b": 6,
+  "d": 2,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 0,
+  "e12_models_all_four": 7,
+  "e12_re_fails_with_A5": 0,
+  "examples_re_fail": [],
+  "frames_checked": 6,
+  "frames_counts_differ_from_e12": 2,
+  "full_frames": 3,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 5,
+  "models_all_four": 5,
+  "re_fails_with_A5": 0,
+  "seconds": 0.0,
+  "w": 1
+ },
+ {
+  "a5_binds_frames": 0,
+  "agree_a": 2,
+  "agree_b": 2,
+  "d": 1,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 0,
+  "e12_models_all_four": 2,
+  "e12_re_fails_with_A5": 0,
+  "examples_re_fail": [],
+  "frames_checked": 2,
+  "frames_counts_differ_from_e12": 0,
+  "full_frames": 1,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 2,
+  "models_all_four": 2,
+  "re_fails_with_A5": 0,
+  "seconds": 0.0,
+  "w": 2
+ },
+ {
+  "a5_binds_frames": 6,
+  "agree_a": 35,
+  "agree_b": 35,
+  "d": 3,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 0,
+  "e12_models_all_four": 49,
+  "e12_re_fails_with_A5": 0,
+  "examples_re_fail": [],
+  "frames_checked": 35,
+  "frames_counts_differ_from_e12": 18,
+  "full_frames": 7,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 31,
+  "models_all_four": 25,
+  "re_fails_with_A5": 0,
+  "seconds": 0.0,
+  "w": 1
+ },
+ {
+  "a5_binds_frames": 0,
+  "agree_a": 5,
+  "agree_b": 5,
+  "d": 1,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 0,
+  "e12_models_all_four": 5,
+  "e12_re_fails_with_A5": 0,
+  "examples_re_fail": [],
+  "frames_checked": 5,
+  "frames_counts_differ_from_e12": 0,
+  "full_frames": 1,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 5,
+  "models_all_four": 5,
+  "re_fails_with_A5": 0,
+  "seconds": 0.0,
+  "w": 3
+ },
+ {
+  "a5_binds_frames": 72,
+  "agree_a": 225,
+  "agree_b": 225,
+  "d": 4,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 0,
+  "e12_models_all_four": 375,
+  "e12_re_fails_with_A5": 0,
+  "examples_re_fail": [],
+  "frames_checked": 225,
+  "frames_counts_differ_from_e12": 146,
+  "full_frames": 15,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 217,
+  "models_all_four": 133,
+  "re_fails_with_A5": 0,
+  "seconds": 0.1,
+  "w": 1
+ },
+ {
+  "a5_binds_frames": 24,
+  "agree_a": 135,
+  "agree_b": 135,
+  "d": 2,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 32,
+  "e12_models_all_four": 57,
+  "e12_re_fails_with_A5": 4,
+  "examples_re_fail": [
+   {
+    "Ex": 9,
+    "blocks": [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    "gstar": [
+     0,
+     1
+    ]
+   },
+   {
+    "Ex": 9,
+    "blocks": [
+     [
+      0,
+      1,
+      3
+     ],
+     [
+      2
+     ]
+    ],
+    "gstar": [
+     0,
+     1
+    ]
+   }
+  ],
+  "frames_checked": 135,
+  "frames_counts_differ_from_e12": 28,
+  "full_frames": 9,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 85,
+  "models_all_four": 53,
+  "re_fails_with_A5": 10,
+  "seconds": 0.1,
+  "w": 2
+ },
+ {
+  "a5_binds_frames": 0,
+  "agree_a": 15,
+  "agree_b": 15,
+  "d": 1,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 0,
+  "e12_models_all_four": 15,
+  "e12_re_fails_with_A5": 0,
+  "examples_re_fail": [],
+  "frames_checked": 15,
+  "frames_counts_differ_from_e12": 0,
+  "full_frames": 1,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 15,
+  "models_all_four": 15,
+  "re_fails_with_A5": 0,
+  "seconds": 0.0,
+  "w": 4
+ },
+ {
+  "a5_binds_frames": 710,
+  "agree_a": 1612,
+  "agree_b": 1612,
+  "d": 5,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 0,
+  "e12_models_all_four": 3141,
+  "e12_re_fails_with_A5": 0,
+  "examples_re_fail": [],
+  "frames_checked": 1612,
+  "frames_counts_differ_from_e12": 1210,
+  "full_frames": 31,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 1691,
+  "models_all_four": 761,
+  "re_fails_with_A5": 0,
+  "seconds": 7.6,
+  "w": 1
+ },
+ {
+  "a5_binds_frames": 0,
+  "agree_a": 52,
+  "agree_b": 52,
+  "d": 1,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 0,
+  "e12_models_all_four": 52,
+  "e12_re_fails_with_A5": 0,
+  "examples_re_fail": [],
+  "frames_checked": 52,
+  "frames_counts_differ_from_e12": 0,
+  "full_frames": 1,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 52,
+  "models_all_four": 52,
+  "re_fails_with_A5": 0,
+  "seconds": 0.3,
+  "w": 5
+ },
+ {
+  "a5_binds_frames": 576,
+  "agree_a": 5454,
+  "agree_b": 5454,
+  "d": 2,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 864,
+  "e12_models_all_four": 999,
+  "e12_re_fails_with_A5": 240,
+  "examples_re_fail": [
+   {
+    "Ex": 37,
+    "blocks": [
+     [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ]
+    ],
+    "gstar": [
+     0,
+     1
+    ]
+   },
+   {
+    "Ex": 37,
+    "blocks": [
+     [
+      0,
+      1,
+      2,
+      3,
+      5
+     ],
+     [
+      4
+     ]
+    ],
+    "gstar": [
+     0,
+     1
+    ]
+   }
+  ],
+  "frames_checked": 5454,
+  "frames_counts_differ_from_e12": 692,
+  "full_frames": 0,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 1663,
+  "models_all_four": 799,
+  "re_fails_with_A5": 240,
+  "seconds": 83.3,
+  "w": 3
+ },
+ {
+  "a5_binds_frames": 2214,
+  "agree_a": 9898,
+  "agree_b": 9898,
+  "d": 3,
+  "dicto_fails_with_A5": 0,
+  "dicto_fails_without_A5": 2208,
+  "e12_models_all_four": 2003,
+  "e12_re_fails_with_A5": 138,
+  "examples_re_fail": [
+   {
+    "Ex": 17,
+    "blocks": [
+     [
+      0,
+      1,
+      3,
+      4
+     ],
+     [
+      2,
+      5
+     ]
+    ],
+    "gstar": [
+     0,
+     1
+    ]
+   },
+   {
+    "Ex": 17,
+    "blocks": [
+     [
+      0,
+      1,
+      3,
+      4
+     ],
+     [
+      2
+     ],
+     [
+      5
+     ]
+    ],
+    "gstar": [
+     0,
+     1
+    ]
+   }
+  ],
+  "frames_checked": 9898,
+  "frames_counts_differ_from_e12": 1296,
+  "full_frames": 0,
+  "full_ok": true,
+  "full_re_fails": 0,
+  "mismatches": [],
+  "models_A1_A2w_A3": 4271,
+  "models_all_four": 1787,
+  "re_fails_with_A5": 330,
+  "seconds": 145.5,
+  "w": 2
+ }
+]

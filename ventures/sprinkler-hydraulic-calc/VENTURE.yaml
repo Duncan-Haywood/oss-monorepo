@@ -1,0 +1,33 @@
+name: sprinkler-hydraulic-calc
+description: Free browser tool and CLI for fire sprinkler hydraulic calculations on tree, looped and gridded systems. K-factor heads, Hazen-Williams friction, elevation, density and minimum pressure, hose allowance and a flow-test supply curve; every pipe solved at once by the global gradient algorithm, checked against EPANET 2.2.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Sprinkler fitters, estimators and junior designers checking a layout before a bid, or a grid without their office's licensed package, would use a free calculator that shows every pipe and the supply margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searches such as "sprinkler hydraulic calculation", "gridded sprinkler system calculation" and "N^1.85 graph" are a reachable free channel once the pages are in the catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Every calculation runs in the visitor's browser; one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - A licensed designer's calculation of a real system, with the same layout, fittings and supply, differs from this tool's demand by more than rounding, in a way not explained by a modelling choice the README lists.
+  - Fewer than ten calculations a month in the usage counts within 120 days of the page being discoverable.
+
+links:
+  production: https://marisstella.app/sprinkler-hydraulic-calc/
+  analytics: null

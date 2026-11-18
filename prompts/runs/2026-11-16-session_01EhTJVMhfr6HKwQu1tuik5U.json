@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVMhfr6HKwQu1tuik5U",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T20:04:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check (flagship 12): IDS audit pass, the top BUILDABLE HERE item",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": 16684,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-an-ids-file-can-be-wrong-before-the-model-is-read.md"
+  ],
+  "goal": "Report invalid IDS specifications as INVALID instead of failing every element",
+  "notes": "New audit.mjs checks each IDS specification against the IFC schemas its ifcVersion names (class names and case, entity requirement vs applicability contradiction, explicit/derived/inverse attributes, values vs lists/objects/selects, number/integer/boolean literal formats, patterns on numbers, dataType names, partOf relations, prohibited specs with requirements; warnings for custom predefined types, impossible enum values, value without dataType). checkIds marks invalid specs status=invalid and skips them; CLI --audit/--no-audit; page 'Audit the IDS only' button; BCF/text report handle invalid. Verification: eval/run-testcases.mjs (buildingSMART suite 870f9c4) old score 334/334 unchanged; new strict score 333/334 (26/27 invalid-* flagged INVALID, 0/307 valid flagged); the miss (partof BUNNARY) is undecidable from the IDS alone. All 12 IDS in buildingSMART Documentation/Examples: 0 errors 0 warnings. node --test *.test.mjs: 39/39 pass. Page driven in Chromium via Playwright: audit-only, invalid check and sample check all render, no console errors.",
+  "corrections": [],
+  "redteam": null
+}

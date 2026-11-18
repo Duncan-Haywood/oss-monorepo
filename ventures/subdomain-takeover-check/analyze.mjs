@@ -38,7 +38,38 @@
 // current mitigations, and `vulnerable` is surfaced in the finding only as
 // context for a human reader to weigh.
 
-import { matchProvider } from './fingerprints.mjs';
+import { providerForChain, matchProvider } from './fingerprints.mjs';
+
+const LABEL_RE = /^[a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9_])?$/;
+
+/**
+ * The hostname inside what a person typed or pasted: "https://Blog.Example.com/path"
+ * and "blog.example.com." both give "blog.example.com", and an internationalised
+ * name comes back in its punycode (xn--) form, which is what DNS holds. Shared by
+ * check.mjs and index.html. Without it a pasted URL went to the resolver as-is,
+ * got NXDOMAIN, and read as "no CNAME", a clean result (red team 2026-11-12).
+ *
+ * @returns {{hostname: string|null, error: string|null}} `error` is set, and
+ *   `hostname` null, when the input is not a hostname at all; a caller reports
+ *   that as a lookup error, never as a clean result.
+ */
+export function parseHostname(input) {
+  const raw = String(input ?? '').trim();
+  if (!raw) return { hostname: null, error: 'empty input' };
+  let host;
+  try {
+    const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`);
+    host = url.hostname;
+  } catch {
+    return { hostname: null, error: `not a hostname: ${JSON.stringify(raw)}` };
+  }
+  host = host.replace(/\.$/, '').toLowerCase();
+  const labels = host.split('.');
+  if (!host || host.length > 253 || !labels.every((l) => LABEL_RE.test(l))) {
+    return { hostname: null, error: `not a hostname: ${JSON.stringify(raw)}` };
+  }
+  return { hostname: host, error: null };
+}
 
 /**
  * @param {string} hostname - the hostname checked, for display only
@@ -70,7 +101,7 @@ export function classify(hostname, cname, probe) {
     };
   }
 
-  const provider = matchProvider(cname.finalTarget);
+  const provider = providerForChain(cname.chain);
   if (!provider) {
     return {
       hostname,
@@ -104,6 +135,23 @@ export function classify(hostname, cname, probe) {
   };
 }
 
+/* The chain hop that matched the provider. Since matching looks at every
+ * hop (fingerprints.mjs, providerForChain), the last name can be an
+ * internal one after it, such as S3's s3-w.us-east-1.amazonaws.com behind
+ * <bucket>.s3.amazonaws.com: the matched hop is the name to reclaim. */
+function matchedHop(result) {
+  const hops = result.chain.slice(1);
+  return hops.find((h) => matchProvider(h)?.id === result.provider.id) ?? hops[hops.length - 1];
+}
+
+function chainText(result, target) {
+  const last = result.chain[result.chain.length - 1];
+  const matches = `which matches ${result.provider.name}'s own hostname pattern`;
+  return last === target
+    ? `The CNAME chain ends at ${target}, ${matches}`
+    : `The CNAME chain reaches ${target}, ${matches} (the chain then ends at ${last})`;
+}
+
 function findingFor(result) {
   if (result.category === 'dangling-confirmed') {
     return {
@@ -111,11 +159,10 @@ function findingFor(result) {
       severity: 'critical',
       hostname: result.hostname,
       provider: result.provider.name,
-      target: result.chain[result.chain.length - 1],
+      target: matchedHop(result),
       title: `${result.hostname} is a confirmed dangling CNAME to ${result.provider.name}`,
       detail:
-        `The CNAME chain ends at ${result.chain[result.chain.length - 1]}, which matches ${result.provider.name}'s ` +
-        `own hostname pattern, and a live GET to https://${result.hostname}/ returned that provider's own ` +
+        `${chainText(result, matchedHop(result))}, and a live GET to ${result.probe?.url ?? `https://${result.hostname}/`} returned that provider's own ` +
         `"nothing is claimed at this name" page. Unless this is intentional (a domain being decommissioned on ` +
         `purpose), remove the DNS record now, or reclaim the name on ${result.provider.name} before anyone else can.`,
       docsUrl: result.provider.docsUrl,
@@ -127,7 +174,7 @@ function findingFor(result) {
       severity: 'warning',
       hostname: result.hostname,
       provider: result.provider.name,
-      target: result.chain[result.chain.length - 1],
+      target: matchedHop(result),
       title: `${result.hostname} points at ${result.provider.name}, a known takeover-prone provider`,
       detail: result.probe && result.probe.ok
         ? `The CNAME target matches ${result.provider.name}, but the live response did not match that provider's ` +
@@ -163,4 +210,23 @@ export function buildReport(hostnames, results) {
     incomplete: errors.length > 0,
     ok: confirmedCount === 0 && unconfirmedCount === 0,
   };
+}
+
+/** The one-line verdict, its tone and the CLI's exit code, shared by the
+ * page and check.mjs so neither can read a failed lookup as a clean result
+ * (README: exit 1 "when at least one is, or a lookup could not be completed
+ * at all"). `report.ok` alone counts findings only. */
+export function verdictFor(report) {
+  const failed = report.errors?.length ?? 0;
+  const unread = failed > 0 ? ` ${failed} hostname(s) could not be looked up.` : '';
+  if (report.confirmedCount > 0) {
+    return { clean: false, exitCode: 1, text: `${report.confirmedCount} confirmed dangling CNAME(s) found.${unread}` };
+  }
+  if (report.unconfirmedCount > 0) {
+    return { clean: false, exitCode: 1, text: `${report.unconfirmedCount} hostname(s) point at a takeover-prone provider, unconfirmed.${unread}` };
+  }
+  if (failed > 0) {
+    return { clean: false, exitCode: 1, text: `${failed} hostname(s) could not be looked up, so this run is not a clean result.` };
+  }
+  return { clean: true, exitCode: 0, text: `No subdomain-takeover risk found (${report.hostnamesChecked} hostname(s) checked).` };
 }

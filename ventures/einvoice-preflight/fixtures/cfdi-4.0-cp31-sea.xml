@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A sea transfer between two ports of c_Estaciones (PM001 to PM050, Clave transporte 02) in a general-cargo vessel with one container.
+     Synthetic and unstamped: SAT's test RFC EKU9003173C9, made-up plates, permits and
+     policies. Expects no finding (cartaporte31.test.mjs); eval/cartaporte-mutations.mjs
+     plants defects in it and eval/cartaporte-xsd-diff.mjs mutates it against xmllint. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:cartaporte31="http://www.sat.gob.mx/CartaPorte31" Version="4.0" Serie="CP" Folio="5" Fecha="2026-11-10T07:00:00" SubTotal="0" Moneda="XXX" Total="0" TipoDeComprobante="T" Exportacion="01" LugarExpedicion="86000" NoCertificado="30001000000500003416" Sello="" Certificado="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" DomicilioFiscalReceptor="86000" RegimenFiscalReceptor="601" UsoCFDI="S01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="50202306" NoIdentificacion="REF-600" Cantidad="1500" ClaveUnidad="XBX" Descripcion="Refrescos en caja" ValorUnitario="0" Importe="0" ObjetoImp="01"/>
+  </cfdi:Conceptos>
+  <cfdi:Complemento>
+    <cartaporte31:CartaPorte Version="3.1" IdCCP="CCC5E6F7-8091-4CA3-8D4E-5F6A7B8C9DAE" TranspInternac="No" TotalDistRec="420">
+      <cartaporte31:Ubicaciones>
+        <cartaporte31:Ubicacion TipoUbicacion="Origen" IDUbicacion="OR000040" RFCRemitenteDestinatario="EKU9003173C9" NumEstacion="PM001" NombreEstacion="Rosarito" TipoEstacion="01" NavegacionTrafico="Cabotaje" FechaHoraSalidaLlegada="2026-11-10T06:00:00"/>
+        <cartaporte31:Ubicacion TipoUbicacion="Destino" IDUbicacion="DE000040" RFCRemitenteDestinatario="EKU9003173C9" NumEstacion="PM050" NombreEstacion="Puerto de destino" TipoEstacion="03" NavegacionTrafico="Cabotaje" FechaHoraSalidaLlegada="2026-11-11T20:00:00" DistanciaRecorrida="420"/>
+      </cartaporte31:Ubicaciones>
+      <cartaporte31:Mercancias PesoBrutoTotal="30200" UnidadPeso="KGM" NumTotalMercancias="1">
+        <cartaporte31:Mercancia BienesTransp="50202306" Descripcion="Refrescos en caja" Cantidad="1500" ClaveUnidad="XBX" PesoEnKg="30200"/>
+        <cartaporte31:TransporteMaritimo PermSCT="TPTM01" NumPermisoSCT="MAR-0001-2026" TipoEmbarcacion="B01" Matricula="MAT1234567" NumeroOMI="IMO1234567" NacionalidadEmbarc="MEX" UnidadesDeArqBruto="5000" TipoCarga="CGC" NombreAgenteNaviero="AGENCIA NAVIERA EJEMPLO" NumAutorizacionNaviero="ANC001/2023">
+          <cartaporte31:Contenedor TipoContenedor="CM001" MatriculaContenedor="ABCU1234560"/>
+        </cartaporte31:TransporteMaritimo>
+      </cartaporte31:Mercancias>
+    </cartaporte31:CartaPorte>
+  </cfdi:Complemento>
+</cfdi:Comprobante>

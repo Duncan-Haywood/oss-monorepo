@@ -40,7 +40,7 @@ test("encoding, BOM and delimiter detection", () => {
   assert.equal(detectDelim("a;b;c\n1;2;3"), ";");
   assert.equal(detectDelim("a\tb\n"), "\t");
   assert.ok(codes(validate(file(ok).replace(/,/g, ";"))).includes("delimiter"));
-  assert.ok(codes(validate("﻿" + file(ok))).includes("bom"));
+  assert.ok(codes(validate("\uFEFF" + file(ok))).includes("bom"));
   assert.ok(codes(validate("i\u0000d\u0000")).includes("utf16"));
   assert.ok(codes(validate(file({ ...ok, title: "CafÃ© tee" }))).includes("mojibake"));
   const u16 = Uint8Array.from([0xff, 0xfe, ...[..."a,b\n"].flatMap((c) => [c.charCodeAt(0), 0])]);

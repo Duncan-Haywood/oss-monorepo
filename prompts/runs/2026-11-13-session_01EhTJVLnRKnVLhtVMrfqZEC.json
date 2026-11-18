@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVLnRKnVLhtVMrfqZEC",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo; develop, deploy, market, sell and support revenue-generating software; merge when done",
+  "input_sha256": "0d1ee8d0dadd23d975920187b39ed4891f48bd9b4c8baa94aa506c36226f0adf",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T23:06:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "explore: build benford-audit, a Benford's-law forensic test suite for ledger/expense/invoice CSVs (browser + CLI)",
+  "projects": [
+    "ventures/benford-audit"
+  ],
+  "pr": 15643,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 21,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "two hand-computed test constants were wrong (log10(100/99) and a Z value)",
+      "fix": "recomputed; engine was right"
+    },
+    {
+      "what": "threshold test plant of 40 rows gave p=0.02, not < 0.01",
+      "fix": "the test was too weak, not the engine; plant raised to 80"
+    },
+    {
+      "what": "local CI: post description 177 > 160 chars, seo_title 73 > 70; for-auditors.html shipped no JSON-LD (secondary prose page rule)",
+      "fix": "shortened; Article JSON-LD added"
+    },
+    {
+      "what": "local CI: no <main> landmark; thresholds split on commas would read '5,000, 10,000' as 5,0,10,0 (check_thousands_split); flagged CSV export had no formula-injection guard",
+      "fix": "main landmarks; parseLimitList in the engine (comma before exactly three digits is grouping) with a test; csvCell guard with a test"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "the new-venture gates (sibling link, launched.mjs --write, opt-out count, category rule, JSON-LD on every secondary page) still have no single preflight; cyclehound's run reported the same"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-benford-test-that-misses-what-the-ledger-hides.md",
+    "ventures/benford-audit/for-auditors.html"
+  ],
+  "goal": null,
+  "notes": "Idea: benford-audit (Nigrini's Benford suite: first/second/first-two/last-two digit tests with Z, MAD bands and chi-square; summation, duplication, round numbers; plus a just-under-approval-limit test under a 1/x density with an exact binomial tail, and a per-group first-digit ranking by excess MAD with Benjamini-Hochberg q). No Benford product existed (only research/benford-repo). On a seeded synthetic 2,565-row ledger with three planted problems the whole-file first-digit test reads close conformity (MAD 0.0031) while threshold (84 vs 30 under 5,000, p 2.9e-6), duplication (1,250 x25) and group tests (exactly the 2 planted of 39, 4 honest vendors under raw p .05 cleared by BH) find all three. Local checks: node --test 19 pass; Playwright: no console errors, no horizontal scroll at 380 px; run_workflow_locally --for-changes then per-workflow re-runs on a stable tree: portfolio-validate, sibling-links, ventures-tests (6 suites, 0 failed), platform/pages node tests (1617 pass, 0 fail), readme live-link checks, and pages.yml's build by hand (build_pages_site, check_pages_links 3,810 pages OK, check_built_site 0 placeholders) all pass; pytest-only steps and secret/write jobs not run here.",
+  "corrections": [],
+  "redteam": null
+}

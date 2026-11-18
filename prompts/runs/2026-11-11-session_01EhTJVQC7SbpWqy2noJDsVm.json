@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVQC7SbpWqy2noJDsVm",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue software)",
+  "input_sha256": "dcd3b4eae2ad5aad18738cdca7ec480aa5cde2e176bc0e7d004219879907273f",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T03:58:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Little Lamps story: albert-and-the-ostriches",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 14682,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The audio cap is exceeded run after run (423 MB), so every creative run is text only. Moving the enclosures off Pages needs an owner decision; the podcast option stays closed until then."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The scheduled input asked for revenue-software work, but the master prompt's router drew the creative track (weight 0.1). I followed the router, as CLAUDE.md says to.",
+      "did": "Wrote a Little Lamps story",
+      "result": "Story merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-albert-and-the-ostriches.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, Little Lamps shelf (last piece was dated 2026-11-10, the stalest shelf). Piece: albert-and-the-ostriches (St Albert the Great, 15 Nov). Text only: the audio du total was 423 MB, over the 400 MB cap. Checks: node --test stories.test.mjs passes 10/10; generate.mjs --check reports current.",
+  "corrections": [],
+  "redteam": null
+}

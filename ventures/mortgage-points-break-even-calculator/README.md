@@ -29,3 +29,14 @@ savings and the balance gap repay the points (bisection).
 Defaults are placeholders, not a real offer. Fixed-rate loans, points paid in cash, constant return on
 cash and constant chance of moving; points are not modelled as deductible. Not lending, tax or financial
 advice.
+
+## Known gaps
+
+From the 2026-11-13 quality audit
+([`portfolio/quality/audits/2026-11-13-mortgage-points-break-even-calculator.json`](../../portfolio/quality/audits/2026-11-13-mortgage-points-break-even-calculator.json)):
+
+- Points are not deducted even for an itemizer on a main-home purchase (IRS Pub 936 generally allows it
+  in the year paid), so with a tax rate entered the tool is biased against points: at the defaults with
+  24% tax it shows break-even at month 47 where netting the deduction gives about month 35.
+- The return on cash is used before tax.
+- A horizon of 0 or less falls back to the full term instead of warning.

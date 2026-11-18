@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fuzzy Dedupe: Find Duplicate Contacts in a CSV, Even Misspelled — Free</title>
+  <meta name="description" content="Free fuzzy duplicate finder for contact lists, CRM exports and customer files: catches Bob vs Robert, typos, Gmail dots and Inc vs LLC, groups the duplicates and writes a merged CSV. Fellegi-Sunter matching in your browser. Nothing uploaded.">
+  <meta property="og:title" content="Fuzzy dedupe: find duplicate contacts in a CSV">
+  <meta property="og:description" content="Find the duplicates an exact match misses (nicknames, typos, different emails) and merge them into one clean CSV. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4ed8'/%3E%3Ccircle cx='12' cy='16' r='6' stroke='%23fff' stroke-width='2.4' fill='none'/%3E%3Ccircle cx='20' cy='16' r='6' stroke='%23fff' stroke-width='2.4' fill='none'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Fuzzy Dedupe", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find duplicate people and companies in a CSV even when names, emails and addresses are spelled differently, and merge them into one clean file. Fellegi-Sunter record linkage with EM-learned weights, in the browser.", "featureList": "Fuzzy matching (Jaro-Winkler), nickname and accent handling, Gmail dot and +tag handling, company suffix handling, match weights learned from your file by EM, duplicate groups, borderline review list, annotated and merged CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I find duplicate contacts that are not exact matches?", "acceptedAnswer": {"@type": "Answer", "text": "Exact-match dedupe only catches rows that are spelled the same. This tool compares every likely pair field by field with graded agreement (exact, very close, close, different), weighs each field by how much it tells you in your own file, and groups rows whose combined match probability passes a threshold you set. It catches Bob and Robert Lindqvist at the same phone number, Priya Raman and Priya Ramen at the same company, and the same person with a Gmail address written with and without dots."}}, {"@type": "Question", "name": "How accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "On the three Febrl deduplication benchmark sets (1,000 to 5,000 synthetic person records with typos, missing values and swapped fields, where the true duplicates are known), it found 99.6 to 99.8% of true duplicate pairs with 100% precision at the default setting. An exact match on first name, last name and postcode found 26 to 36%. Your file is not a benchmark: check the groups before you delete anything."}}, {"@type": "Question", "name": "Is my data uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and matched in your browser tab. Nothing is sent anywhere, and there is no account."}}, {"@type": "Question", "name": "Will it merge two different people?", "acceptedAnswer": {"@type": "Answer", "text": "It can, so it shows you why each pair matched and lists borderline pairs separately. By default, two rows with clearly different first names are never merged automatically unless an email, phone, ID number or date also agrees exactly; colleagues and family members who share a surname, company and town go to the review list instead."}}, {"@type": "Question", "name": "How many rows can it handle?", "acceptedAnswer": {"@type": "Answer", "text": "Up to 50,000 rows. It compares only pairs that share a blocking key (same email, same last 7 phone digits, similar-sounding surname with the same first initial, and so on), so 5,000 rows take about half a second."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+  <style>
+    .map td select { min-width: 150px; }
+    .grp { border: 1px solid #d9dfe6; border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
+    .grp table { font-size: .88rem; }
+    tr.keep td { background: #eef6ee; }
+    .why { font-size: .82rem; color: #4a5664; }
+    .why b.pos { color: #166534; } .why b.neg { color: #9a3412; }
+    .row-actions { display: flex; flex-wrap: wrap; gap: 0 8px; }
+  </style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
+</head>
+<body>
+  <header>
+    <p class="note">FUZZY DEDUPE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Find the duplicates an exact match misses</h1>
+    <p>For anyone cleaning a contact list, CRM export, customer file or mailing list before an import or a mail-out: paste or open a CSV and get groups of rows that are probably the same person or business, even when one says <em>Bob</em> and the other <em>Robert</em>, one has a typo in the surname, or the email is written two ways. Each group comes with the reason it matched, and you download a merged file with one row per person.</p>
+    <p class="note">Statistical matching on the file you give it. Not legal, compliance or professional advice; check groups before deleting anything. The contact example is invented placeholder data, not any business's customers.</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Your file</h2>
+      <label for="file">Open a CSV file (stays on this device)</label>
+      <input id="file" type="file" accept=".csv,.txt,.tsv,text/csv">
+      <label for="csv">Or paste CSV, with a header row</label>
+      <textarea id="csv" rows="10" spellcheck="false"></textarea>
+      <div class="row-actions">
+        <button type="button" class="secondary" id="exContacts">Load the contact example</button>
+        <button type="button" class="secondary" id="exFebrl">Load the Febrl benchmark (1,000 rows)</button>
+        <button type="button" class="secondary" id="readCols">Read the columns</button>
+      </div>
+    </section>
+    <section class="card" id="mapCard" hidden>
+      <h2>What each column holds</h2>
+      <p class="note">Guessed from the headers. Set a column to <em>Ignore</em> to leave it out, for example a record ID or notes.</p>
+      <div class="scroll"><table class="map"><thead><tr><th>Column</th><th>First value</th><th>Compare as</th></tr></thead><tbody id="mapBody"></tbody></table></div>
+      <div class="grid">
+        <div><label for="matchThreshold">Group rows at match probability of at least</label><select id="matchThreshold"><option value="0.99">99% (fewest wrong merges)</option><option value="0.9" selected>90% (default)</option><option value="0.75">75%</option><option value="0.5">50% (most found)</option></select></div>
+        <div><label for="differentNameGuard">Rows with clearly different first names</label><select id="differentNameGuard"><option value="1" selected>Review only, unless email, phone, ID or date agrees</option><option value="0">May merge on the other fields</option></select></div>
+      </div>
+      <button type="button" id="run">Find duplicates</button>
+      <p id="busy" class="note" hidden>Comparing rows…</p>
+      <p id="err" class="note" role="alert"></p>
+    </section>
+    <section class="card" id="out" hidden aria-live="polite">
+      <h2>Results</h2>
+      <p id="summary" class="stats"></p>
+      <p id="score" class="stats"></p>
+      <div class="row-actions">
+        <button type="button" id="dlMerged">Download merged CSV (one row per person)</button>
+        <button type="button" class="secondary" id="dlAnnotated">Download the file with group columns</button>
+      </div>
+      <h3>Duplicate groups</h3>
+      <div id="groups"></div>
+      <h3>Borderline pairs</h3>
+      <div id="review"></div>
+      <h3>What each field was worth in this file</h3>
+      <p class="note">Weights in bits, learned from your file: +7 means agreement at that level is about 2<sup>7</sup> = 128 times likelier between duplicates than between different people. Blank cells count for nothing either way.</p>
+      <div class="scroll" id="weights"></div>
+    </section>
+    <section class="card">
+      <h2>Who this is for</h2>
+      <p>Small businesses and agencies merging contact lists from two systems, sales teams cleaning a CRM before a migration, nonprofits with a donor list that has grown three entries for the same family, bookkeepers with a customer file full of near-identical names. Exact-match dedupe (the button in most spreadsheet and email tools) only removes rows that are spelled identically. On the Febrl benchmark below it finds about a third of the real duplicates.</p>
+      <h3>A worked example</h3>
+      <p>Press <em>Load the contact example</em>: 21 placeholder rows. The tool groups Maria Okafor with María Okafor (accent, upper-case email), Robert with Bob Lindqvist (same phone, written with +1), Priya Raman with Priya Ramen (typo, different email, same phone digits), and Thomas with Tom Grant (an email +tag). It holds back Grace and Jim Whitfield, who share a surname, company and town but not a first name, email or phone, and lists them for you to decide.</p>
+      <h3>When to use something else</h3>
+      <p>Over 50,000 rows, ongoing matching inside a CRM, or matching two different files against each other on a schedule: a data-quality product or the open-source Python libraries Splink and recordlinkage handle those. To fix an email list's formatting before an import, use the <a href="../email-list-csv-check/">email list CSV checker</a>.</p>
+    </section>
+    <section class="card">
+      <h2>How it works</h2>
+      <p><strong>Blocking.</strong> Comparing every pair of 5,000 rows is 12.5 million comparisons, so only rows that share a key are compared: the same email, the same last seven phone digits, a similar-sounding surname (Soundex) with the same first initial, the same first letters of a name plus postcode, the same street and number, and a few more.</p>
+      <p><strong>Comparison.</strong> Each field of a candidate pair gets an agreement level: names after accents are dropped and common nicknames joined (Bob and Robert), scored with the Jaro-Winkler string similarity; emails with case, Gmail dots and +tags ignored; phones on their last 10 digits; companies without Inc, LLC or Ltd; addresses with St and Street joined.</p>
+      <p><strong>Weights from your file.</strong> The Fellegi-Sunter model gives each agreement level a weight, log<sub>2</sub>(m/u): m is how often duplicates agree at that level, u how often different people do. Both are learned from your own rows by the EM algorithm, so a surname shared by half the file counts for less than a rare one would in a file where surnames rarely repeat. The weights add up to a match probability for each pair; pairs above the threshold are joined, and pairs that share a member are grouped transitively.</p>
+      <p><strong>Merging.</strong> In each group the row with the most filled cells is kept, and its blank cells are filled from the other rows (the most common value). Columns where the rows disagree are named so you can check them.</p>
+    </section>
+    <section class="card">
+      <h2>Accuracy on a benchmark with known answers</h2>
+      <p>The Febrl data sets are standard record-linkage benchmarks: synthetic Australian person records (name, address, date of birth, ID number) with typos, missing values, swapped fields and nickname variants, where the true duplicates are known. At the default 90% setting:</p>
+      <div class="scroll"><table>
+        <thead><tr><th>Set</th><th class="n">Rows</th><th class="n">True duplicate pairs</th><th class="n">Found (recall)</th><th class="n">Correct (precision)</th><th class="n">Exact match on name and postcode, found</th></tr></thead>
+        <tbody>
+          <tr><td>Febrl 1</td><td class="n">1,000</td><td class="n">500</td><td class="n">99.8%</td><td class="n">100%</td><td class="n">36.2%</td></tr>
+          <tr><td>Febrl 2</td><td class="n">5,000</td><td class="n">1,934</td><td class="n">99.6%</td><td class="n">100%</td><td class="n">29.1%</td></tr>
+          <tr><td>Febrl 3</td><td class="n">5,000</td><td class="n">6,538</td><td class="n">99.8%</td><td class="n">100%</td><td class="n">25.9%</td></tr>
+        </tbody>
+      </table></div>
+      <p>With only name and address columns (no date of birth or ID number, closer to a typical contact list), it found 81 to 85% of the true pairs at 99.7 to 100% precision, and held 54 to 799 pairs back for review because the first names differed. Switching that guard off found 95 to 97% at 99.8 to 100% precision on these sets; on a business contact list, where colleagues and relatives share a surname and company, the guard is the safer default. A benchmark is not your file: check the groups. Full figures and the script are in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fuzzy-dedupe">README</a>.</p>
+    </section>
+    <section class="card">
+      <h2>Method and citation</h2>
+      <p>Fellegi and Sunter (1969), "A Theory for Record Linkage", <em>JASA</em> 64(328); Winkler (1988), "Using the EM Algorithm for Weight Computation in the Fellegi-Sunter Model of Record Linkage"; Jaro (1989), <em>JASA</em> 84(406); Winkler (1990), "String Comparator Metrics and Enhanced Decision Rules in the Fellegi-Sunter Model of Record Linkage". Written from the papers' mathematics; no code was ported.</p>
+      <pre class="note" style="white-space:pre-wrap">@article{fellegi1969,
+  author = {Fellegi, Ivan P. and Sunter, Alan B.},
+  title = {A Theory for Record Linkage},
+  journal = {Journal of the American Statistical Association},
+  volume = {64}, number = {328}, pages = {1183--1210}, year = {1969},
+  doi = {10.1080/01621459.1969.10501049}
+}
+@inproceedings{winkler1988,
+  author = {Winkler, William E.},
+  title = {Using the {EM} Algorithm for Weight Computation in the {Fellegi-Sunter} Model of Record Linkage},
+  booktitle = {Proceedings of the Section on Survey Research Methods, American Statistical Association},
+  pages = {667--671}, year = {1988}
+}</pre>
+      <p class="note">Febrl data set 1 is from the Febrl project (Peter Christen, Australian National University) as redistributed in the BSD-licensed recordlinkage 0.16 package; its people are generated, not real.</p>
+    </section>
+    <section class="card">
+      <h2>Questions</h2>
+      <h3>How do I find duplicate contacts that are not exact matches?</h3>
+      <p>Exact-match dedupe only catches rows that are spelled the same. This tool compares every likely pair field by field with graded agreement (exact, very close, close, different), weighs each field by how much it tells you in your own file, and groups rows whose combined match probability passes a threshold you set. It catches Bob and Robert Lindqvist at the same phone number, Priya Raman and Priya Ramen at the same company, and the same person with a Gmail address written with and without dots.</p>
+      <h3>How accurate is it?</h3>
+      <p>On the three Febrl deduplication benchmark sets (1,000 to 5,000 synthetic person records with typos, missing values and swapped fields, where the true duplicates are known), it found 99.6 to 99.8% of true duplicate pairs with 100% precision at the default setting. An exact match on first name, last name and postcode found 26 to 36%. Your file is not a benchmark: check the groups before you delete anything.</p>
+      <h3>Is my data uploaded?</h3>
+      <p>No. The file is read and matched in your browser tab. Nothing is sent anywhere, and there is no account.</p>
+      <h3>Will it merge two different people?</h3>
+      <p>It can, so it shows you why each pair matched and lists borderline pairs separately. By default, two rows with clearly different first names are never merged automatically unless an email, phone, ID number or date also agrees exactly; colleagues and family members who share a surname, company and town go to the review list instead.</p>
+      <h3>How many rows can it handle?</h3>
+      <p>Up to 50,000 rows. It compares only pairs that share a blocking key (same email, same last 7 phone digits, similar-sounding surname with the same first initial, and so on), so 5,000 rows take about half a second.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Which of two conflicting values is right (an old and a new address both look valid to it), whether merging records is allowed under your own data-protection duties, how frequent a name is in the population (it learns only from your file), and matching across languages or scripts. Common nicknames are English only.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice. Results are statistical matches on the file you give it; verify with a qualified professional before you rely on them, and keep a copy of the original file.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>dedupe_run</code>, <code>example_loaded</code>, <code>merged_downloaded</code>, <code>annotated_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free and open source (MIT): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fuzzy-dedupe">source code</a>. Command line: <code>node cli.mjs contacts.csv --merged clean.csv</code>. If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, guessTypes, FIELD_TYPES, annotatedCsv, mergedCsv, fmtPct } from "./engine.mjs";
+    import { CONTACTS, FEBRL1 } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    let parsed = null, result = null;
+
+    function readColumns() {
+      $("err").textContent = "";
+      parsed = parseCsv($("csv").value);
+      if (!parsed.header.length) { $("err").textContent = "Paste a CSV with a header row first."; $("mapCard").hidden = false; return; }
+      const types = guessTypes(parsed.header);
+      $("mapBody").innerHTML = parsed.header.map((h, j) => `<tr><td>${esc(h)}</td><td>${esc((parsed.rows[0] || [])[j])}</td><td><select id="type${j}" aria-label="Compare ${esc(h)} as">${Object.entries(FIELD_TYPES).map(([k, v]) => `<option value="${k}"${k === types[j] ? " selected" : ""}>${esc(v)}</option>`).join("")}</select></td></tr>`).join("");
+      $("mapCard").hidden = false;
+    }
+
+    function download(name, text) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    function whyText(why) {
+      return why.filter((w) => w.level !== "blank").map((w) => `${esc(w.field)} ${esc(w.level.split(" (")[0])} <b class="${w.weight >= 0 ? "pos" : "neg"}">${w.weight >= 0 ? "+" : ""}${w.weight.toFixed(1)}</b>`).join(" · ");
+    }
+
+    function truthScore(rows, header) {
+      if (header[0] !== "rec_id" || !rows.every((r) => /^rec-\d+-/.test(r[0]))) return "";
+      const ent = rows.map((r) => r[0].match(/rec-(\d+)-/)[1]);
+      let truth = 0, pred = 0, ok = 0;
+      const by = new Map(); ent.forEach((e) => by.set(e, (by.get(e) || 0) + 1));
+      for (const n of by.values()) truth += n * (n - 1) / 2;
+      for (const g of result.groups) for (let a = 0; a < g.members.length; a++) for (let b = a + 1; b < g.members.length; b++) { pred++; if (ent[g.members[a]] === ent[g.members[b]]) ok++; }
+      return `Checked against the benchmark's known answers (the rec_id column, ignored while matching): found ${ok} of ${truth} true duplicate pairs (${fmtPct(ok / truth)}); ${pred - ok} of ${pred} grouped pairs were wrong.`;
+    }
+
+    function run() {
+      $("err").textContent = "";
+      if (!parsed) readColumns();
+      if (!parsed || !parsed.header.length) return;
+      const types = parsed.header.map((_, j) => $("type" + j).value);
+      $("busy").hidden = false;
+      setTimeout(() => {
+        try {
+          result = analyze({ header: parsed.header, rows: parsed.rows, types, matchThreshold: Number($("matchThreshold").value), differentNameGuard: $("differentNameGuard").value === "1" });
+        } catch (e) { $("err").textContent = e.message; $("busy").hidden = true; return; }
+        $("busy").hidden = true;
+        record("dedupe_run");
+        const { header, rows } = parsed;
+        $("summary").textContent = result.summary + ` Compared ${result.candidatePairs.toLocaleString("en-US")} of ${result.allPairs.toLocaleString("en-US")} possible pairs.`;
+        $("score").textContent = truthScore(rows, header);
+        const cols = header.map((h, j) => j).filter((j) => types[j] !== "ignore" || j === 0);
+        const shown = result.groups.slice(0, 100);
+        $("groups").innerHTML = shown.length ? shown.map((g) => {
+          const link = result.pairs.find((p) => g.members.includes(p.a) && g.members.includes(p.b));
+          return `<div class="grp"><strong>Group ${g.id}</strong> · ${g.members.length} rows · weakest link ${fmtPct(g.minLink)}${g.conflicts.length ? ` · differ on: ${esc(g.conflicts.join(", "))}` : ""}<table><thead><tr><th>Row</th>${cols.map((j) => `<th>${esc(header[j])}</th>`).join("")}</tr></thead><tbody>${g.members.map((i) => `<tr class="${i === g.keep ? "keep" : ""}"><td>${i + 2}${i === g.keep ? " (kept)" : ""}</td>${cols.map((j) => `<td>${esc(rows[i][j])}</td>`).join("")}</tr>`).join("")}</tbody></table>${link ? `<p class="why">Why: ${whyText(link.why)}</p>` : ""}</div>`;
+        }).join("") + (result.groups.length > 100 ? `<p class="note">Showing 100 of ${result.groups.length} groups; the downloads hold all of them.</p>` : "") : "<p>None at this setting.</p>";
+        $("review").innerHTML = result.review.length ? result.review.slice(0, 50).map((p) => `<div class="grp">Rows ${p.a + 2} and ${p.b + 2} · ${fmtPct(p.probability)}${p.held ? " · held back: different first names and no shared email, phone, ID or date" : ""}<table><tbody>${[p.a, p.b].map((i) => `<tr><td>${i + 2}</td>${cols.map((j) => `<td>${esc(rows[i][j])}</td>`).join("")}</tr>`).join("")}</tbody></table><p class="why">${whyText(p.why)}</p></div>`).join("") + (result.reviewCount > 50 ? `<p class="note">Showing 50 of ${result.reviewCount}.</p>` : "") : "<p>None.</p>";
+        $("weights").innerHTML = `<table><thead><tr><th>Field</th><th>Agreement level</th><th class="n">Weight (bits)</th></tr></thead><tbody>${result.weights.map((w) => w.levels.map((l, k) => `<tr><td>${k ? "" : esc(w.field)}</td><td>${esc(l.name)}</td><td class="n">${l.weight >= 0 ? "+" : ""}${l.weight.toFixed(1)}</td></tr>`).join("")).join("")}</tbody></table>`;
+        $("out").hidden = false;
+      }, 20);
+    }
+
+    function load(text) { $("csv").value = text; parsed = null; readColumns(); record("example_loaded"); }
+    $("exContacts").addEventListener("click", () => { load(CONTACTS); run(); });
+    $("exFebrl").addEventListener("click", () => { load(FEBRL1); run(); });
+    $("readCols").addEventListener("click", () => { parsed = null; readColumns(); });
+    $("csv").addEventListener("input", () => { parsed = null; });
+    $("file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (!f) return; $("csv").value = await f.text(); parsed = null; readColumns(); });
+    $("run").addEventListener("click", run);
+    $("dlMerged").addEventListener("click", () => { if (!result) return; download("deduplicated.csv", mergedCsv(result, parsed.rows)); record("merged_downloaded"); });
+    $("dlAnnotated").addEventListener("click", () => { if (!result) return; download("with-duplicate-groups.csv", annotatedCsv(result, parsed.rows)); record("annotated_downloaded"); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

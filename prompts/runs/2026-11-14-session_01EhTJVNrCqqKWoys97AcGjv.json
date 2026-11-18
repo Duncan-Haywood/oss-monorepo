@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNrCqqKWoys97AcGjv",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T18:12:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight (flagship row 3): Croatia HR-CIUS 2025 national rules on the plain route",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 15931,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first venture-test run failed platform/ci/inherited_keys.py on an unguarded HR_REQUIRED[f.rule] lookup",
+      "fix": "Object.hasOwn guard; rerun green"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/phive-corpus.mjs",
+      "issue": "phive-rules-eracun ships no invoice test files (only Fiskalizacija reporting messages), so the good-case corpus route cannot score HR-CIUS; a real Croatian invoice is still needed."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "repo1.maven.org answered 429 to a bare curl and 200 with a browser User-Agent; search.maven.org is blocked by the proxy. github.com is 403 to curl but git clone over https works. Worth one line under Outbound hosts."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-croatias-e-invoice-rules-and-the-warnings-that-say-delete.md",
+    "ventures/einvoice-preflight/eval/hr-cius-differential-2026-11-14.md"
+  ],
+  "goal": "Land a buildable slice of the einvoice-preflight flagship with no outside input: Croatia's B2B mandate went live 2026-01-01 and the checker had no Croatian rules.",
+  "notes": "Croatia HR-CIUS 2025 (Porezna uprava HRUBLSchematron 13.03.2026, phive-rules-eracun 4.6.4): 73 asserts / 62 ids compiled by new build-hr-rules.mjs, add-on 'cius-hr' matched on urn:mfin.gov.hr:, English fixes for all 62 ids. Finding: EN 16931 base warns UBL-CR-006/200/597/601 on fields HR requires; on HR files the fix now says keep it. Differential vs the original XSLT under Saxon-JS 2: 362/372 and 360/367 same HR ids over 2x400 edited files; every difference is a deleted/overwritten BT-24 (by design); Saxon aborted on 29/34 files from unguarded casts. Verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok (29.9s), 1 suites run, 0 failed; cius-hr.test.mjs 8/8, croatia page test 9/9. Not done: no real Croatian invoice or access-point verdict.",
+  "corrections": [],
+  "redteam": null
+}

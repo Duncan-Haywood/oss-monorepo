@@ -1,0 +1,563 @@
+{
+ "settings": {
+  "reps": 60,
+  "people": 1000,
+  "items": 20,
+  "seed": 20261117,
+  "guessItem": 20,
+  "guess": 0.25
+ },
+ "summary": {
+  "coverageA": 0.9508771929824561,
+  "coverageB": 0.9552631578947368,
+  "rmseA": 0.1325890858602276,
+  "rmseB": 0.10701069458893678,
+  "sx2FalseAlarmRate": 0.05087719298245614,
+  "sx2Tests": 1140,
+  "guessItemFlagRate": 0.11666666666666667,
+  "lrFalseAlarmRate": 0,
+  "bicPicks1plUnder1pl": 1
+ },
+ "runs": [
+  {
+   "rep": 0,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.32233216368144896,
+   "lrP1pl": 0.08775119890542513,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 1,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 2,
+   "guessItemP": 0.7024317463019922,
+   "lrP1pl": 0.1556409010083194,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 2,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 4,
+   "guessItemP": 0.2630376312568967,
+   "lrP1pl": 0.37065973045379375,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 3,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.8947368421052632,
+   "sx2Alarms": 2,
+   "guessItemP": 0.3291898161469634,
+   "lrP1pl": 0.34383385275798517,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 4,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 0,
+   "guessItemP": 0.27303246759454125,
+   "lrP1pl": 0.5610633749497493,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 5,
+   "coverageA": 1,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 1,
+   "guessItemP": 0.06793932476372777,
+   "lrP1pl": 0.7390938212243026,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 6,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.36476577115853703,
+   "lrP1pl": 0.7675946387782246,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 7,
+   "coverageA": 1,
+   "coverageB": 0.7368421052631579,
+   "sx2Alarms": 2,
+   "guessItemP": 0.40134115711598817,
+   "lrP1pl": 0.8181049293838482,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 8,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 2,
+   "guessItemP": 0.7122547599830384,
+   "lrP1pl": 0.170253602173258,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 9,
+   "coverageA": 1,
+   "coverageB": 0.8947368421052632,
+   "sx2Alarms": 0,
+   "guessItemP": 0.8023983896335849,
+   "lrP1pl": 0.5690842371583575,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 10,
+   "coverageA": 1,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 0,
+   "guessItemP": 0.24251567467839505,
+   "lrP1pl": 0.32803841592543265,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 11,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 0,
+   "guessItemP": 0.9165948552584384,
+   "lrP1pl": 0.5059611936712927,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 12,
+   "coverageA": 0.8421052631578947,
+   "coverageB": 1,
+   "sx2Alarms": 0,
+   "guessItemP": 0.20525826157872037,
+   "lrP1pl": 0.44637804281350557,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 13,
+   "coverageA": 0.8947368421052632,
+   "coverageB": 0.8421052631578947,
+   "sx2Alarms": 0,
+   "guessItemP": 0.12971946232847267,
+   "lrP1pl": 0.07235993422928146,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 14,
+   "coverageA": 0.8421052631578947,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 1,
+   "guessItemP": 0.14234478813866214,
+   "lrP1pl": 0.5299416146814073,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 15,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.8947368421052632,
+   "sx2Alarms": 1,
+   "guessItemP": 0.07525755619216569,
+   "lrP1pl": 0.919395354711243,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 16,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.1008705273273713,
+   "lrP1pl": 0.7382371071931748,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 17,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.6073641540376635,
+   "lrP1pl": 0.8387596593491996,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 18,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 3,
+   "guessItemP": 0.4351700519278233,
+   "lrP1pl": 0.31513855459285406,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 19,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.8947368421052632,
+   "sx2Alarms": 0,
+   "guessItemP": 0.06541884169168165,
+   "lrP1pl": 0.3272571270279556,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 20,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.8019317084815194,
+   "lrP1pl": 0.6251418640488089,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 21,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 0,
+   "guessItemP": 0.05700086479307438,
+   "lrP1pl": 0.4599348905201547,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 22,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 0,
+   "guessItemP": 0.014432788961640564,
+   "lrP1pl": 0.10056010949333367,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 23,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 2,
+   "guessItemP": 0.0009163096762134072,
+   "lrP1pl": 0.3742895464134107,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 24,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.8938824645840601,
+   "lrP1pl": 0.8498623409824859,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 25,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 3,
+   "guessItemP": 0.6844315950880722,
+   "lrP1pl": 0.1498187082712447,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 26,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.18735007223963673,
+   "lrP1pl": 0.2028181400059115,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 27,
+   "coverageA": 0.8947368421052632,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 1,
+   "guessItemP": 0.08386092207551821,
+   "lrP1pl": 0.40078191055378964,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 28,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 2,
+   "guessItemP": 0.3114702006194283,
+   "lrP1pl": 0.9472384739681324,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 29,
+   "coverageA": 0.8947368421052632,
+   "coverageB": 1,
+   "sx2Alarms": 0,
+   "guessItemP": 0.46736544061234697,
+   "lrP1pl": 0.5338519084436053,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 30,
+   "coverageA": 0.8421052631578947,
+   "coverageB": 0.8421052631578947,
+   "sx2Alarms": 3,
+   "guessItemP": 0.11829553724890966,
+   "lrP1pl": 0.09710821989320155,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 31,
+   "coverageA": 1,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 1,
+   "guessItemP": 0.1592205809528045,
+   "lrP1pl": 0.4128100511155012,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 32,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.43814885077641497,
+   "lrP1pl": 0.2531824281332015,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 33,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.06097785007378661,
+   "lrP1pl": 0.6375360338662361,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 34,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 2,
+   "guessItemP": 0.9617025160009143,
+   "lrP1pl": 0.7318022499797585,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 35,
+   "coverageA": 1,
+   "coverageB": 0.8947368421052632,
+   "sx2Alarms": 0,
+   "guessItemP": 0.8334231556367914,
+   "lrP1pl": 0.8644401957874225,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 36,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.03746178015230372,
+   "lrP1pl": 0.5353408902882485,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 37,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 2,
+   "guessItemP": 0.06481519485933875,
+   "lrP1pl": 0.7528744498883326,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 38,
+   "coverageA": 0.8947368421052632,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 0,
+   "guessItemP": 0.009291056998906823,
+   "lrP1pl": 0.5092344019033653,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 39,
+   "coverageA": 1,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 0,
+   "guessItemP": 0.6215032592713243,
+   "lrP1pl": 0.3783336716611312,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 40,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.8421052631578947,
+   "sx2Alarms": 0,
+   "guessItemP": 0.1520913715489891,
+   "lrP1pl": 0.5570206553600072,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 41,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 0,
+   "guessItemP": 0.3015973237083608,
+   "lrP1pl": 0.952211988053979,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 42,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 2,
+   "guessItemP": 0.38987451182045096,
+   "lrP1pl": 0.8521466640925339,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 43,
+   "coverageA": 0.8947368421052632,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 0,
+   "guessItemP": 0.9117489484452732,
+   "lrP1pl": 0.2064309974554414,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 44,
+   "coverageA": 1,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 2,
+   "guessItemP": 0.16813630999583967,
+   "lrP1pl": 0.6980221218304627,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 45,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 0,
+   "guessItemP": 0.001141503626659439,
+   "lrP1pl": 0.22337594882838932,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 46,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.5305143556547189,
+   "lrP1pl": 0.29782237083443847,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 47,
+   "coverageA": 1,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 1,
+   "guessItemP": 0.9510500729121104,
+   "lrP1pl": 0.4820335367029158,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 48,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 0,
+   "guessItemP": 0.3519934364419055,
+   "lrP1pl": 0.3460119370690766,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 49,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.8947368421052632,
+   "sx2Alarms": 0,
+   "guessItemP": 0.3067130052456063,
+   "lrP1pl": 0.41885074135996037,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 50,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 1,
+   "guessItemP": 0.26551387877370514,
+   "lrP1pl": 0.6314347510652916,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 51,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 1,
+   "guessItemP": 0.35528961129732417,
+   "lrP1pl": 0.5605347101660859,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 52,
+   "coverageA": 0.8947368421052632,
+   "coverageB": 0.8947368421052632,
+   "sx2Alarms": 0,
+   "guessItemP": 0.7463683337275158,
+   "lrP1pl": 0.3857035984524624,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 53,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.8947368421052632,
+   "sx2Alarms": 2,
+   "guessItemP": 0.9176144027641979,
+   "lrP1pl": 0.9248981270147276,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 54,
+   "coverageA": 0.8947368421052632,
+   "coverageB": 1,
+   "sx2Alarms": 0,
+   "guessItemP": 0.13095344326270378,
+   "lrP1pl": 0.11510059317857207,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 55,
+   "coverageA": 0.7894736842105263,
+   "coverageB": 0.8947368421052632,
+   "sx2Alarms": 0,
+   "guessItemP": 0.002106365921438459,
+   "lrP1pl": 0.3216976500248711,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 56,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 0.9473684210526315,
+   "sx2Alarms": 2,
+   "guessItemP": 0.0035926087143590218,
+   "lrP1pl": 0.1144052575864827,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 57,
+   "coverageA": 1,
+   "coverageB": 1,
+   "sx2Alarms": 2,
+   "guessItemP": 0.5068047729197883,
+   "lrP1pl": 0.8453397609504412,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 58,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 0,
+   "guessItemP": 0.29938945570594233,
+   "lrP1pl": 0.12876689535764085,
+   "chosenUnder1pl": "1pl"
+  },
+  {
+   "rep": 59,
+   "coverageA": 0.9473684210526315,
+   "coverageB": 1,
+   "sx2Alarms": 0,
+   "guessItemP": 0.8519451639520286,
+   "lrP1pl": 0.5561230890887305,
+   "chosenUnder1pl": "1pl"
+  }
+ ]
+}

@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVNTysJA92dPiygvB1s",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T21:06:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Profile and speed up the slowest unworked venture suite (wall-framing-takeoff exactStock DP)",
+  "projects": [
+    "wall-framing-takeoff",
+    "open-house-plans"
+  ],
+  "pr": 14887,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both backlog perf items are owner-gated again; step 3 has no list of suite timings, so every run re-times suites. A committed per-venture suite-time table would save the survey."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-lumber-optimizer-bitsets.md",
+    "docs/history/ci-perf-2026-11-11-exact-stock-bitset-dp.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall-framing-takeoff suite wall/CPU. Before 84.7 s wall / 201 s user; after 36.2 s / 110 s; bash `time node --test '*.test.mjs'`, same 4-core container, nothing else running, before = copy with old engine.mjs. Profile (node --cpu-prof): exactStock 24.9 of 25.7 s self time in the 300-wall sheathing test (29.4 s -> 2.2 s). Equivalence: 4,000 random exactStock instances old vs new, 0 differences; sweep output cmp identical; 1177/1177 pass. Next: league-schedule-generator suite 221 s (contended reading), unprofiled. Local run_workflow_locally --for-changes caught open-house-plans' vendored copy (wft-engine.mjs) out of date; regenerated with vendor-framing.mjs, 39/39 pass. Not run locally: agent-cross-review and portfolio-pages gate/deploy jobs.",
+  "corrections": [],
+  "redteam": null
+}

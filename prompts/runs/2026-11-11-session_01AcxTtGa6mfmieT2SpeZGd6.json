@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtGa6mfmieT2SpeZGd6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T18:16:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship changepoint-detector: --model drift on the page and in the agent tool",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14850",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector next: still listed item (c) 'all panels on threads' although #14783 landed it; cost a README read to find it done. Rewritten this run."
+    },
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "'Jumps on a drifting level' said 'Not on the page or in the agent tool yet' but the flagship next did not list that gap; the most user-facing open item was only discoverable by reading the 2,600-line README."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took flagship 3 (changepoint-detector) rather than the top Deepen row: ai-bookkeeper had an open PR 3h old and sales-agent's open items all need outside data, a key or a second model family.",
+      "did": "Shipped the drift model on the page and in the agent tool, an item that needs no outside data.",
+      "result": "Landed a user-facing feature with browser-verified parity to the CLI."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-wandering-level-changepoints-in-the-browser.md",
+    "ventures/changepoint-detector/README.md (section 'Jumps on a wandering level, on the page')"
+  ],
+  "goal": null,
+  "notes": "No security queue, no ideas, no website requests. Found and fixed: with --drift-slope each jump's size included one step of the removed growth (austres 1988 +79.8 -> +28.5). Local checks: node --test drift-page/drift-level/drift-tails/analyze-worker/page: 48 pass after updating page.test.mjs import list; eval/drift-page-browser.mjs 12/12 ok; full venture suite and venture-preflight run in background (results below in PR). No agent doc in docs/reports: README section and flagships next carry what the next run needs.",
+  "corrections": [],
+  "redteam": null
+}

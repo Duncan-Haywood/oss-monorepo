@@ -35,7 +35,7 @@ for (const f of readdirSync(dir).filter((x) => x.endsWith(".json")).sort()) {
     const cells = roles.map((r) => {
       if (r === "date_transaction" || r === "date") { if (seenDate) return fmtDate(fmt, d); seenDate = true; return fmtDate(fmt, d); }
       if (r === "description" || r === "narration") { if (seenDesc) return ""; seenDesc = true; return memo; }
-      if (r === "amount") { if (seenAmt) return ""; seenAmt = true; return (c < 0 ? "-" : "") + money(c, decComma); }
+      if (r === "amount") { if (seenAmt) return ""; seenAmt = true; return ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(money(c, decComma)); }
       if (r === "ing-debit-credit") return c < 0 ? "Af" : "Bij";
       if (r === "amount_debit" || r === "debit_amount") return c < 0 ? money(c, decComma) : "";
       if (r === "amount_credit" || r === "credit_amount") return c > 0 ? money(c, decComma) : "";

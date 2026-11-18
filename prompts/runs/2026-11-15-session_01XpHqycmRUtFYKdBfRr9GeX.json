@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqycmRUtFYKdBfRr9GeX",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T16:39:20Z",
+  "ended": "2026-11-15T16:43:59Z",
+  "wall_minutes": 4.92,
+  "tokens_in": 4547689,
+  "tokens_out": 27555,
+  "cost_usd": 2.2688,
+  "tool_calls": 44,
+  "task": "quality track, fix mode: the open high defect in ventures/eu-battery-regulation-checker plus five medium/low defects from the same audit",
+  "projects": [
+    "ventures/eu-battery-regulation-checker",
+    "portfolio/quality"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16276",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First new fulfilment test matched /marked done/ against the '2 of 2 duties ... not marked done' headline, a false failure; tightened to /Every duty listed/",
+      "fixed": true
+    },
+    {
+      "what": "json.dumps(indent=2) reformatted the whole audit file (542-line diff); rewrote it with indent=1 to match the original",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "The track prompt describes only a sample round (steps 1-5); the mode table in portfolio/quality/README.md is what says a fix session differs. The `sample` command's NOTE caught it, but the prompt itself still reads as sample-only."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Audit files are written with indent=1; nothing says so, and a natural json.dumps(indent=2) rewrite turns a fixed_by edit into a whole-file diff. A `quality_audit.py mark-fixed <file> <idx...> --pr <url>` helper would make this routine software."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-quality-fix-the-warehouse-is-the-operator.md",
+    "ventures/eu-battery-regulation-checker/README.md (Known gaps)"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (quality_audit.py mode; sample printed seed 2026-11-15-c-05b8, round 74, not used since mode was fix). Subject: ventures/eu-battery-regulation-checker (audit 2026-11-15, census seed 2026-11-15-7988). Fixed defects #1 (high, fulfilment provider/no EU operator), #2 (Art 47 EUR 40m), #3 (nuclear Art 1(6)), #4 (distributor EPR Art 3(47)), #5 (untested dates), #6 (collection symbol Art 13(4)), #8 (citations); left #7 and #9 (low) as README Known gaps. Every fix checked against the OJ text of 2023/1542 fetched from eur-lex.europa.eu (200, 1.1 MB HTML; it worked this session though the auditor got 202-empty). Verification: node --test '*.test.mjs' in the venture 38/38 pass (was 29). quality_mutate.py: 4 mutants (diligence date to 2025-08-18, EPR +1 year, SLI dropped from recycled, fulfilment fallback->self) all caught; the first three had survived the audit. quality_audit.py validate: 370 files, 0 problems. queue --severity high now lists 1 (research/buildbot-fasten), was 2. Share meeting bar: not re-scored (fix round; a later round re-audits). Fix PRs: #16276.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c3e87b1f-701b-5a7e-ba06-a3eb68face9d",
+    "transcripts": 1,
+    "first": "2026-11-15T16:39:20Z",
+    "last": "2026-11-15T16:44:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 27555,
+        "thinking": 7267,
+        "cache_read": 4444029,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103575,
+        "api_equivalent_usd": 2.2688,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 27555,
+      "thinking": 7267,
+      "cache_read": 4444029,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103575,
+      "api_equivalent_usd": 2.2688,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.92,
+      "active_minutes": 4.92,
+      "model_minutes": 4.37,
+      "tool_minutes": 0.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an EU product-compliance analyst reading Arts 1, 3, 13, 43, 47, 55, 91, 96 and Annex I, then a JS dev updating table, page and 9 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 176.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

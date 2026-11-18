@@ -17,6 +17,7 @@ import { samplePlan, takeoff } from "./engine.mjs";
 import { planFromDxf } from "./dxf.mjs";
 import { panelizeWall, panelParts } from "./panels.mjs";
 import { layoutFasteners } from "./fasteners.mjs";
+import { pathToFileURL } from "node:url";
 
 export const SEAM_SPACING = 16; // in: face nails along the stud pair at a panel seam (typed assumption)
 export const PANEL_MAXES = [96, 144, 192]; // 8, 12, 16 ft
@@ -62,7 +63,7 @@ if (!files.length) for (const n of [1, 2]) {
   if (r.ok) cases.push([`Open House Plans ${n} (CC0, generated)`, { ...samplePlan(), ...r.plan }]);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   for (const [name, plan] of cases) {
     const m = measure(plan);
     console.log(`\n${name}`);

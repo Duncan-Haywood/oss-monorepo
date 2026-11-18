@@ -1,0 +1,303 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { checkNfe, keyCheckDigit, looksLikeNfe, valueProblem } from "./nfe.mjs";
+import { COMPLEX } from "./nfe-xsd-data.mjs";
+
+const clean = readFileSync(new URL("./fixtures/nfe-4.00-invoice.xml", import.meta.url), "utf8");
+const rules = (text) => checkNfe(text).findings.map((f) => f.rule);
+const swap = (from, to) => { assert.ok(clean.includes(from), from); return clean.replace(from, to); };
+
+test("the made-up fixture is clean apart from the missing signature", () => {
+  const r = checkNfe(clean);
+  assert.deepEqual(r.findings, []);
+  assert.equal(r.meta.mod, "55");
+  assert.equal(r.meta.items, 2);
+  assert.match(r.skipped.join(" "), /not signed yet/);
+  assert.ok(looksLikeNfe(clean));
+  assert.ok(!looksLikeNfe("<Invoice xmlns='urn:oasis:names:specification:ubl:schema:xsd:Invoice-2'/>"));
+});
+
+test("schema table: TNFe and infNFe compiled with their content models", () => {
+  assert.equal(COMPLEX.TNFe.model, "(?:<infNFe>(?:<infNFeSupl>)?<Signature>)");
+  assert.ok(Object.keys(COMPLEX).length > 100);
+});
+
+test("access key check digit: mod 11, weights 2 to 9 from the right", () => {
+  // the key of the fixture, built by the same rule, and two keys from sped-nfe's tests
+  assert.equal(keyCheckDigit("4318090692938300016355001000000026100001030"), 1);
+  assert.equal(keyCheckDigit("3517035871652300011955001000000030100000030"), 0);
+  assert.match(rules(swap("314159261\" versao", "314159262\" versao")).join(), /BR-011/);
+});
+
+test("access key parts must match ide and emit (cStat 502)", () => {
+  assert.deepEqual(rules(swap("<nNF>4217</nNF>", "<nNF>4218</nNF>")), ["BR-012"]);
+  assert.deepEqual(rules(swap("<cNF>31415926</cNF>", "<cNF>31415927</cNF>")), ["BR-012"]);
+  assert.match(rules(swap('Id="NFe', 'Id="NF')).join(), /BR-010/);
+});
+
+test("schema: unknown, missing and out-of-order elements, bad values", () => {
+  assert.ok(rules(swap("<natOp>VENDA DE MERCADORIA</natOp>", "")).includes("BR-002"));
+  assert.ok(rules(swap("<cProd>P-001</cProd>", "<cProd>P-001</cProd><xFoo>1</xFoo>")).includes("BR-002"));
+  assert.ok(rules(swap("<tpAmb>2</tpAmb>", "<tpAmb>3</tpAmb>")).includes("BR-004"));
+  assert.ok(rules(swap("<NCM>84834010</NCM>", "<NCM>8483401</NCM>")).includes("BR-004"));
+  assert.ok(rules(swap("<infCpl>EXEMPLO", "<infCpl>\nEXEMPLO")).includes("BR-004"));
+  assert.ok(rules(swap('<det nItem="2">', '<det nItem="1">')).includes("BR-002"));
+  assert.match(valueProblem("@TCnpj", "12ABC34501DE35", "CNPJ"), /^$/); // alphanumeric CNPJ shape accepted
+});
+
+test("an unsigned NF-e with another root fault names that fault, not just the signature", () => {
+  // Two infNFe and no signature: signing it would still fail the schema (cStat 225), so the
+  // finding is the order/number one and nothing is put down to "not signed yet".
+  const inf = clean.match(/<infNFe[\s\S]*<\/infNFe>/)[0];
+  const r = checkNfe(clean.replace(inf, inf + inf));
+  assert.deepEqual(r.findings.map((f) => f.rule), ["BR-002"]);
+  assert.match(r.findings[0].message, /not in the order or number/);
+  assert.doesNotMatch(r.skipped.join(" "), /not signed yet/);
+});
+
+test("the alphanumeric CNPJ shape is accepted in CNPJ fields only", () => {
+  // a 14-character CNPJ-shaped value in a CPF (11 digits) is still a schema error
+  assert.match(valueProblem("@TCpf", "12345678901234", "CPF"), /longer than 11/);
+  assert.match(valueProblem("@TCpf", "12ABC34501DE35", "CPF"), /\S/);
+});
+
+test("CNPJ and CPF check digits (cStat 207, 208)", () => {
+  const f = checkNfe(swap("<CNPJ>98765432000198</CNPJ>", "<CNPJ>98765432000199</CNPJ>")).findings;
+  assert.deepEqual(f.map((x) => x.rule), ["BR-013"]);
+  assert.match(f[0].message, /cStat 208/);
+});
+
+test("item vProd against qCom x vUnCom (cStat 629)", () => {
+  const t = swap("<vProd>255.00</vProd>", "<vProd>255.02</vProd>");
+  assert.ok(rules(t).includes("BR-020"));
+  // a cent of rounding is tolerated
+  const near = swap("<vUnCom>19.9900000000</vUnCom>", "<vUnCom>19.9930000000</vUnCom>");
+  assert.ok(!rules(near).includes("BR-020"));
+});
+
+test("ICMSTot against the items, vNF against its parts", () => {
+  for (const [from, to, code] of [
+    ["<vBC>319.97</vBC>", "<vBC>319.96</vBC>", "531"], ["<vICMS>38.40</vICMS>", "<vICMS>38.41</vICMS>", "532"],
+    ["<vIPI>15.75</vIPI>", "<vIPI>15.70</vIPI>", "538"], ["<vPIS>5.28</vPIS>", "<vPIS>5.29</vPIS>", "602"],
+    ["<vCOFINS>24.32</vCOFINS>", "<vCOFINS>24.33</vCOFINS>", "603"], ["<vFrete>10.00</vFrete><vSeg>", "<vFrete>11.00</vFrete><vSeg>", "535"],
+  ]) {
+    const f = checkNfe(swap(from, to)).findings.filter((x) => x.rule === "BR-021");
+    assert.equal(f.length, 1, from);
+    assert.match(f[0].message, new RegExp(`cStat ${code}`));
+  }
+  assert.deepEqual(rules(swap("<vNF>335.72</vNF>", "<vNF>335.73</vNF>")), ["BR-030"]);
+  // a wrong vProd total draws its own rule and a vNF mismatch, since vNF is built from it
+  assert.deepEqual(rules(swap("<vProd>314.97</vProd>", "<vProd>314.98</vProd>")), ["BR-021", "BR-030"]);
+});
+
+test("NFC-e payments less change equal vNF (cStat 767)", () => {
+  const nfce = clean.replace("<mod>55</mod>", "<mod>65</mod>").replace("<vPag>335.72</vPag>", "<vPag>340.00</vPag>");
+  assert.ok(rules(nfce).includes("BR-031"));
+  const withChange = nfce.replace("</detPag>", "</detPag><vTroco>4.28</vTroco>");
+  assert.ok(!rules(withChange).includes("BR-031"));
+});
+
+test("state codes and CFOP direction", () => {
+  assert.ok(rules(swap("<UF>SP</UF>", "<UF>MG</UF>")).includes("BR-040"));
+  assert.ok(rules(swap("<cMunFG>3550308</cMunFG>", "<cMunFG>3304557</cMunFG>")).includes("BR-040"));
+  assert.deepEqual(rules(swap("<CFOP>6101</CFOP>", "<CFOP>2101</CFOP>")), ["BR-041"]);
+  assert.deepEqual(rules(swap("<CFOP>6101</CFOP>", "<CFOP>5101</CFOP>")), ["BR-042"]);
+});
+
+test("old layouts and non-NF-e roots are named, not read", () => {
+  assert.deepEqual(rules(clean.replace('versao="4.00"', 'versao="3.10"')), ["BR-001"]);
+  assert.deepEqual(rules("<foo/>"), ["BR-001"]);
+});
+
+const reform = readFileSync(new URL("./fixtures/nfe-4.00-reform.xml", import.meta.url), "utf8");
+const rswap = (from, to) => { assert.ok(reform.includes(from), from); return reform.replace(from, to); };
+
+test("schema: PL_010_V1.30, the reform layout, is the table read", async () => {
+  const { PACKAGE } = await import("./nfe-xsd-data.mjs");
+  assert.equal(PACKAGE, "PL_010_V1.30");
+  assert.ok(COMPLEX.TTribNFe && COMPLEX.TCIBS_NFe && COMPLEX.TIBSCBSMonoTot);
+});
+
+test("the made-up reform fixture (IBS 0.1%, CBS 0.9%, the 2026 test rates) is clean", () => {
+  const r = checkNfe(reform);
+  assert.deepEqual(r.findings, []);
+  assert.doesNotMatch(r.skipped.join(" "), /IBSCBS|reform/);
+});
+
+test("reform groups are read against the schema now, not skipped", () => {
+  // CST of IBS/CBS is three digits; an out-of-order group is a schema error.
+  assert.deepEqual(rules(rswap("<IBSCBS><CST>000</CST>", "<IBSCBS><CST>00</CST>")), ["BR-004"]);
+  assert.deepEqual(rules(rswap("<vIBS>0.26</vIBS><gCBS>", "<gCBS>")), ["BR-002"]);
+  assert.deepEqual(rules(rswap("</gIBSCBS></IBSCBS>", "</gIBSCBS><gFoo/></IBSCBS>")), ["BR-002"]);
+});
+
+test("BR-050: an item's vIBS is vIBSUF + vIBSMun", () => {
+  // the total is still right, so only the item is named
+  const t = rswap("<vIBS>0.26</vIBS>", "<vIBS>0.27</vIBS>");
+  assert.deepEqual(rules(t), ["BR-050"]);
+  assert.match(checkNfe(t).findings[0].message, /0\.26/);
+});
+
+test("BR-051: every IBSCBSTot field is the sum of the items", () => {
+  for (const [from, to, path] of [
+    ["<vBCIBSCBS>319.97", "<vBCIBSCBS>319.98", "vBCIBSCBS"],
+    ["<vIBSUF>0.32</vIBSUF>", "<vIBSUF>0.33</vIBSUF>", "gIBS/gIBSUF/vIBSUF"],
+    ["<vIBS>0.32</vIBS>", "<vIBS>0.31</vIBS>", "gIBS/vIBS"],
+    ["<vCBS>2.88</vCBS>", "<vCBS>2.87</vCBS>", "gCBS/vCBS"],
+    ["<gIBSMun><vDif>0.00</vDif>", "<gIBSMun><vDif>0.01</vDif>", "gIBS/gIBSMun/vDif"],
+  ]) {
+    const f = checkNfe(rswap(from, to)).findings;
+    assert.deepEqual(f.map((x) => x.rule), ["BR-051"], path);
+    assert.equal(f[0].path, `/NFe/infNFe/total/IBSCBSTot/${path}`);
+  }
+  // an item that is off is caught at the total too
+  assert.deepEqual(rules(rswap("<vCBS>0.54</vCBS>", "<vCBS>0.55</vCBS>")), ["BR-051"]);
+});
+
+test("BR-051: an item with no gIBSUF adds nothing to gIBS/vIBS", () => {
+  // item 2 drops its state group (a schema error); the totals are set to item 1 alone
+  let t = rswap("<gIBSUF><pIBSUF>0.1000</pIBSUF><vIBSUF>0.06</vIBSUF></gIBSUF>", "");
+  t = t.replace("<vIBS>0.06</vIBS>", "<vIBS>0.00</vIBS>").replace("<vIBSUF>0.32</vIBSUF>", "<vIBSUF>0.26</vIBSUF>").replace("<vIBS>0.32</vIBS>", "<vIBS>0.26</vIBS>");
+  assert.deepEqual(rules(t), ["BR-002"]);
+});
+
+test("BR-051: ISTot is the sum of the items' Imposto Seletivo", () => {
+  const is = "<IS><CSTIS>000</CSTIS><cClassTribIS>000001</cClassTribIS><vBCIS>59.97</vBCIS><pIS>10.0000</pIS><vIS>6.00</vIS></IS>";
+  const t = reform.replace("</COFINS>\n        <IBSCBS><CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>59.97", `</COFINS>\n        ${is}<IBSCBS><CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>59.97`);
+  assert.notEqual(t, reform);
+  const withTot = (v) => t.replace("<IBSCBSTot>", `<ISTot><vIS>${v}</vIS></ISTot><IBSCBSTot>`);
+  // vItem and vNFTot are left as they were: IS is not added to vItem in 2026 here
+  assert.deepEqual(rules(withTot("6.00")), []);
+  assert.deepEqual(rules(withTot("6.01")), ["BR-051"]);
+});
+
+test("BR-052: vNFTot is the sum of vItem over the items with indTot 1", () => {
+  assert.deepEqual(rules(rswap("<vNFTot>335.72", "<vNFTot>335.71")), ["BR-052"]);
+  assert.deepEqual(rules(rswap("<vItem>62.97", "<vItem>62.98")), ["BR-052"]);
+  // an item outside the total (indTot 0) leaves vNFTot alone; vProd/vNF then disagree (BR-021/BR-030)
+  const off = rswap("<vProd>59.97</vProd><cEANTrib>SEM GTIN</cEANTrib><uTrib>UN</uTrib><qTrib>3.0000</qTrib><vUnTrib>19.9900000000</vUnTrib><indTot>1", "<vProd>59.97</vProd><cEANTrib>SEM GTIN</cEANTrib><uTrib>UN</uTrib><qTrib>3.0000</qTrib><vUnTrib>19.9900000000</vUnTrib><indTot>0");
+  assert.ok(rules(off).includes("BR-052"));
+});
+
+test("the main report routes an NF-e to these checks", async () => {
+  const { preflightDocuments } = await import("./report.mjs");
+  const bad = clean.replace("<vNF>335.72</vNF>", "<vNF>335.73</vNF>");
+  const r = await preflightDocuments([{ name: "nota.xml", source: bad }]);
+  assert.equal(r.reports.length, 1);
+  assert.match(r.reports[0].envelope, /Brazilian NF-e 4\.00/);
+  assert.deepEqual(r.reports[0].errors.map((f) => f.rule), ["BR-030"]);
+});
+
+test("an authorised import NF-e whose vNF leaves the duty inside vProd passes (eval/nfe-corpus)", () => {
+  const sc = readFileSync(new URL("./eval/nfe-corpus/nfelib/42210775277525000178550030000266631762885493-procNFe.xml", import.meta.url), "utf8");
+  assert.deepEqual(checkNfe(sc).findings, []);
+  // Make.php's reading, with vII added, passes too; anything else is BR-030.
+  assert.deepEqual(rules(sc.replace("<vNF>95700.68", "<vNF>109621.95")), []);
+  assert.deepEqual(rules(sc.replace("<vNF>95700.68", "<vNF>95700.69")), ["BR-030"]);
+});
+
+test("the open-source corpus: 17 clean files, every seeded fault caught", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const out = JSON.parse(execFileSync(process.execPath, [new URL("./eval/nfe-corpus.mjs", import.meta.url).pathname, "--json"], { encoding: "utf8" }));
+  assert.equal(out.files.length, 35);
+  assert.equal(out.files.filter((f) => !f.rules.length).length, 17);
+  for (const m of out.mutations) assert.equal(m.caught, m.applied, m.mutation);
+  assert.equal(out.mutations.reduce((s, m) => s + m.caught, 0), 153);
+});
+
+test("BR-053..BR-057: CST and cClassTrib against the classification table", async () => {
+  const { CODES, TABLE } = await import("./cclasstrib-data.mjs");
+  assert.ok(TABLE.codes >= 160 && TABLE.published >= "2026-06-22");
+  const ct = (t) => rules(t).filter((r) => /^BR-05[3-7]$/.test(r));
+  const item1 = '<IBSCBS><CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260.00</vBC><gIBSUF><pIBSUF>0.1000</pIBSUF><vIBSUF>0.26</vIBSUF></gIBSUF><gIBSMun><pIBSMun>0.0000</pIBSMun><vIBSMun>0.00</vIBSMun></gIBSMun><vIBS>0.26</vIBS><gCBS><pCBS>0.9000</pCBS><vCBS>2.34</vCBS></gCBS></gIBSCBS></IBSCBS>';
+  // A CST 200 code with a 60% cut, written as Unimake's RTC samples write it.
+  const c60 = Object.entries(CODES).find(([, c]) => c.cst === "200" && c.nfe && c.pRedIBS === 60 && c.pRedCBS === 60)[0];
+  const red = (p, r, ef) => `<gRed><pRedAliq>${r}</pRedAliq><pAliqEfet>${ef}</pAliqEfet></gRed>`;
+  const item60 = (cbsRed = red("CBS", "60.0000", "0.3600")) => `<IBSCBS><CST>200</CST><cClassTrib>${c60}</cClassTrib><gIBSCBS><vBC>260.00</vBC><gIBSUF><pIBSUF>0.1000</pIBSUF>${red("UF", "60.0000", "0.0400")}<vIBSUF>0.26</vIBSUF></gIBSUF><gIBSMun><pIBSMun>0.0000</pIBSMun>${red("Mun", "60.0000", "0.0000")}<vIBSMun>0.00</vIBSMun></gIBSMun><vIBS>0.26</vIBS><gCBS><pCBS>0.9000</pCBS>${cbsRed}<vCBS>2.34</vCBS></gCBS></gIBSCBS></IBSCBS>`;
+  assert.deepEqual(ct(rswap(item1, item60())), []);
+  // the CBS reduction left off, a wrong reduction, a wrong effective rate
+  assert.deepEqual(ct(rswap(item1, item60(""))), ["BR-057"]);
+  assert.match(checkNfe(rswap(item1, item60(""))).findings.find((f) => f.rule === "BR-057").message, /reduces the CBS rate by 60%/);
+  assert.deepEqual(ct(rswap(item1, item60(red("CBS", "40.0000", "0.5400")))), ["BR-057"]);
+  const ef = checkNfe(rswap(item1, item60(red("CBS", "60.0000", "0.5400")))).findings.filter((f) => f.rule === "BR-057");
+  assert.equal(ef.length, 1);
+  assert.match(ef[0].message, /pAliqEfet is 0\.5400%, but pCBS 0\.9000% less the 60\.0000% reduction \(pRedAliq\) is 0\.36%/);
+  // a reduction on a code that has none (nfelib's reform sample writes pRedAliq 1 on 000001)
+  assert.deepEqual(ct(rswap("<pCBS>0.9000</pCBS><vCBS>2.34", `<pCBS>0.9000</pCBS>${red("CBS", "1.0000", "0.8910")}<vCBS>2.34`)), ["BR-057"]);
+  // unknown code; a code of another CST
+  assert.deepEqual(ct(rswap("<cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", "<cClassTrib>000099</cClassTrib><gIBSCBS><vBC>260")), ["BR-053"]);
+  const wrongCst = checkNfe(rswap("<CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", "<CST>410</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260"));
+  assert.ok(wrongCst.findings.some((f) => f.rule === "BR-053" && /belongs to CST 000/.test(f.message)));
+  // CST 410 (immunity) takes no gIBSCBS group
+  const c410 = Object.entries(CODES).find(([, c]) => c.cst === "410" && c.nfe && !c.credPres)[0];
+  const imm = rswap("<CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", `<CST>410</CST><cClassTrib>${c410}</cClassTrib><gIBSCBS><vBC>260`);
+  assert.deepEqual(ct(imm), ["BR-056"]);
+  // a code the table does not allow on a model 55, and on an NFC-e
+  const notNfe = Object.entries(CODES).find(([, c]) => c.cst === "000" && !c.nfe)[0];
+  assert.deepEqual(ct(rswap("<cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", `<cClassTrib>${notNfe}</cClassTrib><gIBSCBS><vBC>260`)), ["BR-054"]);
+  // a code that has ended: 220001 stops on 2026-01-01; the fixture is dated 2026-11-12
+  const ended = Object.entries(CODES).find(([, c]) => c.to && c.to < "2026-11-12");
+  assert.ok(ended, "the table has a code that has ended");
+  const r = ct(rswap("<CST>000</CST><cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260", `<CST>${ended[1].cst}</CST><cClassTrib>${ended[0]}</cClassTrib><gIBSCBS><vBC>260`));
+  assert.ok(r.includes("BR-055"), r.join());
+});
+
+test("BR-058..BR-061: the presumed credit against the cCredPres table and NT 2025.002 UB120-UB130", async () => {
+  const { TABLE, CODES } = await import("./ccredpres-data.mjs");
+  assert.equal(TABLE.codes, 13);
+  assert.equal(TABLE.version, "1.70");
+  // the table as IT 2025.002 1.70 states it: 01 and 03 by event only since 1.70, 02 since 1.21
+  assert.deepEqual(["01", "02", "03"].map((c) => CODES[c].inDoc), [false, false, false]);
+  assert.deepEqual(["05", "06", "10", "13"].map((c) => [CODES[c].ibs, CODES[c].cbs]), [[false, true], [false, true], [false, true], [false, true]]);
+  assert.deepEqual(["07", "08", "09", "11", "12"].map((c) => [CODES[c].ibs, CODES[c].cbs]), Array(5).fill([true, false]));
+  const cp = (rules) => rules.filter((r) => /^BR-0(5[6-9]|6[01])$/.test(r));
+  const fs = (t) => checkNfe(t).findings.filter((f) => /^BR-0(5[6-9]|6[01])$/.test(f.rule));
+  // a CST 000 cClassTrib that takes a presumed credit (000003, the automotive regime)
+  const { CODES: CT } = await import("./cclasstrib-data.mjs");
+  const withCred = Object.entries(CT).find(([, c]) => c.credPres && c.nfe && c.cst === "000")[0];
+  const g = (name, v, extra = "") => `<g${name}CredPres><pCredPres>1.0000</pCredPres>${extra || `<vCredPres>${v}</vCredPres>`}</g${name}CredPres>`;
+  const item = (code, ibs, cbs, cct = withCred) => rswap("<cClassTrib>000001</cClassTrib><gIBSCBS><vBC>260.00</vBC>", `<cClassTrib>${cct}</cClassTrib><gIBSCBS><vBC>260.00</vBC>`)
+    .replace("<vCBS>2.34</vCBS></gCBS></gIBSCBS></IBSCBS>", `<vCBS>2.34</vCBS></gCBS></gIBSCBS><gCredPresOper><vBCCredPres>255.00</vBCCredPres><cCredPres>${code}</cCredPres>${ibs}${cbs}</gCredPresOper></IBSCBS>`);
+  // 05 (automotive, CBS only, in the document) on its own cClassTrib: only the 2027 start warning
+  const ok = fs(item("05", "", g("CBS", "2.55")));
+  assert.deepEqual(ok.map((f) => [f.rule, f.severity]), [["BR-061", "warning"]]);
+  assert.match(ok[0].message, /starts the CBS presumed credit of cCredPres 05 on 2027-01-01/);
+  // dated 2027: clean
+  const in2027 = (t) => t.replace("<dhEmi>2026-11-12", "<dhEmi>2027-02-01");
+  assert.deepEqual(fs(in2027(item("05", "", g("CBS", "2.55")))), []);
+  // unknown code (1055), IBS group on a CBS-only code (1053), CBS group missing (1058)
+  assert.match(fs(in2027(item("14", "", g("CBS", "2.55"))))[0].message, /cStat 1055/);
+  const both = fs(in2027(item("05", g("IBS", "2.55"), "")));
+  assert.deepEqual(both.map((f) => f.rule), ["BR-059", "BR-059"]);
+  assert.match(both.map((f) => f.message).join(" "), /cStat 1053[\s\S]*cStat 1058/);
+  // CBS group on an IBS-only code (1050) and IBS missing (1054)
+  const zfm = fs(in2027(item("07", "", g("CBS", "2.55")))).filter((f) => f.rule === "BR-059");
+  assert.match(zfm.map((f) => f.message).join(" "), /cStat 1054[\s\S]*cStat 1050|cStat 1050[\s\S]*cStat 1054/);
+  // code 04: vCredPres above vProd (255.00) is 1107 / 1124
+  const over = fs(in2027(item("04", g("IBS", "255.01"), g("CBS", "300.00")))).filter((f) => f.rule === "BR-060");
+  assert.match(over.map((f) => f.message).join(" "), /cStat 1107[\s\S]*cStat 1124/);
+  assert.deepEqual(fs(in2027(item("04", g("IBS", "255.00"), g("CBS", "255.00")))).filter((f) => f.rule === "BR-060"), []);
+  // vCredPresCondSus: CBS only from 2027 with code 04 (1060); IBS only from 2033 (1056)
+  const cs = (v) => `<vCredPresCondSus>${v}</vCredPresCondSus>`;
+  assert.deepEqual(fs(in2027(item("04", g("IBS", "1.00"), g("CBS", "", cs("1.00"))))).filter((f) => f.rule === "BR-060"), []);
+  assert.match(fs(in2027(item("05", "", g("CBS", "", cs("1.00"))))).find((f) => f.rule === "BR-060").message, /only code 04[\s\S]*cStat 1060/);
+  assert.match(fs(in2027(item("04", g("IBS", "", cs("1.00")), g("CBS", "1.00")))).find((f) => f.rule === "BR-060").message, /from 2033[\s\S]*cStat 1056/);
+  // an event-only code in the document, and a code not marked for the NF-e (02): warnings, not errors
+  const ev = fs(in2027(item("02", g("IBS", "1.00"), g("CBS", "1.00"))));
+  assert.ok(ev.every((f) => f.severity === "warning" && f.rule === "BR-061"), JSON.stringify(ev));
+  assert.match(ev.map((f) => f.message).join(" "), /not mark cCredPres 02[\s\S]*appropriated by event[\s\S]*since IT 2025\.002 1\.21/);
+  // on an NFC-e: 1049
+  const nfce = fs(in2027(item("05", "", g("CBS", "2.55"))).replace("<mod>55</mod>", "<mod>65</mod>")).filter((f) => f.rule === "BR-058");
+  assert.match(nfce[0].message, /cStat 1049/);
+  // UB120-20 (1175): gCredPresOper on a cClassTrib that takes none (410014 since 1.70) ...
+  assert.equal(CT["410014"].credPres, false);
+  const plain = fs(in2027(item("05", "", g("CBS", "2.55"), "000001"))).filter((f) => f.rule === "BR-056");
+  assert.match(plain[0].message, /does not take a presumed credit[\s\S]*cStat 1175, UB120-20\)\.$/);
+  // ... except on a used good (indBemMovelUsado 1, after the first item's indTot)
+  const plainT = in2027(item("05", "", g("CBS", "2.55"), "000001"));
+  const usedT = plainT.replace("<indTot>1</indTot>", "<indTot>1</indTot><indBemMovelUsado>1</indBemMovelUsado>");
+  assert.notEqual(usedT, plainT);
+  assert.deepEqual(cp(rules(usedT)).filter((r) => r === "BR-056"), []);
+  assert.ok(!rules(usedT).includes("BR-002"), rules(usedT).join());
+});

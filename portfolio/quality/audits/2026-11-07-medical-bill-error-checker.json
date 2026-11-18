@@ -56,6 +56,6 @@
    "where": "ventures/medical-bill-error-checker/llms.txt:9"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [14670],
  "verdict": "Honest, small and candid about its limits: the 50 tests pass, three seeded mutations (duplicate threshold, arithmetic, visit-family rule) were each caught, the page loads and runs the sample in Chromium with no errors or external requests, and the sample's total (4559), patient balance (2151) and 'most in question' (1506) recompute exactly by hand, as do the panel component lists against the CPT definitions. It does not meet the bar because correctness is 2: a certified coder feeding it a realistic export would hit wrong output within the first hour. A separate Modifier column is ignored, so a legitimate modifier-59 line gets a HIGH unbundling flag with dollars, and -XE/-XS/-XP/-XU codes are silently dropped from every rule; M/D/YYYY vs MM/DD/YYYY dates hide findings. Tests do not exercise these inputs, which is why they pass. Fitness and domain are 2: the real input is usually a PDF, and with five panels and no NCCI edit table most unbundling is not detectable, which the README says. Small safe fix: widen the strip in cleanCode to /-(\\d{2}|[A-Z]{2})$/, add a 'modifier' alias, and normalise dates before grouping. Re-check with the scratch probes described in evidence and `node --test '*.test.mjs'`."
 }

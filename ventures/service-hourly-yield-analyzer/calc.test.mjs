@@ -165,3 +165,9 @@ test("the sample data loads and produces a flagged service and every table", () 
   assert.equal(hourLabel(0), "12 AM");
   assert.equal(hourLabel(13), "1 PM");
 });
+
+test("a clock duration past :59 is unreadable, not stretched", () => {
+  assert.equal(parseDuration("1:30"), 90);
+  assert.equal(parseDuration("1:75"), null);
+  assert.equal(parseDuration("0:30:60"), null);
+});

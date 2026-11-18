@@ -60,6 +60,22 @@ export function clickableButtons(snap) {
     && !SKIP_BUTTON.test(el.name || ''));
 }
 
+// Values a page shows when its own arithmetic or templating broke. Counted
+// before and after the fills and clicks, so a page whose prose mentions
+// "undefined" is only failed when the interaction adds one (quality audit
+// portfolio/quality/audits/2026-11-08-uitest.json, defect 0).
+const BROKEN_VALUE = /\bNaN\b|\bundefined\b|(?<![\w.])-?Infinity\b|\[object Object\]/g;
+
+export function brokenValues(before, after) {
+  const count = t => {
+    const m = new Map();
+    for (const [tok] of String(t || '').matchAll(BROKEN_VALUE)) m.set(tok, (m.get(tok) || 0) + 1);
+    return m;
+  };
+  const b = count(before);
+  return [...count(after)].filter(([tok, n]) => n > (b.get(tok) || 0)).map(([tok]) => tok);
+}
+
 /** Same-origin page links worth crawling, without fragments, de-duplicated. */
 export function pageLinks(snap, isAllowed) {
   const out = new Set();
@@ -127,6 +143,10 @@ export async function explorePage(driver, url, { isAllowed = () => true, maxClic
   }
 
   const after = (await driver.snapshot()).text;
+  const broken = brokenValues(before, after);
+  if (broken.length) {
+    issues.push({ level: 'fail', message: `after filling ${filled} field(s) and clicking ${clicked} button(s) at ${url} the page shows ${broken.map(t => `"${t}"`).join(', ')}` });
+  }
   if (filled > 0 && after === before) {
     issues.push({ level: 'warn', message: `filled ${filled} field(s)${clicked ? ` and clicked ${clicked} button(s)` : ''} at ${url} but the visible text never changed` });
   }

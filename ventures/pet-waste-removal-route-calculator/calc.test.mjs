@@ -40,7 +40,7 @@ test("a loss is flagged high", () => {
 test("a visit that costs more than it earns makes break-even unreachable", () => {
   const r = compute(raw({ price: "2", supplies: "3" }));
   assert.equal(r.breakEvenClients, null);
-  assert.ok(r.findings.some((f) => /costs more than it brings in/.test(f.title)));
+  assert.ok(r.findings.some((f) => /more than it brings in/.test(f.title)));
   assert.match(summaryText(r), /not reachable/);
 });
 
@@ -78,4 +78,22 @@ test("bad input is reported, not computed", () => {
 test("summary and dollars format", () => {
   assert.equal(dollars(-1234.5), "-$1,234.50");
   assert.match(summaryText(compute(raw())), /Pet waste route: 40 weekly clients at \$15\.00 a visit/);
+});
+
+// Red team 2026-11-13: a non-positive margin per visit must not read as a gain per client.
+test("a client who loses money is not described as adding or leaving money", () => {
+  const r = compute(raw({ price: "2", supplies: "3" }));
+  assert.ok(r.clientMargin < 0);
+  const titles = r.findings.map((f) => f.title).join("\n");
+  assert.doesNotMatch(titles, /-\$/);
+  assert.match(titles, /Each visit costs about \$4\.41 more than it brings in/);
+  assert.match(titles, /Each client loses about \$19\.11 a month after supplies and driving/);
+});
+
+test("a zero margin per visit is not called a loss per visit", () => {
+  const r = compute(raw({ price: "5", supplies: "5", drive: "0", badDebt: "0" }));
+  assert.equal(r.perVisit, 0);
+  const titles = r.findings.map((f) => f.title).join("\n");
+  assert.doesNotMatch(titles, /costs more than it brings in|adds about \$0\.00/);
+  assert.match(titles, /brings in exactly what it costs/);
 });

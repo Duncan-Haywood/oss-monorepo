@@ -50,8 +50,8 @@ export function parseMapping(text) {
 }
 export const mappingText = (mapping = defaultMapping()) => CATEGORY_ORDER.map((k) => `${k} = ${mapping[k]}`).join("\n");
 
-const dollars = (c) => (c < 0 ? "-" : "") + (Math.abs(c) / 100).toFixed(2);
-export const money = (c, cur = "USD") => (c < 0 ? "-" : "") + Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur;
+const dollars = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
+export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur);
 
 // ---- parsing ----------------------------------------------------------------
 
@@ -68,7 +68,7 @@ function splitLine(line, d) {
   return out;
 }
 
-const norm = (h) => h.trim().toLowerCase().replace(/^﻿/, "").replace(/\(.*\)$/, "").trim().replace(/[\s_]+/g, "-").replace(/-+$/, "");
+const norm = (h) => h.trim().toLowerCase().replace(/^\uFEFF/, "").replace(/\(.*\)$/, "").trim().replace(/[\s_]+/g, "-").replace(/-+$/, "");
 
 export function parseAmount(s) {
   let t = String(s ?? "").trim().replace(/\s/g, "").replace(/^[$€£]|[$€£]$/g, "");
@@ -100,8 +100,8 @@ export function parseDate(s, order = "mdy") {
   const MON = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
   let y, m, d, x;
   if ((x = t.match(/^(\d{4})-(\d{2})-(\d{2})/))) [y, m, d] = [x[1], x[2], x[3]];
-  else if ((x = t.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/))) [d, m, y] = [x[1], x[2], x[3]];
-  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
+  else if ((x = t.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})(?!\d)/))) [d, m, y] = [x[1], x[2], x[3]];
+  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?!\d)/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
   else if ((x = t.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?,?\s+(\d{4})/))) { const mi = MON.indexOf(x[2].toLowerCase()); if (mi < 0) return null; [d, m, y] = [x[1], mi + 1, x[3]]; }
   else if ((x = t.match(/^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/))) { const mi = MON.indexOf(x[1].toLowerCase()); if (mi < 0) return null; [m, d, y] = [mi + 1, x[2], x[3]]; }
   else return null;
@@ -167,7 +167,7 @@ function earnedRate(rates, cur, date) {
 export function parseRows(text, opts = {}) {
   const findings = [];
   const add = (severity, title, detail, line) => findings.push({ severity, title, detail, line: line || 0 });
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/);
+  const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/);
   const first = lines.findIndex((l) => l.trim());
   const none = { rows: [], findings };
   if (first < 0) { add("error", "The file is empty", "Paste or choose an AdSense payments CSV."); return none; }
@@ -195,6 +195,9 @@ export function parseRows(text, opts = {}) {
   for (let i = first + 1; i < lines.length; i++) {
     if (!lines[i].trim()) continue;
     const cells = splitLine(lines[i], d);
+    // An unquoted thousands separator ("1,842.17") splits one field in two: the amount read $1.00 and, with no
+    // currency column, nothing said so. A row with more non-empty fields than the header is refused.
+    if (cells.length > head.length && cells.slice(head.length).some((x) => x.trim() !== "")) { add("error", `Line ${i + 1} has ${cells.length} fields but the header has ${head.length}`, "An amount with a thousands separator needs quotes (\"1,842.17\"); export the CSV again or remove the comma. The row is left out.", i + 1); continue; }
     const desc = get(cells, "desc");
     const date = parseDate(get(cells, "date"), opts.dateOrder);
     let amount = parseAmount(get(cells, "amount"));

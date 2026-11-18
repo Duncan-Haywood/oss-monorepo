@@ -1,0 +1,449 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtHHF3bi8MKq3MeWUHk",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T20:07:12Z",
+  "ended": "2026-11-16T20:07:45Z",
+  "wall_minutes": 6.96,
+  "tokens_in": 3729513,
+  "tokens_out": 20779,
+  "cost_usd": 1.824,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16689",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First edit of test_check_social_proof.py lost the method indent (lstrip in my insert script)",
+      "fix": "re-indented before running"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but all 9 open entries are control-plane (owner-approval) fixes that a session cannot land; the list grows each run with nothing a run can do. It could filter control-plane entries into a separate 'awaiting owner' view."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 open list is all control plane (/prompts/, /.github/, control_plane_guard.py); none reproduced as fixed on main (grepped for each fix)",
+      "did": "left all 9 open, went to seeding",
+      "result": "run time went to two new real defects instead"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-redteam-partially-refunded.md"
+  ],
+  "goal": null,
+  "notes": "Guard tightened (4b): check_social_proof.py, which runs on every PR in portfolio-validate.yml, now catches 'used by N <audience>' and 'N/5 from M reviews'; first run over ventures/: 0 findings (6748 files), research/ has 1 pre-existing false positive ('as seen on that date', not scanned in CI). Verification: node --test in the analyzer 103/103; python3 -m unittest test_check_social_proof 29 OK; check_post_frontmatter ok; redteam.py rerun: both gaps caught_after_fix true.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 210319300,
+        "commit": "3362ce0e1",
+        "sites": 609,
+        "baseline_seconds": 1.1,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 54,
+            "col": 55,
+            "operator": "and-to-or",
+            "before": "else { field += c; if (c === \"\\n\" || (c === \"\\r\" && src[i + 1] !== \"\\n\")) line++; }",
+            "after": "else { field += c; if (c === \"\\n\" || (c === \"\\r\" || src[i + 1] !== \"\\n\")) line++; }",
+            "line_text": "      else { field += c; if (c === \"\\n\" || (c === \"\\r\" && src[i + 1] !== \"\\n\")) line++; }",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 99,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "else if (/\\.\\d{1,2}$/.test(v) || /,\\d{3}\\./.test(v)) dot += 1;",
+            "after": "else if (/\\.\\d{1,2}$/.test(v) || /,\\d{4}\\./.test(v)) dot += 1;",
+            "line_text": "      else if (/\\.\\d{1,2}$/.test(v) || /,\\d{3}\\./.test(v)) dot += 1;",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test fed a three-decimal grouped amount (\"1,234.500\"), the only case the grouping vote decides; test 'a three-decimal grouped amount votes for decimal point'"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 123,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "rest = m[4];",
+            "after": "rest = m[5];",
+            "line_text": "    rest = m[4];",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 150,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "if (m[2] === \".\") dotted = true;",
+            "after": "if (m[2] !== \".\") dotted = true;",
+            "line_text": "    if (m[2] === \".\") dotted = true;",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 167,
+            "col": 22,
+            "operator": "and-to-or",
+            "before": "if (at !== -1 && !Object.values(cols).includes(at)) { cols[field] = at; break outer; }",
+            "after": "if (at !== -1 || !Object.values(cols).includes(at)) { cols[field] = at; break outer; }",
+            "line_text": "        if (at !== -1 && !Object.values(cols).includes(at)) { cols[field] = at; break outer; }",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 225,
+            "col": 24,
+            "operator": "lt-to-le",
+            "before": "for (let i = h + 1; i < table.length; i++) {",
+            "after": "for (let i = h + 1; i <= table.length; i++) {",
+            "line_text": "  for (let i = h + 1; i < table.length; i++) {",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 284,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "{ key: \"late\", label: \"Late (21:00 on)\", from: 21, to: 25 },",
+            "after": "{ key: \"late\", label: \"Late (21:00 on)\", from: 22, to: 25 },",
+            "line_text": "  { key: \"late\", label: \"Late (21:00 on)\", from: 21, to: 25 },",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 289,
+            "col": 114,
+            "operator": "const-plus-one",
+            "before": "return { key, label, orders: 0, records: 0, gross: 0, commission: 0, delivery: 0, marketing: 0, ads: 0, errors: 0, charges: 0, net: 0, foodCost: 0, packaging: 0, netAfter: 0, payout: 0, payoutRows: 0, base: 0 };",
+            "after": "return { key, label, orders: 0, records: 0, gross: 0, commission: 0, delivery: 0, marketing: 0, ads: 0, errors: 1, charges: 0, net: 0, foodCost: 0, packaging: 0, netAfter: 0, payout: 0, payoutRows: 0, base: 0 };",
+            "line_text": "  return { key, label, orders: 0, records: 0, gross: 0, commission: 0, delivery: 0, marketing: 0, ads: 0, errors: 0, charges: 0, net: 0, foodCost: 0, packaging: 0, netAfter: 0, payout: 0, payoutRows: 0, base: 0 };",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 449,
+            "col": 39,
+            "operator": "plus-to-minus",
+            "before": "const p1 = (n) => (n * 100).toFixed(1) + \"%\";",
+            "after": "const p1 = (n) => (n * 100).toFixed(1) - \"%\";",
+            "line_text": "const p1 = (n) => (n * 100).toFixed(1) + \"%\";",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 529,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "const d = new Date(Date.UTC(2026, 5, 1 + Math.floor(rnd() * 90), 11 + Math.floor(rnd() * 11), Math.floor(rnd() * 60)));",
+            "after": "const d = new Date(Date.UTC(2026, 5, 1 + Math.floor(rnd() * 91), 11 + Math.floor(rnd() * 11), Math.floor(rnd() * 60)));",
+            "line_text": "      const d = new Date(Date.UTC(2026, 5, 1 + Math.floor(rnd() * 90), 11 + Math.floor(rnd() * 11), Math.floor(rnd() * 60)));",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sample's date window was unpinned, so the worked example could drift off the three months it describes; test 'the worked example spans the same three months on every load'"
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_social_proof.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_social_proof  (in platform/ci)",
+        "seed": 364975211,
+        "commit": "3362ce0e1",
+        "sites": 28,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 44,
+            "col": 53,
+            "operator": "or-to-and",
+            "before": "return any(k in lowered for k in PREFILTER_KEYS) or SLASH5.search(lowered) is not None",
+            "after": "return any(k in lowered for k in PREFILTER_KEYS) and SLASH5.search(lowered) is not None",
+            "line_text": "    return any(k in lowered for k in PREFILTER_KEYS) or SLASH5.search(lowered) is not None",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 80,
+            "col": 45,
+            "operator": "max-to-min",
+            "before": "if m and not (ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR])",
+            "after": "if m and not (ATTRIBUTED.search(line[min(0, m.start() - NEAR):m.end() + NEAR])",
+            "line_text": "        if m and not (ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR])",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 80,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "if m and not (ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR])",
+            "after": "if m and not (ATTRIBUTED.search(line[max(1, m.start() - NEAR):m.end() + NEAR])",
+            "line_text": "        if m and not (ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR])",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 82,
+            "col": 32,
+            "operator": "max-to-min",
+            "before": "out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "after": "out.append((i, line[min(0, m.start() - 40):m.end() + 40].strip()))",
+            "line_text": "            out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 82,
+            "col": 63,
+            "operator": "plus-to-minus",
+            "before": "out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "after": "out.append((i, line[max(0, m.start() - 40):m.end() - 40].strip()))",
+            "line_text": "            out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 82,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "after": "out.append((i, line[max(0, m.start() - 40):m.end() + 41].strip()))",
+            "line_text": "            out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 99,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 102,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "bad, n = 0, 0",
+            "after": "bad, n = 0, 1",
+            "line_text": "    bad, n = 0, 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 108,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "bad += 1",
+            "after": "bad += 2",
+            "line_text": "            bad += 1",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 111,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 2 if bad else 0",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "Any order status containing 'refund' (\"Partially refunded\", \"Refund requested\") marked a delivered order cancelled, so its food sales were zeroed while its charges stayed: four $40 orders read as $40 of sales and -$8 net cash. Fixed: only a whole-status refund (Refund, Refunded, Fully refunded) cancels; failing-first test 'a partly refunded or refund-requested order still sold its food'.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/check_social_proof.py",
+        "issue": "Passed 'Used by 10,000+ restaurants' / 'relied on by 3,000 accountants' and '4.9/5 from 1,200 reviews', the same unbacked claims it exists to reject. Fixed: CLAIM matches an audience count after used/relied on/chosen by and a rating with a review tally; 'reports it/that' counts as attribution so competitor quotes on vs-jobber pages stay clean. Failing-first tests in test_check_social_proof.py.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c8884c43-aa8d-5ede-8af9-978e19aa4753",
+    "transcripts": 1,
+    "first": "2026-11-16T20:07:12Z",
+    "last": "2026-11-16T20:14:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 20779,
+        "thinking": 6619,
+        "cache_read": 3644532,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84898,
+        "api_equivalent_usd": 1.824,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 20779,
+      "thinking": 6619,
+      "cache_read": 3644532,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84898,
+      "api_equivalent_usd": 1.824,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.96,
+      "active_minutes": 6.96,
+      "model_minutes": 4.08,
+      "tool_minutes": 2.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: mutation triage, two fixes with tests, regex tightening, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 164.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

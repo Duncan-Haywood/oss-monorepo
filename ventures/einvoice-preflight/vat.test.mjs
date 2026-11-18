@@ -81,6 +81,15 @@ test("NL elfproef weighs the check digit at -1, not +1", () => {
   // example the Dutch tax authority format uses.
 });
 
+test("NL btw-id issued since 2020 passes on mod 97-10, not only the elfproef", () => {
+  // python-stdnum nl.btw's own example: a sole trader's number with no BSN in it.
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "NL002455799B11" }, "supplier"), []);
+  // One suffix digit off fails both checks.
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "NL002455799B12" }, "supplier").map((f) => f.rule), ["INV-023"]);
+  // A suffix of 00 is never issued, although it passes the elfproef.
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "NL123456782B00" }, "supplier").map((f) => f.rule), ["INV-023"]);
+});
+
 test("IE legacy letter-second-character shape rearranges before weighing", () => {
   // The 8-character Irish shape covers two different real numbers: the
   // common one is 7 digits plus a check letter (already covered by
@@ -708,4 +717,14 @@ test("TR accepts a 10-digit VKN and an 11-digit TCKN, each with its own check di
   assert.equal(bad("12345678"), true);
   assert.equal(bad("10000000146"), false); // valid T.C. Kimlik number (stdnum tckimlik docs)
   assert.equal(bad("10000000147"), true);
+});
+
+test("a Czech 10-digit birth number must name a real day, not 31 February", () => {
+  // 850231/0003 passes mod 11 but 31 February 1985 never happened; 855231/0008 is the same for a woman (+50).
+  for (const vat_id of ["CZ8502310003", "CZ8552310008"]) {
+    const findings = inspectPartyVat({ id: "S1", name: "A", vat_id }, "supplier");
+    assert.equal(findings.length, 1, vat_id);
+    assert.equal(findings[0].rule, "INV-023");
+  }
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "CZ8402290006" }, "supplier"), []);
 });

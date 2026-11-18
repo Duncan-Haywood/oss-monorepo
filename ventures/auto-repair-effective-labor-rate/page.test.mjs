@@ -373,7 +373,7 @@ test('opening the page counts nothing and arms nothing', () => {
 });
 
 test('the opt-out is honoured on every counted event', () => {
-  const calls = [...script.matchAll(/recordUsage\([^)]*\)/g)].map((m) => m[0]);
+  const calls = [...script.matchAll(/recordUsage\((?:[^()]|\([^()]*\))*\)/g)].map((m) => m[0]);
   assert.ok(calls.length >= 2, 'expected the calculate and save events to be counted');
   for (const call of calls) {
     assert.match(call, /optedOut\(\)/, `recordUsage call ignores the opt-out: ${call}`);

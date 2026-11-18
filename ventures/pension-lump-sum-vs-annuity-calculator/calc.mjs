@@ -37,7 +37,7 @@ const nz = (x) => (Number.isFinite(x) && x > 0 ? x : 0);
 export function money(x) {
   if (!Number.isFinite(x)) return "n/a";
   const n = Math.round(x);
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US"));
 }
 export function pct(x, d = 1) {
   return Number.isFinite(x) ? (x * 100).toFixed(d) + "%" : "n/a";
@@ -138,7 +138,7 @@ export function analyze(raw) {
   const sustain = sustainableMonthly(lumpNet, o, rate);
   const ages = [0.75, 0.5, 0.25, 0.1].map((p) => ({ p, age: ageAtSurvival(p, age, life) }));
   const lifeAges = [78, 82, 85, 88, 92].filter((l) => l > age);
-  const rates = [rate - 2, rate - 1, rate, rate + 1, rate + 2].filter((r) => r > 0);
+  const rates = [rate - 2, rate - 1, rate, rate + 1, rate + 2].map((r) => Math.round(r * 1e6) / 1e6).filter((r) => r > 0); // 5.1 - 2 is 3.0999999999999996
   const grid = rates.map((r) => ({ rate: r, values: lifeAges.map((l) => presentValue(monthlyRows({ ...o, lifeAge: l }), r)) }));
   return {
     rows, lump, lumpNet, rate, pvPension, pvCertain, gap: lumpNet - pvPension, ratio: pvPension ? lumpNet / pvPension : NaN,

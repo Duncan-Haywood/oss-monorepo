@@ -1,0 +1,20 @@
+# Made-up example (seeded random lists in which programmes favour residents who rank them lower).
+# Residents rank programmes; programmes rank the residents who applied to them.
+[residents]
+Ada: Riverbend > Hillcrest
+Bo: Northside > Riverbend > Hillcrest
+Chen: Lakeview > Hillcrest > Northside > Riverbend
+Dara: Riverbend > Hillcrest
+Eli: Northside > Hillcrest
+Fen: Lakeview > Riverbend
+Gus: Riverbend > Northside > Hillcrest > Lakeview
+Hana: Riverbend > Hillcrest > Lakeview > Northside
+Ivo: Northside > Riverbend > Lakeview > Hillcrest
+Jun: Riverbend > Lakeview
+Kit: Lakeview > Hillcrest > Riverbend
+Lu: Riverbend > Hillcrest > Northside
+[programmes]
+Northside (3): Hana > Lu > Chen > Gus > Eli > Ivo > Bo
+Lakeview (2): Gus > Ivo > Hana > Fen > Jun > Chen > Kit
+Riverbend (2): Chen > Kit > Fen > Ivo > Bo > Ada > Dara > Hana > Lu > Gus > Jun
+Hillcrest (2): Ivo > Bo > Ada > Gus > Kit > Dara > Eli > Chen > Hana > Lu

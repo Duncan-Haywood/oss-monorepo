@@ -100,7 +100,7 @@ def wrap_flat(text: str):
 def sweep_all(root, fix):
     left, done = [], 0
     for f in sorted(Path(root).rglob("*.html")):
-        if "node_modules" in f.parts or f.name == "index.html" and f.parent.parent == Path(root):
+        if not {"node_modules", ".next"}.isdisjoint(f.parts) or f.name == "index.html" and f.parent.parent == Path(root):
             continue
         try:
             t = f.read_bytes().decode("utf8")

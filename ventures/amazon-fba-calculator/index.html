@@ -153,7 +153,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 760px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f4f8a; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); gap: 18px; align-items: start; }
@@ -171,6 +171,8 @@
     .result a { color: inherit; text-decoration: underline; }
     /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
     .result table { display: block; overflow-x: auto; max-width: 100%; }
+    /* A display:block table sizes its caption to the grid, not the box: keep it in view. */
+    .result caption { display: block; position: sticky; left: 0; }
     .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -1059,7 +1061,7 @@
       prepSummary,
       subscribeSaveSummary,
     } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
     import { deleteScenario, listScenarios, saveScenario } from "./scenarios.mjs";
     import { decodeInputs, encodeInputs, ENUM_FIELDS } from "./share.mjs";
     import { whereToSellUrl } from "./to-where-to-sell.mjs";
@@ -1142,7 +1144,7 @@
     // page to learn whether sending extra units beats paying the surcharge.
     function renderLowInventory(input) {
       const result = compareLowInventory(input);
-      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
       const verdict = document.getElementById("lowInventoryVerdict");
       if (!result.applies) {
         verdict.textContent = result.reason === "fbm"
@@ -1200,7 +1202,7 @@
         ...input,
         removalFee: input.agedRemovalFee,
       });
-      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
       const verdict = document.getElementById("liquidationVerdict");
       if (result.winner === "elsewhere") {
         verdict.textContent = `Selling elsewhere keeps ${signed(result.extraElsewhereVsLiquidate)} more than FBA Liquidations`;
@@ -1231,7 +1233,7 @@
     // is-amazon-vine-worth-it.html.
     function renderVine(input) {
       const result = compareVine(input);
-      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
       const verdict = document.getElementById("vineVerdict");
       if (result.winner === "leftover") {
         verdict.textContent = `Vine leftover units keep ${signed(result.extraKeptOnLeftover)} more than skipping Vine`;
@@ -1259,7 +1261,7 @@
     // should-i-use-seller-fulfilled-prime.html.
     function renderSfp(input) {
       const result = compareSfp(input);
-      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
       const verdict = document.getElementById("sfpVerdict");
       if (result.winner === "sfp") {
         verdict.textContent = `Seller Fulfilled Prime keeps ${signed(result.extraKeptOnSfp)} more per session than FBA`;
@@ -1289,7 +1291,7 @@
 
     function renderScenarios() {
       const list = document.getElementById("scenarioList");
-      list.replaceChildren(...listScenarios(localStorage).flatMap((scenario) => {
+      list.replaceChildren(...listScenarios(usageStorage()).flatMap((scenario) => {
         const load = document.createElement("button");
         load.type = "button";
         load.dataset.load = scenario.id;
@@ -1302,7 +1304,7 @@
         return [load, remove];
       }));
       list.querySelectorAll("[data-load]").forEach((button) => button.addEventListener("click", () => {
-        const scenario = listScenarios(localStorage).find((item) => item.id === button.dataset.load);
+        const scenario = listScenarios(usageStorage()).find((item) => item.id === button.dataset.load);
         if (!scenario) return;
         ids.forEach((id) => { if (scenario.inputs[id] !== undefined) document.getElementById(id).value = scenario.inputs[id]; });
         if (scenario.inputs.fulfillmentMethod) {
@@ -1310,13 +1312,13 @@
           if (radio) radio.checked = true;
         }
         update();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "scenario_loaded");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "scenario_loaded");
       }));
       list.querySelectorAll("[data-delete]").forEach((button) => {
         button.addEventListener("click", () => {
-          deleteScenario(localStorage, button.dataset.delete);
+          deleteScenario(usageStorage(), button.dataset.delete);
           renderScenarios();
-          recordUsage(localStorage, document.getElementById("usageOptOut").checked, "scenario_deleted");
+          recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "scenario_deleted");
         });
       });
     }
@@ -1737,14 +1739,14 @@
       const filled = applyCategoryPreset({}, document.getElementById("category").value);
       document.getElementById("referralRate").value = filled.referralRate;
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "category_preset_applied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "category_preset_applied");
     }
 
     function applyStorage() {
       const filled = applyStoragePreset({}, document.getElementById("storageSeason").value);
       document.getElementById("storageRate").value = filled.storageRate;
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "storage_season_applied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "storage_season_applied");
     }
 
     function syncPlacementRates(sizeTier, sizeTierLabel) {
@@ -1810,8 +1812,7 @@
       update();
     }));
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
-      recordUsage(
-        localStorage,
+      recordUsage(usageStorage(),
         document.getElementById("usageOptOut").checked,
         id === "targetMargin" ? "target_margin_calculated"
           : id === "adsPerUnit" ? "break_even_acos_calculated"
@@ -1836,27 +1837,27 @@
     }));
     document.getElementById("lowPriceEligible").addEventListener("change", () => {
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "low_price_fba_compared");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "low_price_fba_compared");
     });
     ["groceryExempt", "newFnskuExempt"].forEach((id) => {
       document.getElementById(id).addEventListener("change", () => {
         update();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "low_inventory_compared");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "low_inventory_compared");
       });
     });
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
         update();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "fulfillment_path_compared");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "fulfillment_path_compared");
       });
     });
     document.getElementById("usageOptOut").addEventListener("change", update);
     document.getElementById("saveScenario").addEventListener("click", () => {
       try {
-        saveScenario(localStorage, document.getElementById("scenarioName").value, readInput());
+        saveScenario(usageStorage(), document.getElementById("scenarioName").value, readInput());
         document.getElementById("scenarioName").value = "";
         renderScenarios();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "scenario_saved");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "scenario_saved");
       } catch (error) {
         document.getElementById("scenarioName").setCustomValidity(error.message);
         document.getElementById("scenarioName").reportValidity();
@@ -1868,7 +1869,7 @@
         const text = decisionSummary();
         if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
         else window.prompt("Copy this decision summary:", text);
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "decision_summary_copied");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "decision_summary_copied");
       } catch {
         return;
       }
@@ -1921,7 +1922,7 @@
         if (radio) { radio.checked = true; applied += 1; }
       }
       if (applied > 0) {
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shared_link_opened");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "shared_link_opened");
         document.getElementById("shareStatus").textContent =
           `Loaded ${applied} value${applied === 1 ? "" : "s"} from the link. Everything else is this page's own starting figure — check the referral rate and size tier against your own fee preview.`;
       }
@@ -1938,7 +1939,7 @@
         // back button carry the scenario even if the clipboard was refused.
         location.hash = query;
         status.textContent = "Link copied. It carries your inputs and nothing else.";
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_copied");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "share_link_copied");
       } catch {
         status.textContent = "Could not reach the clipboard — the address bar now holds the same link.";
         location.hash = query;
@@ -1948,7 +1949,7 @@
     document.getElementById("whereToSellLink").addEventListener("click", () => {
       // Records only that the handoff happened, never the item — this is the
       // one signal that will say whether the reverse handoff is worth keeping.
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "handoff_where_to_sell");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "handoff_where_to_sell");
     });
 
     applySharedLink();
@@ -1963,8 +1964,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

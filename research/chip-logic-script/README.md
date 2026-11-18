@@ -44,8 +44,10 @@ Best cells x depth over each group (lower is better); the full per-candidate tab
 
 ## Limitations
 - Three tiny combinational blocks, one tool version (Yosys 0.33), one generic-gate library: cells x depth is a gate count times a topological depth, not area or delay, and the ranking could change with a real library (`chip-ppa-sky130mac` found it can).
-- The proposer files were written by the session agent, one attempt each and in the earlier project, not sampled from a model; the proposer files' win under three scripts says a good hand-written structure can beat the sweep when the script suits it, not that an LLM would find it. The sweep space is small (6 configs for clz16) and does not contain the nibble-combine form, so "sweep" here means that particular generator.
-- Not a statistical test: all numbers are deterministic single runs. The resyn2-style script is written from memory and may differ from the real alias.
+- The proposer files were written by the session agent, one attempt each and in the earlier project, not sampled from a model; the proposer files' win under three scripts says a good hand-written structure can beat the sweep when the script suits it, not that an LLM would find it. The sweep space is small (6 configs for clz16); its `nibble` config combines nibble counts with adders, not `c2`'s concatenation, so "sweep" here means that particular generator. `c2` is Oklobdzija's hierarchical leading-zero detector (IEEE TVLSI 2(1):124-128, 1994), not a new structure.
+- **The `dch_map` headline depends on MUX being a one-unit cell.** With MUX removed from the generic library (`AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT`), `c2` under `dch_map` scores 396 against the sweep's 344 and the sweep wins; the script-flips-the-verdict result becomes 2 of 5 scripts (`strash_map`, `resyn2_map`) instead of 3 (quality audit, [`portfolio/quality/audits/2026-11-12-chip-logic-script.json`](../../portfolio/quality/audits/2026-11-12-chip-logic-script.json)).
+- The `yosys_default` column runs `synth -flatten -noabc` then `abc -g`, not `chip-ppa-logic`'s `synth -flatten` with its built-in abc, so its default numbers differ from that project's (e.g. absd8 reference 1071 here, 1122 there).
+- Not a statistical test: all numbers are deterministic single runs. Prior work on ABC's sensitivity to input structure and script (e.g. Fišer and Schmidt, IWLS 2024) is not compared against.
 - Candidates are the earlier project's; no new rewrite was proposed here, so the result is about re-scoring, not search.
 
 ## Next steps

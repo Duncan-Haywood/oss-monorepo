@@ -3,6 +3,7 @@
 // resolved as `playwright`, and the GitHub Action installs it into a scratch
 // directory. CHROME_PATH reuses a Chromium already on the machine.
 
+import { createRequire } from 'node:module';
 import { collectInPage, REF_ATTR } from './observe.mjs';
 
 export async function loadPlaywright(env = process.env) {
@@ -10,8 +11,15 @@ export async function loadPlaywright(env = process.env) {
   try {
     mod = await import(env.PLAYWRIGHT || 'playwright');
   } catch (err) {
-    throw new Error('Playwright is not installed. Run `npm i -D playwright && npx playwright install chromium`, ' +
-      `or set PLAYWRIGHT to its entry file (${err.message.split('\n')[0]})`);
+    // ESM import ignores NODE_PATH, where cloud sessions and some CI images
+    // keep a global Playwright; require() honours it.
+    try {
+      if (env.PLAYWRIGHT) throw err;
+      mod = createRequire(import.meta.url)('playwright');
+    } catch {
+      throw new Error('Playwright is not installed. Run `npm i -D playwright && npx playwright install chromium`, ' +
+        `or set PLAYWRIGHT to its entry file (${err.message.split('\n')[0]})`);
+    }
   }
   const chromium = mod.chromium ?? mod.default?.chromium;
   if (!chromium) throw new Error(`PLAYWRIGHT=${env.PLAYWRIGHT} loaded, but exports no chromium`);

@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtKjioBzVfEmhRAVHaX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T22:07:02Z",
+  "ended": "2026-11-13T22:28:52Z",
+  "wall_minutes": 39.85,
+  "tokens_in": 18011835,
+  "tokens_out": 80700,
+  "cost_usd": 6.8061,
+  "tool_calls": 119,
+  "task": "Deepen (flagship 6) shift-roster-builder: planner picks a week's tie by what it leaves the next",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15632",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "pkill -f with an unbracketed pattern inside a chained background command killed that shell too (exit 144), losing one sweep run; reran it",
+    "First eval timings were contaminated by buildRoster's process-wide memo (later plan kinds reused earlier kinds' builds); fixed with memo:false in eval/plan-lookahead.mjs"
+  ],
+  "integrity_issues": [
+    "Drafted a causal sentence in the blog post (someone closing Sunday could not open Monday) that I had not checked; replaced it with the measured statement before committing",
+    "eval/steady-plan.mjs's 'off usual' compared plans with a fresh buildRoster week, which since the morning's fresh-build order change is a different tie than the planner's own usual week, so that column had silently stopped meaning anything; now measured against the planner's own leave-free first week, and stated in the README"
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The hook-blocked pkill advice is there, but not that pkill -f '[n]ame' still kills a chained `cmd1; cmd2` background shell whose own command line contains the pattern; kill by PID or bracket a substring unique to the node args"
+    },
+    {
+      "file": "ventures/shift-roster-builder/eval/plan-order.mjs",
+      "issue": "Timings across plan kinds in one process share buildRoster's memo, so later kinds look faster than they are; the eval does not say so"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The item asked only for a tie-pick by look-ahead; measuring churn showed column generation first also reshuffled tied weeks, so steady ties and a fallback were added in the same slice, and keep-usual-shifts was left on the old order after measurement",
+      "did": "Look-ahead + steady ties + old-order fallback for plain plans; keep plans unchanged",
+      "result": "0 of 61 plans worse on open hours, 71% fewer changes, 1.7x faster; leave sweep 2x faster, changes -41% at 2% leave"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-shift-roster-a-tie-that-leaves-next-week-room.md",
+    "ventures/shift-roster-builder/README.md (section: The planner picks a week's tie by what it leaves the next)"
+  ],
+  "goal": null,
+  "notes": "Local verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (109.6s), 1 suites run, 0 failed. venture-preflight first failed on the post's description length (222 > 160), fixed and rerun: preflight clean. Evals: eval/plan-lookahead.out.txt, eval/steady-plan.steady-ties.txt, eval/steady-plan.walk-order.txt. No dedicated agent doc in docs/reports: the README section and flagships next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f5010b70-59c7-5fd0-bbc2-fd9605186561",
+    "transcripts": 1,
+    "first": "2026-11-13T22:07:02Z",
+    "last": "2026-11-13T22:46:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 116,
+        "input": 225,
+        "output": 80700,
+        "thinking": 23623,
+        "cache_read": 17807914,
+        "cache_write_5m": 0,
+        "cache_write_1h": 203696,
+        "api_equivalent_usd": 6.8061,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 116,
+      "input": 225,
+      "output": 80700,
+      "thinking": 23623,
+      "cache_read": 17807914,
+      "cache_write_5m": 0,
+      "cache_write_1h": 203696,
+      "api_equivalent_usd": 6.8061,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 119,
+    "tools": {
+      "Bash": 112,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 39.85,
+      "active_minutes": 39.85,
+      "model_minutes": 15.8,
+      "tool_minutes": 24.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior OR engineer: design and implement a multi-week tie-break with look-ahead, two evals and page re-derivation",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 176.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

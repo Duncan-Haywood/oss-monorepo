@@ -44,7 +44,7 @@ export function formatMoney(cents, currency = "USD") {
   const sym = CURRENCIES[currency] ?? currency + " ";
   const whole = currency === "JPY";
   const body = Math.abs(cents / 100).toLocaleString("en-US", { minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: whole ? 0 : 2 });
-  return (cents < 0 ? "-" : "") + sym + body;
+  return ((t) => (cents < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(sym + body);
 }
 
 const ISO = /^(\d{4})-(\d{2})-(\d{2})$/;

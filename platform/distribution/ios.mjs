@@ -243,7 +243,7 @@ export async function buildIos({ slug, dir, baseUrl = BASE_URL }) {
   const title = /<title>([^<]*)<\/title>/i.exec(html)?.[1] ?? slug;
   const description = /<meta\s+name=["']description["']\s+content=["']([^"']*)["']/i.exec(html)?.[1] ?? '';
   const name = storeName(title);
-  const bundleId = packageId(slug, baseUrl);
+  const bundleId = packageId(slug);
   const files = {};
   for (const [rel, body] of Object.entries(ext.files)) {
     if (EXTENSION_ONLY.has(rel) || rel.startsWith('icons/')) continue;

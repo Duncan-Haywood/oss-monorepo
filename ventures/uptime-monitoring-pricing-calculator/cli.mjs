@@ -21,6 +21,9 @@ function loadProviders(file) {
   if (!file) return merged;
   let over;
   try { over = JSON.parse(readFileSync(file, "utf8")); } catch (e) { fail(`could not read --prices ${file}: ${e.message}`); }
+  const isObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
+  if (!isObj(over)) fail(`--prices ${file} must be a JSON object of provider overrides, keyed by provider`);
+  for (const [k, v] of Object.entries(over)) if (!isObj(v)) fail(`--prices ${file}: "${k}" must be an object of rate fields`);
   for (const [k, v] of Object.entries(over)) merged[k] = { ...(merged[k] || { label: k, url: "", plans: [] }), ...v };
   return merged;
 }
@@ -42,6 +45,12 @@ const num = (k, d) => {
   if (!Number.isFinite(n) || n < 0) fail(`--${k} needs a non-negative number, got "${opt[k]}"`);
   return n;
 };
+// --months: a whole number of months, 1 or more (0 crashed with exit 1, read as a tripped gate; red team 2026-11-17).
+const monthsOpt = () => {
+  const m = num("months", 12);
+  if (!Number.isInteger(m) || m < 1) fail(`--months needs a whole number of months, 1 or more, got "${opt.months}"`);
+  return m;
+};
 const n0 = (n) => n.toLocaleString("en-US");
 const money = (n) => (n == null ? "n/a" : fmt(n));
 
@@ -56,14 +65,14 @@ if (cmd === "providers") {
   const providers = loadProviders(opt.prices);
   const monitors = num("monitors"), interval = num("interval-sec", 300), sp = Boolean(opt["status-page"]);
   const rows = compare(monitors, interval, sp, providers);
-  const proj = project(monitors, interval, sp, num("growth", 0), num("months", 12), providers);
+  const proj = project(monitors, interval, sp, num("growth", 0), monthsOpt(), providers);
   const s = summarize(rows, { budget: opt.budget === undefined ? null : num("budget"), provider: opt.provider || null });
   if (s.status === "error" && !s.overBudget) fail(s.text);
   if (opt.json) console.log(JSON.stringify({ monitors, intervalSec: interval, statusPage: sp, rows, projection: proj, summary: s }, null, 2));
   else {
     console.log(`${n0(monitors)} monitors every ${interval}s${sp ? ", public status page" : ""}\n`);
     for (const r of rows) console.log(`${(r.label + (r.plan ? ` [${r.plan}]` : "")).padEnd(62)} ${r.monthly == null ? "no covering plan".padStart(12) : (fmt(r.monthly) + "/mo").padStart(12)}  ${money(r.annual).padStart(12)}/yr${r.extraVsCheapest ? `  (+${fmt(r.extraVsCheapest)})` : ""}`);
-    console.log(`\n${num("months", 12)}-month spend at ${num("growth", 0)}%/mo monitor growth (${n0(monitors)} -> ${n0(proj.endMonitors)} monitors at the end):`);
+    console.log(`\n${monthsOpt()}-month spend at ${num("growth", 0)}%/mo monitor growth (${n0(monitors)} -> ${n0(proj.endMonitors)} monitors at the end):`);
     for (const t of proj.totals) console.log(`${t.label.padEnd(62)} ${money(t.total).padStart(12)}`);
     console.log(`\n${s.text}\n${PRICES_AS_OF}. Not a quote.`);
   }

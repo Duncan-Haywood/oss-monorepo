@@ -1,5 +1,6 @@
 "use client";
 
+import { contendersLine } from "@/lib/favouriteSet";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { INSIGHTS, SWIPES_PER_LEVEL } from "@/lib/insights";
@@ -179,7 +180,7 @@ function renderInsight(key: string, content: Record<string, unknown>): React.Rea
         </p>
         {r.contested && r.rivals && r.rivals.length > 1 && (
           <p className="mt-1.5 rounded-lg bg-neutral-100 px-2 py-1 text-[11px] text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
-            Still too close to call — it&apos;s between {r.rivals.slice(0, 3).join(", ")}.
+            {contendersLine(r.rivals)}
           </p>
         )}
       </div>

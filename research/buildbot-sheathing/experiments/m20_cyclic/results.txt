@@ -1,0 +1,72 @@
+# Milestone 20: Weiss's wall under the CUREE protocol, with pinching nails (buildbot-sheathing)
+Milestone 19's bodies (sill fixed; top plate driven along the wall without rotating; 7 studs, 2 sheets). Each sheathing nail an oriented pair of SAWS springs; each stud-to-plate joint a SAWS spring of m x 1.297 nails (displacements x lambda); stiff bearing and hold-down ties; anchor rods with a gap g in a hole that crushes past the cap (2.55 nail peaks). Loads in units of FU, the nail's envelope peak.
+
+## A. Inputs
+anderson 115: K0 0.499 kN/mm, F0 1108 N, FI 144 N, Du 10.79 mm, r1 0.037, r2 -0.069, r3 3.91, r4 0.028, alpha 0.265, beta 1.15; FU 1297 N, DINT2 0.32 mm, DF 37.4 mm
+anderson 87: K0 0.451 kN/mm, F0 1054 N, FI 138 N, Du 10.77 mm, r1 0.05, r2 -0.066, r3 4.36, r4 0.012, alpha 0.244, beta 1.18; FU 1284 N, DINT2 0.33 mm, DF 49.6 mm
+anderson 145: K0 0.502 kN/mm, F0 1161 N, FI 130 N, Du 10.21 mm, r1 0.051, r2 -0.075, r3 4.43, r4 0.041, alpha 0.244, beta 1.13; FU 1405 N, DINT2 0.29 mm, DF 33.0 mm
+anderson 241: K0 0.543 kN/mm, F0 1357 N, FI 128 N, Du 10.19 mm, r1 0.057, r2 -0.051, r3 4.77, r4 0.064, alpha 0.158, beta 1.08; FU 1643 N, DINT2 0.26 mm, DF 32.9 mm
+folz-filiatrault: K0 0.561 kN/mm, F0 751 N, FI 141 N, Du 12.50 mm, r1 0.061, r2 -0.078, r3 1.4, r4 0.143, alpha 0.8, beta 1.1; FU 1179 N, DINT2 0.33 mm, DF 15.1 mm
+rod: k 46.7 kN/mm, cap 2.55 FU; gaps (in) [0.0, 0.0625, 0.25]; m [0.25, 0.47, 0.75, 1.0]; lambda [0.25, 1.0]; step 0.5 mm
+history: CUREE basic (W-02 Sec. 1.1), delta = 0.6 delta_m from the intact wall's own monotonic push at the same joints and gap; decayed walls get their intact wall's delta (one protocol per test group)
+
+## B. H93: SAWS against OpenSees' SAWSMaterial (ops_check.py), CUREE history, delta = 2 Du
+anderson 87 ksi    step 0.020 Du (12301 points): rms 1.5e-13 FU, largest 5.0e-13 FU
+anderson 87 ksi    step 0.005 Du (49059 points): rms 1.5e-13 FU, largest 5.0e-13 FU
+anderson 115 ksi   step 0.020 Du (12301 points): rms 1.7e-13 FU, largest 5.0e-13 FU
+anderson 115 ksi   step 0.005 Du (49059 points): rms 1.7e-13 FU, largest 5.0e-13 FU
+anderson 145 ksi   step 0.020 Du (12338 points): rms 1.5e-13 FU, largest 4.4e-13 FU
+anderson 145 ksi   step 0.005 Du (49104 points): rms 1.5e-13 FU, largest 4.4e-13 FU
+anderson 241 ksi   step 0.020 Du (12301 points): rms 1.2e-13 FU, largest 3.7e-13 FU
+anderson 241 ksi   step 0.005 Du (49059 points): rms 1.2e-13 FU, largest 3.7e-13 FU
+folz-filiatrault   step 0.020 Du (12346 points): rms 2.2e-13 FU, largest 6.4e-13 FU
+folz-filiatrault   step 0.005 Du (49104 points): rms 2.2e-13 FU, largest 6.4e-13 FU
+H93 (rms at most 2% of FU): held
+
+monotonic pushes: 112 (121 s); largest residual 1.0e-07 FU
+
+## C. H94: the oriented pair against milestone 19's radial spring, monotonic, m 1, lambda 1, no gap
+6-12 intact: pair  18.844 FU, radial  17.954 FU (+4.96%); drift at peak 55.5 against 54.5 mm; delta_m 57.0 against 80.0 mm
+6-12 decay : pair  14.814 FU, radial  14.080 FU (+5.22%); drift at peak 62.0 against 52.5 mm; delta_m 75.0 against 61.0 mm
+3-12 intact: pair  36.258 FU, radial  35.182 FU (+3.06%); drift at peak 61.0 against 54.0 mm; delta_m 66.0 against 81.5 mm
+3-12 decay : pair  25.466 FU, radial  24.650 FU (+3.31%); drift at peak 59.5 against 56.5 mm; delta_m 61.0 against 70.5 mm
+shares kept, pair 78.6%|70.2%, radial 78.4%|70.1%
+H94 (within 3% in all four): largest 5.22%: refuted
+
+cyclic runs: 120 (4095 s); largest residual 1.0e-07 FU; steps per run 2515-13283
+
+## D. Share kept 6-12 | 3-12 (decay ratio), monotonic -> cyclic; cap 2.55 FU; rows m and lambda, columns gap (in)
+m     lam                                    0.0000                                  0.0625                                  0.2500
+0.25  0.25    52.3%|31.3% -> 49.6%|31.2% (1.19)   52.5%|31.3% -> 49.9%|31.3% (1.21)   38.0%|24.6% -> 34.9%|23.5% (1.27)
+0.25  1.0     57.5%|31.5% -> 57.6%|31.4% (1.04)   57.8%|31.3% -> 57.9%|31.3% (1.03)   58.1%|31.4% -> 57.9%|31.3% (1.03)
+0.47  0.25    63.5%|42.5% -> 64.1%|42.6% (1.28)   63.4%|42.7% -> 62.7%|42.8% (1.32)   54.8%|30.8% -> 55.5%|30.0% (1.04)
+0.47  1.0     71.5%|44.4% -> 71.6%|44.4% (1.19)   72.9%|44.1% -> 72.8%|44.1% (1.17)   72.5%|44.4% -> 72.2%|44.5% (1.18)
+0.75  0.25    76.1%|57.8% -> 76.4%|57.5% (1.45)   75.9%|58.3% -> 76.3%|57.8% (1.46)   75.9%|44.5% -> 76.3%|43.3% (1.09)
+0.75  1.0     77.2%|60.7% -> 77.9%|60.5% (1.50)   77.1%|60.9% -> 77.4%|60.9% (1.53)   77.2%|61.0% -> 77.1%|61.1% (1.54)
+1.0   0.25    78.9%|68.8% -> 79.1%|69.0% (1.68)   78.8%|69.5% -> 79.2%|69.6% (1.70)   78.8%|56.2% -> 79.2%|56.5% (1.38)
+1.0   1.0     78.6%|70.2% -> 79.4%|70.4% (1.72)   78.3%|70.5% -> 77.8%|70.6% (1.76)   78.2%|71.0% -> 77.8%|70.8% (1.77)
+tested: 56.5%|33.9% (1.12)
+
+## E. Registered checks (m 1, lambda 1, gap 1/16 in, cap 2.55 FU)
+6-12 intact: cyclic 18.756 FU (+18.766/-18.747), monotonic 18.780 FU (-0.1%); delta 37.2 mm; stopped after the 3.0 delta primary
+3-12 intact: cyclic 36.461 FU (+36.466/-36.456), monotonic 36.478 FU (-0.0%); delta 39.9 mm; stopped after the 3.0 delta primary
+H95 (intact cyclic within 10% of monotonic): held
+decayed 6-12 keeps 78.3% monotonic, 77.8% cyclic; decayed 3-12 keeps 70.5% monotonic, 70.6% cyclic (tested 56.5%, 33.9%)
+H96 (decayed 3-12 cyclic share within 10 points of monotonic): +0.1 points: held
+H97 (no point with m >= 0.75 within 10 points of both): 0 such points: held
+best overall: m 0.25, lambda 1.0, gap 0.0000 in: cyclic keeps 57.6%|31.4% (rms 1.9 points), decay ratio 1.04; monotonic 57.5%|31.5%
+best with m >= 0.75: m 0.75, lambda 0.25, gap 0.2500 in: cyclic keeps 76.3%|43.3% (rms 15.5 points), decay ratio 1.09; monotonic 75.9%|44.5%
+
+## F. Sensitivity at the registered point (not scored)
+anderson 87       : monotonic 78.3%|70.4%, cyclic 78.8%|71.1%
+anderson 145      : monotonic 78.3%|70.2%, cyclic 78.3%|71.0%
+anderson 241      : monotonic 78.8%|71.3%, cyclic 78.5%|71.3%
+folz-filiatrault  : monotonic 75.4%|66.9%, cyclic 74.3%|66.2%
+delta from the radial model's push: cyclic 78.3%|70.5%
+1 mm steps: cyclic 77.8%|70.6% (0.5 mm: 77.8%|70.6%)
+6-12 intact: rod holes at the end (mm) lo [-1.59, -1.59], hi [1.59, 1.59] (started at -/+1.59)
+6-12 decay : rod holes at the end (mm) lo [-1.59, -1.59], hi [1.59, 1.59] (started at -/+1.59)
+3-12 intact: rod holes at the end (mm) lo [-2.02, -1.59], hi [1.59, 2.04] (started at -/+1.59)
+3-12 decay : rod holes at the end (mm) lo [-27.94, -5.07], hi [5.4, 25.55] (started at -/+1.59)
+
+(run time 4095 s; 4 CPUs; python 3.13.18, numpy 2.5.3, scipy 1.18.1)

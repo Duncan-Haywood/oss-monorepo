@@ -1,0 +1,88 @@
+Milestone 7: passing side in head-on encounters (ETH/Hotel Zurich, Zara Nicosia, HERMES corridor)
+OpenTraj commit 97ec1d5e1b579f26febeaa9083705952deac338a; seed 20261113; bootstrap 2000; wild blocks 60 s, HERMES clusters = runs
+Encounter: not in the same group, both > 0.3 m/s, headings > 135 deg apart at closest approach, closest approach < 2.0 m and strictly inside the shared window.
+
+Per scene (kept right / kept left / views disagree; share kept right among decided, 95% block bootstrap):
+  ETH     Zurich   world frame right-handed  269 / 182 /  0  share 0.596 [0.545, 0.686]  (13 blocks)
+  Hotel   Zurich   world frame right-handed  204 /  68 /  0  share 0.750 [0.625, 0.859]  (13 blocks)
+  Zara01  Nicosia  world frame left-handed  133 /  59 /  0  share 0.693 [0.451, 0.896]  (6 blocks)
+  Zara02  Nicosia  world frame left-handed  201 /  98 /  0  share 0.672 [0.560, 0.806]  (7 blocks)
+
+HERMES runs (method check; frame assumed right-handed with z up, as in milestone 1):
+  bo-360-050-050    474 /    6 /   0  share 0.988
+  bo-360-075-075    487 /    0 /   0  share 1.000
+  bo-360-090-090   1593 /    0 /   0  share 1.000
+  bo-360-120-120   3714 /    0 /   0  share 1.000
+  bo-360-160-160   4063 /  709 /   0  share 0.851
+  bot-300-050-050   233 /  312 /   0  share 0.428
+  bot-300-065-065   504 /  449 /   0  share 0.529
+  bot-300-075-075   661 /  452 /   0  share 0.594
+  bot-300-085-085  1221 / 1144 /   0  share 0.516
+  bot-300-100-100  1918 / 1496 /   0  share 0.562
+  bot-360-050-050   320 /  201 /   0  share 0.614
+  bot-360-075-075   518 /  290 /   0  share 0.641
+  bot-360-090-090  1250 /  771 /   0  share 0.619
+  bot-360-120-120  1735 / 1442 /   0  share 0.546
+  bot-360-160-160  2333 / 2976 /   0  share 0.439
+  bot-360-200-200  2779 / 2782 /   0  share 0.500
+  bot-360-250-250  2876 / 2531 /   0  share 0.532
+  boa-300-050-070   435 /  335 /   0  share 0.565
+  boa-300-050-085   354 /  356 /   0  share 0.499
+  boa-300-055-095   594 /  425 /   0  share 0.583
+  boa-300-065-105   909 / 1122 /   0  share 0.448
+  boa-300-080-120  1555 / 1108 /   0  share 0.584
+  boa-300-frei        0 /    0 /   0  share nan
+
+Pooled Zurich (ETH + Hotel): 473/723 kept right = 0.654, 95% CI [0.592, 0.741]
+Pooled Nicosia (Zara01 + Zara02): 334/491 kept right = 0.680, 95% CI [0.565, 0.797]
+Pooled HERMES free choice: 10331/11046 kept right = 0.935, 95% CI [0.870, 1.000]
+Pooled HERMES exit assigned: 20195/38387 kept right = 0.526, 95% CI [0.497, 0.560]
+Zurich minus Nicosia: -0.026, 95% CI [-0.160, +0.119]
+
+W0 (HERMES free >= 0.85 and assigned in 0.40..0.65): held (0.935, 0.526)
+W1 (Zurich > 0.5, CI excludes 0.5): held (0.654 [0.592, 0.741])
+W2 (Nicosia below Zurich, difference CI excludes 0): refuted (-0.026 [-0.160, +0.119])
+W3 (Nicosia < 0.5, CI excludes 0.5): refuted (0.680 [0.565, 0.797])
+W4 (Zurich below HERMES free choice): held (0.654 vs 0.935)
+
+Sensitivity (pooled share kept right, n decided):
+  closest < 1.5 m, heading gap > 135 deg: Zurich 0.628 [0.555, 0.731] n=468; Nicosia 0.661 [0.539, 0.793] n=327; HERMES free 0.918 n=6316
+  closest < 3.0 m, heading gap > 135 deg: Zurich 0.657 [0.584, 0.745] n=1020; Nicosia 0.704 [0.587, 0.826] n=679; HERMES free 0.949 n=15086
+  closest < 2.0 m, heading gap > 150 deg: Zurich 0.668 [0.605, 0.753] n=690; Nicosia 0.682 [0.567, 0.812] n=465; HERMES free 0.935 n=10493
+
+Files read:
+  ETH/seq_eth/H.txt sha256 b6b116c0e1ff9d2b
+  ETH/seq_eth/groups.txt sha256 adc0347d1c6d969c
+  ETH/seq_eth/obsmat.txt sha256 d452ae2185ecb116
+  ETH/seq_hotel/H.txt sha256 b62940ea5f69c899
+  ETH/seq_hotel/groups.txt sha256 96adeafaf0a4e4e8
+  ETH/seq_hotel/obsmat.txt sha256 2b8577595204a6b7
+  HERMES/Corridor-2D/bo-360-050-050.txt sha256 2204d4717d6be01f
+  HERMES/Corridor-2D/bo-360-075-075.txt sha256 b33562810a55999e
+  HERMES/Corridor-2D/bo-360-090-090.txt sha256 41f960a0f7b4178c
+  HERMES/Corridor-2D/bo-360-120-120.txt sha256 ca7fbe020df1a208
+  HERMES/Corridor-2D/bo-360-160-160.txt sha256 6df7e394a7adad36
+  HERMES/Corridor-2D/boa-300-050-070.txt sha256 17f18a1aa4d28c85
+  HERMES/Corridor-2D/boa-300-050-085.txt sha256 093e8a39637cab4f
+  HERMES/Corridor-2D/boa-300-055-095.txt sha256 ec55061a13bd2d8c
+  HERMES/Corridor-2D/boa-300-065-105.txt sha256 b63e1b201138a1f6
+  HERMES/Corridor-2D/boa-300-080-120.txt sha256 f35950df8d6629f4
+  HERMES/Corridor-2D/boa-300-frei.txt sha256 c7d8c33d2e9948d6
+  HERMES/Corridor-2D/bot-300-050-050.txt sha256 7031e62c438b2665
+  HERMES/Corridor-2D/bot-300-065-065.txt sha256 7f7807cfc732ed9f
+  HERMES/Corridor-2D/bot-300-075-075.txt sha256 56dbeee898f062a0
+  HERMES/Corridor-2D/bot-300-085-085.txt sha256 7f170e6e793742be
+  HERMES/Corridor-2D/bot-300-100-100.txt sha256 890764d1ee327340
+  HERMES/Corridor-2D/bot-360-050-050.txt sha256 c9f47a88331d05cb
+  HERMES/Corridor-2D/bot-360-075-075.txt sha256 e67ffe7a68a92aa3
+  HERMES/Corridor-2D/bot-360-090-090.txt sha256 d526be7f3bd85932
+  HERMES/Corridor-2D/bot-360-120-120.txt sha256 7e7d0f2c619ae250
+  HERMES/Corridor-2D/bot-360-160-160.txt sha256 44b35fc50e6f55e6
+  HERMES/Corridor-2D/bot-360-200-200.txt sha256 db394f0b940cac8a
+  HERMES/Corridor-2D/bot-360-250-250.txt sha256 43da953dabe79fb3
+  UCY/zara01/H.txt sha256 2172a470ff902891
+  UCY/zara01/groups.txt sha256 13e43c938e01cd8c
+  UCY/zara01/obsmat.txt sha256 bd999ebcfbc50682
+  UCY/zara02/H-old.txt sha256 ce4880cc3c1b11fe
+  UCY/zara02/groups.txt sha256 8ae568fe9e62bf5b
+  UCY/zara02/obsmat.txt sha256 0b29bdacd54b9712

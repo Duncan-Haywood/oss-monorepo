@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKo5HTFD8YMw171of23",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T13:15:54Z",
+  "ended": "2026-11-16T13:36:04Z",
+  "wall_minutes": 42.15,
+  "tokens_in": 7858796,
+  "tokens_out": 43883,
+  "cost_usd": 3.5565,
+  "tool_calls": 68,
+  "task": "Deepen (flagship 7) photo-editing: BUILDABLE HERE item 'Bayer learned: a feature for inter-channel detail correlation, then correlation-matched synthetic frames'",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16585",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git checkout -b claude/cool-franklin-7hbrxy failed: the harness had already created the branch; the claim commit still landed on it",
+      "cost": "none"
+    },
+    {
+      "what": "first CV-summary script read a config-only row with no cv_frame (KeyError)",
+      "cost": "one rerun"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to run venture-preflight for a changed venture; for a change confined to tools/, eval/ and tests/ (no page, no llms.txt) it is 5+ min that checks nothing this diff reaches. A note on when it is needed would save time."
+    },
+    {
+      "file": "ventures/photo-editing/eval/bayer-learned-noisy-nyquist-2026-11-16.md",
+      "issue": "Commands list '<40 files>' without naming them; the names had to be recovered from the CV jsonl's cv_frame fields. A train-list file in eval/ would save the step. Fixed in this PR: eval/bayer-learned-train-frames.txt."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md (Write about the work) / CLAUDE.md (ship something useful)",
+      "why": "The pre-registered result was negative, so no product behaviour changed; the deliverable is the opt-in tooling, the negative result and the diagnostic that the item's hypothesis runs backwards on real frames.",
+      "did": "Shipped tools, tests, eval write-up and post; LEARNED_LAPLACE unchanged.",
+      "result": "A wrong premise that steered the flagship's next item is now on record with numbers; buildable: rewritten to the oracle-ceiling measurement."
+    },
+    {
+      "file": "ventures/photo-editing/eval/bayer-channel-correlation-2026-11-16.md (own pre-registration)",
+      "why": "After the verdict the synthetic sheet (part of the test set) was scored for G4 and M as exploration, to answer the question the item existed for.",
+      "did": "Labelled exploratory in the doc; no test photograph was run; noted the sheet is no longer unseen for these features.",
+      "result": "Both made the sheet worse (39.24/39.28 vs 39.45), confirming the feature does not close the sheet gap."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-photo-editing-demosaic-channel-correlation.md",
+    "ventures/photo-editing/eval/bayer-channel-correlation-2026-11-16.md"
+  ],
+  "goal": "Deepen a flagship (photo-editing learned Bayer demosaic)",
+  "notes": "Pre-registration committed (c. 13:27 UTC) before any fit ran. CV: B reproduced the shipped 45 weights exactly (+0.3847 dB all copies); G1 +0.3877, G2 +0.3891, G3 +0.3890, G4 (corr3sq+corr5sq) +0.3966 (+0.0119 over B, bar 0.02: not qualified); M (G4 + 16 corr-matched synthetic, MATCHED_GREY_SHARE 0.8) +0.3832 (-0.0134 vs G4, window 0.01: not qualified). Diagnostic on training frames: weakly correlated detail favours 1/4 (within 0.1-0.2 dB of 3/16) not 1/8; 1/8 nearer than 1/4 on 49-60% of sensels in every bin. Exploratory sheet: B 39.45, G4 39.24, M 39.28, default 39.87. Local verification: run_venture_tests.py photo-editing ok (1222 tests, 8 skipped); run_workflow_locally.py --for-changes 12/12 selected workflows passed (cross-review and deploy jobs not runnable locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7d597c68-4292-5d33-b25a-b19b1a9d4fcc",
+    "transcripts": 1,
+    "first": "2026-11-16T13:15:54Z",
+    "last": "2026-11-16T13:58:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 124,
+        "output": 43883,
+        "thinking": 10182,
+        "cache_read": 7716800,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141872,
+        "api_equivalent_usd": 3.5565,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 124,
+      "output": 43883,
+      "thinking": 10182,
+      "cache_read": 7716800,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141872,
+      "api_equivalent_usd": 3.5565,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 64,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 42.15,
+      "active_minutes": 42.15,
+      "model_minutes": 7.28,
+      "tool_minutes": 34.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "an imaging engineer: feature design, trainer options, pre-registration, 6 CV runs, diagnostic and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 224.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

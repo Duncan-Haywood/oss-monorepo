@@ -28,7 +28,9 @@ export function computeProratedRent({ monthlyRent, daysInMonth, daysOccupied }) 
 
   const dailyRate = round2(rent / totalDays);
   const cappedOccupied = Math.min(occupied, totalDays);
-  const proratedAmount = round2(dailyRate * cappedOccupied);
+  // Multiply before rounding: rounding the daily rate first made a full
+  // 31-day month at $1,850 bill $1,850.08, more than the rent itself.
+  const proratedAmount = round2((rent * cappedOccupied) / totalDays);
 
   const findings = [];
 
@@ -77,6 +79,15 @@ export function computeDepositInterest({ depositAmount, annualRatePercent, daysH
       severity: SEVERITY.MEDIUM,
       title: "Interest rate entered without days held",
       detail: "An interest rate was entered but no days held, so no interest was added. Enter how many days the deposit was held to include the accrued interest.",
+    });
+  }
+
+  if (days > 0 && rate === 0) {
+    findings.push({
+      id: "interest-days-without-rate",
+      severity: SEVERITY.INFO,
+      title: "Days held entered without an interest rate",
+      detail: "Days held were entered but no interest rate, so no interest was added. If your jurisdiction requires interest on the deposit, enter the rate it sets; otherwise leave both blank.",
     });
   }
 

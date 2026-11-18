@@ -244,7 +244,7 @@
       result.innerHTML = `
         <dl>
           <dt>Exact resistor value needed</dt>
-          <dd><strong>${r.formattedRequired}</strong> (${r.requiredOhms.toLocaleString()} Ω), dissipating ${r.powerWatts.toFixed(3)} W</dd>
+          <dd><strong>${r.formattedRequired}</strong> (${r.requiredOhms.toLocaleString('en-US')} Ω), dissipating ${r.powerWatts.toFixed(3)} W</dd>
           <dt>Nearest standard (E24) resistor</dt>
           <dd><strong>${r.formattedNearestStandard}</strong> → runs the LED at ${r.currentAtNearestMa.toFixed(1)} mA, dissipating ${r.powerAtNearestWatts.toFixed(3)} W</dd>
           <dt>Recommended power rating (2× safety margin)</dt>

@@ -1,0 +1,111 @@
+Diagnostic after the main run (not pre-registered): copies with no PIPS AC optimum, arms run anyway.
+A fully clean point from any arm is an AC-feasible operating point, so PIPS's failure there was not
+infeasibility. No cost reference exists, so no cost is reported.
+case               kind seed   load      start   S+R      J   J+R
+case179_goc        typ     1  1.016     DC+ang False     no False
+case179_goc        typ     5  1.007     DC+ang False     @8  True
+case179_goc        typ     7  1.008     DC+ang False     no False
+case240_pserc      typ     1  1.002       None False     no False
+case240_pserc      typ     3  1.013 DC, no ang False     no False
+case240_pserc      typ     5  0.998       None False     no False
+case240_pserc      typ     9  1.021       None False     no False
+case300_ieee       typ     1  1.002     DC+ang False     no False
+case300_ieee       typ     3  0.998     DC+ang False     no False
+case300_ieee       typ     9  1.014     DC+ang False     no False
+case14_ieee        api     1  1.023     DC+ang False     no False
+case14_ieee        api     3  0.993     DC+ang False     no False
+case14_ieee        api     4  1.016     DC+ang False     no False
+case14_ieee        api     7  1.005     DC+ang False     no False
+case14_ieee        api     9  1.043     DC+ang False     no False
+case24_ieee_rts    api     4  1.007     DC+ang False     no False
+case24_ieee_rts    api     5  1.008     DC+ang False     no False
+case24_ieee_rts    api     6  1.031     DC+ang False     no False
+case24_ieee_rts    api     9  1.016     DC+ang False     no False
+case30_ieee        api     0  1.041     DC+ang False     no False
+case30_ieee        api     3  1.014     DC+ang False     no False
+case30_ieee        api     4  1.024     DC+ang False     no False
+case30_ieee        api     7  1.041     DC+ang False     no False
+case30_ieee        api     8  0.997     DC+ang False     no False
+case39_epri        api     0  0.980     DC+ang False     no False
+case39_epri        api     1  0.987     DC+ang False     no False
+case39_epri        api     3  1.008     DC+ang False     no False
+case39_epri        api     4  1.011     DC+ang False     no False
+case39_epri        api     5  1.011     DC+ang False     no False
+case39_epri        api     6  1.002     DC+ang False     no False
+case39_epri        api     7  1.011     DC+ang False     no False
+case39_epri        api     8  1.005     DC+ang False     no False
+case39_epri        api     9  1.014     DC+ang False     no False
+case57_ieee        api     1  0.976     DC+ang False     no False
+case57_ieee        api     7  1.023     DC+ang False     no False
+case73_ieee_rts    api     0  1.019     DC+ang False     no False
+case73_ieee_rts    api     1  1.003     DC+ang False     no False
+case73_ieee_rts    api     2  1.007     DC+ang False     no False
+case73_ieee_rts    api     3  0.994     DC+ang False     no False
+case73_ieee_rts    api     5  0.998     DC+ang False     no False
+case73_ieee_rts    api     6  1.007     DC+ang False     no False
+case73_ieee_rts    api     7  0.992     DC+ang False     no False
+case73_ieee_rts    api     8  0.993     DC+ang False     no False
+case73_ieee_rts    api     9  0.991     DC+ang False     no False
+case118_ieee       api     0  1.007       None False     no False
+case118_ieee       api     1  0.998       None False     no False
+case118_ieee       api     2  0.997     DC+ang False     no False
+case118_ieee       api     3  0.994     DC+ang False     no False
+case118_ieee       api     4  1.009     DC+ang False     no False
+case118_ieee       api     5  1.004     DC+ang False     no False
+case118_ieee       api     7  0.983     DC+ang False     no False
+case118_ieee       api     9  0.989     DC+ang False     no False
+case162_ieee_dtc   api     0  0.986     DC+ang False     no False
+case162_ieee_dtc   api     2  0.998     DC+ang False     no False
+case162_ieee_dtc   api     5  1.040     DC+ang False     no False
+case162_ieee_dtc   api     6  0.982     DC+ang False     no False
+case162_ieee_dtc   api     7  1.017       None False     no False
+case162_ieee_dtc   api     8  0.978       None False     no False
+case162_ieee_dtc   api     9  0.970       None False     no False
+case179_goc        api     0  1.015     DC+ang False     no False
+case179_goc        api     2  0.991       None False     no False
+case179_goc        api     5  1.008       None False     no False
+case179_goc        api     6  1.013       None False     no False
+case179_goc        api     8  0.998       None False     no False
+case200_activ      api     1  1.010     DC+ang False     no False
+case200_activ      api     3  0.994       None False     no False
+case200_activ      api     4  0.990       None False     no False
+case200_activ      api     5  1.005     DC+ang False     no False
+case200_activ      api     6  1.012       None False     no False
+case200_activ      api     7  0.992       None False     no False
+case200_activ      api     9  0.998       None False     no False
+case240_pserc      api     0  0.998     DC+ang False     no  True
+case240_pserc      api     1  0.989     DC+ang False     no False
+case240_pserc      api     3  1.000     DC+ang False     no False
+case240_pserc      api     7  0.991     DC+ang False     no False
+case240_pserc      api     8  1.007     DC+ang False     no False
+case300_ieee       api     0  1.016     DC+ang False     no False
+case300_ieee       api     2  1.002     DC+ang False     no False
+case300_ieee       api     5  0.999     DC+ang False     no False
+case300_ieee       api     7  1.010     DC+ang False     no False
+case300_ieee       api     9  1.008     DC+ang False     no False
+case24_ieee_rts    sad     7  1.019 DC, no ang False     no False
+case24_ieee_rts    sad     8  1.025 DC, no ang False     no False
+case39_epri        sad     5  1.024 DC, no ang False     no False
+case39_epri        sad     7  1.017 DC, no ang False     no False
+case57_ieee        sad     4  1.023 DC, no ang False     no False
+case162_ieee_dtc   sad     5  1.013       None False     no False
+case179_goc        sad     0  1.002 DC, no ang False     no False
+case179_goc        sad     1  1.004 DC, no ang False     @6  True
+case179_goc        sad     8  1.002 DC, no ang False     no False
+case179_goc        sad     9  1.013 DC, no ang False     @5  True
+case240_pserc      sad     0  1.026       None False     no False
+case240_pserc      sad     1  0.989       None False     no False
+case240_pserc      sad     7  0.995       None False     no False
+case300_ieee       sad     0  0.994     DC+ang False     no False
+case300_ieee       sad     1  0.999     DC+ang False     no False
+case300_ieee       sad     2  1.003     DC+ang False     no False
+case300_ieee       sad     3  1.007     DC+ang False     no False
+case300_ieee       sad     5  1.014 DC, no ang False     no False
+case300_ieee       sad     7  0.991     DC+ang False     no False
+case300_ieee       sad     9  1.006     DC+ang False     no False
+
+Copies without a PIPS AC optimum: 101; shown AC-feasible by some arm: 4; no DC start: 21.
+  TYP: 10 copies, 1 shown feasible
+  API: 71 copies, 1 shown feasible
+  SAD: 20 copies, 2 shown feasible
+Per base case (copies without a reference: shown feasible / total): case179_goc/typ 1/3, case240_pserc/typ 0/4, case300_ieee/typ 0/3, case14_ieee/api 0/5, case24_ieee_rts/api 0/4, case30_ieee/api 0/5, case39_epri/api 0/9, case57_ieee/api 0/2, case73_ieee_rts/api 0/9, case118_ieee/api 0/8, case162_ieee_dtc/api 0/7, case179_goc/api 0/5, case200_activ/api 0/7, case240_pserc/api 1/5, case300_ieee/api 0/5, case24_ieee_rts/sad 0/2, case39_epri/sad 0/2, case57_ieee/sad 0/1, case162_ieee_dtc/sad 0/1, case179_goc/sad 2/4, case240_pserc/sad 0/3, case300_ieee/sad 0/7

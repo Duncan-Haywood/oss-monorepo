@@ -66,6 +66,8 @@
       "where": "ventures/quick-pick-survey/package.json scripts.test; README.md 'Before you commit'"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14802"
+  ],
   "verdict": "A carefully documented, honest prototype whose maths is right: three independent recomputations (Glicko-2 single-game updates against my own implementation that also reproduces Glickman's paper example, the DerSimonian-Laird pooled rating/se/tau, and Davidson-BT parameters and Wald SEs against scipy) all agree to 6 or more digits, typecheck and lint are clean, and the 304-test fast suite passes. It does not meet the bar because verification and claims are below 3: three hand-seeded mutations in exactly that core maths all survived the suite, one test is named for a published value it does not check, and a user-facing claim (chess.com uses Glicko-2) is probably wrong and unbacked. A methodologist would also question using a time-varying skill model for static preferences, and the product still has no hosted demo and no outside user (the site says so itself). The integration suite, simulations suite, next build and pages were not run here; scores reflect only what was run. Finished (completeness 3) but not at the bar; the cheapest fixes are to pin the three computed values above in unit tests."
 }

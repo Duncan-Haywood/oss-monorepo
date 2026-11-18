@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   SAMPLE_GRANTS,
   addMonths,
+  parseDate,
   compareLateReport,
   csvReport,
   icsCalendar,
@@ -328,4 +329,10 @@ test("summarize keeps the original row index after sorting by due date", () => {
   assert.equal(result[0].name, "Sooner");
   assert.equal(result[0].sourceIndex, 1);
   assert.equal(result[1].sourceIndex, 0);
+});
+
+test("parseDate refuses 30 February rather than reading it as 2 March", () => {
+  assert.equal(parseDate("2026-02-30"), null);
+  assert.equal(parseDate("2027-02-29"), null);
+  assert.equal(parseDate("2028-02-29").toISOString().slice(0, 10), "2028-02-29");
 });

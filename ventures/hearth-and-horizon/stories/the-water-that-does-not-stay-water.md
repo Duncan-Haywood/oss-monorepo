@@ -34,7 +34,7 @@ Father Bashir did it on the back of a glove. "So for every kilogram that boils o
 
 He stood at the window of the garage bay for a while, and looked at the seven rovers, red with dust to the axles, and at the flats beyond the airlock door, which were pink and perfectly clear.
 
-"The sacrament is not the aspergillum," he said slowly. "It is the water that is sprinkled, and the prayer. Can I not do it with ice? It is water. It is already what it will be."
+"The blessing is not the aspergillum," he said slowly. "It is the water that is sprinkled, and the prayer. Can I not do it with ice? It is water. It is already what it will be."
 
 "I can answer the chemistry and not the theology," said Vane. "Ice sublimates at this pressure, slowly, on a flat at minus 60. A flake of ice would last longer than a droplet. It would not go on as a liquid, though, and that is a question for a bishop and I would ask one before you decide. I will say what I think is simpler. The garage bay is at one atmosphere. The rovers come in for service every week. In there, water is water."
 

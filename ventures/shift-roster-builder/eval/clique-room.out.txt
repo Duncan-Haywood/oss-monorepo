@@ -1,0 +1,25 @@
+# node eval/end-to-end.mjs P S cases with OPTS below (2026-11-14, one cloud machine, nothing else running); 'cliqueRoom:false' is the code before this change
+== 100 280 4 {"timeBudgetMs":20000,"cliqueRoom":false}
+week 0: 400 copies, open 386 h, 69 shifts, pay $33301.00, status bounded, coverage proven false, gap $9198708.33, 20779 ms total
+  anneal 333, eject 2375, scoreCG 8677, coverPass 7134, coverRepair 208, exactSearch 0, dayLNS 2004, summary 4, critical 14, hireTest 0
+week 1: 400 copies, open 353 h, 65 shifts, pay $35162.00, status bounded, coverage proven false, gap $6499009.99, 21567 ms total
+  anneal 406, eject 2982, scoreCG 8494, coverPass 7305, coverRepair 360, exactSearch 0, dayLNS 2002, summary 4, critical 6, hireTest 0
+== 100 280 4 {"timeBudgetMs":20000}
+week 0: 400 copies, open 376 h, 69 shifts, pay $33468.00, status bounded, coverage proven false, gap $1834434.89, 22400 ms total
+  anneal 302, eject 2069, scoreCG 2305, cliqueFloor 10400, coverPass 5294, coverRepair 0, exactSearch 0, dayLNS 2002, summary 2, critical 6, hireTest 0
+week 1: 400 copies, open 351 h, 65 shifts, pay $35190.00, status bounded, coverage proven false, gap $735950.75, 22321 ms total
+  anneal 201, eject 2195, scoreCG 2374, cliqueFloor 9873, coverPass 5664, coverRepair 0, exactSearch 1, dayLNS 2001, summary 3, critical 4, hireTest 0
+== 90 252 3 {"timeBudgetMs":20000,"cliqueRoom":false}
+week 0: 348 copies, open 354 h, 68 shifts, pay $28904.00, status bounded, coverage proven false, gap $229749.73, 22215 ms total
+  anneal 262, eject 1551, scoreCG 9454, cliqueFloor 4515, coverPass 4398, coverRepair 0, exactSearch 0, dayLNS 2003, summary 2, critical 7, hireTest 0
+week 1: 352 copies, open 229 h, 43 shifts, pay $30431.00, status bounded, coverage proven false, gap $1030898.95, 22642 ms total
+  anneal 175, eject 1812, scoreCG 9330, cliqueFloor 5164, coverPass 4147, coverRepair 0, exactSearch 0, dayLNS 2001, summary 3, critical 5, hireTest 0
+week 2: 363 copies, open 376 h, 63 shifts, pay $29522.00, status bounded, coverage proven false, gap $599932.28, 22358 ms total
+  anneal 178, eject 1968, scoreCG 9964, coverPass 7847, coverRepair 387, exactSearch 0, dayLNS 2003, summary 1, critical 5, hireTest 0
+== 90 252 3 {"timeBudgetMs":20000}
+week 0: 348 copies, open 355 h, 68 shifts, pay $28899.00, status bounded, coverage proven false, gap $329750.69, 22420 ms total
+  anneal 248, eject 1655, scoreCG 10039, cliqueFloor 5069, coverPass 3365, coverRepair 0, exactSearch 1, dayLNS 2003, summary 2, critical 9, hireTest 0
+week 1: 352 copies, open 226 h, 43 shifts, pay $30494.00, status bounded, coverage proven false, gap $9798455.07, 22372 ms total
+  anneal 183, eject 1839, scoreCG 10423, coverPass 7913, coverRepair 0, exactSearch 1, dayLNS 2003, summary 1, critical 4, hireTest 0
+week 2: 363 copies, open 376 h, 65 shifts, pay $29522.00, status bounded, coverage proven false, gap $230457.23, 22152 ms total
+  anneal 201, eject 2473, scoreCG 7100, cliqueFloor 6397, coverPass 3970, coverRepair 0, exactSearch 0, dayLNS 2002, summary 2, critical 3, hireTest 0

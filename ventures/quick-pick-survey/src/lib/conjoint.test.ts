@@ -169,3 +169,43 @@ describe("predict", () => {
     }
   });
 });
+
+describe("Davidson (1970) tie model, pinned", () => {
+  // P(A) = e^d / Z, P(B) = 1 / Z, P(tie) = nu e^(d/2) / Z, Z = e^d + 1 + nu e^(d/2),
+  // evaluated independently in Python.
+  function fitWith(params: number[], nu: number) {
+    const n = params.length + 1;
+    return {
+      params, se: params.map(() => 0), nu, nuSe: 0,
+      covariance: Array.from({ length: n }, () => new Array(n).fill(0)),
+      logLikelihood: 0, converged: true, iterations: 0,
+    };
+  }
+  it("gives the published outcome probabilities", () => {
+    const a = predict(fitWith([0.8], 0.5), [1]);
+    expect(a.pA).toBeCloseTo(0.5603845, 6);
+    expect(a.pB).toBeCloseTo(0.2517970, 6);
+    expect(a.pEqual).toBeCloseTo(0.1878185, 6);
+    const b = predict(fitWith([0.6, -0.3], 1.7), [-1, 2]); // d = -1.2
+    expect(b.pA).toBeCloseTo(0.1348123, 6);
+    expect(b.pB).toBeCloseTo(0.4475927, 6);
+    expect(b.pEqual).toBeCloseTo(0.4175950, 6);
+  });
+
+  it("fits the penalised maximum-likelihood answer on a counted table", () => {
+    // 12 A, 5 B, 7 ties, every row deltaX = [1]. Without the ridge the MLE is
+    // closed form: beta = ln(12/5) = 0.8755, nu = 7 / sqrt(60) = 0.9037. With
+    // the 0.08 ridge on beta, an independent Newton fit in Python gives
+    // beta = 0.856140, nu = 0.900142.
+    const rows: ChoiceRow[] = [
+      ...Array.from({ length: 12 }, () => ({ deltaX: [1], outcome: "A" as Outcome })),
+      ...Array.from({ length: 5 }, () => ({ deltaX: [1], outcome: "B" as Outcome })),
+      ...Array.from({ length: 7 }, () => ({ deltaX: [1], outcome: "EQUAL" as Outcome })),
+    ];
+    const fit = fitConjointModel(rows, 1);
+    expect(fit.converged).toBe(true);
+    expect(fit.params[0]).toBeCloseTo(0.85614, 3);
+    expect(fit.nu).toBeCloseTo(0.90014, 3);
+    expect(fit.logLikelihood).toBeCloseTo(-24.81583, 3);
+  });
+});

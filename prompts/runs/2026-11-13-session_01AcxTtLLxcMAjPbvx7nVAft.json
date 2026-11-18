@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtLLxcMAjPbvx7nVAft",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T18:06:51Z",
+  "ended": "2026-11-13T18:14:38Z",
+  "wall_minutes": 8.02,
+  "tokens_in": 4218063,
+  "tokens_out": 30317,
+  "cost_usd": 2.2608,
+  "tool_calls": 43,
+  "task": "Deepen flagship 11 (chant-forge): --split-voices for three sections (baritones between tenors and basses), measured on the corpus",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15571",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "venture-preflight failed twice on sync_tree_counts drift inherited from main (first fixed by merging main, then a new venture landed on main and drifted it again); fixed in this PR"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No separate docs/reports agent doc: the README section, ROADMAP line and flagships.yaml next: carry everything the next run needs.",
+      "did": "Wrote the handoff into README 'Three sections' and the flagship next:",
+      "result": "next: names the follow-up (a cost on short entrances)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-a-third-section-for-a-chant-choir.md",
+    "ventures/chant-forge/eval/three-sections-report.md"
+  ],
+  "goal": "Deepen a flagship (owner, 2026-10-20)",
+  "notes": "voicefit.splitVoices generalised from {all,tenor,bass} to every non-empty set of sections (bitmask), cost = section-notes left out; equal to the old cost for two sections so all 18 earlier split tests pass unchanged. CLI --baritones/--baritone, MIDI Baritones track (ch 6), cue who column T+Bar etc, studio page option. Verification: run_venture_tests.py chant-forge ok (155 tests); eval/browser-e2e.mjs all 98 checks passed (3 new); eval/three-sections.mjs: octave-wide ranges 56->64 of 67 files fit, one-section notes 89.4%->29.9%, changes of singer 166->484; amateur 25.4%->2.5%. Not tried with singers. venture-preflight.mjs chant-forge: clean (after merging main and syncing SWITCHES_IN_THE_CATALOGUE 1322->1323 for sprinkler-hydraulic-calc, drift that came from main, not this change). PR had 0 check runs after push (starved/not started), so merged on local checks: run_workflow_locally.py --for-changes 11/13 workflows passed; the one FAIL (test_no_dead_pages_base) read the gitignored platform/pages/dist the local preflight build left behind and passes with it moved aside; pytest-only steps and portfolio-pages deploy/review bot jobs not run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "08d71876-b801-5206-9bd6-e33dae0fa7ce",
+    "transcripts": 1,
+    "first": "2026-11-13T18:06:51Z",
+    "last": "2026-11-13T18:14:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 84,
+        "output": 30317,
+        "thinking": 6086,
+        "cache_read": 4114059,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103920,
+        "api_equivalent_usd": 2.2608,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 84,
+      "output": 30317,
+      "thinking": 6086,
+      "cache_read": 4114059,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103920,
+      "api_equivalent_usd": 2.2608,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.02,
+      "active_minutes": 8.02,
+      "model_minutes": 5.59,
+      "tool_minutes": 2.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer generalising an exact DP to three sections, wiring MIDI/cues/page and measuring a corpus",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 265.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

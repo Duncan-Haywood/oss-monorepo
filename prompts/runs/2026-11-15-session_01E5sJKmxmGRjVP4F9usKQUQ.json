@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKmxmGRjVP4F9usKQUQ",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T10:18:18Z",
+  "ended": "2026-11-15T10:27:47Z",
+  "wall_minutes": 10.09,
+  "tokens_in": 4650266,
+  "tokens_out": 41168,
+  "cost_usd": 2.6979,
+  "tool_calls": 43,
+  "task": "For Other Minds story on the ecological fallacy (BIBLE proposal 2026-11-15)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16183",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "c4dd84e95"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git checkout -b failed because the harness had already created and checked out claude/epic-wright-3a0qas; harmless"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says to pick by git log; platform/ci/creative_due.py already does this from front matter and is the better entry point, but the prompt does not name it (the hearth-and-horizon README does)."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The 'Next up' proposal suggested the deanery secretary 'counts the doors', but the per-band attendance it asks for exists in no data the agent holds; the story had to add a second count by age at the door. Future proposals could say where within-group data would come from."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (474 MB of 400 MB)",
+      "did": "Landed text, pages and feeds without audio, as the prompt directs",
+      "result": "Text-only story merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-put-her-in-ecological-fallacy.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, project hearth-and-horizon, shelf for-other-minds, piece put-her-in. creative_due.py named for-other-minds as due; there were no open creative PRs. Every figure (ten parishes x three age bands, two count weekends, r = 0.977, regression intercept 1.2 and slope 1.09 implying 110%, bounds 0-1 in all ten parishes, robustness margins of 13-16 people in the city and 2-4 in the suburbs, pooled suburbs 7.1/9.1/5.9%) was computed by a scratch script before drafting and checked against the closing note afterwards. The adversarial re-read fixed four things: Mrs Doig was both at the church door and housebound; a Gloria was placed at a Saturday weekday Mass; the bounds were said to narrow in two parishes when they narrow in none; three lines were too close to Six More Chairs. Weekdays checked with datetime. node --test 17/17 in the venture. run_workflow_locally --for-changes: ventures-tests 5/5 run steps passed (3 uses: steps not run); portfolio-validate result recorded in a follow-up commit.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "efce6e96-786c-599e-99d2-3c4e06303ab6",
+    "transcripts": 1,
+    "first": "2026-11-15T10:18:18Z",
+    "last": "2026-11-15T10:28:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 85,
+        "output": 41168,
+        "thinking": 18374,
+        "cache_read": 4529139,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121042,
+        "api_equivalent_usd": 2.6979,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 85,
+      "output": 41168,
+      "thinking": 18374,
+      "cache_read": 4529139,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121042,
+      "api_equivalent_usd": 2.6979,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 38,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.09,
+      "active_minutes": 10.08,
+      "model_minutes": 8.01,
+      "tool_minutes": 2.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a 3,800-word short story with a worked statistical model and fact checks, at about 500 words an hour of drafting plus research",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 296.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

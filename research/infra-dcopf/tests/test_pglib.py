@@ -1,0 +1,83 @@
+"""PGLib reader and solver validation against the library's published PowerModels.jl objectives."""
+import sys
+import warnings
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+warnings.filterwarnings("ignore")
+pypower = pytest.importorskip("pypower")
+from pypower.api import ppoption, rundcopf, runopf  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "experiments"))
+from infra_dcopf.pglib import baseline, case_path, load_m  # noqa: E402
+from run_pglib import pm_convention  # noqa: E402
+
+Q = ppoption(VERBOSE=0, OUT_ALL=0)
+
+
+def test_reader_shapes_case14():
+    p = load_m(case_path("case14_ieee"))
+    assert p["baseMVA"] == 100.0
+    assert p["bus"].shape == (14, 13)
+    assert p["branch"].shape == (20, 13)
+    assert p["gen"].shape[0] == 5 and p["gen"].shape[1] == 21
+    assert p["gencost"].shape == (5, 7)
+    assert p["bus"][:, 2].sum() == pytest.approx(259.0)
+
+
+def test_baseline_table_parsed():
+    b = baseline()
+    assert b[("case14_ieee", "typ")] == (2051.5, 2178.1)
+    assert b[("case118_ieee", "api")] == (231290.0, 249610.0)
+    assert np.isnan(b[("case30_ieee", "sad")][0])  # published as "inf." (DC infeasible)
+
+
+@pytest.mark.parametrize("kind", ["typ", "api"])
+def test_ac_opf_matches_published_case118(kind):
+    r = runopf(load_m(case_path("case118_ieee", kind)), ppoption(VERBOSE=0, OUT_ALL=0, OPF_ALG=560))
+    assert r["success"]
+    assert r["f"] == pytest.approx(baseline()[("case118_ieee", kind)][1], rel=1e-4)
+
+
+def test_powermodels_dc_convention_reproduces_published_dc_and_matpower_does_not():
+    p = load_m(case_path("case14_ieee", "api"))
+    pub = baseline()[("case14_ieee", "api")][0]
+    assert rundcopf(pm_convention(p), Q)["f"] == pytest.approx(pub, rel=1e-4)
+    assert abs(rundcopf(p, Q)["f"] / pub - 1) > 0.02  # MATPOWER's 1/(x tap) B matrix: 4664 vs 4798
+
+
+def test_perturb_is_deterministic_bounded_and_keeps_power_factor():
+    """Milestone 5: load-perturbed copies are reproducible per (seed, case, kind), scale every bus's
+    PD and QD by the same factor in [0.9, 1.1], and leave the original case untouched."""
+    from infra_dcopf.pglib import perturb
+    ppc = load_m(case_path("case30_ieee", "api"))
+    pd0, qd0 = ppc["bus"][:, 2].copy(), ppc["bus"][:, 3].copy()
+    a, fa = perturb(ppc, "case30_ieee", "api", 3)
+    b, fb = perturb(ppc, "case30_ieee", "api", 3)
+    c, fc = perturb(ppc, "case30_ieee", "api", 4)
+    _, fd = perturb(ppc, "case30_ieee", "sad", 3)
+    assert np.array_equal(fa, fb) and not np.array_equal(fa, fc) and not np.array_equal(fa, fd)
+    assert fa.min() >= 0.9 and fa.max() <= 1.1 and len(fa) == ppc["bus"].shape[0]
+    assert np.allclose(a["bus"][:, 2], pd0 * fa) and np.allclose(a["bus"][:, 3], qd0 * fa)
+    assert np.array_equal(ppc["bus"][:, 2], pd0) and np.array_equal(ppc["bus"][:, 3], qd0)
+    assert np.array_equal(a["branch"], ppc["branch"]) and np.array_equal(a["gen"], ppc["gen"])
+
+
+def test_fix_ref_moves_a_unitless_reference_like_pypower():
+    """case500_goc's reference bus has no unit; fix_ref picks the bus pypower.bustypes would."""
+    import numpy as np
+    from pypower.bustypes import bustypes
+    from pypower.ext2int import ext2int
+    from infra_dcopf.pglib import case_path, fix_ref, load_m
+    p = load_m(case_path("case500_goc"))
+    q, moved = fix_ref(p)
+    assert moved is not None and moved[0] == 311
+    i = ext2int(p)
+    ref, _pv, _pq = bustypes(i["bus"], i["gen"])
+    ext_ref = int(i["order"]["bus"]["i2e"][ref[0]])
+    assert moved[1] == ext_ref
+    assert (q["bus"][:, 1] == 3).sum() == 1
+    same, none = fix_ref(load_m(case_path("case14_ieee")))
+    assert none is None and np.array_equal(same["bus"], load_m(case_path("case14_ieee"))["bus"])

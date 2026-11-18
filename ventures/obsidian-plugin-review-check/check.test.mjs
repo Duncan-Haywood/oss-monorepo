@@ -42,7 +42,7 @@ test('collectFiles: finds manifest.json, versions.json, and source, skipping nod
 test('runCheck: a clean plugin reports ok', () => {
   const root = makeFixture({
     'manifest.json': JSON.stringify({
-      id: 'my-plugin', name: 'My Plugin', version: '1.0.0', minAppVersion: '0.15.0',
+      id: 'word-goals', name: 'Word Goals', isDesktopOnly: false, version: '1.0.0', minAppVersion: '0.15.0',
       description: 'Does a thing.', author: 'Jane Dev',
     }),
     'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }),
@@ -60,8 +60,8 @@ test('runCheck: a clean plugin reports ok', () => {
 test('runCheck: an unmodified sample plugin is not ok', () => {
   const root = makeFixture({
     'manifest.json': JSON.stringify({
-      id: 'sample-plugin', name: 'Sample Plugin', version: '1.0.0', minAppVersion: '0.15.0',
-      description: 'This is a sample plugin.', author: 'Your Name',
+      id: 'sample-plugin', name: 'Sample Plugin', isDesktopOnly: false, version: '1.0.0', minAppVersion: '0.15.0',
+      description: 'This is a sample plugin.', author: 'Obsidian',
     }),
     'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }),
     'main.js': 'export default class {}',
@@ -78,7 +78,7 @@ test('runCheck: an unmodified sample plugin is not ok', () => {
 test('runCheck: a missing versions.json entry is not ok', () => {
   const root = makeFixture({
     'manifest.json': JSON.stringify({
-      id: 'my-plugin', name: 'My Plugin', version: '2.0.0', minAppVersion: '0.15.0',
+      id: 'word-goals', name: 'Word Goals', isDesktopOnly: false, version: '2.0.0', minAppVersion: '0.15.0',
       description: 'x', author: 'Jane',
     }),
     'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }),
@@ -96,7 +96,7 @@ test('runCheck: a missing versions.json entry is not ok', () => {
 test('runCheck: an innerHTML assignment in source is not ok', () => {
   const root = makeFixture({
     'manifest.json': JSON.stringify({
-      id: 'my-plugin', name: 'My Plugin', version: '1.0.0', minAppVersion: '0.15.0',
+      id: 'word-goals', name: 'Word Goals', isDesktopOnly: false, version: '1.0.0', minAppVersion: '0.15.0',
       description: 'x', author: 'Jane',
     }),
     'versions.json': JSON.stringify({ '1.0.0': '0.15.0' }),

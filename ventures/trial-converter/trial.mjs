@@ -85,9 +85,10 @@ export function replan(c, { now, policy }) {
   return [...c.steps.filter((s) => s.status !== "pending"), ...fresh].sort((a, b) => a.at - b.at);
 }
 
+// Stripe's zero-decimal currencies: amounts are whole units, not cents.
+const ZERO_DECIMAL = new Set(["bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf"]);
 export function formatMoney(minor, currency = "usd") {
-  const zero = new Set(["jpy", "krw", "vnd", "clp", "ugx", "xof", "xaf"]);
-  const major = zero.has(String(currency).toLowerCase()) ? minor : minor / 100;
+  const major = ZERO_DECIMAL.has(String(currency).toLowerCase()) ? minor : minor / 100;
   try { return new Intl.NumberFormat("en", { style: "currency", currency: String(currency).toUpperCase() }).format(major); } catch { return `${major.toFixed(2)} ${currency}`; }
 }
 

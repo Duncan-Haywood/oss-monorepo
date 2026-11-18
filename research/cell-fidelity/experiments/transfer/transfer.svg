@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the Spearman correlation between SPMe's n-cycle design score and DFN's 100-cycle score against n (2 to 100 cycles), one line per PyBaMM parameter set">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">SPMe run for n cycles as a ranker of 100-cycle DFN, three parameter sets</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="272.5" y2="272.5" stroke="#ddd"/><text x="58" y="276.5" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="221.0" y2="221.0" stroke="#ddd"/><text x="58" y="225.0" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="169.5" y2="169.5" stroke="#ddd"/><text x="58" y="173.5" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="118.0" y2="118.0" stroke="#ddd"/><text x="58" y="122.0" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="66.5" y2="66.5" stroke="#ddd"/><text x="58" y="70.5" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="109.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="224.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">30</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">100</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">SPMe cycles n</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">Spearman with DFN@100</text>
+<polyline points="64.0,150.0 109.7,152.0 224.0,171.8 624.0,176.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="150.0" r="3" fill="#c0392b"/>
+<circle cx="109.7" cy="152.0" r="3" fill="#c0392b"/>
+<circle cx="224.0" cy="171.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="176.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">OKane2022 (128 fresh designs)</text>
+<polyline points="64.0,75.8 109.7,74.5 224.0,72.7 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="75.8" r="3" fill="#1f6fb2"/>
+<circle cx="109.7" cy="74.5" r="3" fill="#1f6fb2"/>
+<circle cx="224.0" cy="72.7" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">Ecker2015 (64 designs)</text>
+<polyline points="64.0,118.5 109.7,146.1 224.0,140.2 624.0,117.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="118.5" r="3" fill="#2e8b57"/>
+<circle cx="109.7" cy="146.1" r="3" fill="#2e8b57"/>
+<circle cx="224.0" cy="140.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="117.5" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">Ai2020 (64 designs)</text>
+</svg>

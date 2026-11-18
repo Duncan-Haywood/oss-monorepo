@@ -3,6 +3,7 @@
 // Fetching a URL needs Node 18+ (fetch has no CORS limit outside a browser).
 import { readFile } from "node:fs/promises";
 import { audit } from "./analyze.mjs";
+import { pathToFileURL } from "node:url";
 
 export function render(r) {
   if (!r.ok) return r.error;
@@ -28,4 +29,4 @@ export async function main(argv, io = { log: console.log, err: console.error }) 
   return min != null && r.score < min ? 1 : 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exit(await main(process.argv.slice(2)));
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.exit(await main(process.argv.slice(2)));

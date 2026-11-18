@@ -1,6 +1,6 @@
 # What will Turo actually pay you for this trip?
 
-> Free Turo host payout calculator. Turo's host share now depends on your earnings plan (Peace of Mind, Balanced, More Earnings) AND how far ahead the guest books — this tool models the whole matrix, compares all three plans and all four booking windows for the same trip, and projects a monthly estimate.
+> Free Turo host payout calculator. Turo's host share depends on your earnings plan (Peace of Mind, Balanced, More Earnings), and in nine US markets also on how far ahead the guest books — this tool models both the flat shares and the whole matrix, compares all three plans and all four booking windows for the same trip, and projects a monthly estimate.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 

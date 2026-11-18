@@ -1,5 +1,6 @@
 // Offline 0% / exemption-category tax-reason observations.
 // Shape check only — not a tax-law determination.
+import { parseDecimal } from "./numbers.mjs";
 
 const EXEMPT_CATEGORIES = new Set(["E", "AE", "K", "G", "O", "Z"]);
 
@@ -27,13 +28,8 @@ function usableReasonCode(value) {
   return value.toUpperCase().replace(/[^A-Z0-9-]/g, "") !== "";
 }
 
-function parseNumber(value) {
-  if (value === undefined || value === null || value === "") return null;
-  const text = typeof value === "string" ? value.trim() : String(value);
-  if (text === "" || !Number.isFinite(Number(text))) return null;
-  const result = Number(text);
-  return Number.isFinite(result) ? result : null;
-}
+// numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
+const parseNumber = parseDecimal;
 
 function needsReason(line) {
   // Zero-rated goods (category Z) carry no exemption reason (BR-Z-10).

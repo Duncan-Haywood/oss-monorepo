@@ -1,0 +1,11 @@
+Milestone 7j post hoc: base, lever 0, 45 deg tilt-command limit, 64 held-out episodes (seed 9999); diverged flights (of 384) per set
+with the initial horizontal offset scaled (poshold.OFFSET = 0.5 m x scale).
+
+[above] offset x0: 7e 0; 7h free 0; aware TWR=2.0 0; aware TWR free 0
+[above] offset x0.5: 7e 0; 7h free 0; aware TWR=2.0 0; aware TWR free 0
+[above] offset x1: 7e 0; 7h free 9; aware TWR=2.0 3; aware TWR free 12
+
+[below] offset x0: 7e 0; 7h free 0; aware TWR=2.0 0; aware TWR free 0
+[below] offset x0.5: 7e 0; 7h free 0; aware TWR=2.0 0; aware TWR free 0
+[below] offset x1: 7e 1; 7h free 2; aware TWR=2.0 0; aware TWR free 0
+

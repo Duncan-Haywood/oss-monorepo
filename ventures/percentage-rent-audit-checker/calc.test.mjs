@@ -147,3 +147,20 @@ test("money formats negatives and thousands", () => {
   assert.equal(money(1234.5), "$1,234.50");
   assert.equal(money(-5), "-$5.00");
 });
+
+test("zero is a valid sales figure and a valid exclusion amount", () => {
+  assert.equal(percentageRent({ sales: 0, breakpoint: 0, ratePct: 6 }), 0);
+  const r = auditPercentageRent({ ...base, exclusions: [{ label: "Refunds", amount: 0 }] });
+  assert.equal(r.excluded, 0);
+});
+
+test("the dispute note lists only items that cost money, and a zero difference agrees", () => {
+  const r = auditPercentageRent(base);
+  const note = disputeNote(r);
+  assert.doesNotMatch(note, /Third-party delivery fees/, "a zero-priced item is not something to dispute");
+  const even = auditPercentageRent({ ...base, exclusions: [], ownSales: 1250000, billed: auditPercentageRent({ ...base, exclusions: [], ownSales: 1250000 }).correct });
+  assert.equal(even.overcharge, 0);
+  const evenNote = disputeNote(even);
+  assert.match(evenNote, /agrees with the statement/);
+  assert.doesNotMatch(evenNote, /difference of/);
+});

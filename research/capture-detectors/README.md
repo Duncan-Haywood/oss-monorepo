@@ -19,7 +19,7 @@ Seventh project of track 13, autonomous multi-angle capture for travel creators 
 ```bash
 pip install "opencv-python-headless<5" numpy pytest   # OpenCV 5 dropped the Haar and HOG detectors
 cd research/capture-detectors
-python -m pytest -q tests                       # 10 tests, no network or models needed
+python -m pytest -q tests                       # 11 tests, no network or models needed
 python experiments/run.py                       # downloads ~42 MB once; ~4 min on a CPU; writes results.json
 python experiments/report.py                    # results.json -> results.txt
 python experiments/figure.py                    # results.txt -> recall.svg
@@ -27,7 +27,7 @@ python experiments/yaw.py                       # section F: recall against face
 ```
 
 ## Results (from `experiments/results.txt`)
-**A. Face recall by width** (95% Wilson interval in `results.txt`; n = 18 to 25 trials per bin below 64 px):
+**A. Face recall by width** (95% Wilson interval in `results.txt`; n = 18 to 25 trials per bin below 48 px, 11 at 48 to 64 (not shown; all three YuNet thresholds 1.00, Haar 0.73), 17 at 64 to 128 and 3 above 128 (Haar 0.67)):
 
 | width | YuNet 0.3 | YuNet 0.6 | YuNet 0.9 | Haar | assumed |
 |---|---|---|---|---|---|
@@ -37,7 +37,7 @@ python experiments/yaw.py                       # section F: recall against face
 | 16 to 24 | 1.00 | 1.00 | 0.20 | 0.64 | 0.48 |
 | 24 to 32 | 1.00 | 1.00 | 0.58 | 0.68 | 0.79 |
 | 32 to 48 | 1.00 | 1.00 | 0.89 | 0.72 | 0.94 |
-| 64+ | 1.00 | 1.00 | 1.00 | 0.76 | 1.00 |
+| 64 to 128 | 1.00 | 1.00 | 1.00 | 0.76 | 1.00 |
 
 ![Face recall against width](experiments/recall.svg)
 
@@ -77,6 +77,8 @@ With the 0.6 curve and R = 16, the ends of the fitted mid range give 0.005 and 0
 95% Wilson intervals are in `experiments/yaw.txt`: for YuNet 0.9 they are 0.38 to 0.70 against 0.06 to 0.38, so the drop is outside the noise; YuNet 0.6 shows no drop (0.85 to 0.99 against 0.75 to 0.99). Reading for `capture-sentinel`: a conservative threshold or a frontal Haar cascade loses most faces once they turn about a third of the way to profile (miss from about 0.35 to about 0.84), so a sentinel on such a detector should be modelled with a miss that climbs well before the subject faces away; YuNet at 0.6 keeps the miss near 0.05 to profile. **Limits of this section:** the reference is a detector's own output, so faces that no detector sees (back of the head, heavy occlusion) are absent and the curve stops at near-profile, the 0.3 miss for facing away is untested; the 0.9 row is confounded with size, since the faces are 24 px and up and the 0.9 curve above is still climbing there; n is 54, in four bins of 7 to 21.
 
 ## Limitations
+- Reruns are not bit-for-bit deterministic. In one of two reruns in the 2026-11-12 quality audit ([`portfolio/quality/audits/2026-11-12-capture-detectors.json`](../../portfolio/quality/audits/2026-11-12-capture-detectors.json)), YuNet at threshold 0.3 found 19 of 25 faces at 8 to 12 px instead of 21 (slope 4.50 instead of 5.25, 16 px leak 0.0063 instead of 0.0030), probably from OpenCV threading. The 0.6 and 0.9 rows did not move.
+- Prior tiny-face work (Hu and Ramanan, CVPR 2017; the WIDER FACE scale splits, Yang et al. 2016) and Street View face blurring (Frome et al., ICCV 2009) is not yet compared.
 - **Easy faces only.** The reference faces are confident YuNet detections at full size: frontal, sharp and lit, and chosen by the detector family under test. Recall on a real crowd (profile, occluded, motion-blurred, hats, masks, children, a darker or paler skin tone than a detector's training set) will be lower; published detector benchmarks such as WIDER FACE report a steep drop on small, hard faces. These curves are upper bounds on recall and lower bounds on leak.
 - **Shrunk, not far.** Area averaging gives a clean small image. A real distant face also has sensor noise, lens blur and video compression, and a 360 camera's stitching and distortion are not modelled.
 - **Small sample.** 22 faces from 128 photos and 10 people for the head and independence checks. The bootstrap ranges cover resampling of these subjects only, not the population of faces in the world.

@@ -1,0 +1,63 @@
+name: item-response-theory
+description: >-
+  Free browser tool, CLI and agent call that fits item response theory
+  models to right/wrong test answers: 1PL (Rasch) and 2PL by marginal
+  maximum likelihood with standard errors, a likelihood-ratio test and BIC,
+  S-X2 item fit, a distractor table that flags likely miskeyed questions,
+  the test information curve, marginal reliability and EAP ability scores.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-17 on an explore run as a research-algorithm tool: no
+# venture or research README mentioned item response theory, Rasch or
+# item fit (searched all READMEs). PR #16865 (scale-reliability, open at
+# the time) covers Cronbach's alpha and McDonald's omega, the classical
+# side; this is the model-based side and does not compute alpha or omega.
+# Implemented from Bock & Aitkin 1981, Birnbaum 1968, Rasch 1960,
+# Orlando & Thissen 2000, Lord & Wingersky 1984, Bock & Mislevy 1982 and
+# Thissen et al. 1995; no third-party code was ported. Checked against
+# ltm's published LSAT output and the girth package (eval/).
+#
+# First visitor: teachers, trainers, certification and HR test owners,
+# survey researchers and students searching "item response theory
+# calculator", "Rasch analysis online", "item difficulty and
+# discrimination calculator", "IRT online free", "item analysis
+# miskeyed". Volume not measured with an external tool.
+#
+# Alternatives: R ltm and mirt, Python girth and py-irt (need code),
+# Winsteps and IRTPRO (paid, install), jMetrik (install). Differentiators
+# here: no install, plain-language flags, the distractor check beside the
+# model, S-X2 fit.
+#
+# Liability: a statistical estimate, not psychometric advice; the page says
+# a testing standard or licensing body may require a psychometrician's
+# review, above all before a decision about a person. Data never leave the
+# browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Teachers, trainers and small certification programmes with a few
+      hundred test takers will use a no-install IRT tool that flags weak
+      and miskeyed questions in words.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports estimates that differ from mirt or ltm on the same model and data, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/item-response-theory/
+  analytics: null

@@ -27,7 +27,12 @@ const shortTitle = (t) => t.split(/\s[—–|-]\s/)[0].trim();
 const firstSentence = (s) => (s.split(/(?<=\.)\s/)[0] || s).trim();
 const clip = (s, n) => (s.length <= n ? s : s.slice(0, n - 1).trimEnd() + '…');
 /** Longest whole-word prefix within `n` characters, no ellipsis: titles and taglines read worse cut off with dots. */
-const words = (s, n) => (s.length <= n ? s : s.slice(0, n + 1).replace(/\s+\S*$/, '').replace(/[,;:–—-]$/, '').trimEnd());
+/** A first word longer than `n` has no whole-word prefix, so it is cut hard at `n` (the venue rejects anything longer). */
+const words = (s, n) => {
+  if (s.length <= n) return s;
+  const cut = s.slice(0, n + 1).replace(/\s+\S*$/, '').replace(/[,;:–—-]$/, '').trimEnd();
+  return cut.length <= n ? cut : s.slice(0, n).trimEnd();
+};
 
 /** The drafts for one tool, as plain strings keyed by venue. */
 export function composeKit({ title, description }, url, slug) {

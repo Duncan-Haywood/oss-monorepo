@@ -1,0 +1,83 @@
+Milestone 5: load-perturbed copies of PGLib-OPF v23.07 TYP, API, SAD; seeds 0..9, per-bus PD and QD x U[0.9, 1.1].
+Arms frozen as committed: S = DC dispatch at the file's setpoints; S+R = reactive stage on S; J = J-m-a (margins, analytic sensitivities, Clarabel, 10 rounds); J+R = reactive stage on J's best point.
+'Fully clean' = vlin.check: no branch over rating, slack inside limits, angle, bus-voltage and unit-Q limits met.
+
+Copies: 360; no AC optimum (PIPS) 101 (case118_ieee/api, case14_ieee/api, case162_ieee_dtc/api, case162_ieee_dtc/sad, case179_goc/api, case179_goc/sad, case179_goc/typ, case200_activ/api, case240_pserc/api, case240_pserc/sad, case240_pserc/typ, case24_ieee_rts/api, case24_ieee_rts/sad, case300_ieee/api, case300_ieee/sad, case300_ieee/typ, case30_ieee/api, case39_epri/api, case39_epri/sad, case57_ieee/api, case57_ieee/sad, case73_ieee_rts/api); no DC start 7; scored 252.
+  TYP: 10 of 120 copies without an AC optimum; total-load scale median 1.0076 (with one: 1.0000); 2 of them carry less total load than nominal.
+  API: 71 of 120 copies without an AC optimum; total-load scale median 1.0046 (with one: 0.9925); 31 of them carry less total load than nominal.
+  SAD: 20 of 120 copies without an AC optimum; total-load scale median 1.0065 (with one: 1.0026); 5 of them carry less total load than nominal.
+Total-load scale over copies: min 0.9555, median 1.0019, max 1.0458.
+Base cases with a nominal J-m-a result and at least one scored copy: 34.
+
+Pooled fully-clean rate (Wilson 95 % treats copies as independent; cluster bootstrap resamples base cases):
+  TYP (12 cases, 106 copies):
+    S (DC at file setpoints)      0/106  = 0.000  Wilson [0.000, 0.035]  cluster [0.000, 0.000]
+    S or S+R                     30/106  = 0.283  Wilson [0.206, 0.375]  cluster [0.000, 0.550]
+    J (J-m-a, Clarabel)          68/106  = 0.642  Wilson [0.547, 0.726]  cluster [0.368, 0.870]; nominal 8/12 = 0.67
+    J or J+R                     88/106  = 0.830  Wilson [0.747, 0.890]  cluster [0.667, 0.955]; nominal 11/12 = 0.92
+  API (11 cases, 42 copies):
+    S (DC at file setpoints)      0/42   = 0.000  Wilson [0.000, 0.084]  cluster [0.000, 0.000]
+    S or S+R                      0/42   = 0.000  Wilson [0.000, 0.084]  cluster [0.000, 0.000]
+    J (J-m-a, Clarabel)          20/42   = 0.476  Wilson [0.334, 0.623]  cluster [0.234, 0.703]; nominal 5/11 = 0.45
+    J or J+R                     40/42   = 0.952  Wilson [0.842, 0.987]  cluster [0.891, 1.000]; nominal 9/11 = 0.82
+  SAD (11 cases, 96 copies):
+    S (DC at file setpoints)      0/96   = 0.000  Wilson [0.000, 0.038]  cluster [0.000, 0.000]
+    S or S+R                     15/96   = 0.156  Wilson [0.097, 0.242]  cluster [0.021, 0.367]
+    J (J-m-a, Clarabel)          73/96   = 0.760  Wilson [0.666, 0.835]  cluster [0.553, 0.933]; nominal 8/11 = 0.73
+    J or J+R                     93/96   = 0.969  Wilson [0.912, 0.989]  cluster [0.938, 1.000]; nominal 11/11 = 1.00
+  ALL (34 cases, 244 copies):
+    S (DC at file setpoints)      0/244  = 0.000  Wilson [0.000, 0.015]  cluster [0.000, 0.000]
+    S or S+R                     45/244  = 0.184  Wilson [0.141, 0.238]  cluster [0.054, 0.333]
+    J (J-m-a, Clarabel)         161/244  = 0.660  Wilson [0.598, 0.716]  cluster [0.516, 0.792]; nominal 21/34 = 0.62
+    J or J+R                    221/244  = 0.906  Wilson [0.863, 0.936]  cluster [0.833, 0.967]; nominal 31/34 = 0.91
+
+Per base case: share of copies fully clean per arm; nominal J verdict (round it finished) and agreement
+of the nominal verdict with the majority across copies (a tie counts as disagreement).
+case               kind   n     S   S+R     J   J+R   nomJ nomJ+R agree J rounds (clean copies)
+case14_ieee        typ   10  0.00  1.00  1.00  1.00     @4   True  True [4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+case24_ieee_rts    typ   10  0.00  1.00  1.00  1.00     @2   True  True [1, 1, 1, 1, 2, 2, 2, 2, 2, 3]
+case30_ieee        typ   10  0.00  0.00  1.00  1.00     @6   True  True [5, 6, 6, 6, 6, 6, 6, 8, 9, 9]
+case39_epri        typ   10  0.00  0.00  1.00  1.00     @6   True  True [5, 5, 5, 5, 6, 6, 6, 7, 7, 9]
+case57_ieee        typ   10  0.00  0.00  0.00  0.70     no   True  True []
+case73_ieee_rts    typ   10  0.00  0.00  1.00  1.00     @6   True  True [5, 6, 6, 6, 6, 7, 7, 7, 8, 8]
+case118_ieee       typ   10  0.00  0.00  0.00  0.50     no   True  True []
+case162_ieee_dtc   typ    7  0.00  0.00  0.29  0.71     @8   True False [9, 10]
+case179_goc        typ    7  0.00  0.00  0.86  0.86    @10   True  True [7, 8, 9, 9, 9, 9]
+case200_activ      typ   10  0.00  1.00  1.00  1.00     @1   True  True [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+case240_pserc      typ    5  0.00  0.00  0.00  1.00     no   True  True []
+case300_ieee       typ    7  0.00  0.00  0.00  0.00     no  False  True []
+case14_ieee        api    5  0.00  0.00  1.00  1.00     @3   True  True [3, 3, 3, 3, 3]
+case24_ieee_rts    api    6  0.00  0.00  0.50  0.83    @10   True False [5, 8, 9]
+case30_ieee        api    5  0.00  0.00  0.80  1.00     @7   True  True [5, 7, 10, 10]
+case39_epri        api    1  0.00  0.00  1.00  1.00     @7   True  True [8]
+case57_ieee        api    8  0.00  0.00  0.50  1.00     no   True False [10, 10, 10, 10]
+case73_ieee_rts    api    1  0.00  0.00  0.00  1.00     no  False  True []
+case118_ieee       api    2  0.00  0.00  0.00  1.00     no  False  True []
+case162_ieee_dtc   api    2  0.00  0.00  0.00  1.00     no   True  True []
+case200_activ      api    3  0.00  0.00  1.00  1.00    @10   True  True [10, 10, 10]
+case240_pserc      api    4  0.00  0.00  0.00  1.00     no   True  True []
+case300_ieee       api    5  0.00  0.00  0.00  0.80     no   True  True []
+case14_ieee        sad   10  0.00  0.20  1.00  1.00     @2   True  True [2, 2, 2, 2, 3, 3, 3, 3, 3, 3]
+case24_ieee_rts    sad    8  0.00  0.12  1.00  1.00     @6   True  True [2, 2, 3, 3, 4, 4, 4, 6]
+case30_ieee        sad   10  0.00  0.00  0.80  1.00     @7   True  True [5, 5, 5, 7, 7, 8, 8, 10]
+case39_epri        sad    8  0.00  0.25  1.00  1.00     @3   True  True [3, 3, 3, 3, 3, 3, 4, 4]
+case57_ieee        sad    9  0.00  0.00  0.89  1.00     @7   True  True [6, 8, 8, 8, 8, 9, 10, 10]
+case73_ieee_rts    sad   10  0.00  0.00  0.80  0.90     @8   True  True [3, 3, 4, 5, 5, 8, 8, 8]
+case118_ieee       sad   10  0.00  0.00  0.00  0.90     no   True  True []
+case162_ieee_dtc   sad    8  0.00  0.00  0.62  1.00    @10   True  True [8, 9, 9, 9, 10]
+case179_goc        sad    6  0.00  0.00  1.00  1.00     no   True False [5, 7, 7, 8, 9, 10]
+case200_activ      sad   10  0.00  1.00  1.00  1.00     @3   True  True [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+case240_pserc      sad    7  0.00  0.00  0.29  0.86     no   True  True [6, 10]
+
+Nominal J verdict agrees with the copies' majority on 30 of 34 base cases.
+  Disagreements: case162_ieee_dtc/typ nominal @8, copies 0.29; case24_ieee_rts/api nominal @10, copies 0.50; case57_ieee/api nominal no, copies 0.50; case179_goc/sad nominal no, copies 1.00
+Sign test over base cases, per-case rates: J+R vs S+R 29 wins, 0 losses, P = 3.7e-09; J vs S+R 20 wins, 0 losses, P = 1.9e-06.
+
+AC cost of J's fully clean points over the copy's AC optimum:
+  TYP: 68 points, mean +0.079 %, median +0.038 %, range +0.004 to +1.289 %
+  API: 20 points, mean +0.234 %, median +0.181 %, range +0.020 to +0.836 %
+  SAD: 73 points, mean +0.690 %, median +0.133 %, range -0.853 to +7.112 %
+
+  nominal clean at round >= 8 (6 cases): mean share of copies J fully clean 0.68
+  nominal clean at round < 8 (15 cases): mean share of copies J fully clean 0.97
+Run time: 1907 s summed over copies (J alone 1257 s).

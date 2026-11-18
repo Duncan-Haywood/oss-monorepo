@@ -21,7 +21,7 @@ export function num(v) {
 
 export function money(n) {
   if (!Number.isFinite(n)) return "—";
-  return (n < 0 ? "-$" : "$") + Math.round(Math.abs(n)).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.round(Math.abs(n)).toLocaleString("en-US"));
 }
 
 export function percent(x) {
@@ -181,7 +181,7 @@ export function diagnose({ summary, fit, rec, pace }) {
   if (summary.trend !== null && summary.trend <= -0.1) out.push({ level: "high", title: "Sell-through is falling", text: `Recent runs sold ${percent(summary.recent)} against ${percent(summary.prior)} before. Check lead time and renewals before touching price.` });
   if (summary.trend !== null && summary.trend >= 0.1) out.push({ level: "info", title: "Sell-through is rising", text: `Recent runs sold ${percent(summary.recent)} against ${percent(summary.prior)} before; room to test a higher price.` });
   if (summary.emptyRuns > 0) out.push({ level: "medium", title: `${summary.emptyRuns} run(s) sold nothing`, text: "Check whether they fell in a holiday week or were announced late." });
-  if (rec && rec.direction !== "hold") out.push({ level: "info", title: `Model says ${rec.direction} the price`, text: `About ${money(rec.price)} per slot (${percent(rec.rateAfter)} sold) is worth ${money(rec.gain)} more per run than today, on ${fit.source === "fitted" ? "a response fitted to your history" : "an assumed price response"}.` });
+  if (rec && rec.direction !== "hold" && fit.source === "fitted") out.push({ level: "info", title: `Model says ${rec.direction} the price`, text: `About ${money(rec.price)} per slot (${percent(rec.rateAfter)} sold) is worth ${money(rec.gain)} more per run than today, on a response fitted to your history.` });
   if (fit.source === "assumed") out.push({ level: "info", title: "Price response is assumed", text: fit.why });
   if (pace && pace.status === "behind") out.push({ level: "high", title: "This run is behind pace", text: `About ${pace.projectedUnsold === null ? "?" : pace.projectedUnsold.toFixed(1)} slots projected unsold. Reach out to past buyers now rather than discounting at the deadline.` });
   return out;

@@ -1,0 +1,14 @@
+LPAC-C infeasible cases: does removing one limit class make it solvable? (Clarabel status)
+
+case               kind          thermal            angle                Q                V  cos domain 90deg
+case30_ieee        api            Solved           Solved PrimalInfeasible PrimalInfeasible            Solved
+case118_ieee       api            Solved           Solved PrimalInfeasible           Solved            Solved
+case14_ieee        sad  PrimalInfeasible           Solved           Solved           Solved            Solved
+case24_ieee_rts    sad  PrimalInfeasible           Solved           Solved           Solved            Solved
+case39_epri        sad            Solved           Solved PrimalInfeasible PrimalInfeasible  PrimalInfeasible
+case73_ieee_rts    sad  PrimalInfeasible     AlmostSolved           Solved           Solved            Solved
+case179_goc        sad  PrimalInfeasible           Solved PrimalInfeasible PrimalInfeasible  PrimalInfeasible
+case200_activ      sad  PrimalInfeasible           Solved PrimalInfeasible PrimalInfeasible  PrimalInfeasible
+case240_pserc      sad  PrimalInfeasible           Solved PrimalInfeasible PrimalInfeasible  PrimalInfeasible
+
+9 cases; solvable after removing: thermal 3, angle 8, Q 3, V 4, with the 90-degree cosine domain 5

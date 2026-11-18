@@ -27,3 +27,9 @@ test("create.html imports only modules that exist and read the report shape the 
 test("create.html links only to pages the front-door mirror can serve (no README.md link)", () => {
   assert.doesNotMatch(html, /href="README\.md"/);
 });
+
+test("create.html offers document-level allowances and charges, and Croatia's out-of-scope labels", () => {
+  assert.match(html, /<tbody id="adjustments">/);
+  assert.match(html, /data-f="hr_label"[^>]*><option value="">none<\/option><option>POVNAK<\/option><option>PP<\/option><option>PPMV<\/option><option>N<\/option>/);
+  assert.match(html, /\.\.\.adjustments\(\)/);
+});

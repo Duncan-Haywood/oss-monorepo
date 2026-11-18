@@ -1,0 +1,132 @@
+# Milestone 124: placing the gate-depth threshold inside (30, 41] blind, and a width twin
+
+theta = 3, alpha = 1.25; design bootstrap 2000 resamples, seed 124.
+
+## Blind designs' features (computed before the flow run)
+
+design | shift_width | amount_depth | amount_gate_depth | amount_gates | mux_share | SWG(36) flags | SWD(3) flags
+sad1b8 | 128 | 2 | 31 | 97 | 0.605 | True | True
+max3b5 | 128 | 4 | 33 | 71 | 0.865 | True | False
+sat1b9 | 128 | 2 | 35 | 68 | 0.631 | True | True
+max3b6 | 128 | 4 | 36 | 92 | 0.838 | False | False
+max3b6n | 64 | 4 | 36 | 92 | 0.712 | False | False
+sad2b5 | 128 | 3 | 40 | 187 | 0.795 | False | False
+sat2b5 | 128 | 4 | 41 | 66 | 0.853 | False | False
+
+seen mean regret % (milestones 119 to 123, 60 cells): SWC 5.56, SWG(36) 3.74, SWD(3) 4.54, random 4.75
+
+## Blind test (milestone 124 flow run): 14 cells
+
+clock | design | shift_width | amount_gate_depth | routed/r2 | routed delay/period | skip-r1 % | clipped skip-r1 % | random % | SWC % | SWG(36) % | SWD(3) %
+relaxed | sad1b8 | 128 | 31 | 3.64 | 0.290 | 29.01 | 0.00 | 4.57 | 0.00 | 4.57 | 4.57
+tight | sad1b8 | 128 | 31 | 3.62 | 0.431 | 27.73 | 27.73 | 4.32 | 27.73 | 4.32 | 4.32
+relaxed | max3b5 | 128 | 33 | 3.95 | 0.160 | 0.00 | 0.00 | 4.87 | 0.00 | 4.87 | 0.00
+tight | max3b5 | 128 | 33 | 3.97 | 0.241 | 0.00 | 0.00 | 5.60 | 0.00 | 5.60 | 0.00
+relaxed | sat1b9 | 128 | 35 | 4.74 | 0.274 | 0.00 | 0.00 | 4.77 | 0.00 | 4.77 | 4.77
+tight | sat1b9 | 128 | 35 | 4.83 | 0.408 | 0.00 | 0.00 | 5.17 | 0.00 | 5.17 | 5.17
+relaxed | max3b6 | 128 | 36 | 3.79 | 0.216 | 0.00 | 0.00 | 20.89 | 0.00 | 0.00 | 0.00
+tight | max3b6 | 128 | 36 | 3.75 | 0.324 | 0.00 | 0.00 | 22.73 | 0.00 | 0.00 | 0.00
+relaxed | max3b6n | 64 | 36 | 2.55 | 0.393 | 5.07 | 0.00 | 3.56 | 3.56 | 3.56 | 3.56
+tight | max3b6n | 64 | 36 | 2.57 | 0.590 | 5.07 | 0.00 | 4.11 | 4.11 | 4.11 | 4.11
+relaxed | sad2b5 | 128 | 40 | 4.12 | 0.169 | 1.17 | 1.17 | 3.25 | 1.17 | 1.17 | 1.17
+tight | sad2b5 | 128 | 40 | 4.07 | 0.254 | 1.59 | 1.59 | 3.48 | 1.59 | 1.59 | 1.59
+relaxed | sat2b5 | 128 | 41 | 3.53 | 0.160 | 0.00 | 0.00 | 13.33 | 0.00 | 0.00 | 0.00
+tight | sat2b5 | 128 | 41 | 3.55 | 0.240 | 0.00 | 0.00 | 12.83 | 0.00 | 0.00 | 0.00
+
+blind mean regret %: SWC 2.73, SWG(36) 2.84, SWD(3) 2.09, random 8.11
+
+blind SWG(36) vs random: better 6, worse 0, tied 8; sign p = 0.031; design bootstrap 95% interval of mean (SWG(36) - random) -11.50 to -0.28 points
+blind SWG(36) vs SWD(3): better 0, worse 2, tied 12; sign p = 0.500; design bootstrap 95% interval of mean (SWG(36) - SWD(3)) +0.00 to +2.24 points
+blind SWD(3) vs random: better 8, worse 0, tied 6; sign p = 0.008; design bootstrap 95% interval of mean (SWD(3) - random) -11.96 to -1.03 points
+
+## Per design along gate depth (descriptive)
+
+design | shift_width | amount_gate_depth | cells on ladder branch | SWC % | random % | SWC - random (points)
+sad1b8 | 128 | 31 | 2 | 13.87 | 4.45 | +9.42
+max3b5 | 128 | 33 | 2 | 0.00 | 5.24 | -5.24
+sat1b9 | 128 | 35 | 2 | 0.00 | 4.97 | -4.97
+max3b6 | 128 | 36 | 2 | 0.00 | 21.81 | -21.81
+max3b6n | 64 | 36 | 0 | 3.84 | 3.84 | +0.00
+sad2b5 | 128 | 40 | 2 | 1.38 | 3.37 | -1.99
+sat2b5 | 128 | 41 | 2 | 0.00 | 13.08 | -13.08
+
+## Ladder-branch wide-shift cells with amount gate depth 20 to 45, milestones 119 to 124 (124's blind, the rest seen)
+
+design | clock | amount_gate_depth | SWC % | random % | ladder wins
+addsh128 | relaxed | 27 | 7.74 | 1.30 | False
+addsh128 | tight | 27 | 23.02 | 1.82 | False
+fpalign128 | relaxed | 30 | 21.30 | 8.38 | False
+fpalign128 | tight | 30 | 21.03 | 8.73 | False
+sad1b8 | relaxed | 31 | 0.00 | 4.57 | True
+sad1b8 | tight | 31 | 27.73 | 4.32 | False
+max3b5 | relaxed | 33 | 0.00 | 4.87 | True
+max3b5 | tight | 33 | 0.00 | 5.60 | True
+sat1b9 | relaxed | 35 | 0.00 | 4.77 | True
+sat1b9 | tight | 35 | 0.00 | 5.17 | True
+max3b6 | relaxed | 36 | 0.00 | 20.89 | True
+max3b6 | tight | 36 | 0.00 | 22.73 | True
+sad2b5 | relaxed | 40 | 1.17 | 3.25 | True
+sad2b5 | tight | 40 | 1.59 | 3.48 | True
+chainsh2 | relaxed | 41 | 0.00 | 3.43 | True
+chainsh2 | tight | 41 | 0.00 | 2.79 | True
+sat2b5 | relaxed | 41 | 0.00 | 13.33 | True
+sat2b5 | tight | 41 | 0.00 | 12.83 | True
+wsum4n | relaxed | 43 | 0.73 | 1.46 | True
+wsum4n | tight | 43 | 0.73 | 1.89 | True
+
+## SWG(t) for t = 30 to 42 on the blind cells (descriptive; 36 was fixed in milestone 123)
+
+t | mean regret % | better than random | worse than random
+30 | 2.73 | 11 | 1
+31 | 2.73 | 11 | 1
+32 | 1.38 | 10 | 0
+33 | 1.38 | 10 | 0
+34 | 2.13 | 8 | 0
+35 | 2.13 | 8 | 0
+36 | 2.84 | 6 | 0
+37 | 5.96 | 4 | 0
+38 | 5.96 | 4 | 0
+39 | 5.96 | 4 | 0
+40 | 5.96 | 4 | 0
+41 | 6.24 | 2 | 0
+42 | 8.11 | 0 | 0
+
+## SWG(t) on milestones 119 to 124 together (74 cells; post hoc for every t but 36 on 124's cells)
+
+t | mean regret % | better than random | worse than random
+30 | 3.89 | 33 | 6
+31 | 3.54 | 33 | 4
+32 | 3.29 | 32 | 3
+33 | 3.29 | 32 | 3
+34 | 3.43 | 30 | 3
+35 | 3.43 | 30 | 3
+36 | 3.57 | 28 | 3
+37 | 4.16 | 26 | 3
+38 | 4.16 | 26 | 3
+39 | 4.16 | 26 | 3
+40 | 4.16 | 26 | 3
+41 | 4.21 | 24 | 3
+42 | 4.65 | 20 | 3
+
+## Milestones 121 to 124 blind cells together (50 cells, 25 designs)
+
+mean regret %: SWC 4.16, SWG(36) 2.41, SWD(3) 3.17, random 5.11
+
+SWG(36) vs random: better 23, worse 1, tied 26; sign p = 0.000; design bootstrap 95% interval of mean (SWG(36) - random) -4.88 to -0.98 points
+SWD(3) vs random: better 22, worse 4, tied 24; sign p = 0.001; design bootstrap 95% interval of mean (SWD(3) - random) -4.46 to +0.66 points
+
+## Milestones 119 to 124 together (74 cells, 37 designs)
+
+mean regret %: SWC 5.03, SWG(36) 3.57, SWD(3) 4.08, random 5.39
+
+SWG(36) vs random: better 28, worse 3, tied 43; sign p = 0.000; design bootstrap 95% interval of mean (SWG(36) - random) -3.63 to -0.11 points
+
+## Predictions
+
+(1) sad2b5 and sat2b5 (4 cells), SWC below random: True (0.69% against 8.22%)
+(2) sad1b8 (2 cells), SWC above random: True (13.87% against 4.45%)
+(3) max3b5 (2 cells), SWC above random: False (0.00% against 5.24%)
+(4) blind SWG(36) below random: True (2.84% against 8.11%)
+(5) blind SWG(36) better than random in more cells than worse: True (6 better, 0 worse)
+(6) max3b6n routed/r2 below max3b6 at both clocks: True (relaxed 2.55 against 3.79, tight 2.57 against 3.75)
+(7) at least 8 of 14 blind cells on the ladder branch: True (12)

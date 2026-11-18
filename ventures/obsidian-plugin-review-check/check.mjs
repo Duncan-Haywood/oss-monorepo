@@ -25,6 +25,7 @@ import {
   detectConsoleLog,
   buildReport,
 } from './scan.mjs';
+import { pathToFileURL } from 'node:url';
 
 const SOURCE_EXTENSIONS = new Set(['.js', '.ts', '.jsx', '.tsx']);
 const MANIFEST_NAME = 'manifest.json';
@@ -144,7 +145,10 @@ function formatText(result) {
   } else if (report.missingRequiredManifest.length > 0) {
     lines.push(`[X] manifest.json is missing required field(s): ${report.missingRequiredManifest.join(', ')}.`);
   } else {
-    lines.push('[OK] manifest.json carries every required field (id, name, version, minAppVersion, description, author).');
+    lines.push('[OK] manifest.json carries every required field (id, name, version, minAppVersion, description, author, isDesktopOnly).');
+  }
+  for (const v of report.manifestRules || []) {
+    lines.push(`[X] manifest.json ${v.field} "${v.value}": ${v.rule} (Obsidian "Manifest" reference).`);
   }
   if (report.missingRecommendedManifest.length > 0) {
     lines.push(`[i] manifest.json has no ${report.missingRecommendedManifest.join(', ')} field(s) -- optional, not a rejection cause on its own.`);
@@ -233,6 +237,6 @@ function main() {
   process.exit(result.report.ok ? 0 : 1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

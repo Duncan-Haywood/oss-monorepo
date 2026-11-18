@@ -66,6 +66,6 @@
       "where": "research/build-data/src/"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15034", "https://github.com/Duncan-Haywood/oss-monorepo/pull/15165"],
   "verdict": "A genuinely strong, honest research programme whose method is sound: I rebuilt the core pipeline's behaviour on synthetic data with known truth (boosted model within about 1-3% of the oracle pinball, baseline clearly worse, conformal coverage 0.799 on iid data), helper functions match numpy, sklearn and scipy, 42 tests pass and both seeded mutations were caught. It does not meet the bar because correctness is capped at 2 (the real-feed headline numbers could not be re-derived, the data hosts being blocked from this environment), claims is 2 (row counts conflict across README, paper, datasheets and manifest; Austin issue-date facts contradict; project.json stale), craft is 2 (script sprawl, no end-to-end test) and domain is 2 (the issue-to-completion target is right-censored and the paper does not say so; completed status date is not a build duration). The a2i, conformal and transfer findings are the most defensible; the build-time (i2c) claims need a censoring-aware treatment before publication. Median of the seven scores is 2."
 }

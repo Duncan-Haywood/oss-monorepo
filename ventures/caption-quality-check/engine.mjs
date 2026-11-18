@@ -91,7 +91,7 @@ export function stripTags(line) {
  */
 export function parseCaptions(text) {
   const normalized = String(text).replace(/\r\n?/g, '\n');
-  const format = /^﻿?WEBVTT/.test(normalized) ? 'webvtt' : (normalized.trim() ? 'srt' : 'unknown');
+  const format = /^\uFEFF?WEBVTT/.test(normalized) ? 'webvtt' : (normalized.trim() ? 'srt' : 'unknown');
   const blocks = normalized.split(/\n{2,}/);
   const cues = [];
   const parseErrors = [];

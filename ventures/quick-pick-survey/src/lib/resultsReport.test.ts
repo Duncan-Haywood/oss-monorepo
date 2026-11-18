@@ -26,6 +26,11 @@ describe("resultsReportHtml", () => {
     expect(h).toContain("Too few people rated: Water");
     expect(h).toContain("not a fact about any person");
   });
+  it("shows the respondent-agreement note, escaped, only when the route passes one", () => {
+    expect(resultsReportHtml("T", ranked, cov, 3)).not.toContain("rank agreement");
+    const h = resultsReportHtml("T", ranked, cov, 3, { agreement: "2 of 9 respondents ... (rank agreement under 0.2) <b>" });
+    expect(h).toContain("2 of 9 respondents ... (rank agreement under 0.2) &lt;b&gt;");
+  });
   it("shows tied places as a range", () => {
     const tied = [{ ...ranked[0], tied: true, bestRank: 1, worstRank: 2 }];
     expect(resultsReportHtml("T", tied, cov, 3)).toContain("1–2");

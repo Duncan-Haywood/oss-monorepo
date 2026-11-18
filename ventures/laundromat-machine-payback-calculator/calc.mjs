@@ -19,12 +19,14 @@ const num = (v, d = 0) => {
 // Header optional.
 export function parseMachines(text) {
   const rows = [];
-  let skipped = 0;
+  let skipped = 0, split = 0;
   for (const raw of String(text || "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const cells = (line.includes("\t") ? line.split("\t") : line.split(",")).map((c) => c.trim().replace(/^"|"$/g, ""));
+    const cells = splitCells(line);
     if (cells.length < 4) { skipped++; continue; }
+    // More than six cells means an unquoted thousands comma ($4,800) split a number; reading on would turn it into $4.
+    if (cells.length > 6) { split++; continue; }
     const count = num(cells[1], NaN), price = num(cells[2], NaN), turns = num(cells[3], NaN);
     if (!Number.isFinite(count) || !Number.isFinite(price) || !Number.isFinite(turns)) { if (rows.length || !/count|machine|name|type/i.test(line)) skipped++; continue; }
     const util = num(cells[4], 0), install = num(cells[5], 0);
@@ -32,6 +34,7 @@ export function parseMachines(text) {
     rows.push({ name: cells[0] || "Machine", count, price, turns, util, install });
   }
   const warnings = skipped ? [`${skipped} machine line(s) skipped (need a name, a count, a positive price and turns per day).`] : [];
+  if (split) warnings.push(`${split} machine line(s) skipped: more than six columns, likely an unquoted comma in a number. Write 4800 or "$4,800".`);
   if (!rows.length) return { error: "Add at least one machine line: name, count, price per cycle, turns per day, utility cost per cycle, installed cost per machine." };
   return { rows, warnings };
 }
@@ -75,7 +78,9 @@ export function analyze(machines, opts = {}) {
   // A price rise changes revenue and fees on every cycle that stays; utilities fall with the cycles that leave.
   const raises = [3, 5, 10, 15].map((pct) => {
     const c1 = revenue * (1 + pct / 100) * (1 - fee) - utilCost;
-    const breakEvenLoss = c1 > contribution && c1 > 0 ? (c1 - contribution) / c1 : 0;
+    // At zero or negative contribution every cycle can leave without lowering it: 100%, never more
+    // ((c1 - contribution) / c1 read over 100% there before 2026-11-11).
+    const breakEvenLoss = c1 <= contribution ? 0 : contribution <= 0 ? 1 : (c1 - contribution) / c1;
     const keep = o.retentionIfRaised / 100;
     return { pct, extraPerMonth: c1 - contribution, breakEvenLoss, atRetention: c1 * keep - contribution };
   });
@@ -108,6 +113,30 @@ export function reportCsv(r) {
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 
-export const money = (v) => (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US");
-export const money2 = (v) => (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.round(Math.abs(v)).toLocaleString("en-US"));
+export const money2 = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 export const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
+
+// One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so
+// "1,200" stays one number. Otherwise read it as CSV: a cell that starts with a double quote keeps
+// its commas (a spreadsheet's CSV export writes "$1,200") and "" inside it is a literal quote; a
+// quote later in a cell (17" rims) is text. Before 2026-11-11 a quoted "1,200" split in two and
+// shifted every later field (portfolio/quality, defect class input-handling).
+export function splitCells(line) {
+  const unq = (c) => { c = c.trim(); return /^".*"$/s.test(c) ? c.slice(1, -1).replace(/""/g, '"') : c; };
+  if (line.includes("\t")) return line.split("\t").map(unq);
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) {
+      if (ch !== '"') cur += ch;
+      else if (line[i + 1] === '"') { cur += '"'; i++; }
+      else q = false;
+    } else if (ch === '"' && cur.trim() === "") { cur = ""; q = true; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}

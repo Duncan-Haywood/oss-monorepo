@@ -1,0 +1,46 @@
+# 2026-11-12, after the open-hours row (README "The open-hours row in the score LP"), MODES=exact, one 4-core cloud machine,
+# the venture's test suite running alongside. Same rosters and scores as eval/auto-exact.out.txt on every week; the row never ran (cg proven on all).
+6 people, 16 shift lines, options {}
+week 0: 18 copies
+  exact     388 ms, open 29 h / 6 shifts, pay $1034.00, score 2901097.29, status optimal, cg proven true
+week 1: 20 copies
+  exact     848 ms, open 17 h / 4 shifts, pay $1797.00, score 1701834.37, status optimal, cg proven true
+week 2: 21 copies
+  exact     485 ms, open 51 h / 8 shifts, pay $1303.00, score 5101497.67, status improved, cg proven true
+8 people, 22 shift lines, options {}
+week 0: 32 copies
+  exact    1970 ms, open 57 h / 8 shifts, pay $2764.00, score 5703029.59, status optimal, cg proven true
+week 1: 29 copies
+  exact    1430 ms, open 4 h / 1 shifts, pay $2420.00, score 402429.33, status improved, cg proven true
+week 2: 35 copies
+  exact      96 ms, open 98 h / 14 shifts, pay $2165.00, score 9802814.98, status optimal, cg proven true
+10 people, 28 shift lines, options {}
+week 0: 42 copies
+  exact    2210 ms, open 110 h / 16 shifts, pay $2914.00, score 11003601.08, status optimal, cg proven true
+week 1: 41 copies
+  exact    1229 ms, open 93 h / 16 shifts, pay $2573.00, score 9303006.78, status improved, cg proven true
+week 2: 39 copies
+  exact    2031 ms, open 57 h / 12 shifts, pay $2267.00, score 5702448.81, status improved, cg proven true
+12 people, 34 shift lines, options {}
+week 0: 48 copies
+  exact    1962 ms, open 121 h / 19 shifts, pay $3239.00, score 12103874.67, status improved, cg proven true
+week 1: 42 copies
+  exact    1369 ms, open 57 h / 10 shifts, pay $2999.00, score 5703138.34, status optimal, cg proven true
+week 2: 45 copies
+  exact    2153 ms, open 48 h / 8 shifts, pay $3628.00, score 4803814.03, status optimal, cg proven true
+15 people, 42 shift lines, options {}
+week 0: 62 copies
+  exact     593 ms, open 129 h / 21 shifts, pay $4208.00, score 12904795.63, status improved, cg proven true
+week 1: 62 copies
+  exact     689 ms, open 88 h / 14 shifts, pay $4433.00, score 8804695.90, status improved, cg proven true
+week 2: 55 copies
+  exact    2934 ms, open 38 h / 7 shifts, pay $4177.00, score 3804304.60, status improved, cg proven true
+built-in templates, options {}
+cafe: 7 people, 32 copies
+  exact    1965 ms, open 15 h / 5 shifts, pay $3690.00, score 1503758.95, status optimal, cg proven true
+salon: 5 people, 16 copies
+  exact      79 ms, open 0 h / 0 shifts, pay $2054.00, score 2095.75, status optimal, cg proven true
+retail: 5 people, 20 copies
+  exact      61 ms, open 0 h / 0 shifts, pay $2250.00, score 2251.82, status optimal, cg proven true
+clinic: 5 people, 16 copies
+  exact     549 ms, open 5 h / 1 shifts, pay $2708.00, score 503235.35, status optimal, cg proven true

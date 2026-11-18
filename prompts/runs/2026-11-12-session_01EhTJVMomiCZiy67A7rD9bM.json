@@ -1,0 +1,157 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVMomiCZiy67A7rD9bM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (full stored prompt)",
+  "input_sha256": "6331b13ee7d18e5f531e7e8ddc4044a16f58ac2389f93f6fb7ca5a762d99ee32",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T17:56:13Z",
+  "ended": "2026-11-12T18:10:13Z",
+  "wall_minutes": 14.28,
+  "tokens_in": 11949919,
+  "tokens_out": 57836,
+  "cost_usd": 4.9031,
+  "tool_calls": 88,
+  "task": "Deepen (flagship 5): einvoice-preflight, Brazil NF-e (consolidated onto PR #15210)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15208",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "Duplicate work: PR #15210 (another session) landed a fuller NF-e checker (with the XSD layer) while my parallel nfe.mjs (#15208) was in CI; my claim PR opened 18:03, theirs had not shown in claim_check",
+      "fix": "reset the branch onto main, dropped my checker/page/post, kept what #15210 lacked: the 35-file real corpus + seeded-fault eval, and the vII false positive it found (fixed in main's nfe.mjs)"
+    },
+    {
+      "what": "Main's BR-030 flagged an authorised production SC import NF-e (vNF without vII)",
+      "fix": "vNF passes with or without vII; test pins the file"
+    },
+    {
+      "what": "First post front matter too long",
+      "fix": "shortened"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py route",
+      "issue": "A plain route drew the research track though the scheduled prompt is explicitly about revenue ventures; only route --task picked ventures. The scheduled routine's text should pass --task or --track."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight next: was already ~2,100 chars (over its own 2,000 limit) before this run; had to compress the PINT history to add a line."
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "Two sessions built the same Brazil NF-e reader within the same hour on the same flagship: the allocator's next: listed 'Brazil NF-e XSD' and both picked it; claim_check said HOLD for mine (opened first?) yet #15210 merged first. A per-item claim (not per-venture) would have prevented ~1 h of duplicate work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed with --task (ventures) instead of the first weighted draw (research), because the scheduled prompt asks for venture work",
+      "did": "ventures track, allocator row 4 (einvoice-preflight)",
+      "result": "landed a Brazil NF-e checker slice"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-authorised-nf-e-that-corrected-the-formula.md",
+    "ventures/einvoice-preflight/README.md (Brazil: 'On 35 real files')",
+    "ventures/einvoice-preflight/eval/nfe-corpus/README.md"
+  ],
+  "goal": "Measure the NF-e checker on real files and fix what they show",
+  "notes": "Built a parallel NF-e checker (#15208 first version); #15210 landed an equivalent-plus-XSD one first, so the branch was rebuilt on main. Landed: eval/nfe-corpus/ (35 files, sped-nfe MIT option + nfelib MIT, commits pinned), eval/nfe-corpus.mjs (17 clean of 35, 14 authorised; 153/153 seeded faults across 9 kinds), vII loosening in nfe.mjs BR-030 from a real authorised SC import NF-e, 2 tests, README paragraph, llms.txt, flagship next (also trimmed under 2,000 chars), post. Verification: nfe.test.mjs 15/15; run_venture_tests.py einvoice-preflight ok; check_post_frontmatter ok; promptctl validate ok. Earlier (first version): platform/pages node --test 1570/0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3b30bbb2-77b9-51fc-a71a-8c013fff3737",
+    "transcripts": 1,
+    "first": "2026-11-12T17:56:13Z",
+    "last": "2026-11-12T18:10:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 161,
+        "output": 57836,
+        "thinking": 10369,
+        "cache_read": 11775939,
+        "cache_write_5m": 0,
+        "cache_write_1h": 173819,
+        "api_equivalent_usd": 4.9031,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 161,
+      "output": 57836,
+      "thinking": 10369,
+      "cache_read": 11775939,
+      "cache_write_5m": 0,
+      "cache_write_1h": 173819,
+      "api_equivalent_usd": 4.9031,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 80,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.28,
+      "active_minutes": 14.28,
+      "model_minutes": 8.84,
+      "tool_minutes": 5.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a developer building and measuring an NF-e key/totals checker with tests, corpus and a page",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 204.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

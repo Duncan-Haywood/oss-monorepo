@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtGpkLZ3J2WJsLEiegV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T16:05:44Z",
+  "ended": "2026-11-12T16:31:43Z",
+  "wall_minutes": 26.27,
+  "tokens_in": 9032526,
+  "tokens_out": 38302,
+  "cost_usd": 3.7835,
+  "tool_calls": 69,
+  "task": "Deepen (flagship 2) ai-bookkeeper, item (5): receipt totals on real phone photos",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15186",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: was already ~1,990 characters against the 2,000-character cap, so updating one item meant trimming it twice to fit; the cap is checked by nothing, only stated in the text."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "platform/ci/run_workflow_locally.py has no --dry-run; nothing documents a way to see which workflows --for-changes would run without running them."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-receipt-photos-from-a-phone-the-wrong-answers-that-said-nothing.md",
+    "ventures/ai-bookkeeper/README.md#receipt-photos-from-a-phone-cord-through-tesseractjs-2026-11-12"
+  ],
+  "goal": null,
+  "notes": "CORD-v2 validation+test photos (200, HF revision 7f0115a4, fetched at run time, not committed) through tesseract.js 5.1.1 both modes. Before: page settled reading 53.1% val / 47.4% test right; wrong with no warning 38 / 39. Changes written from validation misses only (split thousands joined on whole-unit receipts; total/cash/change triple with a 100-unit floor; guessedTotal warning in settleReadings). After: val 62.2%, test 50.5% (48/95), wrong with no warning 10 / 12. Side effects: CORD hand-corrected test 90->92, train 742->749, val tax 45->46 (pins updated in cord-receipts.test.mjs); SROIE hand-corrected 609->611, tesseract.js psm6 490->495, page settled 499->505 (before figures reproduce README exactly). Negative: 2x upscale / greyscale+autocontrast / both before OCR gave 46.9/52.0/52.0% vs 52.0% untouched. Verification: python3 platform/ci/run_venture_tests.py ai-bookkeeper -> ok (52.3s), 1 suite, 0 failed; photoocr + cord-receipts tests 15 pass. No post-free reason needed: post written.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "96632d5f-9180-5cf2-a64e-ab7ca445a105",
+    "transcripts": 1,
+    "first": "2026-11-12T16:05:44Z",
+    "last": "2026-11-12T16:32:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 131,
+        "output": 38302,
+        "thinking": 9023,
+        "cache_read": 8877213,
+        "cache_write_5m": 0,
+        "cache_write_1h": 155182,
+        "api_equivalent_usd": 3.7835,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 131,
+      "output": 38302,
+      "thinking": 9023,
+      "cache_read": 8877213,
+      "cache_write_5m": 0,
+      "cache_write_1h": 155182,
+      "api_equivalent_usd": 3.7835,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 65,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.27,
+      "active_minutes": 26.27,
+      "model_minutes": 8.55,
+      "tool_minutes": 17.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer fetching CORD, running OCR on 200 photos, analysing misses, writing three parser rules with tests and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 264.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

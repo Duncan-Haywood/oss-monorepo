@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVPrsoLWhnT9AbWdzAU",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "continue work on the repo ... (scheduled routine prompt)",
+  "input_sha256": "94db4c14b0821548b76d6a83282a09c402ed46978a102d0c048e73e18db1399b",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T21:05:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "perf: clothing-design-studio drape suite (item 3 of open-house-plans perf doc's Not changed)",
+  "projects": [
+    "clothing-design-studio"
+  ],
+  "pr": 15613,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items are still owner-gated (P063, P064), as several earlier perf runs reported; the 'Not changed' lists in docs/history were the practical work queue."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-13-clothing-drape-arm-reject.md",
+    "docs/posts/2026-11-13-most-of-a-tee-is-nowhere-near-an-arm.md"
+  ],
+  "goal": null,
+  "notes": "Metric: clothing-design-studio suite wall time and one drapeGarment M tee. Before: suite 31.9 s (node --test '*.test.mjs' on a git-archive HEAD copy, bash timestamps, 4-core container); drape.test.mjs alone 29.8 s; one M tee 5.17 s (cold process), armContact 2.89 s self in --cpu-prof. After: suite 12.7 s (same command), run_venture_tests.py clothing-design-studio 12.9 s; one M tee 3.27 s; armContact 0.60 s + armsClear 0.63 s. Change: squared-distance reject before armContact in pushOutArm (exact: only skips calls that returned 0 untouched), armContact boxes its winner once, sleeves and lowerArms tests moved verbatim into their own files. Equivalence: 9 drapeGarment results JSON-serialised with all vertex positions, sha256 identical old vs new (4b00173ee4ff78c8...). 675/675 tests pass; PR CI green on all jobs. run_workflow_locally --for-changes: UNRUN steps only where pytest is missing in this container.",
+  "corrections": [],
+  "redteam": null
+}

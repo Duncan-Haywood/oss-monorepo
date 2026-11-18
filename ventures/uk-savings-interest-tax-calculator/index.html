@@ -84,7 +84,7 @@
   <section class="card" id="rules">
     <h2>What it does, and what it leaves to you</h2>
     <ul>
-      <li><strong>Covers:</strong> unused personal allowance (including the £100,000 taper), the £5,000 starting rate for savings, the Personal Savings Allowance by band, and savings interest taxed at 20%, 40% or 45%.</li>
+      <li><strong>Covers:</strong> unused personal allowance (including the £100,000 taper, counting the extra tax on your other income when the interest reduces the allowance), the £5,000 starting rate for savings, the Personal Savings Allowance by band, and savings interest taxed at 20%, 40% or 45%.</li>
       <li><strong>Gives:</strong> tax due, interest after tax, the interest you can earn tax-free, the pot size that earns it, and the tax a cash ISA would save.</li>
       <li><strong>Not decided:</strong> Scottish income tax bands, dividends and capital gains stacked on top, Gift Aid and pension relief at source, blind person's and marriage allowances, savings rate changes announced for later years, and anything that changed after this was written.</li>
     </ul>
@@ -143,6 +143,7 @@
       $("#summary").textContent = summaryText(r);
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
       const rows = [["Unused personal allowance (0%)", r.paUsed], ["Starting rate for savings (0%)", r.startingUsed], [`Personal Savings Allowance (0%, limit ${gbp(r.psa)})`, r.psaUsed], ["Taxed at 20%", r.inBasic], ["Taxed at 40%", r.inHigher], ["Taxed at 45%", r.inAdd]];
+      if (r.taperTax > 0) rows.push(["Extra tax on other income: the interest reduces your personal allowance (over £100,000)", r.taperTax]);
       $("#schedule").innerHTML = rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td class="n">${gbp(v)}</td></tr>`).join("") + `<tr class="total"><td>Tax due</td><td class="n">${gbp(r.tax)}</td></tr>`;
       $("#duties").innerHTML = r.obligations.map((o) => `<tr><td><strong>${esc(o.title)}</strong></td><td>${esc(o.why)}</td></tr>`).join("");
       report.hidden = false;

@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mortgage Extra Payment vs Invest Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare paying extra on your mortgage, investing the same money, and a lump-sum recast, with the break-even investment return. Runs in your browser; nothing is uploaded.", "featureList": "Extra payment vs invest, mortgage recast comparison, break-even investment return, months and interest saved, after-tax wealth at the end of the term, sensitivity table, CSV"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I pay extra on my mortgage or invest the money?", "acceptedAnswer": {"@type": "Answer", "text": "It comes down to one comparison: the return your mortgage rate guarantees against the return you expect, after tax, from investing. Paying down a 6.5% loan is a certain 6.5% (less any tax saving on the interest). Investing has to beat that by enough to cover the tax on its gains and the risk of a bad stretch. The tool runs both with the same cash every month and shows the investment return at which they tie."}}, {"@type": "Question", "name": "What is a mortgage recast and when does it beat paying extra?", "acceptedAnswer": {"@type": "Answer", "text": "A recast means paying a lump sum toward principal and asking the lender to re-amortize the remaining balance over the same term, which lowers the monthly payment. Lenders usually charge a small fee and many require a minimum lump sum. It beats simply prepaying when you want the lower required payment for cash-flow safety; the tool invests the payment drop so you can see the cost of that choice."}}, {"@type": "Question", "name": "Why does the tool use the same cash every month for all three paths?", "acceptedAnswer": {"@type": "Answer", "text": "So the comparison is fair. In every path you spend the same total each month and the same lump sum today. What changes is only where the money sits: in the loan, which stops charging interest, or in an investment account, which earns a return. Wealth is compared when the original loan term would have ended."}}, {"@type": "Question", "name": "What return should I enter for investing?", "acceptedAnswer": {"@type": "Answer", "text": "A realistic long-run figure you would stand behind, before tax, and not a hot recent year. Stock-market averages are volatile, and the comparison is not risk-adjusted: the mortgage payoff return is certain and the market return is not. Try the sensitivity table across 2% to 12% to see where the answer flips."}}, {"@type": "Question", "name": "How are taxes handled?", "acceptedAnswer": {"@type": "Answer", "text": "Two simple inputs. Tax on investment gains is charged once on the gains at the end, as a single flat percentage. The optional interest tax saving is the share of each month's mortgage interest you get back in tax because you itemize; leave it at 0 if you take the standard deduction. No tax table is built in because the rules change."}}, {"@type": "Question", "name": "Is this financial or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the numbers you type, with simplifications: fixed rate, constant investment return, no payment of insurance or escrow, no prepayment penalty, no emergency-fund or liquidity value. Home equity is hard to get back out, which the numbers do not price. Confirm with your own adviser before you decide."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -94,11 +132,11 @@
       if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const b = a.best, inv = a.rows[0];
       const margin = b.final - Math.min(...a.rows.map((r) => r.final));
-      h += `<div class="finding"><h4>The answer on your numbers</h4><p>${esc(b.label)} ends highest: ${money(b.final)} after tax at the end of the original term${margin > 1 ? ", " + money(margin) + " ahead of the lowest path" : ""}.</p>` +
+      h += `<div class="finding"><h3>The answer on your numbers</h3><p>${esc(b.label)} ends highest: ${money(b.final)} after tax at the end of the original term${margin > 1 ? ", " + money(margin) + " ahead of the lowest path" : ""}.</p>` +
         (a.breakEven === null ? "" : `<p>Investing and prepaying tie at about <strong>${pct(a.breakEven)}</strong> a year before tax on gains. Paying down your loan is a certain ${pct(a.afterTaxMortgage)} after any interest tax saving; investing has to clear that plus the tax on its gains, with no guarantee.</p>`) + `</div>`;
-      h += `<div class="finding"><h4>Three paths, same cash</h4>${table(["Path", "Monthly mortgage payment", "Loan ends", "Interest paid", "After-tax wealth at term end", "vs investing"], a.rows.map((r) => [esc(r.label), money(r.payment), yrs(r.payoffMonths), money(r.interestPaid), money(r.final), r.key === "invest" ? "—" : (r.vsInvest >= 0 ? "+" : "") + money(r.vsInvest)]))}</div>`;
+      h += `<div class="finding"><h3>Three paths, same cash</h3>${table(["Path", "Monthly mortgage payment", "Loan ends", "Interest paid", "After-tax wealth at term end", "vs investing"], a.rows.map((r) => [esc(r.label), money(r.payment), yrs(r.payoffMonths), money(r.interestPaid), money(r.final), r.key === "invest" ? "—" : (r.vsInvest >= 0 ? "+" : "") + money(r.vsInvest)]))}</div>`;
       if (a.monthsSaved > 0) h += `<div class="finding"><span class="pill">Prepay</span> Paying extra ends the loan ${yrs(a.monthsSaved)} early and saves ${money(a.interestSavedByPrepay)} of interest.</div>`;
-      h += `<div class="finding"><h4>What if the market returns less or more?</h4>${table(["Yearly return", "Keep & invest", "Prepay", "Recast & invest", "Highest"], a.sensitivity.map((s) => [s.returnPct + "%", money(s.invest), money(s.prepay), money(s.recast), s.winner === "invest" ? "Invest" : s.winner === "prepay" ? "Prepay" : "Recast"]))}<p><button type="button" class="secondary" id="csv">Download yearly schedule (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>What if the market returns less or more?</h3>${table(["Yearly return", "Keep & invest", "Prepay", "Recast & invest", "Highest"], a.sensitivity.map((s) => [s.returnPct + "%", money(s.invest), money(s.prepay), money(s.recast), s.winner === "invest" ? "Invest" : s.winner === "prepay" ? "Prepay" : "Recast"]))}<p><button type="button" class="secondary" id="csv">Download yearly schedule (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

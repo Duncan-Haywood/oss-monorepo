@@ -122,13 +122,35 @@ test("CSV has a feature table and a plan table", () => {
   assert.equal(csv.split("\n").filter((l) => l.startsWith('"Starter"')).length, 1);
 });
 
+test("the quick price search is the best ordered price grid, checked by brute force with evaluate()", () => {
+  // Pins the allocation-free ladder (2026-11-17 perf pass) to the plain evaluate() rule: few distinct values, so no thinning.
+  for (let seed = 1; seed <= 12; seed++) {
+    const r = rnd(seed), k = 2 + (seed % 2), f = 3;
+    const rows = Array.from({ length: 30 }, () => ({ v: Array.from({ length: f }, (_, j) => (r() < 0.3 ? 0 : [5, 7, 11][j])), w: r() < 0.3 ? 1.5 : 1 }));
+    const level = Array.from({ length: f }, (_, i) => 1 + (i % k));
+    const costs = Array.from({ length: k }, (_, t) => t);
+    const pr = planValues(rows, level, k);
+    const grid = Array.from({ length: k }, (_, t) => [...new Set(pr.map((x) => x.v[t]).filter((x) => x > 0 && x >= costs[t]))].sort((a, b) => a - b));
+    assert.ok(grid.every((g) => g.length > 0 && g.length <= 8));
+    let best = null;
+    const cur = [];
+    (function go(t) {
+      if (t === k) { const e = evaluate(pr, cur, costs); if (!best || e.profit > best.profit + 1e-9) best = e; return; }
+      for (const p of grid[t]) { if (t > 0 && p < cur[t - 1]) continue; cur[t] = p; go(t + 1); }
+    })(0);
+    const got = priceLadder(rows, level, costs);
+    assert.deepEqual(got.prices, best.prices);
+    assert.equal(got.profit, best.profit);
+  }
+});
+
 test("the search stays fast at the largest size", () => {
   const r = rnd(42), rows = [];
   for (let i = 0; i < 500; i++) rows.push(Array.from({ length: 8 }, () => (r() < 0.4 ? 0 : Math.round(r() * 40))).join(","));
   const t = Date.now();
   const a = analyze({ tiers: "A, B, C", costs: "1, 2, 3", features: "f1, f2, f3, f4, f5, f6, f7, f8", survey: rows.join("\n"), current: "", currentPrices: "" });
   assert.ok(a.ok);
-  // ~14s on an idle core, 36s with six suites sharing four cores; this guards
+  // ~14s on an idle core before the 2026-11-17 ladder pass, ~7s after; this guards
   // against a blow-up (minutes), not a few seconds of scheduler noise.
   assert.ok(Date.now() - t < 90000, `took ${Date.now() - t}ms`);
 });

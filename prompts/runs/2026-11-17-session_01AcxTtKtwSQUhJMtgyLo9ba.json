@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtKtwSQUhJMtgyLo9ba",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T02:06:05Z",
+  "ended": "2026-11-17T02:21:03Z",
+  "wall_minutes": 17.28,
+  "tokens_in": 6993519,
+  "tokens_out": 24893,
+  "cost_usd": 2.7582,
+  "tool_calls": 61,
+  "task": "Deepen flagship shift-roster-builder: measure what the 2 s day sweeps buy past a spent time budget",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16778",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "cg-hardstop.test.mjs 'column generation stops near its share' failed twice (full suite, then alone) on the stoppedMidRound >= 1 assertion; it passed on main's calc.mjs once and on this branch 3 of 3 afterwards: a timing flake (the stop landing between rounds), not this change, which only touches the day sweeps that run after column generation."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The git branch named by the harness already existed locally when the session started, so a `git checkout -b` from the land-your-work steps failed; a plain checkout was needed."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The shift-roster-builder next: field mixes landed history with open items, so finding a buildable item meant reading about 1,700 README lines of section headers; a BUILDABLE HERE line like the other flagships have would have saved time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Ran no pre-registration: no default changed (the 2 s window stays, the repeat option stays off), and the house rule pre-registers changes to defaults.",
+      "did": "Explored on seeds 66-71 and reported both results as exploration, not claims.",
+      "result": "Two negative results with exact pairing (the builds are deterministic up to the pass)."
+    },
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "llms.txt and the marketing page were not updated: the change is solver-internal diagnostics with no user-facing surface.",
+      "did": "Left them as they are.",
+      "result": null
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Skipped venture-preflight.mjs: no page, route or deploy file changed, only calc.mjs internals, a test, eval files, README and NEXT.md.",
+      "did": "Ran the venture's full test suite instead.",
+      "result": "Full suite passed apart from one timing flake in cg-hardstop.test.mjs (re-run 3 of 3 ok)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-shift-roster-two-seconds-past-the-budget.md",
+    "ventures/shift-roster-builder/README.md (The day sweeps past a spent budget)"
+  ],
+  "goal": null,
+  "notes": "optimality.dayLNS now logs gains (time, phase, saved), startedAt and ladders. 23 of 24 builds ran the pass, 9 of them past the budget: the guided ladder covered 9 open hours by 400 ms, and kicks covered 2 more at 866 and 1,155 ms, so the 2 s window stays. dayGuideRepeat (off) found nothing on 24 exactly paired builds (6,064 open hours both ways). day-lns.test.mjs passes 7 of 7. Full suite (run_venture_tests.py shift-roster-builder): every test passed except that one flake; cg-hardstop re-run 3 of 3 ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cd4d8a32-347c-5b70-ad5a-dfc4af9b0ed5",
+    "transcripts": 1,
+    "first": "2026-11-17T02:06:05Z",
+    "last": "2026-11-17T02:23:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 140,
+        "output": 24893,
+        "thinking": 5391,
+        "cache_read": 6882978,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110401,
+        "api_equivalent_usd": 2.7582,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 140,
+      "output": 24893,
+      "thinking": 5391,
+      "cache_read": 6882978,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110401,
+      "api_equivalent_usd": 2.7582,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 55,
+      "Monitor": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.28,
+      "active_minutes": 9.77,
+      "model_minutes": 5.83,
+      "tool_minutes": 3.94,
+      "waiting_on_human_minutes": 7.51,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "instrument a solver stage, two 24-build experiments, a test, README and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 217.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

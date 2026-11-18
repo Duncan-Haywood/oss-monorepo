@@ -1,0 +1,2 @@
+quarters (period 3 months): qN = 0.050, qP = 0.150, Q = 1.266e-03; Q at (0.10, 0.50) / Q_min = 16.69
+months (period 1 months): qN = 0.010, qP = 0.100, Q = 1.288e-03; Q at (0.10, 0.50) / Q_min = 38.28

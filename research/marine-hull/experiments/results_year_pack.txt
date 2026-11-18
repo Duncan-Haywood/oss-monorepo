@@ -1,0 +1,110 @@
+Milestone 6zj: a year-long deck-solar mission with one 10 kWh pack and no port call, 2024, against the 2015 Wave Glider
+central boat (4.0, 30.0, 0.2, 0.85), deck 1.152 m2, pack 10000 Wh, launch full on 1 January; 30 points with all twelve months
+
+A  annual km and payload: (Y) causal policy, (F) foresight plan, 6z's monthly (A) and (B) summed, Wave Glider best and worst state;
+   down days and dark hours for (Y), (F) and an idle vehicle (same panel, pack, hotel, v = 0); largest dark-free hotel load
+   point             lat    (Y) km  (F) km   6z(A)   6z(B)  WG best WG worst | (Y) dn  dark  (F) dn  dark idle dn | max W
+   P-60              -60      5015    6026    6495   14817    28068    16838 |    231  3951     214  3771     214 |     6
+   P-50              -50      9279   10556   11184   19617    27081    16245 |    188  2711     170  2532     170 |    11
+   P-40              -40     16080   17354   17850   28034    24835    14898 |    137  1438     119  1256     119 |    19
+   P-30              -30     19819   22030   21579   35539    23063    13835 |     76   608      54   424      54 |    25
+   P-20              -20     27289   31274   28450   39347    21803    13079 |      0     0       0     0       0 |    37
+   P-10              -10     36259   37133   36308   43277    20907    12542 |      0     0       0     0       0 |    46
+   P+0                 0     38771   39244   38609   44803    21073    12641 |      0     0       0     0       0 |    54
+   P+10               10     30461   32353   31088   40008    23335    13998 |      0     0       0     0       0 |    40
+   P+20               20     33689   35067   33585   41661    22922    13751 |      0     0       0     0       0 |    43
+   P+30               30     21989   26609   23226   37193    21723    13031 |     16    74       0     0       0 |    31
+   P+40               40     12102   13375   14361   25426    23910    14343 |    121  1318     102  1126     102 |    19
+   P+50               50      2286       0    5572   17703    25866    15517 |    177  2442     153  2245     153 |    13
+   P+60               60      8634    9348   10778   17809    14749     8847 |    192  3191     172  2994     172 |     9
+   A-50              -50      7053    8521    8648   18605    27583    16546 |    192  2930     177  2756     177 |    10
+   A-40              -40     15005   16247   16609   25862    26012    15604 |    148  1740     133  1566     133 |    17
+   A-30              -30     18115   19783   20398   35360    22924    13752 |     68   394      30   217      30 |    27
+   A-20              -20     34524   35869   34632   42470    20326    12193 |      0     0       0     0       0 |    41
+   A-10              -10     36593   37459   36651   43526    21673    13001 |      0     0       0     0       0 |    47
+   A+0                 0     35220   36241   35409   42621    20195    12114 |      0     0       0     0       0 |    48
+   A+10               10     32229   33936   32812   40996    20645    12385 |      0     0       0     0       0 |    44
+   A+20               20     32754   34322   32892   41177    21534    12918 |      0     0       0     0       0 |    43
+   A+30               30     25103   29249   25484   38292    20847    12506 |     13   110       0     0       0 |    31
+   A+40               40     15418   16298   17964   29110    23568    14138 |    110  1030      83   819      83 |    22
+   A+50               50      6368    7647    9373   19182    26577    15943 |    154  2337     137  2154     137 |    13
+   A+60               60      3457    3234    5932   15267    26715    16026 |    206  3458     190  3260     190 |     8
+   Equator-Pacific     0     30466   32560   31284   40181    16407     9842 |      0     0       0     0       0 |    39
+   Florida-Straits    25     24394   30122   25716   38385    18284    10968 |      0     0       0     0       0 |    35
+   Gulf-of-Maine      42     14265   14648   15963   28145    19205    11521 |    101  1211      77  1003      77 |    20
+   North-Sea          55      9670   10978   11861   19004    22808    13682 |    170  2903     153  2700     153 |    10
+   Gulf-of-Alaska     60      7899    7821    8653   17194    19942    11963 |    200  3351     183  3155     183 |     8
+
+B  by |lat| band, transect points only (means): (Y) km / WG best km, (Y) down days, (F) down days
+   |lat|  0 (2 pts): ratio  1.79, (Y) down   0.0, (F) down   0.0, payload uptime (Y) 100.0%
+   |lat| 10 (4 pts): ratio  1.57, (Y) down   0.0, (F) down   0.0, payload uptime (Y) 100.0%
+   |lat| 20 (4 pts): ratio  1.49, (Y) down   0.0, (F) down   0.0, payload uptime (Y) 100.0%
+   |lat| 30 (4 pts): ratio  0.97, (Y) down  43.2, (F) down  21.0, payload uptime (Y)  96.6%
+   |lat| 40 (4 pts): ratio  0.60, (Y) down 129.0, (F) down 109.2, payload uptime (Y)  84.3%
+   |lat| 50 (4 pts): ratio  0.23, (Y) down 177.8, (F) down 159.2, payload uptime (Y)  70.3%
+   |lat| 60 (3 pts): ratio  0.30, (Y) down 209.7, (F) down 192.0, payload uptime (Y)  59.8%
+
+C  sensitivity of (Y): pack 5 / 10 / 20 kWh and a 1 July launch (km; down days)
+   P-60             5 kWh   5390  240 | 10 kWh   5015  231 | 20 kWh   3984  215 | July launch   4578  219
+   P-50             5 kWh   9750  199 | 10 kWh   9279  188 | 20 kWh   8388  171 | July launch   8941  171
+   P-40             5 kWh  16587  145 | 10 kWh  16080  137 | 20 kWh  15115  121 | July launch  15925  111
+   P-30             5 kWh  20699   85 | 10 kWh  19819   76 | 20 kWh  19271   57 | July launch  20051   40
+   P-20             5 kWh  27111    1 | 10 kWh  27289    0 | 20 kWh  27589    0 | July launch  28060    0
+   P-10             5 kWh  36108    0 | 10 kWh  36259    0 | 20 kWh  36489    0 | July launch  36342    0
+   P+0              5 kWh  38619    0 | 10 kWh  38771    0 | 20 kWh  39001    0 | July launch  38811    0
+   P+10             5 kWh  30270    0 | 10 kWh  30461    0 | 20 kWh  30759    0 | July launch  30281    0
+   P+20             5 kWh  33421    0 | 10 kWh  33689    0 | 20 kWh  34073    0 | July launch  33247    0
+   P+30             5 kWh  22407   43 | 10 kWh  21989   16 | 20 kWh  23231    0 | July launch  21963   50
+   P+40             5 kWh  13059  145 | 10 kWh  12102  121 | 20 kWh  10660   71 | July launch  12454  145
+   P+50             5 kWh   3433  196 | 10 kWh   2286  177 | 20 kWh    667  136 | July launch   2900  189
+   P+60             5 kWh   9248  208 | 10 kWh   8634  192 | 20 kWh   7332  159 | July launch   9038  205
+   A-50             5 kWh   7611  202 | 10 kWh   7053  192 | 20 kWh   6329  177 | July launch   6703  176
+   A-40             5 kWh  15376  159 | 10 kWh  15005  148 | 20 kWh  14192  133 | July launch  14839  124
+   A-30             5 kWh  18635   79 | 10 kWh  18115   68 | 20 kWh  17157   32 | July launch  18489   32
+   A-20             5 kWh  34401    0 | 10 kWh  34524    0 | 20 kWh  34727    0 | July launch  34884    0
+   A-10             5 kWh  36445    0 | 10 kWh  36593    0 | 20 kWh  36807    0 | July launch  36767    0
+   A+0              5 kWh  35064    0 | 10 kWh  35220    0 | 20 kWh  35457    0 | July launch  35254    0
+   A+10             5 kWh  32010    0 | 10 kWh  32229    0 | 20 kWh  32561    0 | July launch  32181    0
+   A+20             5 kWh  32543    0 | 10 kWh  32754    0 | 20 kWh  33086    0 | July launch  32632    0
+   A+30             5 kWh  24648   36 | 10 kWh  25103   13 | 20 kWh  25950    0 | July launch  24186   46
+   A+40             5 kWh  16014  132 | 10 kWh  15418  110 | 20 kWh  14496   46 | July launch  15573  133
+   A+50             5 kWh   7390  174 | 10 kWh   6368  154 | 20 kWh   4456  120 | July launch   7002  171
+   A+60             5 kWh   4392  221 | 10 kWh   3457  206 | 20 kWh   1888  177 | July launch   4265  217
+   Equator-Pacific  5 kWh  30294    0 | 10 kWh  30466    0 | 20 kWh  30727    0 | July launch  30946    0
+   Florida-Straits  5 kWh  23758    1 | 10 kWh  24394    0 | 20 kWh  25040    0 | July launch  22847    6
+   Gulf-of-Maine    5 kWh  14724  124 | 10 kWh  14265  101 | 20 kWh  13089   55 | July launch  14489  122
+   North-Sea        5 kWh  10305  185 | 10 kWh   9670  170 | 20 kWh   8407  139 | July launch   9959  184
+   Gulf-of-Alaska   5 kWh   8538  218 | 10 kWh   7899  200 | 20 kWh   6350  170 | July launch   8371  214
+
+Predictions
+P1 (Y) >= 1.3 x WG best annual km within 10 deg (7 pts): held (min 1.31, max 1.86)
+P2 (F) >= 30 down days at every transect point at >= 40 deg (11 pts): held (min 83, at A+40; max 214)
+P3 (Y) no down day within 10 deg: held (max 0)
+P4 (Y) >= 85% of (F) km where (F) has no down day (14 pts): refuted (min 0.810 at Florida-Straits, median 0.952)
+P5 (Y) beats WG best at all 11 pts <= 20 deg and loses at all 9 pts >= 50 deg: held (exceptions <= 20: none; >= 50: none)
+P6 (F) <= 6z annual (B) at every point: held (exceptions: none)
+P7 (Y) >= 0.95 x 6z annual (A) at >= 90% of points: refuted (12 of 30; min ratio 0.410)
+P8 idle vehicle within 3 down days of (F) at every point: held (max gap 0)
+P9 (Y) down days North-Sea >= 60, Gulf-of-Alaska >= 60, Florida-Straits <= 10: held (North-Sea 170, Gulf-of-Alaska 200, Florida-Straits 0)
+
+Post hoc (after reading the predictions): the two ends of the dark-hours / distance trade-off
+   point             lat  (F) km  dark h | km-only km  dark h | (Y) km  dark h
+   P-60              -60    6026    3771 |       8935    3975 |   5015    3951
+   P-50              -50   10556    2532 |      13320    2774 |   9279    2711
+   P-40              -40   17354    1256 |      19892    1447 |  16080    1438
+   P-30              -30   22030     424 |      24717     648 |  19819     608
+   P+30               30   26609       0 |      27868     154 |  21989      74
+   P+40               40   13375    1126 |      17268    1450 |  12102    1318
+   P+50               50       0    2245 |       8263    2779 |   2286    2442
+   P+60               60    9348    2994 |      12180    3319 |   8634    3191
+   A-50              -50    8521    2756 |      11728    3019 |   7053    2930
+   A-40              -40   16247    1566 |      18934    1810 |  15005    1740
+   A-30              -30   19783     217 |      23615     381 |  18115     394
+   A+30               30   29249       0 |      30165     149 |  25103     110
+   A+40               40   16298     819 |      20665    1138 |  15418    1030
+   A+50               50    7647    2154 |      11458    2576 |   6368    2337
+   A+60               60    3234    3260 |       8433    3721 |   3457    3458
+   Gulf-of-Maine      42   14648    1003 |      19989    1446 |  14265    1211
+   North-Sea          55   10978    2700 |      14310    3075 |   9670    2903
+   Gulf-of-Alaska     60    7821    3155 |      11111    3446 |   7899    3351
+   (points with no down day in (F) or (Y) omitted; km-only foresight below (Y)'s km at 0 of 30 points)

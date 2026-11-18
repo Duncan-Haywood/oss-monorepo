@@ -1,0 +1,396 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtHLUki8QpUQfZ6Txos",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T15:06:08Z",
+  "ended": "2026-11-14T15:08:50Z",
+  "wall_minutes": 7.8,
+  "tokens_in": 3633195,
+  "tokens_out": 22328,
+  "cost_usd": 1.8278,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15889",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git stash to check the new lint against old code also stashed the lint itself, so that check proved nothing; redone by applying weak_exemptions to git show HEAD: content."
+    },
+    {
+      "what": "post description over 160 chars twice; pre-push hook caught it."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 11 entries, all control-plane workflow edits already sitting in owner-approval PRs; the prompt says fix them first, but nothing a run can do helps until the owner approves. A filter for entries with an open PR would save the check each run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 entries all need owner-approved control-plane PRs that already exist",
+      "did": "left them open and moved to seeding",
+      "result": "no duplicate PRs; full run spent on new defects"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-a-guard-that-let-minus-one-through.md"
+  ],
+  "goal": null,
+  "notes": "Guard tightened: check_csv_formula_guard.py now rejects unanchored number exemptions beside the formula test (flagged 2 lines on main on first run, both fixed). It still runs in no PR workflow (open entry, PR #15248). Verified locally: run_venture_tests (3 suites ok), unittest test_check_csv_formula_guard (9 OK), check_csv_formula_guard ok, check_post_frontmatter ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wash-sale-checker/calc.mjs",
+        "test": "node --test ventures/wash-sale-checker/**/*.test.mjs  (in .)",
+        "seed": 11388601,
+        "commit": "be6d74ea7",
+        "sites": 220,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 17,
+            "col": 114,
+            "operator": "lt-to-le",
+            "before": "else if ((m = t.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4}|\\d{2})(?!\\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }",
+            "after": "else if ((m = t.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4}|\\d{2})(?!\\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y <= 100) y += 2000; }",
+            "line_text": "  else if ((m = t.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4}|\\d{2})(?!\\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Test: a four-digit year (01/02/0100) is taken as written, never shifted +2000."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 19,
+            "col": 28,
+            "operator": "minus-to-plus",
+            "before": "const ms = Date.UTC(y, mo - 1, d);",
+            "after": "const ms = Date.UTC(y, mo + 1, d);",
+            "line_text": "  const ms = Date.UTC(y, mo - 1, d);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 25,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "export const money = (x) => (x < 0 ? \"-$\" : \"$\") + Math.abs(x).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");",
+            "after": "export const money = (x) => (x < 0 ? \"-$\" : \"$\") + Math.abs(x).toFixed(3).replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");",
+            "line_text": "export const money = (x) => (x < 0 ? \"-$\" : \"$\") + Math.abs(x).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 55,
+            "col": 116,
+            "operator": "const-plus-one",
+            "before": "const RETIREMENT = /(?<![a-z0-9])(?:ira|roth|sep|hsa|retire(?:ment)?|401(?:\\s*\\(?k\\)?)?|403(?:\\s*\\(?b\\)?)?)(?![a-z0-9])/i;",
+            "after": "const RETIREMENT = /(?<![a-z0-9])(?:ira|roth|sep|hsa|retire(?:ment)?|401(?:\\s*\\(?k\\)?)?|403(?:\\s*\\(?b\\)?)?)(?![a-z0-10])/i;",
+            "line_text": "const RETIREMENT = /(?<![a-z0-9])(?:ira|roth|sep|hsa|retire(?:ment)?|401(?:\\s*\\(?k\\)?)?|403(?:\\s*\\(?b\\)?)?)(?![a-z0-9])/i;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "[a-z0-10] drops digits 2-9 from the lookahead, so an account number like 40198765 read as a 401(k) and its sale was skipped. Test with 40198765, 4035678, ira9."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 80,
+            "col": 18,
+            "operator": "and-to-or",
+            "before": "if (c.price < 0 && c.amount < 0) return { error: \"Need a price or an amount column.\" };",
+            "after": "if (c.price < 0 || c.amount < 0) return { error: \"Need a price or an amount column.\" };",
+            "line_text": "  if (c.price < 0 && c.amount < 0) return { error: \"Need a price or an amount column.\" };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 94,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const amount = c.amount >= 0 ? Math.abs(num(f[c.amount])) : NaN;",
+            "after": "const amount = c.amount >= 1 ? Math.abs(num(f[c.amount])) : NaN;",
+            "line_text": "    const amount = c.amount >= 0 ? Math.abs(num(f[c.amount])) : NaN;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "An Amount column at index 0 was ignored. Test: Amount,Date,... header still prices the trade."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 169,
+            "col": 58,
+            "operator": "plus-to-minus",
+            "before": "if (rep.ira) sale.permanent = r2(sale.permanent + share);",
+            "after": "if (rep.ira) sale.permanent = r2(sale.permanent - share);",
+            "line_text": "          if (rep.ira) sale.permanent = r2(sale.permanent + share);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 176,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "const losses = sales.filter((x) => x.gain < 0);",
+            "after": "const losses = sales.filter((x) => x.gain < 1);",
+            "line_text": "  const losses = sales.filter((x) => x.gain < 0);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/quick-pick-survey/site/rank-core.mjs",
+        "test": "node --test ventures/quick-pick-survey/**/*.test.mjs  (in .)",
+        "seed": 238857340,
+        "commit": "be6d74ea7",
+        "sites": 496,
+        "baseline_seconds": 1.4,
+        "mutants": [
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 73,
+            "col": 11,
+            "operator": "or-to-and",
+            "before": "if (!d || d.v !== 1 || !Array.isArray(d.i)) return null;",
+            "after": "if (!d && d.v !== 1 || !Array.isArray(d.i)) return null;",
+            "line_text": "    if (!d || d.v !== 1 || !Array.isArray(d.i)) return null;",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 189,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "return ((t ^ (t >>> 14)) >>> 0) / 4294967296;",
+            "after": "return ((t ^ (t >>> 14)) >>> 0) / 4294967297;",
+            "line_text": "    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "mulberry32 divisor 2^32 -> 2^32+1 scales every draw by 1-2.3e-10; outputs stay in [0,1) and deterministic per seed, so ranks, ranges and chances only move at the 10th decimal, below the 3 decimals shown. No visible behaviour depends on the exact float."
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 247,
+            "col": 29,
+            "operator": "times-to-div",
+            "before": "const r = Math.sqrt(-2 * Math.log(u));",
+            "after": "const r = Math.sqrt(-2 / Math.log(u));",
+            "line_text": "      const r = Math.sqrt(-2 * Math.log(u));",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 321,
+            "col": 139,
+            "operator": "const-plus-one",
+            "before": "for (const r of table) rows.push([r.rank, q(items[r.item]), q(r.low === r.high ? `${r.low}` : `${r.low}-${r.high}`), r.favourite.toFixed(3), displayScore(f, r.item)].join(\",\"));",
+            "after": "for (const r of table) rows.push([r.rank, q(items[r.item]), q(r.low === r.high ? `${r.low}` : `${r.low}-${r.high}`), r.favourite.toFixed(4), displayScore(f, r.item)].join(\",\"));",
+            "line_text": "  for (const r of table) rows.push([r.rank, q(items[r.item]), q(r.low === r.high ? `${r.low}` : `${r.low}-${r.high}`), r.favourite.toFixed(3), displayScore(f, r.item)].join(\",\"));",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "chance_favourite precision is the exported column's format. Test: every row's 4th cell matches ^[01]\\.\\d{3}$."
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 386,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "const sigmoid = (x) => 1 / (1 + Math.exp(-x));",
+            "after": "const sigmoid = (x) => 1 / (2 + Math.exp(-x));",
+            "line_text": "const sigmoid = (x) => 1 / (1 + Math.exp(-x));",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 460,
+            "col": 72,
+            "operator": "times-to-div",
+            "before": "const col = cholSolve(l, n, Array.from({ length: n }, (_, r) => M[r * n + c]));",
+            "after": "const col = cholSolve(l, n, Array.from({ length: n }, (_, r) => M[r / n + c]));",
+            "line_text": "    const col = cholSolve(l, n, Array.from({ length: n }, (_, r) => M[r * n + c]));",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 490,
+            "col": 34,
+            "operator": "times-to-div",
+            "before": "for (let i = 0; i < n; i++) P[i * n + i] += 1 / (phi * phi);",
+            "after": "for (let i = 0; i < n; i++) P[i / n + i] += 1 / (phi * phi);",
+            "line_text": "  for (let i = 0; i < n; i++) P[i * n + i] += 1 / (phi * phi);",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/quick-pick-survey/site/rank-core.mjs",
+            "line": 494,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < n; i++) ll += 0.5 * g[i] * mu[i];",
+            "after": "for (let i = 0; i <= n; i++) ll += 0.5 * g[i] * mu[i];",
+            "line_text": "  for (let i = 0; i < n; i++) ll += 0.5 * g[i] * mu[i];",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wash-sale-checker/calc.mjs",
+        "issue": "reportCsv's formula guard exempted any cell starting /^-?\\d/ (unanchored), so a symbol from the uploaded file such as '-1+CMD|x' was written raw into the CSV and a spreadsheet evaluates it (CWE-1236). Reproduced with evaluate()+reportCsv(). Fixed: exemption anchored to a whole number; failing-first test in calc.test.mjs.",
+        "patched": true
+      },
+      {
+        "file": "ventures/pv-string-sizer/calc.mjs",
+        "issue": "Same unanchored /^-?\\d/ exemption in csvCell. Every cell there is computed, so not exploitable today, but one user-text cell would make it so. Anchored (with exponent form), csvCell exported and tested.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/check_csv_formula_guard.py",
+        "issue": "The lint counted any /^[= test as a guard, so it passed both leaky exemptions above. Now any number exemption beside the formula test must end in $, checked over every venture .mjs/.js/.html with no baseline; unit tests added. It flagged exactly the two lines on main.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "45d99c1a-754e-593d-ba9e-b862d8d3a88f",
+    "transcripts": 1,
+    "first": "2026-11-14T15:06:08Z",
+    "last": "2026-11-14T15:13:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 87,
+        "output": 22328,
+        "thinking": 6492,
+        "cache_read": 3549226,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83882,
+        "api_equivalent_usd": 1.8278,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 87,
+      "output": 22328,
+      "thinking": 6492,
+      "cache_read": 3549226,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83882,
+      "api_equivalent_usd": 1.8278,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 43,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.8,
+      "active_minutes": 7.8,
+      "model_minutes": 4.88,
+      "tool_minutes": 2.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

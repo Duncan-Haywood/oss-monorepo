@@ -119,7 +119,7 @@ export function summarize(trips, { year, override = {}, yearStartOdo = null, yea
   return { summary, trips: list, findings: audit(list, summary) };
 }
 
-const $ = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+const $ = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
 const P = (x, d = 0) => (x * 100).toFixed(d) + "%";
 
 const daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000);
@@ -248,7 +248,12 @@ export function sampleTrips(year = 2026) {
   return { trips, yearStartOdo: 41200, yearEndOdo: Math.round(odo) + 260 };
 }
 
-export const money = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (n) => {
+  const format = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const money0 = $;
 export const pct = P;
 

@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJ2CSdyx4cmrRYpEMh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T08:06:18Z",
+  "ended": "2026-11-11T08:14:56Z",
+  "wall_minutes": 8.89,
+  "tokens_in": 4188707,
+  "tokens_out": 32267,
+  "cost_usd": 2.4361,
+  "tool_calls": 40,
+  "task": "research programme theism-formal-evidence, M2 part: E13 actualist necessity, de re vs de dicto",
+  "projects": [
+    "research/theism-formal-evidence"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14734",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "lean/build.sh failed first time: zstd not installed and `apt-get install -y zstd` fails without `apt-get update` first; fixed by running update then install"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/theism-formal-evidence/lean/build.sh",
+      "issue": "says 'needs zstd (apt-get install -y zstd)', but in a fresh container that install fails with 'Unable to locate package' until `apt-get update -qq` runs; cost one failed background build"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-anderson-godel-de-re-de-dicto-actualist.md",
+    "research/theism-formal-evidence/experiments/e13_actualist_necessity/results.md"
+  ],
+  "goal": "advance programme milestone M2 with a predicted, machine-checked result",
+  "notes": "Prediction H18 committed (first commit on the branch) before the search. Exhaustive search: 17,440 frames, counts match formula on all; de dicto never fails with A5'; de re fails 580/3,638 (actualist), 382/6,706 (possibilist; E12 totals reproduced). Lean 4.15.0 build OK, no sorry; de_re_fails uses no axioms. Local checks: test_theism.py 23 tests ok, research/_homepage/build.py ok, research_live_links, check_md_links, check_post_frontmatter, check_post_links, post_similarity all ok; research_idea_dupe no hit. No agent doc in docs/reports: LOG.md 'Not done' carries the hand-off.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cf03f02e-d030-55a8-93f6-72397c1dddf1",
+    "transcripts": 1,
+    "first": "2026-11-11T08:06:18Z",
+    "last": "2026-11-11T08:15:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 73,
+        "output": 32267,
+        "thinking": 8682,
+        "cache_read": 4066488,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122146,
+        "api_equivalent_usd": 2.4361,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 73,
+      "output": 32267,
+      "thinking": 8682,
+      "cache_read": 4066488,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122146,
+      "api_equivalent_usd": 2.4361,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.89,
+      "active_minutes": 8.89,
+      "model_minutes": 5.77,
+      "tool_minutes": 3.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a logician formalising the actualist variant, sweeping finite models and writing three Lean proofs plus write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 492.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

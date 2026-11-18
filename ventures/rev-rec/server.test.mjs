@@ -28,7 +28,7 @@ test("sync: first pass reads everything, later passes ask only for recent record
   const r = await sync(cfg);
   assert.equal(r.lines, 1);
   assert.equal(feed.sinces[0], 0);
-  cfg.now = () => NOW + 86400000;
+  cfg.now = () => NOW + 6 * 3600000;
   feed.lines = [line("a", 12000, D(2026, 1, 1), D(2027, 1, 1)), line("b", 500, D(2026, 10, 1), D(2026, 11, 1))];
   const r2 = await sync(cfg);
   assert.equal(r2.lines, 2);
@@ -76,5 +76,55 @@ test("a Stripe failure surfaces as a generic error, not the key or the message",
     const res = await fetch(`${url}/v1/sync`, { method: "POST", headers: AUTH });
     assert.equal(res.status, 502);
     assert.ok(!(await res.text()).includes("rk_live"));
+  } finally { s.close(); }
+});
+
+// Stripe lists invoices by `created` only, so a later pass asking for "created in the
+// last 3 days" never sees an invoice issued earlier and paid today (net-30 terms), and
+// never drops a credit note voided after it was read. A periodic full re-read rebuilds
+// the line set (red team 2026-11-18).
+test("sync: an invoice paid after the incremental window, and a voided credit note, are corrected by the daily full re-read", async () => {
+  const H = 3600000;
+  const { cfg } = setup();
+  const invoices = [{ ...line("old", 1000, D(2026, 9, 1), D(2026, 10, 1)), created: NOW - 20 * 86400000, paid: false }];
+  let notes = [line("cn:1", -300, NOW, NOW)];
+  cfg.stripe = {
+    listLines: async (since) => invoices.filter((l) => l.paid && l.created >= since * 1000).map(({ created, paid, ...l }) => l),
+    listCreditNotes: async (since) => notes.filter((l) => l.start >= since * 1000),
+  };
+  await sync(cfg);
+  assert.deepEqual(Object.keys(cfg.state.lines), ["cn:1"]);
+  invoices[0].paid = true; notes = [];
+  cfg.now = () => NOW + 6 * H;
+  await sync(cfg);
+  assert.ok(!cfg.state.lines.old, "an incremental pass cannot see it");
+  cfg.now = () => NOW + 25 * H;
+  const r = await sync(cfg);
+  assert.ok(cfg.state.lines.old, "the full re-read picks up the late-paid invoice");
+  assert.ok(!cfg.state.lines["cn:1"], "and drops the voided credit note");
+  assert.equal(r.lines, 1);
+});
+
+test("sync: an incremental pass overlaps the previous one by exactly three days", async () => {
+  const { cfg, feed } = setup();
+  await sync(cfg);
+  cfg.now = () => NOW + 6 * 3600000;
+  await sync(cfg);
+  assert.equal(feed.sinces[1], Math.floor((NOW - 3 * 86400000) / 1000));
+});
+
+test("closed_through locks closed months on the schedule and a malformed value is a 400, not a 500", async () => {
+  const { cfg, feed } = setup();
+  feed.lines = [line("late", 9000, D(2026, 7, 1), D(2026, 10, 1), { billedAt: D(2026, 10, 5) })];
+  await sync(cfg);
+  const { s, url } = await listen(cfg);
+  try {
+    const open = await (await fetch(`${url}/v1/schedule`, { headers: AUTH })).json();
+    assert.ok(open.months.find((m) => m.month === "2026-07").recognized > 0);
+    const locked = await (await fetch(`${url}/v1/schedule?closed_through=2026-09`, { headers: AUTH })).json();
+    assert.equal(locked.months.find((m) => m.month === "2026-10").recognized, 9000);
+    assert.ok(!locked.months.some((m) => m.month < "2026-10" && m.recognized !== 0));
+    const bad = await fetch(`${url}/v1/schedule?closed_through=Sept`, { headers: AUTH });
+    assert.equal(bad.status, 400);
   } finally { s.close(); }
 });

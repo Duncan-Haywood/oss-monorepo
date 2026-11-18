@@ -1,7 +1,7 @@
 ---
 title: The Peas in the Jar
 shelf: hearth-and-horizon
-setting: Saint Aldhelm's fete field (invented), near Malmesbury, Wiltshire, Saturday 14 June 2048
+setting: Saint Aldhelm's fete field (invented), near Malmesbury, Wiltshire, Saturday 13 June 2048
 published: 2026-11-04
 summary: At a parish fete the guess-the-peas jar is won by a girl who did not guess. She measured ten peas end to end (80 mm), took the jar's 1.8 litres, filled about 64 per cent of it with peas, and got about 4,300. The count was 4,212. Cubing a diameter is the trap, and it shows why a measured estimate with a stated range beats a hopeful guess.
 ---
@@ -70,4 +70,4 @@ Mrs Pruett, who had been listening from behind the cake stall, said that in her 
 
 * * *
 
-*This story was written by an AI. The fete, the village, the people and the jar are invented. The arithmetic is standard: a sphere's volume is four thirds of pi times the radius cubed (268 cubic millimetres at 8 mm across); 1.8 litres at about 64 per cent filled gives about 4,300 peas, about 4,000 to 4,600 for 60 to 68 per cent, and about 3,500 to 5,100 for pea diameters of 7.5 to 8.5 mm. The 64 per cent figure for randomly packed equal spheres is quoted from memory and not checked against a source, and real dried peas are not perfect spheres, which the story says. The count of 4,212 and the thirty-eight guesses are invented. 14 June 2048 is a Saturday.*
+*This story was written by an AI. The fete, the village, the people and the jar are invented. The arithmetic is standard: a sphere's volume is four thirds of pi times the radius cubed (268 cubic millimetres at 8 mm across); 1.8 litres at about 64 per cent filled gives about 4,300 peas, about 4,000 to 4,600 for 60 to 68 per cent, and about 3,500 to 5,100 for pea diameters of 7.5 to 8.5 mm. The 64 per cent figure for randomly packed equal spheres is quoted from memory and not checked against a source, and real dried peas are not perfect spheres, which the story says. The count of 4,212 and the thirty-eight guesses are invented. 13 June 2048 is a Saturday.*

@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVP2GpFoUuYebSWxPhe",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled ventures brief)",
+  "input_sha256": "1380f9eea91bde311ad7325e3c2c41452af57fa9bead7b098a672fd19b3898b6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T20:26:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 3): sales-agent. Buildable item (local GGUF second reader) blocked: huggingface.co 403; landed the exported-mail (.eml/.mbox) path instead",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14881",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "huggingface.co, registry.ollama.ai, modelscope.cn and hf-mirror.com refused CONNECT (403) through the proxy, so the flagship's buildable local-model item could not run",
+    "First page run on 9,588 Enron replies crashed runInbox: word-model class wrong_person had no CATEGORIES entry (shipped on main earlier the same day); fixed in this PR",
+    "venture-preflight first failed on the new post's description length (180 > 160); shortened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The sales-agent 'buildable' note said huggingface.co answered 200 on 2026-11-11; a later session the same day got 403. Host reachability changes within a day, so a buildable note that depends on a host needs a fallback item; added one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The top Deepen row's buildable item needed a blocked model host; the other flagships had sessions landing within the last hour. Took a sales-agent product slice that needs no outside input (mail-file import), as the prompt allows when every item needs a blocked host.",
+      "did": "Built .eml/.mbox import on the page and CLI with the server's shared MIME reader; checked it on 32,211 real Enron messages",
+      "result": "Shipped; found and fixed two live bugs on the way"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-sales-agent-reads-your-mbox.md"
+  ],
+  "goal": null,
+  "notes": "Verification: old vs new MIME reader, 32,211 Enron 0* messages x latin1/UTF-8, 0 differences. eval/mailfile-enron.mjs on a 90 MB mbox of them: 32,210/32,211 identical to the server's read, 32,211 same category. Headless Chromium, page given the 90 MB mbox: 9,588 replies triaged in 17 s, no page errors; 390 px screenshot checked. node --test '*.test.mjs' 'self-host/*.test.mjs': 487 pass (476 before). New server test fails on the old agent.mjs (2 items, not 6). Leave-one-set-out guess score unchanged 28/57 after the label fix. venture-preflight sales-agent: clean (after shortening the post description). run_workflow_locally --for-changes flagged two unguarded object-map lookups (inherited_keys.py); fixed with Object.hasOwn and re-run.",
+  "corrections": [],
+  "redteam": null
+}

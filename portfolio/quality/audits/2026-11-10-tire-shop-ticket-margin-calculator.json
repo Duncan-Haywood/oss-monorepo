@@ -262,6 +262,6 @@
       "origin": "audit"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14663"],
   "verdict": "Arithmetic is right: every recomputed ticket, break-even, utilization, discount and lift figure matched an independent calculation, the disclaimers and limits are honest, and the served page is correct. It does not meet the bar because correctness is 2: a tire set priced with a thousands comma (the commonest real input) parses to a different, plausible set of numbers with no warning, and one mutation in the discount cost (the fee factor) survives all 28 tests. Fix: reject or warn on rows with more than five cells or a non-numeric cell, strip thousands separators in quoted values, and add a discount test at 3% fee."
 }

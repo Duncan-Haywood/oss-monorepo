@@ -1,0 +1,556 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtL7aCt3Yb3FwUMLGtu",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T10:06:20Z",
+  "ended": "2026-11-16T10:06:53Z",
+  "wall_minutes": 7.26,
+  "tokens_in": 3001226,
+  "tokens_out": 17745,
+  "cost_usd": 1.5781,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16540",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "my new test passed a message as near()'s third arg (the tolerance), so it failed for the wrong reason once; fixed the test"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets has no filter by path other than --under; finding the probe time for a recently-changed file took two calls (--under <venture> worked fine)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0's 9 open entries are all control-plane (prompts/, .github/workflows, control_plane_guard) and each already names a patch or PR waiting on owner approval",
+      "did": "checked each still reproduces on main, left them open, spent the run on a fresh target",
+      "result": "one real defect found and fixed"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 4b: the defect is venture-specific arithmetic; no lint catches 'cancelled subtotal counted as sales'",
+      "did": "checked the six sibling analyzers that handle cancellations instead; none share the bug",
+      "result": "no new automated guard this run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-redteam-cancelled-delivery-subtotal.md"
+  ],
+  "goal": null,
+  "notes": "Target chosen as a recently-changed file with a 1.9 s suite. Venture suite 100/100. Catch rate 0.80 -> 1.00 on non-equivalent mutants.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 670102287,
+        "commit": "b2f1e8086",
+        "sites": 605,
+        "baseline_seconds": 1.5,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 33,
+            "col": 21,
+            "operator": "and-to-or",
+            "before": "if (u8[0] === 0xfe && u8[1] === 0xff) return new TextDecoder(\"utf-16be\").decode(u8);",
+            "after": "if (u8[0] === 0xfe || u8[1] === 0xff) return new TextDecoder(\"utf-16be\").decode(u8);",
+            "line_text": "  if (u8[0] === 0xfe && u8[1] === 0xff) return new TextDecoder(\"utf-16be\").decode(u8);",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs: \"edge inputs the parsers must reject or read one way\""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 40,
+            "col": 80,
+            "operator": "const-plus-one",
+            "before": "const best = [[\"\\t\", n(\"\\t\")], [\";\", n(\";\")], [\",\", n(\",\")]].sort((a, b) => b[1] - a[1])[0];",
+            "after": "const best = [[\"\\t\", n(\"\\t\")], [\";\", n(\";\")], [\",\", n(\",\")]].sort((a, b) => b[2] - a[1])[0];",
+            "line_text": "  const best = [[\"\\t\", n(\"\\t\")], [\";\", n(\";\")], [\",\", n(\",\")]].sort((a, b) => b[1] - a[1])[0];",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 219,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "let cancelledCount = 0;",
+            "after": "let cancelledCount = 1;",
+            "line_text": "  let cancelledCount = 0;",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 221,
+            "col": 16,
+            "operator": "eq-flip",
+            "before": "if (cols[f] === undefined || isBlank(get(line, f))) return { v: null };",
+            "after": "if (cols[f] !== undefined || isBlank(get(line, f))) return { v: null };",
+            "line_text": "    if (cols[f] === undefined || isBlank(get(line, f))) return { v: null };",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 230,
+            "col": 69,
+            "operator": "and-to-or",
+            "before": "if (/^(total|totals|subtotal|grand total|summary)\\b/.test(first) && cols.when !== 0) { skipped.push({ line: lineNo, reason: \"total row\" }); continue; }",
+            "after": "if (/^(total|totals|subtotal|grand total|summary)\\b/.test(first) || cols.when !== 0) { skipped.push({ line: lineNo, reason: \"total row\" }); continue; }",
+            "line_text": "    if (/^(total|totals|subtotal|grand total|summary)\\b/.test(first) && cols.when !== 0) { skipped.push({ line: lineNo, reason: \"total row\" }); continue; }",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 256,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "for (const p of parsed) { const v = p.f[k]; if (v < 0) neg += 1; else if (v > 0) pos += 1; }",
+            "after": "for (const p of parsed) { const v = p.f[k]; if (v < 1) neg += 1; else if (v > 0) pos += 1; }",
+            "line_text": "    for (const p of parsed) { const v = p.f[k]; if (v < 0) neg += 1; else if (v > 0) pos += 1; }",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 309,
+            "col": 58,
+            "operator": "div-to-times",
+            "before": "const need = ((b.base + b.packaging) * (1 + markupNow)) / b.net - 1;",
+            "after": "const need = ((b.base + b.packaging) * (1 + markupNow)) * b.net - 1;",
+            "line_text": "  const need = ((b.base + b.packaging) * (1 + markupNow)) / b.net - 1;",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 332,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (markupNow < 0) return { invalid: \"Current markup must be zero or more.\" };",
+            "after": "if (markupNow < 1) return { invalid: \"Current markup must be zero or more.\" };",
+            "line_text": "  if (markupNow < 0) return { invalid: \"Current markup must be zero or more.\" };",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 339,
+            "col": 32,
+            "operator": "and-to-or",
+            "before": "if (x.cancelled && !x.gross && !charged) { dropped += 1; return false; }",
+            "after": "if (x.cancelled && !x.gross || !charged) { dropped += 1; return false; }",
+            "line_text": "    if (x.cancelled && !x.gross && !charged) { dropped += 1; return false; }",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 420,
+            "col": 64,
+            "operator": "plus-to-minus",
+            "before": "avgTicketWithout: plain.length ? plain.reduce((s, r) => s + r.gross, 0) / plain.length : null,",
+            "after": "avgTicketWithout: plain.length ? plain.reduce((s, r) => s - r.gross, 0) / plain.length : null,",
+            "line_text": "      avgTicketWithout: plain.length ? plain.reduce((s, r) => s + r.gross, 0) / plain.length : null,",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 516,
+            "col": 50,
+            "operator": "const-plus-one",
+            "before": "const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };",
+            "after": "const rnd = () => { seed = (seed * 1103515245 + 12346) & 0x7fffffff; return seed / 0x7fffffff; };",
+            "line_text": "  const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 522,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "let id = 5100;",
+            "after": "let id = 5101;",
+            "line_text": "  let id = 5100;",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "sampleCsv's first synthetic order id; any start id is an equally valid example file and nothing reads the id's value."
+          }
+        ]
+      },
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 7,
+        "commit": "b2f1e8086",
+        "sites": 605,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 57,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "else if (c === \"\\n\" || c === \"\\r\") {",
+            "after": "else if (c !== \"\\n\" || c === \"\\r\") {",
+            "line_text": "    else if (c === \"\\n\" || c === \"\\r\") {",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 74,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (s === \"\" || /^[-\u2013\u2014\\s]+$/.test(s)) return 0;",
+            "after": "if (s !== \"\" || /^[-\u2013\u2014\\s]+$/.test(s)) return 0;",
+            "line_text": "  if (s === \"\" || /^[-\u2013\u2014\\s]+$/.test(s)) return 0;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 95,
+            "col": 24,
+            "operator": "or-to-and",
+            "before": "if (!/\\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "after": "if (!/\\d/.test(s) && /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "line_text": "      if (!/\\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 99,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "else if (/\\.\\d{1,2}$/.test(v) || /,\\d{3}\\./.test(v)) dot += 1;",
+            "after": "else if (/\\.\\d{1,2}$/.test(v) && /,\\d{3}\\./.test(v)) dot += 1;",
+            "line_text": "      else if (/\\.\\d{1,2}$/.test(v) || /,\\d{3}\\./.test(v)) dot += 1;",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs: \"edge inputs the parsers must reject or read one way\""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 114,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "let m = s.match(/^(\\d{4})([-/.])(\\d{1,2})\\2(\\d{1,2})(?!\\d)(.*)$/);",
+            "after": "let m = s.match(/^(\\d{4})([-/.])(\\d{1,2})\\2(\\d{1,3})(?!\\d)(.*)$/);",
+            "line_text": "  let m = s.match(/^(\\d{4})([-/.])(\\d{1,2})\\2(\\d{1,2})(?!\\d)(.*)$/);",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs: \"edge inputs the parsers must reject or read one way\""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 118,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "m = s.match(/^(\\d{1,2})[/.-](\\d{1,2})[/.-](\\d{4}|\\d{2})(?!\\d)(.*)$/);",
+            "after": "m = s.match(/^(\\d{1,2})[/.-](\\d{1,3})[/.-](\\d{4}|\\d{2})(?!\\d)(.*)$/);",
+            "line_text": "    m = s.match(/^(\\d{1,2})[/.-](\\d{1,2})[/.-](\\d{4}|\\d{2})(?!\\d)(.*)$/);",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs: \"edge inputs the parsers must reject or read one way\""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 146,
+            "col": 67,
+            "operator": "const-plus-one",
+            "before": "const m = String(v ?? \"\").trim().match(/^(\\d{1,2})([/.-])(\\d{1,2})\\2\\d{2,4}/);",
+            "after": "const m = String(v ?? \"\").trim().match(/^(\\d{1,2})([/.-])(\\d{1,3})\\2\\d{2,4}/);",
+            "line_text": "    const m = String(v ?? \"\").trim().match(/^(\\d{1,2})([/.-])(\\d{1,2})\\2\\d{2,4}/);",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs: \"edge inputs the parsers must reject or read one way\""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 245,
+            "col": 33,
+            "operator": "neq-flip",
+            "before": "const rowKey = cols.platform !== undefined ? platformFromText(get(line, \"platform\")) : null;",
+            "after": "const rowKey = cols.platform === undefined ? platformFromText(get(line, \"platform\")) : null;",
+            "line_text": "    const rowKey = cols.platform !== undefined ? platformFromText(get(line, \"platform\")) : null;",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 336,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "let dropped = 0;",
+            "after": "let dropped = 1;",
+            "line_text": "  let dropped = 0;",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 374,
+            "col": 56,
+            "operator": "times-to-div",
+            "before": "const dNet = b.gross * (1 - directPct) - directFlat * b.orders;",
+            "after": "const dNet = b.gross * (1 - directPct) - directFlat / b.orders;",
+            "line_text": "    const dNet = b.gross * (1 - directPct) - directFlat * b.orders;",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 393,
+            "col": 67,
+            "operator": "gt-to-ge",
+            "before": "payoutGap: total.payoutRows === total.records && total.records > 0 ? total.payout - total.net : null,",
+            "after": "payoutGap: total.payoutRows === total.records && total.records >= 0 ? total.payout - total.net : null,",
+            "line_text": "    payoutGap: total.payoutRows === total.records && total.records > 0 ? total.payout - total.net : null,",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "total.records > 0 always holds here: analyze returns early when list is empty and every list row is added to total, so >= 0 cannot differ."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 407,
+            "col": 115,
+            "operator": "const-plus-one",
+            "before": "spend, marketing: spendRows.reduce((s, r) => s + r.marketing, 0), ads: spendRows.reduce((s, r) => s + r.ads, 0),",
+            "after": "spend, marketing: spendRows.reduce((s, r) => s + r.marketing, 0), ads: spendRows.reduce((s, r) => s + r.ads, 1),",
+            "line_text": "      spend, marketing: spendRows.reduce((s, r) => s + r.marketing, 0), ads: spendRows.reduce((s, r) => s + r.ads, 0),",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 430,
+            "col": 135,
+            "operator": "plus-to-minus",
+            "before": "const lossOrders = { count: lossList.length, total: lossList.reduce((s, r) => s + r.netAfter, 0), gross: lossList.reduce((s, r) => s + r.gross, 0) };",
+            "after": "const lossOrders = { count: lossList.length, total: lossList.reduce((s, r) => s + r.netAfter, 0), gross: lossList.reduce((s, r) => s - r.gross, 0) };",
+            "line_text": "  const lossOrders = { count: lossList.length, total: lossList.reduce((s, r) => s + r.netAfter, 0), gross: lossList.reduce((s, r) => s + r.gross, 0) };",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 507,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "export const money = (n) => (Number.isFinite(n) ? (cents(n) < 0 ? \"-\" : \"\") + Math.abs(cents(n)).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : \"\u2013\");",
+            "after": "export const money = (n) => (Number.isFinite(n) ? (cents(n) < 1 ? \"-\" : \"\") + Math.abs(cents(n)).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : \"\u2013\");",
+            "line_text": "export const money = (n) => (Number.isFinite(n) ? (cents(n) < 0 ? \"-\" : \"\") + Math.abs(cents(n)).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : \"\u2013\");",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 525,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "const d = new Date(Date.UTC(2026, 5, 1 + Math.floor(rnd() * 90), 11 + Math.floor(rnd() * 11), Math.floor(rnd() * 60)));",
+            "after": "const d = new Date(Date.UTC(2026, 6, 1 + Math.floor(rnd() * 90), 11 + Math.floor(rnd() * 11), Math.floor(rnd() * 60)));",
+            "line_text": "      const d = new Date(Date.UTC(2026, 5, 1 + Math.floor(rnd() * 90), 11 + Math.floor(rnd() * 11), Math.floor(rnd() * 60)));",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "sampleCsv's synthetic start month; the example is made-up data and any month is as valid (dates stay real dates)."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 532,
+            "col": 24,
+            "operator": "minus-to-plus",
+            "before": "const net = gross - commission - delivery - marketing - ads - errors;",
+            "after": "const net = gross + commission - delivery - marketing - ads - errors;",
+            "line_text": "      const net = gross - commission - delivery - marketing - ads - errors;",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "analyze counted a cancelled order's listed subtotal as food sales and net cash: one Cancelled row with Subtotal 25 and no charge or payout raised food sales 30 -> 55, net cash 24 -> 49, cut the take rate 20% -> 10.9%, and the finding said it 'carried a charge'. Fixed: cancelled rows keep only their charges (refunds keep negative sales); test 'a cancelled order's listed subtotal is not food sales'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b0af3301-1bc2-5907-8654-e206078ef010",
+    "transcripts": 1,
+    "first": "2026-11-16T10:06:20Z",
+    "last": "2026-11-16T10:13:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 74,
+        "output": 17745,
+        "thinking": 6750,
+        "cache_read": 2921317,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79835,
+        "api_equivalent_usd": 1.5781,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 74,
+      "output": 17745,
+      "thinking": 6750,
+      "cache_read": 2921317,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79835,
+      "api_equivalent_usd": 1.5781,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.26,
+      "active_minutes": 7.26,
+      "model_minutes": 3.83,
+      "tool_minutes": 3.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

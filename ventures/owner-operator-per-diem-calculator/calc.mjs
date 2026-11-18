@@ -8,6 +8,7 @@ export const DEFAULTS = Object.freeze({
   dotPct: 80,           // DOT hours-of-service limit for meals (verify)
   wageBase: 184500,     // Social Security wage base (verify the year)
   seFactor: 0.9235,
+  seFloor: 400,         // no SE tax when net earnings are under $400 (Schedule SE)
   ssRate: 0.124,
   medicareRate: 0.029,
 });
@@ -17,9 +18,11 @@ const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 
 // Self-employment tax on a net profit, with the Social Security part capped at the wage base less
 // any wages already subject to it. Medicare has no cap here (additional Medicare tax is not modeled).
+// Net earnings (profit x 92.35%) under $400 owe no SE tax at all (Schedule SE; church income aside).
 export function seTax(netProfit, { otherWages = 0, wageBase = DEFAULTS.wageBase } = {}) {
   if (!(netProfit > 0)) return 0;
   const base = netProfit * DEFAULTS.seFactor;
+  if (base < DEFAULTS.seFloor) return 0;
   const room = Math.max(0, wageBase - otherWages);
   return Math.min(base, room) * DEFAULTS.ssRate + base * DEFAULTS.medicareRate;
 }

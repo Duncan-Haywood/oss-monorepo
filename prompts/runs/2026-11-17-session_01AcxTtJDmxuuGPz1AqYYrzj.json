@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJDmxuuGPz1AqYYrzj",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T00:06:59Z",
+  "ended": "2026-11-17T00:36:59Z",
+  "wall_minutes": 123.01,
+  "tokens_in": 11505471,
+  "tokens_out": 52863,
+  "cost_usd": 4.6821,
+  "tool_calls": 94,
+  "task": "research/codesign-cant milestone 7t: source the motor lag from published identifications and retune at it",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16750",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First python3 import of the project failed: the default python3 is 3.11 and the project's scripts use 3.12+ nested f-strings; used /usr/bin/python3.13.",
+    "4 allocation tests failed until scipy was pip-installed for python3.13 (pyenv.py was asked for pytest numpy cma matplotlib, not scipy)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to use `PY=$(python3 platform/ci/pyenv.py ...)` but the codesign-cant project needs python>=3.12 (nested f-strings) and scipy; pyenv.py printed /usr/bin/python3.13 before numpy was even importable there on the first call, so a second check was needed."
+    },
+    {
+      "file": "research/codesign-cant/LOG.md (7s Next)",
+      "issue": "Pointed at fitting the lag from motor KV/resistance via retailer listings; published system-identification papers (NeuroBEM, Agilicious) gave the number directly in minutes; worth noting that arXiv full text is reachable and greppable with pdftotext."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/codesign-cant/experiments (MiniQuadTestBench)",
+      "why": "MiniQuadTestBench publishes per-motor throttle-response traces, but only via its admin data endpoint; the session's permission classifier refused the probe, so the data was not used.",
+      "did": "Sourced the lag from two published identifications instead and documented the unused source in LOG.md.",
+      "result": "Sourced value (33/39.1 ms) obtained; per-motor step data remains an open source for the diameter exponent."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-our-simulated-drone-motors-were-too-fast.md",
+    "research/codesign-cant/LOG.md (milestone 7t)",
+    "research/codesign-cant/README.md (milestone 7t section)"
+  ],
+  "goal": "Advance the codesign-cant programme (track 14) with a real-data input that drives its headline results.",
+  "notes": "Verification here: codesign-cant tests 58 passed 1 skipped (python3.13 with scipy); research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check ok (arXiv:2106.08015, 2307.06100 verified); check_post_frontmatter/links/similarity ok. Experiment: 48 CMA-ES runs 6110 s + 277 s eval on 4 cores. 6 of 8 predictions held (T6, T7 refuted). The 7r reproduction check under the inherited law matched exactly (106, 131, 54, 64).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "47e25935-6ddd-5d36-ad6e-e45d02c65b74",
+    "transcripts": 1,
+    "first": "2026-11-17T00:06:59Z",
+    "last": "2026-11-17T02:09:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 162,
+        "output": 52863,
+        "thinking": 14696,
+        "cache_read": 11335682,
+        "cache_write_5m": 0,
+        "cache_write_1h": 169627,
+        "api_equivalent_usd": 4.6821,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 162,
+      "output": 52863,
+      "thinking": 14696,
+      "cache_read": 11335682,
+      "cache_write_5m": 0,
+      "cache_write_1h": 169627,
+      "api_equivalent_usd": 4.6821,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 94,
+    "tools": {
+      "Bash": 86,
+      "Write": 4,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 123.01,
+      "active_minutes": 123.01,
+      "model_minutes": 11.6,
+      "tool_minutes": 111.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "literature search for identified motor time constants (~3 h), experiment script and retune setup (~4 h), compute supervision and analysis (~5 h), README/LOG/post (~4 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 341.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

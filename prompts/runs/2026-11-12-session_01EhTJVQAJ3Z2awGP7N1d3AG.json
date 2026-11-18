@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVQAJ3Z2awGP7N1d3AG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt.md)",
+  "input_sha256": "e7710cfbf7593885a44c98515fb38155574d91e862caf0f63f8c83124ca0298e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T10:05:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight flagship: a check that a same-currency BT-111 equals BT-110",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": 15086,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First 'after' eval with --rules counted 165/258 because slimdom/fontoxpath were not installed and the official plain-route sets silently reported unavailable",
+      "fix": "installed them, re-measured both before (241/258) and after (258/258); eval now warns when the plain route is unavailable"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/repair-seeded.mjs",
+      "issue": "--rules silently fell back to built-in checks only when slimdom/fontoxpath were absent; the README's '17/17 pass every rule' did hold with them installed, but the gap was easy to misread. Added a warning."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-einvoice-two-vat-totals.md"
+  ],
+  "goal": "Flag e-invoices that state two different VAT totals in the same currency (the ZATCA SAR repeat), a gap no official rule set covered.",
+  "notes": "INV-059 in taxcurrency.mjs (+ Python twin for UBL); UBL and CII readers keep the repeat as totals.tax_accounting_currency. eval/repair-seeded.mjs --rules on ZATCA 3.4.6 good cases (phive-rules): BT-111 seeds flagged 0/17 -> 17/17; all seeds 241/258 -> 258/258; repaired files drawing a new rule 0/258 both. phive-corpus --good --builtin: INV-059 on 0 of 141 files. node --test '*.test.mjs' 1452 pass 0 fail; python unittest 381 OK; run_venture_tests einvoice-preflight ok; venture-preflight einvoice-preflight: clean (after shortening the post description to 160 chars).",
+  "corrections": [],
+  "redteam": null
+}

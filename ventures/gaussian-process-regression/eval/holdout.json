@@ -1,0 +1,141 @@
+{
+ "split": "2023-09",
+ "train": 165,
+ "test": 36,
+ "results": {
+  "constant": [
+   {
+    "kernel": "smooth-quasiperiodic",
+    "mean": "constant",
+    "lml": 264.55381105361937,
+    "rmse": 2.4706681033311324,
+    "meanError": 2.361131020091944,
+    "maxAbsError": 3.5069775696845795,
+    "coverage95": 0.05555555555555555
+   },
+   {
+    "kernel": "quasiperiodic",
+    "mean": "constant",
+    "lml": 258.8735515425644,
+    "rmse": 2.5493578317050374,
+    "meanError": 2.4148299991603994,
+    "maxAbsError": 3.654840186209981,
+    "coverage95": 0.027777777777777776
+   },
+   {
+    "kernel": "rq",
+    "mean": "constant",
+    "lml": 162.9778399043219,
+    "rmse": 14.545795643144071,
+    "meanError": 13.631266772628027,
+    "maxAbsError": 21.99743870539112,
+    "coverage95": 0.6111111111111112
+   },
+   {
+    "kernel": "matern52",
+    "mean": "constant",
+    "lml": 153.77008700287428,
+    "rmse": 19.918375016677732,
+    "meanError": 18.903788151540844,
+    "maxAbsError": 27.29621119359416,
+    "coverage95": 0.19444444444444445
+   },
+   {
+    "kernel": "matern32",
+    "mean": "constant",
+    "lml": 151.62108438454322,
+    "rmse": 19.213840569188676,
+    "meanError": 18.170080194340372,
+    "maxAbsError": 27.09098596827863,
+    "coverage95": 0.16666666666666666
+   },
+   {
+    "kernel": "rbf",
+    "mean": "constant",
+    "lml": 148.11426152797475,
+    "rmse": 20.536739113455774,
+    "meanError": 19.51358982067036,
+    "maxAbsError": 27.303878787878716,
+    "coverage95": 0.1388888888888889
+   },
+   {
+    "kernel": "periodic",
+    "mean": "constant",
+    "lml": -63.57363324899299,
+    "rmse": 34.21109700615534,
+    "meanError": 33.95679964389802,
+    "maxAbsError": 40.29989945373654,
+    "coverage95": 0
+   }
+  ],
+  "linear": [
+   {
+    "kernel": "smooth-quasiperiodic",
+    "mean": "linear",
+    "lml": 301.28554499415884,
+    "rmse": 1.0846522362522835,
+    "meanError": 0.9866258425087329,
+    "maxAbsError": 1.6468064324353122,
+    "coverage95": 0.4166666666666667
+   },
+   {
+    "kernel": "quasiperiodic",
+    "mean": "linear",
+    "lml": 260.1870965519004,
+    "rmse": 2.220201969378787,
+    "meanError": 2.0817271757201428,
+    "maxAbsError": 3.1951189035510765,
+    "coverage95": 0.1111111111111111
+   },
+   {
+    "kernel": "periodic",
+    "mean": "linear",
+    "lml": 250.70389257240038,
+    "rmse": 1.0974837262543065,
+    "meanError": 1.00645675859775,
+    "maxAbsError": 1.737733869267231,
+    "coverage95": 0.3888888888888889
+   },
+   {
+    "kernel": "rbf",
+    "mean": "linear",
+    "lml": 189.99998967865497,
+    "rmse": 2.5155675611948665,
+    "meanError": 1.4703490798605956,
+    "maxAbsError": 5.049730681873029,
+    "coverage95": 1
+   },
+   {
+    "kernel": "rq",
+    "mean": "linear",
+    "lml": 189.9974068737464,
+    "rmse": 2.515596235890442,
+    "meanError": 1.470393506893332,
+    "maxAbsError": 5.049751540088039,
+    "coverage95": 1
+   },
+   {
+    "kernel": "matern52",
+    "mean": "linear",
+    "lml": 178.33921513507028,
+    "rmse": 2.672489782354561,
+    "meanError": 1.6703687748764302,
+    "maxAbsError": 5.143213919599816,
+    "coverage95": 1
+   },
+   {
+    "kernel": "matern32",
+    "mean": "linear",
+    "lml": 169.1927053052101,
+    "rmse": 2.8425825073034474,
+    "meanError": 1.8749998658214604,
+    "maxAbsError": 5.253422927740246,
+    "coverage95": 1
+   }
+  ]
+ },
+ "seasonalNaive": {
+  "rmse": 1.067980961128706,
+  "method": "same month in the last training year + (years ahead) x the last 12-month rise in training"
+ }
+}

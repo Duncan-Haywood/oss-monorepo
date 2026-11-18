@@ -1,0 +1,225 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/rental-dscr-calculator",
+ "stratum": "venture",
+ "drawn_by": "census",
+ "seed": "2026-11-17-4dba",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a DSCR / investor-loan underwriter at a non-QM lender (with a rental-investment analyst's view of NOI, cap rate and IRR)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed the sample deal (350k, 25% down, 7.25%/30y, 2,900 rent, 5% vacancy, 8%+6% mgmt/maint, 4,200 tax, 1,800 ins) with an independent Python model (/tmp/claude-0/-home-user-oss-monorepo/bfc40cd0-35aa-5329-b7a8-571e88aa5cb8/scratchpad/rental-dscr-calculator/indep.py, standard annuity and textbook NOI/DSCR definitions) and compared with `node -e analyze(sampleInput())`: payment 1,790.71 = 1,790.71; NOI 22,431.60 = 22,431.60; DSCR NOI 1.0439 = 1.0439; DSCR rent/PITIA 1.2660 = 1.2660; cap 6.409% and CoC 0.916% match; break-even occupancy 91.85% = 91.85%; max loan at 1.20 rent/PITIA 280,963.55 and NOI 228,350.07 match; 10-year IRR 10.2856% = 10.2856% (my own bisection). loanPayment(200000,6,30)=1,199.10 and loanPayment(100000,5,15)=790.79 match published amortization-table values. Every recomputed output matched. Gaps: break-even is clamped at 150% and printed as 'about 150%' (rent 1,200 case: true value (6000+21488.55)/(14400*0.86)=222%), and the max loan has no LTV/price cap (rent 6,000 gives a 'largest loan' of $659,654 on a $350,000 house).",
+  "completeness": "Ran `node --test '*.test.mjs'`: 37/37 pass. Checked every README/page feature via analyze(): DSCR both ways, cash-on-cash, cap rate, break-even, max loan both definitions, interest-only (finding shown, balance held), rate table -1..+3 points, 10-40 year hold table with sale and IRR, CSV export (formula-neutralised), opt-out local usage counts honouring DNT (usage.test.mjs). served-copy.mjs reports no placeholder origin. All work; no stubs or TODOs found.",
+  "verification": "37 tests pass, and they pin payment, NOI, both DSCRs and CoC to hand values. But 4 of 5 non-equivalent seeded mutants in core logic survived via quality_mutate.py: break-even dropping maintenance (calc.mjs:73), max-loan dropping HOA (calc.mjs:163), hold table dropping vacancy (calc.mjs:82), lender DSCR dropping other income (calc.mjs:69). Only opex-on-gross (calc.mjs:60) was caught. A fifth candidate (sale balance months) was equivalent because balanceAfter clamps at zero, so it is not counted.",
+  "craft": "Read calc.mjs (187 lines), index.html script, usage.mjs. Compact, pure, exported functions; CSV injection guarded; parseNum strict but strips commas correctly ('1,200,000' -> 1200000, run). Defects: termYears '0' passes validation (message says 0 to 40 allowed) and is silently replaced by 30 (`Math.round(o.termYears) || 30`, calc.mjs:140, run: term0 -> 30); unreachable check at calc.mjs:135 (downPct capped at 100 already); rate table repeats the literal [-1,0,1,2,3] four times in one line (calc.mjs:158) and clamps a -1 point row at 0% while still labelling it '-1 point' (run with apr 0.5); break-even clamp hides the real value.",
+  "claims": "Disclaimer (no warranty, not advice, verify) is on index.html:151 and README; 'Unverified: checked by hand calculation and unit tests only' is honest; not-modelled list is explicit. Privacy claim backed: grep finds no fetch/sendBeacon/XMLHttpRequest; page.test asserts no network; DNT honoured (usage.mjs:34). Formula claims on the page match the code (rerun above). Weak spots: page and README say 'the largest loan your lender's minimum allows' though it can exceed the price (no LTV cap), and 'scheduled gross rent' in the lender-style ratio actually includes other income (calc.mjs:69).",
+  "fitness": "Walked an investor's job: enter a deal, read whether it clears 1.20, see the max loan and rate risk, export the year table. Works in seconds on the sample and on a weak deal (rent 1,200: flagged below target and negative cash flow). Enough for a pre-offer screen; an underwriter's real sizing (lesser of lease and 1007 market rent, LTV cap, IO qualifying rules) still has to be done by hand.",
+  "domain": "Against DSCR-lender practice (gross monthly rent over PITIA, with rent the lesser of lease and appraiser's Form 1007 market rent; LTV caps around 75-80% on purchases; HOA in PITIA; vacancy not deducted) the tool gets PITIA, HOA and gross-not-net right, and qualifies IO loans on the IO payment, which many lenders do. Departs in two places: adds 'other income' to the lender-style numerator (other income 500/month moves DSCR 1.266 -> 1.484, run), and sizes the max loan on coverage alone with no LTV cap. The NOI side (management and maintenance on EGI, cap rate on price) is standard analyst practice."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "monthly payment, sample deal (262,500 at 7.25%, 30y)",
+   "method": "independent Python annuity formula (indep.py)",
+   "command": "python3 indep.py; node -e analyze(sampleInput())",
+   "expected": "1,790.71",
+   "observed": "1,790.71",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "payment 200,000 at 6%/30y and 100,000 at 5%/15y",
+   "method": "published mortgage amortization table values",
+   "command": "node -e loanPayment(200000,6,30); loanPayment(100000,5,15)",
+   "expected": "1,199.10; 790.79",
+   "observed": "1,199.10; 790.79",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "NOI, DSCR NOI and DSCR rent/PITIA for sample",
+   "method": "hand formulas in indep.py (EGI 33,060, opex 10,628.40)",
+   "command": "python3 indep.py vs node analyze",
+   "expected": "22,431.60; 1.0439; 1.2660",
+   "observed": "22,431.60; 1.0439; 1.2660",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "break-even occupancy and max loans at 1.20",
+   "method": "solve NOI=debt for occupancy; PV of max payment by annuity formula (indep.py)",
+   "command": "python3 indep.py vs node analyze",
+   "expected": "91.85%; 280,963.55; 228,350.07",
+   "observed": "91.85%; 280,963.55; 228,350.07",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "10-year IRR for sample incl. sale at 3% appreciation less 6% costs and 120-month balance",
+   "method": "independent cash-flow build and bisection (indep.py)",
+   "command": "python3 indep.py vs node analyze",
+   "expected": "10.2856%",
+   "observed": "10.2856%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "break-even occupancy for a weak deal (rent 1,200)",
+   "method": "hand: (6000+21488.55)/(14400*0.86)",
+   "command": "node -e analyze({...sampleInput(),rent:'1200'})",
+   "expected": "about 222%",
+   "observed": "about 150% (clamped)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "largest loan at 1.20 for rent 6,000 on a 350,000 price",
+   "method": "DSCR lender practice caps purchase LTV around 75-80%",
+   "command": "node -e analyze({...sampleInput(),rent:'6000'}).maxLoanRent",
+   "expected": "capped at or below the price (and an LTV limit)",
+   "observed": "659,654 (188% of price)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "lender-style DSCR numerator with other income 500/month",
+   "method": "DSCR lender practice: gross rent (lesser of lease and Form 1007 market rent) over PITIA",
+   "command": "node -e analyze({...sampleInput(),otherIncome:'500'}).base.dscrRent",
+   "expected": "1.266 (rent only)",
+   "observed": "1.484",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "37/37 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "loan term 0",
+   "method": "validation should reject or honour it",
+   "command": "node -e analyze({...sampleInput(),termYears:'0'}).p.termYears",
+   "expected": "error or 0",
+   "observed": "30 (silent fallback)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "nothing uploaded",
+   "method": "grep for fetch/sendBeacon/XMLHttpRequest; page.test network assertion",
+   "command": "grep -n 'fetch\\|sendBeacon\\|XMLHttp' usage.mjs index.html",
+   "expected": "no matches",
+   "observed": "no matches",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and not-modelled list on page",
+   "method": "read served page source",
+   "command": "grep -n 'No warranty' index.html",
+   "expected": "present",
+   "observed": "index.html:151 and :126",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt/sitemap hosts as served",
+   "method": "deploy rewrite copy",
+   "command": "node platform/pages/served-copy.mjs rental-dscr-calculator",
+   "expected": "no placeholder origin",
+   "observed": "no placeholder or retired origin left",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:73",
+   "change": "(gross * (1 - p.management - p.maintenance)) -> (gross * (1 - p.management))",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:163",
+   "change": "rentGross / p.targetDscr - p.propertyTax - p.insurance - p.hoa * 12 -> rentGross / p.targetDscr - p.propertyTax - p.insurance",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:82",
+   "change": "const egi = gross * (1 - p.vacancy); -> const egi = gross;",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:69",
+   "change": "(p.rent * 12 + p.otherIncome * 12) / pitia -> (p.rent * 12) / pitia",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:60",
+   "change": "const variable = egi * (...) -> const variable = gross * (...)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Largest loan at the target DSCR is sized on coverage alone, with no LTV or price cap: rent 6,000 on a 350,000 house reports a 659,654 'largest loan your lender's minimum allows'. DSCR lenders cap purchase LTV (commonly 75-80%).",
+   "where": "ventures/rental-dscr-calculator/calc.mjs:164",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Lender-style DSCR (rent / PITIA) adds other income to the numerator, though the page calls it scheduled gross rent and DSCR lenders use rent alone (lesser of lease and Form 1007 market rent); 500/month other income lifts 1.266 to 1.484 and also inflates maxLoanRent (line 162).",
+   "where": "ventures/rental-dscr-calculator/calc.mjs:69",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "4 of 5 seeded core mutants survive: break-even without maintenance, max loan without HOA, hold table without vacancy, lender DSCR without other income. The break-even test sets maintenance to 0 and no test pins hold-year NOI with vacancy or maxLoanRent with HOA.",
+   "where": "ventures/rental-dscr-calculator/calc.test.mjs:42",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Break-even occupancy is clamped at 150% and shown as 'about 150%' (true 222% for rent 1,200); a capped value should read '150% or more'.",
+   "where": "ventures/rental-dscr-calculator/calc.mjs:73",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Loan term '0' passes validation (the error text says 0 to 40 is allowed) and is silently replaced by 30 years.",
+   "where": "ventures/rental-dscr-calculator/calc.mjs:140",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Unreachable down-payment check (downPct is already capped at 100) and the rate-shift array literal repeated four times; at a rate under 1% the '-1 point' row is clamped to 0% but keeps its label.",
+   "where": "ventures/rental-dscr-calculator/calc.mjs:135",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, honest DSCR screen whose arithmetic is right. Against an independent Python model and published amortization values, every recomputed output for the sample deal matches to the cent: payment 1,790.71, NOI 22,431.60, DSCR 1.2660 rent/PITIA and 1.0439 NOI, break-even 91.85%, max loans 280,963.55 and 228,350.07, and 10-year IRR 10.2856%. Disclaimer, a not-modelled list and an 'unverified' line are on the page, and the no-upload claim holds. A DSCR underwriter would object in two places: the lender-style ratio counts other income as rent, and the 'largest loan' has no LTV cap, so it can exceed the price (659,654 on a 350,000 house). Break-even is clamped at 150% and shown as if exact. The 37 tests pass but miss 4 of 5 seeded core mutants. Does not meet the bar: verification is 1, and correctness 3, claims 3, median 3. Finished (completeness 3). Fixable in one session: use rent only in the lender ratio (or a separate rent field), cap the max loan at price times an LTV input, print '150%+' for a clamped break-even, reject a zero term, and add tests that pin vacancy, HOA and maintenance in the outputs they feed."
+}

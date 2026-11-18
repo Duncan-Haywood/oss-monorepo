@@ -1,6 +1,6 @@
 # Campground Site Profit Calculator
 
-Free, private browser tool for campground and RV park owners: sites, months open, occupancy, nightly rate, booking commission, turnover labour and fixed costs become yearly profit, break-even occupancy, the nightly rate that breaks even or hits your target, and a table by occupancy.
+Free, private browser tool for campground and RV park owners: sites, months open, occupancy, nightly rate, booking commission, turnover labour with its payroll burden, and fixed costs become yearly profit, break-even occupancy, the nightly rate that breaks even or hits your target, and a table by occupancy.
 
 **Live tool:** https://marisstella.app/campground-site-profit-calculator/
 

@@ -35,6 +35,11 @@ real cost is mostly fixed, not proportional to the number quoted:
   high enough.** `underpriced` flags the case where even the minimum charge
   does not clear the job's real cost — a short job with a floor that is
   itself set too low.
+- **A storm call is billed as one.** Ticking storm / night / weekend
+  dispatch adds the premium to the crew's labor and travel cost, then bills
+  it on top of the rate-card (or minimum) price at your overhead and target
+  margin (`emergencyPremium`): the default 80 ft job quotes $693.28 instead
+  of $560, and the printed proposal carries the same number.
 - **The job is priced before anyone knows how thick the ice actually is.**
   A phone estimate of footage and hours is a planning number; the
   reconciliation section recomputes the real cost from the actual on-site
@@ -59,9 +64,11 @@ has can ride in it. See [`share.mjs`](share.mjs).
 ## Privacy and usage
 
 Everything runs in your browser. Your job details, prices, and hours are
-never uploaded, there is no account, and nothing is saved to storage —
-every field resets on refresh unless you opened or copied a share link,
-which lives only in the page's own URL. We count anonymous local feature
+never uploaded, there is no account, and no job detail is saved to storage —
+every job field resets on refresh unless you opened or copied a share link,
+which lives only in the page's own URL. The one exception is your own
+business details for the printed proposal, saved in this browser's
+localStorage so you type them once; the customer's details are never saved. We count anonymous local feature
 events only (`quote-priced`, `actual-hours-checked`, `share_link_copied`),
 with a visible opt-out. Do Not Track and Global Privacy Control disable
 counting automatically. No job details, prices, or hours are recorded. The
@@ -84,3 +91,10 @@ safety or roofing-condition assessment tool — always follow manufacturer and
 OSHA fall-protection guidance for ladder and roof work.
 
 MIT licensed. See `LICENSE`.
+
+## Known gaps
+
+From the [2026-11-17 census quality audit](../../portfolio/quality/audits/2026-11-17-ice-dam-removal-bid-calculator.json), not yet fixed:
+
+- Many steam crews bill hourly with a minimum; only per-foot pricing is modelled. Steamer fuel stays flat however long the job runs.
+- The default mileage rate is 0.67 $/mi (the 2024 IRS rate); the IRS rate from 1 July 2026 is 0.76.

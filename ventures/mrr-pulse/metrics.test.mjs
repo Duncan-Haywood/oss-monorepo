@@ -206,3 +206,62 @@ test("forecast defaults to six months; low takes the worst churn, high the best"
   assert.equal(f.low[0], Math.round(1000 * (1 - 0.2)));
   assert.equal(f.high[0], Math.round(1000 * (1 - 0.05)));
 });
+
+test("zero-decimal currencies are whole units, as Stripe sends them (red team 2026-11-17)", async () => {
+  const { formatMoney, minorExponent } = await import("./metrics.mjs");
+  assert.equal(formatMoney(5000, "jpy"), "¥5,000");
+  assert.equal(formatMoney(5000, "usd"), "$50");
+  assert.equal(minorExponent("bhd"), 3);
+  const m = { month: "2026-01", mrr: 5000, customers: 1, new: 5000, expansion: 0, reactivation: 0, contraction: 0, churn: 0, approximate: false };
+  assert.match(monthsCsv([m], "jpy"), /\n2026-01,5000,1,5000,0,0,0,0,no\n/);
+  assert.match(monthsCsv([m], "usd"), /\n2026-01,50\.00,1,50\.00,/);
+});
+
+// Red team 2026-11-18: a trial is not revenue on the live tiles, but the
+// rebuilt history counted every subscription from `created`, so a trial that
+// converted showed as MRR during its free weeks, and a trial canceled before
+// it ever paid showed as new MRR and then churn.
+test("rebuilt history and cohorts count a subscription from the end of its trial", async () => {
+  const { cohorts } = await import("./metrics.mjs");
+  const subs = [
+    { id: "conv", mrr: 1000, status: "active", created: D(2026, 8, 20), trialEnd: D(2026, 9, 3), endedAt: null },
+    { id: "never", mrr: 500, status: "canceled", created: D(2026, 8, 25), trialEnd: D(2026, 9, 8), endedAt: D(2026, 9, 8) },
+    { id: "paid", mrr: 200, status: "active", created: D(2026, 8, 1), trialEnd: null, endedAt: null },
+  ];
+  assert.deepEqual(mapAt(subs, D(2026, 8, 31)), { paid: 200 });
+  assert.deepEqual(mapAt(subs, D(2026, 9, 30)), { paid: 200, conv: 1000 });
+  const { months } = backfill(subs, D(2026, 10, 15), 3);
+  const aug = months.find((m) => m.month === "2026-08"), sep = months.find((m) => m.month === "2026-09");
+  assert.equal(aug.mrr, 200); assert.equal(aug.churn, 0);
+  assert.equal(sep.new, 1000); assert.equal(sep.churn, 0); assert.equal(sep.churnCount, 0);
+  const rows = cohorts(subs, D(2026, 10, 15), 3);
+  assert.equal(rows.find((r) => r.month === "2026-08").size, 1);
+  const sepC = rows.find((r) => r.month === "2026-09");
+  assert.equal(sepC.size, 1); assert.equal(sepC.mrr, 1000); assert.deepEqual(sepC.logo, [1, 1]);
+});
+
+// Red team 2026-11-18 guards for mutants that escaped the suite.
+test("backfill's first month counts a subscription started in it as new", () => {
+  const subs = [{ id: "a", mrr: 700, status: "active", created: D(2026, 8, 10), endedAt: null }];
+  const { months } = backfill(subs, D(2026, 10, 15), 3);
+  assert.equal(months[0].month, "2026-08");
+  assert.equal(months[0].startMrr, 0); assert.equal(months[0].new, 700); assert.equal(months[0].newCount, 1);
+});
+
+test("growth is null, not Infinity, when the prior month had no MRR", () => {
+  const s = summarize([{ month: "2026-09", mrr: 0, startMrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, churnCount: 0, startCustomers: 0 },
+    { month: "2026-10", mrr: 500, startMrr: 0, customers: 1, new: 500, expansion: 0, contraction: 0, churn: 0, reactivation: 0, churnCount: 0, startCustomers: 0 }]);
+  assert.equal(s.growthPct, null);
+});
+
+test("an empty cohort carries zero MRR", async () => {
+  const { cohorts } = await import("./metrics.mjs");
+  const rows = cohorts([], D(2026, 10, 15), 2);
+  assert.deepEqual(rows.map((r) => [r.size, r.mrr]), [[0, 0], [0, 0]]);
+});
+
+test("concentration: one subscription at exactly a quarter of MRR is high risk", async () => {
+  const { concentration } = await import("./metrics.mjs");
+  assert.equal(concentration({ a: 25, b: 25, c: 25, d: 25 }).risk, "high");
+  assert.equal(concentration({ a: 10, b: 9, c: 9, d: 9, e: 9, f: 9, g: 9, h: 9, i: 9, j: 9, k: 9 }).risk, "moderate");
+});

@@ -13,10 +13,10 @@
 // The plan and booking-window choices are validated against calc.mjs's own
 // lists, so a crafted link cannot put an unknown value into the selects.
 
-import { EARNINGS_PLANS, BOOKING_WINDOWS } from './calc.mjs';
+import { EARNINGS_PLANS, BOOKING_WINDOWS, MARKETS } from './calc.mjs';
 
 export const NUMBER_FIELDS = ['tripPrice', 'days', 'extraMileageFee', 'lateReturnFee', 'additionalUsageFee', 'tripsPerMonth'];
-export const CHOICE_FIELDS = { plan: EARNINGS_PLANS, bookingWindow: BOOKING_WINDOWS };
+export const CHOICE_FIELDS = { plan: EARNINGS_PLANS, bookingWindow: BOOKING_WINDOWS, market: MARKETS };
 export const FIELD_IDS = [...NUMBER_FIELDS, ...Object.keys(CHOICE_FIELDS)];
 
 function usableNumber(value) {

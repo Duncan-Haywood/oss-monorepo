@@ -6,11 +6,20 @@ import math
 
 
 def real_stop_time(v0, m, b, c):
+    """Finite stop time; limits m v0/c (pure Coulomb, b = 0) and infinity (pure viscous, c = 0)."""
+    if c == 0:
+        return math.inf
+    if b == 0:
+        return m * v0 / c
     return (m / b) * math.log1p(b * v0 / c)
 
 
 def real_stop_distance(v0, m, b, c):
-    """x = m * int_0^v0 v/(b v + c) dv."""
+    """x = m * int_0^v0 v/(b v + c) dv; limits m v0^2/(2c) (b = 0) and m v0/b (c = 0)."""
+    if b == 0:
+        return m * v0 * v0 / (2 * c)
+    if c == 0:
+        return m * v0 / b
     return (m / b) * (v0 - (c / b) * math.log1p(b * v0 / c))
 
 

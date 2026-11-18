@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://marisstella.app/benford-audit/sitemap.xml

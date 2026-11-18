@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKm4xJTaB661L5JV6zB",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T16:18:09Z",
+  "ended": "2026-11-12T16:25:09Z",
+  "wall_minutes": 7.15,
+  "tokens_in": 3452320,
+  "tokens_out": 15540,
+  "cost_usd": 1.6228,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15183",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Backlog held only owner rows again. The first two friction candidates I checked (post front-matter caps, run_venture_tests photo-editing) were already fixed earlier today (#15162 and the run_venture_tests elsewhere_commands change), so the 'grep git log since the report' hint in measure was the right first step."
+    },
+    {
+      "file": "platform/ci/main_health.py",
+      "issue": "System ruff (newer than CI's pin) flags EXE001/PLW1510 on lines that predate this change; left alone, as cloud-session friction already notes the version gap."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-timeout-is-not-a-red-check.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode; backlog ids touched: none (no agent-owned rows). Fixed three live doc_friction reports outside the control plane: main_health.py timeout -> solo re-run + TIME label (report 2026-11-11T22:23); build.test.mjs names files edited mid-run on determinism/search-result failure (2026-11-12T06:48, 12:48); lighthouse.mjs CPU-load note (2026-11-12T04:41). Verification: platform/ci/test_main_health.py OK (3); node --test --test-name-pattern='identical cache name|own search results' platform/pages/build.test.mjs pass 2 fail 0; helper probe names an untracked docs/ file; check_post_frontmatter on the post exit 0; main_health on main before change 60/60. No agent doc: the post and code comments carry the reasons.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "14fa4893-da84-5f0d-b7b8-4b17bb8ea5d9",
+    "transcripts": 1,
+    "first": "2026-11-12T16:18:09Z",
+    "last": "2026-11-12T16:25:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 77,
+        "output": 15540,
+        "thinking": 2728,
+        "cache_read": 3372596,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79647,
+        "api_equivalent_usd": 1.6228,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 77,
+      "output": 15540,
+      "thinking": 2728,
+      "cache_read": 3372596,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79647,
+      "api_equivalent_usd": 1.6228,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "Edit": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.15,
+      "active_minutes": 7.15,
+      "model_minutes": 3.71,
+      "tool_minutes": 3.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "three small tool fixes with a test and a post, by a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 123.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

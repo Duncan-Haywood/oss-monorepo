@@ -26,6 +26,6 @@
     {"severity": "low", "what": "Inline scripts in .html files (popup.html, options.html) are not scanned, and .vue/.svelte are skipped, so permissions used only there read as unused.", "where": "ventures/chrome-extension-permission-check/check.mjs:19"},
     {"severity": "low", "what": "llms.txt links to the retired duncan-haywood.github.io host; boilerplate says 'estimates from the numbers typed in', which does not fit a scanner.", "where": "ventures/chrome-extension-permission-check/llms.txt"}
   ],
-  "fix_prs": [],
+  "fix_prs": [14670],
   "verdict": "Does not meet the bar and is finished only in the sense that every advertised feature runs. It is a tidy, dependency-free 60-test scanner whose tests catch seeded bugs (3 of 3 mutations caught), and its unused-permission direction is right for plain namespaces such as storage, alarms and bookmarks. But checked against Chrome's own permissions list and tabs API page, it wrongly reports chrome.tabs and chrome.action usage as runtime failures when no 'tabs' or 'action' permission is declared (the latter does not exist as a permission), so the exit-code gate fails ordinary MV3 extensions; comments and strings count as usage; and the headline claim that Google calls this the single most common rejection reason is not in the cited page. Correctness 1, claims 1, domain 1. Fix: remove action from PERMISSION_SIGNATURES, drop 'tabs' from the undeclared check (or only flag it when tab.url/title are read), strip comments and strings before matching, correct the 'most common' claim and the 'background' text."
 }

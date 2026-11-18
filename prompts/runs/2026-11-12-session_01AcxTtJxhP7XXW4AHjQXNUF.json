@@ -1,0 +1,302 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJxhP7XXW4AHjQXNUF",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T20:06:58Z",
+  "ended": "2026-11-12T20:07:52Z",
+  "wall_minutes": 16.42,
+  "tokens_in": 4750510,
+  "tokens_out": 22189,
+  "cost_usd": 2.1252,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15245",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes reported UNSTABLE CHECKOUT because I committed while its detached sweep ran; the steps that reached the change (ventures-tests 5/5) passed, the verdict was discarded and PR CI used instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists six open defects, but all six are control-plane fixes already sitting in owner-gated PRs (#14877, #14698, #14612, #15201). `redteam.py open` could print the PR that carries each fix, so runs stop re-checking them."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes detaches after 100 s and then discards the whole verdict if HEAD moves. The hand-off message could say 'do not commit until DONE'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix the open defects first. All six are control-plane, and each already has an owner-gated PR, so opening another would only duplicate them.",
+      "did": "Left them as they are and went straight to the campaign.",
+      "result": "No duplicate PRs; the time went to two real fixes."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-curl-into-bin-bash.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/systemd-unit-hardening-check/check.py (security product, suite 0.0 s). 10 mutants: 6 caught, 1 equivalent, 3 gaps now guarded (9/9 after rerun). Hunt: svc-pipe-to-shell missed full-path shells, sudo flags and env; the same blind spot was in claude-code-hooks-security-check. Guard for the class: four parity cases in parity-cases.test.json (CLI vs browser copy) plus tests in both ventures. Verification: run_venture_tests.py systemd-unit-hardening-check claude-code-hooks-security-check -> 2 ok; node --test 26/26 and 70/70; python3 -m unittest test_check 23/23. 4b: no new workflow (control plane); the parity corpus already runs in ventures-tests on every PR that touches the venture.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/systemd-unit-hardening-check/check.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check  (in ventures/systemd-unit-hardening-check)",
+        "seed": 387271368,
+        "commit": "e1609c4e1",
+        "sites": 136,
+        "baseline_seconds": 0.0,
+        "mutants": [
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 114,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "SEVERITY_ORDER = {\"high\": 0, \"medium\": 1, \"low\": 2}",
+            "after": "SEVERITY_ORDER = {\"high\": 1, \"medium\": 1, \"low\": 2}",
+            "line_text": "SEVERITY_ORDER = {\"high\": 0, \"medium\": 1, \"low\": 2}",
+            "caught": false,
+            "seconds": 0.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Severity tie-break within one line was untested (high vs medium on an Exec line, medium vs low at the [Service] header). test_most_severe_first_within_a_line."
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 114,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "SEVERITY_ORDER = {\"high\": 0, \"medium\": 1, \"low\": 2}",
+            "after": "SEVERITY_ORDER = {\"high\": 0, \"medium\": 2, \"low\": 2}",
+            "line_text": "SEVERITY_ORDER = {\"high\": 0, \"medium\": 1, \"low\": 2}",
+            "caught": false,
+            "seconds": 0.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Severity tie-break within one line was untested (high vs medium on an Exec line, medium vs low at the [Service] header). test_most_severe_first_within_a_line."
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 166,
+            "col": 37,
+            "operator": "and-to-or",
+            "before": "while logical.endswith(\"\\\\\") and i < len(lines):",
+            "after": "while logical.endswith(\"\\\\\") or i < len(lines):",
+            "line_text": "        while logical.endswith(\"\\\\\") and i < len(lines):",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 168,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "i += 1",
+            "after": "i += 2",
+            "line_text": "            i += 1",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 215,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "if ch == \"\\\\\" and k + 1 < len(value):",
+            "after": "if ch == \"\\\\\" or k + 1 < len(value):",
+            "line_text": "            if ch == \"\\\\\" and k + 1 < len(value):",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 215,
+            "col": 36,
+            "operator": "lt-to-le",
+            "before": "if ch == \"\\\\\" and k + 1 < len(value):",
+            "after": "if ch == \"\\\\\" and k + 1 <= len(value):",
+            "line_text": "            if ch == \"\\\\\" and k + 1 < len(value):",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 303,
+            "col": 40,
+            "operator": "and-to-or",
+            "before": "if wdir is None and as_root and binary.startswith(\"/home/\"):",
+            "after": "if wdir is None and as_root or binary.startswith(\"/home/\"):",
+            "line_text": "            if wdir is None and as_root and binary.startswith(\"/home/\"):",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 503,
+            "col": 129,
+            "operator": "const-plus-one",
+            "before": "parts = ([g[\"main\"]] if g[\"main\"] else []) + sorted(g[\"dropins\"], key=lambda d: d[\"name\"].replace(\"\\\\\", \"/\").rsplit(\"/\", 1)[-1])",
+            "after": "parts = ([g[\"main\"]] if g[\"main\"] else []) + sorted(g[\"dropins\"], key=lambda d: d[\"name\"].replace(\"\\\\\", \"/\").rsplit(\"/\", 2)[-1])",
+            "line_text": "        parts = ([g[\"main\"]] if g[\"main\"] else []) + sorted(g[\"dropins\"], key=lambda d: d[\"name\"].replace(\"\\\\\", \"/\").rsplit(\"/\", 1)[-1])",
+            "caught": false,
+            "seconds": 0.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "rsplit(\"/\", 2)[-1] and rsplit(\"/\", 1)[-1] both return the last path component for every string, so the drop-in sort key is unchanged."
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 509,
+            "col": 34,
+            "operator": "and-to-or",
+            "before": "if anchor is None and part is g[\"main\"]:",
+            "after": "if anchor is None or part is g[\"main\"]:",
+            "line_text": "                if anchor is None and part is g[\"main\"]:",
+            "caught": false,
+            "seconds": 0.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Only differs when the main unit has no [Service] and a drop-in does: missing findings moved to the drop-in. test_missing_findings_anchor_on_the_unit_when_only_a_dropin_has_service."
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 605,
+            "col": 25,
+            "operator": "and-to-or",
+            "before": "if args.fail_on_risk and has_risk(findings):",
+            "after": "if args.fail_on_risk or has_risk(findings):",
+            "line_text": "    if args.fail_on_risk and has_risk(findings):",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/systemd-unit-hardening-check/check.py",
+        "issue": "svc-pipe-to-shell (high) missed `curl ... | /bin/bash`, `| sudo -E bash`, `| sudo -u app /bin/sh` and `| /usr/bin/env bash`: the regex only accepted a bare shell name after an optional bare `sudo`. Same regex in classify.mjs (browser copy). Fixed in both; tests in test_check.py and four parity cases.",
+        "patched": true
+      },
+      {
+        "file": "ventures/claude-code-hooks-security-check/calc.mjs",
+        "issue": "remote-pipe-to-shell missed `curl ... | /bin/bash`, `| sudo -E bash`, `| /usr/bin/env bash`, `| env python3`: RE_SHELL_INTERP_START took only a bare interpreter after a bare sudo. Found by searching siblings for the systemd checker's defect. Fixed with six tests in calc.test.mjs.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b43f2b86-c22e-5173-876d-1a98d7ac85ea",
+    "transcripts": 1,
+    "first": "2026-11-12T20:06:58Z",
+    "last": "2026-11-12T20:23:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 22189,
+        "thinking": 5690,
+        "cache_read": 4656695,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93717,
+        "api_equivalent_usd": 2.1252,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 22189,
+      "thinking": 5690,
+      "cache_read": 4656695,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93717,
+      "api_equivalent_usd": 2.1252,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.42,
+      "active_minutes": 16.42,
+      "model_minutes": 4.73,
+      "tool_minutes": 11.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "seed and triage 10 mutants, find and fix a regex blind spot in two security checkers with tests and parity cases, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 188.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

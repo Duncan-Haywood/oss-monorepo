@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Wholesale Real Estate Offer Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Max offer to the seller for a wholesale deal, the end buyer's ceiling, your fee by assignment versus double close, and ARV sensitivity. Runs in your browser.", "featureList": "Maximum allowable offer, 70% rule and profit-based buyer ceiling, comps to ARV, assignment vs double close net fee, break-even fee, ARV sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the maximum allowable offer in wholesaling?", "acceptedAnswer": {"@type": "Answer", "text": "The most you can contract a house for and still leave your end buyer a deal. Start from what a flipper will pay: the after-repair value times their rule (often 70%) minus repairs, checked against what they need to profit after selling costs and holding. Then subtract your own assignment fee. That is the number to offer the seller."}}, {"@type": "Question", "name": "What is the difference between assigning a contract and a double close?", "acceptedAnswer": {"@type": "Answer", "text": "With an assignment you sell your rights in the purchase contract to the end buyer for a fee, and the buyer closes with the seller directly. With a double close you buy the property, then sell it to your buyer, usually the same day. The second route can hide your fee from the seller but adds closing costs, often transactional funding, and in some places transfer tax on both deeds. The tool nets your fee both ways."}}, {"@type": "Question", "name": "How do I find the after-repair value?", "acceptedAnswer": {"@type": "Answer", "text": "Use sold comparable sales from the same neighbourhood and recent months, in finished condition. Paste them with square footage and the tool takes the median price per square foot times your property's size. It is only as good as the comps; an appraiser, a local agent or the end buyer's own numbers are better checks."}}, {"@type": "Question", "name": "Is wholesaling legal everywhere?", "acceptedAnswer": {"@type": "Answer", "text": "Not everywhere on the same terms. Some states and cities regulate it, require a licence, require disclosure that you are selling a contract rather than the property, or limit repeat activity, and the rules have been changing. This tool does not tell you what applies to you. Check your state's real estate commission or a local real estate attorney before you market a contract."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -97,11 +135,11 @@
       for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
-      h += '<div class="finding"><h4>Offer the seller no more than ' + money(a.contractTarget) + "</h4><p>ARV " + money(a.arv) + " (" + esc(a.arvSource) + "). Your end buyer can pay up to " + money(a.c.buyer) + " (" + (a.c.binding === "rule" ? "the " + a.p.rule + "% rule binds: " + money(a.c.ruleMax) + " against " + money(a.c.profitMax) + " on the profit test" : "their profit test binds: " + money(a.c.profitMax) + " against " + money(a.c.ruleMax) + " on the " + a.p.rule + "% rule") + "). Less your " + money(a.p.fee) + " fee. Walk away above " + money(a.contractWalk) + " (your " + money(a.minFee) + " minimum fee).</p></div>";
-      if (a.asking) h += '<div class="finding"><h4>Seller asks ' + money(a.asking.price) + ": " + esc(a.asking.verdict) + "</h4><p>That leaves " + money(a.asking.feeLeft) + " of fee before costs. " + (a.asking.feeLeft > 0 ? "Assigned you keep about " + money(a.asking.routes.assign) + "; double closed about " + money(a.asking.routes.doubleClose) + "." : "The price is above what the buyer can pay.") + "</p></div>";
-      h += '<div class="finding"><h4>Getting paid at your target fee</h4>' + table(["Route", "You keep", "Costs"], [["Assign the contract", money(a.at.assign), money(a.p.marketing + a.p.acqClose)], ["Double close", money(a.at.doubleClose), money(a.p.marketing + a.p.acqClose + a.at.dcCost)]]) + "<p>Double closing breaks even at a fee of " + money(a.at.breakEvenFee) + " on this contract price; below that you lose money doing it.</p></div>";
-      h += '<div class="finding"><h4>Your buyer at ' + money(a.buyer.pays) + "</h4><p>Profit " + money(a.buyer.profit) + " (" + pct(a.buyer.profitPctArv) + " of ARV, " + (a.buyer.cashOnCash == null ? "n/a" : pct(a.buyer.cashOnCash)) + " on their cash in). Price plus repairs is " + pct(a.buyer.ruleShare) + " of ARV.</p></div>";
-      h += '<div class="finding"><h4>If the ARV is off</h4>' + table(["ARV", "Change", "Buyer ceiling", "Max offer", a.asking ? "Fee at asking" : ""], a.sensitivity.map((s) => [money(s.arv), (s.d > 0 ? "+" : "") + s.d + "%", money(s.buyer), money(s.contract), a.asking ? money(s.feeAtAsking) : ""])) + "</div>";
+      h += '<div class="finding"><h3>Offer the seller no more than ' + money(a.contractTarget) + "</h3><p>ARV " + money(a.arv) + " (" + esc(a.arvSource) + "). Your end buyer can pay up to " + money(a.c.buyer) + " (" + (a.c.binding === "rule" ? "the " + a.p.rule + "% rule binds: " + money(a.c.ruleMax) + " against " + money(a.c.profitMax) + " on the profit test" : "their profit test binds: " + money(a.c.profitMax) + " against " + money(a.c.ruleMax) + " on the " + a.p.rule + "% rule") + "). Less your " + money(a.p.fee) + " fee. Walk away above " + money(a.contractWalk) + " (your " + money(a.minFee) + " minimum fee).</p></div>";
+      if (a.asking) h += '<div class="finding"><h3>Seller asks ' + money(a.asking.price) + ": " + esc(a.asking.verdict) + "</h3><p>That leaves " + money(a.asking.feeLeft) + " of fee before costs. " + (a.asking.feeLeft > 0 ? "Assigned you keep about " + money(a.asking.routes.assign) + "; double closed about " + money(a.asking.routes.doubleClose) + "." : "The price is above what the buyer can pay.") + "</p></div>";
+      h += '<div class="finding"><h3>Getting paid at your target fee</h3>' + table(["Route", "You keep", "Costs"], [["Assign the contract", money(a.at.assign), money(a.p.marketing + a.p.acqClose)], ["Double close", money(a.at.doubleClose), money(a.p.marketing + a.p.acqClose + a.at.dcCost)]]) + "<p>Double closing breaks even at a fee of " + money(a.at.breakEvenFee) + " on this contract price; below that you lose money doing it.</p></div>";
+      h += '<div class="finding"><h3>Your buyer at ' + money(a.buyer.pays) + "</h3><p>Profit " + money(a.buyer.profit) + " (" + pct(a.buyer.profitPctArv) + " of ARV, " + (a.buyer.cashOnCash == null ? "n/a" : pct(a.buyer.cashOnCash)) + " on their cash in). Price plus repairs is " + pct(a.buyer.ruleShare) + " of ARV.</p></div>";
+      h += '<div class="finding"><h3>If the ARV is off</h3>' + table(["ARV", "Change", "Buyer ceiling", "Max offer", a.asking ? "Fee at asking" : ""], a.sensitivity.map((s) => [money(s.arv), (s.d > 0 ? "+" : "") + s.d + "%", money(s.buyer), money(s.contract), a.asking ? money(s.feeAtAsking) : ""])) + "</div>";
       h += '<p><button type="button" class="secondary" id="csv">Download result (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

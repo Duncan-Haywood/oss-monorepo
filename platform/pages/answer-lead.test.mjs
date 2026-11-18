@@ -5,7 +5,7 @@
 // a lead must be one the venture's own calc module exports.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 
 const root = new URL('../../ventures/', import.meta.url);
 
@@ -53,7 +53,27 @@ const PILOTS = {
   'home-office-deduction-calculator': async (m) => [m.SIMPLIFIED_RATE, m.SIMPLIFIED_MAX_SQFT, m.SIMPLIFIED_MAX],
   'sep-ira-contribution-calculator': async (m) => [m.LIMITS_2026.annualAdditions, m.LIMITS_2026.compensationLimit],
   'social-security-benefits-tax-calculator': async (m) => [m.BASES.single.b1, m.BASES.single.b2, m.BASES.mfj.b1, m.BASES.mfj.b2], // statutory base amounts, IRC 86(b)
+  'medicare-irmaa-cliff-calculator': async (m) => [m.tiers('single')[0].to, m.tiers('mfj')[0].to, m.tiers('single').at(-1).from, m.tiers('mfj').at(-1).from, m.STANDARD_PART_B, m.tiers('single')[1].partBSurcharge, m.tiers('single').at(-1).partBSurcharge], // thresholds, standard Part B, first-tier and top-tier surcharges
   'estate-tax-exemption-calculator': async (m) => [m.BASIC_EXCLUSION_2026, m.ANNUAL_GIFT_EXCLUSION_2026],
+  'social-security-earnings-test-calculator': async (m) => [m.LIMITS_2026.low, m.LIMITS_2026.high, 1, 2, 3], // 2026 exempt amounts; 1, 2, 3: the $1-for-$2 and $1-for-$3 withholding rates
+  'rmd-calculator': async (m) => [500000, Math.round(m.rmdFor(500000, 75))], // worked example: $500,000 at age 75 over the Table III factor
+  'etsy-profit-calculator': async (m) => {
+    const f = m.ETSY_US_FEES;
+    const ex = m.calculateOrder({ price: 30, shippingCharged: 5 }); // the lead's worked example
+    const total = Math.round((ex.fees.listing + ex.fees.transaction + ex.fees.payment) * 100) / 100;
+    return [f.listingFee, f.paymentFixed, 30, 5, total];
+  },
+  'wage-garnishment-limit-calculator': async (m) => [
+    m.FEDERAL_MIN_WAGE, ...Object.keys(m.PERIODS).map((p) => m.protectedFloor(p)),
+  ], // the minimum wage and the four pay-period floors, 15 U.S.C. 1673(a) and 29 CFR 870.10
+  'qbi-deduction-calculator': async (m) => [m.THRESHOLDS[2026].single, m.THRESHOLDS[2026].joint, m.THRESHOLDS[2026].rangeSingle, m.THRESHOLDS[2026].rangeJoint, m.THRESHOLDS[2026].minDeduction, m.THRESHOLDS[2026].minDeductionFloor],
+  'economic-nexus-threshold-tracker': async (m) => [...new Set(m.STATE_THRESHOLDS.filter((s) => !s.noSalesTax).map((s) => s.amount))], // the three dollar thresholds the table holds
+  'no-tax-on-tips-overtime-calculator': async (m) => [m.TIP_DEDUCTION_CAP, m.OVERTIME_CAP_SINGLE, m.OVERTIME_CAP_JOINT, m.PHASEOUT_THRESHOLD_SINGLE, m.PHASEOUT_THRESHOLD_JOINT],
+  'auto-loan-interest-deduction-calculator': async (m) => [m.QPVLI_CAP, m.PHASEOUT_THRESHOLD_OTHER, m.PHASEOUT_THRESHOLD_JOINT],
+  'charitable-deduction-calculator': async (m) => [m.NON_ITEMIZER_CAP.single, m.NON_ITEMIZER_CAP.mfj],
+  'gambling-loss-deduction-calculator': async (m) => [10000, 10000 * m.LOSS_CAP_RATE, 10000 * (1 - m.LOSS_CAP_RATE)].map(Math.round), // worked example: $10,000 won and lost
+  'nanny-tax-calculator': async (m) => [m.DEFAULTS.householdThreshold, m.DEFAULTS.ssWageBase, m.FUTA_QUARTER_TEST, m.DEFAULTS.futaWageBase], // IRS Pub 926 (2026)
+  'employer-payroll-tax-cost-calculator': async (m) => [m.FED.ssBase, m.FED.futaBase, Math.round(m.FED.futaBase * (m.FED.futaGross - m.FED.futaCredit))], // IRS Pub 15 (2026); $42 = net FUTA on the wage base
 };
 
 // slugs whose engine is not calc.mjs
@@ -274,4 +294,114 @@ test('au-gst-registration-checker: lead is sourced, dated and matches the thresh
   const stated = [...text.matchAll(/AUD ([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
   assert.deepEqual(stated, [THRESHOLD, NONPROFIT_THRESHOLD]);
   assert.match(text, /21 days/);
+});
+
+// Percentages in the Etsy and garnishment leads: the dollar check above does not see them.
+test('etsy-profit-calculator and wage-garnishment-limit-calculator: lead percentages match the calc module', async () => {
+  const lead = (slug) => {
+    const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+    return html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/)[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  };
+  const pct = (text) => [...text.matchAll(/(\d+(?:\.\d+)?)%/g)].map((x) => Number(x[1]));
+  const etsy = await import(new URL('etsy-profit-calculator/calc.mjs', root));
+  assert.deepEqual(pct(lead('etsy-profit-calculator')), [etsy.ETSY_US_FEES.transactionRate, etsy.ETSY_US_FEES.paymentRate]);
+  const g = await import(new URL('wage-garnishment-limit-calculator/calc.mjs', root));
+  assert.deepEqual(pct(lead('wage-garnishment-limit-calculator')), [25, g.supportPercent(true, false), g.supportPercent(false, true), 15]);
+  assert.match(g.CITATIONS.ordinary, /25%/);
+  assert.match(g.CITATIONS.student, /15%/);
+});
+
+// Economic nexus lead: the state counts it states must be the table's own.
+test('economic-nexus-threshold-tracker: lead counts match the threshold table', async () => {
+  const html = readFileSync(new URL('economic-nexus-threshold-tracker/index.html', root), 'utf8');
+  const text = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/)[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  const { STATE_THRESHOLDS: T } = await import(new URL('economic-nexus-threshold-tracker/calc.mjs', root));
+  const taxed = T.filter((s) => !s.noSalesTax);
+  const at = (n) => taxed.filter((s) => s.amount === n).map((s) => s.label);
+  assert.ok(at(100000).includes('District of Columbia'));
+  assert.match(text, new RegExp(`In ${at(100000).length - 1} states and DC`));
+  for (const n of [500000, 250000]) for (const name of at(n)) assert.ok(text.includes(name), `lead omits ${name}`);
+  assert.match(text, new RegExp(`${taxed.filter((s) => s.transactions).length} of these jurisdictions`));
+  for (const s of taxed.filter((x) => x.condition === 'AND')) assert.ok(text.includes(s.label), `lead omits AND-test state ${s.label}`);
+  for (const s of T.filter((x) => x.noSalesTax)) assert.ok(text.includes(s.label), `lead omits ${s.label}`);
+});
+
+// UK sole trader vs limited company lead (pounds): every £ figure it states must come out of the
+// calculator, and its "usually not" claim must hold on a
+// £1,000 grid from £10,000 to £300,000 (all profit taken out, no running costs, no Employment Allowance).
+test('uk-sole-trader-vs-limited-company-calculator: lead is sourced, dated and matches the calculator', async () => {
+  const slug = 'uk-sole-trader-vs-limited-company-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source: GOV\.UK/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const c = await import(new URL(`${slug}/calc.mjs`, root));
+  const withCosts = c.compare({ ...c.SAMPLE, profit: '50000', costs: '1200' });
+  const noCosts = c.compare({ ...c.SAMPLE, profit: '50000', costs: '0' });
+  for (let p = 10000; p <= 300000; p += 1000) {
+    const gap = c.bestSalary(p, 0, false, true, 0).takeHome - c.soleTrader(p).takeHome;
+    assert.ok(gap < 0, `the company keeps more at £${p}, so "usually not" is wrong`);
+  }
+  const allowed = [
+    50000, Math.round(withCosts.st.takeHome), withCosts.lc.salary, Math.round(withCosts.lc.takeHome),
+    Math.round(noCosts.lc.takeHome), 1200,
+  ];
+  const stated = [...text.matchAll(/£([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.ok(stated.length > 0, 'lead states no figure');
+  for (const n of stated) assert.ok(allowed.includes(n), `£${n} is not a figure the calculator produces`);
+});
+
+// Every lead stays short: the fact, its source and the date, nothing else. An answer
+// engine lifts one paragraph; a long one gets cut mid-sentence or skipped, and on a
+// phone it pushes the form down (social-security-earnings-test's lead was 369 px at
+// 390 px wide). How-to-use text belongs in the next paragraph. Report:
+// docs/reports/polish-2026-11-14-lead-length.md.
+const MAX_LEAD_WORDS = 100;
+test(`every answer lead is at most ${MAX_LEAD_WORDS} words`, () => {
+  const long = [];
+  let seen = 0;
+  for (const slug of readdirSync(root)) {
+    let html;
+    try { html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8'); } catch { continue; }
+    const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+    if (!m) continue;
+    seen++;
+    const words = m[1].replace(/<[^>]+>/g, ' ').trim().split(/\s+/).length;
+    if (words > MAX_LEAD_WORDS) long.push(`${slug}: ${words} words`);
+  }
+  assert.ok(seen >= 50, `found only ${seen} leads; did the marker change?`);
+  assert.deepEqual(long, [], 'move how-to-use text or detail out of the lead');
+});
+
+// Mileage lead (rates in cents, no dollar figures): both 2026 half-year rates must be the calculator's own.
+test('mileage-deduction-method-calculator: lead is sourced, dated and matches the 2026 rates', async () => {
+  const slug = 'mileage-deduction-method-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { RATES_2026: R } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/([\d.]+) cents/g)].map((x) => Number(x[1]) / 100);
+  assert.deepEqual(stated, [R.businessFirstHalf, R.businessSecondHalf]);
+});
+
+// EU OSS lead: the euro threshold it states must be the calculator's, and the due date it names must be the one periodDueDate models.
+test('eu-vat-oss-calculator: lead is sourced, dated and matches the threshold and due date', async () => {
+  const slug = 'eu-vat-oss-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { THRESHOLD_EUR, periodDueDate } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/EUR ([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.deepEqual(stated, [THRESHOLD_EUR]);
+  assert.match(text, /end of the month after the quarter/);
+  assert.equal(periodDueDate('2026-Q1'), '2026-04-30');
+  assert.equal(periodDueDate('2026-Q4'), '2027-01-31');
 });

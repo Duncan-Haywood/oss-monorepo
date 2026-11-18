@@ -1,0 +1,19 @@
+# Semver Range Explainer: why doesn't my npm range match this version?
+
+> Free semver range checker. From an npm range (package.json syntax) and a list of versions, it prints the comparators each ^, ~, x-range and hyphen range becomes, a reason for every version that matches or misses (including npm's prerelease rule: a prerelease only matches when the same || branch names a prerelease of the same major.minor.patch), the version npm would install from the list, and an exact comparison of two ranges (does one cover the other, do they overlap) with a version that proves each answer. Flags unbounded ranges, a bare * branch that swallows the others, narrow ^0.x carets, redundant branches and hyphen ranges written without spaces. Runs in the browser; nothing is uploaded. A zero-dependency CLI also checks package.json ranges against package-lock.json.
+
+Free and open source (MIT). Results come from this tool's reimplementation of node-semver's rules (7.7 and 7.8), checked against node-semver on randomly generated ranges; it is not legal, security or professional advice, and npm itself is the final word.
+
+## Pages
+
+- [The tool](https://marisstella.app/semver-range-explainer/)
+- [Why a semver range skips prereleases](https://marisstella.app/semver-range-explainer/why-semver-range-skips-prereleases.html)
+
+## For agents
+
+- Engine: `semver.mjs`. `analyze({ range, versions, other, includePrerelease, semver })`: `range` and `other` are range strings, `versions` is newline/comma separated or a JSON array; `semver` is "7.8" (default, npm 11) or "7.7" (npm 10). Returns `range` (comparators, sets with desugaring steps and words, `minVersion`, `findings`), `versions` (per version `ok` and `reason`), `max`, `min`, `comparison` (`aInB`, `bInA`, `overlap`, `equivalent`, witnesses `onlyA`, `onlyB`, `both`) and `totals`. Also `satisfies`, `compareRanges`, `minVersion`, `maxSatisfying`. Callable through `node platform/agents/tools.mjs call semver-range-explainer analyze --input '{"range":"^1.2.0","versions":"1.9.0-rc.1\n1.8.3"}'` or the repository's MCP server (`call_tool`).
+- CLI: `node ventures/semver-range-explainer/cli.mjs '<range>' [versions | -] [--compare '<range>'] [--project dir] [--json] [--strict]`.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/semver-range-explainer): MIT licensed.

@@ -1,0 +1,37 @@
+O2 above: 7l seeds ok at 0.100 and 0.115: 3; L2-45 33 -> 9 (per seed [(10, 2), (13, 3), (10, 4)])
+O2 below: 7l seeds ok at 0.100 and 0.115: 3; L2-45 52 -> 37 (per seed [(20, 16), (15, 9), (17, 12)])
+O3 resize: designs whose ok-grid L2-45 curve rises >= 3 flights after its minimum: 0 of 46
+O3 pinexp: designs whose ok-grid L2-45 curve rises >= 3 flights after its minimum: 0 of 46
+   set above 7e: all-ok window 0.1-0.105 m, resize L2-45 [2, 0], non-increasing: True
+   set above 7l t45 cap wide: all-ok window 0.105-0.13 m, resize L2-45 [62, 52, 31, 21, 14, 6], non-increasing: True
+   set above aware cap wide: all-ok window 0.115-0.125 m, resize L2-45 [19, 13, 9], non-increasing: True
+   set above aware cap wide fixL: all-ok window 0.105-0.11 m, resize L2-45 [36, 28], non-increasing: True
+   set below 7e: all-ok window 0.1-0.135 m, resize L2-45 [55, 44, 37, 29, 21, 12, 7, 5], non-increasing: True
+   set below 7l t45 cap wide: all-ok window 0.105-0.135 m, resize L2-45 [103, 87, 74, 70, 61, 54, 44], non-increasing: True
+   set below aware cap wide: all-ok window 0.125-0.13 m, resize L2-45 [20, 14], non-increasing: True
+   set below aware cap wide fixL: all-ok window 0.105-0.11 m, resize L2-45 [43, 34], non-increasing: True
+O4 above: 7l, grid points above own L, ok: resize 190, pinexp 123
+O4 below: 7l, grid points above own L, ok: resize 493, pinexp 324
+   above 7e: own L 12; at 0.105 m resize 0, pinexp 0
+   above 7l t45 cap wide: own L 73; at 0.13 m resize 6, pinexp 1
+   above aware cap wide: own L 53; at 0.125 m resize 9, pinexp 2
+   above aware cap wide fixL: own L 39; at 0.11 m resize 28, pinexp 18
+   below 7e: own L 52; at 0.135 m resize 5, pinexp 0
+   below 7l t45 cap wide: own L 105; at 0.135 m resize 44, pinexp 12
+   below aware cap wide: own L 52; at 0.13 m resize 14, pinexp 2
+   below aware cap wide fixL: own L 46; at 0.11 m resize 34, pinexp 28
+O5: at 0.085 m 47 of 48 designs fail (margin 34, feasibility 45)
+   grid points at or above own L that fail the margin test: 0
+   grid points at or above own L that are infeasible (cost cap): 49; first L per design: 7e above s0: 0.12, 7e above s1: 0.115, 7e above s2: 0.115, 7e above s3: 0.12, 7e above s4: 0.11, 7e above s5: 0.115, 7l t45 cap wide above s5: 0.135, aware cap wide above s3: 0.13, aware cap wide above s5: 0.135, aware cap wide below s3: 0.135, aware cap wide fixL above s3: 0.115, aware cap wide fixL above s4: 0.135, aware cap wide fixL above s5: 0.12, aware cap wide fixL below s3: 0.115
+O6 above: 7l best all-ok point 0.13 m: 6; aware cap wide own L 53; 7l first reaches it at 0.11 m (mean mass 1.411 kg against aware's 1.446 kg)
+O6 below: 7l best all-ok point 0.135 m: 44; aware cap wide own L 52; 7l first reaches it at 0.135 m (mean mass 1.384 kg against aware's 1.397 kg)
+O7 above: 7l J(45, lever 1) minus own-L J over ok points 0.100-0.120: min -0.038, max +0.205, n 27
+O7 below: 7l J(45, lever 1) minus own-L J over ok points 0.100-0.120: min -0.547, max +0.688, n 27
+   7l above at 0.105: mass 1.336 kg (+3%), hover 357 W (+5%)
+   7l above at 0.12: mass 1.630 kg (+26%), hover 483 W (+42%)
+   7l above at 0.135: mass 2.564 kg (+98%), hover 979 W (+188%)
+   7l below at 0.105: mass 1.116 kg (+1%), hover 264 W (+2%)
+   7l below at 0.12: mass 1.223 kg (+11%), hover 303 W (+17%)
+   7l below at 0.135: mass 1.384 kg (+26%), hover 367 W (+42%)
+match above: 7l at 0.11 m hover 388 W, median J(45, lever 1) -1.548, lever-1 crashes 0; aware cap wide at own L hover 408 W, median J -1.543, lever-1 crashes 0
+match below: 7l at 0.135 m hover 367 W, median J(45, lever 1) -1.521, lever-1 crashes 1; aware cap wide at own L hover 387 W, median J -1.514, lever-1 crashes 1

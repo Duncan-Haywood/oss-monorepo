@@ -56,7 +56,9 @@ const num = (v, d = 0) => (Number.isFinite(+v) && v !== "" && v !== null ? +v : 
  *   shipment, rateOverridePct, extraTariffPct, origin, haveOriginProof, vatPct.
  */
 export function landedByDestination(i) {
-  const prod = PRODUCTS[i.product], dest = DESTINATIONS[i.destination];
+  // own keys only: "constructor" or "toString" would find Object.prototype and throw further down
+  const prod = Object.hasOwn(PRODUCTS, i.product) ? PRODUCTS[i.product] : null;
+  const dest = Object.hasOwn(DESTINATIONS, i.destination) ? DESTINATIONS[i.destination] : null;
   if (!prod) return { error: "Choose a garment type." };
   if (!dest) return { error: "Choose a destination." };
   const qty = Math.floor(num(i.quantity));

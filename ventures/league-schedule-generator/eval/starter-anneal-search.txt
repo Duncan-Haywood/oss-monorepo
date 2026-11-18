@@ -1,0 +1,27 @@
+# node eval/field-start.mjs 21 22 23 24 26 30 (2026-11-11, after the climbed starters; "Field start" = the construction start, both starts run and the better kept; compare eval/starter-start.txt for the sampled starters)
+| Teams | Season | Setting | Circle start (carry-over / breaks) | Field start | Floor |
+|---|---|---|---|---|---|
+| 21 | single | carry-over only | 589 / 109 | 399 / 104 | 399 |
+| 21 | single | break weight 10 | 651 / 96 | 399 / 104 | 399 |
+| 21 | home and away | carry-over only | 1,895 / 281 | 1,617 / 216 | 1,617 |
+| 21 | home and away | break weight 10 | 2,065 / 159 | 1,891 / 171 | 1,617 |
+| 22 | single | carry-over only | 654 / 66 | 440 / 66 | 440 |
+| 22 | single | break weight 10 | 714 / 58 | 440 / 66 | 440 |
+| 22 | home and away | carry-over only | 2,086 / 218 | 1,782 / 148 | 1,782 |
+| 22 | home and away | break weight 10 | 2,370 / 146 | 1,782 / 144 | 1,782 |
+| 23 | single | carry-over only | 737 / 122 | 565 / 127 | 483 |
+| 23 | single | break weight 10 | 799 / 126 | 565 / 127 | 483 |
+| 23 | home and away | carry-over only | 2,287 / 330 | 2,207 / 338 | 1,955 |
+| 23 | home and away | break weight 10 | 2,499 / 211 | 2,381 / 211 | 1,955 |
+| 24 | single | carry-over only | 796 / 78 | 612 / 84 | 528 |
+| 24 | single | break weight 10 | 878 / 74 | 612 / 84 | 528 |
+| 24 | home and away | carry-over only | 2,538 / 270 | 2,312 / 194 | 2,136 |
+| 24 | home and away | break weight 10 | 2,774 / 180 | 2,488 / 178 | 2,136 |
+| 26 | single | carry-over only | 954 / 98 | 716 / 102 | 624 |
+| 26 | single | break weight 10 | 1,072 / 84 | 716 / 102 | 624 |
+| 26 | home and away | carry-over only | 3,040 / 322 | 2,618 / 230 | 2,522 |
+| 26 | home and away | break weight 10 | 3,312 / 196 | 2,618 / 230 | 2,522 |
+| 30 | single | carry-over only | 1,042 / 132 | 1,002 / 140 | 840 |
+| 30 | single | break weight 10 | 1,154 / 122 | 1,154 / 122 | 840 |
+| 30 | home and away | carry-over only | 3,684 / 424 | 3,684 / 424 | 3,390 |
+| 30 | home and away | break weight 10 | 4,076 / 278 | 3,838 / 300 | 3,390 |

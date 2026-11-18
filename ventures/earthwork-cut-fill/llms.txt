@@ -1,0 +1,26 @@
+# Earthwork cut and fill calculator
+
+> Free, open-source earthwork calculator: reads survey points (PNEZD, PENZD, NEZ or ENZ, with or without a header), builds a Delaunay TIN of existing ground, and computes exact cut and fill volumes against a flat or sloped pad or a proposed-grade TIN, inside an optional boundary of any shape. Adds topsoil strip, shrink and swell, the pad elevation that balances the site, and export or import in truckloads. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates between two triangulated surfaces, not engineering or surveying advice; check them against the engineer's grading plan and your own takeoff.
+
+## Pages
+
+- [The tool](https://marisstella.app/earthwork-cut-fill/)
+- [How cut and fill are calculated, with a worked example](https://marisstella.app/earthwork-cut-fill/how-to-calculate-cut-and-fill.html)
+
+## Inputs
+
+- Existing-ground points: text file, comma, tab, semicolon or space separated. Header names Northing/Easting/Elevation or X/Y/Z are recognised; without a header, 4+ columns read as PNEZD and 3 as easting, northing, elevation.
+- Design: pad elevation with optional slopes in percent (rising east, rising north), held at the boundary's centroid; or proposed-grade points in the same format; or "find balance elevation".
+- Optional boundary (easting, northing per line), topsoil strip depth, longest triangle edge, shrink %, swell %, truck capacity.
+- Units: feet (volumes in cubic yards) or metres (cubic metres).
+
+## How it is checked
+
+- Closed-form cases (planar slope against a pad, balance with shrink, L-shaped boundary, two planar TINs) in `earthwork.test.mjs`.
+- `check/differential.py`: same triangles as SciPy's Qhull and volumes equal to 1e-13 against an independent closed form, on five 800-point sets with state-plane coordinates.
+
+## Source
+
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/earthwork-cut-fill): MIT licensed. `node cli.mjs existing.csv --pad 105 --boundary pad.csv --shrink 15 --swell 25 --truck 12`, or `--balance`, or `--proposed finished.csv`.

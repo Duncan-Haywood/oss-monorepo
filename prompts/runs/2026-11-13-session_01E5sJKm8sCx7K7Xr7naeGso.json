@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKm8sCx7K7Xr7naeGso",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T06:10:12Z",
+  "ended": "2026-11-13T06:38:55Z",
+  "wall_minutes": 29.18,
+  "tokens_in": 12154037,
+  "tokens_out": 53075,
+  "cost_usd": 4.7693,
+  "tool_calls": 90,
+  "task": "Flagship 9 (league-schedule-generator) top next: item: reach 66-90 breaks at 17-20 teams home and away with low carry-over.",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15400",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "eval/squeeze-gap.mjs crashed on its first full run: a label lookup read tries[squeezedFrom] but a squeeze can start from an earlier squeeze; fixed to read the combined list, reran (about 15 min lost).",
+    "First browser run waited on /Best of 12 searches/ while the page now reads 'Best of 16'; stopped it and changed the script to match any count.",
+    "First preflight failed on the new post's 295-character description (limit 160); shortened, site tests then 52/52."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/README.md",
+      "issue": "The 2026-11-12 frontier section says the squeeze from a starter 'never got below the start's breaks'; true from the top end, but starting below a gap with a cap above it works. The note read as 'squeezes don't work' and nearly steered me off the approach."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A hook refuses `pkill -f '[s]queeze-gap'` when the same word appears elsewhere in the same command line; CLAUDE.md mentions the bracket rule but not that the whole command line is scanned."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No new marketing page: the venture already has one plus 20+ guides; the change is a search feature behind an existing option, so llms.txt and README were updated instead.",
+      "did": "llms.txt and README section only",
+      "result": "nothing user-facing left undocumented"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-league-schedule-squeezing-the-frontier.md",
+    "ventures/league-schedule-generator/README.md#squeezing-a-season-under-a-cap-2026-11-13",
+    "ventures/league-schedule-generator/eval/squeeze-gap.txt"
+  ],
+  "goal": null,
+  "notes": "squeezeDoubleRounds (joint timetable + ground moves under a season break cap), squeezeTargets / carryOverSqueeze / carryOverSqueezes, CARRY_OVER_SQUEEZE = 4 on the page (one worker after the 12 tries; list-only, share links unchanged). eval/squeeze-gap.txt: 17-20 teams x seeds 1-3, 42 squeezed seasons join the frontier, 10 page seasons dominated, least carry-over at a break budget 5.2% lower on average (max 33%). Open: the 19-team jump (1,5xx at 79-87 to 3,1xx at <=78). Verification: node --test '*.test.mjs' in the venture (see PR), squeeze.test.mjs 7/7, frontier-pick.test.mjs 7/7, eval/browser-frontier-pick.mjs --teams=18 9/9 (eval/browser-frontier-pick-18.txt), platform/pages site tests 52/52, venture-preflight rerun.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "782a9961-7174-50c0-b2ba-b3039bad487d",
+    "transcripts": 1,
+    "first": "2026-11-13T06:10:12Z",
+    "last": "2026-11-13T06:39:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 162,
+        "output": 53075,
+        "thinking": 11984,
+        "cache_read": 11990240,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163635,
+        "api_equivalent_usd": 4.7693,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 162,
+      "output": 53075,
+      "thinking": 11984,
+      "cache_read": 11990240,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163635,
+      "api_equivalent_usd": 4.7693,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 80,
+      "Monitor": 3,
+      "ReadNotifications": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.18,
+      "active_minutes": 29.18,
+      "model_minutes": 10.21,
+      "tool_minutes": 18.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior optimisation engineer: design and code the joint move set, eval across 12 runs, page/worker integration, browser and unit tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 209.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

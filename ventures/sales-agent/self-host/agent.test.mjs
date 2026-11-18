@@ -379,3 +379,23 @@ test("calendar file for a proposed exact time: served behind the token, tentativ
   a.server.close();
   assert.match(readFileSync(join(env.DATA_DIR, "audit.jsonl"), "utf8"), /"invite"/);
 });
+
+test("a bounce naming five failed addresses stops all five, and a reply with a --- line stays one reply (2026-11-11)", async (t) => {
+  const bounce = readFileSync(new URL("../eval/bounce-corpus-mail/multi_address_bounce1.eml", import.meta.url), "latin1").replace(/\r?\n/g, "\r\n");
+  const failed = parseMessage(bounce).dsn.failed;
+  assert.equal(failed.length, 5);
+  const f = fakeImap({ messages: {
+    1: bounce,
+    2: mail("Lee <lee@corp.example>", "Re: routes", "Not interested, thanks.\r\n---\r\nLee Park | Corp\r\nPlease remove me from your list."),
+  } });
+  const port = await f.listen();
+  t.after(() => f.close());
+  const env = { ADMIN_TOKEN: "x".repeat(16), DATA_DIR: mkdtempSync(join(tmpdir(), "sa-")), IMAP_HOST: "127.0.0.1", IMAP_PORT: String(port), IMAP_SECURE: "false", IMAP_USER: "me@example.com", IMAP_PASS: "pw", PORT: "0", PROSPECTS_CSV: "" };
+  const a = createAgent(env, { now: () => Date.parse("2026-10-26T10:00:00Z") });
+  assert.equal(await a.poll(), 6, "five bounce blocks and one reply (before: one bounce block, and the reply cut at ---)");
+  const bounced = a.state.items.filter((i) => i.triage.category === "bounce").map((i) => i.triage.failed || i.from);
+  assert.equal(bounced.length, 5);
+  assert.equal(new Set(a.state.items.map((i) => i.id)).size, 6, "each block has its own id");
+  const lee = a.state.items.find((i) => /lee@/.test(i.from));
+  assert.equal(lee.triage.category, "not_interested", "the part before the --- line is what is read, as before");
+});

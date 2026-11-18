@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" font-family="sans-serif" font-size="12">
+<rect width="720" height="220" fill="#fff"/>
+<text x="360.0" y="22" text-anchor="middle" font-weight="bold">Ranking 100-cycle DFN energy from ten cycles, three fresh Ai2020 pools (seed 15)</text>
+<line x1="200.0" y1="70" x2="200.0" y2="180" stroke="#ddd"/>
+<text x="200.0" y="194" text-anchor="middle">-1</text>
+<line x1="322.5" y1="70" x2="322.5" y2="180" stroke="#ddd"/>
+<text x="322.5" y="194" text-anchor="middle">-0.5</text>
+<line x1="445.0" y1="70" x2="445.0" y2="180" stroke="#ddd"/>
+<text x="445.0" y="194" text-anchor="middle">0</text>
+<line x1="567.5" y1="70" x2="567.5" y2="180" stroke="#ddd"/>
+<text x="567.5" y="194" text-anchor="middle">0.5</text>
+<line x1="690.0" y1="70" x2="690.0" y2="180" stroke="#ddd"/>
+<text x="690.0" y="194" text-anchor="middle">1</text>
+<text x="445.0" y="212" text-anchor="middle">Spearman with DFN Wh/kg at cycle 100</text>
+<circle cx="14" cy="48" r="5" fill="#adb5bd"/>
+<text x="23" y="52">raw cycle 10</text>
+<circle cx="132" cy="48" r="5" fill="#495057"/>
+<text x="141" y="52">5n sqrt fit</text>
+<circle cx="250" cy="48" r="5" fill="#d9480f"/>
+<text x="259" y="52">map, 5u law</text>
+<circle cx="368" cy="48" r="5" fill="#2a6fdb"/>
+<text x="377" y="52">map, corrected</text>
+<circle cx="486" cy="48" r="5" fill="#2f9e44"/>
+<text x="495" y="52">map, true loss</text>
+<circle cx="604" cy="48" r="5" fill="#ae3ec9"/>
+<text x="613" y="52">true loss ±10%</text>
+<text x="192" y="99.0" text-anchor="end">Ai2020@0.35x (n = 62)</text>
+<line x1="554.0552617662613" y1="95.0" x2="680.5111933721136" y2="95.0" stroke="#bbb"/>
+<circle cx="575.7" cy="95.0" r="5" fill="#adb5bd" fill-opacity="0.85"/>
+<circle cx="609.0" cy="95.0" r="5" fill="#495057" fill-opacity="0.85"/>
+<circle cx="594.5" cy="95.0" r="5" fill="#d9480f" fill-opacity="0.85"/>
+<circle cx="669.9" cy="95.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<circle cx="680.5" cy="95.0" r="5" fill="#2f9e44" fill-opacity="0.85"/>
+<circle cx="554.1" cy="95.0" r="5" fill="#ae3ec9" fill-opacity="0.85"/>
+<text x="192" y="129.0" text-anchor="end">Ai2020@0.45x (n = 63)</text>
+<line x1="589.4861391129033" y1="125.0" x2="681.0147849462365" y2="125.0" stroke="#bbb"/>
+<circle cx="661.6" cy="125.0" r="5" fill="#adb5bd" fill-opacity="0.85"/>
+<circle cx="596.5" cy="125.0" r="5" fill="#495057" fill-opacity="0.85"/>
+<circle cx="611.9" cy="125.0" r="5" fill="#d9480f" fill-opacity="0.85"/>
+<circle cx="679.1" cy="125.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<circle cx="681.0" cy="125.0" r="5" fill="#2f9e44" fill-opacity="0.85"/>
+<circle cx="589.5" cy="125.0" r="5" fill="#ae3ec9" fill-opacity="0.85"/>
+<text x="192" y="159.0" text-anchor="end">Ai2020@0.6x (n = 64)</text>
+<line x1="589.5544871794872" y1="155.0" x2="684.0320512820513" y2="155.0" stroke="#bbb"/>
+<circle cx="684.0" cy="155.0" r="5" fill="#adb5bd" fill-opacity="0.85"/>
+<circle cx="589.6" cy="155.0" r="5" fill="#495057" fill-opacity="0.85"/>
+<circle cx="645.0" cy="155.0" r="5" fill="#d9480f" fill-opacity="0.85"/>
+<circle cx="680.8" cy="155.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<circle cx="682.5" cy="155.0" r="5" fill="#2f9e44" fill-opacity="0.85"/>
+<circle cx="635.4" cy="155.0" r="5" fill="#ae3ec9" fill-opacity="0.85"/>
+</svg>

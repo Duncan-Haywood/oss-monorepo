@@ -7,7 +7,10 @@ const args = process.argv.slice(2);
 if (args.includes("--query")) { console.log(QUERY); process.exit(0); }
 const file = args.find((a) => !a.startsWith("--") && args[args.indexOf(a) - 1] !== "--min-mb");
 if (!file) { console.error("usage: node cli.mjs indexes.csv [--min-mb N] [--json]   |   node cli.mjs --query"); process.exit(2); }
-const mb = args.includes("--min-mb") ? Number(args[args.indexOf("--min-mb") + 1]) : 0;
+const mbRaw = args.includes("--min-mb") ? args[args.indexOf("--min-mb") + 1] : "0";
+const mb = mbRaw === undefined || mbRaw.trim() === "" ? NaN : Number(mbRaw);
+// An unreadable --min-mb is refused rather than read as 0, which would list every index.
+if (!Number.isFinite(mb) || mb < 0) { console.error(`--min-mb needs a size in MB of 0 or more, got ${JSON.stringify(mbRaw ?? "")}`); process.exit(2); }
 const n = normalizeRows(parseCsv(readFileSync(file, "utf8")));
 if (n.error) { console.error(n.error); process.exit(2); }
 const r = analyze(n.indexes, { minSize: mb > 0 ? mb * 1048576 : 0 });

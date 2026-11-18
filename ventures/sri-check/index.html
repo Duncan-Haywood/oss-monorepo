@@ -165,7 +165,7 @@
 
 <script type="module">
   import { extractCrossOriginAssets, buildReport, digestBase64, integrityValue } from './sri.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -197,7 +197,7 @@
       els.hashOutput.hidden = false;
       els.hashOutput.textContent = `integrity="${value}" crossorigin="anonymous"`;
       els.hashStatus.textContent = 'Paste that whole attribute pair onto your script or link tag.';
-      recordUsage(localStorage, optedOut(), 'hash_generated');
+      recordUsage(usageStorage(), optedOut(), 'hash_generated');
     } catch (err) {
       els.hashStatus.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
       els.hashOutput.hidden = true;
@@ -277,7 +277,7 @@
     }
     render(report);
     els.status.textContent = '';
-    recordUsage(localStorage, optedOut(), event);
+    recordUsage(usageStorage(), optedOut(), event);
   }
 
   $('#check').addEventListener('click', () => {
@@ -321,8 +321,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 </script>

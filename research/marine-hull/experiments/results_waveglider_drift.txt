@@ -1,0 +1,20 @@
+<= 300 km (pre-registered): 416 training hours; M0 constant 0.563 m/s; within-month b 0.218; M3 log u = -1.254 + 0.306 log Hs + +0.03454 day
+  h   n    MAE M0   M1     M2     M3    | M1/M0  M2/M1  M3/M0 | skill M1 over M0
+   6  761  0.135  0.034  0.035  35.857 | 0.249  1.033  265.516 | +0.751
+  24  761  0.135  0.048  0.047  35.857 | 0.354  0.991  265.516 | +0.646
+  72  761  0.135  0.054  0.052  35.857 | 0.400  0.968  265.516 | +0.600
+  block bootstrap (1-day blocks, 37 days, 2,000 resamples) at 24 h: M2/M1 95% 0.860 to 1.163; M1/M0 95% 0.294 to 0.422
+
+P1 M1/M0 at 24 h = 0.354: held (<= 0.85)
+P2 M2/M1 at 24 h = 0.991: refuted (<= 0.95)
+P3 M3/M0 at 24 h = 265.516: held (> 1)
+P4 within-month b (training) = 0.218: held (0.2 to 0.6)
+P5 M1 skill at 6/24/72 h = +0.751 / +0.646 / +0.600: held (strictly falling)
+
+Descriptive:
+  within-month b on all hours <= 300 km: 0.188; all distances: 0.248
+  <= 150 km: 307 training hours; M0 constant 0.474 m/s; within-month b 0.235; M3 log u = -1.441 + 0.501 log Hs + +0.04794 day
+  h   n    MAE M0   M1     M2     M3    | M1/M0  M2/M1  M3/M0 | skill M1 over M0
+   6  281  0.065  0.031  0.032  348.836 | 0.480  1.036  5403.868 | +0.520
+  24  281  0.065  0.049  0.055  348.836 | 0.766  1.104  5403.868 | +0.234
+  72  281  0.065  0.070  0.072  348.836 | 1.083  1.025  5403.868 | -0.083

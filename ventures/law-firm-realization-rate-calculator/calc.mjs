@@ -156,7 +156,7 @@ export function realization(input = {}) {
 
   // Value of one more point of realization, holding collection rate fixed: one
   // point of standard value, collected at today's collection rate.
-  const pointValue = round2(standard * 0.01 * firm.collection * annualFactor);
+  const pointValue = round2(standard * 0.01 * (billed > 0 ? collected / billed : 0) * annualFactor);
   const sensitivity = [1, 3, 5].map((points) => ({ points, annualValue: round2(pointValue * points) }));
 
   const days = periodMonths * (365 / 12);
@@ -210,7 +210,7 @@ function findings({ firm, ranked, topShare, lockup, annual }) {
   }
   const bigger = preBill >= post ? 'before the invoice goes out (pre-bill write-downs)' : 'after the invoice goes out (disputes, discounts and unpaid balances)';
   out.push(
-    `Of ${usd(firm.standardValue)} of recorded time, ${usd(firm.collected)} was collected: a ${pct(firm.yield)} yield. The larger half of the loss, ${usd(Math.max(preBill, post))}, happens ${bigger}.`,
+    `Of ${usd(firm.standardValue)} of recorded time, ${usd(firm.collected)} was collected: a ${pct(firm.yield)} yield. The larger part of the loss, ${usd(Math.max(preBill, post))}, happens ${bigger}.`,
   );
   out.push(`Annualised, the gap between standard value and cash is about ${usd(annual.leakage)}.`);
   if (ranked.length > 1 && ranked[0].leakage > 0) {

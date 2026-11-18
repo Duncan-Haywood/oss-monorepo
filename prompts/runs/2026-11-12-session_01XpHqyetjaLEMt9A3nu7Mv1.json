@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyetjaLEMt9A3nu7Mv1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T16:38:57Z",
+  "ended": "2026-11-12T16:46:41Z",
+  "wall_minutes": 8.14,
+  "tokens_in": 9783106,
+  "tokens_out": 37286,
+  "cost_usd": 3.875,
+  "tool_calls": 76,
+  "task": "Deepen (flagship 5) einvoice-preflight: repair of UAE BTAE-08 and MY ItemPriceExtension amounts",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15191",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "First venture-preflight run failed: the post's description was 175 characters (limit 160); shortened and reran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "The previous run's table counted 0/42 MY ItemPriceExtension seeds as 'not restored' and listed the repair as open work, but LHDN's samples tie that amount to nothing (100.00 on a 5,000.00 line), so it was never restorable. Reading the 26 samples first saved building the wrong repair."
+    },
+    {
+      "file": "ventures/einvoice-preflight/eval/repair-seeded.mjs",
+      "issue": "Seeds were written with toFixed(2), which destroys sub-cent precision (532.1645 seeded as 539.16). That made the AE subtotal misses look like a repair fault when they came from the measuring tool."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The listed item was 'repair UAE BTAE-08 and MY ItemPriceExtension amounts'. I repaired the UAE half. The MY half was declined because the data shows there is nothing to compute it from.",
+      "did": "Treated MY's amount as a fact, removed it from the seed set, and documented why.",
+      "result": "AE 286 to 380/386; MY honest denominator 300."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-uae-line-vat-the-repair-never-touched.md",
+    "ventures/einvoice-preflight/README.md (section 'UAE line VAT (BTAE-08) and line amount payable (BTAE-10)')"
+  ],
+  "goal": "Deepen flagship einvoice-preflight with a measured repair slice",
+  "notes": "Measured on phive-rules dfa902d (pint-ae 2026.5, pint-my 1.3.1, pint-om 1.0.1, zatca 3.4.6, aunz 1.1.3, sg 1.4.1, jp 1.1.3). Same seeds, old vs new repair-ubl.mjs: AE 286->380/386 (ItemPriceExtension 0->76/76); all other sets identical. --rules on AE: the repaired file drew a new rule id in 0/386. A seeded BTAE-10 is flagged by no check (0/40) and a seeded BTAE-08 by 11/36; that check is the next item. run_venture_tests.py einvoice-preflight: ok (12.7s). 7 of the 11 new tests fail on the old code.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "663bd3ff-fc8a-52af-ae26-3ff3468b5d4b",
+    "transcripts": 1,
+    "first": "2026-11-12T16:38:57Z",
+    "last": "2026-11-12T16:47:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 140,
+        "output": 37286,
+        "thinking": 6687,
+        "cache_read": 9632689,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150277,
+        "api_equivalent_usd": 3.875,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 140,
+      "output": 37286,
+      "thinking": 6687,
+      "cache_read": 9632689,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150277,
+      "api_equivalent_usd": 3.875,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 73,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.14,
+      "active_minutes": 8.14,
+      "model_minutes": 6.27,
+      "tool_minutes": 1.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an e-invoicing engineer reading the UAE rules and 32 examples, extending the repair, eval and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 154.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

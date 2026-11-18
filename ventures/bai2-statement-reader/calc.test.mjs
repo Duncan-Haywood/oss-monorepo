@@ -153,3 +153,8 @@ test("a file with no transaction records counts zero transactions, not an empty 
   const noDetail = sampleFile().split(/\r?\n/).filter((l) => !l.startsWith("16,") && !l.startsWith("88,")).join("\n");
   assert.equal(validate(noDetail).summary.transactions, 0);
 });
+
+test("an empty file still exports a header-only transaction CSV", () => {
+  // The empty-file early return once left summary.transactionList undefined, so transactionsCsv threw (red team 2026-11-17).
+  assert.equal(transactionsCsv(validate("")), "account,date,type_code,description,direction,amount,bank_reference,customer_reference,text\n");
+});

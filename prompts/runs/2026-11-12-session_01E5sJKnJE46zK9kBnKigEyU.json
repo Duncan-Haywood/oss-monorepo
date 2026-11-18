@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKnJE46zK9kBnKigEyU",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T02:19:13Z",
+  "ended": "2026-11-12T02:46:01Z",
+  "wall_minutes": 26.96,
+  "tokens_in": 3984531,
+  "tokens_out": 17472,
+  "cost_usd": 1.7554,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14976",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/pages-test-perf-2026-11-11-determinism-one-child.md",
+      "issue": "Its 'not changed' item 1 inferred the tail was ~300 small sequential tests; per-test TAP durations showed the tail was mostly one hidden in-process fixture build (81 s cold). The inference sent the next run toward a cross-process split that wasn't needed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-slow-test-was-a-hidden-build.md",
+    "docs/history/pages-test-perf-2026-11-12-hub-fixture-child.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of the CI 'Test the site builder' command (node --test \"*.test.mjs\" \"cloudflare/*.test.mjs\" in platform/pages), warm PAGES_CARD_CACHE, 4-core sandbox, bash time, after/before in turns x2. Before 206.2/201.0 s (mean 203.6), after 180.9/179.5 s (mean 180.2), -11.5%; user CPU 295.0 vs 296.3 s; 1554 pass / 0 fail every run. The /compare/ test fell from 30.8-32.2 s to 3-4 ms; the shared-build wait rose 78.7 to 87.5 s (contention). Pool reading: ci_profile.py --runs 600, Portfolio Pages 228.4 min, 'Test the site builder' 116.2 min. P063/P064 still owner-gated.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "90383a6b-557a-5793-8844-21db062f1672",
+    "transcripts": 1,
+    "first": "2026-11-12T02:19:13Z",
+    "last": "2026-11-12T02:46:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 94,
+        "output": 17472,
+        "thinking": 3122,
+        "cache_read": 3906395,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78042,
+        "api_equivalent_usd": 1.7554,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 94,
+      "output": 17472,
+      "thinking": 3122,
+      "cache_read": 3906395,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78042,
+      "api_equivalent_usd": 1.7554,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 2,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.96,
+      "active_minutes": 26.96,
+      "model_minutes": 4.48,
+      "tool_minutes": 22.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profiling a test suite, one refactor, two benchmark pairs, a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 170.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

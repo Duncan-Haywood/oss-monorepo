@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Sorted end energies of the 42 jersey cross-lattice transfers above the target lattice's lowest own seed, for milestone 3e's nearest-node rim fill and milestone 3f's affine rim extension">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Jersey transfers: energy above the target's lowest own seed</text>
+<line x1="64" x2="624" y1="322.7" y2="322.7" stroke="#ddd"/><text x="58" y="326.7" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="244.2" y2="244.2" stroke="#ddd"/><text x="58" y="248.2" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="165.7" y2="165.7" stroke="#ddd"/><text x="58" y="169.7" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="87.2" y2="87.2" stroke="#ddd"/><text x="58" y="91.2" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="146.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">7</text>
+<text x="227.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">13</text>
+<text x="309.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">19</text>
+<text x="391.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">25</text>
+<text x="473.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">31</text>
+<text x="555.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">37</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">transfer, sorted</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">energy above lowest own seed (1e-5 J)</text>
+<line x1="64" x2="624" y1="311.2" y2="311.2" stroke="#555" stroke-dasharray="4 3"/>
+<polyline points="64.0,324.0 77.7,323.8 91.3,323.1 105.0,322.9 118.6,322.5 132.3,322.5 146.0,322.4 159.6,321.9 173.3,320.6 186.9,320.0 200.6,319.3 214.2,318.5 227.9,318.3 241.6,318.1 255.2,317.9 268.9,317.5 282.5,317.5 296.2,317.2 309.9,316.4 323.5,316.4 337.2,315.9 350.8,315.8 364.5,315.2 378.1,314.7 391.8,301.3 405.5,292.3 419.1,291.4 432.8,289.0 446.4,268.3 460.1,267.1 473.8,257.5 487.4,255.2 501.1,250.0 514.7,242.8 528.4,239.6 542.0,200.9 555.7,188.6 569.4,188.3 583.0,174.7 596.7,172.2 610.3,117.6 624.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="77.7" cy="323.8" r="3" fill="#c0392b"/>
+<circle cx="91.3" cy="323.1" r="3" fill="#c0392b"/>
+<circle cx="105.0" cy="322.9" r="3" fill="#c0392b"/>
+<circle cx="118.6" cy="322.5" r="3" fill="#c0392b"/>
+<circle cx="132.3" cy="322.5" r="3" fill="#c0392b"/>
+<circle cx="146.0" cy="322.4" r="3" fill="#c0392b"/>
+<circle cx="159.6" cy="321.9" r="3" fill="#c0392b"/>
+<circle cx="173.3" cy="320.6" r="3" fill="#c0392b"/>
+<circle cx="186.9" cy="320.0" r="3" fill="#c0392b"/>
+<circle cx="200.6" cy="319.3" r="3" fill="#c0392b"/>
+<circle cx="214.2" cy="318.5" r="3" fill="#c0392b"/>
+<circle cx="227.9" cy="318.3" r="3" fill="#c0392b"/>
+<circle cx="241.6" cy="318.1" r="3" fill="#c0392b"/>
+<circle cx="255.2" cy="317.9" r="3" fill="#c0392b"/>
+<circle cx="268.9" cy="317.5" r="3" fill="#c0392b"/>
+<circle cx="282.5" cy="317.5" r="3" fill="#c0392b"/>
+<circle cx="296.2" cy="317.2" r="3" fill="#c0392b"/>
+<circle cx="309.9" cy="316.4" r="3" fill="#c0392b"/>
+<circle cx="323.5" cy="316.4" r="3" fill="#c0392b"/>
+<circle cx="337.2" cy="315.9" r="3" fill="#c0392b"/>
+<circle cx="350.8" cy="315.8" r="3" fill="#c0392b"/>
+<circle cx="364.5" cy="315.2" r="3" fill="#c0392b"/>
+<circle cx="378.1" cy="314.7" r="3" fill="#c0392b"/>
+<circle cx="391.8" cy="301.3" r="3" fill="#c0392b"/>
+<circle cx="405.5" cy="292.3" r="3" fill="#c0392b"/>
+<circle cx="419.1" cy="291.4" r="3" fill="#c0392b"/>
+<circle cx="432.8" cy="289.0" r="3" fill="#c0392b"/>
+<circle cx="446.4" cy="268.3" r="3" fill="#c0392b"/>
+<circle cx="460.1" cy="267.1" r="3" fill="#c0392b"/>
+<circle cx="473.8" cy="257.5" r="3" fill="#c0392b"/>
+<circle cx="487.4" cy="255.2" r="3" fill="#c0392b"/>
+<circle cx="501.1" cy="250.0" r="3" fill="#c0392b"/>
+<circle cx="514.7" cy="242.8" r="3" fill="#c0392b"/>
+<circle cx="528.4" cy="239.6" r="3" fill="#c0392b"/>
+<circle cx="542.0" cy="200.9" r="3" fill="#c0392b"/>
+<circle cx="555.7" cy="188.6" r="3" fill="#c0392b"/>
+<circle cx="569.4" cy="188.3" r="3" fill="#c0392b"/>
+<circle cx="583.0" cy="174.7" r="3" fill="#c0392b"/>
+<circle cx="596.7" cy="172.2" r="3" fill="#c0392b"/>
+<circle cx="610.3" cy="117.6" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">3e nearest-node rim fill</text>
+<polyline points="64.0,323.9 77.7,323.5 91.3,322.4 105.0,322.3 118.6,322.0 132.3,321.7 146.0,321.1 159.6,320.8 173.3,320.7 186.9,320.1 200.6,320.0 214.2,319.9 227.9,319.7 241.6,319.2 255.2,319.2 268.9,319.2 282.5,319.0 296.2,319.0 309.9,318.8 323.5,318.8 337.2,318.7 350.8,318.6 364.5,318.6 378.1,318.5 391.8,318.4 405.5,318.1 419.1,318.1 432.8,317.6 446.4,317.2 460.1,317.2 473.8,317.0 487.4,317.0 501.1,316.8 514.7,316.6 528.4,316.6 542.0,316.5 555.7,316.5 569.4,316.4 583.0,315.8 596.7,315.3 610.3,315.0 624.0,313.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="323.9" r="3" fill="#1f6fb2"/>
+<circle cx="77.7" cy="323.5" r="3" fill="#1f6fb2"/>
+<circle cx="91.3" cy="322.4" r="3" fill="#1f6fb2"/>
+<circle cx="105.0" cy="322.3" r="3" fill="#1f6fb2"/>
+<circle cx="118.6" cy="322.0" r="3" fill="#1f6fb2"/>
+<circle cx="132.3" cy="321.7" r="3" fill="#1f6fb2"/>
+<circle cx="146.0" cy="321.1" r="3" fill="#1f6fb2"/>
+<circle cx="159.6" cy="320.8" r="3" fill="#1f6fb2"/>
+<circle cx="173.3" cy="320.7" r="3" fill="#1f6fb2"/>
+<circle cx="186.9" cy="320.1" r="3" fill="#1f6fb2"/>
+<circle cx="200.6" cy="320.0" r="3" fill="#1f6fb2"/>
+<circle cx="214.2" cy="319.9" r="3" fill="#1f6fb2"/>
+<circle cx="227.9" cy="319.7" r="3" fill="#1f6fb2"/>
+<circle cx="241.6" cy="319.2" r="3" fill="#1f6fb2"/>
+<circle cx="255.2" cy="319.2" r="3" fill="#1f6fb2"/>
+<circle cx="268.9" cy="319.2" r="3" fill="#1f6fb2"/>
+<circle cx="282.5" cy="319.0" r="3" fill="#1f6fb2"/>
+<circle cx="296.2" cy="319.0" r="3" fill="#1f6fb2"/>
+<circle cx="309.9" cy="318.8" r="3" fill="#1f6fb2"/>
+<circle cx="323.5" cy="318.8" r="3" fill="#1f6fb2"/>
+<circle cx="337.2" cy="318.7" r="3" fill="#1f6fb2"/>
+<circle cx="350.8" cy="318.6" r="3" fill="#1f6fb2"/>
+<circle cx="364.5" cy="318.6" r="3" fill="#1f6fb2"/>
+<circle cx="378.1" cy="318.5" r="3" fill="#1f6fb2"/>
+<circle cx="391.8" cy="318.4" r="3" fill="#1f6fb2"/>
+<circle cx="405.5" cy="318.1" r="3" fill="#1f6fb2"/>
+<circle cx="419.1" cy="318.1" r="3" fill="#1f6fb2"/>
+<circle cx="432.8" cy="317.6" r="3" fill="#1f6fb2"/>
+<circle cx="446.4" cy="317.2" r="3" fill="#1f6fb2"/>
+<circle cx="460.1" cy="317.2" r="3" fill="#1f6fb2"/>
+<circle cx="473.8" cy="317.0" r="3" fill="#1f6fb2"/>
+<circle cx="487.4" cy="317.0" r="3" fill="#1f6fb2"/>
+<circle cx="501.1" cy="316.8" r="3" fill="#1f6fb2"/>
+<circle cx="514.7" cy="316.6" r="3" fill="#1f6fb2"/>
+<circle cx="528.4" cy="316.6" r="3" fill="#1f6fb2"/>
+<circle cx="542.0" cy="316.5" r="3" fill="#1f6fb2"/>
+<circle cx="555.7" cy="316.5" r="3" fill="#1f6fb2"/>
+<circle cx="569.4" cy="316.4" r="3" fill="#1f6fb2"/>
+<circle cx="583.0" cy="315.8" r="3" fill="#1f6fb2"/>
+<circle cx="596.7" cy="315.3" r="3" fill="#1f6fb2"/>
+<circle cx="610.3" cy="315.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="313.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">3f affine rim extension</text>
+</svg>

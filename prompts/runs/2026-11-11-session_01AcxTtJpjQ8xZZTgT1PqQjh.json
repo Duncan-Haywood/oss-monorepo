@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJpjQ8xZZTgT1PqQjh",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T23:07:11Z",
+  "ended": "2026-11-11T23:30:35Z",
+  "wall_minutes": 23.77,
+  "tokens_in": 13304226,
+  "tokens_out": 99315,
+  "cost_usd": 6.1473,
+  "tool_calls": 93,
+  "task": "Explore: new venture gitignore-explainer",
+  "projects": [
+    "gitignore-explainer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14926",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 37,
+  "outcome": "success",
+  "errors": [
+    "The CLI's main-module check (argv[1].endsWith('check.mjs')) also fired when another script ending in check.mjs imported it. Replaced it with a fileURLToPath comparison.",
+    "My first per-rule tally ignored the directory a nested .gitignore covers. The resolver was right, but 'never decides' findings were wrong. Found by checking this repo's report by hand; fixed with a base check in ruleMatches.",
+    "The guide's 'before' git output came from a 4-line file while the page shows 2 lines (line numbers off by one). page.test.mjs, which recomputes the output with the engine, caught it before commit.",
+    "The first remove-each-rule effect pass was rules x paths: 118 s on this repo. Restricted it to the paths each rule can change: 2.3 s.",
+    "sibling-links CI: a new tool needs an inbound link from a sibling; added one from codeowners-shadow-check with a page test.",
+    "CI (git 2.56) failed the differential test that passed on the container's git 2.43. Git 2.52.0 changed match_pathname to keep one prefix character, which undid the a** quirk the engine had copied. Found the release by fetching dir.c at each tag. Added git: modern|legacy; the test and CLI pick the mode from git --version, and the page has a switch."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud-session note says venture suites can outlast 120 s; the platform/pages suite needed run_in_background, as expected. No problem, but the platform/pages command (node --test platform/pages/*.test.mjs) isn't named next to run_venture_tests.py, so I had to guess it."
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Nothing says a new venture must be registered in platform/pages/build.mjs CATEGORY_RULES, launched.json and the optout-persistence SWITCHES count; I learned it from the previous venture commit's diff. A one-line pointer would save the lookup."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The container's git (2.43) is nine minor versions behind CI's (2.56), and nothing says so. A tool whose tests compare against git passed locally and failed in CI for that reason alone."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "main was red on validate: changepoint-detector next: was 2,220 characters after #14922 (cap 2,000), failing every PR.",
+      "did": "Condensed the entry on this branch; a parallel run fixed it on main first, so the merge took main's version.",
+      "result": "Superseded: validate passes on main's version; this PR leaves flagships.yaml unchanged."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-a-gitignore-rule-git-never-reads.md",
+    "ventures/gitignore-explainer/README.md",
+    "ventures/gitignore-explainer/why-gitignore-negation-does-not-work.html"
+  ],
+  "goal": "Ship a developer tool that explains .gitignore resolution exactly as git does, and verify it against git rather than the docs.",
+  "notes": "Idea: a .gitignore explainer (deciding rule per path, blocked negations with a fix re-checked against the list, tracked-but-ignored files, shadowed/redundant rules, lint). Verified: a differential test against git check-ignore --no-index -v on random repos (4,000 repos and 63,578 paths on the final engine, every path agrees; it found git's literal-prefix step where /a**/x lets ** cross folders). This repo's 73 ignore files over 63,639 tracked paths and folders: 0 disagreements. Suggested fixes applied in git: 1,294 over 8,000 repos, all as reported (1,142 complete, 1,219 with no side effects). Venture tests 34 + 3 pass; Chromium at 1100 and 390 px: no console errors, no overflow; clauses.mjs ok; optout-persistence 20/20; post checks clean. No AI, no network. Next: a GitHub Action around --strict. Version finding: git <=2.51 and >=2.52 differ on ** glued to literal text after an anchored prefix (dir.c 'Retain one character of the prefix', first in v2.52.0); the engine supports both. The legacy mode is checked locally (git 2.43), the modern mode by CI (git 2.56).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dc158978-0f81-553c-9e54-508b1547f321",
+    "transcripts": 1,
+    "first": "2026-11-11T23:07:11Z",
+    "last": "2026-11-11T23:30:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 168,
+        "output": 99315,
+        "thinking": 27274,
+        "cache_read": 13111815,
+        "cache_write_5m": 0,
+        "cache_write_1h": 192243,
+        "api_equivalent_usd": 6.1473,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 168,
+      "output": 99315,
+      "thinking": 27274,
+      "cache_read": 13111815,
+      "cache_write_5m": 0,
+      "cache_write_1h": 192243,
+      "api_equivalent_usd": 6.1473,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 93,
+    "tools": {
+      "Bash": 84,
+      "Write": 6,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.77,
+      "active_minutes": 23.77,
+      "model_minutes": 16.69,
+      "tool_minutes": 7.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior engineer: git ignore semantics port + differential test harness, fix generator, CLI, page, guide, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 390.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

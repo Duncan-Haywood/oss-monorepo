@@ -10,7 +10,7 @@ import { deployableApps } from './catalog.mjs';
 import { withSiteHeader } from '../pages/site-nav.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PAGE_FILES = ['index.html', 'app.mjs', 'compose.mjs', 'sealedbox.mjs', 'zip.mjs'];
+const PAGE_FILES = ['index.html', 'app.mjs', 'compose.mjs', 'publish.mjs', 'sealedbox.mjs', 'zip.mjs'];
 const VENDOR = ['nacl-fast.mjs', 'blake2b.mjs', 'TWEETNACL-LICENSE', 'BLAKEJS-LICENSE'];
 
 async function readTree(dir, prefix = '') {
@@ -54,6 +54,9 @@ export async function build(out) {
     path.join(out, 'catalog.json'),
     JSON.stringify(apps.map(({ slug, title, description, serverFiles }) => ({ slug, title, description, ...(serverFiles ? { server: true } : {}) }))),
   );
+  // Apps over the limits are not in the picker; the page lists them so a visitor
+  // knows why (audit 2026-11-07: they used to vanish silently).
+  await fs.writeFile(path.join(out, 'skipped.json'), JSON.stringify(skipped));
   return { apps: apps.length, skipped };
 }
 

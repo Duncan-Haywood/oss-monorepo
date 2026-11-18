@@ -87,7 +87,7 @@ export function snap(price, ending = ".99") {
   return round2(base < 1 ? e : (base > price + 1e-9 ? base - 1 : base));
 }
 
-const defuse = s => /^[=+\-@\t\r]/.test(String(s)) ? "'" + s : String(s);
+const defuse = s => /^[=+\-@\t\r]/.test(String(s)) && !/^-?\d+(\.\d+)?$/.test(String(s)) ? "'" + s : String(s);
 export function priceCsv(r) {
   return ["price,sales,profit_per_piece,revenue_ex_vat,profit", ...r.table.map(t => [t.price, Math.round(t.sales * 10) / 10, t.perPiece, t.revenue, t.profit].map(defuse).join(","))].join("\n") + "\n";
 }

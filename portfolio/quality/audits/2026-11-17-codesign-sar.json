@@ -1,0 +1,260 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/codesign-sar",
+ "stratum": "research",
+ "seed": "2026-11-17-5eee",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a robotics researcher in brain-body co-design (morphology plus controller optimisation, e.g. Ha 2019, Schaff et al. 2019, RoboGrammar) who also knows field-rover terramechanics (Wong, Theory of Ground Vehicles); first checks: does the per-design controller optimisation actually optimise, does the step-climbing statics hold, and are the optimiser comparisons on a non-degenerate problem",
+ "scores": {
+  "correctness": 1,
+  "completeness": 2,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Arithmetic and statics reproduce; the headline does not. Independent script (/tmp/claude-0/audit-codesign-sar/indep.py, run with -I, no subject import): best design [90,120,150,0.5,5] costs 69.24 USD, 2.103 kg (README 69 USD, 2.10 kg); edge-contact step limit solved as a 2x2 free-body system (Wong-style) gives 17.0/28.0/40.0/53.0/80.5 mm at T 0.3/0.4/0.5/0.6/1.0 N m, mu 0.9, matching the subject's _climb_ok (17.0/28.15/40.45/53.0/80.55). But the 'ceiling' J = 0.783 is an artefact: train_policy (sar.py:148-168) returned its starting point (0.6, 0.4, 0.4) in 2,246 of 2,417 feasible evaluations in results.json and in all 40 agent evaluations, because the approach speed that matters (about 1.42 m/s to carry a 31 mm step on the 0.3 kinetic-energy rule) is 3+ sigma from the start. A 15x15 grid over the same policy parameters chosen on the six TRAINING terrains (no test-set selection) lifts [90,320,0,0.6,5] (73.7 USD, feasible) to test J 0.862, 17.42 m (/tmp/claude-0/audit-codesign-sar/policy2.py), above every evaluation in the study (max 0.7828). Short-wheelbase designs fall at that speed (L=120: J 0.092), so wheelbase does matter. Also the momentum rule lets a 25 mm wheel cross a 30 mm step (sar.py:93).",
+  "completeness": "experiments/run.py regenerates results.txt byte-identically (diff empty) in 46 s on 4 cores (README says about 12 s); 8 unittest tests pass as README states; figure.py present. Not done but admitted: PPO/physics engine, stairs (PROJECTS.md milestone 3 says 'rubble and stairs'), real BOM. Claimed but effectively not working: 'Each design gets its own trained speed-and-flipper policy' (README:3): 93% of feasible evaluations and 100% of agent ones used the same untrained default policy.",
+  "verification": "`PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests`: Ran 8 tests OK. Seven mutants via platform/ci/quality_mutate.py: 5 survived (tip-forward threshold doubled at sar.py:104; policy update disabled `if False:` at sar.py:165; statics f/s -> f*s at sar.py:54; terrain step-up share 25% -> 10% at sar.py:65; climb torque doubled at sar.py:93), 2 caught (h >= R -> h > R at sar.py:47; fixed cost 25 -> 5 at sar.py:26). Tests check monotonicity and the cost cap, never a pinned J, a pinned policy or that training improves on its start.",
+  "craft": "Read sar.py, optimisers.py, run.py, test_sar.py, proposals/round1-4.json. Compact and readable, stdlib core, deterministic seeds. Defects: train_policy has no check that it ever moves from its start and the result is never logged as such; the momentum rule is OR-ed after the h >= R geometric guard so it overrides it (sar.py:93); the tip-back branch (sar.py:96-99) is unreachable for every design in the box (needs h > 85 mm at L = 120 mm, terrain steps are at most 40 mm); magic constants (exp(-4h), +50% tip margin with flipper, 4 W electronics) uncited; 'falls' is decremented on recovery so the field is net, not a count; unit test file named test_sar.py but run with unittest while README tells pyenv to install pytest.",
+  "claims": "Backed: all README headline numbers trace to experiments/results.txt (medians 0.782/0.782/0.783/0.716, evaluations-to-0.78 of 10/18/30/2 with 20/18/3 seeds reaching, 0 of 20 seeds beat 0.783, best design 69 USD 2.10 kg 16.0 m); AI assistance, unsourced BOM, agent's calibration prior and 'simulation is not a safety case' are stated; served page https://marisstella.app/research/codesign-sar/ (HTTP 200) shows the same numbers. Not backed: README:23 'identical-physics designs can differ by up to 0.09 in J through the policy found ([90,180,0,0.5,8] 0.689 vs [90,120,0,0.5,5] 0.783)' is false: both used the identical policy (0.6,0.4,0.4); the gap is physics (more mass at the 40.45 mm torque-limited step). README:10 'almost one-dimensional ... wheelbase did not change J' and the 0.783 'ceiling' come from the inert policy search. README:14 'the tip-over and recovery path never fired' is contradicted by results.json: 3 baseline evaluations logged recoveries 1.08-1.75.",
+  "fitness": "A researcher can rerun everything in under a minute, but would build on an optimiser comparison over a degenerate problem whose controller loop does not optimise. Nearest prior work: Ha (2019) 'Reinforcement learning for improving agent design', Schaff et al. (2019) joint design-and-control RL, RoboGrammar (Zhao et al. 2020), Transform2Act (Yuan et al. 2022), and for LLM proposers Lehman et al. (2022, ELM) and RoboMorph/Text2Robot (2024); the README cites Ha, RoboGrammar and Lehman. Those works co-optimise a controller that demonstrably adapts to the body; here the controller is the same default for 93% of bodies, so the central co-design question is not tested, and 'agent vs CMA-ES vs BO' at a shared ceiling is not distinguishable (as the README itself says). Not new, not sound at the publishable bar of research/CLAUDE.md.",
+  "domain": "Statics are right: the edge-contact condition P cot(phi) + f/sin(phi) >= W with friction limit f <= mu P/(sin - mu cos) matches an independent free-body solve and the textbook result that a pushed wheel cannot climb h >= R. A co-design practitioner would reject the rest: (a) a controller search that never leaves its initial guess cannot measure body-controller coupling; (b) the kinetic-energy rule crosses steps taller than the wheel (a 25 mm wheel clears a 30 mm step at 1.5 m/s); (c) tip-back is geometrically impossible on this terrain, so 'falls' never firing is built into the model, not only the terrain, and the proposed fix (taller drops) barely moves the drop rule (exp(-4h) changes 15% over 40 mm); (d) 'torque per wheel' is used against axle load with one motor per axle costed, so T is really per-axle torque."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Cost and mass of the best design [90,120,150,0.5,5]",
+   "method": "hand arithmetic from the README bill-of-materials prices and plastic geometry",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-codesign-sar/indep.py",
+   "expected": "69 USD, 2.10 kg (README, results.txt)",
+   "observed": "plastic 819.8 g, 69.24 USD, 2.103 kg",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Torque-limited step-climbing height at R = 90 mm, W = 10.32 N",
+   "method": "independent free-body solve of edge-contact equilibrium (Wong, Theory of Ground Vehicles lineage): 2x2 linear system for normal and tractive force, feasible if f <= T/R and f <= mu N",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-codesign-sar/indep.py ; cd research/codesign-sar && /usr/bin/python3.13 /tmp/claude-0/audit-codesign-sar/subj.py",
+   "expected": "17.0/28.0/40.0/53.0/80.5 mm at T 0.3/0.4/0.5/0.6/1.0, mu 0.9",
+   "observed": "subject _climb_ok 17.0/28.15/40.45/53.0/80.55 mm",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Momentum step limit and the h >= R guard",
+   "method": "energy balance h = 0.3 v^2/(2g) and the geometric limit that a wheel cannot roll onto a step at least its radius",
+   "command": "cd research/codesign-sar && /usr/bin/python3.13 /tmp/claude-0/audit-codesign-sar/subj.py",
+   "expected": "34.4 mm at 1.5 m/s, but never above R: a 25 mm wheel stuck at a 30 mm step",
+   "observed": "R=25 mm, 30 mm step, vo=1.5: distance 20.0 m, stuck 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Is J = 0.783 a ceiling for the stated policy class?",
+   "method": "own 15x15 grid over (v_cruise, v_obs) picked on the 6 training terrains (seeds 100-105), then scored on the 12 test terrains, same objective",
+   "command": "cd research/codesign-sar && /usr/bin/python3.13 /tmp/claude-0/audit-codesign-sar/policy2.py",
+   "expected": "no design above 0.783 if it is a ceiling",
+   "observed": "[90,320,0,0.6,5]: test J 0.8624, 17.42 m, 0 falls (train value 16.58 vs 15.25 for the default policy)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Per-design policy training actually trains",
+   "method": "count trained policies in results.json",
+   "command": "cd research/codesign-sar && /usr/bin/python3.13 /tmp/claude-0/audit-codesign-sar/policy2.py",
+   "expected": "policies vary by design",
+   "observed": "(0.6, 0.4, 0.4), the ES start point, in 2,246 of 2,417 feasible evaluations and all 40 agent evaluations",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "J at 16.0 m mean distance",
+   "method": "objective by hand: 16/20 - 0.002 x 8.5 J/m",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-codesign-sar/indep.py",
+   "expected": "0.783",
+   "observed": "0.783",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Experiment reproduces",
+   "method": "rerun in a scratch copy and diff",
+   "command": "cd /tmp/claude-0/audit-codesign-sar/copy && /usr/bin/python3.13 experiments/run.py && diff results.orig.txt experiments/results.txt",
+   "expected": "identical results.txt, about 12 s",
+   "observed": "identical; 46 s wall on 4 cores",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run it",
+   "command": "cd research/codesign-sar && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests",
+   "expected": "8 tests pass (README)",
+   "observed": "Ran 8 tests OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:23 policy-noise explanation of 0.689 vs 0.783",
+   "method": "read the stored policies for those two agent designs in results.json",
+   "command": "cd research/codesign-sar && /usr/bin/python3.13 /tmp/claude-0/audit-codesign-sar/policy2.py",
+   "expected": "different policies for the two designs",
+   "observed": "both (0.6, 0.4, 0.4); difference is mass at a torque-limited 40 mm step",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:14 recovery path never fired",
+   "method": "scan results.json for recoveries > 0",
+   "command": "cd /tmp/claude-0/audit-codesign-sar/copy && /usr/bin/python3.13 -c \"import json;r=json.load(open('experiments/results.json'));a=r['agent']+[x for v in r['baseline_evals'].values() for s in v for x in s];print(sum(x.get('recoveries',0)>0 for x in a))\"",
+   "expected": "0",
+   "observed": "3 evaluations with recoveries 1.08-1.75",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline medians, evaluations-to-0.78 and best design",
+   "method": "compare README lines 10-13 to experiments/results.txt",
+   "command": "cat research/codesign-sar/experiments/results.txt",
+   "expected": "0.782/0.782/0.783/0.716; 10/18/30/2; 69 USD",
+   "observed": "all match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page matches README",
+   "method": "load the live page",
+   "command": "curl -sS https://marisstella.app/research/codesign-sar/",
+   "expected": "HTTP 200, same numbers",
+   "observed": "200; 0.782/0.783 present",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Tip-back rule reachable on this terrain",
+   "method": "geometry: pitch asin(h/L) must exceed atan((L/2)/hc), hc = 60 mm",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/audit-codesign-sar/indep.py",
+   "expected": "some step in 10-40 mm can tip some design",
+   "observed": "needs h > 85 mm at L = 120 mm, 171 mm at 200, 300 mm at 320: never",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/codesign_sar/sar.py:165",
+   "change": "if cand[0][0] > best[0]: -> if False: (policy training disabled)",
+   "caught": false,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/codesign_sar/sar.py:54",
+   "change": "P * c / s + f / s >= W -> P * c / s + f * s >= W",
+   "caught": false,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/codesign_sar/sar.py:93",
+   "change": "_climb_ok(R, h, W, P, T, mu) -> _climb_ok(R, h, W, P, 2 * T, mu)",
+   "caught": false,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/codesign_sar/sar.py:104",
+   "change": "if vo > v_fall: -> if vo > 2 * v_fall:",
+   "caught": false,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/codesign_sar/sar.py:65",
+   "change": "elif u < 0.75: -> elif u < 0.6:",
+   "caught": false,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/codesign_sar/sar.py:47",
+   "change": "if h >= R -> if h > R",
+   "caught": true,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/codesign_sar/sar.py:26",
+   "change": "0.35 * B + 25.0 -> 0.35 * B + 5.0",
+   "caught": true,
+   "test_cmd": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src /usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Per-design policy search is inert: train_policy returns its start (0.6, 0.4, 0.4) in 2,246 of 2,417 feasible evaluations and all 40 agent ones; a training-terrain grid over the same policy class gives test J 0.862 for [90,320,0,0.6,5], so the 0.783 'ceiling', the 'one-dimensional problem' and the optimiser ranking rest on an untrained controller",
+   "where": "research/codesign-sar/src/codesign_sar/sar.py:148",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "README attributes the 0.689 vs 0.783 gap to policy-search noise between 'identical-physics' designs; both used the identical default policy and the designs differ in mass at a torque-limited 40 mm step",
+   "where": "research/codesign-sar/README.md:23",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "'Wheelbase, flipper length and battery size did not change J' and the 0.783 ceiling are artefacts of the inert policy: with a high approach speed long-wheelbase designs reach 0.862 and short ones tip (0.092)",
+   "where": "research/codesign-sar/README.md:10",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Kinetic-energy rule is OR-ed after the h >= R guard, so a 25 mm wheel crosses a 30 mm step at 1.5 m/s",
+   "where": "research/codesign-sar/src/codesign_sar/sar.py:93",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tip-back can never fire for any design in the box (needs a step over 85 mm; terrain max 40 mm), so zero falls is built into the model; README blames only the terrain and proposes taller drops, which the exp(-4h) drop rule barely responds to",
+   "where": "research/codesign-sar/src/codesign_sar/sar.py:96",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "5 of 7 seeded bugs in core logic survive, including disabling policy training; no test pins a J, a policy, or that training improves on its start",
+   "where": "research/codesign-sar/tests/test_sar.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'The tip-over and recovery path never fired' is contradicted by results.json: 3 baseline evaluations logged recoveries of 1.08-1.75",
+   "where": "research/codesign-sar/README.md:14",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17046"
+  },
+  {
+   "severity": "low",
+   "what": "T is described as torque per wheel but traction T/R is set against per-axle load with one motor costed per axle, so the model's T is per-axle torque",
+   "where": "research/codesign-sar/README.md:20",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Runtime 'about 12 s' measured at 46 s on 4 cores",
+   "where": "research/codesign-sar/README.md:26",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17046"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17046"],
+ "verdict": "A tidy, byte-reproducible stylised study with honest caveats (AI assistance, unsourced BOM, agent calibration prior, simulation not a safety case) and step-climbing statics that match an independent free-body solve. But its central mechanism, a per-design trained controller, does not train: the evolution-strategies search returns its initial guess for 93% of feasible designs and every agent design, so the reported 0.783 ceiling, the 'one-dimensional' design space and the 'policy noise' explanation are artefacts; choosing the same three policy numbers on the training terrains alone gives J 0.862 with a long wheelbase. Five of seven seeded bugs survive the tests. Below the bar on correctness, claims and verification; the optimiser comparison should be rerun after the policy search is fixed."
+}

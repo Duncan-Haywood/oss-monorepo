@@ -23,6 +23,6 @@
     {"severity": "medium", "what": "expires-before-date ignores s-maxage precedence for shared caches and fires on responses where Expires is not what a shared cache uses; parseCacheControl mis-splits quoted values containing commas.", "where": "ventures/cache-control-check/analyze.mjs:121 ; analyze.mjs:36"},
     {"severity": "low", "what": "Stale hosting URLs: probe User-Agent and llms.txt point at duncan-haywood.github.io, production is marisstella.app; --timeout garbage silently falls back to the default; main-guard breaks on paths with spaces.", "where": "ventures/cache-control-check/probe.mjs:17 ; llms.txt:9 ; check.mjs:97"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14648"],
   "verdict": "A small, honest, fully working tool: every README feature ran, 75 tests pass and caught a seeded off-by-one in the Expires/Date comparison. It is held below the bar by correctness and claims: of the two findings it labels DANGER, one fires on a response that is safe (public + no-store + Set-Cookie) and the other is described more strongly than RFC 9111 s4.1/4.3 supports (Vary: * blocks matching, but validated reuse is allowed). The suite pins the false positive instead of catching it. A CDN engineer would use the notices and the diagnostic page, and distrust the exit code. Scores are before any fix."
 }

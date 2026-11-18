@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01XpHqyg6Bg2DD8XH2g1THTh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T20:38:03Z",
+  "ended": "2026-11-11T20:49:17Z",
+  "wall_minutes": 11.6,
+  "tokens_in": 4319873,
+  "tokens_out": 32945,
+  "cost_usd": 2.4515,
+  "tool_calls": 41,
+  "task": "sensing-selfcal milestone 5: bend-aware Zhang reference and k2 lens term on real images",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14882",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "circular import when importing experiments/m5_lens/run.py from a diagnostic snippet (both experiment dirs name their script run.py)",
+      "fix": "inlined the snippet"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "milestone 1 compared OpenCV's per-point reprojection rms (0.42 px) with the target-free per-coordinate rms (0.26 px) and called it about 40% lower",
+      "fix": "corrected in README, project.json and LOG (per coordinate 0.30 vs 0.26, 13-15% lower)"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/pyenv.py",
+      "issue": "`pyenv.py -r research/sensing-selfcal/requirements.txt` turned the import name into `pip install cv2` (no such package) for opencv-python-headless; installed directly with /usr/bin/python3.13 -m pip instead"
+    },
+    {
+      "file": "research/sensing-selfcal/experiments/*/run.py",
+      "issue": "every milestone names its script run.py and imports m1_real/run.py as `run`, so importing one milestone's run.py from another collides; a shared loader module would avoid it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/PROPOSAL.md",
+      "why": "took milestone 5 before 3b and 4: it needed no new data (3b's data hosts are often proxy-blocked) and answered two open suspects from milestones 1 and 3",
+      "did": "pre-registered H11-H13 in LOG.md, ran on the existing 26 photos",
+      "result": "three hypotheses scored; one (H11) turned out degenerate because the released-object fit equals target-free BA, reported as such"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "main went red (portfolio-validate: VENTURE schema and test_allocate) after #14883 and #14879 pushed shift-roster-builder and quick-pick-survey `next:` over the 2000-character cap; every PR that triggers portfolio-validate would fail",
+      "did": "trimmed detail that the text itself says lives in the venture READMEs, kept every open next item",
+      "result": "validate.py and test_allocate pass locally"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-the-flat-checkerboard-moves-the-principal-point.md",
+    "research/sensing-selfcal/LOG.md (milestone 5 plan and result)"
+  ],
+  "goal": null,
+  "notes": "Checks run locally: pytest research/sensing-selfcal/tests 12 passed; research/_homepage/build.py ok; research_live_links.py --write; check_md_links ok; check_post_frontmatter ok; programme_check ok; cite_check found 0 DOIs in README (citations remain unchecked as in PROPOSAL). Experiment: 4 all-view fits x 2 lens models x 2 cameras plus 560 k1+k2 subset solves, all converged, ~4 min on 4 cores. run_workflow_locally --for-changes: portfolio-pages site-builder steps hit the local 300 s budget (not a failure of the diff); portfolio-validate failed on main's flagships.yaml caps, fixed in this PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1ae8b5ce-4ca4-5ce2-bcaa-9714cc9b849e",
+    "transcripts": 1,
+    "first": "2026-11-11T20:38:03Z",
+    "last": "2026-11-11T20:49:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 76,
+        "output": 32945,
+        "thinking": 6256,
+        "cache_read": 4200779,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119018,
+        "api_equivalent_usd": 2.4515,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 76,
+      "output": 32945,
+      "thinking": 6256,
+      "cache_read": 4200779,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119018,
+      "api_equivalent_usd": 2.4515,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.6,
+      "active_minutes": 11.6,
+      "model_minutes": 5.17,
+      "tool_minutes": 6.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a researcher re-running a calibration study with a new reference, a lens-model sweep and a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 407.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -45,7 +45,7 @@ test('reports no CAA record anywhere when the walk reaches the top with nothing'
   assert.equal(r.records.length, 0);
 });
 
-test('follows a single CNAME hop before walking for CAA', async () => {
+test('a CNAME target with its own CAA set governs the aliased name', async () => {
   const dohQueryFn = fakeResolver({
     'blog.example.com|5': { ok: true, nxdomain: false, answers: [{ type: CNAME, data: 'hosting.example.net.' }] },
     'blog.example.com|257': { ok: true, nxdomain: false, answers: [] },
@@ -55,6 +55,40 @@ test('follows a single CNAME hop before walking for CAA', async () => {
   assert.equal(r.ok, true);
   assert.equal(r.canonicalName, 'hosting.example.net');
   assert.equal(r.foundAtName, 'hosting.example.net');
+});
+
+// RFC 8659 section 3, worked example: CAA(X) for an alias is the target's
+// set only; with that empty the search moves to X's *parent*, not to the
+// target's parent. The pre-2026-11-11 code climbed hosting.example.net ->
+// example.net -> net and reported "any CA may issue" here.
+test('an alias with no CAA at its target falls back to the typed name\'s parent, not the target\'s', async () => {
+  const dohQueryFn = fakeResolver({
+    'shop.example.com|5': { ok: true, nxdomain: false, answers: [{ type: CNAME, data: 'stores.host.example.net.' }] },
+    'host.example.net|257': { ok: true, nxdomain: false, answers: [{ type: CAA, data: '0 issue "wrong-ca.example"' }] },
+    'example.com|257': { ok: true, nxdomain: false, answers: [{ type: CAA, data: '0 issue "digicert.com"' }] },
+  });
+  const r = await resolveCaaSet('shop.example.com', { dohQueryFn });
+  assert.equal(r.ok, true);
+  assert.equal(r.foundAtName, 'example.com');
+  assert.equal(r.records[0].value, 'digicert.com');
+  assert.deepEqual(r.walkedNames, ['shop.example.com', 'stores.host.example.net', 'example.com']);
+});
+
+test('records a resolver returns for an alias are labelled with the target that holds them', async () => {
+  const dohQueryFn = fakeResolver({
+    'www.example.com|5': { ok: true, nxdomain: false, answers: [{ type: CNAME, data: 'edge.cdn.example.' }] },
+    'www.example.com|257': {
+      ok: true,
+      nxdomain: false,
+      answers: [
+        { name: 'www.example.com.', type: CNAME, data: 'edge.cdn.example.' },
+        { name: 'edge.cdn.example.', type: CAA, data: '0 issue "pki.goog"' },
+      ],
+    },
+  });
+  const r = await resolveCaaSet('www.example.com', { dohQueryFn });
+  assert.equal(r.foundAtName, 'edge.cdn.example');
+  assert.deepEqual(r.walkedNames, ['www.example.com']);
 });
 
 test('a resolver error at any step is surfaced rather than silently treated as "no records"', async () => {

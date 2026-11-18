@@ -1,0 +1,51 @@
+name: service-load-check
+description: >-
+  Free browser tool for homeowners and electricians: can an existing 100 A or 200 A home service take an EV charger, heat pump
+  or induction range? Checks NEC 220.83 from an appliance list and NEC 220.87 from a year of the utility's Green Button
+  15-minute interval data, and shows the largest charger setting each method allows. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-11 in an explore-track session. duplicate_check.py: nothing above 0.15 (ev-charger-bid-calculator,
+# demand-charge-interval-analyzer, electrical-panel-upgrade-bid-calculator are neighbours: bid pricing and commercial demand
+# charges, not a code check of an existing service). No file in ventures/ mentioned 220.83 or 220.87.
+#
+# Why this niche: home electrification (EV chargers, heat pumps, induction) keeps running into "you need a service upgrade
+# first", which costs thousands and can wait months on the utility. The code has allowed a measured-demand check (220.87)
+# for years and smart meters already record the 15-minute data it needs, but turning a Green Button file into that number
+# is a spreadsheet job most electricians skip. This does it in the browser, next to the 220.83 worksheet.
+#
+# First visitor: searches "ev charger without panel upgrade", "NEC 220.87 load calculation", "220.83 existing dwelling",
+# "100 amp service heat pump"; homeowners, electricians, electrification contractors, energy advisors. Volume not measured.
+#
+# Liability boundary: arithmetic on typed figures and pasted data; the page says the inspector and a licensed electrician
+# decide, lists what it does not decide, and labels the example as a synthetic placeholder.
+#
+# Path to revenue (payment rails stay off): free lead magnet. Natural paid paths, each needing the owner: a branded
+# load-calculation PDF for contractors to attach to permits, and a lead hand-off to electricians offering load management.
+
+hypotheses:
+  - claim: >-
+      Homeowners and electricians quoted a service upgrade will paste a Green Button file into a free tool to see whether
+      220.87 leaves room for the new load.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - An electrician or inspector reports a figure that differs from the code arithmetic in README.md for the same inputs.
+
+links:
+  production: https://marisstella.app/service-load-check/
+  analytics: null

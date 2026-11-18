@@ -1,0 +1,200 @@
+{
+ "austin 2021": {
+  "n": 714568,
+  "n_dropped": 9138,
+  "n_beyond_window": 5596,
+  "weight_added": 2683.391405020928,
+  "by_city": {
+   "sf": {
+    "n": 634734,
+    "n_dropped": 7105,
+    "n_beyond_window": 4524,
+    "weight_added": 1864.9786886471556
+   },
+   "seattle": {
+    "n": 79834,
+    "n_dropped": 2033,
+    "n_beyond_window": 1072,
+    "weight_added": 818.4127163737721
+   }
+  },
+  "share_dropped": 0.012788146124651538,
+  "share_of_dropped_recovered_by_weight": 0.29365193751596935,
+  "share_of_dropped_beyond_window": 0.6123878310352374,
+  "q90_days": {
+   "all": 483.0,
+   "kept": 450.0,
+   "kept_ipcw": 458.0
+  },
+  "q99_days": {
+   "all": 1631.329999999958,
+   "kept": 1308.0,
+   "kept_ipcw": 1333.0
+  }
+ },
+ "austin 2022": {
+  "n": 732863,
+  "n_dropped": 7073,
+  "n_beyond_window": 4601,
+  "weight_added": 2404.423329317913,
+  "by_city": {
+   "sf": {
+    "n": 648537,
+    "n_dropped": 5163,
+    "n_beyond_window": 3456,
+    "weight_added": 1755.3257044393104
+   },
+   "seattle": {
+    "n": 84326,
+    "n_dropped": 1910,
+    "n_beyond_window": 1145,
+    "weight_added": 649.0976248786028
+   }
+  },
+  "share_dropped": 0.009651189922263778,
+  "share_of_dropped_recovered_by_weight": 0.3399439176188199,
+  "share_of_dropped_beyond_window": 0.6505019086667609,
+  "q90_days": {
+   "all": 491.0,
+   "kept": 465.0,
+   "kept_ipcw": 473.0
+  },
+  "q99_days": {
+   "all": 1639.0,
+   "kept": 1357.109999999986,
+   "kept_ipcw": 1381.0
+  }
+ },
+ "sf 2021": {
+  "n": 1899265,
+  "n_dropped": 8571,
+  "n_beyond_window": 5077,
+  "weight_added": 3328.0136967100843,
+  "by_city": {
+   "austin": {
+    "n": 1819431,
+    "n_dropped": 6538,
+    "n_beyond_window": 4005,
+    "weight_added": 2509.600980336312
+   },
+   "seattle": {
+    "n": 79834,
+    "n_dropped": 2033,
+    "n_beyond_window": 1072,
+    "weight_added": 818.4127163737721
+   }
+  },
+  "share_dropped": 0.004512798372001801,
+  "share_of_dropped_recovered_by_weight": 0.3882876790001265,
+  "share_of_dropped_beyond_window": 0.5923462839808658,
+  "q90_days": {
+   "all": 334.0,
+   "kept": 325.0,
+   "kept_ipcw": 328.0
+  },
+  "q99_days": {
+   "all": 1350.0,
+   "kept": 1191.0700000000652,
+   "kept_ipcw": 1201.0
+  }
+ },
+ "sf 2022": {
+  "n": 1965663,
+  "n_dropped": 9251,
+  "n_beyond_window": 5054,
+  "weight_added": 3649.8027640068613,
+  "by_city": {
+   "austin": {
+    "n": 1881337,
+    "n_dropped": 7341,
+    "n_beyond_window": 3909,
+    "weight_added": 3000.7051391282585
+   },
+   "seattle": {
+    "n": 84326,
+    "n_dropped": 1910,
+    "n_beyond_window": 1145,
+    "weight_added": 649.0976248786028
+   }
+  },
+  "share_dropped": 0.0047063001134986,
+  "share_of_dropped_recovered_by_weight": 0.3945306198256255,
+  "share_of_dropped_beyond_window": 0.5463193168306129,
+  "q90_days": {
+   "all": 338.0,
+   "kept": 329.0,
+   "kept_ipcw": 333.0
+  },
+  "q99_days": {
+   "all": 1341.0,
+   "kept": 1194.8899999998976,
+   "kept_ipcw": 1205.0
+  }
+ },
+ "seattle 2021": {
+  "n": 2454165,
+  "n_dropped": 13643,
+  "n_beyond_window": 8529,
+  "weight_added": 4374.579668983468,
+  "by_city": {
+   "sf": {
+    "n": 634734,
+    "n_dropped": 7105,
+    "n_beyond_window": 4524,
+    "weight_added": 1864.9786886471556
+   },
+   "austin": {
+    "n": 1819431,
+    "n_dropped": 6538,
+    "n_beyond_window": 4005,
+    "weight_added": 2509.600980336312
+   }
+  },
+  "share_dropped": 0.005559120923002325,
+  "share_of_dropped_recovered_by_weight": 0.32064646111437867,
+  "share_of_dropped_beyond_window": 0.6251557575313348,
+  "q90_days": {
+   "all": 341.0,
+   "kept": 330.0,
+   "kept_ipcw": 334.0
+  },
+  "q99_days": {
+   "all": 1338.0,
+   "kept": 1156.0,
+   "kept_ipcw": 1166.0
+  }
+ },
+ "seattle 2022": {
+  "n": 2529874,
+  "n_dropped": 12504,
+  "n_beyond_window": 7365,
+  "weight_added": 4756.030843567569,
+  "by_city": {
+   "sf": {
+    "n": 648537,
+    "n_dropped": 5163,
+    "n_beyond_window": 3456,
+    "weight_added": 1755.3257044393104
+   },
+   "austin": {
+    "n": 1881337,
+    "n_dropped": 7341,
+    "n_beyond_window": 3909,
+    "weight_added": 3000.7051391282585
+   }
+  },
+  "share_dropped": 0.004942538640264298,
+  "share_of_dropped_recovered_by_weight": 0.38036075204475117,
+  "share_of_dropped_beyond_window": 0.5890115163147792,
+  "q90_days": {
+   "all": 344.0,
+   "kept": 336.0,
+   "kept_ipcw": 339.0
+  },
+  "q99_days": {
+   "all": 1333.0,
+   "kept": 1169.0,
+   "kept_ipcw": 1184.0
+  }
+ }
+}

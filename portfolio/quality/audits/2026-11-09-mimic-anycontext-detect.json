@@ -46,6 +46,6 @@
       "where": "research/mimic-anycontext-detect/anyctx.py:1,31-43,90-100"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14807"],
   "verdict": "Honest, small and reproducible: every number I recomputed (universal books 0.993, wiki 0.895, recipes 0.867 vs 0.843-0.855, wiki per-family, length-alone 0.845 and 0.115, and the means and generator minimum from results.json) agrees with the README within 0.02, the limits are stated up front, and the project is explicit that it is a prompt-free baseline and not the milestone claim. It does not meet the bar because verification is a 1: five toy tests never touch the three functions that produce the results, and a mutation that removes all target adaptation survived. It is also finished but not new (cross-domain detector loss is documented in RAID, MAGE and M4) and carries no text-level confidence intervals or fixed-FPR metric, so a researcher can use it as a baseline row, not build a claim on its differences. The cheapest fix is a test that runs regimes() on a small synthetic or 200-item subset and asserts that adapted k = 160 beats k = 0 when the target family differs, plus a docstring correction."
 }

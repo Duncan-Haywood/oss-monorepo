@@ -33,7 +33,7 @@ const STOCK_ALIASES = {
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -55,26 +55,26 @@ export function detectDelimiter(text) {
   return best[1] > 0 ? best[0] : ",";
 }
 
+// Each row carries `line`, the file line it starts on (blank lines and line breaks inside quoted fields counted),
+// so a skipped row can be named by the line a person sees in the file.
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  let row = [], field = "", quoted = false, ln = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
+  const end = () => { row.push(field); field = ""; if (row.some((f) => f.trim() !== "")) { row.line = start; rows.push(row); } row = []; };
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) ln++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
-      row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      end(); ln++; start = ln;
     } else field += c;
   }
-  row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  end();
   return rows;
 }
 
@@ -82,10 +82,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -107,14 +107,18 @@ export function parseWhen(v, dmy = false) {
 }
 
 export function detectDmy(values) {
-  let first = false, second = false;
+  // Dots ("03.06.2026") are the European day.month.year form; no locale
+  // writes month.day.year, so a dotted file is day-first unless a second part
+  // is above 12 (red team 2026-11-15).
+  let first = false, second = false, dotted = false;
   for (const v of values) {
-    const m = String(v ?? "").trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}/);
+    const m = String(v ?? "").trim().match(/^(\d{1,2})([/.-])(\d{1,2})\2\d{2,4}/);
     if (!m) continue;
     if (+m[1] > 12) first = true;
-    if (+m[2] > 12) second = true;
+    if (+m[3] > 12) second = true;
+    if (m[2] === ".") dotted = true;
   }
-  return first && !second;
+  return (first || dotted) && !second;
 }
 
 
@@ -152,7 +156,7 @@ export function normalizeSales(table, { decimalComma = false } = {}) {
   const items = [], skipped = [];
   let lastT = null, lastVoid = false;
   body.forEach((r, i) => {
-    const line = i + 2;
+    const line = r.line ?? i + 2;
     const rawDate = (r[cols.date] ?? "").trim();
     if (rawDate) {
       const w = parseWhen(rawDate, dmy);
@@ -182,7 +186,7 @@ export function normalizeStock(table, { decimalComma = false } = {}) {
     const sku = (r[cols.sku] ?? "").trim();
     if (!sku) return;
     const onHand = parseNumber(r[cols.onHand], decimalComma);
-    if (!Number.isFinite(onHand)) { skipped.push({ line: i + 2, reason: "on-hand is not a number" }); return; }
+    if (!Number.isFinite(onHand)) { skipped.push({ line: r.line ?? i + 2, reason: "on-hand is not a number" }); return; }
     const num = (c) => { if (cols[c] === undefined) return null; const v = parseNumber(r[cols[c]], decimalComma); return Number.isFinite(v) && (r[cols[c]] ?? "").trim() !== "" ? v : null; };
     items.push({ sku, name: cols.name !== undefined ? (r[cols.name] ?? "").trim() : "", onHand, incoming: num("incoming") ?? 0, cost: num("cost"), price: num("price") });
   });
@@ -323,3 +327,23 @@ export function sampleSales(asOf = Date.UTC(2026, 8, 28)) {
   return rows.join("\n");
 }
 export const SAMPLE_STOCK = "SKU,Title,On hand,Incoming,Cost per item\nTEA-CHAI-100,Chai blend 100g,30,0,5.20\nMUG-STONE-BLU,\"Stoneware mug, blue\",300,0,8.50\nTEA-SAMPLER,Tea sampler box,0,0,11.00\nKETTLE-1L,Glass kettle 1L,55,0,19.00\nSTRAINER-STEEL,Steel strainer,80,0,2.75\nMUG-OLD-RED,\"Stoneware mug, red (discontinued)\",120,0,8.50\n";
+
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
+}

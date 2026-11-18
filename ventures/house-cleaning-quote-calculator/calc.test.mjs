@@ -97,3 +97,29 @@ test("money formatting", () => {
   assert.equal(money(-1234.4), "-$1,234");
   assert.equal(money2(5), "$5.00");
 });
+
+// Quality fix 2026-11-11: a quoted "$1,200" (what a spreadsheet CSV export writes) used to split
+// at the comma and shift every later field. See docs/posts/2026-11-11-quality-fix-thousands-commas.md.
+import { splitCells as splitCellsForTest } from "./calc.mjs";
+import { test as testSplit } from "node:test";
+import assertSplit from "node:assert/strict";
+testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a mid-cell quote as text", () => {
+  assertSplit.deepEqual(splitCellsForTest('Item,"$1,200",800'), ["Item", "$1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest("Item\t1,200\t800"), ["Item", "1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
+  assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
+});
+
+test("the needed price is stated in the same terms as the one-time price field (before add-ons)", () => {
+  // Quality census 2026-11-15-8354: the verdict quoted a price that already included
+  // add-ons; typing it into the one-time price field added them twice.
+  const s = sampleJob();
+  const freqs = parseFrequencies(s.frequencies).rows;
+  const adds = parseAddOns(s.addOns).rows;
+  const r = analyze({ ...s.job, basePrice: 150 }, freqs, adds);
+  near(r.neededBasePrice, r.neededListPrice - r.addRevenue);
+  assert.match(r.verdict, new RegExp(r.neededBasePrice.toFixed(2).replace(".", "\\.")));
+  // Typing the advised base price makes every frequency clear the target.
+  const again = analyze({ ...s.job, basePrice: Math.ceil(r.neededBasePrice * 100) / 100 }, freqs, adds);
+  assert.ok(again.lines.every((l) => l.meetsTarget), again.verdict);
+});

@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtJbtVLKM2LvCgcJtPU",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T00:07:03Z",
+  "ended": "2026-11-13T01:09:58Z",
+  "wall_minutes": 63.11,
+  "tokens_in": 6044411,
+  "tokens_out": 28407,
+  "cost_usd": 2.8266,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15303",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Container restarted at 00:41 UTC mid-driver; the pulled data and finished results survived in the scratchpad, and the five remaining city-years were rerun from the same pull."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Backgrounding two jobs with '&' inside one run_in_background command made the harness report completion immediately while the children kept running; it worked, but the completion notice was misleading. A note to run one job per background call would save confusion."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No mention that a cloud container can restart mid-run and kill background jobs; committing intermediate results early (as this run did) is worth suggesting for multi-step experiment drivers."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-build-data-minimum-support-rule.md",
+    "research/build-data/LOG.md (session 81)"
+  ],
+  "goal": null,
+  "notes": "Routed research/0 by weighted draw; pick_track drew build-data. Security queue empty, IDEAS.md and website requests empty. Implemented transfer.minsup_map and cascade2_minsup<k> configuration in censored_eval (3 tests), src/summarise_minsup.py. Pre-registered M1-M5 in LOG.md and pushed before any run. Fresh pull 2026-11-13 row counts equal session 80. Results: k*=1000 on 2020 (M1 held); Austin q0.9 -9.33 [-10.01,-8.62] 2021 and -4.59 [-5.90,-3.04] 2022 (M2 held); won back 61% and 47% (M3 refuted, bar 50%); SF keeps its gain (M4 held); Seattle unchanged (M5 held). Unpredicted: Austin median cost +8.5 and +4.4 days. Local checks: build-data pytest 109 passed 2 skipped; research/_homepage/build.py ok; check_md_links ok; research_live_links 0 updates; post frontmatter/links ok; post_similarity 0 pairs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7e1f15b2-2e41-5892-bb76-2380f5b4b5dd",
+    "transcripts": 1,
+    "first": "2026-11-13T00:07:03Z",
+    "last": "2026-11-13T01:10:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 101,
+        "output": 28407,
+        "thinking": 6553,
+        "cache_read": 5909795,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134515,
+        "api_equivalent_usd": 2.8266,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 101,
+      "output": 28407,
+      "thinking": 6553,
+      "cache_read": 5909795,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134515,
+      "api_equivalent_usd": 2.8266,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 63.11,
+      "active_minutes": 62.93,
+      "model_minutes": 6.72,
+      "tool_minutes": 56.21,
+      "waiting_on_human_minutes": 0.18,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researcher implementing the rule, pulling three permit feeds, running 8 city-year experiments and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 212.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

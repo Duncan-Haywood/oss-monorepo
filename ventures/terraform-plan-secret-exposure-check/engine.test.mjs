@@ -124,10 +124,22 @@ test("checkOutputChange skips an output already marked sensitive", () => {
   assert.equal(findings.length, 0);
 });
 
+test("checkOutputChange skips an output Terraform marks sensitive (after_sensitive: true)", () => {
+  // The shape terraform show -json writes for `output "u" { sensitive = true }`.
+  const findings = checkOutputChange("u", {
+    before: null,
+    after: "postgres://a:pw@db:5432/x",
+    before_sensitive: false,
+    after_sensitive: true,
+  });
+  assert.equal(findings.length, 0);
+});
+
 test("checkOutputChange flags an unmarked output", () => {
   const findings = checkOutputChange("connection_url", {
     after: "postgres://app:hunter2@db.internal:5432/main",
-    sensitive: false,
+    before_sensitive: false,
+    after_sensitive: false,
   });
   assert.equal(findings.length, 1);
   assert.equal(findings[0].code, "url-embedded-credentials");
@@ -153,7 +165,7 @@ test("checkPlan aggregates resource and output findings", () => {
         },
       ],
       output_changes: {
-        db_url: { after: "postgres://app:hunter2@db.internal/main", sensitive: false },
+        db_url: { after: "postgres://app:hunter2@db.internal/main", before_sensitive: false, after_sensitive: false },
       },
     }),
   );
@@ -185,4 +197,61 @@ test("SECRET_PATTERNS each carry a code and label", () => {
     assert.equal(typeof p.label, "string");
     assert.equal(p.re instanceof RegExp, true);
   }
+});
+
+// --- Red-team run 2026-11-17: boundaries and two real defects -----------------
+
+const urlFinding = (value) =>
+  checkResourceChange({ address: "a.b", change: { after: { value }, after_sensitive: {} } });
+
+test("redact keeps at most a quarter of a 9-12 character value on each side", () => {
+  // Was: keep 4 + 4 of a 9-character value, so 8 of 9 characters were echoed.
+  assert.equal(redact("ABCDEFGHI"), "AB*****HI");
+  assert.equal(redact("ABCDEFGHIJKL"), "ABC******JKL");
+  assert.equal(redact("ABCDEFGH"), "********");
+});
+
+test("a URL credential's password never reaches the report, however short the host", () => {
+  // Real defect: the generic first-4/last-4 redaction kept the end of the
+  // password when the host was short ("hunter2@db" -> "...2@db").
+  for (const [value, password] of [
+    ["postgres://admin:hunter2@db", "hunter2"],
+    ["x://u:pass@h", "pass"],
+    ["mysql://app:Tr0ub4dor@10.0.0.5:3306/app", "Tr0ub4dor"],
+  ]) {
+    const findings = urlFinding(value);
+    assert.equal(findings.length, 1, value);
+    const shown = findings[0].redacted;
+    for (let i = 0; i + 2 <= password.length; i++) {
+      assert.equal(shown.includes(password.slice(i, i + 2)), false, `${shown} echoes part of ${password}`);
+    }
+    assert.match(shown, /^[a-z]+:\/\/[^:]*:\*+@/, "keeps scheme and user so the value is identifiable");
+  }
+});
+
+test("flags a password-only URL (redis://:password@host), the usual Redis form", () => {
+  const findings = urlFinding("redis://:Sup3rS3cret@cache:6379/0");
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].code, "url-embedded-credentials");
+  assert.equal(findings[0].redacted.includes("Sup3r"), false);
+});
+
+test("flags credentials in a URL whose scheme contains a digit (s3://)", () => {
+  const findings = urlFinding("s3://minio:secretkey99@minio.internal");
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].code, "url-embedded-credentials");
+});
+
+test("a JWT whose signature is exactly ten characters is still flagged", () => {
+  const jwt = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0In0.abcdefghij";
+  const codes = urlFinding(jwt).map((f) => f.code);
+  assert.deepEqual(codes, ["jwt"]);
+});
+
+test("after_sensitive: false (nothing sensitive) still checks every value", () => {
+  const findings = checkResourceChange({
+    address: "aws_ssm_parameter.x",
+    change: { after: { value: "AKIAABCDEFGHIJKLMNOP" }, after_sensitive: false },
+  });
+  assert.equal(findings.length, 1);
 });

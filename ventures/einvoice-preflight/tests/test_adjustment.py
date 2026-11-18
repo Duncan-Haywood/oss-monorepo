@@ -202,3 +202,23 @@ class AdjustmentInvoiceIntegrationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NegativeInvoiceSigns(unittest.TestCase):
+    """OpenPeppol's PINT A-NZ negative invoice (eval/phive-corpus.mjs, 2026-11-11)."""
+
+    def test_negative_header_percentage_on_a_negative_invoice(self):
+        def invoice(percent, amount):
+            return {"totals": {"net": -1627.4, "gross": -1780.14},
+                    "adjustments": [{"kind": "charge", "amount": amount, "base": 1500, "percent": percent, "reason": "Refund shipping"}]}
+        self.assertEqual([f["rule"] for f in inspect_header_adjustments(invoice(-10, -150))], [])
+        self.assertEqual([f["rule"] for f in inspect_header_adjustments(invoice(-10, -140))], ["INV-051"])
+        positive = {"totals": {"net": 100, "gross": 110},
+                    "adjustments": [{"kind": "charge", "amount": 10, "base": 100, "percent": -10, "reason": "x"}]}
+        self.assertIn("INV-051", [f["rule"] for f in inspect_header_adjustments(positive)])
+
+    def test_line_adjustments_keep_their_sign(self):
+        from einvoice_preflight.linenet import expected_line_net
+        line = {"quantity": -4, "unit_price": 400, "price_base_quantity": 2,
+                "adjustments": [{"kind": "charge", "amount": -200}, {"kind": "allowance", "amount": -100}]}
+        self.assertEqual(expected_line_net(line), Decimal("-900.00"))

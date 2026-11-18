@@ -718,7 +718,11 @@ ${BACKUP_MERGE_HELPERS}
         for (const field of RATE_FIELDS) {
           const value = parsed.rates[field.id];
           if (value === '' || value === null || value === undefined) continue;
-          const num = typeof value === 'number' ? value : Number(String(value).trim());
+          // Number() reads ' ' and [] as 0 and '0x10' as 16: only a number or a
+          // plain decimal string is a rate (same rule as rates.mjs).
+          if (typeof value !== 'number' && !(typeof value === 'string'
+            && /^\\s*[+-]?(\\d+\\.?\\d*|\\.\\d+)([eE][+-]?\\d+)?\\s*$/.test(value))) continue;
+          const num = typeof value === 'number' ? value : Number(value.trim());
           if (!Number.isFinite(num) || num < 0 || num > field.max) continue;
           clean[field.id] = num;
         }

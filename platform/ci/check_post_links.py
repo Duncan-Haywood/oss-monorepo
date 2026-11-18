@@ -3,7 +3,9 @@
 
 Skips fenced code blocks and inline code (examples), external URLs, anchors
 and site-absolute paths. Percent-encoding is decoded before the lookup.
-Usage: python3 platform/ci/check_post_links.py [posts_dir]
+Usage: python3 platform/ci/check_post_links.py [posts_dir | post.md ...]
+A file argument checks just that post (runs kept passing one and got a
+NotADirectoryError, 2026-11-10).
 """
 import os
 import re
@@ -24,11 +26,14 @@ def strip_code(text):
 
 
 def broken(posts_dir):
+    names = sorted(n for n in os.listdir(posts_dir) if n.endswith('.md'))
+    return broken_in([os.path.join(posts_dir, n) for n in names])
+
+
+def broken_in(paths):
     out = []
-    for name in sorted(os.listdir(posts_dir)):
-        if not name.endswith('.md'):
-            continue
-        path = os.path.join(posts_dir, name)
+    for path in paths:
+        posts_dir = os.path.dirname(path) or '.'
         with open(path, encoding='utf8') as fh:
             text = strip_code(fh.read())
         for m in WRONG_MOUNT.finditer(text):
@@ -44,7 +49,15 @@ def broken(posts_dir):
 
 
 def main(argv):
-    bad = broken(argv[1] if len(argv) > 1 else 'docs/posts')
+    args = argv[1:] or ['docs/posts']
+    bad = []
+    for a in args:
+        if os.path.isdir(a):
+            bad += broken(a)
+        elif os.path.isfile(a):
+            bad += broken_in([a])
+        else:
+            bad.append((a, '(no such file or directory)'))
     for path, url in bad:
         print(f'{path}: missing {url}')
     print(f'{len(bad)} broken relative link(s)')

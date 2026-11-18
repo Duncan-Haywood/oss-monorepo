@@ -11,7 +11,8 @@ def analytic_rate(scale, bias_rad):
     """Position error per metre travelled on a straight track: sqrt(scale^2 + (2 sin(b/2))^2).
 
     Scale error is along-track, heading bias gives a chord 2 sin(b/2) per metre (cross-track).
-    For a bias applied from the start of a straight line this is exact for the end point.
+    This is first order in s: for a bias applied from the start of a straight line the exact end-point error
+    per metre is sqrt(s^2 + (1 + s) (2 sin(b/2))^2).
     """
     return math.hypot(scale, 2.0 * math.sin(bias_rad / 2.0))
 

@@ -14,6 +14,19 @@
 // to `import { ... } from './usage.mjs'` and refuses a page that has no such
 // file to anchor to.
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 const OPT_OUT_KEY = 'change-order-usage-enabled';
 const PREFIX = 'change-order-';
 

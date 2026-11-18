@@ -216,8 +216,11 @@ function czBirth9Ok(b) {
 function czBirthNumberOk(b) {
   const month = Number(b.slice(2, 4));
   const day = Number(b.slice(4, 6));
-  const monthOk = [1, 21, 51, 71].some((base) => month >= base && month <= base + 11);
-  if (!monthOk || day < 1 || day > 31) return false;
+  const base = [71, 51, 21, 1].find((b) => month >= b && month <= b + 11);
+  if (base === undefined) return false;
+  // 10 digits means born 1954 or later: yy 54-99 is 19yy, 00-53 is 20yy. The day must exist (no 31 February).
+  const yy = Number(b.slice(0, 2));
+  if (!realDate(yy >= 54 ? 1900 + yy : 2000 + yy, month - base + 1, day)) return false;
   return (Number(b.slice(0, 9)) % 11) % 10 === Number(b[9]);
 }
 
@@ -422,11 +425,29 @@ function beOk(body) {
 // typo'd numbers valid. A preflight tool whose one job is catching a typo'd
 // VAT number before the invoice goes out cannot get its own arithmetic
 // backwards on the most common EU country in this list.
+//
+// Since 1 January 2020 a sole trader's btw-identificatienummer no longer
+// carries the BSN, and its check is ISO 7064 mod 97-10 over the whole number,
+// country code and B included (N=23, L=21, B=11), as an IBAN's is
+// (python-stdnum nl.btw: valid if either check passes; NL002455799B11 is its
+// example). Elfproef alone flagged every such number as a checksum typo, an
+// error on hundreds of thousands of Dutch sole traders' invoices (2026-11-17).
+// A suffix of 00 or a body of nine zeros is never issued (python-stdnum nl.btw
+// refuses both; Peppol's R056 pattern lets them through).
 function nlOk(body) {
+  if (body.slice(10) === "00" || body.slice(0, 9) === "000000000") return false;
   let total = 0;
   for (let i = 0; i < 8; i += 1) total += Number(body[i]) * (9 - i);
   total -= Number(body[8]);
-  return total % 11 === 0;
+  return total % 11 === 0 || nlMod97Ok(body);
+}
+
+function nlMod97Ok(body) {
+  if (!/^\d{9}B\d{2}$/.test(body)) return false;
+  const digits = `2321${body.slice(0, 9)}11${body.slice(10)}`;
+  let rest = 0;
+  for (const char of digits) rest = (rest * 10 + Number(char)) % 97;
+  return rest === 1;
 }
 
 function atOk(body) {
@@ -456,11 +477,15 @@ function itOk(digits) {
   return (10 - (total % 10)) % 10 === Number(digits[10]);
 }
 
-function esOk(body) {
+export function esOk(body) {
   const letters = "TRWAGMYFPDXBNJZSQVHLCKE";
   if (/^\d/.test(body[0]) && /[A-Z]/.test(body[8])) {
     return body[8] === letters[Number(body.slice(0, 8)) % 23];
   }
+  // NIE (foreign residents): X, Y, Z stand for 0, 1, 2 ahead of the DNI letter test.
+  if (/^[XYZ]\d{7}[A-Z]$/.test(body)) return body[8] === letters[Number("XYZ".indexOf(body[0]) + body.slice(1, 8)) % 23];
+  // K, L and M NIFs (under-14s, non-residents, foreigners without a NIE) use the DNI letter on their seven digits.
+  if (/^[KLM]\d{7}[A-Z]$/.test(body)) return body[8] === letters[Number(body.slice(1, 8)) % 23];
   if (!/^[A-Z]/.test(body[0]) || !/^\d{7}$/.test(body.slice(1, 8))) return false;
   let total = 0;
   for (let index = 0; index < 7; index += 1) {
@@ -924,9 +949,10 @@ export function looksLikeCompleteVat(value) {
   return kind === "checksum" || kind === "format";
 }
 
-function evaluate(country, body, path, partyName, requireKnown) {
+const labelOf = (partyName) => partyName.charAt(0).toUpperCase() + partyName.slice(1);
+
+function evaluate(country, body, path, partyName, requireKnown, label = labelOf(partyName)) {
   const kind = classify(country, body);
-  const label = partyName.charAt(0).toUpperCase() + partyName.slice(1);
   if (kind === "unknown") {
     if (!requireKnown) return [];
     return [finding(
@@ -955,8 +981,7 @@ function evaluate(country, body, path, partyName, requireKnown) {
   return [];
 }
 
-function checkExplicit(value, path, partyName) {
-  const label = partyName.charAt(0).toUpperCase() + partyName.slice(1);
+function checkExplicit(value, path, partyName, label = labelOf(partyName)) {
   if (typeof value !== "string" || !value.trim()) {
     return [finding(
       "INV-022",
@@ -974,7 +999,7 @@ function checkExplicit(value, path, partyName) {
       path,
     )];
   }
-  return evaluate(compact.slice(0, 2), compact.slice(2), path, partyName, true);
+  return evaluate(compact.slice(0, 2), compact.slice(2), path, partyName, true, label);
 }
 
 function checkComplete(value, path, partyName) {
@@ -983,13 +1008,15 @@ function checkComplete(value, path, partyName) {
   return evaluate(compact.slice(0, 2), compact.slice(2), path, partyName, false);
 }
 
-export function inspectPartyVat(party, partyName) {
+// `label` names the party in messages when its JSON key does not read as words
+// ("Tax representative" for tax_representative, BG-11).
+export function inspectPartyVat(party, partyName, label = labelOf(partyName)) {
   if (!party || typeof party !== "object" || Array.isArray(party)) return [];
   const findings = [];
   const checked = new Set();
   const vatId = party.vat_id;
   if (vatId !== undefined && vatId !== null && vatId !== "") {
-    findings.push(...checkExplicit(vatId, `/${partyName}/vat_id`, partyName));
+    findings.push(...checkExplicit(vatId, `/${partyName}/vat_id`, partyName, label));
     const compact = normalizeVat(vatId);
     if (compact) checked.add(compact);
   }
@@ -999,4 +1026,30 @@ export function inspectPartyVat(party, partyName) {
     findings.push(...checkComplete(identifier, `/${partyName}/id`, partyName));
   }
   return findings;
+}
+
+// INV-064: OpenPeppol's PEPPOL-COMMON-R056-2 (BIS 3.0.22, a warning) reads every
+// VAT number (UBL PartyTaxScheme/CompanyID under TaxScheme VAT, CII
+// SpecifiedTaxRegistration/ID schemeID VA) that starts with "NL" after
+// normalize-space and asks for exactly NL, nine digits, B and two digits.
+// normalizeVat strips spaces, dots and hyphens before INV-022/023, so
+// "NL 123456782 B01" or "NL123456782.B01" passed here and drew Peppol's warning
+// at the network. Only XML whitespace is trimmed, as normalize-space does; a
+// value INV-022/023 already reports is left to them. A warning, as Peppol's is.
+// eval/nl-vat-r056-2-differential.mjs runs Peppol's own assertion on the same files.
+const XML_SPACE = /^[ \t\r\n]+|[ \t\r\n]+$/g;
+
+export function inspectNlVatShape(party, partyName, label = labelOf(partyName)) {
+  if (!party || typeof party !== "object" || Array.isArray(party)) return [];
+  const value = party.vat_id;
+  if (typeof value !== "string") return [];
+  const text = value.replace(XML_SPACE, "");
+  if (!text.startsWith("NL") || /^NL[0-9]{9}B[0-9]{2}$/.test(text)) return [];
+  return [{
+    rule: "INV-064",
+    message: `${label} Dutch VAT number is not written as NL, nine digits, B and two digits; Peppol warns on it (PEPPOL-COMMON-R056-2).`,
+    fix: "Write the Dutch VAT number with no spaces, dots or hyphens, for example NL123456789B12.",
+    path: `/${partyName}/vat_id`,
+    severity: "warning",
+  }];
 }

@@ -1,0 +1,21 @@
+Travel between two shops, 12 made-up weeks, split shifts allowed (rest 0, daily cap 10 h), 8 people at both shops.
+Main lunch 11-3 (2), afternoon 3-5 (1), dinner 5-10 (2); Harbour lunch 11:30-2:30 (1), dinner 5:30-9:30 (1, 2 Fri-Sun). Same engine, exact check "auto".
+
+seed  1 | T=0:    0 h $ 3824 10 hops (0 < 30 min) | T=30:    0 h $ 3824 10 hops (0 < 30 min) | T=45:    0 h $ 3824 7 hops (0 < 30 min) | T=60:    0 h $ 3824 7 hops (0 < 30 min)
+seed  2 | T=0:    0 h $ 3655 8 hops (0 < 30 min) | T=30:    0 h $ 3655 8 hops (0 < 30 min) | T=45:    0 h $ 3655 4 hops (0 < 30 min) | T=60:    0 h $ 3655 4 hops (0 < 30 min)
+seed  3 | T=0:    0 h $ 3688 7 hops (0 < 30 min) | T=30:    0 h $ 3688 7 hops (0 < 30 min) | T=45:    0 h $ 3688 9 hops (0 < 30 min) | T=60:    0 h $ 3688 9 hops (0 < 30 min)
+seed  4 | T=0:    0 h $ 3617 8 hops (0 < 30 min) | T=30:    0 h $ 3617 8 hops (0 < 30 min) | T=45:    0 h $ 3612 8 hops (0 < 30 min) | T=60:    0 h $ 3612 8 hops (0 < 30 min)
+seed  5 | T=0:    0 h $ 3674 6 hops (0 < 30 min) | T=30:    0 h $ 3674 6 hops (0 < 30 min) | T=45:    0 h $ 3670 9 hops (0 < 30 min) | T=60:    0 h $ 3670 9 hops (0 < 30 min)
+seed  6 | T=0:    0 h $ 3840 7 hops (0 < 30 min) | T=30:    0 h $ 3840 7 hops (0 < 30 min) | T=45:    0 h $ 3840 8 hops (0 < 30 min) | T=60:    0 h $ 3840 8 hops (0 < 30 min)
+seed  7 | T=0:    0 h $ 3563 9 hops (0 < 30 min) | T=30:    0 h $ 3563 9 hops (0 < 30 min) | T=45:    0 h $ 3563 4 hops (0 < 30 min) | T=60:    0 h $ 3563 4 hops (0 < 30 min)
+seed  8 | T=0:    0 h $ 3528 9 hops (0 < 30 min) | T=30:    0 h $ 3528 9 hops (0 < 30 min) | T=45:    0 h $ 3528 4 hops (0 < 30 min) | T=60:    0 h $ 3528 4 hops (0 < 30 min)
+seed  9 | T=0:    0 h $ 3545 7 hops (0 < 30 min) | T=30:    0 h $ 3545 7 hops (0 < 30 min) | T=45:    0 h $ 3545 4 hops (0 < 30 min) | T=60:    0 h $ 3545 4 hops (0 < 30 min)
+seed 10 | T=0:    0 h $ 3533 11 hops (0 < 30 min) | T=30:    0 h $ 3533 11 hops (0 < 30 min) | T=45:    0 h $ 3533 6 hops (0 < 30 min) | T=60:    0 h $ 3533 6 hops (0 < 30 min)
+seed 11 | T=0:    0 h $ 3789 11 hops (0 < 30 min) | T=30:    0 h $ 3789 11 hops (0 < 30 min) | T=45:    0 h $ 3789 6 hops (0 < 30 min) | T=60:    0 h $ 3789 6 hops (0 < 30 min)
+seed 12 | T=0:    0 h $ 3787 9 hops (0 < 30 min) | T=30:    0 h $ 3787 9 hops (0 < 30 min) | T=45:    0 h $ 3787 6 hops (0 < 30 min) | T=60:    0 h $ 3787 6 hops (0 < 30 min)
+
+Totals over 12 weeks (hops = person-days at both shops; "under u" = hops with less than u minutes between the two):
+  travel  0 min  open 0 h, payroll $44043; 102 hops (under 30: 0, under 45: 34, under 60: 34); more open hours than T = 0 in 0 weeks; 16.5 s a build
+  travel 30 min  open 0 h, payroll $44043; 102 hops (under 30: 0, under 45: 34, under 60: 34); more open hours than T = 0 in 0 weeks; 16.6 s a build
+  travel 45 min  open 0 h, payroll $44034; 75 hops (under 30: 0, under 45: 0, under 60: 0); more open hours than T = 0 in 0 weeks; 16.7 s a build
+  travel 60 min  open 0 h, payroll $44034; 75 hops (under 30: 0, under 45: 0, under 60: 0); more open hours than T = 0 in 0 weeks; 16.7 s a build

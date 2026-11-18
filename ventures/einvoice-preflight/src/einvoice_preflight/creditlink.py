@@ -6,10 +6,12 @@ left alone: the original may have gone out in an earlier run.
 
 from __future__ import annotations
 
+from decimal import ROUND_HALF_UP
 from pathlib import Path
 from typing import Any
 
 from .document import normalize_document_type
+from .numbers import parse_decimal
 
 _FIXES = {
     "INV-056": (
@@ -57,14 +59,13 @@ def _kind(invoice: dict[str, Any]) -> str:
 def _cents(invoice: dict[str, Any]) -> int | None:
     totals = invoice.get("totals")
     gross = totals.get("gross") if isinstance(totals, dict) else None
-    if isinstance(gross, str) and gross.strip():
-        try:
-            gross = float(gross)
-        except ValueError:
-            return None
-    if isinstance(gross, bool) or not isinstance(gross, (int, float)):
+    # parse_decimal drops inf and nan, which crashed int() and with it the batch.
+    if isinstance(gross, str) and not gross.strip():
         return None
-    return int(abs(gross) * 100 + 0.5)
+    amount = parse_decimal(gross)
+    if amount is None:
+        return None
+    return int((abs(amount) * 100).to_integral_value(rounding=ROUND_HALF_UP))
 
 
 def _currency(invoice: dict[str, Any]) -> str:

@@ -1,0 +1,34 @@
+Milestone 6r: three makers' scaled break-even sweeps on one efficiency axis (index 2)
+(inputs: excavator_gear_pump_bench_results.txt, gear_pump_crux_results.txt,
+ excavator_gear_pump_marzocchi_results.txt; no simulation rerun)
+share = geometries (of 384) where a smaller fixed pump beats 3.986 L/h at S = 0.38, central setting
+fit: share = 100 / (1 + exp(-(E - E50) / w)), grid least squares (step 1e-4)
+
+casappa: 11 sweep points, E 0.7590 to 0.9487; own interpolated 50% crossing 0.8284
+danfoss: 7 sweep points, E 0.7976 to 0.8909; own interpolated 50% crossing 0.8309
+marzocchi: 11 sweep points, E 0.7719 to 0.8975; own interpolated 50% crossing 0.8188
+
+pooled (29 points): E50 0.8212, w 0.0270; RMS residual 5.62 points
+  casappa: RMS 4.19, max |residual| 7.69 points
+  danfoss: RMS 5.60, max |residual| 8.92 points
+  marzocchi: RMS 6.75, max |residual| 13.43 points
+  10% to 90% of geometries between E 0.7619 and 0.8805
+
+leave one maker out (fit on the other two, predict the third):
+  without casappa: E50 0.8193, w 0.0281; casappa own crossing 0.8284, error -0.0091; casappa RMS residual 5.05 points
+  without danfoss: E50 0.8191, w 0.0274; danfoss own crossing 0.8309, error -0.0118; danfoss RMS residual 6.83 points
+  without marzocchi: E50 0.8250, w 0.0259; marzocchi own crossing 0.8188, error +0.0062; marzocchi RMS residual 8.91 points
+
+unscaled and measured points against the pooled curve:
+  casappa catalogue (c = 1): E 0.7590, share 9.9%, curve 9.1%, residual +0.8; E - E50 -0.0622 (-2.3 w)
+  danfoss catalogue (c = 1): E 0.8485, share 70.1%, curve 73.3%, residual -3.2; E - E50 +0.0273 (+1.0 w)
+  marzocchi catalogue (c = 1): E 0.8975, share 99.5%, curve 94.4%, residual +5.1; E - E50 +0.0763 (+2.8 w)
+  casappa KP30 bench family (6q): E 0.9130, share 100.0%, curve 96.8%, residual +3.2; E - E50 +0.0918 (+3.4 w)
+  piston pump, full stroke (6j; not index 2): E 0.8400, share 74.0%, curve 66.7%, residual +7.3; E - E50 +0.0188 (+0.7 w)
+
+Predictions (LOG.md 6r):
+  GE1 pooled E50 in 0.820-0.835: held (0.8212)
+  GE2 every left-out crossing within 0.015: held (worst 0.0118)
+  GE3 pooled RMS < 6 points: held (5.62)
+  GE4 every left-out RMS < 10 points: held (8.91)
+  GE5 piston point within 15 points: held (+7.3)

@@ -10,17 +10,49 @@
 //      2, ...), each run kept between minShift and maxShift hours; a run shorter than minShift is stretched to it and the
 //      stretch is reported as extra hours.
 //
-// No forecast model: it is the average of what you sold, so a holiday or a rainy week in the file moves it. Not
-// tested on a real POS export; column names are matched by synonym, written from memory. Nothing leaves the machine.
-import { splitCsvRow } from "./import-staff.mjs";
-import { DAYS } from "./calc.mjs";
+// No forecast model: it is the average of what you sold, so a holiday or a rainy week in the file moves it. Read on
+// two real POS exports (a Korean bakery's orders, a French bakery's item lines; eval/); other column names are matched by
+// synonym, written from memory. Nothing leaves the machine.
+import { splitCsvRow, csvLines } from "./import-staff.mjs";
+import { DAYS, parseDaySpec } from "./calc.mjs";
 
-const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+// camelCase headers split into words first ("InvoiceDate" is "invoice date", "UnitPrice" "unit price"; 2026-11-11, the
+// UCI Online Retail export could not be read before).
+const norm = (s) => String(s || "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+// "Sat 16:00-17:00 (people 4-28)": the same hour left short for 25 heads was 25 entries on one real export.
+function droppedList(dropped) {
+  const by = new Map();
+  for (const { at, k } of dropped) { if (!by.has(at)) by.set(at, []); by.get(at).push(k); }
+  return [...by].map(([at, ks]) => {
+    ks.sort((a, b) => a - b);
+    const runs = []; let a = ks[0], b = ks[0];
+    for (const k of ks.slice(1)) { if (k === b + 1) b = k; else { runs.push([a, b]); a = b = k; } }
+    runs.push([a, b]);
+    const txt = runs.map(([x, y]) => (x === y ? `${x}` : `${x}-${y}`)).join(", ");
+    return `${at} (${ks.length === 1 ? "person" : "people"} ${txt})`;
+  }).join(", ");
+}
 const SYN = {
-  stamp: ["datetime", "date time", "timestamp", "time", "hour", "date", "sale time", "order time", "created at", "opened", "check opened", "start", "interval", "period", "order date", "sale date", "transaction time", "transaction date", "paid at", "closed", "check closed", "payment time"],
+  stamp: ["datetime", "date time", "timestamp", "time", "hour", "date", "sale time", "order time", "created at", "opened", "check opened", "start", "interval", "period", "order date", "sale date", "transaction time", "transaction date", "invoice date", "time stamp", "paid at", "closed", "check closed", "payment time"],
   day: ["day", "weekday", "day of week", "dow"],
   sales: ["sales", "net sales", "gross sales", "amount", "total", "revenue", "net revenue", "net amount", "sales amount", "total sales", "net sale", "gross", "net price", "order total", "check total", "net total", "gross total", "payment amount", "transaction amount", "subtotal", "sub total"],
 };
+const QTY = ["quantity", "qty", "units", "quantity sold", "units sold", "items sold", "item quantity", "qty sold"];
+// A ticket, order or receipt number: with o.count "tickets" (or no sales column at all) each distinct number is one
+// customer served, so staffing follows how many people came through, not how much they spent.
+const TICKET = ["ticket", "ticket number", "ticket no", "ticket id", "transaction", "transaction id", "transaction number", "transaction no", "order id", "order number", "order no", "receipt", "receipt number", "receipt no", "receipt id", "check number", "check no", "check id", "bill number", "bill no", "invoice", "invoice number", "invoice no", "invoice id", "sale id", "sale number"];
+// A void flag column (Toast's item export has "Void?", true on a line rung in and then voided): a voided line was never
+// sold, though its price is positive, so it is left out and counted (2026-11-12).
+const VOID = ["void", "voided", "is void", "void flag", "voided item", "is voided", "void status"];
+const TRUTHY = /^(?:true|yes|y|1|voided|void|x)$/i;
+// An event or status column (Square's item export has "Event Type": Payment or Refund): a refund, return, void or
+// cancellation row is left out even when its amount is written positive.
+const EVENT = ["event type", "transaction type", "transaction status", "order status", "payment status", "line type", "sale type", "status"];
+const UNSOLD = /^(?:void|voided|refund|refunded|return|returned|cancel|cancelled|canceled|deleted)$/i;
+// Net before gross: Square's item export has "Gross Sales" ahead of "Net Sales" (gross is before discounts), and the
+// first column that matched used to win (2026-11-12).
+const NET_FIRST = ["sales", "net sales", "net amount", "net price", "net total", "net revenue", "net sale", "sales amount", "total sales"];
+const PRICE = ["unit price", "price", "item price", "price each", "selling price", "sale price", "unit price eur", "unit price euro"];
 const isoKey = (k) => String(k).trim().replace(/^(\d{4})-(\d{1,2})-(\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);
 const DAYNAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const dayOfName = (s) => DAYNAMES.indexOf(String(s).trim().toLowerCase().slice(0, 3));
@@ -37,6 +69,8 @@ export function readAmount(raw) {
   if (!t) return NaN;
   // A currency code beside the number ("USD 40.00", "40.00 EUR") is dropped, as a symbol is.
   t = t.replace(/\b(?:usd|cad|aud|nzd|gbp|eur|chf|mxn)\b/gi, "");
+  // Swiss thousands: "1'234.50" and "1’234.50" (2026-11-13: CHF was read, but its usual grouping was not a number).
+  if (/^\D*\d{1,3}(?:['’]\d{3})+(?:[.,]\d+)?\D*$/.test(t)) t = t.replace(/['’]/g, "");
   const neg = /^\(.*\)$/.test(t) || /^-|-$/.test(t.replace(/[$£€\s]/g, ""));
   t = t.replace(/[$£€\s()+-]/g, "");
   if (t.includes(",") && t.includes(".")) t = t.lastIndexOf(",") > t.lastIndexOf(".") ? t.replace(/\./g, "").replace(",", ".") : t.replace(/,/g, "");
@@ -98,28 +132,153 @@ function readStamp(tok, dayTok, dayFirst = false) {
   return { day: (t.getUTCDay() + 6) % 7, hour: hr, key: `${y}-${mo}-${d}` };
 }
 
-// Parse the export. Returns { avg: [7][24] average sales, observed: [7] days seen per weekday, rows, skipped, notes }.
-// o.skipDates: ISO dates (YYYY-MM-DD) left out entirely (a holiday, a storm, a private event).
-// o.halfLife: weeks; a day's weight halves for every that many weeks it is older than the newest date in the file
-// (a trend: recent weeks count more). Both are plain arithmetic on the average, not a forecast model.
-export function hourlySales(text, o = {}) {
+// Several exports pasted or loaded together (a POS exports one date range at a time; one real shop's 11 weeks of Square
+// item sales came as 17 files whose ranges overlap, and Square added two columns part-way, so the files have two header
+// layouts). A later header row starts the next file: its columns are matched to the first header's by name, so a column
+// added or moved does not shift the sales into the wrong cell. A row that repeats a row of an earlier file in every
+// column all the files share is that file's overlap, counted once. Repeats inside one file are kept (two identical lines
+// can be two sales). Notes say how many of each were dropped.
+function pastedFiles(lines, sep, out) {
+  const nm = (x) => norm(String(x).replace(/[(\[][^)\]]*[)\]]/g, " "));
+  const first = splitCsvRow(lines[0], sep).map(nm), firstSet = new Set(first.filter(Boolean));
+  const isHeader = (c) => {
+    const names = c.map(nm).filter(Boolean);
+    const hit = names.filter((n) => firstSet.has(n)).length;
+    return hit >= 2 && hit >= 0.8 * names.length && hit >= 0.5 * firstSet.size;
+  };
+  const files = [{ head: first, same: true, rows: [] }];
+  for (const l of lines.slice(1)) {
+    const c = splitCsvRow(l, sep);
+    if (isHeader(c)) { const h = c.map(nm); files.push({ head: h, same: h.join("|") === first.join("|"), rows: [] }); continue; }
+    files[files.length - 1].rows.push({ l, c });
+  }
+  if (files.length === 1) return lines;
+  const common = first.filter((n) => n && files.every((f) => f.head.includes(n)));
+  const q = (x) => (/["\n]/.test(x) || x.includes(sep) ? `"${String(x).replace(/"/g, '""')}"` : x);
+  const earlier = new Set(), kept = [lines[0]];
+  let repeats = 0, moved = 0;
+  for (const f of files) {
+    const at = (c, n) => String(c[f.head.indexOf(n)] ?? "").trim();
+    const mine = new Set();
+    for (const { l, c } of f.rows) {
+      const k = common.map((n) => at(c, n)).join("\u0001");
+      if (earlier.has(k)) { repeats++; continue; }
+      mine.add(k);
+      if (f.same) kept.push(l); else { moved++; kept.push(first.map((n) => q(n && f.head.includes(n) ? at(c, n) : "")).join(sep)); }
+    }
+    for (const k of mine) earlier.add(k);
+  }
+  const differ = files.filter((f) => !f.same).length;
+  out.notes.push(`${files.length} files pasted together (the header row came ${files.length} times; the copies are not read as sales)${differ ? `; ${differ} of them ${differ === 1 ? "has" : "have"} a different header row, so their columns were matched to the first file's by name` : ""}.`);
+  if (repeats) out.notes.push(`${repeats} row${repeats === 1 ? "" : "s"} repeat${repeats === 1 ? "s" : ""} a row of an earlier file (overlapping date ranges) and ${repeats === 1 ? "is" : "are"} counted once.`);
+  return kept;
+}
+
+// Several shops in one export (2026-11-13). Square's item-sales export and Toast's ItemSelectionDetails both carry a
+// "Location" column (all four real files read in eval/real-pos-exports.mjs do, one shop each), so an owner with two or
+// three sites exports them in one file. Until now every row was averaged into one shop's week. This lists the
+// locations with row counts (out.locations, before any filter) and, given o.location (matched without case or
+// punctuation), keeps only that site's rows. With several and none picked, a note says they were planned as one.
+// A row shifted by an unquoted comma (a real Square file writes "O&#039,Toole" for O'Toole, so every column after the
+// item name moves one to the right and the Location cell reads "Payment", the Event Type) keeps its real location.
+const WHERE = ["location", "location name", "site", "site name", "store", "store name", "branch", "branch name", "venue", "venue name", "outlet", "outlet name", "restaurant", "restaurant name", "shop", "shop name", "location code"];
+function pickLocation(lines, sep, head, o, out) {
+  out.locations = [];
+  const w = (WHERE.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
+  if (w < 0) {
+    if (o.location) out.notes.push(`No location column found (looked for: ${WHERE.join(", ")}), so "${o.location}" could not be picked: the whole file was read.`);
+    return lines;
+  }
+  const rows = lines.slice(1).map((l) => splitCsvRow(l, sep));
+  const at = (c, i) => String(c[i] ?? "").trim();
+  const blank = (c) => c.every((x) => String(x ?? "").trim() === "");
+  // First count by the column alone, then move a row whose value is rarer than another location when a cell up to
+  // three places to either side is exactly that busier location's name: the row is shifted (counting cells does not
+  // show it; the real file's shifted row has as many cells as the rest, its trailing empty one gone).
+  const first = new Map();
+  for (const c of rows) { const v = blank(c) ? "" : at(c, w); if (v) first.set(v, (first.get(v) || 0) + 1); }
+  let shifted = 0;
+  const locOf = rows.map((c) => {
+    if (blank(c)) return null;
+    const v = at(c, w);
+    for (const k of [1, -1, 2, -2, 3, -3]) {
+      const r = at(c, w + k);
+      if (r && r !== v && (first.get(r) || 0) > (first.get(v) || 0)) { shifted++; return r; }
+    }
+    return v;
+  });
+  const count = new Map();
+  for (const v of locOf) if (v) count.set(v, (count.get(v) || 0) + 1);
+  out.locations = [...count].map(([name, n]) => ({ name, rows: n })).sort((a, b) => b.rows - a.rows || a.name.localeCompare(b.name));
+  if (shifted) out.notes.push(`${shifted} row${shifted === 1 ? " has" : "s have"} shifted cells (an unquoted comma, such as "O&#039,Toole" for O'Toole, moves every later column): ${shifted === 1 ? "its" : "their"} location was read from the cell beside it that names a busier location.`);
+  const key = (s) => norm(s);
+  if (o.location) {
+    const want = key(o.location);
+    const hit = out.locations.find((l) => key(l.name) === want);
+    if (!hit) { out.notes.push(`No rows at location "${o.location}". Locations in the file: ${out.locations.map((l) => l.name).join("; ") || "none"}.`); out.noLocation = true; return [lines[0]]; }
+    const kept = [lines[0]];
+    let elsewhere = 0;
+    rows.forEach((c, i) => { if (locOf[i] === null || key(locOf[i]) === want) kept.push(lines[i + 1]); else elsewhere++; });
+    out.location = hit.name;
+    out.notes.push(`Only ${hit.name}: ${elsewhere} row${elsewhere === 1 ? "" : "s"} at other locations left out.`);
+    return kept;
+  }
+  if (out.locations.length > 1) out.notes.push(`The file has ${out.locations.length} locations (${out.locations.slice(0, 6).map((l) => `${l.name}: ${l.rows} rows`).join("; ")}${out.locations.length > 6 ? "; ..." : ""}); they were planned as one shop. Pick one location to plan it alone.`);
+  return lines;
+}
+
+// Read the export into dated (or weekday-only) sales entries, before any averaging.
+// Returns { entries: [{day, hour, key, amount}], rows, skipped, notes, blank, undated, dayFirst, ambiguous, skippedDays }.
+export function readSales(text, o = {}) {
   const skip = new Set((o.skipDates || []).map(isoKey));
-  const halfLife = o.halfLife === undefined ? 0 : Number(o.halfLife);
-  if (o.halfLife !== undefined && !(halfLife > 0)) throw new Error("half-life must be a positive number of weeks");
   // Excel writes "sep=," as a first line when it saves a CSV for another locale; it is not a header.
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim()).filter((l, i) => !(i === 0 && /^"?sep=.?"?\s*$/i.test(l.trim())));
-  const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), rows: 0, skipped: [], notes: [] };
+  let lines = csvLines(text).filter((l) => l.trim()).filter((l, i) => !(i === 0 && /^"?sep=.?"?\s*$/i.test(l.trim())));
+  const out = { entries: [], rows: 0, skipped: [], notes: [], blank: 0, undated: 0, dayFirst: false, ambiguous: false, skippedDays: new Set(), refunds: { n: 0, amount: 0 }, voids: { n: 0, amount: 0 }, locations: [] };
   if (lines.length < 2) { out.notes.push("Needs a header row and at least one row of sales."); return out; }
   const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
+  lines = pastedFiles(lines, sep, out);
   // "Net Sales (USD)" and "Sales [GBP]" are the column "Net Sales": a bracketed unit is dropped from a header.
   const head = splitCsvRow(lines[0], sep).map((h) => norm(String(h).replace(/[(\[][^)\]]*[)\]]/g, " ")));
+  lines = pickLocation(lines, sep, head, o, out);
+  if (out.noLocation) return out;
   const find = (k) => head.findIndex((h) => SYN[k].includes(h));
-  const ix = { stamp: find("stamp"), day: find("day"), sales: find("sales"), clock: -1 };
+  const net = (NET_FIRST.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
+  const ix = { stamp: find("stamp"), day: find("day"), sales: net >= 0 ? net : find("sales"), clock: -1 };
+  const voidCol = (VOID.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1), eventCol = (EVENT.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
+  // -> "void" for a voided line, "refund" for a refund/return/cancel event row, "" for a sale.
+  const unsold = (c) => voidCol >= 0 && TRUTHY.test(String(c[voidCol] ?? "").trim()) ? "void"
+    : eventCol >= 0 && UNSOLD.test(String(c[eventCol] ?? "").trim()) ? (/^void/i.test(String(c[eventCol]).trim()) ? "void" : "refund") : "";
   // A separate date column and time column ("Date,Time,Net Sales" is how many POS exports come): join them into one stamp.
-  const dateCol = head.findIndex((h) => ["date", "day date", "business date", "sale date", "order date"].includes(h));
+  const dateCol = head.findIndex((h) => ["date", "day date", "business date", "sale date", "order date", "invoice date"].includes(h));
   const timeCol = head.findIndex((h, i) => i !== dateCol && ["time", "hour", "sale time", "order time", "start time", "interval", "period"].includes(h));
   if (dateCol >= 0 && timeCol >= 0) { ix.stamp = dateCol; ix.clock = timeCol; }
-  if (ix.sales < 0) { out.notes.push("No sales column found (looked for: " + SYN.sales.join(", ") + ")."); return out; }
+  // A line-item export (one row per item sold: a French bakery's "date,time,ticket_number,article,Quantity,unit_price",
+  // 234,005 lines) has no total column: sales are quantity x unit price.
+  if (ix.sales < 0) {
+    const q = (QTY.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1), p = head.findIndex((h, i) => i !== q && (PRICE.includes(h) || /^unit price\b/.test(h)));
+    if (q >= 0 && p >= 0) { ix.qty = q; ix.price = p; ix.sales = p; out.notes.push("No sales column: each row's sales are its quantity times its unit price (a line-item export)."); }
+  }
+  const tix = (TICKET.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
+  // A labour standard (2026-11-12): o.standard = { ticket, sale, item } minutes of work per ticket, per unit of money and
+  // per item sold. Each row then counts the minutes it costs, so --splh is minutes of work per labor hour (60 is a person
+  // busy every minute). This is the fixed-plus-variable workload model paid workforce tools call a labour standard.
+  if (o.standard) return readStandard(lines, sep, head, ix, tix, dateCol, timeCol, o, out, skip);
+  const count = o.count === undefined || o.count === "sales" ? null : String(o.count);
+  if (count !== null && count !== "tickets" && count !== "rows") throw new Error('count must be "sales", "tickets" or "rows"');
+  // Counting customers instead of money: "tickets" counts each distinct ticket number once (at its first row's hour),
+  // "rows" counts every row. A file with no sales column but a ticket column is counted by ticket, with a note.
+  let mode = "sales";
+  if (count === "tickets") {
+    if (tix < 0) { out.notes.push("No ticket, order or receipt number column found (looked for: " + TICKET.join(", ") + "). --count rows counts each row as one."); return out; }
+    mode = "tickets";
+  } else if (count === "rows") mode = "rows";
+  else if (ix.sales < 0 && tix >= 0) { mode = "tickets"; out.notes.push(`No sales column: counting tickets instead (each distinct "${splitCsvRow(lines[0], sep)[tix].trim()}" is one customer), so the rate is tickets per labor hour.`); }
+  out.count = mode;
+  if (mode === "tickets" && count === "tickets") out.notes.push(`Counting tickets: each distinct "${splitCsvRow(lines[0], sep)[tix].trim()}" is one customer, so the rate is tickets per labor hour.`);
+  if (mode === "rows") out.notes.push("Counting rows: each row is one customer, so the rate is rows per labor hour.");
+  if (mode !== "sales") { ix.sales = -1; delete ix.qty; delete ix.price; out.notes = out.notes.filter((n) => !n.startsWith("No sales column: each row's sales")); }
+  const seenTickets = new Set();
+  if (mode === "sales" && ix.sales < 0) { out.notes.push("No sales column found (looked for: " + SYN.sales.join(", ") + "). --count tickets counts customers by a ticket, order or receipt number column instead; --count rows counts each row."); return out; }
   if (ix.stamp < 0) { out.notes.push("No date-time or hour column found."); return out; }
   // A slash or dash date whose first number is over 12 somewhere in the file (25/03/2026) means the whole file is day first;
   // one whose second number is over 12 means month first. With neither, 05/03/2026 is ambiguous: month first, and a note says so.
@@ -131,82 +290,503 @@ export function hourlySales(text, o = {}) {
     if (+m[1] > 12) dayFirst = true; else if (+m[3] > 12) monthFirst = true; else if (+m[1] !== +m[3]) ambiguous = true;
   }
   if (monthFirst) dayFirst = false;
-  const ambiguousNote = ambiguous && !dayFirst && !monthFirst;
-  const entries = []; // {day, hour, key, amount}
-  let undated = 0, skippedDays = new Set();
+  out.dayFirst = dayFirst;
+  out.ambiguous = ambiguous && !dayFirst && !monthFirst;
+  const stampOf = (c) => ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp];
   lines.slice(1).forEach((line, i) => {
     const c = splitCsvRow(line, sep);
-    const amount = readAmount(c[ix.sales]);
+    // A row of empty cells (",,,,," at the end of a real bakery export, 233 of them) is not a sale and not an error.
+    if (c.every((x) => String(x ?? "").trim() === "")) { out.blank++; return; }
+    const un = unsold(c);
+    if (mode !== "sales") {
+      // A voided or refunded line is not a customer served (an order whose only line was voided is not counted).
+      if (un) { out[un === "void" ? "voids" : "refunds"].n++; return; }
+      const st = readStamp(stampOf(c), ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
+      if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampOf(c) || ""}"`); return; }
+      if (mode === "tickets") {
+        const id = String(c[tix] ?? "").trim();
+        if (!id) { out.skipped.push(`row ${i + 2}: no ticket number`); return; }
+        // Ticket numbers that restart each day are still distinct per date.
+        const k = `${st.key}|${id}`;
+        if (seenTickets.has(k)) return;
+        seenTickets.add(k);
+      }
+      if (st.key && skip.has(isoKey(st.key))) { out.skippedDays.add(st.key); return; }
+      out.entries.push({ ...st, amount: 1 });
+      if (!st.key) out.undated++;
+      out.rows++;
+      return;
+    }
+    const amount = ix.qty !== undefined ? Math.round(readAmount(c[ix.qty]) * readAmount(c[ix.price]) * 100) / 100 : readAmount(c[ix.sales]);
     const stampText = ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp];
     const st = readStamp(stampText, ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
     if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampText || ""}"`); return; }
-    if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "") { out.skipped.push(`row ${i + 2}: could not read the sales "${c[ix.sales] || ""}"`); return; }
-    if (amount < 0) { out.skipped.push(`row ${i + 2}: negative sales (a refund?) skipped`); return; }
-    if (st.key && skip.has(isoKey(st.key))) { skippedDays.add(st.key); return; }
-    entries.push({ ...st, amount });
-    if (!st.key) undated++;
+    if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "" || (ix.qty !== undefined && String(c[ix.qty] || "").trim() === "")) { out.skipped.push(`row ${i + 2}: could not read the sales "${ix.qty !== undefined ? `${c[ix.qty] || ""} x ${c[ix.price] || ""}` : c[ix.sales] || ""}"`); return; }
+    // A refund or void line is counted, not listed: the French bakery file has 1,294 of them, one "skipped" line each before.
+    if (un === "void") { out.voids.n++; out.voids.amount += Math.abs(amount); return; }
+    if (amount < 0 || un) { out.refunds.n++; out.refunds.amount -= Math.abs(amount); return; }
+    if (st.key && skip.has(isoKey(st.key))) { out.skippedDays.add(st.key); return; }
+    out.entries.push({ ...st, amount });
+    if (!st.key) out.undated++;
     out.rows++;
   });
-  const keyMs = (k) => { const [y, m, d] = k.split("-").map(Number); return Date.UTC(y, m - 1, d); };
-  const newest = Math.max(0, ...entries.filter((e) => e.key).map((e) => keyMs(e.key)));
-  const weightOf = (k) => (halfLife && k ? Math.pow(0.5, (newest - keyMs(k)) / 86400000 / 7 / halfLife) : 1);
+  return out;
+}
+
+// Parse a labour standard: "1.5/ticket + 0.1/sale + 0.3/item" (any order, "+" or "," between, "min" optional), or an
+// object { ticket, sale, item }. Returns { ticket, sale, item } in minutes, each 0 when absent; throws when all are 0.
+// Fixed work (2026-11-12): "10/hour" is minutes in every hour the shop trades (wiping down, restocking, the till),
+// "30/open" minutes in the first trading hour of each day (setting up) and "45/close" in the last (cleaning down).
+// "20/before-open" and "45/after-close" (2026-11-12 later) put the minutes in the hour before the first trading hour
+// and the hour after the last, when the doors are shut: the closer stays on to clean down rather than doing it between
+// customers. These keys (hour, open, close, beforeOpen, afterClose) are present only when given, so a variable-only
+// standard reads as before.
+export function parseStandard(v) {
+  let st = { ticket: 0, sale: 0, item: 0 };
+  const fixed = {};
+  if (v && typeof v === "object") {
+    st = { ticket: +v.ticket || 0, sale: +v.sale || 0, item: +v.item || 0 };
+    for (const k of FIXED_KEYS) if (v[k] !== undefined && v[k] !== 0) fixed[k] = +v[k];
+  } else {
+    const parts = String(v || "").split(/[+,;]/).map((x) => x.trim()).filter(Boolean);
+    for (const p of parts) {
+      const m = /^(\d+(?:\.\d+)?)\s*(?:min(?:utes?)?|m)?\s*(?:\/|per|a|an|each|every)?\s*(tickets?|orders?|customers?|receipts?|transactions?|sales?|money|euros?|eur|dollars?|usd|pounds?|gbp|won|items?|units?|pieces?|(?:open(?:ing)?[- ]?)?hours?(?:[- ]open)?|(?:before|pre)[- ]?open(?:ing)?|after[- ]?clos(?:e|ing)|post[- ]?close|opening|open|closing|close)$/i.exec(p);
+      if (!m) throw new Error(`could not read "${p}" in the labour standard: write minutes per ticket, sale or item, or fixed minutes per hour, open, close, before-open or after-close, e.g. "1.5/ticket + 0.3/item + 10/hour"`);
+      const n = +m[1], u = m[2].toLowerCase();
+      if (/hour/.test(u)) { fixed.hour = (fixed.hour || 0) + n; continue; }
+      if (/^(before|pre)/.test(u)) { fixed.beforeOpen = (fixed.beforeOpen || 0) + n; continue; }
+      if (/^(after|post)/.test(u)) { fixed.afterClose = (fixed.afterClose || 0) + n; continue; }
+      if (/^open/.test(u)) { fixed.open = (fixed.open || 0) + n; continue; }
+      if (/^clos/.test(u)) { fixed.close = (fixed.close || 0) + n; continue; }
+      const k = /^(ticket|order|customer|receipt|transaction)/.test(u) ? "ticket" : /^(item|unit|piece)/.test(u) ? "item" : "sale";
+      st[k] += n;
+    }
+  }
+  for (const k of FIXED_KEYS) if (fixed[k] !== undefined) st[k] = fixed[k];
+  for (const k of ["ticket", "sale", "item", ...FIXED_KEYS]) if (st[k] !== undefined && (!(st[k] >= 0) || !Number.isFinite(st[k]))) throw new Error("labour standard minutes must be 0 or more");
+  for (const k of FIXED_KEYS) if (st[k] === 0) delete st[k];
+  if (!(st.ticket + st.sale + st.item + fixedMinutes(st) > 0)) throw new Error("a labour standard needs minutes per ticket, sale, item, hour, open, close, before-open or after-close above 0");
+  return st;
+}
+const FIXED_KEYS = ["hour", "open", "close", "beforeOpen", "afterClose"];
+const fixedMinutes = (st) => (st.hour || 0) + (st.open || 0) + (st.close || 0) + (st.beforeOpen || 0) + (st.afterClose || 0);
+
+const fmtMin = (n) => String(Math.round(n * 1000) / 1000);
+export function describeStandard(st) {
+  return [st.ticket && `${fmtMin(st.ticket)} min a ticket`, st.sale && `${fmtMin(st.sale)} min a unit of money taken`, st.item && `${fmtMin(st.item)} min an item`,
+    st.hour && `${fmtMin(st.hour)} min every trading hour`, st.open && `${fmtMin(st.open)} min at opening`, st.close && `${fmtMin(st.close)} min at closing`,
+    st.beforeOpen && `${fmtMin(st.beforeOpen)} min in the hour before opening`, st.afterClose && `${fmtMin(st.afterClose)} min in the hour after closing`].filter(Boolean).join(" + ");
+}
+
+// readSales with a labour standard: every row becomes its minutes of work. A ticket's minutes land at the hour of its
+// first row; money and items at each row's own hour. Refund lines (negative money or quantity) are counted and left out.
+function readStandard(lines, sep, head, ix, tix, dateCol, timeCol, o, out, skip) {
+  const st = parseStandard(o.standard);
+  const qty = (QTY.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
+  const price = head.findIndex((h, i) => i !== qty && (PRICE.includes(h) || /^unit price\b/.test(h)));
+  const money = ix.qty !== undefined ? { qty: ix.qty, price: ix.price } : ix.sales >= 0 ? { col: ix.sales } : qty >= 0 && price >= 0 ? { qty, price } : null;
+  if (!st.sale) out.notes = out.notes.filter((n) => !n.startsWith("No sales column: each row's sales"));
+  const missing = [];
+  if (st.ticket && tix < 0) missing.push("a ticket, order or receipt number column (for minutes a ticket)");
+  if (st.sale && !money) missing.push("a sales column, or quantity and unit price (for minutes a unit of money)");
+  if (st.item && qty < 0) missing.push("a quantity column (for minutes an item)");
+  out.count = "minutes";
+  if (missing.length) { out.notes.push("The labour standard needs " + missing.join("; ") + "."); return out; }
+  if (ix.stamp < 0) { out.notes.push("No date-time or hour column found."); return out; }
+  out.standard = st;
+  out.notes.push(`Labour standard: ${describeStandard(st)}, so the rate is minutes of work per labor hour (60 is someone busy every minute).`);
+  let dayFirst = false, monthFirst = false, ambiguous = false;
+  for (const line of lines.slice(1)) {
+    const t = String(splitCsvRow(line, sep)[ix.stamp] || "").trim();
+    const m = /^(?:[a-z]+[.,]?\s+)?(\d{1,2})([\/-])(\d{1,2})\2(\d{2}|\d{4})(?!\d)/i.exec(t);
+    if (!m) continue;
+    if (+m[1] > 12) dayFirst = true; else if (+m[3] > 12) monthFirst = true; else if (+m[1] !== +m[3]) ambiguous = true;
+  }
+  if (monthFirst) dayFirst = false;
+  out.dayFirst = dayFirst;
+  out.ambiguous = ambiguous && !dayFirst && !monthFirst;
+  const seen = new Set();
+  out.parts = { ticket: 0, sale: 0, item: 0 };
+  lines.slice(1).forEach((line, i) => {
+    const c = splitCsvRow(line, sep);
+    if (c.every((x) => String(x ?? "").trim() === "")) { out.blank++; return; }
+    const stampText = ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp];
+    const s = readStamp(stampText, ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
+    if (!s) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampText || ""}"`); return; }
+    let amount = 0, items = 0;
+    if (st.sale) {
+      amount = money.col !== undefined ? readAmount(c[money.col]) : Math.round(readAmount(c[money.qty]) * readAmount(c[money.price]) * 100) / 100;
+      const blank = money.col !== undefined ? String(c[money.col] ?? "").trim() === "" : String(c[money.qty] ?? "").trim() === "";
+      if (!Number.isFinite(amount) || blank) { out.skipped.push(`row ${i + 2}: could not read the sales`); return; }
+    }
+    if (st.item) {
+      items = readAmount(c[qty]);
+      if (!Number.isFinite(items) || String(c[qty] ?? "").trim() === "") { out.skipped.push(`row ${i + 2}: could not read the quantity "${c[qty] ?? ""}"`); return; }
+    }
+    if (amount < 0 || items < 0) { out.refunds.n++; out.refunds.amount += amount; return; }
+    if (s.key && skip.has(isoKey(s.key))) { out.skippedDays.add(s.key); return; }
+    let tmin = 0;
+    if (st.ticket) {
+      const id = String(c[tix] ?? "").trim();
+      if (!id) { out.skipped.push(`row ${i + 2}: no ticket number`); return; }
+      const k = `${s.key}|${id}`;
+      if (!seen.has(k)) { seen.add(k); tmin = st.ticket; }
+    }
+    const parts = { ticket: tmin, sale: st.sale * amount, item: st.item * items };
+    out.parts.ticket += parts.ticket; out.parts.sale += parts.sale; out.parts.item += parts.item;
+    out.entries.push({ ...s, amount: parts.ticket + parts.sale + parts.item });
+    if (!s.key) out.undated++;
+    out.rows++;
+  });
+  if (fixedMinutes(st)) addFixedWork(st, out, shutCrewOf(o));
+  const tot = out.parts.ticket + out.parts.sale + out.parts.item + (out.parts.fixed || 0);
+  if (tot > 0) out.notes.push("Share of the work: " + [["ticket", "tickets"], ["sale", "money"], ["item", "items"], ["fixed", "fixed work"]].filter(([k]) => k === "fixed" ? fixedMinutes(st) : st[k]).map(([k, n]) => `${n} ${Math.round(out.parts[k] / tot * 100)}%`).join(", ") + ".");
+  return out;
+}
+
+// Fixed work: a trading hour is a date-hour with at least one sale row (refunds and skipped dates left out). Each gets
+// st.hour minutes; the first trading hour of each date gets st.open and the last st.close (one hour trading: both).
+// Undated weekday rows ("Mon,11,300") are grouped by weekday, as one day each. An hour the shop was open with no sale
+// at all is not seen, so it gets no fixed work; the minimum staff setting covers that. Fixed entries carry fixed: true.
+// shutMin (o.shutMin, --shut-min): the fewest people on in an hour of before-open or after-close work only. Default:
+// 1 when minimum staff is 1 or more (0 with minimum staff 0). 2 is for a lone-worker rule (nobody locks up alone).
+// By weekday (2026-11-12): "1, Fri/Sat=2" is one closer Monday to Thursday and Sunday and two on Friday and Saturday
+// nights; "Fri-Sun=2" leaves the other days at the default; a later entry wins over an earlier one for the same day.
+// Day names and ranges as in availability ("Mon-Fri", "Fri/Sat", "daily"); "Fri:2" and "Fri 2" read the same. An
+// array of 7 whole numbers (Monday first) is taken as given. shutMinDays returns the 7 values.
+export function shutMinDays(o = {}) {
+  const minStaff = o.minStaff === undefined ? 1 : Number(o.minStaff);
+  const def = Math.min(minStaff, 1);
+  const whole = (v, what) => {
+    const n = typeof v === "number" ? v : String(v).trim() === "" ? NaN : Number(v);
+    if (!Number.isInteger(n) || n < 0) throw new Error(`staff with the doors shut must be a whole number, 0 or more${what ? ` (${what})` : ""}`);
+    return n;
+  };
+  const v = o.shutMin;
+  if (v === undefined || v === null || v === "") return new Array(7).fill(def);
+  if (Array.isArray(v)) {
+    if (v.length !== 7) throw new Error("staff with the doors shut by weekday needs 7 numbers, Monday first");
+    return v.map((x) => whole(x));
+  }
+  if (typeof v === "number") return new Array(7).fill(whole(v));
+  const out = new Array(7).fill(def);
+  for (const part of String(v).split(/[,;]/).map((x) => x.trim()).filter(Boolean)) {
+    const m = part.match(/^(.*?)\s*(?:[=:]|\s)\s*(-?[\d.]+)$/);
+    if (!m || !m[1]) { out.fill(whole(part, part)); continue; }
+    const ds = parseDaySpec(m[1]);
+    if (!ds.length) throw new Error(`staff with the doors shut: could not read the day in "${part}" (try Fri=2 or Fri/Sat=2)`);
+    const n = whole(m[2], part);
+    for (const d of ds) out[d] = n;
+  }
+  return out;
+}
+// One weekday's shut-hour minimum (d 0 = Monday); without d, the most any day asks for.
+export function shutMinOf(o = {}, d) {
+  const a = shutMinDays(o);
+  return d === undefined ? Math.max(...a) : a[d];
+}
+// The crew that does the shut-door work together on weekday d: its shut-hour minimum, at least 1. They clear crew x 60
+// minutes an hour.
+const shutCrewOf = (o) => { const a = shutMinDays(o); return (d) => Math.max(1, a[d]); };
+
+function addFixedWork(st, out, crewOf = () => 1) {
+  const days = new Map(); // key or "~weekday" -> { day, key, hours: Set }
+  for (const e of out.entries) {
+    const id = e.key || `~${e.day}`;
+    if (!days.has(id)) days.set(id, { day: e.day, key: e.key, hours: new Set() });
+    days.get(id).hours.add(e.hour);
+  }
+  let fixed = 0, hours = 0, outside = 0, squeezed = 0;
+  for (const { day, key, hours: hs } of days.values()) {
+    const list = [...hs].sort((a, b) => a - b), first = list[0], last = list[list.length - 1];
+    for (const hour of list) {
+      const m = (st.hour || 0) + (hour === first ? st.open || 0 : 0) + (hour === last ? st.close || 0 : 0);
+      hours++;
+      if (m > 0) { out.entries.push({ day, hour, key, amount: m, fixed: true }); fixed += m; }
+    }
+    // Before opening and after closing, with the doors shut (2026-11-12, spread later that day). Nobody waits on a
+    // customer then, so the crew works every minute: each hour outside the trading day takes up to crew x 60 minutes
+    // and the rest spills into the hour beyond (90 minutes after a 17:00 close, crew 1: 60 at 18:00 and 30 at 19:00, one
+    // person staying two hours, not two people for one). Before opening it spills earlier. Past 0:00 or midnight the
+    // rest goes into the last hour placed, or, when the day itself starts at 0:00 or ends at 23:00, into its first or
+    // last trading hour (the plan is one calendar day; counted in the note).
+    const cap = crewOf(day) * 60;
+    for (const [m, at, step, edge] of [[st.beforeOpen, first - 1, -1, first], [st.afterClose, last + 1, 1, last]]) {
+      if (!(m > 0)) continue;
+      let rem = m, h = at, placed = null;
+      while (rem > 1e-9 && h >= 0 && h <= 23) {
+        const take = Math.min(rem, cap);
+        placed = { day, hour: h, key, amount: take, fixed: true, outside: true };
+        out.entries.push(placed);
+        rem -= take; h += step;
+      }
+      if (rem > 1e-9) {
+        squeezed++;
+        if (placed) placed.amount += rem; else out.entries.push({ day, hour: edge, key, amount: rem, fixed: true, outside: false });
+      }
+      fixed += m; outside += m;
+    }
+  }
+  out.parts.fixed = fixed;
+  out.notes.push(`Fixed work: ${Math.round(fixed)} minutes over ${hours} trading hours on ${days.size} days (an hour with no sale gets none)${outside ? `, ${Math.round(outside)} of them in the hour before opening or after closing, so that hour is staffed too` : ""}${squeezed ? `; on ${squeezed} day-end${squeezed === 1 ? "" : "s"} the day reached 0:00 or midnight, so the rest of that work went into the last hour it could` : ""}.`);
+}
+
+const keyMs = (k) => { const [y, m, d] = k.split("-").map(Number); return Date.UTC(y, m - 1, d); };
+const DAY_MS = 86400000;
+const WEEKDAY_NAMES = ["Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays", "Sundays"];
+
+// Average the entries per weekday-hour. Returns { avg: [7][24], observed: [7], seen: [7][24] (dates with any sale that
+// hour), closed: [{day, open, of}] (weekdays left out as rarely open), notes }.
+// o.halfLife: weeks; a day's weight halves for every that many weeks it is older than o.newest (default: the newest date).
+// o.keepRare: keep a weekday that traded on fewer than 1 in 4 of its dates in the span (default: treat it as closed).
+// o.shortCost with o.splh: also return heads: [7][24], the newsvendor headcount (see fractileHeads), and its tail.
+// o.priceCut with o.splh: return the tail only (heads stay the average's).
+export function averageSales(entries, o = {}) {
+  const halfLife = o.halfLife === undefined ? 0 : Number(o.halfLife);
+  if (o.halfLife !== undefined && !(halfLife > 0)) throw new Error("half-life must be a positive number of weeks");
+  const dated = entries.filter((e) => e.key);
+  // A loop, not Math.max(...rows): spreading 234,005 rows overflowed the call stack on the French bakery file.
+  let latest = 0, oldest = Infinity;
+  for (const e of dated) { const t = keyMs(e.key); if (t > latest) latest = t; if (t < oldest) oldest = t; }
+  const newest = o.newest !== undefined ? o.newest : latest;
+  const weightOf = (k) => (halfLife && k ? Math.pow(0.5, (newest - keyMs(k)) / DAY_MS / 7 / halfLife) : 1);
   const sum = DAYS.map(() => new Array(24).fill(0));
   const dates = DAYS.map(() => new Map()); // date -> weight
+  const hourDates = DAYS.map(() => Array.from({ length: 24 }, () => new Set()));
+  const insideDates = DAYS.map(() => Array.from({ length: 24 }, () => new Set())); // dates with a sale (or in-hours work)
+  const undatedInside = DAYS.map(() => new Array(24).fill(0));
+  const hasOutside = DAYS.map(() => new Array(24).fill(false)); // the hour carries before-open or after-close work
+  let undatedSeen = DAYS.map(() => new Array(24).fill(0));
   for (const e of entries) {
     const w = weightOf(e.key);
     sum[e.day][e.hour] += e.amount * w;
-    if (e.key) dates[e.day].set(e.key, w);
+    if (e.outside) hasOutside[e.day][e.hour] = true;
+    if (e.key) { dates[e.day].set(e.key, w); hourDates[e.day][e.hour].add(e.key); if (!e.outside) insideDates[e.day][e.hour].add(e.key); }
+    else { undatedSeen[e.day][e.hour] = 1; if (!e.outside) undatedInside[e.day][e.hour] = 1; }
   }
+  // outside[d][h]: an hour that carries before-open or after-close work and traded (or had in-hours work) on under 1 in
+  // 5 of the weekday's dates: the doors are shut, so minimum staff does not apply there (see headcount).
+  const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), seen: DAYS.map(() => new Array(24).fill(0)), outside: DAYS.map(() => new Array(24).fill(false)), closed: [], notes: [] };
+  const spanOf = (d) => {
+    const first = oldest + (((d - (new Date(oldest).getUTCDay() + 6) % 7) + 7) % 7) * DAY_MS;
+    return first > newest ? 0 : Math.floor((newest - first) / DAY_MS / 7) + 1;
+  };
+  // The rule only applies to a regular export: the busiest weekday traded on at least half its dates in the span.
+  const regular = Number.isFinite(oldest) && DAYS.some((_, d) => spanOf(d) >= 4 && dates[d].size * 2 >= spanOf(d));
   for (let d = 0; d < 7; d++) {
+    // How many of this weekday's dates fall inside the file's span: a weekday with sales on only 3 of 45 (Christmas Eve on a
+    // Tuesday the shop is otherwise shut) would otherwise be averaged over its 3 open dates and staffed like a full day.
+    if (!o.keepRare && regular && dates[d].size) {
+      const span = spanOf(d);
+      if (span >= 4 && dates[d].size * 4 < span) { out.closed.push({ day: d, open: dates[d].size, of: span }); continue; }
+    }
     // An undated "Mon,11,300" row is already an average for that weekday-hour, so it counts one observed day.
     const wsum = [...dates[d].values()].reduce((a, b) => a + b, 0);
     out.observed[d] = dates[d].size || (sum[d].some((v) => v > 0) ? 1 : 0);
     const div = dates[d].size ? wsum : out.observed[d];
-    for (let h = 0; h < 24; h++) out.avg[d][h] = div ? sum[d][h] / div : 0;
+    for (let h = 0; h < 24; h++) {
+      out.avg[d][h] = div ? sum[d][h] / div : 0;
+      out.seen[d][h] = hourDates[d][h].size || undatedSeen[d][h];
+      const inside = dates[d].size ? insideDates[d][h].size : undatedInside[d][h];
+      // Only an hour that carries shut-door work (2026-11-12 last): before that, any rarely traded hour inside the day
+      // was marked, so minimum staff 2 fell to 1 there with no before-open or after-close work in the standard at all.
+      out.outside[d][h] = hasOutside[d][h] && out.seen[d][h] > 0 && inside * 5 < out.observed[d];
+    }
   }
-  if (skippedDays.size) out.notes.push(`${skippedDays.size} day${skippedDays.size === 1 ? "" : "s"} left out (--skip-dates): ${[...skippedDays].sort().join(", ")}.`);
-  if (halfLife) out.notes.push(`Recent weeks weigh more: a day's weight halves every ${halfLife} week${halfLife === 1 ? "" : "s"} back from the newest date.`);
-  if (dayFirst) out.notes.push("Dates read day first (a date such as 25/03/2026 in the file shows the order).");
-  if (ambiguousNote) out.notes.push("Dates such as 05/03/2026 could be 5 March or May 3 and no date in the file settles it: read month first (US). If yours are day first, change the export to YYYY-MM-DD.");
-  if (undated) out.notes.push(`${undated} rows had a weekday name instead of a date: each weekday-hour is taken as already one day's figure.`);
+  for (const c of out.closed) out.notes.push(`${WEEKDAY_NAMES[c.day]}: sales on ${c.open} of ${c.of} in the file, so treated as closed (--keep-rare keeps it).`);
+  if (o.shortCost !== undefined && o.splh) Object.assign(out, fractileHeads(entries, dates, out, o.splh, o.shortCost));
+  // o.priceCut without o.shortCost: the tail alone, so the cut can price short runs at r = 1 while the heads stay the
+  // average's (2026-11-11).
+  else if (o.priceCut && o.splh) out.tail = fractileHeads(entries, dates, out, o.splh, 1).tail;
+  return out;
+}
+
+// The short-vs-over cost weight (2026-11-11). An hour planned from the average is short about half the time: the average
+// of 0, 0, 3 and 5 heads is 2, so the two busy dates were short 4 person-hours between them. If a short person-hour (a
+// queue, a lost sale, a worn-out team) costs r times a spare one (pay for someone with nothing to do), the headcount that
+// minimises r x short + over over the past dates is the smallest k whose share of dates needing k or fewer reaches
+// r / (1 + r): the newsvendor critical fractile. r = 1 is the median; r = 3 the 75th percentile; r = 1/3 the 25th.
+// Each date of the weekday counts once, with its --half-life weight, needing ceil(that date-hour's sales / splh) heads
+// (0 on a date with no sale that hour). Undated weekday-average rows have no spread: those hours keep ceil(average / splh).
+export function shortCostShare(r) {
+  const v = Number(r);
+  if (!(v > 0) || !Number.isFinite(v)) throw new Error("short cost must be a positive number (how many times a spare person-hour a short one costs)");
+  return v / (1 + v);
+}
+
+// Returns { heads: [7][24], tail: [7][24] } where tail[d][h][c] is the weighted share of the weekday's dates that needed c
+// or more heads at hour h (tail[d][h][0] = 1), or null for an undated weekday. cutShifts uses the tail to price the
+// shortest-shift stretch against dropping a short run (see shiftCost).
+function fractileHeads(entries, dates, a, splh, r) {
+  const p = shortCostShare(r);
+  const perDateHour = new Map(); // "key|hour" -> sales
+  for (const e of entries) if (e.key) { const k = `${e.key}|${e.hour}`; perDateHour.set(k, (perDateHour.get(k) || 0) + e.amount); }
+  const tail = DAYS.map(() => new Array(24).fill(null));
+  const heads = DAYS.map((_, d) => {
+    const row = new Array(24).fill(0);
+    if (!a.observed[d]) return row;
+    if (!dates[d].size) { for (let h = 0; h < 24; h++) row[h] = Math.ceil(a.avg[d][h] / splh - 1e-9); return row; }
+    const ds = [...dates[d]]; // [key, weight]
+    const total = ds.reduce((x, [, w]) => x + w, 0);
+    for (let h = 0; h < 24; h++) {
+      const need = ds.map(([k, w]) => [Math.max(0, Math.ceil((perDateHour.get(`${k}|${h}`) || 0) / splh - 1e-9)), w]).sort((x, y) => x[0] - y[0]);
+      let cum = 0;
+      for (const [n, w] of need) { cum += w; if (cum >= p * total - 1e-9 * total) { row[h] = n; break; } }
+      const top = need.length ? need[need.length - 1][0] : 0, t = new Array(top + 2).fill(0);
+      for (const [n, w] of need) t[n] += w / total;
+      for (let c = top; c >= 0; c--) t[c] += t[c + 1];
+      tail[d][h] = t;
+    }
+    return row;
+  });
+  return { heads, tail };
+}
+
+// Parse the export. Returns { avg: [7][24] average sales, observed: [7] days seen per weekday, seen, closed, rows, skipped, notes }.
+// o.skipDates: ISO dates (YYYY-MM-DD) left out entirely (a holiday, a storm, a private event).
+// o.halfLife: weeks; a day's weight halves for every that many weeks it is older than the newest date in the file
+// (a trend: recent weeks count more). Both are plain arithmetic on the average, not a forecast model.
+export function hourlySales(text, o = {}) {
+  if (o.shortCost !== undefined) shortCostShare(o.shortCost);
+  if (o.halfLife !== undefined && !(Number(o.halfLife) > 0)) throw new Error("half-life must be a positive number of weeks");
+  if (o.window !== undefined && !(Number.isInteger(Number(o.window)) && Number(o.window) >= 1)) throw new Error("the last-weeks window must be a whole number of weeks, 1 or more");
+  const r = readSales(text, o);
+  const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), seen: DAYS.map(() => new Array(24).fill(0)), closed: [], rows: r.rows, skipped: r.skipped, notes: [...r.notes], entries: r.entries, count: r.count, locations: r.locations, location: r.location };
+  if (!r.rows && r.notes.length) return out;
+  // o.window (--last-weeks): plan from the last that many weeks of dated rows only, the days before the week after the
+  // newest date, as backtestSales' "last 4 weeks only" method trains (2026-11-11). Undated weekday rows are kept.
+  let entries = r.entries;
+  if (o.window !== undefined) {
+    let latest = -Infinity;
+    for (const e of entries) if (e.key) { const t = keyMs(e.key); if (t > latest) latest = t; }
+    const from = latest + DAY_MS - Number(o.window) * 7 * DAY_MS;
+    entries = entries.filter((e) => !e.key || keyMs(e.key) >= from);
+    out.notes.push(`Planned from the last ${o.window} week${+o.window === 1 ? "" : "s"} of dated sales only (${entries.filter((e) => e.key).length} of ${r.entries.filter((e) => e.key).length} dated rows).`);
+  }
+  const a = averageSales(entries, o);
+  Object.assign(out, { avg: a.avg, observed: a.observed, seen: a.seen, outside: a.outside, closed: a.closed, heads: a.heads, tail: a.tail });
+  if (a.heads) out.notes.push(`Short-vs-over weight ${+o.shortCost}: a short person-hour counted as ${+o.shortCost} times a spare one, so each hour is staffed for ${Math.round(shortCostShare(o.shortCost) * 100)}% of its past dates, not for the average.`);
+  if (r.refunds.n) out.notes.push(`${r.refunds.n} row${r.refunds.n === 1 ? "" : "s"} with negative sales (refunds or voids, ${Math.round(-r.refunds.amount * 100) / 100} in all) left out: the plan follows what was rung up.`);
+  if (r.voids.n) out.notes.push(`${r.voids.n} voided line${r.voids.n === 1 ? "" : "s"}${r.voids.amount ? ` (${Math.round(r.voids.amount * 100) / 100} in all)` : ""} left out: marked void in the file, so never sold.`);
+  if (r.blank) out.notes.push(`${r.blank} empty row${r.blank === 1 ? "" : "s"} ignored.`);
+  if (r.skippedDays.size) out.notes.push(`${r.skippedDays.size} day${r.skippedDays.size === 1 ? "" : "s"} left out (--skip-dates): ${[...r.skippedDays].sort().join(", ")}.`);
+  if (o.halfLife) out.notes.push(`Recent weeks weigh more: a day's weight halves every ${o.halfLife} week${+o.halfLife === 1 ? "" : "s"} back from the newest date.`);
+  if (r.dayFirst) out.notes.push("Dates read day first (a date such as 25/03/2026 in the file shows the order).");
+  if (r.ambiguous) out.notes.push("Dates such as 05/03/2026 could be 5 March or May 3 and no date in the file settles it: read month first (US). If yours are day first, change the export to YYYY-MM-DD.");
+  if (r.undated) out.notes.push(`${r.undated} rows had a weekday name instead of a date: each weekday-hour is taken as already one day's figure.`);
+  out.notes.push(...a.notes);
   const weeks = Math.max(...out.observed);
   out.notes.push(`${out.rows} rows read, up to ${weeks} day${weeks === 1 ? "" : "s"} per weekday averaged.`);
   return out;
 }
 
 // Headcount per hour per day from average sales. open/close (hour 0-24) override the hours with sales.
+// o.heads ([7][24], from averageSales with shortCost): the heads wanted per hour instead of ceil(average / splh); the
+// trading day, breaks, minimum and maximum staff are set the same way.
 export function headcount(avg, observed, o = {}) {
   const splh = Number(o.splh), minStaff = o.minStaff === undefined ? 1 : Number(o.minStaff);
   if (!(splh > 0)) throw new Error("sales per labor hour must be a positive number");
   if (!Number.isInteger(minStaff) || minStaff < 0) throw new Error("minimum staff must be a whole number, 0 or more");
   const maxStaff = o.maxStaff === undefined ? 50 : Number(o.maxStaff);
+  if (!(maxStaff >= 0)) throw new Error("maximum staff must be a number, 0 or more");
+  // --open/--close are whole hours, 0-24, open before close (2026-11-13: "--open 17 --close 9" or "--close 25" gave an
+  // empty plan with no word why; a shop open past midnight cannot be written as one day yet).
+  const hourOk = (v) => Number.isInteger(Number(v)) && Number(v) >= 0 && Number(v) <= 24;
+  if (o.open !== undefined && !(hourOk(o.open) && Number(o.open) < 24)) throw new Error("opening hour must be a whole hour from 0 to 23");
+  if (o.close !== undefined && !(hourOk(o.close) && Number(o.close) > 0)) throw new Error("closing hour must be a whole hour from 1 to 24 (24 is midnight)");
+  if (o.open !== undefined && o.close !== undefined && Number(o.open) >= Number(o.close)) throw new Error("the opening hour must come before the closing hour (a day that runs past midnight cannot be planned as one day)");
+  const shutMin = shutMinDays(o);
   return avg.map((hours, d) => {
     if (!observed[d]) return new Array(24).fill(0);
-    let lo = o.open !== undefined ? Number(o.open) : hours.findIndex((v) => v > 0);
-    let hi = o.close !== undefined ? Number(o.close) : 24 - [...hours].reverse().findIndex((v) => v > 0);
+    // o.seen (dates with any sale per weekday-hour): an edge hour that traded on fewer than 1 in 20 of the weekday's dates
+    // (one 23:00 order in 43 Sundays) does not stretch the trading day; o.keepRare turns this off. Nor, once the weekday
+    // has 4 or more dates, does an edge hour that traded on only one of them (2026-11-11): under 21 dates the 1-in-20
+    // test can never trim anything, so on the Bread Basket file (21-23 dates a weekday) one stray 22:00 or 23:00 order
+    // staffed every Saturday to midnight for the whole backtest. Scored with --score-closed this cut the plain plan's
+    // short + over by 12-24 person-hours a week there and 1-3 on the Korean bakery; the French one moved by 0.1.
+    const trades = (h) => hours[h] > 0 && (!o.seen || o.keepRare || (o.seen[d][h] * 20 >= observed[d] && (o.seen[d][h] >= 2 || observed[d] < 4)));
+    const firstH = [...Array(24).keys()].find(trades), lastH = [...Array(24).keys()].reverse().find(trades);
+    let lo = o.open !== undefined ? Number(o.open) : firstH === undefined ? -1 : firstH;
+    let hi = o.close !== undefined ? Number(o.close) : lastH === undefined ? 25 : lastH + 1;
     if (lo < 0 || hi > 24 || (o.open === undefined && !hours.some((v) => v > 0))) return new Array(24).fill(0);
-    return hours.map((v, h) => (h >= lo && h < hi ? Math.min(maxStaff, Math.max(minStaff, Math.ceil(v / splh - 1e-9))) : 0));
+    // A break, not a quiet hour: a run of hours inside the trading day that traded on fewer than 1 in 5 of the weekday's
+    // dates, between an hour before it and an hour after it that each traded on at least half of them. The French bakery
+    // shuts about 13:30-16:00: its 14:00 and 15:00 traded on 7-13% of dates (about 1 euro an hour on average), its 12:00
+    // and 16:00 on 70-100%, and minimum staff there would pay people to stand in a locked shop. A shop that is quiet all
+    // day has no busy neighbours, so its slow hours stay staffed. Needs 20 or more dates of that weekday; only when the
+    // hours come from the file (no --open/--close) and not with --keep-rare.
+    const brk = new Array(24).fill(false);
+    if (o.seen && !o.keepRare && o.open === undefined && o.close === undefined && observed[d] >= 20) {
+      const n = observed[d], seen = o.seen[d], rare = (h) => seen[h] * 5 < n, busy = (h) => seen[h] * 2 >= n;
+      for (let h = lo + 1; h < hi - 1; h++) {
+        if (!rare(h) || rare(h - 1)) continue;
+        let e = h;
+        while (e < hi && rare(e)) e++;
+        if (e < hi && busy(h - 1) && busy(e)) for (let k = h; k < e; k++) brk[k] = true;
+        h = e;
+      }
+    }
+    // o.outside (from averageSales): an hour of before-open or after-close work only. Minimum staff is for serving
+    // customers, so there the work alone sets the heads, at 60 minutes a person (doors shut: no waiting on customers,
+    // whatever the rate), and at least the shut-hour minimum (o.shutMin, default 1 when the minimum is 1 or more).
+    const isOut = (h) => !!(o.outside && o.outside[d][h]);
+    const want = (v, h) => (isOut(h) ? Math.ceil(v / 60 - 1e-9) : o.heads ? o.heads[d][h] : Math.ceil(v / splh - 1e-9));
+    const floor = (h) => (isOut(h) ? shutMin[d] : minStaff);
+    return hours.map((v, h) => (h >= lo && h < hi && !brk[h] ? Math.min(maxStaff, Math.max(floor(h), want(v, h))) : 0));
   });
 }
 
 // Cut one day's headcount profile into [start, end) hour runs, minShift..maxShift hours each.
-export function cutShifts(profile, minShift = 4, maxShift = 8) {
+// cost (optional, with --short-cost): { tail: [24] (tail[h][c] = share of past dates needing c or more heads at hour h),
+// r, minStaff }. Without it a run shorter than minShift is always stretched to minShift. With it, a short run above
+// minimum staff is stretched only when that is cheaper in expectation than leaving it unstaffed, and to the cheapest
+// window that holds it (see shiftCost); otherwise it is dropped and reported in `dropped`.
+export function cutShifts(profile, minShift = 4, maxShift = 8, cost = null) {
+  // Whole hours (2026-11-14): the cut steps hour by hour, so 6.5 put a run end at 15.5, read an empty run there and,
+  // with the cut priced, dropped it without moving on (the page hung); unpriced it made phantom 15:30-21:30 shifts.
+  if (!Number.isInteger(minShift) || !Number.isInteger(maxShift)) throw new Error("shift length: the shortest and longest shift must each be a whole number of hours");
   if (!(minShift >= 1) || !(maxShift >= minShift)) throw new Error("shift length: the longest must be at least the shortest, and the shortest at least 1 hour");
-  const shifts = [];
+  const shifts = [], dropped = [];
+  const staffed = new Array(24).fill(0);
   const top = Math.max(0, ...profile);
   for (let k = 1; k <= top; k++) {
+    // cost.join (opt-in, --join): choose the whole level at once, so two short runs near each other can share one shift
+    // and a short run can be folded into its neighbour (joinLevel). Off by default: on two real bakeries it lowered the
+    // expected cost in sample but not on held-out weeks (README "Joining short runs", eval/join-cut.mjs).
+    if (cost && cost.join === true) {
+      const got = joinLevel(profile, staffed, k, minShift, maxShift, cost);
+      if (got) {
+        for (const [s, e] of got.blocks) {
+          for (let t = s; t < e; t++) staffed[t]++;
+          const len = e - s, n = Math.ceil(len / maxShift);
+          let at = s;
+          for (let j = 0; j < n; j++) { const piece = Math.floor((len - (at - s)) / (n - j)); shifts.push([at, at + piece]); at += piece; }
+        }
+        dropped.push(...got.dropped);
+        continue;
+      }
+    }
     let h = 0;
     while (h < 24) {
       if (profile[h] < k) { h++; continue; }
       let e = h;
       while (e < 24 && profile[e] >= k) e++;
+      const runEnd = e;
       let len = e - h, s = h;
-      if (len < minShift) {
-        // stretch forward, then backward when the day ends first
-        e = Math.min(24, s + minShift); s = e - minShift;
+      if (len < minShift && cost && aboveFloor(cost, k, h, e) && hasTail(cost, h, e)) {
+        const c = cheapestStretch(profile, staffed, h, e, minShift, cost);
+        if (!c) { dropped.push([h, e, k]); h = e; continue; }
+        [s, e] = c; len = e - s;
+      } else if (len < minShift) {
+        // Stretch into open hours (headcount above 0) first, forward then backward, so a short run before a lunch
+        // closure or at closing time is not stretched into hours the shop is shut; then forward, then backward.
+        while (e - s < minShift && e < 24 && profile[e] > 0) e++;
+        while (e - s < minShift && s > 0 && profile[s - 1] > 0) s--;
+        if (e - s < minShift) { e = Math.min(24, s + minShift); s = e - minShift; }
         if (s < 0) { s = 0; e = Math.min(24, minShift); }
         len = e - s;
       }
+      for (let t = s; t < e; t++) staffed[t]++;
       const n = Math.ceil(len / maxShift);
       let at = s;
       for (let j = 0; j < n; j++) {
@@ -214,25 +794,178 @@ export function cutShifts(profile, minShift = 4, maxShift = 8) {
         shifts.push([at, at + piece]);
         at += piece;
       }
-      h = Math.max(h + 1, e);
+      h = Math.max(h + 1, Math.max(e, runEnd));
     }
   }
-  return shifts.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  shifts.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  if (cost) shifts.dropped = dropped;
+  return shifts;
+}
+
+// One level k of the priced cut, chosen whole (2026-11-11, "Joining short runs"). The runs are the maximal stretches with
+// profile >= k. Each is either staffed inside a block or, when it is shorter than minShift, above minimum staff and has
+// a tail, left unstaffed. A block covers one or more consecutive runs and the gaps between them: their exact span when
+// that is at least minShift long (a short run folded into a neighbouring shift, or two short runs joined), otherwise a
+// minShift window holding them that does not reach into another run or the previous block. A block longer than maxShift
+// is split into near-equal pieces, and must give pieces of at least minShift unless it is a single run (as before).
+// Each hour a block covers costs shiftCost at one more person than is already there; leaving a run costs 0. The least
+// total wins (ties: fewer runs left, fewer shut hours, fewer hours, stretches nearer the old forward one). Returns
+// { blocks: [[s, e)], dropped: [[h, e, k]] }, or null when no choice is valid (the caller falls back to the old cut).
+function joinLevel(profile, staffed, k, minShift, maxShift, cost) {
+  const runs = [];
+  for (let h = 0; h < 24;) {
+    if (profile[h] < k) { h++; continue; }
+    let e = h; while (e < 24 && profile[e] >= k) e++;
+    runs.push([h, e]); h = e;
+  }
+  const R = runs.length;
+  const pc = [0], ps = [0];
+  for (let t = 0; t < 24; t++) { pc.push(pc[t] + shiftCost(cost, profile, t, staffed[t] + 1)); ps.push(ps[t] + (profile[t] === 0 ? 1 : 0)); }
+  const droppable = runs.map(([a, b]) => b - a < minShift && aboveFloor(cost, k, a, b) && hasTail(cost, a, b));
+  const better = (x, y) => {
+    if (!y) return true;
+    if (Math.abs(x.v - y.v) > 1e-12) return x.v < y.v;
+    for (const f of ["nd", "shut", "hrs", "back"]) if (x[f] !== y[f]) return x[f] < y[f];
+    return false;
+  };
+  // states[i]: Map lastEnd -> best partial plan having decided runs 0..i-1.
+  const states = Array.from({ length: R + 1 }, () => new Map());
+  states[0].set(0, { v: 0, nd: 0, shut: 0, hrs: 0, back: 0, blocks: [], dropped: [] });
+  const put = (i, end, x) => { if (better(x, states[i].get(end))) states[i].set(end, x); };
+  for (let i = 0; i < R; i++) {
+    for (const [lastEnd, st] of states[i]) {
+      if (droppable[i]) put(i + 1, lastEnd, { ...st, nd: st.nd + 1, dropped: [...st.dropped, [runs[i][0], runs[i][1], k]] });
+      const lo = Math.max(lastEnd, i ? runs[i - 1][1] : 0);
+      for (let j = i; j < R; j++) {
+        const a = runs[i][0], b = runs[j][1], hi = j + 1 < R ? runs[j + 1][0] : 24;
+        const span = b - a;
+        // A block over several runs never covers a shut hour (a lunch closure stays unstaffed, as headcount set it).
+        if (j > i && ps[b] - ps[a] > 0) break;
+        const wins = span >= minShift ? [[a, b]] : [];
+        if (span < minShift && i === j && !droppable[i]) {
+          // A short run that must be staffed (minimum staff, or no tail) and is not joined keeps the old stretch.
+          let s = a, e = b;
+          while (e - s < minShift && e < 24 && profile[e] > 0) e++;
+          while (e - s < minShift && s > 0 && profile[s - 1] > 0) s--;
+          if (e - s < minShift) { e = Math.min(24, s + minShift); s = e - minShift; }
+          if (s < 0) { s = 0; e = Math.min(24, minShift); }
+          if (s >= lo && e <= hi) wins.push([s, e]);
+        } else if (span < minShift) for (let s = Math.max(lo, b - minShift); s <= Math.min(a, hi - minShift); s++) if (j === i || ps[s + minShift] - ps[s] === 0) wins.push([s, s + minShift]);
+        for (const [s, e] of wins) {
+          const len = e - s;
+          if (len > maxShift && !(i === j && s === a && e === b) && Math.floor(len / Math.ceil(len / maxShift)) < minShift) continue;
+          put(j + 1, e, { v: st.v + pc[e] - pc[s], nd: st.nd, shut: st.shut + ps[e] - ps[s], hrs: st.hrs + len, back: st.back + (a - s), blocks: [...st.blocks, [s, e]], dropped: st.dropped });
+        }
+      }
+    }
+  }
+  let best = null;
+  for (const x of states[R].values()) if (better(x, best)) best = x;
+  return best;
+}
+
+// The fewest heads hour t must have whatever the price: cost.floor[t] when given (minimum staff in open hours, the
+// shut-hour minimum in before-open and after-close hours, 2026-11-12 last), else cost.minStaff. A run at or below the
+// floor in any of its hours is never dropped: --shut-min 2 for a lone-worker rule is a rule, not a cost to weigh.
+const floorAt = (cost, t) => (cost.floor ? cost.floor[t] : cost.minStaff || 0);
+const aboveFloor = (cost, k, a, b) => { for (let t = a; t < b; t++) if (k <= floorAt(cost, t)) return false; return true; };
+const hasTail = (cost, a, b) => { for (let t = a; t < b; t++) if (!cost.tail[t]) return false; return true; };
+
+// Expected change in r x short + over from adding one person at hour t when c - 1 are already there: on the share q of
+// past dates that needed c or more, a short hour is saved (-r); on the rest the hour is spare (+1). Hours the profile
+// leaves shut (headcount 0) are priced the same way from their own sales, so a stretch into a closure pays for the
+// quiet hours it covers; minimum staff counts as needed only in open hours, as in the backtest.
+export function shiftCost(cost, profile, t, c) {
+  const tl = cost.tail[t];
+  const q = profile[t] > 0 && c <= floorAt(cost, t) ? 1 : tl && c < tl.length ? tl[c] : 0;
+  return (1 - q) - cost.r * q;
+}
+
+// The minShift window holding [h, e) with the least expected cost, or null when leaving the run unstaffed is cheaper.
+// Windows that stay inside open hours win ties over ones that reach into shut hours.
+function cheapestStretch(profile, staffed, h, e, minShift, cost) {
+  let keep = 0;
+  for (let t = h; t < e; t++) keep += shiftCost(cost, profile, t, staffed[t] + 1);
+  let best = null;
+  for (let s = Math.max(0, e - minShift); s <= Math.min(h, 24 - minShift); s++) {
+    let add = 0, shut = 0;
+    for (let t = s; t < s + minShift; t++) if (t < h || t >= e) { add += shiftCost(cost, profile, t, staffed[t] + 1); if (profile[t] === 0) shut++; }
+    const v = keep + add;
+    if (!best || v < best.v - 1e-12 || (Math.abs(v - best.v) <= 1e-12 && shut < best.shut)) best = { s, v, shut };
+  }
+  // Staffing the window costs best.v against 0 for leaving the run (and the stretch hours) as they are; a tie keeps the
+  // run staffed (2026-11-11: with the cut priced by default, a run whose stretch exactly pays for itself is not dropped).
+  return best && best.v <= 1e-12 ? [best.s, best.s + minShift] : null;
 }
 
 const clock = (h) => `${h === 24 ? "0" : h}:00`.replace(/^(\d):/, "$1:");
 
 // Everything at once. Returns { shiftsText, days: [{day, needed, scheduled, shifts}], needed, scheduled, extra, sales, notes, skipped }.
+// --half-life auto: pick the weighting from the shop's own past weeks. Runs the backtest (shifts cut and scored as the
+// CLI scores them, at the same short cost) for every earlier week equal and half-lives 8, 4 and 2, and keeps the one
+// with the least (r x) short + over a week; a tie keeps the plain average. Needs AUTO_MIN_WEEKS tested weeks, else
+// plain. Measured 2026-11-11 (eval/halflife-default.mjs, README "Picking the half-life from your own weeks"): chosen
+// this way week by week on two real bakeries it was never clearly worse than the plain average in 12 settings and
+// 7.4% better on average, where a fixed half-life 2 was clearly worse in 2 and half-lives 4 and 8 helped less.
+export const AUTO_MIN_WEEKS = 4;
+// Scored with a staffed closure as over (the default since 2026-11-12; o.scoreClosed false is the old score), "the last
+// 4 weeks only" is a candidate too. Measured 2026-11-11
+// (eval/window-auto.mjs, README "A 4-week window in half-life auto"), out of sample on three real bakeries: under the
+// default score adding it changed nothing clearly in 18 of 18 settings (mean +0.2%, so it is not offered there); under
+// --score-closed it was clearly better than the four-weighting choice in 6 of 18 and clearly worse in none (mean -16.3%,
+// Bread Basket -47%).
+export function pickHalfLife(text, o = {}) {
+  const rc = o.shortCost === undefined ? null : Number(o.shortCost);
+  const sc = o.scoreClosed !== false;
+  const ids = sc ? ["hl8", "hl4", "hl2", "last4"] : ["hl8", "hl4", "hl2"];
+  const pre = rc === null ? "" : "q-";
+  let b;
+  try { b = backtestSales(text, { ...o, halfLife: undefined, window: undefined, shifts: true, methods: rc === null ? ids : ["all", ...ids].map((x) => pre + x) }); }
+  catch { return { halfLife: undefined, note: "Half-life auto: the file could not be backtested, so every earlier week weighs the same." }; }
+  if (b.weeks < AUTO_MIN_WEEKS) return { halfLife: undefined, weeks: b.weeks, note: `Half-life auto: ${b.weeks} full week${b.weeks === 1 ? "" : "s"} to test on, fewer than ${AUTO_MIN_WEEKS}, so every earlier week weighs the same.` };
+  const cands = b.methods.filter((m) => m.id === pre + "all" || ids.some((x) => m.id === pre + x));
+  const base = cands.find((m) => m.id === pre + "all");
+  const best = cands.reduce((a, m) => (m.miss < a.miss - 1e-9 ? m : a), base);
+  const hl = best.halfLife, win = best.window;
+  const what = hl ? `half-life ${hl} weeks` : win ? `the last ${win} weeks only` : "every earlier week weighed the same";
+  const gain = base.miss - best.miss;
+  const scored = sc ? " (a staffed closure scored as over)" : "";
+  return { halfLife: hl, window: win, weeks: b.weeks, note: `Half-life auto: ${what}, the weighting with the least short + over on your last ${b.weeks} weeks${scored}${best !== base ? ` (${gain.toFixed(1)} person-hours a week fewer than equal weights)` : ""}. --half-life none turns it off; a number fixes it.` };
+}
+
 export function demandShifts(text, o = {}) {
-  const s = hourlySales(text, o);
-  if (!s.rows) return { shiftsText: "", rows: 0, needed: 0, scheduled: 0, extra: 0, sales: 0, days: [], notes: s.notes, skipped: s.skipped };
-  const prof = headcount(s.avg, s.observed, o);
+  if (o.halfLife === "auto") {
+    const p = pickHalfLife(text, o);
+    const r = demandShifts(text, { ...o, halfLife: p.halfLife, window: p.window });
+    r.notes.push(p.note); r.halfLife = p.halfLife; r.window = p.window;
+    return r;
+  }
+  if (o.halfLife === "none" || o.halfLife === 0) o = { ...o, halfLife: undefined };
+  const s = hourlySales(text, { ...o, priceCut: o.costCut !== false });
+  if (!s.rows) return { shiftsText: "", rows: 0, needed: 0, scheduled: 0, extra: 0, sales: 0, days: [], notes: s.notes, skipped: s.skipped, locations: s.locations, location: s.location };
+  const prof = headcount(s.avg, s.observed, { ...o, seen: s.seen, heads: s.heads, outside: s.outside });
+  if (o.open === undefined && o.close === undefined && !o.keepRare) {
+    const trimmed = [];
+    s.avg.forEach((hours, d) => hours.forEach((v, h) => { if (v > 0 && prof[d][h] === 0 && s.observed[d]) trimmed.push(`${DAYS[d]} ${h}:00 (${s.seen[d][h]} of ${s.observed[d]} days)`); }));
+    if (trimmed.length) s.notes.push(`Hours left out of the trading day: rare edge hours (sales on under 1 in 20 days) and breaks (hours inside the day with sales on under 1 in 5 days between busier hours, such as a lunch closure): ${trimmed.join(", ")}. --open/--close or --keep-rare sets the hours yourself.`);
+  }
   const minShift = o.minShift === undefined ? 4 : Number(o.minShift), maxShift = o.maxShift === undefined ? 8 : Number(o.maxShift);
+  const minStaff = o.minStaff === undefined ? 1 : Number(o.minStaff);
+  // The cut is priced with dated rows whether or not --short-cost is given; without it a short and a spare hour weigh
+  // the same (r = 1), the weight the plain backtest scores at.
+  const rCut = o.shortCost === undefined ? 1 : Number(o.shortCost);
+  const shutMin = shutMinDays(o);
+  const floorOf = (out, d) => (out ? out.map((v) => (v ? shutMin[d] : minStaff)) : null);
+  const cutCost = (d) => (s.tail && o.costCut !== false ? { tail: s.tail[d], r: rCut, minStaff, floor: floorOf(s.outside && s.outside[d], d), join: o.join === true } : null);
+  const dropped = [];
   const days = prof.map((p, d) => {
-    const shifts = cutShifts(p, minShift, maxShift);
+    const shifts = cutShifts(p, minShift, maxShift, cutCost(d));
+    for (const [a, b, k] of shifts.dropped || []) dropped.push({ at: `${DAYS[d]} ${clock(a)}-${clock(b)}`, k });
     const needed = p.reduce((a, b) => a + b, 0);
-    return { day: DAYS[d], needed, scheduled: shifts.reduce((a, [x, y]) => a + (y - x), 0), shifts, sales: s.avg[d].reduce((a, b) => a + b, 0) };
+    return { day: DAYS[d], needed, scheduled: shifts.reduce((a, [x, y]) => a + (y - x), 0), shifts: [...shifts], sales: s.avg[d].reduce((a, b) => a + b, 0) };
   });
+  if (!days.some((x) => x.needed) && (o.open !== undefined || o.close !== undefined)) s.notes.push(`No hour of any day falls between --open and --close and the hours with sales, so nothing was planned: check the hours (${o.open ?? "first sale"} to ${o.close ?? "last sale"}).`);
+  if (dropped.length) s.notes.push(`Left unstaffed: ${dropped.length} run${dropped.length === 1 ? "" : "s"} shorter than the shortest shift, where a ${minShift}-hour shift would cost more in spare hours than the short hours it saves at short cost ${rCut}${o.shortCost === undefined ? " (short and spare hours weighed the same)" : ""}: ${droppedList(dropped)}.`);
   // Group identical shift lists across days: "Mon/Tue/Wed, 11:00, 15:00, 2".
   const lines = new Map();
   days.forEach((dd, d) => {
@@ -246,5 +979,128 @@ export function demandShifts(text, o = {}) {
   }).sort((x, y) => x.ds[0] - y.ds[0] || x.a - y.a || x.b - y.b);
   const shiftsText = rows.map((r) => `${r.ds.map((d) => DAYS[d]).join("/")}, ${clock(r.a)}, ${clock(r.b)}, ${r.n}`).join("\n");
   const needed = days.reduce((a, d) => a + d.needed, 0), scheduled = days.reduce((a, d) => a + d.scheduled, 0);
-  return { shiftsText, rows: s.rows, needed, scheduled, extra: scheduled - needed, sales: days.reduce((a, d) => a + d.sales, 0), days, notes: s.notes, skipped: s.skipped };
+  return { shiftsText, rows: s.rows, needed, scheduled, extra: scheduled - needed, sales: days.reduce((a, d) => a + d.sales, 0), count: s.count, days, notes: s.notes, skipped: s.skipped, locations: s.locations, location: s.location };
+}
+
+// Backtest the staffing forecast on the file's own history: for every full week after the first `warmup` weeks, build
+// the headcount from the weeks before it only (as you would have that Sunday night) and compare it hour by hour with
+// the heads that week's real sales called for (ceil(sales / splh), and at least minStaff in an hour the plan staffed).
+// Short = person-hours the real sales needed and the plan did not have; over = scheduled person-hours beyond that.
+// Methods: the plain average of every earlier week (what --from-sales does), --half-life 2/4/8, the last 4 weeks and
+// last week alone. By default the headcount profiles are scored; o.shifts scores the shifts cut from them instead
+// (cutShifts, --min-shift/--max-shift), so the shortest-shift stretch counts as over (the CLI and page do this).
+export const BACKTEST_METHODS = [
+  { id: "all", label: "every earlier week, equal (default)" },
+  { id: "hl8", label: "--half-life 8", halfLife: 8 },
+  { id: "hl4", label: "--half-life 4", halfLife: 4 },
+  { id: "hl2", label: "--half-life 2", halfLife: 2 },
+  { id: "last4", label: "last 4 weeks only", window: 4 },
+  { id: "last1", label: "last week only", window: 1 },
+];
+
+export function backtestSales(text, o = {}) {
+  const splh = Number(o.splh);
+  if (!(splh > 0)) throw new Error("sales per labor hour must be a positive number");
+  const minStaff = o.minStaff === undefined ? 1 : Number(o.minStaff);
+  const warmup = o.warmup === undefined ? 4 : Number(o.warmup);
+  const minShift = o.minShift === undefined ? 4 : Number(o.minShift), maxShift = o.maxShift === undefined ? 8 : Number(o.maxShift);
+  if (!Number.isInteger(warmup) || warmup < 1) throw new Error("warm-up must be a whole number of weeks, 1 or more");
+  const r = readSales(text, o);
+  const notes = [...r.notes];
+  // One entry per date and hour (sales summed) gives the same averages as one per row: averageSales weighs by date and
+  // counts dates, not rows. The French bakery's 232,711 item lines become 5,566, and its backtest drops from 67 s a
+  // setting to about 3 s (the page runs it on the main thread).
+  const agg = new Map();
+  for (const e of r.entries) {
+    if (!e.key) continue;
+    const k = `${e.key}|${e.hour}|${e.outside ? 1 : 0}`, x = agg.get(k); // before-open/after-close work kept apart
+    if (x) x.amount += e.amount; else agg.set(k, { ...e });
+  }
+  const dated = [...agg.values()];
+  if (!dated.length) return { weeks: 0, methods: [], notes: notes.concat("A backtest needs dated rows (a date and hour per sale), not weekday averages.") };
+  const ms = dated.map((e) => keyMs(e.key));
+  let lo = Infinity, hi = -Infinity;
+  for (const t of ms) { if (t < lo) lo = t; if (t > hi) hi = t; }
+  const monday0 = lo - ((new Date(lo).getUTCDay() + 6) % 7) * DAY_MS;
+  const nWeeks = Math.floor((hi - monday0) / DAY_MS / 7) + 1;
+  // Only full weeks are tested: the last one counts when the file reaches its Sunday.
+  const fullWeeks = (hi - monday0) / DAY_MS % 7 === 6 ? nWeeks : nWeeks - 1;
+  const byWeek = Array.from({ length: nWeeks }, () => []);
+  for (const e of dated) byWeek[Math.floor((keyMs(e.key) - monday0) / DAY_MS / 7)].push(e);
+  const tested = [];
+  for (let w = warmup; w < fullWeeks; w++) if (byWeek.slice(0, w).some((x) => x.length)) tested.push(w);
+  if (!tested.length) return { weeks: 0, methods: [], notes: notes.concat(`Needs more than ${warmup} full weeks of dated sales to test on (has ${fullWeeks}).`) };
+  const shutMin = shutMinDays({ minStaff, shutMin: o.shutMin });
+  const hOpts = { splh, minStaff, shutMin, maxStaff: o.maxStaff, open: o.open, close: o.close, keepRare: o.keepRare };
+  // The scorer's view of which weekday-hours are normally shut, from the whole file (hindsight is fine in the score; the
+  // plans still learn only from earlier weeks). Fixed whatever rules the plan uses, so --keep-rare and the break rule
+  // are scored against the same reference (2026-11-11).
+  // The default since 2026-11-12 (o.scoreClosed !== false; --score-open-hours turns it off). o.closedFrom "past" builds
+  // the reference for each tested week from the dates before it only, a hindsight-free check (eval/hindsight-closure.mjs).
+  const scoreClosed = o.scoreClosed !== false;
+  const closedOf = (rows) => { const ref = averageSales(rows, { keepRare: true }); return ref.seen.map((row, d) => row.map((n) => ref.observed[d] > 0 && n * 5 < ref.observed[d])); };
+  const closedAll = scoreClosed && o.closedFrom !== "past" ? closedOf(dated) : null;
+  // Hours of before-open or after-close work only (whole file): minimum staff is not needed there, as in headcount.
+  const outsideRef = dated.some((e) => e.outside) ? averageSales(dated, { keepRare: true }).outside : null;
+  // With a short-vs-over weight r, every weighting is also tried with the fractile rule, and a week scores r x short +
+  // over; the plain average stays first as the baseline everything is compared with.
+  const rc = o.shortCost === undefined ? null : Number(o.shortCost);
+  if (rc !== null) shortCostShare(rc);
+  const methodsAll = rc === null ? BACKTEST_METHODS : [BACKTEST_METHODS[0], ...BACKTEST_METHODS.map((m) => ({ ...m, id: "q-" + m.id, label: `${m.id === "all" ? "every earlier week" : m.label}, short cost ${rc}`, shortCost: rc }))];
+  // o.methods: ids to run (the baseline "all" always runs first), so pickHalfLife skips the windows it never picks.
+  const methods0 = o.methods ? methodsAll.filter((m, i) => i === 0 || o.methods.includes(m.id)) : methodsAll;
+  const results = methods0.map((m) => ({ ...m, short: [], over: [], scheduled: [], shortHours: [] }));
+  for (const w of tested) {
+    const start = monday0 + w * 7 * DAY_MS;
+    // The real need, per weekday-hour, from that week's sales.
+    const actual = DAYS.map(() => new Array(24).fill(0));
+    const soldOn = DAYS.map(() => new Array(24).fill(false));
+    for (const e of byWeek[w]) { actual[e.day][e.hour] += e.amount; if (e.amount > 0) soldOn[e.day][e.hour] = true; }
+    const closedRef = !scoreClosed ? null : closedAll || closedOf(dated.filter((e) => keyMs(e.key) < start));
+    for (const res of results) {
+      const from = res.window ? start - res.window * 7 * DAY_MS : -Infinity;
+      const train = dated.filter((e) => { const t = keyMs(e.key); return t < start && t >= from; });
+      const a = averageSales(train, { halfLife: res.halfLife, newest: start - DAY_MS, keepRare: o.keepRare, splh, shortCost: res.shortCost, priceCut: !!o.shifts });
+      const prof = headcount(a.avg, a.observed, { ...hOpts, seen: a.seen, heads: a.heads, outside: a.outside });
+      // o.shifts: score what the cut shifts staff, not the headcount profile, so the shortest-shift stretch (and, with
+      // a short-cost weight, the runs the cost-aware cut leaves unstaffed) show up in short and over.
+      const plan = !o.shifts ? prof : prof.map((p, d) => {
+        // Every row's cut is priced at the weight the week is scored at (rc, or 1), average rows included (2026-11-11).
+        const cost = a.tail && o.costCut !== false ? { tail: a.tail[d], r: rc === null ? 1 : rc, minStaff, floor: a.outside ? a.outside[d].map((v) => (v ? shutMin[d] : minStaff)) : null, join: o.join === true } : null;
+        const row = new Array(24).fill(0);
+        for (const [x, y] of cutShifts(p, minShift, maxShift, cost)) for (let t = x; t < y; t++) row[t]++;
+        return row;
+      });
+      const open = prof;
+      let short = 0, over = 0, sched = 0, shortH = 0;
+      for (let d = 0; d < 7; d++) for (let h = 0; h < 24; h++) {
+        const out = outsideRef && outsideRef[d][h];
+        const raw = Math.ceil(actual[d][h] / (out ? 60 : splh) - 1e-9);
+        // o.scoreClosed: minimum staff is not needed in an hour the shop is normally shut (it traded on under 1 in 5 of
+        // the weekday's dates across the whole file) on a date it sold nothing in that hour, so staffing a closure
+        // shows as over. Without it, minimum staff counts as needed in every hour the plan staffs.
+        const shut = closedRef && closedRef[d][h] && !soldOn[d][h];
+        const floor = out ? shutMin[d] : minStaff;
+        const need = open[d][h] > 0 && !shut ? Math.max(floor, raw) : raw;
+        sched += plan[d][h];
+        if (need > plan[d][h]) { short += need - plan[d][h]; shortH++; } else over += plan[d][h] - need;
+      }
+      res.short.push(short); res.over.push(over); res.scheduled.push(sched); res.shortHours.push(shortH);
+    }
+  }
+  const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+  const base = results[0];
+  const methods = results.map((res) => {
+    const w = rc === null ? 1 : rc;
+    const miss = res.short.map((x, i) => w * x + res.over[i]);
+    const diff = miss.map((x, i) => x - (w * base.short[i] + base.over[i]));
+    const md = mean(diff), sd = Math.sqrt(diff.reduce((a, x) => a + (x - md) ** 2, 0) / Math.max(1, diff.length - 1));
+    const half = diff.length > 1 ? 1.96 * sd / Math.sqrt(diff.length) : 0;
+    return { id: res.id, label: res.label, halfLife: res.halfLife, window: res.window, shortCost: res.shortCost, short: mean(res.short), over: mean(res.over), scheduled: mean(res.scheduled), shortHours: mean(res.shortHours), miss: mean(miss), vsDefault: md, ci: [md - half, md + half] };
+  });
+  const perWeek = Object.fromEntries(results.map((res) => [res.id, res.short.map((x, i) => (rc === null ? 1 : rc) * x + res.over[i])]));
+  const best = methods.reduce((a, b) => (b.miss < a.miss - 1e-9 ? b : a));
+  const clear = best.id !== "all" && best.ci[1] < 0;
+  notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} ${r.count === "minutes" ? "minutes of work" : r.count && r.count !== "sales" ? r.count : "sales"} per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}.`);
+  return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, shifts: !!o.shifts, scoreClosed, closedFrom: scoreClosed ? (o.closedFrom === "past" ? "past" : "file") : null, minShift, maxShift, perWeek, notes, locations: r.locations, location: r.location };
 }

@@ -1,0 +1,286 @@
+Duncan-Haywood/oss-monorepo ventures/einvoice-preflight/eval/nfe-corpus/nfelib/nfe_reforma_tributaria.xml
+Duncan-Haywood/oss-monorepo ventures/einvoice-preflight/fixtures/nfse-dps.xml
+Duncan-Haywood/oss-monorepo ventures/einvoice-preflight/fixtures/nfse-nacional.xml
+GabrielAlbuquerqueB2/B2-Training-Teles XML.xml
+GabrielAlbuquerqueB2/B2-Training-Teles XML02.xml
+GabrielAlbuquerqueB2/B2-Training-Teles XML03.xml
+GabrielAlbuquerqueB2/B2-Training-Teles XML11.xml
+GabrielAlbuquerqueB2/B2-Training-Teles XML12.xml
+GabrielAlbuquerqueB2/B2-Training-Teles XML13.xml
+GustavoOta/dfe sample55.xml
+IA-para-DEVs-SCTEC-T2/mini-projeto-AutoNFe src/data/xml_samples/NFe1.xml
+IA-para-DEVs-SCTEC-T2/mini-projeto-AutoNFe src/data/xml_samples/NFe2.xml
+Joao147258/LabTools labtool/XML_Models/2EnviarLoteRpsSincrono_L0000017478_Ri0000014251_Rf0000014251_S900_E0001 (2).xml
+Joao147258/LabTools labtool/XML_Models/2EnviarLoteRpsSincrono_L0000017478_Ri0000014251_Rf0000014251_S900_E0001 (3).xml
+Joao147258/LabTools labtool/XML_Models/2EnviarLoteRpsSincrono_L0000017478_Ri0000014251_Rf0000014251_S900_E0001.xml
+Joao147258/LabTools labtool/XML_Models/EnviarLoteRpsSincrono_L0000001815_Ri0000001777_Rf0000001777_S900_E0003.xml
+Joao147258/LabTools labtool/XML_Models/EnviarLoteRpsSincrono_L0000017368_Ri0000014170_Rf0000014170_S900_E0001.xml
+Joao147258/LabTools labtool/XML_Models/EnviarLoteRpsSincrono_L0000017369_Ri0000014171_Rf0000014171_S900_E0001.xml
+Joao147258/LabTools labtool/XML_Models/EnviarLoteRpsSincrono_L0000017475_Ri0000014249_Rf0000014249_S900_E0001.xml
+Joao147258/LabTools labtool/XML_Models/EnviarLoteRps_L0000004894_Ri0000004885_Rf0000004885_S1_E0002.xml
+Joao147258/LabTools labtool/XML_Models/EnviarLoteRps_L0000005837_Ri0000050214_Rf0000050214_SRPS_E0003.xml
+Joao147258/LabTools labtool/XML_Models/EnviarLoteRps_L0000005838_Ri0000050214_Rf0000050214_SRPS_E0003.xml
+Joao147258/LabTools labtool/XML_Models/EnviarLoteRps_L0000044556_Ri0000044224_Rf0000044224_S900_E0001.xml
+Joao147258/LabTools labtool/XML_Models/EnviarLoteRps_L0000064130_Ri0000005119_Rf0000005119_S900_E0001.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0001.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0002.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0003.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0005.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0006.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0007.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0008.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0013.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0014.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0015.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0026.xml
+Joao147258/LabTools labtool/XML_Models/fixture-0027.xml
+LUC4SMELLO/Sistema_de_Contagem_Estoque archives/imports/1_13633613_André_FHW5858_Itabirito.xml
+LUC4SMELLO/Sistema_de_Contagem_Estoque archives/imports/1_97190_André_FHW5858_Itabirito.xml
+LUC4SMELLO/Sistema_de_Contagem_Estoque archives/imports/2_13727537_Luís_FDB7977_Betim.xml
+MatheusRapax/RevestimentosOS docs/templates_and_samples/nfe_teste_duplicatas.xml
+Pedro-Braz01/emissor arq prefeitura/117301_NotaFiscaldeServiçoEletrônicaNFSe_000206.xml
+RodReis/rrb-contaia apps/api/src/nfe/fixtures/nfe-rtc-valida.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/COPLAN/1.01/EnviarLoteRpsEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/COPLAN/1.01/EnviarLoteRpsSincronoEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/COPLAN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/DIGIFRED/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/DSF/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/EL/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/GIF/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/ISSNET/1.01/EnviarLoteRpsEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/ISSNET/1.01/EnviarLoteRpsSincronoEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/ISSNET/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/NACIONAL/1.01/DPS-AjusteBC.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/NACIONAL/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/NACIONAL/1.01/RetornoNACIONAL.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/PRONIM/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/QUASAR/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/SIGCORP/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/SIMPLISS/1.00/GerarNfseEnvio_RTC-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/SIMPLISS/1.00/GerarNfseEnvio_TodasTags-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/SIMPLISS/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/TIPLAN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/COPLAN/1.01/EnviarLoteRpsEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/COPLAN/1.01/EnviarLoteRpsSincronoEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/COPLAN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/ISSNET/1.01/EnviarLoteRpsEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/ISSNET/1.01/EnviarLoteRpsSincronoEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/ISSNET/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/NACIONAL/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/NACIONAL/1.01/RetornoNACIONAL.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/PRONIM/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/API/CTe/autorizar-simplificado-cte.xml
+Unimake/Uninfe exemplos xml/CTe 4.00/CTeSimp/CTeSimp_ComTodasAsTags.xml
+Unimake/Uninfe exemplos xml/CTe 4.00/CTeSimp/CTeSimp_TributacaoSN_MultaJuros-cte.xml
+Unimake/Uninfe exemplos xml/NFSe/COPLAN/1.01/EnviarLoteRpsEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/COPLAN/1.01/EnviarLoteRpsSincronoEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/COPLAN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/DIGIFRED/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/DSF/1.01/GerarNFSeEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/EL/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/GIF/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/ISSNET/1.01/GerarNFSeEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/ISSNET/1.01/RecepcionarLoteRps-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/ISSNET/1.01/RecepcionarLoteRpsSincrono-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/NACIONAL/1.01/GerarNFSeEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/NACIONAL/1.01/GerarNFSeEnvio_IBSCBS_com_Retenção_PIS_COFINS_IR_CSLL-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/NACIONAL/1.01/GerarNfseNovasTagsDPSIBSCBS-Nota-Tecnica-SECGNFS-e-009-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/NACIONAL/1.01/GerarNfseTagsIBSCBS-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/NACIONAL/1.01/dps_com_todas_as_tags-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/PRONIN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/QUASAR/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/SIGCORP-SIGISS/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/SIMPLISS/1.00/GerarNfseEnvio_RTC-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/SIMPLISS/1.00/GerarNfseEnvio_TodasTags-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/SIMPLISS/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/TIPLAN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_000_CLASSTRIB_000001_CompraImportacao.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_000_CLASSTRIB_000001_NF_DEBITO.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_000_CLASSTRIB_000001_NotaDebitoJuros.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_000_CLASSTRIB_000001_TotalmenteTributada.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_000_CLASSTRIB_000001_VendaNFCe.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_200_CLASSTRIB_200014_Com_Reducao_100%.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_200_CLASSTRIB_200022_VendaZMF.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_200_CLASSTRIB_200030_Com_Reducao_60%.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_200_CLASSTRIB_200030_VendaEntregaFutura.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_200_CLASSTRIB_200033_NutricaoParaental.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_200_CLASSTRIB_200038_CompraComReducao.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_200_CLASSTRIB_200038_NotaCreditoRecusaTotal.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_410_CLASSTRIB_410001_Bonificacao.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_410_CLASSTRIB_410030_NotaDebito_PerdaEstoque.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_410_CLASSTRIB_410999_RemessaVendaFutura.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_410_CLASSTRIB_410999_VendaNormal.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_515_CLASSTRIB_515001_ComReducaoEDiferimento.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/DevolucaoComIBSCBS-nfe.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/NFe_Devolução_Com_Tag_DFeReferenciado.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/NFe_com_TAG_gPagAntecipado-nfe.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/VendaComIBSCBS-nfe.xml
+Unimake/Uninfe exemplos xml/NFeAbi/41260912345678000123770010000000011012345670-nfeabi.xml
+WillGonJ/calculadora_cclasstrib src/main/resources/xml/nfe/exemplo.xml
+WillGonJ/calculadora_cclasstrib src/main/resources/xml/nfe/exemplos/grupo/teste-xml-valido-1.xml
+WillGonJ/calculadora_cclasstrib src/main/resources/xml/nfe/exemplos/nota/teste-xml-valido-1.xml
+akitaonrails/llm-non-coding-benchmark results/b300-flash-next-full-20261024/_aborted/bracc_03_cbs_ibs_ano_teste-attempt1/work/workspace/documents/saidas/nfe_2307.xml
+akitaonrails/llm-non-coding-benchmark results/b300-flash-next-full-20261024/_aborted/bracc_03_cbs_ibs_ano_teste-attempt1/work/workspace/documents/saidas/nfe_2311.xml
+akitaonrails/llm-non-coding-benchmark results/b300-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2314.xml
+akitaonrails/llm-non-coding-benchmark results/b300-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2316.xml
+akitaonrails/llm-non-coding-benchmark results/b300-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2317.xml
+akitaonrails/llm-non-coding-benchmark results/b300-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2306.xml
+akitaonrails/llm-non-coding-benchmark results/b300-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2307.xml
+akitaonrails/llm-non-coding-benchmark results/b300-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2309.xml
+akitaonrails/llm-non-coding-benchmark results/b300-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2311.xml
+akitaonrails/llm-non-coding-benchmark results/b300-glm53-flash-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2314.xml
+akitaonrails/llm-non-coding-benchmark results/b300-glm53-flash-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2316.xml
+akitaonrails/llm-non-coding-benchmark results/b300-glm53-flash-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2317.xml
+akitaonrails/llm-non-coding-benchmark results/b300-glm53-flash-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2306.xml
+akitaonrails/llm-non-coding-benchmark results/b300-glm53-flash-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2307.xml
+akitaonrails/llm-non-coding-benchmark results/b300-glm53-flash-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2309.xml
+akitaonrails/llm-non-coding-benchmark results/b300-glm53-flash-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2311.xml
+akitaonrails/llm-non-coding-benchmark results/rtx5090-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2314.xml
+akitaonrails/llm-non-coding-benchmark results/rtx5090-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2316.xml
+akitaonrails/llm-non-coding-benchmark results/rtx5090-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2317.xml
+akitaonrails/llm-non-coding-benchmark results/rtx5090-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2306.xml
+akitaonrails/llm-non-coding-benchmark results/rtx5090-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2307.xml
+akitaonrails/llm-non-coding-benchmark results/rtx5090-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2309.xml
+akitaonrails/llm-non-coding-benchmark results/rtx5090-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2311.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-core-20261022-r2/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2314.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-core-20261022-r2/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2316.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-core-20261022-r2/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2317.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-core-20261022-r2/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2306.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-core-20261022-r2/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2307.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-core-20261022-r2/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2309.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-core-20261022-r2/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2311.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2314.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2316.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2317.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2306.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2307.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2309.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2311.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261026/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2314.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261026/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2316.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261026/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2317.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261026/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2306.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261026/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2307.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261026/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2309.xml
+akitaonrails/llm-non-coding-benchmark results/sol6-medium-full-20261026/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2311.xml
+akitaonrails/llm-non-coding-benchmark results/strix-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2314.xml
+akitaonrails/llm-non-coding-benchmark results/strix-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2316.xml
+akitaonrails/llm-non-coding-benchmark results/strix-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/entradas/nfe_2317.xml
+akitaonrails/llm-non-coding-benchmark results/strix-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2306.xml
+akitaonrails/llm-non-coding-benchmark results/strix-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2307.xml
+akitaonrails/llm-non-coding-benchmark results/strix-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2309.xml
+akitaonrails/llm-non-coding-benchmark results/strix-flash-next-full-20261024/bracc_03_cbs_ibs_ano_teste/work/workspace/documents/saidas/nfe_2311.xml
+akitaonrails/llm-non-coding-benchmark tasks/bracc/bracc_03_cbs_ibs_ano_teste/workspace/documents/entradas/nfe_2314.xml
+akitaonrails/llm-non-coding-benchmark tasks/bracc/bracc_03_cbs_ibs_ano_teste/workspace/documents/entradas/nfe_2316.xml
+akitaonrails/llm-non-coding-benchmark tasks/bracc/bracc_03_cbs_ibs_ano_teste/workspace/documents/entradas/nfe_2317.xml
+akitaonrails/llm-non-coding-benchmark tasks/bracc/bracc_03_cbs_ibs_ano_teste/workspace/documents/saidas/nfe_2306.xml
+akitaonrails/llm-non-coding-benchmark tasks/bracc/bracc_03_cbs_ibs_ano_teste/workspace/documents/saidas/nfe_2307.xml
+akitaonrails/llm-non-coding-benchmark tasks/bracc/bracc_03_cbs_ibs_ano_teste/workspace/documents/saidas/nfe_2309.xml
+akitaonrails/llm-non-coding-benchmark tasks/bracc/bracc_03_cbs_ibs_ano_teste/workspace/documents/saidas/nfe_2311.xml
+akretion/nfelib nfelib/nfe/samples/v4_0/leiauteNFe/nfe_reforma_tributaria.xml
+akretion/nfelib nfelib/nfse/samples/v1_0/nfse-ibscbs.xml
+automacoescomerciaisintegradas/orcamento backend/src/main/resources/xml/nfce/exemplos/nota/teste-xml-valido-1.xml
+automacoescomerciaisintegradas/orcamento backend/src/main/resources/xml/nfse/exemplos/nota/teste-xml-valido-1.xml
+biuspoly/RNFe inst/exemplos/cte_proc_sp.xml
+biuspoly/RNFe inst/exemplos/cte_simp_proc_sp.xml
+biuspoly/RNFe inst/exemplos/nfe_proc_sp.xml
+biuspoly/RNFe inst/exemplos/nfse_sp_v101.xml
+bnreis/integracao-iugu docs/exemplos_oficiais/GerarNfseEnvio.xml
+bnreis/integracao-iugu docs/exemplos_oficiais/schema_v101.xsd.xml
+bnreis/integracao-iugu docs/exemplos_oficiais/schema_v101_fixed.xsd.xml
+campos-labs/project-hub docs/rfcs/002-tax-reform-impact-simulator/research/data/nfse_nacional/SYNTH-NFSE-IN-0001.xml
+campos-labs/project-hub docs/rfcs/002-tax-reform-impact-simulator/research/data/nfse_nacional/SYNTH-NFSE-OUT-0001.xml
+campos-labs/project-hub docs/rfcs/002-tax-reform-impact-simulator/research/data/nfse_nacional/SYNTH-NFSE-OUT-0002.xml
+campos-labs/project-hub docs/rfcs/002-tax-reform-impact-simulator/research/data/nfse_nacional/SYNTH-NFSE-OUT-0003.xml
+carlosdfranca/FutureFlow docs/legado_vba/35260602455462000129550010001557711769163725.xml
+dellavalentina/NFSe.DANFSe.v2 Tests/Samples/danfse-normal.xml
+dellavalentina/NFSe.DANFSe.v2 Tests/Samples/danfse-substituida.xml
+dellavalentina/NFSe.DANFSe.v2 Tests/Samples/danfse-terceiros.xml
+dellavalentina/NFSe.DANFSe.v2 Tests/Samples/danfse-tottrib-distinto.xml
+fabyo/NFEDanfe samples/exemplo-infAdFisco-infCpl-grandes.xml
+gildonei/nfse-nacional tests/Fixture/Danfse/nfse-completa.xml
+htvermonde/reforma-tributaria-v1 reading_notes/envision/13251004176689000160550180000798121591902471-nfe.xml
+humbertomouratec/assettrack_ti static/uploads/xml/2_MOSQUEMELE.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_005.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_006.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_007.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_008.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_009.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_010.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_011.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_012.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_013.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_014.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_015.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_016.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_017.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_018.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_019.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_020.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_021.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_022.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_023.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_024.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_025.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_026.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_027.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_028.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_029.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_030.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_031.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_032.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_033.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_034.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_035.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_036.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_037.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_038.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_039.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_040.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_041.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_042.xml
+jadsonmorais/pipeline-carmel examples/NFe23260319253187000163650010000170031192531872-nfe.xml
+mickbap/tribultz frontend/src/lib/validation/fixtures/nfce-ok.xml
+mickbap/tribultz frontend/src/lib/validation/fixtures/nfe-ibs-split-error.xml
+mickbap/tribultz frontend/src/lib/validation/fixtures/nfe-ok.xml
+mickbap/tribultz frontend/src/lib/validation/fixtures/nfe-smoke.xml
+mickbap/tribultz frontend/src/lib/validation/fixtures/nfe-v140-ok.xml
+nfe/rtc-calculadora-offline codigo-fonte-backend/src/main/resources/xml/nfce/exemplos/nota/teste-xml-valido-1.xml
+nfe/rtc-calculadora-offline codigo-fonte-backend/src/main/resources/xml/nfe/exemplo.xml
+nfe/rtc-calculadora-offline codigo-fonte-backend/src/main/resources/xml/nfse/exemplos/nota/teste-xml-valido-1.xml
+nfephp-org/sped-cte examples/cte_v4.00_RTC.xml
+nfephp-org/sped-cte examples/xmls_from_xsd/cteSimp_v4.00_RTC.xml
+nfephp-org/sped-cte examples/xmls_from_xsd/cte_v4.00_RTC.xml
+nfephp-org/sped-nfe examples/fixtures/nfe_PL_010b_v1.2.xml
+nfephp-org/sped-nfe examples/fixtures/nfe_PL_010b_v1.21.xml
+nfephp-org/sped-nfe examples/fixtures/nfe_PL_10b_v1.30.xml
+nfephp-org/sped-nfe examples/fixtures/nfe_v4.00_PL010g.xml
+nfephp-org/sped-nfe examples/fixtures/procNFe_v4.00.xsd.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL010g.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL_010B.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL_010C.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL_010C_cnpjalfa.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL_010E.xml
+nfephp-org/sped-nfe examples/procNFe_PL_010C_cnpjalfa.xml
+prbn021/nfse-poc tests/dados/dps-com-ibscbs.xml
+sjtecnologia/api_nfe Documentacao/modeloxmlcompleto/MODELO bsj.xml
+sursum-git/genesis-acbr testes_api_platform/fixtures/nfe_consulta_exemplo.xml
+sursum-git/genesis-acbr testes_api_platform/fixtures/nfe_envio_assincrono_exemplo.xml
+tecnospeed/Arquivos_RTC NFCe/PACOTE DE XML/[XML] AUTORIZADA NFCE 000 - 00001.xml
+tecnospeed/Arquivos_RTC NFCe/PACOTE DE XML/[XML] AUTORIZADA NFCE 200 - 20034.xml
+tecnospeed/Arquivos_RTC NFe/PACOTE DE XML/2026.008 - vICMS PREVISTO - Pagamento Antecipado.xml
+tecnospeed/Arquivos_RTC NFe/PACOTE DE XML/XML - DEVOLUÇÃO IBSCBS.xml
+tecnospeed/Arquivos_RTC NFe/PACOTE DE XML/XML EXEMPLO VALOR LIQUIDO - NT 2026.008.xml
+vBaggio/validador-lote-rtc docs/calculadora/payloads/03-grupo-valido.xml
+vBaggio/validador-lote-rtc docs/calculadora/payloads/03b-grupo-valido-ns.xml
+vBaggio/validador-lote-rtc docs/calculadora/payloads/04-grupo-invalido.xml
+vBaggio/validador-lote-rtc docs/calculadora/payloads/04b-grupo-invalido-ns.xml
+vBaggio/validador-lote-rtc docs/calculadora/payloads/11-grupo-valido-jar.xml
+victorl2/govbr-nfse-api src/test/resources/dps/dps-valid.xml
+will-aam/acharboletonfe exemplos_xml/nota_exemplo_305432.xml
+willkerms/NFSe templates/coplan-br-v1/DPS.xml
+willkerms/NFSe templates/emissor-nacional/DPS.xml
+willkerms/NFSe templates/fiorilli-br-v1/DPS.xml
+willkerms/NFSe templates/notacontrol-br-v1/DPS.xml
+xhinzz/tributos-br exemplos/nfe-sp-rj-com-erros.xml
+xhinzz/tributos-br exemplos/nfe-sp-sp-correta.xml

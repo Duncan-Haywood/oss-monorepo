@@ -6,15 +6,18 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+// The guide pages quote the builder's default build, exact check on since 2026-11-12, and say each row is proven.
+const proven = (r) => assert.ok(["optimal", "improved"].includes(r.optimality?.status), `not proven: ${r.optimality?.status}`);
 
 test("limits page's tables are what the engine returns for the sample cafe, FAQ matches, linked", async () => {
   const { parseStaff, parseShifts, buildRoster, sampleStaff, sampleShifts } = await import("./calc.mjs");
   const staff = parseStaff(sampleStaff()).staff, slots = parseShifts(sampleShifts()).slots;
   const html = page("days-in-a-row-and-daily-hour-limits.html");
-  const cases = [[{}, 3, 216, 3622], [{ maxDailyHours: 12 }, 3, 216, 3622], [{ maxDailyHours: 10 }, 3, 216, 3622], [{ maxDailyHours: 9 }, 4, 209, 3505],
-    [{ maxDailyHours: 8 }, 4, 209, 3505], [{ maxDailyHours: 6 }, 27, 15, 261], [{ maxConsecDays: 5 }, 4, 218, 3658], [{ maxConsecDays: 4 }, 5, 220, 3690], [{ maxConsecDays: 3 }, 7, 204, 3402]];
+  const cases = [[{}, 5, 220, 3690], [{ maxDailyHours: 12 }, 5, 220, 3690], [{ maxDailyHours: 10 }, 5, 220, 3690], [{ maxDailyHours: 9 }, 4, 209, 3505],
+    [{ maxDailyHours: 8 }, 4, 209, 3505], [{ maxDailyHours: 6 }, 27, 15, 261], [{ maxConsecDays: 5 }, 5, 220, 3690], [{ maxConsecDays: 4 }, 5, 220, 3690], [{ maxConsecDays: 3 }, 7, 204, 3402]];
   for (const [o, open, covered, pay] of cases) {
     const r = buildRoster(staff, slots, o);
+    proven(r);
     assert.equal(r.unfilled.length, open, JSON.stringify(o));
     assert.equal(r.hours, covered, JSON.stringify(o));
     assert.equal(r.cost, pay, JSON.stringify(o));
@@ -32,8 +35,9 @@ test("rotation page's eight-week table is what the engine returns for six identi
   const { sampleShifts, planWeeks, planFairness } = await import("./calc.mjs");
   const staff = ["name, wage, max hours, min hours, availability", ..."Ana Ben Cleo Dev Eli Fay".split(" ").map((n) => `${n}, 15, 40, 0, any`)].join("\n");
   const html = page("how-to-rotate-closing-and-weekend-shifts-fairly.html");
-  for (const [t, most, least, gap] of [[0, 37, 34, 3], [10, 37, 35, 2], [30, 37, 35, 2]]) {
+  for (const [t, most, least, gap] of [[0, 40, 32, 8], [10, 36, 36, 0], [30, 36, 36, 0]]) {
     const p = planWeeks(staff, sampleShifts(), { weeks: 8, weekStart: "2026-11-02", toughBalance: t });
+    for (const w of p.weeks) proven(w.roster);
     const f = planFairness(p);
     assert.equal(f.rows[0].tough, most, `${t} most`);
     assert.equal(f.rows[f.rows.length - 1].tough, least, `${t} least`);
@@ -85,8 +89,8 @@ test("coffee shop page numbers come from the builder", async () => {
   const staff = parseStaff("Maya, 18, 40, 30, Mon-Sun 5-20\nNoah, 16, 32, 20, Mon-Fri 5-20\nPriya, 15, 28, 0, Wed-Sun 6-20\nQuinn, 15, 24, 0, Sat-Sun 6-20\nRosa, 17, 20, 0, Mon-Fri 5-14\nSam, 15, 16, 0, Fri-Sun 8-20").staff;
   const slots = parseShifts("Mon-Fri, 6, 11, 2, Morning rush\nMon-Fri, 11, 16, 1, Midday\nMon-Fri, 16, 20, 1, Evening\nSat-Sun, 7, 15, 2, Weekend brunch\nSat-Sun, 15, 19, 1, Weekend close").slots;
   const html = page("coffee-shop-staff-schedule.html");
-  assert.equal(buildRoster(staff, slots, {}).cost, 2066);
-  assert.ok(html.includes("24 of 26 person-shifts are covered for $2,066"));
+  assert.equal(buildRoster(staff, slots, {}).cost, 2060);
+  assert.ok(html.includes("24 of 26 person-shifts are covered for $2,060"));
   assert.equal(buildRoster(staff, slots, { minRestHours: 0 }).cost, 2182);
   assert.ok(html.includes("covers all 26 for $2,182"));
   assert.match(page("sitemap.xml"), /coffee-shop-staff-schedule\.html/);

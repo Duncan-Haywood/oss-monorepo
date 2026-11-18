@@ -7,8 +7,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { parseUtterance, tokenize, checkValue, validateFills, mergeFills, extractJson, fieldSchema, describeFills } from './assistant/fill.mjs';
-import { ASSISTANT_LAUNCHER_JS, ASSISTANT_FILES, renderAskPage, renderAssistantFiles, scoreEvals } from './assistant.mjs';
+import { ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, ASSISTANT_FILES, renderAskPage, renderAssistantFiles, scoreEvals } from './assistant.mjs';
 import { SITE_NAV } from './site-nav.mjs';
+import { renderChromeStyle } from './build.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -231,8 +232,43 @@ test('the Ask page prints the score the build measured, and says where words go'
   for (const [, body] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(body);
 });
 
+test('the Ask page reserves the inline panel height, so the article below does not shift', () => {
+  const html = renderAskPage({
+    baseUrl: 'https://example.test/',
+    siteName: 'Site',
+    toolCount: 10,
+    chrome: { style: '', styleLink: '', header: '<nav></nav>', disclaimer: '', footerNav: '', script: '' },
+  });
+  const client = readFileSync(path.join(HERE, 'assistant/client.js'), 'utf8');
+  const panel = /#pf-assistant\.pa-inline\{[^}]*min-height:(\d+)px/.exec(client);
+  assert.ok(panel, 'client.js no longer sets a min-height on the inline panel');
+  // Only when scripts run: without JavaScript the box holds a one-line notice.
+  assert.match(html, new RegExp(`@media \\(scripting:enabled\\)\\{\\.ask-app\\{min-height:${panel[1]}px\\}\\}`));
+});
+
 test('the floating mic steps aside on downward scroll, pads the page on phones, and honours reduced motion', () => {
   assert.match(ASSISTANT_LAUNCHER_JS, /pf-away/);
-  assert.match(ASSISTANT_LAUNCHER_JS, /body\{padding-bottom:72px\}/);
-  assert.match(ASSISTANT_LAUNCHER_JS, /prefers-reduced-motion:reduce\)\{\.pf-ask-voice\{transition:none/);
+  assert.match(ASSISTANT_VOICE_CSS, /\.pf-ask-voice\.pf-away\{/);
+  // The padding is scoped to the class the launcher sets with the button.
+  assert.match(ASSISTANT_LAUNCHER_JS, /classList\.add\('pf-ask-pad'\)/);
+  assert.match(ASSISTANT_VOICE_CSS, /max-width:560px\)\{[^@]*body\.pf-ask-pad\{padding-bottom:72px\}/);
+  assert.doesNotMatch(ASSISTANT_VOICE_CSS, /(^|[}\s])body\{/);
+  assert.match(ASSISTANT_VOICE_CSS, /prefers-reduced-motion:reduce\)\{\.pf-ask-voice\{transition:none/);
+});
+
+test("the floating mic's icon ignores a page's own svg and path styles", () => {
+  // changepoint-detector and shift-roster-builder style a bare svg{background:#fff}
+  // for their charts (65 pages, 2026-11-10); wall-framing-takeoff adds a 1px
+  // border. Without this reset the mic drew white on white.
+  assert.match(ASSISTANT_VOICE_CSS, /\.pf-ask-voice svg\{[^}]*width:20px;height:20px;background:none;border:0\}/);
+  assert.match(ASSISTANT_VOICE_CSS, /\.pf-ask-voice path\{fill:currentColor\}/);
+});
+
+test("the floating mic's rules ride in pf-chrome.css, not in a <style> added after load", () => {
+  // A stylesheet appended after DOMContentLoaded restyles the whole document:
+  // 35 ms of forced reflow on wall-framing-takeoff (2026-11-11). The launcher
+  // adds the button only where pf-chrome.css is linked, so it is never unstyled.
+  assert.doesNotMatch(ASSISTANT_LAUNCHER_JS, /createElement\('style'\)/);
+  assert.match(ASSISTANT_LAUNCHER_JS, /link\[href\$="pf-chrome\.css"\]/);
+  assert.ok(renderChromeStyle().includes(ASSISTANT_VOICE_CSS));
 });

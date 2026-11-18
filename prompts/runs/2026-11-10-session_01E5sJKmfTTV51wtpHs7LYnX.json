@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKmfTTV51wtpHs7LYnX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T17:11:22Z",
+  "ended": "2026-11-10T17:33:48Z",
+  "wall_minutes": 22.62,
+  "tokens_in": 10900802,
+  "tokens_out": 54875,
+  "cost_usd": 4.6117,
+  "tool_calls": 85,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14568",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First background pip install of build123d stalled for ~20 min with no output; killed it and re-ran in the foreground, where it finished in under 2 min."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "open-tennis-robots next: asked for hose-clip brackets on a pulley take-up that cannot pass balls; six earlier slices built on it without checking the ball path, though cad/README.md had said on 2026-11-03 that slack cannot loop."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "says nothing about build123d for the open-tennis-robots CAD suite; a backgrounded pip install hung silently, so run it in the foreground with a timeout."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Flagship 1 (wall-framing-takeoff) lists only items that need real-world inputs (real plans, bids, orders), and it had 267 commits in the last 7 days.",
+      "did": "Took flagship 10 (open-tennis-robots) and its stated next item, then replaced the take-up after finding it could not carry balls.",
+      "result": "Landed a design fix with CAD, tests and a regenerated package."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The listed next item (hose-clip brackets) would have extended a mechanism that cannot work.",
+      "did": "Replaced the mechanism instead and rewrote next:.",
+      "result": "38 CAD tests pass; no collisions."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-tennis-feeder-hose-cannot-climb.md",
+    "ventures/open-tennis-robots/cad/README.md (pulley-to-sleeve entry)"
+  ],
+  "goal": null,
+  "notes": "Verification: cad/ python -m unittest discover -s tests: 38 OK in 97 s (build123d 0.13.0, Python 3.11 venv). Feeder build: design rules pass, collisions none over -15..+45 deg. Outlet search via Feeder.lowest_sleeve_outlet (x -650..-300, 25 mm z steps).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "85ce8514-1029-5946-a1c3-2d46d3393c73",
+    "transcripts": 1,
+    "first": "2026-11-10T17:11:22Z",
+    "last": "2026-11-10T17:33:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 161,
+        "output": 54875,
+        "thinking": 22903,
+        "cache_read": 10729695,
+        "cache_write_5m": 0,
+        "cache_write_1h": 170946,
+        "api_equivalent_usd": 4.6117,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 161,
+      "output": 54875,
+      "thinking": 22903,
+      "cache_read": 10729695,
+      "cache_write_5m": 0,
+      "cache_write_1h": 170946,
+      "api_equivalent_usd": 4.6117,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 79,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Monitor": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.62,
+      "active_minutes": 22.62,
+      "model_minutes": 10.94,
+      "tool_minutes": 11.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "mechanical engineer: find the flaw, build the sizing search, CAD three parts, regenerate the package, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 216.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

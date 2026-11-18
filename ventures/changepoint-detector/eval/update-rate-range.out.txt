@@ -1,0 +1,38 @@
+CALIBRATION, seed 20261203: covered / with a cut (coverage), median width of the nearest cut's range
+  cell               slack 2.00              slack 3.84              slack 6.00              slack 9.00             slack 11.41
+  S1          125/200 (0.63) w2       174/200 (0.87) w6      187/200 (0.94) w10      198/200 (0.99) w16      200/200 (1.00) w20
+  S2           98/174 (0.56) w7      146/174 (0.84) w15      167/174 (0.96) w29      173/174 (0.99) w46      174/174 (1.00) w62
+  S3           88/190 (0.46) w5      158/190 (0.83) w15      177/190 (0.93) w22      188/190 (0.99) w39      190/190 (1.00) w54
+  S4           81/189 (0.43) w5      140/189 (0.74) w17      168/189 (0.89) w26      186/189 (0.98) w45      188/189 (0.99) w61
+Chosen slack: 9.00
+
+CONFIRMATION, seed 20261204 (nulls) and 20261205 (power cells)
+  B10 n100   0.000 false cuts a series
+  B10 n300   0.000 false cuts a series
+  B10 n600   0.000 false cuts a series
+  B25 n100   0.005 false cuts a series
+  B25 n300   0.000 false cuts a series
+  B25 n600   0.000 false cuts a series
+  B40 n100   0.000 false cuts a series
+  B40 n300   0.005 false cuts a series
+  B40 n600   0.000 false cuts a series
+  B60 n100   0.010 false cuts a series
+  B60 n300   0.000 false cuts a series
+  B60 n600   0.000 false cuts a series
+  M40 n100   0.005 false cuts a series
+  M40 n300   0.000 false cuts a series
+  M40 n600   0.000 false cuts a series
+  M60 n100   0.010 false cuts a series
+  M60 n300   0.000 false cuts a series
+  M60 n600   0.000 false cuts a series
+  S1         range contains the change 200 of 200 (cut in 200); median width 17
+  S2         range contains the change 172 of 200 (cut in 174); median width 52
+  S3         range contains the change 197 of 200 (cut in 198); median width 43
+  S4         range contains the change 181 of 200 (cut in 185); median width 44
+
+R1 nulls <= 0.10 (worst 0.010): pass
+R2 S1 covered >= 170 (200): pass
+R3 S4 covered >= 150 (181): pass
+R4 S1 median width <= 30 (17): pass
+Verdict: SHIP the description with its range
+(78.9 s)

@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKnx9LbWhJv6PaKMjJx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T13:22:17Z",
+  "ended": "2026-11-17T13:36:09Z",
+  "wall_minutes": 14.01,
+  "tokens_in": 5907111,
+  "tokens_out": 33416,
+  "cost_usd": 2.7768,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16948",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Ai2020 design 7 killed for memory (exit -9) at 3 workers; finished on a single-worker retry (5z had lost it too)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/experiments/*/bench.jsonl",
+      "issue": "x-resolved per-node, per-cycle records make an 8 MB bench file; rounding to 7 significant digits halved it. No guidance on a size budget for committed raw benches."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/cell-fidelity/LOG.md (5zk plan)",
+      "why": "The committed bench was rounded to 7 significant digits after the report ran, to keep the file near the size of other committed benches.",
+      "did": "Re-ran the report on the rounded file and checked no printed number moved past the 4th digit.",
+      "result": "Verdicts and tables unchanged; logged in the outcome entry."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-where-lithium-plating-happens-in-the-electrode.md",
+    "research/cell-fidelity/LOG.md (5zk plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "cell-fidelity milestone 5zk: 40 DFN runs to cycle 100 with x-resolved plating. Separator node carries 8-19% of plating; explains 5z's NCA_Kim2011 index miss (H192); reading the lever at the plating does not give kappa* (H193 refuted). Checks: tests/test_depth.py + ledger + lever tests pass (13), research _homepage build ok, check_md_links ok, post frontmatter/links/similarity ok, programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1978d283-be3c-5e97-a3fd-3984d323051d",
+    "transcripts": 1,
+    "first": "2026-11-17T13:22:17Z",
+    "last": "2026-11-17T13:36:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 33416,
+        "thinking": 7837,
+        "cache_read": 5788200,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118811,
+        "api_equivalent_usd": 2.7768,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 33416,
+      "thinking": 7837,
+      "cache_read": 5788200,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118811,
+      "api_equivalent_usd": 2.7768,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 50,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.01,
+      "active_minutes": 14.01,
+      "model_minutes": 5.51,
+      "tool_minutes": 8.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a battery-modelling researcher scripting a 40-run x-resolved PyBaMM study, analysis and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 216.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -275,7 +275,7 @@
   </footer>
   <script type="module">
     import { applyCategoryPreset, compareAgedInventory, compareHoldVsRemove, cubicFeet } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const ids = [
       "salePrice", "referralRate", "fulfillmentFee", "storageRate",
@@ -392,11 +392,11 @@
     }
 
     function recordCompare() {
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "aged_inventory_compared");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "aged_inventory_compared");
     }
 
     function recordHold() {
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "hold_vs_remove_compared");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "hold_vs_remove_compared");
     }
 
     document.getElementById("category").addEventListener("change", () => {
@@ -420,8 +420,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

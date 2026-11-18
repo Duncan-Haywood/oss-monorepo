@@ -5,11 +5,14 @@ Run with: python3 -m unittest portfolio/router/test_allocate.py
 (or: cd portfolio/router && python3 -m unittest test_allocate)
 """
 import copy
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
 from allocate import (
+    claim_note,
+    claims_by_venture,
     deepen_to_window,
     recent_commits,
     Venture,
@@ -18,10 +21,20 @@ from allocate import (
     decisions_by_merit,
     is_calculator,
     load_flagships,
+    load_flagship_field,
+    load_inputs_only,
+    load_flagship_hosts,
+    row_hosts,
+    start_here,
     load_merit_scores,
     load_ventures as _load_ventures,
     next_task,
+    requests_line,
     rank,
+    venture_report,
+    count_by_venture,
+    last_landed,
+    shallow_boundary,
     work_queue,
     LEDGER_DIR,
     SCORES_PATH,
@@ -153,8 +166,9 @@ class DeepenTests(unittest.TestCase):
                 return mock.Mock(stdout=out, returncode=0)
             with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
                 return deepen_to_window(7), m.call_count
-        self.assertEqual(run(False), (False, 1))
-        self.assertEqual(run(True), (True, 3))  # rev-parse, git log, fetch
+        self.assertEqual(run(False), (False, 2))  # rev-parse, rev-list
+        # rev-parse, rev-list, git log, then shallow_repair.fetch: locate .git/shallow, fetch, locate again
+        self.assertEqual(run(True), (True, 6))
 
     def test_fetch_timeout_returns_false_instead_of_blocking(self):
         import subprocess
@@ -169,11 +183,49 @@ class DeepenTests(unittest.TestCase):
     def test_skips_fetch_when_history_already_reaches_window(self):
         from unittest import mock
         def fake(cmd, **kw):
-            out = "true" if "rev-parse" in cmd else "1000000000\n"
+            out = "true" if "rev-parse" in cmd else "" if "rev-list" in cmd else "1000000000\n"
             return mock.Mock(stdout=out, returncode=0)
         with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
             self.assertFalse(deepen_to_window(7))
-            self.assertEqual(m.call_count, 2)  # no fetch
+            self.assertEqual(m.call_count, 3)  # rev-parse, rev-list, git log; no fetch
+
+    def test_stale_origin_main_is_fetched_even_when_history_reaches_window(self):
+        # 2026-11-13: origin/main sat at a 6-day-old clone-time commit while HEAD was current
+        # main; its deep history "reached" the window, so no fetch ran and last_landed lied.
+        from unittest import mock
+        for shallow in ("true", "false"):
+            calls = []
+            def fake(cmd, **kw):
+                calls.append(cmd)
+                if "rev-parse" in cmd:
+                    out = shallow
+                elif "rev-list" in cmd:
+                    out = "5c6cef44fdb9830ff4ba791359445aac257c4e92\n"
+                else:
+                    out = "1000000000\n"
+                return mock.Mock(stdout=out, returncode=0)
+            with mock.patch("allocate.subprocess.run", side_effect=fake):
+                self.assertTrue(deepen_to_window(7))
+            self.assertTrue(any("fetch" in c for c in calls), shallow)
+
+    def test_own_commits_on_a_work_branch_do_not_count_as_stale(self):
+        import subprocess
+        import tempfile
+        from allocate import origin_main_behind_head
+        with tempfile.TemporaryDirectory() as d:
+            env = {"GIT_AUTHOR_NAME": "a", "GIT_AUTHOR_EMAIL": "a@x", "GIT_COMMITTER_NAME": "a",
+                   "GIT_COMMITTER_EMAIL": "a@x", "PATH": __import__("os").environ["PATH"]}
+            def git(*a, **extra):
+                subprocess.run(["git", *a], cwd=d, check=True, capture_output=True,
+                               env={**env, **extra})
+            git("init", "-q", "-b", "main")
+            git("commit", "-q", "--allow-empty", "-m", "base")
+            git("update-ref", "refs/remotes/origin/main", "HEAD")
+            git("commit", "-q", "--allow-empty", "-m", "my own work")
+            self.assertFalse(origin_main_behind_head(Path(d)))
+            git("commit", "-q", "--allow-empty", "-m", "a merged PR (#1)",
+                GIT_COMMITTER_NAME="GitHub", GIT_COMMITTER_EMAIL="noreply@github.com")
+            self.assertTrue(origin_main_behind_head(Path(d)))
 
 
 class NextTaskTests(unittest.TestCase):
@@ -661,9 +713,6 @@ class ReexecTests(unittest.TestCase):
             ex.assert_not_called()
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class FlagshipTests(unittest.TestCase):
     def flag(self, name, rank_, next_="Build the thing."):
@@ -702,6 +751,80 @@ class FlagshipTests(unittest.TestCase):
         self.assertTrue(queue[0]["flagship"])
         self.assertTrue(queue[0]["task"].startswith("Deepen"))
 
+    def test_inputs_only_flagship_ranks_after_buildable_flagships_not_after_others(self):
+        stuck = self.flag("stuck", 0)
+        stuck.flagship_inputs_only = "a real builder's draw schedule"
+        buildable = self.flag("buildable", 1)
+        small = make("tiny-csv-check", merit=0.9)
+        ordered = [v.name for v in rank([small, stuck, buildable])]
+        self.assertEqual(ordered, ["buildable", "stuck", "tiny-csv-check"])
+        task = next_task(stuck)
+        self.assertTrue(task.startswith("Inputs only (flagship 1)"), task)
+        self.assertIn("draw schedule", task)
+        self.assertTrue(next_task(buildable).startswith("Deepen (flagship 2)"))
+
+    def test_load_inputs_only_reads_marked_flagships(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            self.assertEqual(load_inputs_only(p), {})
+            p.write_text("flagships:\n  - venture: a\n    inputs_only: a real DXF\n  - venture: b\n")
+            self.assertEqual(load_inputs_only(p), {"a": "a real DXF"})
+
+    def test_buildable_note_leads_the_deepen_task_and_the_full_report(self):
+        v = self.flag("deep", 0, "Long history of every slice.")
+        v.flagship_buildable = "(1) a second reader from a local GGUF model"
+        task = next_task(v)
+        self.assertTrue(task.startswith("Deepen (flagship 1): BUILDABLE HERE: (1) a second reader"), task)
+        self.assertIn("Context: Long history", task)
+        self.assertIn("buildable here: (1) a second reader", venture_report("deep", [v]))
+        self.assertNotIn("BUILDABLE", next_task(self.flag("plain", 1, "x")))
+        self.assertIn("--field buildable", task)
+        self.assertNotIn("--field buildable", next_task(self.flag("plain", 1, "x")))
+
+    def test_row_hosts_reads_the_hosts_field_then_the_prose(self):
+        v = self.flag("deep", 0, "Scans on archive.org; see README.md and calc.mjs, eval/x.jsonl.")
+        v.flagship_hosts = ["https://raw.pixls.us/"]
+        v.flagship_buildable = "samples from raw.pixls.us and omawww.sat.gob.mx (SAT)"
+        self.assertEqual(row_hosts(v), ["https://raw.pixls.us/", "https://omawww.sat.gob.mx/",
+                                        "https://archive.org/"])
+        self.assertEqual(row_hosts(self.flag("plain", 1, "README.md, flagships.yaml, v1.40")), [])
+
+    def test_row_hosts_reads_the_hosts_a_named_script_fetches(self):
+        # friction 2026-11-17: the row named eval/cord_images.py, not huggingface.co
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "books"
+            (root / "eval").mkdir(parents=True)
+            (root / "eval" / "cord_images.py").write_text(
+                "# Licence: https://creativecommons.org/licenses/by/4.0/\n"
+                "#   https://huggingface.co/datasets/x/resolve/abc/test.parquet\n"
+                "LOCAL = 'http://localhost:8000/'\n")
+            v = self.flag("books", 0, "x")
+            v.flagship_buildable = "CORD photos (eval/cord_images.py); eval/missing.py; ../../etc/passwd.sh"
+            self.assertEqual(row_hosts(v, ventures_dir=Path(d)), ["https://huggingface.co/"])
+            v.flagship_hosts = ["https://huggingface.co/x"]
+            self.assertEqual(row_hosts(v, ventures_dir=Path(d)), ["https://huggingface.co/x"])
+
+    def test_venture_report_probes_the_row_hosts_only_when_asked(self):
+        v = self.flag("deep", 0, "history")
+        v.flagship_hosts = ["https://archive.org/", "https://github.com/"]
+        out = venture_report("deep", [v], probe=lambda url: "github" in url)
+        self.assertIn("archive.org REFUSED; github.com answers", out)
+        self.assertNotIn("probed just now", venture_report("deep", [v]))
+
+    def test_load_flagship_hosts_takes_a_list_or_a_string(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            p.write_text("flagships:\n  - venture: a\n    hosts: [https://a.org/]\n"
+                         "  - venture: b\n    hosts: https://b.org/ https://c.org/\n  - venture: c\n")
+            self.assertEqual(load_flagship_hosts(p), {"a": ["https://a.org/"],
+                                                      "b": ["https://b.org/", "https://c.org/"]})
+
+    def test_load_flagship_field_folds_whitespace(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            p.write_text("flagships:\n  - venture: a\n    buildable: >-\n      one\n      two\n  - venture: b\n")
+            self.assertEqual(load_flagship_field("buildable", p), {"a": "one two"})
+
     def test_load_flagships_reads_order_and_tolerates_missing_file(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "flagships.yaml"
@@ -719,3 +842,587 @@ class FlagshipTests(unittest.TestCase):
             # flagships.yaml says "keep this under 2,000 characters": history
             # belongs in the venture's README, not in the routed task text.
             self.assertLessEqual(len(milestone), 2000, f"flagship {name}: `next:` is over 2,000 characters")
+
+
+class OpenPrClaimTest(unittest.TestCase):
+    """Rows an open PR already works say so (doc_friction 2026-11-10/11)."""
+
+    PRS = [
+        (14678, "ai-bookkeeper: AI layer on real card lines + post", "2026-11-11T05:00:00Z"),
+        (11151, "ai-bookkeeper: CLI refuses non-numeric flags", "2026-10-28T00:00:00Z"),
+        (14701, "league-schedule-generator: even carry-over + post", "2026-11-11T06:30:00Z"),
+        (14000, "process: allocate.py notes", "2026-11-11T06:00:00Z"),
+    ]
+
+    def test_reads_the_pulls_list_first_and_drops_fork_prs(self):
+        """The search index lagged new claims by 10+ minutes on 2026-11-15
+        (#16190, #16173); the REST pulls list does not lag."""
+        from unittest import mock
+        import allocate
+        repo = {"full_name": allocate.REPO}
+        pulls = [
+            {"number": 16190, "title": "shift-roster-builder: claim", "created_at": "2026-11-15T10:58:20Z",
+             "head": {"repo": repo, "ref": "claude/x"}},
+            {"number": 16191, "title": "shift-roster-builder: from a fork", "created_at": "2026-11-15T10:59:00Z",
+             "head": {"repo": {"full_name": "someone/oss-monorepo"}, "ref": "main"}},
+            {"number": 16192, "title": "deleted fork", "created_at": "2026-11-15T11:00:00Z",
+             "head": {"repo": None, "ref": "main"}},
+        ]
+        with mock.patch.object(allocate, "_search_pr_titles") as search:
+            got = allocate.open_pr_titles(pulls=lambda: pulls)
+        search.assert_not_called()
+        self.assertEqual(got, [(16190, "shift-roster-builder: claim", "2026-11-15T10:58:20Z")])
+
+    def test_drops_prs_already_squashed_or_merged_on_main(self):
+        """#16521 showed as an OPEN PR while its squash commit sat on main (2026-11-17)."""
+        import allocate
+        prs = [(16521, "a: landed", "x"), (16522, "b: open", "x"), (16523, "c: merged", "x")]
+        subjects = ["a: thing (#16521)", "Merge pull request #16523 from x/y", "mentions (#16522) mid-line only"]
+        self.assertEqual(allocate.drop_landed(prs, subjects), [(16522, "b: open", "x")])
+        self.assertIsNone(allocate.drop_landed(None, subjects))
+        self.assertEqual(allocate.drop_landed(prs, []), prs)
+
+    def test_falls_back_to_search_when_the_pulls_list_is_unreadable(self):
+        from unittest import mock
+        import allocate
+        rows = [(1, "t", "2026-11-15T00:00:00Z")]
+        with mock.patch.object(allocate, "_search_pr_titles", return_value=rows) as search:
+            self.assertEqual(allocate.open_pr_titles(pulls=lambda: None), rows)
+        search.assert_called_once()
+
+    def test_matches_whole_slug_only(self):
+        claims = claims_by_venture(["ai-bookkeeper", "bookkeeper", "league-schedule-generator", "sales-agent"], self.PRS)
+        self.assertEqual([h[0] for h in claims["ai-bookkeeper"]], [14678, 11151])
+        self.assertEqual([h[0] for h in claims["league-schedule-generator"]], [14701])
+        self.assertNotIn("bookkeeper", claims)  # a slug inside a longer slug is not a match
+        self.assertNotIn("sales-agent", claims)
+
+    def test_fresh_claim_leads_and_stale_ones_are_numbers_only(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 11, 7, 0, tzinfo=timezone.utc)
+        note = claim_note(self.PRS[:2], now=now)
+        self.assertTrue(note.startswith("OPEN PR #14678 (2h old): ai-bookkeeper: AI layer"), note)
+        self.assertIn("[older open PRs: #11151]", note)
+        self.assertNotIn("CLI refuses", note)
+        stale_only = claim_note(self.PRS[1:2], now=now)
+        self.assertFalse(stale_only.startswith("OPEN PR"), stale_only)
+
+    def test_long_titles_are_cut(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 11, 7, 0, tzinfo=timezone.utc)
+        note = claim_note([(1, "x" * 300, "2026-11-11T06:00:00Z")], now=now)
+        self.assertLess(len(note), 160)
+
+
+class StartHereTests(unittest.TestCase):
+    def test_skips_fresh_claims_and_inputs_only_rows(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
+        queue = [
+            {"venture": "claimed", "flagship": True, "task": "Deepen (flagship 2): x"},
+            {"venture": "stuck", "flagship": True, "task": "Inputs only (flagship 1): x"},
+            {"venture": "free", "flagship": True, "task": "Deepen (flagship 3): x"},
+            {"venture": "small", "flagship": False, "task": "Explore: x"},
+        ]
+        claims = {"claimed": [(5, "claimed: slice", "2026-11-11T08:00:00Z")],
+                  "free": [(4, "free: stalled", "2026-11-01T00:00:00Z")]}
+        self.assertEqual(start_here(queue, claims, now=now), (3, "free"))
+        self.assertEqual(start_here(queue, None, now=now), (1, "claimed"))
+        self.assertIsNone(start_here(queue[1:2] + queue[3:], claims, now=now))
+
+    def test_session_spreads_concurrent_runs_over_free_rows(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
+        queue = [{"venture": f"v{i}", "flagship": True, "task": "Deepen (flagship): x"}
+                 for i in range(9)]
+        queue.insert(1, {"venture": "stuck", "flagship": True, "task": "Inputs only: x"})
+        picks = {start_here(queue, {}, now=now, session=f"session_{n}") for n in range(80)}
+        # Only the first START_SPREAD (6) free rows are ever picked, skipping row 2.
+        self.assertEqual(picks, {(1, "v0"), (3, "v1"), (4, "v2"), (5, "v3"), (6, "v4"), (7, "v5")})
+        # The same session always gets the same row.
+        self.assertEqual(start_here(queue, {}, now=now, session="abc"),
+                         start_here(queue, {}, now=now, session="abc"))
+        # One free row: every session gets it.
+        self.assertEqual(start_here(queue[:2], {}, now=now, session="abc"), (1, "v0"))
+
+
+class LeastClaimedTests(unittest.TestCase):
+    def test_names_the_row_whose_newest_claim_is_oldest_when_none_is_free(self):
+        from datetime import datetime, timezone
+        from allocate import least_claimed
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        queue = [
+            {"venture": "a", "flagship": True, "task": "Deepen (flagship 1): x"},
+            {"venture": "stuck", "flagship": True, "task": "Inputs only (flagship 2): x"},
+            {"venture": "b", "flagship": True, "task": "Deepen (flagship 3): x"},
+            {"venture": "c", "flagship": True, "task": "Deepen (flagship 4): x"},
+        ]
+        claims = {"a": [(10, "a: x", "2026-11-17T11:30:00Z")],
+                  "b": [(11, "b: x", "2026-11-17T07:00:00Z"), (12, "b: y", "2026-11-17T10:00:00Z")],
+                  "c": [(13, "c: x", "2026-11-17T11:00:00Z"), (9, "c: old", "2026-11-01T00:00:00Z")]}
+        self.assertIsNone(start_here(queue, claims, now=now))
+        # b's newest claim (#12, 2 h) is older than c's (1 h) and a's (0.5 h).
+        self.assertEqual(least_claimed(queue, claims, now=now), (3, "b", 12, 2.0))
+        # Sessions spread over the least contested rows, never the inputs-only one.
+        picks = {least_claimed(queue, claims, now=now, session=f"s{n}", spread=2)[:2] for n in range(40)}
+        self.assertEqual(picks, {(3, "b"), (4, "c")})
+        # A free row means start_here answers, so there is no fallback.
+        self.assertIsNone(least_claimed(queue, {"a": claims["a"]}, now=now))
+        self.assertIsNone(least_claimed(queue, None, now=now))
+
+
+class LeftRowsTests(unittest.TestCase):
+    def _runs(self, records):
+        d = tempfile.TemporaryDirectory()
+        self.addCleanup(d.cleanup)
+        for i, (date, rec) in enumerate(records):
+            Path(d.name, f"{date}-session_{i}.json").write_text(json.dumps(rec))
+        return Path(d.name)
+
+    def test_counts_departures_not_claim_races_or_old_records(self):
+        from datetime import datetime, timezone
+        from allocate import left_rows, left_note
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        dev = lambda why, f="portfolio/router/allocate.py": {"file": f, "why": why}
+        runs = self._runs([
+            ("2026-11-17", {"projects": ["ids-model-check"], "deviations": [
+                dev("Start here named roster; nothing buildable, ids-model-check had an item")]}),
+            ("2026-11-16", {"projects": ["ventures/ids-model-check"], "deviations": [
+                dev("roster's next: is solver tuning", "prompts/ventures/prompt-2.md")]}),
+            # A claim race, an unrelated file, and a record too old are not departures.
+            ("2026-11-17", {"projects": ["bk"], "deviations": [
+                dev("roster was claimed by PR #1 a minute earlier")]}),
+            ("2026-11-17", {"projects": ["bk"], "deviations": [
+                dev("roster: skipped the post", "docs/posts")]}),
+            ("2026-11-14", {"projects": ["bk"], "deviations": [dev("roster had nothing")]}),
+            # Worked the row it names: not a departure.
+            ("2026-11-17", {"projects": ["roster"], "deviations": [dev("roster first, then bk")]}),
+            ("2026-11-17", "not a record"),
+        ])
+        left = left_rows(["roster", "ids-model-check", "bk"], runs, now=now)
+        self.assertEqual([(d, t) for d, t, _ in left["roster"]],
+                         [("2026-11-16", "ids-model-check"), ("2026-11-17", "ids-model-check")])
+        self.assertEqual(set(left), {"roster"})
+        note = left_note("roster", left)
+        self.assertIn("2 session(s)", note)
+        self.assertIn("ids-model-check (2)", note)
+        self.assertIn("nothing buildable", note)  # the newest reason
+        self.assertIsNone(left_note("bk", left))
+
+    def test_worked_count_puts_leaves_in_proportion(self):
+        from datetime import datetime, timezone
+        from allocate import left_rows, left_note, worked_rows
+        now = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
+        dev = {"file": "portfolio/router/allocate.py", "why": "roster had nothing buildable"}
+        runs = self._runs([
+            ("2026-11-17", {"projects": ["bk"], "deviations": [dev]}),
+            ("2026-11-17", {"projects": ["roster"]}),
+            ("2026-11-16", {"projects": ["ventures/roster"]}),
+            ("2026-11-14", {"projects": ["roster"]}),  # outside the window
+        ])
+        worked = worked_rows(["roster", "bk"], runs, now=now)
+        self.assertEqual(worked, {"roster": 2, "bk": 1})
+        left = left_rows(["roster", "bk"], runs, now=now)
+        note = left_note("roster", left, worked=worked["roster"], has_buildable=True)
+        self.assertIn("2 record(s) worked roster", note)
+        self.assertIn("Most sessions sent here found work", note)
+        self.assertIn("refresh its `buildable:`", note)
+        note = left_note("roster", left, worked=0)
+        self.assertNotIn("Most sessions", note)
+        self.assertIn("add `buildable:` or `inputs_only:`", note)
+
+    def test_no_runs_dir_means_no_hint(self):
+        from allocate import left_rows
+        self.assertEqual(left_rows(["x"], Path("/nonexistent-runs-dir")), {})
+
+
+class VentureReportTests(unittest.TestCase):
+    def test_prints_the_full_next_open_prs_and_last_landing(self):
+        from datetime import datetime, timezone
+        long_next = "Open items: " + "x" * 900 + " END"
+        deep = make("deep")
+        deep.flagship_rank, deep.flagship_next = 0, long_next
+        other = make("tiny-csv-check")
+        claims = {"deep": [(7, "deep: older", "2026-11-01T00:00:00Z"),
+                           (9, "deep: newer", "2026-11-11T06:00:00Z")]}
+        now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
+        out = venture_report("deep", [other, deep], claims=claims,
+                             landed="2026-11-11T08:30:00+00:00", now=now)
+        self.assertIn("queue row 1 of 2", out)
+        self.assertIn(long_next, out)  # untruncated, unlike the table
+        self.assertIn("(1.5h ago)", out)
+        self.assertLess(out.index("#9 "), out.index("#7 "))  # newest first
+        self.assertIn("open PRs naming it: 2", out)
+
+    def test_flagship_next_shows_its_length_against_validates_cap(self):
+        import validate
+        import allocate
+        self.assertEqual(allocate.FLAGSHIP_NEXT_MAX, validate.FLAGSHIP_NEXT_MAX)
+        self.assertEqual(allocate.FLAGSHIP_BUILDABLE_MAX, validate.FLAGSHIP_BUILDABLE_MAX)
+        deep = make("deep")
+        deep.flagship_rank, deep.flagship_next = 0, "y" * 1990
+        self.assertIn("1990 of 2000 characters", venture_report("deep", [deep]))
+        self.assertIn("now 1990 of 2000 characters", next_task(deep))
+
+    def test_non_flagship_shows_its_task_and_unknowns_say_so(self):
+        out = venture_report("tiny-csv-check", [make("tiny-csv-check")])
+        self.assertIn("task: ", out)
+        self.assertIn("not in the fetched history", out)
+        self.assertIn("open PRs: not read", out)
+
+    def test_shallow_cutoff_is_not_reported_as_a_landing(self):
+        # The cut-off commit "touches" every file, so its date is only a bound.
+        sha = "e" * 40
+        log = ("\0" + sha + "\n\nventures/a/x.md\nventures/b/y.md\n"
+               "\0" + "f" * 40 + "\n\nventures/a/z.md\n")
+        self.assertEqual(count_by_venture(log, {sha}), {"a": 1})
+        self.assertEqual(count_by_venture(log), {"a": 2, "b": 1})
+        out = venture_report("tiny-csv-check", [make("tiny-csv-check")],
+                             landed="on or before 2026-11-05T02:10:47-07:00 (where this shallow ...)")
+        self.assertIn("last landed on main: on or before 2026-11-05", out)
+        self.assertNotIn("h ago", out)
+
+    def test_last_landed_reads_this_clone(self):
+        # Real git: a date for a venture, None for a missing one; the boundary set is a set.
+        self.assertIsInstance(shallow_boundary(), set)
+        self.assertIsNone(last_landed("no-such-venture-xyz", boundary=set()))
+
+    def test_unknown_venture_is_none(self):
+        self.assertIsNone(venture_report("nope", [make("a")]))
+
+    def test_table_points_a_truncated_next_at_the_flag(self):
+        v = make("deep")
+        v.flagship_rank, v.flagship_next = 0, "y" * 900
+        self.assertIn("allocate.py --venture deep", next_task(v))
+
+
+class ClaimCheckTest(unittest.TestCase):
+    """claim_check.py: the PR opened first keeps a contested item."""
+
+    from datetime import datetime as _dt, timezone as _tz
+    NOW = _dt(2026, 11, 12, 14, 10, tzinfo=_tz.utc)
+
+    @staticmethod
+    def pr(n, title, created, branch=None, repo="duncan-haywood/oss-monorepo"):
+        return {"number": n, "title": title, "created_at": created,
+                "head": {"ref": branch or f"b{n}", "repo": {"full_name": repo}}}
+
+    def decide(self, prs, kw, **kw2):
+        from claim_check import decide
+        return decide(prs, kw, now=self.NOW, **kw2)
+
+    def test_the_15145_15146_race_goes_to_the_first_opened(self):
+        prs = [self.pr(15146, "changepoint-detector: watch round 5 + post", "2026-11-12T14:00:49Z"),
+               self.pr(15145, "changepoint-detector: watch round 5", "2026-11-12T13:59:51Z")]
+        later = self.decide(prs, "changepoint-detector", mine=15146)
+        self.assertEqual(later["verdict"], "YIELD")
+        self.assertEqual([r["number"] for r in later["older"]], [15145])
+        first = self.decide(prs, "changepoint-detector", mine=15145)
+        self.assertEqual(first["verdict"], "HOLD")
+        self.assertEqual([r["number"] for r in first["newer"]], [15146])
+
+    def test_same_second_tie_goes_to_the_lower_number(self):
+        prs = [self.pr(9, "x: a", "2026-11-12T14:00:00Z"), self.pr(8, "x: b", "2026-11-12T14:00:00Z")]
+        self.assertEqual(self.decide(prs, "x", mine=9)["verdict"], "YIELD")
+        self.assertEqual(self.decide(prs, "x", mine=8)["verdict"], "HOLD")
+
+    def test_mine_is_found_by_branch(self):
+        prs = [self.pr(2, "x: mine", "2026-11-12T14:05:00Z", branch="claude/me"),
+               self.pr(1, "x: theirs", "2026-11-12T14:00:00Z")]
+        r = self.decide(prs, "x", branch="claude/me")
+        self.assertEqual(r["mine"]["number"], 2)
+        self.assertEqual(r["verdict"], "YIELD")
+
+    def test_stale_claims_and_fork_prs_do_not_count(self):
+        prs = [self.pr(1, "x: stalled", "2026-11-10T09:00:00Z"),
+               self.pr(2, "x: from a fork", "2026-11-12T13:00:00Z", repo="someone/fork"),
+               self.pr(3, "x: mine", "2026-11-12T14:05:00Z")]
+        r = self.decide(prs, "x", mine=3)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual(r["older"], [])
+
+    def test_whole_word_match_only(self):
+        from claim_check import names
+        self.assertTrue(names("sales-agent: local model", "sales-agent"))
+        self.assertFalse(names("sales-agent-eval: thing", "sales-agent"))
+        self.assertTrue(names("Perf: P063 checkout", "p063"))
+
+    def test_no_pr_of_mine_yields_to_any_fresh_claim(self):
+        prs = [self.pr(1, "x: theirs", "2026-11-12T14:00:00Z")]
+        self.assertEqual(self.decide(prs, "x")["verdict"], "YIELD")
+        self.assertEqual(self.decide([], "x")["verdict"], "HOLD")
+
+    def test_no_pr_of_mine_prints_the_empty_commit_claim(self):
+        from claim_check import report
+        now = self.NOW
+        lines = report(self.decide([], "x"), "x", now, 24)
+        self.assertTrue(any("--allow-empty" in l and "'x: <item>'" in l for l in lines), lines)
+        mine = [self.pr(3, "x: mine", "2026-11-12T14:05:00Z")]
+        lines = report(self.decide(mine, "x", mine=3), "x", now, 24)
+        self.assertFalse(any("--allow-empty" in l for l in lines), lines)
+
+    def test_item_lets_a_different_item_share_the_flagship(self):
+        # The 2026-11-13 changepoint-detector pair: #15407 and #15411 both merged.
+        prs = [self.pr(15407, "changepoint-detector: watch several metrics in one run (--columns)",
+                       "2026-11-12T14:00:00Z"),
+               self.pr(15411, "changepoint-detector: round 10 on NAB's 47 real series",
+                       "2026-11-12T14:04:00Z")]
+        r = self.decide(prs, "changepoint-detector", mine=15411, item="round 10 on NAB real series")
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual([x["number"] for x in r["sharing"]], [15407])
+        # Without --item the check stays slug-only.
+        self.assertEqual(self.decide(prs, "changepoint-detector", mine=15411)["verdict"], "YIELD")
+
+    def test_item_still_yields_to_the_same_item_or_a_bare_claim(self):
+        same = [self.pr(1, "x: deferred revenue register", "2026-11-12T14:00:00Z"),
+                self.pr(2, "x: mine", "2026-11-12T14:05:00Z")]
+        r = self.decide(same, "x", mine=2, item="deferred revenue waterfall")
+        self.assertEqual(r["verdict"], "YIELD")
+        bare = [self.pr(15717, "ai-bookkeeper: claim (WIP)", "2026-11-12T14:00:00Z"),
+                self.pr(15718, "ai-bookkeeper: deferred revenue", "2026-11-12T14:01:00Z")]
+        r = self.decide(bare, "ai-bookkeeper", mine=15718, item="deferred revenue")
+        self.assertEqual(r["verdict"], "YIELD")
+        self.assertEqual(r["sharing"], [])
+
+    def test_item_words_drop_slug_and_claim_vocabulary(self):
+        from claim_check import item_words, overlap
+        self.assertEqual(item_words("ai-bookkeeper: claim (WIP) + post", "ai-bookkeeper"), set())
+        self.assertEqual(overlap("x: a slice", "x", "anything"), "bare")
+        self.assertEqual(overlap("x: OCR totals", "x", "receipt totals"), "same")
+
+    def test_report_prints_share_and_the_item_in_the_recipe(self):
+        from claim_check import report, claim_recipe
+        prs = [self.pr(1, "x: solver gap", "2026-11-12T14:00:00Z"),
+               self.pr(2, "x: sales reader", "2026-11-12T14:05:00Z")]
+        r = self.decide(prs, "x", mine=2, item="sales reader")
+        lines = report(r, "x", self.NOW, 24, "sales reader")
+        self.assertTrue(any(l.startswith("SHARE:") for l in lines), lines)
+        self.assertTrue(any("#1 " in l for l in lines), lines)
+        self.assertIn('--item "sales reader"', claim_recipe("x", "sales reader"))
+        slug_only = report(self.decide(prs, "x", mine=2), "x", self.NOW, 24)
+        self.assertTrue(any("--item" in l for l in slug_only), slug_only)
+
+    @staticmethod
+    def merged_pr(n, title, created, merged, repo="duncan-haywood/oss-monorepo"):
+        return {"number": n, "title": title, "created_at": created, "merged_at": merged,
+                "head": {"ref": f"b{n}", "repo": {"full_name": repo}}}
+
+    def test_a_just_merged_pr_on_the_item_is_landed(self):
+        # 2026-11-16: #16574 merged the edge-time drop fit at 12:59; #16579 claimed it at 13:00.
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 16, 13, 5, tzinfo=timezone.utc)
+        mine = [self.pr(16579, "open-tennis-robots: edge-time drop fit on the whole drill",
+                        "2026-11-16T13:00:32Z")]
+        merged = [self.merged_pr(16574, "open-tennis-robots: the board surveys its own ESC lag "
+                                 "(ESC_SURVEY frame); edge-time drop fit tried, kept off + post",
+                                 "2026-11-16T12:41:37Z", "2026-11-16T12:59:41Z"),
+                  self.merged_pr(16467, "open-tennis-robots: empty-hopper verdict from the pre-ball speed",
+                                 "2026-11-16T05:20:03Z", "2026-11-16T05:49:39Z"),
+                  self.merged_pr(16600, "chant-forge: edge-time thing", "2026-11-16T12:00:00Z",
+                                 "2026-11-16T12:30:00Z"),
+                  {**self.merged_pr(16601, "open-tennis-robots: edge-time fit, closed unmerged",
+                                    "2026-11-16T12:00:00Z", None)}]
+        from claim_check import decide, report
+        r = decide(mine, "open-tennis-robots", mine=16579, now=now, item="edge-time drop fit",
+                   merged=merged)
+        self.assertEqual(r["verdict"], "LANDED")
+        self.assertEqual([x["number"] for x in r["landed"]], [16574])
+        self.assertEqual([x["number"] for x in r["merged"]], [16467])
+        lines = report(r, "open-tennis-robots", now, 24, "edge-time drop fit")
+        self.assertTrue(any(l.startswith("LANDED:") for l in lines), lines)
+        self.assertTrue(any("#16574 (merged 2026-11-16T12:59:41Z, 5 min ago)" in l for l in lines), lines)
+        # A merge on another item, or a slug-only check, never blocks: busy flagships land daily.
+        other = decide(mine, "open-tennis-robots", mine=16579, now=now, item="hopper refill alarm",
+                       merged=merged[:1])
+        self.assertEqual(other["verdict"], "HOLD")
+        self.assertEqual(decide(mine, "open-tennis-robots", mine=16579, now=now,
+                                merged=merged)["verdict"], "HOLD")
+
+    def test_merges_the_clone_already_holds_and_one_word_overlaps_do_not_land(self):
+        from datetime import datetime, timezone
+        from claim_check import decide, shares_item
+        now = datetime(2026, 11, 16, 18, 45, tzinfo=timezone.utc)
+        merged = [self.merged_pr(16635, "open-tennis-robots: the 1.48x wheel was a 3-revolution snapshot; "
+                                 "HOLD_RPM 3,000; fixed-time tach built, off + post",
+                                 "2026-11-16T17:00:00Z", "2026-11-16T17:42:41Z"),
+                  self.merged_pr(16574, "open-tennis-robots: edge-time drop fit tried, kept off",
+                                 "2026-11-16T12:41:37Z", "2026-11-16T12:59:41Z")]
+        # "fixed-time" shares only "time" with the item: listed, not LANDED.
+        self.assertFalse(shares_item(merged[0]["title"], "open-tennis-robots", "edge-time drop fit"))
+        self.assertTrue(shares_item("x: OCR totals", "x", "totals"))
+        clone = datetime(2026, 11, 16, 13, 30, tzinfo=timezone.utc)  # main already holds #16574
+        r = decide([], "open-tennis-robots", now=now, item="edge-time drop fit", merged=merged,
+                   main_at=clone)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual([x["number"] for x in r["merged"]], [16635])
+        r = decide([], "open-tennis-robots", now=now, item="edge-time drop fit", merged=merged,
+                   main_at=datetime(2026, 11, 16, 12, 0, tzinfo=timezone.utc))
+        self.assertEqual(r["verdict"], "LANDED")
+
+    def test_merged_stale_fork_and_my_own_pr_do_not_land(self):
+        from datetime import datetime, timezone
+        from claim_check import decide
+        now = datetime(2026, 11, 16, 17, 0, tzinfo=timezone.utc)
+        merged = [self.merged_pr(1, "x: closure anchor", "2026-11-14T09:00:00Z", "2026-11-14T10:00:00Z"),
+                  self.merged_pr(2, "x: closure anchor", "2026-11-16T16:00:00Z", "2026-11-16T16:56:00Z",
+                                 repo="someone/fork"),
+                  self.merged_pr(3, "x: closure anchor", "2026-11-16T16:00:00Z", "2026-11-16T16:58:00Z")]
+        r = decide([], "x", mine=3, now=now, item="closure anchor", merged=merged)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual(r["landed"] + r["merged"], [])
+
+    def test_an_open_older_claim_still_wins_over_landed(self):
+        from claim_check import decide
+        prs = [self.pr(1, "x: closure anchor", "2026-11-12T14:00:00Z"),
+               self.pr(2, "x: closure anchor", "2026-11-12T14:05:00Z")]
+        merged = [self.merged_pr(0, "x: closure anchor v1", "2026-11-12T13:00:00Z", "2026-11-12T13:30:00Z")]
+        r = self.decide(prs, "x", mine=2, item="closure anchor", merged=merged)
+        self.assertEqual(r["verdict"], "YIELD")
+        self.assertEqual([x["number"] for x in r["landed"]], [0])
+
+
+class RequestsLineTest(unittest.TestCase):
+    """The table names which open website requests are flagship rows."""
+
+    def write(self, reqs):
+        d = tempfile.mkdtemp()
+        p = Path(d) / "requests.json"
+        p.write_text(json.dumps({"requests": reqs}))
+        return p
+
+    queue = [{"venture": "ai-bookkeeper", "flagship": True},
+             {"venture": "tiny-tool", "flagship": False}]
+
+    def test_owner_requests_map_to_rows(self):
+        p = self.write([
+            {"id": "R-1", "status": "building", "source": "owner", "project": "ventures/ai-bookkeeper"},
+            {"id": "R-2", "status": "building", "source": "owner", "project": "portfolio/monetization"},
+            {"id": "R-3", "status": "shipped", "source": "owner", "project": "ventures/tiny-tool"},
+        ])
+        line = requests_line(self.queue, p)
+        self.assertIn("2 open", line)
+        self.assertIn("none from outside", line)
+        self.assertIn("R-1 = row 1 ai-bookkeeper", line)
+        self.assertIn("R-2 portfolio/monetization", line)
+        self.assertNotIn("R-3", line)
+
+    def test_outside_request_comes_first(self):
+        p = self.write([{"id": "R-9", "status": "received", "title": "A shop site"}])
+        line = requests_line(self.queue, p)
+        self.assertIn("1 from outside (R-9)", line)
+        self.assertIn("ideas.py", line)
+
+    def test_missing_or_empty_file_prints_nothing(self):
+        self.assertEqual(requests_line(self.queue, Path("/nonexistent/requests.json")), "")
+        self.assertEqual(requests_line(self.queue, self.write([])), "")
+
+
+class PostLimitsLineTests(unittest.TestCase):
+    def test_line_carries_the_checker_caps(self):
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+        import check_post_frontmatter as cpf
+        from allocate import post_limits_line
+        line = post_limits_line()
+        self.assertTrue(line.startswith("post front matter:"))
+        self.assertIn(f"seo_title <= {cpf.LIMITS['seo_title']}", line)
+
+
+class MainFlagshipsTest(unittest.TestCase):
+    """refresh_tip + main_flagships: rows come from origin/main when a sibling's merge
+    changed flagships.yaml after this clone (four claims of just-merged items, 2026-11-16/17)."""
+
+    def git(self, cwd, *args):
+        import subprocess
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=cwd,
+                       check=True, capture_output=True, text=True)
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        t = Path(self.tmp.name)
+        self.remote, self.sibling, self.clone = t / "remote.git", t / "sibling", t / "clone"
+        self.git(t, "init", "-q", "--bare", "-b", "main", str(self.remote))
+        self.git(t, "clone", "-q", str(self.remote), str(self.sibling))
+        (self.sibling / "portfolio").mkdir()
+        self.write(self.sibling, "flagships:\n- venture: a\n  next: old item\n")
+        self.git(self.sibling, "add", "-A")
+        self.git(self.sibling, "commit", "-qm", "first")
+        self.git(self.sibling, "push", "-q", "origin", "HEAD:main")
+        self.git(t, "clone", "-q", str(self.remote), str(self.clone))
+        # A sibling session merges a change to the row after this clone was made.
+        self.write(self.sibling, "flagships:\n- venture: a\n  next: new item\n")
+        self.git(self.sibling, "commit", "-qam", "a: old item landed (#9)")
+        self.git(self.sibling, "push", "-q", "origin", "HEAD:main")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def write(self, repo, text):
+        (repo / "portfolio" / "flagships.yaml").write_text(text)
+
+    def test_reads_main_after_a_sibling_merge(self):
+        from allocate import main_flagships, refresh_tip
+        self.assertEqual(main_flagships(self.clone), (None, ""))  # origin/main not fetched yet
+        self.assertTrue(refresh_tip(self.clone))
+        self.assertFalse(refresh_tip(self.clone))  # already the tip: no second fetch
+        text, note = main_flagships(self.clone)
+        self.assertIn("new item", text)
+        self.assertIn("1 commit(s)", note)
+        self.assertIn("old item landed (#9)", note)
+
+    def test_keeps_a_sessions_own_edits(self):
+        from allocate import main_flagships, refresh_tip
+        refresh_tip(self.clone)
+        self.write(self.clone, "flagships:\n- venture: a\n  next: my claim\n")
+        text, note = main_flagships(self.clone)
+        self.assertIsNone(text)
+        self.assertIn("uncommitted edits", note)
+        self.git(self.clone, "commit", "-qam", "mine")
+        text, note = main_flagships(self.clone)
+        self.assertIsNone(text)
+        self.assertIn("git merge origin/main", note)
+
+    def test_override_reaches_the_loaders(self):
+        import allocate
+        allocate._FLAGSHIPS_TEXT = "flagships:\n- venture: zz\n  next: from main\n"
+        try:
+            self.assertEqual(load_flagships(FLAGSHIPS_PATH), {"zz": (0, "from main")})
+        finally:
+            allocate._FLAGSHIPS_TEXT = None
+        self.assertNotIn("zz", load_flagships(FLAGSHIPS_PATH))
+
+
+class FoldedRowsTests(unittest.TestCase):
+    """The default table folds rows whose task is shared advice (2026-11-18: 1,326
+    such rows were 545 KB of a 578 KB table, past the tool output cap)."""
+
+    def test_kinds(self):
+        from allocate import folded_kind, MAINTAIN_TASK, NO_HYPOTHESIS_PREFIX
+        self.assertIsNotNone(folded_kind(MAINTAIN_TASK))
+        self.assertIsNotNone(folded_kind(NO_HYPOTHESIS_PREFIX + " -- add one"))
+        self.assertIsNotNone(folded_kind('Explore (awaiting visitors; x): "y"'))
+        self.assertIsNone(folded_kind("Deepen (flagship 1): BUILDABLE HERE: z"))
+        self.assertIsNone(folded_kind('Explore: test the untested hypothesis -- "q"'))
+
+    def test_real_table_stays_small_and_all_lists_every_row(self):
+        import contextlib
+        import io
+        from allocate import main
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(main(["--no-deepen", "--no-claims"]), 0)
+        text = out.getvalue()
+        self.assertLess(len(text), 120_000, "default table grew past the fold")
+        self.assertIn("Deepen (flagship", text)
+        folded = sum(int(line.split()[2]) for line in text.splitlines()
+                     if line.startswith("... and "))
+        full = io.StringIO()
+        with contextlib.redirect_stdout(full):
+            main(["--no-deepen", "--no-claims", "--all"])
+        self.assertNotIn("\n... and ", full.getvalue())
+        self.assertEqual(len(full.getvalue().splitlines()) - len(text.splitlines()),
+                         folded - sum(1 for l in text.splitlines() if l.startswith("... and ")))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,281 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/uk-scottish-income-tax-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-15-7988",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a UK chartered tax adviser (CTA) or senior payroll specialist who runs Scottish (S-code) payrolls. They would check first that the 2026/27 Scottish bands are applied to taxable income after the tapered personal allowance, that NI and student loan are on NI-able pay after salary sacrifice, which loan thresholds apply for the year, and how relief-at-source pension relief extends the Scottish bands",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed by hand against GOV.UK's 2026 to 2027 Scottish Income Tax table (fetched 2026-11-15; gov.scot itself returned an empty 202 bot challenge), GOV.UK 'Rates and thresholds for employers 2026 to 2027' and Finance Act 2004 s.192(4A) on legislation.gov.uk, using a probe script on the shipped calc.mjs (scratchpad probe.mjs). The income tax engine is right: 20k (1,446.33), 50k (8,982.05), 60k (13,182.05), 110k with taper (PA 7,570, 37,482.05, marginal 69.5%), 200k (83,634.35) and NI at every level all match to the penny, and the band constants equal GOV.UK's table. The deductions a user acts on are not all right: student loans use 2025/26 thresholds, so the page's own Plan 4 example overstates the loan by GBP 94.50 (900.45 vs 805.95) and Plans 1 and 2 by 75.15 and 82.35; relief at source also widens the starter band, against s.192(4A), understating tax by 1% of the contribution (30k/5%: 3,431.33 vs 3,446.33; 60k/10%: 11,802.05 vs 11,862.05); the marginal-rate finding ignores the pension (105k with 10% sacrifice told 69.5% and 'keep GBP 305' when it is about GBP 504); and 130k with 10% sacrifice gets contradictory allowance findings. 5 of 10 correctness checks pass, so 2.",
+  "completeness": "Every listed feature runs: six bands with taper, NI, Plans 1/2/4/5 and Postgraduate Loan, three pension methods, annual/monthly/weekly take-home, tax by band, marginal rate, rUK comparison, text download, print. On the served page in headless Chromium the example renders ('Take-home pay: GBP 33,306.58 a year', six rows), a blank salary is rejected with a message, no page errors, no horizontal scroll at 375 px. The served calc.mjs is byte-identical to source. One dead section: 'The same pension, three ways' never shows because compute() returns no `compare`. No TODOs. 3.",
+  "verification": "`node --test '*.test.mjs'` in the subject root: 27/27 pass in 0.16 s; the README's root command also 27/27. Tests hand-work several band totals, which is good. Six mutants via platform/ci/quality_mutate.py: 3 caught (taper divisor :82, top-rate finding threshold :116, NI 2% rate :29), 3 survived (student loan on gross pay instead of post-sacrifice pay :87, RAS dropped from adjusted net income :81, RAS band extension doubled :65). Every surviving mutant is on a pension path, and no test pins a student loan figure against a published threshold or a RAS figure against the statute. 2.",
+  "craft": "Read calc.mjs (142 lines), index.html (180), calc.test.mjs, page.test.mjs and usage.mjs. Pure engine, no dependencies, input rejected rather than clamped (blank and non-numeric salary error; number input on the page), HTML escaped, constants named and the header lists what is not modelled. Defects: the dead `compare` table (index.html:79, :158); findings conditions use gross salary where adjusted net income is meant (calc.mjs:116) and the marginal rate drops the pension (calc.mjs:100); some 300-plus-character one-line findings and a nested formatter are hard to review. A senior JS reviewer would accept it with those fixes. 3.",
+  "claims": "Backed: disclaimer, no-warranty and not-tax-advice text on the served page; 'nothing uploaded' (no fetch/XHR/beacon, local imports only); every result names gov.scot/GOV.UK to verify; the 2026/27 band table and the FAQ's GBP 30,000 (3,451, about 35 less than England) and GBP 50,000 (about 1,500 more) figures; the 67.5% taper rate. Not backed or wrong: README, llms.txt and VENTURE.yaml present '2026/27 ... student loan deductions' while the loan thresholds are 2025/26 (disclosed on the page in a note, not in the README/llms.txt); the finding text calls the 21% intermediate rate 'lower'; the crossover is 33,493, not '32,000 to 33,000'; VENTURE.yaml still calls the bands 'proposed'. The served llms.txt carries the marisstella.app host (the source's github.io link is rewritten at deploy, so not filed). 2.",
+  "fitness": "Walked a Scottish employee's job: salary, pension method, loan plan, read take-home and compare with England. With no loan and no pension, or a pension by sacrifice or net pay, the income tax and NI are right and the comparison is useful. Plan 4 is the usual loan for people educated in Scotland, and for them the take-home is about GBP 7.90 a month low in the page's own example. A relief-at-source saver gets slightly too little tax. A 100k-plus earner using sacrifice to dodge the taper (the case the FAQ advertises) is shown a wrong 69.5% marginal and can get contradictory allowance messages. Usable for the basic case, not yet for the cases it advertises. 2.",
+  "domain": "Professional: a UK chartered tax adviser (CTA) or payroll specialist. They would check first that the Scottish bands apply to taxable income after a tapered allowance, that NI and student loan use NI-able pay after sacrifice, that net pay saves tax but not NI, and how RAS higher-rate relief works for a Scottish taxpayer. The method matches HMRC practice on the first three: bands are applied to taxable income (so the taper moves them, as the Scottish Rate Resolution defines them), the taper is half the excess of adjusted net income, NI and loans use post-sacrifice pay, net pay keeps NI. Departures: RAS extends the starter limit, which s.192(4A) does not, and applies the extension even when no income is above the basic rate; loan thresholds are a year stale; everything is annualised (no pay-period NI or tax code). The method is sound and the departures are bounded and fixable, so 3, with the RAS rule to fix before sign-off."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Income tax and NI on GBP 20,000 (no pension, no loan)",
+   "method": "GOV.UK 'Scottish Income Tax' (2026 to 2027 table: starter 12,571-16,537 19%, basic -29,526 20%, intermediate -43,662 21%, higher -75,000 42%, advanced -125,140 45%, top 48%), fetched 2026-11-15; hand: taxable 7,430 = 3,967 x 19% + 3,463 x 20%; NI (20,000-12,570) x 8%",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/probe.mjs",
+   "expected": "tax 1,446.33; NI 594.40; rUK tax 1,486",
+   "observed": "tax 1446.33, ni 594.4, ruk 1486",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Income tax and NI on GBP 60,000",
+   "method": "GOV.UK 'Scottish Income Tax' (2026 to 2027 table: starter 12,571-16,537 19%, basic -29,526 20%, intermediate -43,662 21%, higher -75,000 42%, advanced -125,140 45%, top 48%), fetched 2026-11-15 and GOV.UK 'Rates and thresholds for employers 2026 to 2027' (fetched 2026-11-15) (PT 12,570, UEL 50,270, 8%/2%); hand: 753.73 + 12,989x20% + 14,136x21% + 16,338x42%; NI 37,700x8% + 9,730x2%",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/probe.mjs",
+   "expected": "tax 13,182.05; NI 3,210.60",
+   "observed": "tax 13182.05, ni 3210.6",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Personal allowance taper at GBP 110,000 and the 100k-125,140 marginal rate",
+   "method": "ITA 2007 s.35 (allowance reduced by half the excess over 100,000) with the GOV.UK 2026/27 Scottish bands; hand: PA 7,570, taxable 102,430, tax 753.73+2,597.80+2,968.56+13,161.96+40,000x45%; marginal 45% x 1.5 + 2% NI",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/probe.mjs",
+   "expected": "PA 7,570; tax 37,482.05; marginal 69.5%",
+   "observed": "pa 7570, tax 37482.05, marg 69.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Top rate at GBP 200,000 (no allowance)",
+   "method": "GOV.UK 'Scottish Income Tax' (2026 to 2027 table: starter 12,571-16,537 19%, basic -29,526 20%, intermediate -43,662 21%, higher -75,000 42%, advanced -125,140 45%, top 48%), fetched 2026-11-15; hand: 753.73+2,597.80+2,968.56+13,161.96+62,710x45%+74,860x48%",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/probe.mjs",
+   "expected": "tax 83,634.35; marginal 50%",
+   "observed": "tax 83634.35, marg 50",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Plan 4 (the Scottish loan) deduction in the page's own example: 45,000, 5% salary sacrifice",
+   "method": "GOV.UK 'Rates and thresholds for employers 2026 to 2027' (fetched 2026-11-15): plan 4 earnings threshold 33,795 (also GOV.UK 'Repaying your student loan'); hand: (42,750 - 33,795) x 9%",
+   "command": "node --test is green; node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/probe.mjs (sample line) and Playwright node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/pw.cjs",
+   "expected": "student loan 805.95; take-home 33,401.08",
+   "observed": "student loan 900.45 (2025/26 threshold 32,745); take-home 33,306.58, GBP 94.50 a year low",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Plan 1 and Plan 2 deductions on GBP 40,000",
+   "method": "GOV.UK 'Rates and thresholds for employers 2026 to 2027' (fetched 2026-11-15): plan 1 26,900, plan 2 29,385; hand: 13,100 x 9%, 10,615 x 9%",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/probe.mjs",
+   "expected": "plan 1 1,179.00; plan 2 955.35",
+   "observed": "plan 1 1254.15; plan 2 1037.7",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Relief at source, GBP 30,000 with 5% (1,500 gross), an intermediate-rate taxpayer",
+   "method": "Finance Act 2004 s.192(4A) (legislation.gov.uk, fetched): the Scottish basic rate limit and limits above it are raised, not the starter rate limit; hand: basic top 16,956 -> 18,456, taxable 17,430 = 3,967x19% + 13,463x20%",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/probe.mjs",
+   "expected": "tax 3,446.33",
+   "observed": "tax 3431.33 (starter band also widened, an extra 1% of the contribution)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Relief at source, GBP 60,000 with 10% (6,000 gross)",
+   "method": "Finance Act 2004 s.192(4A); hand: basic top 22,956, intermediate 37,092, taxable 47,430 = 753.73 + 18,989x20% + 14,136x21% + 10,338x42%",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/probe.mjs",
+   "expected": "tax 11,862.05",
+   "observed": "tax 11802.05 (GBP 60 = 1% x 6,000 too little)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'If you earned GBP 1,000 more' for a GBP 105,000 earner sacrificing 10% (adjusted net 94,500)",
+   "method": "hand: extra 1,000 -> 900 pay after 10% sacrifice, 900 x 42% tax + 900 x 2% NI = 396, so 504 more cash (adjusted net stays under 100,000)",
+   "command": "node -e 'import(\"./calc.mjs\").then(m=>console.log(m.compute({salary:105000,pensionPct:10,method:\"sacrifice\",plan:\"none\"}).marginal))'",
+   "expected": "keep about GBP 504 cash; no taper",
+   "observed": "high finding: 'you would keep about GBP 305: a marginal rate of 69.5%' (marginal computed with the pension removed)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Findings for GBP 130,000 with 10% salary sacrifice (adjusted net 117,000)",
+   "method": "hand: PA = 12,570 - 17,000/2 = 4,070; taxable 112,930 < 125,140 so no 48% income",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/probe.mjs",
+   "expected": "taper finding only; PA 4,070",
+   "observed": "PA 4070 shown, and also 'Income above GBP 125,140 is taxed at the 48% top rate ... and you have no personal allowance' (fires on gross salary)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Scotland vs rest-of-UK crossover ('below roughly 32,000 to 33,000 you pay slightly less', index.html:103) and the finding text 'Scotland's lower starter, basic and intermediate rates'",
+   "method": "hand: in the intermediate band S - rUK = 0.01x - 334.93, zero at 33,493; intermediate 21% is above the rUK 20% basic rate",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/probe.mjs (33k line)",
+   "expected": "crossover about GBP 33,500; intermediate rate is higher, not lower",
+   "observed": "33k: Scotland GBP 4.93 lower, text says the intermediate rate is lower; FAQ gives 32,000-33,000",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run in subject root and from repo root as the README says",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "27/27 pass in 0.16 s; README root command also 27/27",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served page: worked example renders, validation message, no errors, phone width",
+   "method": "headless Chromium (Playwright) against https://marisstella.app/uk-scottish-income-tax-calculator/",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/012c1a0c-128b-5db1-8e77-b0e024b66ac8/scratchpad/uk-scot/pw.cjs",
+   "expected": "take-home and rows render; blank salary rejected; no page errors; no horizontal scroll at 375 px",
+   "observed": "'Take-home pay: GBP 33,306.58 a year'; 6 rows; blank -> 'Enter your annual gross salary as more than zero.'; errors []; scrollWidth 375; '#compare-wrap' ('The same pension, three ways') stays hidden",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served files match source; llms.txt host",
+   "method": "curl the served calc.mjs and llms.txt",
+   "command": "curl -sS https://marisstella.app/uk-scottish-income-tax-calculator/calc.mjs | diff - calc.mjs; curl -sS https://marisstella.app/uk-scottish-income-tax-calculator/llms.txt",
+   "expected": "identical engine; marisstella.app link",
+   "observed": "calc.mjs identical; served llms.txt links https://marisstella.app/uk-scottish-income-tax-calculator/ (source github.io link is rewritten at deploy: source-only, not filed)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Runs in your browser, nothing uploaded'",
+   "method": "grep for network APIs and external scripts",
+   "command": "grep -nE 'fetch\\(|XMLHttpRequest|sendBeacon|<script src' index.html calc.mjs usage.mjs",
+   "expected": "none",
+   "observed": "none; imports ./calc.mjs and ./usage.mjs only",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:82",
+   "change": "pos(adjustedNet - TAPER_START) / 2 -> / 3 (taper rate)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:87",
+   "change": "student loan on niPay -> on gross salary (ignores salary sacrifice)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:81",
+   "change": "adjustedNet drops '- ras' (RAS contributions no longer reduce adjusted net income for the taper)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:65",
+   "change": "b.upTo + extend -> b.upTo + 2 * extend (RAS band extension doubled)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:116",
+   "change": "salary > ADDITIONAL_THRESHOLD -> salary >= TAPER_START (top-rate finding)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:29",
+   "change": "NI above-UEL rate 0.02 -> 0.0",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Student loan and the take-home figure use 2025/26 thresholds (Plan 1 26,065, Plan 2 28,470, Plan 4 32,745) in a tool headed 2026/27, during 2026/27. GOV.UK's 2026/27 thresholds are 26,900 / 29,385 / 33,795, so every loan user's deduction is overstated (by GBP 75.15, 82.35 and 94.50 a year above the new thresholds) and take-home understated; the page's own Plan 4 example shows GBP 900.45 for GBP 805.95. The page discloses '2025/26 figures', but the right figures were published before the year began.",
+   "where": "ventures/uk-scottish-income-tax-calculator/calc.mjs:32",
+   "category": "source-data",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236"
+  },
+  {
+   "severity": "medium",
+   "what": "Relief at source widens every finite band top, including the starter band. Finance Act 2004 s.192(4A) raises only the Scottish basic rate limit and the limits above it, and only when tax is charged above the Scottish basic rate. So RAS tax is understated by 1% of the gross contribution (GBP 15 at 30,000 with 5%, GBP 60 at 60,000 with 10%), and a starter/basic-only taxpayer gets an extension they are not due.",
+   "where": "ventures/uk-scottish-income-tax-calculator/calc.mjs:65",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16683"
+  },
+  {
+   "severity": "medium",
+   "what": "The 'If you earned GBP 1,000 more' marginal rate is computed with the pension removed (annual(salary, 0, 'none', ...)), so a salary-sacrifice or net-pay user who has already brought adjusted net income under 100,000 is shown the 69.5% taper rate as a high-severity finding ('keep about GBP 305') when they would keep about GBP 504 of cash. That is the very group the page tells to use pensions to escape the taper.",
+   "where": "ventures/uk-scottish-income-tax-calculator/calc.mjs:100",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16683"
+  },
+  {
+   "severity": "medium",
+   "what": "The top-rate finding tests gross salary, not adjusted net income or taxable income, so GBP 130,000 with 10% sacrifice shows 'your personal allowance is down to GBP 4,070' and 'you have no personal allowance' and '48% top rate' side by side, though no income reaches the top band.",
+   "where": "ventures/uk-scottish-income-tax-calculator/calc.mjs:116",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16683"
+  },
+  {
+   "severity": "medium",
+   "what": "Pension paths are barely tested: student loan on post-sacrifice pay, RAS reducing adjusted net income for the taper, and the size of the RAS band extension all survive seeded mutation (3 of 6 mutants survive). The RAS test only asserts tax is lower than without extension, which locks in neither the right nor the wrong rule.",
+   "where": "ventures/uk-scottish-income-tax-calculator/calc.test.mjs:58",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16683"
+  },
+  {
+   "severity": "low",
+   "what": "Finding text says 'Scotland's lower starter, basic and intermediate rates favour middle and lower earners'; the intermediate rate (21%) is higher than the rUK basic rate (20%). The FAQ puts the crossover at 'roughly 32,000 to 33,000'; hand computation gives 33,493.",
+   "where": "ventures/uk-scottish-income-tax-calculator/calc.mjs:112",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16683"
+  },
+  {
+   "severity": "low",
+   "what": "'The same pension, three ways' table and its render code read r.compare, which compute() never returns, so the section is permanently hidden: dead UI for a comparison the page heading implies.",
+   "where": "ventures/uk-scottish-income-tax-calculator/index.html:158",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16683"
+  },
+  {
+   "severity": "low",
+   "what": "VENTURE.yaml and the calc.mjs header still say the 2026/27 bands are 'proposed' and the Scottish Rate Resolution 'must still pass'; GOV.UK now publishes them as the 2026 to 2027 rates.",
+   "where": "ventures/uk-scottish-income-tax-calculator/VENTURE.yaml:14",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16683"
+  },
+  {
+   "severity": "low",
+   "what": "No tax code input and annual-only NI: anyone not on S1257L (emergency code, K code, benefits in kind) or paid irregularly gets figures that will not match a payslip. Stated in 'Not decided', so a limit rather than an error, but it is the first thing a payroll specialist asks.",
+   "where": "ventures/uk-scottish-income-tax-calculator/calc.mjs:7",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16236",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16683"
+ ],
+ "verdict": "A compact, private, well-disclaimed Scottish take-home calculator whose income tax engine is right: the 2026/27 bands equal GOV.UK's table, and five hand computations from 20k to 200k (including the 100k taper and the 69.5% marginal) match to the penny, as does NI. It does not meet the bar. In a tool headed 2026/27 the student loan thresholds are 2025/26, so every loan user's take-home is understated (Plan 4, the Scottish plan, by GBP 94.50 a year in the page's own example; GOV.UK's 2026/27 thresholds are 26,900 / 29,385 / 33,795). Relief at source widens the starter band, which Finance Act 2004 s.192(4A) does not allow. The marginal-rate finding ignores the user's pension, so a sacrifice user under the taper is told 69.5%. And gross salary, not adjusted net income, triggers the 'no personal allowance' message. Three of six seeded mutants survive, all on pension paths. Scores: correctness 2, completeness 3, verification 2, craft 3, claims 2, fitness 2, domain 3. Finished (completeness 3), not at the bar; fixing the loan thresholds, the RAS starter extension and the two findings conditions, with tests, would likely lift correctness and claims to 3."
+}

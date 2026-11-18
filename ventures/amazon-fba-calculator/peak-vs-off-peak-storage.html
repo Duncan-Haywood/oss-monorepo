@@ -152,7 +152,7 @@
   </footer>
   <script type="module">
     import { compareStorageSeasons, storageSeasonNote } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, usageStorage } from "./usage.mjs";
 
     const ids = [
       "salePrice", "referralRate", "length", "width", "height", "fulfillmentFee",
@@ -193,7 +193,7 @@
     ids.forEach((id) => {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, false, "storage_season_compared");
+        recordUsage(usageStorage(), false, "storage_season_compared");
       });
     });
     update();

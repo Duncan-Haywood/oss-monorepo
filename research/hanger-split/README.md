@@ -42,7 +42,7 @@ anyone prints it, the question is whether the joint is the new weakest link.
   axis, so its bosses sit on the front face and lie against the right half's. **One part prints
   twice.** Two bolts through the stacked bosses clamp the lap.
 - **Load path** (`src/hanger_split/joint.py`). The arm root moment M = F · lever (`hanger-print`'s
-  F = 14.7 N per arm for a 1.5 kg garment with a ×2 motion factor, lever ≈ 22 cm) is carried
+  F = 14.7 N per arm for a 1.5 kg garment with a ×2 motion factor, lever ≈ 19 cm for the M size, 22 cm for XXL) is carried
   across the lap by a couple of horizontal bolt forces Fb = M / 33 mm ≈ 85 N for the M size.
   Contact between the flat hub faces would help and is ignored, so this is a bolts-only check.
 - **Checks.** Bolt bearing on the boss (Fb / (d · t), t = depth/2); tear-out of the boss at the
@@ -101,6 +101,17 @@ would not, in the cautious case. Two bolt bosses add 5.5 g of plastic.
 
 ## Limitations
 
+- **The shipped CAD does not assemble yet** (quality audit
+  [`2026-11-13-hanger-split.json`](../../portfolio/quality/audits/2026-11-13-hanger-split.json)).
+  In `src/hanger_split/split.py`, `half_shells`, the hub and post are extruded through the full
+  depth on x ≥ 0 and the bolt holes are cut only from the boss shells, so each half's own hub fills
+  part of every bolt hole and each boss overlaps the other half's hub. Do not print `half_w*.stl`
+  as a working pair until the lap is cut to half depth there, the holes go through every shell and
+  an assembly-interference test lands. Halving the section at the lap also changes the arm safety
+  factor quoted above (40–70 is `hanger-print`'s full-depth arm), so "the joint, not the arm, is the
+  weak point" is unproven for a part that can be built. The headline range 3.7–13 also mixes the
+  creep 0.5 and creep 1 cases.
+
 Beam statics only; no finite-element or printed test. OpenSCAD files were not rendered (no
 OpenSCAD in the image); the STL files come from the same outlines and are checked as closed
 manifolds in the tests. The bolt holes are 4.4 mm for an M4 bolt; real printed holes are
@@ -114,6 +125,8 @@ safety factor above 3 under the cautious assumptions (M4 or larger, 30 mm or mor
 depth), put a washer under each bolt head and round the edges. No run builds or powers hardware.
 
 ## Owner steps
+
+**On hold:** the halves as shipped interfere at the lap and the bolts cannot pass (see Limitations); fix the geometry before step 1.
 
 1. Print `experiments/cad/half_w22.stl` twice, flat, in PLA or PETG at 3 perimeters, 20% infill. Ream the
    bolt holes to 4.4 mm; clamp with two M4 × 25 bolts, washers and nylon-insert nuts. Turn the second

@@ -58,8 +58,10 @@ class T(unittest.TestCase):
         self.assertEqual(lib.e_weight_pj(64.0, 64, False), 64.0)
         self.assertAlmostEqual(lib.min_e_weight_pj(0.5, 0.25), 2.0)
         self.assertEqual(lib.gated_cost_per_flop_cycle(24.0, 24), 1.0)
-        self.assertEqual(lib.min_group_size(10.0, 5.0, 0.1), 20)   # 10/G <= 0.5 at G = 20
-        self.assertEqual(lib.min_group_size(10.0, 100.0, 0.1), 1)  # a gate per flop already wins
+        self.assertEqual(lib.min_group_size(10.0, 5.0, 0.1), 21)   # 10/G < 0.5 first at G = 21 (G = 20 only ties)
+        self.assertEqual(lib.min_group_size(10.0, 4.0, 0.1), 26)   # 10/G < 0.4 first at G = 26
+        self.assertEqual(lib.min_group_size(10.0, 200.0, 0.1), 1)  # a gate per flop already wins
+        self.assertEqual(lib.min_group_size(10.0, 100.0, 0.1), 2)  # G = 1 only ties
         self.assertIsNone(lib.min_group_size(10.0, 1.0, 0.1, leak_flop_pj=0.5))
 
     def test_fetchprice_copy_matches_sibling(self):

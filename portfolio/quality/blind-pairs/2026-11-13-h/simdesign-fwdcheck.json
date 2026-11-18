@@ -1,0 +1,206 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/simdesign-fwdcheck",
+ "stratum": "research",
+ "seed": "2026-11-13-h",
+ "drawn_by": "sample",
+ "round": 62,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior structural/mechanical engineer doing FE design verification of a sheet-steel bracket; they check first that the stress used against the allowable is a converged, physically meaningful quantity (not a re-entrant-corner singularity sampled at element centroids), that tip deflection and buckling agree with hand estimates, and that the pass/fail verdicts follow from the numbers",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed independently (scratchpad/fwdcheck/hand.py, python3): beam nominal stress P/(wb)+6P(L-w/2)/(b w^2) gives 57.3/162.8/402.3/845.9 MPa, all four README rows exact; mass from 7850 kg/m^3 and plan area w*80+(80-w)*w gives 36.4/27.5/20.5/15.8 g, exact; Castigliano tip deflection of the two-arm L with clamped end, centreline lengths, bending+axial+shear, 0.156/0.986/4.562/15.724 mm vs FE 0.142/0.944/4.45/15.5 (FE 3-9% stiffer, inside the bracket given by the rigid-corner clear-length bound 0.089/0.763/3.972/14.443), pass; lateral-torsional hand estimate (vertical arm as cantilever under uniform moment P(L-w/2), Le=2(H-w), M_cr=pi/Le*sqrt(E Iz G J), J=wb^3/3(1-0.63b/w)) gives factors 6.11/5.76/5.40/4.81 vs FE 5.61/5.15/4.92/4.67, FE 3-11% lower as expected for a coupled whole-L mode with a non-rigid corner, pass. Reproduced from the shipped code (/usr/bin/python3.13 scratchpad/fwdcheck/rep.py, fe.py): forward_factor(4.31,3.0)=4.666 (table 4.67); static(11.84,2.0)=95.667 MPa, 0.944 mm (table 95.7, 0.944); b=1.5 coarse 36.7/0.1419, finer 54.7/0.1430 (table). Held at 2 because the stress output the verdicts rest on is not a converged quantity: a third mesh (8,72,56,1) gives 80.2 MPa for the 1.5 mm design (36.7 -> 54.7 -> 80.2, x1.47 per halving, peak located at (21.1, 22.9), the re-entrant corner), the quadrature-point peak there is 217 MPa, and away from the corner (y 30-50) the centroid value 30.2 MPa on the coarse mesh is 53% of the outer-fibre quadrature value 56.7 MPa, which itself matches beam theory (57.3). So the coarse 95.7 MPa 'pass' of the 2.0 mm design is element-centroid sampling, and by the project's own criterion the 1.5 mm design is on course to exceed 100 MPa at the next refinement.",
+  "completeness": "Claimed and checked: forward buckling factor for the four roots (reproduced one, 4.666); static solve on two meshes with peak stress outside the clamp zone and mean end-face deflection (reproduced for two rows); beam-theory nominal stress (exact); mass (exact); results.txt and stress.png present; plot.py reads results.txt. Tests: '3 tests' true. No stubs or TODOs in src (62 lines). Not run: the full 7-min run.py (subset recomputed instead). Next steps (third mesh, fillet, joint search) are listed as not done, honestly.",
+  "verification": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q tests: 3 passed, 162 warnings in 47.96s. Four mutations via platform/ci/quality_mutate.py, all SURVIVED: clamp-zone exclusion removed (check.py:49), forward_factor sign=+1 -> -1 so the reversed load is reported as the forward one (check.py:56), von Mises shear coefficient 3 -> 1 (check.py:32), deflection mean -> max over end-face dofs (check.py:52). The suite tests the nominal formula against the author's own hand number, a uniaxial von Mises (which cannot see the shear term), and a monotonicity check; nothing tests forward_factor, the deflection against a hand value, or the stress against beam theory away from the corner.",
+  "craft": "Read src/simdesign_fwdcheck/check.py, tests/test_fwdcheck.py, experiments/run.py, plot.py, and the imported simdesign_lbuckle/lbracket.py and simdesign_revwidth/sweep.py. Defects: sibling projects imported by sys.path.insert of ../../../simdesign-lbuckle/src (check.py:14-15), undeclared in pyproject.toml; static() recomputes the stress tensor that lb.build already computed (check.py:40-46 copy of lbracket.py:56-61) and, because it calls build, assembles the geometric stiffness Kg it never uses on every static solve (the finer mesh static took 171 s, the 8x mesh 927 s, much of it Kg); the clamp-zone exclusion is dead in practice (static(11.84,2.0) returns peak outside = max anywhere = 95.667) and untested; run.py writes results.txt inside the loop with open() and no close. Short and readable otherwise.",
+  "claims": "Backed: table rows (results.txt, reproduced on a subset), mass, nominal stress, deflection, forward factors >= 4.7 so forward buckling never binds (reproduced 4.666, hand LTB agrees), 2.5 and 3.0 mm fail stress and deflection on every measure (nominal 402/846 MPa, deflection 4.45/15.5 mm vs Castigliano 4.56/15.7), limitations section and AI-assistance statement present. Not backed: headline 'Only the 1.5 mm design does [pass]' and README.md:38 'passes every check here' rest on a FE peak that is 80.2 MPa on the next mesh and still rising x1.47 per refinement; README.md:37 calls the 2.0 mm design 'marginal' with a verdict that 'depends on the mesh', but its nominal outer-fibre stress (162.8 MPa, with no concentration) is 1.63x the limit on any mesh and the coarse 95.7 is a centroid-sampling artefact, not a mesh-dependent singularity; README.md:39 says finer peaks are 'lower bounds on the corner stress', which is right but contradicts the pass verdict two lines above. The served page could not be loaded (proxy 403 on marisstella.app), so only the source README was checked.",
+  "fitness": "Nearest prior work: textbook hand checks (beam bending of the vertical arm, Roark/Castigliano frame deflection, Timoshenko & Gere lateral-torsional buckling of narrow rectangular members), and the repo's own simdesign-lbuckle / -revgauge / -patchstress chain. The result is sound in direction for 2.5 and 3.0 mm, but those verdicts follow from a two-line hand calculation (nominal 402 and 846 MPa vs 100), so the 3D FE adds little that is new; the one case FE was needed for (1.5 vs 2.0 mm against a 100 MPa limit) is decided by a non-converged corner peak. A researcher can reuse the pipeline and the forward-factor numbers (which match hand estimates), but not the stress verdicts without re-doing the stress measure.",
+  "domain": "Compared against standard FE verification practice (e.g. NAFEMS guidance on stress singularities; ASME VIII-2 Part 5 / hot-spot style linearisation; Peterson's stress concentration factors for a filleted shoulder): a sharp re-entrant corner has a theoretically infinite elastic stress, so its mesh-peak is not compared against an allowable; one uses the nominal (or linearised membrane+bending) stress with a Kt for the real fillet radius, or models the fillet and shows convergence. Here the verdict uses the element-centroid mean (check.py:47) at the singular corner on two meshes with no convergence; the centroid averaging also underestimates the smooth outer-fibre stress by about half on the coarse mesh (30.2 vs 56.7 MPa at mid-arm). Right: element (quadratic serendipity hex), clamp-zone exclusion, mean end-face deflection, beam nominal formula, forward/reverse eigenbuckling. Departures: the stress criterion and the assumed 100 MPa allowable carried over from aluminium plate studies (simdesign-patchstress uses E = 69 GPa) to steel, unexamined (acknowledged in limitations)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "beam-theory nominal stress, all four README rows",
+   "method": "by hand: sigma = P/(w b) + 6 P (L - w/2)/(b w^2), Euler-Bernoulli outer fibre",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/fwdcheck/hand.py",
+   "expected": "57.3 / 162.8 / 402.3 / 845.9 MPa",
+   "observed": "README 57.3 / 162.8 / 402.3 / 845.9",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "mass of the four designs",
+   "method": "steel 7850 kg/m^3 x plan area (w*80 + (80-w)*w) x b",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/fwdcheck/hand.py",
+   "expected": "36.4 / 27.5 / 20.5 / 15.8 g",
+   "observed": "README 36.4 / 27.5 / 20.5 / 15.8",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tip deflection of the clamped two-arm L",
+   "method": "Castigliano, centreline lengths: P/(EI)(c^3/3 + c^2 a) + P a/(EA) + 1.2 P c/(GA); rigid-corner clear-length lower bound",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/fwdcheck/hand.py",
+   "expected": "0.156 / 0.986 / 4.562 / 15.72 mm (bounds 0.089 / 0.763 / 3.972 / 14.44)",
+   "observed": "FE 0.142 / 0.944 / 4.45 / 15.5 mm, 3-9% below centreline, inside bounds",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "forward buckling factor vs lateral-torsional hand estimate",
+   "method": "Timoshenko & Gere LTB: vertical arm cantilever under uniform moment P(L-w/2), Le = 2(H-w), M_cr = pi/Le sqrt(E Iz G J); horizontal arm tip-load cantilever 4.013 sqrt(E Iz G J)/L^2",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/fwdcheck/hand.py",
+   "expected": "upper-bound-ish 6.11 / 5.76 / 5.40 / 4.81 (horizontal arm 12.6-18.6, not governing)",
+   "observed": "FE 5.61 / 5.15 / 4.92 / 4.67, 3-11% lower, same trend",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "FE outer-fibre stress away from the corner vs beam theory, b=1.5 w=22.5",
+   "method": "beam theory 57.3 MPa vs quadrature-point max in band 30 < y < 50 of the vertical arm",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/fwdcheck/fe.py",
+   "expected": "about 57 MPa on every mesh",
+   "observed": "qp max 56.7 / 56.5 / 56.8; centroid max 30.2 / 43.6 / 50.4 (centroid sampling under-reads by up to 47%)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "convergence of the reported peak stress, b=1.5 w=22.5, third mesh (8,72,56,1)",
+   "method": "mesh refinement study (README's own next step)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/fwdcheck/fe.py",
+   "expected": "a converged value below 100 MPa to support 'passes every check'",
+   "observed": "36.7 -> 54.7 -> 80.2 MPa (x1.47 per halving, at the re-entrant corner (21.1, 22.9)); qp peak 217 MPa",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "reproduce table rows from shipped code",
+   "method": "re-run ck.forward_factor(4.31, 3.0) and ck.static(11.84, 2.0)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/fwdcheck/rep.py",
+   "expected": "4.67; 95.7 MPa, 0.944 mm",
+   "observed": "4.666; 95.667 MPa (max anywhere also 95.667), 0.944 mm",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run as README says",
+   "command": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "3 pass",
+   "observed": "3 passed, 162 warnings in 47.96s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline 'Only the 1.5 mm design does' pass / README.md:38 'passes every check here'",
+   "method": "against the third-mesh peak and the project's 100 MPa peak criterion",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/fwdcheck/fe.py",
+   "expected": "a pass that holds under refinement",
+   "observed": "80.2 MPa and rising; pass holds only on the nominal stress (57.3), not on the FE peak the method uses",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README.md:37 2.0 mm design 'marginal', verdict 'depends on the mesh'",
+   "method": "nominal stress (no concentration) vs limit; centroid-sampling check",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/fwdcheck/hand.py",
+   "expected": "a clear fail: nominal 162.8 MPa = 1.63 x limit",
+   "observed": "README calls it marginal; coarse 95.7 'pass' is a centroid artefact",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "forward buckling never binds; 2.5 and 3.0 mm fail stress and deflection",
+   "method": "hand LTB and Castigliano above",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/fwdcheck/hand.py",
+   "expected": "factors > 3; deflection > 4 mm at 2.5 and 3.0",
+   "observed": "hand 4.8-6.1; deflection 4.56 / 15.7 mm",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page",
+   "method": "load https://marisstella.app/research/simdesign-fwdcheck/",
+   "command": "curl -sS https://marisstella.app/research/simdesign-fwdcheck/",
+   "expected": "200",
+   "observed": "CONNECT tunnel failed, response 403 (proxy); not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/simdesign_fwdcheck/check.py:49",
+   "change": "out = vm[cy < H - w] -> out = vm",
+   "caught": false,
+   "test_cmd": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_fwdcheck/check.py:56",
+   "change": "return sw.factor(w, b=b, sign=1, mesh=mesh) -> return sw.factor(w, b=b, sign=-1, mesh=mesh)",
+   "caught": false,
+   "test_cmd": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_fwdcheck/check.py:32",
+   "change": "+ 3 * (s[0, 1] ** 2 -> + 1 * (s[0, 1] ** 2",
+   "caught": false,
+   "test_cmd": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_fwdcheck/check.py:52",
+   "change": "float(-sign * u[dofs].mean()) -> float(-sign * u[dofs].max())",
+   "caught": false,
+   "test_cmd": "cd research/simdesign-fwdcheck && /usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The stress verdict uses the element-centroid von Mises peak at a sharp re-entrant corner, a singular and non-converging quantity: for the 1.5 mm design it is 36.7 -> 54.7 -> 80.2 MPa on three meshes (x1.47 per halving), so the headline 'only the 1.5 mm design passes' does not hold by the project's own criterion; centroid averaging also under-reads the smooth outer-fibre stress by up to 47% (30.2 vs 56.7 MPa at mid-arm, coarse), which is what produced the 2.0 mm design's coarse 'pass'. A senior engineer would check nominal (or linearised) stress times a Kt for the real fillet, or a filleted converged model.",
+   "where": "research/simdesign-fwdcheck/src/simdesign_fwdcheck/check.py:47",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Headline and Results bullets overclaim: 'Only the 1.5 mm design does' (README:3) and 'passes every check here' (README:38) rest on the non-converged peak; the 2.0 mm design is called 'marginal' with a mesh-dependent verdict (README:37) although its nominal stress, which has no concentration, is 162.8 MPa = 1.63x the limit on any mesh.",
+   "where": "research/simdesign-fwdcheck/README.md:37",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests cannot catch core bugs: 4 of 4 seeded mutants survived (forward_factor load sign, von Mises shear coefficient, clamp-zone exclusion, deflection mean->max). No test of forward_factor, of deflection against a hand value, or of stress against beam theory away from the corner.",
+   "where": "research/simdesign-fwdcheck/tests/test_fwdcheck.py:16",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "static() calls lb.build, which assembles the unused geometric stiffness on every static solve, and re-derives the stress tensor build already computed (copied code); finer-mesh statics cost minutes for this reason.",
+   "where": "research/simdesign-fwdcheck/src/simdesign_fwdcheck/check.py:39",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Sibling projects imported by sys.path.insert into ../../../simdesign-lbuckle/src and simdesign-revwidth/src; pyproject.toml declares neither, so pip install of this package alone fails at import.",
+   "where": "research/simdesign-fwdcheck/src/simdesign_fwdcheck/check.py:14",
+   "category": "repo-hygiene",
+   "origin": "build"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15417"
+ ],
+ "verdict": "The arithmetic is right and reproduces: nominal stress and mass match a hand calculation exactly, tip deflection is within 9% of a Castigliano L-frame estimate, the forward buckling factors sit 3-11% under a lateral-torsional hand estimate, and re-running the shipped code gives the table's 4.666 and 95.7 MPa. The 2.5 and 3.0 mm designs fail, and forward buckling never binds; both findings stand. The stress verdict is the problem. It compares the element-centroid peak at a sharp re-entrant corner against 100 MPa. That value does not converge: it rises 36.7, 54.7, 80.2 MPa on three meshes for the 1.5 mm design. The centroid averaging also under-reads the smooth bending stress by up to half, which is where the 2.0 mm design's coarse 'pass' came from. So 'only the 1.5 mm design passes' is not supported by the method used. The 1.5 mm design passes on nominal stress alone, and the 2.0 mm design is a clear nominal fail, not a marginal one. All four seeded mutants survived the 3-test suite. Does not meet the bar: correctness 2, claims 2 and verification 1 are all under 3."
+}

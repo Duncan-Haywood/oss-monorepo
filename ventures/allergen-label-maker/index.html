@@ -4,26 +4,64 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Allergen Label Maker — Free Allergen Matrix and PPDS Labels</title>
-  <meta name="description" content="Free allergen label maker: paste your ingredient lists, get an allergen matrix for the 14 UK/EU allergens (or the US 9) and print-ready Natasha's Law labels with allergens in bold. Runs in your browser; nothing is uploaded.">
+  <meta name="description" content="Free allergen label maker: paste your ingredient lists, get an allergen matrix for the 14 UK/EU allergens (or the US 9) and draft Natasha's Law labels with allergens in bold, to check and print. Runs in your browser; nothing is uploaded.">
   <meta property="og:title" content="Which of the 14 allergens is in each dish? Free allergen matrix and PPDS labels">
-  <meta property="og:description" content="Ingredient lists in, allergen matrix and print-ready labels out. UK/EU 14 or US 9. Runs in your browser.">
+  <meta property="og:description" content="Ingredient lists in, allergen matrix and draft labels to check out. UK/EU 14 or US 9. Runs in your browser.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b91c1c'/%3E%3Cpath d='M16 7v12M16 24v1' stroke='%23fff' stroke-width='3.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="canonical" href="./index.html">
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #b91c1c; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #901616; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #901616; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #b91c1c; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #b91c1c; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #901616; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
   <style>
     .label { border: 2px solid #111; padding: .6rem .8rem; margin: .6rem 0; max-width: 26rem; background: #fff; color: #111; break-inside: avoid; }
-    .label h4 { margin: 0 0 .3rem; font-size: 1.05rem; color: #111; }
+    .label h3 { margin: 0 0 .3rem; font-size: 1.05rem; color: #111; }
     .label p { margin: .2rem 0; font-size: .9rem; color: #111; }
     td.mark, th.mark { text-align: center; }
     @media print { body * { visibility: hidden; } #labels, #labels * { visibility: visible; } #labels { position: absolute; left: 0; top: 0; } }
   </style>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Allergen Label Maker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}, "description": "Paste ingredient lists, get an allergen matrix for the 14 UK/EU allergens (or the US 9) and print-ready PPDS labels with allergens emphasised. Runs in your browser; nothing is uploaded.", "featureList": "14 UK/EU allergens, US major 9, allergen matrix, PPDS label with allergens in bold, supplier allergen tags, may-contain line, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Allergen Label Maker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}, "description": "Paste ingredient lists, get an allergen matrix for the 14 UK/EU allergens (or the US 9) and draft PPDS labels with allergens emphasised. Runs in your browser; nothing is uploaded.", "featureList": "14 UK/EU allergens, US major 9, allergen matrix, PPDS label with allergens in bold, supplier allergen tags, may-contain line, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is Natasha's Law?", "acceptedAnswer": {"@type": "Answer", "text": "Since 1 October 2021, food that a business packs on the premises where it is sold to the customer (a sandwich made in the shop and wrapped, a bakery's boxed cakes) must carry a label with the food's name and a full ingredients list, with the 14 allergens emphasised in the list. It applies in England; Scotland, Wales and Northern Ireland have their own versions of the same rule. This tool prepares the wording. Check the rule against the Food Standards Agency guidance for your premises."}}, {"@type": "Question", "name": "Which allergens must be declared?", "acceptedAnswer": {"@type": "Answer", "text": "In the UK and the EU, fourteen: celery, cereals containing gluten, crustaceans, eggs, fish, lupin, milk, molluscs, mustard, peanuts, sesame, soya, sulphur dioxide and sulphites (above 10 mg/kg or 10 mg/litre), and tree nuts. In the US, nine major allergens: milk, egg, fish, crustacean shellfish, tree nuts, peanuts, wheat, soybeans and sesame. Switch the box to see either list."}}, {"@type": "Question", "name": "How does the tool decide something contains an allergen?", "acceptedAnswer": {"@type": "Answer", "text": "It reads the ingredient names you typed against a word list, including the contents of brackets, and handles look-alikes such as coconut milk, cocoa butter, butternut squash and rice flour. It cannot look inside a branded product: for those, add the supplier's allergens in square brackets, like pesto [milk, tree nuts], and the tool uses exactly that."}}, {"@type": "Question", "name": "What does 'check' mean?", "acceptedAnswer": {"@type": "Answer", "text": "Some foods nearly always contain an allergen without naming it: hummus (sesame), Worcestershire sauce (fish), pasta (gluten), dried apricots (sulphites). The tool marks these 'check' so you confirm them against the supplier's label. A 'check' is never printed on a label as a declaration until you confirm it by typing the allergen in square brackets."}}, {"@type": "Question", "name": "What about 'may contain' warnings?", "acceptedAnswer": {"@type": "Answer", "text": "Add | may=peanuts, sesame after the dish name to print a precautionary line. Whether a warning is justified is a risk assessment you make about your kitchen; the tool only prints what you ask for."}}, {"@type": "Question", "name": "Is this legal advice, and where does my data go?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a drafting aid and it can be wrong; the person who sells the food is responsible for the label. Everything runs in your browser and nothing is uploaded."}}]}</script>
 </head>
 <body>
   <header>
     <p class="note">ALLERGEN LABEL MAKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Which of the 14 allergens is in each dish, and what goes on the label?</h1>
-    <p>Paste each dish's ingredients. You get an allergen matrix for your menu or allergen folder, and a print-ready label for each pre-packed dish with the allergens in bold, the way Natasha's Law asks for them. Switch to the US list of nine if you sell there.</p>
+    <p>Paste each dish's ingredients. You get an allergen matrix for your menu or allergen folder, and a draft label for each pre-packed dish with the allergens in bold in the ingredients list, the way Natasha's Law asks for them, to check against your supplier labels before you print. Switch to the US list of nine if you sell there.</p>
     <p class="note">A drafting aid that reads the words you type. It can be wrong, and it cannot see inside a branded product: confirm every dish against your suppliers' labels.</p>
   </header>
   <main>
@@ -90,7 +128,7 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     let last = null;
-    const why = (map, LABELS) => [...map.entries()].map(([k, v]) => `${esc(LABELS[k])}: ${[...new Set(v.map((x) => esc(x.ingredient) + " (" + esc(x.via) + ")"))].join("; ")}`);
+    const why = (map, LABELS) => [...map.entries()].filter(([k]) => k in LABELS).map(([k, v]) => `${esc(LABELS[k])}: ${[...new Set(v.map((x) => esc(x.ingredient) + " (" + esc(x.via) + ")"))].join("; ")}`);
     function run() {
       const region = $("region").value;
       const a = analyse($("dishes").value, region);
@@ -105,7 +143,7 @@
         for (const r of a.results) {
           const lines = [...why(r.declared, labelsFor(region)), ...why(r.check, labelsFor(region)).map((x) => x + " (check)")];
           if (!lines.length && !r.advisories.length) continue;
-          h += `<div class="finding"><h4>${esc(r.name)}</h4>`;
+          h += `<div class="finding"><h3>${esc(r.name)}</h3>`;
           if (lines.length) h += `<ul>${lines.map((x) => `<li>${x}</li>`).join("")}</ul>`;
           for (const adv of r.advisories) h += `<p class="note">${esc(adv)}</p>`;
           h += "</div>";
@@ -117,7 +155,7 @@
       const biz = $("business").value.trim();
       $("labels").innerHTML = a.results.filter((r) => !r.errors.length).map((r) => {
         const l = labelFor(r, region);
-        return `<div class="label"><h4>${esc(l.name)}</h4><p><strong>Ingredients:</strong> ${l.ingredientsHtml}</p>${l.contains.length ? `<p><strong>Contains:</strong> ${l.contains.map(esc).join(", ")}</p>` : ""}${l.may.length ? `<p>May also contain ${l.may.map((x) => esc(x.toLowerCase())).join(", ")}.</p>` : ""}${r.checkKeys.length ? `<p class="note">Confirm before printing: ${r.checkKeys.map((k) => esc(labelsFor(region)[k])).join(", ")}</p>` : ""}${biz ? `<p>${esc(biz)}</p>` : ""}</div>`;
+        return `<div class="label"><h3>${esc(l.name)}</h3><p><strong>Ingredients:</strong> ${l.ingredientsHtml}</p>${l.contains.length ? `<p><strong>Contains:</strong> ${l.contains.map(esc).join(", ")}</p>` : ""}${l.may.length ? `<p>May also contain ${l.may.map((x) => esc(x.toLowerCase())).join(", ")}.</p>` : ""}${r.checkKeys.length ? `<p class="note">Confirm before printing: ${r.checkKeys.map((k) => esc(labelsFor(region)[k])).join(", ")}</p>` : ""}${biz ? `<p>${esc(biz)}</p>` : ""}</div>`;
       }).join("");
       $("out").hidden = false;
       record("analysis_run");
@@ -134,7 +172,7 @@
     }
     function menu() {
       run();
-      const html = menuPage(last, { business: $("business").value, updated: new Date().toISOString().slice(0, 10) });
+      const html = menuPage(last, { business: $("business").value, updated: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(new Blob([html], { type: "text/html" }));
       link.download = "allergen-guide.html";

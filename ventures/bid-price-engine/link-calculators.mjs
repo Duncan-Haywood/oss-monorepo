@@ -5,6 +5,7 @@
 // marker comment makes a second run replace the line rather than add another.
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { TRADES } from "./trades.mjs";
+import { pathToFileURL } from "node:url";
 
 const MARK = "<!-- bid-price-engine-link -->";
 
@@ -31,4 +32,4 @@ export function linkAll(root = new URL("../", import.meta.url)) {
   return changed;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) console.log(`linked ${linkAll()} calculators`);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) console.log(`linked ${linkAll()} calculators`);

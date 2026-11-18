@@ -1,0 +1,4 @@
+ok  opened report equals driftReportHtml in Node (9420 vs 9420 chars)
+ok  report lists the 1946, 1965 and 1967 jumps
+ok  report names the ignored option
+ok  no page errors

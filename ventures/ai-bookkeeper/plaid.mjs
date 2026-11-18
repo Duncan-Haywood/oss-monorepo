@@ -8,7 +8,7 @@
 
 const DATE = /^\d{4}-\d\d-\d\d$/;
 export function isPlaid(text) {
-  const s = String(text).replace(/^﻿/, "").trimStart();
+  const s = String(text).replace(/^\uFEFF/, "").trimStart();
   if (s[0] !== "{" && s[0] !== "[") return false;
   try {
     const rows = plaidList(JSON.parse(s));
@@ -48,7 +48,7 @@ function plaidCat(t) {
 export function readPlaid(text) {
   const problems = [], rows = [];
   let j;
-  try { j = JSON.parse(String(text).replace(/^﻿/, "")); } catch { return { rows, problems: ["The file is not valid JSON."], columns: null, bank: "plaid", inferred: null, statement: null }; }
+  try { j = JSON.parse(String(text).replace(/^\uFEFF/, "")); } catch { return { rows, problems: ["The file is not valid JSON."], columns: null, bank: "plaid", inferred: null, statement: null }; }
   const list = plaidList(j) ?? [];
   const seen = new Set(), accounts = new Set(), currencies = new Set();
   let pending = 0;

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   SYSTEMS, PRESETS, DEFAULTS, buildLine, parseCargo, parseRotation, orientations, resolveContainer,
   packPass, bestPack, planLoad, verifyPacking, palletise, compareOptions, viewRects, loadingOrder,
-  mulberry32, balanceReport, stopReport, lineFits, suggestRestarts, reportCsv, planReportHtml, sampleCargo, toMm, fromMm, MAX_UNITS,
+  mulberry32, palletContainer, balanceReport, stopReport, lineFits, suggestRestarts, reportCsv, planReportHtml, sampleCargo, toMm, fromMm, MAX_UNITS,
 } from "./calc.mjs";
 
 const M = SYSTEMS.metric, IMP = SYSTEMS.imperial;
@@ -518,4 +518,43 @@ test("delivery stops: invalid stop is rejected, none means not used, a reversed 
   const r = stopReport(two, rev);
   assert.equal(r.ok, false);
   assert.equal(r.blockedUnits, 1);
+});
+
+// Quality fix 2026-11-11: a quoted "$1,200" (what a spreadsheet CSV export writes) used to split
+// at the comma and shift every later field. See docs/posts/2026-11-11-quality-fix-thousands-commas.md.
+import { splitCells as splitCellsForTest } from "./calc.mjs";
+import { test as testSplit } from "node:test";
+import assertSplit from "node:assert/strict";
+testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a mid-cell quote as text", () => {
+  assertSplit.deepEqual(splitCellsForTest('Item,"$1,200",800'), ["Item", "$1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest("Item\t1,200\t800"), ["Item", "1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
+  assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
+});
+
+// ----- speed-ups keep the answers ------------------------------------------
+
+test("the dead-corner memo changes no placement: 24 mixed loads match the pre-memo packer's output", async () => {
+  // The hash was taken from the packer before corners remembered the sizes that
+  // can never go there (2026-11-17); a speed-up must reproduce it exactly.
+  const { createHash } = await import("node:crypto");
+  const rng = mulberry32(20261117), out = [];
+  for (let k = 0; k < 24; k++) {
+    const n = 1 + Math.floor(rng() * 4), ls = [];
+    for (let j = 0; j < n; j++) ls.push(buildLine({ name: "r" + j, l: 10 + Math.floor(rng() * 90), w: 10 + Math.floor(rng() * 70), h: 10 + Math.floor(rng() * 70), weight: 1 + Math.floor(rng() * 300), qty: 1 + Math.floor(rng() * 40), rotation: ["upright", "any", "fixed"][Math.floor(rng() * 3)], maxLayers: rng() < 0.4 ? 1 + Math.floor(rng() * 4) : "", maxTop: rng() < 0.4 ? Math.floor(rng() * 200) : "" }, M).line);
+    out.push(planLoad(ls, k % 3 === 0 ? palletContainer() : PRESETS[k % PRESETS.length], { restarts: 12, seed: k }).containers.map((x) => x.placements));
+  }
+  assert.equal(createHash("sha256").update(JSON.stringify(out)).digest("hex"), "69eff7e5589c59a72014207eb164849f9b8f6c0154fa34604e74faf521a31e8e");
+});
+
+test("FAQ pallet counts match the planner: a 20 ft floor holds 9 of the 48 x 40 size (quality audit 2026-11-17)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { lines } = parseCargo("GMA,48,40,48,600,40,upright,1,0", SYSTEMS.imperial);
+  const n = planLoad(lines, PRESETS.find((p) => p.id === "20ft"), { restarts: 40 }).firstPacked;
+  assert.equal(n, 9);
+  for (const f of ["index.html", "how-to-plan-a-container-load.html"]) {
+    const html = readFileSync(new URL(f, import.meta.url), "utf8");
+    assert.ok(!/or 10 of the 48 x 40/.test(html), f);
+    assert.ok(new RegExp(`or ${n} of the 48 x 40 (inch )?size`).test(html), f);
+  }
 });

@@ -15,7 +15,7 @@ Follow-up to `selfrep-rodbeam` (track 1, `PROJECTS.md`), taking the "add alumini
 ## Reproduce
 ```bash
 cd research/selfrep-alurod
-python3 -m unittest discover -s tests -v     # 6 tests, standard library only
+python3 -m unittest discover -s tests -v     # 8 tests, standard library only
 python3 experiments/run.py                   # writes experiments/results.txt
 ```
 
@@ -23,7 +23,7 @@ python3 experiments/run.py                   # writes experiments/results.txt
 - Matching the 8 mm steel rod's sag (0.192 mm) takes aluminium 10.4 mm, `(E_steel/E_Al)^(1/4)` times 8 mm, which is inside the 12 mm limit. Hardwood needs 16.9 mm and does not fit. Across E = 68 to 72 GPa the aluminium diameter moves only 10.3 to 10.5 mm.
 - Aluminium meets every sag spec down to 0.2 mm within 12 mm; hardwood only meets 1 mm and looser. At 0.1 mm aluminium needs 12.3 mm, just outside the limit.
 - At a 0.2 mm spec the all-substitutions design has mass closure 39.5% with aluminium rods, 37.8% with wood and 28.7% with steel rods left as vitamins. Vitamin mass falls from 4538 g (steel) to 3608 g.
-- The closure gain has a cost the headline metric hides: the aluminium design imports about 170 g more stock than the wooden one at the 0.2 mm spec (2360 g against 2190 g), and 530 g more than the steel-rod design (1828 g), because it counts bar stock as makeable. Closure by mass rewards heavier stock (a limitation already noted in `selfrep-rodbeam`), so the real gain of aluminium is that a stiff rod fits the existing holders, not the closure figure.
+- The closure gain has a cost the headline metric hides: the aluminium design imports about 170 g more stock than the wooden one at the 0.2 mm spec (2360 g against 2190 g), and 530 g more than the steel-rod design (1828 g), because it counts bar stock as makeable. Counting the steel rods (930 g, imported as vitamins) as well, total imported mass, stock plus vitamins, falls from 6366 g (steel rods) to 5968 g (aluminium) and 5798 g (wood). Closure by mass rewards heavier stock (a limitation already noted in `selfrep-rodbeam`), so the real gain of aluminium is that a stiff rod fits the existing holders, not the closure figure.
 
 ## Limitations
 - Stylised throughout: assumed moduli, one 5 N load, static deflection only, no vibration, shear, bushing clearance or rod straightness.

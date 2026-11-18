@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVM6K6M9KPKDmcmdSTW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T01:04:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4) changepoint-detector item (a): a joint multi-column fit that survives smooth columns",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": 14649,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-joint-changepoints-noise-floor-per-column.md"
+  ],
+  "goal": "ship a pre-registered per-column noise floor for the joint changepoint fit",
+  "notes": "No open website requests (ideas.py: none); took flagship 4 (changepoint-detector) item (a) since flagships 2-3 had heavy recent traffic and their open items need real outside inputs or a key. Pre-registered six settings, the primary (floor auto) and a decision rule in eval/tcpd-multi-floor.mjs before scoring; both conditions held (mean F1 0.172 -> 0.286 on apple/bee_waggle_6/occupancy; white-noise hit rate equal in 20/20 cells of eval/multi-floor-sim.mjs), so analyzeMulti defaults to floor auto. ar1+floor2 scored 0.564 but was not primary: shipped as an option, flagged as a lead. Verification: node --test '*.test.mjs' in ventures/changepoint-detector 439/439 pass; venture-preflight clean (exit 0); page checked in headless Chromium (auto/off/ar1floor on German unemployment: 3/22/1 joint changes, select disabled in one-column mode, no page errors); validate.py and check_post_frontmatter clean.",
+  "corrections": [],
+  "redteam": null
+}

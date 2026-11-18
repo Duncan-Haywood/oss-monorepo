@@ -7,7 +7,7 @@ Seventh milestone of the agentic co-design track (`research/PROJECTS.md`, track 
 ![nominal J against mean J in shifted worlds](experiments/transfer.png)
 
 **Headline (simulated, stylised; all numbers from `experiments/results.txt`).**
-- **The ranking of designs transfers; the level does not.** 600 random feasible designs: Spearman correlation 0.993 between J in the nominal world and mean J over 30 held-out shifted worlds (per world, median 0.967, minimum 0.924). Of the nominal top 10%, a median 85% (minimum 65%) are still in a shifted world's top 10%. So in this model a design that wins in the narrow world is a good candidate in the wide ones, which is the reassuring reading of the track's question.
+- **The ranking of designs transfers; the level does not.** Of the nominal top 10% of 600 random feasible designs, a median 85% (minimum 65%) are still in a shifted world's top 10%, and within that top 10% the Spearman correlation between nominal J and mean shifted J is 0.838. Over all 600 designs it is 0.993 (per world, median 0.967, minimum 0.924), but that figure is inflated: 282 of the 600 pick almost nothing (nominal J below 0.05), so it mostly separates working designs from broken ones (quality audit, `portfolio/quality/audits/2026-11-12-codesign-transfer.json`). So in this model a design that wins in the narrow world is a good candidate in the wide ones, which is the reassuring reading of the track's question.
 - **But everything gets worse, and the winner loses the most.** 20% of designs lose more than 0.10 of J from nominal to the shifted mean. The nominal-world CMA-ES optimum falls from 0.653 to 0.567 (-13%). The best random design falls from 0.618 to 0.560.
 - **Widening the spread lowers the level smoothly and the ranking barely.** Spearman against nominal stays at 0.998, 0.998, 0.997, 0.996, 0.993 for spread widths 0, 0.25, 0.5, 0.75, 1.0, while the nominal-best design's mean J falls 0.654, 0.646, 0.634, 0.620, 0.598.
 - **A robust objective is cheap here, and small.** Optimising the mean J over 10 training worlds with CMA-ES gives pads 25 x 30 mm, 0.151 MPa, 7.98 N, three fingers. Scored on 30 *held-out* worlds: mean J 0.582 (nominal optimum 0.567), 5th percentile 0.502 (0.465), worst world 0.459 (0.425), at the price of 0.623 in the nominal world (0.653). That is 0.015 more on average and 0.034 more in the worst world, from one CMA-ES seed per objective, so read it as suggestive, not established.
@@ -27,23 +27,24 @@ This is **sim-to-sim**: the same equations score the nominal and shifted worlds,
 ```bash
 cd research/codesign-transfer
 PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
-PYTHONPATH=src "$PY" -m unittest discover -s tests      # 6 tests
+PYTHONPATH=src "$PY" -m unittest discover -s tests      # 8 tests
 "$PY" experiments/run.py                                  # ~50 s -> results.txt, results.json
 "$PY" experiments/figure.py                               # -> transfer.png
 ```
 
 ## Limitations
 - Sim-to-sim, in a model written for this study; see above. The rank correlation says the model is smooth in its parameters more than it says real grippers transfer.
-- The "robust" gain is small and from single CMA-ES runs; a different seed could move it by as much as the gain.
+- The "robust" gain is small: +0.015 of mean J for the reported seed pair, winning 20 of 30 test worlds (paired t 3.5). The quality audit reran 6 CMA-ES seed pairs and found the gain between +0.010 and +0.023, positive every time; that a robust optimum beats the nominal one on the average over worlds is the expected result from robust design optimisation, not a new one.
+- Every shift and tolerance range in `transfer.py` is a round number chosen for the study, not taken from measured fruit or printer data; only one overall spread setting is swept.
 - At width 0 the sweep scores a different random fruit population from the nominal one, which is why Spearman there is 0.998 and not 1.
 - Mean over worlds weights every world equally; a grower who loses a whole day to wet fruit would weigh the tail more.
 - No agent loop here: this project scores designs, it does not compare proposers. `codesign-agri` and `codesign-diagnose` do that.
 
 ## Lab tags
-None fits: nothing here builds on a lab's published work. Prior work: Tobin et al. (2017), domain randomisation, IROS, is the idea of widening a simulator's parameters; its method (training a policy on randomised simulation) is not reproduced.
+None fits: nothing here builds on a lab's published work. Prior work: Tobin et al. (2017), domain randomisation, IROS, is the idea of widening a simulator's parameters; its method (training a policy on randomised simulation) is not reproduced. The question also belongs to the reality-gap literature (Jakobi, Husbands and Harvey 1995, ECAL, minimal simulations; Koos, Mouret and Doncieux 2013, IEEE TEC, the transferability approach) and to robust design optimisation (Beyer and Sendhoff 2007, CMAME, survey; Taguchi's parameter design), none of which this project improves on.
 
 ## Next steps
-Make a dimension non-monotonic (an unseen fruit class, a slippery coating) and see whether the ranking breaks; run the same test on `codesign-sar`'s rover and `codesign-gripper`'s MuJoCo gripper, where physics is richer; average the robust optimum over several CMA-ES seeds.
+Make a dimension non-monotonic (an unseen fruit class, a slippery coating) and see whether the ranking breaks; run the same test on `codesign-sar`'s rover and `codesign-gripper`'s MuJoCo gripper, where physics is richer.
 
 ## Owner steps
 Print the nominal and robust optima in a soft TPU and compare their bruise and drop rates on real berries across a day's conditions.

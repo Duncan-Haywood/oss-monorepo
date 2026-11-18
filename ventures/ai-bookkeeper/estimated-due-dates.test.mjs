@@ -2,7 +2,7 @@
 // (IRC 7503). Expected dates are the IRS's own announced ones.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { estimatedDueDates } from "./taxforms.mjs";
+import { estimatedDueDates, fileAndPayDeadline } from "./taxforms.mjs";
 
 test("April deadline moves past Emancipation Day (2022, 2023)", () => {
   assert.equal(estimatedDueDates(2022)[0], "2022-04-18");
@@ -28,4 +28,12 @@ test("ordinary weekend roll still works and dates stay ISO and ascending", () =>
     assert.deepEqual([...d].sort(), d);
     for (const s of d) { const w = new Date(s + "T00:00:00Z").getUTCDay(); assert.ok(w >= 1 && w <= 5, s); }
   }
+});
+
+test("January 31 file-and-pay day moves past a weekend (IRC 7503; IRC 6654(h))", () => {
+  // Calendar weekdays: 2025-01-31 Fri, 2026-01-31 Sat, 2027-01-31 Sun, 2028-01-31 Mon.
+  assert.equal(fileAndPayDeadline(2024), "2025-01-31");
+  assert.equal(fileAndPayDeadline(2025), "2026-02-02");
+  assert.equal(fileAndPayDeadline(2026), "2027-02-01");
+  assert.equal(fileAndPayDeadline(2027), "2028-01-31");
 });

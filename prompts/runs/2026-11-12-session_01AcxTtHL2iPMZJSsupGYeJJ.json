@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtHL2iPMZJSsupGYeJJ",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T10:06:39Z",
+  "ended": "2026-11-12T10:23:29Z",
+  "wall_minutes": 17.0,
+  "tokens_in": 4470122,
+  "tokens_out": 20461,
+  "cost_usd": 2.059,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15090",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure's 'Doc friction by file' listed several reports (run_venture_tests photo-editing workflow 'missing', photo-editing root test, post 160/70 limits) already fixed on main; checking each by hand took ~10 minutes before finding a live one."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Ran none of CI's 78 platform/pages tests, so a page failing faq-visible passed preflight; fixed in this PR (76 source-scan files, ~35 s)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "Critique mode says to file problems as backlog items; prompts/process/backlog is CODEOWNERS-gated, so filing would hold the PR for owner approval.",
+      "did": "Fixed the tool directly in an ungated path with tests and a post.",
+      "result": "One PR, fix verified end to end."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-preflight-runs-the-site-tests.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed process/2 by weighted draw. Backlog: only owner/blocked rows (P056 blocked), so Critique. main_health.py 58/58 pass. Timed all 78 platform/pages test files individually (xargs -P4): build.test.mjs >300 s (timeout), custom-domain.test.mjs 274 s, the other 76 at 0.2-33 s; together 35 s, 1,249 tests. Planted an invisible FAQ answer in ventures/1099-k-threshold-checker/vs-checking-the-threshold-yourself.html: --skip-build failed in 44 s naming faq-visible.test.mjs (previously would have been clean); restored, clean in 44 s. venture-preflight.test.mjs 13/13. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a2fbae2e-40a3-55cb-abcf-21d3c81e0775",
+    "transcripts": 1,
+    "first": "2026-11-12T10:06:39Z",
+    "last": "2026-11-12T10:23:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 91,
+        "output": 20461,
+        "thinking": 4964,
+        "cache_read": 4373184,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96847,
+        "api_equivalent_usd": 2.059,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 91,
+      "output": 20461,
+      "thinking": 4964,
+      "cache_read": 4373184,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96847,
+      "api_equivalent_usd": 2.059,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.0,
+      "active_minutes": 17.0,
+      "model_minutes": 4.6,
+      "tool_minutes": 12.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "time each of 78 test files, add a preflight step with tests, plant and verify a fault, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 97.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKnmrTzS1tNTd3p15Yn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T14:21:24Z",
+  "ended": "2026-11-17T14:54:35Z",
+  "wall_minutes": 121.71,
+  "tokens_in": 7482991,
+  "tokens_out": 34396,
+  "cost_usd": 3.2085,
+  "tool_calls": 60,
+  "task": "changepoint-detector flagship: multi-start V search for the covariate synthetic control (the covariate round's next item)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16964",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "misjudged elapsed time twice while waiting on the simulation and nearly redesigned the run around a wrong throughput estimate",
+      "fix": "checked CPU time per process with top before changing anything"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "asks for venture-preflight (5+ min) on every changed venture; for a library-only eval change with no page edits it mostly re-checks unchanged pages"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "background tool calls cap at 30 min unless timeout is set explicitly; a watcher loop for a 90-min simulation was killed at the cap (the work itself ran on under nohup and was unaffected)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/synth-cov-prereg-2026-11-17.md (last round's design)",
+      "why": "the six-start search costs ~6x, so 200 panels a cell would take ~5 h on four cores",
+      "did": "pre-registered 80 panels a cell with size bars one point looser and said so in the file",
+      "result": "ran in ~95 min; bar 1 failed in one cell (N7) by margins the 2.4-point standard error does not explain away for p<=0.10, so the smaller run still decided"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-changepoint-synthetic-control-several-starts.md",
+    "ventures/changepoint-detector/README.md (Several starts for V)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered (eval/synth-multi-prereg-2026-11-17.md, committed before the confirmatory run and before any real state). Result: bar 3 (power) holds; 1 (N7 size 11.3%/17.5%), 2 (E1 16.3%) and 4 (CA rank 2, MA p 0.103, Oregon before-gap 17.5 vs 5.5) fail, so vSearch:'multi' stays an option. Post hoc: 4,000 random V never fit Oregon better than 15.8 packs; its 1970s level sits 40 packs above the donors and the lags (1983/1988/1996) never see it. No agent doc in docs/reports: README, NEXT.md and flagships.yaml carry the next step. Checks: synth-control.test.mjs, run_venture_tests.py changepoint-detector and venture-preflight (results in the PR body).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "012346be-915f-5a0f-9e53-4b65df75fcb5",
+    "transcripts": 1,
+    "first": "2026-11-17T14:21:24Z",
+    "last": "2026-11-17T16:23:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 122,
+        "output": 34396,
+        "thinking": 8182,
+        "cache_read": 7351646,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131223,
+        "api_equivalent_usd": 3.2085,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 122,
+      "output": 34396,
+      "thinking": 8182,
+      "cache_read": 7351646,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131223,
+      "api_equivalent_usd": 3.2085,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 56,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 121.71,
+      "active_minutes": 52.35,
+      "model_minutes": 5.88,
+      "tool_minutes": 46.47,
+      "waiting_on_human_minutes": 69.36,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician implementing a multi-start optimiser, a pre-registered simulation and a real-data diagnostic, about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 311.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

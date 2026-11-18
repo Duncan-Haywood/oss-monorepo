@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKn4tcNLWTN3npNwF76",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T18:19:24Z",
+  "ended": "2026-11-17T18:44:48Z",
+  "wall_minutes": 25.71,
+  "tokens_in": 15794943,
+  "tokens_out": 160440,
+  "cost_usd": 10.3044,
+  "tool_calls": 176,
+  "task": "quality census round (mode census, seed 2026-11-17-5df2): six first audits",
+  "projects": [
+    "research/energy-thermal-cost",
+    "ventures/uk-dividend-tax-calculator",
+    "research/capture-storage",
+    "ventures/kombucha-brewery-profit-calculator",
+    "research/sag-twin",
+    "ventures/landscape-lighting-bid-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17026",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "run_workflow_locally --for-changes: readme-live-links-ci failed because I hand-edited a line of research/README.md that is generated from project.json 'lede'",
+      "fix": "moved the note into research/energy-thermal-cost/project.json lede and regenerated with research_live_links.py --write"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Says large defects go in the subject's ROADMAP or README 'Known gaps' but does not say research/README.md project lines are generated from project.json 'lede' (research_live_links.py), so a hand edit there fails CI."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 1 says run `sample`, but `sample` itself says today's mode is census; the prompt never mentions `mode`/`census`, so a reader following the prompt alone would run the wrong mode."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "The empty claim commit (git commit --allow-empty) was used to open the PR before any audit existed, so parallel census sessions skip these subjects; not to kick CI.",
+      "did": "opened draft PR #17026 right after the draw",
+      "result": "no overlap observed"
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "Two high defects (energy-thermal-cost cyclic billing, capture-storage readers-per-card) change a research headline and, for energy-thermal-cost, five downstream projects; not small and safe.",
+      "did": "recorded as known gaps at the top of each README, in project.json and the research index, with the reproduced corrected numbers",
+      "result": "headlines now carry the caveat; fix left for a research run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-billed-from-cold.md"
+  ],
+  "goal": "Measure the finished quality of six never-audited subjects and fix what is small and safe",
+  "notes": "Mode census (quality_audit.py mode), seed 2026-11-17-5df2. Subjects: research/energy-thermal-cost, ventures/uk-dividend-tax-calculator, research/capture-storage, ventures/kombucha-brewery-profit-calculator, research/sag-twin, ventures/landscape-lighting-bid-calculator. Share meeting the bar: 1 of 6 (uk-dividend-tax-calculator; census, not in the sampled share, which stays 33 of 306, Wilson 8% to 15%). All 6 finished. Seeded mutations caught 16 of 34. High defects: 4 (sag-twin and landscape-lighting fixed in PR #17026; energy-thermal-cost and capture-storage recorded as known gaps). Spot-checks by the orchestrator: UK taper next-1,000 = 537.50 by hand; sag-twin cold ratio 0.5712 = endurance(0.4)/twin(0.4) rerun; energy-thermal-cost full rerun with the charge billed from the cut-off reproduced 0.9/3.5/13.3 house and 1.3 district daily. Fix PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/17026 (5 defects marked fixed_by). Local CI: run_workflow_locally --for-changes 14/15 passed; the one failure (generated research index) fixed and re-checked with research_live_links.py; agent-cross-review and portfolio-pages deploy jobs not runnable locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5e2eceb9-9114-52a8-a86d-5a9f9af24940",
+    "transcripts": 7,
+    "first": "2026-11-17T18:19:24Z",
+    "last": "2026-11-17T18:45:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 164,
+        "input": 325,
+        "output": 160440,
+        "thinking": 47192,
+        "cache_read": 15057283,
+        "cache_write_5m": 605290,
+        "cache_write_1h": 132045,
+        "api_equivalent_usd": 10.3044,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 164,
+      "input": 325,
+      "output": 160440,
+      "thinking": 47192,
+      "cache_read": 15057283,
+      "cache_write_5m": 605290,
+      "cache_write_1h": 132045,
+      "api_equivalent_usd": 10.3044,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.953,
+    "tool_calls": 176,
+    "tools": {
+      "Bash": 152,
+      "Read": 7,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.71,
+      "active_minutes": 22.92,
+      "model_minutes": 5.36,
+      "tool_minutes": 17.56,
+      "waiting_on_human_minutes": 2.79,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 21.65
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "six first audits at ~2 h each (recomputations, mutations) plus four small fixes with tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 135.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

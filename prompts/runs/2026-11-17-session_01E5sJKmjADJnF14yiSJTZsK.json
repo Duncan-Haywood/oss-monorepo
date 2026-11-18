@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKmjADJnF14yiSJTZsK",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T20:18:27Z",
+  "ended": "2026-11-17T22:09:55Z",
+  "wall_minutes": 111.88,
+  "tokens_in": 8154728,
+  "tokens_out": 35740,
+  "cost_usd": 3.4603,
+  "tool_calls": 73,
+  "task": "grid-linopf: pre-registered margin-backoff rule for an empty margin-shifted AC OPF, frozen on 34 development cases and scored on the held-out 24",
+  "projects": [
+    "research/grid-linopf",
+    "research/infra-dcopf"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17055",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "The held-out background job hit the session's default 30-minute background limit after 15 of 19 cases; restarted with a 2-hour timeout, part files made the restart lossless."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "cyipopt does not build from pip here without system libraries; `apt-get install -y coinor-libipopt-dev liblapack-dev libblas-dev` then `pip install cyipopt` into /usr/bin/python3.13 worked (the earlier infra-dcopf log said cyipopt 'does not build in this session'). Worth a line next to the pdflatex/yosys notes."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py with pypower and clarabel failed (venv --user install error) while /usr/bin/python3.13 already imported them; a hint to try /usr/bin/python3.13 first would have saved a 60 s install attempt."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "It points at research/grid-linopf/LOG.md, but the plans, scripts and detailed outcomes live in research/infra-dcopf/LOG.md; the pointer could name both."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "Run long held-out jobs with run_in_background: I used the default 30-minute background timeout for a job that needed about 1.5 h.",
+      "did": "Restarted with timeout 7200000; per-case part files skipped the finished cases.",
+      "result": "Completed; no case ran twice."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-halving-the-margins-finishes-the-grid-repair-that-never-finished.md",
+    "research/infra-dcopf/LOG.md (plan + outcome)",
+    "research/grid-linopf/LOG.md",
+    "research/infra-dcopf/README.md section"
+  ],
+  "goal": "Advance programme grid-linopf one step (the previous step's Next: a fallback rule for an empty margin-shifted set).",
+  "notes": "Plan committed before any run (commit 1 of PR #17055). Development: rule fires on case73 API and case24 API (k=1); case73 API clean at round 8 (+0.956 %), case24 API round 8 (+0.168 % vs +0.711 %); finishers 31 -> 32 of 34, none lost. Held-out: 19 cases that reach the repair; fires on case588 API only (same round 19, +0.655 % vs +0.868 %). B1, B2, B4, B5, B6 held; B3, B7 refuted. Checks run here: infra-dcopf tests 79 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter, links and similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1b95be2c-86e2-50b5-af7a-660a27b743ae",
+    "transcripts": 1,
+    "first": "2026-11-17T20:18:27Z",
+    "last": "2026-11-17T22:10:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 133,
+        "output": 35740,
+        "thinking": 7860,
+        "cache_read": 8011765,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142830,
+        "api_equivalent_usd": 3.4603,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 133,
+      "output": 35740,
+      "thinking": 7860,
+      "cache_read": 8011765,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142830,
+      "api_equivalent_usd": 3.4603,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 68,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 111.88,
+      "active_minutes": 111.88,
+      "model_minutes": 6.61,
+      "tool_minutes": 105.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OPF researcher writing the rule, harness and tests (~4 h), running and reading 53 cases (~3 h), write-up (~3 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 289.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

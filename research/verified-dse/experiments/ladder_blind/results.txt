@@ -1,0 +1,82 @@
+# Milestone 133: SWC, SWG(32) and SWP(32) tested blind on seven 128-bit left shifters probed for the ladder branch (flow run)
+
+theta = 3, alpha = 1.25; 200 draws per cell for SWP and SWPF; design bootstrap 2000 resamples, seed 133.
+
+## Blind designs' features and cost probe (computed before the flow run)
+
+design | shift_width | amount_depth | amount_gate_depth | amount_gates | mux_share | probe routed/r2 | SWG(32) flags
+crc7s16 | 128 | 31 | 18 | 120 | 0.813 | 3.78 | True
+bcd2 | 128 | 2 | 20 | 41 | 0.806 | 5.41 | True
+cmp16 | 128 | 2 | 28 | 97 | 0.774 | 6.42 | True
+bcd3 | 128 | 4 | 30 | 91 | 0.674 | 5.26 | True
+cmp48 | 128 | 2 | 40 | 266 | 0.674 | 5.87 | False
+fib12 | 128 | 1 | 51 | 252 | 0.614 | 3.58 | False
+fib14 | 128 | 1 | 58 | 374 | 0.639 | 4.23 | False
+
+## Blind test (milestone 133 flow run): 14 cells
+
+clock | design | amount_gate_depth | probe routed/r2 | routed/r2 | routed delay/period | random % | SWC % | SWG(32) % | SWP(32) % | SWPF(32) % | SWP distrust | SWP same | SWP routed
+relaxed | crc7s16 | 18 | 3.78 | 4.60 | 0.308 | 3.71 | 19.10 | 3.71 | 14.14 | 14.06 | 0.34 | 0.95 | 14.4
+tight | crc7s16 | 18 | 3.78 | 4.57 | 0.456 | 3.73 | 0.00 | 3.73 | 0.22 | 0.24 | 0.06 | 0.94 | 9.0
+relaxed | bcd2 | 20 | 5.41 | 4.56 | 0.305 | 5.61 | 0.00 | 5.61 | 0.79 | 0.66 | 0.10 | 0.98 | 10.0
+tight | bcd2 | 20 | 5.41 | 4.55 | 0.459 | 4.85 | 0.00 | 4.85 | 0.66 | 0.65 | 0.09 | 0.98 | 9.6
+relaxed | cmp16 | 28 | 6.42 | 4.18 | 0.355 | 6.10 | 0.00 | 6.10 | 3.56 | 2.87 | 0.35 | 0.90 | 15.8
+tight | cmp16 | 28 | 6.42 | 4.21 | 0.533 | 6.33 | 0.00 | 6.33 | 2.97 | 2.98 | 0.34 | 0.95 | 15.6
+relaxed | bcd3 | 30 | 5.26 | 3.77 | 0.323 | 6.64 | 9.32 | 6.64 | 8.95 | 9.08 | 0.20 | 0.98 | 13.0
+tight | bcd3 | 30 | 5.26 | 3.78 | 0.483 | 6.34 | 9.32 | 6.34 | 8.93 | 9.12 | 0.21 | 0.96 | 13.4
+relaxed | cmp48 | 40 | 5.87 | 4.48 | 0.368 | 5.76 | 0.00 | 0.00 | 1.93 | 1.69 | 0.24 | 0.97 | 12.9
+tight | cmp48 | 40 | 5.87 | 4.46 | 0.556 | 5.37 | 0.00 | 0.00 | 0.47 | 0.25 | 0.06 | 0.96 | 9.2
+relaxed | fib12 | 51 | 3.58 | 4.48 | 0.345 | 6.11 | 0.00 | 0.00 | 0.46 | 0.38 | 0.04 | 0.95 | 8.9
+tight | fib12 | 51 | 3.58 | 4.48 | 0.510 | 6.48 | 0.00 | 0.00 | 1.49 | 1.50 | 0.21 | 0.96 | 12.2
+relaxed | fib14 | 58 | 4.23 | 4.67 | 0.310 | 5.58 | 0.00 | 0.00 | 1.16 | 0.85 | 0.12 | 0.94 | 10.4
+tight | fib14 | 58 | 4.23 | 4.66 | 0.462 | 5.34 | 0.00 | 0.00 | 1.12 | 0.91 | 0.12 | 0.93 | 10.4
+
+blind mean regret %: SWC 2.70, SWG(32) 3.09, SWP(32) 3.35, SWPF(32) 3.23, SWGP(32) 3.57, random 5.57
+ladder-branch cells only (14): SWC 2.70, SWG(32) 3.09, SWP(32) 3.35, SWPF(32) 3.23, SWGP(32) 3.57, random 5.57
+cells where SWC loses to random by > 1 point (3): SWC 12.58, SWG(32) 5.56, SWP(32) 10.67, SWPF(32) 10.75, SWGP(32) 5.56, random 5.56
+cells where SWC <= 0.5% (11): SWC 0.00, SWG(32) 2.42, SWP(32) 1.35, SWPF(32) 1.18, SWGP(32) 3.02, random 5.57
+
+blind SWC vs random: better 11, worse 3, tied 0; sign p = 0.057; design bootstrap 95% interval of mean (SWC - random) -5.88 to +0.79 points
+blind SWG(32) vs SWC: better 3, worse 5, tied 6; sign p = 0.727; design bootstrap 95% interval of mean (SWG(32) - SWC) -2.50 to +3.27 points
+blind SWP(32) vs SWC: better 3, worse 11, tied 0; sign p = 0.057; design bootstrap 95% interval of mean (SWP(32) - SWC) -0.60 to +1.77 points
+blind SWP(32) vs random: better 11, worse 3, tied 0; sign p = 0.057; design bootstrap 95% interval of mean (SWP(32) - random) -4.52 to +0.31 points
+blind SWPF(32) vs SWP(32): better 9, worse 5, tied 0; sign p = 0.424; design bootstrap 95% interval of mean (SWPF(32) - SWP(32)) -0.23 to +0.01 points
+blind SWP(32) vs SWG(32): better 5, worse 9, tied 0; sign p = 0.424; design bootstrap 95% interval of mean (SWP(32) - SWG(32)) -1.84 to +2.12 points
+blind SWGP(32) vs random: better 6, worse 0, tied 8; sign p = 0.031; design bootstrap 95% interval of mean (SWGP(32) - random) -3.66 to -0.62 points
+
+## Per design along gate depth (descriptive)
+
+design | amount_gate_depth | cells on ladder branch | SWC % | SWP(32) % | random % | SWC - random (points)
+crc7s16 | 18 | 2 | 9.55 | 7.18 | 3.72 | +5.83
+bcd2 | 20 | 2 | 0.00 | 0.72 | 5.23 | -5.23
+cmp16 | 28 | 2 | 0.00 | 3.27 | 6.21 | -6.21
+bcd3 | 30 | 2 | 9.32 | 8.94 | 6.49 | +2.83
+cmp48 | 40 | 2 | 0.00 | 1.20 | 5.56 | -5.56
+fib12 | 51 | 2 | 0.00 | 0.97 | 6.29 | -6.29
+fib14 | 58 | 2 | 0.00 | 1.14 | 5.46 | -5.46
+
+## Every blind set: milestones 125, 132 and 133 (42 cells, 21 designs)
+
+mean regret %: SWC 3.30, SWG(32) 4.26, random 4.65
+ladder-branch cells only (36): SWC 3.48, SWG(32) 4.60, random 5.06
+
+SWC vs random: better 28, worse 8, tied 6; sign p = 0.001; design bootstrap 95% interval of mean (SWC - random) -3.94 to +1.48 points
+SWG(32) vs random: better 17, worse 3, tied 22; sign p = 0.003; design bootstrap 95% interval of mean (SWG(32) - random) -2.11 to +1.99 points
+SWG(32) vs SWC: better 5, worse 11, tied 26; sign p = 0.210; design bootstrap 95% interval of mean (SWG(32) - SWC) -0.87 to +2.96 points
+
+SWP(32) is blind on milestones 132 and 133 only (26 cells): SWC 3.14, SWG(32) 2.71, SWP(32) 3.19, random 4.01
+
+SWP(32) vs SWC: better 6, worse 14, tied 6; sign p = 0.115; design bootstrap 95% interval of mean (SWP(32) - SWC) -0.78 to +0.87 points
+SWP(32) vs random: better 14, worse 6, tied 6; sign p = 0.115; design bootstrap 95% interval of mean (SWP(32) - random) -2.58 to +1.13 points
+
+## Predictions
+
+(1) all 14 cells on the ladder branch: True (14 of 14; lowest routed/r2 3.77)
+(2) SWC below random: True (2.70% against 5.57%)
+(3) SWC below SWG(32): True (2.70% against 3.09%)
+(4) SWC below SWP(32): True (2.70% against 3.35%)
+(5) SWP(32) below random: True (3.35% against 5.57%)
+(6) flagged designs (8 cells), SWC above random: False (4.72% against 5.41%)
+(7) cmp48, fib12, fib14 (6 cells), SWC below random: True (0.00% against 5.77%)
+(8) SWP(32) distrust share higher where SWC loses by > 1 point than where SWC <= 0.5%: True (3 cells 0.25 against 11 cells 0.16)
+(9) SWPF(32) below SWP(32) on losing cells and above on winning cells: False (losing cells 10.75% against 10.67%; winning cells 1.18% against 1.35%)

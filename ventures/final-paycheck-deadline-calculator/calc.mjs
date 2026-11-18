@@ -190,7 +190,8 @@ function parseDate(value) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value.trim());
   if (!m) return null;
   const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
-  return Number.isNaN(d.getTime()) ? null : d;
+  // Date.UTC rolls 2026-02-30 over to 2 March, which would move the legal deadline; refuse it.
+  return d.toISOString().slice(0, 10) === m[0] ? d : null;
 }
 
 function addCalendarDays(date, days) {
@@ -231,7 +232,7 @@ export function formatDate(date) {
 export function money(n) {
   const value = Number(n) || 0;
   const format = (v) =>
-    `$${v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const text = format(Math.abs(value));
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }

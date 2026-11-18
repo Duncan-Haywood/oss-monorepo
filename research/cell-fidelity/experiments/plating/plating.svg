@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 634" width="680" height="634" font-family="sans-serif" font-size="11">
+<style>text{fill:#222} .s{fill:#555} .ax{stroke:#888} @media (prefers-color-scheme: dark){text{fill:#ddd} .s{fill:#aaa}}</style>
+<text x="12" y="22" font-size="13" style="font-weight:600">Two SPMe cycles that see plating do not rank the 100-cycle DFN designs</text>
+<text class="s" x="12" y="40">Spearman with each pool's DFN@100 Wh/kg, 36 committed conditions (PyBaMM 26.10.1.1); * = read before the plan</text>
+<circle cx="17" cy="57" r="4" fill="#3d72b8"/><text class="s" x="26" y="61">SPMe cycle-2 energy (w2)</text>
+<circle cx="175.39999999999998" cy="57" r="4" fill="#d0702a"/><text class="s" x="184.39999999999998" y="61">w2 with self-limited plating loss</text>
+<circle cx="384.19999999999993" cy="57" r="4" fill="#999"/><text class="s" x="393.19999999999993" y="61">thermodynamic energy U (5k)</text>
+<line class="ax" x1="170.0" x2="170.0" y1="74" y2="594" stroke-opacity="0.25"/>
+<text class="s" x="170.0" y="608" text-anchor="middle">-1.0</text>
+<line class="ax" x1="290.0" x2="290.0" y1="74" y2="594" stroke-opacity="0.25"/>
+<text class="s" x="290.0" y="608" text-anchor="middle">-0.5</text>
+<line class="ax" x1="410.0" x2="410.0" y1="74" y2="594" stroke-opacity="0.9"/>
+<text class="s" x="410.0" y="608" text-anchor="middle">+0.0</text>
+<line class="ax" x1="530.0" x2="530.0" y1="74" y2="594" stroke-opacity="0.25"/>
+<text class="s" x="530.0" y="608" text-anchor="middle">+0.5</text>
+<line class="ax" x1="650.0" x2="650.0" y1="74" y2="594" stroke-opacity="0.25"/>
+<text class="s" x="650.0" y="608" text-anchor="middle">+1.0</text>
+<text x="162" y="91.0" text-anchor="end">Ai2020@0.25x *</text>
+<circle cx="395.9" cy="87.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="494.8" cy="87.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="339.5" cy="87.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="105.0" text-anchor="end">Ai2020@0.275x *</text>
+<circle cx="430.1" cy="101.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="491.4" cy="101.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="349.1" cy="101.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="119.0" text-anchor="end">Ai2020@0.35x *</text>
+<circle cx="496.9" cy="115.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="446.6" cy="115.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="352.6" cy="115.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="133.0" text-anchor="end">Ai2020@0.375x *</text>
+<circle cx="520.9" cy="129.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="459.8" cy="129.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="360.7" cy="129.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="147.0" text-anchor="end">Ai2020@0.3x *</text>
+<circle cx="463.8" cy="143.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="469.4" cy="143.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="343.3" cy="143.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="161.0" text-anchor="end">Ai2020@0.4375x *</text>
+<circle cx="588.1" cy="157.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="485.4" cy="157.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="402.1" cy="157.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="175.0" text-anchor="end">Ai2020@0.5x *</text>
+<circle cx="604.4" cy="171.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="495.2" cy="171.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="389.9" cy="171.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="189.0" text-anchor="end">Ai2020@0.625x *</text>
+<circle cx="627.4" cy="185.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="534.9" cy="185.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="405.3" cy="185.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="203.0" text-anchor="end">Ai2020@0.75x *</text>
+<circle cx="611.4" cy="199.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="524.6" cy="199.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="408.1" cy="199.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="217.0" text-anchor="end">Ai2020@0.875x *</text>
+<circle cx="606.8" cy="213.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="548.3" cy="213.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="393.9" cy="213.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="231.0" text-anchor="end">Ai2020@1x *</text>
+<circle cx="601.5" cy="227.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="519.6" cy="227.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="400.7" cy="227.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="245.0" text-anchor="end">Chen2020@0.5x *</text>
+<circle cx="638.0" cy="241.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="552.8" cy="241.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="646.9" cy="241.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="259.0" text-anchor="end">Chen2020@1.5x</text>
+<circle cx="527.4" cy="255.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="378.9" cy="255.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="634.1" cy="255.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="273.0" text-anchor="end">Chen2020@1.75x</text>
+<circle cx="513.4" cy="269.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="410.5" cy="269.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="634.6" cy="269.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="287.0" text-anchor="end">Chen2020@1x</text>
+<circle cx="613.5" cy="283.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="528.7" cy="283.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="638.9" cy="283.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="301.0" text-anchor="end">Chen2020@2x</text>
+<circle cx="500.4" cy="297.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="399.4" cy="297.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="635.6" cy="297.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="315.0" text-anchor="end">Ecker2015@0.5x</text>
+<circle cx="624.1" cy="311.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="535.5" cy="311.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="622.4" cy="311.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="329.0" text-anchor="end">Ecker2015@0.75x</text>
+<circle cx="638.0" cy="325.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="600.8" cy="325.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="632.7" cy="325.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="343.0" text-anchor="end">Ecker2015@1.5x</text>
+<circle cx="596.9" cy="339.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="608.1" cy="339.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="519.5" cy="339.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="357.0" text-anchor="end">Ecker2015@1x</text>
+<circle cx="641.4" cy="353.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="627.6" cy="353.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="609.7" cy="353.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="371.0" text-anchor="end">Ecker2015@2x</text>
+<circle cx="601.2" cy="367.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="605.8" cy="367.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="481.3" cy="367.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="385.0" text-anchor="end">Marquis2019@1x</text>
+<circle cx="648.0" cy="381.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="645.9" cy="381.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="643.1" cy="381.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="399.0" text-anchor="end">Marquis2019@2x</text>
+<circle cx="629.0" cy="395.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="630.1" cy="395.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="608.0" cy="395.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="413.0" text-anchor="end">Mohtat2020@1x</text>
+<circle cx="648.7" cy="409.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="648.3" cy="409.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="638.5" cy="409.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="427.0" text-anchor="end">Mohtat2020@2x</text>
+<circle cx="648.1" cy="423.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="647.5" cy="423.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="619.1" cy="423.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="441.0" text-anchor="end">Mohtat2020@3x</text>
+<circle cx="621.9" cy="437.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="622.3" cy="437.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="596.0" cy="437.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="455.0" text-anchor="end">NCA_Kim2011@0.5x</text>
+<circle cx="621.5" cy="451.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="602.6" cy="451.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="400.9" cy="451.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="469.0" text-anchor="end">NCA_Kim2011@0.75x</text>
+<circle cx="561.0" cy="465.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="551.0" cy="465.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="448.7" cy="465.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="483.0" text-anchor="end">NCA_Kim2011@0.875x</text>
+<circle cx="611.7" cy="479.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="552.9" cy="479.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="455.1" cy="479.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="497.0" text-anchor="end">NCA_Kim2011@1.25x</text>
+<circle cx="552.9" cy="493.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="473.2" cy="493.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="410.0" cy="493.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="511.0" text-anchor="end">NCA_Kim2011@1x</text>
+<circle cx="575.2" cy="507.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="547.2" cy="507.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="540.6" cy="507.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="525.0" text-anchor="end">OKane2022@1.25x</text>
+<circle cx="548.4" cy="521.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="470.5" cy="521.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="638.5" cy="521.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="539.0" text-anchor="end">OKane2022@1.5x</text>
+<circle cx="569.6" cy="535.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="421.1" cy="535.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="639.8" cy="535.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="553.0" text-anchor="end">OKane2022@1.75x</text>
+<circle cx="558.4" cy="549.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="461.5" cy="549.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="629.5" cy="549.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="567.0" text-anchor="end">OKane2022@1x</text>
+<circle cx="614.3" cy="563.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="538.9" cy="563.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="642.6" cy="563.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text x="162" y="581.0" text-anchor="end">OKane2022@2x</text>
+<circle cx="486.6" cy="577.0" r="3.5" fill="#3d72b8" fill-opacity="0.85"/>
+<circle cx="392.2" cy="577.0" r="3.5" fill="#d0702a" fill-opacity="0.85"/>
+<circle cx="632.0" cy="577.0" r="3.5" fill="#999" fill-opacity="0.85"/>
+<text class="s" x="170" y="626">Spearman rank correlation with the DFN@100 score (1 = same order)</text>
+</svg>

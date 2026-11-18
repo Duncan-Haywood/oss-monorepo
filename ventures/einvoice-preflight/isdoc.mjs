@@ -4,6 +4,8 @@
 // the UBL reader so the format-neutral arithmetic, VAT and date checks apply. It applies
 // no Czech national rules and no XSD.
 import { parseXmlTree } from "./ubl.mjs";
+import { unreadableLeaves } from "./xmlvalues.mjs";
+import { parseDecimal } from "./numbers.mjs";
 
 function find(node, name) {
   if (node.name === name) return node;
@@ -17,8 +19,8 @@ function txt(node, name) {
 }
 function num(s) {
   if (s === "") return "";
-  const v = Number(s);
-  return Number.isFinite(v) ? v : s;
+  const v = parseDecimal(s);
+  return v === null ? s : v;
 }
 
 export function parseIsdocInvoice(source) {
@@ -42,7 +44,10 @@ export function parseIsdocInvoice(source) {
   }));
   const total = find(root, "LegalMonetaryTotal");
   const docType = txt(root, "DocumentType");
+  // INV-065 (2026-11-17): checks.mjs reports these (xmlvalues.mjs).
+  const unreadable = unreadableLeaves({ children: [root] });
   return {
+    ...(unreadable.length ? { xml_values: unreadable } : {}),
     invoice_number: txt(root, "ID"),
     issue_date: txt(root, "IssueDate"),
     document_type: docType === "2" ? "credit_note" : "invoice",

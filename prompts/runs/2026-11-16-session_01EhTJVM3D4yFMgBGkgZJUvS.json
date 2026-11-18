@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVM3D4yFMgBGkgZJUvS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T13:27:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship 10: why a jittery slow wheel picks no ESC lag; the survey now trims outlier wheels",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 16580,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First built the on-board ESC-lag survey (the claimed item) for about an hour; PR #16574 from another session landed the same item first, with a better refinement (parabola: 27-28 ms for 30 ms against this run's finer grid's 25). That duplicate was dropped unmerged, and the PR was re-scoped to the next buildable item.",
+    "A pkill was refused by the bracket hook, which threw away a file edit in the same command line, so one 4-way sweep first ran unfiltered."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "At 13:01 allocate.py and claim_check.py listed only PR #16579 for open-tennis-robots, yet PR #16574 (the same item, landed while this run worked) was not listed. The cause is not known: search-index lag or a title edited after opening are guesses. Re-checking open and just-merged PRs on the slug an hour into a long item would have caught it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook refuses the whole compound command; an edit chained before it is lost silently. Run pkill on its own line."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Left the MIN_FIT_RPM retest undone; it is still in buildable.",
+      "did": "skipped",
+      "result": "still open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-open-tennis-robots-one-wheel-outvoted-the-drill.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (One wheel's misses outvoted the drill)"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py open-tennis-robots ok (218.9 s, 334 tests, 58 skipped for build123d), 1 suite, 0 failed. The cause: one wheel of 56 missing by 7,650 ppm against 120-830 for the rest outvoted them in the sum of squares. Rules on 102 builds (within 10%): sum 93 (5 zero picks), log 90, rel 98, trim 3/5/10 101/100/100 (0 zero picks). Held out on 72 builds (seeds 10-12, jitter plants): trim5 70 with no zero picks, sum 67 with 4. End to end, the failing build picks 99 ms, spin error +2.4% to +0.8%. eval/esc-survey-weight-2026-11-16.txt. Simulated only; ESP32 heap and time not measured.",
+  "corrections": [],
+  "redteam": null
+}

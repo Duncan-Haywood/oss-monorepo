@@ -1,0 +1,126 @@
+# Milestone 144: the one-clock blind designs at SKY130 ff_n40C_1v95 (40% utilisation) against their tt cells (flow run)
+
+theta = 3; milestone 141's seed-141 order over 52 designs
+
+complete designs (ORDER prefix): 27 of 52
+
+design | clock | base period ff/tt | routed/r2 tt | routed/r2 ff | tau-b routed tt vs ff | same best | random tt | SWC tt | random ff | SWC ff | d_tt | d_ff
+div8l | tight | 0.85 | 9.34 | 10.77 | 0.039 | False | 9.05 | 6.92 | 32.77 | 0.00 | -2.12 | -32.77
+div14l | relaxed | 0.73 | 7.88 | 9.42 | -0.000 | False | 3.78 | 0.00 | 23.81 | 0.00 | -3.78 | -23.81
+div10l | relaxed | 0.75 | 8.56 | 9.89 | 0.052 | False | 14.90 | 13.44 | 16.61 | 0.00 | -1.46 | -16.61
+clamp4r | tight | 1.01 | 4.90 | 5.60 | 0.275 | False | 2.94 | 0.00 | 16.11 | 0.00 | -2.94 | -16.11
+clamp2l | tight | 2.04 | 10.37 | 13.65 | 0.297 | False | 7.10 | 0.00 | 16.05 | 0.00 | -7.10 | -16.05
+div12l | tight | 0.70 | 8.09 | 9.64 | 0.038 | False | 8.93 | 11.88 | 13.35 | 1.64 | +2.95 | -11.71
+clamp4l | tight | 1.76 | 10.74 | 13.75 | 0.303 | False | 7.23 | 5.51 | 10.99 | 0.00 | -1.72 | -10.99
+isq14 | tight | 0.70 | 3.65 | 4.42 | 0.072 | False | 5.80 | 9.69 | 10.89 | 0.00 | +3.89 | -10.89
+gtc8l | tight | 1.07 | 5.10 | 6.54 | 0.465 | False | 4.98 | 0.00 | 9.65 | 0.00 | -4.98 | -9.65
+rng12r | relaxed | 0.70 | 5.79 | 7.35 | 0.256 | False | 6.89 | 0.00 | 9.35 | 0.00 | -6.89 | -9.35
+clamp3l | relaxed | 1.86 | 10.37 | 13.45 | 0.294 | False | 7.01 | 0.00 | 7.79 | 0.00 | -7.01 | -7.79
+div14r | relaxed | 0.70 | 3.62 | 4.30 | 0.170 | False | 5.51 | 3.80 | 7.79 | 0.00 | -1.70 | -7.79
+clamp2r | tight | 1.20 | 4.14 | 5.22 | 0.143 | False | 5.03 | 0.00 | 7.14 | 0.00 | -5.03 | -7.14
+gtc24r | relaxed | 0.84 | 4.94 | 5.28 | 0.300 | False | 6.17 | 0.00 | 6.82 | 0.00 | -6.17 | -6.82
+clamp6r | relaxed | 0.92 | 4.93 | 5.85 | 0.397 | False | 7.53 | 0.00 | 6.02 | 0.00 | -7.53 | -6.02
+rng8r | tight | 0.77 | 5.49 | 7.28 | 0.192 | False | 7.72 | 0.00 | 16.78 | 11.07 | -7.72 | -5.71
+clamp6l | relaxed | 1.56 | 10.78 | 13.92 | 0.330 | False | 9.12 | 0.00 | 5.62 | 0.00 | -9.12 | -5.62
+gtc8r | tight | 0.81 | 3.33 | 3.54 | 0.492 | False | 3.48 | 9.64 | 5.08 | 0.00 | +6.16 | -5.08
+rng6l | relaxed | 0.71 | 12.24 | 15.50 | 0.159 | False | 13.58 | 0.00 | 5.00 | 0.00 | -13.58 | -5.00
+gtc12r | relaxed | 0.66 | 3.84 | 4.54 | 0.251 | False | 1.41 | 0.00 | 2.45 | 0.00 | -1.41 | -2.45
+dot4l | tight | 0.34 | 8.08 | 9.07 | 0.311 | False | 1.02 | 0.03 | 5.26 | 6.02 | -0.99 | +0.77
+csum8 | tight | 0.69 | 4.83 | 5.48 | 0.095 | False | 2.94 | 2.94 | 3.76 | 4.70 | +0.00 | +0.95
+dot6r | relaxed | 1.18 | 3.99 | 4.20 | -0.023 | False | 5.17 | 0.00 | 7.00 | 8.23 | -5.17 | +1.23
+csum6 | relaxed | 0.71 | 4.39 | 5.13 | 0.044 | False | 3.44 | 0.00 | 7.23 | 9.16 | -3.44 | +1.92
+rng8l | tight | 0.64 | 12.42 | 15.30 | 0.328 | False | 15.08 | 9.24 | 4.72 | 9.47 | -5.84 | +4.75
+csum3 | relaxed | 0.82 | 4.97 | 4.91 | 0.031 | False | 4.51 | 0.00 | 9.56 | 25.92 | -4.51 | +16.36
+dot4r | tight | 0.60 | 3.93 | 4.14 | 0.056 | False | 1.24 | 1.36 | 4.05 | 32.46 | +0.12 | +28.41
+
+ff: mean regret SWC 4.03%, random 10.06%; SWC better on 20, worse on 7, tied on 0; two-sided sign p = 0.019157; design-bootstrap 95% interval of mean d_ff -10.06 to -1.14
+tt (40%, same designs): mean regret SWC 2.76%, random 6.35%; SWC better on 22, worse on 5, tied on 0; two-sided sign p = 0.0015
+SWC fails (loses by > 1 point): 3 designs at tt, 5 at ff
+median base period ff/tt: 0.77 (range 0.34 to 2.04)
+median routed/r2: 5.10 at tt, 6.54 at ff; ladder branch at ff: 27 of 27 (lowest 3.54)
+median tau-b of routed score, tt vs ff: 0.192 (range -0.023 to 0.492); same routed-best sequence on 0 of 27
+change d_ff - d_tt: mean -2.44 points, design-bootstrap 95% interval -6.84 to +2.29
+sign of d agrees on 19 of 27 designs untied at both corners
+
+## Families
+
+family | designs | mean d_tt | mean d_ff | SWC worse at ff
+isq | 1 | +3.89 | -10.89 | 0
+csum | 3 | -2.65 | +6.41 | 3
+div | 5 | -1.22 | -18.54 | 0
+clamp | 7 | -5.78 | -9.96 | 0
+rng | 4 | -8.51 | -3.83 | 1
+dot | 3 | -2.01 | +10.14 | 3
+gtc | 4 | -1.60 | -6.00 | 0
+
+## Ratio bands at ff (milestone 139's)
+
+band | cells | SWC % | random % | SWC better | SWC worse
+(3, 4] | 1 | 0.00 | 5.08 | 1 | 0
+(4, 6] | 12 | 6.71 | 7.40 | 7 | 5
+> 6 | 14 | 2.01 | 12.70 | 12 | 2
+
+## Three operating points, the 27 designs analysed at tt 40%, tt 65% and ff 40%
+
+point | mean regret SWC % | random % | SWC better | worse | sign p
+tt 40% | 2.76 | 6.35 | 22 | 5 | 0.0015
+tt 65% | 2.34 | 6.83 | 22 | 5 | 0.0015
+ff 40% | 4.03 | 10.06 | 20 | 7 | 0.0192
+SWC ahead at all three points on 15 designs, behind at all three on 1
+
+## Slow and fast corners, the 27 designs analysed at ss 40% and ff 40%
+
+median tau-b of routed score: tt vs ff 0.192, tt vs ss 0.335, ss vs ff 0.133
+sign of d agrees between ss and ff on 21 of 27 designs untied at both
+
+four points on the 27 designs analysed at all four:
+
+point | mean regret SWC % | random % | SWC better | worse | sign p
+tt 40% | 2.76 | 6.35 | 22 | 5 | 0.0015
+tt 65% | 2.34 | 6.83 | 22 | 5 | 0.0015
+ss 40% | 1.96 | 6.11 | 24 | 3 | 0.0000
+ff 40% | 4.03 | 10.06 | 20 | 7 | 0.0192
+SWC ahead at all four points on 14 designs, behind at all four on 0
+
+## Failed points
+
+design | usable points | ABC | pin placement | other OpenROAD
+rng8l | 103 | 17 | 0 | 0
+csum8 | 102 | 18 | 0 | 0
+clamp6r | 103 | 17 | 0 | 0
+dot6r | 103 | 17 | 0 | 0
+div10l | 103 | 17 | 0 | 0
+csum3 | 101 | 19 | 0 | 0
+clamp3l | 103 | 17 | 0 | 0
+dot4r | 103 | 17 | 0 | 0
+csum6 | 103 | 17 | 0 | 0
+gtc8l | 103 | 17 | 0 | 0
+gtc12r | 103 | 17 | 0 | 0
+clamp2r | 103 | 17 | 0 | 0
+div12l | 103 | 17 | 0 | 0
+clamp2l | 103 | 17 | 0 | 0
+clamp4l | 103 | 17 | 0 | 0
+dot4l | 103 | 17 | 0 | 0
+rng6l | 103 | 17 | 0 | 0
+gtc24r | 103 | 17 | 0 | 0
+div8l | 103 | 17 | 0 | 0
+rng8r | 103 | 17 | 0 | 0
+rng12r | 103 | 17 | 0 | 0
+clamp6l | 103 | 17 | 0 | 0
+gtc8r | 103 | 17 | 0 | 0
+isq14 | 103 | 17 | 0 | 0
+div14r | 102 | 18 | 0 | 0
+clamp4r | 103 | 17 | 0 | 0
+div14l | 103 | 17 | 0 | 0
+
+designs where SWC loses at ff: csum3, csum6, csum8, dot4l, dot4r, dot6r, rng8l
+
+## Predictions
+
+(1) every ff cell on the ladder branch: True (27 of 27)
+(2) PRIMARY: SWC better on more designs at ff and sign p < 0.05: True (20 better, 7 worse, p = 0.019157)
+(3) SWC mean regret below random at ff: True
+(4) median tau-b tt vs ff below 0.74: True (0.192)
+(5) median tau-b tt vs ff above tt vs ss on the designs analysed at both: False (0.192 against 0.335 on 27 designs)
+(6) sign agrees on at least two thirds of untied designs: True (19 of 27)
+(7) interval of d_ff - d_tt contains zero: True (-6.84 to +2.29)

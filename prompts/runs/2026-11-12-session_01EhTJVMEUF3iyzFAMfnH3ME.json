@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVMEUF3iyzFAMfnH3ME",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo...)",
+  "input_sha256": "e1c1e41c32df6a83470ddc9f0fb5b93a9945772a5546800c2284944dcc52e083",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T00:59:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship (b): pre-registered 4 log n drift penalty on sticky series",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 14948,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/drift-sticky-penalty.mjs",
+      "why": "Skipped venture-preflight: the change touches only an eval script, a test, README text and a post, not the venture's page or site surfaces.",
+      "did": "ran the venture's sticky/drift tests instead",
+      "result": "14 of 14 pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-stricter-penalty-cannot-see-a-small-freeze.md"
+  ],
+  "goal": null,
+  "notes": "No website requests open; allocate.py row 3 (changepoint-detector) taken since rows 1-2 had PRs under 24h old. The rule was committed in ad6c8a60 before the run. Verdict FAIL on R3 (frozen juice 5 of 8 freezes at 4 log n); R1 F1 0.381 vs 0.380, R2 cover 0.609 vs 0.524, R4 9 vs 67 cuts. TCPD fetched through the proxy without trouble. Post hoc: 3 log n leads on all TCPD groups, recorded in the flagship next: as a fresh-data test. Local: node --test on drift-sticky-why, drift-sticky, drift-sticky-penalty and frozen-juice-sticky pass 14/14.",
+  "corrections": [],
+  "redteam": null
+}

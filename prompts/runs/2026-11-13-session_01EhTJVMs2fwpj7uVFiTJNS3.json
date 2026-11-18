@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVMs2fwpj7uVFiTJNS3",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (revenue products); routed to creative/0",
+  "input_sha256": "16868dc8cab8a0cf906c4b0254cf05f2a19199b6054c874c27d64f4be6f84bdc",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T09:03:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "revision pass, Hearth & Horizon science fiction of 2026-11-12/13",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 15439,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 400 MB audio cap is justified by GitHub Pages' 1 GB limit, but the site is now served by Cloudflare Workers (20,000 files, 25 MiB per file, no 1 GB total). The remaining reasons are git history growth and the Pages fallback; the cap's rationale should be restated or the cap revisited, since every story since ~2026-11-08 is text only."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Chose a revision pass over a new story: the SF shelf had 300 stories, 5 published today, and no arithmetic re-check since 2026-11-10's pass (which found slips in most stories).",
+      "did": "Re-checked 12 stories (4 parallel reviewers + self), verified each fix against the text.",
+      "result": "20 fixes in 10 of 12 stories."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-hearth-and-horizon-second-revision-pass.md",
+    "docs/reports/hearth-and-horizon-revision-2026-11-13.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (science fiction shelf). Pieces revised: the-cold-chain, as-it-was, ninety-nine-years, one-point-eight-metres-an-hour, the-winters-in-the-ground, the-second-gas, the-stave-mill, the-colbert-oaks, the-fog-reads-eighty-nine, the-rule-that-counts-from-one; checked clean: the-top-water, two-metres. Verification: node generate.mjs (14 files), node --test stories.test.mjs usage.test.mjs 15/15 pass. Audio total 423 MB, over the 400 MB cap, so no audio.",
+  "corrections": [],
+  "redteam": null
+}

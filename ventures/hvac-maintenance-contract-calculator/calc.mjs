@@ -99,7 +99,7 @@ export function calculatePlan(input) {
   const monthlyPrice = annualPrice / 12;
   const annualProfit = annualPrice - annualCost;
   const totalTechnicianHours = visitsPerYear * laborHoursPerVisit + callbackVisitsPerYear * callbackHours;
-  const proposedPrice = input.proposedMonthlyPrice === '' || input.proposedMonthlyPrice == null
+  const proposedPrice = String(input.proposedMonthlyPrice ?? '').trim() === ''
     ? null : number(input.proposedMonthlyPrice, 'Monthly price being considered');
 
   const schedule = {

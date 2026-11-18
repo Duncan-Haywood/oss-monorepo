@@ -86,6 +86,16 @@ test('the findings each have their own banner, hidden by default', () => {
   assert.match(html, /id="headcountWarning" class="warn" hidden/);
   assert.match(html, /id="minimumWarning" class="warn" hidden/);
   assert.match(html, /id="fitsVerdict" class="good" hidden/);
+  assert.match(html, /id="lookWarning" class="warn" hidden/);
+});
+
+// Red team 2026-11-11: a look longer than the window must both raise its own
+// banner and keep the "can finish on time" verdict hidden.
+test('a look longer than the window shows its banner and suppresses the on-time verdict', () => {
+  const script = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  assert.match(script, /if \(r\.lookLongerThanWindow\) \{\s*el\('lookWarning'\)\.hidden = false;/);
+  assert.match(script, /const fits = [^;]*!r\.lookLongerThanWindow/);
+  assert.match(script, /for \(const id of \[[^\]]*'lookWarning'/);
 });
 
 test('the default booking needs exactly one additional artist, the case the copy describes', () => {

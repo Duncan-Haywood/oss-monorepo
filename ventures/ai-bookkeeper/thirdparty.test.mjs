@@ -170,7 +170,7 @@ test("a Czech 'Pohyby na uctu' text statement is read: blocks, wrapped notes rej
   // Blocks built to the layout of the ofxstatement-czech samples (values start at column 20); names and numbers are made up.
   const kv = (k, v) => (k + ":").padEnd(19) + v;
   const block = (date, amt, bal, type, name, acct, note) => [kv("datum zaúčtování", date), kv("částka", amt), kv("měna", "CZK"), kv("zůstatek", bal), kv("konstantní symbol", ""), kv("variabilní symbol", "0000000009"), kv("specifický symbol", ""), kv("označení operace", type), kv("název protiúčtu", name), kv("protiúčet", acct), kv("poznámka", note), "", ""].join("\r\n");
-  const text = "﻿Pohyby na účtu č.: 123456789, ze dne 18.03.2012 16:08\r\n\r\n" + [
+  const text = "\uFEFFPohyby na účtu č.: 123456789, ze dne 18.03.2012 16:08\r\n\r\n" + [
     block("14.3.2012", "1743.00", "2000.50", "Došlá platba", "ACME S.R.O.", "1000453303/3500", "SALARY PRAHA 5".padEnd(30)),
     block("12.3.2012", "-250.50", "257.50", "Odchozí platba", "TELCO", "500114004/2700", "INVOICE 36202" + "\r\n" + " ".repeat(19) + "45785"),
   ].join("\r\n");

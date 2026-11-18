@@ -33,7 +33,7 @@
 //   node platform/pages/roundtrip.mjs
 //
 //   # or against production once the owner flip lands:
-//   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/roundtrip.mjs
+//   BASE_URL=https://marisstella.app node platform/pages/roundtrip.mjs
 //
 //   node platform/pages/roundtrip.mjs shopify-fee-calculator etsy-profit-calculator
 //
@@ -48,6 +48,7 @@
 // PLAYWRIGHT overrides the module path for a global install; CHROME_PATH reuses
 // a Chromium already on the machine.
 
+import { loadPlaywright } from './load-playwright.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { onlySlugs, keepSlug, describeFilter, requireNonEmpty } from './only-slugs.mjs';
@@ -55,8 +56,8 @@ import { onlySlugs, keepSlug, describeFilter, requireNonEmpty } from './only-slu
 // Playwright ships CommonJS, so a PLAYWRIGHT naming its entry *file* resolves
 // the exports under `.default` while a bare specifier gives them directly.
 // Accept either — the same fix sweep.mjs and contrast.mjs carry.
-const playwright = await import(process.env.PLAYWRIGHT || 'playwright');
-const chromium = playwright.chromium ?? playwright.default?.chromium;
+const playwright = await loadPlaywright();
+const chromium = playwright?.chromium;
 if (!chromium) {
   console.error('Could not load Playwright. Set PLAYWRIGHT to its entry point, ' +
     'e.g. PLAYWRIGHT=./node_modules/playwright/index.js');

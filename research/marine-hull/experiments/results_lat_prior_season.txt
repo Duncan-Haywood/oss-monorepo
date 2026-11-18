@@ -1,0 +1,95 @@
+Milestone 6zzf: a latitude-dependent prior on the fitted yearly cosine's amplitude, 2005 to 2014 (50 W)
+climatology 2015 to 2024 x s(d); learn on the k years of the other half nearest the scored half, k in (1, 2, 3, 5); clamp (0.85, 1.15)
+high-amplitude points: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+bands: low P-20, P-10, P+0, P+10, P+20, A-20, A-10, A+0, A+10, A+20, Equator-Pacific (11); mid P-40, P-30, P+30, P+40, A-40, A-30, A+30, A+40, Florida-Straits, Gulf-of-Maine (10); high P-60, P-50, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+
+Prior sd of a component on the real shape, per k and scored half: fleet (LAP), per band (LB), and LL's line c0 + c1 |lat| (c1 per degree)
+  k=1 E: fleet 0.0284  low 0.0297 mid 0.0247 high 0.0307  line c0 0.000870 c1 -1.922e-06  sd at 0 / 30 / 60 deg 0.0295 / 0.0285 / 0.0275
+  k=1 L: fleet 0.0279  low 0.0204 mid 0.0135 high 0.0434  line c0 -0.000302 c1 3.371e-05  sd at 0 / 30 / 60 deg 0.0000 / 0.0266 / 0.0415
+  k=2 E: fleet 0.0201  low 0.0137 mid 0.0186 high 0.0271  line c0 0.000067 c1 1.054e-05  sd at 0 / 30 / 60 deg 0.0082 / 0.0196 / 0.0265
+  k=2 L: fleet 0.0256  low 0.0166 mid 0.0091 high 0.0420  line c0 -0.000346 c1 3.131e-05  sd at 0 / 30 / 60 deg 0.0000 / 0.0244 / 0.0391
+  k=3 E: fleet 0.0188  low 0.0067 mid 0.0181 high 0.0276  line c0 -0.000119 c1 1.477e-05  sd at 0 / 30 / 60 deg 0.0000 / 0.0180 / 0.0277
+  k=3 L: fleet 0.0246  low 0.0104 mid 0.0115 high 0.0418  line c0 -0.000550 c1 3.608e-05  sd at 0 / 30 / 60 deg 0.0000 / 0.0231 / 0.0402
+  k=5 E: fleet 0.0210  low 0.0000 mid 0.0159 high 0.0347  line c0 -0.000378 c1 2.552e-05  sd at 0 / 30 / 60 deg 0.0000 / 0.0197 / 0.0340
+  k=5 L: fleet 0.0244  low 0.0113 mid 0.0140 high 0.0401  line c0 -0.000430 c1 3.193e-05  sd at 0 / 30 / 60 deg 0.0000 / 0.0230 / 0.0385
+
+Median w on the real shape per k and band (LAP / LB / LL)
+  k=1: low 0.782 / 0.726 / 0.675  mid 0.570 / 0.420 / 0.605  high 0.526 / 0.633 / 0.595
+  k=2: low 0.776 / 0.600 / 0.471  mid 0.632 / 0.356 / 0.639  high 0.576 / 0.727 / 0.708
+  k=3: low 0.828 / 0.420 / 0.178  mid 0.682 / 0.519 / 0.696  high 0.639 / 0.799 / 0.778
+  k=5: low 0.890 / 0.217 / 0.000  mid 0.787 / 0.619 / 0.817  high 0.766 / 0.900 / 0.870
+
+Dominance counts, all 30 points
+  group              |  AT_90 |  LAP_1 |  LAP_2 |  LAP_3 |  LAP_5 |   LB_1 |   LB_2 |   LB_3 |   LB_5 |   LL_1 |   LL_2 |   LL_3 |   LL_5
+  real (of 8)        |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8 |      8
+  flat s0 (of 32)    |     27 |     24 |     27 |     28 |     30 |     24 |     27 |     28 |     30 |     23 |     26 |     28 |     28
+  combined (of 128)  |    104 |    100 |    108 |    115 |    123 |    101 |    108 |    115 |    124 |     99 |    107 |    115 |    123
+  all (of 168)       |    139 |    132 |    143 |    151 |    161 |    133 |    143 |    151 |    162 |    130 |    141 |    151 |    159
+
+Dominance counts, high-amplitude points only (9)
+  group              |  AT_90 |  LAP_1 |  LAP_2 |  LAP_3 |  LAP_5 |   LB_1 |   LB_2 |   LB_3 |   LB_5 |   LL_1 |   LL_2 |   LL_3 |   LL_5
+  real (of 8)        |      1 |      2 |      3 |      3 |      4 |      2 |      3 |      2 |      3 |      2 |      3 |      3 |      4
+  flat s0 (of 32)    |      6 |     10 |     14 |      8 |     14 |     10 |     10 |      8 |     14 |     10 |     14 |      8 |     14
+  combined (of 128)  |     18 |     42 |     69 |     48 |     67 |     53 |     65 |     49 |     64 |     43 |     62 |     48 |     67
+  all (of 168)       |     25 |     54 |     86 |     59 |     85 |     65 |     78 |     59 |     81 |     55 |     79 |     59 |     85
+
+Dominance counts over 168 pooled cells, each band's points only
+  band |  AT_90 |  LAP_1 |  LAP_2 |  LAP_3 |  LAP_5 |   LB_1 |   LB_2 |   LB_3 |   LB_5 |   LL_1 |   LL_2 |   LL_3 |   LL_5
+  low  |    120 |    123 |    128 |    140 |    148 |    123 |    128 |    138 |    145 |    121 |    129 |    140 |    147
+  mid  |    124 |    109 |    105 |    109 |    115 |    107 |    107 |    112 |    116 |    109 |    104 |    109 |    116
+  high |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0 |      0
+
+Real shape, all 30 points, per pooled cell: km/B ex/B dominates
+  half  kWh |  AT_90 km/B ex/B d |  LAP_1 km/B ex/B d |   LB_1 km/B ex/B d |   LL_1 km/B ex/B d |   LB_2 km/B ex/B d
+  E     2.5 |      1.0258 0.59 y |      1.0018 0.57 y |      1.0002 0.56 y |      1.0015 0.57 y |      1.0155 0.57 y
+  E     5.0 |      1.0740 0.77 y |      1.0646 0.75 y |      1.0633 0.75 y |      1.0647 0.75 y |      1.0772 0.75 y
+  E    10.0 |      1.1179 0.90 y |      1.1047 0.77 y |      1.1020 0.75 y |      1.1043 0.77 y |      1.1184 0.71 y
+  E    20.0 |      1.1321 0.90 y |      1.1225 0.57 y |      1.1205 0.55 y |      1.1225 0.57 y |      1.1253 0.61 y
+  L     2.5 |      1.0392 0.62 y |      1.0407 0.63 y |      1.0402 0.63 y |      1.0447 0.64 y |      1.0401 0.63 y
+  L     5.0 |      1.0929 0.81 y |      1.1009 0.81 y |      1.0994 0.81 y |      1.1034 0.84 y |      1.0941 0.82 y
+  L    10.0 |      1.1182 0.74 y |      1.1326 0.89 y |      1.1280 0.87 y |      1.1362 0.94 y |      1.1212 0.84 y
+  L    20.0 |      1.1146 0.76 y |      1.0906 0.74 y |      1.0926 0.74 y |      1.1030 0.84 y |      1.1108 0.75 y
+
+Real shape, high-amplitude points (9), per pooled cell: km/B ex/B dominates
+  half  kWh |  AT_90 km/B ex/B d |  LAP_1 km/B ex/B d |   LB_1 km/B ex/B d |   LL_1 km/B ex/B d |   LB_2 km/B ex/B d
+  E     2.5 |      0.8728 0.36 n |      0.9477 0.42 n |      0.9384 0.42 n |      0.9474 0.42 n |      0.9432 0.42 n
+  E     5.0 |      0.9307 0.49 n |      1.0559 0.55 y |      1.0404 0.53 y |      1.0579 0.55 y |      1.0492 0.52 y
+  E    10.0 |      0.9526 0.37 n |      1.1304 0.45 y |      1.1101 0.44 y |      1.1308 0.45 y |      1.1304 0.46 y
+  E    20.0 |      0.7966 0.37 n |      0.9241 0.45 n |      0.9071 0.44 n |      0.9245 0.45 n |      0.9274 0.46 n
+  L     2.5 |      0.9546 0.40 n |      0.9543 0.41 n |      0.9549 0.40 n |      0.9611 0.42 n |      0.9602 0.41 n
+  L     5.0 |      1.0011 0.33 y |      0.9817 0.32 n |      0.9840 0.32 n |      0.9852 0.32 n |      1.0002 0.34 y
+  L    10.0 |      0.9382 0.20 n |      0.9041 0.17 n |      0.9263 0.18 n |      0.9073 0.17 n |      0.9413 0.19 n
+  L    20.0 |      0.8686 0.20 n |      0.8447 0.17 n |      0.8457 0.18 n |      0.8457 0.17 n |      0.8592 0.19 n
+
+Per-point real-shape cells (point x half x pack, summed over the half's five years): dominance counts
+  set                |  AT_90 |  LAP_1 |  LAP_2 |  LAP_3 |  LAP_5 |   LB_1 |   LB_2 |   LB_3 |   LB_5 |   LL_1 |   LL_2 |   LL_3 |   LL_5
+  all 30 (of 240)    |    126 |    134 |    137 |    142 |    142 |    135 |    135 |    142 |    140 |    135 |    137 |    141 |    139
+  high-amp (of  72)  |     43 |     45 |     48 |     47 |     48 |     45 |     46 |     47 |     46 |     45 |     48 |     47 |     48
+
+km/B over the 168 pooled cells: n >= 1.0, min
+  AT_90 : 152 0.9549
+  LAP_1 : 158 0.9872
+  LAP_2 : 167 0.9994
+  LAP_3 : 168 1.0028
+  LAP_5 : 168 1.0044
+  LB_1  : 158 0.9868
+  LB_2  : 168 1.0000
+  LB_3  : 168 1.0037
+  LB_5  : 168 1.0048
+  LL_1  : 158 0.9868
+  LL_2  : 167 0.9998
+  LL_3  : 168 1.0026
+  LL_5  : 168 1.0037
+
+Check: LAP_k 168-cell counts 132 / 143 / 151 / 161 (6zze: 132 / 143 / 151 / 161); AT_90 139 (6zze: 139)
+
+Predictions
+F1 LB_1 >= 132 of 168: held (133; LAP_1 132, AT_90 139)
+F2 LB_1 >= 139 of 168: refuted (133)
+F3 LB_1 > 54 of 168 at high-amplitude points: held (LB_1 65, LL_1 55, LAP_1 54, AT_90 25)
+F4 LB_1 >= 75 of 168 at high-amplitude points: refuted (65)
+F5 LB_1 >= 136 of 240 per-point real-shape cells: refuted (LB_1 135, LL_1 135, LAP_1 134, AT_90 126)
+F6 LL_1 >= 132 of 168: refuted (130)
+F7 LB_1 8 of 8 real shape: held (8)
+F8 LB_2 >= 143 of 168: held (143; LAP_2 143)
+F9 high-band prior sd > low-band at k = 1, both halves: held (E high 0.0307 low 0.0297; L high 0.0434 low 0.0204)

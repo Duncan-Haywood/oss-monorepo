@@ -1,0 +1,237 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/eda-deepdraw",
+ "stratum": "research",
+ "seed": "2026-11-17-e87b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior ASIC design-verification engineer (UVM/formal sign-off) who also reviews mutation-testing papers (ICST/DATE); first checks: open the waveform or raw simulator output of the one anomalous mutant instead of theorising about it, check how the scoreboard treats X values, read the RTL diff of every undecided mutant before spending simulation on it, state the observation model (which ports, which cycles are compared), and ask whether a 0-in-n bound says anything an RTL reading would not",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Installed Icarus 12.0 (`sudo apt-get update && sudo apt-get install -y iverilog`) and re-ran the subject's own draw() for all 26 targets into scratch (26 rows; id, formal verdict and first index identical to draws.jsonl, 25 first=null, del@122 first=1990). Copied analyse.py and draws.jsonl to scratch and ran `python3 -I analyse.py`: results.txt byte-identical. C1 (pass): own Clopper-Pearson bisection on (1-p)^n=0.05, no subject import (`python3 -I bound.py`): 0.002338/0.000913/0.000477/0.000266/0.000141 at n=1280..21280, matching results.txt block B; 1280->21280 tightening 16.6x ('about sixteen-fold'); 21280/2^32 = 4.95e-6 ('5 x 10^-6'). C2 (pass): an independent oracle that diffs raw vvp output lines of the mutant against the golden RTL (no integer reference, no subject checker) on 4,000 fresh uniform (seed 2026), 4,000 corner-biased and 4,000 sparse vectors per target (25 survivors identical to golden on all 12,000 vectors; del@122 differs at vector 0 in all three streams). C3 (fail, high): the del@122 'truncation' claim. Ran the mutant on the subject's own first 2,000 vectors (seed 777) and counted rows (`rows2000.py`): 2,000 OUT lines, not 1,990; done = x on the first 10 rows and 1 on the other 1,990; latency 1 cycle on all 2,000 (golden: gen.cycles(8) = 20). The deleted line is `done <= 0;` (golden line 122), so done is X until the first inference and then never clears. eda-verify's checker regex `OUT (\\d+) (\\d) (\\d+)` (eda-verify/src/eda_verify/checks.py:54) silently drops the 10 X rows and line 55 then returns the row count, 1990. The mutant is wrong on every vector from vector 0, which the raw diff confirms (first mismatch 0 in all three streams). The README's 'returns 10 fewer output rows than vectors, not a wrong value' and analyse.py's classification 'truncation, not a detection' are both false. C4 (pass): per-cycle observation of y and done (`everycycle.py`, 50 vectors) for the 9 formal timeouts: 8 differ from golden in no cycle; lit@123 nxt<=1 (reset value of nxt) differs on the raw y port in 12 cycles before the first inference completes, a difference the done-sampled checker can never see. RTL reading agrees: the six lit@123 mutants change reset values that IDLE overwrites on start, lit@137:4+1 and op@137 write nxt[4], which is outside y and rewritten before reuse, op@135 adds an iteration j=P whose guard n<8 / n<4 is always false. The headline 'none of the 25 caught' is right; the one anomaly it explains is explained wrongly. Capped at 2 for a false stated result.",
+  "completeness": "Claimed artefacts, each run: run.py reproduces draws.jsonl ids, verdicts and first indices (26 rows; id, formal verdict and first index identical to draws.jsonl, 25 first=null, del@122 first=1990); analyse.py regenerates results.txt byte-identically; 4-test suite passes; live page https://marisstella.app/research/eda-deepdraw/ returns 200 and carries the summary; figure exists. Runtime claim 'about 12 minutes on 4 cores': draws.jsonl sums 507 CPU-s (about 2 min wall on 4 cores), so the README overstates it. Everything the README says was done was done; the stated next step 'inspect the del@122 output rows' is the step that would have changed the result, and it takes one command.",
+  "verification": "`cd research/eda-deepdraw && /usr/bin/python3.13 -m unittest discover -s tests -v`: Ran 4 tests in 0.004s OK. The tests read the committed draws.jsonl and check its counts, so they test the log, not the code; run.py (targets filter, draw loop, chunk offset) has no test at all. Four mutants with platform/ci/quality_mutate.py: 1 caught (p_upper exponent 1/n -> 2/n), 3 survived: PRIOR 20*64 -> 20*32 (every block-B row and the 1.4e-4 headline change), is_truncation '== CHUNK - STALL_LOSS' -> '>= CHUNK - 4*STALL_LOSS' (classifies any late mismatch as truncation), and run.py SEED 777 -> 778. No test pins results.txt to analyse.py output, and no test exercises the checker on a mutant whose output contains X.",
+  "craft": "Read run.py (71 lines), analyse.py (58), figure.py, test_deepdraw.py, pyproject.toml, and eda-verify/src/eda_verify/checks.py (the checker it depends on). Small and readable; regeneration asserts each id against the committed log, which is good practice. Defects: draws.jsonl records only the id, and six distinct mutants share id lit@123:0+1 (and two share lit@151:1+1), so rows cannot be traced to a site without re-running (add the eda-verify index i); STALL_LOSS = 10 hard-codes a guessed failure mode into the classifier (analyse.py:10, 22-25) instead of fixing or reporting the checker; the inherited checker drops non-numeric (X/Z) rows without a warning and then reports a row count as a vector index (checks.py:54-56); src/eda_deepdraw/__init__.py is empty and the package holds no code; star-import-free but tests import experiments/ by sys.path.",
+  "claims": "Backed: 26 targets (16 equivalent, 9 undecided, del@122), none of 25 caught (draws.jsonl, re-run), bound 1.41e-4 and the 16-fold tightening (recomputed), 5e-6 of input space (recomputed), 'consistency, not independent proof' and 'upper bound, does not show these 9 are equivalent' (correctly hedged). Not backed or false: README:27 and the project.json summary on the live page 'returns 10 fewer output rows than vectors, not a wrong value' / 'consistent with truncated output rather than a wrong value' (false: 2,000 rows, all wrong); 'This fits the truncation explanation eda-detectprob suggested' (it does not; the explanation is an X-dropping parser); 'The analysis counts it as truncation, not a detection' is stated as a method choice but is a misclassification of a mutant eda-verify itself counts killable (directed_first 6); 'about 12 minutes on 4 cores' vs 507 CPU-s logged. No external prior work is cited at all (no rule-of-three, mutation-testing or equivalent-mutant reference).",
+  "fitness": "A researcher building on this gets a correct 0-in-n bound and a regenerated mutant list, but the question it answers was settled more cheaply: the 9 'undecided' mutants are reset-value and out-of-range-index edits that a 10-minute RTL reading (or the per-cycle simulation above) shows are unobservable at the done-sampled port, so their per-vector detection probability is 0 by construction, and the README's next step (a biased generator against them) cannot succeed. Nearest prior work, all uncited: the equivalent-mutant problem (Budd and Angluin 1982; Offutt and Craft 1994; Madeyski et al., IEEE TSE 2014 survey) and Trivial Compiler Equivalence (Papadakis et al., ICSE 2015) for detecting equivalents cheaply; the zero-failure bound (Hanley and Lippman-Hand, JAMA 1983, rule of three) and random-testing reliability (Duran and Ntafos, IEEE TSE 1984; Hamlet, 'Probable correctness theory', 1987). Applying a textbook 3/n bound to 25 mutants is not new. Not a PROGRAMMES.md programme step.",
+  "domain": "A DV engineer departs from this method at the first step: an anomaly is debugged by looking at the simulator's output, not by matching a numeric coincidence (54 = 64-10, 1990 = 2000-10) to a hypothesis, and a scoreboard that silently drops X rows is a testbench bug that sign-off would reject (X on done after reset is itself a reset bug every lint tool flags). The per-vector detection model also omits the observation model: what is compared is y and latency only at done, so a mutant that changes y outside done (lit@123 nxt<=1, differs in 12 cycles) is 'never detected' for a reason no vector count can change, and the write-up should say detection is relative to that observation point. Uniform-only stimulus and a single stream are stated limits. Sound: the bound itself, the seeded and asserted regeneration, and the hedging of the equivalence claims."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "95% upper bound on per-vector detection probability at n = 1280, 3280, 6280, 11280, 21280 clean vectors, and the 16-fold tightening",
+   "method": "own Clopper-Pearson bisection on (1-p)^n = 0.05, no subject import",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/eda-deepdraw/bound.py",
+   "expected": "results.txt block B: 0.002338/0.000913/0.000477/0.000266/0.000141; 'about sixteen-fold'",
+   "observed": "0.002338/0.000913/0.000477/0.000266/0.000141; ratio 16.6",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "share of the 2^32 input space covered by 21,280 vectors",
+   "method": "by hand: 21280 / 2^32",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/eda-deepdraw/bound.py",
+   "expected": "5 x 10^-6 (README:33)",
+   "observed": "4.95e-6",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "none of the 25 survivors is caught, under an oracle the author did not write",
+   "method": "differential simulation: raw vvp OUT lines of mutant vs golden RTL (no integer reference model, no eda-verify checker) on 4,000 fresh uniform (seed 2026), 4,000 corner-biased and 4,000 sparse vectors each",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/eda-deepdraw/diffsim.py 4000",
+   "expected": "25 survivors never differ; del@122 differs",
+   "observed": "25 of 25 survivors identical on all 12,000 vectors (uniform, corner, sparse); del@122 first difference at vector 0 in all three",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "del@122:delete returns 10 fewer output rows than vectors, not a wrong value (README:27, project.json summary)",
+   "method": "run the regenerated mutant in Icarus on the subject's own first 2,000 vectors (seed 777) and count and read the raw OUT rows",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/eda-deepdraw/rows2000.py",
+   "expected": "1,990 OUT rows, correct values",
+   "observed": "OUT lines 2000, regex-parsed 1990; done x on 10 rows, 1 on 1990; latency 1 on all 2000 (golden 20). The deleted line is 'done <= 0;' and the checker regex drops the X rows",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "the 9 formal timeouts are unobservable at the checker's observation point (supports 'stay clean')",
+   "method": "per-cycle $display of done and y for golden vs each undecided mutant, 50 vectors, plus reading each RTL diff",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/eda-deepdraw/everycycle.py",
+   "expected": "no difference when done = 1",
+   "observed": "8 of 9 differ in no cycle; lit@123 nxt<=1 differs on raw y in 12 cycles before the first done, never at done; del@122 differs in 101 cycles",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py reproduces draws.jsonl",
+   "method": "re-run the subject's draw() for all 26 targets into scratch and compare id, formal and first",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/eda-deepdraw/rerun.py",
+   "expected": "26 rows, 25 first=null, del@122 first=1990",
+   "observed": "26 rows; (id, formal, first) list identical to draws.jsonl; 25 null, del@122 1990",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "analyse.py reproduces results.txt",
+   "method": "copy analyse.py and draws.jsonl to scratch, run, diff",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/5b82a73b-8972-5197-92b7-4f4eb75fbae4/scratchpad/eda-deepdraw/an && python3 -I analyse.py >/dev/null && diff results.txt /home/user/oss-monorepo/research/eda-deepdraw/experiments/results.txt && echo IDENTICAL",
+   "expected": "no diff",
+   "observed": "IDENTICAL",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "load",
+   "command": "curl -sS -o live.html -w '%{http_code}' https://marisstella.app/research/eda-deepdraw/",
+   "expected": "200 with summary",
+   "observed": "200; summary carries the 'truncated output rather than a wrong value' sentence",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/eda-deepdraw && /usr/bin/python3.13 -m unittest discover -s tests -v",
+   "expected": "passes and exercises run.py/analyse.py logic",
+   "observed": "Ran 4 tests in 0.004s OK; tests read the committed log; run.py untested",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "seeded mutants in core logic",
+   "method": "platform/ci/quality_mutate.py, 4 mutants",
+   "command": "python3 platform/ci/quality_mutate.py research/eda-deepdraw/experiments/analyse.py --old 'PRIOR = 20 * 64' --new 'PRIOR = 20 * 32' -- /usr/bin/python3.13 -m unittest discover -s tests",
+   "expected": "every mutant caught",
+   "observed": "1 caught, 3 survived (PRIOR, is_truncation threshold, run.py SEED)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'about 12 minutes on 4 cores' (README Reproduce)",
+   "method": "sum the seconds field of the committed log",
+   "command": "python3 -c \"import json;print(sum(json.loads(l)['seconds'] for l in open('research/eda-deepdraw/experiments/draws.jsonl')))\"",
+   "expected": "about 2,880 CPU-s",
+   "observed": "507 CPU-s (about 2 min wall on 4 cores)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "hedges on the equivalence and the 9 timeouts",
+   "method": "read README:26 and compare with what was run",
+   "command": "sed -n 25,27p research/eda-deepdraw/README.md",
+   "expected": "consistency not proof; bound not equivalence",
+   "observed": "both stated correctly",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work cited and novelty",
+   "method": "read README for references; compare with rule of three (Hanley and Lippman-Hand 1983), Duran and Ntafos 1984, equivalent-mutant literature (Offutt and Craft 1994, Madeyski et al. 2014, Papadakis et al. 2015)",
+   "command": "grep -n -i 'et al\\|19[0-9][0-9]\\|20[0-2][0-9]' research/eda-deepdraw/README.md",
+   "expected": "related work",
+   "observed": "no external references; only sibling repo projects",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "anomaly debugged from simulator output, X handling in the scoreboard",
+   "method": "compare with DV practice (inspect waveform/log; X on a control output is a failure)",
+   "command": "sed -n 54,56p research/eda-verify/src/eda_verify/checks.py",
+   "expected": "X rows reported as a mismatch at their index",
+   "observed": "regex drops X rows; row count returned as a vector index; the project built a classifier (STALL_LOSS) on the artefact",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "experiments/analyse.py:8",
+   "change": "PRIOR = 20 * 64 -> PRIOR = 20 * 32",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/analyse.py:19",
+   "change": "return 1 - (1 - conf) ** (1.0 / trials) -> return 1 - (1 - conf) ** (2.0 / trials)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/analyse.py:25",
+   "change": "r[\"first\"] % CHUNK == CHUNK - STALL_LOSS -> r[\"first\"] % CHUNK >= CHUNK - 4 * STALL_LOSS",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:23",
+   "change": "SEED = 777 -> SEED = 778",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The one anomaly is explained wrongly: del@122:delete (deletes 'done <= 0;') prints all 2,000 OUT rows, done is X on the first 10 and 1 on the rest, latency 1 cycle on every vector (golden 20). The eda-verify checker's regex drops the 10 X rows and returns the row count 1990 as a vector index. README and the live summary say it 'returns 10 fewer output rows than vectors, not a wrong value', consistent with truncation; in fact it is wrong on every vector from vector 0.",
+   "where": "research/eda-deepdraw/README.md:27",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
+  },
+  {
+   "severity": "medium",
+   "what": "analyse.py hard-codes the misdiagnosis (STALL_LOSS = 10, is_truncation) and classifies a mutant eda-verify itself counts killable (directed_first 6) as 'truncation, not a detection'; the inherited checker silently drops X/Z rows and reports a row count as a first-mismatch index.",
+   "where": "research/eda-deepdraw/experiments/analyse.py:10",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests read the committed log, not the code: run.py has no test, no test pins results.txt, and 3 of 4 seeded mutants survive (PRIOR halved changes every bound row; widened truncation window; changed SEED).",
+   "where": "research/eda-deepdraw/tests/test_deepdraw.py:21-29",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Research design: 20,000 simulations were spent bounding 9 'undecided' mutants that an RTL reading shows are reset-value or out-of-range-index edits unobservable at the done-sampled port (per-cycle simulation: 8 never differ, lit@123 nxt<=1 differs only outside done), so the bound adds nothing and the next step (biased generator against them) cannot succeed; the observation model (y and latency compared only at done) is never stated.",
+   "where": "research/eda-deepdraw/README.md:37",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work cited: rule of three / zero-failure bounds (Hanley and Lippman-Hand 1983), random-testing reliability (Duran and Ntafos 1984; Hamlet 1987), equivalent-mutant detection (Offutt and Craft 1994; Madeyski et al. 2014; Papadakis et al. 2015, TCE).",
+   "where": "research/eda-deepdraw/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "draws.jsonl records only the mutant id; six distinct mutants share lit@123:0+1 and two share lit@151:1+1, so rows cannot be traced to a site (add eda-verify's index i).",
+   "where": "research/eda-deepdraw/experiments/run.py:61",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'about 12 minutes on 4 cores': the committed log sums 507 CPU-s, about 2 minutes wall on 4 cores.",
+   "where": "research/eda-deepdraw/README.md:18",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16857"],
+ "verdict": "The arithmetic is right and the headline holds: the 0-in-n bound (0.002338 down to 0.000141, 16.6x) matches an independent Clopper-Pearson calculation, analyse.py regenerates results.txt byte for byte, re-running run.py reproduces every row of draws.jsonl, and a golden-vs-mutant raw diff on 12,000 fresh vectors (uniform, corner-biased and sparse) finds no difference for any of the 25 survivors. The project's one explanatory finding is false. del@122:delete deletes 'done <= 0;'. It prints all 2,000 rows, done is X on the first 10, and latency is 1 cycle instead of 20 on every vector. The inherited checker's regex drops the X rows and reports the row count as a vector index, so '10 fewer output rows, not a wrong value' is an artefact of the parser, and analyse.py builds a classifier on it. Running one command on the simulator output would have shown this, and the README lists that step as future work. The 9 timeouts are reset-value and out-of-range-index edits that an RTL reading shows cannot be seen at the done-sampled port, so the 20,000-vector bound adds little and the proposed biased generator cannot help. Three of four seeded mutants survive tests that read the committed log, and no prior work is cited. Not at the bar on correctness, claims, verification, fitness or domain."
+}

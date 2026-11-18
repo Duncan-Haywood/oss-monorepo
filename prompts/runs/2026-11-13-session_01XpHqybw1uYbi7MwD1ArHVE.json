@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqybw1uYbi7MwD1ArHVE",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T00:38:02Z",
+  "ended": "2026-11-13T00:45:37Z",
+  "wall_minutes": 7.82,
+  "tokens_in": 8208816,
+  "tokens_out": 29255,
+  "cost_usd": 3.2612,
+  "tool_calls": 85,
+  "task": "Polish (AEO): answer-first sourced, dated leads on etsy-profit-calculator and wage-garnishment-limit-calculator, bound to the calc modules by test",
+  "projects": [
+    "ventures/etsy-profit-calculator",
+    "ventures/wage-garnishment-limit-calculator",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15313",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Post description was 163 characters; writing.test.mjs caps it at 160",
+      "fix": "shortened before commit"
+    },
+    {
+      "what": "First blog-post screenshot hit a 404: I guessed the post URL with its date prefix",
+      "fix": "writing/ URLs drop the date; re-shot"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to screenshot the hub, but the hub's stat tiles count up for 1.4 s; a capture 400 ms after load shows partial counts (738 under a 1,345 label) that look like a data bug. Worth one line: wait about 1.5 s or emulate reduced motion."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "A local build without PAGES_BASE_URL still writes the retired github.io origin into every llms.txt, canonical and sitemap (PR #14596 is open but unmerged), so an llms.txt audit on a local build reports about 1,300 false positives. It cost a live-site probe to rule out."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-etsy-fees-and-garnishment-limits-stated-plainly.md",
+    "docs/reports/polish-2026-11-13-answer-leads-etsy-garnishment.md"
+  ],
+  "goal": null,
+  "notes": "Full local build (9,027 pages) and screenshots of the hub, wall-framing-takeoff, research, stories and a post at 390/1280: no sideways scroll; two apparent defects (hub count mismatch, github.io in llms.txt) checked and ruled out. Sources fetched 2026-11-13: help.etsy.com 360035902374 and 115015628847 (US 3% + 0.25 USD), dol.gov WHD Fact Sheet #30 table. Walmart skipped: its rates are illustrative in code. Local checks: answer-lead.test.mjs 50/50, etsy-profit-calculator 196/196, wage-garnishment-limit-calculator 40/40, writing.test.mjs 37/37, check_post_frontmatter and check_post_links OK; run_workflow_locally --for-changes: 21 run: steps ok, 0 failed; 2 pages.yml steps UNRUN (they need the skipped 'Build the site' output), secret-reading jobs held.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "47db6e1f-5a33-52a3-8e10-3584f7608e31",
+    "transcripts": 1,
+    "first": "2026-11-13T00:38:02Z",
+    "last": "2026-11-13T00:45:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 141,
+        "output": 29255,
+        "thinking": 5777,
+        "cache_read": 8076138,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132537,
+        "api_equivalent_usd": 3.2612,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 141,
+      "output": 29255,
+      "thinking": 5777,
+      "cache_read": 8076138,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132537,
+      "api_equivalent_usd": 3.2612,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 72,
+      "Read": 9,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.82,
+      "active_minutes": 7.82,
+      "model_minutes": 4.97,
+      "tool_minutes": 2.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "survey of five front-door pages from a full build, two primary-source checks, two sourced leads with tests, llms.txt, post and report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 122.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

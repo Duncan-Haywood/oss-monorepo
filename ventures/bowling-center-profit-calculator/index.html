@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">BOWLING CENTER PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>What share of its lane-hours does a bowling center need to sell to break even, and how much cash does the ramp-up eat?</h1>
+    <h1>What share of its lane-hours does a bowling center need to sell to break even?</h1>
     <p>Enter your lanes, opening hours, peak and off-peak prices and how full each is, leagues, parties and events, food and drink, staff, rent and a loan. You get <strong>monthly profit</strong> at planned bookings, <strong>break-even lane-hours and utilization</strong>, the <strong>price change that hits your target margin</strong>, a table showing what <strong>slower bookings, price changes and wage rises</strong> do to profit, a sixty-month ramp-up with the <strong>cash reserve</strong> and <strong>payback</strong>, and loan coverage.</p>
     <p class="note">It works from your own figures. It does not know how many bowlers live near your site, what competing centers charge, or whether your building can be licensed for it.</p>
   </header>
@@ -170,7 +170,7 @@
     let last = null;
     const map = { lanes: "lanes", hoursweekday: "hoursWeekday", hoursweekend: "hoursWeekend", peakshare: "peakShare", peakutil: "peakUtil", offutil: "offUtil", peakprice: "peakPrice", offprice: "offPrice", leaguepct: "leaguePct", leaguediscount: "leagueDiscount", feespct: "feesPct", bowlersperhour: "bowlersPerHour", fbspend: "fbSpend", fbcogspct: "fbCogsPct", arcadeperhour: "arcadePerHour", arcademarginpct: "arcadeMarginPct", perhourcost: "perHourCost", partiesweek: "partiesWeek", partyprice: "partyPrice", partycostpct: "partyCostPct", staffhours: "staffHours", wage: "wage", burdenpct: "burdenPct", rentmonthly: "rentMonthly", utilitiesmonthly: "utilitiesMonthly", insuranceyear: "insuranceYear", marketingmonthly: "marketingMonthly", managermonthly: "managerMonthly", othermonthly: "otherMonthly", lanecost: "laneCost", fitout: "fitout", barkitchen: "barkitchen", launch: "launch", depositmonths: "depositMonths", contingencypct: "contingencyPct", startpct: "startPct", rampmonths: "rampMonths", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", targetmargin: "targetMargin" };
     const IDLE = "Fill in your center, then click Work out the center. The number of lanes, opening hours and a peak price are required; the rest default to zero or the neutral choice.";
-    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
     const pct = (n) => (n * 100).toFixed(1) + "%";
     const sgn = (n) => (n > 0 ? "+" : "") + n + "%";
     const cells = (x) => `<td class="n">${whole(x.profit)}</td><td class="n">${x.margin === null ? "n/a" : pct(x.margin)}</td><td class="n">${whole(x.cash)}</td>`;

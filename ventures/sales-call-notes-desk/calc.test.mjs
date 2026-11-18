@@ -113,3 +113,10 @@ test("empty or non-string input never throws", () => {
     assert.ok(followUpEmail(t, {}).body.length > 20);
   }
 });
+
+test("'in N months' clamps to the target month's last day", () => {
+  assert.equal(parseDue("in 1 month", "2026-01-31"), "2026-02-28"); // was 2026-03-03
+  assert.equal(parseDue("in 1 month", "2028-01-31"), "2028-02-29");
+  assert.equal(parseDue("in 3 months", "2026-10-31"), "2027-01-31");
+  assert.equal(parseDue("in 2 months", "2026-10-17"), "2026-12-17");
+});

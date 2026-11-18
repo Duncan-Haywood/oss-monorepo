@@ -31,7 +31,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #3f4c59; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #8a2f0c; }
     .pill.medium { background: #fdf0d5; color: #6b500c; }
@@ -154,7 +154,7 @@
       const e = estimate(read());
       if (e.error) { $("#status").textContent = e.error; $("#report").hidden = true; return false; }
       const h = e.here;
-      $("#findings").innerHTML = e.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#findings").innerHTML = e.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#one").textContent = `${h.hours} hours door to door (${h.driveMin} min each way). Loaded cost ${money(h.cost)}: vehicle ${money(h.parts.vehicle)}, labor ${money(h.parts.labor)}, clinic-slot value ${money(h.parts.opportunity)}, supplies ${money(h.parts.supplies)}, no-shows ${money(h.noShowDrag)}. You bill ${money(h.revenue)}, profit ${money(h.profit)} (${pct(h.margin)}). Visit fee for your target: ${money(h.requiredVisitFee)}.`;
       $("#zones").innerHTML = e.zones.map((z) => `<tr><th scope="row">${esc(z.label)}</th><td class="n">${z.driveMin}</td><td class="n">${money(z.cost)}</td><td class="n">${money(z.revenue)}</td><td class="n">${money(z.profit)}</td><td class="n">${pct(z.margin)}</td><td class="n">${money(z.requiredVisitFee)}</td><td class="n">${money(z.surchargeNeeded)} (you charge ${money(z.surcharge)})</td></tr>`).join("");
       const d = e.day;

@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtJhwconxHAQsZrWKSr",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T00:06:58Z",
+  "ended": "2026-11-16T02:33:02Z",
+  "wall_minutes": 146.29,
+  "tokens_in": 8068680,
+  "tokens_out": 55792,
+  "cost_usd": 3.8662,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16389",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First exact_dense kernel dropped all same-operator en-route weight (time-reversal shortcut breaks zone labels for equal-velocity leg pairs); caught by the brute-force unit test before any layout ran, fixed.",
+    "A second test failure came from a different rounding of velocities (multiplying by 1/d instead of dividing by d), which flipped exact ties; fixed to match exact_timing._legs."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py note says plain python3 may lack numpy; /usr/bin/python3.13 had numpy but not pytest, and pyenv.py returned it after installing pytest silently; worked but the interaction was not obvious."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Landing step 2 (work through open research PRs first) is impractical with 106 open PRs and no cheap filter for research/ ones; relied on pick_track.py's CLAIM CHECK instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Did not sweep all open research PRs before building (step 2); 106 open PRs and the drawn programme's claim check was clean.",
+      "did": "Used pick_track.py CLAIM CHECK and opened the draft PR within minutes of the predictions commit.",
+      "result": "No collision observed."
+    },
+    {
+      "file": "research/aerolog-scaling/paper/draft.md",
+      "why": "Paper draft not updated with 11aa; kept the PR to one milestone step.",
+      "did": "Listed in LOG Next implicitly via README/LOG; paper update left for a later run.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-aerolog-exact-simulator-expectation.md",
+    "research/aerolog-scaling/LOG.md (11aa entry)"
+  ],
+  "goal": null,
+  "notes": "Milestone 11aa of aerolog-scaling: exact estimator by destination-pair sums. 24 layouts, 7,037 s wall on 4 cores. cf_D+/exact_D pooled 1.0026, sd 0.0028; same split 24/24; 9 of 11 predictions held (cost and quadrature-bound refuted). Post-hoc K=32 check: 8-point zone rule converged to 2e-5 on layouts 1 and 23. Local checks: tests (16 targeted pass; full project suite 151 passed), research build ok, live links, md links, post front matter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "61098232-fa18-55ba-9874-b67ccc828f03",
+    "transcripts": 1,
+    "first": "2026-11-16T00:06:58Z",
+    "last": "2026-11-16T02:33:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 121,
+        "output": 55792,
+        "thinking": 20491,
+        "cache_read": 7922902,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145657,
+        "api_equivalent_usd": 3.8662,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 121,
+      "output": 55792,
+      "thinking": 20491,
+      "cache_read": 7922902,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145657,
+      "api_equivalent_usd": 3.8662,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 63,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 146.29,
+      "active_minutes": 146.29,
+      "model_minutes": 10.04,
+      "tool_minutes": 136.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "deriving and vectorising the dense exact estimator with tests, a 2-hour compute run, analysis and write-up, as a PhD researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 413.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

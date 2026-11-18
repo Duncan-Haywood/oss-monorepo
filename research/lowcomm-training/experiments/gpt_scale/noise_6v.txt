@@ -1,0 +1,12 @@
+runs: 17  torch: ['2.15.0+cu132']  mean secs: 1090
+build check, uncompressed H 64 seed 0: 1.60217 vs scale.jsonl 1.60217 (diff +0.000000)
+randk  H 16: excess over uncompressed +0.0220 (se 0.0016, n 4) per seed [0.025, 0.0226, 0.0227, 0.0176]
+randk  H 64: excess over uncompressed -0.0016 (se 0.0038, n 4) per seed [-0.0056, -0.01, 0.0068, 0.0023]
+iso    H 16: excess over uncompressed +0.0218 (se 0.0050, n 4) per seed [0.0173, 0.0163, 0.0367, 0.017];  minus rand-k -0.0001 (se 0.0050) per seed [-0.0077, -0.0063, 0.014, -0.0006]
+iso    H 64: excess over uncompressed +0.0093 (se 0.0049, n 4) per seed [0.0221, -0.0017, 0.007, 0.0098];  minus rand-k +0.0109 (se 0.0059) per seed [0.0278, 0.0083, 0.0001, 0.0075]
+shaped H 16: excess over uncompressed +0.0143 (se 0.0041, n 4) per seed [0.0176, 0.0026, 0.0211, 0.0159];  minus rand-k -0.0077 (se 0.0043) per seed [-0.0074, -0.02, -0.0016, -0.0017]
+shaped H 64: excess over uncompressed -0.0010 (se 0.0053, n 4) per seed [0.0038, 0.0113, -0.0073, -0.0119];  minus rand-k +0.0006 (se 0.0089) per seed [0.0095, 0.0213, -0.0141, -0.0143]
+
+H6v-i   (iso excess at H 16 minus at H 64 > 2 se): refuted (+0.0125, +1.8 se)
+H6v-ii  (iso minus rand-k within 2 se of zero at both H): held (H 16 -0.0 se, H 64 +1.9 se)
+H6v-iii (shaped minus rand-k within 2 se of zero at both H): held (H 16 -1.8 se, H 64 +0.1 se)

@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVLzFyHZYgs5ySu8jgh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue-generating products; merge when done)",
+  "input_sha256": "1985521bd36b5b218c0f9e2275f508a2a11e367e856e39d3f2f2c67da199205c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T20:24:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/buildbot-sheathing milestone 26: put the ten experiments milestone 25 left unchecked through reproduce.py --check; refresh what drifted",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": 16293,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "m6_drake fails on drake 1.58.0 (TAMSI removed)",
+      "fix": "re-ran in a venv with drake==1.51.1; pin recorded in reproduce.py, drake_seat.py, README and paper"
+    },
+    {
+      "what": "first m6 diff cut at 40 lines hid the H35 line",
+      "fix": "diff print limit raised to 80; refreshed in place to read it"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/buildbot-sheathing/reproduce.py",
+      "issue": "timing patterns missed m6's per-seat seconds column and 'wall time N s' lines, so faster machines read as failed reproductions; fixed"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "scheduled prompt asks for revenue product work while the router drew the research track; followed the router as the owner's own mechanism"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-sheathing-paper-all-22-experiments-reproduce.md"
+  ],
+  "goal": null,
+  "notes": "Checks run here: reproduce.py --check on m3, m3b, m6b, m15, m16, m19, m20, m21 reproduce (timing lines aside); m6 (drake 1.51.1) differs only in F2 (milestone 9 draw order, same as m5) and the H35 worst gap 0.06 -> 0.05; m9 one line 0.48 -> 0.47 (0.47500000000000164 vs exactly 0.475); m21 check_diag.txt stray DONE. pytest 145 passed; check_numbers 194/194; research/_homepage/build.py ok; check_md_links ok; post front matter ok.",
+  "corrections": [],
+  "redteam": null
+}

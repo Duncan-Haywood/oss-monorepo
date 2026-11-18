@@ -24,6 +24,6 @@
     {"severity": "low", "what": "Under-floor warning joins labels then says 'pays' (singular) for several jobs.", "where": "ventures/handyman-minimum-job-calculator/calc.mjs:113"},
     {"severity": "low", "what": "No markup/margin or tax load beyond the owner's wage; 'profit' is only profit over the pay target (stated in the column name, not hidden).", "where": "ventures/handyman-minimum-job-calculator/calc.mjs:75"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14663"],
   "verdict": "A small, honest, correct calculator: five independently recomputed outputs (trip charge, minimum job hours and price, per-job cost, floor, effective hourly, three ladder rows) match the code to three decimals, all 30 tests pass, every advertised feature works, and the disclaimer and unmodelled-items list are prominent. It falls short of the bar on verification (a seeded mutation to the headline minimum-trip-charge formula survived, because no test asserts that field), on claims (llms.txt links the retired host) and on craft (a thousands separator in the job box silently shifts columns and yields a wrong but plausible answer). None of this is hard to fix. Scored before any fix: meets the bar = no (verification 2, claims 2); finished = yes."
 }

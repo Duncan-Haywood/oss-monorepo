@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKjJQP9FGHP32Yp9zA4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T04:18:14Z",
+  "ended": "2026-11-18T04:28:56Z",
+  "wall_minutes": 22.54,
+  "tokens_in": 7886825,
+  "tokens_out": 28203,
+  "cost_usd": 3.0934,
+  "tool_calls": 59,
+  "task": "Flagship 10 open-tennis-robots: whether the record's own drop fit reads better with a longer window on slow wheels",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17175",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/eval/",
+      "issue": "Earlier captures kept raw inputs as .jsonl.gz (1-3 MB); this one would have been 5.6 MB, so it was not committed (seeded, reruns in ~6 min). No guidance says when captured inputs should or should not be kept in the tree."
+    },
+    {
+      "file": "tests/fit_grid_floor.py",
+      "issue": "Its capture tells the record fit from the surveys by `'refine' not in kw`, which also matches the take survey's calls (levels=); record_fit_window.py filters on both refine and levels."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/open-tennis-robots/eval/",
+      "why": "Did not commit the 5.6 MB captured-inputs file the previous run's pattern would suggest",
+      "did": "Kept the scored eval text; the README says the seeded capture reruns in ~6 minutes",
+      "result": "Smaller tree; scoring is still reproducible by rerunning the capture"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-tennis-feeders-drop-reading-gains-from-a-longer-look-only-when-its-tach-is-noisy.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (The record's drop fit and its window)"
+  ],
+  "goal": "Deepen flagship 10 with a pre-registered firmware measurement",
+  "notes": "New tests/record_fit_window.py captures every board record fit's inputs with the simulator's true drop and refits at after=8/12/16/24. Design (seed 7, 513 fits): noise-free plants no better with longer windows; tach 3 us jitter builds 0.80%->0.61% rms at 24. Pre-registration committed (12ed51ffe) before the held-out capture (seed 11, launcher 2, new plants/lags, 514 fits): held on every clause (pooled 0.45%->0.35%, jitter builds 0.62%->0.47%, worst 2.49%->1.79%, max rise 0.01 pt). Shipped controller.LOOP_FIT_AFTER = 24 in LaunchCheck._loop_fit; unit test added. Verification: python3 platform/ci/run_venture_tests.py open-tennis-robots: ok (255 s, 366 tests, 58 skipped for build123d); node platform/pages/venture-preflight.mjs open-tennis-robots: see PR; portfolio/router/validate.py ok; check_posts.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5193c3a4-553c-5e7e-8395-71f8087fbd52",
+    "transcripts": 1,
+    "first": "2026-11-18T04:18:14Z",
+    "last": "2026-11-18T04:40:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 155,
+        "output": 28203,
+        "thinking": 5396,
+        "cache_read": 7764703,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121967,
+        "api_equivalent_usd": 3.0934,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 155,
+      "output": 28203,
+      "thinking": 5396,
+      "cache_read": 7764703,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121967,
+      "api_equivalent_usd": 3.0934,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.54,
+      "active_minutes": 8.54,
+      "model_minutes": 6.27,
+      "tool_minutes": 2.26,
+      "waiting_on_human_minutes": 14.0,
+      "human_prompts": 12,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer writing the capture/refit script, two simulator captures, pre-registration, the firmware change and test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 194.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

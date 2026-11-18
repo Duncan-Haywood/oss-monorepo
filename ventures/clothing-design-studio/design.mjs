@@ -63,6 +63,12 @@ function updateSelected(design, fn) {
 
 export class OpError extends Error {}
 
+/** Original pixel size of an uploaded image (the stored copy is a downscaled preview), kept for the print-resolution check. */
+function srcPx(v) {
+  const w = Math.round(Number(v?.w)), h = Math.round(Number(v?.h));
+  return w > 0 && h > 0 && w <= 100000 && h <= 100000 ? { srcPx: { w, h } } : {};
+}
+
 /**
  * Apply one operation. Throws OpError with a sentence a designer can read
  * when the operation does not make sense for this design.
@@ -102,7 +108,7 @@ export function applyOp(design, op) {
         method: op.method ?? "dtg", colours: op.colours ?? 1, label: op.label ?? op.kind };
       if (op.kind === "text") Object.assign(base, { text: String(op.text ?? "").slice(0, 60), ink: op.ink ?? (luminance(design.colour) < 0.4 ? "#f2ead8" : "#1b1b1d"), font: op.font ?? "serif", aspect: op.aspect ?? 0.22 });
       else if (op.kind === "motif") Object.assign(base, { motif: op.motif, ink: op.ink ?? (luminance(design.colour) < 0.4 ? "#e9cf8f" : "#3a2a12") });
-      else if (op.kind === "image") Object.assign(base, { src: op.src });
+      else if (op.kind === "image") Object.assign(base, { src: op.src }, srcPx(op.srcPx));
       else throw new OpError(`Unknown artwork kind ${op.kind}.`);
       const placed = clampPlacement(design, base);
       return { ...design, nextId: id + 1, selected: id, side: placed.area === "back" ? "back" : "front", placements: [...design.placements, placed] };
@@ -301,7 +307,7 @@ export function sanitizeDesign(raw) {
     tryOp({ op: "add", kind, area: String(p.area || "front"), text: p.text, motif: typeof p.motif === "string" ? p.motif : undefined,
       src: p.src, w: Number(p.w) || undefined, aspect: Number(p.aspect) || undefined, method: METHODS[p.method] ? p.method : undefined,
       ink: /^#[0-9a-f]{6}$/i.test(p.ink) ? p.ink : undefined, label: typeof p.label === "string" ? p.label.slice(0, 40) : undefined,
-      colours: Number(p.colours) || undefined });
+      colours: Number(p.colours) || undefined, srcPx: p.srcPx });
     tryOp({ op: "moveTo", x: Number(p.x) || 0, y: Number(p.y) || 0 });
     if (p.rotate) tryOp({ op: "rotate", deg: Number(p.rotate) || 0 });
   }

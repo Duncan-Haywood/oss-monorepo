@@ -118,7 +118,7 @@ function buildNotes(i, base, r) {
 export function money(x) {
   const r = Math.round(x);
   const s = Math.abs(r).toLocaleString("en-US", { maximumFractionDigits: 0 });
-  return (r < 0 ? "-$" : "$") + s;
+  return ((t) => (r < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(s);
 }
 export const pctText = (x, d = 1) => (x * 100).toFixed(d) + "%";
 

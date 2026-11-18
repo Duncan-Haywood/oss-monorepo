@@ -1,0 +1,133 @@
+# Milestone 3, first part: ledger seating (buildbot-sheathing)
+sheet 1.2192 x 2.4384 x 0.0111 m, 21.8 kg; gravity moment about a bottom corner m g W/2 = 130.4 N m
+PS 2 squareness limit: diagonals within 0.125 in -> corner angle 0.0834 deg; edge straightness 1/16 in -> outward-bowed bottom edge rocks up to 0.1492 deg
+laser rating 1/8 in at 30 ft = 0.0199 deg
+wall contacts: corners r_bar = 1.5960 m, studs (4 lines x 5) r_bar = 1.4981 m
+
+## A. Released seat: tilt left (deg) by wall friction, press and holder error; corner contacts
+theta0 = 0.25 deg
+mu \ F_n N        5       25       50      100      150      200      250      300      400      600
+       0.2   0.0000   0.0000   0.0000  -0.0000   0.0000   0.0000   0.0000   0.0001   0.1990   0.2492
+       0.3  -0.0000   0.0000   0.0000  -0.0000   0.0000   0.0000   0.0001   0.2490   0.2490   0.2497
+       0.4   0.0000   0.0000   0.0000  -0.0000  -0.0001   0.2490   0.2491   0.2490   0.2492   0.2493
+       0.5   0.0000   0.0000  -0.0000  -0.0001   0.0001   0.2490   0.2491   0.2493   0.2495   0.2495
+       0.7   0.0000   0.0000  -0.0000   0.0000   0.2491   0.2492   0.2498   0.2495   0.2495   0.2497
+
+theta0 = 0.5 deg
+mu \ F_n N        5       25       50      100      150      200      250      300      400      600
+       0.2   0.0000   0.0000   0.0000  -0.0000  -0.0000   0.0000   0.0000   0.0000   0.4652   0.4992
+       0.3   0.0000   0.0000  -0.0000  -0.0000  -0.0000  -0.0001   0.0001   0.4990   0.4993   0.4997
+       0.4   0.0000   0.0000  -0.0000   0.0000  -0.0001   0.4992   0.4991   0.4992   0.4992   0.4993
+       0.5   0.0000   0.0000  -0.0000  -0.0000   0.0001   0.4991   0.4991   0.4993   0.4995   0.4995
+       0.7  -0.0000   0.0000  -0.0000   0.0000   0.4991   0.4996   0.4996   0.4995   0.4995   0.4997
+
+theta0 = 1.0 deg
+mu \ F_n N        5       25       50      100      150      200      250      300      400      600
+       0.2   0.0000   0.0000  -0.0000  -0.0000   0.0000   0.0000   0.0001   0.0001   0.9980   0.9993
+       0.3  -0.0000   0.0000   0.0000   0.0000  -0.0000  -0.0001   0.9701   0.9991   0.9993   0.9997
+       0.4  -0.0000   0.0000   0.0000  -0.0000  -0.0001   0.9994   0.9991   0.9992   0.9993   0.9996
+       0.5  -0.0000   0.0000   0.0000   0.0000   0.0000   0.9995   0.9992   0.9993   0.9996   0.9995
+       0.7   0.0000  -0.0000  -0.0000  -0.0000   0.9991   0.9996   0.9995   0.9996   0.9998   0.9997
+
+theta0 = 2.0 deg
+mu \ F_n N        5       25       50      100      150      200      250      300      400      600
+       0.2  -0.0000   0.0000  -0.0000   0.0000   0.0000  -0.0000   0.0000   0.0000   1.9990   1.9993
+       0.3  -0.0000  -0.0000  -0.0000   0.0000   0.0000  -0.0000   1.9740   1.9991   1.9993   1.9997
+       0.4  -0.0000  -0.0000  -0.0000  -0.0000  -0.0000   1.9994   1.9992   1.9991   1.9992   1.9996
+       0.5  -0.0000  -0.0000  -0.0000   0.0001   0.0001   1.9991   1.9992   1.9993   1.9994   1.9995
+       0.7   0.0000  -0.0000  -0.0000  -0.0000   1.9991   1.9993   1.9996   1.9996   1.9997   1.9997
+
+## B. Press threshold F_n* (N): least press that leaves over half of a 1 deg error
+layout   mu    simulated  predicted  ratio
+corners   0.2      379.5      408.4  0.929
+corners   0.3      252.5      272.3  0.927
+corners   0.4      189.3      204.2  0.927
+corners   0.5      142.5      163.4  0.872
+corners   0.7      115.2      116.7  0.987
+studs     0.2      429.5      435.1  0.987
+studs     0.3      277.8      290.1  0.958
+studs     0.4      199.4      217.6  0.917
+studs     0.5      156.4      174.0  0.899
+studs     0.7      124.5      124.3  1.002
+
+## C. Held wrist: tilt left (deg), MuJoCo against max(0, theta0 - (mgW/2 - mu F_n r_bar)/k); mu 0.4
+F_n  theta0  k_N_m_per_rad  sim_deg   pred_deg
+   5    0.50            300    0.0000    0.0000
+   5    0.50           1000    0.0000    0.0000
+   5    0.50           3000    0.0000    0.0000
+   5    0.50          10000    0.0001    0.0000
+   5    0.50          30000    0.2534    0.2571
+   5    1.00            300    0.0000    0.0000
+   5    1.00           1000    0.0000    0.0000
+   5    1.00           3000    0.0000    0.0000
+   5    1.00          10000    0.2461    0.2713
+   5    1.00          30000    0.7578    0.7571
+   5    2.00            300    0.0000    0.0000
+   5    2.00           1000    0.0000    0.0000
+   5    2.00           3000    0.0001    0.0000
+   5    2.00          10000    1.2718    1.2713
+   5    2.00          30000    1.7670    1.7571
+ 100    0.50            300    0.0000    0.0000
+ 100    0.50           1000    0.0000    0.0000
+ 100    0.50           3000   -0.0000    0.0000
+ 100    0.50          10000    0.0890    0.1188
+ 100    0.50          30000    0.3696    0.3729
+ 100    1.00            300    0.0000    0.0000
+ 100    1.00           1000    0.0001    0.0000
+ 100    1.00           3000    0.0000    0.0000
+ 100    1.00          10000    0.6004    0.6188
+ 100    1.00          30000    0.8706    0.8729
+ 100    2.00            300    0.0000    0.0000
+ 100    2.00           1000   -0.0000    0.0000
+ 100    2.00           3000    0.6927    0.7294
+ 100    2.00          10000    1.6370    1.6188
+ 100    2.00          30000    1.8816    1.8729
+
+## D. Sensitivity of a released seat (mu 0.4, F_n 50 N, theta0 1 deg)
+v 0.01 m/s                       0.00002 deg
+v 0.05 m/s                       0.00002 deg
+v 0.2 m/s                        0.00002 deg
+release 0.1 s                    0.00001 deg
+release 2 s                     -0.00001 deg
+softer contact (solref 0.01)     0.00035 deg
+timestep 0.25 ms                 0.00002 deg
+stud contacts                    0.00002 deg
+theta0 -1 deg                   -0.00002 deg
+
+## E. Bottom edge bowed outward by 1/16 in (PS 2 limit): MuJoCo against 2 s / W
+theta0 +1.00 deg: tilt +0.1386 deg (predicted +/- 0.1492)
+theta0 -1.00 deg: tilt -0.1386 deg (predicted +/- 0.1492)
+theta0 +0.25 deg: tilt +0.1452 deg (predicted +/- 0.1492)
+theta0 -0.25 deg: tilt -0.1451 deg (predicted +/- 0.1492)
+stuck at F_n 400 N, after 10 s: tilt 0.9993 deg, creep -3.52e-08 deg/s
+
+## F. Clean sheets with a released ledger seat (three reads, edge aim, tacked; 20,000 sheets, seed 5)
+tilt = laser line (uniform within its rating) + ledger height error at each corner + panel squareness and bottom-edge bow (uniform within frac x the PS 2 limits)
+tilt sd (deg): s_corner_mm \ panel frac   0.00   0.25   0.50   1.00
+                                   0.00 0.0115 0.0226 0.0405 0.0785
+                                   0.25 0.0202 0.0280 0.0437 0.0800
+                                   0.50 0.0352 0.0401 0.0523 0.0850
+                                   1.00 0.0675 0.0702 0.0778 0.1027
+                                   2.00 0.1335 0.1348 0.1389 0.1542
+clean, 2x straight (sx 0 mm): s_corner_mm \ panel frac   0.00   0.25   0.50   1.00
+                                        0.00 0.9533 0.9498 0.9336 0.8573
+                                        0.25 0.9518 0.9485 0.9337 0.8565
+                                        0.50 0.9417 0.9388 0.9210 0.8440
+                                        1.00 0.8889 0.8831 0.8658 0.7910
+                                        2.00 0.6905 0.6894 0.6785 0.6355
+
+clean, 2 x 2x low warp (sx 3 mm): s_corner_mm \ panel frac   0.00   0.25   0.50   1.00
+                                        0.00 1.0000 1.0000 1.0000 1.0000
+                                        0.25 1.0000 1.0000 1.0000 1.0000
+                                        0.50 1.0000 1.0000 1.0000 1.0000
+                                        1.00 1.0000 1.0000 1.0000 1.0000
+                                        2.00 1.0000 1.0000 1.0000 1.0000
+
+panel geometry allowed for 95% on straight single 2x, perfect ledger: 0.244 x the PS 2 limits (diagonals within 0.0305 in, bottom edge within 0.0153 in; corner angle 0.0204 deg)
+
+## G. Pre-registered hypotheses (LOG.md, 2026-11-12)
+H13 held: largest tilt left at F_n <= 50 N, mu 0.3-0.5: 0.00003 deg
+H14 held: simulated / predicted press threshold (corners): 0.929, 0.927, 0.927, 0.872, 0.987
+H15 refuted: 29/30 cells within 0.005 deg or 10%; largest error 0.0367 deg
+H16 held: ledger 0.5 mm, full PS 2 limits: 2 x 2x low warp 1.0000, 2x straight 0.8440
+H17 held: perfect ledger, full PS 2 limits, 2x straight: 0.8573; 95% needs panels within 0.244 of the limits

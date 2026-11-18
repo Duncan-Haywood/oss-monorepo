@@ -1,0 +1,200 @@
+{"id":"1000-receipt","total":"56.58","subtotal":"51.90","tax":"4.68","currency":"USD","handwritten":false,"note":""}
+{"id":"1001-receipt","total":"69.25","subtotal":"63.75","tax":"5.50","currency":"USD","handwritten":false,"note":"second 'Sub Total' line 69.25 after tax; suggested gratuity table printed, not included"}
+{"id":"1002-receipt","total":"7.61","subtotal":"6.98","tax":"0.63","currency":"USD","handwritten":false,"note":""}
+{"id":"1003-receipt","total":"5.35","subtotal":"5.00","tax":"0.35","currency":"USD","handwritten":false,"note":"handwritten complaint note at bottom (not a tip)"}
+{"id":"1004-receipt","total":"15.03","subtotal":null,"tax":"1.40","currency":"USD","handwritten":false,"note":"no subtotal line; items sum 13.63"}
+{"id":"1005-receipt","total":"179.94","subtotal":"167.00","tax":"12.94","currency":"USD","handwritten":false,"note":"Total and Balance Due both 179.94; suggested tip table printed"}
+{"id":"1006-receipt","total":"93.58","subtotal":"86.65","tax":"6.93","currency":"USD","handwritten":false,"note":"low-resolution image; digits consistent with item sum; marked Unpaid; handwritten name only"}
+{"id":"1007-receipt","total":"143.71","subtotal":"131.00","tax":"12.71","currency":"USD","handwritten":true,"note":"handwritten total 153.71 ignored"}
+{"id":"1008-receipt","total":"24.47","subtotal":"22.25","tax":"2.22","currency":"USD","handwritten":false,"note":"tip suggestions printed"}
+{"id":"1009-receipt","total":"30.76","subtotal":"28.48","tax":"2.28","currency":"USD","handwritten":false,"note":"low-resolution image; digits consistent with item sum"}
+{"id":"1010-receipt","total":"77.83","subtotal":"71.40","tax":"6.43","currency":"USD","handwritten":false,"note":"Total and Balance Due both 77.83"}
+{"id":"1011-receipt","total":"64.43","subtotal":"59.11","tax":"5.32","currency":"USD","handwritten":false,"note":"paid by card (Wells Fargo) 64.43"}
+{"id":"1012-receipt","total":"33.26","subtotal":"22.25","tax":"2.11","currency":"USD","handwritten":false,"note":"printed service charge 40% 8.90 included; pre-service total 24.36"}
+{"id":"1013-receipt","total":"9.58","subtotal":"8.85","tax":"0.73","currency":"USD","handwritten":false,"note":"subtotal includes 0.75 ATM charge"}
+{"id":"1014-receipt","total":"48.53","subtotal":"44.32","tax":"4.21","currency":"USD","handwritten":false,"note":""}
+{"id":"1015-receipt","total":"50.29","subtotal":"47.00","tax":"3.29","currency":"USD","handwritten":false,"note":"handwritten greeting (not tip); Total and Total Due both 50.29; item discount -6.00 already in subtotal"}
+{"id":"1016-receipt","total":"35.52","subtotal":"32.70","tax":"2.82","currency":"USD","handwritten":false,"note":""}
+{"id":"1017-receipt","total":"11.04","subtotal":"10.20","tax":"0.84","currency":"USD","handwritten":false,"note":""}
+{"id":"1018-receipt","total":"2.17","subtotal":null,"tax":"0.17","currency":"USD","handwritten":false,"note":"total labelled Amount Due; unlabelled pre-tax line 2.00 (no subtotal label); tax printed as .17"}
+{"id":"1019-receipt","total":"45.58","subtotal":"43.00","tax":"2.58","currency":"USD","handwritten":false,"note":"low-resolution image"}
+{"id":"1020-receipt","total":"47.02","subtotal":"35.95","tax":"2.98","currency":"USD","handwritten":false,"note":"printed 18% tip 8.09 included (order total 38.93); online offer discount; hand-drawn circles only, no handwritten numbers"}
+{"id":"1021-receipt","total":"69.76","subtotal":"62.85","tax":"6.91","currency":"USD","handwritten":false,"note":"bottom cut off below total"}
+{"id":"1022-receipt","total":"37.37","subtotal":"29.88","tax":"3.01","currency":"USD","handwritten":false,"note":"printed 15% service charge 4.48 included; Sales Total 32.89 before service charge"}
+{"id":"1023-receipt","total":"30.15","subtotal":"27.48","tax":"2.67","currency":"USD","handwritten":false,"note":"subtotal labelled 'Total 4 item(s)'; guest check"}
+{"id":"1024-receipt","total":"33.92","subtotal":"31.12","tax":"2.80","currency":"USD","handwritten":false,"note":"subtotal labelled AMOUNT; card partly covers suggested tip text"}
+{"id":"1025-receipt","total":"7.27","subtotal":"6.64","tax":"0.63","currency":"USD","handwritten":false,"note":"labelled Take-Out Total; blue circle drawn on photo"}
+{"id":"1026-receipt","total":"51.82","subtotal":null,"tax":"4.39","currency":"USD","handwritten":false,"note":"no subtotal line; items sum 47.43; pen tick marks only"}
+{"id":"1027-receipt","total":"41.31","subtotal":"42.75","tax":"1.86","currency":"USD","handwritten":true,"note":"discount -3.30; tax is HI GET 4.712%; handwritten gratuity 3.00 and total 44.31 ignored"}
+{"id":"1028-receipt","total":"34.21","subtotal":"31.24","tax":"2.97","currency":"USD","handwritten":false,"note":"low-resolution image; total labelled DRV THRU; 2% service charge 0.61 is inside subtotal; highlighter marks"}
+{"id":"1029-receipt","total":"30.98","subtotal":"28.95","tax":"2.03","currency":"USD","handwritten":false,"note":""}
+{"id":"1030-receipt","total":"94.78","subtotal":"87.25","tax":"7.53","currency":"USD","handwritten":false,"note":"low-resolution image; digits consistent with item sum"}
+{"id":"1031-receipt","total":"44.35","subtotal":"40.50","tax":"3.85","currency":"USD","handwritten":false,"note":"labelled Total Due"}
+{"id":"1032-receipt","total":"9.50","subtotal":null,"tax":"0.75","currency":"USD","handwritten":false,"note":"no subtotal line (items sum 8.75); tax labelled TXTL .75, total TOTL"}
+{"id":"1033-receipt","total":"46.73","subtotal":"43.47","tax":"3.26","currency":"USD","handwritten":false,"note":"Total and Balance Due both 46.73"}
+{"id":"1034-receipt","total":"17.00","subtotal":null,"tax":"1.55","currency":"EUR","handwritten":false,"note":"low-resolution image; French receipt, VAT (TVA 10%) included in price; H.T. 15.45 + TVA 1.55 = TTC 17.00; no subtotal line"}
+{"id":"1035-receipt","total":"26.38","subtotal":"24.25","tax":"2.13","currency":"USD","handwritten":false,"note":"screenshot of a social-media post; tax line label not printed legibly (2.13 between subtotal and total)"}
+{"id":"1036-receipt","total":"52.76","subtotal":"48.85","tax":"3.91","currency":"USD","handwritten":false,"note":"second 'Sub Total' 52.76 after tax; tip suggestions printed, not included"}
+{"id":"1037-receipt","total":"164.89","subtotal":"151.00","tax":"13.89","currency":"USD","handwritten":false,"note":""}
+{"id":"1038-receipt","total":"17.80","subtotal":null,"tax":null,"currency":"USD","handwritten":false,"note":"card payment slip only, no itemisation, subtotal or tax"}
+{"id":"1039-receipt","total":"13.05","subtotal":"12.08","tax":"0.97","currency":"USD","handwritten":false,"note":"discounts line 0.00"}
+{"id":"1040-receipt","total":"28.04","subtotal":"22.98","tax":"1.61","currency":"USD","handwritten":false,"note":"printed service fee (restaurant 15%) 3.45 included; red stripe on paper"}
+{"id":"1041-receipt","total":null,"subtotal":null,"tax":"1.55","currency":"EUR","handwritten":false,"note":"duplicate of 1034-receipt (same photo); low-resolution; TVA 10% included; H.T. 15.45","duplicate_of":"1034-receipt"}
+{"id":"1042-receipt","total":"55.39","subtotal":"69.90","tax":"3.44","currency":"USD","handwritten":false,"note":"void -17.95 applied after tax: Sbtl w/Tax 73.34 - 17.95 = Amt Due 55.39; header cut off"}
+{"id":"1043-receipt","total":"26.67","subtotal":"24.50","tax":"2.17","currency":"USD","handwritten":false,"note":"discount line 0.00"}
+{"id":"1044-receipt","total":"10.94","subtotal":"9.99","tax":"0.95","currency":"USD","handwritten":false,"note":"low-resolution image; subtotal labelled NET, tax TXTL .95, total TOTL; handwritten signature/circle only"}
+{"id":"1045-receipt","total":"22.03","subtotal":"20.78","tax":"1.25","currency":"USD","handwritten":false,"note":"low-resolution image; sum of 2 tax lines (Food Tax 1.25 + Bev Tax 0.00); subtotal is Food Subtotal 20.78 (Bev Subtotal 0.00); paid cash"}
+{"id":"1046-receipt","total":"38.86","subtotal":"30.60","tax":"2.14","currency":"USD","handwritten":false,"note":"10% discount -3.40 before subtotal; printed 18% service charge 6.12 included"}
+{"id":"1047-receipt","total":"85.07","subtotal":"79.50","tax":"5.57","currency":"USD","handwritten":false,"note":"Total and Balance Due both 85.07; second receipt partly visible behind; suggested gratuity printed, partly faded"}
+{"id":"1048-receipt","total":"91.45","subtotal":"82.95","tax":"8.50","currency":"USD","handwritten":false,"note":"Total and Balance Due both 91.45"}
+{"id":"1049-receipt","total":"38.75","subtotal":"74.00","tax":"3.49","currency":"USD","handwritten":false,"note":"split check: Total 77.49 (=subtotal+tax) then 'Receipt Total' 38.75 (about half) printed last; used 38.75 per last-charged rule; bottom cut off"}
+{"id":"1050-receipt","total":"26.96","subtotal":"25.22","tax":"1.74","currency":"USD","handwritten":false,"note":"food tax 1.74, liquor/other tax 0.00; printed Total Tax 1.74"}
+{"id":"1051-receipt","total":"10.70","subtotal":"10.00","tax":"0.70","currency":"USD","handwritten":false,"note":""}
+{"id":"1052-receipt","total":"94.18","subtotal":"86.50","tax":"7.68","currency":"USD","handwritten":false,"note":"total line partly cut at bottom edge but readable"}
+{"id":"1053-receipt","total":"52.47","subtotal":"49.50","tax":"2.97","currency":"USD","handwritten":false,"note":"paid by Mastercard 52.47; Amount Due 0.00 after payment"}
+{"id":"1054-receipt","total":"56.50","subtotal":"51.25","tax":"5.25","currency":"USD","handwritten":false,"note":"cash 60.00, change 3.50"}
+{"id":"1055-receipt","total":"30.58","subtotal":null,"tax":"2.43","currency":"USD","handwritten":false,"note":"tax labelled TXTL; no subtotal line; items sum 28.15"}
+{"id":"1056-receipt","total":null,"subtotal":"152.00","tax":"0.00","currency":"USD","handwritten":false,"note":"TOTAL amount cut off at bottom edge (likely 152.00 but not visible); two subtotal lines 164.00 then 152.00 after -12.00 comp"}
+{"id":"1057-receipt","total":"9.58","subtotal":"8.75","tax":"0.83","currency":"USD","handwritten":false,"note":""}
+{"id":"1058-receipt","total":"37.60","subtotal":"36.50","tax":"1.10","currency":"USD","handwritten":false,"note":"Total and Balance Due both 37.60; dim photo"}
+{"id":"1059-receipt","total":"7.55","subtotal":"6.00","tax":"0.40","currency":"USD","handwritten":false,"note":"printed gratuity GRAT 18 1.15 included in total"}
+{"id":"1060-receipt","total":"83.50","subtotal":"74.70","tax":"6.00","currency":"USD","handwritten":false,"note":"printed 3.75% surcharge 2.80 included in total"}
+{"id":"1061-receipt","total":"26.37","subtotal":"24.08","tax":"2.29","currency":"USD","handwritten":false,"note":"printed gratuity guide only, not charged"}
+{"id":"1062-receipt","total":"142.01","subtotal":"132.25","tax":"9.76","currency":"USD","handwritten":false,"note":"low-resolution image; items sum to 132.25"}
+{"id":"1063-receipt","total":null,"subtotal":"49.50","tax":"2.97","currency":"USD","handwritten":false,"note":"duplicate of 1053-receipt (same Primo receipt, smaller crop); low resolution","duplicate_of":"1053-receipt"}
+{"id":"1064-receipt","total":"19.44","subtotal":"18.00","tax":"1.44","currency":"USD","handwritten":false,"note":"subtotal line labelled 'Counter-Eat In'; total labelled Amount Due"}
+{"id":"1065-receipt","total":"45.79","subtotal":"42.50","tax":"3.29","currency":"USD","handwritten":false,"note":"suggested gratuity table printed, not charged"}
+{"id":"1066-receipt","total":"82.00","subtotal":null,"tax":null,"currency":"EUR","handwritten":false,"note":"Italian pre-bill (not fiscal receipt); MANCIA/TIP line left blank"}
+{"id":"1067-receipt","total":"40.30","subtotal":"36.80","tax":"3.50","currency":"USD","handwritten":false,"note":"bottom of receipt cut off below total"}
+{"id":"1068-receipt","total":"42.90","subtotal":"39.00","tax":"3.90","currency":"USD","handwritten":false,"note":"left edge of labels cropped; amounts fully visible"}
+{"id":"1069-receipt","total":"10.90","subtotal":"10.28","tax":"0.62","currency":"USD","handwritten":false,"note":""}
+{"id":"1070-receipt","total":"10.95","subtotal":"10.00","tax":"0.95","currency":"USD","handwritten":false,"note":"gratuity suggestions printed, not charged"}
+{"id":"1071-receipt","total":"75.50","subtotal":"69.50","tax":"6.00","currency":"USD","handwritten":false,"note":"handwritten mark on check folder below receipt, not on receipt itself"}
+{"id":"1072-receipt","total":"21.69","subtotal":"19.90","tax":"1.79","currency":"USD","handwritten":false,"note":"Bar Subtotal 0.00 and Food Subtotal 19.90; cash 22.00, change -0.31"}
+{"id":"1073-receipt","total":"13.22","subtotal":"11.99","tax":"1.23","currency":"USD","handwritten":false,"note":"low resolution; credit card 13.22"}
+{"id":"1074-receipt","total":"33.73","subtotal":"31.16","tax":"2.57","currency":"USD","handwritten":false,"note":"handwritten '2' in blue ink at top (not a tip/total); Visa 33.73; stains"}
+{"id":"1075-receipt","total":"14.36","subtotal":"13.50","tax":"0.86","currency":"USD","handwritten":false,"note":"cash 20.00, change 5.64"}
+{"id":"1076-receipt","total":"25.78","subtotal":"20.00","tax":"2.18","currency":"USD","handwritten":false,"note":"printed automatic gratuity 3.60 included in Grand Total; receipt cut off below 'Credit Purchase'"}
+{"id":"1077-receipt","total":"69.79","subtotal":"56.00","tax":"3.71","currency":"USD","handwritten":false,"note":"printed 18% service charge 10.08 included in total"}
+{"id":"1078-receipt","total":"14.18","subtotal":"12.95","tax":"1.23","currency":"USD","handwritten":false,"note":"suggested gratuity table printed, not charged"}
+{"id":"1079-receipt","total":"235.19","subtotal":"219.81","tax":"15.38","currency":"USD","handwritten":false,"note":"subtotal line labelled 'Items' (pre-tax; liquor items shown tax-included sum 223.50)"}
+{"id":"1080-receipt","total":"92.22","subtotal":"84.02","tax":"8.20","currency":"USD","handwritten":false,"note":"guest check pad visible behind receipt"}
+{"id":"1081-receipt","total":"9.97","subtotal":"9.00","tax":"0.97","currency":"USD","handwritten":false,"note":""}
+{"id":"1082-receipt","total":"6.56","subtotal":"5.99","tax":"0.57","currency":"USD","handwritten":false,"note":"no TOTAL line; amount charged from PAYMENT/VISA 6.56; subtotal line labelled FOOD; crumpled"}
+{"id":"1083-receipt","total":"13.78","subtotal":"12.67","tax":"1.11","currency":"USD","handwritten":false,"note":"total labelled TO-GO; Visa 13.78"}
+{"id":"1084-receipt","total":"125.99","subtotal":"117.75","tax":"8.24","currency":"USD","handwritten":false,"note":""}
+{"id":"1085-receipt","total":"228.92","subtotal":"213.00","tax":"15.92","currency":"USD","handwritten":false,"note":"Visa payment 228.92; tip and second total lines left blank"}
+{"id":"1086-receipt","total":"157.51","subtotal":"145.00","tax":"12.51","currency":"USD","handwritten":false,"note":"subtotal labelled Net Total, after -12.00 comp item; TOTAL and Amount Due both 157.51"}
+{"id":"1087-receipt","total":null,"subtotal":"9.95","tax":"0.86","currency":"USD","handwritten":false,"note":"very low resolution: Sbtl w/Tax reads 10.81 but large Amt Due digit is ambiguous (10.81 vs 10.61); arithmetic gives 10.81"}
+{"id":"1088-receipt","total":"13.03","subtotal":"11.97","tax":"1.06","currency":"USD","handwritten":false,"note":"subtotal labelled Net Total; cash 13.03"}
+{"id":"1089-receipt","total":"142.93","subtotal":"137.50","tax":"5.43","currency":"USD","handwritten":false,"note":"Complete Subtotal and Subtotal both 137.50; reprint"}
+{"id":"1090-receipt","total":"32.66","subtotal":"30.31","tax":"2.35","currency":"USD","handwritten":false,"note":"MasterCard 32.66"}
+{"id":"1091-receipt","total":"28.78","subtotal":"27.15","tax":"1.63","currency":"USD","handwritten":false,"note":"subtotal labelled Amount"}
+{"id":"1092-receipt","total":"43.30","subtotal":"39.85","tax":"3.45","currency":"USD","handwritten":false,"note":"recommended tips printed, not charged"}
+{"id":"1093-receipt","total":"38.23","subtotal":null,"tax":"2.37","currency":"USD","handwritten":false,"note":"no subtotal line; items sum 35.86; credit 38.23"}
+{"id":"1094-receipt","total":"16.23","subtotal":"13.50","tax":"1.25","currency":"USD","handwritten":false,"note":"printed tip 1.48 included in total; Visa 16.23"}
+{"id":"1095-receipt","total":"10.25","subtotal":"9.79","tax":"0.46","currency":"USD","handwritten":false,"note":"Bar Subtotal 0.00 and Food Subtotal 9.79; cash tendered 15.00, bottom cut off"}
+{"id":"1096-receipt","total":"46.98","subtotal":"42.90","tax":"4.08","currency":"USD","handwritten":false,"note":""}
+{"id":"1097-receipt","total":"13.12","subtotal":"12.06","tax":"1.06","currency":"USD","handwritten":false,"note":"no TOTAL line; amount from Payment 13.12 (cash 13.25, change 0.13); subtotal line labelled Food"}
+{"id":"1098-receipt","total":"67.89","subtotal":"62.50","tax":"5.39","currency":"USD","handwritten":false,"note":""}
+{"id":"1099-receipt","total":"64.52","subtotal":"50.05","tax":"5.46","currency":"USD","handwritten":false,"note":"printed 18% gratuity 9.01 included; first Total 55.51, final Total/Balance Due 64.52; stray pen line, no handwritten amount; reprint"}
+{"id":"1100-receipt","total":"26.15","subtotal":"25.04","tax":"1.11","currency":"CAD","handwritten":false,"note":"tax is GST; printed 'DUPLICATE' copy; handwritten '8A3' at top is not a tip"}
+{"id":"1101-receipt","total":"14.06","subtotal":"13.05","tax":"1.01","currency":"USD","handwritten":false,"note":""}
+{"id":"1102-receipt","total":"16.24","subtotal":"29.85","tax":"1.32","currency":"USD","handwritten":false,"note":"50% lunch discount -14.93 applied"}
+{"id":"1103-receipt","total":"42.74","subtotal":"38.50","tax":"2.31","currency":"USD","handwritten":false,"note":"printed Carry Out charge 1.93 included in total"}
+{"id":"1104-receipt","total":"56.38","subtotal":"51.90","tax":"4.48","currency":"USD","handwritten":false,"note":"subtotal is sum of Bar Subtotal 14.00 + Food Subtotal 37.90; tax digits partly overlapped by handwritten circle; handwritten 'Gracias' note, no tip"}
+{"id":"1105-receipt","total":"22.87","subtotal":"21.50","tax":"1.37","currency":"USD","handwritten":false,"note":"handwritten 'thank you' note, no tip"}
+{"id":"1106-receipt","total":"75.15","subtotal":"70.25","tax":"4.90","currency":"USD","handwritten":false,"note":""}
+{"id":"1107-receipt","total":"144.28","subtotal":"133.90","tax":"10.38","currency":"USD","handwritten":false,"note":""}
+{"id":"1108-receipt","total":"52.06","subtotal":"48.54","tax":"3.52","currency":"USD","handwritten":false,"note":"low-resolution image; totals readable and consistent (10.99x4 + 2.29x2 = 48.54)"}
+{"id":"1109-receipt","total":"27.62","subtotal":"25.34","tax":"2.28","currency":"USD","handwritten":false,"note":"final amount is labelled 'Sub-Total'; pre-tax amount labelled 'Amount' used as subtotal; printed tip guide only"}
+{"id":"1110-receipt","total":"160.07","subtotal":"146.85","tax":"13.22","currency":"USD","handwritten":false,"note":"printed 18% gratuity 22.40 included in subtotal; handwritten 'Thanks :)' only"}
+{"id":"1111-receipt","total":"55.95","subtotal":"50.50","tax":"5.45","currency":"USD","handwritten":false,"note":""}
+{"id":"1112-receipt","total":"184.47","subtotal":null,"tax":"12.87","currency":"USD","handwritten":false,"note":"sum of 2 tax lines (sales tax 7% 10.01 + resort tax 2% 2.86); printed 20% service 28.60 included; no subtotal line (taxable articles 143.00); handwritten signature only"}
+{"id":"1113-receipt","total":"29.96","subtotal":"27.36","tax":"2.60","currency":"USD","handwritten":false,"note":""}
+{"id":"1114-receipt","total":"17.00","subtotal":null,"tax":"1.55","currency":"EUR","handwritten":false,"note":"low-resolution image; VAT (TVA 10%) included in total, H.T. 15.45; no subtotal line"}
+{"id":"1115-receipt","total":"79.17","subtotal":"79.17","tax":null,"currency":"USD","handwritten":false,"note":"card slip, merchant copy; only printed amount is Subtotal 79.17; TIP and TOTAL lines left blank"}
+{"id":"1116-receipt","total":"34.12","subtotal":"31.01","tax":"3.11","currency":"USD","handwritten":false,"note":""}
+{"id":"1117-receipt","total":"158.07","subtotal":null,"tax":null,"currency":"USD","handwritten":true,"note":"card slip; printed Amount 158.07; handwritten tip 15.00 and total 173.07 ignored"}
+{"id":"1118-receipt","total":"4.99","subtotal":null,"tax":null,"currency":"USD","handwritten":false,"note":"low-resolution image; total 4.99 clear (also Balance Due $4.99); item-total and tax digits too small to read with confidence (look like 4.67 and 0.32)"}
+{"id":"1119-receipt","total":"27.44","subtotal":"25.20","tax":"2.24","currency":"USD","handwritten":false,"note":""}
+{"id":"1120-receipt","total":"23.46","subtotal":"21.55","tax":"1.91","currency":"USD","handwritten":false,"note":"pre-tax line labelled 'Amount' used as subtotal"}
+{"id":"1121-receipt","total":"71.58","subtotal":"65.90","tax":"5.68","currency":"USD","handwritten":false,"note":""}
+{"id":"1122-receipt","total":"47.70","subtotal":"44.20","tax":"3.50","currency":"USD","handwritten":false,"note":""}
+{"id":"1123-receipt","total":"21.76","subtotal":"19.75","tax":"2.01","currency":"USD","handwritten":false,"note":"subtotal line labelled 'Food'; memo check"}
+{"id":"1124-receipt","total":"83.64","subtotal":"77.80","tax":"5.84","currency":"USD","handwritten":false,"note":""}
+{"id":"1125-receipt","total":"19.10","subtotal":"17.85","tax":"1.25","currency":"USD","handwritten":false,"note":""}
+{"id":"1126-receipt","total":"39.18","subtotal":"41.00","tax":"1.80","currency":"USD","handwritten":false,"note":"discount 11.00; second printed Sub Total 31.80 after discount+tax; printed gratuity 18% 7.38 included in total"}
+{"id":"1127-receipt","total":"26.76","subtotal":"23.50","tax":"2.32","currency":"USD","handwritten":false,"note":"coupon 10.18 already deducted in subtotal; printed service fee 0.94 included; total labelled Balance Due"}
+{"id":"1128-receipt","total":"68.99","subtotal":"63.00","tax":"5.99","currency":"USD","handwritten":false,"note":""}
+{"id":"1129-receipt","total":"17.18","subtotal":"15.90","tax":"1.28","currency":"USD","handwritten":false,"note":"stray handwritten pen line, no tip"}
+{"id":"1130-receipt","total":"47.09","subtotal":"43.00","tax":"4.09","currency":"USD","handwritten":false,"note":"separate check 1 of 3; printed suggested gratuity guide only; second 'Sub Total' 47.09 equals total"}
+{"id":"1131-receipt","total":"28.31","subtotal":"25.85","tax":"2.46","currency":"USD","handwritten":false,"note":"subtotal line labelled 'Taxable Sales'; total labelled 'TL'; paid cash 40.00, change 11.69"}
+{"id":"1132-receipt","total":"61.80","subtotal":"56.70","tax":"5.10","currency":"USD","handwritten":false,"note":""}
+{"id":"1133-receipt","total":"146.57","subtotal":"134.46","tax":"12.11","currency":"USD","handwritten":false,"note":"50% birthday discount -14.94 applied before subtotal; printed tip guide only"}
+{"id":"1134-receipt","total":"21.73","subtotal":null,"tax":"1.73","currency":"USD","handwritten":false,"note":"total labelled 'DRIVE THRU'; no subtotal line (single item 20.00)"}
+{"id":"1135-receipt","total":"146.73","subtotal":"134.00","tax":"12.73","currency":"USD","handwritten":false,"note":""}
+{"id":"1136-receipt","total":"13.13","subtotal":"11.99","tax":"1.14","currency":"USD","handwritten":false,"note":"receipt cut off just below total line; total fully visible"}
+{"id":"1137-receipt","total":"14.17","subtotal":"12.94","tax":"1.23","currency":"USD","handwritten":false,"note":"cash 20.00, change printed as -5.83"}
+{"id":"1138-receipt","total":"25.94","subtotal":"24.24","tax":"1.70","currency":"USD","handwritten":false,"note":""}
+{"id":"1139-receipt","total":"617.00","subtotal":null,"tax":null,"currency":"INR","handwritten":false,"note":"Grand Total Rs. 617.00; unlabelled item sum 617.00, no tax line; GST number printed but no GST charged"}
+{"id":"1140-receipt","total":"25.47","subtotal":"23.58","tax":"1.89","currency":"USD","handwritten":false,"note":"slightly soft focus but digits readable"}
+{"id":"1141-receipt","total":"88.62","subtotal":"84.80","tax":"3.82","currency":"USD","handwritten":false,"note":""}
+{"id":"1142-receipt","total":"83.44","subtotal":"81.00","tax":"2.44","currency":"USD","handwritten":false,"note":"sum of 2 tax lines (Philly liquor tax 0.60 + PA sales tax 1.84); crumpled, dim photo"}
+{"id":"1143-receipt","total":"84.78","subtotal":"80.80","tax":"3.98","currency":"USD","handwritten":false,"note":"no single subtotal line; subtotal is sum of food 56.80 + liquor 24.00"}
+{"id":"1144-receipt","total":"46.40","subtotal":"36.00","tax":"3.19","currency":"USD","handwritten":false,"note":"printed gratuity 7.20 included; Sub w/Tax 39.19 + 7.20 = 46.39 but Amt Due and Visa both print 46.40 (0.01 mismatch on receipt)"}
+{"id":"1145-receipt","total":"65.14","subtotal":"60.87","tax":"4.27","currency":"USD","handwritten":false,"note":""}
+{"id":"1146-receipt","total":"13.26","subtotal":"12.25","tax":"1.01","currency":"USD","handwritten":false,"note":""}
+{"id":"1147-receipt","total":"13.00","subtotal":null,"tax":null,"currency":"USD","handwritten":false,"note":"Phnom Penh, Cambodia, priced in $; low-resolution image; no subtotal or tax lines"}
+{"id":"1148-receipt","total":"13.07","subtotal":"11.88","tax":"1.19","currency":"USD","handwritten":false,"note":"low-resolution image; total printed twice (seat total and all total) both 13.07"}
+{"id":"1149-receipt","total":"5.29","subtotal":"3.99","tax":"0.30","currency":"USD","handwritten":false,"note":"printed gratuity 1.00 included in total"}
+{"id":"1150-receipt","total":"80.45","subtotal":"74.49","tax":"5.96","currency":"USD","handwritten":false,"note":"Amount due line"}
+{"id":"1151-receipt","total":"13.53","subtotal":"11.69","tax":"1.14","currency":"USD","handwritten":false,"note":"printed 6% service fee 0.70 included (printed as --0.70T but added); tip helper suggestions printed"}
+{"id":"1152-receipt","total":"62.70","subtotal":"57.00","tax":null,"currency":"USD","handwritten":false,"note":"printed 10% service charge 5.70 included; Providenciales, Turks and Caicos"}
+{"id":"1153-receipt","total":"313.49","subtotal":"290.00","tax":"23.49","currency":"USD","handwritten":false,"note":""}
+{"id":"1154-receipt","total":"73.24","subtotal":"66.89","tax":"6.35","currency":"USD","handwritten":false,"note":"sum of 2 tax lines (Tax 1 6.35, Tax 2 0.00); gratuity/total lines blank"}
+{"id":"1155-receipt","total":"129.75","subtotal":null,"tax":null,"currency":"EUR","handwritten":false,"note":"Balance Due line; Dublin"}
+{"id":"1156-receipt","total":"14.85","subtotal":"12.37","tax":"2.48","currency":"GBP","handwritten":false,"note":"20% VAT; paid by Visa 14.85"}
+{"id":"1157-receipt","total":"9.70","subtotal":null,"tax":null,"currency":"USD","handwritten":false,"note":"Amount Due line; receipt folded but total readable"}
+{"id":"1158-receipt","total":"780.45","subtotal":"709.50","tax":"0.00","currency":"MYR","handwritten":false,"note":"printed 10% service charge 70.95 included; GST 0% = 0.00"}
+{"id":"1159-receipt","total":"6.59","subtotal":"5.99","tax":"0.60","currency":"USD","handwritten":false,"note":"Drive Thru Total; cash 10.00, change 3.41"}
+{"id":"1160-receipt","total":"33.34","subtotal":"31.45","tax":"1.89","currency":"USD","handwritten":false,"note":"two subtotal lines: Bar 0.00 and Food 31.45"}
+{"id":"1161-receipt","total":"53.23","subtotal":"50.49","tax":"2.74","currency":"USD","handwritten":false,"note":"printed gratuity 6.59 included as an item within subtotal; additional tip/total charge lines blank"}
+{"id":"1162-receipt","total":"333.72","subtotal":"309.00","tax":"24.72","currency":"USD","handwritten":false,"note":""}
+{"id":"1163-receipt","total":"41.32","subtotal":"37.95","tax":"3.37","currency":"USD","handwritten":false,"note":"suggested gratuity lines printed below total (partly cut off)"}
+{"id":"1164-receipt","total":"22.70","subtotal":"22.70","tax":null,"currency":"USD","handwritten":false,"note":"credit card slip: only printed amount is 'Subtotal 22.70'; tip and total lines blank; used it as total"}
+{"id":"1165-receipt","total":"117.00","subtotal":null,"tax":null,"currency":"AED","handwritten":false,"note":"Amount Due line; includes printed delivery charge 5.00; JBR (Dubai)"}
+{"id":"1166-receipt","total":"42.16","subtotal":"38.95","tax":"3.21","currency":"USD","handwritten":false,"note":"second 'Sub Total' line 42.16 after tax equals total"}
+{"id":"1167-receipt","total":"33.75","subtotal":"31.00","tax":"2.75","currency":"USD","handwritten":false,"note":"handwritten 'Thank you!' at top, not a tip"}
+{"id":"1168-receipt","total":"7.61","subtotal":"7.00","tax":"0.61","currency":"USD","handwritten":false,"note":"cash 8.00, change 0.39"}
+{"id":"1169-receipt","total":"46.39","subtotal":"42.95","tax":"3.44","currency":"USD","handwritten":false,"note":"Balance Due 46.39"}
+{"id":"1170-receipt","total":"109.28","subtotal":"100.26","tax":"9.02","currency":"USD","handwritten":false,"note":"Balance Due 109.28"}
+{"id":"1171-receipt","total":"523.00","subtotal":"498.00","tax":"24.60","currency":"INR","handwritten":false,"note":"Grand Total; 498.00+24.60=522.60, grand total printed rounded to 523.00; subtotal line labelled 'Total'; service tax 4.94%"}
+{"id":"1172-receipt","total":"17.75","subtotal":"16.39","tax":"1.36","currency":"USD","handwritten":false,"note":"handwritten pen mark at top, not a tip"}
+{"id":"1173-receipt","total":"16.56","subtotal":"14.85","tax":"1.71","currency":"USD","handwritten":false,"note":"sum of 3 tax lines (IL Sales 1.52, MPEA 0.15, Restaurant 0.04); subtotal labelled Net Total"}
+{"id":"1174-receipt","total":"55.38","subtotal":"41.95","tax":"2.94","currency":"USD","handwritten":false,"note":"printed gratuity 10.49 included in total"}
+{"id":"1175-receipt","total":"7.56","subtotal":"6.25","tax":"1.31","currency":"USD","handwritten":false,"note":"cash 10.00, change 2.44; reprint"}
+{"id":"1176-receipt","total":"41.45","subtotal":null,"tax":null,"currency":"USD","handwritten":false,"note":"credit card slip only: AMOUNT 41.45, tip and total lines blank; part of slip covered by tape"}
+{"id":"1177-receipt","total":"47.90","subtotal":"45.15","tax":"2.75","currency":"USD","handwritten":false,"note":"Balance Due 47.90"}
+{"id":"1178-receipt","total":"11.91","subtotal":"11.00","tax":"0.91","currency":"USD","handwritten":false,"note":"subtotal labelled 'Original TTL'"}
+{"id":"1179-receipt","total":"54.20","subtotal":"49.50","tax":"4.70","currency":"USD","handwritten":false,"note":"edge of a second slip (card copy) visible at right, cut off"}
+{"id":"1180-receipt","total":"12.03","subtotal":"11.24","tax":"0.79","currency":"USD","handwritten":false,"note":"Total Paid 12.03 (cash); 'State Tax 0.79' summary line repeats the same tax; small low-res image"}
+{"id":"1181-receipt","total":"439.86","subtotal":"404.00","tax":"35.86","currency":"USD","handwritten":false,"note":"Total Due line"}
+{"id":"1182-receipt","total":"50.80","subtotal":"40.00","tax":"3.60","currency":"USD","handwritten":false,"note":"sum of 2 tax lines (sales 2.80, resort 0.80); first Total 43.60, then printed voluntary 18% tip 7.20 included in final Total 50.80"}
+{"id":"1183-receipt","total":"10.00","subtotal":"8.99","tax":"0.74","currency":"USD","handwritten":false,"note":"printed processing fee 0.27 included; Balance Due 10.00"}
+{"id":"1184-receipt","total":"193.35","subtotal":"178.00","tax":"15.35","currency":"USD","handwritten":false,"note":"header/address cropped off; country inferred from format; second 'Sub Total' 193.35 after tax"}
+{"id":"1185-receipt","total":"28.40","subtotal":"26.30","tax":"2.10","currency":"USD","handwritten":false,"note":"Balance Due 28.40"}
+{"id":"1186-receipt","total":"52.47","subtotal":"49.50","tax":"2.97","currency":"USD","handwritten":false,"note":"paid by Mastercard 52.47; 'Amount Due 0.00' after payment, used charged total 52.47"}
+{"id":"1187-receipt","total":"50.38","subtotal":"46.54","tax":"3.84","currency":"USD","handwritten":false,"note":"Order Balance due 50.38"}
+{"id":"1188-receipt","total":"26.96","subtotal":"24.95","tax":"2.01","currency":"USD","handwritten":false,"note":"subtotal labelled 'Amount'"}
+{"id":"1189-receipt","total":"27.08","subtotal":"25.30","tax":"1.78","currency":"USD","handwritten":false,"note":""}
+{"id":"1190-receipt","total":"118.46","subtotal":"108.80","tax":"9.66","currency":"USD","handwritten":true,"note":"handwritten tip 35.54 and handwritten total 154.00 ignored; handwritten praise note at top"}
+{"id":"1191-receipt","total":"29.98","subtotal":"27.45","tax":"2.53","currency":"USD","handwritten":false,"note":"Order Total 29.98, Visa 29.98; a printed '+ Tip: $3.59' follows but receipt is cropped below it, so no printed post-tip total is visible (uncertain)"}
+{"id":"1192-receipt","total":"37.29","subtotal":"33.90","tax":"3.39","currency":"USD","handwritten":false,"note":"Total Due; item discount 9.95- within subtotal; small low-res image"}
+{"id":"1193-receipt","total":"19.19","subtotal":"17.77","tax":"1.42","currency":"USD","handwritten":false,"note":"BDAY CLUB 5.00- discount included in subtotal"}
+{"id":"1194-receipt","total":"65.10","subtotal":null,"tax":null,"currency":"EUR","handwritten":false,"note":"reprinted receipt; Clarendon Street, Dublin (Twitter @BARRUADUB)"}
+{"id":"1195-receipt","total":"33.75","subtotal":"31.54","tax":"2.21","currency":"USD","handwritten":false,"note":"split by seat (seat totals 20.62 and 13.13 with own tax lines 1.35 and 0.86); used overall check subtotal/tax/Balance Due"}
+{"id":"1196-receipt","total":"58.30","subtotal":"55.00","tax":"3.30","currency":"USD","handwritten":false,"note":"'Total before tip' 58.30; tip line blank and receipt cropped below; no address visible, country inferred"}
+{"id":"1197-receipt","total":"34.00","subtotal":null,"tax":null,"currency":"EUR","handwritten":false,"note":"Italian scontrino, TOTALE EUR 34,00 (comma decimal)"}
+{"id":"1198-receipt","total":"154.78","subtotal":"142.00","tax":"12.78","currency":"USD","handwritten":false,"note":"sum of 3 tax lines (food 7.70, bev 2.24, resort 2.84); Total Due; suggested gratuities printed only; small low-res image"}
+{"id":"1199-receipt","total":"128.33","subtotal":"118.00","tax":"10.33","currency":"USD","handwritten":false,"note":"handwritten '2' marks and circle around tax are annotations, not a tip/total"}

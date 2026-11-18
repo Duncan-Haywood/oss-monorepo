@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqye3TugP2vGqBKiAJJi",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T16:10:47Z",
+  "ended": "2026-11-13T16:12:30Z",
+  "wall_minutes": 21.91,
+  "tokens_in": 3882228,
+  "tokens_out": 17856,
+  "cost_usd": 1.8292,
+  "tool_calls": 43,
+  "task": "lowcomm-training milestone 6r: four-cell refit, pre-registered keep 1/32 run at H = 64",
+  "projects": [
+    "research/lowcomm-training"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15539",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Warns that pyenv.py torch can take 18 to 35 min; this run it installed the CPU wheel in under a minute. The worst-case figures may be stale."
+    },
+    {
+      "file": "platform/ci/*.py (system python3)",
+      "issue": "Every python3 call prints a distutils-precedence.pth '_distutils_hack' traceback to stderr. It is harmless but clutters every check's output."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 2 says to land open research PRs before building. #15530, #15532 and #15513 were updated by active sessions within minutes; #15442 (hanger-codesign 3c) is a claim with predictions and no results, so finishing it would mean running another programme's experiment.",
+      "did": "Left them alone and advanced the drawn programme.",
+      "result": "No conflict with sibling work."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-where-does-compression-start-to-cost-lowcomm.md",
+    "research/lowcomm-training/LOG.md (6r)"
+  ],
+  "goal": null,
+  "notes": "Refit on four cells: hinge chi2 2.66 (w0 8.5), power 4.18, linear 38.5. Predictions for omega 31 registered in LOG before training: hinge +0.152 [+0.108,+0.205], power +0.68 [+0.27,+2.7], linear +0.062 [+0.049,+0.074]. Measured +0.1321 (se 0.0041, 4 seeds, about 18 min each on 4 cores). H6r-i, H6r-ii and H6r-iii all held. Five-cell refit: hinge 3.24, power 17.3, linear 124.5. Local checks: project pytest 12 passed; research/_homepage/build.py ok; research_live_links, check_md_links, programme_check and post checks clean. No agent doc: the LOG entry is the programme's handoff.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2bb8ca76-153d-5743-a396-d1cf2254a61c",
+    "transcripts": 1,
+    "first": "2026-11-13T16:10:47Z",
+    "last": "2026-11-13T16:32:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 83,
+        "output": 17856,
+        "thinking": 1714,
+        "cache_read": 3793002,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89143,
+        "api_equivalent_usd": 1.8292,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 83,
+      "output": 17856,
+      "thinking": 1714,
+      "cache_read": 3793002,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89143,
+      "api_equivalent_usd": 1.8292,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.91,
+      "active_minutes": 4.16,
+      "model_minutes": 2.88,
+      "tool_minutes": 1.29,
+      "waiting_on_human_minutes": 17.75,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "refit script, 4 x 18 min CPU training runs, analysis, paper/README/post updates for a grad student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 328.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

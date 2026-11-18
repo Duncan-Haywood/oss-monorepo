@@ -133,3 +133,11 @@ test("options are validated", () => {
   assert.equal(normalizeOptions({ budget: "" }).budget, null);
   assert.equal(pct(0.054), "5.4%");
 });
+
+// redteam 2026-11-16: "Lamp,$1,200,2000,50%" read as a $1 ask and $200 resale.
+test("parseItems reads a quoted $1,200 and refuses an unquoted one", () => {
+  assert.equal(parseItems('Lamp,"$1,200",2000,50%').items[0].ask, 1200);
+  const r = parseItems("Lamp,$1,200,2000,50%");
+  assert.equal(r.items.length, 0);
+  assert.match(r.errors[0], /^line 1: .*thousands comma/);
+});

@@ -4,6 +4,7 @@
 // Same CSV as the browser page. Safe to re-run: deals are upserted by id.
 import fs from "node:fs";
 import { parseCsv, DEFAULT_STAGES } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 /** Pure: CSV text -> API payloads (one per deal) plus the rows that were skipped. */
 export function plan(text, stages = DEFAULT_STAGES) {
@@ -31,7 +32,7 @@ export async function upload({ url, key, deals, fetchImpl = fetch }) {
   return tally;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [file] = process.argv.slice(2), { DEALS_URL: url, DEALS_API_KEY: key } = process.env;
   if (!file || !url || !key) { console.error("usage: DEALS_URL=... DEALS_API_KEY=... node import.mjs deals.csv"); process.exit(2); }
   const p = plan(fs.readFileSync(file, "utf8"));

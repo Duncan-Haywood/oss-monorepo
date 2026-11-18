@@ -1,0 +1,219 @@
+{
+  "date": "2026-11-13",
+  "subject": "ventures/junk-car-buyer-offer-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-13-p-0bf4",
+  "drawn_by": "sample",
+  "round": 70,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a small junk-car buyer or salvage-yard owner who quotes cars over the phone; they check first that hulk value is weight over a 2,000 lb net ton times the yard's quote, that the converter is priced separately, that tow cost reflects the miles they actually drive, and that a car with no converter or no sellable parts is priced at zero for those lines, not at an example figure",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran calc.mjs through node on three cases and recomputed each by hand. Default car: (3200-250)/2000*220 = 324.50 hulk, 450*0.60*0.87 = 234.90 parts, revenue 709.40, costs 95+40+25+28+37.5+30 = 255.50, net 453.90, max offer 353.90; tool matches. 2,700 lb compact (no parts, $180/ton, $120 converter, 15 mi tow, ask $150, target $75): hulk 243, costs 80+40+25+30 = 175, net 188, max offer 113, profit at ask 38, break-even scrap (150+75-(188-243))/1.35 = $207.41/ton, max tow 15+(38-75)/3 = 2.67 mi; tool matches all. 4,700 lb pickup (600 lb pulled, $250/ton, $300 converter, $800 parts at 50%, 40 mi, 30 days): hulk 512.50, parts 348, costs 385, net 775.50; tool matches. The default $220/ton is above the $145-210/ton range that US junk-car buyer sites published for 2025 (web search, junkcarmedics.com and junkcarreaper.com, marketing-adjacent sources), but the page says defaults are placeholders. Not 4: a cleared or mistyped field silently becomes the example value (blank converter -> $150 added, '3,2OO' lbs -> 3,200), and the sell-through limit says 'never at these figures' when there are no parts to sell even though the ask already works.",
+    "completeness": "README and page claim: max offer, profit at ask, break-even offer, scrap-price limit, farthest tow, parts sell-through limit, five ladders, CSV download, warnings, usage opt-out. All ran end to end via analyze() and toCsv(); ladders monotone; CSV header and rows produced; bad input (weight 0, parts heavier than car, fee >100%, negative) returns warnings and no result. No stubs or TODOs in 116-line calc.mjs.",
+    "verification": "node --test '*.test.mjs': 23 tests pass (Node 22.23.4). Tests recompute the default car by hand and check each solved limit reproduces the target profit, which is good. But 4 of 5 seeded mutants survived via quality_mutate.py: the buy verdict (profitAtAsk >= target -> > 0) which drives the page headline 'Take it at the ask', the sell-through zero branch, the storage warning threshold, and floor -> ceil on the counter. Only the 2000 -> 2240 ton constant was caught. No test covers blank input or the no-parts case.",
+    "craft": "Read calc.mjs, index.html script, calc.test.mjs, page.test.mjs. Pure functions, small and readable, limits solved in closed form. Defects: silent fallback to DEFAULTS for non-finite input in both analyze (calc.mjs:94) and the page's opts() (index.html:143); breakEvenSellThrough conflates 'no parts' with 'impossible' (calc.mjs:77); headline rounds maxOffer with money() (353.9 -> $354) while the counter warning floors it ($353).",
+    "claims": "Checked: 'Nothing is uploaded' (page.test asserts no fetch/XHR/beacon; index imports only ./calc.mjs and ./usage.mjs) backed; 'each limit is solved and tests check it reproduces the target' backed by calc.test.mjs; disclaimer (no warranty, not advice, no SLA) present on page and README; defaults labelled 'placeholders, not your crusher's quote'; 'Not decided' section lists title, licensing, converter law, price swings, taxes; usage events named equal those recorded. Source llms.txt points to the old github.io host but the served https://marisstella.app/junk-car-buyer-offer-calculator/llms.txt is rewritten correctly (source-only, not a defect). No overclaim found.",
+    "fitness": "Walked the job: a buyer gets a phone call, types weight, yard quote, converter, ask, and gets a counter. Works for a single car. Gaps in the first hour: clearing a field (e.g. converter missing/stolen) silently re-adds the example $150; only one-way tow miles are costed, so a buyer driving their own truck out empty and back loaded undercounts mileage by about half; no way to keep a quote list or compare cars; 'never at these figures' for a car with no parts is confusing.",
+    "domain": "Method matches the standard work-backward offer a yard owner uses (scrap weight x price per net ton + converter + parts net of fees - tow, title, disposal, storage, labour, haul - margin). Departures: tow cost assumes one-way billed miles (fine for a hired tow quoting loaded miles, wrong for own-truck deadhead); hulk weight is curb weight minus pulled parts with no deduction for tires and fluids removed at depollution; no complete-vs-incomplete car price differential. These are stated-limit level, not method errors."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "default car net and max offer",
+      "method": "hand arithmetic from the stated formula, 2,000 lb net ton",
+      "command": "node scratchpad/j.mjs (analyze({}))",
+      "expected": "net 453.90, max offer 353.90",
+      "observed": "net 453.9, maxOffer 353.9",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "2,700 lb compact, no parts: net, max offer, break-even scrap price, max tow",
+      "method": "hand arithmetic, independent of the tests' figures",
+      "command": "analyze({weightLbs:2700,removedLbs:0,scrapPricePerTon:180,converterValue:120,partsRetail:0,partsHours:0,towMiles:15,storageDays:0,sellerAsk:150,targetProfit:75})",
+      "expected": "net 188, max 113, $207.41/ton, 2.67 mi",
+      "observed": "net 188, max 113, 207.407, 2.667",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "4,700 lb pickup with 600 lb pulled, 30 days storage",
+      "method": "hand arithmetic",
+      "command": "analyze({weightLbs:4700,removedLbs:600,scrapPricePerTon:250,converterValue:300,partsRetail:800,partsSellThroughPct:50,partsHours:3,towMiles:40,storageDays:30,sellerAsk:500,targetProfit:150})",
+      "expected": "hulk 512.50, parts 348, costs 385, net 775.50",
+      "observed": "512.5, 348, 385, 775.5",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "default scrap price against published 2025 US junk-car price per ton",
+      "method": "web search: junkcarmedics.com and junkcarreaper.com 2025 ranges ($145-210/ton, avg ~$174-185); carwhere.com cites USGS HMS ~$289/short ton Dec 2025",
+      "command": "WebSearch 'scrap car price per ton 2025'",
+      "expected": "$145-210/ton",
+      "observed": "$220/ton default, labelled placeholder",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "blank converter field (car with no converter)",
+      "method": "a blank should mean zero or an error, not the example",
+      "command": "analyze({weightLbs:'',scrapPricePerTon:''}); analyze({weightLbs:'3,2OO'})",
+      "expected": "warning or zero",
+      "observed": "silently uses DEFAULTS (3,200 lb, $220), same result as the example",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sell-through limit when the car has no parts and the ask already works",
+      "method": "logic: no parts needed -> 0 / not needed",
+      "command": "analyze({partsRetail:0,sellerAsk:50})",
+      "expected": "not needed",
+      "observed": "NaN, rendered as 'never at these figures' while buy=true",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs'",
+      "expected": "pass",
+      "observed": "23/23 pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "nothing uploaded",
+      "method": "read index.html script and page.test.mjs",
+      "command": "grep fetch/XHR/sendBeacon in index.html calc.mjs",
+      "expected": "none",
+      "observed": "none; imports only ./calc.mjs ./usage.mjs",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer and placeholder wording on page and README",
+      "method": "read index.html:58,130-132 and README",
+      "command": "grep -n 'No warranty\\|placeholders' index.html README.md",
+      "expected": "present",
+      "observed": "present",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served llms.txt host",
+      "method": "load served file",
+      "command": "curl https://marisstella.app/junk-car-buyer-offer-calculator/llms.txt",
+      "expected": "marisstella.app link",
+      "observed": "marisstella.app link (source has github.io; rewritten at deploy)",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "CSV export and ladders",
+      "method": "run toCsv(analyze({}))",
+      "command": "node scratchpad/j.mjs",
+      "expected": "five blocks",
+      "observed": "scrap ladder 132..330/ton with profit 24..316, five blocks",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "tow cost for own-truck buyer",
+      "method": "practice: own truck drives yard->car->yard, round trip",
+      "command": "read calc.mjs:51",
+      "expected": "round-trip or deadhead input",
+      "observed": "one-way miles x rate only",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:102",
+      "change": "buy: e.profitAtAsk >= o.targetProfit -> buy: e.profitAtAsk > 0",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:81",
+      "change": "if (s <= 0) return 0; -> if (s < 0) return 0;",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:107",
+      "change": "storage warning threshold revenue * 0.25 -> revenue * 2.5",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:103",
+      "change": "counter: Math.floor(e.maxOffer) -> Math.ceil(e.maxOffer)",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:47",
+      "change": "hulkLbs / 2000 -> hulkLbs / 2240",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "A cleared or mistyped field silently takes the example value: leaving the converter blank for a car whose converter is gone adds $150 to the offer; a blank weight prices a 3,200 lb car. No warning is shown.",
+      "where": "ventures/junk-car-buyer-offer-calculator/index.html:143",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "analyze() repeats the same silent fallback for non-finite raw values instead of warning",
+      "where": "ventures/junk-car-buyer-offer-calculator/calc.mjs:94",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "The buy verdict that sets the headline ('Take it at the ask' vs 'Counter') is untested between 0 and the target profit: mutating >= target to > 0 passes all 23 tests; 4 of 5 seeded mutants survived",
+      "where": "ventures/junk-car-buyer-offer-calculator/calc.test.mjs:40",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "breakEvenSellThrough returns NaN when partsRetail is 0, shown as 'never at these figures' even when the ask already clears the target",
+      "where": "ventures/junk-car-buyer-offer-calculator/calc.mjs:77",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Tow is costed on one-way miles only; a buyer using their own truck drives the empty leg too, so mileage cost is about half of real",
+      "where": "ventures/junk-car-buyer-offer-calculator/calc.mjs:51",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Headline rounds the max offer to nearest dollar ($354 for 353.9) while the counter warning floors it ($353), so the page shows two different 'most you can offer' numbers",
+      "where": "ventures/junk-car-buyer-offer-calculator/index.html:156",
+      "category": "logic-error",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15585"
+  ],
+  "verdict": "The arithmetic is right: three cars recomputed by hand (default 3,200 lb car, a 2,700 lb compact with no parts, a 4,700 lb pickup) match the tool to the cent, including the closed-form break-even scrap price and farthest tow, and the method is the work-backward offer a yard owner uses. Claims are backed, the disclaimer and placeholder wording are present, and the served llms.txt is correct. It does not meet the bar because verification is 2: four of five seeded mutants survive 23 green tests, including the buy verdict that drives the headline. The worst defect is input handling: a blank or mistyped field silently becomes the example value, so a buyer who clears the converter field for a car with no converter is told to pay $150 more. Correctness, completeness, craft, claims and domain 3; verification and fitness 2."
+}

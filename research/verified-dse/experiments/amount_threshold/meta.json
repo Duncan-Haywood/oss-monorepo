@@ -1,0 +1,76 @@
+{
+ "base_period_ns": {
+  "pcnsh24": 13.69,
+  "tzcsh8": 14.58,
+  "chainsh8": 11.95,
+  "pcnsh6": 11.78,
+  "tzcsh4": 8.98,
+  "chainsh2": 15.09
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "chainsh2": [
+   "chainsh_w",
+   "chainsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 2
+   },
+   ""
+  ],
+  "chainsh8": [
+   "chainsh_w",
+   "chainsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 8
+   },
+   ""
+  ],
+  "pcnsh6": [
+   "pcnsh_w",
+   "pcnsh_w",
+   {
+    "W": 128,
+    "M": 6,
+    "CW": 3
+   },
+   ""
+  ],
+  "pcnsh24": [
+   "pcnsh_w",
+   "pcnsh_w",
+   {
+    "W": 128,
+    "M": 24,
+    "CW": 5
+   },
+   ""
+  ],
+  "tzcsh4": [
+   "tzcsh_w",
+   "tzcsh_w",
+   {
+    "W": 128,
+    "N": 4,
+    "ZW": 3,
+    "LANE": 32
+   },
+   ""
+  ],
+  "tzcsh8": [
+   "tzcsh_w",
+   "tzcsh_w",
+   {
+    "W": 128,
+    "N": 8,
+    "ZW": 4,
+    "LANE": 16
+   },
+   ""
+  ]
+ }
+}

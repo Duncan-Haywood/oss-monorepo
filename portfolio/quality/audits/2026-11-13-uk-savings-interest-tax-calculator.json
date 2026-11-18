@@ -1,0 +1,220 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/uk-savings-interest-tax-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-g",
+ "drawn_by": "sample",
+ "round": 61,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a UK chartered tax adviser (CTA) who prepares Self Assessment returns and checks HMRC P800 and Simple Assessment savings calculations for employed people and retirees; first they check the 2026/27 rates and bands, the order savings are stacked (personal allowance, then the starting rate, then the PSA), the PSA cliff at the band edges, and what happens to someone over £100,000, where interest also costs them personal allowance",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "node /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/uk-savings/check.mjs /home/user/oss-monorepo/ventures/uk-savings-interest-tax-calculator/calc.mjs. The script is the auditor's own whole-liability engine, built from GOV.UK 'Income Tax rates and allowances: current and past' (2026 to 2027 column, published 2026-04-06) and the 'Tax on savings interest' guide (gov.uk/apply-tax-free-interest-on-savings), both fetched through the content API on 2026-11-13. Every constant in RATES matches GOV.UK for 2026/27: PA 12,570, taper from 100,000, basic band 37,700, higher to 125,140, starting rate for savings 5,000, PSA 1,000/500/0, rates 20/40/45. Both GOV.UK worked examples reproduce (wages 16,000 + interest 200 -> 0; basic rate, 1,300 interest -> 60). By-hand cases also match: the PSA cliff (other 49,000, interest 1,500 -> 246) and the starting-rate taper (other 14,000, interest 6,000 -> 286). On a grid of 7,865 (other, interest) pairs, the tool's tax on the savings slice matches the auditor's engine 7,865/7,865. But the tool's figure is the tax on the savings slice only, not the extra tax the interest causes. When other income plus interest goes over £100,000, each £2 of interest also removes £1 of personal allowance, which raises the tax on the other income, and the tool leaves that out. Examples: other 100,000, interest 10,000: tool 3,800, real extra tax 5,800. Other 100,000, interest 500: tool 0, real 100. Other 120,000, interest 10,000: tool 4,243, real 5,271. 1,980 of the 7,865 grid pairs differ, the worst by £5,028. Below £100,000 total income it is exact.",
+  "completeness": "Claimed features run end to end: tax due, interest after tax, tax-free interest, pot size at the given AER, ISA saving, copy/download/print summary, local opt-out usage counting (usage.test.mjs). The served page https://marisstella.app/uk-savings-interest-tax-calculator/ returns 200, served calc.mjs is byte-identical to the source (curl | diff), the served llms.txt and canonical are rewritten to marisstella.app, and all four sibling links return 200. Partly delivered: 'including the £100,000 taper' (index.html:87). The taper shrinks the allowance, but the tax that costs on other income is not counted (see correctness). No stubs or TODOs.",
+  "verification": "cd ventures/uk-savings-interest-tax-calculator && node --test '*.test.mjs': 22 pass, 0 fail (the README's root-level glob also gives 22/0). The tests pin hand-computed values for the main cases (basic, higher, additional, starting rate, unused PA). quality_mutate.py, 4 core mutants: 1 caught (starting-rate room computed from gross instead of taxable other income). 3 survived the whole suite: taper divisor /2 -> /3 (calc.mjs:29), additional-rate threshold 125,140 -> 125,000 (calc.mjs:8), and the PSA basic-rate boundary moved up by £1,000 (calc.mjs:37). No test covers the taper zone, the 125,140 edge or the PSA cliff, which is where the real taper defect sits.",
+  "craft": "Files read: calc.mjs (117 lines, pure functions), calc.test.mjs, page.test.mjs, index.html script (lines 119-165), usage.mjs. Small, readable and dependency-free; output is escaped before innerHTML; input is validated with clear messages. Defects: taxFreeInterest bisects with a 0.005 tolerance and returns values like 18,570.02, 1,000.02 and 500.01 where the true ceiling is a whole pound (calc.mjs:56-63; shown on the page as '£1,000.02 tax-free'), and a closed form would be exact. The comment says rates were 'written from memory' (calc.mjs:2), which is now stale, since they match GOV.UK.",
+  "claims": "Backed: the disclaimer and no-warranty text (index.html:110), the 'not tax advice' and verify-on-GOV.UK lines, 'nothing uploaded' (page.test.mjs checks for no network APIs), 2026/27 rates (match GOV.UK), joint accounts split 50/50 (GOV.UK: 'HMRC will split the interest earned equally'), banks paying gross, the starting-rate FAQ figure of £17,570 (GOV.UK says the same), and the named exclusions (Scotland, dividends, Gift Aid, pension relief, BPA, marriage allowance, later-year savings rates). Not backed: 'Covers ... the £100,000 taper' (index.html:87), because the PA lost on other income is not counted. 'The same money in a cash ISA would be tax-free' and isaSaving = full tax (calc.mjs:81,85) ignore the £20,000 annual ISA subscription limit; the sample's £70,000 pot cannot all move in one year. README's 'how much of your savings should move into an ISA' inherits the same gap. VENTURE.yaml and calc.mjs still say the rates are unverified and from memory.",
+  "fitness": "Job: 'do I owe tax on my bank interest, how much, and how much is tax-free'. A basic- or higher-rate saver with total income under £100,000, which is the first visitor VENTURE.yaml names, gets the right figure, the right PSA and starting-rate breakdown, and a sensible next step. That covers most UK savers. Someone over £100,000 is told a smaller bill than HMRC will send. Their PAYE code gives a full PA, so the underpayment on a P800 equals the full 5,800 in the example, not 3,800. They are also told a wrong marginal cost (£40 per £100 instead of £60) and a tax-free figure of £500 that is really £0. Missing: the rule that interest over £10,000 requires a Self Assessment return (GOV.UK states it).",
+  "domain": "Compared against GOV.UK 2026/27 rates and the HMRC 'Tax on savings interest' guide. Correct: the stacking order (unused PA, then the starting rate reduced £1 for £1 by taxable non-savings income, then the PSA, with PSA-covered interest still using up band), the PSA band test with interest added to other income (GOV.UK: 'add all the interest you've earned to your other income'), and the 125,140 additional-rate edge in taxable-income terms. Departs: (1) the effect of the PA taper on non-savings tax is not attributed to the interest, so the bill, marginal rate and tax-free ceiling are wrong above £100,000; (2) the ISA saving ignores the £20,000 subscription limit; (3) the £10,000 Self Assessment threshold is not given. Scotland is refused outright. The auditor's understanding, not verified here, is that savings income is taxed at UK savings rates and bands for Scottish taxpayers too, so the refusal is cautious but narrower than it needs to be."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "all 2026/27 constants in RATES",
+   "method": "GOV.UK 'Income Tax rates and allowances: current and past', 2026 to 2027 column (published 2026-04-06), fetched via gov.uk/api/content 2026-11-13",
+   "command": "curl -sS https://www.gov.uk/api/content/government/publications/rates-and-allowances-income-tax/income-tax-rates-and-allowances-current-and-past",
+   "expected": "PA 12,570; taper 100,000; SRS 5,000; basic to 37,700; higher to 125,140; 20/40/45",
+   "observed": "identical in calc.mjs:3-13",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "GOV.UK worked examples: wages 16,000 + interest 200; basic-rate saver with 1,300 interest",
+   "method": "GOV.UK 'Tax on savings interest' guide examples (gov.uk/apply-tax-free-interest-on-savings)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/uk-savings/check.mjs /home/user/oss-monorepo/ventures/uk-savings-interest-tax-calculator/calc.mjs",
+   "expected": "0 and 60",
+   "observed": "0 and 60",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "PSA cliff (other 49,000, interest 1,500) and starting-rate taper (other 14,000, interest 6,000)",
+   "method": "by hand from GOV.UK rules: 770 x 20% + 230 x 40% = 246; (6,000 - 3,570 SRS - 1,000 PSA) x 20% = 286",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/uk-savings/check.mjs /home/user/oss-monorepo/ventures/uk-savings-interest-tax-calculator/calc.mjs",
+   "expected": "246 and 286",
+   "observed": "246 and 286",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "extra tax caused by 10,000 interest on 100,000 other income (PA taper zone)",
+   "method": "auditor's whole-liability engine from GOV.UK rules: liability(100,000 + 10,000 savings) - liability(100,000) = 33,232 - 27,432; PA falls 12,570 -> 7,570, costing 5,000 x 40% on other income",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/uk-savings/check.mjs /home/user/oss-monorepo/ventures/uk-savings-interest-tax-calculator/calc.mjs",
+   "expected": "5,800",
+   "observed": "3,800",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "grid of 7,865 (other 0-160,000 step 2,500; interest 0-30,000 step 250)",
+   "method": "auditor's engine from GOV.UK rules; extra liability caused by the interest vs tool, and savings-slice tax vs tool",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/uk-savings/check.mjs /home/user/oss-monorepo/ventures/uk-savings-interest-tax-calculator/calc.mjs",
+   "expected": "7,865/7,865",
+   "observed": "slice 7,865/7,865; extra liability 5,885/7,865 (all misses have total income > 100,000; worst gap 5,028)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tax-free interest ceiling for other income 0 / 30,000 / 100,000",
+   "method": "by hand: 12,570 + 5,000 + 1,000 = 18,570; PSA 1,000; above 100,000 every £1 of interest costs 20p of PA tax, so 0",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/uk-savings/check.mjs /home/user/oss-monorepo/ventures/uk-savings-interest-tax-calculator/calc.mjs",
+   "expected": "18,570 / 1,000 / 0",
+   "observed": "18,570.02 / 1,000.02 / 500.01",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/uk-savings-interest-tax-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "22 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Covers: unused personal allowance (including the £100,000 taper)'",
+   "method": "compare with check.mjs taper-zone results",
+   "command": "grep -n '100,000 taper' ventures/uk-savings-interest-tax-calculator/index.html",
+   "expected": "taper cost counted in the tax on interest",
+   "observed": "PA reduced, but lost-PA tax on other income omitted (index.html:87)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'The same money in a cash ISA would be tax-free' / ISA saving",
+   "method": "GOV.UK Individual Savings Accounts guide, fetched via gov.uk/api/content/individual-savings-accounts 2026-11-13: in 2026 to 2027 the most you can save in ISAs is £20,000",
+   "command": "node -e 'import(\"./calc.mjs\").then(m=>console.log(m.compute(m.SAMPLE).findings))' (in the venture dir)",
+   "expected": "a saving limited to what can be subscribed, or the limit stated",
+   "observed": "full tax on a £70,000 pot shown as the ISA saving; the limit is not mentioned anywhere",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, privacy, joint-account 50/50, 'banks pay gross', £17,570 starting-rate cut-off",
+   "method": "read index.html and compare with the GOV.UK 'Tax on savings interest' guide",
+   "command": "grep -n -i 'No warranty\\|50/50\\|17,570\\|gross' ventures/uk-savings-interest-tax-calculator/index.html ventures/uk-savings-interest-tax-calculator/calc.mjs",
+   "expected": "present and consistent with GOV.UK",
+   "observed": "present and consistent",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "served page, served calc.mjs and llms.txt, sibling links",
+   "method": "load https://marisstella.app/uk-savings-interest-tax-calculator/",
+   "command": "curl -sS https://marisstella.app/uk-savings-interest-tax-calculator/calc.mjs | diff - ventures/uk-savings-interest-tax-calculator/calc.mjs",
+   "expected": "200, same engine, rewritten hosts",
+   "observed": "200; calc.mjs identical; llms.txt and canonical point at marisstella.app; 4 siblings 200",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Self Assessment requirement for interest over £10,000",
+   "method": "GOV.UK 'Tax on savings interest': 'If your savings interest is more than £10,000 You need tell HMRC ... on a Self Assessment tax return'",
+   "command": "grep -n '10,000' ventures/uk-savings-interest-tax-calculator/calc.mjs ventures/uk-savings-interest-tax-calculator/index.html",
+   "expected": "stated in What to do",
+   "observed": "no mention",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:29",
+   "change": "(total - R.taperStart) / 2 -> (total - R.taperStart) / 3",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:8",
+   "change": "additionalFrom: 125140 -> additionalFrom: 125000",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:37",
+   "change": "taxableTotal <= R.basicBand ? R.psaBasic -> taxableTotal <= R.basicBand + 1000 ? R.psaBasic",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:33",
+   "change": "R.startingRateBand - taxableOther -> R.startingRateBand - other",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Above £100,000 total income the tool reports only the tax on the savings slice. It leaves out the extra tax on other income caused by the personal allowance the interest removes, so the 'tax due', the ISA saving and the 'Covers ... £100,000 taper' claim are all understated. Other 100,000 + interest 10,000: tool 3,800, real extra tax (and the P800 underpayment) 5,800; 1,980 of 7,865 grid pairs differ, by up to £5,028.",
+   "where": "ventures/uk-savings-interest-tax-calculator/calc.mjs:29",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "For the same reason, the marginal-cost finding and the tax-free ceiling are wrong in the taper zone: at 100,000 other income it says £40 per extra £100 (real £60) and £500.01 tax-free (real £0).",
+   "where": "ventures/uk-savings-interest-tax-calculator/calc.mjs:56",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "3 of 4 seeded mutants survive. No test covers the PA taper, the 125,140 additional-rate edge or the PSA basic/higher cliff.",
+   "where": "ventures/uk-savings-interest-tax-calculator/calc.test.mjs:5",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "The ISA saving equals the full tax and the finding says 'the same money in a cash ISA would be tax-free', ignoring the £20,000 annual subscription limit (the sample pot is £70,000). README promises to say 'how much of your savings should move into an ISA'.",
+   "where": "ventures/uk-savings-interest-tax-calculator/calc.mjs:81",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "'What to do' omits GOV.UK's rule that savings interest over £10,000 must be reported on a Self Assessment return; it suggests a P800 or tax code is an equal route.",
+   "where": "ventures/uk-savings-interest-tax-calculator/calc.mjs:91",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "taxFreeInterest bisects with a 0.005 tolerance and returns 18,570.02 / 1,000.02 / 500.01 instead of whole-pound ceilings, which the page shows.",
+   "where": "ventures/uk-savings-interest-tax-calculator/calc.mjs:62",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "calc.mjs and VENTURE.yaml still say the rates were written from memory and are unverified; they match GOV.UK 2026/27 (checked 2026-11-13).",
+   "where": "ventures/uk-savings-interest-tax-calculator/calc.mjs:2",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15397"
+ ],
+ "verdict": "For the saver it is aimed at (total income under £100,000) the tool is right. Every 2026/27 constant matches GOV.UK, both GOV.UK worked examples reproduce, the stacking order and PSA cliff are correct, and its savings-slice tax matches an independent engine on 7,865/7,865 grid points. It falls short above £100,000. There it reports only the tax on the savings slice and leaves out the personal allowance the interest removes, so a £100,000 earner with £10,000 interest is told £3,800 where HMRC will collect £5,800, with a wrong marginal rate and a tax-free figure of £500 that is really £0. The page claims to cover the taper. The ISA saving ignores the £20,000 subscription limit, the £10,000 Self Assessment rule is missing, and 3 of 4 seeded mutants survive, the taper among them. Below the bar on correctness, claims and verification. The fixes are small: count the lost-PA tax, pin the taper, 125,140 and PSA-cliff cases in tests, cap or caveat the ISA saving, and add the £10,000 line."
+}

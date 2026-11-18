@@ -1,4 +1,4 @@
-"""Run every design through three ABC flows and measure exact-rewrite headroom. Writes results.txt, results.json."""
+"""Run every design through five ABC flows and measure exact-rewrite headroom. Writes results.txt, results.json."""
 import json
 import os
 import sys

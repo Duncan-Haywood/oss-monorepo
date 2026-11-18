@@ -1,0 +1,58 @@
+(milestone 39's setup, imported:)
+(milestone 38's setup, imported:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+
+# Milestone 40: the recoil's lift-off and the re-press from zero
+## 0. Recoil bracket: 8d shank 4.33 g; nail momentum 0.087-0.130 N s (Peterson and Dixon 1975), 0.129-0.160 N s (Buchalter et al. 2002); Lowe et al. 2014 force-plate unloading 8.70 N s per transfer phase
+   bracket 0.087-8.70 N s against buildbot-recoil's lift-off band 0.25-1 N s: straddles it
+
+g1: lowest balancing press > 0 at z 1 m 6.4 N, z 1.2 m 11.6 N, z 1.2 m 11.7 N, z 1.2 m 11.8 N (milestone 30's calibration pose 6.4 N)
+h1: lowest balancing press > 0 at z 1.4 m 3.7 N, z 1.6 m 8 N (milestone 30's calibration pose 0.0 N)
+
+## A. Census, H 0, exact sensor, window plan of the spec: nose-moving joints loose in the window (of which below tau_f at both ends), set by the re-press, by kind
+  (g1 F_r 0: largest |tau| on the rise of a joint below tau_f in the window 0.159 N m; tau_f would have to be below that for the re-press to set one)
+  (g1 F_r 0: no rise plan at [[1.0, 0.15]])
+  g1 F_r  0.0 N: loose 41 (below 11), set 0; arm 20/10/0; leg 15/0/0; waist 6/1/0
+  h1 F_r  0.0 N: loose 15 (below 0), set 0; arm 1/0/0; leg 13/0/0; waist 1/0/0
+  (g1 F_r 10: largest |tau| on the rise of a joint below tau_f in the window 0.145 N m; tau_f would have to be below that for the re-press to set one)
+  (g1 F_r 10: no rise plan at [[1.0, 0.15]])
+  g1 F_r 10.0 N: loose 41 (below 11), set 0; arm 20/10/0; leg 15/0/0; waist 6/1/0
+  h1 F_r 10.0 N: loose 15 (below 0), set 0; arm 1/0/0; leg 13/0/0; waist 1/0/0
+
+(section B tasks: g1 stock uniform 70 s, g1 stock unaware 212 s, g1 stock aware 212 s, g1 braked uniform 69 s, g1 braked unaware 146 s, g1 braked aware 145 s, h1 stock uniform 234 s, h1 stock unaware 759 s, h1 stock aware 764 s, h1 braked uniform 235 s, h1 braked unaware 528 s, h1 braked aware 531 s)
+(rise samples per controller, summed over section B processes: {"preload": 80728, "hold": 566, "none": 16468, "skipped": 15024})
+## B. Worst residual along the wall (mm), |e| 0.2 N, F_r 0: robot | case | H | uniform / unaware / aware   (milestone 39)
+  g1 stock    0.0 | 0.479 / 0.479 / 0.479   (0.479)
+  g1 stock    5.0 | 0.485 / 0.485 / 0.485   (0.485)
+  g1 stock   20.0 | 0.012 / 0.203 / 0.012   (0.012)
+  g1 braked   0.0 | 0.021 / 0.021 / 0.021   (0.021)
+  g1 braked   5.0 | 0.012 / 0.012 / 0.012   (0.012)
+  g1 braked  20.0 | 0.012 / 0.203 / 0.012   (0.012)
+  h1 stock    0.0 | 0.010 / 0.010 / 0.010   (0.010)
+  h1 stock    5.0 | 0.501 / 0.501 / 0.501   (0.501)
+  h1 stock   20.0 | 0.423 / 0.423 / 0.423   (0.423)
+  h1 braked   0.0 | 0.010 / 0.010 / 0.010   (0.010)
+  h1 braked   5.0 | 0.019 / 0.019 / 0.019   (0.019)
+  h1 braked  20.0 | 0.032 / 0.032 / 0.032   (0.032)
+check: 'uniform' reproduces milestone 39 to 0.0e+00 mm (expect 0)
+
+## D. No-hose clean-sheet stack per pose (spec window torques): robot | case | worst pose | uniform loose | set joints fixed | gain (points); min over poses
+  g1 stock  | [1.2, 0.0] | 0.9081 | 0.9081 | +0.00; min over poses 0.9081 -> 0.9081; milestone 39's convention at that pose 0.9081
+  g1 braked | [1.2, 0.0] | 0.9160 | 0.9160 | +0.00; min over poses 0.9160 -> 0.9160
+  h1 stock  | [1.6, -0.15] | 0.9564 | 0.9564 | +0.00; min over poses 0.9564 -> 0.9564; milestone 39's convention at that pose 0.9564
+  h1 braked | [1.6, -0.15] | 0.9564 | 0.9564 | +0.00; min over poses 0.9564 -> 0.9564
+
+## E. Hypotheses (registered in LOG.md before this run)
+H151 (F_r 0 sets at least half the loose nose-moving joints): 0 of 56 -> refuted
+H152 (braked, 5 N, unaware > 0.1 mm; milestone 39 0.012): 0.012 mm -> refuted
+H153 (braked, 5 N, aware <= 0.1 mm): 0.012 mm -> held
+H154 (braked, G1 worst pose stack gains >= 0.5 points): +0.00 -> refuted
+H155 (F_r 10 sets fewer than F_r 0): 0 vs 0 -> refuted
+
+(run time 1061 s after the import; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

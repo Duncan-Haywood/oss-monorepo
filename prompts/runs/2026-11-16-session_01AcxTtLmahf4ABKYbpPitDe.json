@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtLmahf4ABKYbpPitDe",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T07:06:23Z",
+  "ended": "2026-11-16T07:32:37Z",
+  "wall_minutes": 26.45,
+  "tokens_in": 6643686,
+  "tokens_out": 32803,
+  "cost_usd": 3.0026,
+  "tool_calls": 58,
+  "task": "ai-bookkeeper flagship item (5): receipt tax on SRD photos, read the total first for the 27 no-tax wrong-total photos",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16491",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/receipt-tax-ocr-labels-2026-11-16.md",
+      "issue": "Says the 4-shard SRD read takes about 25 minutes; on this container it took about 40."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The buildable note counted 27 no-tax wrong-total photos; one (1087) has no labelled total, so 26 by the scorer's own rule."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Did not rebuild the page's tesseract.js readings (second half of the buildable note); the session's time went to the CLI measurement and the vote change",
+      "did": "Measured the CLI only and said in README and eval doc that the page figures are not re-measured",
+      "result": "Page measurement left as the next item"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-when-ocr-misspells-total-on-a-receipt.md",
+    "ventures/ai-bookkeeper/eval/receipt-total-first-2026-11-16.md"
+  ],
+  "goal": null,
+  "notes": "Baseline reproduced exactly (SRD CLI totals 151, tax 132/12/41). After: totals 154, tax 133/12/40, item splits 49; gains 1002, 1030, 1133, none lost. In-sample; CORD/SROIE single-reading unchanged (CORD tax 323/46/41, totals 749/96/92). A cash-less-change rule was tried and dropped (no photo changed). Verification: run_venture_tests.py ai-bookkeeper 3275 tests pass; run_workflow_locally.py --for-changes 10/10 workflows passed (uses: steps not run, as the tool reports); post front matter/links/similarity clean; venture-preflight run before merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fa4e173b-a171-589d-8c4b-996a0f7422be",
+    "transcripts": 1,
+    "first": "2026-11-16T07:06:23Z",
+    "last": "2026-11-16T07:32:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 113,
+        "output": 32803,
+        "thinking": 9946,
+        "cache_read": 6513141,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130432,
+        "api_equivalent_usd": 3.0026,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 113,
+      "output": 32803,
+      "thinking": 9946,
+      "cache_read": 6513141,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130432,
+      "api_equivalent_usd": 3.0026,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.45,
+      "active_minutes": 9.99,
+      "model_minutes": 6.23,
+      "tool_minutes": 3.76,
+      "waiting_on_human_minutes": 16.46,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "re-reading 200 photos, diagnosing 26 cases, two vote rules with tests and write-up: a day for an OCR engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 199.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

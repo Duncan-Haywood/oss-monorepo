@@ -61,3 +61,16 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("analysis_run");
   assert.equal(readUsage().analysis_run, 1);
 });
+
+test("stored JSON that is not a plain object is treated as empty, and counting recovers", () => {
+  // Found by a red-team campaign (2026-11-11): flipping either shape check
+  // in usage.mjs went green because no test stored valid JSON of the wrong
+  // shape. A kept array drops every count; a kept number makes record() throw.
+  for (const raw of ["[1,2]", "[]", "5", "\"text\"", "null", "true"]) {
+    globalThis.localStorage = fakeStorage();
+    globalThis.localStorage.setItem("uk-rd-tax-relief-calculator-usage", raw);
+    assert.deepEqual(readUsage(), {}, `stored ${raw}`);
+    record("analysis_run");
+    assert.deepEqual(readUsage(), { analysis_run: 1 }, `stored ${raw}`);
+  }
+});

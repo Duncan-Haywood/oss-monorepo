@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJpjPzRqjb4zKJDbBD",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T11:06:37Z",
+  "ended": "2026-11-12T11:18:26Z",
+  "wall_minutes": 12.08,
+  "tokens_in": 8066927,
+  "tokens_out": 45406,
+  "cost_usd": 3.7876,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15103",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "measured_excavator.py: the first numpy twin of central_speed used np.gradient, whose uneven-spacing formula differs from a plain central difference; the self-check caught it and the twin was rewritten",
+    "3 repeated timestamps in the 490 files gave divide-by-zero speeds until those rows were dropped"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "5x/milestone-6 Next said to run cite_check on the draft's DOIs, but the draft's 'Citation status' line says that was already done; a run could redo it"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "no note that Hugging Face datasets are reachable through the proxy and that big HDF5 files can be range-read with h5py over a seekable HTTP reader; that is what found the first excavator pressure trace after Zenodo/Figshare/Mendeley turned up nothing (Mendeley's search API ignored the query)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md (5y plan)",
+      "why": "the registered pairing check (lag that maximises pressure-to-speed correlation) is not an alignment test on an excavator, where pressure peaks in slow high-force digging",
+      "did": "replaced it with a sensitivity block: headline under four pairings and with no motion mask",
+      "result": "headline moves 173.6 to 178.0 bar; conclusion unchanged; disclosed in LOG and paper"
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "an unregistered normalisation (pressure as a share of the machine's top pressure) was added after seeing results, because a 49 t machine's relief differs from the force model's 180 bar",
+      "did": "reported it, labelled 'not registered', next to the registered absolute comparison",
+      "result": "factor 2.14 to 2.37 instead of 5.28; both reported"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-real-excavator-works-at-five-times-our-model-pressure.md",
+    "research/heavy-hydraulics/LOG.md (5y plan and outcome)",
+    "research/heavy-hydraulics/paper/draft.md section 3.7"
+  ],
+  "goal": null,
+  "notes": "Routed research/0; pick_track drew track 25 (heavy). Advanced heavy-hydraulics milestone 5y: found the first open excavator pressure trace (fuxi-robot/excavator-motion folder 490, CC BY-NC-SA 4.0, 8 unlabelled channels) after Zenodo/Figshare/Mendeley searches came up empty; range-read ~30 MB of each 4-5 GB HDF5. Highest live channel while moving: median 174.1 bar (bootstrap 167.1-180.4), 5.28x the force model's 33 bar; break-even at the synthetic r rises from ~11 to 24-59 bar. Y1, Y2, Y4 held; Y3, Y5 refuted. Local checks: pytest 48 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links ok; programme_check ok; paper/check_numbers 171 claims 0 missing; post frontmatter/links/similarity ok. No data committed (NC-SA licence). CI: all checks green except portfolio-pages 'test' (1 of 1582 failed: build.test.mjs 'an identical build produces an identical cache name'), a known git-history-dependent flake (see 2026-10-24 run records); rerun locally on this tree with node --test --test-name-pattern: 1 pass, 0 fail. The PR touches no platform/ code. Merged on that basis.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cc96356a-8332-5dc4-9977-3eea971c20f2",
+    "transcripts": 1,
+    "first": "2026-11-12T11:06:37Z",
+    "last": "2026-11-12T11:18:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 118,
+        "output": 45406,
+        "thinking": 11735,
+        "cache_read": 7904546,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162263,
+        "api_equivalent_usd": 3.7876,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 118,
+      "output": 45406,
+      "thinking": 11735,
+      "cache_read": 7904546,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162263,
+      "api_equivalent_usd": 3.7876,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.08,
+      "active_minutes": 12.08,
+      "model_minutes": 9.13,
+      "tool_minutes": 2.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "finding the dataset, range-reading HDF5, analysis with registered predictions, paper section, post: a hydraulics researcher's working day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 158.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

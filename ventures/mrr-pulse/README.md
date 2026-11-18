@@ -30,9 +30,10 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
 ## What it counts
 
 - **MRR**: active and past-due subscriptions; every price normalised to a
-  month (yearly / 12, weekly × 4.35, interval counts and seat quantities
+  month (yearly / 12, weekly × 4.348 (30.4375 / 7), interval counts and seat quantities
   applied); percent-off coupons netted.
-- **Not counted**: trials, paused subscriptions, metered usage, fixed-amount
+- **Not counted**: trials, paused subscriptions, metered usage, tiered
+  (graduated or volume) prices, fixed-amount
   coupons. (`COUNT_PAST_DUE=false` also drops past-due.)
 - **Movements**: new, expansion, contraction, churned and reactivated MRR,
   from the difference between consecutive syncs. A customer who was seen
@@ -41,12 +42,16 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
   quick ratio ((new + expansion + reactivation) ÷ (churn + contraction)).
 - **First sync is approximate.** Stripe has no price history, so the previous
   12 months are rebuilt from start and end dates at today's prices (marked `~`).
+  A subscription counts from the end of its free trial (Stripe's `trial_end`, or
+  a `Trial End` CSV column), so a trial canceled before it paid is neither new
+  MRR nor churn.
   Expansion and contraction appear from the first sync onward, which means the
   server must keep running with its state file kept to build them.
 - **Retention by signup month** (dashboard and `/v1/cohorts`): of each month's
   new subscriptions, the share still active at the end of month 0, 1, 2 ...
   Logo retention is exact from start and end dates; the revenue share uses
-  today's prices. Trials and paused subscriptions are left out, and a
+  today's prices. Trials and paused subscriptions are left out (a subscription
+  joins the cohort of the month its trial ended), and a
   customer with two subscriptions counts twice.
 - **MRR by plan and customer concentration** (dashboard and `/v1/plans`):
   MRR, subscriptions and share per plan (price nickname, else product id;
@@ -103,6 +108,20 @@ restricted Stripe key. Nothing runs on the author's accounts. The same
 Dockerfile runs on Fly.io, Railway or any VPS.
 
 Serve it over HTTPS only (Render does); the dashboard uses HTTP Basic auth.
+
+## Known gaps
+
+Found by the [quality audit of 2026-11-13](../../portfolio/quality/audits/2026-11-13-mrr-pulse.json); not fixed yet:
+
+- **Subscriptions, not customers.** Logo churn, the Customers tile and the
+  movements count subscriptions. A customer who drops an add-on shows as
+  churn; one who swaps a 5,000 plan for an 8,000 plan shows as churn plus new
+  rather than 3,000 of expansion.
+- **Tiered prices count as 0.** Graduated and volume prices have no
+  `unit_amount`, so they add nothing to MRR.
+- **Cancel at period end** in a CSV with both "Canceled At" and "Ended At"
+  columns is dated at the request, not the end.
+- NRR is a one-month figure; a 12-month NRR is the usual benchmark.
 
 ## Disclaimer
 

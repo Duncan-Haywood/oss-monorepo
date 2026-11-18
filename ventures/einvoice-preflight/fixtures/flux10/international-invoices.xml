@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made up for testing: France's e-reporting (Flux 10.1), invoices a French seller issued to buyers
+     outside France in October 2026: an intra-EU supply of goods and a credit note against it. SIRENs are
+     FNFE-MPE's test numbers; the German VAT number and every name are invented. -->
+<Report>
+  <ReportDocument>
+    <Id>EREP-100000009-20261101-INTL</Id>
+    <IssueDateTime>
+      <DateTimeString>20261102080000</DateTimeString>
+    </IssueDateTime>
+    <TypeCode>IN</TypeCode>
+    <Sender>
+      <Id schemeId="0238">0003</Id>
+      <Name>Example Approved Platform</Name>
+      <RoleCode>WK</RoleCode>
+    </Sender>
+    <Issuer>
+      <Id schemeId="0002">100000009</Id>
+      <Name>Example Boutique SARL</Name>
+      <RoleCode>SE</RoleCode>
+    </Issuer>
+  </ReportDocument>
+  <TransactionsReport>
+    <ReportPeriod>
+      <StartDate>20261001</StartDate>
+      <EndDate>20261031</EndDate>
+    </ReportPeriod>
+    <Invoice>
+      <ID>F2026-1042</ID>
+      <IssueDate>20261007</IssueDate>
+      <TypeCode>380</TypeCode>
+      <CurrencyCode>EUR</CurrencyCode>
+      <DueDate>20261106</DueDate>
+      <TaxDueDateTypeCode>5</TaxDueDateTypeCode>
+      <BusinessProcess>
+        <ID>B1</ID>
+        <TypeID>urn.cpro.gouv.fr:1p0:ereporting</TypeID>
+      </BusinessProcess>
+      <Seller>
+        <CompanyId schemeId="0002">100000009</CompanyId>
+        <TaxRegistrationId qualifyingId="VAT">FR88100000009</TaxRegistrationId>
+        <PostalAddress>
+          <CountryId>FR</CountryId>
+        </PostalAddress>
+      </Seller>
+      <Buyer>
+        <CompanyId schemeId="0223">DE999999999</CompanyId>
+        <TaxRegistrationId qualifyingId="VAT">DE999999999</TaxRegistrationId>
+        <PostalAddress>
+          <CountryId>DE</CountryId>
+        </PostalAddress>
+      </Buyer>
+      <Delivery>
+        <Date>20261006</Date>
+        <Location>
+          <CityName>Köln</CityName>
+          <CountryId>DE</CountryId>
+        </Location>
+      </Delivery>
+      <MonetaryTotal>
+        <TaxExclusiveAmount>4800.00</TaxExclusiveAmount>
+        <TaxAmount CurrencyCode="EUR">0.00</TaxAmount>
+      </MonetaryTotal>
+      <TaxSubTotal>
+        <TaxableAmount>4800.00</TaxableAmount>
+        <TaxAmount>0.00</TaxAmount>
+        <TaxCategory>
+          <Code>K</Code>
+          <Percent>0</Percent>
+          <TaxExemptionReason>Intra-community supply</TaxExemptionReason>
+          <TaxExemptionReasonCode>VATEX-EU-IC</TaxExemptionReasonCode>
+        </TaxCategory>
+      </TaxSubTotal>
+      <Line>
+        <BilledQuantity UnitCode="H87">40</BilledQuantity>
+        <Price>
+          <PriceAmount>120.00</PriceAmount>
+          <AllowanceChargeAmount>30.00</AllowanceChargeAmount>
+          <AllowanceChargeBaseAmount>150.00</AllowanceChargeBaseAmount>
+        </Price>
+        <Product>
+          <Name>Ceramic table lamp</Name>
+        </Product>
+      </Line>
+    </Invoice>
+    <Invoice>
+      <ID>AV2026-0031</ID>
+      <IssueDate>20261020</IssueDate>
+      <TypeCode>381</TypeCode>
+      <CurrencyCode>EUR</CurrencyCode>
+      <TaxDueDateTypeCode>5</TaxDueDateTypeCode>
+      <BusinessProcess>
+        <ID>B1</ID>
+        <TypeID>urn.cpro.gouv.fr:1p0:ereporting</TypeID>
+      </BusinessProcess>
+      <ReferencedDocument>
+        <ID>F2026-1042</ID>
+        <IssueDate>20261007</IssueDate>
+      </ReferencedDocument>
+      <Seller>
+        <CompanyId schemeId="0002">100000009</CompanyId>
+        <TaxRegistrationId qualifyingId="VAT">FR88100000009</TaxRegistrationId>
+        <PostalAddress>
+          <CountryId>FR</CountryId>
+        </PostalAddress>
+      </Seller>
+      <Buyer>
+        <CompanyId schemeId="0223">DE999999999</CompanyId>
+        <TaxRegistrationId qualifyingId="VAT">DE999999999</TaxRegistrationId>
+        <PostalAddress>
+          <CountryId>DE</CountryId>
+        </PostalAddress>
+      </Buyer>
+      <MonetaryTotal>
+        <TaxExclusiveAmount>240.00</TaxExclusiveAmount>
+        <TaxAmount CurrencyCode="EUR">0.00</TaxAmount>
+      </MonetaryTotal>
+      <TaxSubTotal>
+        <TaxableAmount>240.00</TaxableAmount>
+        <TaxAmount>0.00</TaxAmount>
+        <TaxCategory>
+          <Code>K</Code>
+          <Percent>0</Percent>
+          <TaxExemptionReason>Intra-community supply</TaxExemptionReason>
+          <TaxExemptionReasonCode>VATEX-EU-IC</TaxExemptionReasonCode>
+        </TaxCategory>
+      </TaxSubTotal>
+    </Invoice>
+  </TransactionsReport>
+</Report>

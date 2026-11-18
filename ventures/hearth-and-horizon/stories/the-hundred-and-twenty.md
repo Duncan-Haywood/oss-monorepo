@@ -1,7 +1,7 @@
 ---
 title: The Hundred and Twenty
 shelf: hearth-and-horizon
-setting: Saint Finbarr's parish hall, an invented parish outside Cork, Sunday 9 February 2049
+setting: Saint Finbarr's parish hall, an invented parish outside Cork, Sunday 7 February 2049
 published: 2026-11-07
 summary: A parish survey on moving Sunday Mass to 11:30 comes back 55% in favour from 120 of 400 households. The parish assistant shows that the margin is about 7.5 points, that the people who answered are not the people who come, and that reweighted the result is a tie.
 ---
@@ -46,11 +46,11 @@ Maeve sat down on one of the stacking chairs, which she had never done in her ow
 
 The committee met on the Wednesday, with the sheet, the weighted sheet and Maeve's own note at the bottom of it, which she had written without being asked: *The 120 are not the parish.* Father Cathal read all three twice.
 
-They did not decide. They arranged a trial instead, and the shape of it was Idris Walsh's, the sacristan's, who had never liked anything he could not count in the porch. For the eight Sundays of Lent the parish would keep the ten o'clock and add the eleven-thirty, with the bus. Each door would have a clicker. Nobody would be asked what they preferred; they would be counted where they stood. And on the first Sunday the youngest of the altar servers, Dónal, and Maeve, who volunteered, would knock on the forty doors of the over-seventies who had not answered, with a paper form and a pen and a flask.
+They did not decide. They arranged a trial instead, and the shape of it was Idris Walsh's, the sacristan's, who had never liked anything he could not count in the porch. For eight Sundays, the six of Lent and the first two of Easter, the parish would keep the ten o'clock and add the eleven-thirty, with the bus. Each door would have a clicker. Nobody would be asked what they preferred; they would be counted where they stood. And on the first Sunday the youngest of the altar servers, Dónal, and Maeve, who volunteered, would knock on the forty doors of the over-seventies who had not answered, with a paper form and a pen and a flask.
 
 It cost them. The second Mass meant a second sacristan, a second cleaning of the sanctuary and Father Cathal's Sunday afternoon. It meant the Ballinhassig bus ran at a loss on paper for eight weeks, and the bus company said so, in a letter that did not use exclamation marks.
 
-On the last Sunday of Lent the clickers read 212 at ten and 131 at half past eleven. The forty doors had given 33 replies. Maeve put the numbers in a column on the vestry wall under her original sheet. She did not draw a conclusion on the wall. She left a blank line, and the next committee wrote in it.
+On the last of the eight Sundays the clickers read 212 at ten and 131 at half past eleven. The forty doors had given 33 replies. Maeve put the numbers in a column on the vestry wall under her original sheet. She did not draw a conclusion on the wall. She left a blank line, and the next committee wrote in it.
 
 * * *
 

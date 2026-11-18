@@ -1,0 +1,13 @@
+# centred simultaneous QNH difference between ISD stations, 2014, every 10 min; sd in m (x 8.32 m/hPa)
+  EWR - JFK   34.7 km  sd 3.776 m  (0.454 hPa)  sd/km 0.109 m
+  EWR - LGA   26.6 km  sd 2.627 m  (0.316 hPa)  sd/km 0.099 m
+  EWR - NYC   19.9 km  sd 3.350 m  (0.403 hPa)  sd/km 0.168 m
+  EWR - TEB   20.7 km  sd 2.041 m  (0.245 hPa)  sd/km 0.099 m
+  JFK - LGA   18.5 km  sd 2.745 m  (0.330 hPa)  sd/km 0.149 m
+  JFK - NYC   23.4 km  sd 3.596 m  (0.432 hPa)  sd/km 0.154 m
+  JFK - TEB   34.4 km  sd 4.167 m  (0.501 hPa)  sd/km 0.121 m
+  LGA - NYC    7.5 km  sd 2.690 m  (0.323 hPa)  sd/km 0.359 m
+  LGA - TEB   17.2 km  sd 2.362 m  (0.284 hPa)  sd/km 0.138 m
+  NYC - TEB   11.1 km  sd 3.348 m  (0.402 hPa)  sd/km 0.303 m
+fit sd = a + b d: a 2.189 m, b 0.0412 m/km; fit sd = b d: b 0.1299 m/km (main model's JFK-LGA slope 0.1486)
+at 3.8 km (median hub separation): a + b d = 2.346 m, b d = 0.493 m

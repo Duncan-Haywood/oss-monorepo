@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKixAy9XKuuQYsux9zF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T17:09:49Z",
+  "ended": "2026-11-15T17:32:16Z",
+  "wall_minutes": 40.75,
+  "tokens_in": 17077681,
+  "tokens_out": 75923,
+  "cost_usd": 6.49,
+  "tool_calls": 115,
+  "task": "Deepen (flagship 9) league-schedule-generator: three-game nights for odd leagues (first next: item)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16285",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Ran the SAT script with /usr/local/bin/python3 after pip installed python-sat into /usr/bin/python3 (3.13)",
+      "fix": "used /usr/bin/python3 explicitly"
+    },
+    {
+      "what": "pkill -f with the script name elsewhere on the same command line was refused by the hook",
+      "fix": "split into a separate call"
+    },
+    {
+      "what": "write-odd-designs.mjs crashed on empty JSON from solver runs that timed out",
+      "fix": "skip empty files"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says pip installs may land in another interpreter, but doesn't say that bare `pip` here is the /usr/bin/python3 (3.13) pip while `python3` is /usr/local/bin (3.11): pip install python-sat 'succeeded' and import still failed"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "The claim instruction (`git checkout -b` your branch, then an empty commit) fails when the harness has already created and checked out the designated branch; harmless, but the allocate.py text could say 'on your work branch'"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The next: item said 'odd leagues by groups'. Closed groups cannot work for odd leagues (a bye in the middle round breaks a block), so I solved for the per-match layout instead of groups",
+      "did": "SAT model with rows plus forced window shapes",
+      "result": "11-25 and 29 teams at 0 waits; 3 settings proved impossible"
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "The PR had no CI check runs, so verification was local: the venture's full suite (551 tests), doubleheader + page tests after the last change, and the venture preflight",
+      "did": "local checks, output in notes",
+      "result": "all green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-odd-leagues-three-games-a-night-two-proofs.md",
+    "ventures/league-schedule-generator/README.md (Odd leagues, three games a night)"
+  ],
+  "goal": "Deepen a flagship: hard algorithmic slice",
+  "notes": "python3 platform/ci/run_venture_tests.py league-schedule-generator: ok (329.6s, 551 tests), 0 failed (before the 23/29 designs and the 5@1 proof); afterwards node --test doubleheader.test.mjs page.test.mjs: pass 85 fail 0. eval/three-game-nights.txt regenerated (Part 1 total waits 143 -> 75; Part 6 new). 27 teams on 7 courts: SAT --shape run passed 25 min with no answer, left open in the README and flagships next:. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs. node platform/pages/venture-preflight.mjs league-schedule-generator: preflight clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c03fcd6b-4154-535c-98fc-7818f6b47809",
+    "transcripts": 1,
+    "first": "2026-11-15T17:09:49Z",
+    "last": "2026-11-15T17:50:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 108,
+        "input": 203,
+        "output": 75923,
+        "thinking": 23846,
+        "cache_read": 16878086,
+        "cache_write_5m": 0,
+        "cache_write_1h": 199392,
+        "api_equivalent_usd": 6.49,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 108,
+      "input": 203,
+      "output": 75923,
+      "thinking": 23846,
+      "cache_read": 16878086,
+      "cache_write_5m": 0,
+      "cache_write_1h": 199392,
+      "api_equivalent_usd": 6.49,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 115,
+    "tools": {
+      "Bash": 104,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 40.75,
+      "active_minutes": 40.75,
+      "model_minutes": 13.59,
+      "tool_minutes": 27.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an OR engineer: SAT model with layout and shape constraints, a hand+exhaustive proof, tool integration with stored layouts, tests and eval",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 246.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -23,6 +23,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
+import { REFLOW_CSS } from './reflow.mjs';
 import { markSvg } from './sharecard.mjs';
 
 export const SITE_NAME = 'Maris Stella Labs';
@@ -114,6 +115,13 @@ const esc = (value) =>
     .replace(/"/g, '&quot;');
 
 /**
+ * A middle crumb longer than this many characters may shrink, with an ellipsis, on a phone so the
+ * page's own name fits (see `.pfs-mid` below). A shorter one ("Tools", "Research") keeps its width:
+ * a 4.5em floor on it would stretch it and leave a gap before the separator.
+ */
+export const MID_CRUMB_CHARS = 12;
+
+/**
  * The header markup.
  *
  * List-free, and form-free where it lands inside someone else's page: a
@@ -128,14 +136,19 @@ const esc = (value) =>
  * @param {object} o
  * @param {string} o.toRoot   relative path from the page to the site root ('', '../', …)
  * @param {string} [o.current] SITE_NAV id of the section this page belongs to, or 'home'
- * @param {true|'link'|false} [o.search] the compact search form, a link to the
- *   hub's search, or nothing (default: the form, except on the hub itself)
- * @param {Array<{href?: string, label: string}>} [o.crumbs] breadcrumb trail after "Home"
+ * @param {true|'link'|'narrow'|false} [o.search] the compact search form (a
+ *   pill link below 1080px), the pill link at every width, the pill link below
+ *   1080px only, or nothing. Default: the form; on the hub, 'narrow', because
+ *   the hub's own search box is in view on a wide screen but sits about 700px
+ *   down on a phone, below the fold.
+ * @param {Array<{href?: string, label: string, mid?: boolean, echo?: boolean}>} [o.crumbs] breadcrumb trail after "Home"; `mid`
+ *   says whether a linked middle crumb may shrink on a phone (default: its label is over MID_CRUMB_CHARS); `echo` on the
+ *   last crumb says the page's `h1` repeats it word for word, so a phone hides it and gives the trail's width to the parents
  * @param {string} [o.extraClass] extra classes (the venture chrome adds its marker)
  */
 export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [], extraClass = '' } = {}) {
   const root = toRoot || './';
-  const mode = search ?? (current === 'home' ? false : true);
+  const mode = search ?? (current === 'home' ? 'narrow' : true);
   const items = SITE_NAV.map(
     (item) =>
       `<a data-pfs-nav="${item.id}" href="${esc(`${toRoot}${item.href}`)}"${
@@ -147,16 +160,20 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
   // where an input in the header would cost a whole row.
   const searchHtml =
     mode === true
-      ? `<form class="pfs-search" action="${esc(root)}" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit"><span class="pfs-vh">Search</span></button></form>${link}`
-      : mode === 'link'
+      ? `<form class="pfs-search" action="${esc(root)}" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search" autocomplete="off"><button type="submit"><span class="pfs-vh">Search</span></button></form>${link}`
+      : mode === 'link' || mode === 'narrow'
         ? link
         : '';
   const crumbHtml = crumbs.length
     ? `<span class="pfs-crumbs" role="group" aria-label="Breadcrumb"><a href="${esc(root)}" data-pf-to="hub">Home</a>${crumbs
         .map((c, i) =>
           c.href && i < crumbs.length - 1
-            ? `<span class="pfs-sep" aria-hidden="true">›</span><a href="${esc(c.href)}">${esc(c.label)}</a>`
-            : `<span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">${esc(c.label)}</span>`,
+            ? `<span class="pfs-sep" aria-hidden="true">›</span><a href="${esc(c.href)}"${
+                (c.mid ?? [...c.label].length > MID_CRUMB_CHARS) ? ' class="pfs-mid"' : ''
+              }>${esc(c.label)}</a>`
+            : c.echo
+              ? `<span class="pfs-sep pfs-echo" aria-hidden="true">›</span><span aria-current="page" class="pfs-echo">${esc(c.label)}</span>`
+              : `<span class="pfs-sep" aria-hidden="true">›</span><span aria-current="page">${esc(c.label)}</span>`,
         )
         .join('')}</span>`
     : '';
@@ -224,11 +241,11 @@ export const SITE_HEADER_CSS = `
 .pfs-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;max-width:1120px;margin:0 auto;padding:10px 16px}
 [data-pfs-head] .pfs-brand{display:inline-flex;align-items:center;gap:9px;font-weight:750;letter-spacing:-.01em;white-space:nowrap}
 .pfs-mark{display:inline-block;width:22px;height:22px;border-radius:50%;flex:none;background:var(--pfs-mark,currentColor)}
-.pfs-nav{display:flex;flex-wrap:wrap;gap:4px 16px;flex:1 1 auto;min-width:0}
+.pfs-nav{display:flex;flex-wrap:wrap;gap:4px 16px;flex:0 1 auto;min-width:0}
 [data-pfs-head] .pfs-nav a{display:inline-block;padding:4px 0;font-weight:600;color:var(--pfs-muted,inherit);
   border-bottom:2px solid transparent}
 [data-pfs-head] .pfs-nav a[aria-current="page"]{color:var(--pfs-ink,inherit);border-bottom-color:var(--pfs-accent,currentColor)}
-.pfs-search{position:relative;display:flex;margin:0;padding:0;border:0;flex:0 1 236px;min-width:0}
+.pfs-search{position:relative;display:flex;margin:0 0 0 auto;padding:0;border:0;flex:1 1 100px;min-width:0;max-width:236px}
 .pfs-search input{flex:1 1 auto;min-width:0;width:100%;font:inherit;font-size:14px;padding:7px 12px 7px 34px;margin:0;border-radius:999px;
   border:1px solid var(--pfs-line,rgba(128,128,128,.5));background:var(--pfs-panel,transparent);color:inherit;
   transition:border-color .15s ease,box-shadow .15s ease}
@@ -238,9 +255,14 @@ export const SITE_HEADER_CSS = `
   border:0;border-radius:999px;background:none;color:var(--pfs-muted,inherit);cursor:pointer}
 .pfs-search button::before{content:"";position:absolute;inset:6px;background:currentColor;
   -webkit-mask:var(--pfs-glass) center/contain no-repeat;mask:var(--pfs-glass) center/contain no-repeat}
-.pfs-search{--pfs-glass:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E")}
-[data-pfs-head] .pfs-searchlink{display:none;font-weight:600}
-[data-pfs-head] .pfs-searchlink.pfs-always{display:inline-block}
+[data-pfs-head]{--pfs-glass:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E")}
+/* One Search control on every page family: a pill with the same glass as the form. It was a pill on tool pages, bare text on site pages and missing on the hub (2026-11-11). */
+[data-pfs-head] .pfs-searchlink{display:none;align-items:center;gap:6px;margin-left:auto;padding:5px 13px 5px 11px;font-weight:600;line-height:1.25;
+  white-space:nowrap;border:1px solid var(--pfs-line,rgba(128,128,128,.5));border-radius:999px;transition:border-color .15s ease}
+[data-pfs-head] .pfs-searchlink::before{content:"";width:15px;height:15px;flex:none;background:currentColor;
+  -webkit-mask:var(--pfs-glass) center/contain no-repeat;mask:var(--pfs-glass) center/contain no-repeat}
+[data-pfs-head] .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
+[data-pfs-head] .pfs-searchlink.pfs-always{display:inline-flex}
 .pfs-vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .pfs-crumbs{display:block;max-width:1120px;margin:0 auto;padding:0 16px 9px;font-size:13px;color:var(--pfs-muted,inherit);
   overflow-wrap:anywhere}
@@ -250,11 +272,45 @@ export const SITE_HEADER_CSS = `
   /* One line on a phone: the current page's title (often a sentence) is cut with an ellipsis instead of wrapping to three lines. */
   .pfs-crumbs{display:flex;flex-wrap:nowrap;align-items:baseline;overflow:hidden;white-space:nowrap}
   .pfs-crumbs>a,.pfs-crumbs>.pfs-sep{flex:0 0 auto}
-  .pfs-crumbs>[aria-current]{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .pfs-crumbs>[aria-current]{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  /* A long middle crumb (a tool's category, a research topic; renderSiteHeader marks it .pfs-mid) gives way before the
+     page's own name does: it shrinks first, down to about five characters, and only then is the name cut. Before
+     2026-11-15 the category kept its full width, so "Home › CI checks & developer gates ›" left a tool's name about
+     18 characters at 390px. The shrink ratio is that large because flex shares a shortfall by shrink x width: at
+     1000 to 1 the name still lost a fraction of a pixel, which is enough to show an ellipsis. */
+  .pfs-crumbs>.pfs-mid{flex:0 100000 auto;min-width:4.5em;overflow:hidden;text-overflow:ellipsis}
+  /* With a middle crumb there, "Home" goes: the brand beside it already links home, and the trail starts at the section. */
+  .pfs-crumbs:has(>a:not([data-pf-to]))>a[data-pf-to=hub],.pfs-crumbs:has(>a:not([data-pf-to]))>a[data-pf-to=hub]+.pfs-sep{display:none}
+  /* A last crumb marked .pfs-echo is the page's h1 word for word (a research project's title, a sentence). Cut to about
+     30 characters it said nothing the heading below did not, and it took the room the topic needed; on a phone the trail
+     ends at the parent instead ("Research › Proper scoring & elicitation"), and the h1 names the page. */
+  .pfs-crumbs>.pfs-echo{display:none}
 }
 @media (max-width:1080px){
   .pfs-search{display:none}
-  [data-pfs-head] .pfs-searchlink{display:inline-block}
+  [data-pfs-head] .pfs-searchlink{display:inline-flex}
+}
+/* The header on one row when it fits, two when it doesn't: brand and Search on top, the section links below.
+   Before 2026-11-11 the Search control wrapped onto a row of its own, under the brand at the left edge, on every
+   page but the hub from 721px up (even at 1280px, where the 236px form was too wide to share the row with ten
+   links). The query is on the bar's own content width, not the window's: a tool page's header can sit in a 1,000px column,
+   with or without side padding. One row needs about 1,016px (brand 153, links 721, gaps 44, Search pill 98).
+   Between 960 and 1,017px the row is kept by drawing Search as its glass alone and closing the gaps (about 929px);
+   before 2026-11-16 that band went to two rows, and 885 of 1,388 tool pages, whose column is 900 to 1,000px wide, had a
+   31px taller header at 1,280px than the pages beside them. The two-row layout is for 959px and under. */
+[data-pfs-head] .pfs-bar{container:pfs-head/inline-size}
+@container pfs-head (max-width:959px){
+  [data-pfs-head] .pfs-brand{flex:1 1 auto}
+  .pfs-nav{order:3;flex-basis:100%}
+  /* The pill is taller than the brand line; let it overhang the row gap so two rows cost no more than before. */
+  [data-pfs-head] .pfs-searchlink{margin-block:-4px}
+}
+/* The word "Search" is set at font-size 0, not removed: it stays the link's accessible name. */
+@container pfs-head (min-width:960px) and (max-width:1017px){
+  .pfs-bar{column-gap:18px}
+  .pfs-nav{column-gap:14px}
+  .pfs-search{display:none}
+  [data-pfs-head] .pfs-searchlink{display:inline-flex;justify-content:center;width:35px;padding:8px 0;gap:0;font-size:0}
 }
 @property --pfs-fade{syntax:'<length>';inherits:false;initial-value:28px}
 @keyframes pfs-fade-out{to{--pfs-fade:0px}}
@@ -262,7 +318,7 @@ export const SITE_HEADER_CSS = `
   .pfs-bar{gap:6px 14px;padding:9px 16px}
   [data-pfs-head] .pfs-brand{flex:1 1 auto}
   .pfs-search{display:none}
-  [data-pfs-head] .pfs-searchlink{display:inline-block}
+  [data-pfs-head] .pfs-searchlink{display:inline-flex}
   .pfs-nav{order:3;flex-basis:100%;gap:2px 18px;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
     scrollbar-width:none;margin-right:-16px;padding-right:28px;
     --pfs-fade:28px;
@@ -333,8 +389,13 @@ nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-nav a{color:var(--pfs-muted);fon
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-nav a[aria-current="page"]{color:var(--pfs-ink);border-bottom-color:var(--pfs-accent)}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-crumbs{color:var(--pfs-muted)}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-crumbs a{text-decoration:underline;text-underline-offset:2px}
-nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink.pfs-always{padding:5px 12px;border:1px solid var(--pfs-line);
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink{padding:5px 13px 5px 11px;border:1px solid var(--pfs-line);
   border-radius:999px;font-weight:600;color:var(--pfs-ink)}
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink:hover{border-color:currentColor}
+/* The compact header row (SITE_HEADER_CSS) draws Search as its glass alone; the two rules above outrank it here. */
+@container pfs-head (min-width:960px) and (max-width:1017px){
+  nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink{padding:8px 0;font-size:0}
+}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-mark{background:var(--pfs-mark);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
 aside.pf-chrome.pf-chrome-foot{display:block;position:static;float:none;max-width:none;box-sizing:border-box;
   color:var(--pfs-ink);background:var(--pfs-foot-bg);border:0;border-top:1px solid var(--pfs-line);border-radius:0;
@@ -361,12 +422,9 @@ aside.pf-chrome.pf-chrome-foot>details.pf-embed-offer{max-width:1080px;margin:0 
  * `overflow:hidden` on a wrapper, say); the bar is then exactly as it was.
  * It also closes a small gap above the header left by a body's top margin.
  */
-export const VENTURE_CHROME_JS = `
-(function(){
-  if(typeof document==='undefined'||!document.querySelectorAll||!document.documentElement)return;
-  var els=[].slice.call(document.querySelectorAll('nav.pf-chrome-top[data-pfs-head],aside.pf-chrome-foot'));
-  if(!els.length)return;
-  var root=document.documentElement;
+// The two halves both scripts share: pick the palette from the host's
+// background, and stretch one bar to the window's width (see above).
+const CHROME_THEME_JS = `
   function bg(node){
     for(;node&&node.nodeType===1;node=node.parentElement){
       var m=/rgba?\\(([\\d.]+),\\s*([\\d.]+),\\s*([\\d.]+)(?:,\\s*([\\d.]+))?/.exec(getComputedStyle(node).backgroundColor||'');
@@ -378,18 +436,22 @@ export const VENTURE_CHROME_JS = `
     var c=bg(document.body),l=function(v){v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);};
     var dark=0.2126*l(c[0])+0.7152*l(c[1])+0.0722*l(c[2])<0.18;
     els.forEach(function(el){if(dark)el.setAttribute('data-pfs-theme','dark');else el.removeAttribute('data-pfs-theme');});
-  }
-  try{theme();var mq=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)');if(mq&&mq.addEventListener)mq.addEventListener('change',function(){setTimeout(theme,50);});}catch(e){}
+  }`;
+
+const CHROME_FIT_JS = `
   function reset(el){el.style.marginLeft='';el.style.marginRight='';el.style.width='';el.style.maxWidth='';el.style.marginTop='';el.style.paddingLeft='';el.style.paddingRight='';}
   function fit(){
     var before=root.scrollWidth>root.clientWidth;
     els.forEach(function(el){
       reset(el);
       var vw=root.clientWidth,r=el.getBoundingClientRect();
-      if(Math.abs(r.left)<1&&Math.abs(r.width-vw)<1)return;
-      el.style.maxWidth='none';el.style.width=vw+'px';el.style.marginLeft=(-r.left)+'px';el.style.marginRight='0';
       // Keep the content where the host put it: a bar that fills the width has no centring margin, so the offset becomes padding.
-      el.style.paddingLeft=Math.max(0,r.left)+'px';el.style.paddingRight=Math.max(0,vw-r.right)+'px';
+      // A host whose body has no side padding (its main carries it) would leave the brand at x = 0: the header gets the site's 16px.
+      var pl=Math.max(0,r.left),pr=Math.max(0,vw-r.right),nav=el.tagName==='NAV';
+      if(nav&&pl<8)pl=16;if(nav&&pr<8)pr=16;
+      if(Math.abs(r.left)<1&&Math.abs(r.width-vw)<1){if(nav){el.style.paddingLeft=pl+'px';el.style.paddingRight=pr+'px';}return;}
+      el.style.maxWidth='none';el.style.width=vw+'px';el.style.marginLeft=(-r.left)+'px';el.style.marginRight='0';
+      el.style.paddingLeft=pl+'px';el.style.paddingRight=pr+'px';
       var r2=el.getBoundingClientRect();
       if(Math.abs(r2.left)>=1)el.style.marginLeft=(parseFloat(el.style.marginLeft)-r2.left)+'px';
       if(el.tagName==='NAV'){
@@ -399,12 +461,47 @@ export const VENTURE_CHROME_JS = `
       var r3=el.getBoundingClientRect();
       if(Math.abs(r3.left)>=1||(!before&&root.scrollWidth>root.clientWidth))reset(el);
     });
-  }
+  }`;
+
+export const VENTURE_CHROME_JS = `
+(function(){
+  if(typeof document==='undefined'||!document.querySelectorAll||!document.documentElement)return;
+  var els=[].slice.call(document.querySelectorAll('nav.pf-chrome-top[data-pfs-head],aside.pf-chrome-foot'));
+  if(!els.length)return;
+  var root=document.documentElement;${CHROME_THEME_JS}
+  try{theme();var mq=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)');if(mq&&mq.addEventListener)mq.addEventListener('change',function(){setTimeout(theme,50);});}catch(e){}${CHROME_FIT_JS}
   var t;
   function soon(){clearTimeout(t);t=setTimeout(fit,60);}
   fit();
   addEventListener('load',fit);
   addEventListener('resize',soon);
+})();
+`;
+
+/**
+ * The header's first fit, inline right after the `<nav>` it fits.
+ *
+ * `VENTURE_CHROME_JS` lives in `pf-site.js`, a classic script at the end of
+ * the body, so the browser could paint the header in the venture's own box
+ * (1,060 px at x = 110 on a 1,280 px window) and then watch it jump to full
+ * width when the script ran. That jump was every layout shift traced on the
+ * tool pages (polish-2026-11-12-bar-align.md: 120 to 136 of 336 loads
+ * shifted). Run here, while the parser is still at the top of the body, the
+ * same measurement settles the header's width and palette before anything
+ * below it is laid out, so the first paint is the fitted one. The end-of-body
+ * script still runs, on load and on resize, for the footer and for anything
+ * that moved the header's box later (a scrollbar appearing, a late stylesheet).
+ * It is the same code, so a second run that finds nothing to change changes
+ * nothing.
+ */
+export const VENTURE_CHROME_EARLY_JS = `
+(function(){
+  if(typeof document==='undefined'||!document.querySelector||!document.documentElement||!document.body)return;
+  // By class: the header marker attribute is what tests count headers by.
+  var el=document.querySelector('nav.pf-chrome.pf-chrome-top');
+  if(!el)return;
+  var els=[el],root=document.documentElement;${CHROME_THEME_JS}${CHROME_FIT_JS}
+  try{theme();fit();}catch(e){}
 })();
 `;
 
@@ -427,7 +524,18 @@ const SITE_TOKENS_CSS = `
  * fill runs edge to edge and down past the page's bottom padding through a
  * spread shadow clipped to the band's sides and below: unlike a 100vw
  * pseudo-element, a shadow adds no scrollable overflow. Lightest
- * text-on-field pair: `--soft` #a9b5c6 on #0b1626 is 8.7:1.
+ * text-on-field pair: `--soft` #a9b5c6 on #0b1626 is 8.7:1. `code` gets the
+ * band's own fill: a page's light `code` background (lab.mjs's #efede6) under
+ * the band's #a8c7f0 link colour measured 1.48:1 on /lab/ (2026-11-11).
+ *
+ * Every link in the band takes the band's link colour, whatever token the
+ * page's own `a{}` rule reads. The research project pages colour links with
+ * `--accent-ink` (#1f47b0 in light mode), which the band did not redefine
+ * (on other pages `--accent-ink` means ink *on* the accent, so redefining it
+ * would be wrong there): their "github.com/..." credit line sat at 2.24:1 on
+ * the band on 1,111 research pages (measured 2026-11-14). The selector is
+ * (0,1,2), above a page's bare `a{}` or `.wrap a`; no footer link carries a
+ * class of its own.
  */
 const SITE_FOOTER_CSS = `
 footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-top:64px;padding:40px 0 34px;border-top:0;
@@ -438,15 +546,25 @@ footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-
   box-shadow:0 0 0 100vmax #0b1626;clip-path:inset(0 -100vmax -100vmax)}
 footer:has(.pfs-foot)>:not(.pfs-foot){max-width:84ch}
 footer:has(.pfs-foot) h2,footer:has(.pfs-foot) strong{color:#eef2f8}
+footer:has(.pfs-foot) a{color:var(--pfs-accent)}
+footer:has(.pfs-foot) code{background:rgba(148,170,210,.16);color:inherit}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
 .pfs-foot a,.pfs-support a{color:var(--pfs-accent)}
 .pfs-support{margin:18px 0 0;font-size:14px;line-height:1.6}
-footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 24px;
+footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:6px 24px;
   margin-top:26px;padding-top:22px;border-top:1px solid rgba(148,170,210,.24);line-height:1.6}
 footer .pfs-foot>span{display:none}
 footer .pfs-foot+*{margin-top:16px}
+footer .pfs-foot+.pfs-foot{display:block}
+@media (max-width:560px){footer .pfs-foot{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px}footer .pfs-foot+.pfs-foot{display:block}}
 footer .pfs-foot a{text-decoration:none}
 footer .pfs-foot a:hover,footer .pfs-foot a:focus-visible{text-decoration:underline;text-underline-offset:3px}
+footer .pfs-exceptions{margin:-4px 0 16px;font-size:14px;line-height:1.6}
+footer .pfs-exceptions summary{cursor:pointer;color:var(--pfs-accent);width:fit-content;max-width:100%}
+footer .pfs-exceptions summary:focus-visible{outline:2px solid var(--pfs-accent);outline-offset:3px;border-radius:2px}
+footer .pfs-exceptions p{margin:8px 0 0;color:var(--soft)}
+footer .pfs-counted{margin:0 0 16px;padding-left:1.2em;line-height:1.6}
+footer .pfs-counted li+li{margin-top:6px}
 `;
 
 /**
@@ -508,9 +626,20 @@ html{overflow-x:clip}
 @media (max-width:600px){.pf-hero{padding-top:18px}}
 `;
 
-/** Contents of `pf-site.css`, the stylesheet every site-owned page links. */
+/**
+ * Contents of `pf-site.css`, the stylesheet every site-owned page links.
+ *
+ * `REFLOW_CSS` rides at the end, as it does in `pf-chrome.css`. Until
+ * 2026-11-10 it rode only there, so the 4,538 site-owned pages (the hub,
+ * /research/, /writing/, /stories/, /compare/ ...) had none of the sideways-
+ * scroll guards the venture pages got: measured that day at 390px, /research/
+ * was 428px wide because a featured card quoted
+ * `<code>experiments/hub_throughput/cargo_hub_trace_taper.py</code>`, an
+ * unbreakable token that `:where(code){overflow-wrap:break-word}` exists to
+ * break. Every rule in it has zero specificity, so a page's own CSS still wins.
+ */
 export function renderSiteStyle() {
-  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}`;
+  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${REFLOW_CSS}`;
 }
 
 /** The `<link>` a site-owned page puts in its head. */
@@ -544,12 +673,14 @@ export function researchChromeTemplate() {
   // Home › Research › <topic> › <project> on a project page. build.py fills
   // {{TOPIC_ID}}, {{TOPIC}} and {{TITLE}} with escaped text.
   const research = { href: `${root}research/`, label: 'Research' };
-  const topic = { href: `${root}research/topics/{{TOPIC_ID}}/`, label: '{{TOPIC}}' };
+  // `mid`: the placeholder is short, the topic names it stands for are not ("Proper scoring & elicitation").
+  const topic = { href: `${root}research/topics/{{TOPIC_ID}}/`, label: '{{TOPIC}}', mid: true };
   return {
     style_file: SITE_STYLE_FILE,
     header: renderSiteHeader({ toRoot: root, current: 'research' }),
     topic_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, { label: '{{TOPIC}}' }] }),
-    project_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, topic, { label: '{{TITLE}}' }] }),
+    // `echo`: build.py's project page opens with <h1>{{TITLE}}</h1>, so a phone drops the title from the trail.
+    project_header: renderSiteHeader({ toRoot: root, current: 'research', crumbs: [research, topic, { label: '{{TITLE}}', echo: true }] }),
     footer: renderSiteFooterNav({ toRoot: root }),
   };
 }

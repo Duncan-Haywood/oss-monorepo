@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVPnLSgXvLgnvpNwMjy",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo ...)",
+  "input_sha256": "f0940a04757810de07f56e2c3705fe96e1a45d8de98448e85edef4ca28d67d12",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T01:19:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots (flagship row 6): trace the first-order plant's instant-take preference for 2.5 ms in the contact-time survey",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17122,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/firmware/esp32/README.md",
+      "issue": "the previous section's guess (the simulator's 1 ms command steps) was wrong; part 1 of the trace ruled out the plant in one capture, which a reader of that guess would not expect"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/open-tennis-robots/eval/",
+      "why": "kept only the 0.5 MB record-fit rows; the survey rows (3.7 MB and 1.9 MB gzipped) regenerate deterministically in about 2 min with --capture-survey, so they were not committed",
+      "did": "dropped two .jsonl.gz files",
+      "result": "eval/ grows by about 0.5 MB, not 6 MB"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-tennis-feeders-phantom-contact-time-was-its-own-search.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md#the-first-order-take-misfit-traced-2026-11-18"
+  ],
+  "goal": null,
+  "notes": "Trace: record fits refit offline (tau fixed, commands shifted +-0.5/1 ms, exact and 0.02 ms plants) picked 0 ms on every lag-0.3 s build but one 0.02 ms-plant build (2 ms by 7 ppm), so not the plant. Reproducing one survey drill gave the board's sums to the digit; per-wheel rms jumped 3-12x on single candidates whose tau search ended at 277-330 ms (the 3-level t0 grid's coarse level in the wrong basin, cliffs in rms(tau)). Refit of 48 survey drills at 3/4/5 levels: 4 levels missed the prediction by one tie; 5 levels met it. Held out at lag 0.45 s with the board at 5 levels: no instant build advised (one 2.5 ms pick on a tie, share 1.00), every 3/6 ms/front take named to 0.5 ms, no survey cut. Shipped: controller.TAKE_SURVEY_LEVELS = 5 (take survey only), host.TAKE_WAIT_S 8->12, TAKE_SURVEY_S 12->16. Verification: python3 platform/ci/run_venture_tests.py open-tennis-robots: ok (205.3s, 363 tests, 58 skipped for build123d); check_posts ok; validate.py ok. Next: ESC-lag survey inputs at 4-5 levels (it picked 11-12 ms on a plant with no ESC lag).",
+  "corrections": [],
+  "redteam": null
+}

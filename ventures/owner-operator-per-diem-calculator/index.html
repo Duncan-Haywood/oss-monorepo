@@ -98,7 +98,7 @@
       <tr><th scope="row">Federal income tax saved at your bracket</th><td class="n" id="incomeSaving">—</td></tr>
       <tr><th scope="row"><strong>Estimated total saved</strong></th><td class="n" id="totalSaving"><strong>—</strong></td></tr>
     </tbody></table>
-    <p class="note">Self-employment tax is 15.3% of 92.35% of net profit, with the 12.4% Social Security part stopping at the wage base. Income tax saved is your bracket times the deduction plus half the self-employment tax saved. State tax, the qualified business income deduction, additional Medicare tax and phase-outs are not modeled.</p>
+    <p class="note">Self-employment tax is 15.3% of 92.35% of net profit, with the 12.4% Social Security part stopping at the wage base. Net earnings under $400 owe none. Income tax saved is your bracket times the deduction plus half the self-employment tax saved. State tax, the qualified business income deduction, additional Medicare tax and phase-outs are not modeled.</p>
   </section>
 
   <section class="card">
@@ -136,7 +136,12 @@
 
     const $ = (id) => document.getElementById(id);
     const FIELDS = ["fullDays", "partialDays", "dailyRate", "partialPct", "dotPct", "receipts", "netProfit", "otherWages", "wageBase", "marginalRate"];
-    const money = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const money = (n) => {
+      const format = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (!(Number(n) < 0)) return format(n);
+      const text = format(Math.abs(n));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const BLANK = ["perDiemGross", "perDiemDeduction", "receiptsGross", "receiptsDeduction", "seBefore", "seAfter", "seSaving", "incomeSaving", "totalSaving"];
 
     function read() { const o = {}; for (const f of FIELDS) o[f] = $(f).value; return o; }

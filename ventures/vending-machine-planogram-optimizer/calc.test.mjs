@@ -123,3 +123,10 @@ test("csv has a header and one row per product", () => {
   assert.equal(lines.length, 1 + EXAMPLE_PRODUCTS.length);
   assert.match(lines[0], /^product,coils_now/);
 });
+
+test("a blank max coils does not cap a best seller (quality audit 2026-11-13)", () => {
+  const rows = [prod({ name: "soda", price: "2", cost: "0.6", weekly: "400", perCoil: "15", maxCoils: "" }),
+                prod({ name: "water", price: "2", cost: "0.4", weekly: "20", perCoil: "15", maxCoils: "" })];
+  const a = analyze(rows, { ...SH, coils: "40" });
+  assert.ok(a.rows[0].coils > 8, String(a.rec.alloc));
+});

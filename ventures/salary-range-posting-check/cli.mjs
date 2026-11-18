@@ -11,6 +11,7 @@
 
 import { readFileSync } from "node:fs";
 import { listStates, getRule, rangeRequiredStates, checkPosting } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 function parseArgs(argv) {
   const args = { json: false, positional: [] };
@@ -123,7 +124,7 @@ export function run(argv) {
   return { exitCode: 2, output: `Unknown subcommand "${args.sub}". Try --help.` };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

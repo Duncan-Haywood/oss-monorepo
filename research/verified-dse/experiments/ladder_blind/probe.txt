@@ -1,0 +1,12 @@
+# Milestone 133 parameter probe (one default-script point per candidate; keep if routed/r2 > 3.3)
+
+design | amount_depth | amount_gate_depth | amount_gates | mux_share | probe routed/r2 | base period ns | keep
+crc7s16 | 31 | 18 | 120 | 0.813 | 3.78 | 13.74 | True
+bcd2 | 2 | 20 | 41 | 0.806 | 5.41 | 11.73 | True
+cmp16 | 2 | 28 | 97 | 0.774 | 6.42 | 11.47 | True
+bcd3 | 4 | 30 | 91 | 0.674 | 5.26 | 10.98 | True
+crc7s32 | 63 | 32 | 276 | 0.791 | 3.05 | 15.31 | False
+cmp48 | 2 | 40 | 266 | 0.674 | 5.87 | 11.98 | True
+fib10 | 1 | 40 | 167 | 0.664 | 3.21 | 11.51 | False
+fib12 | 1 | 51 | 252 | 0.614 | 3.58 | 12.85 | True
+fib14 | 1 | 58 | 374 | 0.639 | 4.23 | 16.13 | True

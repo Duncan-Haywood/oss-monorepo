@@ -9,7 +9,7 @@
   <meta property="og:description" content="Convert a text-based bank or card statement PDF to CSV and see whether it adds up. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Bank Statement PDF to CSV Converter", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Reads a text-based bank or credit card statement PDF in the browser, extracts the transactions and proves them against the statement's opening and closing balances, then writes CSV for Xero, QuickBooks Online or a spreadsheet. The file is never uploaded.", "featureList": "bank statement PDF to CSV, credit card statement PDF to CSV, balance check, Xero statement CSV, QuickBooks Online CSV, no upload"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I convert a bank statement PDF to CSV?", "acceptedAnswer": {"@type": "Answer", "text": "Choose the PDF (or paste the text copied from it) and press Read and check. The page reads the PDF's text layer in your browser, finds each dated line and its amount, and checks that the opening balance plus the transactions equals the closing balance. Then download the CSV in the layout your accounting software wants."}}, {"@type": "Question", "name": "Is it safe to put a bank statement into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The PDF is read inside this browser tab. Nothing is uploaded: there is no server behind the page, and a test in the code asserts it contains no network calls. Many online converters upload the file to their servers; this one cannot. Your own policies still decide whether you may open bank data in a browser."}}, {"@type": "Question", "name": "Why does my PDF say it has no text?", "acceptedAnswer": {"@type": "Answer", "text": "A scan or a photo of a paper statement is an image, and this tool does not do OCR. Download the statement as a PDF from your bank's website instead; those have a text layer. A password-protected PDF also cannot be read: open it, enter the password, and print it to a new PDF."}}, {"@type": "Question", "name": "How do I know the converted rows are right?", "acceptedAnswer": {"@type": "Answer", "text": "The statement is proved against itself. The opening balance plus every row must equal the closing balance, to the cent, and where the statement prints a running balance each row is checked against it. If something does not add up, the page tells you by how much and what is likely wrong, such as a missing row of exactly that amount or a flipped sign."}}, {"@type": "Question", "name": "Does it work for credit card statements?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose Credit card as the account type: a bare amount is a charge, a minus sign or CR is a payment or refund, and the CSV shows charges as negative amounts so it imports like a bank feed. The previous balance and new balance are checked the same way."}}, {"@type": "Question", "name": "Which accounting software can use the CSV?", "acceptedAnswer": {"@type": "Answer", "text": "There are layouts for Xero's statement import (*Date, *Amount, Payee, Description, Reference), QuickBooks Online's three-column and four-column imports, and a generic Date, Description, Amount, Balance file that spreadsheets and most other tools accept. For an OFX or QBO file, run the CSV through the bank CSV to QBO converter."}}, {"@type": "Question", "name": "What does this not do?", "acceptedAnswer": {"@type": "Answer", "text": "It does not do OCR, read password-protected PDFs, or understand every bank's layout. Statements whose columns are drawn as images, or text stored without a character map, cannot be read. It does not check the result against your bank or your books. A clean result means the rows add up to the statement's own totals, nothing more."}}, {"@type": "Question", "name": "What happens to dates with no year?", "acceptedAnswer": {"@type": "Answer", "text": "Many statements print 01/05 with no year. The year is taken from the statement period line when there is one, or from the year you enter. Day-month versus month-day is detected from any date that can only be one way and otherwise you are warned and can choose."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I convert a bank statement PDF to CSV?", "acceptedAnswer": {"@type": "Answer", "text": "Choose the PDF (or paste the text copied from it) and press Read and check. The page reads the PDF's text layer in your browser, finds each dated line and its amount, and checks that the opening balance plus the transactions equals the closing balance. Then download the CSV in the layout your accounting software wants."}}, {"@type": "Question", "name": "Is it safe to put a bank statement into a web page?", "acceptedAnswer": {"@type": "Answer", "text": "The PDF is read inside this browser tab. Nothing is uploaded: there is no server behind the page, and a test in the code asserts the reading code contains no network calls. The one download is the OCR reader, fetched only if you press Read the scan. Many online converters upload the file to their servers; this one cannot. Your own policies still decide whether you may open bank data in a browser."}}, {"@type": "Question", "name": "Why does my PDF say it has no text?", "acceptedAnswer": {"@type": "Answer", "text": "A scan or a photo of a paper statement is an image with no text in it. Press Read the scan (OCR) and the page reads the picture in your browser, then proves the rows against the running balance the same way; figures OCR misread are corrected only where the balances on both sides confirm them, and every correction is listed. A PDF downloaded from your bank's website has a text layer and needs no OCR, so prefer it when you can. A password-protected PDF cannot be read: open it, enter the password, and print it to a new PDF."}}, {"@type": "Question", "name": "How do I know the converted rows are right?", "acceptedAnswer": {"@type": "Answer", "text": "The statement is proved against itself. The opening balance plus every row must equal the closing balance, to the cent, and where the statement prints a running balance each row is checked against it. If something does not add up, the page tells you by how much and what is likely wrong, such as a missing row of exactly that amount or a flipped sign."}}, {"@type": "Question", "name": "Does it work for credit card statements?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose Credit card as the account type: a bare amount is a charge, a minus sign or CR is a payment or refund, and the CSV shows charges as negative amounts so it imports like a bank feed. The previous balance and new balance are checked the same way."}}, {"@type": "Question", "name": "Which accounting software can use the CSV?", "acceptedAnswer": {"@type": "Answer", "text": "There are layouts for Xero's statement import (*Date, *Amount, Payee, Description, Reference), QuickBooks Online's three-column and four-column imports, and a generic Date, Description, Amount, Balance file that spreadsheets and most other tools accept. For an OFX or QBO file, run the CSV through the bank CSV to QBO converter."}}, {"@type": "Question", "name": "What does this not do?", "acceptedAnswer": {"@type": "Answer", "text": "It does not read password-protected PDFs, handwriting or non-English scans reliably, or understand every bank's layout. Statements whose columns are drawn as images, or text stored without a character map, cannot be read. It does not check the result against your bank or your books. A clean result means the rows add up to the statement's own totals, nothing more."}}, {"@type": "Question", "name": "What happens to dates with no year?", "acceptedAnswer": {"@type": "Answer", "text": "Many statements print 01/05 with no year. The year is taken from the statement period line when there is one, or from the year you enter. Day-month versus month-day is detected from any date that can only be one way and otherwise you are warned and can choose."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -51,25 +51,34 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#kind) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 405px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
     <p class="note">BANK STATEMENT PDF TO CSV · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Convert a bank or card statement PDF to CSV, and see whether it adds up</h1>
     <p>Choose a <strong>text-based statement PDF</strong> (or paste the text). Every dated line is read into a row, then the result is <strong>proved against the statement</strong>: opening balance plus the transactions must equal the closing balance, and each row is checked against the running balance the bank printed. If it is off, you are told <strong>by how much and where</strong>, instead of finding out when the books do not reconcile. Download CSV for <strong>Xero</strong>, <strong>QuickBooks Online</strong> or a spreadsheet.</p>
-    <p class="note">The PDF is read in this browser tab and never leaves your device: no upload, no account. No OCR, so scanned paper statements cannot be read. Independent of every bank and accounting vendor. The reader was tested on generated statements and on the synthetic examples below, not on a library of real bank PDFs, so every bank's layout is a guess until someone checks it: use the balance check, and report a statement it misreads.</p>
+    <p class="note">The PDF is read in this browser tab and never leaves your device: no upload, no account. Scanned statements and photos of a page are read by OCR in the tab too (opt-in: the OCR reader, about 20 MB, downloads once when you ask for it; your file stays here), and figures OCR misread are corrected only where the running balance proves them. Independent of every bank and accounting vendor. The reader is tested on generated statements and on an independent, public benchmark of statement PDFs (five synthetic statements from five countries in English, Dutch, French and Chinese, all five read to the right row count and proved by their balances), plus two statement PDFs from other open-source parsers. None is a real customer's statement, so a bank's layout is still a guess until someone checks it: use the balance check, and report a statement it misreads.</p>
   </header>
 <main>
 
   <section class="card">
     <h2>1. Your statement</h2>
-    <p class="note">A PDF downloaded from your bank's website or app (it has selectable text). Or copy the table out of any PDF viewer and paste it below.</p>
+    <p class="note">A PDF downloaded from your bank's website or app (it has selectable text), a scanned statement PDF, or a photo of the page. Or copy the table out of any PDF viewer and paste it below.</p>
     <label for="file">Choose a statement PDF</label>
-    <input type="file" id="file" accept=".pdf,application/pdf,.txt,text/plain">
+    <input type="file" id="file" accept=".pdf,application/pdf,.txt,text/plain,.png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
     <label for="paste">…or paste the statement text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Beginning balance   $4,210.55&#10;01/02   ACH CREDIT STRIPE PAYOUT   1,420.00   5,630.55&#10;..."></textarea>
     <div class="grid">
-      <div><label for="kind">Account type</label><select id="kind"><option value="bank">Bank account (money in is positive)</option><option value="card">Credit card (charges are positive on the statement)</option></select></div>
+      <div><label for="kind">Account type</label><select id="kind"><option value="auto">Detect from the statement</option><option value="bank">Bank account (money in is positive)</option><option value="card">Credit card (charges are positive on the statement)</option></select></div>
       <div><label for="date-order">Dates like 03/04/2026 are</label><select id="date-order"><option value="auto">Detect (warn if unclear)</option><option value="mdy">Month/day (US)</option><option value="dmy">Day/month (UK, EU)</option></select></div>
       <div><label for="year">Year for dates printed without one</label><input id="year" inputmode="numeric" placeholder="from the statement period" maxlength="4"></div>
     </div>
@@ -81,6 +90,11 @@
       <button type="button" class="secondary" id="clear-all">Clear</button>
     </p>
     <p class="note" id="form-status">Choose a PDF or paste the text, then click Read and check.</p>
+    <div id="scan-box" hidden>
+      <p class="note" id="scan-why"></p>
+      <p><button type="button" id="ocr-run">Read the scan (OCR)</button></p>
+      <p class="note">The OCR reader (tesseract.js, about 20 MB) is downloaded from cdn.jsdelivr.net the first time and then cached by your browser. Only the reader is downloaded; your statement is read inside this tab and is not sent anywhere. Expect 5 to 20 seconds a page.</p>
+    </div>
   </section>
 
   <section class="card" id="report" aria-live="polite" hidden>
@@ -95,6 +109,7 @@
     <div class="grid">
       <div><label for="layout">CSV layout</label><select id="layout"><option value="generic">Date, Description, Amount, Balance</option><option value="split">Date, Description, Debit, Credit, Balance</option><option value="xero">Xero statement import</option><option value="qbo3">QuickBooks Online, 3 columns</option><option value="qbo4">QuickBooks Online, 4 columns</option></select></div>
       <div><label for="out-date">Dates in the CSV</label><select id="out-date"><option value="auto">Layout default</option><option value="iso">YYYY-MM-DD</option><option value="dmy">DD/MM/YYYY</option><option value="mdy">MM/DD/YYYY</option></select></div>
+      <div id="account-pick" hidden><label for="account">Account</label><select id="account"></select></div>
       <div><label for="decimal">Decimal mark</label><select id="decimal"><option value=".">Point (1234.56)</option><option value=",">Comma (1234,56)</option></select></div>
     </div>
     <p><button type="button" id="dl-csv">Download CSV</button> <button type="button" class="secondary" id="dl-findings">Download findings as CSV</button></p>
@@ -104,12 +119,16 @@
   <section class="card">
     <h2>The model, and what it leaves out</h2>
     <ul>
-      <li><strong>Reading the PDF:</strong> the text layer is read directly (FlateDecode streams, compressed object streams, ToUnicode character maps) and grouped into lines by position. Nothing is rendered and nothing is recognised from pictures.</li>
-      <li><strong>Rows:</strong> a transaction starts with a date (or a transaction date and a posting date), has a description, and ends with one to three amounts. A line below with no date and no amount is added to the description above it.</li>
+      <li><strong>Reading the PDF:</strong> the text layer is read directly (FlateDecode streams, compressed object streams, ToUnicode character maps) and grouped into lines by position.</li>
+      <li><strong>Scans and photos (OCR):</strong> a PDF with no text layer has the picture on each page taken out (JPEG, or a Flate grey, colour or black-and-white image) and read by tesseract.js in the tab. Each word keeps its position, so amounts stay under their Withdrawals, Deposits and Balance headings; a slightly turned page is straightened before the words are put into rows; look-alike characters in figures (4.5O, 2,202:33, a lost decimal point) are fixed. Then the running balance checks every row. A figure is corrected only when the balance printed on that row is confirmed by the next row (or the closing balance), the new figure differs from what OCR read by one digit (two in a number of the same length, 1 for 7 and 3 for 8 counting half), and it moves the balance the way the row's column says. Every correction is listed and marked in the table. A row lost from the scan is never covered up this way: its amount is unrelated to its neighbour's, so the balance break is reported instead. CCITT fax, JBIG2 and JPEG 2000 scans are not read (save the scan as JPEG or PNG and choose that).</li>
+      <li><strong>Rows:</strong> a transaction starts with a date (or a transaction date and a posting date), has a description, and ends with one to three amounts. A line below with no date and no amount is added to the description above it if it starts under the description; a line with no date but an amount under the table's columns is its own row on the date above (many banks print the date once a day). Text printed in the same place on every page, such as a footer or watermark, is never added.</li>
+      <li><strong>Languages and formats:</strong> month names in English, French, Dutch, German, Spanish, Italian and Portuguese; headings and balance labels such as Solde d'ouverture, Beginsaldo, Saldo anterior or Alter Kontostand; amounts like 1,234.56, 1.234,56 and 1 234,56 $, and 1935.3 on statements that print one decimal.</li>
+      <li><strong>Several accounts in one PDF:</strong> a line naming an account, followed by a running balance that restarts, begins a new account. Each account is checked on its own: its running balance must be unbroken and its rows must match its printed deposit and withdrawal totals. Pick one account for a Xero or QuickBooks file, or download all with an Account column.</li>
+      <li><strong>Bank or card:</strong> detected from phrases only card statements print (minimum payment due, payment due date, credit limit), or chosen by you.</li>
       <li><strong>Money in or out:</strong> from the running balance when the statement prints one (the sign that makes the balance add up wins), otherwise from the Debit/Credit or Withdrawals/Deposits column the amount sits under, otherwise from a minus sign, brackets or CR/DR. An amount with none of these is shown as money in and called a guess.</li>
       <li><strong>Balance check:</strong> opening + all rows = closing, in whole cents with no floating point. A gap is reported with its amount, a missing-row, wrong-side or flipped-sign hint, and the line where the running balance first breaks.</li>
       <li><strong>Also checked:</strong> the statement's own "total deposits" and "total withdrawals" lines, dates that are not real days, a missing year, and identical rows.</li>
-      <li><strong>Not checked:</strong> that the file matches your bank's online record or your books, scanned or image-only statements, password-protected PDFs, statements whose text has no character map, several accounts or currencies in one PDF, and bank-specific layouts nobody has tried. The import layouts for Xero and QuickBooks are written from memory of their public import help and were not tested against a live import.</li>
+      <li><strong>Not checked:</strong> that the file matches your bank's online record or your books, scans in languages other than English (the OCR model is English; month names in other languages may be misread), CCITT, JBIG2 and JPEG 2000 scans, handwriting, password-protected PDFs, statements whose text has no character map, currency conversion between accounts in one PDF, a description printed on the line above its amount, and bank-specific layouts nobody has tried. The import layouts for Xero and QuickBooks are written from memory of their public import help and were not tested against a live import.</li>
     </ul>
   </section>
 
@@ -118,9 +137,9 @@
     <h3>How do I convert a bank statement PDF to CSV?</h3>
     <p>Choose the PDF (or paste the text copied from it) and press Read and check. The page reads the PDF's text layer in your browser, finds each dated line and its amount, and checks that the opening balance plus the transactions equals the closing balance. Then download the CSV in the layout your accounting software wants.</p>
     <h3>Is it safe to put a bank statement into a web page?</h3>
-    <p>The PDF is read inside this browser tab. Nothing is uploaded: there is no server behind the page, and a test in the code asserts it contains no network calls. Many online converters upload the file to their servers; this one cannot. Your own policies still decide whether you may open bank data in a browser.</p>
+    <p>The PDF is read inside this browser tab. Nothing is uploaded: there is no server behind the page, and a test in the code asserts the reading code contains no network calls. The one download is the OCR reader, fetched only if you press Read the scan. Many online converters upload the file to their servers; this one cannot. Your own policies still decide whether you may open bank data in a browser.</p>
     <h3>Why does my PDF say it has no text?</h3>
-    <p>A scan or a photo of a paper statement is an image, and this tool does not do OCR. Download the statement as a PDF from your bank's website instead; those have a text layer. A password-protected PDF also cannot be read: open it, enter the password, and print it to a new PDF.</p>
+    <p>A scan or a photo of a paper statement is an image with no text in it. Press Read the scan (OCR) and the page reads the picture in your browser, then proves the rows against the running balance the same way; figures OCR misread are corrected only where the balances on both sides confirm them, and every correction is listed. A PDF downloaded from your bank's website has a text layer and needs no OCR, so prefer it when you can. A password-protected PDF cannot be read: open it, enter the password, and print it to a new PDF.</p>
     <h3>How do I know the converted rows are right?</h3>
     <p>The statement is proved against itself. The opening balance plus every row must equal the closing balance, to the cent, and where the statement prints a running balance each row is checked against it. If something does not add up, the page tells you by how much and what is likely wrong, such as a missing row of exactly that amount or a flipped sign.</p>
     <h3>Does it work for credit card statements?</h3>
@@ -128,7 +147,7 @@
     <h3>Which accounting software can use the CSV?</h3>
     <p>There are layouts for Xero's statement import (*Date, *Amount, Payee, Description, Reference), QuickBooks Online's three-column and four-column imports, and a generic Date, Description, Amount, Balance file that spreadsheets and most other tools accept. For an OFX or QBO file, run the CSV through the bank CSV to QBO converter.</p>
     <h3>What does this not do?</h3>
-    <p>It does not do OCR, read password-protected PDFs, or understand every bank's layout. Statements whose columns are drawn as images, or text stored without a character map, cannot be read. It does not check the result against your bank or your books. A clean result means the rows add up to the statement's own totals, nothing more.</p>
+    <p>It does not read password-protected PDFs, handwriting or non-English scans reliably, or understand every bank's layout. Statements whose columns are drawn as images, or text stored without a character map, cannot be read. It does not check the result against your bank or your books. A clean result means the rows add up to the statement's own totals, nothing more.</p>
     <h3>What happens to dates with no year?</h3>
     <p>Many statements print 01/05 with no year. The year is taken from the statement period line when there is one, or from the year you enter. Day-month versus month-day is detected from any date that can only be one way and otherwise you are warned and can choose.</p>
   </section>
@@ -139,14 +158,15 @@
     <p><strong>Not affiliated with any bank or software vendor.</strong> Xero, QuickBooks, Intuit and the names of banks are trademarks of their owners. This tool is independent and is not sponsored, endorsed or connected to any bank, Xero, Intuit or Adobe. The import layouts are read from memory of public help pages and may not match every version.</p>
     <p><strong>Financial data.</strong> Bank statements contain account numbers, balances and the names of the people and companies you deal with. This page runs in your browser and sends nothing anywhere, and the portfolio never receives your file. Whether you may open bank data in a browser tool is a question for your own security policies.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
-    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>statement_read</code>, <code>example_loaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p>Everything runs in your browser. Your file is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>statement_read</code>, <code>scan_read</code>, <code>example_loaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Related tools: the <a href="../bank-csv-to-qbo-converter/">bank CSV to QBO converter</a> turns the CSV into a QuickBooks or Quicken file, the <a href="../xero-bank-statement-csv-check/">Xero statement CSV check</a> checks a CSV before Xero imports it, the <a href="../camt053-to-ofx-converter/">camt.053 and MT940 to OFX converter</a> does the same job for European bank files, the <a href="../ofx-file-check/">OFX file check</a> and <a href="../qif-file-check/">QIF file check</a> check files you already have, the <a href="../quickbooks-import-csv-check/">QuickBooks import CSV check</a> checks QuickBooks list imports, and the <a href="../subscription-audit-from-statement/">subscription audit</a> finds recurring charges in a statement.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { parseStatementText, parseStatementPdf, toCsv, findingsCsv, money, sampleStatement, sampleBroken, sampleCard } from "./calc.mjs";
+    import { parseStatement, parseStatementText, parseStatementPdf, toCsv, findingsCsv, money, sampleStatement, sampleBroken, sampleCard } from "./calc.mjs";
+    import { pageImages, readScanImages, loadEngine, imageSource, IMAGE_FILE } from "./ocr.mjs";
     import { inflate } from "./inflate-browser.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
@@ -170,24 +190,70 @@
     function show(r) {
       last = r;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
-      const proof = r.reconcile.ok === true ? "balances agree" : r.reconcile.ok === false ? "balances do NOT agree" : "balances not found, unproven";
+      const proof = r.reconcile.ok === true ? (r.reconcile.method === "sections" ? `${r.reconcile.sections.length} accounts, each adds up` : "balances agree") : r.reconcile.ok === false ? "balances do NOT agree" : "balances not found, unproven";
       $("#report-stats").innerHTML = `<strong>${r.transactions.length} transaction${r.transactions.length === 1 ? "" : "s"}</strong> · ${proof} · ${errs} error${errs === 1 ? "" : "s"}, ${warns} warning${warns === 1 ? "" : "s"}`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const b = r.reconcile;
       const cell = (label, v, cls = "") => `<tr><th scope="row">${label}</th><td class="n ${cls}">${v === null || v === undefined ? "not found" : money(v)}</td></tr>`;
       $("#balance").innerHTML = cell("Opening balance", b.opening) + cell("Sum of the transactions", r.transactions.length ? b.sum : null) + cell("Opening + transactions", b.expected) + cell("Closing balance on the statement", b.closing) + (b.diff === null || b.diff === undefined ? "" : cell("Difference", b.diff, b.diff ? "short" : ""));
-      $("#rows").innerHTML = r.transactions.map((t) => `<tr><td>${t.line}</td><td>${esc(t.dateText)}</td><td>${esc(t.description)}</td><td class="n ${t.source === "guess" ? "short" : ""}">${money(t.amount)}</td><td class="n">${t.balance === null ? "—" : money(t.balance)}</td><td>${t.source}</td></tr>`).join("") || `<tr><td colspan="6">No transactions.</td></tr>`;
+      $("#rows").innerHTML = r.transactions.map((t) => `<tr><td>${t.line}</td><td>${esc(t.dateText)}</td><td>${esc(t.description)}</td><td class="n ${t.source === "guess" || (t.ocrFix && t.ocrFix.field === "amount") ? "short" : ""}"${t.ocrFix && t.ocrFix.field === "amount" ? ` title="OCR read ${money(t.ocrFix.from)}; corrected from the running balance"` : ""}>${money(t.amount)}${t.ocrFix && t.ocrFix.field === "amount" ? " *" : ""}</td><td class="n ${t.ocrFix && t.ocrFix.field === "balance" ? "short" : ""}">${t.balance === null ? "—" : money(t.balance)}${t.ocrFix && t.ocrFix.field === "balance" ? " *" : ""}</td><td>${t.ocrFix ? "OCR corrected (was " + money(t.ocrFix.from) + "), " : ""}${t.source}</td></tr>`).join("") || `<tr><td colspan="6">No transactions.</td></tr>`;
+      const secs = r.reconcile.method === "sections" ? r.reconcile.sections : null;
+      $("#account-pick").hidden = !secs;
+      $("#account").innerHTML = secs ? `<option value="">All accounts (Account column)</option>` + secs.map((x) => `<option value="${x.account}">${esc(x.title || `Account ${x.account + 1}`)} (${x.rows} rows)</option>`).join("") : "";
       report.hidden = false;
       status.textContent = errs ? `Found ${errs} error(s); read the first one.` : `${r.transactions.length} transactions read.`;
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
+    // Scans: a PDF with no text layer, or a photo. OCR runs only when asked.
+    const scanBox = $("#scan-box");
+    let scanFile = null;
+    function offerScan(f, why) { scanFile = f; $("#scan-why").textContent = why; scanBox.hidden = false; }
+    $("#file").addEventListener("change", () => { scanBox.hidden = true; scanFile = null; });
+    $("#ocr-run").addEventListener("click", async () => {
+      if (!scanFile) return;
+      const btn = $("#ocr-run");
+      btn.disabled = true;
+      let engine = null;
+      try {
+        let images;
+        if (IMAGE_FILE.test(scanFile.name) || IMAGE_FILE.test(scanFile.type)) images = [scanFile];
+        else {
+          const { encrypted, pages } = await pageImages(new Uint8Array(await scanFile.arrayBuffer()), inflate);
+          if (encrypted) { status.textContent = "The PDF is password-protected: open it, enter the password and print it to a new PDF first."; return; }
+          const bad = pages.filter((p) => p.kind === "unsupported");
+          images = (await Promise.all(pages.filter((p) => p.kind === "jpeg" || p.kind === "pixels").map(imageSource))).filter(Boolean);
+          if (!images.length) { status.textContent = bad.length ? `The scan is stored as ${bad[0].filter}, which this page cannot draw. Save the scan as JPEG or PNG and choose that file.` : "No picture was found on the pages of this PDF."; return; }
+          if (bad.length) status.textContent = `${bad.length} page(s) use ${bad[0].filter} and are skipped.`;
+        }
+        status.textContent = "Downloading the OCR reader (first time only)…";
+        engine = await loadEngine((m) => { if (m && m.status === "recognizing text") status.textContent = `Reading the scan… ${Math.round((m.progress || 0) * 100)}%`; });
+        const { lines, meanConfidence } = await readScanImages(images, engine, ({ page, pages }) => { status.textContent = `Reading page ${page} of ${pages}…`; });
+        const r = parseStatement(lines, { ...opts(), ocr: true });
+        r.findings.push({ severity: "info", title: `Read by OCR from ${images.length} page${images.length === 1 ? "" : "s"}`, detail: `The reader's mean confidence was ${meanConfidence ?? "?"} of 100. OCR can misread a digit or lose a row: trust the result only as far as the balance check proves it, and check any corrected figure (marked *) against the page.`, line: null });
+        show(r);
+        record("scan_read");
+      } catch (e) {
+        status.textContent = "The scan could not be read: " + (e && e.message ? e.message : e);
+      } finally {
+        btn.disabled = false;
+        if (engine) engine.done();
+      }
+    });
+
     $("#run").addEventListener("click", async () => {
       const f = $("#file").files[0];
       status.textContent = "Reading…";
       try {
-        if (f && /\.pdf$|application\/pdf/i.test(f.name + f.type)) show(await parseStatementPdf(new Uint8Array(await f.arrayBuffer()), inflate, opts()));
-        else {
+        if (f && (IMAGE_FILE.test(f.name) || IMAGE_FILE.test(f.type))) { offerScan(f, "This is a picture, so it has to be read by OCR."); status.textContent = "A photo of a statement: press Read the scan (OCR) below."; return; }
+        if (f && /\.pdf$|application\/pdf/i.test(f.name + f.type)) {
+          const r = await parseStatementPdf(new Uint8Array(await f.arrayBuffer()), inflate, opts());
+          show(r);
+          if (r.flags && !r.flags.notPdf && !r.flags.encrypted && r.flags.pageCount > 0 && r.flags.pagesWithText < r.flags.pageCount) {
+            offerScan(f, r.flags.pagesWithText === 0 ? "This PDF has no text layer: it is a scan. It can be read by OCR." : `${r.flags.pageCount - r.flags.pagesWithText} page(s) of this PDF have no text. Reading the whole PDF by OCR may recover them.`);
+            status.textContent = "This looks like a scan: press Read the scan (OCR) below.";
+          }
+        } else {
           const text = f ? await f.text() : $("#paste").value;
           if (!text.trim()) { status.textContent = "Choose a PDF or paste the text first."; return; }
           show(parseStatementText(text, opts()));
@@ -204,12 +270,14 @@
     example("#load-bank", sampleStatement, "bank", "Worked example: a synthetic bank statement for a made-up business; it adds up.");
     example("#load-card", sampleCard, "card", "Worked example: a synthetic credit card statement across a year end; it adds up.");
     example("#load-broken", sampleBroken, "bank", "Worked example: the bank statement after one row was lost in a copy; the check names the amount and the line.");
-    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a PDF or paste the text, then click Read and check."; });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; scanBox.hidden = true; scanFile = null; status.textContent = "Choose a PDF or paste the text, then click Read and check."; });
     $("#dl-csv").addEventListener("click", () => {
       if (!last) return;
       record("csv_downloaded");
       const d = $("#out-date").value;
-      download("statement.csv", toCsv(last, { layout: $("#layout").value, dateFormat: d === "auto" ? undefined : d, decimal: $("#decimal").value }), "text/csv");
+      const acct = $("#account-pick").hidden ? null : $("#account").value;
+      if (acct === "" && ["xero", "qbo3", "qbo4"].includes($("#layout").value)) { status.textContent = "Xero and QuickBooks import one account at a time: pick the account first."; return; }
+      download("statement.csv", toCsv(last, { layout: $("#layout").value, dateFormat: d === "auto" ? undefined : d, decimal: $("#decimal").value, account: acct }), "text/csv");
     });
     $("#dl-findings").addEventListener("click", () => { if (last) download("statement-findings.csv", findingsCsv(last), "text/csv"); });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });

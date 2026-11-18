@@ -23,11 +23,19 @@ The static surface includes crawlable `robots.txt` and `sitemap.xml` files.
 python3 src/mcp_watch.py examples/before.json examples/after.json
 python3 src/mcp_watch.py examples/before.json examples/after.json --output drift.json --usage-log usage.jsonl
 python3 src/mcp_watch.py examples/before.json examples/after.json --format markdown > drift.md
+python3 src/mcp_watch.py approved.json current.json --fail-on-alert   # exit 2 on any alert
 ```
+
+The signal list is short and keyword-based: it catches the common published
+tool-poisoning phrasings, not a paraphrase written to evade it. Treat a quiet
+report as "no listed signal", not as "safe".
 
 The checker is local-first and standard-library only. It reports tool additions,
 removals, schema changes, ordinary description changes, and a small set of
-model-directed instruction signals. It does not contact servers, proxy traffic,
+model-directed instruction signals that newly appear in a tool's description or
+anywhere inside its `inputSchema` (a payload in a parameter description reaches
+the model just the same). `--fail-on-alert` exits 2 when any change is at alert
+severity, so a CI job can stop on it. It does not contact servers, proxy traffic,
 scan infrastructure, preserve customer content in usage logs, or claim that a
 server is safe. Capture manifests through a customer-authorized process and
 review every finding before acting on it.

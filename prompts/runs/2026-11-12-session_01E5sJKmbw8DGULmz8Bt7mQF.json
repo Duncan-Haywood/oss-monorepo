@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKmbw8DGULmz8Bt7mQF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T20:09:51Z",
+  "ended": "2026-11-12T20:16:48Z",
+  "wall_minutes": 7.37,
+  "tokens_in": 5003306,
+  "tokens_out": 32964,
+  "cost_usd": 2.5828,
+  "tool_calls": 52,
+  "task": "Deepen flagship 7 (photo-editing): run DNG WarpFisheye in OpcodeList3",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15244",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "'Start here' picked sales-agent (row 2), whose every open next: item needs outside input (a key, a real mailbox, a person reader, real replies); the row has no buildable: field, so the run spent time reading README/ROADMAP to establish that before switching. Suggest the session pick skip flagships with no buildable: line when one further down has it."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to probe hosts before planning; in this session mail.python.org, lists.debian.org, lists.apache.org, mail-archive.com, lore.kernel.org, huggingface.co and zenodo.org all gave proxy 403/000, so no public mail archive was reachable for a real-replies set for sales-agent. Worth listing those as known-blocked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named sales-agent; all five of its next: items need a key, account, person or real data unavailable from this session (mail archives blocked by the proxy). prompt-1.md allows taking the next flagship then.",
+      "did": "Took photo-editing (row 6), whose buildable: line named WarpFisheye.",
+      "result": "WarpFisheye landed with 13 closed-form tests; flagships.yaml buildable/next rewritten to MapTable and Delta/ScalePer*."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-unwrapping-a-fisheye-dng.md",
+    "ventures/photo-editing/eval/warp-fisheye-2026-11-12.md"
+  ],
+  "goal": "Deepen a flagship with a buildable engineering slice",
+  "notes": "photo-editing full suite via platform/ci/run_venture_tests.py photo-editing: ok (97.6s), 1 suites run, 0 failed. Targeted: tests/test_dng_warp_fisheye.py + test_dng_warp.py + test_dng_opcodes.py 35 passed. The WarpFisheye formula (t=atan(r), rd = t(k0 + t^2(k1 + ...))) is written from memory of the DNG 1.4 spec and SDK; neither could be fetched, darktable does not implement the opcode, so it is checked only against itself on closed forms (stated in README, eval doc and post). numpy engine uses math.atan per pixel for byte-identity with pure Python; 3 MP warps in 0.95 s.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6dc28ce2-10d9-5665-8b77-d18fad9da946",
+    "transcripts": 1,
+    "first": "2026-11-12T20:09:51Z",
+    "last": "2026-11-12T20:17:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 90,
+        "output": 32964,
+        "thinking": 6003,
+        "cache_read": 4884951,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118265,
+        "api_equivalent_usd": 2.5828,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 90,
+      "output": 32964,
+      "thinking": 6003,
+      "cache_read": 4884951,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118265,
+      "api_equivalent_usd": 2.5828,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 47,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.37,
+      "active_minutes": 7.37,
+      "model_minutes": 6.11,
+      "tool_minutes": 1.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an imaging engineer implementing and testing one DNG warp opcode in two engines with docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 232.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

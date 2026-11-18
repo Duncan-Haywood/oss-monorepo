@@ -17,7 +17,7 @@ export const REVIEW_HEADER = 'confidence,tier,vendor,row_a,date_a,invoice_a,row_
  */
 export function csvCell(value) {
   const raw = String(value ?? '');
-  const text = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+  const text = /^[=+\-@\t\r]/.test(raw) && !/^-?\d+(\.\d+)?$/.test(raw) ? `'${raw}` : raw;
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 

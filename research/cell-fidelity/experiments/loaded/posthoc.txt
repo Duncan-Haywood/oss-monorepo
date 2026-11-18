@@ -1,0 +1,8 @@
+cell-fidelity 5zc post hoc (after the verdicts): median ln of the per-cycle lithium loss at cycle 99 over cycle 2,
+raw, then with the measured charge Ah and the open-circuit (5x) or measured separator-surface (5z) OCP rise removed
+
+condition                  raw  Qch+oc dU  Qch+surf dU  Qch only
+Ai2020@0.525x           -1.914     -0.229       +1.351    -1.186
+NCA_Kim2011@0.6875x     -4.425     -0.066       -0.494    -3.691
+Chen2020@1.375x         -1.329     -0.778       -0.139    -0.844
+OKane2022@1.375x        -1.295     -0.575       +0.064    -0.813

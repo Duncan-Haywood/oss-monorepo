@@ -253,8 +253,9 @@ test('markReportFiled rolls a saved award forward without re-keying it', () => {
   assert.equal(after[0].awardAmount, 100, 'every other field on the award survives');
   assert.equal(after[1].lastReportFiled, undefined, 'only the named row is stamped');
   assert.equal(grants[0].lastReportFiled, undefined, 'the saved array is not mutated in place');
-  // The whole point: the next due date moves one interval past the filing.
-  assert.equal(reviewGrant(after[0], '2026-08-24').nextReport, '2026-11-24');
+  // The filing marks the 2026-07-01 report done (filed late), so the next one
+  // is the award's own 2026-10-01 date, not filed date + 3 months.
+  assert.equal(reviewGrant(after[0], '2026-08-24').nextReport, '2026-10-01');
 });
 
 test('markReportFiled refuses an out-of-range index or an unparseable date instead of corrupting the queue', () => {
@@ -274,4 +275,52 @@ test('the review queue exposes the Filed-today action and the Last-filed column 
   assert.match(page, /markReportFiled/, 'the page imports and calls the roll-forward');
   assert.match(page, /data-filed=/, 'each queue row carries a Filed-today control');
   assert.match(page, /<th>Last filed<\/th>/, 'the queue shows the anchor it is counting from');
+});
+
+// Quality audit 2026-11-13 (portfolio/quality/audits/2026-11-13-grant-reporting-tracker.json):
+// due dates follow the award's fixed schedule; a late or early filing must not move later ones.
+test('a late filing does not push later due dates back', () => {
+  const row = reviewGrant(
+    { awardDate: '2026-01-15', intervalMonths: 6, lastReportFiled: '2026-08-01', awardAmount: 1, spentAmount: 0 },
+    '2027-01-20',
+  );
+  assert.equal(row.nextReport, '2027-01-15');
+  assert.equal(row.daysUntilReport, -5);
+  assert.equal(row.status, 'Overdue');
+});
+
+test('a report filed a few days early covers the date it was sent for', () => {
+  const row = reviewGrant(
+    { awardDate: '2026-01-15', intervalMonths: 6, lastReportFiled: '2026-07-10', awardAmount: 0, spentAmount: 0 },
+    '2026-07-11',
+  );
+  assert.equal(row.nextReport, '2027-01-15');
+});
+
+test('a filing before the first due date counts as the first report', () => {
+  const row = reviewGrant(
+    { awardDate: '2026-01-15', intervalMonths: 12, lastReportFiled: '2026-03-01', awardAmount: 0, spentAmount: 0 },
+    '2026-03-02',
+  );
+  assert.equal(row.nextReport, '2028-01-15');
+});
+
+test('month-end schedules are computed from the award date and do not drift', () => {
+  // 31 Jan monthly: Feb 28, Mar 31, Apr 30. Filing the Feb report must give Mar 31, not Mar 28.
+  const row = reviewGrant(
+    { awardDate: '2026-01-31', intervalMonths: 1, lastReportFiled: '2026-02-28', awardAmount: 0, spentAmount: 0 },
+    '2026-03-01',
+  );
+  assert.equal(row.nextReport, '2026-03-31');
+});
+
+test('status boundaries: due today is Due soon, 30 days is Due soon, 31 is On track', () => {
+  const at = (awardDate) => reviewGrant({ awardDate, intervalMonths: 6, awardAmount: 0, spentAmount: 0 }, '2026-11-13');
+  assert.equal(at('2026-05-13').daysUntilReport, 0);
+  assert.equal(at('2026-05-13').status, 'Due soon');
+  assert.equal(at('2026-06-13').daysUntilReport, 30);
+  assert.equal(at('2026-06-13').status, 'Due soon');
+  assert.equal(at('2026-06-14').daysUntilReport, 31);
+  assert.equal(at('2026-06-14').status, 'On track');
+  assert.equal(at('2026-05-12').status, 'Overdue');
 });

@@ -119,6 +119,25 @@ def test_rand_k_unbiased_and_keep1_matches_plain():
         assert torch.allclose(p, q, atol=1e-5)
 
 
+def test_gauss_noise_unbiased_and_matches_rand_k_energy():
+    from lowcomm import gauss_noise, rand_k
+    g = torch.Generator().manual_seed(0)
+    x = torch.randn(4000) * torch.linspace(0.1, 3.0, 4000)  # uneven coordinates, so iso and shaped differ
+    for shaped in (False, True):
+        c = gauss_noise(7.0, shaped)
+        est = torch.stack([c(x, g) for _ in range(400)]).mean(0)
+        assert abs((est - x).mean().item()) < 0.05
+        err = torch.stack([((c(x, g) - x) ** 2).sum() / (x ** 2).sum() for _ in range(50)]).mean()
+        assert 6.5 < err.item() < 7.5, (shaped, err.item())  # rand_k(1/8) has omega 7
+    # shaped noise puts rand-k's per-coordinate variance omega x_i^2 on each coordinate; iso spreads it evenly
+    big, small = x.abs() > 2.0, x.abs() < 0.2
+    sh = torch.stack([gauss_noise(7.0, True)(x, g) - x for _ in range(200)]).pow(2).mean(0)
+    rk = torch.stack([rand_k(0.125)(x, g) - x for _ in range(200)]).pow(2).mean(0)
+    assert abs(sh[big].mean() / rk[big].mean() - 1) < 0.15
+    iso = torch.stack([gauss_noise(7.0)(x, g) - x for _ in range(200)]).pow(2).mean(0)
+    assert iso[small].mean() > 10 * sh[small].mean()
+
+
 def test_top_k_and_error_feedback():
     import torch
     from lowcomm import DiLoCo, top_k

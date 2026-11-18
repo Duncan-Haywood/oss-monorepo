@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKjWn1frkYSXP4cmRrN",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T12:19:52Z",
+  "ended": "2026-11-17T12:29:27Z",
+  "wall_minutes": 18.91,
+  "tokens_in": 3592296,
+  "tokens_out": 39687,
+  "cost_usd": 2.2523,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16933",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "(git checkout)",
+      "issue": "origin/main in the fresh shallow clone pointed at an old commit (#15209) while HEAD was current; 'git checkout -B <branch> origin/main' silently rewound the branch until I fetched main by name (CLAUDE.md does say to fetch branches by name)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-hearth-and-horizon-the-joint-that-is-still-pink.md",
+    "docs/reports/hearth-and-horizon-lime-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (science fiction shelf). Piece: the-joint-that-is-still-pink (BIBLE proposal 'Lime that is still setting'), ~4,400 words, text only (audio dirs 577 MB > 400 MB cap). Added a new H&H proposal 'Ice along the eaves' since the shelf's Next up list was empty. Checks: node --test in ventures/hearth-and-horizon 17/17 pass; run_workflow_locally --for-changes: pages.yml 6/6 run steps ok, run_workflow_locally --for-changes: first pass failed only on missing `kind` front matter in the new docs/reports note (doc_index, check_post_frontmatter); fixed, both re-run clean; pytest-only steps unrun locally (not reached by this diff); cross-review and deploy jobs not runnable locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "97928e46-1b9d-5a61-add9-452aadddddea",
+    "transcripts": 1,
+    "first": "2026-11-17T12:19:52Z",
+    "last": "2026-11-17T12:38:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 76,
+        "output": 39687,
+        "thinking": 17507,
+        "cache_read": 3497369,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94851,
+        "api_equivalent_usd": 2.2523,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 76,
+      "output": 39687,
+      "thinking": 17507,
+      "cache_read": 3497369,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94851,
+      "api_equivalent_usd": 2.2523,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.91,
+      "active_minutes": 18.91,
+      "model_minutes": 7.89,
+      "tool_minutes": 11.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a professional writer drafting and fact-checking a 4,400-word technical short story plus a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 355.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

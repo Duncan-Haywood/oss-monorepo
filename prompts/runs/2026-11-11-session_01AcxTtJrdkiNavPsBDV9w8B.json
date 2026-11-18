@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJrdkiNavPsBDV9w8B",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T03:07:00Z",
+  "ended": "2026-11-11T03:20:12Z",
+  "wall_minutes": 170.28,
+  "tokens_in": 20270983,
+  "tokens_out": 60305,
+  "cost_usd": 6.7297,
+  "tool_calls": 118,
+  "task": "Flagship 2 ai-bookkeeper items (0)/(1): the AI layer in fill mode on real card lines; a year of City of Toronto PCard data",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14678",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "llama_cpp.server failed to load a split GGUF renamed to q7-1.gguf: split files must keep their -0000N-of-0000M names",
+    "pip installed llama-cpp-python into /usr/bin/python3 (3.13), not the PATH python3 (/usr/local/bin, 3.11); the first server start failed with ModuleNotFoundError",
+    "Node fetch's 300 s headers timeout cut off the last batch of one run and every batch of the first name-field run (35 min lost); fixed with an undici Agent preloaded via --import",
+    "run_workflow_locally --for-changes reported UNSTABLE CHECKOUT because I edited the run record while it ran; its one real failure (new-payee.test.mjs pinned the old fill behaviour) was fixed and the suite re-run"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/toronto-pcard.mjs",
+      "issue": "said the city's portal did not answer; it answered from this session and has every month 2009-2026 (866k lines), so the one-month reading could become a year"
+    },
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "'Not yet measured: accuracy of the AI layer (no key or local model in the build environment...)' was stale: HISTORY had a 2026-10-23 Ollama reading; now updated"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the pkill hook rejects a bracketed pattern if the same text appears elsewhere in the command line (e.g. in a following nohup restart); needs splitting into two calls"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-ai-bookkeeper-local-model-real-card-lines.md",
+    "ventures/ai-bookkeeper/README.md (A year of Toronto card lines, and the AI layer on what the rules miss)",
+    "ventures/ai-bookkeeper/HISTORY.md"
+  ],
+  "goal": "Measure the optional AI layer on real data and make its default safe on what was found",
+  "notes": "Hosts: huggingface.co (GGUF download) and the City of Toronto CKAN portal answered; github.com releases 403. Qwen2.5-7B-Instruct Q4_K_M via llama-cpp-python 0.3.16 built from source (4 CPU cores, ~37 tok/s prompt, ~4 tok/s generation; 20-line batch 3.5-8 min). Readings on 140 real fill-queue lines: rules 43 right; model 25 (old prompt), 27 (+merchant category), 35 (+account name); name check dropped 7, all wrong; keep-guess policy 48. Verification: node --test ai.test.mjs toronto-ai.test.mjs toronto-pcard.test.mjs page.test.mjs 47 pass; python3 platform/ci/run_venture_tests.py ai-bookkeeper ok (44.8 s, final tree; an earlier sweep caught new-payee.test.mjs pinning the old fill-over-guess behaviour, updated to fill-guess); post frontmatter/links/similarity checks clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0961777c-7c94-5dfb-9a1a-1c8c9daa74b9",
+    "transcripts": 1,
+    "first": "2026-11-11T03:07:00Z",
+    "last": "2026-11-11T05:57:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 130,
+        "input": 273,
+        "output": 60305,
+        "thinking": 16192,
+        "cache_read": 20082463,
+        "cache_write_5m": 0,
+        "cache_write_1h": 188247,
+        "api_equivalent_usd": 6.7297,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 130,
+      "input": 273,
+      "output": 60305,
+      "thinking": 16192,
+      "cache_read": 20082463,
+      "cache_write_5m": 0,
+      "cache_write_1h": 188247,
+      "api_equivalent_usd": 6.7297,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.991,
+    "tool_calls": 118,
+    "tools": {
+      "Bash": 111,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 170.28,
+      "active_minutes": 35.23,
+      "model_minutes": 14.34,
+      "tool_minutes": 20.89,
+      "waiting_on_human_minutes": 135.05,
+      "human_prompts": 16,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "data sourcing and G/L pairing (2h), local LLM setup (2h), eval harness and tests (3h), three model runs and analysis (2h), write-up (1h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 148.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

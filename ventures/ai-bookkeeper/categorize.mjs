@@ -13,20 +13,73 @@
 // Payee strings from banks are messy ("SQ *BLUE BOTTLE 0412 OAKLAND CA",
 // "PURCHASE AUTHORIZED ON 03/14 AMZN MKTP US*2K3"), so everything keys on a
 // normalised payee. Pure functions, no DOM, no network.
+//
+// After the built-in keywords, four hints a file may carry are read for review
+// only: the card network's merchant category code (mcc.mjs), the bank's own
+// category label, a chain's name from OpenStreetMap's name-suggestion-index (brands.mjs),
+// and a new payee's shape and size (guessNewPayee).
+
+import { mccAccount, mccKey } from "./mcc.mjs";
+import { BRAND_KINDS, BRANDS_VERSION, BRAND_PERSON_NAMES } from "./brands.mjs";
 
 const NOISE = new Set(("pos ach debit credit card purchase checkcard visa mastercard mc dda withdrawal deposit payment pmt pymt web ppd ccd id ref trn txn " +
-  "recurring online mobile preauthorized pre auth authorized on from to the inc llc ltd co corp us usa www com net org help bill sq tst pp sp py fs " +
+  "recurring online mobile preauthorized pre auth authorized authorization authorisation pending non pin at on from to the inc llc ltd co corp us usa www com net org help bill sq tst pp sp py fs " +
   "al ak az ar ca co ct de fl ga hi ia il in ks ky la ma md me mi mn mo ms mt nc nd ne nh nj nm nv ny oh ok or pa ri sc sd tn tx ut va vt wa wi wv wy").split(" "));
 
 // "SQ *BLUE BOTTLE 0412 OAKLAND CA" -> tokens ["blue","bottle","oakland"], key "blue bottle".
 // Tokens with digits are references and store numbers ("1gh4qe", "#0412"),
 // dropped whole rather than stripped to a misleading fragment.
-export function payeeTokens(desc) {
-  const s = String(desc ?? "").toLowerCase().replace(/[’']/g, "").replace(/purchase authorized on \d{1,2}\/\d{1,2}/g, " ");
-  return s.split(/[\s,;:#|*_./\\()\[\]-]+/).filter((t) => t && !/\d/.test(t)).map((t) => t.replace(/[^a-z&]+/g, "")).filter((t) => t.length >= 2 && !NOISE.has(t) && !/^x+$/.test(t));
+// Chase writes an ACH line as the whole NACHA addenda: "ORIG CO NAME:STRIPE ORIG ID:1800948598 DESC DATE:
+// CO ENTRY DESCR:TRANSFER SEC:CCD TRACE#:... IND NAME:...". The payee is the originator's name and the entry
+// description says what the entry is; the rest is ids. Read from a real Chase download of a Stripe-funded LLC
+// account (eval/us-bank-exports.mjs, 2026-11-14): before, every ACH line keyed to "orig name" and a Stripe
+// payout read as a transfer from its entry description.
+export function achCompact(desc) {
+  const m = /orig co name:\s*(.*?)\s+orig id:.*?co entry descr:\s*(.*?)\s*sec:/i.exec(String(desc ?? ""));
+  return m ? `${m[1]} ${m[2]}`.replace(/\s+/g, " ").trim() : null;
 }
 
+// Some banks glue a phone, store or reference number straight onto the merchant: US Bank writes
+// "WEB AUTHORIZED PMT SPRINT8006396111", others "SQ *CREPELANDIA210" or "707-652-3328ADAPTDMIND".
+// Dropping the whole token left those lines with no payee at all, so nothing was learned from them.
+// A token that is one run of three or more letters and one run of two or more digits, in either
+// order, keeps its letters, but only while no clean payee word has come before it: after the
+// merchant's name the glued tokens are store and city codes ("WALGREENS #1234 CINCINNATI 00CINCINNATI",
+// "MARATHON PETRO13 MONROE6537"), which would split one merchant into one payee per store.
+// Shorter runs, glued dates ("JAN29") and mixed tokens ("2K3", "IBEXHSDFR2", "PB1") are still dropped: on the 63 real US
+// exports (eval/us-bank-exports.mjs) the mixed ones are random references.
+// American Express writes some merchants as name, reference and web address in one run: "HOTELSCOM72791059909HOTELS.COM"
+// (a real business card in a Rocket Money export, eval/aggregator-exports.mjs, 2026-11-14). Letters after the
+// digits are allowed there when the digit run is six or more long, and the leading letters are kept; a short
+// one ("OPE879BQLW", "OPETLTG42G" on a US bank's recurring-payment line) is a reference and still dropped.
+const GLUED = /^(?:([a-z&]{3,})(?:\d{6,}[a-z&]{3,}|\d{2,})|\d{2,}([a-z&]{3,}))$/;
+// "Pending DEBIT PURCHASE Jan29 05:21p" (a Mint export of a Citi line): a glued date is not a payee.
+const DATE_WORD = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december|mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun)$/;
+const keep = (t) => t.length >= 2 && !NOISE.has(t) && !/^x+$/.test(t);
+const tokenize = (desc, glued) => {
+  desc = achCompact(desc) ?? desc;
+  const s = String(desc ?? "").toLowerCase().replace(/[’']/g, "").replace(/purchase authorized on \d{1,2}\/\d{1,2}/g, " ");
+  const out = [];
+  for (const raw of s.split(/[\s,;:#|*_./\\()\[\]-]+/)) {
+    if (!raw) continue;
+    if (/\d/.test(raw)) {
+      const m = glued && !out.length ? GLUED.exec(raw) : null;
+      const t = m && !DATE_WORD.test(m[1] ?? m[2]) ? m[1] ?? m[2] : "";
+      if (t && keep(t)) out.push(t);
+      continue;
+    }
+    const t = raw.replace(/[^a-z&]+/g, "");
+    if (keep(t)) out.push(t);
+  }
+  return out;
+};
+
+export const payeeTokens = (desc) => tokenize(desc, true);
 export const payeeKey = (desc) => payeeTokens(desc).slice(0, 2).join(" ");
+// The key before 2026-11-14, which dropped glued tokens whole. Books saved then hold memory
+// under it, so a memory miss on the new key tries this one (suggest) before the line counts
+// as a new payee.
+export const legacyPayeeKey = (desc) => tokenize(desc, false).slice(0, 2).join(" ");
 const dir = (cents) => (cents >= 0 ? "in" : "out");
 const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.abs(cents) / 100 + 1)))}`;
 
@@ -34,6 +87,39 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Card payments as the card and the paying bank actually print them (2026-11-15: a software LLC's
+  // own hledger books, eval/nevarro-ledger.mjs, and the 63 real exports in eval/us-bank-exports.mjs).
+  // Chase cuts its card's line to "AUTOMATIC PAYMENT - THANK", Citi writes "ONLINE PAYMENT, THANK YOU",
+  // Amex "ELECTRONIC PAYMENT RECEIVED-THANK"; the paying side names the issuer ("CHASE CREDIT CRD
+  // AUTOPAY", Bluevine's "CHASE CREDIT CRD, AUTOPAYBUS", "DISCOVER E-PAYMENT", "AMERICAN EXPRESS ACH
+  // PMT", "APPLECARD GSBANK PAYMENT", "CCPYMT WELLS FARGO CARD"). None was read as a transfer, so a
+  // one-sided import never said "import the other account". Only an issuer's name next to a payment
+  // word counts: "CITI FLEX PAY", "WELLS FARGO CARD DES:CRD" and "VENMO PAYMENT" stay as they were, and a bare
+  // "AMEX PAYMENT" stays for review as before (saas-gaps.test.mjs); Amex counts only with ACH PMT, E-PAYMENT or AUTOPAY.
+  ["transfer", "in", /\bpayment\b[\s,-]*(received[\s-]*)?thank\b/],
+  ["transfer", "any", /\bchase credit crd\b|\b(american ?express|amex)\b.{0,30}\b(e-?payment|epay|autopay|ach pmt)\b|\b(discover|apple ?card|citi ?(card|autopay)?|capital one|barclaycard|synchrony( bank)?|wells fargo card)\b.{0,30}\b(e-?payment|epay|autopay|ach pmt|pmt|pymt|payment|crcardpmt|cc pymt)\b|\b(e-?payment|epay|ccpymt|payment)\b.{0,12}\b(discover|citi card|wells fargo card)\b/],
+  // UK merchants (2026-11-15, eval/southlakeland-pcard.mjs and eval/uk-card-keywords.mjs). The table was
+  // written from US exports: on three UK public buyers' card lines it said nothing on 85-90% of them,
+  // Trainline, Travelodge, Ryanair, Screwfix and Tesco included. Written from South Lakeland District
+  // Council's blank list and the UK chains each account's US twin already covers (Kroger and Aldi are
+  // meals, Home Depot and Best Buy supplies, USPS postage, parking vehicle); Durham County Council's and
+  // the Scottish Government's lines were scored first and then read for its misses (filling stations,
+  // Asda's George clothing, Iceland Travel; Halfords, NCP and DVSA dropped as mostly wrong there). Discount and
+  // department stores (Argos, Home Bargains, Poundland, B&M, M&S) stay blank as Walmart and Target do;
+  // HMRC stays blank because a payment to it is usually VAT or PAYE owed, not an expense. DVLA (road tax)
+  // is a vehicle cost, as HMRC's own self-employed expense list files it; a US DMV fee stays a licence.
+  ["6120", "out", /\b(the ?)?train ?line\b|\bvirgin ?(trains?|rail)\b|\bnorthern ?rail(ways?)?\b|\bwest coast trains\b|\bavanti west coast\b|\btrans ?pennine\b|\btp ?express\b|\bftpe\b|\blner\b|\bgreat western rail|\bgwr\b|\bcross ?country trains\b|\bscotrail\b|\bthameslink\b|\bchiltern railways?\b|\beurostar\b|\bnational rail\b|\bnw trains\b|\bkeolis\b|\btfl travel\b|\bnational express\b|\btrav?ell?odge\b|\bryanair\b|\beasy ?jet\b|\bjet2\b|\bflybe\b|\bbritish airways\b|\bloganair\b|\bwizz ?air\b/],
+  ["6170", "out", /\bcipfa\b|\bcieh\b|\birrv\b|\bcipd\b|\bcips\b|\bcipp\b|\baat\b|\brics\b|\brtpi\b|\bicaew\b|\biosh\b|\bcima\b|\bciob\b|\bcilex\b|\bchart(ered)? inst(itute)?\b|\binst(itute)? of payroll\b/],
+  // A supermarket's filling station prints the grocer's name: "TESCO PFS 4088", "ASDA PETROL", "TESCO PAY AT PUMP".
+  ["6160", "out", /\bdvla\b|\b(tesco|asda|sainsbury'?s?|morrisons?|co-?op)\b.*\b(pfs|petrol|fuel|pay at pump|filling station)\b/],
+  ["6100", "out", /\basda george\b|\bgeorge at asda\b/],
+  ["6110", "out", /\bcompanies house\b|\binformation commissioner|\bico data protection\b/],
+  ["6050", "out", /\bmoney ?claim\b|\bhm courts\b|\bhmcts\b/],
+  ["6100", "out", /\bscrewfix\b|\btoolstation\b|\btravis perkins\b|\bjewson\b|\bwickes\b|\bb ?& ?q\b|\bb and q\b|\brs components\b|\bselco builders\b|\bbuildbase\b|\bhuws gray\b|\bcurrys\b|\blaptops direct\b|\bbunnings\b/],
+  ["6070", "out", /\brym[ae]ns?\b|\bw ?h ?smiths?\b|\bviking ?direct\b|\bofficeworks\b|\broyal mail\b/],
+  ["6180", "out", /\bparcel ?force\b|\bevri\b|\bmyhermes\b|\bhermes parcel|\byodel\b|\bparcel2go\b|\bdpd (uk|group|local)\b/],
+  ["6140", "out", /\be\.?on( energy| next)?\b|\bbritish gas\b|\bbt business\b|\bbt group\b/],
+  ["6130", "out", /\btesco'?s?\b(?! ?mobile)|\bsainsbury'?s?\b|\basda\b(?! ?mobile)|\bmorrisons?\b|\bwaitrose\b|\blidl\b|\be ?h booths?\b|^booths\b(?! ?(hire|rental))|^iceland\b(?!air| travel)|\biceland foods\b|\bco-?op(erative)? food\b|\bgreggs\b|\bpret( a)? manger\b|\bnando'?s\b|\b(jd )?wetherspoons?\b|\bwagamama\b/],
   // Gap probe 39 (2026-11-10, eval/probe39.mjs): pool service, personal trainers, wedding DJs, upholsterers, farriers.
   ["6110", "out", /upholstery shop license/],
   ["6170", "out", /pool and spa alliance|national strength trainers|american disc jockey|upholsterers international|american farriers/],
@@ -207,6 +293,12 @@ export const BUILT_IN = [
   // Gap probe 27 (2026-11-05, eval/probe27.mjs): locksmiths, piano tuners, chimney sweeps, mobile welders, home stagers.
   // Miller Electric (welders) hit the utilities rule through "electric", so it comes before it. Fourteen rows had no suggestion.
   ["6100", "out", /miller electric|rotobrush|national chimney supply|rooms to go|cort furniture/],
+  // Oklahoma's state purchasing cards (eval/oklahoma-pcard.mjs, fiscal 2017 read, 2018 held out): electrical supply
+  // houses ("CBI WHOLESALE ELECTRIC", "ELLIOTT ELECTRIC", "WHITE ELECTRICAL SUPPLY") and electricians hit the utilities
+  // rule through "electric"; Hertz's equipment-rental arm hit car hire.
+  ["6100", "out", /wholesale electric|electric(al)? (supply|supplies|su|wholesale|motors?|distributors?)\b|elliott electric/],
+  ["6090", "out", /\belectrical cont|\belectrical contracting|\belectrical services\b/],
+  ["6080", "out", /hertz equip/],
   ["6060", "out", /tunelab|roomsketcher/],
   ["4000", "in", /lockout service|piano tuning|tuning service|regulation fee|weld repair|staging fee/],
   ["6170", "out", /hearth,? patio|american welding society|staging association/],
@@ -500,6 +592,10 @@ export const BUILT_IN = [
   // is not a move between your own accounts: leaving it unsuggested keeps a $97,000 payment out of the transfer clearing account.
   ["transfer", "any", /(?<!wire )\btransfer\b(?!.*\b(?:via|a\/c|b\/o):)|\bxfer\b|to savings|from savings|to checking|from checking|online banking transfer/],
   ["transfer", "any", /payment thank you|^autopay|autopay payment|card ?payment|credit card payment|amex epayment|epayment|capital one.*(pmt|payment)|chase card/],
+  // A real US Bank checking download (eval/us-bank-exports.mjs, 2026-11-14) pays its cards as
+  // "INTERNET BANKING PAYMENT TO CREDIT CARD 1234" and "WEB AUTHORIZED PMT AMERICANEXPRESS": both had no suggestion.
+  // Only card issuers' names after PMT: "WEB AUTHORIZED PMT PAYPAL" or "... SPRINT" is a bill, not a transfer.
+  ["transfer", "out", /payment to credit card|\b(pmt|payment)\b.*\b(american ?express|amex|discover (card|bank|fin)|citi ?card|barclaycard|synchrony bank)\b/],
   ["3100", "out", /personal|venmo cashout/],
   ["3010", "in", /owner contribution|capital contribution|owner deposit/],
   ["6010", "out", /\bach (pmnts?|payments?) (initial |origination |return )?fee|stripe fee|paypal fee|square fee|merchant fee|processing fee|service charge|monthly fee|monthly service fee|maintenance fee|wire fee|overdraft|nsf fee|bank fee|account fee|analysis charge|analysis fee/],
@@ -517,7 +613,7 @@ export const BUILT_IN = [
   ["6140", "out", /\bcp ?energy\b|\bcenterpoint energy\b|\bxcel energy\b|\bconsumers energy\b|\bdte energy\b|\bentergy\b/],
   ["6030", "out", /insurance|\bins (billing|premium)|hartford|cigna|anthem|lemonade|prudential|blue cross|united healthcare|hiscox|next insurance|thimble|state farm|geico|liberty mutual|progressive/],
   ["6050", "out", /attorney|law office|cpa\b|accountant|bookkeep|tax prep|legalzoom|registered agent/],
-  ["6060", "out", /adobe|microsoft|google ?(workspace|gsuite)|gsuite|dropbox|notion|slack|zoom\.us|zoom video|figma|github|atlassian|jetbrains|1password|openai|openrouter|anthropic|chatgpt|zapier|airtable|squarespace|wix|godaddy|namecheap|cloudflare|aws|amazon web services|digitalocean|heroku|vercel|netlify|quickbooks|xero|intuit|canva|shopify plan|apple\.com\/bill|google cloud|bitbucket|gitlab|fastly|google ?\*? ?cloud|linode|vultr|hetzner|backblaze|rackspace|fly\.io|evernote|cursor|miro|lastpass|microsoft|azure|twilio|datadog|sentry/],
+  ["6060", "out", /adobe|microsoft|google ?\*? ?(workspace|gsuite|domains)|gsuite|uptimerobot|nodeping|migadu|dropbox|notion|slack|zoom\.us|zoom video|figma|github|atlassian|jetbrains|1password|openai|openrouter|anthropic|chatgpt|zapier|airtable|squarespace|wix|godaddy|namecheap|cloudflare|aws|amazon web services|digitalocean|heroku|vercel|netlify|quickbooks|xero(?!x)|intuit|canva|shopify plan|apple\.com\/bill|google cloud|bitbucket|gitlab|fastly|google ?\*? ?cloud|linode|vultr|hetzner|backblaze|rackspace|fly\.io|evernote|cursor|miro|lastpass|microsoft|azure|twilio|datadog|sentry/],
   // Resale-app payouts are sales; thrift and consignment stores are stock for resale (1450). Both go to review, never post themselves.
   ["4000", "in", /\b(poshmark|mercari|depop|vinted|thredup|offerup|grailed|reverb)\b/],
   ["1450", "out", /goodwill|salvation army|plato'?s closet|value village|buffalo exchange|once upon a child|savers thrift|thrift (store|shop)/],
@@ -525,16 +621,20 @@ export const BUILT_IN = [
   ["6080", "out", /wework|regus|coworking|office rent|monthly rent|rent payment|paying the rent|property management|miete\b|loyer\b|alquiler|storage unit|public storage/],
   ["6100", "out", /home depot|lowes|ace hardware|menards|harbor freight|uline|grainger/],
   ["6110", "out", /business licen[cs]e|secretary of|annual report|franchise tax|permit fee/],
-  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta air|united air|american air|southwest|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
-  ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
-  ["6140", "out", /verizon|at&t|\batt\*|\batt (?:bill|wireless|internet|mobility|u-verse)|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
+  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta ?air|united ?air|american ?air|southwest(?=\s*(\d|\*|air|\.com))|^\s*southwest\s*$|southwes\s{2,}\d|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
+  // Real Mint exports (2026-11-10, eval/mint-labelled.mjs, "tune" files only): restaurant words and chains on bank
+  // lines, Seamless's glued descriptor ("SEAMLSSTHEMILL"), and the airline rule no longer fires on "Moe's Southwest Grill".
+  ["6130", "out", /\bseamle?ss|\bkitchen\b(?!\s*(supply|store|aid|cabinet|collection))|\bgrille\b|\bpub\b|\btavern\b|\bcantina\b|\btrattoria\b|\bpizzeria\b|\bcreperie\b|\bcrepes?\b|\bbarb[ae]c?(ue|que)\b|\bsoup\b|\bsandwich|\bqdoba\b|\bsweetgreen\b|\bcava mezze\b|\bbrioche doree\b|\beurest\b|\bmeatball shop\b|\bburgers?\b(?!\s*king)/],
+  ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino['’]?s\b|domino pizza|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
+  ["6140", "out", /verizon|at&t|\batt\*|\batt (?:bill|wireless|internet|mobility|u-verse)|t-mobile|tmobile|comcast|xfinity|spectrum(?! paint)|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|\bebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
   ["6150", "out", /net pay|payroll(?! tax)|wages/],
   // Written after scoring two real Apple Card exports (eval/applecard.mjs, 109 purchases, Apple's own category labels; tuned on that data, README Next): a grocer's fuel pumps are fuel, not meals, so this sits ahead of the H-E-B meals rule.
   ["6160", "out", /\bgas\/car ?wash|\bgas (station|mart)\b|\bcar ?wash\b|\bgarage\b|passport p(ar)?k(in)?g|\bpkg\d/],
-  ["6120", "out", /\bcruise\b|royal caribbean|carnival cruise|norwegian cruise/],
+  ["6120", "out", /\bcruise\b(?! avia)|royal caribbean|carnival cruise|norwegian cruise/],
   ["6060", "out", /youtube ?(premium|music|tv)/],
   ["6160", "out", /shell oil|chevron|exxon|mobil\b|\bbp\b|sunoco|valero|\barco\b|phillips 66|quiktrip|speedway|casey's|firestone|safelite|gas station|fuel|jiffy lube|car wash|autozone|parking|toll/],
   ["6170", "out", /udemy|coursera|chegg|datacamp|skillshare|linkedin learning|masterclass|pearson|mcgraw|tuition|conference|membership dues|association dues|chamber of commerce/],
+  ["6070", "out", /fedex ?office|fedex kinko/],
   ["6180", "out", /fedex|\bups\b|dhl|pirate ship|shipstation|shippo/],
   // From a US nonprofit's own books (eval/hackclub-ledger.mjs), rules written looking at its train fifth only.
   ["6120", "out", /^uber(\s+(technologies|bv))?$|clipper card|\bsfmta\b|\bmuni\b|\bbart\b/],
@@ -545,7 +645,7 @@ export const BUILT_IN = [
   // From Hack Club's public HCB card feed (eval/hcb-memos.mjs): merchants a student-run nonprofit pays, rules written looking at the first 40 organisations only.
   ["6060", "out", /\bzoom\b|porkbun|name-?cheap|neon\.tech|gmass|help ?scout|descript\b|typeform|streamyard|restream|assemblyai|fillout|\bshopify\b|spotify|domain\.com|tryhackme|sentry|supabase|render\.com|planetscale|mongodb|replit|posthog|\bloom\b|calendly|airtable|webflow|framer|1password|bitwarden|tailscale/],
   ["6000", "out", /\bluma\b|eventbrite|meetup\.com|hootsuite|buffer\.com|printful|sticker ?app/],
-  ["6120", "out", /\bhotel\b|\binn\b|\bmotel\b|\bresort\b|airport|clipper|\bubers?\b|\bcab ride|taxi|greyhound|flixbus|megabus|frontier air|spirit air|alaska air|\bhostel/],
+  ["6120", "out", /\bhotel\b|\binn\b|\bmotel\b|\bresort\b|airport|clipper|\bubers?\b|\bcab ride|\btaxi(?!derm)|taxi\b|greyhound|flixbus|megabus|frontier air|spirit air|alaska air|\bhostel/],
   ["6130", "out", /h-e-b|\bheb\b|kroger|publix|aldi\b|taqueria|tacos|in-n-out|99 ranch|\bhmart\b|food ?4 ?less|wawa|7-eleven|sheetz|boba|vending|doughnut|donut|subway\b|jimmy john|five guys|shake shack|raising cane|whataburger|culver|jersey mike|pho\b|thai\b|catering/],
   ["6180", "out", /federal express|usps|shiprocket|\bgo ?shippo|easypost|pitney bowes/],
   ["6070", "out", /wb mason|pitney bowes|postage|\bstaples\b/],
@@ -620,13 +720,76 @@ export const BUILT_IN = [
   ["6090", "out", /roto-?rooter|\bhvac\b|servpro|\bplumb(er|ing)\b|\belectrician\b|\bpest control\b|\bterminix\b|\borkin\b|\bjanitorial\b/],
   ["6150", "out", /^paychex\b|\bpaychex (payroll|inc)/],
   ["4000", "in", /amazon (payments )?(settlement|payout|disburse)/],
-  ["6110", "out", /\bdiv(ision)? of corp|secretary of state|business license/],
+  ["6110", "out", /\bdiv(ision)? of corp|secretary (of )?state\b|\bsec of state\b|business license|\bregistering (a )?dba\b|\bdba (filing|registration)\b/],
   // A real Chase card export (eval/billcat-card.mjs, 2026-11-07): US regional chains and card-feed names it left blank.
   ["6130", "out", /freddy'?s\b|skyline chili|gold star chili|texas roadhouse|cheesecake|graeter|auntie anne|big boy|maggiano|cracker barrel|culver'?s|bob evans|steak ?n ?shake|whataburger|cook out|zaxby|bojangles|waffle house|raising cane/],
   ["6160", "out", /united dairy farmers|\bcountrymark\b|\bsheetz\b|buc-?ee|\bcircle k\b|\bthorntons\b|kwik (trip|star)|love'?s travel|flying j|pilot travel|\bparkmobile\b|\bpaybyphone\b|\bspothero\b|^raceway \d|^tom thumb #/],
   ["6060", "out", /disney ?(\+|plus)|\bhulu\b|paramount ?\+|\bpeacock\b/],
   ["6120", "out", /disney resorts|\bhyatt\b|holiday inn|best western|hampton inn|courtyard by|la quinta/],
+  // A Rocket Money export of a firm's Amex card and a Monarch export (eval/aggregator-exports.mjs, 2026-11-14), written
+  // after the held-out reading, so tuned on them. Convenience stores that also sell fuel (Wawa, Sheetz, 7-Eleven) stay
+  // meals: the same store name is fuel on one line and snacks on the next in those books. A bare "resorts" was tried
+  // and dropped: on the Mint exports it sent a pet resort (boarding) to travel.
+  ["6120", "out", /hotels ?\.?com|\bhotelscom\b|amextravel|\blimousine\b/],
+  ["6160", "out", /\bprk meter\b|\bparking meter\b|\bauto wash\b|\btexaco\b/],
+  ["6140", "out", /natural ?gas/],
+  ["6030", "out", /\bliability insuranc/],
+  // YNAB registers (eval/ynab-registers.mjs, 2026-11-15): payee names YNAB has already cleaned, written from the
+  // Seattle household's first-seen misses only; the Utah and Chicago registers were read after, as held out. The
+  // utilities rule above matched "utility" but not "utilities", so "Seattle Public Utilities" went unsuggested.
+  // Streaming and personal subscriptions (Netflix, Audible, YouTube Premium, Peloton, iTunes, Prime) were labelled
+  // as subscriptions by the households but stay for a person here, as gaps4 and saas-peo-lender-gaps pin: in a
+  // business's books they are as often the owner's own.
+  ["6140", "out", /\bcity light\b|\butilities\b/],
+  ["6130", "out", /\bespresso\b/],
+  ["6160", "out", /\bgood to go\b|\bwsdot\b|\bimpark\b/],
+  ["6060", "out", /\bynab\b/],
+  // Written after the held-out reading, from the Utah and Chicago misses, so tuned on all three registers.
+  ["6060", "out", /huluplus/],
+  ["6140", "out", /\bcomed\b/],
+  ["6120", "out", /\bventra\b/],
+  ["6160", "out", /\bmaverik\b|\bcenex\b|\btires?\b(?!.*\b(swing|toy)\b)/],
+  ["6110", "out", /\bdmv\b/],
+  ["6080", "out", /\brealpage\b/],
+  // Copilot Money exports (eval/aggregator-exports.mjs, 2026-11-15): written from the Florida household's
+  // first-seen misses only; the second Copilot file (one person's 2022-2024 cards) was scored after. Most of
+  // the household's misses are its trip budget (a cafe or a grocer on holiday filed as travel), which no
+  // keyword should copy. Netflix, Kindle and IRS payments stay for a person, as the tests above pin.
+  ["6060", "out", /\bclaude\.ai\b|\botter\.ai\b|^google one$/],
+  ["6160", "out", /^marathon( #?\d{3,}|$)|\bjustpark\b|\bauto lease\b/],
+  ["6120", "out", /\be-pass\b/],
+  ["6140", "out", /\bfpl\b|\bdukeenergy\b/],
+  // Labelled books (eval/opencollective-labelled.mjs, 2026-11-10): the words people type on an expense or invoice
+  // ("web hosting", "legal services", "printing", "supplies"), written from two fiscal hosts' misses and checked on three
+  // hosts no rule was written from. Last in the list, so a vendor name above always wins. "Gas", "maintenance" and a
+  // bare "development" fit two accounts and stay unsuggested.
+  ["6170", "out", /\bprofessional development\b|\bconference (registration|ticket|fee)s?\b/],
+  ["6020", "out", /\bmaintenance (and|&) development\b|\bdevelopment (expense|work|services?|and support)\b|\b(software|web|website|app|plugin|frontend|backend) development\b|\bconsult(ing|ancy)( services| fees?)?\b|\bcontractor (fees?|services|payment)\b|\bfreelance (work|services)\b/],
+  ["6050", "out", /\blegal (services|fees?|counsel|advice)\b|\battorney'?s? fees?\b|\b(accounting|bookkeeping|audit) (services|fees?)\b|\btax preparation\b/],
+  ["6060", "out", /\b(web |server |cloud |vps )?hosting\b|\bdomain (name )?(renewal|registration)\b|\b(monthly|annual|yearly) subscription\b|\bsubscription (fee|renewal|payment)\b|\binfomaniak\b|\bdiscourse\b|\bcontabo\b|\bovh\b|\bscaleway\b|\bnebius\b|\bmacstadium\b|read ?the ?docs|digital ?ocean|\bhetzner\b|\birccloud\b|\bnamecheap\b|\bporkbun\b|\bgandi\b/],
+  ["6070", "out", /\boffice supplies\b|\bprinting\b|\bprint(ed)? materials\b|\bphotocop(y|ies|ying)\b/],
+  // A big-box store stays blank even when the line says "supplies": the same receipt is often stock, meals and the owner's own shopping.
+  ["6100", "out", /^(?!.*\b(sams? club|sam's club|costco|walmart|target|amazon|bj'?s wholesale)\b).*\b(supplies|materials)\b/],
+  ["6130", "out", /\bgrocer(y|ies)\b|\bcatering\b|\bsnacks\b|\b(team|working|business) (lunch|dinner|meal)\b|\bcomida\b|^food$/],
+  ["6120", "out", /\brideshare\b|\bairfare\b|\bflights?\b|\btrain tickets?\b|\btravel (expenses?|costs?|reimbursement)\b|\blodging\b|\bhotel\b/],
+  ["6180", "out", /\bpostage\b|\bshipping (costs?|fees?|labels?)\b/],
 ];
+
+// Which BUILT_IN regexes match a text, in list order. categorize re-suggests every open line on
+// each pass (every import), so the same few descriptions meet all ~500 regexes again and again
+// (2026-11-16: about half of suggest's time in import-order-property.test.mjs). The regexes have
+// no g or y flag, so test() is pure and the answer for a text never changes; the account and
+// direction filters still run per call, on the hits only. The memo is cleared when it gets big.
+const builtInMemo = new Map();
+function builtInHits(text) {
+  let hits = builtInMemo.get(text);
+  if (hits) return hits;
+  hits = [];
+  for (let i = 0; i < BUILT_IN.length; i++) if (BUILT_IN[i][2].test(text)) hits.push(i);
+  if (builtInMemo.size >= 20000) builtInMemo.clear();
+  builtInMemo.set(text, hits);
+  return hits;
+}
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
 // direction and an amount bucket. Trained on every confirmed line.
@@ -666,6 +829,84 @@ export function classify(model, txn, allowed = null) {
   return scores.map(([account, s]) => ({ account, p: Math.exp(s - max) / z })).sort((a, b) => b.p - a.p);
 }
 
+// Layer 6: a payee seen for the first time. Nothing in its name is known, so the
+// only evidence is what kind of name it is and how big the line is, read against
+// the first line of every other payee you filed. A weak prior: it is offered for
+// review (never posted, confidence at most 0.5), the AI layer may still fill over it.
+// Measured on five fiscal hosts' labelled books (eval/opencollective-labelled.mjs,
+// README "New payees").
+const BUSINESS = /\b(inc|llc|l\.l\.c|ltd|limited|corp|corporation|co|company|gmbh|ag|sa|sas|sarl|srl|bv|nv|pty|plc|llp|pllc|pc|kk|oy|ab|as|aps|foundation|association|assn|group|labs?|studios?|services?|solutions|consulting|media|design|software|technologies|technology|tech|systems|partners|agency|collective|club|university|college|school|press|shop|store|market|company|cooperative|coop|network|institute|society|church|bank|hotel|airlines?|restaurant|cafe|coffee|pharmacy|hosting|cloud|insurance|realty|properties|holdings|enterprises|international|global|center|centre)\b|\.(com|io|org|net|co|dev|app|ai)\b|\b(www)\b/i;
+const P2P = /^(zelle|venmo|cash app|cashapp|paypal|wise|revolut|apple cash)\b[\s:*]*(payment |transfer )?(to |from )?/i;
+
+// "Jane Q. Doe" -> "person", "Acme Hosting LLC" -> "business", "SQ *4412 STORE" -> "other".
+export function payeeShape(desc) {
+  const s = String(desc ?? "").trim().replace(P2P, "").replace(/\s+(conf(irmation)?|ref)\s*#?\s*\S+$/i, "").trim();
+  if (!s) return "other";
+  if (BUSINESS.test(s)) return "business";
+  if (/^[\p{L}'’-]+(\s+[\p{L}'’.-]+){1,3}$/u.test(s) && !/\d/.test(s)) return "person";
+  return "other";
+}
+const sizeBand = (cents) => { const d = Math.abs(cents ?? 0) / 100; return d < 50 ? "s" : d < 500 ? "m" : d < 5000 ? "l" : "xl"; };
+
+// From history: each payee's first filed line, counted by direction, shape and size.
+// Each view also keeps its own track record (`record`): replayed in filing order, how
+// often its plurality, read before that payee was added, named the account the payee's
+// first line was then filed to. The share says how much a view's payees agree; the
+// record says whether that agreement has predicted the next new payee in these books.
+export function trainNewPayee(history) {
+  const first = new Map(), t = new Map(), record = new Map();
+  for (const h of history) {
+    const k = `${h.key}|${h.dir}`;
+    if (!h.key || first.has(k)) continue;
+    first.set(k, h);
+  }
+  const add = (key, account) => { const m = t.get(key) ?? new Map(); m.set(account, (m.get(account) ?? 0) + 1); t.set(key, m); };
+  for (const h of first.values()) {
+    if (!h.account || h.account === "transfer") continue;
+    const keys = viewKeys(h.dir, h.shape ?? "?", sizeBand(h.cents)).map(([key]) => key);
+    for (const key of keys) {
+      const top = plurality(t.get(key));
+      if (top && top.of >= NEW_PAYEE.minPayees) { const r = record.get(key) ?? { tries: 0, hits: 0 }; r.tries++; if (top.account === h.account) r.hits++; record.set(key, r); }
+    }
+    for (const key of keys) add(key, h.account);
+  }
+  return { tables: t, record, payees: first.size };
+}
+const viewKeys = (d, shape, band) => [[`${d}|${shape}|${band}`, "shape and size"], [`${d}|${shape}`, "shape"], [`${d}||${band}`, "size"], [d, "direction"]];
+function plurality(m, allowed = null) {
+  if (!m) return null;
+  const rows = [...m].filter(([a]) => !allowed || allowed(a));
+  const of = rows.reduce((a, [, n]) => a + n, 0);
+  if (!of) return null;
+  const [account, n] = rows.sort((a, b) => b[1] - a[1])[0];
+  return { account, n, of };
+}
+
+// `levels` (eval only) limits which views are tried, to measure what shape and size add.
+// The record (2026-11-10): once a view has guessed at least `minTries` earlier new payees
+// in these books, its hit rate caps the guess's confidence and the reason says it ("right
+// for 7 of 12 earlier new payees"). `minRecord` > 0 also withholds a view whose rate is
+// under it. That gate was read at 0.4 (set before the first reading, not tuned) on seven
+// labelled sets and traded about one right suggestion for each wrong one it removed
+// (README "New payees, gated on their own record"), so it is off by default.
+export const NEW_PAYEE = { minPayees: 8, minShare: 0.4, maxConfidence: 0.5, minTries: 8, minRecord: 0, levels: null };
+// -> { account, share, n, of, level, record } or null.
+export function guessNewPayee(np, txn, allowed = null, opts = NEW_PAYEE) {
+  if (!np?.tables?.size) return null;
+  const d = dir(txn.cents), shape = payeeShape(txn.desc), band = sizeBand(txn.cents);
+  for (const [key, level] of viewKeys(d, shape, band).filter(([, l]) => !opts.levels || opts.levels.includes(l))) {
+    const top = plurality(np.tables.get(key), allowed);
+    if (!top || top.of < opts.minPayees) continue;
+    const { account, n, of } = top;
+    if (n / of < opts.minShare) return null; // the best-supported view is split: say nothing rather than back off to a coarser guess
+    const record = np.record?.get(key) ?? null;
+    const minRecord = opts.minRecord ?? NEW_PAYEE.minRecord, minTries = opts.minTries ?? NEW_PAYEE.minTries;
+    if (record && minRecord > 0 && record.tries >= minTries && record.hits / record.tries < minRecord) return null; // agreed, but has not predicted new payees here
+    return { account, share: n / of, n, of, level, shape, band, record };
+  }
+  return null;
+}
+
 // Memory: per payee key and direction, how often each account was chosen.
 export function buildMemory(history) {
   const m = new Map();
@@ -703,22 +944,33 @@ export function parseRules(text, accounts) {
 
 // -> { account, confidence (0..1), source, reason, alternatives: [{account, p}] }
 // `model` is { rules, memory, classifier, codes:Set }. `model.skip` (a Set of
-// "rule", "memory", "learned", "built-in") switches layers off, for the ablation
+// "rule", "memory", "learned", "built-in", "bank-category", "new-payee", "mcc", "mcc-memory", "mcc-plurality") switches layers off, for the ablation
 // in eval/ablation.mjs; it is never set in normal use.
 // Layer 5: the category label the bank or app itself put on the line. Only labels that
 // name one account unambiguously; everything else stays in review. Lower confidence than
 // a keyword, because these labels are coarse ("Shopping", "Bills & Utilities" are left out).
 export const BANK_CATEGORY = [
+  // Copilot Money's "internal transfer" type (bank.mjs reads it as this label): money between the owner's
+  // own accounts, 707 lines of one real export, 62 of which the keywords or memory filed as spending or income.
+  ["transfer", /^internal transfers?$/i],
   ["6040", /^(fee\/)?interest( charges?)?$|^fee\/interest charge$|^finance charges?$/i],
   ["6010", /^(fees? (&|and) adjustments|bank fees?|service fees?|fees?)$/i],
-  ["6130", /^(food (&|and) drink|restaurants?|dining|dining out|coffee shops?|fast food|food & dining)$/i],
-  ["6120", /^(travel|other travel|airfare|hotels?|lodging|air travel|public transportation|taxi|rental car)/i],
-  ["6160", /^(gas|gasoline|gas\/automotive|gas & fuel|fuel|automotive|auto & transport|parking)$/i],
-  ["6140", /^(utilities|bills & utilities|internet|phone|phone\/cable|mobile phone|telephone)$/i],
+  // Mercury's merchant category for its own foreign-transaction fees: 45 of 45 lines were filed to
+  // Bank Fees by the owner on a real LLC download (2026-11-14, tuned on that file).
+  ["6010", /^financialinstitutionsandfees$/i],
+  // Monarch ("Restaurants & Bars", "Gas & Electric", "Parking & Tolls") and Rocket Money ("Dining & Drinks",
+  // "Software & Tech", "Travel & Vacation") name their categories this way (two real exports, 2026-11-14).
+  ["6130", /^(food (&|and) drink|restaurants?|dining|dining out|coffee shops?|fast food|food & dining|restaurants (&|and) bars|dining (&|and) drinks)$/i],
+  ["6120", /^(travel|other travel|airfare|hotels?|lodging|air travel|public transportation|taxi|rental car|carrental$|travel (&|and) vacation$)/i],
+  ["6160", /^(gas|gasoline|gas\/automotive|gas & fuel|fuel|automotive|auto & transport|parking|parking (&|and) tolls|auto maintenance)$/i],
+  ["6140", /^(utilities|bills & utilities|internet|phone|phone\/cable|mobile phone|telephone|gas (&|and) electric|internet (&|and) cable|water)$/i],
   ["6030", /^insurance$/i],
-  ["6060", /^(software|subscriptions?|software & subscriptions)$/i],
+  ["6060", /^(software|subscriptions?|software & subscriptions|software (&|and) tech)$/i],
   ["6000", /^(advertising|marketing)$/i],
-  ["6050", /^(legal|accounting|professional services)$/i],
+  // Not "Professional Services": on six real Chase business card downloads (2026-11-14) that label held
+  // GitHub, Vercel, data APIs, AI tools, Upwork and a rent payment, and none of its 17 label-only lines
+  // read by eye as a legal or accounting fee. The MCC names skip it for the same reason (mcc.mjs NAME_SKIP).
+  ["6050", /^(legal|accounting)$/i],
   ["6100", /^(home improvement|hardware)$/i],
   ["6170", /^(education|training)$/i],
   ["6070", /^(office supplies|office)$/i],
@@ -730,9 +982,38 @@ export const BANK_CATEGORY = [
 ];
 // Money in: only labels that name one income account.
 export const BANK_CATEGORY_IN = [
+  ["transfer", /^internal transfers?$/i],
   ["4200", /^(interest|interest income|dividends?)$/i],
   ["4000", /^(sales|business income|self[- ]employment income|revenue)$/i],
 ];
+
+// These books' own filings for the category come first: a "consulting" merchant may sell
+// training in one business and advice in another. The fixed table speaks only when the
+// category has fewer than MCC_MEMORY.minLines earlier lines here.
+function mccSuggest(txn, model, ranked, off, d) {
+  if (!txn.mcc || off.has("mcc") || d !== "out") return null;
+  const ok = (a) => model.codes?.has(a) ?? true;
+  const seen = model.mccMemory?.get(mccKey(txn.mcc));
+  const total = seen ? [...seen.values()].reduce((a, v) => a + v, 0) : 0;
+  if (total >= MCC_MEMORY.minLines && !off.has("mcc-memory")) {
+    const [account, n] = [...seen].filter(([a]) => ok(a)).sort((a, b) => b[1] - a[1])[0] ?? [];
+    if (account && n / total >= MCC_MEMORY.minShare) return { account, confidence: Math.min(n / (total + 0.5), MCC_MEMORY.maxConfidence), source: "mcc", reason: `${n} of ${total} earlier lines in the card network's category "${String(txn.mcc).slice(0, 40)}" went here`, alternatives: ranked.slice(0, 2) };
+    return null;
+  }
+  const m = mccAccount(txn.mcc);
+  return m && ok(m.account) ? { account: m.account, confidence: 0.55, source: "mcc", reason: `the card network's merchant category${m.code ? ` ${m.code}` : ""} (${m.label})`, alternatives: ranked.slice(0, 2) } : null;
+}
+
+function mccPlurality(txn, model, ranked, off, d) {
+  if (!txn.mcc || off.has("mcc") || off.has("mcc-memory") || d !== "out") return null;
+  const ok = (a) => model.codes?.has(a) ?? true;
+  const seen = model.mccMemory?.get(mccKey(txn.mcc));
+  const total = seen ? [...seen.values()].reduce((a, v) => a + v, 0) : 0;
+  if (total < MCC_MEMORY.minLines) return null;
+  const [account, n] = [...seen].filter(([a]) => ok(a)).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))[0] ?? [];
+  if (!account || n / total >= MCC_MEMORY.minShare) return null;
+  return { account, confidence: Math.min(n / (total + 0.5), MCC_MEMORY.pluralityConfidence), source: "mcc", reason: `the commonest account for the card network's category "${String(txn.mcc).slice(0, 40)}" here: ${n} of ${total} earlier lines, no majority`, alternatives: ranked.slice(0, 2) };
+}
 
 export function suggest(txn, model) {
   const off = model.skip ?? new Set();
@@ -740,8 +1021,13 @@ export function suggest(txn, model) {
   const d = dir(txn.cents);
   if (!off.has("rule")) for (const r of model.rules ?? []) if (r.re.test(text)) return { account: r.account, confidence: 1, source: "rule", reason: `your rule "${r.text}"`, alternatives: [] };
 
-  const key = payeeKey(txn.desc);
-  const mem = key && !off.has("memory") ? model.memory?.get(`${key}|${d}`) : null;
+  let key = payeeKey(txn.desc);
+  let mem = key && !off.has("memory") ? model.memory?.get(`${key}|${d}`) : null;
+  if (!mem && !off.has("memory")) {
+    const old = legacyPayeeKey(txn.desc);
+    const m = old && old !== key ? model.memory?.get(`${old}|${d}`) : null;
+    if (m) { key = old; mem = m; }
+  }
   if (mem) {
     const total = [...mem.values()].reduce((a, v) => a + v, 0);
     const [account, n] = [...mem].sort((a, b) => b[1] - a[1])[0];
@@ -753,28 +1039,120 @@ export function suggest(txn, model) {
   }
 
   const ranked = off.has("learned") ? [] : classify(model.classifier, txn, (a) => model.codes?.has(a) ?? true);
-  if (ranked.length && ranked[0].p >= 0.5) {
+  if (MCC_MEMORY.before) { const mc = mccSuggest(txn, model, ranked, off, d); if (mc) return mc; }
+  // When a built-in keyword names the merchant, the classifier must be near-certain to
+  // overrule it: on real Mint exports (eval/mint-labelled.mjs, 2026-11-10) a shared city
+  // token ("brooklyn") was enough to send a deli and a burger chain to dues at p >= 0.5.
+  const keyword = ranked.length && !off.has("built-in") && builtInHits(text).some((i) => { const [a, rd] = BUILT_IN[i]; return (rd === "any" || rd === d) && (a === "transfer" || !model.codes || model.codes.has(a)); });
+  if (ranked.length && ranked[0].p >= (keyword ? 0.95 : 0.5)) {
     return { account: ranked[0].account, confidence: Math.min(ranked[0].p, 0.85), source: "learned", reason: `similar to lines you filed here (${Math.round(ranked[0].p * 100)}%)`, alternatives: ranked.slice(1, 3) };
   }
 
   // Processor and bank wrappers hide the merchant behind words the keyword
   // rules read as something else: "PAYPAL INST XFER NETFLIX" is not a transfer.
-  const bi = text.replace(/paypal\s+inst\s+xfer\s*/, "paypal ").replace(/(withdrawal from|subscription payment:|preapproved payment bill user payment:|buyer payment:)\s*/, "");
+  const bi = (achCompact(text)?.toLowerCase() ?? text).replace(/paypal\s+inst\s+xfer\s*/, "paypal ").replace(/(withdrawal from|subscription payment:|preapproved payment bill user payment:|buyer payment:)\s*/, "");
   // A wire names its counterparty after VIA:, A/C: or B/O:, and those names trip unrelated keyword rules (a bank's
   // name read as a utility). Whose money it is only a person can say, so it waits unsuggested.
   const thirdPartyWire = !off.has("built-in") && /\b(wire transfer|chips credit|fedwire|book transfer (credit|debit))\b/.test(bi) && /\b(via|a\/c|b\/o):/.test(bi);
-  for (const [account, rd, re] of off.has("built-in") || thirdPartyWire ? [] : BUILT_IN) {
+  for (const i of off.has("built-in") || thirdPartyWire ? [] : builtInHits(bi)) {
+    const [account, rd, re] = BUILT_IN[i];
     if (rd !== "any" && rd !== d) continue;
     if (account !== "transfer" && model.codes && !model.codes.has(account)) continue;
-    if (re.test(bi)) return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(bi.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
+    return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(bi.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
   }
+  // The card network's merchant category code: what kind of merchant it is, even for a
+  // payee these books have never seen (mcc.mjs; measured in eval/scotgov-card.mjs).
+  if (!MCC_MEMORY.before) { const mc = mccSuggest(txn, model, ranked, off, d); if (mc) return mc; }
   if (txn.bankCat && !off.has("bank-category")) {
-    const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
+    const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (a === "transfer" || (model.codes?.has(a) ?? true)));
     if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
+  }
+  if (d === "out" && !off.has("brand")) {
+    const b = brandAccount(txn.desc, off);
+    // The keywords know this chain's bare name but stayed silent on the line ("Iceland Travel" is
+    // not the grocer): their exception stands (read on the Scottish Government's held-out lines).
+    // The keywords then decide on the cleaned payee ("www.iceland.co.uk" -> "iceland uk"): the grocer
+    // if they file it, nothing if their exception holds.
+    const kw = (t) => builtInHits(t).map((i) => BUILT_IN[i]).find(([a, rd]) => a !== "transfer" && (rd === "any" || rd === "out"));
+    if (b && kw(b.name)) { const k = kw(payeeTokens(txn.desc).join(" ")); b.account = k?.[0] ?? null; }
+    if (b?.account && (model.codes?.has(b.account) ?? true)) return { account: b.account, confidence: BRAND.confidence, source: "brand", reason: `"${b.name}" is a chain listed by OpenStreetMap as ${Object.hasOwn(BRAND_LABEL, b.account) ? BRAND_LABEL[b.account] : "this kind of place"}`, alternatives: ranked.slice(0, 2) };
+  }
+  // A split category: enough earlier lines but no majority, so mccSuggest said nothing.
+  // Its commonest account beat the new-payee guess on the 140 Toronto lines the AI layer
+  // is measured on, but not more widely (README "Split categories", 2026-11-11: sixteen
+  // Toronto divisions +22 right, +46 wrong), so it is OFF (MCC_MEMORY.plurality) and kept
+  // for measurement. When on it comes just before the new-payee layer, at low confidence.
+  const split = !MCC_MEMORY.plurality || off.has("mcc-plurality") ? null : mccPlurality(txn, model, ranked, off, d);
+  if (split) return split;
+  const seen = (k) => model.memory?.has(`${k}|in`) || model.memory?.has(`${k}|out`);
+  if (key && !off.has("new-payee") && model.newPayee && !seen(key) && !seen(legacyPayeeKey(txn.desc))) {
+    const opts = model.newPayeeOpts ?? NEW_PAYEE;
+    const g = guessNewPayee(model.newPayee, txn, (a) => model.codes?.has(a) ?? true, opts);
+    if (g) {
+      const kind = { person: "named people", business: "businesses", other: "payees like this", "?": "payees" }[g.level.includes("shape") ? g.shape : "?"];
+      const rec = g.record?.tries >= (opts.minTries ?? NEW_PAYEE.minTries) ? g.record : null;
+      const confidence = Math.min(g.share, rec ? rec.hits / rec.tries : 1, opts.maxConfidence ?? NEW_PAYEE.maxConfidence);
+      return { account: g.account, confidence, source: "new-payee", reason: `new payee: ${g.n} of the ${g.of} ${kind} you filed${g.level.includes("size") ? " at this size" : ""} went here first${rec ? `; this guess was right for ${rec.hits} of ${rec.tries} earlier new payees` : ""}`, alternatives: ranked.slice(0, 2) };
+    }
   }
   return { account: null, confidence: 0, source: "none", reason: key ? `nothing known about "${key}" yet` : "the description is empty", alternatives: ranked.slice(0, 3) };
 }
 
+// Chain names (brands.mjs, built from OpenStreetMap's name-suggestion-index): the longest listed
+// name a line's payee starts with. Money out only, for review only (confidence under every
+// auto-post threshold), after the keywords, the card code and the bank's own category.
+export const BRAND = { confidence: 0.5, maxTokens: 5, version: BRANDS_VERSION };
+const BRAND_LABEL = { "6130": "a food shop, cafe or restaurant", "6120": "a hotel, car hire, travel agent or public transport service", "6160": "a fuel station or car service", "6100": "a hardware, DIY or trade store", "6070": "a stationer, copy shop or post office", "6180": "a carrier", "6140": "a phone or internet provider", "6030": "an insurer", "6080": "a coworking or self-storage operator" };
+const BRAND_FINANCE = /^(financial|finance|financing|credit|capital|bank|banking|loans?|lease|leasing|insurance|mortgage)$/;
+let BRAND_INDEX = null;
+const BRAND_PERSON = new Set(BRAND_PERSON_NAMES);
+// A one-word chain name that is also a person's name ("ALBERT", "BAXTER STOREY", "The Hampton
+// Social", "DENNIS SMITH") counts only when a store number follows it ("KRYSTAL #12", "OREILLY
+// 4567"): a chain's card line carries its store number, a person or an independent firm carries
+// another word or nothing. Read on YNAB and the Scottish Government's lines (README "Chain names
+// that are people's names"); `skip: brand-names` turns the check off.
+export function storeNumberFollows(desc, name) {
+  const flat = String(desc).toLowerCase().replace(/['\u2019`]/g, "");
+  const m = new RegExp(`(^|[^a-z0-9])${name}(?![a-z0-9])\\W*(\\S*)`).exec(flat);
+  return !!m && /^#?\d/.test(m[2]);
+}
+export function brandAccount(desc, off = new Set()) {
+  if (!BRAND_INDEX) {
+    BRAND_INDEX = new Map();
+    for (const [account, names] of Object.entries(BRAND_KINDS)) for (const n of names) BRAND_INDEX.set(n, account);
+  }
+  const t = payeeTokens(desc).slice(0, BRAND.maxTokens);
+  for (let i = t.length; i >= 1; i--) {
+    const name = t.slice(0, i).join(" ");
+    if (BRAND_INDEX.has(name)) {
+      const account = BRAND_INDEX.get(name);
+      // The chain's finance arm, card or insurer ("JOHN DEERE FINANCIAL", "TESCO BANK") is a loan or a
+      // policy, not a purchase at the chain.
+      if (t.slice(i).some((w) => BRAND_FINANCE.test(w))) return null;
+      if (i === 1 && BRAND_PERSON.has(name) && !off.has("brand-names") && !storeNumberFollows(desc, name)) return null;
+      return account ? { account, name } : null;
+    }
+  }
+  return null;
+}
+
 export function historyRecord(txn, account) {
-  return { key: payeeKey(txn.desc), tokens: payeeTokens(txn.desc), dir: dir(txn.cents), cents: txn.cents, account };
+  return { key: payeeKey(txn.desc), tokens: payeeTokens(txn.desc), dir: dir(txn.cents), cents: txn.cents, shape: payeeShape(txn.desc), ...(txn.mcc ? { mcc: mccKey(txn.mcc) } : {}), account };
+}
+
+// Card-network categories in these books: category key -> Map(account -> lines). Money out only.
+// minLines and minShare were set before the first reading (eval/scotgov-card.mjs) and not tuned:
+// three earlier lines, a majority. `before` (ahead of the classifier and keywords) was chosen on
+// the 2016-2019 lines only, then read once on 2020-2026.
+// plurality switches on the split-category guess (mccPlurality; off, measured 2026-11-11),
+// capped at pluralityConfidence, below every other layer's.
+export const MCC_MEMORY = { minLines: 3, minShare: 0.5, maxConfidence: 0.6, plurality: false, pluralityConfidence: 0.4, before: true };
+export function buildMccMemory(history) {
+  const m = new Map();
+  for (const h of history) {
+    if (!h.mcc || (h.dir ?? dir(h.cents)) !== "out") continue;
+    if (!m.has(h.mcc)) m.set(h.mcc, new Map());
+    m.get(h.mcc).set(h.account, (m.get(h.mcc).get(h.account) ?? 0) + 1);
+  }
+  return m;
 }

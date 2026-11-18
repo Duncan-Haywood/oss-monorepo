@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKmTbpwckG2QWLTzukz",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T18:18:51Z",
+  "ended": "2026-11-12T18:30:05Z",
+  "wall_minutes": 11.41,
+  "tokens_in": 5158469,
+  "tokens_out": 37776,
+  "cost_usd": 2.9352,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15217",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "huggingface.co and zenodo.org both answered 403 to CONNECT at 18:20 UTC (6a's run saw the same at 13:25 and success at 17:07); the programme's measured-data steps are hostage to proxy policy, and nothing says which hosts are flaky versus blocked"
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a research+post diff selects 9 workflows and hands off portfolio-pages' long site-builder tests after 100 s; for a research-only change the research-ci workflow is the one that matters, and it is hard to see from the output whether it ran"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md (6a Next a)",
+      "why": "6a's Next asked to price the time with the loader's fuel rates as swept stand-ins; with no excavator fuel signal and the data host blocked, a borrowed rate would answer little",
+      "did": "computed the break-even rest-of-machine fuel rate instead, from committed results only, via a new identity (time ratio as a function of volume ratio) and a convexity bracket; the loader rates are reported as reference points",
+      "result": "a single decision threshold (2.46 L/h central, 1.16 to 5.24 swept) that a builder can compare with one engine figure; 4 of 5 registered predictions held"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-one-engine-number-that-decides-a-cheap-excavator-pump.md",
+    "research/heavy-hydraulics/LOG.md (6b)",
+    "research/heavy-hydraulics/paper/draft.md section 3.7d"
+  ],
+  "goal": null,
+  "notes": "Local checks: heavy-hydraulics pytest 52 passed; paper/check_numbers.py 200 claims, 0 missing; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; cite_check ok; post frontmatter/links/similarity ok. The geometry sweep (384 cases) could not be rerun for 6b without the raw data; it is listed as Next (b).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3b8a6de2-48a5-5a23-897e-7d617058e558",
+    "transcripts": 1,
+    "first": "2026-11-12T18:18:51Z",
+    "last": "2026-11-12T18:30:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 81,
+        "output": 37776,
+        "thinking": 14184,
+        "cache_read": 5011246,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147142,
+        "api_equivalent_usd": 2.9352,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 81,
+      "output": 37776,
+      "thinking": 14184,
+      "cache_read": 5011246,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147142,
+      "api_equivalent_usd": 2.9352,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.41,
+      "active_minutes": 11.41,
+      "model_minutes": 6.45,
+      "tool_minutes": 4.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "derive identity, bracket script, tests, paper section and post for one research step",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 204.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

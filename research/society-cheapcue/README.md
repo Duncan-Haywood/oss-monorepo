@@ -8,7 +8,9 @@ give them a clear gain (+0.14 of the 0.45 perfect reading would give, at a norma
 get +0.29, at `rho = 0` +0.44. At `rho ≥ 0.75` the cue leaves them no better off than yield-all. The crowd, robots
 included, is worse off than under yield-all in every cell tried (+0.05 to +0.28 per encounter): the signal cannot
 make the fleet a win for everyone, only a transfer to the urgent, paid by normal people and by the robots
-themselves.** Produced with AI assistance (Claude). Track 17 (`society`, `PROJECTS.md`). Every result is about
+themselves.** That crowd result rests on robots playing "go" against each other and colliding every time; robots
+that recognise each other and yield as under yield-all turn 25 of the 35 cells favourable to the crowd (section F,
+Known gaps). Produced with AI assistance (Claude). Track 17 (`society`, `PROJECTS.md`). Every result is about
 simulated agents following a stated rule, not real people or robots.
 
 **Live page:** https://marisstella.app/research/society-cheapcue/
@@ -50,13 +52,24 @@ the cue almost always once `rho ≤ 0.5`.
 gain of only +0.018) to 0.75 (`e = 0.1`) and 0.40 (`e = 0.2`), with gains under 0.01 at the edge.
 
 **F. Even perfect reading is a transfer.** Urgent people gain 0.453, normal people lose 0.036 and robots lose
-0.294 (they go against non-signallers and collide more), so the crowd is 0.045 worse off. A reading fleet cannot
-make this up with a better cue; the choice to favour the urgent costs the robots' own throughput.
+0.294, so the crowd is 0.045 worse off. The robots' loss is not from meetings with people: there their cost falls
+from 0.700 to 0.394. It is all robot-robot meetings, where both robots play `gQ = 1` and collide (0.900 against
+0.300 under yield-all), a rule inherited from `society-fakeurgency`. With robots that recognise each other and both
+yield, as under yield-all (`reader(..., rr=1.0)`), perfect reading leaves the crowd 0.135 *better* off; subtracting
+the same 0.18 from table D makes 25 of 35 cells favourable (−0.135 to +0.100). Test:
+`test_robot_loss_is_robot_robot_collisions`.
 
 **G. Robot share** (`rho = 0.25`, `cN = 0.6`): urgent gain is −0.014 at 10% robots, +0.293 at 30%, +0.436 at 50%;
 the crowd's extra cost grows from +0.029 to +0.850 at 70%.
 
 ![Cost against rho](experiments/cost_vs_rho.svg)
+
+## Known gaps
+
+- Quality audit [2026-11-17](../../portfolio/quality/audits/2026-11-17-society-cheapcue.json): the "crowd worse
+  off in every cell" headline is an artefact of robots colliding with each other (above); the `rho ≤ 0.5`
+  threshold holds at `cN = 0.6` only (table C: +0.098 at `rho = 0.75`, `cN = 0.4`); the welfare-of-signalling
+  literature beyond Spence (Grafen 1990; Bergstrom and Lachmann 1997) is not discussed.
 
 ## Limitations
 

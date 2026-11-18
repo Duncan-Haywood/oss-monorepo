@@ -11,8 +11,8 @@ Pure Python, no dependencies. Follow-up to this repository's `research/robofab-s
 
 ```bash
 cd research/robofab-bootstrap
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 6 tests, ~1 s
-PYTHONPATH=src python3 experiments/run.py                 # ~2 s; output in experiments/results.txt
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, ~2 s
+PYTHONPATH=src python3 experiments/run.py                 # ~30 s (28 s measured 2026-11-16); output in experiments/results.txt
 ```
 
 ## Motivation

@@ -16,6 +16,14 @@ GE = {"$_NOT_": 0.5, "$_AND_": 1.5, "$_NAND_": 1.0, "$_OR_": 1.5, "$_NOR_": 1.0,
 DFF_GE = 5.0
 
 
+def stored_bits(engine, n, k):
+    """Weight storage in bits: 8-bit weights for the MAC engine; for the table
+    engine a ceil(log2 K)-bit index per weight plus the 8-bit K-entry codebook."""
+    if engine == "mac":
+        return 8 * FIN * n
+    return max(1, (k - 1).bit_length()) * FIN * n + 8 * k
+
+
 def make_layer(n, k, seed):
     rng = np.random.default_rng(seed)
     cb = np.sort(rng.integers(-127, 128, k)).astype(np.int64)

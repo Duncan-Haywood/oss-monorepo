@@ -1,0 +1,8 @@
+cell-fidelity milestone 5zc dev (seen): 5zb's 128 designs, charge Ah from a 10-cycle re-run, scored
+against 5zb's committed 100-cycle curves; median |ln(L_pred(99) / L_DFN(99))|
+
+condition               n drop     5y    5zb   load sgn 5zb sgn ld  wins   rhoL   ld+s  sgn ls  eta mV
+Ai2020@0.65x           32    0  0.150  0.076  0.021  +0.062 +0.004    24  0.988  0.173  -0.173   250.8
+NCA_Kim2011@0.5x       32    0  0.078  0.024  0.025  -0.024 -0.025     6  0.999  0.025  +0.025    74.2
+Chen2020@1.25x         32    0  0.308  0.264  0.193  +0.264 +0.193    32  0.994  0.165  +0.141   344.9
+OKane2022@1.25x        32    0  0.325  0.243  0.161  +0.243 +0.161    32  0.996  0.139  +0.113   351.0

@@ -92,7 +92,17 @@ test('the page carries the standard sponsor link and a LICENSE link, and counts 
 
 test('the privacy line names both stored event types and says nothing is uploaded or saved', () => {
   assert.match(html, /never uploaded/);
-  assert.match(html, /nothing is saved when you close the tab/);
+  assert.match(html, /nothing about the job is saved when you close the tab/);
+});
+
+test('the privacy text discloses that proposal business details are kept on this device (quality audit 2026-11-17)', () => {
+  // index.html saves companyName etc. to localStorage (loadCompany/saveCompany),
+  // so no privacy line may say nothing typed is ever saved.
+  assert.match(html, /loadCompany\(/);
+  assert.doesNotMatch(html, /nothing you type is saved anywhere/);
+  const disclosures = html.match(/business details for the printed proposal[^<"]*saved on this device/g) || [];
+  assert.ok(disclosures.length >= 2, 'FAQ and its JSON-LD copy both disclose device storage');
+  assert.match(html, /kept on this device \(browser storage\)/);
 });
 
 test('the result panel announces recalculation to screen readers', () => {

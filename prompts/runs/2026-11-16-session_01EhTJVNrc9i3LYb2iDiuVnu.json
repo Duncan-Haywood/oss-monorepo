@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVNrc9i3LYb2iDiuVnu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (continue work on the repo ... merge when done)",
+  "input_sha256": "f95efc674e24b7bd88af851b78f121c7903116782d9e54d8f9b42e570c037996",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T05:11:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship: X-Trans demosaic held-out check (buildable item)",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": 16458,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first sweep ran under the threaded band path with a monkeypatched module function and crashed on a shape mismatch; then recursed through the patched fallback",
+      "fix": "band_rows=None and the original function held aside"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing buildable item pointed at raw.pixls.us, which refused connections; only two X-Trans RAFs exist in the other public set, so a held-out X-Trans truth had to be borrowed from Bayer scenes"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "The model field is left null: the session's harness forbids model identifiers in pushed artifacts.",
+      "did": "model: null",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-testing-an-x-trans-demosaic-on-scenes-it-never-saw.md",
+    "ventures/photo-editing/eval/xtrans-fresh-truths-2026-11-16.md"
+  ],
+  "goal": "Close the X-Trans open question (green in the median) and test the default on more than two frames",
+  "notes": "Checks run here: tests/test_xtrans_demosaic.py + test_raf.py 28 passed; run_venture_tests.py photo-editing and venture-preflight.mjs photo-editing (results in the PR body). Guided red/blue was a scratch harness, not committed as code; its rows are in eval/xtrans-guided-rb-2026-11-16.jsonl with the formula. Default unchanged; median_green=False added as an option for re-running the comparison.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKiTbFPiDB1G7CvBv59",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T14:20:35Z",
+  "ended": "2026-11-11T14:31:28Z",
+  "wall_minutes": 11.23,
+  "tokens_in": 9086480,
+  "tokens_out": 70168,
+  "cost_usd": 4.9877,
+  "tool_calls": 95,
+  "task": "quality fix mode: close high-severity defects in the open queue",
+  "projects": [
+    "research/buildbot-carry",
+    "research/mimic-anycontext-size",
+    "research/mimic-anycontext-detect",
+    "ventures/garmin-world-traveler-watchface"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14807",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 57,
+  "outcome": "success",
+  "errors": [
+    "While spot-checking a mutation I ran `git checkout sizerun.py`, which also discarded the subagent's uncommitted refactor; the subagent restored it from its own backup and I re-verified (15 tests pass, results.json byte-identical). Lesson: restore from a copy, never git checkout, when the file carries uncommitted work."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "`queue` says 'changed since audit: unknown' for every row in a shallow clone; `git fetch --shallow-since` then shows the grafted boundary commit (#13819) touching every directory, which looks like a change but is not."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook asks to commit while a background experiment is still writing a tracked results file; committing a half-written results.txt would be wrong, so I waited and said so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "mode drew `fix`, so no new subjects were sampled and no round-N post was written; the post is a fix-mode post instead, as earlier fix sessions did",
+      "did": "fixed 6 high defects in 4 subjects, recorded fix_prs",
+      "result": "queue 16 -> 10 high"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-quality-fixes-tests-that-could-not-fail.md"
+  ],
+  "goal": null,
+  "notes": "mode=fix (seeded draw, 16 high defects open). No sample seed drawn in this mode (sample would have been seed 2026-11-11, round 42: invoice-payment-terms-calculator, eu-green-claims-copy-scanner, decision-markets, selfrep-sparehours; not audited). Subjects fixed: buildbot-carry (2 high), mimic-anycontext-size (1), mimic-anycontext-detect (1), garmin-world-traveler-watchface (2). Share meeting the bar: not measured this session (no new audits). Fix PR: #14807 for all four. Skipped quick-pick-survey (PR #14802) and platform/agents (PR #14674) as already in flight. Verification: buildbot-carry pytest 23 passed (mujoco 4.0.0) and 4/4 seeded mutations caught; full run.py re-run (~8 min) changed only the G1 3.8 kg level cell, 0.50 -> 0.45; garmin node --test 6/6 and run_venture_tests ok, 9 subagent mutations + 1 of mine caught; mimic-size 15 passed, 8 mutations caught (1 re-done by me); mimic-detect 12 passed, 7 mutations caught. quality_audit.py validate: 218 files, 0 problems; queue --severity high: 10 open.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0d28e53c-1b32-58fe-b22d-8fdca4d31343",
+    "transcripts": 3,
+    "first": "2026-11-11T14:20:35Z",
+    "last": "2026-11-11T14:31:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 95,
+        "input": 200,
+        "output": 70168,
+        "thinking": 17169,
+        "cache_read": 8794009,
+        "cache_write_5m": 171157,
+        "cache_write_1h": 121114,
+        "api_equivalent_usd": 4.9877,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 95,
+      "input": 200,
+      "output": 70168,
+      "thinking": 17169,
+      "cache_read": 8794009,
+      "cache_write_5m": 171157,
+      "cache_write_1h": 121114,
+      "api_equivalent_usd": 4.9877,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 82,
+      "Write": 5,
+      "SubagentHandback": 3,
+      "Agent": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "SendMessage": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.23,
+      "active_minutes": 10.45,
+      "model_minutes": 6.27,
+      "tool_minutes": 4.18,
+      "waiting_on_human_minutes": 0.78,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 10.82
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four test suites and a robotics re-run, a senior engineer about 2-3 h each",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 200.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

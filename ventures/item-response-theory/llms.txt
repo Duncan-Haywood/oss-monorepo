@@ -1,0 +1,29 @@
+# Item response theory tool: item difficulty, discrimination and fit for a right/wrong test
+
+> Free online item response theory (IRT) tool. Give right/wrong answers (or raw A-E answers with a key row) and get each question's difficulty and discrimination with standard errors from the 1PL (Rasch) and 2PL models fitted by marginal maximum likelihood (Bock & Aitkin 1981), a likelihood-ratio test and BIC to choose between them, S-X2 item fit (Orlando & Thissen 2000), a distractor table that flags wrong answers chosen by stronger students than the key, the test information curve, marginal reliability, EAP ability scores (Bock & Mislevy 1982) and a number-right to ability table (Lord & Wingersky 1984; Thissen et al. 1995). Reproduces the R package ltm's published LSAT estimates and standard errors to every printed digit; on mirt's SAT12 data it flags the question whose key mirt's documentation says is wrong. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). A statistical estimate, not a substitute for a psychometrician's review of a high-stakes test. Right/wrong items, one dimension, 20 to 20,000 people, up to 100 questions.
+
+## Pages
+
+- [The tool](https://marisstella.app/item-response-theory/)
+
+## Use it from code
+
+- `node cli.mjs answers.csv [--model auto|1pl|2pl] [--key BDAC...]`
+- `--items` for the item table as CSV, `--people` for person scores, `--report` for Markdown, `--json` for everything.
+- `node platform/agents/tools.mjs call item-response-theory analyze --input '{"text":"item1,item2,item3,count\n1,1,1,40\n1,1,0,25\n1,0,0,20\n0,0,0,15\n0,1,0,5\n1,0,1,5","model":"1pl"}'`
+- From JavaScript: `analyze({text, model, key})`, or the pieces: `parseResponses`, `fitModel`, `standardErrors`, `sx2`, `testInformation`.
+
+## What it answers
+
+- How hard is each question on my test, and how well does it separate strong from weak students?
+- Should I use the Rasch model or the 2PL?
+- Which questions misfit the model?
+- Is one of my answer keys wrong?
+- At which ability level is my test most precise, and how reliable is it?
+- What ability score goes with each number right?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/item-response-theory): MIT licensed.

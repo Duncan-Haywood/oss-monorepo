@@ -46,12 +46,12 @@ u2     s_floor  real cruise T down to s_floor  /twin T  /real-to-cutoff T
 0.7    0.8000   3.683                           0.210    0.244
 
 == 5. Cold cell: R0 multiplied by k at a fixed physical power (u0 -> k u0), base u0 = 0.2 ==
-k      u0_eff  starts?  real T   twin T (blind to k)  real/twin  max power from full (units E0^2/(4 R0 warm))
+k      u0_eff  starts?  real T (warm units)  twin T (blind to k)  real/twin  max power from full (units E0^2/(4 R0 warm))
 1      0.20    yes      15.079   17.500                        0.8616     0.840
-1.5    0.30    yes      8.336    17.500                        0.4764     0.560
-2      0.40    yes      4.998    17.500                        0.2856     0.420
-3      0.60    yes      1.735    17.500                        0.0992     0.280
-4      0.80    yes      0.203    17.500                        0.0116     0.210
+1.5    0.30    yes      12.504   17.500                        0.7145     0.560
+2      0.40    yes      9.995    17.500                        0.5712     0.420
+3      0.60    yes      5.206    17.500                        0.2975     0.280
+4      0.80    yes      0.814    17.500                        0.0465     0.210
 4.5    0.90    NO       0.000    17.500                        0.0000     0.187
 
 == 6. Constant-derate refit: fit eta_fit = real/twin endurance at u_fit, predict T = eta_fit * twin T elsewhere (rho = 0) ==

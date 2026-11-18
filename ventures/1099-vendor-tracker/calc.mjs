@@ -86,7 +86,8 @@ export function reportingThreshold(taxYear, override) {
 
 function parseDate(value) {
   const date = new Date(`${value}T00:00:00Z`);
-  return Number.isNaN(date.getTime()) ? null : date;
+  // Date rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  return Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== String(value) ? null : date;
 }
 
 function pad(n) {

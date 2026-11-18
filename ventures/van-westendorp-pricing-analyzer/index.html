@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -109,6 +109,7 @@
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Setting a subscription price? See the <a href="../gabor-granger-price-analyzer/">Gabor-Granger price analyzer</a> for the revenue-maximising price, the <a href="../saas-annual-plan-discount-calculator/">SaaS annual plan discount calculator</a> and the <a href="../saas-cac-payback-calculator/">SaaS CAC payback calculator</a>.</p>
     <p>Pricing a metered or API product? See the <a href="../usage-based-pricing-simulator/">usage-based pricing simulator</a>.</p>
+    <p>Pricing features, not just one price? The <a href="../conjoint-analysis/">choice-based conjoint tool</a> designs the survey and turns the answers into willingness to pay for each feature and simulated market shares.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -144,7 +145,7 @@
       $("#big").innerHTML = [[f(p.pmc) + " – " + f(p.pme), "Acceptable price range"], [f(p.opp), "Optimal price point"], [f(p.ipp), "Indifference price"], [String(a.n) + " of " + a.total, "Coherent responses used"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#chart").innerHTML = chart(a);
       $("#legend").innerHTML = SERIES.map(([, l, c]) => `<span><b style="color:${c}">━</b> ${l}</span>`).join("") + "<span>Shaded: acceptable range</span>";
-      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       $("#points tbody").innerHTML = [["pmc", "Marginal cheapness"], ["opp", "Optimal price point"], ["ipp", "Indifference price"], ["pme", "Marginal expensiveness"]].map(([k, l]) => `<tr><td>${l}</td><td class="n">${f(p[k])}</td><td class="n">${a.bands[k] ? money(a.bands[k].low) : "n/a"}</td><td class="n">${a.bands[k] ? money(a.bands[k].high) : "n/a"}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";

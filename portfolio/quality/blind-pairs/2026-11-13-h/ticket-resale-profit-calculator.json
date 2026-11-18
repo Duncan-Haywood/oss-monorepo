@@ -1,0 +1,249 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/ticket-resale-profit-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-h",
+ "drawn_by": "sample",
+ "round": 62,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a full-time ticket broker who lists inventory across StubHub, SeatGeek, Vivid Seats and Ticketmaster resale (and, for the tax lines, a CPA who files for resellers). First checks: net payout after the seller fee, per-ticket vs per-order fees, break-even and target list price, whether cost basis includes the buyer fees paid at purchase, what happens to unsold inventory, and whether a pasted sales log is read correctly.",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Pricing arithmetic is right on every case recomputed by hand. `node cli.mjs price --cost 100 --qty 4 --fee 15 --flat-fee 2.5 --delivery 10 --list 140 --json` gave sellerFee 94, payout 456, profit 56, roi 14, breakEvenList 123.53; by hand 560*0.15+4*2.5=94, 560-94-10=456, 456-400=56, 56/400=14%, (400+10+10)/(4*0.85)=123.529. `--target-profit 50` gave 138.24 (by hand 470/3.4=138.235). `price --cost 120 --qty 2 --list 150 --p-sell 0.8` gave expected -$24.00 and break-even sale chance 89% (0.8*30+0.2*-240=-24; 240/270=0.889). Sales log total on the fixture (`node cli.mjs log fixtures/sales.csv`) printed $899.75 profit, 19.02% ROI, 10.85% fees; an independent Python csv.DictReader sum gave 899.75, 19.022, 10.851. But a log line with unquoted money in thousands (`Concert,StubHub,2,$1,200.00,$1,500.00,$150.00`, the format engine.mjs:200 says is handled) is silently read as cost $1, gross $200 and reported as `1 sales netted $198 on $1 paid (19800% ROI)`, not skipped. A header with a `Purchase Date` column before `Total Cost` makes the whole log unreadable (exit 2). A silent wrong number on a documented input caps this at 2.",
+  "completeness": "Every feature the README, page and llms.txt name was exercised and works end to end: price with --list, --target-profit, --flat-fee, --delivery, --p-sell, --salvage, --json; cross-marketplace table; `log` from file and stdin; per-platform profit/ROI/fee%; losing-sales list; --min-roi exit 1 gate (cli.test.mjs, 31/31 pass); page and guide link each other; usage opt-out present. No TODOs or stubs. Sales-log parsing works on the documented header and headerless formats but not on common real-world variants (see defects).",
+  "verification": "`cd ventures/ticket-resale-profit-calculator && node --test '*.test.mjs'`: tests 31, pass 31, fail 0. Five seeded mutants via platform/ci/quality_mutate.py: 3 SURVIVED (dropping salvage from ifUnsold, engine.mjs:77; dropping the per-ticket flat fee from the break-even/target list price, engine.mjs:60; flagging losers on gross instead of payout, engine.mjs:185), 2 caught (fees not subtracted in the log parser; Ticketmaster preset 15->10). The break-even price with a flat fee, the core number a seller with a per-ticket fee relies on, has no test.",
+  "craft": "Read engine.mjs (202 lines), cli.mjs (105), index.html script, tests. Small, zero-dependency, pure functions; input validated with RangeError (CLI exit 2 on --fee 100, --qty 1.5, --p-sell 1.5, all verified); HTML escaped before innerHTML. Defects: header mapping takes the first column whose name matches a prefix regex (engine.mjs:112/149) so `Purchase Date` steals the cost column; comma is a field separator even inside unquoted money (engine.mjs:128) with no sanity check; summary text prints raw floats (`$4730 paid`, `$76.5`, engine.mjs:194); the page turns a blank field into 0 silently (index.html:159), so a cleared fee box becomes a 0% fee.",
+  "claims": "No-warranty, not-tax-advice, trademark and privacy text present on both pages (page.test.mjs asserts them). Guide arithmetic checked: 1/0.9=1.111 ('about 11% above'), 1/1.125=0.889 ('about 89 in 100'), 0.8*(1+m)=1 gives m=0.25 ('a quarter of your cost'), 0.8*1.12=0.896<1 ('negative expected return'): all true. Unbacked: engine.mjs:200 'thousands separators are ignored' (false unless quoted, shown above); fee presets 'as last checked' (engine.mjs:17, README.md:21) carry no date and no source anywhere in the tree. llms.txt points at github.io URLs, but the Pages build rewrites hosts (source-only; served page could not be loaded: proxy 403), so not filed.",
+  "fitness": "Job walked through: an occasional reseller with 2 tickets at $120 can learn break-even ($133.33), payout at $150 on four marketplaces and that 80% sell-through makes it -$24 expected; that job is done. A full-time broker would hit in the first hour: pasting a marketplace export (header names vary, unquoted thousands) gives a wrong number or an unreadable log; no partial sell-through (order is all-or-nothing); no price-drop schedule over days to event; nothing tells them to put the buyer fees they paid at purchase into cost.",
+  "domain": "Method matches broker practice: seller fee as a percentage of the list (buyer-side fees excluded and said so), per-ticket flat fee separated from per-order delivery, break-even = (cost+flat+delivery)/(qty*(1-fee)), expected value with a salvage value for unsold inventory. Fee presets 10/10/10/15 are within the range of seller fees publicly reported for US resale as I know them to mid-2026 (StubHub ~10-15% varying by event, SeatGeek ~10%, Vivid Seats ~10%, Ticketmaster fan-to-fan ~10-15%; not re-fetched, these change), so plausible but uncited. Tax: 'resale profit can be taxable income and marketplaces may report it' is consistent with IRC s.6050W and the 2025 OBBBA reversion of the Form 1099-K threshold to $20,000 and 200 transactions. A CPA would add that cost basis includes the fees paid when buying and that a loss on personal-use tickets is not deductible; neither is said."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Payout, profit, ROI with 15% fee, $2.50/ticket flat fee, $10 delivery, 4 tickets at $140, cost $100",
+   "method": "hand arithmetic from the fee definitions (independent of author's tests)",
+   "command": "node cli.mjs price --cost 100 --qty 4 --fee 15 --flat-fee 2.5 --delivery 10 --list 140 --json",
+   "expected": "sellerFee 94, payout 456, profit 56, roi 14",
+   "observed": "sellerFee 94, payout 456, profit 56, roi 14",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Break-even and target-profit list price with flat and per-order fees",
+   "method": "hand: (400+10+10)/(4*0.85)=123.53; (50+420)/3.4=138.24",
+   "command": "node cli.mjs price --cost 100 --qty 4 --fee 15 --flat-fee 2.5 --delivery 10 --target-profit 50",
+   "expected": "123.53 and 138.24",
+   "observed": "Break-even $123.53; List for $50.00 total profit: $138.24",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Expected profit and break-even sale chance, 2 tickets $120, list $150, 10% fee, 80% sell",
+   "method": "hand expected value: 0.8*30+0.2*(-240); 240/270",
+   "command": "node cli.mjs price --cost 120 --qty 2 --list 150 --p-sell 0.8",
+   "expected": "-24.00 and 89%",
+   "observed": "Expected profit at 80% sale chance: -$24.00 (needs 89% to break even)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sales-log totals on the shipped fixture",
+   "method": "independent Python csv.DictReader sum over fixtures/sales.csv",
+   "command": "node cli.mjs log fixtures/sales.csv",
+   "expected": "profit 899.75, ROI 19.02%, fees 10.85% of gross",
+   "observed": "12 sales netted $899.75 on $4730 paid (19.02% ROI), 10.85% of gross went to fees",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Unquoted money with thousands separators in a sales log (format the input notes say is handled)",
+   "method": "hand: cost 1200, gross 1500, fees 150 -> profit 150, ROI 12.5%",
+   "command": "printf 'Concert,StubHub,2,$1,200.00,$1,500.00,$150.00\\n' > unquoted.csv; node cli.mjs log unquoted.csv --json",
+   "expected": "profit 150, ROI 12.5%, or the row skipped",
+   "observed": "1 sales netted $198 on $1 paid (19800% ROI)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Header with an extra 'Purchase Date' column before 'Total Cost'",
+   "method": "hand: one sale, cost 400, sale 500, fees 50 -> profit 50",
+   "command": "printf 'Event,Purchase Date,Platform,Qty,Total Cost,Sale,Fees\\nShow,2026-05-01,StubHub,2,400,500,50\\n' > pdate.csv; node cli.mjs log pdate.csv",
+   "expected": "profit $50",
+   "observed": "No sales rows could be read. (exit 2)",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Fee presets against publicly reported US seller fees",
+   "method": "auditor's knowledge of StubHub/SeatGeek/Vivid Seats/Ticketmaster seller-fee help pages to mid-2026 (not re-fetched; rates vary by event and change)",
+   "command": "grep -n sellerFeePct engine.mjs",
+   "expected": "roughly 10-15% each, with a dated source",
+   "observed": "10/10/10/15, no date or source in tree",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "Tax statement against IRS 1099-K rules",
+   "method": "IRC s.6050W; OBBBA (2025) restored $20,000 / 200-transaction threshold; personal-use losses non-deductible (IRC s.165(c))",
+   "command": "grep -n 'taxable' index.html",
+   "expected": "no claim that contradicts reporting rules",
+   "observed": "'Resale profit can be taxable income and marketplaces may report it'; no threshold claim; nothing on non-deductible personal-use losses",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Guide arithmetic (11% above cost, 89 in 100, a quarter of cost, 12% at 4-in-5 negative)",
+   "method": "hand: 1/0.9, 1/1.125, 1/0.8-1, 0.8*1.12",
+   "command": "sed 's/<[^>]*>//g' ticket-resale-guide.html",
+   "expected": "1.111, 0.889, 0.25, 0.896<1",
+   "observed": "all four statements match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Dollar signs and thousands separators are ignored'",
+   "method": "ran unquoted and quoted variants",
+   "command": "node cli.mjs log unquoted.csv --json",
+   "expected": "true for both",
+   "observed": "true only when the field is quoted",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Cost basis guidance: buyer fees paid at purchase",
+   "method": "broker / CPA practice: basis includes all-in purchase cost",
+   "command": "grep -n 'Paid per ticket\\|Buyer fees' index.html",
+   "expected": "label or FAQ says include fees you paid",
+   "observed": "label 'Paid per ticket ($)'; FAQ 'Buyer fees ... are not in the maths' (about the resale buyer, easily read as all buyer fees)",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "tests 31, pass 31, fail 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Input validation and --min-roi gate",
+   "method": "run",
+   "command": "node cli.mjs price --cost 120 --qty 2 --list 150 --p-sell 1.5; node cli.mjs log fixtures/sales.csv --min-roi 50",
+   "expected": "exit 2; exit 1",
+   "observed": "pSell must be between 0 and 1 (exit 2); cli.test asserts exit 1",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:77",
+   "change": "const unsold = salvagePerTicket * o.qty - sold.cost; -> const unsold = -sold.cost;",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:60",
+   "change": "need = target + cost*qty + delivery + flat*qty -> need = target + cost*qty + delivery (flat fee dropped from break-even)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:185",
+   "change": "losers filter r.payout < r.cost -> r.gross < r.cost",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:159",
+   "change": "payout = gross - fees -> payout = gross",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:23",
+   "change": "Ticketmaster sellerFeePct 15 -> 10",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Unquoted money with thousands separators in a sales-log line ($1,200.00) is split on the comma and the row is accepted with shifted columns: cost $1, gross $200, '19800% ROI', instead of being skipped or flagged. The input notes claim this format is handled.",
+   "where": "ventures/ticket-resale-profit-calculator/engine.mjs:128",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Input note 'Dollar signs and thousands separators are ignored' is only true for quoted CSV fields.",
+   "where": "ventures/ticket-resale-profit-calculator/engine.mjs:200",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Header mapping takes the first column whose name starts with a cost/sale/event prefix; a 'Purchase Date' column steals 'cost' and the whole log becomes unreadable; 'Sold On' would steal 'sale'.",
+   "where": "ventures/ticket-resale-profit-calculator/engine.mjs:149",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Break-even/target list price with a per-ticket flat fee, salvage value in ifUnsold, and the losing-sales filter are untested: three seeded mutants survived.",
+   "where": "ventures/ticket-resale-profit-calculator/engine.test.mjs:14",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Fee presets (10/10/10/15) are described as 'as last checked' but carry no date or source anywhere in the tree.",
+   "where": "ventures/ticket-resale-profit-calculator/engine.mjs:17",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Cost input 'Paid per ticket ($)' does not say to include the buyer/service fees paid when buying; the FAQ's 'Buyer fees ... are not in the maths' reads as excluding them, understating cost basis and overstating profit by the purchase fee (often 15-30% on primary).",
+   "where": "ventures/ticket-resale-profit-calculator/index.html:70",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "A blank number field on the page silently becomes 0 (a cleared seller-fee box becomes a 0% fee).",
+   "where": "ventures/ticket-resale-profit-calculator/index.html:159",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Sell-through is all-or-nothing per order; selling some of the tickets, or a price-drop schedule toward the event, is not modelled.",
+   "where": "ventures/ticket-resale-profit-calculator/engine.mjs:78",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Summary text prints raw floats ('$4730 paid', '$76.5').",
+   "where": "ventures/ticket-resale-profit-calculator/engine.mjs:194",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15417"
+ ],
+ "verdict": "A small, honest calculator whose pricing arithmetic is right: every hand-recomputed payout, break-even, target price, expected profit and fixture total matched (node cli.mjs price/log, Python re-sum). It does not meet the bar. The sales-log parser turns unquoted '$1,200.00' into a $1 cost and a 19800% ROI without a warning, against its own input note; a common extra header column empties the log; and 3 of 5 seeded mutants survive, including the flat fee in break-even. Fee presets are plausible but undated and unsourced, and the cost field never tells a seller to include the fees they paid buying. Fine for a casual reseller pricing one listing; a full-time broker pasting a real export would get a wrong number in the first hour."
+}

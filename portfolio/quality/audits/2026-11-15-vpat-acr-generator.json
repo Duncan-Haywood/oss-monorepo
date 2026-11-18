@@ -1,0 +1,253 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/vpat-acr-generator",
+ "stratum": "venture",
+ "seed": "2026-11-15-b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior accessibility consultant who writes and reviews VPAT/ACRs for federal (Section 508) and enterprise procurement; first checks: the criterion set and levels, the conformance terms and where each may be used, and whether the document has the ITI template's sections and Level A / Level AA tables",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 1,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The criterion data is exactly right; the document it calls a correctly formatted VPAT 2.5 is not. I built the WCAG 2.1 list from W3C's own source (raw.githubusercontent.com/w3c/wcag/main/guidelines/index.html plus the 78 sc/20 and sc/21 files, numbered by principle/guideline order, 2.2 additions excluded; script /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/w3c_list.py) and diffed it: `node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/diff.mjs .../calc.mjs w3c21.json` -> 'w3c A/AA: 50 (A=30, AA=20); calc: 50; mismatches: 0; same order: true'. The vs-filling page's worked example (42 S / 5 PS with 2 remarks / 2 DNS with 1 remark / 1 NA, blank date) gives 5 issues, as the page says (`node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/probes.mjs` P2). But against GSA OpenACR's VPAT catalogs (github.com/GSA/openacr catalog/2.4-edition-wcag-2.1-en.yaml and 2.5-edition-wcag-2.2-508-en.yaml, written independently of this repo), 'Not Evaluated' 'can only be used in WCAG Level AAA criteria', yet buildReport defaults every A/AA row to it and P1 (all 50 rows Not Evaluated, header filled) prints 'No completeness issues found'. The VPAT layout is 'Table 1: Success Criteria, Level A' / 'Table 2: Success Criteria, Level AA'; the output groups by principle (P3: AA row 1.2.4 printed before A row 1.3.1), and has no Product Description or Terms section (P3 ABSENT; OpenACR markdown template has both).",
+  "completeness": "Claimed features, each run: 50-row form renders (headless Chrome over CDP, `node .../cdp.mjs` against `python3 -m http.server` in the venture dir: rows 50); Generate fills the summary ('1Supports1Partially Supports...48Not Evaluated') and the issue list (1 issue for 1.4.3 PS with no remarks) and the report text; remarks-required and header-required checks work (P2, calc tests); invalid level falls back (P5 'bogus' -> not-evaluated); download/copy/print/autosave/opt-out handlers present in index.html (not clicked: they need browser permissions). No stubs or TODOs. What it does not claim (508 chapters, EN 301 549, WCAG 2.2, AAA) is stated as out of scope on the page.",
+  "verification": "`cd ventures/vpat-acr-generator && node --test '*.test.mjs'`: 36 tests, 36 pass, 0.18 s. page.test.mjs greps the HTML (no DOM run). Four mutants via platform/ci/quality_mutate.py: 2 caught (dropping 'does-not-support' from REMARKS_REQUIRED_LEVELS :103; dropping the evaluationMethods required field :164), 2 survived (1.4.10 Reflow level AA -> A at :50; 2.5.3 'Label in Name' -> 'Label or Name' at :70). The one table the README calls 'the one mistake this tool cannot afford' is checked only for count, uniqueness and A/AA membership (calc.test.mjs:11-19), never against a source list.",
+  "craft": "Read calc.mjs (244 lines), index.html script, calc.test.mjs, page.test.mjs, usage.mjs. Small, pure, well-commented engine that the page imports directly (no copied engine); getElementById fix documented. Defects: isDraftEmpty's docstring says the opposite of what it returns (calc.mjs:241); comment calls Not Evaluated 'one of the VPAT's own four conformance values' (calc.mjs:112-113, there are five, and that one is AAA-only); the header block's intentional blank separators are stripped by `.filter((l) => l !== '')` (calc.mjs:208); principle-name map duplicated between calc.mjs:215 and index.html; non-string header values are silently dropped (P7: productVersion 4.2 -> ''). Multi-line remarks lose their indent (P4). None serious.",
+  "claims": "Checked: 'correctly formatted VPAT 2.5 / ACR' (index.html:6, llms.txt:3, README:3) fails, no level tables, Product Description or Terms (P3). why-procurement-rejects-a-vpat.html:67-68 and :90 ('Not Evaluated is a real answer ... Mark it Not Evaluated. It is one of the template's own values') advise the use the VPAT terms forbid on A/AA rows (OpenACR terms, both editions): a reader acting on it submits a non-conforming ACR. 'grouped by the four principles in the order the standard and the template both use' (why-procurement:93, vs-filling:30, calc.mjs:187-188) is false for the template. '$2,000-5,000' consultant price (vs-hiring:6,46,97; README:25) cites 'public pricing pages' with no file or link. 'Pre-populated from the standard's own criterion list' passes (diff 0 mismatches). Disclaimer, no-warranty and ITI trademark notices present (page.test.mjs:93-118 pass). llms.txt source links point at github.io, which the deploy rewrites (platform/ci/build_pages_site.py:372); served page not loadable here (marisstella.app refused by proxy), so not filed.",
+  "fitness": "Walked the job of a vendor preparing an ACR for an RFP: filled header and two rows in the live page, generated. The deliverable is a plain-text list (Download .txt / print a <pre>); a reviewer expects the ITI table layout (Word/HTML/PDF tables, Level A and AA tables, Terms). For a federal Section 508 buy, the 508 edition also needs Chapter 3 FPC, Chapter 5 Software and Chapter 6 Support Documentation (OpenACR 2.5 WCAG 2.2/508 catalog chapters), which this tool lacks while framing itself for 'federal (Section 508)' RFPs. The completeness check is useful, but a consultant would still rebuild the document in the template. Nearest prior work: GSA OpenACR (free, government-built, emits VPAT-structured HTML/Markdown with all editions).",
+  "domain": "Against the VPAT 2.4/2.5 structure as encoded in GSA OpenACR: criterion IDs, names and levels match W3C exactly (pass); the five conformance terms match by label (pass); Not Evaluated permitted on A/AA rows and treated as complete (departs); tables by principle instead of by level (departs); missing Product Description, Terms and the Applicable Standards table's per-standard 'Included in Report' rows (departs); no note on 4.1.1 Parsing, which W3C's source now marks 'Obsolete and removed' and which the 2023 WCAG 2.1 errata says is always satisfied for HTML/XML (P6: a DNS on 4.1.1 passes silently); no N/A-remarks prompt (minor practice). A senior ACR writer would accept the criterion data and the remarks check, and reject the document shape and the Not Evaluated handling."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "All 50 WCAG 2.1 A/AA criterion IDs, names and levels, in order",
+   "method": "list built from W3C's WCAG source (w3c/wcag guidelines/index.html + sc/20, sc/21 files), diffed",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/diff.mjs /home/user/oss-monorepo/ventures/vpat-acr-generator/calc.mjs /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/w3c21.json",
+   "expected": "50 rows, A=30, AA=20, 0 mismatches, same order",
+   "observed": "w3c A/AA: 50 (A=30, AA=20); calc: 50; mismatches: 0; same order: true",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Report with every A/AA row left Not Evaluated is reported complete",
+   "method": "GSA OpenACR VPAT 2.4 WCAG 2.1 and 2.5 WCAG 2.2/508 catalogs, terms: Not Evaluated 'can only be used in WCAG Level AAA criteria'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/probes.mjs",
+   "expected": "at least one issue (Not Evaluated on A/AA rows)",
+   "observed": "P1 issues = 0; 'No completeness issues found'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Generated document has the VPAT table layout",
+   "method": "OpenACR catalogs: 'Table 1: Success Criteria, Level A', 'Table 2: Success Criteria, Level AA'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/probes.mjs",
+   "expected": "A rows and AA rows in separate tables",
+   "observed": "grouped by principle; AA 1.2.4 printed before A 1.3.1 (line 16 < 18); no Table 1/Table 2",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Header sections of a VPAT 2.5 ACR",
+   "method": "OpenACR markdown template (templates/openacr-markdown-0.1.0.handlebars): Product Description, Contact, Notes, Evaluation Methods, Applicable Standards, Terms",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/probes.mjs",
+   "expected": "Product Description and Terms present",
+   "observed": "Applicable Standards present; Product Description ABSENT; Terms ABSENT",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Worked example on vs-filling-out-the-vpat-template-by-hand.html (42 S, 5 PS w/ 2 remarks, 2 DNS w/ 1 remark, 1 NA, blank date)",
+   "method": "hand count of the stated rules: 3 PS + 1 DNS without remarks + 1 blank header = 5",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/probes.mjs",
+   "expected": "5 issues",
+   "observed": "P2 issues = 5 (3.3.2,3.3.3,3.3.4,4.1.2,header-required)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Summary counts sum to 50 and invalid level falls back",
+   "method": "hand count",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/probes.mjs",
+   "expected": "S1 NA1 NE48, sum 50, evaluated 2",
+   "observed": "supports 1, not-applicable 1, not-evaluated 48, sum 50, evaluated 2",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Live page renders 50 rows, Generate produces summary, issues and report",
+   "method": "headless Chrome over CDP against a local static server",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/cdp.mjs",
+   "expected": "50 selects; 1 issue for 1.4.3 PS without remarks; report text",
+   "observed": "rows 50; '1 completeness issue(s): 1.4.3 Contrast (Minimum) ...'; report header and '1.4.3 Contrast (Minimum) (WCAG Level AA) -- Partially Supports'",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/vpat-acr-generator && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "36 tests, 36 pass, 0 fail, 0.18 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Mark it Not Evaluated. It is one of the template's own values' (why-procurement-rejects-a-vpat.html:67-68, :90)",
+   "method": "OpenACR VPAT terms (Not Evaluated: AAA only)",
+   "command": "grep -n 'can only be' openacr_2.5-edition-wcag-2.2-508-en.yaml; grep -n 'Mark it Not Evaluated' ventures/vpat-acr-generator/why-procurement-rejects-a-vpat.html",
+   "expected": "advice consistent with the template",
+   "observed": "template: 'This can only be used in WCAG Level AAA criteria'; page advises it for untested A/AA rows",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'grouped by the four principles in the order the standard and the template both use' (why-procurement:93, vs-filling:30)",
+   "method": "OpenACR catalogs chapter labels",
+   "command": "grep -n 'label: \"Table' openacr_2.4-edition-wcag-2.1-en.yaml",
+   "expected": "template grouped by principle",
+   "observed": "template is Table 1 Level A, Table 2 Level AA, Table 3 Level AAA",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'$2,000-5,000' consultant engagement price (vs-hiring-a-vpat-consultant.html:6,46,97)",
+   "method": "look for a cited source in the page, README or VENTURE.yaml",
+   "command": "grep -rn '2,000\\|2-5k' ventures/vpat-acr-generator",
+   "expected": "a named source",
+   "observed": "'per public pricing pages in this space', no link or file",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, no-warranty and ITI trademark notice on every page",
+   "method": "page tests plus reading the three HTML pages",
+   "command": "cd ventures/vpat-acr-generator && node --test page.test.mjs",
+   "expected": "present",
+   "observed": "present on index and all three guide pages; tests pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Section 508 framing vs the 508 edition's chapters",
+   "method": "OpenACR VPAT 2.5 WCAG 2.2/508 catalog chapters",
+   "command": "grep -n 'label: \"Chapter' openacr_2.5-edition-wcag-2.2-508-en.yaml",
+   "expected": "Chapter 3 FPC, 5 Software, 6 Support Docs offered for a 508 RFP",
+   "observed": "tool emits WCAG edition only, while README:3 frames it for federal (Section 508) RFPs",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "4.1.1 Parsing handling",
+   "method": "W3C source sc/20/parsing.html ('Obsolete and removed'); 2023 WCAG 2.1 errata (always satisfied for HTML/XML)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/vpat-acr-generator/probes.mjs",
+   "expected": "a note or warning on 4.1.1",
+   "observed": "P6: no note; a Does Not Support on 4.1.1 raises nothing",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:50",
+   "change": "{ id: '1.4.10', name: 'Reflow', wcagLevel: 'AA' } -> { id: '1.4.10', name: 'Reflow', wcagLevel: 'A' }",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:70",
+   "change": "name: 'Label in Name' -> name: 'Label or Name'",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:103",
+   "change": "new Set(['partially-supports', 'does-not-support']) -> new Set(['partially-supports'])",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:164",
+   "change": "remove ['evaluationMethods', 'Evaluation methods used'] from requiredHeaderFields",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Every unanswered A/AA row defaults to 'Not Evaluated' and is never flagged, so a report with all 50 rows Not Evaluated prints 'No completeness issues found'. The VPAT terms (ITI template, as encoded in GSA OpenACR's 2.4 and 2.5 catalogs) allow Not Evaluated only for Level AAA criteria.",
+   "where": "ventures/vpat-acr-generator/calc.mjs:131",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "high",
+   "what": "The guide page tells vendors to 'Mark it Not Evaluated. It is one of the template's own values' for untested A/AA rows (also in its FAQ JSON-LD), the use the VPAT terms forbid; a reader acting on it submits a non-conforming ACR.",
+   "where": "ventures/vpat-acr-generator/why-procurement-rejects-a-vpat.html:68",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "medium",
+   "what": "Output is not the VPAT 2.5 WCAG-edition layout it claims ('correctly formatted VPAT 2.5'): rows are grouped by principle, not in 'Table 1: Success Criteria, Level A' / 'Table 2: Level AA'; no Product Description or Terms section; plain text only.",
+   "where": "ventures/vpat-acr-generator/calc.mjs:210",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Pages and code comment claim the template groups criteria 'by the four principles in the order the standard and the template both use'; the template groups by level.",
+   "where": "ventures/vpat-acr-generator/why-procurement-rejects-a-vpat.html:93",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Framed for 'federal (Section 508)' RFPs but offers only the WCAG edition: no Chapter 3 Functional Performance Criteria, Chapter 5 Software or Chapter 6 Support Documentation, and no EN 301 549 edition.",
+   "where": "ventures/vpat-acr-generator/README.md:3",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "The criterion table is checked only for count, uniqueness and A/AA membership; a wrong level (1.4.10 AA -> A) or a misspelled name (2.5.3) survives the suite.",
+   "where": "ventures/vpat-acr-generator/calc.test.mjs:11",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'$2,000-5,000' consultant engagement price is attributed to 'public pricing pages' with no source in any file.",
+   "where": "ventures/vpat-acr-generator/vs-hiring-a-vpat-consultant.html:46",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "No note on 4.1.1 Parsing (W3C now marks it obsolete; the 2023 WCAG 2.1 errata treats it as always satisfied for HTML/XML), so a vendor can mark it Does Not Support without any prompt.",
+   "where": "ventures/vpat-acr-generator/calc.mjs:84",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "isDraftEmpty's docstring says it is true when every criterion has been touched; it returns true when none has. The buildReport comment calls Not Evaluated one of 'four' VPAT values (there are five).",
+   "where": "ventures/vpat-acr-generator/calc.mjs:241",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+ ],
+ "verdict": "A small, honest formatter whose data is right and whose document is not quite the one it names. The 50 WCAG 2.1 A/AA criteria match W3C's source exactly (0 mismatches, same order), the remarks-required and header checks work in the live page, and the worked example on its comparison page reproduces (5 issues). But measured against the VPAT structure in GSA OpenACR, it defaults untested A/AA rows to 'Not Evaluated', a term the template reserves for Level AAA, and then reports such a document complete; its guide page actively advises that use. The output groups by principle instead of the template's Level A / Level AA tables, lacks Product Description and Terms, is plain text only, and has no Section 508 chapters despite the 508 framing. Two of four seeded mutants survived, both in the criterion table. Does not meet the bar (claims 1, correctness 2, verification 2; median 2). Fixable in one session: flag Not Evaluated on A/AA rows, rewrite the guide's Not Evaluated advice, emit Level A and AA tables with Product Description and Terms, and pin the criterion table to a source list in a test."
+}

@@ -1,7 +1,7 @@
 ---
 title: The Comet That Comes Twice
 shelf: hearth-and-horizon
-setting: Saint Aidan's hall (invented), near Bamburgh, Northumberland, Saturday 14 March 2060
+setting: Saint Aidan's hall (invented), near Bamburgh, Northumberland, Saturday 13 March 2060
 published: 2026-11-09
 summary: Halley's comet is due back in the summer of 2061, and the parish astronomy club wants to fix its vigil night with the rule everyone knows, every seventy-six years. The hall's assistant shows that the rule is five months out, that the comet spends nearly all its time too far away to see, and that the best anyone can promise is a notebook. An eighty-five-year-old who saw it as a boy and a nine-year-old who will be eighty-three at the next return decide what to write in it.
 ---
@@ -132,7 +132,7 @@ They did not fix a date. They fixed a window, and a procedure, which Margaret wr
 
 Alan took the pen from his pocket. It was not a good pen. He opened the book to the first page, and held it for a moment, and wrote:
 
-*14 March 2060. Not yet. A.T., aged 85.*
+*13 March 2060. Not yet. A.T., aged 85.*
 
 He gave it to Nuala without a word. She read it carefully. She turned over a page, which was not necessary, and turned it back, and then she took the pen, which was too big for her hand, and wrote under his line in the round, deliberate letters she had been taught for school:
 

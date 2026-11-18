@@ -31,24 +31,26 @@ const ALIASES = {
 
 export function parseCsv(text) {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === ",") { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -122,12 +124,12 @@ export function normalizeRows(rows) {
   if (!rows.length) return { error: "The file is empty." };
   const head = rows[0].map((h) => norm(h));
   const col = {};
-  for (const [k, names] of Object.entries(ALIASES)) col[k] = head.findIndex((h) => names.includes(h));
+  for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const missing = ["table", "name", "def", "scans"].filter((k) => col[k] < 0);
   if (missing.length) return { error: `Missing column(s): ${missing.map((k) => ALIASES[k][0]).join(", ")}. Run the query on this page and paste its output (psql: \\copy (…) TO STDOUT WITH CSV HEADER).` };
   const indexes = [], skipped = [];
   rows.slice(1).forEach((r, i) => {
-    const line = i + 2, get = (k) => (col[k] >= 0 ? r[col[k]] : undefined);
+    const line = r.line ?? i + 2, get = (k) => (col[k] >= 0 ? r[col[k]] : undefined);
     const def = parseIndexDef(get("def"));
     if (!def) { skipped.push({ line, reason: "indexdef is not a CREATE INDEX statement" }); return; }
     const scans = int(get("scans"));

@@ -1,0 +1,235 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/codesign-aero",
+ "stratum": "research",
+ "seed": "2026-11-15-1fba",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior small-UAS design and flight-control engineer (multirotor sizing plus attitude-loop tuning, the kind who reviews co-design papers for IEEE RA-L or the AIAA SciTech UAS track). They would check first that every reported optimum is a feasible vehicle, meaning the endurance mass closure actually converges, then that the plant (roll inertia, torque authority, motor lag) is physically sane, then that the baselines get a fair budget",
+ "scores": {
+  "correctness": 1,
+  "completeness": 2,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "The arithmetic reproduces but the headline optimum is not a vehicle. size() (src/codesign_aero/aero.py:22-29) runs 60 damped fixed-point steps from m = 1 kg and never checks convergence. My own root scan of the same closure equation (scratchpad indep/closure.py, numpy over m in 0.2-20 kg) finds no fixed point at all for the reported grid optimum L = 0.146 m, D = 0.097 m: f(m) - m stays positive, so no battery mass gives 15 min of hover. The code still returns m = 1.999 kg with 204 Wh, a residual of +0.071 kg. The runner-up cell (0.124, 0.097) has no fixed point either. The best cell whose closure does converge is 5.35 deg at L = 0.102 m, not 5.25 deg. I reran joint CMA-ES for all 10 seeds (indep/joint.py, imports run.py): 9 of 10 returned airframes have no fixed point (code masses 1.70 to 3.53 kg, residuals +0.03 to +0.67). The only converged one, seed 6, is the worst joint run at 5.43 deg. So 'joint 5.25 deg beats frozen 5.52 / design-first 7.06' compares infeasible designs with feasible ones. Where the closure does converge, my brentq solve agrees with size() to 4 d.p. (L 0.15/D 0.127: 0.8410 kg, 43.56 Wh; 0.30/0.25: 0.8052 kg). A momentum-theory hand check (Leishman) gives 11.0 W per rotor for a 1 kg quad on 10-in props, in line with the formula. The OU gust has a stationary mean of 3.01 and sd of 4.00 as claimed. With noise and gust off, a scipy solve_ivp integration of the same unsaturated loop gives 11.33 deg RMS against the code's 11.15, a 1.6% gap that the one-step delay explains.",
+  "completeness": "Claimed and checked: 9 tests pass (9 passed in 0.64 s, as the README says). run.py reruns in a scratch copy and reproduces results.txt and results.json byte for byte (3 min 14 s; README says about 2.5 min). figure.py and the landscape.png figure are served (https://marisstella.app/research/codesign-aero/ is 200, landscape.png is 200 image/png). The live page states 5.25, 7.06 and 41%. The README is honest that PX4/ArduPilot SITL was not attempted and that the 'learned' controller is a three-gain law. The method claims 'the battery is sized by fixed-point mass closure for 15 min of hover', but the closure is not enforced: designs that cannot close are scored as feasible. The bilevel baseline is not what the code comment describes. run.py:63 says '2 generations of 8 per candidate', but popsize defaults to 16, so the inner loop is one ask of 16. Because the CMA seed and x0 are fixed, it is the same 16 gain vectors for every airframe (checked: identical candidate sets for airframes (0.2,0.2) and (0.8,0.5)). Docstring aero.py:49 promises a 'random start phase' that reference() never applies.",
+  "verification": "`cd research/codesign-aero && PYTHONPATH=src python3.13 -m pytest -q tests`: 9 passed in 0.64 s. Five seeded mutants via platform/ci/quality_mutate.py: 4 survived. The survivors: the lag exponent 1.5 -> -1.5 (inverts the small-prop advantage that the headline mechanism rests on), the torque arm r -> L, motor inertia x0.1, and the mass cap 20 -> 2 kg (which silently clips every diverging design). Only deleting the sensing-delay line was caught. No test checks closure convergence, no test pins any number in results.txt, and test_mass_closure_is_consistent passes only because it recomputes from the returned wh at the converged reference design (0.15, 0.127). It never touches the small-prop edge where the closure fails.",
+  "craft": "Read aero.py (96 lines), run.py (134), figure.py, test_aero.py. Compact and vectorised (designs x episodes), seeded, results.json feeds the figure. Defects: (1) silent non-convergence in size(): a fixed 60 iterations and a 20 kg clamp, with no residual or flag returned. (2) The 'ground truth' grid picks its best cell by the held-out score (run.py:79-80) while the pipelines pick by training score, so the grid optimum is optimistically selected on the test set. (3) The comment at run.py:63 and the docstring at aero.py:49 do not match the code. (4) The bilevel inner tuner reuses identical candidates. (5) results.txt and results.json are written through unclosed open() calls (run.py:133-134). (6) The long one-line feasibility call in grid() (run.py:78) recomputes the sizing to test feasibility.",
+  "claims": "Checked: numbers in the README match results.txt (5.25, 5.63, 5.52, 5.88, 7.06, 9/10 and 10/10, 7.23 vs 6.52, 41%, gust sweep): pass. The reference airframe L 0.146 / D 0.139 matches REF_DESIGN (0.30, 0.35): pass. The lightest feasible airframe is large-prop with slow response: pass (21x21 lightest is L 0.168, D 0.225, 0.662 kg, lag 35 ms). Wrong or unbacked: (1) README:17 'cap USD 300, never binding': on the 11x11 grid, 18 cells pass the prop-overlap rule and fail only the cost cap (max cost USD 3,514). The cost cap is the only thing removing diverging designs, as the aero.py:29 comment admits. (2) README:12 says the optimum sits 'at the small-prop edge of the feasible region (props may not overlap, sqrt2 L >= 1.05 D)'. The overlap rule bounds large props, not small ones. The small-prop edge is where the endurance closure stops converging, and the optimum lies past it. (3) README:10-14: the headline ranking and 'the best airframe is the one a small, fast prop makes possible' rest on designs that cannot meet the stated 15-min endurance. (4) README:13 says 'the gust torque ... is a small fraction of motor authority'. That is true at the optimum (0.8% at the 3 m/s mean, 10% at mean + 2 sd) but not for the large-prop airframes (32-39% at mean + 2 sd). The AI-assistance and simulation-only disclaimers are present on both the README and the served page.",
+  "fitness": "Job: a co-design researcher wanting evidence that joint airframe/controller search beats sequential pipelines. The comparison cannot be used as is. The winning pipeline wins mostly by finding the region where the sizing model silently breaks: 9 of 10 joint winners are non-closing designs. The bilevel baseline is a straw man, with one fixed set of 16 gain vectors and no adaptation. Nearest prior work: co-design of multirotor morphology and control (Du et al. 2016, 'Computational multicopter design', SIGGRAPH Asia; Bergonti et al. 2022 on co-design of aerial robots; Zhao et al. 2020 RoboGrammar; Gupta et al. 2021 and Sims 1994, cited). Of these, only Sims and Gupta are cited; the multicopter-specific co-design literature that already does joint sizing plus control is not. Novelty is not established, and the sound part (controller transfer across airframes degrades by a median 0.7 deg) is modest. Downstream codesign-aero-* projects carry their own copies of aero.py; I did not check whether they share the closure defect.",
+  "domain": "Against standard multirotor sizing practice (mass closure with a convergence check, endurance verified at the closed mass; Leishman momentum theory): the closure is not checked, so infeasible vehicles reach the ranking. Plant departures I found: the arm roll inertia term (0.05 + 0.8L)L^2/3 treats the 0.05 kg hub as distributed arm mass and uses L^2/3 where an X-frame arm about the roll axis gives L^2/6 (my integral: 2.83x too large at L 0.15). Motor lag scales as D^1.5 with no source, yet it drives the headline mechanism ('lag costs more tracking than mass'). The lag-exponent mutant survives the tests. tau_max = 4 (Tmax - T_hover) L/sqrt2 is correct for an X frame. Hover power, battery Wh and the prop-overlap geometry are correct. A flight-control engineer would reject the headline at the first feasibility check."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "mass closure at the reported grid optimum L 0.146 m, D 0.097 m",
+   "method": "auditor's own scan of f(m) - m over m in 0.2-20 kg (momentum-theory hover power, same constants), independent of size()'s iteration",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/indep/closure.py /home/user/oss-monorepo/research/codesign-aero",
+   "expected": "a fixed point near the code's mass (feasible 15-min design)",
+   "observed": "no fixed point (residual > 0 everywhere); code returns unconverged m 1.999 kg, residual +0.071 kg; 3 of 76 'feasible' cells unclosed, including the best two; best converged cell 5.35 deg",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "joint CMA-ES winners are feasible vehicles",
+   "method": "rerun joint CMA-ES for seeds 0-9 and test each returned design's closure with the auditor's scan",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/indep/joint.py /home/user/oss-monorepo/research/codesign-aero",
+   "expected": "10 of 10 close",
+   "observed": "1 of 10 closes (seed 6, the worst joint run, 5.43 deg); 9 have no fixed point, code masses 1.70-3.53 kg",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "mass and battery Wh where the closure converges",
+   "method": "scipy brentq on the closure equation (Leishman momentum theory)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/indep/indep.py /home/user/oss-monorepo/research/codesign-aero",
+   "expected": "code values",
+   "observed": "L .15/D .127: 0.8410 kg 43.56 Wh both; L .30/D .25: 0.8052 kg 20.73 Wh both",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "closed-loop roll response of the simulator",
+   "method": "scipy solve_ivp continuous integration of the same unsaturated PID + first-order torque lag, noise and gust off, kp 1 kd 0.05 ki 0.5, vs code rollout",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/indep/indep.py /home/user/oss-monorepo/research/codesign-aero",
+   "expected": "within a few percent (code adds a one-step delay)",
+   "observed": "solve_ivp 11.33 deg vs code 11.15 deg",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "OU gust stationary statistics",
+   "method": "simulate the code's update 4000 paths x 20000 steps",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/indep/indep.py /home/user/oss-monorepo/research/codesign-aero",
+   "expected": "mean 3, sd 4 m/s",
+   "observed": "mean 3.01, sd 4.00",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "roll inertia of the arms, X frame",
+   "method": "auditor's integral of 4 arms at 45 deg to the roll axis, total arm mass 0.8L",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/indep/indep.py /home/user/oss-monorepo/research/codesign-aero",
+   "expected": "M L^2/6 = 4.50e-4 kg m^2 at L 0.15",
+   "observed": "code term 1.275e-3 (2.83x: L^2/3 and hub mass counted as arm)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:17 'cap USD 300, never binding'",
+   "method": "count 11x11 cells passing the prop-overlap rule but failing cost",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/indep/indep.py /home/user/oss-monorepo/research/codesign-aero",
+   "expected": "0",
+   "observed": "18 cells (geometry-feasible 94, code-feasible 76), max cost USD 3,514",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "lightest feasible airframe is large-prop with slow response; gust torque small vs authority",
+   "method": "21x21 grid argmin of mass; gust torque 0.5 rho A lever v^2 vs tau_max",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/b1f5dfc8-bdbd-5a9f-9f8d-a9583f85aeaa/scratchpad/indep/indep.py /home/user/oss-monorepo/research/codesign-aero",
+   "expected": "large D, slow lag; small fraction",
+   "observed": "L .168 D .225, 0.662 kg, lag 35 ms; gust 0.8-10% of tau_max at optimum but 32-39% for large-prop airframes at mean+2sd",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "bilevel baseline matches its description ('2 generations of 8' inner CMA-ES)",
+   "method": "spy on ev() during tune_gains for two different airframes with the same seed",
+   "command": "cd /tmp && /usr/bin/python3.13 -I -c \"...R.tune_gains(np.array([[0.2,0.2]]),16,3); R.tune_gains(np.array([[0.8,0.5]]),16,3)...\" (spy on run.ev)",
+   "expected": "2 adaptive generations per airframe",
+   "observed": "1 call of 16; identical candidate sets for both airframes",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd research/codesign-aero && PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "9 tests pass",
+   "observed": "9 passed in 0.64s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "served page and figure",
+   "method": "HTTP fetch",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/codesign-aero/ ; curl ... /research/codesign-aero/landscape.png",
+   "expected": "200 with README numbers and disclaimer",
+   "observed": "200, title 'Should a quadrotor's airframe...', 5.25/7.06/41% present, AI-assistance and simulated disclaimer; landscape.png 200 image/png",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py reproduces results.txt",
+   "method": "rerun in a scratch copy and diff",
+   "command": "cp -r research/codesign-aero $S/copy && cd $S/copy && python3.13 experiments/run.py && diff experiments/results.txt <repo>/research/codesign-aero/experiments/results.txt",
+   "expected": "no diff",
+   "observed": "results.txt and results.json byte-identical (3 min 14 s vs README about 2.5 min)",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/codesign_aero/aero.py:36",
+   "change": "lag = 0.015 * (D / 0.127) ** 1.5 -> ** -1.5",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/codesign_aero/aero.py:35",
+   "change": "tau_max = 4 * (Tmax - T_hover) * r -> * L",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/codesign_aero/aero.py:80",
+   "change": "om_prev, th_prev = om, th (one-step sensing delay) -> pass",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/codesign_aero/aero.py:34",
+   "change": "inertia = 4 * m_motor * r ** 2 -> 0.4 * m_motor * r ** 2",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/codesign_aero/aero.py:29",
+   "change": "mass clamp 20.0 -> 2.0 kg",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "size() never checks that the 15-min endurance mass closure converged, so airframes with no fixed point (no battery mass gives 15 min of hover) are scored as feasible with an arbitrary 60-iteration mass. The reported grid optimum (L 0.146, D 0.097, 5.25 deg) and 9 of 10 joint CMA-ES winners are such designs. The best converged grid cell is 5.35 deg at L 0.102, and the only converged joint run is the worst (5.43 deg). The headline ranking compares infeasible with feasible designs",
+   "where": "research/codesign-aero/src/codesign_aero/aero.py:39",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16198"
+  },
+  {
+   "severity": "medium",
+   "what": "Bilevel baseline is a straw man: the inner tuner is one CMA-ES ask of 16 (comment says '2 generations of 8'), with fixed seed and x0, so every airframe is tuned from the same 16 gain vectors with no adaptation",
+   "where": "research/codesign-aero/experiments/run.py:63",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests pin nothing that matters: 4 of 5 seeded mutants in sizing/plant (lag exponent sign, torque arm, motor inertia, mass clamp) survive. No test checks closure convergence or any result in results.txt",
+   "where": "research/codesign-aero/tests/test_aero.py:9",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "README says the cost cap is 'never binding'. It removes 18 of 94 geometry-feasible cells on the 11x11 grid (cost up to USD 3,514): it is the only thing screening fully diverging designs. README:12 also attributes the small-prop edge to the prop-overlap rule, which bounds large props, not small ones",
+   "where": "research/codesign-aero/README.md:17",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+  },
+  {
+   "severity": "low",
+   "what": "Arm roll inertia (0.05 + 0.8L) L^2/3 treats the hub as arm mass and uses L^2/3 where an X-frame arm about the roll axis gives L^2/6: 2.83x too large at L 0.15. The motor-lag scaling D^1.5 that drives the headline mechanism is uncited",
+   "where": "research/codesign-aero/src/codesign_aero/aero.py:34",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "The grid 'ground truth' picks its best cell by the held-out score, while the pipelines are selected on training episodes and only scored held-out, so the grid optimum is optimistically biased",
+   "where": "research/codesign-aero/experiments/run.py:79",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Multicopter-specific co-design prior work (e.g. Du et al. 2016 'Computational multicopter design'; Zhao et al. 2020 RoboGrammar) is not cited; novelty of joint sizing plus control is not positioned",
+   "where": "research/codesign-aero/README.md:25",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "reference() docstring promises a random start phase that is never applied; results files written via unclosed open()",
+   "where": "research/codesign-aero/src/codesign_aero/aero.py:49",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16198"
+ ],
+ "verdict": "A tidy, reproducible stylised co-design study whose headline optimum is not a vehicle. The numbers in the README match results.txt, the closure, hover power, OU gust and closed-loop simulator check out against independent recomputation where the sizing converges, and the page carries the right disclaimers. But size() never checks that the 15-minute mass closure converged: the reported grid optimum (L 0.146, D 0.097) and 9 of 10 joint CMA-ES winners have no fixed point at all. The joint pipeline wins mostly by finding where the sizing model silently breaks, and the one converged joint run is the worst. Add a bilevel baseline that reuses 16 fixed gain vectors, a cost cap described as 'never binding' that screens 18 cells, an arm inertia 2.8x too large and tests where 4 of 5 seeded plant mutants survive, and a UAV flight-control engineer would reject the headline at the first feasibility check."
+}

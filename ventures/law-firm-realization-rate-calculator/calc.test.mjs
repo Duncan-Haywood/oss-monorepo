@@ -66,13 +66,13 @@ test('annualisation scales a partial period', () => {
   assert.equal(r.annual.collected, 60000);
   assert.equal(r.annual.leakage, 20000);
   assert.equal(r.annual.hours, 200);
-  assert.equal(r.pointValue, round(40000 * 0.01 * 0.8333 * 2));
+  assert.equal(r.pointValue, round(40000 * 0.01 * (30000 / 36000) * 2));
 });
 const round = (n) => Math.round(n * 100) / 100;
 
 test('a point of realization is worth standard value times collection rate', () => {
   const r = realization(one());
-  assert.equal(r.pointValue, round(40000 * 0.01 * 0.8333));
+  assert.equal(r.pointValue, round(40000 * 0.01 * (30000 / 36000)));
   assert.deepEqual(r.sensitivity.map((s) => s.points), [1, 3, 5]);
   assert.equal(r.sensitivity[2].annualValue, round(r.pointValue * 5));
 });
@@ -109,6 +109,12 @@ test('sample data computes and summary and CSV render', () => {
   assert.equal(r.ok, true);
   assert.equal(r.timekeepers.length, 5);
   assert.match(summaryText(r), /Yield 76\.0%/);
+  // Pinned by hand from the sample (quality audit 2026-11-13): Partner B loses
+  // 172,000 of 577,000 total leakage; pre-bill write-downs outweigh post-bill loss.
+  assert.equal(r.topLeakShare, 0.2981);
+  assert.match(r.findings[0], /before the invoice/);
+  // One point of realization: 1% of 2,401,000 at the unrounded 1,824,000/2,042,000.
+  assert.equal(r.pointValue, 21446.74);
   const csv = resultCsv(r).trim().split('\n');
   assert.equal(csv.length, 7);
   assert.match(csv[0], /^timekeeper,/);

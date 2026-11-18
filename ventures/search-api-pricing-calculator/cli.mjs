@@ -22,6 +22,9 @@ function loadProviders(file) {
   if (!file) return merged;
   let over;
   try { over = JSON.parse(readFileSync(file, "utf8")); } catch (e) { fail(`could not read --prices ${file}: ${e.message}`); }
+  const isObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
+  if (!isObj(over)) fail(`--prices ${file} must be a JSON object of provider overrides, e.g. {"algolia":{"perKSearches":0.4}}`);
+  for (const [k, v] of Object.entries(over)) if (!isObj(v)) fail(`--prices ${file}: "${k}" must be an object of rate fields`);
   for (const [k, v] of Object.entries(over)) merged[k] = { ...(merged[k] || { label: k, url: "", baseUsd: 0, includedRecordsK: 0, includedSearchesK: 0, freeSearchesPerKRecords: 0, perKRecords: 0, perKSearches: 0 }), ...v };
   return merged;
 }
@@ -52,15 +55,17 @@ if (cmd === "providers") {
   if (opt["records-k"] === undefined || opt["searches-k"] === undefined) fail(`--records-k and --searches-k are required\n${USAGE}`);
   const providers = loadProviders(opt.prices);
   const records = num("records-k"), searches = num("searches-k");
+  const months = num("months", 12);
+  if (!Number.isInteger(months) || months < 1) fail(`--months needs a whole number of months, 1 or more, got "${opt.months}"`);
   const rows = compare(records, searches, providers);
-  const proj = project(records, searches, num("growth", 0), num("months", 12), providers);
+  const proj = project(records, searches, num("growth", 0), months, providers);
   const s = summarize(rows, { budget: opt.budget === undefined ? null : num("budget"), provider: opt.provider || null });
   if (s.status === "error" && s.errors === 1 && !s.overBudget) fail(s.text);
   if (opt.json) console.log(JSON.stringify({ recordsK: records, searchesK: searches, rows, projection: proj, summary: s }, null, 2));
   else {
     console.log(`${n0(records)}K records, ${n0(searches)}K searches a month\n`);
     for (const r of rows) console.log(`${r.label.padEnd(66)} ${fmt(r.monthly).padStart(12)}/mo  ${fmt(r.annual).padStart(14)}/yr${r.extraVsCheapest ? `  (+${fmt(r.extraVsCheapest)})` : ""}`);
-    console.log(`\n${num("months", 12)}-month spend at ${num("growth", 0)}%/mo growth (${n0(records)}K -> ${n0(proj.endRecords)}K records, ${n0(proj.endSearches)}K searches a month at the end):`);
+    console.log(`\n${months}-month spend at ${num("growth", 0)}%/mo growth (${n0(records)}K -> ${n0(proj.endRecords)}K records, ${n0(proj.endSearches)}K searches a month at the end):`);
     for (const t of proj.totals) console.log(`${t.label.padEnd(66)} ${fmt(t.total).padStart(14)}`);
     console.log(`\n${s.text}\n${PRICES_AS_OF}. Not a quote.`);
   }

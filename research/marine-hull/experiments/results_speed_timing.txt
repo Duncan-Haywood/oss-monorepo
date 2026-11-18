@@ -1,0 +1,77 @@
+Milestone 6zn: foresight's distance edge split into energy and timing, and three sun-aware speed rules
+central boat (4.0, 30.0, 0.2, 0.85), pack 10000 Wh, hotel 30 W; target lead 45 days; 300 point-years; spill-recapture speed cap 1.808 m/s
+
+A  totals over all point-years
+   policy |        km | km / (L) | excess dark h |  harvest MWh | spill MWh | end pack MWh | prop MWh | K(P) km | eta
+        Y |   6009534 |   1.0310 |         31664 |        94.39 |     0.017 |        0.926 |   28.096 | 8112460 | 0.7408
+        L |   5829072 |   1.0000 |          2681 |        94.39 |     0.120 |        1.048 |   27.003 | 7792876 | 0.7480
+        P |   5563366 |   0.9544 |          5680 |        94.39 |     0.038 |        0.982 |   27.240 | 7882330 | 0.7058
+        O |   5617183 |   0.9636 |          4119 |        94.39 |     0.000 |        0.993 |   27.220 | 7871976 | 0.7136
+        S |   5841436 |   1.0021 |          2681 |        94.39 |     0.000 |        1.048 |   27.123 | 7829291 | 0.7461
+       OS |   5617183 |   0.9636 |          4119 |        94.39 |     0.000 |        0.993 |   27.220 | 7871976 | 0.7136
+        F |   6501578 |   1.1154 |             0 |        94.39 |     0.009 |        0.005 |   28.075 | 7934653 | 0.8194
+       Fh |   6402958 |   1.0985 |             0 |        94.39 |     0.010 |        0.955 |   27.125 | 7818176 | 0.8190
+
+B  gap decomposition against (L): energy term K(P_x) - K(P_L), timing term the rest (km)
+     Y: gap    180463, energy    319584, timing   -139121; share of (L)->(Fh) gap closed 0.314
+     P: gap   -265705, energy     89454, timing   -355159; share of (L)->(Fh) gap closed -0.463
+     O: gap   -211889, energy     79100, timing   -290989; share of (L)->(Fh) gap closed -0.369
+     S: gap     12365, energy     36415, timing    -24051; share of (L)->(Fh) gap closed 0.022
+    OS: gap   -211889, energy     79100, timing   -290989; share of (L)->(Fh) gap closed -0.369
+     F: gap    672506, energy    141777, timing    530729; share of (L)->(Fh) gap closed 1.172
+    Fh: gap    573886, energy     25300, timing    548586; share of (L)->(Fh) gap closed 1.000
+
+C  by |lat| band
+   |lat|  0-20 (110 point-years)
+      km / (L): (Y) 1.0000, (L) 1.0000, (P) 0.9658, (O) 0.9728, (S) 1.0001, (OS) 0.9728, (F) 1.0568, (Fh) 1.0445
+      spill / harvest: (Y) 0.0002, (L) 0.0002, (P) 0.0002, (O) 0.0000, (S) 0.0000, (OS) 0.0000, (F) 0.0000, (Fh) 0.0000
+      eta: (Y) 0.9480, (L) 0.9480, (P) 0.9151, (O) 0.9216, (S) 0.9480, (OS) 0.9216, (F) 0.9909, (Fh) 0.9900
+      mean excess dark h/yr: (Y) 0.0, (L) 0.0, (P) 0.0, (O) 0.0, (S) 0.0, (OS) 0.0, (F) 0.0, (Fh) 0.0
+      share of (L)->(Fh) gap closed: (P) -0.770, (O) -0.611, (S) 0.003, (OS) -0.611
+   |lat| 25-35 (50 point-years)
+      km / (L): (Y) 1.0183, (L) 1.0000, (P) 0.9608, (O) 0.9697, (S) 1.0008, (OS) 0.9697, (F) 1.1783, (Fh) 1.1539
+      spill / harvest: (Y) 0.0002, (L) 0.0005, (P) 0.0002, (O) 0.0000, (S) 0.0000, (OS) 0.0000, (F) 0.0001, (Fh) 0.0002
+      eta: (Y) 0.7298, (L) 0.7260, (P) 0.6962, (O) 0.7030, (S) 0.7261, (OS) 0.7030, (F) 0.8465, (Fh) 0.8377
+      mean excess dark h/yr: (Y) 109.3, (L) 8.3, (P) 14.4, (O) 10.4, (S) 8.3, (OS) 10.4, (F) 0.0, (Fh) 0.0
+      share of (L)->(Fh) gap closed: (P) -0.254, (O) -0.197, (S) 0.005, (OS) -0.197
+   |lat| 40-45 (50 point-years)
+      km / (L): (Y) 1.0487, (L) 1.0000, (P) 0.9112, (O) 0.9257, (S) 1.0032, (OS) 0.9257, (F) 1.1464, (Fh) 1.1360
+      spill / harvest: (Y) 0.0002, (L) 0.0017, (P) 0.0002, (O) 0.0000, (S) 0.0000, (OS) 0.0000, (F) 0.0002, (Fh) 0.0002
+      eta: (Y) 0.5579, (L) 0.5507, (P) 0.4989, (O) 0.5075, (S) 0.5508, (OS) 0.5075, (F) 0.6242, (Fh) 0.6257
+      mean excess dark h/yr: (Y) 189.1, (L) 15.5, (P) 28.2, (O) 18.9, (S) 15.5, (OS) 18.9, (F) 0.0, (Fh) 0.0
+      share of (L)->(Fh) gap closed: (P) -0.653, (O) -0.546, (S) 0.023, (OS) -0.546
+   |lat| 50-55 (50 point-years)
+      km / (L): (Y) 1.2430, (L) 1.0000, (P) 0.8946, (O) 0.9155, (S) 1.0175, (OS) 0.9155, (F) 1.3589, (Fh) 1.3241
+      spill / harvest: (Y) 0.0001, (L) 0.0050, (P) 0.0014, (O) 0.0000, (S) 0.0000, (OS) 0.0000, (F) 0.0003, (Fh) 0.0003
+      eta: (Y) 0.4007, (L) 0.3774, (P) 0.3193, (O) 0.3284, (S) 0.3760, (OS) 0.3284, (F) 0.4880, (Fh) 0.4902
+      mean excess dark h/yr: (Y) 186.4, (L) 15.8, (P) 43.8, (O) 33.5, (S) 15.8, (OS) 33.5, (F) 0.0, (Fh) 0.0
+      share of (L)->(Fh) gap closed: (P) -0.325, (O) -0.261, (S) 0.054, (OS) -0.261
+   |lat| 60-60 (40 point-years)
+      km / (L): (Y) 1.4000, (L) 1.0000, (P) 0.9378, (O) 0.9564, (S) 1.0260, (OS) 0.9564, (F) 1.4835, (Fh) 1.4147
+      spill / harvest: (Y) 0.0000, (L) 0.0042, (P) 0.0011, (O) 0.0000, (S) 0.0000, (OS) 0.0000, (F) 0.0003, (Fh) 0.0003
+      eta: (Y) 0.3353, (L) 0.3031, (P) 0.2656, (O) 0.2733, (S) 0.3016, (OS) 0.2733, (F) 0.4224, (Fh) 0.4200
+      mean excess dark h/yr: (Y) 185.6, (L) 17.6, (P) 34.0, (O) 24.6, (S) 17.6, (OS) 24.6, (F) 0.0, (Fh) 0.0
+      share of (L)->(Fh) gap closed: (P) -0.150, (O) -0.105, (S) 0.063, (OS) -0.105
+
+Predictions
+P1 energy term >= 70% of the (L)->(F) km gap: refuted (141777 of 672506, 0.211)
+P2 spill saving >= end-pack saving, both > 0: refuted (spill 110262 Wh, end pack 1042440 Wh)
+P3 (S) closes >= 1/3 of (L)->(Fh), excess dark h <= 1.1 x (L): refuted (share 0.022; excess 2681 against 2681)
+P4 (O) closes less than (S): held ((O) -0.369, (S) 0.022)
+P5 (P) within 1% of (L) km: refuted (0.9544)
+P6 |eta(L) - eta(F)| < 0.02: refuted (eta (L) 0.7480, (F) 0.8194)
+P7 within 20 deg, (S) closes >= half of (L)->(Fh): refuted (0.003)
+
+Post hoc (written after reading P1 to P7): smoother power estimates; in sample, 4 variants
+   policy |        km | km / (L) | km / (Fh) | excess dark h | spill MWh | end pack MWh | eta | share of (L)->(Fh) closed
+        L |   5829072 |   1.0000 |    0.9104 |          2681 |     0.120 |        1.048 | 0.7480 | 0.000
+      L30 |   5953200 |   1.0213 |    0.9298 |          4827 |     0.114 |        1.050 | 0.7645 | 0.216
+        K |   5955610 |   1.0217 |    0.9301 |           737 |     0.393 |        1.072 | 0.7767 | 0.220
+      K30 |   6119845 |   1.0499 |    0.9558 |          2923 |     0.279 |        1.020 | 0.7874 | 0.507
+      K60 |   6215897 |   1.0664 |    0.9708 |          8042 |     0.333 |        0.955 | 0.7901 | 0.674
+       Fh |   6402958 |   1.0985 |    1.0000 |             0 |     0.010 |        0.955 | 0.8190 | 1.000
+   |lat|  0-20: km / (L) (L30) 1.0121, (K) 1.0234, (K30) 1.0294, (K60) 1.0295, (Fh) 1.0445; mean excess dark h/yr (L) 0.0, (L30) 0.0, (K) 0.1, (K30) 1.2, (K60) 4.2
+   |lat| 25-35: km / (L) (L30) 1.0147, (K) 1.0221, (K30) 1.0423, (K60) 1.0515, (Fh) 1.1539; mean excess dark h/yr (L) 8.3, (L30) 18.0, (K) 2.9, (K30) 11.0, (K60) 28.9
+   |lat| 40-45: km / (L) (L30) 1.0393, (K) 1.0190, (K30) 1.0729, (K60) 1.1051, (Fh) 1.1360; mean excess dark h/yr (L) 15.5, (L30) 35.1, (K) 4.0, (K30) 18.3, (K60) 49.1
+   |lat| 50-55: km / (L) (L30) 1.0915, (K) 1.0400, (K30) 1.2144, (K60) 1.3231, (Fh) 1.3241; mean excess dark h/yr (L) 15.8, (L30) 25.4, (K) 4.0, (K30) 14.8, (K60) 40.9
+   |lat| 60-60: km / (L) (L30) 1.0801, (K) 0.9530, (K30) 1.1896, (K60) 1.4160, (Fh) 1.4147; mean excess dark h/yr (L) 17.6, (L30) 22.5, (K) 4.4, (K30) 14.6, (K60) 41.0

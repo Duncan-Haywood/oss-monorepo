@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKkj4jHWKCAKbFRwABx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T23:18:14Z",
+  "ended": "2026-11-17T23:35:19Z",
+  "wall_minutes": 17.25,
+  "tokens_in": 4579617,
+  "tokens_out": 44301,
+  "cost_usd": 2.7652,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17102",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First solver (scipy least_squares, trf, sparse finite-difference Jacobian) hit its 200-evaluation cap unconverged at ~11 s per solve; rewrote as a Schur-complement LM like nfba.bundle (14 iterations, ~2 s).",
+    "run.py for m3l shadowed milestone 3k's run.py on sys.path; loaded 3k's by file path instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/sensing-selfcal/LOG.md",
+      "issue": "Milestone 3k's result entry had a garbled sentence ('9 of 30 ... (and 8 of 30 ...)minus;80%'); checked against results.json (9 of 30) and fixed."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Run-the-numbers asks for datasheet parameters, but the gyro datasheet hosts (Bosch, TDK) and api.crossref.org were refused by the proxy here; the gyro bias was swept and the three new citations are marked unchecked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 5 asks for every citation to be checked; crossref and doi.org were unreachable, so the three new references carry no DOI and are marked unchecked in references.bib and the README.",
+      "did": "cited by author, title, venue and year",
+      "result": "cite_check has nothing new to look up; a later run with access should verify them"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-gyro-in-the-window-solve-undoes-most-of-the-rolling-shutter.md",
+    "research/sensing-selfcal/LOG.md (milestone 3l plan and result)"
+  ],
+  "goal": null,
+  "notes": "Programme sensing-selfcal, milestone 3l: pre-registered H172-H177; H172 refuted narrowly (0.27x vs bar 0.25x), H173-H177 held. Local checks: tests/test_m3l.py and test_m3k.py 8 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok; paper/check_numbers.py 290/290; programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "555c7898-87b8-5fb5-85f1-3b64418e1ce2",
+    "transcripts": 1,
+    "first": "2026-11-17T23:18:14Z",
+    "last": "2026-11-17T23:35:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 84,
+        "output": 44301,
+        "thinking": 11178,
+        "cache_read": 4456079,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123454,
+        "api_equivalent_usd": 2.7652,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 84,
+      "output": 44301,
+      "thinking": 11178,
+      "cache_read": 4456079,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123454,
+      "api_equivalent_usd": 2.7652,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.25,
+      "active_minutes": 17.25,
+      "model_minutes": 8.19,
+      "tool_minutes": 9.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a PhD student implementing a gyro-aided rolling-shutter BA, pre-registering and running the sweep, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 578.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

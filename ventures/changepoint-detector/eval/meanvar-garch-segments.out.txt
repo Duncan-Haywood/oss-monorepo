@@ -1,20 +1,64 @@
-reps 100 per cell, seeded, per-cut penalty 12 ln n
+# Corrected 2026-11-13: cuts passed as indexes (the 2026-11-02 output passed changepoint objects, so every likelihood was NaN).
+# Penalty sweep on the original seeds (in-sample):
+reps 100 per cell, seeded, per-cut penalty 1 ln n
 n | noise | plain: null any change, sd1->2 exactly one, mean+1.5 exactly one | pruned: same three
-100 | gauss | 4% / 94% / 95% | 1% / 95% / 100%
-100 | t3    | 37% / 58% / 48% | 12% / 88% / 90%
-100 | garch | 41% / 63% / 63% | 21% / 86% / 82%
-100 | ar1   | 49% / 44% / 54% | 16% / 95% / 82%
-200 | gauss | 0% / 97% / 96% | 0% / 100% / 100%
-200 | t3    | 63% / 55% / 34% | 56% / 99% / 100%
-200 | garch | 50% / 58% / 52% | 48% / 97% / 100%
-200 | ar1   | 46% / 38% / 49% | 46% / 100% / 100%
-reps 100 per cell, seeded, per-cut penalty 16 ln n
+100 | gauss | 4% / 94% / 95% | 4% / 92% / 95%
+100 | t3    | 37% / 58% / 48% | 36% / 57% / 48%
+100 | garch | 41% / 63% / 63% | 28% / 61% / 65%
+100 | ar1   | 49% / 44% / 54% | 49% / 44% / 54%
+200 | gauss | 0% / 97% / 96% | 0% / 97% / 96%
+200 | t3    | 63% / 55% / 34% | 63% / 57% / 34%
+200 | garch | 50% / 58% / 52% | 29% / 63% / 68%
+200 | ar1   | 46% / 38% / 49% | 46% / 38% / 49%
+reps 100 per cell, seeded, per-cut penalty 1.5 ln n
 n | noise | plain: null any change, sd1->2 exactly one, mean+1.5 exactly one | pruned: same three
-100 | gauss | 4% / 94% / 95% | 0% / 92% / 35%
-100 | t3    | 37% / 58% / 48% | 4% / 62% / 31%
-100 | garch | 41% / 63% / 63% | 5% / 58% / 36%
-100 | ar1   | 49% / 44% / 54% | 0% / 90% / 23%
-200 | gauss | 0% / 97% / 96% | 0% / 100% / 100%
-200 | t3    | 63% / 55% / 34% | 40% / 99% / 100%
-200 | garch | 50% / 58% / 52% | 28% / 97% / 100%
-200 | ar1   | 46% / 38% / 49% | 41% / 100% / 100%
+100 | gauss | 4% / 94% / 95% | 3% / 61% / 95%
+100 | t3    | 37% / 58% / 48% | 33% / 57% / 48%
+100 | garch | 41% / 63% / 63% | 10% / 45% / 77%
+100 | ar1   | 49% / 44% / 54% | 46% / 42% / 57%
+200 | gauss | 0% / 97% / 96% | 0% / 94% / 96%
+200 | t3    | 63% / 55% / 34% | 61% / 56% / 35%
+200 | garch | 50% / 58% / 52% | 9% / 61% / 89%
+200 | ar1   | 46% / 38% / 49% | 43% / 39% / 54%
+reps 100 per cell, seeded, per-cut penalty 2 ln n
+n | noise | plain: null any change, sd1->2 exactly one, mean+1.5 exactly one | pruned: same three
+100 | gauss | 4% / 94% / 95% | 0% / 26% / 100%
+100 | t3    | 37% / 58% / 48% | 20% / 56% / 65%
+100 | garch | 41% / 63% / 63% | 3% / 26% / 94%
+100 | ar1   | 49% / 44% / 54% | 29% / 44% / 77%
+200 | gauss | 0% / 97% / 96% | 0% / 76% / 99%
+200 | t3    | 63% / 55% / 34% | 51% / 66% / 55%
+200 | garch | 50% / 58% / 52% | 1% / 45% / 97%
+200 | ar1   | 46% / 38% / 49% | 22% / 53% / 73%
+reps 100 per cell, seeded, per-cut penalty 3 ln n (log-likelihood units), grid a+b <= 0.98, seed shift 0
+n | noise | plain: null any change, sd1->2 exactly one, mean+1.5 exactly one | pruned: same three
+100 | gauss | 4% / 94% / 95% | 0% / 4% / 99%
+100 | t3    | 37% / 58% / 48% | 9% / 41% / 88%
+100 | garch | 41% / 63% / 63% | 1% / 11% / 97%
+100 | ar1   | 49% / 44% / 54% | 1% / 16% / 85%
+200 | gauss | 0% / 97% / 96% | 0% / 9% / 100%
+200 | t3    | 63% / 55% / 34% | 20% / 66% / 79%
+200 | garch | 50% / 58% / 52% | 0% / 10% / 100%
+200 | ar1   | 46% / 38% / 49% | 2% / 16% / 94%
+# Pre-registered run (eval/meanvar-garch-segments-prereg-2026-11-13.md), fresh seeds:
+reps 200 per cell, seeded, per-cut penalty 1.5 ln n (log-likelihood units), grid a+b <= 0.9, seed shift 1000003
+n | noise | plain: null any change, sd1->2 exactly one, mean+1.5 exactly one | pruned: same three
+100 | gauss | 1% / 92% / 95% | 1% / 74% / 96%
+100 | t3    | 45% / 63% / 61% | 42% / 60% / 64%
+100 | garch | 36% / 67% / 71% | 14% / 39% / 85%
+100 | ar1   | 49% / 51% / 48% | 45% / 46% / 56%
+200 | gauss | 3% / 98% / 98% | 2% / 96% / 99%
+200 | t3    | 55% / 45% / 46% | 54% / 46% / 47%
+200 | garch | 49% / 51% / 49% | 10% / 55% / 82%
+200 | ar1   | 57% / 35% / 46% | 51% / 43% / 52%
+# Diagnostic after the pre-registered run, same fresh seeds, no cap:
+reps 200 per cell, seeded, per-cut penalty 1.5 ln n (log-likelihood units), grid a+b <= 0.98, seed shift 1000003
+n | noise | plain: null any change, sd1->2 exactly one, mean+1.5 exactly one | pruned: same three
+100 | gauss | 1% / 92% / 95% | 1% / 68% / 96%
+100 | t3    | 45% / 63% / 61% | 42% / 60% / 64%
+100 | garch | 36% / 67% / 71% | 14% / 39% / 85%
+100 | ar1   | 49% / 51% / 48% | 45% / 46% / 56%
+200 | gauss | 3% / 98% / 98% | 2% / 93% / 99%
+200 | t3    | 55% / 45% / 46% | 54% / 46% / 47%
+200 | garch | 49% / 51% / 49% | 9% / 54% / 83%
+200 | ar1   | 57% / 35% / 46% | 51% / 43% / 53%

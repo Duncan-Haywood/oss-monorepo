@@ -26,7 +26,7 @@ test("the 60% of AGI ceiling caps the deduction", () => {
 test("baseline schedule is the same direct gift every year", () => {
   const o = { ...DEFAULTS, years: 4, inflationPct: 0 };
   const e = evaluate(o, baselineMask(4));
-  near(e.total, 4 * 0.37 * 2000);
+  near(e.total, 4 * ((DEFAULTS.ratePct + DEFAULTS.stateRatePct) / 100) * 2000);
   assert.equal(e.deposited, 0);
 });
 
@@ -117,4 +117,12 @@ test("formatting and csv", () => {
   assert.equal(num("$1,200"), 1200);
   const csv = toCsv(analyze(DEFAULTS));
   assert.equal(csv.trim().split("\n").length, 1 + DEFAULTS.years);
+});
+
+test("the shipped example is a consistent 2026 joint return: 32,200 standard, and the 22% rate its taxable income falls in", () => {
+  // Rev. Proc. 2025-32: MFJ standard deduction 32,200; the 22% band runs 100,800 to 211,400.
+  assert.equal(DEFAULTS.standardDeduction, 32200);
+  const taxable = DEFAULTS.agi - DEFAULTS.standardDeduction;
+  assert.ok(taxable > 100800 && taxable <= 211400, `taxable ${taxable}`);
+  assert.equal(DEFAULTS.ratePct, 22);
 });

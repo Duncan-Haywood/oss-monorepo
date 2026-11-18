@@ -21,7 +21,7 @@ const ALIASES = {
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -45,24 +45,26 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -70,10 +72,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -95,14 +97,18 @@ export function parseWhen(v, dmy = false) {
 }
 
 export function detectDmy(values) {
-  let first = false, second = false;
+  // Dots ("03.06.2026") are the European day.month.year form; no locale
+  // writes month.day.year, so a dotted file is day-first unless a second part
+  // is above 12 (red team 2026-11-15).
+  let first = false, second = false, dotted = false;
   for (const v of values) {
-    const m = String(v ?? "").trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}/);
+    const m = String(v ?? "").trim().match(/^(\d{1,2})([/.-])(\d{1,2})\2\d{2,4}/);
     if (!m) continue;
     if (+m[1] > 12) first = true;
-    if (+m[2] > 12) second = true;
+    if (+m[3] > 12) second = true;
+    if (m[2] === ".") dotted = true;
   }
-  return first && !second;
+  return (first || dotted) && !second;
 }
 
 function findColumns(header) {
@@ -121,22 +127,25 @@ const MONTH = 30.4375 * 86400000;
 const r2 = (n) => Math.round(n * 100) / 100;
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 const norm = (s) => String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
-const usd = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
 export const money = (n) => Math.round(n).toLocaleString("en-US");
 export const pct = (x) => Math.round(x * 100) + "%";
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 const sum = (xs) => xs.reduce((s, x) => s + x, 0);
 
-// "1:30:00", "01:30", "1h 30m", "90m", "1.5", "1,5" -> hours, or NaN. A bare
+// "1:30:00", "01:30", "1h 30m", "90m", "1.5", "1,5" -> hours, or NaN ("1:75"
+// too: a clock duration past :59 is a typo, not 2.25 hours). A bare
 // number is hours unless the column is a minutes column.
 export function parseDuration(v, { minutes = false, decimalComma = false } = {}) {
   const s = String(v ?? "").trim().toLowerCase();
   if (!s) return NaN;
   let m = s.match(/^(\d+):(\d{1,2})(?::(\d{1,2}))?$/);
-  if (m) return +m[1] + +m[2] / 60 + (m[3] ? +m[3] / 3600 : 0);
+  if (m) return +m[2] > 59 || (m[3] && +m[3] > 59) ? NaN : +m[1] + +m[2] / 60 + (m[3] ? +m[3] / 3600 : 0);
   m = s.match(/^(?:(\d+(?:[.,]\d+)?)\s*h(?:ours?|rs?)?)?\s*(?:(\d+(?:[.,]\d+)?)\s*m(?:in(?:ute)?s?)?)?$/);
   if (m && (m[1] || m[2])) return (m[1] ? Number(m[1].replace(",", ".")) : 0) + (m[2] ? Number(m[2].replace(",", ".")) / 60 : 0);
-  const n = parseNumber(s, decimalComma);
+  // A comma followed by one or two digits ("1,5", "0,25") is a decimal comma
+  // whatever the delimiter: a thousands group always has three digits.
+  const n = parseNumber(s, decimalComma || /^\d+,\d{1,2}$/.test(s));
   return Number.isFinite(n) ? (minutes ? n / 60 : n) : NaN;
 }
 
@@ -183,7 +192,7 @@ export function normalizeRows(table, { decimalComma = false } = {}) {
   const dmy = detectDmy(table.slice(h + 1).map((l) => get(l, "date")));
   const items = [], skipped = [];
   for (let i = h + 1; i < table.length; i++) {
-    const line = table[i], lineNo = i + 1;
+    const line = table[i], lineNo = table[i].line ?? i + 1;
     if (line.every((x) => !String(x).trim())) continue;
     if (/^(total|totals|subtotal|grand total)\b/.test(String(line[0] ?? "").trim().toLowerCase())) { skipped.push({ line: lineNo, reason: "total row" }); continue; }
     const client = get(line, "client");

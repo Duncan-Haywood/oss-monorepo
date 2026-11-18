@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKnwpz8sVkr3rd4R96W",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T17:10:59Z",
+  "ended": "2026-11-13T17:17:52Z",
+  "wall_minutes": 7.11,
+  "tokens_in": 7574079,
+  "tokens_out": 123756,
+  "cost_usd": 6.9467,
+  "tool_calls": 101,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15556",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Stop hook asks to commit and push while background reviewer agents are still editing files, so the run made an interim 'in progress' commit just to satisfy it."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2865/40 runs toward the next review' and still drew creative; the counter looks wrong or the review gate is stuck (PR #14686 is open about a stale claim)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "A new story was the default deliverable, but the shelf already has 301 science fiction stories and the last report measured 1.7 slips a story in unreviewed ones; another session (PR #15552) was also writing a Hearth & Horizon story.",
+      "did": "A third revision pass on the 15 science fiction stories of 2026-11-11, which the prompt lists as a valid deliverable.",
+      "result": "32 fixes in 14 of 15 stories; text only, since audio is at 423 MB, over the 400 MB cap."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-hearth-and-horizon-third-revision-pass.md",
+    "docs/reports/hearth-and-horizon-revision-2026-11-13b.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, project Hearth & Horizon, revision pass (no new slug). Stories revised: the-bell-tax, the-ground-under-the-drift, the-last-dark-noon, the-last-sun-comes-in-two-pieces, the-rule-for-after-rain, the-sinking-polder, the-slow-dial, the-stones-in-the-nave, the-straw-coat, the-sun-at-three-degrees, the-white-clay, three-for-every-one, two-dates-on-the-ceiling, zero-is-the-sap (the-rising-shore clean). Five reviewer subagents, three stories each; the run re-checked Easter 2237, the 2058 Biike moon age (28.0 d), the dune count, the lava speed and the Zero Is the Sap birth year. BIBLE.md checklist item 8 gains three checks. node generate.mjs; node --test 15/15 pass. Audio 423 MB, so no audio.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "de0c6dd2-d30f-5dff-aa3c-ab81a4bd530f",
+    "transcripts": 6,
+    "first": "2026-11-13T17:10:59Z",
+    "last": "2026-11-13T17:18:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 194,
+        "output": 123756,
+        "thinking": 77263,
+        "cache_read": 7023651,
+        "cache_write_5m": 445254,
+        "cache_write_1h": 104980,
+        "api_equivalent_usd": 6.9467,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 194,
+      "output": 123756,
+      "thinking": 77263,
+      "cache_read": 7023651,
+      "cache_write_5m": 445254,
+      "cache_write_1h": 104980,
+      "api_equivalent_usd": 6.9467,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.927,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 69,
+      "Read": 12,
+      "Agent": 5,
+      "Edit": 5,
+      "SubagentHandback": 5,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.11,
+      "active_minutes": 4.11,
+      "model_minutes": 3.38,
+      "tool_minutes": 0.73,
+      "waiting_on_human_minutes": 3.0,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 16.96
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "an editor re-deriving every number in 15 stories of about 5,600 words, about half an hour a story plus write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 115.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -54,3 +54,16 @@ test("links to a neighbour and the hub and the sitemap entry is its own url bloc
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*nigeria-mbs-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("keeps the facts read from the NRS portal and marks the notice as reproduced (2026-11-14)", () => {
+  const hub = fs.readFileSync(new URL("./e-invoicing-mandates-by-country.html", import.meta.url), "utf8");
+  assert.match(html, /names UBL for invoices/);
+  assert.match(html, /does not name Peppol/);
+  assert.match(html, /invoice_kind field \(B2B, B2G or B2C\)/);
+  assert.match(html, /go live 1 July 2026/);
+  assert.match(html, /go live 1 July 2027/);
+  // The rollout table was not read from NRS itself: the page says whose copy it is.
+  assert.match(html, /as KPMG Nigeria reproduces/);
+  assert.match(html, /answered this build host with a CAPTCHA/);
+  assert.doesNotMatch(hub, /Peppol-aligned; format not confirmed/);
+});

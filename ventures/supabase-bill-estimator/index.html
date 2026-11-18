@@ -9,7 +9,7 @@
   <meta property="og:description" content="Type your usage, get an estimated monthly bill and a ranked list of savings levers with dollar figures. No account, no upload.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Supabase Bill Estimator", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Estimate a monthly Supabase Pro bill from your own usage numbers at editable list prices, and see a ranked list of the changes that cut it most (compute rightsizing, egress trimming, database cleanup, storage cleanup, Edge Function caching, Realtime batching, fake sign-up blocking) with a dollar saving each. Runs in the browser or as a zero-dependency Node CLI with a --budget CI gate."}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this read my Supabase account or invoice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads only the usage numbers you type or paste (copy them from the Usage page of your Supabase dashboard) and multiplies them by list prices you can edit. It cannot see your plan, regions, spend limits, enterprise contract or real invoice. Treat every figure as a way to compare options, never as what you will be charged."}}, {"@type": "Question", "name": "Where do the prices come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are approximate public Pro-plan list prices from Supabase's pricing documentation as best known in 2025 (Pro is $25 per organization per month), shown with an as-of date, and every one is editable, including the included allowances (the bundled $10 compute credit is modeled as the compute line's allowance). Supabase changes prices and packaging, so check supabase.com/pricing before relying on a number."}}, {"@type": "Question", "name": "How is the saving for each lever calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Each lever re-runs the estimate with one change applied under an assumption shown beside it (for example, rightsizing that removes 30% of compute spend) and reports the difference. The assumptions are editable. Levers overlap, so the savings are not additive."}}, {"@type": "Question", "name": "Is my usage data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page calculates in your own browser and never sends anything. The CLI reads a local file or stdin and makes no network call."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does this read my Supabase account or invoice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads only the usage numbers you type or paste (copy them from the Usage page of your Supabase dashboard) and multiplies them by list prices you can edit. It cannot see your plan, regions, spend limits, enterprise contract or real invoice. Treat every figure as a way to compare options, never as what you will be charged."}}, {"@type": "Question", "name": "Where do the prices come from?", "acceptedAnswer": {"@type": "Answer", "text": "They are approximate public Pro-plan list prices from Supabase's pricing documentation, checked on 2026-11-16 (Pro is $25 per organization per month), shown with an as-of date, and every one is editable, including the included allowances (the bundled $10 compute credit is modeled as the compute line's allowance). Supabase changes prices and packaging, so check supabase.com/pricing before relying on a number."}}, {"@type": "Question", "name": "How is the saving for each lever calculated?", "acceptedAnswer": {"@type": "Answer", "text": "Each lever re-runs the estimate with one change applied under an assumption shown beside it (for example, rightsizing that removes 30% of compute spend) and reports the difference. The assumptions are editable. Levers overlap, so the savings are not additive."}}, {"@type": "Question", "name": "Is my usage data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The browser page calculates in your own browser and never sends anything. The CLI reads a local file or stdin and makes no network call."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -56,8 +56,10 @@
     <div class="grid">
       <div><label for="f-pro_orgs">Pro organizations <span class="note">(organizations)</span></label><input type="number" id="f-pro_orgs" min="0" value="0"></div>
       <div><label for="f-compute_usd">Compute instances (list price) <span class="note">(USD per month)</span></label><input type="number" id="f-compute_usd" min="0" value="0"></div>
-      <div><label for="f-db_disk_gb">Database disk <span class="note">(GB)</span></label><input type="number" id="f-db_disk_gb" min="0" value="0"></div>
-      <div><label for="f-egress_gb">Egress <span class="note">(GB)</span></label><input type="number" id="f-egress_gb" min="0" value="0"></div>
+      <div><label for="f-db_disk_gb">Database disk, provisioned, all projects <span class="note">(GB)</span></label><input type="number" id="f-db_disk_gb" min="0" value="0"></div>
+      <div><label for="f-db_projects">Projects <span class="note">(8 GB disk included each; 0 = one per org)</span></label><input type="number" id="f-db_projects" min="0" value="0"></div>
+      <div><label for="f-egress_gb">Uncached egress <span class="note">(GB; Total Egress minus cached)</span></label><input type="number" id="f-egress_gb" min="0" value="0"></div>
+      <div><label for="f-cached_egress_gb">Cached egress <span class="note">(GB, CDN cache hits)</span></label><input type="number" id="f-cached_egress_gb" min="0" value="0"></div>
       <div><label for="f-storage_gb">File storage <span class="note">(GB)</span></label><input type="number" id="f-storage_gb" min="0" value="0"></div>
       <div><label for="f-mau_thousand">Monthly active users <span class="note">(thousand)</span></label><input type="number" id="f-mau_thousand" min="0" value="0"></div>
       <div><label for="f-edge_invocations_million">Edge Function invocations <span class="note">(million)</span></label><input type="number" id="f-edge_invocations_million" min="0" value="0"></div>
@@ -89,7 +91,7 @@
   <section class="card">
     <h2>Prices, allowances and assumptions (editable)</h2>
     <p class="note" id="prices-note"></p>
-    <table><thead><tr><th>Line</th><th>Price per unit (USD)</th><th>Included per month</th></tr></thead><tbody id="prices-rows"></tbody></table>
+    <table><thead><tr><th>Line</th><th>Price per unit (USD)</th><th>Included per month (per org; disk per project)</th></tr></thead><tbody id="prices-rows"></tbody></table>
     <p class="note">Change a price here and press Estimate. Defaults are approximate list prices; check <a href="https://supabase.com/pricing" rel="noopener">supabase.com/pricing</a> and your plan.</p>
     <div class="row" id="assume-row"></div>
   </section>
@@ -109,7 +111,7 @@ node cli.mjs estimate usage.csv --prices prices.json --assume assumptions.json</
     <h3>Does this read my Supabase account or invoice?</h3>
     <p>No. It reads only the usage numbers you type or paste (copy them from the Usage page of your Supabase dashboard) and multiplies them by list prices you can edit. It cannot see your plan, regions, spend limits, enterprise contract or real invoice. Treat every figure as a way to compare options, never as what you will be charged.</p>
     <h3>Where do the prices come from?</h3>
-    <p>They are approximate public Pro-plan list prices from Supabase's pricing documentation as best known in 2025 (Pro is $25 per organization per month), shown with an as-of date, and every one is editable, including the included allowances (the bundled $10 compute credit is modeled as the compute line's allowance). Supabase changes prices and packaging, so check supabase.com/pricing before relying on a number.</p>
+    <p>They are approximate public Pro-plan list prices from Supabase's pricing documentation, checked on 2026-11-16 (Pro is $25 per organization per month), shown with an as-of date, and every one is editable, including the included allowances (the bundled $10 compute credit is modeled as the compute line's allowance). Supabase changes prices and packaging, so check supabase.com/pricing before relying on a number.</p>
     <h3>How is the saving for each lever calculated?</h3>
     <p>Each lever re-runs the estimate with one change applied under an assumption shown beside it (for example, rightsizing that removes 30% of compute spend) and reports the difference. The assumptions are editable. Levers overlap, so the savings are not additive.</p>
     <h3>Is my usage data uploaded anywhere?</h3>
@@ -187,7 +189,7 @@ node cli.mjs estimate usage.csv --prices prices.json --assume assumptions.json</
       render();
     });
 
-    const EXAMPLE = { pro_orgs: 2, compute_usd: 120, db_disk_gb: 60, egress_gb: 900, storage_gb: 400, mau_thousand: 300, edge_invocations_million: 15, realtime_messages_million: 40 };
+    const EXAMPLE = { pro_orgs: 2, compute_usd: 120, db_disk_gb: 60, db_projects: 3, egress_gb: 900, cached_egress_gb: 700, storage_gb: 400, mau_thousand: 300, edge_invocations_million: 15, realtime_messages_million: 40 };
     $("#load-example").addEventListener("click", () => {
       fillForm(EXAMPLE);
       render();

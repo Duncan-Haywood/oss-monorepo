@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGZu8E13Et7Z2QXVhP",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T12:07:29Z",
+  "ended": "2026-11-17T12:24:03Z",
+  "wall_minutes": 16.75,
+  "tokens_in": 7586784,
+  "tokens_out": 42368,
+  "cost_usd": 3.5262,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16931",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First launch of step 26 died before any estimate: multiprocessing could not pickle step 25's _simulate from a module loaded with importlib.spec_from_file_location; fixed by defining a local copy writing the same cache files."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/water-leaks/experiments/step25-heldout/run.py",
+      "issue": "Its _simulate cannot be reused through a Pool from a later step that loads step 25 by file path (pickling fails); later steps have to copy it. A shared helper in src/water_leaks/simulate.py would avoid that."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Step 24 warm-up from a cold cache downloads L-TOWN_Real.inp (177 MB) and builds the step 14 continuous run; the README's '7 seconds' and '4 min cold' figures under-describe a fresh container. Not a blocker."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Added a post-hoc offset sweep (R30 at oracle day +/- delta) to the registered script after reading its output.",
+      "did": "Declared it post hoc in results.txt, LOG.md and README, no verdicts; checked the registered lines are byte-identical before and after.",
+      "result": "It explains the failure (one day off costs 2 to 6 hits) without touching the registered verdicts."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-leak-localiser-oracle-hour.md",
+    "research/water-leaks/LOG.md (step 26 plan and outcome)",
+    "research/water-leaks/README.md (step 26 section)"
+  ],
+  "goal": null,
+  "notes": "water-leaks step 26: D1 detector alarms in place of the oracle half-peak hour. Injected leaks: D1-L detects 30 of 64; R30 at alarm day 8 vs 15 at oracle day (P=0.065), chance 1.0 (P=4e-6); end to end 8/64. Real 2019: 2 vs 6 of 10 detected. Predictions (b),(c) held; (a),(d),(e),(f) failed. Checks: project tests 51 passed; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; post front matter, links and similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "22b2319c-8e5b-581b-9d3d-b7e9819c871d",
+    "transcripts": 1,
+    "first": "2026-11-17T12:07:29Z",
+    "last": "2026-11-17T12:24:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 114,
+        "output": 42368,
+        "thinking": 10121,
+        "cache_read": 7437812,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148858,
+        "api_equivalent_usd": 3.5262,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 114,
+      "output": 42368,
+      "thinking": 10121,
+      "cache_read": 7437812,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148858,
+      "api_equivalent_usd": 3.5262,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 58,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.75,
+      "active_minutes": 16.75,
+      "model_minutes": 7.69,
+      "tool_minutes": 9.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researcher designing, coding and running a pre-registered detect-then-localise check with an offset sweep and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 170.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

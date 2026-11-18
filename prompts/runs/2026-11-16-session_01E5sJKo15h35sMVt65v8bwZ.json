@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKo15h35sMVt65v8bwZ",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T09:20:11Z",
+  "ended": "2026-11-16T09:24:24Z",
+  "wall_minutes": 4.43,
+  "tokens_in": 3134338,
+  "tokens_out": 15056,
+  "cost_usd": 1.4986,
+  "tool_calls": 42,
+  "task": "Polish: tool project pages (writing/topic/tools/<slug>/) lead with the venture's llms.txt summary instead of a generic dek",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16527",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "My first post description was 170 characters. The loader rejects anything over 160, so the site build failed and about 170 build.test / podcast / writing tests failed with it in the full `node --test 'platform/pages/*.test.mjs'` run. I shortened it and reran the affected files."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "It suggests starting the full build in the background and screenshotting the built site. For a writing.mjs change, `node platform/pages/writing.mjs --out=<dir>` takes 4 s and gives a clean before/after diff. The full build was not needed, and running it at the same time as the test suite only muddied the results."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "I didn't screenshot the hub, a flagship, research, Stories and a post before choosing. Three consecutive polish reports carried the same weakness (the generic tool project-page dek), so I picked it directly.",
+      "did": "Took before/after screenshots of the changed page only",
+      "result": "17 of 17 pages fixed. Only the 17 intended files changed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-seventeen-tool-pages-now-say-what-the-tool-does.md",
+    "docs/reports/polish-2026-11-16-tool-dek.md"
+  ],
+  "goal": null,
+  "notes": "The writing-only build before and after: diff -rq shows 17 changed files, all writing/topic/tools/<slug>/index.html. Specific dek on 0 of 17 pages before, 17 of 17 after. After the description fix: heading-order, podcast, writing-backlog and writing tests pass (71/71),. build.test.mjs + custom-domain tests: 320 pass, 1 fail. The failure was 'an identical build produces an identical cache name', and the test's own message says why: I edited docs/reports/polish-2026-11-16-tool-dek.md while the suite ran, so the two builds read different trees. It is not a builder fault.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "91a05d38-75d4-5f4c-a53f-7ab2380b0a49",
+    "transcripts": 1,
+    "first": "2026-11-16T09:20:11Z",
+    "last": "2026-11-16T09:24:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 72,
+        "output": 15056,
+        "thinking": 2247,
+        "cache_read": 3061152,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73114,
+        "api_equivalent_usd": 1.4986,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 72,
+      "output": 15056,
+      "thinking": 2247,
+      "cache_read": 3061152,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73114,
+      "api_equivalent_usd": 1.4986,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.43,
+      "active_minutes": 4.43,
+      "model_minutes": 3.08,
+      "tool_minutes": 1.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "read three reports, write a parser with a test, before/after build diff, screenshots, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 133.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

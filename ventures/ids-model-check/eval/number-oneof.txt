@@ -1,0 +1,13 @@
+| Model | Schema | Number rows | One-of offered (<= 12 values) | As written: pass | To 6 digits: as expected | Without the commonest: fails exactly its objects | Reopened: rows editable |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| MEP.ifc | IFC2X3 | 451 | 376 | 376 of 376 | 234 of 234 | 168 of 168 | 778 of 778, identical |
+| architect.ifc | IFC2X3 | 157 | 122 | 122 of 122 | 30 of 30 | 42 of 42 | 194 of 194, identical |
+| construction.ifc | IFC2X3 | 132 | 126 | 126 of 126 | 42 of 42 | 51 of 51 | 219 of 219, identical |
+| Schultz_Residence.ifc | IFC2X3 | 34 | 33 | 33 of 33 | 18 of 18 | 25 of 25 | 76 of 76, identical |
+| tiny-house.ifc | IFC4 | 6 | 6 | 6 of 6 | 0 of 0 | 0 of 0 | 6 of 6, identical |
+
+5 models: 780 number rows, one-of offered on 663 (109 integer, 554 real); full list known but over 12 values: 81
+asWritten: 663 of 663 as expected
+display: 324 of 324 as expected
+dropOne: 286 of 286 as expected
+reopened: 1273 rows editable, 0 kept as written; 5 of 5 files written back identical

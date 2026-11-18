@@ -28,6 +28,7 @@
     "2026-11-04 perf run: sibling item in the venture test runner, longest suite first; docs/history/ci-perf-2026-11-04-venture-suites-longest-first.md",
     "2026-11-04 perf run: worker cache-name test hashes the shared build read-only via offlineCacheName instead of copying the site, ~33 s; docs/history/pages-test-perf-2026-11-04-worker-cache-name.md",
     "2026-11-05 perf run: build-determinism warm is 85 s (cold 262 s), off the critical path behind build.test.mjs; docs/history/pages-test-perf-2026-11-05-determinism-warm.md",
-    "2026-11-05 process run: closed as done; nothing left that shortens the critical path."
+    "2026-11-05 process run: closed as done; nothing left that shortens the critical path.",
+    "2026-11-11 perf run: the determinism test moved into build.test.mjs and compares one child build with the shared build (three identical full builds to two). Warm, 3 alternating pairs: CPU 587.6 s -> 508.5 s (-13%), wall 289.2 s -> 289.6 s (unchanged; bounded by build.test.mjs). docs/history/pages-test-perf-2026-11-11-determinism-one-child.md"
   ]
 }

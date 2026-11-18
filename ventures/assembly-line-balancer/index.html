@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285e3c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Assembly Line Balancing Tool | Free Exact Line Balancer (SALBP)</title>
+  <meta name="description" content="Free assembly line balancing: type tasks, times and predecessors, set a takt time or a number of stations, and get the fewest stations or the shortest cycle, proved optimal by branch and bound where it can be. Efficiency, idle time and a station chart. Runs in your browser.">
+  <meta property="og:title" content="Assembly Line Balancer">
+  <meta property="og:description" content="How few stations can this line run on at takt? Type the tasks, times and precedences and get an exact balance with efficiency, idle time and a station chart. Free, open source, nothing uploaded.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Assembly Line Balancer","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Simple assembly line balancing type 1 (fewest stations at a cycle time) and type 2 (shortest cycle time on a number of stations); takt time from available time and demand; exact branch, bound and remember search with proved optimality or a proved range; priority-rule heuristics (ranked positional weight, most followers, longest task, longest path) forwards and backwards; line efficiency, balance delay, smoothness index; station load chart; task table, Scholl .IN2 and JSON import; CSV export; CLI"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is assembly line balancing?","acceptedAnswer":{"@type":"Answer","text":"Assigning the tasks of an assembly to workstations in order, so that no station's work exceeds the cycle time (takt) and every task comes after the tasks it depends on. Type 1 asks for the fewest stations at a given cycle time; type 2 asks for the shortest cycle time with a given number of stations."}},{"@type":"Question","name":"How is the cycle time worked out from demand?","acceptedAnswer":{"@type":"Answer","text":"Takt time is the production time available in a period divided by the units needed in that period. 7.5 hours (27,000 seconds) for 450 units is a 60-second takt. The line has to finish a unit every cycle, so no station may hold more than that much work."}},{"@type":"Question","name":"Is the answer optimal?","acceptedAnswer":{"@type":"Answer","text":"When the page says proved, yes: the search has shown no balance with fewer stations (or a shorter cycle) exists for the times and precedences typed. When the time limit runs out first, it shows the best balance found and the proved lower bound. On Scholl's 269 benchmark problems it matched the published optimum on 258 within four seconds each; the how-it-works page lists every result."}},{"@type":"Question","name":"Is my line uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a balance ran and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17211b; background: #eef3ef; --accent: #285e3c; --accent2: #1d4a2e; --ink2: #4d5c52; --line: #cbd8ce; --panel: #fdfefd; --warn: #b45309; --ok: #166534; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 820px; margin-bottom: 22px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.04; margin: 0 0 12px; letter-spacing: -.035em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 18px; align-items: start; }
+    .layout > div { min-width: 0; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    label { display: grid; gap: 4px; font-size: .82rem; font-weight: 650; min-width: 0; }
+    input, textarea, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b9ad; border-radius: 7px; padding: 6px; font: inherit; background: #fff; }
+    input[type=checkbox], input[type=radio] { width: auto; }
+    input[type=file] { max-width: 100%; min-width: 0; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .78rem; min-height: 260px; white-space: pre; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b9ad; background: #e5ede7; padding: 8px 12px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #d6e2d9; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: var(--accent2); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .check { display: flex; gap: 6px; align-items: center; font-weight: 600; }
+    .modes { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 10px; }
+    .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; }
+    .tile .big { font-size: 1.6rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; color: var(--accent2); }
+    .tile .lbl { font-size: .78rem; color: var(--ink2); font-weight: 650; }
+    .error { color: #b91c1c; font-weight: 650; }
+    .status { font-weight: 650; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums; }
+    th, td { border-bottom: 1px solid var(--line); padding: 5px 6px; text-align: right; }
+    th:first-child, td:first-child, td.tasks, th.tasks { text-align: left; }
+    svg { width: 100%; height: auto; display: block; }
+    .faq h3 { font-size: 1rem; margin: 14px 0 4px; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a { color: var(--accent2); }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .tiles { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR MANUFACTURING, INDUSTRIAL AND LEAN ENGINEERS, PLANT MANAGERS AND STUDENTS</p>
+    <h1>How few stations can this line run on at takt?</h1>
+    <p>Type each task, its time and the tasks that must come before it. Give the takt (or the demand and the shift time) and the page finds the fewest workstations, or give the number of stations and it finds the shortest cycle. It proves the answer optimal when it can, and says so when it cannot. Free, and it runs in your browser.</p>
+    <p><a href="./how-it-works.html">How it works, and how it did on Scholl's 269 benchmark lines</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>1. Tasks</h2>
+        <p class="hint">One task per line: <code>id, time, predecessors, description</code>. Separate several predecessors with spaces. Only direct predecessors are needed. Any time unit works if you use the same one for the cycle time.</p>
+        <label>Task table <textarea id="tasks" spellcheck="false" aria-describedby="taskHelp"></textarea></label>
+        <p class="hint" id="taskHelp">Also opens a CSV, a JSON task list or a Scholl <code>.IN2</code> file.</p>
+        <div class="actions">
+          <button type="button" id="loadExample">Load the example</button>
+          <label class="check">Open a file <input id="file" type="file" accept=".csv,.txt,.json,.in2,.IN2"></label>
+        </div>
+      </section>
+      <section>
+        <h2>2. What to find</h2>
+        <div class="modes" role="radiogroup" aria-label="Problem type">
+          <label class="check"><input type="radio" name="mode" id="modeCycle" value="cycle" checked> Fewest stations for a cycle time</label>
+          <label class="check"><input type="radio" name="mode" id="modeStations" value="stations"> Shortest cycle for a number of stations</label>
+        </div>
+        <div class="fields">
+          <label>Cycle time (takt) <input id="cycle" type="number" step="any" min="0"></label>
+          <label>Available time per period <input id="available" type="number" step="any" min="0"></label>
+          <label>Units needed per period <input id="demand" type="number" step="any" min="0"></label>
+          <label>Number of stations <input id="stations" type="number" step="1" min="1"></label>
+          <label>Search time limit
+            <select id="limit"><option value="1000">1 second</option><option value="4000" selected>4 seconds</option><option value="15000">15 seconds</option><option value="60000">60 seconds</option></select>
+          </label>
+        </div>
+        <p class="hint">Typing available time and demand fills the cycle time: available &divide; demand.</p>
+        <div class="actions">
+          <button type="button" class="primary" id="run">Balance the line</button>
+          <span id="err" class="error" role="alert"></span>
+        </div>
+      </section>
+    </div>
+    <div>
+      <section aria-live="polite">
+        <h2>3. Balance</h2>
+        <p id="status" class="status">Load the example or type your tasks, then balance the line.</p>
+        <div class="tiles">
+          <div class="tile"><div class="lbl">Stations</div><div class="big" id="outStations">&ndash;</div></div>
+          <div class="tile"><div class="lbl">Cycle time</div><div class="big" id="outCycle">&ndash;</div></div>
+          <div class="tile"><div class="lbl">Line efficiency</div><div class="big" id="outEff">&ndash;</div></div>
+          <div class="tile"><div class="lbl">Idle time per cycle</div><div class="big" id="outIdle">&ndash;</div></div>
+        </div>
+        <p class="hint" id="detail"></p>
+        <svg id="chart" viewBox="0 0 640 260" role="img" aria-label="Station loads against the cycle time"></svg>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Station</th><th>Load</th><th>Idle</th><th class="tasks">Tasks</th></tr></thead>
+            <tbody id="table"></tbody>
+          </table>
+        </div>
+        <div class="actions"><button type="button" id="export" disabled>Download the balance (CSV)</button></div>
+      </section>
+    </div>
+  </main>
+
+  <section class="faq" aria-labelledby="faqTitle">
+    <h2 id="faqTitle">Questions</h2>
+    <h3>What is assembly line balancing?</h3>
+    <p>Assigning the tasks of an assembly to workstations in order, so that no station's work exceeds the cycle time (takt) and every task comes after the tasks it depends on. Type 1 asks for the fewest stations at a given cycle time; type 2 asks for the shortest cycle time with a given number of stations.</p>
+    <h3>How is the cycle time worked out from demand?</h3>
+    <p>Takt time is the production time available in a period divided by the units needed in that period. 7.5 hours (27,000 seconds) for 450 units is a 60-second takt. The line has to finish a unit every cycle, so no station may hold more than that much work.</p>
+    <h3>Is the answer optimal?</h3>
+    <p>When the page says proved, yes: the search has shown no balance with fewer stations (or a shorter cycle) exists for the times and precedences typed. When the time limit runs out first, it shows the best balance found and the proved lower bound. On Scholl's 269 benchmark problems it matched the published optimum on 258 within four seconds each; the how-it-works page lists every result.</p>
+    <h3>Is my line uploaded?</h3>
+    <p>No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a balance ran and the day.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty. This is a planning estimate, not engineering advice.</strong> It balances the times and precedences you type, as described on <a href="./how-it-works.html">how it works</a>. Task time variation, operator skill and learning, ergonomics, zoning (tasks that must or must not share a station), tooling, parallel stations, mixed models and safety are for you to check on the real line. Provided free and as-is; you are responsible for verifying the output before relying on it.</p>
+    <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
+    <p>Routing jobs through shared machines instead of down a line? The <a href="../job-shop-scheduler/">job shop scheduler</a> finds a short schedule with a Gantt chart and a proved bound &mdash; also free, nothing uploaded.</p>
+    <p>Once the line runs, the <a href="../spc-control-charts/">SPC control chart tool</a> tells you whether a station's times or a measured dimension have shifted &mdash; nothing uploaded.</p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/assembly-line-balancer">Source, CLI and README</a>. If it saved you an afternoon with sticky notes, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
+  </footer>
+  <script type="module">
+    import { parseIn2, parseTaskTable, formatTaskTable, minimizeStations, minimizeCycleTime, taktTime, EXAMPLE } from './engine.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
+    const el = id => document.getElementById(id);
+    const SVG = 'http://www.w3.org/2000/svg';
+    const svg = (tag, attrs = {}, text) => { const n = document.createElementNS(SVG, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (text !== undefined) n.textContent = text; return n; };
+    const num = x => String(Math.round(x * 1000) / 1000);
+    let last = null;
+
+    function loadExample() {
+      el('tasks').value = formatTaskTable(EXAMPLE);
+      el('cycle').value = EXAMPLE.cycleTime;
+      el('available').value = ''; el('demand').value = '';
+      el('stations').value = 4;
+    }
+    function problemFromText(text, name = '') {
+      if (/\.in2$/i.test(name)) return parseIn2(text);
+      const trimmed = text.trim();
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) { const p = JSON.parse(trimmed); return Array.isArray(p) ? { tasks: p } : p; }
+      return parseTaskTable(text);
+    }
+    function syncTakt() {
+      const a = Number(el('available').value), d = Number(el('demand').value);
+      if (a > 0 && d > 0) el('cycle').value = num(taktTime(a, d));
+    }
+    function draw(r) {
+      const c = el('chart');
+      while (c.firstChild) c.removeChild(c.firstChild);
+      const W = 640, H = 260, L = 44, B = 28, T = 14;
+      const n = r.stations.length;
+      const top = Math.max(r.cycleTime, r.bottleneck) * 1.08;
+      const y = v => H - B - (H - B - T) * v / top;
+      const bw = (W - L - 10) / n;
+      c.appendChild(svg('line', { x1: L, x2: W - 6, y1: H - B, y2: H - B, stroke: '#94a59a' }));
+      for (const s of r.stations) {
+        const x = L + (s.station - 1) * bw + bw * 0.12;
+        c.appendChild(svg('rect', { x, y: y(s.load), width: bw * 0.76, height: y(0) - y(s.load), fill: '#4f8a63', rx: 2 }, undefined));
+        c.lastChild.appendChild(svg('title', {}, `Station ${s.station}: load ${num(s.load)}, idle ${num(s.idle)}; tasks ${s.tasks.join(' ')}`));
+        if (n <= 40) c.appendChild(svg('text', { x: x + bw * 0.38, y: H - B + 16, 'font-size': 11, 'text-anchor': 'middle', fill: '#4d5c52' }, String(s.station)));
+      }
+      c.appendChild(svg('line', { x1: L, x2: W - 6, y1: y(r.cycleTime), y2: y(r.cycleTime), stroke: '#b45309', 'stroke-dasharray': '6 4', 'stroke-width': 2 }));
+      c.appendChild(svg('text', { x: W - 8, y: y(r.cycleTime) - 5, 'font-size': 12, 'text-anchor': 'end', fill: '#b45309' }, `cycle time ${num(r.cycleTime)}`));
+      c.appendChild(svg('text', { x: L - 6, y: y(0) + 4, 'font-size': 11, 'text-anchor': 'end', fill: '#4d5c52' }, '0'));
+      c.appendChild(svg('text', { x: L - 6, y: y(r.cycleTime) + 4, 'font-size': 11, 'text-anchor': 'end', fill: '#4d5c52' }, num(r.cycleTime)));
+    }
+    function show(r) {
+      last = r;
+      const one = r.type === 'SALBP-1';
+      el('outStations').textContent = String(one ? r.stationCount : r.stationsGiven);
+      el('outCycle').textContent = num(r.cycleTime);
+      el('outEff').textContent = `${(100 * r.efficiency).toFixed(1)}%`;
+      el('outIdle').textContent = num(r.stations.reduce((a, s) => a + s.idle, 0));
+      el('status').textContent = one
+        ? (r.optimal ? `${r.stationCount} stations is the fewest possible at this cycle time (proved).` : `Best found: ${r.stationCount} stations. The search proved at least ${r.lowerBound} are needed but ran out of time before closing the gap; a longer time limit may.`)
+        : (r.optimal ? `${num(r.cycleTime)} is the shortest cycle time possible on ${r.stationsGiven} stations (proved).` : `Best found: cycle time ${num(r.cycleTime)}. The search proved nothing below ${num(r.lowerBound)} works but ran out of time before closing the gap.`);
+      el('detail').textContent = `Total work ${num(r.totalWork)}. Balance delay ${(100 * r.balanceDelay).toFixed(1)}%, smoothness index ${num(r.smoothnessIndex)}, bottleneck station load ${num(r.bottleneck)}. Found by ${r.method}, ${r.nodes} search steps in ${r.ms} ms.`;
+      const tb = el('table');
+      while (tb.firstChild) tb.removeChild(tb.firstChild);
+      for (const s of r.stations) {
+        const tr = document.createElement('tr');
+        for (const [v, cls] of [[String(s.station)], [num(s.load)], [num(s.idle)], [s.tasks.join(' '), 'tasks']]) { const td = document.createElement('td'); td.textContent = v; if (cls) td.className = cls; tr.appendChild(td); }
+        tb.appendChild(tr);
+      }
+      draw(r);
+      el('export').disabled = false;
+    }
+    function run() {
+      el('err').textContent = '';
+      try {
+        const problem = problemFromText(el('tasks').value);
+        const limits = { ms: Number(el('limit').value) || 4000 };
+        const mode = el('modeStations').checked ? 'stations' : 'cycle';
+        const r = mode === 'stations'
+          ? minimizeCycleTime(problem, Number(el('stations').value), limits)
+          : minimizeStations({ ...problem, cycleTime: Number(el('cycle').value) }, limits);
+        show(r);
+        recordUsage(usageStorage(), el('optOut').checked, 'balance_run');
+      } catch (e) {
+        el('err').textContent = e.message;
+      }
+    }
+    function exportCsv() {
+      if (!last) return;
+      const rows = ['station,task,station_load,station_idle'];
+      for (const s of last.stations) for (const t of s.tasks) rows.push(`${s.station},"${t.replace(/"/g, '""')}",${num(s.load)},${num(s.idle)}`);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([rows.join('\n') + '\n'], { type: 'text/csv' }));
+      a.download = 'line-balance.csv';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    el('loadExample').addEventListener('click', () => { loadExample(); run(); });
+    el('run').addEventListener('click', run);
+    el('available').addEventListener('input', syncTakt);
+    el('demand').addEventListener('input', syncTakt);
+    el('export').addEventListener('click', exportCsv);
+    el('file').addEventListener('change', async () => {
+      const f = el('file').files[0];
+      if (!f) return;
+      try {
+        const p = problemFromText(await f.text(), f.name);
+        el('tasks').value = formatTaskTable(p);
+        if (p.cycleTime) el('cycle').value = p.cycleTime;
+        el('err').textContent = '';
+      } catch (e) { el('err').textContent = `${f.name}: ${e.message}`; }
+    });
+    el('optOut').checked = readOptOut(usageStorage());
+    el('optOut').addEventListener('change', () => writeOptOut(usageStorage(), el('optOut').checked));
+    loadExample();
+    run();
+  </script>
+</body>
+</html>

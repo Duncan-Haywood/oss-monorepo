@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23166534'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%23%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>sudoers Mistakes Explained — Shell Escapes, ALL Minus su, NOPASSWD Order, sudoers.d Names</title>
+  <meta name="description" content="Field guide to the sudoers rules visudo accepts and attackers like: editors, pagers and find that give a root shell, ALL minus su, wildcard arguments, SETENV and env_keep LD_PRELOAD, NOPASSWD rules a later line overrides, and .conf files sudo skips.">
+  <meta property="og:title" content="sudoers mistakes explained: what each one hands out and the fix">
+  <meta property="og:description" content="The sudo behaviour behind every finding the sudoers Check reports, with a worked example.">
+  <link rel="canonical" href="./sudoers-mistakes-explained.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"sudoers mistakes explained: what each one hands out and the fix","about":"sudo and sudoers security","author":{"@type":"Organization","name":"oss-monorepo contributors"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 860px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4.2vw, 2.4rem); line-height: 1.1; color: #17324a; }
+    h2 { font-size: 1.2rem; margin-top: 30px; color: #17324a; }
+    p, li { line-height: 1.6; }
+    code { overflow-wrap: anywhere; }
+    pre { background: #fff; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .86rem; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+<header>
+  <p class="note"><a href="./">sudoers Check</a> · guide</p>
+  <h1>sudoers mistakes explained: what each one hands out and the fix</h1>
+  <p>Every rule on this page passes <code>visudo -c</code>. <code>sudo</code> is doing exactly what the file says; the file says something its author did not mean. This guide gives the <code>sudo</code> behaviour behind each finding the <a href="./">checker</a> reports, so you can judge whether it applies to you. Behaviour is paraphrased from the <a href="https://www.sudo.ws/docs/man/1.9.15/sudoers.man/" rel="noopener">sudoers(5) manual for sudo 1.9.15</a>, with its section names in quotes. Which programs offer a shell escape is a long-known list; <a href="https://gtfobins.github.io/" rel="noopener">GTFOBins</a> documents the exact escape for each.</p>
+</header>
+<main>
+
+<h2>A worked example</h2>
+<p>A small team runs one app. <code>ops</code> may restart it without a password, read its logs and copy a build into place; everyone in <code>%sudo</code> is an admin:</p>
+<pre><code>Defaults env_reset
+Defaults secure_path=&quot;/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&quot;
+
+root     ALL=(ALL:ALL) ALL
+ops      ALL=(root) NOPASSWD: /usr/bin/systemctl restart app
+%sudo    ALL=(ALL:ALL) ALL
+ops      ALL=(root) NOPASSWD: /usr/bin/less /var/log/app/*
+ops      ALL=(root) NOPASSWD: /bin/cp /srv/app/build/* /opt/app/</code></pre>
+<p>Each <code>ops</code> line looks narrow. <code>node check.mjs sudoers</code> says otherwise:</p>
+<pre><code>sudoers:7: [high] shell-escape-command
+  ops may run /usr/bin/less /var/log/app/* as root without a password. A pager or man page viewer starts a shell with !sh and opens other files with :e, whatever the arguments.
+  fix: For logs, give read access through a group (adm, systemd-journal) instead of sudo; otherwise add NOEXEC: and set SYSTEMD_PAGER= or --no-pager in a wrapper.
+sudoers:8: [high] writes-any-file
+  ops may run /bin/cp /srv/app/build/* /opt/app/ as root without a password with arguments matched by a wildcard: cp can then overwrite /etc/sudoers, /etc/passwd or a root-owned script, which becomes root access.
+  fix: Pin the exact arguments, or use a root-owned wrapper script that writes only the one file.
+sudoers:5: [low] nopasswd-overridden
+  NOPASSWD on /usr/bin/systemctl restart app for ops does not take effect if ops is in %sudo: sudoers:6 (%sudo ALL=(ALL:ALL) ALL) also matches and comes later, and sudo uses the last matching rule, which asks for a password.
+  fix: Move this rule below sudoers:6, or into a file in /etc/sudoers.d, which sudo reads where the @includedir line is (by default the last line of /etc/sudoers).
+who can become root:
+  root: any command (ALL), with a password (sudoers:4)
+  %sudo: any command (ALL), with a password (sudoers:6)
+  ops: /usr/bin/less /var/log/app/* (shell-escape-command), no password (sudoers:7)
+  ops: /bin/cp /srv/app/build/* /opt/app/ (writes-any-file), no password (sudoers:8)
+3 findings: 2 high, 1 low. (1 file read)</code></pre>
+<p>Line 7: in <code>less</code>, typing <code>!sh</code> opens a root shell, and the wildcard is not needed for that. Line 8: <code>sudo</code> matches arguments as one string, so <code>*</code> also matches <code>../../../tmp/sudoers -t /etc</code>; GNU <code>cp</code> takes the <code>-t</code> option after its operands and copies the file over <code>/etc/sudoers</code>. Line 5 is the reverse problem: if <code>ops</code> is in <code>%sudo</code>, line 6 matches the same command later, and <code>sudo</code> applies the last match, so the password prompt <code>ops</code> was meant to skip still appears.</p>
+
+<h2>Rules that are root in disguise</h2>
+<ul>
+  <li><strong>nopasswd-all</strong>: <code>NOPASSWD: ALL</code> as root means anything that runs as that account (a leaked SSH key, a web app bug, a malicious package in a build) is root without a prompt. Cloud images add one for the default user on purpose; it is a trade-off worth revisiting on a long-lived or shared machine.</li>
+  <li><strong>all-users-full-root</strong>: <code>ALL ALL=(ALL) ALL</code> gives every account root with its own password. Some distributions ship it together with <code>Defaults targetpw</code>, which asks for the target's (root's) password instead; with <code>targetpw</code>, <code>rootpw</code> or <code>runaspw</code> set, the finding is low.</li>
+  <li><strong>negated-command-bypass</strong>: "Limitations of the '!' operator": subtracting commands from <code>ALL</code> is not effective, because the user can copy the program to another name or start it from a shell or editor. Treat <code>ALL, !/usr/bin/su</code> as full root.</li>
+  <li><strong>shell-escape-command</strong>: editors (<code>vi</code>, <code>vim</code>, <code>nano</code>, <code>emacs</code>, <code>ed</code>) write any file and start shells; pagers and viewers (<code>less</code>, <code>more</code>, <code>man</code>, <code>journalctl</code>) run <code>!sh</code>; interactive clients (<code>psql</code>, <code>mysql</code>, <code>sqlite3</code>, <code>ftp</code>, <code>gdb</code>, <code>screen</code>, <code>tmux</code>) have their own escape. Pinned arguments do not help. The <code>NOEXEC</code> tag ("Preventing shell escapes") blocks the shell for dynamically linked programs, so a pager drops to medium, but an editor can still save over <code>/etc/sudoers</code> and stays high. Use <code>sudoedit</code> to edit files: it runs the editor as the user on a copy.</li>
+  <li><strong>runs-any-command</strong>: shells, <code>env</code>, <code>nice</code>, <code>xargs</code> and similar run their arguments; interpreters (<code>python3</code>, <code>perl</code>, <code>node</code>, <code>awk</code>) run code; and <code>find</code> (<code>-exec</code>), <code>tar</code> (<code>--checkpoint-action</code>), <code>systemctl</code> (<code>edit</code>, a unit with any <code>ExecStart</code>), <code>docker</code> (<code>run -v /:/host</code>), <code>git</code>, <code>rsync</code>, <code>apt-get</code>, <code>pip</code> and others run commands through options. With no arguments in the rule, or a wildcard, the user picks them. With pinned arguments (<code>systemctl restart nginx</code>) <code>sudo</code> allows only that exact command line.</li>
+  <li><strong>writes-any-file</strong>: <code>tee</code>, <code>cp</code>, <code>mv</code>, <code>dd</code>, <code>chown</code>, <code>chmod</code>, <code>ln</code>, <code>curl</code>, <code>wget</code> and similar, with open arguments, can overwrite <code>/etc/sudoers</code>, <code>/etc/passwd</code> or a script root runs. Account tools count too: <code>passwd</code> as root resets another account's password, and <code>usermod</code> or <code>gpasswd</code> can put an account in the sudo group. <code>su</code> with open arguments switches to any account the pattern allows, without its password, which is reported as runs-any-command.</li>
+  <li><strong>writable-command-path</strong>: a program or script under <code>/home</code>, <code>/tmp</code>, <code>/var/tmp</code>, <code>/dev/shm</code>, <code>/run/user</code>, <code>/var/www</code> or <code>/srv</code> is usually writable by the user or the web app; whoever can edit it decides what runs as root. Paths are normalised first, so <code>/usr/local/../../tmp/x</code> counts. A digest (<code>sha256:... /home/op/run</code>) makes <code>sudo</code> refuse an edited file, so that case is low; the manual's own example uses one for exactly this reason.</li>
+  <li><strong>directory-or-glob-command</strong>: a command ending in <code>/</code> allows every file in that directory, and a pattern such as <code>/usr/sbin/*</code> every match, including any shell or interpreter there now or later.</li>
+  <li><strong>setenv-tag</strong>: "SETENV and NOSETENV": variables set on the command line skip <code>env_check</code>, <code>env_delete</code> and <code>env_keep</code>, so <code>LD_PRELOAD=/tmp/x.so sudo backup</code> loads the user's library as root. <code>ALL</code> implies <code>SETENV</code>, which is one more reason <code>ALL</code> is full root.</li>
+</ul>
+
+<h2>Defaults that widen every rule</h2>
+<ul>
+  <li><strong>env-reset-off</strong>: <code>!env_reset</code> keeps the caller's environment except what <code>env_delete</code> removes, and the manual notes that no such list can block every dangerous variable.</li>
+  <li><strong>env-keep-dangerous</strong>: <code>env_keep</code> of <code>LD_PRELOAD</code>, <code>LD_LIBRARY_PATH</code>, <code>PYTHONPATH</code>, <code>PERL5OPT</code>, <code>NODE_OPTIONS</code>, <code>BASH_ENV</code> and similar lets the caller load their own code into any command. <code>PATH</code> is medium, and only reported without <code>secure_path</code>, which replaces it. <code>EDITOR</code>, <code>PAGER</code> and <code>HOME</code> are low.</li>
+  <li><strong>authenticate-off</strong>: <code>!authenticate</code> works like <code>NOPASSWD</code> on every rule it covers (a <code>PASSWD:</code> tag still wins).</li>
+  <li><strong>defaults-setenv</strong>: <code>Defaults setenv</code> is <code>SETENV</code> on every command.</li>
+  <li><strong>credential-cache-unbounded</strong>: a negative <code>timestamp_timeout</code> keeps a password entry valid until reboot (medium); over an hour is low.</li>
+  <li><strong>credential-cache-shared</strong>: <code>!tty_tickets</code> or <code>timestamp_type=global</code> shares one cached entry across all the user's terminals and background jobs.</li>
+  <li><strong>use-pty-off</strong>: without a separate pseudo-terminal, a program run with <code>sudo</code> can inject input into the user's terminal; <code>use_pty</code> is on by default from sudo 1.9.14.</li>
+  <li><strong>visiblepw-on</strong>: <code>sudo</code> will ask for a password even where it cannot hide it.</li>
+  <li><strong>pwfeedback-on</strong>: shows the password's length as it is typed; in sudo before 1.8.31 it also enabled CVE-2019-18634.</li>
+  <li><strong>secure-path-missing</strong>: reported only when the main <code>sudoers</code> file is pasted. Debian and Ubuntu set <code>secure_path</code>; without it, <code>sudo foo</code> searches the caller's <code>PATH</code>.</li>
+</ul>
+
+<h2>Rules that do not do what they say</h2>
+<ul>
+  <li><strong>nopasswd-overridden</strong>: "where there are multiple matches, the last match is used (which is not necessarily the most specific match)". A <code>NOPASSWD</code> rule above a group rule granting <code>ALL</code> with a password does nothing for members of that group. The checker cannot see group membership, so it says "if alice is in %sudo".</li>
+  <li><strong>wildcard-arguments</strong>: "Wildcards in command arguments": arguments are matched as one string, so <code>*</code> matches spaces, extra options and <code>../</code>. A regular-expression argument (<code>^...$</code>, sudo 1.9.10+) can match exactly what you mean. <code>sudoedit</code> paths are the exception: there a wildcard does not match <code>/</code>.</li>
+  <li><strong>reads-any-file</strong>: <code>cat</code>, <code>head</code>, <code>grep</code> and similar with open arguments read <code>/etc/shadow</code> and every key on the machine.</li>
+  <li><strong>includedir-file-ignored</strong>: files in an <code>@includedir</code> directory whose names contain a <code>.</code> or end in <code>~</code> are skipped, "to avoid causing problems with package manager or editor temporary/backup files". A drop-in named <code>deploy.conf</code> never applies. Files are also read in lexical order, so <code>1_whoops</code> comes after <code>10_second</code>.</li>
+</ul>
+<p>A rule whose target is not root (<code>(postgres)</code>, <code>(www-data)</code>) drops one severity level: it hands out that account, not the machine. A rule with only a group, <code>(:adm)</code>, runs as the user and is not reported.</p>
+
+<h2>How the parser was checked</h2>
+<p><code>sudo</code> ships <code>cvtsudoers</code>, which converts a sudoers file to JSON with its own parser. The checker's reading of 41 grammar corner cases (tag and runas inheritance, <code>: Host =</code> groups, escaped commas, digests, option specs, nested and negated aliases, continuation lines, quoted names, user IDs) matches <code>cvtsudoers -e -f json</code> from sudo 1.9.15p5 on every one; the comparison runs in the tool's test suite. It also matches on a whole real file, the manual's own EXAMPLES section (49 rule entries). The comparison found two bugs in the checker before release: <code>LOG_INPUT</code> and <code>MAIL</code> tags were not cleared by their opposites, and a <code>sha224:</code> digest inside a <code>Cmnd_Alias</code> was read as the start of another alias. One more case is left out because that <code>cvtsudoers</code> prints <code>CWD=</code> as JSON that does not parse.</p>
+
+<h2>What the checker cannot see</h2>
+<p>It reads files, so it does not know group memberships, who can write to a program a rule names, your <code>sudo</code> version, rules held in LDAP or SSSD, or files you did not paste (an <code>@include</code> that matches nothing is reported as a note). Its list of programs with shell escapes is not complete. A clean scan means these patterns were not found, not that the system is secure. Run <code>visudo -c</code> as well, and keep a root shell open while you change sudoers.</p>
+<p><a href="./">Back to the sudoers Check</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. They are not a security audit and do not replace a qualified security professional. <strong>You are responsible for reviewing and verifying anything here before relying on it.</strong></p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This page may move or go offline without notice. Not affiliated with the sudo project, Todd C. Miller or GTFOBins.</p>
+  <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

@@ -8,7 +8,7 @@ description: "A story uses Mercury's 3:2 spin-orbit resonance: near perihelion t
 
 [The Sun That Stops at the Edge](../../ventures/hearth-and-horizon/stories/the-sun-that-stops-at-the-edge.md)
 is the newest Hearth & Horizon story, written by an AI and set at an invented
-Mercury station in January 2170. A catechist has pinned up a picture of a
+Mercury station in January 2167. A catechist has pinned up a picture of a
 half-risen Sun for a Sunday Mass; the surveyor says it is a model, and the
 priest declines to call it a miracle.
 

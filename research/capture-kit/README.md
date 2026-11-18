@@ -37,13 +37,16 @@ With a 4 h recording floor (variety / hours):
 
 - The 5 kg full-coverage kit is action camera, mirrorless body, 24-70 and 70-200 zooms, selfie pole, mini tripod, telescoping mast and 60 + 99 Wh packs. The 135 mm band exists only through the 70-200, so covering all 18 shots costs the 1.1 kg lens.
 - Greedy never picks the mirrorless body, because on its own the body adds no band; this complementarity is what exact search sees and greedy cannot.
-- Without a floor, variety-first search at 4 kg returns 18 shots but only 2.2 h; the floor is not a detail, it changes which kit wins at 2 and 4 kg.
+- Without a floor, variety-first search at 4 kg returns 18 shots but only 2.2 h; the floor is not a detail, it changes which kit wins at 2, 3 and 4 kg.
 - The 160 Wh pack is never chosen: the legality filter works (tested).
 
 ## Limitations
 - **All device figures are assumed**, round numbers typical of each class from the author's general knowledge, not datasheets: weights, battery Wh, draw in watts and which bands each device covers. Nothing here was fetched or measured; the 100 Wh limit is the only sourced number. The rankings are about structure (complementary items, a floor), not about any product.
 - Variety counts shots that exist, not their quality (a phone telephoto at 85 mm is not an 85 mm prime), and weights ignore cables, cases and cards. Hours ignore cold, screens and charging en route.
 - Cameras are assumed to be swapped between mounts; a creator who wants shots at the same moment needs more cameras than this counts.
+- **Hours and variety disagree on camera use** (quality audit [round 68](../../portfolio/quality/audits/2026-11-13-capture-kit.json)): hours assume one camera per mount running at once, variety assumes cameras are swapped between mounts. With one camera running at a time, the 4 h floor no longer changes the winning kit at 2, 3 or 4 kg, so the "floor is not a detail" finding depends on the simultaneous-recording reading.
+- **The greedy baseline is naive.** A greedy that may add a body and a lens together as one item, the usual fix for items that are only useful in pairs, matches exact search at every budget checked (2 to 7 kg, same audit), and no prior work on knapsacks with complementary items is cited yet.
+- Mount payload is not modelled (a 150 g mini tripod is counted as holding a body with a 70-200), and pooled battery energy is taken at 100% efficiency; at a typical 80% power-bank efficiency the 5 kg kit's hours fall from 16.76 to about 13.7.
 - Small catalogue (so exact search is trivial); a real one needs integer programming or smarter search.
 
 ## Next steps

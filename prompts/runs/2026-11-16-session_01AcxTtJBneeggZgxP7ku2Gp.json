@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtJBneeggZgxP7ku2Gp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T10:07:03Z",
+  "ended": "2026-11-16T10:34:42Z",
+  "wall_minutes": 27.98,
+  "tokens_in": 16621957,
+  "tokens_out": 94208,
+  "cost_usd": 6.8862,
+  "tool_calls": 110,
+  "task": "open-tennis-robots flagship BUILDABLE item: a recovery model with the loop's shape in place of the parabola, checked on captured period snapshots",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16536",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First firmware-free model (continuous moving-average tach + PI) read drops 2-4% high; a mini-sim with the firmware's own PeriodTach/WheelLoop matched the captured periods but showed the PI response hangs on the unknown tick phase (+/-3% at equal residual); switched to fitting the logged ESC commands instead.",
+    "launch_fit_sweep.py first rerun used _beat(sim, 10), which runs 0 ms (it counts 100 ms steps), so the deferred fit never landed and the sweep reported the parabola's numbers unchanged; caught because the output matched the old file exactly.",
+    "The auto-mode safety classifier returned no verdict for a few Bash calls mid-run; the edits went through Read/Write/Edit instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here pointed at einvoice-preflight, whose next: is almost entirely real-outside-input items (real rejections, real files, blocked SAT host); the row is not marked inputs_only because one or two items (mandate texts) might be fetchable, so the router keeps sending runs there."
+    },
+    {
+      "file": "ventures/open-tennis-robots/tests/launch_check_sweep.py",
+      "issue": "_beat(sim, ms) silently runs ms // 100 * 100 ms, so _beat(sim, 10) is a no-op; a short wait needs sim.run_ms."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The allocator's pick (row 3, einvoice-preflight) has no buildable item without outside input; open-tennis-robots (row 7) had a BUILDABLE HERE item with no open PR.",
+      "did": "Took open-tennis-robots' buildable item instead of the allocator's row; did not mark einvoice-preflight inputs_only since not every item clearly needs outside input.",
+      "result": "Landed the item: simulated spin-efficiency error 8% to under 2%."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-the-tennis-feeder-already-knew-its-wheels-recovery.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (A recovery shaped by the loop's own commands)"
+  ],
+  "goal": "Deepen a flagship: remove the speed-dependent bias in the launcher's drop-based self-calibration",
+  "notes": "Local verification: run_venture_tests.py open-tennis-robots 320 tests ok (58 skipped, build123d); test_host.py 81 ok after the final edits; post front matter, links and similarity checks clean; validate.py ok. Sweeps in ventures/open-tennis-robots/eval/*-loop-2026-11-16.txt. No agent doc in docs/reports/: the firmware README section and the flagship buildable: field carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cca89b14-a53e-558e-9a45-2e6d69850aa7",
+    "transcripts": 1,
+    "first": "2026-11-16T10:07:03Z",
+    "last": "2026-11-16T10:35:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 103,
+        "input": 193,
+        "output": 94208,
+        "thinking": 32789,
+        "cache_read": 16406780,
+        "cache_write_5m": 0,
+        "cache_write_1h": 214984,
+        "api_equivalent_usd": 6.8862,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 103,
+      "input": 193,
+      "output": 94208,
+      "thinking": 32789,
+      "cache_read": 16406780,
+      "cache_write_5m": 0,
+      "cache_write_1h": 214984,
+      "api_equivalent_usd": 6.8862,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 110,
+    "tools": {
+      "Bash": 100,
+      "Edit": 3,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Monitor": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.98,
+      "active_minutes": 27.98,
+      "model_minutes": 17.53,
+      "tool_minutes": 10.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a controls engineer: diagnosing the loop shape, the logged-command fit, the deferred firmware/host protocol change and the sweeps, about two days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 232.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,66 @@
+name: ids-model-check
+description: >-
+  Checks IFC2X3, IFC4 and IFC4X3 building models against buildingSMART IDS 1.0
+  files in the browser or on the command line, with every failing element and
+  reason, and exports BCF 2.1 issues, CSV and JSON. Scores 334/334 on
+  buildingSMART's IDS test pairs and matches IfcTester element by element on
+  real models. MIT, no dependencies, nothing uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-16. Paid market is real: Solibri (Nemetschek) sells model
+# checking by the seat; BIMcollab, ACCA usBIM and Autodesk add IDS checks to
+# subscriptions; IDS 1.0 was approved by buildingSMART in 2024 and clients
+# (government estates, infrastructure owners) are starting to write IDS into
+# employer's information requirements, so every consultant needs to check
+# models against them. The free option, IfcTester, needs Python or a desktop BIM
+# tool. The gap: a no-install, no-upload checker a coordinator can open on any
+# machine, and an engine small enough for CI. Construction direction
+# (prompts/goals.md, "Direction: industrial, energy and construction").
+# duplicate_check: no venture or research project reads IDS; wall-framing-takeoff
+# reads IFC geometry for framing, a different job.
+#
+# First visitor: BIM managers and coordinators searching "IDS checker", "check
+# IFC against IDS online", "IDS validator free", "ifctester alternative", and the
+# buildingSMART forums and r/bim threads on IDS adoption. Volume not measured
+# with an external tool.
+#
+# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# paid steps are writing IDS files for a firm's standards, a hosted CI check
+# for a team's model exports, and support; GitHub Sponsors meanwhile. Hosting
+# under the public name and billing are owner-gated.
+
+hypotheses:
+  - claim: >-
+      BIM coordinators who receive an IDS from a client will check models in a
+      browser tab rather than install Python, and will download the BCF issue
+      list for at least one in five checks that fail, because sending issues
+      back to the author is the next step after a failed check.
+    status: untested
+    checked: null
+    evidence: customer-contact  # usage counters model_checked, model_failed, bcf_downloaded (local only)
+  - claim: >-
+      People without an IDS will start from the starter IDS rather than leave,
+      measured as the share of model_checked events preceded by the starter
+      button or the sample.
+    status: untested
+    checked: null
+    evidence: customer-contact  # usage counters sample_loaded, model_checked (local only)
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: false
+
+kill_criteria:
+  - Fewer than three distinct people (issues, stars, or a pasted report) engage within 90 days of the page being reachable from the published site.
+  - A user reports a verdict that differs from buildingSMART's test suite or from IfcTester on a case the suite covers; fixing correctness comes before any new feature.
+
+links:
+  production: https://marisstella.app/ids-model-check/
+  analytics: null

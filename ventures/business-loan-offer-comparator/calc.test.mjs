@@ -121,3 +121,12 @@ test("quarterly and annual payments are accepted and the error lists every allow
   assert.equal(p.offers.length, 1);
   assert.match(p.errors[0], /1, 2, 4, 12, 24, 26, 52, 252/);
 });
+
+// Quality census 2026-11-17: a term shorter than one payment interval was stretched to a full
+// interval (10% APR on 10,000 -> 11,000 in one month), and fees at or above the amount gave NaN%.
+test("rejects a term shorter than one payment interval and fees that leave no cash", () => {
+  const { offers, errors } = parseOffers("A, factor, 10000, 1.1, 1, 0, 0, 1\nC, loan, 1000, 10, 12, 0, 1000\nD, factor, 10000, 1.1, 1, 0, 0, 12");
+  assert.equal(errors.length, 2, errors.join("; "));
+  assert.equal(offers.length, 1);
+  assert.ok(compare(offers).results[0].apr > 100);
+});

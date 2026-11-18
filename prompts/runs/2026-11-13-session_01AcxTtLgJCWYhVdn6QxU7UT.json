@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtLgJCWYhVdn6QxU7UT",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T21:07:21Z",
+  "ended": "2026-11-13T21:30:31Z",
+  "wall_minutes": 24.29,
+  "tokens_in": 24203605,
+  "tokens_out": 86386,
+  "cost_usd": 8.7411,
+  "tool_calls": 121,
+  "task": "einvoice-preflight flagship slice: DSF (ISSDSF 1.00/1.01) municipal NFS-e layout",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15615",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 18,
+  "outcome": "success",
+  "errors": [
+    "Typed a 94-character signature string into a test by hand with two extra zeros; the test caught it (rebuilt from parts).",
+    "First xmllint differential reported 12 false 'xmllint only' disagreements: my eval serializer kept xsi:schemaLocation without its prefix declaration. Fixed in the eval, not the checker.",
+    "Reused a local ABRASF 2.04 XSD copy whose CompNfse minOccurs strip missed a wrapped line; xmllint failed to compile it and two fixtures looked like disagreements until fixed.",
+    "inherited_keys.py flagged SCHEMA_MAP[f.rule] in dsf.mjs; switched to Object.hasOwn.",
+    "venture-preflight failed on the post's description (173 > 160) and seo_title (74 > 70); shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/abrasf-xsd.mjs",
+      "issue": "An inline comment said libxml2 trims spaces around xs:byte; measured today it does not (bare, range or whiteSpace-facet byte/short/int/long/unsignedInt/date/dateTime all refuse a space). Corrected with the measurement table in eval/dsf-2026-11-13.md."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A hook refuses pkill -f with a bracketed pattern if the unbracketed text appears anywhere else in the same command line (e.g. the server start); CLAUDE.md mentions the bracket rule but not that the whole line is scanned. Cost one retry."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: is a folded scalar, so exact-string replacement of an item fails across line wraps; a whitespace-tolerant regex was needed. A note or a promptctl helper to rewrite one item would save time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (next: item 'IPM 1.01, ISSDSF 1.00')",
+      "why": "OpenAC's IPM 1.00/1.01 folders contain only a note that IPM published no schema, so there was nothing to compile.",
+      "did": "Took ISSDSF (both 1.00 and 1.01) instead and replaced the item with what is still open (SimplISS/DBSeller 1.00, real replies).",
+      "result": "DSF landed with schema, signature and totals checks; IPM recorded as unbuildable from OpenAC."
+    },
+    {
+      "file": "ventures/einvoice-preflight (fixtures)",
+      "why": "The public DSF samples carry no clear licence, so they were measured from download and not copied, as earlier NFS-e runs did.",
+      "did": "Built a synthetic batch (fixtures/dsf-lote-rps.xml) with computed signatures; validated against xmllint.",
+      "result": "Tests and the page sample run on it; differential numbers come from the downloaded files."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-dsf-nfse-rps-signature-and-batch-totals.md",
+    "ventures/einvoice-preflight/eval/dsf-2026-11-13.md",
+    "ventures/einvoice-preflight/README.md (DSF section)"
+  ],
+  "goal": "Deepen flagship 5 (einvoice-preflight) with a hard slice: DSF's non-ABRASF NFS-e layout.",
+  "notes": "Checks run here: node --test dsf.test.mjs (17 pass), brazil-nfe-e-invoice-mandate.test.mjs (12 pass), abrasf.test.mjs (pass), python3 platform/ci/run_venture_tests.py einvoice-preflight (ok, 0 failed), validate.py (all valid), eval/dsf-xsd-diff.mjs 23/23 verdicts and 2263/2263 mutants vs xmllint 2.9.14, eval/abrasf-xsd-diff.mjs with --providers on repo fixtures 15/15 and 3499/3499 after the shared checker changes, Playwright on the Brazil page at 390px (DSF sample shows 3 findings, no console errors, no horizontal scroll after an overflow-wrap fix). Findings worth knowing: DSF's own sample batches put services less deductions in ValorTotalServicos while OpenAC.Net.NFSe writes the gross; a 2010 Campinas server reply has values its own published pattern refuses.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "eb5ef163-aac6-5b9c-b1a6-d1b9ac9d81e4",
+    "transcripts": 1,
+    "first": "2026-11-13T21:07:21Z",
+    "last": "2026-11-13T21:31:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 118,
+        "input": 227,
+        "output": 86386,
+        "thinking": 15488,
+        "cache_read": 23924937,
+        "cache_write_5m": 0,
+        "cache_write_1h": 278441,
+        "api_equivalent_usd": 8.7411,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 118,
+      "input": 227,
+      "output": 86386,
+      "thinking": 15488,
+      "cache_read": 23924937,
+      "cache_write_5m": 0,
+      "cache_write_1h": 278441,
+      "api_equivalent_usd": 8.7411,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 121,
+    "tools": {
+      "Bash": 114,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.29,
+      "active_minutes": 24.29,
+      "model_minutes": 19.09,
+      "tool_minutes": 5.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior engineer: read DSF schemas and provider code, derive/verify signature formula on public files, schema compiler union/default support, checker + tests + differential + docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 160.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+{
+ "arxiv:2305.09620": {
+  "checked": "2026-11-17",
+  "title": "AI-Augmented Surveys: Leveraging Large Language Models and Surveys for Opinion Prediction (2023)"
+ },
+ "arxiv:2311.01453": {
+  "checked": "2026-11-17",
+  "title": "PPI++: Efficient Prediction-Powered Inference (2023)"
+ },
+ "doi:10.1002/9780470316696": {
+  "checked": "2026-11-17",
+  "title": "Multiple Imputation for Nonresponse in Surveys (1987)"
+ },
+ "doi:10.1002/9781118735855": {
+  "checked": "2026-11-17",
+  "title": "Small Area Estimation (2015)"
+ },
+ "doi:10.1007/978-0-387-35099-8": {
+  "checked": "2026-11-17",
+  "title": "Introduction to Variance Estimation (2007)"
+ },
+ "doi:10.1007/978-1-4612-4378-6": {
+  "checked": "2026-11-17",
+  "title": "Model Assisted Survey Sampling (1992)"
+ },
+ "doi:10.1007/s10994-009-5152-4": {
+  "checked": "2026-11-17",
+  "title": "A theory of learning from different domains (2009)"
+ },
+ "doi:10.1017/CBO9781139035613": {
+  "checked": "2026-11-17",
+  "title": "Density Ratio Estimation in Machine Learning (2012)"
+ },
+ "doi:10.1017/pan.2023.2": {
+  "checked": "2026-11-17",
+  "title": "Out of One, Many: Using Language Models to Simulate Human Samples (2023)"
+ },
+ "doi:10.1080/01621459.1979.10482505": {
+  "checked": "2026-11-17",
+  "title": "Estimates of Income for Small Places: An Application of James-Stein Procedures to Census Data (1979)"
+ },
+ "doi:10.1080/01621459.1990.10475320": {
+  "checked": "2026-11-17",
+  "title": "The Estimation of the Mean Squared Error of Small-Area Estimators (1990)"
+ },
+ "doi:10.1080/01621459.1990.10476213": {
+  "checked": "2026-11-17",
+  "title": "Sampling-Based Approaches to Calculating Marginal Densities (1990)"
+ },
+ "doi:10.1080/01621459.1995.10476488": {
+  "checked": "2026-11-17",
+  "title": "A Split Questionnaire Survey Design (1995)"
+ },
+ "doi:10.1080/01621459.2016.1174132": {
+  "checked": "2026-11-17",
+  "title": "Multiple Imputation of Missing Categorical and Continuous Values via Bayesian Mixture Models With Local Dependence (2016)"
+ },
+ "doi:10.1126/science.adi6000": {
+  "checked": "2026-11-17",
+  "title": "Prediction-powered inference (2023)"
+ },
+ "doi:10.18637/jss.v045.i03": {
+  "checked": "2026-11-17",
+  "title": "<b>mice</b>: Multivariate Imputation by Chained Equations in<i>R</i> (2011)"
+ },
+ "doi:10.2307/2342192": {
+  "checked": "2026-11-17",
+  "title": "On the Two Different Aspects of the Representative Method: The Method of Stratified Sampling and the Method of Purposive Selection (1934)"
+ },
+ "doi:10.3102/1076998613480394": {
+  "checked": "2026-11-17",
+  "title": "Nonparametric Bayesian Multiple Imputation for Incomplete Categorical Variables in Large-Scale Assessment Surveys (2013)"
+ },
+ "doi:10.3982/ECTA18597": {
+  "checked": "2026-11-17",
+  "title": "Robust Empirical Bayes Confidence Intervals (2022)"
+ }
+}

@@ -62,7 +62,7 @@ It was Father Quirino, who said the Mass on the Moon and had heard all of it fro
 
 "How long?" said Imelda.
 
-"We are, today, a little under half a day past noon. The Sun will touch the western horizon at 7.38 days past noon, a week from now less a few hours. Then it is gone for 354 hours, and rises again."
+"We are, today, just past noon. The Sun will touch the western horizon at 7.38 days past noon, a week from now and some hours more. Then it is gone for 354 hours, and rises again."
 
 "Fourteen point seven seven days of dark."
 

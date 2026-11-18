@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKnrEPGuz4GxyjPi1nd",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T19:18:31Z",
+  "ended": "2026-11-13T19:27:42Z",
+  "wall_minutes": 9.35,
+  "tokens_in": 10827940,
+  "tokens_out": 126537,
+  "cost_usd": 7.4282,
+  "tool_calls": 130,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15589",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/ambient-gatem4/tests/test_gatem4.py",
+      "issue": "Running pytest from research/ fails collection without PYTHONPATH=ambient-gatem4/src; the README does not say how to run the tests, cost one retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Applied fixes in the same PR as the audits rather than separate fix PRs; each fix is its own commit and every audit's fix_prs points at this PR.",
+      "did": "one PR, per-subject commits",
+      "result": "one merge, fixes traceable by commit"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-71.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample, seed 2026-11-13-q-5db1, round 71. Subjects: ventures/roofing-bid-calculator (meets bar), ventures/mortgage-points-break-even-calculator, research/ambient-gatem4, research/robofab-jawcap. 1 of 4 at the bar; sampled overall 33/294 (Wilson 8.1-15.3%). Seeded bugs caught 13/25. Spot-checks by the orchestrator: mortgage payments and break-even recomputed (2594.39/2495.48, 40.44 mo); roofing squares 24.341 recomputed; jawcap max torque 1.008 from results.txt; Unicorn IT-block probe re-run (4 of 5). Fix PR: #15589 (all four subjects). Checks run: node --test both ventures (29 and 140 pass), run_venture_tests.py both ok, pytest ambient-gatem4 4 passed, quality_audit validate 334/0, check_md_links ok. No agent doc in docs/reports: nothing the next run needs beyond the audit files.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "95f012f7-4c61-5a40-8a51-9d7c3b5e2898",
+    "transcripts": 5,
+    "first": "2026-11-13T19:18:31Z",
+    "last": "2026-11-13T19:27:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 129,
+        "input": 268,
+        "output": 126537,
+        "thinking": 37456,
+        "cache_read": 10316250,
+        "cache_write_5m": 419426,
+        "cache_write_1h": 91996,
+        "api_equivalent_usd": 7.4282,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 129,
+      "input": 268,
+      "output": 126537,
+      "thinking": 37456,
+      "cache_read": 10316250,
+      "cache_write_5m": 419426,
+      "cache_write_1h": 91996,
+      "api_equivalent_usd": 7.4282,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.953,
+    "tool_calls": 130,
+    "tools": {
+      "Bash": 112,
+      "Agent": 4,
+      "Write": 4,
+      "Read": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.35,
+      "active_minutes": 4.64,
+      "model_minutes": 3.61,
+      "tool_minutes": 1.03,
+      "waiting_on_human_minutes": 4.71,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 20.12
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four independent expert audits with recomputation plus fixes, ~2.5 h each",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 134.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

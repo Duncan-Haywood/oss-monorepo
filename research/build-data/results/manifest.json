@@ -1,58 +1,58 @@
 {
- "pulled": "2026-11-10",
+ "pulled": "2026-11-17",
  "max_rows": null,
  "cities": {
   "chicago": {
    "dataset": "ydr8-5enu",
    "host": "data.cityofchicago.org",
-   "rows": 852615,
-   "applied": 852266,
-   "issued": 852615,
+   "rows": 853111,
+   "applied": 852762,
+   "issued": 853111,
    "completed": 0,
-   "cost": 814035,
-   "both_applied_issued": 852266,
+   "cost": 814485,
+   "both_applied_issued": 852762,
    "negative_issue_lag": 81,
    "negative_build_time": 0,
-   "pulled": "2026-11-10"
+   "pulled": "2026-11-17"
   },
   "sf": {
    "dataset": "i98e-djp9",
    "host": "data.sf.gov",
-   "rows": 1298097,
-   "applied": 1296924,
-   "issued": 1233627,
-   "completed": 750585,
-   "cost": 1154398,
-   "both_applied_issued": 1233161,
+   "rows": 1298381,
+   "applied": 1297186,
+   "issued": 1233905,
+   "completed": 750797,
+   "cost": 1154682,
+   "both_applied_issued": 1233436,
    "negative_issue_lag": 2257,
    "negative_build_time": 736,
-   "pulled": "2026-11-10"
+   "pulled": "2026-11-17"
   },
   "austin": {
    "dataset": "3syk-w9eu",
    "host": "data.austintexas.gov",
-   "rows": 2384452,
-   "applied": 2384423,
-   "issued": 2384452,
-   "completed": 2185446,
-   "cost": 1190422,
-   "both_applied_issued": 2384423,
+   "rows": 2385435,
+   "applied": 2385406,
+   "issued": 2385435,
+   "completed": 2186393,
+   "cost": 1190571,
+   "both_applied_issued": 2385406,
    "negative_issue_lag": 863,
-   "negative_build_time": 3533,
-   "pulled": "2026-11-10"
+   "negative_build_time": 3534,
+   "pulled": "2026-11-17"
   },
   "seattle": {
    "dataset": "76t5-zqzr",
    "host": "data.seattle.gov",
-   "rows": 194184,
-   "applied": 148050,
-   "issued": 141221,
-   "completed": 108173,
-   "cost": 158952,
-   "both_applied_issued": 139078,
+   "rows": 194311,
+   "applied": 148133,
+   "issued": 141321,
+   "completed": 108259,
+   "cost": 159075,
+   "both_applied_issued": 139174,
    "negative_issue_lag": 15,
    "negative_build_time": 10,
-   "pulled": "2026-11-10"
+   "pulled": "2026-11-17"
   }
  }
 }

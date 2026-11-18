@@ -61,7 +61,7 @@ for name, cfg in TWINS:
 
 base = next(r for r in rows if r["twin"].startswith("exact"))["regret"]
 say(f"Real system: {R}. Swing-up grid of {len(gains)} controllers (ke, kp, kd, cap), tuned on 150 twin starts, scored on {N_EVAL} held-out real starts.")
-say(f"Mean best real cost on the fine grid: {best:.4f} (mimic-twinswing, 60-point grid: 0.353 for its own best point).")
+say(f"Mean best real cost on the fine grid: {best:.4f} (mimic-twinswing, 90-point grid: 0.355 for its own best point).")
 say(f"Regret = real cost of the twin-tuned controller minus the best of the fine grid on the real system. Mean and sd over {len(SEEDS)} tuning seeds.")
 say("AUROC and paired RMSE are copied from mimic-twinswing/experiments/results.json.")
 say()

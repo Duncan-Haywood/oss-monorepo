@@ -40,10 +40,10 @@ export const COUNTRIES = {
       { when: (x) => x > 200000000, date: "2026-02-01", what: "KSeF was mandatory for you from 1 February 2026 (sales above PLN 200 million)." },
       { when: () => true, date: "2026-04-01", what: "KSeF was mandatory for you from 1 April 2026 (most other VAT payers), unless you are in the smallest wave described below." } ] },
   OM: { name: "Oman", currency: "OMR", input: "number", prompt: "Annual supplies (OMR)", page: "oman-fawtara-e-invoice-mandate.html",
-    always: "Reported only from secondary sources; the Gazette text is unread on the country page.",
+    always: "From Decision 189/2026 (Official Gazette 1660, read on the country page): tax invoices in an approved electronic format, issued within 15 days. The Tax Authority may exempt a taxpayer on request.",
     waves: [
-      { when: (x) => x > 5000000, date: "2027-04-01", what: "Fawtara is reported as mandatory (annual supplies above OMR 5 million), Decision 189/2026." },
-      { when: () => true, date: "2027-10-01", what: "Fawtara is reported as mandatory for the others." } ] },
+      { when: (x) => x > 5000000, date: "2027-04-01", what: "Electronic tax invoices are compulsory for you from 1 April 2027 (annual supplies above OMR 5 million), Decision 189/2026 Article 3." },
+      { when: () => true, date: "2027-10-01", what: "Electronic tax invoices are compulsory for you from 1 October 2027 (annual supplies of OMR 5 million or less), Decision 189/2026 Article 3." } ] },
   MY: { name: "Malaysia", currency: "MYR", input: "number", prompt: "Annual turnover (MYR)", page: "malaysia-myinvois-e-invoice-mandate.html",
     always: "Documents go to LHDN's MyInvois system, which validates them; sources disagree on the smallest wave and a relaxation period is reported to run to 31 December 2027.",
     waves: [

@@ -1,7 +1,7 @@
 ---
 title: Fourteen Watt-Hours Short
 shelf: hearth-and-horizon
-setting: Saint Aidan's Way pilgrim ride (invented), near Alston, Cumbria, Saturday 9 August 2052
+setting: Saint Aidan's Way pilgrim ride (invented), near Alston, Cumbria, Saturday 10 August 2052
 published: 2026-11-05
 summary: A retired postman wants to ride the old parish pilgrimage again, 64 kilometres and 1,100 metres of climbing, on an electric bike with a 400 watt-hour battery. The group's assistant works out the energy, finds the battery fourteen watt-hours short, and the group decides what to do about it.
 ---

@@ -1,0 +1,140 @@
+cell-fidelity milestone 5k, development (all 21 conditions were seen by earlier milestones; the factor split had not been computed)
+
+Ai2020@0.25x: n 51 (sound r_kt >= 0.3 41, starved r_kt <= 0.1 3); Spearman(U, r_kt) -0.36
+  sound: U~BOL +0.99, U~score -0.37, U~retention -0.94, median utilisation +0.97
+  starved: r_kt~utilisation n/a, r_kt~score n/a, median utilisation +0.93
+  log-score variance carried by U -0.75, utilisation +0.21, retention +1.55; U~score over the pool -0.39
+  DFN best 104.9 Wh/kg: r_kt +0.42, U percentile 0.14, utilisation 0.96, retention 0.45
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0570 at 9 DFN calls, L2 0.0481 at 22; top-U above the flag k=1/3/5 gap 0.1615/0.0974/0.0768
+Ai2020@0.5x: n 64 (sound r_kt >= 0.3 36, starved r_kt <= 0.1 21); Spearman(U, r_kt) -0.48
+  sound: U~BOL +0.99, U~score +0.36, U~retention -0.81, median utilisation +0.95
+  starved: r_kt~utilisation +0.82, r_kt~score +0.92, median utilisation +0.74
+  log-score variance carried by U -0.08, utilisation +1.28, retention -0.20; U~score over the pool -0.08
+  DFN best 121.2 Wh/kg: r_kt +0.47, U percentile 0.20, utilisation 0.95, retention 0.53
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0455 at 12 DFN calls, L2 0.0217 at 22; top-U above the flag k=1/3/5 gap 0.0668/0.0565/0.0565
+Ai2020@0.75x: n 64 (sound r_kt >= 0.3 19, starved r_kt <= 0.1 34); Spearman(U, r_kt) -0.43
+  sound: U~BOL +1.00, U~score +0.52, U~retention -0.38, median utilisation +0.92
+  starved: r_kt~utilisation +0.88, r_kt~score +0.85, median utilisation +0.67
+  log-score variance carried by U -0.04, utilisation +1.44, retention -0.40; U~score over the pool +0.02
+  DFN best 119.4 Wh/kg: r_kt +0.39, U percentile 0.31, utilisation 0.93, retention 0.51
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0345 at 9 DFN calls, L2 0.0259 at 22; top-U above the flag k=1/3/5 gap 0.0813/0.0347/0.0345
+Ai2020@1x: n 64 (sound r_kt >= 0.3 7, starved r_kt <= 0.1 46); Spearman(U, r_kt) -0.45
+  sound: U~BOL n/a, U~score n/a, U~retention n/a, median utilisation +0.90
+  starved: r_kt~utilisation +0.93, r_kt~score +0.88, median utilisation +0.54
+  log-score variance carried by U -0.04, utilisation +1.65, retention -0.61; U~score over the pool -0.04
+  DFN best 113.0 Wh/kg: r_kt +0.23, U percentile 0.23, utilisation 0.91, retention 0.50
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0586 at 11 DFN calls, L2 0.0549 at 19; top-U above the flag k=1/3/5 gap 0.1193/0.0710/0.0695
+Chen2020@0.5x: n 64 (sound r_kt >= 0.3 63, starved r_kt <= 0.1 0); Spearman(U, r_kt) -0.78
+  sound: U~BOL +1.00, U~score +0.99, U~retention -0.14, median utilisation +0.95
+  starved: r_kt~utilisation n/a, r_kt~score n/a, median utilisation n/a
+  log-score variance carried by U +0.96, utilisation +0.02, retention +0.03; U~score over the pool +0.99
+  DFN best 181.3 Wh/kg: r_kt +0.37, U percentile 0.94, utilisation 0.94, retention 0.43
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0413 at 14 DFN calls, L2 0.0248 at 28; top-U above the flag k=1/3/5 gap 0.0413/0.0413/0.0000
+Chen2020@1.5x: n 64 (sound r_kt >= 0.3 12, starved r_kt <= 0.1 39); Spearman(U, r_kt) -0.82
+  sound: U~BOL +0.73, U~score +0.93, U~retention +0.87, median utilisation +0.86
+  starved: r_kt~utilisation +0.90, r_kt~score +0.39, median utilisation +0.79
+  log-score variance carried by U +0.49, utilisation +0.07, retention +0.45; U~score over the pool +0.62
+  DFN best 127.6 Wh/kg: r_kt +0.08, U percentile 0.72, utilisation 0.87, retention 0.36
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0000 at 15 DFN calls, L2 0.0000 at 30; top-U above the flag k=1/3/5 gap 0.0835/0.0646/0.0646
+Chen2020@1x: n 64 (sound r_kt >= 0.3 36, starved r_kt <= 0.1 16); Spearman(U, r_kt) -0.79
+  sound: U~BOL +0.95, U~score +0.97, U~retention +0.87, median utilisation +0.91
+  starved: r_kt~utilisation +0.64, r_kt~score -0.08, median utilisation +0.89
+  log-score variance carried by U +0.64, utilisation -0.01, retention +0.37; U~score over the pool +0.94
+  DFN best 164.6 Wh/kg: r_kt +0.09, U percentile 0.95, utilisation 0.87, retention 0.41
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0000 at 13 DFN calls, L2 0.0000 at 31; top-U above the flag k=1/3/5 gap 0.0639/0.0639/0.0639
+Chen2020@2x: n 64 (sound r_kt >= 0.3 3, starved r_kt <= 0.1 52); Spearman(U, r_kt) -0.81
+  sound: U~BOL n/a, U~score n/a, U~retention n/a, median utilisation +0.81
+  starved: r_kt~utilisation +0.94, r_kt~score +0.63, median utilisation +0.51
+  log-score variance carried by U +0.10, utilisation +1.04, retention -0.15; U~score over the pool +0.19
+  DFN best 97.7 Wh/kg: r_kt -0.04, U percentile 0.70, utilisation 0.65, retention 0.37
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0000 at 13 DFN calls, L2 0.0000 at 31; top-U above the flag k=1/3/5 gap 0.2535/0.1579/0.1579
+Ecker2015@0.5x: n 64 (sound r_kt >= 0.3 64, starved r_kt <= 0.1 0); Spearman(U, r_kt) -0.79
+  sound: U~BOL +1.00, U~score +0.88, U~retention -0.53, median utilisation +0.98
+  starved: r_kt~utilisation n/a, r_kt~score n/a, median utilisation n/a
+  log-score variance carried by U +1.03, utilisation -0.00, retention -0.03; U~score over the pool +0.88
+  DFN best 370.3 Wh/kg: r_kt +0.37, U percentile 0.94, utilisation 0.98, retention 0.90
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0235 at 19 DFN calls, L2 0.0235 at 31; top-U above the flag k=1/3/5 gap 0.0235/0.0235/0.0000
+Ecker2015@1x: n 64 (sound r_kt >= 0.3 40, starved r_kt <= 0.1 4); Spearman(U, r_kt) -0.81
+  sound: U~BOL +1.00, U~score +0.92, U~retention +0.35, median utilisation +0.96
+  starved: r_kt~utilisation n/a, r_kt~score n/a, median utilisation +0.90
+  log-score variance carried by U +0.78, utilisation +0.03, retention +0.18; U~score over the pool +0.83
+  DFN best 336.7 Wh/kg: r_kt +0.23, U percentile 0.83, utilisation 0.96, retention 0.86
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0225 at 15 DFN calls, L2 0.0211 at 27; top-U above the flag k=1/3/5 gap 0.0570/0.0211/0.0211
+Ecker2015@2x: n 64 (sound r_kt >= 0.3 5, starved r_kt <= 0.1 44); Spearman(U, r_kt) -0.83
+  sound: U~BOL n/a, U~score n/a, U~retention n/a, median utilisation +0.91
+  starved: r_kt~utilisation +0.93, r_kt~score +0.87, median utilisation +0.77
+  log-score variance carried by U -0.11, utilisation +0.73, retention +0.38; U~score over the pool -0.24
+  DFN best 224.3 Wh/kg: r_kt +0.19, U percentile 0.31, utilisation 0.93, retention 0.71
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0058 at 16 DFN calls, L2 0.0000 at 33; top-U above the flag k=1/3/5 gap 0.0975/0.0374/0.0000
+Marquis2019@1x: n 64 (sound r_kt >= 0.3 64, starved r_kt <= 0.1 0); Spearman(U, r_kt) -0.85
+  sound: U~BOL +0.99, U~score +0.97, U~retention +0.55, median utilisation +0.92
+  starved: r_kt~utilisation n/a, r_kt~score n/a, median utilisation n/a
+  log-score variance carried by U +0.75, utilisation +0.09, retention +0.16; U~score over the pool +0.97
+  DFN best 199.5 Wh/kg: r_kt +0.33, U percentile 0.98, utilisation 0.92, retention 0.91
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0305 at 17 DFN calls, L2 0.0000 at 33; top-U above the flag k=1/3/5 gap 0.0399/0.0000/0.0000
+Marquis2019@2x: n 64 (sound r_kt >= 0.3 34, starved r_kt <= 0.1 14); Spearman(U, r_kt) -0.87
+  sound: U~BOL +0.97, U~score +0.93, U~retention +0.82, median utilisation +0.85
+  starved: r_kt~utilisation +0.71, r_kt~score +0.78, median utilisation +0.73
+  log-score variance carried by U +0.53, utilisation +0.20, retention +0.27; U~score over the pool +0.59
+  DFN best 140.3 Wh/kg: r_kt +0.32, U percentile 0.73, utilisation 0.88, retention 0.75
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0000 at 17 DFN calls, L2 0.0000 at 30; top-U above the flag k=1/3/5 gap 0.0092/0.0092/0.0092
+Mohtat2020@1x: n 64 (sound r_kt >= 0.3 64, starved r_kt <= 0.1 0); Spearman(U, r_kt) -0.77
+  sound: U~BOL +1.00, U~score +0.95, U~retention -0.09, median utilisation +0.95
+  starved: r_kt~utilisation n/a, r_kt~score n/a, median utilisation n/a
+  log-score variance carried by U +0.88, utilisation +0.07, retention +0.04; U~score over the pool +0.95
+  DFN best 240.6 Wh/kg: r_kt +0.58, U percentile 1.00, utilisation 0.96, retention 0.87
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0000 at 17 DFN calls, L2 0.0000 at 24; top-U above the flag k=1/3/5 gap 0.0000/0.0000/0.0000
+Mohtat2020@2x: n 64 (sound r_kt >= 0.3 56, starved r_kt <= 0.1 1); Spearman(U, r_kt) -0.76
+  sound: U~BOL +1.00, U~score +0.89, U~retention -0.10, median utilisation +0.90
+  starved: r_kt~utilisation n/a, r_kt~score n/a, median utilisation +0.91
+  log-score variance carried by U +0.78, utilisation +0.12, retention +0.10; U~score over the pool +0.87
+  DFN best 205.8 Wh/kg: r_kt +0.04, U percentile 1.00, utilisation 0.91, retention 0.79
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0000 at 18 DFN calls, L2 0.0000 at 28; top-U above the flag k=1/3/5 gap 0.0791/0.0736/0.0280
+NCA_Kim2011@0.5x: n 64 (sound r_kt >= 0.3 20, starved r_kt <= 0.1 23); Spearman(U, r_kt) -0.78
+  sound: U~BOL +0.52, U~score +0.32, U~retention -0.73, median utilisation +0.80
+  starved: r_kt~utilisation +0.67, r_kt~score +0.67, median utilisation +0.67
+  log-score variance carried by U -0.49, utilisation +1.96, retention -0.47; U~score over the pool -0.26
+  DFN best 68.5 Wh/kg: r_kt +0.34, U percentile 0.22, utilisation 0.86, retention 0.37
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0324 at 17 DFN calls, L2 0.0109 at 30; top-U above the flag k=1/3/5 gap 0.0703/0.0703/0.0703
+NCA_Kim2011@1x: n 64 (sound r_kt >= 0.3 1, starved r_kt <= 0.1 60); Spearman(U, r_kt) -0.77
+  sound: U~BOL n/a, U~score n/a, U~retention n/a, median utilisation +0.89
+  starved: r_kt~utilisation +0.95, r_kt~score +0.91, median utilisation +0.43
+  log-score variance carried by U -0.37, utilisation +2.57, retention -1.20; U~score over the pool -0.78
+  DFN best 74.1 Wh/kg: r_kt +0.13, U percentile 0.17, utilisation 0.86, retention 0.40
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0023 at 16 DFN calls, L2 0.0000 at 26; top-U above the flag k=1/3/5 gap 0.0174/0.0000/0.0000
+OKane2022@1.25x: n 64 (sound r_kt >= 0.3 18, starved r_kt <= 0.1 24); Spearman(U, r_kt) -0.82
+  sound: U~BOL +0.88, U~score +0.96, U~retention +0.89, median utilisation +0.88
+  starved: r_kt~utilisation +0.93, r_kt~score +0.31, median utilisation +0.83
+  log-score variance carried by U +0.61, utilisation -0.14, retention +0.53; U~score over the pool +0.81
+  DFN best 139.1 Wh/kg: r_kt +0.03, U percentile 0.92, utilisation 0.83, retention 0.38
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0000 at 15 DFN calls, L2 0.0000 at 30; top-U above the flag k=1/3/5 gap 0.0978/0.0186/0.0186
+OKane2022@1.5x: n 64 (sound r_kt >= 0.3 11, starved r_kt <= 0.1 37); Spearman(U, r_kt) -0.80
+  sound: U~BOL +0.75, U~score +0.95, U~retention +0.88, median utilisation +0.85
+  starved: r_kt~utilisation +0.89, r_kt~score +0.41, median utilisation +0.76
+  log-score variance carried by U +0.52, utilisation -0.05, retention +0.53; U~score over the pool +0.67
+  DFN best 125.1 Wh/kg: r_kt -0.06, U percentile 0.84, utilisation 0.72, retention 0.41
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0000 at 16 DFN calls, L2 0.0000 at 29; top-U above the flag k=1/3/5 gap 0.1133/0.0601/0.0601
+OKane2022@1x: n 128 (sound r_kt >= 0.3 63, starved r_kt <= 0.1 22); Spearman(U, r_kt) -0.79
+  sound: U~BOL +0.96, U~score +0.97, U~retention +0.90, median utilisation +0.91
+  starved: r_kt~utilisation +0.75, r_kt~score +0.53, median utilisation +0.89
+  log-score variance carried by U +0.65, utilisation -0.03, retention +0.38; U~score over the pool +0.95
+  DFN best 162.3 Wh/kg: r_kt +0.07, U percentile 0.92, utilisation 0.87, retention 0.42
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0101 at 17 DFN calls, L2 0.0000 at 39; top-U above the flag k=1/3/5 gap 0.0612/0.0198/0.0198
+OKane2022@2x: n 64 (sound r_kt >= 0.3 3, starved r_kt <= 0.1 52); Spearman(U, r_kt) -0.81
+  sound: U~BOL n/a, U~score n/a, U~retention n/a, median utilisation +0.81
+  starved: r_kt~utilisation +0.94, r_kt~score +0.65, median utilisation +0.51
+  log-score variance carried by U +0.09, utilisation +1.09, retention -0.18; U~score over the pool +0.17
+  DFN best 95.6 Wh/kg: r_kt -0.04, U percentile 0.72, utilisation 0.65, retention 0.37
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0000 at 14 DFN calls, L2 0.0000 at 32; top-U above the flag k=1/3/5 gap 0.2495/0.1699/0.1699
+
+Pooled over conditions:
+  sound_u_bol: 16 conditions, median +0.99, range +0.52 to +1.00
+  sound_u_score: 16 conditions, median +0.93, range -0.37 to +0.99
+  sound_u_ret: 16 conditions, median +0.13, range -0.94 to +0.90
+  starved_rkt_util: 14 conditions, median +0.90, range +0.64 to +0.95
+  starved_rkt_score: 14 conditions, median +0.66, range -0.08 to +0.92
+  u_rkt: 21 conditions, median -0.79, range -0.87 to -0.36
+  best_rkt: 21 conditions, median +0.23, range -0.06 to +0.58
+  front1: exact 9 of 21, median gap 0.0058, max 0.0586, mean calls 14.8
+  front2: exact 13 of 21, median gap 0.0000, max 0.0549, mean calls 28.4
+Verdict functions on development data (not verdicts): H74 mixed, H75 supported, H76 supported, H77 supported

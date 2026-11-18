@@ -97,7 +97,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 760px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f4f8a; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); gap: 18px; align-items: start; }
@@ -381,7 +381,7 @@
       walmartAdsNote,
       matchTakeNote,
     } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
     import { decodeInputs, encodeInputs } from "./share.mjs";
     import { whereToSellUrl } from "./to-where-to-sell.mjs";
 
@@ -431,7 +431,7 @@
       const link = `${location.href.split("#")[0]}#${encodeInputs(scenario)}`;
       try { history.replaceState(null, "", link); } catch { /* file URLs may reject it */ }
       if (navigator.clipboard?.writeText) navigator.clipboard.writeText(link).catch(() => {});
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_copied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "share_link_copied");
       window.prompt("Copy this private link:", link);
     }
 
@@ -548,14 +548,14 @@
       const filled = applyCategoryPreset({}, document.getElementById("category").value);
       document.getElementById("referralRate").value = filled.referralRate;
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "category_preset_applied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "category_preset_applied");
     }
 
     function applyStorage() {
       const filled = applyStoragePreset({}, document.getElementById("storageSeason").value);
       document.getElementById("storageRate").value = filled.storageRate;
       update();
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "storage_preset_applied");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "storage_preset_applied");
     }
 
     document.getElementById("category").addEventListener("change", applyCategory);
@@ -582,19 +582,19 @@
                   : ["holdTakePct", "matchTakePct", "promoTakePct", "promoDays", "monthDays"].includes(id)
                     ? "match_take_compared"
                     : "listing_profit_calculated";
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, event);
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, event);
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
         update();
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "fulfillment_path_compared");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "fulfillment_path_compared");
       });
     });
     document.getElementById("usageOptOut").addEventListener("change", update);
     document.getElementById("share").addEventListener("click", shareLink);
     document.getElementById("whereToSellLink").addEventListener("click", () => {
       // Counts only that the handoff happened, never the listing.
-      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "handoff_where_to_sell");
+      recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "handoff_where_to_sell");
     });
     restoreInputs();
     update();
@@ -607,8 +607,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

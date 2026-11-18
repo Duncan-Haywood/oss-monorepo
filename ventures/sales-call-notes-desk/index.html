@@ -49,6 +49,15 @@
     .scroll { overflow-x: auto; }
     pre { white-space: pre-wrap; background: #fcfcfe; border: 1px solid #d6d9e4; border-radius: 10px; padding: 12px; font: 14px/1.5 system-ui, sans-serif; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 480px) { div.row3:has(#ai-provider) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 418px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

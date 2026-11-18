@@ -25,6 +25,6 @@
     {"severity": "low", "what": "llms.txt and pyproject point to the old duncan-haywood.github.io address instead of marisstella.app.", "where": "ventures/open-tennis-robots/llms.txt ; pyproject.toml"},
     {"severity": "low", "what": "aim() exits its azimuth-correction loop after 6 passes without signalling non-convergence; README catch study takes ~90 s for four cells.", "where": "ventures/open-tennis-robots/src/tennisbots/launcher.py:aim"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15712"],
   "verdict": "Physics and planners are right where checked: an independent integrator, closed-form vacuum range, hand-computed wheel speeds, ITF constants and the published catch table all reproduce, and the README is unusually honest that nothing is built and the distributions are guesses. It does not meet the bar because verification is weak (two seeded bugs, including a doubled net width and a 30% change in Magnus lift, passed every test) and a safety claim over-reaches the firmware (unclamped base target, software e-stop clear). Finished in scope for a v0.1 design, but not something a robotics safety engineer would sign off for people-adjacent use."
 }

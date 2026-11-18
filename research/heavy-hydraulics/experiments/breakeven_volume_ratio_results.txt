@@ -1,0 +1,46 @@
+pump 45 L/min; p_n 10.91 bar; LS standby 2 L/min; 3000 cycles (as 5s)
+m* = beta [(r-1) p_q + r (p_Q - p_q) + r d_bar] + I/B; R2 = (r-1) p_q + r d (two-number rule)
+
+d = 0 bar (identity checked on every cycle: largest relative gap 5.6e-15)
+  r, pump volume / LS volume while moving: median 1.433 (5-95% 1.218 to 1.749)
+  p_Q, time-weighted load pressure, bar: median 33.331 (5-95% 24.157 to 46.268)
+  p_q, demand-weighted load pressure, bar: median 33.007 (5-95% 23.676 to 46.232)
+  beta = V / B: median 0.867 (5-95% 0.745 to 0.968)
+  terms of m*, bar:
+    beta (r-1) p_q: median 12.201 (5-95% 5.955 to 23.515)
+    beta r (p_Q - p_q), covariance: median 0.090 (5-95% -4.244 to 4.456)
+    beta r d_bar: median 0.000 (5-95% 0.000 to 0.000)
+    I / B: median 8.141 (5-95% 2.110 to 13.958)
+  |covariance| / (S / B): median 0.111 (5-95% 0.010 to 0.440)
+  exact m*: median 20.525 (5-95% 10.710 to 34.071)
+  R2 two-number rule: median 14.161 (5-95% 6.804 to 27.010); median R2 / median m* 0.690
+  per-cycle |R2 - m*| / m*: median 0.314 (5-95% 0.050 to 0.566)
+  R1 (all but covariance): median 20.53; per-cycle |R1 - m*| / m* median 0.064 (5-95% 0.006 to 0.299)
+  Spearman(R2, m*) 0.743; Spearman(r, m*) 0.765; Spearman(p_q, m*) 0.118
+  winner agreement R2 vs exact at a 14 bar margin: 63.3% of cycles (LS wins by exact 84.0%, by R2 51.0%)
+  winner agreement R2 vs exact at a 25 bar margin: 77.9% of cycles (LS wins by exact 27.9%, by R2 7.9%)
+
+d = 6 bar (identity checked on every cycle: largest relative gap 2.6e-15)
+  r, pump volume / LS volume while moving: median 1.433 (5-95% 1.218 to 1.749)
+  p_Q, time-weighted load pressure, bar: median 33.331 (5-95% 24.157 to 46.268)
+  p_q, demand-weighted load pressure, bar: median 33.007 (5-95% 23.676 to 46.232)
+  beta = V / B: median 0.867 (5-95% 0.745 to 0.968)
+  terms of m*, bar:
+    beta (r-1) p_q: median 12.201 (5-95% 5.955 to 23.515)
+    beta r (p_Q - p_q), covariance: median 0.090 (5-95% -4.244 to 4.456)
+    beta r d_bar: median 7.413 (5-95% 6.223 to 9.122)
+    I / B: median 8.141 (5-95% 2.110 to 13.958)
+  |covariance| / (S / B): median 0.111 (5-95% 0.010 to 0.440)
+  exact m*: median 27.973 (5-95% 17.609 to 42.507)
+  R2 two-number rule: median 22.826 (5-95% 14.213 to 37.200); median R2 / median m* 0.816
+  per-cycle |R2 - m*| / m*: median 0.185 (5-95% 0.025 to 0.375)
+  R1 (all but covariance): median 27.82; per-cycle |R1 - m*| / m* median 0.047 (5-95% 0.004 to 0.202)
+  Spearman(R2, m*) 0.805; Spearman(r, m*) 0.811; Spearman(p_q, m*) 0.126
+  winner agreement R2 vs exact at a 14 bar margin: 95.8% of cycles (LS wins by exact 99.2%, by R2 95.4%)
+  winner agreement R2 vs exact at a 25 bar margin: 67.9% of cycles (LS wins by exact 66.4%, by R2 38.3%)
+
+V1 HOLDS (median r in 1.35 to 1.55: 1.433)
+V2 REFUTED (median |covariance| / (S/B) < 0.10: 0.111)
+V3 REFUTED (median R2 within 25% of median m* at d 0 and 6: 0.690, 0.816)
+V4 HOLDS (Spearman(R2, m*) > 0.7 at d 0: 0.743)
+V5 REFUTED (winner agreement >= 85% at 14 and 25 bar, d 6: 95.8%, 67.9%)

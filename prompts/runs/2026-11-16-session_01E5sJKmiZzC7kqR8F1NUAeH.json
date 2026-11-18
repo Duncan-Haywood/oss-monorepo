@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKmiZzC7kqR8F1NUAeH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T05:18:25Z",
+  "ended": "2026-11-16T06:03:19Z",
+  "wall_minutes": 45.23,
+  "tokens_in": 5908653,
+  "tokens_out": 21280,
+  "cost_usd": 2.3613,
+  "tool_calls": 56,
+  "task": "Deepen (flagship 6) shift-roster-builder: settle the 2 s repair reserve on 350-400 copy weeks with more seeds",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16466",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: sits at 1999 of 2000 chars, so landing an item means compressing its replacement text to a few words; three tries of flagship_field.py to fit."
+    },
+    {
+      "file": ".claude stop hook",
+      "issue": "the stop hook asks to commit untracked files while a background benchmark is still writing its jsonl; committing a partial results file would be wrong, so the hook was answered, not obeyed, until the run finished."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (next: '350-400 seeds')",
+      "why": "more seeds alone stayed at p=0.11; added a noise rerun and a pre-registered fresh-seed test so the question could actually be decided",
+      "did": "noise rerun (22/24 ties) then a pre-registered 48-build test on seeds 13-24",
+      "result": "rule met (22 vs 10, one-sided p=0.025), default changed for 300+ copy weeks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-shift-roster-a-reserve-that-earned-its-default.md",
+    "ventures/shift-roster-builder/README.md ('The repair reserve on the biggest weeks')"
+  ],
+  "goal": null,
+  "notes": "168 builds of 20 s each run here (seeds 7-12 both configs, noise rerun, fresh pre-registered test). Pre-registration committed in 6ae4dcecf before the fresh run. repair-flow.test.mjs passes (6/6); run_venture_tests.py shift-roster-builder: ok, 664 tests, 0 failed (225.5 s); venture-preflight.mjs: preflight clean; CI green on every finished check at merge, changed-ventures still running (same command as the local pass). No agent doc: the README section carries everything the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "369c766b-9a28-5aa6-9a0d-c4d1a20ed76d",
+    "transcripts": 1,
+    "first": "2026-11-16T05:18:25Z",
+    "last": "2026-11-16T06:03:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 127,
+        "output": 21280,
+        "thinking": 3415,
+        "cache_read": 5811920,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96606,
+        "api_equivalent_usd": 2.3613,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 127,
+      "output": 21280,
+      "thinking": 3415,
+      "cache_read": 5811920,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96606,
+      "api_equivalent_usd": 2.3613,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 49,
+      "Monitor": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 45.23,
+      "active_minutes": 7.61,
+      "model_minutes": 5.01,
+      "tool_minutes": 2.6,
+      "waiting_on_human_minutes": 37.61,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an OR engineer designing, running and analysing 168 benchmark builds plus a pre-registered test and a default change",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 254.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

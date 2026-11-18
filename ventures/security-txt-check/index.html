@@ -166,7 +166,7 @@ node check.mjs https://example.com/.well-known/security.txt --timeout 5000</pre>
 
   <script type="module">
     import { buildReport } from './engine.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const $ = (sel) => document.querySelector(sel);
     const els = {
@@ -221,7 +221,7 @@ node check.mjs https://example.com/.well-known/security.txt --timeout 5000</pre>
       }
       els.status.textContent = '';
       render();
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
     });
 
     const EXAMPLE = [
@@ -238,7 +238,7 @@ node check.mjs https://example.com/.well-known/security.txt --timeout 5000</pre>
       els.text.value = EXAMPLE;
       render();
       els.status.textContent = 'Worked example: an expired Expires, a Contact that is a bare address rather than a mailto: URI, the British spelling of Acknowledgments, an http: Encryption URI, a language name instead of a language tag, and a Policy line whose colon is missing.';
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
     });
 
     $('#clear').addEventListener('click', () => {
@@ -253,8 +253,8 @@ node check.mjs https://example.com/.well-known/security.txt --timeout 5000</pre>
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

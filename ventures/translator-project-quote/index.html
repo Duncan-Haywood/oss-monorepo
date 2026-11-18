@@ -13,7 +13,7 @@
 :root{font:16px/1.5 system-ui,sans-serif;color:#18212b;background:#f5f1e8;--ink:#18212b;--muted:#5c6870;--line:#c9c2b5;--accent:#b34e2c;--panel:#fffdf8}
 *{box-sizing:border-box}body{margin:0;color:var(--ink)}
 main{max-width:850px;margin:auto;padding:36px 18px 60px}
-h1{font:clamp(2rem,5vw,3.5rem)/1.05 Georgia,serif;max-width:700px;margin:.2rem 0 1rem}
+h1{font:clamp(2rem,5vw,3rem)/1.05 Georgia,serif;max-width:700px;margin:.2rem 0 1rem}
 h2{font:1.25rem Georgia,serif}p{max-width:720px}.lede{font-size:1.12rem;color:var(--muted)}
 section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;margin:24px 0;box-shadow:0 5px 0 #e6dfd2}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -397,8 +397,15 @@ update();
       };
     }
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -427,7 +434,7 @@ update();
     function showProposal() {
       const result = calculate(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -483,7 +490,7 @@ update();
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';

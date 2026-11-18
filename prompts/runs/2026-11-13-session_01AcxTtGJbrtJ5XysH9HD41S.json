@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtGJbrtJ5XysH9HD41S",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T19:06:02Z",
+  "ended": "2026-11-13T19:16:19Z",
+  "wall_minutes": 10.47,
+  "tokens_in": 4746743,
+  "tokens_out": 34775,
+  "cost_usd": 2.6913,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15587",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first energy formula charged demand above the 219 L/min pump on Q_max instead of q; caught by the flat-mode reproduction check (5.456 vs 6g's 5.495) and fixed before reporting",
+    "post front matter: seo_title 74 chars and description 204 chars on first try; shortened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/experiments/excavator_breakeven_geometry.py",
+      "issue": "P_C is 129.6 bar (SHARE * P_TOP), printed as 130 everywhere; 6h's A and bound were computed at 150 bar, so a later step comparing against them sees a 0.3% gap that looks like a bug"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-the-central-case-hid-the-pump-drag.md",
+    "research/heavy-hydraulics/LOG.md (6i)",
+    "research/heavy-hydraulics/paper/draft.md section 3.7j"
+  ],
+  "goal": null,
+  "notes": "Milestone 6i of heavy-hydraulics. huggingface.co reachable again (6h's blocker); motion cache refilled, 6g reproduced byte for byte. Predictions I1-I6 committed before any case ran (commit 95189b811). Result: g 0.014 at central geometry, median 0.129; fixed pump beats 3.99 L/h no-load rate in 66.7% of 384 geometries (6g 32.8%). Local checks: 63 tests pass, build.py ok, check_numbers 253 claims 0 missing, research_live_links, check_md_links, cite_check ok, run_workflow_locally research-ci 3/3 run steps (checkout/setup-python uses: steps not run locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "456b65a5-cc1d-52cd-8c6c-9a785f84feaa",
+    "transcripts": 1,
+    "first": "2026-11-13T19:06:02Z",
+    "last": "2026-11-13T19:16:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 81,
+        "output": 34775,
+        "thinking": 7327,
+        "cache_read": 4612545,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134117,
+        "api_equivalent_usd": 2.6913,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 81,
+      "output": 34775,
+      "thinking": 7327,
+      "cache_read": 4612545,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134117,
+      "api_equivalent_usd": 2.6913,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 37,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.47,
+      "active_minutes": 10.47,
+      "model_minutes": 6.65,
+      "tool_minutes": 3.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a hydraulics engineer re-deriving the continuation, rerunning the 384-geometry sweep and writing up: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 371.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

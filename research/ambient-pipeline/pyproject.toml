@@ -16,3 +16,6 @@ models = ["faster-whisper", "silero-vad-lite", "llama-cpp-python", "piper-tts", 
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

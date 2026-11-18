@@ -5,7 +5,7 @@
 export const KINDS = { loan: "Amortizing loan (stated APR)", factor: "Fixed payback (factor rate)" };
 
 const round = (x, d = 2) => Math.round(x * 10 ** d) / 10 ** d;
-export const money = (x) => (x < 0 ? "-" : "") + "$" + Math.abs(round(x, 0)).toLocaleString("en-US");
+export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(round(x, 0)).toLocaleString("en-US"));
 export const pct = (x, d = 1) => round(x, d).toFixed(d) + "%";
 export const num = (s) => {
   const n = Number(String(s ?? "").replace(/[$,%\s]/g, ""));
@@ -75,6 +75,10 @@ export function parseOffers(text) {
     if (!(o.feePct >= 0 && o.feePct < 50) || !(o.feeFlat >= 0)) return errors.push(`${at}: fees must be 0 or more (percent under 50)`);
     if (![1, 2, 4, 12, 24, 26, 52, 252].includes(o.ppy)) return errors.push(`${at}: payments per year must be one of 1, 2, 4, 12, 24, 26, 52, 252 (annual, semiannual, quarterly, monthly, semimonthly, biweekly, weekly, business-daily)`);
     if (!(o.prepayPct >= 0 && o.prepayPct <= 20)) return errors.push(`${at}: prepayment percentage must be 0 to 20`);
+    // A term shorter than one payment interval used to be stretched to a full interval (a one-month
+    // factor advance paid annually was priced as if repaid 12 months out: 10% APR, not about 120%).
+    if ((o.termMonths * o.ppy) / 12 < 0.5) return errors.push(`${at}: a ${o.termMonths}-month term is shorter than one payment interval at ${o.ppy} payment(s) a year`);
+    if (!(o.amount - (o.amount * o.feePct) / 100 - o.feeFlat > 0)) return errors.push(`${at}: fees take all of the amount, so no cash is received and no APR exists`);
     offers.push(o);
   });
   return { offers, errors };

@@ -104,7 +104,7 @@
     :root { --muted-ink: #574d80; }
     body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 760px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #4b32a8; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(300px, .8fr) minmax(0, 1.4fr); gap: 18px; align-items: start; }
@@ -171,6 +171,7 @@
     .rates { margin-top: 18px; }
     details { border: 1px solid #ded9f0; border-radius: 10px; padding: 10px 12px; margin-bottom: 9px; background: #faf9ff; }
     summary { cursor: pointer; font-weight: 650; }
+    .hero-more { max-width: 72ch; } .hero-more ul { margin: 8px 0 0; padding-left: 1.2em; } .hero-more li { margin: 4px 0; }
     details .fields { margin-top: 12px; grid-template-columns: repeat(3, 1fr); }
     details p.note { font-size: .84rem; color: var(--muted-ink); margin: 8px 0 0; }
     .error { color: #b3241c; font-weight: 650; }
@@ -232,6 +233,14 @@
       .rates .cell-label { color: var(--muted-ink); }
     }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #channelPanels:empty{min-height:1269px}}
+@media (scripting:enabled) and (min-width:324px){html:not(.pf-rows-ready) #channelPanels:empty{min-height:1189px}}
+@media (scripting:enabled) and (min-width:352px){html:not(.pf-rows-ready) #channelPanels:empty{min-height:1109px}}
+@media (scripting:enabled) and (min-width:428px){html:not(.pf-rows-ready) #channelPanels:empty{min-height:1049px}}
+@media (scripting:enabled) and (min-width:488px){html:not(.pf-rows-ready) #channelPanels:empty{min-height:909px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
@@ -240,25 +249,23 @@
     <p>
       Enter what an item cost you and what you would sell it for, once. This
       compares what <strong>eBay, Etsy, Amazon, Mercari, your own store and a
-      direct sale</strong> each leave you after their fees — plus <strong>Reverb</strong>,
-      switched off until you turn it on because it only applies to musical
-      instruments and audio gear — including the per-listing
-      fees and monthly plans that flat “X% fee” comparisons skip — then applies
-      each channel’s return rate so a high-return marketplace cannot win on a
-      completed sale and lose you money in the real mix. When you sell more
-      units on one channel than another, it also ranks expected monthly cash,
-      not just the single sale. It divides what you keep by how many days you
-      expect that channel to take, so a slower no-fee sale does not
-      automatically beat a faster marketplace. Then it asks the question fees
-      alone cannot answer: <strong>how often does it actually sell there</strong>,
-      and what is one listing worth per month of shelf once you count that.
-      Everything runs in this page; nothing is
-      uploaded.
+      direct sale</strong> each leave you after their fees, including the
+      per-listing fees and monthly plans that flat “X% fee” comparisons skip.
+      Then it weighs each channel by its return rate, how long it takes to
+      sell, and <strong>how often the item actually sells there</strong>.
+      Everything runs in this page; nothing is uploaded.
     </p>
-    <p>Already cross-listing everywhere? <a href="./vs-vendoo.html">This tool vs. Vendoo</a> — different jobs, and most resellers want both.</p>
-    <p>Running inventory across ten-plus marketplaces already? <a href="./vs-list-perfectly.html">This tool vs. List Perfectly</a> — same split: List Perfectly runs the catalog, this decides where a new item belongs first.</p>
-    <p>Posting through a browser extension instead? <a href="./vs-crosslist.html">This tool vs. Crosslist</a> — same split: Crosslist posts the listing everywhere, this decides where it belongs first.</p>
-    <p>Been opening each marketplace’s own fee calculator instead? <a href="vs-each-marketplaces-own-calculator.html">Here is what that comparison misses</a> — and why you should still check theirs before you price the listing.</p>
+    <details class="hero-more">
+      <summary>What else the comparison counts</summary>
+      <ul>
+        <li><strong>Reverb</strong>, switched off until you turn it on, because it only applies to musical instruments and audio gear.</li>
+        <li>Each channel’s return rate, so a high-return marketplace cannot win on a completed sale and lose you money in the real mix.</li>
+        <li>Expected monthly cash when you sell more units on one channel than another, not just the single sale.</li>
+        <li>What you keep divided by the days you expect each channel to take, so a slower no-fee sale does not automatically beat a faster marketplace.</li>
+        <li>What one listing is worth per month of shelf, once you count how often it sells there.</li>
+      </ul>
+    </details>
+    <p>Already using another tool? How this differs from <a href="./vs-vendoo.html">Vendoo</a>, <a href="./vs-list-perfectly.html">List Perfectly</a>, <a href="./vs-crosslist.html">Crosslist</a> and <a href="vs-each-marketplaces-own-calculator.html">each marketplace’s own fee calculator</a>: they post and manage listings, or price one marketplace at a time; this decides where a new item belongs first, and most resellers want both.</p>
   </header>
 
   <main class="layout">
@@ -565,7 +572,7 @@
     import { comparisonCsv } from "./export.mjs";
     import { decodeComparison, encodeComparison } from "./share.mjs";
     import { handoffsForResults, quickCompareUrl } from "./handoff.mjs";
-    import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
+    import { readOptOut, recordUsage, writeOptOut, usageStorage } from "./usage.mjs";
 
     const SHARED_FIELDS = [
       "price", "shippingCharged", "shippingCost", "itemCost",
@@ -729,7 +736,7 @@
           const eventName = event.target.dataset.key === "expectedMonthlySales"
             ? "channel_volume_edited"
             : "channel_rates_edited";
-          recordUsage(localStorage, optedOut(), eventName);
+          recordUsage(usageStorage(), optedOut(), eventName);
           save();
         });
       }
@@ -747,7 +754,7 @@
             if (el) el.open = true;
           }
           update();
-          recordUsage(localStorage, optedOut(), "channel_toggled");
+          recordUsage(usageStorage(), optedOut(), "channel_toggled");
           save();
         });
       }
@@ -831,7 +838,7 @@
         // name and the day, never the item. It is what will say whether this
         // link is worth keeping once the site is public.
         link.addEventListener("click", () => {
-          recordUsage(localStorage, optedOut(), `handoff_${offer.channel}`);
+          recordUsage(usageStorage(), optedOut(), `handoff_${offer.channel}`);
         });
         item.appendChild(link);
         list.appendChild(item);
@@ -997,31 +1004,31 @@
     for (const id of SHARED_FIELDS) {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, optedOut(), SHELF_FIELDS.has(id) ? "shelf_time_compared" : "comparison_calculated");
+        recordUsage(usageStorage(), optedOut(), SHELF_FIELDS.has(id) ? "shelf_time_compared" : "comparison_calculated");
         save();
       });
     }
     document.getElementById("buyTarget").addEventListener("input", renderSourcing);
-    document.getElementById("buyTarget").addEventListener("change", () => recordUsage(localStorage, optedOut(), "max_buy_price_checked"));
+    document.getElementById("buyTarget").addEventListener("change", () => recordUsage(usageStorage(), optedOut(), "max_buy_price_checked"));
     for (const radio of document.querySelectorAll('input[name="rankBy"]')) {
       radio.addEventListener("change", () => {
         update();
-        recordUsage(localStorage, optedOut(), "ranked_by_speed");
+        recordUsage(usageStorage(), optedOut(), "ranked_by_speed");
         save();
       });
     }
     document.getElementById("includeSubscription").addEventListener("change", () => {
       update();
-      recordUsage(localStorage, optedOut(), "subscription_toggled");
+      recordUsage(usageStorage(), optedOut(), "subscription_toggled");
       save();
     });
     document.getElementById("includeReturns").addEventListener("change", () => {
       update();
-      recordUsage(localStorage, optedOut(), "returns_compared");
+      recordUsage(usageStorage(), optedOut(), "returns_compared");
       save();
     });
     document.getElementById("usageOptOut").addEventListener("change", (event) => {
-      writeOptOut(localStorage, event.target.checked);
+      writeOptOut(usageStorage(), event.target.checked);
     });
     function fallbackCopy(text) {
       const textarea = document.createElement("textarea");
@@ -1060,7 +1067,7 @@
           fallbackCopy(url.href);
           status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
         }
-        recordUsage(localStorage, optedOut(), "share_link_copied");
+        recordUsage(usageStorage(), optedOut(), "share_link_copied");
       } catch (error) {
         status.textContent = error.message || "Fix the inputs before creating a share link.";
       }
@@ -1076,7 +1083,7 @@
         link.download = "where-to-sell-comparison.csv";
         link.click();
         setTimeout(() => URL.revokeObjectURL(url), 0);
-        recordUsage(localStorage, optedOut(), "comparison_csv_downloaded");
+        recordUsage(usageStorage(), optedOut(), "comparison_csv_downloaded");
         status.textContent = "Comparison CSV downloaded. It contains calculated results, not usage data.";
       } catch (error) {
         status.textContent = error.message || "Fix the inputs before downloading a comparison.";
@@ -1103,7 +1110,7 @@
       update();
     });
 
-    document.getElementById("usageOptOut").checked = readOptOut(localStorage);
+    document.getElementById("usageOptOut").checked = readOptOut(usageStorage());
     restore();
     restoreSharedLink();
     renderPanels();

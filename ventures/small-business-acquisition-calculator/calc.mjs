@@ -22,7 +22,7 @@ export const FIELDS = [
 ];
 
 const num = (v) => (typeof v === "number" ? v : parseFloat(String(v ?? "").replace(/[$,%\s,]/g, "")));
-export const money = (x) => (x < 0 ? "-$" : "$") + Math.abs(Math.round(x)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(x)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 export const pct = (x) => (Math.round(x * 10) / 10).toFixed(1) + "%";
 
 // Monthly level payment for `principal` over `years`, annual rate in percent.

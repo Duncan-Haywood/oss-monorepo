@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqydB9zGYm6BRK5VfkSz",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T22:39:04Z",
+  "ended": "2026-11-15T22:45:14Z",
+  "wall_minutes": 6.36,
+  "tokens_in": 4796579,
+  "tokens_out": 31014,
+  "cost_usd": 2.4512,
+  "tool_calls": 52,
+  "task": "Explore: differential fuzzing of the portfolio's three MT940 readers",
+  "projects": [
+    "eu-bank-statement-reader",
+    "ai-bookkeeper",
+    "mt940-statement-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16366",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 35,
+  "outcome": "success",
+  "errors": [
+    "A first harness edit through a bash heredoc with ${} template literals failed on bash 'bad substitution'; rewrote the harness as a committed file with the Write tool.",
+    "CI changed-ventures failed on platform/ci/check_cli_entry.py: the harness's CLI guard compared import.meta.url to a hand-built file:// string; switched to pathToFileURL and pushed a fix."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/eu-bank-statement-reader/README.md",
+      "issue": "Said tests run with `node --test`; CLAUDE.md says Node 22 needs `node --test '*.test.mjs'`. Updated."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-three-mt940-readers-one-dropped-statements.md",
+    "ventures/eu-bank-statement-reader/README.md (Differential fuzzing section)"
+  ],
+  "goal": null,
+  "notes": "Idea: use the repository's three independently written MT940 readers as each other's test oracle. ventures/eu-bank-statement-reader/mt940-differential.mjs generates valid MT940 files with known transactions (20 variations plus a mangle mode) and compares all three readers. Found three bugs in eu-bank-statement-reader, all fixed: only the first SWIFT {4:} message in a file was read (787/1000 multi-message files wrong, balance check still passing), a '}' in :86: ended the block early, and YY 70-99 read as 20xx. ai-bookkeeper and mt940-statement-check agreed on every file; no reader threw on 5,000 mangled files. Verification: run_venture_tests.py for the three ventures: 3 suites, 0 failed (60 + 30 + 3264 tests); 7 new tests fail on the old calc.mjs. check_post_frontmatter, check_post_links and check_llms_txt_links clean. Next: the same harness for the four camt.053 readers.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6ebc5ba7-9cd4-5472-af27-2bc0b5b87fda",
+    "transcripts": 1,
+    "first": "2026-11-15T22:39:04Z",
+    "last": "2026-11-15T22:45:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 96,
+        "output": 31014,
+        "thinking": 7270,
+        "cache_read": 4684781,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111702,
+        "api_equivalent_usd": 2.4512,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 96,
+      "output": 31014,
+      "thinking": 7270,
+      "cache_read": 4684781,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111702,
+      "api_equivalent_usd": 2.4512,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 48,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.36,
+      "active_minutes": 6.36,
+      "model_minutes": 5.15,
+      "tool_minutes": 1.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an engineer writing an MT940 generator, three adapters, diagnosing and fixing the envelope bug, tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 163.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

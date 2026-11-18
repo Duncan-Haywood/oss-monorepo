@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKj4m5vqcvK7eXdiPRn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T23:18:08Z",
+  "ended": "2026-11-12T23:26:14Z",
+  "wall_minutes": 8.57,
+  "tokens_in": 3432385,
+  "tokens_out": 15005,
+  "cost_usd": 1.6419,
+  "tool_calls": 40,
+  "task": "Deepen (flagship 4) changepoint-detector: re-check round 6's HINT_BUDGET under persist 2 (default since round 7)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15294",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/eval/watch-eagerness.mjs",
+      "issue": "Its replay named confirm/tolerance/hold but not persist, so after round 7 a rerun would silently have scored persist 2 against round 6's persist-1 file; round 7's README noted the same drift in two other scripts but not this one. Pinned via WATCH_PERSIST."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-default-changed-under-a-tested-budget.md",
+    "ventures/changepoint-detector/README.md (Round 6 again, under persist 2)"
+  ],
+  "goal": "Confirm the shipped eagerness-hint budget still meets its pre-registered bar under the shipped watch defaults",
+  "notes": "Pre-registered rule committed (commit 1) before the run. Persist-1 rerun reproduced eval/watch-eagerness.out.txt line for line. Persist 2: hint B=2 17/31 vs quiet 16/31, 17.5 vs middle 27.3 per 1000, share 39.7% vs 42.6%: all pass; budget stays 2. One pick changed (children_per_woman quiet->middle). eagernessText and llms.txt now quote persist-2 numbers. Local checks: node --test watch-eagerness/watch-auto/watch-page 17/17 pass; run_venture_tests.py changepoint-detector ok (261 s); venture-preflight.mjs changepoint-detector clean; post frontmatter, links, similarity checks clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d23f3de4-8489-560a-8e79-c1e27d9895f7",
+    "transcripts": 1,
+    "first": "2026-11-12T23:18:08Z",
+    "last": "2026-11-12T23:26:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 76,
+        "output": 15005,
+        "thinking": 2131,
+        "cache_read": 3348325,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83984,
+        "api_equivalent_usd": 1.6419,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 76,
+      "output": 15005,
+      "thinking": 2131,
+      "cache_read": 3348325,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83984,
+      "api_equivalent_usd": 1.6419,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.57,
+      "active_minutes": 8.57,
+      "model_minutes": 3.87,
+      "tool_minutes": 4.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "re-running a pre-registered eval under a changed default, diffing, updating text, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 182.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

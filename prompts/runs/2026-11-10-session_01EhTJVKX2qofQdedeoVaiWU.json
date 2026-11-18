@@ -1,0 +1,225 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVKX2qofQdedeoVaiWU",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue-generating products)",
+  "input_sha256": "76f6ec775e8921d5476a11f4ddb627416f69d379a55107f94979586d61c5611c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T20:57:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "redteam: wall-framing-takeoff/slab.mjs",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14608",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 3 says to write the gap test and then rerun, but rerun gave a red suite a pass (every gap 'caught'); a run that reruns before the fix lands, or with any unrelated red test, gets false caught_after_fix values. Fixed in redteam.py in a separate control-plane PR."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Killing a running campaign/rerun leaves the target mutated; worth one line saying to git checkout the target after any kill."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Session harness says push only to the designated branch; CLAUDE.md wants the control-plane change in its own PR. Landed the venture fix first, then reused the same branch name restarted from main for the control-plane PR.",
+      "did": "two sequential PRs from one branch name",
+      "result": "pending"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-slab-joints-that-only-warned.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: both open entries (framerate nightly, doc_index in CI) already have open control-plane PRs (#12928, #12926) awaiting owner approval; left as is. Campaign: 10 mutants on slab.mjs, 8 caught; 2 gaps fixed, rerun caught_after_fix true for both (suite green: node --test ventures/wall-framing-takeoff/**/*.test.mjs, 1177 pass 0 fail). Guard (4b): property test over every accepted slab size that panels stay within spacing and 1.5:1; rerun green-baseline check in redteam.py (control-plane PR). Note: a killed rerun left slab.mjs mutated mid-run; restored with git checkout before editing.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/slab.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 546542792,
+        "commit": "1044829b",
+        "sites": 145,
+        "baseline_seconds": 80.4,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/slab.mjs",
+            "line": 9,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "export const BAG_YIELD = { 40: 0.3, 60: 0.45, 80: 0.6 };",
+            "after": "export const BAG_YIELD = { 40: 0.3, 61: 0.45, 80: 0.6 };",
+            "line_text": "export const BAG_YIELD = { 40: 0.3, 60: 0.45, 80: 0.6 };",
+            "caught": true,
+            "seconds": 79.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/slab.mjs",
+            "line": 22,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (!(waste >= 0 && waste <= 0.5)) errors.push(\"Waste is a fraction from 0 to 0.5.\");",
+            "after": "if (!(waste >= 1 && waste <= 0.5)) errors.push(\"Waste is a fraction from 0 to 0.5.\");",
+            "line_text": "  if (!(waste >= 0 && waste <= 0.5)) errors.push(\"Waste is a fraction from 0 to 0.5.\");",
+            "caught": true,
+            "seconds": 78.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/slab.mjs",
+            "line": 25,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "const area = shape === \"pier\" ? Math.PI * (/** @type {number} */ (s.diameter) / 2) ** 2 : /** @type {number} */ (s.length) * /** @type {number} */ (s.width);",
+            "after": "const area = shape !== \"pier\" ? Math.PI * (/** @type {number} */ (s.diameter) / 2) ** 2 : /** @type {number} */ (s.length) * /** @type {number} */ (s.width);",
+            "line_text": "  const area = shape === \"pier\" ? Math.PI * (/** @type {number} */ (s.diameter) / 2) ** 2 : /** @type {number} */ (s.length) * /** @type {number} */ (s.width);",
+            "caught": true,
+            "seconds": 83.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/slab.mjs",
+            "line": 28,
+            "col": 38,
+            "operator": "times-to-div",
+            "before": "const orderYd = Math.ceil(withWaste * 4 - 1e-9) / 4; // plants sell in quarter yards",
+            "after": "const orderYd = Math.ceil(withWaste / 4 - 1e-9) / 4; // plants sell in quarter yards",
+            "line_text": "  const orderYd = Math.ceil(withWaste * 4 - 1e-9) / 4; // plants sell in quarter yards",
+            "caught": true,
+            "seconds": 78.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/slab.mjs",
+            "line": 29,
+            "col": 30,
+            "operator": "times-to-div",
+            "before": "const bags = Math.ceil(cuFt * (1 + waste) / BAG_YIELD[/** @type {40|60|80} */ (bag)] - 1e-9);",
+            "after": "const bags = Math.ceil(cuFt / (1 + waste) / BAG_YIELD[/** @type {40|60|80} */ (bag)] - 1e-9);",
+            "line_text": "  const bags = Math.ceil(cuFt * (1 + waste) / BAG_YIELD[/** @type {40|60|80} */ (bag)] - 1e-9);",
+            "caught": true,
+            "seconds": 77.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/slab.mjs",
+            "line": 29,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const bags = Math.ceil(cuFt * (1 + waste) / BAG_YIELD[/** @type {40|60|80} */ (bag)] - 1e-9);",
+            "after": "const bags = Math.ceil(cuFt * (2 + waste) / BAG_YIELD[/** @type {40|60|80} */ (bag)] - 1e-9);",
+            "line_text": "  const bags = Math.ceil(cuFt * (1 + waste) / BAG_YIELD[/** @type {40|60|80} */ (bag)] - 1e-9);",
+            "caught": true,
+            "seconds": 78.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/slab.mjs",
+            "line": 56,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (!(s.length >= 12 && s.length <= 4800)) errors.push(\"Length must be between 1 and 400 ft.\");",
+            "after": "if (!(s.length >= 12 || s.length <= 4800)) errors.push(\"Length must be between 1 and 400 ft.\");",
+            "line_text": "  if (!(s.length >= 12 && s.length <= 4800)) errors.push(\"Length must be between 1 and 400 ft.\");",
+            "caught": false,
+            "seconds": 80.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "controlJoints length upper bound untested; slab.test.mjs now refuses length 4801"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/slab.mjs",
+            "line": 62,
+            "col": 34,
+            "operator": "times-to-div",
+            "before": "const spacing = Math.min(factor * D, cap);",
+            "after": "const spacing = Math.min(factor / D, cap);",
+            "line_text": "  const spacing = Math.min(factor * D, cap);",
+            "caught": true,
+            "seconds": 84.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/slab.mjs",
+            "line": 65,
+            "col": 24,
+            "operator": "div-to-times",
+            "before": "const panelLength = L / nL, panelWidth = W / nW;",
+            "after": "const panelLength = L * nL, panelWidth = W / nW;",
+            "line_text": "  const panelLength = L / nL, panelWidth = W / nW;",
+            "caught": true,
+            "seconds": 81.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/slab.mjs",
+            "line": 69,
+            "col": 51,
+            "operator": "div-to-times",
+            "before": "const aspect = Math.max(panelLength, panelWidth) / Math.min(panelLength, panelWidth);",
+            "after": "const aspect = Math.max(panelLength, panelWidth) * Math.min(panelLength, panelWidth);",
+            "line_text": "  const aspect = Math.max(panelLength, panelWidth) / Math.min(panelLength, panelWidth);",
+            "caught": false,
+            "seconds": 75.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "panel aspect unpinned; result now returns aspect and tests pin 1, 1.5 and 1.03"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-framing-takeoff/slab.mjs",
+        "issue": "controlJoints documented panels that stay inside the 1.5:1 aspect limit but only warned; a 30 x 10.8 ft, 4 in slab came out as 6 panels at 1.85:1. Now adds cuts on the long side until every panel is within 1.5:1 (8 panels at 1.38:1), property-tested over 350 sizes.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14608"
+      },
+      {
+        "file": "prompts/redteam.py",
+        "issue": "rerun never checks the suite is green without the mutant, so a red suite (a still-failing new test, or an unrelated break) marks every gap caught_after_fix: true. Fix written with a failing test (test_rerun_on_a_red_suite_proves_nothing): run each suite clean once and record None plus a note when red. prompts/ is control plane, so it goes in its own PR from this branch after this one lands.",
+        "patched": false
+      }
+    ]
+  }
+}

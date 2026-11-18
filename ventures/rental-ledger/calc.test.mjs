@@ -250,3 +250,12 @@ test("ordinary tax uses the bracket table", () => {
   assert.equal(ordinaryTax("single", 5040000), 124000 + Math.round(3800000 * 0.12));
   assert.equal(ordinaryTax("single", 0), 0);
 });
+
+test("isDate refuses a day the calendar does not have (Date.parse rolls 2026-02-30 over to March)", async () => {
+  const { isDate } = await import("./calc.mjs");
+  assert.equal(isDate("2026-02-28"), true);
+  assert.equal(isDate("2028-02-29"), true);
+  assert.equal(isDate("2026-02-30"), false);
+  assert.equal(isDate("2025-02-29"), false);
+  assert.equal(isDate("2026-04-31"), false);
+});

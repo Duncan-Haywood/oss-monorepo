@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type DecidedPick, AGREEMENT_Z_PAUSE_BELOW, activeItems, admissionPaused, answerAgreement, FIRST_OPTION_FALLBACK_SHARE, PairItem, admissionHash, admissionOrder, pairKey, sameCategoryBias, selectNextPair, selectNextPairHybrid, surveyConfidence } from "./pairing";
+import { type DecidedPick, AGREEMENT_Z_PAUSE_BELOW, activeItems, admissionPaused, answerAgreement, FIRST_OPTION_FALLBACK_SHARE, HYBRID_SWITCH_ANSWERS, hybridSwitchAt, INFO_FROM_START_MAX_ITEMS, PairItem, admissionHash, admissionOrder, defaultPairSelector, pairKey, resolvePairSelector, sameCategoryBias, selectNextPair, selectNextPairByInformation, selectNextPairHybrid, surveyConfidence } from "./pairing";
 
 function items(n: number, category = "cat"): PairItem[] {
   return Array.from({ length: n }, (_, i) => ({
@@ -132,6 +132,46 @@ describe("selectNextPairHybrid first-option fallback", () => {
   });
 });
 
+describe("hybridSwitchAt: the staged selector's switch point by list length", () => {
+  it("hands over at the first answer at every length (above INFO_FROM_START_MAX_ITEMS too, since 2026-11-13)", () => {
+    expect(hybridSwitchAt(2)).toBe(0);
+    expect(hybridSwitchAt(15)).toBe(0);
+    expect(hybridSwitchAt(INFO_FROM_START_MAX_ITEMS)).toBe(0);
+    expect(hybridSwitchAt(INFO_FROM_START_MAX_ITEMS + 1)).toBe(0);
+    expect(hybridSwitchAt(220)).toBe(0);
+    expect(hybridSwitchAt(5000)).toBe(0);
+  });
+
+  const lcg = (seed: number) => { let x = seed; return () => ((x = (x * 1664525 + 1013904223) % 4294967296) / 4294967296); };
+  const input = (n: number, answeredCount: number, seed: number) => ({
+    items: items(n).map((it, i) => ({ ...it, rating: 1500 + ((i * 37) % 11) * 30, rd: 120 + ((i * 53) % 9) * 25 })),
+    timesShown: new Map<string, number>(),
+    recentPairKeys: new Set<string>(),
+    answeredCount,
+    rand: lcg(seed),
+  });
+
+  it("a 15-item list gets the information selector's pair from the first answer", () => {
+    for (let s = 1; s <= 5; s++) {
+      expect(selectNextPairHybrid(input(15, 0, s))).toEqual(selectNextPairByInformation(input(15, 0, s)));
+    }
+  });
+
+  it("a 200-item list gets the information selector's pair before 120 answers too (no warm-up since 2026-11-13)", () => {
+    for (let s = 1; s <= 5; s++) {
+      expect(selectNextPairHybrid(input(200, 50, s))).toEqual(selectNextPairByInformation(input(200, 50, s)));
+    }
+  });
+
+  it("HYBRID_SWITCH_ANSWERS passed explicitly still gives the old warm-up on a long list", () => {
+    expect(selectNextPairHybrid(input(200, 50, 2), { switchAt: HYBRID_SWITCH_ANSWERS })).toEqual(selectNextPair(input(200, 50, 2)));
+  });
+
+  it("an explicit switchAt still wins over the length rule", () => {
+    expect(selectNextPairHybrid(input(15, 0, 3), { switchAt: 120 })).toEqual(selectNextPair(input(15, 0, 3)));
+  });
+});
+
 describe("admissionOrder", () => {
   it("does not follow the id order: the first stage of 100 numbered items spans the range", () => {
     const list = Array.from({ length: 100 }, (_, i) => ({ id: `item-${String(i).padStart(4, "0")}`, rating: 1500, rd: 350, category: "c", dimensions: [] }));
@@ -184,5 +224,31 @@ describe("answer agreement and the admission pause", () => {
     expect(grown.length).toBeGreaterThan(paused.length);
     expect(paused.length).toBe(15);
     expect(paused.some((i) => i.id === outside)).toBe(true);
+  });
+});
+
+describe("resolvePairSelector: what /api/trials/next runs", () => {
+  it("defaults to staged at every length (standard above INFO_FROM_START_MAX_ITEMS until 2026-11-13)", () => {
+    expect(defaultPairSelector(3)).toBe("staged");
+    expect(defaultPairSelector(INFO_FROM_START_MAX_ITEMS)).toBe("staged");
+    expect(defaultPairSelector(INFO_FROM_START_MAX_ITEMS + 1)).toBe("staged");
+    expect(defaultPairSelector(500)).toBe("staged");
+    expect(resolvePairSelector(null, undefined, 30)).toEqual({ selector: "staged", ignored: [] });
+    expect(resolvePairSelector(null, "", 500)).toEqual({ selector: "staged", ignored: [] });
+  });
+
+  it("lets the survey's setting win over the environment, and the environment over the default", () => {
+    expect(resolvePairSelector("standard", "staged", 30).selector).toBe("standard");
+    expect(resolvePairSelector("staged", "standard", 500).selector).toBe("staged");
+    expect(resolvePairSelector(null, "standard", 30).selector).toBe("standard");
+    expect(resolvePairSelector(undefined, "staged", 500).selector).toBe("staged");
+  });
+
+  it("ignores an unknown value instead of reading it as either selector, and reports it", () => {
+    expect(resolvePairSelector("magic", undefined, 30)).toEqual({ selector: "staged", ignored: ["magic"] });
+    // "Staged" is not read as staged: it is skipped and the environment's "standard" wins.
+    expect(resolvePairSelector("Staged", "standard", 500)).toEqual({ selector: "standard", ignored: ["Staged"] });
+    expect(resolvePairSelector(null, "Standard", 500)).toEqual({ selector: "staged", ignored: ["Standard"] });
+    expect(resolvePairSelector("magic", "standard", 30)).toEqual({ selector: "standard", ignored: ["magic"] });
   });
 });

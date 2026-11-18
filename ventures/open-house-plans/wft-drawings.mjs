@@ -21,6 +21,7 @@ const sixteenth = (n) => Math.round(n * 16);
  * @returns {{marks: any[], parts: {mark: string, qty: number, size: string, length: number, label: string, kind: string}[]}}
  */
 export function markMembers(w) {
+  if (!w || !Array.isArray(w.members)) throw new TypeError("markMembers needs a laid-out wall (a walls[] entry of takeoff())");
   const order = w.members.map((m, i) => ({ m, i })).sort((a, b) => a.m.x - b.m.x || a.m.y - b.m.y || a.i - b.i);
   const keyToMark = new Map();
   const count = {};
@@ -69,6 +70,7 @@ function shape(m, H, peak) {
  * @param {ReturnType<typeof panelizeWall>|null} [panels] when given, panel joints are drawn as purple dash-dot lines with a letter per panel
  */
 export function wallElevationSvg(w, wall, plan = {}, panels = null, sheathing = null) {
+  if (!w || !Array.isArray(w.members)) throw new TypeError("wallElevationSvg needs a laid-out wall (a walls[] entry of takeoff())");
   const H = w.height;
   const L = w.length;
   const { marks } = markMembers(w);
@@ -132,6 +134,7 @@ export function wallElevationSvg(w, wall, plan = {}, panels = null, sheathing = 
  * (plates and openings are clipped at the cut lines) with the panel's name and width on top.
  */
 export function panelElevationSvg(w, wall, plan, pan, k) {
+  if (!pan || !Array.isArray(pan.panels) || !pan.panels[k]) throw new TypeError("panelElevationSvg needs panelizeWall()'s result and a panel index in it");
   const p = pan.panels[k];
   const svg = wallElevationSvg(w, wall, plan, pan);
   const H = w.height;
@@ -142,6 +145,7 @@ export function panelElevationSvg(w, wall, plan, pan, k) {
 
 /** The parts table of one wall as HTML. */
 export function partsTableHtml(w) {
+  if (!w || !Array.isArray(w.members)) throw new TypeError("partsTableHtml needs a laid-out wall (a walls[] entry of takeoff())");
   const { parts } = markMembers(w);
   return `<table><thead><tr><th>Mark</th><th class="n">Qty</th><th>Size</th><th class="n">Cut length</th><th>Member</th></tr></thead><tbody>`
     + parts.map((p) => `<tr><td><b>${esc(p.mark)}</b></td><td class="n">${p.qty}</td><td>${esc(p.size)}</td><td class="n">${esc(formatInches(p.length))}</td><td>${esc(p.label)}</td></tr>`).join("")
@@ -179,11 +183,13 @@ const DISCLAIMER = "No warranty. These drawings are a plan-derived picture of th
 
 /**
  * The whole drawing set as one printable HTML document, one sheet per wall.
- * @param {{ok: boolean, walls: any[]}} result from takeoff()
+ * @param {{ok: boolean, walls: any[], sheathing?: {walls?: any[]}}} result from takeoff()
  * @param {any} plan the plan that produced it
  * @param {{title?: string, panelMax?: number, sheathPsf?: number, panelSheets?: boolean}} [opts] panelSheets (with panelMax) adds one sheet per panel; panelMax (inches) splits each wall into shop panels no longer than that; sheathPsf (lb per sq ft) adds sheathing weight to each panel
  */
 export function drawingSetHtml(result, plan, opts = {}) {
+  if (!result || !Array.isArray(result.walls) || !plan || !Array.isArray(plan.walls)) throw new TypeError("drawingSetHtml needs takeoff()'s result and the plan it was made from");
+  if (!opts || typeof opts !== "object") opts = {};
   const title = opts.title || "Wall framing shop drawings";
   const sheets = result.walls.map((w, i) => {
     const wall = plan.walls[i];

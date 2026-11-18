@@ -32,7 +32,7 @@
     .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -41,6 +41,15 @@
     .error { color: #9a3412; font-weight: 600; }
     footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 560px) { div.grid:has(#niche) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 277px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -157,7 +166,7 @@
     const DEFAULTS = { niche: "general", format: "integration", usage: "none", exclusivity: "none" };
 
     const money = (n) => {
-      const format = (n) => `$${n.toLocaleString()}`;
+      const format = (n) => `$${n.toLocaleString('en-US')}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };
@@ -167,7 +176,7 @@
     function renderFindings(findings) {
       els.findings.innerHTML = findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>
+          <h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3>
           <p>${esc(f.detail)}</p>
         </div>`).join("");
     }
@@ -181,7 +190,7 @@
     // nobody asked for.
     function runCalculate({ scroll = true } = {}) {
       const r = computeRate(currentInput());
-      els.stats.textContent = `${r.views.toLocaleString()} median views · CPM $${r.cpmLow.toFixed(0)}–$${r.cpmHigh.toFixed(0)} per 1,000 views for this format.`;
+      els.stats.textContent = `${r.views.toLocaleString('en-US')} median views · CPM $${r.cpmLow.toFixed(0)}–$${r.cpmHigh.toFixed(0)} per 1,000 views for this format.`;
       const rows = [["Base sponsorship fee", range(r.baseLow, r.baseHigh)]];
       if (r.usageHigh > 0) rows.push(["+ Paid usage / whitelisting", range(r.usageLow, r.usageHigh)]);
       if (r.exclusivityHigh > 0) rows.push(["+ Category exclusivity", range(r.exclusivityLow, r.exclusivityHigh)]);

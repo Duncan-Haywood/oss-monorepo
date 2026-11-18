@@ -1,0 +1,36 @@
+R1 Australian gas, annual totals (1956-1994, n 39)
+  two hinges: refused (line rho 0.97, two-hinge rho 0.47, cut bar 0.90)
+  one hinge:  refused (line 0.97, hinge 0.83)
+  predicted:  refused
+R2 US electricity, annual totals (1973-2012, n 40)
+  two hinges: refused (line rho 0.82, two-hinge rho 0.49, cut bar 0.82)
+  one hinge:  refused (line 0.82, hinge 0.72)
+  predicted:  refused
+R3 US female murder rate (1950-2004, n 55)
+  two hinges: refused (line rho 0.97, two-hinge rho 0.68, cut bar 0.65)
+  one hinge:  refused (line 0.97, hinge 0.80)
+  predicted:  tested, p <= 0.05, knots in 1958-1975 and 1985-1998
+R4 Canada fertility (1931-1968, n 38)
+  two hinges: refused (line rho 0.92, two-hinge rho 0.61, cut bar 0.93)
+  one hinge:  refused (line 0.92, hinge 0.77)
+  predicted:  refused
+C Lake Huron (1875-1972, n 98)
+  two hinges: refused (line rho 0.80, two-hinge rho 0.71, cut bar 0.41)
+  one hinge:  refused (line 0.80, hinge 0.75)
+  predicted:  refused or p > 0.05
+C Michigan-Huron (1918-2009, n 92)
+  two hinges: refused (line rho 0.87, two-hinge rho 0.78, cut bar 0.42)
+  one hinge:  refused (line 0.87, hinge 0.80)
+  predicted:  refused or p > 0.05
+G GCAG 1880-2024 (1880-2024, n 145)
+  two hinges: knots 1904 and 1985, F 42.4 (bar 11.1), p 0.002, rho 0.47, slopes -0.00260 -> 0.00623 -> 0.0227 per step
+  one hinge:  knot 1976, p 0.001
+  predicted:  tested, p <= 0.05, one knot in 1965-1985
+reported: CO2 annual means (1959-2025, n 67)
+  two hinges: refused (line rho 0.97, two-hinge rho 0.77, cut bar 0.56)
+  one hinge:  refused (line 0.97, hinge 0.92)
+  predicted:  none
+reported: Nile (1871-1970, n 100)
+  two hinges: knots 1892 and 1907, F 9.2 (bar 7.1), p 0.019, rho 0.20, slopes 0.457 -> -18.6 -> 0.882 per step
+  one hinge:  knot 1913, p 0.017
+  predicted:  none

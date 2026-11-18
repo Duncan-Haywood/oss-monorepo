@@ -1,0 +1,175 @@
+Milestone 6a: H5 registered on close passes; fresh seeds; fitted and half-fitted human side bias
+HERMES 3.6 m corridor, 16 m; 20 seeds per cell (SEED0 20270000); 120 s runs, the first 40 s warm-up; robots 1.2 m/s; tau-a over four policies, bootstrap B = 1000 over seeds
+families (fitted beta): social force 0.1, collision-free speed 0.2, ORCA 1.0; weak = half
+
+== Crowd with no robots (pooled over the two runs)
+  fitted sf    beta 0.100  share on own right 0.951  lane 0.932
+  fitted cfsm  beta 0.200  share on own right 1.000  lane 0.992
+  fitted orca  beta 1.000  share on own right 0.997  lane 0.991
+  weak   sf    beta 0.050  share on own right 0.802  lane 0.756
+  weak   cfsm  beta 0.100  share on own right 0.947  lane 0.968
+  weak   orca  beta 0.500  share on own right 0.998  lane 0.989
+
+== Pooled human costs (close = robot-person passes under 0.5 m, pass-weighted; 95% bootstrap interval)
+  fitted sf    0.05 crowd    close 0.080 [0.065, 0.096]  d/pass -0.200  delay -0.22 s  lane 0.947  right 0.975
+  fitted sf    0.05 opposite close 0.699 [0.680, 0.721]  d/pass +2.193  delay +2.58 s  lane 0.741  right 0.823
+  fitted sf    0.05 adapt    close 0.158 [0.138, 0.177]  d/pass -0.142  delay -0.16 s  lane 0.947  right 0.973
+  fitted sf    0.05 goal     close 0.362 [0.338, 0.387]  d/pass +0.801  delay +0.90 s  lane 0.865  right 0.911
+  fitted sf    0.10 crowd    close 0.092 [0.065, 0.123]  d/pass +0.045  delay +0.14 s  lane 0.931  right 0.966
+  fitted sf    0.10 opposite close 0.622 [0.597, 0.645]  d/pass +1.385  delay +2.90 s  lane 0.733  right 0.754
+  fitted sf    0.10 adapt    close 0.177 [0.156, 0.202]  d/pass +0.021  delay +0.08 s  lane 0.933  right 0.960
+  fitted sf    0.10 goal     close 0.355 [0.331, 0.381]  d/pass +0.575  delay +1.21 s  lane 0.836  right 0.907
+  fitted sf    0.20 crowd    close 0.087 [0.070, 0.104]  d/pass -0.023  delay -0.06 s  lane 0.947  right 0.973
+  fitted sf    0.20 opposite close 0.588 [0.565, 0.612]  d/pass +0.800  delay +3.74 s  lane 0.702  right 0.701
+  fitted sf    0.20 adapt    close 0.153 [0.141, 0.164]  d/pass -0.059  delay -0.22 s  lane 0.958  right 0.975
+  fitted sf    0.20 goal     close 0.365 [0.342, 0.386]  d/pass +0.399  delay +1.67 s  lane 0.811  right 0.864
+  fitted cfsm  0.05 crowd    close 0.021 [0.015, 0.028]  d/pass -0.057  delay -0.09 s  lane 0.992  right 0.999
+  fitted cfsm  0.05 opposite close 0.594 [0.578, 0.612]  d/pass +0.205  delay +0.17 s  lane 0.960  right 0.966
+  fitted cfsm  0.05 adapt    close 0.032 [0.025, 0.040]  d/pass -0.017  delay -0.04 s  lane 0.994  right 0.999
+  fitted cfsm  0.05 goal     close 0.212 [0.194, 0.230]  d/pass -0.135  delay -0.20 s  lane 0.989  right 0.994
+  fitted cfsm  0.10 crowd    close 0.024 [0.020, 0.028]  d/pass -0.038  delay -0.13 s  lane 0.996  right 0.999
+  fitted cfsm  0.10 opposite close 0.609 [0.591, 0.627]  d/pass +0.111  delay +0.19 s  lane 0.931  right 0.946
+  fitted cfsm  0.10 adapt    close 0.041 [0.036, 0.046]  d/pass -0.023  delay -0.09 s  lane 0.991  right 0.999
+  fitted cfsm  0.10 goal     close 0.206 [0.190, 0.224]  d/pass -0.100  delay -0.25 s  lane 0.987  right 0.996
+  fitted cfsm  0.20 crowd    close 0.028 [0.025, 0.032]  d/pass -0.054  delay -0.33 s  lane 0.995  right 1.000
+  fitted cfsm  0.20 opposite close 0.624 [0.611, 0.636]  d/pass +0.113  delay +0.43 s  lane 0.900  right 0.883
+  fitted cfsm  0.20 adapt    close 0.047 [0.043, 0.050]  d/pass -0.013  delay -0.09 s  lane 0.991  right 0.999
+  fitted cfsm  0.20 goal     close 0.193 [0.180, 0.206]  d/pass -0.072  delay -0.35 s  lane 0.978  right 0.991
+  fitted orca  0.05 crowd    close 0.018 [0.013, 0.024]  d/pass -0.014  delay -0.01 s  lane 0.992  right 0.999
+  fitted orca  0.05 opposite close 0.804 [0.785, 0.823]  d/pass +0.673  delay +0.57 s  lane 0.972  right 0.991
+  fitted orca  0.05 adapt    close 0.094 [0.085, 0.104]  d/pass -0.023  delay -0.02 s  lane 0.993  right 0.999
+  fitted orca  0.05 goal     close 0.500 [0.468, 0.532]  d/pass +0.173  delay +0.19 s  lane 0.983  right 0.996
+  fitted orca  0.10 crowd    close 0.018 [0.015, 0.020]  d/pass -0.005  delay -0.02 s  lane 0.995  right 0.999
+  fitted orca  0.10 opposite close 0.786 [0.765, 0.808]  d/pass +0.605  delay +0.88 s  lane 0.967  right 0.989
+  fitted orca  0.10 adapt    close 0.092 [0.085, 0.098]  d/pass -0.015  delay -0.02 s  lane 0.994  right 0.999
+  fitted orca  0.10 goal     close 0.478 [0.455, 0.500]  d/pass +0.164  delay +0.33 s  lane 0.983  right 0.995
+  fitted orca  0.20 crowd    close 0.017 [0.015, 0.020]  d/pass -0.002  delay -0.00 s  lane 0.994  right 0.999
+  fitted orca  0.20 opposite close 0.748 [0.724, 0.771]  d/pass +0.659  delay +3.07 s  lane 0.931  right 0.972
+  fitted orca  0.20 adapt    close 0.089 [0.083, 0.095]  d/pass -0.006  delay -0.03 s  lane 0.996  right 0.999
+  fitted orca  0.20 goal     close 0.461 [0.442, 0.481]  d/pass +0.254  delay +1.07 s  lane 0.960  right 0.988
+  weak   sf    0.05 crowd    close 0.220 [0.189, 0.253]  d/pass -0.689  delay -0.66 s  lane 0.804  right 0.827
+  weak   sf    0.05 opposite close 0.577 [0.547, 0.605]  d/pass +0.848  delay +1.19 s  lane 0.671  right 0.669
+  weak   sf    0.05 adapt    close 0.307 [0.269, 0.341]  d/pass -0.693  delay -0.66 s  lane 0.809  right 0.821
+  weak   sf    0.05 goal     close 0.404 [0.373, 0.434]  d/pass +0.067  delay +0.29 s  lane 0.750  right 0.775
+  weak   sf    0.10 crowd    close 0.186 [0.154, 0.218]  d/pass -0.500  delay -0.88 s  lane 0.829  right 0.872
+  weak   sf    0.10 opposite close 0.550 [0.523, 0.578]  d/pass +0.623  delay +1.51 s  lane 0.674  right 0.615
+  weak   sf    0.10 adapt    close 0.273 [0.247, 0.302]  d/pass -0.475  delay -0.85 s  lane 0.817  right 0.843
+  weak   sf    0.10 goal     close 0.385 [0.360, 0.408]  d/pass +0.001  delay +0.17 s  lane 0.743  right 0.757
+  weak   sf    0.20 crowd    close 0.145 [0.122, 0.172]  d/pass -0.425  delay -1.59 s  lane 0.873  right 0.916
+  weak   sf    0.20 opposite close 0.471 [0.448, 0.491]  d/pass +0.393  delay +2.04 s  lane 0.639  right 0.518
+  weak   sf    0.20 adapt    close 0.233 [0.206, 0.260]  d/pass -0.368  delay -1.40 s  lane 0.865  right 0.908
+  weak   sf    0.20 goal     close 0.386 [0.370, 0.403]  d/pass +0.123  delay +0.66 s  lane 0.718  right 0.737
+  weak   cfsm  0.05 crowd    close 0.071 [0.032, 0.116]  d/pass -0.122  delay -0.16 s  lane 0.974  right 0.962
+  weak   cfsm  0.05 opposite close 0.523 [0.474, 0.568]  d/pass +0.403  delay +0.45 s  lane 0.896  right 0.727
+  weak   cfsm  0.05 adapt    close 0.121 [0.085, 0.160]  d/pass +0.025  delay +0.04 s  lane 0.968  right 0.955
+  weak   cfsm  0.05 goal     close 0.254 [0.227, 0.281]  d/pass +0.046  delay +0.05 s  lane 0.961  right 0.959
+  weak   cfsm  0.10 crowd    close 0.047 [0.023, 0.078]  d/pass -0.088  delay -0.22 s  lane 0.976  right 0.981
+  weak   cfsm  0.10 opposite close 0.499 [0.467, 0.530]  d/pass +0.258  delay +0.55 s  lane 0.888  right 0.702
+  weak   cfsm  0.10 adapt    close 0.132 [0.098, 0.171]  d/pass +0.033  delay +0.08 s  lane 0.959  right 0.924
+  weak   cfsm  0.10 goal     close 0.314 [0.281, 0.347]  d/pass +0.057  delay +0.09 s  lane 0.936  right 0.911
+  weak   cfsm  0.20 crowd    close 0.068 [0.045, 0.092]  d/pass -0.058  delay -0.28 s  lane 0.974  right 0.973
+  weak   cfsm  0.20 opposite close 0.457 [0.429, 0.486]  d/pass +0.146  delay +0.63 s  lane 0.846  right 0.643
+  weak   cfsm  0.20 adapt    close 0.127 [0.098, 0.164]  d/pass -0.009  delay -0.03 s  lane 0.961  right 0.943
+  weak   cfsm  0.20 goal     close 0.292 [0.268, 0.315]  d/pass +0.011  delay +0.04 s  lane 0.918  right 0.870
+  weak   orca  0.05 crowd    close 0.025 [0.021, 0.029]  d/pass +0.031  delay +0.04 s  lane 0.990  right 0.996
+  weak   orca  0.05 opposite close 0.788 [0.769, 0.804]  d/pass +0.559  delay +0.51 s  lane 0.968  right 0.993
+  weak   orca  0.05 adapt    close 0.113 [0.102, 0.124]  d/pass +0.033  delay +0.05 s  lane 0.987  right 0.997
+  weak   orca  0.05 goal     close 0.509 [0.471, 0.547]  d/pass +0.239  delay +0.26 s  lane 0.980  right 0.993
+  weak   orca  0.10 crowd    close 0.025 [0.020, 0.031]  d/pass +0.028  delay +0.08 s  lane 0.990  right 0.998
+  weak   orca  0.10 opposite close 0.775 [0.754, 0.796]  d/pass +0.728  delay +1.32 s  lane 0.937  right 0.976
+  weak   orca  0.10 adapt    close 0.108 [0.101, 0.116]  d/pass +0.002  delay +0.03 s  lane 0.989  right 0.997
+  weak   orca  0.10 goal     close 0.502 [0.475, 0.528]  d/pass +0.303  delay +0.60 s  lane 0.968  right 0.990
+  weak   orca  0.20 crowd    close 0.022 [0.019, 0.025]  d/pass -0.002  delay +0.01 s  lane 0.991  right 0.998
+  weak   orca  0.20 opposite close 0.757 [0.729, 0.781]  d/pass +0.748  delay +3.93 s  lane 0.895  right 0.956
+  weak   orca  0.20 adapt    close 0.110 [0.103, 0.116]  d/pass +0.003  delay +0.03 s  lane 0.987  right 0.997
+  weak   orca  0.20 goal     close 0.465 [0.445, 0.487]  d/pass +0.319  delay +1.29 s  lane 0.937  right 0.980
+
+== Rankings and Kendall tau (point, [95% bootstrap interval], share of resamples with tau = 1)
+  fitted rp_close       share 0.05: sf crowd<adapt<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +1.00 [+1.00, +1.00]  P(tau=1) 0.99
+      sf-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+      cfsm-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 0.99
+  fitted rp_close       share 0.10: sf crowd<adapt<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+      sf-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+      cfsm-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+  fitted rp_close       share 0.20: sf crowd<adapt<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+      sf-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+      cfsm-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+  fitted delay_per_pass share 0.05: sf crowd<adapt<goal<opposite  cfsm goal<crowd<adapt<opposite  orca adapt<crowd<goal<opposite
+      sf-cfsm tau +0.33 [+0.00, +0.67]  P(tau=1) 0.00
+      sf-orca tau +0.67 [+0.67, +1.00]  P(tau=1) 0.45
+      cfsm-orca tau +0.00 [+0.00, +0.67]  P(tau=1) 0.00
+  fitted delay_per_pass share 0.10: sf adapt<crowd<goal<opposite  cfsm goal<crowd<adapt<opposite  orca adapt<crowd<goal<opposite
+      sf-cfsm tau +0.00 [+0.00, +0.33]  P(tau=1) 0.00
+      sf-orca tau +1.00 [+0.67, +1.00]  P(tau=1) 0.54
+      cfsm-orca tau +0.00 [+0.00, +0.33]  P(tau=1) 0.00
+  fitted delay_per_pass share 0.20: sf adapt<crowd<goal<opposite  cfsm goal<crowd<adapt<opposite  orca adapt<crowd<goal<opposite
+      sf-cfsm tau +0.00 [+0.00, +0.67]  P(tau=1) 0.00
+      sf-orca tau +1.00 [+0.67, +1.00]  P(tau=1) 0.62
+      cfsm-orca tau +0.00 [+0.00, +0.67]  P(tau=1) 0.00
+  fitted lane           share 0.05: sf crowd<adapt<goal<opposite  cfsm adapt<crowd<goal<opposite  orca adapt<crowd<goal<opposite
+      sf-cfsm tau +0.67 [+0.33, +1.00]  P(tau=1) 0.42
+      sf-orca tau +0.67 [+0.67, +1.00]  P(tau=1) 0.49
+      cfsm-orca tau +1.00 [+0.33, +1.00]  P(tau=1) 0.50
+  fitted lane           share 0.10: sf adapt<crowd<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +0.67 [+0.66, +1.00]  P(tau=1) 0.45
+      sf-orca tau +0.67 [+0.67, +1.00]  P(tau=1) 0.46
+      cfsm-orca tau +1.00 [+0.67, +1.00]  P(tau=1) 0.77
+  fitted lane           share 0.20: sf adapt<crowd<goal<opposite  cfsm crowd<adapt<goal<opposite  orca adapt<crowd<goal<opposite
+      sf-cfsm tau +0.67 [+0.67, +1.00]  P(tau=1) 0.26
+      sf-orca tau +1.00 [+0.67, +1.00]  P(tau=1) 0.73
+      cfsm-orca tau +0.67 [+0.67, +1.00]  P(tau=1) 0.07
+  weak   rp_close       share 0.05: sf crowd<adapt<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +1.00 [+0.67, +1.00]  P(tau=1) 0.96
+      sf-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+      cfsm-orca tau +1.00 [+0.67, +1.00]  P(tau=1) 0.96
+  weak   rp_close       share 0.10: sf crowd<adapt<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+      sf-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+      cfsm-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+  weak   rp_close       share 0.20: sf crowd<adapt<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+      sf-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+      cfsm-orca tau +1.00 [+1.00, +1.00]  P(tau=1) 1.00
+  weak   delay_per_pass share 0.05: sf adapt<crowd<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +0.67 [+0.00, +1.00]  P(tau=1) 0.30
+      sf-orca tau +0.67 [+0.33, +1.00]  P(tau=1) 0.44
+      cfsm-orca tau +1.00 [+0.33, +1.00]  P(tau=1) 0.29
+  weak   delay_per_pass share 0.10: sf crowd<adapt<goal<opposite  cfsm crowd<adapt<goal<opposite  orca adapt<crowd<goal<opposite
+      sf-cfsm tau +1.00 [+0.33, +1.00]  P(tau=1) 0.35
+      sf-orca tau +0.67 [+0.67, +1.00]  P(tau=1) 0.46
+      cfsm-orca tau +0.67 [+0.33, +1.00]  P(tau=1) 0.04
+  weak   delay_per_pass share 0.20: sf crowd<adapt<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +1.00 [+0.33, +1.00]  P(tau=1) 0.51
+      sf-orca tau +1.00 [+0.67, +1.00]  P(tau=1) 0.59
+      cfsm-orca tau +1.00 [+0.33, +1.00]  P(tau=1) 0.49
+  weak   lane           share 0.05: sf adapt<crowd<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +0.67 [+0.33, +1.00]  P(tau=1) 0.36
+      sf-orca tau +0.67 [+0.33, +1.00]  P(tau=1) 0.40
+      cfsm-orca tau +1.00 [+0.33, +1.00]  P(tau=1) 0.43
+  weak   lane           share 0.10: sf crowd<adapt<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +1.00 [+0.67, +1.00]  P(tau=1) 0.63
+      sf-orca tau +1.00 [+0.67, +1.00]  P(tau=1) 0.52
+      cfsm-orca tau +1.00 [+0.67, +1.00]  P(tau=1) 0.56
+  weak   lane           share 0.20: sf crowd<adapt<goal<opposite  cfsm crowd<adapt<goal<opposite  orca crowd<adapt<goal<opposite
+      sf-cfsm tau +1.00 [+0.67, +1.00]  P(tau=1) 0.62
+      sf-orca tau +1.00 [+0.67, +1.00]  P(tau=1) 0.62
+      cfsm-orca tau +1.00 [+0.67, +1.00]  P(tau=1) 0.88
+
+H5 fitted rp_close      : min tau +1.00, 9 of 9 pair-share cells >= 0.8 -> holds
+H5 fitted delay_per_pass: min tau +0.00, 2 of 9 pair-share cells >= 0.8 -> refuted
+H5 fitted lane          : min tau +0.67, 3 of 9 pair-share cells >= 0.8 -> refuted
+H5 weak   rp_close      : min tau +1.00, 9 of 9 pair-share cells >= 0.8 -> holds
+H5 weak   delay_per_pass: min tau +0.67, 5 of 9 pair-share cells >= 0.8 -> refuted
+H5 weak   lane          : min tau +0.67, 7 of 9 pair-share cells >= 0.8 -> refuted
+
+Predictions (LOG.md, milestone 6a):
+R1 (H5 on close passes, fitted bias, fresh seeds: tau >= 0.8 in all 9 cells): held (min +1.00)
+R2 (same at half bias): held (min +1.00)
+R3 (fitted: lower bootstrap bound of tau >= 0.33 in every cell): held (lowest +1.00)
+R4 (opposite has the highest close-pass rate in all 18 level-family-share cells): held ()
+R5 (weak: crowd has the lowest close-pass rate in at least 7 of 9 cells): held (9 of 9; sf 0.05: crowd; sf 0.10: crowd; sf 0.20: crowd; cfsm 0.05: crowd; cfsm 0.10: crowd; cfsm 0.20: crowd; orca 0.05: crowd; orca 0.10: crowd; orca 0.20: crowd)
+R6 (delay per pass, fitted: H5 fails again, some cell tau < 0.8): held (min +0.00)
+R7 (weak: no-robot share on own right between 0.60 and 0.85 in every family): refuted (0.802, 0.947, 0.998)

@@ -109,3 +109,14 @@ test("csv has a header and one line per week", () => {
 test("money formats negatives", () => {
   assert.equal(money(-1241.4), "-$1,241");
 });
+
+test("a thousands comma is read as one number, not cut at the comma", () => {
+  // parseFloat("2,500") is 2: a $2,500 weekly fixed cost used to plan as $2.
+  const { p } = parseInputs({ weeklyFixed: "2,500", slots: "1,200" });
+  assert.equal(p.weeklyFixed, 2500);
+  assert.equal(p.slots, 1200);
+  // "2,5" is not a grouped number: rejected, not read as 2 or 25.
+  const r = parseInputs({ pricePerLb: "2,5" });
+  assert.ok(!(r.p.pricePerLb > 0));
+  assert.ok(r.errors.length > 0);
+});

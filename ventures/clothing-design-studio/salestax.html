@@ -75,7 +75,8 @@
     const opts = Object.values(STATES).map(s => `<option value="${s.code}">${esc(s.name)}</option>`).join("") + NO_SALES_TAX.map(c => `<option value="${c}">${c} (no sales tax)</option>`).join("");
     function addRow(state = "FL", sales = 0, orders = 0) {
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td><select>${opts}</select></td><td><input type="number" min="0" step="1" value="${sales}"></td><td><input type="number" min="0" step="1" value="${orders}"></td><td><input type="number" min="0" step="1" value="0"></td><td><input type="checkbox"></td><td><button type="button" aria-label="Remove row">x</button></td>`;
+      const n = document.querySelectorAll("#rows tbody tr").length + 1;
+      tr.innerHTML = `<td><select aria-label="State, row ${n}">${opts}</select></td><td><input type="number" min="0" step="1" value="${sales}" aria-label="Sales in USD, row ${n}"></td><td><input type="number" min="0" step="1" value="${orders}" aria-label="Orders, row ${n}"></td><td><input type="number" min="0" step="1" value="0" aria-label="Planned more sales, row ${n}"></td><td><input type="checkbox" aria-label="Clothing exempt, row ${n}"></td><td><button type="button" aria-label="Remove row ${n}">x</button></td>`;
       tr.querySelector("select").value = state;
       tr.querySelector("button").addEventListener("click", () => { tr.remove(); render(); });
       $("#rows tbody").append(tr);

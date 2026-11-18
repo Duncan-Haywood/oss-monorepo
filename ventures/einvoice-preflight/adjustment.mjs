@@ -4,6 +4,7 @@
 
 import { looksLikePlaceholder } from "./reference.mjs";
 import { isNegativeInvoice } from "./linenet.mjs";
+import { parseDecimal } from "./numbers.mjs";
 
 const MAX_REASON = 100;
 
@@ -13,13 +14,8 @@ function roundHalfUpToCents(value) {
   return (sign * Math.round(Number((Math.abs(value) * 100).toPrecision(12)))) / 100;
 }
 
-function parseNumber(value) {
-  if (value === undefined || value === null || value === "") return null;
-  const text = typeof value === "string" ? value.trim() : String(value);
-  if (text === "" || !Number.isFinite(Number(text))) return null;
-  const result = Number(text);
-  return Number.isFinite(result) ? result : null;
-}
+// numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
+const parseNumber = parseDecimal;
 
 function money(value) {
   const parsed = parseNumber(value);
@@ -137,7 +133,9 @@ function inspectRow(row, index, negative = false) {
   }
   if ("percent" in row && row.percent !== null && row.percent !== "") {
     percent = parseNumber(row.percent);
-    if (percent === null || percent < 0 || percent > 100) {
+    // A negative invoice may state the percentage with the sign of its amounts
+    // (OpenPeppol's PINT A-NZ negative invoice: -10% of 1500 = -150.00).
+    if (percent === null || percent < (negative ? -100 : 0) || percent > 100) {
       findings.push(finding(
         "INV-051",
         "Header allowance or charge percentage is missing or invalid.",

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { linesFromCsv, sampleCsv, parseCsv } from "./csv.mjs";
+import { linesFromCsv, sampleCsv, parseCsv, oneCurrency } from "./csv.mjs";
 import { schedule } from "./revrec.mjs";
 
 test("reads Stripe-style headers in any order, parentheses as negatives", () => {
@@ -28,4 +28,74 @@ test("sample data parses cleanly and the schedule always rolls forward", () => {
   const rows = schedule(r.lines, { asOf: Date.UTC(2026, 9, 15) });
   for (const x of rows) assert.equal(x.opening + x.billed - x.recognized, x.closing);
   assert.ok(rows.at(-1).closing === 0, "every demo term ends in the future window");
+});
+
+test("a blank amount is skipped, not read as 0, and a credits column links a refund (quality audit 2026-11-17)", () => {
+  const { lines, skipped } = linesFromCsv("id,date,period start,period end,amount,credits\nil_1,2026-01-01,2026-01-01,2027-01-01,1200,\nr1,2026-02-01,2026-02-01,,,\ncn1,2026-02-15,2026-02-15,,(1052.05),il_1\n");
+  assert.equal(lines.length, 2);
+  assert.deepEqual(skipped, [{ line: 3, why: "amount is blank" }]);
+  assert.equal(lines[1].credits, "il_1");
+});
+
+test("a decimal comma is read as a decimal point, not as a thousands separator (red team 2026-11-17)", () => {
+  const { lines, skipped } = linesFromCsv('id,date,period start,amount\na,2026-01-05,2026-01-05,"29,00"\nb,2026-01-05,2026-01-05,"1.234,50 €"\nc,2026-01-05,2026-01-05,"(9,5)"\nd,2026-01-05,2026-01-05,"1,234.50"\ne,2026-01-05,2026-01-05,"1,234"\nf,2026-01-05,2026-01-05,"12.345.678,9"');
+  assert.deepEqual(skipped, []);
+  assert.deepEqual(lines.map((l) => l.amount), [2900, 123450, -950, 123450, 123400, 1234567890]);
+});
+
+test("skipped rows carry the spreadsheet line number for every reason", () => {
+  const r = linesFromCsv("amount,date,period start,period end\n5,2026-01-01,nope,\n5,2026-01-01,2026-03-01,2026-02-01\n5,2026-01-01,2026-01-01,");
+  assert.deepEqual(r.skipped, [{ line: 2, why: "period start is not a date" }, { line: 3, why: "period end is before period start" }]);
+});
+
+test("headers match aliases exactly: a numbered column is not read as the plain one", () => {
+  const r = linesFromCsv("Amount 2,date,period start,net amount\n999,2026-01-01,2026-01-01,5");
+  assert.equal(r.lines[0].amount, 500);
+});
+
+test("mixed currencies: the demo keeps the most common one and reports the rest", () => {
+  const { lines } = linesFromCsv("id,date,period start,amount,currency\na,2026-01-01,2026-01-01,10,EUR\nb,2026-01-01,2026-01-01,20,usd\nc,2026-01-01,2026-01-01,30,eur");
+  const r = oneCurrency(lines);
+  assert.equal(r.currency, "eur");
+  assert.deepEqual(r.lines.map((l) => l.id), ["a", "c"]);
+  assert.deepEqual(r.left, { usd: 1 });
+  assert.deepEqual(oneCurrency([]), { currency: "usd", lines: [], left: {} });
+});
+
+test("sample periods follow Stripe's billing anchor: each end is the anchor day, clamped to short months", () => {
+  const rows = parseCsv(sampleCsv()).slice(1).filter((r) => r[4] !== "(79)");
+  assert.equal(rows.length, 296, "40 demo subscriptions");
+  const dim = (d) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  let anchor = null, prevEnd = null;
+  for (const [, , s, e] of rows) {
+    if (s !== prevEnd) anchor = new Date(`${s}T00:00:00Z`).getUTCDate();
+    const end = new Date(`${e}T00:00:00Z`);
+    assert.equal(end.getUTCDate(), Math.min(anchor, dim(end)), `${s} -> ${e}`);
+    prevEnd = e;
+  }
+});
+
+test("a lone CR ends a row without eating the next row's first character (red team 2026-11-17)", () => {
+  assert.deepEqual(parseCsv("a,b\rxy,2\r"), [["a", "b"], ["xy", "2"]]);
+});
+
+test("every skip reason names its file line, header being line 1 (red team 2026-11-17)", () => {
+  const r = linesFromCsv("amount,date,period start,period end\nabc,2026-01-01,2026-01-01,\n5,2026-01-01,nope,\n5,2026-01-01,2026-03-01,2026-02-01\n");
+  assert.deepEqual(r.skipped.map((s) => s.line), [2, 3, 4]);
+});
+
+test("zero-decimal amounts are not multiplied by 100 (red team 2026-11-17)", () => {
+  const r = linesFromCsv("id,date,period start,amount,currency\na,2026-01-01,2026-01-01,1200,JPY\nb,2026-01-01,2026-01-01,1200,usd\nc,2026-01-01,2026-01-01,1.5,kwd\n");
+  assert.deepEqual(r.lines.map((l) => l.amount), [1200, 120000, 1500]);
+});
+
+test("sample data: plan prices stay 29, 79, 249 monthly and 290 annual, with one 79 refund", () => {
+  const amounts = new Set(sampleCsv().split("\n").slice(1).map((r) => r.split(",")[4]));
+  assert.deepEqual([...amounts].sort(), ["(79)", "249", "29", "290", "79"]);
+});
+
+test("a period end that is not a date is skipped, not read as a one-off (red team 2026-11-18)", () => {
+  const r = linesFromCsv("amount,date,period start,period end\n1200,2026-01-01,2026-01-01,2027-13-01\n5,2026-01-01,2026-01-01,\n");
+  assert.deepEqual(r.skipped, [{ line: 2, why: "period end is not a date" }]);
+  assert.equal(r.lines.length, 1, "a blank period end is still a one-off charge");
 });

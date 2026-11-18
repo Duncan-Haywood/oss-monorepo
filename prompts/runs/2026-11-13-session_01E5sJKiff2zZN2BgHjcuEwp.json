@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKiff2zZN2BgHjcuEwp",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T01:18:17Z",
+  "ended": "2026-11-13T01:29:57Z",
+  "wall_minutes": 11.95,
+  "tokens_in": 5189606,
+  "tokens_out": 31723,
+  "cost_usd": 2.6931,
+  "tool_calls": 45,
+  "task": "water-leaks milestone 6: minimum night flow vs pressure CUSUM on incipient leaks (H4)",
+  "projects": [
+    "research/water-leaks"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15323",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "dataset_configuration.yaml unreachable (Zenodo refused by the proxy; neither GitHub mirror carries it)",
+      "fix": "defined H4's incipient set by peak < 12 m3/h from the leak-flow CSV, stated in the plan before any score"
+    },
+    {
+      "what": "seo_title 82 chars failed check_post_frontmatter in the local workflow",
+      "fix": "shortened"
+    }
+  ],
+  "integrity_issues": [
+    "Plan pre-registered in LOG.md and pushed before any night-flow series was computed; the D1 and LILA per-leak delays on 2019 were already public in earlier results and were read while writing the plan (disclosed).",
+    "The weekday pattern diagnostic was computed after the 2019 scores and is labelled post-hoc everywhere; it is descriptive (2018 only), not a detector result."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/water-leaks/src/water_leaks/data.py",
+      "issue": "Plain python3 lacks numpy, so a background fetch with it failed silently into a log; pyenv.py returned /usr/bin/python3.13 at once. research/CLAUDE.md says this, but the first fetch command is the natural place to trip on it."
+    },
+    {
+      "file": "research/water-leaks/src/water_leaks/data.py",
+      "issue": "dataset_configuration.yaml is in SHA256 but in neither mirror, so fetching every listed file always fails when Zenodo is refused; harmless for the detectors but it blocks the leak-type (incipient/abrupt) labels."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-night-flow-misses-the-small-leaks.md",
+    "research/water-leaks/LOG.md (step 6 plan and outcome)"
+  ],
+  "goal": "advance an open research programme (water-leaks, track 21) with a pre-registered real-data test",
+  "notes": "Routed research/0 by weighted draw; pick_track drew track 21; water-leaks and grid-linopf both had commits in the last 6 h; took water-leaks milestone 6 (not covered by either). Result: M1 (MNF on p227+p235 minus tank storage, CUSUM on trailing median/MAD) chosen h=3 on 2018; 2019 small leaks 3 of 9 vs D1 7 and LILA 7; H4 refuted; nightly minimum robust sd 10.7 m3/h. Checks run here: water-leaks pytest 16 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_post_frontmatter ok after fix; run_workflow_locally --for-changes otherwise green apart from the seo_title failure (site builder tests failed on the same cause). No agent doc in docs/reports: LOG.md and README carry what the next run needs (next step listed there).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a8fae628-77c1-5d7a-85a2-ae5d749cf329",
+    "transcripts": 1,
+    "first": "2026-11-13T01:18:17Z",
+    "last": "2026-11-13T01:30:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 88,
+        "output": 31723,
+        "thinking": 7105,
+        "cache_read": 5058705,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130813,
+        "api_equivalent_usd": 2.6931,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 88,
+      "output": 31723,
+      "thinking": 7105,
+      "cache_read": 5058705,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130813,
+      "api_equivalent_usd": 2.6931,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.95,
+      "active_minutes": 11.95,
+      "model_minutes": 5.69,
+      "tool_minutes": 6.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a research engineer implementing, running and writing up one pre-registered detector comparison on an existing harness",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 222.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

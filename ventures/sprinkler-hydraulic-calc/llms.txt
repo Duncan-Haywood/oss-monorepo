@@ -1,0 +1,14 @@
+# Sprinkler hydraulic calculator
+
+> Free, open-source fire sprinkler hydraulic calculation for tree, looped and gridded systems. Enter the water supply from a flow test (static psi, residual psi at a flow), the design (density in gpm/sq ft, area per head, minimum pressure at a head, hose allowance, safety margin) and the network as lines of nodes (elevation, K factor for a head) and pipes (length, fittings equivalent length, schedule 10 or 40 steel size or any inside diameter, Hazen-Williams C). It solves every pipe flow and node pressure at once with the global gradient algorithm EPANET uses, finds the lowest source pressure at which every head gives its required flow, and reports the demand, the supply's pressure and margin at that flow, the operating point, the most demanding head, over-discharge, and each pipe's flow, velocity and friction loss. Checked against EPANET 2.2 on 59 seeded networks to within 0.00001 psi and gpm. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates, not engineering advice and not a stamped hydraulic calculation; NFPA 13, the local code and the authority having jurisdiction decide what is accepted.
+
+## Pages
+
+- [The tool](https://marisstella.app/sprinkler-hydraulic-calc/)
+- [How it is worked out](https://marisstella.app/sprinkler-hydraulic-calc/how-it-works.html): Hazen-Williams, heads as emitters, the gradient solver, the design point, the supply curve on N^1.85 paper, the EPANET check, and what a grid buys over a tree at the same pipe sizes.
+
+## Source
+
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sprinkler-hydraulic-calc): MIT licensed. `node cli.mjs system.txt [--json]` or `node cli.mjs --example`.

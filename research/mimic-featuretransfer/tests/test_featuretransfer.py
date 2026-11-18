@@ -38,6 +38,23 @@ class T(unittest.TestCase):
         if not os.path.exists(ft.SUITE): self.skipTest("suite missing")
         self.assertEqual({i["family"] for i in ft.load()}, set(ft.FAMILIES))
 
+    def test_readme_examples_where_char_word_is_not_best(self):
+        # Quality audit 2026-11-13: the README once cited the two families where char+word IS best.
+        import json, re
+        here = os.path.join(os.path.dirname(__file__), "..")
+        res = json.load(open(os.path.join(here, "results.json")))
+        readme = open(os.path.join(here, "README.md")).read()
+        m = re.search(r"is not always best \(([^)]*)\)", readme)
+        self.assertIsNotNone(m)
+        fams = re.findall(r"([a-z]+) (0\.\d+) against (0\.\d+)", m.group(1))
+        self.assertGreaterEqual(len(fams), 2)
+        for fam, cw, best in fams:
+            r = res[fam]
+            self.assertAlmostEqual(r["char+word"]["auc"], float(cw), places=3)
+            top = max(v["auc"] for k, v in r.items() if k in ("char", "word", "func", "format", "length"))
+            self.assertLess(r["char+word"]["auc"], top)
+            self.assertAlmostEqual(top, float(best), places=3)
+
 
 if __name__ == "__main__":
     unittest.main()

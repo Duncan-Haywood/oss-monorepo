@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtK9UGvarp9DBGq75px",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T12:06:08Z",
+  "ended": "2026-11-11T12:18:49Z",
+  "wall_minutes": 22.35,
+  "tokens_in": 6043626,
+  "tokens_out": 30153,
+  "cost_usd": 2.8014,
+  "tool_calls": 55,
+  "task": "Deepen flagship changepoint-detector (allocate.py row 3; rows 1-2 had a fresh open PR / a round just landed): --columns per-column panels on threads",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14783",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "eval/columns-workers-browser.mjs first compared innerHTML without stripping the browser-inserted <tbody>; all checks read FAIL until normalised",
+    "eval/cli-columns-threads.mjs first passed the file after --columns, which reads it as the column list; led to the CLI fix",
+    "full venture suite (472/474) caught two static page tests pinning the old index.html text (import list, startMain multi regex); updated, then 32/32 and 36/36 on the reached files",
+    "CI validate: flagships.yaml changepoint-detector next: was 2234 chars (cap 2000); the done (c) item was shortened. portfolio/router/validate.py was not in the local checks run; it should have been"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to take the top Deepen row of allocate.py; the top two rows (ai-bookkeeper with a 0h-old open PR, sales-agent whose next says rule rounds have stopped paying and the rest need outside inputs) were not workable, so the choice fell to row 3 by judgment. allocate.py could skip a row with a PR under ~2h old."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top flagship row had an open PR 0 h old and row 2's next items need real mailboxes, keys or a policy decision",
+      "did": "Took row 3 (changepoint-detector) item (c)",
+      "result": "landed a measured 2.4-2.7x speed-up with identical answers"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-eighteen-jobs-four-cores.md",
+    "ventures/changepoint-detector/README.md section 'Several columns on worker threads, in the CLI and on the page'"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test columns-threads/consensus-threads/multivariate/multi-view/cli tests 31/31 pass; columns-threads 7/7 after the CLI fix; eval/cli-columns-threads.out.txt and eval/columns-workers-browser.out.txt (headless Chromium, all 5 checks ok); eval/analyze-worker-browser.mjs 3000 all ok (no regression). Full venture suite run_venture_tests.py changepoint-detector: 472/474, the 2 failures were static page tests pinning old markup, fixed and re-run (page, analyze-worker, columns-threads 32/32; cli, multivariate, multi-view, consensus-threads, agreed-worker, multi-report 36/36). No agent doc in docs/reports: the README section and flagships.yaml next carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "330bba17-ccb3-5f13-86d5-e605267975ca",
+    "transcripts": 1,
+    "first": "2026-11-11T12:06:08Z",
+    "last": "2026-11-11T12:28:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 30153,
+        "thinking": 4520,
+        "cache_read": 5916705,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126821,
+        "api_equivalent_usd": 2.8014,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 30153,
+      "thinking": 4520,
+      "cache_read": 5916705,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126821,
+      "api_equivalent_usd": 2.8014,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.35,
+      "active_minutes": 22.35,
+      "model_minutes": 6.89,
+      "tool_minutes": 15.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "thread pool refactor, CLI + page wiring, tests, two evals, docs: a senior engineer's day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 214.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

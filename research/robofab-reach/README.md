@@ -1,18 +1,18 @@
 # How long an arm does it take to assemble its own toy gripper? Reach and joint limits in a planar two-link model
 
-Pure Python, no dependencies. A follow-up to `research/robofab-selfparts`, which asked whether a parallel-jaw arm can *grip and place* every part of a seven-part toy gripper and left reach as a next step. Here a two-link arm on a turntable base (vertical-plane inverse kinematics in radial distance and height) must bring its wrist point to three targets per free part: a pick point in a tray row, the place point (centre of the part's final box) and a lift point 30 mm above the part. The base may stand anywhere on the table (10 mm grid); the question is the shortest link length for which some base position reaches all 18 targets. All numbers below come from `experiments/results.txt`. Simulation only; milestone 5 follow-up of the `robofab` track.
+Pure Python, no dependencies. A follow-up to `research/robofab-selfparts`, which asked whether a parallel-jaw arm can *grip and place* every part of a seven-part toy gripper and left reach as a next step. Here a two-link arm on a turntable base (vertical-plane inverse kinematics in radial distance and height) must bring its wrist point to three targets per free part: a pick point in a tray row, the place point (centre of the part's final box) and a lift point 30 mm above the part. The base may stand anywhere on the table (10 mm grid); the question is the shortest link length for which some base position reaches all 18 targets. All numbers below come from `experiments/results.txt`. Correction, 2026-11-13: the pick height was computed as `top - bottom / 2` instead of `(top - bottom) / 2`, which put every tray pick point 10 to 18 mm too high; fixing it changed 4 of the 16 cells of table 1, including the headline 60 mm, now 70 mm (quality audit `portfolio/quality/audits/2026-11-13-robofab-reach.json`). Simulation only; milestone 5 follow-up of the `robofab` track.
 
 **Live page:** https://marisstella.app/research/robofab-reach/
 
-- **Tray distance and shoulder height drive the answer.** With equal links (l1 = l2) and no joint limits, the shortest arm at a shoulder height of 100 mm is 60 mm (tray 40 mm from the fixture), 80 mm (120 mm), 100 mm (240 mm) and 140 mm (400 mm). Raising the shoulder to 300 mm raises these to 150, 160, 170 and 200 mm: the targets are all low, so a high shoulder mostly costs reach.
-- **An elbow limit matters sharply.** At tray gap 120 mm and H = 100 mm, limiting the elbow bend to 120 degrees or more leaves the 80 mm answer unchanged; at 90 degrees it rises to 180 mm; at 60 degrees no arm up to 600 mm works.
-- **Link ratio changes total length little.** Total length (l1 + l2) is 150 mm for ratios 0.5, 1.5 and 2.0, 157.5 mm for 0.75 and 160 mm for 1.0, within the 10 mm length grid used.
+- **Tray distance and shoulder height drive the answer.** With equal links (l1 = l2) and no joint limits, the shortest arm at a shoulder height of 100 mm is 70 mm (tray 40 mm from the fixture), 80 mm (120 mm), 100 mm (240 mm) and 140 mm (400 mm). Raising the shoulder to 300 mm raises these to 160, 160, 170 and 200 mm: the targets are all low, so a high shoulder mostly costs reach.
+- **An elbow limit matters sharply.** At tray gap 120 mm and H = 100 mm, limiting the elbow bend to 120 degrees or more leaves the 80 mm answer unchanged; at 90 degrees it rises to 180 mm; at 60 degrees no arm up to 600 mm works with the base within the 400 mm search box around the fixture. That limit is the box, not the arm: a 400 mm arm with its base at (60, 780) reaches every target, and no 300 mm arm does with the base anywhere on a 10 mm grid within 1,200 mm (`tests`, `test_elbow60_outside_box`).
+- **Link ratio changes total length little.** Total length (l1 + l2) is 150 mm for ratios 0.5, 1.5 and 2.0, 157.5 mm for 0.75 and 160 mm for 1.0, within the length grid used (l1 steps by 10 mm, so the total steps by 10(1 + r) mm).
 - **Shoulder elevation limited to 0 to 90 degrees** (no reaching below the shoulder) forces l1 to equal about the shoulder height (70, 100, 200, 300 mm for H = 50, 100, 200, 300), because every target lies below the shoulder.
 
 ```bash
 cd research/robofab-reach
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests, under 1 s
-PYTHONPATH=src python3 experiments/run.py                 # about 1 minute; output in experiments/results.txt
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, under 1 s
+PYTHONPATH=src python3 experiments/run.py                 # about 2 seconds; output in experiments/results.txt
 ```
 
 ## Motivation

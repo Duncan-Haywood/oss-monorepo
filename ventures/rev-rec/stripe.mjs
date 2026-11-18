@@ -1,13 +1,17 @@
 // Read-only Stripe client, no SDK. Restricted key: Invoices read and Credit
 // notes read. This code never writes to Stripe.
 
+// Tax included in the price. Older API versions send tax_amounts[{amount, inclusive}];
+// 2025-03-31 (basil) and later send taxes[{amount, tax_behavior}] instead.
+export const inclusiveTax = (l) => [...(l.tax_amounts || []), ...(l.taxes || [])].reduce((a, t) => a + (t.inclusive === true || t.tax_behavior === "inclusive" ? t.amount || 0 : 0), 0);
+
 // One Stripe invoice line -> {id, billedAt, start, end, amount, currency} or null.
 // amount = line amount minus discounts, minus tax that is included in the price,
 // so recognised revenue excludes sales tax you collect for someone else.
 export function normalizeLine(inv, l) {
   if (l.amount === undefined || l.amount === null) return null;
   const discount = (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0);
-  const inclTax = (l.tax_amounts || l.taxes || []).reduce((a, t) => a + (t.inclusive ? t.amount || 0 : 0), 0);
+  const inclTax = inclusiveTax(l);
   const p = l.period || {};
   const billedAt = (inv.status_transitions?.paid_at || inv.created) * 1000;
   return { id: l.id, invoice: inv.id, billedAt, start: (p.start ?? inv.created) * 1000, end: (p.end ?? p.start ?? inv.created) * 1000, amount: l.amount - discount - inclTax, currency: inv.currency || l.currency || "usd" };
@@ -16,8 +20,8 @@ export function normalizeLine(inv, l) {
 export function normalizeCreditNote(cn) {
   const out = [];
   for (const l of cn.lines?.data || []) {
-    const incl = (l.tax_amounts || []).reduce((a, t) => a + (t.inclusive ? t.amount || 0 : 0), 0);
-    out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || "usd" });
+    const incl = inclusiveTax(l);
+    out.push({ id: `${cn.id}:${l.id}`, invoice: cn.invoice, ...(l.invoice_line_item ? { credits: l.invoice_line_item } : {}), billedAt: cn.created * 1000, start: cn.created * 1000, end: cn.created * 1000, amount: -((l.amount || 0) - (l.discount_amounts || []).reduce((a, d) => a + (d.amount || 0), 0) - incl), currency: cn.currency || "usd" });
   }
   return out;
 }

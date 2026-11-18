@@ -1,0 +1,29 @@
+# Kriging interpolation tool: semivariogram, variogram fit, kriged map and standard errors
+
+> Free online kriging tool. Give scattered readings (x, y, value or lon, lat, value: soil samples, wells, rain gauges, sensors) and get the empirical semivariogram (Matheron 1963; robust Cressie & Hawkins 1980), a spherical, exponential or Gaussian model fitted by Cressie's (1985) weighted least squares, an ordinary kriging map with a standard error at every place, longitude and latitude handled on the sphere by chordal distance (Gneiting 2013), and a closed-form leave-one-out check (Dubrule 1983) against inverse distance weighting (Shepard 1968) and the nearest reading. On ERA5 January 2024 wave heights (371 points) kriging misses by 0.39 m RMS against 0.62 m for inverse distance; on 40 simulated fields its 95% bands covered 95.1% of held-out values. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). A statistical estimate, not engineering, surveying or environmental advice. Isotropic variogram, constant mean, up to 1,000 locations.
+
+## Pages
+
+- [The tool](https://marisstella.app/kriging-interpolation/)
+
+## Use it from code
+
+- `node cli.mjs readings.csv [--model auto|spherical|exponential|gaussian|linear] [--predict x:y,x:y]`
+- `--csv` for the map grid (x, y, estimate, standard error), `--loo` for the leave-one-out table, `--json` for everything.
+- `node platform/agents/tools.mjs call kriging-interpolation analyze --input '{"text":"x,y,v\n0,0,1\n1,0,2\n0,1,2\n1,1,3\n2,2,5","predictAt":[[0.5,0.5]],"grid":false}'`
+- From JavaScript: `analyze({text, model, predictAt})`, or the pieces: `empiricalVariogram(points)`, `fitVariogram(bins, model)`, `krigingSystem(points, model).predict({x, y})`.
+
+## What it answers
+
+- What is the value between my sample points, and how sure is the estimate?
+- What are the nugget, sill and range of my data's variogram?
+- Is kriging better than inverse distance weighting on my data?
+- Where would one more sample reduce the uncertainty most?
+- Which readings disagree with their neighbours?
+- How do I krige longitude and latitude points across the globe?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kriging-interpolation): MIT licensed.

@@ -3,7 +3,7 @@ title: The Star That Is Not Quite North
 shelf: hearth-and-horizon
 setting: The building site of Saint Finnian's chapel (invented), near Strangford, County Down, Saturday 14 October 2102
 published: 2026-11-10
-summary: A parish pegs out a new chapel to face east using the Pole Star, and finds that Polaris is not quite at the pole. A single sighting can be 0.77 degrees out, a quarter of a metre at the altar, and two sightings six hours apart put it right.
+summary: A parish pegs out a new chapel to face east using the Pole Star, and finds that Polaris is not quite at the pole. A single sighting can be 0.77 degrees out, a quarter of a metre at the altar, and two sightings twelve hours apart, one at dawn and one at dusk, put it right.
 ---
 
 Orla Maguire put the first peg in at nine in the evening, by the light of a head torch, and by midnight she was sure she had done it wrong.
@@ -40,7 +40,7 @@ Orla put her hand over her mouth. She had looked at nine, with the torch, becaus
 
 Eamon, at the edge, took the cap off his flask.
 
-"The star goes round a circle," said Tally. "It is at its furthest east of north at one moment and its furthest west of north about six hours later, 5 hours and 59 minutes, which is half of a sidereal day. Those two extremes are the same distance from true north on opposite sides. If you mark both, true north is exactly halfway between them. The star's own error cancels. You do not need to know where the pole is, and you do not need the clock to be right, because near the extreme the star hardly moves sideways at all. Twenty minutes either side makes no difference you could measure with a string."
+"The star goes round a circle," said Tally. "It is at its furthest east of north at one moment and its furthest west of north about twelve hours later, 11 hours and 58 minutes, which is half of a sidereal day. Those two extremes are the same distance from true north on opposite sides. If you mark both, true north is exactly halfway between them. The star's own error cancels. You do not need to know where the pole is, and you do not need the clock to be right, because near the extreme the star hardly moves sideways at all. Twenty minutes either side makes no difference you could measure with a string."
 
 "So I sight it twice."
 
@@ -48,19 +48,21 @@ Eamon, at the edge, took the cap off his flask.
 
 Orla frowned at the field. "It's past midnight. Is the first one tonight?"
 
-"The one at nine was taken by accident, when the star was neither at the middle of its swing nor the end," said Tally. "Do not throw it away; it is a useful check. But take it again when the star stops."
+"The next one is just before dawn, at about six minutes past seven, while the sky is still dark enough to show the star. The other is twelve hours after that, tomorrow evening, as soon as it comes out again. An October night is only just long enough to hold both ends of the swing, and tonight's first end went by at eight minutes past seven, before you came." Tally paused. "The one at nine was taken by accident, not long after the star had passed the end of its swing in the evening. Do not throw it away; it is a useful check. But take it again when the star stops."
 
 * * *
 
-It stopped, by Tally's reckoning, at a quarter to eleven, and Orla knelt in the wet with the plumb line and the frame and the torch off, and held her breath for the third time that night, and the star stood behind the string and did not move. She set the peg. Eamon had come over without being asked and stood behind her with his hand on the back of her coat to keep her from falling over, because she was leaning very hard toward a thing a very long way off.
+They went into the hut and drank tea and Orla slept on the bench with her boots on until a quarter to seven, when Tally woke her by saying her name once.
 
-They waited. They went into the hut and drank tea and Orla slept for forty minutes on the bench with her boots on. At a quarter to five in the morning Tally woke her by saying her name once. The star was at the other end of its swing.
+The star stopped, by Tally's reckoning, at six minutes past seven, with the east already grey, and Orla knelt in the wet with the plumb line and the frame and the torch off, and held her breath for the third time that night, and the star stood behind the string and did not move. She set the peg. Eamon had come over without being asked and stood behind her with his hand on the back of her coat to keep her from falling over, because she was leaning very hard toward a thing a very long way off.
+
+They went home and slept through the day, and came back at dusk. At four minutes past seven in the evening, eleven hours and fifty-eight minutes later, the star was at the other end of its swing.
 
 She set the second peg.
 
-The two lines were a metre and a half apart at the far fence, fifty-six metres off, which she had not expected, and which made her think for a long time about how big a thing she had thought was small. Then she took the tape and found the middle by folding it, and it was a hand's breadth and a half from where she had put her first peg, at nine.
+The two lines were a metre and a half apart at the far fence, fifty-six metres off, which she had not expected, and which made her think for a long time about how big a thing she had thought was small. Then she took the tape and found the middle by folding it, and it was two thirds of a metre from where she had put her first peg, at nine.
 
-"Seventeen centimetres at the fence," said Tally. "That is about a sixth of a degree, so on the eighteen metres of the chapel it would have cost you five centimetres. You were lucky; you took it nearer the middle of the swing than the end. Not the worst case. The worst, at the fence, would have been seventy-five."
+"Sixty-six centimetres at the fence," said Tally. "That is about two thirds of a degree, so on the eighteen metres of the chapel it would have cost you twenty-one centimetres. You were unlucky; you took it not long after the end of the swing, so nearly the worst case. The worst, at the fence, would have been seventy-five."
 
 Orla looked at the middle peg for a while, white in the torchlight, with the whole of the dark still over it.
 
@@ -84,4 +86,4 @@ Father Dara blessed the site the following Saturday, with a short prayer and a s
 
 * * *
 
-*This story was written by an AI and may be read by a synthetic voice. Saint Finnian's chapel, Strangford, Orla and Eamon Maguire, Father Dara Quinn and Tally are invented; Polaris, the precession of the equinoxes and the custom of orienting churches east are real. The figures are illustrative. At latitude 54.4 degrees, a star at angular distance d from the pole has greatest azimuth asin(sin d / cos lat): d = 0.45 degrees gives 0.77 degrees, which is 0.243 m over 18 m; a 1.6 degree compass error (invented) is 0.50 m. The pole moves on the sky at about 50.3 arcseconds a year times sin 23.44 degrees = 0.00556 degrees a year (the full circuit is about 25,800 years, from memory). Taking Polaris's closest approach as 0.45 degrees in 2102 (from memory, roughly), the distance is sqrt(0.45^2 + (0.00556 x years from 2102)^2), which gives 0.72 degrees in 2000 and 0.71 in 2200. Over a 56 m line the two extremes are 2 x 56 x tan 0.77 degrees = 1.51 m apart and a 0.17 degree first sighting is 17 cm off. Half a sidereal day is 11 h 58 min / 2 = 5 h 59 min. Polaris's times of greatest elongation tonight are not worked out; Tally's "a quarter to eleven" is an invented time. Whether a church faces east is a custom, not a requirement of the Church. Figures are quoted from memory where marked and should be checked before use for a real survey.*
+*This story was written by an AI and may be read by a synthetic voice. Saint Finnian's chapel, Strangford, Orla and Eamon Maguire, Father Dara Quinn and Tally are invented; Polaris, the precession of the equinoxes and the custom of orienting churches east are real. The figures are illustrative. At latitude 54.4 degrees, a star at angular distance d from the pole has greatest azimuth asin(sin d / cos lat): d = 0.45 degrees gives 0.77 degrees, which is 0.243 m over 18 m; a 1.6 degree compass error (invented) is 0.50 m. The pole moves on the sky at about 50.3 arcseconds a year times sin 23.44 degrees = 0.00556 degrees a year (the full circuit is about 25,800 years, from memory). Taking Polaris's closest approach as 0.45 degrees in 2102 (from memory, roughly), the distance is sqrt(0.45^2 + (0.00556 x years from 2102)^2), which gives 0.72 degrees in 2000 and 0.71 in 2200. Over a 56 m line the two extremes are 2 x 56 x tan 0.77 degrees = 1.51 m apart. The two greatest elongations are half a sidereal day apart, 23 h 56 min / 2 = 11 h 58 min, so an October night at this latitude (about 13 hours from sunset to sunrise, from memory) only just holds both, and the story, having missed the evening one, takes them at dawn and the next dusk. Tally's times (an evening elongation at 19:08 before the story opens, then 07:06 and 19:04) are invented, kept 11 h 58 min apart, and are not worked out from an ephemeris; the nine o'clock sighting, 1 h 52 min after the evening elongation (an hour angle of 62 degrees from the meridian), sits at about 0.77 x sin 62 = 0.68 degrees off north in the near-pole approximation, 66 cm at 56 m and 21 cm over 18 m. Whether a church faces east is a custom, not a requirement of the Church. Figures are quoted from memory where marked and should be checked before use for a real survey.*

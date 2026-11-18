@@ -1,0 +1,56 @@
+# 2026-11-17, final firmware. First block: the loop before this change (no ball hold, no ramp hold, no feedforward bound;
+# run with those constants set off). Then: ramp hold and bound only (--band off), and the shipped loop (0.005).
+
+LOOP_BALL_BAND off: all never  0/216 | back median 0.93 s, mean 1.37, slowest  4.96 | over 3% at gate 11, worst 4.0% | overshoot worst 17.8% | undershoot worst 5.7%, >2% 24
+  6065/ 526: never  0/24 | back median 2.90 s, mean 3.03, slowest  4.96 | over 3% at gate  1, worst 3.5% | overshoot worst 17.8% | undershoot worst 5.7%, >2%  9
+  3500/ 510: never  0/24 | back median 2.65 s, mean 2.74, slowest  3.90 | over 3% at gate  1, worst 4.0% | overshoot worst 11.8% | undershoot worst 4.0%, >2%  5
+  3500/ 750: never  0/24 | back median 1.94 s, mean 2.01, slowest  2.90 | over 3% at gate  0, worst 2.7% | overshoot worst  9.3% | undershoot worst 2.8%, >2%  3
+  3500/1000: never  0/24 | back median 1.47 s, mean 1.57, slowest  2.34 | over 3% at gate  0, worst 1.9% | overshoot worst  8.0% | undershoot worst 3.5%, >2%  3
+  3500/1500: never  0/24 | back median 0.84 s, mean 0.89, slowest  1.44 | over 3% at gate  4, worst 4.0% | overshoot worst  7.6% | undershoot worst 4.4%, >2%  3
+  4635/1955: never  0/24 | back median 0.63 s, mean 0.69, slowest  1.34 | over 3% at gate  1, worst 3.4% | overshoot worst  6.9% | undershoot worst 2.7%, >2%  1
+  2160/3232: never  0/24 | back median 0.50 s, mean 0.52, slowest  0.87 | over 3% at gate  2, worst 3.2% | overshoot worst  5.4% | undershoot worst 2.0%, >2%  0
+  5000/2500: never  0/24 | back median 0.47 s, mean 0.50, slowest  0.84 | over 3% at gate  1, worst 3.1% | overshoot worst  5.8% | undershoot worst 1.8%, >2%  0
+  2500/2500: never  0/24 | back median 0.40 s, mean 0.42, slowest  0.61 | over 3% at gate  1, worst 3.7% | overshoot worst  4.4% | undershoot worst 1.4%, >2%  0
+  wheel 0.2 s : never  0/72 | back median 0.76 s, mean 1.06, slowest  2.26 | over 3% at gate  0, worst 3.0% | overshoot worst 12.4% | undershoot worst 4.4%, >2%  7
+  wheel 0.4 s : never  0/72 | back median 1.01 s, mean 1.32, slowest  3.42 | over 3% at gate  4, worst 3.7% | overshoot worst 15.5% | undershoot worst 3.7%, >2%  5
+  wheel 0.8 s : never  0/72 | back median 0.99 s, mean 1.74, slowest  4.96 | over 3% at gate  7, worst 4.0% | overshoot worst 17.8% | undershoot worst 5.7%, >2% 12
+  first-order: never  0/54 | back median 0.74 s, mean 1.31, slowest  4.62 | over 3% at gate  1, worst 4.0% | overshoot worst 15.2% | undershoot worst 3.5%, >2%  2
+  tach 5 us  : never  0/54 | back median 0.74 s, mean 1.28, slowest  3.97 | over 3% at gate  2, worst 4.0% | overshoot worst 15.3% | undershoot worst 3.5%, >2%  2
+  ESC 30 ms  : never  0/54 | back median 1.00 s, mean 1.39, slowest  4.74 | over 3% at gate  2, worst 3.5% | overshoot worst 16.2% | undershoot worst 4.3%, >2%  6
+  ESC 80 ms  : never  0/54 | back median 1.20 s, mean 1.51, slowest  4.96 | over 3% at gate  6, worst 4.0% | overshoot worst 17.8% | undershoot worst 5.7%, >2% 14
+
+LOOP_BALL_BAND off: all never  0/216 | back median 0.84 s, mean 1.21, slowest  4.93 | over 3% at gate 12, worst 3.6% | overshoot worst 17.8% | undershoot worst 5.7%, >2% 23
+  6065/ 526: never  0/24 | back median 2.21 s, mean 2.52, slowest  4.93 | over 3% at gate  3, worst 3.5% | overshoot worst 17.8% | undershoot worst 5.7%, >2%  7
+  3500/ 510: never  0/24 | back median 2.28 s, mean 2.41, slowest  4.75 | over 3% at gate  1, worst 3.0% | overshoot worst 11.8% | undershoot worst 3.9%, >2%  5
+  3500/ 750: never  0/24 | back median 1.61 s, mean 1.69, slowest  2.54 | over 3% at gate  0, worst 2.8% | overshoot worst  9.4% | undershoot worst 2.9%, >2%  3
+  3500/1000: never  0/24 | back median 1.18 s, mean 1.28, slowest  2.03 | over 3% at gate  0, worst 2.5% | overshoot worst  8.1% | undershoot worst 3.4%, >2%  4
+  3500/1500: never  0/24 | back median 0.77 s, mean 0.89, slowest  1.42 | over 3% at gate  0, worst 2.6% | overshoot worst  7.6% | undershoot worst 4.4%, >2%  3
+  4635/1955: never  0/24 | back median 0.63 s, mean 0.65, slowest  1.33 | over 3% at gate  4, worst 3.6% | overshoot worst  6.9% | undershoot worst 2.7%, >2%  1
+  2160/3232: never  0/24 | back median 0.50 s, mean 0.52, slowest  0.87 | over 3% at gate  1, worst 3.2% | overshoot worst  5.4% | undershoot worst 2.0%, >2%  0
+  5000/2500: never  0/24 | back median 0.47 s, mean 0.50, slowest  0.82 | over 3% at gate  1, worst 3.0% | overshoot worst  5.8% | undershoot worst 1.8%, >2%  0
+  2500/2500: never  0/24 | back median 0.40 s, mean 0.41, slowest  0.60 | over 3% at gate  2, worst 3.6% | overshoot worst  4.4% | undershoot worst 1.4%, >2%  0
+  wheel 0.2 s : never  0/72 | back median 0.75 s, mean 1.05, slowest  2.20 | over 3% at gate  1, worst 3.0% | overshoot worst 12.5% | undershoot worst 4.4%, >2%  7
+  wheel 0.4 s : never  0/72 | back median 0.87 s, mean 1.20, slowest  3.35 | over 3% at gate  2, worst 3.6% | overshoot worst 15.2% | undershoot worst 3.5%, >2%  6
+  wheel 0.8 s : never  0/72 | back median 1.00 s, mean 1.38, slowest  4.93 | over 3% at gate  9, worst 3.6% | overshoot worst 17.8% | undershoot worst 5.7%, >2% 10
+  first-order: never  0/54 | back median 0.73 s, mean 1.12, slowest  3.33 | over 3% at gate  2, worst 3.5% | overshoot worst 15.3% | undershoot worst 3.5%, >2%  2
+  tach 5 us  : never  0/54 | back median 0.73 s, mean 1.12, slowest  3.33 | over 3% at gate  2, worst 3.5% | overshoot worst 15.4% | undershoot worst 3.5%, >2%  2
+  ESC 30 ms  : never  0/54 | back median 0.81 s, mean 1.21, slowest  4.77 | over 3% at gate  1, worst 3.6% | overshoot worst 16.2% | undershoot worst 4.2%, >2%  5
+  ESC 80 ms  : never  0/54 | back median 1.07 s, mean 1.37, slowest  4.93 | over 3% at gate  7, worst 3.6% | overshoot worst 17.8% | undershoot worst 5.7%, >2% 14
+
+LOOP_BALL_BAND 0.005: all never  0/216 | back median 0.69 s, mean 0.89, slowest  2.43 | over 3% at gate  1, worst 3.2% | overshoot worst  6.0% | undershoot worst 4.5%, >2% 19
+  6065/ 526: never  0/24 | back median 1.70 s, mean 1.79, slowest  2.43 | over 3% at gate  0, worst 2.2% | overshoot worst  6.0% | undershoot worst 3.6%, >2%  5
+  3500/ 510: never  0/24 | back median 1.58 s, mean 1.64, slowest  2.08 | over 3% at gate  0, worst 1.9% | overshoot worst  4.1% | undershoot worst 2.2%, >2%  1
+  3500/ 750: never  0/24 | back median 1.11 s, mean 1.16, slowest  1.48 | over 3% at gate  0, worst 1.8% | overshoot worst  4.3% | undershoot worst 2.9%, >2%  2
+  3500/1000: never  0/24 | back median 0.88 s, mean 0.92, slowest  1.46 | over 3% at gate  0, worst 1.9% | overshoot worst  4.6% | undershoot worst 3.5%, >2%  2
+  3500/1500: never  0/24 | back median 0.60 s, mean 0.65, slowest  1.11 | over 3% at gate  0, worst 2.4% | overshoot worst  4.9% | undershoot worst 4.5%, >2%  5
+  4635/1955: never  0/24 | back median 0.51 s, mean 0.54, slowest  0.72 | over 3% at gate  1, worst 3.2% | overshoot worst  4.3% | undershoot worst 3.2%, >2%  2
+  2160/3232: never  0/24 | back median 0.44 s, mean 0.47, slowest  0.66 | over 3% at gate  0, worst 2.1% | overshoot worst  3.3% | undershoot worst 2.4%, >2%  1
+  5000/2500: never  0/24 | back median 0.43 s, mean 0.45, slowest  0.65 | over 3% at gate  0, worst 2.2% | overshoot worst  3.5% | undershoot worst 2.3%, >2%  1
+  2500/2500: never  0/24 | back median 0.40 s, mean 0.41, slowest  0.59 | over 3% at gate  0, worst 2.4% | overshoot worst  2.8% | undershoot worst 1.7%, >2%  0
+  wheel 0.2 s : never  0/72 | back median 0.57 s, mean 0.78, slowest  2.43 | over 3% at gate  1, worst 3.2% | overshoot worst  6.0% | undershoot worst 4.5%, >2% 17
+  wheel 0.4 s : never  0/72 | back median 0.58 s, mean 0.84, slowest  2.05 | over 3% at gate  0, worst 2.4% | overshoot worst  4.4% | undershoot worst 2.4%, >2%  2
+  wheel 0.8 s : never  0/72 | back median 0.75 s, mean 1.06, slowest  2.17 | over 3% at gate  0, worst 1.2% | overshoot worst  1.6% | undershoot worst 0.5%, >2%  0
+  first-order: never  0/54 | back median 0.66 s, mean 0.86, slowest  2.17 | over 3% at gate  0, worst 1.9% | overshoot worst  5.2% | undershoot worst 2.4%, >2%  2
+  tach 5 us  : never  0/54 | back median 0.66 s, mean 0.86, slowest  2.17 | over 3% at gate  0, worst 1.9% | overshoot worst  5.2% | undershoot worst 2.4%, >2%  2
+  ESC 30 ms  : never  0/54 | back median 0.72 s, mean 0.90, slowest  2.08 | over 3% at gate  0, worst 1.9% | overshoot worst  5.7% | undershoot worst 3.5%, >2%  5
+  ESC 80 ms  : never  0/54 | back median 0.71 s, mean 0.96, slowest  2.43 | over 3% at gate  1, worst 3.2% | overshoot worst  6.0% | undershoot worst 4.5%, >2% 10

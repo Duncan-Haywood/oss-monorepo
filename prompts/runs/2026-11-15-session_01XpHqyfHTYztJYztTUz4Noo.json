@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyfHTYztJYztTUz4Noo",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T01:39:25Z",
+  "ended": "2026-11-15T01:56:53Z",
+  "wall_minutes": 21.65,
+  "tokens_in": 15544125,
+  "tokens_out": 76005,
+  "cost_usd": 6.3787,
+  "tool_calls": 97,
+  "task": "open-tennis-robots flagship (row 8, BUILDABLE HERE): lift jam cutoff",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16048",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "open-tennis-robots buildable said the lift MOSFET is on GPIO 16; it moved to GPIO 12 on 2026-11-14 (main.py, cad/README.md). Rewritten with the next item."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "bare python3 lacks pytest; the cad venv (build123d + pytest) from cad/requirements.txt doubled as the test interpreter, which the cloud-session note could mention for this venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "buildable asked for 'its CAD'; the sense circuit is three small parts on the deck, so it went in as BOM rows and a manifest line rather than a drawn solid",
+      "did": "BOM rows (shunt, LM393, resistors), manifest 'lift jam' line, wiring section in hardware/electronics.md",
+      "result": "package rebuilt and matches; a drawn carrier can come with the slip-coupling item"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "no separate docs/reports agent doc: the venture's cad/README.md 'Lift jam cutoff' entry and the rewritten flagships next/buildable are where the next run reads",
+      "did": "wrote the record there",
+      "result": "next run routed by allocate.py sees the new buildable item"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-current-cutoff-saves-the-tennis-lift-motor-not-the-flight.md",
+    "ventures/open-tennis-robots/cad/README.md (Lift jam cutoff)"
+  ],
+  "goal": "Deepen flagship 10 (open-tennis-robots) with the lift jam cutoff the flagship row listed as buildable here.",
+  "notes": "Shunt + LM393 comparator on GPIO 0 (strapping pin, safe because the lift is off at reset), Feeder.lift_motor_model / lift_jam_cutoff / check_lift_jam, LiftRun blank/trip/rest/retry/latch, FLAG_LIFT_JAM (2048) with a once-only drill-runner warning, tests/lift_jam_sweep.py (real firmware vs a 0.1 ms motor/belt/ball plant). Sweep: 12 starts never trip; 24 jams cut in 29-89 ms; winding 12-34 J vs 576-1,108 J uncut. Finding: first impact from rotor inertia 149-172 N vs cap's 156 N allowance at a full pack: new buildable item (slip coupling). Verification: tests/ 111 passed (venv pytest); cad/tests 127 passed (build123d venv, 4 m 48 s); run_venture_tests.py open-tennis-robots ok (160.6 s); venture-preflight.mjs clean; feeder package rebuilt and committed (bom.csv +3 rows, manifest 'lift jam' line).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0a9c97a1-c3a5-53ac-988c-6a0eae496cba",
+    "transcripts": 1,
+    "first": "2026-11-15T01:39:25Z",
+    "last": "2026-11-15T02:01:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 173,
+        "output": 76005,
+        "thinking": 31109,
+        "cache_read": 15319702,
+        "cache_write_5m": 0,
+        "cache_write_1h": 224250,
+        "api_equivalent_usd": 6.3787,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 173,
+      "output": 76005,
+      "thinking": 31109,
+      "cache_read": 15319702,
+      "cache_write_5m": 0,
+      "cache_write_1h": 224250,
+      "api_equivalent_usd": 6.3787,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 89,
+      "Edit": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.65,
+      "active_minutes": 21.65,
+      "model_minutes": 12.52,
+      "tool_minutes": 9.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an electronics/firmware engineer: motor model, sense circuit and tolerances, firmware state machine, plant simulation sweep, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 250.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

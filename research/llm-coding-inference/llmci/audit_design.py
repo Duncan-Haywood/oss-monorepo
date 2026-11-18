@@ -5,11 +5,35 @@ stratum: spend the rest of the budget on fresh random items) or "cells" (two str
 Neyman-allocated with a floor, `cell_allocation`). The rule is a design-time heuristic with no coverage theorem; it
 was checked on GoEmotions and NaijaSenti with zero-shot Qwen2.5 coders (see LOG.md, 6ak to 6am).
 """
-TAU = 0.3  # minimum pilot informedness J_hat for coder cells; any value in 0.2 to 0.5 gave widths within 1% (6am)
-GUARD = 20  # minimum human positives in the pilot (6al); below it the pilot cannot tell a coder from luck
-PILOT_SHARE = 0.3
+TAU = 0.1  # minimum pilot informedness J_hat for coder cells (LOG.md 7ah, 7ai: 0.1 keeps a J 0.03 coder out and keeps
+#           97 to 99% of a J 0.26 to 0.65 coder's gain; 0.2 keeps 81% at J 0.26; was 0.3 from 6am to 7ah)
+GUARD = 0  # minimum human positives in the pilot (6al set 20; LOG.md 7ai: at 1% prevalence that sent every draw to
+#           pooled and gave up 15% of width; NEG_GUARD and TAU now do its job; guard=20 restores the 6al screen)
+TAU_6AM, GUARD_6AM = 0.3, 20  # the screen shipped from 6am to 7ah; experiments before 7ai compare against it
+PILOT_SHARE = 0.7  # suggested pilot share (no function reads it). LOG.md 7ar (pre-registered, 51 cells): the shipped rule's
+#                   summed width gain rises with the pilot (0.3: 3.007, 0.5: 4.418, 0.7: 5.506) at 93% coverage or more, as
+#                   the 3-miss guard passes more often; with the plan held to n labels (BUDGET_CAP, post hoc) 0.7 still gains
+#                   5.140. Was 0.3 until 7ar (7aq: 0.3 keeps only 67% of the gain at 0.5). Use it with BUDGET_CAP on.
+#                   LOG.md 7as (pre-registered, 18 fresh GoEmotions cells + the 51): 0.7 held on the fresh cells (gain
+#                   0.831 against 0.666 at 0.5); 0.8 gained more (6.280 against 5.946 over 69 cells) but missed the
+#                   committed coverage bar, 0.9 less, and 1.0 nothing (-0.215): with no labels left to allocate the cells
+#                   estimate equals the pooled one. Do not raise it toward 1.0.
+PILOT_SHARE_PRE7AR = 0.3  # the suggested share before 7ar; experiments before 7ar read it so each replays as committed
+BUDGET_CAP = True  # plan_audit's default: a cells plan never labels more than n items (`cap_to_budget`; LOG.md 7ar found an
+#                   uncapped plan up to 20% over budget at a 0.7n pilot). Experiments before 7ar call `plan_audit_pre7ar`.
+RARE_FALLBACK = 3  # audit_interval's default rare_fallback (LOG.md 7aw, pre-registered): a pooled plan whose labels hold
+# fewer than 3 human positives is closed by a Wilson interval on the labels alone. It covered 93.6% or more in all 47
+# cells under 1% prevalence or at n 200 / 300, and kept 97.0% of the shipped rule's width gain where its interval was
+# valid. Experiments before 7aw set A.RARE_FALLBACK = None so each replays as committed.
+NEG_FLOOR = (5, 0.40, 2)  # plan_audit's default neg_floor (LOG.md 7az, pre-registered): a one-phase cells plan whose pilot
+# holds fewer than 5 coder misses (human 1, coder 0) and has J_hat under 0.40 floors the coder-negative cell's variance in
+# `audit_interval` at the plus-two `pseudo_var`. Over 130 cells it kept 94.6% of the unfloored rule's width gain (97.9% for
+# coders with J >= 0.40) and cut the cells with 30+ admitted draws under 88% from 10 to 6. Experiments before 7az set
+# A.NEG_FLOOR = None so each replays as committed.
 NEG_GUARD = 3  # minimum pilot positives in the coder-negative cell (7r to 7w); the default since 7w, neg_guard=0 turns it off
 FLOOR = 0.35  # each coder cell gets at least this share of n (6ai)
+WIDTH_MARGIN = 0.0  # keep cells only if the pilot's `predicted_ratio` <= 1 - WIDTH_MARGIN (LOG.md 7ak: removed all 7 cells
+#                    the screen made wider than pooled, worst 1.002, and kept 100% of the gain); None turns it off
 
 
 def informedness(y, f):
@@ -73,7 +97,151 @@ def pilot_ceiling(y, f):
     return cell_ceiling(sum(pos) / len(pos), sum(1 - b for b in neg) / len(neg))
 
 
-def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD):
+PSEUDO = 0.0  # pseudo-count variance floor per coder cell (LOG.md 7am); 0 is off, the rule every experiment before 7am ran
+FALLBACK_PSEUDO = None  # guard-first fallback (LOG.md 7an): when the pilot holds fewer than neg_guard coder misses, plan
+#                        again with neg_guard 0 and this pseudo-count floor instead of going straight to pooled; None is off
+FALLBACK_TWO_PHASE = False  # LOG.md 7ao: a fallback plan uses the two-phase cells design (`two_phase` in plan_audit);
+#                             "neg" (LOG.md 7ap) makes only the coder-negative cell two-phase
+PRICE_FLOOR = False  # LOG.md 7ap: the two-phase width forecast and allocation price the pseudo-count floor at the
+#                      second-phase size (`priced_two_phase`); False is the 7ao forecast
+
+
+def pseudo_var(y, pseudo):
+    """Pseudo-count variance floor for one coder cell's 0/1 labels y: p~(1 - p~) with p~ = (sum(y) + pseudo) /
+    (len(y) + 2 pseudo) (pseudo 2 is the plus-four of Agresti and Coull). Inside a coder cell f is constant, so the
+    residual y - lambda f has the variance of y, and a cell whose audit holds 0 to 2 positives gets a variance near
+    zero; the floor keeps it at about what (pseudo) positives would give (LOG.md 7am). 0.0 when pseudo is 0."""
+    if not pseudo:
+        return 0.0
+    p = (sum(y) + pseudo) / (len(y) + 2 * pseudo)
+    return p * (1 - p)
+
+
+def _cell_s2(f_all, pilot_y, cells, pseudo=0.0):
+    """Pilot variance of y - f in each cell (as `plan_audit` allocates): floored at 1e-4, 0.25 with under two items;
+    with pseudo > 0 also at least `pseudo_var` of the cell's pilot labels."""
+    s2 = []
+    for cell in cells:
+        ys = [pilot_y[i] for i in cell if i in pilot_y]
+        res = [pilot_y[i] - f_all[i] for i in cell if i in pilot_y]
+        if len(res) > 1:
+            m = sum(res) / len(res)
+            s2.append(max(1e-4, sum((r - m) ** 2 for r in res) / (len(res) - 1), pseudo_var(ys, pseudo)))
+        else:
+            s2.append(0.25)
+    return s2
+
+
+def predicted_ratio(f_all, pilot_y, n, floor=FLOOR, pseudo=0.0, two_phase=False, price_floor=False, no_info=1.0):
+    """Pilot plug-in forecast of the half-width ratio, coder cells over one pooled stratum, for an audit of n items
+    (LOG.md 7ak). Unlike `pilot_ceiling` (asymptotic, Neyman without floor, pooled at lambda 0) it prices what the
+    real audit does: the pooled side uses the control-variate weight lambda fitted on the pilot, the cells side the
+    floored allocation `cell_allocation` would make, and both carry the finite-population correction. Returns
+    sqrt(var_cells / var_pooled) with the variances of `audit_interval`'s estimator at the planned sizes; 1.0 when
+    the pilot leaves the pooled variance at zero. two_phase: price the cells side as the two-phase design of LOG.md
+    7ao (`two_phase_allocation`: pilot items known exactly, the rest of each cell estimated from fresh items only).
+    two_phase="neg" or price_floor=True: price the design of LOG.md 7ap (`priced_two_phase`). no_info: what to return
+    when the pilot cannot forecast (fewer than 3 items, pooled variance 0, an empty cell); 1.0 since 7ak, which the
+    width_margin 0 gate reads as "cells allowed". LOG.md 7ap found a fallback pilot with one positive (lambda 1, every
+    residual 0) let through that way at 3 times the pooled width; inf sends such a pilot to pooled."""
+    idx = sorted(pilot_y)
+    y = [pilot_y[i] for i in idx]
+    f = [f_all[i] for i in idx]
+    N, m = len(f_all), len(idx)
+    if m < 3:
+        return no_info
+    my, mf = sum(y) / m, sum(f) / m
+    vf = sum((b - mf) ** 2 for b in f) / (m - 1)
+    lam = 0.0 if vf == 0 else min(1.0, max(0.0, sum((a - my) * (b - mf) for a, b in zip(y, f)) / (m - 1) / vf))
+    r = [a - lam * b for a, b in zip(y, f)]
+    mr = sum(r) / m
+    var_pool = (1 - n / N) * (sum((x - mr) ** 2 for x in r) / (m - 1)) / n
+    if var_pool <= 0:
+        return no_info
+    cells = [[i for i, c in enumerate(f_all) if c == k] for k in (0, 1)]
+    sizes = [len(c) for c in cells]
+    if min(sizes) == 0:
+        return no_info
+    s2 = _cell_s2(f_all, pilot_y, cells, pseudo)
+    if two_phase == "neg" or (two_phase and price_floor):
+        d = priced_two_phase(n, cells, pilot_y, s2, floor, two_phase == "neg", pseudo if price_floor else 0.0)
+        if d is None:
+            return float("inf")
+        return (d["var"] / N ** 2 / var_pool) ** 0.5
+    if two_phase:
+        rest, k = two_phase_allocation(n, cells, pilot_y, s2, floor)
+        if min(rest) < 2:
+            return float("inf")
+        var_cells = sum((R / N) ** 2 * (1 - a / R) * v / a for R, a, v in zip(rest, k, s2))
+        return (var_cells / var_pool) ** 0.5
+    alloc = cell_allocation(n, sizes, s2, floor)
+    var_cells = sum((Nh / N) ** 2 * (1 - a / Nh) * v / a for Nh, a, v in zip(sizes, alloc, s2))
+    return (var_cells / var_pool) ** 0.5
+
+
+def two_phase_allocation(n, cells, pilot_y, s2, floor=FLOOR):
+    """Second-phase sizes for the two-phase cells design (LOG.md 7ao). The pilot items are treated as a census of
+    themselves, so what is left to estimate in cell h is the mean of its R_h unpiloted items, from a fresh simple random
+    sample of k_h of them. The budget n - (pilot size) is split by `cell_allocation` over the remainders (Neyman on
+    R_h S_h, each cell at least floor of that budget and two items, capped at R_h). Returns (R, k)."""
+    rest = [sum(1 for i in c if i not in pilot_y) for c in cells]
+    budget = max(0, n - len(pilot_y))
+    return rest, cell_allocation(budget, rest, s2, floor)
+
+
+def _floored(p, k, pseudo):
+    """Expected `pseudo_var` floor for k labels at rate p: p~(1 - p~), p~ = (k p + pseudo) / (k + 2 pseudo)."""
+    if not pseudo:
+        return 0.0
+    q = (k * p + pseudo) / (k + 2 * pseudo)
+    return q * (1 - q)
+
+
+def priced_two_phase(n, cells, pilot_y, s2, floor=FLOOR, neg_only=False, pseudo=0.0):
+    """Design and forecast variance of a two-phase cells plan (LOG.md 7ap). Each cell is either two-phase (its pilot
+    items known, its unpiloted rest R_h estimated from k_h fresh labels) or, with neg_only, the coder-positive cell is
+    ordinary: its pilot labels and its fresh ones together estimate its whole mean, with the FPC on N_h. The selection
+    that biased 7an's fallback acts through the coder-negative cell's misses, so neg_only keeps the pilot where the
+    guard did not look. The budget n minus the two-phase cells' pilot items is split by `cell_allocation` over the
+    cells' populations (R_h or N_h). pseudo > 0 prices the plus-four floor `audit_interval` will apply: each cell's
+    variance is raised to the floor expected at the sample that estimates it (pilot rate, k_h or a_h labels), the
+    allocation is made again with those variances, and the result is priced the same way. The 7ao forecast floored
+    on the pilot and so underpriced a small second phase. Returns {"to_label", "var"} (var = N^2 x the variance of the
+    prevalence estimate), or None when a cell is left with fewer than two items to estimate from."""
+    flags = [True, not neg_only]
+    pil = [[i for i in c if i in pilot_y] for c in cells]
+    pop = [len(c) - len(p) if t else len(c) for c, p, t in zip(cells, pil, flags)]
+    have = [0 if t else len(p) for p, t in zip(pil, flags)]
+    if min(pop) < 2:
+        return None
+    rate = [sum(pilot_y[i] for i in p) / len(p) if p else 0.5 for p in pil]
+    budget = max(0, n - sum(len(p) for p, t in zip(pil, flags) if t))
+    v = list(s2)
+
+    def design(v):
+        alloc = cell_allocation(budget, pop, v, floor)
+        fresh = [max(0, a - h) for a, h in zip(alloc, have)]
+        left = (n - len(pilot_y)) - sum(fresh)
+        if left > 0:
+            j = max(range(len(cells)), key=lambda j: (flags[j], pop[j]))
+            fresh[j] = min(pop[j] - have[j], fresh[j] + left)
+        size = [h + k for h, k in zip(have, fresh)]
+        return fresh, size
+
+    fresh, size = design(v)
+    if pseudo:
+        for _ in range(2):
+            v = [max(a, _floored(p, max(2, m), pseudo)) for a, p, m in zip(s2, rate, size)]
+            fresh, size = design(v)
+    if min(size) < 2:
+        return None
+    var = sum(P * P * (1 - m / P) * w / m for P, m, w in zip(pop, size, v))
+    return {"to_label": fresh, "var": var, "flags": flags}
+
+
+def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=NEG_GUARD, width_margin=WIDTH_MARGIN,
+               pseudo=PSEUDO, fallback_pseudo=FALLBACK_PSEUDO, two_phase=False, fallback_two_phase=FALLBACK_TWO_PHASE,
+               price_floor=PRICE_FLOOR, no_info=1.0, budget_cap=BUDGET_CAP, neg_floor="default"):
     """One call from a hand-coded pilot to the rest of the audit. f_all: the coder's 0/1 codes on every corpus item;
     pilot_y: {item index: human 0/1} for a simple random pilot (about PILOT_SHARE * n items); n: total audit budget.
     Returns {"design", "cells", "to_label"}: design is "pooled" or "cells" (`screen`); cells are lists of item
@@ -82,35 +250,127 @@ def plan_audit(f_all, pilot_y, n, tau=TAU, guard=GUARD, floor=FLOOR, neg_guard=N
     design; the pilot must be a random draw or J_hat is biased. The result also carries "ceiling": the best-case
     half-width ratio of cells over pooled at the pilot's sensitivity and specificity (`pilot_ceiling`), reported for
     the planner and not used by the rule (an upper bound, not a forecast; see `cell_ceiling`): 7h saw the screen pick cells at J = 0.39 for a gain of 0.6% against a
-    ceiling of 8%."""
+    ceiling of 8%. width_margin (default WIDTH_MARGIN = 0 since 7ak; None turns it off, as every experiment before 7ak ran):
+    also send the plan to pooled unless `predicted_ratio` is at most 1 - width_margin. pseudo (default PSEUDO): the
+    pseudo-count variance floor (`pseudo_var`) used in the allocation, the width forecast and, carried in the plan,
+    by `audit_interval` for each coder cell (LOG.md 7am). fallback_pseudo (default FALLBACK_PSEUDO, None is off): the
+    guard-first rule of LOG.md 7an. When the pilot holds fewer than neg_guard human positives the coder labelled 0, the
+    plan is made again with neg_guard 0 and pseudo = fallback_pseudo (tau, guard and the width forecast unchanged);
+    a pilot that passes the miss guard is planned exactly as without it. The result carries "fallback": True then.
+    two_phase (LOG.md 7ao): a cells plan becomes two-phase: the pilot's labels count exactly for their own items and
+    each cell's unpiloted rest is estimated from fresh items only (`two_phase_allocation`; the width forecast prices
+    that design). Given the pilot, the second phase is a stratified simple random sample of a fixed finite remainder,
+    so the interval does not reuse the labels that chose the design. fallback_two_phase: make the fallback plan
+    two-phase (the guard-pass plan is unchanged). The plan carries "two_phase" and "pilot" for `audit_interval`.
+    two_phase="neg" (LOG.md 7ap): only the coder-negative cell is two-phase; the coder-positive cell reuses its pilot
+    labels. price_floor (LOG.md 7ap, default PRICE_FLOOR): a two-phase plan's allocation and width forecast price the
+    pseudo-count floor at the second-phase size (`priced_two_phase`). The plan then also carries "phase2", one flag
+    per cell. no_info (LOG.md 7ap, post hoc): passed to `predicted_ratio`; float("inf") sends a pilot the forecast cannot
+    read to pooled instead of letting the margin-0 gate accept it. budget_cap (LOG.md 7ar, default BUDGET_CAP = True): a one-phase
+    cells plan never labels more than n items in all (`cap_to_budget`); without it a pilot larger than a cell's
+    allocation overspends. neg_floor (LOG.md 7az, default NEG_FLOOR; None is off): (m, j, k): a one-phase cells plan
+    whose pilot holds fewer than m coder misses and has J_hat below j carries "neg_pseudo": k, and `audit_interval`
+    floors the coder-negative cell's variance at `pseudo_var(y, k)`. It targets the draws 7at found undercovering given
+    the design (a weak coder whose pilot under-saw its misses) while sparing good coders, whose pilots show few misses
+    but a high J_hat. It does not reach weak-coder draws whose pilot holds many misses (1.5B disapproval, lr approval)."""
+    if neg_floor == "default":
+        neg_floor = NEG_FLOOR
     idx = sorted(pilot_y)
     y = [pilot_y[i] for i in idx]
     f = [f_all[i] for i in idx]
-    if screen(y, f, tau, guard, neg_guard) == "pooled":
+    if fallback_pseudo is not None and neg_guard and sum(1 for a, b in zip(y, f) if a and not b) < neg_guard:
+        plan = plan_audit(f_all, pilot_y, n, tau, guard, floor, 0, width_margin, fallback_pseudo, None,
+                          two_phase or fallback_two_phase, False, price_floor, no_info, budget_cap)
+        plan["fallback"] = True
+        return plan
+    design = screen(y, f, tau, guard, neg_guard)
+    if design == "cells" and width_margin is not None and \
+            predicted_ratio(f_all, pilot_y, n, floor, pseudo, two_phase, price_floor, no_info) > 1 - width_margin:
+        design = "pooled"
+    if design == "pooled":
         return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
                 "ceiling": pilot_ceiling(y, f)}
     cells = [[i for i, c in enumerate(f_all) if c == k] for k in (0, 1)]
-    s2 = []
-    for cell in cells:
-        res = [pilot_y[i] - f_all[i] for i in cell if i in pilot_y]
-        if len(res) > 1:
-            m = sum(res) / len(res)
-            s2.append(max(1e-4, sum((r - m) ** 2 for r in res) / (len(res) - 1)))
-        else:
-            s2.append(0.25)
+    s2 = _cell_s2(f_all, pilot_y, cells, pseudo)
+    if two_phase == "neg" or (two_phase and price_floor):
+        d = priced_two_phase(n, cells, pilot_y, s2, floor, two_phase == "neg", pseudo if price_floor else 0.0)
+        if d is None:
+            return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
+                    "ceiling": pilot_ceiling(y, f)}
+        return {"design": "cells", "cells": cells, "pseudo": pseudo, "two_phase": True, "pilot": sorted(pilot_y),
+                "phase2": d["flags"], "to_label": d["to_label"], "ceiling": pilot_ceiling(y, f)}
+    if two_phase:
+        rest, k = two_phase_allocation(n, cells, pilot_y, s2, floor)
+        if min(rest) < 2:
+            return {"design": "pooled", "cells": [list(range(len(f_all)))], "to_label": [max(0, n - len(idx))],
+                    "ceiling": pilot_ceiling(y, f)}
+        return {"design": "cells", "cells": cells, "pseudo": pseudo, "two_phase": True, "pilot": sorted(pilot_y),
+                "to_label": [min(a, R) for a, R in zip(k, rest)], "ceiling": pilot_ceiling(y, f)}
     alloc = cell_allocation(n, [len(c) for c in cells], s2, floor)
-    return {"design": "cells", "cells": cells,
-            "to_label": [max(0, a - sum(1 for i in c if i in pilot_y)) for a, c in zip(alloc, cells)],
-            "ceiling": pilot_ceiling(y, f)}
+    need = [max(0, a - sum(1 for i in c if i in pilot_y)) for a, c in zip(alloc, cells)]
+    if budget_cap:
+        need = cap_to_budget(need, n - len(pilot_y))
+    plan = {"design": "cells", "cells": cells, "pseudo": pseudo, "to_label": need, "ceiling": pilot_ceiling(y, f)}
+    if neg_floor and sum(1 for a, b in zip(y, f) if a and not b) < neg_floor[0] and informedness(y, f) < neg_floor[1]:
+        plan["neg_pseudo"] = neg_floor[2]
+    return plan
 
 
-def audit_interval(plan, f_all, labels, z=1.959964):
+def cap_to_budget(need, rest):
+    """Scale per-cell top-ups down so they sum to at most `rest` (largest remainders get the leftover units). When the
+    pilot already holds more of one cell than its allocation, `cell_allocation`'s top-ups sum to more than n minus the
+    pilot, so an uncapped cells plan labels more than n items. LOG.md 7ar: at a pilot of 0.7n that reached 18% over
+    budget (1.5B gratitude n 1,000; 23 of 51 cells over budget on average); at 0.5n one cell was, by 0.06% on average,
+    and at 0.4n none. On by default since 7ar; `plan_audit_pre7ar` turns it off so earlier experiments replay."""
+    rest, tot = max(0, rest), sum(need)
+    if tot <= rest:
+        return list(need)
+    raw = [x * rest / tot for x in need]
+    out = [int(r) for r in raw]
+    for j in sorted(range(len(raw)), key=lambda j: raw[j] - out[j], reverse=True)[:rest - sum(out)]:
+        out[j] += 1
+    return out
+
+
+def plan_audit_pre7ar(*args, **kw):
+    """`plan_audit` as it was before LOG.md 7ar (no budget cap), for the experiments committed before it."""
+    kw.setdefault("budget_cap", False)
+    return plan_audit(*args, **kw)
+
+
+def audit_interval(plan, f_all, labels, z=1.959964, rare_fallback="default"):
     """The interval that closes `plan_audit`: (estimate, low, high) for the corpus prevalence. labels: {item index:
     human 0/1} for the pilot plus the items drawn from `to_label`. Estimator of 6ac and 6ad: one control-variate weight
     lambda = cov(y, f) / var(f) clipped to [0, 1], pooled over the audited items, applied in every cell; the stratified
     variance (with finite-population correction); then a Wilson interval on n_eff = p(1-p) / se^2 labels. Needs at
-    least two labelled items in each cell."""
+    least two labelled items in each cell. A cells plan made with pseudo > 0 floors each cell's variance at
+    `pseudo_var` of its audited labels (LOG.md 7am); a pooled plan never does. A cells plan carrying "neg_pseudo"
+    (`plan_audit`'s neg_floor, LOG.md 7az) also floors the coder-negative cell at `pseudo_var(y, neg_pseudo)`.
+
+    Rare categories (LOG.md 7av): with a handful of human positives in the audit the pooled interval is not valid
+    (GoEmotions grief, 0.09%, covered 1.6% at n 200 and 58% at n 1,000; nervousness, 0.28%, 72% at n 500), because
+    se is estimated from those few positives and collapses when there are none. rare_fallback=m (off by default; the
+    7av decision rule kept it off because it costs 4% of the width gain where the interval was already valid) closes a
+    pooled plan whose labels hold fewer than m positives with a Wilson interval on the labels alone (x of a, no coder,
+    no finite-population correction), point estimate unchanged; m = 5 covered 93.6% or more in all 21 cells under 1%
+    prevalence. 7aw (pre-registered, 139 cells, 22 fresh at n 200 and 300): m = 3 kept validity in all 47 rare or
+    fresh cells (lowest 93.6%) and 97.0% of the gain where the shipped interval was valid (m = 5: 90.6%), so it is now
+    the default (`RARE_FALLBACK`); pass rare_fallback=None for the bare control-variate interval, or 5 for more margin."""
     import math
+    if rare_fallback == "default":
+        rare_fallback = RARE_FALLBACK
+    if rare_fallback and not plan.get("two_phase") and len(plan["cells"]) == 1:
+        est, lo, hi = audit_interval(plan, f_all, labels, z, rare_fallback=None)
+        y = [labels[i] for i in plan["cells"][0] if i in labels]
+        x, a = sum(y), len(y)
+        if x < rare_fallback:
+            q, z2 = x / a, z * z
+            d = 1 + z2 / a
+            mid, half = (q + z2 / (2 * a)) / d, z * math.sqrt(q * (1 - q) / a + z2 / (4 * a * a)) / d
+            return est, max(0.0, mid - half), min(1.0, mid + half)
+        return est, lo, hi
+    if plan.get("two_phase"):
+        return _two_phase_interval(plan, labels, z)
     cells = plan["cells"]
     ys = [[labels[i] for i in c if i in labels] for c in cells]
     fs = [[f_all[i] for i in c if i in labels] for c in cells]
@@ -123,11 +383,17 @@ def audit_interval(plan, f_all, labels, z=1.959964):
     my = sum(ay) / len(ay)
     lam = 0.0 if vf == 0 else min(1.0, max(0.0, sum((a - my) * (b - mf) for a, b in zip(ay, af)) / (len(ay) - 1) / vf))
     total = sum(len(c) for c in cells)
+    pseudo = plan.get("pseudo", 0.0) if len(cells) > 1 else 0.0
     value = var = 0.0
-    for c, y, f in zip(cells, ys, fs):
+    neg_pseudo = plan.get("neg_pseudo", 0.0) if len(cells) > 1 else 0.0
+    for h, (c, y, f) in enumerate(zip(cells, ys, fs)):
         r = [a - lam * b for a, b in zip(y, f)]
         mr = sum(r) / len(r)
         v = sum((x - mr) ** 2 for x in r) / (len(r) - 1)
+        if pseudo:
+            v = max(v, pseudo_var(y, pseudo))
+        if neg_pseudo and h == 0:
+            v = max(v, pseudo_var(y, neg_pseudo))  # LOG.md 7az: the coder-negative cell, when the plan says so
         w = len(c) / total
         value += w * (lam * sum(f_all[i] for i in c) / len(c) + mr)
         var += w * w * (1 - len(y) / len(c)) * v / len(y)
@@ -138,3 +404,132 @@ def audit_interval(plan, f_all, labels, z=1.959964):
     mid = (p + z * z / (2 * n)) / d
     half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
     return value, mid - half, mid + half
+
+
+def _wilson(value, var, z):
+    import math
+    se = math.sqrt(var)
+    p = min(0.9995, max(0.0005, value))
+    n = p * (1 - p) / max(se, 1e-9) ** 2
+    d = 1 + z * z / n
+    mid = (p + z * z / (2 * n)) / d
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
+    return value, mid - half, mid + half
+
+
+def _two_phase_interval(plan, labels, z):
+    """`audit_interval` for a two-phase plan (LOG.md 7ao): in each coder cell, the pilot items' labels are summed as
+    known and the mean of the R_h unpiloted items is estimated from the second-phase labels alone, with the
+    finite-population correction on R_h and the variance floored at `pseudo_var` of those labels. Inside a cell the
+    coder's code is constant, so the control-variate weight drops out. Same Wilson step on n_eff."""
+    pilot = set(plan["pilot"])
+    total = sum(len(c) for c in plan["cells"])
+    pseudo = plan.get("pseudo", 0.0)
+    value = var = 0.0
+    for c, two in zip(plan["cells"], plan.get("phase2", [True] * len(plan["cells"]))):
+        if not two:  # LOG.md 7ap: an ordinary cell, pilot and fresh labels together, FPC on the whole cell
+            ya = [labels[i] for i in c if i in labels]
+            if len(ya) < 2:
+                raise ValueError("each cell needs at least two labels")
+            m = sum(ya) / len(ya)
+            v = max(sum((a - m) ** 2 for a in ya) / (len(ya) - 1), pseudo_var(ya, pseudo))
+            value += len(c) * m / total
+            var += (len(c) / total) ** 2 * (1 - len(ya) / len(c)) * v / len(ya)
+            continue
+        known = sum(labels[i] for i in c if i in pilot)
+        y2 = [labels[i] for i in c if i not in pilot and i in labels]
+        rest = sum(1 for i in c if i not in pilot)
+        if len(y2) < 2:
+            raise ValueError("each cell needs at least two second-phase labels")
+        m = sum(y2) / len(y2)
+        v = max(sum((a - m) ** 2 for a in y2) / (len(y2) - 1), pseudo_var(y2, pseudo))
+        value += (known + rest * m) / total
+        var += (rest / total) ** 2 * (1 - len(y2) / rest) * v / len(y2)
+    return _wilson(value, var, z)
+
+
+def guard_fire_probability(pilot, misses, corpus, neg_guard=NEG_GUARD):
+    """Chance that a simple random pilot of `pilot` items, drawn without replacement from a corpus of `corpus` items of
+    which `misses` are human positives the coder labelled 0, holds at least `neg_guard` of them: the hypergeometric
+    upper tail P(X >= neg_guard). This is the chance that the negative-cell guard lets `screen` pick cells when tau and
+    guard are off (LOG.md 7ae: the guard, not the audit's share of the corpus, sets how often cells are used; 7af checks
+    this forecast against every committed cell). With tau > 0 the screen also needs J_hat >= tau, so read it as an
+    upper bound there."""
+    from math import comb
+    if pilot > corpus or misses > corpus:
+        raise ValueError("pilot and misses cannot exceed the corpus")
+    total = comb(corpus, pilot)
+    below = sum(comb(misses, k) * comb(corpus - misses, pilot - k) for k in range(min(neg_guard, pilot + 1)))
+    return 1.0 - below / total
+
+
+def pilot_for_guard(prevalence, sensitivity, corpus, target=0.9, neg_guard=NEG_GUARD):
+    """Smallest pilot size whose `guard_fire_probability` reaches `target`, for a corpus of `corpus` items with this
+    prevalence and coder sensitivity (misses = round(corpus * prevalence * (1 - sensitivity))). The planning rule of
+    LOG.md 7af: the guard fires once the pilot expects about 5.3 missed positives (Poisson P(X >= 3) = 0.9), so the
+    pilot needs about 5.3 / (prevalence * (1 - sensitivity)) items whatever the corpus size. None if even the whole
+    corpus does not reach the target."""
+    misses = round(corpus * prevalence * (1 - sensitivity))
+    if misses < neg_guard:
+        return None
+    lo, hi = 1, corpus
+    if guard_fire_probability(hi, misses, corpus, neg_guard) < target:
+        return None
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if guard_fire_probability(mid, misses, corpus, neg_guard) >= target:
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo
+
+
+def cells_probability(pilot, hits, misses, false_pos, corpus, neg_guard=NEG_GUARD, tau=0.0):
+    """Exact chance that `screen(..., tau=0, guard=0, neg_guard)` answers 'cells' for a simple random pilot of `pilot`
+    items from a corpus with `hits` coder-positive and `misses` coder-negative human positives and `false_pos`
+    coder-positive human negatives: P(FN >= neg_guard and J_hat >= 0) over the multivariate hypergeometric pilot counts.
+    J_hat >= 0 fails when the pilot's misses come with no hit (sens_hat = 0), which is why `guard_fire_probability`
+    overstates the share at small pilots with a weak coder (LOG.md 7af: 33.9% forecast against 18% observed for a
+    J 0.26 coder; this function gives 19.3%, and matches all 36 committed cells within 3.2 points). Terms under 1e-15
+    are dropped. tau > 0 (LOG.md 7ah) gives P(FN >= neg_guard and J_hat >= tau), the share for
+    `screen(..., tau=tau, guard=0, neg_guard)`; the J_hat test uses the same floating-point arithmetic as
+    `informedness`, so ties at the boundary fall the same way."""
+    from math import lgamma, exp
+
+    def lc(n, k):
+        return lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1)
+    neg_pop = corpus - hits - misses
+    if min(hits, misses, false_pos) < 0 or false_pos > neg_pop or pilot > corpus:
+        raise ValueError("counts must be non-negative and fit in the corpus")
+    total, tn_pop, p = lc(corpus, pilot), neg_pop - false_pos, 0.0
+    for a in range(neg_guard, min(misses, pilot) + 1):
+        for b in range(0, min(hits, pilot - a) + 1):
+            m = pilot - a - b
+            if m > neg_pop:
+                continue
+            lab = lc(misses, a) + lc(hits, b) + lc(neg_pop, m) - total
+            if lab < -35:
+                continue
+            # c = false positives among the m pilot negatives, hypergeometric; J_hat = b/(a+b) - c/m (as informedness,
+            # 0.0 with no pilot positive or no pilot negative), so J_hat >= tau holds for c up to a largest value
+            if a + b == 0 or m == 0:
+                if tau > 0:
+                    continue
+                cmax = min(false_pos, m)
+            elif tau == 0:
+                cmax = min(false_pos, m, (b * m) // (a + b))
+            else:
+                def ok(c):
+                    return b / (a + b) + (m - c) / m - 1 >= tau
+                c0 = int((b / (a + b) - tau) * m)
+                while c0 + 1 <= m and ok(c0 + 1):
+                    c0 += 1
+                while c0 >= 0 and not ok(c0):
+                    c0 -= 1
+                cmax = min(false_pos, c0)
+            cmin = max(0, m - tn_pop)
+            if cmax < cmin:
+                continue
+            base = lc(neg_pop, m)
+            p += exp(lab) * sum(exp(lc(false_pos, c) + lc(tn_pop, m - c) - base) for c in range(cmin, cmax + 1))
+    return min(1.0, p)

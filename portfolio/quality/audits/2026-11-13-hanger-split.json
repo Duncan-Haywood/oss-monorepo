@@ -1,0 +1,206 @@
+{
+  "date": "2026-11-13",
+  "subject": "research/hanger-split",
+  "stratum": "research",
+  "seed": "2026-11-13-p-0bf4",
+  "drawn_by": "sample",
+  "round": 70,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior mechanical design engineer who designs bolted joints in FDM/polymer parts (a machine-design reviewer working from Shigley and lug/pin-joint practice). They would check first that the two printed halves actually assemble (the lap really is a lap: no interference, a clear bolt path), then that the joint load path and the bearing, shear-out, net-section and bolt-shear checks match standard practice, and then that the safety factors compared are computed under the same assumptions",
+  "scores": {
+    "correctness": 2,
+    "completeness": 2,
+    "verification": 1,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 1,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Every number in experiments/results.txt reproduces: run.py re-run in a scratch copy (/tmp/claude-0/hs/r/research/hanger-split) gives a byte-identical results.txt and identical STL/SCAD/SVG. An independent first-principles script (/tmp/claude-0/hs/recompute.py, no repo strength functions) recomputes F = 1.5*9.81*2/2 = 14.715 N, lever = (w - r)*10*cos(15.92 deg), Fb = F*lever/33 mm and the four checks: bearing SF 12.98/8.42/7.32 at creep 1 for w 15.8/22.8/25.8, creep-0.5 minima 6.49/4.21/3.66, depth for SF 3 of 4.28/8.55 mm, peg SF 0.88, boss mass 5.53 g: all match. A 0.1-degree rotation sweep over 0-180 degrees gives the XXL half's smallest bounding square as 219.07 mm (package 219.84 at a 5-degree step), so the bed-fit claim holds. But the CAD it ships is wrong: the hub shell is a full-depth solid half-disc on x >= 0 (src/hanger_split/split.py:46) and the bolt bosses are full circles centred on x = 0 (split.py:53), so (a) the right half's own hub fills the x in [0, 2.2] side of every bolt hole (point (1, -17) is inside the hole and inside the full-depth hub), and (b) the right boss material at x < 0, z 0-6 sits inside the turned left half's full-depth hub (point (-5, -17)): the two printed halves collide and no bolt passes. The strength numbers are right for the idealised joint described, not for the part produced. Correctness capped at 2.",
+    "completeness": "Claimed: geometry and CAD for five widths (present, but the halves cannot be assembled, see correctness), assembled STL (present, self-intersecting), joint checks A-E (all present and reproduce), figure (reproduces), OpenSCAD files (written, never rendered, stated), live page (https://marisstella.app/research/hanger-split/ returns 200 and carries the headline). Owner step 1 'print half_w22.stl twice ... clamp with two M4 bolts' cannot be done with the shipped file. No ROADMAP; next steps listed honestly.",
+    "verification": "python3 -m unittest discover -s tests: 13 tests OK in 0.013 s (count matches README). Four seeded mutants via platform/ci/quality_mutate.py: ligament (boss_r - hole/2) -> (boss_r + hole/2) SURVIVED; bearing bolt_d -> hole_d SURVIVED; boss thickness depth/2 -> depth SURVIVED; bed-fit sweep range(0,90) -> range(0,1) caught. No test pins any safety factor, bolt force or depth to an independently computed value, and no test checks that the two halves do not interfere or that the bolt hole is clear, which is how the assembly defect shipped.",
+    "craft": "Read src/hanger_split/joint.py, split.py, experiments/run.py, tests/test_split.py and hanger_print/strength.py, geom.py. Small, readable, imports hanger-print rather than copying it. Defects: holes are subtracted only from their own boss shell while the shells are emitted as a union, so the hub and post silently fill the bolt holes (split.py:46-56); sys.path hack to a sibling project (split.py:14); joint_mass_g docstring says 'three bosses' but counts two; results 'bolt-or-peg shear alone' row label reused for steel and peg.",
+    "claims": "Checked: '13 tests, under a second' backed; table A and sections B-D figures backed by results.txt; 'doubling spacing doubles the margin' (2.55 -> 5.10) and 'M3 to M5 1.7x' (1.91 -> 3.19 = 1.67) backed; 'lever approx 22 cm' (README.md:45) for the M size is wrong: the lever is 191.8 mm (22 cm is the XXL lever); headline 'joint SF 3.7-13 against 40-70 for the arm' (README.md:7) compares a range that mixes creep 0.5 and creep 1 for the joint with an arm SF computed with no creep factor (arm at creep 0.5 would be 20-36); 'one part prints twice ... the bosses lie against the right half's' and owner step 'check that the bosses lie flat' (README.md:120) are contradicted by the shipped geometry. Limits and 'nothing printed or tested' are stated clearly; AI-assistance disclosed.",
+    "fitness": "Job: a researcher or maker picks this up to print and test a split hanger, or to extend it to a hardware-free joint. The CAD has to be redone first (pocket the hub to half depth in the lap and cut the holes through every shell), and once the hub is halved at the lap the arm-root section there is also half depth, which the arm SF (40-70, from hanger-print's full-depth cantilever) does not account for. Nearest prior work: standard bolted/pin-loaded lug design (Shigley's Mechanical Engineering Design, bearing/shear-out/net-tension; Bruhn lug analysis), bearing tests of polymer and FDM bolted joints (ASTM D5961 method), and the routine maker practice of splitting oversize prints with dowels/bolted laps (e.g. PrusaSlicer's cut tool with connectors). The result is a textbook calculation with assumed constants, not new; the README does not claim novelty, but it is not something a paper could build on as is.",
+    "domain": "The check set (bearing on projected area d*t, two-plane shear-out, net tension with Kt, bolt single shear) is the standard lug/bolted-joint set and is applied consistently. Departures a design engineer would flag: the lap geometry does not exist as modelled (interference); vertical shear and the loop pin's share of the moment are dropped without discussing static indeterminacy; bearing uses nominal bolt diameter in a 0.4 mm clearance hole with no allowance for the uneven contact the README itself mentions; bolt shear uses nominal not minor/tensile-stress area (conservative 150 MPa allowable hides it); the arm's root section at a half-depth lap is not rechecked; all allowables assumed, stated as such."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Bolt force and bearing SF at M size (w 22.8), creep 1 and 0.5",
+      "method": "independent first-principles recomputation: F = m g k/2, lever = (w-r)*10*cos(slope), Fb = M/s, SF = 30/(Fb/(d t)), written without repo strength functions",
+      "command": "python3 -I /tmp/claude-0/hs/recompute.py",
+      "expected": "Fb 85.5 N, SF 8.42 / 4.21 (results.txt)",
+      "observed": "Fb 85.5 N, SF 8.42, min at creep 0.5 4.21",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Joint SF range across widths, creep 1 and 0.5 (child and XXL)",
+      "method": "same independent script, all four modes (bearing, two-plane shear-out, net tension Kt 2.5, bolt shear) per Shigley lug practice",
+      "command": "python3 -I /tmp/claude-0/hs/recompute.py",
+      "expected": "child 12.98 / 6.49, XXL 7.32 / 3.66",
+      "observed": "child 12.98 / 6.49, XXL 7.32 / 3.66, bearing governs",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Depth for joint SF 3 and 4 mm printed peg SF",
+      "method": "closed form: depth = 2*3*Fb/(c*30*4); peg SF = 0.5*12/(Fb/(pi*4))",
+      "command": "python3 -I /tmp/claude-0/hs/recompute.py",
+      "expected": "4.3 / 8.6 mm; peg 0.88",
+      "observed": "4.28 / 8.55 mm; peg 0.882",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "XXL half fits a 220 mm bed",
+      "method": "independent rotation sweep at 0.1 degree over 0-180 degrees of the half's outline points",
+      "command": "python3 -I /tmp/claude-0/hs/recompute.py",
+      "expected": "<= 220 mm (README 219.8 at 65 deg)",
+      "observed": "219.07 mm at 65.3 deg",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Bolt hole is clear and the turned halves do not interfere (lap joint assembles)",
+      "method": "point-in-polygon on the shipped shells: a point inside the bolt hole vs the full-depth hub; right boss material at x<0 vs the turned left hub",
+      "command": "python3 -I /tmp/claude-0/hs/recompute.py",
+      "expected": "hole clear; no overlap",
+      "observed": "(1,-17) inside hole AND inside own full-depth hub; (-5,-17) right boss material inside left full-depth hub",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Lever arm for the M size",
+      "method": "hand: (22.8-2.86)*10*cos(15.92 deg)",
+      "command": "python3 -I /tmp/claude-0/hs/recompute.py",
+      "expected": "README.md:45 'lever approx 22 cm'",
+      "observed": "191.8 mm (22 cm is the XXL lever)",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Experiment reproduces outputs",
+      "method": "re-ran run.py and figure.py in a scratch copy and diffed against the committed files",
+      "command": "cd /tmp/claude-0/hs/r/research/hanger-split && python3 experiments/run.py && diff experiments/results.txt <committed>",
+      "expected": "identical",
+      "observed": "results.txt, all STL/SCAD and split.svg identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite runs",
+      "method": "run",
+      "command": "python3 -m unittest discover -s tests",
+      "expected": "13 tests pass",
+      "observed": "Ran 13 tests in 0.013s OK",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Headline compares joint SF 3.7-13 with arm SF 40-70",
+      "method": "compare the creep assumptions behind each range in results.txt",
+      "command": "read experiments/results.txt table A",
+      "expected": "like-for-like ranges",
+      "observed": "joint range mixes creep 0.5 (3.66) and creep 1 (12.98); arm SF has no creep factor (40.3-71.5)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "Spacing and bolt-size scaling claims in B",
+      "method": "ratios from results.txt",
+      "command": "read experiments/results.txt section B",
+      "expected": "x2 for spacing 20->40, x1.7 M3->M5",
+      "observed": "2.55->5.10 (x2.0), 1.91->3.19 (x1.67)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Live page serves",
+      "method": "load served page",
+      "command": "curl -sS https://marisstella.app/research/hanger-split/",
+      "expected": "200 with the headline",
+      "observed": "200, headline present",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Check set vs standard bolted-lug practice",
+      "method": "Shigley, Mechanical Engineering Design, bolted joints in shear (bearing, shear-out, net tension, bolt shear)",
+      "command": "read src/hanger_split/joint.py",
+      "expected": "all four modes, consistent areas",
+      "observed": "all four present and consistent; vertical shear, loop-pin load share, clearance-hole contact and the half-depth hub section at the lap not modelled",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/hanger_split/joint.py:38",
+      "change": "lig = 2.0 * t * (j.boss_r - j.hole_d / 2.0) -> lig = 2.0 * t * (j.boss_r + j.hole_d / 2.0)",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/hanger_split/joint.py:39",
+      "change": "bearing area j.bolt_d * t -> j.hole_d * t",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/hanger_split/joint.py:37",
+      "change": "t = d.depth / 2.0 -> t = d.depth",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/hanger_split/split.py:71",
+      "change": "for a in range(0, 90, step): -> for a in range(0, 1, step):",
+      "caught": true,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Shipped half-lap CAD cannot be assembled: the full-depth half-disc hub (and post) fills half of each bolt hole, and each half's bosses extend into the other half's full-depth hub, so the two printed halves collide and no bolt passes; owner step 1 tells the reader to print and bolt this file",
+      "where": "research/hanger-split/src/hanger_split/split.py:46",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "No test checks assembly (interference between halves, clear bolt path) or pins any safety factor to an independent value; 3 of 4 seeded mutants in joint.py survive",
+      "where": "research/hanger-split/tests/test_split.py:14",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Once the lap is made real (hub pocketed to half depth), the arm-root section at the lap is half depth; the arm SF 40-70 from hanger-print's full-depth cantilever is not rechecked there, so 'the joint, not the arm, is the weak point' is not established for a buildable lap",
+      "where": "research/hanger-split/README.md:7",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Headline joint SF range 3.7-13 mixes creep 0.5 and creep 1 and is compared with an arm SF computed without the creep factor",
+      "where": "research/hanger-split/README.md:7",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "'lever approx 22 cm' in the M-size load-path sentence; the M lever is 19.2 cm (22 cm is XXL)",
+      "where": "research/hanger-split/README.md:45",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15585"
+  ],
+  "verdict": "Does not meet the bar. The arithmetic is right: every safety factor, bolt force, required depth and the bed fit reproduce from an independent script, and run.py regenerates byte-identical outputs. But the deliverable the README tells the owner to print is not a lap joint: the hub is a full-depth half-disc and the bosses straddle the split plane, so each half's hub blocks its own bolt holes and collides with the other half's bosses. The strength model therefore describes a part that was never generated, and fixing the geometry (pocketing the hub) changes the arm section the comparison rests on. Tests pin no numbers and never check assembly (3 of 4 mutants survive). As research it is a textbook bolted-lug calculation with assumed constants, not new; it is honest about being untested."
+}

@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtL2U89FCCDSqpDHXua",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T06:07:14Z",
+  "ended": "2026-11-13T06:12:41Z",
+  "wall_minutes": 14.27,
+  "tokens_in": 5358001,
+  "tokens_out": 27156,
+  "cost_usd": 2.4161,
+  "tool_calls": 54,
+  "task": "polish: move the last four intro link walls (intro-links.test.mjs KNOWN) into jump rows + grouped guides",
+  "projects": [
+    "league-schedule-generator",
+    "shift-roster-builder",
+    "state-residency-day-counter",
+    "3pl-quote-normalizer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15399",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "New post's description (202 chars) and seo_title (81 chars) exceeded the 160/70 limits; caught by platform/pages/*.test.mjs before merge and shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Did not mention the post front-matter length limits (description <=160, seo_title <=70); six site tests failed on them. A one-line pointer would save a full pages-suite cycle."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Asks for screenshots of hub, flagship, research, stories and a post before choosing; ten polish runs today already did that and left a ranked list, so I took the open item from it (polish-2026-11-13-bookkeeper-guides.md item 3) and measured only the pages I changed.",
+      "did": "Before/after measured on the four source pages; full build used only to confirm the tree builds.",
+      "result": "Work chosen in minutes; first input on league page 1,163 -> 715 px at 390."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-last-four-intro-link-walls.md",
+    "docs/reports/polish-2026-11-13-last-intro-walls.md"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test full suites: league-schedule-generator 445/0, shift-roster-builder 447/0, state-residency-day-counter 108/0, 3pl-quote-normalizer 136/0; platform/pages/*.test.mjs 1579 pass, 6 fail (all my post front matter), fixed, the four affected files then 55/0; intro-links.test.mjs 3/3. Local full site build (node platform/pages/build.mjs) completed on main before edits.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c48bc074-513e-5e11-9beb-7c61edb98e2e",
+    "transcripts": 1,
+    "first": "2026-11-13T06:07:14Z",
+    "last": "2026-11-13T06:21:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 100,
+        "output": 27156,
+        "thinking": 2508,
+        "cache_read": 5255203,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102698,
+        "api_equivalent_usd": 2.4161,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 100,
+      "output": 27156,
+      "thinking": 2508,
+      "cache_read": 5255203,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102698,
+      "api_equivalent_usd": 2.4161,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 48,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.27,
+      "active_minutes": 14.27,
+      "model_minutes": 5.46,
+      "tool_minutes": 8.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a front-end developer regrouping 4 pages of links, measuring and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 124.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

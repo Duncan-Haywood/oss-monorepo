@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVKve9tWr4ZMEXAaxWm",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production",
+  "input_sha256": "d5feb2a7af47facfb2e3a484826e8906b2901a5de41cdbfec10e702844764aaf",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T17:02:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4) changepoint-detector: covariate balance of the outcome-only synthetic control (Abadie 2021 s7)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 17002,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "doi.org/crossref unreachable from this session (403/ENOTFOUND); the three new DOIs (jel.20191450, jasa.2009.ap08746, 09-STS313) could not be live-checked; two are already cited in ventures/synthetic-control and data/SOURCE.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The plain route drew research; the scheduled brief asks for revenue products, so routed with --task, which picked ventures.",
+      "did": "route --task",
+      "result": "ventures/2"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-synthetic-control-covariate-balance-proposition-99.md"
+  ],
+  "goal": null,
+  "notes": "covariateBalance() added to synth-control.mjs; placebo fits now keep donorWeights. eval/synth-balance-real.mjs on CA/MA/AZ/OR: CA ln income +1.66 sd vs its synthetic (89% of placebos better), MA balanced on all six covariates yet rank 6. Descriptive, not pre-registered, changes no p. synth-control.test.mjs 13/13 pass; full venture suite via run_venture_tests.py (see PR).",
+  "corrections": [],
+  "redteam": null
+}

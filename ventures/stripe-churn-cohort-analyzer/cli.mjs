@@ -17,6 +17,7 @@
 import { readFile } from "node:fs/promises";
 import process from "node:process";
 import { parseCsv, normalizeRows, analyze, sampleCsv, simulateChurnReduction, money, pct } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `Churn, MRR and cohort retention from a Stripe subscriptions CSV export.
 
@@ -46,7 +47,9 @@ export function parseArgs(argv) {
     else if (arg === "--json") opts.json = true;
     else if (arg === "--example") opts.example = true;
     else if (arg === "--months" || arg === "--max-churn" || arg === "--what-if") {
-      const v = Number(argv[++i]);
+      const raw = argv[++i];
+      // Number("") is 0: an unset shell variable (`--max-churn "$LIMIT"`) must not become a 0% limit.
+      const v = raw == null || String(raw).trim() === "" ? NaN : Number(raw);
       if (!Number.isFinite(v) || v < 0) throw new Error(`${arg} needs a non-negative number`);
       if (arg === "--months") opts.months = Math.max(1, Math.floor(v));
       else if (arg === "--what-if") opts.whatIf = v;
@@ -124,6 +127,6 @@ export async function main(argv) {
   return 0;
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exit(await main(process.argv.slice(2)));
 }

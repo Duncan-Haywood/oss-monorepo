@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 250" font-family="sans-serif" font-size="12">
+<rect width="720" height="250" fill="#fff"/>
+<text x="360.0" y="22" text-anchor="middle" font-weight="bold">Ranking 100-cycle DFN energy from ten cycles, four fresh pools (53 to 64 scored designs)</text>
+<line x1="200.0" y1="70" x2="200.0" y2="210" stroke="#ddd"/>
+<text x="200.0" y="224" text-anchor="middle">-1</text>
+<line x1="322.5" y1="70" x2="322.5" y2="210" stroke="#ddd"/>
+<text x="322.5" y="224" text-anchor="middle">-0.5</text>
+<line x1="445.0" y1="70" x2="445.0" y2="210" stroke="#ddd"/>
+<text x="445.0" y="224" text-anchor="middle">0</text>
+<line x1="567.5" y1="70" x2="567.5" y2="210" stroke="#ddd"/>
+<text x="567.5" y="224" text-anchor="middle">0.5</text>
+<line x1="690.0" y1="70" x2="690.0" y2="210" stroke="#ddd"/>
+<text x="690.0" y="224" text-anchor="middle">1</text>
+<text x="445.0" y="242" text-anchor="middle">Spearman with DFN Wh/kg at cycle 100</text>
+<circle cx="20" cy="48" r="5" fill="#adb5bd"/>
+<text x="29" y="52">raw cycle 10</text>
+<circle cx="152" cy="48" r="5" fill="#495057"/>
+<text x="161" y="52">5n sqrt fit</text>
+<circle cx="284" cy="48" r="5" fill="#2a6fdb"/>
+<text x="293" y="52">map, chosen law</text>
+<circle cx="416" cy="48" r="5" fill="#d9480f"/>
+<text x="425" y="52">map, other law</text>
+<circle cx="548" cy="48" r="5" fill="#2f9e44"/>
+<text x="557" y="52">map, DFN's own loss</text>
+<text x="192" y="99.0" text-anchor="end">Ai2020@0.3x (sqrt)</text>
+<line x1="534.2327850346718" y1="95.0" x2="683.5796645702305" y2="95.0" stroke="#bbb"/>
+<circle cx="534.2" cy="95.0" r="5" fill="#adb5bd" fill-opacity="0.85"/>
+<circle cx="608.5" cy="95.0" r="5" fill="#495057" fill-opacity="0.85"/>
+<circle cx="601.9" cy="95.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<circle cx="543.7" cy="95.0" r="5" fill="#d9480f" fill-opacity="0.85"/>
+<circle cx="683.6" cy="95.0" r="5" fill="#2f9e44" fill-opacity="0.85"/>
+<text x="192" y="129.0" text-anchor="end">Ai2020@0.4x (sqrt)</text>
+<line x1="514.1428256118406" y1="125.0" x2="682.0761322589608" y2="125.0" stroke="#bbb"/>
+<circle cx="635.3" cy="125.0" r="5" fill="#adb5bd" fill-opacity="0.85"/>
+<circle cx="627.4" cy="125.0" r="5" fill="#495057" fill-opacity="0.85"/>
+<circle cx="607.2" cy="125.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<circle cx="514.1" cy="125.0" r="5" fill="#d9480f" fill-opacity="0.85"/>
+<circle cx="682.1" cy="125.0" r="5" fill="#2f9e44" fill-opacity="0.85"/>
+<text x="192" y="159.0" text-anchor="end">Ai2020@0.5x (sqrt)</text>
+<line x1="549.1915785758696" y1="155.0" x2="680.386217948718" y2="155.0" stroke="#bbb"/>
+<circle cx="656.3" cy="155.0" r="5" fill="#adb5bd" fill-opacity="0.85"/>
+<circle cx="608.2" cy="155.0" r="5" fill="#495057" fill-opacity="0.85"/>
+<circle cx="632.2" cy="155.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<circle cx="549.2" cy="155.0" r="5" fill="#d9480f" fill-opacity="0.85"/>
+<circle cx="680.4" cy="155.0" r="5" fill="#2f9e44" fill-opacity="0.85"/>
+<text x="192" y="189.0" text-anchor="end">NCA_Kim2011@0.625x (power)</text>
+<line x1="325.86451517948626" y1="185.0" x2="678.1201923076924" y2="185.0" stroke="#bbb"/>
+<circle cx="668.9" cy="185.0" r="5" fill="#adb5bd" fill-opacity="0.85"/>
+<circle cx="406.4" cy="185.0" r="5" fill="#495057" fill-opacity="0.85"/>
+<circle cx="358.6" cy="185.0" r="5" fill="#2a6fdb" fill-opacity="0.85"/>
+<circle cx="325.9" cy="185.0" r="5" fill="#d9480f" fill-opacity="0.85"/>
+<circle cx="678.1" cy="185.0" r="5" fill="#2f9e44" fill-opacity="0.85"/>
+</svg>

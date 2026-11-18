@@ -1,0 +1,225 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/closedloop-twin",
+  "stratum": "research",
+  "round": 50,
+  "seed": "2026-11-12-i",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 50",
+  "status": "audited",
+  "professional": "a control-systems researcher in closed-loop system identification and identification-for-control, reviewing for Automatica / IEEE CDC. They would check first that the contrast variance c'Sigma^-1 c is derived correctly from the closed-loop regressor covariance, that the tau=0 result is an identifiability statement and not an artefact of the chosen regulariser, and whether the paper positions itself against the classical closed-loop identifiability (Gustavsson, Ljung & Soderstrom 1977) and least-costly identification-for-control literature (Bombois et al. 2001, 2006)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Re-ran `PYTHONPATH=src python3 experiments/run.py` (41 s): output byte-identical to the committed experiments/results.txt. Independently recomputed with numpy in a scratch script (not the author's code): (1) predicted-pole sd from a numerically inverted Sigma=[[v,-kv],[-kv,k^2v+tau^2]] gives 0.0346/0.0602/0.1396/0.2490, matching the paper's formula column exactly; (2) the dither budget by solving the quadratic n*delta^2*t(1+t) = d^2(1+t) + (1-rho^2)t in t=tau^2 gives tau=1.2274/0.4038/0.1603 (k'=0.05) and 0.7456/0.0755/0.0292 (k'=0.5), matching section 3 to 4 decimals; (3) np.linalg.pinv at tau=0 over 300 fits gives mean b_hat -0.220, pole(0.05) 0.378, P(pole<1)=1.000 (paper -0.219/0.377/1.000); (4) independent numpy OLS Monte Carlo (seed 12345, 1500 fits): n=200,tau=1 point/bound/coverage/power 0.206/0.007/0.951/0.627 vs paper 0.199/0.006/0.955/0.601; n=1000,tau=0.03 0.483/0.042/0.949/0.079 vs 0.485/0.047/0.946/0.085; n=200,tau=0.3 0.369/0.027/0.941/0.247 vs 0.391/0.030/0.942/0.257 (point rate 1.8 SE off, within MC noise). (5) empirical Cov(x,u) over 200k steps at tau=0.3 [[1.451,-0.869],[-0.869,0.611]] vs formula [[1.453,-0.872],[-0.872,0.613]]. Derivation of c'Sigma^-1 c=(k-k')^2/tau^2+1/v and the min-norm split rho(1,-k)/(1+k^2) checked by hand. Held at 3, not 4: results.txt states held-out MSE uses 20000 transitions when the code uses 4000 (run.py:27 vs :35).",
+    "completeness": "Everything the README lists runs: 8 tests pass (`PYTHONPATH=src python3 -m unittest discover -s tests -v`, 1.6 s, README says ~3 s), experiments/run.py reproduces results.txt (README ~1 min, measured 41 s), experiments/figure.py and false_cert.svg exist, the live page https://marisstella.app/research/closedloop-twin/ returns 200 with the paper title. No TODOs or stubs. Next steps (multivariable, experiment design, physics priors) are honestly listed as not done.",
+    "verification": "8 unittest tests, all green. Seeded 6 mutations (PYTHONDONTWRITEBYTECODE=1, reverted each): halving s2_hat (caught), dropping the 1/v term of pred_var (caught), scaling b_hat by 1.05 (caught), anisotropic ridge suu+4*lam (caught); dropping the factor 2 on the cross term of the OLS contrast variance (model.py:97) survived, and z=1.645 -> 0.5 in ols_pole_bound survived. A further isotropic ridge-scale change was equivalent (same min-norm limit) and is not counted. The bound rule drives results 4 and 5 (false certification, coverage, power) but its only test asserts bound > point estimate, so its numbers are untested: verification 2.",
+    "craft": "Read src/closedloop_twin/model.py (98 lines), tests/test_model.py, experiments/run.py, experiments/figure.py. Small, readable, pure Python, seeded RNGs, figure parsed from results.txt rather than retyped. Defects: `import random` unused in model.py; tau_required docstring contradicts itself ('ignores the 1/v term ... solved exactly here', model.py:82); the results.txt header for section 1 hard-codes 20000 while the call passes 4000 (run.py:27, :35); fit() divides by det without guarding rank deficiency, so plain fit() at tau=0 returns noise rather than an error. Acceptable research code: 3.",
+    "claims": "Checked every number in README.md line 3 against results.txt: 0.0616 vs 0.0602, 0.255 vs 0.249, held-out 1.00-1.005, sd 0.037/0.090/0.245/0.819, b_hat -0.22, pole 1.05 vs 0.38, point rule 3-48%, bound 0.1-4.7%, coverage 0.94-0.965, power 5-9%, tau 1.23/0.40/0.16: all backed. Limitations section is candid (scalar, known structure, OLS only, priors would change tau=0). Gaps: result 3 says 'bootstrap-style spread would not warn either' but omits that the standard identifiability/rank check (cond(Z'Z) -> inf, OLS bound undefined) would warn, so the 100% certification is a property of choosing the min-norm fit; and the min-norm b_hat=-0.22 is unit-dependent (rescaling u changes it), not 'what a regulariser or pseudo-inverse returns' in general (model.py:58). Results.txt mislabels the held-out sample size. 3 with these caveats.",
+    "fitness": "A researcher can build on it: code is tiny, closed forms are exact and match simulation. But as a publishable contribution the core result is the textbook OLS contrast variance s^2 c'(Z'Z)^-1 c evaluated for a closed-loop regressor, and the tau=0 non-identifiability under linear feedback is Gustavsson, Ljung & Soderstrom (1977, Automatica 13:59-75) / Soderstrom & Stoica (1989). The paper does not cite or compare against the identification-for-control work that addresses exactly 'certify a new controller from closed-loop data with a dither budget': Bombois, Gevers, Scorletti & Anderson (2001, Automatica 37:1629-1636) robust stability over PE uncertainty ellipsoids, Bombois et al. (2006, Automatica 42:1651-1662) least-costly identification for control, and persistency-of-excitation conditions in data-driven control (De Persis & Tesi 2020, IEEE TAC). Single plant, single (a,k), one seed per section. A useful teaching note, not a paper: 2.",
+    "domain": "The method is classically sound (direct closed-loop prediction-error identification with external excitation; one-sided Wald bound). A reviewer would ask for: the multivariable/directional case the paper defers; the standard robust-stability test over the confidence ellipsoid rather than a pointwise one-sided bound on one gain; a sweep over the plant (a, b) and logging gain rather than one configuration; a rank/condition check as the obvious diagnostic at tau=0; and dither priced in performance cost as in least-costly design. Positioning claims 'the exact form of the extrapolation variance' as the contribution, which a closed-loop ID reviewer would consider known. 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "rerun experiments/run.py vs committed results.txt",
+      "method": "byte diff of a fresh run",
+      "command": "cd research/closedloop-twin && PYTHONPATH=src python3 experiments/run.py > /tmp/r.txt && diff /tmp/r.txt experiments/results.txt",
+      "expected": "identical",
+      "observed": "identical, 41 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "predicted-pole sd closed form at n=500 for (tau,k')=(0.5,0.6),(0.5,0.05),(0.1,0.3),(0.1,0.05)",
+      "method": "independent numpy: sqrt(s^2/n c' inv(Sigma) c) with Sigma built from the stationary closed-loop covariance and inverted numerically",
+      "command": "python3 -I scratch/ind/check.py (C1)",
+      "expected": "0.0346 / 0.0602 / 0.1396 / 0.2490 (paper)",
+      "observed": "0.0346 / 0.0602 / 0.1396 / 0.2490",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "dither budget tau for sd 0.05 at n=200/1000/5000",
+      "method": "independent closed-form root of quadratic in tau^2 (np.roots), not the author's bisection",
+      "command": "python3 -I scratch/ind/check.py (C2)",
+      "expected": "k'=0.05: 1.2274/0.4038/0.1603; k'=0.5: 0.7456/0.0755/0.0292",
+      "observed": "1.2274/0.4038/0.1603; 0.7456/0.0755/0.0292",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "tau=0 minimum-norm twin: mean b_hat, mean pole at k'=0.05, certification rate",
+      "method": "np.linalg.pinv on 300 independent numpy-simulated logs (n=500), plus hand derivation rho(1,-k)/(1+k^2)",
+      "command": "python3 -I scratch/ind/check.py (C3)",
+      "expected": "b_hat -0.219, pole 0.377, P(pole<1) 1.000",
+      "observed": "b_hat -0.220, pole 0.378, sd 0.029, P 1.000",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "false certification / coverage / power of OLS bound, n=200 tau=1 and n=1000 tau=0.03",
+      "method": "independent numpy lstsq Monte Carlo, 1500 fits, different RNG",
+      "command": "python3 -I scratch/ind/check.py (C4)",
+      "expected": "0.199/0.006/0.955/0.601 and 0.485/0.047/0.946/0.085",
+      "observed": "0.206/0.007/0.951/0.627 and 0.483/0.042/0.949/0.079 (within ~1-2 SE)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "closed-loop regressor covariance Sigma at tau=0.3",
+      "method": "empirical covariance of 200k numpy-simulated steps",
+      "command": "python3 -I scratch/ind/check.py (C5)",
+      "expected": "[[1.453,-0.872],[-0.872,0.613]]",
+      "observed": "[[1.451,-0.869],[-0.869,0.611]]",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "results.txt section 1 says held-out MSE is on 20000 fresh transitions",
+      "method": "read run.py call site",
+      "command": "grep -n '20000\\|4000' research/closedloop-twin/experiments/run.py",
+      "expected": "20000 passed to heldout_mse",
+      "observed": "4000 passed (run.py:35); header hard-codes 20000 (run.py:27)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "every number in README line 3 backed by results.txt",
+      "method": "line-by-line comparison",
+      "command": "cat research/closedloop-twin/README.md research/closedloop-twin/experiments/results.txt",
+      "expected": "all present",
+      "observed": "all present and rounded correctly",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'the twin certifies in 100% of fits ... bootstrap-style spread would not warn either' (whitepaper.md:14)",
+      "method": "check whether a standard identifiability diagnostic would warn",
+      "command": "reasoning + fit() at tau=0: det(Z'Z) ~ 0",
+      "expected": "claim scoped to min-norm fit and noting rank check",
+      "observed": "scoped to min-norm, but the rank/condition diagnostic that would warn is not mentioned; min-norm split is unit-dependent",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README commands and live page",
+      "method": "ran tests, run.py; curl live page",
+      "command": "PYTHONPATH=src python3 -m unittest discover -s tests -v; curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/closedloop-twin/",
+      "expected": "8 tests OK; 200",
+      "observed": "8 tests OK in 1.6 s; 200",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "OLS bound rule has a test that checks its value",
+      "method": "read tests/test_model.py and seed mutations",
+      "command": "PYTHONPATH=src python3 -m unittest discover -s tests",
+      "expected": "a mutation of the bound variance or z fails a test",
+      "observed": "both survived; only test asserts bound > point (test_model.py:51-53)",
+      "result": "fail"
+    },
+    {
+      "dimension": "fitness",
+      "what": "novelty against nearest prior work",
+      "method": "Gustavsson, Ljung & Soderstrom 1977; Bombois et al. 2001, 2006; Soderstrom & Stoica 1989",
+      "command": "grep -n 'Bombois\\|Gustavsson\\|Soderstrom' research/closedloop-twin/paper/whitepaper.md",
+      "expected": "positioned against these",
+      "observed": "none cited; contribution stated as the extrapolation-variance form, which is textbook OLS",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/closedloop-twin/src/closedloop_twin/model.py:97",
+      "change": "2 * c0 * c1 * inv[1] -> c0 * c1 * inv[1] (drop cross-term factor in OLS contrast variance)",
+      "caught": false,
+      "test_cmd": "cd research/closedloop-twin && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/closedloop-twin/src/closedloop_twin/model.py:94",
+      "change": "ols_pole_bound default z=1.645 -> z=0.5",
+      "caught": false,
+      "test_cmd": "cd research/closedloop-twin && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/closedloop-twin/src/closedloop_twin/model.py:54",
+      "change": "s2_hat = sse/(n-2) -> 0.5*sse/(n-2)",
+      "caught": true,
+      "test_cmd": "cd research/closedloop-twin && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/closedloop-twin/src/closedloop_twin/model.py:69",
+      "change": "drop the + 1/v term in pred_var",
+      "caught": true,
+      "test_cmd": "cd research/closedloop-twin && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/closedloop-twin/src/closedloop_twin/model.py:52",
+      "change": "b_hat scaled by 1.05",
+      "caught": true,
+      "test_cmd": "cd research/closedloop-twin && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/closedloop-twin/src/closedloop_twin/model.py:48",
+      "change": "anisotropic ridge: suu + lam -> suu + 4*lam (changes the tau=0 min-norm split)",
+      "caught": true,
+      "test_cmd": "cd research/closedloop-twin && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The OLS bound rule behind results 4-5 (false certification 0.1-4.7%, coverage, power) has no value test: dropping the factor 2 on the contrast cross term or changing z to 0.5 leaves all 8 tests green",
+      "where": "research/closedloop-twin/tests/test_model.py:51",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Novelty overstated and prior work missing: the 'exact form of the extrapolation variance' is the textbook OLS contrast variance; closed-loop identifiability without excitation (Gustavsson, Ljung & Soderstrom 1977) and identification-for-control robust-stability/least-costly design (Bombois et al. 2001, 2006) are not cited or compared",
+      "where": "research/closedloop-twin/paper/whitepaper.md:20",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "The tau=0 '100% false certification' depends on choosing the minimum-norm fit; plain OLS is rank deficient there and any condition-number/identifiability check would flag it, which the paper omits while saying spread 'would not warn either'; the min-norm split is also unit-dependent",
+      "where": "research/closedloop-twin/paper/whitepaper.md:14",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "results.txt header says held-out MSE uses 20000 fresh transitions; the call passes 4000",
+      "where": "research/closedloop-twin/experiments/run.py:27",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "Single plant (a=1.1, b=1), single logging gain, one RNG seed per section; no sweep showing the conclusions hold across configurations",
+      "where": "research/closedloop-twin/experiments/run.py:5",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "Unused `import random`; tau_required docstring contradicts itself ('ignores the 1/v term' vs 'solved exactly here'); fit() divides by a near-zero det without a rank guard",
+      "where": "research/closedloop-twin/src/closedloop_twin/model.py:82",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15144"
+  ],
+  "verdict": "Every number reproduces: run.py is byte-identical to results.txt, and an independent numpy recomputation matches the sd closed forms, the dither budget (to 4 decimals), the tau=0 min-norm twin and the false-certification/coverage/power rates within Monte Carlo error. Claims in README and paper are backed and the limitations are candid. It misses the bar on verification (the OLS bound rule that drives results 4-5 is untested; two seeded bugs in it survived) and, as research, on fitness and domain: the core result is textbook OLS contrast variance applied to a closed-loop regressor, and the paper does not position itself against classical closed-loop identifiability or the Bombois et al. identification-for-control literature. A correct, honest teaching note, not yet a publishable paper."
+}

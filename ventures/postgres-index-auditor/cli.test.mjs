@@ -22,3 +22,14 @@ test("cli exits 2 on a file without the needed columns", () => {
   writeFileSync(f, "a,b\n1,2");
   assert.equal(spawnSync("node", [cli, f], { encoding: "utf8" }).status, 2);
 });
+
+test("an unreadable --min-mb is a usage error, not 0", () => {
+  const f = join(mkdtempSync(join(tmpdir(), "pia-")), "i.csv");
+  writeFileSync(f, sampleCsv());
+  for (const bad of [["--min-mb", "abc"], ["--min-mb"], ["--min-mb", "-5"]]) {
+    const r = spawnSync("node", [cli, f, ...bad], { encoding: "utf8" });
+    assert.equal(r.status, 2, bad.join(" "));
+    assert.match(r.stderr, /--min-mb/);
+  }
+  assert.equal(spawnSync("node", [cli, f, "--min-mb", "0"], { encoding: "utf8" }).status, 1);
+});

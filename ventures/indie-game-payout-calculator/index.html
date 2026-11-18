@@ -30,7 +30,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -156,7 +156,7 @@
       last = rows;
       const best = rows[0];
       $("#report-stats").innerHTML = `${v.units.toLocaleString("en-US")} copies at ${money(v.price)}: <strong>${esc(best.label)} leaves you the most, ${money(best.received)}</strong>, with profit ${money(best.profit)} after the game's cost. Ranking is the arithmetic on identical copies, not a prediction of where they will sell.`;
-      $("#report-findings").innerHTML = findings(v, rows).map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = findings(v, rows).map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#stores").innerHTML = rows.map((p) => `<tr><th scope="row">${esc(p.label)}</th><td class="n">${money(p.adjustedGross)}</td><td class="n">${money(p.cut)}</td><td class="n">${money(p.processor + p.directFeeNet)}</td><td class="n">${money(p.received)}</td><td class="n">${p.takePct}%</td><td class="n">${money(p.profit)}</td><td class="n">${cnt(p.breakEvenUnits)}</td><td class="n">${p.targetUnits === null ? "—" : cnt(p.targetUnits)}</td></tr>`).join("");
       $("#store-notes").textContent = rows.map((p) => p.note).join(" ");
       report.hidden = false;

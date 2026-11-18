@@ -43,6 +43,15 @@
     a.cta.alt { background: #dfeaf2; color: #164a69; }
     a.cta:focus-visible { outline: 3px solid #164a69; outline-offset: 2px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 440px) { div.grid:has(#shape) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 452px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -61,48 +70,110 @@
     <label for="file">Or open a CSV file</label>
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <div class="grid">
+      <div><label for="shape">What to analyse</label>
+        <select id="shape"><option value="one">One column</option><option value="multi">Several columns measured at the same points</option></select></div>
+      <div><label for="columns">Columns (several-columns mode; names or numbers, comma-separated; blank = every numeric column)</label><input id="columns" type="text" placeholder="e.g. temp, co2" disabled></div>
+      <div><label for="jointNoise">One segmentation for all columns: noise per column (several-columns mode, level model)</label>
+        <select id="jointNoise" disabled><option value="auto">Floor only the columns that over-cut (default)</option><option value="off">Plain: each column's step-to-step scatter</option><option value="floor2">Floor every column at 2x its local-line scatter</option><option value="ar1floor">Autocorrelation and a floor on every column (fewest cuts; can mute autocorrelated columns)</option></select></div>
       <div><label for="column">Value column (name or number; blank = last numeric)</label><input id="column" type="text" placeholder="e.g. volume"></div>
       <div><label for="model">Look for a change in</label>
-        <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option></select></div>
+        <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option><option value="drift">Sudden jumps on a level that wanders (random walk)</option></select></div>
+      <div><label for="driftSlope"><input id="driftSlope" type="checkbox"> Take out a steady growth first (wandering-level model; e.g. population or prices that rise every period)</label></div>
       <div><label for="robust"><input id="robust" type="checkbox"> Heavy-tailed noise: Laplace cost, and outliers clipped in the Bayesian view (level and volatility only; fewer false alarms from outliers, less power on clean Gaussian data)</label></div>
+      <div><label for="garch"><input id="garch" type="checkbox"> Volatility comes in clusters (daily returns): search the changes with a GARCH noise model (level and volatility only; not with heavy-tailed noise; far fewer false alarms on clustered volatility, a burst it can explain is not cut)</label></div>
       <div><label for="penalty">Penalty per change (PELT)</label>
         <select id="penalty"><option value="bic">BIC (default)</option><option value="aic">AIC (finds more)</option><option value="hannan-quinn">Hannan-Quinn</option><option value="custom">Custom number…</option></select></div>
       <div><label for="penaltyValue">Custom penalty</label><input id="penaltyValue" type="number" min="0" step="any" value="10" disabled></div>
       <div><label for="trend">Trend under the steps</label><select id="trend"><option value="">None</option><option value="1">One straight slope</option><option value="bend">Slope changes once</option><option value="bends">Slope changes up to three times</option></select></div>
       <div><label for="jointKnots"><input id="jointKnots" type="checkbox"> Score every pair of slope changes (slower; with "up to three times")</label></div>
       <div><label for="knotMargin">Where slope changes may sit</label><select id="knotMargin"><option value="0.1">Middle 80% (default; finds early or late bends)</option><option value="0.2">Middle 60% (the old default)</option></select></div>
-      <div><label for="overdispersion">Clumpy or sticky counts (counts model)</label><select id="overdispersion"><option value="">Assume Poisson</option><option value="1">Scale the penalty by the dispersion</option><option value="nb">Negative-binomial cost</option></select></div>
+      <div><label for="overdispersion">Clumpy or sticky counts (counts model)</label><select id="overdispersion"><option value="">Assume Poisson</option><option value="1">Scale the penalty by the dispersion</option><option value="nb">Negative-binomial cost</option><option value="nb1">Negative-binomial cost, clumping grows with the level (NB1, slower)</option></select></div>
       <div><label for="holidays">Known holidays (counts model; dates or row numbers, comma-separated)</label><input id="holidays" type="text" placeholder="e.g. 2024-12-25, 2025-01-01"></div>
       <div><label for="log"><input id="log" type="checkbox"> Take logs first (level, volatility or slope models; positive values, e.g. sales or prices that grow by a percentage)</label></div>
       <div><label for="slopeBreaks"><input id="slopeBreaks" type="checkbox"> Also test for a change of growth rate (40+ points; tick &ldquo;take logs&rdquo; for percentage growth). A weak test: a miss does not rule a break out</label></div>
+      <div><label for="hingeTest"><input id="hingeTest" type="checkbox"> Also test one change of slope on the levels (30&ndash;600 points; for a series that wanders about a trend, like temperature; refuses one that drifts like GDP, and most real series under 100 points)</label></div>
+      <div><label for="twoHingeTest"><input id="twoHingeTest" type="checkbox"> Also test two changes of slope (30&ndash;300 points; a curve that speeds up and levels off, or rises, holds and falls; same guard, so it still refuses most sticky series under 60 points)</label></div>
+      <div><label for="knownDate">Test a date you name (a law, launch or price change: the label of the first row after it; uses the seasonal period and &ldquo;take logs&rdquo; when set)</label><input id="knownDate" type="text" placeholder="e.g. 1983-02"></div>
+      <div><label for="donors">Compare with other columns at that date (synthetic control): <code>all</code>, or column names, comma-separated. The column above is the treated one; the rest of the file must be complete series of the same thing elsewhere (other states, stores or regions)</label><input id="donors" type="text" placeholder="e.g. all, or UT, MT, NV"></div>
+      <div><label for="anticipation">Points people saw it coming (synthetic control; 0 = none): end the fit this many points before the date, for a law passed or a price rise announced before it took effect. Not sure how early? Give a range such as <code>0-4</code>: every lead is shown and one p is read for the range</label><input id="anticipation" type="text" value="0" pattern="\s*\d+(\s*-\s*\d+)?\s*" autocomplete="off"></div>
+      <div><label for="covariates">Optional covariates for the balance table: one row per unit (its column name first, then numbers), a header naming them</label><textarea id="covariates" rows="3" placeholder="state,ln income,price&#10;CA,9.9,1.08&#10;UT,9.4,0.97"></textarea></div>
       <div><label for="bursts"><input id="bursts" type="checkbox"> Cut back isolated spikes before fitting (counts model; e.g. a post going viral)</label></div>
       <div><label for="drift"><input id="drift" type="checkbox"> Seasonal shape drifts (needs a period)</label></div>
       <div><label for="period">Seasonal period in points (0 = none)</label><input id="period" type="number" min="0" step="1" value="0"></div>
       <div><label for="ar1">Autocorrelated noise (level model)</label><select id="ar1"><option value="">Assume independent</option><option value="1">Allow for it</option><option value="joint">Allow for it (joint fit)</option></select></div>
+      <div><label for="noiseFloor">Smooth or trending series (level model)</label><select id="noiseFloor"><option value="">No noise floor</option><option value="local25">Floor at twice the scatter about a local line (fewer cuts on smooth series)</option></select></div>
       <div><label for="hazard">Expected points between changes (Bayesian)</label><input id="hazard" type="number" min="2" step="1" value="100"></div>
       <div><label for="threshold">Report Bayesian changes above</label><input id="threshold" type="number" min="0.05" max="0.99" step="0.05" value="0.5"></div>
     </div>
     <button type="button" id="run">Find changepoints</button>
     <button type="button" class="secondary" id="example">Load example: Nile river flow 1871–1970</button>
+    <button type="button" class="secondary" id="example-prop99">Load example: California's 1989 tobacco tax against 38 states (synthetic control)</button>
+    <button type="button" class="secondary" id="example-fx">Load example: franc, pound and yen, 2012–2018 (several columns)</button>
+    <p class="note" id="working" role="status" hidden>Working in the background: a long series takes a few seconds (several columns run the six-setting check on each column). The page stays usable, and a new run replaces this one.</p>
   </section>
 
   <section class="card" aria-labelledby="res-h" id="results" hidden>
     <h2 id="res-h">2. What changed</h2>
     <p class="summary" id="summary"></p>
+    <p class="note" id="agreed" role="note" hidden></p>
     <div id="warnings" aria-live="polite"></div>
     <div id="slopeResult" aria-live="polite"></div>
-    <div class="legend"><span>● series</span><span style="color:#c0392b">— segment mean (PELT)</span><span style="color:#1f5f86">▮ change probability (Bayesian)</span></div>
+    <div class="legend" id="legend"><span>● series</span><span style="color:#c0392b">— segment mean (PELT)</span><span style="color:#1f5f86">▮ change probability (Bayesian)</span></div>
     <div id="chart" role="img" aria-label="Chart of the series with segment means and change probabilities"></div>
-    <h3>Changes (PELT)</h3>
+    <h3 id="changes-h">Changes (PELT)</h3>
     <div class="scroll"><table id="changes"></table></div>
-    <h3>Segments</h3>
+    <h3 id="segments-h">Segments</h3>
     <div class="scroll"><table id="segments"></table></div>
     <button type="button" class="secondary" id="download">Download per-point results (CSV)</button>
   </section>
 
+  <section class="card" aria-labelledby="synth-h" id="synth-results" hidden>
+    <h2 id="synth-h">Against a synthetic control</h2>
+    <p class="note">The treated column against a weighted blend of the other columns that tracked it before your date, with a placebo test that gives every donor the same date (Abadie, Diamond and Hainmueller 2010). Still in this tab.</p>
+    <div id="synth-body" aria-live="polite"></div>
+    <div class="legend"><span>— treated column</span><span style="color:#c0392b">- - synthetic control</span><span style="color:#888">┆ your date</span></div>
+    <div id="synth-chart"></div>
+    <button type="button" class="secondary" id="synth-download">Download treated, synthetic and gap (CSV)</button>
+  </section>
+
+  <section class="card" aria-labelledby="replay-h" id="replay-card" hidden>
+    <h2 id="replay-h">3. What a daily watch would have sent</h2>
+    <p>Before you set up an alert, see how it would have behaved on your own history. This replays the <a href="watch-a-metric-for-changes.html">daily watch</a> as if it had run after each new row: the first check (at 20% of the series) records the changes already there, then each later change is alerted once, after 5 rows on its far side. Same engine, still in this tab. To keep watching from today, use &ldquo;Keep watching a series&rdquo; below.</p>
+    <button type="button" class="secondary" id="replay-run">Replay as a daily watch</button>
+    <p class="summary" id="replay-summary" role="status"></p>
+    <div class="scroll"><table id="replay-table"></table></div>
+    <p class="note" id="replay-note" hidden></p>
+    <p class="note" id="eager-budget-h">How many alerts would you put up with? Blank is the tested default, about 7 a year at a daily check; changing it after a run re-picks at once.</p>
+    <div class="grid" id="eager-budget" role="group" aria-labelledby="eager-budget-h">
+      <div><label for="eager-alerts">About</label><input id="eager-alerts" type="number" min="0" step="any" inputmode="decimal" placeholder="7.3"></div>
+      <div><label for="eager-per">alerts a</label><select id="eager-per"><option value="year">year</option><option value="month">month</option><option value="week">week</option></select></div>
+      <div><label for="eager-every">checked every</label><select id="eager-every"><option value="day">day</option><option value="hour">hour</option><option value="week">week</option></select></div>
+    </div>
+    <button type="button" class="secondary" id="eager-run">Which &ldquo;How eager&rdquo; suits this series?</button>
+    <p class="summary" id="eager-summary" role="status"></p>
+    <div class="scroll"><table id="eager-table"></table></div>
+    <p class="note" id="eager-note" hidden></p>
+    <button type="button" class="secondary" id="eager-use" hidden></button>
+  </section>
+
+  <section class="card" aria-labelledby="multi-h" id="multi-results" hidden>
+    <h2 id="multi-h">2. What changed, across columns</h2>
+    <p class="summary" id="multi-summary"></p>
+    <div id="multi-warnings" aria-live="polite"></div>
+    <div class="legend"><span style="color:#1f5f86">┃ agreed change in that column (every setting)</span><span style="color:#c0392b">┆ one segmentation for all columns</span><span style="color:#c0392b">— its segment means</span></div>
+    <div id="multi-chart" role="img" aria-label="One chart per column on a shared time axis, with agreed and joint changes marked"></div>
+    <h3>Changes every setting agrees on, column by column</h3>
+    <p class="note">Each column is checked alone with the six settings of the one-column “Agreed changes” panel (level and slope models, with and without a noise floor or a trend with autocorrelated noise; the model and penalty boxes above do not change it); a change counts when all six find it, and changes in different columns within the tolerance are merged. On three labelled multi-column series this beat every published multi-column default except reporting no change (README, "Several columns at once").</p>
+    <div class="scroll"><table id="multi-agreed"></table></div>
+    <h3>One segmentation for all columns</h3>
+    <p class="note">A single fit over every column, each scaled by its own noise. It finds a small shift shared by many columns that no column shows alone (in simulation, 0.5 noise sd in each of 4 columns: 76% found, against 0% column by column), but on smooth or trending real columns it cuts too often. Shifts of a noise sd or more are in bold, and under the level-and-volatility model so is a column whose sd grew or shrank by half or more.</p>
+    <div class="scroll"><table id="multi-joint"></table></div>
+    <button type="button" class="secondary" id="multi-download">Download per-point results (CSV)</button>
+  </section>
+
   <section class="card" id="report-card" aria-labelledby="report-h" hidden>
     <h2 id="report-h">Branded change report</h2>
-    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions, as one page to print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions (with several columns: each column's chart and agreed changes and the one segmentation for all of them), as one page to print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
     <p id="report-buy-row" hidden><a id="report-buy" class="cta" rel="noopener" target="_blank">Buy a licence key</a></p>
     <p><label>Licence key <input id="report-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="report-check">Check key</button> <span id="report-state" role="status"></span></p>
     <div id="report-fields" hidden>
@@ -114,11 +185,27 @@
   </section>
   <p class="error" id="error" role="alert"></p>
 
+  <section class="card" id="watch-card" aria-labelledby="watch-h">
+    <h2 id="watch-h">Keep watching a series</h2>
+    <p>Come back when new rows have arrived and press <strong>Check for new changes</strong>. This browser remembers which changes it has already shown you, so each lasting change is reported <strong>once</strong>, after 5 points on its far side, not on every odd day. The first check records the changes already in the history as the baseline, and a change found later but dated back inside that history is held, not reported, because on short histories those were mostly one-check blips. A new change is also reported only once a second check still finds it, so a detection that shows up for one check and is gone at the next is never sent; that costs one check of delay. The remembered list stays in this browser only (nothing is uploaded); clearing site data forgets it.</p>
+    <div class="grid">
+      <div><label for="watch-url">CSV link (optional; blank = the data box above)</label><input id="watch-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?output=csv"></div>
+      <div><label for="watch-name">Watch name</label><input id="watch-name" type="text" placeholder="blank = the link, or &ldquo;pasted series&rdquo;"></div>
+      <div><label for="watch-detector">How eager</label><select id="watch-detector"><option value="">Quiet (default; may miss steps under 2 noise sd)</option><option value="bocpd">Middle (more real changes, about twice the false alerts)</option><option value="pelt">Eager (every marked change in our test set, about six times the alerts)</option><option value="drift">Wandering level (a price or stock level that drifts all the time: alerts on jumps, not the drift)</option></select></div>
+    </div>
+    <p class="note">The value column, model (level, level and volatility, or counts), seasonal period and logs come from the boxes above; the wandering-level model is watched with "Wandering level" (no seasonal period), other models as a level. A link must allow reading from a web page (a Google Sheet published as CSV does); if it does not, paste the rows instead.</p>
+    <button type="button" id="watch-check">Check for new changes</button>
+    <button type="button" class="secondary" id="watch-forget">Forget this watch</button>
+    <pre id="watch-status" role="status" hidden></pre>
+    <p class="note">How the defaults were chosen (four rounds, rules written before each run, false-alert and miss rates on synthetic and 31 real labelled series): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changepoint-detector#watching-a-growing-series-2026-11-12-four-pre-registered-rounds-ships">README, &ldquo;Watching a growing series&rdquo;</a>. To be messaged in Slack, Discord, Teams or Mattermost without opening this page, run the same watch every day in your own GitHub account: <a href="watch-a-metric-for-changes.html">self-hosted daily watch</a>.</p>
+  </section>
+
   <section class="card" aria-labelledby="method-h">
     <h2 id="method-h">Method and citation</h2>
     <p><strong>PELT</strong> (Pruned Exact Linear Time; Killick, Fearnhead &amp; Eckley 2012) minimises the total cost of a segmentation — twice the negative Gaussian log-likelihood of each segment, plus a penalty for every change — over <em>every</em> possible set of changes. Dynamic programming makes this exact; pruning discards candidate change locations that can never be optimal, which makes it about linear in the length of the series. For a change in level, the noise standard deviation is estimated once from the median absolute difference of successive points, so the level shifts themselves do not inflate it.</p>
     <p><strong>Bayesian online changepoint detection</strong> (Adams &amp; MacKay 2007) keeps a posterior distribution over the <em>run length</em> — how many points since the last change — and updates it with each new point. Each segment has an unknown mean and variance with a Normal-Inverse-Gamma prior, so predictions are Student-t and the update is exact. The prior is centred on your data (its median and robust noise variance) and kept weak. Because the probability of a change <em>at</em> the newest point always equals the hazard, this tool reports, for each point, the posterior probability — seen five points later — that a new segment began there.</p>
-    <p><strong>Limits.</strong> Both methods assume the points within a segment are independent around a constant level; strong seasonality or autocorrelation shows up as extra changes, so remove a known seasonal pattern first. Gradual trends are approximated as steps unless you choose the level-or-slope model, which fits a straight line per segment. BIC, the default penalty, still splits roughly one series in ten of pure noise of length 300 (our tests measure this), so treat a single small change with care. A changepoint is a statement about the data, not about what caused it.</p>
+    <p><strong>Jumps on a level that wanders</strong> (the last choice under &ldquo;Look for a change in&rdquo;) follows Romano, Rigaill, Runge &amp; Fearnhead (2022): between changes the level is a random walk, so a slow wander costs only its small per-step variance and only a jump too big for the walk counts as a change. Each stretch is scored by a local-level Kalman filter and the best set of jumps is found exactly; the noise sd comes from lag differences and the size of the wander is chosen together with the jumps, so one big step is not absorbed as wander. On the Nile it finds 1899 alone. Use it when the plain level model cuts a smooth or drifting series into a staircase. It ignores the season, trend, logs and autocorrelation boxes and has no Bayesian view.</p>
+    <p><strong>Limits.</strong> Both methods assume the points within a segment are independent around a constant level; strong seasonality or autocorrelation shows up as extra changes, so remove a known seasonal pattern first. Gradual trends are approximated as steps unless you choose the level-or-slope model, which fits a straight line per segment. BIC, the default penalty, still splits roughly one series in ten of pure noise of length 300 (our tests measure this), so treat a single small change with care. A change of shape at an unchanged level and spread (one waveform giving way to another) is outside what this finds: on 75 such labelled series (TSSB) the agreed changes scored below reporting none, and on long repeating waveforms such as heartbeats every setting can agree on the cycle's own peaks; use a shape-based method such as ClaSP for that. A changepoint is a statement about the data, not about what caused it.</p>
     <p>Source, tests and a command-line version: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changepoint-detector">GitHub</a>. AI agents can call the same engine: <code>node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'</code>.</p>
     <h3>Cite the methods</h3>
 <pre>@article{adams2007bayesian,
@@ -133,6 +220,13 @@
   journal = {Journal of the American Statistical Association},
   volume  = {107}, number = {500}, pages = {1590--1598}, year = {2012},
   doi     = {10.1080/01621459.2012.737745}
+}
+@article{romano2022decafs,
+  title   = {Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise},
+  author  = {Romano, Gaetano and Rigaill, Guillem and Runge, Vincent and Fearnhead, Paul},
+  journal = {Journal of the American Statistical Association},
+  year    = {2022},
+  doi     = {10.1080/01621459.2021.1909598}
 }</pre>
     <p class="note">Example data: annual flow of the Nile at Aswan, 1871–1970 (10<sup>8</sup> m³), first analysed for a changepoint by Cobb (1978, <em>Biometrika</em> 65(2):243–251); public domain, as distributed with statsmodels. Both methods here put the change after 1898, as the literature does.</p>
   </section>
@@ -158,37 +252,301 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> An independent implementation from the published papers; not affiliated with or endorsed by the papers' authors or their institutions.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>drift_run</code>, <code>watch_check</code>, <code>watch_replay</code>, <code>watch_eagerness</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../kalman-smoother/">Kalman smoother</a> for the level under a noisy series, with gaps filled and outliers told apart from level shifts; <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. For time-to-event data (churn, failures, relapse), the <a href="../survival-analysis/">survival analysis tool</a> gives Kaplan-Meier curves, log-rank tests and Cox hazard ratios. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>. To check which of many test results survive multiple-testing correction, use <a href="../fdr-multiple-testing/">Benjamini-Hochberg and q-values</a>. To separate a seasonal pattern from the trend before looking for a change, use <a href="../stl-decomposition/">STL decomposition</a>. For measurements from a production line or lab with subgroups, run rules and Cpk, use <a href="../spc-control-charts/">SPC control charts</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
-  <p class="more-pages">Also: <a href="how-do-you-know-if-a-time-series-really-changed.html">How Do You Know If a Time Series Really Changed? (Free Changepoint Detection)</a></p>
+  <p class="more-pages">Also: <a href="how-do-you-know-if-a-time-series-really-changed.html">How Do You Know If a Time Series Really Changed? (Free Changepoint Detection)</a> · <a href="watch-a-metric-for-changes.html">Get alerted when a metric really shifts (free, self-hosted daily watch)</a></p>
   </footer>
 
   <script type="module">
-    import { analyze, DEFAULTS } from "./engine.mjs";
+    import { DEFAULTS } from "./engine.mjs";
+    import { PANEL, runSetting, mergeConsensus, agreedText, levelRunFromMain } from "./consensus.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { chartSvg, changeReportHtml, esc, fmt } from "./report.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { analyzeJob } from "./analyze-job.mjs";
+    import { synthHtml, synthChartSvg, synthCsv } from "./synth-view.mjs";
+    import { watchCheck, recordText, replayText, eagernessText, budgetFromPlain, suggestFor, HINT_BUDGET } from "./watch-core.mjs";
+    import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
+    import { parseColumns } from "./multivariate.mjs";
+    import { multiReportHtml } from "./multi-report.mjs";
+    import { driftReportHtml } from "./drift-report.mjs";
+    import { driftPagePenalty, driftIgnored, driftSummary, driftNotes, driftChartSvg, driftTableHtml, driftSegmentsHtml, driftCsv } from "./drift-view.mjs";
 
     const $ = (s) => document.querySelector(s);
     let last = null;
+    let lastDrift = null;
+    let lastDriftIgnored = [];
+    const LEGEND = $("#legend").innerHTML;
+    let lastAgreed = "";
 
     $("#penalty").addEventListener("change", () => { $("#penaltyValue").disabled = $("#penalty").value !== "custom"; });
 
+    let lastMulti = null;
+    $("#shape").addEventListener("change", () => { $("#columns").disabled = $("#shape").value !== "multi"; $("#jointNoise").disabled = $("#shape").value !== "multi"; $("#column").disabled = $("#shape").value === "multi"; });
+
+    // The main analysis runs in a Web Worker (analyze-worker.mjs), so a long series does not
+    // freeze the page: 4.7 to 6.5 s on the 7,980-point tree-ring series in one thread. One worker is
+    // kept; a newer run terminates a busy one. Without workers the same call (analyzeJob) runs
+    // here, after a pause that lets the "Working" note paint.
+    let mainJob = null;
+    let mainWorker = null;
+    function stopMain() {
+      stopColumnPanels();
+      if (mainJob && mainWorker) { mainWorker.terminate(); mainWorker = null; }
+      mainJob = null;
+      $("#working").hidden = true;
+    }
+    function startMain(job, done) {
+      stopMain();
+      const me = { id: Math.random() };
+      mainJob = me;
+      $("#working").hidden = false;
+      const finish = (out) => { if (mainJob !== me) return; mainJob = null; $("#working").hidden = true; done(out); };
+      const here = () => setTimeout(() => { if (mainJob === me) finish(analyzeJob(job)); }, 30);
+      try {
+        if (typeof Worker === "undefined") throw new Error("no workers");
+        if (!mainWorker) mainWorker = new Worker("./analyze-worker.mjs", { type: "module" });
+      } catch (e) { mainWorker = null; return here(); }
+      mainWorker.onmessage = (e) => { if (e.data.id === me.id) finish(e.data); };
+      mainWorker.onerror = (e) => {
+        e.preventDefault();
+        if (mainJob !== me) return;
+        if (mainWorker) mainWorker.terminate();
+        mainWorker = null;
+        here();
+      };
+      mainWorker.postMessage({ id: me.id, job });
+    }
+
+    function runMulti() {
+      $("#error").textContent = "";
+      $("#results").hidden = true;
+      const model = $("#model").value;
+      if (model !== "mean" && model !== "meanvar") { stopMain(); $("#multi-results").hidden = true; $("#error").textContent = "Several columns take the level model or the level-and-volatility model."; return; }
+      const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
+      const list = $("#columns").value.split(",").map((c) => c.trim()).filter(Boolean).map((c) => (/^\d+$/.test(c) ? Number(c) - 1 : c));
+      const jn = $("#jointNoise").value;
+      const csv = $("#csv").value;
+      const opts = { model, penalty, floor: jn === "off" ? "off" : jn === "auto" ? "auto" : 2, ar1: jn === "ar1floor" };
+      stopMain();
+      // Each column's six-setting panel is most of the work (8.0 of 8.2 s on the currency example in
+      // one thread), so those settings go to the panel's Web Workers first, all cores at once; the
+      // joint fit and the merge then run in the main worker with the panels done (columnRuns).
+      let parsed = null;
+      try { parsed = parseColumns(csv, list.length ? list : null, null); } catch (e) { /* analyzeJob reports it */ }
+      const go = (columnRuns) => startMain({ kind: "multi", csv, columns: list, opts: columnRuns ? { ...opts, columnRuns } : opts }, showMulti);
+      if (parsed && parsed.cols.length >= 2) runColumnPanels(parsed.cols, go); else go(null);
+    }
+
+    // The per-column panels of several-columns mode on Web Workers (consensus-worker.mjs), slowest
+    // setting first across every column. done(runs) gets one array of runSetting results per column, or
+    // done(null) when workers are missing or one fails, and the main worker then runs the panels itself.
+    let columnJob = null;
+    function stopColumnPanels() {
+      if (columnJob) { columnJob.workers.forEach((w) => w.terminate()); columnJob = null; }
+    }
+    function runColumnPanels(cols, done) {
+      const order = [1, 2, 0, 3, 4, 5].filter((i) => i < PANEL.length);
+      const tasks = [];
+      for (const setting of order) cols.forEach((values, column) => tasks.push({ setting, column, values }));
+      let workers = [];
+      try {
+        if (typeof Worker === "undefined") throw new Error("no workers");
+        const k = Math.max(1, Math.min(tasks.length, navigator.hardwareConcurrency || 2));
+        for (let i = 0; i < k; i++) workers.push(new Worker("./consensus-worker.mjs", { type: "module" }));
+      } catch (e) { workers.forEach((w) => w.terminate()); return done(null); }
+      const job = { id: Math.random(), workers, runs: cols.map(() => new Array(PANEL.length)), done: 0, next: 0 };
+      columnJob = job;
+      $("#working").hidden = false;
+      const feed = (w) => { if (job.next < tasks.length) { const t = tasks[job.next++]; w.postMessage({ id: job.id, base: { values: t.values }, setting: t.setting, column: t.column }); } };
+      for (const w of workers) {
+        w.onmessage = (e) => {
+          if (columnJob !== job || e.data.id !== job.id) return;
+          job.runs[e.data.column][e.data.setting] = e.data.run;
+          if (++job.done === tasks.length) { stopColumnPanels(); done(job.runs); return; }
+          feed(w);
+        };
+        w.onerror = (e) => {
+          e.preventDefault();
+          if (columnJob !== job) return;
+          stopColumnPanels();
+          done(null);
+        };
+        feed(w);
+      }
+    }
+
+    function showMulti(out) {
+      lastReplayJob = null; resetReplay(false);
+      if (out.error) { $("#multi-results").hidden = true; $("#error").textContent = out.error; return; }
+      const { p, r } = out.result;
+      lastMulti = { p, r };
+      $("#multi-summary").textContent = multiSummary(r);
+      $("#multi-warnings").innerHTML = [r.overcutWarning, r.mutedWarning, ...(r.updateRateWarnings || [])].filter(Boolean).map((w) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(w)}</p>`).join("");
+      $("#multi-chart").innerHTML = multiChartSvg(p, r);
+      $("#multi-agreed").innerHTML = agreedTableHtml(r);
+      $("#multi-joint").innerHTML = jointTableHtml(r, p);
+      $("#multi-results").hidden = false;
+      record("multi_run");
+    }
+
+    // The agreed-changes panel runs six full analyses, about five times the main one
+    // (32 s on 7,980 points in one thread). It runs in Web Workers, one setting each, up
+    // to the number of cores, so the results above show at once and the page stays usable;
+    // a newer run stops an older panel. Without workers it runs here, on up to 2,000 points.
+    const AGREED_SYNC_MAX = 2000;
+    let agreedJob = null;
+    function stopAgreed() {
+      if (agreedJob) { agreedJob.workers.forEach((w) => w.terminate()); agreedJob = null; }
+    }
+    function showAgreed(text) {
+      $("#agreed").innerHTML = `<strong>Agreed changes:</strong> ${esc(text)}`;
+      $("#agreed").hidden = false;
+    }
+    function finishAgreed(runs) {
+      try { lastAgreed = agreedText(mergeConsensus(runs)); showAgreed(lastAgreed); }
+      catch (e) { $("#agreed").hidden = true; /* the panel is extra; the main analysis already ran */ }
+    }
+    // pre: the main result standing in for the "level" setting (levelRunFromMain), or null.
+    function runAgreed(base, n, pre) {
+      const total = PANEL.length;
+      const runHere = () => PANEL.map((p, i) => (i === 0 && pre ? pre : runSetting(base, p)));
+      let workers = [];
+      try {
+        if (typeof Worker === "undefined") throw new Error("no workers");
+        const k = Math.max(1, Math.min(total - (pre ? 1 : 0), navigator.hardwareConcurrency || 2));
+        for (let i = 0; i < k; i++) workers.push(new Worker("./consensus-worker.mjs", { type: "module" }));
+      } catch (e) {
+        workers.forEach((w) => w.terminate());
+        if (n > AGREED_SYNC_MAX) { showAgreed(`not run on ${n} points in this browser (it has no background workers); the six-setting panel takes about five times the main analysis. The command line runs it with --consensus.`); return; }
+        finishAgreed(runHere());
+        return;
+      }
+      const job = { id: Math.random(), workers, runs: new Array(total), done: 0, next: 0, t0: performance.now() };
+      if (pre) { job.runs[0] = pre; job.done = 1; }
+      agreedJob = job;
+      showAgreed(`working in the background: ${job.done} of ${total} settings done${n > AGREED_SYNC_MAX ? ` (a long series: ${n} points)` : ""}.`);
+      // Slowest settings first (measured on 7,980 tree-ring points: the two AR(1) settings ~7 s,
+      // level ~5.5 s, noise floor ~4.8 s, the trend pair ~1 s each), so four cores finish together.
+      const order = [2, 1, 0, 3, 4, 5].filter((i) => i < total && !(i === 0 && pre));
+      const feed = (w) => { if (job.next < order.length) w.postMessage({ id: job.id, base, setting: order[job.next++] }); };
+      for (const w of workers) {
+        w.onmessage = (e) => {
+          if (agreedJob !== job || e.data.id !== job.id) return;
+          job.runs[e.data.setting] = e.data.run;
+          job.done++;
+          if (job.done === total) { stopAgreed(); finishAgreed(job.runs); record("agreed_run"); return; }
+          showAgreed(`working in the background: ${job.done} of ${total} settings done.`);
+          feed(w);
+        };
+        w.onerror = (e) => {
+          e.preventDefault();
+          if (agreedJob !== job) return;
+          stopAgreed();
+          if (n <= AGREED_SYNC_MAX) finishAgreed(runHere());
+          else $("#agreed").hidden = true;
+        };
+        feed(w);
+      }
+    }
+
     function run() {
+      $("#synth-results").hidden = true; lastSynth = null;
+      if ($("#shape").value === "multi") { stopAgreed(); return runMulti(); }
+      $("#multi-results").hidden = true;
       $("#error").textContent = "";
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
-      try {
-        last = analyze({ csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, robust: $("#model").value === "meanvar" && $("#robust").checked, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" ? "nb" : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, log: $("#log").checked, slopeBreaks: $("#slopeBreaks").checked, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) });
-      } catch (e) { $("#results").hidden = true; $("#error").textContent = e.message; return; }
-      const r = last;
+      const opts = { csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, robust: $("#model").value === "meanvar" && $("#robust").checked, garch: $("#model").value === "meanvar" && !$("#robust").checked && $("#garch").checked, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" || $("#overdispersion").value === "nb1" ? $("#overdispersion").value : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, log: $("#log").checked, slopeBreaks: $("#slopeBreaks").checked, hingeTest: $("#hingeTest").checked, twoHingeTest: $("#twoHingeTest").checked, knownDate: $("#knownDate").value.trim() || null, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, ...($("#noiseFloor").value === "local25" && $("#model").value === "mean" ? { noiseFloor: 2, noiseFloorOrder: "local", noiseFloorWindow: 25 } : {}), hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) };
+      const agreedBase = { csv: $("#csv").value, column: $("#column").value.trim() || null, log: $("#log").checked, period: Number($("#period").value) || 0, penalty };
+      const wantAgreed = $("#model").value === "mean";
+      stopAgreed();
+      if (opts.model === "drift") return runDrift(opts);
+      // Synthetic control (synth-cli.mjs, the CLI's --donors and --covariates): needs the date and a named treated column.
+      const donorList = $("#donors").value.split(",").map((d) => d.trim()).filter(Boolean);
+      let synth = null;
+      if (donorList.length) {
+        if (!opts.knownDate || !opts.column) { stopMain(); $("#results").hidden = true; $("#error").textContent = "A synthetic control needs the date you name and the treated column's name in the Column box."; return; }
+        synth = { csv: opts.csv, column: opts.column, date: opts.knownDate, donors: donorList.map((d) => (d.toLowerCase() === "all" ? "all" : d)), log: opts.log, covariatesCsv: $("#covariates").value.trim() || null, anticipation: $("#anticipation").value.trim() || 0 };
+      }
+      startMain({ kind: "one", opts, ...(synth ? { synth } : {}) }, (out) => {
+        if (out.error) { $("#results").hidden = true; $("#error").textContent = out.error; return; }
+        show(out.result, wantAgreed ? agreedBase : null, opts);
+      });
+    }
+
+    // Jumps on a level that wanders as a random walk (drift-level.mjs, the CLI's --model drift): a smooth
+    // or wandering series is not cut into a staircase. Runs in the same worker; about 30 exact O(n^2)
+    // partitions, so a few seconds on 8,000 points.
+    function runDrift(opts) {
+      let penalty;
+      try { penalty = driftPagePenalty($("#penalty").value, $("#penaltyValue").value); }
+      catch (e) { stopMain(); $("#results").hidden = true; $("#error").textContent = e.message; return; }
+      const ignored = driftIgnored(opts);
+      startMain({ kind: "drift", opts: { csv: opts.csv, column: opts.column, penalty, slope: $("#driftSlope").checked } }, (out) => {
+        if (out.error) { $("#results").hidden = true; $("#error").textContent = out.error; return; }
+        showDrift(out.result, ignored);
+      });
+    }
+
+    function showDrift(r, ignored) {
+      last = null;
+      lastReplayJob = null; resetReplay(false);
+      lastDrift = r;
+      lastDriftIgnored = ignored;
+      lastAgreed = "";
+      $("#agreed").hidden = true;
+      $("#summary").textContent = driftSummary(r);
+      const notes = driftNotes(r).map((t) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(t)}</p>`);
+      if (ignored.length) notes.unshift(`<p class="note" role="note">The wandering-level model uses only the value column, the penalty and the steady-growth box; it ignored: ${esc(ignored.join(", "))}.</p>`);
+      $("#warnings").innerHTML = notes.join("");
+      $("#slopeResult").innerHTML = "";
+      $("#legend").innerHTML = '<span>● series</span><span style="color:#c0392b">— fitted level (it may wander between jumps)</span><span style="color:#c0392b">┆ jump</span>';
+      $("#changes-h").textContent = "Jumps (wandering-level model)";
+      $("#segments-h").textContent = "Stretches between jumps";
+      $("#chart").innerHTML = driftChartSvg(r);
+      $("#changes").innerHTML = driftTableHtml(r);
+      $("#segments").innerHTML = driftSegmentsHtml(r);
+      $("#results").hidden = false;
+      record("drift_run");
+    }
+
+    function show(r, agreedBase, opts) {
+      last = r;
+      lastDrift = null;
+      $("#legend").innerHTML = LEGEND;
+      $("#changes-h").textContent = "Changes (PELT)";
+      $("#segments-h").textContent = "Segments";
       $("#summary").textContent = r.summary + (r.bursts && r.bursts.length ? ` Spikes cut back before fitting: ${r.bursts.slice(0, 10).map((b) => `${b.label} (${b.value} kept as ${b.keptAs})`).join(", ")}${r.bursts.length > 10 ? `, and ${r.bursts.length - 10} more` : ""}.` : "");
-      $("#warnings").innerHTML = ["rangeWarning", "driftWarning", "cycleWarning"].filter((k) => r[k]).map((k) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("");
+      // The settings panel (consensus.mjs) for the level model: the summary that held up on held-out labelled series.
+      $("#agreed").hidden = true;
+      lastAgreed = "";
+      stopAgreed();
+      if (agreedBase) runAgreed(agreedBase, r.n, levelRunFromMain(opts, r));
+      $("#warnings").innerHTML = ["rangeWarning", "driftWarning", "cycleWarning", "overcutWarning", "updateRateWarning", "clumpingWarning"].filter((k) => r[k]).map((k) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("") + (r.garch ? `<p class="note" role="note"><strong>GARCH search:</strong> ${esc(r.garch.note)}</p>` : "");
       $("#slopeResult").innerHTML = r.slopeBreaks
         ? `<p class="note" role="note"><strong>Growth-rate test (bar ${esc(r.slopeBreaks.critical)}):</strong> ${r.slopeBreaks.breaks.length ? r.slopeBreaks.breaks.map((b) => `${esc(b.label)}: ${esc(b.slopeBefore)} → ${esc(b.slopeAfter)} per step (Wald ${esc(b.wald)})`).join("; ") : "no change of growth rate clears the bar."} ${esc(r.slopeBreaks.note)}</p>`
         : "";
+      if (r.hingeTest) {
+        const h = r.hingeTest;
+        $("#slopeResult").innerHTML += h.refused
+          ? `<p class="note" role="note"><strong>Slope test on the ${h.scale === "log" ? "logs" : "levels"}:</strong> not run. ${esc(h.reason)}.</p>`
+          : `<p class="note" role="note"><strong>Slope test on the ${h.scale === "log" ? "logs" : "levels"}:</strong> ${h.significant ? "a change of slope" : "no significant change of slope"}, best at ${esc(h.label)}: ${esc(h.slopeBefore)} → ${esc(h.slopeAfter)} per step (F ${esc(h.f)}, bootstrap bar ${esc(h.bar95)}, p ${esc(h.p)}).${h.admittedByCut ? ` Tested although the straight line's residuals are sticky (rho ${esc(h.rhoLine)}): the bend cuts that to ${esc(h.rhoHinge)}, more than 99% of random walks this long are cut (${esc(h.cutBar)}).` : ""} ${esc(h.note)}</p>`;
+      }
+      if (r.twoHingeTest) {
+        const h = r.twoHingeTest;
+        $("#slopeResult").innerHTML += h.refused
+          ? `<p class="note" role="note"><strong>Two-bend test on the ${h.scale === "log" ? "logs" : "levels"}:</strong> not run. ${esc(h.reason)}.</p>`
+          : `<p class="note" role="note"><strong>Two-bend test on the ${h.scale === "log" ? "logs" : "levels"}:</strong> ${h.significant ? "two changes of slope" : "no significant pair of slope changes"}, best at ${esc(h.label1)} and ${esc(h.label2)}: ${h.slopes.map(esc).join(" → ")} per step (F ${esc(h.f)}, bootstrap bar ${esc(h.bar95)}, p ${esc(h.p)}).${h.admittedByCut ? ` Tested although the straight line's residuals are sticky (rho ${esc(h.rhoLine)}): the two bends cut that to ${esc(h.rhoTwo)}, more than 99% of random walks this long are cut (${esc(h.cutBar)}).` : ""} ${esc(h.note)}</p>`;
+      }
+      if (r.knownDate) {
+        const h = r.knownDate, on = h.scale === "log" ? "logs (a step of -0.1 is about a 10% fall)" : "levels";
+        $("#slopeResult").innerHTML += h.refused
+          ? `<p class="note" role="note"><strong>Test at ${esc(h.date)}:</strong> not run. ${esc(h.reason)}.</p>`
+          : `<p class="note" role="note"><strong>Test at the date you named (${esc(h.lastBefore)} &rarr; ${esc(h.firstAfter)}), on the ${on}:</strong> ${h.calibrated ? (h.significant ? "the line before the date does not carry on through it" : "no significant step or change of slope") : "estimates only, no calibrated p-value here"}. Step ${esc(h.step)} (95% range ${esc(h.stepRange95[0])} to ${esc(h.stepRange95[1])}, p ${esc(h.pStep)}); slope ${esc(h.slopeBefore)} per step before, change ${esc(h.slopeChange)} (p ${esc(h.pSlope)}); joint p ${esc(h.p)} (bootstrap, ${esc(h.reps)} replicates; the F table would say ${esc(h.pTable)}). AR(1) rho ${esc(h.rho)}.${h.calibrated ? "" : ` <strong>Not a calibrated test here:</strong> a plain line's residuals look like a wander (rho ${esc(h.rhoLine)}) and the series was let through only because a step at the date cuts that stickiness more than random walks are cut (${esc(h.cutBar)}). On simulated series let through this way, the p-value came out under 0.05 for 77% with no change and 91% with a real step, so it cannot tell them apart (a bootstrap that conditions on the same guard could not either).`}${h.placebo ? ` <strong>In-time placebos</strong> (the same test before your date only, where your event cannot act): ${h.placebo.dates.length ? h.placebo.dates.map((d) => `${esc(d.label)} ${d.refused ? "not tested" : `p ${esc(d.p)}`}`).join(", ") : "none, the before-period is too short"}; ${esc(h.placebo.fired)} of ${esc(h.placebo.tested)} at p &le; 0.05. ${h.placebo.warn ? "<strong>Warning:</strong> the line before your date is not a stable baseline, so a small p at your date may be that instability, not your event." : "No warning (the placebos cannot see a bend that grows after your date)."}` : ""} ${esc(h.note)}</p>`;
+      }
       $("#chart").innerHTML = chartSvg(r);
       $("#changes").innerHTML = r.pelt.changepoints.length
         ? `<tr><th>New segment from</th><th class="n">Mean before</th><th class="n">Mean after</th><th class="n">Shift (noise sd)</th><th class="n">SD before → after</th><th class="n">Bayesian prob. (±3 points)</th></tr>` +
@@ -197,13 +555,182 @@
       $("#segments").innerHTML = `<tr><th>From</th><th>To</th><th class="n">Points</th><th class="n">Mean</th><th class="n">SD</th></tr>` +
         r.pelt.segments.map((s) => `<tr><td>${esc(s.from)}</td><td>${esc(s.to)}</td><td class="n">${s.n}</td><td class="n">${fmt(s.mean)}</td><td class="n">${fmt(s.sd)}</td></tr>`).join("");
       $("#results").hidden = false;
+      const wm = ["mean", "meanvar", "poisson"].includes(opts.model) ? opts.model : "mean";
+      lastReplayJob = { kind: "replay", csv: opts.csv, column: opts.column, opts: { model: wm, penalty: opts.penalty, ...(opts.period ? { period: opts.period } : {}), ...(opts.log && wm !== "poisson" ? { log: true } : {}) }, replayedAs: wm === opts.model ? null : opts.model };
+      resetReplay(r.n >= 10);
       record("analysis_run");
+      if (r.knownDate) record("known_date_run");
+      showSynth(r);
     }
 
+    let lastSynth = null;
+    function showSynth(r) {
+      lastSynth = r.synth || null;
+      if (!r.synth && !r.synthError) { $("#synth-results").hidden = true; return; }
+      $("#synth-body").innerHTML = r.synth ? synthHtml(r.synth) : `<p class="error" role="alert">Synthetic control not run: ${esc(r.synthError.replace(/--(known-date|donors|covariates|column|window|anticipation)/g, (m, w) => ({ "known-date": "the date", donors: "the donor list", covariates: "the covariates box", column: "the Column box", window: "the window", anticipation: "the points-seen-coming box" })[w]))}</p>`;
+      $("#synth-chart").innerHTML = r.synth ? synthChartSvg(r.synth) : "";
+      $("#synth-download").hidden = !r.synth;
+      $("#synth-results").hidden = false;
+      if (r.synth) record(r.synth.balance ? "synth_balance_run" : "synth_run");
+    }
+
+
+    // "What a daily watch would have sent" (watch-core.mjs replayWatch, in the main worker): the level,
+    // volatility or counts model with the page's period, logs and penalty; other models replay as level.
+    let lastReplayJob = null, lastEager = null;
+    function resetReplay(show) {
+      $("#replay-card").hidden = !show;
+      $("#replay-summary").textContent = ""; $("#replay-table").innerHTML = ""; $("#replay-note").hidden = true;
+      $("#eager-summary").textContent = ""; $("#eager-table").innerHTML = ""; $("#eager-note").hidden = true; $("#eager-use").hidden = true;
+      lastEager = null;
+    }
+    function runReplay() {
+      const job = lastReplayJob;
+      if (!job) return;
+      $("#replay-summary").textContent = "Replaying in the background: a long series is checked every few rows, each alert then dated back to the row that would have sent it.";
+      $("#replay-table").innerHTML = ""; $("#replay-note").hidden = true;
+      startMain(job, (out) => {
+        if (out.error) { $("#replay-summary").textContent = out.error; return; }
+        const r = out.result;
+        $("#replay-summary").textContent = replayText(r, { column: r.column, model: r.settings.model }).split("\n").filter((l) => !l.startsWith("  on ")).join(" ");
+        $("#replay-table").innerHTML = r.alerts.length
+          ? `<tr><th>Alert sent at</th><th>Change from</th><th class="n">Rows late</th><th class="n">Level</th><th class="n">Prob.</th></tr>` +
+            r.alerts.map((a) => `<tr><td>${esc(a.reportedAtLabel)}</td><td>${esc(a.label)}</td><td class="n">${a.pointsAfter}${a.late ? " (dated well back)" : ""}</td><td class="n">${a.meanBefore !== undefined ? `${fmt(a.meanBefore)} → ${fmt(a.meanAfter)}` : ""}</td><td class="n">${a.probability !== undefined ? Math.round(a.probability * 100) + "%" : ""}</td></tr>`).join("")
+          : "";
+        const notes = [];
+        if (job.replayedAs) notes.push(`Replayed with the level model: the watch has level, volatility and counts models, not the ${esc(job.replayedAs)} model chosen above.`);
+        notes.push(`Detector: ${esc(r.settings.detector)}. Measured on 31 labelled real series, the default sent about 18 alerts per 1,000 daily checks, 41% of them at a change people had marked, and it often misses steps of about 1 noise sd (details on the <a href="watch-a-metric-for-changes.html">watch page</a>). If this history looks right to you, keep watching it below, or set the same thing up on GitHub Actions in your own account, free.`);
+        $("#replay-note").innerHTML = notes.join(" ");
+        $("#replay-note").hidden = false;
+        record("watch_replay");
+      });
+    }
+    $("#replay-run").addEventListener("click", runReplay);
+
+    // "Which How eager suits this series?" (watch-core.mjs eagernessReplay, README "Round 6"): the same replay once per
+    // setting, the alerts per 100 daily checks each would have sent, and the most eager one at or under 2 per 100.
+    const EAGER_VALUE = { quiet: "", middle: "bocpd", eager: "pelt" }, EAGER_LABEL = { quiet: "Quiet", middle: "Middle", eager: "Eager" };
+    // The budget box: "about N alerts a year/month/week, checked every day/hour/week" (watch-core.mjs budgetFromPlain,
+    // README "A budget box on the page"). Blank is round 6's pre-registered HINT_BUDGET. Alerts per 100 checks do not
+    // depend on the cadence, so a changed box re-picks from the last replay without running it again.
+    function eagerBudget() {
+      const raw = $("#eager-alerts").value.trim(), every = $("#eager-every").value;
+      if (!raw) return { budget: HINT_BUDGET, every };
+      return { budget: budgetFromPlain({ alerts: Number(raw), per: $("#eager-per").value, every }), every };
+    }
+    function showEagerness() {
+      const r = lastEager;
+      if (!r) return;
+      let b;
+      try { b = eagerBudget(); } catch (e) { $("#eager-summary").textContent = String(e.message || e); $("#eager-use").hidden = true; return; }
+      const res = { ...r, budget: b.budget, suggest: suggestFor(r.settings, b.budget, r.n) };
+      const lines = eagernessText(res, { column: r.column, every: b.every }).split("\n");
+      $("#eager-summary").textContent = lines.filter((l) => l.startsWith("Suggested") || l.startsWith("Budget")).join(" ");
+      $("#eager-table").innerHTML = `<tr><th>Setting</th><th class="n">Alerts</th><th class="n">Per 100 checks</th><th class="n">Median rows late</th></tr>` +
+        res.settings.map((s) => `<tr><td>${EAGER_LABEL[s.key]}${s.key === res.suggest ? " (suggested)" : ""}</td><td class="n">${s.alerts}</td><td class="n">${s.per100.toFixed(1)}</td><td class="n">${s.medianDelay ?? ""}</td></tr>`).join("");
+      $("#eager-note").textContent = `${lines[0]} ${lines[lines.length - 1]}`;
+      $("#eager-note").hidden = false;
+      const use = $("#eager-use");
+      use.textContent = `Use ${EAGER_LABEL[res.suggest]} for the watch below`;
+      use.dataset.value = EAGER_VALUE[res.suggest];
+      use.hidden = false;
+    }
+    function runEagerness() {
+      const job = lastReplayJob;
+      if (!job) return;
+      try { eagerBudget(); } catch (e) { $("#eager-summary").textContent = String(e.message || e); return; }
+      lastEager = null;
+      $("#eager-summary").textContent = "Replaying the history once per setting in the background (up to three replays).";
+      $("#eager-table").innerHTML = ""; $("#eager-note").hidden = true; $("#eager-use").hidden = true;
+      startMain({ ...job, kind: "eagerness" }, (out) => {
+        if (out.error) { $("#eager-summary").textContent = out.error; return; }
+        lastEager = out.result;
+        showEagerness();
+        record("watch_eagerness");
+      });
+    }
+    for (const id of ["#eager-alerts", "#eager-per", "#eager-every"]) $(id).addEventListener("input", showEagerness);
+    $("#eager-run").addEventListener("click", runEagerness);
+    $("#eager-use").addEventListener("click", () => { $("#watch-detector").value = $("#eager-use").dataset.value; $("#watch-detector").focus(); });
     $("#run").addEventListener("click", run);
-    $("#example").addEventListener("click", () => { $("#csv").value = DEFAULTS.csv; $("#column").value = ""; record("example_loaded"); run(); });
+    $("#example-prop99").addEventListener("click", async () => {
+      const { PROP99_CSV, PROP99_COVARIATES, PROP99_DONORS } = await import("./example-prop99.mjs");
+      $("#csv").value = PROP99_CSV; $("#shape").value = "one"; $("#columns").disabled = true; $("#column").disabled = false; $("#column").value = "CA"; $("#model").value = "mean";
+      $("#knownDate").value = "1989"; $("#donors").value = PROP99_DONORS; $("#covariates").value = PROP99_COVARIATES; $("#log").checked = false; $("#period").value = "0";
+      record("example_loaded"); run();
+    });
+    $("#synth-download").addEventListener("click", () => {
+      if (!lastSynth) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([synthCsv(lastSynth)], { type: "text/csv" }));
+      a.download = "synthetic-control.csv";
+      a.click();
+    });
+    $("#example-fx").addEventListener("click", async () => {
+      const { FX_CSV } = await import("./example-fx.mjs");
+      $("#csv").value = FX_CSV; $("#shape").value = "multi"; $("#columns").value = ""; $("#columns").disabled = false; $("#column").disabled = true; $("#model").value = "meanvar";
+      record("example_loaded"); runMulti();
+    });
+    $("#multi-download").addEventListener("click", () => {
+      if (!lastMulti) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([multiCsv(lastMulti.p, lastMulti.r)], { type: "text/csv" }));
+      a.download = "changepoints-columns.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    // Keep watching a series: the same check as watch.mjs, with the state in this browser's storage.
+    const WATCH_PREFIX = "changepoint-detector-watch:";
+    const watchName = () => $("#watch-name").value.trim() || $("#watch-url").value.trim() || "pasted series";
+    function watchLoad(name) { try { const s = localStorage.getItem(WATCH_PREFIX + name); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+    function watchSave(name, st) { try { localStorage.setItem(WATCH_PREFIX + name, JSON.stringify(st)); return true; } catch (e) { return false; } }
+    function watchShow(text) { $("#watch-status").hidden = false; $("#watch-status").textContent = text; }
+    $("#watch-check").addEventListener("click", async () => {
+      const name = watchName();
+      const url = $("#watch-url").value.trim();
+      let csv = $("#csv").value;
+      if (url) {
+        if (!/^https:\/\//i.test(url)) { watchShow("The link must start with https://."); return; }
+        watchShow("Fetching the link...");
+        try {
+          const r = await fetch(url, { credentials: "omit" });
+          if (!r.ok) throw new Error(`it answered ${r.status}`);
+          csv = await r.text();
+          $("#csv").value = csv;
+        } catch (e) { watchShow(`Could not read the link (${e.message}). Many sites do not let a web page read their files; paste the rows into the data box and leave the link blank.`); return; }
+      }
+      const m = $("#model").value;
+      const model = ["mean", "meanvar", "poisson"].includes(m) ? m : "mean";
+      const period = Number($("#period").value) || 0;
+      const col = $("#column").value.trim();
+      const state = watchLoad(name);
+      try {
+        const det = $("#watch-detector").value || (m === "drift" ? "drift" : undefined);
+        const out = watchCheck({ csv, state, column: col || null, model, detector: det, period: period > 1 && det !== "drift" ? period : undefined, log: $("#log").checked && model !== "poisson" ? true : undefined });
+        const kept = watchSave(name, out.state);
+        const head = `Watch: ${name} (${out.column ?? "values"}, ${out.n} points${det === "drift" ? "; jumps on a wandering level" : model !== m ? "; watched as a level" : ""})`;
+        watchShow([head, out.text, "", "On record:", recordText(out.state), kept ? "" : "\nThis browser would not keep the list (private window or site data blocked): the next check starts fresh."].join("\n"));
+        record("watch_check");
+      } catch (e) { watchShow(e.message); }
+    });
+    $("#watch-forget").addEventListener("click", () => {
+      const name = watchName();
+      try { localStorage.removeItem(WATCH_PREFIX + name); } catch (e) { /* storage is optional */ }
+      watchShow(`Forgot the watch "${name}". The next check records the history as a new baseline.`);
+    });
+    $("#example").addEventListener("click", () => { $("#csv").value = DEFAULTS.csv; $("#column").value = ""; $("#shape").value = "one"; $("#columns").disabled = true; $("#column").disabled = false; record("example_loaded"); run(); });
     $("#file").addEventListener("change", async (e) => { const f = e.target.files?.[0]; if (!f) return; $("#csv").value = await f.text(); record("file_opened"); run(); });
     $("#download").addEventListener("click", () => {
+      if (lastDrift) {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([driftCsv(lastDrift)], { type: "text/csv" }));
+        a.download = "changepoints-drift.csv";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        record("report_downloaded");
+        return;
+      }
       if (!last) return;
       const seg = new Array(last.n);
       last.pelt.segments.forEach((s, k) => { for (let i = s.start; i <= s.end; i++) seg[i] = [k + 1, s.mean]; });
@@ -231,8 +758,12 @@
         if (v.valid) record("report_unlocked");
       });
       $("#report-open").addEventListener("click", () => {
-        if (!last) return;
-        const html = changeReportHtml(last, { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, date: new Date().toISOString().slice(0, 10) });
+        const brand = { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) };
+        // Several columns: the several-column report on the last run (multi-report.mjs); otherwise the one-column report.
+        const multi = $("#shape").value === "multi";
+        // Wandering-level model (drift-report.mjs): its own report, with the options it ignored named.
+        if (multi ? !lastMulti : !(last || lastDrift)) return;
+        const html = multi ? multiReportHtml(lastMulti.p, lastMulti.r, brand) : lastDrift ? driftReportHtml(lastDrift, { ...brand, ignored: lastDriftIgnored }) : changeReportHtml(last, { ...brand, agreed: lastAgreed });
         const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
         record("report_opened");
       });

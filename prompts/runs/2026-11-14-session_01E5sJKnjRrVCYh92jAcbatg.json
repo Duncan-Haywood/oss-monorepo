@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKnjRrVCYh92jAcbatg",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T16:18:32Z",
+  "ended": "2026-11-14T16:33:09Z",
+  "wall_minutes": 15.15,
+  "tokens_in": 11132268,
+  "tokens_out": 50814,
+  "cost_usd": 4.4736,
+  "tool_calls": 85,
+  "task": "Deepen flagship 11 chant-forge (allocate.py row picked by session id): choir parts as MusicXML",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15908",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "Total part-notes first written as 117,310 in README, llms.txt and ROADMAP; the table's rows sum to 97,705 (the 97,929 accidental count counts tied pieces separately). Caught before commit and corrected.",
+    "musicxml-check.py first resolved a relative XSD path wrong (lxml failed on xml:lang); now abspath.",
+    "First spelling rule wrote chant's B flat as A sharp in C; caught by a unit test and fixed (flat unless the key has sharps)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml (chant-forge next:)",
+      "issue": "Every buildable chant-forge item is scan-reader work that needs archive.org page images, and archive.org answers 403 through this session's proxy (agentproxy status: connect_rejected). The row has no note that its buildable items depend on a host that is blocked in some sessions; a line saying so would have saved the probe."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "The 2000-character cap made the next: rewrite take three tries; the tool could print how many characters to cut instead of just the total."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (chant-forge next:)",
+      "why": "The listed buildable items (fresh worn-page set, mottled squares, liquescents after a porrectus end) all need archive.org scans, which are blocked here (403). The rest need a person.",
+      "did": "Built a new deep slice instead: MusicXML choir parts (--musicxml, studio download), checked by XSD and music21 on 304 scores, and listed it in next: for a director's check.",
+      "result": "Landed; 97,705 of 97,705 part-notes read back exactly, 0 XSD failures."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-choir-reads-paper-not-midi.md",
+    "ventures/chant-forge/eval/musicxml-check-report.md"
+  ],
+  "goal": "Give a choir director printable parts so the arrangements can be sung from paper, the step the project's open checks need people for.",
+  "notes": "Verification run here: node --test musicxml.test.mjs 8/8; run_venture_tests.py chant-forge ok (23 s); eval/browser-e2e.mjs all 113 checks passed (incl. new: studio score equals CLI --musicxml byte for byte); eval/musicxml-check: 304 scores XSD-valid (w3c/musicxml v4.0 schema fetched from raw.githubusercontent.com), music21 10.5.2 reads 97,705/97,705 part-notes exactly, accidentals agree with music21 makeAccidentals on 97,923/97,929; planted pitch/syllable/whole-tie faults caught, half-removed tie not caught (documented). venture-preflight.mjs chant-forge: preflight clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d02f163d-39fe-59fe-93c0-149d9d0ce2fe",
+    "transcripts": 1,
+    "first": "2026-11-14T16:18:32Z",
+    "last": "2026-11-14T16:33:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 158,
+        "output": 50814,
+        "thinking": 9994,
+        "cache_read": 10974390,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157720,
+        "api_equivalent_usd": 4.4736,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 158,
+      "output": 50814,
+      "thinking": 9994,
+      "cache_read": 10974390,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157720,
+      "api_equivalent_usd": 4.4736,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 76,
+      "Write": 5,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.15,
+      "active_minutes": 15.15,
+      "model_minutes": 9.75,
+      "tool_minutes": 5.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a developer writing a MusicXML exporter with key choice, ties, lyrics, parts, and an XSD + music21 round-trip harness",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 268.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -10,7 +10,7 @@ owner: duncan
 #
 # Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: household view across joint accounts and spouses with ISA-transfer planning behind an env-var switch.
 #
-# Liability: 2026/27 rates (PA 12,570, taper from 100,000, basic band 37,700, additional from 125,140, starting rate band 5,000, PSA 1,000/500/0, savings rates 20/40/45) were written from memory without network access and are flagged for GOV.UK verification on the page. Scottish bands, savings rate rises announced for later years, dividends and gains stacked on top are refused and named. The page states it is not tax advice.
+# Liability: 2026/27 rates (PA 12,570, taper from 100,000, basic band 37,700, additional from 125,140, starting rate band 5,000, PSA 1,000/500/0, savings rates 20/40/45) were checked against the GOV.UK 2026/27 rates table in quality audit round 61 (2026-11-13); the page still asks users to verify on GOV.UK. Scottish bands, savings rate rises announced for later years, dividends and gains stacked on top are refused and named. The page states it is not tax advice.
 hypotheses:
   - claim: >-
       UK savers will use a free calculator to see whether their interest is taxable and how much tax a cash ISA would save.

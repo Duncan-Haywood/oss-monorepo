@@ -9,7 +9,7 @@ import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { FILES, detectSyntax, matchingAddons, parseSvrl } from "./schematron-core.mjs";
+import { FILES, detectSyntax, matchingAddons, parseSvrl, plainOnlySets } from "./schematron-core.mjs";
 
 export { detectSyntax, parseSvrl };
 
@@ -42,9 +42,15 @@ function transform(file, xml, source) {
 }
 
 // Returns { status: "ok"|"unavailable", syntax, findings, sets }. `sets` lists
-// the rule sets that ran, e.g. ["en16931", "xrechnung"].
+// the rule sets that ran, e.g. ["en16931", "xrechnung"]. A file whose rule sets have no
+// Saxon form (PINT, ZATCA, CIUS-RO, NLCIUS, CIUS-PT) is "unavailable" here with
+// `plainOnly` naming them: run it with runPlain (plain-node.mjs), as report.mjs does.
+// Before 2026-11-14 such a file got the current EU base alone, which rejects PINT's GST
+// categories and lacks every national rule.
 export function runSchematron(xml) {
   const syntax = detectSyntax(xml);
+  const plainOnly = plainOnlySets(xml, syntax);
+  if (plainOnly.length) return { status: "unavailable", syntax, findings: [], sets: [], plainOnly };
   if (!syntax || !loadSaxon() || !schematronAvailable(syntax)) return { status: "unavailable", syntax, findings: [], sets: [] };
   const findings = transform(FILES[syntax], xml, "en16931-schematron");
   const sets = ["en16931"];

@@ -260,7 +260,8 @@ const STYLE = `
     --accent:#8fb0ff; --soft:#1c2531; --s-build:#7fd8c0; --s-wait:#e7c76a; --s-new:#d2b0f5; } }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width:960px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
+  .wrap { max-width:1120px; margin:0 auto; padding:24px 16px 72px; --pf-hero-pull:24px; }
+  main :is(p, li) { max-width:78ch; }
   a { color:var(--accent); }
   h1 { font-size:clamp(2rem,4.6vw,2.8rem); line-height:1.15; margin:.3em 0 .25em; letter-spacing:-.015em; }
   h2 { font-size:1.35rem; margin:0; letter-spacing:-.01em; }

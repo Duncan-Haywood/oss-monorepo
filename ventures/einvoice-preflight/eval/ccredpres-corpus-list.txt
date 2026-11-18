@@ -1,0 +1,134 @@
+Elotech-Dev/SITS src/main/resources/castor-wsnfse203-mapping.xml
+Engenere/BrazilFiscalReport tests/fixtures/danfe/nfe_overload.xml
+JuarezMagazord/Twig-Faturamento Template XML/template_IPI_DEV_FORNECEDOR_lojacasanapraia_ATT (1).xml
+JuarezMagazord/Twig-Faturamento XML/Compara.xml
+Unimake/DFe source/Unimake.DFe.Test/CTe/Resources/RTC/CTeRodoviario_CST000.xml
+Unimake/DFe source/Unimake.DFe.Test/CTe/Resources/RTC/CTeRodoviario_CST200.xml
+Unimake/DFe source/Unimake.DFe.Test/CTe/Resources/eventoCTe_211110.xml
+Unimake/DFe source/Unimake.DFe.Test/NF3e/Resources/NF3e_RTC.xml
+Unimake/DFe source/Unimake.DFe.Test/NF3e/Resources/RTC/NF3e_CST000_CST550_CST830.xml
+Unimake/DFe source/Unimake.DFe.Test/NFCom/Resources/RTC/NFCom_CST000_CST200_CST410.xml
+Unimake/DFe source/Unimake.DFe.Test/NFCom/Resources/nfcom.xml
+Unimake/DFe source/Unimake.DFe.Test/NFCom/Resources/nfcom_completa_rtc.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/COPLAN/1.01/EnviarLoteRpsEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/COPLAN/1.01/EnviarLoteRpsSincronoEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/COPLAN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/COPLAN/1.01/SubstituirNfseEnvio-ped-substnfse.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/DSF/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/EL/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/ELOTECH/2.03/EnviarLoteRps-RTC-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/GIF/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/ISSNET/1.01/EnviarLoteRpsEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/ISSNET/1.01/EnviarLoteRpsSincronoEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/ISSNET/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/NACIONAL/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/PRONIM/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/QUASAR/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/SIGCORP/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/SIMPLISS/1.00/GerarNfseEnvio_TodasTags-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/SIMPLISS/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFSe/Resources/TIPLAN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/NFe/Resources/NFeRTC2.xml
+Unimake/DFe source/Unimake.DFe.Test/NFe/Resources/RTC/NFe_CST200_CST410.xml
+Unimake/DFe source/Unimake.DFe.Test/NFe/Resources/RTC/NFe_CST510_CST620.xml
+Unimake/DFe source/Unimake.DFe.Test/NFe/Resources/envEvento_211110.xml
+Unimake/DFe source/Unimake.DFe.Test/NFe/Resources/enviNFe2.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/CTe/CTe_ModalRodoviario_ComTodasAsTags.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFCom/nfcom_completa_rtc.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/COPLAN/1.01/EnviarLoteRpsEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/COPLAN/1.01/EnviarLoteRpsSincronoEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/COPLAN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/COPLAN/1.01/SubstituirNfseEnvio-ped-substnfse.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/ISSNET/1.01/EnviarLoteRpsEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/ISSNET/1.01/EnviarLoteRpsSincronoEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/ISSNET/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/NACIONAL/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFSe/PRONIM/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/DFe source/Unimake.DFe.Test/Utility/Validacao/XMLteste/NFe/envEvento_211110.xml
+Unimake/Uninfe exemplos xml/API/CTe/autorizar-cte.xml
+Unimake/Uninfe exemplos xml/API/CTe/autorizar-simplificado-cte.xml
+Unimake/Uninfe exemplos xml/API/CTeOS/autorizar-cte.xml
+Unimake/Uninfe exemplos xml/CTe 4.00/CTeOS/CTeOS_ComTodasAsTags.xml
+Unimake/Uninfe exemplos xml/CTe 4.00/CTeSimp/CTeSimp_ComTodasAsTags.xml
+Unimake/Uninfe exemplos xml/CTe 4.00/CTe_ModalRodoviario_ComTodasAsTags.xml
+Unimake/Uninfe exemplos xml/NFSe/COPLAN/1.01/EnviarLoteRpsEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/COPLAN/1.01/EnviarLoteRpsSincronoEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/COPLAN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/COPLAN/1.01/SubstituirNfseEnvio-ped-substnfse.xml
+Unimake/Uninfe exemplos xml/NFSe/DSF/1.01/GerarNFSeEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/EL/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/ELOTECH/2.03/EnviarLoteRps-RTC-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/GIF/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/ISSNET/1.01/GerarNFSeEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/ISSNET/1.01/RecepcionarLoteRps-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/ISSNET/1.01/RecepcionarLoteRpsSincrono-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/NACIONAL/1.01/GerarNFSeEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/NACIONAL/1.01/dps_com_todas_as_tags-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/PRONIN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/QUASAR/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/SIGCORP-SIGISS/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/SIMPLISS/1.00/GerarNfseEnvio_TodasTags-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/SIMPLISS/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFSe/TIPLAN/1.01/GerarNfseEnvio-env-loterps.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/Eventos/Evento_211110-ped-eve.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/CST_410_CLASSTRIB_410014_ProdutorRuralNaoContribuinteComCreditoPresumido.xml
+Unimake/Uninfe exemplos xml/NFe e NFCe 4.00/NFe/Exemplos RTC/XML_Modelo_Com_O_Maximo_De_Tags_Possiveis.xml
+WillGonJ/calculadora_cclasstrib src/main/resources/xml/cte-simplificado/exemplos/nota/teste-xml-valido-1.xml
+WillGonJ/calculadora_cclasstrib src/main/resources/xml/cte/exemplos/nota/teste-xml-valido-1.xml
+automacoescomerciaisintegradas/orcamento backend/src/main/resources/xml/nfce/exemplos/nota/teste-xml-valido-1.xml
+awafinance/fiscal-renderer tests/fixtures/danfe/nfe_overload.xml
+bnreis/integracao-iugu docs/exemplos_oficiais/GerarNfseEnvio.xml
+bnreis/integracao-iugu docs/exemplos_oficiais/schema_v101.xsd.xml
+bnreis/integracao-iugu docs/exemplos_oficiais/schema_v101_fixed.xsd.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_007.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_008.xml
+icaroraci/tooldoce docs/manual/exemplos/contextos/caso_009.xml
+icaroraci/tooldoce docs/manual/exemplos/grupos/caso_007.xml
+icaroraci/tooldoce docs/manual/exemplos/grupos/caso_008.xml
+icaroraci/tooldoce docs/manual/exemplos/grupos/caso_009.xml
+icaroraci/tooldoce docs/manual/exemplos/grupos/test_prod-0005.xml
+icaroraci/tooldoce docs/manual/exemplos/grupos/test_prod-0006.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/CTe/Envio_CTe_Reforma Tributária.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFCom/Envio_NFCom_Reforma_Tributária.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Emissao_NFSe_Judicial.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Emissao_NFSe_Lote.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Envio_NFSe_CST_000.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Notas de crédito/NFSE_tpNFSeCredito_01.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Notas de crédito/NFSE_tpNFSeCredito_05.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Notas de débito/NFSE_tpNFSeDebito_01.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Notas de débito/NFSE_tpNFSeDebito_02.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Notas de débito/NFSE_tpNFSeDebito_03.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Notas de débito/NFSE_tpNFSeDebito_04.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Notas de débito/NFSE_tpNFSeDebito_05.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/Notas de débito/NFSE_tpNFSeDebito_06.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFSe/XML_Exemplo_NFSe_Reforma_Tributaria1.0.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/NFe/XML_Exemplo_NFe_Reforma_Tributaria.xml
+migrate-company/integracao-InvoiCy-BR Layout Integração - Reforma Tributária/Exemplos XML/XML Eventos/Evento - 211110.xml
+nfe/rtc-calculadora-offline codigo-fonte-backend/src/main/resources/xml/nfce/exemplos/nota/teste-xml-valido-1.xml
+nfephp-org/sped-cte examples/cte_v4.00_RTC.xml
+nfephp-org/sped-cte examples/xmls_from_xsd/cteOS_v4.00_RTC.xml
+nfephp-org/sped-cte examples/xmls_from_xsd/cteSimp_v4.00_RTC.xml
+nfephp-org/sped-cte examples/xmls_from_xsd/cte_v4.00_RTC.xml
+nfephp-org/sped-cte examples/xmls_from_xsd/old_cteOS_v4.00_RTC.xml
+nfephp-org/sped-nfe examples/fixtures/nfe_PL_010b_v1.2.xml
+nfephp-org/sped-nfe examples/fixtures/nfe_PL_010b_v1.21.xml
+nfephp-org/sped-nfe examples/fixtures/nfe_PL_10b_v1.30.xml
+nfephp-org/sped-nfe examples/fixtures/nfe_v4.00_PL010g.xml
+nfephp-org/sped-nfe examples/fixtures/procNFe_v4.00.xsd.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL010g.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL_009q.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL_010B.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL_010C.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL_010C_cnpjalfa.xml
+nfephp-org/sped-nfe examples/nfe_v4.00_PL_010E.xml
+nfephp-org/sped-nfe examples/procNFe_PL_010C_cnpjalfa.xml
+samuenunes/calculadora_reforma_tributaria src/main/resources/xml/cte-simplificado/exemplos/nota/teste-xml-valido-1.xml
+samuenunes/calculadora_reforma_tributaria src/main/resources/xml/cte/exemplos/nota/teste-xml-valido-1.xml
+saulojb/araucx_brazil_fiscal_docs tests/fixtures/danfe/nfe_overload.xml
+saulojb/araucx_brazil_fiscal_docs tests/fixtures/danfe_nt2026/nfe_overload.xml
+willkerms/NFSe templates/coplan-br-v1/DPS.xml
+willkerms/NFSe templates/elotech-pr-v2-03/Rps.xml
+willkerms/NFSe templates/emissor-nacional/DPS.xml
+willkerms/NFSe templates/fiorilli-br-v1/DPS.xml
+willkerms/NFSe templates/notacontrol-br-v1/DPS.xml
+wlclimaco/washington-sgge-1-0-0 mlc-be/src/main/java/com/sensus/mlc/contabil/dac/mybatis/map/Lfitclfiscal.xml

@@ -1,0 +1,20 @@
+{
+ "base_period_ns": {
+  "mult16": 3.91,
+  "mult24": 4.69,
+  "xbar16": 1.1,
+  "gf2mat48": 1.35,
+  "barrel128": 6.29,
+  "bcastadd64": 3.6
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "sources": {
+  "mult16": "large",
+  "mult24": "large",
+  "xbar16": "hostile",
+  "gf2mat48": "hostile",
+  "barrel128": "nonarith",
+  "bcastadd64": "fanout_rich"
+ }
+}

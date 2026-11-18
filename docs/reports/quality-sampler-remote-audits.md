@@ -1,3 +1,7 @@
+---
+kind: note
+tagged: auto
+---
 # Quality sampler reads origin/main audits
 
 Agent note, 2026-11-10 (process run). `quality_audit.py sample` merges audits

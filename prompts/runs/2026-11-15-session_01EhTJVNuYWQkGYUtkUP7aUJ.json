@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNuYWQkGYUtkUP7aUJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T07:18:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship changepoint-detector: pre-registered round four of the one-tick stale-feed likelihood (Student t steps, stretch trimmed to its cuts' date ranges)",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": 16128,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/drift-page.test.mjs",
+      "issue": "Pinned update-rate.mjs to zero imports; the reason (sibling-only loading for the worker and agent tool) also admits an import-free sibling, so the pin was loosened to exactly that."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-stale-feed-or-slow-series-round-four.md",
+    "ventures/changepoint-detector/README.md#one-tick-stale-feeds-a-heavy-tailed-walk"
+  ],
+  "goal": "Tell a stale data feed from a rounded slow series without false calls on jumpy real series",
+  "notes": "Router pick: row 2, changepoint-detector, item 'Stale feeds: next trim + t-step M0'. Pre-registration committed in 3b049bf88 (with a 20-series smoke run on seed 6 in the message) before the confirmation seed 20261216 ran. Result eval/update-rate-stale-lr-4.out.txt: K1 R cells 0/0/0% (bar 5%), K2 T cells 98.0/96.9/81.3% (bar 80%), K3 F 0, K4 (now binding) X1 3.0% / X2 0.5% (bar 10%); X3 (heavy-tailed stale, not judged) 81.9%. Ships: CATCHUP default is method lr, staleTestHeavy, trim range. Earlier rounds' option objects now merge over a ratio-only base so their files still reproduce. update-rate.mjs now imports rounded-walk.mjs (import-free sibling); deploy/make-watch-repo.sh copies it; drift-page.test.mjs updated to pin that. Verification: run_venture_tests.py changepoint-detector (see PR), venture-preflight 220/222 before fixing the two post front-matter lengths and the run record outcome.",
+  "corrections": [],
+  "redteam": null
+}

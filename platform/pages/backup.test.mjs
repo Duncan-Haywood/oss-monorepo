@@ -727,3 +727,31 @@ test('the page parses a restored file as the module does, rates included', async
   await hub2.listeners['backup-file:change']();
   assert.deepEqual(JSON.parse(hub2.ls['portfolio-shop-rates']).rates, { hourlyWage: 41.5 });
 });
+
+// Red team 2026-11-13: the same Number(String(v).trim()) as rates.mjs read a
+// restored file's " " or [] as a $0 wage and "0x10" as 16. A backup file is
+// whatever the visitor uploads, so it is the most exposed copy.
+test('parseBackup keeps only rates that are numbers or plain decimal strings', () => {
+  for (const v of [' ', [], [40], {}, '0x10', '1,000', true]) {
+    const parsed = parseBackup(JSON.stringify({
+      kind: BACKUP_KIND, v: BACKUP_VERSION, bids: store(), rates: { hourlyWage: v, burdenRate: 18 },
+    }));
+    assert.equal(parsed.ok, true);
+    assert.deepEqual(parsed.rates, { burdenRate: 18 }, JSON.stringify(v));
+  }
+  const ok = parseBackup(JSON.stringify({
+    kind: BACKUP_KIND, v: BACKUP_VERSION, bids: store(), rates: { hourlyWage: ' 41.5 ', burdenRate: 1e1 },
+  }));
+  assert.deepEqual(ok.rates, { hourlyWage: 41.5, burdenRate: 10 });
+});
+
+test('the page script, too, restores no rate from a value that is not a number', async () => {
+  for (const v of [' ', [], '0x10']) {
+    const hub = runHub();
+    const text = JSON.stringify({ kind: BACKUP_KIND, v: BACKUP_VERSION, bids: store(),
+      rates: { hourlyWage: v, burdenRate: 18 } });
+    hub.els['backup-file'] = Object.assign(hub.el('backup-file'), { files: [{ text: async () => text }] });
+    await hub.listeners['backup-file:change']();
+    assert.deepEqual(JSON.parse(hub.ls['portfolio-shop-rates']).rates, { burdenRate: 18 }, JSON.stringify(v));
+  }
+});

@@ -128,7 +128,7 @@ function scale(v, k) {
 
 function adviceFor({ v, lines, idleHours, idleCost, paid, net }) {
   const out = [];
-  const money = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2);
+  const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2));
   const best = [...lines].sort((a, b) => b.profitPerPoolHour - a.profitPerPoolHour);
   if (best.length > 1) out.push(`${best[0].label} earns the most per pool hour (${money(best[0].profitPerPoolHour)}); ${best[best.length - 1].label} earns the least (${money(best[best.length - 1].profitPerPoolHour)}).`);
   for (const l of lines) {

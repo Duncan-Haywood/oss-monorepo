@@ -35,7 +35,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -52,7 +52,7 @@
   <header>
     <p class="note">STR TURNOVER SCHEDULER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Know who cleans what, which turnovers will fail, and how many cleaners you need.</h1>
-    <p>Paste your <strong>Airbnb, VRBO or Booking.com calendar feeds</strong>. The page builds one clean per checkout, assigns it to a cleaner with travel time, checks every same-day window against how long the clean takes, flags <strong>double bookings</strong>, and finds the <strong>smallest crew</strong> that clears every deadline.</p>
+    <p>Paste your <strong>Airbnb, VRBO or Booking.com calendar feeds</strong>. The page builds one clean per checkout, assigns it to a cleaner with travel time, checks every same-day window against how long the clean takes, flags <strong>double bookings</strong>, and finds the <strong>smallest crew</strong> its schedule can clear every deadline with (a heuristic: never too few, sometimes one too many).</p>
     <p class="note">Calendars are read in this browser tab and never leave your device. It plans; it does not book or message anyone.</p>
   </header>
 <main>
@@ -104,7 +104,7 @@
     <ul>
       <li><strong>Jobs:</strong> one clean per checkout. Its window runs from checkout time to the next check-in time at that property (a same-day turnover has hours; a vacant gap has days; no next booking means no deadline).</li>
       <li><strong>Assignment:</strong> day by day, the most urgent clean first, each given to the cleaner who can finish it earliest after travel. A clean with slack waits for tomorrow rather than run past the shift; one that cannot wait is placed anyway and flagged.</li>
-      <li><strong>Crew size:</strong> the same calendars are simulated with 1, 2, 3 and more cleaners; the smallest with no late cleans and no overtime is the answer. This is a fast heuristic, not a proof of the optimum, so treat a crew one larger as the safe side.</li>
+      <li><strong>Crew size:</strong> the same calendars are simulated with 1, 2, 3 and more cleaners; the smallest with no late cleans and no overtime is the answer. This is a fast greedy heuristic, not a proof of the optimum. In an audit against an exact solver on 400 random one-day cases it never answered too few cleaners and answered one too many in about a fifth of them, so the true minimum may be one smaller.</li>
       <li><strong>Not decided:</strong> whether your cleaners are employees or contractors, overtime or pay-rule compliance, local rental rules, supply and laundry logistics, guest early check-in or late checkout requests, and anything not in the feeds. A feed that is stale or missing a booking gives a wrong schedule.</li>
     </ul>
   </section>
@@ -136,7 +136,7 @@
   </footer>
 
   <script type="module">
-    import { analyze, sampleBookings, DEFAULT_PROPS, scheduleCsv, cleanerText, icsExport, money } from "./calc.mjs";
+    import { analyze, sampleBookings, DEFAULT_PROPS, scheduleCsv, cleanerText, icsExport, money, parseClock } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -153,15 +153,15 @@
     }
 
     function run(text) {
-      const shift = $("#shift").value.split(/[-–]/).map((x) => parseFloat(x));
-      const r = analyze(text, $("#props").value, { cleaners: parseInt($("#cleaners").value, 10) || 1, shiftStart: shift[0] >= 0 ? shift[0] : 9, shiftEnd: shift[1] > 0 ? shift[1] : 17, travelMin: parseFloat($("#travel").value) || 0, hourlyRate: parseFloat($("#rate").value) || 0, payTravel: $("#paytravel").checked });
+      const shift = $("#shift").value.split(/[-–]/).map((x) => parseClock(x, null)); // "9am-5pm" and "9-17" both work
+      const r = analyze(text, $("#props").value, { cleaners: parseInt($("#cleaners").value, 10) || 1, shiftStart: shift[0] ?? 9, shiftEnd: shift[1] ?? 17, travelMin: parseFloat($("#travel").value) || 0, hourlyRate: parseFloat($("#rate").value) || 0, payTravel: $("#paytravel").checked }); /* zero-default: 0 cleaners can clean nothing */
       last = r;
       if (!r.summary) { status.textContent = r.errors[0]; report.hidden = true; return; }
       const s = r.summary;
       const crewText = s.minCrew ? `${s.minCrew} cleaner${s.minCrew === 1 ? "" : "s"} clear every deadline` : "no crew size clears every deadline (see the flagged stays)";
       $("#report-stats").innerHTML = `<strong>${s.cleans} cleans</strong> across ${s.properties} properties, ${s.from} to ${s.to} · ${s.sameDay} same-day turnovers · <strong>${crewText}</strong> · with ${s.crew}: ${s.late} late, ${s.overtime} past shift end · labour ${money(s.cost)} against ${money(s.fees)} in cleaning fees`;
       $("#report-note").textContent = r.errors.length ? `${r.errors.length} line${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")}` : "";
-      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill ${w.level === "high" ? "high" : w.level === "medium" ? "medium" : "info"}">${w.level === "info" ? "note" : "check"}</span></h4><p>${esc(w.text)}</p></div>`).join("") || `<div class="finding"><h4><span class="pill ok">ok</span></h4><p>No conflicts found.</p></div>`;
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h3><span class="pill ${w.level === "high" ? "high" : w.level === "medium" ? "medium" : "info"}">${w.level === "info" ? "note" : "check"}</span></h3><p>${esc(w.text)}</p></div>`).join("") || `<div class="finding"><h3><span class="pill ok">ok</span></h3><p>No conflicts found.</p></div>`;
       $("#sweep").innerHTML = r.sweep.rows.map((x) => `<tr><td class="n">${x.crew}</td><td class="n">${x.late}</td><td class="n">${x.overtime}</td><td class="n">${x.hours.toFixed(1)}</td></tr>`).join("");
       $("#rows").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.start || x.date)}</td><td>${esc(x.property)}</td><td>${x.cleaner ? "Cleaner " + x.cleaner : "unassigned"}</td><td>${esc(x.start.slice(11))}–${esc(x.end)}</td><td>${esc(x.window)}</td><td>${esc(x.flag)}</td></tr>`).join("");
       $("#econ").innerHTML = r.economics.map((x) => `<tr><td>${esc(x.property)}</td><td class="n">${x.cleans}</td><td class="n">${money(x.fees)}</td><td class="n">${money(x.cost)}</td><td class="n">${money(x.margin)}</td></tr>`).join("");
@@ -178,7 +178,7 @@
     });
     $("#load-ok").addEventListener("click", () => {
       $("#paste").value = sampleBookings(); $("#file").value = ""; $("#props").value = DEFAULT_PROPS;
-      run($("#paste").value); record("example_loaded"); status.textContent = "Worked example: made-up listings with same-day turnovers, a blocked night, a duplicate stay and a double booking. Two cleaners run late; the crew table shows three are needed.";
+      run($("#paste").value); record("example_loaded"); status.textContent = "Worked example: made-up listings with same-day turnovers, a blocked night, a duplicate stay and a double booking (flagged, and left out of the schedule until resolved). One cleaner runs late; the crew table shows two are needed.";
     });
     $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the feeds, then click Build the schedule."; });
     $("#dl-csv").addEventListener("click", () => { if (last) { record("schedule_downloaded"); download("turnover-schedule.csv", scheduleCsv(last), "text/csv"); } });

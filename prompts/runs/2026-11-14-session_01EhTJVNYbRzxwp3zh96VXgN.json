@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNYbRzxwp3zh96VXgN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine prompt; full text in prompts/ventures/prompt-1.md)",
+  "input_sha256": "fdb16799d341fa9108bd6d9e4dfa1af5d0577e24db9531a5330c2312c201b3e8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T11:09:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: the 60x168 week 0's pay half",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 15826,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate picked open-tennis-robots (row 8), but a sibling opened PR 15825 for its buildable item a minute earlier and PR 15456 holds the other; took shift-roster-builder (row 4, no PR in 24 h) instead",
+      "did": "claimed shift-roster-builder with PR 15826",
+      "result": "no duplicate; slice landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-pricing-the-clique-lp.md"
+  ],
+  "goal": "Replace the loose BIG x open-hours score bound on big weeks with a priced LP bound",
+  "notes": "cliqueScoreFloor: the clique LP priced at linear floors of pay/penalties, plus convex fairness/shortfall via quarter-hour level columns. 60x168 week 0 gap $20,010 -> $30.11 at 20 s budget (19.1 s total). Verification: run_venture_tests.py shift-roster-builder exit 0 (1 suite, 0 failed); score-floor.test.mjs brute force on 160 seeded weeks, never above the best. One calc.test.mjs assertion about the old weaker bound now passes scoreFloor: false. Preflight first stopped on main_health: a quick-pick-survey entry guard already fixed on main, and this record unfilled; fixed by merging main and filling this record.",
+  "corrections": [],
+  "redteam": null
+}

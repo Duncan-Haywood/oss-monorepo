@@ -1,4 +1,8 @@
 const finite = (value, name) => {
+  // Number('') and Number('  ') are 0, so a field cleared mid-edit would
+  // otherwise compute as $0: a blank current price reads as "100.0% maximum
+  // churn before revenue falls", in green. A blank is a missing answer.
+  if (value === undefined || value === null || String(value).trim() === '') throw new Error(`Enter ${name.toLowerCase()}`);
   const number = Number(value);
   if (!Number.isFinite(number) || number < 0) throw new Error(`${name} must be a non-negative number`);
   return number;
@@ -13,6 +17,12 @@ export function calculateImpact(input) {
   const proposedRevenue = customers * proposedPrice;
   const currentContribution = currentRevenue - monthlyCosts;
   const proposedContribution = proposedRevenue - monthlyCosts;
+  // Each input is finite, but a product of two huge ones can overflow to
+  // Infinity, and Infinity - Infinity is NaN: a price doubling on 1e200
+  // subscribers then read as a revenue loss with break-even "not achievable".
+  if (![currentRevenue, proposedRevenue, currentContribution, proposedContribution].every(Number.isFinite)) {
+    throw new Error('These numbers are too large to compute; check for a typo');
+  }
   const revenueChange = proposedRevenue - currentRevenue;
   // A $0 proposed price cannot be reached by any customer count when current
   // revenue is positive — that is a real Infinity, not a bug. But when

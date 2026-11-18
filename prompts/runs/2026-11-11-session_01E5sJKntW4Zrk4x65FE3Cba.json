@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKntW4Zrk4x65FE3Cba",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T09:17:56Z",
+  "ended": "2026-11-11T09:24:27Z",
+  "wall_minutes": 6.9,
+  "tokens_in": 3875313,
+  "tokens_out": 17608,
+  "cost_usd": 1.8119,
+  "tool_calls": 42,
+  "task": "quality track, mode fix: work the high-severity defect queue",
+  "projects": [
+    "ventures/medicaid-lookback-penalty-calculator",
+    "platform/uitest"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14750",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Ran the uitest smoke CLI piped through tail and read tail's exit status as uitest's; re-ran with output to a file to get the real exit code."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/uitest/browser.test.mjs",
+      "issue": "The five real-browser tests skip silently in a cloud session even though Playwright is preinstalled at /opt/node-tools/node_modules/playwright; they only run with PLAYWRIGHT=/opt/node-tools/node_modules/playwright/index.js. CI may be skipping them too."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "The steps describe only sample mode (draw subjects, write audit files); fix mode, which `quality_audit.py mode` picked, is described only in portfolio/quality/README.md, and the prompt's step 5 asks for a round post that fix mode doesn't produce."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "mode said fix, while the prompt's steps describe a sample round",
+      "did": "worked the high queue (2 subjects, 3 high and 1 medium defects) and wrote a fix post instead of a round post",
+      "result": "high queue 23 -> 21, validate clean"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-quality-fixes-exempt-is-a-decision-not-a-keyword.md"
+  ],
+  "goal": null,
+  "notes": "Mode fix (seeded draw, 23 high open). No seed or subjects drawn (fix mode). Skipped subjects already in open PRs #14747 (mcp-supply-chain-watch, caa-record-check) and #14674 (platform/agents). Fixed medicaid-lookback defects 0 and 1, and uitest defects 0 and 1; fix_prs set to #14750 in both audit files; scores unchanged. Share meeting the bar: not measured this run. Verification: medicaid node --test 27/27; 3 seeded mutations (old keyword regex, dropped negation guard, 31-day factor) each fail 1 test. uitest node --test 30 tests, 25 pass + 5 skipped without PLAYWRIGHT; with PLAYWRIGHT set, browser.test.mjs 5/5 pass. Both seeded mutations (new check disabled, blank-page check disabled) fail a test. Real Chromium: hand-built NaN page exit 0 before and exit 1 after; 9 random venture pages and the medicaid page still pass. quality_audit.py validate: 218 files, 0 problems. run_venture_tests medicaid ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8d3c129d-8f3a-5968-b82c-22010c44a429",
+    "transcripts": 1,
+    "first": "2026-11-11T09:17:56Z",
+    "last": "2026-11-11T09:24:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 17608,
+        "thinking": 2306,
+        "cache_read": 3787493,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87741,
+        "api_equivalent_usd": 1.8119,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 17608,
+      "thinking": 2306,
+      "cache_read": 3787493,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87741,
+      "api_equivalent_usd": 1.8119,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.9,
+      "active_minutes": 6.9,
+      "model_minutes": 4.6,
+      "tool_minutes": 2.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "two small defect fixes with tests and mutation checks, a browser false-positive sweep, and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 220.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

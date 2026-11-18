@@ -1,0 +1,18 @@
+# Pick Path Optimizer: shortest pick routes and order batching for small warehouses
+
+> Free tool for small warehouses, 3PLs and online sellers: paste SKU locations (SKU, aisle, bay) and a day of orders, and get carts of orders, a pick list per cart in walking order on the provably shortest route through parallel aisles (Ratliff-Rosenthal dynamic programme), and the walking, hours and wages saved against one order per trip on an S-shape route. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/pick-path-optimizer/): layout, SKU locations, orders, cart size; returns a comparison of six picking options, pick lists with route maps, and a CSV.
+
+## How to use the engine
+
+- `route.mjs` exports `optimalRoute(points, layout)` (exact), `sShapeRoute`, `largestGapRoute`, `returnRoute` and `distance`. Points are `{x, y}` in feet, y measured from the front cross aisle; layout is `{aisleXs, aisleLength, depotX, backAisle}`.
+- `calc.mjs` exports `parseLocations`, `parseOrders`, `comparePolicies`, `optimiseBatches`, `pickList` and `pickListCsv`.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pick-path-optimizer): MIT licensed.

@@ -1,0 +1,16 @@
+72 builds from eval/unsure-weight-2026-11-17.jsonl: spin efficiency error with some readings replaced by their true drops
+  first-order 8k   as read                  speed 0.07%, spin mean 0.58%, worst 1.56% (24 builds)
+  first-order 8k   every reading true       speed 0.00%, spin mean 0.02%, worst 0.05% (24 builds)
+  first-order 8k   calibration drill true   speed 0.04%, spin mean 0.46%, worst 1.40% (24 builds)
+  first-order 8k   slow drill true          speed 0.04%, spin mean 0.15%, worst 0.46% (24 builds)
+  first-order 8k   readings at 1000 rpm and up: mean 0.9993 of the true drop, sd 0.32%
+  tach 3 us 10k    as read                  speed 0.07%, spin mean 0.57%, worst 1.75% (24 builds)
+  tach 3 us 10k    every reading true       speed 0.00%, spin mean 0.03%, worst 0.12% (24 builds)
+  tach 3 us 10k    calibration drill true   speed 0.06%, spin mean 0.59%, worst 1.99% (24 builds)
+  tach 3 us 10k    slow drill true          speed 0.04%, spin mean 0.18%, worst 0.54% (24 builds)
+  tach 3 us 10k    readings at 1000 rpm and up: mean 0.9997 of the true drop, sd 0.72%
+  ESC 50 ms told   as read                  speed 0.02%, spin mean 0.53%, worst 1.47% (24 builds)
+  ESC 50 ms told   every reading true       speed 0.00%, spin mean 0.03%, worst 0.07% (24 builds)
+  ESC 50 ms told   calibration drill true   speed 0.01%, spin mean 0.50%, worst 1.43% (24 builds)
+  ESC 50 ms told   slow drill true          speed 0.02%, spin mean 0.06%, worst 0.14% (24 builds)
+  ESC 50 ms told   readings at 1000 rpm and up: mean 0.9999 of the true drop, sd 0.27%

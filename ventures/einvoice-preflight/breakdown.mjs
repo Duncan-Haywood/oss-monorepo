@@ -1,4 +1,5 @@
-import { taxGroups, taxKey, taxPercentOf } from "./linenet.mjs";
+import { isFlatTaxRow, taxGroups, taxKey, taxPercentOf } from "./linenet.mjs";
+import { parseDecimal } from "./numbers.mjs";
 
 // Offline mixed-rate tax-breakdown observations.
 // Arithmetic / document-shape only — not a tax-law determination.
@@ -7,13 +8,8 @@ function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
 }
 
-function parseNumber(value) {
-  if (value === undefined || value === null || value === "") return null;
-  const text = typeof value === "string" ? value.trim() : String(value);
-  if (text === "" || !Number.isFinite(Number(text))) return null;
-  const result = Number(text);
-  return Number.isFinite(result) ? result : null;
-}
+// numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
+const parseNumber = parseDecimal;
 
 function roundHalfUpToCents(value) {
   if (!Number.isFinite(value)) return null;
@@ -48,6 +44,19 @@ function checkRows(rows, expected, withCategory, unattributed) {
     const percent = taxPercentOf(row);
     const taxable = money(row.taxable);
     const tax = money(row.tax);
+    // A flat-amount tax (no percentage, a scheme other than VAT/GST) has no rate to
+    // check and no line group to match; only its tax amount must be readable.
+    if (isFlatTaxRow(row)) {
+      if (tax === null) {
+        findings.push(finding(
+          "INV-038",
+          `Tax breakdown row ${index + 1} tax amount is missing or invalid.`,
+          "Set tax to the flat amount charged under this tax scheme.",
+          `${path}/tax`,
+        ));
+      }
+      return;
+    }
     if (percent === null || percent < 0 || percent > 100) {
       findings.push(finding(
         "INV-038",
@@ -88,7 +97,9 @@ function checkRows(rows, expected, withCategory, unattributed) {
       return;
     }
     const expectedTax = roundHalfUpToCents(taxable * percent / 100);
-    if (tax !== expectedTax) {
+    // PINT Oman: the row's tax may be the sum of its lines' own VAT amounts (linenet.mjs).
+    const lineTax = expected.get(key)?.lineTax ?? null;
+    if (tax !== expectedTax && !(lineTax !== null && !unattributed && tax === lineTax)) {
       findings.push(finding(
         "INV-038",
         `Tax breakdown row ${index + 1} tax amount does not equal taxable times the percentage.`,
@@ -118,7 +129,11 @@ function checkRows(rows, expected, withCategory, unattributed) {
       ));
     }
   });
-  for (const key of expected.keys()) {
+  for (const [key, group] of expected) {
+    // The mirror of the zero row above: lines whose nets sum to zero at a rate carry
+    // no tax, so no row is needed (ZATCA's prepayment-deduction line at the advance's
+    // old rate: quantity 0, net 0.00, its 5% detail in the line's own TaxTotal).
+    if (group && group.taxable === 0) continue;
     if (!seen.has(key) && !unattributed) {
       findings.push(finding(
         "INV-038",

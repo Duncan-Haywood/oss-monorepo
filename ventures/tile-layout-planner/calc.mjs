@@ -176,7 +176,7 @@ export function reuseTiles(items, tw, th, allowRotate, minUseful = 20) {
   for (const it of sorted) {
     let best = -1, bestArea = Infinity, rot = false;
     for (let k = 0; k < pool.length; k++) {
-      const o = pool[k], ar = o.w * o.h;
+      const o = pool[k], ar = o.ar;
       if (ar >= bestArea) continue;
       if (o.w >= it.a - E && o.h >= it.b - E) { best = k; bestArea = ar; rot = false; }
       else if (allowRotate && o.w >= it.b - E && o.h >= it.a - E) { best = k; bestArea = ar; rot = true; }
@@ -190,12 +190,15 @@ export function reuseTiles(items, tw, th, allowRotate, minUseful = 20) {
       pool.splice(best, 1);
       if (rot) { const t = a; a = b; b = t; }
     }
-    const A1 = [[W - a, H], [a, H - b]];
-    const B1 = [[W - a, b], [W, H - b]];
-    const score = (s) => Math.max(s[0][0] * s[0][1], s[1][0] * s[1][1]);
-    const pick = score(A1) >= score(B1) ? A1 : B1;
-    for (const [w, h] of pick) if (w >= minUseful && h >= minUseful) pool.push({ w, h });
-    if (pool.length > 2000) { pool.sort((p, q) => q.w * q.h - p.w * p.h); pool.length = 2000; }
+    // Two guillotine splits: A keeps (W-a) x H and a x (H-b), B keeps (W-a) x b and
+    // W x (H-b). Take the split whose larger leftover is larger. Scalars, not arrays:
+    // this runs once per cut piece of every layout the search tries.
+    const wa = W - a, hb = H - b;
+    const useA = Math.max(wa * H, a * hb) >= Math.max(wa * b, W * hb);
+    const w1 = wa, h1 = useA ? H : b, w2 = useA ? a : W, h2 = hb;
+    if (w1 >= minUseful && h1 >= minUseful) pool.push({ w: w1, h: h1, ar: w1 * h1 });
+    if (w2 >= minUseful && h2 >= minUseful) pool.push({ w: w2, h: h2, ar: w2 * h2 });
+    if (pool.length > 2000) { pool.sort((p, q) => q.ar - p.ar); pool.length = 2000; }
   }
   return fresh;
 }
@@ -240,15 +243,33 @@ export function evaluateLayout(spec, lay, keep = false) {
   for (let j = jmin; j <= jmax; j++) {
     const sj = brick ? mod(j * f, 1) * px : 0;
     const v0 = lay.oy + j * py;
-    const imin = Math.floor((umin - tw - lay.ox - sj) / px) - 1;
-    const imax = Math.ceil((umax - lay.ox - sj) / px) + 1;
+    // A straight row wholly above or below the floor: every tile in it fails the
+    // vertical half of the reject test below, so skip the row (the same comparisons).
+    if (!diag && (v0 + th <= reg.y0 + EDGE_TOL || v0 >= reg.y1 - EDGE_TOL)) continue;
+    let imin = Math.floor((umin - tw - lay.ox - sj) / px) - 1;
+    let imax = Math.ceil((umax - lay.ox - sj) / px) + 1;
+    if (diag) {
+      // The turned floor crosses this row of the lattice in one stretch of u. Tiles more
+      // than a pitch outside it miss the floor (the reject test below would drop them),
+      // so start and stop a cell beyond the stretch; the exact test still runs inside.
+      const v1 = v0 + th;
+      const lo = Math.max((reg.x0 - cx) / S45 + v0 - tw, (reg.y0 - cy) / S45 - v1 - tw);
+      const hi = Math.min((reg.x1 - cx) / S45 + v1, (reg.y1 - cy) / S45 - v0);
+      if (lo > hi + px) continue;
+      imin = Math.max(imin, Math.floor((lo - lay.ox - sj) / px) - 1);
+      imax = Math.min(imax, Math.ceil((hi - lay.ox - sj) / px) + 1);
+    }
     for (let i = imin; i <= imax; i++) {
       const u0 = lay.ox + sj + i * px;
       let bx0, by0, bx1, by1, poly = null;
       if (diag) {
-        const c = [[u0, v0], [u0 + tw, v0], [u0 + tw, v0 + th], [u0, v0 + th]];
-        poly = c.map(([u, v]) => [cx + (u - v) * S45, cy + (u + v) * S45]);
-        ({ x0: bx0, y0: by0, x1: bx1, y1: by1 } = bboxOf(poly));
+        // The turned tile's bounding box comes straight from its extreme corners: the
+        // same float expressions the corner list below evaluates, and rounding is
+        // monotonic, so it equals bboxOf(poly) without building poly for tiles that
+        // miss the floor (about half the lattice on a square room).
+        const u1 = u0 + tw, v1 = v0 + th;
+        bx0 = cx + (u0 - v1) * S45; bx1 = cx + (u1 - v0) * S45;
+        by0 = cy + (u0 + v0) * S45; by1 = cy + (u1 + v1) * S45;
       } else {
         bx0 = u0; by0 = v0; bx1 = u0 + tw; by1 = v0 + th;
       }
@@ -259,6 +280,11 @@ export function evaluateLayout(spec, lay, keep = false) {
         for (const o of obs) {
           if (bx0 < o.x1 - EDGE_TOL && o.x0 < bx1 - EDGE_TOL && by0 < o.y1 - EDGE_TOL && o.y0 < by1 - EDGE_TOL) { clear = false; break; }
         }
+      }
+      // A full tile only needs its outline when the cells are kept for drawing.
+      if (diag && (cells || !clear)) {
+        const c = [[u0, v0], [u0 + tw, v0], [u0 + tw, v0 + th], [u0, v0 + th]];
+        poly = c.map(([u, v]) => [cx + (u - v) * S45, cy + (u + v) * S45]);
       }
       if (clear) {
         full++;
@@ -272,14 +298,21 @@ export function evaluateLayout(spec, lay, keep = false) {
       for (const o of obs) {
         const next = [];
         for (const p of pieces) {
-          if (bboxOf(p).x1 <= o.x0 || bboxOf(p).x0 >= o.x1 || bboxOf(p).y1 <= o.y0 || bboxOf(p).y0 >= o.y1) next.push(p);
+          const b = bboxOf(p);
+          if (b.x1 <= o.x0 || b.x0 >= o.x1 || b.y1 <= o.y0 || b.y0 >= o.y1) next.push(p);
           else next.push(...subtractRect(p, o));
         }
         pieces = next;
       }
-      pieces = pieces.filter((p) => polyArea(p) > AREA_TOL);
+      // One area per piece, summed in the same order as before.
+      const kept = [];
+      let vis = 0;
+      for (const p of pieces) {
+        const a = polyArea(p);
+        if (a > AREA_TOL) { kept.push(p); vis += a; }
+      }
+      pieces = kept;
       if (!pieces.length) continue;
-      const vis = pieces.reduce((s, p) => s + polyArea(p), 0);
       visible += vis;
       if (vis >= tileArea - AREA_TOL && pieces.length === 1) {
         full++;
@@ -557,7 +590,12 @@ export function fmtNum(x, d = 0) {
   if (!Number.isFinite(x)) return "–";
   return x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 }
-export const fmtMoney = (x) => (Number.isFinite(x) ? "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const fmtMoney = (x) => {
+  const format = (x) => (Number.isFinite(x) ? "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export function lenText(sys, mm, kind = "tile") {
   if (mm === null || mm === undefined) return "–";
   if (kind === "room") return `${+(mm / sys.roomMm).toFixed(2)} ${sys.roomU}`;

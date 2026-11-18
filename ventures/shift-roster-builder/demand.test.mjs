@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hourlySales, headcount, cutShifts, demandShifts } from "./demand.mjs";
+import { hourlySales, headcount, cutShifts, demandShifts, backtestSales } from "./demand.mjs";
 import { parseShifts } from "./calc.mjs";
 
-// Invented hand-built sales; no real POS export has been tested.
+// Invented hand-built sales; the real bakery export is in eval/bakery-backtest.mjs (not committed).
 const CSV = "Date Time,Net Sales\n2026-11-02 09:00,100\n2026-11-02 10:00,250\n2026-11-02 11:00,100\n2026-11-09 09:00,300\n2026-11-09 10:00,250\n2026-11-09 11:00,100\n";
 
 test("averages each weekday-hour over the days seen", () => {
@@ -40,7 +40,9 @@ test("a short peak is stretched to the shortest shift and counted as extra", () 
 test("shift lines round-trip through parseShifts and group days with the same shape", () => {
   const two = CSV + "2026-11-03 09:00,100\n2026-11-03 10:00,250\n2026-11-03 11:00,100\n2026-11-10 09:00,300\n2026-11-10 10:00,250\n2026-11-10 11:00,100\n";
   const r = demandShifts(two, { splh: 100, minShift: 3, maxShift: 8 });
-  assert.match(r.shiftsText, /^Mon\/Tue, 9:00, 12:00, 2\nMon\/Tue, 10:00, 13:00, 1/);
+  // The 1-hour top layer (10:00) is stretched into open hours (9:00-12:00), not past the 12:00 close (was 10:00-13:00
+  // before 2026-11-11, an hour after the last sale).
+  assert.equal(r.shiftsText, "Mon/Tue, 9:00, 12:00, 3");
   const p = parseShifts(r.shiftsText);
   assert.deepEqual(p.errors, []);
   assert.equal(p.slots.length, r.days.reduce((a, d) => a + d.shifts.length, 0));
@@ -50,7 +52,8 @@ test("shift lines round-trip through parseShifts and group days with the same sh
 test("bad rows are skipped with a reason; missing columns are reported", () => {
   const r = hourlySales("Date Time,Sales\nsoon,10\n2026-11-02 09:00,abc\n2026-11-02 09:00,-5\n2026-11-02 09:00,40");
   assert.equal(r.rows, 1);
-  assert.equal(r.skipped.length, 3);
+  assert.equal(r.skipped.length, 2); // the refund is counted in a note, not listed (2026-11-11)
+  assert.ok(r.notes.some((n) => /1 row with negative sales \(refunds or voids, 5 in all\)/.test(n)), JSON.stringify(r.notes));
   assert.match(hourlySales("Date,Qty\n2026-11-02 09:00,1").notes[0], /No sales column/);
   assert.match(hourlySales("Foo,Sales\nx,1").notes[0], /No date-time/);
 });
@@ -240,4 +243,439 @@ test("one day-first date settles the order for the whole file; with none, month 
   const amb = hourlySales("Time,Sales\n05/03/2026 14:00,10\n");
   assert.ok(amb.avg[6][14] > 0);
   assert.ok(amb.notes.some((n) => /could be 5 March or May 3/.test(n)));
+});
+
+// ---- Found on a real bakery POS export (2026-11-11, eval/bakery-backtest.mjs) ----
+const ymd = (t) => new Date(t).toISOString().slice(0, 10);
+// n weeks of a shop open Wed-Sun 11:00-15:00, `amt(week, hour)` per hour, from Monday 2026-01-05.
+function weeksCsv(n, amt, extra = []) {
+  const rows = ["datetime,total"];
+  for (let w = 0; w < n; w++) for (let d = 2; d < 7; d++) for (let h = 11; h < 15; h++) {
+    rows.push(`${ymd(Date.UTC(2026, 0, 5) + (w * 7 + d) * 86400000)} ${h}:10,${amt(w, h)}`);
+  }
+  return rows.concat(extra).join("\n");
+}
+
+test("rows of empty cells are ignored with one note, not reported row by row", () => {
+  const r = hourlySales("datetime,total,place\n2026-01-07 11:00,100,\n,,\n,,\n");
+  assert.equal(r.rows, 1);
+  assert.equal(r.skipped.length, 0);
+  assert.ok(r.notes.some((n) => /2 empty rows ignored/.test(n)));
+});
+
+test("a weekday that traded on 1 of 8 dates is treated as closed; --keep-rare keeps it", () => {
+  const csv = weeksCsv(8, () => 100, ["2026-01-06 11:30,500"]); // one Tuesday
+  const r = hourlySales(csv);
+  assert.equal(r.observed[1], 0);
+  assert.ok(r.notes.some((n) => /Tuesdays: sales on 1 of 8/.test(n)));
+  assert.equal(hourlySales(csv, { keepRare: true }).observed[1], 1);
+  const d = demandShifts(csv, { splh: 100 });
+  assert.ok(!/Tue/.test(d.shiftsText));
+});
+
+test("an edge hour seen on 1 of 20+ days does not stretch the trading day", () => {
+  const csv = weeksCsv(21, () => 100, ["2026-01-11 23:05,50"]); // one late Sunday order
+  const d = demandShifts(csv, { splh: 100, minShift: 4 });
+  assert.ok(!/0:00/.test(d.shiftsText), d.shiftsText);
+  assert.ok(d.notes.some((n) => /Sun 23:00 \(1 of 21 days\)/.test(n)));
+  assert.match(demandShifts(csv, { splh: 100, keepRare: true }).shiftsText, /Sun, \d+:00, 0:00/);
+});
+
+test("backtest: a steady shop has no short or over hours under any method", () => {
+  const b = backtestSales(weeksCsv(10, () => 150), { splh: 100 });
+  assert.equal(b.weeks, 6);
+  for (const m of b.methods) { assert.equal(m.short, 0, m.id); assert.equal(m.over, 0, m.id); assert.equal(m.scheduled, 5 * 4 * 2); }
+  assert.equal(b.clear, false);
+});
+
+test("backtest: on a growing shop recent weeks win and the plain average runs short", () => {
+  const b = backtestSales(weeksCsv(16, (w) => 100 + 25 * w), { splh: 100 });
+  const by = Object.fromEntries(b.methods.map((m) => [m.id, m]));
+  assert.ok(by.all.short > by.hl2.short, "the plain average lags the growth");
+  assert.ok(by.last1.miss <= by.all.miss);
+  assert.notEqual(b.best, "all");
+  assert.equal(b.clear, true);
+});
+
+test("backtest needs dated rows and enough weeks", () => {
+  assert.equal(backtestSales("Day,Hour,Sales\nMon,9,100", { splh: 50 }).weeks, 0);
+  assert.match(backtestSales(weeksCsv(3, () => 100), { splh: 50 }).notes.at(-1), /more than 4 full weeks/);
+  assert.throws(() => backtestSales("x", { splh: 0 }), /positive/);
+});
+
+test("CLI: --backtest prints the method table and a verdict", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const dir = mkdtempSync(tmpdir() + "/bt-");
+  writeFileSync(dir + "/s.csv", weeksCsv(16, (w) => 100 + 25 * w));
+  const cli = new URL("./cli.mjs", import.meta.url).pathname;
+  const r = spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--backtest", "--warmup", "3"], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /Tested on 13 full weeks/);
+  assert.match(r.stdout, /--half-life 4/);
+  assert.match(r.stdout, /Best on your file:/);
+  writeFileSync(dir + "/t.csv", weeksCsv(2, () => 100));
+  assert.equal(spawnSync("node", [cli, "--from-sales", dir + "/t.csv", "--splh", "100", "--backtest"], { encoding: "utf8" }).status, 1);
+  assert.equal(spawnSync("node", [cli, "--from-sales", dir + "/t.csv", "--splh", "100", "--warmup", "0"], { encoding: "utf8" }).status, 2);
+});
+
+// Made-up rows in the shape of the second real POS export (a French bakery's item lines, eval/french-bakery.mjs).
+test("line-item exports: sales are quantity x unit price, decimal-comma euros; refund lines are one note", () => {
+  const csv = ',date,time,ticket_number,article,Quantity,unit_price\n0,2026-11-02,08:38,150040.0,BAGUETTE,1.0,"0,90 €"\n1,2026-11-02,08:39,150041.0,PAIN AU CHOCOLAT,3.0,"1,20 €"\n2,2026-11-02,09:14,150042.0,BAGUETTE,-1.0,"0,90 €"\n3,2026-11-02,09:20,150043.0,TRADITIONAL BAGUETTE,2.0,"1,20 €"\n';
+  const r = hourlySales(csv);
+  assert.equal(r.rows, 3);
+  assert.equal(r.skipped.length, 0);
+  assert.ok(Math.abs(r.avg[0][8] - 4.5) < 1e-9, String(r.avg[0][8])); // 0.90 + 3 x 1.20
+  assert.ok(Math.abs(r.avg[0][9] - 2.4) < 1e-9);
+  assert.match(r.notes.join(" "), /quantity times its unit price/);
+  assert.match(r.notes.join(" "), /1 row with negative sales \(refunds or voids, 0\.9 in all\)/);
+  assert.deepEqual(hourlySales("Date,Time,Qty,Price\n2026-11-02,09:00,,2\n").skipped, ['row 2: could not read the sales " x 2"']);
+});
+
+// 24 Mondays: busy 8-13 and 16-18, 14:00 and 15:00 trade on 2 of 24 dates (a lunch closure), 18:00 every week.
+const lunch = () => {
+  let csv = "Date Time,Sales\n";
+  for (let w = 0; w < 24; w++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10);
+    for (const h of [8, 9, 10, 11, 12, 13, 16, 17, 18]) csv += `${day} ${h}:00,${h === 12 ? 250 : 90}\n`;
+    if (w < 2) csv += `${day} 14:00,5\n${day} 15:00,5\n`;
+  }
+  return csv;
+};
+test("a lunch closure inside the day is not staffed, and no shift is stretched across it", () => {
+  const r = demandShifts(lunch(), { splh: 100, minShift: 4 });
+  const mon = r.days[0];
+  for (const [a, b] of mon.shifts) assert.ok(b <= 14 || a >= 16, `${a}-${b} crosses the closure`);
+  assert.match(r.notes.join(" "), /breaks .*Mon 14:00 \(2 of 24 days\), Mon 15:00 \(2 of 24 days\)/);
+  const k = demandShifts(lunch(), { splh: 100, minShift: 4, keepRare: true });
+  assert.ok(k.days[0].shifts.some(([a, b]) => a < 16 && b > 14), "--keep-rare staffs the closure as before");
+  const set = demandShifts(lunch(), { splh: 100, minShift: 4, open: 8, close: 19 });
+  assert.ok(set.days[0].shifts.some(([a, b]) => a < 16 && b > 14), "--open/--close are taken as given");
+});
+test("a quiet hour in a shop that is quiet all day stays staffed (no busy neighbours)", () => {
+  // Sales in most hours on only some dates: 11:00 trades on 3 of 24, its neighbours on 10 of 24 (under half).
+  let csv = "Date Time,Sales\n";
+  for (let w = 0; w < 24; w++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10);
+    for (const h of [9, 10, 12, 13]) if (w % 12 < 5 || h === 9 || h === 13) csv += `${day} ${h}:00,40\n`;
+    if (w < 3) csv += `${day} 11:00,40\n`;
+  }
+  const p = headcount(...(() => { const s = hourlySales(csv); return [s.avg, s.observed, { splh: 100, seen: s.seen }]; })());
+  assert.equal(p[0][11], 1);
+});
+test("a file too large to spread into Math.max still reads (the French bakery has 234,005 lines)", () => {
+  const rows = ["Date Time,Sales"];
+  for (let i = 0; i < 200000; i++) rows.push(`2026-0${1 + (i % 9)}-1${i % 10} ${8 + (i % 10)}:00,1`);
+  const r = hourlySales(rows.join("\n"));
+  assert.equal(r.rows, 200000);
+  assert.ok(backtestSales(rows.join("\n"), { splh: 50 }).weeks > 0);
+});
+
+// --short-cost (2026-11-11): the newsvendor fractile instead of the average.
+import { shortCostShare, averageSales, demandShifts as dShifts, backtestSales as bSales } from "./demand.mjs";
+
+const fourMondays = (amounts) => amounts.map((a, i) => `2026-10-${String(5 + 7 * i).padStart(2, "0")} 10:00,${a}`);
+
+test("shortCostShare is r / (1 + r) and refuses non-positive weights", () => {
+  assert.equal(shortCostShare(1), 0.5);
+  assert.equal(shortCostShare(3), 0.75);
+  assert.ok(Math.abs(shortCostShare(1 / 3) - 0.25) < 1e-12);
+  for (const bad of [0, -1, "x", Infinity]) assert.throws(() => shortCostShare(bad), /short cost/);
+});
+
+test("short cost staffs each hour for the r/(1+r) share of its past dates, not the average", () => {
+  // Need per Monday at 10:00 with splh 100: 0 (a Monday with sales only at 11), 0, 3, 5 heads. Average 2.
+  const rows = ["datetime,sales", ...fourMondays([0, 0, 300, 500]), "2026-10-05 11:00,50", "2026-10-12 11:00,50"].filter((l) => !/,0$/.test(l));
+  const text = rows.join("\n");
+  const plain = dShifts(text, { splh: 100, minStaff: 0, minShift: 1 });
+  assert.equal(plain.days[0].shifts.filter(([a]) => a === 10).length, 2); // ceil(800/4/100)
+  const at = (r) => dShifts(text, { splh: 100, minStaff: 0, minShift: 1, shortCost: r }).days[0].shifts.filter(([a]) => a === 10).length;
+  assert.equal(at(1), 0);   // median of 0,0,3,5: the 2nd value (cum share 0.5)
+  assert.equal(at(1.01), 3);
+  assert.equal(at(3), 3);   // 75%: 3rd value
+  assert.equal(at(4), 5);   // 80%: 4th value
+  assert.match(dShifts(text, { splh: 100, shortCost: 3 }).notes.join(" "), /75% of its past dates/);
+  assert.throws(() => dShifts(text, { splh: 100, shortCost: 0 }), /short cost/);
+});
+
+test("short cost: minimum staff, breaks and closed weekdays still apply; half-life weights the dates", () => {
+  const a = averageSales([
+    { key: "2026-10-05", day: 0, hour: 10, amount: 500 }, { key: "2026-10-12", day: 0, hour: 10, amount: 100 },
+  ], { splh: 100, shortCost: 1, halfLife: 1 });
+  // weights 0.5 (older) and 1: the newer date alone reaches half the weight, so the median is its 1 head
+  assert.equal(a.heads[0][10], 1);
+  const b = averageSales([
+    { key: "2026-10-05", day: 0, hour: 10, amount: 500 }, { key: "2026-10-12", day: 0, hour: 10, amount: 100 },
+  ], { splh: 100, shortCost: 1 });
+  assert.equal(b.heads[0][10], 1); // equal weights: cum 0.5 at the smaller
+  const p = headcount(a.avg, a.observed, { splh: 100, minStaff: 2, heads: a.heads });
+  assert.equal(p[0][10], 2);
+  assert.equal(p[1][10], 0);
+});
+
+test("backtest with short cost scores r x short + over and adds a fractile row per weighting", () => {
+  const rows = ["datetime,sales"];
+  // 10 weeks of Mondays alternating quiet (1 head) and busy (4 heads) at 10:00
+  for (let w = 0; w < 10; w++) {
+    const d = new Date(Date.UTC(2026, 0, 5 + 7 * w));
+    for (let k = 0; k < 7; k++) {
+      const day = new Date(d.getTime() + k * 86400000).toISOString().slice(0, 10);
+      rows.push(`${day} 10:00,${k === 0 && w % 2 ? 400 : 100}`);
+    }
+  }
+  const b = bSales(rows.join("\n"), { splh: 100, shortCost: 3 });
+  assert.equal(b.shortCost, 3);
+  assert.equal(b.methods[0].id, "all");
+  assert.deepEqual(b.methods.slice(1).map((m) => m.id), ["q-all", "q-hl8", "q-hl4", "q-hl2", "q-last4", "q-last1"]);
+  const base = b.methods[0], q = b.methods[1];
+  assert.ok(Math.abs(base.miss - (3 * base.short + base.over)) < 1e-9);
+  assert.ok(q.miss < base.miss, `fractile ${q.miss} should beat the average ${base.miss} at r 3`);
+  assert.equal(bSales(rows.join("\n"), { splh: 100 }).methods.length, 6);
+  // the page's "put N in the half-life box" hint reads these back
+  assert.equal(b.methods.find((m) => m.id === "q-hl4").halfLife, 4);
+  assert.equal(b.methods.find((m) => m.id === "q-hl4").shortCost, 3);
+  assert.equal(b.methods[0].shortCost, undefined);
+});
+
+test("CLI: --short-cost reaches the plan and the backtest report", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const cli = new URL("./cli.mjs", import.meta.url).pathname;
+  const dir = mkdtempSync(tmpdir() + "/sc-");
+  const rows = ["datetime,sales"];
+  for (let i = 0; i < 70; i++) { const day = new Date(Date.UTC(2026, 0, 5 + i)).toISOString().slice(0, 10); rows.push(`${day} 10:00,${i % 3 ? 100 : 350}`); }
+  writeFileSync(dir + "/s.csv", rows.join("\n"));
+  const p = spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--short-cost", "3"], { encoding: "utf8" });
+  assert.equal(p.status, 0, p.stderr);
+  assert.match(p.stderr, /Short-vs-over weight 3/);
+  const b = spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--short-cost", "3", "--backtest"], { encoding: "utf8" });
+  assert.equal(b.status, 0, b.stderr);
+  assert.match(b.stdout, /3xshort\+over/);
+  assert.match(b.stdout, /every earlier week, short cost 3/);
+  assert.match(b.stdout, /Scored on the shifts cut from each plan \(4 to 8 hours\)/);
+  assert.equal(spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--short-cost", "0"], { encoding: "utf8" }).status, 2);
+});
+
+// The cost-aware shift cut (2026-11-11): with --short-cost, a run shorter than the shortest shift is stretched only when
+// that is cheaper in expectation than leaving it unstaffed, and to the cheapest window that holds it.
+import { shiftCost } from "./demand.mjs";
+const tailOf = (spec) => Array.from({ length: 24 }, (_, h) => spec[h] || [1, 0]); // tail[h][c]: share needing c or more
+
+test("cost cut: a rare 1-hour peak above minimum staff is left unstaffed, a likely one is stretched", () => {
+  const p = new Array(24).fill(0); for (let h = 9; h < 17; h++) p[h] = 1; p[12] = 2;
+  // 12:00 needs a 2nd person on 30% of past dates; the other hours never need a 2nd
+  const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h === 12 ? [1, 1, 0.3, 0] : h >= 9 && h < 17 ? [1, 1, 0, 0] : [1, 0]])));
+  const plain = cutShifts(p, 4, 8);
+  assert.equal(plain.filter(([a, b]) => b - a === 4).length, 1); // the old cut stretches 12:00 to a 4-hour shift
+  const r1 = cutShifts(p, 4, 8, { tail, r: 1, minStaff: 1 });
+  assert.deepEqual([...r1], [[9, 17]]);
+  assert.deepEqual(r1.dropped, [[12, 13, 2]]);
+  // at r = 20 the one hour saves 0.7 - 20 x 0.3 = -5.3 against 3 spare stretch hours (+3): stretched
+  const r20 = cutShifts(p, 4, 8, { tail, r: 20, minStaff: 1 });
+  assert.equal(r20.length, 2);
+  assert.deepEqual(r20.dropped, []);
+});
+
+test("cost cut: the stretch goes to the side where the extra person is more often needed", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 20; h++) p[h] = 1; p[14] = 2;
+  const spec = {}; for (let h = 8; h < 20; h++) spec[h] = [1, 1, h === 14 ? 0.9 : h < 14 ? 0.4 : 0, 0];
+  const sh = cutShifts(p, 4, 8, { tail: tailOf(spec), r: 3, minStaff: 1 });
+  // backward [11, 15) covers 11-13, each needing a 2nd person 40% of the time; forward [14, 18) covers hours that never do
+  assert.ok(sh.some(([a, b]) => a === 11 && b === 15), JSON.stringify(sh));
+  assert.equal(shiftCost({ tail: tailOf(spec), r: 3, minStaff: 1 }, p, 13, 2).toFixed(2), (0.6 - 1.2).toFixed(2));
+});
+
+test("cost cut: minimum staff is never dropped, and with no tail the old cut is unchanged", () => {
+  const p = new Array(24).fill(0); p[12] = 1;
+  const tail = tailOf({ 12: [1, 0.05, 0] });
+  assert.deepEqual([...cutShifts(p, 4, 8, { tail, r: 1, minStaff: 1 })], [[12, 16]]);
+  assert.deepEqual(cutShifts(p, 4, 8, { tail, r: 1, minStaff: 0 }).dropped, [[12, 13, 1]]);
+  assert.deepEqual(cutShifts(p, 4, 8, { tail: new Array(24).fill(null), r: 1, minStaff: 0 }).length, 1);
+});
+
+test("backtest with shifts scores the cut: the shortest-shift stretch shows up as over", () => {
+  const rows = ["datetime,sales"];
+  // 10 weeks: every day 9:00-17:00 at 1 head, and a 2nd head needed at 12:00 on every Monday
+  for (let w = 0; w < 10; w++) for (let k = 0; k < 7; k++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w + k)).toISOString().slice(0, 10);
+    for (let h = 9; h < 17; h++) rows.push(`${day} ${h}:00,${k === 0 && h === 12 ? 200 : 100}`);
+  }
+  const text = rows.join("\n");
+  const prof = bSales(text, { splh: 100, shortCost: 1 }).methods.find((m) => m.id === "q-all");
+  const cut = bSales(text, { splh: 100, shortCost: 1, shifts: true, costCut: false }).methods.find((m) => m.id === "q-all");
+  assert.equal(prof.over, 0);
+  assert.equal(cut.over, 3); // the Monday 12:00 run stretched to 4 hours: 3 spare person-hours a week
+  assert.equal(cut.short, 0);
+  // at r = 1 the cost cut leaves it: the hour is needed every Monday (-1), but the stretch adds 3 spare hours (+3)
+  const cc = bSales(text, { splh: 100, shortCost: 1, shifts: true }).methods.find((m) => m.id === "q-all");
+  assert.equal(cc.short, 1);
+  assert.equal(cc.over, 0);
+  assert.ok(cc.miss < cut.miss);
+});
+
+// 2026-11-11: the cut is priced without --short-cost too (r = 1), and a run whose stretch exactly pays for itself stays.
+test("default plan: short runs are priced at r = 1 without --short-cost; costCut false restores the stretch", async () => {
+  const { demandShifts: ds } = await import("./demand.mjs");
+  const rows = ["datetime,sales"];
+  for (let w = 0; w < 12; w++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10);
+    // 12:00 needs a 3rd head on 1 Monday in 4 (900 vs 150 at splh 100): average 337.5 -> 4 heads, but a 4-hour shift
+    // for heads 3-4 is spare most days
+    for (let h = 8; h < 16; h++) rows.push(`${day} ${h}:00,${h === 12 ? (w % 4 === 0 ? 900 : 150) : 90}`);
+  }
+  const t = rows.join("\n");
+  const plain = ds(t, { splh: 100, costCut: false }), priced = ds(t, { splh: 100 });
+  assert.ok(priced.scheduled < plain.scheduled, `${priced.scheduled} vs ${plain.scheduled}`);
+  assert.match(priced.notes.join(" "), /Left unstaffed: .*short and spare hours weighed the same.*Mon 12:00-13:00/);
+  assert.doesNotMatch(plain.notes.join(" "), /Left unstaffed/);
+  // every date needs the same heads: stretching costs exactly what it saves, and the run is kept (a tie)
+  const flat = ["datetime,sales"];
+  for (let w = 0; w < 6; w++) { const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10); for (let h = 8; h < 16; h++) flat.push(`${day} ${h}:00,${h === 12 || h === 13 ? 150 : 90}`); }
+  assert.equal(ds(flat.join("\n"), { splh: 100 }).scheduled, ds(flat.join("\n"), { splh: 100, costCut: false }).scheduled);
+});
+
+// Joining short runs (2026-11-11): the priced cut chooses each headcount level whole.
+test("joined cut: two short runs four hours apart share one shift instead of one being dropped", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 18; h++) p[h] = 1; p[10] = 2; p[14] = 2;
+  const q2 = (h) => (h === 10 || h === 14 ? 0.6 : h >= 11 && h <= 13 ? 0.2 : 0);
+  const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h >= 8 && h < 18 ? [1, 1, q2(h), 0] : [1, 0]])));
+  const cost = { tail, r: 3, minStaff: 1, join: true };
+  const old = cutShifts(p, 4, 8, { ...cost, join: false });
+  assert.ok(old.some(([a, b]) => a === 10 && b === 14), JSON.stringify(old));
+  assert.deepEqual(old.dropped, [[14, 15, 2]]); // run by run: 10:00 stretched to 10-14, 14:00 left (each window costs more)
+  const joined = cutShifts(p, 4, 8, cost);
+  assert.ok(joined.some(([a, b]) => a === 10 && b === 15), JSON.stringify(joined)); // one 5-hour shift covers both
+  assert.deepEqual(joined.dropped, []);
+});
+
+test("joined cut: a short run is folded into the neighbouring shift by lengthening it", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 20; h++) p[h] = 1; for (let h = 10; h < 14; h++) p[h] = 2; p[15] = 2;
+  const q2 = (h) => (h >= 10 && h < 14 ? 0.9 : h === 15 ? 0.6 : h === 14 ? 0.3 : 0);
+  const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h >= 8 && h < 20 ? [1, 1, q2(h), 0] : [1, 0]])));
+  const cost = { tail, r: 3, minStaff: 1, join: true };
+  assert.deepEqual(cutShifts(p, 4, 8, { ...cost, join: false }).dropped, [[15, 16, 2]]);
+  const joined = cutShifts(p, 4, 8, cost);
+  assert.ok(joined.some(([a, b]) => a === 10 && b === 16), JSON.stringify(joined));
+  assert.deepEqual(joined.dropped, []);
+  // at r = 1 the fold is priced, not automatic: 14:00 costs 0.7 - 0.3 = +0.4, 15:00 0.4 - 0.6 = -0.2, so +0.2: left
+  assert.deepEqual(cutShifts(p, 4, 8, { ...cost, r: 1 }).dropped, [[15, 16, 2]]);
+});
+
+test("joined cut: a join never covers a shut hour, and a 9-hour fold is not split into pieces under the shortest shift", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 13; h++) p[h] = 1; for (let h = 14; h < 18; h++) p[h] = 1;
+  const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, [1, h === 13 ? 0.9 : h >= 8 && h < 18 ? 1 : 0, 0]])));
+  const sh = cutShifts(p, 4, 8, { tail, r: 3, minStaff: 1, join: true });
+  for (const [a, b] of sh) assert.ok(b <= 13 || a >= 14, `${a}-${b} covers the shut 13:00`);
+  // 9 hours at max 8 splits 4 + 5: fine at min 4, not at min 6, so with min 6 the two runs stay apart
+  const p2 = new Array(24).fill(0); for (let h = 8; h < 14; h++) p2[h] = 2; p2[16] = 2; for (let h = 6; h < 20; h++) p2[h] = Math.max(1, p2[h]);
+  const t2 = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h >= 6 && h < 20 ? [1, 1, h < 14 && h >= 8 ? 1 : h === 16 ? 0.95 : 0.6, 0] : [1, 0]])));
+  for (const [a, b] of cutShifts(p2, 6, 8, { tail: t2, r: 3, minStaff: 1, join: true })) assert.ok(b - a >= 6, `${a}-${b}`);
+});
+
+test("joined cut is opt-in: without join the priced cut is unchanged, and backtestSales passes o.join through", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 18; h++) p[h] = 1; p[10] = 2; p[14] = 2;
+  const q2 = (h) => (h === 10 || h === 14 ? 0.6 : h >= 11 && h <= 13 ? 0.2 : 0);
+  const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h >= 8 && h < 18 ? [1, 1, q2(h), 0] : [1, 0]])));
+  assert.deepEqual(cutShifts(p, 4, 8, { tail, r: 3, minStaff: 1 }), cutShifts(p, 4, 8, { tail, r: 3, minStaff: 1, join: false }));
+});
+
+test("camelCase headers read: an invoice-line export (InvoiceDate, Quantity, UnitPrice, InvoiceNo) plans", () => {
+  // Made-up rows in the UCI Online Retail export's shape (the real file: eval/fourth-file.mjs, not committed).
+  const rows = ["InvoiceNo,StockCode,Description,Quantity,InvoiceDate,UnitPrice,CustomerID,Country"];
+  for (const d of ["2026-11-02", "2026-11-09"]) for (const h of ["09", "10", "11"]) rows.push(`5363${h},85123A,LANTERN,10,${d} ${h}:26:00,20,17850,United Kingdom`);
+  const s = hourlySales(rows.join("\n"), {});
+  assert.equal(s.rows, 6);
+  assert.equal(s.avg[0][9], 200);
+  assert.ok(s.notes.some((n) => /quantity times its unit price/.test(n)));
+  // The UCI II spelling: "Invoice" and "Price"; counted by invoice it is one customer per invoice number.
+  const t = hourlySales(rows.join("\n").replace("InvoiceNo", "Invoice").replace("UnitPrice", "Price"), { count: "tickets" });
+  assert.equal(t.avg[0][10], 1);
+});
+
+// Red team 2026-11-13: guards for mutants that escaped this suite, and the two defects that run found.
+import { readSales, readAmount, pickHalfLife } from "./demand.mjs";
+
+test("--open/--close out of range or the wrong way round is refused, not an empty plan", () => {
+  const s = hourlySales(CSV);
+  for (const [open, close] of [[17, 9], [9, 25], [9.5, 17], [24, undefined], [undefined, 0], [8, 8]])
+    assert.throws(() => headcount(s.avg, s.observed, { splh: 100, open, close }), /hour/, `open ${open} close ${close}`);
+  assert.throws(() => demandShifts(CSV, { splh: 100, open: 17, close: 9 }), /before the closing hour/);
+  assert.throws(() => headcount(s.avg, s.observed, { splh: 100, maxStaff: "lots" }), /maximum staff/);
+  assert.ok(headcount(s.avg, s.observed, { splh: 100, open: 0, close: 24 })[0].every((v) => v >= 1));
+  // An opening hour after the last sale is legal but plans nothing: a note says so.
+  const late = demandShifts(CSV, { splh: 100, open: 20 });
+  assert.equal(late.shiftsText, "");
+  assert.ok(late.notes.some((n) => /nothing was planned/.test(n)), late.notes.join("\n"));
+});
+
+test("Swiss amounts with an apostrophe thousands mark are read (CHF is a listed currency)", () => {
+  assert.equal(readAmount("CHF 1'234.50"), 1234.5);
+  assert.equal(readAmount("1’234.50"), 1234.5);
+  assert.equal(readAmount("-1'234'567.05"), -1234567.05);
+  assert.ok(Number.isNaN(readAmount("12'34")), "a short group is not a thousands mark");
+});
+
+test("--skip-dates matches a date typed with a one-digit month and a padded day", () => {
+  const csv = "Date Time,Net Sales\n2026-03-02 09:00,100\n2026-03-09 09:00,300\n";
+  const r = readSales(csv, { skipDates: ["2026-3-02"] });
+  assert.equal(r.rows, 1);
+  assert.deepEqual([...r.skippedDays], ["2026-3-2"]);
+});
+
+test("a stray three-digit first number does not turn a whole file day-first (sales and labour standard)", () => {
+  const rows = ["03/05/2026 10:00", "03/05/2026 11:00", "123/01/2026 10:00"];
+  const sales = readSales("Date Time,Sales,Ticket\n" + rows.map((t, i) => `${t},50,${i + 1}`).join("\n"));
+  assert.equal(sales.dayFirst, false);
+  assert.equal(sales.entries[0].key, "2026-3-5");
+  const std = readSales("Date Time,Sales,Ticket\n" + rows.map((t, i) => `${t},50,${i + 1}`).join("\n"), { standard: "1/ticket" });
+  assert.equal(std.dayFirst, false);
+  assert.equal(std.entries[0].key, "2026-3-5");
+});
+
+test("labour standard: an unreadable quantity is skipped and said, not counted as NaN minutes", () => {
+  const csv = "date,time,ticket_number,Quantity,unit_price\n2026-11-02,08:05,1,abc,1.00\n2026-11-02,08:10,2,2,1.00\n";
+  const r = readSales(csv, { standard: "0.5/item" });
+  assert.ok(r.skipped.some((x) => /could not read the quantity "abc"/.test(x)), r.skipped.join("\n"));
+  assert.ok(r.entries.every((e) => Number.isFinite(e.amount)));
+});
+
+test("a lunch break is found with exactly 20 dates of the weekday (the documented floor)", () => {
+  let csv = "Date Time,Sales\n";
+  for (let w = 0; w < 20; w++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10);
+    for (const h of [8, 9, 10, 11, 12, 13, 16, 17, 18]) csv += `${day} ${h}:00,${h === 12 ? 250 : 90}\n`;
+    if (w < 2) csv += `${day} 14:00,5\n${day} 15:00,5\n`;
+  }
+  const s = hourlySales(csv);
+  assert.equal(s.observed[0], 20);
+  const p = headcount(s.avg, s.observed, { splh: 100, seen: s.seen });
+  assert.equal(p[0][14], 0);
+  assert.equal(p[0][15], 0);
+});
+
+test("half-life auto with --short-cost picks only among the short-cost methods", () => {
+  for (const shortCost of [0.2, 1, 3, 8]) {
+    const rows = ["datetime,sales"];
+    for (let d = 0; d < 84; d++) {
+      const date = new Date(Date.UTC(2026, 0, 5) + d * 864e5).toISOString().slice(0, 10);
+      for (let h = 9; h < 17; h++) rows.push(`${date} ${h}:00,${Math.round((d > 50 ? 1.6 : 1) * (h === 12 ? 160 : 70) * (1 + 0.6 * Math.sin(d * 2.3 + h * 1.1)))}`);
+    }
+    const p = pickHalfLife(rows.join("\n"), { splh: 60, shortCost });
+    // Equal weights chosen must say no gain; anything else names its weighting.
+    if (p.halfLife === undefined && p.window === undefined) assert.doesNotMatch(p.note, /fewer than equal weights/, `shortCost ${shortCost}`);
+  }
+});
+
+// Red team 2026-11-14: in the joined cut, a short run that must be staffed stretches back into open hours before
+// reaching into a closure, as the plain cut does; a mutant that stopped the backward stretch escaped.
+test("joined cut: a must-staff short run before a closure stretches back into open hours, not into the closure", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 14; h++) p[h] = 1; p[13] = 2; // shut from 14:00
+  const cost = { tail: new Array(24).fill(null), r: 1, minStaff: 1, join: true }; // no tail: the 13:00 run is never dropped
+  const sh = cutShifts(p, 4, 8, cost);
+  assert.deepEqual([...sh], cutShifts(p, 4, 8));
+  assert.deepEqual(sh.dropped, []);
+  assert.ok(sh.some(([a, b]) => a === 10 && b === 14), JSON.stringify(sh));
+  for (const [, b] of sh) assert.ok(b <= 14, JSON.stringify(sh));
 });

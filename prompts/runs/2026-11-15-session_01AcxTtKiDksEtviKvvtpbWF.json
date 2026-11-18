@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtKiDksEtviKvvtpbWF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T20:06:24Z",
+  "ended": "2026-11-15T20:41:23Z",
+  "wall_minutes": 35.32,
+  "tokens_in": 8054627,
+  "tokens_out": 44589,
+  "cost_usd": 3.5514,
+  "tool_calls": 68,
+  "task": "Deepen (flagship 6) shift-roster-builder: the clique LP guide for coverRepair (README 'The clique LP steers the cover passes', next step)",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16324",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "xargs stripped the quotes around a comma-separated name list, so the first extra repair-alone run printed nothing",
+      "fix": "names passed with underscores for spaces"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder next: sat at 1983 of 2000 characters, so landing one item needed trimming another item's detail to fit the cap"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml (next: 'next coverRepair')",
+      "why": "Measuring first showed the repair got 0 ms on most 350-400 copy builds and hit its node cap every round when given time, so guiding its people alone could not show anything",
+      "did": "fixed the repair's search first (incumbent bound, fixed shifts, weekly-hours prune), then measured the guide on the repair alone from fixed starts as well as end to end",
+      "result": "bound: fewer open hours on 8 of 24 starts, more on 1 (p=0.039); guide: 11 better, 9 worse (p=0.82), so shipped opt-in; posted rosters unchanged end to end"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-shift-roster-the-repair-that-never-ran.md",
+    "ventures/shift-roster-builder/README.md#the-clique-lp-picks-the-repairs-people"
+  ],
+  "goal": null,
+  "notes": "Negative result reported as such: the LP guide for coverRepair's people does not help; the bounded search is a small gain in isolation and none end to end. Next item rewritten to a flow- or LP-solved neighbourhood. Verification: repair-guide.test.mjs and cover-guide.test.mjs pass; full venture suite: platform/ci/run_venture_tests.py shift-roster-builder: ok, 651 tests, 0 failed (241 s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "04c23ad9-f133-59e7-a973-6e1cf4bd67ef",
+    "transcripts": 1,
+    "first": "2026-11-15T20:06:24Z",
+    "last": "2026-11-15T20:41:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 136,
+        "output": 44589,
+        "thinking": 11120,
+        "cache_read": 7920107,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134384,
+        "api_equivalent_usd": 3.5514,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 136,
+      "output": 44589,
+      "thinking": 11120,
+      "cache_read": 7920107,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134384,
+      "api_equivalent_usd": 3.5514,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.32,
+      "active_minutes": 15.41,
+      "model_minutes": 7.98,
+      "tool_minutes": 7.43,
+      "waiting_on_human_minutes": 19.92,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OR engineer diagnosing an LNS repair, adding bounds with a brute-force check, and running two paired experiments with a write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 281.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

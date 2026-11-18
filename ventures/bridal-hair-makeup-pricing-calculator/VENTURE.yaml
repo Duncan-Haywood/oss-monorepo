@@ -1,5 +1,5 @@
 name: bridal-hair-makeup-pricing-calculator
-description: Free browser calculator for mobile bridal hair and makeup artists that prices one wedding-day booking across the bride, bridal party, hair-only, makeup-only, and kids' services, applies an early-start fee and mileage, tops a small booking up to a service minimum, reports the total contract value alongside a trial-fee credit (which is a real discount, not a neutral timing change), and checks whether the artists booked can finish the whole group before the must-be-ready deadline — flagging exactly how many additional artists the schedule needs.
+description: Free browser calculator for mobile bridal hair and makeup artists that prices one wedding-day booking across the bride, bridal party, hair-only, makeup-only, and kids' services, applies an early-start fee and mileage, tops a small booking up to a service minimum, reports the total contract value alongside a trial-fee credit (which is a real discount, not a neutral timing change), and checks whether the artists booked can finish the whole group before the must-be-ready deadline — flagging how many additional artists a schedule needs, with each artist doing whole looks inside the window.
 stage: prototype
 owner: duncan
 hypotheses:

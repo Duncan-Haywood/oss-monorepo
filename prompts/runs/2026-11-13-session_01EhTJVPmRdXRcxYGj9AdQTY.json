@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVPmRdXRcxYGj9AdQTY",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T21:25:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Voice four Hearth & Horizon stories; document the stale 400 MB audio cap",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 15621,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Audio size' cites GitHub Pages' 1 GB limit, stale since 2026-10-24 (audio on jsDelivr) and the 10-30 Cloudflare move; 444 of 539 creative runs went text only under it. Proposed text in docs/reports/2026-11-13-audio-cap-is-stale.md."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "huggingface.co 403 again; the GitHub release route for the Kokoro files worked, and narrate.py could fall back to it automatically."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Rendered audio although du reads 423 MB, over the 400 MB line: the line's stated reason (GitHub Pages 1 GB) no longer applies since --audio-cdn (2026-10-24) and the move to Cloudflare; only git-history growth remains, and 47.8 MB is about 1% of the repo.",
+      "did": "Voiced 4 stories with Kokoro, 47.8 MB",
+      "result": "Pages and feeds carry 4 new enclosures; tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-audio-cap-that-outlived-its-reason.md",
+    "docs/reports/2026-11-13-audio-cap-is-stale.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon; pieces pull-gently, the-slow-dial, the-rising-shore, the-last-sun-comes-in-two-pieces (audio only, no new text). Kokoro af_bella, 48 kbps, -16.6 LUFS. Render 7m15s for 37.6 min, then 18m19s for the other three, on 4 cores. node --test 15/15; check_post_frontmatter ok; check_post_links 0 broken. Could not fetch marisstella.app or jsDelivr from the proxy (403) to check the live site.",
+  "corrections": [],
+  "redteam": null
+}

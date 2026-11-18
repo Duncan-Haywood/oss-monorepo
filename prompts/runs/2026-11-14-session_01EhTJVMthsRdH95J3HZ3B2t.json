@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVMthsRdH95J3HZ3B2t",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T18:06:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen bank-statement-pdf-to-csv: fix the six transtractor rows the 2026-11-11 eval left wrong, with general rules, and measure on a held-out fixture",
+  "projects": [
+    "ventures/bank-statement-pdf-to-csv"
+  ],
+  "pr": 15932,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The top Deepen rows are mostly 'needs a real outside input' items, so a session spends several minutes finding a buildable item. A short 'buildable here' list per flagship would save that time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The router picked chant-forge (flagship 11), and every open item there needs a person to listen or sing. Following the brief's ROI emphasis, I took bank-statement-pdf-to-csv instead: a category with paying incumbents (DocuClipper, BankStatementConverter) and a measurable open item in its own eval README.",
+      "did": "Fixed the transtractor fixture's six wrong rows with four general rules plus spacing-aware descriptions",
+      "result": "56 -> 62 of 62 rows right and balances proved; held-out test1a went from unbalanced to proved; benchmark 5/5 and ICICI 100/100 unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-statement-that-misprints-its-own-balance.md",
+    "ventures/bank-statement-pdf-to-csv/eval/README.md"
+  ],
+  "goal": "Revenue-category product depth: a statement converter that reads more real layouts and explains its own failures",
+  "notes": "Verification: `node --test *.test.mjs` in the venture passes 63/63 (53 before plus 10 new). Outside files (not committed): bankstatemently benchmark 2d8d31d (5/5 proved), transtractor-lib efaad74 test1 (62/62 match, proved) and test1a (held out, proved), ai-agent-challenge 96b2a4c ICICI (100/100). Native Android builds were also checked as a direction: dl.google.com is unreachable from this container, so no Android SDK. venture-preflight was run, and its result is recorded in the PR summary.",
+  "corrections": [],
+  "redteam": null
+}

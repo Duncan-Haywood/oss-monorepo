@@ -21,8 +21,8 @@
 // opt-out.
 
 import { verificationHead } from './site-verification.mjs';
-import { promises as fs, existsSync, readFileSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
+import { promises as fs, existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawn } from 'node:child_process';
 import { loadLastChanged } from './lastmod.mjs';
 import { generateVenturePages } from './generated-pages.mjs';
 import crypto from 'node:crypto';
@@ -30,19 +30,20 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
+import { promisify } from 'node:util';
 
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
-import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
-import { fixPostTitleClashes } from './page-identity.mjs';
+import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
+import { loadPages, resolvePostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
-import { buildStories, STORIES_PATH } from './stories.mjs';
+import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
-import { buildQueue, QUEUE_PATH } from './queue.mjs';
+import { buildQueue, clip, QUEUE_PATH } from './queue.mjs';
 import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
   FEED_MAX_ENTRIES,
@@ -52,7 +53,7 @@ import {
   orderForFeed,
 } from './launched.mjs';
 
-import { addShareCards, cardTitle, mapLimit, renderCards, siteAddress } from './share.mjs';
+import { cardKey, cardTitle, drawPlannedCards, mapLimit, renderCards, setCardDrawing, shareTagsFor, siteAddress } from './share.mjs';
 import {
   MARK_GEOMETRY,
   renderSiteCard,
@@ -106,6 +107,8 @@ import {
   EMBED_MODULE_FILE,
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
+  SITE_OWNED_CONTROLS_RE,
+  hasOwnControls,
   injectEmbedWidget,
   maskScriptAndStyleBodies,
   renderEmbedHostModule,
@@ -128,14 +131,20 @@ import {
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
+import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
+import { JUMP_ROW_CSS } from './jump-row.mjs';
+import { ANSWER_LEAD_CSS } from './answer-lead-style.mjs';
+import { SELECT_FIT_CSS } from './select-fit.mjs';
 import {
   SITE_NAME,
   MARK_BG,
   SITE_NAV,
   SITE_HEADER_CSS,
+  HEADER_MARKER,
   SITE_STYLE_FILE,
   VENTURE_CHROME_CSS,
   VENTURE_CHROME_JS,
+  VENTURE_CHROME_EARLY_JS,
   SEARCH_ANCHOR,
   renderSiteHeader,
   renderSiteFooterNav,
@@ -147,16 +156,19 @@ import {
   writeResearchChrome,
   siteTitle,
 } from './site-nav.mjs';
-import { ASK_PATH, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
+import { ASK_PATH, ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
+import { formatCount } from './count.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import {
   HERO_BACKDROP_HTML,
   HOME_MOTION_CSS,
   HOME_MOTION_SCRIPT,
+  longestWord,
   copyShowcase,
   loadShowcase,
   renderMarquee,
   renderShowcaseSection,
+  renderHeroArt,
 } from './showcase.mjs';
 import {
   HOME_SECTIONS_CSS,
@@ -169,15 +181,29 @@ import {
   siteStructuredData,
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
+import { acquireBuildLock } from './build-lock.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+const gzipAsync = promisify(zlib.gzip);
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
 
 // The Pages path used before the repository was renamed; it now answers 404.
 export const LEGACY_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
-// Owner-overridable at build time; this default is where GitHub serves a
-// project Pages site for this repository.
-export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
+// The project Pages address the site was served from until the move to
+// Cloudflare (owner, 2026-10-29). It now serves redirect pages to
+// DEFAULT_BASE_URL (redirect-stubs.mjs), so a page that still names it is a
+// retired origin, rewritten the same way LEGACY_BASE_URL is.
+export const GITHUB_PAGES_BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
+// Where the catalogue is served (owner, 2026-10-30: the custom domain on the
+// Cloudflare Worker; CLAUDE.md, "Hosting"). Overridable at build time with
+// --base= or PAGES_BASE_URL. Until 2026-11-10 this default still named the
+// github.io address, so every local build and every caller that took the
+// default (published-base-url.mjs, so the nightly browser checks) wrote or
+// verified canonical tags and sitemap entries for an origin that only redirects.
+export const DEFAULT_BASE_URL = 'https://marisstella.app/';
+// Every origin a committed page may name that the build should replace with
+// the base URL it is actually built for.
+export const RETIRED_BASE_URLS = [LEGACY_BASE_URL, GITHUB_PAGES_BASE_URL];
 
 // IndexNow (api.indexnow.org) proves ownership of a set of URLs with a key
 // file hosted at a location the submitter names in each request -- it does
@@ -251,6 +277,7 @@ export const DOWNLOADABLE_CLI_FILES = {
   'actions-runtime-deprecation-check': ['check.py'],
   'jwt-verification-misuse-check': ['check.py'],
   'docker-compose-security-check': ['check.py'],
+  'systemd-unit-hardening-check': ['check.py'],
   'git-bus-factor-check': ['busfactor.py'],
   'k8s-pod-security-check': ['check.py'],
   'actions-self-hosted-exposure-check': ['check.py'],
@@ -461,6 +488,11 @@ const NON_WEB_EXTENSIONS = new Set([
   '.jsonl',
   // Rust sources (dupehound): the page loads the compiled .wasm, never the source.
   '.rs',
+  // Deploy config (shift-roster-builder's wrangler.jsonc for its own Worker, .dev.vars.example listing the secrets
+  // to set): read by wrangler in the deployer's account, not by a browser.
+  '.jsonc', '.example',
+  // C sources (league-schedule-generator's eval/carryover-bnb.c, an offline proof search): never loaded by a page.
+  '.c', '.h',
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.
@@ -483,7 +515,102 @@ function shipsDeployableApp(slug) {
 }
 
 // Tools that implement a published paper (portfolio/research-tools/README.md).
-export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer'];
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'cost-sharing-calculator', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering', 'kalman-smoother', 'extreme-value-analysis', 'meta-analysis', 'dynamic-time-warping', 'stable-matching', 'kriging-interpolation', 'scale-reliability', 'item-response-theory', 'difference-in-differences', 'method-comparison', 'regression-discontinuity', 'contingency-table-tests', 'propensity-score', 'gage-rr', 'conjoint-analysis'];
+
+// The `personal-tax` section's members (CATEGORY_RULES, below). A Set so the rule is one lookup.
+const PERSONAL_TAX_SLUGS = new Set([
+      '401k-loan-vs-withdrawal-calculator',
+      '529-to-roth-rollover-calculator',
+      'aca-subsidy-cliff-calculator',
+      'auto-loan-interest-deduction-calculator',
+      'backdoor-roth-pro-rata-calculator',
+      'bonus-take-home-gross-up-calculator',
+      'charitable-deduction-calculator',
+      'charity-bunching-planner',
+      'child-tax-credit-calculator',
+      'coast-fire-calculator',
+      'cobra-vs-marketplace-calculator',
+      'crypto-cost-basis-calculator',
+      'dependent-care-fsa-vs-credit-calculator',
+      'eitc-calculator',
+      'espp-tax-calculator',
+      'estate-tax-exemption-calculator',
+      'estimated-tax-penalty-calculator',
+      'fbar-8938-checker',
+      'fers-retirement-planner',
+      'gambling-loss-deduction-calculator',
+      'gift-vs-inherit-basis-calculator',
+      'home-sale-exclusion-calculator',
+      'hsa-contribution-limit-calculator',
+      'hsa-shoebox-reimbursement-planner',
+      'inherited-ira-10-year-withdrawal-planner',
+      'iso-exercise-amt-calculator',
+      'job-offer-total-comp-calculator',
+      'medicaid-lookback-penalty-calculator',
+      'medicare-irmaa-cliff-calculator',
+      'mega-backdoor-roth-calculator',
+      'nanny-tax-calculator',
+      'niit-calculator',
+      'no-tax-on-tips-overtime-calculator',
+      'nua-employer-stock-calculator',
+      'pension-lump-sum-vs-annuity-calculator',
+      'qcd-calculator',
+      'real-estate-professional-status-calculator',
+      'retirement-withdrawal-sequencer',
+      'rmd-calculator',
+      'roth-conversion-bracket-fill-calculator',
+      'rsu-withholding-gap-calculator',
+      'rule-72t-sepp-calculator',
+      'salt-cap-calculator',
+      'section-1256-futures-tax-calculator',
+      'section-83b-election-calculator',
+      'senior-deduction-calculator',
+      'social-security-benefits-tax-calculator',
+      'social-security-claiming-age-calculator',
+      'social-security-earnings-test-calculator',
+      'social-security-survivor-spousal-benefit-calculator',
+      'tax-loss-harvesting-calculator',
+      'tax-lot-sale-optimizer',
+      'trump-account-calculator',
+      'wash-sale-checker',
+]);
+
+// The `household` section's members (CATEGORY_RULES, below): one household's home, loans, bills and
+// family money that is not a tax return. A Set so the rule is one lookup.
+const HOUSEHOLD_SLUGS = new Set([
+      'adu-payback-calculator',
+      'aid-award-letter-comparator',
+      'car-lease-deal-checker',
+      'card-bonus-planner',
+      'cd-treasury-ladder-planner',
+      'cheap-meal-plan-optimizer',
+      'estate-item-divider',
+      'estate-sale-net-proceeds-calculator',
+      'funeral-price-list-checker',
+      'heat-pump-vs-furnace-calculator',
+      'heloc-vs-cash-out-refinance-calculator',
+      'home-battery-planner',
+      'home-sale-net-proceeds-calculator',
+      'injury-settlement-net-proceeds-calculator',
+      'insurance-denial-appeal-builder',
+      'medical-bill-error-checker',
+      'mortgage-escrow-analysis-checker',
+      'mortgage-extra-payment-vs-invest-calculator',
+      'mortgage-points-break-even-calculator',
+      'property-tax-appeal-calculator',
+      'pslf-vs-refinance-calculator',
+      'rent-vs-buy-breakeven-calculator',
+      'roommate-rent-splitter',
+      'schengen-90-180-day-calculator',
+      'solar-payback-calculator',
+      'structured-settlement-buyout-calculator',
+      'student-loan-rap-ibr-standard-calculator',
+      'subscription-audit-from-statement',
+      'tenant-security-deposit-deadline-checker',
+      'texas-electricity-plan-checker',
+      'tfsa-over-contribution-checker',
+      'wedding-budget-allocator',
+]);
 
 const CATEGORY_RULES = [
   {
@@ -655,7 +782,7 @@ const CATEGORY_RULES = [
     // `clothing-design-studio` joined 2026-11-03: a brand designing and costing its own
     // garments and sunglasses to sell, the same cost-of-goods-to-shelf-price job as
     // `print-on-demand` and `wholesale-line-sheet` here, rather than a shop quoting a customer.
-    test: (slug) => /^(demand-forecast-backtester|grailed-fee-calculator|tcgplayer-fee-calculator|reseller-books|axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|payment-processor-fee-comparison|1099k-reconciliation-worksheet|wholesale-vs-retail-pricing-calculator|severance-package-calculator|chargeback-ratio-monitor|app-review-insights|commercial-lease-abstract-reader|vendor-contract-clause-reader|business-insurance-policy-reader|workers-comp-audit-dispute-checker|percentage-rent-audit-checker|bail-bond-agency-exposure-calculator|midterm-rental|amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|music-distribution|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|rv-rental-host|glamping-unit-payback|turo-host|kdp|whatnot|poshmark|storage-auction|tax-deed-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|discogs|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven|wholesale-line-sheet|clothing-design-studio)/.test(slug),
+    test: (slug) => /^(demand-forecast-backtester|grailed-fee-calculator|tcgplayer-fee-calculator|reseller-books|1099k-reconciliation-worksheet|wholesale-vs-retail-pricing-calculator|chargeback-ratio-monitor|app-review-insights|midterm-rental|amazon|fba-|clearance-markdown|bundle-discount|free-shipping-threshold|returns-policy|breakeven-roas|course-launch|ebay|etsy|print-on-demand|shopify-fee|shopify-payments-fee|shopify-discount|shopify-inventory|shopify-product-csv|shopify-customer-csv|bigcommerce-product-csv|squarespace-product-csv|wix-product-csv|teachers-pay-teachers|course-platform|music-distribution|shopify-to-woocommerce|woocommerce-product-csv|square-catalog-csv|shopify-payout|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|restaurant-delivery-commission|marketplace-fee-compare|str-|rv-rental-host|glamping-unit-payback|turo-host|kdp|whatnot|poshmark|storage-auction|tax-deed-auction|auction-car-flip|used-car-lot|liquidation-pallet|stockx|twitch|freelance-platform-fee|upwork-connects|app-subscription|thumbtack-lead|mercari|discogs|kickstarter|depop|facebook-marketplace|ticket-resale|card-grading-submission|thrift-haul|price-increase-breakeven|wholesale-line-sheet|clothing-design-studio)/.test(slug),
   },
   {
     id: 'trades',
@@ -755,7 +882,32 @@ const CATEGORY_RULES = [
     // a framing bid, so its readers browse this section.
     // `shed-designer` joined 2026-10-29 on its first PR: framing plans, a cut
     // sheet and a lumber order for a shed, the same reader as `wall-framing-takeoff`.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'shed-designer' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    // `service-load-check` joined 2026-11-11 on its first commit: the NEC 220.83 / 220.87
+    // check an electrician runs before quoting an EV charger or heat pump on an existing
+    // service, beside `electrical-panel-upgrade-bid-calculator` and `ev-charger-bid-calculator`.
+    // `concrete-maturity` joined 2026-11-11 on its first commit: a concrete contractor or QC
+    // technician estimating in-place strength from logger data before stripping forms, the
+    // same site reader as `wall-framing-takeoff` and the concrete bid calculators.
+    // `wall-condensation-check` joined 2026-11-11 on its first commit: the month-by-month
+    // Glaser moisture check of a wall a builder or designer runs beside `hvac-load-calc`.
+    // `hvac-load-calc` joined 2026-11-11 on its first commit: the room-by-room heating and
+    // cooling load an installer or builder checks before quoting a heat pump, beside the
+    // furnace, mini-split and heat pump bid calculators.
+    // `continuous-beam-calculator` joined 2026-11-12 on its first commit: a builder or designer
+    // checking a deck or floor beam over several posts, beside `wall-framing-takeoff`.
+    // `water-supply-sizing` joined 2026-11-13 on its first commit: peak water demand by
+    // Hunter's method and supply pipe sizes a plumber checks, beside `hvac-load-calc`.
+    // `sprinkler-hydraulic-calc` joined 2026-11-13 on its first commit: a sprinkler fitter or
+    // estimator checking a tree, loop or grid against the flow test, beside `water-supply-sizing`.
+    // `elevator-traffic-analysis` joined 2026-11-14 on its first commit: up-peak lift round trip
+    // time, design search and simulated waits, the building-services sizing beside the sprinkler
+    // and water supply tools.
+    // `earthwork-cut-fill` joined 2026-11-12 on its first commit: a site-work contractor
+    // turning a surveyor's point file into pad cut and fill and truckloads for a bid,
+    // beside `concrete-maturity` and the excavation and grading bid calculators.
+    // `ids-model-check` joined 2026-11-16 on its first commit: checking a design team's IFC
+    // model against a client's buildingSMART IDS, beside the IFC reader in `wall-framing-takeoff`.
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'concrete-maturity' || slug === 'earthwork-cut-fill' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -1025,9 +1177,6 @@ const CATEGORY_RULES = [
       // `time-off-request-planner` joined 2026-10-01 on its first commit: decides which
       // leave requests fit a team's minimum cover; the same owner as the shift tools above.
       'time-off-request-planner',
-      // `retirement-withdrawal-sequencer` joined 2026-10-01 on its first commit: whole-retirement
-      // withdrawal-order comparison, beside `roth-conversion-bracket-fill-calculator`.
-      'retirement-withdrawal-sequencer',
       // `production-mix-optimizer` added 2026-10-01: which products a bakery or
       // small food maker should bake when oven and labour hours run out; the
       // same owner as the menu and pour-cost tools above.
@@ -1361,16 +1510,6 @@ const CATEGORY_RULES = [
     // `massage-therapist-profit-calculator` and `nail-tech-booth-rent-calculator`, the same solo appointment-service pricing job.
     // `pte-tax-election-calculator` joined 2026-10-08 on its first commit: a pass-through owner weighing a state tax election is a service-business
     // owner's pricing-of-their-own-books decision; filed here because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    // `commercial-lease-abstract-reader` joined 2026-10-08 on its first commit: a small-business tenant abstracting a lease into dates and clauses is a
-    // service-business owner's own-books decision; filed here because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    // `percentage-rent-audit-checker` joined 2026-10-12 on its first commit: a tenant checking a landlord's percentage-rent statement is the same own-books decision as
-    // `commercial-lease-abstract-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    // `workers-comp-audit-dispute-checker` joined 2026-10-12 on its first commit: a small employer disputing a premium audit is the same own-books decision as
-    // `business-insurance-policy-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    // `business-insurance-policy-reader` joined 2026-10-12 on its first commit: a small owner checking a liability policy against a client's required limits is the same
-    // own-books decision as `vendor-contract-clause-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
-    // `vendor-contract-clause-reader` joined 2026-10-12 on its first commit: a small buyer reading an auto-renewing vendor agreement is the same own-books
-    // decision as `commercial-lease-abstract-reader`; filed beside it because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
     // `wedding-venue-date-pricing-optimizer` joined 2026-10-09 on its first commit: a venue owner pricing dates by demand is a small-operator
     // pricing job beside `escape-room-pricing-capacity-planner`; filed here because the back-office bundle is over the 3 MB ceiling (build.test.mjs).
     // `capex-budget-prioritizer` joined 2026-10-09 on its first commit: a small owner choosing which upgrades to fund sits beside the payback calculators; filed here for the same bundle-ceiling reason.
@@ -1435,7 +1574,9 @@ const CATEGORY_RULES = [
     // `yoga-pilates-studio-class-profit-calculator` joined 2026-10-11 on its first commit: a boutique studio owner turning classes, attendance, the price mix and teacher pay into profit per class and room hour sits beside `boutique-fitness-studio-pricing-planner` and `music-teacher-studio-profit-calculator`, the same small-studio owner job.
     // `laundromat-acquisition-offer-calculator` joined 2026-10-11 on its first commit beside `laundromat-machine-payback-calculator`: a buyer turning a laundromat's revenue and costs into a walk-away price.
     test: (slug) =>
-      /^(youth-lineup-rotator|local-site-studio|review-reply-desk|bowling-center-profit-calculator|padel-club-profit-calculator|pet-boarding-daycare-profit-calculator|arcade-game-payback-calculator|self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|sales-quota-capacity-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|indoor-play-center-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|gift-vs-inherit-basis-calculator|qcd-calculator|fbar-8938-checker|niit-calculator|sbir-budget-builder|401k-loan-vs-withdrawal-calculator|529-to-roth-rollover-calculator|speaker-fee-calculator|nanny-tax-calculator|recipe-costing-calculator|real-estate-professional-status-calculator|bonus-take-home-gross-up-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|tenant-security-deposit-deadline-checker|pay-application-generator|lien-waiver-checker|medicaid-lookback-penalty-calculator|injury-settlement-net-proceeds-calculator|employment-contract-checker|worker-classification-checker|freelance-contract-checker|freelance-proposal-maker|nua-employer-stock-calculator|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|estate-sale-net-proceeds|wedding-budget-allocator|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
+      // `school-timetable-builder` joined 2026-11-16 on its first commit: a school office turning lessons, teachers and rooms into a
+      // clash-free week is the same organiser scheduling job as `league-schedule-generator` and `volunteer-shift-scheduler` here.
+      /^(youth-lineup-rotator|axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|bail-bond-agency-exposure-calculator|school-timetable-builder|local-site-studio|review-reply-desk|bowling-center-profit-calculator|padel-club-profit-calculator|pet-boarding-daycare-profit-calculator|arcade-game-payback-calculator|self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|sales-quota-capacity-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|indoor-play-center-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|sbir-budget-builder|speaker-fee-calculator|recipe-costing-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|pay-application-generator|lien-waiver-checker|employment-contract-checker|worker-classification-checker|freelance-contract-checker|freelance-proposal-maker|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
         slug,
       ),
   },
@@ -1518,12 +1659,13 @@ const CATEGORY_RULES = [
     // optimizer above, and the two cross-link.
     // `fleet-ev-vs-diesel-tco-calculator` joined 2026-10-08 on its first commit: a small fleet's electric-vs-diesel cost sits beside
     // `fleet-repair-or-replace-planner` and `ifta-`, the same vehicle-fleet operating-cost job.
+    // `pick-path-optimizer` joined 2026-11-12 on its first commit: how orders are batched and walked once SKUs are slotted.
     // `warehouse-slotting-optimizer` joined 2026-10-09 on its first commit: where each SKU sits on a small warehouse's shelves decides the walk, beside the box and container planners.
     // `self-storage-unit-mix-optimizer` joined 2026-10-09 on its first commit: a storage owner sizing a building's unit mix is a warehousing-space
     // decision beside the 3PL and freight tools; filed here because the catch-all is at its bound and the back-office bundle is over the 3 MB ceiling (build.test.mjs).
     // `car-hauler-load-planner` joined 2026-10-09 on its first commit: an auto-transport owner-operator choosing which vehicles share a trailer, beside `owner-operator` and `truck-detention`.
     // `scrap-metal-yard-payout-calculator` joined 2026-10-12 on its first commit beside `equipment-auction-buyer-premium-calculator`: a scrapper, electrician or demolition crew netting a hauled load at two yards after fuel, time and fees, with a strip-or-sell wire check.
-    test: (slug) => /^(scrap-metal-yard-payout-calculator|lcl-vs-fcl-container|fuel-surcharge-schedule|lumper-fee-reimbursement|car-hauler-load-planner|fleet-ev-vs-diesel|self-storage-unit-mix-optimizer|3pl|freight|cloud-egress|ifta-|form-2290-hvut|ucr-fee|invoice-factoring|hos-trip-planner|ltl-|owner-operator|truck-detention|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner|container-demurrage-detention-calculator|warehouse-slotting-optimizer)/.test(
+    test: (slug) => /^(scrap-metal-yard-payout-calculator|lcl-vs-fcl-container|fuel-surcharge-schedule|lumper-fee-reimbursement|car-hauler-load-planner|fleet-ev-vs-diesel|self-storage-unit-mix-optimizer|3pl|freight|cloud-egress|ifta-|form-2290-hvut|ucr-fee|invoice-factoring|hos-trip-planner|ltl-|owner-operator|truck-detention|medical-courier|vector-db|import-landed-cost|equipment-auction-buyer-premium|parcel-dim-weight|parcel-late-delivery-refund|tow-motor-club|tow-truck-rate|mobile-tire-van|route-stop-optimizer|shipping-box-size|container-load-planner|container-demurrage-detention-calculator|warehouse-slotting-optimizer|pick-path-optimizer)/.test(
       slug,
     ),
   },
@@ -1803,6 +1945,36 @@ const CATEGORY_RULES = [
       || slug === 'google-contacts-csv-check',
   },
   {
+    // US personal tax, pay and retirement, split out 2026-11-17. These are one household's own
+    // return, paycheck, benefits and retirement accounts. They had been parked in `services`
+    // (11), `backoffice` (34), `solo-earner` (7) and `food-service` (1) for offline-bundle room,
+    // so a retiree's RMD sat beside dock-door bids in the breadcrumb, the `BreadcrumbList`
+    // JSON-LD and the category page. Exact list, first-match placed before `uk-tax`; the slugs
+    // were taken out of the earlier rules so the code says where each tool lives. Business-side
+    // tax tools (self-employment tax, quarterly estimates, solo 401(k), R&D credit, payroll
+    // deposits, freelancer set-asides) stay in `backoffice`, which is the owner's books.
+    id: 'personal-tax',
+    title: 'US personal tax, pay & retirement',
+    accent: '#4a5a12',
+    blurb: 'Your own return, paycheck, equity comp, Social Security, Medicare and retirement accounts: RMDs, Roth conversions, IRMAA cliffs, RSU withholding, credits and deductions, worked with IRS and SSA figures in your browser.',
+    test: (slug) => PERSONAL_TAX_SLUGS.has(slug),
+  },
+  {
+    // Household money, split out 2026-11-17, the same move as `personal-tax` above. A patient's
+    // medical bill and denial appeal, a tenant's deposit deadline, a homeowner's escrow statement,
+    // mortgage points, rent-vs-buy and a family's funeral quote were filed in `backoffice` (12),
+    // `services` (4) and `solo-earner` (15) for offline-bundle room, so their breadcrumb and
+    // `BreadcrumbList` JSON-LD said "Back-office money" or "Creator & solo earner income" to a
+    // reader who is neither. Exact list, placed before the business sections; the slugs were taken
+    // out of those rules. Landlord, investor and employer tools (rent rolls, house hacking, H-1B
+    // lottery odds, security-deposit math for landlords) stay where the owner of the books browses.
+    id: 'household',
+    title: 'Household money, home & health bills',
+    accent: '#6a3d1a',
+    blurb: 'Your own mortgage, rent, loans, utility and medical bills: escrow shortages, mortgage points, rent vs buy, student-loan plans, medical bill errors, insurance denial appeals, tenant deposit deadlines, funeral quotes, worked from your own numbers in your browser.',
+    test: (slug) => HOUSEHOLD_SLUGS.has(slug),
+  },
+  {
     // UK tax, pay and benefits, split out of `backoffice` 2026-10-17: 52 `uk-`
     // calculators had taken that category's offline bundle past its 4 MiB
     // gzipped bound (build.test.mjs), and a UK visitor looking for take-home
@@ -1900,6 +2072,15 @@ const CATEGORY_RULES = [
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
       || slug === '1099k-reconciliation-worksheet'
+      // Back from `marketplace` 2026-11-17 (polish): these seven are a small business's own contracts, insurance, card fees and
+      // payroll, the reader this section names. They were parked under "Marketplace seller tools" while `backoffice` sat over
+      // its old 3 MB offline ceiling (now 4 MiB, build.test.mjs, with the UK tax tools split out to `uk-tax`), so a tenant
+      // reading a lease saw "Marketplace seller tools" as the first link on the page.
+      || /^(payment-processor-fee-comparison|severance-package-calculator|commercial-lease-abstract-reader|vendor-contract-clause-reader|business-insurance-policy-reader|workers-comp-audit-dispute-checker|percentage-rent-audit-checker)/.test(slug)
+      // `cash-application-matcher` joined 2026-11-17 on its first commit: it
+      // applies bank receipts to open invoices, the receivables side of the
+      // same reconciliation job as `payment-reconciliation-workbench`.
+      || slug === 'cash-application-matcher'
       // `nacha-file-validator` joined 2026-10-04 on its first commit: it checks the ACH payment file a bookkeeper
       // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
       // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.
@@ -1908,6 +2089,9 @@ const CATEGORY_RULES = [
       // compliance paperwork, like the filings in this section. `stranded-branch-finder` went to `ci`.
       || slug === 'vsme-report-builder'
       || slug === 'nacha-file-validator'
+      // `benford-audit` joined 2026-11-13 on its first commit: Benford's-law digit tests on the AP or expense ledger a
+      // bookkeeper already exports -- the same after-the-fact ledger review as `duplicate-payment-audit`, which it cross-links.
+      || slug === 'benford-audit'
       // `w2-efw2-file-validator` joined 2026-10-04 on its first commit: it checks the W-2 wage file a payroll
       // preparer exports before it goes to SSA -- the same back-office payroll job as the deposit-penalty calculator.
       || slug === 'w2-efw2-file-validator'
@@ -2084,8 +2268,6 @@ const CATEGORY_RULES = [
       || slug === 'uk-take-home-pay-calculator'
       // `uk-dividend-tax-calculator` joined 2026-10-13 on its first commit: UK personal-tax arithmetic for directors and investors, sibling of the capital-gains and sole-trader tools.
       || slug === 'uk-dividend-tax-calculator'
-      // `tfsa-over-contribution-checker` joined 2026-10-13 on its first commit: Canadian personal-tax room and penalty arithmetic, a sibling of the Canada GST/HST checker.
-      || slug === 'tfsa-over-contribution-checker'
       // `uk-statutory-sick-pay-calculator` joined 2026-10-13 on its first commit: UK employer payroll-compliance arithmetic, same back-office job.
       || slug === 'uk-statutory-sick-pay-calculator'
       // `au-redundancy-pay-calculator` joined 2026-10-13 on its first commit: employer termination-pay compliance arithmetic, same back-office job.
@@ -2123,10 +2305,6 @@ const CATEGORY_RULES = [
       // `us-substantial-presence-test-calculator` joined 2026-10-19 on its first commit: the inbound US
       // residency day count, the counterpart of the 330-day FEIE count above.
       || slug === 'us-substantial-presence-test-calculator'
-      // `cheap-meal-plan-optimizer` joined 2026-10-01 on its first commit: a household's food budget as a
-      // minimum-cost linear program -- a personal money decision rather than an operator pricing food, so it
-      // sits here and not under `food-service`, which is for people who sell food.
-      || slug === 'cheap-meal-plan-optimizer'
       // `self-employed-schedule-c-categorizer` is the same bank-file-to-tax-lines job for a sole proprietor's
       // Schedule C, and its page sits next to `1099k-reconciliation-worksheet` and the landlord version.
       || slug === 'self-employed-schedule-c-categorizer'
@@ -2462,7 +2640,10 @@ const CATEGORY_RULES = [
       // lookups with an eligibility wrinkle the headline number alone
       // does not capture), with a reciprocal inbound link from that
       // venture's first commit rather than shipping as an orphan.
-      || /^(hard-money-loan-cost-calculator|wash-sale-checker|inherited-ira-10-year-withdrawal-planner|cobra-vs-marketplace-calculator|nsa-idr-offer-calculator|adu-payback-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|scope-creep-change-order-calculator|freelance-project-picker|like-kind-exchange|syndication-waterfall|med-spa-treatment-profit-calculator|fractional-executive-rate-calculator|grant-writer-proposal-price-calculator|chiropractor-new-patient-roi-calculator|dependent-care-fsa-vs-credit-calculator|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|turo-earnings-report|substack-subscriber-export|ghost-members-export|app-store-sales-report|era-835-underpayment-finder|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|early-pay-discount-picker|cam-|saas-seat|saas-renewal-planner|vendor-contract-clause-reader|saas-annual-plan|saas-efficiency-metrics-calculator|saas-cac-payback|stripe-churn-cohort|ebay-promoted-listings-roi|etsy-ads-roi|stripe-failed-payment|google-ads-wasted-spend|subscription-price|subscription-audit-from-statement|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|booking-request-chooser|market-event-picker|consignment-markdown-planner|trade-show-roi-calculator|dog-grooming-day-planner|str-turnover-scheduler|midterm-rental-calculator|support-staffing-planner|lot-split-calculator|csa-share-pricing-calculator|seller-net-sheet|property-tax-appeal-calculator|aca-subsidy-cliff-calculator|medical-bill-error-checker|insurance-denial-appeal-builder|mortgage-escrow-analysis-checker|social-security-claiming-age-calculator|social-security-survivor-spousal-benefit-calculator|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|equipment-lease-vs-buy|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|cannabis-280e-tax-calculator|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|no-tax-on-tips-overtime-calculator|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|auto-loan-interest-deduction-calculator|tip-pool-compliance-calculator|senior-deduction-calculator|mega-backdoor-roth-calculator|trump-account-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|business-vehicle-depreciation-calculator|salt-cap-calculator|charitable-deduction-calculator|gambling-loss-deduction-calculator|estate-tax-exemption-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|child-tax-credit-calculator|eitc-calculator|hsa-contribution-limit-calculator|solo-401k-contribution-calculator|sep-ira-vs-solo-401k-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|estimated-tax-penalty-calculator|self-employment-tax-calculator|backdoor-roth-pro-rata-calculator|roth-conversion-bracket-fill-calculator|rsu-withholding-gap-calculator|iso-exercise-amt-calculator|job-offer-total-comp-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|solar-payback-calculator|heat-pump-vs-furnace-calculator|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|espp-tax-calculator|tax-loss-harvesting-calculator|crypto-cost-basis-calculator|home-sale-exclusion-calculator|medicare-irmaa-cliff-calculator|coast-fire-calculator|rmd-calculator|rental-dscr-calculator|commercial-property-cap-rate-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|section-83b-election-calculator|pslf-vs-refinance-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|rule-72t-sepp-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|business-loan-offer-comparator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|investor-update-builder|online-business-valuation-calculator|customer-lifetime-value-predictor|icp-lens|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|donor-acknowledgment-letter-generator|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
+      // `texas-electricity-plan-checker` joined 2026-11-14 on its first commit: a household's own usage billed on
+      // each retail plan's label terms, the same own-numbers utility-bill decision as `solar-payback-calculator`
+      // and `heat-pump-vs-furnace-calculator`.
+      || /^(hard-money-loan-cost-calculator|nsa-idr-offer-calculator|wage-garnishment-limit|commercial-lease-effective-rent-calculator|ad-spend-saturation-optimizer|ad-incrementality-test-analyzer|freelance-retainer-vs-hourly-calculator|scope-creep-change-order-calculator|freelance-project-picker|like-kind-exchange|syndication-waterfall|med-spa-treatment-profit-calculator|fractional-executive-rate-calculator|grant-writer-proposal-price-calculator|chiropractor-new-patient-roi-calculator|google-play-earnings-report|amazon-ppc-search-term|whatnot-sales-report|youtube-revenue-rpm|meta-ads-fatigue|turo-earnings-report|substack-subscriber-export|ghost-members-export|app-store-sales-report|era-835-underpayment-finder|tiktok-shop-settlement|kdp-royalty-report|gig-driver-earnings-report|airbnb-earnings-report|cash-runway|invoice-payment-terms|early-pay-discount-picker|cam-|saas-seat|saas-renewal-planner|vendor-contract-clause-reader|saas-annual-plan|saas-efficiency-metrics-calculator|saas-cac-payback|stripe-churn-cohort|ebay-promoted-listings-roi|etsy-ads-roi|stripe-failed-payment|google-ads-wasted-spend|subscription-price|self-storage-rate-increase|renewal-rent-optimizer|quote-follow-up-timing|trial-conversion-timing-analyzer|str-nightly-rate-optimizer|booking-request-chooser|market-event-picker|consignment-markdown-planner|trade-show-roi-calculator|dog-grooming-day-planner|str-turnover-scheduler|midterm-rental-calculator|support-staffing-planner|lot-split-calculator|csa-share-pricing-calculator|seller-net-sheet|travel-nurse-contract-comparison-calculator|appointment-deposit|appointment-no-show|appointment-overbooking|service-hourly-yield-analyzer|equipment-lease-buyout|equipment-lease-vs-buy|fleet-repair-or-replace-planner|card-processing-fee-audit|card-surcharge|duplicate-payment-audit|certified-payroll-calculator|quarterly-estimated-tax|cannabis-280e-tax-calculator|dental-ppo-writeoff|security-deposit-return|depreciation-recapture|qbi-deduction-calculator|employee-cost-calculator|workers-comp-premium-calculator|s-corp-reasonable-compensation-calculator|tip-pool-compliance-calculator|section-174a-catchup-calculator|rd-tax-credit-calculator|bonus-depreciation-calculator|business-vehicle-depreciation-calculator|excess-business-loss-calculator|qsbs-exclusion-calculator|exempt-salary-threshold-checker|solo-401k-contribution-calculator|sep-ira-vs-solo-401k-calculator|mileage-deduction-method-calculator|mileage-log|home-office-deduction-calculator|str-tax-loophole-calculator|self-employment-tax-calculator|physician-wrvu-compensation-calculator|dental-associate-pay-calculator|cash-balance-plan-calculator|safe-dilution-calculator|cost-segregation-study-calculator|agent-brokerage-split-calculator|rental-dscr-calculator|commercial-property-cap-rate-calculator|rental-rent-optimizer|contractor-wip-schedule|landlord-repair-or-replace-planner|brrrr-calculator|self-employed-health-insurance-deduction-calculator|physician-wrvu-contract-calculator|veterinarian-associate-pay-calculator|startup-option-value-calculator|van-westendorp-pricing-analyzer|sales-commission-plan-comparison-calculator|locum-tenens-vs-employed-calculator|fix-and-flip-deal-analyzer|merchant-cash-advance-true-cost-calculator|business-loan-offer-comparator|usage-based-pricing-simulator|startup-exit-waterfall-calculator|augusta-rule-calculator|gabor-granger-price-analyzer|insurance-agency-book-valuation-calculator|ab-test-significance-calculator|investor-update-builder|online-business-valuation-calculator|customer-lifetime-value-predictor|icp-lens|sales-seasonality-forecaster|price-elasticity-estimator|seasonal-buy-quantity-optimizer|donor-retention-analyzer|donor-acknowledgment-letter-generator|private-practice-payer-mix-calculator|market-garden-bed-planner|cottage-food-pricing-calculator|payroll-tax-deposit-penalty-calculator|family-child-care-time-space-calculator)/.test(slug),
   },
   {
     id: 'ci',
@@ -3409,8 +3590,37 @@ const CATEGORY_RULES = [
     // the checks above configure, next to `agent-permission-config-check`
     // and `agent-instructions-drift-check`, which it links; landing it here
     // keeps the catch-all inside its bound.
+    //
+    // `gitignore-explainer` joined 2026-11-11 on its first commit: resolves
+    // .gitignore files the way git does, beside `codeowners-shadow-check`,
+    // which resolves the same last-match-wins patterns for review routing.
+    //
+    // `semver-range-explainer` joined 2026-11-12 on its first commit: explains
+    // npm semver ranges, beside `node-version-drift-check` and
+    // `npm-lockfile-duplicates-check`, which it links.
+    //
+    // `rrule-explainer` joined 2026-11-14 on its first commit: expands
+    // iCalendar recurrence rules into dates for the developers who write
+    // them. It links `ics-calendar-check`, which lints whole .ics files and
+    // is filed with the file pre-flights.
+    //
+    // `nginx-config-security-check` joined 2026-11-13 on its first commit:
+    // reads nginx config files, beside `security-headers-check`, which probes
+    // the headers a live server sends, and `systemd-unit-hardening-check`.
+    //
+    // `sudoers-check` joined 2026-11-14 on its first commit: reads sudoers
+    // and sudoers.d files, beside `systemd-unit-hardening-check` and
+    // `nginx-config-security-check`, which it links.
+    //
+    // `sshd-config-check` joined 2026-11-14 on its first commit: reads
+    // sshd_config and its Include drop-ins, beside `sudoers-check`.
+    //
+    // `cvss-vector-check` joined 2026-11-17 on its first commit: rescores
+    // CVSS v3 vectors and audits reports for mismatched scores, beside
+    // `npm-audit-triage`, `pip-audit-triage` and `cargo-audit-triage`, which
+    // it links.
     test: (slug) =>
-      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit|stranded-branch-finder)/.test(
+      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|gitignore-explainer|semver-range-explainer|rrule-explainer|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|cvss-vector-check|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|systemd-unit-hardening-check|nginx-config-security-check|sudoers-check|sshd-config-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|cyclehound|csshound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit|stranded-branch-finder)/.test(
         slug,
       ),
   },
@@ -3607,8 +3817,7 @@ const CATEGORY_RULES = [
         // bound; a self-employed filer's vehicle deduction and a freelancer's proposal are one person earning from their own work.
         'mileage-deduction-calculator',
         'proposal-maker',
-        // Joined 2026-10-18 to bring the catch-all back under its bound: one person comparing their own aid letters / turning their own meeting notes into actions.
-        'aid-award-letter-comparator',
+        // Joined 2026-10-18 to bring the catch-all back under its bound: one person turning their own meeting notes into actions.
         'meeting-action-items',
         // `wholesale-real-estate-offer-calculator`: one wholesaler pricing their own assignment deal; left the catch-all 2026-10-16.
         'wholesale-real-estate-offer-calculator',
@@ -3616,8 +3825,6 @@ const CATEGORY_RULES = [
         'clergy-housing-allowance-calculator',
         // `retreat-profit-pricing-calculator` joined 2026-10-09 on its first commit: one teacher or coach costing and pricing their own event.
         'retreat-profit-pricing-calculator',
-        // `card-bonus-planner` joined 2026-10-09 on its first commit. Back-office is over its 3 MB offline bound on main; one person scheduling their own sign-up bonuses is an individual earning from their own spending, not a business back office.
-        'card-bonus-planner',
         // `greenhouse-bench-planner` joined 2026-10-07 on its first commit. Back-office was at its 3 MB offline bound; a
         // grower selling transplants on fixed dates is one person pricing their own season's space.
         // `contract-vs-fte-rate-calculator` joined 2026-10-08 on its first commit: one person working out what a contract rate must be to match a salary.
@@ -3627,44 +3834,12 @@ const CATEGORY_RULES = [
         'mobile-home-park-valuation-calculator',
         // `cell-tower-lease-buyout-calculator` joined 2026-10-08 on its first commit, same reason: one landowner weighing a buyout of their own lease income.
         'cell-tower-lease-buyout-calculator',
-        // `pension-lump-sum-vs-annuity-calculator` joined 2026-10-08 on its first commit: one retiree weighing a buyout of their own pension income, beside the lease buyout tools.
-        'pension-lump-sum-vs-annuity-calculator',
-        // `fers-retirement-planner` joined 2026-10-09 on its first commit: one federal employee comparing retirement ages on their own pension, beside the pension buyout tool.
-        'fers-retirement-planner',
         // `401k-plan-fee-calculator` joined 2026-10-10 on its first commit: filed here because `backoffice` is at its 3 MB gzipped offline bound; one plan sponsor sizing their own retirement plan's cost, beside the other retirement planners.
         '401k-plan-fee-calculator',
-        // `tax-lot-sale-optimizer` joined 2026-10-08 on its first commit: one investor choosing which lots of their own holding to sell, beside the other single-person tax and income-timing tools.
-        'tax-lot-sale-optimizer',
-        // `mortgage-extra-payment-vs-invest-calculator` joined 2026-10-08 on its first commit: one homeowner deciding what to do with their own spare cash against their own loan, beside the other single-person money-decision tools.
-        'mortgage-extra-payment-vs-invest-calculator',
         // `covered-call-wheel-calculator` joined 2026-10-08 on its first commit: one investor ranking option quotes on their own holding, beside the other single-person investing and income-timing tools.
         'covered-call-wheel-calculator',
-        // `rent-vs-buy-breakeven-calculator` joined 2026-10-08 on its first commit: one household deciding whether to buy, beside the home-sale and mortgage tools.
-        'rent-vs-buy-breakeven-calculator',
-        // `car-lease-deal-checker` joined 2026-10-11 on its first commit: one shopper checking their own lease quote, beside the other single-household money-decision tools.
-        'car-lease-deal-checker',
-        // `home-sale-net-proceeds-calculator` joined 2026-10-11 on its first commit: one seller's net sheet and tax estimate, beside the other single-household money-decision tools.
-        'home-sale-net-proceeds-calculator',
-        // `roommate-rent-splitter` joined 2026-10-11 on its first commit: roommates dividing their own rent, beside the other single-household money-decision tools.
-        'roommate-rent-splitter',
-        // `funeral-price-list-checker` joined 2026-10-12 on its first commit: one family checking their own funeral quote line by line, beside the other single-household money-decision tools.
-        'funeral-price-list-checker',
-        // `cd-treasury-ladder-planner` joined 2026-10-08 on its first commit: one saver laddering their own cash, beside the other single-person investing and income-timing tools.
-        'cd-treasury-ladder-planner',
-        // `hsa-shoebox-reimbursement-planner` joined 2026-10-08 on its first commit: one HSA owner valuing their own unreimbursed receipts, beside the other single-person tax and income-timing tools.
-        'hsa-shoebox-reimbursement-planner',
-        // `student-loan-rap-ibr-standard-calculator` joined 2026-10-08 on its first commit: one borrower choosing between repayment plans on their own federal loans, beside the other single-person money-decision tools.
-        'student-loan-rap-ibr-standard-calculator',
-        // `charity-bunching-planner` joined 2026-10-08 on its first commit: one donor timing gifts into a donor-advised fund, beside the other single-person tax and income-timing tools.
-        'charity-bunching-planner',
-        // `structured-settlement-buyout-calculator` joined 2026-10-08 on its first commit: one payee weighing a factoring company's cash offer for settlement payments, beside the buyout tools.
-        'structured-settlement-buyout-calculator',
         // `film-tax-credit-net-value-calculator` joined 2026-10-08 on its first commit: one producer turning their own production's incentive into net cash, the catch-all being at its bound.
         'film-tax-credit-net-value-calculator',
-        // `mortgage-points-break-even-calculator` joined 2026-10-08 on its first commit: one buyer weighing points on their own loan estimate, beside the other lump-sum-for-income decisions.
-        'mortgage-points-break-even-calculator',
-        // `heloc-vs-cash-out-refinance-calculator` joined 2026-10-08 on its first commit: one homeowner pricing their own two ways to borrow against equity, beside the mortgage points tool.
-        'heloc-vs-cash-out-refinance-calculator',
         // `oil-gas-mineral-rights-offer-calculator` joined 2026-10-08 on its first commit: one owner weighing a buyout of their own royalty income, beside the tower-lease tool.
         'oil-gas-mineral-rights-offer-calculator',
         // `tax-lien-certificate-yield-calculator` joined 2026-10-08: the catch-all hit its bound of 5 when it graduated; one investor working out the yield on their own certificate.
@@ -3731,8 +3906,6 @@ const CATEGORY_RULES = [
         'uk-sole-trader-vs-limited-company-calculator',
         // `uk-mtd-income-tax-checker` joined 2026-10-13 on its first commit: UK sole traders and landlords checking their Making Tax Digital start date, the same solo earner.
         'uk-mtd-income-tax-checker',
-        // `schengen-90-180-day-calculator` joined 2026-10-13 on its first commit: remote workers and nomads tracking Schengen days, the same solo earner.
-        'schengen-90-180-day-calculator',
         'cat-adjuster-fee-calculator',
         'ad-slot-sell-through-planner',
         'candle-batch-cost-calculator',
@@ -3759,9 +3932,6 @@ const CATEGORY_RULES = [
         // `youtube-sponsorship-rate-calculator` joined 2026-10-15 on its first commit: a creator pricing their own sponsored video is one person working out their own income.
         'youtube-sponsorship-rate-calculator',
         'sponsor-ready',
-        // `section-1256-futures-tax-calculator` joined 2026-10-08 on its first commit: back-office was at its 3 MB offline bound,
-        // and a futures trader pricing what the 60/40 rule leaves them is one person working out their own income.
-        'section-1256-futures-tax-calculator',
         // `sep-ira-contribution-calculator` landed 2026-10-08 from a stranded branch: back-office was at its 3 MB offline bound,
         // and a self-employed filer sizing their own retirement contribution is one person working out their own income.
         'sep-ira-contribution-calculator',
@@ -3776,11 +3946,9 @@ const CATEGORY_RULES = [
         'tutoring-group-schedule-optimizer',
         // `rush-job-sequencer` joined 2026-10-09 on its first commit: a small shop ordering its own job queue, one hop from the scheduling optimizers above.
         'rush-job-sequencer',
-        // `patreon-fee-calculator` and the two Social Security calculators were filed here 2026-10-09 because the catch-all hit 6:
-        // each is one individual working out what their own creator income or benefit actually nets.
+        // `patreon-fee-calculator` was filed here 2026-10-09 because the catch-all hit 6: one creator working out what their own
+        // income actually nets. (The two Social Security calculators filed with it moved to `personal-tax` 2026-11-17.)
         'patreon-fee-calculator',
-        'social-security-benefits-tax-calculator',
-        'social-security-earnings-test-calculator',
         'voiceover-project-rate-calculator',
         // The three below joined 2026-10-15 when they got landing pages and the catch-all hit 8: one photographer or one frequent traveler running their own kit.
         'garmin-world-traveler-watchface',
@@ -3798,7 +3966,7 @@ const CATEGORY_RULES = [
     id: 'research-algorithms',
     title: 'Research algorithms & ML',
     accent: '#5b3f8c',
-    blurb: 'Methods from published research papers, run on your own data in your browser and cited: changepoint detection, conformal prediction intervals, matrix-profile motifs and anomalies. Also callable from the command line and by AI agents.',
+    blurb: 'Methods from published research papers, run on your own data in your browser and cited: changepoint detection, conformal prediction intervals, matrix-profile motifs and anomalies, Kaplan-Meier and Cox survival analysis, Benjamini-Hochberg and e-value multiple-testing correction, Schulze and STV ballot counts. Also callable from the command line and by AI agents.',
     test: (slug) => RESEARCH_ALGORITHM_SLUGS.includes(slug),
   },
   {
@@ -3934,7 +4102,19 @@ export const CARD_FOOTER = 'Runs in your browser · nothing you type is uploaded
 // — currently just Sponsor Ready, filed under "more". Sized to fit the same
 // footer band as `CARD_FOOTER`; see the About page and the category page's
 // own `nothing you type is uploaded, except on…` for the unabbreviated claim.
-export const CARD_FOOTER_EXCEPTION = 'Runs in your browser · one lookup checks a public API';
+export const CARD_FOOTER_EXCEPTION = 'Runs in your browser · may call an outside service';
+
+/**
+ * What the tools in `externalCallExceptions` have in common, said once so the
+ * footer, the category pages, the About page and llms.txt describe them the
+ * same way. The old wording ("checks a live public API as its whole job")
+ * was true of the first exception, Sponsor Ready, and stopped being true as
+ * the list grew past fifty: most now send what you give them to an AI model,
+ * a payment or CRM account you connect, or a server you run yourself (a local
+ * model on `localhost`), not to a public lookup.
+ */
+export const EXCEPTION_KINDS = 'a public lookup, an AI model or business account you connect, or a server you run yourself';
+export const EXCEPTION_NOUN = 'tools that call an outside service';
 
 export const ALL_CATEGORIES = [...CATEGORY_RULES, FALLBACK_CATEGORY];
 
@@ -4033,20 +4213,130 @@ export function markSponsorLinks(html) {
  * arriving from search lands on first. Returns the files it changed.
  */
 export async function markSponsorLinksIn(outDir) {
-  const marked = [];
-  for (const file of (await listFiles(outDir)).filter((f) => f.endsWith('.html'))) {
-    const html = await fs.readFile(file, 'utf8');
-    const next = markSponsorLinks(html);
+  return rewriteHtmlIn(outDir, markSponsorLinks);
+}
+
+/**
+ * Applies a pure `html -> html` rewrite to every HTML file under `outDir` and
+ * returns the relative paths it changed, in `listFiles` order.
+ *
+ * Pages are read and written with the sync calls, one after another
+ * (`rewritePagesSync`): measured 2026-11-12 over a full build's 8,784 pages,
+ * the promise API's per-file overhead was most of the pass, as it was in
+ * `offlineCacheName` (docs/history/pages-build-perf-2026-11-12-html-passes-sync.md).
+ */
+async function rewriteHtmlIn(outDir, rewrite) {
+  const files = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+  const changed = rewritePagesSync(files, (html) => rewrite(html));
+  return changed.map((file) => path.relative(outDir, file));
+}
+
+/**
+ * Reads each file, passes its text and path to `rewrite`, writes the result
+ * back when it differs, and returns the files it wrote, in input order.
+ *
+ * Sync on purpose. Over the 8,784 pages of a full build (2026-11-12, this
+ * container), `readFileSync`/`writeFileSync` one at a time took 1.7 s where
+ * `fs.promises` 32 at a time (`mapLimit`) took 3.0 s for the sponsor and
+ * notice pass, and 1.1 s against 1.9 s for the offline head injection, with
+ * byte-identical pages. The callers run in `buildSite` one after another with
+ * nothing else in flight, so blocking the event loop holds nothing up.
+ */
+function rewritePagesSync(files, rewrite) {
+  const written = [];
+  for (const file of files) {
+    const html = readFileSync(file, 'utf8');
+    const next = rewrite(html, file);
     if (next === html) continue;
-    await fs.writeFile(file, next);
-    marked.push(path.relative(outDir, file));
+    writeFileSync(file, next);
+    written.push(file);
   }
-  return marked;
+  return written;
+}
+
+/**
+ * `markSponsorLinksIn` then `addNoscriptNoticesIn`, in one walk and one read
+ * and write per page.
+ *
+ * Measured 2026-11-11: the two passes each listed the whole output tree and
+ * read every HTML page one at a time, the same pages twice in a row. The
+ * notice is inserted after `<body>` and only looks for `<noscript>`, `<script>`
+ * and form controls, none of which the sponsor marker (an attribute inside a
+ * Sponsors `<a>`) adds or removes, so applying both to one read gives the
+ * same bytes as the two passes in turn. `build-determinism.test.mjs` and the
+ * test beside these functions pin that.
+ */
+export async function markSponsorsAndNoscriptIn(outDir) {
+  const files = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+  // sync reads and writes, as in rewritePagesSync (measured there)
+  const sponsored = [], noscripted = [];
+  rewritePagesSync(files, (html, file) => {
+    const marked = markSponsorLinks(html);
+    const next = addNoscriptNotice(marked);
+    const relative = path.relative(outDir, file);
+    if (marked !== html) sponsored.push(relative);
+    if (next !== marked) noscripted.push(relative);
+    return next;
+  });
+  return { sponsored, noscripted };
+}
+
+/**
+ * The title-clash fix (`fixPostTitleClashes`), the sponsor and notice pass
+ * (`markSponsorsAndNoscriptIn`) and the share-tag pass (`addShareCards`), in
+ * one read and at most one write per page, then the share cards drawn.
+ *
+ * Measured 2026-11-14 (docs/history/pages-build-perf-2026-11-14-one-walk-finish.md):
+ * the three passes read all ~9,800 pages (254 MB) three times and wrote nearly
+ * all of them twice, and `writeFileUtf8` was the build's largest self time.
+ * Per page the steps are: the retitle, if any; the sponsor marker; the
+ * notice; the share tags. The build used to retitle after the sponsor and
+ * notice pass; the two commute (the retitle touches only `<title>` and
+ * `content="..."` values equal to the old title, which the marker attribute and
+ * the notice never contain, and neither changes a title or an `<h1>`), so the
+ * pages come out byte for byte as before (a full build compared file by file,
+ * and the one-walk test in `noscript-notice.test.mjs`).
+ */
+export async function finishPagesInOneWalk(outDir, { baseUrl, siteName, siteCard, log = () => {} }) {
+  const pages = await loadPages(outDir);
+  const changes = resolvePostTitleClashes(pages);
+  const retitledHtml = new Map(changes.map((c) => [c.rel, c.html]));
+  const changeOf = new Map(changes.map((c) => [c.rel, c]));
+  const sponsored = [], noscripted = [], shareResults = [];
+  for (const [relative, original] of pages) {
+    const file = path.join(outDir, relative);
+    const titled = retitledHtml.get(relative) ?? original;
+    const marked = markSponsorLinks(titled);
+    const noticed = addNoscriptNotice(marked);
+    const { next, plan } = shareTagsFor(noticed, relative, { baseUrl, siteName, siteCard });
+    if (marked !== titled) sponsored.push(file);
+    if (noticed !== marked) noscripted.push(file);
+    // Reported as the separate pass reported it: the page as retitled after
+    // the sponsor and notice pass, before the share tags.
+    if (changeOf.has(relative)) changeOf.get(relative).html = noticed;
+    shareResults.push({ relative, plan, changed: next !== noticed });
+    if (next !== original) writeFileSync(file, next);
+  }
+  for (const { rel, from, to } of changes) {
+    log(`warning: ${rel} reused the title "${from}" of another page; retitled "${to}". Give the post its own seo_title.`);
+  }
+  const shareCards = await drawPlannedCards(outDir, shareResults);
+  return {
+    sponsored: sponsored.map((f) => path.relative(outDir, f)),
+    noscripted: noscripted.map((f) => path.relative(outDir, f)),
+    retitled: changes,
+    shareCards,
+  };
 }
 
 const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
 const NOSCRIPT_CONTROL_RE = /<(?:input|select|button|textarea)\b/i;
 const BODY_OPEN_RE = /<body\b[^>]*>/i;
+// The site's own controls (the embed box, the chrome's search form) are not the
+// page's: `SITE_OWNED_CONTROLS_RE` in embed.mjs. Measured 2026-11-15: five
+// venture pages with no script and no field of their own told visitors "This
+// tool needs JavaScript to calculate" because the embed box's textarea and copy
+// button counted as the page's controls.
 export const NOSCRIPT_NOTICE =
   '<noscript><p role="note" style="margin:0;padding:12px 16px;background:#fff4d6;color:#4a3300;'
   + 'border-bottom:1px solid #d9b45a;font:600 15px/1.4 system-ui,sans-serif">'
@@ -4065,7 +4355,7 @@ export const NOSCRIPT_NOTICE =
  */
 export function addNoscriptNotice(html) {
   if (/<noscript\b/i.test(html)) return html;
-  if (!NOSCRIPT_SCRIPT_RE.test(html) || !NOSCRIPT_CONTROL_RE.test(html)) return html;
+  if (!NOSCRIPT_SCRIPT_RE.test(html) || !NOSCRIPT_CONTROL_RE.test(html.replace(SITE_OWNED_CONTROLS_RE, ''))) return html;
   const body = BODY_OPEN_RE.exec(html);
   if (!body) return html;
   const at = body.index + body[0].length;
@@ -4074,15 +4364,7 @@ export function addNoscriptNotice(html) {
 
 /** Applies `addNoscriptNotice` across the finished site; returns the files changed. */
 export async function addNoscriptNoticesIn(outDir) {
-  const changed = [];
-  for (const file of (await listFiles(outDir)).filter((f) => f.endsWith('.html'))) {
-    const html = await fs.readFile(file, 'utf8');
-    const next = addNoscriptNotice(html);
-    if (next === html) continue;
-    await fs.writeFile(file, next);
-    changed.push(path.relative(outDir, file));
-  }
-  return changed;
+  return rewriteHtmlIn(outDir, addNoscriptNotice);
 }
 
 // The optional-support line (`sponsorsNote`, site-nav.mjs) rides in
@@ -4381,8 +4663,20 @@ async function buildResearchPage(outDir, baseUrl) {
     '--base-url', baseUrl,
     '--site-chrome', chrome,
   ];
-  execFileSync('python3', args, {
-    stdio: ['ignore', 'ignore', 'inherit'],
+  // A child process, not `execFileSync`: `buildSiteInner` starts this at the
+  // top and awaits it where the research pages are first read, so the Python
+  // build (about 1.9 s) runs on another core beside the CPU-bound JS passes
+  // in between instead of blocking them
+  // (docs/history/pages-build-perf-2026-11-12-warm-phases.md). Nothing the
+  // JS writes before that await is under `research/`, and the builder reads
+  // only `research/` sources and the chrome file. Same exit semantics: a
+  // non-zero exit fails the build, with Python's stderr passed through.
+  await new Promise((resolve, reject) => {
+    const child = spawn('python3', args, { stdio: ['ignore', 'ignore', 'inherit'] });
+    child.on('error', reject);
+    child.on('close', (code, signal) => (code === 0
+      ? resolve()
+      : reject(new Error(`Command failed: python3 ${args.join(' ')} (exit ${code ?? signal})`))));
   });
 }
 
@@ -4405,8 +4699,31 @@ export function isGuidePage(relativePath) {
   const posix = relativePath.split(path.sep).join('/');
   if (!posix.endsWith('.html')) return false;
   if (posix === 'index.html' || posix.endsWith('/index.html')) return false;
+  // A sample of what a builder writes (`monastery-site/demo/abbey/about.html`)
+  // is a fictional community's page, not an article about anything: "About
+  // Saint Aelred's Abbey" listed as a guide told a reader the abbey was real.
+  if (/(^|\/)demos?\//.test(posix)) return false;
   return !COMPARISON_FILE_PATTERN.test(posix.slice(posix.lastIndexOf('/') + 1));
 }
+
+/**
+ * Ventures whose extra pages are not guides at all, so the index skips them
+ * whole.
+ *
+ * The index promises "how a price is built up, and when one option beats
+ * another", from "free calculators". Until 2026-11-11 it also listed 342
+ * Hearth & Horizon bedtime stories, 97 saints' stories and 8 Catholic short
+ * videos as "pages beside the calculator" of products that have no
+ * calculator: 453 of its 2,300 links, about a fifth of the page, none of them
+ * what the heading said. Fiction has its own section (`stories.mjs`,
+ * `STORY_VENTURES`), and the video and Summa pages are watch-and-read
+ * content with their own indexes. Named by slug because "is this venture
+ * content or a tool" is an editorial call no file marks yet; a new story
+ * venture that joins `STORY_VENTURES` is covered without an edit here.
+ */
+export const NOT_GUIDE_VENTURES = Object.freeze(
+  new Set([...Object.keys(STORY_VENTURES), 'catholic-shorts', 'sed-contra']),
+);
 
 /**
  * The heading, title and blurb a guide page describes itself with.
@@ -4454,6 +4771,7 @@ export function guidePageMeta(html) {
 export async function discoverGuides(surfaces, outDir) {
   const groups = [];
   for (const surface of surfaces) {
+    if (NOT_GUIDE_VENTURES.has(surface.slug)) continue;
     const dir = path.join(outDir, surface.slug);
     let relatives;
     try {
@@ -4527,6 +4845,22 @@ export function groupGuidesByCategory(groups) {
  * that carries it twice is what search engines truncate.
  */
 const CATEGORY_PAGE_COPY = {
+  'personal-tax': {
+    title: 'Free US personal tax, paycheck and retirement calculators',
+    description:
+      'Free US calculators for your own return and retirement: RMDs, Roth conversions, Social Security claiming age, IRMAA, RSU and ESPP tax, credits, deductions, NIIT.',
+    intro:
+      'Each tool works one household tax, pay or retirement question with the IRS or SSA figures it names, shows the arithmetic, and says which tax year it assumes. Nothing you type leaves your browser.',
+    audience: 'US employees, retirees, investors and families doing their own numbers',
+  },
+  household: {
+    title: 'Free household money calculators: home, loans, medical bills',
+    description:
+      'Free household money tools: mortgage points and escrow, rent vs buy, student-loan plans, medical bill errors, insurance denial appeals and deposit deadlines.',
+    intro:
+      'Each tool works one household money question from your own figures (a loan estimate, an escrow statement, an itemized bill, a lease) and shows the arithmetic and the rule it applies. Nothing you type leaves your browser.',
+    audience: 'Homeowners, renters, borrowers, patients and families checking their own bills and decisions',
+  },
   'uk-tax': {
     title: 'Free UK tax, pay and benefits calculators',
     description:
@@ -4710,7 +5044,15 @@ const SUBCATEGORY_RULES = {
       // `security-camera` sits here as low-voltage electrical work: the people
       // who bid it are the electrical and structured-cabling trades, and it is
       // closer to a panel or EV-charger job than to anything in the other groups.
-      test: (slug) => /^(furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      // `service-load-check` (2026-11-11): the NEC service load check electricians run before an EV charger or heat pump job.
+      // `pv-string-sizer` (2026-11-11): PV string sizing (cold Voc, hot Vmp, strings per MPPT) for solar installers.
+      // `voltage-drop-calculator` (2026-11-17): voltage drop and wire size for DC, single and three-phase runs, the conductor step after the service and string sizing.
+      // `hvac-load-calc` (2026-11-11): room-by-room heating and cooling loads, the sizing step before a heat pump, mini-split or furnace bid.
+      // `wall-condensation-check` (2026-11-11): the moisture check on the same wall `hvac-load-calc` sizes heat for.
+      // `water-supply-sizing` (2026-11-13): peak water demand and supply pipe sizes, the plumbing step beside the water heater and softener bids.
+      // `sprinkler-hydraulic-calc` (2026-11-13): fire sprinkler hydraulics for trees, loops and grids, the pipe work beside the domestic water sizing.
+      // `elevator-traffic-analysis` (2026-11-14): up-peak lift traffic (round trip time, interval, handling capacity), the vertical transportation step of the same building services.
+      test: (slug) => /^(hvac-load-calc|water-supply-sizing|sprinkler-hydraulic-calc|elevator-traffic-analysis|wall-condensation-check|service-load-check|pv-string-sizer|voltage-drop-calculator|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -4723,15 +5065,18 @@ const SUBCATEGORY_RULES = {
       // even though its own job is furniture, not construction.
       // `tile-layout-planner` joined 2026-10-01 on its first commit: it lays out the
       // floor the flooring and tile-backsplash bids price, for the same remodeler.
+      // `continuous-beam-calculator` joined 2026-11-12 beside it: the beam a framer sets over posts.
       // `wall-framing-takeoff` joined 2026-10-28: studs and plates go up
       // before the drywall here, and its lumber list is the same job as `cut-list`.
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing)/.test(slug),
+      // `ids-model-check` joined 2026-11-16 beside it: the IFC model check before the build.
+      test: (slug) => /^(ids-model-check|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
     },
     {
       id: 'trades-site',
       title: 'Concrete, masonry & site work',
       // `shed-designer` joined 2026-10-29 beside `shed-install` and `pole-barn`.
-      test: (slug) => /^(concrete|asphalt-|gravel-driveway|paver-patio|retaining-wall|parking-lot|french-drain|foundation-repair|epoxy-garage|pole-barn|shed-install|shed-designer)/.test(slug),
+      // `earthwork-cut-fill` joined 2026-11-12: pad cut and fill from survey points.
+      test: (slug) => /^(concrete|earthwork-|asphalt-|gravel-driveway|paver-patio|retaining-wall|parking-lot|french-drain|foundation-repair|epoxy-garage|pole-barn|shed-install|shed-designer)/.test(slug),
     },
     {
       id: 'trades-outdoor',
@@ -4802,15 +5147,21 @@ async function exists(target) {
   }
 }
 
-/** Every file under `dir`, recursively. */
+/**
+ * Every file under `dir`, recursively, in depth-first `readdir` order.
+ * Sibling directories are read concurrently (one awaited `readdir` at a time
+ * left three of libuv's four I/O threads idle); `Promise.all` keeps each
+ * subtree in its entry's place, so the list is the same as the serial walk's
+ * (docs/history/pages-build-perf-2026-11-11-concurrent-walks.md).
+ */
 export async function listFiles(dir) {
-  const out = [];
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const parts = await Promise.all(entries.map((entry) => {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await listFiles(full)));
-    else if (entry.isFile()) out.push(full);
-  }
-  return out;
+    if (entry.isDirectory()) return listFiles(full);
+    return entry.isFile() ? [full] : [];
+  }));
+  return parts.flat();
 }
 
 /**
@@ -5477,8 +5828,8 @@ export function privacyClaimParts(exceptions, { inline = 3 } = {}) {
   if (names.length === 0) return { claim: 'nothing you type is uploaded', list: '' };
   if (names.length <= inline) return { claim: `nothing you type is uploaded, except on ${listProse(names)}`, list: '' };
   return {
-    claim: `nothing you type is uploaded, except on the ${names.length} lookup tools listed below`,
-    list: `\n      <details class="count-exceptions"><summary>The ${names.length} lookup tools that send the one thing you paste to the public API they check</summary><p>${listProse(names)}</p></details>`,
+    claim: `nothing you type is uploaded, except on the ${names.length} ${EXCEPTION_NOUN} listed below`,
+    list: `\n      <details class="count-exceptions"><summary>The ${names.length} ${EXCEPTION_NOUN} (${EXCEPTION_KINDS})</summary><p>${listProse(names)}</p></details>`,
   };
 }
 
@@ -5499,18 +5850,14 @@ export function listProse(items) {
  */
 export async function publishedPages(dir, prefix = '') {
   const entries = await fs.readdir(dir, { withFileTypes: true });
-  const pages = [];
-
-  for (const entry of entries) {
+  // Subdirectories are read concurrently, as in `listFiles`; the result is
+  // sorted, so the order they finish in cannot show.
+  const parts = await Promise.all(entries.map((entry) => {
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) {
-      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
-    } else if (entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html') {
-      pages.push(relative);
-    }
-  }
-
-  return pages.sort();
+    if (entry.isDirectory()) return publishedPages(path.join(dir, entry.name), relative);
+    return entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html' ? [relative] : [];
+  }));
+  return parts.flat().sort();
 }
 
 // ---------------------------------------------------------------------------
@@ -5536,7 +5883,8 @@ function rewriteOrigin(contents, baseUrl) {
   // follow the base URL it is actually built with.
   // The retired /monorepo-projects/ path is a second default: venture pages and
   // posts written before the move still name it, and it now answers 404.
-  const current = rewritten.split(LEGACY_BASE_URL).join(baseUrl);
+  // GITHUB_PAGES_BASE_URL joined it on 2026-11-10, when the default moved.
+  const current = RETIRED_BASE_URLS.reduce((text, origin) => text.split(origin).join(baseUrl), rewritten);
   if (baseUrl === DEFAULT_BASE_URL) return current;
   return current.split(DEFAULT_BASE_URL).join(baseUrl);
 }
@@ -5609,7 +5957,64 @@ export function clampMetaDescription(html, max = META_DESCRIPTION_MAX) {
   );
 }
 
-export async function copyTree(from, to, baseUrl) {
+/** Whether `copyTree` descends into a directory of this name (venture-preflight reuses the rule). */
+export function copiesDir(name) {
+  if (EXCLUDED_DIRS.has(name)) return false;
+  return !name.startsWith('.') || PUBLISHABLE_DOT_DIRS.has(name);
+}
+
+/**
+ * Git-ignored, untracked paths under `dir` that a fresh checkout does not
+ * have, as absolute paths (a directory without its trailing `/`).
+ *
+ * The published site is built in CI from a fresh checkout, so a file git
+ * ignores (a fetched eval corpus, a cargo `target/`, a dataset download) is
+ * never in it. A local build copied them all the same, and `check.mjs` then
+ * failed on types like `.csproj` or `.ids` that CI never sees: four sessions
+ * on 2026-11-16/17 lost a local `run_workflow_locally.py` round to
+ * ids-model-check's eval/corpus and csshound's target/. Leaving them out makes
+ * the local artifact the one CI builds.
+ *
+ * `checkIgnoreOutput` is `git check-ignore -v --no-index --stdin` over
+ * `git ls-files --others --ignored --exclude-standard --directory`, both run
+ * at the repository root: lines `source:line:pattern<TAB>path`. A root
+ * `.gitignore` rule that names a `ventures/` path is a build output CI makes
+ * too (einvoice-preflight/browser/), so those stay, the same rule
+ * venture-preflight.mjs applies. Taken before the build generates anything,
+ * so what the build itself writes is copied as before.
+ */
+export function parseLocalOnly(checkIgnoreOutput, repoRoot) {
+  const paths = new Set();
+  for (const line of (checkIgnoreOutput || '').split('\n')) {
+    const tab = line.indexOf('\t');
+    if (tab < 0) continue;
+    const [source, , ...pattern] = line.slice(0, tab).split(':');
+    if (source === '.gitignore' && pattern.join(':').includes('ventures/')) continue;
+    const rel = line.slice(tab + 1).trim().replace(/\/$/, '');
+    if (rel) paths.add(path.join(repoRoot, rel));
+  }
+  return paths;
+}
+
+/** `parseLocalOnly` for the working tree holding `dir`; empty outside git or with PAGES_KEEP_IGNORED=1. */
+export function localOnlyPaths(dir) {
+  if (process.env.PAGES_KEEP_IGNORED === '1') return new Set();
+  try {
+    const git = (cwd, args, input = '') => execFileSync('git', args, {
+      cwd, encoding: 'utf8', input, maxBuffer: 1 << 26, stdio: ['pipe', 'pipe', 'ignore'],
+    });
+    const top = git(dir, ['rev-parse', '--show-toplevel']).trim();
+    const rel = path.relative(top, path.resolve(dir)) || '.';
+    const listed = git(top, ['ls-files', '--others', '--ignored', '--exclude-standard', '--directory', '--', rel]);
+    if (!listed.trim()) return new Set();
+    // Every listed path matches a rule, so check-ignore exits 0 here.
+    return parseLocalOnly(git(top, ['check-ignore', '-v', '--no-index', '--stdin'], listed), top);
+  } catch {
+    return new Set();
+  }
+}
+
+export async function copyTree(from, to, baseUrl, skip = null) {
   await fs.mkdir(to, { recursive: true });
   const entries = await fs.readdir(from, { withFileTypes: true });
   const copied = [];
@@ -5617,11 +6022,11 @@ export async function copyTree(from, to, baseUrl) {
   for (const entry of entries) {
     const src = path.join(from, entry.name);
     const dest = path.join(to, entry.name);
+    if (skip?.has(src)) continue;
 
     if (entry.isDirectory()) {
-      if (EXCLUDED_DIRS.has(entry.name)) continue;
-      if (entry.name.startsWith('.') && !PUBLISHABLE_DOT_DIRS.has(entry.name)) continue;
-      const nested = await copyTree(src, dest, baseUrl);
+      if (!copiesDir(entry.name)) continue;
+      const nested = await copyTree(src, dest, baseUrl, skip);
       // A directory that held only CLI source leaves an empty shell behind.
       if (nested.length === 0) await fs.rm(dest, { recursive: true, force: true });
       copied.push(...nested);
@@ -5737,14 +6142,22 @@ const jsonLd = (value) =>
  * tool. The About page's own, separate privacy panel makes the same point
  * with a working link — this one points there instead.
  */
-function disclaimerHtml(toRoot, surfaces = []) {
+export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } = {}) {
   const exceptions = externalCallExceptions(surfaces);
+  // Counted in the sentence, named in a <details> after the paragraph (a
+  // <details> can't sit inside a <p>). Inline, the ~50 names and ~40 hosts
+  // made this one paragraph 1,742 px tall on a 390 px phone, on every page
+  // that carries the footer: polish-2026-11-14-footer-fold.md.
   const exceptionNote = exceptions.length
-    ? ` Except ${listProse(
-        exceptions.map((x) => escapeHtml(toolProseName(x.title))),
-      )} — each of which checks a live public API as its whole job, so what you paste there to look up goes to ${listProse(
-        [...new Set(exceptions.flatMap((x) => x.hosts))],
-      )} and nowhere else. <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> says exactly what.`
+    ? ` Except on ${exceptions.length === 1 ? `one tool, ${escapeHtml(toolProseName(exceptions[0].title))}, which calls` : `${exceptions.length} ${EXCEPTION_NOUN}:`} ${exceptions.length === 1 ? 'an outside service' : EXCEPTION_KINDS}. ${exceptions.length === 1 ? 'It sends' : 'Each sends'} what you give it to that service and nowhere else; <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> says exactly what.`
+    : '';
+  const exceptionList = exceptions.length > 1
+    ? `
+      <details class="pfs-exceptions">
+        <summary>The ${exceptions.length} ${EXCEPTION_NOUN}, and the hosts they call</summary>
+        <p>${listProse(exceptions.map((x) => escapeHtml(toolProseName(x.title))))}.</p>
+        <p>Hosts: ${listProse([...new Set(exceptions.flatMap((x) => x.hosts))].map(escapeHtml))}.</p>
+      </details>`
     : '';
   return `
       <h2>No warranty</h2>
@@ -5774,19 +6187,28 @@ function disclaimerHtml(toRoot, surfaces = []) {
         <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a>, which
         is published in this site's public GitHub repository.` : ''} We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
-        count stays in your own browser's local storage.${counterOn() ? ` Each page load
-        also adds one to a daily per-page total on our own open-source counter
-        (which page, which day, and — if you followed one of our own channel
-        links, such as a release note or package page — which channel, and what
-        kind of site sent you, such as "google" or "reddit", never its address;
-        plus the country the request came from as a two-letter code and whether
-        the browser is a phone, tablet or desktop, each kept only as a daily
-        total; nothing you type, no cookie, no IP address stored; its host sees each
-        request the way any web server does), and those totals are
-        published in the repository.` : ''} Browsers sending
+        count stays in your own browser's local storage.
+      </p>${exceptionList}
+      <p>${counter ? `
+        Each page load also adds one to a daily per-page total on our own
+        open-source counter, and those totals are published in the repository.
+        Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
       </p>
+      <ul class="pfs-counted">
+        <li><strong>Counted, as daily totals only:</strong> which page; which day;
+        the channel, if you came from one of our own links (a release note, a
+        package page); the kind of site that sent you ("google", "reddit"),
+        never its address; the country, as a two-letter code; and phone, tablet
+        or desktop.</li>
+        <li><strong>Never stored:</strong> anything you type, a cookie, your IP
+        address. Its host sees each request the way any web server does.</li>
+      </ul>` : `
+        Browsers sending
+        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
+        not counted at all.
+      </p>`}
       <p>
         If you email one of this site's addresses, your message and address
         are stored privately with our host, Cloudflare, read only to answer
@@ -5873,7 +6295,7 @@ const CATEGORY_STYLE = `
                    padding-bottom: 7px; border-bottom: 1px solid var(--line); }
     .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
     .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
-             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+             grid-template-columns: repeat(auto-fill, minmax(min(268px, 100%), 1fr)); }
     .card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
             padding: 17px 18px; transition: transform .18s, box-shadow .18s, border-color .18s; }
     .card::before { content: ""; position: absolute; left: -1px; top: 14px; bottom: 14px; width: 3px;
@@ -5881,9 +6303,9 @@ const CATEGORY_STYLE = `
     .card:hover, .card:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
                                       box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
     @media (prefers-reduced-motion: reduce) { .card, .cat { transition: none; } .card:hover, .cat:hover { transform: none; } }
-    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card h3, .cards > .card h2 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; } /* h2: beats .subject h2 */
     .card a { color: inherit; text-decoration: none; }
-    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card a:hover :is(h2, h3), .card a:focus-visible :is(h2, h3) { color: var(--accent); text-decoration: underline; }
     .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
     .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
     .starting { margin: 12px 0 0; max-width: 70ch; line-height: 1.6; padding: 12px 14px;
@@ -5892,7 +6314,7 @@ const CATEGORY_STYLE = `
                 border: 1px solid var(--line); border-radius: 13px; }
     .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
     .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
-                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+                   grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); }
     .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
     .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
     .siblings span { color: var(--soft); font-weight: 500; }
@@ -5922,7 +6344,7 @@ const CATEGORY_STYLE = `
     .start-here h2, .answers h2 { font-size: 1.15rem; margin: 0 0 4px; letter-spacing: -.01em; }
     .start-here .sub, .answers .sub { margin: 0 0 14px; color: var(--muted); font-size: .92rem; }
     .start-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: start;
-                  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+                  grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr)); }
     .start-grid li { counter-increment: start; position: relative; background: var(--panel);
                      border: 1px solid var(--line); border-top: 3px solid var(--pf-cat, var(--accent));
                      border-radius: 13px; padding: 16px 18px 16px 18px; }
@@ -5934,9 +6356,10 @@ const CATEGORY_STYLE = `
     .start-grid a:hover, .start-grid a:focus-visible { color: var(--accent); text-decoration: underline; }
     .start-grid p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
     .start-grid .meta { font-size: .8rem; color: var(--soft); }
+    .start-here .starting { margin-top: 16px; }
     .answers { margin: 30px 0 0; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; }
     .answers ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px 22px;
-                  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+                  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
     .answers li a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .93rem; line-height: 1.4; }
     .answers li a:hover, .answers li a:focus-visible { text-decoration: underline; }
     .answers li span { display: block; color: var(--soft); font-size: .8rem; }
@@ -5954,7 +6377,7 @@ const CATEGORY_STYLE = `
  * tools answer" lists the tools' own guide pages (`discoverGuides`), so every
  * line is a page that shipped, in that page's own words.
  */
-export function renderAudienceLead({ start = [], questions = [], toRoot = '../../', who = '', total = 0 }) {
+export function renderAudienceLead({ start = [], questions = [], toRoot = '../../', who = '', total = 0, starting = '' }) {
   if (!start.length) return '';
   const cards = start
     .map(
@@ -5990,9 +6413,14 @@ ${questions
       <p class="sub">The fullest tools on this page, with the most worked questions behind them.</p>
       <ol class="start-grid">
 ${cards}
-      </ol>
+      </ol>${
+        starting
+          ? `
+      <p class="starting">${escapeHtml(starting)}</p>`
+          : ''
+      }
     </section>${answers}
-    <h2 class="all-tools">All ${total} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
+    <h2 class="all-tools">All ${formatCount(total)} tools${who ? ` for ${escapeHtml(who)}` : ''}</h2>
 `;
 }
 
@@ -6061,10 +6489,14 @@ export function renderCategoryPage({
   const categoryExceptions = externalCallExceptions(items);
   const { claim: countPrivacyClaim, list: countExceptionList } = privacyClaimParts(categoryExceptions);
   const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
+  // A flat page with no h2 above its cards (no subgroups, no audience lead)
+  // would go h1 -> h3: Lighthouse's heading-order audit failed 17 category
+  // pages on it until 2026-11-11. There the card titles are the h2s.
+  const cardH = flat && !/<h2[\s>]/.test(copy.lead ?? '') ? 'h2' : 'h3';
 
   const renderCard = (surface) => `          <li class="card">
             <a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-tool="${escapeHtml(surface.slug)}" data-pf-to="${escapeHtml(surface.slug)}">
-              <h3>${escapeHtml(surface.title)}</h3>
+              <${cardH}>${escapeHtml(surface.title)}</${cardH}>
             </a>
             <p>${escapeHtml(surface.description)}</p>
             ${
@@ -6096,7 +6528,7 @@ ${subgroups
   // nothing; the full list is the markup either way.
   const filter = items.length > 12
     ? `    <p class="filter" id="cat-filter-row" hidden>
-      <label for="cat-filter">Filter these ${items.length} tools</label>
+      <label for="cat-filter">Filter these ${formatCount(items.length)} tools</label>
       <input id="cat-filter" type="search" placeholder="Type a word from the tool's name or job" autocomplete="off">
       <span id="cat-filter-count" aria-live="polite"></span>
     </p>`
@@ -6138,7 +6570,7 @@ ${subItems.map(renderCard).join('\n')}
   const otherAudiences = audiences.filter(({ audience }) => audiencePageId(audience) !== category.id);
   const audienceLinks = otherAudiences.length
     ? `    <section class="siblings">
-      <h2>Free tools by trade and business</h2>
+      <h2>Free tools by trade, business and who you are</h2>
       <ul>
 ${otherAudiences
   .map(
@@ -6216,7 +6648,7 @@ ${otherAudiences
       <p class="starting">${escapeHtml(copy.starting)}</p>`
           : ''
       }
-      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>${countExceptionList}
+      <p class="count">${formatCount(items.length)} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>${countExceptionList}
     </header>
 ${copy.lead ?? ''}${jumps}
 ${filter}
@@ -6311,6 +6743,7 @@ export function renderAudiencePage({ audience, items, groups, baseUrl, audiences
     questions: audienceQuestions(exampleTools(items, items.length), guides),
     who: audience.who,
     total: items.length,
+    starting: audience.starting,
   });
   const byCategory = groupByCategory(items);
   const subgroups =
@@ -6331,7 +6764,11 @@ export function renderAudiencePage({ audience, items, groups, baseUrl, audiences
       title: audience.title,
       description: audience.description,
       intro: audience.intro,
-      starting: audience.starting,
+      // With a "Start here" row the note goes under it (renderAudienceLead):
+      // in the hero it pushed the first card below a 360x780 phone's screen
+      // on 20 of 31 pages (polish-2026-11-18-fold-check.md), and its advice,
+      // "run a few sample jobs through these", is about those cards.
+      starting: lead ? '' : audience.starting,
       audience: audience.who,
       lead,
     },
@@ -6396,7 +6833,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
   const toRoot = '../';
   const url = `${baseUrl}${CATEGORY_PATH_PREFIX}/`;
   const total = surfaces.length;
-  const title = `All ${total} free tools, by category`;
+  const title = `All ${formatCount(total)} free tools, by category`;
   const description = `Every free tool on ${SITE_NAME}, filed by the job it does: ${groups
     .map(({ category }) => category.title.toLowerCase())
     .join(', ')}. Runs in your browser; no account.`;
@@ -6473,7 +6910,7 @@ export function renderToolsIndexPage({ groups, kindPages = [], audiencePages = [
     <header class="pf-hero">
       <p class="eyebrow">Tools</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${total} tools</a> instead.</p>
+      <p class="lede">Each section has its own page with every tool in it. Know what you need? <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search all ${formatCount(total)} tools</a> instead.</p>
     </header>
     <main>
       <h2 class="band">By job</h2>
@@ -6510,7 +6947,7 @@ ${audiencePages
 const TOOLS_INDEX_STYLE = `
     .band { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
             margin: 34px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
-    .cats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .cats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); }
     .cats { align-items: start; }
     .cat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px;
            transition: transform .18s, box-shadow .18s, border-color .18s; }
@@ -6555,7 +6992,7 @@ const COMPARE_STYLE = `
     .subject h2 { font-size: 1.12rem; letter-spacing: -.02em; margin: 0 0 4px; }
     .subject .note { font-size: .85rem; color: var(--soft); margin: 0 0 12px; }
     .singles { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px;
-               grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+               grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); }
     .singles li { background: var(--panel); border: 1px solid var(--line);
                   border-radius: 11px; padding: 12px 14px; font-size: .94rem;
                   line-height: 1.45; }
@@ -6601,7 +7038,7 @@ export function renderComparePage({ groups, surfaces, categoryGroups = [], baseU
 
   const renderCard = (entry) => `          <li class="card">
             <a href="${escapeHtml(entryHref(entry))}" data-tool="${escapeHtml(entry.slug)}" data-pf-to="${escapeHtml(entry.slug)}">
-              <h3>${escapeHtml(entry.title)}</h3>
+              <h3>${escapeHtml(cardName(entry.title))}</h3>
             </a>
             <p>${escapeHtml(truncate(entry.description, 120))}</p>
           </li>`;
@@ -6611,7 +7048,7 @@ export function renderComparePage({ groups, surfaces, categoryGroups = [], baseU
       (group) => `      <section class="subject" id="${escapeHtml(anchorFor(group))}">
         <h2>${escapeHtml(group.subject)}</h2>
         <p class="note">${escapeHtml(
-          `${group.items.length} tools here have a page comparing themselves with ${group.subject}. Written by the tool's author; not affiliated with ${group.subject}.`,
+          `${formatCount(group.items.length)} tools here have a page comparing themselves with ${group.subject}. Written by the tool's author; not affiliated with ${group.subject}.`,
         )} <a href="${escapeHtml(`${toRoot}${comparisonProductPath(group.key)}`)}">${escapeHtml(
           `${group.subject} on its own page →`,
         )}</a></p>
@@ -6625,7 +7062,7 @@ ${group.items.map(renderCard).join('\n')}
   const singleItems = singles
     .map((group) => {
       const entry = group.items[0];
-      return `        <li><strong>${escapeHtml(group.subject)}</strong><a href="${escapeHtml(entryHref(entry))}" data-pf-to="${escapeHtml(entry.slug)}">${escapeHtml(entry.title)}</a></li>`;
+      return `        <li><strong>${escapeHtml(group.subject)}</strong><a href="${escapeHtml(entryHref(entry))}" data-pf-to="${escapeHtml(entry.slug)}">${escapeHtml(cardName(entry.title))}</a></li>`;
     })
     .join('\n');
 
@@ -6704,7 +7141,7 @@ ${group.items.map(renderCard).join('\n')}
       <p class="eyebrow">Comparisons</p>
       <h1>What each free tool here does that the paid product does not — and what it does not do</h1>
       <p class="lede">Every tool on this site that overlaps with a commercial product has a page saying so plainly: what the product does, what the free tool does, and when the paid one is the right answer. They are written by the tool's author, cite the product's own public documentation, and are not affiliated with, endorsed by, or reviewed by any product named here.</p>
-      <p class="count">${total} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
+      <p class="count">${formatCount(total)} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <nav class="jump" aria-label="Products with more than one comparison">
@@ -6823,9 +7260,11 @@ export function renderCompareProductPage({
 
   const cards = group.items
     .map(
+      // h2: the cards sit right under the page's h1 (an h3 here failed
+      // Lighthouse's heading-order audit on all 45 pages until 2026-11-11).
       (entry) => `          <li class="card">
             <a href="${escapeHtml(entryHref(entry))}" data-tool="${escapeHtml(entry.slug)}" data-pf-to="${escapeHtml(entry.slug)}">
-              <h3>${escapeHtml(entry.title)}</h3>
+              <h2>${escapeHtml(cardName(entry.title))}</h2>
             </a>
             <p>${escapeHtml(truncate(entry.description, 120))}</p>
           </li>`,
@@ -6968,6 +7407,25 @@ ${categoryLinks}
 `;
 }
 
+/**
+ * Viewport widths where the guides grid (`.answers`, `minmax(min(320px,
+ * 100%), 1fr)` inside the page wrap) goes to two and then three columns,
+ * measured in Chromium on 2026-11-11, plus a few steps between, and the
+ * characters per line a title, card link and card description fit at the
+ * narrowest width of each step. The counts are the
+ * largest that never under-counted a line across all 1,626 cards (so they
+ * over-count most of them): see `guideBlockHeights`.
+ */
+export const GUIDE_COLUMNS = [
+  { columns: 1, minWidth: 0, title: 30, label: 29, desc: 30 },
+  { columns: 1, minWidth: 360, title: 37, label: 32, desc: 38 },
+  { columns: 1, minWidth: 412, title: 42, label: 42, desc: 43 },
+  { columns: 1, minWidth: 480, title: 52, label: 50, desc: 56 },
+  { columns: 2, minWidth: 688, title: 78, label: 32, desc: 38 },
+  { columns: 2, minWidth: 840, title: 102, label: 46, desc: 51 },
+  { columns: 3, minWidth: 1018, title: 120, label: 32, desc: 38 },
+];
+
 const GUIDES_STYLE = `
     .tool { margin-top: 34px; }
     .tool h3 { font-size: 1.05rem; letter-spacing: -.02em; margin: 0 0 3px; }
@@ -6975,14 +7433,61 @@ const GUIDES_STYLE = `
     .tool h3 a:hover, .tool h3 a:focus-visible { color: var(--accent); text-decoration: underline; }
     .tool .note { font-size: .85rem; color: var(--soft); margin: 0 0 10px; }
     .answers { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px;
-               grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+               grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); }
     .answers li { background: var(--panel); border: 1px solid var(--line);
                   border-radius: 11px; padding: 12px 14px; font-size: .94rem;
                   line-height: 1.45; }
     .answers a { color: var(--accent); text-decoration: none; font-weight: 600; }
     .answers a:hover, .answers a:focus-visible { text-decoration: underline; }
     .answers p { margin: 5px 0 0; color: var(--muted); font-size: .88rem; line-height: 1.45; }
-`;
+    /* The page holds every guide in the catalogue (1,626 cards in 609 tool
+       blocks on 2026-11-11, 265,000 px tall on a 412 px phone), and laying
+       all of it out on load cost about 920 ms of style and layout at 4x CPU
+       (longtask.mjs; Lighthouse devtools TBT 883 ms). Off-screen tool blocks
+       now skip rendering until they near the viewport. The content stays in
+       the DOM, so find-in-page, links and crawlers still see all of it.
+
+       Each block's placeholder height (--h1/--h2/--h3, one per grid width)
+       comes from \`guideBlockHeights\`, an upper bound worked out from its
+       own text. It has to be an upper bound: a skipped block keeps its
+       placeholder height while its cards still lay out at full size, so a
+       short estimate makes those cards overlap the next block for anything
+       that measures them off screen (Lighthouse's target-size audit failed
+       16 cards with a row-count estimate). \`auto\` swaps in the real height
+       once a block has been seen. docs/reports/polish-2026-11-11-guides-render-cost.md */
+    .tool { content-visibility: auto; contain-intrinsic-size: auto var(--h1, 400px); }
+${GUIDE_COLUMNS.slice(1)
+  .map((c, i) => `    @media (min-width: ${c.minWidth}px) { .tool { contain-intrinsic-size: auto var(--h${i + 2}, 400px); } }\n`)
+  .join('')}`;
+
+
+/**
+ * An upper bound on a guides-page tool block's rendered height, in px, at
+ * each column count, for the off-screen placeholder `GUIDES_STYLE` gives it:
+ * the h3 (20 px a line, 3 px under), the count note (16 px, 10 under), then
+ * each grid row as tall as its tallest card (26 px of padding and border,
+ * 21.8 px a link line, 5 + 20.4 px a description line) with 10 px gaps.
+ */
+export function guideBlockHeights(title, items) {
+  const lines = (text, perLine) => Math.max(1, Math.ceil(String(text || '').length / perLine));
+  return GUIDE_COLUMNS.map(({ columns, title: t, label, desc }) => {
+    const cards = items.map((item) => {
+      const d = item.description ? truncate(item.description, 130) : '';
+      return 26 + lines(item.label, label) * 21.81 + (d ? 5 + lines(d, desc) * 20.42 : 0);
+    });
+    let rows = 0;
+    for (let i = 0; i < cards.length; i += columns) rows += Math.max(...cards.slice(i, i + columns));
+    const gaps = Math.max(0, Math.ceil(cards.length / columns) - 1) * 10;
+    // + 4: Chromium's sub-pixel line boxes came out up to 1.1% over the
+    // whole-pixel sum on the tallest blocks.
+    return Math.ceil((lines(title, t) * 20 + 3 + 16 + 10 + rows + gaps) * 1.012 + 4);
+  });
+}
+
+/** The inline custom properties a guides-page tool block carries. */
+export function guideBlockStyle(title, items) {
+  return guideBlockHeights(title, items).map((h, i) => `--h${i + 1}:${h}px`).join(';');
+}
 
 /**
  * Every guide page in the catalogue, on one URL, grouped by trade and then by
@@ -7011,16 +7516,16 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
 
   const title = 'Guides: what to charge, and how each price is worked out';
   const description =
-    `${total} plain-English pages from ${groups.length} free calculators — how a price is built up, ` +
+    `${formatCount(total)} plain-English pages from ${groups.length} free calculators — how a price is built up, ` +
     'when one option beats another, and what to do with the answer. Written by each tool\'s author, ' +
     'free, and with the calculator on the same site.';
 
   const entryHref = (item) => `${toRoot}${item.slug}/${item.file}`;
 
-  const renderTool = (group) => `        <div class="tool">
-          <h3><a href="${escapeHtml(`${toRoot}${group.slug}/`)}" data-tool="${escapeHtml(group.slug)}" data-pf-to="${escapeHtml(group.slug)}">${escapeHtml(group.title)}</a></h3>
+  const renderTool = (group) => `        <div class="tool" style="${escapeHtml(guideBlockStyle(group.title, group.items))}">
+          <h3><a href="${escapeHtml(`${toRoot}${group.slug}/`)}" data-tool="${escapeHtml(group.slug)}" data-pf-to="${escapeHtml(group.slug)}">${escapeHtml(cardName(group.title))}</a></h3>
           <p class="note">${escapeHtml(
-            `${group.items.length} page${group.items.length === 1 ? '' : 's'} beside the calculator`,
+            `${group.items.length} page${group.items.length === 1 ? '' : 's'} beside the tool`,
           )}</p>
           <ul class="answers">
 ${group.items
@@ -7038,7 +7543,7 @@ ${group.items
       ({ category, tools }) => `      <section class="subject" id="${escapeHtml(anchorFor(category))}">
         <h2>${escapeHtml(categoryPageCopy(category).title)}</h2>
         <p class="note">${escapeHtml(
-          `${tools.reduce((n, t) => n + t.items.length, 0)} pages across ${tools.length} tool${
+          `${formatCount(tools.reduce((n, t) => n + t.items.length, 0))} pages across ${tools.length} tool${
             tools.length === 1 ? '' : 's'
           } for ${categoryPageCopy(category).audience}.`,
         )} <a href="${escapeHtml(`${toRoot}${categoryPagePath(category.id)}`)}">${escapeHtml(
@@ -7126,7 +7631,7 @@ ${tools.map(renderTool).join('\n')}
       <p class="eyebrow">Guides</p>
       <h1>The question people ask before they know a calculator exists</h1>
       <p class="lede">Every tool on this site ships pages beside the calculator: how a price is actually built up, when one option beats another, what a fee schedule does to a payout, and what to do with the number once you have it. They are written by the tool's author, in plain English, and the calculator that answers the same question with your own figures is one click away from each one.</p>
-      <p class="count">${total} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
+      <p class="count">${formatCount(total)} page${total === 1 ? '' : 's'} across ${groups.length} tool${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>${exceptionList}
     </header>
 
     <nav class="jump" aria-label="Guides by trade">
@@ -7224,7 +7729,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   const total = surfaces.length;
   const categoryCount = groups.length;
   const title = 'About these tools';
-  const description = `Who makes these ${total} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
+  const description = `Who makes these ${formatCount(total)} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
 
   // The one absolute claim below — nothing typed ever leaves the browser —
   // is true for every tool except one this checks for: a tool whose whole
@@ -7240,11 +7745,11 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
   // The boilerplate a linker copies. Kept as data, not prose, so the numbers in
   // it cannot drift from the catalogue the way hand-written marketing copy does.
-  const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
+  const shortBoiler = `${formatCount(total)} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
   const deviceClaim = exceptions.length
-    ? `the numbers a user types never leave their device, except on ${listProse(exceptions.map((x) => toolProseName(x.title)))}, where the one thing you paste — the lookup target — goes to the public API it checks (${exceptionHosts}) and nowhere else`
+    ? `the numbers a user types never leave their device, except on ${exceptions.length === 1 ? toolProseName(exceptions[0].title) : `${exceptions.length} ${EXCEPTION_NOUN} (${EXCEPTION_KINDS})`}, which send what you give them to that service and nowhere else`
     : `the numbers a user types never leave their device`;
-  const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
+  const longBoiler = `${SITE_NAME} is a collection of ${formatCount(total)} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${formatCount(total)} are free with no gated features and no paid tier.`;
 
   // A stand-in slug, not a real one: naming an actual tool here would go stale
   // the day that tool is renamed, and every real snippet is already generated,
@@ -7308,16 +7813,16 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
     <header class="pf-hero">
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
+      <p class="lede">${formatCount(total)} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
         exceptions.length
-          ? `The numbers you type never leave your device, except on the ${exceptions.length} lookup tools listed below, where the one thing you paste goes to the public API that tool checks.`
+          ? `The numbers you type never leave your device, except on the ${exceptions.length} ${EXCEPTION_NOUN} listed below (${EXCEPTION_KINDS}), which send what you give them to that service.`
           : 'The numbers you type never leave your device.'
       }</p>${
         exceptions.length
           ? `
       <details class="exceptions">
-        <summary>The ${exceptions.length} lookup tools that call a public API</summary>
-        <p>${deviceClaim.replace(/^the numbers a user types never leave their device, /, 'The numbers a user types never leave their device, ')}.</p>
+        <summary>The ${exceptions.length} ${EXCEPTION_NOUN}</summary>
+        <p>${listProse(exceptions.map((x) => escapeHtml(toolProseName(x.title))))}. Between them they call ${exceptionHosts}.</p>
       </details>`
           : ''
       }
@@ -7361,7 +7866,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels; the counter adds the country code and device type from the request)' : ''}${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels; the counter adds the country code and device type from the request)' : ''}${exceptions.length ? ` — except ${exceptionNames}, which call an outside service (${EXCEPTION_KINDS}). What you give one of those goes to the host it names and nowhere else on this site` : ''}.</li>
           <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>${feedbackOn() ? `
           <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, and is then published in the site's public GitHub repository. Nothing about you is stored with it, and email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
@@ -7436,7 +7941,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       <p class="boiler">${escapeHtml(longBoiler)}</p>
       <h3>The facts, if you would rather write your own</h3>
       <ul>
-        <li><strong>${total} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
+        <li><strong>${formatCount(total)} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
         <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${exceptionNames} ${exceptions.length === 1 ? 'is the one documented exception' : 'are the documented exceptions'} — see Privacy above.` : ' No upload.'}</li>
         <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
@@ -7449,7 +7954,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
       <h2>Embedding a tool on your own page</h2>
       <p>
-        Every one of the ${total} tools here can be framed on someone else's
+        Every one of the ${formatCount(total)} tools here can be framed on someone else's
         page — a trade association's resource page, a supplier's blog post, a
         forum's sidebar. Open any tool and scroll to the bottom for a
         ready-made, copyable snippet built from that page's own address and
@@ -7524,7 +8029,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
   const url = `${baseUrl}${FEEDBACK_PATH}`;
   const toRoot = '../';
   const title = 'Report a problem or suggest a feature';
-  const description = `Tell us what is wrong with one of these ${surfaces.length} free tools, or what you would like one to do. No account needed.`;
+  const description = `Tell us what is wrong with one of these ${formatCount(surfaces.length)} free tools, or what you would like one to do. No account needed.`;
   const issueBase = `${REPO_URL}/issues/new`;
   const form = feedbackUrl
     ? `
@@ -7656,13 +8161,57 @@ const FEEDBACK_STYLE = `
     #fb textarea { width: 100%; box-sizing: border-box; font: inherit; padding: 10px 12px;
                    border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #fb button { margin-top: 12px; font: inherit; font-weight: 600; padding: 9px 18px; border-radius: 9px;
-                 border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+                 border: 1px solid var(--accent); background: var(--accent); color: var(--bg); cursor: pointer; }
     #fb button:disabled { opacity: .6; cursor: progress; }
     #fb-status { min-height: 1.5em; margin-top: 10px; }
     .fb-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 `;
 
 /** Where the open custom development page is served, relative to the site root. */
+/**
+ * Request notes grow into running logs (R-0005's was 8,767 characters, its
+ * ask 1,158), and the list showed every word of them, so the page a business
+ * lands on ran to 16,000 px on a phone. The list shows a clipped excerpt with
+ * a link to the request's page; that page shows a short lead and the rest in
+ * a `<details>`, split into sentences so it reads as a log, not a wall.
+ */
+export const REQUEST_ASK_CLIP = 220;
+export const REQUEST_NOTE_CLIP = 300;
+const REQUEST_NOTE_LEAD = 600;
+const wordCount = (t) => String(t ?? '').trim().split(/\s+/).filter(Boolean).length;
+
+/** Split a long note into sentences, at ". " before a capital or digit, keeping parentheses intact. */
+export function noteSentences(text) {
+  const t = String(text ?? '').replace(/\s+/g, ' ').trim();
+  const out = [];
+  let depth = 0, start = 0;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (c === '(') depth++;
+    else if (c === ')') depth = Math.max(0, depth - 1);
+    else if (c === '.' && depth === 0 && t[i + 1] === ' ' && /[A-Z0-9]/.test(t[i + 2] || '') && !/\b(?:e\.g|i\.e|vs|etc|No|St|Dr|Mr|Ms|Inc|Ltd)$/.test(t.slice(start, i))) {
+      out.push(t.slice(start, i + 1));
+      start = i + 2;
+    }
+  }
+  if (start < t.length) out.push(t.slice(start));
+  return out.filter(Boolean);
+}
+
+export function requestNoteHtml(label, note) {
+  const flat = String(note ?? '').replace(/\s+/g, ' ').trim();
+  if (flat.length <= REQUEST_NOTE_LEAD * 1.5) return `<p><strong>${escapeHtml(label)}:</strong> ${descriptionHtml(flat)}</p>`;
+  const sentences = noteSentences(flat);
+  const lead = [];
+  let used = 0;
+  while (sentences.length && (lead.length === 0 || used + sentences[0].length <= REQUEST_NOTE_LEAD)) {
+    used += sentences[0].length;
+    lead.push(sentences.shift());
+  }
+  return `<p><strong>${escapeHtml(label)}:</strong> ${descriptionHtml(lead.join(' '))}</p>${sentences.length ? `
+      <details class="cd-more"><summary>The full log (${sentences.length} more entries, ${wordCount(sentences.join(' '))} words)</summary><ul class="cd-log">${sentences.map((x) => `<li>${descriptionHtml(x)}</li>`).join('')}</ul></details>` : ''}`;
+}
+
 export const CUSTOM_DEV_PATH = 'custom-development/';
 
 /** A request's own page, relative to the site root: `custom-development/R-0001/`. */
@@ -7716,11 +8265,13 @@ export function researchDirections(repoRoot = REPO_ROOT) {
 
 /** The `<option>`s of the research direction picker, grouped as `researchDirections` returns them. */
 function renderDirectionOptions({ programmes = [], themes = [] }) {
-  const cut = (t, n) => (t.length > n ? `${t.slice(0, n - 1).trimEnd()}…` : t);
+  // Titles arrive as authored HTML (`market&rsquo;s`): decode before escaping, or
+  // the menu shows the entity as text, and before cutting, so the cut counts characters.
+  const cut = (t, n) => { const s = decodeEntities(String(t)); return s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s; };
   const progs = programmes.length
     ? `<optgroup label="Open research programmes">${programmes.map((p) => `<option value="${escapeHtml(p.slug)}">${escapeHtml(cut(`${p.slug}: ${p.question}`, 110))}</option>`).join('')}</optgroup>`
     : '';
-  return progs + themes.map((t) => `<optgroup label="${escapeHtml(`${t.name} (${t.projects.length})`)}">${t.projects.map((p) => `<option value="${escapeHtml(p.slug)}">${escapeHtml(cut(p.title, 110))}</option>`).join('')}</optgroup>`).join('');
+  return progs + themes.map((t) => `<optgroup label="${escapeHtml(`${decodeEntities(t.name)} (${t.projects.length})`)}">${t.projects.map((p) => `<option value="${escapeHtml(p.slug)}">${escapeHtml(cut(p.title, 110))}</option>`).join('')}</optgroup>`).join('');
 }
 
 /** The stages a request moves through, as the stepper draws them. `declined` is shown beside them, not on the line. */
@@ -7931,7 +8482,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
       return `
           <tr data-status="${escapeHtml(r.status)}" data-text="${escapeHtml(text)}">
             <td><a href="${escapeHtml(`${r.id}/`)}">${escapeHtml(r.id)}</a></td>
-            <td><strong>${escapeHtml(r.title)}</strong><br><span class="cd-ask">“${escapeHtml(r.ask)}”, from ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, ${escapeHtml(r.received)}</span>${note ? `<br>${escapeHtml(note)}` : ''}</td>
+            <td><strong>${escapeHtml(r.title)}</strong><br><span class="cd-ask">“${escapeHtml(clip(r.ask, REQUEST_ASK_CLIP))}”, from ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, ${escapeHtml(r.received)}</span>${note ? `<br>${descriptionHtml(clip(note, REQUEST_NOTE_CLIP))}${clip(note, REQUEST_NOTE_CLIP) !== String(note).replace(/\s+/g, ' ').trim() ? ` <a href="${escapeHtml(`${r.id}/`)}">Full status</a>` : ''}` : ''}</td>
             <td><span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span><br><small>${escapeHtml(r.updated)}</small></td>
             <td>${links}</td>
           </tr>`;
@@ -8102,14 +8653,15 @@ export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, re
     <header class="pf-hero">
       <p class="eyebrow">Request ${escapeHtml(r.id)} · <span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span></p>
       <h1>${escapeHtml(r.title)}</h1>
-      <p class="lede">“${escapeHtml(r.ask)}”</p>
+      <p class="lede">“${escapeHtml(clip(r.ask, REQUEST_ASK_CLIP))}”</p>${clip(r.ask, REQUEST_ASK_CLIP).length < String(r.ask).trim().length ? `
+      <details class="cd-more"><summary>The whole request (${wordCount(r.ask)} words)</summary><p>“${escapeHtml(r.ask)}”</p></details>` : ''}
       <p class="cd-ask">From ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, received ${escapeHtml(r.received)}, last updated ${escapeHtml(r.updated)}.</p>
     </header>
 
     <main class="prose">
       <h2>Where it is</h2>
       ${renderRequestStepper(r.status)}
-      ${note ? `<p><strong>${r.status === 'declined' ? 'Why' : 'Still open'}:</strong> ${escapeHtml(note)}</p>` : ''}
+      ${note ? requestNoteHtml(r.status === 'declined' ? 'Why' : 'Where it stands', note) : ''}
 
       <h2>Follow it</h2>
       <ul>
@@ -8135,6 +8687,9 @@ const CUSTOM_DEV_STYLE = `
     .cd-table table { border-collapse: collapse; width: 100%; }
     .cd-table th, .cd-table td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
     .cd-ask { color: var(--muted); font-size: .92em; }
+    .cd-more { margin: 8px 0 14px; } .cd-more summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+    .pf-hero .cd-more summary { color: inherit; text-decoration: underline; }
+    .cd-log { margin: 8px 0 0; padding-left: 1.2em; } .cd-log li { margin: 4px 0; }
     .cd-st { display: inline-block; font-weight: 600; font-size: .85em; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); }
     .cd-building, .cd-accepted { border-color: var(--accent); color: var(--accent); }
     .cd-cta { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin: 18px 0 0; }
@@ -8159,13 +8714,13 @@ const CUSTOM_DEV_STYLE = `
     .cd-mic-row { margin: 4px 0 10px; }
     .cd-mic-row[hidden], #cdf-mic-note[hidden] { display: none; }
     #cdf .cd-mic { font: inherit; font-size: .9em; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
-    #cdf .cd-mic[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+    #cdf .cd-mic[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--bg); }
     #cdf select { width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cdf .cd-check { font-weight: 400; color: var(--ink); display: flex; gap: 8px; align-items: flex-start; }
     .cd-filter { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
     .cd-filter[hidden] { display: none; }
     .cd-filter button { font: inherit; font-size: .88em; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; text-transform: capitalize; }
-    .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--bg); }
     .cd-filter input { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cd-shown { color: var(--muted); font-size: .88em; }
     @media (max-width: 700px) { .cd-steps { grid-template-columns: 1fr 1fr; } }
@@ -8457,7 +9012,7 @@ export function renderHub(
   <title>${escapeHtml(SITE_NAME)} | Free Tools, Self-Hostable Apps &amp; Research</title>
   <meta name="description" content="${escapeHtml(
     snippetize(
-      `Free bid calculators, fee checkers and pricing tools for small businesses: ${browserCount} open-source tools that run in your browser, plus self-hostable apps. No sign-up.`,
+      `Free bid calculators, fee checkers and pricing tools for small businesses: ${formatCount(browserCount)} open-source tools that run in your browser, plus self-hostable apps. No sign-up.`,
     ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">${verificationHead()}
@@ -8573,7 +9128,7 @@ export function renderHub(
     .band-lede { color: var(--muted); line-height: 1.6; max-width: 70ch; margin: 0; }
     /* The category grid: the browse path for a visitor who cannot name the tool. */
     .cats { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 14px;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+            grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr)); }
     .for-list { list-style: none; padding: 0; margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
     .for-list a { display: inline-block; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px;
                   background: var(--panel); color: var(--ink); text-decoration: none; font-weight: 600; font-size: .92rem; }
@@ -8593,13 +9148,13 @@ export function renderHub(
     .cat-all { font-weight: 650; font-size: .9rem; text-decoration: none; }
     .cat-all:hover { text-decoration: underline; }
     .featured { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 12px;
-                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+                grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); }
     .featured li { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
     .featured a { font-weight: 650; color: var(--ink); text-decoration: none; }
     .featured a:hover, .featured a:focus-visible { color: var(--accent); text-decoration: underline; }
     .featured .f-cat { display: block; font-size: .78rem; color: var(--soft); margin-top: 3px; }
     .featured p { margin: 6px 0 0; font-size: .87rem; color: var(--muted); line-height: 1.5; }
-    .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 22px; }
+    .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 14px; margin-top: 22px; }
     .pillar { display: flex; flex-direction: column; padding: 22px; border: 1px solid var(--line); border-radius: 16px;
               background: var(--panel); color: var(--ink); text-decoration: none;
               transition: border-color .15s, transform .15s; }
@@ -8727,16 +9282,21 @@ ${HERO_BACKDROP_HTML}
       <h1>Free tools to <span class="grad">price the job, check the fees</span> and run your business.</h1>
 ${
   audienceWords.length
-    ? `      <p class="ticker">Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</p>\n`
+    ? `      <p class="ticker" data-longest="${escapeHtml(longestWord(audienceWords))}"><span>Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</span></p>\n`
     : ''
 }
+      <!-- Two sentences, so the search box sits above the fold on a phone
+           (polish 2026-11-12: the old five-sentence lede ran 13 lines at
+           320 px). "Open source", "check how a number was reached" and "run
+           your own copy" are steps 2 and 3 of the how-it-works band below;
+           research is in the search label and the stats. -->
+      <div class="hero-grid">
+      <div class="hero-main">
       <p class="lede">
         Bid calculators for the trades, fee checkers for marketplace sellers, and
-        pricing, tax and back-office tools for service businesses. Open one, type
-        your numbers and get an answer: no account, no paywall, and the arithmetic
-        happens on your device. Every formula is open source, so you can check how
-        a number was reached, and the apps can run in your own cloud account.
-        ${escapeHtml(SITE_NAME)} publishes open research the same way, code and tests included.
+        pricing, tax and back-office tools for service businesses. Type your
+        numbers and get an answer: no account, no paywall, and the arithmetic
+        happens on your device.
       </p>
 
       <!-- The search runs over a JSON index of every tool and research project
@@ -8744,7 +9304,7 @@ ${
            JavaScript the category grid below is the way in: every tool is on
            its category's page. -->
       <form class="search" id="${SEARCH_ANCHOR}" role="search" action="./" method="get">
-        <label for="q">Search ${surfaces.length} tools${researchCount ? ` and ${researchCount} research projects` : ''}</label>
+        <label for="q">Search ${formatCount(surfaces.length)} tools${researchCount ? ` and ${formatCount(researchCount)} research projects` : ''}</label>
         <div class="search-row">
           <input id="q" name="q" type="search" placeholder="eBay fees, roofing bid, freight, VAT, scoring rules…"
                  autocomplete="off" spellcheck="false">
@@ -8759,10 +9319,10 @@ ${
       </form>
 
       <dl class="stats" id="overview">
-        <div><dt>Browser tools</dt><dd><a href="${CATEGORY_PATH_PREFIX}/">${browserCount}</a></dd></div>
-        <div><dt>Self-hostable apps</dt><dd><a href="${escapeHtml(categoryPagePath('apps'))}">${apps.length}</a></dd></div>
-        <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${clis.length}</a></dd></div>
-        <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${researchCount}</a></dd></div>
+        <div><dt>Browser tools</dt><dd><a href="${CATEGORY_PATH_PREFIX}/">${formatCount(browserCount)}</a></dd></div>
+        <div><dt>Self-hostable apps</dt><dd><a href="${escapeHtml(categoryPagePath('apps'))}">${formatCount(apps.length)}</a></dd></div>
+        <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${formatCount(clis.length)}</a></dd></div>
+        <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${formatCount(researchCount)}</a></dd></div>
       </dl>
 
       <!-- The open custom development offer, aimed at businesses (owner,
@@ -8773,6 +9333,9 @@ ${
         <p>No tool here does what you need? Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result stays open source (MIT).</p>
         <a class="go" href="${CUSTOM_DEV_PATH}">Describe your problem</a>
       </section>
+      </div>
+${renderHeroArt(showcase.shots, (slug) => titles.get(slug) ?? slug)}
+      </div>
     </div>
   </header>
 
@@ -8838,7 +9401,7 @@ ${
   audiencePages.length
     ? `    <section class="band" id="for" aria-labelledby="for-h">
       <p class="section-eyebrow">Who it is for</p>
-      <h2 id="for-h">Find the tools for your trade or business</h2>
+      <h2 id="for-h">Find the tools for your trade, business or stage of life</h2>
       <p class="band-lede">The same tools, filed by who they are for. Each page lists the calculators that kind of business uses, and what to price first if you are just starting one.</p>
       <ul class="for-list">
 ${audiencePages
@@ -8858,7 +9421,7 @@ ${audiencePages
     <section class="band" id="browse" aria-labelledby="browse-h">
       <p class="section-eyebrow">Browse</p>
       <h2 id="browse-h">Tools by the job they do</h2>
-      <p class="band-lede">${surfaces.length} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
+      <p class="band-lede">${formatCount(surfaces.length)} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
       <ul class="cats">
 ${categoryTiles}
       </ul>
@@ -9846,7 +10409,7 @@ const CHROME_CSS = `
  * own content already, by its border, fill and position. */
 .pf-chrome-foot p{margin:0 0 12px}
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))}
 .pf-chrome-foot li{margin:0}
 .pf-chrome-foot p.pf-ask{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
 .pf-ci{margin:0 0 14px}
@@ -9867,20 +10430,48 @@ const CHROME_CSS = `
  *
  * The mark is the one literal colour here, and it is not text: it is the
  * site's logo (pf-site.css draws the same compass-star mark), so it reads as one
- * site on every venture palette instead of a blot of the host's ink. */
-body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0}
+ * site on every venture palette instead of a blot of the host's ink.
+ *
+ * "First child" also allows one leading <noscript>. The JavaScript-needed
+ * notice (addNoscriptNotice, 2026-11-09) is inserted right after <body>, so on
+ * the 1,900-odd tool pages that carry it the band stopped being :first-child and
+ * all three rules here stopped matching. The band sat 24px down until pf-site.js
+ * pulled it up after first paint: a layout shift of 0.027 on every one of those
+ * pages, measured with Lighthouse on wall-framing-takeoff on 2026-11-11. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]){padding-top:0;margin-top:0}
 .pf-chrome-top[data-pfs-head]{margin:0 0 26px;border-bottom:0;
   box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
 .pf-chrome-top .pfs-bar{padding:12px 0}
 .pf-chrome-top .pfs-crumbs{padding:0 0 10px}
 .pf-chrome-top .pfs-mark{background:${MARK_BG}}
-.pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
-[data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
 /* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
  * in the same column, so they line up with the venture's content rather than
  * their own 18px inset. */
-body:has(> .pf-chrome-top[data-pfs-head]:first-child) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
-body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status:empty{display:none}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]) > .pf-jobs .pf-jobs-status:empty{display:none}
+/* Since 2026-11-12 the bars sit under the venture's heading block instead of
+ * above it (toolHeadingEnd in jobs.mjs). Their top padding used to be the only
+ * space between the band and the content; without it the eyebrow touched the
+ * breadcrumb (0px gap, against 14px on the median tool page with no bars:
+ * the band's 26px bottom margin is reset to 0 by VENTURE_CHROME_CSS). 16px
+ * collapses with a first child's own top margin, so it never doubles. */
+header:has(+ .pf-rates, + .pf-jobs){margin-top:16px}
+/* The venture's body top padding, zeroed above, was its only space under the
+ * band on most tool pages; the build marks those (bodyTopPadded) and the band
+ * gives 16px back. A margin, so it collapses with the first child's own top
+ * margin (14px on the median page) instead of adding to it. The selector has
+ * to outweigh VENTURE_CHROME_CSS's margin:0 on the same nav. */
+nav.pf-chrome.pf-chrome-top[data-pfs-head][data-pfs-gap]{margin-bottom:16px}
+/* Where a bar still sits straight under the band (the three tools whose h1 is
+ * not in a header: toolHeadingEnd), the bar's own top padding is the space. */
+nav.pf-chrome.pf-chrome-top[data-pfs-head][data-pfs-gap]:has(+ .pf-rates, + .pf-jobs){margin-bottom:0}
+/* A venture whose body has no side padding (it pads main or a wrapper; the
+ * build marks the band data-pfs-inset, bodySidePadded) put the brand, Search
+ * and the trail flush against the screen edges on a phone: 61 tool pages at
+ * 390px on 2026-11-15. The rows take a 16px gutter while the band is narrower
+ * than the 1,120px column plus 32px, tapering to none above that, so a desktop
+ * row stays where it was. Percentages here are of the band's width. */
+.pf-chrome-top[data-pfs-inset] :is(.pfs-bar,.pfs-crumbs){padding-left:clamp(0px,calc(576px - 50%),16px);padding-right:clamp(0px,calc(576px - 50%),16px)}
 
 /* Site chrome is not part of anything a visitor prints.
  *
@@ -9934,7 +10525,14 @@ export function renderChromeStyle() {
   // The site header's layout rules ride along (see site-nav.mjs), then
   // `VENTURE_CHROME_CSS`, which gives the venture header and footer the site's
   // own palette so every tool page carries the same bar as the rest of the site.
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}`;
+  // The floating voice button's rules close it (assistant.mjs, ASSISTANT_VOICE_CSS),
+  // then the scroll hint for a stuck result card that pf-site.js capped
+  // (sticky-fit.mjs, STICKY_FIT_CSS), then the shared jump row and guide list
+  // a tool page adopts with markup alone (jump-row.mjs, JUMP_ROW_CSS), and the
+  // "quick answer" look of an answer-first lead (answer-lead-style.mjs), and the
+  // floor that keeps a select in a table cell readable (select-fit.mjs; it must
+  // follow REFLOW_CSS, whose narrow-screen min-width:0 it overrides).
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}${JUMP_ROW_CSS}${ANSWER_LEAD_CSS}${SELECT_FIT_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -10047,18 +10645,66 @@ const SCROLL_A11Y_SCRIPT = `
   // for directly.
   var candidates=[];
   var tables=0;
+  var SCROLLS=/^(auto|scroll|overlay)$/;
+  // The elements worth asking getComputedStyle about: those some rule or a
+  // style attribute could give overflow-x:auto|scroll. Asking all of them was
+  // the expensive part. Measured 2026-11-11 on wall-framing-takeoff (4,204
+  // elements) at 4x CPU throttling: the first sweep took ~100 ms of the
+  // page's DOMContentLoaded task and a second identical sweep ~15 ms, because
+  // Chrome builds a computed-style object for each element the first time it is
+  // asked. The rule scan reads a few hundred rules instead. It is a superset
+  // (a rule inside a media query that does not match still counts) and every
+  // element it finds is checked with getComputedStyle, so it never adds a tab
+  // stop the old sweep would not have. The one thing it leaves out is the
+  // browser's own stylesheet, which gives only <textarea> overflow:auto, and a
+  // textarea takes focus already. null means the rules could not all be read:
+  // sweep everything, as before.
+  var selectors=function(){
+    if(!document.styleSheets||!document.body||!document.body.querySelectorAll)return null;
+    var out=[],ok=true;
+    var walk=function(rules){
+      for(var i=0;i<rules.length;i++){
+        var r=rules[i];
+        // @import: its sheet's rules, or null when that sheet is cross-origin.
+        if(r.styleSheet){walk(r.styleSheet.cssRules);continue;}
+        var st=r.style;
+        if(st&&r.selectorText&&(SCROLLS.test(st.overflowX)||SCROLLS.test(st.getPropertyValue('overflow-inline'))))out.push(r.selectorText);
+        if(r.cssRules)walk(r.cssRules);
+      }
+    };
+    var sheets=[].slice.call(document.styleSheets).concat(document.adoptedStyleSheets||[]);
+    for(var s=0;s<sheets.length&&ok;s++){
+      try{walk(sheets[s].cssRules);}catch(e){
+        // A cross-origin sheet hides its rules. Google Fonts' is the only one
+        // the site links, and it holds nothing but @font-face; any other one
+        // could hold an overflow rule we cannot see.
+        if(!/^https:\\/\\/fonts\\.googleapis\\.com\\//.test(sheets[s].href||''))ok=false;
+      }
+    }
+    return ok?out:null;
+  };
+  var wrap=function(){
+    ${WRAP_TABLES_JS}
+    tables=document.getElementsByTagName('table').length;
+  };
   var collect=function(){
     // Before the sweep, not after: a table a calculator just wrote into its
     // result panel has no scrolling box around it yet, so collecting first
     // would find nothing to give a tab stop to. See reflow.mjs.
-    ${WRAP_TABLES_JS}
+    wrap();
     candidates=[];
-    var all=document.body?document.body.getElementsByTagName('*'):[];
+    var sel=selectors(),all=null;
+    if(sel){
+      sel.push('[style*="overflow"]');
+      // One bad selector (a pseudo-element, say) throws for the whole list,
+      // and then the full sweep below is the answer.
+      try{all=document.body.querySelectorAll(sel.join(','));}catch(e){all=null;}
+    }
+    if(!all)all=document.body?document.body.getElementsByTagName('*'):[];
     for(var i=0;i<all.length;i++){
       var o=getComputedStyle(all[i]).overflowX;
       if(o==='auto'||o==='scroll')candidates.push(all[i]);
     }
-    tables=document.getElementsByTagName('table').length;
   };
   var measure=function(){
     for(var i=0;i<candidates.length;i++){
@@ -10076,16 +10722,33 @@ const SCROLL_A11Y_SCRIPT = `
       }
     }
   };
-  var full=function(){try{collect();measure();}catch(e){}};
+  // The sweep and the width check run just after the next paint, not inside
+  // the event that asked for them. Reading scrollWidth in the middle of a
+  // DOMContentLoaded or input handler, after a calculator has just rewritten
+  // its result panel, makes the browser lay the page out there and then; after
+  // the paint the layout is already done and the read is free. Measured
+  // 2026-11-11 (docs/reports/polish-2026-11-11-scroll-sweep.md). A tab stop
+  // that arrives one frame later costs a keyboard user nothing. Wrapping a new
+  // table is not deferred: a wide table left unwrapped for a frame would push
+  // the page sideways.
+  // 0: nothing queued, 1: a width check, 2: a sweep and a width check.
+  var queued=0;
+  var later=function(level){
+    if(queued){if(level>queued)queued=level;return;}
+    queued=level;
+    var run=function(){var q=queued;queued=0;try{if(q>1)collect();measure();}catch(e){}};
+    var next=function(){setTimeout(run,0);};
+    if(typeof requestAnimationFrame==='function')requestAnimationFrame(next);else next();
+  };
+  var full=function(){try{wrap();}catch(e){}later(2);};
   // A recalculation that replaced the result panel can have added or removed a
   // table, and a table that arrived after the last sweep is not a candidate yet
   // — so the cheap path re-sweeps exactly when the table count moved, and stays
   // cheap on every other keystroke.
   var quick=function(){
-    try{
-      if(document.getElementsByTagName('table').length!==tables){collect();}
-      measure();
-    }catch(e){}
+    var moved=false;
+    try{if(document.getElementsByTagName('table').length!==tables){wrap();moved=true;}}catch(e){}
+    later(moved?2:1);
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',full);
   else full();
@@ -10113,7 +10776,7 @@ export const CHROME_MODULE_FILE = 'pf-site.js';
 
 /** The contents of that file. Written once by the build, at the site root. */
 export function renderChromeModule({ counterUrl = SITE_COUNTER_URL } = {}) {
-  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(VENTURE_CHROME_JS)}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
+  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(VENTURE_CHROME_JS)}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(STICKY_FIT_JS)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -10181,18 +10844,106 @@ export function upToRoot(relativePath) {
   return depth === 0 ? './' : '../'.repeat(depth);
 }
 
+// Words too common in these tools' names and descriptions to say two tools do
+// the same job. Generic English plus the catalogue's own boilerplate ("free",
+// "calculator", "browser"): without the second half every calculator would
+// look related to every other calculator.
+const RELATED_TOOL_STOPWORDS = new Set(
+  ('about after also and any are based before being both but can check checks does each every for free from '
+    + 'get gives has have how into its just like more most much not one only open other our out over own per '
+    + 'runs same see source than that the their them then there these they this those through tool tools '
+    + 'turn under use uses using what when where which while who will with without you your '
+    + 'browser calculator calculators estimate estimator private privately page pages online simple quick '
+    + 'data file files paste report list year years number numbers new').split(' '),
+);
+
+// Lower-case content words of one string, with a plural `s` and an `-ing` or
+// `-er` folded so "fences" and "fence" meet. Three letters or more: "tax", "vat", "csv" carry meaning.
+function relatedToolWords(text) {
+  const out = new Set();
+  for (const raw of String(text ?? '').toLowerCase().split(/[^a-z0-9]+/)) {
+    if (raw.length < 3 || /^\d+$/.test(raw) || RELATED_TOOL_STOPWORDS.has(raw)) continue;
+    let word = raw.length > 4 && raw.endsWith('s') && !raw.endsWith('ss') ? raw.slice(0, -1) : raw;
+    // "bookkeeping" and "bookkeeper", "roofing" and "roofer" meet at the stem.
+    if (word.length > 5 && word.endsWith('ing')) word = word.slice(0, -3);
+    else if (word.length > 5 && word.endsWith('er')) word = word.slice(0, -2);
+    if (!RELATED_TOOL_STOPWORDS.has(word)) out.add(word);
+  }
+  return out;
+}
+
+// One index per surfaces array: each tool's weighted words (name and slug 1,
+// description 0.5) and each word's document frequency. Built once per build
+// and reused for every tool's footer, like `writing.mjs`'s `relatedIndex`.
+const RELATED_TOOL_INDEX = new WeakMap();
+function relatedToolIndex(surfaces) {
+  const cached = RELATED_TOOL_INDEX.get(surfaces);
+  if (cached && cached.n === surfaces.length) return cached;
+  const weights = new Map();
+  const df = new Map();
+  for (const surface of surfaces) {
+    const w = new Map();
+    for (const word of relatedToolWords(surface.fullDescription ?? surface.description)) w.set(word, 0.5);
+    for (const word of relatedToolWords(`${surface.title ?? ''} ${surface.slug.replace(/-/g, ' ')}`)) w.set(word, 1);
+    weights.set(surface.slug, w);
+    for (const word of w.keys()) df.set(word, (df.get(word) ?? 0) + 1);
+  }
+  // A word in more than a fifth of the tools says little, and a word in one
+  // tool cannot connect it to another.
+  const cap = Math.max(2, Math.floor(surfaces.length / 5));
+  const idf = (word) => {
+    const n = df.get(word) ?? 0;
+    return n > 1 && n <= cap ? Math.log(surfaces.length / n) : 0;
+  };
+  const index = { n: surfaces.length, weights, idf };
+  RELATED_TOOL_INDEX.set(surfaces, index);
+  return index;
+}
+
+/**
+ * How much two tools' names and descriptions overlap: the shared content
+ * words, each weighted by its rarity across the catalogue (log N / df) and by
+ * where it appears (a word in both names counts four times one in both
+ * descriptions). 0 when they share nothing distinctive.
+ */
+export function relatedToolScore(surfaces, a, b) {
+  const { weights, idf } = relatedToolIndex(surfaces);
+  const wa = weights.get(a);
+  const wb = weights.get(b);
+  if (!wa || !wb) return 0;
+  let score = 0;
+  for (const [word, weight] of wa) {
+    const other = wb.get(word);
+    if (other) score += idf(word) * weight * other;
+  }
+  return score;
+}
+
 /**
  * Up to `limit` other tools to offer at the foot of `slug`'s pages: same
  * sub-group first, then the rest of the category, then the rest of the site.
- * Rotating each list by the tool's own position means neighbouring tools do not
- * all advertise the same four, while keeping the choice deterministic — the
- * build has to be reproducible.
  *
- * The sub-group tier matters most in `trades`, where "same category" is 110
+ * Within each tier, tools whose name and description share distinctive words
+ * with this one come first, most overlap first (`relatedToolScore`). Until
+ * 2026-11-16 each tier was only rotated by the tool's own position, and since
+ * thirteen of the sixteen categories have no sub-groups and run to 35 to 219
+ * tools, that rotation amounted to "the next four in the alphabet": Vendor
+ * Watch, a terms-change monitor, offered a VPAT generator and a Wise statement
+ * converter, and only met Vendor Change Watch because its name sorts beside it.
+ *
+ * Tools that share nothing keep the rotation as the fill, so neighbouring
+ * tools do not all advertise the same four, and the choice stays deterministic
+ * — the build has to be reproducible.
+ *
+ * The sub-group tier matters most in `trades`, where "same category" is 200
  * tools: without it a metal-roof page offers whichever four the rotation lands
  * on, and a roofer is shown a music-lesson break-even. Same sub-group means the
  * offer is another roofing, siding, or gutter bid — work the same visitor sells.
  */
+// What sharing a tier (category, then sub-group again) is worth against shared
+// words: about one rare word that both tools' names use.
+export const RELATED_TOOL_TIER_BONUS = 5;
+
 export function relatedTools(surfaces, slug, limit = 4) {
   const others = surfaces.filter((surface) => surface.slug !== slug);
   if (others.length === 0) return [];
@@ -10207,13 +10958,65 @@ export function relatedTools(surfaces, slug, limit = 4) {
   const sameCategory = others.filter((surface) => inCategory(surface) && !inSubcategory(surface));
   const rest = others.filter((surface) => !inCategory(surface));
 
-  const rotate = (list) => {
-    if (list.length === 0) return list;
-    const offset = surfaces.findIndex((surface) => surface.slug === slug) % list.length;
-    return [...list.slice(offset), ...list.slice(0, offset)];
+  const offset = Math.max(0, surfaces.findIndex((surface) => surface.slug === slug));
+  // Each tier's rotation, then one ranking over all three: overlap plus a
+  // bonus per tier, so a tie (above all a tie at no overlap) keeps the tier
+  // order, while a tool outside the category that shares a lot beats one
+  // inside it that shares little.
+  const rotate = (list, bonus) => {
+    if (list.length === 0) return [];
+    const at = offset % list.length;
+    return [...list.slice(at), ...list.slice(0, at)].map((surface) => ({ surface, bonus }));
   };
+  const BONUS = RELATED_TOOL_TIER_BONUS;
+  return [...rotate(sameSubcategory, 2 * BONUS), ...rotate(sameCategory, BONUS), ...rotate(rest, 0)]
+    .map((x, i) => ({ ...x, i, s: x.bonus + relatedToolScore(surfaces, slug, x.surface.slug) }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .slice(0, limit)
+    .map((x) => x.surface);
+}
 
-  return [...rotate(sameSubcategory), ...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
+// How far down an orphan's own ranking `relatedToolsTable` looks for a tool
+// that can link back to it.
+const RELATED_TOOL_ORPHAN_REACH = 20;
+
+/**
+ * Every tool's footer list at once: `relatedTools` for each, then balanced so
+ * that as few tools as possible are linked from no other tool's footer.
+ *
+ * Ranking by overlap alone concentrates links: a tool whose closest matches
+ * each have four closer matches of their own is offered by nobody (102 of
+ * 1,378 on 2026-11-16, against 36 under the old alphabet rotation). For each
+ * such orphan, in catalogue order, this walks the orphan's own ranking (best
+ * matches first) and takes the last, weakest, slot of the first tool that can
+ * spare it: one that does not list the orphan yet and whose last entry is
+ * linked from somewhere else too, so the swap never makes a new orphan. The
+ * same idea as the blog's related posts (`writing.mjs`, `relatedPosts`).
+ *
+ * Returns a Map from slug to its list of surfaces.
+ */
+export function relatedToolsTable(surfaces, limit = 4) {
+  const table = new Map(surfaces.map((surface) => [surface.slug, relatedTools(surfaces, surface.slug, limit)]));
+  if (limit < 1) return table;
+  const inbound = new Map();
+  for (const list of table.values()) for (const r of list) inbound.set(r.slug, (inbound.get(r.slug) ?? 0) + 1);
+  for (const orphan of surfaces) {
+    if (inbound.get(orphan.slug)) continue;
+    for (const host of relatedTools(surfaces, orphan.slug, RELATED_TOOL_ORPHAN_REACH)) {
+      const list = table.get(host.slug);
+      if (!list || list.length < limit || list.some((r) => r.slug === orphan.slug)) continue;
+      const weakest = list[list.length - 1];
+      if ((inbound.get(weakest.slug) ?? 0) < 2) continue;
+      // Only a tool that actually shares something with the orphan gives up
+      // a slot; an unrelated link is not worth the inbound one.
+      if (relatedToolScore(surfaces, host.slug, orphan.slug) === 0) continue;
+      list[list.length - 1] = orphan;
+      inbound.set(weakest.slug, inbound.get(weakest.slug) - 1);
+      inbound.set(orphan.slug, 1);
+      break;
+    }
+  }
+  return table;
 }
 
 /**
@@ -10284,12 +11087,19 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   const metaTags = () => [...next.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)];
   const tagFor = (attr, value) =>
     metaTags().find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0])) ?? null;
-  const contentOf = (tag) => decodeEntities(/\bcontent=(["'])([\s\S]*?)\1/i.exec(tag)?.[2] ?? '');
+  // Two quoted alternatives, not `(["'])...\1`: the same match, without the
+  // `i` backreference V8 runs about 20 times slower on two-byte pages
+  // (share.mjs, META_CONTENT).
+  const CONTENT = /\bcontent=(?:"([^"]*)"|'([^']*)')/i;
+  const contentOf = (tag) => {
+    const c = CONTENT.exec(tag);
+    return decodeEntities(c ? c[1] ?? c[2] : '');
+  };
 
   /** Rewrite one existing meta tag's content in place; a no-op if it has none. */
   const rewrite = (match, content) => {
     const replaced = match[0].replace(
-      /\bcontent=(["'])([\s\S]*?)\1/i,
+      CONTENT,
       () => `content="${escapeHtml(content)}"`,
     );
     if (replaced === match[0]) return;
@@ -10564,7 +11374,152 @@ function spliceAt(html, index, text) {
   return html.slice(0, index) + text + html.slice(index);
 }
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [] }) {
+/**
+ * Each `padding` / `padding-*` declaration on a rule whose selector is the
+ * page's `body` (by default `body`, `html body`, or the bare-tool base style's
+ * `:where(body)`; `body` narrows it), in any `<style>` block of `html`, at any media width.
+ * Yields `[property suffix, value]`, e.g. `['-top', '24px']` or `['', '0 16px']`.
+ */
+function* bodyPaddingDecls(html, body = /^(?:html )?(?:body|:where\(body\))$/) {
+  for (const block of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)) {
+    const css = block[1].replace(/\/\*[\s\S]*?\*\//g, '');
+    for (const rule of css.matchAll(/([^{};]+)\{([^{}]*)\}/g)) {
+      const selectors = rule[1].split(',').map((s) => s.trim().replace(/\s+/g, ' '));
+      if (!selectors.some((s) => body.test(s))) continue;
+      for (const decl of rule[2].matchAll(/(?:^|;)\s*padding(-[a-z-]+)?\s*:\s*([^;!]+)/gi)) {
+        yield [(decl[1] ?? '').toLowerCase(), decl[2].trim()];
+      }
+    }
+  }
+}
+
+const ZERO_LENGTH = /^[-+]?0*\.?0*(px|r?em|%|vh|vw)?$/i;
+
+/**
+ * True when the venture's own inline CSS gives `body` a top padding.
+ *
+ * The chrome stylesheet zeroes the body's top padding so the site band meets
+ * the top edge (`renderChromeStyle`). On 1,280 of the 1,354 tool pages that
+ * padding was the venture's only space above its first line, so a page whose
+ * eyebrow or `h1` carries no top margin of its own drew it 0 to 2px under the
+ * band, or 3px into it (123 pages measured on 2026-11-13). Those pages get
+ * `data-pfs-gap` on the band and a 16px bottom margin, which collapses with a
+ * first child's own margin, so it never doubles. Pages whose body has no top
+ * padding put their space on `main` or `header` instead (67 of them, 22 to 93px
+ * gaps); a margin there would add to that padding, so they are left alone.
+ *
+ * Reads `body { padding }` / `padding-top` in any inline `<style>`, at any
+ * media width: a body padded only on phones still lost that space there.
+ * (Only `body` and `html body`, as before 2026-11-15; `bodySidePadded` also
+ * reads `:where(body)`.)
+ */
+export function bodyTopPadded(html) {
+  for (const [side, value] of bodyPaddingDecls(html, /^(?:html )?body$/)) {
+    if (side !== '' && side !== '-top') continue;
+    if (!ZERO_LENGTH.test(value.split(/\s+/)[0])) return true;
+  }
+  return false;
+}
+
+/**
+ * True when the venture's CSS (inline `<style>` blocks plus `css`, the text of
+ * its own linked stylesheets) gives `body` a left padding at some width.
+ *
+ * The site band is the body's first child, so its row starts where the body's
+ * content box does, and at desktop widths the row is a centred 1,120px column
+ * with no side padding of its own. A venture that pads `main` or a wrapper
+ * instead of `body` put the brand, the Search pill and the breadcrumb flush
+ * against both screen edges on a phone: 61 of 1,366 tool pages at 390px on
+ * 2026-11-15 (1099-vendor-tracker, agent-workroom, card-processing-fee-audit,
+ * ...), while every other tool page has a 12 to 32px gutter. Pages that are not
+ * padded get `data-pfs-inset` on the band, and the band's rows take a 16px
+ * gutter of their own wherever the band is narrower than the column plus that
+ * gutter (`renderChromeStyle`).
+ *
+ * Checked against a browser on the 2026-11-15 build: it marks exactly the 61
+ * pages whose brand sat under 8px from the edge, and none of the other 1,305.
+ */
+export function bodySidePadded(html, css = '') {
+  for (const [side, value] of bodyPaddingDecls(`${html}<style>${css}</style>`)) {
+    const parts = value.split(/\s+/);
+    let left;
+    if (side === '') left = parts[parts.length === 4 ? 3 : parts.length === 1 ? 0 : 1];
+    else if (side === '-left' || side === '-inline' || side === '-inline-start') left = parts[0];
+    else continue;
+    if (!ZERO_LENGTH.test(left)) return true;
+  }
+  return false;
+}
+
+/**
+ * The text of the stylesheets a venture page links from its own folder
+ * (`style.css`, `css/app.css`), for `bodySidePadded`. Links that leave the
+ * folder (`../pf-chrome.css`, the site's own) or the site (`https:`, `/`) are
+ * skipped; a missing file reads as empty. `cache` is shared across a tool's pages.
+ */
+async function ownStylesheets(html, dir, cache) {
+  let css = '';
+  for (const m of html.matchAll(/<link\b[^>]*\brel=["']?stylesheet\b[^>]*>/gi)) {
+    const href = /\bhref=["']?([^"'\s>#?]+)/i.exec(m[0])?.[1];
+    if (!href || /^(?:[a-z][a-z0-9+.-]*:|\/|\.\.\/)/i.test(href)) continue;
+    const file = path.join(dir, href);
+    if (!cache.has(file)) cache.set(file, fs.readFile(file, 'utf8').catch(() => ''));
+    css += `\n${await cache.get(file)}`;
+  }
+  return css;
+}
+
+/**
+ * A tool's name for its breadcrumb: the `name` of the entry page's
+ * SoftwareApplication (or WebApplication, MobileApplication) JSON-LD, which
+ * 1,344 of 1,350 tools declare, else the title without its search tagline.
+ *
+ * The `<title>` is written for a results page ("Wall Framing Takeoff — free,
+ * private, in your browser"; "Is your red GitHub Actions check even real?"),
+ * so until 2026-11-15 the trail on 972 tools ended in a tagline or a question,
+ * and the BreadcrumbList gave search results the same text as the tool's name.
+ * A declared name longer than a crumb can hold (over 60 characters) is
+ * skipped as more tagline than name.
+ */
+export function toolName(html, title) {
+  for (const block of String(html ?? '').matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    let data;
+    try { data = JSON.parse(block[1]); } catch { continue; }
+    const nodes = [data].flat().flatMap((node) => [node, ...[node?.['@graph'] ?? []].flat()]);
+    for (const node of nodes) {
+      if (!node || typeof node !== 'object') continue;
+      const types = [node['@type'] ?? []].flat();
+      const name = typeof node.name === 'string' ? decodeEntities(node.name).replace(/\s+/g, ' ').trim() : '';
+      if (name && name.length <= 60 && types.some((t) => /Application$/.test(String(t)))) return crumbShort(name);
+    }
+  }
+  return crumbShort(cardName(title));
+}
+
+/**
+ * "Synthetic Control: did my intervention work?" -> "Synthetic Control". Only
+ * past 40 characters: a short name can carry a colon of its own ("GitHub
+ * Actions secrets: inherit Check"), and cutting it there would misname it.
+ */
+function crumbShort(name) {
+  if (name.length <= 40) return name;
+  const head = name.split(/:\s/)[0].replace(/\s+in your browser$/i, '').trim();
+  return head.length >= 3 ? head : name;
+}
+
+/**
+ * The footer's lead line on a tool whose entry page has no field, button or
+ * drawing surface of its own (`hasOwnControls`, embed.mjs). Measured
+ * 2026-11-15: 28 pages (ShootFlow's docs, the Garmin watch face, the
+ * self-hosted SaaS stack list, photos-import-tools, vendor-watch, and the
+ * hub and guide pages of quick-pick-survey and the electronics academy) said
+ * "Free and private, like this one — everything runs in your browser" over a
+ * desktop app, a watch face, a server or a page with nothing to type into.
+ * This line claims nothing about the page above it.
+ */
+export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, open-source catalogue.';
+
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -10587,11 +11542,16 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // 2026-10-24 only entry pages carried any, and it skipped the category the
   // visible trail shows, so ~1,750 guide and comparison pages inside tools
   // showed a four-level trail and declared none.
-  const category = categoryFor(slug);
-  const categoryHref = categoryPagePath(category.id);
+  // Fiction (stories.mjs, STORY_VENTURES) sits under the Stories section, with
+  // the shelf's short name rather than its search title in the trail.
+  const shelfName = Object.hasOwn(STORY_VENTURES, slug) ? STORY_VENTURES[slug] : null;
+  const category = shelfName ? { title: 'Stories' } : categoryFor(slug);
+  const categoryHref = shelfName ? STORIES_PATH : categoryPagePath(category.id);
+  const section = shelfName ? 'stories' : 'tools';
+  const name = shelfName || title || slug;
   const crumbs = [{ label: category.title, href: `${toRoot}${categoryHref}` }];
-  if (isEntry) crumbs.push({ label: title || slug });
-  else crumbs.push({ label: title || slug, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
+  if (isEntry) crumbs.push({ label: name });
+  else crumbs.push({ label: name, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
   if (canonical && !html.includes('"BreadcrumbList"') && (isEntry || pageTitle)) {
     // Lets a result render as "Maris Stella Labs › Marketplace sellers ›
     // eBay Fee Calculator" rather than a bare URL, and tells an answer engine
@@ -10603,7 +11563,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       const trail = [
         { name: SITE_NAME, item: base },
         { name: category.title, item: `${base}${categoryHref}` },
-        { name: title || slug, item: `${base}${slug}/` },
+        { name, item: `${base}${slug}/` },
       ];
       if (!isEntry) trail.push({ name: pageTitle, item: canonical });
       headExtras += `\n<script type="application/ld+json">${jsonLd({
@@ -10648,11 +11608,14 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // first form or every input on its page still finds its own.
   const topBar = renderSiteHeader({
     toRoot,
-    current: 'tools',
+    current: section,
     search: 'link',
     crumbs,
     extraClass: 'pf-chrome pf-chrome-top',
-  });
+  }).replace(
+    `${HEADER_MARKER}>`,
+    `${HEADER_MARKER}${bodyTopPadded(html) ? ' data-pfs-gap' : ''}${bodySidePadded(html, linkedCss) ? '' : ' data-pfs-inset'}>`,
+  );
 
   const links = related
     .map(
@@ -10686,10 +11649,15 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
 ${askLine}    <h2>More free tools</h2>
     <p>${externalCallHosts.length
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
-      : 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
+      : browserTool
+        ? 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
+        // A product, docs or list page (a desktop app, a server, a watch
+        // face) has nothing that runs in the browser, so "like this one" was
+        // false there (`FOOTER_LEAD_NOT_A_BROWSER_TOOL`).
+        : FOOTER_LEAD_NOT_A_BROWSER_TOOL
     }</p>
 ${noSla}${isEntry && baseUrl && hasCiChannels(slug) ? renderCiInstall(slug, baseUrl) : ''}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
-      <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
+      <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${formatCount(total)} free tools →</a>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
       &nbsp;·&nbsp;
@@ -10720,7 +11688,11 @@ ${noSla}${isEntry && baseUrl && hasCiChannels(slug) ? renderCiInstall(slug, base
   // matter.
   const bodyAfterHead = locateBody(withStyle);
   if (!bodyAfterHead) return withStyle; // defensive: entry already required a body pair
-  const withTopBar = spliceAt(withStyle, bodyAfterHead.openEnd, `\n${stylePrefix}${topBar}`);
+  // The header's first fit runs inline, straight after it, so the first paint
+  // is already full width (see `VENTURE_CHROME_EARLY_JS`). rates.mjs and
+  // jobs.mjs anchor on the `<nav>...</nav>` itself, so a tag after it is safe.
+  const earlyFit = `<script>${stripForInjection(VENTURE_CHROME_EARLY_JS)}</script>`;
+  const withTopBar = spliceAt(withStyle, bodyAfterHead.openEnd, `\n${stylePrefix}${topBar}${earlyFit}`);
 
   const bodyBeforeFooter = locateBody(withTopBar);
   if (!bodyBeforeFooter) return withTopBar; // defensive: same structure, just shifted
@@ -10801,14 +11773,32 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   // Sixteen tools at a time: each tool's pages are independent of every other
   // tool's, and one at a time the pass mostly waited on the disk. Results are
   // gathered per tool and joined in catalogue order, so the output is the same.
+  // Each tool's short name, read once from its entry page (`toolName`), so the
+  // trail, the related-tool links in every other tool's footer and the embed
+  // offer all call a tool the same thing. Until 2026-11-15 only the trail did;
+  // the footer links and the embed iframe's title used the search-result
+  // `<title>`, so a roofer saw "Wall Framing Takeoff — free, private, in your
+  // browser" as a link label, and the embed's title said "free" twice.
+  const names = new Map(await mapLimit(surfaces, 16, async (surface) => {
+    const entryFile = path.join(outDir, surface.slug, 'index.html');
+    const entry = (await exists(entryFile)) ? await fs.readFile(entryFile, 'utf8') : '';
+    return [surface.slug, { name: toolName(entry, surface.title), browserTool: !entry || hasOwnControls(entry) }];
+  }));
+  const named = (surface) => ({ ...surface, title: names.get(surface.slug)?.name || surface.title });
+
+  // Every footer's related tools, ranked and balanced once (`relatedToolsTable`).
+  const relatedTable = relatedToolsTable(surfaces);
   const perSurface = await mapLimit(surfaces, 16, async (surface) => {
     const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
     const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
     const dir = path.join(outDir, surface.slug);
     if (!(await exists(dir))) return found;
-    const related = relatedTools(surfaces, surface.slug);
+    const related = (relatedTable.get(surface.slug) ?? relatedTools(surfaces, surface.slug)).map(named);
+    // The trail's tool name, the same on every page in the tool (`names` above).
+    const crumbName = named(surface).title;
     // Read once per venture; several pages in a directory load the same script.
     const scriptCache = new Map();
+    const styleCache = new Map();
 
     for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
       const relative = path.relative(outDir, file);
@@ -10827,13 +11817,20 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         toRoot,
         total: surfaces.length,
         related,
-        title: surface.title,
+        title: crumbName,
         pageTitle: pageMeta.title,
         canonical,
         baseUrl,
         isEntry: url === `${surface.slug}/index.html`,
         externalCallHosts: surface.externalFetchHosts,
         audiences: audiencesFor(surface.slug, audiencePages),
+        linkedCss: await ownStylesheets(html, path.dirname(file), styleCache),
+        // A browser tool if the tool's entry page has a control of its own (a
+        // deep guide inside a calculator has none, yet "like this one" means
+        // the calculator) or this page does (quick-pick-survey's and the
+        // electronics academy's index pages are hubs; their calculators are
+        // pages inside them).
+        browserTool: (names.get(surface.slug)?.browserTool ?? true) || hasOwnControls(html),
       })), toRoot);
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
@@ -10856,7 +11853,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         slug: surface.slug,
         toRoot,
         canonical,
-        title: surface.title,
+        title: crumbName,
         isEntry: url === `${surface.slug}/index.html`,
       });
       if (withEmbed !== withCard) embedded.push(relative);
@@ -10864,7 +11861,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // already, and it carries no numeric input for the attribute pass to
       // annotate.
       const withRates = injectShopRates(withEmbed, surface.slug, toRoot);
-      if (withRates !== withCard) rated.push(relative);
+      if (withRates !== withEmbed) rated.push(relative);
       // After the rates bar, which it anchors beneath, and after the attribute
       // pass, which must see the venture's own inputs and not the name box this
       // one adds.
@@ -11330,7 +12327,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Work queue](${baseUrl}${QUEUE_PATH}): a read-only view of what the agents work on next and in what order (owner ideas, website requests, flagship projects, research programmes), with what is in flight and what waits on the owner.`,
-    `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
+    `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Each says what the product does, what the free tool does, and when the paid product is the right answer, so it answers "is there a free alternative to X?" with what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
     // question an assistant is actually asked is about one product ("a free
     // alternative to Jobber?"), and a bare link to a 167-entry index makes it
@@ -11339,9 +12336,12 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     // page that carries the detail if it needs it. Only the multi-tool
     // products: a product with a single comparison is already reachable
     // through the index and would pad this file without adding an answer.
+    // What every comparison page says is stated once, on the parent line:
+    // repeating it on each product line cost ~130 bytes a line and pushed
+    // the file past its 50,000-byte budget on 2026-11-18.
     ...compareProductGroups.map(
       (group) =>
-        `  - [${group.subject}](${baseUrl}${comparisonProductPath(group.key)}): ${group.items.length} tools here have a side-by-side page against ${group.subject}, each saying what it does, what the free tool does, and when ${group.subject} is the right answer.`,
+        `  - [${group.subject}](${baseUrl}${comparisonProductPath(group.key)}): ${group.items.length} tools here have a side-by-side page against ${group.subject}.`,
     ),
     // The informational half of the catalogue, which this file named nowhere
     // until 2026-09-07. Measured against a fresh build that day: 0 of the 173
@@ -11394,7 +12394,7 @@ ${audiences
   const researchSection = research.themes.length
     ? `## Open research
 
-${researchProjects} research projects, each with its question, code, tests and results, MIT licensed: [the research index](${baseUrl}${RESEARCH_PATH}). By topic:
+${formatCount(researchProjects)} research projects, each with its question, code, tests and results, MIT licensed: [the research index](${baseUrl}${RESEARCH_PATH}). By topic:
 
 ${research.themes
   .map((t) => `- [${oneLine(t.name)}](${baseUrl}${RESEARCH_PATH}topics/${t.id}/): ${t.count} project${t.count === 1 ? '' : 's'}`)
@@ -11411,14 +12411,14 @@ ${research.themes
   const network = exceptions.length
     ? `## Tools that call the network
 
-On ${exceptions.length} tool${exceptions.length === 1 ? '' : 's'} the one thing you paste is sent to the public API it checks; everything else stays in your browser. The [About page](${baseUrl}${ABOUT_PATH}) explains exactly what each sends${full ? '.' : `, and [llms-full.txt](${baseUrl}llms-full.txt) lists them with the hosts they call.`}
-${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${baseUrl}${x.slug}/): sends what you paste to ${x.hosts.join(', ')}`).join('\n')}\n` : ''}
+On ${exceptions.length} tool${exceptions.length === 1 ? '' : 's'} what you give the tool is sent to an outside service (${EXCEPTION_KINDS}); everything else stays in your browser. The [About page](${baseUrl}${ABOUT_PATH}) explains exactly what each sends${full ? '.' : `, and [llms-full.txt](${baseUrl}llms-full.txt) lists them with the hosts they call.`}
+${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${baseUrl}${x.slug}/): calls ${x.hosts.join(', ')}`).join('\n')}\n` : ''}
 `
     : '';
 
   return `# ${SITE_NAME}
 
-> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${surfaces.length} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${researchProjects} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
+> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${formatCount(researchProjects)} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
@@ -11462,7 +12462,7 @@ export function renderNotFound(baseUrl) {
     .nf-search button { font: inherit; font-weight: 700; padding: 11px 18px; border-radius: 12px; cursor: pointer;
                         border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
     .nf h2 { font-size: .8rem; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 8px 0 12px; }
-    .ways { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .ways { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
     .ways a { display: block; height: 100%; box-sizing: border-box; padding: 14px 16px; border-radius: 12px; text-decoration: none;
               border: 1px solid var(--line); background: var(--panel); color: var(--ink);
               transition: transform .15s ease, border-color .15s ease; }
@@ -11526,6 +12526,18 @@ const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
  * visitor picks, and each category's own `assets` are that category's tool
  * pages and their scripts.
  */
+// Node-only scripts a venture keeps beside its page: measurements under `eval/` and the
+// `build-*.mjs` generators that write its data modules. No page imports either (checked
+// across every venture on 2026-11-15), yet both were saved to a visitor's phone with the
+// category: einvoice-preflight alone carried about 150 KB of them gzipped, enough to push
+// `evidence` past its 4 MiB bound in build.test.mjs. They stay published (a page may link
+// one as source); they are just not part of the offline download.
+export const isNodeOnlyScript = (relToVenture) => {
+  const parts = relToVenture.split(/[\\/]/);
+  if (!/\.(mjs|js|cjs)$/.test(parts[parts.length - 1])) return false;
+  return parts[0] === 'eval' || (parts.length === 1 && /^build-[\w.-]+\.(mjs|js|cjs)$/.test(parts[0]));
+};
+
 export async function collectOfflineBundle(outDir, surfaces) {
   // The shared scripts and stylesheets are loaded by every tool page, so a
   // tool cached for offline use without them opens with no band at all — or,
@@ -11560,7 +12572,7 @@ export async function collectOfflineBundle(outDir, surfaces) {
       assets.add(`${surface.slug}/`);
     }
     for (const file of await listFiles(dir)) {
-      if (BUNDLE_EXTENSIONS.has(path.extname(file))) assets.add(rel(file));
+      if (BUNDLE_EXTENSIONS.has(path.extname(file)) && !isNodeOnlyScript(path.relative(dir, file))) assets.add(rel(file));
     }
     if (assets.size === 0) continue;
 
@@ -11577,19 +12589,61 @@ export async function collectOfflineBundle(outDir, surfaces) {
   return { shared, categories };
 }
 
+// Every file under `outDir` as [relative path, sha256 of its bytes], in path
+// order: the part of the cache name that depends on what was built. Each file
+// is hashed on its own, so any byte or name changes the cache. Read
+// synchronously: the site is about 26k files and 1.1 GB, mostly small files,
+// where `fs.promises.readFile`'s per-call overhead dominated (3.8 s read+hash
+// with 32 in flight, 1.4 s sync, same digests). Nothing else in the build runs
+// while this does
+// (docs/history/pages-build-perf-2026-11-12-cache-name-sync-reads.md).
+export async function offlineFileDigests(outDir) {
+  const files = (await listFiles(outDir)).sort();
+  return files.map((file) => [path.relative(outDir, file), crypto.createHash('sha256').update(readFileSync(file)).digest()]);
+}
+
 // The service worker's cache name: a digest of the generator (`codeVersion`,
 // default offline.mjs) and of every file's path and bytes under `outDir`.
-export async function offlineCacheName(outDir, codeVersion) {
+// `digests` (from `offlineFileDigests(outDir)`) lets a caller that names the
+// same tree more than once read it once; the build passes none
+// (docs/history/pages-test-perf-2026-11-13-cache-name-digests-once.md).
+export async function offlineCacheName(outDir, codeVersion, digests) {
   const hash = crypto.createHash('sha256');
   hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
-  // Each file hashed on its own, many at once, then the digests in path order:
-  // the same guarantee (any byte or name changes the cache) without reading
-  // the site one file at a time.
-  const files = (await listFiles(outDir)).sort();
-  const digests = await mapLimit(files, 32, async (file) =>
-    crypto.createHash('sha256').update(await fs.readFile(file)).digest());
-  files.forEach((file, i) => hash.update(path.relative(outDir, file)).update(digests[i]));
+  for (const [rel, digest] of digests ?? (await offlineFileDigests(outDir))) hash.update(rel).update(digest);
   return `portfolio-${hash.digest('hex').slice(0, 12)}`;
+}
+
+/**
+ * An app icon, copied from the share-card cache (`PAGES_CARD_CACHE`) when an
+ * earlier build drew it. Drawing the four icons was about 1.1 s of every
+ * build's main thread, in CI and in each test file that builds the site,
+ * though their pixels change only with `sharecard.mjs`. The key is the card
+ * key (the renderer, its fonts, the options), which a card's options can never
+ * equal, so a renderer change misses the cache as a card would; hits are
+ * touched like cards, so the workflow's prune keeps them. The bytes are the
+ * ones `renderIcon` returns
+ * (docs/history/pages-build-perf-2026-11-15-share-memo-swap.md).
+ */
+export async function cachedIcon(options, { cacheDir = process.env.PAGES_CARD_CACHE || '' } = {}) {
+  if (!cacheDir) return renderIcon(options);
+  const file = path.join(cacheDir, `icon-${cardKey({ appIcon: options })}.png`);
+  try {
+    const png = await fs.readFile(file);
+    const now = new Date();
+    await fs.utimes(file, now, now);
+    return png;
+  } catch {
+    // Not cached yet: drawn below.
+  }
+  const png = renderIcon(options);
+  // Written aside and renamed, so a test file building at the same moment
+  // never reads half an icon.
+  await fs.mkdir(cacheDir, { recursive: true });
+  const part = `${file}.${process.pid}.part`;
+  await fs.writeFile(part, png);
+  await fs.rename(part, file);
+  return png;
 }
 
 /**
@@ -11626,7 +12680,7 @@ export async function addOfflineSupport({
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
-      renderIcon({ size: icon.size, maskable: Boolean(icon.maskable), opaque: Boolean(icon.opaque) }),
+      await cachedIcon({ size: icon.size, maskable: Boolean(icon.maskable), opaque: Boolean(icon.opaque) }),
     );
   }
   await fs.writeFile(
@@ -11644,13 +12698,16 @@ export async function addOfflineSupport({
   );
 
   const pages = (await listFiles(outDir)).filter((file) => file.endsWith('.html'));
-  const injected = (await mapLimit(pages, 32, async (file) => {
+  // sync reads and writes (rewritePagesSync, measured there); a page counts
+  // when the injection reports it, as before, whether or not its bytes moved
+  let injected = 0;
+  rewritePagesSync(pages, (html, file) => {
     const depth = path.relative(outDir, file).split(path.sep).length - 1;
-    const result = injectOfflineSupport(await fs.readFile(file, 'utf8'), '../'.repeat(depth));
-    if (!result.injected) return 0;
-    await fs.writeFile(file, result.html);
-    return 1;
-  })).reduce((a, b) => a + b, 0);
+    const result = injectOfflineSupport(html, '../'.repeat(depth));
+    if (!result.injected) return html;
+    injected++;
+    return result.html;
+  });
 
   // The real weight of what "Save this category for offline" fetches, over
   // the wire rather than on disk -- GitHub Pages (Fastly) and the front
@@ -11662,25 +12719,26 @@ export async function addOfflineSupport({
   // patch-order-sensitive here the way the old single whole-catalog number
   // was: neither carries a size marker, so nothing this loop reads is a file
   // the patch below is about to rewrite.
-  const gzipBytesOf = async (assets) => {
-    let bytes = 0;
-    for (const asset of assets) {
-      if (asset.endsWith('/')) continue; // directory alias of a page already counted
-      const buf = await fs.readFile(path.join(outDir, asset));
-      bytes += zlib.gzipSync(buf, { level: 9 }).length;
-    }
-    return bytes;
-  };
-  const sharedBytes = await gzipBytesOf(shared);
-  const categorySizes = [];
-  for (const category of categories) {
-    categorySizes.push({
-      id: category.id,
-      title: category.title,
-      assets: category.assets,
-      bundleBytes: sharedBytes + (await gzipBytesOf(category.assets)),
-    });
-  }
+  //
+  // Each file's gzipped size is taken once, on libuv's thread pool, several at
+  // a time: one after another with `gzipSync` this was about 2 s of main
+  // thread on a 17 MB catalogue. The sums are the same numbers in any order
+  // (docs/history/pages-build-perf-2026-11-12-warm-phases.md).
+  const sizeOf = new Map();
+  const sized = [...new Set([shared, ...categories.map((c) => c.assets)].flat())]
+    .filter((asset) => !asset.endsWith('/')); // directory alias of a page already counted
+  await mapLimit(sized, 8, async (asset) => {
+    const buf = await fs.readFile(path.join(outDir, asset));
+    sizeOf.set(asset, (await gzipAsync(buf, { level: 9 })).length);
+  });
+  const gzipBytesOf = (assets) => assets.reduce((sum, asset) => sum + (sizeOf.get(asset) ?? 0), 0);
+  const sharedBytes = gzipBytesOf(shared);
+  const categorySizes = categories.map((category) => ({
+    id: category.id,
+    title: category.title,
+    assets: category.assets,
+    bundleBytes: sharedBytes + gzipBytesOf(category.assets),
+  }));
 
   // Patched into the hub's own copy so the picker's per-category size can
   // never drift from reality: see offlineSizeMarker in offline.mjs for the
@@ -11715,25 +12773,72 @@ export async function buildSite({
   // Link committed MP3s from jsDelivr instead of shipping them (audio-cdn.mjs).
   // The deploy turns it on with --audio-cdn; local and test builds keep the files.
   audioCdn = false,
+  // false skips drawing share cards (tags are still written): fixture builds
+  // in the tests that read markup only (setCardDrawing in share.mjs).
+  cards = true,
+  // Slugs to build, for a preview only (--only=a,b): see onlySurfaces.
+  only = null,
 } = {}) {
   const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  setCardDrawing(cards);
   SITE_COUNTER_URL = normaliseCounterUrl(counterUrl);
   SITE_FEEDBACK_URL = normaliseCounterUrl(feedbackUrl);
+  const pending = {};
   try {
-    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn });
+    return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending, only });
   } finally {
+    // The research builder runs beside the JS passes; when one of those throws,
+    // wait for it to stop writing into outDir before the caller cleans up.
+    await pending.research?.catch(() => {});
+    setCardDrawing(true);
     SITE_COUNTER_URL = '';
     SITE_FEEDBACK_URL = '';
   }
 }
 
-async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn }) {
+// A preview build of a few ventures (`build.mjs --only=slug[,slug]`). Polish
+// runs measuring a page edit in the site chrome had only the full build, 5 to
+// 12 min, once before and once after (run records 2026-11-16, two sessions:
+// "no way to rebuild only a few venture pages"). The hub, sitemap and search
+// then list only these slugs, and links to a venture left out are repointed
+// at the repository, so the output is for looking at those pages, never for
+// deploying or for check.mjs. An unknown slug throws, so a typo is not an
+// empty site.
+export function onlySurfaces(discovered, only) {
+  if (!only || only.length === 0) return discovered;
+  const known = new Set(discovered.map((s) => s.slug));
+  const missing = only.filter((slug) => !known.has(slug));
+  if (missing.length > 0) {
+    throw new Error(`--only: no published venture named ${missing.join(', ')}`);
+  }
+  const keep = new Set(only);
+  return discovered.filter((s) => keep.has(s.slug));
+}
+
+async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending = {}, only = null }) {
 
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(outDir, { recursive: true });
+  // Started now, awaited before the research directory is read (see
+  // buildResearchPage). The no-op catch keeps an early failure from being an
+  // unhandled rejection; the await below still throws it.
+  const researchBuild = buildResearchPage(outDir, base);
+  pending.research = researchBuild;
+  researchBuild.catch(() => {});
 
+  // Listed before the generators run, and anything they rewrite is kept:
+  // only what was already on disk, and not the build's own output, is skipped.
+  const localOnly = localOnlyPaths(venturesDir);
+  const generatedFrom = Date.now() - 1000;
   generateVenturePages(venturesDir);
-  const discovered = await discoverSurfaces(venturesDir);
+  for (const p of localOnly) {
+    try { if (statSync(p).mtimeMs >= generatedFrom) localOnly.delete(p); } catch { localOnly.delete(p); }
+  }
+  if (localOnly.size) {
+    const shown = [...localOnly].slice(0, 3).map((p) => path.relative(REPO_ROOT, p)).join(', ');
+    log(`Left out ${localOnly.size} git-ignored local-only path(s) a fresh checkout lacks (${shown}${localOnly.size > 3 ? ', ...' : ''}); PAGES_KEEP_IGNORED=1 keeps them.`);
+  }
+  const discovered = onlySurfaces(await discoverSurfaces(venturesDir), only);
   const launched = await loadLaunchDates();
   const surfaces = [];
   const repairs = [];
@@ -11759,9 +12864,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // and one `invoice-payment-terms-calculator` page). `check.mjs` reported no
   // dead links throughout, because by then the link was absolute and it does not
   // follow those.
-  for (const surface of discovered) {
-    await copyTree(surface.sourceDir, path.join(outDir, surface.slug), base);
-  }
+  //
+  // The copies run 16 at a time. Each surface writes only under its own
+  // `outDir/<slug>` (slugs are directory names, so no two trees overlap) and
+  // nothing here reads another surface's output, so the finished tree is the
+  // same in any order; one at a time, the pass spent most of its 4 to 6 s
+  // waiting on single file reads (perf, 2026-11-11:
+  // `docs/history/pages-build-perf-2026-11-11-parallel-copy.md`). Pass 2 below
+  // runs its link repairs to completion before it writes any file another
+  // surface could link to (see there).
+  await mapLimit(discovered, 16, (surface) => copyTree(surface.sourceDir, path.join(outDir, surface.slug), base, localOnly));
 
   // A handful of ventures (currently: ai-engineering-academy, tender-radar,
   // quote-margin-check, shopify-permission-drift, mcp-supply-chain-watch,
@@ -11794,7 +12906,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // deliverable), so the specific files a venture's own page offers as a
   // download have to be published here instead, ahead of `repairLinks`, or
   // the CTA's link 404s for every visitor against this private repository.
+  const discoveredSlugs = new Set(discovered.map((s) => s.slug));
   for (const [slug, files] of Object.entries(DOWNLOADABLE_CLI_FILES)) {
+    if (!discoveredSlugs.has(slug)) continue; // left out by --only
     for (const name of files) {
       const from = path.join(venturesDir, slug, name);
       const to = path.join(outDir, slug, name);
@@ -11805,24 +12919,40 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
 
   // Pass 2: everything that has to read a complete site.
   //
-  // `repairLinks` stays ahead of `surfaceExternalFetchHosts` within this loop,
-  // and that order is load-bearing: a repair can rewrite a `<script src>` or a
-  // stylesheet `<link href>` to a github.com URL, which is a genuine external
-  // request the privacy copy has to report.
+  // `repairLinks` stays ahead of `surfaceExternalFetchHosts`, and that order is
+  // load-bearing: a repair can rewrite a `<script src>` or a stylesheet
+  // `<link href>` to a github.com URL, which is a genuine external request the
+  // privacy copy has to report.
+  //
+  // Pass 2a repairs every surface's links, 16 at a time, before 2b writes
+  // anything. `repairLinks` rewrites HTML only inside its own surface and asks
+  // only whether a target exists, and pass 1 already created every file it can
+  // find, so no repair can see another repair's work. The files 2b creates
+  // (each surface's `sitemap.xml`, a generated `llms.txt`) used to be visible to
+  // the repairs of surfaces that sorted later and invisible to those that sorted
+  // earlier; now they are invisible to all, which makes the pass independent of
+  // order. On the tree as it stood (2026-11-11) the built site was
+  // byte-identical either way (`docs/history/pages-build-perf-2026-11-11-pass-two-concurrent.md`).
+  //
+  // Pass 2b then does the per-surface work, also 16 at a time. Each surface
+  // reads and writes only under its own `outDir/<slug>` and its own source
+  // directory; `mapLimit` returns results in input order, so `surfaces` and
+  // `repairs` keep the slug order the hub and the report depend on.
   const sourceDates = await loadLastChanged(REPO_ROOT);
-  for (const surface of discovered) {
+  const repairLists = await mapLimit(discovered, 16, (surface) =>
+    repairLinks({
+      publishedDir: path.join(outDir, surface.slug),
+      sourceDir: surface.sourceDir,
+      repoRoot: REPO_ROOT,
+      outDir,
+    }),
+  );
+  for (const list of repairLists) repairs.push(...list);
+
+  const built = await mapLimit(discovered, 16, async (surface) => {
     const html = await fs.readFile(surface.entryFile, 'utf8');
     const { title, description, fullDescription } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
-
-    repairs.push(
-      ...(await repairLinks({
-        publishedDir: destination,
-        sourceDir: surface.sourceDir,
-        repoRoot: REPO_ROOT,
-        outDir,
-      })),
-    );
 
     // Overwrite whatever sitemap the venture shipped with one generated from
     // what actually published. See `renderVentureSitemap` for why.
@@ -11857,7 +12987,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       if (dated !== text) await fs.writeFile(own, dated);
     }
 
-    surfaces.push({
+    return {
       ...surface,
       title,
       description,
@@ -11874,7 +13004,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       publishedPageCount: pages.length,
       llmsDoc: ownLlmsDoc,
       externalFetchHosts: await surfaceExternalFetchHosts(destination),
-    });
+    };
+  });
+  for (const surface of built) {
+    surfaces.push(surface);
     log(`  ${surface.slug}`);
   }
 
@@ -12023,7 +13156,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     await fs.writeFile(path.join(outDir, name), contents);
   }
 
-  await buildResearchPage(outDir, base);
+  await researchBuild;
   const researchSlugs = [];
   for (const entry of await fs.readdir(path.join(outDir, RESEARCH_PATH), { withFileTypes: true })) {
     if (entry.isDirectory() && (await fs.stat(path.join(outDir, RESEARCH_PATH, entry.name, 'index.html')).catch(() => null))) {
@@ -12052,7 +13185,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
   // Page slugs under writing/: each post, and `podcast`.
-  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [LEGACY_BASE_URL, DEFAULT_BASE_URL] });
+  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [...RETIRED_BASE_URLS, DEFAULT_BASE_URL], published: new Set(surfaces.map((s) => s.slug)) });
 
   // The fiction the creative track writes, one page linking into its ventures (see `stories.mjs`).
   await buildStories(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });
@@ -12160,7 +13293,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     path.join(outDir, SOCIAL_CARD_FILE),
     renderSiteCard({
       address: siteAddress(base),
-      footer: `${surfaces.length} free tools · ${researchProjectCount()} research projects`,
+      footer: `${formatCount(surfaces.length)} free tools · ${formatCount(researchProjectCount())} research projects`,
     }),
   );
   // One card per category, tinted and headlined with the section's own name.
@@ -12215,21 +13348,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
 
   // After the chrome pass, which writes the sponsor line into the footer of
   // every page it wraps -- marking before it would leave those unmarked and
-  // uncounted. Before the offline layer below, for the reason stated there:
-  // this rewrites HTML, so a cache named from a hash taken earlier would ship
-  // pages that no longer match it.
-  const sponsored = await markSponsorLinksIn(outDir);
-  const noscripted = await addNoscriptNoticesIn(outDir);
-
-  // After every generator has written its pages and the chrome has wrapped
-  // them: a card for each page still on the site-wide one (research, writing,
-  // comparisons, the section front pages), and complete share tags on all of
-  // them. Before the offline layer, which hashes the finished HTML.
-  // Before the share cards, which headline a page with its title: a post that
-  // reused a tool page's title is renamed here rather than failing check.mjs
-  // and holding back every deploy (page-identity.mjs).
-  const retitled = await fixPostTitleClashes(outDir, { log });
-  const shareCards = await addShareCards({ outDir, baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE });
+  // uncounted. After every generator has written its pages: a card for each
+  // page still on the site-wide one (research, writing, comparisons, the
+  // section front pages), and complete share tags on all of them. Before the
+  // share cards, which headline a page with its title: a post that reused a
+  // tool page's title is renamed here rather than failing check.mjs and
+  // holding back every deploy (page-identity.mjs). Before the offline layer
+  // below, which hashes the finished HTML: a cache named from a hash taken
+  // earlier would ship pages that no longer match it.
+  // One read and one write per page for all four (`finishPagesInOneWalk`).
+  const { sponsored, noscripted, retitled, shareCards } = await finishPagesInOneWalk(outDir, {
+    baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE, log,
+  });
 
   // Before the offline layer, which hashes the finished site: this rewrites
   // pages and feeds and removes the files it moved.
@@ -12256,7 +13386,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
     highlighted, narrowed, embedded, sponsored, noscripted, offline, comparisons, shareCards, audio, retitled,
-    preloads,
+    preloads, only: only && only.length > 0 ? only : null,
   };
 }
 
@@ -12342,10 +13472,24 @@ export function buildVersion(env = process.env, now = new Date()) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const argBase = process.argv.find((a) => a.startsWith('--base='))?.slice('--base='.length);
   const argOut = process.argv.find((a) => a.startsWith('--out='))?.slice('--out='.length);
+  const cliOutDir = argOut ? path.resolve(argOut) : path.join(REPO_ROOT, 'platform', 'pages', 'dist');
+  // A second build into the same dir deletes the first one's pages (build-lock.mjs).
+  let releaseLock;
+  try {
+    releaseLock = acquireBuildLock(cliOutDir);
+  } catch (err) {
+    if (err.code !== 'BUILD_LOCKED') throw err;
+    console.error(`build.mjs: ${err.message}`);
+    process.exit(75);
+  }
+  process.on('exit', releaseLock);
+  for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => { releaseLock(); process.exit(130); });
 
+  const cliOnly = process.argv.find((a) => a.startsWith('--only='))?.slice('--only='.length)
+    .split(',').map((x) => x.trim()).filter(Boolean) ?? null;
   const result = await buildSite({
     baseUrl: argBase || process.env.PAGES_BASE_URL || DEFAULT_BASE_URL,
-    outDir: argOut ? path.resolve(argOut) : undefined,
+    outDir: cliOutDir,
     disableWorker: process.env.PAGES_DISABLE_SW === '1',
     counterUrl: process.argv.find((a) => a.startsWith('--counter-url='))?.slice('--counter-url='.length)
       ?? process.env.PAGES_COUNTER_URL
@@ -12354,6 +13498,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       ?? process.env.PAGES_FEEDBACK_URL
       ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'edge', 'site.json'), 'utf8')).url,
     audioCdn: process.argv.includes('--audio-cdn'),
+    only: cliOnly,
+    // A preview is for looking at pages; the share-card PNGs (thousands, for
+    // posts and research too) are its slowest part and no page shows them.
+    cards: !cliOnly,
     log: console.log,
   });
 
@@ -12374,4 +13522,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Added a JavaScript-needed notice to ${result.noscripted.length} page(s).`);
   console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
   console.log(`Module preload: ${result.preloads.links} link(s) on ${result.preloads.pages} page(s); deepest import chain ${result.preloads.deepest}.`);
+  if (result.only) {
+    console.log(`\nPREVIEW ONLY (--only=${result.only.join(',')}): the hub, sitemap and search list just these, `
+      + 'links to other ventures point at the repository and no share cards were drawn; '
+      + 'look at the pages, but do not deploy it or run check.mjs on it.');
+  }
 }

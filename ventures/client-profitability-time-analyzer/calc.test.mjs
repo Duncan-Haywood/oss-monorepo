@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, parseDuration, parseBillable, parseFlat, normalizeRows, analyze, summaryText, sampleCsv, SAMPLE_FLAT } from "./calc.mjs";
+import { parseCsv, parseDuration, parseWhen, detectDmy, parseBillable, parseFlat, normalizeRows, analyze, summaryText, sampleCsv, SAMPLE_FLAT } from "./calc.mjs";
 
 const HEAD = "Client,Project,Date,Duration,Billable,Amount\n";
 const load = (body, head = HEAD, o) => normalizeRows(parseCsv(head + body), o);
@@ -120,4 +120,47 @@ test("the built-in example runs end to end and its summary reads", () => {
   assert.ok(r.summary.belowCount >= 2);
   assert.ok(r.findings.length >= 3);
   assert.match(summaryText(r), /blended/);
+});
+
+test("a clock duration with minutes or seconds past 59 is unreadable, not stretched", () => {
+  assert.ok(Number.isNaN(parseDuration("1:75")));
+  assert.ok(Number.isNaN(parseDuration("0:30:60")));
+  near(parseDuration("1:59:59"), 1 + 59 / 60 + 59 / 3600);
+  const r = load("A,P,2026-01-05,1:75,yes,100\nA,P,2026-01-06,1:00,yes,100\n");
+  assert.deepEqual(r.skipped.map((s) => s.reason), ["duration not readable"]);
+});
+
+test("a decimal comma with one or two digits is a fraction even outside semicolon files", () => {
+  near(parseDuration("1,5"), 1.5);
+  near(parseDuration("0,25"), 0.25);
+  near(parseDuration("1,500"), 1500); // three digits is a thousands group
+  const tsv = normalizeRows(parseCsv("Client\tDuration\nA\t1,5\n", "\t"));
+  near(tsv.items[0].hours, 1.5);
+});
+
+test("parseWhen reads 12-hour times, one-digit hours and says a time was present", () => {
+  const w = parseWhen("2026-01-05 9:30 pm");
+  assert.equal(w.t, Date.UTC(2026, 0, 5, 21, 30));
+  assert.equal(w.hasTime, true);
+  assert.equal(parseWhen("2026-01-05").hasTime, false);
+  assert.equal(parseWhen("2026-01-05 9:75"), null);
+});
+
+test("day-first dates are detected from a day over 12 even when the month is one digit", () => {
+  assert.equal(detectDmy(["13/5/2026", "2/5/2026"]), true);
+  assert.equal(detectDmy(["5/13/2026"]), false);
+  const r = load("A,P,13/5/2026,1,yes,100\n");
+  assert.equal(r.dmy, true);
+  assert.equal(r.items[0].date, Date.UTC(2026, 4, 13));
+});
+
+test("billable entries with no amount or rate are counted and reported; non-billable ones are not", () => {
+  const head = "Client,Duration,Billable,Amount\n";
+  const r = analyze(load("A,2,yes,\nA,3,no,\nA,1,yes,100\n", head).items);
+  assert.equal(by(r, "A").unpricedHours, 2);
+  assert.equal(r.summary.unpricedHours, 2);
+  assert.ok(r.findings.some((f) => /^2 billable hours carry no amount/.test(f.title)));
+  const none = analyze(load("A,3,no,\nA,1,yes,100\n", head).items);
+  assert.equal(none.summary.unpricedHours, 0);
+  assert.ok(!none.findings.some((f) => /carry no amount/.test(f.title)));
 });

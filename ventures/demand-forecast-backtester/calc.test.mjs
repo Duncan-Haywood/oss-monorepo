@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseStock, orderPlan, qnorm, parseDate, dayToIso, parseSales, bucketSales, backtest, methodSet, analyze, reportCsv, sampleText } from "./calc.mjs";
+import { parseStock, orderPlan, purchaseSchedule, scheduleCsv, qnorm, parseDate, dayToIso, parseSales, bucketSales, backtest, methodSet, analyze, reportCsv, sampleText } from "./calc.mjs";
 
 const near = (a, b, tol = 1e-6) => assert.ok(Math.abs(a - b) <= tol, `${a} vs ${b}`);
 
@@ -166,7 +166,7 @@ test("reportCsv has a header, one row per SKU and quotes awkward names", () => {
 test("parseStock finds columns, sums duplicate SKUs and reports bad rows", () => {
   const r = parseStock("Item,Qty on hand,Open PO,MOQ,Case size\nA-1,10,5,20,6\na-1,2,0,,\nB,x,0,,\n,3,0,,\n");
   assert.equal(r.stock.size, 1);
-  assert.deepEqual(r.stock.get("a-1"), { sku: "A-1", onHand: 12, onOrder: 5, moq: 20, pack: 6 });
+  assert.deepEqual(r.stock.get("a-1"), { sku: "A-1", onHand: 12, onOrder: 5, moq: 20, pack: 6, unitCost: null });
   assert.equal(r.skipped, 2);
   assert.ok(parseStock("sku,price\nA,3").error);
   assert.ok(parseStock("sku,on_hand").error);
@@ -201,4 +201,39 @@ test("reportCsv adds order columns only when a stock file was planned", () => {
   const lines = reportCsv(res).trim().split("\n");
   assert.ok(lines[0].includes("order_qty"));
   assert.equal(lines[2].split(",").length, lines[0].split(",").length);
+});
+
+test("parseStock reads a unit cost column, with or without a currency sign", () => {
+  const r = parseStock("sku,on_hand,Cost per item\nA,3,$4.50\nB,2,\nC,1,n/a\n");
+  assert.equal(r.stock.get("a").unitCost, 4.5);
+  assert.equal(r.stock.get("b").unitCost, null);
+  assert.equal(r.stock.get("c").unitCost, null);
+});
+
+test("purchaseSchedule plans every costed SKU, the exact plan is never dearer, and the CSV lists its orders", async () => {
+  const { planCost } = await import("./lotsize.mjs");
+  const res = analyze(parseSales(sampleText()).rows, { period: "month", leadDays: 60 });
+  assert.equal(res.summary.planPeriods, 12);
+  for (const s of res.skus) assert.equal(s.future.length, 12);
+  const lines = res.skus.slice(0, 6).map((s, i) => `${s.sku},${i * 20},0,${(5 + i).toFixed(2)}`);
+  const stock = parseStock(`sku,on_hand,on_order,unit_cost\n${lines.join("\n")}\n${res.skus[6].sku},5,0,\n`).stock;
+  const plan = purchaseSchedule(res, stock, { orderCost: 80, carryRate: 0.3 });
+  assert.equal(plan.planned, 6);
+  assert.deepEqual(plan.noCost, [res.skus[6].sku]);
+  for (const m of ["sm", "poq", "l4l"]) assert.ok(plan.totals.ww <= plan.totals[m] + 1e-6, m);
+  for (const s of res.skus.slice(0, 6)) {
+    const sch = s.schedule;
+    near(sch.hold, ((5 + res.skus.indexOf(s)) * 0.3 * 30.4375) / 365, 1e-9);
+    // Re-price the plan from scratch: feasible against the net requirements, and the reported cost.
+    const ww = sch.plans.ww;
+    const again = planCost(sch.net, ww.orders.map((o) => ({ period: o.place, qty: o.qty })), 80, sch.hold);
+    assert.ok(again.feasible);
+    near(again.cost, ww.cost, 1e-6);
+    for (const o of ww.orders) assert.equal(o.arrive - o.place, res.summary.horizon);
+  }
+  const csv = scheduleCsv(res).trim().split("\n");
+  assert.equal(csv.length - 1, res.skus.reduce((n, s) => n + (s.schedule ? s.schedule.plans.ww.orders.length : 0), 0));
+  assert.match(csv[0], /^sku,place_order/);
+  assert.ok(purchaseSchedule(res, stock, { orderCost: -1 }).error);
+  assert.ok(purchaseSchedule(res, stock, { orderCost: 10, carryRate: 0 }).error);
 });

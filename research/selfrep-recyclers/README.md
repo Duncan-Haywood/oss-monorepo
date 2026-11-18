@@ -10,18 +10,20 @@ Follow-up to `selfrep-materials` in the self-replicating manufacturing track (`P
 - Three recycling machines (plastic shredder, filament extruder, aluminium crucible furnace), each a short list of parts with an **assumed** mass and an **assumed** judgement of which shop process can make it (`src/selfrep_recyclers/machines.py`). Motors, electronics, bearings, hardened steel, ceramics and the furnace shell are vitamins; flat plates and printed gears are made in the shop if it has a router/laser or printer.
 - Imported mass to build a machine = its vitamins + feedstock for the parts the shop makes (plastic at 1/(1−s), sheet at 1/y, with the `selfrep-materials` defaults).
 - Saving per printer copy = imports with recycling off minus on, from `selfrep_materials.balance`, split into plastic (needs shredder and extruder together) and aluminium (needs the furnace, so only in the casting shop).
+- **Aluminium: the furnace makes castings, not stock.** A crucible furnace pours ingots and cast blanks; it cannot roll sheet or draw bar. So remelted offcuts (sheet and bar, less melt loss) replace only the imported stock of parts whose blank can be cast and then machined: the pulleys, cut from bar. The washers stay on imported sheet. A cast blank is assumed to need the same metal as the bar it replaces. `furnace_saving_kg` caps the credit at that bar stock; `selfrep_materials.balance` books remelt against sheet too, and that figure is shown in `results.txt` only as the superseded number.
 - **Payback** = machine imports / saving per copy: the number of printer copies after which the recyclers have avoided as much imported mass as they cost. Mass is the only currency; machine count is one set per shop.
 - Sensitivity: every machine part mass scaled by an independent log-uniform factor in [0.5, 2] (2000 draws, seed 0).
 
 ## Reproduce
 ```bash
 cd research/selfrep-recyclers
-python3 -m unittest discover -s tests -v     # 8 tests, standard library only (needs ../selfrep-closure and ../selfrep-materials)
+python3 -m unittest discover -s tests -v     # 12 tests, standard library only (needs ../selfrep-closure and ../selfrep-materials)
 python3 experiments/run.py                   # writes experiments/results.txt
 ```
 
 ## Results (from `experiments/results.txt`; all inputs assumed)
-- **With the shop's own scrap only, the plastic recyclers do not pay back in any sensible time**: 99 copies for the printer alone, 116 with router and laser (the assumed machines need 9.6 and 11.4 kg of imports and save 0.098 kg per copy). Across the mass draws the router-and-laser shop needs 91 to 164 copies (5–95%, median 123). The furnace needs about 94 copies in the base case (67 to 144, median 100).
+- **With the shop's own scrap only, the plastic recyclers do not pay back in any sensible time**: 99 copies for the printer alone, 116 with router and laser (the assumed machines need 9.6 and 11.4 kg of imports and save 0.098 kg per copy). Across the mass draws the router-and-laser shop needs 91 to 164 copies (5–95%, median 123).
+- **The furnace needs about 227 copies** (161 to 347 over mass draws, median 242): 6.5 kg of imports against 0.029 kg of bar stock it can replace per copy. Melt loss does not matter until it passes about 60%, because the shop's offcuts (0.069 kg after an 8% loss) are more than the castable stock. *Corrected 2026-11-14*: the first version credited remelt against imported sheet, which a crucible furnace cannot make, and reported 94 copies (67 to 144) here, in the research index and on the homepage ([quality audit 2026-11-08](../../portfolio/quality/audits/2026-11-08-selfrep-recyclers.json), defect 0).
 - **Retired plastic is what could justify them**: if each copy retires one machine's worth of printed plastic, payback falls to 31 copies at the recycled-share cap `phi`=0.3 and 12 at `phi`=0.8 (router-and-laser shop; 24 to 44 over mass draws at `phi`=0.3). As in `selfrep-materials`, `phi` (recycled-plastic quality) decides the result and is the least certain input.
 - **The recyclers add vitamins faster than they save them**: building the plastic pair adds 5.0 kg of vitamins (router-and-laser shop) and 9.0 kg for the printer alone, against a printer copy's own 4.9 to 5.3 kg. The furnace is all vitamins (6.5 kg: crucible, element, insulation, steel shell).
 - Since recycling also saves little in `selfrep-materials`, the combined message is: for a small shop, recycling is a second-order import saving and an early-stage distraction from closing the main vitamin gap.
@@ -32,6 +34,7 @@ python3 experiments/run.py                   # writes experiments/results.txt
 - Retired-machine plastic (`eol`) is a scenario knob, not a model of fleet retirement. Machine failure, maintenance and replacement of the recyclers' wearing parts (cutters, screw) are not modelled.
 - The recyclers are not folded into the closure fractions of `selfrep-closure`; the payback is computed beside it.
 - Saving per copy is the `selfrep-materials` model, with all its assumptions (scrap share, yield, melt loss).
+- The furnace credit assumes the pulleys can be cast to a blank and machined on the router, with the same yield as bar. Casting porosity, the alloy a remelt of mixed offcuts gives, and the flux, moulds and sand a casting shop also imports are not modelled; each would lengthen the furnace payback further.
 
 ## Next steps
 Weight payback by cost and by hours instead of mass; add retired machines to the `selfrep-growth` fleet model so `eol` is endogenous; fold the recyclers into the closure computation; replace `phi` with measured strength of recycled filament.

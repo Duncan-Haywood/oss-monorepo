@@ -11,6 +11,10 @@ test("parseNumber and parseDate read common bank formats", () => {
   assert.equal(parseNumber("$1,234.50"), 1234.5);
   assert.equal(parseNumber("($12.00)"), -12);
   assert.equal(parseNumber("1.234,50", true), 1234.5);
+  assert.equal(parseDate("02/30/2026"), null, "30 February is not a day");
+  assert.equal(parseDate("2026-04-31"), null, "31 April is not a day");
+  assert.equal(parseDate("2027-02-29"), null, "29 February 2027 is not a day");
+  assert.equal(parseDate("2028-02-29"), "2028-02-29");
   assert.equal(parseDate("03/05/2024"), "2024-03-05");
   assert.equal(parseDate("5 Mar 2024"), "2024-03-05");
   assert.equal(parseDate("nonsense"), null);

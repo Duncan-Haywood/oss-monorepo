@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVKyCwjHj53ZknKkq5f",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "e814f42febe446103a7bf6ba8c5f40198968c1331d747f1f09194b132d54caf3",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T02:10:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2) ai-bookkeeper: item (0) built-in keywords on real YNAB register exports",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16053",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft of the YNAB rules sent Netflix, Audible, YouTube Premium, Peloton, iTunes and Prime to subscriptions; three existing tests pin them as wait-for-a-person. Dropped them; Conoco also dropped after it hit a convenience-store line in the nevarro LLC books."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The scheduled prompt's text is venture-shaped, but a bare `route` drew research; only re-running with --task picked ventures. Easy to miss on a scheduled run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-three-ynab-budgets-and-the-word-utilities.md"
+  ],
+  "goal": null,
+  "notes": "Three public YNAB registers (Seattle tuned, Utah and Chicago held out). Held out with Seattle-only rules: Utah first-seen 66.7%/20.8% -> 68.8%/18.8%, Chicago 62.3%/16.4% -> 63.9%/16.4%. All rules (tuned on all three): keywords alone 52.8% -> 64.3% right of 633, wrong 0.6% unchanged. Regression checks: Mint ten exports +1 line right, Monarch/Rocket Money and nevarro LLC books unchanged; opencollective eval could not run (api.opencollective.com unresolvable here). Local checks: run_venture_tests ai-bookkeeper ok (0 failed); run_workflow_locally --for-changes: blog front matter failed (description too long, fixed and rechecked ok); shorts.test.mjs failed once in the sweep, passes 10/10 on rerun; site builder suite rerun: 1663 pass, 1 fail ('an identical build produces an identical cache name'), which passes alone both with and without this diff, so load-dependent, not this change.",
+  "corrections": [],
+  "redteam": null
+}

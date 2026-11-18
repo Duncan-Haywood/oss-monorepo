@@ -64,3 +64,12 @@ test("every other country page links to the Latvia page", () => {
     assert.match(page, /href="latvia-e-invoice-mandate\.html"/, f);
   }
 });
+
+test("cites the Law on Accounting and Cabinet Regulation No. 749 read 2026-11-14", () => {
+  assert.match(html, /transitional provision 8/);
+  assert.match(html, /transitional provision 10/);
+  assert.match(html, /Regulation No\. 749/);
+  assert.match(html, /five working days/);
+  assert.match(html, /UBL 2\.1/);
+  assert.doesNotMatch(html, /rests on a single vendor source/);
+});

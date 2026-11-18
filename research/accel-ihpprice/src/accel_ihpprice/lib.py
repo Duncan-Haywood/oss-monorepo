@@ -171,4 +171,4 @@ def min_group_size(e_icg_pj, e_weight, ratio, leak_flop_pj=0.0):
     if head <= 0:
         return None
     import math
-    return max(1, math.ceil(e_icg_pj / head))
+    return max(1, math.floor(e_icg_pj / head) + 1)   # strict '<': a G that only ties is not a win

@@ -1,0 +1,26 @@
+cell-fidelity milestone 5zo: an oracle lever (the measured plating-weighted OCP rise) fed to the forecast law,
+and the node lever's cycle-10 over-read split by depth. 5zk's records, 5z's 40 designs, no new simulation.
+Set medians.
+
+set           n    e_A    e_N    e_O    e_W  O<A,N  e_O30  e_O50  e_A30  e_A50
+Ai2020        8  0.083  0.023  0.042  0.085   0/8   0.029  0.014  0.039  0.032
+Chen2020     12  0.082  0.059  0.038  0.025   9/12  0.031  0.016  0.046  0.020
+OKane2022    12  0.059  0.076  0.034  0.019   5/12  0.023  0.015  0.028  0.017
+NCA_Kim2011   8  0.022  0.048  0.012  0.012   4/8   0.012  0.010  0.013  0.011
+
+set             c_O  |c_O|    c_A    c_N  o_tot  o_col  share  col>.5  rho_px
+Ai2020        0.133  0.133  0.138  0.027   3.76   0.35   0.21   3/8     -0.07
+Chen2020      0.020  0.100 -0.118 -0.006   0.52   0.07   0.12   1/11    -0.35
+OKane2022     0.065  0.087 -0.061  0.122   2.29   0.49   0.21   0/12    -0.30
+NCA_Kim2011   0.011  0.109  0.199 -0.274  -0.33   3.22   1.58   4/4     -0.41
+
+(e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3, line through cycles 2..10 unless suffixed: A = 5zd's lever,
+ N = 5zn's node lever, O = the oracle lever du_O (reads cycle 99), W = 5zl's diagnosis (A's lever at kappa_w);
+ O<A,N = designs where O beats both; c = ln(slope of R(L_n) on n over 50..99 / over 2..10) on each lever's R;
+ o_tot, o_col = node lever's weighted cycle-10 over-read, all nodes and collector half (nodes 1..10), mV;
+ share = o_col/o_tot where o_tot > 0; col>.5 = designs with share > 0.5 / designs with o_tot > 0;
+ rho_px = Spearman over the 20 nodes of (predicted - measured cycle-10 rise) on x_i(2))
+
+H209 (O below A and N on >= 3 of 4 sets): supported (3/4)
+H210 (|c_O| <= 0.10 on >= 3 of 4 sets): inconclusive (1 <= 0.10, 0 > 0.25)
+H211 (OKane2022: collector half > 1/2 of a positive over-read on >= 2/3): refuted (0/12)

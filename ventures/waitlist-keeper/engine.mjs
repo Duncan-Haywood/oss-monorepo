@@ -93,7 +93,7 @@ export function stats(state, opts) {
 }
 
 export function toCsv(state, opts) {
-  const q = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   const rows = [["position", "email", "confirmed", "referrals", "source", "joined", "invited"]];
   const pos = new Map(ranking(state, opts).map((p, i) => [p.id, i + 1]));
   for (const p of Object.values(state.people)) rows.push([pos.get(p.id) ?? "", p.email, p.confirmedAt ? "yes" : "no", p.referrals, p.src || "", new Date(p.joinedAt).toISOString(), p.invitedAt ? new Date(p.invitedAt).toISOString() : ""]);

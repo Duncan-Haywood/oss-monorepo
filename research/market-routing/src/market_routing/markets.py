@@ -34,6 +34,8 @@ class _Market:
 
     def trade(self, dq):
         """Apply a trade; returns the payment (>= <price_before, dq> by convexity)."""
+        if len(dq) != self.n:
+            raise ValueError(f"bundle length {len(dq)} must equal n={self.n}")
         new = [a + d for a, d in zip(self.q, dq)]
         pay = self.cost(new) - self.cost()
         self.q = new
