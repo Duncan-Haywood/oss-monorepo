@@ -1,5 +1,15 @@
 # buildbot-sheathing research log
 
+## 2026-11-18 · Milestone 53 planned: at the 33 pose-cases still without a plan under the slack calibration, which stage fails (hold sides or leg preload), and does choosing the hold sides per measured load clear them?
+
+- **Why.** Milestone 52 left 33 pose-cases with no plan inside an envelope: 26 inside milestone 51's (G1 21 plan limits at four (pose, load) cells, 5 sensor-error cases; H1 5 plan limits at (1.6 m, 0), 5 N straight back) and 2 G1 sensor-error cases inside the pose-only envelope. Its "Next" asked which hold-side or leg-preload row binds and whether milestone 48's side search, run per load rather than per pose, clears them.
+- **Known before the run (from reading the code, no number computed).** `plan` (milestone 38, with milestones 44 to 48's patches) fails at one of two stages at either window end (25 or 50 N): the 'hold' QP on the pose's hold sides has no solution, or the leg-preload solve (`solve_margin`, tiered at milestone 45's poses) has none. The plan is made from the measured load f + e, so a side rule keyed on the measured load is one the robot can run. Nothing below has been computed.
+- **Model.** Milestone 52's setup (its run imported unchanged: milestone 48's sides, 'braked' gaps, |e| 0.2 N on 6 sensor axes, S 10 N, slack calibration). Section A: at each dropped (pose, load, sensor axis), the failing stage and window end, and the largest common leg margin `margin_lp` reaches on the pose's sides. Section B, the per-load rule: keep the pose's sides when they plan; otherwise search all 2<sup>n</sup> hold-side combinations (64 G1, 16 H1) and take the one with the largest loaded common leg margin at that measured load among those whose full plan solves. Section C: residual along the wall (slack calibration) for every case the rule recovers, and each robot's coverage and worst residual inside milestone 51's envelope. Cases that already plan are untouched by the rule, so their residuals are milestone 52's.
+- **Hypotheses, registered before the run.**
+  - **H214 (stage).** At most of the 26 plan-limit pose-cases (more than 13) the 'hold' QP on the pose's sides is the failing stage, not the leg preload. Refuted if 13 or fewer.
+  - **H215 (per-load sides).** The per-load rule finds a plan at every one of the 33 dropped pose-cases. Refuted if any stays without one.
+  - **H216 (spec).** Every recovered case has a residual along the wall of at most 0.03 mm, so each robot's worst inside milestone 51's envelope stays at most 0.03 mm at 0, 5 and 20 N. Refuted if any is larger.
+
 ## 2026-11-18 · Milestone 52 result: calibrating with the hose slack lifts the G1 to 98.1% of in-envelope cases (from 93.0%) and changes no residual; H211, H212 and H213 held
 
 `experiments/m52_slackcal/` (run, results, figure; imports milestone 51's run, no change to it), `reproduce.py` (m52 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL and project card. No new library code, so no new tests. Run time 208 s on 4 processes.
