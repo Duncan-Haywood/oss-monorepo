@@ -32,3 +32,11 @@ pricing, chargebacks, income tax. Not tax, legal or financial advice.
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.
+
+## Known gaps
+
+From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-print-on-demand-profit-calculator.json):
+
+- Etsy's Offsite Ads fee is capped at $100 per order; the tool does not apply the cap, so very large orders driven by Offsite Ads overstate fees.
+- Sales tax is not modelled. eBay charges its final value fee on sales tax and Etsy's payment processing is on the tax-inclusive total, so real fees run slightly higher (about $0.33 on a $30 eBay order at 8% tax).
+- A blank target margin silently becomes 30%, and a negative custom fee is accepted.

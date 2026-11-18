@@ -1,0 +1,157 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKmAsFYTkULwi6kRV3U",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T03:17:59Z",
+  "ended": "2026-11-17T03:40:38Z",
+  "wall_minutes": 23.03,
+  "tokens_in": 18317124,
+  "tokens_out": 167270,
+  "cost_usd": 10.8991,
+  "tool_calls": 234,
+  "task": "quality census, seed 2026-11-17-7528 (mode drawn by quality_audit.py mode)",
+  "projects": [
+    "ventures/eu-packaging-regulation-checker",
+    "ventures/photos-import-tools",
+    "ventures/print-on-demand-profit-calculator",
+    "research/marine-detect",
+    "research/robofab-cell-monitor",
+    "research/accel-nsgatune"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16798",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "git stash used once to compare old/new test results; it stashed the new tests too, so that comparison was void. Redone with a scratch copy holding the old calc.mjs (both new test sets fail on old code)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Steps describe only a sample round; the README's mode table (census today) overrides it, which `sample` prints as a NOTE. The track prompt could point to `mode` first."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "EUR-Lex, etsy.com, ebay.com, data.vicos.si and marisstella.app returned proxy 403; auditors fell back to secondary sources and committed records. Worth listing these hosts in 'Outbound hosts'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "mode drew census, not sample",
+      "did": "ran `census --n 6` with the full rubric and named the post for the census seed, not round-<n>",
+      "result": "six first audits, coverage 371 of 2,485"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "draft PR needs a diff to claim the subjects before audits finish",
+      "did": "pushed a placeholder post as the first commit, replaced before merge",
+      "result": "claim visible to parallel census draws within minutes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-seed-7528.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-17-7528 (census). Subjects: eu-packaging-regulation-checker, photos-import-tools, print-on-demand-profit-calculator, marine-detect, robofab-cell-monitor, accel-nsgatune. Share meeting the bar: 0 of 6 (finished 5 of 6); seeded mutations caught 17 of 35. Sampled share unchanged at 33 of 306. Spot-checks rerun by me for all six (POD 3.7489/5.8913/35.4386/5.0906; marine 0.226 and 204/80; robofab 6.866; accel 41/33 fronts, HV 0.703466/0.705348; eu 634 days and sample timeline; photos R1 probe showing DSC00002 never sent). Fix PR: #16798 (eBay small-order fee; PPWR DRS exemption + done markers; photos library name-match opt-in + page copy; README claim corrections in three research projects; Known gaps in all six). Local verification: run_workflow_locally --for-changes, 16/16 selected workflows passed (uses: steps not run).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8c3dc66b-507d-5286-a066-00cfdd39a8bd",
+    "transcripts": 7,
+    "first": "2026-11-17T03:17:59Z",
+    "last": "2026-11-17T03:41:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 216,
+        "input": 443,
+        "output": 167270,
+        "thinking": 39974,
+        "cache_read": 17584524,
+        "cache_write_5m": 607418,
+        "cache_write_1h": 124739,
+        "api_equivalent_usd": 10.8991,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 216,
+      "input": 443,
+      "output": 167270,
+      "thinking": 39974,
+      "cache_read": 17584524,
+      "cache_write_5m": 607418,
+      "cache_write_1h": 124739,
+      "api_equivalent_usd": 10.8991,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 234,
+    "tools": {
+      "Bash": 194,
+      "WebSearch": 11,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "WebFetch": 5,
+      "ToolSearch": 4,
+      "ScheduleWakeup": 2,
+      "Read": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.03,
+      "active_minutes": 18.59,
+      "model_minutes": 6.0,
+      "tool_minutes": 12.59,
+      "waiting_on_human_minutes": 4.44,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 31.15
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "six expert audits at ~2 h each plus fixes and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 128.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

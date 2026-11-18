@@ -10,14 +10,14 @@ A stylised, simulation-only study in track `robofab` (milestone 4's next step, "
 - **Detection delay costs throughput roughly in proportion.** At 6 printers the simulated rate is 6.82, 6.72, 6.64, 6.46, 6.33 and 6.16 parts/h for delays of 0, 5, 10, 20, 40 and 80 min, against 6.13 for blind printing (standard errors 0.03 to 0.06). Even an instant camera gains 11% here; a camera that reacts after 80 min gains about 0.5% (6.16 against 6.13), within noise.
 - **False stops have a break-even.** With a 10 min delay the camera's gain at 6 printers is gone somewhere between 0.1 and 0.2 false aborts per printing hour: 6.29 ± 0.05 at 0.1 and 6.04 ± 0.04 at 0.2, against 6.13 ± 0.05 blind (about 0.16 by linear interpolation, which I did not refine). At 0.8 per hour the cell makes 4.39 parts/h, 28% below blind printing.
 - **The gain grows with the failure rate.** At 6 printers and a 10 min delay: +0.0%, +2.8%, +8.4%, +16.0% and +28.4% at 0, 0.1, 0.3, 0.6 and 1.0 failures per printing hour (blind rates 7.84, 7.22, 6.13, 4.80, 3.43 parts/h).
-- **The analytic bound is an upper bound that the simulation sits below by 0 to 12%.** It uses exact per-attempt success and printing time for exponential hazards, with arm, printer and inspection capacities. Against the 40-seed simulation it overestimates by 1.9% (2 printers), 4.1% (6), 7.2% (8), 10.8% (10) and 12.4% (12, arm-limited, blind); the gap is the arm and printer collisions that `research/robofab-cell-cv` and `robofab-cell-held` studied. It ranks the options correctly here but overstates the gain at 12 printers (it says 0%, the simulation +4.5%), because the arm limit is not sharp.
+- **The analytic bound is a capacity estimate, not a strict upper bound.** It uses exact per-attempt success and printing time for exponential hazards at the *mean* print time, with arm, printer and inspection capacities. The experiments draw print times with cv 0.3, which raises the success rate above the fixed-time value, so the camera simulation can exceed the bound by about 1% (2.30 against 2.29 parts/h at 2 printers; 2.321 ± 0.012 at 200 seeds in the 2026-11-17 audit). Against the 40-seed simulation it overestimates by 1.9% (2 printers), 4.1% (6), 7.2% (8), 10.8% (10) and 12.4% (12, arm-limited, blind); the gap is the arm and printer collisions that `research/robofab-cell-cv` and `robofab-cell-held` studied. It ranks the options correctly here but understates the gain at 12 printers (it says 0%, the simulation +4.5%), because the arm limit is not sharp.
 
 ## Reproduce
 
 ```bash
 cd research/robofab-cell-monitor
 PYTHONPATH=src python3 -m pytest -q tests   # 8 tests, < 1 s
-python3 experiments/run.py                  # about 1 min; writes experiments/results.txt
+python3 experiments/run.py                  # about 10 s; writes experiments/results.txt
 python3 experiments/figure.py               # writes experiments/gain_vs_printers.svg
 ```
 Needs `numpy` (and `pytest` for the test command; `python3 -m unittest discover -s tests` works too).
@@ -51,3 +51,12 @@ None; nothing was built or ordered. Pricing a camera and its software for a real
 `numpy` only. No language model or hardware was used. Produced with AI assistance (Claude).
 
 MIT.
+
+## Known gaps
+
+From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-robofab-cell-monitor.json):
+
+- `bound()` evaluates the attempt statistics at the mean print time; averaging over the lognormal print-time distribution would make it a true bound (about 2.315 at 2 printers with a camera).
+- No prior work is cited: queueing models of unreliable machines with rework (Gaver 1962; Buzacott and Shanthikumar 1993) and print-failure detection (Obico; Petsiuk and Pearce 2020). The main finding is the textbook bottleneck consequence, and the README does not say what is new.
+- The per-printer gains have no standard error on the difference, so the 10.2% peak at 2 printers is within noise of the bound's 7.7%.
+- Four of five seeded bugs survived the tests (camera delay, arm retry factor, false stops in the bound and in the simulation).
