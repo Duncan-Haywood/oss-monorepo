@@ -203,3 +203,30 @@ test('the household pages claim parents\' and job-leavers\' tools and leave the 
     assert.ok(!audienceMatches(byId['job-changers'], slug), slug);
   }
 });
+
+test('the homeowners page claims household home-money tools and leaves contractor bids and landlord tools out', () => {
+  for (const slug of [
+    'mortgage-points-break-even-calculator',
+    'mortgage-escrow-analysis-checker',
+    'heloc-vs-cash-out-refinance-calculator',
+    'property-tax-appeal-calculator',
+    'solar-payback-calculator',
+    'heat-pump-vs-furnace-calculator',
+    'home-sale-exclusion-calculator',
+    'rent-vs-buy-breakeven-calculator',
+    'uk-mortgage-overpayment-calculator',
+  ]) {
+    assert.ok(audienceMatches(byId.homeowners, slug), slug);
+  }
+  for (const slug of [
+    'solar-pv-bid-calculator',
+    'furnace-bid-calculator',
+    'standby-generator-install-price-calculator',
+    'section-24-mortgage-interest-check',
+    'house-hack-calculator',
+    'rental-dscr-calculator',
+    'home-inspection-fee-calculator',
+  ]) {
+    assert.ok(!audienceMatches(byId.homeowners, slug), slug);
+  }
+});

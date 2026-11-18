@@ -445,6 +445,20 @@ export const AUDIENCES = [
     match:
       /severance-package|cobra-vs-marketplace|401k-loan-vs-withdrawal|(^|-)redundancy-pay|final-paycheck|job-offer-total-comp|job-application-tracker/,
   },
+  {
+    id: 'homeowners',
+    who: 'homeowners and home buyers',
+    name: 'Homeowners & buyers',
+    title: 'Free calculators for homeowners: mortgage, refinance, solar',
+    description:
+      'Free homeowner calculators: mortgage points, escrow shortages, extra payments, HELOC vs cash-out refinance, property tax appeals, solar and heat pump payback.',
+    intro:
+      'Calculators for the money decisions that come with owning a home: whether buying beats renting, if mortgage points pay back before you move, your annual escrow statement checked against your tax and insurance bills, extra payments against investing, a HELOC against a cash-out refinance, appealing your property tax assessment, solar, heat pump and ADU payback, an HOA reserve study, and what you keep and owe in tax when you sell. Most follow US rules; the one marked UK covers mortgage overpayments and early repayment charges.',
+    starting:
+      'Buying your first home? Start with the rent vs buy calculator for the break-even year, then the mortgage points calculator before you lock a rate: both answer how long you need to stay for the money to come back.',
+    match:
+      /mortgage-(escrow|extra-payment|points)|uk-mortgage-overpayment|heloc-vs-cash-out|property-tax-appeal|solar-payback|heat-pump-vs-furnace|adu-payback|home-sale-(exclusion|net-proceeds)|rent-vs-buy|hoa-reserve/,
+  },
 ];
 
 export function audiencePageId(audience) {
