@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [hearth-and-horizon]
+date: 2026-11-18
+---
 # Hearth & Horizon: "The Wave That Stands Still" (worksheet)
 
 Written 2026-11-18 from BIBLE.md "Next up" (*The wave that stands still*),

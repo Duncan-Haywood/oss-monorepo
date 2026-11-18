@@ -1,6 +1,6 @@
 ---
 title: "Hearth & Horizon: The Wave That Stands Still, a story about the water below a low dam"
-seo_title: "Why the white water below a low dam holds you: the hydraulic jump, with the sums"
+seo_title: "Why white water below a low dam holds you: the hydraulic jump, worked"
 date: 2026-11-18
 tags: [fiction, hearth-and-horizon, writing, short-story, engineering, water-safety]
 description: "A camp's favourite swim below an old mill dam, a football that will not leave the foam, and the hydraulic jump worked out at two flows."
