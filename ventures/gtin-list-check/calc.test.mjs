@@ -194,3 +194,7 @@ test("restricted-prefix rules read a GTIN-14's item body, not its indicator digi
   const full = inStoreCase + computeCheck(inStoreCase);
   assert.ok(titles(full).some((t) => t.startsWith("Restricted prefix 2")), full);
 });
+
+test("scientific notation with an exponent longer than any GTIN is rejected, not a crash (fuzz find, 2026-11-18)", () => {
+  assert.doesNotThrow(() => validate("sku,title,gtin\nA,b,03600e3036000291452\n"));
+});

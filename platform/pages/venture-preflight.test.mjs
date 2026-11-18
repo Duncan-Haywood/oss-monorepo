@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, localOnlyFiles, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckProblem } from './venture-preflight.mjs';
+import { buildProblem, localOnlyFiles, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckArgs, treeCheckProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -137,6 +137,23 @@ test('treeCheckProblem is silent on exit 0 and lists each red check with its tai
   assert.match(p, /FAIL check_doc_counts\.py \(exit 1\)\n\s+PRODUCT_PLAYBOOK/);
   assert.doesNotMatch(p, /\(2\/3\)|checks pass|DONE/);
   assert.match(treeCheckProblem(1, out, 'other-tool'), /none of the output names other-tool/);
+});
+
+test('treeCheckProblem stops a block at the summary line main_health prints with its test files', () => {
+  const out = [
+    'FAIL check_doc_counts.py (2/3)',
+    'FAIL check_doc_counts.py (exit 1)', 'PRODUCT_PLAYBOOK.md:12: ventures 1338, tree 1366', '',
+    '271/272 checks pass (98 checks, 174 platform/ci test files)', 'DONE',
+  ].join('\n');
+  assert.doesNotMatch(treeCheckProblem(1, out, 'lift-calc'), /checks pass|DONE/);
+});
+
+test('treeCheckArgs skips the platform/ci unit tests unless the branch touches platform/ci', () => {
+  assert.deepEqual(treeCheckArgs('', ''), ['--checks-only']);
+  assert.deepEqual(treeCheckArgs('ventures/lift-calc/index.html\ndocs/posts/x.md\n', ''), ['--checks-only']);
+  assert.deepEqual(treeCheckArgs('ventures/platform/ci/x.py\n'), ['--checks-only']);
+  assert.deepEqual(treeCheckArgs('', 'platform/ci/check_new.py\n'), []);
+  assert.deepEqual(treeCheckArgs('ventures/a/b.js\nplatform/ci/run_venture_tests.py\n', ''), []);
 });
 
 test('treeCheckProblem falls back to the output tail when no block parses', () => {

@@ -743,6 +743,19 @@ off the JS heap, so the run fits as main's does). Every report is identical, and
    and `false` in the XML (`eval/ifcxml-twins-2026-11-18.md`, "B-spline control
    points").
 
+8. **Large ifcXML, read as it streams** (2026-11-18,
+   `eval/lazy-ifcxml-2026-11-18.md`). No public ifcXML is over 0.6 MB, so
+   `eval/step-to-ifcxml.mjs` writes real STEP exports as ifcXML in xBIM's
+   IFC2X3 layout; read back, all entities of the seven HHS Office and Schultz
+   exports equal the STEP reading (2,340,831), after one fix the round trip
+   found: string values were trimmed, so 731 MEP labels with a leading space
+   read differently from ifcXML. The reader now reads each top-level element
+   as it closes and drops it, and keeps geometry as a span read again on
+   demand. 68 IDS files on HHS MEP as ifcXML (152 MB): 10.3 s and 1,680 MB
+   peak to 8.7 s and 681 MB; a 374 MB federated ifcXML: 4.0 GB peak (out of
+   memory under a 1 GB heap) to 1.5 GB, and it finishes under 1 GB; every
+   report identical.
+
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
 faster than IfcTester; its point is needing no install.
@@ -799,8 +812,10 @@ faster than IfcTester; its point is needing no install.
   seven exporters and 43 IFC4 STEP/ifcXML twins, not on every tool's output,
   and on no real IFC4X3 file (none was found); an IfcBSplineSurface's control
   points written flat are cut into rows from its knot counts, and left flat
-  (with a note) when the counts do not multiply out; the ifcXML reader holds the whole
-  XML tree in memory, a few times the heap of the same model as STEP.
+  (with a note) when the counts do not multiply out. The ifcXML reader streams
+  (2026-11-18, `eval/lazy-ifcxml-2026-11-18.md`): a 374 MB ifcXML checks under a
+  1 GB heap, about twice the time of the same model as STEP; a file much past
+  500 MB cannot be read at all (a JavaScript string's length limit).
 - The model's text is held in memory with a small record per entity; an
   entity's arguments are read when a check first needs them, and geometry's
   are not kept (2026-11-17, `eval/heap-200mb-2026-11-17.md`). A 219 MB
@@ -810,7 +825,8 @@ faster than IfcTester; its point is needing no install.
   (since 2026-11-18, when attribute facets began reading geometry's arguments
   with nested lists unread, `eval/attribute-any-geometry-2026-11-18.md`; it
   needed 2 GB before, `eval/no-entity-facet-2026-11-17.md`). Models well past 500 MB may need the command line with
-  `--max-old-space-size`. The ifcXML reader still reads everything up front.
+  `--max-old-space-size`. The ifcXML reader reads each element as it streams
+  and keeps geometry only as where its text starts and ends.
 - The IDS audit does not validate the file against the IDS XML schema
   (cardinality attributes, element order); the IDS-Audit-tool does. Property
   set templates are checked for names, data types and applicable classes, not

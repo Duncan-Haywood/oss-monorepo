@@ -1,0 +1,103 @@
+# Lane-limit and lane-table seasons on the count model (eval/bowling-count-model.py, OR-tools CP-SAT 9.15, 4 workers), 2026-11-18.
+# A season is y[r][m][p] = weeks of distinct round r with match m on pair p; Birkhoff-von Neumann splits it back into weeks,
+# and every answer is re-checked week by week (bans, laneTargets lo..hi) before it is printed.
+
+## Agreement with the week-by-week SAT model (eval/bowling-avoid-slots.txt, eval/bowling-lane-table.txt)
+6 teams x 26 weeks, shape 0:0;2:0: UNSAT in 0.0 s (count model)   [week model: UNSAT]
+6 teams x 26 weeks, shape 0:0;3:0: UNSAT in 0.0 s (count model)   [UNSAT]
+6 teams x 26 weeks, shape 0:0;4:0: UNSAT in 0.0 s (count model)   [UNSAT]
+6 teams x 26 weeks, shape 0:0;5:0: SAT in 0.0 s (count model)     [SAT]
+6 teams x 34 weeks, shape 0:0;3:0: SAT in 0.0 s (count model)     [SAT]
+6 teams x 32 weeks, shape 1:0;2:0: UNSAT in 0.0 s (count model)   [UNSAT in 174.3 s]
+6 teams x 32 weeks, shape 3:0;5:0: UNSAT in 0.0 s (count model)   [UNSAT in 162.7 s]
+6 teams x 32 weeks, shape 0:0;5:0: UNSAT in 0.0 s (count model)   [UNSAT]
+6 teams x 32 weeks, shape 0:0;1:0: UNSAT in 0.0 s (count model)   [UNSAT]
+6 teams x 32 weeks, shape 0:0,1: UNSAT in 0.0 s (count model)     [UNSAT in 23.8 s]
+6 teams x 32 weeks, shape 1:0,1: UNSAT in 0.0 s (count model)     [UNSAT in 35.0 s]
+6 teams x 32 weeks, shape 5:0,1: UNSAT in 0.0 s (count model)     [UNSAT in 33.4 s]
+12 teams x 18 weeks, shape -: SAT in 0.3 s (count model)          [SAT in 0.6 s]
+16 teams x 24 weeks, shape -: SAT in 37.1 s (count model)         [SAT in 25.4 s]
+18 teams x 17 weeks, shape -: SAT in 63.4 s (count model)         [SAT in 29.3 s]
+20 teams x 21 weeks, shape -: SAT in 77.1 s (count model)         [SAT in 24.1 s]
+4 teams x 33 weeks, shape -: UNSAT in 0.0 s (count model)         [UNSAT in 19.2 s]
+
+## The last slot pair of 6 x 32, two teams off the last pair (TIMEOUT at 300 s in the week model)
+6 teams x 32 weeks, shape 0:0;4:0: UNSAT in 0.0 s (count model)
+=> 15 of 15 slot pairs UNSAT: out of reach on every dealing of the circle method.
+
+## 6 x 26, three teams a random pair each (teams 0 and 1 off pair 0, team 2 off pair 2; eval/bowling-lane-avoid.mjs, seed 20261118)
+## Shape 'a:0;b:0;c:1' on every slot choice (a < b, c distinct): 60 dealings
+  6 teams x 26 weeks, shape 0:0;1:0;2:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;1:0;3:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;1:0;4:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;1:0;5:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;2:0;1:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;2:0;3:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;2:0;4:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;2:0;5:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;3:0;1:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;3:0;2:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;3:0;4:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;3:0;5:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;4:0;1:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;4:0;2:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;4:0;3:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;4:0;5:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;5:0;1:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;5:0;2:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;5:0;3:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 0:0;5:0;4:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;2:0;0:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;2:0;3:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;2:0;4:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;2:0;5:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;3:0;0:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;3:0;2:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;3:0;4:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;3:0;5:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;4:0;0:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;4:0;2:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;4:0;3:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;4:0;5:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;5:0;0:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;5:0;2:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;5:0;3:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 1:0;5:0;4:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;3:0;0:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;3:0;1:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;3:0;4:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;3:0;5:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;4:0;0:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;4:0;1:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;4:0;3:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;4:0;5:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;5:0;0:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;5:0;1:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;5:0;3:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 2:0;5:0;4:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 3:0;4:0;0:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 3:0;4:0;1:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 3:0;4:0;2:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 3:0;4:0;5:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 3:0;5:0;0:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 3:0;5:0;1:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 3:0;5:0;2:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 3:0;5:0;4:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 4:0;5:0;0:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 4:0;5:0;1:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 4:0;5:0;2:1: UNSAT in 0.0 s (count model)
+  6 teams x 26 weeks, shape 4:0;5:0;3:1: UNSAT in 0.0 s (count model)
+=> 60 of 60 UNSAT: out of reach on every dealing. All three seasons the page misses on the 142-season grid are now proved out of reach for any dealing.
+
+## The 27 lane-table seasons with no answer (eval/bowling-lane-table.txt), shape '-' (no limits), TIME=240 each
+  16 teams x 40 weeks, shape -: SAT in 67.5 s (count model)
+  22 teams x 33 weeks, shape -: TIMEOUT in 240.0 s (count model)
+  22 teams x 34 weeks, shape -: TIMEOUT in 240.0 s (count model)
+  24 teams x 35 weeks, shape -: SAT in 152.4 s (count model)
+  24 teams x 36 weeks, shape -: TIMEOUT in 240.0 s (count model)
+  24 teams x 37 weeks, shape -: TIMEOUT in 240.0 s (count model)
+  26 teams x 38 weeks, shape -: TIMEOUT in 240.0 s (count model)
+  26 teams x 39 weeks, shape -: TIMEOUT in 240.0 s (count model)
+  26 teams x 40 weeks, shape -: TIMEOUT in 240.0 s (count model)
+=> 2 of 9 multi-cycle seasons solved and stored (16 x 40, 24 x 35); the page now has every team at the bound on both (16 of 16, 24 of 24).
+   The other 7 timed out at 240 s. Stopped before the 18 seasons of one cycle or less (or one repeated round), where the count model has little or nothing to gain.

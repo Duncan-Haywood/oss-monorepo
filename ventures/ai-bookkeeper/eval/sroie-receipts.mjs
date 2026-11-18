@@ -11,6 +11,8 @@
 // scores parseReceiptPasses, which settles a disagreement by the receipt's arithmetic.
 // --settled (with two --ocr dirs) scores what the page puts in the receipts box
 // instead: photoocr.mjs settleReadings, one block of text, read by parseReceipt.
+// --lead (with three or more --ocr dirs): the first is a stronger engine's reading
+// (RapidOCR ahead of tesseract's four), as the CLI and the page mark it.
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { cleanOcr } from "../cleanocr.mjs";
 import { parseReceipt, parseReceiptPasses } from "../receipts.mjs";
@@ -75,10 +77,10 @@ export function load(dir, ocrDir = null) {
   return rows;
 }
 
-export function score(rows, { settled = false } = {}) {
+export function score(rows, { settled = false, lead = false } = {}) {
   const r = { receipts: rows.length, merchant: { exact: 0, contained: 0, wrong: 0, none: 0 }, date: { labelled: 0, right: 0, wrong: 0, none: 0 }, total: { labelled: 0, right: 0, within5: 0, wrong: 0, none: 0 }, misses: { merchant: [], date: [], total: [] } };
   for (const row of rows) {
-    const p = row.texts ? (settled ? parseReceipt(settleReadings(row.raw).text) : parseReceiptPasses(row.texts)) : parseReceipt(row.text);
+    const p = row.texts ? (settled ? parseReceipt(settleReadings(row.raw, { lead }).text) : parseReceiptPasses(row.texts, { lead })) : parseReceipt(row.text);
     const want = norm(row.key.company), got = norm(p.merchant);
     if (!got) { r.merchant.none++; r.misses.merchant.push({ id: row.id, want: row.key.company, got: null }); }
     else if (got === want) r.merchant.exact++;
@@ -104,7 +106,7 @@ export function score(rows, { settled = false } = {}) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const oi = process.argv.indexOf("--ocr");
   const rows = load(process.argv[2], oi > 0 ? process.argv[oi + 1] : null);
-  const r = score(rows, { settled: process.argv.includes("--settled") });
+  const r = score(rows, { settled: process.argv.includes("--settled"), lead: process.argv.includes("--lead") });
   const pct = (a, b) => `${a}/${b} (${b ? ((100 * a) / b).toFixed(1) : "0"}%)`;
   console.log(`${process.argv[2]}: ${r.receipts} receipts`);
   console.log(`merchant exact ${pct(r.merchant.exact, r.receipts)}, name contained either way ${r.merchant.contained}, wrong ${r.merchant.wrong}, none ${r.merchant.none}`);

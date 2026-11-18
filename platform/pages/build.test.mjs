@@ -5981,6 +5981,13 @@ test('the built site publishes /guides/, links it, and lists it in the sitemap',
 
 after(async () => {
   if (hubFixture) await fs.rm((await hubFixture).out, { recursive: true, force: true });
+  // The shared build is about 1.6 GB; left behind, every run of this file
+  // filled the session's fixed disk allowance by that much
+  // (docs/history/pages-test-perf-2026-11-18-temp-dirs-and-one-read.md).
+  if (built) {
+    const outDir = await built.then((r) => r.outDir, () => null);
+    if (outDir) await fs.rm(outDir, { recursive: true, force: true });
+  }
 });
 
 // The hub pages are where a stranger from a search query lands first, and until

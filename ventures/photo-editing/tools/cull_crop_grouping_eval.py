@@ -15,8 +15,8 @@ odd ones the held-out half.
 It reports, per half, burst-pair recall and false merges for the whole-frame
 rule alone (distance <= NEAR_DUPLICATE_MAX_DISTANCE), with the equal-size crop
 windows (2026-11-17, ``crop_match``) and for the shipped rule (``burst_match``:
-those, the zoom windows of 2026-11-18 or the wide-pan window pairs of the same
-day), then recall by variant kind. Single linkage can
+those, the zoom windows of 2026-11-18, the wide-pan window pairs of the same
+day or the fine offsets, also that day), then recall by variant kind. Single linkage can
 chain merges in a real shoot; this scores pairs only. The pans and zooms are
 cut from one exposure, so subject motion, parallax and lens changes between
 real burst frames are not in it.
@@ -32,9 +32,12 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from shootflow.cull import NEAR_DUPLICATE_MAX_DISTANCE, burst_match, crop_match
-from shootflow.frame_analysis import FRAME_HEIGHT, FRAME_WIDTH, crop_dhashes, dhash_hex, zoom_dhashes, zoom_index
+from shootflow.frame_analysis import (
+    FRAME_HEIGHT, FRAME_WIDTH, crop_dhashes, dhash_hex, fine_dhashes, fine_pack, zoom_dhashes, zoom_index)
 
-PANS = (0.02, 0.04, 0.06, 0.08, 0.10)
+PANS = (0.02, 0.04, 0.06, 0.08, 0.10, 0.05, 0.07, 0.09)
+# 0.05, 0.07 and 0.09 added 2026-11-18 with the fine offsets: 0.07 (content moved 7.5%) and 0.09 (9.9%) sit
+# 1.5% and 0.9% from the crop grid's 3% steps, the cases the round sizes above did not show.
 # 0.05, 0.07 and 0.09 added 2026-11-18 after the zoom windows (sizes 0.96-0.90) were picked on the other sizes.
 ZOOMS = (0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10)
 
@@ -117,13 +120,15 @@ def main() -> int:
     for ident in ids:
         for name, *_ in variants():
             frame = (args.work / "frames" / f"{ident}_{name}.gray").read_bytes()
+            crops = tuple(int(h, 16) for h in crop_dhashes(frame))
             hashes[(ident, name)] = (
                 int(dhash_hex(frame), 16),
-                tuple(int(h, 16) for h in crop_dhashes(frame)),
+                crops,
                 zoom_index(tuple(int(h, 16) for h in zoom_dhashes(frame))),
+                fine_pack(crops, tuple(int(h, 16) for h in fine_dhashes(frame))),
             )
 
-    Hashes = tuple[int, tuple[int, ...], tuple]
+    Hashes = tuple[int, tuple[int, ...], tuple, tuple]
 
     def judge(a: Hashes, b: Hashes) -> tuple[int, bool, bool, bool]:
         """Distance; whole frame only; with crop windows (2026-11-17); shipped (crop and zoom windows)."""
@@ -131,7 +136,7 @@ def main() -> int:
         distance = (a[0] ^ b[0]).bit_count()
         old = distance <= NEAR_DUPLICATE_MAX_DISTANCE
         crops = old or crop_match(distance, a[1], b[1])
-        return distance, old, crops, burst_match(distance, a[0], a[1], a[2], b[0], b[1], b[2])
+        return distance, old, crops, burst_match(distance, a[0], a[1], a[2], b[0], b[1], b[2], fine_a=a[3], fine_b=b[3])
 
     def half(ident: str) -> str:
         return "tune" if int(ident) % 2 == 0 else "held"

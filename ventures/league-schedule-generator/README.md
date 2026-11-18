@@ -35,7 +35,9 @@ third party: zero dependencies, one JSON file on a disk you own.
   secrets). Nothing runs on the author's accounts.
 - **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
-- Tests: `node --test server.test.mjs deploy.test.mjs`.
+- **Who's playing (2026-11-18):** the player page lists the games on the next two match days with a count per team (`5 in of 7, 1 maybe, 2 out`, then the names), and one form: pick the game and team, type a first name, choose In, Maybe or Out. The same name (any case) answering again changes its answer; answers are keyed by the fixture id, so they follow a rained-out game to its new date; answers for games no longer coming up are pruned on every write, and a team takes at most 60 names a game, so the state file stays small. In `/admin`, set **Players a team needs on the night**: the admin page then lists every team below it for those games (`Owls: 3 in, short 4; 2 maybe, 1 out`) with a message to paste into that team's chat, so a forfeit is seen days ahead, not at the court. Anyone with the player link can answer for any name, the same trust as the link itself; there are no accounts. `availability.mjs`, tests in `availability.test.mjs`.
+- **Alternatives for availability:** TeamSnap, SportsEngine and Spond track RSVPs per player account (TeamSnap's free tier caps it; paid plans per team); a group-chat poll has no minimum and no per-game view across the league. This is the per-game count and the short-team list, with nothing but a name.
+- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs`.
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
@@ -189,7 +191,79 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Lane limits: shapes stored on other slots, and the last misses (2026-11-18, latest)
+## Five or more limited teams: a refused week re-dealt (2026-11-18, latest)
+
+The stored shape answers cover up to four limited teams; with five or more the page runs the
+search on slot t = team t of the circle method. That dealing can make a week impossible that
+another dealing would not: in a 10-team league with five teams off the last pair, the last pair
+needs a match of two unlimited teams every week, and week 1 put all five limited teams in five
+different matches. The page refused the season ("Week 1: ... loosen a limit") though the five
+unlimited teams meet 10 times in a 9-round cycle, enough for one each round.
+
+`feasibleDealing` (in `bowling.mjs`) checks every round the season plays for a legal lane deal
+(a maximum bipartite matching of matches to allowed pairs, `weekShortfall`), and if one is
+short, hill-climbs over dealings: swap a limited team's slot with another slot, keep the swap if
+the summed shortfall does not rise, seeded restarts, a fixed work budget (about 3e7 matching
+steps, so the same input gives the same season on any machine). Identity is tried first, so a
+season that already had a deal every week is byte-identical. `bowlingSchedule` uses it after the
+shape answers and reports `redealt`. Every team still meets every other as often as before.
+
+**Measured** (`node eval/bowling-many-limits.mjs`, `eval/bowling-many-limits.txt`; 10-24 teams x
+26-34 weeks x four kinds of 5+ limit: five teams off the last pair, five off a random pair each,
+six off both ends, eight off a random pair each; 112 seasons):
+
+| | seasons built | refused | limits broken |
+|---|---|---|---|
+| before | 100 | 12 | 0 |
+| now | 104 | 8 | 0 |
+
+The four 10-team seasons now built have 8-9 of 10 teams in target (11 counts off over the kind,
+was 3 on the 24 it built before). The 8 still refused are out of reach for every dealing, by
+counting: six teams off both end pairs need two all-unlimited matches every round, and 4 or 6
+unlimited teams meet only 6 or 15 times in a 9- or 11-round cycle (18 and 22 needed). The
+142-season grid (at most three limited teams) re-run: every row identical. The two random kinds
+are every team in target in 56 of 56. Tests: `bowling.test.mjs` (10 x 26 five off the last pair
+and 16 x 30 seven off both ends built and still round robins, a feasible season untouched, 8
+teams four off the last pair refused with the new message, its 6-week season dealt).
+
+Open: the dealing search picks the first legal dealing, not the most even one (five teams off
+the last pair: 22 of 28 in target); scoring dealings by the search's balance, or SAT answers for
+5+ limited shapes on the misses (14, 16, 18 x 30 with six off both ends).
+
+## Lane rotation solved on counts, not weeks: the last limit misses proved, 16 x 40 and 24 x 35 stored (2026-11-18, latest)
+
+The SAT models so far (`eval/bowling-avoid-shapes.py`, `eval/bowling-lane-table.py`) pick a pair for
+each match, week by week. Nothing they check depends on the order of the weeks: the bans are per
+match and the targets are season totals. The circle method also repeats: a season of W weeks plays
+only n-1 distinct rounds, round r played c_r times, so any two weeks playing the same round can swap
+lane plans, and the solver carries about c_0! c_1! ... copies of every answer and every dead end
+(6 x 32: 7!^2 6!^3, about 10^16).
+
+`eval/bowling-count-model.py` keeps only y[r][m][p], how many of round r's weeks put match m on pair
+p. Each y[r] has every row and column summing to c_r, so by Birkhoff-von Neumann (Konig's
+edge-colouring theorem) it splits into exactly c_r week plans: the model has the same answers as
+the week model, without the copies. OR-tools CP-SAT solves it; the script splits each y[r] back into
+weeks by repeated perfect matchings and re-checks the season week by week (bans, `laneTargets()`)
+before printing a code in the format of `bowling-avoid-shapes.mjs` or, with shape `-` (no limits),
+`bowling-lane-table.mjs`. An eval tool, not part of the page (the page reads the stored answers).
+
+**Results** (`eval/bowling-count-model.txt`):
+
+| question | before | now |
+|---|---|---|
+| 6 x 32, two teams off the last pair, slots 0 and 4 | TIMEOUT at 300 s (week model) | UNSAT in 0.0 s: 15 of 15 slot pairs UNSAT, out of reach on every dealing |
+| 6 x 26, three random limits (142-season grid) | UNSAT on the page's dealing; other dealings unchecked | 60 of 60 dealings UNSAT |
+| 16 x 40, no limits | not run; page 8 counts off | SAT in 67.5 s, stored; page 16 of 16 at the bound (1.0 s) |
+| 24 x 35, no limits | no answer in 420 s; page 2 counts off | SAT in 152.4 s, stored; page 24 of 24 at the bound (1.9 s) |
+| agreement with the week model | | 17 of 17 settled cases give the same verdict (12 limit shapes, 5 lane-table seasons) |
+
+So the page's three misses on the 142-season limit grid (139 of 142) are each proved out of reach
+for any dealing of the circle method, not search failures. The count model only helps when rounds
+repeat: on seasons of one cycle or less it is the week model with extra steps (16 x 24: 37 s against
+25 s), and on the larger unanswered lane-table seasons it also timed out (22 x 33 and 34, 24 x 36 and 37, 26 x 38-40 at 240 s each; the seasons of one cycle or less were not run).
+Test: `bowling.test.mjs` checks every stored table entry, 16 x 40 included (27 of 27 pass).
+
+## Lane limits: shapes stored on other slots, and the last misses (2026-11-18)
 
 The stored lane-limit answers (next section) put the limited teams on the circle method's first
 slots, 0, 1 and so on. Six of the grid's 112 seasons were still missed: two shapes had no answer on
@@ -224,7 +298,7 @@ meets the fixed slot, depends on the slots. Balance still does not see names, so
 The symmetry break, not the slots, closed four of the five timeouts. The near-miss repair
 (`eval/bowling-avoid-lns.py`) did not close either near miss it was given (2 counts off after 25
 min on 20 x 40), so it stays a tool, not part of the page. Still out of reach on every dealing
-tried: 6 x 32 with two teams off the last pair (14 of 15 slot pairs UNSAT; slots 0 and 4 unanswered at 300 s)
+tried: 6 x 32 with two teams off the last pair (14 of 15 slot pairs UNSAT; slots 0 and 4 unanswered at 300 s, proved UNSAT by the count model in the section above)
 and, proved, with one team off both ends: UNSAT on all six slots, so no dealing of the circle method has an even rotation there.
 
 On the 112-season grid the page now has every team in target in **112 of 112** (was 106; 0 counts off, was 14; `eval/bowling-avoid-shapes.txt`). On the 142-season limit grid (`eval/bowling-lane-avoid.txt`) it has **139 of 142** (was 137; 10 counts off, was 18). Tests: `bowling.test.mjs` (a shape on slots 0 and 5 matches and deals; 20 x 9, 18 x 8 and 22 x 23 seasons with those limits keep them, every team in target, no pair meeting twice in a cycle). 180 stored answers (171 before), 38 KB.

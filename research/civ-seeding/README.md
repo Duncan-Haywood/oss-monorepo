@@ -4,7 +4,7 @@ Does a new product spread through a village like news (one informed contact is e
 a behaviour that needs reinforcement from several adopters? And if the data cannot tell, whom
 should a rollout seed first? This programme asks that on the 43 Karnataka village networks of
 Banerjee, Chandrasekhar, Duflo and Jackson (2013), where a lender introduced microfinance
-through village leaders. **Latest step (milestone 13): milestone 12's surprise, that uneven forgetting helps degree discount on a census, was Monte Carlo noise.** With every randomised rule scored on its own random stream and four rules re-drawn five times, census degree discount scores a mean 1.51% under the measured, uneven recall and 1.58% under a uniform recall at the same level (gap &minus;0.07 point; milestone 12 had 0.9% against 1.8%). The re-draws show that one randomised rule's joint median moves by up to 0.47 point (sd) from one Monte Carlo copy to the next, which the bootstrap intervals do not include, so sub-point differences between randomised rules in milestones 10 to 12 are within noise; the advice itself (half survey about 2%, census degree discount about 1.5%, census top degree about 4%) is unchanged ([`experiments/m13_streams/verdicts.txt`](experiments/m13_streams/verdicts.txt), figure [`copies.svg`](experiments/m13_streams/copies.svg), [`LOG.md`](LOG.md), 2026-11-17). Before that, milestone 12 found survey respondents forget weak ties far more than strong ones (61% against 94% recall) without hurting the seeding advice.
+through village leaders. **Latest step (milestone 14): pooling five Monte Carlo copies of 16 randomised rules settles which of the survey findings are real.** Forgetting half the ties now costs more than forgetting a quarter (+0.5 point for census degree discount and +1.1 for the survey, each over 2 Monte Carlo standard errors; +0.4, 1.3 se, for census top degree), so milestone 11's non-monotone recall was noise. Milestone 10's preferred split (three quarters of the survey at random) is not distinguishable from a one-quarter split (1.79% against 1.81%); both edge the half split (2.17%) by under 2 standard errors. The headline holds on pooled scores: the half survey at the measured recall loses a median 2.2% of adopters and beats census top degree (4.0%) in 97% of draws. Pooling also shows that a single Monte Carlo copy biases every worst-case regret up by about 0.15 point ([`experiments/m14_pooled/verdicts.txt`](experiments/m14_pooled/verdicts.txt), figure [`copies.svg`](experiments/m14_pooled/copies.svg), [`LOG.md`](LOG.md), 2026-11-18). Before that, milestone 13 found milestone 12's surprise, that uneven forgetting helps degree discount on a census, was Monte Carlo noise. With every randomised rule scored on its own random stream and four rules re-drawn five times, census degree discount scores a mean 1.51% under the measured, uneven recall and 1.58% under a uniform recall at the same level (gap &minus;0.07 point; milestone 12 had 0.9% against 1.8%). The re-draws show that one randomised rule's joint median moves by up to 0.47 point (sd) from one Monte Carlo copy to the next, which the bootstrap intervals do not include, so sub-point differences between randomised rules in milestones 10 to 12 are within noise; the advice itself (half survey about 2%, census degree discount about 1.5%, census top degree about 4%) is unchanged ([`experiments/m13_streams/verdicts.txt`](experiments/m13_streams/verdicts.txt), figure [`copies.svg`](experiments/m13_streams/copies.svg), [`LOG.md`](LOG.md), 2026-11-17). Before that, milestone 12 found survey respondents forget weak ties far more than strong ones (61% against 94% recall) without hurting the seeding advice.
 
 **Milestone 11: the survey advice survives respondents who forget ties, at the recall measured in the same villages.** Capture&ndash;recapture on the survey's converse questions (borrow from / lend to, visit / invite) shows a BCDJ respondent names about 84% of a household's ties (one question alone: 68&ndash;83%). With that much forgetting, the half-village survey (three quarters at random, then the most-named, ranked by degree discount) loses a median 1.8% of adopters under its worst refitted model, against 1.4% for a census with the same forgetting and 4.1% for top degree. Even with half of all ties forgotten, degree discount on the census still beats top degree on a perfect census in 99% of draws.
 
@@ -691,6 +691,48 @@ fixed. Plan and hypotheses (H31&ndash;H33) logged before the run.
 - Not explained: why the matched rules vary five to six times more between copies than the
   measured ones. Caveat: five copies give a rough sd; replicates re-draw only these four rules.
 
+## Milestone 14: which survey findings survive pooled Monte Carlo copies? (`experiments/m14_pooled/`)
+
+Milestone 13 showed that one Monte Carlo copy of a randomised rule can move its joint median by
+half a point. This step re-draws 16 rules four extra times on milestone 13's harness (own stream
+per rule, surveys and scoring runs afresh, bootstrap draws and refits shared) and pools the five
+copies into one score with 500 survey draws per village. The Monte Carlo standard error of a
+pooled median is the sd of the five copy medians over &radic;5. Plan and hypotheses
+(H34&ndash;H37) logged before the run; rebuilding milestone 13's copies from this run reproduces
+them to its rounding.
+
+![five Monte Carlo copies and the pooled score of 16 rules](experiments/m14_pooled/copies.svg)
+
+| rule, pooled joint median [5%, 95%] (MC se) | perfect recall | &rho; = 0.85 | 0.75 | 0.5 |
+|---|---|---|---|---|
+| census top degree | 4.0% | 4.28% (0.08) | 4.20% (0.21) | 4.58% (0.17) |
+| census degree discount | 1.1% | 1.75% (0.18) | 1.25% (0.11) | 1.74% (0.12) |
+| half survey, 3/4 random | 1.79% [0.96, 2.87] (0.12) | **2.23%** [1.47, 3.45] (0.24) | 1.99% (0.10) | 3.05% (0.19) |
+| half survey, half split | 2.17% (0.22) | | | |
+| half survey, 1/4 random | 1.81% (0.24) | | | |
+
+- **H34 refuted.** Pooling five copies brings the Monte Carlo se to 0.03&ndash;0.24 point, not
+  under 0.15 for all 16 rules; reaching 0.1 for the noisiest would take about 30 copies.
+- **H35 refuted.** The three-quarters-random split beats the half split by 0.38 point (se 0.23,
+  1.7 se; lower in 83% of pooled draws), and the one-quarter split by as much (0.36); the two
+  unequal splits are 0.02 point apart. At half a village, how the survey is split matters little.
+- **H36 held.** No rule scores worse at &rho; = 0.75 than at 0.5 any more: forgetting half the
+  ties costs census degree discount +0.48 point (se 0.17) and the survey +1.06 (se 0.22) more than
+  forgetting a quarter, and census top degree +0.38 (se 0.29, the same direction but within
+  noise). Milestone 11's non-monotonicity was noise.
+- **H37 held.** At the measured recall the half survey loses a median 2.2% and beats perfect-census
+  top degree in 97.2% of draws.
+- Milestone 12's measured against matched recall, pooled: &minus;0.07 point (se 0.25) for census
+  degree discount, +0.04 (se 0.10) for the survey, as milestone 13 read it.
+- Not planned: every pooled median sits 0.11&ndash;0.21 point (mean 0.15) below the mean of its
+  copies. Worst-case regret takes a maximum over models and a best over rules, so Monte Carlo
+  noise biases a single copy upward; the rows of milestones 10 to 13 carry that bias. Census degree
+  discount at &rho; = 0.85 scores 0.49 point above 0.75 (about 2 se on the rules' own sds) and 0.33
+  above the matched uniform 0.82, so the range from 0.75 to 0.85 is not resolved.
+- Exploratory: rules that are often the minimax rule do not vary more between copies (rank
+  correlation &minus;0.04). Instead the two rules under stratified recall are unusually stable
+  (copy sd 0.06&ndash;0.08 point against 0.17&ndash;0.54 for the rest); not explained.
+
 ## What this does and does not say
 
 It says the archived code and data, ported, give q<sub>N</sub> &asymp; 0.05 and a weakly
@@ -741,19 +783,20 @@ python3 experiments/m12_strength/measure_strength.py "<path to datav4.0>"  # 2 s
 OMP_NUM_THREADS=1 python3 experiments/m12_strength/run.py      # about 17 minutes on 4 cores, verdicts.txt
 OMP_NUM_THREADS=1 python3 experiments/m13_streams/run.py       # about 20 minutes on 4 cores, verdicts.txt
 python3 experiments/m13_streams/figure.py
+OMP_NUM_THREADS=1 python3 experiments/m14_pooled/run.py        # about 26 minutes on 4 cores, verdicts.txt
+python3 experiments/m14_pooled/figure.py
 ```
 
 Needs numpy (and scipy for the data builder).
 
 ## Next steps
 
-Milestone 13 finds that a randomised rule's Monte Carlo noise (sd up to about half a point at the
-joint median) is as large as several differences milestones 10 to 12 read as findings. Next: pool
-several copies (or raise the draws per rule) for every randomised rule and report the Monte Carlo
-error beside the bootstrap interval, then re-read milestones 10 to 12's sub-point comparisons
-(split share, &rho; = 0.75 against 0.5) on the pooled scores; false-positive ties; tie strength in
-the contagion itself; the controlled threshold sweep for complex centrality (milestone 8); the two
-milestone-3b checks; then the paper draft, with milestones 4 to 13 as its seeding section.
+Milestone 14 pools five Monte Carlo copies and puts a standard error on every randomised rule
+(0.03&ndash;0.24 point). Next: report pooled medians with that error in the paper's tables; a
+finer recall grid (&rho; = 0.7 to 0.9) with about ten copies to settle the 0.75&ndash;0.85 range;
+why stratified recall steadies a rule's score; false-positive ties; tie strength in the contagion
+itself; the controlled threshold sweep for complex centrality (milestone 8); the two
+milestone-3b checks; then the paper draft, with milestones 4 to 14 as its seeding section.
 
 ## References
 

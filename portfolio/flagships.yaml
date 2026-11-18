@@ -118,12 +118,13 @@ flagships:
       RapidOCR's total unless arithmetic confirms the majority, CORD train 542/583;
       page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267),
       WildReceipt held out 360/405, tax 209/272, Russian slips 203/230, 202/221
-      (RapidOCR), SROIE 84.6%, US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD
-      photos val 71.4%, train 62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6)
-      payroll (README): two journal layouts read; open: a real Gusto or ADP export;
-      (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a
-      real upload, TY2026 template. A run that lands a slice replaces its item here;
-      keep this under 2,000 characters. More open items: NEXT.md.
+      (RapidOCR), SROIE 84.6%, five readings 96.5% held out, dates 94.1% (was
+      69.1%), US 79.6%, tax 74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%,
+      train 62.2%, test 57.9%, tax 16/41; open: OCR-bound); (6) payroll (README):
+      two journal layouts read; open: a real Gusto or ADP export; (7) IRIS NEC and
+      MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real upload,
+      TY2026 template. A run that lands a slice replaces its item here; keep this
+      under 2,000 characters. More open items: NEXT.md.
     buildable: >-
       Receipts, item (5): WildReceipt (eval/wildreceipt.py, Hugging Face
       kaydee/wildreceipt; Apache-2.0), SRD (eval/srd-fetch.mjs), CORD
@@ -132,7 +133,8 @@ flagships:
       (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): all shards read
       (eval/receipt-ocr-ru-train2-2026-11-18.md); rus+eng tesseract adds nothing
       (eval/receipt-ocr-ru-rus-vote-2026-11-18.md); next: a Cyrillic RapidOCR model.
-      CORD leftovers: train-28, 1009 (eval/cord-shard0-lead-2026-11-17.md).
+      SROIE (zzzDavid/ICDAR-2019-SROIE) merchants:
+      eval/sroie-five-readings-2026-11-18
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -330,8 +332,9 @@ flagships:
       eval/canon-cr3-*tiled-*); cull: zoom, pan windows, the 44 crop gate and an
       exact pair index 2026-11-18 (10,000 frames 251 to 42 s,
       eval/cull-grouping-index-*) (6% pans 0.85 to 1.00, eval/cull-crop-gate-*),
-      next 10% pans (0.86-0.95, windows 6-11 bits: a finer grid) and a real shoot's
-      picks. More open items: NEXT.md.
+      whole-percent window offsets 2026-11-18 (7-10% pans 0.78-0.95 to 0.99-1.00,
+      eval/cull-fine-offsets-*); next a real shoot's picks. More open items:
+      NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -378,27 +381,27 @@ flagships:
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
       schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
       eval/platform-templates-2026-11-17.md; calendar ids per fixture,
-      eval/ics-stable-uids.txt; bowling seasons, lane pairs rotated evenly: 36 of 36
-      at the bound 2026-11-18 via a focused walk and stored SAT answers, P-week
-      seasons proved UNSAT, eval/bowling-lane-table.txt). 3-game nights
+      eval/ics-stable-uids.txt; In/Maybe/Out per game and short teams on the league
+      page, availability.mjs 2026-11-18; bowling seasons, lane pairs rotated evenly:
+      36 of 36 at the bound 2026-11-18 via a focused walk and stored SAT answers,
+      P-week seasons proved UNSAT, eval/bowling-lane-table.txt). 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
-      every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6,
-      12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
-      teams 0 waits on 6 slots; on 9 slots 11, 13 teams on 2 courts, 17 on 3; proved
-      impossible: 7, 9 on 2x6; 5, 7 on 1x9; 7 on 2x9. Night by night
-      (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6; fails at <=3 spare slots
-      (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37 on
-      6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0 waits
-      (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9
-      0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with the
-      short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Bowling seasons
-      proved uneven (SAT, 44 of 4-32 teams x 1-60 weeks, page says so;
-      eval/bowling-bound-proof.txt). Lane limits (team avoids a pair, hard;
-      eval/bowling-lane-avoid.txt). Limits per shape
+      every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on
+      1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6;
+      fails at <=3 spare slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on
+      4x9, 31 on 5x9, 37 on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46
+      on 3 sessions 0 waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits
+      (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
+      eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
+      (odd-orbit.py, 9,849 s). Bowling seasons proved uneven (SAT, 44 of 4-32 teams
+      x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Lane limits (team
+      avoids a pair, hard; eval/bowling-lane-avoid.txt). Limits per shape
       (eval/bowling-avoid-shapes.txt), on other slots and symmetry-broken
-      (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. Next,
-      most valuable first: 6x32 two teams, slots 0,4 open; 6x26 random limits on
-      other slots; shapes of 5+ limited teams. More open items: NEXT.md.
+      (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. 6x32 2
+      teams, 6x26 random: UNSAT every dealing (eval/bowling-count-model.py); 16x40,
+      24x35 stored. 5+ limited: refused weeks re-dealt
+      (eval/bowling-many-limits.txt); next: most even dealing. More open items:
+      NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
@@ -517,9 +520,9 @@ flagships:
       (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
       same reports); property sets indexed by name 2026-11-18
       (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same
-      reports); file-order candidate lists 2026-11-18
-      (eval/file-order-candidates-2026-11-18.md: pooled specs 2.9x on HHS MEP, same
       reports); facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: 68
       IDS on HHS MEP 11.4M facet tests to 3.7M, 6.3-7.0 to 5.0-5.3 s; 219 MB 60.4 to
-      43.1 s, fits 1 GB); next: lazy ifcXML, attribute value tests on every entity.
-      More open items: NEXT.md.
+      43.1 s, fits 1 GB); ifcXML streams 2026-11-18 (eval/lazy-ifcxml-2026-11-18.md:
+      374 MB federated ifcXML 4.0 to 1.5 GB peak, fits 1 GB; strings keep
+      whitespace, 731 MEP labels). next: attribute value tests on every entity;
+      IFC4-layout ifcXML at scale. More open items: NEXT.md.

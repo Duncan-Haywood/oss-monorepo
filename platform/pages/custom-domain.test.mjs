@@ -38,7 +38,7 @@
 // made repeatable on a fixture, because a verification run once and not encoded
 // is the shape CLAUDE.md records paying for repeatedly.
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -121,9 +121,49 @@ async function site() {
     // card its own key, so drawing them cost ~7,000 cold draws.
     cards: false,
   });
-  built = { outDir };
+  built = { out, outDir };
   return built;
 }
+
+// The build output is read-only once site() resolves, and three tests sweep
+// all of it: one walk and one read of each text file serve them all. Each
+// sweep had walked about 8,500 files and re-read every text one, about 2 s a
+// sweep alone; what each test asks of a file is kept, not the file
+// (docs/history/pages-test-perf-2026-11-18-temp-dirs-and-one-read.md).
+const TEXT = /\.(html|xml|txt|json|mjs|js|css|webmanifest)$/;
+let sweepMemo;
+function sweep() {
+  sweepMemo ??= site().then(async ({ outDir }) => {
+    const files = await allFiles(outDir);
+    const rows = [];
+    for (const file of files) {
+      // Text surfaces only. A binary asset cannot carry a URL we rewrote, and
+      // reading one as utf8 would produce noise rather than a finding.
+      if (!TEXT.test(file)) continue;
+      const body = await fs.readFile(file, 'utf8');
+      rows.push({
+        file,
+        // A link, canonical, <loc> or JSON-LD URL, not any mention: since
+        // 2026-11-10 the default origin is the site's own domain, which posts
+        // and the plain-text search index name in prose ("marisstella.app
+        // answered 200 ..."). Prose is not a link or a canonical signal.
+        defaultLink: DEFAULT_ORIGIN_LINK.test(body),
+        placeholder: body.includes(PLACEHOLDER_ORIGIN),
+        canonicals: file.endsWith('.html')
+          ? [...body.matchAll(/rel="canonical"\s+href="([^"]*)"/g)].map((m) => m[1])
+          : null,
+      });
+    }
+    return { files, rows };
+  });
+  return sweepMemo;
+}
+
+// The fixture build is about 350 MB; until 2026-11-18 every run left it in
+// the temp directory.
+after(async () => {
+  if (built) await fs.rm(built.out, { recursive: true, force: true });
+});
 
 /** Every file in the artifact, as absolute paths. */
 async function allFiles(dir) {
@@ -138,21 +178,11 @@ async function allFiles(dir) {
 
 test('a custom-domain build leaves no reference to the default origin', async () => {
   const { outDir } = await site();
-  const files = await allFiles(outDir);
+  const { files, rows } = await sweep();
   assert.ok(files.length > 0, 'the fixture build produced no files at all');
 
-  const offenders = [];
-  for (const file of files) {
-    // Text surfaces only. A binary asset cannot carry a URL we rewrote, and
-    // reading one as utf8 would produce noise rather than a finding.
-    if (!/\.(html|xml|txt|json|mjs|js|css|webmanifest)$/.test(file)) continue;
-    const body = await fs.readFile(file, 'utf8');
-    // A link, canonical, <loc> or JSON-LD URL, not any mention: since
-    // 2026-11-10 the default origin is the site's own domain, which posts and
-    // the plain-text search index name in prose ("marisstella.app answered 200
-    // ..."). Prose is not a link or a canonical signal.
-    if (DEFAULT_ORIGIN_LINK.test(body)) offenders.push(path.relative(outDir, file));
-  }
+  // Which files count, and what a hit is, are set in sweep().
+  const offenders = rows.filter((r) => r.defaultLink).map((r) => path.relative(outDir, r.file));
 
   assert.deepEqual(
     offenders,
@@ -178,14 +208,9 @@ test('a custom-domain build leaves no reference to the placeholder origin', asyn
   // they are only ever rewritten. Deleting the placeholder rewrite leaves this
   // test as the sole thing that goes red.
   const { outDir } = await site();
-  const files = await allFiles(outDir);
+  const { rows } = await sweep();
 
-  const offenders = [];
-  for (const file of files) {
-    if (!/\.(html|xml|txt|json|mjs|js|css|webmanifest)$/.test(file)) continue;
-    const body = await fs.readFile(file, 'utf8');
-    if (body.includes(PLACEHOLDER_ORIGIN)) offenders.push(path.relative(outDir, file));
-  }
+  const offenders = rows.filter((r) => r.placeholder).map((r) => path.relative(outDir, r.file));
 
   assert.deepEqual(
     offenders,
@@ -227,15 +252,13 @@ test('every sitemap <loc> is an absolute URL on the custom origin', async () => 
 
 test('every canonical tag names the custom origin', async () => {
   const { outDir } = await site();
-  const files = (await allFiles(outDir)).filter((f) => f.endsWith('.html'));
-  assert.ok(files.length > 0, 'the fixture build wrote no HTML');
+  const pages = (await sweep()).rows.filter((r) => r.canonicals);
+  assert.ok(pages.length > 0, 'the fixture build wrote no HTML');
 
   let seen = 0;
-  for (const file of files) {
-    const html = await fs.readFile(file, 'utf8');
-    for (const m of html.matchAll(/rel="canonical"\s+href="([^"]*)"/g)) {
+  for (const { file, canonicals } of pages) {
+    for (const href of canonicals) {
       seen += 1;
-      const href = m[1];
       assert.ok(
         href.startsWith(APEX),
         `${path.relative(outDir, file)} has a canonical off the custom origin: ${href}`,

@@ -129,3 +129,18 @@ test("decodeBuffer handles UTF-8 BOM, UTF-16 and Windows-1252", () => {
   assert.equal(decodeBuffer(new Uint8Array([0xff, 0xfe, 0x41, 0x00])), "A");
   assert.equal(decodeBuffer(new Uint8Array([0x43, 0x61, 0x66, 0xe9])), "Café");
 });
+
+test("a row with both Debit and Credit is written as Credit minus Debit, and a second repair changes nothing (fuzz find, 2026-11-18)", () => {
+  const x = "Date,Description,Debit,Credit\n03/02/2024,a,12.5,2.25\n04/02/2024,b,oops,\n";
+  const a = repair(x);
+  assert.match(a.text, /03\/02\/2024,-10\.25,a/);
+  assert.match(a.text, /04\/02\/2024,-oops,b/, "an unreadable debit keeps its money-out sign");
+  assert.ok(a.changes.some((c) => c.includes("both filled")));
+  assert.equal(repair(a.text).text, a.text);
+});
+
+test("a row whose only content was in a dropped column is removed in the same repair (fuzz find, 2026-11-18)", () => {
+  const a = repair("Date,Note,Amount\n,just a note,\n01/02/2024,,5.00\n");
+  assert.equal(a.text.split("\r\n").filter(Boolean).length, 2, a.text);
+  assert.equal(repair(a.text).text, a.text);
+});

@@ -20,6 +20,7 @@ from shootflow.frame_analysis import (
     metrics_from_frames,
     noise_sigma_from_frame,
     pan_distance,
+    pan_other_distance,
     tilt_from_frame,
     zoom_dhashes,
     zoom_distance,
@@ -291,9 +292,64 @@ class PanWindowTests(unittest.TestCase):
         self.assertTrue(all(abs(dx) > c or abs(dy) > c for dx, dy in offsets))
 
 
+class FineOffsetTests(unittest.TestCase):
+    def test_marks_cover_every_whole_percent_offset(self) -> None:
+        from shootflow.frame_analysis import _FINE_GRID, _FINE_N, _FINE_PAIRS, FINE_MARKS
+
+        self.assertEqual({a - b for a in FINE_MARKS for b in FINE_MARKS}, set(range(-12, 13)))
+        n = _FINE_N
+        offsets = {(FINE_MARKS[a % n] - FINE_MARKS[b % n], FINE_MARKS[a // n] - FINE_MARKS[b // n]) for a, b in _FINE_PAIRS}
+        self.assertEqual(len(offsets), len(_FINE_PAIRS))
+        self.assertEqual(len(offsets), 25 * 25 - 9 * 9)  # every offset off the 3% lattice
+        self.assertEqual(sorted(set(_FINE_GRID)), list(range(49)))
+
+    def test_fine_windows_extend_the_crop_grid(self) -> None:
+        from shootflow.frame_analysis import _FINE_EXTRA, fine_dhashes, metrics_from_frames
+
+        frame = _view(_scene(12), 0.0, 0.0, 1.0)
+        fine = fine_dhashes(frame)
+        self.assertEqual(len(fine), len(_FINE_EXTRA))
+        self.assertEqual(len(fine), 24)
+        self.assertEqual(metrics_from_frames([frame]).dhash_fine, fine)
+
+    def test_a_pan_between_the_crop_steps_lines_up(self) -> None:
+        # A 7% pan moves the content 7.5% of the frame: 1.5% from the crop grid's
+        # 6% and 9%, 0.5% from the fine grid's 7% and 8%.
+        from shootflow.frame_analysis import fine_dhashes, fine_distance
+
+        scene = _scene(13)
+        left, right = _view(scene, 0.0, 0.0, 0.93), _view(scene, 0.07, 0.07, 0.93)
+        cl, cr = _ints(crop_dhashes(left)), _ints(crop_dhashes(right))
+        fl, fr = _ints(fine_dhashes(left)), _ints(fine_dhashes(right))
+        coarse = min(crop_distance(cl, cr), pan_distance(cl, cr))
+        fine = fine_distance(cl, fl, cr, fr)
+        self.assertLessEqual(fine, 3)
+        self.assertLess(fine, coarse)
+
+    def test_packed_check_agrees_and_old_rows_never_match(self) -> None:
+        from shootflow.frame_analysis import fine_distance, fine_pack, fine_within
+
+        rng = random.Random(14)
+        for _ in range(400):
+            ca = tuple(rng.getrandbits(64) for _ in range(25))
+            fa = tuple(rng.getrandbits(64) for _ in range(24))
+            pool = ca + fa
+            cb = tuple(pool[rng.randrange(49)] ^ rng.getrandbits(64) & rng.getrandbits(64) & rng.getrandbits(64)
+                       for _ in range(25))
+            fb = tuple(pool[rng.randrange(49)] ^ rng.getrandbits(64) & rng.getrandbits(64) & rng.getrandbits(64)
+                       for _ in range(24))
+            d = fine_distance(ca, fa, cb, fb)
+            pa, pb = fine_pack(ca, fa), fine_pack(cb, fb)
+            for limit in (d - 1, d, d + 1):
+                self.assertEqual(fine_within(pa, pb, limit), 0 <= limit and d <= limit, (d, limit))
+        self.assertEqual(fine_distance(ca, (), cb, fb), 64)
+        self.assertEqual(fine_pack(ca, ()), ())
+        self.assertFalse(fine_within((), fine_pack(cb, fb), 63))
+
+
 class PackedWindowTests(unittest.TestCase):
     def test_packed_check_agrees_with_both_distances(self) -> None:
-        from shootflow.frame_analysis import window_pack, windows_within
+        from shootflow.frame_analysis import other_pack, other_within, window_pack, windows_within
 
         rng = random.Random(11)
         for _ in range(1500):
@@ -301,11 +357,28 @@ class PackedWindowTests(unittest.TestCase):
             # Some windows of b sit a few bits from windows of a, so both kinds come near their limits.
             b = tuple(a[rng.randrange(25)] ^ rng.getrandbits(64) & rng.getrandbits(64) & rng.getrandbits(64)
                       for _ in range(25))
-            crop, pan = crop_distance(a, b), pan_distance(a, b)
+            crop, pan, other = crop_distance(a, b), pan_distance(a, b), pan_other_distance(a, b)
             pa, pb = window_pack(a), window_pack(b)
             for cl, pl in ((crop, -1), (crop - 1, -1), (-1, pan), (-1, pan - 1), (crop - 1, pan - 1), (crop, pan), (63, -5)):
                 want = (cl >= 0 and crop <= cl) or (pl >= 0 and pan <= pl)
                 self.assertEqual(windows_within(pa, pb, cl, pl), want, (crop, pan, cl, pl))
+            oa, ob = other_pack(a), other_pack(b)
+            for ol in (other, other - 1, -1, 63, 70):
+                self.assertEqual(other_within(oa, ob, ol), ol >= 0 and other <= ol, (other, ol))
+
+    def test_other_pan_pairs_fill_every_far_offset(self) -> None:
+        from shootflow.frame_analysis import _PAN_OTHER_PAIRS, _PAN_PAIRS, CROP_STEPS
+
+        n, c = CROP_STEPS, CROP_STEPS // 2
+        both = set(_PAN_PAIRS) | set(_PAN_OTHER_PAIRS)
+        self.assertEqual(len(both), len(_PAN_PAIRS) + len(_PAN_OTHER_PAIRS))
+        want = {
+            (ay * n + ax, by * n + bx)
+            for ay in range(n) for ax in range(n) for by in range(n) for bx in range(n)
+            if abs(ax - bx) > c or abs(ay - by) > c
+        }
+        self.assertEqual(both, want)
+        self.assertEqual(len(both), 264)
 
     def test_missing_crops_never_match_packed(self) -> None:
         from shootflow.frame_analysis import window_pack, windows_within

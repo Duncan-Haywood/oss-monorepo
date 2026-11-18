@@ -280,7 +280,7 @@ test("blocked Cholesky and inverse are bit-for-bit the plain one-row loops (ever
     return inv;
   };
   const rand = rng(7);
-  for (const n of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 37, 64]) {
+  for (const n of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 37, 64, 201]) {
     const x = Array.from({ length: n }, () => 10 * rand());
     const A = new Float64Array(n * n);
     for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) A[i * n + j] = Math.exp(-((x[i] - x[j]) ** 2) / 8) + (i === j ? 0.05 : 0);
@@ -289,6 +289,20 @@ test("blocked Cholesky and inverse are bit-for-bit the plain one-row loops (ever
     assert.equal(plainCholesky(b, n), true);
     assert.deepEqual(a, b, `Cholesky factor, n=${n}`);
     assert.deepEqual(inverseFromCholesky(a, n), plainInverse(b, n), `inverse, n=${n}`);
+  }
+});
+
+test("a gradient call handed the factor of a value-only call at the same theta returns what refactoring returns", () => {
+  const rand = rng(11);
+  const x = Array.from({ length: 41 }, (_, i) => i + 0.3 * rand());
+  const y = x.map((v) => Math.sin(v / 3) + 0.1 * rand());
+  for (const name of Object.keys(KERNELS)) {
+    const theta = kernelLayout(name).map(() => 0.5 + rand());
+    const plain = logMarginal(name, theta, x, y, { grad: true });
+    const factored = logMarginal(name, theta, x, y);
+    const reused = logMarginal(name, theta, x, y, { grad: true, factored });
+    assert.ok(Number.isFinite(plain.lml), name);
+    assert.deepEqual(reused, plain, name);
   }
 });
 

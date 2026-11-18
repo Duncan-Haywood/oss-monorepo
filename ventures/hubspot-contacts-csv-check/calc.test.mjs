@@ -192,3 +192,9 @@ test("a byte-order mark and CRLF line endings are tolerated", () => {
   assert.deepEqual(r.findings.filter((f) => f.severity !== "info"), []);
   assert.equal(r.summary.contacts, 1);
 });
+
+test("a row that is blank once its fixes are applied is removed in the same repair (fuzz find, 2026-11-18)", () => {
+  const a = repair("Email;First Name\nmailto:;\nana@example.test;Ana\n");
+  assert.equal(a.text, "Email,First Name\r\nana@example.test,Ana\r\n");
+  assert.equal(repair(a.text).text, a.text);
+});
