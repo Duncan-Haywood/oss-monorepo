@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First CI run failed platform/pages faq-visible.test.mjs: the FAQ JSON-LD kept the old answers after the visible FAQ was edited; synced the JSON-LD and re-ran (4/4)."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "pkill hook also refuses a bracketed pattern when the same text appears elsewhere in the command line (e.g. the server start in the same call); split the kill into its own call."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "run_workflow_locally.py --for-changes reported 19/20 passed but did not run the portfolio-pages site-builder tests (faq-visible) that failed in CI; a venture FAQ edit needs `cd platform/pages && node --test faq-visible.test.mjs`."
     }
   ],
   "deviations": [],
@@ -46,7 +52,7 @@
     "docs/posts/2026-11-18-quality-fix-the-mechanic-paid-for-the-empty-bench.md"
   ],
   "goal": null,
-  "notes": "Quality mode: fix (seeded mode draw, 18 high defects open). No sample seed or subjects drawn. Fixed ventures/bike-shop-repair-profit-calculator audit 2026-11-17 defects 0 (high: idle scheduled tech hours cost nothing), 4, 5, 7 (low); fix PR #17180, recorded with mark-fixed. Example now 8,148.11 profit (was 25,869.20), 50% row -28,071.89 (was +59.60), break-even 1,037 jobs (was 533), all matching the audit's hand recomputation. Checks: run_venture_tests.py bike-shop-repair-profit-calculator ok (32 tests); quality_mutate.py 3/3 mutants caught; Playwright page check, no page errors, techPaid round-trips the share link. quality_audit.py validate: 464 files, 0 problems. Share meeting the bar: not measured this run (fix mode).",
+  "notes": "Quality mode: fix (seeded mode draw, 18 high defects open). No sample seed or subjects drawn. Fixed ventures/bike-shop-repair-profit-calculator audit 2026-11-17 defects 0 (high: idle scheduled tech hours cost nothing), 4, 5, 7 (low); fix PR #17180, recorded with mark-fixed. Example now 8,148.11 profit (was 25,869.20), 50% row -28,071.89 (was +59.60), break-even 1,037 jobs (was 533), all matching the audit's hand recomputation. Checks: run_venture_tests.py bike-shop-repair-profit-calculator ok (32 tests); quality_mutate.py 3/3 mutants caught; Playwright page check, no page errors, techPaid round-trips the share link. quality_audit.py validate: 464 files, 0 problems. Share meeting the bar: not measured this run (fix mode). CI caught a FAQ JSON-LD / visible-copy mismatch from this change; fixed in a follow-up commit.",
   "corrections": [],
   "redteam": null,
   "usage": {
