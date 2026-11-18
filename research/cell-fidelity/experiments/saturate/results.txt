@@ -1,0 +1,32 @@
+cell-fidelity milestone 5zs: a saturating ten-cycle fit of the charge overpotential (q_S) and a hold at its
+cycle-10 line value (q_H) in 5zr's window factor, and the node lever with the measured factor (NM, the
+ceiling). 5zk's records, 40 designs, no new simulation. Set medians.
+
+set           n    e_A    e_N   e_NE   e_NS   e_NH   e_AS   e_NM   NSbA   NSbN  NSbNE   NHbN   NMbN   ASbA
+Ai2020        8  0.083  0.023  0.028  0.023  0.022  0.068  0.020   6/8    2/8    6/8    4/8    4/8    7/8 
+Chen2020     12  0.082  0.059  0.054  0.054  0.068  0.098  0.063   8/12   6/12   6/12   6/12   6/12   2/12
+OKane2022    12  0.059  0.076  0.081  0.067  0.076  0.079  0.069   5/12   8/12   5/12   9/12   8/12   2/12
+NCA_Kim2011   8  0.022  0.048  0.057  0.030  0.034  0.016  0.035   3/8    5/8    5/8    5/8    6/8    7/8 
+
+set             qS99    qE99    qH99    qM99   qerrS   qerrE   qerrH
+Ai2020         2.003   1.863   2.037   1.921   0.024   0.076   0.016
+Chen2020       1.450   1.410   1.548   1.539   0.045   0.067   0.031
+OKane2022      1.440   1.403   1.544   1.532   0.043   0.068   0.021
+NCA_Kim2011    1.874   1.870   2.015   1.999   0.048   0.036   0.059
+
+set            etaS99   etaE99   etaH99    eta99  lam_rel  edge
+Ai2020         119.85   105.52   143.27   131.89     1.30   2/8
+Chen2020       367.61   340.72   379.24   372.31    15.13   8/12
+OKane2022      372.60   348.65   389.61   381.64     4.05   6/12
+NCA_Kim2011    163.42   155.47   177.39   184.55     0.74   4/8
+
+(e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3, line through cycles 2..10; A = 5zd's lever, N = 5zn's
+ node lever, both with the law's factor; NE = N with 5zr's q_E; NS, NH = N with q_S, q_H; AS = A with q_S;
+ NM = N with the measured factor q_M (reads cycle 99); qerrX = |ln(qX/q_M)| at L_99; etaX99 = each eta
+ forecast at L_99 and eta99 the eta the cycle-99 charge needs, mV; lam_rel = the fitted decay length over
+ L_10 - L_2, edge = designs whose lam sits on a grid end)
+
+H224 (q_S closer to q_M than q_E at 99 on >= 3 of 4 sets): supported (3/4)
+H225 (|ln(q_S/q_M)| at 99 <= 0.05 on >= 3 of 4 sets): supported (4 <= 0.05, 0 > 0.1)
+H226 (|e_NM - e_N| <= 0.01 on >= 3 of 4 sets): supported (3 <= 0.01, 0 > 0.02)
+H227 (e_NS < e_A on >= 26 of 40 designs): inconclusive (22/40)
