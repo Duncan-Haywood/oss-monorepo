@@ -54,10 +54,19 @@ audit-ready revenue accounting.
   issue date.
 - **Deferred revenue at month end** = billed to date minus recognised to date.
   A negative balance means revenue recognised before it was billed.
-- **Journal CSV:** per month, `Dr Accounts receivable / Cr Deferred revenue`
-  for billings and `Dr Deferred revenue / Cr Subscription revenue` for
-  recognition, dated month end. Account names: `ACCOUNT_RECEIVABLE`,
-  `ACCOUNT_DEFERRED`, `ACCOUNT_REVENUE`. `?through=YYYY-MM` limits the range.
+- **Journal CSV:** per month, `Dr Stripe balance / Cr Deferred revenue`
+  for billings (lines are dated when paid, so the money is already in; a
+  receivable would never clear) and `Dr Deferred revenue / Cr Subscription
+  revenue` for recognition, dated month end. Account names: `ACCOUNT_CASH`
+  (the older `ACCOUNT_RECEIVABLE` is still read), `ACCOUNT_DEFERRED`,
+  `ACCOUNT_REVENUE`. `?through=YYYY-MM` limits the range.
+- **Period lock:** set `CLOSED_THROUGH=YYYY-MM` (or pass
+  `?closed_through=YYYY-MM` on any endpoint) once you have exported a month.
+  A line paid after the close (a net-30 invoice, a proration billed later)
+  no longer rewrites closed months: what it would have billed or recognised
+  in them is booked as a catch-up in the first open month. Totals and the
+  closing deferred balance are unchanged; only the timing moves. Lines paid
+  in or before the close keep their schedule.
 - **Currency units** follow Stripe: zero-decimal currencies (JPY, KRW, VND
   and the rest of Stripe's list) are whole units, the dinars (BHD, JOD, KWD,
   OMR, TND) thousandths, everything else cents. The journal CSV writes amounts
@@ -68,10 +77,14 @@ audit-ready revenue accounting.
 From the first quality audit
 ([`portfolio/quality/audits/2026-11-17-rev-rec.json`](../../portfolio/quality/audits/2026-11-17-rev-rec.json)):
 
-- **No period lock:** a late payment or proration rewrites months whose
-  journal was already exported, and the billing entry debits Accounts
-  receivable on the paid date, so AR never clears.
-- **No standalone-selling-price allocation** for bundles or setup fees.
+- **Credit notes and voids on closed months:** the period lock moves late
+  *payments*; a credit note issued after the close is booked on its own
+  date already, but a void of an invoice paid in a closed month still
+  rewrites that month on the next full re-read.
+- **No standalone-selling-price allocation** for bundles or setup fees. A
+  non-distinct setup fee is recognised in full on its date; ASC
+  606-10-55-51 spreads it over the service period, so book that adjustment
+  by hand.
 - No `Stripe-Version` header is pinned. Both tax shapes are read: the older
   `tax_amounts[].inclusive` and the `taxes[].tax_behavior` that API version
   2025-03-31 and later send.
@@ -79,7 +92,9 @@ From the first quality audit
 Fixed since the audit (red team, 2026-11-18): late-paid invoices and voided
 credit notes are picked up by a full re-read at least once a day (the other
 passes ask only for the last three days), and a period that carries a time of
-day counts whole days (31 for a month, not 32).
+day counts whole days (31 for a month, not 32). Quality fix, 2026-11-18:
+the period lock above, and billings debit cash instead of a receivable that
+never cleared.
 
 ## Run it
 
