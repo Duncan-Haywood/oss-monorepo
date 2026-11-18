@@ -89,3 +89,21 @@ test("monthly rollup, summary and csv", () => {
   assert.equal(money(-3.456), "-3.46");
   assert.ok(Object.keys(PLATFORMS).includes("custom"));
 });
+
+test("eBay charges $0.30 per order at $10 or less, $0.40 above (help id=4822)", () => {
+  close(analyze({ platform: "ebay", price: 9, baseCost: 3 }).unit.fees, 9 * 0.136 + 0.3);
+  close(analyze({ platform: "ebay", price: 10, baseCost: 3 }).unit.fees, 10 * 0.136 + 0.3);
+  close(analyze({ platform: "ebay", price: 25, baseCost: 3, shipCharged: 5 }).unit.fees, 30 * 0.136 + 0.4);
+});
+
+test("eBay target price on a small order round-trips on the $0.30 tier", () => {
+  const o = { platform: "ebay", price: 8, baseCost: 3, shipCost: 0, refundPct: 0 };
+  const price = solvePrice(analyze(o).inputs, 30);
+  assert.ok(price <= 10);
+  close(analyze({ ...o, price }).unit.marginPct, 30, 1e-7);
+});
+
+test("break-even ROAS is on the order total, shipping included", () => {
+  const r = analyze({ ...base, shipCharged: 10 });
+  close(r.breakEvenRoas, 110 / r.unit.profit);
+});

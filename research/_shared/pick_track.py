@@ -396,10 +396,10 @@ def land_first_lines(fresh_hours=3, show=8, now=None):
         when = "age ?" if a is None else (f"{a:.1f}h" if a < 48 else f"{a / 24:.0f}d")
         return f"  #{n} ({when}{draft}) {t[:110]}"
 
-    # The count of research PRs leads and the repo-wide total is named as such: "4 other open
-    # PR(s) of 104 title research/..." was read as 104 open research PRs (friction 2026-11-18).
-    head = (f"LAND FIRST ({len(ours)} open research/... PR(s) besides this branch's; {len(titles)} open "
-            "PRs repo-wide; research prompt, 'Landing work' step 2):")
+    # "4 other open PR(s) of 104 title research/..." read as 104 research PRs with only four
+    # shown (friction 2026-11-18); 104 was every open PR in the repository.
+    head = (f"LAND FIRST ({len(ours)} open PR(s) by other sessions title research/..., "
+            f"out of {len(titles)} open PRs in the repository; research prompt, 'Landing work' step 2):")
     if not ours:
         return [head[:-1] + ": none, so nothing to land first; go on to the draw"]
     lines = [head]

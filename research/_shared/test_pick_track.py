@@ -593,7 +593,7 @@ class LandFirstTest(unittest.TestCase):
             self.pr(6, "research/mine: step", "2026-11-10T00:00:00Z", ref="claude/mine"),
         ])
         text = "\n".join(lines)
-        self.assertIn("3 open research/... PR(s) besides this branch's; 6 open PRs repo-wide", lines[0])
+        self.assertIn("3 open PR(s) by other sessions title research/..., out of 6 open PRs in the repository", lines[0])
         self.assertNotIn("#3 ", text)
         self.assertNotIn("#4 ", text)
         # oldest stale first, fresh in its own group, own PR labelled
