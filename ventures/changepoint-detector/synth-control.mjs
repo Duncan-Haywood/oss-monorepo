@@ -314,3 +314,47 @@ export function covariateBalance(r, covariates, { names = null, threshold = 0.25
     };
   }).map((c) => ({ ...c, placeboWarning: c.placeboShare >= placeboQuantile - 1e-12 }));
 }
+
+// An uncertain lead (README "An uncertain lead"; eval/synth-lead-range-prereg-2026-11-18.md): when people may have
+// reacted 0 to L points before the named date and the exact lead is unknown, fit at every backdate in `leads` and
+// report every lead's p together, plus one p for the whole range that pays for looking at several. Trying leads and
+// keeping the smallest p (naiveMinP) is not a test: its false-alarm rate grows with the number of leads tried. The
+// range p is the permutation min-p adjustment (Westfall and Young 1993, ch. 2) applied to the placebo test: at each
+// lead every unit (the treated one and each donor's placebo) gets its own placebo p, the share of all units whose
+// floored statistic is at least its own; each unit keeps its smallest p over the leads; the range p is the share of
+// units whose smallest p is at most the treated unit's. The same placebo reassignment is used at every lead, so when
+// nothing happened the treated unit's smallest p is one draw from the units' smallest p's, and the range p keeps the
+// single-date test's size. maxP is the largest p over the leads (every lead significant: conservative).
+// gapFromDate at each lead is the mean gap from the named date k on, so leads are compared on the same window.
+export function synthLeadRange(y, donors, k, leads, opts = {}) {
+  const L = [...new Set((leads ?? []).map(Number))].sort((a, b) => a - b);
+  if (!L.length || L.some((v) => !Number.isInteger(v) || v < 0)) throw new Error('leads: give whole numbers of points, 0 or more');
+  const fits = L.map((lead) => ({ lead, r: synthControlTest(y, donors, k - lead, opts) }));
+  const N = fits[0].r.donors + 1;
+  const unitP = (r) => {
+    const stats = [r.tests.floored.value, ...r.placebos.map((q) => q.floored)];
+    return stats.map((s) => stats.filter((v) => v >= s - 1e-12 * Math.abs(s)).length / N);
+  };
+  const ps = fits.map((f) => unitP(f.r)); // ps[lead index][unit], unit 0 the treated one
+  const minPerUnit = Array.from({ length: N }, (_, u) => Math.min(...ps.map((row) => row[u])));
+  const own = minPerUnit[0];
+  const pRange = minPerUnit.filter((m) => m <= own + 1e-12).length / N;
+  // Two continuous range statistics (exploratory 2026-11-18: with 39 units the min-p above is coarse, since at
+  // p <= 0.05 only rank 1 counts and some placebo is nearly always rank 1 at one of the leads). meanStat: each unit's
+  // floored statistic averaged over the leads. maxScaled: each unit's largest statistic over the leads, each lead's
+  // statistic divided by that lead's median over all units. Both are symmetric in the units, so ranking the treated
+  // unit's value among every unit's is a placebo test of the same kind as the single-date one.
+  const stats = fits.map((f) => [f.r.tests.floored.value, ...f.r.placebos.map((q) => q.floored)]);
+  const median = (a) => { const b = [...a].sort((x, z) => x - z), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+  const meds = stats.map((row) => median(row) || 1e-12);
+  const meanStat = Array.from({ length: N }, (_, u) => stats.reduce((a, row) => a + row[u], 0) / stats.length);
+  const maxScaled = Array.from({ length: N }, (_, u) => Math.max(...stats.map((row, i) => row[u] / meds[i])));
+  const rankP = (v) => v.filter((x) => x >= v[0] - 1e-12 * Math.abs(v[0])).length / N;
+  const pMean = rankP(meanStat), pMaxScaled = rankP(maxScaled);
+  const perLead = fits.map(({ lead, r }, i) => {
+    const tail = r.gap.slice(k);
+    return { lead, kFit: k - lead, p: ps[i][0], rank: Math.round(ps[i][0] * N), effectAverage: r.effectAverage, gapFromDate: tail.reduce((a, b) => a + b, 0) / tail.length, preRmspe: r.preRmspe, fitWarning: r.fitWarning };
+  });
+  const best = perLead.reduce((a, b) => (b.p < a.p ? b : a));
+  return { leads: perLead, pRange, pMean, pMaxScaled, naiveMinP: own, bestLead: best.lead, maxP: Math.max(...perLead.map((e) => e.p)), units: N, minP: 1 / N, fits: fits.map((f) => f.r) };
+}
