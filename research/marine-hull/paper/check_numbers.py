@@ -1,0 +1,87 @@
+"""Check every hand-copied number in `main.tex` against the results file it names (stdlib only).
+
+Each CLAIM pairs a results file with a literal string that must appear in it; the paper quotes
+that string's numbers. `python3 research/marine-hull/paper/check_numbers.py` prints ok or the
+claims that no longer match (for example after a rerun changes a results file).
+"""
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+EXP = os.path.join(HERE, "..", "experiments")
+
+CLAIMS = [
+    ("results_michell.txt", "cases 6561; catamaran out-ranges monohull in 216 (3.3%)"),
+    ("results_michell.txt", "equal length 0/729"),
+    ("results_michell.txt", "cat win share by k_mono: 0.1: 0.0%, 0.25: 2.5%, 0.4: 7.4%"),
+    ("results_lowk.txt", "cases 6561; catamaran out-ranges monohull in 0 (0.0%)"),
+    ("results_lowk.txt", "range ratio cat/mono: min 0.74  median 0.85  max 0.97"),
+    ("results_michell_lowk.txt", "cases 729; catamaran out-ranges monohull in 7 (1.0%); equal length 0/243"),
+    ("results_michell_lowk.txt", "range ratio cat/mono: min 0.73 median 0.86 max 1.02"),
+    ("results_swath.txt", "cases 4374; SWATH out-ranges the 4 m monohull at its own best speed in 0"),
+    ("results_swath.txt", "min 0.552"),
+    ("results_swath.txt", "max 0.826"),
+    ("results_swath.txt", "at 3 m/s fixed: SWATH out-ranges mono in 0 (0.0%); ratio median 0.456"),
+    ("results_planing.txt", "cases 48; planing feasible in 48; planing out-ranges monohull in 0"),
+    ("results_planing.txt", "min 0.055 median 0.108 max 0.138"),
+    ("results_foil.txt", "cases 2916; foilborne flight feasible in 1620; foil out-ranges monohull in 0"),
+    ("results_foil.txt", "min 0.064 median 0.130 max 0.248"),
+    ("results_foil.txt", "10 m/s grid ceiling in 369 of 1620"),
+    ("results_slocum.txt", "cases 2430"),
+    ("results_slocum.txt", "AUV hotel x1: glider longer best range in 0/2430"),
+    ("results_slocum.txt", "median 0.36"),
+    ("results_slocum.txt", "median 4.87 (10th 2.38, 90th 10.67)"),
+    ("results_remus.txt", "glider cases 810"),
+    ("results_remus.txt", "implied hotel  107.3 W"),
+    ("results_remus.txt", "implied hotel  170.3 W"),
+    ("results_h1_h5.txt", "min 763 max 921  spread (max/min - 1) 20.6%"),
+    ("results_h1_h5.txt", "(-9.0%)"),
+    ("results_h1_h5.txt", "(-8.1%)"),
+    ("results_h1_h5.txt", "(-0.8%)"),
+    ("results_solar_sensitivity.txt", "hotel   20..45: km/day swing  -38.2%"),
+    ("results_solar_sensitivity.txt", "eta_pv  0.17..0.23: km/day swing  +25.6%"),
+    ("results_solar_sensitivity.txt", "derate  0.75..0.95: km/day swing  +20.4%"),
+    ("results_solar_sensitivity.txt", "c_s     2.6..3.4: km/day swing   -9.2%"),
+    ("results_solar_sensitivity.txt", "k_form  0.1..0.4: km/day swing   -8.2%"),
+    ("results_solar_sensitivity.txt", "wave    0.5..1: km/day swing   -0.3%"),
+    ("results_solar_mc.txt", "500 joint uniform draws"),
+    ("results_solar_mc.txt", "5 m Equator-Pacific  km/day median  133.4"),
+    ("results_solar_mc.txt", "5 m Florida-Straits  km/day median  124.5"),
+    ("results_solar_mc.txt", "5 m Gulf-of-Maine    km/day median   97.2"),
+    ("results_solar_mc.txt", "5 m North-Sea        km/day median   76.9"),
+    ("results_solar_mc.txt", "5 m Gulf-of-Alaska   km/day median   69.4 (5%-95%:   62.8 to   75.8; -10% / +9%)"),
+    ("results_solar_mc.txt", "5 m: draws with the site ordering Equator>Florida>Maine>North Sea>Alaska: 500 of 500"),
+    ("results_wigley_tank.txt", "k=0.00: CT 4.12e-3 (-1%)"),
+    ("results_wigley_tank.txt", "k=0.00: CT 4.35e-3 (+5%)"),
+    ("results_wigley_tank.txt", "k=0.25: CT 4.91e-3 (+18%)"),
+    ("results_wigley_tank.txt", "k=0.25: CT 5.19e-3 (+25%)"),
+    ("results_holtrop.txt", "(+19%)"),
+    ("results_holtrop.txt", "(+24%)"),
+    ("results_holtrop.txt", "(+33%)"),
+    ("results_holtrop.txt", "(+39%)"),
+    ("results_holtrop_yacht.txt", "308 tank points; 22 hulls"),
+    ("results_holtrop_yacht.txt", "[0.125-0.2] n83 med 1.32"),
+    ("results_holtrop_yacht.txt", "[0.125-0.2] n83 med 2.16"),
+    ("results_holtrop_yacht.txt", "[0.2-0.3] n110 med 0.76 in20% 42%"),
+    ("results_holtrop_yacht.txt", "[0.2-0.3] n110 med 0.97 in20% 82%"),
+]
+
+
+def check(claims=CLAIMS, root=EXP):
+    """Return the claims whose string is missing from their results file."""
+    bad, cache = [], {}
+    for name, needle in claims:
+        if name not in cache:
+            with open(os.path.join(root, name)) as f:
+                cache[name] = f.read()
+        if needle not in cache[name]:
+            bad.append((name, needle))
+    return bad
+
+
+if __name__ == "__main__":
+    bad = check()
+    for name, needle in bad:
+        print(f"MISSING in {name}: {needle!r}")
+    print("ok" if not bad else f"{len(bad)} of {len(CLAIMS)} claims do not match")
+    sys.exit(1 if bad else 0)
