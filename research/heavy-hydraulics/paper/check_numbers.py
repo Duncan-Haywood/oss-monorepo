@@ -511,6 +511,9 @@ MANUSCRIPT_CHECKS = [
     ("mean (one constant, calibrated on the six families' own picks, 2.15 per kW)", "gear_pump_tilt_results.txt", "all six                       2.15"),
     ("left-out RMS 0.0053 against 0.0056", "gear_pump_tilt_results.txt", "owdt  0.0053  (max 0.0061"),
     ("calibrated without it, the best tilt is 0.00", "gear_pump_tilt_results.txt", "without danfoss               0.00"),
+    # milestone 7p
+    ("the left-out RMS is 0.0047", "gear_pump_leak_results.txt", "owdm   0.0047  (max 0.0056"),
+    ("(0.0049 at unseen half idle speed)", "gear_pump_leak_results.txt", "owdm   0.0049  (+0.0002)"),
 ]
 
 
