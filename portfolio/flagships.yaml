@@ -322,20 +322,17 @@ flagships:
       X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF
       edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
       (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
-      E-series NEF 2026-11-18 (eval/nikon-nrw-reader-*). Next: an RW2 RawFormat 8
-      with a tone curve (0x39/0x3A); Sony's vignetting table vs an evenly lit frame;
-      a real DNG and a vignetting-calibrated lens through the pipeline's lens stage;
-      a real evenly lit frame shot wide open (corners level after lensfun's
-      vignetting?); a second maker-against-lensfun DNG pair; a real DNG carrying any
-      opcode run only on synthetic files so far, or the SDK to check them; lateral
-      colour measured on a real frame with sharp corner edges; a real Adobe `.dcp`
-      through the profile chooser; a CR3 a body writes in tiles (R5, R5 II: one
-      tile, eval/canon-cr3-r5-real-*); cull: zoom, pan windows, the 44 crop gate and
-      an exact pair index 2026-11-18 (10,000 frames 251 to 42 s,
-      eval/cull-grouping-index-*) (6% pans 0.85 to 1.00, eval/cull-crop-gate-*),
-      whole-percent window offsets 2026-11-18 (7-10% pans 0.78-0.95 to 0.99-1.00,
-      eval/cull-fine-offsets-*); next a real shoot's picks. More open items:
-      NEXT.md.
+      E-series NEF 2026-11-18 (eval/nikon-nrw-reader-*). RW2 RawFormat 8 2026-11-18:
+      S1R II, S5 IIX, S1 II E; 4 x 2 tiles (177 MP); no public file has a tone curve
+      (eval/panasonic-rw2-format8-grid-*). Next: the S1R II 177 MP frame against a
+      second decoder; Sony's vignetting table vs an evenly lit frame; a real DNG and
+      a vignetting-calibrated lens through the pipeline's lens stage; a real evenly
+      lit frame shot wide open (corners level after lensfun's vignetting?); a second
+      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
+      synthetic files so far, or the SDK to check them; lateral colour measured on a
+      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
+      chooser; a CR3 a body writes in tiles (R5, R5 II: one tile,
+      eval/canon-cr3-r5-real-*). More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
