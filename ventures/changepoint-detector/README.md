@@ -6669,6 +6669,65 @@ label less reliably), two non-step shapes, independent loadings, one shocked don
 of stores or regions (short after-periods, where the word should help); a slope or pulse on two donors; a shape word
 read against the panel's own trend (detrended thirds) for long compounding series.
 
+### The shape word against the panel's own trend (2026-11-18, pre-registered; bar 1 fails by 0.4 points, not shipped)
+
+"A donor's own event that is not a step" ended: "a shape word read against the panel's own trend (detrended thirds)
+for long compounding series". On West Germany 1990, 12 of 16 placebos' gaps 'grew', because gaps in GDP per head
+compound for 14 years whatever happened, so the word named nearly everyone. `panelShapes` (synth-control.mjs) takes
+every unit's gap (treated and placebos), finds the median of log(last-third over first-third mean square), the
+panel's **centre**, and, when the centre itself reaches the frozen ratio 6 (the median unit would be called 'grew'),
+words each unit by how far it stands from the centre at the same ratio; otherwise the plain word stands. No new
+constant. An all-relative variant (always subtract the centre) was tried first in the exploratory run and cost the
+trendless panels' sensitivity, so it was not tested.
+
+`eval/synth-shape-trend-sim.mjs` (pre-registration `eval/synth-shape-trend-prereg-2026-11-18.md`, committed after
+the exploratory run at base 88000 and before the confirmatory one): three families at 11 and 16 units, one donor with
+its own step, slope or pulse. **Trendless**: the donor-shape cells, unchanged. **Wandering**: a random walk of step sd
+0.15 or 0.3 on top of noise. **Growing**: compounding levels like GDP per head, each unit with its own persistent
+growth deviation, calibrated so the median panel's centre is 6-8. Confirmatory, base 89000, 400 panels a cell
+(`eval/synth-shape-trend-confirm.out.txt`), pooled:
+
+| family | line | plain | hybrid |
+|---|---|---|---|
+| trendless | pulse 'faded' / step 'held' / big slope 'grew' | 90.3% / 93.2% / 77.0% | 90.3% / 93.2% / 76.8% |
+| trendless | clean units listed above given a word | 20.3% | 20.3% |
+| wandering | big slope 'grew' | 70.7% | **68.8%** |
+| wandering | clean units listed above given a word | 29.2% | 28.7% |
+| growing | clean units listed above given a word | **70.1%** | **41.6%** |
+| growing, panels where the rule switched on (49%) | clean units listed above given a word | 80.2% | **22.2%** |
+| growing | all placebos 'grew' | 51.1% | 27.2% |
+| growing | pulse 'faded' | 74.3% | 78.4% |
+| growing | slope 'grew' (1x / 2x the effect) | 86.9% / 96.0% | 32.7% / 33.0% |
+
+Bars: (1) hybrid within 1.5 points of plain on every trendless and wandering line: **fails** on one line, wandering
+big slope 'grew', 1.9 points (70.7% to 68.8%; the rule switched on in 1-3% of wandering panels and there it can
+read a donor's slope as the panel's own trend); every other line within 0.6. (2) the earlier bars under the hybrid
+word: 90.3%, 93.2%, 76.8%, 20.3%, all hold. (3) growing, clean units given a word at least 20 points fewer: 28.5,
+holds. (4) where the rule switched on, at most 30%: 22.2%, holds. (5) pulses still named: 78.4% against 74.3%,
+holds. (6) 'grew' at most 60% of plain's share: 27.2% against 51.1%, holds.
+
+**What it says.**
+- **On compounding panels the plain word names most units; read against the panel it names about one in five.**
+  Where the median gap grew six times or more, 80% of clean units listed above the treated one got a word, against
+  22% with the hybrid word, about the trendless panels' 20%.
+- **A donor's own slope cannot be told from the panel's growth.** With the hybrid word a slope donor in a growing
+  panel is called 'grew' about a third of the time, close to the 27% of all placebos that get it. The plain word's
+  86-96% was no better: 70% of clean units got a word too. On these panels, neither word picks out a slope.
+- **On West Germany 1990** (`eval/synth-shape-trend-real.mjs`, a description run after the confirmatory one): the
+  centre is 21.8 and the hybrid word calls 2 of 16 placebos 'grew' (Norway, Spain), 4 'faded' (Japan, Greece,
+  Australia, New Zealand: their gaps grew much less than the panel's) and 10 'held'; West Germany's own gap 'held'.
+  The Basque panel's centre is 2.4, so its words are unchanged.
+
+**Not shipped (decided in the pre-registration).** Bar 1 failed, so `panelShapes` and `relShape`, `shapeCentre`
+and `shapeRelative` on `synthControlTest`'s result stay in the module only. The CLI, page and `--json` keep the
+plain word and the existing "most share the word" note. `synth-shape-trend.test.mjs` pins `panelShapes`, the two
+real panels, the unchanged CLI output, and re-checks every bar against the confirmatory file.
+
+**Limits.** The growing family is one generator with one persistence (AR 0.9). Twelve points after the date. The
+switch is all or nothing at the centre 6. **Next:** a fresh pre-registration whose bar 1 is scored only on the
+panels where the rule switches on, with the wandering cost reported beside it; or the hybrid word offered as an
+option, not the default, with this table quoted.
+
 ## Currency pegs: the update-rate check against documented dates (2026-11-18, pre-registered; D1 fails, a hang fixed)
 
 The update-rate check ("When a series starts updating less often") had only ever been scored in
