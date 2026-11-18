@@ -15,6 +15,7 @@ three launchers: 72 survey drills per lag and seed. Scored by the board's own tr
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_jitter.py --capture rows.jsonl [--lag 0.3] [--seed 7] [--procs 4]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_jitter.py --score rows.jsonl[.gz]
+    ... --capture rows.jsonl --tach-capture [--jitters 0,1.5,3]   # the edge times from the MCPWM capture
 
 Simulated only: the simulator's first-order wheel, its Gaussian edge jitter rounded to whole microseconds (as the
 board's micros() reads it), an assumed take profile, one seed per set.
@@ -27,6 +28,9 @@ import sys
 
 JITTERS = (0.0, 0.5, 1.0, 1.5, 2.0, 3.0)
 TACH_PLANT = 1              # min_fit_heldout.PLANTS[1]: "tach 3 us 10k"
+# --tach-capture (2026-11-18, README "A tach timed in hardware"): the same jitter on the handler's read, with the
+# edge times from the MCPWM capture (feeder_sim tach_capture), so the jitter should no longer reach the survey.
+TACH_CAPTURE = "--tach-capture" in sys.argv
 
 
 def capture(args):
@@ -36,11 +40,13 @@ def capture(args):
     import take_survey_sweep as tss
     tss.SEED = seed
     plants = list(h.PLANTS)
-    plants[TACH_PLANT] = (f"tach {JITTERS[ji]:g} us 10k", dict(h.PLANTS[TACH_PLANT][1], tach_jitter_us=JITTERS[ji]))
+    plants[TACH_PLANT] = (f"tach {JITTERS[ji]:g} us 10k", dict(h.PLANTS[TACH_PLANT][1], tach_jitter_us=JITTERS[ji],
+                                                                  tach_capture=TACH_CAPTURE))
     h.PLANTS = tuple(plants)
     a, r = tm.capture_survey((ti, TACH_PLANT, li, lag))
     if "aborted" not in r:
         r["build"] = [ti, ji, li, lag, seed]
+        r["tach_capture"] = TACH_CAPTURE
         r["board_scores"] = [w["board"] for w in r["wheels"]]
         r.pop("wheels")             # the board's rms rows are all the score reads; drop the raw periods and ticks
     return (ti, ji, li, lag, seed), r
@@ -104,7 +110,11 @@ def main():
             done = {tuple(json.loads(line)["build"]) for line in f}
     except FileNotFoundError:
         pass
-    grid = [(ti, ji, li, lag, seed) for ji in range(len(JITTERS)) for ti in range(4) for li in range(3)]
+    jis = range(len(JITTERS))
+    if "--jitters" in sys.argv:
+        want = [float(x) for x in sys.argv[sys.argv.index("--jitters") + 1].split(",")]
+        jis = [JITTERS.index(j) for j in want]
+    grid = [(ti, ji, li, lag, seed) for ji in jis for ti in range(4) for li in range(3)]
     if only:
         grid = grid[:int(only)]
     grid = [g for g in grid if g not in done]

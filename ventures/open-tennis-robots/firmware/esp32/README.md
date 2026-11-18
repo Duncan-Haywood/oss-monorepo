@@ -8,6 +8,8 @@ One firmware for both robots; `config.py` picks the role (`feeder` or
 | `controller.py` | Board-independent logic: command dispatch, role filter, clamps, 300 ms watchdog, latched e-stop, bumper rule, 10 Hz telemetry. Unit-tested on CPython (`tests/test_robots.py`). |
 | `main.py` | Hardware layer (PWM, encoders, tachometers, ADC, UART) and the main loop. **Not yet run on a board.** |
 | `config.py` | Role, encoder scales, battery thresholds, azimuth and elevation drive settings. |
+| `capture.py` | Launcher tachs timed by MCPWM0's capture unit (opt-in, `TACH_CAPTURE`; "A tach timed in hardware"). **Not yet run on a board.** |
+| `tach_log.py` | Logs one wheel's tach periods from the REPL for `tennisbots tach-jitter`, by the pin interrupt or the capture unit. |
 | `../../src/tennisbots/protocol.py` | The serial protocol, shared byte-for-byte with the Pi. |
 
 ## Flash
@@ -15,7 +17,7 @@ One firmware for both robots; `config.py` picks the role (`feeder` or
 ```
 pip install mpremote
 # flash MicroPython for ESP32 first (https://micropython.org/download/ESP32_GENERIC/)
-mpremote cp ../../src/tennisbots/protocol.py controller.py config.py main.py :
+mpremote cp ../../src/tennisbots/protocol.py controller.py config.py main.py capture.py tach_log.py :
 mpremote reset
 ```
 
@@ -2559,3 +2561,55 @@ sensor's errors may be tied to the wheel's angle (a reflective mark's edge, a ma
 survey may differ. Next: a real tach logged with tach_log.py on a spinning wheel; if it reads 1.35 us or more, a timer
 capture (the ESP32's MCPWM capture unit timestamps an edge in hardware) in place of the pin interrupt, measured with the
 same command.
+
+## A tach timed in hardware (2026-11-18, after "The take survey's jitter limit"; built, off by default)
+
+**The item.** The section above found the contact-time survey blind from 1.5 us of edge jitter, and named the fix to
+try if a real tach reads that much: a timer capture in place of the pin interrupt. The interrupt reads `ticks_us()`
+when its handler runs, so each edge time carries the handler's latency and its spread (a flash cache miss, another
+interrupt). The ESP32's MCPWM capture unit latches a free-running 80 MHz counter on the edge itself; the handler only
+has to read the latched value before the next edge (6 ms at 10,000 rpm).
+
+**What shipped.** `capture.py` routes a pin to MCPWM0's capture channel through the GPIO matrix, rising edges, no
+prescale, and reads the latched value. Every address and bit is from Espressif's register headers for the ESP32
+(esp-idf v5.2.2, listed at the top of the file), not from memory: two offsets this run first wrote down from memory
+were wrong (the capture input's signal index is 109, not 41). MicroPython's `machine.PWM` uses the LEDC peripheral, so
+MCPWM0 is free. The tick difference is a viper function: the counter passes 2^30 every 13 s and MicroPython's small
+ints stop there, so plain Python would build a big int inside the hard interrupt, which may not allocate.
+`controller.CaptureClock` turns ticks into the whole-microsecond periods `PeriodTach` takes, carrying the remainder so
+the periods add up to the edge times and never drift; a gap over the stall time on either clock (the counter wraps
+every 53.7 s, so only `ticks_us()` can tell a long stop from a short one) restarts the tach. `config.TACH_CAPTURE`
+turns it on for both launcher tachs (top on channel 0, bottom on 1); it is **False**, because none of this has run on
+a board. `tach_log.run(34, 600, capture=True)` logs a wheel's periods the same way, so a builder can log one steady
+wheel both ways and read each with `tennisbots tach-jitter`, which now says to do exactly that when a log reads 0.55 us
+or more.
+
+**On the simulator.** `tests/feeder_sim.py` runs `capture.py` itself against a stand-in register file: on each edge it
+writes the true edge time, in 80 MHz ticks, to the capture register before calling the handler, and its
+`tach_jitter_us` now moves only the handler's read. `tach_sensor_jitter_us` moves the edge itself, which the capture
+cannot help. `tests/test_capture.py` checks the register writes, the counter's wrap and the too-long gap, the carry, and
+on the drill: a 3 us handler jitter reads 3.22 us by the interrupt and 0.40 us by the capture (a clean tach reads 0.42),
+while 2 us of sensor jitter still reads over 1.6 us through the capture. The survey drills of the section above, rerun
+with the capture (`tests/take_survey_jitter.py --tach-capture`; eval/take-survey-capture-2026-11-18.txt, pre-registered
+before the held-out set ran, every clause held):
+
+| handler jitter | interrupt: spread takes named and advised (of 18, both sets) | capture: the same (of 18) | capture: instant builds advised (of 6) |
+| --- | --- | --- | --- |
+| 0 us | 14 | 11 | 0 |
+| 0.5 us | 4 | 11 | 0 |
+| 1 us | 1 | 10 | 0 |
+| 1.5 us | 0 | 11 | 0 |
+| 2 us | 0 | 12 | 0 |
+| 3 us | 0 | 13 | 0 |
+
+The capture holds the survey where it is on a clean tach at every jitter: 36 of 54 from 1.5 us against 0 of 54. At
+0 us it advised 11 to the interrupt's 14; both floor the same edges to whole microseconds, on grids shifted by the
+first edge's phase, and the drills drift apart from the third shot (104 of 1,640 periods differ by more than 1 us on
+the example drill), so that is one draw per set rather than a measured cost. By construction the simulator's handler
+jitter cannot reach a capture's periods; what these runs check is the code path (the real `capture.py`, `Tach` and
+`CaptureClock` through the whole drill) and that nothing else in the drill leans on the handler's timing.
+
+**Not known.** Whether a real board's jitter is the handler's or the sensor's: that is what logging both ways tells.
+The viper function, the register writes and the GPIO matrix routing have not run on a board; bench it with the wheels off before turning it on. Next:
+the capture's 12.5 ns resolution is floored to whole microseconds for `PeriodTach`; periods in finer units would lower
+the clean tach's 0.4 us floor, and might lift the clean row's 11-14 of 18.
