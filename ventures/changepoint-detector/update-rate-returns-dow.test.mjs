@@ -39,3 +39,13 @@ test('weekdays from ISO dates, and candidates in z positions', () => {
   assert.equal(q.length, 1);
   assert.equal(q[0].shareInside, 0);
 });
+
+test('round 3 committed verdict: dowchain at m 5 holds the nulls and finds 116 of 200, R2 fails', async () => {
+  const { readFileSync } = await import('node:fs');
+  const out = readFileSync(new URL('./eval/update-rate-returns-dow.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /'dow': no m meets <= 0\.010 in every null cell/);
+  assert.match(out, /'dowchain': smallest m meeting <= 0\.010 in every null cell: m 5 \(R60 found 123\)/);
+  assert.match(out, /R1 every null cell <= 0\.020 \(worst 0\.000\): pass/);
+  assert.match(out, /R2 R60 found >= 120 \(116\): FAIL/);
+  assert.doesNotMatch(out, /REAL \(seen\) check/);
+});
