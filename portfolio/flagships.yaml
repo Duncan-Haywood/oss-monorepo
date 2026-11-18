@@ -502,15 +502,14 @@ flagships:
       eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC cross-check 2026-11-17 (348 of
       348, eval/infra-mep-crosscheck-*); 65 public IDS vs IfcTester 2026-11-17
       (1,661 of 1,736 same; unchecked subclasses reported,
-      eval/corpus-crosscheck-*); duplicate GlobalIds in a model
-      (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
-      2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
-      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); several IFC
-      versions per spec 2026-11-17 (eval/multi-version-2026-11-17.md: opened in the
-      schema that edits most, page audit in every named schema, false page errors 18
-      to 0 on 18 public files). attribute facets read geometry shallow 2026-11-18
+      eval/corpus-crosscheck-*); several IFC versions per spec 2026-11-17
+      (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
+      audit in every named schema, false page errors 18 to 0 on 18 public files).
+      attribute facets read geometry shallow 2026-11-18
       (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
       same reports); property sets indexed by name 2026-11-18
       (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same
-      reports); next: lazy ifcXML, a file-order candidate list for specs with no
-      entity facet. More open items: NEXT.md.
+      reports); file-order candidate lists 2026-11-18
+      (eval/file-order-candidates-2026-11-18.md: pooled specs 2.9x on HHS MEP, same
+      reports); next: lazy ifcXML, a facet-result cache across specs that apply to
+      most of a model. More open items: NEXT.md.
