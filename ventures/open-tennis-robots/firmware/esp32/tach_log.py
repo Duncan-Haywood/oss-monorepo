@@ -4,6 +4,8 @@
 #
 #     import tach_log; tach_log.run(34, 600)                 # GPIO 34 = top wheel, 35 = bottom
 #     import tach_log; tach_log.run(34, 600, capture=True)   # the same edges timed by MCPWM0's capture unit
+#     import tach_log; tach_log.run(34, 600, capture=True, sub=8)   # ... kept to 1/8 us (README "Periods finer than a
+#                                                                   # microsecond"); printed as fractional microseconds
 #
 # It times the rising edges with a hard interrupt, as main.Tach does, and prints one period in microseconds per line;
 # save the output to a file on the Pi (e.g. `mpremote exec "import tach_log; tach_log.run(34, 600)" > top.txt`).
@@ -29,7 +31,7 @@ def _edge(_):
         period = time.ticks_diff(now, last) if last else -1
     else:
         period = st["clock"].period(st["cap"].ticks(), time.ticks_diff(now, last) if last else 0)
-        if period > st["clock"].stall_us:
+        if period > st["clock"].stall_us * st["clock"].sub:
             period = -1                      # the first edge (or a stop): no period to log
     if period >= 0 and st["i"] < len(st["buf"]):
         st["buf"][st["i"]] = period
@@ -37,13 +39,13 @@ def _edge(_):
     st["last"] = now
 
 
-def run(pin=34, n=600, timeout_s=30, capture=False, ch=None):
+def run(pin=34, n=600, timeout_s=30, capture=False, ch=None, sub=1):
     _st["buf"], _st["i"], _st["last"] = array("l", [0] * n), 0, 0
     _st["cap"] = _st["clock"] = None
     if capture:
         import capture as cap
         _st["cap"] = cap.Capture(pin, (0 if pin == 34 else 1) if ch is None else ch)
-        _st["clock"] = controller.CaptureClock()
+        _st["clock"] = controller.CaptureClock(sub=sub)
     p = Pin(pin, Pin.IN)
     p.irq(_edge, Pin.IRQ_RISING, hard=True)
     t0 = time.ticks_ms()
@@ -51,6 +53,7 @@ def run(pin=34, n=600, timeout_s=30, capture=False, ch=None):
         time.sleep_ms(20)
     p.irq(None)
     got = _st["i"]
-    print("# tach_log pin", pin, "capture" if capture else "interrupt", got, "periods (us)")
+    sub = _st["clock"].sub if _st["clock"] is not None else 1
+    print("# tach_log pin", pin, "capture" if capture else "interrupt", got, "periods (us)", "sub", sub)
     for k in range(got):
-        print(_st["buf"][k])
+        print(_st["buf"][k] if sub == 1 else "%.4f" % (_st["buf"][k] / sub))

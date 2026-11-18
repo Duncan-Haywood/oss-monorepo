@@ -43,7 +43,7 @@ class SimFeeder:
     def __init__(self, elev_mode="pot", az_start_deg=12.0, wheel_tau_s=WHEEL_TAU_S, wheel_max_rpm=WHEEL_MAX_RPM,
                  rpm_full=None, jam_log=None, balls=None, wheel_inertia=0.00155, launch_eff=1.0,
                  true_launcher=None, tach_jitter_us=0.0, esc_tau_s=0.0, seed=0, take_ms=0.0, take_shape="halfsine",
-                 tach_capture=False, tach_sensor_jitter_us=0.0):
+                 tach_capture=False, tach_sensor_jitter_us=0.0, tach_capture_sub=None):
         self.us = 1_000_000            # board clock, microseconds
         self.rx = bytearray()          # Pi -> board
         self.tx = bytearray()          # board -> Pi
@@ -131,6 +131,8 @@ class SimFeeder:
             jam_log = os.path.join(flash, "lift_jams.json")
         self.cfg.LIFT_JAM_LOG = jam_log
         self.cfg.TACH_CAPTURE = tach_capture
+        if tach_capture_sub is not None:   # the capture's period unit, 1 / sub us (None: config.TACH_CAPTURE_SUB)
+            self.cfg.TACH_CAPTURE_SUB = tach_capture_sub
         with open(os.path.join(FW, "main.py")) as f:
             src = f.read().rstrip()
         src = src[:-len("run()")]

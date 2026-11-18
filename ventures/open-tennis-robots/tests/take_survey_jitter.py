@@ -16,6 +16,7 @@ three launchers: 72 survey drills per lag and seed. Scored by the board's own tr
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_jitter.py --capture rows.jsonl [--lag 0.3] [--seed 7] [--procs 4]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_jitter.py --score rows.jsonl[.gz]
     ... --capture rows.jsonl --tach-capture [--jitters 0,1.5,3]   # the edge times from the MCPWM capture
+    ... --capture rows.jsonl --tach-capture --sub 8                # its periods in 1/8 us (README "Periods finer ...")
 
 Simulated only: the simulator's first-order wheel, its Gaussian edge jitter rounded to whole microseconds (as the
 board's micros() reads it), an assumed take profile, one seed per set.
@@ -31,6 +32,9 @@ TACH_PLANT = 1              # min_fit_heldout.PLANTS[1]: "tach 3 us 10k"
 # --tach-capture (2026-11-18, README "A tach timed in hardware"): the same jitter on the handler's read, with the
 # edge times from the MCPWM capture (feeder_sim tach_capture), so the jitter should no longer reach the survey.
 TACH_CAPTURE = "--tach-capture" in sys.argv
+# --sub N (2026-11-18, README "Periods finer than a microsecond"): the capture's periods in 1 / N us; default 1, the
+# whole-microsecond capture these files were first run with (config.TACH_CAPTURE_SUB is the board's).
+SUB = int(sys.argv[sys.argv.index("--sub") + 1]) if "--sub" in sys.argv else 1
 
 
 def capture(args):
@@ -41,12 +45,13 @@ def capture(args):
     tss.SEED = seed
     plants = list(h.PLANTS)
     plants[TACH_PLANT] = (f"tach {JITTERS[ji]:g} us 10k", dict(h.PLANTS[TACH_PLANT][1], tach_jitter_us=JITTERS[ji],
-                                                                  tach_capture=TACH_CAPTURE))
+                                                                  tach_capture=TACH_CAPTURE, tach_capture_sub=SUB))
     h.PLANTS = tuple(plants)
     a, r = tm.capture_survey((ti, TACH_PLANT, li, lag))
     if "aborted" not in r:
         r["build"] = [ti, ji, li, lag, seed]
         r["tach_capture"] = TACH_CAPTURE
+        r["tach_capture_sub"] = SUB
         r["board_scores"] = [w["board"] for w in r["wheels"]]
         r.pop("wheels")             # the board's rms rows are all the score reads; drop the raw periods and ticks
     return (ti, ji, li, lag, seed), r

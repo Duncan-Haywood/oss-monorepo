@@ -110,15 +110,19 @@ class Tach:
     (controller.PeriodTach: counting pulses per 10 ms tick could only read multiples of 6000 rpm)."""
 
     def __init__(self, pin, cap_ch=None):
-        self.core = controller.PeriodTach()
         self.last_us = time.ticks_us()
         # config.TACH_CAPTURE (2026-11-18, README "A tach timed in hardware"): the edge time comes from MCPWM0's capture
         # channel `cap_ch`, latched in hardware, so the handler's latency no longer reaches the periods. Off by default.
+        # config.TACH_CAPTURE_SUB (README "Periods finer than a microsecond"): the capture's periods in 1 / SUB us.
         self.cap = None
         if cap_ch is not None and getattr(config, "TACH_CAPTURE", False):
             import capture
+            sub = getattr(config, "TACH_CAPTURE_SUB", 1)
+            self.core = controller.PeriodTach(sub=sub)
             self.cap = capture.Capture(pin, cap_ch)
-            self.clock = controller.CaptureClock(self.core.stall_us)
+            self.clock = controller.CaptureClock(self.core.stall_us, sub=sub)
+        else:
+            self.core = controller.PeriodTach()
         self.rpm = 0
         self.rpm_last = 0
         self.since = 0

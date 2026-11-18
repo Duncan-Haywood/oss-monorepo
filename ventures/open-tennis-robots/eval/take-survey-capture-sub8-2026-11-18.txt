@@ -1,0 +1,41 @@
+# tests/take_survey_jitter.py --tach-capture --sub 8, 2026-11-18 (firmware/esp32/README.md "Periods finer than a microsecond")
+
+The same 72 survey drills as eval/take-survey-capture-2026-11-18.txt (the MCPWM capture on, handler jitter 0 to 3 us),
+with the capture's periods handed to PeriodTach in 1/8 us (controller.CaptureClock(sub=8), PeriodTach(sub=8),
+config.TACH_CAPTURE_SUB) instead of floored to whole microseconds. The handler's jitter never reaches a capture's
+periods, so the six jitter columns are near-repeats of one plant (they differ only through ticks_us() in the tach's
+`since` and LaunchCheck's tick log): read the per-jitter counts as about one draw per set, not six.
+
+Compared against (whole-microsecond capture, the same builds): design 4, 4, 4, 4, 4, 5 named and advised of 9 (25 of
+54), mean share 0.56-0.60; held out 7, 7, 6, 7, 8, 8 (43 of 54), mean share 0.43-0.56.
+
+## design: --capture --tach-capture --sub 8 --lag 0.3 --seed 7, then --score
+72 survey drills (wheel lag 0.3 s, seed 7), the board's window of 8; each build's pick (refined, to 0.5 ms), best / step share and the advice (advised when the share is at most 0.6)
+  instant       | 0 us: 0/1.00 0/1.00 2/1.00 | 0.5 us: 0/1.00 0/1.00 0/1.00 | 1 us: 0/1.00 1/0.88 0/1.00 | 1.5 us: 0/1.00 0/1.00 2.5/0.86 | 2 us: 0/1.00 0/1.00 0/1.00 | 3 us: 0/1.00 0/1.00 2.5/1.00
+  halfsine 3 ms | 0 us: 3/0.36* 1.5/0.88 3/0.13* | 0.5 us: 3/0.36* 1.5/0.88 3/0.17* | 1 us: 3/0.56* 1.5/0.88 3/0.17* | 1.5 us: 3/0.56* 1.5/0.88 3/0.13* | 2 us: 3/0.56* 1.5/0.88 3/0.12* | 3 us: 3/0.34* 1.5/0.75 3/0.14*
+  halfsine 6 ms | 0 us: 6/0.27* 0/1.00 6/0.21* | 0.5 us: 6/0.30* 0/1.00 6/0.24* | 1 us: 6/0.30* 6/0.38* 6/0.24* | 1.5 us: 6/0.30* 6/0.33* 6/0.24* | 2 us: 6/0.27* 6/0.27* 6/0.24* | 3 us: 6/0.27* 6/0.30* 6/0.24*
+  front 4 ms    | 0 us: 4.5/0.42* 5/0.26* 3.5/0.30* | 0.5 us: 4.5/0.73 5/0.26* 3.5/0.34* | 1 us: 5/0.20* 5/0.22* 4.5/0.43* | 1.5 us: 5/0.21* 5/0.31* 4/0.20* | 2 us: 4.5/0.43* 5/0.24* 4/0.20* | 3 us: 4.5/0.43* 5/0.21* 4/0.23*
+  (pick ms / share per launcher 0, 1, 2; * = advised)
+
+Per jitter: spread takes named within 1 ms and advised (of 9); instant builds advised (of 3, a wrong re-flash); picks within 1 ms (of 12); mean best / step share on the spread takes
+    0 us: named and advised 7, instant advised 0, within 1 ms 9 of 12, mean share 0.42
+  0.5 us: named and advised 6, instant advised 0, within 1 ms 10 of 12, mean share 0.47
+    1 us: named and advised 8, instant advised 0, within 1 ms 11 of 12, mean share 0.38
+  1.5 us: named and advised 8, instant advised 0, within 1 ms 10 of 12, mean share 0.35
+    2 us: named and advised 8, instant advised 0, within 1 ms 11 of 12, mean share 0.36
+    3 us: named and advised 8, instant advised 0, within 1 ms 10 of 12, mean share 0.32
+
+Design: 7, 6, 8, 8, 8, 8 named and advised of 9 (45 of 54, against 25 at whole microseconds); no instant build
+advised; mean share 0.32-0.47 (0.56-0.60). Launcher 1's half-sine 3 ms take picks 1.5 ms at every jitter (a miss the
+whole-microsecond run named at 3 ms): one draw, repeated six times.
+
+## Pre-registration (written and committed before the held-out run)
+
+Held out: the same 72 builds at wheel lag 0.45 s, seed 11, capture on, sub 8. PREDICTION: (a) named and advised, summed
+over the six jitters, more than the whole-microsecond capture's 43 of 54 on the same builds; (b) no instant build
+advised at any jitter; (c) the mean share on spread takes lower than the whole-microsecond capture's at 4 or more of
+the six jitters (0.50, 0.48, 0.56, 0.54, 0.45, 0.43). DECISION RULE: if (b) fails, config.TACH_CAPTURE_SUB goes back to
+1 (a finer clock must not invent takes). If (a) and (b) hold, TACH_CAPTURE_SUB = 8 stays the capture's default and
+`tennisbots tach-jitter`'s clean reference names the finer floor; TACH_CAPTURE itself stays off (never run on a board).
+If (a) fails with (b) holding, the README reports no measured gain and TACH_CAPTURE_SUB stays 8 only for the finer
+jitter reading.
