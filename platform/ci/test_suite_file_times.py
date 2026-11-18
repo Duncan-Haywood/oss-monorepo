@@ -33,6 +33,12 @@ class TestFileTimes(unittest.TestCase):
         self.assertEqual(sft.resolve("ventures", self.root)[1], None)
         self.assertEqual(sft.resolve("nope", self.root), (None, None))
 
+    def test_relative_path_is_from_the_shells_directory(self):
+        # `.` from inside a venture is that venture, not the repository root.
+        self.assertEqual(sft.resolve(".", self.root, cwd=self.v), (self.v.resolve(), "demo"))
+        self.assertEqual(sft.resolve("demo", self.root, cwd=self.v), (self.v.resolve(), "demo"))
+        self.assertEqual(sft.resolve(".", self.root, cwd=self.root)[1], None)
+
     def test_files_skip_node_modules(self):
         names = [str(f.relative_to(self.v)) for f in sft.test_files(self.v)]
         self.assertEqual(names, ["a.test.mjs", "c_test.py", "tests/test_b.py"])

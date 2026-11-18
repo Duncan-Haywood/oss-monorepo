@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtKZ27dSwEQBCemohhR",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T18:07:21Z",
+  "ended": "2026-11-18T18:27:53Z",
+  "wall_minutes": 20.71,
+  "tokens_in": 6063683,
+  "tokens_out": 24909,
+  "cost_usd": 2.5349,
+  "tool_calls": 60,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17383",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A `cd X && ( ... ) &` line backgrounded the cd too, so the next commands ran from the old directory; one wasted call."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Backlog held only owner/blocked rows again; friction_rank --live --ungated's top clusters were env (cite_check 403s) or already fixed (post caps). measure's 'Doc friction by file' list surfaced fold-check.mjs (3 live reports) faster."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "A 2026-11-18 report says --until exits 0 on timeout; the code returns 1 (main(), 'still failing after'). Likely the harness's 30-min background limit ending the job; not reproduced, not changed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-four-phones-in-eight-seconds.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (no agent-owned backlog rows). Fixed fold-check.mjs (serves DIST itself, --widths, --all table; 3 polish friction reports 2026-11-18) and suite_file_times.py (relative target from the shell's cwd; perf friction 2026-11-18). Verification: node --test platform/pages/fold.test.mjs 7/7; python3 platform/ci/test_suite_file_times.py 8 ok; fold-check end-to-end on a hand-made dist (pass, labelled fail at 420px, exit 2 on bad width and dead BASE_URL) and on a full local build of main: 31/31 pass at 320/360/375/390x844 in 8.3 s, 15/31 at 320x568. promptctl validate ok; unittest discover -s prompts 136 ok; run_workflow_locally --for-changes 6/6 passed, portfolio-validate no local verdict (skipped step), main_health 273/273 before starting. No backlog ids touched; no agent doc: the README section and post carry the change.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9afe044d-bd94-567d-a19d-bbec7140c306",
+    "transcripts": 1,
+    "first": "2026-11-18T18:07:21Z",
+    "last": "2026-11-18T18:28:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 113,
+        "output": 24909,
+        "thinking": 5235,
+        "cache_read": 5957980,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105590,
+        "api_equivalent_usd": 2.5349,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 113,
+      "output": 24909,
+      "thinking": 5235,
+      "cache_read": 5957980,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105590,
+      "api_equivalent_usd": 2.5349,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.71,
+      "active_minutes": 20.71,
+      "model_minutes": 5.57,
+      "tool_minutes": 15.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.5,
+      "basis": "two small tool changes with tests, a full build and a measured post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 250.0
+    },
+    "leverage": 98.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
