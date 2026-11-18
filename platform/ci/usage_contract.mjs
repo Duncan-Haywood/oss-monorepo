@@ -77,6 +77,34 @@ function blockStorage() {
 const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 const NOT_OBJECTS = ["[1,2]", "[]", "5", "\"text\"", "null", "true"];
 
+// A counter's day stamp (last_day in 211 copies, day in a dozen) is shown in
+// the stats panels and compared across visits, so it must be a bare
+// YYYY-MM-DD for today. Added 2026-11-18: a red-team mutant turned
+// `.slice(0, 10)` into `.slice(0, 11)` ("2026-11-18T") and no suite or
+// contract check noticed, since none read the stamp's value.
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+function localDay(d) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+export function dayStampProblems(value, now = new Date()) {
+  const today = new Set([now.toISOString().slice(0, 10), localDay(now)]);
+  const problems = [];
+  const walk = (v, path) => {
+    if (!isPlainObject(v)) return;
+    for (const [k, inner] of Object.entries(v)) {
+      const where = path ? `${path}.${k}` : k;
+      if (/^\d{4}-/.test(k) && !(ISO_DAY.test(k) && today.has(k))) problems.push(`key ${where} is not today's YYYY-MM-DD`);
+      if (/day/i.test(k) && typeof inner === "string" && !(ISO_DAY.test(inner) && today.has(inner))) {
+        problems.push(`${where} = ${JSON.stringify(inner)}, want today's YYYY-MM-DD`);
+      }
+      walk(inner, where);
+    }
+  };
+  walk(value, "");
+  return problems;
+}
+
 export async function checkModule(mod, reload) {
   const problems = [];
   const fail = (msg) => problems.push(msg);
@@ -102,6 +130,7 @@ export async function checkModule(mod, reload) {
     fail("record() wrote no JSON object counter to localStorage");
     return problems;
   }
+  for (const p of dayStampProblems(JSON.parse(storage.store.get(key)))) fail(`record(): ${p}`);
 
   // 2. valid JSON that is not a plain object.
   for (const raw of NOT_OBJECTS) {
@@ -230,6 +259,7 @@ export async function checkEventModule(mod, reload) {
     fail("recordEvent x3 wrote no JSON object counter {contract_a:2, contract_b:1} to localStorage");
     return problems;
   }
+  for (const p of dayStampProblems(parse(storage, key))) fail(`recordEvent(): ${p}`);
 
   // 2. valid JSON that is not a plain object: recordEvent recovers.
   for (const raw of NOT_OBJECTS) {
@@ -340,6 +370,7 @@ export async function checkParamModule(mod) {
     reset();
     return problems;
   }
+  for (const p of dayStampProblems(parse(storage, key))) fail(`recordUsage(storage): ${p}`);
   recordUsage(storage, false, "contract_a");
   if (parse(storage, key)?.contract_a !== 1) fail(`recordUsage(storage, false, "contract_a") did not count contract_a (${storage.store.get(key)})`);
 
