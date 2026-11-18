@@ -6359,6 +6359,7 @@ const CATEGORY_STYLE = `
     .start-grid p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
     .start-grid .meta { font-size: .8rem; color: var(--soft); }
     .start-here .starting { margin-top: 16px; }
+    main > .starting { margin-top: 22px; }
     @media (max-width: 380px) { .start-here { margin-top: 22px; } .start-here .sub { margin-bottom: 12px; } }
     .answers { margin: 30px 0 0; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; }
     .answers ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px 22px;
@@ -6515,7 +6516,10 @@ export function renderCategoryPage({
 
   // Jump links to each section, so a 190-tool page is a table of contents
   // first and a wall of cards second. Plain anchors: they work with no script.
-  const jumps = flat
+  // Not on a short audience page (`copy.noJumps`): its whole list is a screen
+  // or two, and at 320 px the chips alone pushed its first card ~100 px lower
+  // (docs/reports/polish-2026-11-18-short-audience-pages.md).
+  const jumps = flat || copy.noJumps
     ? ''
     : `    <nav class="jumps" aria-label="Sections on this page">
 ${subgroups
@@ -6657,7 +6661,12 @@ ${copy.lead ?? ''}${jumps}
 ${filter}
 
     <main>
-${body}
+${body}${
+      copy.afterCards
+        ? `
+      <p class="starting">${escapeHtml(copy.afterCards)}</p>`
+        : ''
+    }
       <p class="empty" id="cat-filter-empty" hidden>No tool on this page matches that. <a href="${escapeHtml(`${toRoot}#${SEARCH_ANCHOR}`)}">Search every tool</a>.</p>
     </main>
 
@@ -6771,7 +6780,14 @@ export function renderAudiencePage({ audience, items, groups, baseUrl, audiences
       // in the hero it pushed the first card below a 360x780 phone's screen
       // on 20 of 31 pages (polish-2026-11-18-fold-check.md), and its advice,
       // "run a few sample jobs through these", is about those cards.
-      starting: lead ? '' : audience.starting,
+      // Without one (fewer than eight tools), it goes under the list, and the
+      // jump chips go: in the hero, note and chips put the first card below a
+      // 320x640 screen on all five short pages (childcare's at 832 px), and the
+      // list is short enough to be its own way in
+      // (docs/reports/polish-2026-11-18-short-audience-pages.md).
+      starting: '',
+      afterCards: lead ? '' : audience.starting,
+      noJumps: !lead,
       audience: audience.who,
       lead,
     },
