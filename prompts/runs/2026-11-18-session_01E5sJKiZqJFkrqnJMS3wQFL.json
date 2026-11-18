@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKiZqJFkrqnJMS3wQFL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T18:19:09Z",
+  "ended": "2026-11-18T18:25:32Z",
+  "wall_minutes": 6.66,
+  "tokens_in": 5454302,
+  "tokens_out": 32228,
+  "cost_usd": 2.855,
+  "tool_calls": 49,
+  "task": "Deepen flagship league-schedule-generator (allocate.py row 4): captain move requests on the self-hosted league page",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17387",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "Full venture suite failed once: deploy.test.mjs 'the Dockerfile copies every module server.mjs imports' (new reschedule.mjs not in the COPY line). Fixed; deploy, server, confirm and reschedule tests then 28/28."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace with a longer new text failed at 2026/2000 even after parking everything movable; had to rewrite the landed clause shorter. The message was clear, the cap just leaves ~70 characters of headroom on this row."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Chromium check from a scratchpad .mjs: `import { chromium } from 'playwright'` fails (ERR_MODULE_NOT_FOUND) outside a directory with node_modules; createRequire('/')('playwright') works. The environment note says require('playwright') works from any directory, which is true only for CommonJS."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-rec-league-game-reschedule-requests-between-captains.md",
+    "ventures/league-schedule-generator/README.md (Move requests)"
+  ],
+  "goal": null,
+  "notes": "New reschedule.mjs + /league/move and /admin/move routes in server.mjs. A captain's date is dry-run through buildLeague with the rainout line appended and kept only if the fixture lands on that date with no new warning and no other fixture moved; approval re-checks and writes the line, then sends changeEmails. reschedule.test.mjs 9/9 pass. Chromium (playwright) run: ask -> other captain sees note and agrees -> admin approve -> 'Moved Net Ninjas v Spin Doctors to Thu 22 Oct 2026 19:00, Court 1', 0 page errors, 390px screenshot readable. Full venture suite (run_venture_tests.py league-schedule-generator): one real failure, the Dockerfile COPY line, fixed and re-run green on the affected files; venture-preflight result in the PR body. No agent doc in docs/reports: README section carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "26e4f07f-f6e2-55c3-8cb9-a6e57dae2f9f",
+    "transcripts": 1,
+    "first": "2026-11-18T18:19:09Z",
+    "last": "2026-11-18T18:25:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 84,
+        "output": 32228,
+        "thinking": 5587,
+        "cache_read": 5310729,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143489,
+        "api_equivalent_usd": 2.855,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 84,
+      "output": 32228,
+      "thinking": 5587,
+      "cache_read": 5310729,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143489,
+      "api_equivalent_usd": 2.855,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 43,
+      "Write": 2,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.66,
+      "active_minutes": 6.66,
+      "model_minutes": 4.84,
+      "tool_minutes": 1.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a developer adding a request/agree/approve workflow with tests and docs to an existing Node server",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 210.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

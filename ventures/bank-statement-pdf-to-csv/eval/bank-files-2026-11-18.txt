@@ -1,0 +1,33 @@
+# node eval/bank-files.mjs <dir>  (2026-11-18)
+bank-sample.ofx: ofx-file-check no errors or warnings (0 findings in all)
+bank-sample.qfx: ofx-file-check no errors or warnings (0 findings in all)
+bank-sample.qbo: ofx-file-check no errors or warnings (0 findings in all)
+bank-sample: 9 rows, net 1,462.57, proved
+card-sample.ofx: ofx-file-check no errors or warnings (0 findings in all)
+card-sample.qfx: ofx-file-check no errors or warnings (0 findings in all)
+card-sample.qbo: ofx-file-check no errors or warnings (0 findings in all)
+card-sample: 7 rows, net -201.37, proved
+year-2025.ofx: ofx-file-check no errors or warnings (0 findings in all)
+year-2025.qfx: ofx-file-check no errors or warnings (0 findings in all)
+year-2025.qbo: ofx-file-check no errors or warnings (0 findings in all)
+year-2025: 149 rows, net 17,954.18, proved, 12 statements, 0 gap(s)
+year-2025-no-june.ofx: ofx-file-check no errors or warnings (0 findings in all)
+year-2025-no-june.qfx: ofx-file-check no errors or warnings (0 findings in all)
+year-2025-no-june.qbo: ofx-file-check no errors or warnings (0 findings in all)
+year-2025-no-june: 141 rows, net 15,571.01, NOT proved, 11 statements, 1 gap(s)
+June left out: the gap found is 2,383.17 between 2025-05.pdf and 2025-07.pdf; June's own net movement is 2,383.17 (equal)
+
+# python -I -W ignore eval/bank-files-check.py <dir>  (ofxtools 1.1.1, ofxparse 0.21, from pip, 2026-11-18)
+bank-sample.ofx: ofxtools 9 rows net 1462.57 ids unique True ledger 567312; ofxparse 9 rows net 1462.57; expected 9 rows net 1462.57 ledger 567312 -> OK
+bank-sample.qfx: ofxtools 9 rows net 1462.57 ids unique True ledger 567312; ofxparse 9 rows net 1462.57; expected 9 rows net 1462.57 ledger 567312 -> OK
+bank-sample.qbo: ofxtools 9 rows net 1462.57 ids unique True ledger 567312; ofxparse 9 rows net 1462.57; expected 9 rows net 1462.57 ledger 567312 -> OK
+card-sample.ofx: ofxtools 7 rows net -201.37 ids unique True ledger -101377; ofxparse 7 rows net -201.37; expected 7 rows net -201.37 ledger -101377 -> OK
+card-sample.qfx: ofxtools 7 rows net -201.37 ids unique True ledger -101377; ofxparse 7 rows net -201.37; expected 7 rows net -201.37 ledger -101377 -> OK
+card-sample.qbo: ofxtools 7 rows net -201.37 ids unique True ledger -101377; ofxparse 7 rows net -201.37; expected 7 rows net -201.37 ledger -101377 -> OK
+year-2025.ofx: ofxtools 149 rows net 17954.18 ids unique True ledger 3045418; ofxparse 149 rows net 17954.18; expected 149 rows net 17954.18 ledger 3045418 -> OK
+year-2025.qfx: ofxtools 149 rows net 17954.18 ids unique True ledger 3045418; ofxparse 149 rows net 17954.18; expected 149 rows net 17954.18 ledger 3045418 -> OK
+year-2025.qbo: ofxtools 149 rows net 17954.18 ids unique True ledger 3045418; ofxparse 149 rows net 17954.18; expected 149 rows net 17954.18 ledger 3045418 -> OK
+year-2025-no-june.ofx: ofxtools 141 rows net 15571.01 ids unique True ledger 3045418; ofxparse 141 rows net 15571.01; expected 141 rows net 15571.01 ledger 3045418 -> OK
+year-2025-no-june.qfx: ofxtools 141 rows net 15571.01 ids unique True ledger 3045418; ofxparse 141 rows net 15571.01; expected 141 rows net 15571.01 ledger 3045418 -> OK
+year-2025-no-june.qbo: ofxtools 141 rows net 15571.01 ids unique True ledger 3045418; ofxparse 141 rows net 15571.01; expected 141 rows net 15571.01 ledger 3045418 -> OK
+0 mismatches

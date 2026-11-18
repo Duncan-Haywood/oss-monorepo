@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVL7pcCPfhr8hNXyG9W",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T18:17:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "secret-santa-draw: white elephant game host",
+  "projects": [
+    "secret-santa-draw"
+  ],
+  "pr": 17378,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/usage/site-visits.json",
+      "issue": "The copy on main stops at 2026-11-03; the live data is on the usage-data branch (node platform/counter/usage-data.mjs show site-visits.json). A run reading main sees ~no traffic and draws wrong conclusions; allocate.py does not surface the per-product visit ranking."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "promptctl route drew research/0, but the scheduled prompt asks for revenue-generating products, so the run took the ventures track.",
+      "did": "ventures/1",
+      "result": "shipped a feature on the most-visited product"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row was chant-forge; usage-data showed secret-santa-draw with the most page loads on the site (198 in 14 days) right before its season, and no flagship row has visitors, so the time went where visitors already are.",
+      "did": "secret-santa-draw",
+      "result": "white elephant host + guide + post"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-white-elephant-rule-that-actually-shortens-the-game.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: node --test in secret-santa-draw 43/43; run_workflow_locally --for-changes: portfolio-validate 100/100, pages 6/6, ventures-tests failed once on test_check_csv_formula_guard (negative numbers defused in elephant.mjs CSV), fixed and rerun OK. Playwright at 390px: full game played, reload restores, undo works, no page errors, no horizontal scroll; fixed .open-row overriding [hidden] at game end.",
+  "corrections": [],
+  "redteam": null
+}

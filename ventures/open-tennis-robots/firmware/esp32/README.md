@@ -2934,3 +2934,72 @@ three readings above, so it checks this fit directly.
 
     PYTHONPATH=src:tests:firmware/esp32 python tests/speed_ramp_survey.py --step [--heldout]
     PYTHONPATH=src:tests:firmware/esp32 python -m unittest tests/test_speed_ramp_fit.py
+
+## A queued survey's heap (2026-11-18, after "A ramp-then-PI drop fit for a speed-mode ESC"; on by its pre-registered rule)
+
+**The item.** The ESC-lag and take surveys run one at a time, and the rest wait in `LaunchCheck.survey_queue`
+(section "The ESC-lag survey's search, traced"). The depth was set at 2 "for the ESP32's heap" without a byte count.
+The seventh lag then cost wheels, and section "The ESC-lag survey between 100 and 200 ms" left this open: "whether
+`SURVEY_QUEUE` 3 fits the ESP32's heap".
+
+**How it was counted.** No board was at hand, and building MicroPython in this session was not allowed. So
+`tests/survey_heap.py` sizes each queued survey on the simulator's drills by the layout of MicroPython 1.24's ESP32
+port, read from its source:
+
+- 16-byte heap blocks;
+- integers under 2^30 held in the pointer;
+- a float a boxed single, one block;
+- a tuple of n is 2 + n words;
+- a list is a 4-word header plus an items array that starts at 4 and doubles;
+- an array grows 8 items at a time.
+
+A class instance and a waiting generator are estimates (4 and 6 blocks).
+
+**What a survey held.** Each holds its ball's two period snapshots and two tick logs. The snapshots are small: up to
+128 integers a wheel, about 0.5 KB. The tick logs are not. Every control tick appends a tuple (edge count, us since
+that edge, command), and the command is a float. That is 2 blocks for the tuple, 1 for the float and a slot in the
+list: about 48 bytes a tick, 115 ticks a wheel on these drills. A waiting survey held 11.1-12.8 KB. At depth 2 the
+running survey and the waiting one pinned 25.6 KB, almost half of the 56 KB the ESP32 port starts its heap at. Depth 3
+with tuples would pin 38.4 KB.
+
+**The fix.** `controller.PackedTicks` stores a log as three arrays: two of 32-bit integers, and one of the board's own
+single floats ("f"; "d" on the host so the simulator stays bit for bit). That is 12 bytes a tick. It iterates as the
+same tuples, so no fit changed. `_loop_fit` packs the logs as it queues the survey (`PACK_SURVEY_TICKS`, on), and
+`last_ticks` takes the packed copy so the tuples are freed.
+
+**Pre-registered** (written in the script before the first run). Prediction: a survey with tuples holds 10-25 KB, and
+packed under 8 KB. Rule: depth 3 ships if, on every drill,
+
+- (a) depth 3 packed pins no more than depth 2 with tuples;
+- (b) packing changes nothing at depth 2 (wheels surveyed, the pick, cuts and every launch record);
+- (c) depth 3 surveys at least as many wheels as depth 2.
+
+The drills were rally, example and calibration, on three builds: a 0.4 s first-order wheel, a 50 ms ESC on a 0.6 s
+wheel, and a 3 us jittery tach. The first run's "ESC" build only told the board a lag, with no ESC in the plant, and it
+picked 0 ms. It was rerun with the ESC in the plant, and the jittery tach was added before that rerun.
+eval/survey-heap-2026-11-18.txt has the results:
+
+| form, depth | KB a queued survey | peak pinned KB | wheels surveyed (rally / example / calibration; first-order, ESC 50 ms, jittery) |
+| --- | --- | --- | --- |
+| tuples, 2 (as shipped) | 11.1-12.8 | 25.6-25.7 | 16/6/16, 20/6/22, 16/6/16 |
+| packed, 2 | 3.4-4.0 | 8.0 | the same, and every record the same |
+| tuples, 3 | 11.1-12.8 | 38.1-38.4 | 18/8/18, 22/8/24, 18/8/18 |
+| packed, 3 (ships) | 3.4-4.0 | 11.8-12.0 | 18/8/18, 22/8/24, 18/8/18 |
+
+All three clauses held on all 9 drills, and the prediction held. `SURVEY_QUEUE` is 3. Packing frees 13.6 KB at the
+old depth, and the new depth still needs less than half the heap the old one pinned. Two more wheels reach the survey
+on every drill: the ESC build's calibration drill now surveys 24 of 24, with none cut. The ESC build picks 46-47 ms
+at both depths.
+
+**A test that leaned on the old depth.** The extra queued survey makes the Pi's end-of-drill wait longer: 42.5 s
+in place of 37.5 s on `tests/test_host.py`'s four-shot drill. That is past the lift's 16 s run-on after the last
+ball, so the lift had rightly stopped when the test read its duty. The test now reads the duty inside the run-on.
+
+**Not known.** These are counts against a model of the layout, not a reading of a board's heap. The heap free with
+`main.py` loaded is not known, nor is how the split heap grows past 56 KB, and the running survey's working lists
+(one wheel's re-based and lagged ticks, an estimated 10 KB) are the same at any depth and not counted. The stroke's own
+live tick log (up to `TICK_LOG` = 240 tuples a wheel, about 23 KB for both) is still tuples, because it is appended every tick and
+packing it there would add an array append to the control loop. Next: `gc.mem_free()` on a real WROOM-32 after a
+rally drill, at depth 2 and 3. If the live log is the board's largest holder, pack it as it is logged.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/survey_heap.py
