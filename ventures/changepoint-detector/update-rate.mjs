@@ -464,3 +464,22 @@ export function returnCandidates(values, { kind = 'dow', days = null, minSegment
   }
   return out;
 }
+
+/**
+ * Weekly-pattern test for one stretch z[L..R) (round 4 of the short-returns pass, README "Short returns: the
+ * model chosen per stretch"): the likelihood ratio of a two-state chain per weekday (14 parameters) against one
+ * two-state chain (2), over the same transitions. Under a chain with no weekly pattern it is about chi-square on
+ * 12 degrees of freedom, and the chain null keeps clumps from reading as a calendar. Returns the statistic.
+ */
+export function weeklyPatternLR(z, days, L, R) {
+  let lr = 0;
+  for (const [kind, sign] of [['chain', 1], ['dowchain', -1]]) {
+    const { pairs } = RETURN_COSTS[kind], v = new Array(2 * pairs).fill(0);
+    for (let s = L + 1; s < R; s++) v[2 * (kind === 'chain' ? z[s - 1] : 2 * days[s] + z[s - 1]) + z[s]]++;
+    for (let k = 0; k < v.length; k += 2) lr += sign * 2 * (xlx(v[k], v[k] + v[k + 1]) + xlx(v[k + 1], v[k] + v[k + 1]));
+  }
+  return -lr;
+}
+
+/** chi-square 0.999 quantile on 12 degrees of freedom: a stretch above it is read as on a weekly schedule. */
+export const WEEKLY_TEST = { df: 12, crit: 32.909 };

@@ -284,6 +284,41 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## Promotion and relegation into next season (2026-11-18, latest)
+
+Leagues with tiers (Premier, Division 1, Division 2: darts, pool, squash, social football, pickleball ladders)
+end every season the same way: the organiser reads the tables, moves the top team of each division up and the
+bottom team down, handles the play-off, drops the teams that are not coming back, slots in new entrants, and
+retypes every division. On the multi-division page this is now one box under the play-off seeding.
+
+- **What it does.** `divisionsPromotion(schedule, standings, { ladder, up, down, playoff, winners, leaving, joining })`
+  in `divisions.mjs` takes the standings (`divisionsStandings`) and a ladder (`Premier > Division 1 > Division 2`;
+  blank means every division in the order listed). The top `up` teams of each division below the top move up one
+  tier and the bottom `down` teams of each division above the last move down one; up and down can differ (two up,
+  one down grows the top division). Divisions not in the ladder (age groups) are copied unchanged, and `(double)`
+  stays on its division. With `playoff`, each line also gets a play-off between the last team that stays up and
+  the first that stays down; until a winner is named the upper team keeps its place and the play-off is listed as
+  still to play. It returns the text for the divisions box, a line per move with the reason (`A5: Premier ->
+  Division 1 (place 5 of 5, relegated)`), and warnings.
+- **Never guesses.** Games still to play in a ladder division, and two teams level on every tie-break at a
+  promotion, relegation or play-off line (the tie-break notes' "entry order" case), come back as warnings to settle
+  first. A move that would put two teams of one name in a division, a count larger than the division, a division
+  left with fewer than two teams, an unknown ladder division or play-off winner: an error, and no text is made.
+- **Page.** "Next season: promotion and relegation" on `multi-division-league-schedule.html`: ladder, numbers up
+  and down, the play-off tick and winners, teams not returning, new teams; **Show next season's divisions**, then
+  **Start next season with these divisions** puts them in step 1 and clears results, rainouts, blackouts and the
+  start date. CLI: `node divisions.mjs spec.json --results results.txt --promote [N]` (spec fields `ladder`,
+  `promote`, `relegate`, `playoff`, `playoffWinners`, `leaving`, `joining`).
+- **Alternatives.** A spreadsheet the organiser edits by hand; League Republic, Pitchero and similar club sites
+  carry tables and fixtures across seasons on their own accounts and plans. This is the move itself, checked, from
+  the table you already have, with nothing uploaded.
+- **Checked.** `promotion.test.mjs` (6 tests on a made-up three-tier league plus an age-group division: one up and
+  one down with every team once and sizes kept; two up and one down; play-off pending and decided; games left and a
+  boundary level on every tie-break warned; leaving, joining, a name clash and impossible counts refused; the CLI),
+  and clicked in Chromium (`eval/promotion-click.mjs`, output in `eval/promotion-click.txt`: show, start next season,
+  the box holds the moved teams and the new entrant, results cleared, the new season builds). Made-up leagues only;
+  no real league's end-of-season moves compared yet.
+
 ## Time and court limits: kept exactly, and the impossible ones named first (2026-11-18, latest)
 
 A captain's request ("Aces can only play at 18:30", "Slice Squad needs Court 2") was a heavy penalty inside the slot annealing: usually kept, never guaranteed, and when a set of requests could not all be kept the page only said afterwards that a team "only plays at 20:00, but is at 18:30", without saying why.

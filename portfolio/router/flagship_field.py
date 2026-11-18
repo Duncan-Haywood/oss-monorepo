@@ -230,7 +230,7 @@ def landed_lines(found, shown: int | None = None) -> list[str]:
     for c, k in found[:shown]:
         if k is None:
             rows.append(f"     ?  {c}")
-            rows.append("        keep: (no safe split: a pointer, or landed and open items interleaved; trim by hand)")
+            rows.append("        keep: (no safe split: a pointer, or landed and open items interleaved; trim by hand: write the shortened field with --set - from stdin)")
             continue
         rows.append(f"  {_gain((c, k)):4d}  {c}")
         rows.append(f"        keep: {k}" if k else "        keep: (nothing; cut the clause)")

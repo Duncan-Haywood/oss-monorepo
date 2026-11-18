@@ -3115,3 +3115,63 @@ parts, or a continuous one, removes that reading. Without that, a finer grid onl
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-pick-heldout-rows-2026-11-18.jsonl.gz
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-pick-heldout-rows-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
+
+## The take fit's four parts and its high reading (2026-11-18, after "The take survey's pick between contact times"; on by its pre-registered rule)
+
+**The item.** The section above found the take survey's own residual curve bottoming out 0.2-0.4 ms above the
+simulator's true half-sine take, and named the four-part take model as the likely cause. Does a model with more parts
+remove that reading?
+
+**Why four parts read long.** The survey captures run the plant at 0.1 ms steps, so the simulator's own step adds
+only 0.01/12 ms² to the take's spread. A take a few milliseconds long reaches a revolution's period mostly through its
+centre and its spread. Every model here is centred on the take's middle, so the spread is what a contact time gets
+fitted against. A half-sine's variance is 0.0474 T². Four equal shares at its quantile midpoints (0.230, 0.420, 0.580
+and 0.770 of T) carry 0.0397 T², 16% less. To match a true take's spread the fit needs a T about
+sqrt(0.0474 / 0.0397) = 1.09 times longer: about +0.4 ms at 4 ms.
+
+**How it was checked.** `tests/take_parts_refit.py` refits every stored survey wheel of the previous section's rows
+(they keep each wheel's periods and ticks) at every contact time from 0 to 8 ms by 0.25 ms. It tries four models:
+the shipped midpoints, 8 and 16 parts, and `spread`, the four midpoints stretched about T/2 so that they carry the
+half-sine's own variance (offsets 0.205, 0.412, 0.588 and 0.795 of T: four fits a wheel, as now). Each model is
+scored on the wheels the board kept.
+
+**What it found.** Dense least minus true take on the off-grid takes (1, 2.5, 3.5, 4.5, 5.5 and 7 ms), signed mean,
+with builds within 0.25 ms of 18:
+
+| set, tach | shipped 4 | spread 4 | 8 parts | 16 parts |
+| --- | --- | --- | --- | --- |
+| design (lag 0.45 s, seed 29), capture | +0.38 (12) | +0.03 (16) | -0.04 (16) | +0.04 (17) |
+| design, jittery 0.5 us | +0.78 (8) | +0.39 (13) | +0.46 (13) | +0.33 (13) |
+| held out (lag 0.6 s, seed 31), capture | +0.31 (12) | -0.07 (18) | +0.10 (18) | +0.00 (18) |
+| held out, jittery 0.5 us | +0.21 (11) | -0.04 (17) | +0.04 (17) | +0.00 (18) |
+
+So the bias is the model's: with 16 parts the least lands on the true take. The board's verdict on the shipped grid
+(parabola, rounded to 0.5 ms), held out: within 0.5 ms on 46 builds of 54 with `spread` against 41; within 1 ms on 54
+for both; no instant build advised. On the design set within 0.5 ms 38 against 35, but within 1 ms 46 against 47,
+and the 3 ms takes on the grid read 0.65 ms low.
+
+**The drop.** On tests/take_fit.py's stored wheel fits (wheel lag 0.3 s, seed 7, true drops kept) the drop read at the
+true contact time scattered 0.15-0.20% about the truth with every model. The shipped model at the longer time its own
+survey names scattered just as little (6.5 ms on a 6 ms take: 0.18%). The high reading cost the drop nothing. It only
+mislabelled the contact time the Pi reports, and pushed long takes onto the grid's end (every 7 ms take read 8 ms in
+the section above).
+
+**Held out.** The prediction and decision rule were committed before the held-out rows were scored by any model but
+the shipped one (commit ad4bfdc4e, in the script's docstring). All three clauses held. (a) The shipped model read
++0.31 ms on the capture tach, above +0.15, and `spread` read -0.07, closer to zero. (b) 16 parts read 0.00. (c)
+`spread` had 46 builds within 0.5 ms against 41, and no instant build advised. With within 1 ms tied at 54, the rule
+passed.
+
+**What shipped.** `controller.take_offsets` stretches the half-sine's offsets to its own variance
+(`TAKE_MATCH_SPREAD = True`; `match_spread=False` gives the midpoints as before). The board still runs four fits a
+wheel. Scripts that call `take_offsets` with defaults, such as `take_survey_pick.py` and `take_fit.py`, now get the
+stretched offsets, so rerunning them will not reproduce their stored reports exactly. The front-loaded profile is not
+stretched, because it was not tested. `tests/test_host.py` checks the offsets' centre and variance.
+
+**Not known.** All simulated, with the simulator's continuous half-sine. One seed per set. The drop check is on one
+set. A real ball's force profile is not known to be a half-sine, so what this changes is the contact time the survey
+names *for a half-sine*. Held out, 33 of 48 spread takes were named and advised against 35; the rule did not count
+that. The jittery tach's reading is still high on the design set for every model (+0.33 to +0.78).
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_parts_refit.py --score eval/take-survey-pick-heldout-rows-2026-11-18.jsonl.gz
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_parts_refit.py --drops eval/take-fit-2026-11-17.jsonl.gz

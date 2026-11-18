@@ -31,7 +31,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from shootflow import arw, cr2, cr3, crw, iiq, mrw, nef, orf, pef, raf, rw2, srw
+from shootflow import arw, cr2, cr3, crw, hasselblad, iiq, mrw, nef, orf, pef, raf, rw2, srw
 from shootflow import raw_develop as rd
 
 CAMERA_PROFILES_DIR = "color/camera-profiles"
@@ -78,9 +78,11 @@ def camera_of(source: Path | str) -> str:
         kind, camera = "SRW", srw.camera_model(data)
     elif mrw.is_mrw(data):
         kind, camera = "MRW", mrw.camera_model(data)
+    elif hasselblad.is_3fr(data):  # develops with its own matrix; a profile is optional
+        kind, camera = "3FR", hasselblad.camera_model(data)
     else:
         raise rd.DevelopError(
-            f"{Path(source).name}: camera profiles are chosen for Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, Minolta MRW and Phase One IIQ files only"
+            f"{Path(source).name}: camera profiles are chosen for Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, Minolta MRW, Phase One IIQ and Hasselblad 3FR files only"
         )
     if not camera:
         raise rd.DevelopError(f"{Path(source).name}: the {kind} names no camera (no Make or Model tag)")

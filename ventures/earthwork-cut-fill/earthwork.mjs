@@ -300,7 +300,7 @@ export function makeSurface(points, opts = {}) {
   return { ...t, bbox: { minX, minY, maxX, maxY }, index: { cells, cw, ch, grid } };
 }
 
-function candidates(surface, x0, y0, x1, y1) {
+export function candidates(surface, x0, y0, x1, y1) {
   const { bbox, index: { cells, cw, ch, grid } } = surface;
   if (x1 < bbox.minX || x0 > bbox.maxX || y1 < bbox.minY || y0 > bbox.maxY) return [];
   const i0 = Math.max(0, Math.floor((x0 - bbox.minX) / cw)), i1 = Math.min(cells - 1, Math.floor((x1 - bbox.minX) / cw));
@@ -344,7 +344,7 @@ export function designPlane({ elevation, x0 = 0, y0 = 0, slopeX = 0, slopeY = 0 
 // counter-clockwise `clip`. The subject may be any simple polygon: the
 // output can then carry zero-width bridges, which add nothing to an area
 // integral, so it is exact for what this module uses it for.
-function clipConvex(poly, clip) {
+export function clipConvex(poly, clip) {
   let out = poly;
   for (let i = 0; i < clip.length && out.length; i++) {
     const [ax, ay] = clip[i]; const [bx, by] = clip[(i + 1) % clip.length];
@@ -585,6 +585,7 @@ export function run(input) {
     sheet,
     cells: v.cells,
     surface: existing,
+    designSurface: design,
     warnings,
   };
 }
