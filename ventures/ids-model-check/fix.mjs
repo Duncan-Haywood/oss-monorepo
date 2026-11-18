@@ -25,11 +25,14 @@
 //     a facet's own parts, applicability before requirements) -> reordered, when
 //     nothing but whitespace sits between them
 //   - an info <date> written with a time -> the date
+//   - an xs:pattern in another regex dialect ("(?:", "^...$", "\\/", "{,n}") -> the XSD
+//     spelling of the same pattern (eval/xsd-regex-2026-11-18.md)
 // Not changed (no single right answer): an author that is not an e-mail
 // address, an element ids.xsd does not have, a missing required element.
 
 import { parseXml } from "./xml.mjs";
 import { structureIssues, IDS_NS, XS_NS } from "./structure.mjs";
+import { parseXsdRegex, repairXsdRegex } from "./xsdregex.mjs";
 
 const VERSIONS = ["IFC2X3", "IFC4", "IFC4X3_ADD2"];
 const RELATIONS = ["IFCRELAGGREGATES", "IFCRELASSIGNSTOGROUP", "IFCRELCONTAINEDINSPATIALSTRUCTURE", "IFCRELNESTS"];
@@ -235,6 +238,19 @@ function onePass(text, fixes) {
         const prefix = n.name.includes(":") ? n.name.slice(0, n.name.indexOf(":") + 1) : "";
         edits.push({ from: inner0, to: inner1, text: `<${prefix}simpleValue>${raw.trim()}</${prefix}simpleValue>` });
         note(n, "xsd-text", `<${n.local}>${raw.trim().slice(0, 40)}</${n.local}> is now <${n.local}><simpleValue>${raw.trim().slice(0, 40)}</simpleValue></${n.local}>`, inner0);
+      }
+    }
+    // An xs:pattern written in another regex dialect: "(?:" groups, anchors,
+    // needless backslashes, "{,n}" (xsdregex.mjs repairXsdRegex). Anchors are
+    // dropped too: in XSD "^" and "$" are characters, and a pattern already
+    // spans the whole value, so the author's meaning is the pattern without them.
+    if (n.local === "pattern" && typeof n.attrs.value === "string") {
+      const p = n.attrs.value;
+      const r = parseXsdRegex(p);
+      const fixed = repairXsdRegex(p);
+      if (fixed !== null && (!r.ok || r.notes.some((x) => x.fix))) {
+        tagOf(n).set.set("value", fixed);
+        note(n, "pattern-xsd", `pattern /${p.length > 60 ? p.slice(0, 57) + "..." : p}/ is now /${fixed.length > 60 ? fixed.slice(0, 57) + "..." : fixed}/ (${r.ok ? r.notes.filter((x) => x.fix).map((x) => x.fix).join(", ") : r.error.split(";")[0]})`);
       }
     }
     // A date with a time: keep the date.
