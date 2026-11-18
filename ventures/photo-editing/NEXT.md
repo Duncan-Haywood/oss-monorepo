@@ -46,7 +46,7 @@
   every whole-percent offset, held-out recall 0.982 to 0.998 with 5/7/9% pans in the test, 7-10% pans 0.99-1.00,
   no added false merge (eval/cull-fine-offsets-2026-11-18.md); the all-pairs pass then added 0.0001 held out for
   one more tune false merge and 1.8x the grouping time, so the cull runs the fine pass instead of it. Open:
-  grouping cost rose about 2.7x (10,000 frames 36 to 101 s; a C index build?), pans past 10.7% (past the margin), an exact chunked index since 2026-11-18 (2,000 frames 10.0 to 3.6 s, 10,000 frames 251 to 42 s, same groups, eval/cull-grouping-index-2026-11-18.md); next a C helper for the index build if it matters again; single-linkage chaining measured on a real shoot; sunsets and dark-ground horizons are where the
+  pans past 10.7% (past the margin), an exact chunked index since 2026-11-18 (2,000 frames 10.0 to 3.6 s, 10,000 frames 251 to 42 s, same groups, eval/cull-grouping-index-2026-11-18.md); the C helper landed 2026-11-18 (eval/cull-grouping-native-2026-11-18.md: index and exact checks in C on every core, 10,000 frames 115 to 5.8 s, same groups); single-linkage chaining measured on a real shoot; sunsets and dark-ground horizons are where the
   distinct-photo false merges sit.
 - A copy at 30% brightness (exposure 0.28) stayed an alternate; it lost its group, so harmless, but the reject line
   for exposure may sit too low.
