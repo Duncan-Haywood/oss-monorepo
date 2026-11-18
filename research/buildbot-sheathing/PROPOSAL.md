@@ -441,6 +441,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    pinned the right hip roll at τ_f; the controller wants −3.8 N m). Held on the other side the stance allows 2.29 N m
    (from 0.033), the pose takes the full 0.1 N m preload and leaves 0.005 mm (from 0.172) with a 0.2 N sensor error, so
    the H1 meets the tool-point spec at all 19 poses with an FT 300; the per-robot side is wrong at four more H1 poses.
+47. **Per-pose hold sides** (done 2026-11-18, `experiments/m47_poseside/`): the side combination with the largest
+   zero-drag common margin at each pose lifts every pose above the preload goal (smallest 0.886 N m), gives the two H1
+   poses milestone 38 skipped a plan (not yet swept), and cuts the H1's worst residual at 20 N drag from 0.032 to 0.010
+   mm; but the G1 rises from 0.011 to 0.037 mm at 20 N (a leg joint flips at three poses), so sides must be scored
+   under drag.
 
 ## Target venue
 
