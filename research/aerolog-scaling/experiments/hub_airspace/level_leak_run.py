@@ -2,7 +2,8 @@
 
     OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 level_leak_run.py > level_leak_results.txt   # build, then analyse
 LEAK_CACHE=<file.pkl> caches each layout's inputs (cf_D+ en-route W, transit terms A and B, other-level flux X;
-written after every layout). `--build` stops after the cache is complete."""
+written after every layout). `--build` stops after the cache is complete. The inputs are committed in
+leak_inputs.json.gz (leak_inputs.py), so `--build` reads them in seconds; LEAK_REBUILD=1 recomputes them."""
 import importlib.util
 import multiprocessing as mp
 import os
@@ -56,7 +57,15 @@ def build_layout(job):
 
 
 def build(cache):
+    """Every layout's inputs: from LEAK_CACHE, else the committed leak_inputs.json.gz (seconds), computing
+    only what neither holds. LEAK_REBUILD=1 ignores the committed file (about 1.5 to 2.5 h on 4 cores)."""
     done = pickle.load(open(cache, "rb")) if cache and os.path.exists(cache) else {}
+    if not os.environ.get("LEAK_REBUILD"):
+        for k, v in _load("hub_airspace_leak_inputs_11ai", "leak_inputs.py").load().items():
+            done.setdefault(k, v)
+        if cache and done and not os.path.exists(cache):
+            pickle.dump(done, open(cache + ".tmp", "wb"))
+            os.replace(cache + ".tmp", cache)
     todo = [(m, i) for m in (16, 12) for i in SIZES[m] if (m, i) not in done]
     if todo:
         with mp.Pool(min(4, os.cpu_count() or 1)) as pool_:
