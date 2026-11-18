@@ -29,12 +29,21 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "first push red: reseller-books vendored-engine drift test",
+      "fix": "re-copied engines; guard widened to all .mjs"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "`targets --probe 20` with no --under scans every target and outlasts a 115 s timeout without output; narrowing with --under ventures/<v> worked instantly. Worth saying to always pass --under when probing."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "unwired check_csv_formula_guard.py globs ventures/ while another parallel suite creates and removes ventures/.share-location-fixture, so it can fail with FileNotFoundError (flake; passes alone)."
     }
   ],
   "deviations": [],
@@ -42,7 +51,7 @@
     "docs/posts/2026-11-18-a-dollar-sign-outside-the-brackets-turned-refunds-into-income.md"
   ],
   "goal": null,
-  "notes": "Step 0: 12 open entries, all control-plane or needing a new eval set; none fixable here. Campaigns: mrr-pulse/metrics.mjs 8/10, rev-rec/revrec.mjs 8/10 (2 equivalent). Hunt found $(100.00)/(100.00) USD read as +100 in rev-rec; a probe over every exported amount parser found 47 ventures with the same anchored /^\\(.*\\)$/ test. Guard added: platform/ci/test_accounting_negatives.mjs (failed on 47 files on its first run, green after the fix). All 49 touched venture suites: 1761 pass, 0 fail.",
+  "notes": "Step 0: 12 open entries. All are control-plane or need a new eval set, so none could be fixed here. Campaigns: mrr-pulse/metrics.mjs caught 8/10, rev-rec/revrec.mjs caught 8/10 (2 equivalent). The hunt found that rev-rec reads $(100.00) and (100.00) USD as +100. A probe over every exported amount parser found the same anchored /^\\(.*\\)$/ test in 48 ventures. The first CI run went red: reseller-books keeps byte-identical copies of five fixed calc.mjs files in engines/, so its drift test failed. Re-copied them, plus 2 more in sales-export-to-journal. The guard first looked only at calc/csv/ro-import.mjs. It now walks every non-test .mjs and found one more (economic-nexus orders.mjs). Guard added: platform/ci/test_accounting_negatives.mjs. On its first run it failed on 47 files, then on 1 more after widening; it is green after the fix. run_venture_tests.py --since origin/main: 55 suites run, 0 failed. Unwired checks: 237/238 passed. The one failure, check_csv_formula_guard.py, hit FileNotFoundError on ventures/.share-location-fixture, a temp dir another parallel test makes and deletes. Run alone, it passes.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -349,8 +358,8 @@
     ],
     "real_defects": [
       {
-        "file": "ventures/rev-rec/csv.mjs (and 46 sibling amount parsers)",
-        "issue": "Negative detection /^\\(.*\\)$/ missed '$(100.00)' (Excel Accounting format), '$ (100.00)', '(100.00) USD' and 'USD (100.00)'; the parser then stripped non-digits and returned +100, so refunds and fees read as income in 47 ventures. Fixed with /\\([^()]*\\d[^()]*\\)/; guard platform/ci/test_accounting_negatives.mjs checks every exported parseNumber/parseMoney/parseAmount/parseCents.",
+        "file": "ventures/rev-rec/csv.mjs (and 47 sibling amount parsers, plus 7 vendored engine copies)",
+        "issue": "Negative detection /^\\(.*\\)$/ missed '$(100.00)' (Excel Accounting format), '$ (100.00)', '(100.00) USD' and 'USD (100.00)'; the parser then stripped non-digits and returned +100, so refunds and fees read as income in 48 ventures (plus vendored copies in reseller-books and sales-export-to-journal). Fixed with /\\([^()]*\\d[^()]*\\)/; guard platform/ci/test_accounting_negatives.mjs checks every exported parseNumber/parseMoney/parseAmount/parseCents.",
         "patched": true
       }
     ]

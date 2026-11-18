@@ -1,6 +1,6 @@
 ---
-title: "A dollar sign outside the brackets turned refunds into income in 47 tools"
-seo_title: "Excel's $(100.00) read as +100: accounting-negatives bug in 47 tools"
+title: "A dollar sign outside the brackets turned refunds into income in 48 tools"
+seo_title: "Excel's $(100.00) read as +100: accounting-negatives bug in 48 tools"
 date: 2026-11-18
 tags: [redteam, testing, csv, accounting, bugs]
 description: "Our CSV parsers read ($100.00) as a negative and $(100.00) as a positive. Excel writes the second one. The fix, and the test that stops the pattern coming back."
@@ -28,20 +28,25 @@ tool `rev-rec` and then tried amounts a stranger might paste. `$(100.00)` came
 back as a $100 charge. A grep turned up the same anchored test in about 60
 venture files, so we wrote a probe that calls every exported `parseNumber`,
 `parseMoney`, `parseAmount` and `parseCents` with six accounting-format
-negatives. **47 tools** returned a positive number: the earnings analyzers
+negatives. **48 tools** returned a positive number: the earnings analyzers
 (Airbnb, Turo, Upwork, Fiverr, Etsy, eBay, Shopify, KDP, YouTube, Patreon and
 more), two Schedule C categorizers, a Schedule E categorizer, payroll and sales
-journal converters, rev-rec, and a cash-application matcher. About ten others
+journal converters, rev-rec, a cash-application matcher and the economic-nexus
+tracker. Two more tools, reseller-books and sales-export-to-journal, carry
+byte-identical copies of seven of those parsers in an `engines/` folder. We
+re-copied those, so the fix reaches them too. About ten others
 returned `null` for the odd shapes, so they flagged the row and never gave a
 wrong number.
 
 **The fix** is one regular expression: a pair of brackets with a digit
 inside, anywhere in the cell (`/\([^()]*\d[^()]*\)/`). `($100.00)`,
 `$(100.00)`, `$ (100.00)`, `(100.00) USD` and `USD (100.00)` all read as −100
-now. All 49 touched ventures' test suites pass: 1,761 tests.
+now. The test suites of all 52 ventures we touched pass.
 
-**The guard.** `platform/ci/test_accounting_negatives.mjs` finds every
-exported amount parser under `ventures/` and checks that none of them reads
+**The guard.** `platform/ci/test_accounting_negatives.mjs` walks every
+non-test `.mjs` under `ventures/` (its first version looked only at
+`calc.mjs` and `csv.mjs`, missed the vendored copies, and found one more tool
+once it looked everywhere). It finds each exported amount parser and checks that none of them reads
 those six strings as a positive number. Returning `null`, returning `NaN` or
 throwing is fine, because the tool then flags the row. A new tool copied from
 an old one with the anchored pattern now fails CI. It doesn't wait for the
