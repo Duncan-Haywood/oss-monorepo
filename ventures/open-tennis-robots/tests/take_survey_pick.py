@@ -47,7 +47,9 @@ HELD OUT: wheel lag 0.6 s, seed 31 (neither used by the design set), the same ta
 
 --takes (2026-11-18, eval/take-grid-nine-2026-11-18.md) replaces TAKES_MS for a capture. Sets D to F used the
 half-millisecond takes 0.5-7.5 ms, off both the shipped and the nine-point grid. --grids also prints each take's
-verdicts per grid.
+verdicts per grid. 2026-11-18 (eval/take-grid-fresh-g-i-2026-11-18.md): --grids also prints builds off by more than
+1 ms and the mean absolute error per grid and pick; sets G to I drew one take uniformly in each millisecond (0-1 to
+7-8 ms, seed 20261118), off both grids by a random amount rather than by half a millisecond.
 
 Simulated only: the simulator's first-order wheel and assumed half-sine take, the MCPWM capture tach at 1/8 us with
 0.5 us handler jitter (which the capture does not see) and the board's default jittery tach at 0.5 us; one seed per set.
@@ -251,6 +253,15 @@ def main():
                 w5, w1, good, spread, bad, inst, n = grid_score(builds, dense, g, pk, bt)
                 print(f"  {gs:24} {pk:8}: within 0.5 ms {w5}/{n}, within 1 ms {w1}/{n}, named and advised "
                       f"{good}/{spread}, instant advised {bad}/{inst}")
+        print("\nError measures, all builds with a verdict (the Pi's verdicts, rounded to 0.5 ms): builds off by more "
+              "than 1 ms, mean absolute error, and the same on the spread takes alone")
+        for (gs, pk), bt in verdicts.items():
+            errs = [abs(x - ms) for ms, v in bt.items() for x in v]
+            serrs = [abs(x - ms) for ms, v in bt.items() if ms for x in v]
+            if errs:
+                print(f"  {gs:24} {pk:8}: off by more than 1 ms {sum(e > 1.0 for e in errs)}/{len(errs)}, mean abs "
+                      f"{sum(errs) / len(errs):.3f} ms; spread takes off by more than 1 ms "
+                      f"{sum(e > 1.0 for e in serrs)}/{len(serrs)}, mean abs {sum(serrs) / max(1, len(serrs)):.3f} ms")
         print("\nBy take, parabola (the Pi's verdicts, rounded to 0.5 ms), each grid: within 0.5 ms, then the verdicts")
         for ms in sorted({b["take_ms"] for b in builds}):
             cells = []
