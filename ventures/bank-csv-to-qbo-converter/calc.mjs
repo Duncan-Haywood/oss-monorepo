@@ -330,7 +330,9 @@ export function toOfx(result, o = {}) {
     `<BANKTRANLIST><DTSTART>${ymd(first)}120000<DTEND>${ymd(last)}120000`,
   ];
   for (const t of tx) {
-    const name = ofxEsc(t.desc.slice(0, 32));
+    // Runs of spaces collapse first (as the BAI2 and camt.053 converters do), so a padded bank description
+    // ("AMAZON      MKTPLACE") does not spend the 32 characters on blanks.
+    const name = ofxEsc(t.desc.replace(/\s+/g, " ").trim().slice(0, 32));
     lines.push(`<STMTTRN><TRNTYPE>${t.type}<DTPOSTED>${ymd(t.date)}120000<TRNAMT>${money(t.cents)}<FITID>${t.fitid}` + (t.check ? `<CHECKNUM>${t.check}` : "") + `<NAME>${name}` + (t.memo || t.desc.length > 32 ? `<MEMO>${ofxEsc((t.memo || t.desc).slice(0, 255))}` : "") + "</STMTTRN>");
   }
   lines.push("</BANKTRANLIST>");
