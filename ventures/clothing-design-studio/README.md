@@ -109,6 +109,22 @@ and run it yourself.
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
 
+## "When it was darker": a version by how its colours compared (2026-11-18)
+
+Colour is the commonest thing a designer compares: "when it was darker", "the
+one where the shirt was lighter", "when the halo was more muted", "the palest
+shirt", "when the print was warmer". Before, none of these found a version; "go
+back to when the print was more muted" ran a plain undo and "the one where the
+shirt was lighter" was read as fabric weight. `comparedVersion` in `refer.mjs`
+now reads lightness, vividness and warmth (CIELAB of the screen colour) of the
+garment or of a piece of artwork's ink, restores the latest earlier version
+that compared that way (superlatives: the session's extreme), and names the
+colours in the log ("9.8, black; now 17.3, navy"). "The lighter fabric" and "the
+lighter one" stay fabric weight. Hand-written eval, dev 8 to 16 of 16, held out
+(written first) 2 to 12 of 12, 7 on the first run before two sign and noun
+fixes ([`eval/colour-versions-2026-11-18.md`](eval/colour-versions-2026-11-18.md)).
+Screen colours only: the factory's swatch is the real colour.
+
 ## "The one where the halo was bigger": a version by how it compared (2026-11-18)
 
 Designers also point back by comparison: "the one where the halo was bigger",
