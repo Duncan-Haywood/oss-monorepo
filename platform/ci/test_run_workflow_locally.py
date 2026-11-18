@@ -2516,10 +2516,6 @@ class PinnedTools(unittest.TestCase):
         self.assertIn("Not a green check", out.getvalue())
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class PickSteps(unittest.TestCase):
     """--step runs one step of a named workflow, and says what it left out."""
 
@@ -2549,3 +2545,66 @@ class PickSteps(unittest.TestCase):
         self.assertTrue(runs)
         self.assertTrue(all("upersede" in l for l in runs), runs)
         self.assertIn("not selected by --step", out.getvalue())
+
+
+class PostPrecheck(unittest.TestCase):
+    """A diff's post over a front-matter cap stops --for-changes before the sweep."""
+
+    def setUp(self):
+        self.repo = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.repo, True)
+        os.makedirs(os.path.join(self.repo, "platform", "ci"))
+        os.makedirs(os.path.join(self.repo, "docs", "posts"))
+        shutil.copy(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 "check_post_frontmatter.py"),
+                    os.path.join(self.repo, "platform", "ci"))
+
+    def post(self, description):
+        path = "docs/posts/2026-11-01-a-post.md"
+        with open(os.path.join(self.repo, path), "w") as f:
+            f.write(f"---\ntitle: A post\ndate: 2026-11-01\n"
+                    f"description: {description}\ntags: [process]\n---\n\nBody.\n")
+        return path
+
+    def test_an_over_long_description_fails_and_names_the_post(self):
+        path = self.post("x" * 170)
+        failed, out = runner.post_precheck([path, "README.md"], repo=self.repo)
+        self.assertTrue(failed)
+        self.assertIn("2026-11-01-a-post.md", out)
+
+    def test_a_clean_post_and_a_postless_diff_pass(self):
+        path = self.post("A description that is long enough to pass the minimum "
+                         "the checker asks for and well under the cap.")
+        self.assertEqual(runner.post_precheck([path], repo=self.repo), (False, ""))
+        self.assertEqual(runner.post_precheck(["README.md"], repo=self.repo), (False, ""))
+
+    def test_deleted_and_nested_paths_are_not_posts(self):
+        self.assertEqual(runner.changed_posts(
+            ["docs/posts/gone.md", "docs/posts/sub/x.md"], repo=self.repo), [])
+
+    def _sweep(self, **kw):
+        args = argparse.Namespace(for_changes="origin/main", list=False,
+                                  workflow_timeout=0, **kw)
+        out = io.StringIO()
+        with mock.patch.object(runner, "changed_paths", return_value=["docs/posts/p.md"]), \
+             mock.patch.object(runner, "post_precheck", return_value=(True, "docs/posts/p.md: too long")), \
+             mock.patch.object(runner, "pick_workflows", return_value=([], [])) as pick, \
+             mock.patch.object(runner, "_run_selected", return_value=0), \
+             contextlib.redirect_stdout(out):
+            code = runner.run_for_changes(args)
+        return code, out.getvalue(), pick
+
+    def test_the_sweep_stops_before_selecting_workflows(self):
+        code, out, pick = self._sweep()
+        self.assertEqual(code, 1)
+        self.assertIn("Stopped before the sweep", out)
+        pick.assert_not_called()
+
+    def test_no_post_check_sweeps_anyway(self):
+        code, _, pick = self._sweep(no_post_check=True)
+        self.assertEqual(code, 0)
+        pick.assert_called_once()
+
+
+if __name__ == "__main__":
+    unittest.main()

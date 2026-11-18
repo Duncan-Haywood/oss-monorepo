@@ -2107,6 +2107,13 @@ def run_for_changes(args) -> int:
               "itself is green, run --tree.")
         return 0
 
+    if not args.list and not getattr(args, "no_post_check", False):
+        failed, output = post_precheck(changed)
+        if failed:
+            print(output)
+            print(POST_PRECHECK_STOP, flush=True)
+            return 1
+
     selected, held = pick_workflows(lambda _n, wf: selects(wf, changed))
 
     workflows = {name for name, *_ in selected} | {name for name, *_ in held}
@@ -2117,6 +2124,47 @@ def run_for_changes(args) -> int:
     if hint:
         print(hint, flush=True)
     return _run_selected(args, selected, held, changed=changed)
+
+
+# A new post over a front-matter cap (description 160, seo_title 70) fails
+# check_post_frontmatter, the site-builder suite (~175 tests through one
+# shared fixture), three more Pages steps and shorts.test.mjs, so the run
+# shortens it and sweeps again: a second multi-minute sweep for a one-line
+# fix. Run records on 2026-11-16 and 11-17 report it in 33 of 714 runs, 23%
+# of polish runs and ~11% of redteam/perf/explore/creative ones (their start
+# tools do not print the caps; allocate.py and pick_track.py do, and
+# ventures/research sit at 1.7%). The check takes a quarter of a second, so
+# a sweep runs it on the diff's posts first and stops on a failure.
+POST_PRECHECK_STOP = (
+    "Stopped before the sweep: the post(s) above fail check_post_frontmatter, "
+    "which would fail several Pages and site steps too. Fix them and run "
+    "again (--no-post-check sweeps anyway).")
+
+
+def changed_posts(changed, repo: str = REPO) -> list[str]:
+    """The diff's posts that still exist: docs/posts/*.md, not nested."""
+    return [p for p in changed
+            if p.startswith("docs/posts/") and p.endswith(".md")
+            and p.count("/") == 2 and os.path.isfile(os.path.join(repo, p))]
+
+
+def post_precheck(changed, repo: str = REPO) -> tuple[bool, str]:
+    """(failed, output) of check_post_frontmatter on the diff's posts.
+
+    (False, "") when there are none or the checker cannot run: the sweep
+    runs it again in its own step, so a skipped precheck loses nothing."""
+    posts = changed_posts(changed, repo)
+    checker = os.path.join(repo, "platform", "ci", "check_post_frontmatter.py")
+    if not posts or not os.path.isfile(checker):
+        return False, ""
+    try:
+        done = subprocess.run([sys.executable, checker, *posts], cwd=repo,
+                              capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return False, ""
+    if done.returncode == 0:
+        return False, ""
+    return True, (done.stdout + done.stderr).rstrip()
 
 
 # A foreground tool call in a cloud session is cut off at 600 s. Runs kept
@@ -2667,6 +2715,10 @@ def _main(argv=None) -> int:
                          "run either, so include them in TEXT if it needs them")
     ap.add_argument("--force", action="store_true",
                     help="allow a workflow that is not verification-only")
+    ap.add_argument("--no-post-check", action="store_true",
+                    help="with --for-changes: sweep even when a changed post "
+                         "fails check_post_frontmatter (by default the sweep "
+                         "stops first; see POST_PRECHECK_STOP)")
     ap.add_argument("--timeout", type=int, default=900,
                     help="per-step timeout in seconds (default 900)")
     ap.add_argument("--workflow-timeout", type=int, default=300,
