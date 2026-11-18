@@ -2,7 +2,7 @@
 title: "Quality fix: a CI gate that passed build-arg base images, and a dry run that never stopped"
 seo_title: "Quality fix: Dockerfile ARG pins and an agent dry-run loop"
 date: 2026-11-18
-tags: [quality-audit, devtools, testing]
+tags: [quality-audit, dev-tools, testing]
 description: "A Dockerfile pin check skipped FROM lines built from ARG and exited 0. An agent runner's dry run worked the same issue on every poll. Both are fixed and tested."
 ---
 
