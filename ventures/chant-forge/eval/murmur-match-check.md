@@ -67,3 +67,53 @@ table), full `node eval/coda-check.mjs --murmur match`:
    its low band dipping 6 dB or less (one's -42 and -3): the gain is held, so the one voice still does not beat.
 
 If 1 to 4 hold, `match` replaces `one` as the candidate for the default; it stays opt-in in this PR either way.
+
+## Results: full `node eval/coda-check.mjs`, default, `--murmur one` and `--murmur match` (run after the commit above)
+
+The three runs were on the same tree (the corpus now has 147 files; F has 79 files, 218 nasals). The default's
+report is eval/coda-check-report.md (refreshed: one corpus file had been added since its last run), `match`'s is
+eval/coda-check-match-report.md. Every row that reads nasals, singing read exactly:
+
+| part | default | one | match |
+|---|---|---|---|
+| B corpus, nasals | 37 of 39 | 38 | 38 |
+| D held out, nasals | 12 of 12 | 8 | **12** |
+| E held out, nasals | 20 of 22 | 19 | **22** |
+| H held out, nasals | 44 of 46 | 45 | 45 |
+| I development, nasals | 34 of 36 | 34 | 35 |
+| F, m n gn read as nasal | 209 of 218 | 200 | **213** |
+| J, K, N, O, P cluster syllables (of 132, 140, 120, 120, 120) | 128, 133, 118, 116, 114 | 129, 134, 119, 119, 119 | 132, 133, 120, 119, 118 |
+| R nasal codas | 48 of 48 | 46 | 47 |
+| T nasal codas | 47 of 48 | 47 | 47 |
+| U nasal codas / n-cluster codas | 48 / 46 of 48 | 47 / 48 | 48 / 48 |
+| X nasal codas / n-clusters | 43 of 48 / 54 of 60 | 43 / 58 | **46 / 60** |
+| Y nasal codas / n-clusters | 46 of 48 / 42 of 48 | 46 / 44 | 48 / 43 |
+| Z nasal codas / n-clusters | 46 of 48 / 68 of 72 | 43 / 67 | 44 / 71 |
+| a dark-vowel nasals / n-clusters | 116 of 144 / 42 of 48 | 124 / 46 | **134** / 43 |
+| b dark-vowel nasals / n-clusters | 133 of 144 / 47 of 48 | 134 / 47 | 137 / 47 |
+| c dark-vowel nasals / n-clusters | 123 of 144 / 44 of 48 | 131 / 47 | **135** / 47 |
+| d dark-vowel nasals / n-clusters | 136 of 144 / 47 of 48 | 133 / 48 | **141** / 47 |
+| all of the above | 2,141 | 2,163 | **2,220** |
+| A (tuned set, every class) | 179 of 180 | 178 | 177 |
+
+The registration, prediction by prediction:
+
+1. **Partly fails.** D 12 of 12 and F 213 of 218 hold; R's nasal codas 47 of 48 (wanted 48) and Z's 44 of 48
+   (wanted 46 or more) do not.
+2. **Holds.** a 134 (wanted 120), c 135 (127), b 137 (133), d 141 (133): more than `one`'s gain on every one.
+3. **Holds.** All 108 vowel-only control and bare-vowel cells are identical to the default's.
+4. **Holds.** 2,220 nasals read exactly against the default's 2,141 (+79) and `one`'s 2,163.
+5. **Holds, but says nothing new.** `eval/murmur-phase.mjs` reads tilts only, and a gain does not change a tilt, so
+   its output with `match` is identical to `one`'s (brightest 40 ms -42 dB at worst, low band dips 3 dB at most).
+
+So `match` stays opt-in: the registration said both 1 and 4 had to hold. It is better than `one` on almost every row,
+and better than the default on 2,220 to 2,141 nasals overall, but it is not a clean win.
+
+Where it loses, one pattern runs through the new misses. A's E2 *am* and *an*, Z's *fen* and *gim* and R's *pin*
+(a nasal read as none) are low or front-vowel nasals, and four of the five read as a voiced labial stop. A
+held-level murmur that fades with the note's release can look like a voice bar with a burst after it. That is a
+hypothesis, not a finding: those misses have been read, so the next test needs fresh cells (eval/release-cells.mjs
+builds them without running the reader).
+
+Other non-nasal rows moved by 1 to 3 either way: J's others 332 to 331 of 336, Q's 77 to 80 of 80, W's 32 to 33 of 36,
+T's 93 to 95 of 96.
