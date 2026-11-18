@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, copy]
+topics: [design, accessibility, duplicate-work]
 date: 2026-11-18
 ---
 # Polish: homeowners and retirees show a tool on a 320 px phone
