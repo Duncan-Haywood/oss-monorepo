@@ -73,7 +73,7 @@
 </head>
 <body>
 <main>
-  <p class="eyebrow"><a href="./">ShootFlow</a> · camera raw support <span>· as of 2026-11-16</span></p>
+  <p class="eyebrow"><a href="./">ShootFlow</a> · camera raw support <span>· as of 2026-11-18</span></p>
   <h1>Which camera RAW files can ShootFlow develop without Adobe DNG Converter?</h1>
   <div class="answer">
     <p><strong>Eleven formats, read directly:</strong> DNG, Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF (and Coolpix NRW), Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF, including X-Trans and Fujifilm's compressed modes. Leica's RWL is a Lumix RW2 under another name and is read too.</p>
@@ -101,7 +101,7 @@
     <table aria-describedby="table-note">
       <thead><tr><th scope="col">Format</th><th scope="col">Cameras checked on real files</th><th scope="col">Result</th><th scope="col">Still refused</th></tr></thead>
       <tbody>
-        <tr id="f-cr3"><td>CR3</td><td data-label="Checked">Canon EOS R8 (full quality and C-RAW), EOS R3 (C-RAW)</td><td data-label="Result" class="ok">Every sensor value equal on all five files (25.5 M each)</td><td data-label="Refused">None known. Tiled files (R5 class), full quality and C-RAW, are read but checked only on real R8 and R3 frames re-stored as tiles; C-RAW tiles stacked one above another disagree with LibRaw at the seam rows (a LibRaw bug found, one difference still open).</td></tr>
+        <tr id="f-cr3"><td>CR3</td><td data-label="Checked">Canon EOS R8 (full quality and C-RAW), EOS R3 (both), EOS R5 and R5 Mark II (both, full frame and crop)</td><td data-label="Result" class="ok">Every sensor value equal on all fourteen files (up to 47.9 M each), and the white balance and black level on the nine R5, R5 Mark II and R3 files checked on 2026-11-18</td><td data-label="Refused">None known. The real R5 and R5 Mark II files are one tile. Tiled files, full quality and C-RAW, are read but checked only on real R8 and R3 frames re-stored as tiles; C-RAW tiles stacked one above another disagree with LibRaw at the seam rows (a LibRaw bug found, one difference still open).</td></tr>
         <tr id="f-cr2"><td>CR2</td><td data-label="Checked">Canon 350D, 600D, 70D, 7D, 5D Mark II</td><td data-label="Result" class="ok">0 sensor values different on all five; 5D Mark II render a median 0.61 of an 8-bit step from LibRaw's</td><td data-label="Refused">sRAW and mRAW</td></tr>
         <tr id="f-crw"><td>CRW</td><td data-label="Checked">20 real files from 15 Canon bodies of 2000-2004: EOS D30, D60, 10D, 300D (Digital Rebel); PowerShot G2, G3, G5, G6, Pro1, S30, S40, S45, S50, S60, S70</td><td data-label="Result" class="ok">Every sensor value equal on all 20 (114.0 M), and the white balance wherever the file records one</td><td data-label="Refused">The four-colour (cyan, magenta, yellow, green) PowerShot G1, Pro70 and Pro90 IS</td></tr>
         <tr id="f-arw"><td>ARW</td><td data-label="Checked">Sony DSLR-A500, NEX-5N, NEX-7, A5000, A7 III, A7 IV (lossless)</td><td data-label="Result" class="ok">133.9 M sensor values equal</td><td data-label="Refused">ARW 1.0 (DSLR-A100), SR2 and SRF</td></tr>

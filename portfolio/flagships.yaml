@@ -328,9 +328,9 @@ flagships:
       vignetting?); a second maker-against-lensfun DNG pair; a real DNG carrying any
       opcode run only on synthetic files so far, or the SDK to check them; lateral
       colour measured on a real frame with sharp corner edges; a real Adobe `.dcp`
-      through the profile chooser; a real tiled CR3 (C-RAW tiles 2026-11-16,
-      eval/canon-cr3-*tiled-*); cull: zoom, pan windows, the 44 crop gate and an
-      exact pair index 2026-11-18 (10,000 frames 251 to 42 s,
+      through the profile chooser; a CR3 a body writes in tiles (R5, R5 II: one
+      tile, eval/canon-cr3-r5-real-*); cull: zoom, pan windows, the 44 crop gate and
+      an exact pair index 2026-11-18 (10,000 frames 251 to 42 s,
       eval/cull-grouping-index-*) (6% pans 0.85 to 1.00, eval/cull-crop-gate-*),
       whole-percent window offsets 2026-11-18 (7-10% pans 0.78-0.95 to 0.99-1.00,
       eval/cull-fine-offsets-*); next a real shoot's picks. More open items:
