@@ -1,9 +1,9 @@
 ---
 title: "A five-team bowling league has no sixth place"
-seo_title: "Bowling league position rounds with an odd number of teams: last place bowls the vacancy"
+seo_title: "Bowling league position rounds with an odd number of teams"
 date: 2026-11-17
 tags: [redteam, league-schedule-generator, bowling, testing]
-description: "A red-team run on the new bowling league scheduler found its position round naming a place that does not exist, a team name that collided with the vacancy, and three gaps in its tests."
+description: "A red-team run on the new bowling scheduler found a position round naming a place that does not exist, a team name clash and three test gaps."
 ---
 
 The [league schedule generator](https://marisstella.app/league-schedule-generator/bowling-league-schedule.html)

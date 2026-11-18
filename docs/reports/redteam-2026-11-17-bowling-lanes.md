@@ -1,7 +1,7 @@
 ---
 kind: note
 date: 2026-11-17
-topics: [redteam, ventures, testing]
+topics: [redteam, product-build]
 ---
 # Bowling lane scheduler: position rounds, the Vacancy name, and a slow suite (redteam, 2026-11-17)
 
