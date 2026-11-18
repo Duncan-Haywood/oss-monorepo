@@ -40,8 +40,8 @@ files from two bodies (``tools/cr3_libraw_check.py``,
 ``eval/canon-cr3-craw-2026-11-15.md``). The old-style per-line ``qParam``
 updates are not read: no test file has them.
 
-**Several tiles (2026-11-16).** Wide sensors (the R5 class) may store the
-planes cut into a grid of tiles (``cr3.tile_grid``). Each tile is its own 5/3
+**Several tiles (2026-11-16).** A CR3 may store the planes cut into a grid of
+tiles (``cr3.tile_grid``; the real R5 and R5 Mark II files of 2026-11-18 are one tile). Each tile is its own 5/3
 decomposition, its first sample even at every level, and its subbands carry
 edge coefficients lent by its neighbours: one more high-pass coefficient
 before a left (or top) neighbour, and after a right (or bottom) one the counts
