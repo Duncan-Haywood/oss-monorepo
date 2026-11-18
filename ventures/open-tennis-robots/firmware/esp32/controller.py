@@ -342,6 +342,12 @@ LOOP_THROUGH_CHANGE = False
 # 6 ms half-sine take read 0.98% (sd) about the true drop as a step and 0.19% with its contact time here; a build's
 # contact time is unknown until a real tach log or a survey of the fits' misses (tests/take_fit.py) names it.
 LOOP_TAKE = ()
+# Revolutions after the ball's anchor the record's own drop fit reads (2026-11-18, README "The record's drop fit and its
+# window"; `drop_from_commands_steps`' default is 8). On the simulator the longer window averages a jittery tach: held
+# out (tests/record_fit_window.py, 8 builds, wheel lags 0.45 / 0.55 s) the tach-3-us builds' rms about the true drop
+# fell from 0.62% to 0.47% and the worst wheel from 2.49% to 1.79%; noise-free builds moved 0.01 points or less. A fit
+# has about 29 rows instead of 13, so each of its steps does about 2.2 times the arithmetic.
+LOOP_FIT_AFTER = 24
 # The ESC-lag survey (2026-11-16, README "The ESC lag surveyed on the board"): after each launched stroke's record, every
 # turning wheel's snapshot is refitted with the commands through each of these ESC lags (esc_lagged_ticks) and the fit's
 # squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the sums from the
@@ -1863,7 +1869,7 @@ class LaunchCheck:
                 continue
             e0 = edges0[k]
             tk = esc_lagged_ticks(snap[k], [(c - e0, us, u) for c, us, u in ticks[k]], self.esc_tau_us)
-            for item in drop_from_commands_steps(snap[k], tk, take=self.take()):
+            for item in drop_from_commands_steps(snap[k], tk, after=LOOP_FIT_AFTER, take=self.take()):
                 if item is None:
                     yield None
                 else:
