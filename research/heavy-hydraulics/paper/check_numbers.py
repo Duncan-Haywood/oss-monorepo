@@ -507,6 +507,10 @@ MANUSCRIPT_CHECKS = [
     ("trade 0.98 for one", "gear_pump_ownpick_results.txt", "owh 1.22, owhs 0.98"),
     ("pays 0.782 of its pooled-pick drag", "gear_pump_ownpick_results.txt", "s/w 0.782"),
     ("only 0.743 kW per kW", "gear_pump_ownpick_results.txt", "pooled with condition fixed effects 0.743"),
+    # milestone 7o
+    ("mean (one constant, calibrated on the six families' own picks, 2.15 per kW)", "gear_pump_tilt_results.txt", "all six                       2.15"),
+    ("left-out RMS 0.0053 against 0.0056", "gear_pump_tilt_results.txt", "owdt  0.0053  (max 0.0061"),
+    ("calibrated without it, the best tilt is 0.00", "gear_pump_tilt_results.txt", "without danfoss               0.00"),
 ]
 
 
