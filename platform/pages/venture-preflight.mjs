@@ -29,7 +29,8 @@
 //      2000-character cap failed CI for runs that appended to it (three run
 //      records on 2026-11-13).
 //      Also every argument-free platform/ci/check_*.py, through
-//      `main_health.py` (about 20 s on 4 cores): the elevator-traffic run
+//      `main_health.py --checks-only` (about 45 s on 4 cores; its platform/ci
+//      unit tests too when the branch edits platform/ci): the elevator-traffic run
 //      (#15700, 2026-11-14) passed this preflight and then failed CI on
 //      check_step_grid.py and check_doc_counts.py, two of the ~60 tree checks
 //      CI runs that the steps above did not.
@@ -61,7 +62,7 @@
 // wrong, or a site test fails (CI runs the same tests on the PR, so a red
 // one fails it whoever caused it; the message says whether it names the slug).
 // Problems check.mjs finds on other slugs are printed as notes and do not fail you.
-// `--skip-build` runs steps 1, 3 and 4 only (about a minute).
+// `--skip-build` runs steps 1, 3 and 4 only (98 s on an idle 4-core container, 2026-11-18).
 
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -109,11 +110,15 @@ export function changedPostPaths(...outputs) {
   return [...seen].sort();
 }
 
-/** Paths under `pathspecs` this branch adds or edits, as diff + untracked text. */
+/** Paths under `pathspecs` this branch adds or edits (`filter`: git's --diff-filter), as diff + untracked text. */
 function changedText(...pathspecs) {
+  return changedTextFiltered('AM', ...pathspecs);
+}
+
+function changedTextFiltered(filter, ...pathspecs) {
   const git = (args) => spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
-  let diff = git(['diff', '--name-only', '--diff-filter=AM', 'origin/main', '--', ...pathspecs]);
-  if (diff.status !== 0) diff = git(['diff', '--name-only', '--diff-filter=AM', 'HEAD', '--', ...pathspecs]);
+  let diff = git(['diff', '--name-only', `--diff-filter=${filter}`, 'origin/main', '--', ...pathspecs]);
+  if (diff.status !== 0) diff = git(['diff', '--name-only', `--diff-filter=${filter}`, 'HEAD', '--', ...pathspecs]);
   const untracked = git(['ls-files', '--others', '--exclude-standard', '--', ...pathspecs]);
   return [diff.stdout, untracked.stdout];
 }
@@ -126,6 +131,20 @@ function changedPosts() {
 export function touchesRouterInputs(...outputs) {
   return outputs.some((out) => (out || '').split('\n').some((line) =>
     /^(portfolio\/flagships\.yaml|ventures\/[^/]+\/VENTURE\.yaml)$/.test(line.trim())));
+}
+
+/**
+ * main_health.py's arguments for this branch. Its 174 platform/ci/test_*.py
+ * files test the platform/ci modules, and CI runs each only when a PR touches
+ * that module (their workflows' path filters), so a venture branch that leaves
+ * platform/ci alone gets `--checks-only`: the 98 tree checks, the part that
+ * reads ventures/. Measured 2026-11-18 on an idle 4-core container: 43 s with
+ * the flag against several minutes without it, which made `--skip-build`
+ * ("about a minute") take about 5 (run record 2026-11-18T09:20).
+ */
+export function treeCheckArgs(...outputs) {
+  const touches = outputs.some((out) => (out || '').split('\n').some((line) => line.trim().startsWith('platform/ci/')));
+  return touches ? [] : ['--checks-only'];
 }
 
 /** null when validate.py passed; else its output. */
@@ -278,7 +297,7 @@ export function treeCheckProblem(status, output, slug) {
     const block = [lines[i]];
     // A block runs to the next red header or the summary line; a check's own
     // output can hold blank lines (check_step_grid.py puts one after its count).
-    for (let j = i + 1; j < lines.length && !/^(FAIL|TIME)\s+\S+ \(exit -?\d+\)$|^\d+\/\d+ checks pass$/.test(lines[j]); j++) {
+    for (let j = i + 1; j < lines.length && !/^(FAIL|TIME)\s+\S+ \(exit -?\d+\)$|^\d+\/\d+ checks pass\b/.test(lines[j]); j++) {
       if (lines[j].trim()) block.push(lines[j]);
     }
     blocks.push(block);
@@ -374,8 +393,11 @@ async function main(argv) {
     if (problem) failures.push(problem);
   }
   {
-    console.log('   repository checks (platform/ci/main_health.py, about 20 s)');
-    const r = spawnSync('python3', ['platform/ci/main_health.py'], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 26 });
+    const extra = treeCheckArgs(...changedTextFiltered('ACDMR', 'platform/ci'));
+    console.log(extra.length
+      ? '   repository checks (platform/ci/main_health.py --checks-only, about 45 s; this branch leaves platform/ci alone)'
+      : '   repository checks (platform/ci/main_health.py with its platform/ci unit tests, since this branch edits platform/ci; a few minutes)');
+    const r = spawnSync('python3', ['platform/ci/main_health.py', ...extra], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 26 });
     const problem = treeCheckProblem(r.status, (r.stdout || '') + (r.stderr || ''), slug);
     if (problem) failures.push(problem);
   }

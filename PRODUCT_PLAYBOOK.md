@@ -589,7 +589,7 @@ Ship when every line is true:
       the missing sibling link and the CSV-guard and row-spread hits for
       this slug; `--research` for a research-algorithm tool.
 - [ ] `node platform/pages/venture-preflight.mjs <slug>` is clean (add
-      `--skip-build` for the one-minute pass). It runs the repository-wide
+      `--skip-build` for the pass of about a minute and a half). It runs the repository-wide
       gates a new venture trips in CI that its own tests cannot see:
       `launched.json`, the hand-written counts (the opt-out switch count
       among them), `inherited_keys.py`, the build.mjs section and trades
