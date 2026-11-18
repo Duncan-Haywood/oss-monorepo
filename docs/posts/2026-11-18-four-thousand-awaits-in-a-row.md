@@ -3,7 +3,7 @@ title: "Four thousand awaits in a row: a check that spent two-thirds of its time
 seo_title: "Why sequential async file reads in Node can be slower than sync ones"
 date: 2026-11-18
 tags: [perf, platform]
-description: "A catalogue check read 2,565 small pages with one awaited fs call after another. The profile was two-thirds idle. Sync reads: same output, 610 ms down to 150 ms, and its test file from 7.3 s to 1.6 s."
+description: "A check read 2,565 pages with one awaited fs call after another and sat idle two-thirds of the time. Sync reads: same output, 610 ms down to 150 ms."
 ---
 
 Before someone writes a new "this calculator vs. a spreadsheet" page, a small
