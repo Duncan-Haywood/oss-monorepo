@@ -16,8 +16,8 @@ and liquidation-pallet-bid-calculator.
 A file is flagged when it (1) lists ";" among candidate delimiters, (2)
 strips commas with a non-negated character class that also holds a currency
 or percent sign, and (3) never names `decimalComma`, the marker the fixes use
-(a `decimalComma` flag on the parsed table, or a `decimalCommaCell` helper
-applied to cells when the delimiter is ";"). Parsers that already detect the
+(a `decimalComma` flag on the parsed table, or a `decimalCommaCell` helper,
+both driven by the vendored `detectDecimalComma(rows, delim)`). Parsers that already detect the
 decimal mark another way (bank-csv-to-qbo-converter's detectDecimal,
 eu-vat-oss-calculator's separator logic) use a different strip and are not
 flagged. The 32 report analyzers that vendor detectDecimalComma name the
@@ -71,8 +71,8 @@ def main():
         print(h)
     if hits:
         print(f"\n{len(hits)} file(s) read a European decimal comma as a thousands separator. In a ';' file, "
-              "rewrite '1,5' and '1.234,5' with a point before stripping commas (see the decimalCommaCell "
-              "helper in ventures/clearance-markdown-planner/calc.mjs).")
+              "vendor detectDecimalComma and rewrite '1,5' and '1.234,5' with a point "
+              "before stripping commas (see ventures/clearance-markdown-planner/calc.mjs).")
         return 1
     print("check_decimal_comma: ok")
     return 0

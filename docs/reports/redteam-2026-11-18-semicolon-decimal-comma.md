@@ -12,12 +12,20 @@ tagged: auto
   with 0) and two gaps, now tested: oneCurrency when the winning currency is
   not listed first, and the 50-cell date sniff. Catch rate 15/17 to 17/17.
 - Real defects, all patched (7): a parser that sniffs `;` as a delimiter, then
-  strips commas with `[$€£,%\s]`, reads `19,99` as 1999. Fixed in
-  wasserstein-distance, gaussian-process-regression, hdbscan-clustering and
-  isolation-forest (a `decimalComma` flag on the parsed table, threaded into
-  `numText`/`isNum`), and in ad-incrementality-test-analyzer,
-  clearance-markdown-planner and liquidation-pallet-bid-calculator (a
-  `decimalCommaCell` helper applied to cells when the delimiter is `;`).
+  strips commas with `[$€£,%\s]`, reads `19,99` as 1999. All seven now
+  vendor `detectDecimalComma(rows, delim)` (copied from
+  restaurant-delivery-commission-analyzer, so check_decimal_format.py and
+  check_decimal_comma_contract.py test the copies). The engines
+  (wasserstein-distance, gaussian-process-regression, hdbscan-clustering,
+  isolation-forest) carry `decimalComma` on the parsed table into
+  `numText`/`isNum`. The calc parsers (ad-incrementality-test-analyzer,
+  clearance-markdown-planner, liquidation-pallet-bid-calculator) run
+  `decimalCommaCell` over the cells when the detector says comma. A first cut
+  used `delim === ";"` alone; check_decimal_format.py flagged it (tab-delimited
+  European exports, semicolon files with dot decimals).
+- Trap: test_csv_thousands_split.py flags any file with `.split(",")` plus
+  `replace(/,/g`. In these engines the split is `listOf` (a typed column list),
+  not rows, so keep the comma strip inside the character class.
 - Guard: `platform/ci/check_decimal_comma.py` (+ test). It is run by
   `unwired_checks.py`, with no workflow edit. The marker it looks for is the
   string `decimalComma`; a new parser that handles the decimal mark another

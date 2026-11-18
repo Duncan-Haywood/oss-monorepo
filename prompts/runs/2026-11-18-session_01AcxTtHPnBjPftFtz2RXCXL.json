@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "My first patch helper split its find/replace pairs on '=>', which clashed with arrow functions in the code and mangled three engines. Reverted with git checkout and redone with a different separator before any test ran.",
-    "I ran redteam.py rerun once before triaging; I ran it again after triage."
+    "I ran redteam.py rerun once before triaging; I ran it again after triage.",
+    "The first fix used `delim === \";\"` alone; check_decimal_format.py (run via unwired_checks) and CI's test_csv_thousands_split flagged two problems before merge. Fixed by switching to the repository's detectDecimalComma and keeping the comma strip inside the character class."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +43,10 @@
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "`targets --probe 20` with no --under probes every target, which is slow and printed nothing filtered. --under ventures/<slug> was the fast way to check one file's suite time."
+    },
+    {
+      "file": "platform/ci/",
+      "issue": "Three overlapping decimal-format lints now exist (check_decimal_format, check_decimal_comma_contract, check_decimal_comma). I found the first two only when unwired_checks failed; a grep for 'decimal' in platform/ci before writing a fix would have saved one round."
     }
   ],
   "deviations": [
@@ -57,7 +62,7 @@
     "docs/reports/redteam-2026-11-18-semicolon-decimal-comma.md"
   ],
   "goal": null,
-  "notes": "Targets: rev-rec/csv.mjs (recently changed, 0.3 s suite) and wasserstein-distance/engine.mjs (9 s). While reading the wasserstein parser, a four-row semicolon CSV gave means 20/40 instead of 2/4. A grep found the same numText in 3 sibling engines and the same pattern in 3 more calc.mjs parsers. Guard added: platform/ci/check_decimal_comma.py, run by unwired_checks.py (listed by --list). On its first run it named all 7 files before the fixes and was clean after. Checks: run_venture_tests.py on the 8 ventures: 0 failed. test_check_decimal_comma: 5 OK. check_posts and doc_index: ok. prompts unittest was red only on this record's unfilled outcome.",
+  "notes": "Targets: rev-rec/csv.mjs (recently changed, 0.3 s suite) and wasserstein-distance/engine.mjs (9 s). While reading the wasserstein parser, a four-row semicolon CSV gave means 20/40 instead of 2/4. A grep found the same numText in 3 sibling engines and the same pattern in 3 more calc.mjs parsers. Guard added: platform/ci/check_decimal_comma.py, run by unwired_checks.py (listed by --list). On its first run it named all 7 files before the fixes and was clean after. Checks: run_venture_tests.py on the 8 ventures: 0 failed. test_check_decimal_comma: 5 OK. check_posts and doc_index: ok. prompts unittest was red only on this record's unfilled outcome. Second pass after CI: all seven vendor detectDecimalComma; check_decimal_format (41 copies) and the contract (39 copies) pass; tab-European tests added. unwired_checks then 236/236 expected; run_venture_tests on 8 ventures: 0 failed.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -337,40 +342,41 @@
     "real_defects": [
       {
         "file": "ventures/wasserstein-distance/engine.mjs",
-        "issue": "A semicolon CSV with decimal commas (1,5) was read with the comma stripped as a thousands separator: means 2 and 4 came out as 20 and 40, W1 ten times too large, no warning. Fixed: parseCsv sets decimalComma for ';' and numText reads 1,5 and 1.234,5 as decimals.",
+        "issue": "A semicolon CSV with decimal commas (1,5) was read with the comma stripped as a thousands separator: means 2 and 4 came out as 20 and 40, W1 ten times too large, no warning. Fixed: vendors detectDecimalComma(rows, delim) and reads decimal-comma cells as decimals when it votes comma (failing-first test).",
         "patched": true
       },
       {
         "file": "ventures/gaussian-process-regression/engine.mjs",
-        "issue": "Same decimal-comma bug as wasserstein-distance (shared numText): x and y from a ';' CSV read 10x/100x too large. Fixed the same way, including the headerless sniff.",
+        "issue": "Same decimal-comma bug as wasserstein-distance (shared numText): x and y from a ';' CSV read 10x/100x too large. Fixed: vendors detectDecimalComma(rows, delim) and reads decimal-comma cells as decimals when it votes comma (failing-first test).",
         "patched": true
       },
       {
         "file": "ventures/hdbscan-clustering/engine.mjs",
-        "issue": "Same decimal-comma bug: a ';' CSV's features were read 10x/100x too large, changing the scaled distances the clusters come from. Fixed the same way.",
+        "issue": "Same decimal-comma bug: a ';' CSV's features were read 10x/100x too large, changing the scaled distances the clusters come from. Fixed: vendors detectDecimalComma(rows, delim) and reads decimal-comma cells as decimals when it votes comma (failing-first test).",
         "patched": true
       },
       {
         "file": "ventures/isolation-forest/engine.mjs",
-        "issue": "Same decimal-comma bug: a ';' CSV's features and medians were read 10x/100x too large. Fixed the same way.",
+        "issue": "Same decimal-comma bug: a ';' CSV's features and medians were read 10x/100x too large. Fixed: vendors detectDecimalComma(rows, delim) and reads decimal-comma cells as decimals when it votes comma (failing-first test).",
         "patched": true
       },
       {
         "file": "ventures/ad-incrementality-test-analyzer/calc.mjs",
-        "issue": "parseTable sniffs ';' but cleanNum strips commas: '3,5' read as 35 in every store/region series. Fixed: decimalCommaCell rewrites decimal-comma cells when the delimiter is ';'.",
+        "issue": "parseTable sniffs ';' but cleanNum strips commas: '3,5' read as 35 in every store/region series. Fixed: vendors detectDecimalComma(rows, delim) and reads decimal-comma cells as decimals when it votes comma (failing-first test).",
         "patched": true
       },
       {
         "file": "ventures/clearance-markdown-planner/calc.mjs",
-        "issue": "parseSales sniffs ';' but cleanNumber strips commas: a price of 19,99 read as 1999 (100x), so elasticity and markdown prices were fit on wrong prices. Fixed with decimalCommaCell.",
+        "issue": "parseSales sniffs ';' but cleanNumber strips commas: a price of 19,99 read as 1999 (100x), so elasticity and markdown prices were fit on wrong prices. Fixed: vendors detectDecimalComma(rows, delim) and reads decimal-comma cells as decimals when it votes comma (failing-first test).",
         "patched": true
       },
       {
         "file": "ventures/liquidation-pallet-bid-calculator/calc.mjs",
-        "issue": "parseManifest sniffs ';' but num strips commas: retail 19,99 read as 1999 and 1.249,00 as 1.249, so the pallet's retail total and bid were wrong. Fixed with decimalCommaCell.",
+        "issue": "parseManifest sniffs ';' but num strips commas: retail 19,99 read as 1999 and 1.249,00 as 1.249, so the pallet's retail total and bid were wrong. Fixed: vendors detectDecimalComma(rows, delim) and reads decimal-comma cells as decimals when it votes comma (failing-first test).",
         "patched": true
       }
-    ]
+    ],
+    "notes": ""
   },
   "usage": {
     "measured_by": "prompts/runcost.py v1",

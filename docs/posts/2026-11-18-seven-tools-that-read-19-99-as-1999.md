@@ -40,10 +40,20 @@ them.
 
 ## The fix
 
-In a semicolon file, a cell that looks like `1,5` or `1.234,5` (optionally with a currency sign,
-a percent sign or accounting brackets) is now rewritten as `1.5` or `1234.5` before any other
-parsing. Comma and tab files behave as before, so a quoted `"1,234"` in a comma file is still one
-thousand two hundred and thirty-four. Each venture got a test that fails without its fix.
+The repository had already met this bug. On 2026-11-14 a red-team run found 29 report analyzers
+that took the decimal mark from the delimiter alone, which misreads a tab-delimited German export
+and a semicolon file with dot decimals. They now share a `detectDecimalComma(rows, delimiter)`
+helper that votes from the values, and two checks test every copy. These seven tools never had
+any decimal-comma handling, so neither check matched them.
+
+They now use the same helper. When the values vote for a decimal comma, a cell like `1,5` or
+`1.234,5` (optionally with a currency sign, a percent sign or accounting brackets) is read as
+`1.5` or `1234.5`. Otherwise commas still group thousands, so a quoted `"1,234"` in a comma file
+is still one thousand two hundred and thirty-four. A tab-delimited European export now works too.
+Each venture got a test that fails without its fix.
+
+A first version decided from the delimiter alone. The existing `check_decimal_format.py` caught
+that before merge, which is the point of having it.
 
 One case stays ambiguous: a semicolon file with no header row. `1,5;0,25` has more commas than
 semicolons, so the delimiter sniff picks comma. That ends in a visible error, not a wrong number,
@@ -52,6 +62,6 @@ so it was left alone.
 ## The guard
 
 `platform/ci/check_decimal_comma.py` flags any venture file that offers `;` as a delimiter and
-strips commas with a currency-style character class but never handles the decimal comma. It needs
+strips commas with a currency-style character class but never handles the decimal comma. That is the gap the older checks left: they test the detector, and cannot see a parser that has none. It needs
 no workflow change, because `unwired_checks.py` runs every unwired `check_*.py` on every venture
 pull request. On today's tree it passes. Before the fixes it named all seven files.

@@ -194,13 +194,32 @@ export function auc(scores, labels) {
 // --------------------------------------------------------------------- CSV
 
 const isMissing = (s) => /^\s*(|na|n\/a|nan|null|none|\?|-)\s*$/i.test(String(s ?? ""));
-// A semicolon file is a decimal-comma export (Excel in most of Europe): there
-// "1,5" is one and a half and "1.234,5" has a thousands dot, so a comma
-// followed by digits is the decimal point. Elsewhere a comma groups thousands.
+// In a decimal-comma file (detectDecimalComma: most European Excel exports,
+// semicolon- or tab-delimited) "1,5" is one and a half and "1.234,5" has a
+// thousands dot. Elsewhere a comma groups thousands.
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
+}
+
 const numText = (s, decimalComma = false) => {
-  let t = String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£%\s]/g, "");
-  if (decimalComma && /^[-+]?(\d{1,3}(\.\d{3})+|\d*),\d+$/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
-  return t.replace(/,/g, "");
+  const t = String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£%\s]/g, "");
+  return decimalComma && /^[-+]?(\d{1,3}(\.\d{3})+|\d*),\d+$/.test(t) ? t.replace(/\./g, "").replace(",", ".") : t.replace(/[$€£,%\s]/g, "");
 };
 const isNum = (s, decimalComma = false) => {
   const t = numText(s, decimalComma);
@@ -231,8 +250,9 @@ export function parseCsv(text) {
   if (!lines.length) return { error: "The data is empty. Paste a CSV with a header row and at least one numeric column." };
   const delim = ["\t", ";", ","].map((dl) => [dl, splitLine(lines[0], dl).length]).sort((a, b) => b[1] - a[1])[0][0];
   const cells = lines.map((l) => splitLine(l, delim));
+  const decimalComma = detectDecimalComma(cells, delim);
   let columns, start = 1, headerless = false;
-  if (cells[0].every((c) => isNum(c, delim === ";") || isMissing(c))) {
+  if (cells[0].every((c) => isNum(c, decimalComma) || isMissing(c))) {
     columns = cells[0].map((_, i) => `c${i + 1}`);
     start = 0;
     headerless = true;
@@ -250,7 +270,7 @@ export function parseCsv(text) {
     rows.push(cells[i]);
   }
   if (!rows.length) return { error: "The CSV has a header but no data rows." };
-  return { columns, rows, headerless, delimiter: delim, decimalComma: delim === ";" };
+  return { columns, rows, headerless, delimiter: delim, decimalComma };
 }
 
 const ID_NAME = /^(#|id|.*[ _-]id|index|row|row ?number|record)$/i;

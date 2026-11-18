@@ -241,3 +241,8 @@ test("a date column stays out of the group guess on its first 50 cells, even whe
   const rows = Array.from({ length: 50 }, (_, i) => `2026-01-0${(i % 5) + 1},${i}`);
   assert.equal(guessGroupColumn(parseCsv(["day,v", ...rows, "later,51"].join("\n"))), null);
 });
+
+test("a tab-delimited European export reads decimal commas too; a semicolon file with dot decimals keeps them", () => {
+  assert.deepEqual(analyze({ csv: "g\tx\na\t1,5\na\t2,5\nb\t3,5\nb\t4,5", permutations: 9, energyPermutations: 9 }).columns[0].mean, [2, 4]);
+  assert.deepEqual(analyze({ csv: "g;x\na;1,234.5\na;0.5\nb;2,234.5\nb;1.5", permutations: 9, energyPermutations: 9 }).columns[0].mean, [617.5, 1118]);
+});
