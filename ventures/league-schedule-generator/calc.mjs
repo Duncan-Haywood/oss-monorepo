@@ -667,7 +667,95 @@ export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, ban
   }
   // restore the best state seen
   rounds.forEach((r, ri) => r.matches.forEach((m, i) => { m.slot = bestSlots[ri][i]; }));
+  // An exact pass for the limits (2026-11-18): a round where a limit is still broken but some
+  // assignment keeps every limit gets that assignment (bipartite matching of matches to open
+  // slots, starting from the current one so legal matches move only when they must). The
+  // annealing alone missed 1 of 3,033 such rounds on 300 random leagues (eval/limit-conflicts.txt).
+  if ((banned || bannedCourts) && !multi) {
+    const legal = (m, k) => [m.home, m.away].every((x) => !(banned && banned[x] && banned[x].includes(Math.floor(k / courtCount))) && !(bannedCourts && bannedCourts[x] && bannedCourts[x].includes(k % courtCount)));
+    let repaired = false;
+    rounds.forEach((r, ri) => {
+      if (r.matches.every((m) => legal(m, m.slot))) return;
+      const fixed = legalRoundSlots(r.matches, openOf[ri], legal);
+      if (!fixed) return;
+      r.matches.forEach((m, i) => { m.slot = fixed[i]; });
+      repaired = true;
+    });
+    if (repaired) {
+      for (const row of cc) row.fill(0);
+      for (const row of tc) row.fill(0);
+      for (const r of rounds) for (const m of r.matches) bump(m, m.slot, 1);
+      best = 0;
+      for (let x = 0; x < nTeams; x++) best += teamCost(x);
+    }
+  }
   return best;
+}
+
+/**
+ * Slots for one round's matches with every match on a slot `legal(match, slot)` allows, or null
+ * when none exists (Kuhn's augmenting paths; a match keeps its current slot when that is legal
+ * and no other match needs it).
+ */
+export function legalRoundSlots(matches, open, legal) {
+  const own = new Map();
+  for (const [i, m] of matches.entries()) if (open.includes(m.slot) && legal(m, m.slot) && !own.has(m.slot)) own.set(m.slot, i);
+  const at = matches.map((m) => (own.get(m.slot) === undefined ? -1 : m.slot));
+  matches.forEach((m, i) => { if (at[i] >= 0 && own.get(at[i]) !== i) at[i] = -1; });
+  const adj = matches.map((m) => open.filter((k) => legal(m, k)));
+  const aug = (i, seen) => {
+    for (const k of adj[i]) {
+      if (seen.has(k)) continue;
+      seen.add(k);
+      const j = own.get(k);
+      if (j === undefined || aug(j, seen)) { own.set(k, i); at[i] = k; return true; }
+    }
+    return false;
+  };
+  for (let i = 0; i < matches.length; i++) if (at[i] < 0 && !aug(i, new Set())) return null;
+  return at;
+}
+
+/**
+ * Time and court limits that no schedule can keep, found before the build (2026-11-18):
+ * - two limited teams with no allowed time (or court) in common still have to meet, so their
+ *   match breaks one team's limit wherever it goes;
+ * - more teams limited to a set of times than those times hold: k teams that can only play at
+ *   times T need ceil(k/2) of T's |T| x courts slots in a round even when they all play each
+ *   other, and k slots when none of them meet. Same for courts.
+ * Returns [{ kind: "pair" | "times" | "courts", teams: [names], text }].
+ */
+export function limitConflicts(teams, { times = [], courts = [], timeLimits = {}, courtLimits = {} } = {}) {
+  const out = [];
+  const allowedT = (t) => (timeLimits[t] || []).filter((x) => times.includes(x));
+  const allowedC = (t) => (courtLimits[t] || []).filter((x) => courts.includes(x));
+  const limT = Object.keys(timeLimits).map(Number).filter((t) => allowedT(t).length && allowedT(t).length < times.length);
+  const limC = Object.keys(courtLimits).map(Number).filter((t) => allowedC(t).length && allowedC(t).length < courts.length);
+  const lim = [...new Set([...limT, ...limC])].sort((a, b) => a - b);
+  for (const [i, a] of lim.entries()) for (const b of lim.slice(i + 1)) {
+    const ta = limT.includes(a) ? allowedT(a) : times, tb = limT.includes(b) ? allowedT(b) : times;
+    const ca = limC.includes(a) ? allowedC(a) : courts, cb = limC.includes(b) ? allowedC(b) : courts;
+    if (!ta.some((x) => tb.includes(x))) out.push({ kind: "pair", teams: [teams[a], teams[b]], text: `${teams[a]} only plays at ${ta.join(", ")} and ${teams[b]} only at ${tb.join(", ")}, so their match breaks one team's time limit wherever it goes. Give one of them a time the other can play.` });
+    else if (!ca.some((x) => cb.includes(x))) out.push({ kind: "pair", teams: [teams[a], teams[b]], text: `${teams[a]} only plays on ${ca.join(", ")} and ${teams[b]} only on ${cb.join(", ")}, so their match breaks one team's court limit wherever it goes. Give one of them a court the other can use.` });
+  }
+  const crowd = (kind, ids, allowed, all, perUnit, unitWord) => {
+    if (all.length > 12) return;
+    for (let mask = 1; mask < (1 << all.length) - 1; mask++) {
+      const set = all.filter((_, j) => mask & (1 << j));
+      const inside = ids.filter((t) => allowed(t).every((x) => set.includes(x)));
+      if (!inside.length) continue;
+      // report the smallest sets only: skip if a proper subset already reports a superset of these teams
+      const slots = set.length * perUnit;
+      if (inside.length <= slots) continue;
+      if (out.some((o) => o.kind === kind && o.teams.length >= inside.length && inside.every((t) => o.teams.includes(teams[t])))) continue;
+      const names = inside.map((t) => teams[t]);
+      const always = Math.ceil(inside.length / 2) > slots;
+      out.push({ kind, teams: names, text: `${names.length} teams (${names.join(", ")}) can only play ${unitWord} ${set.join(", ")}, which hold ${slots} match(es) a round: ${always ? "too few even when they all play each other, so every round breaks a limit" : "a round breaks a limit unless enough of them play each other that night"}. Free one of them or add a ${kind === "times" ? "court or time" : "court"}.` });
+    }
+  };
+  crowd("times", limT, allowedT, times, courts.length || 1, "at");
+  crowd("courts", limC, allowedC, courts, times.length || 1, "on");
+  return out;
 }
 
 // ---------------------------------------------------------------- building the schedule
@@ -1093,6 +1181,12 @@ export function buildSchedule(spec) {
     if (!ok.length) { notices.push(`${teams[t]} is limited to courts that are not among the league's courts, so the limit was ignored.`); continue; }
     bannedCourts[t] = courts.map((x, i) => (ok.includes(x) ? -1 : i)).filter((i) => i >= 0);
   }
+  const conflicts = limitConflicts(teams, {
+    times, courts,
+    timeLimits: Object.fromEntries(Object.keys(banned).map((t) => [t, times.filter((_, i) => !banned[t].includes(i))])),
+    courtLimits: Object.fromEntries(Object.keys(bannedCourts).map((t) => [t, courts.filter((_, i) => !bannedCourts[t].includes(i))])),
+  });
+  for (const c of conflicts) notices.push(`Limits that cannot all be kept: ${c.text}`);
   const closedByRound = rounds.map((r) => {
     const set = new Set();
     for (const ci of closedCourtsOn(r.day)) for (let t = 0; t < times.length; t++) set.add(t * courts.length + ci);

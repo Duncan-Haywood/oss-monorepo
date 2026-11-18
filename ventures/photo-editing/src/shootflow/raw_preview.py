@@ -112,6 +112,13 @@ def is_3fr_path(path: Path) -> bool:
     return path.suffix.lower() == ".3fr"
 
 
+def is_iiq_path(path: Path) -> bool:
+    """Phase One IIQ (P+ and IQ backs, the H 25, iXU and iXM bodies). It carries its own colour matrix, so it
+    develops without a camera profile, like a DNG; a ``.dcp`` given for it is used (``camera_profiles``)."""
+
+    return path.suffix.lower() == ".iiq"
+
+
 def needs_profile_path(path: Path) -> bool:
     """True for the RAW formats that carry no colour matrix and develop with a camera profile (CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF, MRW)."""
 
@@ -120,9 +127,9 @@ def needs_profile_path(path: Path) -> bool:
 
 def is_developable_path(path: Path) -> bool:
     """True for the RAW formats ``raw_develop`` reads from sensor data: DNG, and
-    Hasselblad 3FR (its own colour matrix), and Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Minolta MRW given a camera profile (``camera_profiles``)."""
+    Hasselblad 3FR and Phase One IIQ (their own colour matrices), and Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Minolta MRW given a camera profile (``camera_profiles``)."""
 
-    return is_dng_path(path) or is_3fr_path(path) or needs_profile_path(path)
+    return is_dng_path(path) or is_3fr_path(path) or is_iiq_path(path) or needs_profile_path(path)
 
 
 def extract_preview(path: Path) -> bytes | None:

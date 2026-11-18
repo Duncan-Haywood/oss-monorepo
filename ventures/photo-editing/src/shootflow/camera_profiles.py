@@ -31,7 +31,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from shootflow import arw, cr2, cr3, crw, hasselblad, mrw, nef, orf, pef, raf, rw2, srw
+from shootflow import arw, cr2, cr3, crw, hasselblad, iiq, mrw, nef, orf, pef, raf, rw2, srw
 from shootflow import raw_develop as rd
 
 CAMERA_PROFILES_DIR = "color/camera-profiles"
@@ -54,7 +54,9 @@ def camera_of(source: Path | str) -> str:
     """The camera name of a RAW file that needs a profile (a CRW, a CR2, a CR3, an ARW, a NEF, an ORF, an RW2, an SRW, a PEF or an MRW)."""
 
     data = Path(source).read_bytes()
-    if crw.is_crw(data):
+    if iiq.is_iiq(data):
+        kind, camera = "IIQ", iiq.camera_model(data)
+    elif crw.is_crw(data):
         kind, camera = "CRW", crw.camera_model(data)
     elif cr3.is_cr3(data):
         kind, camera = "CR3", cr3.camera_model(data, readable=True)
@@ -80,7 +82,7 @@ def camera_of(source: Path | str) -> str:
         kind, camera = "3FR", hasselblad.camera_model(data)
     else:
         raise rd.DevelopError(
-            f"{Path(source).name}: camera profiles are chosen for Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, Minolta MRW and Hasselblad 3FR files only"
+            f"{Path(source).name}: camera profiles are chosen for Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, Minolta MRW, Phase One IIQ and Hasselblad 3FR files only"
         )
     if not camera:
         raise rd.DevelopError(f"{Path(source).name}: the {kind} names no camera (no Make or Model tag)")

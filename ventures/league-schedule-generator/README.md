@@ -284,7 +284,16 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Bowling: fewer weeks on the same pair running, balance kept (2026-11-18, latest)
+## Time and court limits: kept exactly, and the impossible ones named first (2026-11-18, latest)
+
+A captain's request ("Aces can only play at 18:30", "Slice Squad needs Court 2") was a heavy penalty inside the slot annealing: usually kept, never guaranteed, and when a set of requests could not all be kept the page only said afterwards that a team "only plays at 20:00, but is at 18:30", without saying why.
+
+- **Exact per round.** After the annealing, any round that still breaks a limit is checked exactly: matches against the round's open slots as a bipartite matching (`legalRoundSlots`, Kuhn's augmenting paths starting from the annealed slots, so legal matches move only when they must). If a legal assignment exists the round takes it. One-game nights only; doubleheader nights keep the annealing (their team-clash rule is not a matching).
+- **Named before the build.** `limitConflicts(teams, { times, courts, timeLimits, courtLimits })` finds limits no schedule can keep: two limited teams with no time (or court) in common, whose match breaks one limit wherever it goes; and more teams limited to a set of times than those times hold (k teams need ceil(k/2) slots even when all paired together, k when none are). Each becomes the first notice on the page ("Limits that cannot all be kept: Aces only plays at 18:30 and Topspin only at 20:00, ... Give one of them a time the other can play.").
+
+Measured on 300 random leagues (6-16 teams, 1-3 courts, 1-5 random time or court limits; `node eval/limit-conflicts.mjs`, `eval/limit-conflicts.txt`): rounds with a legal assignment that kept a limit broken, 1 of 3,033 before and 0 of 3,033 after. Of the 90 leagues where some round could not keep every limit, 87 are named by `limitConflicts` before the build and 3 are not (crowding that depends on which teams meet in a round); no league was named that could keep every limit. Of the 149 rounds that could not, 139 hold a pair with no shared time or court and 10 are crowded. Tests: `limit-conflicts.test.mjs`. New guide: `tennis-league-schedule.html` (8 teams, two early-only teams and a one-court team, every limit kept; a test rebuilds its table).
+
+## Bowling: fewer weeks on the same pair running, balance kept (2026-11-18)
 
 A bowler notices two things about lanes: getting one pair more often than the others, and getting
 the same pair two weeks running. The page put balance first, so its seasons with the hardest

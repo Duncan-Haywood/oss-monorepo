@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtGDz3sJwXKwyjePdKL",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T20:07:25Z",
+  "ended": "2026-11-18T20:11:33Z",
+  "wall_minutes": 4.32,
+  "tokens_in": 3338258,
+  "tokens_out": 13293,
+  "cost_usd": 1.5058,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17412",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Backlog held only owner/blocked rows again. The largest friction cluster in today's records (flagship_field.py parking landed results) had already been fixed by OPEN_MARK earlier today, so it cost a read to rule it out; friction entries do not say when they were fixed."
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Running main_health.py and measure as shell '&' jobs inside one background call worked, but measure's shallow-clone fetch and main_health share the machine; harmless here."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-a-test-that-wrote-into-the-tree-it-checked.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode, three fixes from 2026-11-18 doc_friction: (1) platform/privacy/share-location.test.mjs fixture moved from live ventures/ to a temp root (flake in check_csv_formula_guard.py rglob, session_01XpHqygLf5); (2) build.mjs --only says 'Planned (not drawn)' share cards (session_01XpHqygH4H); (3) run_venture_tests.py local named runs print that unwired tree checks were not run and how to run them (measured 87 s, 238/238 pass; session_01XpHqyfPoZ). Verification: node --test share-location.test.mjs 19/19; node --check build.mjs; python3 -m unittest test_run_venture_tests 48 OK; main_health.py 273/273; check_posts.py ok. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "be533f08-8f45-57b8-979a-3f8829051b8a",
+    "transcripts": 1,
+    "first": "2026-11-18T20:07:25Z",
+    "last": "2026-11-18T20:11:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 74,
+        "output": 13293,
+        "thinking": 2840,
+        "cache_read": 3264854,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73330,
+        "api_equivalent_usd": 1.5058,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 74,
+      "output": 13293,
+      "thinking": 2840,
+      "cache_read": 3264854,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73330,
+      "api_equivalent_usd": 1.5058,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.32,
+      "active_minutes": 4.32,
+      "model_minutes": 3.32,
+      "tool_minutes": 1.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "three small tool/test fixes plus a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 99.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -824,6 +824,12 @@ def main(argv):
         print(f"{sum(rc == 0 for _, rc, _ in results) - len(skips)}/{len(results)} unwired tree "
               f"checks and tests pass" + (f", {len(skips)} skipped (missing pytest or a package: "
                                           f"{' '.join(n for n, _ in skips)})" if skips else ""))
+    elif named and not args.no_unwired:
+        # A local named pass is not CI's pass: the changed-ventures job also runs
+        # these (friction 2026-11-18: a new platform/ file passed here, failed CI).
+        # About 90 s, so they are named rather than run.
+        print("note: the unwired tree checks CI also runs were not run (about 90 s): "
+              "python3 platform/ci/unwired_checks.py", flush=True)
     return 1 if failed or lint or unwired_red or unknown or page_red else 0
 
 

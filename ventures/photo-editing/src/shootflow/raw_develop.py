@@ -978,8 +978,10 @@ class RawImage:
     # "nef" for a Nikon NEF read by ``shootflow.nef``, "orf" for an Olympus ORF read by ``shootflow.orf``, "rw2" for a
     # Panasonic RW2 read by ``shootflow.rw2``, "srw" for a Samsung SRW read by ``shootflow.srw`` or "pef" for a
     # Pentax PEF read by ``shootflow.pef``, "raf" for a Fujifilm RAF read by ``shootflow.raf``, "cr3" for a Canon
-    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``, "mrw" for a Minolta MRW read by ``shootflow.mrw``, "3fr" for a Hasselblad 3FR read by ``shootflow.hasselblad``
-    # (DNG-equivalent tags, no colour matrix).
+    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``, "mrw" for a Minolta MRW read by ``shootflow.mrw``
+    # (DNG-equivalent tags, no colour matrix); "iiq" for a Phase One IIQ read by ``shootflow.iiq`` (DNG-equivalent
+    # tags with a ColorMatrix1 from the file's own camera-to-ROMM matrix); "3fr" for a Hasselblad 3FR read by
+    # ``shootflow.hasselblad`` (the file's own ColorMatrix1 in IFD0).
     source: str = "dng"
     notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
     exif: Ifd | None = None  # the EXIF IFD (lens name, focal length), when the file has one
@@ -1085,10 +1087,12 @@ def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
 
 
 def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
-    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's, Canon CR3's, Minolta MRW's or Hasselblad 3FR's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
+    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's, Canon CR3's, Minolta MRW's, Phase One IIQ's or Hasselblad 3FR's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
 
-    from shootflow import arw, cr2, cr3, crw, hasselblad, mrw, nef, orf, pef, raf, rw2, srw
+    from shootflow import arw, cr2, cr3, crw, hasselblad, iiq, mrw, nef, orf, pef, raf, rw2, srw
 
+    if iiq.is_iiq(data):  # before the TIFF readers: an IIQ is a TIFF with its sensor in an IIII block
+        return iiq.parse_iiq(data)
     if mrw.is_mrw(data):
         return mrw.parse_mrw(data)
     if crw.is_crw(data):

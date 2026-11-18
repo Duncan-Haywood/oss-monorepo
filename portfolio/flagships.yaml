@@ -195,20 +195,20 @@ flagships:
       ships; next revenue deaf at Quiet, one-day closures); (a) ar1 + floor 2 failed
       on 5 fresh bee dances (0.244 vs 0.337, README; muted note ships); update-rate:
       pegs 4 of 7 dated; JHU state switches to weekly reporting 20 of 27, returns to
-      more days 0 of 8 (README "A provider's own schedule changes"); short-return
-      scan failed twice (README "Short returns": 60-day return 0 of 200 at the null
-      budget); next a day-of-week repeat cost. Stale feeds: clumped LR shipped; next
-      a real documented carry-forward. joint drift (measured, not offered) and its
-      2x penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
-      increments, biweight on fresh data, why it absorbs seat belts and quality
-      control 4, its AR(1) term; two covariates: harmless one's warning 0 of 170
-      false finds, 1.27x bias (bar failed); slope and pulse shocks 2026-11-18:
-      warning holds 42 of 43 false finds (README "Shocks that are not steps"); the
-      note quotes it; two shocked donors 2026-11-18 (README "Two shocked donors"):
-      54-56% to 27-28%, both left out 53-56%, one 35%; notes quote it. Shape word vs
-      the panel's trend (README, 2026-11-18): compounding panels' wrongly worded
-      units 80% to 22%, bar 1 failed by 0.4 points on a wandering line; next re-test
-      scored where it switches. More open items: NEXT.md.
+      more days 0 of 8 (README "A provider's own schedule changes"); short returns:
+      weekday cost 0 to 116 of 200, bar 120 (README "Short returns, with the day of
+      the week"); next per-stretch dow-or-chain choice. Stale feeds: clumped LR
+      shipped; next a real documented carry-forward. joint drift (measured, not
+      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
+      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
+      belts and quality control 4, its AR(1) term; two covariates: harmless one's
+      warning 0 of 170 false finds, 1.27x bias (bar failed); slope and pulse shocks
+      2026-11-18: warning holds 42 of 43 false finds (README "Shocks that are not
+      steps"); the note quotes it; two shocked donors 2026-11-18 (README "Two
+      shocked donors"): 54-56% to 27-28%, both left out 53-56%, one 35%; notes quote
+      it. Shape word vs the panel's trend (README, 2026-11-18): compounding panels'
+      wrongly worded units 80% to 22%, bar 1 failed by 0.4 points on a wandering
+      line; next re-test scored where it switches. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -324,18 +324,19 @@ flagships:
       edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
       (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
       E-series NEF, Minolta MRW 2026-11-18 (eval/nikon-nrw-reader-*,
-      eval/minolta-mrw-*); Hasselblad 3FR, own matrix, no .dcp, 10 bodies 2026-11-18
-      (eval/hasselblad-3fr-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E;
-      4 x 2 tiles (177 MP); no public file has a tone curve
+      eval/minolta-mrw-*). Phase One IIQ L 2026-11-18, no .dcp: file's matrix
+      (eval/phaseone-iiq-*); Hasselblad 3FR, own matrix, 10
+      bodies (eval/hasselblad-3fr-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4
+      x 2 tiles (177 MP); no public file has a tone curve
       (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
-      every sensel (eval/panasonic-rw2-177mp-libraw-*). Next: Sony's vignetting
-      table vs an evenly lit frame; a real DNG and a vignetting-calibrated lens
-      through the pipeline's lens stage; a real evenly lit frame shot wide open
-      (corners level after lensfun's vignetting?); a second maker-against-lensfun
-      DNG pair; a real DNG carrying any opcode run only on synthetic files so far,
-      or the SDK to check them; lateral colour measured on a real frame with sharp
-      corner edges; a real Adobe `.dcp` through the profile chooser. More open
-      items: NEXT.md.
+      every sensel (eval/panasonic-rw2-177mp-libraw-*). Next: IIQ S (3 files:
+      eval/phaseone-iiq-*); Sony's vignetting table vs an evenly lit frame; a real
+      DNG and a vignetting-calibrated lens through the pipeline's lens stage; a real
+      evenly lit frame shot wide open (corners level after lensfun's vignetting?); a
+      second maker-against-lensfun DNG pair; a real DNG carrying any opcode run only
+      on synthetic files so far, or the SDK to check them; lateral colour measured
+      on a real frame with sharp corner edges; a real Adobe `.dcp` through the
+      profile chooser. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -380,14 +381,14 @@ flagships:
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
-      schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
-      eval/platform-templates-2026-11-17.md; calendar ids per fixture,
-      eval/ics-stable-uids.txt; In/Maybe/Out per game and short teams on the league
-      page, availability.mjs 2026-11-18, subs, reminders, change emails, sign-ups,
-      captain score confirmation, move requests and organiser notices on the page or
-      emailed (confirm.mjs, reschedule.mjs, announcements.mjs; next: a real league's
-      use); bowling seasons, lane pairs rotated evenly: 36 of 36 at the bound,
-      repeats 392 to 148 (eval/bowling-repeat-sat.txt)). 3-game nights
+      schedule, eval/seed-balance.txt; TeamSnap/SportsEngine imports; 2026-11-18
+      limits kept exactly, impossible ones named, eval/limit-conflicts.txt;
+      In/Maybe/Out per game and short teams on the league page, availability.mjs
+      2026-11-18, subs, reminders, change emails, sign-ups, captain score
+      confirmation, move requests and organiser notices on the page or emailed
+      (confirm.mjs, reschedule.mjs, announcements.mjs; next: a real league's use);
+      bowling seasons, lane pairs rotated evenly: 36 of 36 at the bound, repeats 392
+      to 148 (eval/bowling-repeat-sat.txt)). 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
       every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on
       1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6;
