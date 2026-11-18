@@ -2521,3 +2521,41 @@ rise from one jitter to the next across 0, 0.5, 1 and 1.5 us; (c) the mean share
 than at 0 us by at least 0.2; (d) no instant build is advised at any jitter. DECISION RULE: if (a) and (d) hold, the
 README and `tennisbots tach-jitter` state the survey's limit as "speaks below about 1 us, blind from 1.5 us"; if (a)
 fails, the limit is moved to the lowest jitter with no build advised on either set and the miss is reported here.
+
+**Held out** (run after the pre-registration was committed, 9e4cc316f; 72 survey drills, none aborted):
+
+| edge jitter | spread takes named within 1 ms and advised (of 9) | instant builds advised (of 3) | picks within 1 ms (of 12) | mean best / step share, spread takes |
+| --- | --- | --- | --- | --- |
+| 0 us | 8 | 0 | 10 | 0.45 |
+| 0.5 us | 1 | 0 | 10 | 0.80 |
+| 1 us | 0 | 0 | 12 | 0.85 |
+| 1.5 us | 0 | 0 | 12 | 0.92 |
+| 2 us | 0 | 0 | 8 | 0.93 |
+| 3 us | 0 | 0 | 8 | 0.96 |
+
+Every clause held: (a) nothing advised at 1.5, 2 or 3 us; (b) 8, 1, 0, 0 across 0 to 1.5 us; (c) the share rose from
+0.45 to 0.92; (d) no instant build advised. The held-out set is harsher than the design set at 0.5 us (1 of 9 against
+3), so across both sets the survey named and advised 14 of 18 spread takes on a clean tach, 4 of 18 at 0.5 us, 1 of 18
+at 1 us and 0 of 54 from 1.5 us. The picks stay mostly right through 1.5 us (22 of 24 within 1 ms on both sets); what
+the jitter takes away is the margin, so the survey goes quiet rather than wrong. The pre-registered limit ("speaks below
+about 1 us") was too generous for the held-out set; the shipped bands below put the edge at the clean tach instead, a
+choice made after seeing the held-out numbers.
+
+**What shipped.** `tennisbots tach-jitter periods.txt` (src/tennisbots/tach.py) reads a steady wheel's logged periods
+and prints the tach's edge jitter and where the survey stands at it. The estimate is the variance of the periods' second
+differences (the edge times' third differences, 20 times an edge's variance for independent edge errors), which a
+steady speed-up or slow-down cancels; a missed or doubled pulse is dropped and gross outliers are cut first. It reads the
+board's whole-microsecond clock too: simulator-like edges at 0, 0.5, 1, 1.5, 2 and 3 us read 0.40, 0.69, 1.14, 1.59,
+2.09 and 3.09 us, so a perfect sensor still reads about 0.4. Bands, on that scale: under 0.55 us the survey can name a
+spread take; 0.55-1.35 it is near its limit and a "keep TAKE_US = 0" may only mean it cannot see; from 1.35 it cannot
+see a 3-6 ms contact time. `firmware/esp32/tach_log.py` logs the periods from the REPL (a hard interrupt into a buffer
+made beforehand, as `main.Tach` times them): `import tach_log; tach_log.run(34, 600)` with the wheel spinning steadily
+and no ball in the feeder. `tests/test_tach.py` checks the estimate recovers 0.5-5 us within 12% through whole-us
+rounding, ignores a 300 rpm/s drill-like wander, and drops a missed pulse.
+
+**Not known.** All simulated: Gaussian, independent edge errors, one seed per set, an assumed take profile. A real
+sensor's errors may be tied to the wheel's angle (a reflective mark's edge, a magnet's position) or arrive in bursts
+(an ESC's switching noise on the lead), which the second difference reads as jitter too, though their effect on the
+survey may differ. Next: a real tach logged with tach_log.py on a spinning wheel; if it reads 1.35 us or more, a timer
+capture (the ESP32's MCPWM capture unit timestamps an edge in hardware) in place of the pin interrupt, measured with the
+same command.

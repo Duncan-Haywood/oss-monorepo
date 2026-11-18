@@ -10,8 +10,8 @@ times, e[i+2] - 3 e[i+1] + 3 e[i] - e[i-1], whose variance is (1 + 9 + 9 + 1) s^
 Periods far from their neighbours (a missed or doubled pulse) are dropped, and differences beyond six robust standard
 deviations are cut before the variance is taken.
 
-On the simulator (tests/take_survey_jitter.py) the board's contact-time survey advised half its spread takes with no
-jitter, fewer at 0.5 us, about one in nine at 1 us and none from 1.5 us; the drop fits themselves lose accuracy more
+On the simulator (tests/take_survey_jitter.py, design and held-out sets) the board's contact-time survey named and
+advised 14 of 18 spread takes with no jitter, 4 at 0.5 us, 1 at 1 us and none from 1.5 us; the drop fits themselves lose accuracy more
 slowly (README "When the wheel is not a first-order lag": 5 us took the calibration drill's spin error from 1.6% to
 5.3%). Simulated only: a real sensor's errors may be lumpier than Gaussian or tied to the wheel's angle.
 """
@@ -27,8 +27,11 @@ MIN_PERIODS = 40
 # estimator's own scale. It reads the board's whole-microsecond clock as well as the sensor: the simulator's edges at
 # 0, 0.5, 1, 1.5, 2 and 3 us of jitter read 0.40, 0.69, 1.14, 1.59, 2.09 and 3.09 here (a perfect sensor still reads
 # about 0.4). The bands' edges sit between those readings.
-SURVEY_SPEAKS_US = 0.9        # below: the simulator's 0 and 0.5 us, where it named and advised 3-6 of 9 spread takes
-SURVEY_BLIND_US = 1.35        # from here: 1.5 us and up, none advised on the simulator
+# Both sets (design and held out, 18 spread-take builds per jitter): named and advised 14 at 0 us, 4 at 0.5, 1 at 1 and
+# 0 of 54 at 1.5, 2 and 3 us; no instant build advised at any jitter. The "speaks" edge was set after the held-out set
+# (pre-registered: about 1 us), because 0.5 us advised only 1 of 9 there.
+SURVEY_SPEAKS_US = 0.55       # below: the simulator's clean tach (reads 0.40)
+SURVEY_BLIND_US = 1.35        # from here: 1.5 us and up (reads 1.59 and more), none advised
 
 
 def read_periods(path: str) -> list[int]:
@@ -81,11 +84,12 @@ def edge_jitter(periods: list[float]) -> dict:
 def jitter_advice(jitter_us: float) -> str:
     """One line: what the contact-time survey can do at this edge jitter (the simulator's bands)."""
     if jitter_us < SURVEY_SPEAKS_US:
-        return (f"edge jitter {jitter_us:g} us: the contact-time survey can name a spread take (on the simulator it "
-                f"advised 3-6 of 9 spread takes reading under 0.7 us); trust its TAKE_US advice")
+        return (f"edge jitter {jitter_us:g} us: the contact-time survey can name a spread take (on the simulator a "
+                f"clean tach, reading 0.4 us, named and advised 14 of 18 spread takes); trust its TAKE_US advice")
     if jitter_us < SURVEY_BLIND_US:
         return (f"edge jitter {jitter_us:g} us: the contact-time survey is near its limit (on the simulator it advised "
-                f"1 of 9 spread takes reading 1.1 us); a 'keep TAKE_US = 0' may only mean it cannot see")
-    return (f"edge jitter {jitter_us:g} us: the contact-time survey cannot see a 3-6 ms contact time (none advised on "
-            f"the simulator reading 1.6 us or more); its 'keep' means 'cannot tell'. A cleaner edge (a Hall sensor with a "
+                f"4 of 18 spread takes reading 0.7 us, 1 of 18 reading 1.1 us); a 'keep TAKE_US = 0' may only mean it "
+                f"cannot see")
+    return (f"edge jitter {jitter_us:g} us: the contact-time survey cannot see a 3-6 ms contact time (0 of 54 spread takes "
+            f"advised on the simulator reading 1.6 us or more); its 'keep' means 'cannot tell'. A cleaner edge (a Hall sensor with a "
             f"Schmitt input, shielded leads, a timer capture in place of the pin interrupt) helps more than any setting")

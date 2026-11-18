@@ -16,3 +16,26 @@ Per jitter: spread takes named within 1 ms and advised (of 9); instant builds ad
     2 us: named and advised 0, instant advised 0, within 1 ms 10 of 12, mean share 0.91
     3 us: named and advised 0, instant advised 0, within 1 ms 7 of 12, mean share 0.96
 
+
+## pre-registration
+Committed before the held-out capture ran (9e4cc316f): see the README section. PREDICTION: (a) none named and advised at 1.5, 2, 3 us; (b) named-and-advised does not rise across 0, 0.5, 1, 1.5 us; (c) mean share at 1.5 us >= 0 us's + 0.2; (d) no instant build advised.
+
+## held out: --capture --lag 0.45 --seed 11, then --score (run after 9e4cc316f)
+72 survey drills (wheel lag 0.45 s, seed 11), the board's window of 8; each build's pick (refined, to 0.5 ms), best / step share and the advice (advised when the share is at most 0.6)
+  instant       | 0 us: 0/1.00 2.5/0.97 0/1.00 | 0.5 us: 1/1.00 2/1.00 2.5/1.00 | 1 us: 1/1.00 1/1.00 1/1.00 | 1.5 us: 0/1.00 0/1.00 0/1.00 | 2 us: 2.5/0.99 0/1.00 3.5/1.00 | 3 us: 2.5/1.00 0/1.00 5.5/1.00
+  halfsine 3 ms | 0 us: 3.5/0.57* 3/0.39* 0/1.00 | 0.5 us: 2.5/0.95 3.5/0.96 2.5/1.00 | 1 us: 3/0.91 3/0.90 2.5/0.97 | 1.5 us: 2.5/0.99 3/0.89 3/0.97 | 2 us: 2.5/0.98 3/0.95 4.5/1.00 | 3 us: 1/1.00 2.5/1.00 0/1.00
+  halfsine 6 ms | 0 us: 6/0.23* 6/0.37* 6/0.41* | 0.5 us: 6/0.50* 6.5/0.70 5.5/0.94 | 1 us: 6/0.69 6/0.86 6/0.77 | 1.5 us: 6/0.76 6/0.98 5.5/0.92 | 2 us: 7/0.82 6/0.95 5.5/0.84 | 3 us: 5.5/0.90 6/0.95 6/0.91
+  front 4 ms    | 0 us: 4/0.44* 4.5/0.25* 4.5/0.37* | 0.5 us: 4/0.61 4.5/0.68 4.5/0.85 | 1 us: 4/0.82 4.5/0.79 4.5/0.92 | 1.5 us: 4/0.94 5/0.83 4/1.00 | 2 us: 3.5/0.95 5/0.85 1.5/1.00 | 3 us: 3/0.99 5/0.90 4.5/1.00
+  (pick ms / share per launcher 0, 1, 2; * = advised)
+
+Per jitter: spread takes named within 1 ms and advised (of 9); instant builds advised (of 3, a wrong re-flash); picks within 1 ms (of 12); mean best / step share on the spread takes
+    0 us: named and advised 8, instant advised 0, within 1 ms 10 of 12, mean share 0.45
+  0.5 us: named and advised 1, instant advised 0, within 1 ms 10 of 12, mean share 0.80
+    1 us: named and advised 0, instant advised 0, within 1 ms 12 of 12, mean share 0.85
+  1.5 us: named and advised 0, instant advised 0, within 1 ms 12 of 12, mean share 0.92
+    2 us: named and advised 0, instant advised 0, within 1 ms 8 of 12, mean share 0.93
+    3 us: named and advised 0, instant advised 0, within 1 ms 8 of 12, mean share 0.96
+
+
+## the estimator on simulator-like edges (tennisbots.tach.edge_jitter; edge = int(true time) + round(N(0, sd)), 7,000 rpm, 2,999 periods)
+  sd 0 / 0.5 / 1 / 1.5 / 2 / 3 us reads 0.40 / 0.69 / 1.14 / 1.59 / 2.09 / 3.09 us

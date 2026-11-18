@@ -56,7 +56,9 @@ class TachJitterTest(unittest.TestCase):
 
     def test_advice_bands(self):
         self.assertIn("can name", tach.jitter_advice(0.4))
-        self.assertIn("near its limit", tach.jitter_advice(1.0))
+        self.assertIn("can name", tach.jitter_advice(0.4))
+        self.assertIn("near its limit", tach.jitter_advice(0.7))
+        self.assertIn("near its limit", tach.jitter_advice(1.1))
         self.assertIn("cannot see", tach.jitter_advice(2.0))
 
     def test_cli(self):
