@@ -67,3 +67,9 @@ test("sitemap lists every page; llms.txt links them", () => {
   for (const p of PAGES) assert.match(page("sitemap.xml"), new RegExp(`<loc>./${p}</loc>`));
   assert.match(page("llms.txt"), /self-powered-vs-time-based\.html/);
 });
+
+test("sibling links both ways: the battery page links its neighbours and they link back", () => {
+  const html = page("index.html");
+  for (const s of ["solar-payback-calculator", "texas-electricity-plan-checker", "demand-charge-interval-analyzer"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`), s);
+  for (const s of ["solar-payback-calculator", "texas-electricity-plan-checker"]) assert.match(readFileSync(new URL(`../${s}/index.html`, import.meta.url), "utf8"), /href="\.\.\/home-battery-planner\/"/, s);
+});
