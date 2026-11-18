@@ -1,0 +1,451 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtHPnBjPftFtz2RXCXL",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T08:06:35Z",
+  "ended": "2026-11-18T08:08:45Z",
+  "wall_minutes": 18.86,
+  "tokens_in": 9744111,
+  "tokens_out": 41540,
+  "cost_usd": 3.763,
+  "tool_calls": 96,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17235",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first patch helper split its find/replace pairs on '=>', which clashed with arrow functions in the code and mangled three engines. Reverted with git checkout and redone with a different separator before any test ran.",
+    "I ran redteam.py rerun once before triaging; I ran it again after triage."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 11 entries, all control-plane edits that already have open PRs waiting for owner approval, so step 0 had nothing actionable. The list could mark entries whose fix PR is already open, so the next run skips them quickly."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` with no --under probes every target, which is slow and printed nothing filtered. --under ventures/<slug> was the fast way to check one file's suite time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open defects first. All 11 are control-plane edits with open owner-gated PRs, so another PR for each would only duplicate them (see P063).",
+      "did": "Left them as they were and noted this in the agent doc.",
+      "result": "The whole run went to campaigns and to the decimal-comma class."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-seven-tools-that-read-19-99-as-1999.md",
+    "docs/reports/redteam-2026-11-18-semicolon-decimal-comma.md"
+  ],
+  "goal": null,
+  "notes": "Targets: rev-rec/csv.mjs (recently changed, 0.3 s suite) and wasserstein-distance/engine.mjs (9 s). While reading the wasserstein parser, a four-row semicolon CSV gave means 20/40 instead of 2/4. A grep found the same numText in 3 sibling engines and the same pattern in 3 more calc.mjs parsers. Guard added: platform/ci/check_decimal_comma.py, run by unwired_checks.py (listed by --list). On its first run it named all 7 files before the fixes and was clean after. Checks: run_venture_tests.py on the 8 ventures: 0 failed. test_check_decimal_comma: 5 OK. check_posts and doc_index: ok. prompts unittest was red only on this record's unfilled outcome.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/rev-rec/csv.mjs",
+        "test": "node --test ventures/rev-rec/**/*.test.mjs  (in .)",
+        "seed": 222437646,
+        "commit": "509ab8b87",
+        "sites": 99,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 7,
+            "col": 47,
+            "operator": "false-to-true",
+            "before": "const rows = []; let row = [], cur = \"\", q = false;",
+            "after": "const rows = []; let row = [], cur = \"\", q = true;",
+            "line_text": "  const rows = []; let row = [], cur = \"\", q = false;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 9,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < s.length; i++) {",
+            "after": "for (let i = 0; i <= s.length; i++) {",
+            "line_text": "  for (let i = 0; i < s.length; i++) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 39,
+            "col": 21,
+            "operator": "or-to-and",
+            "before": "const x = String(v || \"\").trim();",
+            "after": "const x = String(v && \"\").trim();",
+            "line_text": "  const x = String(v || \"\").trim();",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 47,
+            "col": 18,
+            "operator": "lt-to-le",
+            "before": "if (rows.length < 2) return { lines: [], skipped: [], missing: [\"header and at least one row\"] };",
+            "after": "if (rows.length <= 2) return { lines: [], skipped: [], missing: [\"header and at least one row\"] };",
+            "line_text": "  if (rows.length < 2) return { lines: [], skipped: [], missing: [\"header and at least one row\"] };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 49,
+            "col": 120,
+            "operator": "const-plus-one",
+            "before": "for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);",
+            "after": "for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -2);",
+            "line_text": "  for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "col[k] is only ever compared with < 0 / >= 0 and never leaves linesFromCsv, so -2 for a missing column behaves exactly like -1."
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 61,
+            "col": 54,
+            "operator": "plus-to-minus",
+            "before": "if (start === null) return skipped.push({ line: i + 2, why: \"period start is not a date\" });",
+            "after": "if (start === null) return skipped.push({ line: i - 2, why: \"period start is not a date\" });",
+            "line_text": "    if (start === null) return skipped.push({ line: i + 2, why: \"period start is not a date\" });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 68,
+            "col": 111,
+            "operator": "const-plus-one",
+            "before": "lines.push({ id: get(\"id\") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 10 ** minorExponent(currency)), currency, ...(get(\"credits\") ? { credits: get(\"credits\") } : {}) });",
+            "after": "lines.push({ id: get(\"id\") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 11 ** minorExponent(currency)), currency, ...(get(\"credits\") ? { credits: get(\"credits\") } : {}) });",
+            "line_text": "    lines.push({ id: get(\"id\") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 10 ** minorExponent(currency)), currency, ...(get(\"credits\") ? { credits: get(\"credits\") } : {}) });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 78,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "const currency = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || \"usd\";",
+            "after": "const currency = Object.entries(counts).sort((a, b) => b[1] - a[2])[0]?.[0] || \"usd\";",
+            "line_text": "  const currency = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || \"usd\";",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Comparator NaN keeps insertion order; the only test had the winning currency first. New test: usd first, eur twice -> eur."
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 94,
+            "col": 59,
+            "operator": "plus-to-minus",
+            "before": "const y = s0.getUTCFullYear(), mo = s0.getUTCMonth() + k * step;",
+            "after": "const y = s0.getUTCFullYear(), mo = s0.getUTCMonth() - k * step;",
+            "line_text": "      const y = s0.getUTCFullYear(), mo = s0.getUTCMonth() + k * step;",
+            "caught": true,
+            "seconds": 2.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 95,
+            "col": 29,
+            "operator": "min-to-max",
+            "before": "return Date.UTC(y, mo, Math.min(s0.getUTCDate(), new Date(Date.UTC(y, mo + 1, 0)).getUTCDate()));",
+            "after": "return Date.UTC(y, mo, Math.max(s0.getUTCDate(), new Date(Date.UTC(y, mo + 1, 0)).getUTCDate()));",
+            "line_text": "      return Date.UTC(y, mo, Math.min(s0.getUTCDate(), new Date(Date.UTC(y, mo + 1, 0)).getUTCDate()));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/wasserstein-distance/engine.mjs",
+        "test": "node --test ventures/wasserstein-distance/**/*.test.mjs  (in .)",
+        "seed": 176898282,
+        "commit": "509ab8b87",
+        "sites": 822,
+        "baseline_seconds": 9.3,
+        "mutants": [
+          {
+            "file": "ventures/wasserstein-distance/engine.mjs",
+            "line": 294,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "for (let j = 0; j < m; j++) g[j] += e * Math.log(v[j]);",
+            "after": "for (let j = 1; j < m; j++) g[j] += e * Math.log(v[j]);",
+            "line_text": "    for (let j = 0; j < m; j++) g[j] += e * Math.log(v[j]);",
+            "caught": true,
+            "seconds": 9.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wasserstein-distance/engine.mjs",
+            "line": 367,
+            "col": 68,
+            "operator": "times-to-div",
+            "before": "s0 += K[r0 + j] * vj; s1 += K[r1 + j] * vj; s2 += K[r2 + j] * vj; s3 += K[r3 + j] * vj;",
+            "after": "s0 += K[r0 + j] * vj; s1 += K[r1 + j] * vj; s2 += K[r2 + j] / vj; s3 += K[r3 + j] * vj;",
+            "line_text": "        s0 += K[r0 + j] * vj; s1 += K[r1 + j] * vj; s2 += K[r2 + j] * vj; s3 += K[r3 + j] * vj;",
+            "caught": true,
+            "seconds": 9.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wasserstein-distance/engine.mjs",
+            "line": 377,
+            "col": 65,
+            "operator": "plus-to-minus",
+            "before": "for (let j = 0; j < m; j++) Ku[j] = Ku[j] + K[r0 + j] * u0 + K[r1 + j] * u1 + K[r2 + j] * u2 + K[r3 + j] * u3;",
+            "after": "for (let j = 0; j < m; j++) Ku[j] = Ku[j] + K[r0 + j] * u0 - K[r1 + j] * u1 + K[r2 + j] * u2 + K[r3 + j] * u3;",
+            "line_text": "      for (let j = 0; j < m; j++) Ku[j] = Ku[j] + K[r0 + j] * u0 + K[r1 + j] * u1 + K[r2 + j] * u2 + K[r3 + j] * u3;",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wasserstein-distance/engine.mjs",
+            "line": 603,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "const dateLike = present.length > 0 && present.slice(0, 50).every((c) => /^\\d{4}-\\d{2}-\\d{2}/.test(c));",
+            "after": "const dateLike = present.length > 0 && present.slice(0, 51).every((c) => /^\\d{4}-\\d{2}-\\d{2}/.test(c));",
+            "line_text": "    const dateLike = present.length > 0 && present.slice(0, 50).every((c) => /^\\d{4}-\\d{2}-\\d{2}/.test(c));",
+            "caught": false,
+            "seconds": 9.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Date sniffing reads the first 50 cells; new test has 50 dates then a non-date and expects no group guess."
+          },
+          {
+            "file": "ventures/wasserstein-distance/engine.mjs",
+            "line": 615,
+            "col": 57,
+            "operator": "gt-to-ge",
+            "before": "const pick = ok.find((c) => !c.numeric || numericCount > 1);",
+            "after": "const pick = ok.find((c) => !c.numeric || numericCount >= 1);",
+            "line_text": "  const pick = ok.find((c) => !c.numeric || numericCount > 1);",
+            "caught": true,
+            "seconds": 10.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wasserstein-distance/engine.mjs",
+            "line": 621,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "export const fmt = (v, digits = 3) => {",
+            "after": "export const fmt = (v, digits = 4) => {",
+            "line_text": "export const fmt = (v, digits = 3) => {",
+            "caught": true,
+            "seconds": 10.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wasserstein-distance/engine.mjs",
+            "line": 741,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "let tot = 0;",
+            "after": "let tot = 1;",
+            "line_text": "    let tot = 0;",
+            "caught": true,
+            "seconds": 10.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wasserstein-distance/engine.mjs",
+            "line": 772,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "n: [pts[0].length, pts[1].length],",
+            "after": "n: [pts[0].length, pts[2].length],",
+            "line_text": "    n: [pts[0].length, pts[1].length],",
+            "caught": true,
+            "seconds": 9.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wasserstein-distance/engine.mjs",
+        "issue": "A semicolon CSV with decimal commas (1,5) was read with the comma stripped as a thousands separator: means 2 and 4 came out as 20 and 40, W1 ten times too large, no warning. Fixed: parseCsv sets decimalComma for ';' and numText reads 1,5 and 1.234,5 as decimals.",
+        "patched": true
+      },
+      {
+        "file": "ventures/gaussian-process-regression/engine.mjs",
+        "issue": "Same decimal-comma bug as wasserstein-distance (shared numText): x and y from a ';' CSV read 10x/100x too large. Fixed the same way, including the headerless sniff.",
+        "patched": true
+      },
+      {
+        "file": "ventures/hdbscan-clustering/engine.mjs",
+        "issue": "Same decimal-comma bug: a ';' CSV's features were read 10x/100x too large, changing the scaled distances the clusters come from. Fixed the same way.",
+        "patched": true
+      },
+      {
+        "file": "ventures/isolation-forest/engine.mjs",
+        "issue": "Same decimal-comma bug: a ';' CSV's features and medians were read 10x/100x too large. Fixed the same way.",
+        "patched": true
+      },
+      {
+        "file": "ventures/ad-incrementality-test-analyzer/calc.mjs",
+        "issue": "parseTable sniffs ';' but cleanNum strips commas: '3,5' read as 35 in every store/region series. Fixed: decimalCommaCell rewrites decimal-comma cells when the delimiter is ';'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/clearance-markdown-planner/calc.mjs",
+        "issue": "parseSales sniffs ';' but cleanNumber strips commas: a price of 19,99 read as 1999 (100x), so elasticity and markdown prices were fit on wrong prices. Fixed with decimalCommaCell.",
+        "patched": true
+      },
+      {
+        "file": "ventures/liquidation-pallet-bid-calculator/calc.mjs",
+        "issue": "parseManifest sniffs ';' but num strips commas: retail 19,99 read as 1999 and 1.249,00 as 1.249, so the pallet's retail total and bid were wrong. Fixed with decimalCommaCell.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a658f349-2d77-55be-814c-120a40d1cf3a",
+    "transcripts": 1,
+    "first": "2026-11-18T08:06:35Z",
+    "last": "2026-11-18T08:25:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 92,
+        "input": 176,
+        "output": 41540,
+        "thinking": 8393,
+        "cache_read": 9617941,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125994,
+        "api_equivalent_usd": 3.763,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 176,
+      "output": 41540,
+      "thinking": 8393,
+      "cache_read": 9617941,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125994,
+      "api_equivalent_usd": 3.763,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 96,
+    "tools": {
+      "Bash": 90,
+      "Edit": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.86,
+      "active_minutes": 18.86,
+      "model_minutes": 7.72,
+      "tool_minutes": 11.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer finding, reproducing and fixing one parsing bug in 7 tools with tests, plus a lint and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 159.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
