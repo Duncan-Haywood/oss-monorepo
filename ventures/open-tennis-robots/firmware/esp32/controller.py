@@ -347,6 +347,13 @@ LOOP_TAKE = ()
 # squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the sums from the
 # ESC_SURVEY frame, so `ESC_TAU_US` can be set from a real drill. tests/esc_lag_pick.py's grid.
 ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
+# The ESC-lag survey's tau golden-section steps (2026-11-18, README "The ESC-lag survey's search, traced"). It ran with
+# none (tau only on LOOP_TAU_GRID_US's 100 / 200 / 400 / 800 / 1600 ms), which was harmless when the wheel's lag sat
+# on that grid, as every build of its first check did (0.2 / 0.4 / 0.8 s). Off the grid the ESC lag stood in for the
+# tau the grid could not reach: at 0.3 and 0.6 s, 6 of 12 first-order builds picked 10-14 ms and all 12 ESC 50 ms
+# builds 23-25 ms. With 5 steps (the record fit's) every first-order build picked 0 and every 50 ms build 42-55 ms
+# (tests/esc_misfit_trace.py); a deeper t0 search alone changed nothing. 36 steps a fit, not 15.
+ESC_SURVEY_REFINE = 5
 # A wheel whose best fit over the grid misses by more than this many times the median wheel's best is left out of the
 # sums (2026-11-16, README "One wheel's misses outvoted the drill"): with tach jitter one wheel in 56 could fit 30 times
 # worse than the rest, and its square alone set the pick (0 instead of 100 ms on 6 of 102 simulated builds). 3 / 5 / 10
@@ -1885,8 +1892,8 @@ class LaunchCheck:
             got = []
             for c in ts.grid:
                 fit = None
-                # with the tau refinement the record's fit has: without it (refine=0, as the ESC-lag survey) the fits
-                # missed by about 60 times the refined fit's rms and every candidate scored alike, so a 6 ms take
+                # with the tau refinement the record's fit has: without it (refine=0, as the ESC-lag survey had until
+                # 2026-11-18) the fits missed by about 60 times the refined fit's rms and every candidate scored alike, so a 6 ms take
                 # picked 0 (README "The contact time surveyed on the board")
                 for item in drop_from_commands_steps(snap[k], tk, take=take_offsets(c), levels=TAKE_SURVEY_LEVELS):
                     if item is None:
@@ -1913,7 +1920,8 @@ class LaunchCheck:
             got = []
             for g in self.survey:
                 fit = None
-                for item in drop_from_commands_steps(snap[k], esc_lagged_ticks(snap[k], raw, g), refine=0):
+                for item in drop_from_commands_steps(snap[k], esc_lagged_ticks(snap[k], raw, g),
+                                                     refine=ESC_SURVEY_REFINE):
                     if item is None:
                         yield None
                     else:
