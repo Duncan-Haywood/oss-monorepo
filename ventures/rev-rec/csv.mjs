@@ -59,7 +59,10 @@ export function linesFromCsv(text) {
     if (!Number.isFinite(raw)) return skipped.push({ line: i + 2, why: "amount is not a number" });
     if (billedAt === null) return skipped.push({ line: i + 2, why: "billing date is not a date" });
     if (start === null) return skipped.push({ line: i + 2, why: "period start is not a date" });
-    const end = toMs(get("end")) ?? start;
+    // A blank end is a one-off charge; a typo in a filled-in end must not be one,
+    // or a year's term is recognised on day one with nothing flagged.
+    const end = get("end") ? toMs(get("end")) : start;
+    if (end === null) return skipped.push({ line: i + 2, why: "period end is not a date" });
     if (end < start) return skipped.push({ line: i + 2, why: "period end is before period start" });
     const currency = (get("currency") || "usd").toLowerCase();
     lines.push({ id: get("id") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 10 ** minorExponent(currency)), currency, ...(get("credits") ? { credits: get("credits") } : {}) });
