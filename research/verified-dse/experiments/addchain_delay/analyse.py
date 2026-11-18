@@ -26,6 +26,10 @@ Predictions, written here and committed before any point (baselines included) ru
  (7) over all analysed designs SWC is better than random on more designs than it is worse. Prior 75%.
  (8) mean d over tight-clock designs exceeds mean d over relaxed-clock designs (milestone 145's three ADD losses were all tight; a
      post-hoc split there, a prediction here). Prior 55%.
+Batch 2 (added to run.py after the baselines and before any sequence result was read, because the rule left ADD-SLOW with 2
+designs and CTRL-FAST with 4): its designs top up the short cells and are analysed only in a labelled secondary section, which
+repeats S and D on batch 1 + batch 2 with one more prediction:
+ (2b) on batch 1 + batch 2, S > 0 with stratified permutation p < 0.05. Prior 40%.
 Reported, not predicted: the per-design table, cell sizes, failed points, the mean regrets per cell, and a descriptive pool with
 milestone 145's 20 designs (its bands assigned by the same thresholds) that repeats S and D.
 """
@@ -55,6 +59,7 @@ m141 = m145.m141
 lb, score, swc, rand, lad, sign = m141.lb, m141.score, m141.swc, m141.rand, m141.lad, m141.sign
 r2r4_tau = m145.r2r4_tau
 run = _sibling(HERE / "run.py", "verified_dse_m146_run")
+complete = run.complete
 
 
 def rows():
@@ -111,7 +116,7 @@ def main(dst):
         out.append(f"{x} | {run.STRUCT[x]} | {p if p is None else f'{p:.3f}'} | {meta['band'][x]} | {'yes' if x in sel else 'no'}")
     out += ["", "cells: " + "; ".join(f"{k} {len(v)} ({', '.join(v)})" for k, v in meta["cells"].items())]
     rs = rows()
-    done = run.complete(rs, meta["order"])
+    done = complete(rs, meta["order"])
     out.append(f"complete designs (order prefix): {len(done)} of {len(meta['order'])}")
     if not done:
         Path(dst).write_text("\n".join(out) + "\n")
@@ -169,6 +174,31 @@ def main(dst):
             "cell sizes: " + ", ".join(f"{s}-{b} {cnt[(s, b)]}" for s, b in run.CELLS),
             f"S = {effect(pd, pst, pbd):+.2f} points (p = {strat_perm_p(pd, pst, pbd):.4f}); "
             f"D = {effect(pd, pbd, pst):+.2f} points (p = {strat_perm_p(pd, pbd, pst):.4f})"]
+    b2 = meta.get("batch2")
+    if b2:
+        done2 = complete(rs, b2["order"])
+        bb2 = {x: b2["base_period_ns"][x] for x in done2}
+        c2 = m141.cells([r for r in rs if r["design"] in set(done2)], "addchain_delay", "m146ffd") if done2 else {}
+        d2 = {x: swc(c2[x]) - rand(c2[x]) for x in done2}
+        t2 = {x: r2r4_tau([r for r in rs if r["design"] == x]) for x in done2}
+        st2 = {x: run.STRUCT[x] for x in done2}
+        bd2 = {x: b2["band"][x] for x in done2}
+        out += ["", "## Secondary: batch 2 (topped-up cells, fixed before any sequence result was read)", "",
+                f"batch-2 designs complete: {len(done2)} of {len(b2['order'])}", "",
+                "design | structure | band | clock | base period ns | routed/r2 | tau-b r2 vs routed | random % | SWC % | d"]
+        for x in done2:
+            c = c2[x]
+            out.append(f"{x} | {st2[x]} | {bd2[x]} | {c['clock']} | {bb2[x]:.3f} | {c['ratio']:.2f} | {t2[x]:.3f} | "
+                       f"{rand(c):.2f} | {swc(c):.2f} | {d2[x]:+.2f}")
+        ad, ast, abd = d | d2, st | st2, bd | bd2
+        aS, aD = effect(ad, ast, abd), effect(ad, abd, ast)
+        paS, paD = strat_perm_p(ad, ast, abd), strat_perm_p(ad, abd, ast)
+        out += ["", "batch 1 + batch 2: cell sizes " + ", ".join(
+                    f"{s_}-{b_} {sum(ast[x] == s_ and abd[x] == b_ for x in ad)}" for s_, b_ in run.CELLS),
+                "cell means of d: " + ", ".join(
+                    f"{s_}-{b_} {mean([ad[x] for x in ad if ast[x] == s_ and abd[x] == b_]):+.2f}" for s_, b_ in run.CELLS),
+                f"S = {aS:+.2f} points (p = {paS:.4f}); D = {aD:+.2f} points (p = {paD:.4f})",
+                f"(2b) on batch 1 + batch 2, S > 0 with p < 0.05: {aS > 0 and paS < 0.05}"]
     fails = {}
     for r in rs:
         if r["design"] in set(done) and r["status"] != "ok":

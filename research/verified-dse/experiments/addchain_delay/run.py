@@ -94,8 +94,21 @@ CTRL = {
     "div5r": ("divsh_w", "divsh_w", B | {"NA": 5, "NB": 4, "R": 1}, ""),
     "mod8": ("modsh_w", "modsh_w", B | {"NA": 8, "M": 97}, ""),
 }
-CANDIDATES = ADD | CTRL
-STRUCT = {d: "ADD" for d in ADD} | {d: "CTRL" for d in CTRL}
+# Batch 2, fixed after the baselines above and before any sequence point had a result (commit after 9ca6ae294): the rule left
+# ADD-SLOW with 2 designs and CTRL-FAST with 4, because wide-operand sums map fast (only the top SW bits of the sum reach the
+# shifter, so ABC prunes the low carries). Batch 2 candidates are measured and banded by the same rule and fill only those two cells
+# to PER_CELL, in a seed-1462 shuffle; they are run after batch 1 and analysed as a labelled secondary (the primary stays batch 1).
+ADD2 = {f"csum{k}": ("csumsh_w", "csumsh_w", B | {"K": k}, "") for k in (12, 16, 20, 24)} | {
+    "sad16": ("sadsh_w", "sadsh_w", B | {"K": 16}, ""),
+    "sad20": ("sadsh_w", "sadsh_w", B | {"K": 20}, ""),
+}
+CTRL2 = {
+    "amin2": ("argminsh_w", "argminsh_w", B | {"N": 2, "NB": 6}, ""),
+    "amin4": ("argminsh_w", "argminsh_w", B | {"N": 4, "NB": 6}, ""),
+    "rng2n4": ("rngsh_w", "rngsh_w", B | {"N": 2, "NB": 4, "R": 1}, ""),
+}
+CANDIDATES = ADD | CTRL | ADD2 | CTRL2
+STRUCT = {d: "ADD" for d in ADD | ADD2} | {d: "CTRL" for d in CTRL | CTRL2}
 _a, _c = list(ADD), list(CTRL)
 random.Random(146).shuffle(_a)
 random.Random(146).shuffle(_c)
@@ -120,6 +133,24 @@ def select(base):
     return cells, clock, order
 
 
+_a2, _c2 = list(ADD2), list(CTRL2)
+random.Random(1462).shuffle(_a2)
+random.Random(1462).shuffle(_c2)
+SHUFFLED2 = {"ADD": _a2, "CTRL": _c2}
+
+
+def select2(cells, base2):
+    """Batch 2: top up each batch-1 cell short of PER_CELL with batch-2 candidates that land in its band, in SHUFFLED2 order;
+    clocks continue each cell's alternation. Returns the added designs per cell, their clocks and their interleaved order."""
+    add = {}
+    for c in CELLS:
+        room = PER_CELL - len(cells[c])
+        add[c] = [d for d in SHUFFLED2[c[0]] if band(base2.get(d)) == c[1]][:room]
+    clock = {d: ("tight", "relaxed")[(len(cells[c]) + i) % 2] for c in CELLS for i, d in enumerate(add[c])}
+    order = [add[c][i] for i in range(PER_CELL) for c in CELLS if i < len(add[c])]
+    return add, clock, order
+
+
 def complete(rows, order, n=120):
     cnt = {}
     for r in rows:
@@ -138,15 +169,32 @@ def install():
 
 
 def task(a):
-    if a[0] not in flow.DESIGNS:
+    """milestone 145's task, with this milestone's design table (its own install() would swap in milestone 145's)."""
+    design, seq, tag, period, wd, lib, pdk, orb = a
+    if design not in CANDIDATES or flow.DESIGNS.get(design) != CANDIDATES[design]:
         install()
-    r = M145.task(a)
+    try:
+        r = flow.run_point(design, seq, period, wd, lib, pdk, orb)
+        r["status"] = "ok"
+    except RuntimeError as e:
+        r = {"design": design, "seq": list(seq), "period_ns": period, "status": "fail", "error": str(e)[-200:]}
+    r["tag"] = tag
+    r["corner"] = CORNER
     return r
 
 
 def base_task(a):
+    """milestone 145's baseline (empty sequence, no-wire period), with this milestone's design table."""
+    d, wd, lib, pdk, orb = a
     install()
-    return M145.base_task(a)
+    log = Path(wd) / "openroad.log"
+    sp = M145.M144.synth_period
+    if log.exists() and sp(log.read_text()) is not None:
+        return d, sp(log.read_text())
+    try:
+        return d, flow.run_point(d, (), 10.0, wd, lib, pdk, orb)["synth_netlist_period_ns"]
+    except RuntimeError:
+        return d, sp(log.read_text()) if log.exists() else None
 
 
 def main():
@@ -158,6 +206,7 @@ def main():
     ap.add_argument("--n", type=int, default=120)
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--baselines-only", action="store_true")
+    ap.add_argument("--batch2", action="store_true", help="measure batch 2, top up the short cells, run their points")
     ap.add_argument("--resume", action="store_true", help="skip points already in results.jsonl, append the rest")
     a = ap.parse_args()
     if flow.UTIL != 40:
@@ -187,6 +236,20 @@ def main():
     if a.baselines_only:
         return
     clock, order = meta["clock"], meta["order"]
+    if a.batch2:
+        if "batch2" not in meta:
+            with Pool(a.jobs) as pool:
+                base2 = dict(pool.map(base_task, [(d, out / d / "base", lib, pdk, a.openroad) for d in ADD2 | CTRL2]))
+            cells = {c: meta["cells"][f"{c[0]}-{c[1]}"] for c in CELLS}
+            add, clock2, order2 = select2(cells, base2)
+            meta["batch2"] = {"base_period_ns": base2, "band": {d: band(base2[d]) for d in base2},
+                              "cells": {f"{s}-{b}": add[(s, b)] for s, b in CELLS}, "clock": clock2, "order": order2,
+                              "designs": {d: CANDIDATES[d] for d in order2}}
+            META.write_text(json.dumps(meta, indent=1))
+        print(json.dumps(meta["batch2"], indent=1), flush=True)
+        base = base | meta["batch2"]["base_period_ns"]
+        clock, order = meta["batch2"]["clock"], meta["batch2"]["order"]
+        a.resume = True
     tasks = [(d, s, clock[d], round(base[d] * FACTORS[clock[d]], 3), out / d / f"{clock[d]}_{i}", lib, pdk, a.openroad)
              for d in order for i, s in enumerate(seqs)]
     if a.resume and TABLE.exists():
