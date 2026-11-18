@@ -380,11 +380,11 @@ flagships:
       5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT
       alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
       waits (odd-orbit.py, 9,849 s). Bowling seasons proved uneven (SAT, 44 of 4-32
-      teams x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Next, most
-      valuable first: bowling lane-pair preferences (a team that must avoid the end
-      pair) as a hard constraint in the walk; SAT answers for the 27 unanswered grid
-      seasons (16x40, 22-28 teams; eval/bowling-lane-table.txt); repeats in the
-      SAT-table seasons (9-39 vs 6-21). More open items: NEXT.md.
+      teams x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Lane limits
+      (team avoids a pair, hard; eval/bowling-lane-avoid.txt). Next, most valuable
+      first: limits at 20x30 (SAT: deal exists, search misses); SAT answers for the
+      27 unanswered grid seasons (16x40, 22-28 teams; eval/bowling-lane-table.txt);
+      repeats in the SAT-table seasons (9-39 vs 6-21). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
