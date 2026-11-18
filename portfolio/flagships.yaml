@@ -385,7 +385,7 @@ flagships:
       schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
       eval/platform-templates-2026-11-17.md; calendar ids per fixture,
       eval/ics-stable-uids.txt; In/Maybe/Out per game and short teams on the league
-      page, availability.mjs 2026-11-18, rosters, reminders (mailer.mjs),
+      page, availability.mjs 2026-11-18, subs.mjs sub pool, rosters, reminders (mailer.mjs),
       schedule-change emails per team (changes.mjs), team sign-ups with waitlist
       (registration.mjs; next: a real league's sign-ups and answers); bowling
       seasons, lane pairs rotated evenly: 36 of 36 at the bound, repeats 392 to 148
