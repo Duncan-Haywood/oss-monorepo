@@ -17,7 +17,7 @@
   "tokens_out": 23053,
   "cost_usd": 2.378,
   "tool_calls": 60,
-  "task": "polish: shorten the four household audience intros so Start here shows on the first phone screen (item 2 of polish-2026-11-18-homeowners-audience.md)",
+  "task": "polish: audience starting notes capped at 42 words; retirees' first tool card on a phone's first screen (item 1 of polish-2026-11-18-audience-intros.md, after PR #17145 landed the overlapping intro fix first)",
   "projects": [
     "platform/pages"
   ],
@@ -34,7 +34,8 @@
   "errors": [
     "First full test run: 173 failures, all from my new post's 199-char description (budget 160) breaking the test build; fixed, rerun 1799/1799 pass.",
     "First scripted intro rewrite dropped the trailing ',\\n' on three entries (SyntaxError); fixed with sed before any commit.",
-    "CI build/validate red on the first push: the report's topic 'platform' is not in docs/taxonomy.json; changed to 'seo', check_post_frontmatter.py clean."
+    "CI build/validate red on the first push: the report's topic 'platform' is not in docs/taxonomy.json; changed to 'seo', check_post_frontmatter.py clean.",
+    "Duplicate work: PR #17145 (another session, same item, same report filename) merged while this PR was in CI; PR went 'dirty'. Merged main, took its intros/test/report, dropped my duplicate post, report and 45-word intro test, and kept only the delta: retirees/parents starting notes, retirees intro 50->45, starting cap 50->42."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -45,6 +46,10 @@
     {
       "file": "platform/pages/README.md",
       "issue": "No committed tool measures where a page's first content block lands at phone width; I wrote a throwaway Playwright loop over dist/c/for-*. Logged as item 2 in the report."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs before starting (none on audiences.mjs), but #17145 was opened and merged in the ~30 min this run built and measured. Two polish runs drew the same top polish_queue item; nothing claims an item when a run starts."
     }
   ],
   "deviations": [
@@ -56,11 +61,11 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-18-four-intros-that-hid-start-here.md",
-    "docs/reports/polish-2026-11-18-audience-intros.md"
+    "docs/posts/2026-11-18-the-heading-cleared-the-fold-the-tool-did-not.md",
+    "docs/reports/polish-2026-11-18-audience-starting-notes.md"
   ],
   "goal": "impressive sites (phone first screen on audience pages)",
-  "notes": "Before (390x844, top of first .start-grid li): homeowners 978, retirees 951, parents 951, job-changers 873; 22 other pages 686-820. After: 794-820 on all 26 with the row. node --test 'platform/pages/*.test.mjs': 1799 tests, 1799 pass. check.mjs: publishable, 1390 products, 51 category pages, no dead links. Full rebuild on the final wording: build exit 0; check.mjs publishable (11,314 pages, no dead links); first card at 390: retirees 820, parents 819, job-changers 794, homeowners 794; max over all 26 pages 820; 0 pages scroll sideways at 390.",
+  "notes": "Final state (after merging main with #17145): first .start-grid li top at 390x844: retirees 951 (pre-#17145) -> 846 (#17145) -> 820; parents 951 -> 768; homeowners 978 -> 821; job-changers 873 -> 794; all 26 pages with the row 686-821; scrollWidth 390 on all. Measured on a full local build with the current wording of the four ledes/notes patched into dist with the build's escaping. Earlier full rebuild of my own (superseded) wording: build exit 0, check.mjs publishable (11,314 pages, no dead links). audiences.test.mjs 13/13 pass. node --test 'platform/pages/*.test.mjs' on the merged tree: 1799 tests, 1799 pass.",
   "corrections": [],
   "redteam": null,
   "usage": {
@@ -68,52 +73,53 @@
     "session_id": "422fab5b-c5d3-5507-b3bd-f08f7d1a4d1c",
     "transcripts": 1,
     "first": "2026-11-18T02:18:19Z",
-    "last": "2026-11-18T02:41:43Z",
+    "last": "2026-11-18T02:50:46Z",
     "primary_model": "claude-opus-5-5",
     "models": {
       "claude-opus-5-5": {
-        "requests": 55,
-        "input": 106,
-        "output": 23053,
-        "thinking": 3299,
-        "cache_read": 5268372,
+        "requests": 77,
+        "input": 151,
+        "output": 34718,
+        "thinking": 4954,
+        "cache_read": 8532001,
         "cache_write_5m": 0,
-        "cache_write_1h": 107859,
-        "api_equivalent_usd": 2.378,
+        "cache_write_1h": 129001,
+        "api_equivalent_usd": 3.4334,
         "fast_requests": 0
       }
     },
     "totals": {
-      "requests": 55,
-      "input": 106,
-      "output": 23053,
-      "thinking": 3299,
-      "cache_read": 5268372,
+      "requests": 77,
+      "input": 151,
+      "output": 34718,
+      "thinking": 4954,
+      "cache_read": 8532001,
       "cache_write_5m": 0,
-      "cache_write_1h": 107859,
-      "api_equivalent_usd": 2.378,
+      "cache_write_1h": 129001,
+      "api_equivalent_usd": 3.4334,
       "api_equivalent_complete": true
     },
-    "cache_hit_share": 0.98,
-    "tool_calls": 60,
+    "cache_hit_share": 0.985,
+    "tool_calls": 83,
     "tools": {
-      "Bash": 51,
-      "ToolSearch": 2,
+      "Bash": 68,
+      "mcp__github__pull_request_read": 4,
+      "ToolSearch": 3,
       "mcp__github__get_job_logs": 2,
+      "mcp__github__update_pull_request": 2,
       "mcp__github__list_pull_requests": 1,
       "Edit": 1,
       "Read": 1,
-      "mcp__github__create_pull_request": 1,
-      "mcp__github__pull_request_read": 1
+      "mcp__github__create_pull_request": 1
     },
     "web_searches": 0,
     "time": {
-      "wall_minutes": 23.41,
-      "active_minutes": 23.41,
-      "model_minutes": 4.24,
-      "tool_minutes": 19.16,
-      "waiting_on_human_minutes": 0.0,
-      "human_prompts": 1,
+      "wall_minutes": 32.46,
+      "active_minutes": 29.97,
+      "model_minutes": 6.06,
+      "tool_minutes": 23.91,
+      "waiting_on_human_minutes": 2.49,
+      "human_prompts": 2,
       "stalls": 0,
       "subagent_minutes": 0.0
     },
@@ -123,11 +129,11 @@
     },
     "human_equivalent": {
       "hours": 2.0,
-      "basis": "front-end dev: measure 31 pages at phone width, rewrite four intros, add a test, write post and report",
+      "basis": "front-end dev: measure 31 pages at phone width, rewrite copy, tighten a test, consolidate with a parallel PR, post and report",
       "rate_usd_per_hour": 100.0,
       "usd": 200.0
     },
-    "leverage": 84.1,
+    "leverage": 58.3,
     "certainty": {
       "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
       "model": "high: the `model` field on each API response, not the configured model",

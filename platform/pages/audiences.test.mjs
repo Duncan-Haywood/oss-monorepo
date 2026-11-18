@@ -36,7 +36,10 @@ test('intros stay short enough that "Start here" is on a phone\'s first screen',
   const words = (s) => s.split(/\s+/).filter(Boolean).length;
   for (const a of AUDIENCES) {
     assert.ok(words(a.intro) <= 50, `${a.id}: intro is ${words(a.intro)} words (max 50)`);
-    assert.ok(words(a.starting) <= 50, `${a.id}: starting note is ${words(a.starting)} words (max 50)`);
+    // The starting note sits between the intro and the cards too. Retirees (42)
+    // and parents (45) were the two longest and the two tallest pages; trimmed
+    // 2026-11-18, the longest note is roofers' 41.
+    assert.ok(words(a.starting) <= 42, `${a.id}: starting note is ${words(a.starting)} words (max 42)`);
   }
 });
 

@@ -411,9 +411,9 @@ export const AUDIENCES = [
     description:
       'Free retirement calculators: RMDs, QCDs, Medicare IRMAA, Social Security claiming age and taxes, Roth conversions, pension lump sums and withdrawal order.',
     intro:
-      'Calculators for the money decisions around retirement: when to claim Social Security, RMDs and QCDs, the IRMAA and ACA subsidy cliffs, Roth conversions, a pension lump sum, and which account to draw from first. Most follow US federal rules; the two marked UK cover the State Pension and pension withdrawals.',
+      'Calculators for the money decisions around retirement: when to claim Social Security, RMDs and QCDs, the IRMAA and ACA cliffs, Roth conversions, a pension lump sum and withdrawal order. Most follow US federal rules; the two marked UK cover the State Pension and pension withdrawals.',
     starting:
-      'Retiring in the next few years? Start with the Social Security claiming age calculator and the withdrawal sequencer: the first sets your income floor, and the second shows how the order you draw from accounts moves your tax bill, IRMAA and RMDs.',
+      'Retiring in the next few years? Start with the Social Security claiming age calculator, which sets your income floor, and the withdrawal sequencer, which shows how drawing order moves your tax, IRMAA and RMDs.',
     match:
       /(^|-)rmd-|(^|-)qcd-|irmaa|pension-lump-sum|retirement-withdrawal|roth-conversion|social-security|fers-retirement|uk-pension-withdrawal|uk-state-pension|aca-subsidy-cliff/,
   },
@@ -427,7 +427,7 @@ export const AUDIENCES = [
     intro:
       'Calculators for the money side of having children: tax credits, childcare costs and the credits that offset them, what a nanny really costs, a leftover 529, and parental leave pay. The US tools follow federal rules; the four marked UK follow GOV.UK rules.',
     starting:
-      'Expecting a baby? In the US, start with the Child Tax Credit calculator and the dependent care FSA vs credit comparison; in the UK, start with the maternity pay calculator and the shared parental pay planner, which shows how the weeks split between both parents.',
+      'Expecting a baby? In the US, start with the Child Tax Credit calculator and the dependent care FSA vs credit comparison; in the UK, with maternity pay and the shared parental pay planner.',
     match:
       /child-tax-credit|eitc-|dependent-care-fsa|nanny-tax|529-to-roth|uk-child-benefit|shared-parental|maternity-pay|tax-free-childcare/,
   },
