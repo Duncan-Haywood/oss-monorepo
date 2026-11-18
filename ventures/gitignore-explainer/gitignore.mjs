@@ -821,7 +821,7 @@ export function why(input = {}) {
 }
 
 export function reportCsv(result) {
-  const q = (s) => `"${String(s ?? "").replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s ?? ""); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = ["path,tracked,ignored,deciding_rule,source,line,via_directory"];
   for (const r of result.paths) {
     lines.push([q(r.path), r.tracked, r.ignored, q(r.rule?.text ?? ""), q(r.rule?.source ?? ""), r.rule?.line ?? "", q(r.via ?? "")].join(","));

@@ -167,6 +167,6 @@ export function summaryText(r) {
 }
 
 export function timelineCsv(r) {
-  const q = (c) => `"${String(c).replace(/"/g, '""')}"`;
+  const q = (c) => { let v = String(c); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["applies_from,status,done,duty,basis", ...r.timeline.map((t) => [t.from, STATE_TEXT[t.state], t.done ? "yes" : "no", t.label, t.article].map(q).join(","))].join("\n");
 }

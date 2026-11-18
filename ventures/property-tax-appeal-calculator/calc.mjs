@@ -176,7 +176,7 @@ export function analyze(subject, comps, opts = {}) {
 }
 
 export function reportCsv(a) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const head = ["Comparable", "Sale price", "Months since sale", "Time adj", "Sqft adj", "Bed adj", "Bath adj", "Lot adj", "Age adj", "Adjusted value", "Gross adj %", "Net adj %", "Weak comp"];
   const lines = [head.map(q).join(",")];
   for (const r of a.rows) lines.push([q(r.label), round2(r.price), has(r.months) ? r.months : "", round2(r.adj.time), round2(r.adj.sqft), round2(r.adj.beds), round2(r.adj.baths), round2(r.adj.lot), round2(r.adj.age), round2(r.adjusted), round2(r.grossPct), round2(r.netPct), r.weak ? "yes" : "no"].join(","));

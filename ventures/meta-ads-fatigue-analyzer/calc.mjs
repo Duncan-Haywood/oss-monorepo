@@ -329,7 +329,7 @@ export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(2)}%`; }
 
 export function adsCsv(result) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const f = (v, d = 2) => (v === null || v === undefined ? "" : Number(v).toFixed(d));
   const flags = (a) => [a.fatigued ? "fatigue" : "", a.results <= 0 ? `no_results_${a.tier}` : "", result.scale.includes(a) ? "scale_candidate" : ""].filter(Boolean).join("|");
   return ["campaign,ad_set,ad,spend,impressions,frequency,link_clicks,ctr,results,cost_per_result,roas,flags"].concat(result.ads.map((a) => [q(a.campaign), q(a.adset), q(a.ad), f(a.spend), a.impr, f(a.freq), a.clicks, f(a.ctr === null ? null : a.ctr * 100, 3), a.results, f(a.cpa), f(a.roas), q(flags(a))].join(","))).join("\n");

@@ -218,7 +218,7 @@ export function summaryText(r) {
 }
 
 export function checklistCsv(r) {
-  const q = (c) => `"${String(c).replace(/"/g, '""')}"`;
+  const q = (c) => { let v = String(c); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [];
   if (r.financialEntity) for (const d of FE_DUTIES) rows.push(["duty", d.label, d.article, r.open.includes(d) ? "open" : "done"]);
   for (const t of r.terms) rows.push(["contract term", t.label, t.article, r.termsOpen.includes(t) ? "missing" : "present"]);

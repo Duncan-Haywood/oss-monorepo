@@ -175,7 +175,7 @@ export const money = usd;
 
 export function planCsv(plan) {
   const head = ["Show", "Miles", "Draw", "Venue fee", "Merch net", "Agent", "Drive", "Lodging", "Per diem", "Crew", "Other", "Profit", "Break-even draw", "Verdict"];
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [head.join(",")];
   for (const r of plan.rows) {
     lines.push([q(r.show.name), r.show.miles, r.draw, r2(r.fee), r2(r.merchNet), r2(r.agent), r2(r.drive), r2(r.lodging), r2(r.perDiem), r2(r.crew), r2(r.other), r2(r.profit), r.breakEvenDraw === null ? "never" : r.breakEvenDraw, r.verdict].join(","));

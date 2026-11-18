@@ -190,7 +190,7 @@ export function analyze(channelsText, beersText, settings = {}) {
 }
 
 export function resultCsv(r) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["beer", "channel", "share_pct", "barrels", "units", "revenue", "brewing_cost", "excise", "overhead", "channel_cost", "profit", "profit_per_bbl", "margin_pct"]];
   for (const b of r.beers) for (const p of b.parts) rows.push([b.name, p.channel, r2(p.share), r2(p.bbl), r2(p.units), r2(p.revenue), r2(p.brewCost), r2(p.excise), r2(p.overhead), r2(p.channelCost), r2(p.profit), r2(p.profitPerBbl), r2(p.marginPct)]);
   return rows.map((row) => row.map(q).join(",")).join("\n") + "\n";

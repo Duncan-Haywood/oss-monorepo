@@ -233,7 +233,7 @@ export function extraGrantToMatch(college, settings, target) {
 }
 
 export function yearlyCsv(results) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["college", "year", "cost_of_attendance", "grants", "net_price", "loans", "work_study", "loan_fees", "cash_due"].join(",")];
   for (const r of results) for (const y of r.rows) lines.push([q(r.name), y.year, ...[y.coa, y.gift, y.netPrice, y.loans, y.workStudy, y.fees, y.cash].map((v) => round2(v))].join(","));
   return lines.join("\n") + "\n";

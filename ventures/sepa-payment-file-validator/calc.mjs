@@ -297,7 +297,7 @@ export function repair(text) {
 }
 
 export function maskedFindingsCsv(result) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["severity", "line", "title", "detail"].map(q).join(",")];
   for (const f of result.findings) rows.push([f.severity, f.line || "", f.title, f.detail].map(q).join(","));
   return rows.join("\n") + "\n";

@@ -145,6 +145,9 @@ test("exports agree with the lineup", () => {
   assert.equal(csv[0], "Player,Period 1,Period 2,Period 3,Period 4,Played,Available");
   assert.equal(playerMessages(r, { minutes: 12 }).length, spec.players.length);
   assert.equal(periodTable(r).length, 4);
+  // Every cell names a player, the first-listed one (index 0) included.
+  for (const [t, row] of periodTable(r).entries()) row.forEach((c, s) => assert.equal(c.player, r.grid[t][s] >= 0 ? r.playerNames[r.grid[t][s]] : null));
+  assert.ok(periodTable(r).flat().some((c) => c.player === r.playerNames[0]), "player 0 appears in the table");
   for (let t = 1; t < 4; t++) {
     const sub = r.subs[t - 1];
     assert.equal(sub.on.length, sub.off.length, `period ${t + 1}: as many come on as go off`);
@@ -260,4 +263,19 @@ test("lineupCost matches the plain cost function exactly on random grids", () =>
     const r = buildLineup({ ...spec, seed: 4, iterations: 2000, restarts: 2 });
     assert.equal(lineupCost(ctx, r.grid), plainCost(ctx, r.grid));
   }
+});
+
+test("a child whose leaves: is not after late: is reported, not silently benched all game", () => {
+  const { slots } = parseSlots("GK, DEF x2");
+  const r = parsePlayers("Ana | late: 3 | leaves: 1\nBen\nCy\nDee", slots, 4);
+  assert.ok(r.errors.some((e) => e.startsWith("Ana:") && /no period/.test(e)), r.errors.join("; "));
+  assert.ok(parsePlayers("Ana | late: 4\nBen\nCy", slots, 4).errors.some((e) => e.startsWith("Ana:")));
+  assert.deepEqual(parsePlayers("Ana | late: 1 | leaves: 2\nBen\nCy", slots, 4).errors, []);
+});
+
+test("CSV cells a spreadsheet would run as a formula are neutralised", () => {
+  const spec = make("GK, DEF", "=HYPERLINK(\"http://x\")\n+1+cmd\n@SUM(A1)\n-2+3\nBea", 2);
+  const csv = lineupCsv(buildLineup(spec)).split("\n").slice(1);
+  for (const line of csv) assert.doesNotMatch(line, /^"?[=+\-@]/, line);
+  assert.ok(csv.some((l) => l.startsWith("\"'=HYPERLINK")), csv.join("\n"));
 });

@@ -294,7 +294,7 @@ export function analyze(sales, stock = [], opts = {}) {
 }
 
 export function poCsv(r) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const f = (v) => (v === null || v === undefined ? "" : Number(v).toFixed(2));
   return ["sku,name,status,on_hand,incoming,daily_velocity,reorder_point,order_qty,unit_cost,order_cost"].concat(
     r.rows.filter((x) => x.orderQty > 0).map((x) => [q(x.sku), q(x.name), x.status, x.onHand, x.incoming, x.velocity.toFixed(3), x.reorderPoint, x.orderQty, f(x.cost), f(x.orderCost)].join(","))).join("\n");

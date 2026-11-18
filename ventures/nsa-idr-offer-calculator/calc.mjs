@@ -319,7 +319,7 @@ export function reportCsv(r) {
   out.push([]);
   out.push(["Assumed win chance shift", "Claims worth filing", "Total expected net"]);
   for (const s of r.sensitivity) out.push([(s.delta > 0 ? "+" : "") + s.delta + " pts", s.filing, f2(s.totalEv)]);
-  const q = (c) => { const s = String(c); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (c) => { let s = String(c); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d[\d,.]*$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236)
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 

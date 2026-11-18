@@ -108,6 +108,6 @@ export function summaryText(r) {
 }
 
 export function gapCsv(r) {
-  const q = (c) => `"${String(c).replace(/"/g, '""')}"`;
+  const q = (c) => { let v = String(c); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["category,women_avg,men_avg,gap_percent,at_or_over_5_percent", ...r.table.map((t) => [t.category, t.women, t.men, t.gap, t.over ? "yes" : "no"].map(q).join(","))].join("\n");
 }

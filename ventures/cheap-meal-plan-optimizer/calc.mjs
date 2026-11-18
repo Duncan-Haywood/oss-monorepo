@@ -597,7 +597,7 @@ export function comparePlan(spec, res, text) {
 }
 
 export function planCsv(spec, res) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["Food", "Servings per day", "Cost per day", "kcal", "Protein g", "Carbs g", "Fat g", "Fibre g", "Sodium mg", "Calcium mg", "Iron mg", "Potassium mg"].join(",")];
   for (const it of res.items) rows.push([q(it.name), it.servings, it.cost.toFixed(2), ...it.nutrients.map((v) => v.toFixed(1))].join(","));
   rows.push([q("Total"), "", res.cost.toFixed(2), ...res.totals.map((v) => v.toFixed(1))].join(","));

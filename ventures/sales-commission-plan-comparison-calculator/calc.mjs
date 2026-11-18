@@ -130,7 +130,7 @@ export function analyze(rawA, rawB, expectedPct, basis = "steady") {
 }
 
 export function reportCsv(r) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["attainment_of_quota", q(r.a.name), q(r.b.name), "difference_a_minus_b"].join(",")];
   for (const x of r.rows) lines.push([Math.round(x.attainment * 100) + "%", Math.round(x.a), Math.round(x.b), Math.round(x.a - x.b)].join(","));
   lines.push(["expected_" + Math.round(r.expected * 100) + "%", Math.round(r.at.a), Math.round(r.at.b), Math.round(r.at.a - r.at.b)].join(","));

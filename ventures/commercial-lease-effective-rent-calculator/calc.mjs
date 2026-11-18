@@ -211,7 +211,7 @@ export function sampleShared() {
 }
 
 export function reportCsv(c) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["measure", ...c.results.map((r) => r.offer.name)]];
   const line = (label, f) => rows.push([label, ...c.results.map(f)]);
   line("square_feet", (r) => r.offer.sf);

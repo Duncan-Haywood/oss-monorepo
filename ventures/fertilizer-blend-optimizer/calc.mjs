@@ -316,7 +316,7 @@ export const money0 = (x) => (Number.isFinite(x) ? ((t) => (x < 0 && /[1-9∞]/.
 export const fmt = (x, d = 0) => (Number.isFinite(x) ? x.toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d }) : "—");
 
 export function planCsv(spec, res) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["Product", "Grade", "Lb product per acre", "Cost per acre", "Tons for the field", "Cost for the field"].join(",")];
   for (const it of res.items) rows.push([q(it.name), q(it.grade), it.lb.toFixed(1), it.cost.toFixed(2), it.tons.toFixed(2), it.total.toFixed(2)].join(","));
   rows.push([q("Total"), "", res.x.reduce((s, v) => s + v, 0).toFixed(1), res.cost.toFixed(2), res.tonsTotal.toFixed(2), res.field.toFixed(2)].join(","));

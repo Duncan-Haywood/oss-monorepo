@@ -437,7 +437,7 @@ export function analyze(rawSkus, rawShared, ordersText = "") {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["SKU", "Bays", "Picks per month", "From (aisle-bay)", "To (aisle-bay)"].map(q).join(",")];
   for (const m of a.moves) lines.push([q(m.name), m.bays, Math.round(m.picks), q(m.from), q(m.to)].join(","));
   return lines.join("\n") + "\n";

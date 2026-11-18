@@ -353,7 +353,7 @@ export function analyze(rawBeers, rawShared, opts = {}) {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = ["batch,beer,barrels,brew_day,fermenter,fermenter_bbl,bright_tank,ready,margin"];
   for (const r of a.schedule) lines.push([r.n, q(r.beer), r.bbl, q(r.brew), r.fermenter, r.fermenterBbl, r.brite ?? "", q(r.ready), Math.round(r.value)].join(","));
   return lines.join("\n") + "\n";

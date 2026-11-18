@@ -153,7 +153,7 @@ export function compare(offers, rawShared) {
 
 export function toCsv(cmp) {
   if (!cmp || !cmp.ranked.length) return "";
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return [
     "offer,gross_pay,expected_pay,direct_costs,net_per_course,work_hours,commute_hours,effective_hourly,contract_hourly,pay_for_target,max_students_at_target,annual_net,annual_hours",
     ...cmp.ranked.map((r) => {

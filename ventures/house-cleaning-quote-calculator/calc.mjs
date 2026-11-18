@@ -147,7 +147,7 @@ const f2 = (v) => (Number.isFinite(v) ? v.toFixed(2) : "");
 export function reportCsv(r) {
   const out = [["Frequency", "Visits per year", "Price per visit", "Cost per visit", "Profit per visit", "Margin %", "Price floor for target", "Max discount % off list", "Annual profit"]];
   for (const l of r.lines) out.push([l.label, l.visitsPerYear, f2(l.price), f2(l.cost), f2(l.profit), f2(l.marginPct), f2(l.floor), f2(l.maxDiscountPct), f2(l.annualProfit)]);
-  const q = (c) => { const s = String(c); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (c) => { let s = String(c); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d[\d,.]*$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236)
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 

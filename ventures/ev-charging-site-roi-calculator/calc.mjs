@@ -182,7 +182,7 @@ export function analyze(raw = {}) {
 }
 
 export function toCsv(a) {
-  const q = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const q = (x) => { let v = String(x); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["Year", "Sessions", "kWh", "Revenue", "Energy", "Demand charges", "Processing", "Host share", "Network", "Maintenance", "Other fixed", "Net cash"].map(q).join(",")];
   for (const r of a.rows) lines.push([r.y, Math.round(r.sessions), Math.round(r.kwh), ...[r.revenue, r.energy, r.demandCost, r.processing, r.host, r.network, r.maintenance, r.fixed, r.net].map((v) => v.toFixed(2))].join(","));
   lines.push("", `${q("Upfront cost after incentives")},${a.capex.toFixed(2)}`, `${q("NPV")},${a.npv.toFixed(2)}`);

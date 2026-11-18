@@ -191,7 +191,7 @@ function findings(r) {
 
 export function reportCsv(result) {
   const head = ["job", "contract", "estimated cost", "cost to date", "percent complete", "earned revenue", "billed", "over (+) / under (-) billed", "est gross profit", "est margin", "backlog", "cash still to come"];
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [head.join(",")];
   for (const r of result.rows) lines.push([q(r.name), r.contract, r.est, r.cost, (r.pctComplete * 100).toFixed(1), Math.round(r.earned), r.billed, Math.round(r.overUnder), Math.round(r.estGross), (r.estMargin * 100).toFixed(1), Math.round(r.backlog), Math.round(r.cashToCome)].join(","));
   return lines.join("\n");

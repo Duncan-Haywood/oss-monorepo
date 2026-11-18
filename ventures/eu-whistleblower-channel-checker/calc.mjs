@@ -135,6 +135,6 @@ export function summaryText(r) {
 }
 
 export function requirementsCsv(r) {
-  const q = (c) => `"${String(c).replace(/"/g, '""')}"`;
+  const q = (c) => { let v = String(c); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   return ["requirement,article,status", ...REQUIREMENTS.map((d) => [d.label, d.article, r.open.includes(d) ? "open" : "done"].map(q).join(","))].join("\n");
 }
