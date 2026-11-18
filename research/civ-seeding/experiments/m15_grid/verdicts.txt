@@ -1,0 +1,48 @@
+# Milestone 15: recall grid 0.7-0.9, ten Monte Carlo copies of 15 rules (milestone 14's harness)
+B = 500 joint draws; 10 copies; reference = 47 primary rules (milestone 12's set minus the 15 key rules), never swapped
+share of (draw, family, rule) cells where a key rule beats the reference best: copies 0.0171-0.0503, pooled 0.0032
+
+## sanity: the 6 rules shared with milestone 14, copy 0 max |difference| 4.64e-04, copies 0-4 1.35e-03 (milestone 14 scored them with its own 16 swapped into the reference)
+
+## per rule: joint median per copy | pooled median [5%, 95% bootstrap] | MC se | copy sd
+  census-degree-r0.7             4.66 4.55 4.42 4.40 4.55 5.08 3.62 3.66 4.04 4.48 | 4.30 [3.28, 5.54] | 0.14 | 0.45
+  census-degree-r0.75            3.81 4.28 5.06 4.11 4.08 4.76 4.12 4.39 4.57 3.82 | 4.29 [3.23, 5.48] | 0.13 | 0.40
+  census-degree-r0.8             4.43 4.69 3.91 3.95 4.72 4.36 4.89 4.45 4.37 3.94 | 4.31 [3.31, 5.59] | 0.11 | 0.35
+  census-degree-r0.85            4.56 4.07 4.22 4.53 4.35 4.79 4.19 3.57 4.40 4.06 | 4.23 [3.15, 5.56] | 0.11 | 0.34
+  census-degree-r0.9             4.92 3.85 4.15 4.10 4.42 4.18 4.09 3.92 4.10 4.32 | 4.20 [3.19, 5.41] | 0.10 | 0.30
+  census-dd-r0.7                 1.14 1.08 2.47 2.52 1.93 1.90 1.29 1.49 1.58 1.99 | 1.64 [0.96, 2.80] | 0.16 | 0.51
+  census-dd-r0.75                1.46 1.61 1.63 1.18 1.04 1.62 1.42 1.36 1.83 2.15 | 1.45 [0.76, 2.40] | 0.10 | 0.32
+  census-dd-r0.8                 1.99 0.92 2.03 1.85 1.82 1.31 1.28 1.81 1.83 1.44 | 1.56 [0.81, 2.61] | 0.12 | 0.37
+  census-dd-r0.85                1.79 2.35 2.19 1.69 1.27 1.28 1.60 1.32 1.61 1.41 | 1.57 [0.85, 2.71] | 0.12 | 0.37
+  census-dd-r0.9                 1.36 1.94 1.95 1.17 1.20 1.25 1.39 1.12 1.15 1.40 | 1.37 [0.67, 2.34] | 0.10 | 0.31
+  adaptive-dd-0.5-s0.75-r0.7     2.26 2.81 2.56 1.85 2.46 2.83 3.01 2.33 2.50 2.27 | 2.39 [1.70, 3.63] | 0.11 | 0.34
+  adaptive-dd-0.5-s0.75-r0.75    2.14 2.20 1.81 2.25 2.27 1.79 2.12 2.76 2.15 1.65 | 2.01 [1.42, 3.05] | 0.10 | 0.31
+  adaptive-dd-0.5-s0.75-r0.8     2.47 2.13 1.64 1.90 1.89 1.98 2.07 2.58 1.65 2.12 | 1.96 [1.34, 3.02] | 0.10 | 0.31
+  adaptive-dd-0.5-s0.75-r0.85    2.28 3.13 2.66 1.90 1.88 1.73 1.79 2.35 2.09 2.30 | 2.13 [1.38, 3.19] | 0.14 | 0.44
+  adaptive-dd-0.5-s0.75-r0.9     2.07 2.01 1.72 1.95 1.50 1.78 1.47 2.51 2.42 1.51 | 1.81 [1.12, 2.79] | 0.12 | 0.37
+
+## reference rows (same reference): perfect census dd-0.05 1.18, census top degree 4.02
+
+## adjacent recall levels: score at the higher rho minus the lower (pooled, MC se, z); positive = more recall scores worse
+  census-degree          0.75 - 0.70: -0.02 (se 0.19, z -0.1)
+  census-degree          0.80 - 0.75: +0.02 (se 0.19, z +0.1)
+  census-degree          0.85 - 0.80: -0.08 (se 0.16, z -0.5)
+  census-degree          0.90 - 0.85: -0.03 (se 0.10, z -0.3)
+  census-dd              0.75 - 0.70: -0.19 (se 0.20, z -1.0)
+  census-dd              0.80 - 0.75: +0.11 (se 0.17, z +0.6)
+  census-dd              0.85 - 0.80: +0.01 (se 0.18, z +0.1)
+  census-dd              0.90 - 0.85: -0.20 (se 0.06, z -3.3)
+  adaptive-dd-0.5-s0.75  0.75 - 0.70: -0.38 (se 0.16, z -2.4)
+  adaptive-dd-0.5-s0.75  0.80 - 0.75: -0.05 (se 0.10, z -0.5)
+  adaptive-dd-0.5-s0.75  0.85 - 0.80: +0.17 (se 0.16, z +1.1)
+  adaptive-dd-0.5-s0.75  0.90 - 0.85: -0.32 (se 0.16, z -2.1)
+
+## census dd, 0.85 - 0.75: +0.12; copies +0.33 +0.75 +0.56 +0.51 +0.23 -0.34 +0.18 -0.03 -0.23 -0.74; se 0.15 (from copies 0-4 only: se 0.09)
+  slope of pooled median on rho, census-degree          -0.053 point per 0.1 of recall (se 0.065)
+  slope of pooled median on rho, census-dd              -0.084 point per 0.1 of recall (se 0.090)
+  slope of pooled median on rho, adaptive-dd-0.5-s0.75  -0.210 point per 0.1 of recall (se 0.072)
+
+H38 (no adjacent pair where more recall scores worse by > 2 MC se): held
+H39 (census dd at 0.85 no more than 2 se above 0.75): held; +0.12, 2 se = 0.29
+H40 (every pooled median has MC se <= 0.20 point with ten copies): held; max 0.16 (census-dd-r0.7)
+H41 (half survey at every rho in 0.7-0.9: pooled median <= 3% and beats perfect census top degree in >= 90%): held; 0.7: 2.39% / 0.970, 0.75: 2.01% / 0.990, 0.8: 1.96% / 0.986, 0.85: 2.13% / 0.980, 0.9: 1.81% / 0.992

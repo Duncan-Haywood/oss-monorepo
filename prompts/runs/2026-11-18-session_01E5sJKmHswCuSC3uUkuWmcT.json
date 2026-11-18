@@ -1,0 +1,120 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKmHswCuSC3uUkuWmcT",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T15:11:11Z",
+  "ended": "2026-11-18T15:21:30Z",
+  "wall_minutes": 10.42,
+  "tokens_in": 4034739,
+  "tokens_out": 24896,
+  "cost_usd": 2.3217,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17337",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/buildbot-sheathing/experiments/m48_loadside/posthoc.txt",
+      "issue": "Its section 2 counts dropped pose-cases per pose but does not say that a calibration-pose failure drops every pose of a case; the uniform per-pose counts only made sense after reading residuals() in m38's run.py."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-nailing-humanoid-hose-drag-limits-and-the-calibration-pose.md",
+    "research/buildbot-sheathing/LOG.md (milestone 51 planned and result)"
+  ],
+  "goal": null,
+  "notes": "Milestone 51 of buildbot-sheathing. run.py 237 s on 4 processes (python3.13 from pyenv.py); reproduced milestone 48's drop counts exactly (258/1530 G1, 41/1938 H1). H208 refuted, H209 and H210 held. Local checks: project pytest 216 passed 4 skipped; paper/check_numbers.py 386 of 386 ok; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; check_posts ok; cite_check ok (8 ok* from cache).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "14b8fe53-a806-51bd-957c-a456c1dd47d3",
+    "transcripts": 1,
+    "first": "2026-11-18T15:11:11Z",
+    "last": "2026-11-18T15:21:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 66,
+        "output": 24896,
+        "thinking": 5980,
+        "cache_read": 3904345,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130328,
+        "api_equivalent_usd": 2.3217,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 66,
+      "output": 24896,
+      "thinking": 5980,
+      "cache_read": 3904345,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130328,
+      "api_equivalent_usd": 2.3217,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.42,
+      "active_minutes": 10.42,
+      "model_minutes": 4.33,
+      "tool_minutes": 6.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

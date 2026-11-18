@@ -59,6 +59,8 @@ M49 = E + "m49_backload/results.txt"
 M49P = E + "m49_backload/posthoc.txt"
 M50 = E + "m50_relean/results.txt"
 M50P = E + "m50_relean/posthoc.txt"
+M51 = E + "m51_envelope/results.txt"
+M51P = E + "m51_envelope/posthoc.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -244,6 +246,10 @@ CHECKS = [
     (M50, "  g1 [1.2, -0.15] | yes | 21.9 | 30.2 | 51.2 | 6.3 | 4.0 |", "tolerates 4.0 N at its current lean"),
     (M50, "  g1 [1.2, -0.15] | 110.3 | -10.12 | 14.6 | 20.1 | 51.5 | 15.5 | 11.4 |", "11.4 N in every direction at its best"),
     (M50P, "  g1 [1.2, -0.15] | current | 4.0 | 9.0 | 5.4 | 3.4 | 5.0 | 3.0 |", "with about 3 m on the\nfloor"),
+    (M51P, "  g1 | 1530 | 1272 (83.1%) | 1368 | 1272 (93.0%) | 162", "the G1 plans 1272 of 1368\ncases (93.0%)"),
+    (M51P, "  h1 | 1938 | 1897 (97.9%) | 1902 | 1897 (99.7%) | 36", "the H1 1897 of 1902"),
+    (M51P, "  g1 | 20 | 90 | calibration pose [1.0, 0.0] | calibration, plan limit | 45 | 57.0 (35% of it)", "45 under 20 N\npulling sideways, at 35% of the drag"),
+    (M51, "H208 (every dropped pose-case lies outside the envelope): 101 inside -> refuted", "Of the\n101 cases inside with no plan"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

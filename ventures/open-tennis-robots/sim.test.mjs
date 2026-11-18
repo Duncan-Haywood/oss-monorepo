@@ -46,3 +46,10 @@ test("collector route visits every ball and 2-opt removes crossings", () => {
   assert.equal(r.order.length, 10);
   assert.ok(r.length <= 4 + 3 + 4 + 1 + 1e-6);
 });
+
+test("a short, fast shot across the net is refused like launcher.aim, not crashed on", () => {
+  // launcher.aim raises "cannot be reached ... every arc that clears the net lands beyond it" for these three.
+  for (const [x, speed] of [[1, 18], [1.5, 22], [2, 22]]) {
+    assert.throws(() => aim(defaultOrigin(4), [x, -4.1], speed, 0), /every arc that clears the net lands beyond it/);
+  }
+});

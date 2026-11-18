@@ -793,6 +793,16 @@ text is now copied in runs. Every report is identical.
    96 MB (C20), 144 to 128 MB and 128 to 112 MB, and stayed at 160 MB on
    FM_ARC_DigitalHub. A six-project federated file is unchanged at 704 MB,
    where the kept records, not the tree, set the peak.
+11. **A smaller record per entity** (2026-11-18,
+   `eval/entity-table-2026-11-18.md`). A STEP entity's record dropped from
+   four fields to three (the argument offset and the read arguments share
+   one), and the entities are held by number in a plain array with the file
+   order in an `Int32Array`, not in a Map, whose hash table cost about as
+   much as the records. Heap kept after parsing: HHS MEP 93 to 65 MB, the
+   219 MB federated model 444 to 350 MB. The smallest heap that parses it:
+   704 to 576 MB (HHS MEP 144 to 112 MB); with the starter IDS files, 832 to
+   704 MB. Parsing is 20-30% faster. Reports from 68 IDS files hash the same
+   on four models.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
@@ -858,7 +868,9 @@ faster than IfcTester; its point is needing no install.
   (`eval/nested-early-2026-11-18.md`), so the tree under the root is not
   held; a 166 MB federated file still peaks about 1.4x higher than the same
   model as STEP, set by the records kept per entity.
-- The model's text is held in memory with a small record per entity; an
+- The model's text is held in memory with a small record per entity (48
+  bytes and 12 more in the number index, since 2026-11-18,
+  `eval/entity-table-2026-11-18.md`); an
   entity's arguments are read when a check first needs them, and geometry's
   are not kept (2026-11-17, `eval/heap-200mb-2026-11-17.md`). A 219 MB
   federated model built from seven real exports peaks at about 1 GB with the

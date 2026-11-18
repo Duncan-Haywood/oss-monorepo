@@ -404,13 +404,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "An ESC with its own speed loop"
-      (ESC_SPEED_LOOP: the board loop drops P, 48 of 144 rang before; a PI drop fit
-      fails on the current limit, kept off). Next: a drill-level check of one-wheel
-      verdicts on more fresh sets; the sub-8 advised instant build; short ESC lags
-      read ~10% low with 16; SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL
-      error's cost on 0.2 s wheels; a ramp-then-PI drop fit for a speed-mode ESC
-      (limit from a spin-up).
+      see firmware/esp32/README.md, latest "An ESC with its own speed loop" . Next:
+      send a page drill (README "Drill builder on the page") to the Pi from the
+      browser; a drill-level check of one-wheel verdicts on more fresh sets; the
+      sub-8 advised instant build; short ESC lags read ~10% low with 16;
+      SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels;
+      a ramp-then-PI drop fit for a speed-mode ESC (limit from a spin-up).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -509,23 +508,23 @@ flagships:
       values 2026-11-17 (eval/model-values-2026-11-17.md: one-of or range from the
       model, ranges rounded outward, 1,014 of 1,014 pass their model; 82.0% of
       public facets editable); ifcXML and .ifczip read 2026-11-16
-      (eval/ifcxml-xbim-2026-11-16.md); 43 IFC4 STEP/ifcXML twins 2026-11-18
-      (eval/ifcxml-twins-2026-11-18.md: verdicts 108 to 129 of 129; href refs,
-      decimal commas, flat point lists; B-spline rows from knot counts); IFC 4.3
-      infra/HVAC cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*);
-      several IFC versions per spec 2026-11-17 (eval/multi-version-2026-11-17.md:
-      opened in the schema that edits most, page audit in every named schema, false
-      page errors 18 to 0 on 18 public files). attribute facets read geometry
-      shallow 2026-11-18 (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS
-      MEP 13.3 to 8.3 s, same reports); ifcXML streams 2026-11-18
-      (eval/lazy-ifcxml-2026-11-18.md: 374 MB federated ifcXML 4.0 to 1.5 GB peak,
-      fits 1 GB; strings keep whitespace, 731 MEP labels). nested IFC4 ifcXML at
-      scale 2026-11-18 (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3
-      exports nested, 857,301 entities and 2,160 of 2,160 verdicts as STEP; schema
-      from the root, not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB
-      1,770 to 1,481 MB, fits 768 MB). attribute (any) = X shares one shape read per
-      entity 2026-11-18 (eval/attribute-shape-2026-11-18.md; STEP strings no longer
-      kept as per-character chains). nested ifcXML read as it closes 2026-11-18
+      (eval/ifcxml-xbim-2026-11-16.md); several IFC versions per spec 2026-11-17
+      (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
+      audit in every named schema, false page errors 18 to 0 on 18 public files).
+      attribute facets read geometry shallow 2026-11-18
+      (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
+      same reports); ifcXML streams 2026-11-18 (eval/lazy-ifcxml-2026-11-18.md: 374
+      MB federated ifcXML 4.0 to 1.5 GB peak, fits 1 GB; strings keep whitespace,
+      731 MEP labels). nested IFC4 ifcXML at scale 2026-11-18
+      (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3 exports nested,
+      857,301 entities and 2,160 of 2,160 verdicts as STEP; schema from the root,
+      not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB 1,770 to 1,481
+      MB, fits 768 MB). attribute (any) = X shares one shape read per entity
+      2026-11-18 (eval/attribute-shape-2026-11-18.md; STEP strings no longer kept as
+      per-character chains). nested ifcXML read as it closes 2026-11-18
       (eval/nested-early-2026-11-18.md: same numbers and notes on 57 files; smallest
-      heap 160 to 96 MB on C20, federated unchanged at 704 MB). next: a smaller
-      record per entity. More open items: NEXT.md.
+      heap 160 to 96 MB on C20, federated unchanged at 704 MB). smaller record per
+      entity 2026-11-18 (eval/entity-table-2026-11-18.md: STEP records in a
+      number-indexed array, 3 fields; kept after parse 444 to 350 MB on 219 MB,
+      smallest heap 704 to 576 MB, same reports). next: the checks' own peak (1.2
+      GB, 68 IDS on 219 MB). More open items: NEXT.md.
