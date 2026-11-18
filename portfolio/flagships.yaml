@@ -195,21 +195,20 @@ flagships:
       ships; next revenue deaf at Quiet, one-day closures); (a) ar1 + floor 2 failed
       on 5 fresh bee dances (0.244 vs 0.337, README; muted note ships); update-rate:
       pegs 4 of 7 dated; JHU state switches to weekly reporting 20 of 27, returns to
-      more days 0 of 8 (README "A provider's own schedule changes"); next a
-      pre-registered lower penalty for short returns. Stale feeds: clumped LR
-      shipped; next a real documented carry-forward. joint drift (measured, not
-      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
-      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
-      belts and quality control 4, its AR(1) term; two covariates: harmless one's
-      warning 0 of 170 false finds, 1.27x bias (bar failed); slope and pulse shocks
-      2026-11-18: warning holds 42 of 43 false finds (README "Shocks that are not
-      steps"); anticipation 2026-11-18: --anticipation N ships (power 25-40% to
-      54-55% backdated), warning holds 4 of 8 when a covariate moves 4 early (README
-      "A shock before the date"); the note quotes it; two shocked donors 2026-11-18
+      more days 0 of 8 (README "A provider's own schedule changes"); short-return
+      scan failed twice (README "Short returns": 60-day return 0 of 200 at the null
+      budget); next a day-of-week repeat cost. Stale feeds: clumped LR shipped; next
+      a real documented carry-forward. joint drift (measured, not offered) and its
+      2x penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
+      increments, biweight on fresh data, why it absorbs seat belts and quality
+      control 4, its AR(1) term; two covariates: harmless one's warning 0 of 170
+      false finds, 1.27x bias (bar failed); slope and pulse shocks 2026-11-18:
+      warning holds 42 of 43 false finds (README "Shocks that are not steps");
+      anticipation 2026-11-18: --anticipation N ships (power 25-40% to 54-55%
+      backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
+      shock before the date"); the note quotes it; two shocked donors 2026-11-18
       (README "Two shocked donors"): 54-56% to 27-28%, both left out 53-56%, one
-      35%; notes quote it; donor slope or pulse 2026-11-18 (README "A donor's own
-      event that is not a step"): pulse 12-14%, slope 29-35%, step 37-40%. More open
-      items: NEXT.md.
+      35%; notes quote it. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,

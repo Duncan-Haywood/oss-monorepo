@@ -762,6 +762,13 @@ cases (93.0%) and the H1 1897 of 1902, with worst residuals unchanged (G1 0.016 
 pulling sideways, at 35% of the drag that pose balances, with no plan even for an exact sensor. Because
 one calibration serves every pose, the calibration should be taken with the hose slack.
 
+Taking it slack works (milestone 52). With the calibration move made under the hanging hose's weight
+alone, it plans at every sensor-error axis on both robots, and the G1 plans 1342 of the
+1368 cases inside the limits (98.1%, from 93.0%); the H1 is unchanged at 1897 of 1902. The slack
+calibration changes no residual: the compensator subtracts the load the wrist sensor measures, so the
+error left at the calibration pose is the sensor's bias alone, the same under any hose load. What remains
+are 21 plan limits at the G1's 1.0 and 1.2 m grips, 5 at the H1's 1.6 m grip, and 5 G1 sensor-error cases.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

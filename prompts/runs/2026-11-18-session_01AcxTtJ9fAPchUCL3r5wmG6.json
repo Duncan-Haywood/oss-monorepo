@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtJ9fAPchUCL3r5wmG6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T16:07:05Z",
+  "ended": "2026-11-18T16:32:03Z",
+  "wall_minutes": 90.34,
+  "tokens_in": 5509781,
+  "tokens_out": 27561,
+  "cost_usd": 2.5251,
+  "tool_calls": 46,
+  "task": "changepoint-detector flagship: a pre-registered lower penalty for short returns to more frequent updates (update-rate check)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17350",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "Round 2's first run hit the 30-minute default background limit (it takes 34 min); restarted with a 2-hour timeout."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook flags untracked files while a pre-registered eval is still writing its output; committing a partial .out.txt would misrepresent the result, so the hook fired twice with nothing to do."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/update-rate-returns.mjs",
+      "why": "Round 1 failed its choice rule; ran a second pre-registered round (higher grid, fresh seeds) in the same run instead of stopping at one negative.",
+      "did": "header amended and committed before round 2 ran",
+      "result": "round 2 chose m 3, passed R1, failed R2/R3; clear negative result and a concrete next item (day-of-week cost)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-changepoint-short-returns-to-daily-reporting.md",
+    "ventures/changepoint-detector/README.md (Short returns to more frequent updates)"
+  ],
+  "goal": null,
+  "notes": "Negative result, two pre-registered rounds: a scan for short returns to more frequent updates holds the 0.010 null budget only at m 3, where 60-day returns are found 0/200 (90-day 42/200). Option stays off (SHORT_RETURNS.mult = null); CLI and page unchanged. Post hoc: the Monday/Wednesday/Friday null binds, the two-state chain misfits weekly schedules; next a day-of-week repeat cost. Verification: node --test update-rate-returns.test.mjs 6/6; run_venture_tests.py changepoint-detector (see PR); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "40df13fc-b106-54a4-bc20-9a79f234792d",
+    "transcripts": 1,
+    "first": "2026-11-18T16:07:05Z",
+    "last": "2026-11-18T17:37:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 101,
+        "output": 27561,
+        "thinking": 7362,
+        "cache_read": 5397950,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111730,
+        "api_equivalent_usd": 2.5251,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 101,
+      "output": 27561,
+      "thinking": 7362,
+      "cache_read": 5397950,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111730,
+      "api_equivalent_usd": 2.5251,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 90.34,
+      "active_minutes": 8.4,
+      "model_minutes": 6.4,
+      "tool_minutes": 2.0,
+      "waiting_on_human_minutes": 81.94,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design and code a scan pass, two pre-registered simulation rounds, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 237.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

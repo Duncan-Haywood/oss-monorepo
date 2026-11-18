@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2322324a'/%3E%3Ccircle%20cx='10'%20cy='11'%20r='4'%20fill='%23e07a6e'/%3E%3Ccircle%20cx='19'%20cy='9'%20r='4'%20fill='%23e07a6e'/%3E%3Ccircle%20cx='13'%20cy='21'%20r='4'%20fill='%235e9bd8'/%3E%3Ccircle%20cx='23'%20cy='22'%20r='4'%20fill='%235e9bd8'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Moran's I Calculator: Spatial Autocorrelation, LISA Clusters and Gi* Hot Spots, Free</title>
+  <meta name="description" content="Free Moran's I calculator for spatial autocorrelation: global Moran's I, Geary's C and General G, local Moran (LISA) clusters and outliers, Getis-Ord Gi* hot spot analysis and a correlogram, from a CSV of places with coordinates or a neighbour list. Runs in your browser, no GIS needed.">
+  <meta property="og:title" content="Are high values next to high values? Moran's I, LISA and hot spots in your browser">
+  <meta property="og:description" content="Paste places with coordinates or a neighbour list. Moran's I, Geary's C, local clusters, Gi* hot spots, checked against PySAL. Worked on 81 years of US state incomes.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Spatial autocorrelation calculator (Moran's I, LISA, Gi* hot spots)", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Global Moran's I, Geary's C and Getis-Ord General G with analytic and permutation p-values, local Moran's I (LISA) clusters and outliers with conditional permutation and an optional false-discovery-rate cut-off, Getis-Ord Gi* hot and cold spots, and a Moran correlogram, from a table of places with coordinates or a neighbour list. Runs in your browser.", "featureList": "Moran's I, spatial autocorrelation, Geary's C, Getis-Ord General G, LISA, local Moran's I, cluster and outlier analysis, hot spot analysis, Getis-Ord Gi*, Moran scatterplot, spatial weights, k nearest neighbours, distance band, inverse distance, contiguity, correlogram, false discovery rate", "citation": ["https://doi.org/10.2307/2332142", "https://doi.org/10.1111/j.1538-4632.1995.tb00338.x", "https://doi.org/10.1111/j.1538-4632.1995.tb00912.x"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is spatial autocorrelation?", "acceptedAnswer": {"@type": "Answer", "text": "It is the degree to which values at nearby places resemble each other. Positive autocorrelation means high values sit near high values and low near low (clusters); negative means neighbours tend to differ (a checkerboard); none means the map looks like the values were shuffled at random. Moran's I measures it on a scale where 0 is roughly no pattern, and Geary's C on one where 1 is no pattern."}}, {"@type": "Question", "name": "How do I interpret Moran's I?", "acceptedAnswer": {"@type": "Answer", "text": "Compare it with its expected value under no pattern, minus 1 over (n minus 1), not with zero. Above that and significant means clustering; below and significant means dispersion. The value is not a correlation coefficient: its range depends on the weights, so compare I between variables or years on the same map and weights, not across different maps."}}, {"@type": "Question", "name": "Which spatial weights should I choose?", "acceptedAnswer": {"@type": "Answer", "text": "For areas such as states, counties or tracts, a neighbour list of shared borders (contiguity) is the usual choice; most GIS software can export one. For points, k nearest neighbours guarantees every place has neighbours even where points are sparse; a distance band suits a process with a known reach; inverse distance lets closer places count more. Row-standardising (the default) makes the spatial lag an average of the neighbours. Try two or three reasonable choices: a conclusion that flips with the weights is weak."}}, {"@type": "Question", "name": "Why are some local clusters probably false alarms?", "acceptedAnswer": {"@type": "Answer", "text": "Local Moran runs one test per place. In this page's own simulation of values with no spatial pattern at all, a map of 48 states showed at least one significant local cluster at p of 0.05 in 89% to 90% of runs, and a map of 120 points in 99% of runs. Turning on the false-discovery-rate option brought that down to between 4.5% and 9% of runs. Report the cut-off you used, and treat unadjusted local clusters as places to look, not findings."}}, {"@type": "Question", "name": "Why is the permutation p-value here twice what GeoDa or PySAL shows?", "acceptedAnswer": {"@type": "Answer", "text": "PySAL's esda and GeoDa report a folded pseudo p-value: the share of shuffles at least as extreme in the direction the statistic happened to fall. That is a one-sided p, and testing it at 0.05 rejected a true null 9% to 12% of the time in this page's simulation. The page reports twice it, a two-sided p that rejected 4% to 6% of the time, and shows the one-sided number beside it in the JSON and the download."}}, {"@type": "Question", "name": "What is the difference between local Moran clusters and Gi* hot spots?", "acceptedAnswer": {"@type": "Answer", "text": "Local Moran compares each place with its neighbours and finds both clusters (high-high, low-low) and outliers (a high place among low neighbours, or the reverse). Getis-Ord Gi* sums a place together with its neighbours and asks whether that neighbourhood total is unusually high or low, so it finds hot and cold spots but never outliers. ArcGIS's Hot Spot Analysis is Gi*."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1c2533; background: #eff2f6; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #2a5aa0; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #22324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #22324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4f5b6b; }
+    .card { background: #fff; border: 1px solid #d6dde7; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #22324a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    label.inline { display: inline; font-weight: 400; margin: 0 0 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f7a88; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input[type=checkbox] { width: auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a5aa0; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3e9f2; color: #22324a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e5e9ef; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4f5b6b; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d6dde7; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    .tall { max-height: 420px; overflow-y: auto; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #6f7a88; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    textarea.small { min-height: 90px; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    svg text { font: 11px system-ui, sans-serif; fill: #4f5b6b; }
+    .answer { font-size: 1.05rem; padding: 10px 14px; border-radius: 9px; margin: 6px 0 10px; background: #e6eef8; color: #1c2c44; }
+    .warn { background: #fbf0d6; color: #5c460d; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .sw { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: middle; margin-right: 5px; box-sizing: border-box; }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    pre { background: #f2f5f9; border: 1px solid #dde3ec; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">MORAN'S I · SPATIAL AUTOCORRELATION · GEARY'S C · LISA · CLUSTER AND OUTLIER ANALYSIS · GETIS-ORD GI* HOT SPOTS · RUNS IN YOUR BROWSER</p>
+    <h1>Are high values next to high values?</h1>
+    <p>Prices, incomes, disease rates, soil readings, crime counts: on a map they rarely fall at random. Paste one row per place with its <strong>coordinates</strong> (or a <strong>neighbour list</strong> of which areas share a border) and the value, and get <strong>Moran's I</strong> with analytic and permutation p-values, <strong>Geary's C</strong> and <strong>Getis-Ord General G</strong>; the <strong>local Moran (LISA)</strong> map of clusters and outliers; <strong>Gi* hot and cold spots</strong>; the <strong>Moran scatterplot</strong>; and a <strong>correlogram</strong> of how the pattern fades with distance. No GIS, no install, numbers checked against PySAL.</p>
+    <p class="note">Nothing you enter leaves this browser tab. A description of the pattern in the numbers you give, not proof of what caused it, and not public-health, planning or other professional advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your places</h2>
+    <label for="data">CSV, tab or semicolon-separated, one row per place: an id or name, coordinates (columns named lon and lat, or longitude and latitude, for degrees; x and y, or easting and northing, for projected units) and one or more numeric columns. Every numeric column is analysed unless you name some below.</label>
+    <textarea id="data" spellcheck="false" placeholder="county,lon,lat,rate&#10;Adams,-89.77,43.97,12.4&#10;Ashland,-90.68,46.32,15.1&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <label for="neighbors">Neighbour list (optional, for areas): one row per place, its name, a comma, then its neighbours separated by semicolons; or one "place,neighbour" pair per row. Names must match the id column.</label>
+    <textarea id="neighbors" class="small" spellcheck="false" placeholder="Alabama,Florida;Georgia;Mississippi;Tennessee&#10;Arizona,California;Colorado;Nevada;New Mexico;Utah"></textarea>
+    <div class="grid">
+      <div><label for="weights">Neighbours</label><select id="weights">
+        <option value="auto">Automatic: the list if given, else k nearest</option>
+        <option value="knn">k nearest neighbours</option>
+        <option value="band">Everything within a distance</option>
+        <option value="inverse">Inverse distance, within a distance</option>
+        <option value="list">The neighbour list</option>
+      </select></div>
+      <div><label for="k">k (nearest neighbours)</label><input id="k" type="number" min="1" step="1" value="6"></div>
+      <div><label for="threshold">Distance cut-off (km for lon/lat; blank: smallest with no isolated place)</label><input id="threshold" type="number" min="0" step="any" placeholder="automatic"></div>
+      <div><label for="power">Inverse-distance power</label><input id="power" type="number" min="0.1" step="0.1" value="1"></div>
+      <div><label for="transform">Weights</label><select id="transform"><option value="r">Row-standardised (neighbours average)</option><option value="b">Binary (neighbours sum)</option><option value="none">Raw inverse distances</option></select></div>
+      <div><label for="coords">Coordinates are</label><select id="coords"><option value="auto">Guessed from column names</option><option value="geographic">Longitude/latitude degrees</option><option value="planar">Projected (metres, feet, grid)</option></select></div>
+      <div><label for="vars">Columns to analyse (blank: every numeric one)</label><input id="vars" type="text" placeholder="e.g. rate,income"></div>
+      <div><label for="perms">Permutations</label><input id="perms" type="number" min="0" max="9999" step="1" value="999"></div>
+      <div><label for="alpha">Significance level</label><select id="alpha"><option value="0.05">0.05</option><option value="0.01">0.01</option><option value="0.1">0.10</option></select></div>
+      <div><label for="seed">Random seed</label><input id="seed" type="number" step="1" value="12345"></div>
+    </div>
+    <p><input id="fdr" type="checkbox"><label class="inline" for="fdr">Control the false-discovery rate across the local tests (Benjamini-Hochberg); recommended, see below</label></p>
+    <div>
+      <button type="button" class="secondary" id="ex-us">Example: per-capita income of the 48 states, 1929 to 2009, shared borders (BEA, real)</button>
+    </div>
+    <button type="button" id="analyze">Measure the pattern</button>
+    <span class="note" id="status" role="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <div id="trend-wrap" hidden>
+      <h3>Moran's I for every column</h3>
+      <div id="trend"></div>
+      <p class="note">Each dot is one column's Moran's I; filled dots are significant at the chosen level (two-sided permutation p, or the randomisation p with no permutations). The dashed line is the value expected with no pattern. Click a dot or use the list to see that column.</p>
+      <label for="pick">Show the details for</label>
+      <select id="pick"></select>
+    </div>
+    <div id="answer" class="answer"></div>
+    <div id="warnings"></div>
+    <h3>Global statistics</h3>
+    <div class="scroll"><table id="global"></table></div>
+    <p class="note">p-values are two-sided. "Normality" and "randomisation" are the two analytic variances of Cliff and Ord (1981); the permutation p shuffles the values over the places. General G uses the binary neighbours and needs non-negative values; it is high when high values cluster and low when low values do.</p>
+    <div class="two">
+      <div>
+        <h3>Map</h3>
+        <label for="mapmode">Colour the places by</label>
+        <select id="mapmode"><option value="lisa">Local Moran clusters and outliers</option><option value="gi">Gi* hot and cold spots</option></select>
+        <div id="map"></div>
+        <p class="legend" id="maplegend"></p>
+      </div>
+      <div>
+        <h3>Moran scatterplot</h3>
+        <div id="scatter"></div>
+        <p class="note">Each place's standardised value (across) against the weighted average of its neighbours' (up). With row-standardised weights the slope of the line is Moran's I. Top right: high among high; bottom left: low among low; the other two quadrants are outliers.</p>
+      </div>
+    </div>
+    <div id="corr-wrap">
+      <h3>Correlogram: how far does the pattern reach?</h3>
+      <div id="corr"></div>
+      <p class="note">Moran's I for pairs of places in each distance ring, up to half the largest distance. Filled dots are significant (randomisation p). Where it crosses the dashed line, places that far apart are no more alike than random pairs.</p>
+    </div>
+    <h3>Every place</h3>
+    <div class="scroll tall"><table id="local"></table></div>
+    <button type="button" class="secondary" id="download">Download the report (text)</button>
+    <button type="button" class="secondary" id="download-csv">Download the per-place results (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>The example: did America's rich and poor states stay neighbours?</h2>
+    <p>Per-capita personal income of the 48 contiguous states, every year from 1929 to 2009, from the Bureau of Economic Analysis, with shared borders as the neighbours (a state's neighbours are the states it touches, corners included). Rey and Montouri (1999) used this BEA series to show that regional income convergence in the US has a spatial shape. Load it and the page runs all 81 years.</p>
+    <ul>
+      <li><strong>Income is clustered every year.</strong> Moran's I is significant in all 81 years. In 2009 it is 0.429 (expected -0.021 with no pattern, z = 4.65): a rich state's neighbours are, on average, rich.</li>
+      <li><strong>The clustering faded, then came back.</strong> Moran's I peaked at 0.667 in 1934, fell to its lowest, 0.248, in 1981, and was back to 0.429 in 2009. For half a century the map of rich and poor regions blurred; after 1981 the clusters re-formed.</li>
+      <li><strong>Where the clusters are, and how firm they are.</strong> In 2009, at a two-sided p of 0.05 without adjustment, Connecticut, Delaware, Massachusetts, New York and Rhode Island form a high-high cluster, Tennessee sits in a low-low one, and Vermont is a low-high outlier (a lower-income state beside rich ones); all seven are flagged under each of 50 random seeds. Pennsylvania, Louisiana, Georgia, Mississippi and Arkansas sit near the cut-off and are flagged under 12 to 24 of the 50 seeds. With the false-discovery-rate option only New York and Rhode Island remain, so the rest are places to look at, not findings.</li>
+      <li><strong>Moran and General G disagree, usefully.</strong> In 2009 General G is not significant (z = -0.89, analytic p = 0.374): G only lights up when <em>high</em> values cluster more than low ones, and here the rich north-east and the poorer south cluster about equally.</li>
+    </ul>
+    <p class="note">State centroids are computed from the outlines in the same bundle (<code>data/SOURCE.md</code>); incomes are in current dollars, which does not matter to Moran's I within a year. Contiguity is from the state outlines and equals PySAL's bundled file exactly (214 links).</p>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>Write <em>z</em> for the values minus their mean and <em>W</em> for the weights (row-standardised by default). <strong>Moran's I</strong> (1950) is <em>n</em>/<em>S</em><sub>0</sub> · Σ<sub>i</sub>Σ<sub>j</sub> <em>w<sub>ij</sub> z<sub>i</sub> z<sub>j</sub></em> / Σ<em>z<sub>i</sub></em>², with expected value −1/(<em>n</em>−1) when there is no pattern. <strong>Geary's C</strong> (1954) is (<em>n</em>−1) Σ<sub>i</sub>Σ<sub>j</sub> <em>w<sub>ij</sub></em>(<em>y<sub>i</sub></em>−<em>y<sub>j</sub></em>)² / (2<em>S</em><sub>0</sub> Σ<em>z<sub>i</sub></em>²), expected 1. Both get the variances under normality and under randomisation from Cliff and Ord (1981), built from the weight sums <em>S</em><sub>0</sub>, <em>S</em><sub>1</sub>, <em>S</em><sub>2</sub> and the kurtosis of the values. <strong>General G</strong> (Getis and Ord 1992) is Σ<sub>i≠j</sub> <em>w<sub>ij</sub> y<sub>i</sub> y<sub>j</sub></em> / Σ<sub>i≠j</sub> <em>y<sub>i</sub> y<sub>j</sub></em> on binary weights. <strong>Local Moran's I</strong> (Anselin 1995) is (<em>n</em>−1) <em>z<sub>i</sub></em> Σ<sub>j</sub> <em>w<sub>ij</sub> z<sub>j</sub></em> / Σ<em>z<sub>j</sub></em>² on standardised values; its p-value comes from conditional permutation (place <em>i</em> keeps its value, the others are shuffled into its neighbourhood), and an analytic z under conditional randomisation (Sokal, Oden and Thomson 1998) is in the JSON. <strong>Gi*</strong> (Ord and Getis 1995) standardises the sum of a place and its binary neighbours. The optional cut-off for the local tests is Benjamini and Hochberg's (1995).</p>
+    <p><strong>Permutation p-values are two-sided here.</strong> PySAL and GeoDa report the share of shuffles at least as extreme in the observed direction, which rejects a true null about twice as often as the level suggests; this page doubles it (FAQ below). With the false-discovery-rate option on, local Moran uses at least 2<em>n</em>/α permutations so the smallest p can pass.</p>
+    <p><strong>Limits.</strong> One variable at a time (no bivariate Moran), no rate smoothing for small populations (a rate from 12 people is noisy and will look like an outlier; use the empirical-Bayes rate first), no spatial regression, and at most 5,000 places since every pair is compared. Distances on longitude and latitude are great-circle (haversine) kilometres.</p>
+    <p><strong>Checked against:</strong> PySAL (esda 2.9.0, libpysal 4.14.1) on nine cases whose weights libpysal built itself: queen contiguity, great-circle k nearest neighbours, distance bands, inverse distance (powers 1 and 2), libpysal's own KNN, row-standardised, binary and raw. I, C, G, every variance, z and analytic p, every local I, quadrant and Gi* z agree to 1e-9. Gi* differs in sign from esda when the values sum to a negative number; esda divides by that sum, Ord and Getis's standardised form does not. A seeded null simulation (<code>eval/calibration-output.txt</code>) measured each test's false-positive rate.</p>
+<pre>@article{moran1950notes,
+  author = {Moran, P. A. P.},
+  title = {Notes on continuous stochastic phenomena},
+  journal = {Biometrika}, volume = {37}, number = {1/2}, pages = {17--23}, year = {1950},
+  doi = {10.2307/2332142}}
+@article{geary1954contiguity,
+  author = {Geary, R. C.},
+  title = {The contiguity ratio and statistical mapping},
+  journal = {The Incorporated Statistician}, volume = {5}, number = {3}, pages = {115--145}, year = {1954},
+  doi = {10.2307/2986645}}
+@book{cliff1981spatial,
+  author = {Cliff, A. D. and Ord, J. K.},
+  title = {Spatial Processes: Models and Applications},
+  publisher = {Pion}, address = {London}, year = {1981}}
+@article{getis1992analysis,
+  author = {Getis, Arthur and Ord, J. K.},
+  title = {The analysis of spatial association by use of distance statistics},
+  journal = {Geographical Analysis}, volume = {24}, number = {3}, pages = {189--206}, year = {1992},
+  doi = {10.1111/j.1538-4632.1992.tb00261.x}}
+@article{ord1995local,
+  author = {Ord, J. K. and Getis, Arthur},
+  title = {Local spatial autocorrelation statistics: distributional issues and an application},
+  journal = {Geographical Analysis}, volume = {27}, number = {4}, pages = {286--306}, year = {1995},
+  doi = {10.1111/j.1538-4632.1995.tb00912.x}}
+@article{anselin1995local,
+  author = {Anselin, Luc},
+  title = {Local indicators of spatial association---{LISA}},
+  journal = {Geographical Analysis}, volume = {27}, number = {2}, pages = {93--115}, year = {1995},
+  doi = {10.1111/j.1538-4632.1995.tb00338.x}}
+@article{sokal1998local,
+  author = {Sokal, Robert R. and Oden, Neal L. and Thomson, Barbara A.},
+  title = {Local spatial autocorrelation in a biological model},
+  journal = {Geographical Analysis}, volume = {30}, number = {4}, pages = {331--354}, year = {1998},
+  doi = {10.1111/j.1538-4632.1998.tb00406.x}}
+@article{benjamini1995controlling,
+  author = {Benjamini, Yoav and Hochberg, Yosef},
+  title = {Controlling the false discovery rate: a practical and powerful approach to multiple testing},
+  journal = {Journal of the Royal Statistical Society: Series B}, volume = {57}, number = {1}, pages = {289--300}, year = {1995},
+  doi = {10.1111/j.2517-6161.1995.tb02031.x}}
+@article{rey1999us,
+  author = {Rey, Sergio J. and Montouri, Brett D.},
+  title = {{US} regional income convergence: a spatial econometric perspective},
+  journal = {Regional Studies}, volume = {33}, number = {2}, pages = {143--156}, year = {1999},
+  doi = {10.1080/00343409950122945}}</pre>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is spatial autocorrelation?</h3>
+    <p>It is the degree to which values at nearby places resemble each other. Positive autocorrelation means high values sit near high values and low near low (clusters); negative means neighbours tend to differ (a checkerboard); none means the map looks like the values were shuffled at random. Moran's I measures it on a scale where 0 is roughly no pattern, and Geary's C on one where 1 is no pattern.</p>
+    <h3>How do I interpret Moran's I?</h3>
+    <p>Compare it with its expected value under no pattern, minus 1 over (n minus 1), not with zero. Above that and significant means clustering; below and significant means dispersion. The value is not a correlation coefficient: its range depends on the weights, so compare I between variables or years on the same map and weights, not across different maps.</p>
+    <h3>Which spatial weights should I choose?</h3>
+    <p>For areas such as states, counties or tracts, a neighbour list of shared borders (contiguity) is the usual choice; most GIS software can export one. For points, k nearest neighbours guarantees every place has neighbours even where points are sparse; a distance band suits a process with a known reach; inverse distance lets closer places count more. Row-standardising (the default) makes the spatial lag an average of the neighbours. Try two or three reasonable choices: a conclusion that flips with the weights is weak.</p>
+    <h3>Why are some local clusters probably false alarms?</h3>
+    <p>Local Moran runs one test per place. In this page's own simulation of values with no spatial pattern at all, a map of 48 states showed at least one significant local cluster at p of 0.05 in 89% to 90% of runs, and a map of 120 points in 99% of runs. Turning on the false-discovery-rate option brought that down to between 4.5% and 9% of runs. Report the cut-off you used, and treat unadjusted local clusters as places to look, not findings.</p>
+    <h3>Why is the permutation p-value here twice what GeoDa or PySAL shows?</h3>
+    <p>PySAL's esda and GeoDa report a folded pseudo p-value: the share of shuffles at least as extreme in the direction the statistic happened to fall. That is a one-sided p, and testing it at 0.05 rejected a true null 9% to 12% of the time in this page's simulation. The page reports twice it, a two-sided p that rejected 4% to 6% of the time, and shows the one-sided number beside it in the JSON and the download.</p>
+    <h3>What is the difference between local Moran clusters and Gi* hot spots?</h3>
+    <p>Local Moran compares each place with its neighbours and finds both clusters (high-high, low-low) and outliers (a high place among low neighbours, or the reverse). Getis-Ord Gi* sums a place together with its neighbours and asks whether that neighbourhood total is unusually high or low, so it finds hot and cold spots but never outliers. ArcGIS's Hot Spot Analysis is Gi*.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not public-health, epidemiological, planning, real-estate or other professional advice. Results describe the pattern in the numbers you enter and are only as good as those numbers and the neighbours you choose; a cluster is not a cause. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the PySAL or GeoDa projects, Esri, or the Bureau of Economic Analysis.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs places.csv --neighbors borders.csv --fdr</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/spatial-autocorrelation" rel="noopener">source</a>.</p>
+    <p>More tools for maps and many tests: <a href="../kriging-interpolation/">kriging interpolation</a> for the value between your sample points, <a href="../fdr-multiple-testing/">false-discovery-rate control</a> for many p-values at once, and <a href="../gaussian-process-regression/">Gaussian process regression</a> for smooth surfaces with uncertainty.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, report } from "./engine.mjs";
+    import { US_INCOME_CSV, US_NEIGHBORS_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const f = (x, d = 3) => (x == null || !Number.isFinite(x) ? "n/a" : x.toFixed(d));
+    const fp = (p) => (p == null || !Number.isFinite(p) ? "n/a" : p < 0.001 ? "< 0.001" : p.toFixed(3));
+    const NS = "http://www.w3.org/2000/svg";
+    const COLORS = { "high-high": "#b8322a", "high-low": "#e07a6e", "low-low": "#2a64ad", "low-high": "#5e9bd8", "not significant": "#cfd5dd" };
+    const HOT = { "hot spot 99%": "#b8322a", "hot spot 95%": "#e07a6e", "hot spot 90%": "#f2b6ae", "cold spot 99%": "#2a64ad", "cold spot 95%": "#5e9bd8", "cold spot 90%": "#b6d2f0", "not significant": "#cfd5dd" };
+    let last = null, current = 0;
+
+    function inputs() {
+      return {
+        text: $("#data").value, neighbors: $("#neighbors").value,
+        weights: $("#weights").value, k: Number($("#k").value) || 6,
+        threshold: $("#threshold").value === "" ? null : Number($("#threshold").value),
+        power: Number($("#power").value) || 1, transform: $("#transform").value,
+        coordinates: $("#coords").value, variables: $("#vars").value.trim(),
+        permutations: $("#perms").value === "" ? 999 : Number($("#perms").value),
+        seed: Number($("#seed").value) || 0, alpha: Number($("#alpha").value), fdr: $("#fdr").checked,
+      };
+    }
+
+    function runAnalysis() {
+      $("#status").textContent = "";
+      try {
+        last = analyze(inputs());
+      } catch (e) {
+        $("#status").textContent = e.message;
+        $("#results").hidden = true;
+        return false;
+      }
+      const ok = last.results.map((r, i) => [r, i]).filter(([r]) => !r.error);
+      $("#warnings").innerHTML = last.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("") + last.results.filter((r) => r.error).map((r) => `<p class="warn">${esc(r.variable)}: ${esc(r.error)}</p>`).join("");
+      if (!ok.length) { $("#status").textContent = last.results[0]?.error || "Nothing to analyse."; $("#results").hidden = true; return false; }
+      $("#pick").innerHTML = ok.map(([r, i]) => `<option value="${i}">${esc(r.variable)}</option>`).join("");
+      $("#trend-wrap").hidden = !last.trend;
+      if (last.trend) drawTrend();
+      current = ok[ok.length - 1][1];
+      $("#pick").value = String(current);
+      show(current);
+      $("#results").hidden = false;
+      record("analysis_run");
+      return true;
+    }
+
+    function el(tag, attrs, parent, text) {
+      const e = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+      if (text != null) e.textContent = text;
+      if (parent) parent.appendChild(e);
+      return e;
+    }
+    function svg(w, h, label) { return el("svg", { viewBox: `0 0 ${w} ${h}`, role: "img", "aria-label": label }); }
+    function tip(node, text) { el("title", {}, node, text); }
+    function scale(lo, hi, a, b) { const d = hi - lo || 1; return (v) => a + ((v - lo) / d) * (b - a); }
+
+    function drawTrend() {
+      const t = last.trend, W = 720, H = 220, L = 46, R = 12, T = 12, B = 34;
+      const s = svg(W, H, "Moran's I by column");
+      const lo = Math.min(0, ...t.map((r) => r.I)), hi = Math.max(...t.map((r) => r.I)) * 1.08;
+      const x = scale(0, Math.max(1, t.length - 1), L, W - R), y = scale(lo, hi, H - B, T);
+      for (const v of [lo, (lo + hi) / 2, hi]) { el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: "#eef1f5" }, s); el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end" }, s, f(v, 2)); }
+      const e = t[0] ? -1 / (t[0].n - 1) : 0;
+      el("line", { x1: L, x2: W - R, y1: y(e), y2: y(e), stroke: "#8a94a3", "stroke-dasharray": "4 4" }, s);
+      el("polyline", { points: t.map((r, i) => `${x(i)},${y(r.I)}`).join(" "), fill: "none", stroke: "#2a5aa0", "stroke-width": 2 }, s);
+      const alpha = last.options.alpha;
+      const ok = last.results.map((r, i) => [r, i]).filter(([r]) => !r.error);
+      t.forEach((r, i) => {
+        const sig = (r.p_sim ?? r.p) <= alpha;
+        const g = el("g", { style: "cursor:pointer" }, s);
+        el("circle", { cx: x(i), cy: y(r.I), r: 9, fill: "transparent" }, g);
+        el("circle", { cx: x(i), cy: y(r.I), r: 4, fill: sig ? "#2a5aa0" : "#fff", stroke: "#2a5aa0", "stroke-width": 1.5 }, g);
+        tip(g, `${r.variable}: Moran's I ${f(r.I)}, z ${f(r.z, 2)}, p ${fp(r.p_sim ?? r.p)}`);
+        g.addEventListener("click", () => { current = ok[i][1]; $("#pick").value = String(current); show(current); });
+      });
+      const every = Math.max(1, Math.ceil(t.length / 10));
+      t.forEach((r, i) => { if (i % every === 0 || i === t.length - 1) el("text", { x: x(i), y: H - 12, "text-anchor": i === t.length - 1 ? "end" : i === 0 ? "start" : "middle" }, s, r.variable); });
+      $("#trend").replaceChildren(s);
+    }
+
+    function show(i) {
+      const r = last.results[i];
+      $("#answer").textContent = r.summary;
+      const m = r.moran, c = r.geary, g = r.generalG;
+      $("#global").innerHTML = `<thead><tr><th>Statistic</th><th class="n">Value</th><th class="n">Expected</th><th class="n">z (normality)</th><th class="n">p</th><th class="n">z (randomisation)</th><th class="n">p</th><th class="n">p (permutation)</th></tr></thead><tbody>
+        <tr><td>Moran's I</td><td class="n">${f(m.I, 4)}</td><td class="n">${f(m.EI, 4)}</td><td class="n">${f(m.z_norm, 2)}</td><td class="n">${fp(m.p_norm)}</td><td class="n">${f(m.z_rand, 2)}</td><td class="n">${fp(m.p_rand)}</td><td class="n">${fp(m.p_sim)}</td></tr>
+        <tr><td>Geary's C</td><td class="n">${f(c.C, 4)}</td><td class="n">1</td><td class="n">${f(c.z_norm, 2)}</td><td class="n">${fp(c.p_norm)}</td><td class="n">${f(c.z_rand, 2)}</td><td class="n">${fp(c.p_rand)}</td><td class="n">${fp(c.p_sim)}</td></tr>
+        <tr><td>General G</td>${g.G === null ? `<td colspan="7">${esc(g.reason)}</td>` : `<td class="n">${g.G.toPrecision(4)}</td><td class="n">${g.EG.toPrecision(4)}</td><td class="n">${f(g.z_norm, 2)}</td><td class="n">${fp(g.p_norm)}</td><td class="n"></td><td class="n"></td><td class="n">${fp(g.p_sim)}</td>`}</tr></tbody>`;
+      drawMap(r); drawScatter(r); drawCorr(r);
+      const L = r.local;
+      $("#local").innerHTML = `<thead><tr><th>Place</th><th class="n">Value</th><th class="n">Local I</th><th class="n">p</th><th>Cluster</th><th class="n">Gi* z</th><th>Hot spot</th></tr></thead><tbody>${L.rows.map((x) => `<tr><td>${esc(x.id)}</td><td class="n">${esc(x.value)}</td><td class="n">${f(x.Ii)}</td><td class="n">${fp(x.p_sim ?? x.p_cond)}</td><td>${esc(x.cluster)}</td><td class="n">${f(x.gi_z, 2)}</td><td>${esc(x.hotspot)}</td></tr>`).join("")}</tbody>`;
+    }
+
+    function drawMap(r) {
+      const rows = r.local.rows, mode = $("#mapmode").value;
+      const pal = mode === "gi" ? HOT : COLORS, key = mode === "gi" ? "hotspot" : "cluster";
+      const has = rows.length && rows[0].x != null;
+      $("#map").hidden = !has;
+      const used = [...new Set(rows.map((x) => x[key]))];
+      $("#maplegend").innerHTML = Object.keys(pal).filter((k) => used.includes(k)).map((k) => `<span><span class="sw" style="background:${k === "high-low" || k === "low-high" ? "#fff" : pal[k]};border:2px solid ${pal[k]}"></span>${esc(k)} (${rows.filter((x) => x[key] === k).length})</span>`).join("");
+      if (!has) return;
+      const geo = last.columns.geographic;
+      const lat0 = geo ? (rows.reduce((a, x) => a + x.y, 0) / rows.length) * Math.PI / 180 : 0;
+      const px = rows.map((x) => (geo ? x.x * Math.cos(lat0) : x.x)), py = rows.map((x) => x.y);
+      const W = 480, minx = Math.min(...px), maxx = Math.max(...px), miny = Math.min(...py), maxy = Math.max(...py);
+      const span = Math.max(maxx - minx, maxy - miny) || 1;
+      const H = Math.max(160, Math.min(480, Math.round(W * ((maxy - miny) || span) / ((maxx - minx) || span))));
+      const k = Math.min((W - 30) / ((maxx - minx) || 1), (H - 30) / ((maxy - miny) || 1));
+      const s = svg(W, H, "Map of the places coloured by result");
+      const X = (v) => 15 + (v - minx) * k, Y = (v) => H - 15 - (v - miny) * k;
+      const r0 = rows.length > 400 ? 3 : rows.length > 120 ? 4 : 6;
+      rows.forEach((x, i) => {
+        const lab = x[key], col = pal[lab] || "#cfd5dd";
+        const outlier = lab === "high-low" || lab === "low-high";
+        const ci = el("circle", { cx: X(px[i]), cy: Y(py[i]), r: r0, fill: outlier ? "#fff" : col, stroke: outlier ? col : "#fff", "stroke-width": outlier ? 2.5 : 1 }, s);
+        tip(ci, `${x.id}: ${x.value}; ${x.cluster}; Gi* z ${f(x.gi_z, 2)}`);
+      });
+      if (rows.length <= 60) {
+        // label flagged places, skipping any label that would overlap one already placed
+        const boxes = [];
+        rows.forEach((x, i) => {
+          if (x[key] === "not significant") return;
+          const t = x.id.length > 14 ? x.id.slice(0, 13) + "…" : x.id;
+          const bx = { x: X(px[i]) + r0 + 2, y: Y(py[i]) - 7, w: t.length * 6, h: 13 };
+          if (bx.x + bx.w > W) bx.x = X(px[i]) - r0 - 2 - bx.w;
+          if (boxes.some((o) => bx.x < o.x + o.w && o.x < bx.x + bx.w && bx.y < o.y + o.h && o.y < bx.y + bx.h)) return;
+          boxes.push(bx);
+          el("text", { x: bx.x, y: bx.y + 11 }, s, t);
+        });
+      }
+      $("#map").replaceChildren(s);
+    }
+
+    function drawScatter(r) {
+      const rows = r.local.rows, W = 420, H = 320, P = 34;
+      const s = svg(W, H, "Moran scatterplot");
+      const ex = Math.max(1, ...rows.map((x) => Math.abs(x.z))) * 1.1, ey = Math.max(1, ...rows.map((x) => Math.abs(x.lag))) * 1.1;
+      const X = scale(-ex, ex, P, W - 10), Y = scale(-ey, ey, H - P, 10);
+      el("line", { x1: X(0), x2: X(0), y1: 10, y2: H - P, stroke: "#c3cad4" }, s);
+      el("line", { x1: P, x2: W - 10, y1: Y(0), y2: Y(0), stroke: "#c3cad4" }, s);
+      if (r.weights.transform === "r") { const b = r.moran.I; el("line", { x1: X(-ex), y1: Y(-ex * b), x2: X(ex), y2: Y(ex * b), stroke: "#2a5aa0", "stroke-width": 2 }, s); }
+      rows.forEach((x) => {
+        const col = COLORS[x.cluster], outlier = x.cluster === "high-low" || x.cluster === "low-high";
+        const ci = el("circle", { cx: X(x.z), cy: Y(x.lag), r: 5, fill: outlier ? "#fff" : col, stroke: outlier ? col : "#fff", "stroke-width": outlier ? 2.5 : 1 }, s);
+        tip(ci, `${x.id}: value ${f(x.z, 2)} sd, neighbours ${f(x.lag, 2)} sd; ${x.cluster}`);
+      });
+      el("text", { x: W - 12, y: Y(0) - 6, "text-anchor": "end" }, s, "value (standardised)");
+      el("text", { x: X(0) + 6, y: 20 }, s, "neighbours' average");
+      $("#scatter").replaceChildren(s);
+    }
+
+    function drawCorr(r) {
+      const c = r.correlogram;
+      $("#corr-wrap").hidden = !c;
+      if (!c) return;
+      const pts = c.filter((b) => b.I != null), W = 720, H = 220, L = 46, R = 12, T = 12, B = 34;
+      const s = svg(W, H, "Moran correlogram");
+      const lo = Math.min(-0.1, ...pts.map((b) => b.I)), hi = Math.max(0.1, ...pts.map((b) => b.I));
+      const x = scale(0, c[c.length - 1].to, L, W - R), y = scale(lo, hi, H - B, T);
+      for (const v of [lo, 0, hi]) { el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: "#eef1f5" }, s); el("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end" }, s, f(v, 2)); }
+      el("line", { x1: L, x2: W - R, y1: y(-1 / (r.n - 1)), y2: y(-1 / (r.n - 1)), stroke: "#8a94a3", "stroke-dasharray": "4 4" }, s);
+      el("polyline", { points: pts.map((b) => `${x((b.from + b.to) / 2)},${y(b.I)}`).join(" "), fill: "none", stroke: "#2a5aa0", "stroke-width": 2 }, s);
+      const unit = last.columns.geographic ? " km" : "";
+      for (const b of pts) {
+        const sig = b.p <= last.options.alpha;
+        const ci = el("circle", { cx: x((b.from + b.to) / 2), cy: y(b.I), r: 4.5, fill: sig ? "#2a5aa0" : "#fff", stroke: "#2a5aa0", "stroke-width": 1.5 }, s);
+        tip(ci, `${f(b.from, 0)} to ${f(b.to, 0)}${unit}: Moran's I ${f(b.I)}, ${b.pairs} pairs, p ${fp(b.p)}`);
+      }
+      for (const b of c) el("text", { x: x(b.to), y: H - 12, "text-anchor": b === c[c.length - 1] ? "end" : "middle" }, s, `${Math.round(b.to).toLocaleString("en-US")}${unit}`);
+      $("#corr").replaceChildren(s);
+    }
+
+    function download(text, name, type) {
+      const blob = new Blob([text], { type });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    }
+
+    $("#analyze").addEventListener("click", runAnalysis);
+    $("#pick").addEventListener("change", (event) => { current = Number(event.target.value); show(current); });
+    $("#mapmode").addEventListener("change", () => { if (last) drawMap(last.results[current]); });
+    $("#file").addEventListener("change", async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      $("#data").value = await file.text();
+      $("#status").textContent = `Loaded ${file.name}.`;
+    });
+    $("#ex-us").addEventListener("click", () => {
+      $("#data").value = US_INCOME_CSV; $("#neighbors").value = US_NEIGHBORS_CSV;
+      $("#weights").value = "auto"; $("#vars").value = ""; $("#transform").value = "r";
+      if (runAnalysis()) record("example_loaded");
+    });
+    $("#download").addEventListener("click", () => { if (last) download(report(last) + "\n", "spatial-autocorrelation-report.txt", "text/plain"); });
+    $("#download-csv").addEventListener("click", () => {
+      if (!last) return;
+      const r = last.results[current], q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+      const head = ["id", "value", "local_I", "p_two_sided", "p_one_sided_esda", "quadrant", "cluster", "gi_star_z", "gi_star_p", "hotspot"];
+      const lines = r.local.rows.map((x) => [x.id, x.value, x.Ii, x.p_sim ?? x.p_cond, x.p_sim_one ?? "", x.quadrant, x.cluster, x.gi_z, x.gi_p, x.hotspot].map(q).join(","));
+      download([head.join(","), ...lines].join("\n") + "\n", `local-${r.variable}.csv`, "text/csv");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
