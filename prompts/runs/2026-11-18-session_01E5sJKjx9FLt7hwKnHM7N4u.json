@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Unguarded smooth scroll on the new Start next season button; caught by venture-preflight (check_smooth_scroll.py) and fixed before merge."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -52,7 +54,7 @@
     "ventures/league-schedule-generator/README.md (Promotion and relegation into next season)"
   ],
   "goal": null,
-  "notes": "Security queue empty; IDEAS.md and website requests empty. Verification: node --test promotion.test.mjs 6/6 pass; node eval/promotion-click.mjs 9/9 ok (eval/promotion-click.txt); run_venture_tests.py league-schedule-generator: ok, 685 tests, 224.9 s, 0 failed; venture-preflight.mjs league-schedule-generator exit 0. No agent doc in docs/reports: the README section carries what the next run needs.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty. Verification: node --test promotion.test.mjs 6/6 pass; node eval/promotion-click.mjs 9/9 ok (eval/promotion-click.txt); run_venture_tests.py league-schedule-generator: ok, 685 tests, 224.9 s, 0 failed; venture-preflight.mjs league-schedule-generator first FAILED on check_smooth_scroll.py (my scrollIntoView ignored reduced motion), fixed with the matchMedia guard, then 'preflight clean'. No agent doc in docs/reports: the README section carries what the next run needs.",
   "corrections": [],
   "redteam": null,
   "usage": {

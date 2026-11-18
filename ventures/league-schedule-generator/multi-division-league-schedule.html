@@ -365,7 +365,7 @@
       for (const f of ["results", "rainouts", "blackouts", "start"]) $("#" + f).value = "";
       $("#use-promotion").hidden = true;
       $("#form-status").textContent = "Next season's divisions are in step 1. Results, rainouts, blackouts and the start date are cleared: set the new start date, then build.";
-      $("#divisions").scrollIntoView({ behavior: "smooth", block: "center" });
+      $("#divisions").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
       record("divisions_next_season_started");
     });
     $("#dl-clinch").addEventListener("click", () => { if (!last) return; download("clinch-watch.txt", divisionsRace(last, $("#results").value, { spots: 2 }).text + "\n", "text/plain"); record("divisions_clinch_downloaded"); });
