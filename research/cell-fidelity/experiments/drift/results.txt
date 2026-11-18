@@ -1,0 +1,40 @@
+cell-fidelity milestone 5zq: ten-cycle forecasts of the non-OCP plating-overpotential drift (D_10) and the
+charge-capacity factor (q_10) fed to the law, against 5zd's lever A and 5zn's node lever N. 5zk's records,
+40 designs, no new simulation. Set medians.
+
+set           n    e_A    e_N    e_F   e_AQ   e_NQ    e_G   e_PQ    F<A    F<N    gap
+Ai2020        8  0.083  0.023  0.070  0.060  0.086  0.121  0.080   4/8    1/8    4.35
+Chen2020     12  0.082  0.059  0.057  0.150  0.055  0.053  0.014   8/12   3/12   0.37
+OKane2022    12  0.059  0.076  0.072  0.128  0.068  0.055  0.015   2/12   6/12  -0.30
+NCA_Kim2011   8  0.022  0.048  0.101  0.021  0.101  0.159  0.011   1/8    0/8   -6.94
+
+set            |c_A|   |c_N|   |c_F|  |c_AQ|  |c_NQ|   |c_G|  |c_PQ|
+Ai2020         0.138   0.089   0.289   0.199   0.324   0.335   0.239
+Chen2020       0.205   0.165   0.173   0.332   0.080   0.154   0.030
+OKane2022      0.127   0.178   0.194   0.265   0.118   0.155   0.038
+NCA_Kim2011    0.249   0.593   0.863   0.180   0.862   0.936   0.069
+
+set           e_F30  e_F50  e_A30  e_A50
+Ai2020        0.063  0.040  0.039  0.032
+Chen2020      0.043  0.030  0.046  0.020
+OKane2022     0.049  0.032  0.028  0.017
+NCA_Kim2011   0.056  0.035  0.013  0.011
+
+set               kq  q10_99    qM99    qerr       kD     D10  D10_99     D99   |M99|    Derr
+Ai2020         2.663   1.196   1.921   0.512     79.7    1.10    6.00    4.60   46.59   12.98
+Chen2020       6.922   1.350   1.539   0.161     43.6    0.56    2.50   -2.50   30.49    8.71
+OKane2022      7.166   1.344   1.532   0.157     18.9    0.26    0.87   -2.58   29.82    7.09
+NCA_Kim2011   23.311   1.585   1.999   0.232     -0.7   -0.01   -0.02   -0.03  128.94    0.02
+
+(e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3, line through cycles 2..10 unless suffixed; A = 5zd's lever,
+ N = 5zn's node lever, F = N + D_10 with q_10, AQ = A with q_10, NQ = N with q_10, G = E_10 with q_10,
+ PQ = 5zp's diagnosis (reads cycle 99); F<A, F<N = designs where F beats A, N; gap = (e_A - e_F)/(e_A - e_PQ);
+ c = ln(slope of R(L_n) on n over 50..99 / over 2..10); kq = q_10's slope per mol lost; q10_99, qM99 = forecast
+ and measured q_ch(2)/q_ch(99); qerr = |ln(q10_99/qM99)|; kD in mV per mol; D10, D99 = measured drift at
+ cycles 10 and 99, D10_99 = its ten-cycle forecast at L_99, M99 = plating-weighted OCP rise at 99, all mV;
+ Derr = set median |D10_99 - D99|)
+
+H216 (e_F below e_A on >= 3 of 4 sets): inconclusive (2/4)
+H217 (e_F < e_A on >= 26 of 40 designs): refuted (15/40)
+H218 (|ln(q10/qM)| at 99 <= 0.10 on >= 3 of 4 sets): inconclusive (0 <= 0.10, 1 > 0.25)
+H219 (|D10 - D| at 99 <= |M99|/4 on >= 3 of 4 sets): inconclusive (2 within, 0 above |M99|/2)
