@@ -46,6 +46,20 @@ third party: zero dependencies, one JSON file on a disk you own.
   - **Reminder emails** on the deployer's own mail account, off unless `SMTP_HOST` is set (`SMTP_PORT`, default 587; `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`; `REMINDER_TO` is the organiser's address, copied on every reminder; `PUBLIC_URL` puts the league link in the email). At start and every hour the server sends one email per team per game to any team still short of the minimum two days out or less, to that team's contacts (*Team contacts for reminder emails*: `Hawks: captain@example.org`) and the organiser, naming the count, the maybes and the roster players not heard from. A sent reminder is remembered in the state file, so a team gets one per game; a failed send is retried next hour. The client (`mailer.mjs`, no dependencies) uses TLS on 465 or STARTTLS when offered, and never sends a password over an unencrypted connection except to localhost. Contacts accept plain addresses only, and the subject and headers are stripped of line breaks, so nothing typed can add a mail header. Contacts stay in the state file and never reach the player page.
   - Checked: `availability-roster.test.mjs` (parsing, the no-answer lists, the CSV, which reminders are due and to whom, once-only sending, a fake SMTP server for AUTH PLAIN, a refused recipient and a refused login, the server's CSV route) and a Chromium run of the player page (the name box follows the picked team's roster; a team with no roster takes free text; the answer saves). Not checked: STARTTLS and TLS against a real provider (the tests' fake server is plain text), and real inbox delivery. On Fly with `min_machines_running = 0` the hourly check only runs while the machine is awake.
   - Alternatives: TeamSnap and Spond send RSVP reminders to every player account (TeamSnap's free tier limits it); this sends one email only when a team is short, from the league's own mail account, with no player accounts.
+- **Schedule-change emails (2026-11-18, latest):** when you save a published league, the server compares the season
+  before and after the save fixture by fixture (each match keeps its id through rainouts, withdrawals, late teams and
+  any other edit) and lists the upcoming games that moved, were cancelled or were added (`5 upcoming games changed for
+  6 teams (Hawks, Owls, ...)`). Tick *Email teams whose upcoming games this save moves* and each affected team gets
+  **one** email, to its contacts with the organiser copied, listing only its own games from its side (`- vs Owls
+  (home): was Tue 13 Oct 2026 18:00, Court 1, now Tue 27 Oct 2026 19:00, Court 2`; `- at Kites (away): Tue 3 Nov 2026 is cancelled`),
+  with the league link. Past games are never reported; a team with no contact address is named in the admin note so
+  you can tell it yourself; past 40 changes the email lists the first 40 and points to the page. Unticked, or with
+  SMTP off, the note still shows the summary and nothing is sent. `changes.mjs`, tests in `changes.test.mjs` (moved,
+  cancelled and added fixtures, past games ignored, one email per team with only its games, the box unticked, SMTP
+  off, a second save with no change sending nothing).
+  - Alternatives: TeamSnap, LeagueApps and SportsEngine notify every player account of a schedule change on their
+    paid plans; a spreadsheet league re-sends the whole sheet and leaves each team to spot its own moved game. This
+    sends each team its own changed games only, from the league's own mail account, with no accounts.
 - **Team sign-ups (2026-11-18):** tick *Open sign-ups* in `/admin` and share `/register` (a public page, no secret in
   the link) in the club newsletter or group chat. A captain types the team name, their name, email, optional phone,
   the players and a note. Each sign-up waits in `/admin` ("Sign-ups waiting for you"): **Approve** adds the team to

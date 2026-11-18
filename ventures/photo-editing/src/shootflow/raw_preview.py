@@ -99,15 +99,21 @@ def is_raf_path(path: Path) -> bool:
     return path.suffix.lower() == ".raf"
 
 
-def needs_profile_path(path: Path) -> bool:
-    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF)."""
+def is_mrw_path(path: Path) -> bool:
+    """Minolta and Konica Minolta MRW (DiMAGE 7, 7i, 7Hi, A1, A2, A200; Dynax / Maxxum / Alpha-7 Digital)."""
 
-    return is_crw_path(path) or is_cr2_path(path) or is_cr3_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path) or is_pef_path(path) or is_raf_path(path)
+    return path.suffix.lower() == ".mrw"
+
+
+def needs_profile_path(path: Path) -> bool:
+    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF, MRW)."""
+
+    return is_crw_path(path) or is_cr2_path(path) or is_cr3_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path) or is_pef_path(path) or is_raf_path(path) or is_mrw_path(path)
 
 
 def is_developable_path(path: Path) -> bool:
     """True for the RAW formats ``raw_develop`` reads from sensor data: DNG, and
-    Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF given a camera profile (``camera_profiles``)."""
+    Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Minolta MRW given a camera profile (``camera_profiles``)."""
 
     return is_dng_path(path) or needs_profile_path(path)
 

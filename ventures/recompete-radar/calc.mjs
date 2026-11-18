@@ -67,7 +67,7 @@ export function parseDate(value) {
 export function parseMoney(value) {
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
   if (typeof value !== "string") return null;
-  const neg = /^\(.*\)$/.test(value.trim());
+  const neg = /\([^()]*\d[^()]*\)/.test(value.trim());
   const n = Number(value.replace(/[^0-9.\-]/g, ""));
   if (!Number.isFinite(n) || value.replace(/[^0-9]/g, "") === "") return null;
   return neg ? -Math.abs(n) : n;

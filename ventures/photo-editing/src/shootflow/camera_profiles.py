@@ -31,7 +31,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from shootflow import arw, cr2, cr3, crw, nef, orf, pef, raf, rw2, srw
+from shootflow import arw, cr2, cr3, crw, mrw, nef, orf, pef, raf, rw2, srw
 from shootflow import raw_develop as rd
 
 CAMERA_PROFILES_DIR = "color/camera-profiles"
@@ -51,7 +51,7 @@ def _norm(name: str) -> str:
 
 
 def camera_of(source: Path | str) -> str:
-    """The camera name of a RAW file that needs a profile (a CRW, a CR2, a CR3, an ARW, a NEF, an ORF, an RW2, an SRW or a PEF)."""
+    """The camera name of a RAW file that needs a profile (a CRW, a CR2, a CR3, an ARW, a NEF, an ORF, an RW2, an SRW, a PEF or an MRW)."""
 
     data = Path(source).read_bytes()
     if crw.is_crw(data):
@@ -74,9 +74,11 @@ def camera_of(source: Path | str) -> str:
         kind, camera = "PEF", pef.camera_model(data)
     elif srw.is_srw(data):
         kind, camera = "SRW", srw.camera_model(data)
+    elif mrw.is_mrw(data):
+        kind, camera = "MRW", mrw.camera_model(data)
     else:
         raise rd.DevelopError(
-            f"{Path(source).name}: camera profiles are chosen for Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF files only"
+            f"{Path(source).name}: camera profiles are chosen for Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Minolta MRW files only"
         )
     if not camera:
         raise rd.DevelopError(f"{Path(source).name}: the {kind} names no camera (no Make or Model tag)")

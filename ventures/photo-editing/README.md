@@ -1936,6 +1936,22 @@ the shot, so none is applied and the report says so. The four-colour G1, Pro70 a
 refused. Details: `eval/canon-crw-reader-2026-11-16.md`; check: `tools/crw_libraw_check.py`;
 tests: `tests/test_crw.py`.
 
+### Minolta and Konica Minolta MRW (2026-11-18)
+
+Minolta's MRW files (the DiMAGE 7, 7i, 7Hi, A1, A2 and A200, 2001-2005, and the Konica Minolta
+Dynax 7D, sold as the Maxxum 7D and Alpha-7 Digital) now develop directly: `shootflow develop
+PICT0001.MRW --dcp DIR`, and the grade stage takes them like any other profiled raw
+(`src/shootflow/mrw.py`). An MRW is not a TIFF: a `\0MRM` header and a chain of named blocks come
+before the sensor. PRD gives the sensor size, the storage (12-bit packed, or the DiMAGE 7 family's
+big-endian 16-bit words) and the Bayer pattern (RGGB, or GBRG on the A200); WBG the as-shot gains in
+the pattern's own 2x2 order; TTW a whole TIFF with Make, Model, orientation and EXIF. On nine real
+files from raw.pixls.us every one of 54.1 M sensels, the CFA, the white balance and the black level
+(0 on every body) equal LibRaw 0.22's, 0.02-0.16 s a file. Developed with LibRaw's own colour matrix
+as a stand-in profile, the mean colour of each picture is within 0.017 in chromaticity of LibRaw's
+render. The DiMAGE Z2's `.MRW` has no MRW header at all and is refused. Details:
+`eval/minolta-mrw-reader-2026-11-18.md`; checks: `tools/mrw_libraw_check.py`,
+`tools/mrw_develop_check.py`; tests: `tests/test_mrw.py`.
+
 ## Olympus ORF (2026-11-14)
 
 Olympus and OM System raw files no longer need Adobe's DNG Converter. `shootflow develop

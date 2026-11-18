@@ -252,6 +252,13 @@ test("growth is null, not Infinity, when the prior month had no MRR", () => {
   const s = summarize([{ month: "2026-09", mrr: 0, startMrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, churnCount: 0, startCustomers: 0 },
     { month: "2026-10", mrr: 500, startMrr: 0, customers: 1, new: 500, expansion: 0, contraction: 0, churn: 0, reactivation: 0, churnCount: 0, startCustomers: 0 }]);
   assert.equal(s.growthPct, null);
+  // A basis month that started at zero MRR has no retention rate: null, not 0/0 = NaN.
+  assert.equal(s.rates.nrr, null); assert.equal(s.rates.grr, null); assert.equal(s.rates.revenueChurn, null);
+});
+
+test("breakdown counts a subscription worth one minor unit", () => {
+  const b = breakdown([{ id: "s1", customer: "c1", status: "active", mrr: 1 }]);
+  assert.equal(b.total, 1); assert.equal(b.plans.length, 1);
 });
 
 test("an empty cohort carries zero MRR", async () => {

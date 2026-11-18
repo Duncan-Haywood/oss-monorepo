@@ -324,8 +324,9 @@ flagships:
       X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF
       edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
       (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
-      E-series NEF 2026-11-18 (eval/nikon-nrw-reader-*). RW2 RawFormat 8 2026-11-18:
-      S1R II, S5 IIX, S1 II E; 4 x 2 tiles (177 MP); no public file has a tone curve
+      E-series NEF, Minolta MRW 2026-11-18 (eval/nikon-nrw-reader-*,
+      eval/minolta-mrw-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4 x
+      2 tiles (177 MP); no public file has a tone curve
       (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
       every sensel (eval/panasonic-rw2-177mp-libraw-*). Next: Sony's vignetting
       table vs an evenly lit frame; a real DNG and a vignetting-calibrated lens
@@ -384,8 +385,8 @@ flagships:
       schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
       eval/platform-templates-2026-11-17.md; calendar ids per fixture,
       eval/ics-stable-uids.txt; In/Maybe/Out per game and short teams on the league
-      page, availability.mjs 2026-11-18, sub pool placed on short teams (subs.mjs),
-      rosters, reminders (mailer.mjs), team sign-ups with waitlist
+      page, availability.mjs 2026-11-18, subs.mjs sub pool, rosters, reminders (mailer.mjs),
+      schedule-change emails per team (changes.mjs), team sign-ups with waitlist
       (registration.mjs; next: a real league's sign-ups and answers); bowling
       seasons, lane pairs rotated evenly: 36 of 36 at the bound, repeats 392 to 148
       (eval/bowling-repeat-sat.txt)). 3-game nights (eval/three-game-nights.txt):
@@ -527,7 +528,7 @@ flagships:
       entity 2026-11-18 (eval/entity-table-2026-11-18.md: STEP records in a
       number-indexed array, 3 fields; kept after parse 444 to 350 MB on 219 MB,
       smallest heap 704 to 576 MB, same reports). checks' own memory 2026-11-18
-      (eval/shared-values-2026-11-18.md: lists at their length, shared small values,
-      relationships not kept; 219 MB with 68 IDS needs 896 to 704 MB, same reports).
-      next: a compact per-set record for properties (kept arguments, 17-39% slower
-      without). More open items: NEXT.md.
+      (eval/shared-values-2026-11-18.md, eval/pset-records-2026-11-18.md:
+      exact-length lists, shared values, relationships and property sets not kept,
+      one record per set; 219 MB with 68 IDS 896 to 608 MB, same speed and reports).
+      next: the parse's own 512 MB. More open items: NEXT.md.

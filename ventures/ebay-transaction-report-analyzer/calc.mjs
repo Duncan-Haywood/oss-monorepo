@@ -75,7 +75,7 @@ export function parseMoney(value) {
   let s = String(value ?? "").trim();
   if (!s || /^-+$/.test(s)) return 0;
   let neg = false;
-  if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
+  if (/\([^()]*\d[^()]*\)/.test(s)) { neg = true; s = s.replace(/[()]/g, ""); }
   if (/^\s*-/.test(s)) neg = true;
   s = s.replace(/[^0-9.,]/g, "");
   if (s.includes(",") && s.includes(".")) {

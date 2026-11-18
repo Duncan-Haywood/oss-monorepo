@@ -24,6 +24,7 @@
 
 import { COLOURS, GARMENTS, METHODS } from "./catalogue.mjs";
 import { MOTIFS } from "./motifs.mjs";
+import { toLab } from "./separation.mjs";
 
 // ---------------------------------------------------------------- questions
 
@@ -433,14 +434,28 @@ const CMP = [
   [/^(?:more expensive|pricier|dearer|more)$/, "price", 1], [/^(?:most expensive|priciest|dearest)$/, "price", 1, true],
   [/^(?:heavier|thicker)$/, "gsm", 1], [/^(?:heaviest|thickest)$/, "gsm", 1, true],
   [/^(?:lighter|thinner)$/, "gsm", -1], [/^(?:lightest|thinnest)$/, "gsm", -1, true],
+  // Colour, read on CIELAB of the screen hex: "L" lightness, "C" chroma (how
+  // vivid), "W" warmth (b* + a*/2: yellow and red warm, blue cool). "lighter"
+  // above is fabric weight unless the subject is a colour, the garment or
+  // the artwork (readComparison).
+  [/^(?:darker|deeper)$/, "L", -1], [/^(?:darkest|deepest)$/, "L", -1, true],
+  [/^(?:paler)$/, "L", 1], [/^(?:palest)$/, "L", 1, true],
+  [/^(?:brighter|more (?:colou?rful|vivid|saturated|intense))$/, "C", 1], [/^(?:brightest|most (?:colou?rful|vivid|saturated|intense))$/, "C", 1, true],
+  [/^(?:duller|greyer|grayer|more (?:muted|subdued|washed out|faded))$/, "C", -1], [/^(?:dullest|greyest|grayest|most (?:muted|subdued|washed out|faded))$/, "C", -1, true],
+  [/^(?:warmer)$/, "W", 1], [/^(?:warmest)$/, "W", 1, true],
+  [/^(?:cooler|colder)$/, "W", -1], [/^(?:coolest|coldest)$/, "W", -1, true],
 ];
-const CMP_WORDS = String.raw`(?:more|less|(?:more to the|further) (?:left|right)|further (?:up|down)|higher up|lower down|more up|more down|less expensive|least expensive|more expensive|most expensive|[a-z]+(?:er|est))`;
+const COLOUR_DIM = new Set(["L", "C", "W"]);
+const LIGHT_WORD = /^(?:lighter|lightest)$/;
+const CMP_WORDS = String.raw`(?:(?:more|most) (?:colou?rful|vivid|saturated|intense|muted|subdued|washed out|faded)|more|less|(?:more to the|further) (?:left|right)|further (?:up|down)|higher up|lower down|more up|more down|less expensive|least expensive|more expensive|most expensive|[a-z]+(?:er|est))`;
 const DEGREE = String.raw`(?:(?:a (?:bit|little|lot|touch)|much|way|slightly|even|quite a bit|far) )?`;
 const SUBJ_PRICE = /^(?:the )?(?:(?:selling |retail )?price|cost)$/;
 const SUBJ_GSM = /^(?:the )?(?:fabric|material|cloth|weight|fabric weight|gsm|cotton)$/;
 const SUBJ_QTY = /^(?:the )?(?:run|order|quantity|run size|order size)$/;
 const SUBJ_GARMENT = /^(?:it|the (?:shirt|tee|t-shirt|garment|hoodie|sweatshirt|top|piece|design))$/;
 const SUBJ_ART = /^(?:it|the (?:print|artwork|graphic|design|logo|art|motif))$/;
+const SUBJ_COLOUR = /^(?:the )?(?:(?:shirt |tee |garment |t-shirt |hoodie |base |fabric )?colou?r|shade|tone)$/;
+const SUBJ_INK = /^(?:the )?(?:ink|print colou?r|ink colou?r|print|artwork|graphic|logo|art|motif)$/;
 
 const C_POST = /(?:\s+(?:was|looked|is|seemed|looks) (?:a lot |much |way )?(?:better|nicer|best|great|good))?(?:\s+(?:better|again|instead|please))*$/;
 
@@ -448,7 +463,7 @@ const C_POST = /(?:\s+(?:was|looked|is|seemed|looks) (?:a lot |much |way )?(?:be
 function readComparison(clause) {
   // V_POST without "more": "when it cost more" ends in its comparison.
   let body = clause.replace(V_PRE, "").replace(C_POST, "").replace(/^to\s+/, "").replace(/^it\s+(?=when\b)/, "").trim();
-  let subj; let word; let verb = null;
+  let subj; let word; let verb = null; let bare = false;
   let m;
   const NOUN = String.raw`(?:${V_NOUN}|way it was)`;
   if ((m = new RegExp(String.raw`^(?:(?:the|that|my) (?:[a-z-]+ )?${NOUN} |back )?(?:where|when|in which|from when) (.+?) (was|were|looked|sat|cost|is|got) ${DEGREE}(${CMP_WORDS})(?: than (?:now|this|it is now|this one|it is))?$`).exec(body))) {
@@ -458,8 +473,8 @@ function readComparison(clause) {
   } else if ((m = new RegExp(String.raw`^(?:the|that) (${CMP_WORDS}) (?:${V_NOUN})$`).exec(body))) {
     // "the cheapest one", "the heavier version"; "the bigger one" may mean a
     // variant on the panel, so size and position words stay edits here.
-    word = m[1]; subj = "it";
-    if (!CMP.some(([re, dim]) => re.test(word) && (dim === "price" || dim === "gsm"))) return null;
+    word = m[1]; subj = "it"; bare = true;
+    if (!CMP.some(([re, dim]) => re.test(word) && (dim === "price" || dim === "gsm" || COLOUR_DIM.has(dim)))) return null;
   } else return null;
   subj = subj.replace(/^(?:the )?((?:[a-z]+ )*?)(?:one|version)$/, "$1").trim() || "it";
   const hit = CMP.find(([re]) => re.test(word));
@@ -468,6 +483,29 @@ function readComparison(clause) {
   // "the shirt cost more" / "it cost less": the price.
   if (verb === "cost" && (word === "more" || word === "less")) dim = "price";
   else if (word === "more" || word === "less") return null;
+  // Colour: on the garment ("when it was darker", "the paler shirt", "when
+  // the colour was lighter") or on the artwork's ink ("when the halo was
+  // darker", "the more muted print"). "lighter" alone stays fabric weight on
+  // the fabric and in "the lighter one"; the garment or a colour makes it
+  // lightness.
+  const light = LIGHT_WORD.test(word);
+  if (COLOUR_DIM.has(dim) || light) {
+    const cdim = light ? "L" : dim;
+    const csign = light ? -sign : sign; // "lighter" was fabric weight down; lightness up
+    const the = /^the /.test(subj) || subj === "it" ? subj : `the ${subj}`;
+    if (SUBJ_GSM.test(subj)) {
+      if (light) return { dim: "gsm", sign, sup: !!sup, subj, word };
+      if (/weight|gsm/.test(subj)) return null;
+      return { dim: cdim, sign, sup: !!sup, subj: "it", word, target: "garment" };
+    }
+    if (SUBJ_COLOUR.test(subj) || SUBJ_GARMENT.test(the)) {
+      // "the lighter one": fabric weight, as before this reader.
+      if (light && bare) return { dim: "gsm", sign, sup: !!sup, subj, word };
+      return { dim: cdim, sign: csign, sup: !!sup, subj: "it", word, target: "garment" };
+    }
+    if (SUBJ_PRICE.test(subj) || SUBJ_QTY.test(subj)) return null;
+    return { dim: cdim, sign: csign, sup: !!sup, subj: SUBJ_INK.test(subj) ? "it" : subj, word, target: "art" };
+  }
   if (SUBJ_PRICE.test(subj)) {
     if (dir) dim = "price";
     if (dim !== "price") return null;
@@ -489,6 +527,25 @@ const PLAIN = {
   gsm: { get: d => d.gsm, label: "fabric", show: v => `${v} gsm` },
   quantity: { get: d => d.quantity, label: "run", show: v => `${v} pieces` },
 };
+const labOf = hex => {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex ?? ""));
+  if (!m) return undefined;
+  const n = parseInt(m[1], 16);
+  return toLab((n >> 16) & 255, (n >> 8) & 255, n & 255);
+};
+const COLOUR_GET = {
+  L: lab => lab[0],
+  C: lab => Math.hypot(lab[1], lab[2]),
+  W: lab => lab[2] + lab[1] / 2,
+};
+const inkName = hex => {
+  if (!hex) return null;
+  const k = Object.keys(COLOURS).find(c => COLOURS[c].toLowerCase() === String(hex).toLowerCase());
+  return k ?? String(hex).toLowerCase();
+};
+const COLOUR_LABEL = { L: "lightness", C: "vividness", W: "warmth" };
+const colourLabel = dim => (Object.hasOwn(COLOUR_LABEL, dim) ? COLOUR_LABEL[dim] : "colour");
+const colourValue = (dim, hex) => { const lab = labOf(hex); return lab && (Object.hasOwn(COLOUR_GET, dim) ? COLOUR_GET[dim](lab) : undefined); };
 const ART_DIM = {
   size: { get: p => p.w, show: v => `${round1(v)} cm wide` },
   y: { get: p => p.y, show: v => `${round1(-v)} cm from the area's middle (up)` },
@@ -513,10 +570,17 @@ export function comparedVersion(clause, line) {
   let value; let label; let show;
   const plain = Object.hasOwn(PLAIN, cmp.dim) ? PLAIN[cmp.dim] : null;
   const art = Object.hasOwn(ART_DIM, cmp.dim) ? ART_DIM[cmp.dim] : null;
-  if (plain) {
+  const colour = COLOUR_DIM.has(cmp.dim);
+  let nameAt = null;
+  if (colour && cmp.target === "garment") {
+    label = `garment's ${colourLabel(cmp.dim)}`;
+    value = d => colourValue(cmp.dim, d.colour);
+    nameAt = d => d.colourName ?? d.colour;
+    show = v => `${round1(v)}`;
+  } else if (plain) {
     ({ label, show } = plain);
     value = d => plain.get(d);
-  } else if (!art) {
+  } else if (!art && !colour) {
     return null;
   } else {
     let id;
@@ -536,13 +600,26 @@ export function comparedVersion(clause, line) {
     }
     const p0 = placementOf(present, id);
     const pname = p0.kind === "text" ? `"${p0.text}"` : p0.kind === "image" ? "image" : (MOTIFS[p0.motif]?.label ?? p0.label ?? "artwork").toLowerCase();
-    label = cmp.dim === "size" ? `${pname}'s size` : `${pname}'s position`;
-    show = art.show;
-    value = d => {
-      const p = placementOf(d, id);
-      if (!p || (cmp.dim !== "size" && p.area !== p0.area)) return undefined;
-      return art.get(p);
-    };
+    if (colour) {
+      if (p0.kind === "image") return { ops: [], ui: [], did: `The ${pname} keeps its own colours (an uploaded image has no ink to compare); nothing changed` };
+      label = `${pname}'s ink ${colourLabel(cmp.dim)}`;
+      show = v => `${round1(v)}`;
+      value = d => { const p = placementOf(d, id); return p && p.ink ? colourValue(cmp.dim, p.ink) : undefined; };
+      nameAt = d => inkName(placementOf(d, id)?.ink);
+    } else {
+      label = cmp.dim === "size" ? `${pname}'s size` : `${pname}'s position`;
+      show = art.show;
+      value = d => {
+        const p = placementOf(d, id);
+        if (!p || (cmp.dim !== "size" && p.area !== p0.area)) return undefined;
+        return art.get(p);
+      };
+    }
+  }
+  if (nameAt) {
+    // Colour readings carry the colour's name: "lightness 69.2, sage".
+    const base = show;
+    show = (v, d) => `${base(v)}${d && nameAt(d) ? `, ${nameAt(d)}` : ""}`;
   }
   const now = value(present);
   const EPS = 0.05;
@@ -553,12 +630,15 @@ export function comparedVersion(clause, line) {
       const v = value(line[i]);
       if (v !== undefined && better(v, value(line[best]))) best = i;
     }
-    if (best === last) return { ops: [], ui: [], did: `This version is already the ${cmp.word} in this session (${label}: ${show(now)}); nothing changed` };
-    return restoreWhole(line, best, `with the ${cmp.word} ${label} (${show(value(line[best]))}; now ${show(now)})`);
+    if (best === last) return { ops: [], ui: [], did: `This version is already the ${cmp.word} in this session (${label}: ${show(now, present)}); nothing changed` };
+    return restoreWhole(line, best, `with the ${cmp.word} ${label} (${show(value(line[best]), line[best])}; now ${show(now, present)})`);
   }
+  if (now === undefined) return { ops: [], ui: [], did: `This version has no ${label} to compare with; nothing changed` };
+  // Colour differences below about 1 CIELAB unit are not seen on a screen.
+  const eps = colour ? 1 : EPS;
   for (let i = last - 1; i >= 0; i--) {
     const v = value(line[i]);
-    if (v !== undefined && better(v, now)) return restoreWhole(line, i, `where the ${label} was ${cmp.word} (${show(v)}; now ${show(now)})`);
+    if (v !== undefined && cmp.sign * (v - now) > eps) return restoreWhole(line, i, `where the ${label} was ${cmp.word} (${show(v, line[i])}; now ${show(now, present)})`);
   }
-  return { ops: [], ui: [], did: `No earlier version had the ${label} ${cmp.word} than now (${show(now)}); nothing changed` };
+  return { ops: [], ui: [], did: `No earlier version had the ${label} ${cmp.word} than now (${show(now, present)}); nothing changed` };
 }

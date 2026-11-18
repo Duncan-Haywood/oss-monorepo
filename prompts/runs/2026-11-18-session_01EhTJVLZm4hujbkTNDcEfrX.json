@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVLZm4hujbkTNDcEfrX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T17:00:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator: schedule-change emails per team on save",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17363",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row 6 chant-forge has been left by 18 sessions in 2 days for narrow coda-reader/OMR tuning; took row 4 league-schedule-generator (no open PR) and chose a user-facing workflow item (organiser change notices) over its remaining combinatorics proofs, which have low user value.",
+      "did": "built changes.mjs and wired it into the self-hosted admin save",
+      "result": "feature landed with tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-tell-each-team-only-its-own-moved-games.md"
+  ],
+  "goal": null,
+  "notes": "changes.test.mjs 5/5 pass locally; check_posts ok; validate.py ok. Full venture suite started via run_venture_tests.py league-schedule-generator; see PR for result.",
+  "corrections": [],
+  "redteam": null
+}
