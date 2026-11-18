@@ -1,12 +1,15 @@
 // The gap-shape word read against the panel's own trend (README "The shape word against the panel's own trend",
-// pre-registered eval/synth-shape-trend-prereg-2026-11-18.md; bar 1 failed, so the word stays in the module and the
-// notes keep the plain word). Pins panelShapes, the CLI's unchanged output, and re-checks every bar against the
-// confirmatory file.
+// pre-registered eval/synth-shape-trend-prereg-2026-11-18.md; bar 1 failed, so the default keeps the plain word and the
+// panel word is opt-in, `--shape-word panel`, README "The panel word as an option"). Pins panelShapes, the CLI's
+// unchanged default output, the opt-in on CLI, worker and page, and re-checks every bar against the confirmatory file.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { panelShapes, gapShape, synthControlTest } from './synth-control.mjs';
-import { synthResult } from './synth-cli.mjs';
+import { synthResult, synthText } from './synth-cli.mjs';
+import { synthHtml, PANEL_SHAPE } from './synth-view.mjs';
+import { analyzeJob } from './analyze-job.mjs';
+import { main } from './cli.mjs';
 
 const q = (early, late) => ({ shape: gapShape([early, early, early, early, 1, 1, 1, 1, late, late, late, late]).shape, early, late });
 
@@ -68,4 +71,69 @@ test('the confirmatory file: bars 2 to 6 hold, bar 1 fails on one line (wanderin
   assert.ok(line('growing, relative panels: clean above shaped hybrid') <= 30);
   assert.ok(line('growing pulse faded hybrid') >= line('growing pulse faded plain') - 2);
   assert.ok(line('growing all placebos grew hybrid') <= 0.6 * line('growing all placebos grew plain'));
+});
+
+const wgCsv = () => readFileSync(new URL('./data/oecd-gdp-per-capita-1960-2003.csv', import.meta.url), 'utf8');
+const basCsv = () => readFileSync(new URL('./data/spain-regions-gdp-per-capita.csv', import.meta.url), 'utf8');
+
+test('--shape-word panel: West Germany is read against a centre of 21.8 (Norway grew, the Netherlands held)', () => {
+  const r = synthResult({ csv: wgCsv(), column: 'WestGermany', date: 1990, donors: ['all'], window: '1960:2003', shapeWord: 'panel' });
+  assert.equal(r.shapeWord, 'panel');
+  assert.equal(r.shapeRelative, true);
+  assert.ok(Math.abs(r.shapeCentre - 21.76) < 0.01);
+  assert.deepEqual(r.placeboShapes, { faded: 4, grew: 2, held: 10 });
+  assert.deepEqual(r.above.map((x) => [x.name, x.gapShape]), [['Netherlands', 'held'], ['Norway', 'grew']]);
+  // the test itself is untouched by the word
+  const plain = synthResult({ csv: wgCsv(), column: 'WestGermany', date: 1990, donors: ['all'], window: '1960:2003' });
+  assert.equal(r.p, plain.p);
+  assert.equal(r.rank, plain.rank);
+  assert.equal(plain.shapeWord, undefined, 'the default JSON is unchanged');
+  const t = synthText(r);
+  assert.match(t, /Words read against the panel \(--shape-word panel\): the median unit's gap grew 21\.8 times/);
+  assert.match(t, /4 faded, 2 grew and 10 held on this reading/);
+  assert.match(t, new RegExp(`${Math.round(PANEL_SHAPE.cleanPanel)}% of listed units with no event of their own got a word, against ${Math.round(PANEL_SHAPE.cleanPlain)}%`));
+  assert.match(t, /missing a pre-registered bar by 0\.4 points/);
+  assert.match(synthText(plain), /--shape-word panel words each unit against the panel instead/, 'the plain note points to the option when most units share a word');
+});
+
+test('--shape-word panel: below a centre of 6 (the Basque Country, 2.36) the plain words stand and the note says so', () => {
+  const opts = { csv: basCsv(), column: 'BAS', date: 1970, donors: ['all'], window: '1955:1997' };
+  const p = synthResult({ ...opts, shapeWord: 'panel' }), q = synthResult(opts);
+  assert.equal(p.shapeRelative, false);
+  assert.deepEqual(p.placeboShapes, q.placeboShapes);
+  assert.deepEqual(p.above, q.above);
+  assert.match(synthText(p), /grew 2\.36 times .* under 6, so each word is the plain one/);
+});
+
+test('PANEL_SHAPE quotes the confirmatory file', () => {
+  const txt = readFileSync(new URL('./eval/synth-shape-trend-confirm.out.txt', import.meta.url), 'utf8');
+  const pct = (name) => Number(txt.match(new RegExp(`  ${name.replace(/[()]/g, '\\$&')}: \\d+ of \\d+, ([\\d.]+)%`))[1]);
+  assert.equal(PANEL_SHAPE.cleanPanel, pct('growing, relative panels: clean above shaped hybrid'));
+  assert.equal(PANEL_SHAPE.cleanPlain, pct('growing, relative panels: clean above shaped plain'));
+  assert.equal(PANEL_SHAPE.growSlopePanel, pct('growing big slope grew hybrid'));
+  assert.equal(PANEL_SHAPE.growSlopePlain, pct('growing big slope grew plain'));
+  assert.equal(PANEL_SHAPE.allGrewPanel, pct('growing all placebos grew hybrid'));
+  assert.equal(PANEL_SHAPE.wanderSlopePanel, pct('wander big slope grew hybrid'));
+  assert.equal(PANEL_SHAPE.wanderSlopePlain, pct('wander big slope grew plain'));
+  assert.equal(PANEL_SHAPE.pulsePanel, pct('growing pulse faded hybrid'));
+  assert.equal(PANEL_SHAPE.pulsePlain, pct('growing pulse faded plain'));
+});
+
+test('--shape-word on the CLI, the worker job and the page', async () => {
+  const { mkdtempSync, writeFileSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const dir = mkdtempSync(join(tmpdir(), 'shape-word-')), file = join(dir, 'gdp.csv');
+  writeFileSync(file, wgCsv());
+  let s = '';
+  await main([file, '--column', 'WestGermany', '--known-date', '1990', '--donors', 'all', '--window', '1960:2003', '--shape-word', 'panel', '--json'], { out: (x) => { s += x; } });
+  assert.deepEqual(JSON.parse(s).placeboShapes, { faded: 4, grew: 2, held: 10 });
+  await assert.rejects(main([file, '--column', 'WestGermany', '--known-date', '1990', '--donors', 'all', '--shape-word', 'trend'], { out: () => {} }), /give plain or panel/);
+  await assert.rejects(main([file, '--column', 'WestGermany', '--known-date', '1990', '--shape-word', 'panel'], { out: () => {} }), /--shape-word also need --donors|and --shape-word also need --donors/);
+  const out = analyzeJob({ kind: 'one', opts: { csv: wgCsv(), column: 'WestGermany', knownDate: '1990' }, synth: { csv: wgCsv(), column: 'WestGermany', date: '1990', donors: ['all'], shapeWord: 'panel' } });
+  assert.equal(out.result.synth.shapeWord, 'panel');
+  assert.match(synthHtml(out.result.synth), /Words read against the panel/);
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /<select id="shapeWord"><option value="plain" selected>/);
+  assert.match(page, /shapeWord: \$\("#shapeWord"\)\.value/);
 });

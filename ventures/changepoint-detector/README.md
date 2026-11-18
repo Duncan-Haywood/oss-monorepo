@@ -6728,6 +6728,43 @@ switch is all or nothing at the centre 6. **Next:** a fresh pre-registration who
 panels where the rule switches on, with the wandering cost reported beside it; or the hybrid word offered as an
 option, not the default, with this table quoted.
 
+### The panel word as an option: `--shape-word panel` (2026-11-18, later; an opt-in, no new test)
+
+The section above ended with two ways forward; this takes the second. The pre-registration said a failed bar 1 keeps
+the panel-relative word off the default, and it stays off. But on a long compounding panel the default word is close
+to useless (80% of clean units listed above the treated one got a word where the rule switches on), and the one bar
+that failed was missed by 0.4 points on a line where the rule switched on in 1-3% of panels. So a person reading a
+GDP-per-head panel can now ask for the panel word, and the note tells them what it buys and what it costs, quoting the
+confirmatory file:
+
+- **CLI:** `--shape-word plain|panel` with `--donors` (default `plain`; anything else is refused; without `--donors`
+  it is refused like `--anticipation`).
+- **Library:** `synthResult({ ..., shapeWord: 'panel' })` words `above[].gapShape` and `placeboShapes` with
+  `relShape`, and adds `shapeWord`, `shapeCentre` (the median unit's last-third over first-third mean-square ratio) and
+  `shapeRelative` (whether that centre reached 6) to the result and `--json`. The default result has none of the three,
+  so existing `--json` readers see no change.
+- **Page:** a "Word the donors ranked above it" select beside the anticipation box, passed through the worker job.
+- **The note** (`synth-view.mjs` `panelShapeNote`, rates in `PANEL_SHAPE`, each pinned to its line in
+  `eval/synth-shape-trend-confirm.out.txt`): where the centre reached 6, it gives the centre, what each word now means,
+  the panel's own counts, and then the confirmatory rates: 22% of clean listed units worded against 80% for the plain
+  word; pulses still called 'faded' 78% (plain 74%); a donor's own big slope called 'grew' only 33%, about the 27% of
+  all placebos, so 'held' does not clear a unit of a slope; and the wandering-panel cost (68.8% against 70.7%) that kept
+  it off the default. Below a centre of 6 it says the plain words stand, and gives the plain note.
+- **The plain note** now ends its "most share the word" clause with a pointer to `--shape-word panel`.
+
+What it prints on West Germany 1990 (`node cli.mjs data/oecd-gdp-per-capita-1960-2003.csv --column WestGermany
+--known-date 1990 --donors all --window 1960:2003 --shape-word panel`): the centre is 21.8; of the two units ranked
+above West Germany, the Netherlands' gap 'held' and Norway's 'grew' (plain: both 'grew'); over all 16 placebos 4
+faded, 2 grew and 10 held (plain: 0, 12, 4). Rank 3 of 17 and p 0.176 are the same under either word: the word is a
+description and changes no p. The Basque Country 1970 (centre 2.36) reads the same either way.
+
+`synth-shape-trend.test.mjs` pins the West German and Basque outputs, that the test is identical under both words, the
+default `--json` unchanged, every `PANEL_SHAPE` rate against the confirmatory file, the refused values, and the
+option's path through the CLI, the worker job and the page.
+
+**Not done:** the fresh pre-registration scored only where the rule switches on, which would decide whether the panel
+word can become the default.
+
 ## Currency pegs: the update-rate check against documented dates (2026-11-18, pre-registered; D1 fails, a hang fixed)
 
 The update-rate check ("When a series starts updating less often") had only ever been scored in
