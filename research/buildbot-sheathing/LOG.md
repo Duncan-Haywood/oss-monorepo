@@ -1,5 +1,15 @@
 # buildbot-sheathing research log
 
+## 2026-11-18 · Milestone 52 planned: does calibrating with the hose slack recover the G1's in-envelope coverage, and do residuals stay in spec when the calibration load differs from the press load?
+
+- **Why.** Milestone 51 found 101 dropped pose-cases inside milestone 50's drag envelope; 75 of the G1's 96 are its calibration pose (1.0 m, 0) failing under drag, which drops all 15 poses at once. Its "Next" asked to calibrate with no hose load (the calibration is one move, so the hose can be slack for it) and rerun the sweep.
+- **Known before the run (from reading the code, no number computed).** `residuals` (milestone 38) calibrates at the reference pose under the same hose force as each pose's press. Here the calibration move takes the slack-hose force (`hose_f(ref, 0, 0)`, the hanging weight only) with the same sensor error, and each pose keeps its loaded press. The compensation then subtracts a calibration error measured under a different load, so the residual can grow even where coverage improves. Nothing below has been computed.
+- **Model.** Milestone 48's sides, preload and sweep (its post hoc's import), 'braked' gaps, |e| 0.2 N on the 6 sensor axes, S 10 N, at 0, 5 and 20 N of drag in 8 directions; milestone 51's envelope (drag at most milestone 50's tolerated drag at the pose and at the calibration pose) and a pose-only envelope (the calibration no longer carries drag). Section A: per case, coverage and worst residual along the wall under the slack calibration. Section B: per pose-case, the residual change from milestone 51's loaded calibration where both plan. Section C: every remaining in-envelope drop, re-run with an exact sensor.
+- **Hypotheses, registered before the run.**
+  - **H211 (coverage).** Under the slack calibration the G1 plans more than 98% of its pose-cases inside milestone 51's envelope (milestone 51: 93.0%). Refuted if 98% or less.
+  - **H212 (spec).** Inside milestone 51's envelope each robot's worst residual along the wall is at most 0.03 mm at 0, 5 and 20 N under the slack calibration. Refuted if any is larger.
+  - **H213 (no calibration drops).** The slack calibration plans at all 6 sensor-error axes on both robots, so no case is dropped by the calibration. Refuted if any axis fails.
+
 ## 2026-11-18 · Milestone 51 result: every swept case outside milestone 50's drag envelope has no plan, but 101 inside it do not either; the largest block is the G1's calibration pose under 20 N of sideways drag; inside the envelope both robots stay in spec; H208 refuted, H209 and H210 held
 
 `experiments/m51_envelope/` (run, results, post hoc, figure; imports milestone 48's post hoc and reads milestone 50's results, no change to either), `reproduce.py` (m51 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL and project card. No new library code, so no new tests. Run time 237 s on 4 processes.
