@@ -3047,6 +3047,22 @@ RapidOCR's 138, so `--rapidocr` stays the advice for these slips. Details:
 [`eval/ocr-time-limit-2026-11-18.md`](eval/ocr-time-limit-2026-11-18.md). Tests:
 `ocr-time-limit.test.mjs`.
 
+### Russian slips: tesseract's Cyrillic model behind RapidOCR (2026-11-18)
+
+Would tesseract with its Russian model (`RECEIPT_OCR_CMD='tesseract {file} stdout --psm 6 -l rus+eng'`,
+apt `tesseract-ocr-rus`), read four ways behind RapidOCR's lead (`--rapidocr --four-pass`), fix
+the Russian slips RapidOCR gets wrong? No. On val's 145 totals the Cyrillic model lifts
+tesseract's own four-reading vote from 68 to 79, far behind RapidOCR's 140. Behind the lead the four
+gained no total on val or test (140 of 145, 137 of 148, as RapidOCR alone) and lost one on each,
+where a line read as 0.00 (a card line, `БЕЗНАЛИЧНЫМИ -00.00`, or noise) beside one amount made it
+"the items", which outvoted the right total. A Russian card or cash line is now a payment, not an
+item, and one item beside 0.00 lines is no items check (it adds up only to itself); both losses are
+gone. CORD text and RapidOCR alone are unchanged. Letting RapidOCR find the rows and tesseract read each row's crop
+finds ИТОГ twice as often as tesseract's own layout (83 against 42 slips), but the digits stay
+poor and it added nothing either. For Russian photos the advice stays `--rapidocr`. Details:
+[`eval/receipt-ocr-ru-rus-vote-2026-11-18.md`](eval/receipt-ocr-ru-rus-vote-2026-11-18.md).
+Tests: `receipt-lead-vote.test.mjs`.
+
 ### WildReceipt: 472 held-out photos from a new source (2026-11-17)
 
 Every CORD photo had been read, so the reader was measured on a source no rule was written from:

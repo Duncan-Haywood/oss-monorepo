@@ -125,9 +125,9 @@ flagships:
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. WildReceipt all
       read (eval/wildreceipt-rescore-2026-11-17.md); next: VAT5%: 668. Russian slips
       (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): all shards read
-      (eval/receipt-ocr-ru-train2-2026-11-18.md); next: ИТОГ misreads (HTOI, HTOD)
-      checked by a second reading, tesseract -l rus+eng behind RapidOCR. CORD
-      leftovers: train-28, 1009 (eval/cord-shard0-lead-2026-11-17.md).
+      (eval/receipt-ocr-ru-train2-2026-11-18.md); rus+eng tesseract adds nothing
+      (eval/receipt-ocr-ru-rus-vote-2026-11-18.md); next: a Cyrillic RapidOCR model.
+      CORD leftovers: train-28, 1009 (eval/cord-shard0-lead-2026-11-17.md).
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
