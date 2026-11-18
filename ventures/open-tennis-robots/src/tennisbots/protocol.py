@@ -53,7 +53,10 @@ TAKE_SURVEY = 0x84    # feeder, after LAUNCH while the board has a contact-time 
                       # summed residual, uint16 that time refined between its neighbours, uint16 the contact time the
                       # board's drop fit runs with (config TAKE_US), all in 0.1 ms, then uint16 x TAKE_SURVEY_TIMES:
                       # each candidate's mean residual rms in 1e-6 of the pre-ball speed (65535: none). The candidates
-                      # are the firmware's TAKE_SURVEY_GRID_US, 0 / 2 / 3 / 4 / 5 / 6 / 8 ms, half-sine.
+                      # are the firmware's TAKE_SURVEY_GRID_US, 0 / 2 / 3 / 4 / 5 / 6 / 8 ms, half-sine. Since
+                      # 2026-11-18 (README "The take survey's verdict needs two informative wheels") a last uint8: the
+                      # wheels summed, to 255, after the take-blind ones were left out; the Pi still reads the shorter
+                      # frame of older firmware (OLDER_FORMATS) and then has no such count.
 TAKE_SURVEY_TIMES = 7
 
 FORMATS = {
@@ -72,6 +75,10 @@ FORMATS = {
     LAUNCH: "<BhhhhB",
     ESC_SURVEY: "<BHH" + "H" * ESC_SURVEY_LAGS,
     ESC_TAU: "<H",
+    TAKE_SURVEY: "<BHHH" + "H" * TAKE_SURVEY_TIMES + "B",
+}
+# A frame of this length from older firmware still decodes, to fewer values (the receiver reads the tail as missing).
+OLDER_FORMATS = {
     TAKE_SURVEY: "<BHHH" + "H" * TAKE_SURVEY_TIMES,
 }
 
@@ -142,6 +149,8 @@ class Decoder:
             body = bytes(self.buf[1:3 + n])
             crc = self.buf[3 + n]
             fmt = FORMATS.get(cmd)
+            if fmt is not None and struct.calcsize(fmt) != n and cmd in OLDER_FORMATS:
+                fmt = OLDER_FORMATS[cmd]
             if crc != crc8(body) or fmt is None or struct.calcsize(fmt) != n:
                 self.errors += 1
                 self.buf = self.buf[1:]

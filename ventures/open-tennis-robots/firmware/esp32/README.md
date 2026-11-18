@@ -2042,7 +2042,7 @@ ESC-lag survey of each launched ball, `LaunchCheck._take_survey` refits each tur
 `TAKE_SURVEY_GRID_US` (0 / 2 / 3 / 4 / 5 / 6 / 8 ms), using the board's own ESC lag. It sums the squared residuals
 through the same trimmed sum as the ESC-lag survey (`ResidualSurvey`), and refines the least by `survey_pick`'s
 parabola. The TAKE_SURVEY frame (0x84) carries the wheel count, the least and refined times, the board's own `TAKE_US`
-(0.1 ms units) and each candidate's mean rms. `host.run_drill(take_survey=True)` sends SURVEY_TAKE for a calibration
+(0.1 ms units), each candidate's mean rms and, since 2026-11-18, the wheels summed (section "The take survey's verdict needs two informative wheels"). `host.run_drill(take_survey=True)` sends SURVEY_TAKE for a calibration
 drill (`run_file` does so whenever the drill says `"calibration": true`) and turns it off at the end. `tennisbots run`
 prints `host.take_survey_advice`, and the shot log keeps the survey (`last_take_survey_from_log`, also printed by
 `tennisbots esc-lag`).

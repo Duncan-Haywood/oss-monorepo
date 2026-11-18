@@ -396,6 +396,12 @@ TAKE_SURVEY_S = 16.0          # a contact-time survey (5 t0 levels a fit, 2026-1
 # 0.66-0.76 of the step's rms and read worse told it, while most spread takes fell to 0.29-0.6. Chosen on wheel lag 0.3 s,
 # checked on 0.6 s (eval/take-survey-heldout-2026-11-17.txt).
 TAKE_ADVISE_RATIO = 0.6
+# The fewest wheels the take survey must have summed, after the take-blind ones were left out (controller.TAKE_SURVEY_BLIND),
+# before the Pi advises a contact time (2026-11-18, firmware/esp32/README.md "The take survey's verdict needs two
+# informative wheels"). ESC_SURVEY_MIN_WHEELS still counts every wheel surveyed. On the twelve stored sets a verdict that
+# rested on one summed wheel was wrong 12 times in 37, on two 3 in 67 (tests/take_survey_kept.py,
+# eval/take-survey-kept-2026-11-18.md). Older firmware sends no such count; then only the 16-wheel minimum applies.
+TAKE_SURVEY_MIN_KEPT = 2
 # The longest a calibration drill holds a ball for the last one's surveys: 8 s until the take survey's refits went to 5
 # t0 levels (2026-11-18, README "The first-order take misfit traced"), about 10 s of control ticks a two-wheel ball.
 TAKE_WAIT_S = 12.0
@@ -419,6 +425,10 @@ def take_survey_advice(sv: dict | None) -> str | None:
         return (f"contact-time survey: {n} wheels so far pick {pick:g} ms; run more balls ({ESC_SURVEY_MIN_WHEELS} "
                 f"wheels) before setting TAKE_US")
     rms = [v for v in (sv.get("rms_ppm") or ()) if v is not None]
+    kept = sv.get("kept")
+    if kept is not None and 0 < kept < TAKE_SURVEY_MIN_KEPT and any(rms):
+        return (f"contact-time survey: {n} wheels, but only {kept} told the contact times apart (it picks {pick:g} ms); "
+                f"run more balls ({TAKE_SURVEY_MIN_KEPT} such wheels) before setting TAKE_US")
     if rms and not any(rms):
         # every wheel was take-blind (controller.TAKE_SURVEY_BLIND): no ball's fit told the contact times apart
         return (f"contact-time survey: {n} wheels, none told the contact times apart (each ball's contact fitted "
@@ -495,8 +505,10 @@ class FeederLink:
             elif cmd == P.ESC_TAU:
                 self.esc_tau_ms = vals[0]
             elif cmd == P.TAKE_SURVEY:
+                nt = 4 + P.TAKE_SURVEY_TIMES
                 self.take_survey = {"t": now, "wheels": vals[0], "least_ms10": vals[1], "refined_ms10": vals[2],
-                                    "board_ms10": vals[3], "rms_ppm": [None if v == 65535 else v for v in vals[4:]]}
+                                    "board_ms10": vals[3], "rms_ppm": [None if v == 65535 else v for v in vals[4:nt]],
+                                    "kept": vals[nt] if len(vals) > nt else None}   # None: firmware before 2026-11-18
             elif cmd == P.ESC_SURVEY:
                 self.esc_survey = {"t": now, "wheels": vals[0], "least_ms": vals[1], "refined_ms": vals[2],
                                    "rms_ppm": [None if v == 65535 else v for v in vals[3:]]}

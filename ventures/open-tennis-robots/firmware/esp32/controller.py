@@ -2032,6 +2032,10 @@ class LaunchCheck:
         candidate's mean rms in 1e-6 of the pre-ball speed), or None before its first wheel."""
         return self.take_survey.report(100) if self.take_survey is not None else None
 
+    def take_kept(self):
+        """The take survey's wheels summed (not left out as take-blind), for the TAKE_SURVEY frame's last byte."""
+        return self.take_survey.kept_n if self.take_survey is not None else 0
+
     def _esc_survey(self, snap, ticks, edges0, targets):
         for k in (0, 1):
             if targets[k] <= 0:
@@ -2287,7 +2291,9 @@ class Controller:
         tv = tv() if tv is not None and self.role == ROLE_FEEDER else None
         if tv is not None:
             rms = (list(tv[4]) + [65535] * P.TAKE_SURVEY_TIMES)[:P.TAKE_SURVEY_TIMES]
-            out += P.encode(P.TAKE_SURVEY, tv[0], min(65535, tv[1]), min(65535, tv[2]), min(65535, tv[3]), *rms)
+            kept = tv[5] if len(tv) > 5 else 255
+            out += P.encode(P.TAKE_SURVEY, tv[0], min(65535, tv[1]), min(65535, tv[2]), min(65535, tv[3]), *rms,
+                            min(255, kept))
         # The lag the drop fit runs with rides along too (README "Checked before a calibration drill"): the Pi compares
         # it with the last survey before a drill's first ball, since a board told the wrong lag reads spin far off.
         tau = getattr(self.hw, "esc_tau_ms", None)
