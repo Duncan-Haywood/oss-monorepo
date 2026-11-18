@@ -317,7 +317,9 @@ export function parseIfcXml(text, schema, opts = {}) {
       return item(first, declared);
     }
     if (def.aggregate) return nest(splitText(el.text, declared), def);
-    if (!el.text.trim() && schema.prim(declared) === "string") return "";
+    // An all-white-space string stays as written: xs:string keeps white space,
+    // and STEP's IFCLABEL('  ') is two spaces too (eval/word-class-2026-11-18.md).
+    if (!el.text.trim() && schema.prim(declared) === "string") return el.text;
     return el.text.trim() === "" ? null : cast(el.text, declared);
   }
 

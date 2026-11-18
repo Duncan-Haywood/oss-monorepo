@@ -298,17 +298,78 @@ export function portabilityNotes(p) {
       fix: "drop the anchors",
     });
   }
-  // A bare \w outside [...]: elementpath, which IfcTester uses, turns it into
-  // Python's \w (letters, digits, underscore), not the XSD set.
-  const bare = s.replace(/\\\\/g, "").replace(/\[(?:\\.|[^\]\\])*\]/g, "");
-  if (/\\[wW]/.test(bare)) {
+  // A bare \w or \s outside [...]: elementpath, which IfcTester uses, turns
+  // it into Python's \w (letters, digits, underscore) or \s (any Unicode
+  // space), not the XSD set; inside [...] it uses the XSD set
+  // (eval/word-class-2026-11-18.md).
+  const bare = bareEscapes(s);
+  if (bare.has("w") || bare.has("W")) {
     notes.push({
       code: "pattern-word-class",
-      message: `"\\w" in XSD is any character that is not punctuation, a separator or a control character, so it takes "+", "€" and "°" as well as letters and digits; IfcTester reads it as letters, digits and underscore only, so a value such as "Wall+" or "90°" passes here and fails there; write [\\p{L}\\p{Nd}_] for letters, digits and underscore, or [^\\p{P}\\p{Z}\\p{C}] for the XSD set, and every checker agrees`,
+      message: `"\\w" in XSD is any character that is not punctuation, a separator or a control character, so it takes "+", "€" and "°" as well as letters and digits, but not "_" (a connector punctuation mark); IfcTester reads it as letters, digits and underscore, so "Wall+" or "90°" passes here and fails there, and "W_01" fails here and passes there; write [\\p{L}\\p{Nd}_] for letters, digits and underscore, or [^\\p{P}\\p{Z}\\p{C}] for the XSD set, and every checker agrees (the page's repair and cli.mjs --fix --word-class letters|xsd write either)`,
+      fix: null,
+    });
+  }
+  if (bare.has("s") || bare.has("S")) {
+    notes.push({
+      code: "pattern-space-class",
+      message: `"\\s" in XSD is a space, tab, line feed or carriage return only; IfcTester reads it as any Unicode space, so a value with a no-break space (common in text pasted from a spreadsheet or a word processor) passes there and fails here; write [\\s] for the XSD set or [\\s\\p{Z}] for any space, and every checker agrees (the page's repair and cli.mjs --fix --word-class xsd|letters write either)`,
       fix: null,
     });
   }
   return notes;
+}
+
+// The letters of the class escapes written outside [...] ("w", "s", "S", ...).
+// Classes nest only through subtraction, "-[" inside a class.
+function bareEscapes(s) {
+  const out = new Set();
+  let depth = 0;
+  for (let k = 0; k < s.length; k++) {
+    const c = s[k];
+    if (c === "\\") { if (depth === 0 && s[k + 1]) out.add(s[k + 1]); k++; continue; }
+    if (c === "[" && (depth === 0 || s[k - 1] === "-")) depth++;
+    else if (c === "]" && depth > 0) depth--;
+  }
+  return out;
+}
+
+// A bare \w, \W, \s or \S (outside [...]) spelled out as a character class
+// that every reader takes the same way, or null when the pattern has none (or
+// the result would not parse). Which meaning to keep is a person's choice, so
+// neither is part of repairXsdRegex:
+//   "xsd":     what the IDS standard says, kept exactly:
+//              \w -> [^\p{P}\p{Z}\p{C}], \s -> [\s] (elementpath reads \s
+//              inside [...] as XSD's space, tab, LF, CR);
+//   "letters": close to how IfcTester reads them today: \w -> [\p{L}\p{Nd}_]
+//              (Python's \w also takes other numerals such as "²" and "Ⅳ"),
+//              \s -> [\s\p{Z}] (any space; Python's also takes \f, \v and
+//              four control characters).
+// \W and \S become the negated class. (eval/word-class-2026-11-18.md)
+export const WORD_CLASS = {
+  xsd: { w: "[^\\p{P}\\p{Z}\\p{C}]", W: "[\\p{P}\\p{Z}\\p{C}]", s: "[\\s]", S: "[^\\s]" },
+  letters: { w: "[\\p{L}\\p{Nd}_]", W: "[^\\p{L}\\p{Nd}_]", s: "[\\s\\p{Z}]", S: "[^\\s\\p{Z}]" },
+};
+export function spellWordClass(p, reading) {
+  const sub = WORD_CLASS[reading];
+  if (!sub) throw new Error(`reading must be ${Object.keys(WORD_CLASS).join(" or ")}`);
+  const s = String(p);
+  let out = "", depth = 0, changed = false;
+  for (let k = 0; k < s.length; k++) {
+    const c = s[k];
+    if (c === "\\") {
+      const e = s[k + 1] ?? "";
+      if (depth === 0 && sub[e]) { out += sub[e]; changed = true; }
+      else out += c + e;
+      k++;
+      continue;
+    }
+    if (c === "[" && (depth === 0 || s[k - 1] === "-")) depth++;
+    else if (c === "]" && depth > 0) depth--;
+    out += c;
+  }
+  if (!changed) return null;
+  return parseXsdRegex(out).ok ? out : null;
 }
 
 // A mechanical repair for the common non-XSD spellings, or null when there is

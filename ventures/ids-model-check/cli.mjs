@@ -4,7 +4,10 @@
 //   node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]
 //   node ci-cli.mjs --models GLOB --ids GLOB ...  # many files, for CI (action.yml)
 //   node cli.mjs --audit SPEC.ids [--json]     # check the IDS itself, no model
-//   node cli.mjs --fix SPEC.ids [-o OUT.ids]   # repair its ids.xsd faults (fix.mjs); stdout without -o
+//   node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]
+//                                              # repair its ids.xsd faults (fix.mjs); stdout without -o;
+//                                              # --word-class also spells a bare \w in patterns as a class
+//                                              # every checker reads alike (xsdregex.mjs spellWordClass)
 //
 // MODEL may be a STEP .ifc, an .ifcxml, or an .ifczip holding either.
 //
@@ -22,11 +25,13 @@ import { fixStructure } from "./fix.mjs";
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
-const files = args.filter((a, i) => !a.startsWith("--") && a !== "-o" && !["--bcf", "--junit", "--max-failures", "-o"].includes(args[i - 1]));
+const files = args.filter((a, i) => !a.startsWith("--") && a !== "-o" && !["--bcf", "--junit", "--max-failures", "--word-class", "-o"].includes(args[i - 1]));
 if (flag("--fix") && files.length === 1) {
   // Exit 0 when the repaired file breaks ids.xsd nowhere, 1 when faults that
   // need a person remain (listed on stderr), 2 when the file is not XML.
-  const r = fixStructure(readFileSync(files[0], "utf8"));
+  const wordClass = opt("--word-class");
+  if (wordClass !== undefined && !["xsd", "letters"].includes(wordClass)) { console.error("--word-class takes xsd (the XML Schema set) or letters (letters, digits, underscore)"); process.exit(2); }
+  const r = fixStructure(readFileSync(files[0], "utf8"), { wordClass });
   if (r.error) { console.error(`error: ${r.error}`); process.exit(2); }
   for (const x of r.fixes) console.error(`fixed  line ${x.line}: ${x.message}`);
   for (const x of r.remaining) console.error(`left   line ${x.line ?? "?"}: ${x.message}`);
@@ -41,7 +46,7 @@ if (flag("--fix") && files.length === 1) {
   else console.log(auditReport(ids.title, ids.specs, issues));
   process.exitCode = issues.some((x) => x.level === "error") ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;

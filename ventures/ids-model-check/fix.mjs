@@ -3,7 +3,7 @@
 // indentation, attribute order, prefixes) stays as written, and the checker
 // reads the same specifications before and after (eval/fix-structure-2026-11-18.md).
 //
-// fixStructure(text) -> { text, fixes: [{ code, line, message }], remaining: [structure findings] }
+// fixStructure(text, { wordClass }) -> { text, fixes: [{ code, line, message }], remaining: [structure findings] }
 //   text: the repaired file (the input unchanged when nothing applied);
 //   fixes: what was changed, with the line in the input it was on;
 //   remaining: structureIssues() on the repaired file, the faults that need
@@ -27,12 +27,15 @@
 //   - an info <date> written with a time -> the date
 //   - an xs:pattern in another regex dialect ("(?:", "^...$", "\\/", "{,n}") -> the XSD
 //     spelling of the same pattern (eval/xsd-regex-2026-11-18.md)
+//   - only when asked (`wordClass` "xsd" or "letters", a person's choice): a bare
+//     \w, \W, \s or \S in a pattern -> a class every checker reads alike (xsdregex.mjs
+//     spellWordClass, eval/word-class-2026-11-18.md)
 // Not changed (no single right answer): an author that is not an e-mail
 // address, an element ids.xsd does not have, a missing required element.
 
 import { parseXml } from "./xml.mjs";
 import { structureIssues, IDS_NS, XS_NS } from "./structure.mjs";
-import { parseXsdRegex, repairXsdRegex } from "./xsdregex.mjs";
+import { parseXsdRegex, repairXsdRegex, spellWordClass } from "./xsdregex.mjs";
 
 const VERSIONS = ["IFC2X3", "IFC4", "IFC4X3_ADD2"];
 const RELATIONS = ["IFCRELAGGREGATES", "IFCRELASSIGNSTOGROUP", "IFCRELCONTAINEDINSPATIALSTRUCTURE", "IFCRELNESTS"];
@@ -96,7 +99,7 @@ function fixAmpersands(text, fixes) {
 }
 
 // One pass over the parsed file: start-tag rewrites and content edits, none overlapping.
-function onePass(text, fixes) {
+function onePass(text, fixes, opts = {}) {
   const root = parseXml(text, { spans: true });
   const line = lineAt(text);
   const edits = []; // { from, to, text }
@@ -247,11 +250,13 @@ function onePass(text, fixes) {
     if (n.local === "pattern" && typeof n.attrs.value === "string") {
       const p = n.attrs.value;
       const r = parseXsdRegex(p);
-      const fixed = repairXsdRegex(p);
-      if (fixed !== null && (!r.ok || r.notes.some((x) => x.fix))) {
-        tagOf(n).set.set("value", fixed);
-        note(n, "pattern-xsd", `pattern /${p.length > 60 ? p.slice(0, 57) + "..." : p}/ is now /${fixed.length > 60 ? fixed.slice(0, 57) + "..." : fixed}/ (${r.ok ? r.notes.filter((x) => x.fix).map((x) => x.fix).join(", ") : r.error.split(";")[0]})`);
-      }
+      const cut = (x) => x.length > 60 ? x.slice(0, 57) + "..." : x;
+      let fixed = repairXsdRegex(p);
+      if (fixed !== null && !(!r.ok || r.notes.some((x) => x.fix))) fixed = null;
+      if (fixed !== null) note(n, "pattern-xsd", `pattern /${cut(p)}/ is now /${cut(fixed)}/ (${r.ok ? r.notes.filter((x) => x.fix).map((x) => x.fix).join(", ") : r.error.split(";")[0]})`);
+      const word = opts.wordClass ? spellWordClass(fixed ?? p, opts.wordClass) : null;
+      if (word !== null) note(n, "pattern-word-class", `pattern /${cut(fixed ?? p)}/ is now /${cut(word)}/ (a bare \\w or \\s spelled ${opts.wordClass === "xsd" ? "as the IDS standard reads it" : "as IfcTester reads it: \\w letters, digits and underscore, \\s any space"}, so every checker reads it alike)`);
+      if (word !== null || fixed !== null) tagOf(n).set.set("value", word ?? fixed);
     }
     // A date with a time: keep the date.
     if (n.local === "date" && parent?.local === "info" && !kidsOf.length) {
@@ -303,12 +308,12 @@ function onePass(text, fixes) {
   return out;
 }
 
-export function fixStructure(text) {
+export function fixStructure(text, opts = {}) {
   const fixes = [];
   let cur = fixAmpersands(text, fixes);
   try {
     for (let pass = 0; pass < 4; pass++) {
-      const next = onePass(cur, fixes);
+      const next = onePass(cur, fixes, opts);
       if (next === cur) break;
       cur = next;
     }

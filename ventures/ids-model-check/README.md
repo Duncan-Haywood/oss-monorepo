@@ -395,6 +395,29 @@ bare `\w`, a range like `[\d-z]`). 37 of 65 public IDS files use patterns;
 files, a DFE file's `(?:` date pattern). buildingSMART's suite stays 334 of
 334.
 
+### A bare `\w` or `\s`: pick the meaning, and every checker agrees (2026-11-18)
+
+IfcTester keeps a bare `\w` or `\s` (one outside `[...]`) as Python's own
+escape. The IDS standard gives both a different meaning. XSD's `\w` takes
+`+`, `€` and `°` but not `_`, so `W_01` fails `\w+` under the standard and
+passes in IfcTester. XSD's `\s` is only space, tab and line breaks, so a
+no-break space (common in text pasted from Excel or Word) fails `\s`. 4 of
+the 65 public IDS files write `-?\d{2}\s.*` for storey names. The audit warns
+on both (`pattern-word-class`, `pattern-space-class`). The repair box on the
+page then asks which meaning to keep. "As IfcTester reads it" writes
+`[\p{L}\p{Nd}_]` and `[\s\p{Z}]`. "As the standard says" writes
+`[^\p{P}\p{Z}\p{C}]` and `[\s]`. Either way, every checker reads the file the
+same way. The CLI does the same with `node cli.mjs --fix spec.ids --word-class
+letters|xsd`. With no choice, nothing is rewritten.
+
+Checked (`eval/word-class-2026-11-18.md`): on 1,500 random patterns and the 2
+corpus ones, elementpath reads both spellings as this checker does (1,500 of
+1,500 each). The standard's spelling gives IfcTester the standard's answer on
+every probe. IfcTester's spelling matches IfcTester's old reading on 1,330.
+The other 170 differ only on `²`, `Ⅳ` and the form feed. buildingSMART's 16
+`\w+` test pairs score 16 of 16 as written and after either repair.
+An ifcXML string holding only spaces now stays as written, as it does in STEP.
+
 ### On every commit: GitHub Action, JUnit and annotations (2026-11-17)
 
 A team that keeps its IFC exports and IDS files in a repository can check every
