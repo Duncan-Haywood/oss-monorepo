@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKkjyYC5X2FyrQpeetC",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T05:18:17Z",
+  "ended": "2026-11-18T05:25:29Z",
+  "wall_minutes": 7.44,
+  "tokens_in": 3675320,
+  "tokens_out": 24650,
+  "cost_usd": 1.9559,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17190",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First quality_mutate attempts used bare `python3 -m pytest` (no pytest in /usr/local/bin python3); fixed by passing the pyenv.py interpreter path."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "README.md (portfolio/quality) / platform/ci/quality_mutate.py",
+      "issue": "The mutate example's test command assumes `python3` has pytest; in cloud sessions it often does not, and the red-baseline message does not suggest platform/ci/pyenv.py."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Harness system prompt says the dev branch already exists to be created; `git checkout -b` failed because the container had already created it at main. Harmless, cost one retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Mode was `fix`, not `sample`, so steps 1-3 and the round post do not apply; followed the README's fix-mode row instead (one high defect, quality-fix post).",
+      "did": "fixed capture-storage defects #0, #1, #4 with tests; recorded the propagated copy in capture-kitstore as a known gap instead of porting it in the same PR",
+      "result": "PR scoped to one subject; kitstore left for a later fix session"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-quality-fix-one-card-one-reader.md"
+  ],
+  "goal": null,
+  "notes": "Quality track, mode fix (seeded draw; 18 high defects open; queue seed 2026-11-18-5e50). Subject research/capture-storage, audit 2026-11-17-capture-storage.json defects 0 (high, divisible readers), 1 (medium, two-pass copy) and 4 (low, README 4.8 h -> 5.4 h) marked fixed_by PR #17190. Model: LPT whole-card schedule, readers <= cards, read-once multi-destination default with reads='per-copy' option, SSD write floor 400 MB/s (assumed), spare-card option. 4-camera plan 452 g/6 readers -> 402 g/4 readers, hand-checked (cards 216,180,180,180,108 GB; makespan 288 GB/90 MB/s = 0.889 h; 5x0.4+4x75+4x25 = 402 g). Per-copy reads: no rig 1-8 fits 1 h (confirms audit). Tests 15 -> 21 pass (/usr/bin/python3.13 -m pytest -q tests). Mutations: 3 of 4 caught; the survivor (allow readers > cards) is equivalent. Found the same defect copied into research/capture-kitstore storage_plan(); recorded as a known gap in its README, not fixed. Share meeting the bar: not measured (fix session, no new audit). sourced_results.txt regenerated; hash timings moved a few percent on a different container CPU and README now gives the range.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ad829d84-48ab-561e-9cee-4691c08150e9",
+    "transcripts": 1,
+    "first": "2026-11-18T05:18:17Z",
+    "last": "2026-11-18T05:25:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 76,
+        "output": 24650,
+        "thinking": 5620,
+        "cache_read": 3581964,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93280,
+        "api_equivalent_usd": 1.9559,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 76,
+      "output": 24650,
+      "thinking": 5620,
+      "cache_read": 3581964,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93280,
+      "api_equivalent_usd": 1.9559,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.44,
+      "active_minutes": 7.44,
+      "model_minutes": 4.84,
+      "tool_minutes": 2.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a modelling engineer re-deriving a per-card offload schedule, regenerating tables, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 255.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -164,14 +164,16 @@
    "what": "Offload time treats readers as divisible bandwidth over the whole day (day / (readers x 90 MB/s)); a card can be read by only one reader, so every feasible plan in results.txt uses more readers than cards (1 card/2 readers for one camera) and, under the model's own two-pass copy, no rig of 1-8 cameras actually fits the 1 h limit. The headline '6 readers, 4 SSDs, 452 g' (README:3, research/README.md:735, project.json) is not a realisable plan. Repro: PYTHONPATH=src python3 -c \"from capture_storage import offload; print(offload(['360 camera'],4,7))\" -> readers=2, cards=1, offload_h=0.667; expected infeasible (one 216 GB card read twice at 90 MB/s = 1.33 h).",
    "where": "research/capture-storage/src/capture_storage/model.py:62",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17190"
   },
   {
    "severity": "medium",
    "what": "Second backup copy is modelled as a second full read of the cards (t *= copies), against standard multi-destination offload practice (read once, write N copies, checksum inline). It roughly doubles reader count and inflates the headline grams (6 readers/452 g vs 3 readers/377 g for the 4-camera rig with per-card reads); the README does not state the assumption.",
    "where": "research/capture-storage/src/capture_storage/model.py:64",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17190"
   },
   {
    "severity": "medium",
@@ -192,7 +194,8 @@
    "what": "'re-reading the cards too doubles the evening to 4.8 h' drops the 0.62 h SSD re-read the sentence has just added; with both re-reads the evening is 5.4 h.",
    "where": "research/capture-storage/README.md:60",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17190"
   },
   {
    "severity": "low",
@@ -202,6 +205,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17190"],
  "verdict": "A tidy, fully reproducible sizing note (15 tests pass, results.txt and the figure regenerate byte-identically, every README number traces to a results file, data rates and battery/card ratios recompute exactly), whose central optimiser is physically wrong: it splits one evening's bytes over up to 8 readers as if bandwidth were divisible, so every reported plan uses more readers than there are cards, and once a card is read by one reader at a time no rig meets the 1 h limit under the project's own two-pass copy assumption. The headline '6 readers, 452 g' is therefore not a realisable kit; the qualitative finding (copy time, not card mass, binds) survives and is stronger than stated. Verification is weak (4 of 5 seeded bugs survive), the second-copy model departs from standard multi-destination offload practice, and no DIT prior work is cited. Finished as described, but well below the research bar."
 }
