@@ -390,11 +390,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The record's drop fit and its window"
-      (record fit reads 24 revolutions after the ball, LOOP_FIT_AFTER: held out,
-      jittery-tach rms 0.62% to 0.47%, noise-free unchanged;
-      eval/record-fit-window-2026-11-18.txt). Next: the take survey with 24
-      (tests/record_fit_window.py); short ESC lags read ~10% low with 16;
+      see firmware/esp32/README.md, latest "The take survey's window" (survey keeps
+      8, TAKE_SURVEY_AFTER: held out, 24 named and advised 9 spread takes vs 12; a 3
+      us tach blinds it at any window; eval/take-survey-window-2026-11-18.txt).
+      Next: the tach jitter at which the take survey goes blind (tach_jitter_us
+      0.5-3, tests/take_survey_window.py); short ESC lags read ~10% low with 16;
       SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels;
       an ESC with its own speed loop.
     why: >-

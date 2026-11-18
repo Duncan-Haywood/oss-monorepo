@@ -401,6 +401,12 @@ TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 8000)
 # at lag 0.3 s picked 2.5 ms. At 5 levels (60 steps a fit, not 36) every instant build of 24 picked 1 ms or less and
 # every 6 ms build of 12 was named within 1 ms (tests/take_misfit_trace.py). The record fit keeps 3.
 TAKE_SURVEY_LEVELS = 5
+# The take survey's window, revolutions after the ball's anchor (2026-11-18, README "The take survey's window"). Not the
+# record fit's 24 (LOOP_FIT_AFTER): the take's effect sits in the first revolutions after the ball, so a longer window
+# adds rows where every candidate fits alike and pulls the best / step share toward 1. Held out (lag 0.45 s, seed 11,
+# 36 survey drills): spread takes named and advised 12 with 8, 9 with 24; on a 3 us jittery tach no window advised any
+# build (shares 0.90-1.00), so the window does not rescue the jitter either.
+TAKE_SURVEY_AFTER = 8
 
 
 class ResidualSurvey:
@@ -1929,7 +1935,8 @@ class LaunchCheck:
                 # with the tau refinement the record's fit has: without it (refine=0, as the ESC-lag survey had until
                 # 2026-11-18) the fits missed by about 60 times the refined fit's rms and every candidate scored alike, so a 6 ms take
                 # picked 0 (README "The contact time surveyed on the board")
-                for item in drop_from_commands_steps(snap[k], tk, take=take_offsets(c), levels=TAKE_SURVEY_LEVELS):
+                for item in drop_from_commands_steps(snap[k], tk, take=take_offsets(c), levels=TAKE_SURVEY_LEVELS,
+                                                     after=TAKE_SURVEY_AFTER):
                     if item is None:
                         yield None
                     else:
