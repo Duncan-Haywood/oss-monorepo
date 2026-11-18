@@ -397,3 +397,156 @@ class VisibleAreaTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# --------------------------------------------------------------------------
+# Coolpix NRW layouts (real files against LibRaw: eval/nikon-nrw-reader-2026-11-18.md)
+
+CW, CH = 48, 16  # a row of 12-bit samples is 72 bytes, a whole number of 32-bit words
+
+
+def coolpix_field(top=4000, seed=5):
+    """A smooth picture with green on the (0,1)/(1,0) diagonal brighter than red and blue (RGGB)."""
+
+    rng = random.Random(seed)
+    out = []
+    for y in range(CH):
+        for x in range(CW):
+            green = (x + y) % 2 == 1
+            base = 900 + 20 * x + 15 * y + (700 if green else 0)
+            out.append(max(0, min(top, base + rng.randint(-10, 10))))
+    return out
+
+
+def _pack12(values) -> bytes:
+    wr = _BitWriter()
+    for v in values:
+        wr.put(v, 12)
+    return wr.done()[: len(values) * 12 // 8]
+
+
+def make_coolpix(payload, compression, model, cfa=(0, 1, 1, 2), nrw_block=None, wb=None):
+    mn_entries = []
+    if wb:
+        mn_entries.append((0x000C, 5, (wb[0], wb[1], 1.0, 1.0)))
+    if nrw_block is not None:
+        mn_entries.append((0x0014, 7, tuple(nrw_block)))
+    inner = b"II*\0" + struct.pack("<I", 8) + _ifd_bytes(mn_entries or [(0x0001, 7, (48, 50, 49, 49))], 8)
+    note = b"Nikon\0\x02\x10\0\0" + inner
+    ifd0 = lambda raw_at, exif_at: [  # noqa: E731
+        (254, 4, (1,)),
+        (271, 2, tuple(b"NIKON\0")),
+        (272, 2, tuple(model.encode() + b"\0")),
+        (330, 4, (raw_at,)),
+        (34665, 4, (exif_at,)),
+    ]
+    ifd0_at = 8
+    exif_at = ifd0_at + len(_ifd_bytes(ifd0(0, 0), ifd0_at))
+    exif = _ifd_bytes([(37500, 7, tuple(note))], exif_at)
+    raw_at = exif_at + len(exif)
+    raw_at += raw_at % 2
+    common = [(254, 4, (0,)), (256, 4, (CW,)), (257, 4, (CH,)), (258, 3, (12,)), (259, 3, (compression,)),
+              (262, 3, (32803,)), (33421, 3, (2, 2)), (33422, 1, tuple(cfa))]
+    raw = lambda at: _ifd_bytes(common + [(273, 4, (at,)), (279, 4, (len(payload),))], raw_at)  # noqa: E731
+    data_at = raw_at + len(raw(0))
+    blob = bytearray(b"II*\0" + struct.pack("<I", ifd0_at))
+    blob += _ifd_bytes(ifd0(raw_at, exif_at), ifd0_at)
+    blob += exif
+    blob = blob.ljust(raw_at, b"\0")
+    blob += raw(data_at) + payload
+    return bytes(blob)
+
+
+def nrw_block(version=b"0101", black=200, levels=(400, 256, 256, 300)):
+    """The maker note's NRW colour block: black at 0x20, R G G B levels (R and B halved) at 0x38."""
+
+    blob = bytearray(b"NRW " + version + b"\0\0")
+    blob = blob.ljust(0x60, b"\0")
+    struct.pack_into("<H", blob, 0x20, black)
+    struct.pack_into("<4I", blob, 0x38, *levels)
+    return bytes(blob)
+
+
+def _swap_words(payload: bytes) -> bytes:
+    return b"".join(payload[i : i + 4][::-1] for i in range(0, len(payload), 4))
+
+
+class CoolpixTests(unittest.TestCase):
+    def test_packed_12_bit_in_little_endian_words_with_nrw_black_and_balance(self):
+        expected = coolpix_field()
+        data = make_coolpix(_swap_words(_pack12(expected)), 1, "COOLPIX P7000", nrw_block=nrw_block())
+        raw = nef.parse_nef(data)
+        self.assertEqual(list(raw.values), expected)
+        self.assertIn("little-endian 32-bit words", raw.notes[0])
+        self.assertEqual(raw.ifd.entries[rd.TAG_BLACK_LEVEL], (200.0,) * 4)
+        neutral = raw.ifd.entries[rd.TAG_AS_SHOT_NEUTRAL]
+        self.assertAlmostEqual(1 / neutral[0], 800 / 256)
+        self.assertAlmostEqual(1 / neutral[2], 600 / 256)
+
+    def test_plain_packed_under_34713_is_not_huffman_decoded(self):
+        expected = coolpix_field()
+        data = make_coolpix(_pack12(expected), 34713, "COOLPIX P340")
+        raw = nef.parse_nef(data)
+        self.assertEqual(list(raw.values), expected)
+        self.assertEqual(raw.notes[0], "NEF: uncompressed (12-bit)")
+        self.assertEqual(raw.ifd.entries[rd.TAG_BLACK_LEVEL], (200.0,) * 4)  # per-model: no level in the file
+
+    def test_top_aligned_big_endian_words_keep_the_low_bits_and_scale_black(self):
+        expected = [v << 4 for v in coolpix_field()]
+        expected[5] |= 8  # the odd half step these bodies write
+        data = make_coolpix(struct.pack(f">{len(expected)}H", *expected), 34713, "COOLPIX P7800")
+        raw = nef.parse_nef(data)
+        self.assertEqual(list(raw.values), expected)
+        self.assertIn("top of big-endian 16-bit words", raw.notes[0])
+        self.assertEqual(raw.ifd.entries[rd.TAG_WHITE_LEVEL], (65504,))
+        self.assertEqual(raw.ifd.entries[rd.TAG_BLACK_LEVEL], (3200.0,) * 4)
+
+    def test_little_endian_16_bit_words_under_compression_1(self):
+        expected = coolpix_field()
+        data = make_coolpix(struct.pack(f"<{len(expected)}H", *expected), 1, "COOLPIX A1000")
+        raw = nef.parse_nef(data)
+        self.assertEqual(list(raw.values), expected)
+        self.assertEqual(raw.ifd.entries[rd.TAG_WHITE_LEVEL], (4095,))
+
+    def test_e_series_rows_are_interlaced_and_balance_comes_from_the_2560_byte_block(self):
+        expected = coolpix_field()
+        rows = [expected[r * CW : (r + 1) * CW] for r in range(CH)]
+        stored = [v for r in list(range(0, CH, 2)) + list(range(1, CH, 2)) for v in rows[r]]
+        block = bytearray(2560)
+        struct.pack_into(">2H", block, 0x4E0, 654, 376)
+        data = make_coolpix(_pack12(stored), 1, "E8800", nrw_block=bytes(block))
+        raw = nef.parse_nef(data)
+        self.assertEqual(list(raw.values), expected)
+        self.assertIn("even rows then odd rows", raw.notes[0])
+        neutral = raw.ifd.entries[rd.TAG_AS_SHOT_NEUTRAL]
+        self.assertAlmostEqual(1 / neutral[0], 654 / 256)
+        self.assertAlmostEqual(1 / neutral[2], 376 / 256)
+
+    def test_cfa_tag_that_puts_green_off_the_sensels_green_diagonal_reads_as_rggb(self):
+        expected = coolpix_field()
+        data = make_coolpix(_swap_words(_pack12(expected)), 1, "COOLPIX P6000", cfa=(1, 2, 0, 1))
+        raw = nef.parse_nef(data)
+        self.assertEqual(raw.ifd.entries[rd.TAG_CFA_PATTERN], (0, 1, 1, 2))
+        self.assertTrue(any("read as RGGB" in n for n in raw.notes))
+        # A tag that agrees with the sensels is left alone.
+        data = make_coolpix(_swap_words(_pack12(expected)), 1, "COOLPIX P6000", cfa=(2, 1, 1, 0))
+        self.assertEqual(nef.parse_nef(data).ifd.entries[rd.TAG_CFA_PATTERN], (2, 1, 1, 0))
+
+    def test_p6000_balance_offset_and_version_0100_has_no_black(self):
+        block = bytearray(b"NRW 0100\0\0".ljust(10 + 0x13DE + 16, b"\0"))
+        struct.pack_into("<4I", block, 10 + 0x13DE, 448, 256, 256, 440)
+        black, wb = nef.coolpix_levels(_mn_with(bytes(block)))
+        self.assertIsNone(black)
+        self.assertAlmostEqual(wb[0], 3.5)
+        self.assertAlmostEqual(wb[1], 3.4375)
+
+    def test_nrw_path_is_developable(self):
+        from shootflow import raw_preview
+
+        self.assertTrue(raw_preview.is_developable_path(Path("DSCN0001.NRW")))
+
+
+def _mn_with(blob: bytes) -> rd.Ifd:
+    mn = rd.Ifd(byte_order="<")
+    mn.entries = {0x0014: tuple(blob)}
+    return mn

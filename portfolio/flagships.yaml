@@ -311,17 +311,18 @@ flagships:
       RWL, and a card copy that keeps all 27 raw formats, 2026-11-16. Bayer and
       X-Trans demosaics in C 2026-11-15 (eval/bayer-*, eval/xtrans-native-*). NEF
       edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
-      (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Next: a Coolpix
-      NRW reader (no public sample yet); an RW2 RawFormat 8 with a tone curve
-      (0x39/0x3A); Sony's vignetting table vs an evenly lit frame; a real DNG and a
-      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
-      lit frame shot wide open (corners level after lensfun's vignetting?); a second
-      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
-      synthetic files so far, or the SDK to check them; lateral colour measured on a
-      real frame with sharp corner edges; a real Adobe `.dcp` through the profile
-      chooser; a real tiled CR3 (C-RAW tiles 2026-11-16, eval/canon-cr3-*tiled-*);
-      cull: zoom and 8-10% pan windows 2026-11-18 (eval/cull-pan-windows-*), next 6%
-      pans (0.85, a 7x7 grid?) and a real shoot's picks. More open items: NEXT.md.
+      (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
+      E-series NEF 2026-11-18 (eval/nikon-nrw-reader-*). Next: an RW2 RawFormat 8
+      with a tone curve (0x39/0x3A); Sony's vignetting table vs an evenly lit frame;
+      a real DNG and a vignetting-calibrated lens through the pipeline's lens stage;
+      a real evenly lit frame shot wide open (corners level after lensfun's
+      vignetting?); a second maker-against-lensfun DNG pair; a real DNG carrying any
+      opcode run only on synthetic files so far, or the SDK to check them; lateral
+      colour measured on a real frame with sharp corner edges; a real Adobe `.dcp`
+      through the profile chooser; a real tiled CR3 (C-RAW tiles 2026-11-16,
+      eval/canon-cr3-*tiled-*); cull: zoom and 8-10% pan windows 2026-11-18
+      (eval/cull-pan-windows-*), next 6% pans (0.85, a 7x7 grid?) and a real shoot's
+      picks. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

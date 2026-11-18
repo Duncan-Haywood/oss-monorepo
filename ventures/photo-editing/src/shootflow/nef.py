@@ -50,9 +50,11 @@ a version, then a TIFF of its own whose offsets count from that header):
 The format as dcraw and LibRaw read it (Dave Coffin's ``nikon_load_raw``, its
 code tables and curve rules); this is an independent implementation, checked
 sensel for sensel against LibRaw 0.22 (``tools/nef_libraw_check.py``,
-``eval/nikon-nef-reader-2026-11-14.md``). Nikon's newer high-efficiency (TicoRAW,
-compression 34892 in a NEF) and the Coolpix "E" packed layouts are refused with
-the reason.
+``eval/nikon-nef-reader-2026-11-14.md``). Coolpix raws (``.NRW``, and the
+E-series NEFs before them) use other layouts, read below ("Coolpix NRW") and
+checked against LibRaw on thirteen real files
+(``eval/nikon-nrw-reader-2026-11-18.md``). Nikon's newer high-efficiency
+(TicoRAW, compression 34892 in a NEF) is refused with the reason.
 """
 
 from __future__ import annotations
@@ -387,7 +389,7 @@ def parse_nef(data: bytes, engine: str = "auto") -> rd.RawImage:
         raise rd.DevelopError("not a Nikon NEF")
     raws = [i for i in ifds if i.one(rd.TAG_PHOTOMETRIC) == rd.PHOTOMETRIC_CFA and i.one(rd.TAG_NEW_SUBFILE_TYPE, 0) == 0]
     if not raws:
-        raise rd.DevelopError("no Nikon raw IFD (a full-size CFA image); Coolpix NEFs are not supported, convert to DNG")
+        raise rd.DevelopError("no Nikon raw IFD (a full-size CFA image); convert to DNG")
     ifd = max(raws, key=lambda i: i.one(rd.TAG_WIDTH, 0) * i.one(rd.TAG_HEIGHT, 0))
     width, height = ifd.one(rd.TAG_WIDTH), ifd.one(rd.TAG_HEIGHT)
     bits = ifd.one(rd.TAG_BITS, 12)
@@ -517,9 +519,10 @@ def parse_nef(data: bytes, engine: str = "auto") -> rd.RawImage:
 # balance when tag 0x000C is missing ("NRW 0100": four 32-bit R, G, G, B levels
 # at byte 0x13E8; later versions at 0x38; R and B are stored halved). The
 # 4032-wide P330, P340, P7700 and P7800 carry no level at all; their black is
-# 200 on the 12-bit scale (LibRaw's per-model table; their dark corners read
-# at it, eval/nikon-nrw-reader-2026-11-18.md). Layouts, levels and balances
-# as LibRaw 0.22 reads them; checked sensel for sensel against it on eleven
+# 200 on the 12-bit scale (LibRaw's per-model table; no sensel of the four
+# public files reads below it, the lowest 201 to 217,
+# eval/nikon-nrw-reader-2026-11-18.md). Layouts, levels and balances
+# as LibRaw 0.22 reads them; checked sensel for sensel against it on twelve
 # Coolpix files from raw.pixls.us (CC0), tools/nef_libraw_check.py.
 
 COOLPIX_BLACK = {"COOLPIX P330": 200, "COOLPIX P340": 200, "COOLPIX P7700": 200, "COOLPIX P7800": 200}
