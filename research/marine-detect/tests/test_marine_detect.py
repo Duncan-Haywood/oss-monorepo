@@ -56,6 +56,18 @@ def test_fog_limits_and_koschmieder():
     assert math.isclose(degrade.range_over_visibility(0.02), 1.0, rel_tol=1e-3)
 
 
+def test_fog_midpoint_is_affine_toward_airlight():
+    x = np.full((3, 2, 2), 0.2, np.float32)
+    assert np.allclose(degrade.fog(x, 0.5), 0.2 * 0.5 + 0.8 * 0.5)
+
+
+def test_aggregate_t_interval():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "experiments"))
+    import aggregate
+    m, hw = aggregate.ms([0.3, 0.35, 0.4])
+    assert math.isclose(m, 0.35) and math.isclose(hw, 4.303 * 0.05 / math.sqrt(3), rel_tol=1e-9)
+
+
 def test_glint_only_brightens_and_saturates():
     gt = scene()
     x = np.full((3, 40, 60), 0.5, np.float32)
