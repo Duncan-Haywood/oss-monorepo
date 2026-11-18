@@ -72,7 +72,10 @@ def shells(d, n=48, arc=16, seg=48):
     polygons in mm; shells overlap at the hub and a slicer or OpenSCAD's union merges them."""
     r = d.r * 10.0
     hub = [(r * math.cos(2 * math.pi * k / seg), r * math.sin(2 * math.pi * k / seg)) for k in range(seg)]
-    post = [(-POST_W / 2, 0.0), (POST_W / 2, 0.0), (POST_W / 2, POST_H), (-POST_W / 2, POST_H)]
+    # The post stops at the bottom of the loop's hole: run to POST_H (the hole's centre) it filled
+    # the lower half of the 10 mm hole once the slicer merged the shells (found 2026-11-18).
+    top = POST_H - LOOP_RI
+    post = [(-POST_W / 2, 0.0), (POST_W / 2, 0.0), (POST_W / 2, top), (-POST_W / 2, top)]
     ring = [(LOOP_RO * math.cos(2 * math.pi * k / seg), POST_H + LOOP_RO * math.sin(2 * math.pi * k / seg))
             for k in range(seg)]
     hole = [(LOOP_RI * math.cos(2 * math.pi * k / seg), POST_H + LOOP_RI * math.sin(2 * math.pi * k / seg))

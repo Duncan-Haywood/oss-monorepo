@@ -7646,7 +7646,7 @@ solid rack_w22
  facet normal 0.000000 0.000000 -1.000000
   outer loop
    vertex -7.0000 0.0000 0.0000
-   vertex 7.0000 32.0000 0.0000
+   vertex 7.0000 27.0000 0.0000
    vertex 7.0000 0.0000 0.0000
   endloop
  endfacet
@@ -7654,21 +7654,21 @@ solid rack_w22
   outer loop
    vertex -7.0000 0.0000 6.0000
    vertex 7.0000 0.0000 6.0000
-   vertex 7.0000 32.0000 6.0000
+   vertex 7.0000 27.0000 6.0000
   endloop
  endfacet
  facet normal 0.000000 0.000000 -1.000000
   outer loop
    vertex -7.0000 0.0000 0.0000
-   vertex -7.0000 32.0000 0.0000
-   vertex 7.0000 32.0000 0.0000
+   vertex -7.0000 27.0000 0.0000
+   vertex 7.0000 27.0000 0.0000
   endloop
  endfacet
  facet normal 0.000000 0.000000 1.000000
   outer loop
    vertex -7.0000 0.0000 6.0000
-   vertex 7.0000 32.0000 6.0000
-   vertex -7.0000 32.0000 6.0000
+   vertex 7.0000 27.0000 6.0000
+   vertex -7.0000 27.0000 6.0000
   endloop
  endfacet
  facet normal 0.000000 -1.000000 0.000000
@@ -7688,43 +7688,43 @@ solid rack_w22
  facet normal 1.000000 0.000000 0.000000
   outer loop
    vertex 7.0000 0.0000 0.0000
-   vertex 7.0000 32.0000 0.0000
-   vertex 7.0000 32.0000 6.0000
+   vertex 7.0000 27.0000 0.0000
+   vertex 7.0000 27.0000 6.0000
   endloop
  endfacet
  facet normal 1.000000 0.000000 0.000000
   outer loop
    vertex 7.0000 0.0000 0.0000
-   vertex 7.0000 32.0000 6.0000
+   vertex 7.0000 27.0000 6.0000
    vertex 7.0000 0.0000 6.0000
   endloop
  endfacet
  facet normal 0.000000 1.000000 0.000000
   outer loop
-   vertex 7.0000 32.0000 0.0000
-   vertex -7.0000 32.0000 0.0000
-   vertex -7.0000 32.0000 6.0000
+   vertex 7.0000 27.0000 0.0000
+   vertex -7.0000 27.0000 0.0000
+   vertex -7.0000 27.0000 6.0000
   endloop
  endfacet
  facet normal 0.000000 1.000000 -0.000000
   outer loop
-   vertex 7.0000 32.0000 0.0000
-   vertex -7.0000 32.0000 6.0000
-   vertex 7.0000 32.0000 6.0000
+   vertex 7.0000 27.0000 0.0000
+   vertex -7.0000 27.0000 6.0000
+   vertex 7.0000 27.0000 6.0000
   endloop
  endfacet
  facet normal -1.000000 0.000000 0.000000
   outer loop
-   vertex -7.0000 32.0000 0.0000
+   vertex -7.0000 27.0000 0.0000
    vertex -7.0000 0.0000 0.0000
    vertex -7.0000 0.0000 6.0000
   endloop
  endfacet
  facet normal -1.000000 0.000000 0.000000
   outer loop
-   vertex -7.0000 32.0000 0.0000
+   vertex -7.0000 27.0000 0.0000
    vertex -7.0000 0.0000 6.0000
-   vertex -7.0000 32.0000 6.0000
+   vertex -7.0000 27.0000 6.0000
   endloop
  endfacet
  facet normal 0.000000 0.000000 -1.000000
