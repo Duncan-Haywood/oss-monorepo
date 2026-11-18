@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { score, labelCents } from "./eval/cord-receipts.mjs";
+import { score, labelCents, taxLabelCents } from "./eval/cord-receipts.mjs";
 import { parseReceipt, joinSplitGroups } from "./receipts.mjs";
 
 const load = (s) => readFileSync(new URL(`./eval/cord/${s}.jsonl`, import.meta.url), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
@@ -12,6 +12,15 @@ test("labels in rupiah style read as whole units", () => {
   assert.equal(labelCents("Rp 1,234,500"), 123450000);
   assert.equal(labelCents("99999.99"), 9999999);
   assert.equal(labelCents(null), null);
+  // a rate or tax code in the label is not part of the amount; space-grouped thousands are
+  assert.equal(labelCents("10% 4,818"), 481800);
+  assert.equal(labelCents("Pb1 10% 7,000"), 700000);
+  assert.equal(labelCents("154 000"), 15400000);
+  assert.equal(labelCents("Rp.118.000"), 11800000);
+  // several tax lines add up; a rate-only entry adds nothing
+  assert.equal(taxLabelCents(["10.000%", "546"]), 54600);
+  assert.equal(taxLabelCents(["6,818", "0"]), 681800);
+  assert.equal(taxLabelCents(["10%"]), null);
 });
 
 // The README's numbers. The test split was scored once before and once after the
@@ -28,14 +37,16 @@ test("labels in rupiah style read as whole units", () => {
 // CORD train shards 1-3 photos (Change:5,000, Pay Cash ... Change on one line, Discount total,
 // TAX10%; eval/rapidocr-parser-misses-2026-11-17.md) took test 93 -> 94, train 761 -> 767. 2026-11-17,
 // WildReceipt: a tax word glued to its rate ("TAX10% 107.100", written from WildReceipt train
-// photos; eval/wildreceipt-2026-11-17.md) took train tax 324 -> 325 (train-558).
+// photos; eval/wildreceipt-2026-11-17.md) took train tax 324 -> 325 (train-558). 2026-11-18: the
+// scorer, not the parser: a rate inside a tax label ("10% 4,818") and a list of tax lines
+// (["10.000%", "546"]) were read as one glued number; read right, train tax 325 -> 328.
 test("CORD-v2 receipts: totals and tax read as in the README", () => {
   const t = score(load("test"));
   assert.deepEqual([t.total.right, t.total.labelled, t.tax.right, t.tax.labelled], [94, 95, 41, 41]);
   const v = score(load("validation"));
   assert.deepEqual([v.total.right, v.total.labelled, v.tax.right, v.tax.labelled], [97, 98, 46, 47]);
   const tr = score(load("train"));
-  assert.deepEqual([tr.total.right, tr.total.labelled, tr.tax.right, tr.tax.labelled], [767, 779, 325, 352]);
+  assert.deepEqual([tr.total.right, tr.total.labelled, tr.tax.right, tr.tax.labelled], [767, 779, 328, 352]);
 });
 
 test("whole-unit receipts: yen with a symbol, and decimal receipts unchanged", () => {
@@ -94,4 +105,16 @@ test("rupiah slips as OCR prints them: dashes, PB1 misread, rate as tax, roundin
   // a decimal receipt one cent off is still repaired by the arithmetic (unchanged)
   const us = "Subtotal 38.95\nTax 8.21\nTotal 42.16";
   assert.equal(parseReceiptPasses([us, us, us]).taxCents, 321);
+});
+
+// --tax-misses (doc friction 2026-11-16, 2026-11-17: --misses listed only total
+// misses, so finding a shard's unread taxes took a throwaway script).
+test("score lists tax misses: labelled and misread, and read where none is labelled", () => {
+  const v = score(load("validation"));
+  const labelled = v.taxMisses.filter((m) => m.want !== null);
+  assert.equal(labelled.length, v.tax.labelled - v.tax.right);
+  assert.equal(v.taxMisses.filter((m) => m.want === null).length, v.tax.unlabelledRead);
+  for (const m of v.taxMisses) assert.notEqual(m.got, m.want);
+  const r = score([{ id: "x", total: "33.000", tax: "3.000", text: "Kopi 30.000\nTotal 33.000" }]);
+  assert.deepEqual(r.taxMisses, [{ id: "x", want: 300000, got: null, line: null }]);
 });
