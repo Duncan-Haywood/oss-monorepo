@@ -1,0 +1,110 @@
+
+eval/take-survey-capture-design-2026-11-18.jsonl.gz: 72 survey drills
+  blind 1: spread takes named within 1 ms and advised 25 of 54, instant advised 0 of 18, within 1 ms 69 of 72, no verdict 0, mean share 0.58; wheels left out 0 of 1584
+  blind 1.0001: spread takes named within 1 ms and advised 28 of 54, instant advised 0 of 18, within 1 ms 69 of 72, no verdict 0, mean share 0.57; wheels left out 140 of 1584
+  blind 1.001: spread takes named within 1 ms and advised 28 of 54, instant advised 0 of 18, within 1 ms 69 of 72, no verdict 0, mean share 0.57; wheels left out 161 of 1584
+  blind 1.01: spread takes named within 1 ms and advised 28 of 54, instant advised 0 of 18, within 1 ms 69 of 72, no verdict 0, mean share 0.57; wheels left out 205 of 1584
+  blind 1.05: spread takes named within 1 ms and advised 30 of 54, instant advised 0 of 18, within 1 ms 69 of 72, no verdict 0, mean share 0.55; wheels left out 340 of 1584
+  blind 1.1: spread takes named within 1 ms and advised 31 of 54, instant advised 0 of 18, within 1 ms 69 of 72, no verdict 0, mean share 0.53; wheels left out 521 of 1584
+  blind 1.2: spread takes named within 1 ms and advised 31 of 54, instant advised 0 of 18, within 1 ms 69 of 72, no verdict 0, mean share 0.50; wheels left out 671 of 1584
+  blind 1.5: spread takes named within 1 ms and advised 35 of 54, instant advised 0 of 18, within 1 ms 69 of 72, no verdict 0, mean share 0.48; wheels left out 902 of 1584
+  blind 2: spread takes named within 1 ms and advised 35 of 54, instant advised 0 of 18, within 1 ms 69 of 72, no verdict 0, mean share 0.45; wheels left out 1083 of 1584
+
+eval/take-survey-capture-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  blind 1: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.49; wheels left out 0 of 1584
+  blind 1.0001: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.48; wheels left out 186 of 1584
+  blind 1.001: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.48; wheels left out 201 of 1584
+  blind 1.01: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.47; wheels left out 272 of 1584
+  blind 1.05: spread takes named within 1 ms and advised 45 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.45; wheels left out 426 of 1584
+  blind 1.1: spread takes named within 1 ms and advised 45 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.43; wheels left out 580 of 1584
+  blind 1.2: spread takes named within 1 ms and advised 45 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.41; wheels left out 764 of 1584
+  blind 1.5: spread takes named within 1 ms and advised 46 of 54, instant advised 0 of 18, within 1 ms 65 of 72, no verdict 0, mean share 0.38; wheels left out 1030 of 1584
+  blind 2: spread takes named within 1 ms and advised 47 of 54, instant advised 0 of 18, within 1 ms 65 of 72, no verdict 0, mean share 0.35; wheels left out 1243 of 1584
+
+eval/take-survey-capture-sub1-fresh-2026-11-18.jsonl.gz: 72 survey drills
+  blind 1: spread takes named within 1 ms and advised 30 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.55; wheels left out 0 of 1584
+  blind 1.0001: spread takes named within 1 ms and advised 30 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.54; wheels left out 113 of 1584
+  blind 1.001: spread takes named within 1 ms and advised 30 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.54; wheels left out 157 of 1584
+  blind 1.01: spread takes named within 1 ms and advised 32 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.53; wheels left out 273 of 1584
+  blind 1.05: spread takes named within 1 ms and advised 39 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.49; wheels left out 515 of 1584
+  blind 1.1: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.45; wheels left out 765 of 1584
+  blind 1.2: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.41; wheels left out 1001 of 1584
+  blind 1.5: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.39; wheels left out 1102 of 1584
+  blind 2: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.38; wheels left out 1113 of 1584
+
+eval/take-survey-capture-sub1-third-2026-11-18.jsonl.gz: 72 survey drills
+  blind 1: spread takes named within 1 ms and advised 40 of 54, instant advised 0 of 18, within 1 ms 62 of 72, no verdict 0, mean share 0.52; wheels left out 0 of 1584
+  blind 1.0001: spread takes named within 1 ms and advised 40 of 54, instant advised 0 of 18, within 1 ms 62 of 72, no verdict 0, mean share 0.51; wheels left out 143 of 1584
+  blind 1.001: spread takes named within 1 ms and advised 40 of 54, instant advised 0 of 18, within 1 ms 62 of 72, no verdict 0, mean share 0.51; wheels left out 164 of 1584
+  blind 1.01: spread takes named within 1 ms and advised 41 of 54, instant advised 0 of 18, within 1 ms 62 of 72, no verdict 0, mean share 0.50; wheels left out 266 of 1584
+  blind 1.05: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.48; wheels left out 509 of 1584
+  blind 1.1: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.45; wheels left out 761 of 1584
+  blind 1.2: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 65 of 72, no verdict 0, mean share 0.40; wheels left out 1105 of 1584
+  blind 1.5: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 66 of 72, no verdict 0, mean share 0.39; wheels left out 1209 of 1584
+  blind 2: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 66 of 72, no verdict 0, mean share 0.39; wheels left out 1217 of 1584
+
+eval/take-survey-capture-sub8-design-2026-11-18.jsonl.gz: 72 survey drills
+  blind 1: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.35; wheels left out 0 of 1584
+  blind 1.0001: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.35; wheels left out 122 of 1584
+  blind 1.001: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.35; wheels left out 125 of 1584
+  blind 1.01: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.35; wheels left out 133 of 1584
+  blind 1.05: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.35; wheels left out 142 of 1584
+  blind 1.1: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.35; wheels left out 161 of 1584
+  blind 1.2: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.35; wheels left out 182 of 1584
+  blind 1.5: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.34; wheels left out 211 of 1584
+  blind 2: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.34; wheels left out 260 of 1584
+
+eval/take-survey-capture-sub8-fresh-2026-11-18.jsonl.gz: 72 survey drills
+  blind 1: spread takes named within 1 ms and advised 45 of 54, instant advised 0 of 18, within 1 ms 72 of 72, no verdict 0, mean share 0.45; wheels left out 0 of 1584
+  blind 1.0001: spread takes named within 1 ms and advised 47 of 54, instant advised 0 of 18, within 1 ms 72 of 72, no verdict 0, mean share 0.43; wheels left out 161 of 1584
+  blind 1.001: spread takes named within 1 ms and advised 47 of 54, instant advised 0 of 18, within 1 ms 72 of 72, no verdict 0, mean share 0.43; wheels left out 172 of 1584
+  blind 1.01: spread takes named within 1 ms and advised 49 of 54, instant advised 0 of 18, within 1 ms 72 of 72, no verdict 0, mean share 0.42; wheels left out 210 of 1584
+  blind 1.05: spread takes named within 1 ms and advised 51 of 54, instant advised 0 of 18, within 1 ms 72 of 72, no verdict 0, mean share 0.41; wheels left out 342 of 1584
+  blind 1.1: spread takes named within 1 ms and advised 51 of 54, instant advised 0 of 18, within 1 ms 72 of 72, no verdict 0, mean share 0.40; wheels left out 425 of 1584
+  blind 1.2: spread takes named within 1 ms and advised 51 of 54, instant advised 0 of 18, within 1 ms 72 of 72, no verdict 0, mean share 0.37; wheels left out 634 of 1584
+  blind 1.5: spread takes named within 1 ms and advised 54 of 54, instant advised 0 of 18, within 1 ms 72 of 72, no verdict 0, mean share 0.32; wheels left out 959 of 1584
+  blind 2: spread takes named within 1 ms and advised 54 of 54, instant advised 0 of 18, within 1 ms 72 of 72, no verdict 0, mean share 0.31; wheels left out 1096 of 1584
+
+eval/take-survey-capture-sub8-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  blind 1: spread takes named within 1 ms and advised 42 of 54, instant advised 1 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.39; wheels left out 0 of 1584
+  blind 1.0001: spread takes named within 1 ms and advised 42 of 54, instant advised 1 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.38; wheels left out 163 of 1584
+  blind 1.001: spread takes named within 1 ms and advised 42 of 54, instant advised 1 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.39; wheels left out 186 of 1584
+  blind 1.01: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.39; wheels left out 207 of 1584
+  blind 1.05: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.39; wheels left out 227 of 1584
+  blind 1.1: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.39; wheels left out 239 of 1584
+  blind 1.2: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 63 of 72, no verdict 0, mean share 0.39; wheels left out 248 of 1584
+  blind 1.5: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 62 of 72, no verdict 0, mean share 0.38; wheels left out 310 of 1584
+  blind 2: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 62 of 72, no verdict 0, mean share 0.38; wheels left out 350 of 1584
+
+eval/take-survey-capture-sub8-third-2026-11-18.jsonl.gz: 72 survey drills
+  blind 1: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.44; wheels left out 0 of 1584
+  blind 1.0001: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.43; wheels left out 133 of 1584
+  blind 1.001: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.42; wheels left out 168 of 1584
+  blind 1.01: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.42; wheels left out 210 of 1584
+  blind 1.05: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 71 of 72, no verdict 0, mean share 0.40; wheels left out 361 of 1584
+  blind 1.1: spread takes named within 1 ms and advised 42 of 54, instant advised 0 of 18, within 1 ms 70 of 72, no verdict 0, mean share 0.39; wheels left out 478 of 1584
+  blind 1.2: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 70 of 72, no verdict 0, mean share 0.35; wheels left out 716 of 1584
+  blind 1.5: spread takes named within 1 ms and advised 47 of 54, instant advised 0 of 18, within 1 ms 70 of 72, no verdict 0, mean share 0.28; wheels left out 1046 of 1584
+  blind 2: spread takes named within 1 ms and advised 51 of 54, instant advised 0 of 18, within 1 ms 70 of 72, no verdict 0, mean share 0.26; wheels left out 1198 of 1584
+
+eval/take-survey-jitter-design-2026-11-18.jsonl.gz: 72 survey drills
+  blind 1: spread takes named within 1 ms and advised 10 of 54, instant advised 0 of 18, within 1 ms 60 of 72, no verdict 0, mean share 0.81; wheels left out 0 of 1584
+  blind 1.0001: spread takes named within 1 ms and advised 10 of 54, instant advised 0 of 18, within 1 ms 60 of 72, no verdict 0, mean share 0.81; wheels left out 175 of 1584
+  blind 1.001: spread takes named within 1 ms and advised 10 of 54, instant advised 0 of 18, within 1 ms 60 of 72, no verdict 0, mean share 0.80; wheels left out 301 of 1584
+  blind 1.01: spread takes named within 1 ms and advised 12 of 54, instant advised 0 of 18, within 1 ms 60 of 72, no verdict 0, mean share 0.76; wheels left out 710 of 1584
+  blind 1.05: spread takes named within 1 ms and advised 14 of 54, instant advised 0 of 18, within 1 ms 60 of 72, no verdict 0, mean share 0.73; wheels left out 970 of 1584
+  blind 1.1: spread takes named within 1 ms and advised 15 of 54, instant advised 0 of 18, within 1 ms 61 of 72, no verdict 0, mean share 0.72; wheels left out 1055 of 1584
+  blind 1.2: spread takes named within 1 ms and advised 15 of 54, instant advised 0 of 18, within 1 ms 61 of 72, no verdict 0, mean share 0.71; wheels left out 1124 of 1584
+  blind 1.5: spread takes named within 1 ms and advised 17 of 54, instant advised 0 of 18, within 1 ms 61 of 72, no verdict 0, mean share 0.69; wheels left out 1197 of 1584
+  blind 2: spread takes named within 1 ms and advised 18 of 54, instant advised 0 of 18, within 1 ms 60 of 72, no verdict 0, mean share 0.67; wheels left out 1261 of 1584
+
+eval/take-survey-jitter-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  blind 1: spread takes named within 1 ms and advised 9 of 54, instant advised 0 of 18, within 1 ms 60 of 72, no verdict 0, mean share 0.82; wheels left out 0 of 1584
+  blind 1.0001: spread takes named within 1 ms and advised 10 of 54, instant advised 0 of 18, within 1 ms 60 of 72, no verdict 0, mean share 0.81; wheels left out 211 of 1584
+  blind 1.001: spread takes named within 1 ms and advised 10 of 54, instant advised 0 of 18, within 1 ms 59 of 72, no verdict 0, mean share 0.79; wheels left out 372 of 1584
+  blind 1.01: spread takes named within 1 ms and advised 14 of 54, instant advised 0 of 18, within 1 ms 59 of 72, no verdict 0, mean share 0.74; wheels left out 777 of 1584
+  blind 1.05: spread takes named within 1 ms and advised 22 of 54, instant advised 0 of 18, within 1 ms 59 of 72, no verdict 0, mean share 0.67; wheels left out 1086 of 1584
+  blind 1.1: spread takes named within 1 ms and advised 23 of 54, instant advised 0 of 18, within 1 ms 59 of 72, no verdict 0, mean share 0.66; wheels left out 1158 of 1584
+  blind 1.2: spread takes named within 1 ms and advised 25 of 54, instant advised 0 of 18, within 1 ms 60 of 72, no verdict 0, mean share 0.64; wheels left out 1247 of 1584
+  blind 1.5: spread takes named within 1 ms and advised 27 of 51, instant advised 0 of 18, within 1 ms 59 of 69, no verdict 3, mean share 0.60; wheels left out 1324 of 1584
+  blind 2: spread takes named within 1 ms and advised 29 of 51, instant advised 0 of 18, within 1 ms 61 of 69, no verdict 3, mean share 0.58; wheels left out 1371 of 1584

@@ -17,9 +17,10 @@ writes it. What a CR2 holds in TIFF IFDs, a CR3 holds in boxes:
   encoding type, wavelet levels, and the size of a header at the start of the
   sample listing each tile, plane and subband with its byte count.
 * **Crop**: SensorInfo, as on a CR2 (the same rectangle as the CDI1/IAD1 box).
-* **Black level**: the median of the masked columns left of the image, per
-  2x2 position, as on a CR2 (ColorData also states one; on the five test files
-  the measured medians are within 1 of LibRaw's 2047/2048).
+* **Black level**: ColorData's PerChannelBlackLevel where its place is known
+  (R5, R3, R5 Mark II: equal to LibRaw on all nine real files of 2026-11-18),
+  else the median of the masked columns left of the image, per 2x2 position, as
+  on a CR2 (on the R8 files the medians are within 1 of LibRaw's 2047/2048).
 * **White level**: clipped sensels when the frame has a pile at the top, else
   the stream's full scale (14 bits: 16383, LibRaw's figure on all five).
 * **CFA**: CMP1's cfaLayout (0 RGGB, 1 GRBG, 2 GBRG, 3 BGGR) at the sensor's
@@ -42,7 +43,8 @@ the container; this is an independent implementation, checked sensel for
 sensel against LibRaw 0.22 on two full-quality EOS R8 files (and, for C-RAW, three more: two R8, one R3)
 (``tools/cr3_libraw_check.py``, ``eval/canon-cr3-reader-2026-11-15.md``).
 
-Several tiles (later on 2026-11-15): wide sensors (the R5 class) may store the planes cut into tiles,
+Several tiles (later on 2026-11-15): a CR3 may store the planes cut into tiles (the real EOS R5 and R5
+Mark II files of 2026-11-18, 8352 and 8480 sensels wide, turned out to be one tile each),
 which CMP1's tile size gives (every tile that size but the last of each row and column, which takes the
 rest). The sample header then holds each tile's header (0xFF01, with its index) and its planes' headers in
 turn, and the data follows tile after tile; each tile's plane is an independent band at the tile's width.
@@ -66,6 +68,14 @@ _CONTAINERS = {b"moov", b"trak", b"mdia", b"minf", b"stbl"}
 # WB_RGGBLevelsAsShot index by ColorData length; the CR2 table covers ColorData1-10.
 _AS_SHOT_INDEX = dict(cr2._AS_SHOT_INDEX)
 _AS_SHOT_INDEX.update({3778: 0x69, 3973: 0x69})  # ColorData11: R8, R3 (R5, R6 Mark II, R7, R10, R50 share it)
+_AS_SHOT_INDEX[4528] = 0x69  # ColorData12 (version 64): R5 Mark II (raw.pixls.us, 2026-11-18)
+# PerChannelBlackLevel (R, G, G, B) index by ColorData length, found on real files where it equals LibRaw's
+# black_level_per_channel (eval/canon-cr3-r5-real-2026-11-18.md): R5 (ColorData10, 510), R3 (2047), R5 Mark II
+# (512). On the R5 Mark II, IAD1's left optical black also takes in a darker strip (columns 0-131, about 470),
+# so a measured median lands 8-41 levels low; the stated level is what Canon and LibRaw use.
+_BLACK_INDEX = {3656: 0x157, 3973: 0x16B, 4528: 0x17F}
+# A measured black further than this from the stated one is reported in the notes.
+_BLACK_GAP_NOTE = 4
 _CFA_LAYOUT = {0: "RGGB", 1: "GRBG", 2: "GBRG", 3: "BGGR"}
 
 # JPEG-LS run-length table (ISO 14495-1, J[]); JS is 1 << J.
@@ -636,6 +646,25 @@ def _turn(pattern: str, dy: int, dx: int) -> str:
     return "".join(grid[0] + grid[1])
 
 
+def _stated_black(cd: tuple | None, bits: int, phase: str) -> list[float] | None:
+    """ColorData's PerChannelBlackLevel, stored R, G (on red's rows), G (on blue's), B, laid out on the
+    2x2 positions of ``phase`` (the CFA at the crop's origin), or None."""
+
+    if not cd:
+        return None
+    idx = _BLACK_INDEX.get(len(cd))
+    if idx is None or idx + 4 > len(cd):
+        return None
+    r, g_red_row, g_blue_row, b = (float(v) for v in cd[idx : idx + 4])
+    if not all(0 < v < (1 << bits) // 2 for v in (r, g_red_row, g_blue_row, b)):
+        return None
+    red_row = phase.index("R") // 2
+    return [
+        r if c == "R" else b if c == "B" else (g_red_row if i // 2 == red_row else g_blue_row)
+        for i, c in enumerate(phase)
+    ]
+
+
 def parse_cr3(data: bytes, engine: str = "auto") -> rd.RawImage:
     """A CR3's sensor data and DNG-equivalent tags."""
 
@@ -667,6 +696,7 @@ def parse_cr3(data: bytes, engine: str = "auto") -> rd.RawImage:
         black = cr2._black_levels(values, width, top, left, bottom, right)
         if black is not None:
             notes.append("no IAD1 optical-black rectangle: black from the columns left of the crop")
+    measured = black
     if black is None:
         black = [0.0] * 4
         notes.append("no masked columns left of the image: black level 0")
@@ -690,6 +720,16 @@ def parse_cr3(data: bytes, engine: str = "auto") -> rd.RawImage:
         raise rd.DevelopError(f"CR3: CFA layout {head.cfa_layout} is not known")
     phase = _turn(layout, top % 2, left % 2)
     notes.append(f"CR3: CFA {phase} from CMP1's layout {layout} and the crop's parity")
+
+    stated = _stated_black(cd, head.bits, phase)
+    if stated is not None:
+        if measured is not None and max(abs(a - b) for a, b in zip(measured, stated)) > _BLACK_GAP_NOTE:
+            notes.append(
+                "CR3: black level " + "/".join(f"{v:g}" for v in stated) + " as ColorData states it; the masked "
+                "columns measure " + "/".join(f"{v:g}" for v in measured)
+            )
+        black = stated
+        notes[:] = [n for n in notes if not n.startswith(("no IAD1", "no masked columns"))]
 
     white, white_note = cr2._white_from_clipping(values, width, top, left, bottom, right, black, head.bits)
     if white_note:

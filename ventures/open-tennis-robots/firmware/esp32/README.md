@@ -2704,3 +2704,35 @@ ppm on two sets and 25 on another is not traced. And the deeper finding stands: 
 whose contact straddles a revolution's edge, a few wheels a drill, so a drill's verdict rests on those few. Next: a
 survey that scores only the wheels where some candidate's parts must straddle (or a model whose take is continuous), and
 the advised instant build.
+
+## The take survey skips take-blind wheels (2026-11-18, after "Take-blind rows traced"; on by its pre-registered rule)
+
+**The item.** The section above found that most wheels fit every contact-time candidate alike, and named next "a
+survey that scores only the wheels where some candidate's parts must straddle".
+
+**The rule.** Such a wheel adds the same to every candidate's sum, so it cannot move the pick; it only pulls the best /
+step share toward 1, where `host.TAKE_ADVISE_RATIO` (0.6) stops advising. The board cannot cheaply tell from the edge
+times which balls straddle, but the wheel's own row says it: `ResidualSurvey(grid, trim, blind)` leaves a wheel out
+of the sums when its worst candidate's squared rms is at most `blind` times its best's. No extra memory (a left-out
+wheel is not kept, so `SURVEY_KEEP`'s 128 rows hold more informative wheels), one min and max per wheel. A wheel left
+out still counts as surveyed, so the Pi's wait sees the count rise; while every wheel so far is blind the frame carries
+the count with zero rms, and `take_survey_advice` says no ball told the contact times apart and to keep `TAKE_US`.
+
+**Chosen, then held out.** `tests/take_survey_blind.py` rescores stored captures' board rows. On the ten stored sets
+(all seen before, so design numbers) a `blind` of 1.5 took spread takes named and advised from 330 of 540 to 398 (of 537 with a verdict; 3 builds had every wheel left out) and
+the one advised instant build to none (eval/take-survey-blind-design-2026-11-18.txt). Pre-registered on two fresh sets
+(lag 0.6 s, seed 19), captured from a frozen tree:
+
+| fresh set (72 drills) | named and advised, off -> 1.5 (of 54) | instant advised | within 1 ms (of 72) |
+| --- | --- | --- | --- |
+| MCPWM capture, 1/8 us | 54 -> 54 (at its ceiling) | 0 -> 0 | 72 -> 72 |
+| jittery tach (the board's default) | 12 -> 26 | 0 -> 0 | 68 -> 68 |
+
+Every clause held, so `controller.TAKE_SURVEY_BLIND = 1.5` ships (eval/take-survey-blind-2026-11-18.md). On the
+jittery tach the gain is at 0.5 to 1 us (3 -> 8 and 1 -> 6 of 9 per jitter); at 1.5 us and above it is still close to
+blind (0 -> 1 of 9).
+
+**Not known.** Whether 1.5 is right for a real wheel, whose blind rows will not tie as exactly as the simulator's;
+the capture set sat at its ceiling and so could not show a gain; a verdict now rests on fewer wheels (on the jittery
+set 1149 of 1584 were left out), and `ESC_SURVEY_MIN_WHEELS` still counts all of them. Next: count only the kept wheels
+toward the 16-wheel minimum (a frame field), and the advised instant build of "Take-blind rows traced".
