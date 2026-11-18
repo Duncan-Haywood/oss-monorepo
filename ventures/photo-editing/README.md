@@ -1988,6 +1988,21 @@ bits there are refused as corrupt (`tools/iiq_s_shift_check.py`). Levels after b
 blue, where Phase One's flat-field corrections (not applied) matter most. Details:
 `eval/phaseone-iiq-s-reader-2026-11-18.md`.
 
+**16-bit IIQ L: the IQ4 150MP and the Trichromatic (that evening).** Format 8, the last coded IIQ format
+still refused, is the IIQ L code with 16-bit values stored as they are rather than times four; the IQ4
+150MP writes it for its "IIQ L 16-bit" and "IIQ L 16 Extended" settings, and the IQ3 100MP and its
+Trichromatic for their 16-bit IIQ L. On all four public files (raw.pixls.us: two IQ4 150MP, an IQ3 100MP,
+the Trichromatic) every one of 519.9 M sensels, the CFA, white balance, crop and orientation equal LibRaw
+0.22's, and so do the IQ4's 14-bit IIQ L (154.0 M, a body new to the check) and eleven files from ten
+bodies already read (no regression). A 154 MP 16-bit frame reads in 1.1-1.4 s with the C decoder. The two
+extra bits are used (each of the four low-bit values in 25.0% of sensels), but the IQ4's masked-area
+noise is 6.0-6.8 of the 16-bit steps, so 14-bit rounding would add 1.4-1.8% to it. The IQ4's own
+matrix and LibRaw's disagree: on the IQ4's blue-sky frames the mean colour is 0.09 apart, and the 24
+ColorChecker patches through the two matrices differ by a mean delta E of 16 (cyan 58); the file's matrix
+gives a cyan-blue sky and LibRaw's a lavender one, and with no photographed target neither can be called
+right, so the file's own matrix stays the default (`--dcp` overrides it). Details:
+`eval/phaseone-iiq-16bit-2026-11-18.md`; check: `tools/iiq_matrix_check.py`.
+
 ### Hasselblad 3FR (2026-11-18)
 
 Hasselblad's 3FR files (H3D, H4D-60, X1D, X1D II, X2D, the CFV II 50C and CFV 100C backs, and the

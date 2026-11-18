@@ -237,7 +237,7 @@ def expected(codes, fmt=3, cblack=None, rblack=None, split_col=0, split_row=0):
     out = []
     for r, row in enumerate(codes):
         for c, code in enumerate(row):
-            v = (table[code] if fmt == 5 else code) << 2
+            v = (table[code] if fmt == 5 else code) << (0 if fmt == 8 else 2)
             if cblack is not None:
                 v += cblack[2 * r + (c >= split_col)]
             if rblack is not None:
@@ -274,6 +274,28 @@ class IiqTests(unittest.TestCase):
             self.assertEqual(list(iiq.decode_sensor(data, fields)[0]), want)
         self.assertEqual(iiq.curve()[100], 2520)  # 100 * 100 / 3.969, rounded: LibRaw's value on real P65+ files
         self.assertEqual(iiq.curve()[255], 16383)
+
+    def test_format_8_sixteen_bit_codes_stored_as_they_are(self):
+        # The IQ4 150MP's "IIQ L 16-bit" and the Trichromatic's IIQ L: the format 3 code with 16-bit values,
+        # stored as they are (not times four), with the offsets added as for IIQ L; white is 65535.
+        rng = random.Random(8)
+        for width in (40, 37, 6):
+            codes = smooth_codes(width, 6, seed=20 + width, top=65535)
+            codes[0][0], codes[-1][-1] = 65535, 0
+            cblack = [rng.randrange(-20, 20) for _ in range(2 * 6)]
+            rblack = [rng.randrange(-5, 80) for _ in range(2 * width)]
+            split = width // 2 + 1
+            data = make_iiq(codes, fmt=8, cblack=cblack, rblack=rblack, split_col=split, split_row=3)
+            want = expected(codes, fmt=8, cblack=cblack, rblack=rblack, split_col=split, split_row=3)
+            fields = iiq.info(data)
+            got_py, note = iiq.decode_sensor(data, fields, use_native=False)
+            self.assertEqual(list(got_py), want, width)
+            self.assertIn("16-bit", note)
+            if iiq.native() is not None:
+                self.assertEqual(list(iiq.decode_sensor(data, fields)[0]), want, width)
+        raw = iiq.parse_iiq(make_iiq(smooth_codes(24, 9, seed=5, top=65535), fmt=8))
+        self.assertEqual(raw.ifd.get(rd.TAG_WHITE_LEVEL), (65535,))
+        self.assertEqual(raw.ifd.get(rd.TAG_BLACK_LEVEL), (1024.0,))
 
     def test_offsets_clamp_at_zero(self):
         codes = [[0] * 16 for _ in range(2)]
@@ -412,7 +434,7 @@ class IiqTests(unittest.TestCase):
 
     def test_refuses_formats_it_does_not_read(self):
         codes = smooth_codes(16, 2, seed=1)
-        for fmt in (1, 2, 8):
+        for fmt in (1, 2, 7):
             data = make_iiq(codes, fmt=fmt)
             with self.assertRaisesRegex(rd.DevelopError, f"format {fmt}"):
                 iiq.parse_iiq(data)

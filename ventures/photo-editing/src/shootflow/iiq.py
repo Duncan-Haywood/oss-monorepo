@@ -12,7 +12,8 @@ with ``"IIII"``: a 4-byte version, then a 4-byte offset (from byte 8) of a direc
 * ``0x108``/``0x109`` sensor columns and rows; ``0x10a``/``0x10b`` left and top margin; ``0x10c``/``0x10d``
   image columns and rows
 * ``0x10e`` the data format: 3 is "IIQ L" (14-bit), 5 is the 8-bit-coded "IIQ L" of the P+ backs and the H 25
-  (codes under 256 are the square of the 14-bit value, ``v * v / 3.969``), 6 is "IIQ S"
+  (codes under 256 are the square of the 14-bit value, ``v * v / 3.969``), 6 is "IIQ S", 8 is the 16-bit
+  "IIQ L" of the IQ4 150MP (its "IIQ L 16-bit" and "IIQ L 16 Extended" settings) and the IQ3 100MP Trichromatic
 * ``0x10f`` sensor data offset; ``0x21c`` the row offset table (one 4-byte offset per row, from ``0x10f``)
 * ``0x21d`` black level (in the 16-bit scale the values are stored at, 1024 on every file at hand)
 * ``0x222``/``0x223`` the column where the left and right readout halves meet, and a table of two signed 16-bit
@@ -25,7 +26,8 @@ with both colour lanes' predictions at 0. Every 8 columns (until the last ``widt
 the lane's last length; otherwise the count ``j`` of 0 bits (1-5) and one more bit pick the difference length
 ``8 7 6 9 11 10 5 12 14 13``[2 (j - 1) + bit]. A length of 14 means a raw 16-bit value follows; otherwise the value is
 the lane's last plus ``bits(len) + 1 - 2**(len - 1)``. Stored values are that 14-bit number times four
-(LibRaw's ``raw_image`` holds the same).
+(LibRaw's ``raw_image`` holds the same). **Format 8** is the same code with 16-bit values: they are stored
+as they are, not times four, and white is 65535.
 
 Levels: each stored sensel is the decoded value times four plus its row's offset for its half and its
 column's offset for its half (dcraw adds both and subtracts the black level, ``phase_one_load_raw_c``); the
@@ -47,8 +49,7 @@ first. A row opens with 16 bits whose low three give the row's base precision ``
 The last ``width % 8`` columns are raw 14-bit values. Stored values are the value times four, clamped to
 16 bits, before the row and column offsets (which are applied as for IIQ L).
 
-**Not read**: the uncompressed formats 1 and 2 and the 16-bit format 8 (the IQ4's and the Trichromatic's),
-of which no file has been checked against LibRaw here; each is refused with the reason, and the frame falls
+**Not read**: the uncompressed formats 1 and 2, of which no file has been checked against LibRaw here; each is refused with the reason, and the frame falls
 back to its preview in the cull. The per-sensor corrections in the metadata block at ``0x110`` (defect columns, the
 flat-field and the split-sensor curves LibRaw's ``phase_one_correct`` applies) are not applied.
 
@@ -76,9 +77,10 @@ from shootflow import raw_develop as rd
 BASE = 8
 MAGIC = b"IIII"
 LENGTHS = (8, 7, 6, 9, 11, 10, 5, 12, 14, 13)
-FORMATS = (3, 5, 6)  # the coded formats this reader decodes: "IIQ L" (3, 5) and "IIQ S" (6)
+FORMATS = (3, 5, 6, 8)  # the coded formats this reader decodes: "IIQ L" (3, 5, and 16-bit 8) and "IIQ S" (6)
 FORMAT_NAMES = {1: "uncompressed (keyed)", 2: "uncompressed", 3: "IIQ L", 5: "IIQ L (8-bit coded)", 6: "IIQ S", 8: "IIQ L 16-bit"}
 WHITE = 16383 << 2
+WHITE_16 = 65535  # format 8 stores the 16-bit code itself
 # The sensor is RGGB at the image's top-left (the 0x10a/0x10b margins), on every body at hand.
 RGGB = (0, 1, 1, 2)
 # ROMM (ProPhoto) RGB to XYZ, D50 (ISO 22028-2).
@@ -216,6 +218,7 @@ def _decode_rows_python(data: bytes, start: int, offsets, width: int, height: in
     """The reference decoder: every row, levels applied (stored = code * 4 + row and column offsets)."""
 
     table = curve() if fmt == 5 else None
+    shift = 0 if fmt == 8 else 2
     out = array("H", [0]) * (width * height)
     n = len(data)
     whole = width & -8
@@ -269,7 +272,7 @@ def _decode_rows_python(data: bytes, start: int, offsets, width: int, height: in
             code = pred[lane]
             if table is not None:
                 code = table[code]
-            v = (code << 2) + (right_off if col >= split_col else left_off) + rblack[2 * col + rb]
+            v = (code << shift) + (right_off if col >= split_col else left_off) + rblack[2 * col + rb]
             out[base + col] = 0 if v < 0 else 65535 if v > 65535 else v
     return out
 
@@ -388,10 +391,11 @@ def _decode_s_python(data: bytes, start: int, offsets, width: int, height: int,
 C_SOURCE = r"""
 #include <stdint.h>
 static const int LENS[10] = {8, 7, 6, 9, 11, 10, 5, 12, 14, 13};
-/* One row-coded IIQ L (format 3, or 5 with its code table) to stored values: code * 4 + offsets, clamped. */
+/* One row-coded IIQ L (format 3, or 5 with its code table, or 16-bit 8) to stored values: (code << shift) + offsets,
+   clamped; shift is 2 for the 14-bit formats and 0 for format 8. */
 long shootflow_iiq_run(const uint8_t *d, long n, long start, const uint32_t *offsets, long width, long height,
                        const uint16_t *table, const int16_t *cblack, const int16_t *rblack,
-                       long split_col, long split_row, uint16_t *out) {
+                       long split_col, long split_row, int shift, uint16_t *out) {
     long whole = width & ~7L;
     for (long row = 0; row < height; row++) {
         long pos = start + (long)offsets[row];
@@ -418,7 +422,7 @@ long shootflow_iiq_run(const uint8_t *d, long n, long start, const uint32_t *off
             else if (size) pred[lane] = (pred[lane] + (int)bits + 1 - (1 << (size - 1))) & 0xFFFF;
             int code = pred[lane];
             if (table) code = table[code];
-            long v = ((long)code << 2) + (col >= split_col ? ro : lo) + rblack[2 * col + rb];
+            long v = ((long)code << shift) + (col >= split_col ? ro : lo) + rblack[2 * col + rb];
             o[col] = (uint16_t)(v < 0 ? 0 : v > 65535 ? 65535 : v);
         }
 #undef FILL
@@ -521,7 +525,7 @@ def _load():
     fn = lib.shootflow_iiq_run
     fn.restype = ctypes.c_long
     P, L = ctypes.c_void_p, ctypes.c_long
-    fn.argtypes = [ctypes.c_char_p, L, L, P, L, L, P, P, P, L, L, P]
+    fn.argtypes = [ctypes.c_char_p, L, L, P, L, L, P, P, P, L, L, ctypes.c_int, P]
     fn_s = lib.shootflow_iiq_s_run
     fn_s.restype = ctypes.c_long
     fn_s.argtypes = [ctypes.c_char_p, L, L, P, L, L, P, P, L, L, ctypes.c_int, P]
@@ -592,7 +596,7 @@ def decode_sensor(data: bytes, fields: dict, use_native: bool = True) -> tuple[a
             data = bytes(data)
         fn(data, len(data), fields["data"], offsets.buffer_info()[0], width, height,
            table.buffer_info()[0] if table is not None else None, cblack.buffer_info()[0], rblack.buffer_info()[0],
-           split_col, split_row, out.buffer_info()[0])
+           split_col, split_row, 0 if fmt == 8 else 2, out.buffer_info()[0])
         return out, f"IIQ: {FORMAT_NAMES[fmt]} (native)"
     out = _decode_rows_python(data, fields["data"], offsets, width, height, fmt, cblack, rblack, split_col, split_row)
     return out, f"IIQ: {FORMAT_NAMES[fmt]}"
@@ -643,7 +647,7 @@ def parse_iiq(data: bytes, use_native: bool = True) -> rd.RawImage:
         rd.TAG_ACTIVE_AREA: (top, left, bottom, right),
         rd.TAG_BLACK_REPEAT: (1, 1),
         rd.TAG_BLACK_LEVEL: (black,),
-        rd.TAG_WHITE_LEVEL: (WHITE,),
+        rd.TAG_WHITE_LEVEL: (WHITE_16 if fields["format"] == 8 else WHITE,),
     }
     mul = fields["mul"]
     if mul and min(mul) > 0:
