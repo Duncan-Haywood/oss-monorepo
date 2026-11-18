@@ -43,9 +43,11 @@ the audit.
 | `reaudit` | confirm recorded fixes: take a subject whose latest audit lists a fix PR and that no later audit has checked (fixed highs first), re-check *every* earlier defect against the code as it is now, and write a new audit file with `"drawn_by": "reaudit"` that says which defects the fix closed. Added 2026-11-17: no subject had been re-audited after a fix since 2026-11-10, 248 awaited one, and 1,313 defects counted as fixed only because their audit listed some fix PR ([reflection 2](reflections/2026-11-17-the-fix-loop-is-open.md)) | `reaudit` |
 | `reflect` | read the corpus and the process, write `reflections/<date>-<slug>.md`: where quality drops, why, and process fixes with the metric each should move | `metrics --md` |
 
-`sample` prints a NOTE first when today's mode is another one. The track
-prompt's step 5 (the `quality-audit-round-<n>` post) is for a sample round; a
-fix session names its post for the fix instead (`2026-11-14-quality-fix-*`).
+On another mode's day `sample` prints that mode's command and post name
+instead of a draw (`--anyway` draws; that round is a deviation to record). The
+track prompt's steps 1 and 5 (the `quality-audit-round-<n>` post) are for a
+sample round; census and fix sessions name posts `<date>-quality-census-*` and
+`<date>-quality-fix-*`.
 
 Census audits use stratum `venture`, `research` or `platform` like sampled
 ones, and the full rubric, and set `"drawn_by": "census"` (a re-audit that
