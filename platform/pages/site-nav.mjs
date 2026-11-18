@@ -586,6 +586,13 @@ footer .pfs-counted li+li{margin-top:6px}
  * scroll where a scrollbar makes 100vw wider than the page. `clip`, not
  * `hidden`, so no scroll container is created and sticky elements still stick.
  * `--pf-hero-pull` is the wrap's top padding, so the field meets the nav.
+ *
+ * Narrow phones (380 px and below: iPhone SE, mini, 360 and 320 px Androids)
+ * get a tighter hero and a 16 px lede, so an audience or category page's first
+ * tool card starts on the first screen. At 320x640, 24 of 31 audience pages had
+ * it below the fold, most by 17 px (polish-2026-11-18-small-phone-hero.md);
+ * with these rules and the matching `.start-here` ones in build.mjs, 6 of 31.
+ * The pull moves with the padding, so the dark field still meets the nav.
  */
 const SITE_HERO_CSS = `
 html{overflow-x:clip}
@@ -624,6 +631,12 @@ html{overflow-x:clip}
 .count-exceptions p{margin:8px 0 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;
   background:var(--panel);line-height:1.6}
 @media (max-width:600px){.pf-hero{padding-top:18px}}
+@media (max-width:380px){
+  .wrap:has(.pf-hero){padding-top:18px;--pf-hero-pull:18px}
+  .pf-hero{padding-top:12px;padding-bottom:20px;margin-bottom:22px}
+  .pf-hero h1{margin-bottom:10px}
+  .pf-hero .lede,.pf-hero .dek{font-size:1rem;line-height:1.5}
+}
 `;
 
 /**

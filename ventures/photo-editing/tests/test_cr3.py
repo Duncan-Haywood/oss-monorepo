@@ -253,7 +253,8 @@ def tiled_sample(values: list[int], width: int, height: int, tile: tuple[int, in
 
 
 def make_cr3(values=None, version=0x100, levels=0, tiles=False, color_len=3778, wb=(2048, 1024, 1024, 1536),
-             lens=b"RF24-240mm F4-6.3 IS USM", iad1=True, sample=None, header_size=None, size=None, tile=None) -> bytes:
+             lens=b"RF24-240mm F4-6.3 IS USM", iad1=True, sample=None, header_size=None, size=None, tile=None,
+             stated_black=None) -> bytes:
     """A whole CR3. ``sample`` and ``header_size`` replace the losslessly coded sensor sample (C-RAW tests).
 
     ``size`` is the sensor's (width, height) (default 64 x 40); ``tile`` a tile size in sensor units, coded as
@@ -285,6 +286,9 @@ def make_cr3(values=None, version=0x100, levels=0, tiles=False, color_len=3778, 
     color = [0] * color_len
     if 0x69 + 4 <= color_len:
         color[0x69 : 0x69 + 4] = list(wb)
+    if stated_black is not None:
+        at = cr3._BLACK_INDEX[color_len]
+        color[at : at + 4] = list(stated_black)
     note = _tiff([(0x4001, 3, tuple(color))])
     ctmd = struct.pack("<IH", 24, 1) + bytes(18)  # a record of another type, skipped
     entry = struct.pack("<II", 8 + len(note), 0x927C) + note
@@ -459,6 +463,34 @@ class ReadTests(unittest.TestCase):
         self.assertEqual(with_iad1, (2047.0,) * 4)
         self.assertGreater(min(without.ifd.entries[rd.TAG_BLACK_LEVEL]), 2047.0)
         self.assertTrue(any("no IAD1" in n for n in without.notes))
+
+    def test_color_data12_white_balance_and_stated_black(self):
+        # The R5 Mark II's ColorData12 (4,528 entries): as-shot balance at 0x69, PerChannelBlackLevel at 0x17F.
+        raw = rd.parse_raw(make_cr3(color_len=4528, stated_black=(2047, 2047, 2047, 2047)))
+        tags = raw.ifd.entries
+        self.assertAlmostEqual(tags[rd.TAG_AS_SHOT_NEUTRAL][0], 0.5)
+        self.assertEqual(tags[rd.TAG_BLACK_LEVEL], (2047.0,) * 4)
+        self.assertFalse(any("ColorData states" in n for n in raw.notes))
+
+    def test_stated_black_wins_over_a_measured_one_and_the_gap_is_noted(self):
+        # As on the R5 Mark II, where IAD1's optical black takes in a darker strip: the stated level is used.
+        raw = rd.parse_raw(make_cr3(color_len=4528, stated_black=(2039, 2040, 2041, 2042)))
+        self.assertEqual(raw.ifd.entries[rd.TAG_BLACK_LEVEL], (2039.0, 2040.0, 2041.0, 2042.0))
+        self.assertTrue(any("2039/2040/2041/2042 as ColorData states it" in n and "measure 2047" in n for n in raw.notes))
+
+    def test_stated_black_follows_the_crop_phase(self):
+        # R, G on red's rows, G on blue's, B, laid on the CFA at the crop's origin (here GBRG: crop starts on a G row).
+        self.assertEqual(cr3._stated_black(self._cd(1, 2, 3, 4), 14, "GBRG"), [3.0, 4.0, 1.0, 2.0])
+        self.assertEqual(cr3._stated_black(self._cd(1, 2, 3, 4), 14, "BGGR"), [4.0, 3.0, 2.0, 1.0])
+        self.assertEqual(cr3._stated_black(self._cd(1, 2, 3, 4), 14, "RGGB"), [1.0, 2.0, 3.0, 4.0])
+        self.assertIsNone(cr3._stated_black(self._cd(0, 0, 0, 0), 14, "RGGB"))  # not stated: measure instead
+        self.assertIsNone(cr3._stated_black((0,) * 3778, 14, "RGGB"))  # R8's ColorData11: place not known
+
+    @staticmethod
+    def _cd(*black):
+        cd = [0] * 4528
+        cd[0x17F : 0x17F + 4] = black
+        return tuple(cd)
 
     def test_unknown_color_data(self):
         raw = rd.parse_raw(make_cr3(color_len=999))

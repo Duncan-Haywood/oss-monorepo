@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqye9ERXe8GyGJNN4Me9",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T10:39:09Z",
+  "ended": "2026-11-18T11:13:08Z",
+  "wall_minutes": 34.26,
+  "tokens_in": 7800907,
+  "tokens_out": 31537,
+  "cost_usd": 3.047,
+  "tool_calls": 82,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17277",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "suite_file_times.py was given '.' from platform/pages but resolved it against the repo root and started timing all 9,435 test files; killed and rerun with platform/pages"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/suite_file_times.py",
+      "issue": "a relative directory target ('.') resolves against the repository root, not the shell's cwd, so it silently timed the whole repository"
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "both perf backlog items are CODEOWNERS-only again (P063, P064); the prompt already says so, but the backlog still offers nothing landable to a perf run"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-the-tests-that-left-two-gigabytes-behind.md",
+    "docs/history/pages-test-perf-2026-11-18-temp-dirs-and-one-read.md"
+  ],
+  "goal": null,
+  "notes": "Metrics: (1) temp-dir bytes left by one full Pages suite run (node --test \"*.test.mjs\" \"cloudflare/*.test.mjs\" in platform/pages; du -sh /tmp/* after): before about 2.0 GB (pages-build 1.6 GB, apex 352 MB, audio-cdn-big 62 MB), after largest leftover 4 MB; 1824/1824 pass, 350 s wall. platform/deploy/build.test.mjs left 112 MB of deploy-* dirs per run before and none after (12/12 pass). (2) custom-domain.test.mjs wall, node --test, idle 4-core container, three alternating runs: before 34.2 s median (33.7/34.2/35.7), after 31.0 s (30.6/31.0/32.3). Reading: ci_profile --runs 600 (Portfolio Pages 208.8 of 618.4 job-min; Test the site builder 66.3 min); suite_file_times platform/pages: 624 s summed, custom-domain 59.8 s second after build.test 334 s. ai-bookkeeper profiled (115.7 s summed, start-up bound); rowWidths typed-array scan worth about 0.6 s, not taken.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e017122e-8044-5d8f-8c55-80954f910a0f",
+    "transcripts": 1,
+    "first": "2026-11-18T10:39:09Z",
+    "last": "2026-11-18T11:13:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 157,
+        "output": 31537,
+        "thinking": 6659,
+        "cache_read": 7691076,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109674,
+        "api_equivalent_usd": 3.047,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 157,
+      "output": 31537,
+      "thinking": 6659,
+      "cache_read": 7691076,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109674,
+      "api_equivalent_usd": 3.047,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 75,
+      "ToolSearch": 3,
+      "TaskStop": 2,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.26,
+      "active_minutes": 34.26,
+      "model_minutes": 6.13,
+      "tool_minutes": 28.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile two suites, find and fix four temp-dir leaks, refactor one test, full-suite verification, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 98.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -419,6 +419,10 @@ def take_survey_advice(sv: dict | None) -> str | None:
         return (f"contact-time survey: {n} wheels so far pick {pick:g} ms; run more balls ({ESC_SURVEY_MIN_WHEELS} "
                 f"wheels) before setting TAKE_US")
     rms = [v for v in (sv.get("rms_ppm") or ()) if v is not None]
+    if rms and not any(rms):
+        # every wheel was take-blind (controller.TAKE_SURVEY_BLIND): no ball's fit told the contact times apart
+        return (f"contact-time survey: {n} wheels, none told the contact times apart (each ball's contact fitted "
+                f"inside one revolution); keep TAKE_US = {int(board * 1000)} and run more balls")
     gain = min(rms) / rms[0] if rms and rms[0] else 0.0
     if pick > 0 and gain > TAKE_ADVISE_RATIO:
         return (f"contact-time survey: {n} wheels pick {pick:g} ms, but its fits miss only {1 - gain:.0%} less than the "

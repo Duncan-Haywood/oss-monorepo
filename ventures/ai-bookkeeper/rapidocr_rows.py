@@ -12,6 +12,11 @@
 #
 # `--rapidocr` runs this file with `python3`, or with the interpreter in RAPIDOCR_PYTHON
 # (a virtual environment's python). `--selftest` checks the row grouping without RapidOCR.
+# RAPIDOCR_REC_MODEL and RAPIDOCR_REC_KEYS swap in another recognition model (.onnx) and
+# its character list, keeping RapidOCR's detector: for Russian receipts PaddleOCR's East
+# Slavic PP-OCRv5 model reads Cyrillic where the default prints Latin look-alikes
+# (README, "Russian slips with a Cyrillic recogniser").
+import os
 import sys
 
 
@@ -38,11 +43,22 @@ def rows(results):
     return "".join("  ".join(t for *_, t in sorted(l["items"], key=lambda b: b[2])) + "\n" for l in lines)
 
 
+def rec_options(env=os.environ):
+    """RapidOCR keyword arguments for a swapped-in recognition model, from the environment."""
+    names = (("rec_model_path", "RAPIDOCR_REC_MODEL"), ("rec_keys_path", "RAPIDOCR_REC_KEYS"))
+    opts = {k: env[e] for k, e in names if env.get(e)}
+    if "rec_model_path" in opts and "rec_keys_path" not in opts:
+        sys.exit("RAPIDOCR_REC_MODEL needs RAPIDOCR_REC_KEYS, the model's character list (one per line)")
+    return opts
+
+
 def selftest():
     box = lambda x, y, w=40, h=10: [[x, y], [x + w, y], [x + w, y + h], [x, y + h]]
     got = rows([(box(200, 52), "96,000", 0.9), (box(10, 50), "Total", 0.9), (box(10, 30), "VAT 10%", 0.9), (box(200, 31), "8,728", 0.9)])
     assert got == "VAT 10%  8,728\nTotal  96,000\n", repr(got)
     assert rows([]) == "" and rows(None) == ""
+    assert rec_options({}) == {}
+    assert rec_options({"RAPIDOCR_REC_MODEL": "m.onnx", "RAPIDOCR_REC_KEYS": "d.txt"}) == {"rec_model_path": "m.onnx", "rec_keys_path": "d.txt"}
     print("ok")
 
 
@@ -55,7 +71,7 @@ def main(argv):
         from rapidocr_onnxruntime import RapidOCR
     except ImportError:
         sys.exit("rapidocr_rows.py needs RapidOCR: pip install rapidocr-onnxruntime (or set RAPIDOCR_PYTHON to a python that has it)")
-    results, _ = RapidOCR()(argv[1])
+    results, _ = RapidOCR(**rec_options())(argv[1])
     sys.stdout.write(rows(results))
 
 

@@ -538,6 +538,68 @@ export function parseLaneAvoid(text, teams, nPairs, firstLane = 1) {
  */
 const modeOf = (spec) => spec.mode ?? "polished";
 
+// How many of a week's matches cannot be given a pair their teams may use: nPairs minus a maximum
+// bipartite matching of matches to allowed pairs (Kuhn's augmenting paths). 0 means the week has a
+// legal deal; the Hungarian step in assignLanes then finds it.
+function weekShortfall(matches, ban, nPairs) {
+  const pairOwner = new Array(nPairs).fill(-1);
+  const ok = matches.map(([a, b]) => { const r = []; for (let p = 0; p < nPairs; p++) if (!ban[a][p] && !ban[b][p]) r.push(p); return r; });
+  const tryMatch = (m, seen) => {
+    for (const p of ok[m]) {
+      if (seen[p]) continue;
+      seen[p] = true;
+      if (pairOwner[p] < 0 || tryMatch(pairOwner[p], seen)) { pairOwner[p] = m; return true; }
+    }
+    return false;
+  };
+  let got = 0;
+  for (let m = 0; m < matches.length; m++) if (tryMatch(m, new Array(nPairs).fill(false))) got++;
+  return matches.length - got;
+}
+
+/**
+ * A dealing of teams to circle-method slots (slotTeam[slot] = team) under which every round the
+ * season plays has a legal lane deal, or null if none was found. Lane limits make some weeks
+ * impossible only because of who meets whom that week: five teams off one pair in a 10-team league
+ * leave the pair one match of two unlimited teams, and slot t = team t can put all five in five
+ * different matches. The round robin may deal any team any slot (every team still meets every other
+ * as often), so a hill climb swaps a limited team's slot with another slot, keeping a swap that does
+ * not raise the summed shortfall, with seeded restarts. Identity first, so a season that already
+ * has a deal every week is unchanged.
+ */
+export function feasibleDealing(nTeams, rrWeeks, avoid, nPairs, { tries = null, seed = 1 } = {}) {
+  const ban = banMatrix(nTeams, nPairs, avoid);
+  if (!ban) return null;
+  const cycle = roundRobin(nTeams);
+  const used = cycle.slice(0, Math.min(rrWeeks, cycle.length)).map((r) => r.matches);
+  const cost = (deal) => used.reduce((s, ms) => s + weekShortfall(ms.map(([a, b]) => [deal[a], deal[b]]), ban, nPairs), 0);
+  let deal = Array.from({ length: nTeams }, (_, t) => t);
+  let c = cost(deal);
+  if (c === 0) return deal;
+  const limited = new Set(deal.filter((t) => ban[t].some(Boolean)));
+  if (limited.size === 0) return null;
+  // A work budget, not a clock, so the same input gives the same season on any machine: about
+  // 3e7 matching steps (well under a second), capped at 4,000 swaps.
+  if (tries === null) tries = Math.max(50, Math.min(4000, Math.floor(3e7 / (used.length * nPairs * nPairs))));
+  const rnd = mulberry32(seed * 7919 + nTeams * 131 + rrWeeks);
+  const restartEvery = Math.max(200, 20 * nTeams);
+  for (let i = 0; i < tries; i++) {
+    if (i > 0 && i % restartEvery === 0) {
+      for (let j = nTeams - 1; j > 0; j--) { const k = Math.floor(rnd() * (j + 1)); [deal[j], deal[k]] = [deal[k], deal[j]]; }
+      c = cost(deal);
+      if (c === 0) return deal;
+    }
+    // a slot holding a limited team, swapped with any other slot
+    let x;
+    do x = Math.floor(rnd() * nTeams); while (!limited.has(deal[x]));
+    let y = Math.floor(rnd() * (nTeams - 1)); if (y >= x) y++;
+    [deal[x], deal[y]] = [deal[y], deal[x]];
+    const c2 = cost(deal);
+    if (c2 <= c) { c = c2; if (c === 0) return deal; } else [deal[x], deal[y]] = [deal[y], deal[x]];
+  }
+  return null;
+}
+
 export function bowlingSchedule(spec) {
   const errors = [];
   let teams;
@@ -585,7 +647,11 @@ export function bowlingSchedule(spec) {
   // With lane limits on a season that has a stored shape answer, the limited teams are dealt the
   // shape's slots of the circle method (still a plain round robin, every team meeting every other
   // as often); with none, slot t is team t as before.
-  const slotTeam = (avoid && modeOf(spec) === "polished" && avoidShapeSlots(n, rrWeeks, avoid, nPairs)) || null;
+  // Failing that, if slot t = team t leaves a week with no legal deal, the limited teams are dealt
+  // slots where every week has one (feasibleDealing); a season that already has one is unchanged.
+  const slotTeam = (avoid && modeOf(spec) === "polished" && avoidShapeSlots(n, rrWeeks, avoid, nPairs))
+    || (avoid && feasibleDealing(n, rrWeeks, avoid, nPairs)) || null;
+  const redealt = slotTeam !== null && slotTeam.some((t, i) => t !== i);
   const rrRounds = [];
   const roundOf = [];
   let k = 0;
@@ -603,7 +669,7 @@ export function bowlingSchedule(spec) {
     if (bad.length) {
       const w = roundOf[bad[0].week].week;
       const who = [...new Set(bad.filter((b) => b.week === bad[0].week).map((b) => teams[b.team]))].join(", ");
-      return { errors: [`Week ${w}: the lane limits leave no way to put every match on a pair its teams may use (${who}). Too many of that week's matches avoid the same pairs; loosen a limit.`] };
+      return { errors: [`Week ${w}: the lane limits leave no way to put every match on a pair its teams may use (${who}). Too many of that week's matches avoid the same pairs, and no dealing of the teams to round-robin slots tried gives every week a legal deal; loosen a limit.`] };
     }
   }
   const out = [];
@@ -622,7 +688,7 @@ export function bowlingSchedule(spec) {
     ri++;
   }
   const boundProvedOutOfReach = !odd && boundOutOfReach(n, rrRounds.length);
-  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach: boundProvedOutOfReach && !avoid, avoid };
+  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach: boundProvedOutOfReach && !avoid, avoid, redealt };
 }
 
 function ordinal(i) {

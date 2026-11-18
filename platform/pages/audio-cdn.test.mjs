@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -107,10 +107,16 @@ test('jsDelivr serves GitHub files up to 20 MB: a file of exactly the limit move
   put(out, 'a/at.mp3', atLimit);
   put(out, 'a/over.mp3', over);
   put(out, 'a/index.html', '<audio src="at.mp3"></audio><audio src="over.mp3"></audio>');
-  const result = await moveAudioToCdn({ outDir: out, base: BASE, repoRoot: repo, repo: REPO });
-  assert.deepEqual(result, { moved: 1, kept: 1, bytes: LIMIT });
-  assert.equal(existsSync(path.join(out, 'a/at.mp3')), false);
-  assert.equal(existsSync(path.join(out, 'a/over.mp3')), true);
+  try {
+    const result = await moveAudioToCdn({ outDir: out, base: BASE, repoRoot: repo, repo: REPO });
+    assert.deepEqual(result, { moved: 1, kept: 1, bytes: LIMIT });
+    assert.equal(existsSync(path.join(out, 'a/at.mp3')), false);
+    assert.equal(existsSync(path.join(out, 'a/over.mp3')), true);
+  } finally {
+    // About 60 MB of 20 MB files and their git objects, left behind every run until 2026-11-18.
+    rmSync(repo, { recursive: true, force: true });
+    rmSync(out, { recursive: true, force: true });
+  }
 });
 
 test('the repo comes from GITHUB_REPOSITORY, and the portfolio repo without it', async () => {

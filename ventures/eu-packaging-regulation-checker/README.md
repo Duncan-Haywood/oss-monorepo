@@ -14,8 +14,8 @@ Open `index.html`. Tests: `node --test 'ventures/eu-packaging-regulation-checker
 
 From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-eu-packaging-regulation-checker.json):
 
-- The reuse-target row reaches only the transport category and producer, importer and distributor roles. E-commerce packaging, online sellers and fulfilment providers never see it (the worked example shows no reuse duty), and cardboard transport boxes, which the reuse article excludes, are given it.
-- The label, recycled-content and empty-space rows show a fixed date and leave out "or N months/years after the implementing act, whichever is later".
 - One role per run: an own-brand online seller who picks "Online seller" loses the maker duties (conformity, label, design).
-- A glass drinks bottle gets the deposit-return row, which covers plastic bottles and metal cans.
-- An unknown option value falls back to the default without an error.
+- No marketplace, HORECA/take-away, compostable-packaging or beverage (Article 29 drinks) reuse duties are modelled.
+- Dates and the reuse scope were checked against secondary sources (law-firm and compliance summaries), not the EUR-Lex text, which the building sessions could not reach.
+
+Fixed 2026-11-18 (see `calc.test.mjs`, last five tests): reuse targets now reach e-commerce packaging and online sellers and fulfilment providers, leave out cardboard boxes, and the microenterprise exemption asks for the 1,000 kg condition too; the label, recycled-content and empty-space rows read "set by a Commission act" once their fixed date passes; the deposit-return row needs plastic or metal; an unknown option value is an error.

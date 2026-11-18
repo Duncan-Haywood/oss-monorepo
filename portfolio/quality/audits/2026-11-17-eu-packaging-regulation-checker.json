@@ -197,7 +197,8 @@
    "what": "Article 29 reuse target (40% from 2030) omitted for e-commerce packaging and for online sellers and fulfilment providers: the tool's own worked example (non-EU seller, plastic mailers) shows no reuse duty",
    "where": "ventures/eu-packaging-regulation-checker/calc.mjs:54",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17288"
   },
   {
    "severity": "medium",
@@ -212,14 +213,16 @@
    "what": "Reuse duty shown for paper/cardboard transport packaging although cardboard boxes are excluded from the Article 29 targets; micro-enterprise exemption applied without the 1,000 kg condition",
    "where": "ventures/eu-packaging-regulation-checker/calc.mjs:54",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17288"
   },
   {
    "severity": "medium",
    "what": "Label (Art 12), recycled content (Art 7) and empty space (Art 24) run from a fixed date; the Regulation says 'or N months/years after the implementing act, whichever is later', and the label act already missed its deadline, so the tool will call the label 'applies now' from 2028-08-12 regardless",
    "where": "ventures/eu-packaging-regulation-checker/calc.mjs:49",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17288"
   },
   {
    "severity": "medium",
@@ -233,14 +236,16 @@
    "what": "DRS shown for glass drinks bottles under a category labelled 'plastic bottle or metal can'; material is not cross-checked against the beverage category",
    "where": "ventures/eu-packaging-regulation-checker/calc.mjs:48",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17288"
   },
   {
    "severity": "low",
    "what": "Header promises bad input is rejected, but opt() silently replaces unknown micro/sellsEu/euOperator values and any string but '0' (e.g. 'false') marks a duty done",
    "where": "ventures/eu-packaging-regulation-checker/calc.mjs:60",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17288"
   },
   {
    "severity": "medium",
@@ -261,9 +266,10 @@
    "what": "llms.txt says results are 'estimates from the numbers typed in'; the tool takes no numbers",
    "where": "ventures/eu-packaging-regulation-checker/llms.txt:5",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17288"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16798"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16798", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17288"],
  "verdict": "An honest, small PPWR first-read checklist that gets the headline right: for a non-EU online seller it says the Regulation applies now and that producer registration and an authorised representative are overdue, and its 2026, 2029 and 2030 dates agree with secondary legal summaries (EUR-Lex itself was unreachable from this session). Below the bar on correctness and domain: the Article 29 reuse target is missing for e-commerce packaging (including the tool's own worked example) and wrongly applied to cardboard transport boxes, the DRS exemption is stated as 90% instead of 80% in 2026, the later-of implementing-act clauses for the label, recycled content and empty space are not modelled though the label act has already slipped, and single-select roles drop design duties for own-brand online sellers. 30 tests pass but 3 of 6 seeded mutants survive. Disclaimers and the dates-from-memory disclosure are present and accurate. Finished (completeness 3), does not meet the bar (correctness 2, verification 2, median 2); fixable in one session by correcting the reuse and DRS rows, adding later-of notes and article numbers checked against CELEX 32025R0040, and pinning each duty's date and categories in a table test."
 }

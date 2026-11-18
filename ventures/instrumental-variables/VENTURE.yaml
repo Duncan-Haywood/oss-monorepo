@@ -1,0 +1,67 @@
+name: instrumental-variables
+description: >-
+  Free browser tool, CLI and agent call for economists, epidemiologists,
+  policy and product analysts and students whose regressor of interest was
+  chosen rather than assigned: upload one row per unit with an outcome, the
+  endogenous regressor(s), instruments and controls, and get OLS, two-stage
+  least squares, LIML and Fuller side by side with unadjusted, robust or
+  clustered standard errors, first-stage strength (partial and Shea R2, F,
+  effective F), Sargan and Hansen J overidentification tests, Durbin,
+  Wu-Hausman and control-function endogeneity tests, and the
+  weak-instrument-robust Anderson-Rubin confidence set. Matches linearmodels
+  7.1 within 1e-11. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-18 on an explore run, as a research algorithm tool beside
+# propensity-score, regression-discontinuity, difference-in-differences and
+# synthetic-control; no venture README mentioned instrumental variables, 2SLS
+# or two-stage least squares (1,403 searched; one research README mentions
+# instruments in another sense). Implemented from the papers' definitions; no
+# third-party code was ported. linearmodels 7.1 (NCSA licence) and scipy were
+# run only as external programs to produce eval/reference.json. Example data
+# are simulated (eval/simulate.py; data/SOURCE.md).
+#
+# First visitor: searches such as "2SLS calculator", "instrumental variables
+# regression online", "first stage F statistic weak instruments", "Anderson
+# Rubin confidence interval", "Sargan test", "Hausman test online"; students
+# in econometrics courses and analysts without Stata or R. Volume not measured
+# with an external tool.
+#
+# Alternatives: Stata ivregress and ivreg2 / weakiv; R ivreg, AER and ivmodel;
+# Python linearmodels and statsmodels IV2SLS (all need an environment and
+# code). Not surveyed for hosted web versions. The differentiators here are no
+# install, all four k-class estimators and every standard diagnostic on one
+# page with a reading in words, the Anderson-Rubin set under clustered errors,
+# and tests pinned to linearmodels.
+#
+# Liability: statistical output from supplied data, not legal, financial,
+# medical or policy advice; the page says the exclusion restriction cannot be
+# tested. Data never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Students and analysts who need an IV estimate will use a no-install
+      page that puts 2SLS, LIML, the first-stage checks and a weak-IV-robust
+      interval side by side, and will link or cite it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports estimates that disagree with Stata ivregress, R ivreg or linearmodels on the same data and specification, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/instrumental-variables/
+  analytics: null

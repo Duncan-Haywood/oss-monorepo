@@ -108,39 +108,168 @@ export function shortTeams(store, games, minPlayers) {
   return rows.sort((a, b) => a.day - b.day || b.short - a.short || a.team.localeCompare(b.team));
 }
 
-function countLine(a, need) {
+function countLine(a, need, quiet = []) {
   const n = a.in.length;
   const flag = need > 0 && n < need ? ` <strong class="err">short ${need - n}</strong>` : need > 0 ? ` <span class="ok">enough</span>` : "";
   const names = (k, label) => (a[k].length ? ` · ${label}: ${a[k].map(esc).join(", ")}` : "");
-  return `${n} in${need > 0 ? ` of ${need}` : ""}, ${a.maybe.length} maybe, ${a.out.length} out${flag}${names("in", "In")}${names("maybe", "Maybe")}${names("out", "Out")}`;
+  return `${n} in${need > 0 ? ` of ${need}` : ""}, ${a.maybe.length} maybe, ${a.out.length} out${flag}${names("in", "In")}${names("maybe", "Maybe")}${names("out", "Out")}${quiet.length ? ` · No answer yet: ${quiet.map(esc).join(", ")}` : ""}`;
 }
 
 /** The player-page section: each upcoming game with both teams' counts, and the one form to answer. */
-export function availabilityHtml(store, games, { token = "", minPlayers = 0 } = {}) {
+export function availabilityHtml(store, games, { token = "", minPlayers = 0, rosters = {} } = {}) {
   if (!games.length) return `<h2>Who's playing</h2><p class="note">No games coming up.</p>`;
   const need = Math.trunc(Number(minPlayers) || 0);
   const rows = games.map((g) => {
     const when = `${dayLabel(g.day)}${g.time ? " " + esc(g.time) : ""}${g.court ? ", " + esc(g.court) : ""}`;
-    return `<li><strong>${when}</strong>: ${esc(g.homeName)} v ${esc(g.awayName)}<ul><li>${esc(g.homeName)}: ${countLine(teamAnswers(store, g.fixture, g.homeName), need)}</li><li>${esc(g.awayName)}: ${countLine(teamAnswers(store, g.fixture, g.awayName), need)}</li></ul></li>`;
+    return `<li><strong>${when}</strong>: ${esc(g.homeName)} v ${esc(g.awayName)}<ul>${[g.homeName, g.awayName].map((t) => `<li>${esc(t)}: ${countLine(teamAnswers(store, g.fixture, t), need, notAnswered(store, g.fixture, t, rosters))}</li>`).join("")}</ul></li>`;
   }).join("");
   const opts = games.flatMap((g) => [[g.home, g.homeName, g.awayName], [g.away, g.awayName, g.homeName]].map(([i, n, o]) => `<option value="${esc(g.fixture)}|${i}">${dayLabel(g.day)}${g.time ? " " + esc(g.time) : ""}: ${esc(n)} (v ${esc(o)})</option>`)).join("");
-  const form = `<form method="post" action="/league/available?t=${esc(token)}"><label>Game and team <select name="pick">${opts}</select></label> <label>Your name <input name="name" maxlength="${MAX_NAME}" required autocomplete="nickname" style="width:auto"></label> <label><input type="radio" name="status" value="in" required style="width:auto"> In</label> <label><input type="radio" name="status" value="maybe" style="width:auto"> Maybe</label> <label><input type="radio" name="status" value="out" style="width:auto"> Out</label> <button>Send</button></form>`;
+  const form = `<form method="post" action="/league/available?t=${esc(token)}"><label>Game and team <select name="pick">${opts}</select></label> <label>Your name <input name="name" maxlength="${MAX_NAME}" required autocomplete="nickname" style="width:auto"></label> <label><input type="radio" name="status" value="in" required style="width:auto"> In</label> <label><input type="radio" name="status" value="maybe" style="width:auto"> Maybe</label> <label><input type="radio" name="status" value="out" style="width:auto"> Out</label> <button>Send</button>${rosterPickerHtml(games, rosters)}</form>`;
   const note = `<p class="note">Answer again with the same name to change it. Everyone with this link sees the names, so a first name or nickname is enough.${need > 0 ? ` The organiser needs ${need} players a team.` : ""}</p>`;
   return `<h2>Who's playing</h2><ul>${rows}</ul>${form}${note}`;
 }
 
 /** The admin-page section: the teams short of players for the next games, with a copy-ready nudge each. */
-export function shortTeamsHtml(store, games, minPlayers) {
+export function shortTeamsHtml(store, games, minPlayers, rosters = {}) {
   const need = Math.trunc(Number(minPlayers) || 0);
   if (need <= 0) return "";
   const rows = shortTeams(store, games, need);
   if (!rows.length) return games.length ? `<h2>Players for the next games</h2><p class="ok">Every team has ${need} or more players in.</p>` : "";
-  const items = rows.map((r) => `<li><strong>${esc(r.team)}</strong> (${dayLabel(r.day)}${r.time ? " " + esc(r.time) : ""} v ${esc(r.opponent)}): ${r.in} in, short ${r.short}; ${r.maybe} maybe, ${r.out} out. <input readonly onfocus="this.select()" aria-label="Message for ${esc(r.team)}" value="${esc(nudgeText(r, need))}"></li>`).join("");
+  const items = rows.map((r) => `<li><strong>${esc(r.team)}</strong> (${dayLabel(r.day)}${r.time ? " " + esc(r.time) : ""} v ${esc(r.opponent)}): ${r.in} in, short ${r.short}; ${r.maybe} maybe, ${r.out} out. <input readonly onfocus="this.select()" aria-label="Message for ${esc(r.team)}" value="${esc(nudgeText(r, need, notAnswered(store, r.fixture, r.team, rosters)))}"></li>`).join("");
   return `<h2>Teams short of players</h2><ul>${items}</ul><p class="note">Counts only the players who answered on the league page. Copy a message into the team's chat.</p>`;
 }
 
 /** The message an organiser pastes into a short team's chat. */
-export function nudgeText(r, need) {
+export function nudgeText(r, need, quiet = []) {
   const maybes = r.maybe ? ` ${r.maybe} said maybe: can you confirm?` : "";
-  return `${r.team}: ${r.in} of ${need} players are in for ${dayLabel(r.day)}${r.time ? " " + r.time : ""} v ${r.opponent}.${maybes} Answer on the league page, or find a sub, so the game is not forfeited.`;
+  const silent = quiet.length ? ` Not heard from: ${quiet.join(", ")}.` : "";
+  return `${r.team}: ${r.in} of ${need} players are in for ${dayLabel(r.day)}${r.time ? " " + r.time : ""} v ${r.opponent}.${maybes}${silent} Answer on the league page, or find a sub, so the game is not forfeited.`;
+}
+
+// ---- Rosters, the organiser's CSV and reminders (2026-11-18) ----
+
+export const MAX_ROSTER = 40; // names per team in the roster box
+
+/**
+ * The organiser's roster box -> { rosters: { team: [names] }, errors }. One team per line,
+ * "Hawks: Ana, Ben, Cara". A team the schedule does not have is reported, not guessed; a name
+ * listed twice for one team is kept once. Teams with no line have no roster (anyone may answer).
+ */
+export function parseRosters(text, teams) {
+  const rosters = {}, errors = [];
+  const byKey = new Map(teams.map((t) => [t.toLocaleLowerCase(), t]));
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const at = line.indexOf(":");
+    if (at < 0) { errors.push(`"${line.slice(0, 40)}": write it as Team: name, name`); continue; }
+    const team = byKey.get(line.slice(0, at).trim().toLocaleLowerCase());
+    if (!team) { errors.push(`Roster for "${line.slice(0, at).trim().slice(0, 40)}": no team of that name`); continue; }
+    const list = (rosters[team] ||= []);
+    for (const part of line.slice(at + 1).split(",")) {
+      if (!part.trim()) continue;
+      const n = cleanName(part);
+      if (n.error) { errors.push(`${team}: "${part.trim().slice(0, 40)}": ${n.error}`); continue; }
+      if (list.some((x) => x.toLocaleLowerCase() === n.name.toLocaleLowerCase())) continue;
+      if (list.length >= MAX_ROSTER) { errors.push(`${team}: more than ${MAX_ROSTER} names; the rest were left out`); break; }
+      list.push(n.name);
+    }
+  }
+  return { rosters, errors };
+}
+
+/** Roster names on `team` with no answer yet for `fixture`, in roster order. */
+export function notAnswered(store, fixture, team, rosters) {
+  const said = new Set((store?.[fixture]?.[team] || []).map((e) => e.name.toLocaleLowerCase()));
+  return (rosters?.[team] || []).filter((n) => !said.has(n.toLocaleLowerCase()));
+}
+
+/**
+ * The name box's suggestions: one <datalist> per team with a roster, and a few lines of script that
+ * point the name box at the picked team's list. Without script the box still takes any name.
+ */
+export function rosterPickerHtml(games, rosters) {
+  const teams = [...new Set(games.flatMap((g) => [g.homeName, g.awayName]))].filter((t) => rosters?.[t]?.length);
+  if (!teams.length) return "";
+  const idx = new Map(teams.map((t, i) => [t, i]));
+  const lists = teams.map((t) => `<datalist id="roster-${idx.get(t)}">${rosters[t].map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`).join("");
+  const map = {};
+  for (const g of games) for (const [i, n] of [[g.home, g.homeName], [g.away, g.awayName]]) if (idx.has(n)) map[`${g.fixture}|${i}`] = `roster-${idx.get(n)}`;
+  const js = `<script>(()=>{const m=${JSON.stringify(map).replace(/</g, "\\u003c")},f=document.currentScript.closest("form")||document.querySelector('form[action^="/league/available"]');if(!f)return;const s=f.querySelector('[name=pick]'),n=f.querySelector('[name=name]'),u=()=>{const l=m[s.value];l?n.setAttribute("list",l):n.removeAttribute("list")};s.addEventListener("change",u);u()})()</script>`;
+  return lists + js;
+}
+
+const csvCell = (v) => { const s = String(v ?? ""); const t = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s; return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+const isoDay = (day) => new Date(day * 86400000).toISOString().slice(0, 10);
+
+/**
+ * Every answer for the given games as CSV, one row per player per game, plus a "no answer" row for
+ * each roster name not heard from: date, time, court, team, opponent, player, answer, answered_at (UTC).
+ * Cells that a spreadsheet would run as a formula are prefixed with an apostrophe.
+ */
+export function availabilityCsv(store, games, rosters = {}) {
+  const rows = [["date", "time", "court", "team", "opponent", "player", "answer", "answered_at"]];
+  for (const g of games) for (const [team, opp] of [[g.homeName, g.awayName], [g.awayName, g.homeName]]) {
+    for (const e of store?.[g.fixture]?.[team] || []) rows.push([isoDay(g.day), g.time, g.court, team, opp, e.name, e.status, e.at ? new Date(e.at).toISOString() : ""]);
+    for (const n of notAnswered(store, g.fixture, team, rosters)) rows.push([isoDay(g.day), g.time, g.court, team, opp, n, "no answer", ""]);
+  }
+  return rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
+}
+
+/**
+ * The team contacts box -> { contacts: { team: [emails] }, errors }: "Hawks: cap@example.org, b@example.org".
+ * Only plain addresses (no display names, no line breaks) so nothing typed can add a mail header.
+ */
+export function parseContacts(text, teams) {
+  const contacts = {}, errors = [];
+  const byKey = new Map(teams.map((t) => [t.toLocaleLowerCase(), t]));
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const at = line.lastIndexOf(":", line.indexOf("@") < 0 ? line.length : line.indexOf("@"));
+    const team = at < 0 ? undefined : byKey.get(line.slice(0, at).trim().toLocaleLowerCase());
+    if (!team) { errors.push(`Contacts "${line.slice(0, 40)}": start the line with a team name and a colon`); continue; }
+    for (const part of line.slice(at + 1).split(/[,;\s]+/)) {
+      if (!part) continue;
+      if (!EMAIL.test(part) || part.length > 200) { errors.push(`${team}: "${part.slice(0, 60)}" is not an email address`); continue; }
+      (contacts[team] ||= []).includes(part) || contacts[team].push(part);
+    }
+  }
+  return { contacts, errors };
+}
+export const EMAIL = /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$/;
+
+export const REMINDER_DAYS = 2;
+
+/**
+ * Reminders due now: every team still short of `minPlayers` for a game `daysAhead` days from `today`
+ * or sooner (today included), not already reminded for that game. Each is
+ * { key, to: [team contacts..., organiser], subject, text }. `sent` is the store of keys already sent
+ * ("fixture|team"); the caller adds a key once the mail is accepted. A team with no contact and no
+ * organiser address gets no reminder. Pure: nothing is sent here.
+ */
+export function remindersDue(store, games, { minPlayers = 0, today, daysAhead = REMINDER_DAYS, sent = {}, contacts = {}, organiser = "", rosters = {}, leagueUrl = "" } = {}) {
+  const need = Math.trunc(Number(minPlayers) || 0);
+  if (need <= 0) return [];
+  const out = [];
+  for (const r of shortTeams(store, games, need)) {
+    if (r.day < today || r.day > today + daysAhead) continue;
+    const key = `${r.fixture}|${r.team}`;
+    if (sent[key]) continue;
+    const to = [...(contacts[r.team] || [])];
+    if (organiser && !to.includes(organiser)) to.push(organiser);
+    if (!to.length) continue;
+    const quiet = notAnswered(store, r.fixture, r.team, rosters);
+    const when = `${dayLabel(r.day)}${r.time ? " " + r.time : ""}${r.court ? ", " + r.court : ""}`;
+    const lines = [
+      `${r.team} has ${r.in} of ${need} players in for ${when} v ${r.opponent}.`,
+      r.maybe ? `${r.maybe} said maybe: can they confirm?` : "",
+      quiet.length ? `Not heard from yet: ${quiet.join(", ")}.` : "",
+      `Please answer on the league page${leagueUrl ? ` (${leagueUrl})` : ""}, or find a sub, so the game is not forfeited.`,
+      "",
+      "Sent once by the league's own server because the team was short two days out. Reply to the organiser to stop these.",
+    ].filter((l, i, a) => l !== "" || (i > 0 && a[i - 1] !== ""));
+    out.push({ key, team: r.team, to, subject: `${r.team} is short ${r.short} for ${dayLabel(r.day)}`, text: lines.join("\n") });
+  }
+  return out;
 }

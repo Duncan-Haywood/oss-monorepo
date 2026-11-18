@@ -387,6 +387,17 @@ class C8Params:
         for t in range(n):
             row, col = divmod(t, cols)
             top = sum(heights[k] for k in range(col, t, cols))
+            # Tag 0x45 packs the tile's top row into its high 16 bits and its left edge into the low
+            # 16: single-row grids only ever show the left, but the S1R II's 177 MP mode (4 x 2
+            # tiles) writes 0x16000000 for the second row's first tile, top 5632 and left 0
+            # (eval/panasonic-rw2-format8-grid-2026-11-18.md). The stored top must agree with the
+            # heights above it.
+            stored_top, left = lefts[t] >> 16, lefts[t] & 0xFFFF
+            if stored_top != top:
+                raise rd.DevelopError(
+                    f"RW2 RawFormat 8: tile {t} says it starts at row {stored_top}, the tiles above it end at {top}"
+                )
+            lefts[t] = left
             w, h = widths[t], heights[t]
             if not w or not h or w % 2 or h % 2 or lefts[t] + w > width or top + h > height:
                 raise rd.DevelopError(f"RW2 RawFormat 8: tile {t} ({w} x {h} at {lefts[t]}, {top}) does not fit")

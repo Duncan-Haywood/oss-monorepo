@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtHnerMTAAUdXt9wXYr",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T11:05:55Z",
+  "ended": "2026-11-18T11:19:34Z",
+  "wall_minutes": 13.93,
+  "tokens_in": 4285203,
+  "tokens_out": 19668,
+  "cost_usd": 1.8422,
+  "tool_calls": 56,
+  "task": "polish: item 2 of polish-2026-11-18-starting-under-start-here.md (320x640 fold misses on audience pages)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17276",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "the first background build was started with a trailing & inside a run_in_background call, so the harness reported it complete at once while the build kept running",
+      "fix": "waited on the log with wait_for.py"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Pick-one-piece-of-work does not mention platform/ci/polish_queue.py; found it only via a process report (that report already notes the pointer is owner-gated)."
+    },
+    {
+      "file": "platform/pages/fold-check.mjs",
+      "issue": "Measures only one screen size per run; comparing 320/360/375/390 needed four runs and a manual CSS swap in dist/ to get before numbers without a second full build."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not run sideways.mjs over all 11,472 pages: the change only reduces vertical padding and a font size at <=380 px, which cannot widen a page.",
+      "did": "Checked documentElement.scrollWidth equals the viewport on 7 sampled hero pages at 320 and 390.",
+      "result": "no sideways scroll on any sampled page"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Added no new test: the defect class is already caught by fold-check.mjs (browser, not CI); a static CSS test of the media block would only restate it.",
+      "did": "Measured with fold-check.mjs at four screen sizes before and after.",
+      "result": "320x640 24->6 failing, 390x844 unchanged at 0"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-small-phone-hero-first-tool-on-screen.md",
+    "docs/reports/polish-2026-11-18-small-phone-hero.md"
+  ],
+  "goal": "Direction: impressive sites, SEO and AEO",
+  "notes": "Full local builds before (main d5a79af54) and after. fold-check failing pages out of 31: 320x640 24->6, 375x667 6->3, 360x780 3->1, 390x844 0->0. check.mjs: publishable, 11472 pages, no dead links. node --test platform/pages/*.test.mjs: 1816/1816 pass. check_posts.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9915a07e-5436-5e50-a03d-27adc80af1a8",
+    "transcripts": 1,
+    "first": "2026-11-18T11:05:55Z",
+    "last": "2026-11-18T11:19:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 19668,
+        "thinking": 5026,
+        "cache_read": 4209280,
+        "cache_write_5m": 0,
+        "cache_write_1h": 75823,
+        "api_equivalent_usd": 1.8422,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 19668,
+      "thinking": 5026,
+      "cache_read": 4209280,
+      "cache_write_5m": 0,
+      "cache_write_1h": 75823,
+      "api_equivalent_usd": 1.8422,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 50,
+      "Read": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.93,
+      "active_minutes": 13.93,
+      "model_minutes": 4.42,
+      "tool_minutes": 9.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "measure fold at four screen sizes, CSS change, two full builds, report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 162.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

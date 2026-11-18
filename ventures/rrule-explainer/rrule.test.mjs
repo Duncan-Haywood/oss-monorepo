@@ -367,3 +367,50 @@ test("DAILY and WEEKLY rules on the 31st get no skips-short-months warning", () 
     assert.equal(r.findings.find((x) => x.code === "skips-short-months"), undefined, f);
   }
 });
+
+test("negative BYYEARDAY and BYWEEKNO read as counted from the end of the year", () => {
+  const p = parseInput("DTSTART:20260105T090000");
+  const d = (r) => describe(parseRule(r).rule, p.dtstart);
+  assert.match(d("FREQ=YEARLY;BYYEARDAY=-1"), /^Every year on the last day of the year at/);
+  assert.match(d("FREQ=YEARLY;BYYEARDAY=-366"), /^Every year on the 366th from last day of the year at/);
+  assert.match(d("FREQ=YEARLY;BYYEARDAY=1,-1"), /^Every year on day 1 and the last day of the year at/);
+  assert.match(d("FREQ=YEARLY;BYYEARDAY=100,200"), /^Every year on days 100 and 200 of the year at/);
+  assert.match(d("FREQ=YEARLY;BYWEEKNO=-1;BYDAY=MO"), /^Every year in the last week of the year on Monday/);
+  assert.match(d("FREQ=YEARLY;BYWEEKNO=-2;BYDAY=MO"), /^Every year in the 2nd from last week of the year on Monday/);
+  assert.match(d("FREQ=YEARLY;BYWEEKNO=1,20;BYDAY=MO"), /^Every year in weeks 1 and 20 of the year on Monday/);
+});
+
+test("English ordinals: 11th, 12th and 13th, but 21st, 22nd, 23rd and 111th", () => {
+  const p = parseInput("DTSTART:20260105T090000");
+  const md = (n) => describe(parseRule(`FREQ=MONTHLY;BYMONTHDAY=${n}`).rule, p.dtstart);
+  assert.match(md(11), /^Every month on the 11th at/);
+  assert.match(md(12), /^Every month on the 12th at/);
+  assert.match(md(13), /^Every month on the 13th at/);
+  assert.match(md(21), /^Every month on the 21st at/);
+  assert.match(md(22), /^Every month on the 22nd at/);
+  assert.match(md(23), /^Every month on the 23rd at/);
+  assert.match(describe(parseRule("FREQ=YEARLY;BYYEARDAY=111").rule, p.dtstart), /day 111 /);
+  assert.match(describe(parseRule("FREQ=YEARLY;BYYEARDAY=-111").rule, p.dtstart), /the 111th from last day/);
+});
+
+test("a rule part with no name says so, instead of 'Unknown rule part ' with a blank", () => {
+  const f = parseRule("FREQ=DAILY;=WEEKLY").findings;
+  assert.equal(f.length, 1);
+  assert.equal(f[0].code, "bad-part");
+  assert.match(f[0].title, /"=WEEKLY" has no part name/);
+  // "FREQ=" (a name with no value) is still the no-value error.
+  assert.match(parseRule("FREQ=DAILY;COUNT=").findings[0].title, /"COUNT=" has no value/);
+});
+
+test("an RDATE on a date the rule also makes is listed once, as the rule's", () => {
+  const r = analyze({ text: "DTSTART:20260105T090000\nRRULE:FREQ=DAILY;COUNT=3\nRDATE:20260106T090000,20260110T090000", limit: 10 });
+  assert.deepEqual(r.occurrences.map((o) => [o.date, o.source]), [
+    ["2026-01-05 09:00", "rule"], ["2026-01-06 09:00", "rule"], ["2026-01-07 09:00", "rule"], ["2026-01-10 09:00", "rdate"],
+  ]);
+});
+
+test("'no end' is reported only when the rule has neither COUNT nor UNTIL", () => {
+  assert.ok(codes("DTSTART:20260105T090000\nRRULE:FREQ=DAILY").includes("no-end"));
+  assert.ok(!codes("DTSTART:20260105T090000\nRRULE:FREQ=DAILY;COUNT=3").includes("no-end"));
+  assert.ok(!codes("DTSTART:20260105T090000\nRRULE:FREQ=DAILY;UNTIL=20260110T090000").includes("no-end"));
+});

@@ -3,6 +3,9 @@
 #   fly volumes create state --size 1
 #   fly secrets set ADMIN_KEY=$(openssl rand -hex 16) LEAGUE_TOKEN=$(openssl rand -hex 16)
 #   fly deploy
+# Optional reminder emails: fly secrets set SMTP_HOST=... SMTP_USER=... SMTP_PASS=... SMTP_FROM=... REMINDER_TO=...
+# The check runs at start and hourly, so with min_machines_running = 0 it runs whenever the page wakes;
+# set it to 1 if no one opens the page in the two days before a game.
 app = "league-hub-CHANGE-ME"
 primary_region = "iad"
 

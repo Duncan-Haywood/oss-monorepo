@@ -502,6 +502,11 @@ MANUSCRIPT_CHECKS = [
     ("(64 and 79 L/min)", "gear_pump_twopoint_results.txt", "q25 = 64, q* (median) = 72, q75 = 79 L/min"),
     ("carries only 0.859 kW", "gear_pump_twopoint_results.txt", "pooled with condition fixed effects 0.859"),
     ("left-out RMS stays at 0.0066", "gear_pump_twopoint_results.txt", "owd2  0.0066  (max 0.0084"),
+    # milestone 7n
+    ("left-out RMS falls to 0.0042", "gear_pump_ownpick_results.txt", "owds  0.0042  (max 0.0052"),
+    ("trade 0.98 for one", "gear_pump_ownpick_results.txt", "owh 1.22, owhs 0.98"),
+    ("pays 0.782 of its pooled-pick drag", "gear_pump_ownpick_results.txt", "s/w 0.782"),
+    ("only 0.743 kW per kW", "gear_pump_ownpick_results.txt", "pooled with condition fixed effects 0.743"),
 ]
 
 

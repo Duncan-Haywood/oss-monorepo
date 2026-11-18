@@ -1,0 +1,27 @@
+cell-fidelity milestone 5zt: the non-OCP plating-overpotential drift tied to 5zs's saturating charge
+overpotential (D_eta) against 5zq's ten-cycle line (D_10) and that line held past cycle 10, fed to the node
+lever with q_S. 5zk's records, 40 designs, no new simulation. Set medians.
+
+set           n    e_A    e_N   e_NS   e_FL   e_FH   e_FS   e_ND   FSbA   FSbN  FSbNS  FSbFL  FHbNS  NDbNS
+Ai2020        8  0.083  0.023  0.023  0.067  0.017  0.045  0.049   4/8    0/8    2/8    8/8    3/8    0/8 
+Chen2020     12  0.082  0.059  0.054  0.074  0.054  0.076  0.024   6/12   2/12   4/12   9/12   4/12  11/12
+OKane2022    12  0.059  0.076  0.067  0.095  0.075  0.079  0.065   4/12   4/12   4/12   8/12   5/12   9/12
+NCA_Kim2011   8  0.022  0.048  0.030  0.030  0.030  0.030  0.030   3/8    5/8    2/8    6/8    2/8    0/8 
+
+set              D10     D99    Dmax    DS99    DL99    DH99   derrS   derrL   derrH   k_eta   k_all
+Ai2020          1.10    4.60    6.32    1.50    6.00    1.07    3.49   12.98    3.06   0.082   0.231
+Chen2020        0.56   -2.50   -2.58    1.46    2.50    0.34    6.00    8.71    3.35   0.048  -0.043
+OKane2022       0.26   -2.58   -2.71    0.64    0.87    0.11    4.85    7.09    3.15   0.029  -0.057
+NCA_Kim2011    -0.01   -0.03   -0.03   -0.01   -0.02   -0.01    0.02    0.02    0.02  -0.000   0.000
+
+(e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3, line through cycles 2..10; A = 5zd's lever, N = 5zn's
+ node lever with the law's factor, NS = N with 5zs's q_S; FL, FH, FS = N + D_10, D_10 held past L_10, D_eta,
+ each with q_S; ND = N + measured D with q_S (reads cycle 99). D10, D99 = measured drift at cycles 10 and 99,
+ Dmax = its largest-magnitude value over 2..99, DS99, DL99, DH99 = the forecasts at L_99, derrX = |DX99 - D99|,
+ all mV; k_eta = the tie's ten-cycle slope (mV of drift per mV of eta fall), k_all = the same fitted on
+ cycles 2..99 with the measured eta (post hoc))
+
+H228 (|D_eta - D| at 99 below |D_10 - D| on >= 3 of 4 sets): supported (4/4)
+H229 (e_FS < e_NS on both LG M50 sets): refuted (0/2)
+H230 (e_FS < e_A on >= 26 of 40 designs): refuted (17/40)
+H231 (e_ND <= 0.03 on both LG M50 sets): inconclusive (1 <= 0.03, 1 > 0.05)

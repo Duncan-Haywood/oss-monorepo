@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { LISTEN, loadFiction, longDate, renderListen, renderStoriesPage, STORIES_PATH } from './stories.mjs';
+import { LISTEN, loadFiction, PHONE_NEWEST, longDate, renderListen, renderStoriesPage, STORIES_PATH } from './stories.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadAudio as loadStoryAudio } from '../../ventures/hearth-and-horizon/generate.mjs';
@@ -191,9 +191,21 @@ test('a shelf links "All N" only when it holds more than the cards shown, else j
     count, withAudio: 0, items: Array.from({ length: count }, (_, i) => item(count - i)),
   });
   const more = (html) => /<p class="more"><a href="\.\.\/demo\/">([^<]*)<\/a><\/p>/.exec(html)[1];
-  assert.equal(more(renderStoriesPage([shelf(3)])), 'Open Demo →', 'three of three shown');
-  assert.equal(more(renderStoriesPage([shelf(6)])), 'Open Demo →', 'exactly the six shown: nothing more to see');
+  assert.equal(more(renderStoriesPage([shelf(3)])), 'Open Demo →', 'three of three shown, on a phone too');
+  assert.equal(more(renderStoriesPage([shelf(4)])), 'All 4 on Demo →', 'a phone shows three of the four');
   assert.equal(more(renderStoriesPage([shelf(7)])), 'All 7 on Demo →', 'one more than shown');
+});
+
+// Polish 2026-11-18: six cards a shelf in one column made the phone page about 8,300 px to
+// "How these are made". A phone now shows the newest PHONE_NEWEST; the rest stay in the HTML
+// for wide screens and are one "All N" click away.
+test('in one column a shelf shows only its newest PHONE_NEWEST cards', () => {
+  assert.equal(PHONE_NEWEST, 3);
+  const page = renderStoriesPage(loadFiction());
+  const css = /<style>([\s\S]*?)<\/style>/.exec(page)[1];
+  assert.match(css, /@media \(max-width: 599px\) \{ \.items li:nth-child\(n\+4\) \{ display:none; \} \}/);
+  // The grid's cards are at least 260 px, so two columns need 530 px of shelf: below 600 px it is one column.
+  assert.match(css, /minmax\(min\(100%, 260px\), 1fr\)/);
 });
 
 // Red team 2026-11-17: the three Hearth & Horizon shelves all linked `hearth-and-horizon/`, so

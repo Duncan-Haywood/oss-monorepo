@@ -3078,6 +3078,32 @@ poor and it added nothing either. For Russian photos the advice stays `--rapidoc
 [`eval/receipt-ocr-ru-rus-vote-2026-11-18.md`](eval/receipt-ocr-ru-rus-vote-2026-11-18.md).
 Tests: `receipt-lead-vote.test.mjs`.
 
+### Russian slips with a Cyrillic recogniser (2026-11-18)
+
+RapidOCR's default recognition model has no Cyrillic: on Russian slips it reads the totals well
+but prints every word in Latin look-alikes, so the merchant and the item lines were noise. Swap in
+PaddleOCR's East Slavic PP-OCRv5 recogniser (Apache-2.0, 7.9 MB; RapidOCR's detector stays):
+
+```
+curl -L -o eslav.onnx https://huggingface.co/monkt/paddleocr-onnx/resolve/main/languages/eslav/rec.onnx
+curl -L -o eslav_dict.txt https://huggingface.co/monkt/paddleocr-onnx/resolve/main/languages/eslav/dict.txt
+RAPIDOCR_REC_MODEL=eslav.onnx RAPIDOCR_REC_KEYS=eslav_dict.txt node cli.mjs --books b.json receipts photo.jpg --rapidocr
+```
+
+On cdek-ocr/receipt-ocr-ru the totals are the same as with the default model (held-out test 137
+of 148 either way; no vote of the two readings beat either alone), but the seller's name is in the
+reading on 86% of slips against 30%, and the labelled item names on 83% against 18%. The merchant
+rules looked for Latin shop names and took the seller on 0 of 146 slips; now, on a Russian slip, the
+column that opens with a legal form (ИП, ООО, АО, ПАО, ЗАО, ГУП, the spelled-out forms; `000` and
+`AO` as the engines print them) is the merchant, a quoted name ends at its closing quote, and the
+card's bank and the fiscal data operator (ОФД) are skipped. Held-out test, scored once:
+**merchant right on 0 to 104 of 146 slips (71.2%)**; val, the development set, 113. ИТОГ read as
+`НТОГ` or `МТОГО` (the Cyrillic model's misreads) is now a total word too; it cost one val total
+(140 to 139) and no test total. CORD text and SROIE's 626 merchants, dates and totals are
+unchanged. PaddleOCR's older `cyrillic_PP-OCRv3` read a sample slip as noise after conversion and
+was not scored. Details: [`eval/receipt-ocr-ru-eslav-2026-11-18.md`](eval/receipt-ocr-ru-eslav-2026-11-18.md).
+Tests: `receipt-russian-seller.test.mjs`.
+
 ### WildReceipt: 472 held-out photos from a new source (2026-11-17)
 
 Every CORD photo had been read, so the reader was measured on a source no rule was written from:
