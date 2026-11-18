@@ -2424,3 +2424,38 @@ window stops at its end, as before.
 edge jitter. A real Hall tach's jitter may be larger, or correlated with the wheel's angle (a magnet's position),
 which averaging over more revolutions would not remove. Next: whether the take survey gains the same with 24, and a
 real tach's edge jitter logged on a spinning wheel.
+
+## The take survey's window (2026-11-18, after "The record's drop fit and its window")
+
+**The item.** The section above moved the record's drop fit to 24 revolutions after the ball's anchor, because on a
+jittery tach more rows averaged the edge noise. The take survey (`LaunchCheck._take_survey`) still refits at 8, and
+every take-survey measurement so far ran on noise-free plants. Does it gain the same? Two pulls: more rows average the
+jitter, but the take's effect sits in the first revolutions after the ball, so rows where every candidate fits alike
+pull each candidate's rms toward the others' and the best / step share toward 1, which the advice's margin
+(`host.TAKE_ADVISE_RATIO`, 0.6) reads as "keep 0".
+
+`tests/take_survey_window.py` keeps every take-survey wheel's inputs as the board passed them
+(`take_misfit_trace.capture_survey`) and refits each one offline at the board's grid and depth with 8, 12, 16 and 24
+revolutions after the anchor, scored by the board's own trimmed sums, refinement and margin. For the first time it
+includes the jittery tach plant (min_fit_heldout's "tach 3 us 10k"). Design: four takes (instant, half-sine 3 and 6
+ms, front-loaded 4 ms) x first-order 8k, tach 3 us, ESC 50 ms told x three launchers, wheel lag 0.3 s, seed 7 (36
+survey drills, eval/take-survey-window-2026-11-18.txt):
+
+| window | spread takes named within 1 ms and advised (of 27) | instant builds advised (of 9) | picks within 1 ms (of 36) | mean best / step share: first-order, tach 3 us, ESC 50 ms |
+| --- | --- | --- | --- | --- |
+| 8 (the board's) | 12 | 0 | 31 | 0.68, 0.96, 0.42 |
+| 12 | 9 | 0 | 30 | 0.67, 0.97, 0.53 |
+| 16 | 7 | 0 | 29 | 0.69, 0.97, 0.62 |
+| 24 | 7 | 0 | 31 | 0.69, 0.98, 0.66 |
+
+The longer window dilutes the survey, as the second pull said: the ESC 50 ms 3 ms builds were advised at 8 (shares
+0.50-0.57) and at none of 12-24 (0.63-0.84), with the picks still right. And the jitter is not rescued at any window:
+on the tach 3 us plant no build was advised (shares 0.84-1.00), and all three 6 ms builds picked 8 ms, the grid's
+last time, at every window.
+
+**Pre-registration** (written before the held-out capture ran). Candidate: keep 8. Held out: the same 36 builds at
+wheel lag 0.45 s, seed 11. PREDICTION: (a) spread takes named within 1 ms and advised are at least as many with 8 as
+with 24, (b) the ESC 50 ms plant's mean share on spread takes is higher with 24 than with 8, (c) on the tach 3 us
+plant no build is advised at any window, and (d) no instant build is advised at any window. DECISION RULE: the take
+survey keeps `drop_from_commands_steps`' default of 8 unless 24 names and advises more spread builds than 8 on the
+held-out set with no instant build advised; then this section reports the miss and 24 is retested on a third set.
