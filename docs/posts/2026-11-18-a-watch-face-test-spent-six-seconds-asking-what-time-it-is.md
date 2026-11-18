@@ -3,7 +3,7 @@ title: "A watch-face test spent six seconds asking what time it was"
 seo_title: "Speeding up a timezone reference test 3x with Intl format()"
 date: 2026-11-18
 tags: [perf, garmin-world-traveler-watchface]
-description: "The World Traveler watch face carries its own DST rules, checked against tzdata at every hour of three years. The check took 6.6 to 7.0 s; reading the reference once, and more cheaply, brings it to 2.3 s with the same answers."
+description: "A watch face's DST test checked tzdata at every hour of three years in 6.6 to 7.0 s. Reading the reference once, more cheaply, gives 2.3 s and the same answers."
 ---
 
 The World Traveler watch face shows 42 cities around a 24-hour dial. A watch has no
