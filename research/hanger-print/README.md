@@ -8,13 +8,15 @@ arm has a safety factor of 40–70 at 12 mm depth and bends 0.04 mm at the tip a
 simulation rejects for creasing fail here too: a printed wire-like arm (end radius 1.5 mm) has a
 safety factor of 0.13 at 12 mm depth and would need 278 mm of depth to reach 3. And no hanger
 of a useful width fits a 220 mm printer bed in one piece (only the 16 cm and child widths fit a
-256 mm bed, turned 45°): a hanger arm with its hub fits a 220 mm bed for every width up to 24.8
-cm, so print the hanger in two halves.** Output: parametric STL and OpenSCAD files for the
-four-width rack, and a stdlib Python generator and checker for any `hanger-fit` parameters.
+256 mm bed, turned 45°), so every rack width now ships as two halves joined by a bolted half-lap
+at the hub (two M4 bolts); each half fits a 220 mm bed (the 25 cm loop half needs 219.8 mm, so
+check your bed's usable area) and the joint's hand-calculated safety factor is 6.9 or more.**
+Output: STL files of the whole hanger and of the two halves for the four-width rack, OpenSCAD
+for the whole hanger, and a Python generator and checker for any `hanger-fit` parameters.
 Produced with AI assistance (Claude). Milestone 7 of research track 18 (`hanger`, `PROJECTS.md`).
 The strength numbers rest on assumed material constants, and the OpenSCAD files were not
 rendered in this run (no OpenSCAD in the image); the STL files come from the same outlines and
-are checked as closed meshes in the tests.
+are checked as closed meshes in the tests. Nothing has been printed or loaded yet.
 
 **Live page:** https://marisstella.app/research/hanger-print/
 
@@ -54,6 +56,17 @@ can try the designs and the owner can see which ones are worth making.
   40 MPa in plane, stress concentration 2, dynamic factor 2, a 1.5 kg heaviest garment (a wet
   coat is heavier; this is a choice), density 1.24 g/cm³. Mass is estimated with two 0.8 mm
   perimeters, 0.8 mm skins and 15% infill, with a minimum depth of 6 mm.
+- **Two-piece version** (`split.py`, added 2026-11-18). Built with the manifold3d boolean
+  kernel (the one recent OpenSCAD uses), so each half is a single closed solid. The joint zone is
+  the hub disc. Half A (the loop half) is the right arm, the post and loop, and the back 4 mm of
+  the hub; half B is the left arm and the front 4 mm of the hub, notched round the post with
+  0.2 mm clearance so the post locates it. Two 4.4 mm holes at (±17, −10) mm take M4 bolts.
+  Depth is 8 mm so each lap is 4 mm. `rack_w*_B.stl` is written turned over, lap on the bed;
+  turn it back to assemble. The joint check (`split.joint_check`) passes the plain arm's tip
+  load and its moment to the loop half through the two bolts as a couple and checks bolt
+  bearing on the 4 mm lap, the lap's net section at the outer bolt, and B's section where the
+  post notch halves it, all with the same assumed constants and stress concentration as the
+  arm, and ignoring bolt-preload friction.
 - **Bed fit** (`geom.bbox_fits`). The outline is turned in 5° steps to find the smallest
   bounding square; a part fits if that square is within the bed.
 
@@ -73,24 +86,24 @@ slicing). The loop's ligaments carry 0.18 MPa.
 
 | end radius *r* (cm) | safety factor | depth for SF 3 (mm) | mass (g) |
 |---|---|---|---|
-| 0.15 (wire-like) | 0.11 | 323 | 445 |
-| 0.3 | 0.45 | 80 | 137 |
+| 0.15 (wire-like) | 0.11 | 323 | 438 |
+| 0.3 | 0.45 | 80 | 135 |
 | 0.5 (plastic-like) | 1.26 | 29 | 65 |
 | 1.0 | 5.1 | 7.0 | 36 |
-| 2.0 (wood-like) | 21.5 | 1.7 | 62 |
+| 2.0 (wood-like) | 21.5 | 1.7 | 61 |
 | 2.86 (`hanger-fit`'s D) | 45.9 | 0.8 | 87 |
 
 ![Safety factor against end radius](experiments/stiffness.svg)
 
 Printed at the thickness of a wire hanger, the arm would snap. `hanger-fit` found that thin ends
 crease cloth, and this shows they are also not printable. Mass is lowest near *r* = 1 cm, where
-the arm just meets the safety factor; the extra 26–51 g of a 2–2.9 cm radius buys the crease-free
+the arm just meets the safety factor; the extra 25–51 g of a 2–2.9 cm radius buys the crease-free
 end `hanger-fit` found, which this project did not re-test.
 
 **C. Nothing fits the bed whole.** Whole hangers fit a 256 mm bed only at 15.8 and 16 cm
 (turned 45°) and a 220 mm bed at no width. One arm with its hub fits a 220 mm bed for widths up
-to 24.8 cm (turned 63°, counting the post and loop that half carries), but not for the 25.8 cm XXL. The generated files are the whole
-hanger; splitting at the hub and a bolted joint is not designed.
+to 24.8 cm (turned 63°, counting the post and loop that half carries), but not for the 25.8 cm XXL. Section E is the
+two-piece version that this makes possible.
 
 ![The four rack widths as printed outlines](experiments/rack.svg)
 
@@ -99,6 +112,31 @@ length to the outer end and the arm slopes down at 16°, so the horizontal reach
 adjustable hanger at *w* = 22.8 cm is 22.0 cm (the test checks the formula
 (*w* − *r*) cos(slope) + *r*). A printed hanger measured across the shoulders is about 0.8 cm
 narrower than *w* suggests, and `hanger-fit`'s "0.8 cm wider than the half shoulder" is in *w*.
+
+**E. Two halves and two M4 bolts put the rack on a 220 mm bed.** From `results.txt` section D,
+depth 8 mm, both halves as solid meshes:
+
+| width | loop half A, bed side (mm) | plain half B (mm) | solid mass A + B (g) | bolt force (N) | SF bearing / lap / notch |
+|---|---|---|---|---|---|
+| 16 cm | 156.4 | 150.2 | 92 + 85 | 55 | 11.6 / 14.3 / 11.6 |
+| 19 cm | 177.2 | 171.5 | 109 + 102 | 68 | 9.5 / 11.3 / 9.4 |
+| 22 cm | 199.3 | 192.7 | 126 + 119 | 80 | 8.0 / 9.4 / 7.9 |
+| 25 cm | 219.8 | 213.9 | 143 + 136 | 92 | 6.9 / 8.0 / 6.9 |
+| 25.8 cm (XXL) | 225.3 | 219.5 | 147 + 141 | 96 | 6.7 / 7.7 / 6.6 |
+
+The joint, not the arm, now sets the safety factor (6.9 against the arm's 42 at 25 cm), and it
+is still above 3 at every width. The 25 cm loop half clears a 220 mm square by 0.2 mm when
+turned 63°, so it needs a bed whose usable area is the full 220 mm; the XXL width still needs
+a bigger bed. Masses are solid PLA before slicing; a sliced half is lighter. The tests check the
+shipped STL files with the standard library alone (closed and consistently oriented, flat on the
+bed, at most 8 mm tall, within 220 mm when turned, lap and bolt holes where the generator puts
+them), that the two halves do not overlap and rebuild the hanger less the holes and notch
+clearance, and the joint numbers against a hand calculation.
+
+Building the halves also showed a defect in the whole-hanger files: the 14 mm post ran up to the
+centre of the loop, so once the slicer merged the shells it filled the lower half of the 10 mm
+pin hole. The post now stops at the bottom of the hole (masses moved by up to 7 g in tables A
+and B), and a test checks it.
 
 ## What this does and does not show
 
@@ -123,49 +161,57 @@ loop or pin and the robot's gripper are owner decisions; no run builds or powers
 
 ## Owner steps
 
-1. Print `experiments/cad/rack_w22.stl` flat (or turn it in the slicer: the best angle is in
-   the results). It needs a bed of at least 317.5 mm square (`rack_w16.stl` 235.8 mm); no
-   220 mm bed takes any whole hanger, and no split file exists yet. Use PLA or PETG, 3 perimeters, 15–20% infill, no supports.
+1. Print `experiments/cad/rack_w22_A.stl` and `rack_w22_B.stl` flat, each turned about 63° in
+   the slicer, on any bed with 200 mm of usable square (the 25 cm halves need the full 220 mm).
+   PLA or PETG, 3 perimeters, 15–20% infill, no supports. Turn B over, lay its lap on A's,
+   seat the notch round the post and fit two M4 × 16 bolts with washers and nuts, snug, not
+   crushing the plastic. The whole-hanger `rack_w22.stl` needs a 317.5 mm square bed.
 2. Hang a real shirt (size M) on it and compare it with a stock hanger by eye, then try the other
    three widths. Photographs would give the first real check of `hanger-fit`.
 3. Measure the real material: print and break a few arms with weights.
-4. Bill of materials: a printer with a bed of at least 317.5 mm square for `rack_w22`, about 100 g of filament per hanger. No prices
-   are given because none were checked.
+4. Bill of materials: a printer with a 220 mm bed, two M4 × 16 bolts, four washers and two
+   nuts per hanger, and under 250 g of filament per two-piece hanger (the solid mass; sliced it
+   is less). No prices are given because none were checked.
 
 ## Limitations
 
 Flat extrusion only, no front-to-back shaping; one hanger family; strength from a beam formula
 with assumed constants and no fatigue, creep (PLA creeps under steady load) or layer-adhesion
-check; the whole hanger does not fit a normal bed, and the two-piece version is not designed;
-OpenSCAD files untested in a renderer; one load case.
+check; the whole hanger does not fit a normal bed; the two-piece joint is a hand calculation
+with the same assumed constants, not a test of printed bolted laps (layer-line bearing and
+creep under bolt preload are unmeasured); no OpenSCAD source for the halves; OpenSCAD files
+untested in a renderer; one load case.
 
 ## Known gaps
 
-- The committed STL files are whole hangers that fit no 220 mm bed (`rack_w22.stl` needs a
-  317.5 mm square), so step 1 above needs a large-format printer until the two-piece
-  version exists; see the quality audit
-  [`2026-11-17-hanger-print.json`](../../portfolio/quality/audits/2026-11-17-hanger-print.json).
+- Fixed 2026-11-18: the committed STL files were whole hangers that fit no 220 mm bed (quality
+  audit [`2026-11-17-hanger-print.json`](../../portfolio/quality/audits/2026-11-17-hanger-print.json),
+  defect 0). The two-piece files `rack_w*_A.stl` / `_B.stl` now fit; the XXL width (25.8 cm)
+  still does not.
+- The joint has not been printed or loaded; its safety factors rest on the same assumed PLA
+  allowable as the arm.
 
 ## Reproduce
 
 ```
 cd research/hanger-print
-python3 -m unittest discover -s tests           # 12 tests, under a second
+python3 -m unittest discover -s tests           # 18 tests, under a second (3 skip without manifold3d)
+pip install -r requirements.txt                 # manifold3d, for the two-piece halves
 PYTHONPATH=src python3 experiments/run.py       # writes results.txt and experiments/cad/*.stl|scad
 python3 experiments/figure.py                   # rack.svg and stiffness.svg
 ```
 
-Python 3.9+. No dependencies.
+Python 3.9+. The whole-hanger files, the checks and the tests of the shipped files need only the
+standard library; generating the two halves needs `manifold3d` (Apache-2.0).
 
 ## Next steps
 
-1. A two-piece version with a bolted or dovetailed joint at the hub, so every width prints on a
-   220 mm bed, and a front-to-back shoulder profile; test the shoulder shape against the 3D
+1. A front-to-back shoulder profile (the two-piece version exists since 2026-11-18); test the shoulder shape against the 3D
    cloth drape of milestone 4 (`hanger-3d`).
 2. Print the arms and break them, to replace the assumed material constants (owner step).
 3. Lighter arms: a hollow or ribbed arm that keeps `hanger-fit`'s 2–3 cm end radius.
 
 ## Outside dependencies
 
-None beyond Python's standard library. A 3D printer, filament, a slicer and OpenSCAD (to render
+`manifold3d` to regenerate the two halves; otherwise Python's standard library. A 3D printer, filament, a slicer and OpenSCAD (to render
 the `.scad` files) are the vitamins.
