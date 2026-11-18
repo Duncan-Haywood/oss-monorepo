@@ -27,7 +27,11 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "Dockerfile did not copy the new waivers.mjs; caught by deploy.test.mjs and check_docker_copy.py in the local suite/preflight, fixed before merge"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -52,7 +56,7 @@
     "ventures/league-schedule-generator/how-to-collect-player-waivers-for-a-rec-league.html"
   ],
   "goal": null,
-  "notes": "waivers.test.mjs 8/8 pass; page.test waiver guide test passes; full venture suite via platform/ci/run_venture_tests.py league-schedule-generator (see PR body for result).",
+  "notes": "waivers.test.mjs 8/8; page/registration/waivers 76/76; full suite (run_venture_tests.py league-schedule-generator) failed only 'the Dockerfile copies every module server.mjs imports', fixed (deploy.test 2/2, check_docker_copy 0 problems); venture-preflight rerun after the fix.",
   "corrections": [],
   "redteam": null,
   "venture": "league-schedule-generator"
