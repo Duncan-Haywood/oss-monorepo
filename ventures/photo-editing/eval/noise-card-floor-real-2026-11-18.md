@@ -22,3 +22,17 @@ Written and committed with `tools/card_scenes.py` and `sweep --cards`, after the
 - Ship it as a card-level option only if, on held rows scored once, the pick (a) beats `pcaguard@0.8` on mean
   luma gain, (b) does not lose mean colour gain to it by over 0.02 dB, and (c) has no held row worse than `D`
   by over 0.1 dB. Otherwise nothing ships and this note says why.
+
+## Second rule, committed after the first sweep and before the cap sweep
+
+The first sweep's pick failed the rule above (results below). It also showed that what ships, `pcaguard@0.8`,
+loses over 0.1 dB to `D` on 18 rows of these full-size frames, all where the frame's own reading is 1.4 to 25
+times the truth, and that `card@1` keeps every one of those rows within 0.06 dB of `D`. So a second arm, not in
+the first rule: `cap@s` keeps what ships and caps its sigma at s x the card floor (`cap_arms`), for s in 1, 1.25,
+1.5, 2, 3. This rule was written after the first sweep's held rows were seen (every arm in it, not `cap@s`),
+so it is weaker evidence than the first, and the write-up says so.
+
+- Pick: `fit` on tune rows only, as above, within `cap@s`.
+- Adopt it (as a card-level option in the product) only if, on held rows: mean luma gain at least
+  `pcaguard@0.8`'s minus 0.01 dB, mean colour gain at least its minus 0.01 dB, and no held row worse than `D`
+  by over 0.1 dB; and on tune rows it has fewer rows worse than `D` by over 0.1 dB than `pcaguard@0.8` (18).

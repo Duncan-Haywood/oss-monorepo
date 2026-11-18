@@ -160,6 +160,30 @@ def card_floor(path: str, cards: dict | None = None) -> dict:
     return out
 
 
+def cap_arms(c, pat, b, d, floor: float, scales=SCALES) -> dict:
+    """``cap@s``: what ships (``pcaguard@0.8``: the frame's patch-PCA model at sigma x 0.8, guarded), with its
+    sigma at 18% grey capped at s times the card's floor (``card_floor``): the floor only ever lowers a frame's
+    model, and only where the frame reads far above its card. Where the cap does not bind the arm is
+    ``pcaguard@0.8`` itself, reused, so only binding rows cost a blend. Arms ``D`` and ``pcaguard@0.8`` alongside."""
+
+    from shootflow.noise_pca import estimate_noise_pca, sigma18
+    from shootflow.xtrans_demosaic import guard_profile, noise_aware
+
+    est = np.array(estimate_noise_pca(c, pat))
+    ship = est * 0.64
+    own = sigma18(tuple(ship))
+    g, _ = guard_profile(c, pat, tuple(ship))
+    out = {"D": d, "pcaguard@0.8": noise_aware(c, pat, bilinear=b, directional_out=d, noise=g)}
+    for s in scales:
+        lim = s * floor
+        if own <= lim or own <= 0:
+            out[f"cap@{s:g}"] = out["pcaguard@0.8"]
+            continue
+        g, _ = guard_profile(c, pat, tuple(ship * (lim / own) ** 2))
+        out[f"cap@{s:g}"] = noise_aware(c, pat, bilinear=b, directional_out=d, noise=g)
+    return out
+
+
 def card_arms(c, pat, b, d, true_model, floor: float, scales=SCALES) -> dict:
     """``card@s``: this frame's patch-PCA model rescaled so its sigma at 18% grey is s times ``floor`` (the
     card's lowest reading, ``card_floor``), then ``guard_profile``. ``pcaguard@0.8`` (what ships) and the oracle
@@ -194,6 +218,8 @@ def sweep(argv) -> int:
     ap.add_argument("--pca-texture", choices=("grad", "colour", "near"),
                     help="arms D, true, pcaT@s, pcaTguard@s only: patch PCA with this texture test")
     ap.add_argument("--card", help="``--features-only`` rows: arms D, true, pcaguard@0.8 and card@s only (``card_arms``)")
+    ap.add_argument("--cap", action="store_true",
+                    help="with ``--card``: arms D, pcaguard@0.8 and cap@s only (``cap_arms``)")
     ap.add_argument("--cards", help="``tools/card_scenes.py`` output: skip repeat scenes, split tune/held by body, "
                     "and take ``--card`` floors over a body's scenes instead of one file's tiles")
     ap.add_argument("--features-only", action="store_true",
@@ -255,7 +281,9 @@ def sweep(argv) -> int:
                     d = directional(c, pat)
                     cps, lps = {}, {}
                     feat = features(c, pat) if args.pca else None
-                    arms = (card_arms(c, pat, b, d, model, card[(card_of(name, cards), snr, sc)], scales) if card else
+                    floor = card[(card_of(name, cards), snr, sc)] if card else None
+                    arms = (cap_arms(c, pat, b, d, floor, scales) if card and args.cap else
+                            card_arms(c, pat, b, d, model, floor, scales) if card else
                             arms_for(c, pat, b, d, model, scales, pcts, args.pca, args.pca_texture))
                     for arm, arr in arms.items():
                         s = chk.scores(arr, truth)
