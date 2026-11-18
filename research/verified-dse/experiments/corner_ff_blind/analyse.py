@@ -41,6 +41,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 EXP = HERE.parent
 SEED = 144
+CAP = 27
 TABLE = HERE / "results.jsonl"
 FAMILIES = ["isq", "amin", "csum", "eqc", "div", "clamp", "rng", "dot", "gtc"]
 
@@ -81,7 +82,7 @@ def main(dst):
     out = ["# Milestone 144: the one-clock blind designs at SKY130 ff_n40C_1v95 (40% utilisation) against their tt cells (flow run)", "",
            f"theta = {score.THETA}; milestone 141's seed-141 order over {len(run.ORDER)} designs", ""]
     rff = rows_ff()
-    done = run.complete(rff)
+    done = run.complete(rff)[:CAP]  # STOP_RULE.md: at most the first 27 designs, milestone 143's ss set
     out.append(f"complete designs (ORDER prefix): {len(done)} of {len(run.ORDER)}")
     if not done:
         Path(dst).write_text("\n".join(out) + "\n")
