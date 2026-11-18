@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23374151'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ER%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Calculate a Bar Bending Schedule: Cut Length, Weight and Cutting Plan</title>
+  <meta name="description" content="How rebar cut lengths are worked out from BS 8666 shape codes and bend radii, how to weigh a schedule, and how to cut it from 12 m stock bars with the least waste, with a worked example where cutting longest-first buys two bars too many.">
+  <meta property="og:title" content="How to calculate a bar bending schedule">
+  <meta property="og:description" content="Cut lengths from shape codes, weights from bar size, and a cutting plan from stock bars, worked by hand and checked by the free tool.">
+  <link rel="canonical" href="./how-to-calculate-bar-bending-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is a bent bar shorter than the sum of its dimensions?", "acceptedAnswer": {"@type": "Answer", "text": "Schedule dimensions are measured to the outside of the bar, and the bar goes round each corner on a curve. At a 90° bend each straight leg stops r + d short of the outside corner, and the centreline runs round an arc of radius r + d/2, so one bend takes 2(r + d) − π/2 (r + d/2) off the sum of the legs."}}, {"@type": "Question", "name": "How much does a rebar weigh per metre?", "acceptedAnswer": {"@type": "Answer", "text": "Steel weighs 7850 kg/m³, so a bar of diameter d mm weighs π d²/4 × 7850 / 10⁶ kg per metre, about d²/162: 0.617 kg/m for 10 mm, 0.888 for 12 mm, 1.579 for 16 mm, 2.466 for 20 mm."}}, {"@type": "Question", "name": "When should I use something else?", "acceptedAnswer": {"@type": "Answer", "text": "Detailing software (RebarCAD, aSa and similar) draws the bars from the model, covers every shape code and lap rule, and feeds the bending machines. This tool is for checking a schedule someone sent you, weighing it for an order, or planning the cutting on site or in a small shop."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1f24; background: #e9ebee; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.08; letter-spacing: -.03em; }
+    h2 { margin-top: 28px; }
+    code, pre { font-family: ui-monospace, Menlo, monospace; font-size: .86rem; }
+    pre { background: #fafbfc; border: 1px solid #c7ccd3; border-radius: 8px; padding: 12px; overflow-x: auto; }
+    table { border-collapse: collapse; font-size: .9rem; }
+    th, td { border-bottom: 1px solid #c7ccd3; padding: 4px 10px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    .scroll { overflow-x: auto; }
+    a { color: #1f2937; }
+    footer { margin-top: 32px; font-size: .84rem; color: #4b5563; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Bar bending schedule calculator and cutting optimizer</a></p>
+  <h1>How to calculate a bar bending schedule</h1>
+  <p>A bar bending schedule lists every reinforcing bar on a job: its mark, size, shape and dimensions, and how many there are. Three numbers come out of it: the <strong>cut length</strong> of each bar, the <strong>weight</strong> of steel, and the <strong>cutting plan</strong> that says which bars to cut from each stock length. This page works all three by hand for a small made-up schedule; the <a href="./">free tool</a> does the same for yours.</p>
+
+  <h2>1. Cut length: outside dimensions minus what the bends take</h2>
+  <h3>Why is a bent bar shorter than the sum of its dimensions?</h3>
+  <p>Schedule dimensions are measured to the outside of the bar, and the bar goes round each corner on a curve. At a 90° bend each straight leg stops r + d short of the outside corner, and the centreline runs round an arc of radius r + d/2, so one bend takes 2(r + d) − π/2 (r + d/2) off the sum of the legs.</p>
+  <p>How much shorter depends on the bend radius, and BS 8666 sets a minimum scheduling radius r for each size: 2d for bars up to 16 mm (24 mm for a 12 mm bar) and 3.5d from 20 mm (70 mm for a 20 mm bar).</p>
+  <p>Shape-code charts print a total-length formula for each shape. The ones the tool uses:</p>
+  <div class="scroll"><table>
+    <tr><th>Shape</th><th>What it is</th><th>Total length</th></tr>
+    <tr><td>00</td><td>Straight</td><td>A</td></tr>
+    <tr><td>11</td><td>L-bar, one 90° bend</td><td>A + B − 0.5r − d</td></tr>
+    <tr><td>21</td><td>U-bar, two 90° bends</td><td>A + B + C − r − 2d</td></tr>
+    <tr><td>51</td><td>Closed link with hooks</td><td>2(A + B + C) − 2.5r − 5d</td></tr>
+  </table></div>
+  <p>For a 12 mm bar one bend takes 2 × 36 − 1.571 × 30 = 24.9 mm; the chart's 0.5r + d gives 24 mm. The tool computes both and its tests fail if they drift more than a tenth of a bar diameter apart at any standard size. Shape <code>R</code> in the tool uses the geometry directly for any bar with only 90° bends.</p>
+  <p><strong>Worked:</strong> mark 02, a 12 mm L-bar with A = 1800 and B = 450: 1800 + 450 − 0.5 × 24 − 12 = 2226 mm, rounded up to the next 25 mm: <strong>2250 mm</strong>. Mark 05, a 10 mm link 350 × 550 with 100 mm hooks: 2 × 1000 − 2.5 × 20 − 5 × 10 = <strong>1900 mm</strong>.</p>
+
+  <h2>2. Weight</h2>
+  <h3>How much does a rebar weigh per metre?</h3>
+  <p>Steel weighs 7850 kg/m³, so a bar of diameter d mm weighs π d²/4 × 7850 / 10⁶ kg per metre, about d²/162: 0.617 kg/m for 10 mm, 0.888 for 12 mm, 1.579 for 16 mm, 2.466 for 20 mm.</p>
+  <p>Mark 01, 48 bars of 12 mm at 5400 mm: 48 × 5.4 × 0.888 = 230 kg. The example schedule in the tool comes to 1,241.6 kg.</p>
+
+  <h2>3. The cutting plan: where the money is</h2>
+  <p>Bars arrive in stock lengths, usually 12 m. Every offcut too short to use is steel paid for and thrown away. The 12 mm bars in the example are:</p>
+  <pre>01  48 × 5400
+02  32 × 2250
+09  16 × 2100</pre>
+  <p>Cutting by hand, the usual rule is longest first, each piece into the first bar it fits (first-fit decreasing). Two 5400s go in each of the first 24 bars, leaving 1200 mm that no remaining piece fits. Then five 2250s per bar, and the 2100s. That takes <strong>34</strong> bars.</p>
+  <p>The tool finds this instead:</p>
+  <pre>16 x 12000: 1 x 5400 + 2 x 2250 + 1 x 2100, offcut 0
+16 x 12000: 2 x 5400, offcut 1200</pre>
+  <p><strong>32 stock bars</strong>, two fewer, because one 5400 + two 2250s + one 2100 uses a 12 m bar exactly. The steel itself is 364.8 m, 30.4 bars, but that is not the bound: the column-generation bound for these three lengths is exactly 32.0 bars, so no plan can use fewer, and 32 is proven optimal.</p>
+  <p>On a real schedule the combinations are too many to try by hand. The tool solves the cutting-stock problem the way it has been solved since Gilmore and Gomory (1961): the linear relaxation by column generation (a simplex over cutting patterns, with a knapsack programme that finds the best new pattern from the simplex prices), which gives a lower bound no whole-bar plan can beat, then several ways of turning it into whole bars, keeping the cheapest. If the plan meets the bound, it is optimal and the page says so; if not, the page says how far it could at most be from optimal.</p>
+  <p>How it does on schedules generated at random (200 of them, 4 to 25 different lengths per bar size, 600 to 11,000 mm, cut from 12 m): the plan met the proven bound in 197 of 200 and was at most one bar over in the others; first-fit decreasing bought more bars in 122 of the 200, about 1% more steel overall. These are generated schedules, not real jobs, so take the 1% as an order of size: on a job that buys 50 tonnes of rebar it is about half a tonne. The script that produced these numbers is in the tool's source (<code>check/benchmark.mjs</code>).</p>
+
+  <h2>When to use something else</h2>
+  <h3>When should I use something else?</h3>
+  <p>Detailing software (RebarCAD, aSa and similar) draws the bars from the model, covers every shape code and lap rule, and feeds the bending machines. This tool is for checking a schedule someone sent you, weighing it for an order, or planning the cutting on site or in a small shop.</p>
+  <p>It covers shapes 00, 11, 21, 51 and any 90° shape; other shapes, laps, couplers and bend radii larger than the minimum are not modelled.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. A worked explanation, not engineering or detailing advice. Your specification, BS 8666 edition and fabricator may use other radii or rounding; check every length against the drawings.</p>
+    <p><a href="./">The tool</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rebar-schedule">Source</a> · <a href="LICENSE">MIT licence</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a></p>
+  </footer>
+</body>
+</html>

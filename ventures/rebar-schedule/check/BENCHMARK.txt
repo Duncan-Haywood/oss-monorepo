@@ -1,0 +1,6 @@
+schedules: 200, stock 12000 mm, seed 8666
+proven optimal (plan meets the rounded LP bound): 197 of 200; largest gap to the bound: 1 bar(s)
+first-fit decreasing bought more bars in 122 of 200; 329 extra 12 m bars in all
+waste (bought - needed) as a share of steel bought: optimiser 5.41%, first-fit decreasing 6.37%
+steel bought: first-fit decreasing 1.02% more than the optimiser
+slowest schedule: 248 ms
