@@ -586,6 +586,12 @@ footer .pfs-counted li+li{margin-top:6px}
  * scroll where a scrollbar makes 100vw wider than the page. `clip`, not
  * `hidden`, so no scroll container is created and sticky elements still stick.
  * `--pf-hero-pull` is the wrap's top padding, so the field meets the nav.
+ *
+ * Up to 400px wide the band tightens (10px top, 18px bottom, 20px after, a
+ * 1rem lede): on a 320x640 phone 24 of 31 audience pages put their first
+ * tool card below the screen, most by 17px, and this brings it to 11
+ * (polish-2026-11-18-small-phone-hero.md). The dark field still starts 36px
+ * above the eyebrow, because `--pf-hero-pull` paints above the padding.
  */
 const SITE_HERO_CSS = `
 html{overflow-x:clip}
@@ -624,6 +630,8 @@ html{overflow-x:clip}
 .count-exceptions p{margin:8px 0 0;padding:10px 14px;border:1px solid var(--line);border-radius:10px;
   background:var(--panel);line-height:1.6}
 @media (max-width:600px){.pf-hero{padding-top:18px}}
+@media (max-width:400px){.pf-hero{padding-top:10px;padding-bottom:18px;margin-bottom:20px}
+  .pf-hero h1{margin-bottom:10px}.pf-hero .lede{font-size:1rem}}
 `;
 
 /**
