@@ -3,8 +3,9 @@
 // README "A floored ratio"), and with `--covariates file.csv` the covariate balance of that fit with the placebo
 // warning (README "Covariate balance" and "Which imbalance biases the gap"). The balance table changes no p.
 import { parseColumns } from './multivariate.mjs';
-import { synthControlTest, covariateBalance } from './synth-control.mjs';
+import { synthControlTest, synthLeadRange, covariateBalance } from './synth-control.mjs';
 import { splitLine, numCell } from './engine.mjs';
+import { LEAD_RANGE_NOTE } from './synth-view.mjs';
 
 // Covariates file: one row per unit, the unit's column name first, then one number per covariate; a header row names
 // them (`unit,ln income,price`). Units the fit does not use are ignored. Read like the data CSV (engine.mjs splitLine
@@ -63,11 +64,19 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
   // --anticipation N (eval/synth-anticip-prereg-2026-11-18.md, README "A shock before the date"): the fit ends N points
   // before the named date, so a change people saw coming is not absorbed into the synthetic control; the gap and the
   // placebo test read from the fit's end, and gapFromDate is the mean gap from the named date on.
-  const lead = Number(anticipation ?? 0);
-  if (!Number.isInteger(lead) || lead < 0) throw new Error(`--anticipation ${anticipation}: give a whole number of points (0 or more)`);
+  // A range a-b (eval/synth-lead-range-prereg-2026-11-18.md, README "An uncertain lead"): the lead is not known
+  // exactly, so the fit is run at every backdate a..b and one range p (synthLeadRange's max-scaled statistic) is read;
+  // the main fit shown is the shortest backdate, a.
+  const range = /^\s*(\d+)\s*-\s*(\d+)\s*$/.exec(String(anticipation ?? 0));
+  if (range && !(Number(range[1]) < Number(range[2]))) throw new Error(`--anticipation ${anticipation}: a range needs the smaller lead first (for example 0-4)`);
+  if (range && Number(range[2]) - Number(range[1]) > 12) throw new Error(`--anticipation ${anticipation}: a range of at most 13 leads (each is a full placebo run)`);
+  const lead = range ? Number(range[1]) : Number(anticipation ?? 0);
+  if (!Number.isInteger(lead) || lead < 0) throw new Error(`--anticipation ${anticipation}: give a whole number of points (0 or more), or a range such as 0-4`);
+  const deepest = range ? Number(range[2]) : lead;
+  if (k - deepest < 5) throw new Error(`--anticipation ${deepest}: that leaves ${Math.max(k - deepest, 0)} points before the fit's end; a synthetic control needs at least 5 (widen --window or lower --anticipation)`);
   const kFit = k - lead;
-  if (kFit < 5) throw new Error(`--anticipation ${lead}: that leaves ${Math.max(kFit, 0)} points before the fit's end; a synthetic control needs at least 5 (widen --window or lower --anticipation)`);
-  const r = synthControlTest(y, donorSeries, kFit);
+  const lr = range ? synthLeadRange(y, donorSeries, k, Array.from({ length: deepest - lead + 1 }, (_, i) => lead + i)) : null;
+  const r = lr ? lr.fits[0] : synthControlTest(y, donorSeries, kFit);
   const tail = r.gap.slice(k);
   const out = {
     treated: all.names[ti], date: String(date), anticipation: lead, fitEnd: labels[kFit - 1], gapFromDate: tail.reduce((a, b) => a + b, 0) / tail.length, lastBefore: labels[k - 1], firstAfter: labels[k], from: labels[0], to: labels[labels.length - 1], scale: log ? 'log' : 'level',
@@ -75,6 +84,12 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
     statistic: r.statistic, rank: r.rank, p: r.p, minP: r.minP, tests: r.tests, preFitShare: r.preFitShare, fitWarning: r.fitWarning,
     labels, treatedSeries: y, synthetic: r.synth, gap: r.gap,
   };
+  if (lr) {
+    out.leadRange = {
+      from: lead, to: deepest, p: lr.pMaxScaled, pMean: lr.pMean, naiveMinP: lr.naiveMinP, bestLead: lr.bestLead, minP: lr.minP,
+      leads: lr.leads.map((e) => ({ lead: e.lead, fitEnd: labels[e.kFit - 1], p: e.p, rank: e.rank, gapFromDate: e.gapFromDate, preRmspe: e.preRmspe })),
+    };
+  }
   if (covariatesCsv != null) {
     const cv = parseCovariates(covariatesCsv);
     const get = (s) => { const v = cv.units[s.toLowerCase()]; if (!v) throw new Error(`--covariates has no row for ${s} (it needs the treated unit and every donor)`); return v; };
@@ -88,6 +103,13 @@ const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3
 export function synthText(h) {
   const L = [`A synthetic control for ${h.treated} at a date you named (${h.lastBefore} -> ${h.firstAfter}), ${h.from} to ${h.to}, ${h.donors} donor series, on the ${h.scale === 'log' ? 'logs' : 'levels'}:`];
   if (h.anticipation) L.push(`  Backdated (--anticipation ${h.anticipation}): fitted on the points up to ${h.fitEnd}, ${h.anticipation} before the date you named, so a change people saw coming is not fitted away; the gap and the test below read from ${h.fitEnd} on. Mean gap from ${h.firstAfter} on: ${g(h.gapFromDate)}`);
+  if (h.leadRange) {
+    const R = h.leadRange;
+    L.push(`  An uncertain lead (--anticipation ${R.from}-${R.to}): the fit run at every backdate from ${R.from} to ${R.to} points before the date you named, every lead read together:`);
+    L.push('    lead  fit ends  mean gap from the date  placebo p');
+    for (const e of R.leads) L.push(`    ${String(e.lead).padStart(4)}  ${String(e.fitEnd).padStart(8)}  ${g(e.gapFromDate).padStart(22)}  ${f(e.p, 3).padStart(9)}`);
+    L.push(`    Range test (each unit's largest statistic over the leads, each lead's scaled by its median over all units, ranked among the ${h.donors + 1} units): p ${f(R.p, 3)}. Read this p, not the smallest in the table (${f(R.naiveMinP, 3)} at lead ${R.bestLead}): keeping the smallest of several leads is not a test. ${LEAD_RANGE_NOTE}`);
+  }
   const shown = h.weights.slice(0, 8).map((w) => `${w.name} ${f(w.weight, 3)}`).join(', ');
   L.push(`  Synthetic ${h.treated}: ${shown}${h.weights.length > 8 ? `, +${h.weights.length - 8} more` : ''} (weights matching every point before the date)`);
   L.push(`  Fit before the date: RMSPE ${g(h.preRmspe)}; ${f(100 * h.preFitShare, 0)}% of the donors' own synthetic controls fit better${h.fitWarning ? '. FIT WARNING: the treated series is fitted worse than 80% of the placebos, so its gap after the date is hard to read (often it sits outside the donors\' range)' : ''}`);
@@ -104,7 +126,7 @@ export function synthText(h) {
       : '    No placebo warning: on every covariate at least 20% of the donors are matched worse by their own synthetic controls than the treated unit is.');
     L.push('    (std gap = (treated - synthetic) / sd over all units. A gap past 0.25 sd is common and on its own is no warning: an outcome-only fit was past it on 84% of simulated panels where the covariate did nothing.)');
   }
-  if (!h.anticipation) L.push('  If people could see the change coming (a law passed months before it took effect, an announced price rise), rerun with --anticipation N, N the points between the first moment they could react and the date: in simulation an effect that began 2 or 4 points early was found 40% and 25% of the time at the stated date (62% when it began on the date) and 55% and 54% when backdated by its lead; backdating with nothing anticipated cost 10-18 points (eval/synth-anticip-confirm.out.txt).');
+  if (!h.anticipation && !h.leadRange) L.push('  If people could see the change coming (a law passed months before it took effect, an announced price rise), rerun with --anticipation N, N the points between the first moment they could react and the date: in simulation an effect that began 2 or 4 points early was found 40% and 25% of the time at the stated date (62% when it began on the date) and 55% and 54% when backdated by its lead; backdating with nothing anticipated cost 10-18 points (eval/synth-anticip-confirm.out.txt).');
   L.push(`  (Abadie, Diamond and Hainmueller 2010, outcome-only fit. At p 0.05 it flagged 2.3-5.3% of simulated no-effect panels (README "A floored ratio"). It has little power on short or loosely fitted series: of four real state tobacco-tax rises it ranks California 1st of 39 (p 0.026) but Massachusetts, Arizona and Oregon only 6th to 13th, so a large p is not evidence of no effect. A small p says the treated series left its synthetic control more than the donors left theirs; it does not say what caused it.)`);
   return L.join('\n');
 }
