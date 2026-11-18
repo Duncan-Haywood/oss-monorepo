@@ -210,7 +210,7 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (sel) => document.querySelector(sel);
     const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-    const fmt = (x, d = 4) => (Number.isFinite(x) ? x.toFixed(d) : x === Infinity ? "+&infin;" : x === -Infinity ? "&minus;&infin;" : "n/a");
+    const fmt = (x, d = 4) => (Number.isFinite(x) ? x.toFixed(d) : x === Infinity ? "+∞" : x === -Infinity ? "−∞" : "n/a");
     const pfmt = (p) => (!Number.isFinite(p) ? "n/a" : p < 0.0001 ? "< 0.0001" : p.toFixed(4));
     let parsed = null;
     let last = null;

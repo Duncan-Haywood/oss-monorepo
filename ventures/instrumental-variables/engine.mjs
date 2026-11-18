@@ -152,7 +152,7 @@ export const DEFAULTS = { estimator: "2sls", se: "robust", alpha: 0.05, fuller: 
 export function parseCsv(text) {
   const rows = [];
   let row = [], f = "", q = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) {

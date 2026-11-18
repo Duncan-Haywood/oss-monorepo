@@ -1,159 +1,167 @@
 {
-  "date": "2026-11-18",
-  "session": "https://claude.ai/code/session_01E5sJKjL4bbYuo3t3Xzhy5a",
-  "track": "explore",
-  "prompt_version": 0,
-  "input": "read ./prompt.md and follow the instructions there",
-  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
-  "follow_up_inputs": [],
-  "model": "claude-opus-5-5",
-  "models_seen": [
-    "claude-opus-5-5"
-  ],
-  "started": "2026-11-18T10:18:29Z",
-  "ended": "2026-11-18T10:57:31Z",
-  "wall_minutes": 39.36,
-  "tokens_in": 16335356,
-  "tokens_out": 111862,
-  "cost_usd": 7.4315,
-  "tool_calls": 100,
-  "task": "Explore: build an instrumental variables research-algorithm tool (ventures/instrumental-variables)",
-  "projects": [
-    "instrumental-variables"
-  ],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17269",
-  "repo": null,
-  "commits": [],
-  "lines_added": null,
-  "lines_removed": null,
-  "merged": null,
-  "ci_failures_before_green": null,
-  "review_findings": null,
-  "tests_added": 96,
-  "outcome": "success",
-  "errors": [
-    {
-      "what": "git stash -u (used to fast-forward onto origin/main) moved the untracked venture folder away while a 6-minute background coverage run was writing eval/coverage-output.txt; stash pop restored a 0-byte snapshot, and the run's output went to an unlinked inode.",
-      "fix": "Reran the study (another ~10 min). Next time: commit or move aside only files no background job writes, or fast-forward before starting long jobs."
-    },
-    {
-      "what": "First coverage table counted empty Anderson-Rubin sets (possible when overidentified) as 'unbounded', which made 17 of 1,000 strong-instrument sets look unbounded.",
-      "fix": "Coverage script now tallies each set kind (interval, empty, two rays, whole line, open-ended at the grid edge)."
-    },
-    {
-      "what": "First 'weak' design (first stage x 0.15, F about 2) was too extreme to be informative; x 0.3 (F about 10) was mild enough that 2SLS still covered 95%.",
-      "fix": "Kept x 0.3 and added a weak + strongly endogenous design; reported that even it did not break the 2SLS interval, rather than tuning until it did."
-    }
-  ],
-  "integrity_issues": [],
-  "doc_friction": [
-    {
-      "file": "CLAUDE.md",
-      "issue": "'git fetch --depth=40 origin main' then merge: the first fetch (--depth=1) gave 'refusing to merge unrelated histories'; the deepen advice is right but the ff-merge needed a clean tree, and stashing untracked files is unsafe while background jobs write into them. A one-line warning would have saved a 10-minute rerun."
-    },
-    {
-      "file": ".github/prompts/cloud-session.md",
-      "issue": "No guidance for reference-only Python packages (linearmodels, scipy) used to pin a JS engine; a plain venv in the scratchpad worked (same note as the propensity-score run)."
-    }
-  ],
-  "deviations": [
-    {
-      "file": "prompts/explore/prompt-0.md",
-      "why": "Free-choice run; followed the established research-algorithm pattern because no venture covered IV/2SLS (0 of 1,403 READMEs).",
-      "did": "New venture rather than a sweep",
-      "result": "Shipped with linearmodels-pinned tests (max gap 9.4e-12) and a 3-design coverage study whose AR result was reported as found (92-94%), not as expected"
-    },
-    {
-      "file": "prompts/goals.md",
-      "why": "No separate agent doc in docs/reports: the venture README, eval/README.md and this record hold what the next run needs.",
-      "did": "Post + README only",
-      "result": "n/a"
-    }
-  ],
-  "writeups": [
-    "docs/posts/2026-11-18-instrumental-variables-in-the-browser-and-the-sargan-false-alarm.md",
-    "ventures/instrumental-variables/README.md"
-  ],
-  "goal": null,
-  "notes": "Explore idea: instrumental variables as a research-algorithm tool (ventures/instrumental-variables); 0 of 1,403 venture READMEs mentioned IV/2SLS. OLS/2SLS/LIML/Fuller as k-class; unadjusted/robust/clustered (+debiased); first stage partial/Shea R2, F, effective F (Montiel Olea-Pflueger); Sargan, Hansen J (two-step GMM), Durbin, Wu-Hausman, control-function; Anderson-Rubin set closed form (homoskedastic) or grid+bisection (robust/clustered). Pinned to linearmodels 7.1 on 3 specs x 6 SE settings: max rel gap 9.4e-12; AR endpoints vs scipy brentq 1.7e-13. Example: Sargan rejects valid county-level instruments (p=0.029) under clustered errors; clustered Hansen J p=0.14. Coverage (1,000 draws x 3 designs, clustered): 2SLS 94.5/95.0/94.7%, LIML 94.3/95.7/95.5%, AR 93.9/92.2/92.6% (empty overidentified sets count as misses); stated on the page's limits. Browser-checked at 1100 and 390 px with Playwright, no console errors.",
-  "corrections": [],
-  "redteam": null,
-  "usage": {
-    "measured_by": "prompts/runcost.py v1",
-    "session_id": "afdbdd6d-0762-5cee-b19c-4a2ae957a679",
-    "transcripts": 1,
-    "first": "2026-11-18T10:18:29Z",
-    "last": "2026-11-18T10:57:51Z",
-    "primary_model": "claude-opus-5-5",
-    "models": {
-      "claude-opus-5-5": {
-        "requests": 92,
-        "input": 176,
-        "output": 111862,
-        "thinking": 17321,
-        "cache_read": 16088186,
-        "cache_write_5m": 0,
-        "cache_write_1h": 246994,
-        "api_equivalent_usd": 7.4315,
-        "fast_requests": 0
-      }
-    },
-    "totals": {
-      "requests": 92,
-      "input": 176,
-      "output": 111862,
-      "thinking": 17321,
-      "cache_read": 16088186,
-      "cache_write_5m": 0,
-      "cache_write_1h": 246994,
-      "api_equivalent_usd": 7.4315,
-      "api_equivalent_complete": true
-    },
-    "cache_hit_share": 0.985,
-    "tool_calls": 100,
-    "tools": {
-      "Bash": 86,
-      "Write": 7,
-      "mcp__github__pull_request_read": 2,
-      "Read": 2,
-      "ToolSearch": 1,
-      "mcp__github__list_pull_requests": 1,
-      "mcp__github__create_pull_request": 1
-    },
-    "web_searches": 0,
-    "time": {
-      "wall_minutes": 39.36,
-      "active_minutes": 39.36,
-      "model_minutes": 17.07,
-      "tool_minutes": 22.29,
-      "waiting_on_human_minutes": 0.0,
-      "human_prompts": 2,
-      "stalls": 0,
-      "subagent_minutes": 0.0
-    },
-    "pricing": {
-      "as_of": "2026-10-06",
-      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
-    },
-    "human_equivalent": {
-      "hours": 30.0,
-      "basis": "k-class IV engine with four SE/test families + AR inversion, linearmodels reference harness, 3-design coverage study, page/CLI/tests, for an econometrician-developer",
-      "rate_usd_per_hour": 100.0,
-      "usd": 3000.0
-    },
-    "leverage": 403.7,
-    "certainty": {
-      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
-      "model": "high: the `model` field on each API response, not the configured model",
-      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
-      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
-      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
-    },
-    "not_counted": [
-      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
-      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
-      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
-      "CI minutes and the reviewer bots' own model calls"
-    ]
+ "date": "2026-11-18",
+ "session": "https://claude.ai/code/session_01E5sJKjL4bbYuo3t3Xzhy5a",
+ "track": "explore",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [
+  "claude-opus-5-5"
+ ],
+ "started": "2026-11-18T10:18:29Z",
+ "ended": "2026-11-18T10:57:31Z",
+ "wall_minutes": 39.36,
+ "tokens_in": 16335356,
+ "tokens_out": 111862,
+ "cost_usd": 7.4315,
+ "tool_calls": 100,
+ "task": "Explore: build an instrumental variables research-algorithm tool (ventures/instrumental-variables)",
+ "projects": [
+  "instrumental-variables"
+ ],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17269",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": 2,
+ "review_findings": null,
+ "tests_added": 96,
+ "outcome": "success",
+ "errors": [
+  {
+   "what": "git stash -u (used to fast-forward onto origin/main) moved the untracked venture folder away while a 6-minute background coverage run was writing eval/coverage-output.txt; stash pop restored a 0-byte snapshot, and the run's output went to an unlinked inode.",
+   "fix": "Reran the study (another ~10 min). Next time: commit or move aside only files no background job writes, or fast-forward before starting long jobs."
+  },
+  {
+   "what": "First coverage table counted empty Anderson-Rubin sets (possible when overidentified) as 'unbounded', which made 17 of 1,000 strong-instrument sets look unbounded.",
+   "fix": "Coverage script now tallies each set kind (interval, empty, two rays, whole line, open-ended at the grid edge)."
+  },
+  {
+   "what": "First 'weak' design (first stage x 0.15, F about 2) was too extreme to be informative; x 0.3 (F about 10) was mild enough that 2SLS still covered 95%.",
+   "fix": "Kept x 0.3 and added a weak + strongly endogenous design; reported that even it did not break the 2SLS interval, rather than tuning until it did."
+  },
+  {
+   "what": "CI changed-ventures: engine.mjs held a literal U+FEFF inside the BOM-stripping regex (the editor wrote the character, not the escape); check_hidden_unicode.py failed. It is not in the local --for-changes run because no PR workflow runs it directly (the unwired-checks step does).",
+   "fix": "Wrote it as \\uFEFF; check and its unit test pass."
+  },
+  {
+   "what": "CI portfolio-pages test: &infin; on the page is not in platform/pages/entities.mjs NAMED_ENTITIES.",
+   "fix": "Used the literal character in the page script instead of widening the shared table."
   }
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "CLAUDE.md",
+   "issue": "'git fetch --depth=40 origin main' then merge: the first fetch (--depth=1) gave 'refusing to merge unrelated histories'; the deepen advice is right but the ff-merge needed a clean tree, and stashing untracked files is unsafe while background jobs write into them. A one-line warning would have saved a 10-minute rerun."
+  },
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "issue": "No guidance for reference-only Python packages (linearmodels, scipy) used to pin a JS engine; a plain venv in the scratchpad worked (same note as the propensity-score run)."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/explore/prompt-0.md",
+   "why": "Free-choice run; followed the established research-algorithm pattern because no venture covered IV/2SLS (0 of 1,403 READMEs).",
+   "did": "New venture rather than a sweep",
+   "result": "Shipped with linearmodels-pinned tests (max gap 9.4e-12) and a 3-design coverage study whose AR result was reported as found (92-94%), not as expected"
+  },
+  {
+   "file": "prompts/goals.md",
+   "why": "No separate agent doc in docs/reports: the venture README, eval/README.md and this record hold what the next run needs.",
+   "did": "Post + README only",
+   "result": "n/a"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-18-instrumental-variables-in-the-browser-and-the-sargan-false-alarm.md",
+  "ventures/instrumental-variables/README.md"
+ ],
+ "goal": null,
+ "notes": "Explore idea: instrumental variables as a research-algorithm tool (ventures/instrumental-variables); 0 of 1,403 venture READMEs mentioned IV/2SLS. OLS/2SLS/LIML/Fuller as k-class; unadjusted/robust/clustered (+debiased); first stage partial/Shea R2, F, effective F (Montiel Olea-Pflueger); Sargan, Hansen J (two-step GMM), Durbin, Wu-Hausman, control-function; Anderson-Rubin set closed form (homoskedastic) or grid+bisection (robust/clustered). Pinned to linearmodels 7.1 on 3 specs x 6 SE settings: max rel gap 9.4e-12; AR endpoints vs scipy brentq 1.7e-13. Example: Sargan rejects valid county-level instruments (p=0.029) under clustered errors; clustered Hansen J p=0.14. Coverage (1,000 draws x 3 designs, clustered): 2SLS 94.5/95.0/94.7%, LIML 94.3/95.7/95.5%, AR 93.9/92.2/92.6% (empty overidentified sets count as misses); stated on the page's limits. Browser-checked at 1100 and 390 px with Playwright, no console errors. Local verification: run_workflow_locally --for-changes passed 12 workflows; portfolio-validate 100/100 locally; portfolio-pages locally failed only 'Check the built artifact' on dev/daily pages from local build ordering (GitHub's build job passed) and the &infin; entity test (fixed).",
+ "corrections": [],
+ "redteam": null,
+ "usage": {
+  "measured_by": "prompts/runcost.py v1",
+  "session_id": "afdbdd6d-0762-5cee-b19c-4a2ae957a679",
+  "transcripts": 1,
+  "first": "2026-11-18T10:18:29Z",
+  "last": "2026-11-18T10:57:51Z",
+  "primary_model": "claude-opus-5-5",
+  "models": {
+   "claude-opus-5-5": {
+    "requests": 92,
+    "input": 176,
+    "output": 111862,
+    "thinking": 17321,
+    "cache_read": 16088186,
+    "cache_write_5m": 0,
+    "cache_write_1h": 246994,
+    "api_equivalent_usd": 7.4315,
+    "fast_requests": 0
+   }
+  },
+  "totals": {
+   "requests": 92,
+   "input": 176,
+   "output": 111862,
+   "thinking": 17321,
+   "cache_read": 16088186,
+   "cache_write_5m": 0,
+   "cache_write_1h": 246994,
+   "api_equivalent_usd": 7.4315,
+   "api_equivalent_complete": true
+  },
+  "cache_hit_share": 0.985,
+  "tool_calls": 100,
+  "tools": {
+   "Bash": 86,
+   "Write": 7,
+   "mcp__github__pull_request_read": 2,
+   "Read": 2,
+   "ToolSearch": 1,
+   "mcp__github__list_pull_requests": 1,
+   "mcp__github__create_pull_request": 1
+  },
+  "web_searches": 0,
+  "time": {
+   "wall_minutes": 39.36,
+   "active_minutes": 39.36,
+   "model_minutes": 17.07,
+   "tool_minutes": 22.29,
+   "waiting_on_human_minutes": 0.0,
+   "human_prompts": 2,
+   "stalls": 0,
+   "subagent_minutes": 0.0
+  },
+  "pricing": {
+   "as_of": "2026-10-06",
+   "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+  },
+  "human_equivalent": {
+   "hours": 30.0,
+   "basis": "k-class IV engine with four SE/test families + AR inversion, linearmodels reference harness, 3-design coverage study, page/CLI/tests, for an econometrician-developer",
+   "rate_usd_per_hour": 100.0,
+   "usd": 3000.0
+  },
+  "leverage": 403.7,
+  "certainty": {
+   "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+   "model": "high: the `model` field on each API response, not the configured model",
+   "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+   "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+   "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+  },
+  "not_counted": [
+   "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+   "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+   "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+   "CI minutes and the reviewer bots' own model calls"
+  ]
+ }
 }
