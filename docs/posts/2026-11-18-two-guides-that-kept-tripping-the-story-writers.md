@@ -2,7 +2,7 @@
 title: "Two guides that kept tripping the story writers, fixed with a sort and a sentence"
 seo_title: "Fixing two guides that kept tripping the story writers"
 date: 2026-11-18
-description: "Nine run records named the Hearth & Horizon bible or the Saints production notes as a stumbling block. A table sort, a test and one deferring paragraph fix them."
+description: "Run after run named the Hearth & Horizon bible or the Saints production notes as a snag. A table sort, a test and one deferring paragraph fix both."
 tags: [process, creative, tooling]
 ---
 
