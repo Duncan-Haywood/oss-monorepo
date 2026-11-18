@@ -15,7 +15,7 @@ team, a plain-text version to paste into a group chat, and a share link that car
 
 - **A spreadsheet or a hand-drawn grid:** free, but home/away balance, byes in odd leagues and court sharing are easy to get wrong, and a rainout means redoing the sheet.
 - **League-management platforms** (TeamSnap, LeagueApps, SportsEngine and similar): registration, payments, team messaging and score apps, usually on a paid plan and with accounts for every team. This tool only makes and maintains the schedule: no signup, no upload, free.
-- **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; for card processing inside the sign-up, player waivers or messaging, use a platform and paste this schedule into it.
+- **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
 ## Run your own league page (self-hosted)
@@ -37,7 +37,23 @@ third party: zero dependencies, one JSON file on a disk you own.
 - **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
 - **Captain links and confirmed scores (2026-11-18, `confirm.mjs`):** `/admin` lists one captain link per team (`/league?t=LEAGUE_TOKEN&c=KEY`; the key is an HMAC of the team name under `ADMIN_KEY`, 22 characters, nothing stored), and with SMTP on, **Email each team its captain link** sends each team's link to its contacts only. A captain's page shows their team's games from the last 21 days, each with its state and a score form. When the other captain sends the same score, the line (`Hawks 3 - 1 Owls`, home first) goes into Results straight away and the game is closed, so it cannot be added twice (reports are keyed by fixture id, which follows a rained-out game). Different scores, and games only one captain has reported, wait in `/admin` under **Captain reports** with both scores side by side and **Use Hawks's** / **Use Owls's** / **Clear reports** buttons; a captain can resend to fix a typo until the game is closed. A wrong captain key counts as a wrong link for the lockout. What this replaces: the organiser typing or approving every score, which is the chore score-confirmation in paid league apps exists to remove. Limits: anyone holding a team's captain link can report for that team (the same trust as the league link), a score the organiser typed by hand is not matched to a fixture, so do not also approve that game from captain reports, and nothing here is a dispute process: the organiser's choice is final. Tested in `confirm.test.mjs` (keys, confirm and dispute, the 21-day window, the full server flow and the emails); not yet used by a real league.
-- **Notices from the organiser (2026-11-18, latest, `announcements.mjs`):** `/admin` has a **Notices** form: up to
+- **Player waivers (2026-11-18, latest, `waivers.mjs`):** under **Waiver** in `/admin` the organiser pastes their own
+  release or code-of-conduct text. Each distinct text is a version (the first 16 hex characters of its SHA-256), kept
+  with the date it was first set, so every signature points at the exact words agreed to; `/admin/waiver.txt?v=ID`
+  returns any version as signed. Players sign at `/league/waiver?t=LEAGUE_TOKEN` (linked from the league page): team,
+  full name, optional email, a tick, and the full name typed again as the signature; for a minor the parent or guardian
+  signs with their own name. With a waiver set, the captain signs on the `/register` form too. `/admin` matches
+  signatures to each roster (a first-name roster entry matches only when one signer on that team has that first name,
+  never a guess between two) and lists per team who signed, who signed an earlier version and who has not; a captain's
+  page shows the same for their team. **Download every signature (CSV)** has time, team, name, guardian, email,
+  version, whether it is current and where it was signed; a mistaken signature can be removed. Signing again replaces
+  that person's row for the same version. No IP addresses are kept.
+  What it replaces: a paper sheet at week one, a form tool matched to rosters by hand, or a waiver app on a monthly plan.
+  What it does not do: draft legal text, check identity, take a drawn signature or judge enforceability (that and the
+  age at which a player signs for themselves depend on where you play: ask a lawyer or your league's insurer). Tested in
+  `waivers.test.mjs` (versions, signatures, roster matching, the version cap and the full server flow); not yet used
+  by a real league. Guide: `how-to-collect-player-waivers-for-a-rec-league.html`.
+- **Notices from the organiser (2026-11-18, `announcements.mjs`):** `/admin` has a **Notices** form: up to
   1,000 characters, **Who sees it** (everyone, on the league page under "From the organiser", or one team, on that
   team's captain page only), **Show until** (a date; blank means two weeks), and **Also email it to the team
   contacts** (needs SMTP). Each notice is listed in `/admin` with who it was for, when it ends and how many teams were

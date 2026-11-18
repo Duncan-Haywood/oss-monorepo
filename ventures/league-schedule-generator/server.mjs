@@ -16,6 +16,8 @@
 // Notices (announcements.mjs): the organiser posts a dated notice for the league page or one team's
 // captain page, optionally emailed to the team contacts.
 // Team sign-ups (registration.mjs): /register is public while the organiser has sign-ups open in /admin.
+// Waivers (waivers.mjs): the organiser's own text, versioned by its hash; players sign at /league/waiver,
+// captains on the sign-up form, and /admin shows who on each roster has not signed.
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
@@ -28,6 +30,7 @@ import { scheduleChanges, changeEmails, changeSummary } from "./changes.mjs";
 import { captainKey, captainTeam, reportableGames, parseReport, recordReport, reportLine, settle, openReports, adminReportsHtml, captainLinksHtml, captainHtml, captainLinkEmail } from "./confirm.mjs";
 import { movableGames, tryMove, parseMoveRequest, recordMove, pruneMoves, openMoves, adminMovesHtml, captainMovesHtml, moveAskedEmail } from "./reschedule.mjs";
 import { parseNotice, addNotice, removeNotice, noticesHtml, adminNoticesHtml, noticeEmails } from "./announcements.mjs";
+import { cleanWaiverText, currentVersion, rememberVersion, parseSignature, parseWaiverForm, recordSignature, removeSignature, waiverFormHtml, registerWaiverHtml, waiverLinkHtml, adminWaiversHtml, waiversCsv, versionText } from "./waivers.mjs";
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
@@ -38,7 +41,7 @@ const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(Strin
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
-export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, moves: {}, availability: {}, subs: {}, remindersSent: {}, notices: [], noticeSeq: 0, registrations: [], approvedSignups: [], regSeq: 0 }; }
+export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, moves: {}, availability: {}, subs: {}, remindersSent: {}, notices: [], noticeSeq: 0, registrations: [], approvedSignups: [], regSeq: 0, waivers: [], waiverVersions: {}, waiverSeq: 0 }; }
 
 const MAX_PENDING = 100;
 /** A score a team captain sends from the league page, as a pending request: team indexes and goals, nothing free-form. */
@@ -113,7 +116,8 @@ function leaguePage(state, token, base = null, today = dayNumber(Date.now()), ca
   const subs = subsHtml(state.subs || {}, games, { token });
   const cap = captain ? captainHtml(state.reports || {}, reportableGames(out.schedule, today), captain.team, out.schedule.teams, { token, cap: captain.key }) + captainMovesHtml(state.moves || {}, movableGames(out.schedule, today), captain.team, { token, cap: captain.key }) : "";
   const news = noticesHtml(state.notices, today, captain ? out.schedule.teams[captain.team] : null);
-  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("</h1>", `</h1>${news}`).replace("<footer>", `${cap}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
+  const waiver = waiverLinkHtml(state, token, captain ? { team: out.schedule.teams[captain.team], rosters } : {});
+  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("</h1>", `</h1>${news}`).replace("<footer>", `${cap}${waiver}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
 }
 
 function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = process.env, base = null) {
@@ -134,6 +138,7 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const area = (name, label) => `<label>${label}<textarea name="${name}">${esc(f[name] ?? "")}</textarea></label>`;
   const rs = regSettings(f), signups = adminRegistrationsHtml(state, key);
   const notices = adminNoticesHtml(state, key, names, today, { canEmail: !!(smtp && !smtp.error) });
+  const waivers = adminWaiversHtml(state, key, rp.rosters, names);
   return page("League admin", `${note}${signups}${waiting}${short}${csv}${parseNotes ? `<ul class="err">${parseNotes}</ul>` : ""}
 <form method="post" action="/admin/save?key=${k}">
 <label>Season start (YYYY-MM-DD)<input name="start" value="${esc(f.start)}"></label>
@@ -148,10 +153,13 @@ ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}
 <label>Your payment page (optional, https), e.g. a Stripe, Square or PayPal payment link you made<input name="regPayUrl" value="${esc(f.regPayUrl ?? "")}"></label>
 <label>Most teams (0 = no cap; past it, sign-ups go on a waitlist)<input name="regMaxTeams" inputmode="numeric" value="${esc(f.regMaxTeams ?? 0)}"></label>
 <label>Sign-ups close after (YYYY-MM-DD, optional)<input name="regCloses" value="${esc(f.regCloses ?? "")}"></label>
-<p class="note">Approve adds the team to Teams, its players to Rosters and the captain's email to Contacts. Fees are paid on your own payment page; this server never sees a card, and you tick Paid by hand.${f.regPayUrl && !rs.payUrl ? " The payment page address is not a plain https link, so it is not shown." : ""}</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
+<p class="note">Approve adds the team to Teams, its players to Rosters and the captain's email to Contacts. Fees are paid on your own payment page; this server never sees a card, and you tick Paid by hand.${f.regPayUrl && !rs.payUrl ? " The payment page address is not a plain https link, so it is not shown." : ""}</p></fieldset>
+<fieldset><legend>Waiver (optional)</legend>
+<label>Your waiver, release or code-of-conduct text, as players should read it. Leave empty for none<textarea name="waiverText" maxlength="12000" style="min-height:8rem;font-family:inherit">${esc(f.waiverText ?? "")}</textarea></label>
+<p class="note">Players sign at <code>/league/waiver?t=LEAGUE_TOKEN</code> (linked from the league page) and captains on the sign-up form. Each signature keeps the exact text it agreed to: changing the text starts a new version, and earlier signatures show as "signed an earlier version". This page records who agreed to text you wrote; it does not write a waiver and is not legal advice. Whether a waiver holds, and the age at which a player can sign for themselves, depend on where you play: ask a lawyer or your league's insurer.</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
 <label><input type="checkbox" name="notify" value="1" style="width:auto"${state.published ? "" : " disabled"}> Email teams whose upcoming games this save moves, cancels or adds (one email per team, to its contacts${smtp && !smtp.error ? "" : "; needs SMTP, see above"})</label>
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
-${notices}${capLinks}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}).</p>`);
+${notices}${waivers}${capLinks}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}).</p>`);
 }
 
 async function readForm(req) {
@@ -170,18 +178,22 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
   async function register(req, send, who) {
     const title = "Sign up a team";
     const why = closedReason(state.fields, today());
-    if (req.method === "GET") return send(why ? 404 : 200, page(title, registerFormHtml(state, today())));
+    const formHtml = (values = {}) => registerFormHtml(state, today(), values).replace("<button>Sign up</button>", `${registerWaiverHtml(state, values)}<button>Sign up</button>`);
+    if (req.method === "GET") return send(why ? 404 : 200, page(title, formHtml()));
     if (req.method !== "POST") return send(405, "method not allowed\n", "text/plain", { allow: "GET, POST" });
     if (why) return send(404, page(title, `<p>${esc(why)}</p>`));
     const form = await readForm(req);
     if (!form) return send(413, "too large\n", "text/plain");
     const r = parseRegistration(form, namesInUse(state.fields, state.registrations || []));
     if (r.spam) return send(200, page("Signed up", "<p class=\"ok\">Thanks.</p>"));
-    const values = Object.fromEntries(["team", "captain", "email", "phone", "players", "note"].map((k) => [k, String(form.get(k) ?? "")]));
-    if (r.error) return send(400, page(title, `<p class="err">${esc(r.error)}</p>${registerFormHtml(state, today(), values)}`));
+    const values = Object.fromEntries(["team", "captain", "email", "phone", "players", "note", "w_fullname", "w_minor", "w_guardian", "w_signature"].map((k) => [k, String(form.get(k) ?? "")]));
+    if (r.error) return send(400, page(title, `<p class="err">${esc(r.error)}</p>${formHtml(values)}`));
+    const sig = currentVersion(state) ? parseSignature(form, { prefix: "w_" }) : null;
+    if (sig?.error) return send(400, page(title, `<p class="err">Waiver: ${esc(sig.error)}</p>${formHtml(values)}`));
     if (!allowSignup(signups, who, clock())) return send(429, page(title, `<p class="err">Too many sign-ups from this connection in the last hour. Try again later.</p>`));
     const a = addRegistration(state, r.req, clock());
     if (a.error) return send(429, page(title, `<p class="err">${esc(a.error)}</p>`));
+    if (sig) recordSignature(state, { team: a.reg.team, ...sig.sig, email: sig.sig.email || a.reg.email, via: "signup" }, clock());
     save();
     const cfg = smtpConfig(env);
     if (cfg && !cfg.error) {
@@ -286,6 +298,22 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         }
         return send(200, page("Move request", `<p class="${w.status === "declined" || w.status === "withdrawn" ? "note" : "ok"}">${esc(msgs[w.status])}</p>${back}`));
       }
+      if (url.pathname === "/league/waiver") {
+        const out = buildLeague(state.fields), back = `<p><a href="/league?t=${esc(encodeURIComponent(t))}">Back to the league</a></p>`;
+        if (out.error || !currentVersion(state)) return send(404, page("Waiver", `<p>The organiser has not set a waiver for this league.</p>${back}`));
+        const teams = out.schedule.teams;
+        if (req.method === "GET") return send(200, page("League waiver", waiverFormHtml(state, teams, t) + back));
+        if (req.method !== "POST") return send(405, "method not allowed\n", "text/plain", { allow: "GET, POST" });
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const values = Object.fromEntries(["team", "fullname", "email", "minor", "guardian", "signature"].map((k) => [k, String(body.get(k) ?? "")]));
+        const r = parseWaiverForm(body, teams);
+        if (r.error) return send(400, page("League waiver", `<p class="err">${esc(r.error)}</p>${waiverFormHtml(state, teams, t, values)}${back}`));
+        const w = recordSignature(state, r.req, clock());
+        if (w.error) return send(429, page("League waiver", `<p class="err">${esc(w.error)}</p>${back}`));
+        save();
+        return send(200, page("Waiver signed", `<p class="ok">${w.replaced ? "Signed again" : "Signed"}: ${esc(w.sig.name)}${w.sig.minor ? ` (by ${esc(w.sig.guardian)}, parent or guardian)` : ""} for ${esc(w.sig.team)}, version ${esc(w.sig.version)}, ${esc(new Date(w.sig.at).toISOString().replace("T", " ").slice(0, 16))} UTC.</p><p class="note">The organiser keeps this record. Ask them if you need a copy of the text you signed.</p>${back}`));
+      }
       if (req.method === "GET" && url.pathname === "/league/ics") {
         const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
         const raw = url.searchParams.get("team"), all = raw === "all", i = Number(raw);
@@ -371,8 +399,10 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       f.regOpen = form.get("regOpen") === "1";
       for (const k of ["regFee", "regPayUrl", "regCloses"]) f[k] = String(form.get(k) ?? "").trim().slice(0, 500);
       f.regMaxTeams = regSettings({ regMaxTeams: form.get("regMaxTeams") }).maxTeams;
+      f.waiverText = cleanWaiverText(form.get("waiverText"));
       const wasPublished = state.published, prev = wasPublished ? buildLeague(state.fields) : null;
       state.fields = f;
+      rememberVersion(state, clock());
       const out = buildLeague(f);
       if (form.get("act") === "publish") {
         if (out.error) { save(); return send(400, adminPage(state, adminKey, `<p class="err">${esc(out.error)}</p>`, dayNumber(clock()), env, publicBase(req, env))); }
@@ -402,6 +432,18 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
         }
       }
       return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent((out.error ? "Saved, but: " + out.error : "Saved." + (out.warnings.length ? " " + out.warnings.length + " warning(s): " + out.warnings[0] : "")) + changeNote)}` });
+    }
+    if (req.method === "GET" && url.pathname === "/admin/waivers.csv") {
+      return send(200, "\ufeff" + waiversCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="waivers.csv"', "cache-control": "no-store" });
+    }
+    if (req.method === "GET" && url.pathname === "/admin/waiver.txt") {
+      const txt = versionText(state, url.searchParams.get("v"));
+      return txt ? send(200, txt, "text/plain; charset=utf-8", { "cache-control": "no-store" }) : send(404, "no such version\n", "text/plain");
+    }
+    if (req.method === "POST" && url.pathname === "/admin/waiver") {
+      const r = removeSignature(state, Number(form.get("id")));
+      if (!r.error) save();
+      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(r.error || `Removed ${r.sig.name}'s signature for ${r.sig.team}.`)}` });
     }
     if (req.method === "GET" && url.pathname === "/admin/signups.csv") {
       return send(200, "\ufeff" + registrationsCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="signups.csv"', "cache-control": "no-store" });

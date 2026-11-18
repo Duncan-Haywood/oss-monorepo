@@ -910,3 +910,24 @@ test("the tennis guide's limits example matches buildSchedule(), keeps every lim
   assert.match(page("sitemap.xml"), new RegExp(name));
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
 });
+
+test("the waiver guide's worked example matches waiverStatus() and is linked and in the sitemap", async () => {
+  const { waiverStatus, recordSignature, rememberVersion } = await import("./waivers.mjs");
+  const html = page("how-to-collect-player-waivers-for-a-rec-league.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal advice/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-collect-player-waivers-for-a-rec-league\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const state = { fields: { waiverText: "Play at your own risk." } };
+  rememberVersion(state, 1);
+  recordSignature(state, { team: "Hawks", name: "Ben Ong" }, 2);
+  recordSignature(state, { team: "Hawks", name: "Cara Lee" }, 3);
+  state.fields.waiverText += "\nNo alcohol at the venue.";
+  recordSignature(state, { team: "Hawks", name: "Dev Rao" }, 4);
+  const t = waiverStatus(state, { Hawks: ["Ben", "Cara", "Dev", "Eli"] }, ["Hawks"]).teams[0];
+  const label = new Map([...t.signed.map((x) => [x.entry, "signed"]), ...t.older.map((x) => [x.entry, "signed an earlier version"]), ...t.missing.map((e) => [e, "not signed"])]);
+  for (const e of ["Ben", "Cara", "Dev", "Eli"]) assert.ok(html.includes(`<tr><td>${e}</td><td>${label.get(e)}</td></tr>`), e);
+  assert.match(page("sitemap.xml"), /how-to-collect-player-waivers-for-a-rec-league\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-collect-player-waivers-for-a-rec-league\.html"/);
+});
