@@ -57,6 +57,8 @@ M48 = E + "m48_loadside/results.txt"
 M48P = E + "m48_loadside/posthoc.txt"
 M49 = E + "m49_backload/results.txt"
 M49P = E + "m49_backload/posthoc.txt"
+M50 = E + "m50_relean/results.txt"
+M50P = E + "m50_relean/posthoc.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -236,6 +238,12 @@ CHECKS = [
     (M49P, "largest |F_h|/F_z 0.189 (mu 0.5)", "at most 0.189 of the\nvertical"),
     (M49P, "  g1 [1.2, -0.15] | 20 | 180 | -20.0, +0.0, -11.7 | False | > 5 | 36.4 | 51.6", "falls from 51.6 to 36.4 N"),
     (M49P, "  h1 [1.6, 0.0] | 20 | 180 | -20.0, +0.0, -13.8 | True | > 5 | 42.8 | 58.7", "58.7 to 42.8 N"),
+    (M50, "  g1 [1.0, 0.0] | 90.7 | -0.69 |", "peaks at −0.69 N for the\nG1 at 1.0 m grips"),
+    (M50, "  g1 [1.2, 0.0] | 110.3 | -10.12 |", "−10.12 N at 1.2 m"),
+    (M50, "  H206 g1 [1.2, 0.0]: tolerated at phi 180 4.1 N, linear prediction 3.8 N, off 9%", "to within 9% at all 8 poses"),
+    (M50, "  g1 [1.2, -0.15] | yes | 21.9 | 30.2 | 51.2 | 6.3 | 4.0 |", "tolerates 4.0 N at its current lean"),
+    (M50, "  g1 [1.2, -0.15] | 110.3 | -10.12 | 14.6 | 20.1 | 51.5 | 15.5 | 11.4 |", "11.4 N in every direction at its best"),
+    (M50P, "  g1 [1.2, -0.15] | current | 4.0 | 9.0 | 5.4 | 3.4 | 5.0 | 3.0 |", "with about 3 m on the\nfloor"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
