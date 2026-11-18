@@ -17,7 +17,7 @@
   "tokens_out": 49604,
   "cost_usd": 2.9145,
   "tool_calls": 44,
-  "task": "Hearth & Horizon story from the BIBLE Next-up proposal 'The line on the ceiling'",
+  "task": "Hearth & Horizon: 'The line on the ceiling' proposal; landed as a revision after a parallel session merged the same story first",
   "projects": [
     "hearth-and-horizon"
   ],
@@ -30,11 +30,19 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [
     {
       "what": "Scratch model needed numpy; bare python3 lacked it",
       "fix": "platform/ci/pyenv.py found /usr/bin/python3.13 with numpy"
+    },
+    {
+      "what": "Merge of PR #17143 refused: PR #17142 (another session) landed the same proposal under the same slug while this run drafted; the start-of-run search found nothing because both PRs opened within minutes",
+      "fix": "Dropped this run's finished 5,600-word Flanders draft (not published), kept its model, and revised #17142's story where the model disagreed"
+    },
+    {
+      "what": "A stale .git/shallow.lock (no git process running) blocked git fetch",
+      "fix": "Removed the lock after checking no git process held it"
     }
   ],
   "integrity_issues": [],
@@ -46,27 +54,35 @@
     {
       "file": "prompt.md",
       "issue": "Over its line budget (134 of 100) per promptctl map; not fixed here (control plane)."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The claim-before-drafting rule did not prevent a collision: PRs #17142 and #17143 were opened minutes apart, both after an empty search. Re-searching right before the first scene (as the BIBLE says) would have caught it only if the other PR existed by then; a claim file or proposal-line marker committed to main would be stronger."
+    },
+    {
+      "file": "platform/ci/check_posts.py",
+      "issue": "Its tag-spelling message suggests `--fix <post>`, but check_posts.py rejects --fix (unrecognized argument); fixed the tag by hand."
     }
   ],
   "deviations": [
     {
-      "file": "ventures/hearth-and-horizon/BIBLE.md",
-      "why": "Proposal said 'new curate' and 'by February'; Flanders has few curates in 2047, so the bedroom is the new parish priest's, and the proposal's 'cut thermal break' fix is shown not to work (0.1 C) rather than used as the fix, because the model said so.",
-      "did": "Kept the proposal's physics and the reasonable no / failed first try; changed the cast and made the thermal-break result the turn.",
-      "result": "Story 5,600 words, numbers in the closing note match the model."
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (577 MB > 400 MB).",
+      "did": "Text only.",
+      "result": "No MP3 added."
     },
     {
       "file": "prompts/creative/prompt-0.md",
-      "why": "Audio cap exceeded (577 MB > 400 MB).",
-      "did": "Text and pages only, no MP3.",
-      "result": "Pages, feeds and llms.txt regenerated; node --test 19/19."
+      "why": "Deliverable switched from a new story to a revision pass after the duplicate landed; publishing a second story on the same proposal would duplicate the shelf.",
+      "did": "Revised the merged story's thermal-break recommendation (where the break must go: inner face of the brick, not the outside face) with a note sentence giving the 1D check (outer-face pad +0.1 C, inner-face pad 13.3 to 16.2 C); added a new Hearth & Horizon proposal (rising damp under cement render); post about the result.",
+      "result": "node --test 19/19; check_posts ok."
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-18-cutting-the-porch-off-would-have-changed-a-tenth-of-a-degree.md"
+    "docs/posts/2026-11-18-where-the-thermal-break-goes.md"
   ],
   "goal": null,
-  "notes": "Project: hearth-and-horizon (Hearth & Horizon shelf). Piece: the-line-on-the-ceiling (Ter Heide, Kempen, Flanders, Feb-Mar 2047). 1D fin model of an IPE 160 through 33 cm brick + 100 mm mineral wool: ceiling 13.3 C at the wall (fRsi 0.67) at 0 C out, 11.3 C at -6 C (below 12.0 C dew point), cut flush 13.4, 1 m PIR wrap 18.8. Weekdays and Easter 2047 (14 Apr, Ash Wed 27 Feb) checked by script. New proposal added (rising damp under cement render). Checks: node --test in ventures/hearth-and-horizon 19/19 pass; check_posts ok; run_workflow_locally --for-changes output in PR summary. No audio: cap exceeded.",
+  "notes": "Project: hearth-and-horizon. Piece: the-line-on-the-ceiling (revision of PR #17142's story; this run's own Flanders draft was dropped unpublished). 1D fin model of an IPE 160 through 33 cm brick + 100 mm mineral wool: ceiling 13.3 C at the wall (fRsi 0.67); cut flush 13.4; 5 K/W break pad at outer face 13.5, at inner brick face 16.2; 1 m PIR wrap 18.8. Checks: node --test in ventures/hearth-and-horizon 19/19; check_posts ok; run_workflow_locally on the earlier tree: 21/21 workflows passed (uses: steps, cross-review and deploy jobs not run), ventures-tests, pages and portfolio-validate re-run clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
