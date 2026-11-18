@@ -3030,6 +3030,16 @@ list before moving to the train shard, so the test gain is not perfectly clean (
 which rules that touches). Details: [`eval/wildreceipt-2026-11-17.md`](eval/wildreceipt-2026-11-17.md).
 Tests: `receipt-wildreceipt.test.mjs`.
 
+### CORD tax labels the scorer misread (2026-11-18)
+
+`eval/cord-receipts.mjs --tax-misses` lists the receipts whose tax was missed (labelled and read
+wrong or not at all, or read where none is labelled), with the line the parser took. Its first
+list showed the scorer, not the parser, was wrong on three train taxes: a rate inside the label
+(`10% 4,818`) or a list of a rate and an amount (`["10.000%", "546"]`) was read as one glued number.
+Read right, CORD train tax is **328 of 352** (325 before), with the parser unchanged; validation,
+test and every total are the same. Two real misses it found: a receipt with a 10% and a 0% tax line
+reads the 0% one (train-744, train-778). Details: [`eval/cord-tax-labels-2026-11-18.md`](eval/cord-tax-labels-2026-11-18.md).
+
 ### WildReceipt train shard 1: tax in state lines, VAT tables and "includes GST" (2026-11-17)
 
 WildReceipt's second train shard (633 photos, unread until now) was the development set. Its

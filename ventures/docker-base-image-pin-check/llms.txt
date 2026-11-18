@@ -15,7 +15,8 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 - A FROM split across lines with a trailing backslash is read as one instruction; comment and blank lines inside the continuation are skipped, and the finding reports the line it starts on.
 - Stage names match case-insensitively, as in BuildKit: `FROM build` after `AS Build` is the stage, not a registry pull.
-- `scratch`, earlier stages and references built from `$VARIABLES` are left out; a digest needs an algorithm name and at least 32 hex characters.
+- `scratch` and earlier stages are left out. A `FROM` built from build args is checked with the `ARG` defaults declared before the first `FROM`; one with no default is reported `unresolved` and counts as a risk.
+- A digest needs an algorithm name and hex: exactly 64 lowercase for sha256, 128 for sha512, at least 32 for others.
 
 ## Source
 

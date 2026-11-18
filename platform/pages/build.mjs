@@ -12315,7 +12315,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
     `- [Work queue](${baseUrl}${QUEUE_PATH}): a read-only view of what the agents work on next and in what order (owner ideas, website requests, flagship projects, research programmes), with what is in flight and what waits on the owner.`,
-    `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
+    `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Each says what the product does, what the free tool does, and when the paid product is the right answer, so it answers "is there a free alternative to X?" with what the free tool does *not* do as well as what it does.`,
     // Named individually rather than left behind the index, because the
     // question an assistant is actually asked is about one product ("a free
     // alternative to Jobber?"), and a bare link to a 167-entry index makes it
@@ -12324,9 +12324,12 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     // page that carries the detail if it needs it. Only the multi-tool
     // products: a product with a single comparison is already reachable
     // through the index and would pad this file without adding an answer.
+    // What every comparison page says is stated once, on the parent line:
+    // repeating it on each product line cost ~130 bytes a line and pushed
+    // the file past its 50,000-byte budget on 2026-11-18.
     ...compareProductGroups.map(
       (group) =>
-        `  - [${group.subject}](${baseUrl}${comparisonProductPath(group.key)}): ${group.items.length} tools here have a side-by-side page against ${group.subject}, each saying what it does, what the free tool does, and when ${group.subject} is the right answer.`,
+        `  - [${group.subject}](${baseUrl}${comparisonProductPath(group.key)}): ${group.items.length} tools here have a side-by-side page against ${group.subject}.`,
     ),
     // The informational half of the catalogue, which this file named nowhere
     // until 2026-09-07. Measured against a fresh build that day: 0 of the 173

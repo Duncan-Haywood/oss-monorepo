@@ -6250,3 +6250,58 @@ Z-warned bias 2.2x and 2.7x the unwarned, p <= 0.05 share +7.9 and +12.7 points:
 for a shock that is a slope from the date or a pulse that fades, citing this file. Real states are not refitted.
 **Limits.** Two shapes, one panel shape (N1), independent covariates. **Next:** a shock that starts before the date
 (anticipation), and a real deployer's panel.
+
+### A shock before the date: backdate with `--anticipation N` (2026-11-18, pre-registered; five of six bars passed, one failed)
+
+"Shocks that are not steps" ended: "Next: a shock that starts before the date (anticipation)". Two things can start
+early: a covariate's shock (people move before a law takes effect), which puts part of it inside the window the
+synthetic control is fitted on; and the true effect itself (smokers cut down when a tax is announced, before it binds),
+which the fit then partly absorbs. Abadie (2021) advises backdating the date to the first point people could react.
+`eval/synth-anticip-sim.mjs` (pre-registration `eval/synth-anticip-prereg-2026-11-18.md`, committed after an
+exploratory run at base 71000 and before the confirmatory run): N1 panels; covariate cells move every unit by 1.0 x Z
+from L points before the stated date; effect cells drop the treated unit by 1 from L points before it. Each panel is
+scored at the stated date and backdated by 2 and by 4. Confirmatory, base 73000, 400 panels a cell
+(`eval/synth-anticip-confirm.out.txt`):
+
+| cell | p <= 0.05 stated / back 2 / back 4 | mean gap over the stated window, stated / back 2 / back 4 |
+|---|---|---|
+| E0 effect -1 at the date | 61.8% / 52.0% / 43.3% | -1.02 / -1.02 / -1.01 |
+| E2 effect -1, 2 points early | 39.8% / **55.0%** / 45.8% | -0.86 / **-1.00** / -1.00 |
+| E4 effect -1, 4 points early | 25.3% / 35.3% / **53.5%** | -0.75 / -0.85 / **-0.98** |
+
+| cell (no effect) | false p <= 0.05 stated / back 2 / back 4 | of those, Z-warned | Z warns (stated) | mean abs. gap stated: Z warned / not |
+|---|---|---|---|---|
+| A0 nothing | 5.8% / 4.3% / 1.8% | 6 of 23 / 2 of 17 / 1 of 7 | 21.5% | 0.33 / 0.30 |
+| A2 Z from 2 points early | 2.8% / 2.0% / 2.3% | 6 of 11 / 7 of 8 / 8 of 9 | 18.3% | 0.97 / 0.45 |
+| A4 Z from 4 points early | 2.0% / 2.0% / 2.0% | **4 of 8** / 5 of 8 / **8 of 8** | 19.8% | 0.84 / 0.35 |
+
+Bars: (1) size at most 10% in A0, A2, A4 at every date: 1.8-5.8%, holds. (2) A4 at the stated date, warned bias at
+least 1.5x the unwarned (2.4x, holds) **and** a warned p <= 0.05 share 5 points above the unwarned (5.1% vs 1.2%,
++3.9: **fails**). (3) Reported: Z's warning in A2 fires 18.3% against A0's 21.5%, under the 5-point line, so no text
+change. (4) Anticipation costs power: E2 -22.0 and E4 -36.5 points against E0, holds. (5) Backdating by the lead wins
+it back: +15.2 (E2) and +28.2 (E4) points, gaps -0.86 to -1.00 and -0.75 to -0.98, holds. (6) Reported: backdating
+when nothing was anticipated costs 9.8 (by 2) and 18.5 (by 4) points of power; backdating too far (E2 by 4) still
+beats the stated date (45.8% vs 39.8%) but loses to the right lead (55.0%).
+
+**What it says.**
+- **An effect people saw coming is half-hidden at the stated date.** Two points of anticipation cost a third of the
+  power and four points cost three fifths, and the gap read from the date shrinks by 14-25%, because the fit already
+  bends toward the early drop. Backdating to the true lead recovers both. Needless backdating has a cost too (a
+  shorter fit), so the lead should come from what is known about the change (when the law passed, when the price
+  rise was announced), not from trying several and keeping the smallest p.
+- **The placebo warning's calibration is for covariate shocks that start at the date.** When Z moved 4 points before
+  it, warned panels were still 2.4x as biased, but the warning held only half the false finds: the fit saw four of
+  the shifted points and matched part of Z through the outcome, so some biased panels no longer looked imbalanced.
+  Fitted before the covariate moved (`--anticipation 4`), the warning held all 8 again. The CLI's and the page's
+  warning text now say so.
+- **On Proposition 99** (an illustration, not part of the pre-registration): the ballot passed in November 1988 and
+  the tax began in January 1989. Backdated one or two years, California keeps rank 1 of 39 (p 0.026) with a gap from
+  1989 on of -19.7 and -18.5 packs (-19.5 undated); Massachusetts 1993 stays 6th either way. The published result
+  does not lean on a year of anticipation.
+
+**Ships.** `node cli.mjs panel.csv --column CA --known-date 1989 --donors all --anticipation 1` ends the fit N points
+before the named date, reads the gap and the placebo test from there, keeps the named date as the label and prints
+`gapFromDate` (the mean gap from the named date on). The page has the same box ("Points people saw it coming").
+Without it the CLI and the page print one line on when to use it. **Limits.** One panel shape (N1), step effects and
+step covariate shocks, the lead known exactly. **Next:** a real deployer's panel; a lead that is uncertain (a range of
+backdates reported together without picking the best p).

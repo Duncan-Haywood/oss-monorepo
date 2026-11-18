@@ -51,6 +51,7 @@ M44 = E + "m44_legpreload/results.txt"
 M44P = E + "m44_legpreload/posthoc.txt"
 M45 = E + "m45_tiered/results.txt"
 M45P = E + "m45_tiered/posthoc.txt"
+M46 = E + "m46_holdside/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -212,6 +213,10 @@ CHECKS = [
     (M45, "H177 ((1.4, -0.15) at most 0.03 / 0.03 / 0.05 mm at 0 / 5 / 20 N): 0.172, 0.172, 0.172", "the residual stays 0.172 mm at every hose drag"),
     (M45P, "  [0, 0, -1] | -0.1629 | -0.1629", "moves 0.163 N m per newton of sensor error along z"),
     (M45P, "  0.90 | 0.15 |  5.0 | 0.004", "0.004 mm at 0.15 N"),
+    (M46, "  flipped   | -3.6204, -3.7883 | 6.1546, 2.2900", "puts it at −3.79 N m"),
+    (M46, "  flipped   | -3.6204, -3.7883 | 6.1546, 2.2900", "of 2.29 N m at a 50 N press"),
+    (M46, "H182 ((1.4, -0.15) at most 0.03 / 0.03 / 0.05 mm at 0 / 5 / 20 N): 0.005, 0.005, 0.005", "the wall is 0.005 mm at every hose drag"),
+    (M46, "  other poses with a hold-set joint on the wrong side at both ends: 4", "at four other H1 poses"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

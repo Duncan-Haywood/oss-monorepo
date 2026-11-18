@@ -2115,3 +2115,138 @@ better but its spin worse (0.77% to 1.98%), the one advised build where a re-fla
 12 balls), and the advice is conservative. Nothing changes until a person re-flashes `TAKE_US`. Next: trace the
 first-order plant's lag-0.3 s preference for 2.5-3 ms on instant takes. Then time the survey on a real ESP32, and log
 a real wheel's tach around one ball.
+
+## The first-order take misfit traced (2026-11-18)
+
+**The item.** On the first-order plant at a wheel lag of 0.3 s, all three builds with an instant take were advised a
+2.5 ms contact time, and read worse told it (section above). The margin kept the advice from reaching a person, but
+the cause was untraced. The guess was the simulator's 1 ms command steps against its 0.1 ms physics.
+
+**Not the plant, not the fit's model.** `tests/take_misfit_trace.py` keeps every record fit's inputs from those
+builds (calibration plus slow drill, lags 0.3 and 0.6 s) and refits them offline at the survey's seven contact
+times, scored as the board scores them (eval/take-misfit-record-fits-2026-11-18.txt). Five of six builds picked 0 ms,
+and the sixth's 2 ms won by 6 ppm (a lag-0.6 s build). Fixing tau at the plant's lag, moving every command 0.5 or 1 ms
+either way, an exact exponential plant step in place of Euler, and a 0.02 ms Euler step: none moved a lag-0.3 s build
+off 0 except one 0.02 ms build, which picked 2 ms by the same few ppm. The model and the simulator agree.
+
+**The survey's own search.** Reproducing one build's survey drill gave the board's sums to the digit, and listing each
+wheel's seven rms values showed the cause. Within one wheel most candidates fitted alike (25 ppm) but single candidates
+jumped 3-12 times (to 118, 182, 204 ppm), always with the lag search ending at 277-330 ms instead of 300. Sweeping tau
+on such a wheel shows cliffs: 227 ppm at 300 ms, 42 at 305. The t0 search's first grid, nine points over two to three
+revolutions, sometimes lands in the wrong basin, the two finer levels refine around it, and the golden section on tau
+follows the jagged curve. The survey sums squares, so the five wheels where the step's search missed (66-182 ppm against 9-57 for the rest)
+outvoted the other 17, and 3 ms won. A fourth t0 level cured both wheels tried (32 and 23 ppm at 299.7 ms).
+
+**The fix, tested on the board's own inputs.** Every take-survey wheel's inputs from 48 survey drills (the four takes,
+two plants, three launchers, lags 0.3 and 0.6 s) were refit at 3, 4 and 5 t0 levels. The prediction, written first:
+at 4 levels no instant build picks over 1 ms or is advised, and every 6 ms build is named within 1 ms and advised
+(eval/take-misfit-survey-2026-11-18.txt):
+
+| take (12 builds) | 3 levels (shipped): within 1 ms, advised | 4 levels | 5 levels |
+| --- | --- | --- | --- |
+| instant | 7, 0 | 11, 0 | 12, 0 |
+| half-sine 3 ms | 9, 3 | 8, 4 | 10, 5 |
+| half-sine 6 ms | 12, 10 | 12, 12 | 12, 12 |
+| front 4 ms | 8, 5 | 10, 7 | 11, 7 |
+
+Four levels missed by one build: a lag-0.3 s instant build picked 3 ms, tied with the step to the ppm and not
+advised. Five levels met the prediction.
+
+**Held out.** Five levels was picked after seeing that table, so the board now runs it and the 24 survey drills were
+rerun at a wheel lag no run had used, 0.45 s, with the prediction written first: no instant build advised, every
+instant pick 1 ms or less, every 6 ms build named and advised, no survey cut (eval/take-misfit-heldout-2026-11-18.txt):
+
+| take (6 builds, lag 0.45 s) | 3 levels: picks, advised | 5 levels (the board): picks, advised |
+| --- | --- | --- |
+| instant | 0, 0, 0, 0, 1, 3; 0 | 0, 0, 0, 1, 1, 2.5; 0 |
+| half-sine 3 ms | 0, 0, 1.5, 2.5, 2.5, 3.5; 1 | 3, 3, 3, 3, 3, 3; 3 |
+| half-sine 6 ms | 5.5, 5.5, 6, 6, 6, 6.5; 4 | 6 on all six; 6 |
+| front 4 ms | 4, 4, 4.5, 4.5, 4.5, 5.5; 5 | 4.5 on all six; 6 |
+
+One part missed again: an instant build picked 2.5 ms, on a tie with the step (share 1.00), so not advised. A pick
+whose share is 1.00 means nothing, and the advice already says "keep 0" for it. The rest held. The 3 ms take, which
+the shipped survey named on half its builds, is now named on all of them, and every spread take on the held-out lag
+is named to the half millisecond. No survey was cut.
+
+**What changes.** `controller.TAKE_SURVEY_LEVELS = 5`: the take survey's refits search t0 five levels deep (60 steps a
+fit, not 36). The record fit keeps 3, because its readings barely move (sd 0.12-0.16% on these builds, 0.13-0.16% with tau fixed at the truth). The
+cost is board time on a calibration drill: about 10 s of control ticks a two-wheel ball, not 7, so `host.TAKE_WAIT_S`
+went from 8 to 12 s and `TAKE_SURVEY_S` from 12 to 16 s. The calibration drill's holds came to 79 s for 12 balls
+(42 s before).
+
+**Not known.** All simulated, noise-free plants, one seed. The ESC-lag survey searches the same way (3 levels, and no
+tau refinement). On these first-order builds it picked an 11-12 ms ESC lag where there is none, which may be the same
+cliffs; not checked. A jittery tach blurs the cliffs and also sets its own floor, so how much depth helps on a real
+board is open. Neither the 79 s on a real ESP32 nor its float speed is measured. Next: rerun the ESC-lag survey's
+inputs at 4-5 levels, then time a survey on a real board.
+
+## The ESC-lag survey's search, traced (2026-11-18)
+
+**The item.** The section above ended on the ESC-lag survey: in the contact-time drills it refined to 10-14 ms on 9 of
+12 first-order builds, where there is no ESC lag, and to 22-25 ms on all 12 builds with a 50 ms ESC
+(eval/take-survey-sweep-2026-11-17.jsonl.gz, `esc_refined_ms`). A survey that names half the true lag is the case
+"a wrong setting is much worse than none" warned about: told 20-50 ms, a first-order build read spin 41-44% off.
+
+**Two suspects.** The survey fits t0 at the record fit's 3 levels, which is what broke the take survey. It also skips
+the tau golden section (`refine=0`), so tau is tried only on `LOOP_TAU_GRID_US` (100 / 200 / 400 / 800 / 1600 ms).
+`tests/esc_misfit_trace.py` keeps every surveyed wheel's inputs as the board passed them (its shipped refit gives the
+board's rms on 528 of 528 wheels) and refits them under one change at a time. The prediction, written first: the ESC
+lag stands in for the tau the grid cannot reach, so the golden section alone fixes it and depth alone does not
+(eval/esc-misfit-trace-2026-11-18.txt; calibration drill, two takes, three launchers, lags 0.3 and 0.6 s):
+
+| change (12 builds per plant) | first-order: picks, at 5 ms or less | ESC 50 ms: picks, within 10 ms |
+| --- | --- | --- |
+| shipped (3 levels, no refinement) | 0-14 ms, 6 | 23-25 ms, 0 |
+| 5 t0 levels | 0-14 ms, 6 | 23-25 ms, 0 |
+| refine 1 or 2 | 0, 12 | 34-83 ms, 2 |
+| refine 3 | 0, 12 | 43-55 ms, 12 |
+| refine 5 (the record fit's) | 0, 12 | 42-55 ms, 12 |
+| tau fixed at the plant's (an oracle) | 0, 12 | 53-54 ms, 12 |
+
+It held. The mean rms per lag shows why: on a first-order build at 0.3 s the unrefined fit missed by 540 ppm at 0 ms and
+489 at 20 ms, so 20 ms won because it helped the tau grid's 200 or 400 ms imitate 300 ms. Refined, 0 ms misses by 64
+and every other lag by 400 or more. The survey's first check (section "The ESC lag surveyed on the board") never saw
+this because its wheel lags, 0.2 / 0.4 / 0.8 s, all sit on the tau grid.
+
+**Held out.** The board now runs `controller.ESC_SURVEY_REFINE = 5`, the pre-registered change (refine 3 also passed,
+but it was chosen after seeing the table). The calibration drill was rerun at lags no part 1 run used: 0.45 s on both
+plants, the jittery tach plant (3 us, 10k) at 0.3 and 0.45 s, and on-grid 0.4 s, the case that must not regress. The
+prediction: every first-order build 5 ms or less, every 50 ms build 40-60 ms, every wheel counted, nothing cut.
+
+**The cost broke the count, and the venture's tests caught it.** Each refit is now 36 steps, not 15, so a two-wheel
+ball's survey takes about 4.3 s of control ticks instead of 1.8 s. A new stroke used to cut the last ball's survey, and
+on drills with no hold it now cut nearly all of them: 11 of 22 wheels on the calibration drill with the take survey off,
+4 of 32 on the rally drill. The flow "run a drill, then the calibration drill is held until the board is told the lag"
+(section "Checked before a calibration drill") needs 16, so three of its tests failed. A cheaper search was tried first:
+golden section alone in a bracket around the record fit's tau, at the old 15 steps. It failed: with the ESC untold, the
+record's tau is 1.2-1.9 times the wheel's true lag, the candidates' best taus all sit near the true one, and an 80 ms
+ESC read 13-57 ms depending on the bracket. What shipped instead:
+
+- a new stroke pauses a survey rather than cutting it: no survey step runs while a stroke is under way or a record's
+  fit is pending, so the stroke's control ticks cost what they did;
+- surveys queue behind the one running (`controller.SURVEY_QUEUE = 2`, two balls' snapshots and tick logs, kept small
+  for the ESP32's heap; the oldest waiting one gives way and counts as `survey_cut`). On the rally drill, depth 2
+  surveyed 18-20 of 32 wheels, 3 got 20-22 and 4 got 22-24;
+- the Pi's wait at a drill's end drains the queue: `host.ESC_SURVEY_S` 4 s to 20 s, ending once no count has risen for
+  `host.SURVEY_QUIET_S` = 3 s (it was 0.5 s, shorter than one wheel's survey, so it used to stop before the last ball's).
+
+Rerun with all of that (eval/esc-misfit-heldout-2026-11-18.txt):
+
+| builds (calibration drill) | picks | wheels counted |
+| --- | --- | --- |
+| first-order, 0.4 and 0.45 s, no hold (12) | 0 on all | 18-20 of 24 |
+| jittery tach, 0.3 and 0.45 s, no hold (12) | 0 on all | 18-20 of 24 |
+| ESC 50 ms, 0.4 and 0.45 s, no hold (12) | 47-54 ms | 18-20 of 24 |
+| 0.45 s with the take survey on, as `tennisbots run` runs it (12) | 0 / 50-55 ms | 24 of 24, none cut |
+
+The picks held on 36 of 36. Without a hold, 2-3 queued surveys a drill gave way, so the "every wheel" half missed there,
+but each drill kept at least 18 wheels, above the 16 the advice needs. Run as a real calibration drill, 12 of 12 met all
+of it; the take survey's holds came to 104-107 s for 12 balls (79 s before), under the 12 s cap a ball.
+
+**Drills without a hold.** On the rally and example drills (`--rally`) the old survey picked 83-86 ms for the 50 ms ESC,
+so it was wrong there as well. Now it picks 49-51 ms from 6-18 wheels. One build outside every run above is still off:
+an untold 150 ms ESC on a 0.6 s wheel read 188 ms on the rally drill, 25% over (150 sits between the grid's 100 and 200).
+
+**Not known.** All simulated, one seed, one ESC shape (a first-order lag). The 4.3 s of survey a ball, two queued
+balls' memory and a drill end that can now wait up to 20 s have not been tried on a real ESP32. Next: time a survey and
+measure free heap with two queued on a real board; a grid point between 100 and 200 ms if a real ESC lands there.

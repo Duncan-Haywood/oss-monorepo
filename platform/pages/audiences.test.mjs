@@ -28,6 +28,18 @@ test('ids are unique and slug-shaped, and every audience has its copy', () => {
   }
 });
 
+test('intros stay short enough that "Start here" is on a phone\'s first screen', () => {
+  // The intro is the lede; the tool list below it already names every tool.
+  // Four household audiences (2026-11-17/18) ran 66 to 85 words by listing each
+  // tool in prose, which at 390 px pushed the "Start here" cards past the first
+  // screen (polish-2026-11-18-audience-intros.md). The trade pages run 21 to 44.
+  const words = (s) => s.split(/\s+/).filter(Boolean).length;
+  for (const a of AUDIENCES) {
+    assert.ok(words(a.intro) <= 50, `${a.id}: intro is ${words(a.intro)} words (max 50)`);
+    assert.ok(words(a.starting) <= 50, `${a.id}: starting note is ${words(a.starting)} words (max 50)`);
+  }
+});
+
 test('titles and descriptions are unique and fit a search result', () => {
   const titles = new Set();
   const descriptions = new Set();
@@ -201,5 +213,32 @@ test('the household pages claim parents\' and job-leavers\' tools and leave the 
   }
   for (const slug of ['which-job-first', 'handyman-minimum-job-calculator', 'pto-accrual-liability-calculator', 'rsu-withholding-gap-calculator']) {
     assert.ok(!audienceMatches(byId['job-changers'], slug), slug);
+  }
+});
+
+test('the homeowners page claims household home-money tools and leaves contractor bids and landlord tools out', () => {
+  for (const slug of [
+    'mortgage-points-break-even-calculator',
+    'mortgage-escrow-analysis-checker',
+    'heloc-vs-cash-out-refinance-calculator',
+    'property-tax-appeal-calculator',
+    'solar-payback-calculator',
+    'heat-pump-vs-furnace-calculator',
+    'home-sale-exclusion-calculator',
+    'rent-vs-buy-breakeven-calculator',
+    'uk-mortgage-overpayment-calculator',
+  ]) {
+    assert.ok(audienceMatches(byId.homeowners, slug), slug);
+  }
+  for (const slug of [
+    'solar-pv-bid-calculator',
+    'furnace-bid-calculator',
+    'standby-generator-install-price-calculator',
+    'section-24-mortgage-interest-check',
+    'house-hack-calculator',
+    'rental-dscr-calculator',
+    'home-inspection-fee-calculator',
+  ]) {
+    assert.ok(!audienceMatches(byId.homeowners, slug), slug);
   }
 });

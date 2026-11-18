@@ -97,7 +97,8 @@ const BALANCE = 8;
  *       "greedy" (week-by-week assignment priced on counts so far),
  *       "polished" (greedy, then the iterated local search below; the default).
  */
-export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 1, iterations = null } = {}) {
+export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 1, iterations = null, avoid = null } = {}) {
+  const ban = banMatrix(nTeams, nPairs, avoid);
   if (mode === "naive") return rounds.map((wk) => wk.map(([a, b], k) => [a, b, k]));
   if (mode === "rotate") return rounds.map((wk, w) => wk.map(([a, b], k) => [a, b, (k + w) % nPairs]));
   const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
@@ -107,7 +108,7 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
     const cost = wk.map(([a, b]) => {
       const row = [];
       for (let p = 0; p < nPairs; p++) {
-        row.push(BALANCE * (2 * cnt[a][p] + 1 + 2 * cnt[b][p] + 1) + (last[a] === p) + (last[b] === p));
+        row.push(BALANCE * (2 * cnt[a][p] + 1 + 2 * cnt[b][p] + 1) + (last[a] === p) + (last[b] === p) + (ban && (ban[a][p] || ban[b][p]) ? FORBID : 0));
       }
       return row;
     });
@@ -117,17 +118,93 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
     plan.push(out);
   }
   if (mode === "greedy" || plan.length < 2 || nPairs < 2) return plan;
+  // The Hungarian method is exact per week, so a banned cell in the greedy plan means that week has
+  // no deal at all that keeps every team off its avoided pairs: return it as is for the caller to
+  // report (bowlingSchedule names the week).
+  if (ban && avoidViolations(plan, avoid).length) return plan;
+  const lim = laneLimits(plan, nTeams, nPairs, avoid);
   const kicks = iterations ?? kicksFor(plan.length, nPairs);
-  const stored = tablePlan(rounds, nTeams, nPairs, seed);
-  if (stored) return polishLanes(stored, nTeams, nPairs, seed, kicks);
-  const polished = polishLanes(plan, nTeams, nPairs, seed, kicks);
-  if (offBound(polished, nTeams, nPairs) === 0) return polished;
+  const stored = tablePlan(rounds, nTeams, nPairs, seed, avoid);
+  if (stored) return polishLanes(stored, nTeams, nPairs, seed, kicks, lim);
+  const polished = polishLanes(plan, nTeams, nPairs, seed, kicks, lim);
+  if (offBound(polished, nTeams, nPairs, avoid) === 0) return polished;
   // The week re-solves stall a few counts short of the bound on some sizes. A focused walk on the
   // out-of-bounds cells closes most of those; its result is polished again for repeats only (the
   // polish never lets an out-of-bounds count back in).
-  const walked = walkLanes(polished, nTeams, nPairs, seed, walkStepsFor(plan.length, nPairs));
-  if (offBound(walked, nTeams, nPairs) >= offBound(polished, nTeams, nPairs)) return polished;
-  return polishLanes(walked, nTeams, nPairs, seed, kicks);
+  const walked = walkLanes(polished, nTeams, nPairs, seed, walkStepsFor(plan.length, nPairs), lim);
+  if (offBound(walked, nTeams, nPairs, avoid) >= offBound(polished, nTeams, nPairs, avoid)) return polished;
+  return polishLanes(walked, nTeams, nPairs, seed, kicks, lim);
+}
+
+// A team that must never bowl on a pair (the end pair by the wall, a pair whose approach a bowler
+// with a wheelchair or a walker cannot use) has that cell banned: the search treats it as a hard
+// constraint, priced FORBID, far above any balance cost, and the walk never makes such a move.
+const FORBID = 1 << 26;
+
+/** avoid: per team index, a list of pair indices it must not bowl on (null, or empty lists, for none). */
+function banMatrix(nTeams, nPairs, avoid) {
+  if (!avoid || !avoid.some((l) => l && l.length)) return null;
+  const ban = Array.from({ length: nTeams }, () => new Array(nPairs).fill(false));
+  avoid.forEach((list, t) => { if (t < nTeams) for (const p of list ?? []) if (p >= 0 && p < nPairs) ban[t][p] = true; });
+  return ban;
+}
+
+/** Matches placed on a pair one of their teams avoids: [{ week (0-based), team, pair }]. */
+export function avoidViolations(plan, avoid) {
+  const out = [];
+  if (!avoid) return out;
+  plan.forEach((wk, w) => wk.forEach(([a, b, p]) => {
+    for (const t of [a, b]) if ((avoid[t] ?? []).includes(p)) out.push({ week: w, team: t, pair: p });
+  }));
+  return out;
+}
+
+/**
+ * The most even counts a season allows, per team and pair: lo[t][p]..hi[t][p].
+ * With no avoided pairs this is the old bound, floor..ceil(W_t / P) on every pair. With some, the
+ * avoided pairs still host a match every week, so the other teams must bowl there more often. The
+ * fair share x[t][p] is the matrix scaling (Sinkhorn) of the allowed cells to row sums W_t (a team's
+ * weeks) and column sums sum(W) / P (two teams per pair per week); every non-avoiding team then
+ * bowls on each pair in proportion to how much that pair is shunned. The target is
+ * floor(x)..ceil(x), and banned cells are 0..0. Such a rounding with every row and column sum
+ * kept always exists (matrix rounding); the weekly one-match-per-pair rule can still put it out of
+ * reach, which the report then shows as a team off its target.
+ */
+export function laneTargets(games, nPairs, avoid = null) {
+  const n = games.length;
+  const ban = banMatrix(n, nPairs, avoid);
+  if (!ban) {
+    const lo = games.map((g) => new Array(nPairs).fill(Math.floor(g / nPairs)));
+    const hi = games.map((g) => new Array(nPairs).fill(Math.ceil(g / nPairs)));
+    return { lo, hi, ban: null };
+  }
+  const total = games.reduce((s, g) => s + g, 0);
+  const col = total / nPairs;
+  const x = ban.map((row) => row.map((b) => (b ? 0 : 1)));
+  for (let it = 0; it < 5000; it++) {
+    let err = 0;
+    for (let t = 0; t < n; t++) {
+      const s = x[t].reduce((a, v) => a + v, 0);
+      if (s > 0) for (let p = 0; p < nPairs; p++) x[t][p] *= games[t] / s;
+    }
+    for (let p = 0; p < nPairs; p++) {
+      let s = 0;
+      for (let t = 0; t < n; t++) s += x[t][p];
+      err = Math.max(err, Math.abs(s - col));
+      if (s > 0) for (let t = 0; t < n; t++) x[t][p] *= col / s;
+    }
+    if (err < 1e-10) break;
+  }
+  const eps = 1e-6;
+  const lo = x.map((row, t) => row.map((v, p) => (ban[t][p] ? 0 : Math.floor(v + eps))));
+  const hi = x.map((row, t) => row.map((v, p) => (ban[t][p] ? 0 : Math.ceil(v - eps))));
+  return { lo, hi, ban, share: x };
+}
+
+function laneLimits(plan, nTeams, nPairs, avoid) {
+  const games = new Array(nTeams).fill(0);
+  for (const wk of plan) for (const [a, b] of wk) { games[a]++; games[b]++; }
+  return laneTargets(games, nPairs, avoid);
 }
 
 // A season the search misses but a SAT solver solved ahead of time (bowling-lane-table.mjs, from
@@ -135,7 +212,7 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
 // every team at the bound for these rounds, so a stale table can cost speed, never balance. The
 // pairs are relabelled by a permutation drawn from the seed (seed 1 keeps them), which keeps the
 // balance and gives "Try another lane deal" a different season; the polish then cuts repeats.
-function tablePlan(rounds, nTeams, nPairs, seed) {
+function tablePlan(rounds, nTeams, nPairs, seed, avoid = null) {
   const code = LANE_TABLE[`${nTeams},${rounds.length}`];
   if (!code || code.length !== rounds.length * nPairs) return null;
   const perm = Array.from({ length: nPairs }, (_, i) => i);
@@ -155,18 +232,18 @@ function tablePlan(rounds, nTeams, nPairs, seed) {
     if (seen.size !== nPairs || wk.some((m) => !(m[2] >= 0))) return null;
     plan.push(wk);
   }
-  return offBound(plan, nTeams, nPairs) === 0 ? plan : null;
+  return offBound(plan, nTeams, nPairs, avoid) === 0 ? plan : null;
 }
 
-/** Out-of-bounds counts of a plan: how far each team-pair count is outside floor..ceil(W_t/P). */
-export function offBound(plan, nTeams, nPairs) {
+/** Out-of-bounds counts of a plan: how far each team-pair count is outside its target (laneTargets; floor..ceil(W_t/P) with no avoided pairs, 0 on an avoided pair). */
+export function offBound(plan, nTeams, nPairs, avoid = null) {
   const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
-  const games = new Array(nTeams).fill(0);
-  for (const wk of plan) for (const [a, b, p] of wk) { cnt[a][p]++; cnt[b][p]++; games[a]++; games[b]++; }
+  for (const wk of plan) for (const [a, b, p] of wk) { cnt[a][p]++; cnt[b][p]++; }
+  const { lo, hi } = laneLimits(plan, nTeams, nPairs, avoid);
   let o = 0;
-  for (let t = 0; t < nTeams; t++) {
-    const lo = Math.floor(games[t] / nPairs), hi = Math.ceil(games[t] / nPairs);
-    for (const c of cnt[t]) o += Math.max(0, c - hi) + Math.max(0, lo - c);
+  for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) {
+    const c = cnt[t][p];
+    o += Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
   }
   return o;
 }
@@ -183,25 +260,25 @@ function walkStepsFor(weeks, nPairs) {
 // which is what gets it out of the local minima the week re-solves stop in. Deterministic per seed;
 // the best plan seen is returned.
 const NOISE = 0.2;
-function walkLanes(source, nTeams, nPairs, seed, steps) {
+function walkLanes(source, nTeams, nPairs, seed, steps, lim) {
   const plan = source.map((wk) => wk.map((m) => m.slice()));
   const W = plan.length, rnd = mulberry32(seed * 7919 + 17);
   const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
   const at = Array.from({ length: nTeams }, () => new Array(W).fill(-1)); // team -> week -> match index
-  const games = new Array(nTeams).fill(0);
-  plan.forEach((wk, w) => wk.forEach(([a, b, p], i) => { cnt[a][p]++; cnt[b][p]++; at[a][w] = i; at[b][w] = i; games[a]++; games[b]++; }));
-  const lo = games.map((g) => Math.floor(g / nPairs)), hi = games.map((g) => Math.ceil(g / nPairs));
-  const off = (t, c) => Math.max(0, c - hi[t]) + Math.max(0, lo[t] - c);
-  const move = (t, p, q) => off(t, cnt[t][p] - 1) - off(t, cnt[t][p]) + off(t, cnt[t][q] + 1) - off(t, cnt[t][q]);
+  plan.forEach((wk, w) => wk.forEach(([a, b, p], i) => { cnt[a][p]++; cnt[b][p]++; at[a][w] = i; at[b][w] = i; }));
+  const { lo, hi, ban } = lim;
+  const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
+  const move = (t, p, q) => off(t, p, cnt[t][p] - 1) - off(t, p, cnt[t][p]) + off(t, q, cnt[t][q] + 1) - off(t, q, cnt[t][q]);
+  const banned = (t, p) => ban !== null && ban[t][p];
   let f = 0;
-  for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) f += off(t, cnt[t][p]);
+  for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) f += off(t, p, cnt[t][p]);
   let best = f, bestPlan = plan.map((wk) => wk.map((m) => m.slice()));
   const cells = [];
   for (let step = 0; step < steps && f > 0; step++) {
     cells.length = 0;
-    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) if (off(t, cnt[t][p])) cells.push(t * nPairs + p);
+    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) if (off(t, p, cnt[t][p])) cells.push(t * nPairs + p);
     const cell = cells[Math.floor(rnd() * cells.length)];
-    const t = Math.floor(cell / nPairs), p = cell % nPairs, over = cnt[t][p] > hi[t];
+    const t = Math.floor(cell / nPairs), p = cell % nPairs, over = cnt[t][p] > hi[t][p];
     const moves = [];
     let bestDelta = Infinity, bestMoves = [];
     for (let w = 0; w < W; w++) {
@@ -214,6 +291,7 @@ function walkLanes(source, nTeams, nPairs, seed, steps) {
         const B = plan[w][j];
         if (!over && B[2] !== p) continue;
         const q = A[2], r = B[2];
+        if (banned(A[0], r) || banned(A[1], r) || banned(B[0], q) || banned(B[1], q)) continue;
         const d = move(A[0], q, r) + move(A[1], q, r) + move(B[0], r, q) + move(B[1], r, q);
         moves.push(w, i, j);
         if (d < bestDelta) { bestDelta = d; bestMoves = [w, i, j]; } else if (d === bestDelta) bestMoves.push(w, i, j);
@@ -224,8 +302,8 @@ function walkLanes(source, nTeams, nPairs, seed, steps) {
     const k = 3 * Math.floor(rnd() * (pool.length / 3));
     const w = pool[k], i = pool[k + 1], j = pool[k + 2];
     const A = plan[w][i], B = plan[w][j], q = A[2], r = B[2];
-    for (const u of [A[0], A[1]]) { f -= off(u, cnt[u][q]) + off(u, cnt[u][r]); cnt[u][q]--; cnt[u][r]++; f += off(u, cnt[u][q]) + off(u, cnt[u][r]); }
-    for (const u of [B[0], B[1]]) { f -= off(u, cnt[u][q]) + off(u, cnt[u][r]); cnt[u][r]--; cnt[u][q]++; f += off(u, cnt[u][q]) + off(u, cnt[u][r]); }
+    for (const u of [A[0], A[1]]) { f -= off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); cnt[u][q]--; cnt[u][r]++; f += off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); }
+    for (const u of [B[0], B[1]]) { f -= off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); cnt[u][r]--; cnt[u][q]++; f += off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); }
     A[2] = r; B[2] = q;
     if (f < best) { best = f; bestPlan = plan.map((wk) => wk.map((m) => m.slice())); }
   }
@@ -246,20 +324,18 @@ function kicksFor(weeks, nPairs) {
 // a kick re-deals a few random weeks and the sweeps run again from there; a kick that ends worse
 // is undone. The best season (fewest out-of-bounds, then fewest repeats) is kept. Deterministic
 // for a seed.
-function polishLanes(plan, nTeams, nPairs, seed, kicks) {
+function polishLanes(plan, nTeams, nPairs, seed, kicks, lim) {
   const W = plan.length;
   const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
   const pos = Array.from({ length: W }, () => new Array(nTeams).fill(-1));
-  const games = new Array(nTeams).fill(0);
-  for (const wk of plan) for (const [a, b] of wk) { games[a]++; games[b]++; }
-  const lo = games.map((g) => Math.floor(g / nPairs)), hi = games.map((g) => Math.ceil(g / nPairs));
+  const { lo, hi, ban } = lim;
   const put = (w, sign) => { for (const [a, b, p] of plan[w]) { cnt[a][p] += sign; cnt[b][p] += sign; pos[w][a] = sign > 0 ? p : -1; pos[w][b] = sign > 0 ? p : -1; } };
   for (let w = 0; w < W; w++) put(w, 1);
-  const off = (t, c) => Math.max(0, c - hi[t]) + Math.max(0, lo[t] - c);
+  const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
   const OFF = 4096, SQ = 16;
   const price = (w, t, p) => {
     const c = cnt[t][p];
-    return OFF * (off(t, c + 1) - off(t, c)) + SQ * (2 * c + 1) + (w > 0 && pos[w - 1][t] === p ? 1 : 0) + (w < W - 1 && pos[w + 1][t] === p ? 1 : 0);
+    return (ban !== null && ban[t][p] ? FORBID : 0) + OFF * (off(t, p, c + 1) - off(t, p, c)) + SQ * (2 * c + 1) + (w > 0 && pos[w - 1][t] === p ? 1 : 0) + (w < W - 1 && pos[w + 1][t] === p ? 1 : 0);
   };
   const resolve = (w) => {
     put(w, -1);
@@ -269,10 +345,10 @@ function polishLanes(plan, nTeams, nPairs, seed, kicks) {
     put(w, 1);
   };
   const full = () => {
-    let o = 0, q = 0, r = 0;
-    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) { const c = cnt[t][p]; o += off(t, c); q += c * c; }
+    let o = 0, q = 0, r = 0, bad = 0;
+    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) { const c = cnt[t][p]; o += off(t, p, c); q += c * c; if (ban !== null && ban[t][p]) bad += c; }
     for (let w = 1; w < W; w++) for (let t = 0; t < nTeams; t++) if (pos[w][t] === pos[w - 1][t]) r++;
-    return { cost: OFF * o + SQ * q + r, off: o, repeats: r };
+    return { cost: FORBID * bad + OFF * o + SQ * q + r, off: o + bad * 1e6, repeats: r };
   };
   const sweep = () => {
     let cur = full();
@@ -310,16 +386,69 @@ function polishLanes(plan, nTeams, nPairs, seed, kicks) {
 }
 
 /**
+ * Lane limits typed by the organiser, one team per line: "Pin Pals: 13-14" (a pair by its lanes),
+ * "Strike Force: 15" (the pair that holds lane 15), "Gutter Gang: last" ("first", "last", or "ends"
+ * for both end pairs), several separated by commas. Returns { avoid, errors } with avoid[t] the
+ * pair indices team t must not bowl on.
+ */
+export function parseLaneAvoid(text, teams, nPairs, firstLane = 1) {
+  const avoid = teams.map(() => []);
+  const errors = [];
+  const byName = new Map(teams.map((t, i) => [String(t).trim().toLowerCase(), i]));
+  const lastLane = firstLane + 2 * nPairs - 1;
+  for (const raw of String(text ?? "").split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const cut = line.lastIndexOf(":");
+    if (cut < 0) { errors.push(`"${line}": write the team, a colon, then the lanes it must avoid (e.g. "Pin Pals: ${firstLane}-${firstLane + 1}").`); continue; }
+    const name = line.slice(0, cut).trim();
+    const t = byName.get(name.toLowerCase());
+    if (t === undefined || teams[t] === VACANCY) { errors.push(`"${name}" is not one of the teams.`); continue; }
+    const set = new Set(avoid[t]);
+    for (const tokRaw of line.slice(cut + 1).split(/[,;]+/)) {
+      const tok = tokRaw.trim().toLowerCase().replace(/^lanes?\s*/, "");
+      if (!tok) continue;
+      if (tok === "first") { set.add(0); continue; }
+      if (tok === "last") { set.add(nPairs - 1); continue; }
+      if (tok === "ends" || tok === "end" || tok === "end pairs") { set.add(0); set.add(nPairs - 1); continue; }
+      const m = /^(\d+)(?:\s*[-–]\s*(\d+))?$/.exec(tok);
+      const a = m ? Number(m[1]) : NaN, b = m && m[2] ? Number(m[2]) : null;
+      if (!m || a < firstLane || a > lastLane || (b !== null && (b !== a + 1 || (a - firstLane) % 2 !== 0))) {
+        errors.push(`${teams[t]}: "${tokRaw.trim()}" is not a lane pair here (pairs run Lanes ${firstLane}-${firstLane + 1} to ${lastLane - 1}-${lastLane}).`);
+        continue;
+      }
+      set.add(Math.floor((a - firstLane) / 2));
+    }
+    avoid[t] = [...set].sort((x, y) => x - y);
+    if (avoid[t].length >= nPairs) errors.push(`${teams[t]} cannot avoid every lane pair.`);
+  }
+  return { avoid, errors };
+}
+
+/**
  * Build a bowling season.
  * spec: { teams: string[] | text, weeks, start (day number), skipDays: day[], positionWeeks: number[],
- *         firstLane = 1, mode = "polished", seed = 1 }
+ *         firstLane = 1, mode = "polished", seed = 1,
+ *         laneAvoid: text for parseLaneAvoid, or an array of pair-index lists per team }
  */
 export function bowlingSchedule(spec) {
   const errors = [];
-  let teams = Array.isArray(spec.teams) ? spec.teams.slice() : parseTeams(spec.teams).teams;
-  if (!Array.isArray(spec.teams)) errors.push(...parseTeams(spec.teams).errors);
-  if (teams.length < 2) errors.push("Enter at least two teams.");
-  if (teams.length > 64) errors.push("Up to 64 teams are supported.");
+  let teams;
+  if (Array.isArray(spec.teams)) {
+    teams = spec.teams.slice();
+    if (teams.length < 2) errors.push("Enter at least two teams.");
+    if (teams.length > 64) errors.push("Up to 64 teams are supported.");
+  } else {
+    // parseTeams already says "at least two" and "up to 64"; repeating them printed each twice.
+    const parsed = parseTeams(spec.teams);
+    teams = parsed.teams;
+    errors.push(...parsed.errors);
+  }
+  // An odd league adds a team called "Vacancy"; a real team of that name would be two teams
+  // the schedule, the CSV and the lane report could not tell apart.
+  if (teams.length % 2 === 1 && teams.some((t) => String(t).trim().toLowerCase() === VACANCY.toLowerCase())) {
+    errors.push(`An odd league bowls against a "${VACANCY}", so a team cannot use that name: rename it (or add a team).`);
+  }
   const weeks = Number(spec.weeks);
   if (!Number.isInteger(weeks) || weeks < 1 || weeks > 60) errors.push("Weeks must be a whole number from 1 to 60.");
   if (!Number.isInteger(spec.start)) errors.push("Pick the first league night.");
@@ -347,14 +476,32 @@ export function bowlingSchedule(spec) {
     roundOf.push({ week: w, cycle: Math.floor(k / cycle.length) + 1, round: (k % cycle.length) + 1 });
     k++;
   }
-  const plan = assignLanes(rrRounds, n, nPairs, { mode: spec.mode ?? "polished", seed: spec.seed ?? 1 });
+  let avoid = null;
+  if (Array.isArray(spec.laneAvoid)) avoid = teams.map((_, t) => (spec.laneAvoid[t] ?? []).slice());
+  else if (spec.laneAvoid) {
+    const parsed = parseLaneAvoid(spec.laneAvoid, teams, nPairs, firstLane);
+    if (parsed.errors.length) return { errors: parsed.errors };
+    avoid = parsed.avoid;
+  }
+  if (avoid && !avoid.some((l) => l.length)) avoid = null;
   const labels = pairLabels(nPairs, firstLane);
+  const plan = assignLanes(rrRounds, n, nPairs, { mode: spec.mode ?? "polished", seed: spec.seed ?? 1, avoid });
+  if (avoid) {
+    const bad = avoidViolations(plan, avoid);
+    if (bad.length) {
+      const w = roundOf[bad[0].week].week;
+      const who = [...new Set(bad.filter((b) => b.week === bad[0].week).map((b) => teams[b.team]))].join(", ");
+      return { errors: [`Week ${w}: the lane limits leave no way to put every match on a pair its teams may use (${who}). Too many of that week's matches avoid the same pairs; loosen a limit.`] };
+    }
+  }
   const out = [];
   let ri = 0;
   for (let w = 1; w <= weeks; w++) {
     const day = days[w - 1];
     if (positionSet.has(w)) {
-      out.push({ week: w, day, kind: "position", matches: labels.map((_, p) => ({ pair: p, a: `${ordinal(2 * p + 1)} place`, b: `${ordinal(2 * p + 2)} place` })) });
+      // An odd league of N teams has no (N+1)th place: the last-placed team bowls the Vacancy.
+      const real = odd ? n - 1 : n;
+      out.push({ week: w, day, kind: "position", matches: labels.map((_, p) => ({ pair: p, a: `${ordinal(2 * p + 1)} place`, b: 2 * p + 2 > real ? VACANCY : `${ordinal(2 * p + 2)} place` })) });
       continue;
     }
     const info = roundOf[ri];
@@ -363,7 +510,7 @@ export function bowlingSchedule(spec) {
     ri++;
   }
   const boundProvedOutOfReach = !odd && boundOutOfReach(n, rrRounds.length);
-  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach };
+  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach: boundProvedOutOfReach && !avoid, avoid };
 }
 
 function ordinal(i) {
@@ -387,13 +534,21 @@ export function laneReport(season) {
     }
   }
   let worstSpread = 0, atBound = 0, repeats = 0;
-  const out = rows.map((r) => {
-    const spread = Math.max(...r.counts) - Math.min(...r.counts);
-    const bound = r.weeks % P === 0 ? 0 : 1;
+  // Targets per team and pair (laneTargets): floor..ceil(W/P) with no avoided pairs; with some, the
+  // fair share of the pairs a team may use, and 0 on the ones it avoids. Spread and bound are over
+  // the pairs a team may use.
+  const { lo, hi } = laneTargets(rows.map((r) => r.weeks), P, season.avoid ?? null);
+  const out = rows.map((r, t) => {
+    const avoided = (season.avoid?.[t] ?? []).slice();
+    const used = r.counts.filter((_, p) => !avoided.includes(p));
+    const spread = Math.max(...used) - Math.min(...used);
+    const allowed = [...Array(P).keys()].filter((p) => !avoided.includes(p));
+    const bound = Math.max(...allowed.map((p) => hi[t][p])) - Math.min(...allowed.map((p) => lo[t][p]));
+    const inTarget = r.counts.every((c, p) => c >= lo[t][p] && c <= hi[t][p]);
     worstSpread = Math.max(worstSpread, spread);
-    if (spread === bound) atBound++;
+    if (inTarget) atBound++;
     repeats += r.repeats;
-    return { name: r.name, counts: r.counts, weeks: r.weeks, spread, bound, repeats: r.repeats };
+    return { name: r.name, counts: r.counts, weeks: r.weeks, spread, bound, repeats: r.repeats, avoided, inTarget, target: { lo: lo[t], hi: hi[t] } };
   });
   const real = out.filter((r, i) => !(season.odd && i === n - 1));
   // boundProvedOutOfReach: no lane deal of this season's round-robin weeks puts every team at the

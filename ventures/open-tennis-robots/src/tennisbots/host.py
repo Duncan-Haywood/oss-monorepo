@@ -335,19 +335,23 @@ def _fit_dict(fit: launcher.DropFit) -> dict:
 
 
 ESC_SURVEY_GRID_MS = (0, 20, 50, 100, 200, 400)   # the firmware's ESC_SURVEY_GRID_US, in ms
-ESC_SURVEY_S = 4.0            # how long the drill's end waits for the board's survey of the last ball
+# How long the drill's end waits for the board's surveys of the last balls. 4 s until 2026-11-18: the survey's refined
+# fits (36 steps, about 2.2 s a wheel) now queue behind the strokes (controller.SURVEY_QUEUE, up to 4 balls), and the
+# wait ends sooner once no count has risen for SURVEY_QUIET_S (README "The ESC-lag survey's search, traced").
+ESC_SURVEY_S = 20.0
+SURVEY_QUIET_S = 3.0          # longer than one wheel's ESC-lag survey, so the wait does not stop between two wheels
 ESC_SURVEY_MIN_WHEELS = 16    # fewer wheels than this and the survey's pick is reported but not advised
 
 
 def survey(link, clock, sleep, tick_s, timeout=ESC_SURVEY_S):
-    """Poll until the board's ESC_SURVEY and TAKE_SURVEY wheel counts stop rising for half a second (the last ball's
+    """Poll until the board's ESC_SURVEY and TAKE_SURVEY wheel counts stop rising for SURVEY_QUIET_S (the last balls'
     surveys are done or there were none), or `timeout`."""
     def count():
         return (link.esc_survey["wheels"] if link.esc_survey else -1,
                 link.take_survey["wheels"] if link.take_survey else -1)
     start = last = clock()
     n = count()
-    while clock() - start < timeout and clock() - last < 0.5:
+    while clock() - start < timeout and clock() - last < SURVEY_QUIET_S:
         link.poll()
         m = count()
         if m != n:
@@ -384,13 +388,15 @@ def esc_lag_check(sv: dict | None, board_ms: int | None) -> str | None:
 
 
 TAKE_SURVEY_MS = (0, 2, 3, 4, 5, 6, 8)   # the firmware's TAKE_SURVEY_GRID_US, in ms
-TAKE_SURVEY_S = 12.0          # a contact-time survey triples the board's work after the last ball
+TAKE_SURVEY_S = 16.0          # a contact-time survey (5 t0 levels a fit, 2026-11-18) is the board's work after the last ball
 # Advise a contact time only when the survey's best candidate misses by at most this share of the step's rms (README
 # "The contact time surveyed on the board"): on the simulator 4 of 6 builds with an instant take picked 1.5-2.5 ms at
 # 0.66-0.76 of the step's rms and read worse told it, while most spread takes fell to 0.29-0.6. Chosen on wheel lag 0.3 s,
 # checked on 0.6 s (eval/take-survey-heldout-2026-11-17.txt).
 TAKE_ADVISE_RATIO = 0.6
-TAKE_WAIT_S = 8.0             # the longest a calibration drill holds a ball for the last one's surveys
+# The longest a calibration drill holds a ball for the last one's surveys: 8 s until the take survey's refits went to 5
+# t0 levels (2026-11-18, README "The first-order take misfit traced"), about 10 s of control ticks a two-wheel ball.
+TAKE_WAIT_S = 12.0
 
 
 def _take_count(link) -> int:

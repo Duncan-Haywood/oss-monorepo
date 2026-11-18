@@ -347,6 +347,20 @@ LOOP_TAKE = ()
 # squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the sums from the
 # ESC_SURVEY frame, so `ESC_TAU_US` can be set from a real drill. tests/esc_lag_pick.py's grid.
 ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
+# The ESC-lag survey's tau golden-section steps (2026-11-18, README "The ESC-lag survey's search, traced"). It ran with
+# none (tau only on LOOP_TAU_GRID_US's 100 / 200 / 400 / 800 / 1600 ms), harmless when the wheel's lag sat on that
+# grid, as every build of its first check did (0.2 / 0.4 / 0.8 s). Off the grid the ESC lag stood in for the tau the
+# grid could not reach: at 0.3 and 0.6 s, 6 of 12 first-order builds picked 10-14 ms and all 12 ESC 50 ms builds
+# 23-25 ms. With 5 steps (the record fit's) every first-order build picked 0 and every 50 ms build 42-55 ms
+# (tests/esc_misfit_trace.py); a deeper t0 search alone changed nothing. 36 steps a fit, not 15, so a survey outlasts
+# the gap between balls: SURVEY_QUEUE.
+ESC_SURVEY_REFINE = 5
+# Surveys waiting their turn (2026-11-18, same section). A new stroke used to cut the last ball's survey; now it only
+# pauses it (no survey step runs while a stroke is under way or a record's fit is pending), and the surveys queue, run
+# between strokes and after the drill. The oldest waiting beyond this many is dropped (`survey_cut`). Each holds one
+# ball's two snapshots and tick logs (up to TICK_LOG entries a wheel), so the depth is kept small for the ESP32's heap:
+# on the rally drill 2 surveyed 18-20 of 32 wheels, 3 got 20-22, 4 got 22-24 (the Pi's end wait, ESC_SURVEY_S, counted).
+SURVEY_QUEUE = 2
 # A wheel whose best fit over the grid misses by more than this many times the median wheel's best is left out of the
 # sums (2026-11-16, README "One wheel's misses outvoted the drill"): with tach jitter one wheel in 56 could fit 30 times
 # worse than the rest, and its square alone set the pick (0 instead of 100 ms on 6 of 102 simulated builds). 3 / 5 / 10
@@ -362,6 +376,13 @@ SURVEY_KEEP = 128      # wheels whose residuals the board keeps for the median (
 # exponentials of a step and keeps the tau refinement (36 steps a fit, not 15), about 5 s of control ticks a two-wheel
 # ball, so it runs only while the Pi has asked for it (SURVEY_TAKE, sent for a calibration drill, which then waits).
 TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 8000)
+# The take survey's t0 search depth (2026-11-18, README "The first-order take misfit traced"). At the record fit's 3
+# levels a noise-free wheel's first, coarse t0 grid now and then settled in the wrong basin, so its rms against tau had
+# cliffs (227 ppm at 300 ms, 42 at 305) and the golden section stopped at 277-330 ms on single candidates, with 3-12
+# times the rms. The survey sums squares, so a few such wheels outvoted the rest: all three first-order instant builds
+# at lag 0.3 s picked 2.5 ms. At 5 levels (60 steps a fit, not 36) every instant build of 24 picked 1 ms or less and
+# every 6 ms build of 12 was named within 1 ms (tests/take_misfit_trace.py). The record fit keeps 3.
+TAKE_SURVEY_LEVELS = 5
 
 
 class ResidualSurvey:
@@ -1625,6 +1646,7 @@ class LaunchCheck:
         self.survey_trimmed = 0       # wheels the trim left out of `survey_sums` at the last report
         self._sums_n = -1
         self.survey_cut = 0
+        self.survey_queue = []        # surveys waiting behind `surveying` (SURVEY_QUEUE)
         self.surveying = None
         # A launched stroke whose slow wheel is still being watched past its verdict (README "Slow wheels watched past
         # the verdict"): a dict with the wheels still short, their edge counts to reach, the deadline, the tachs, the
@@ -1640,9 +1662,7 @@ class LaunchCheck:
     def start(self, targets, now_ms):
         self._extend_end()            # the last ball's slow wheel has what it has: this stroke's periods are not its
         self.finish()                 # a fit still under way is finished now: its record must not be lost
-        if self.surveying is not None:
-            self.surveying = None     # the survey of the last ball is not: it would hold up this stroke's control ticks
-            self.survey_cut += 1
+        # a survey under way only pauses: no survey step runs during a stroke (`_survey_step`), SURVEY_QUEUE
         self.ticks = [[], []]
         self.targets = (targets[0], targets[1])
         self.low = [float(targets[0]), float(targets[1])]
@@ -1847,7 +1867,17 @@ class LaunchCheck:
             self.record = (seq, int(round(speeds[0])), int(round(speeds[1])), min(32767, drops[0]),
                            min(32767, drops[1]), flags)
         if self.survey or (self.take_on and self.take_survey is not None):
-            self.surveying = self._survey(snap, ticks, edges0, targets)
+            self.queue_survey(self._survey(snap, ticks, edges0, targets))
+
+    def queue_survey(self, survey):
+        """Run `survey` now if none is under way, else queue it (SURVEY_QUEUE: the oldest waiting gives way)."""
+        if self.surveying is None:
+            self.surveying = survey
+            return
+        self.survey_queue.append(survey)
+        if len(self.survey_queue) > SURVEY_QUEUE - 1:
+            self.survey_queue.pop(0)
+            self.survey_cut += 1
 
     def take(self):
         """The take offsets the record's drop fit runs with."""
@@ -1878,10 +1908,10 @@ class LaunchCheck:
             got = []
             for c in ts.grid:
                 fit = None
-                # with the tau refinement the record's fit has: without it (refine=0, as the ESC-lag survey) the fits
-                # missed by about 60 times the refined fit's rms and every candidate scored alike, so a 6 ms take
+                # with the tau refinement the record's fit has: without it (refine=0, as the ESC-lag survey had until
+                # 2026-11-18) the fits missed by about 60 times the refined fit's rms and every candidate scored alike, so a 6 ms take
                 # picked 0 (README "The contact time surveyed on the board")
-                for item in drop_from_commands_steps(snap[k], tk, take=take_offsets(c)):
+                for item in drop_from_commands_steps(snap[k], tk, take=take_offsets(c), levels=TAKE_SURVEY_LEVELS):
                     if item is None:
                         yield None
                     else:
@@ -1906,7 +1936,8 @@ class LaunchCheck:
             got = []
             for g in self.survey:
                 fit = None
-                for item in drop_from_commands_steps(snap[k], esc_lagged_ticks(snap[k], raw, g), refine=0):
+                for item in drop_from_commands_steps(snap[k], esc_lagged_ticks(snap[k], raw, g),
+                                                     refine=ESC_SURVEY_REFINE):
                     if item is None:
                         yield None
                     else:
@@ -1963,15 +1994,16 @@ class LaunchCheck:
             self.pending = None
             return False
 
-    def _survey_step(self):
-        if self.surveying is None:
+    def _survey_step(self, during=False):
+        """One survey step, never while a stroke is under way (its control ticks come first) unless `during`."""
+        if self.surveying is None or (self.targets is not None and not during):
             return False
         try:
             next(self.surveying)
             return True
         except StopIteration:
-            self.surveying = None
-            return False
+            self.surveying = self.survey_queue.pop(0) if self.survey_queue else None
+            return self.surveying is not None
 
     def finish(self):
         """The record's fit run to the end (the survey stays queued; `finish_survey` runs that too)."""
@@ -1980,7 +2012,7 @@ class LaunchCheck:
 
     def finish_survey(self):
         self.finish()
-        while self._survey_step():
+        while self._survey_step(during=True):
             pass
 
 

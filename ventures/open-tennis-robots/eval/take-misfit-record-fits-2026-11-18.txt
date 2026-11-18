@@ -1,0 +1,59 @@
+# tests/take_misfit_trace.py part 1, 2026-11-18: the board's record fits (instant take, first-order 8k, 0.1 ms plant) refit offline
+# shipped Euler plant at 0.1 ms, lags 0.3 and 0.6 s (--rescore of the .jsonl.gz beside this file)
+381 wheel fits at 1000 rpm and up, instant take; per build: the least summed squared rms over 0, 2, 3, 4, 5, 6, 8 ms (half-sine), each candidate's mean rms in ppm, the step's reading sd about the true drop, and its fitted tau's median
+
+shipped
+  lag 0.3 launcher 0 plant euler10  n  63 pick   0 ms | rms   55   70   99  118  151  193  297 | step sd 0.14% mean 0.9999 | tau 0.300 s
+  lag 0.3 launcher 1 plant euler10  n  65 pick   0 ms | rms   48   72  101  124  168  227  359 | step sd 0.12% mean 0.9999 | tau 0.300 s
+  lag 0.3 launcher 2 plant euler10  n  63 pick   0 ms | rms   67   78   99  124  160  203  305 | step sd 0.16% mean 0.9998 | tau 0.300 s
+  lag 0.6 launcher 0 plant euler10  n  65 pick   0 ms | rms   58   65   69   91  120  159  257 | step sd 0.15% mean 0.9996 | tau 0.599 s
+  lag 0.6 launcher 1 plant euler10  n  62 pick   0 ms | rms   48   79  110  148  197  257  383 | step sd 0.13% mean 0.9999 | tau 0.599 s
+  lag 0.6 launcher 2 plant euler10  n  63 pick   2 ms | rms   59   53   67   89  123  158  230 | step sd 0.13% mean 0.9999 | tau 0.599 s
+
+tau fixed at the plant's
+  lag 0.3 launcher 0 plant euler10  n  63 pick   0 ms | rms   63   86  120  138  186  229  337 | step sd 0.13% mean 0.9995 | tau 0.300 s
+  lag 0.3 launcher 1 plant euler10  n  65 pick   0 ms | rms   61   99  117  150  200  269  419 | step sd 0.13% mean 0.9998 | tau 0.300 s
+  lag 0.3 launcher 2 plant euler10  n  63 pick   0 ms | rms   80   98  112  142  180  230  340 | step sd 0.16% mean 0.9997 | tau 0.300 s
+  lag 0.6 launcher 0 plant euler10  n  65 pick   0 ms | rms   87   97   88  111  143  193  304 | step sd 0.13% mean 1.0000 | tau 0.600 s
+  lag 0.6 launcher 1 plant euler10  n  62 pick   0 ms | rms   82  109  134  188  234  300  441 | step sd 0.12% mean 0.9996 | tau 0.600 s
+  lag 0.6 launcher 2 plant euler10  n  63 pick   2 ms | rms   78   69   86  112  150  189  279 | step sd 0.15% mean 0.9996 | tau 0.600 s
+
+commands -1 ms
+  lag 0.3 launcher 0 plant euler10  n  63 pick   0 ms | rms   72   89  107  136  161  202  308 | step sd 0.21% mean 0.9980 | tau 0.314 s
+  lag 0.3 launcher 1 plant euler10  n  65 pick   0 ms | rms   85   86  106  137  184  238  368 | step sd 0.20% mean 0.9984 | tau 0.314 s
+  lag 0.3 launcher 2 plant euler10  n  63 pick   0 ms | rms   87   98  113  142  168  214  317 | step sd 0.24% mean 0.9980 | tau 0.314 s
+  lag 0.6 launcher 0 plant euler10  n  65 pick   0 ms | rms   56   71   76   93  125  162  260 | step sd 0.13% mean 0.9992 | tau 0.629 s
+  lag 0.6 launcher 1 plant euler10  n  62 pick   0 ms | rms   56   84  112  154  200  260  383 | step sd 0.17% mean 0.9990 | tau 0.629 s
+  lag 0.6 launcher 2 plant euler10  n  63 pick   2 ms | rms   65   63   76   91  125  161  234 | step sd 0.15% mean 0.9991 | tau 0.629 s
+
+commands -0.5 ms
+  lag 0.3 launcher 0 plant euler10  n  63 pick   0 ms | rms   61   71  103  123  156  195  301 | step sd 0.19% mean 0.9991 | tau 0.300 s
+  lag 0.3 launcher 1 plant euler10  n  65 pick   0 ms | rms   60   74  104  132  175  232  365 | step sd 0.16% mean 0.9996 | tau 0.300 s
+  lag 0.3 launcher 2 plant euler10  n  63 pick   0 ms | rms   73   88  103  137  163  207  308 | step sd 0.21% mean 0.9990 | tau 0.300 s
+  lag 0.6 launcher 0 plant euler10  n  65 pick   0 ms | rms   56   67   74   92  123  160  258 | step sd 0.15% mean 0.9995 | tau 0.599 s
+  lag 0.6 launcher 1 plant euler10  n  62 pick   0 ms | rms   53   81  111  151  199  258  385 | step sd 0.14% mean 0.9996 | tau 0.599 s
+  lag 0.6 launcher 2 plant euler10  n  63 pick   2 ms | rms   60   56   70   91  132  158  232 | step sd 0.14% mean 0.9994 | tau 0.599 s
+
+commands +0.5 ms
+  lag 0.3 launcher 0 plant euler10  n  63 pick   0 ms | rms   56   66   98  118  152  191  296 | step sd 0.15% mean 1.0006 | tau 0.291 s
+  lag 0.3 launcher 1 plant euler10  n  65 pick   0 ms | rms   59   77   94  123  167  225  360 | step sd 0.14% mean 1.0009 | tau 0.291 s
+  lag 0.3 launcher 2 plant euler10  n  63 pick   0 ms | rms   77   80  101  127  157  201  305 | step sd 0.18% mean 1.0005 | tau 0.291 s
+  lag 0.6 launcher 0 plant euler10  n  65 pick   2 ms | rms   66   66   69   87  119  158  258 | step sd 0.12% mean 1.0004 | tau 0.582 s
+  lag 0.6 launcher 1 plant euler10  n  62 pick   0 ms | rms   51   79  106  148  196  257  382 | step sd 0.15% mean 1.0001 | tau 0.582 s
+  lag 0.6 launcher 2 plant euler10  n  63 pick   2 ms | rms   61   53   67   91  124  157  230 | step sd 0.13% mean 1.0002 | tau 0.599 s
+
+commands +1 ms
+  lag 0.3 launcher 0 plant euler10  n  63 pick   0 ms | rms   65   74   99  120  154  192  296 | step sd 0.19% mean 1.0011 | tau 0.291 s
+  lag 0.3 launcher 1 plant euler10  n  65 pick   0 ms | rms   67   81   94  123  168  224  358 | step sd 0.17% mean 1.0015 | tau 0.291 s
+  lag 0.3 launcher 2 plant euler10  n  63 pick   0 ms | rms   87   90  111  129  159  202  306 | step sd 0.20% mean 1.0011 | tau 0.291 s
+  lag 0.6 launcher 0 plant euler10  n  65 pick   0 ms | rms   67   73   71   87  119  158  256 | step sd 0.14% mean 1.0007 | tau 0.582 s
+  lag 0.6 launcher 1 plant euler10  n  62 pick   0 ms | rms   55   77  108  149  196  257  382 | step sd 0.16% mean 1.0005 | tau 0.582 s
+  lag 0.6 launcher 2 plant euler10  n  63 pick   2 ms | rms   63   57   71   91  127  153  230 | step sd 0.14% mean 1.0005 | tau 0.582 s
+
+# plant variants at lag 0.3 s: exact exponential sub-step (exact10) and Euler at 0.02 ms (euler50), same scoring
+(0.3, 0, 'euler50') 64 pick 2.0 84 77 90 123 161 203 308 sd 0.23%
+(0.3, 0, 'exact10') 63 pick 0.0 50 83 102 130 169 211 327 sd 0.15%
+(0.3, 1, 'euler50') 64 pick 0.0 63 77 99 125 175 228 344 sd 0.12%
+(0.3, 1, 'exact10') 64 pick 0.0 59 65 96 134 177 223 340 sd 0.14%
+(0.3, 2, 'euler50') 65 pick 0.0 62 82 89 115 155 201 303 sd 0.15%
+(0.3, 2, 'exact10') 63 pick 0.0 73 76 104 110 153 202 301 sd 0.16%

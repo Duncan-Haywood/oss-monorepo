@@ -5,7 +5,7 @@ import datetime
 import unittest
 from pathlib import Path
 
-from check_post_frontmatter import PLACEHOLDER, ROOT, landed_broken, main, problems, tag_key
+from check_post_frontmatter import PAYWALL, PLACEHOLDER, ROOT, landed_broken, main, problems, tag_key
 
 GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"\ntags: [a, b]\n---\nbody\n'
 
@@ -130,6 +130,24 @@ class T(unittest.TestCase):
     def test_placeholder_matches_the_site_check(self):
         check = (ROOT / "platform" / "pages" / "check.mjs").read_text()
         self.assertIn(f"const PLACEHOLDER_ORIGIN = '{PLACEHOLDER}';", check)
+
+    def test_paywall_words_in_title_or_description_fail_like_the_hub_test(self):
+        # PR #17115: "A free trial is not churn" passed here and failed build.test.mjs.
+        bad = GOOD.replace('title: "T"', 'title: "A free trial is not churn"')
+        [p] = problems("2026-10-24-x.md", bad)
+        self.assertIn("free trial", p)
+        bad = GOOD.replace('description: "DDDD', 'description: "Upgrade to DDDD')
+        [p] = problems("2026-10-24-x.md", bad)
+        self.assertTrue(p.startswith("description holds `Upgrade to`"), p)
+        # The domain nouns the hub test lets through pass here too.
+        ok = GOOD.replace('title: "T"', 'title: "Subscriber counts and free trials"')
+        self.assertEqual(problems("2026-10-24-x.md", ok), [])
+        # The body is not on the hub.
+        self.assertEqual(problems("2026-10-24-x.md", GOOD.replace("body", "subscribe now")), [])
+
+    def test_paywall_pattern_matches_the_hub_test(self):
+        hub_test = (ROOT / "platform" / "pages" / "build.test.mjs").read_text()
+        self.assertIn(f"!/{PAYWALL.pattern}/i.test(visibleCopy(hub))", hub_test)
 
     def test_entity_in_title_or_top_heading_fails_like_the_site_build(self):
         # PR #16485: a post titled "yard&#x27;s" failed check.mjs (escaped twice).

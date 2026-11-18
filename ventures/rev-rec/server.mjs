@@ -9,7 +9,8 @@ import { schedule, summary, journal, journalCsv } from "./revrec.mjs";
 import { renderDashboard } from "./page.mjs";
 import { pathToFileURL } from "node:url";
 
-export const newState = () => ({ lines: {}, lastSyncAt: null, currency: null, skipped: 0 });
+export const newState = () => ({ lines: {}, lastSyncAt: null, lastFullSyncAt: null, currency: null, skipped: 0 });
+export const FULL_SYNC_MS = 24 * 3600000;
 
 const eq = (a, b) => { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && timingSafeEqual(x, y); };
 export function authorized(header, key) {
@@ -19,12 +20,17 @@ export function authorized(header, key) {
   return false;
 }
 
-// One pass. The first sync reads everything; later ones re-read the last 3 days
-// (lines are keyed by id, so overlap is harmless) and pick up new credit notes.
+// One pass. Stripe filters invoices by `created` only, so an incremental pass
+// (the last 3 days; lines are keyed by id, so overlap is harmless) misses an
+// invoice issued earlier and paid now, and keeps a credit note voided since it
+// was read. So at least once a day (cfg.fullSyncMs) a pass re-reads everything
+// and replaces the line set instead of merging into it.
 export async function sync(cfg) {
   const st = cfg.state, now = cfg.now();
-  const since = st.lastSyncAt ? Math.floor((st.lastSyncAt - 3 * 86400000) / 1000) : 0;
+  const full = !st.lastSyncAt || !st.lastFullSyncAt || now - st.lastFullSyncAt >= (cfg.fullSyncMs ?? FULL_SYNC_MS);
+  const since = full ? 0 : Math.floor((st.lastSyncAt - 3 * 86400000) / 1000);
   const fresh = [...(await cfg.stripe.listLines(since)), ...(await cfg.stripe.listCreditNotes(since))];
+  if (full) { st.lines = {}; st.lastFullSyncAt = now; }
   const counts = {};
   for (const l of fresh) counts[l.currency] = (counts[l.currency] || 0) + 1;
   st.currency = cfg.currency || st.currency || Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || "usd";
@@ -32,7 +38,7 @@ export async function sync(cfg) {
   st.skipped = Object.values(st.lines).filter((l) => l.currency !== st.currency).length;
   st.lastSyncAt = now;
   cfg.save();
-  return { lines: Object.keys(st.lines).length, added: fresh.length, skipped: st.skipped };
+  return { lines: Object.keys(st.lines).length, added: fresh.length, skipped: st.skipped, full };
 }
 
 const usable = (st) => Object.values(st.lines).filter((l) => l.currency === st.currency);
