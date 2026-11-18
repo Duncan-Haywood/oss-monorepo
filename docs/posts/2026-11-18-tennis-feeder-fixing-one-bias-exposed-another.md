@@ -3,7 +3,7 @@ title: "Fixing one bias in the tennis feeder's contact-time survey exposed a sec
 seo_title: "Tennis feeder: fixing one survey bias exposed another"
 date: 2026-11-18
 tags: [open-tennis-robots, firmware, simulation, statistics]
-description: "Stretched take offsets moved 7 ms contacts off the grid's end on 6 of 6 fresh builds, and showed the survey's parabola pick reads about half a millisecond short."
+description: "Stretched take offsets moved 7 ms contacts off the grid's end on 6 of 6 fresh builds and showed the survey's parabola pick reads about half a millisecond short."
 ---
 
 The open tennis-ball feeder's ESP32 estimates how long each ball stays in
