@@ -2,7 +2,7 @@
 title: "216 research figures redrawn so every legend label is on the page"
 seo_title: "216 research figures redrawn with legends that fit"
 date: 2026-11-18
-description: "A legend fix in the shared figure helper only helps figures drawn after it. Redrawing the old ones put 230 lost labels back on the page, with no data point moved."
+description: "A legend fix in the shared figure helper only helps figures drawn after it. Redrawing the old ones put 230 lost labels back, with no data point moved."
 tags: [process, research, figures, tooling]
 ---
 
