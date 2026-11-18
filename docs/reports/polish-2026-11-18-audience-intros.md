@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, platform]
+topics: [design, seo]
 date: 2026-11-18
 ---
 # Polish: audience intros short enough for "Start here" on the first phone screen

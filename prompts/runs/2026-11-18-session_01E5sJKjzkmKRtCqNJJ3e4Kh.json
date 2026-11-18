@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKjzkmKRtCqNJJ3e4Kh",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T02:18:19Z",
+  "ended": "2026-11-18T02:32:05Z",
+  "wall_minutes": 23.41,
+  "tokens_in": 5376337,
+  "tokens_out": 23053,
+  "cost_usd": 2.378,
+  "tool_calls": 60,
+  "task": "polish: shorten the four household audience intros so Start here shows on the first phone screen (item 2 of polish-2026-11-18-homeowners-audience.md)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17146",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First full test run: 173 failures, all from my new post's 199-char description (budget 160) breaking the test build; fixed, rerun 1799/1799 pass.",
+    "First scripted intro rewrite dropped the trailing ',\\n' on three entries (SyntaxError); fixed with sed before any commit.",
+    "CI build/validate red on the first push: the report's topic 'platform' is not in docs/taxonomy.json; changed to 'seo', check_post_frontmatter.py clean."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to start from the last report's 'Still weakest' list but does not mention platform/ci/polish_queue.py, which is what made picking fast (the 2026-11-16 process report notes the pointer is owner-gated)."
+    },
+    {
+      "file": "platform/pages/README.md",
+      "issue": "No committed tool measures where a page's first content block lands at phone width; I wrote a throwaway Playwright loop over dist/c/for-*. Logged as item 2 in the report."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Before/after screenshots are kept out of the repo (binary weight); the report and post carry the measured pixel numbers instead.",
+      "did": "Pixel table in post and report; screenshots in the session scratchpad only.",
+      "result": "The numbers are reproducible from a local build."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-four-intros-that-hid-start-here.md",
+    "docs/reports/polish-2026-11-18-audience-intros.md"
+  ],
+  "goal": "impressive sites (phone first screen on audience pages)",
+  "notes": "Before (390x844, top of first .start-grid li): homeowners 978, retirees 951, parents 951, job-changers 873; 22 other pages 686-820. After: 794-820 on all 26 with the row. node --test 'platform/pages/*.test.mjs': 1799 tests, 1799 pass. check.mjs: publishable, 1390 products, 51 category pages, no dead links. Full rebuild on the final wording: build exit 0; check.mjs publishable (11,314 pages, no dead links); first card at 390: retirees 820, parents 819, job-changers 794, homeowners 794; max over all 26 pages 820; 0 pages scroll sideways at 390.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "422fab5b-c5d3-5507-b3bd-f08f7d1a4d1c",
+    "transcripts": 1,
+    "first": "2026-11-18T02:18:19Z",
+    "last": "2026-11-18T02:41:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 106,
+        "output": 23053,
+        "thinking": 3299,
+        "cache_read": 5268372,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107859,
+        "api_equivalent_usd": 2.378,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 106,
+      "output": 23053,
+      "thinking": 3299,
+      "cache_read": 5268372,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107859,
+      "api_equivalent_usd": 2.378,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 2,
+      "mcp__github__get_job_logs": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.41,
+      "active_minutes": 23.41,
+      "model_minutes": 4.24,
+      "tool_minutes": 19.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "front-end dev: measure 31 pages at phone width, rewrite four intros, add a test, write post and report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 84.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
