@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqycHaAZTgqmj2CqQQMo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T20:03:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing (flagship 7): read Hasselblad 3FR directly",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17403",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    "First venture-suite run failed one test (test_camera_profiles pinned the old refusal text that now names 3FR); fixed in the PR.",
+    "Hasselblad JPEG header parser first rejected the CFV's 0xFF fill byte after SOF3; fixed before any real-file result.",
+    "The H4D-60 first differed from LibRaw in every sensel (wrapped below-zero data); fixed by a histogram-gap test."
+  ],
+  "integrity_issues": [
+    "Found that tools/mrw_develop_check.py (landed earlier today) undid LibRaw's BT.709 output with the sRGB curve, so the MRW eval's 0.003-0.016 colour gaps are overstated; recorded in eval/hasselblad-3fr-reader-2026-11-18.md and NEXT.md, not rerun (the MRW files were not re-downloaded)."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Its shallow fetch timed out at 50 s and left .git/shallow.lock behind, which made the next git fetch fail until the stale lock was removed by hand."
+    },
+    {
+      "file": "ventures/photo-editing/src/shootflow/cli.py",
+      "issue": "The develop subcommand's help still said CR3 needed converting and listed only five formats; corrected in this PR."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-photo-editing-hasselblad-3fr-reader.md",
+    "ventures/photo-editing/eval/hasselblad-3fr-reader-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Routed ventures/1; allocate.py picked flagship row 3 photo-editing. Chose a new raw format (Hasselblad 3FR) from the BUILDABLE HERE source raw.pixls.us. Verification: tools/hasselblad_libraw_check.py on 10 real 3FRs: 561,488,912 sensels, 0 differing, CFA and WB equal LibRaw 0.22.2 (rawpy 0.28.0). tools/hasselblad_develop_check.py --colour=dng,dcraw: all 10 under the 0.02 chroma gate (dcraw method 0.0000 on 8, 0.002-0.003 on the 100 MP two; DNG model max 0.0172 on a tungsten frame). tests/test_hasselblad.py 15 tests pass with C, with SHOOTFLOW_NATIVE=0 and with numpy. Venture suite and venture-preflight: see below.",
+  "corrections": [],
+  "redteam": null
+}
