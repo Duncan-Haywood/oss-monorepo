@@ -3,11 +3,12 @@
 //
 // WHY: when a <table> is `display:block`, the browser wraps its rows in an
 // anonymous table box and puts the caption in that box, so the caption is as
-// wide as the grid, not as the box a reader sees. On 2026-11-18 at 390 px, all
-// 15 captions on the 8 pages with such a rule were wrong: 14 ran 66 to 436 px
-// past the right edge of their scroller and were cut off until the reader
-// scrolled, and one was squeezed into a 101 px column, 5 lines for 9 words
-// (patent-maintenance-fee-planner). `caption{display:block;position:sticky;left:0}`
+// wide as the grid, not as the box a reader sees. On 2026-11-18 at 390 px, 15
+// captions on 8 pages were wrong: 13 ran 51 to 436 px past the right edge of
+// their scroller and were cut off until the reader scrolled, and 2 were
+// squeezed narrower than the box (patent-maintenance-fee-planner: 9 words over
+// 5 lines in a 101 px column). Six more pages only fitted because their grids
+// were narrow that day. `caption{display:block;position:sticky;left:0}`
 // makes the caption a block in the scroller: as wide as the visible box, and
 // still in view when the table is scrolled. Chromium keeps the caption as the
 // table's accessible name (checked with the CDP accessibility tree).
