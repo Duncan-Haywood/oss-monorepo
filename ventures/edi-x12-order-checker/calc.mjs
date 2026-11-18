@@ -80,7 +80,10 @@ export function detectSeparators(text) {
     while (n < 15 && idx !== -1) { idx = t.indexOf(el, idx + 1); n++; }
     if (idx !== -1 && idx + 2 < t.length) {
       const comp = t[idx + 1], seg = t[idx + 2];
-      if (el !== comp && el !== seg && comp !== seg) return { el, comp, seg, fromIsa: true, rep: t[82] };
+      // A letter, digit or space is data, never a delimiter: a short or damaged ISA otherwise "finds" one, and the
+      // repair split "ISA" itself apart (fuzz find, 2026-11-18: a repair moved the I to the end of the file).
+      const plausible = [el, comp, seg].every((c) => !/[A-Za-z0-9 ]/.test(c));
+      if (plausible && el !== comp && el !== seg && comp !== seg) return { el, comp, seg, fromIsa: true, rep: t[82] };
     }
   }
   return { el: "*", comp: ":", seg: "~", fromIsa: false, rep: "^" };

@@ -474,6 +474,8 @@ export function repair(input, options = {}) {
         if (hit && hit !== v) edit(i, hit, "written as the internal value");
       }
     });
+    // A row whose only content was cleaned away ("mailto:" alone) is blank now; drop it here, not on the next repair.
+    if (isBlankRow(cells)) { removed++; changes.push(`Line ${r.line}: row is blank after the fixes above; removed`); continue; }
     out.push(cells);
   }
   if (removed) changes.push(`${removed} blank row${removed === 1 ? "" : "s"} removed in total`);

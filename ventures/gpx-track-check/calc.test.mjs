@@ -133,3 +133,10 @@ test("a run of empty comments before <gpx> does not backtrack exponentially (ReD
   assert.ok(!validate('<!-- a --><!-- b -->\n<gpx version="1.1" creator="t" xmlns="http://www.topografix.com/GPX/1/1"></gpx>').findings.some((f) => f.code === "not-gpx"));
   assert.ok(validate('<!-- a -->stray --><gpx version="1.1"></gpx>').findings.some((f) => f.code === "not-gpx"));
 });
+
+test("a segment left empty once its 0,0 points go is removed in the same repair (fuzz find, 2026-11-18)", () => {
+  const x = '<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="t" xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg><trkpt lat="1" lon="2"></trkpt></trkseg><trkseg>\n<trkpt lat="0" lon="0"></trkpt>\n</trkseg></trk></gpx>\n';
+  const a = repair(x);
+  assert.ok(!/<trkseg>\s*<\/trkseg>/.test(a.text), a.text);
+  assert.equal(repair(a.text).text, a.text);
+});
