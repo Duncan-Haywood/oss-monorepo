@@ -926,6 +926,7 @@ ventures/rds-instance-rightsizer/usage.mjs
 ventures/real-estate-agent-photo-app/site/usage.mjs
 ventures/real-estate-photographer-shoot-profit-calculator/usage.mjs
 ventures/real-estate-professional-status-calculator/usage.mjs
+ventures/rebar-schedule/usage.mjs
 ventures/recipe-costing-calculator/usage.mjs
 ventures/recompete-radar/usage.mjs
 ventures/redirect-chain-check/usage.mjs

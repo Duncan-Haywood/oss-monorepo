@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23374151'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ER%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bar Bending Schedule Calculator and Rebar Cutting Optimizer | BS 8666 Cut Lengths</title>
+  <meta name="description" content="Free bar bending schedule calculator: paste your schedule (mark, size, shape code, dimensions), get BS 8666 cut lengths, total weight per bar size, and a cutting plan from 12 m stock bars with the least steel bought, checked against a proven lower bound. Runs in your browser.">
+  <meta property="og:title" content="Bar Bending Schedule and Rebar Cutting Optimizer">
+  <meta property="og:description" content="Schedule in; cut lengths, weights and a least-waste cutting plan from stock bars out, with a proof of how close to optimal it is. Nothing uploaded.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bar Bending Schedule and Rebar Cutting Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reads a bar bending schedule as CSV or pasted from a spreadsheet; BS 8666 shape codes 00, 11, 21 and 51 and any 90 degree shape by geometry; minimum scheduling radius by bar size; cut lengths rounded up to 25 mm; weight per mark and per bar size; cutting plan from one or more stock lengths solved by column generation with a lower bound; comparison with first-fit decreasing; reusable offcuts; CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How is the cut length worked out?","acceptedAnswer":{"@type":"Answer","text":"Dimensions on a bar bending schedule are outside dimensions. Each bend uses the minimum scheduling radius for the bar size (2d up to 16 mm, 3.5d from 20 mm), and the length lost at each bend is subtracted. Shapes 00, 11, 21 and 51 use the total-length formulas printed on BS 8666 shape-code charts, and the tool also checks them against the exact centreline geometry. The result is rounded up to 25 mm by default."}},{"@type":"Question","name":"How does the cutting plan save steel?","acceptedAnswer":{"@type":"Answer","text":"It solves the cutting-stock problem: which combinations of pieces to cut from each stock bar so every piece is cut and the least stock is bought. The linear relaxation is solved exactly by column generation, which gives a lower bound no plan can beat. Whole-bar plans are then built several ways and the cheapest is kept. When the plan meets the bound, it is proven optimal; otherwise the page shows how many bars it could at most be over."}},{"@type":"Question","name":"How much does it save against cutting by hand?","acceptedAnswer":{"@type":"Answer","text":"On 200 generated schedules cut from 12 m bars, first-fit decreasing (longest piece first into the first bar it fits) bought about 1% more steel than the optimiser and more bars in 122 of the 200. The plan met the proven lower bound in 197 of 200 and was at most one bar over in the rest. These are generated schedules, not real jobs; the page shows the comparison for your own schedule."}},{"@type":"Question","name":"What schedule format does it read?","acceptedAnswer":{"@type":"Answer","text":"Comma, tab or semicolon separated text, such as cells copied from a spreadsheet. A header row is read by name (mark, dia or size, shape, members, each, A, B, C, D, E). Without a header, columns are read as mark, size, shape, members, bars in each, then A, B, C, D, E. Sizes may be written 12, H12, T12 or B500B 12."}},{"@type":"Question","name":"Is my schedule uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in your browser and your schedule is never sent anywhere. The hosted page counts one anonymous page view a day (the page, the day and the referring channel, never what you type; off under Do Not Track or Global Privacy Control, and described in the site footer). An optional anonymous counter in this browser's local storage records only which features were used and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1f24; background: #e9ebee; --accent: #374151; --ink2: #4b5563; --line: #c7ccd3; --panel: #fafbfc; --good: #166534; }
+    body { max-width: 1160px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 780px; margin-bottom: 24px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.02; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: #9a3412; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 18px; align-items: start; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    h3 { font-size: 1rem; margin: 14px 0 6px; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    label { display: grid; gap: 5px; font-size: .86rem; font-weight: 650; }
+    input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #aeb5bf; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; min-height: 220px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #aeb5bf; background: #eef0f3; padding: 9px 13px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dfe3e8; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: #1f2937; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .stat { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #fff; }
+    .stat .k { font-size: .78rem; color: var(--ink2); font-weight: 650; }
+    .big { font-size: 1.5rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin: 2px 0; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums; }
+    th, td { border-bottom: 1px solid var(--line); padding: 5px 6px; text-align: right; white-space: nowrap; }
+    th:first-child, td:first-child, td.l, th.l { text-align: left; }
+    .proven { color: var(--good); font-weight: 650; }
+    .warn { font-size: .82rem; background: #fff4e5; border-left: 3px solid #d97706; padding: 6px 9px; margin: 6px 0 0; border-radius: 4px; }
+    .err { color: #b42318; font-size: .86rem; white-space: pre-line; }
+    .muted { color: var(--ink2); font-size: .84rem; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a, main a, .faq a { color: #1f2937; }
+    @media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 520px) { .fields, .stats { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SITE ENGINEERS, REBAR DETAILERS, FIXERS AND SMALL CONTRACTORS</p>
+    <h1>Bar bending schedule in. Cut lengths, weights and a least-waste cutting plan out.</h1>
+    <p>Paste your schedule (bar mark, size, BS 8666 shape code, dimensions, number of members, bars in each). The page works out every cut length with the right bend radius, the weight per mark and per bar size, and which pieces to cut from each stock bar so you buy the least steel, with a proven bound on how close to the best possible plan it is.</p>
+    <p><a href="./how-to-calculate-bar-bending-schedule.html">How cut lengths and the cutting plan are worked out, with a worked example</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>1. Schedule</h2>
+        <p class="hint">One bar mark per line. Header row read by name; without one: mark, size, shape, members, each, A, B, C, D, E. Shapes: 00 straight, 11 L-bar, 21 U-bar, 51 closed link, R any 90° shape by geometry. Dimensions in mm, outside.</p>
+        <label>Schedule file <input id="file" type="file" accept=".csv,.txt,.tsv,text/csv,text/plain"></label>
+        <label style="margin-top:10px">Or paste it (cells copied from a spreadsheet work) <textarea id="text" spellcheck="false" placeholder="mark,dia,shape,members,each,A,B,C&#10;01,H12,00,4,12,5400,,&#10;02,H12,11,4,8,1800,450,"></textarea></label>
+      </section>
+      <section>
+        <h2>2. Stock and cutting</h2>
+        <div class="fields">
+          <label>Stock bar lengths (mm, comma separated) <input id="stock" type="text" value="12000"></label>
+          <label>Round cut lengths up to (mm) <input id="round" type="number" min="1" step="1" value="25"></label>
+          <label>Loss per cut (mm; 0 for shear) <input id="kerf" type="number" min="0" step="1" value="0"></label>
+          <label>Keep offcuts from (mm) <input id="keep" type="number" min="0" step="50" value="1000"></label>
+          <label>Steel price per tonne (optional) <input id="price" type="number" min="0" step="any" placeholder="e.g. 750"></label>
+        </div>
+        <div class="actions">
+          <button type="button" class="primary" id="run">Work out the schedule</button>
+          <button type="button" id="example">Load a made-up example</button>
+        </div>
+        <p class="err" id="error" role="alert"></p>
+      </section>
+    </div>
+
+    <div>
+      <section id="results" hidden>
+        <h2>Totals</h2>
+        <div class="stats">
+          <div class="stat"><div class="k">Steel in the schedule</div><div class="big" id="kgNeed"></div></div>
+          <div class="stat"><div class="k">Stock to buy</div><div class="big" id="kgBuy"></div></div>
+          <div class="stat"><div class="k">Cutting waste</div><div class="big" id="wastePct"></div></div>
+        </div>
+        <p class="muted" id="ffdLine"></p>
+        <p class="muted" id="costLine"></p>
+        <h3>By bar size</h3>
+        <div class="scroll"><table id="sizeTable"><tr><th>Size</th><th>Bars</th><th>Length (m)</th><th>Weight (kg)</th><th>Stock bars</th><th>Bought (kg)</th><th>Bound</th></tr></table></div>
+        <h3>Cutting plan</h3>
+        <div id="plans"></div>
+        <h3>Reusable offcuts</h3>
+        <p class="muted" id="offcuts"></p>
+        <h3>Cut lengths per mark</h3>
+        <div class="scroll"><table id="markTable"><tr><th>Mark</th><th>Size</th><th>Shape</th><th>Dims (mm)</th><th>No.</th><th>Exact (mm)</th><th>Cut (mm)</th><th>kg</th></tr></table></div>
+        <div class="actions">
+          <button type="button" id="csvMarks">Download schedule CSV</button>
+          <button type="button" id="csvPlan">Download cutting plan CSV</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <section class="faq" style="max-width:780px;margin-top:8px">
+    <h2>Questions</h2>
+    <h3>How is the cut length worked out?</h3>
+    <p>Dimensions on a bar bending schedule are outside dimensions. Each bend uses the minimum scheduling radius for the bar size (2d up to 16 mm, 3.5d from 20 mm), and the length lost at each bend is subtracted. Shapes 00, 11, 21 and 51 use the total-length formulas printed on BS 8666 shape-code charts, and the tool also checks them against the exact centreline geometry. The result is rounded up to 25 mm by default.</p>
+    <h3>How does the cutting plan save steel?</h3>
+    <p>It solves the cutting-stock problem: which combinations of pieces to cut from each stock bar so every piece is cut and the least stock is bought. The linear relaxation is solved exactly by column generation, which gives a lower bound no plan can beat. Whole-bar plans are then built several ways and the cheapest is kept. When the plan meets the bound, it is proven optimal; otherwise the page shows how many bars it could at most be over.</p>
+    <h3>How much does it save against cutting by hand?</h3>
+    <p>On 200 generated schedules cut from 12 m bars, first-fit decreasing (longest piece first into the first bar it fits) bought about 1% more steel than the optimiser and more bars in 122 of the 200. The plan met the proven lower bound in 197 of 200 and was at most one bar over in the rest. These are generated schedules, not real jobs; the page shows the comparison for your own schedule.</p>
+    <h3>What schedule format does it read?</h3>
+    <p>Comma, tab or semicolon separated text, such as cells copied from a spreadsheet. A header row is read by name (mark, dia or size, shape, members, each, A, B, C, D, E). Without a header, columns are read as mark, size, shape, members, bars in each, then A, B, C, D, E. Sizes may be written 12, H12, T12 or B500B 12.</p>
+    <h3>Is my schedule uploaded?</h3>
+    <p>No. Every calculation runs in your browser and your schedule is never sent anywhere. The hosted page counts one anonymous page view a day (the page, the day and the referring channel, never what you type; off under Do Not Track or Global Privacy Control, and described in the site footer). An optional anonymous counter in this browser's local storage records only which features were used and the day.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. A scheduling aid, not engineering or detailing advice. Cut lengths follow the shape-code formulas and minimum radii described above; your specification, bending machine and fabricator may differ (larger radii, other rounding, BS 8666 edition). Check every length against the drawings and have the schedule checked by a competent person before steel is ordered or cut.</p>
+    <p>Nothing leaves your browser: your schedule is read and computed here. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rebar-schedule">Source and CLI</a> · <a href="LICENSE">MIT licence</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a></p>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+  </footer>
+
+  <script type="module">
+    import { run, scheduleCsv, cuttingCsv, EXAMPLE } from './schedule.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    let last = null;
+    const fmt = (x, d = 0) => Number(x).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+    function count(event) { try { recordUsage(usageStorage(), el('usageOptOut').checked, event); } catch { /* storage is optional */ } }
+
+    function node(tag, text, cls) { const n = document.createElement(tag); if (text != null) n.textContent = text; if (cls) n.className = cls; return n; }
+    function fillTable(table, head, rows, leftCols = 1) {
+      table.replaceChildren();
+      const tr = node('tr'); head.forEach((h, i) => tr.append(node('th', h, i < leftCols ? 'l' : ''))); table.append(tr);
+      for (const r of rows) { const row = node('tr'); r.forEach((c, i) => row.append(node('td', c, i < leftCols ? 'l' : ''))); table.append(row); }
+    }
+
+    function compute() {
+      el('error').textContent = '';
+      const stock = el('stock').value.split(/[,\s]+/).map(Number).filter(n => n > 0).map(Math.round);
+      if (!stock.length) { el('error').textContent = 'Give at least one stock length in mm.'; return; }
+      const round = Math.max(1, Math.round(Number(el('round').value) || 25));
+      const kerf = Math.max(0, Math.round(Number(el('kerf').value) || 0));
+      const keep = Math.max(0, Number(el('keep').value) || 0);
+      const price = Number(el('price').value) || 0;
+      const r = run(el('text').value, { stock, round, kerf });
+      last = r;
+      const errs = [...r.errors, ...r.plans.filter(p => p.error).map(p => `${p.dia} mm: ${p.error}`)];
+      el('error').textContent = errs.join('\n');
+      if (!r.lines.length) { el('results').hidden = true; return; }
+      const ok = r.plans.filter(p => !p.error);
+      const boughtKg = ok.reduce((s, p) => s + p.boughtKg, 0);
+      const needKg = ok.reduce((s, p) => s + p.needed / 1000 * (p.boughtKg / (p.bought / 1000)), 0);
+      el('kgNeed').textContent = `${fmt(r.totalKg)} kg`;
+      el('kgBuy').textContent = `${fmt(boughtKg)} kg`;
+      el('wastePct').textContent = boughtKg ? `${fmt(100 * (boughtKg - needKg) / boughtKg, 1)}%` : '–';
+      const ffdBars = ok.reduce((s, p) => s + p.firstFit.bars, 0), bars = ok.reduce((s, p) => s + p.bars, 0);
+      el('ffdLine').textContent = ffdBars > bars
+        ? `Cutting longest-first into the first bar that fits (first-fit decreasing) would need ${fmt(ffdBars)} stock bars; this plan needs ${fmt(bars)}.`
+        : `This plan needs ${fmt(bars)} stock bars; cutting longest-first into the first bar that fits needs the same here.`;
+      el('costLine').textContent = price > 0 ? `At ${fmt(price, 2)} per tonne: stock ${fmt(boughtKg / 1000 * price, 2)}, of which offcut and waste ${fmt((boughtKg - needKg) / 1000 * price, 2)}.` : '';
+      fillTable(el('sizeTable'), ['Size', 'Bars', 'Length (m)', 'Weight (kg)', 'Stock bars', 'Bought (kg)', 'Bound'],
+        r.sizes.map(s => {
+          const p = r.plans.find(x => x.dia === s.dia);
+          const bound = !p || p.error ? 'error' : p.proven ? 'optimal (proven)' : `≤ ${fmt(p.gap / Math.max(...p.patterns.map(q => q.stock)), 2)} bar over`;
+          return [`${s.dia} mm`, fmt(s.bars), fmt(s.length / 1000, 2), fmt(s.kg, 1), p && !p.error ? fmt(p.bars) : '–', p && !p.error ? fmt(p.boughtKg, 1) : '–', bound];
+        }));
+      const plans = el('plans'); plans.replaceChildren();
+      const offcuts = [];
+      for (const p of ok) {
+        plans.append(node('p', `${p.dia} mm: ${fmt(p.bars)} stock bars, ${p.proven ? 'proven optimal' : `lower bound ${fmt(p.lowerBound / 1000, 1)} m of stock`}`, p.proven ? 'proven' : ''));
+        const t = node('table');
+        fillTable(t, ['Stock', 'Bars', 'Cut from each bar', 'Offcut'], p.patterns.map(q => [`${fmt(q.stock)} mm`, fmt(q.times), q.cuts.map(c => `${c.count} × ${fmt(c.length)} (${p.marksByLength[c.length].join(', ')})`).join(' + '), `${fmt(q.offcut)} mm`]));
+        t.querySelectorAll('td:nth-child(3)').forEach(td => { td.className = 'l'; td.style.whiteSpace = 'normal'; });
+        const wrap = node('div', null, 'scroll'); wrap.append(t); plans.append(wrap);
+        for (const q of p.patterns) if (keep > 0 && q.offcut >= keep) offcuts.push(`${q.times} × ${fmt(q.offcut)} mm of ${p.dia} mm`);
+      }
+      el('offcuts').textContent = offcuts.length ? `Offcuts of ${fmt(keep)} mm or more, worth racking: ${offcuts.join('; ')}.` : `No offcut reaches ${fmt(keep)} mm.`;
+      fillTable(el('markTable'), ['Mark', 'Size', 'Shape', 'Dims (mm)', 'No.', 'Exact (mm)', 'Cut (mm)', 'kg'],
+        r.lines.map(l => [l.mark, `${l.dia}`, l.shape, Object.entries(l.dims).map(([k, v]) => `${k} ${v}`).join(' '), fmt(l.count), fmt(l.exact, 1), fmt(l.cut), fmt(l.kg, 1)]));
+      el('results').hidden = false;
+      count('schedule_computed');
+    }
+
+    function download(name, text) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' }));
+      a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    el('run').addEventListener('click', compute);
+    el('example').addEventListener('click', () => { el('text').value = EXAMPLE; compute(); count('example_loaded'); });
+    el('file').addEventListener('change', async e => { const f = e.target.files[0]; if (f) { el('text').value = await f.text(); compute(); } });
+    el('csvMarks').addEventListener('click', () => { if (last) { download('bar-schedule.csv', scheduleCsv(last)); count('csv_downloaded'); } });
+    el('csvPlan').addEventListener('click', () => { if (last) { download('cutting-plan.csv', cuttingCsv(last)); count('csv_downloaded'); } });
+    const u = el('usageOptOut');
+    u.checked = readOptOut(usageStorage());
+    u.addEventListener('change', () => writeOptOut(usageStorage(), u.checked));
+  </script>
+</body>
+</html>
