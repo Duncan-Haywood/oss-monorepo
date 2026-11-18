@@ -148,7 +148,9 @@ function candidates(rows, t, cost, cap) {
 }
 
 // Ladder search: ordered prices (each plan costs at least the one below) over a grid of surveyed values.
-function ladder(rows, costs, cap) {
+// `sweep` (the default) prices the last plan with the counting pass in lastLevel() when every weight is a whole number;
+// sweep: false always takes the plain loop. Both return the same prices (calc.test.mjs pins it).
+function ladder(rows, costs, cap, sweep = true) {
   const k = costs.length;
   const cands = [];
   for (let t = 0; t < k; t++) cands.push(candidates(rows, t, costs[t], cap));
@@ -160,8 +162,11 @@ function ladder(rows, costs, cap) {
   const bs = Array.from({ length: k + 1 }, () => new Float64Array(n).fill(-1e-9));
   let best = null, bestProfit = 0;
   const cur = new Array(k);
+  const fast = sweep && wholeWeights(W) ? lastLevel(n, k, V, W, cands[k - 1], costs, cur) : null;
+  const leaf = (profit) => { if (!best || profit > bestProfit + 1e-9) { best = cur.slice(); bestProfit = profit; } };
   (function go(t) {
     const pi = bi[t], ps = bs[t], ni = bi[t + 1], ns = bs[t + 1], last = t === k - 1;
+    if (last && fast) { fast(pi, ps, leaf); return; }
     for (const p of cands[t]) {
       if (t > 0 && p < cur[t - 1]) continue;
       cur[t] = p;
@@ -178,10 +183,66 @@ function ladder(rows, costs, cap) {
       if (!last) { go(t + 1); continue; }
       let profit = 0;
       for (let u = 0; u < k; u++) profit += buyers[u] * (cur[u] - costs[u]);
-      if (!best || profit > bestProfit + 1e-9) { best = cur.slice(); bestProfit = profit; }
+      leaf(profit);
     }
   })(0);
   return best && evaluate(rows, best, costs);
+}
+
+// Whole-number weights whose total is a safe integer: every partial sum of them is exact in any order, so the counting
+// pass below gives bit-identical buyer totals to the plain loop's index-order sums. Fractional weights keep the plain loop.
+function wholeWeights(W) {
+  let sum = 0;
+  for (const w of W) { if (!Number.isInteger(w)) return false; sum += w; }
+  return sum <= Number.MAX_SAFE_INTEGER;
+}
+
+// The last plan's prices, all at once. For a respondent whose best plan so far is b (surplus bS), "switches to the last
+// plan at price p" is the plain loop's own test. Above the lowest allowed candidate every p exceeds cur[b] (prices are
+// ordered and candidates distinct), so the test is true for a run of candidates and then false: a binary search finds
+// the run's end, and difference arrays add the respondent's weight to every candidate in it. The lowest allowed candidate
+// (where p may equal cur[b]) is tested directly. Buyers per plan then come from integer sums, exact in any order.
+function lastLevel(n, k, V, W, cands, costs, cur) {
+  const t = k - 1, m = cands.length;
+  const tot = new Float64Array(k + 1), diff = new Float64Array((k + 1) * (m + 1)), first = new Float64Array(k + 1);
+  return (pi, ps, leaf) => {
+    let j0 = 0;
+    if (t > 0) while (j0 < m && cands[j0] < cur[t - 1]) j0++;
+    if (j0 === m) return;
+    tot.fill(0); diff.fill(0); first.fill(0);
+    const p0 = cands[j0];
+    for (let i = 0, o = t; i < n; i++, o += k) {
+      const b = pi[i], bS = ps[i], u = b + 1, w = W[i];
+      tot[u] += w;
+      const v = V[o];
+      if (!(v > 0)) continue;
+      let s = v - p0;
+      if (s > bS + 1e-12 || (Math.abs(s - bS) <= 1e-12 && b >= 0 && p0 > cur[b])) first[u] += w;
+      // Largest j in (j0, m) where the respondent still switches; lo = j0 means none.
+      let lo = j0, hi = m;
+      while (hi - lo > 1) {
+        const mid = (lo + hi) >> 1, p = cands[mid];
+        s = v - p;
+        if (s > bS + 1e-12 || (Math.abs(s - bS) <= 1e-12 && b >= 0 && p > cur[b])) lo = mid; else hi = mid;
+      }
+      if (lo > j0) { diff[u * (m + 1) + j0 + 1] += w; diff[u * (m + 1) + lo + 1] -= w; }
+    }
+    const run = new Float64Array(k + 1), sw = new Float64Array(k + 1), buyers = new Float64Array(k);
+    for (let j = j0; j < m; j++) {
+      cur[t] = cands[j];
+      for (let u = 0; u <= k; u++) {
+        if (j > j0) run[u] += diff[u * (m + 1) + j];
+        sw[u] = j === j0 ? first[u] : run[u];
+      }
+      let into = 0;
+      for (let u = 0; u <= k; u++) into += sw[u];
+      for (let u = 0; u < t; u++) buyers[u] = tot[u + 1] - sw[u + 1];
+      buyers[t] = into;
+      let profit = 0;
+      for (let u = 0; u < k; u++) profit += buyers[u] * (cur[u] - costs[u]);
+      leaf(profit);
+    }
+  };
 }
 
 // Exact one-price-at-a-time search: with the other prices fixed, profit only changes where some respondent switches plan,
@@ -218,9 +279,9 @@ function refine(rows, costs, start) {
 }
 
 // Best prices for one placement of features. `exact` slides the prices to their exact best values afterwards.
-export function priceLadder(rows, level, costs, { exact = false } = {}) {
+export function priceLadder(rows, level, costs, { exact = false, sweep = true } = {}) {
   const pr = planValues(rows, level, costs.length);
-  const base = ladder(pr, costs, exact ? FINAL_CANDIDATES : INNER_CANDIDATES);
+  const base = ladder(pr, costs, exact ? FINAL_CANDIDATES : INNER_CANDIDATES, sweep);
   if (!base) return null;
   const res = exact ? refine(pr, costs, base) : base;
   return { ...res, level: level.slice() };
