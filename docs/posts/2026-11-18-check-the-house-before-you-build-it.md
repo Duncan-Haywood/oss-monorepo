@@ -1,9 +1,9 @@
 ---
 title: "Check the house before you build it: nine in ten floor plans were thrown away after the rooms went up"
-seo_title: "Speeding up a floor-plan search: reject infeasible candidates from their parameters"
+seo_title: "Faster floor-plan search: reject candidates before building rooms"
 date: 2026-11-18
 tags: [performance, javascript, floor-plans, search, open-house-plans]
-description: "Open House Plans tries about 22,000 layouts per brief. Nine in ten fail a constraint, and the code built their rooms before finding out. Checking first cut the search by about 40%, same plans."
+description: "Nine in ten candidate floor plans failed a constraint after their rooms were built. Checking first cut the search by about 40%, same plans."
 ---
 
 [Open House Plans](../../ventures/open-house-plans/) designs a single-storey
