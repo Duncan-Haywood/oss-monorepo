@@ -2805,6 +2805,25 @@ read both ways: two places changed, both one-step cephalici with a hollow small 
 removed. Four predictions, four held. Seven misses are left, two of them `liquescentTail` claiming the
 cephalicus first. Details: `eval/one-step-hollow-check.md`.
 
+### A head split by a white fleck (2026-11-18, later)
+
+Two misses were put down to `liquescentTail` claiming a one-step cephalicus first. Looked at pair by
+pair, neither was: on 3439 the cephalicus is read right and the square after it was lost, and 3357's
+page prints `hg~` where GregoBase has `gf~`. The square on 3439 has a white fleck three columns wide
+under the line; every run in those columns is under the head-height cut and the halves either side
+are each under the width cut, so both were dropped. Two such pieces, close (0.12 spaces), level, a
+head's width together, inked across the gap and on or near the staff, are now joined (`FLECK` in
+`scan.mjs`; `readPage(img, { fleck: false })` reads without it). The same cut was dropping far more
+than flecked squares: the upper head of a podatus (its concave underside leaves its middle columns
+short), quilismas and porrectus end heads. Tuning lists: agreeing 24,367 to 24,397, GABC only 603 to
+572, differing +1, scan only +1, one-step cephalici 77 to 78 of 84, false liquescents 13 to 12; 20 of
+20 sampled additions outside the aligned pieces were real heads, and the four liquescents it turned
+into plain heads were podatus read as epiphonus. A first version also joined two letters of a bold
+lyric; the staff-reach test removed that. Held out, 29 Graduale leaves no list reads, committed before
+they were downloaded: 13 notes added on 236 staves, 13 of 13 real heads; two false liquescents (quilisma
+podatus) became plain heads; nothing moved or removed. Three predictions, three held. Details:
+`eval/fleck-check.md`.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
@@ -2825,6 +2844,9 @@ cephalicus first. Details: `eval/one-step-hollow-check.md`.
   changed middle and sends the singer to *Gaudeamus*, p. 486, where its ending is) and one,
   3427, was a transcription slip: its last three notes were a step low, now corrected, and it
   ends on its mode final. So 10 files end off the final because the book does.
+- GregoBase 3357 (*Ecce oculi*, in `corpus/gregobase-1908-onestep/`, unmodified) has *e-* `gf~`
+  where leaf 455, staff 2 prints the cephalicus a step higher, on the line of the clivis after it
+  (`hg~`; eval/fleck-check.md). Left as downloaded until a second copy of the page is read.
 - `fuzz.test.mjs` throws 2000 random made-up GABC strings at the reader and
   MIDI writer (no crash, pitches in range); it says nothing about real files.
 - Nothing has been arranged, sung, mixed or published.
