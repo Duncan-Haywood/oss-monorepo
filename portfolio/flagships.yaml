@@ -407,13 +407,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "A fresh take survey with the stretched
-      offsets live" (2026-11-18: 7 ms takes off the grid's end on 6 of 6; the
-      parabola reads 0.4-0.5 ms low, the spline tied it held out, kept off). Next:
-      the nine-point take grid (0-8 ms by 1) on its own held-out set (won 47-52 vs
-      43-48 offline); a drill-level check of one-wheel verdicts on more fresh sets;
-      the sub-8 advised instant build; ball hold: WHEEL_RPM_FULL error's cost on 0.2
-      s wheels.
+      see firmware/esp32/README.md, latest "The nine-point take grid on its own
+      held-out sets" (2026-11-18: half-ms takes, tied within 0.5 ms 141 each, grid
+      kept; off by over 1 ms 10 vs 20). Next: that grid on a fresh set with "off by
+      over 1 ms" named first; a drill-level check of one-wheel verdicts on more
+      fresh sets; the sub-8 advised instant build; ball hold: WHEEL_RPM_FULL error's
+      cost on 0.2 s wheels.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

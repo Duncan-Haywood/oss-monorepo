@@ -44,3 +44,65 @@ and `protocol.TAKE_SURVEY_TIMES`, the older-frame decode kept) only if, pooled o
 
 Otherwise the shipped grid stays. A tie on clause 1 keeps the shipped grid (the nine-point one costs two fits a
 wheel). The spline is reported, not decided (`TAKE_SURVEY_SPLINE` stays as it is).
+
+## Results
+
+Rows (every surveyed wheel's periods and ticks): `take-grid-nine-d-2026-11-18.jsonl.gz`, `-e-` and `-f-`. Full
+per-build tables, the by-take verdicts of both grids and the `--grids` lines: `take-grid-nine-d-2026-11-18.txt`, `-e-`
+and `-f-`. No drill aborted (162 of 162). The capture took about 2 minutes a set on four cores, the scoring about 3.
+
+### The decision: the shipped grid stays
+
+Parabola, verdicts rounded to 0.5 ms, from `--grids`:
+
+| | D (0.4 s, 53) | E (0.7 s, 59) | F (0.55 s, 61) | pooled |
+| --- | --- | --- | --- | --- |
+| within 0.5 ms, shipped / nine-point | 48 / 48 | 47 / 47 | 46 / 46 | **141 / 141** |
+| within 1 ms | 48 / 52 | 47 / 50 | 47 / 50 | 142 / 152 |
+| spread takes named within 1 ms and advised | 32 / 33 | 29 / 30 | 31 / 30 | 92 / 93 |
+| instant builds advised | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+
+Clause 1 needed more builds within 0.5 ms and got an exact tie, on every set. Clauses 2 to 5 held. A tie keeps the
+shipped grid, so `TAKE_SURVEY_GRID_US` stays 0, 2, 3, 4, 5, 6, 8 ms. Nothing in the firmware changes.
+
+### The predictions
+
+- (p1) **failed.** The margin did shrink, as predicted (A to C: +11; here 0), but the nine-point grid did not have
+  more builds within 0.5 ms.
+- (p2) **half held.** Between 2 and 6 ms the grids gave the same verdict on 68 of 72 builds (94%, the bar was 90%).
+  But the gain was not in the 0.5 ms takes: there the nine-point grid did *worse* (14 of 18 within 0.5 ms against 17;
+  three builds read 1.5 where the shipped grid read 0 or 1). At 1.5 ms it did better (9 of 18 against 7).
+- (p3) **held.** No instant build advised on either grid.
+
+### What the tie hides (reported, not decided)
+
+The bar the rule used is coarse at half-millisecond takes. The Pi rounds to 0.5 ms, so on a 6.5 ms take the shipped
+grid's 6.0 and the nine-point grid's 6.5 both count as within 0.5 ms; so do the shipped grid's 8.0 on every 7.5 ms take
+(18 of 18 builds read the grid's end) and the nine-point grid's 7.0 and 7.5. Other measures, all from the same tables
+and not part of the rule:
+
+| | shipped | nine-point |
+| --- | --- | --- |
+| mean absolute verdict error, 162 builds | 0.53 ms | 0.45 ms |
+| builds off by more than 1 ms | 20 | 10 |
+| 1.5 ms takes, mean absolute error | 1.11 ms | 0.78 ms |
+| 6.5 ms takes | 0.47 ms | 0.22 ms |
+| 7.5 ms takes (shipped: every one read 8.0) | 0.50 ms | 0.31 ms |
+| 0.5 ms takes | 0.75 ms | 0.78 ms |
+
+So the nine-point grid halves the builds that miss by more than a millisecond, mostly 1.5 ms takes the shipped
+grid reads as 0 (an instant build). Whether that is worth two more fits a wheel (nine instead of seven, about 29% more
+survey time on the board) and a frame change is a new question with a new primary measure. Choosing that
+measure after seeing these tables and adopting on these rows would be the forking path the rule exists to stop. It
+needs a fresh set with the measure (builds off by more than 1 ms, or mean absolute error) named first.
+
+**The board still reads below the residual's own least.** On every set the dense least sat within 0.12 ms of the true
+take on the capture tach (-0.02, -0.02, -0.12), and the parabola read 0.29 to 0.39 ms below it, the lean
+`eval/take-survey-fresh-2026-11-18.md` found on A to C. The nine-point grid does not remove that lean. It shortens the
+span the parabola bridges.
+
+## Not known
+
+All simulated: the simulator's first-order wheel and continuous half-sine take. One seed per set, three sets. The
+nine-point grid's verdicts are scored offline from dense refits of wheels the board surveyed on the shipped grid.
+The trim and blind rule are the board's, but a board running nine candidates was not simulated end to end.

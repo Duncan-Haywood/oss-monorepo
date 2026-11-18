@@ -41,9 +41,13 @@ wheel and a longer TAKE_SURVEY frame, so a tie keeps the shipped grid).
 
 HELD OUT: wheel lag 0.6 s, seed 31 (neither used by the design set), the same takes, tachs and launchers.
 
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl [--lag 0.45] [--seed 29] [--procs 4]
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl [--lag 0.45] [--seed 29] [--procs 4] [--takes "0.5,1.5,...,0"]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score rows.jsonl[.gz] [--procs 4]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score rows.jsonl[.gz] --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
+
+--takes (2026-11-18, eval/take-grid-nine-2026-11-18.md) replaces TAKES_MS for a capture. Sets D to F used the
+half-millisecond takes 0.5-7.5 ms, off both the shipped and the nine-point grid. --grids also prints each take's
+verdicts per grid.
 
 Simulated only: the simulator's first-order wheel and assumed half-sine take, the MCPWM capture tach at 1/8 us with
 0.5 us handler jitter (which the capture does not see) and the board's default jittery tach at 0.5 us; one seed per set.
@@ -185,7 +189,7 @@ def score(builds, procs):
                                                              for j in (1, 2, 3)))
 
 
-def grid_score(builds, dense, grid_ms, pick_name):
+def grid_score(builds, dense, grid_ms, pick_name, by_take=None):
     """The board's verdicts had it surveyed `grid_ms` (each a DENSE_US point) instead of the shipped grid: each wheel's
     row is its dense rms at those points, the board's trim and blind rule and `pick_name`'s pick, rounded to 0.5 ms
     as the Pi rounds it. (within 0.5 ms, within 1 ms, spread takes named within 1 ms and advised, spread takes,
@@ -209,6 +213,8 @@ def grid_score(builds, dense, grid_ms, pick_name):
         share = (min(sums) / sums[0]) ** 0.5 if sums[0] else 1.0
         adv = share <= host.TAKE_ADVISE_RATIO
         ms = b["take_ms"]
+        if by_take is not None:
+            by_take.setdefault(ms, []).append(got)
         n += 1
         w5 += abs(got - ms) <= 0.5
         w1 += abs(got - ms) <= 1.0
@@ -237,12 +243,23 @@ def main():
         print(f"{len(builds)} survey drills; each grid's verdicts from the dense refits (trim, blind rule and margin as "
               f"the board's); within 0.5 / 1 ms of true (of builds with a verdict), spread takes named within 1 ms and "
               f"advised, instant builds advised")
+        verdicts = {}
         for gs in sys.argv[sys.argv.index("--grids") + 1].split(";"):
             g = [float(x) for x in gs.split(",")]
             for pk in ("parabola", "spline"):
-                w5, w1, good, spread, bad, inst, n = grid_score(builds, dense, g, pk)
+                bt = verdicts.setdefault((gs, pk), {})
+                w5, w1, good, spread, bad, inst, n = grid_score(builds, dense, g, pk, bt)
                 print(f"  {gs:24} {pk:8}: within 0.5 ms {w5}/{n}, within 1 ms {w1}/{n}, named and advised "
                       f"{good}/{spread}, instant advised {bad}/{inst}")
+        print("\nBy take, parabola (the Pi's verdicts, rounded to 0.5 ms), each grid: within 0.5 ms, then the verdicts")
+        for ms in sorted({b["take_ms"] for b in builds}):
+            cells = []
+            for (gs, pk), bt in verdicts.items():
+                if pk == "parabola":
+                    v = bt.get(ms, [])
+                    cells.append(f"{gs}: {sum(abs(x - ms) <= 0.5 for x in v)}/{len(v)} "
+                                 f"[{' '.join(f'{x:g}' for x in v)}]")
+            print(f"  {ms:g} ms | " + " | ".join(cells))
         return
     out = sys.argv[sys.argv.index("--capture") + 1]
     lag = float(sys.argv[sys.argv.index("--lag") + 1]) if "--lag" in sys.argv else 0.45
