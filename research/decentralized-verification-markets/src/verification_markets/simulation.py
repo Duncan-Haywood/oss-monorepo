@@ -31,7 +31,9 @@ from .agents import Verifier, generate_tasks
 from .market_maker import LMSRMarketMaker
 from .peer_prediction import (
     ca_payment,
+    ca_score_matrix,
     correlated_agreement_matrix,
+    multi_task_ca_payment,
     empirical_prior,
     peer_truth_serum,
 )
@@ -91,6 +93,12 @@ class SimulationResult:
     trust_weight: Dict[int, float] = field(default_factory=dict)
     ca_scoring_payoff: Dict[int, float] = field(default_factory=dict)
     ca_trust_payoff: Dict[int, float] = field(default_factory=dict)
+    # Published multi-task Correlated Agreement (bonus minus penalty task
+    # pair; peer_prediction.multi_task_ca_payment). Drawn from a separate
+    # RNG stream so the older payoffs above are unchanged by its presence.
+    ca_multitask_payoff: Dict[int, float] = field(default_factory=dict)  # sign(Delta), full history
+    ca_multitask_delta_payoff: Dict[int, float] = field(default_factory=dict)  # Delta, full history
+    ca_multitask_scoring_payoff: Dict[int, float] = field(default_factory=dict)  # sign(Delta), held-out
     market_price_scoring: List[float] = field(default_factory=list)
     market_price_trust: List[float] = field(default_factory=list)
 
@@ -266,6 +274,43 @@ def run_simulation(config: SimulationConfig) -> SimulationResult:
         market_price_scoring.append(plain_market.price_yes())
         market_price_trust.append(trust_market.price_yes())
 
+    # Published multi-task CA. Its own RNG so nothing above shifts.
+    mt_rng = random.Random(f"multitask-ca:{config.seed}")
+    sign_full = ca_score_matrix(delta, "sign")
+    delta_full = ca_score_matrix(delta, "delta")
+    sign_calibration = ca_score_matrix(plain_calibration_delta, "sign")
+
+    def _multitask(tasks: List[int], scores) -> List[Dict[int, float]]:
+        out = [{v.id: 0.0 for v in verifiers} for _ in scores]
+        if len(tasks) < 3:
+            return out
+        n = len(tasks)
+        for idx, b in enumerate(tasks):
+            for v in verifiers:
+                peers = [p for p in verifiers if p.id != v.id]
+                if not peers:
+                    continue
+                peer = mt_rng.choice(peers)
+                # Two distinct penalty tasks, both distinct from the bonus
+                # task, uniformly: shift indices drawn from n-1, n-2 slots.
+                a = mt_rng.randrange(n - 1)
+                a += a >= idx
+                c = mt_rng.randrange(n - 2)
+                lo, hi = sorted((idx, a))
+                c += c >= lo
+                c += c >= hi
+                p_i, p_j = tasks[a], tasks[c]
+                for k, score in enumerate(scores):
+                    out[k][v.id] += multi_task_ca_payment(
+                        reports[v.id], reports[peer.id], b, p_i, p_j, score
+                    )
+        return out
+
+    ca_multitask_payoff, ca_multitask_delta_payoff = _multitask(
+        list(range(config.n_tasks)), [sign_full, delta_full]
+    )
+    (ca_multitask_scoring_payoff,) = _multitask(scoring_tasks, [sign_calibration])
+
     return SimulationResult(
         config=config,
         verifiers=verifiers,
@@ -280,6 +325,9 @@ def run_simulation(config: SimulationConfig) -> SimulationResult:
         trust_weight=trust_weight,
         ca_scoring_payoff=ca_scoring_payoff,
         ca_trust_payoff=ca_trust_payoff,
+        ca_multitask_payoff=ca_multitask_payoff,
+        ca_multitask_delta_payoff=ca_multitask_delta_payoff,
+        ca_multitask_scoring_payoff=ca_multitask_scoring_payoff,
         market_price_scoring=market_price_scoring,
         market_price_trust=market_price_trust,
     )
