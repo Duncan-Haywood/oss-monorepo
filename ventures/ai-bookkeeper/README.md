@@ -3047,6 +3047,21 @@ RapidOCR's 138, so `--rapidocr` stays the advice for these slips. Details:
 [`eval/ocr-time-limit-2026-11-18.md`](eval/ocr-time-limit-2026-11-18.md). Tests:
 `ocr-time-limit.test.mjs`.
 
+### SROIE through RapidOCR and the five readings; dates glued to the time (2026-11-18)
+
+SROIE's 626 Malaysian receipt scans had only been read by tesseract. Read by RapidOCR and
+tesseract's four (`--rapidocr --four-pass`), split before any change into 313 dev and 313 held
+out: totals are right on 282 of 312 and 302 of 313 (96.5%), and the lead rule, chosen on CORD, adds
+12 and 8 totals over the vote without it. Dates were the fault: RapidOCR drops the space between
+the date and the clock time (`25/12/20188:13:39PM`, `18-11-1813:58` read as 1813, `05Mar201818:24`),
+so with RapidOCR leading only 69% of held-out dates were right. The reader now splits a date glued
+to a time before reading it, and refuses a year before 1990: held-out dates **69.1% to 94.1%** right,
+wrong dates 34 to 11; totals unchanged. Also SRD 1009: a lead that took its subtotal as the total
+(no total line read) gives way to a total line at most 35% above it (SRD totals 188 to 189, tax 164
+to 165; unmeasured on CORD, which could not be fetched). Details:
+[`eval/sroie-five-readings-2026-11-18.md`](eval/sroie-five-readings-2026-11-18.md).
+Tests: `receipt-sroie-five.test.mjs`.
+
 ### Russian slips: tesseract's Cyrillic model behind RapidOCR (2026-11-18)
 
 Would tesseract with its Russian model (`RECEIPT_OCR_CMD='tesseract {file} stdout --psm 6 -l rus+eng'`,
