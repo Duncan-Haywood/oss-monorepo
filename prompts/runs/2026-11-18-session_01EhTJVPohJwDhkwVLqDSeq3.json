@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVPohJwDhkwVLqDSeq3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T07:28:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship: cull grouping cost (an index that skips most distinct pairs)",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17213",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Ran a bare `promptctl route` first (drew process) and began process-track triage before reading prompt.md steps 0-1; re-routed with --task to ventures.",
+      "cost": "about 5 minutes"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "A bare `promptctl route` on the scheduled ventures brief drew the process track; only `--task` routes it right. The scheduled prompt could pass --track ventures (reported by other runs too)."
+    },
+    {
+      "file": "ventures/photo-editing/eval/cull-crop-gate-2026-11-18.md",
+      "issue": "Suggested multi-index hashing on the whole and centre-window hashes; whole-hash pruning cannot work at a 44-bit gate, and a centre-window pivot bound ruled out about 2% of pairs. What worked was chunk indexes on each pass's own hash pair (window and zoom tables)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-grouping-bursts-without-comparing-every-pair.md",
+    "ventures/photo-editing/eval/cull-grouping-index-2026-11-18.md"
+  ],
+  "goal": "Make the cull's burst grouping sub-quadratic without changing a single group.",
+  "notes": "cull._group now builds exact pigeonhole chunk indexes (whole r8, crop windows r6, zoom windows r6, pan windows grouped by a-side window r5) from 500 frames up and runs each pass's unchanged check only on its own candidates. Identical partitions to the all-pairs scan at 500/1,000/2,000/5,000/10,000 frames on the eval corpus; 10.0 to 3.6 s at 2,000, 251 to 42 s at 10,000 (eval/cull-grouping-index-2026-11-18.txt, tools/cull_group_timing.py --compare). A pivot bound was tried first and pruned ~2% (recorded). GroupingIndexTest: 3 tests; two seeded faults both caught. Verification: run_venture_tests.py photo-editing ok (1337 tests, 194 s); mypy clean on cull.py; local ruff (newer than CI's pinned 0.15.8) flags only pre-existing lines; venture-preflight.mjs photo-editing clean. main_health.py at start: 268/268.",
+  "corrections": [],
+  "redteam": null
+}
