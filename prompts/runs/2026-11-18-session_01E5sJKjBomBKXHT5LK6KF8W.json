@@ -43,7 +43,7 @@
     "ventures/open-tennis-robots/firmware/esp32/README.md \"The take survey's window\""
   ],
   "goal": null,
-  "notes": "Flagship row 6 (open-tennis-robots), BUILDABLE item 'the take survey with 24'. New tests/take_survey_window.py refits the board's take-survey inputs at windows 8/12/16/24, first run including the 3 us jitter tach. Design (lag 0.3, seed 7, 36 drills) and pre-registered held out (lag 0.45, seed 11, committed 2b34515df first): 24 named and advised 9 spread takes vs 12 at 8, ESC share 0.47->0.63; no window advises any jitter build. Shipped controller.TAKE_SURVEY_AFTER = 8 passed explicitly; eval/take-survey-window-2026-11-18.txt. Venture tests: see PR body.",
+  "notes": "Flagship row 6 (open-tennis-robots), BUILDABLE item 'the take survey with 24'. New tests/take_survey_window.py refits the board's take-survey inputs at windows 8/12/16/24, first run including the 3 us jitter tach. Design (lag 0.3, seed 7, 36 drills) and pre-registered held out (lag 0.45, seed 11, committed 2b34515df first): 24 named and advised 9 spread takes vs 12 at 8, ESC share 0.47->0.63; no window advises any jitter build. Shipped controller.TAKE_SURVEY_AFTER = 8 passed explicitly; eval/take-survey-window-2026-11-18.txt. Venture tests: run_venture_tests.py open-tennis-robots ok, 366 tests in 197.7 s, 58 skipped (build123d not installed), 0 failed.",
   "corrections": [],
   "redteam": null,
   "usage": {
