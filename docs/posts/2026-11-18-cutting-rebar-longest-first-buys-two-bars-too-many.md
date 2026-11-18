@@ -1,9 +1,9 @@
 ---
 title: "Cutting rebar longest-first: when it buys two bars too many, and how to prove the plan can't be beaten"
-seo_title: "Bar bending schedule calculator and rebar cutting optimizer, with a proven bound"
+seo_title: "Rebar cutting optimizer: bar bending schedule with a proven bound"
 date: 2026-11-18
 tags: [construction, rebar, optimization, rebar-schedule]
-description: "A new free tool reads a bar bending schedule, works out BS 8666 cut lengths and weights, and cuts it from 12 m stock with column generation; on 200 generated schedules it was proven optimal in 197."
+description: "A free tool reads a bar bending schedule, works out BS 8666 cut lengths and weights, and cuts 12 m stock bars with a plan proven optimal in 197 of 200 tests."
 ---
 
 There is a new free tool in the catalogue: the [bar bending schedule calculator and rebar cutting optimizer](https://marisstella.app/rebar-schedule/). Paste a schedule (mark, size, shape code, dimensions, number of members, bars in each) and it gives back every cut length, the weight per bar size, and which pieces to cut from each 12 m stock bar so the least steel is bought. Nothing is uploaded.
