@@ -66,6 +66,7 @@ def capture(args):
             for g in self.survey:
                 fit = None
                 for item in controller.drop_from_commands_steps(snap[k], controller.esc_lagged_ticks(snap[k], raw, g),
+                                                                after=controller.ESC_SURVEY_AFTER,
                                                                 refine=controller.ESC_SURVEY_REFINE):
                     if item is None:
                         yield None
