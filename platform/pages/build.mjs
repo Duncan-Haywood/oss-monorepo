@@ -515,7 +515,7 @@ function shipsDeployableApp(slug) {
 }
 
 // Tools that implement a published paper (portfolio/research-tools/README.md).
-export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'cost-sharing-calculator', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering', 'kalman-smoother', 'extreme-value-analysis', 'meta-analysis', 'dynamic-time-warping', 'stable-matching', 'kriging-interpolation', 'scale-reliability', 'item-response-theory', 'difference-in-differences', 'method-comparison', 'regression-discontinuity', 'contingency-table-tests', 'propensity-score', 'gage-rr'];
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'cost-sharing-calculator', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering', 'kalman-smoother', 'extreme-value-analysis', 'meta-analysis', 'dynamic-time-warping', 'stable-matching', 'kriging-interpolation', 'scale-reliability', 'item-response-theory', 'difference-in-differences', 'method-comparison', 'regression-discontinuity', 'contingency-table-tests', 'propensity-score', 'gage-rr', 'conjoint-analysis'];
 
 // The `personal-tax` section's members (CATEGORY_RULES, below). A Set so the rule is one lookup.
 const PERSONAL_TAX_SLUGS = new Set([
@@ -589,6 +589,7 @@ const HOUSEHOLD_SLUGS = new Set([
       'funeral-price-list-checker',
       'heat-pump-vs-furnace-calculator',
       'heloc-vs-cash-out-refinance-calculator',
+      'home-battery-planner',
       'home-sale-net-proceeds-calculator',
       'injury-settlement-net-proceeds-calculator',
       'insurance-denial-appeal-builder',

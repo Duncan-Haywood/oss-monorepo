@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVLiTx6ozPfUx3RUToa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (revenue software products)",
+  "input_sha256": "896ae48cf8fb152b56e2bfb9bb0d1c2acc7ef5645152cdda9d52e90d6ff22d95",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T06:12:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "route-stop-optimizer: CVRPTW engine benchmarked on Solomon, vehicle capacity in the tool",
+  "projects": [
+    "route-stop-optimizer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17198",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Plain `promptctl route` (step 1) drew the process track for the scheduled ventures brief; I started on process before reading steps 0-1 and re-routed with --task. The scheduled prompt passing --track ventures would save this (reported by several earlier runs)."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here row einvoice-preflight's only buildable item is dated 'after 2026-11-23'; allocate still picked it on 2026-11-18. A date-gated buildable could be read as not buildable until that date."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Allocator's pick (einvoice-preflight) had only a date-gated buildable (after 2026-11-23); ai-bookkeeper's receipts item needs huggingface.co, refused this session; other Deepen rows had open PRs from the last hour. The brief also asks to start new ventures, so I built a deep engine (CVRPTW solver, a ~300-hour direction toward a self-hosted Routific-style planner) into the existing route-stop-optimizer instead of a flagship.",
+      "did": "vrptw.mjs + Solomon benchmark + capacity in the tool",
+      "result": "0.44% mean gap on 56 Solomon instances, 26 equal BKS, 56/56 feasible; tool plans improved on 40-stop window days (8.65% mean score cut, late days 2->0)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-a-route-planner-scored-on-solomon.md",
+    "ventures/route-stop-optimizer/eval/solomon-2026-11-18.md"
+  ],
+  "goal": "ship product depth with a measurement: a routing engine of the kind paid fleet route planners sell, scored against published best-known solutions",
+  "notes": "Solomon instances and BKS routes from PyVRP/Instances (MIT, raw.githubusercontent.com), not committed. BKS re-scored by verify(): 56/56 match the stated cost. Benchmark: node eval/solomon.mjs DIR --iterations 200000 (14.2 s mean per instance, 4 parallel). Tool comparison: node eval/tool-compare.mjs --days 20. Local checks: run_venture_tests.py route-stop-optimizer 41/41; check_posts ok; venture-preflight (see PR). Next: route elimination for C2 losses, PyVRP side by side, tool objective inside the engine, Web Worker.",
+  "corrections": [],
+  "redteam": null
+}
