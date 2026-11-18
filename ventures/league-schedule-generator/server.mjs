@@ -15,6 +15,7 @@
 // organiser approves and the Rainouts line is written for them.
 // Notices (announcements.mjs): the organiser posts a dated notice for the league page or one team's
 // captain page, optionally emailed to the team contacts.
+// Free agents (freeagents.mjs): /join is public while the organiser takes free agents; /admin places them on teams.
 // Team sign-ups (registration.mjs): /register is public while the organiser has sign-ups open in /admin.
 // Waivers (waivers.mjs): the organiser's own text, versioned by its hash; players sign at /league/waiver,
 // captains on the sign-up form, and /admin shows who on each roster has not signed.
@@ -34,6 +35,7 @@ import { movableGames, tryMove, parseMoveRequest, recordMove, pruneMoves, openMo
 import { parseNotice, addNotice, removeNotice, noticesHtml, adminNoticesHtml, noticeEmails } from "./announcements.mjs";
 import { spiritSettings, parseSpirit, recordSpirit, pruneSpirit, spiritTable, captainSpiritHtml, leagueSpiritHtml, adminSpiritHtml, spiritCsv, SPIRIT_MODES } from "./spirit.mjs";
 import { cleanWaiverText, currentVersion, rememberVersion, parseSignature, parseWaiverForm, recordSignature, removeSignature, waiverFormHtml, registerWaiverHtml, waiverLinkHtml, adminWaiversHtml, waiversCsv, versionText } from "./waivers.mjs";
+import { faSettings, faClosedReason, parseFreeAgent, allowJoin, addFreeAgent, suggestPlacements, placeFreeAgent, removeFreeAgent, placedEmails, freeAgentsCsv, joinFormHtml, joinedHtml, adminFreeAgentsHtml } from "./freeagents.mjs";
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
@@ -44,7 +46,7 @@ const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(Strin
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
-export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, moves: {}, availability: {}, subs: {}, remindersSent: {}, notices: [], noticeSeq: 0, registrations: [], approvedSignups: [], regSeq: 0, waivers: [], waiverVersions: {}, waiverSeq: 0, spirit: {} }; }
+export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, moves: {}, availability: {}, subs: {}, remindersSent: {}, notices: [], noticeSeq: 0, registrations: [], approvedSignups: [], regSeq: 0, freeAgents: [], placedAgents: [], faSeq: 0, waivers: [], waiverVersions: {}, waiverSeq: 0, spirit: {} }; }
 
 const MAX_PENDING = 100;
 /** A score a team captain sends from the league page, as a pending request: team indexes and goals, nothing free-form. */
@@ -144,13 +146,14 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const token = env.LEAGUE_TOKEN || "", capBase = base;
   const capLinks = names.length && token ? captainLinksHtml(names, key, token, capBase) + (smtp && !smtp.error ? `<form method="post" action="/admin/captain-links?key=${k}"><button>Email each team its captain link</button> <span class="note">to the team's contacts below</span></form>` : "") : "";
   const area = (name, label) => `<label>${label}<textarea name="${name}">${esc(f[name] ?? "")}</textarea></label>`;
-  const rs = regSettings(f), signups = adminRegistrationsHtml(state, key);
+  const rs = regSettings(f), signups = adminRegistrationsHtml(state, key), fs = faSettings(f);
+  const freeAgents = adminFreeAgentsHtml(state, key, names.length ? names : String(f.teams || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean));
   const notices = adminNoticesHtml(state, key, names, today, { canEmail: !!(smtp && !smtp.error) });
   const waivers = adminWaiversHtml(state, key, rp.rosters, names);
   const sp = spiritSettings(f);
   const spiritAdmin = sp.mode && built.schedule && state.published ? adminSpiritHtml(state.spirit || {}, built.schedule, sp.mode, today, key) : "";
   const spiritOpts = [["", "Off"], ...Object.entries(SPIRIT_MODES).map(([v, m]) => [v, m.label])].map(([v, l]) => `<option value="${v}"${(sp.mode || "") === v ? " selected" : ""}>${esc(l)}</option>`).join("");
-  return page("League admin", `${note}${signups}${waiting}${short}${csv}${parseNotes ? `<ul class="err">${parseNotes}</ul>` : ""}
+  return page("League admin", `${note}${signups}${freeAgents}${waiting}${short}${csv}${parseNotes ? `<ul class="err">${parseNotes}</ul>` : ""}
 <form method="post" action="/admin/save?key=${k}">
 <label>Season start (YYYY-MM-DD)<input name="start" value="${esc(f.start)}"></label>
 <label>Weekdays, comma separated (${WEEKDAYS.join(" ")})<input name="weekdays" value="${esc((f.weekdays || []).join(", "))}"></label>
@@ -165,6 +168,12 @@ ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}
 <label>Most teams (0 = no cap; past it, sign-ups go on a waitlist)<input name="regMaxTeams" inputmode="numeric" value="${esc(f.regMaxTeams ?? 0)}"></label>
 <label>Sign-ups close after (YYYY-MM-DD, optional)<input name="regCloses" value="${esc(f.regCloses ?? "")}"></label>
 <p class="note">Approve adds the team to Teams, its players to Rosters and the captain's email to Contacts. Fees are paid on your own payment page; this server never sees a card, and you tick Paid by hand.${f.regPayUrl && !rs.payUrl ? " The payment page address is not a plain https link, so it is not shown." : ""}</p></fieldset>
+<fieldset><legend>Free agents (players with no team)</legend>
+<label><input type="checkbox" name="faOpen" value="1" style="width:auto" ${fs.open ? "checked" : ""}> Take free agents at <code>/join</code> (a public page: share it anywhere)</label>
+<label>Fee per player, as you want it shown (optional), e.g. $60<input name="faFee" maxlength="60" value="${esc(f.faFee ?? "")}"></label>
+<label>Roster size to fill teams up to (0 = no limit; a team at this size is not suggested)<input name="faTarget" inputmode="numeric" value="${esc(f.faTarget ?? 0)}"></label>
+<label>Free-agent sign-ups close after (YYYY-MM-DD, optional)<input name="faCloses" value="${esc(f.faCloses ?? "")}"></label>
+<p class="note">Placing a free agent adds them to that team's Rosters line and, with email on, sends the player their team and the team's contacts the player's details.</p></fieldset>
 <fieldset><legend>Waiver (optional)</legend>
 <label>Your waiver, release or code-of-conduct text, as players should read it. Leave empty for none<textarea name="waiverText" maxlength="12000" style="min-height:8rem;font-family:inherit">${esc(f.waiverText ?? "")}</textarea></label>
 <p class="note">Players sign at <code>/league/waiver?t=LEAGUE_TOKEN</code> (linked from the league page) and captains on the sign-up form. Each signature keeps the exact text it agreed to: changing the text starts a new version, and earlier signatures show as "signed an earlier version". This page records who agreed to text you wrote; it does not write a waiver and is not legal advice. Whether a waiver holds, and the age at which a player can sign for themselves, depend on where you play: ask a lawyer or your league's insurer.</p></fieldset>
@@ -174,7 +183,7 @@ ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}
 <p class="note">The five-category scale follows the shape of the score sheet ultimate leagues use (rules, fouls and contact, fair-mindedness, attitude, communication; 0 to 4 each, 2 for a normal game). Switching the scale starts the averages again; earlier ratings stay in the state file.</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
 <label><input type="checkbox" name="notify" value="1" style="width:auto"${state.published ? "" : " disabled"}> Email teams whose upcoming games this save moves, cancels or adds (one email per team, to its contacts${smtp && !smtp.error ? "" : "; needs SMTP, see above"})</label>
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
-${spiritAdmin}${notices}${waivers}${capLinks}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}).</p>`);
+${spiritAdmin}${notices}${waivers}${capLinks}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}). Free agents: <code>/join</code> (${fs.open ? "open" : "closed"}).</p>`);
 }
 
 async function readForm(req) {
@@ -186,7 +195,7 @@ async function readForm(req) {
 export function handler(state, save, env = process.env, clock = Date.now, mail = sendMail) {
   const adminKey = env.ADMIN_KEY || "", token = env.LEAGUE_TOKEN || "";
   // Throttle guessing of the two URL secrets: MAX_FAILS wrong links from one address in WINDOW_MS locks it out for the rest of the window.
-  const MAX_FAILS = 10, WINDOW_MS = 15 * 60 * 1000, fails = new Map(), signups = new Map();
+  const MAX_FAILS = 10, WINDOW_MS = 15 * 60 * 1000, fails = new Map(), signups = new Map(), joins = new Map();
   const today = () => new Date(clock()).toISOString().slice(0, 10);
   // The public sign-up page: no secret in the link, so it is closed unless the organiser opened it,
   // and capped per address, per store and with a honeypot field.
@@ -194,7 +203,7 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
     const title = "Sign up a team";
     const why = closedReason(state.fields, today());
     const formHtml = (values = {}) => registerFormHtml(state, today(), values).replace("<button>Sign up</button>", `${registerWaiverHtml(state, values)}<button>Sign up</button>`);
-    if (req.method === "GET") return send(why ? 404 : 200, page(title, formHtml()));
+    if (req.method === "GET") return send(why ? 404 : 200, page(title, formHtml() + (faClosedReason(state.fields, today()) ? "" : `<p>No team? <a href="/join">Join as a free agent</a> and the organiser places you on one.</p>`)));
     if (req.method !== "POST") return send(405, "method not allowed\n", "text/plain", { allow: "GET, POST" });
     if (why) return send(404, page(title, `<p>${esc(why)}</p>`));
     const form = await readForm(req);
@@ -218,6 +227,25 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
     }
     return send(200, page(a.reg.status === "waitlist" ? "On the waitlist" : "Signed up", registeredHtml(state, a.reg)));
   }
+  // The public free-agent page: same guards as /register (off until opened, per-address cap, honeypot, store cap).
+  async function join(req, send, who) {
+    const title = "Join as a free agent";
+    const why = faClosedReason(state.fields, today());
+    if (req.method === "GET") return send(why ? 404 : 200, page(title, joinFormHtml(state, today())));
+    if (req.method !== "POST") return send(405, "method not allowed\n", "text/plain", { allow: "GET, POST" });
+    if (why) return send(404, page(title, `<p>${esc(why)}</p>`));
+    const form = await readForm(req);
+    if (!form) return send(413, "too large\n", "text/plain");
+    const r = parseFreeAgent(form, state.freeAgents || []);
+    if (r.spam) return send(200, page("Joined", "<p class=\"ok\">Thanks.</p>"));
+    const values = Object.fromEntries(["name", "email", "phone", "level", "with", "note"].map((k) => [k, String(form.get(k) ?? "")]));
+    if (r.error) return send(400, page(title, `<p class="err">${esc(r.error)}</p>${joinFormHtml(state, today(), values)}`));
+    if (!allowJoin(joins, who, clock())) return send(429, page(title, `<p class="err">Too many sign-ups from this connection in the last hour. Try again later.</p>`));
+    const a = addFreeAgent(state, r.req, clock());
+    if (a.error) return send(429, page(title, `<p class="err">${esc(a.error)}</p>`));
+    save();
+    return send(200, page("On the free-agent list", joinedHtml(a.agent)));
+  }
   return async (req, res) => {
     const send = (code, body, type = "text/html; charset=utf-8", extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
@@ -227,6 +255,7 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
     const hops = String(req.headers["x-forwarded-for"] || "").split(",").map((h) => h.trim()).filter(Boolean);
     const who = hops.length ? hops[hops.length - 1] : req.socket.remoteAddress, now = Date.now();
     if (url.pathname === "/register") return register(req, send, who);
+    if (url.pathname === "/join") return join(req, send, who);
     if (!isAdmin && !isLeague) return send(404, "not found\n", "text/plain");
     let rec = fails.get(who);
     if (rec && now > rec.until) { fails.delete(who); rec = undefined; }
@@ -430,6 +459,9 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       f.regOpen = form.get("regOpen") === "1";
       for (const k of ["regFee", "regPayUrl", "regCloses"]) f[k] = String(form.get(k) ?? "").trim().slice(0, 500);
       f.regMaxTeams = regSettings({ regMaxTeams: form.get("regMaxTeams") }).maxTeams;
+      f.faOpen = form.get("faOpen") === "1";
+      for (const k of ["faFee", "faCloses"]) f[k] = String(form.get(k) ?? "").trim().slice(0, 500);
+      f.faTarget = faSettings({ faTarget: form.get("faTarget") }).target;
       f.waiverText = cleanWaiverText(form.get("waiverText"));
       f.spiritMode = SPIRIT_MODES[form.get("spiritMode")] ? String(form.get("spiritMode")) : "";
       f.spiritShow = form.get("spiritShow") === "1";
@@ -482,6 +514,45 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       const r = removeSignature(state, Number(form.get("id")));
       if (!r.error) save();
       return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(r.error || `Removed ${r.sig.name}'s signature for ${r.sig.team}.`)}` });
+    }
+    if (req.method === "GET" && url.pathname === "/admin/free-agents.csv") {
+      return send(200, "\ufeff" + freeAgentsCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="free-agents.csv"', "cache-control": "no-store" });
+    }
+    if (req.method === "POST" && url.pathname === "/admin/free-agent") {
+      const go = (n) => send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(n)}` });
+      const out = buildLeague(state.fields);
+      const teams = out.schedule?.teams ?? String(state.fields.teams || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const act = form.get("act");
+      if (act === "remove") {
+        const r = removeFreeAgent(state, Number(form.get("id")));
+        if (r.error) return go(r.error);
+        save();
+        return go(`${r.agent.name} taken off the free-agent list (not emailed; tell them yourself).`);
+      }
+      if (act !== "place" && act !== "place-all") return go("Unknown action.");
+      const plan = act === "place" ? [[Number(form.get("id")), String(form.get("team") || "")]] : [...suggestPlacements(state, teams).picks];
+      const done = [], errs = [];
+      for (const [id, team] of plan) { const r = placeFreeAgent(state, id, team, teams, clock()); if (r.error) errs.push(r.error); else done.push(r.agent); }
+      if (done.length) save();
+      let note = done.length ? `Placed ${done.map((a) => `${a.name} on ${a.team}`).slice(0, 8).join(", ")}${done.length > 8 ? ` and ${done.length - 8} more` : ""}.` : "";
+      if (errs.length) note += ` ${errs.slice(0, 3).join(" ")}`;
+      if (done.length) {
+        const cfg = smtpConfig(env);
+        if (!cfg || cfg.error) note += " Not emailed: reminder email (SMTP) is off, so tell the players and captains yourself.";
+        else {
+          const base = publicBase(req, env), organiser = EMAIL.test(env.REMINDER_TO || "") ? env.REMINDER_TO : "";
+          const leagueUrl = base && token && state.published ? `${base}/league?t=${encodeURIComponent(token)}` : "";
+          let noContact = [];
+          for (const a of done) {
+            const msgs = placedEmails(state, a, teams, { organiser, leagueUrl });
+            if (!msgs.some((m) => m.kind === "team")) noContact.push(a.team);
+            for (const m of msgs) Promise.resolve().then(() => mail(cfg, m)).catch((err) => console.error(`free-agent email for ${a.name} not sent: ${err.message}`));
+          }
+          noContact = [...new Set(noContact)];
+          note += ` Emailing ${done.length} player${done.length === 1 ? "" : "s"} their team.${noContact.length ? ` No contact address for ${noContact.slice(0, 6).join(", ")}: tell that captain yourself.` : ""}`;
+        }
+      }
+      return go(note.trim() || "Nothing to place.");
     }
     if (req.method === "GET" && url.pathname === "/admin/signups.csv") {
       return send(200, "\ufeff" + registrationsCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="signups.csv"', "cache-control": "no-store" });
