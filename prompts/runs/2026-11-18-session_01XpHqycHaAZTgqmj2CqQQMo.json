@@ -27,14 +27,15 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 15,
   "outcome": "success",
   "errors": [
     "First venture-suite run failed one test (test_camera_profiles pinned the old refusal text that now names 3FR); fixed in the PR.",
     "Hasselblad JPEG header parser first rejected the CFV's 0xFF fill byte after SOF3; fixed before any real-file result.",
-    "The H4D-60 first differed from LibRaw in every sensel (wrapped below-zero data); fixed by a histogram-gap test."
+    "The H4D-60 first differed from LibRaw in every sensel (wrapped below-zero data); fixed by a histogram-gap test.",
+    "CI lint (mypy 1.19.1) failed once on hasselblad.py: jpeg_header's height not narrowed from None, and the np = None import pattern; fixed, checked locally with CI's ruff 0.15.8 and mypy 1.19.1 in a venv without numpy."
   ],
   "integrity_issues": [
     "Found that tools/mrw_develop_check.py (landed earlier today) undid LibRaw's BT.709 output with the sRGB curve, so the MRW eval's 0.003-0.016 colour gaps are overstated; recorded in eval/hasselblad-3fr-reader-2026-11-18.md and NEXT.md, not rerun (the MRW files were not re-downloaded)."

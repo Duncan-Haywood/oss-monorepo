@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import struct
 from array import array
+from typing import Any
 
 from shootflow import raw_develop as rd
 
@@ -127,7 +128,7 @@ def jpeg_header(data: bytes, pos: int) -> tuple[int, int, int, dict[tuple[int, i
         elif marker == 0xDA:
             ns = body[0]
             psv = body[1 + 2 * ns]
-            if width is None or table is None:
+            if width is None or height is None or table is None:
                 raise rd.DevelopError("3FR JPEG header has no SOF3 or no Huffman table before the scan")
             return width, height, psv, table, pos + 2 + length
         pos += 2 + length
@@ -219,13 +220,20 @@ GAP_FLOOR = 49152  # nothing between this and WRAP_FLOOR on a wrapped frame
 WRAP_SHARE = 1e-4
 
 
+def _numpy() -> Any:
+    """numpy when installed, else None (the reader runs on the standard library alone)."""
+
+    try:
+        import numpy
+    except ImportError:
+        return None
+    return numpy
+
+
 def _wraps_below_zero(values: array) -> bool:
     """True when the top 256 codes hold over 0.01% of sensels and the codes 49152-65279 hold none."""
 
-    try:
-        import numpy as np
-    except ImportError:
-        np = None
+    np = _numpy()
     if np is not None:
         a = np.frombuffer(values, dtype=np.uint16)
         wrapped = int(np.count_nonzero(a >= WRAP_FLOOR))
@@ -245,10 +253,7 @@ def _wraps_below_zero(values: array) -> bool:
 def _shift(values: array, offset: int) -> array:
     """Each value plus ``offset``, modulo 2^16: -256..-1 become 0..255, everything else moves up 256."""
 
-    try:
-        import numpy as np
-    except ImportError:
-        np = None
+    np = _numpy()
     if np is not None:
         a = np.frombuffer(values, dtype=np.uint16) + np.uint16(offset)
         return array("H", a.tobytes())
