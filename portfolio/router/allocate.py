@@ -655,6 +655,33 @@ FLAGSHIP_NEXT_MAX = 2000
 FLAGSHIP_BUILDABLE_MAX = 600
 
 
+# A `buildable:` item that waits for a date ("After 2026-11-23: rebuild ...")
+# is not buildable before it. On 2026-11-18 'Start here' kept sending runs to
+# einvoice-preflight, whose only open buildable item was dated after
+# 2026-11-23, and each run read the row and left it (run-record doc_friction on
+# this file and on portfolio/flagships.yaml, 4 runs in 2 days). The date is
+# read from the prose so the gate lifts by itself when the day comes, which an
+# `inputs_only:` edit would not.
+_DATE_GATE = re.compile(r"\b(?:after|from|once|on or after|not before|no earlier than)\s+"
+                        r"(20\d\d-\d\d-\d\d)\b", re.I)
+
+
+def future_gates(text: str, today: Optional[str] = None) -> list[str]:
+    """Sorted dates after `today` (YYYY-MM-DD, UTC today by default) that the
+    text gates an item on ("After 2026-11-23: ..."). Past dates gate nothing."""
+    today = today or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return sorted({d for d in _DATE_GATE.findall(text or "") if d > today})
+
+
+def gate_note(text: str, today: Optional[str] = None) -> str:
+    """' (NOT YET: an item here waits until after DATE; ...)' or ''."""
+    dates = future_gates(text, today)
+    if not dates:
+        return ""
+    return (f" (NOT YET: an item here is dated after {', '.join(dates)}, so it is not "
+            "buildable today; take another item, or another row if none is left)")
+
+
 def next_budget(v: "Venture") -> str:
     """'1986 of 2000 characters' for a flagship's `next:`."""
     return f"{len(v.flagship_next or '')} of {FLAGSHIP_NEXT_MAX} characters"
@@ -687,7 +714,8 @@ def next_task(v: Venture) -> str:
         # saying only `next:` cost a run a retry (run records, 2026-11-14 and -16).
         buildable_edit = ""
         if v.flagship_buildable:
-            milestone = f"BUILDABLE HERE: {v.flagship_buildable} -- Context: {milestone}"
+            milestone = (f"BUILDABLE HERE: {v.flagship_buildable}{gate_note(v.flagship_buildable)}"
+                         f" -- Context: {milestone}")
             buildable_edit = (
                 " If you landed a BUILDABLE HERE item, rewrite it in `buildable:` instead "
                 f"(same tool with `--field buildable`, capped at {FLAGSHIP_BUILDABLE_MAX} characters; "
@@ -1134,18 +1162,25 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
     started in the same few minutes (before either has opened a PR) usually
     get different rows: two sessions took the same sales-agent item in
     parallel three times on 2026-11-11/12 (doc_friction on this file), which
-    the open-PR read cannot see."""
+    the open-PR read cannot see. Rows whose `buildable:` waits on a future
+    date come after the rest (gate_note)."""
     now = now or datetime.now(timezone.utc)
-    free = []
+    free, dated = [], []
     for i, item in enumerate(queue, 1):
         if not (item["flagship"] and item["task"].startswith("Deepen")):
             continue
         hits = (claims or {}).get(item["venture"], [])
         if any(_age_hours(created, now) < CLAIM_FRESH_HOURS for _, _, created in hits):
             continue
+        # A row whose BUILDABLE HERE names an item not due yet (gate_note)
+        # comes after every free row that does not (see _DATE_GATE).
+        if "BUILDABLE HERE" in item["task"] and "(NOT YET: " in item["task"].split(" -- Context: ")[0]:
+            dated.append((i, item["venture"]))
+            continue
         free.append((i, item["venture"]))
         if session is None or len(free) >= spread:
             break
+    free = (free + dated)[:1 if session is None else spread]
     if not free:
         return None
     if session is None:
