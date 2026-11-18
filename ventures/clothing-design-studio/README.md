@@ -109,6 +109,28 @@ and run it yourself.
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
 
+## "The one with the halo": a whole earlier version by what it had (2026-11-18)
+
+A designer who has moved on from a version points back at it by what it had:
+"the one with the halo", "the version without the text", "the tee with the
+wings", "when it still had the halo", "before I added the wings", "the one
+before we made it navy". The keyword reader took "with" as "add", so the first
+of those added a second halo. `refer.mjs` (`describedVersion`) now reads the
+description (motifs, text, an uploaded image, each optionally "on the back";
+garment; garment colour; decoration method; "without X" for what was absent)
+and returns the **most recent earlier version** that matches it, whole, as it
+was. The log says which version and how many changes ago, and lists its
+garment, colour and artwork; one undo brings the current version back. "Before
+X" returns the version just before X last appeared. When the current version
+already matches, or no version ever did, nothing changes and the log says so.
+"Back to the cream one" still restores only the colour (a value, not a version).
+
+`node eval/whole-versions.mjs` (`eval/whole-versions-2026-11-18.md`): on 23 dev
+sentences `main` read 6 (only the controls) and this reads 23; on 12 held-out
+sentences written before the code, 1 and 12. Before, 20 of the 29 version
+sentences were acted on wrongly. Our sentences, not a designer's.
+`refer.test.mjs` (13 tests).
+
 ## "Go back to the cream": questions and earlier versions (2026-11-17)
 
 Designers ask and point back as often as they order. The keyword reader read
