@@ -161,6 +161,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **Hedging the fall-back does not rescue the fast-corner guard (milestone 149, replay of 77 ff designs, two of seven predictions
+  held; the primary failed).** Keeping the cheap score's best 1 to 3 points of a mapped 8 to 32-point subset when the pilot
+  distrusts the ladder cuts what a false alarm costs from 9.89% to 7.07% regret but lifts the break-even ratio only from 0.17 to
+  0.24, while the pilots' false-alarm/hit ratios sit near 0.58. No hedged guard beats the unguarded ladder even in sample (best
+  4.04% against 2.98%), so the guard search closes at ff as at tt:
+  [`experiments/hedge_ff/`](experiments/hedge_ff/results.txt).
 - **A routed-pilot rank check does not fix the ladder's fast-corner losses (milestone 148, replay of 77 ff designs, two of seven
   predictions held; the primary failed).** A guard that routes a few random points and falls back to random routing when the
   clipped mapped score ranks them badly, chosen leave-one-milestone-out, has 4.21% mean regret against the unguarded SWC's 2.98%
