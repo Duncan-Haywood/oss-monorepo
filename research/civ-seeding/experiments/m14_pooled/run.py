@@ -2,14 +2,14 @@
 
 Milestone 13's harness unchanged (milestone 6's joint bootstrap, B = 500, S = 100, 100 draws per
 randomised rule, every extra randomised rule on its own stream, milestone 12's 53 primary rules),
-with four replicates (`name#r<j>`, surveys and scoring runs drawn afresh) of 15 rules: milestone
+with four replicates (`name#r<j>`, surveys and scoring runs drawn afresh) of 16 rules: milestone
 13's four key rules, the three f = 0.5 split rules at perfect recall, and census top degree,
 census degree discount and the three-quarters-random half survey at rho = 0.85, 0.75 and 0.5.
 
 Two readings per rule:
-- per copy (c = 0 primary, 1-4 replicates): replicate c swapped in for all 15 rules;
+- per copy (c = 0 primary, 1-4 replicates): replicate c swapped in for all 16 rules;
 - pooled: each village's mean adopters averaged over the five copies (500 draws per village),
-  swapped in for all 15; regret against the best of the primary set with the pooled columns.
+  swapped in for all 16; regret against the best of the primary set with the pooled columns.
 Monte Carlo se of a pooled median = sd of the five copy medians / sqrt(5); of a difference
 between two rules = sd of the five per-copy differences / sqrt(5).
 
@@ -99,9 +99,9 @@ def main():
 
     lines = []
     p = lines.append
-    p("# Milestone 14: pooled Monte Carlo copies of 15 randomised rules (milestone 13's harness)")
+    p("# Milestone 14: pooled Monte Carlo copies of 16 randomised rules (milestone 13's harness)")
     p(f"B = {copies[0].shape[0]} joint draws; {N_REP + 1} copies; reference = the {len(prim)} primary rules, "
-      "the copy's (or pooled) columns swapped in for all 15")
+      "the copy's (or pooled) columns swapped in for all 16")
 
     # sanity against milestone 13
     s13 = json.load(open(os.path.join(HERE, "..", "m13_streams", "verdicts.json")))
@@ -176,7 +176,7 @@ def main():
     sds = np.array([rows[x]["sd"] for x in KEY])
     mms = np.array([rows[x]["minimax"] for x in KEY])
     rho_ = float(np.corrcoef(np.argsort(np.argsort(sds)), np.argsort(np.argsort(mms)))[0, 1])
-    p(f"exploratory: rank correlation of copy sd with pooled minimax share over the 15 rules: {rho_:+.2f}")
+    p(f"exploratory: rank correlation of copy sd with pooled minimax share over the 16 rules: {rho_:+.2f}")
     txt = "\n".join(lines) + "\n"
     out = "smoke_verdicts" if m6.SMOKE else "verdicts"
     open(os.path.join(HERE, out + ".txt"), "w").write(txt)
