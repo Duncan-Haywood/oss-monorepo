@@ -71,7 +71,7 @@ export function parseMoney(value) {
   let s = String(value ?? "").trim();
   if (!s) return 0;
   let neg = false;
-  if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
+  if (/\([^()]*\d[^()]*\)/.test(s)) { neg = true; s = s.replace(/[()]/g, ""); }
   s = s.replace(/[^0-9.,-]/g, "");
   // European "1.234,56" vs US "1,234.56": whichever separator comes last is the decimal.
   if (s.includes(",") && s.includes(".")) {
