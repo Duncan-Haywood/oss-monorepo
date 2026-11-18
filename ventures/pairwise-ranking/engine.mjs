@@ -138,7 +138,7 @@ function gaussian(rand) {
 export function parseCsv(text) {
   const rows = [];
   let row = [], cell = "", q = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   const delim = (() => {
     const first = s.split(/\r?\n/).find((l) => l.trim()) || "";
     const counts = { ",": 0, ";": 0, "\t": 0 };

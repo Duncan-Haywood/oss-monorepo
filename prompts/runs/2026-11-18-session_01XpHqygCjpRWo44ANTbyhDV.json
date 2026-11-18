@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 38,
   "outcome": "success",
@@ -43,6 +43,10 @@
     {
       "what": "Header detector took a bare 'A,B' data row for a header, and the result reader mapped football-data's 'A' (away) to the first side.",
       "fix": "Dropped single-letter header words; name matches are checked before result codes."
+    },
+    {
+      "what": "engine.mjs carried a literal U+FEFF in its BOM-stripping regex; check_hidden_unicode.py failed in the local ventures-tests run.",
+      "fix": "Written as the escape \\uFEFF."
     }
   ],
   "integrity_issues": [],
@@ -62,7 +66,7 @@
     "ventures/pairwise-ranking/README.md"
   ],
   "goal": null,
-  "notes": "Idea: pairwise-ranking, a standalone Bradley-Terry tool (no venture took head-to-head results as input; quick-pick-survey only uses BT internally). Verification: 30 independent statsmodels/scipy fits reproduced (strengths 1e-7/2e-5, SEs 1e-6/0.1%), MM agrees with Newton to 1e-9, 38 venture tests and 41 inter-rater-agreement tests pass via run_venture_tests.py, Chromium render with no console errors and no overflow at 390 px. Finding: on 2023-24 Premier League results City top only 59% of simulated seasons; home factor 1.66, p=0.0003. The agent doc is the README (method, existence caveat and verification); no separate docs/reports doc was needed.",
+  "notes": "Idea: pairwise-ranking, a standalone Bradley-Terry tool (no venture took head-to-head results as input; quick-pick-survey only uses BT internally). Verification: 30 independent statsmodels/scipy fits reproduced (strengths 1e-7/2e-5, SEs 1e-6/0.1%), MM agrees with Newton to 1e-9, 38 venture tests and 41 inter-rater-agreement tests pass via run_venture_tests.py, Chromium render with no console errors and no overflow at 390 px. Finding: on 2023-24 Premier League results City top only 59% of simulated seasons; home factor 1.66, p=0.0003. The agent doc is the README (method, existence caveat and verification); no separate docs/reports doc was needed. Local CI (run_workflow_locally.py --for-changes; no PR check runs had appeared): portfolio-validate 100/100, portfolio-pages 12/12, pages 6/6, every other triggered workflow green; ventures-tests failed only on the hidden-unicode check, fixed and re-run green (run_venture_tests.py 79 tests, test_check_hidden_unicode OK). venture-preflight.mjs: clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
