@@ -24,6 +24,9 @@ Python, so nothing beyond ffmpeg is needed:
 - ``dhash_crops``: the same hash over a 5 x 5 grid of windows, each 88% of the
   frame, so two frames of one burst that the camera panned or zoomed a few
   percent between can still be matched window to window (``crop_distance``).
+- ``dhash_zooms``: the hash over smaller windows (90-96% of the frame, 5 x 5
+  positions each), so a frame zoomed 4-10% tighter than its neighbour matches
+  that neighbour's window of the same size (``zoom_distance``).
 
 These are technical signals. There is no face detector and no semantic model
 here, so ``framing`` finds where the detail is, not what it is, and ``story``
@@ -90,6 +93,7 @@ class FrameMetrics:
     frames_sampled: int
     duration_seconds: float | None
     dhash_crops: tuple[str, ...] = ()
+    dhash_zooms: tuple[str, ...] = ()
 
     @property
     def level(self) -> float:
@@ -199,6 +203,7 @@ def metrics_from_frames(
         clipped_highlights=round(highlights, 6),
         dhash=dhash_hex(middle, width, height),
         dhash_crops=crop_dhashes(middle, width, height),
+        dhash_zooms=zoom_dhashes(middle, width, height),
         tilt_degrees=round(tilt, 3),
         tilt_confidence=round(tilt_confidence, 6),
         noise_sigma=round(noise_sigma, 3),
@@ -444,6 +449,108 @@ def crop_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
     for a, b in zip(crops_a, crops_b):
         best = min(best, (a ^ centre_b).bit_count(), (centre_a ^ b).bit_count())
     return best
+
+
+# Zoom windows (2026-11-18, eval/cull-zoom-windows-2026-11-18.md): the equal-size
+# crop windows line up a pan exactly but a zoom only roughly, so a frame zoomed
+# in by z is compared whole against the other frame's window of size 1 - z.
+# ZOOM_STEPS x ZOOM_STEPS positions per scale, from the top-left to the
+# bottom-right corner. Picked on 165 tune photos.
+ZOOM_SCALES = (0.96, 0.94, 0.92, 0.90)
+ZOOM_STEPS = 5
+
+
+def zoom_dhashes(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> tuple[str, ...]:
+    """Difference hashes of the zoom windows: scale by scale, then row by row."""
+
+    table = _integral(frame, width, height)
+    hashes = []
+    for scale in ZOOM_SCALES:
+        for j in range(ZOOM_STEPS):
+            for i in range(ZOOM_STEPS):
+                x0 = (1 - scale) * width * i / (ZOOM_STEPS - 1)
+                y0 = (1 - scale) * height * j / (ZOOM_STEPS - 1)
+                hashes.append(f"{_window_dhash(table, x0, y0, scale * width, scale * height):016x}")
+    return tuple(hashes)
+
+
+def zoom_distance(hash_a: int, zooms_a: Sequence[int], hash_b: int, zooms_b: Sequence[int]) -> int:
+    """Smallest Hamming distance between one frame's whole-frame hash and any zoom window of the other.
+
+    Either frame may be the tighter one, so both directions are tried. Takes
+    parsed hashes (ints). Returns 64 when either frame has no zoom hashes
+    (a catalogue analysed before 2026-11-18).
+    """
+
+    expected = len(ZOOM_SCALES) * ZOOM_STEPS * ZOOM_STEPS
+    if len(zooms_a) != expected or len(zooms_b) != expected:
+        return 64
+    # map() keeps the loop in C: the cull calls this for every pair within
+    # ZOOM_CANDIDATE_MAX_DISTANCE, a sizeable share of all pairs.
+    return min(
+        min(map(int.bit_count, map(hash_b.__xor__, zooms_a))),
+        min(map(int.bit_count, map(hash_a.__xor__, zooms_b))),
+    )
+
+
+def _zoom_blocks() -> tuple[tuple[int, ...], ...]:
+    """Index groups of nearby zoom windows: per scale, the 5 x 5 positions cut 3 + 2 by 3 + 2."""
+
+    halves = (tuple(range(0, 3)), tuple(range(3, ZOOM_STEPS)))
+    per_scale = ZOOM_STEPS * ZOOM_STEPS
+    return tuple(
+        tuple(s * per_scale + y * ZOOM_STEPS + x for y in ys for x in xs)
+        for s in range(len(ZOOM_SCALES))
+        for ys in halves
+        for xs in halves
+    )
+
+
+_ZOOM_BLOCKS = _zoom_blocks()
+
+ZoomIndex = tuple[tuple[int, int, tuple[int, ...]], ...]
+
+
+def zoom_index(zooms: Sequence[int]) -> ZoomIndex:
+    """(pivot, radius, member hashes) per block of nearby windows, for ``zoom_distance_within``.
+
+    The pivot is the block's medoid and the radius its largest distance to a
+    member, so by the triangle inequality no member is closer to a hash ``h``
+    than ``distance(h, pivot) - radius``. Empty when ``zooms`` is incomplete.
+    """
+
+    if len(zooms) != len(ZOOM_SCALES) * ZOOM_STEPS * ZOOM_STEPS:
+        return ()
+    out = []
+    for block in _ZOOM_BLOCKS:
+        members = tuple(zooms[k] for k in block)
+        radius, pivot = min((max((c ^ m).bit_count() for m in members), c) for c in members)
+        out.append((pivot, radius, members))
+    return tuple(out)
+
+
+def _nearest_within(hash_: int, index: ZoomIndex, limit: int) -> int:
+    best = limit + 1
+    for pivot, radius, members in index:
+        if (hash_ ^ pivot).bit_count() - radius >= best:
+            continue
+        best = min(best, min(map(int.bit_count, map(hash_.__xor__, members))))
+    return best
+
+
+def zoom_distance_within(hash_a: int, index_a: ZoomIndex, hash_b: int, index_b: ZoomIndex, limit: int) -> int:
+    """``zoom_distance`` when it is at most ``limit``, otherwise some value above ``limit``.
+
+    Same answer as ``zoom_distance`` for every decision of the form
+    ``distance <= limit``, but skips blocks of windows that cannot get there
+    (on 331 real photos, 86% of the scans for pairs inside the cull's candidate
+    distance). Takes ``zoom_index`` of each frame.
+    """
+
+    if not index_a or not index_b:
+        return 64
+    best = _nearest_within(hash_b, index_a, limit)
+    return min(best, _nearest_within(hash_a, index_b, min(limit, best - 1)))
 
 
 def hamming_distance(hash_a: str, hash_b: str) -> int:

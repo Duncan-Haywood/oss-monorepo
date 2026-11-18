@@ -1426,6 +1426,25 @@ class LoopDropTest(unittest.TestCase):
         self.assertEqual(len(list(controller.drop_from_commands_steps(ps, ticks))),
                          len(list(controller.drop_from_commands_steps(ps, ticks, polish=False))))
 
+    def test_the_record_fit_reads_a_longer_window_through_tach_jitter(self):
+        # 2026-11-18 (README "The record's drop fit and its window"): 24 revolutions after the ball average a jittery
+        # tach that 8 do not; held out on the simulator the jitter builds' rms fell from 0.62% to 0.47%
+        import random
+        self.assertEqual(controller.LOOP_FIT_AFTER, 24)
+        rng = random.Random(5)
+        errs = {8: [], controller.LOOP_FIT_AFTER: []}
+        for i in range(24):
+            ps, ticks = self._wheel(4500, 0.08, 0.45, 9000, ball_ms=1500 + i * 0.37, total_ms=1950)
+            edges = [0.0]
+            for p in ps:
+                edges.append(edges[-1] + p)
+            edges = [e + rng.gauss(0, 3.0) for e in edges]             # a 3 us (sd) edge timer
+            jit = [b - a for a, b in zip(edges, edges[1:])]
+            for a in errs:
+                errs[a].append(controller.drop_from_commands(jit, ticks, after=a)[0] / 0.08 - 1)
+        rms = {a: math.sqrt(statistics.fmean([e * e for e in v])) for a, v in errs.items()}
+        self.assertLess(rms[controller.LOOP_FIT_AFTER], 0.9 * rms[8], rms)
+
     def test_no_fit_without_commands_or_revolutions(self):
         ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)
         self.assertIsNone(controller.drop_from_commands(ps, []))
@@ -1502,6 +1521,16 @@ class EscSurveyTest(unittest.TestCase):
         self.assertEqual(sv["refined_ms"], 0)
         self.assertIn("keep ESC_TAU_US = 0", host.esc_survey_advice(sv))
 
+    def test_a_long_esc_lag_on_a_slow_wheel_is_named(self):
+        # 2026-11-18 (README "Long ESC lags: the survey read too little of the recovery"): reading 8 revolutions after
+        # the ball, an untold 180 ms ESC on a 0.35 s wheel picked 106 ms on the calibration drill; the board's refits
+        # now read ESC_SURVEY_AFTER = 16 and it picks 182
+        import esc_survey_sweep as S
+        self.assertEqual(controller.ESC_SURVEY_AFTER, 16)
+        sv = S.drill(S.sim_for({"esc_tau_s": 0.18}, 0.35, 0.95, 0.65), "drill.calibration.json").esc_survey
+        self.assertGreaterEqual(sv["wheels"], host.ESC_SURVEY_MIN_WHEELS)
+        self.assertAlmostEqual(sv["refined_ms"], 180, delta=27)
+
     def test_a_new_stroke_pauses_the_survey_not_the_record(self):
         # 2026-11-18 (README "The ESC-lag survey's search, traced"): a new stroke no longer cuts the last ball's
         # survey; no survey step runs while the stroke is under way, and it resumes once the stroke's verdict is in.
@@ -1545,6 +1574,11 @@ class EscSurveyTest(unittest.TestCase):
         self.assertIsNone(host.esc_survey_advice(None))
         self.assertIn("run more balls", host.esc_survey_advice({"wheels": 6, "least_ms": 50, "refined_ms": 44}))
         self.assertIn("already matches", host.esc_survey_advice({"wheels": 30, "least_ms": 50, "refined_ms": 44}, 45))
+        # a pick at the grid's last lag names no number (README "Long ESC lags: the survey read too little of the
+        # recovery"): the advice says to scope the ESC, and the calibration drill is not held on it
+        end = {"wheels": 30, "least_ms": 400, "refined_ms": 400}
+        self.assertIn("cannot name it", host.esc_survey_advice(end))
+        self.assertIsNone(host.esc_lag_check(end, 0))
         frame = P.encode(P.ESC_SURVEY, 30, 100, 79, 817, 808, 361, 290, 330, 566, 65535)
         (cmd, vals), = list(P.Decoder().feed(frame))
         self.assertEqual((cmd, vals[:3]), (P.ESC_SURVEY, (30, 100, 79)))

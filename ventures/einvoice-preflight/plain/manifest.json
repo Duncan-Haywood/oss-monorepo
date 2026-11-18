@@ -276,6 +276,16 @@
       "source": "peppol-bis-invoice-3 branch 2026-Q4-QA2, BIS Billing 3.1.0 (MPL-2.0)",
       "commit": "90f078a801c865b78bd9af628d7cd8a69aecfe84",
       "checks": 95
+    },
+    "peppol-sb-ubl": {
+      "source": "peppol-bis-invoice-3 branch selfbilling-2026-Q2-QA, BIS Self-Billing 3.0.2 (MPL-2.0)",
+      "commit": "bd9f24ed25cb32f46df9a12f234d3a80b20a699d",
+      "checks": 62
+    },
+    "peppol-sb-next-ubl": {
+      "source": "peppol-bis-invoice-3 branch selfbilling-2026-Q4-QA2, BIS Self-Billing 3.1.0 (MPL-2.0)",
+      "commit": "387676dae962c5b978f2dc1f805d20a3157c4fa3",
+      "checks": 185
     }
   },
   "fontoxpath": "3.34.0"

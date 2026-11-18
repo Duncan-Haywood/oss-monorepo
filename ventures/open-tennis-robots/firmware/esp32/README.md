@@ -2302,3 +2302,125 @@ venture's tests of the "run a drill, then the calibration drill is held" flow pa
 **Not known.** All simulated, one ESC shape (a first-order lag). Above about 165 ms on a slow wheel the survey's pick
 is not reliable, and nothing yet tells the Pi when it is in that range: log a real ESC's step response on a scope. Next:
 a real ESC's lag; whether `SURVEY_QUEUE` 3 fits the ESP32's heap, to win back the wheels the seventh lag costs.
+
+## Long ESC lags: the survey read too little of the recovery (2026-11-18, after the grid)
+
+**The item.** The section above ended with no flag the Pi could trust: above about 165 ms on a slow wheel the survey's
+pick was 20-30% off while it looked sure, and a band on the per-lag rms failed held out.
+
+**Noise or bias?** A flag built on the survey's own spread can only catch noise. Split in halves (odd and even wheels,
+or first and second half of the drill), the stored drills of `tests/esc_grid_gap.py` answered: the worst sure misses
+had halves that agreed on the wrong lag (165 ms at 0.35 s on the calibration drill: 117 / 121, read 119; 165 ms at
+0.5 s: 210 / 222, read 218). The misses were a bias, so no spread flag would have caught them, and the curves showed a
+second clue: a single wheel's best lag ranged from 35 to 400 ms on the same drill.
+
+**The window.** Each survey refit reads `drop_from_commands_steps`' default window, 4 revolutions before the ball's
+anchor and 8 after: about 0.16 s at 3,000 rpm, where the wheel's own lag is 0.3-0.6 s and a long ESC's 0.15-0.25 s.
+Two lags in series barely differ over the start of a recovery. The launched stroke's snapshot already runs to the
+verdict and holds 28-118 revolutions, so the board was throwing away most of what it had logged.
+
+`tests/esc_survey_window.py` captures drills with an untold ESC, keeps every surveyed wheel's inputs as the board passed
+them, and refits each wheel offline at the board's grid and refinement with 8, 12, 16 and 24 revolutions after the
+anchor, scored by the board's own sums and pick (eval/esc-survey-window-2026-11-18.txt). Design drills: ESC 0 / 50 / 120
+/ 165 / 180 / 210 / 250 ms, wheel lags 0.35 / 0.5 / 0.6 s, rally and calibration drills, seed 7:
+
+| window (revolutions after the anchor) | 42 design drills within 15% | of them ESC 165 ms or more (24) |
+| --- | --- | --- |
+| 8 (the board's) | 31 | 13 |
+| 12 | 41 | 23 |
+| 16 | 42 | 24 |
+| 24 | 42 | 24 |
+
+**Held out.** The prediction and decision rule were committed before the held-out capture ran (commit 3893f7c26): on
+ESC 0 / 40 / 90 / 140 / 175 / 195 / 230 ms, wheel lags 0.4 and 0.55 s, seed 11 and the third true launcher (28 drills),
+16 revolutions would put every counted drill within 15% (first-order 5 ms or less), and 8 would miss at least 3 of
+the 12 drills of 175 ms or more. It held: 16 put 28 of 28 within 15% (175 ms read 168-179, 195 ms 202-208, 230 ms
+247-249); 8 put 21, missing 6 of those 12 and one 140 ms drill (read 113).
+
+**What shipped.** The board's survey refits read `controller.ESC_SURVEY_AFTER = 16`. The record's own drop fit keeps
+8. With it the Pi's advice changes in one place: a pick at the grid's last lag (400 ms) only says the lag is long, so
+`esc_survey_advice` tells the builder to scope the ESC rather than set 400, and `esc_lag_check` does not hold a
+calibration drill on it. `tests/test_host.py` checks an untold 180 ms ESC on a 0.35 s wheel (106 ms with 8; 182 now).
+
+**The cost.** A refit has as many rows as revolutions in its window, 13 before and 21 now, so each of its 36 steps does
+about 1.6 times the arithmetic. The simulator gives every step one control tick, so its wheel counts did not move
+(16-18 a drill); on a real ESP32 a step that outlasts its tick would delay the survey, not the strokes, and time a
+survey there before trusting the count. Short lags now read a little low (40 ms: 35-37, 50 ms: 44-47, all within
+15%), and 250 ms reads 265-275, where the grid has nothing between 200 and 400.
+
+**Not known.** All simulated: a first-order ESC behind a first-order wheel, one seed per set. A real ESC's step
+response may not be one lag. Next: time a 16-revolution refit step on a real ESP32; a real ESC's lag on a scope;
+whether the record's own fit (window 8) reads the drop better with a longer window on slow wheels.
+
+## The record's drop fit and its window (2026-11-18, after "Long ESC lags")
+
+**The item.** The section above moved the survey's refits to 16 revolutions after the ball's anchor and left the
+record's own drop fit, the reading the Pi's launcher fit is built on, at `drop_from_commands_steps`' default of 8. Does
+that reading get better with a longer window on slow wheels (0.35-0.6 s)? The record fit is told the ESC lag, so it
+does not have the survey's problem of telling two lags in series apart; what a longer window could buy is more rows
+against the same unknowns, and what it could cost is more of whatever the model gets wrong.
+
+`tests/record_fit_window.py` runs the calibration drill and min_fit_heldout's slow drill per build, keeps every board
+record fit's inputs (snapshot periods, ESC-lagged ticks) with the simulator's true drop, and refits each offline with
+8, 12, 16 and 24 revolutions after the anchor (eval/record-fit-window-2026-11-18.txt; wheels at 1,000 rpm and up).
+The captured inputs (5.6 MB compressed) are not kept: the capture is seeded and reruns in about 6 minutes on 4 cores. Design builds: first-order, tach 3 us
+jitter, ESC 50 ms told and ESC 150 ms told, wheel lags 0.35 and 0.6 s, seed 7, launcher 0, 513 fits. rms is reading /
+true drop about 1, bias included:
+
+| build | after 8 | 12 | 16 | 24 |
+| --- | --- | --- | --- | --- |
+| first-order, 0.35 s | 0.20% | 0.28% | 0.30% | 0.29% |
+| first-order, 0.6 s | 0.14% | 0.13% | 0.15% | 0.16% |
+| tach 3 us, 0.35 s | 0.80% (worst 2.64%) | 0.73% | 0.68% | 0.61% (worst 1.48%) |
+| tach 3 us, 0.6 s | 0.67% (worst 2.04%) | 0.67% | 0.64% | 0.59% (worst 1.58%) |
+| ESC 50 ms, 0.35 / 0.6 s | 0.17% / 0.14% | 0.16% / 0.13% | 0.19% / 0.13% | 0.19% / 0.13% |
+| ESC 150 ms, 0.35 / 0.6 s | 0.15% / 0.11% | 0.14% / 0.10% | 0.16% / 0.11% | 0.16% / 0.12% |
+| all 513 | 0.39% (58 over 0.5%) | 0.38% | 0.36% | 0.34% (63 over 0.5%) |
+
+So the slow wheel itself is not the record fit's problem: on the noise-free plants 8 revolutions are as good as any
+longer window, and on the first-order 0.35 s build worse is longer (0.20% to 0.29-0.30%). What a longer window does is
+average a jittery tach: 0.80% to 0.61% and the worst wheel 2.64% to 1.48%. The jittery-tach wheels are the noisiest
+class the record fit has (README "Unsure marks on the noisy wheels"), and a real Hall tach will have some jitter.
+
+**Pre-registration** (written before the held-out capture ran). Candidate: `after=24` for the record's fit (the
+largest design gain; 12 and 16 gain less on the jitter builds and lose as much on first-order 0.35 s). Held-out
+builds: first-order, tach 3 us, ESC 100 ms told and ESC 120 ms told with tach 3 us jitter, wheel lags 0.45 and 0.55 s,
+seed 11, launcher 2 (8 builds). PREDICTION: with 24, rms falls on every held-out build with tach jitter (4 builds), by
+at least 10% of its value at 8 on the pooled jitter builds, and the worst jitter wheel is lower; on the noise-free
+builds rms moves by 0.10 points or less either way. DECISION RULE: the record's fit reads 24 (a new
+`controller.LOOP_FIT_AFTER`) only if (a) pooled rms over all held-out fits is lower with 24 than with 8, (b) the
+pooled jitter builds' rms falls by at least 10%, and (c) no held-out build's rms rises by more than 0.10 points.
+Otherwise it keeps 8 and this section reports the miss.
+
+**Held out** (run after the pre-registration was committed, 12ed51ffe; 514 fits):
+
+| build | after 8 | 12 | 16 | 24 |
+| --- | --- | --- | --- | --- |
+| first-order, 0.45 / 0.55 s | 0.17% / 0.16% | 0.17% / 0.15% | 0.19% / 0.16% | 0.18% / 0.15% |
+| tach 3 us, 0.45 s | 0.69% (worst 2.49%) | 0.62% | 0.64% | 0.54% (worst 1.79%) |
+| tach 3 us, 0.55 s | 0.68% (worst 2.01%) | 0.62% | 0.60% | 0.54% (worst 1.18%) |
+| ESC 100 ms told, 0.45 / 0.55 s | 0.15% / 0.15% | 0.14% / 0.14% | 0.15% / 0.15% | 0.16% / 0.14% |
+| ESC 120 ms + tach 3 us, 0.45 s | 0.54% | 0.39% | 0.39% | 0.37% |
+| ESC 120 ms + tach 3 us, 0.55 s | 0.55% (worst 2.26%) | 0.45% | 0.43% | 0.41% (worst 1.12%) |
+| all 514 | 0.45% (90 over 0.5%) | 0.39% (74) | 0.39% (73) | 0.35% (70) |
+
+It held on every clause: (a) pooled rms 0.45% to 0.35%; (b) the four jitter builds pooled (257 fits) 0.62% to 0.47%,
+24% lower, each of them lower, the worst jitter wheel 2.49% to 1.79%; (c) the largest rise on any build was 0.01
+points. The design's first-order 0.35 s loss (0.20% to 0.29%) did not recur at 0.45 s, so it reads as that build's
+own, not a cost of the window on noise-free wheels in general.
+
+**What shipped.** `controller.LOOP_FIT_AFTER = 24`, passed by `LaunchCheck._loop_fit`; `drop_from_commands_steps`
+keeps its default of 8 for every other caller. The take survey (`TAKE_SURVEY_LEVELS`) still reads 8: its picks were
+measured with 8 and are not retested here. `tests/test_host.py` checks a 4,500 rpm wheel with a 3 us edge timer reads
+closer with 24 than with 8 (rms 0.51% to 0.44% over 24 ball moments).
+
+**The cost.** A record fit has about 29 rows instead of 13, so each of its ~36 steps does about 2.2 times the
+arithmetic; on the simulator each step is one control tick, so nothing moved. On a real ESP32 a step that outlasts
+its tick delays the record's re-send, not the stroke; time it there with the survey's 16-revolution step (the section
+above) before trusting either. When the snapshot is shorter than 24 revolutions after the ball (23-119 here) the
+window stops at its end, as before.
+
+**Not known.** All simulated, one seed per set: a first-order wheel, a first-order ESC and the simulator's Gaussian
+edge jitter. A real Hall tach's jitter may be larger, or correlated with the wheel's angle (a magnet's position),
+which averaging over more revolutions would not remove. Next: whether the take survey gains the same with 24, and a
+real tach's edge jitter logged on a spinning wheel.

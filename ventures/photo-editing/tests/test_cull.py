@@ -223,3 +223,47 @@ class NearDuplicateGroupingTest(unittest.TestCase):
             for b in rows:
                 if hamming_distance(a[1].dhash, b[1].dhash) <= NEAR_DUPLICATE_MAX_DISTANCE:
                     self.assertEqual(where[a[0]], where[b[0]])
+
+
+class BurstMatchTest(unittest.TestCase):
+    def test_zoom_pass_needs_both_a_close_window_and_a_gain(self):
+        from shootflow.cull import ZOOM_CANDIDATE_MAX_DISTANCE, ZOOM_MIN_GAIN, zoom_match
+        from shootflow.frame_analysis import ZOOM_SCALES, ZOOM_STEPS, zoom_index
+
+        n = len(ZOOM_SCALES) * ZOOM_STEPS * ZOOM_STEPS
+        a = 0x0123456789ABCDEF
+        b = a ^ ((1 << 20) - 1)  # 20 bits apart on the whole frame
+        far = zoom_index(tuple((a ^ 0xFFFFFFFF) for _ in range(n)))  # every window 32 bits from a
+        near = zoom_index(tuple(a ^ 0xFFFFFFFF for _ in range(n - 1)) + (a ^ 0b111,))  # one window 3 bits from a
+        self.assertTrue(zoom_match(20, a, far, b, near))
+        self.assertTrue(zoom_match(20, b, near, a, far))
+        self.assertFalse(zoom_match(20, a, far, b, far))
+        self.assertFalse(zoom_match(3 + ZOOM_MIN_GAIN - 1, a, far, b, near))
+        self.assertFalse(zoom_match(ZOOM_CANDIDATE_MAX_DISTANCE + 1, a, far, b, near))
+        self.assertFalse(zoom_match(20, a, (), b, near))
+
+
+class ZoomIndexTest(unittest.TestCase):
+    def test_pruned_search_agrees_with_the_full_scan(self):
+        import random
+
+        from shootflow.frame_analysis import ZOOM_SCALES, ZOOM_STEPS, zoom_distance, zoom_distance_within, zoom_index
+
+        rng = random.Random(11)
+        n = len(ZOOM_SCALES) * ZOOM_STEPS * ZOOM_STEPS
+        for _ in range(300):
+            base = rng.getrandbits(64)
+            frames = []
+            for _side in range(2):
+                h = base ^ sum(1 << b for b in rng.sample(range(64), rng.randint(0, 30)))
+                zooms = tuple(
+                    h ^ sum(1 << b for b in rng.sample(range(64), rng.randint(0, 20))) for _ in range(n)
+                )
+                frames.append((h, zooms))
+            (ha, za), (hb, zb) = frames
+            exact = zoom_distance(ha, za, hb, zb)
+            for limit in range(0, 12):
+                pruned = zoom_distance_within(ha, zoom_index(za), hb, zoom_index(zb), limit)
+                self.assertEqual(exact <= limit, pruned <= limit)
+                if exact <= limit:
+                    self.assertEqual(pruned, exact)

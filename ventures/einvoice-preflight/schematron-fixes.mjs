@@ -500,3 +500,18 @@ export function plainFix(ruleId) {
 export function hasSpecificFix(ruleId) {
   return Object.hasOwn(FIXES, String(ruleId || ""));
 }
+
+// Peppol BIS Self-Billing reuses Billing's rule ids with its own identifiers and type
+// codes, so these few get their own advice (2026-11-18). The buyer issues the invoice.
+const SELF_BILLING_FIXES = {
+  "PEPPOL-EN16931-R001": "Set the business process (BT-23) to urn:fdc:peppol.eu:2017:poacc:selfbilling:01:1.0.",
+  "PEPPOL-EN16931-R007": "Write the business process (BT-23) as urn:fdc:peppol.eu:2017:poacc:selfbilling:01:1.0. Billing's urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 is not accepted on a self-billing document.",
+  "PEPPOL-EN16931-R004": "Set the specification identifier (BT-24) to urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:selfbilling:3.0, with nothing after it.",
+  "PEPPOL-EN16931-P0100": "A self-billing invoice uses type code 389 (self-billed invoice) or 527 (self-billed debit note); 380 is for ordinary Peppol BIS Billing.",
+  "PEPPOL-EN16931-P0101": "A self-billing credit note uses type code 261 (self-billed credit note); 381 is for ordinary Peppol BIS Billing.",
+};
+
+/** The Self-Billing advice for a rule id, or null where Billing's advice holds. */
+export function selfBillingFix(ruleId) {
+  return SELF_BILLING_FIXES[String(ruleId || "")] || null;
+}

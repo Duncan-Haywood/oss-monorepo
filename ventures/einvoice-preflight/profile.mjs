@@ -24,7 +24,14 @@ export const PEPPOL_PROCESSES = [
 // version suffix after a double colon (e.g. "...billing:3.0::2.1" is refused).
 export function isPeppolSpecification(value) {
   const spec = typeof value === "string" ? value.trim() : "";
-  return spec.startsWith(PEPPOL_SPEC) && !spec.includes("::");
+  return (spec.startsWith(PEPPOL_SPEC) || isPeppolSelfBilling(spec)) && !spec.includes("::");
+}
+// Peppol BIS Self-Billing 3.0 (the buyer issues the invoice): its own BT-24 and its one
+// business process, which Self-Billing's R004 and R007 check in place of Billing's (2026-11-18).
+const PEPPOL_SB_SPEC = "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:selfbilling:3.0";
+export const PEPPOL_SB_PROCESS = "urn:fdc:peppol.eu:2017:poacc:selfbilling:01:1.0";
+export function isPeppolSelfBilling(value) {
+  return (typeof value === "string" ? value.trim() : "").startsWith(PEPPOL_SB_SPEC);
 }
 
 function finding(rule, message, fix, path) {
@@ -195,11 +202,13 @@ export function inspectPeppolProfile(invoice) {
   const findings = [];
 
   const process = str(invoice.profile_id);
-  if (!PEPPOL_PROCESSES.includes(process)) {
+  const selfBilling = isPeppolSelfBilling(str(invoice.specification_id));
+  if (selfBilling ? process !== PEPPOL_SB_PROCESS : !PEPPOL_PROCESSES.includes(process)) {
     findings.push(finding(
       "PP-001",
       process ? "Business process (BT-23) is not a Peppol billing process." : "Business process (BT-23) is missing.",
-      `Set the business process to ${PEPPOL_PROCESS} (UBL cbc:ProfileID, CII BusinessProcessSpecifiedDocumentContextParameter). Since Peppol BIS 3.0.21 the only others accepted are France's urn:peppol:france:billing:regulated and :non-regulated and urn:peppol:bis:billing_with_response.`,
+      selfBilling ? `A Peppol BIS Self-Billing document takes the business process ${PEPPOL_SB_PROCESS} (UBL cbc:ProfileID).`
+        : `Set the business process to ${PEPPOL_PROCESS} (UBL cbc:ProfileID, CII BusinessProcessSpecifiedDocumentContextParameter). Since Peppol BIS 3.0.21 the only others accepted are France's urn:peppol:france:billing:regulated and :non-regulated and urn:peppol:bis:billing_with_response.`,
       "/profile_id",
     ));
   }
