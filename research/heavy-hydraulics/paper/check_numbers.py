@@ -519,6 +519,11 @@ MANUSCRIPT_CHECKS = [
     ("and 0.0061 with every donor pooled", "gear_pump_table_results.txt", "owdtp  0.0061  (max 0.0076"),
     ("no donor bends like Danfoss (1.781)", "gear_pump_table_results.txt", "danfoss                       b 1.781"),
     ("charges that family 1.467 times", "gear_pump_table_results.txt", "t1 1.467"),
+    # milestone 7r
+    ("gets a left-out RMS of 0.0052", "gear_pump_bendtable_results.txt", "owdb   0.0052  (max 0.0060"),
+    ("(half idle speed 0.0056 against the two-price rule's 0.0059)", "gear_pump_bendtable_results.txt", "owdb   0.0056  (-0.0015)"),
+    ("from 0.0122 under the pooled table to 0.0063", "gear_pump_bendtable_results.txt", "danfoss                       0.0061 / 0.0066 / 0.0122 / 0.0063"),
+    ("charges it 1.197 times", "gear_pump_bendtable_results.txt", "b 1.197"),
 ]
 
 
