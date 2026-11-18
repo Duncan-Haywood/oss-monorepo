@@ -13,6 +13,16 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3o headline** (can the same 1.2 s window also estimate the gyro&ndash;camera time offset, the next unknown on TUM?
+synthetic, milestone 3m's 30 smooth-rate windows, gyro 200 Hz and &minus;10 to +20 ms late, offset free from 0): **it removes the
+offset's focal error, but the offset value is biased unless translation is modelled.** With the offset free, a 20 ms late gyro moves
+f a median 0.05% instead of 0.81%, the readout stays at 33.0 ms (true 33.3), and nothing is lost when there is no offset. The offset
+itself lands a median 3 ms off while the solver claims 0.46 ms: a post hoc check traces all of it to the camera's linear velocity,
+which the model leaves out (no noise at all: still 3.0 ms; velocity removed: 0.0 ms; velocity solved for: 0.49 ms with an honest sd).
+Four of six predictions held. [Log](LOG.md).
+
+![Gyro-camera offset in the window: estimated against true offset, focal shift with the offset fixed and free, and the readout](experiments/m3o_offset/offset.png)
+
 **Milestone 3n headline** (is a rolling shutter what TUM's short self-calibration windows were getting wrong? the real TUM RGB-D
 video, each 1.2 s window re-solved with a rolling-shutter term driven by per-keyframe angular rates from the 100 Hz motion capture,
 readout free): **yes, in part, on both cameras.** The window finds a readout of **27.6 ms** on the Kinect (31 windows, robust sd
@@ -1066,6 +1076,9 @@ OMP_NUM_THREADS=1 python3 experiments/m3m_gyrofault/run.py 4   # ~6 min on 4 cor
 python3 experiments/m3m_gyrofault/analyse.py   # seconds; summary.json, gyrofault.png
 OMP_NUM_THREADS=1 python3 experiments/m3n_tumrs/run.py tum 4   # ~2 h on 4 cores, needs the fetch above, resumable; results.json
 python3 experiments/m3n_tumrs/analyse.py   # seconds; summary.json, tumrs.png
+OMP_NUM_THREADS=1 python3 experiments/m3o_offset/run.py 4   # under 10 min on 4 cores, synthetic; results.json
+python3 experiments/m3o_offset/analyse.py   # seconds; summary.json, offset.png
+OMP_NUM_THREADS=1 python3 experiments/m3o_offset/diag.py 12 4   # post hoc, about 2 min; diag.json
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1168,6 +1181,12 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3o: a free gyro&ndash;camera offset in the window removes a late gyro's focal shift (0.81% &rarr; 0.05% at 20 ms) at no
+cost, but without a linear-velocity term the offset absorbs the translation's rolling-shutter smear and lands about 3 ms off with a
+tenfold overconfident sd; with a free velocity it is good to 0.5 ms. Next: on TUM (host refused this session), the offset free with
+the readout, reported as a nuisance parameter; make the free-velocity model converge there (it converged on all synthetic windows
+here), since only then is the offset a timing calibration; a prior on u from the mocap translation as a cheaper alternative.
 
 After milestone 3n: on real TUM video the shutter term with mocap rates finds a ~26&ndash;28 ms readout on both cameras and removes
 a third to a half of the median focal error; 1.9&ndash;4.0% remains, still far above the solver's sd. Next: estimate the
