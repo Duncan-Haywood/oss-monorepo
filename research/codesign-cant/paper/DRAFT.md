@@ -284,6 +284,19 @@ and over the 36 designs of 7ac, 7ae and 7af rise time follows kd with Spearman �
 overshoot, 4.7–5.3 cm against 1.1–1.8 cm, and up to 3.6% worse gust tracking
 (`m7af_step_obj/verdicts.txt`).
 
+**Rise time without flying (milestone 7ag).** The relation is mechanical, so it should not need fitting.
+A one-dimensional point mass of the outer loop alone, x'' = −min(k_p|x|, A_P) sgn x − k_d x' + k_i I with
+the integrator gated at b, integrated from rest at the step size S, has no free constant. Flying the same
+36 designs again (no retraining) at A_P = 2, 2.5, 5 and 8 m/s² on a 1 m step and at S = 0.5 and 2 m with
+A_P = 3.5, under all three identified laws (756 flights of 64 episodes), it predicts each design's median
+rise within 0.10 s for 35–36 of 36 at A_P ≤ 5 and S ≥ 1 m, median error 0.002–0.040 s on rises of
+0.8–4.6 s. The fitted line from 7af drifts by 0.11–0.14 s off its fitting point. Swapping the 33 and
+39.1 ms motor laws moves no design's rise by more than 0.05 s. The model misses at S = 0.5 m (31 of 36)
+and A_P = 8 (23 of 36), always with the vehicle faster and overshooting more than predicted. One
+first-order lag on the achieved acceleration, fitted on the in-sample condition (135 ms, post hoc), brings
+those to 36 and 33 of 36 (`m7ag_cruise/verdicts.txt`, `posthoc.txt`). The braking lean comes late, and the
+shorter the step or the harder the cap, the more of the travel is braking.
+
 **Why a tuner should see plants beyond the test range (a reading, not tested here).** The CMA-ES objective is a mean over
 randomised episodes. When fast plants are in the draw, gains that track them well raise that mean
 and are paid for at the slow edge, where the margin of the attitude loop is thinnest; when the draw
@@ -300,8 +313,10 @@ not at a midpoint, and never draw faster plants than that. Set the ceiling at ab
 go to 150–200 ms only if the motors may be slower than identified, at up to about 0.7 s more rise
 time than the 125 ms tune. Run the position integrator only within about a quarter of a step of the set
 point; with that, the 125 ms tune has no unsettled designs. Put a set-point step in the tuning
-objective: without one the tuner has no reason to rise fast, and with a capped proportional term
-the rise time can be read off A_P/kd before flying.
+objective: without one the tuner has no reason to rise fast. With a capped proportional term, compute
+the rise time before flying from k_p, k_d, k_i, A_P and the step size with the point mass above (within
+0.04 s for steps of 1 m or more and A_P up to about half of g tan of the tilt limit); for shorter steps or
+harder caps, add one acceleration lag fitted on a single flown step.
 
 **Figures.** Both are drawn by `paper/figures_vii.py` from the parsers that generate Table VII-1, so
 figure and table cannot disagree. VII-a (`paper/fig_VIIa.png`): identified total and the 75 ms count
@@ -334,6 +349,6 @@ real tilt limit. Randomise the motor lag from the slowest identified value up to
 - Ten seeds for the paper figures (proposal, "Evaluation"); bootstrap intervals and Wilcoxon tests in place of sign counts.
 - Section VI: a figure for milestone 7g's authority result, and a whole-loop margin (spectral radius bound below 1).
 - Section VII: the same coverage sweep on the torque-scale and mass ranges; a sweep of the
-  set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier; twelve seeds per geometry at 125 and 150 ms.
+  set-point step's weight and size (milestone 7af used one of each) to map the reachable overshoot-rise frontier; the point mass's acceleration lag read off a flown attitude step instead of fitted on a position step (7ag); twelve seeds per geometry at 125 and 150 ms.
 - Sections I–V and VII–VIII written out from the outlines; LaTeX in the RA-L template.
 - Hardware check (milestone 8).
