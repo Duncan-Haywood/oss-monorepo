@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232b2350'/%3E%3Crect%20x='6'%20y='18'%20width='5'%20height='8'%20fill='%23f2b880'/%3E%3Crect%20x='13.5'%20y='12'%20width='5'%20height='14'%20fill='%23e58f65'/%3E%3Crect%20x='21'%20y='6'%20width='5'%20height='20'%20fill='%23c9667a'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ordinal Logistic Regression Online — proportional odds, Brant test, free</title>
+  <meta name="description" content="Free online ordinal logistic regression (proportional odds, ordered logit) and ordered probit for ratings, Likert answers, grades and stages: odds ratios with intervals, cut-points, likelihood-ratio test, pseudo R-squared, Brant's test of proportional odds, and predicted probabilities of every level. Matches statsmodels. Nothing is uploaded.">
+  <meta property="og:title" content="What moves a rating up or down the scale, and does one model fit the whole scale?">
+  <meta property="og:description" content="Ordinal logistic regression with Brant's test, in your browser. On 1,599 Portuguese red wines, each extra percent of alcohol multiplies the odds of a higher quality score by 2.4, but Brant's test shows alcohol barely separates the 4s from the 5s.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ordinal regression", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Ordinal logistic regression (the proportional-odds model, ordered logit) and ordered probit for an outcome with 3 to 15 ordered levels: coefficients and odds ratios with Wald intervals, cut-points, the likelihood-ratio test, McFadden's pseudo R-squared, AIC and BIC, Brant's test of the proportional-odds assumption with the per-cut slopes, and predicted probabilities of every level. Runs in the browser.", "license": "https://opensource.org/licenses/MIT"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When should I use ordinal regression instead of linear regression?", "acceptedAnswer": {"@type": "Answer", "text": "When the outcome is a set of ordered categories, such as a 1 to 5 rating, a Likert answer, a letter grade or a disease stage. Linear regression treats the gaps between levels as equal and can predict impossible values like 5.7; multinomial regression throws the order away. Ordinal regression uses the order and nothing more."}}, {"@type": "Question", "name": "How do I read an odds ratio from an ordered logit?", "acceptedAnswer": {"@type": "Answer", "text": "An odds ratio of 2 for a predictor means each extra unit doubles the odds of being above any given level rather than at or below it: the odds of a 4 or 5 against 1 to 3, and equally the odds of a 2 or higher against a 1. Above 1 pushes the outcome up the scale, below 1 pushes it down."}}, {"@type": "Question", "name": "What is the proportional odds assumption?", "acceptedAnswer": {"@type": "Answer", "text": "That one odds ratio per predictor holds at every cut of the scale: the predictor shifts the odds of being above level 1 by the same factor as the odds of being above level 4. When it fails, a predictor matters more at one end of the scale than the other, and its single odds ratio is an average that can hide that."}}, {"@type": "Question", "name": "What does Brant's test do?", "acceptedAnswer": {"@type": "Answer", "text": "It fits a separate binary logistic regression for each cut of the scale (above level 1 or not, above level 2 or not, and so on) and tests whether their slopes are equal, overall and for each predictor. A small p-value says proportional odds fails for that predictor; the table of per-cut slopes shows where."}}, {"@type": "Question", "name": "My proportional odds test is significant. What now?", "acceptedAnswer": {"@type": "Answer", "text": "Look at the per-cut slopes before doing anything. With large samples the test flags differences too small to matter. If the slopes really differ, report the per-cut slopes or the predicted probabilities alongside the odds ratio, merge sparse levels, or move to a partial proportional odds or multinomial model in a statistics package."}}, {"@type": "Question", "name": "Logit or probit?", "acceptedAnswer": {"@type": "Answer", "text": "They nearly always agree on direction and significance; probit coefficients are about 0.55 to 0.6 times the logit ones. Logit gives odds ratios and Brant's test; probit reads as shifts on a normal latent scale, which some fields prefer. Compare their AIC if you want the data to choose."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1a33; background: #f3f1f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #4b3a8c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #2b2350; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2b2350; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4e4863; }
+    .card { background: #fff; border: 1px solid #dcd7e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2b235010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    label.inline { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; margin: 4px 14px 4px 0; }
+    label.inline input, label.inline select { width: auto; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7a7391; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4b3a8c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e7e3f1; color: #2b2350; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ebe8f2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4e4863; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    tr.flag td { background: #fdf3e1; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7e8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #7a7391; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .chart { max-width: 680px; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f0edf7; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #2b2350; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #4e4863; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+    pre { background: #f4f2f8; border: 1px solid #e0dcea; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+    .pred-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; border-bottom: 1px solid #efedf4; padding: 2px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ORDINAL LOGISTIC REGRESSION · PROPORTIONAL ODDS · ORDERED PROBIT · BRANT TEST · PREDICTED PROBABILITIES · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>What moves a rating up or down the scale, and does one model fit the whole scale?</h1>
+    <p>Paste one row per person or item with an <strong>ordered outcome</strong> (a 1 to 5 rating, a Likert answer, a grade, a disease stage) and what might explain it: numbers, or groups such as a treatment arm. You get an <strong>ordinal logistic regression</strong> (the proportional-odds model) or an <strong>ordered probit</strong>: each predictor's <strong>odds ratio</strong> with its interval, the <strong>cut-points</strong>, a likelihood-ratio test and pseudo R², <strong>Brant's test</strong> of whether one odds ratio really fits every cut of the scale, and the <strong>chance of each level</strong> as a predictor changes.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not medical, legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row and one row per person or item: an ordered outcome column and one or more predictor columns</label>
+    <textarea id="csv" spellcheck="false" placeholder="satisfaction,plan,tenure_months&#10;Very satisfied,premium,24&#10;Neutral,basic,3&#10;Dissatisfied,basic,7&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 1,599 red wines rated 3 to 8, with six lab measurements (UCI Wine Quality)</button>
+    <p class="note" id="data-status">Rows with a missing outcome or predictor are skipped and counted.</p>
+
+    <div class="grid">
+      <div><label for="outcome-col">Outcome column (ordered)</label><select id="outcome-col"></select></div>
+      <div><label for="link">Model</label><select id="link"><option value="logit" selected>Ordered logit (proportional odds)</option><option value="probit">Ordered probit</option></select></div>
+      <div><label for="level">Confidence level</label><select id="level"><option value="0.9">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select></div>
+    </div>
+    <label for="levels">Order of the outcome's levels, lowest first (comma-separated)</label>
+    <input id="levels" type="text" placeholder="e.g. Poor, Fair, Good, Very good, Excellent">
+    <p class="note" id="levels-note"></p>
+    <p style="font-weight:600;margin:14px 0 2px">Predictors, and how each is read</p>
+    <div id="pred-list" class="note">Paste data to choose predictors.</div>
+    <button type="button" id="analyze">Fit the model</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>Chance of each level</h3>
+    <div class="grid">
+      <div><label for="effect-of">As this predictor changes (others at the profile below)</label><select id="effect-of"></select></div>
+    </div>
+    <p class="note" id="legend"></p>
+    <div class="chart" id="effect-chart" role="img" aria-label="Stacked predicted probabilities of each outcome level as the chosen predictor changes, the other predictors held at the profile"></div>
+    <h3>Coefficients</h3>
+    <p class="note" id="coef-note"></p>
+    <div class="scroll">
+      <table id="coef-table">
+        <thead><tr id="coef-head"></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="brant-block">
+      <h3>Brant's test of proportional odds</h3>
+      <p class="note" id="brant-line"></p>
+      <div class="scroll">
+        <table id="brant-table">
+          <thead><tr id="brant-head"></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note">Each "&gt; level" column is the slope of a separate binary logit for being above that level. Under proportional odds they all estimate the same number; flagged rows differ at the chosen significance level.</p>
+    </div>
+    <h3>Cut-points</h3>
+    <div class="scroll">
+      <table id="cut-table">
+        <thead><tr><th>Between</th><th class="n">Rows below</th><th class="n">Estimate</th><th class="n">SE</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <h3>Predicted chances at a profile</h3>
+    <p class="note">Numbers start at their means and categories at their reference level. Change any of them and the table and chart follow.</p>
+    <div class="grid" id="profile-inputs"></div>
+    <div class="scroll">
+      <table id="profile-table">
+        <thead><tr><th>Level</th><th class="n">Predicted chance</th><th class="n">Share in the data</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note" id="fit-line"></p>
+    <button type="button" class="secondary" id="download">Download the coefficient table (CSV)</button>
+    <button type="button" class="secondary" id="download-report">Download the report (text)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>The model.</strong> Think of each answer as a hidden continuous score cut into levels at thresholds θ₁ &lt; θ₂ &lt; … The proportional-odds model (McCullagh 1980; Walker &amp; Duncan 1967) says P(Y ≤ level j) = F(θⱼ − x′β) with F the logistic distribution, one slope per predictor shared by every cut. A positive coefficient pushes the outcome up the scale, and exp(β) is the factor by which one more unit multiplies the odds of being above any level rather than at or below it. The ordered probit uses the normal distribution for F, so a coefficient is a shift in standard deviations of the hidden score.</p>
+    <p><strong>The fit.</strong> Maximum likelihood by Newton-Raphson with the exact gradient and Hessian, step halving, and thresholds kept in order, starting from the thresholds that reproduce the overall shares of each level. Predictors are centred and scaled during the fit and mapped back afterwards, so a column measured in thousands and one measured in thousandths fit equally well. Standard errors come from the observed information; intervals are Wald intervals, exponentiated for odds ratios, which are also given per standard deviation of each numeric predictor so they can be compared. Text predictors become dummy variables against a reference level (the most common one unless you choose). The likelihood-ratio test compares the model with one that only has the thresholds; McFadden's (1974) R² is 1 − log L / log L₀.</p>
+    <p><strong>Brant's test.</strong> Proportional odds is an assumption. Brant (1990) fits a separate binary logistic regression for each cut (above level j or not) and tests whether their slopes are equal with a Wald test, using the covariance between two binary fits on the same rows, (X′WⱼX)⁻¹ X′WⱼₗX (X′WₗX)⁻¹ with weights πₗ − πⱼπₗ. It is given overall and for each coefficient, with the per-cut slopes so you can see where a predictor acts differently. Like any test it flags small, harmless differences in large samples, so read the slopes, not only the p-value.</p>
+    <p>Verified by tests in the source against an independent computation (<code>eval/reference.py</code>): on the wine example, a simulated Likert survey with a three-level group and a simulated data set built to violate proportional odds, the log-likelihoods match <strong>statsmodels 0.15.0</strong>'s OrderedModel to 10⁻¹¹, the coefficients and cut-points to 10⁻⁷ and the standard errors to 10⁻⁵ (statsmodels differentiates the likelihood numerically, the engine exactly), for both links; Brant's statistics match a numpy implementation built on statsmodels' binary logits to 10⁻⁹. On 400 data sets simulated under proportional odds, Brant's test rejected at the 5% level in 6.0% of them.</p>
+    <h3>BibTeX</h3>
+    <pre>@article{mccullagh1980regression,
+  author  = {McCullagh, Peter},
+  title   = {Regression models for ordinal data},
+  journal = {Journal of the Royal Statistical Society: Series B (Methodological)},
+  volume  = {42}, number = {2}, pages = {109--142}, year = {1980},
+  doi     = {10.1111/j.2517-6161.1980.tb01109.x}
+}
+@article{walker1967estimation,
+  author  = {Walker, Strother H. and Duncan, David B.},
+  title   = {Estimation of the probability of an event as a function of several independent variables},
+  journal = {Biometrika},
+  volume  = {54}, number = {1/2}, pages = {167--179}, year = {1967},
+  doi     = {10.1093/biomet/54.1-2.167}
+}
+@article{brant1990assessing,
+  author  = {Brant, Rollin},
+  title   = {Assessing proportionality in the proportional odds model for ordinal logistic regression},
+  journal = {Biometrics},
+  volume  = {46}, number = {4}, pages = {1171--1178}, year = {1990},
+  doi     = {10.2307/2532457}
+}
+@incollection{mcfadden1974conditional,
+  author    = {McFadden, Daniel},
+  title     = {Conditional logit analysis of qualitative choice behavior},
+  booktitle = {Frontiers in Econometrics},
+  editor    = {Zarembka, Paul},
+  publisher = {Academic Press}, pages = {105--142}, year = {1974}
+}
+@book{agresti2010analysis,
+  author    = {Agresti, Alan},
+  title     = {Analysis of Ordinal Categorical Data},
+  edition   = {2nd}, publisher = {Wiley}, year = {2010},
+  doi       = {10.1002/9780470594001}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Association, not cause.</strong> A coefficient says how the outcome differs between rows that differ in a predictor, with the others held fixed. Without a randomised design it is not the effect of changing that predictor.</li>
+      <li><strong>Sparse levels.</strong> A level with only a handful of rows gives a poorly estimated cut-point and can break Brant's test; the page warns below 5 rows and suggests merging it with a neighbour.</li>
+      <li><strong>Separation.</strong> When a predictor or category splits the levels perfectly, its estimate runs off to infinity. The page says so instead of printing a meaningless number.</li>
+      <li><strong>Wald intervals.</strong> Intervals and p-values use the normal approximation, which can be poor for small samples or estimates near separation; profile-likelihood intervals are not computed.</li>
+      <li><strong>When proportional odds fails</strong> the page shows where, but does not fit the alternatives (partial proportional odds, generalised ordered logit, multinomial logit). Fit those in a statistics package if the per-cut slopes really differ.</li>
+      <li>Not modelled: interactions (add a product column yourself), clustered or repeated answers from the same person (mixed models), survey weights, and other links such as the complementary log-log.</li>
+    </ul>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>When should I use ordinal regression instead of linear regression?</h3>
+    <p>When the outcome is a set of ordered categories, such as a 1 to 5 rating, a Likert answer, a letter grade or a disease stage. Linear regression treats the gaps between levels as equal and can predict impossible values like 5.7; multinomial regression throws the order away. Ordinal regression uses the order and nothing more.</p>
+    <h3>How do I read an odds ratio from an ordered logit?</h3>
+    <p>An odds ratio of 2 for a predictor means each extra unit doubles the odds of being above any given level rather than at or below it: the odds of a 4 or 5 against 1 to 3, and equally the odds of a 2 or higher against a 1. Above 1 pushes the outcome up the scale, below 1 pushes it down.</p>
+    <h3>What is the proportional odds assumption?</h3>
+    <p>That one odds ratio per predictor holds at every cut of the scale: the predictor shifts the odds of being above level 1 by the same factor as the odds of being above level 4. When it fails, a predictor matters more at one end of the scale than the other, and its single odds ratio is an average that can hide that.</p>
+    <h3>What does Brant's test do?</h3>
+    <p>It fits a separate binary logistic regression for each cut of the scale (above level 1 or not, above level 2 or not, and so on) and tests whether their slopes are equal, overall and for each predictor. A small p-value says proportional odds fails for that predictor; the table of per-cut slopes shows where.</p>
+    <h3>My proportional odds test is significant. What now?</h3>
+    <p>Look at the per-cut slopes before doing anything. With large samples the test flags differences too small to matter. If the slopes really differ, report the per-cut slopes or the predicted probabilities alongside the odds ratio, merge sparse levels, or move to a partial proportional odds or multinomial model in a statistics package.</p>
+    <h3>Logit or probit?</h3>
+    <p>They nearly always agree on direction and significance; probit coefficients are about 0.55 to 0.6 times the logit ones. Logit gives odds ratios and Brant's test; probit reads as shifts on a normal latent scale, which some fields prefer. Compare their AIC if you want the data to choose.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: the Wine Quality data set of Cortez, Cerdeira, Almeida, Matos and Reis (2009), UCI Machine Learning Repository, doi:10.24432/C56S3T, licensed CC BY 4.0, retrieved on 2026-11-19: 1,599 red Vinho Verde wines, each with the median of at least three experts' quality grades and its laboratory measurements. Kept: the quality grade and six of the eleven measurements, unchanged (<code>data/build_example.py</code>).</p>
+  </section>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not medical, legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; an association between a predictor and the outcome is not proof that one causes the other.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the University of Minho, the UCI Machine Learning Repository, the statsmodels, numpy or scipy projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is stored by us.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data.csv</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ordinal-regression" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: <a href="../scale-reliability/">scale reliability</a> checks whether a questionnaire's items hang together, <a href="../inter-rater-agreement/">inter-rater agreement</a> says whether raters agree beyond chance, <a href="../item-response-theory/">item response theory</a> grades the questions of a test, <a href="../contingency-table-tests/">contingency table tests</a> compare groups' proportions, and <a href="../roc-analysis/">ROC analysis</a> measures how well a score separates two outcomes.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, profileColumns, readData, orderLevels, toCsv, report, fmt, fmtP, pct, num } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    // Low levels warm, high levels cool; a diverging ramp picked to the number of levels.
+    const RAMP = ["#b2182b", "#d6604d", "#f4a582", "#e3c79a", "#92c5de", "#4393c3", "#2166ac", "#163f73"];
+    const colors = (J) => Array.from({ length: J }, (_, j) => (J <= RAMP.length ? RAMP[Math.round((j * (RAMP.length - 1)) / (J - 1))] : `hsl(${Math.round(355 - (j * 140) / (J - 1))}, 55%, ${Math.round(40 + 25 * Math.sin((Math.PI * j) / (J - 1)))}%)`));
+    let last = null;
+    let profile = {};
+    let cols = [];
+    function options(sel, names, chosen) {
+      sel.innerHTML = names.map((n) => `<option value="${esc(n)}"${n === chosen ? " selected" : ""}>${esc(n)}</option>`).join("");
+    }
+    function outcomeValues(name) {
+      const c = cols.find((q) => q.name === name);
+      return c ? c.values : [];
+    }
+    function refreshLevels() {
+      const vals = outcomeValues($("#outcome-col").value);
+      if (!vals.length || vals.length > 15) {
+        $("#levels").value = "";
+        $("#levels-note").textContent = vals.length > 15 ? `This column has more than 15 values; choose an ordered outcome with 3 to 15.` : "";
+        return;
+      }
+      const o = orderLevels(vals);
+      $("#levels").value = o.levels.join(", ");
+      $("#levels-note").textContent = { numeric: "Ordered by number.", scale: "Ordered as a recognised answer scale.", appearance: "Order not recognised: these are in order of appearance. Put them lowest first." }[o.how];
+    }
+    function refreshColumns() {
+      const text = $("#csv").value;
+      let p;
+      try {
+        p = parseCsv(text);
+      } catch (e) {
+        $("#outcome-col").innerHTML = "";
+        $("#pred-list").textContent = "Paste data to choose predictors.";
+        $("#data-status").textContent = text.trim() ? e.message : "Paste a table or load the example.";
+        return;
+      }
+      cols = profileColumns(p);
+      let guess = null;
+      try {
+        guess = readData(p, {}).columns;
+      } catch {
+        /* the analysis will say what is wrong */
+      }
+      const outs = cols.filter((c) => c.distinct >= 3 && c.distinct <= 15).map((c) => c.name);
+      options($("#outcome-col"), outs.length ? outs : cols.map((c) => c.name), guess && guess.outcome);
+      refreshLevels();
+      refreshPredictors(guess ? new Set(guess.predictors) : new Set());
+      $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.header.length} columns.`;
+    }
+    function refreshPredictors(chosen) {
+      const out = $("#outcome-col").value;
+      const list = cols.filter((c) => c.name !== out && c.kind !== "empty");
+      $("#pred-list").innerHTML = list.length
+        ? list.map((c) => `<div class="pred-row"><label class="inline"><input type="checkbox" class="use" data-col="${esc(c.name)}"${chosen.has(c.name) ? " checked" : ""}> ${esc(c.name)}</label><label class="inline">read as <select class="kind" data-col="${esc(c.name)}" aria-label="How to read ${esc(c.name)}">${c.kind === "number" ? '<option value="number">a number</option>' : ""}<option value="category"${c.kind === "number" ? "" : " selected"}>categories</option></select></label><span class="note">${c.kind === "number" ? "numbers" : `${c.distinct} value${c.distinct === 1 ? "" : "s"}`}</span></div>`).join("")
+        : "No other columns.";
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#outcome-col").addEventListener("change", () => {
+      refreshLevels();
+      const kept = new Set([...document.querySelectorAll("#pred-list .use")].filter((c) => c.checked).map((c) => c.dataset.col));
+      refreshPredictors(kept);
+    });
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+    function inputs() {
+      const preds = [...document.querySelectorAll("#pred-list .use")].filter((c) => c.checked).map((c) => c.dataset.col);
+      const categorical = [...document.querySelectorAll("#pred-list .kind")].filter((s) => s.value === "category" && preds.includes(s.dataset.col)).map((s) => s.dataset.col);
+      return {
+        csv: $("#csv").value,
+        outcomeColumn: $("#outcome-col").value || null,
+        levels: $("#levels").value.trim() || null,
+        predictorColumns: preds.length ? preds : null,
+        categorical,
+        link: $("#link").value,
+        level: Number($("#level").value),
+        at: profile,
+      };
+    }
+    // ---------- chart (plain SVG): stacked chances of each level ----------
+    function drawEffect() {
+      if (!last) return;
+      const name = $("#effect-of").value;
+      const e = last.effects[name];
+      if (!e) return;
+      const J = last.levels.length;
+      const C = colors(J);
+      const L = 56, T = 14, W = 560, H = 300;
+      let s = `<rect x="${L}" y="${T}" width="${W}" height="${H}" fill="none" stroke="#d6d1e3"/>`;
+      for (const v of [0, 0.25, 0.5, 0.75, 1]) s += `<line x1="${L}" x2="${L + W}" y1="${T + (1 - v) * H}" y2="${T + (1 - v) * H}" stroke="#efedf4"/><text x="${L - 6}" y="${T + (1 - v) * H + 4}" font-size="12" text-anchor="end" fill="#4e4863">${Math.round(v * 100)}%</text>`;
+      if (e.kind === "numeric") {
+        const xs = e.points.map((p) => p.x);
+        const lo = xs[0], hi = xs[xs.length - 1];
+        const sx = (v) => L + (hi > lo ? ((v - lo) / (hi - lo)) * W : W / 2);
+        const sy = (v) => T + (1 - v) * H;
+        for (let j = 0; j < J; j++) {
+          const top = e.points.map((p) => p.probs.slice(0, j + 1).reduce((a, b) => a + b, 0));
+          const bot = e.points.map((p) => p.probs.slice(0, j).reduce((a, b) => a + b, 0));
+          const d = `M${e.points.map((p, i) => `${sx(p.x).toFixed(1)},${sy(1 - top[i]).toFixed(1)}`).join(" L")} L${e.points.map((p, i) => `${sx(p.x).toFixed(1)},${sy(1 - bot[i]).toFixed(1)}`).reverse().join(" L")} Z`;
+          s += `<path d="${d}" fill="${C[j]}" fill-opacity="0.9" stroke="#fff" stroke-width="0.6"/>`;
+        }
+        for (let i = 0; i <= 4; i++) {
+          const v = lo + ((hi - lo) * i) / 4;
+          s += `<text x="${sx(v)}" y="${T + H + 18}" font-size="12" text-anchor="middle" fill="#4e4863">${esc(num(v))}</text>`;
+        }
+        const at = last.profile.values[name];
+        if (typeof at === "number" && at >= lo && at <= hi) s += `<line x1="${sx(at)}" x2="${sx(at)}" y1="${T}" y2="${T + H}" stroke="#1f1a33" stroke-dasharray="4 3"/>`;
+      } else {
+        const k = e.points.length;
+        const bw = W / k;
+        e.points.forEach((p, i) => {
+          let acc = 0;
+          for (let j = J - 1; j >= 0; j--) {
+            const h = p.probs[j] * H;
+            s += `<rect x="${(L + i * bw + bw * 0.15).toFixed(1)}" y="${(T + acc).toFixed(1)}" width="${(bw * 0.7).toFixed(1)}" height="${h.toFixed(1)}" fill="${C[j]}"/>`;
+            acc += h;
+          }
+          s += `<text x="${L + i * bw + bw / 2}" y="${T + H + 18}" font-size="12" text-anchor="middle" fill="#4e4863">${esc(String(p.x).slice(0, 18))}</text>`;
+        });
+      }
+      s += `<text x="${L + W / 2}" y="${T + H + 38}" font-size="12" text-anchor="middle" fill="#4e4863">${esc(name)}</text>`;
+      s += `<text x="14" y="${T + H / 2}" font-size="12" text-anchor="middle" fill="#4e4863" transform="rotate(-90 14 ${T + H / 2})">predicted chance (stacked)</text>`;
+      $("#effect-chart").innerHTML = `<svg viewBox="0 0 ${L + W + 20} ${T + H + 48}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+      $("#legend").innerHTML = last.levels.map((v, j) => `<span class="key" style="background:${C[j]}"></span>${esc(v)}`).join(" &nbsp; ") + (e.kind === "numeric" ? " &nbsp; Dashed line: the profile value." : "");
+    }
+    function showProfile(r) {
+      $("#profile-table tbody").innerHTML = r.levels.map((v, j) => `<tr><td>${esc(v)}</td><td class="n">${pct(r.profile.probs[j])}</td><td class="n">${pct(r.counts[j] / r.n)}</td></tr>`).join("");
+    }
+    function buildProfileInputs(r) {
+      $("#profile-inputs").innerHTML = r.predictors.map((p, i) => p.kind === "numeric"
+        ? `<div><label for="prof-${i}">${esc(p.column)} (${esc(num(p.min))} to ${esc(num(p.max))})</label><input id="prof-${i}" class="prof" data-col="${esc(p.column)}" type="text" inputmode="decimal" value="${esc(num(r.profile.values[p.column]))}"></div>`
+        : `<div><label for="prof-${i}">${esc(p.column)}</label><select id="prof-${i}" class="prof" data-col="${esc(p.column)}">${p.levels.map((l) => `<option value="${esc(l)}"${l === r.profile.values[p.column] ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></div>`).join("");
+      for (const el of document.querySelectorAll("#profile-inputs .prof")) el.addEventListener("change", () => {
+        const next = {};
+        for (const q of document.querySelectorAll("#profile-inputs .prof")) next[q.dataset.col] = q.value;
+        profile = next;
+        run(false);
+      });
+    }
+    function render(r, fresh) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const lv = Math.round(r.settings.level * 100);
+      const logit = r.link === "logit";
+      const top = [...r.coefficients].sort((a, b) => Math.abs(b.z) - Math.abs(a.z))[0];
+      const stats = [
+        [`${r.n.toLocaleString("en-US")}`, `rows, ${r.levels.length} levels`],
+        [fmtP(r.test.p) === "< 0.0001" ? "p < 0.0001" : `p = ${fmtP(r.test.p)}`, `likelihood-ratio test, χ² ${fmt(r.test.chi2, 1)} on ${r.test.df} df`],
+        [fmt(r.fit.mcfaddenR2, 3), "McFadden's pseudo R²"],
+        logit ? [num(top.oddsRatio), `odds ratio of ${top.name}, the strongest`] : [num(top.estimate), `shift for ${top.name}, the strongest`],
+      ];
+      if (r.brant && r.brant.ok) stats.push([r.brant.overall.p < r.alpha ? "fails" : "holds", `proportional odds by Brant's test (p ${fmtP(r.brant.overall.p) === "< 0.0001" ? "< 0.0001" : `= ${fmtP(r.brant.overall.p)}`})`]);
+      $("#stats").innerHTML = stats.map(([b, sp]) => `<div class="stat"><b>${esc(b)}</b><span>${esc(sp)}</span></div>`).join("");
+      $("#warnings").innerHTML = [...(r.skipped ? [`${r.skipped} row${r.skipped === 1 ? " was" : "s were"} skipped (missing or unreadable outcome or predictor).`] : []), ...r.warnings].map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      if (fresh) {
+        const choices = r.predictors.map((p) => p.column);
+        options($("#effect-of"), choices, choices.includes($("#effect-of").value) ? $("#effect-of").value : top.column);
+        buildProfileInputs(r);
+      }
+      drawEffect();
+      $("#coef-note").textContent = logit
+        ? `Positive coefficients and odds ratios above 1 push ${r.columns.outcome} up the scale. Odds ratio: per unit; per SD: per standard deviation of a numeric predictor, to compare predictors on different scales. ${lv}% Wald intervals.`
+        : `Positive coefficients push ${r.columns.outcome} up the scale; each is a shift of the hidden score in standard deviations per unit. ${lv}% Wald intervals.`;
+      $("#coef-head").innerHTML = `<th>Predictor</th><th class="n">Coefficient</th><th class="n">SE</th><th class="n">z</th><th class="n">p</th><th class="n">${lv}% CI</th>${logit ? '<th class="n">Odds ratio</th><th class="n">Its CI</th><th class="n">Per SD</th>' : ""}`;
+      $("#coef-table tbody").innerHTML = r.coefficients.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${fmt(c.estimate, 4)}</td><td class="n">${fmt(c.se, 4)}</td><td class="n">${fmt(c.z, 2)}</td><td class="n">${fmtP(c.p)}</td><td class="n">${fmt(c.lower, 3)} to ${fmt(c.upper, 3)}</td>${logit ? `<td class="n">${esc(num(c.oddsRatio))}</td><td class="n">${esc(num(c.orLower))} to ${esc(num(c.orUpper))}</td><td class="n">${c.orPerSd != null ? esc(num(c.orPerSd)) : ""}</td>` : ""}</tr>`).join("");
+      const b = r.brant;
+      $("#brant-block").hidden = !b;
+      if (b && b.ok) {
+        $("#brant-line").textContent = `All coefficients: chi-square ${fmt(b.overall.chi2, 2)} on ${b.overall.df} degrees of freedom, p ${fmtP(b.overall.p) === "< 0.0001" ? "< 0.0001" : `= ${fmtP(b.overall.p)}`}. ${b.overall.p < r.alpha ? "Proportional odds fails somewhere: see which rows are flagged." : "No evidence that any predictor acts differently at different cuts."}`;
+        $("#brant-head").innerHTML = `<th>Predictor</th><th class="n">χ²</th><th class="n">df</th><th class="n">p</th>${r.levels.slice(0, -1).map((v) => `<th class="n">&gt; ${esc(v)}</th>`).join("")}`;
+        $("#brant-table tbody").innerHTML = b.by.map((x, k) => `<tr${x.p < r.alpha ? ' class="flag"' : ""}><td>${esc(x.name)}</td><td class="n">${fmt(x.chi2, 2)}</td><td class="n">${x.df}</td><td class="n">${fmtP(x.p)}</td>${b.slopes[k].byCut.map((q) => `<td class="n">${esc(num(q.estimate))}<br><span class="note">± ${esc(num(q.se))}</span></td>`).join("")}</tr>`).join("");
+      } else if (b) {
+        $("#brant-line").textContent = `Not available: ${b.reason}.`;
+        $("#brant-head").innerHTML = "";
+        $("#brant-table tbody").innerHTML = "";
+      }
+      let below = 0;
+      $("#cut-table tbody").innerHTML = r.thresholds.map((t, j) => {
+        below += r.counts[j];
+        return `<tr><td>${esc(t.name)}</td><td class="n">${below.toLocaleString("en-US")}</td><td class="n">${fmt(t.estimate, 4)}</td><td class="n">${fmt(t.se, 4)}</td></tr>`;
+      }).join("");
+      showProfile(r);
+      const c = r.classification;
+      $("#fit-line").textContent = `Log-likelihood ${fmt(r.fit.loglik, 2)} (thresholds only: ${fmt(r.fit.nullLoglik, 2)}); AIC ${fmt(r.fit.aic, 1)}, BIC ${fmt(r.fit.bic, 1)}; ${r.fit.iterations} Newton iterations. The most likely level is the observed one for ${pct(c.accuracy)} of rows (always "${c.baselineLevel}": ${pct(c.baseline)}), within one level for ${pct(c.withinOne)}. Levels ordered ${r.levelOrder === "given" ? "as given" : r.levelOrder === "numeric" ? "by number" : r.levelOrder === "scale" ? "as a recognised answer scale" : "by first appearance"}: ${r.levels.join(" < ")}.`;
+    }
+    $("#effect-of").addEventListener("change", drawEffect);
+    function run(fresh = true) {
+      $("#status").textContent = "Fitting…";
+      $("#analyze").disabled = true;
+      if (fresh) profile = {};
+      setTimeout(() => {
+        try {
+          const t0 = performance.now();
+          const r = analyze(inputs());
+          render(r, fresh);
+          if (fresh) record("analysis_run");
+          $("#status").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(2)} s.`;
+        } catch (e) {
+          if (fresh) $("#results").hidden = true;
+          $("#status").textContent = e.message;
+        } finally {
+          $("#analyze").disabled = false;
+        }
+      }, 20);
+    }
+    $("#analyze").addEventListener("click", () => run(true));
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      record("example_loaded");
+      run(true);
+    });
+    function save(text, name, type) {
+      const blob = new Blob([text], { type });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    }
+    $("#download").addEventListener("click", () => last && save(toCsv(last), "ordinal-regression.csv", "text/csv"));
+    $("#download-report").addEventListener("click", () => last && save(report(last) + "\n", "ordinal-regression-report.txt", "text/plain"));
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
