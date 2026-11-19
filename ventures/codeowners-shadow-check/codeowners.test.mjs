@@ -91,7 +91,34 @@ test('** matches across directory boundaries, including zero segments', () => {
 
 test('patternToSegments prepends an implicit ** for an unanchored pattern', () => {
   assert.deepEqual(patternToSegments('*.js'), ['**', '*.js']);
-  assert.deepEqual(patternToSegments('/docs/'), ['docs', '**']);
+  assert.deepEqual(patternToSegments('/docs/'), ['docs', '**+']);
+});
+
+// Regressions found by the differential test against git (codeowners.git.test.mjs):
+// a trailing '**' (written, or implied by a trailing '/') used to match zero
+// segments, so a directory rule also owned a file with the directory's name.
+test('a directory-only pattern does not match a file with that name', () => {
+  assert.ok(!patternMatches('build/', 'scripts/build'));
+  assert.ok(patternMatches('build/', 'scripts/build/out.js'));
+  assert.ok(!patternMatches('/docs/', 'docs'));
+  assert.ok(!patternMatches('*.d/', 'conf/x.d'));
+  assert.ok(patternMatches('*.d/', 'conf/x.d/a.conf'));
+});
+
+test('a trailing /** matches only what is inside the directory', () => {
+  assert.ok(!patternMatches('docs/**', 'docs'));
+  assert.ok(patternMatches('docs/**', 'docs/a.md'));
+  assert.ok(patternMatches('docs/**', 'docs/x/a.md'));
+  // `dir/**/` names directories inside dir, so its direct files are not matched
+  assert.ok(!patternMatches('docs/**/', 'docs/a.md'));
+  assert.ok(patternMatches('docs/**/', 'docs/x/a.md'));
+  assert.ok(patternMatches('**', 'README.md'));
+});
+
+test('a later directory rule no longer shadows a rule for a same-named file', () => {
+  const report = buildReport('/scripts/build @ci\nbuild/ @frontend\n', 'scripts/build\nweb/build/app.js\n');
+  assert.equal(report.shadowed.length, 0);
+  assert.equal(report.resolved.find((r) => r.path === 'scripts/build').winner.owners[0], '@ci');
 });
 
 test('last matching pattern wins, matching GitHub CODEOWNERS semantics', () => {
@@ -257,4 +284,16 @@ test('flags gitignore syntax GitHub does not support in CODEOWNERS', () => {
   assert.match(errors[1].message, /\[ \]/);
   assert.match(errors[2].message, /\\#/);
   assert.equal(buildReport('!vendor/ @b', 'vendor/x.js').ok, false);
+});
+
+test('a rule shadowed only by rules with the same owners is redundant, not a lost review', () => {
+  const same = buildReport('/CLAUDE.md @Owner\n**/CLAUDE.md @owner\n', 'CLAUDE.md\nweb/CLAUDE.md\n');
+  assert.equal(same.shadowed.length, 1);
+  assert.equal(same.shadowed[0].sameOwners, true);
+  assert.equal(same.redundant.length, 1);
+  assert.equal(same.ok, true);
+  const diff = buildReport('/src/pay/*.js @payments\n*.js @generalists\n', 'src/pay/a.js\n');
+  assert.equal(diff.shadowed[0].sameOwners, false);
+  assert.equal(diff.redundant.length, 0);
+  assert.equal(diff.ok, false);
 });

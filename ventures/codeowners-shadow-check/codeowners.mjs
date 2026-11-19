@@ -126,18 +126,26 @@ export function patternToSegments(rawPattern) {
   if (dirOnly) body = body.slice(0, -1);
   const anchored = isAnchored(rawPattern);
   let segments = body.split('/').filter((s) => s.length > 0);
-  if (dirOnly) segments = [...segments, '**'];
+  // A trailing '**' matches only what is inside the directory, so it needs
+  // at least one more segment ('**+'). gitignore: "A trailing '/**' matches
+  // everything inside"; `dir/` matches a directory, never a file named
+  // `dir`; `dir/**/` matches directories inside `dir`, not its files.
+  // Letting these match zero segments made `build/` own a file called
+  // `scripts/build` (found by the differential test against git,
+  // codeowners.git.test.mjs).
+  if (segments[segments.length - 1] === '**') segments[segments.length - 1] = '**+';
+  if (dirOnly) segments = [...segments, '**+'];
   if (!anchored) segments = ['**', ...segments];
   return segments;
 }
 
 function segmentsMatch(patternSegments, pathSegments) {
-  const compiled = patternSegments.map((s) => (s === '**' ? '**' : segmentRegExp(s)));
+  const compiled = patternSegments.map((s) => (s === '**' || s === '**+' ? s : segmentRegExp(s)));
   function walk(pi, si) {
     if (pi === compiled.length) return si === pathSegments.length;
     const seg = compiled[pi];
-    if (seg === '**') {
-      for (let k = si; k <= pathSegments.length; k++) {
+    if (seg === '**' || seg === '**+') {
+      for (let k = seg === '**' ? si : si + 1; k <= pathSegments.length; k++) {
         if (walk(pi + 1, k)) return true;
       }
       return false;
@@ -160,7 +168,7 @@ export function patternMatches(rawPattern, path) {
   // wildcard final segment: `docs/*` matches docs/a.md but not docs/x/a.md,
   // so only a literal final segment extends to descendants.
   const last = segs[segs.length - 1];
-  return last !== '**' && !/[*?]/.test(last) && segmentsMatch([...segs, '**'], pathSegments);
+  return !/[*?]/.test(last) && segmentsMatch([...segs, '**+'], pathSegments);
 }
 
 /**
@@ -202,14 +210,28 @@ export function shadowedRules(rules, resolved) {
       if (!overriddenBy.has(key)) overriddenBy.set(key, { rule: row.winner, paths: [] });
       overriddenBy.get(key).paths.push(row.path);
     }
+    const overriders = [...overriddenBy.values()].sort((a, b) => b.paths.length - a.paths.length);
     shadowed.push({
       rule,
       ruleIndex,
       matchedPathCount: matchedRows.length,
-      overriddenBy: [...overriddenBy.values()].sort((a, b) => b.paths.length - a.paths.length),
+      overriddenBy: overriders,
+      // Every overriding rule names exactly the same owners: the line is
+      // redundant, but no file loses a reviewer because of it. This
+      // repository's own CODEOWNERS has two such lines (`/CLAUDE.md`
+      // under a later `**/CLAUDE.md`, same owner), 2026-11-19.
+      sameOwners: overriders.every((o) => sameOwnerSet(o.rule.owners, rule.owners)),
     });
   });
   return shadowed;
+}
+
+function ownerKey(owners) {
+  return [...new Set(owners.map((o) => o.toLowerCase()))].sort().join(' ');
+}
+
+function sameOwnerSet(a, b) {
+  return ownerKey(a) === ownerKey(b);
 }
 
 /** Rules that matched none of the supplied paths -- a typo, a path that no
@@ -251,8 +273,10 @@ export function buildReport(codeownersText, pathsText) {
     pathCount: paths.length,
     resolved,
     shadowed,
+    // shadowed rules whose overriders name the same owners: tidy-up, not a lost review
+    redundant: shadowed.filter((s) => s.sameOwners),
     unmatched,
     uncovered,
-    ok: errors.length === 0 && shadowed.length === 0,
+    ok: errors.length === 0 && shadowed.every((s) => s.sameOwners),
   };
 }

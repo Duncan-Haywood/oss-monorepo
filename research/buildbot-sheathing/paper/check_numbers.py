@@ -483,6 +483,7 @@ CHECKS = [
     (M5, "two 2x, single read (ledger, s_x 1 mm, low warp) = 0.9994", "lift a one-read robot to 99.94%"),
     (M5, "two 2x, single read (ledger, s_x 1 mm, low warp) = 0.9994", "the robot gets its 99.94% for free"),
     (M5, "two 2x, single read (ledger, s_x 1 mm, low warp) = 0.9994", "reads each stud once reach 99.94%"),
+    (M5, "2x2x  high: best single  109.5 s, clean 0.9404", "(94% at high warp)"),
     (M5, "two 2x, single read: 76 to 216 s a sheet (median 146); best single 2x: 94 to 282 s (median 184)", "takes 76 to 216 s (median 146)"),
     (M5, "best single 2x: 94 to 282 s (median 184)", "takes 94 to 282 s (median 184)"),
     (M5, "2x2x: {'single': 108, 'three': 0, 'dense': 0}", "fastest policy in all 108 time cells"),

@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyd1vMwLGJrAKz1RoTd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T15:38:59Z",
+  "ended": "2026-11-19T16:23:00Z",
+  "wall_minutes": 44.19,
+  "tokens_in": 11917342,
+  "tokens_out": 38047,
+  "cost_usd": 4.4166,
+  "tool_calls": 86,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17711",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper buildable named 'VAT5%: 668' as open, but the five-reading vote already reads that slip's tax right (8.99); the eval note also misdescribed it as a lost decimal point when RapidOCR's digits are wrong. Cost ~15 min (parquet download, OCR) to find out."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "buildable is capped at 600 characters and was at 581, so a two-item rewrite took three tries; fine, but the dry-run output could suggest which clauses to shorten."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Started on the VAT5%: 668 item named in the claim PR title; it was already solved, so the run took the next buildable item (bands on the page) under the same PR rather than opening a second one.",
+      "did": "kept PR #17711, retitled in the body",
+      "result": "one PR, page parity with CLI measured"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-ai-bookkeeper-second-look-for-the-seller-in-the-browser.md",
+    "ventures/ai-bookkeeper/eval/receipt-ocr-ru-page-bands-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Page RapidOCR now takes the CLI's three-band second look for a Russian slip with no seller (photoocr.mjs withSecondLook/readBands, worker and in-page engines). Headless Chromium on cdek-ocr/receipt-ocr-ru: val sellers 116->121/146, held-out test 105->114/146 (scored once), 0 lost, totals unchanged. Venture suite 3430 tests pass; run_workflow_locally --for-changes 13/13 workflows passed (deploy/review jobs not run locally); PR CI green.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "de60487e-d8a4-5dd9-97e6-9f32b3b1e30a",
+    "transcripts": 1,
+    "first": "2026-11-19T15:38:59Z",
+    "last": "2026-11-19T16:23:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 173,
+        "output": 38047,
+        "thinking": 8742,
+        "cache_read": 11754147,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163022,
+        "api_equivalent_usd": 4.4166,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 173,
+      "output": 38047,
+      "thinking": 8742,
+      "cache_read": 11754147,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163022,
+      "api_equivalent_usd": 4.4166,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 81,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "ScheduleWakeup": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 44.19,
+      "active_minutes": 27.21,
+      "model_minutes": 7.16,
+      "tool_minutes": 20.05,
+      "waiting_on_human_minutes": 16.98,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "port of an image pipeline step to browser canvas+worker, tests, a 300-photo browser evaluation and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 135.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

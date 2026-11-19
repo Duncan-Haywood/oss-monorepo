@@ -379,7 +379,7 @@ def test_buildable_refusal_lists_landed_clauses():
 
 def test_new_budget_when_shortening_cannot_fit():
     assert ff.new_budget(("abc",), 10).startswith(". Your NEW text (3 chars) cannot fit")
-    assert ff.new_budget(("a", "b"), 1) == ""
+    assert ff.new_budget(("a", "b"), 5).startswith(". Your 2 NEW texts (2 chars together) cannot fit")
     assert ff.new_budget(("",), 1) == ""
 
 
@@ -810,3 +810,11 @@ def test_history_candidates_skip_pointer_and_own_text():
     v = "History and every measurement: README. Next: A passed 3 of 4; next a real file; B ships."
     got = ff.history_candidates(v, keep=("B ships",))
     assert got == ["A passed 3 of 4"]
+
+
+def test_new_budget_splits_the_cut_across_several_replacements():
+    a, b = "x" * 60, "y" * 40
+    got = ff.new_budget((a, b), 10)
+    assert "2 NEW texts are 100 characters together; at most 90 fit" in got
+    assert "60 -> 54" in got and "40 -> 36" in got
+    assert sum(int(n) for n in __import__("re").findall(r"-> (\d+)", got)) == 90

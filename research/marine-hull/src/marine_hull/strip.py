@@ -326,9 +326,13 @@ def _patch(v, ok, xs):
 class WigleyStrip:
     """Heave/pitch and Gerritsma-Beukelman added resistance of a Wigley hull in regular head waves."""
 
-    def __init__(self, length, beam, draft, n_stations=30, kyy=0.25, rho=RHO, table=None, n_panels=16, zeta_v=0.0):
+    def __init__(self, length, beam, draft, n_stations=30, kyy=0.25, rho=RHO, table=None, n_panels=16, zeta_v=0.0,
+                 no_added_mass_coupling=False):
         self.l, self.bm, self.t, self.rho, self.kyy = length, beam, draft, rho, kyy
         self.zeta_v = zeta_v          # equivalent linear viscous damping in heave and pitch, fraction of critical
+        # milestone 7zf: drop the heave-pitch cross-coupling added mass (A35 = A53 = 0, bow-down convention) in the
+        # motion equations, keeping the cross-coupling damping and restoring; 7ze's rule from the Kashiwagi tank data
+        self.no_added_mass_coupling = no_added_mass_coupling
         dx = length / n_stations
         self.dx = dx
         self.x = [-length / 2 + dx * (i + 0.5) for i in range(n_stations)]
@@ -422,6 +426,11 @@ class WigleyStrip:
             c35 = sum(ci * x * dx for ci, x in zip(c, self.x))
             h12 = -(we * we * a35 - 1j * we * b35) - c35     # bow-down coefficients -> this code's bow-up pitch
             h21 = -(we * we * a53 - 1j * we * b53) - c35
+        elif self.no_added_mass_coupling:
+            # h12 = we^2 A35 - i we B35 - C35 (any pitch sign): keep the damping and restoring parts, drop A35 and A53
+            c35 = sum(ci * x * dx for ci, x in zip(c, self.x))
+            h12 = complex(-c35, h12.imag)
+            h21 = complex(-c35, h21.imag)
         # -we^2 M z = F,  -we^2 I theta = M_y, with F = f1 + h11 z + h12 theta etc.
         # viscous damping force -B_v dz/dt = -i we B_v z: moves to the left side as + i we B_v
         m11 = -we * we * self.mass - h11 + 1j * we * self.bv33
@@ -479,9 +488,11 @@ class ModifiedWigleyStrip(WigleyStrip):
     tank tests (Kashiwagi et al. 2000; added resistance in Kashiwagi 2013). Volume, waterplane and section
     shapes come from the form itself; the Smith depth is volume / waterplane area."""
 
-    def __init__(self, length, beam, draft, n_stations=30, kyy=0.248, rho=1000.0, table=None, n_panels=16, zeta_v=0.0):
+    def __init__(self, length, beam, draft, n_stations=30, kyy=0.248, rho=1000.0, table=None, n_panels=16, zeta_v=0.0,
+                 no_added_mass_coupling=False):
         self.l, self.bm, self.t, self.rho, self.kyy = length, beam, draft, rho, kyy
         self.zeta_v = zeta_v
+        self.no_added_mass_coupling = no_added_mass_coupling
         dx = length / n_stations
         self.dx = dx
         self.x = [-length / 2 + dx * (i + 0.5) for i in range(n_stations)]

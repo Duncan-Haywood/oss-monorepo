@@ -6,6 +6,9 @@
 // --script=cyrillic reads with the page's Cyrillic recogniser (rapidocr-web.mjs RAPID_RECOGNISERS);
 // its Hugging Face downloads are answered from <dir>/rec.onnx and <dir>/dict.txt (fetched at the
 // pinned revision), and the page still checks their hashes.
+// --bands=<dir> also writes to <dir> what the page puts in the receipts box after its second
+// look for a Russian slip's seller (photoocr.mjs withSecondLook: three bands drawn on a canvas,
+// read by the same reader), so the two folders score the first reading against the second look.
 import { createServer } from "node:http";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync, mkdtempSync, readdirSync, statSync } from "node:fs";
@@ -17,6 +20,7 @@ import { tmpdir } from "node:os";
 const [src, out, tgz] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const script = process.argv.find((a) => a.startsWith("--script="))?.slice(9) ?? "latin";
 const hf = process.argv.find((a) => a.startsWith("--hf="))?.slice(5);
+const bandsOut = process.argv.find((a) => a.startsWith("--bands="))?.slice(8);
 if (!tgz) { console.error("usage: node eval/rapidocr-browser.mjs <photos> <out> <tarballs>"); process.exit(2); }
 let chromium;
 for (const c of ["playwright", process.env.PLAYWRIGHT_PATH, "/opt/node-tools/node_modules/playwright", "playwright-core"].filter(Boolean).map((c) => (c.startsWith("/") && existsSync(c) && statSync(c).isDirectory() ? join(c, "index.mjs") : c))) {
@@ -65,14 +69,24 @@ const how = await page.evaluate(async (script) => {
 }, script);
 console.log(`RapidOCR (${script}) loaded in the ${how}`);
 await mkdir(out, { recursive: true });
+if (bandsOut) await mkdir(bandsOut, { recursive: true });
+let looked = 0, found = 0;
 const photos = readdirSync(src).filter((f) => /\.(jpe?g|png)$/i.test(f)).sort();
 const t0 = Date.now();
 for (const f of photos) {
-  const text = await page.evaluate(async (f) => {
+  const r = await page.evaluate(async ([f, bands]) => {
     const blob = await (await fetch(`/photo/${encodeURIComponent(f)}`)).blob();
-    return window.rapid.read(blob);
-  }, f);
-  await writeFile(join(out, f.replace(/\.[^.]+$/, ".txt")), text);
+    const text = await window.rapid.read(blob);
+    if (!bands) return { text };
+    const { withSecondLook } = await import("/photoocr.mjs");
+    return { text, second: await withSecondLook(window.rapid, blob, text) };
+  }, [f, !!bandsOut]);
+  await writeFile(join(out, f.replace(/\.[^.]+$/, ".txt")), r.text);
+  if (bandsOut) {
+    await writeFile(join(bandsOut, f.replace(/\.[^.]+$/, ".txt")), r.second.text);
+    looked += r.second.looked; found += r.second.found;
+  }
 }
+if (bandsOut) console.log(`second look: ${looked} of ${photos.length} photos read again in bands, a seller put first on ${found}`);
 console.log(`${photos.length} photos in ${((Date.now() - t0) / 1000).toFixed(0)} s (${((Date.now() - t0) / photos.length / 1000).toFixed(1)} s a photo)`);
 await browser.close(); server.close();

@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJVqqsv8USWhZvVGwW",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T16:07:12Z",
+  "ended": "2026-11-19T16:14:21Z",
+  "wall_minutes": 14.68,
+  "tokens_in": 5363332,
+  "tokens_out": 18985,
+  "cost_usd": 2.0801,
+  "tool_calls": 68,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17717",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Polish queue has 64 open micro-items, mostly phone-pixel tweaks; screenshotting flagships found a real broken-link class faster than the queue would have."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Picked a defect found by screenshots rather than a polish_queue.py item",
+      "did": "Fixed repairLinks hub-link class (14 pages) with a regression test",
+      "result": "Second full build: 0 links to the GitHub ventures folder (was 14)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-more-free-tools-opened-a-github-folder.md",
+    "docs/reports/polish-2026-11-19-hub-links.md"
+  ],
+  "goal": null,
+  "notes": "Full build on main: 14 html pages linked blob/main/ventures (11 'More free tools', 3 'All tools'). After fix, second full build: 0. check.mjs: publishable, 11985 pages, no dead links. node --test platform/pages/*.test.mjs: 1856 pass, 0 fail. New test fails with build.mjs change reverted. CI changed-ventures was red from main (#17715 left a raw U+FEFF in shift-roster-builder/import-deputy-staff.mjs); fixed forward as \\uFEFF, deputy tests 19/19 pass, check_hidden_unicode ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6cc52d37-f7f7-58b9-955d-092e1ac62002",
+    "transcripts": 1,
+    "first": "2026-11-19T16:07:12Z",
+    "last": "2026-11-19T16:21:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 121,
+        "output": 18985,
+        "thinking": 3377,
+        "cache_read": 5282794,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80417,
+        "api_equivalent_usd": 2.0801,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 121,
+      "output": 18985,
+      "thinking": 3377,
+      "cache_read": 5282794,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80417,
+      "api_equivalent_usd": 2.0801,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 60,
+      "Read": 4,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.68,
+      "active_minutes": 14.68,
+      "model_minutes": 5.06,
+      "tool_minutes": 9.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "find, fix and test a build link bug plus write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 96.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

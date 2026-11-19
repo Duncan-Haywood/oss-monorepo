@@ -22,9 +22,9 @@
 
 import { requirePlaywright } from './load-playwright.mjs';
 import fs from 'node:fs';
-import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { serveDir } from './serve-dir.mjs';
 import { FIRST_TOOL_SELECTOR, FOLD, foldFailures, foldTable, parseWidths } from './fold.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -61,30 +61,6 @@ if (!pages.length) {
   process.exit(2);
 }
 
-const TYPES = {
-  '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript',
-  '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.webp': 'image/webp',
-  '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.webmanifest': 'application/manifest+json',
-};
-
-/** A static server for DIST on a free 127.0.0.1 port; paths cannot leave DIST. */
-async function serveDist() {
-  const srv = http.createServer((q, r) => {
-    let rel;
-    try { rel = decodeURIComponent(new URL(q.url, 'http://x').pathname); } catch { rel = '/'; }
-    let p = path.join(DIST, rel);
-    if (p !== DIST && !p.startsWith(DIST + path.sep)) { r.writeHead(403); r.end(); return; }
-    if (rel.endsWith('/')) p = path.join(p, 'index.html');
-    fs.readFile(p, (e, d) => {
-      if (e) { r.writeHead(404); r.end(); return; }
-      r.writeHead(200, { 'content-type': TYPES[path.extname(p)] || 'application/octet-stream' });
-      r.end(d);
-    });
-  });
-  await new Promise((ok, fail) => { srv.once('error', fail); srv.listen(0, '127.0.0.1', ok); });
-  return { srv, base: `http://127.0.0.1:${srv.address().port}` };
-}
-
 const playwright = await requirePlaywright();
 let server = null;
 let BASE = (process.env.BASE_URL || '').replace(/\/$/, '');
@@ -96,7 +72,7 @@ if (BASE) {
     process.exit(2);
   }
 } else {
-  server = await serveDist();
+  server = await serveDir(DIST);
   BASE = server.base;
 }
 

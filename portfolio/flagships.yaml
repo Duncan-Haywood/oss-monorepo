@@ -119,23 +119,23 @@ flagships:
       RapidOCR's total unless arithmetic confirms the majority, CORD train 542/583;
       page SRD 190/196 (port as lead), page CORD taxes kept (train 205/267),
       WildReceipt held out 360/405, tax 209/272, Russian slips 203/230, 202/221
-      (RapidOCR), merchant 113/146 (Cyrillic, auto-picked; forms, bands), SROIE
-      84.6%, five readings 96.5% held out, dates 94.1% (was 69.1%), US 79.6%, tax
-      74.6%; CLI 78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%, test 57.9%,
-      tax 16/41; open: OCR-bound); (6) payroll (README): two journal layouts read;
-      open: a real Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS
-      TY2025 guidelines (HISTORY): open: a real upload, TY2026 template. A run that
-      lands a slice replaces its item here; keep this under 2,000 characters. More
-      open items: NEXT.md.
+      (RapidOCR), merchant 113/146, page 114 (Cyrillic, bands), SROIE 84.6%, five
+      readings 96.5% held out, dates 94.1% (was 69.1%), US 79.6%, tax 74.6%; CLI
+      78.6%, tax 71.9%; CORD photos val 71.4%, train 62.2%, test 57.9%, tax 16/41;
+      open: OCR-bound); (6) payroll (README): two journal layouts read; open: a real
+      Gusto or ADP export; (7) IRIS NEC and MISC rents files on IRS TY2025
+      guidelines (HISTORY): open: a real upload, TY2026 template. A run that lands a
+      slice replaces its item here; keep this under 2,000 characters. More open
+      items: NEXT.md.
     buildable: >-
       Receipts, item (5): WildReceipt (eval/wildreceipt.py, Hugging Face
       kaydee/wildreceipt; Apache-2.0), SRD (eval/srd-fetch.mjs), CORD
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. WildReceipt all
-      read (eval/wildreceipt-rescore-2026-11-17.md); next: VAT5%: 668. Russian slips
+      read, spent (eval/wildreceipt-rescore-2026-11-17.md). Russian slips
       (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): all shards read
       (eval/receipt-ocr-ru-train2-2026-11-18.md); Cyrillic RapidOCR:
-      eval/receipt-ocr-ru-eslav-2026-11-18.md; next: bands re-read on the page.
-      SROIE (zzzDavid/ICDAR-2019-SROIE) merchants:
+      eval/receipt-ocr-ru-eslav-2026-11-18.md, bands on CLI and page
+      (eval/receipt-ocr-ru-page-*). SROIE (zzzDavid/ICDAR-2019-SROIE) merchants:
       eval/sroie-five-readings-2026-11-18
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
@@ -399,8 +399,9 @@ flagships:
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
-      search 2026-11-19 (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h
-      each none; order-4 multiplier on Z51 none) and near-whist 58 (tabu 25+60
+      search 2026-11-19 (eval/whist-anneal.c, .txt); 52, 57: patterned starters
+      impossible, Z19x|Z3 tabu stops at cost 2 (README "Whist designs for 52 and
+      57"); next: SAT or a product construction; and near-whist 58 (tabu 25+60
       CPU-min, SAT 2.2 h none; sit-out parity and mirror proof: README "Near-whist
       designs by SAT"). More open items: NEXT.md.
   - venture: open-tennis-robots
@@ -549,8 +550,9 @@ flagships:
       eval/cpm-vs-p6.mjs; free float 19,809 of 19,822
       (eval/free-float-2026-11-19.md): 9 left in the 24.12 file where P6 stores 0
       against a positive gap; windows check (eval/windows-check.mjs, series made by
-      status.mjs); more hand-made or converter XERs (no data date, no PROJECT, blank
-      calendars) through node cli.mjs.
+      status.mjs); converter/hand-made XERs: node eval/converter-corpus.mjs (245
+      files 2026-11-19: 0 crashes, 0 NaN; eval/converter-files-2026-11-19.md), rerun
+      after engine changes.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
@@ -563,20 +565,20 @@ flagships:
       updates shipped 2026-11-19 (windows.mjs, --windows; a not-started re-estimate
       is now a revision in the half-step; eval/windows-check-2026-11-19.md); next a
       real series of updates to check the split and drivers against, and windows in
-      the written review; (3) more public XER files from other exporters (search
-      GitHub for ERMHDR fixtures) and progress override, start float and 24-hour lag
-      paths on a real file; (4) written review shipped 2026-11-19 (report.mjs, print
-      to PDF; eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real
-      files); next a real reviewer's reading of one and a full-list appendix option;
-      (5) Monte Carlo finish risk shipped 2026-11-19 (risk.mjs: P10-P90, chance of
+      the written review; (3) GitHub ERMHDR search done 2026-11-19 (245 files, none
+      a new scored P6 export; eval/converter-files-2026-11-19.md); next progress
+      override, start float and 24-hour lag paths on a real P6 file; (4) written
+      review shipped 2026-11-19 (report.mjs, print to PDF;
+      eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
+      next a real reviewer's reading of one and a full-list appendix option; (5)
+      Monte Carlo finish risk shipped 2026-11-19 (risk.mjs: P10-P90, chance of
       forecast and must-finish, criticality index; zero-width run = CPM on six
       files, eval/risk-check-2026-11-19.md); risk register events shipped 2026-11-19
       (risks: probability x delay on named activities, P80 with/without, events
       ranked; eval/risk-register-check-2026-11-19.md: 207 of 207 planted events =
-      CPM); next: ranges from a P6 UDF or the three-point columns, probabilistic
-      branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
-      serial pass by early start, the file's priority list, crew-size what-if;
-      eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
-      files, 37,670 of 37,670 links hold, x1e6 limits = CPM); next: a P6-levelled
-      XER to compare dates with, levelling in the written review and the risk run;
-      (7) expected finish dates.
+      CPM); UDF ranges shipped 2026-11-19 (eval/udf-ranges-check-*); next: a real
+      file with range UDFs, probabilistic branches; (6) resource levelling shipped
+      2026-11-19 (level.mjs, --level: serial pass by early start, the file's
+      priority list, crew-size what-if; eval/level-check-2026-11-19.md: 0 h over a
+      limit from placed work on six files, 37,670 of 37,670 links hold, x1e6 limits
+      = CPM); (7) expected finish dates. More open items: NEXT.md.

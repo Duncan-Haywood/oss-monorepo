@@ -145,6 +145,17 @@ test("cost column variants: per-unit, total and percent columns", () => {
   assert.equal(rows("Item,Qty,Net Sales,Food Cost\nBurger,10,100,").items[0].cost, null);
 });
 
+test("a food cost % column written as fractions reads as percent, and says so", () => {
+  const f = rows("Item,Qty,Net Sales,Food Cost %\nBurger,10,100,0.35\nSoup,5,40,0.2\nBread,2,6,");
+  near(f.items[0].cost, 3.5);
+  near(f.items[1].cost, 1.6);
+  assert.equal(f.costPctAsFraction, true);
+  const pct = rows("Item,Qty,Net Sales,Food Cost %\nBurger,10,100,35\nSoup,5,40,0.5");
+  near(pct.items[1].cost, 0.04);
+  assert.equal(pct.costPctAsFraction, false);
+  assert.equal(rows("Item,Qty,Net Sales,Food Cost %\nBurger,10,100,35%\nSoup,5,40,0.5").costPctAsFraction, false);
+});
+
 test("a blank cost in the export falls through to the list", () => {
   const n = rows("Item,Qty,Net Sales,Food Cost\nBurger,10,100,\nFries,10,50,1");
   const a = analyze(n.items, { costList: parseCostList("Burger,4").map });
