@@ -159,8 +159,9 @@ the enforcement — see [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md).
 ## How it works
 
 **Discrete items** (activities, professions) use **Glicko-2** — the chess-style rating system
-designed by Mark Glickman. Each item carries a rating plus a rating deviation, so every
-ranking comes with a real confidence interval. Ratings are stored **per respondent**:
+designed by Mark Glickman. Each item carries a rating plus a rating deviation, and the
+90% ranges shown come from a Bradley-Terry refit over all of a person's answers
+(`src/lib/btRefit.ts`). Ratings are stored **per respondent**:
 one person's answers can never move another's ranking.
 
 **Continuous attributes** (income, net worth, upside, hours) don't fit a discrete
@@ -173,7 +174,7 @@ question is ever "the same but one is just better".
 **Question selection** adapts: it favours items the model is least sure about, pairs
 items with close ratings (a near-toss-up is the most informative comparison),
 balances coverage, avoids recent repeats, and randomises which option lands on top
-so screen position can't bias the result. It also runs **coarse-to-fine** — early
+so screen position does not bias the result on average. It also runs **coarse-to-fine** — early
 questions cross categories to fix the broad shape fast, later ones stay within a
 category where the hard discriminations are.
 

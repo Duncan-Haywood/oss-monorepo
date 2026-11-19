@@ -38,7 +38,7 @@
     <ul>
       <li><strong>Discrete items</strong> (activities, professions) are rated with Glicko-2. Each item carries a rating and a rating deviation, so every ranking comes with a confidence interval. Ratings are stored per respondent, so one person's answers never move another's ranking.</li>
       <li><strong>Continuous attributes</strong> (income, hours, upside) use a Davidson tie-extended Bradley-Terry model, which includes an explicit "too close to call" outcome.</li>
-      <li><strong>Adaptive question selection</strong> favours the items the model is least sure about, pairs items with close ratings, balances coverage, avoids recent repeats, and randomises which option appears on top so screen position cannot bias the result.</li>
+      <li><strong>Adaptive question selection</strong> favours the items the model is least sure about, pairs items with close ratings, balances coverage, avoids recent repeats, and randomises which option appears on top so screen position does not bias the result on average.</li>
       <li><strong>Three perspectives</strong> (what you want, what you want in a partner, what you think your partner wants) never share state. Comparing the last two across a linked couple shows where each is wrong about the other.</li>
     </ul>
   </section>
@@ -57,7 +57,7 @@
     <h3>Can one respondent's answers affect another's ranking?</h3>
     <p>No. Ratings are stored per respondent.</p>
     <h3>Does the order of the options bias the result?</h3>
-    <p>The adaptive question selection randomises which option appears on top, so screen position cannot bias the result.</p>
+    <p>The adaptive question selection randomises which option appears on top, so screen position does not bias the result on average.</p>
     <h3>Is there a hosted version I can try?</h3>
     <p>No hosted instance is promised. It is a Next.js and Postgres app you run yourself, for example with the Deploy with Vercel link on this page.</p>
     <h3>Has it been tested with real surveys?</h3>

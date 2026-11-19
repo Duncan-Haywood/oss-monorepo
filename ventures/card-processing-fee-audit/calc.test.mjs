@@ -178,3 +178,34 @@ test('formatters render money and percentages, and survive junk', () => {
   assert.equal(formatPercent(80, 0), '80%');
   assert.equal(formatPercent(undefined), '—');
 });
+
+// Quality round 86 (portfolio/quality/audits/2026-11-19-card-processing-fee-audit.json):
+// with no debit split, an all-big-bank-debit statement carrying about $240 of
+// real markup read as "no markup". Regulation II (12 CFR 235.3(b), 235.4):
+// 21 cents + 0.05% + 1-cent fraud adjustment per regulated debit transaction.
+test('regulated debit is priced at the Regulation II cap, so its markup shows', () => {
+  const r = auditStatement({
+    monthlyVolume: 40000, transactions: 1000, totalFees: '552.50',
+    cardPresentPercent: 100, fixedMonthlyFees: 25, regulatedDebitPercent: 100,
+  });
+  // interchange 1000 x $0.22 + $40,000 x 0.05% = $240; assessments $56 + $20 = $76.
+  for (const point of ['low', 'mid', 'high']) assert.ok(Math.abs(r.passThrough[point] - 316) < 1e-9, point);
+  assert.ok(Math.abs(r.markup.mid - 236.5) < 1e-9);
+  assert.equal(r.atOrBelowEstimatedPassThrough, false);
+});
+
+test('a regulated debit share of 0 leaves the card-band estimate unchanged', () => {
+  const base = auditStatement(EXAMPLE);
+  const zero = auditStatement({ ...EXAMPLE, regulatedDebitPercent: 0 });
+  assert.deepEqual(zero.passThrough, base.passThrough);
+  assert.throws(() => auditStatement({ ...EXAMPLE, regulatedDebitPercent: 101 }), /cannot be above/);
+});
+
+test('the per-transaction interchange blends card-present and card-not-present amounts', () => {
+  const shape = { ...EXAMPLE, cardPresentPercent: 0 };
+  const online = auditStatement(shape);
+  // 0% present: $42,000 x 2.15% + 1400 x cardNotPresent.perTransaction, plus assessments.
+  const expected = 42000 * RATE_MODEL.cardNotPresent.mid + 1400 * RATE_MODEL.cardNotPresent.perTransaction
+    + 42000 * RATE_MODEL.assessments.rate + 1400 * RATE_MODEL.assessments.perTransaction;
+  assert.ok(Math.abs(online.passThrough.mid - expected) < 1e-9);
+});

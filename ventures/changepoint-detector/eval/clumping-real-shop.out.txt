@@ -1,0 +1,10 @@
+open days 0 mean 49.5 var/mean 22.85
+open days 60 mean 52.4 var/mean 4.14
+open days 120 mean 57.3 var/mean 11.34
+open days 180 mean 54.7 var/mean 4.71
+open days 240 mean 81.0 var/mean 5.77
+open days 300 mean 108.1 var/mean 6.23
+bocpd checks 285 alerts 4 2011-05-03↑ 2011-05-31↓ 2011-06-10↓ 2011-09-01↑
+window checks 285 alerts 9 2011-03-18↑ 2011-05-03↑ 2011-05-31↓ 2011-06-10↓ 2011-06-24↓ 2011-07-05↑ 2011-08-06↓ 2011-09-01↑ 2011-11-04↑
+window+nb checks 285 alerts 2 2011-04-26↓ 2011-05-03↑
+bocpd+nb checks 285 alerts 2 2011-04-26↓ 2011-05-03↑

@@ -356,6 +356,8 @@ def scan_text(text, filename="<Dockerfile>", today=None, warn_days=DEFAULT_WARN_
 
 def discover_dockerfiles(root):
     root_path = Path(root)
+    if root_path.is_file():
+        return [root_path]  # a Dockerfile named directly is scanned whatever its name
     if not root_path.is_dir():
         return []
     files = []
@@ -374,7 +376,7 @@ def scan_path(root, today=None, warn_days=DEFAULT_WARN_DAYS):
     findings = []
     for path in discover_dockerfiles(root):
         try:
-            text = path.read_text(encoding="utf-8")
+            text = path.read_text(encoding="utf-8-sig", errors="replace")  # BuildKit drops a BOM
         except OSError as exc:
             print(f"warning: could not read {path}: {exc}", file=sys.stderr)
             continue
@@ -447,6 +449,10 @@ def main(argv=None):
         "--dump-data", action="store_true", help=argparse.SUPPRESS
     )  # internal: classify.test.mjs parity check against the JS table
     args = parser.parse_args(argv)
+    if not Path(args.path).exists():
+        # A mistyped path used to report "nothing found" and exit 0, so a CI
+        # gate with a typo passed forever (red-team 2026-11-19).
+        sys.exit(f"path not found: {args.path}")  # exit 1; 2 means "risk found"
 
     if args.dump_data:
         print(json.dumps(EOL_DATA, sort_keys=True))

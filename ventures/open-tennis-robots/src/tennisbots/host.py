@@ -437,6 +437,14 @@ TAKE_BOUND_TOL = 0.02
 # A floor of k standard errors of the step's rms instead (2026-11-19, eval/take-bound-floor-se-2026-11-19.md): on all nine
 # design sets the least k covering every build bounded 24 of 66 instant builds at 1.5 ms against this floor's 41; closed.
 TAKE_BOUND_FLOOR_PPM = 2
+# ... except where the 1.5 ms straddle vote (below) saw the take and did not favour it (2026-11-19, firmware/esp32/README.md
+# "The straddle vote in the take bound"): with at least one kept wheel straddling at 1.5 ms and at least as many fitting
+# 1.5 ms worse than the step as better, the 2% bar alone names the bound. The real takes the 2% bar alone misses had no
+# straddling wheel ("no straddle, no 1.5 ms bound"). False keeps the floor everywhere. On every stored set (641 builds
+# told 0) it covered all 641 and bounded 92 of 192 instant builds at 1.5 ms against 89; held out with the rule committed
+# first (fresh BA-BD and 64 instant-only seeds, 279 told 0): 279 of 279 covered, 85 of 204 instant at 1.5 ms against 83,
+# looser on none (eval/take-bound-vote-2026-11-19.md).
+TAKE_BOUND_STRADDLE = True
 # The grid each frame length carries (older firmware: eight candidates before the short-take grid, seven before 7 ms)
 TAKE_SURVEY_GRIDS_MS = {9: TAKE_SURVEY_MS, 8: (0, 2, 3, 4, 5, 6, 7, 8), 7: (0, 2, 3, 4, 5, 6, 8)}
 
@@ -444,13 +452,18 @@ TAKE_SURVEY_GRIDS_MS = {9: TAKE_SURVEY_MS, 8: (0, 2, 3, 4, 5, 6, 7, 8), 7: (0, 2
 def take_survey_bound(sv: dict | None) -> float | None:
     """The longest contact time, in ms, the survey's balls cannot tell from an instant one: the first grid candidate
     whose mean rms is more than TAKE_BOUND_TOL, and at least TAKE_BOUND_FLOOR_PPM, over the step's (0 ms). None without rms, or when every candidate fits
-    within the tolerance (the balls bound nothing)."""
+    within the tolerance (the balls bound nothing). With TAKE_BOUND_STRADDLE, no floor where the 1.5 ms straddle vote
+    has a straddling wheel and does not lead."""
     rms = list((sv or {}).get("rms_ppm") or ())
     grid = TAKE_SURVEY_GRIDS_MS.get(len(rms))
     if not grid or not rms[0] or any(v is None for v in rms):
         return None
+    floor = TAKE_BOUND_FLOOR_PPM
+    f, a = (sv or {}).get("straddle_for"), (sv or {}).get("straddle_against")
+    if TAKE_BOUND_STRADDLE and f is not None and a is not None and f + a >= 1 and a >= f:
+        floor = 0
     for g, r in zip(grid[1:], rms[1:]):
-        if r > max(rms[0] * (1 + TAKE_BOUND_TOL), rms[0] + TAKE_BOUND_FLOOR_PPM):
+        if r > max(rms[0] * (1 + TAKE_BOUND_TOL), rms[0] + floor):
             return float(g)
     return None
 

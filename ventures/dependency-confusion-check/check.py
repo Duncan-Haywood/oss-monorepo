@@ -283,6 +283,10 @@ def main(argv=None):
         help="exit 2 when any finding exists",
     )
     args = parser.parse_args(argv)
+    if not Path(args.path).exists():
+        # A mistyped path used to scan nothing and exit 0, so a CI gate with a
+        # typo passed forever (red-team 2026-11-19). Exit 1; 2 means "risk found".
+        sys.exit(f"path not found: {args.path}")
 
     findings = scan_path(args.path)
 

@@ -547,6 +547,11 @@ def main(argv=None):
     parser.add_argument("--format", choices=("text", "json"), default="text", help="output format")
     parser.add_argument("--fail-on-risk", action="store_true", help="exit 2 when any finding exists")
     args = parser.parse_args(argv)
+    missing = [p for p in args.paths if not os.path.exists(p)]
+    if missing:
+        # A mistyped path used to scan nothing and exit 0, so a CI gate with a
+        # typo passed forever (red-team 2026-11-19). Exit 1; 2 means "risk found".
+        sys.exit("path not found: " + ", ".join(missing))
 
     findings = scan_path(args.paths)
     if args.format == "json":

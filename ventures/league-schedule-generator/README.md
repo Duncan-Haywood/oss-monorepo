@@ -18,6 +18,35 @@ team, a plain-text version to paste into a group chat, and a share link that car
 - **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
+## Americano and Mexicano scorer (2026-11-19, `americano-night.html`, `night.mjs`)
+
+The Americano card on the main page builds a rotation sheet; it stopped there, so an organiser at the courts
+still kept score on paper or in a separate app. `americano-night.html` is the night itself, on one phone:
+
+- **Set up:** players, courts, rounds (empty = the full rotation for Americano, or keep drawing for Mexicano),
+  points per game (16, 21, 24 or 32 to a total, or any score) and the sit-out rule.
+- **Americano** deals every round at the start with `americano()` from `calc.mjs`, so the stored whist designs
+  apply (every size 4k or 4k+1 up to 64 on a court per four: everyone partners everyone once). **Mexicano** draws
+  round one at random and each later round from the table with `mexicanoNextRound()`; the draw button stays off
+  until the last round is fully scored.
+- **Scores court by court:** with a points total, typing one side fills the other; a pair that does not add up
+  (a game stopped by the clock) is kept and flagged. Both partners get their side's points; the table ranks by
+  total, then points difference, then wins, and ties share a rank.
+- **Sit-out credit:** `none`, `average` (the player's own points per game so far; the default) or `half` (half
+  the target), added only once that round is fully scored and shown separately. Measured on simulated nights
+  (`eval/sit-out-credit.mjs`, `.txt`: 2,000 nights per size 5-15, not multiples of four, 6 rounds to 24, hidden
+  skills, points drawn from a logistic model): with no credit the most skilled player wins 54.2% of nights, with
+  the average credit 62.5%; the credit changes the winner in 26.7% of nights, and in 72.8% the no-credit winner
+  had sat out fewer rounds than someone else. 6 players on 1 court is the control: everyone sits out equally and
+  no rule changes anything (0.0%). These are a model's numbers, not a real club's.
+- **Kept on the device:** the night is saved in `localStorage` after every score (a refresh or closed tab loses
+  nothing; storage blocked = the night lives in the tab). **Share** puts a read-only copy inside the link
+  (`#night=`, base64url JSON, checked by `checkNight` before it is shown); nothing goes to a server. Copy
+  standings as text, CSV (formula-guarded) or print.
+- **Checked:** `night.test.mjs` (10 tests: scores, sit-out rules, Mexicano draw from the table, exports, link
+  round trip and damaged links, every size 4-64 valid) and a Playwright pass at iPhone 13 width (example night,
+  auto-fill, resume after reload, read-only link, Mexicano draw; no console errors, no horizontal scroll).
+
 ## Run your own league page (self-hosted)
 
 The browser tool builds the season; `server.mjs` gets it to your players. You keep the setup and post results in
@@ -351,7 +380,78 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Whist designs for 52 and near-whist for 58, by starter and table matching (2026-11-19, newest)
+## 57 players: a whist design from the projective plane of order 7 (2026-11-19, newest)
+
+57 was the last whist size up to 64 with no stored design: 3.7 CPU-hours of starters and table matching,
+55 CPU-minutes of tabu search and 100 CPU-minutes on Z19 x| Z3 found nothing (sections below), so a
+57-player Americano night on 14 courts fell back to the greedy search. The search was the wrong tool;
+a structure finds it in seconds.
+
+**The construction.** 57 = 7^2 + 7 + 1, the number of points of the projective plane of order 7, and that
+plane has a cyclic model: its 57 lines are the translates D + s of the Singer difference set
+D = {0, 1, 3, 13, 32, 36, 43, 52} in Z57 (every nonzero difference of D occurs exactly once, so any two
+points lie on exactly one line). A line has 8 points, and 8 players have a whist design of their own
+(Wh(8), already stored). Seat that Wh(8) on every line the same way, shifted with the line. Then each
+pair of players, lying on exactly one line, partners exactly once and meets exactly twice across the
+whole season, which is what a whist design asks. What is left is fitting it into rounds: the base round
+must be the 14 tables of the Wh(8) on D, table i moved by its own shift t_i, with the 14 moved tables
+disjoint and covering every player but 0. Developing that base round over Z57 puts on each line D + s
+exactly the Wh(8) shifted by s. Choosing the shifts is an exact-cover problem (14 tables x 53 allowed
+shifts against 56 players), solved by dancing links; the seating of the Wh(8) on D is free, so the
+program tries random seatings until one has a cover.
+
+**Result** (`eval/whist-singer.c`, `eval/whist-singer.txt`): 10 of 10 seeds find a base round, after 1 to
+49 seatings, in 0.05 to 22 s (median under 4 s) on one core. The stored base passes `checkWhist` pair
+by pair when `eval/whist-bases-build.mjs` builds `whist-bases.mjs`, and a test checks that every one of
+its tables lies on a Singer line.
+
+Why the earlier searches missed it, as far as can be said: they searched base rounds with no structure,
+where a design is a needle (the starter section estimates about 0.5 designs per starter, and the tree's
+heavy tail ate the budget). Here every pair condition holds by construction, and only a disjointness
+problem with tens of solutions per seating remains.
+
+What it changes on the page (57 players, 14 courts, `americano` with and without designs, seed 57):
+
+| | rounds | games each | repeat partners | pairs never partnered | times a pair meets |
+|---|---|---|---|---|---|
+| before (greedy) | 57 | 56 | 87 | 87 | 0 to 5 |
+| now (design 57) | 57 | 56 | 0 | 0 | exactly 2 |
+
+It builds in 9 ms instead of about 300 ms. Stored now: every whist size from 4 to 64 (52 by the starter
+search, 57 by this construction); 51 still plays design 52 with one empty seat and near-whist covers
+every 4k+2 from 6 to 62. The same idea needs a projective plane whose lines hold a multiple of 4
+points, more than 4: order 3 fails (a Wh(4) table is a whole line, and two lines always meet), order 11 gives 133
+players, past the 64 the card takes. Tested in `whist.test.mjs` ("57 players on 14 courts play the
+Singer design", "every table of the stored base lies on one line").
+
+## A second route to 57, and one that reaches 69: a base round fixed by multiplying by 37 (2026-11-19)
+
+Another run on the same afternoon reached 57 by a different structure, before the Singer construction
+above landed. It is kept as a check and as a method for sizes that are not projective planes. The page
+still plays the Singer base (the build keeps the first file's base for a size).
+
+The units mod 57 have two involutions besides -1: 20 and 37. `eval/whist-involution.c` searches only
+base rounds that multiplication by m maps onto themselves. It starts from a random m-invariant layout
+(37 fixes 19 and 38, which must share a table as {19, 38} vs {x, 37x}; every other table is either fixed
+by m or paired with its image) and anneals with moves that swap p with q and m*p with m*q together.
+That swap commutes with the multiplier, so every state stays invariant. The cost is
+(partners(d) - 1)^2 + (opponents(d) - 2)^2 summed over the difference classes. The -1 multiplier was
+already ruled out (patterned starters, below), and an order-3 multiplier cannot fix a whist table.
+
+The multiplier was chosen on small cases first. At 21 and 33, the involution that is 1 mod 3 and -1 mod
+the other prime (13 and 10) finds a design in 2 to 10 s. The other involution (8 and 23) found nothing in
+10 s. At 57 that rule gives 37 (1 mod 3, -1 mod 19). **It found a design in 11 to 15 CPU-seconds in each of
+the four seeds that finished**; the other four were stopped once those had landed
+(`eval/whist-involution.txt`). The base passes `checkWhist` when developed, and `whist.test.mjs`
+("57 by multiplier 37") checks it pair by pair and checks that it is fixed by x -> 37x.
+
+Unlike the Singer route, this one is not tied to 7^2 + 7 + 1. Past the page's 64-player cap, the same
+rule (m = 22: 1 mod 3, -1 mod 23) found a design for 69 in 100 CPU-s, re-checked in Python. 77 (m = 43
+or 34) reached cost 4 and 6 in 120 s without one (`eval/whist-involution-over64.txt`, one seed each; not
+stored, since the page stops at 64).
+
+
+## Whist designs for 52 and near-whist for 58, by starter and table matching (2026-11-19)
 
 Every earlier search (`eval/whist-search.c`, `eval/whist-anneal.c`, `eval/whist-orbits.c`, the near-whist
 SAT) moved single players around the whole base round, and none found 52, 57 or near-whist 58 in 25 to

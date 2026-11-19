@@ -1,0 +1,26 @@
+replayWatch, model poisson, 120 points, checks from 90, seeds 201-400 (200 per cell), paired; steps at 108
+
+| cell | bocpd | bocpd-window | window minus bocpd |
+|---|---|---|---|
+| N1 Poisson 30 | 0.00 per 1,000 | 0.32 per 1,000 | 0.32 |
+| N2 NB 30, var 60 | 2.58 per 1,000 | 6.77 per 1,000 | 4.19 |
+| N3 Poisson 30, weekends 0.6x | 0.97 per 1,000 | 1.45 per 1,000 | 0.48 |
+| N4 Poisson 5 | 0.16 per 1,000 | 0.16 per 1,000 | 0.00 |
+| N5 NB 30, var 90 | 11.29 per 1,000 | 22.58 per 1,000 | 11.29 |
+| S1 30 -> 15 | 182/200 (median delay 4) | 195/200 (median delay 4) | +13 |
+| S2 30 -> 21 | 65/200 (median delay 4) | 154/200 (median delay 4) | +89 |
+| S3 30 -> 45 | 151/200 (median delay 4) | 191/200 (median delay 4) | +40 |
+| S4 5 -> 2 | 43/200 (median delay 5) | 126/200 (median delay 5) | +83 |
+| S5 NB(2x) 30 -> 18 | 134/200 (median delay 4) | 170/200 (median delay 4) | +36 |
+| S6 NB(3x) 30 -> 18 | 129/200 (median delay 4) | 152/200 (median delay 4) | +23 |
+
+pooled false alerts per 1,000 checks (nulls weighted equally): bocpd 3.00, bocpd-window 6.26
+  difference 3.26, 95% interval 2.68 to 3.87 (10000 stratified paired resamples)
+steps found of 1200: bocpd 704, bocpd-window 988
+  difference 284, 95% interval 256 to 312
+
+F1 upper end of the false-alert difference <= 1.0: 3.87 -> FAIL
+F2 worst null cell's difference <= 2.0: 11.29 -> FAIL
+D1 lower end of the steps-found difference > 0: 256 -> pass
+D2 worst step cell no more than 4 fewer: 13 -> pass
+decision: keep bocpd

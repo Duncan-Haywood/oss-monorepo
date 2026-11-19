@@ -1,0 +1,144 @@
+{
+ "replay7h_state": {
+  "rule": "theta50 on state-read observables: extend to cycle 50 when |c0 + c1 O - 1| >= theta (cell 000)",
+  "sets": {
+   "Ai2020": {
+    "obs": "O1",
+    "c0": 1.4096909525187817,
+    "c1": -0.7617249404657334,
+    "theta": 0.04461985364332133,
+    "K1": 50,
+    "margin": 1.05,
+    "inner_ok": true,
+    "pools": [
+     "5zk",
+     "5zy",
+     "5zz",
+     "7g"
+    ],
+    "read": "state"
+   },
+   "Chen2020": {
+    "obs": "O2",
+    "c0": 0.9743580876289392,
+    "c1": -2.3809112747129726,
+    "theta": 0.025960319158769507,
+    "K1": 50,
+    "margin": 1.0,
+    "inner_ok": false,
+    "pools": [
+     "5zk",
+     "5zy",
+     "5zz",
+     "7g"
+    ],
+    "read": "state"
+   },
+   "OKane2022": {
+    "obs": "O2",
+    "c0": 1.066340165858722,
+    "c1": -2.2112656388203304,
+    "theta": 0.031228252646498866,
+    "K1": 50,
+    "margin": 1.0,
+    "inner_ok": false,
+    "pools": [
+     "5zk",
+     "5zy",
+     "5zz",
+     "7g"
+    ],
+    "read": "state"
+   },
+   "NCA_Kim2011": {
+    "obs": "O1",
+    "c0": 1.983128472941819,
+    "c1": -2.2921646130133606,
+    "theta": 0.21172491916680047,
+    "K1": 50,
+    "margin": 1.1,
+    "inner_ok": true,
+    "pools": [
+     "5zk",
+     "5zy",
+     "5zz",
+     "7g"
+    ],
+    "read": "state"
+   }
+  }
+ },
+ "deploy_state": {
+  "rule": "theta50 on state-read observables: extend to cycle 50 when |c0 + c1 O - 1| >= theta (cell 000)",
+  "sets": {
+   "Ai2020": {
+    "obs": "O1",
+    "c0": 1.4096909525187817,
+    "c1": -0.7617249404657334,
+    "theta": 0.0411884750048761,
+    "K1": 50,
+    "margin": 1.0,
+    "inner_ok": true,
+    "pools": [
+     "5zk",
+     "5zy",
+     "5zz",
+     "7g",
+     "7h"
+    ],
+    "read": "state"
+   },
+   "Chen2020": {
+    "obs": "O2",
+    "c0": 0.9743580876289392,
+    "c1": -2.3809112747129726,
+    "theta": 0.014417054037743071,
+    "K1": 50,
+    "margin": 1.0,
+    "inner_ok": false,
+    "pools": [
+     "5zk",
+     "5zy",
+     "5zz",
+     "7g",
+     "7h"
+    ],
+    "read": "state"
+   },
+   "OKane2022": {
+    "obs": "O2",
+    "c0": 1.066340165858722,
+    "c1": -2.2112656388203304,
+    "theta": 0.031228252646498866,
+    "K1": 50,
+    "margin": 1.0,
+    "inner_ok": true,
+    "pools": [
+     "5zk",
+     "5zy",
+     "5zz",
+     "7g",
+     "7h"
+    ],
+    "read": "state"
+   },
+   "NCA_Kim2011": {
+    "obs": "O1",
+    "c0": 1.983128472941819,
+    "c1": -2.2921646130133606,
+    "theta": 0.23799118033637834,
+    "K1": 50,
+    "margin": 1.2,
+    "inner_ok": true,
+    "pools": [
+     "5zk",
+     "5zy",
+     "5zz",
+     "7g",
+     "7h"
+    ],
+    "read": "state"
+   }
+  }
+ }
+}

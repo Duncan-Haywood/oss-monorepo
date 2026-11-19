@@ -19,6 +19,7 @@ export const SCENARIO_FIELDS = [
   'transactions',
   'totalFees',
   'cardPresentPercent',
+  'regulatedDebitPercent',
   'fixedMonthlyFees',
   'quoteMarkupPercent',
   'quotePerTransaction',

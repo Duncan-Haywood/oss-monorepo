@@ -53,6 +53,7 @@ page itself makes no network requests.
 ```sh
 python3 check.py                  # scan every Dockerfile under the current directory
 python3 check.py /path/to/repo    # scan a specific checkout
+python3 check.py ci/Dockerfile    # or one file, whatever its name
 python3 check.py --format json    # machine-readable
 python3 check.py --fail-on-risk   # exit 2 if any mutable (unpinned) base image is found
 ```

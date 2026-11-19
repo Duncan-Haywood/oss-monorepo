@@ -145,6 +145,8 @@ def scan_text(text, filename="<workflow>"):
 
 
 def discover_workflow_files(root):
+    if Path(root).is_file() and Path(root).suffix in (".yml", ".yaml"):
+        return [Path(root)]  # one workflow named directly, as pre-commit passes it
     d = Path(root) / ".github" / "workflows"
     if not d.is_dir():
         return []
@@ -188,6 +190,10 @@ def main(argv=None):
     p.add_argument("--format", choices=("text", "json"), default="text")
     p.add_argument("--fail-on-risk", action="store_true", help="exit 2 when any finding exists")
     args = p.parse_args(argv)
+    if not Path(args.path).exists():
+        # A mistyped path used to report "nothing found" and exit 0, so a CI
+        # gate with a typo passed forever (red-team 2026-11-19).
+        sys.exit(f"path not found: {args.path}")  # exit 1; 2 means "risk found"
     findings = scan_path(args.path)
     print(json.dumps(findings, indent=2) if args.format == "json" else render_text(findings, args.path))
     return 2 if args.fail_on_risk and has_risk(findings) else 0

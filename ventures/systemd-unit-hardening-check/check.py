@@ -601,6 +601,11 @@ def main(argv=None):
     parser.add_argument("--drop-in", action="store_true", help="also print a starter hardening drop-in per unit")
     parser.add_argument("--user-units", action="store_true", help="units run by `systemctl --user`: skip the root check")
     args = parser.parse_args(argv)
+    missing = [p for p in args.paths if not os.path.exists(p)]
+    if missing:
+        # A mistyped path used to scan nothing and exit 0, so a CI gate with a
+        # typo passed forever (red-team 2026-11-19). Exit 1; 2 means "risk found".
+        sys.exit("path not found: " + ", ".join(missing))
 
     files = collect(args.paths)
     findings = scan_files(files, args.user_units)

@@ -80,7 +80,7 @@ answer latency climb without bound.
 - pairs with close ratings — a near-toss-up is the most informative comparison,
 - coverage balance, so nothing is left unmeasured,
 - avoiding recent repeats,
-- and it randomises which option lands on top, so screen position cannot bias
+- and it randomises which option lands on top, so screen position does not bias, on average,
   the result.
 
 It runs **coarse to fine**: early questions cross categories to fix the broad

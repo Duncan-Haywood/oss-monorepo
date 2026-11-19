@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVNq1AGmfL8Cfu23gLa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (standing ventures brief)",
+  "input_sha256": "b40972142ae5c43905e5061c6c93473a943782620597092120d0e7a390a0b170",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T21:56:32Z",
+  "ended": "2026-11-19T22:05:44Z",
+  "wall_minutes": 21.61,
+  "tokens_in": 9426294,
+  "tokens_out": 49694,
+  "cost_usd": 3.9856,
+  "tool_calls": 74,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17805",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A Bash call that started a background http.server and a Playwright heredoc in one command was refused by the removal safety check (no removal in it); split into a Write plus a plain node call."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace auto-parked a finished result (whist 57 'every size 4-64 stored') into NEXT.md as if it were an open item; reverted NEXT.md by hand since the README already holds it."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator's next: had drifted into combinatorial-design records (whist 52/57/69) with no user-facing item left buildable; the user-facing gap (no scorer on the night) was only visible by reading the guide's 'does not keep score' FAQ."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "New pages must pass several site-wide checks (FAQ JSON-LD equals visible text exactly, links outside FAQ answers, CSV guard regex form, minmax(min(..,100%))) that only preflight reveals after ~5 min; a short 'new page checklist' near the preflight note would have saved two preflight rounds."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's listed buildable items were further whist/LNS search records; their marginal value to a league organiser is near zero.",
+      "did": "Built the missing product slice instead: a phone-first Americano/Mexicano scorer with a live table, on the same flagship.",
+      "result": "Shipped with 10 unit tests and a Playwright pass at phone width."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-americano-sit-out-credit-changes-the-winner.md",
+    "ventures/league-schedule-generator/README.md (Americano and Mexicano scorer section)",
+    "ventures/league-schedule-generator/eval/sit-out-credit.txt"
+  ],
+  "goal": null,
+  "notes": "node --test night.test.mjs: 10 pass. Playwright (iPhone 13): example night, score auto-fill to 24, round tick, resume after reload, read-only share link with disabled inputs, Mexicano draw gated on a scored round; no console errors, scrollWidth 390, table fits 332/332 after the narrow-width CSS. Venture suite and preflight results: see PR body. Final: run_venture_tests.py league-schedule-generator ok (777 tests, 259 s; site page checks ok); venture-preflight.mjs clean. Earlier runs caught and this PR fixed: FAQ JSON-LD vs visible text (page.test + faq-visible), CSV guard pattern (check_csv_formula_guard), minmax(260px) grid on a 320 px phone (grid-min-reflow).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "21671ce9-1561-55fc-a198-141f5430667e",
+    "transcripts": 1,
+    "first": "2026-11-19T21:56:32Z",
+    "last": "2026-11-19T22:18:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 150,
+        "output": 49694,
+        "thinking": 5588,
+        "cache_read": 9284369,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141775,
+        "api_equivalent_usd": 3.9856,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 150,
+      "output": 49694,
+      "thinking": 5588,
+      "cache_read": 9284369,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141775,
+      "api_equivalent_usd": 3.9856,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 61,
+      "Write": 6,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Monitor": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.61,
+      "active_minutes": 11.21,
+      "model_minutes": 8.0,
+      "tool_minutes": 3.21,
+      "waiting_on_human_minutes": 10.39,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a developer building a phone scorer page with state, share links, tests and a simulation write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 250.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

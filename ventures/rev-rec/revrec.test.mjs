@@ -205,3 +205,20 @@ test("journal: a one-cent month is still journaled, a zero month is not (red tea
     ["Revenue recognised 2026-02", "Deferred revenue", "0.01", ""], ["Revenue recognised 2026-02", "Subscription revenue", "", "0.01"],
   ]);
 });
+
+test("backlog lists a future month with a single cent still to recognise, and drops zero months", () => {
+  const rows = [
+    { month: "2026-11", recognized: 1 },
+    { month: "2026-12", recognized: 0 },
+    { month: "2027-01", recognized: 2 },
+  ];
+  assert.deepEqual(backlog(rows, D(2026, 10, 15)), [{ month: "2026-11", recognized: 1 }, { month: "2027-01", recognized: 2 }]);
+});
+
+import { formatMoney } from "./revrec.mjs";
+test("formatMoney never shows a negative zero for a credit that rounds to nothing", () => {
+  assert.equal(formatMoney(-5, "usd"), "$0");
+  assert.equal(formatMoney(-49, "usd"), "$0");
+  assert.equal(formatMoney(-150, "usd"), "-$2");
+  assert.equal(formatMoney(-0.4, "jpy"), "¥0");
+});

@@ -60,7 +60,8 @@ where it departs from the paper.
   (README "Replaying the watch on your own history").
 - **Watch several metrics in one run** (2026-11-13): `node watch.mjs kpi.csv --state s.json --columns all` (or
   `--columns orders:poisson,revenue,signups:poisson`, a model per column, and a detector per column since
-  2026-11-19: `orders:poisson:bocpd-window`, README "A detector per column") watches every column of one CSV, keeps a
+  2026-11-19: `orders:poisson:bocpd-window`, README "A detector per column"; a cost for clumped counts per column,
+  `orders:poisson:bocpd-window:nb`, README "Clumped counts in the watch") watches every column of one CSV, keeps a
   record per column in one state file and sends the day's new changes as one webhook message. README "Several metrics in
   one watch".
 - **Watch your Stripe account** (2026-11-16): `STRIPE_API_KEY=rk_live_... node stripe-metrics.mjs --out data/stripe.csv`
@@ -3611,7 +3612,7 @@ seeds 101-120, steps at point 108, found = an alert within 3 points of it.
 `bocpd-window` found 84 of 100 steps against 60, but its mean false-alert rate was 1.61 against 1.21 per 1,000
 checks (one more alert in 620 checks, on the overdispersed null), so part (a) fails and **the default stays
 `bocpd`**. The trade is printed, not hidden: a merchant who would rather hear a 30% drop in orders (18 of 20
-against 10 of 20 here) at about one more false alert in 600 days can add `--detector bocpd-window` with a count
+against 10 of 20 here) can add `--detector bocpd-window` with a count
 column (`--column orders --model poisson --detector bocpd-window`), or, in a mixed CSV, name it for that column alone
 (next section). Next: a fresh-seed re-test with a rule written for the margin (the nulls' 95% interval at 620 checks
 is wide enough that one alert decides it).
@@ -3638,7 +3639,8 @@ node watch.mjs data/shopify.csv --state watch-state.json --columns orders:poisso
 The default is unchanged: the switch for counts failed its pre-registered rule above, so this is the opt-in that
 section printed, made usable in the mixed CSVs the Stripe and Shopify workflows watch. The made repository's README,
 the workflow's comment and the guide page (`watch-a-metric-for-changes.html`) say how, with the trade (84 of 100 test
-steps against 60, about one more false alert in 600 checks).
+steps against 60; since the margin round below, with the cost measured at 3.26 more false alerts per 1,000 checks and
+the clumping cost that removes most of it).
 
 **Checked** (`watch-column-detector.test.mjs`, 3 tests; `watch.test.mjs`'s `--columns` test updated for the new
 message): the parser (both orders, case, a second model or detector refused, a bare `:poisson` refused); a shop
@@ -3649,6 +3651,89 @@ the CLI: `orders:poisson,revenue` sends no orders alert within 3 days of the dro
 revenue's record is the same in both runs, and the orders record equals a one-column watch with
 `--detector bocpd-window`; `--detector auto` and `--detector pelt` beside a named column. One seed shows the wiring,
 not the rate: the rates are the table above.
+
+## Clumped counts in the watch (2026-11-19, two pre-registered rounds; both fail, `--overdispersion` ships as an opt-in)
+
+"Counts and the windowed detector" above ended on a margin: `bocpd-window` lost its rule by one false alert in 620
+checks, too few to tell a real cost from noise. Two rounds followed, each written down and committed before it ran.
+
+**Round 1, the margin** (`eval/poisson-window-margin.prereg.md`, `.mjs`, `.out.txt`; fresh seeds 201-400, 200 per
+cell, both detectors on the same series, a stratified paired bootstrap). The rule: `bocpd-window` becomes the count
+default only if the upper end of the 95% interval for its extra false alerts, pooled over five nulls, is at most 1.0
+per 1,000 checks (one more false alert in about 2.7 years of daily checks), no null cell is worse by more than 2.0,
+it hears more steps (the interval's lower end above 0), and no step cell is worse by more than 4 of 200. Two clumpier
+cells were added, since real orders bunch (N5 and S6 below, variance 3x the mean).
+
+| cell | `bocpd` | `bocpd-window` |
+|---|---|---|
+| N1 Poisson 30 | 0.00 | 0.32 |
+| N2 NB 30, variance 60 | 2.58 | 6.77 |
+| N3 Poisson 30, weekends 0.6x | 0.97 | 1.45 |
+| N4 Poisson 5 | 0.16 | 0.16 |
+| N5 NB 30, variance 90 | 11.29 | 22.58 |
+| steps found of 1,200 | 704 | 988 |
+
+(False alerts per 1,000 checks.) The extra cost is **3.26 per 1,000 checks (95% interval 2.68 to 3.87)**, so F1 and
+F2 fail and the default stays. Measured tightly, the old "about one more false alert in 600 days" was too kind: it is
+about one in 300, and the table shows where it comes from. On Poisson counts the window costs 0.0 to 0.5 per 1,000; on
+clumped counts it costs 4 to 11. The watch scores counts with a Poisson likelihood, which reads a bunch of busy days as
+evidence of a change; the window sums that evidence over five neighbours, so it pays more for it. `bocpd` itself sent
+11.3 false alerts per 1,000 checks on the clumpiest null.
+
+**Round 2, a cost for clumped counts** (`eval/poisson-window-clumping.prereg.md`, `.mjs`, `.out.txt`; fresh seeds
+401-600, the same rule against `bocpd`). The engine already had two corrections its Bayesian pass honours, never tried
+in the watch: a negative-binomial size estimated from the window at each check (`nb`; Poisson-like data get no
+clumping and the plain cost) and a dispersion phi that tempers the Poisson likelihood (`phi`).
+
+| cell | `bocpd` (default) | C1 `bocpd-window` + `nb` | C2 `bocpd-window` + `phi` | `bocpd-window` | `bocpd` + `nb` |
+|---|---|---|---|---|---|
+| N1 Poisson 30 | 0.16 | 0.32 | 0.16 | 0.32 | 0.16 |
+| N2 NB 30, variance 60 | 3.55 | 0.97 | 2.26 | 7.74 | 0.48 |
+| N3 Poisson 30, weekends 0.6x | 0.97 | 0.48 | 0.65 | 3.23 | 0.00 |
+| N4 Poisson 5 | 0.00 | 0.16 | 0.00 | 0.16 | 0.00 |
+| N5 NB 30, variance 90 | 10.81 | 0.16 | 4.19 | 19.35 | 0.16 |
+| S1 30 to 15 | 191 | 199 | 182 | 199 | 191 |
+| S2 30 to 21 | 66 | 150 | 109 | 150 | 66 |
+| S3 30 to 45 | 146 | 195 | 165 | 194 | 144 |
+| S4 5 to 2 | 44 | 123 | 66 | 123 | 44 |
+| S5 NB (2x) 30 to 18 | 142 | 150 | 105 | 175 | 92 |
+| S6 NB (3x) 30 to 18 | 126 | **103** | 58 | 155 | 52 |
+| pooled false per 1,000 | 3.10 | **0.42** | 1.45 | 6.16 | 0.16 |
+| steps found of 1,200 | 715 | **920** | 685 | 996 | 589 |
+
+C1 cuts the pooled false alerts by 2.68 per 1,000 (interval 2.06 to 3.32 fewer) and hears 205 more steps (175 to
+235), but on the clumpiest step cell it hears 103 of 200 against 126, 23 fewer, past D2's 4. **C1 fails one bar, C2
+fails two, and the default stays `bocpd`.** Median delay was 4 or 5 checks in every arm.
+
+**What ships: `--overdispersion nb|nb1|phi` as an opt-in**, on the one-column watch (with `--model poisson`) and per
+column in `--columns` after the model and detector:
+
+```
+node watch.mjs data/shopify.csv --state watch-state.json --columns orders:poisson:bocpd-window:nb,revenue,cancelled:poisson
+```
+
+A global `--overdispersion` applies to the count columns and skips level columns; a level column that names one is
+refused, as is `--overdispersion` without `--model poisson` on one column. The text output names the cost on the
+column's block (`Detector: bocpd-window, negative-binomial cost (named for this column).`) and `--json` carries
+`overdispersion`. The guide page, the made repository's README and the workflow comment give the trade with these
+numbers. `nb1` (clumping in proportion to the level) is wired because the engine has it, but this round did not
+measure it in the watch.
+
+**Checked** (`watch-clumping.test.mjs`, 4 tests): the parser; the refusals; a clumped null shop (N5's generator,
+the first seed where the plain window alerts and the window with `nb` does not) watched daily through the CLI sends
+at least one orders alert with `orders:poisson:bocpd-window` and none with `:nb`, revenue untouched; the one-column
+`--overdispersion nb` run sends what `replayWatch` does. One seed shows the wiring, the rates are the tables above.
+
+**A real shop, exploratory** (not pre-registered, no labels; `eval/clumping-real-shop.mjs`, `.out.txt`). The UCI
+Online Retail orders ("A real shop's daily series" below) on open days have a variance **4 to 6 times their mean** in
+most 60-day stretches (11 and 23 in the two that hold the Christmas and Easter closures), clumpier than N5, the
+clumpiest simulated cell. Replayed daily from day 90 with `--period 7` (285 checks): `bocpd` sent 4 alerts,
+`bocpd-window` 9, `bocpd-window` with `nb` 2 (2011-04-26 down and 2011-05-03 up: the zeros of the spring closures,
+shut 22-25 April, 29 April and 2 May, which `--closed` is for). With no labels this does not say which alerts were right; it says that a real shop sits at the clumped end of the tables
+above, where the plain window is loudest and the clumping cost matters most.
+
+**Next:** a rule for the 40% drop in very clumped counts that C1 hears less often, so the cost could become the
+default; and a deployer's real orders, with the changes the merchant knows about, to score these arms on.
 
 ## A real shop's daily series through `--suggest` (2026-11-18, pre-registered; all three bars fail; a weekly-cycle line ships)
 

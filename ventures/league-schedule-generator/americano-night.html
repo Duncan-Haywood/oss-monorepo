@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Americano Scorer: Live Padel and Pickleball Americano Leaderboard, Free</title>
+  <meta name="description" content="Run an Americano or Mexicano night from your phone: rotating partners on every court, scores typed in court by court, a live leaderboard with fair sit-out credit. Free, no sign-up.">
+  <meta property="og:title" content="Americano and Mexicano scorer with a live leaderboard">
+  <meta property="og:description" content="Rotation, court-by-court scores and a standings table that is right after every game. Share a read-only link with the players. Free and private.">
+  <link rel="canonical" href="./americano-night.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How is an Americano scored?", "acceptedAnswer": {"@type": "Answer", "text": "Every player is credited with the points their side scored in each game, so a strong partner never costs you anything. The table ranks by total points, then points difference, then wins. In padel the usual format is games to a total such as 24 points, where the two scores add up to 24; type one side and the page fills in the other."}}, {"@type": "Question", "name": "What happens to players who sit out a round?", "acceptedAnswer": {"@type": "Answer", "text": "When the number of players is not a multiple of four, some sit out each round, and the rotation shares that out evenly. Pick how a sit-out counts: nothing, the player's own average points per game so far (the default), or half the points of a game when games go to a total. The credit is added once that round is fully scored and is shown separately in the table."}}, {"@type": "Question", "name": "What is the difference between the Americano and Mexicano modes?", "acceptedAnswer": {"@type": "Answer", "text": "Americano fixes every round at the start so each player partners and plays against as many different people as possible; with a court for every four players and 4k or 4k+1 players, everyone partners everyone exactly once. Mexicano draws round one at random and each later round from the standings, so the top four play together on court 1, the next four on court 2, and so on."}}, {"@type": "Question", "name": "Do the players need to install anything?", "acceptedAnswer": {"@type": "Answer", "text": "No. The organiser keeps score on one phone in the browser. The page saves the night on that phone, so a refresh or a closed tab loses nothing, and a Share link gives everyone a read-only copy of the rounds and the table as it stood when the link was made."}}, {"@type": "Question", "name": "Is anything uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Names and scores stay on the device that typed them. A share link carries the night inside the link itself, so whoever you send it to can read it; nothing is stored on a server."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Americano and Mexicano scorer", "applicationCategory": "SportsApplication", "operatingSystem": "Any (browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "url": "./americano-night.html"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; line-height: 1.5; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.4rem); letter-spacing: -.035em; line-height: 1.08; margin-bottom: .3em; }
+    h2 { font-size: 1.2rem; margin-top: 1.6em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    .card { background: #fff; border: 1px solid #d4dad2; border-radius: 12px; padding: 16px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; font: 15px/1.4 ui-monospace, monospace; padding: 8px; border: 1px solid #b9c2b6; border-radius: 8px; }
+    input, select { font: inherit; padding: 7px 8px; border: 1px solid #b9c2b6; border-radius: 8px; background: #fff; }
+    input[type=number] { width: 5.5em; }
+    .row { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+    .row > div { min-width: 0; }
+    button { font: inherit; font-weight: 650; padding: 10px 14px; border-radius: 8px; border: 0; background: #1d5a3f; color: #fff; cursor: pointer; margin: 8px 8px 0 0; }
+    button.secondary { background: #e4e9e2; color: #1d2330; }
+    button:disabled { opacity: .5; cursor: default; }
+    .note { color: #4a5148; font-size: .92rem; }
+    .warn { color: #8a4b00; }
+    .err { color: #a3221b; font-weight: 600; }
+    .nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nav h2 { margin: 0; flex: 1 1 auto; }
+    .nav button { margin: 0; }
+    .courts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 12px; margin-top: 12px; }
+    .court { border: 1px solid #d4dad2; border-radius: 10px; padding: 10px 12px; background: #fbfcfa; }
+    .court.done { border-color: #8fb9a1; background: #f2f8f4; }
+    .court h3 { margin: 0 0 6px; font-size: .9rem; color: #4a5148; text-transform: uppercase; letter-spacing: .04em; }
+    .side { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 0; }
+    .side span { font-weight: 600; overflow-wrap: anywhere; }
+    .side input { width: 4.2em; font-size: 1.25rem; text-align: center; padding: 6px 4px; }
+    .vs { text-align: center; font-size: .8rem; color: #6a7168; }
+    .byes { margin-top: 10px; font-size: .92rem; color: #4a5148; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid #e4e9e2; text-align: right; white-space: nowrap; }
+    th:nth-child(2), td:nth-child(2) { text-align: left; white-space: normal; }
+    th { font-size: .8rem; color: #4a5148; font-weight: 650; }
+    tr.top td { font-weight: 700; }
+    .pill { display: inline-block; font-size: .78rem; padding: 1px 8px; border-radius: 99px; background: #e4e9e2; margin-left: 6px; }
+    .readonly { background: #fff6e0; border: 1px solid #e8cf8f; border-radius: 10px; padding: 10px 12px; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+    @media (max-width: 480px) { th, td { padding: 6px 4px; font-size: .9rem; } .card { padding: 12px; } }
+    @media print { #setup, .nav button, .actions, footer, .guide, #topnav { display: none !important; } .card { border: 0; } }
+  </style>
+</head>
+<body>
+<main>
+  <p id="topnav"><a href="./">&larr; League schedule generator</a></p>
+  <h1>Americano and Mexicano scorer</h1>
+  <p>Run a social padel, pickleball, tennis or badminton doubles night from one phone. List the players, say how many courts you have, and the page deals rotating partners round by round. Type each court's score as games finish and the <strong>leaderboard is right after every game</strong>, with sit-outs credited fairly. Send the players a read-only link to the table. No accounts, nothing to install, nothing uploaded.</p>
+
+  <section class="card" id="resume" hidden>
+    <p><strong>A night is in progress on this device.</strong> <span id="resume-info"></span></p>
+    <button type="button" id="resume-go">Carry on scoring</button>
+    <button type="button" class="secondary" id="resume-new">Start a new night</button>
+  </section>
+
+  <section class="card" id="setup">
+    <h2 style="margin-top:0">Set up the night</h2>
+    <label for="players">Players: one per line (or separated by commas)</label>
+    <textarea id="players" spellcheck="false" autocomplete="off"></textarea>
+    <div class="row">
+      <div><label for="courts">Courts</label><input id="courts" type="number" min="1" max="16" value="2" inputmode="numeric"></div>
+      <div><label for="mode">Format</label>
+        <select id="mode"><option value="americano">Americano: rotation fixed now</option><option value="mexicano">Mexicano: next round from the table</option></select></div>
+      <div><label for="rounds">Rounds</label><input id="rounds" type="number" min="1" max="200" placeholder="auto" inputmode="numeric"></div>
+      <div><label for="target">Points per game</label>
+        <select id="target"><option value="0">Any score</option><option value="16">16 (scores add to 16)</option><option value="21">21</option><option value="24" selected>24</option><option value="32">32</option></select></div>
+      <div><label for="sitout">Sit-out counts as</label>
+        <select id="sitout"><option value="average" selected>Own average per game</option><option value="half">Half a game's points</option><option value="none">Nothing</option></select></div>
+    </div>
+    <p class="note" id="setup-hint">Americano: leave Rounds empty for the full rotation (with a court for every four players, 8, 12, 16 ... players partner everyone exactly once). Mexicano: leave it empty to keep drawing until you stop.</p>
+    <div>
+      <button type="button" id="start">Start the night</button>
+      <button type="button" class="secondary" id="example">Load 10 example players</button>
+    </div>
+    <p id="setup-status" role="status" class="err"></p>
+  </section>
+
+  <section class="card" id="night" hidden>
+    <div id="ro-banner" class="readonly" hidden>
+      <strong>Read-only copy</strong> of a night as it stood when the link was made. <button type="button" class="secondary" id="ro-adopt">Keep scoring it on this device</button>
+    </div>
+    <div class="nav">
+      <button type="button" class="secondary" id="prev" aria-label="Previous round">&larr;</button>
+      <h2 id="round-title">Round 1</h2>
+      <button type="button" class="secondary" id="next" aria-label="Next round">&rarr;</button>
+    </div>
+    <div class="courts" id="courts-out"></div>
+    <p class="byes" id="byes"></p>
+    <p id="score-status" role="status" class="warn"></p>
+    <div class="actions">
+      <button type="button" id="draw" hidden>Draw next round</button>
+    </div>
+
+    <h2>Leaderboard <span class="pill" id="progress"></span></h2>
+    <div class="table-wrap"><table id="table"><thead><tr><th>#</th><th>Player</th><th>Total</th><th>+/-</th><th>W</th><th>Played</th><th>Avg</th><th>Sat</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="table-note"></p>
+    <div class="actions">
+      <button type="button" class="secondary" id="copy">Copy standings</button>
+      <button type="button" class="secondary" id="share">Share read-only link</button>
+      <button type="button" class="secondary" id="csv">Download CSV</button>
+      <button type="button" class="secondary" id="print">Print</button>
+      <button type="button" class="secondary" id="end">New night</button>
+    </div>
+    <p id="share-status" role="status" class="note"></p>
+  </section>
+
+  <section class="guide">
+    <h2>How it works</h2>
+    <h3>How is an Americano scored?</h3>
+    <p>Every player is credited with the points their side scored in each game, so a strong partner never costs you anything. The table ranks by total points, then points difference, then wins. In padel the usual format is games to a total such as 24 points, where the two scores add up to 24; type one side and the page fills in the other. A score that does not add up (a game stopped by the clock) is kept and flagged.</p>
+    <h3>What happens to players who sit out a round?</h3>
+    <p>When the number of players is not a multiple of four, some sit out each round, and the rotation shares that out evenly. Pick how a sit-out counts: nothing, the player's own average points per game so far (the default), or half the points of a game when games go to a total. The credit is added once that round is fully scored and is shown separately in the table.</p>
+    <h3>What is the difference between the Americano and Mexicano modes?</h3>
+    <p>Americano fixes every round at the start so each player partners and plays against as many different people as possible; with a court for every four players and 4k or 4k+1 players, everyone partners everyone exactly once. Mexicano draws round one at random and each later round from the standings, so the top four play together on court 1, the next four on court 2, and so on.</p>
+    <p>More on each: <a href="./how-to-run-an-americano-tournament.html">how the Americano rotation works</a> (whist designs) and <a href="./how-to-run-a-mexicano-tournament.html">how the Mexicano draw works</a>.</p>
+    <h3>Do the players need to install anything?</h3>
+    <p>No. The organiser keeps score on one phone in the browser. The page saves the night on that phone, so a refresh or a closed tab loses nothing, and a Share link gives everyone a read-only copy of the rounds and the table as it stood when the link was made.</p>
+    <h3>Is anything uploaded?</h3>
+    <p>No. Names and scores stay on the device that typed them. A share link carries the night inside the link itself, so whoever you send it to can read it; nothing is stored on a server.</p>
+    <p>Related: <a href="./">the league schedule generator</a> (season round robins, courts, standings), <a href="./balanced-teams.html">balanced teams from a player list</a>, <a href="./how-to-run-a-ladder-league.html">challenge ladders</a>.</p>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information and does not replace your club's own rules; check the rotation and the table before announcing a winner. The example players are invented.</p>
+  <p><strong>Independent.</strong> Not affiliated with any club, federation, booking platform or rating system.</p>
+  <p>Everything runs in your browser; names and scores are saved only on this device. Anonymous feature events (<code>night_started</code>, <code>night_example</code>, <code>night_score</code>, <code>night_round_drawn</code>, <code>night_copied</code>, <code>night_shared</code>, <code>night_csv</code>, <code>night_link_opened</code>, <code>night_finished</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free and open source under an <a href="LICENSE">MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+<script type="module">
+  import { parsePlayersList, newNight, setScore, getScore, otherSide, roundDone, currentRound, finishedGames, drawNextRound, leaderboard, leaderboardText, nightCsv, checkNight, encodeNight, decodeNight } from "./night.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const $ = (s) => document.querySelector(s);
+  const KEY = "league-schedule-generator-night";
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const EXAMPLE = ["Alba", "Bruno", "Carmen", "Dario", "Elena", "Felix", "Greta", "Hugo", "Iris", "Jonas"];
+
+  let night = null;
+  let view = 0;
+  let readOnly = false;
+
+  const save = () => { if (readOnly || !night) return; try { localStorage.setItem(KEY, JSON.stringify(night)); } catch { /* storage blocked: the night lives in this tab */ } };
+  const load = () => { try { const n = JSON.parse(localStorage.getItem(KEY) || "null"); return n && checkNight(n).length === 0 ? n : null; } catch { return null; } };
+  const clear = () => { try { localStorage.removeItem(KEY); } catch { /* ignore */ } };
+
+  function totalGames(n) { return n.rounds.reduce((s, r) => s + r.matches.length, 0); }
+
+  function show(n, { ro = false, at = null } = {}) {
+    night = n; readOnly = ro;
+    view = at ?? Math.min(currentRound(n), n.rounds.length - 1);
+    $("#setup").hidden = true; $("#resume").hidden = true; $("#night").hidden = false;
+    $("#ro-banner").hidden = !ro;
+    render();
+  }
+
+  function render() {
+    const p = night.players;
+    const round = night.rounds[view];
+    const last = night.rounds.length;
+    const planned = night.mode === "mexicano" ? night.plannedRounds : last;
+    $("#round-title").textContent = `Round ${view + 1}${planned ? ` of ${planned}` : ""}${roundDone(night, view) ? " ✓" : ""}`;
+    $("#prev").disabled = view === 0;
+    $("#next").disabled = view >= last - 1;
+    const box = $("#courts-out");
+    box.innerHTML = "";
+    for (const m of round.matches) {
+      const s = getScore(night, view, m.court);
+      const el = document.createElement("div");
+      el.className = "court" + (s ? " done" : "");
+      const dis = readOnly ? " disabled" : "";
+      el.innerHTML = `<h3>Court ${m.court}</h3>
+        <div class="side"><span>${esc(p[m.a[0]])} &amp; ${esc(p[m.a[1]])}</span><input type="number" min="0" max="999" inputmode="numeric" aria-label="Court ${m.court} score for ${esc(p[m.a[0]])} and ${esc(p[m.a[1]])}" data-c="${m.court}" data-s="0" value="${s ? s[0] : ""}"${dis}></div>
+        <div class="vs">vs</div>
+        <div class="side"><span>${esc(p[m.b[0]])} &amp; ${esc(p[m.b[1]])}</span><input type="number" min="0" max="999" inputmode="numeric" aria-label="Court ${m.court} score for ${esc(p[m.b[0]])} and ${esc(p[m.b[1]])}" data-c="${m.court}" data-s="1" value="${s ? s[1] : ""}"${dis}></div>`;
+      box.appendChild(el);
+    }
+    $("#byes").textContent = round.byes.length ? `Sitting out: ${round.byes.map((i) => p[i]).join(", ")}` : "";
+    const drawBtn = $("#draw");
+    const canDraw = !readOnly && night.mode === "mexicano" && view === last - 1 && (!night.plannedRounds || last < night.plannedRounds);
+    drawBtn.hidden = !canDraw;
+    drawBtn.disabled = !roundDone(night, view);
+    renderTable();
+  }
+
+  function renderTable() {
+    const rows = leaderboard(night);
+    const done = finishedGames(night).length;
+    const total = totalGames(night);
+    $("#progress").textContent = `${done} of ${total} games scored`;
+    const tb = $("#table tbody");
+    const fmt = (x) => (Number.isInteger(x) ? x : x.toFixed(1));
+    tb.innerHTML = rows.map((r) => `<tr class="${r.rank === 1 && done ? "top" : ""}"><td>${r.rank}</td><td>${esc(r.name)}</td><td>${fmt(r.total)}${r.credit ? `<span class="note"> (${fmt(r.credit)} sit-out)</span>` : ""}</td><td>${r.diff > 0 ? "+" : ""}${r.diff}</td><td>${r.wins}</td><td>${r.played}</td><td>${fmt(r.avg)}</td><td>${r.satOut}</td></tr>`).join("");
+    const rule = { none: "Sit-outs earn nothing.", average: "A sit-out earns the player's own average points per game.", half: night.target ? `A sit-out earns ${night.target / 2} points (half of ${night.target}).` : "Sit-outs earn nothing (half-points needs a points-per-game total)." }[night.sitOut];
+    $("#table-note").textContent = `Ranked by total points, then points difference, then wins. ${rule}${night.target ? ` Games to ${night.target} points.` : ""}`;
+  }
+
+  $("#courts-out").addEventListener("input", (e) => {
+    const inp = e.target;
+    if (!(inp instanceof HTMLInputElement) || readOnly) return;
+    const court = Number(inp.dataset.c);
+    const ins = [...document.querySelectorAll(`#courts-out input[data-c="${court}"]`)];
+    const mine = inp.value;
+    const other = ins[1 - Number(inp.dataset.s)];
+    const auto = otherSide(night, mine);
+    if (auto !== null && mine !== "") other.value = String(auto);
+    const [sa, sb] = ins.map((x) => x.value);
+    if ((sa === "") !== (sb === "")) { $("#score-status").textContent = ""; return; }
+    const res = setScore(night, view, court, sa, sb);
+    if (res.error) { $("#score-status").textContent = res.error; return; }
+    const wasDone = currentRound(night) >= night.rounds.length;
+    night = res.night;
+    save();
+    $("#score-status").textContent = res.warning || "";
+    inp.closest(".court").classList.toggle("done", sa !== "");
+    $("#round-title").textContent = $("#round-title").textContent.replace(/ ✓$/, "") + (roundDone(night, view) ? " ✓" : "");
+    $("#draw").disabled = !roundDone(night, view);
+    renderTable();
+    record("night_score");
+    if (!wasDone && night.mode === "americano" && currentRound(night) >= night.rounds.length) record("night_finished");
+  });
+
+  $("#prev").addEventListener("click", () => { if (view > 0) { view--; render(); } });
+  $("#next").addEventListener("click", () => { if (view < night.rounds.length - 1) { view++; render(); } });
+  $("#draw").addEventListener("click", () => {
+    const res = drawNextRound(night);
+    if (res.error) { $("#score-status").textContent = res.error; return; }
+    night = res.night; view = night.rounds.length - 1; save(); render();
+    $("#score-status").textContent = "";
+    record("night_round_drawn");
+  });
+
+  $("#start").addEventListener("click", () => {
+    const { players, errors } = parsePlayersList($("#players").value);
+    if (errors.length) { $("#setup-status").textContent = errors[0]; return; }
+    try {
+      const n = newNight({ players, courts: $("#courts").value, rounds: $("#rounds").value || null, mode: $("#mode").value, target: $("#target").value, sitOut: $("#sitout").value, seed: 1 + Math.floor(Math.random() * 1e6) });
+      $("#setup-status").textContent = "";
+      night = n; readOnly = false; save();
+      history.replaceState(null, "", location.pathname);
+      show(n, { at: 0 });
+      record("night_started");
+    } catch (e) { $("#setup-status").textContent = e.message; }
+  });
+  $("#example").addEventListener("click", () => { $("#players").value = EXAMPLE.join("\n"); $("#courts").value = "2"; record("night_example"); });
+
+  async function copyText(text, okMsg) {
+    try { await navigator.clipboard.writeText(text); $("#share-status").textContent = okMsg; }
+    catch { $("#share-status").textContent = "Copy was blocked; here it is to copy by hand:\n" + text; }
+  }
+  $("#copy").addEventListener("click", () => { copyText(leaderboardText(night), "Standings copied. Paste them into the group chat."); record("night_copied"); });
+  $("#share").addEventListener("click", async () => {
+    const url = `${location.origin}${location.pathname}#night=${encodeNight(night)}`;
+    record("night_shared");
+    if (navigator.share) { try { await navigator.share({ title: "Tonight's standings", url }); return; } catch { /* fall back to copy */ } }
+    copyText(url, "Read-only link copied. It shows the night as it is now; share again later for newer scores.");
+  });
+  $("#csv").addEventListener("click", () => {
+    const blob = new Blob([nightCsv(night)], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = `${night.mode}-night.csv`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    record("night_csv");
+  });
+  $("#print").addEventListener("click", () => window.print());
+  $("#end").addEventListener("click", () => {
+    if (!readOnly && finishedGames(night).length && !confirm("Start a new night? This night's scores on this device will be cleared (download the CSV first to keep them).")) return;
+    if (!readOnly) clear();
+    $("#players").value = night.players.join("\n");
+    night = null; readOnly = false;
+    history.replaceState(null, "", location.pathname);
+    $("#night").hidden = true; $("#setup").hidden = false;
+  });
+  $("#ro-adopt").addEventListener("click", () => {
+    const existing = load();
+    if (existing && finishedGames(existing).length && !confirm("This device already has a night in progress. Replace it with this one?")) return;
+    readOnly = false; save(); history.replaceState(null, "", location.pathname); show(night);
+  });
+  $("#resume-go").addEventListener("click", () => { const n = load(); if (n) show(n); });
+  $("#resume-new").addEventListener("click", () => { const n = load(); if (n) $("#players").value = n.players.join("\n"); $("#resume").hidden = true; });
+
+  $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+  if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+
+  // Start-up: a shared link first, then a night saved on this device.
+  const m = /[#&]night=([A-Za-z0-9_-]+)/.exec(location.hash);
+  if (m) {
+    const { night: shared, error } = decodeNight(m[1]);
+    if (shared) { show(shared, { ro: true }); record("night_link_opened"); }
+    else $("#setup-status").textContent = error;
+  } else {
+    const saved = load();
+    if (saved) {
+      $("#resume").hidden = false;
+      $("#resume-info").textContent = `${saved.players.length} players, ${finishedGames(saved).length} of ${totalGames(saved)} games scored.`;
+    }
+  }
+</script>
+</body>
+</html>
