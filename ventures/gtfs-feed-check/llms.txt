@@ -1,0 +1,14 @@
+# GTFS Feed Check
+
+> Free GTFS Schedule feed checker: drop a GTFS zip and get every problem with its file and line (missing files and fields, broken references between trips, routes, stops and services, stop times that run backwards, expired calendars, days with no service, impossible speeds, swapped coordinates). Runs in the browser; the feed is not uploaded. Also a zero-dependency Node CLI for CI.
+
+Free and open source (MIT). Checks follow the GTFS Schedule Reference (revised 2026-04-27); sanity limits the reference does not set are labelled as the tool's own. Not legal, regulatory or professional advice, and not a promise that any app accepts a feed. For the complete rule set use the MobilityData GTFS Validator.
+
+## Pages
+
+- [The tool](https://marisstella.app/gtfs-feed-check/): drop a zip, see findings, download them as CSV.
+- [GTFS validation errors explained](https://marisstella.app/gtfs-feed-check/gtfs-errors-explained.html): all 88 finding codes, their meaning and source, and what four real feeds turned up.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gtfs-feed-check): MIT licensed. `node cli.mjs gtfs.zip [--json|--csv] [--strict] [--today=YYYY-MM-DD]`.

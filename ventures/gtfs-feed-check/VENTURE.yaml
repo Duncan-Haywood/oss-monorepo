@@ -1,0 +1,36 @@
+name: gtfs-feed-check
+description: >-
+  Free GTFS Schedule feed checker for small transit agencies, campus and demand-response shuttles and the
+  vendors who build their feeds: drop a GTFS zip and get every problem with its file and line (missing files
+  and fields, broken references, stop times that run backwards, expired calendars, days with no service,
+  impossible speeds between stops, swapped coordinates). Runs in the browser with no upload; a zero-dependency
+  Node CLI does the same in CI.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-19 in an explore-track run. duplicate_check.py top match 0.20 (gpx-track-check); no venture
+# mentions GTFS. Archetype: paste-your-file pre-flight checker (gpx-track-check, ics-calendar-check), aimed at
+# a professional niche: the ~thousands of small agencies that publish GTFS so trip planners show their service.
+#
+# First visitor: a transit planner or scheduling-software vendor whose feed "shows no service" in a trip
+# planner, or who wants a check on every export; search phrases like "gtfs validator online", "validate gtfs
+# zip", "gtfs feed expired", "gtfs stop_times errors". Volume not measured with an external tool.
+#
+# Rules: GTFS Schedule Reference revised 2026-04-27 (Apache-2.0 spec text, read, not copied). Measured on four
+# real feeds (eval/real-feeds-2026-11-19.md): 0 errors on BART, Halifax and TriMet; no speed or outlier false
+# positives in 3.0 million stop times.
+#
+# Depth path (the reason to build it rather than one more calculator): fares v2, transfers, pathways, flex,
+# stop-to-shape distance, block overlap, a feed diff between two versions (what changed for riders), and
+# GTFS-Realtime checks against the static feed. A paid tier, if usage appears, is hosted scheduled checks of a
+# published feed URL with an email when it is about to expire; none built, payment off.
+#
+# Liability: format checks on the user's own file, no warranty, independent of every consumer and of
+# MobilityData, no acceptance promise.
+hypotheses:
+  - claim: >-
+      Small agencies and feed vendors will use a no-install, no-upload checker on routine exports, and the
+      expiry check ("service ends in N days") is the finding they act on most.
+    status: untested
+    checked: null
+    evidence: customer-contact
