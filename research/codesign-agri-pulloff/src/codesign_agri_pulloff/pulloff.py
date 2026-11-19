@@ -10,7 +10,7 @@ from codesign_agri import agri as G, optimisers as O
 
 BASE_MEDIAN = 3.5          # codesign-agri's assumed median, N
 PULL_BEND, PULL_ONLY = 3.17, 13.94      # measured, N (Dimeas et al. via Rajendran et al. 2022)
-GRIP_LIMIT = 10.0          # N, gripping force limit for the peduncle (Rajendran et al. 2022; Robofruit paper, safety factor 2 on 22.5-26.8 N)
+GRIP_LIMIT = 10.0          # N, used as the total pad force on the fruit body: fruit-body limit <10 N (Dimeas et al. 2015, as reported by Rajendran et al. 2022)
 
 
 def population(median, seed=12345, n=G.N_FRUIT):
