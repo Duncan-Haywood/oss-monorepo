@@ -1,0 +1,36 @@
+# Milestone 11aq: which operators the aware planner puts next to each other (arrangement.py's docstring). 11ao's aware planner, deliv ages, Z = 7.62 m, 5-flight offsets (-4.70, -1.44, +0.81, +1.06, +1.55 m at 10 m/s), 4 draws, s = 1, 2; null = 200 permutations of the offsets, F_perm = 20
+# R1 = weighted mean |b_i - b_j| one level apart / permutation null; R0 the same in one level; far = share of adjacent weight with |b_i - b_j| > 3 m; blind R1 = the blind plan's labels; Fperm/F = aware labels scored with the offsets permuted
+
+## M = 12 (24 layouts x 4 draws)
+  s    n    R1 med   p10     p90     R0 med   far     far_null  blind R1  Fperm/F  p90     max
+  1     96   0.7035  0.3219  1.3840   0.7657  0.1266    0.3220    0.9060   1.0482  1.1238  1.7969
+       R1 < 1 in 74 of 96 layout-draws (sign test against 0.5: two-sided p = 9.4e-08)
+  2     96   0.7237  0.2910  1.1031   1.5825  0.4052    0.5423    0.9060   1.2362  1.8124  3.5601
+       R1 < 1 in 77 of 96 layout-draws (sign test against 0.5: two-sided p = 1.9e-09)
+  h*_aware distribution (s: h x count), to compare with speed_offset_results.txt
+    1     13.33: 80, 17.14: 16
+    2     13.33: 38, 17.14: 8, 24: 50
+
+## M = 16 (24 layouts x 4 draws)
+  s    n    R1 med   p10     p90     R0 med   far     far_null  blind R1  Fperm/F  p90     max
+  1     96   0.7010  0.3909  1.0670   0.7562  0.1635    0.3282    0.9376   1.0467  1.0966  1.7022
+       R1 < 1 in 84 of 96 layout-draws (sign test against 0.5: two-sided p = 1.8e-14)
+  2     96   0.7985  0.3851  1.0862   1.4396  0.4812    0.5725    0.9376   1.2220  1.5805  2.6117
+       R1 < 1 in 77 of 96 layout-draws (sign test against 0.5: two-sided p = 1.9e-09)
+  h*_aware distribution (s: h x count), to compare with speed_offset_results.txt
+    1     13: 1, 13.33: 87, 17.14: 8
+    2     13: 1, 13.33: 32, 17.14: 6, 24: 57
+
+# predictions
+  P1 M=12 s=1 median R1 <= 0.80: 0.7035 -> held
+  P1 M=16 s=1 median R1 <= 0.80: 0.7010 -> held
+  P2 M=12 s=1 far share <= half the null's: 0.1266 vs 0.3220 -> held
+  P2 M=16 s=1 far share <= half the null's: 0.1635 vs 0.3282 -> held
+  P3 M=12 median R1 at s=2 <= at s=1: 0.7237 vs 0.7035 -> refuted
+  P3 M=16 median R1 at s=2 <= at s=1: 0.7985 vs 0.7010 -> refuted
+  P4 M=12 s=1 median Fperm/F_aware >= 1.02: 1.0482 -> held
+  P4 M=16 s=1 median Fperm/F_aware >= 1.02: 1.0467 -> held
+  P5 M=12 s=1 blind adjacency ratio in [0.90, 1.10]: 0.9060 -> held
+  P5 M=16 s=1 blind adjacency ratio in [0.90, 1.10]: 0.9376 -> held
+
+# analysis CPU s per layout: median 475
