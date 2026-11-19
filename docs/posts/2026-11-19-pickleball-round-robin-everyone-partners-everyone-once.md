@@ -40,7 +40,7 @@ there's an extra fixed player who never moves.
 
 The venture's search (`eval/whist-search.mjs`) is a randomised backtracking search over those
 difference counts. It found base rounds for 4, 5, 8, 12, 13, 16, 17, 20, 21, 24 and 25 players in
-seconds, and 28 to 36 and 44 in a few minutes each. 9 players has no base round mod 9 (the search
+seconds, and 28 to 37 and 44 in between half a minute and 19 minutes each (40, 41, 45, 48 and 49 found nothing in 25 minutes, so they keep the old search). 9 players has no base round mod 9 (the search
 exhausts it), so it uses the group Z3 x Z3 instead. Every stored base is developed and checked pair
 by pair before it is kept.
 

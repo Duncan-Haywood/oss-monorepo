@@ -76,18 +76,24 @@ players courts | method | ...  (default round count each; whist row only when a 
 30 players  7 courts
   greedy  rounds 30  games 28-28  repeat partners  5  never partner  20  opponents 0-4  valid
 31 players  7 courts
+  whist   rounds 31  games 28-28  repeat partners  0  never partner  31  opponents 1-2  valid  (design 32, 1 ghost)
   greedy  rounds 31  games 28-28  repeat partners  2  never partner  33  opponents 1-4  valid
 32 players  8 courts
+  whist   rounds 31  games 31-31  repeat partners  0  never partner   0  opponents 2-2  valid  (design 32, 0 ghosts)
   greedy  rounds 31  games 31-31  repeat partners 15  never partner  15  opponents 0-4  valid
 33 players  8 courts
+  whist   rounds 33  games 32-32  repeat partners  0  never partner   0  opponents 2-2  valid  (design 33, 0 ghosts)
   greedy  rounds 33  games 32-32  repeat partners 10  never partner  10  opponents 0-5  valid
 34 players  8 courts
   greedy  rounds 34  games 32-32  repeat partners 11  never partner  28  opponents 0-4  valid
 35 players  8 courts
+  whist   rounds 35  games 32-32  repeat partners  0  never partner  35  opponents 1-2  valid  (design 36, 1 ghost)
   greedy  rounds 35  games 32-32  repeat partners  5  never partner  40  opponents 0-5  valid
 36 players  9 courts
+  whist   rounds 35  games 35-35  repeat partners  0  never partner   0  opponents 2-2  valid  (design 36, 0 ghosts)
   greedy  rounds 35  games 35-35  repeat partners 18  never partner  18  opponents 0-5  valid
 37 players  9 courts
+  whist   rounds 37  games 36-36  repeat partners  0  never partner   0  opponents 2-2  valid  (design 37, 0 ghosts)
   greedy  rounds 37  games 36-36  repeat partners 20  never partner  20  opponents 0-4  valid
 38 players  9 courts
   greedy  rounds 38  games 36-36  repeat partners 15  never partner  34  opponents 0-5  valid
@@ -100,8 +106,10 @@ players courts | method | ...  (default round count each; whist row only when a 
 42 players 10 courts
   greedy  rounds 42  games 40-40  repeat partners 24  never partner  45  opponents 0-5  valid
 43 players 10 courts
+  whist   rounds 43  games 40-40  repeat partners  0  never partner  43  opponents 1-2  valid  (design 44, 1 ghost)
   greedy  rounds 43  games 40-40  repeat partners 17  never partner  60  opponents 0-5  valid
 44 players 11 courts
+  whist   rounds 43  games 43-43  repeat partners  0  never partner   0  opponents 2-2  valid  (design 44, 0 ghosts)
   greedy  rounds 43  games 43-43  repeat partners 40  never partner  40  opponents 0-5  valid
 45 players 11 courts
   greedy  rounds 45  games 44-44  repeat partners 43  never partner  43  opponents 0-5  valid
@@ -196,18 +204,30 @@ players courts | method | ...  (default round count each; whist row only when a 
   greedy  rounds 30  games 12-12  repeat partners  0  never partner 255  opponents 0-2  valid
 31 players  3 courts
   greedy  rounds 31  games 12-12  repeat partners  0  never partner 279  opponents 0-2  valid
+  whole   rounds 73  games 28-28  repeat partners  0  never partner  31  opponents 1-2  valid  (whole design asked for: design 32, packed)
+  greedy= rounds 73  games 28-29  repeat partners 15  never partner  42  opponents 0-4  valid  (greedy on the same round count)
 32 players  3 courts
   greedy  rounds 32  games 12-12  repeat partners  0  never partner 304  opponents 0-2  valid
+  whole   rounds 83  games 31-31  repeat partners  0  never partner   0  opponents 2-2  valid  (whole design asked for: design 32, packed)
+  greedy= rounds 83  games 31-32  repeat partners 28  never partner  26  opponents 0-4  valid  (greedy on the same round count)
 33 players  3 courts
   greedy  rounds 33  games 12-12  repeat partners  0  never partner 330  opponents 0-2  valid
+  whole   rounds 88  games 32-32  repeat partners  0  never partner   0  opponents 2-2  valid  (whole design asked for: design 33, packed)
+  greedy= rounds 88  games 32-32  repeat partners 30  never partner  30  opponents 0-5  valid  (greedy on the same round count)
 34 players  3 courts
   greedy  rounds 34  games 12-12  repeat partners  0  never partner 357  opponents 0-2  valid
 35 players  3 courts
   greedy  rounds 35  games 12-12  repeat partners  0  never partner 385  opponents 0-2  valid
+  whole   rounds 94  games 32-32  repeat partners  0  never partner  35  opponents 1-2  valid  (whole design asked for: design 36, packed)
+  greedy= rounds 94  games 32-33  repeat partners 27  never partner  58  opponents 0-3  valid  (greedy on the same round count)
 36 players  3 courts
   greedy  rounds 36  games 12-12  repeat partners  0  never partner 414  opponents 0-2  valid
+  whole   rounds 105  games 35-35  repeat partners  0  never partner   0  opponents 2-2  valid  (whole design asked for: design 36, packed)
+  greedy= rounds 105  games 35-35  repeat partners 46  never partner  46  opponents 0-4  valid  (greedy on the same round count)
 37 players  3 courts
   greedy  rounds 37  games 12-12  repeat partners  0  never partner 444  opponents 0-2  valid
+  whole   rounds 111  games 36-36  repeat partners  0  never partner   0  opponents 2-2  valid  (whole design asked for: design 37, packed)
+  greedy= rounds 111  games 36-36  repeat partners 36  never partner  36  opponents 0-4  valid  (greedy on the same round count)
 38 players  3 courts
   greedy  rounds 38  games 12-12  repeat partners  0  never partner 475  opponents 0-2  valid
 39 players  3 courts
@@ -220,8 +240,12 @@ players courts | method | ...  (default round count each; whist row only when a 
   greedy  rounds 42  games 12-12  repeat partners  0  never partner 609  opponents 0-2  valid
 43 players  3 courts
   greedy  rounds 43  games 12-12  repeat partners  0  never partner 645  opponents 0-2  valid
+  whole   rounds 144  games 40-40  repeat partners  0  never partner  43  opponents 1-2  valid  (whole design asked for: design 44, packed)
+  greedy= rounds 144  games 40-41  repeat partners 46  never partner  85  opponents 0-4  valid  (greedy on the same round count)
 44 players  3 courts
   greedy  rounds 44  games 12-12  repeat partners  0  never partner 682  opponents 0-2  valid
+  whole   rounds 158  games 43-43  repeat partners  0  never partner   0  opponents 2-2  valid  (whole design asked for: design 44, packed)
+  greedy= rounds 158  games 43-44  repeat partners 66  never partner  64  opponents 0-4  valid  (greedy on the same round count)
 45 players  3 courts
   greedy  rounds 45  games 12-12  repeat partners  0  never partner 720  opponents 0-2  valid
 46 players  3 courts

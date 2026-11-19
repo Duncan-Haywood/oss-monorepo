@@ -365,8 +365,9 @@ the elements of an abelian group and round g adds g to every seat of the base ro
 fixed player ("infinity") joins a group of order 4k-1. `eval/whist-search.mjs` finds the base rounds by
 randomised backtracking on the difference counts (partner differences once, opponent differences twice);
 9 players has no Z9 base (exhaustive), so it uses Z3 x Z3. `eval/whist-bases-build.mjs` stores only bases
-whose developed design passes `checkWhist`. Stored: SIZES_HERE. Search times are in
-`eval/whist-search.txt` (seconds up to 28; minutes from 29 on, four processes sharing four cores).
+whose developed design passes `checkWhist`. Stored: 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29, 32, 33, 36, 37 and 44 players. Search times are in
+`eval/whist-search.txt` (seconds up to 28; 37 s to 19 min from 29 on, eleven processes sharing four cores). 40, 41,
+45, 48 and 49 found nothing in 25 minutes each (4e8-node budget) and stay on greedy.
 
 How `americano()` uses them (the greedy search stays as the fallback and the comparison):
 
