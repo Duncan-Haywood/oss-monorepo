@@ -28,8 +28,9 @@ export const ASK_EXPECTATIONS = {
 export const NOTHING = /I found nothing/;
 
 /**
- * Judge one reply. `reply` is { text, passage, links: [{ title, href }] } as
- * read from the panel's last `.pa-bot` message. Returns a list of problems
+ * Judge one reply. `reply` is { text, passage, links: [{ title, href }], dead } as
+ * read from the panel's last `.pa-bot` message (`dead`: the hrefs that did not
+ * load when fetched). Returns a list of problems
  * (empty when it passes).
  */
 export function judgeReply(question, reply, expectations = ASK_EXPECTATIONS) {
@@ -46,6 +47,10 @@ export function judgeReply(question, reply, expectations = ASK_EXPECTATIONS) {
   if (want?.maxLinks != null && links.length > want.maxLinks) {
     problems.push(`${links.length} tool link(s) under the answer, at most ${want.maxLinks} expected (${links.map((l) => l.title).join('; ')})`);
   }
+  // A link the reply offers but that does not load is the worst first answer:
+  // a renamed or retired tool that the search index still names. The checker
+  // fetches every link and passes the ones that failed as `dead`.
+  for (const href of reply.dead || []) problems.push(`links ${href}, which does not load`);
   if (want?.passage && !(reply.passage && want.passage.test(reply.passage))) {
     problems.push(`the page passage does not match ${want.passage} (passage: ${reply.passage ? JSON.stringify(reply.passage.slice(0, 120)) : 'none'})`);
   }
