@@ -13,6 +13,17 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3r headline** (can a robot camera's memory of its own earlier self-calibrations steady the next one? 53 real TUM
+windows, rolling-shutter model, a soft prior on k<sub>1</sub> and the principal point set to the median and spread of the same
+camera's *other* windows, no target or reference value): **yes, for scatter.** The window-to-window focal scatter falls by a
+quarter to a half (robust sd 2.1 &rarr; 1.6%, 6.0 &rarr; 3.3%, 6.0 &rarr; 4.1%), the pooled median focal error from **3.06% to
+2.43%** (lower in 35 of 53 windows, paired Wilcoxon p = 0.002), windows more than 10% wrong from 9 to 4, and the median focal
+length moves under 1%. The images barely notice (cost +0.05%). A prior from the camera's *other* recording session works as well
+(median error 0.62&ndash;0.71&times;), and k<sub>1</sub> alone does all the work. It does not touch the Xtion's +2% bias. Five of
+seven predictions held. [Log](LOG.md).
+
+![TUM windows with and without a prior from the camera's other windows: focal error by model, and per-window error with against without](experiments/m3r_prior/prior.png)
+
 **Milestone 3q headline** (after the rolling-shutter term, is TUM's leftover focal error a bias or scatter? 53 real windows,
 no new solves, scored against three calibrations of the same cameras): **scatter, not bias, on the Kinect.** The windows' median
 focal length (524.1 px on fr1/desk, 517.9 on fr1/xyz) sits inside the 1.6% that the board, the dataset authors' published
@@ -1205,6 +1216,12 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3r: a soft prior on k<sub>1</sub> from the camera's other windows cuts the scatter by a quarter to a half and the
+pooled focal error from 3.06% to 2.43% without moving the median; a prior from another session works too, k<sub>1</sub> alone
+carries it, and the Xtion's +2% bias stays. Next: a *causal* prior (only windows earlier in time, updated as the robot goes) and
+how many windows it needs; whether the prior makes the pooled sd honest (re-run milestone 3d's pooling with it); the Xtion's bias
+by a second board calibration; and the same prior on milestone 4's accept/reject gate.
 
 After milestone 3q: on the Kinect the leftover error is window-to-window scatter along the f&ndash;k<sub>1</sub>&ndash;principal-point
 ridge, inside the references' own 1.6% disagreement; the Xtion keeps a 1.3&ndash;2.5% high median. Next: a prior on k<sub>1</sub> and

@@ -1,0 +1,7 @@
+cell-fidelity 7g post hoc (written after the report; descriptive, not a test).
+
+set          S_C med 104 S_C med new S_C max new    hind theta   cyc  hind U   cyc
+Ai2020             0.074       0.121       0.169     50>=0.119  35.0     U50  50.0
+Chen2020           0.028       0.056       0.378     40>=0.026  32.5     U40  40.0
+OKane2022          0.064       0.067       0.273     50>=0.068  25.0     U50  50.0
+NCA_Kim2011        0.316       0.271       0.459     50>=0.271  30.0     U50  50.0
