@@ -39,6 +39,38 @@ export const IFC43_DICTIONARY = "https://identifier.buildingsmart.org/uri/buildi
 
 const simpleOf = (v) => (v && v.simple !== undefined && typeof v.simple === "string" ? v.simple : null);
 
+// Template property names whose rule link bSDD does not resolve, because
+// bSDD's IFC 4.3 dictionary has no such property: Reference (in 112 template
+// sets) and 76 names from 35 sets bSDD does not carry (profile, alignment,
+// resource sets). eval/bsdd-template-sweep.mjs asks bSDD for all 760
+// template sets and fails when this list is out of date
+// (eval/bsdd-suggest-live-2026-11-19.md). No link is better than one the
+// bSDD check then reports as not found.
+export const BSDD_UNLINKED = new Set([
+  "ActualCompletion", "ActualCost", "ActualWorkTime", "BaseChamfer",
+  "BottomCover", "CantDeficiency", "CantEquilibrium", "CenterCoreBaseHeight",
+  "CenterCoreBaseWidth", "CenterCoreMiddleHeight", "CenterCoreSpacing",
+  "CenterCoreTopHeight", "CenterCoreTopWidth", "CentreOfGravityInX",
+  "CentreOfGravityInY", "CoreBaseHeight", "CoreBaseWidth", "CoreMiddleHeight",
+  "CoreSpacing", "CoreTopHeight", "CoreTopWidth", "DraftBaseOffset",
+  "DraftSideOffset", "EdgeDraft", "EndElevation", "EndSmoothingLength",
+  "FlangeBaseFillet", "FlangeChamfer", "FlangeDepth", "FlangeDraft",
+  "FlangeTopFillet", "IsMain", "IsSkilledOperator", "KeyDepth", "KeyHeight",
+  "KeyOffset", "LeftFlangeWidth", "MaximumPlateThickness",
+  "MaximumSectionModulusY", "MaximumSectionModulusZ", "MinimumPlateThickness",
+  "MinimumSectionModulusY", "MinimumSectionModulusZ", "MomentOfInertiaY",
+  "MomentOfInertiaYZ", "MomentOfInertiaZ", "OperatingTime", "OverallDepth",
+  "OvertimeWork", "PlasticShapeFactorY", "PlasticShapeFactorZ", "Reference",
+  "RemainingCost", "RemainingWorkProgression", "RightFlangeWidth",
+  "ScheduleCompletion", "ScheduleCost", "ScheduleWorkProgression",
+  "ShearAreaY", "ShearAreaZ", "ShearCentreY", "ShearCentreZ",
+  "ShearDeformationAreaY", "ShearDeformationAreaZ", "StandardWork",
+  "StartElevation", "StartSmoothingLength", "StemBaseChamfer",
+  "StemBaseFillet", "StemBaseWidth", "StemTopChamfer", "StemTopFillet",
+  "StemTopWidth", "TorsionalConstantX", "TorsionalSectionModulus", "UsageTime",
+  "WarpingConstant",
+]);
+
 export function ifc43PropUri(name) {
   return `${IFC43_DICTIONARY}/prop/${name}`;
 }
@@ -64,7 +96,7 @@ export function suggestBsddLinks(idsText, { psets } = {}) {
       const baseName = simpleOf(new IdsValue(kid(f, "baseName") || kid(f, "name")));
       if (!propertySet || !baseName) continue;
       const tpl = Object.prototype.hasOwnProperty.call(table, propertySet) ? table[propertySet] : null;
-      if (!tpl || !Object.prototype.hasOwnProperty.call(tpl.props, baseName)) continue;
+      if (!tpl || !Object.prototype.hasOwnProperty.call(tpl.props, baseName) || BSDD_UNLINKED.has(baseName)) continue;
       const dataType = (f.attrs.dataType ?? f.attrs.datatype ?? "").toUpperCase() || null;
       const ifcType = tpl.props[baseName].type || null;
       out.push({

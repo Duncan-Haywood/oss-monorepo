@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { suggestBsddLinks, addBsddLinks, ifc43PropUri, suggestReport, IFC43_DICTIONARY } from "./bsdd-suggest.mjs";
+import { suggestBsddLinks, addBsddLinks, ifc43PropUri, suggestReport, IFC43_DICTIONARY, BSDD_UNLINKED } from "./bsdd-suggest.mjs";
 import { bsddLinks } from "./bsdd.mjs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
@@ -48,6 +48,16 @@ test("a facet already linked, a pattern, a custom set, a misspelt name or an app
   ].join("\n"), prop("Pset_WallCommon", "LoadBearing"));
   assert.deepEqual(suggestBsddLinks(text, { psets }), []);
   assert.match(suggestReport([]), /no bSDD links to suggest/);
+});
+
+test("a template property bSDD's dictionary leaves out gets no link (it would not resolve)", () => {
+  // Pset_PlateCommon.Reference is in the IFC 4.3 templates, but bSDD has no
+  // prop/Reference (eval/bsdd-suggest-live-2026-11-19.md).
+  assert.ok(Object.hasOwn(psets.IFC4X3.Pset_PlateCommon.props, "Reference"));
+  assert.ok(BSDD_UNLINKED.has("Reference"));
+  for (const name of BSDD_UNLINKED) assert.ok(Object.values(psets.IFC4X3).some((s) => Object.hasOwn(s.props, name)), `${name} is a template property`);
+  const list = suggestBsddLinks(ids([prop("Pset_PlateCommon", "Reference"), prop("Pset_PlateCommon", "FireRating")].join("\n")), { psets });
+  assert.deepEqual(list.map((x) => x.baseName), ["FireRating"]);
 });
 
 test("the template's type is named when the facet asks for another", () => {

@@ -40,7 +40,7 @@ copies counted once. Full output: `eval/bsdd-suggest-corpus.txt`.
 | distinct IDS files read | 117 (1 not an IDS) |
 | requirement property facets | 1,317 |
 | with a uri already | 316 |
-| suggested a link | 619 in 54 files (111 of them Qto_ quantities) |
+| suggested a link | 617 in 54 files (111 of them Qto_ quantities) |
 | of those, facet dataType differs from the template | 27 |
 | no suggestion: set or name a pattern / missing | 24 |
 | no suggestion: set is not an IFC 4.3 template | 322 |
@@ -61,7 +61,7 @@ test file), a baseName written "Thermal Transmittance [ThermalTransmittance]"
 are left alone on purpose: the IFC dictionary link only means the IFC
 property when the facet asks for the IFC property.
 
-**Do the links resolve?** bSDD's API is not reachable from this run's
+**Do the links resolve?** (Answered later the same day, with bSDD reachable: yes for all but `Reference`, which is now skipped; `eval/bsdd-suggest-live-2026-11-19.md`. As first written:) bSDD's API is not reachable from this run's
 container (proxy 403), so the 619 suggestions were not looked up one by one.
 What stands for it: every IFC 4.3 link in the corpus written in this form was
 looked up live on 2026-11-19 by `eval/bsdd-corpus.mjs`, and none of the 9
