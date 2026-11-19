@@ -1,5 +1,7 @@
 """Tests for shallow_repair.py, on a throwaway local repository (no network)."""
+import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -118,19 +120,25 @@ class LockTest(unittest.TestCase):
 
     @unittest.skipUnless(Path("/proc").is_dir() and shutil.which("sleep"), "needs /proc and sleep")
     def test_a_lock_is_kept_while_a_git_process_runs_in_the_repo(self):
-        fake = self.repo / "git-sleeper"  # /proc/<pid>/comm starts with "git"
-        shutil.copy(shutil.which("sleep"), fake)
+        # A shell script, not a copy of the sleep binary: the kernel names a script's process
+        # after the script file, so /proc/<pid>/comm starts with "git". A copied `sleep` fails on
+        # runners whose coreutils is a multicall binary (uutils) that dispatches on its own name
+        # and exits at once as "git-sleeper" (red on GitHub's runner, green locally, 2026-11-19).
+        fake = self.repo / "git-sleeper"
+        fake.write_text('#!/bin/sh\nsleep "$1"\n')
+        fake.chmod(0o755)
         self.lock.write_text("x")
-        p = subprocess.Popen([str(fake), "30"], cwd=self.repo / ".git")
+        p = subprocess.Popen([str(fake), "30"], cwd=self.repo / ".git", start_new_session=True)
         try:
-            for _ in range(50):
+            for _ in range(100):
                 if sr.git_processes_in(self.repo):
                     break
                 time.sleep(0.05)
+            self.assertTrue(sr.git_processes_in(self.repo), "the fake git process never showed up in /proc")
             self.assertFalse(sr.clear_stale_lock(self.repo))
             self.assertTrue(self.lock.exists())
         finally:
-            p.kill()
+            os.killpg(p.pid, signal.SIGKILL)
             p.wait()
 
     def test_no_proc_means_nothing_is_called_stale(self):

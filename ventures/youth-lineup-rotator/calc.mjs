@@ -93,6 +93,10 @@ export function parsePlayers(text, slotNames, periods) {
         if (key === "can") p.can = set; else p.not = set;
       } else errors.push(`${name}: unknown setting "${key}".`);
     }
+    // An empty "can:", or a "not:" covering every position, would leave the child
+    // on the bench all game with no clear reason given: say so instead.
+    const allowed = [...new Set(slotNames)].filter((n) => (p.can ? p.can.has(n) : true) && !p.not.has(n));
+    if (!allowed.length && slotNames.length) errors.push(`${name}: no position left to play (check "can:" and "not:"). Remove both to let them play anywhere.`);
     if (p.leaves <= p.late) errors.push(`${name}: plays no period (late: ${p.late}, leaves: ${p.leaves} of ${periods}). "leaves" counts the last period they are there, so it must be after "late"; remove the line if they are not coming.`);
     players.push(p);
   }
