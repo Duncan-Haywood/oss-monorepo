@@ -153,7 +153,8 @@ export function leaderboard(night) {
   night.rounds.forEach((round, r) => { if (roundDone(night, r)) for (const i of round.byes) rows[i].satOut++; });
   for (const row of rows) {
     row.avg = row.played ? Math.round((row.pf / row.played) * 10) / 10 : 0;
-    if (night.sitOut === "average") row.credit = Math.round(row.avg * row.satOut * 10) / 10;
+    // From the unrounded average: 63 points in 4 games, 2 sit-outs is 31.5, not 15.8 x 2 = 31.6.
+    if (night.sitOut === "average") row.credit = row.played ? Math.round((row.pf / row.played) * row.satOut * 10) / 10 : 0;
     else if (night.sitOut === "half" && night.target) row.credit = (night.target / 2) * row.satOut;
     row.total = Math.round((row.pf + row.credit) * 10) / 10;
   }

@@ -3,7 +3,8 @@
 Free, browser-only round-robin schedule maker for rec leagues, youth sports,
 pickleball, darts and chess clubs and office leagues. Paste the team names and
 pick a start date and weekday; it builds a single or double round robin with real
-dates, home and away balanced (the minimum possible breaks), courts and time
+dates, home and away balanced (the minimum possible breaks for a single round robin,
+n−2; the mirrored double has 3(n−2)), courts and time
 slots shared evenly, team blackout dates handled with makeup rounds, skip dates
 for holidays, and an optional single-elimination play-off bracket seeded from the
 standings you type. Also runs a challenge ladder (paste "Cy beat Ana" results; it moves players up, shows who may challenge whom and flags challenges beyond your reach limit). Exports a CSV, calendar (.ics) files for the league or one
@@ -15,7 +16,7 @@ team, a plain-text version to paste into a group chat, and a share link that car
 
 - **A spreadsheet or a hand-drawn grid:** free, but home/away balance, byes in odd leagues and court sharing are easy to get wrong, and a rainout means redoing the sheet.
 - **League-management platforms** (TeamSnap, LeagueApps, SportsEngine and similar): registration, payments, team messaging and score apps, usually on a paid plan and with accounts for every team. This tool only makes and maintains the schedule: no signup, no upload, free.
-- **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
+- **What this adds:** a fair round robin with the fewest possible home/away breaks for a single round robin (a mirrored double has 3(n−2)), real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
 ## Americano and Mexicano scorer (2026-11-19, `americano-night.html`, `night.mjs`)
@@ -228,7 +229,7 @@ third party: zero dependencies, one JSON file on a disk you own.
     a wrong admin key, and SMTP off). No real league has used it yet.
 - Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs registration.test.mjs confirm.test.mjs reschedule.test.mjs spirit.test.mjs freeagents.test.mjs`.
 
-Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
+Open `index.html`. No build step, no dependencies. `node --test '*.test.mjs'` runs the suite.
 
 - `calc.mjs` - circle-method rounds with byes for odd leagues and home/away built
   in, date planner, seeded simulated-annealing court and time-slot assignment,
