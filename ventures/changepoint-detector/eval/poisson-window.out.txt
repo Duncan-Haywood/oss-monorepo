@@ -1,0 +1,7 @@
+replayWatch, model poisson, 120 points, checks from 90, seeds 101-120; steps at 108
+detector | N1 Poisson 30 | N2 NB 30, var 60 | N3 Poisson 30, weekends 0.6x | N4 Poisson 5 | S1 30 -> 15 | S2 30 -> 21 | S3 30 -> 45 | S4 5 -> 2 | S5 NB 30 -> 18
+bocpd | 0.00 | 3.23 | 1.61 | 0.00 | 19/20 (median delay 4) | 10/20 (median delay 4) | 14/20 (median delay 4) | 3/20 (median delay 5) | 14/20 (median delay 4)
+bocpd-window | 0.00 | 4.84 | 1.61 | 0.00 | 20/20 (median delay 4) | 18/20 (median delay 4) | 19/20 (median delay 4) | 10/20 (median delay 5) | 17/20 (median delay 4)
+mean false alerts per 1,000 checks: bocpd 1.21, bocpd-window 1.61
+steps found of 100: bocpd 60, bocpd-window 84
+rule (a) false alerts at or below: FAIL; (b) more steps: pass -> keep bocpd

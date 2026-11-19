@@ -15,11 +15,11 @@ get() { # get <path in the venture> <destination>
 }
 if [ -e "$DEST" ] && [ -n "$(ls -A "$DEST" 2>/dev/null)" ]; then echo "$DEST exists and is not empty" >&2; exit 1; fi
 mkdir -p "$DEST/.github/workflows" "$DEST/data"
-for f in watch.mjs watch-core.mjs engine.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
+for f in watch.mjs watch-core.mjs engine.mjs example-data.mjs slope-breaks.mjs hinge-test.mjs two-hinge.mjs known-date.mjs ramps.mjs drift-level.mjs update-rate.mjs rounded-walk.mjs multivariate.mjs consensus.mjs stripe-metrics.mjs shopify-metrics.mjs LICENSE; do get "$f" "$DEST/$f"; done
 get deploy/watch-metric.yml "$DEST/.github/workflows/watch-metric.yml"
 
 printf '{ "type": "module" }\n' > "$DEST/package.json"
-printf '# Stripe metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\n' > "$DEST/.gitignore"
+printf '# Stripe and Shopify metrics are fetched each run (and cached by the workflow); never commit them.\ndata/stripe.csv*\ndata/shopify.csv\n' > "$DEST/.gitignore"
 cat > "$DEST/README.md" <<'MD'
 # Metric watch
 
@@ -51,6 +51,13 @@ API keys > Create restricted key) and leave `METRIC_CSV` unset. Each run then fe
 `data/stripe.csv` (payments, revenue, failed payments; `node stripe-metrics.mjs --help`) and watches all three, so
 you hear when sales, revenue or card declines move to a new level. Keep this repository private: `watch-state.json`
 records your revenue around each change. `data/stripe.csv` is cached by the workflow, never committed.
+
+Shopify: create a custom app in your store (Shopify admin > Settings > Apps and sales channels > Develop apps;
+Admin API scope `read_orders`, plus `read_all_orders` for more than 60 days of history), install it, and add its
+Admin API access token as the secret `SHOPIFY_ACCESS_TOKEN` and your store name (`my-store` or
+`my-store.myshopify.com`) as the variable `SHOPIFY_SHOP`. With `METRIC_CSV` unset and no Stripe key, each run fetches
+your complete days into `data/shopify.csv` (orders, revenue, cancelled orders; `node shopify-metrics.mjs --help`) and
+watches all three. Keep this repository private; `data/shopify.csv` is cached, never committed.
 
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood
