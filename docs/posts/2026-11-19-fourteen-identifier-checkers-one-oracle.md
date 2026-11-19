@@ -3,7 +3,7 @@ title: "Fourteen identifier checkers, one oracle: the GTIN code was right, the I
 seo_title: "Testing 14 IBAN, BIC and GTIN validators against python-stdnum"
 date: 2026-11-19
 tags: [testing, differential-testing, iban, gtin, sepa, explore]
-description: "116,000 cases per seed through 14 ventures' own IBAN, BIC, GTIN, ISBN and routing-number checkers. The check-digit maths agreed everywhere; the country tables did not."
+description: "116,000 cases per seed through 14 ventures' IBAN, BIC, GTIN, ISBN and routing checkers. The check-digit maths agreed; the country tables did not."
 ---
 
 Fourteen of the portfolio's tools carry their own small checker for a
