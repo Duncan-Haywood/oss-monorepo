@@ -397,12 +397,11 @@ flagships:
       (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
-      eval/whist-vs-greedy.txt); 4k+2 near-whist designs 2026-11-19 (one missed
-      partner each, 0 repeats, opponents 1-2; eval/near-whist-search.mjs annealing);
-      Whist 48, 60 and near-whist 46, 54, 62 by tabu search 2026-11-19
-      (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h each none; order-4
-      multiplier on Z51 none) and near-whist 58 (25 min none). More open items:
-      NEXT.md.
+      eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
+      search 2026-11-19 (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h
+      each none; order-4 multiplier on Z51 none) and near-whist 58 (tabu 25+60
+      CPU-min, SAT 2.2 h none; sit-out parity and mirror proof: README "Near-whist
+      designs by SAT"). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
