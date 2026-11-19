@@ -91,14 +91,18 @@ def sgd_mse(t, k, a, eta, sigma2, x0sq):
 
 
 def sgd_rounds(k, a, eta, sigma2, x0sq, eps):
-    """Rounds to E x_t^2 <= eps; inf if the noise floor is above eps."""
+    """Rounds to E x_t^2 <= eps; inf if the noise floor is above eps or the iteration diverges (|1 - eta*a| >= 1)."""
     rho = 1 - eta * a
+    if abs(rho) >= 1:
+        return math.inf
     floor = eta ** 2 * sigma2 / (1 - rho ** 2) / k
     if floor >= eps:
         return math.inf
     if x0sq <= eps:
         return 0
-    return max(0, math.ceil(math.log((eps - floor) / (x0sq - floor)) / (2 * math.log(rho)) - 1e-12))
+    if rho == 0:
+        return 1
+    return max(0, math.ceil(math.log((eps - floor) / (x0sq - floor)) / (2 * math.log(abs(rho))) - 1e-12))
 
 
 def expected_time(n, k, s, mu, a, eta, sigma2, x0sq, eps):
