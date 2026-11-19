@@ -1,6 +1,6 @@
 ---
 title: "The Tank Above the Panel: why a solar water heater goes cold when its tank is lowered"
-seo_title: "Thermosiphon reverse flow: why a solar water heater's tank goes above the panel"
+seo_title: "Thermosiphon reverse flow: why the solar tank goes above the panel"
 date: 2026-11-19
 tags: [fiction, hearth-and-horizon, thermosiphon, solar-water-heater, heat-transfer]
 description: "A new Hearth & Horizon story set in the Mexican Bajío: a solar tank set down beside its panels loses about 6 kWh a night as the loop runs backwards."
