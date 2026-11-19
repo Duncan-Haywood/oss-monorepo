@@ -450,3 +450,36 @@ def test_m16_census_with_false_ties_sees_extra_ties():
     b = int(v.leader.sum())
     assert sd.rule_recall_dd(v, b, np.random.default_rng(1), 0.5, "adaptive", 0.75, 0.85,
                              fp=0.25, fp_mode="closure").sum() == b
+
+
+# ---- milestone 17: the reciprocity filter ----
+
+def test_m17_recip_census_keeps_only_mutual_reports():
+    v = _m9_village()
+    A = v.A > 0
+    # perfect recall, no false ties: the filter changes nothing
+    a = sd.survey_recall(v, 1.0, np.random.default_rng(3), recall=1.0)
+    b = sd.survey_recall(v, 1.0, np.random.default_rng(3), recall=1.0, recip=True)
+    assert all(np.array_equal(x, y) for x, y in zip(a, b))
+    # recall 0.85: a census keeps a true tie with probability 0.85^2, not 1 - 0.15^2
+    kept = sum(sd.survey_recall(v, 1.0, np.random.default_rng(s), recall=0.85, recip=True)[2][A].mean()
+               for s in range(20)) / 20
+    assert abs(kept - 0.85 ** 2) < 0.02
+    # false ties: the filtered census sees a subset of the unfiltered one, under the same draws
+    for mode in ("uniform", "closure"):
+        _, _, s0 = sd.survey_recall(v, 1.0, np.random.default_rng(7), recall=0.85, fp=0.5, fp_mode=mode)
+        _, est, s1 = sd.survey_recall(v, 1.0, np.random.default_rng(7), recall=0.85, fp=0.5, fp_mode=mode,
+                                      recip=True)
+        assert np.array_equal(s1, s1.T) and (s1 <= s0).all() and np.all(est == s1.sum(1))
+        assert (s1.astype(bool) & ~A).sum() < 0.1 * (s0.astype(bool) & ~A).sum()
+
+
+def test_m17_recip_half_survey_keeps_one_sided_reports():
+    v = _m9_village()
+    s, est, seen = sd.survey_recall(v, 0.5, np.random.default_rng(2), "adaptive", 0.75, 0.85,
+                                    fp=0.25, recip=True)
+    s0, est0, seen0 = sd.survey_recall(v, 0.5, np.random.default_rng(2), "adaptive", 0.75, 0.85, fp=0.25)
+    assert np.array_equal(s, s0)
+    one = s[:, None] ^ s[None, :]
+    assert np.array_equal(seen[one], seen0[one])            # unverifiable ties kept as reported
+    assert np.array_equal(est[~s], est0[~s])                 # stage-1 estimates unfiltered
