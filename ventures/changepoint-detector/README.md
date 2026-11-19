@@ -3817,6 +3817,55 @@ days before the rise, and no fill restores that. On the fresh year rec3 sends th
 Next: a closure in the week *before* a step (the 2011-09-01 case), simulated with the step placed 1 to 7 days after a
 closure and scored against clean; rec3's gain needs about 1,000 series per arm to settle, as a long background run.
 
+## A closure in the week before a step (2026-11-19, pre-registered; all four bars pass, `--closed` unchanged)
+
+The section above found that the real alert `--closed` lost, the design year's orders build-up dated 2011-09-01 (sent
+2011-09-05 with closures as zeros), had its bank holiday **before** the rise: Monday 2011-08-29, three days earlier.
+So the case to measure was a closure 1 to 7 days before a step, scored against **clean**, the same shop with the
+closed day left open. The bars were committed before anything ran (`eval/closed-before.prereg.md`), with a written
+prediction that fill1 would sit within noise of clean and that zeros would catch more. Script
+`eval/closed-before.mjs`, output `eval/closed-before.out.txt`; the simulation is the section above's (Quiet: `bocpd`,
+`--model poisson`, `--period 7`, replayed), on fresh seeds 20261123, with **300** step series rather than 100 (each with
+one closure 1 to 7 days before its +40% step and 5 more at random) and 100 no-step series.
+
+| fresh seeds 20261123 | clean | zeros | fill1 (ships) |
+|---|---|---|---|
+| steps caught within 7 days (of 300) | 183 | 274 | **179** |
+| ... closure 1-2 / 3-4 / 5-7 days before the step | 56 / 54 / 73 | 84 / 81 / 109 | 53 / 54 / 72 |
+| paired against clean: lost / found | | 7 / 98 | 18 / 14 |
+| median days from step to the alert being sent (steps both caught) | 5 | 4 | 5 |
+| no-step series with an alert within 1 day of a closure / of a placebo date (of 100) | 15 / 24 | 99 / 37 | 13 / 24 |
+| false alerts (100 no-step series) | 355 | 716 | 343 |
+
+- **V1 passes** (the cost: fill1 at least clean - 9): 179 against 174. The fill costs about 1 step in 100.
+- **V2 passes** (no slower): median 5 days, as clean.
+- **V3 passes** (closure effect gone): 13 against a placebo rate of 24.
+- **V4 passes** (zeros lend catches: zeros at least clean + 9): 274 against 192. Of the zeros arm's 274 catches, **122
+  came only through an alert within a day of the closure**. Its alerts in the step window pile up on the step day
+  itself (74 of 317) and on the days just before it: the zero followed by the higher level reads as one larger change,
+  and the detector dates it between the two.
+
+**The real case, four ways** (already seen; reported, not barred; same output file). Orders on the design year:
+
+| 2011-08-29 (the August bank holiday) | build-up alert dated 2011-09-01 |
+|---|---|
+| left as a zero, all closures zeros | sent 2011-09-05 |
+| fill1 (the shipped `--closed`) | none |
+| left as a zero, every other closure filled | sent 2011-09-05 |
+| read as an ordinary Monday (the mean of the Mondays either side, 65 and 68) | none |
+
+The 28-day mean of open weekdays went from 52.7 to 69.1 orders a day across 2011-09-01, and Quiet does not call that a
+change on its own. The alert came from the holiday's
+zero, and a shop that had opened that Monday would not have been sent it either. So `--closed` did not lose a real
+alert it should have kept; it removed one the closure lent. Whether a busier setting hears that rise was not checked here.
+
+**What ships:** `--closed` is unchanged; its help text now gives the cost of a closure before a step. **Checked:**
+`closed-days.test.mjs` (now 11 tests) pins the real case: with 2011-08-29 a zero Quiet sends the 2011-09-01 alert, and
+with fill1 or the Monday read as an ordinary open day it does not.
+
+Next: rec3 against fill1 at about 1,000 series per arm (a closure after a step; README section above), as a long
+background run; revenue's deafness to a slow climb at Quiet and Middle.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other

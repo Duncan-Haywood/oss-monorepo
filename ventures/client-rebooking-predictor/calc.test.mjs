@@ -165,3 +165,22 @@ test("template fills name, last visit and usual weeks; plan CSV quotes names", (
   const csv = planCsv({ items: [{ week: 1, client: 'a, "b"', segment: "due", last: D("2026-03-07"), pBack: 0.5, avg: null }] });
   assert.equal(csv.split("\n")[1], '1,"a, ""b""",due,2026-03-07,0.500,');
 });
+
+// Quality audit round 76 (portfolio/quality/audits/2026-11-19-client-rebooking-predictor.json).
+test("a day-first file reads every date day-first, not row by row", () => {
+  const r = parseRows("ann,25/12/2025\nann,07/01/2026\nbob,02/03/2026");
+  assert.deepEqual(r.rows.map((x) => dayToIso(x.day)), ["2025-12-25", "2026-01-07", "2026-03-02"]);
+  const us = parseRows("ann,12/25/2025\nann,07/01/2026");
+  assert.deepEqual(us.rows.map((x) => dayToIso(x.day)), ["2025-12-25", "2026-07-01"]);
+  const unsure = parseRows("ann,03/04/2026\nann,05/06/2026");
+  assert.ok(unsure.warnings.some((w) => /month-first/.test(w)));
+  const mixed = parseRows("ann,25/12/2025\nann,12/26/2025");
+  assert.ok(mixed.warnings.some((w) => /mix day-first/.test(w)));
+});
+
+test("header names: 'Amount Paid' is not a client id, and 'Date' beats 'Service'", () => {
+  const a = parseRows("Appointment Date,Amount Paid,Client\n2026-01-05,40,Ann\n2026-01-06,90,Bob");
+  assert.deepEqual(a.rows.map((x) => [x.client, x.amount]), [["ann", 40], ["bob", 90]]);
+  const b = parseRows("Client,Service,Date,Price\nAnn,Cut,2026-01-05,40\nBob,Colour,2026-01-06,90");
+  assert.deepEqual(b.rows.map((x) => [x.client, dayToIso(x.day), x.amount]), [["ann", "2026-01-05", 40], ["bob", "2026-01-06", 90]]);
+});

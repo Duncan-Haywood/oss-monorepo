@@ -194,7 +194,8 @@ flagships:
       GitHub Actions (real shop, README "A real shop's daily series": weekly line
       ships; next revenue deaf at Quiet; --closed ships; a recent-days fill failed 2
       rounds (README "A closure in the first week after a step": cost ~4/100,
-      pooled); next a closure 1-7 days before a step (the real 2011-09-01 loss));
+      pooled); a closure 1-7 days before a step costs ~1/100 and the 2011-09-01
+      alert was the holiday's zero (README "A closure in the week before a step"));
       (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted
       note ships); update-rate: pegs 4 of 7 dated; JHU state switches to weekly
       reporting 20 of 27, returns to more days 0 of 8 (README "A provider's own
@@ -204,11 +205,10 @@ flagships:
       NE). Stale feeds: clumped LR shipped; next a real documented carry-forward.
       joint drift (measured, not offered) and its 2x penalty on fresh multi-column
       labelled data. Open: (0) drift model: t-walk increments, biweight on fresh
-      data, why it absorbs seat belts and quality control 4, its AR(1) term; two
-      covariates: harmless one's warning 0 of 170 false finds, 1.27x bias (bar
-      failed); notes quote it. Curvature word ships under --shape-word panel (README
-      "A curvature word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37.
-      More open items: NEXT.md.
+      data, why it absorbs seat belts and quality control 4, its AR(1) term; notes
+      quote it. Curvature word ships under --shape-word panel (README "A curvature
+      word"): slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open
+      items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
@@ -377,25 +377,24 @@ flagships:
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
       schedule, eval/seed-balance.txt; 2026-11-18 limits kept exactly, impossible
-      ones named, eval/limit-conflicts.txt; promotion/relegation,
-      promotion.test.mjs; play-off results fill the bracket
-      (playoff-results.test.mjs); league page (availability, subs, sign-ups, free
-      agents, waivers, ratings: README; next: a real league's use); 2026-11-19
-      balanced teams, /join free agents (eval/free-agent-fit.txt), crossover pool
-      seeds (eval/crossover-seeds.txt); bowling seasons, lane pairs rotated evenly:
-      36 of 36 at the bound, repeats 392 to 148 (eval/bowling-repeat-sat.txt)).
-      3-game nights (eval/three-game-nights.txt): SAT session designs
-      (session-designs.mjs) take every even 10-48 teams on 6 slots, 16 of 19 sizes
-      on 9, to 0 waits; 5, 7 on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py):
-      21, 23 on 4x9, 27 on 7x6; fails at <=3 spare slots (eval/odd-cyclic.txt).
-      Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37 on 6x9 0 waits
-      (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0 waits
-      (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9
-      0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with the
-      short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Bowling seasons
-      proved uneven (SAT, 44 of 4-32 teams x 1-60 weeks, page says so;
-      eval/bowling-bound-proof.txt). Lane limits (team avoids a pair, hard;
-      eval/bowling-lane-avoid.txt). Limits per shape
+      ones named, eval/limit-conflicts.txt; promotion/relegation, play-off results
+      (tests); league page (availability, subs, sign-ups, free agents, waivers,
+      ratings: README; next: a real league's use); 2026-11-19 balanced teams, /join
+      free agents (eval/free-agent-fit.txt), crossover pool seeds
+      (eval/crossover-seeds.txt); bowling lanes 36 of 36 even
+      (eval/bowling-repeat-sat.txt); bowling averages, handicaps, points, standings
+      from score sheets (bowling-recap.test.mjs)). 3-game nights
+      (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
+      every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on
+      1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6;
+      fails at <=3 spare slots (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on
+      4x9, 31 on 5x9, 37 on 6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46
+      on 3 sessions 0 waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits
+      (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
+      eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
+      (odd-orbit.py, 9,849 s). Bowling seasons proved uneven (SAT, 44 of 4-32 teams
+      x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Lane limits (team
+      avoids a pair, hard; eval/bowling-lane-avoid.txt). Limits per shape
       (eval/bowling-avoid-shapes.txt), on other slots and symmetry-broken
       (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. 6x32 2
       teams, 6x26 random: UNSAT every dealing (eval/bowling-count-model.py). More
@@ -459,32 +458,31 @@ flagships:
       default; lipHold failed held-out b, opt-in; a slow lip closure failed held-out
       c (123 to 125 of 144, 3 wanted), opt-in; 2026-11-17: c's cluster-onset -um
       misses traced to the synthesised murmur's beat phase, not the reader
-      (eval/cluster-um-report.md); longTilt opt-in; next: a held-out part on
-      eval/release-cells-report.md's cells; 2026-11-18 murmurSource 'one', then
-      'match' (opt-in; D3 losses traced to the chorus's frozen phase,
-      eval/murmur-match-check.md)). Open checks that need a person: listen to the
-      studio page, --sing, the options (--stretch, --halftime, --fills, --limit
-      pumping, stems, sections, breakdown, riser, the a cappella verse and whether
-      the key lift sounds like a lift, --organum over a band); the Te
-      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
-      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
-      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
-      thickness; 3439/3357 were not liquescentTail; staff lines broken by a white
-      gap joined 2026-11-18 (+82 agreeing; held out 0 of 530 staves changed,
-      eval/staff-gap-check.md); F clef with a parted stem read on its line
-      2026-11-19 (+59 agreeing, eval/clef-bridge-check.md); next 652:2's border in
-      the clef search, 3524's stemless cephalicus, 3408's strokes. More open items:
-      NEXT.md.
+      (eval/cluster-um-report.md); longTilt opt-in; 2026-11-19 levelFade, longTilt
+      and nearRelease (a near murmur after the note's end) failed held-out e and f,
+      opt-in; 2026-11-18 murmurSource 'one', then 'match' (opt-in; D3 losses traced
+      to the chorus's frozen phase, eval/murmur-match-check.md)). Open checks that
+      need a person: listen to the studio page, --sing, the options (--stretch,
+      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
+      cappella verse and whether the key lift sounds like a lift, --organum over a
+      band); the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md).
+      master-cli passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs
+      (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
+      liquescents, lines at true thickness; 3439/3357 were not liquescentTail; staff
+      lines broken by a white gap joined 2026-11-18 (+82 agreeing; held out 0 of 530
+      staves changed, eval/staff-gap-check.md); F clef with a parted stem read on
+      its line 2026-11-19 (+59 agreeing, eval/clef-bridge-check.md); next 652:2's
+      border in the clef search, 3524's stemless cephalicus, 3408's strokes. More
+      open items: NEXT.md.
     buildable: >-
-      Coda reader, no outside input: a held-out part built on
-      eval/release-cells-report.md's cells (picked before any reader runs) to
-      register levelFade and longTilt (both opt-in; README "Cluster onsets before
-      -um", "A /u/ release read as a nasal"). Level-matched murmur (murmurSource
-      'match', opt-in, eval/murmur-match-check.md): 2,220 nasals vs default 2,141,
-      but R, Z, A lose 1-2; next: fresh cells for the voiced-labial misreads. OMR
-      (scan.mjs): 652 staff 2's clef read off a border (findClef), 3524's stemless
-      cephalicus, 3741's place, 3408's strokes (eval/staff-gap-check.md, What is
-      left).
+      Coda reader, no outside input: f's sung -un on E4 quarters (murmur in the note
+      missed by the near search) and /u/ on C4 quarters (level rule past levelFade's
+      tail); README "Held out where the release lands". Level-matched murmur
+      (murmurSource 'match', opt-in, eval/murmur-match-check.md): 2,220 nasals vs
+      default 2,141, but R, Z, A lose 1-2; next: fresh cells for the voiced-labial
+      misreads. OMR (scan.mjs): 652 staff 2's clef read off a border (findClef),
+      3524's stemless cephalicus, 3741's place, 3408's strokes
+      (eval/staff-gap-check.md, What is left).
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
@@ -495,34 +493,35 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      IFC4X3 ifcXML: none public (searched 2026-11-18); B-spline control points cut
-      into rows from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); more
-      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs;
-      IFC4/IFC4X3 STEP exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as
-      nested ifcXML through eval/ifc4-layout.mjs.
+      Excel2IDS's tool run on the same workbooks: eval/excel2ids-sidebyside.mjs is
+      written (pip ifctester; needs a session allowed to run the fetched script; it
+      confirms or corrects excel2idsToolNotes). IFC4X3 ifcXML: none public (searched
+      2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
+      (eval/ifcxml-twins-2026-11-18.md); more real exports through
+      eval/model-inventory.mjs and eval/model-attr-ranges.mjs; IFC4/IFC4X3 STEP
+      exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as nested ifcXML
+      through eval/ifc4-layout.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.
-      Next, most valuable first: ifcXML streams 2026-11-18
-      (eval/lazy-ifcxml-2026-11-18.md: 374 MB federated ifcXML 4.0 to 1.5 GB peak,
-      fits 1 GB; strings keep whitespace, 731 MEP labels). nested IFC4 ifcXML at
-      scale 2026-11-18 (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3
-      exports nested, 857,301 entities and 2,160 of 2,160 verdicts as STEP; schema
-      from the root, not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB
-      1,770 to 1,481 MB, fits 768 MB). nested ifcXML read as it closes 2026-11-18
-      (eval/nested-early-2026-11-18.md: same numbers and notes on 57 files; smallest
-      heap 160 to 96 MB on C20, federated unchanged at 704 MB). Editor repair on
-      open, bare \w/\s, subclass boxes 2026-11-18/19 (eval/editor-open-repair-*,
-      eval/word-class-*, eval/deprecated-subclasses-*). Sets for one predefined type
-      2026-11-19 (eval/predefined-sets-2026-11-19.md: 186 IFC4, 343 IFC4X3 sets;
-      audit warns pset-predefined, editor fills the type; 1,008 of 1,008 offers
-      agree). Template types 2026-11-19 (eval/template-types-2026-11-19.md:
-      occurrence sets on types, performance sets off IfcPerformanceHistory warned,
-      1,280 of 1,280 editor pairs agree). IDS as a spreadsheet 2026-11-19
-      (eval/sheet-roundtrip-2026-11-19.md: .xlsx/CSV both ways; 334 of 334 test IDS,
-      62 of 64 public same back). Excel-saved workbooks 2026-11-19
-      (eval/excel-workbooks-2026-11-19.md: dates, 15-digit numbers, true/false,
-      _x000D_, .xls named; 65,537 of 65,548 cells agree with openpyxl on 321 POI
-      workbooks; download cells as Text). next: a BIM manager's real table via
-      --from-sheet; Excel itself typing into the download; an RVB/ILS author on \s;
-      a Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.
+      Next, most valuable first: Editor repair on open, bare \w/\s, subclass boxes
+      2026-11-18/19 (eval/editor-open-repair-*, eval/word-class-*,
+      eval/deprecated-subclasses-*). Sets for one predefined type 2026-11-19
+      (eval/predefined-sets-2026-11-19.md: 186 IFC4, 343 IFC4X3 sets; audit warns
+      pset-predefined, editor fills the type; 1,008 of 1,008 offers agree). Template
+      types 2026-11-19 (eval/template-types-2026-11-19.md: occurrence sets on types,
+      performance sets off IfcPerformanceHistory warned, 1,280 of 1,280 editor pairs
+      agree). IDS as a spreadsheet 2026-11-19 (eval/sheet-roundtrip-2026-11-19.md:
+      .xlsx/CSV both ways; 334 of 334 test IDS, 62 of 64 public same back).
+      Excel-saved workbooks 2026-11-19 (eval/excel-workbooks-2026-11-19.md: 65,537
+      of 65,548 cells agree with openpyxl). Excel2IDS template workbooks both ways
+      2026-11-19 (excel2ids.mjs, eval/excel2ids-2026-11-19.md: 309 of 309 public
+      specs that fit come back the same; partOf, unnamed material, ranges do not
+      fit). Excel2IDS tool differences cell by cell 2026-11-19
+      (eval/excel2ids-tool-2026-11-19.md: page and CLI list where the .exe writes
+      another IDS or stops; download fills purpose General, tool stops 316 to 0 of
+      351; sample's External doors asks True). next: a BIM manager's real table or
+      filled Excel2IDS workbook via --from-sheet; the tool run side by side
+      (eval/excel2ids-sidebyside.mjs); Excel itself typing into the download; an
+      RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open
+      items: NEXT.md.

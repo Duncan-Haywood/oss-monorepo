@@ -1,0 +1,85 @@
+Rule E: enlarge the trust box to the smallest non-empty scale before the elastic fallback (research/grid-linopf)
+Plan, rule E and predictions E1 to E7: LOG.md 2026-11-19 (committed before this ran).
+Cases whose frozen run has no failed hard QP are identical by construction (not rerun, counted as frozen).
+
+Development, cap 2 (primary): 34 cases (18 rerun), 30-round budget
+  failed hard QPs 112; rule fired (1 < t <= cap) on 94; enlarged hard QP solved on 94; of those, 68 rebuild the previous round's rejected QP (same base point, same box: a repeat)
+  case               kind   frozen@  E@    cost% over AC optimum frozen / E   fired/ok of failed
+  case118_ieee       api     None None   - / -   25/25 of 28, 22 repeats
+  case162_ieee_dtc   api       11   13   +0.317 / +0.317   2/2 of 2  <-
+  case200_activ      api       10 None   +0.130 / -   26/26 of 30, 24 repeats  <-
+  case240_pserc      api       17   16   +0.052 / +0.048   1/1 of 1  <-
+  case24_ieee_rts    api       10   12   +0.711 / +0.691   3/3 of 3  <-
+  case300_ieee       api       12   10   +1.017 / +0.319   2/2 of 5  <-
+  case30_ieee        api        7 None   +0.337 / -   24/24 of 28, 22 repeats  <-
+  case57_ieee        api       12   11   +0.710 / +1.440   1/1 of 1  <-
+  case73_ieee_rts    api     None   12   - / +3.258   2/2 of 2  <-
+  case118_ieee       sad       12   10   +0.379 / +0.354   1/1 of 1  <-
+  case14_ieee        sad        2    2   +3.845 / +3.320   1/1 of 1
+  case162_ieee_dtc   sad       10    8   +0.514 / +0.788   1/1 of 1  <-
+  case179_goc        sad       11   11   +0.830 / +0.056   1/1 of 2
+  case200_activ      sad        3    2   +0.004 / +0.010   1/1 of 2  <-
+  case240_pserc      sad       20   20   +0.374 / +0.374   0/0 of 2
+  case30_ieee        sad        7    2   +0.076 / +0.061   1/1 of 1  <-
+  case162_ieee_dtc   typ        8    8   +0.261 / +0.238   1/1 of 1
+  case179_goc        typ       10   11   +0.003 / +0.003   1/1 of 1  <-
+  reproduction gate (rerun cases where no enlarged step was taken equal the frozen run): 1 of 1
+  finishers: frozen 31 of 34, rule E 30; gained 1, lost 2 (sign test P = 1.000)
+  on the 29 cases both finish: rounds E minus frozen mean -0.31, median +0.0 (E faster on 7, slower on 3, sign test P = 0.344); cost points mean -0.037, max |.| 0.773
+
+Development, cap 1 (secondary): 34 cases (18 rerun), 30-round budget
+  failed hard QPs 142; rule fired (1 < t <= cap) on 76; enlarged hard QP solved on 76; of those, 69 rebuild the previous round's rejected QP (same base point, same box: a repeat)
+  case               kind   frozen@  E@    cost% over AC optimum frozen / E   fired/ok of failed
+  case118_ieee       api     None None   - / -   25/25 of 28, 23 repeats
+  case162_ieee_dtc   api       11   12   +0.317 / +0.322   1/1 of 2  <-
+  case200_activ      api       10 None   +0.130 / -   24/24 of 30, 23 repeats  <-
+  case240_pserc      api       17   17   +0.052 / +0.052   0/0 of 2
+  case24_ieee_rts    api       10   10   +0.711 / +0.711   0/0 of 1
+  case300_ieee       api       12   13   +1.017 / +0.993   1/1 of 6  <-
+  case30_ieee        api        7 None   +0.337 / -   24/24 of 29, 23 repeats  <-
+  case57_ieee        api       12   11   +0.710 / +1.440   1/1 of 1  <-
+  case73_ieee_rts    api     None None   - / -   0/0 of 30
+  case118_ieee       sad       12   12   +0.379 / +0.379   0/0 of 1
+  case14_ieee        sad        2    2   +3.845 / +3.845   0/0 of 1
+  case162_ieee_dtc   sad       10   10   +0.514 / +0.514   0/0 of 1
+  case179_goc        sad       11   11   +0.830 / +0.830   0/0 of 2
+  case200_activ      sad        3    3   +0.004 / +0.004   0/0 of 2
+  case240_pserc      sad       20   20   +0.374 / +0.374   0/0 of 2
+  case30_ieee        sad        7    7   +0.076 / +0.076   0/0 of 1
+  case162_ieee_dtc   typ        8    8   +0.261 / +0.261   0/0 of 2
+  case179_goc        typ       10   10   +0.003 / +0.003   0/0 of 1
+  reproduction gate (rerun cases where no enlarged step was taken equal the frozen run): 12 of 12
+  finishers: frozen 31 of 34, rule E 29; gained 0, lost 2 (sign test P = 0.500)
+  on the 29 cases both finish: rounds E minus frozen mean +0.03, median +0.0 (E faster on 1, slower on 2, sign test P = 1.000); cost points mean +0.025, max |.| 0.730
+
+Held-out, cap 2: 19 cases (17 rerun), 20-round budget
+  failed hard QPs 176; rule fired (1 < t <= cap) on 114; enlarged hard QP solved on 114; repeats not counted (vlin.slp records no acceptance or halvings)
+  case               kind   frozen@  E@    cost% over AC optimum frozen / E   fired/ok of failed
+  case1354_pegase    api     None None   - / -   14/14 of 14
+  case1888_rte       api       13 None   +0.617 / -   3/3 of 3  <-
+  case500_goc        api       14   17   +0.805 / +0.633   1/1 of 2  <-
+  case588_sdet       api       19   19   +0.868 / +3.551   1/1 of 19
+  case793_goc        api       17 None   +0.254 / -   20/20 of 20  <-
+  case1354_pegase    sad     None None   - / -   16/16 of 17
+  case1888_rte       sad     None None   - / -   0/0 of 20
+  case1951_rte       sad       20   16   +0.050 / +0.053   1/1 of 2  <-
+  case2000_goc       sad     None None   - / -   1/1 of 1
+  case500_goc        sad     None    5   - / +1.364   1/1 of 1  <-
+  case588_sdet       sad     None None   - / -   18/18 of 18
+  case793_goc        sad       16   15   +0.865 / +0.478   4/4 of 4  <-
+  case1354_pegase    typ     None None   - / -   15/15 of 15
+  case1888_rte       typ     None None   - / -   0/0 of 20
+  case1951_rte       typ       17   18   +0.019 / +0.019   1/1 of 2  <-
+  case588_sdet       typ       20 None   +2.124 / -   17/17 of 17  <-
+  case793_goc        typ       17   14   +0.140 / +0.065   1/1 of 1  <-
+  reproduction gate (rerun cases where no enlarged step was taken equal the frozen run): 2 of 2
+  finishers: frozen 10 of 19, rule E 8; gained 1, lost 3 (sign test P = 0.625)
+  on the 7 cases both finish: rounds E minus frozen mean -0.57, median +0.0 (E faster on 3, slower on 2, sign test P = 1.000); cost points mean +0.293, max |.| 2.683
+
+E1 (case73 API: rule fires and the enlarged hard QP solves on at least half of its failed rounds from 3): untestable, no failed hard QP from round 3 (0 of 0; rounds 1 to 2: 2 fired and solved)
+E2 (case73 API fully clean within 30 rounds): held (12; last {"n_over": 0, "max_load": 0.9990368394370216, "slack_out_mw": 0.0, "n_ang": 0, "vviol": 0, "v_exc_pu": 0.0, "qviol": 0, "q_exc_mvar": 0.0})
+E3 (case118 API fully clean within 30 rounds): refuted (None; last {"n_over": 7, "max_load": 1.0791494524297054, "slack_out_mw": 0.0, "n_ang": 0, "vviol": 0, "v_exc_pu": 0.0, "qviol": 7, "q_exc_mvar": 5.751806251845874})
+E4 (development: at most 1 frozen finisher lost): refuted (2)
+E5 (development, both finish: median rounds E minus frozen <= 0): held (+0.0)
+E7 (development: the enlarged hard QP solves on at least 90 % of firings): held (94 of 94)
+E6 (held-out: gains at least 1 finisher and loses none): refuted (gained 1, lost 3; 19 cases scored)

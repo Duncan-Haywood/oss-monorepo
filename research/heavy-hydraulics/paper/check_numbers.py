@@ -535,6 +535,25 @@ MANUSCRIPT_CHECKS = [
     ("the table scores 0.0052 and 0.0050 left out", "gear_pump_anchor_results.txt", "owdbf   0.0050  (max 0.0057"),
     ("its Danfoss error, 0.0054", "gear_pump_anchor_results.txt", "0.0061 / 0.0066 / 0.0063 / 0.0110 / 0.0068 / 0.0054"),
     ("sits 0.251 in log terms above", "gear_pump_anchor_results.txt", "residual +0.251"),
+    ("left out of the fit with an RMS of 0.0056 over 308 cases", "gear_pump_onerule_results.txt", "owh  0.0056  (max 0.0064"),
+    ("do better (0.0050) only on synthetic rows", "gear_pump_anchor_results.txt", "owdbf   0.0050  (max 0.0057"),
+    # milestone 7u (paper step): Table 2, the selection rules in the order they were tested
+    ("| eight held families | 0.0113 |", "gear_pump_eight_results.txt", "one-number 0.0113, two-number 0.0022"),
+    ("| eight held families | 0.0022 |", "gear_pump_eight_results.txt", "one-number 0.0113, two-number 0.0022"),
+    ("| 14 readings, held, spun and geared | 0.0084 |", "gear_pump_third_results.txt", "RMS over 14 diagonals: one 0.0120, two 0.0084, lo 0.0068"),
+    ("| adds efficiency at 57 L/min | 14 readings | 0.0068 |", "gear_pump_third_results.txt", "RMS over 14 diagonals: one 0.0120, two 0.0084, lo 0.0068"),
+    ("| adds efficiency over the published picks | 14 readings | 0.0069 |", "gear_pump_chosen_results.txt", "lo 0.0068, w 0.0069"),
+    ("at the picks | 14 readings | 0.0056 |", "gear_pump_holddrag_results.txt", "OD2 pooled ow diagonal RMS at least 20% below two-number: held (0.0056 against 0.0084"),
+    ("| 308 diagonals, 22 idle conditions | 0.0056 |", "gear_pump_onerule_results.txt", "owh  0.0056  (max 0.0064"),
+    ("| drag at the picks' median flow | 308 diagonals | 0.0065 |", "gear_pump_onepoint_results.txt", "owdq  0.0065  (max 0.0085"),
+    ("| drag at the picks' quartiles | 308 diagonals | 0.0066 |", "gear_pump_twopoint_results.txt", "owd2  0.0066  (max 0.0084"),
+    ("| published picks tilted by the pump's drag | 308 diagonals | 0.0053 |", "gear_pump_tilt_results.txt", "owdt  0.0053  (max 0.0061"),
+    ("| drag bend 79/64 L/min, nearest donors | 308 diagonals | 0.0075 |", "gear_pump_table_results.txt", "owdt1  0.0075  (max 0.0102"),
+    ("| drag bend, rows anchored at 64 L/min | 308 diagonals | 0.0052 |", "gear_pump_bendtable_results.txt", "owdb   0.0052  (max 0.0060"),
+    ("| drag bend, rows anchored at 79 L/min | 308 diagonals | 0.0059 |", "gear_pump_bendshape_results.txt", "owdbv   0.0059  (max 0.0072"),
+    ("| drag bend, within-family anchor | 308 diagonals | 0.0050 |", "gear_pump_anchor_results.txt", "owdbf   0.0050  (max 0.0057"),
+    ("| the model's picks for the held-out pump | 308 diagonals | 0.0047 |", "gear_pump_leak_results.txt", "owdm   0.0047  (max 0.0056"),
+    ("| the model's picks at the pump's own crossing | 308 diagonals | 0.0042 |", "gear_pump_ownpick_results.txt", "owds  0.0042  (max 0.0052"),
 ]
 
 
@@ -542,6 +561,8 @@ MANUSCRIPT_CHECKS = [
 def orphans(text, pool):
     """Decimal numbers in text that occur nowhere in pool (draft.md plus every results file)."""
     import re
+    # section numbers in headings ("### 3.10 ...") are not results
+    text = "\n".join(l for l in text.splitlines() if not l.startswith("#"))
     found = set(re.findall(r"(?<![\w.])\d+\.\d+(?!\d)", text))
     return sorted(n for n in found if not re.search(r"(?<![\d.])" + re.escape(n) + r"(?!\d)", pool))
 
