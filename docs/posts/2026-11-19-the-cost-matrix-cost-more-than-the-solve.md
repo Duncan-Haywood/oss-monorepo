@@ -1,7 +1,7 @@
 ---
 title: "The cost matrix cost more than the solve"
 date: 2026-11-19
-description: "The bowling lane polish in league-schedule-generator spent 62% of its time building 12x12 matrices and 23% solving them. Flat arrays made it 2.7x faster with the same seasons."
+description: "The bowling lane polish spent 62% of its time building 12x12 matrices, 23% solving them. Flat arrays made it 2.7x faster, same seasons."
 tags: [performance, league-schedule-generator, javascript]
 ---
 
