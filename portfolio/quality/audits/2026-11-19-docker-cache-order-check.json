@@ -1,0 +1,205 @@
+{
+ "date": "2026-11-19",
+ "subject": "ventures/docker-cache-order-check",
+ "stratum": "venture",
+ "seed": "2026-11-19-o-4121",
+ "round": 88,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior DevOps / build engineer who owns CI image builds and reviews Dockerfiles for layer-cache efficiency; first checks: does the canonical 'copy manifest (usually with a glob such as package*.json), install, then COPY . .' layout pass clean, does a Dockerfile whose install really re-runs on every source edit get flagged, and does a real BuildKit rebuild agree with the verdict",
+ "scores": {
+  "correctness": 1,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed against real BuildKit (docker 29.10.0 / buildx 0.39.0, dockerd started locally, busybox:1.36 base, 'install' simulated by a RUN; scratchpad docker-cache-order-check/cachetest.sh builds, edits src/app.js, rebuilds and reads the CACHED lines). Ground truth vs tool on 5 layouts: (A) Node.js-guide layout 'COPY package*.json ./; RUN npm ci; COPY . .' -> BuildKit: install step CACHED after a source edit; tool: install-missing-manifest-copy (false positive). (B) 'COPY package.json package-lock.json ./; COPY . .; RUN npm ci' -> BuildKit: install re-runs on every source edit; tool: clean (false negative). (C) 'RUN pip install --upgrade pip; COPY requirements.txt .; RUN pip install -r requirements.txt; COPY . .' -> BuildKit CACHED; tool flags line 2 (false positive). (F) 'COPY requirements/ requirements/; RUN pip install -r requirements/base.txt; COPY . .' -> BuildKit CACHED; tool flags (false positive). (E) 'COPY . .; RUN npm ci' -> BuildKit re-runs; tool flags (correct). 1 of 5 right against BuildKit. A 19-case corpus (scratchpad corpus.mjs) adds: 'RUN npm install -g pnpm' before a correct pnpm layout flagged and the real pnpm install never examined; 'RUN apt-get -qq update' alone not flagged (regex needs 'update' directly after apt-get); 'RUN apt-get update' alone, ADD . /app before manifest, go.mod layout, apt combined: correct. The arithmetic of its own three rules on its own test fixtures is right; on the most common real layouts it is wrong.",
+  "completeness": "Walked every README/page feature: CLI default scan, path argument, --format json, --fail-on-risk exit 2, --help, discovery of Dockerfile/Dockerfile.*/*.dockerfile skipping node_modules (ran it on ventures/ig-media-pipeline/deploy: 'Scanned 2 Dockerfile(s)'), the page's check button and worked-example button (same engine module imported by index.html), all three finding kinds produced, per-stage reset, COPY --from ignored, JSON-array COPY. served-copy.mjs: no placeholder origins. No stubs or TODOs. Gaps: the 'Load worked example (three real issues)' button yields 2 findings of 2 kinds; Poetry/uv/pipenv installs not recognised (not claimed).",
+  "verification": "`node --test engine.test.mjs cli.test.mjs page.test.mjs usage.test.mjs`: 49 pass, 0 fail, 178 ms. Seeded 6 mutants with quality_mutate.py: 4 caught (broad-vs-manifest comparison flipped, isBroadCopy length check, apt dist-upgrade dropped from the regex, per-stage reset removed), 2 survived (COPY --from no longer skipped; pnpm-lock.yaml dropped from the manifest regex). Tests only use hand-written layouts that match the author's model; none uses a glob source, a tool-bootstrap install, a requirements directory or a broad copy between manifest and install, so the three main defects below pass the suite. page.test.mjs:111 is titled 'demonstrates all three finding kinds' but asserts two.",
+  "craft": "Read engine.mjs (352 lines), cli.mjs, index.html script, engine/page tests. Good: zero dependencies, one engine shared by CLI and page, escapes output, continuation and comment handling. Defects: per-ecosystem state records only the first matching install RUN per stage (engine.mjs:260), so any bootstrap install consumes the slot; manifest matching is literal-filename regex with no glob or directory handling (engine.mjs:208); yarn installRe matches any 'yarn' command ('yarn build'), engine.mjs:57; apt regexes break on flags before the subcommand (engine.mjs:211); the broad-copy test compares against the manifest COPY line instead of the install RUN line (engine.mjs:270).",
+  "claims": "Checked 7. Backed: Docker best-practices quote 'Always combine RUN apt-get update with apt-get install in the same statement' (real docs text); the 'Leverage build cache' mechanism FAQ (matches BuildKit behaviour I observed); nothing uploaded (no fetch in index.html/engine.mjs); CLI no network (only fs imports); disclaimer/no-warranty on all three pages; served llms.txt clean. Not backed: 'Load worked example (three real issues)' (2 findings); engine comment 'Every finding kind ... is a real, actionable cache-busting pattern' while it flags the layout the Node.js docs recommend; llms.txt boilerplate 'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice' does not describe a Dockerfile checker.",
+  "fitness": "The job: paste a Dockerfile in review and learn whether dependencies reinstall on every build. Walked a standard Node service (COPY package*.json ./ ...) -> told it has no manifest copy, the opposite of the truth; a standard Python service with 'pip install --upgrade pip' first -> flagged at the pip upgrade line; a Dockerfile that really reinstalls every build because COPY . . sits between the manifest copy and npm ci -> 'No cache-order issues found'. With --fail-on-risk as a CI gate it would block correct Dockerfiles and pass broken ones. A build engineer would stop trusting it in the first hour.",
+  "domain": "Compared with Docker's build-cache invalidation rules (docs.docker.com/build/cache/: once a layer changes, every later layer is rebuilt; COPY/ADD key on file contents; RUN keys on the command string) and the Dockerfile best-practices apt rule; hadolint (DL3009 etc.) has no order rule for these. The three patterns chosen are real and correctly explained. Departures: the rule that matters is 'is there a context-wide COPY anywhere before the dependency install RUN', but the code asks 'was the broad COPY before the manifest COPY', missing the B layout; manifest identification ignores glob sources (package*.json, requirements*.txt, Gemfile*) and directory copies, which is how most real Dockerfiles copy manifests; package-manager bootstrap installs are treated as the dependency install; apk/yum/dnf update splits are out of scope (stated implicitly)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Node.js-guide layout with a glob manifest copy (COPY package*.json ./; RUN npm ci; COPY . .)",
+   "method": "real BuildKit rebuild after a source edit (docker 29.10.0, buildx 0.39.0): install step CACHED means the layout is cache-correct",
+   "command": "scratchpad/docker-cache-order-check/cachetest.sh A; node scratchpad/docker-cache-order-check/corpus.mjs",
+   "expected": "clean (BuildKit: '#8 [4/6] RUN echo INSTALL npm ci ... #8 CACHED')",
+   "observed": "install-missing-manifest-copy@4(npm/yarn/pnpm)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "manifest copied, then COPY . ., then npm ci",
+   "method": "real BuildKit rebuild after a source edit",
+   "command": "scratchpad/docker-cache-order-check/cachetest.sh B; node scratchpad/docker-cache-order-check/corpus.mjs",
+   "expected": "flagged (BuildKit: '#8 [4/5] COPY . .' and '#9 [5/5] RUN echo INSTALL npm ci' both re-run, not CACHED)",
+   "observed": "clean",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "pip upgrade before a correct requirements.txt layout",
+   "method": "real BuildKit rebuild after a source edit",
+   "command": "scratchpad/docker-cache-order-check/cachetest.sh C",
+   "expected": "clean (BuildKit: install step CACHED)",
+   "observed": "install-missing-manifest-copy@2(pip) at the 'pip install --upgrade pip' line",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "requirements directory copied before install",
+   "method": "real BuildKit rebuild after a source edit",
+   "command": "scratchpad/docker-cache-order-check/cachetest.sh F",
+   "expected": "clean (BuildKit: install step CACHED)",
+   "observed": "install-missing-manifest-copy@3(pip)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "COPY . . then npm ci (the textbook mistake)",
+   "method": "real BuildKit rebuild after a source edit",
+   "command": "scratchpad/docker-cache-order-check/cachetest.sh E",
+   "expected": "flagged (BuildKit: '#8 [4/4] RUN echo INSTALL npm ci' re-runs)",
+   "observed": "install-missing-manifest-copy@3(npm/yarn/pnpm)",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "apt update split, with a flag before the subcommand",
+   "method": "Docker Dockerfile best practices ('Always combine RUN apt-get update with apt-get install in the same statement')",
+   "command": "node scratchpad/docker-cache-order-check/corpus.mjs  (H, H2, H3)",
+   "expected": "H 'RUN apt-get update' flagged, H2 'RUN apt-get -qq update' flagged, H3 combined clean",
+   "observed": "H flagged, H2 clean, H3 clean",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "npm global bootstrap before a correct pnpm layout",
+   "method": "Docker build cache rules: a global tool install does not read the manifest",
+   "command": "node scratchpad/docker-cache-order-check/corpus.mjs  (D_npm_global_first)",
+   "expected": "clean",
+   "observed": "install-missing-manifest-copy@2 on 'RUN npm install -g pnpm'; the real pnpm install is never examined",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite and seeded mutants",
+   "method": "run; quality_mutate.py in a private copy",
+   "command": "cd ventures/docker-cache-order-check && node --test engine.test.mjs cli.test.mjs page.test.mjs usage.test.mjs",
+   "expected": "all pass; seeded core bugs caught",
+   "observed": "49 pass 0 fail; 4 of 6 mutants caught",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Load worked example (three real issues)'",
+   "method": "run the page's EXAMPLE_DOCKERFILE through engine.mjs",
+   "command": "node -e 'import(\"./engine.mjs\").then(...summarize(scanText(EXAMPLE)))'",
+   "expected": "three issues",
+   "observed": "'2 cache-order issue(s) found: 1 manifest copy/install ordered after a broad COPY; 1 apt update/install split across layers.'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "privacy, disclaimer, served llms.txt",
+   "method": "source read (no fetch/XHR in index.html, engine.mjs, cli.mjs) and served-copy.mjs",
+   "command": "node platform/pages/served-copy.mjs docker-cache-order-check",
+   "expected": "no network call, no-warranty text, no placeholder origins",
+   "observed": "as expected; 'no placeholder or retired origin left'",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "CLI on a real repo Dockerfile",
+   "method": "run",
+   "command": "node ventures/docker-cache-order-check/cli.mjs ventures/ig-media-pipeline/deploy",
+   "expected": "runs, scans both Dockerfiles",
+   "observed": "'Scanned 2 Dockerfile(s). No cache-order issues found.' (that file copies src before 'pip install -e', which BuildKit re-runs on every source edit; out of the tool's stated broad-copy scope)",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {"where": "engine.mjs:270", "change": "firstBroadCopyLine < state.manifestCopyLine -> firstBroadCopyLine > state.manifestCopyLine", "caught": true, "test_cmd": "node --test engine.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"},
+  {"where": "engine.mjs:201", "change": "sources.length === 1 -> sources.length >= 1 (isBroadCopy)", "caught": true, "test_cmd": "node --test engine.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"},
+  {"where": "engine.mjs:212", "change": "(install|upgrade|dist-upgrade|full-upgrade) -> (install|upgrade)", "caught": true, "test_cmd": "node --test engine.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"},
+  {"where": "engine.mjs:239", "change": "FROM: resetStage() -> stageIndex += 1 (no per-stage reset)", "caught": true, "test_cmd": "node --test engine.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"},
+  {"where": "engine.mjs:246", "change": "if (fromStage !== null) continue -> if (fromStage === \"never\") continue", "caught": false, "test_cmd": "node --test engine.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"},
+  {"where": "engine.mjs:56", "change": "drop pnpm-lock\\.yaml from the npm manifest regex", "caught": false, "test_cmd": "node --test engine.test.mjs cli.test.mjs page.test.mjs usage.test.mjs"}
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Glob manifest sources are not recognised: 'COPY package*.json ./' (the Node.js Docker guide layout), 'requirements*.txt', 'Gemfile*' fail the literal-filename regex, so a cache-correct Dockerfile is flagged install-missing-manifest-copy (BuildKit shows the install CACHED). Proposed fix: engine.mjs:208 `return sources.some((s) => ecosystem.manifestRe.test(s) || ecosystem.manifestRe.test(s.replace(/[*?]/g, \"\")));` plus a test; tried in a scratch copy: layout A becomes clean, 49/49 tests still pass",
+   "where": "ventures/docker-cache-order-check/engine.mjs:208",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "False negative: a broad COPY between the manifest COPY and the install RUN ('COPY package.json ./; COPY . .; RUN npm ci') is reported clean, though BuildKit re-runs the install on every source edit. The check compares the broad copy to the manifest COPY line instead of the install line. Proposed fix: engine.mjs:270 `firstBroadCopyLine < state.manifestCopyLine` -> `firstBroadCopyLine < lineNumber` (and reword the message); tried in a scratch copy: layout B flagged, 49/49 tests pass",
+   "where": "ventures/docker-cache-order-check/engine.mjs:270",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "Only the first install-looking RUN per ecosystem per stage is examined, so a bootstrap install ('pip install --upgrade pip', 'npm install -g pnpm', 'pip install poetry') is flagged as an install with no manifest copy and the real dependency install after it is never checked (false positive plus masked false negative)",
+   "where": "ventures/docker-cache-order-check/engine.mjs:260",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Directory manifest copies ('COPY requirements/ requirements/' then 'pip install -r requirements/base.txt') are not recognised, flagging a cache-correct layout",
+   "where": "ventures/docker-cache-order-check/engine.mjs:62",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests use only author-modelled layouts: no glob, bootstrap-install, directory-copy or broad-copy-between case; COPY --from skip and pnpm-lock.yaml mutants survive",
+   "where": "ventures/docker-cache-order-check/engine.test.mjs:72",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "apt regexes need the subcommand right after apt-get: 'RUN apt-get -qq update' alone is not flagged. Fix: `/\\bapt(?:-get)?\\s+(?:-\\S+\\s+)*update\\b/i` and the same for install",
+   "where": "ventures/docker-cache-order-check/engine.mjs:211",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Worked-example button says 'three real issues' and page.test.mjs:111 is titled 'all three finding kinds', but the example yields 2 findings of 2 kinds. Fix: label '(two real issues)' or add a 'COPY . .; RUN yarn install'-free install line that triggers install-missing-manifest-copy, and assert the third kind",
+   "where": "ventures/docker-cache-order-check/index.html:64",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "yarn installRe matches any 'yarn' command (yarn build, yarn test), so 'COPY . .; RUN yarn build' is reported as an install",
+   "where": "ventures/docker-cache-order-check/engine.mjs:57",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt boilerplate 'Results are estimates from the numbers typed in, not legal, tax, financial or professional advice' does not describe this tool",
+   "where": "ventures/docker-cache-order-check/llms.txt:5",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A small, clean, zero-dependency engine shared by CLI and page that picks three genuinely documented cache-busting patterns and explains them correctly. Run against a real BuildKit rebuild it is right on 1 of 5 common layouts: it flags the Node.js-guide 'COPY package*.json ./; RUN npm ci; COPY . .' layout and two cache-correct Python layouts (pip self-upgrade first; requirements directory), while it passes 'COPY package.json ./; COPY . .; RUN npm ci', whose install BuildKit re-runs on every edit. As a --fail-on-risk CI gate it would block correct Dockerfiles and pass broken ones. Tests (49 pass, 4 of 6 mutants caught) cover only layouts the author modelled. Finished for what the README lists; does not meet the bar on correctness, verification or claims. Two of the three high defects are one-line fixes that keep the suite green."
+}
