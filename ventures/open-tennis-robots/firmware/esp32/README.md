@@ -3681,4 +3681,12 @@ builds misadvised, 0 un-named, and the board's own frame counts equal to the reb
 Everything is in `eval/take-straddle-vote-2026-11-19.md`.
 
 **Not known.** 26 of 36 held-out 1.3-2.1 ms builds still read 0: many drills have one straddling wheel at 1.5 ms or
-none. Margin 1 is the next candidate (86 of 120 here) and needs its own held-out pair. Simulated only.
+none. Simulated only.
+
+**Margin 1, held out on its own (2026-11-19, failed; the margin stays 2).** Pre-registered in e4d48d9f3 on sets no run
+had captured: AE-AH (lags 0.50, 0.58, 0.44, 0.66 s; seeds 191-199) and twelve instant-only captures (seeds 211-271, lag
+0.52 s), 168 builds with 48 instant ones, because a pair's 6 could not see the design's 1-in-36 harm. Margin 1 named 85 of
+120 against margin 2's 72, but told 3 of 48 instant builds to set 1.5 ms (each a 2-1 straddle split) and lost 4 builds
+margin 2 got right against 14 won: two of four clauses failed. Margin 2's second held-out reading: 72 of 120 against off's
+62, 0 of 48 instant builds misadvised (0 of 60 with AA-AD). `tests/take_straddle_vote.py --base 2` counts against the
+shipped margin. Everything is in `eval/take-straddle-margin-one-2026-11-19.md`.
