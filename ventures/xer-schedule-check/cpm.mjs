@@ -264,6 +264,10 @@ export function schedule(xer, options = {}) {
   // forward pass and the project finish (early dates only, ~half the time)
   const durs = options.durations || null;
   const remainOf = (t) => (durs && durs.has(t.id) ? durs.get(t.id) : t.remain);
+  // options.levelStart: Map(task id -> minute) a not-started activity may not
+  // start before (level.mjs's resource-levelled starts; like a start-on-or-
+  // after constraint, so logic, calendars and other constraints still apply)
+  const levelStart = options.levelStart || null;
 
   // ---- forward pass
   for (const id of order) {
@@ -340,6 +344,7 @@ export function schedule(xer, options = {}) {
       else if (r.type === "PR_SF") fins.push(lc.addWork(pS, r.lag));
     }
     if (t.extES !== null) starts.push(t.extES);
+    if (levelStart && !active(t) && !done(t) && levelStart.has(id)) starts.push(levelStart.get(id));
     let mandStart = null, mandFin = null;
     if (!active(t)) for (const c of t.cstr) {
       if (c.date === null) continue;

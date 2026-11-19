@@ -64,10 +64,33 @@ events of 1 to 40 days give exactly the finish the CPM engine gives with the
 same delay applied directly, and a register leaves the no-event column
 identical to a run without one on all six (eval/risk-register-check-2026-11-19.md).
 
+**Resource levelling** (2026-11-19, `level.mjs`, the page's "Resource
+levelling" box, `--level`): the logic alone lets every crew work on everything
+at once. This delays not-started activities until each resource stays within
+its maximum units per hour from the file (RSRCRATE, including limits that
+change over time), the way P6's Level Resources does: activities in order of
+early start, ties by the file's levelling priority list (SCHEDOPTIONS
+`LevelPriorityList`, P6's default `priority_type,ASC`) and then total float;
+each is placed at the earliest start, on its own calendar, where every
+assignment it holds (with its own lag and remaining units) fits. A moved
+activity goes back to the CPM engine as a start floor, so successors move by
+the same logic, lags and calendars, and anything already placed that the
+recompute moved is placed again. Started work keeps its dates and counts
+against the limits. Level within float (with the file's float to keep and
+over-allocation allowance) is honoured. You get the levelled finish, every
+activity that moved and the resource that moved it (or "logic"), peak use and
+hours over the limit per resource before and after, a self-check (hours over
+a limit while a placed activity uses it, which must be 0), a **lower bound**
+no levelling can beat (a resource's remaining work at its limit), and a
+**crew size** multiplier to see what crew holds the date. It warns when a
+file still carries P6's default limit of 1 per hour on resources used far
+above it. Checked on the public files in eval/level-check-2026-11-19.md.
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |
 |---|---|---|
+| P6's own Level Resources | Levels in P6 for people who hold a P6 seat; changes the schedule in the database | The levelled finish, who moved and why, and a crew-size what-if from the XER, without P6 and without touching the contractor's file |
 | Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80, criticality and a risk register (probability x impact on named activities, contingency at P80, events ranked) from the XER in a browser tab, free; no resource model, no probabilistic branches yet |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
@@ -133,6 +156,7 @@ node cli.mjs current.xer --previous last.xer --report review.html   # review wit
 node cli.mjs schedule.xer --project CODE  # a file with several projects
 node cli.mjs schedule.xer --risk 1000 --range 90,100,130 --correlation 0.3 [--ranges ranges.csv] [--csv drivers.csv]
 node cli.mjs schedule.xer --risk 1000 --risks register.csv   # risk register events, ranked
+node cli.mjs schedule.xer --level [--crew 2] [--within-float] [--csv levelled.csv] [--json]   # resource levelling
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 ```
 
@@ -201,9 +225,11 @@ run as a formula in Excel or Sheets.
 ## Limits
 
 Screening metrics, not a verdict: a schedule can pass all fourteen and still be
-unrealistic, and some failures are justified. Not modelled: resource levelling,
+unrealistic, and some failures are justified. Not modelled:
 expected finish dates, "make open-ended activities critical", multiple float
-paths. 14 activities of the heavily progressed CCA file still differ (10 late
+paths (resource levelling is the separate `level.mjs` step; the checks always
+use the unlevelled dates; it is a serial pass like P6's, not P6's code, so its
+dates can differ from a P6 levelled run, which no public file stores). 14 activities of the heavily progressed CCA file still differ (10 late
 finishes, 4 early finishes; `eval/cpm-vs-p6-2026-11-19.md`, "What is left"). The float checks use the float the
 file stores; the recomputed float is reported next to it, and the recomputed
 schedule (every open activity's dates, total and free float beside the stored
