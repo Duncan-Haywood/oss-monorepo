@@ -1,0 +1,24 @@
+{
+  "id": "P069",
+  "title": "Run the changed research projects' own tests in research-ci.yml",
+  "status": "open",
+  "owner": "owner",
+  "effect": 2,
+  "cost": 1,
+  "problem": "No CI workflow runs a research project's own test suite: research-ci.yml builds the homepage and runs programme_check, and only the a11y-* and a few other projects have workflows. 1,049 of 1,083 research projects carry tests/test_*.py, so a research PR is green whatever its suite does.",
+  "evidence": [
+    "grep of .github/workflows/research-ci.yml, 2026-11-19: one unittest step, research/_shared only",
+    "platform/ci/run_research_tests.py --sample 40 --seed 2026-11-19 and --sample 150 --seed 2026-11-19b on main 71547b1f2: 181 PASS, 8 ENV (yosys/iverilog, GL), 1 TIMEOUT (verified-dse, over 300 s), 0 FAIL after the runner's fixes",
+    "doc_friction 2026-11-17..19: cell-fidelity (4), marine-hull (2) and research/CLAUDE.md report bare python3 -m unittest discover erroring on import"
+  ],
+  "change": "Add a step to research-ci.yml's pull_request job: `python3 platform/ci/run_research_tests.py --since \"origin/${{ github.base_ref }}\"` (needs fetch-depth enough for the diff, or pass the changed paths). Control plane (.github/), so its own small PR for the owner. run_workflow_locally.py --for-changes already runs the same check locally since this item was filed.",
+  "touches": [
+    ".github/workflows/research-ci.yml"
+  ],
+  "metric": "research PRs whose own suite ran in CI",
+  "baseline": "0 (no workflow runs them)",
+  "opened": "2026-11-19",
+  "source": "process critique, PR 17726",
+  "pr": null,
+  "result": null
+}

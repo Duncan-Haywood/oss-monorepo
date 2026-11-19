@@ -66,12 +66,47 @@ class RunOne(unittest.TestCase):
         pyenv_calls = [c for c in calls if c[1] == rrt.PYENV]
         self.assertEqual(pyenv_calls[-1][-1], "scipy")
 
+    def test_unittest_only_suite_passes_by_unittest(self):
+        _, run = self.fake([Done(1, "E  fixture 'h0' not found\n"),
+                            Done(0, "", ".......\n----\nRan 7 tests in 1.9s\n\nOK\n")])
+        with unittest.mock.patch.object(subprocess, "run", run):
+            r = rrt.run_one("research/p", 60, 60)
+        self.assertEqual(r["verdict"], "PASS")
+        self.assertIn("unittest", r["tail"])
+
+    def test_missing_gl_is_env(self):
+        _, run = self.fake([Done(2, "AttributeError: 'NoneType' object has no attribute 'glGetError'\n")])
+        with unittest.mock.patch.object(subprocess, "run", run):
+            self.assertEqual(rrt.run_one("research/p", 60, 60)["verdict"], "ENV")
+
     def test_projects_own_module_is_a_failure_not_an_install(self):
-        _, run = self.fake([Done(2, "No module named 'own'\n")])
+        _, run = self.fake([Done(2, "No module named 'own'\n"), Done(1, "", "Ran 1 test\nFAILED\n")])
         with unittest.mock.patch.object(subprocess, "run", run):
             r = rrt.run_one("research/p", 60, 60)
         self.assertEqual(r["verdict"], "FAIL")
         self.assertEqual(r["extra"], [])
+
+    def test_sibling_projects_src_goes_on_the_path(self):
+        os.makedirs(os.path.join(self.tmp.name, "research", "base", "src", "base_mod"))
+        seen = []
+        _, run = self.fake([Done(2, "No module named 'base_mod'\n"), Done(0, "2 passed\n")])
+
+        def spy(cmd, **kw):
+            seen.append(kw.get("env", {}).get("PYTHONPATH", ""))
+            return run(cmd, **kw)
+        with unittest.mock.patch.object(subprocess, "run", spy):
+            r = rrt.run_one("research/p", 60, 60)
+        self.assertEqual(r["verdict"], "PASS")
+        self.assertEqual(r["extra"], [])
+        self.assertIn(os.path.join(self.tmp.name, "research", "base", "src"), seen[-1])
+
+    def test_missing_program_is_env(self):
+        _, run = self.fake([Done(1, "E   FileNotFoundError: [Errno 2] No such file or directory: 'yosys'\n"),
+                            Done(1, "", "Ran 2 tests\nFAILED\n")])
+        with unittest.mock.patch.object(subprocess, "run", run):
+            r = rrt.run_one("research/p", 60, 60)
+        self.assertEqual(r["verdict"], "ENV")
+        self.assertIn("yosys", r["tail"])
 
     def test_no_interpreter_is_env(self):
         def run(cmd, **kw):

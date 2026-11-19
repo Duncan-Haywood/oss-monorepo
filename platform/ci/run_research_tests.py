@@ -41,6 +41,11 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 PYENV = os.path.join(REPO, "platform", "ci", "pyenv.py")
 RESEARCH = "research"
 MISSING = re.compile(r"No module named '([A-Za-z_][\w.]*)'")
+# A test that shells out to a tool the image lacks (chip-ppa-mac calls yosys).
+# A native library the image lacks: PyOpenGL with no GL (homebot's mujoco
+# viewer), or any extension module whose .so cannot be loaded.
+NO_LIB = re.compile(r"has no attribute 'glGetError'|cannot open shared object file")
+NO_TOOL = re.compile(r"FileNotFoundError: \[Errno 2\] No such file or directory: '([^'/]+)'")
 MAX_RETRIES = 3
 TAIL_LINES = 15
 
@@ -94,6 +99,20 @@ def holds_module(project: str, module: str) -> bool:
     return False
 
 
+def sibling_src(module: str):
+    """research/<other>/src when another project holds `module` there, else None.
+
+    osrobot-uavwind imports osrobot_uav from research/osrobot-uav/src (its README
+    runs with PYTHONPATH=src:../osrobot-uav/src); pip has no such package."""
+    top = module.split(".")[0]
+    root = os.path.join(REPO, RESEARCH)
+    for name in sorted(os.listdir(root)):
+        src = os.path.join(root, name, "src")
+        if os.path.isdir(os.path.join(src, top)) or os.path.isfile(os.path.join(src, f"{top}.py")):
+            return src
+    return None
+
+
 def interpreter(project: str, extra: list[str], timeout: float):
     """(path or None, stderr tail) from pyenv.py --for <project>/tests plus `extra`."""
     cmd = [sys.executable, PYENV, "--for", os.path.join(project, "tests"), *extra]
@@ -112,6 +131,7 @@ def run_one(project: str, timeout: float, env_timeout: float) -> dict:
     if not has_tests(project):
         return {"project": project, "verdict": "NONE", "seconds": 0.0, "tail": ""}
     extra: list[str] = []
+    paths: list[str] = []
     tail = ""
     for _ in range(MAX_RETRIES + 1):
         py, err = interpreter(project, extra, env_timeout)
@@ -120,7 +140,7 @@ def run_one(project: str, timeout: float, env_timeout: float) -> dict:
                     "tail": err, "extra": extra}
         cwd = os.path.join(REPO, project)
         env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
-                   PYTHONPATH=os.pathsep.join(p for p in ("src", ".", os.environ.get("PYTHONPATH", "")) if p))
+                   PYTHONPATH=os.pathsep.join(p for p in ("src", ".", *paths, os.environ.get("PYTHONPATH", "")) if p))
         try:
             done = subprocess.run([py, "-m", "pytest", "tests", "-q", "-p", "no:cacheprovider",
                                    "--no-header", "-rN"],
@@ -139,8 +159,35 @@ def run_one(project: str, timeout: float, env_timeout: float) -> dict:
                     "tail": "pytest collected no tests", "python": py}
         missing = sorted({m.split(".")[0] for m in MISSING.findall(out)} - set(extra))
         missing = [m for m in missing if not holds_module(project, m)]
-        if not missing:
+        found = [s for s in map(sibling_src, missing) if s and s not in paths]
+        missing = [m for m in missing if not sibling_src(m)]
+        if not missing and not found:
+            if NO_LIB.search(out):
+                return {"project": project, "verdict": "ENV", "seconds": time.monotonic() - start,
+                        "tail": "a native library (GL or a shared object) is missing here",
+                        "python": py, "extra": extra}
+            # Some suites are unittest-only, and pytest collects a helper named
+            # test_* from the modules they import (forgetting-audit's
+            # model.test_power(h0, ...): "fixture 'h0' not found"); their
+            # README's own command is `python3 -m unittest discover -s tests`.
+            try:
+                ut = subprocess.run([py, "-m", "unittest", "discover", "-s", "tests"],
+                                    cwd=cwd, env=env, capture_output=True, text=True, timeout=timeout)
+            except subprocess.TimeoutExpired:
+                ut = None
+            if ut is not None and ut.returncode == 0 and re.search(r"^Ran [1-9]", ut.stderr, re.M):
+                return {"project": project, "verdict": "PASS", "seconds": time.monotonic() - start,
+                        "tail": "pytest failed but unittest discover passes (" +
+                                ut.stderr.strip().splitlines()[-3].strip() + ")",
+                        "python": py, "extra": extra}
+            tools = sorted(set(NO_TOOL.findall(out)))
+            if tools:
+                return {"project": project, "verdict": "ENV", "seconds": time.monotonic() - start,
+                        "tail": f"needs the program(s) {', '.join(tools)}, not on PATH here; "
+                                "a test that needs one could skip when it is absent",
+                        "python": py, "extra": extra}
             break
+        paths += found
         extra += missing
     return {"project": project, "verdict": "FAIL", "seconds": time.monotonic() - start,
             "tail": tail, "python": py, "extra": extra}
