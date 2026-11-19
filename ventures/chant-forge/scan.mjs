@@ -782,7 +782,18 @@ export function oneStepCephalicus(isInk, h, staff, y0, y1, { gap = true } = {}) 
 
 // The clef is the first glyph on the staff: its two blocks sit either side
 // of the clef line. Returns {line position, number of heads it used}.
-export function findClef(bin, staff) {
+//
+// An F clef is a square with a stem down its right side, then the C clef's
+// two blocks. Where the stem and the blocks' left curve touch, their tall
+// columns are one run and the glyph's middle is the F line. Where a white gap
+// of a pixel or two parts them, only the stem was read before 2026-11-19, and
+// its middle sits about a space below the line, so the whole staff was read
+// two steps high (leaf 434 staff 3, GregoBase 3421, eval/clef-bridge-check.md).
+// The run now carries on over a gap of up to CLEF_BRIDGE spaces, to columns
+// whose ink stays inside the search window; `readPage(img, { clefBridge: false })`
+// reads as before.
+export const CLEF_BRIDGE = 0.15;
+export function findClef(bin, staff, { clefBridge = true } = {}) {
   const { width, ink } = bin;
   const s = staff.space;
   const ya = Math.round(staff.top - 1.2 * s), yb = Math.round(staff.bottom + 1.2 * s);
@@ -803,9 +814,22 @@ export function findClef(bin, staff) {
   while (x < staff.left + 3 * s && !tall(x)) x++;
   if (x >= staff.left + 3 * s) return null;
   let lo = Infinity, hi = -Infinity, x1 = x;
-  for (; x1 < x + 1.4 * s && tall(x1); x1++) {
-    const [a, b] = longest(x1);
-    lo = Math.min(lo, a); hi = Math.max(hi, b);
+  const gapMax = clefBridge ? Math.round(CLEF_BRIDGE * s) : 0;
+  for (let c = x; c < x + 1.4 * s;) {
+    if (tall(c)) {
+      const [a, b] = longest(c);
+      lo = Math.min(lo, a); hi = Math.max(hi, b);
+      x1 = ++c;
+      continue;
+    }
+    // across the gap only to a glyph's columns: a run reaching the window's
+    // edge is a page frame or an initial's border (leaf 652 staff 2), never a clef
+    let g = c;
+    while (g - c < gapMax && g < x + 1.4 * s && !tall(g)) g++;
+    if (g === c || g >= x + 1.4 * s || !tall(g)) break;
+    const [ga, gb] = longest(g);
+    if (ga <= ya || gb >= yb) break;
+    c = g;
   }
   x1 = Math.max(x1, Math.round(x + 0.75 * s)); // the blocks reach right of the stem
   // the c clef's two blocks sit either side of its line, so the glyph's
@@ -975,7 +999,7 @@ export function readPage(img, opts = {}) {
     }
     const back = (x, y) => y + shiftOf(x, t, raw.width);
     const heads = readStaff(bin, staff, opts);
-    const clef = findClef(bin, staff);
+    const clef = findClef(bin, staff, opts);
     let notes = clef ? heads.filter((h) => h.x0 > clef.x1) : heads;
     // a clef printed inside the staff: its blocks are not notes, and the
     // notes after it are read against it (findClefChanges)
