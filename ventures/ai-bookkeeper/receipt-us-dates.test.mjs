@@ -89,3 +89,25 @@ test("the page's settled text carries the agreed date", async () => {
   assert.equal(p.merchant, "CORNER CAFE");
   assert.equal(p.cents, 350);
 });
+
+test("RapidOCR's glued clock, lost apostrophe and zero for O", () => {
+  for (const [line, want] of [
+    ["APR04'166:09PM", "2016-04-04"],
+    ["Nov12'1605:41PM", "2016-11-12"],
+    ["Jun221807:59PM", "2018-06-22"],
+    ["0ct011701:44PM", "2017-10-01"],
+    ["0ct06'1607:08PM", "2016-10-06"],
+    ["16Feb1921:31", "2019-02-16"],
+    ["21-Dec-20145:23:42P", "2014-12-21"],
+    ["-20:5702MAY.21'19REG0002", "2019-05-21"],
+  ]) assert.equal(parseReceipt(receipt(line)).date, want, line);
+});
+
+test("a month word followed by digits and no clock is left alone", () => {
+  assert.equal(monthWordDate("Add Mayo 2 12"), "Add Mayo 2 12");
+  assert.equal(parseReceipt(receipt("Jun2218")).date, null);
+});
+
+test("a year past next year is a misread, not a date", () => {
+  assert.equal(parseReceipt(receipt("4601/07/17")).date, null);
+});

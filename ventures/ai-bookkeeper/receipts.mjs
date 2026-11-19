@@ -80,7 +80,7 @@ const DATE_RES = [
   /(?<![\d/])(\d{1,2}\/\d{1,2}\/(?:\d{4}|\d{2}))(?!\d)/,
   /\b(\d{1,2}\.\d{1,2}\.(?:\d{4}|\d{2}))\b/,
   /(?<![\d-])(\d{1,2}-\d{1,2}-(?:\d{4}|\d{2}))(?![\d-])/,
-  /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
+  /(?<![a-z])((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
   /\b(\d{1,2}[ -](?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,?[ -](?:\d{4}|\d{2}))(?![\d:])/i,
 ];
 // US point-of-sale printers write the month as a word in shapes the patterns above miss
@@ -92,13 +92,21 @@ const DATE_RES = [
 // apostrophe OCR reads as a backquote, a quote or a closing quote counts the same.
 const MONTHS_RE = "jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec";
 const AP = "['’‘`´\"]";
-// cleanOcr turns l and o between digits and dashes into 1 and 0 ("13-Ju1-2018", "24-N0v-16"),
+// cleanOcr turns l, o and D between digits and dashes into 1 and 0 ("13-Ju1-2018", "24-N0v-16", "21-0ec-2014"),
 // so a three-character month between dashes gets its letters back first.
 const MONTH_SET = new Set(MONTHS_RE.split("|"));
 export const monthWordDate = (l) => String(l)
-  .replace(/(?<!\d)(\d{1,2})-([a-z01]{3})-(\d{2}|\d{4})(?![\d-])/gi, (all, d, m, y) => { const w = m.replace(/0/g, "o").replace(/1/g, "l"); return MONTH_SET.has(w.toLowerCase()) ? `${d}-${w}-${y}` : all; })
-  .replace(new RegExp(`\\b(${MONTHS_RE})[a-z]*\\.? ?(\\d{1,2}) ?${AP} ?(\\d{2})(?![\\d:])`, "gi"), (_, m, d, y) => `${m} ${d} 20${y}`)
-  .replace(new RegExp(`(?<![\\d])(\\d{1,2}) ?(${MONTHS_RE})[a-z]*\\.? ?${AP} ?(\\d{2})(?![\\d:])`, "gi"), (_, d, m, y) => `${d} ${m} 20${y}`)
+  .replace(/(?<!\d)(\d{1,2})-([a-z01]{3})-(\d{4}(?=\d{1,2}:\d{2})|(?:\d{4}|\d{2})(?![\d-]))/gi, (all, d, m, y) => { const w = [m.replace(/0/g, "o"), m.replace(/0/g, "d")].map((x) => x.replace(/1/g, "l")).find((x) => MONTH_SET.has(x.toLowerCase())); return w ? `${d}-${w}-${y}` : all; })
+  // RapidOCR reads Oct's O as a zero ("0ct06'16") and glues the clock to the year
+  // ("APR04'166:09PM", "Jun221807:59PM" with the apostrophe lost, "16Feb1921:31",
+  // "21-Dec-20145:23:42P"); a run of digits after a month word is split only when a clock
+  // time follows it (SRD photos read by RapidOCR, eval/srd-dates-2026-11-19.md)
+  .replace(/(?<![\d\p{L}])0ct(?=[\d.' ])/giu, "Oct")
+  .replace(new RegExp(`(?<!\\d)(\\d{1,2}) ?(${MONTHS_RE})[a-z]*\\.? ?${AP}? ?(\\d{2})(?=\\d{1,2}:\\d{2})`, "gi"), (_, d, m, y) => `${d} ${m} 20${y} `)
+  .replace(new RegExp(`(?<![a-z\\d])(${MONTHS_RE})[a-z]*\\.? ?(\\d{1,2}) ?${AP}? ?(\\d{2})(?=\\d{1,2}:\\d{2})`, "gi"), (_, m, d, y) => `${m} ${d} 20${y} `)
+  .replace(new RegExp(`(?<!\\d)(\\d{1,2}-(?:${MONTHS_RE})[a-z]*-20\\d{2})(?=\\d{1,2}:\\d{2})`, "gi"), "$1 ")
+  .replace(new RegExp(`(?<![a-z])(${MONTHS_RE})[a-z]*\\.? ?(\\d{1,2}) ?${AP} ?(\\d{2})(?![\\d:])`, "gi"), (_, m, d, y) => `${m} ${d} 20${y} `)
+  .replace(new RegExp(`(?<![\\d])(\\d{1,2}) ?(${MONTHS_RE})[a-z]*\\.? ?${AP} ?(\\d{2})(?![\\d:])`, "gi"), (_, d, m, y) => `${d} ${m} 20${y} `)
   .replace(new RegExp(`\\b(${MONTHS_RE})([a-z]*\\.?) (\\d{1,2}), ?(\\d{2})(?![\\d:.,])`, "gi"), (_, m, r, d, y) => `${m}${r} ${d} 20${y}`)
   .replace(new RegExp(`\\b(${MONTHS_RE})([a-z]*\\.?) (\\d{1,2}),(\\d{4})(?!\\d)`, "gi"), "$1$2 $3 $4")
   .replace(new RegExp(`\\b(${MONTHS_RE})([a-z]*\\.?) (\\d{1,2}) \\d{1,2}:\\d{2}(?::\\d{2})? (20\\d{2})(?!\\d)`, "gi"), "$1$2 $3 $4");
@@ -759,7 +767,7 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     for (const re of DATE_RES) {
       const m = l.match(re);
       const d = m && parseDate(m[1], dmy || comma === true || (comma === "whole" && !m[1].includes("-")) || m[1].includes("."));
-      if (d && d >= "1990") { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\bdate\b/i.test(l) ? 0 : 2) + (LATER_DATE.test(l) ? 4 : 0) + (/\d{4}/.test(m[1].replace(/^\d{4}(?=[-/])/, "")) || /^\d{4}[-/]/.test(m[1]) ? 0 : 1) - (new RegExp(m[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\d{1,2}:\\d{2}").test(l) ? 0.5 : 0), i }); break; }
+      if (d && d >= "1990" && +d.slice(0, 4) <= new Date().getUTCFullYear() + 1) { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\bdate\b/i.test(l) ? 0 : 2) + (LATER_DATE.test(l) ? 4 : 0) + (/\d{4}/.test(m[1].replace(/^\d{4}(?=[-/])/, "")) || /^\d{4}[-/]/.test(m[1]) ? 0 : 1) - (new RegExp(m[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\d{1,2}:\\d{2}").test(l) ? 0.5 : 0), i }); break; }
     }
   });
   cands.sort((a, b) => a.rank - b.rank || a.i - b.i);
