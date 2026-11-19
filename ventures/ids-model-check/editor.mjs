@@ -99,7 +99,7 @@ const NONE = new Set();
 // own ifcVersion (an "IFC4 IFC4X3_ADD2" specification checks IFC4 models,
 // where IFCWALLSTANDARDCASE is a quarter of the walls).
 export function deprecatedFor(S, spec) {
-  const d = (S && DEPRECATED[S.name]) || NONE;
+  const d = (S && own(DEPRECATED, S.name)) || NONE;
   if (!d.size) return d;
   const ids = schemaIdsOf(spec && spec.ifcVersion);
   return ids.some((id) => id !== "IFC4X3") ? NONE : d;
