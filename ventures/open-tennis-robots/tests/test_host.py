@@ -2086,10 +2086,11 @@ class TakeSurveyTest(unittest.TestCase):
     def test_frames_round_trip(self):
         (cmd, vals), = list(P.Decoder().feed(P.encode(P.SURVEY_TAKE, 1)))
         self.assertEqual((cmd, vals), (P.SURVEY_TAKE, (1,)))
-        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 640, 625, 620, 600, 590, 588, 610, 640, 9, 10)
+        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 640, 625, 620, 600, 590, 588, 610, 640, 9, 10, 3, 1)
         (cmd, vals), = list(P.Decoder().feed(frame))
-        self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 6 + P.TAKE_SURVEY_TIMES))
-        self.assertEqual(vals[-2:], (9, 10))                       # wheels summed (2026-11-18), tenths (2026-11-19)
+        self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 8 + P.TAKE_SURVEY_TIMES))
+        # wheels summed (2026-11-18), tenths, the straddle vote for and against (2026-11-19)
+        self.assertEqual(vals[-4:], (9, 10, 3, 1))
         self.assertEqual(len(controller.TAKE_SURVEY_GRID_US), P.TAKE_SURVEY_TIMES)
         self.assertEqual(tuple(g / 1000 for g in controller.TAKE_SURVEY_GRID_US), host.TAKE_SURVEY_MS)
 
@@ -2198,14 +2199,14 @@ class TakeSurveyTest(unittest.TestCase):
 
     def test_seven_candidate_frame_still_reads(self):
         # firmware from 2026-11-18 to 2026-11-19 sends seven candidates (no 7 ms) and the summed-wheel byte
-        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][2], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112, 9)
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][3], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112, 9)
         self.assertEqual(link.take_survey["kept"], 9)
         self.assertEqual(link.take_survey["rms_ppm"], [136, 140, 119, 98, 95, 50, 112])
         self.assertIn("set TAKE_US = 5500", host.take_survey_advice(link.take_survey))
 
     def test_eight_candidate_frame_still_reads(self):
         # firmware on 2026-11-19 before the short-take grid sends eight candidates (0, 2-8 ms) and the summed-wheel byte
-        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][1], 24, 70, 68, 0, 136, 140, 119, 98, 95, 70, 50, 112, 9)
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][2], 24, 70, 68, 0, 136, 140, 119, 98, 95, 70, 50, 112, 9)
         self.assertEqual(link.take_survey["kept"], 9)
         self.assertEqual(link.take_survey["rms_ppm"], [136, 140, 119, 98, 95, 70, 50, 112])
         self.assertIn("set TAKE_US = 7000", host.take_survey_advice(link.take_survey))
@@ -2213,7 +2214,7 @@ class TakeSurveyTest(unittest.TestCase):
     def test_nine_candidate_frame_reads(self):
         # the short-take grid (2026-11-19, README "Short takes on a second held-out set"): 0, 1.5, 2.5, 3-8 ms, in whole
         # ppm before the tenths frame
-        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][0], 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140,
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][1], 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140,
                                 150, 9)
         self.assertEqual(link.take_survey["kept"], 9)
         self.assertEqual(link.take_survey["rms_ppm"][:2], [136, 60])
@@ -2221,17 +2222,20 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("set TAKE_US = 1500", host.take_survey_advice(link.take_survey))
 
     def test_tenths_frame_reads(self):
-        # 2026-11-19, README "The take survey's rms in tenths of a ppm": a last byte gives the units per ppm
-        frame = P.encode(P.TAKE_SURVEY, 24, 15, 14, 0, 1360, 600, 1190, 1250, 1280, 1300, 1350, 1400, 65535, 9, 10)
-        self.assertEqual(len(frame), 4 + 1 + 2 * 3 + 2 * 9 + 2)
-        link = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 15, 14, 0, 1361, 604, 1190, 1250, 1280, 1300, 1350, 1400,
+        # 2026-11-19, README "The take survey's rms in tenths of a ppm": a last byte gives the units per ppm (firmware
+        # from then until the straddle vote, which sends two more bytes)
+        frame = P.encode(P.TAKE_SURVEY, 24, 15, 14, 0, 1360, 600, 1190, 1250, 1280, 1300, 1350, 1400, 65535, 9, 10, 0, 0)
+        self.assertEqual(len(frame), 4 + 1 + 2 * 3 + 2 * 9 + 4)
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][0], 24, 15, 14, 0, 1361, 604, 1190, 1250, 1280, 1300, 1350, 1400,
                                 65535, 9, 10)
         sv = link.take_survey
         self.assertEqual((sv["kept"], sv["rms_step_ppm"]), (9, 0.1))
         self.assertEqual(sv["rms_ppm"][:2], [136.1, 60.4])
         self.assertIsNone(sv["rms_ppm"][-1])                         # 65535 still means none
         self.assertIn("set TAKE_US = 1500", host.take_survey_advice(sv))
-        whole = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140, 150, 9, 1)
+        self.assertIsNone(sv["straddle_for"])                        # no vote before the straddle frame
+        whole = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140, 150, 9, 1,
+                                 0, 0)
         self.assertEqual((whole.take_survey["rms_ppm"][:2], whole.take_survey["rms_step_ppm"]), ([136, 60], 1))
 
     def test_tenths_lift_the_rounding_guard(self):
@@ -2247,6 +2251,63 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("set TAKE_US = 3500", good)
         self.assertAlmostEqual(host.take_share_bound([7.1, 3.9], 0.1), 3.95 / 7.05)
 
+    def test_straddle_frame_reads_and_votes(self):
+        # 2026-11-19, README "Straddling wheels vote on the short takes": the sums read instant (1.5 ms within 2% of
+        # the step) but the straddling wheels vote 1.5 ms by 4 to 1
+        rms = (604, 600, 1190, 1250, 1280, 1300, 1350, 1400, 1450)
+        link = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 0, 0, 0, *rms, 9, 10, 4, 1)
+        sv = link.take_survey
+        self.assertEqual((sv["straddle_for"], sv["straddle_against"]), (4, 1))
+        self.assertIn("set TAKE_US = 1500", host.take_survey_advice(sv))
+        self.assertIn("4 fit 1.5 ms better", host.take_survey_advice(sv))
+        self.assertIn("keep TAKE_US = 0", host.take_survey_advice_sums(sv))
+        self.assertIn("keep TAKE_US = 0", host.take_survey_advice(dict(sv, straddle_for=2)))   # 2 - 1 under the margin
+        self.assertIn("already matches", host.take_survey_advice(dict(sv, board_ms10=15)))
+        saved = host.TAKE_STRADDLE_MARGIN
+        host.TAKE_STRADDLE_MARGIN = 0                                  # off: the sums' line
+        try:
+            self.assertIn("keep TAKE_US = 0", host.take_survey_advice(sv))
+        finally:
+            host.TAKE_STRADDLE_MARGIN = saved
+        # a spread pick is never overridden
+        self.assertIn("set TAKE_US = 5500", host.take_survey_advice(
+            {"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0,
+             "rms_ppm": [136, 140, 119, 98, 95, 50, 112], "straddle_for": 9, "straddle_against": 0}))
+
+    def test_board_counts_the_straddle_vote(self):
+        launch = controller.LaunchCheck(1e-3, 0.057, 0.05, 0.033, 0.9, 0.9, take_grid=controller.TAKE_SURVEY_GRID_US)
+        ts = launch.take_survey
+        self.assertEqual(ts.vote, controller.TAKE_SURVEY_GRID_US.index(controller.TAKE_STRADDLE_US))
+        row = lambda r15: [(100e-6) ** 2, (r15 * 1e-6) ** 2] + [(300e-6) ** 2] * 7   # noqa: E731
+        ts.add(row(60), True)           # straddles, fits 1.5 ms better: for
+        ts.add(row(160), True)          # straddles, worse: against
+        ts.add(row(60), False)          # better, but its take fell inside one revolution: noise, no vote
+        ts.add([(100e-6) ** 2] * 9, True)   # take-blind: left out, no vote
+        self.assertEqual(launch.take_straddle(), (1, 1))
+        self.assertEqual((ts.kept_n, ts.blind_n), (3, 1))
+
+    def test_fit_reports_whether_the_take_straddles(self):
+        # the drop fit's last field is the traced placement's answer (tests/take_blind_trace.py) on stored wheels
+        import gzip
+        import take_blind_trace as tbt
+        path = os.path.join(os.path.dirname(__file__), "..", "eval", "take-bound-o-2026-11-19.jsonl.gz")
+        with gzip.open(path, "rt") as f:
+            wheels = json.loads(f.readline())["wheels"][12:17]   # wheel 15 straddles at 1.5 ms, 12-14 and 16 do not
+        traced = tbt._fit_with_t0()
+        offs = controller.take_offsets(controller.TAKE_STRADDLE_US)
+        seen = set()
+        for w in wheels:
+            res = None
+            for item in traced(w["periods"], [tuple(t) for t in w["ticks"]], take=offs,
+                               levels=controller.TAKE_SURVEY_LEVELS, after=controller.TAKE_SURVEY_AFTER):
+                if item is not None:
+                    res = item[1]
+            self.assertIsNotNone(res)
+            straddles = len(set(tbt.placement(res[8], res[7], offs))) > 1
+            self.assertEqual(res[10], straddles)
+            seen.add(straddles)
+        self.assertEqual(seen, {True, False})
+
     def test_board_sends_tenths_and_falls_back_to_whole_ppm(self):
         launch = controller.LaunchCheck(1e-3, 0.057, 0.05, 0.033, 0.9, 0.9, take_grid=(0, 3000, 6000))
         ts = launch.take_survey
@@ -2260,7 +2321,7 @@ class TakeSurveyTest(unittest.TestCase):
 
     def test_older_frame_still_reads(self):
         # firmware before 2026-11-18 sends the frame without the summed-wheel byte: it decodes, and the Pi has no count
-        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY][3], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
+        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY][4], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
         b = bytes([P.TAKE_SURVEY, len(body)]) + body
         frame = bytes([P.SYNC]) + b + bytes([P.crc8(b)])
 

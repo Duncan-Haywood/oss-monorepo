@@ -43,9 +43,9 @@ def _fit_with_t0():
     import take_misfit_trace  # noqa: F401  (puts controller on the path)
     import controller
     src = inspect.getsource(controller.drop_from_commands_steps)
-    old = 'yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau, rms, se, dw))'
+    old = 'yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau, rms, se, dw, edge))'
     assert src.count(old) == 1
-    src = src.replace(old, 'yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau, rms, se, dw, t0, T, k))')
+    src = src.replace(old, 'yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau, rms, se, dw, t0, T, k, edge))')
     src = src.replace("def drop_from_commands_steps(", "def _traced(", 1)
     ns = dict(vars(controller))
     exec(compile(src, "controller_traced", "exec"), ns)

@@ -478,7 +478,33 @@ def take_share_bound(rms, step: float = 1.0) -> float:
     return min(1.0, (min(rms) + step / 2) / (rms[0] - step / 2))
 
 
+# The straddle vote (2026-11-19, firmware/esp32/README.md "Straddling wheels vote on the short takes"): when the sums
+# would say TAKE_US = 0 but the kept wheels whose fit at 1.5 ms put the take across a revolution's edge fit 1.5 ms
+# better than the step by at least this many more wheels than fit it worse, the Pi advises 1.5 ms. 0 turns it off.
+# A 1.3-2 ms take shows only on such wheels; the sums dilute them with the rest, whose 1.5 ms and step fits differ by
+# noise alone (tests/take_straddle_vote.py).
+TAKE_STRADDLE_MARGIN = 2
+
+
 def take_survey_advice(sv: dict | None) -> str | None:
+    """take_survey_advice_sums, unless it says TAKE_US = 0 and the straddle vote (TAKE_STRADDLE_MARGIN) names 1.5 ms."""
+    a = take_survey_advice_sums(sv)
+    if not a or "TAKE_US = 0" not in a or not TAKE_STRADDLE_MARGIN:
+        return a
+    f, g = sv.get("straddle_for"), sv.get("straddle_against")
+    if f is None or g is None or f - g < TAKE_STRADDLE_MARGIN:
+        return a
+    n = sv.get("wheels") or 0
+    board = (sv.get("board_ms10") or 0) / 10
+    head = (f"contact-time survey: {n} wheels; the sums read an instant take, but of the {f + g} kept wheels whose fit "
+            f"at 1.5 ms put the contact across a revolution's edge, {f} fit 1.5 ms better than an instant take and "
+            f"{g} worse (the only balls that can show a take this short): ")
+    if abs(board - 1.5) <= 0.5:
+        return head + f"TAKE_US already matches ({board:g} ms)"
+    return head + "set TAKE_US = 1500 in config.py and re-flash"
+
+
+def take_survey_advice_sums(sv: dict | None) -> str | None:
     """One line on the board's contact-time survey (firmware/esp32/README.md "The contact time surveyed on the board"):
     the contact time its balls pick and whether config.TAKE_US should change. None without a survey. Times are in ms;
     the frame carries 0.1 ms. The pick is rounded to 0.5 ms: on the simulator the drop's scatter was flat within
@@ -592,7 +618,8 @@ class FeederLink:
                 # the frame's length says how many candidates it carries: firmware before 2026-11-19 sent seven, and
                 # before that day's short-take grid eight (always with the summed-wheel byte); since the tenths frame
                 # (README "The take survey's rms in tenths of a ppm") a last byte gives the rms slots' units per ppm
-                times, scaled = {5 + P.TAKE_SURVEY_TIMES + 1: (P.TAKE_SURVEY_TIMES, True),
+                times, scaled = {5 + P.TAKE_SURVEY_TIMES + 3: (P.TAKE_SURVEY_TIMES, True),
+                                 5 + P.TAKE_SURVEY_TIMES + 1: (P.TAKE_SURVEY_TIMES, True),
                                  5 + P.TAKE_SURVEY_TIMES: (P.TAKE_SURVEY_TIMES, False),
                                  5 + P.EIGHT_TAKE_SURVEY_TIMES: (P.EIGHT_TAKE_SURVEY_TIMES, False)}.get(
                                      len(vals), (P.OLDER_TAKE_SURVEY_TIMES, False))
@@ -602,7 +629,11 @@ class FeederLink:
                                     "board_ms10": vals[3],
                                     "rms_ppm": [None if v == 65535 else (v if per == 1 else v / per) for v in vals[4:nt]],
                                     "rms_step_ppm": 1 / per,   # the frame's resolution: 1 ppm, or 0.1 since tenths
-                                    "kept": vals[nt] if len(vals) > nt else None}   # None: firmware before 2026-11-18
+                                    "kept": vals[nt] if len(vals) > nt else None,   # None: firmware before 2026-11-18
+                                    # straddle vote at 1.5 ms (README "Straddling wheels vote on the short takes");
+                                    # None: firmware before it
+                                    "straddle_for": vals[nt + 2] if len(vals) > nt + 3 else None,
+                                    "straddle_against": vals[nt + 3] if len(vals) > nt + 3 else None}
             elif cmd == P.ESC_SURVEY:
                 self.esc_survey = {"t": now, "wheels": vals[0], "least_ms": vals[1], "refined_ms": vals[2],
                                    "rms_ppm": [None if v == 65535 else v for v in vals[3:]]}
