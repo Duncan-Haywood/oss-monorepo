@@ -267,7 +267,13 @@ function round1(x) { return x === null || x === undefined || !Number.isFinite(x)
 // One CSV row per change, for a spreadsheet or a letter to the contractor.
 export function compareCsv(rep) {
   const rows = [["section", "activity", "name", "was", "now", "detail"]];
-  const q = (v) => { const s = v === null || v === undefined ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  // Activity names come from the uploaded XER: a cell starting = + - @ tab or CR is defused with an
+  // apostrophe so a spreadsheet does not run it as a formula (plain numbers such as -3 stay as they are).
+  const q = (v) => {
+    let s = v === null || v === undefined ? "" : String(v);
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
   const push = (...r) => rows.push(r);
   for (const x of rep.progress.actualsEdited) push("actual date edited", x.code, x.name, x.was, x.now, `${x.field}, ${x.days} working days`);
   for (const x of rep.progress.futureActuals) push("actual after data date", x.code, x.name, "", x.date, x.field);

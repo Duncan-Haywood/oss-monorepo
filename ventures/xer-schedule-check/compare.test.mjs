@@ -88,3 +88,13 @@ test("text and CSV carry the changes", () => {
   assert.ok(csv.some((l) => l.startsWith("relationship deleted,A1160 -> A1190,")));
   assert.ok(csv.some((l) => l.startsWith("constraint changed,A1110,")));
 });
+
+test("CSV defuses activity names a spreadsheet would run as formulas, and keeps negative numbers", () => {
+  const r = structuredClone(rep);
+  r.activities.renamed = [{ code: "A9000", was: "Pour slab", now: '=HYPERLINK("http://x","y")' }];
+  r.logic.lagChanged = [{ pred: "A1", succ: "A2", type: "FS", wasLagDays: -3, lagDays: 2 }];
+  const csv = compareCsv(r).trim().split("\n");
+  const row = csv.find((l) => l.startsWith("renamed,A9000,"));
+  assert.equal(row, `renamed,A9000,"'=HYPERLINK(""http://x"",""y"")",Pour slab,"'=HYPERLINK(""http://x"",""y"")",`);
+  assert.ok(csv.includes("lag changed,A1 -> A2,,-3,2,\"FS, days\""));
+});

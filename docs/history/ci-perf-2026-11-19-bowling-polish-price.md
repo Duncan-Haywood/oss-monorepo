@@ -82,7 +82,7 @@ What a visitor's browser does, `bowlingSchedule` for one season, one run each:
 | 20, 30 | 1.09 s | 0.45 s |
 | 24, 34 | 4.38 s | 1.53 s |
 
-Whole suite: see the run record's notes.
+Whole suite after: `python3 platform/ci/run_venture_tests.py league-schedule-generator` ok, 762 tests, 219.1 s.
 
 ## Not changed, ranked for the next run
 
