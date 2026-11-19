@@ -3178,6 +3178,23 @@ is unset. It also reads with RapidOCR again: the flag reader removes what it rea
 (without `--four-pass`) was spent by the first test and the photo went to tesseract.
 Tests: `receipt-script.test.mjs`.
 
+### Dates on US receipt photos (2026-11-19)
+
+Receipt dates had been measured only on SROIE (Malaysia, day-first). Four agent sessions read
+the date and shop name on all 200 SRD US photos by eye (`eval/srd/dates.jsonl`; 183 dates
+scored after duplicates and unreadable ones), and the page's reader got **115 of 183 right
+(62.8%)**: it could not read the month-word shapes US tills print (`Feb23'19`, `MAR.19'17`,
+`13-Jul-2018`, `Jun 26, 15`), nor those shapes with RapidOCR's clock glued to the year
+(`APR04'166:09PM`, `0ct011701:44PM`). Tesseract's `$`-as-`£` made 05/11/18 read as 5 November,
+and a sweepstakes end date beat the sale date. Now those shapes are read. A pound sign counts only
+before an amount, and only when no North American phone is printed. A US state and ZIP make a
+receipt month-first. A date two other readings agree on fills one the first reading missed (with
+a note). A year past next year is no date. **The page (five readings): 115 to 171 of 183 (93.4%)**,
+still 2 wrong. Tesseract's four alone: 82 to 130. SROIE dates and SRD totals and tax are
+unchanged. No held-out half: the rules were written from misses on all 183 photos. Shop names
+measured, not changed: 108 of 190 exact. Details:
+[`eval/srd-dates-2026-11-19.md`](eval/srd-dates-2026-11-19.md). Tests: `receipt-us-dates.test.mjs`.
+
 ### WildReceipt: 472 held-out photos from a new source (2026-11-17)
 
 Every CORD photo had been read, so the reader was measured on a source no rule was written from:

@@ -70,22 +70,52 @@ export function shopName(line) {
 }
 // style: false (12.50), true (12,50) or "whole" (12,500 / 12.500 / 12500)
 const moneyRe = (style) => (style === "whole" ? WHOLE : style ? MONEY_C : MONEY);
+// A date on a line about a survey, an offer or a return window ("Sweepstakes ends
+// 12/31/2017", "valid until", "expires", "return by") is not the sale's: it goes last
+// (SRD 1090, eval/srd-dates-2026-11-19.md).
+const LATER_DATE = /\b(?:ends?|expires?|exp|valid|until|thru|through|return(?:s)? by|redeem|offer|before)\b/i;
 const DATE_RES = [
   /\b(\d{4}-\d{1,2}-\d{1,2})\b/,
   /(?<![\d/])(\d{4}\/\d{1,2}\/\d{1,2})(?!\d)/,
   /(?<![\d/])(\d{1,2}\/\d{1,2}\/(?:\d{4}|\d{2}))(?!\d)/,
   /\b(\d{1,2}\.\d{1,2}\.(?:\d{4}|\d{2}))\b/,
   /(?<![\d-])(\d{1,2}-\d{1,2}-(?:\d{4}|\d{2}))(?![\d-])/,
-  /\b((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
-  /\b(\d{1,2} (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,? (?:\d{4}|\d{2}))(?!\d)/i,
+  /(?<![a-z])((?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.? \d{1,2},? \d{4})\b/i,
+  /\b(\d{1,2}[ -](?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?,?[ -](?:\d{4}|\d{2}))(?![\d:])/i,
 ];
+// US point-of-sale printers write the month as a word in shapes the patterns above miss
+// (ExpressExpense SRD photos read by eye, eval/srd-dates-2026-11-19.md): an apostrophe
+// year, "Feb23'19", "MAR.19'17", "Jun 28 '17", "16Feb'19", "25AUG'17" (Aloha, Micros);
+// a two-digit year after a comma, "Jun 26, 15"; no space after the comma,
+// "JANUARY 30,2018"; and the clock between day and year, "SUN JUN 24 20:49:53 2018".
+// Each is rewritten as "Mon D YYYY" or "D Mon YYYY", which the patterns read. An
+// apostrophe OCR reads as a backquote, a quote or a closing quote counts the same.
+const MONTHS_RE = "jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec";
+const AP = "['’‘`´\"]";
+// cleanOcr turns l, o and D between digits and dashes into 1 and 0 ("13-Ju1-2018", "24-N0v-16", "21-0ec-2014"),
+// so a three-character month between dashes gets its letters back first.
+const MONTH_SET = new Set(MONTHS_RE.split("|"));
+export const monthWordDate = (l) => String(l)
+  .replace(/(?<!\d)(\d{1,2})-([a-z01]{3})-(\d{4}(?=\d{1,2}:\d{2})|(?:\d{4}|\d{2})(?![\d-]))/gi, (all, d, m, y) => { const w = [m.replace(/0/g, "o"), m.replace(/0/g, "d")].map((x) => x.replace(/1/g, "l")).find((x) => MONTH_SET.has(x.toLowerCase())); return w ? `${d}-${w}-${y}` : all; })
+  // RapidOCR reads Oct's O as a zero ("0ct06'16") and glues the clock to the year
+  // ("APR04'166:09PM", "Jun221807:59PM" with the apostrophe lost, "16Feb1921:31",
+  // "21-Dec-20145:23:42P"); a run of digits after a month word is split only when a clock
+  // time follows it (SRD photos read by RapidOCR, eval/srd-dates-2026-11-19.md)
+  .replace(/(?<![\d\p{L}])0ct(?=[\d.' ])/giu, "Oct")
+  .replace(new RegExp(`(?<!\\d)(\\d{1,2}) ?(${MONTHS_RE})[a-z]*\\.? ?${AP}? ?(\\d{2})(?=\\d{1,2}:\\d{2})`, "gi"), (_, d, m, y) => `${d} ${m} 20${y} `)
+  .replace(new RegExp(`(?<![a-z\\d])(${MONTHS_RE})[a-z]*\\.? ?(\\d{1,2}) ?${AP}? ?(\\d{2})(?=\\d{1,2}:\\d{2})`, "gi"), (_, m, d, y) => `${m} ${d} 20${y} `)
+  .replace(new RegExp(`(?<!\\d)(\\d{1,2}-(?:${MONTHS_RE})[a-z]*-20\\d{2})(?=\\d{1,2}:\\d{2})`, "gi"), "$1 ")
+  .replace(new RegExp(`(?<![a-z])(${MONTHS_RE})[a-z]*\\.? ?(\\d{1,2}) ?${AP} ?(\\d{2})(?![\\d:])`, "gi"), (_, m, d, y) => `${m} ${d} 20${y} `)
+  .replace(new RegExp(`(?<![\\d])(\\d{1,2}) ?(${MONTHS_RE})[a-z]*\\.? ?${AP} ?(\\d{2})(?![\\d:])`, "gi"), (_, d, m, y) => `${d} ${m} 20${y} `)
+  .replace(new RegExp(`\\b(${MONTHS_RE})([a-z]*\\.?) (\\d{1,2}), ?(\\d{2})(?![\\d:.,])`, "gi"), (_, m, r, d, y) => `${m}${r} ${d} 20${y}`)
+  .replace(new RegExp(`\\b(${MONTHS_RE})([a-z]*\\.?) (\\d{1,2}),(\\d{4})(?!\\d)`, "gi"), "$1$2 $3 $4")
+  .replace(new RegExp(`\\b(${MONTHS_RE})([a-z]*\\.?) (\\d{1,2}) \\d{1,2}:\\d{2}(?::\\d{2})? (20\\d{2})(?!\\d)`, "gi"), "$1$2 $3 $4");
 // RapidOCR drops the space between a date and the time after it ("25/12/20188:13:39PM",
 // "18-11-1813:58", "05Mar201818:24"), so the date patterns, which want no digit after the
 // year, missed the date or read the year as 1813 (SROIE through RapidOCR,
 // eval/sroie-five-readings-2026-11-18.md). A four-digit 20xx year is split off first, then a
 // two-digit one (a clock with dots, "8.08.53", counts as a time); a month name glued to its
 // day and year gets its spaces back. A year before 1990 is a misread, never a receipt's date.
-const MONTHS_RE = "jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec";
 export const unglueDate = (l) => String(l)
   .replace(/(?<!\d)(\d{1,2}[\/.-]\d{1,2}[\/.-]20\d{2})(?=\d{1,2}(?::\d{2}|\.\d{2}[.:]\d{2}))/g, "$1 ")
   .replace(/(?<!\d)(\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2})(?=\d{1,2}(?::\d{2}|\.\d{2}[.:]\d{2}))/g, "$1 ")
@@ -263,7 +293,10 @@ export function parseItems(lines, comma = false) { // comma: a style, as moneyRe
 // Slash and dash dates are month-first unless the page says otherwise: a
 // first field above 12 (25/12/2018) proves day-first, a second field above 12
 // month-first, and a locale marker (RM, SDN BHD, GBP, PTY LTD, Rs) day-first.
-const DAY_FIRST_LOCALE = /\b(?:rm|myr|sdn\.?\s*bhd|bhd|pty\.?\s*ltd|gbp|inr|rs)\b|[£₹]/i;
+// The pound and rupee signs count before an amount only: a stray "£)" is OCR's reading of a
+// smudge or a "$" (SRD 1089, eval/srd-dates-2026-11-19.md).
+const DAY_FIRST_LOCALE = /\b(?:rm|myr|sdn\.?\s*bhd|bhd|pty\.?\s*ltd|gbp|inr|rs)\b/i;
+const DAY_FIRST_SIGN = /[£₹]\s?\d/;
 function dayFirstOf(lines) {
   let dayFirst = 0, monthFirst = 0, tDay = 0, tMonth = 0;
   // "Time: 12-49-00" (OCR turns the colons to dashes) is a clock, not a month-first date
@@ -275,8 +308,17 @@ function dayFirstOf(lines) {
   }
   if (tDay || tMonth) return tDay > tMonth;
   if (dayFirst || monthFirst) return dayFirst > monthFirst;
-  return DAY_FIRST_LOCALE.test(lines.join("\n")) || null;
+  const text = lines.join("\n");
+  // a US state and ZIP code ("Gardena, CA 90249") makes it a US receipt, month first; a
+  // North American phone number (626-337-5666, (678) 890-2005) outweighs a pound sign,
+  // since tesseract reads a thermal printer's "$" as "£" (SRD 1007's 05/11/18 read as
+  // 5 November, eval/srd-dates-2026-11-19.md), but Canada prints both orders, so it
+  // leaves the order a guess
+  if (US_STATE_ZIP.test(text)) return false;
+  return DAY_FIRST_LOCALE.test(text) || (DAY_FIRST_SIGN.test(text) && !NANP_PHONE.test(text)) || null;
 }
+const US_STATE_ZIP = /\b(?:A[LKZR]|C[AOT]|D[EC]|FL|GA|HI|I[DLNA]|K[SY]|LA|M[EDAINSOT]|N[EVHJMYCD]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[TA]|W[AVIY])[ ,.]{1,2}\d{5}(?:-\d{4})?(?!\d)/;
+const NANP_PHONE = /(?<![\d-])(?:\(\s?[2-9]\d{2}\s?\)\s?[2-9]\d{2}[-. ]|[2-9]\d{2}([-.])[2-9]\d{2}\1)\d{4}(?![\d-])/;
 
 // A date OCR broke (69/02/2018, 05/61/2018, 92/02/2018) that no digit order can
 // read. Try one look-alike digit at a time (6, 9, 8 and 2 for 0; 4 for 0 or 1)
@@ -721,11 +763,11 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   // serial like "18/06/04" or a time-stamped code reads as a date too), then the first
   const cands = [];
   lines.forEach((line, i) => {
-    const l = unglueDate(line);
+    const l = monthWordDate(unglueDate(line));
     for (const re of DATE_RES) {
       const m = l.match(re);
       const d = m && parseDate(m[1], dmy || comma === true || (comma === "whole" && !m[1].includes("-")) || m[1].includes("."));
-      if (d && d >= "1990") { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\bdate\b/i.test(l) ? 0 : 2) + (/\d{4}/.test(m[1].replace(/^\d{4}(?=[-/])/, "")) || /^\d{4}[-/]/.test(m[1]) ? 0 : 1) - (new RegExp(m[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\d{1,2}:\\d{2}").test(l) ? 0.5 : 0), i }); break; }
+      if (d && d >= "1990" && +d.slice(0, 4) <= new Date().getUTCFullYear() + 1) { const f = m[1].split(/[-/.]/); cands.push({ d, amb: f.length === 3 && f[0].length <= 2 && +f[0] <= 12 && +f[1] <= 12 && +f[0] !== +f[1], rank: (/\bdate\b/i.test(l) ? 0 : 2) + (LATER_DATE.test(l) ? 4 : 0) + (/\d{4}/.test(m[1].replace(/^\d{4}(?=[-/])/, "")) || /^\d{4}[-/]/.test(m[1]) ? 0 : 1) - (new RegExp(m[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\d{1,2}:\\d{2}").test(l) ? 0.5 : 0), i }); break; }
     }
   });
   cands.sort((a, b) => a.rank - b.rank || a.i - b.i);
@@ -1415,9 +1457,24 @@ export function parseReceiptPasses(texts, opts = {}) {
   delete out.taxWhy;
   if (!out.merchant && (out.merchant = ps.find((p) => p.merchant)?.merchant ?? null)) out.notes = out.notes.filter((n) => n !== "no merchant found");
   // a date only the second reading found is not taken: on SROIE that filled 18
-  // receipts, 9 right and 9 wrong, so the receipt asks instead
+  // receipts, 9 right and 9 wrong, so the receipt asks instead. With three or more
+  // readings, a date at least two of the others agree on, and no other date as often, is
+  // taken with a note: on the US photos (SRD) that filled 13 of the 67 the first reading
+  // missed, none wrong (eval/srd-dates-2026-11-19.md)
+  const agreed = !out.date && ps.length >= 3 ? agreedDate(ps.slice(1)) : null;
+  if (agreed) {
+    out.date = agreed.date;
+    out.notes = [...out.notes.filter((n) => n !== "no date found"), `date not found in the first reading; ${agreed.count} of the other ${ps.length - 1} readings give ${agreed.date}: check the date`];
+  }
   out.ok = !!(out.date && out.merchant && out.cents);
   return out;
+}
+
+export function agreedDate(ps) {
+  const n = new Map();
+  for (const p of ps) if (p.date) n.set(p.date, (n.get(p.date) ?? 0) + 1);
+  const [top, second] = [...n.entries()].sort((a, b) => b[1] - a[1]);
+  return top && top[1] >= 2 && (!second || second[1] < top[1]) ? { date: top[0], count: top[1] } : null;
 }
 
 const sameReceipt = (a, b) => a.date === b.date && a.cents === b.cents && (a.merchant ?? "").toLowerCase() === (b.merchant ?? "").toLowerCase();

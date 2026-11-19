@@ -351,8 +351,10 @@ function settleTotals(readings, lead = false) {
   const t = readings.map(tidy).filter(Boolean);
   if (t.length < 2) return { text: t[0] ?? "", note: null };
   const one = parseReceipt(t[0]), both = parseReceiptPasses(t, { lead });
-  // a merchant only another reading found goes on top, where the reader looks for it
-  const first = !one.merchant && both.merchant ? `${both.merchant}\n${t[0]}` : t[0];
+  // a merchant only another reading found goes on top, where the reader looks for it;
+  // a date the other readings agree on (receipts.mjs agreedDate) goes under it
+  const dated = !one.date && both.date ? `Date ${both.date}\n${t[0]}` : t[0];
+  const first = !one.merchant && both.merchant ? `${both.merchant}\n${dated}` : dated;
   // the lead reading's total kept over an unconfirmed majority (receipts.mjs `lead`) still warns
   const kept = both.cents !== null && both.cents === one.cents ? both.notes.find((n) => /from the first engine's reading/.test(n)) : null;
   if (kept) return { text: first, note: kept.replace(/^OCR readings/, "the readings") };
