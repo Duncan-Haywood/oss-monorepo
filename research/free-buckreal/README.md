@@ -6,7 +6,7 @@ A free-choice project. The twin projects here mostly use the Cascaded Tanks rig 
 
 ## Data
 
-`data/buck_id.csv` (1001 samples, 0 to 10 ms) and `data/buck_valid.csv` (999 samples, 10 to 20 ms): 10 µs sampling, input a control voltage of 2.19 to 2.52 V, output the converter voltage, 11 to 16.6 V in steps of 0.2 V (so a quantisation floor of 0.2/√12 = 0.058 V). Copied from [`wilsonrljr/sysidentpy-data`](https://github.com/wilsonrljr/sysidentpy-data) (`datasets/buck`, MIT licence), which is the data behind SysIdentPy's examples. That repository does not say who ran the experiment or what the input scaling is, so neither is asserted here, and the two files are a contiguous split of one record, not independent runs.
+`data/buck_id.csv` (1001 samples, 0 to 10 ms) and `data/buck_valid.csv` (999 samples, 10 to 20 ms): 10 µs sampling, input a control voltage of 2.19 to 2.52 V, output the converter voltage, 11 to 16.6 V in steps of 0.2 V (so a quantisation floor of 0.2/√12 = 0.058 V). Copied from [`wilsonrljr/sysidentpy-data`](https://github.com/wilsonrljr/sysidentpy-data) (`datasets/buck`, MIT licence), which is the data behind SysIdentPy's examples. That repository does not say who ran the experiment. SysIdentPy's own tutorial on these files ([multiobjective parameter estimation](https://github.com/wilsonrljr/sysidentpy/blob/main/docs/en/user-guide/tutorials/multiobjective-parameter-estimation-overview.md), "Buck Converter Static Function") gives a static law Vo = 4Vd/3 − Vd·u/3 with Vd = 24 V, a gain of −8 V per volt of input, and the rig is likely the one in Hafiz, Swain, Mendes and Aguirre, ["Multi-objective evolutionary approach to grey-box identification of buck converter"](https://arxiv.org/abs/1909.04320) (IEEE TCAS-I, 2020), a buck converter in continuous conduction from the same group (not confirmed). This study did not use that prior law and fits its own quadratic static curve; quality audit round 84 ([`2026-11-19-free-buckreal.json`](../../portfolio/quality/audits/2026-11-19-free-buckreal.json)) found that a twin with the published linear law fixed matches the Hammerstein twin on the reversed split, so the "static curvature matters" reading below is not established. The two files are a contiguous split of one record, not independent runs.
 
 ## Method
 
@@ -22,7 +22,7 @@ A free-choice project. The twin projects here mostly use the Cascaded Tanks rig 
 | next 10 ms / first 10 ms | 1.32 V | 0.67 | **0.50** | 0.82 | 0.71 |
 
 - **No model is close to the data.** The best free-run error is 0.50 V, nine times the 0.058 V quantisation floor; the one-step-ahead ARX error is about 0.13 V. Whatever drives the rest (switching ripple, load or supply variation, dynamics outside a 2nd-order lag) is not in any model here.
-- **The twin's static curvature matters:** Hammerstein beats the linear twin by 0.10 V (forward) and 0.17 V (reverse).
+- **The twin's static curvature matters:** Hammerstein beats the linear twin by 0.10 V (forward) and 0.17 V (reverse). Not established: a twin with the published linear static law fixed does as well on the reverse split (see Data, and the round-84 audit).
 - **Hammerstein twin against ARX 2/2 flips with direction.** Forward, ARX is 0.04 V better (bootstrap −0.28 to +0.26 V, no difference). Reversed, the twin is 0.32 V better (+0.22 to +0.49 V excludes zero). Averaged over both directions the twin is ahead (0.56 V against 0.70 V), but this is two numbers from one 20 ms record.
 - ARX's error is not monotone in order (reversed: 0.69 V at 1/1, 0.89 V at 6/6, 0.71 V at 10/10), so a model-order choice is itself a source of spread here.
 
@@ -37,7 +37,7 @@ A free-choice project. The twin projects here mostly use the Cascaded Tanks rig 
 
 ```
 python3 -m pytest -q research/free-buckreal/tests        # 5 tests, a few seconds
-python3 research/free-buckreal/experiments/run.py        # about 1.5 min, numpy + scipy
+python3 research/free-buckreal/experiments/run.py        # about 2.5 min, numpy + scipy
 python3 research/free-buckreal/experiments/figure.py     # needs matplotlib
 ```
 

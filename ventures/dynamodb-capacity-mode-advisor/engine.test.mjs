@@ -76,3 +76,15 @@ test("the fixture week demonstrates the headline recommendation", () => {
   assert.equal(r.best.mode, "provisioned with autoscaling");
   assert.ok(r.saving > 20);
 });
+
+test("whole-unit rounding ignores float noise: a 100 RCU/s peak with 10% headroom is 110 units, not 111", () => {
+  // 360,000 read units per hour = 100 RCU/s; 36,000 write units = 10 WCU/s. 100 * 1.1 and 10 * 1.1 carry float noise in JS.
+  const r = analyze(parseMetrics(flat(360_000, 36_000, 168)), {});
+  assert.equal(r.readCost.staticPeakUnits, 110);
+  assert.equal(r.writeCost.staticPeakUnits, 11);
+  // (110 * 0.00013 + 11 * 0.00065) * 730 = 15.6585
+  assert.ok(Math.abs(r.totals.staticPeak - 15.6585) < 1e-9);
+  // 7 WCU/s at 70% target is exactly 10 units (7 / 0.7 is 10.000000000000002 in JS).
+  const w = analyze(parseMetrics(flat(0, 25_200, 48)), {});
+  assert.ok(w.writeCost.autoscaledAvgUnits === 10);
+});

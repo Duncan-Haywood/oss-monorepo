@@ -34,6 +34,8 @@ python experiments/run.py          # writes experiments/results.txt (a few secon
 - Machine choice is shown for one seed and three machines; greedy-vs-exhaustive gaps of 1–2 points are not tested for significance.
 - Simulated results only; nothing was checked against a real print, cut or casting.
 
+- Prior work is not cited: attribute screening for process selection (Ashby; Swift and Booker) and budgeted maximum coverage (Khuller, Moss and Naor, 1999), whose plain cost-ratio greedy is known to fall short, which is what the budget 600 to 800 result shows (quality audit round 84, [`2026-11-19-simdesign-processcover.json`](../../portfolio/quality/audits/2026-11-19-simdesign-processcover.json)).
+
 ## Next steps
 Weight parts by mass or value so a cheap plastic part does not count as much as a metal one; draw parts from the real part lists of `selfrep-closure` instead of random features; give each machine its own bill of materials (the `selfrep-nextmachine` next step) so machines are themselves covered parts; replace assumed rules with a named shop's capability sheet.
 

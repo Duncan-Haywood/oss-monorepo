@@ -372,13 +372,17 @@ class WigleyStrip:
             out.append((w, am, bm))
         return tuple(out)
 
-    def set_viscous(self, zeta_v):
-        """B_v = 2 zeta sqrt(C (M + A)) per mode, A at the zero-speed natural frequency."""
+    def set_viscous(self, zeta_v, zeta5=None):
+        """B_v = 2 zeta sqrt(C (M + A)) per mode, A at the zero-speed natural frequency.
+
+        zeta_v is the heave fraction; zeta5 the pitch fraction (None: the same as heave, as before 7zg)."""
         self.zeta_v = zeta_v
+        z5 = zeta_v if zeta5 is None else zeta5
+        self.zeta5 = z5
         c33, c55 = self.restoring()
         (_, a33, _), (_, a55, _) = self.natural()
         self.bv33 = 2.0 * zeta_v * math.sqrt(c33 * (self.mass + a33))
-        self.bv55 = 2.0 * zeta_v * math.sqrt(c55 * (self.iyy + a55))
+        self.bv55 = 2.0 * z5 * math.sqrt(c55 * (self.iyy + a55))
 
     def sections(self, omega_e):
         nu_t = omega_e * omega_e / G * self.t

@@ -163,6 +163,10 @@ CLAIMS = [
     ("results_a0_coupling_transfer.txt", "row fit A0 0.0180 1.000 2.463 1.78 0.725 -3.75 -13.50 True"),
     ("results_a0_coupling_transfer.txt", "heave rms (0.8-2.0) 0.135, pitch rms 0.213, mean heave error at 1.0-1.3 +3.3%"),
     ("results_a0_coupling_transfer.txt", "heave rms (0.8-2.0) 0.179, pitch rms 0.183, mean heave error at 1.0-1.3 -19.1%"),
+    ("results_motion_damping_holdout.txt", "best: zeta3 0.0375, zeta5 0.0000"),
+    ("results_motion_damping_holdout.txt", "heave rms (0.8-2.0) 0.127, pitch rms 0.138"),
+    ("results_motion_damping_holdout.txt", "strip+refl area 1.134 of measured mean"),
+    ("results_motion_damping_holdout.txt", "plain: 30 W loss (share 0.25) over the fit and near cells 4.10% to 4.23%"),
 ]
 
 def check(claims=CLAIMS, root=EXP):

@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLYxhZ2gALZ9F4eCBD",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue software; merge when done)",
+  "input_sha256": "b4e139341cc30db77aadefe2f1d6acdc8c06b760de564ce28b012ede901c39ab",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T19:21:28Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Hearth & Horizon story: The Wall That Was Rammed Too Wet (BIBLE Next up proposal), text only",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 17759,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The rammed-earth proposal described the drop test as 'drop it from about a metre: it should shatter, not splat'; NZS 4298:1998 Appendix G says shoulder height, and a satisfactory mix breaks into a star with several lumps (powder means too dry). Corrected in the DONE.md entry; proposals that cite a standard should quote it, not paraphrase."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The scheduled input asks for revenue-generating software; the router drew the creative track (weight 0.1). Followed the router, as the owner set its weights, rather than overriding it.",
+      "did": "creative track run",
+      "result": "one finished story + post merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-the-wall-that-was-rammed-too-wet.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (Hearth & Horizon shelf), slug the-wall-that-was-rammed-too-wet, ~5,300 words, text only (audio dirs 577 MB > 400 MB cap). Claimed the proposal first (draft PR #17759, Drafting marker), searched open PRs for the phrase. Sources checked: NZS 4298:1998 text (clause 3.1.1 within 3% of OMC; Appendix G drop test criteria; Appendix L cement render least permeable, L8 coatings must let moisture out). Drying modelled as 1D diffusion (finite difference, D ~0.00065 m2/day calibrated to 5% at ~30 days): 31 / 50 / 103 days for optimum / 15% / 15% rendered on day 23. Year moved 2061 -> 2065 after the weekday check (24 Sep 2065 is a Thursday); all story dates re-checked. Added a new Hearth & Horizon Next up proposal (biochar, the last unused subjects.txt candidate; subjects.txt is now empty for the shelf and needs refilling). Verification: node --test in ventures/hearth-and-horizon 20/20 pass; run_workflow_locally.py --for-changes DONE exit 0 (pages, ventures-tests, portfolio-validate 100/100, link/page integrity all passed; agent-cross-review and portfolio-pages deploy steps not runnable locally); PR check runs green.",
+  "corrections": [],
+  "redteam": null
+}

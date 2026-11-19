@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 
 import { ASK_EXPECTATIONS, coverage, judgeReply, splitReply } from './ask-suggestions.mjs';
 import { ASK_SUGGESTIONS } from './assistant.mjs';
-import { QUESTION_WORDS, rankForQuestion } from './assistant/fill.mjs';
+import { QUESTION_WORDS, questionWordWeights, rankForQuestion } from './assistant/fill.mjs';
 
 test('every example question on /ask/ has an expectation, and none is stale', () => {
   assert.deepEqual(coverage(ASK_SUGGESTIONS), { unchecked: [], stale: [] });
@@ -88,6 +88,27 @@ test('a one-word question needs only a name hit', () => {
   const data = index([['Poshmark Fee Calculator', 'poshmark fee calculator', ''], ['Resale notes', 'resale notes', 'poshmark']]);
   assert.deepEqual(rankForQuestion(data, 'How much does Poshmark take?', { variants, score, strongOnly: true, limit: 5 }).map((i) => i.t), []);
   assert.deepEqual(rankForQuestion(data, 'Poshmark?', { variants, score, strongOnly: true }).map((i) => i.t), ['Poshmark Fee Calculator']);
+});
+
+test('the rare word leads: an Etsy question is not answered with another marketplace', () => {
+  // Main's ranking scored "take" and "sale" in a name the same as "etsy", so the
+  // Discogs and Mercari "take per sale" pages tied the Etsy ones and came first
+  // on index order. Fillers give "take" and "sale" the real index's spread.
+  const fillers = Array.from({ length: 40 }, (_, i) => [`Filler ${i}`, `filler${i}`, i % 3 ? 'take sale' : 'take']);
+  const data = index([
+    ['How Much Does Discogs Take Per Sale?', 'discogs take per sale', 'fee'],
+    ['How Much Does Mercari Take Per Sale?', 'mercari take per sale', 'fee'],
+    ['Should I put my Etsy shop on sale?', 'etsy shop sale', 'discount'],
+    ['Etsy Profit Calculator', 'etsy profit calculator', 'fee take sale'],
+    ...fillers,
+  ]);
+  const titles = rankForQuestion(data, 'How much does Etsy take from a sale?', { variants, score, limit: 2 }).map((i) => i.t);
+  assert.deepEqual(titles, ['Should I put my Etsy shop on sale?', 'Etsy Profit Calculator']);
+});
+
+test('word weights: a word every entry has weighs ~0, a rare one more', () => {
+  const w = questionWordWeights([[4, 1], [0, 1], [0, 1], [0, 1]], 2);
+  assert.ok(w[0] > 0.9 && w[1] < 0.01, `weights ${w}`);
 });
 
 test('a reply that links a page that does not load fails, naming the page', () => {

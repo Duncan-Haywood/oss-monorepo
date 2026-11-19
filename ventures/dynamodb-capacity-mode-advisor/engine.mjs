@@ -31,6 +31,9 @@ const toNum = (s) => {
  * Parses rows of `timestamp, readUnits, writeUnits` (comma, tab or spaces; one optional header row that
  * may name the columns "read"/"write" in either order). Values are the Sum of the metric over one period.
  */
+// Capacity units are whole numbers: round up, but not past float noise (100 * 1.1 is 110.00000000000001 in JS).
+const ceilUnits = (x) => Math.ceil(x - 1e-9);
+
 export function parseMetrics(text) {
   const records = [];
   let skipped = 0;
@@ -78,8 +81,8 @@ function autoscaled(rates, target) {
   let rampRisk = 0;
   const units = rates.map((r, i) => {
     const prev = i === 0 ? r : rates[i - 1];
-    if (i > 0 && r > (Math.ceil(prev / target) || 1)) rampRisk += 1;
-    return Math.max(1, Math.ceil(Math.max(r, prev) / target));
+    if (i > 0 && r > (ceilUnits(prev / target) || 1)) rampRisk += 1;
+    return Math.max(1, ceilUnits(Math.max(r, prev) / target));
   });
   return { units, rampRisk };
 }
@@ -91,7 +94,7 @@ function priceSide(s, hours, perHour, perMillion, o, current) {
   const onDemand = (s.total / 1e6) * perMillion * scale;
   const auto = autoscaled(s.rates, o.targetUtilization);
   const autoCost = auto.units.reduce((a, u) => a + u * perHour * periodHours, 0) * scale;
-  const staticUnits = Math.max(1, Math.ceil(s.peak * o.staticHeadroom));
+  const staticUnits = Math.max(1, ceilUnits(s.peak * o.staticHeadroom));
   const staticCost = staticUnits * perHour * HOURS_PER_MONTH;
   const out = { onDemand, autoscaled: autoCost, staticPeak: staticCost, staticPeakUnits: staticUnits, rampRisk: auto.rampRisk, autoscaledAvgUnits: auto.units.reduce((a, b) => a + b, 0) / (auto.units.length || 1) };
   if (current !== null && current !== undefined) {

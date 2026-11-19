@@ -33,6 +33,14 @@ burst capacity and autoscaling lag are flagged, not simulated. List prices are i
 ignore free tier, reserved capacity, Standard-IA, region, global tables and backups (editable with
 `--prices`). Not a bill, not advice, no warranty.
 
+## Known gaps
+
+Found by quality audit round 84 ([`2026-11-19-dynamodb-capacity-mode-advisor.json`](../../portfolio/quality/audits/2026-11-19-dynamodb-capacity-mode-advisor.json)):
+
+- The window is the number of rows times the period, not the span of the timestamps. CloudWatch leaves out periods with no datapoint, so a real export with idle hours missing overstates the monthly on-demand figure (in the audit's test week, $98.55 instead of $65.70) and can change the recommended mode. Until this is fixed, export with zero-filled periods.
+- The period is not inferred from the timestamps: 5-minute data pasted at the default 3600 s is priced 12 times too low with no warning.
+- Global secondary indexes are not priced; their consumed capacity is a separate metric.
+
 ## Privacy
 
 No network call, no AWS access, no account, no analytics vendor. The browser page analyses

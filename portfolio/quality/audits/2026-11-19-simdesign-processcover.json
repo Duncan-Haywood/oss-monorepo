@@ -1,0 +1,212 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/simdesign-processcover",
+ "stratum": "research",
+ "seed": "2026-11-19-k-4c5e",
+ "round": 84,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a referee for a manufacturing-process-selection / design-for-manufacture venue (e.g. Journal of Mechanical Design, CIRP Annals process-planning track) who also knows budgeted coverage optimisation; first checks: are the coverage integrals right, does the beam check use the right section, is the geometry-only null result a finding or a consequence of the rule set, is the greedy-vs-exhaustive gap new or a known property, and do the seeded rules match the cited simdesign-dfm model",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the suite and the experiment: `PYTHONPATH=src python3.13 experiments/run.py` in a private copy regenerates experiments/results.txt byte-identical to the committed file (diff empty, ~1 s). Recomputed independently, no import of the subject: (1) closed-form area of {ln b >= ln 1.2, ln w - ln b <= ln 8} over the log-uniform box gives FDM geometry-only coverage 0.8931 (README 89.3%); the uncovered share 0.1069 splits 70.7% w/b>8 and 50.1% b<1.2 in the population (README seed 0: 72%, 50%; seed 0 recount 72.2%, 50.3%). (2) My own deterministic quadrature (scratchpad processcover/quad.py: 3000x3000 grid in ln w, ln b, exact integration over r and log-uniform F of the staircase union of per-process feasible rectangles, rules re-derived from simdesign-dfm/dfm.py rule_violations) reproduces every table value to <=0.002: log/load FDM 0.3006, CNC 0.1594, laser 0.1772, cast 0.2185, fdm+laser 0.3681, fdm+cast 0.3556, fdm+cnc 0.3472, all 0.4094 (results.txt .300/.160/.178/.218/.368/.355/.347/.409); small and large families likewise (large all 0.8163 vs 0.818, small laser 0.1150 vs 0.115). (3) Hand Euler-Bernoulli checks: laser 10x6 mm at 125 N gives 6FL/(bw^2) = 100 MPa (exactly at the limit, tool True), 500 N gives 400 MPa (False); drafted casting 12x6 mm, d = 3 tan 1.5 deg = 0.0786, wa = 11.843, F_max(stress) = 50*6*wa^2/480 = 87.66 N; the tool flips feasible/infeasible between 0.999 and 1.001 of that. Not 4: the model is a closed-form screening model with assumed rules (disclosed), not checked against any real shop or FE.",
+  "completeness": "README claims walked: 10 tests (10 def test_, 10 pass); run.py writes results.txt in a few seconds (1 s); four families x process-alone, all FDM-based subsets, 'no process' and 'only one process' shares, greedy vs exhaustive at 7 budgets: all present and reproduced; selfrep-nextmachine's exhaustive/greedy imported unchanged (checked: run.py and tests import selfrep_nextmachine.select); live page https://marisstella.app/research/simdesign-processcover/ returns 200; homepage card in research/_homepage/projects.json and README bullet present. No stubs or TODOs. Next steps (mass weighting, seeds) were carried out in follow-up projects simdesign-coverweight / flipseeds / pricebands.",
+  "verification": "`cd research/simdesign-processcover && PYTHONPATH=src python3.13 -m pytest -q tests`: 10 passed in 0.31 s. Rule tests are hand cases for each geometric rule and catch rule-threshold mutants (web ratio halved caught; stock tolerance doubled caught). But the load model that drives every headline number after the first bullet is untested: bending-stress coefficient 6 -> 0.6 SURVIVED, deflection 3E -> 30E SURVIVED, casting draft removed (d = 0) SURVIVED. test_load_rule_separates_materials line 74 asserts arithmetic on literals (6*100*80/(6*100) == 80), not the code; no test pins any coverage value against an analytic integral. 2 of 5 mutants caught.",
+  "craft": "Read cover.py (108 lines), run.py, test_cover.py, the dfm.py it ports and selfrep_nextmachine/select.py. Clean vectorised NumPy, frozen dataclass per process, value cache in shop_value, deterministic seeds, the port of dfm.rule_violations is faithful (narrowest drafted section for wall and slenderness, nominal w and b for web and wall-ratio rules, r checked un-drafted as in dfm). Defects: the module docstring says depth must be within STOCK_TOL 'above' a stock or equal, while the code (and the inline comment) is symmetric |b - s|/b; a tautological test line; results only for seed 0 in the 'only one process' and machine-choice blocks (disclosed).",
+  "claims": "Checked 9 claims; numbers all backed by results.txt and my recomputation: 89.3%, 20-39% alone, 0.000 only-other, 72%/50% overlap, load 30.0/21.8/17.8/16.0, pairs 35.5/36.8/34.7, all 40.9, 58.5% none, only-one 8.2/2.8/2.8/0.6, every budget line, small/large alone values. Inputs labelled assumed/stylised throughout, limitations and 'simulated only' stated. Softer: README:33 says the geometry-only null 'partly restates' the modelling choice, but it follows entirely from the rule set (FDM's rules are the shared guards; every other process adds constraints, and casting's looser wa/b is dominated by its wall-ratio <= 3 rule), so it is not an empirical finding; README:27 says casting 'leads' on large using alone-coverage while the marginal gain over FDM, the quantity 'which machine next' asks for, ranks CNC first (0.769 vs 0.752), which exhaustive search picks at 800. The 'evidence is thin' caveat on greedy gaps is, if anything, too cautious: the gaps hold in all 5 seeds and in the population quadrature.",
+  "fitness": "A researcher can rerun and extend it in a second (and three follow-ups did). Nearest prior work: Ashby-style process selection by attribute screening (Ashby, Materials Selection in Mechanical Design; Swift and Booker, Process Selection, PRIMA cards; CES Selector) and budgeted maximum coverage (Khuller, Moss and Naor 1999), neither cited. Against those: the coverage-of-a-part-family framing is a reasonable small idea, but the geometry-only result is true by construction, the load result is a closed-form screen on assumed rules over a random feature box, and the greedy shortfall at budgets 600-800 is the textbook failure of unmodified cost-ratio greedy (Khuller et al. fix it by comparing with the best single affordable set, which would pick the laser here). Not a programme in research/PROGRAMMES.md; far from the PhD+ bar of research/CLAUDE.md. Sound as a toy, not new.",
+  "domain": "Compared with DFM / process-selection practice and Euler-Bernoulli cantilever theory. Matches: bending stress 6FL/(bw^2) and deflection FL^3/(3EI) with I = b w^3/12 on the narrowest drafted section (conservative), material values from dfm.py (PLA-like 3 GPa/20 MPa, 6061-like 69 GPa/100 MPa, mild steel 200 GPa/100 MPa, sand-cast Al 72 GPa/50 MPa: plausible working stresses). Departures (mostly disclosed): no stress concentration at the fillet, which the sibling projects found matters; stock rule 'within 10% of a listed thickness' rather than 'next stock up, machined down' for CNC; the casting hot-spot rule applied to the arm's own w/b aspect ratio; random feature triples instead of a real part list; coverage as yes/no ignores cost, finish and tolerance. A referee would accept it as a screening illustration, not sign the machine recommendation."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "FDM geometry-only coverage on family 'log'",
+   "method": "closed-form area in (ln w, ln b) of {b >= 1.2, w/b <= 8} over the log-uniform box [2,25]x[1,30]",
+   "command": "python3 -I scratchpad/processcover/quad.py (last two lines)",
+   "expected": "0.8931 (closed form)",
+   "observed": "results.txt fdm 0.893 [0.891, 0.895]",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "split of the 10.7% no process covers",
+   "method": "closed form P(b<1.2) and P(w/b>8) divided by the uncovered mass; seed-0 recount",
+   "command": "python3 -I scratchpad/processcover/quad.py; seed-0 recount via feasible() on sample_parts(20000,0)",
+   "expected": "population 70.7% w/b>8, 50.1% b<1.2; README (seed 0) 72%, 50%",
+   "observed": "seed 0: 72.2%, 50.3%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "load-case coverage of each process and of FDM-based shops, family 'log'",
+   "method": "own deterministic quadrature, exact in r and F (staircase union), rules re-derived from simdesign-dfm dfm.py",
+   "command": "/usr/bin/python3.13 -I scratchpad/processcover/quad.py",
+   "expected": "fdm 0.3006, cnc 0.1594, laser 0.1772, cast 0.2185, fdm+laser 0.3681, fdm+cast 0.3556, fdm+cnc 0.3472, all 0.4094",
+   "observed": "results.txt 0.300, 0.160, 0.178, 0.218, 0.368, 0.355, 0.347, 0.409",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sensitivity families 'small' and 'large' with load",
+   "method": "same quadrature on shifted boxes",
+   "command": "/usr/bin/python3.13 -I scratchpad/processcover/quad.py",
+   "expected": "small laser 0.1150, cast 0.0978, cnc 0.0121, all 0.1645; large fdm 0.6583, cnc 0.4058, cast 0.5813, all 0.8163",
+   "observed": "small 0.115, 0.098, 0.013, 0.165; large 0.660, 0.408, 0.581, 0.818",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "beam check on single parts at the limit",
+   "method": "hand Euler-Bernoulli: laser 10x6 mm sigma = 6FL/(bw^2); drafted casting 12x6 mm, wa = 12 - 6 tan 1.5 deg, F_max = 50*6*wa^2/480",
+   "command": "PYTHONPATH=src python3.13 - (feasible(PROCESSES['laser'], [[10,1,6,F]]) for F in 100,125,500; cast at 0.999 and 1.001 x 87.6587 N)",
+   "expected": "laser True, True (100 MPa), False (400 MPa); cast True below 87.66 N, False above",
+   "observed": "True, True, False; True, False",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces committed results",
+   "method": "run run.py in a private copy and diff",
+   "command": "cd <copy>/simdesign-processcover && PYTHONPATH=src python3.13 experiments/run.py && diff experiments/results.txt <committed>",
+   "expected": "identical file, a few seconds",
+   "observed": "identical, 1.05 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite and seeded mutants",
+   "method": "run; quality_mutate.py on 5 core lines",
+   "command": "cd research/simdesign-processcover && PYTHONPATH=src python3.13 -m pytest -q tests",
+   "expected": "all pass; mutants in the load model caught",
+   "observed": "10 passed; stress x0.1, deflection /10 and draft removal survive; web and stock-tolerance mutants caught",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README numeric claims vs results.txt",
+   "method": "line-by-line comparison of README:24-27 with experiments/results.txt",
+   "command": "cat research/simdesign-processcover/experiments/results.txt",
+   "expected": "every quoted number present",
+   "observed": "all 30+ quoted numbers match (seed-0 values where README says seed 0)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "geometry-only null result framed as a (negative) finding",
+   "method": "inspect rule sets: FDM = shared guards; others add constraints; casting's looser wa/b dominated by wall ratio <= 3",
+   "command": "sed -n 67,88p src/simdesign_processcover/cover.py",
+   "expected": "README to say the null follows from the rules by construction",
+   "observed": "README:24 'negative result for this objective'; README:33 'partly restates that modelling choice' (it restates it entirely)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "greedy-vs-exhaustive gaps robust across seeds",
+   "method": "paired coverage differences over seeds 0-4 and population quadrature",
+   "command": "PYTHONPATH=src python3.13 - (coverage(fdm+laser) - coverage(fdm+cast) on log/load, seeds 0-4)",
+   "expected": "positive in every seed if the README's budget-600 pick is real",
+   "observed": "log +1.41, +1.41, +1.23, +0.97, +1.52 points; large fdm+cnc vs fdm+cast +1.6 to +1.8; cast+cnc vs cast+laser +0.5 to +0.7",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "novelty against prior work",
+   "method": "Ashby/Swift-Booker process selection screening; Khuller-Moss-Naor 1999 budgeted maximum coverage (ratio greedy without best-single fix is unboundedly suboptimal)",
+   "command": "grep -n 'Ashby\\|Khuller\\|coverage problem' research/simdesign-processcover/README.md",
+   "expected": "nearest prior work cited and the greedy gap placed against it",
+   "observed": "no citation; greedy shortfall at 600-800 is the known ratio-greedy failure, presented as an observation",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "stock-tolerance rule documented as implemented",
+   "method": "compare docstring with code",
+   "command": "sed -n 9,17p src/simdesign_processcover/cover.py; sed -n 78p src/simdesign_processcover/cover.py",
+   "expected": "one definition",
+   "observed": "docstring 'within STOCK_TOL above a listed stock ... or equal'; code and comment symmetric |b - s|/b <= 0.10",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/simdesign-processcover/src/simdesign_processcover/cover.py:86",
+   "change": "ok &= 6.0 * F * ARM_L -> ok &= 0.6 * F * ARM_L (bending stress 10x too low)",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3.13 -m pytest -q tests'"
+  },
+  {
+   "where": "research/simdesign-processcover/src/simdesign_processcover/cover.py:87",
+   "change": "F * ARM_L ** 3 / (3.0 * proc.E -> / (30.0 * proc.E (deflection 10x too low)",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3.13 -m pytest -q tests'"
+  },
+  {
+   "where": "research/simdesign-processcover/src/simdesign_processcover/cover.py:70",
+   "change": "d = 0.5 * b * np.tan -> d = 0.0 * b * np.tan (casting draft removed)",
+   "caught": false,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3.13 -m pytest -q tests'"
+  },
+  {
+   "where": "research/simdesign-processcover/src/simdesign_processcover/cover.py:80",
+   "change": "w >= proc.web_ratio * b -> w >= 0.5 * proc.web_ratio * b",
+   "caught": true,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3.13 -m pytest -q tests'"
+  },
+  {
+   "where": "research/simdesign-processcover/src/simdesign_processcover/cover.py:78",
+   "change": "<= STOCK_TOL -> <= 2 * STOCK_TOL",
+   "caught": true,
+   "test_cmd": "sh -c 'PYTHONPATH=src python3.13 -m pytest -q tests'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The cantilever load check, which drives every headline number after the geometry-only bullet, is untested: bending stress scaled by 0.1, deflection by 0.1 and casting draft removed all leave the 10 tests green; test_load_rule_separates_materials line 74 asserts arithmetic on literals, not the code; no test pins a coverage value against an analytic integral (e.g. FDM geometry-only 0.8931)",
+   "where": "research/simdesign-processcover/tests/test_cover.py:74",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited: process selection by attribute screening (Ashby; Swift and Booker PRIMA; CES) and budgeted maximum coverage (Khuller, Moss and Naor 1999). The greedy shortfall at budgets 600-800 is the known failure of cost-ratio greedy without the best-single-set comparison, presented as an observation echoing selfrep-nextmachine",
+   "where": "research/simdesign-processcover/README.md:26",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Geometry-only 'negative result' follows entirely from the rule set (FDM's rules are the shared guards, every other process only adds constraints; casting's looser drafted w/b is dominated by its wall ratio <= 3), yet README:33 says it only 'partly' restates the modelling choice and the card calls it a negative result",
+   "where": "research/simdesign-processcover/README.md:33",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "'On large, casting (58.1%) leads' ranks by alone-coverage, but for the question asked (which machine next for an FDM shop) the marginal gain ranks CNC first (fdm+cnc 0.769 vs fdm+cast 0.752), which exhaustive search picks at 800",
+   "where": "research/simdesign-processcover/README.md:27",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Module docstring says depth must be within STOCK_TOL 'above a listed stock thickness, or equal to it'; the code and inline comment use the symmetric |b - nearest stock| / b <= 10%",
+   "where": "research/simdesign-processcover/src/simdesign_processcover/cover.py:9",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"],
+ "verdict": "A small, clean and arithmetically right screening model: the committed results regenerate byte-identical in a second, a closed-form area gives the 89.3% geometry-only FDM coverage (0.8931), my own deterministic quadrature over the same rules reproduces every coverage value in all four families to within 0.002, hand beam checks at the stress limit flip exactly where the formula says, and the greedy-vs-exhaustive gaps hold in all five seeds. It misses the bar on verification (the load model that drives the headline results survives 10x stress and deflection mutants and a removed draft) and, for a research referee, on fitness and domain: the geometry null is true by construction, the inputs are assumed, the greedy shortfall is the textbook ratio-greedy failure, and the nearest prior work (Ashby-style process screening, budgeted maximum coverage) is not cited. Finished for what it claims, honestly labelled stylised, far from the PhD+ programme bar."
+}

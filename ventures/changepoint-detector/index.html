@@ -52,6 +52,13 @@
     @media (min-width: 440px) { div.grid:has(#shape) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 452px), 1fr)); } }
   </style>
   <!-- select-track:end -->
+<style>/* cta-row-phone: when the call-to-action pair wraps on a phone, each button fills its line
+   instead of leaving a ragged stack (polish 2026-11-19). Checked by platform/pages/cta-row-phone.test.mjs. */
+@media (max-width: 560px) {
+  .cta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cta-row > a.cta { flex: 1 1 auto; text-align: center; margin: 0; }
+}
+</style>
 </head>
 <body>
   <header>
