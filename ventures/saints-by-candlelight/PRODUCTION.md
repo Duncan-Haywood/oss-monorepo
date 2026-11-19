@@ -196,7 +196,7 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Joshua and the twelve stones at Gilgal and the commander of the Lord's army before Jericho (Joshua 3-5; left by episode 143).
 - Shimei and the stones on the road from Jerusalem, and David who would not let Abishai take his head, then forgave him at the Jordan (Second Samuel 16:5-14 and 19:16-23; left by episode 147).
 - David and the Song of the Bow, the lament for Saul and Jonathan, swifter than eagles and stronger than lions (Second Samuel 1; left by episode 147).
-- David at Ziklag and the Egyptian left sick in the field, and the rule that those who stay with the baggage share alike (First Samuel 30; left by episode 146).
+- David at Ziklag and the Egyptian left sick in the field, and the rule that those who stay with the baggage share alike (First Samuel 30; left by episode 146); claimed for episode 148 in PR #17573).
 - Mephibosheth at the king's table, the lame grandson of Saul whom David sought out for Jonathan's sake (Second Samuel 9; left by episode 144).
 - Saint Silvanus of Tarsus and the councils of Seleucia, the bishop who would not silence a guest (Theodoret, Sozomen and Socrates on the council of three hundred and fifty-nine; a sequel to episode 136).
 
