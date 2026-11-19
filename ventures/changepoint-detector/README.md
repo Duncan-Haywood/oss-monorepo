@@ -8143,3 +8143,55 @@ their sign-ups will not take. The watch page now has a **"No terminal?"** box th
   if it does not.
 - **Counted.** `watch_repo_zip` and `watch_repo_link`, in local storage only, like the page's other events
   (listed in the index page's privacy line).
+
+## A shop shut one weekday: revenue's slow climb (2026-11-19, pre-registered twice; round 1 fails F1, round 2 SIMRESULT)
+
+"A real shop's daily series" left one item open: on the UCI Online Retail shop, **Quiet and Middle never alerted on
+daily revenue while it climbed from about £26k to £50k a day** (September to November 2011), and the suggested fix
+was `--log`. Exploring on that year (the design year) showed the trouble was not the heavy tails. `--log` on the
+trading days made Quiet deafer (0 alerts). What deafened it was the shop's Saturday: it never trades then, so one row
+in seven is a 0 that belongs to the week, and even with `--period 7` the AR(1) level model read that built-in zero as
+noise loud enough to drown a 50% climb. With the Saturdays left out, Quiet heard the build-up (dated 2011-09-15,
+sent 2011-09-21) and nothing else changed much (2 alerts in 257 checks, as before in 300).
+
+**The rule** (`watch-core.mjs` `shutWeekdays`, `dropShutWeekdays`): on labels that are consecutive calendar days, a
+weekday whose value is 0 in each of its **last 8 weeks** is left out before a level model (`mean`, `meanvar`) reads
+the series, and `--period 7` becomes 7 minus the days left out. Counts (`poisson`) are never changed: the count model
+already reads a zero Saturday correctly once `--period 7` is given. Bank-holiday zeros on a usual trading day are kept
+(they are `--closed`'s job). The labels stay the kept rows' dates, so alerts and the state file name the same days.
+
+**Pre-registered** (`eval/shut-weekday.prereg.md`), on the fresh year (UCI Online Retail II, 2009-12 to 2010-12, the
+same shop's earlier year) and on 200 simulated shops (`eval/shut-weekday-sim.mjs`: Saturdays shut, heavy-tailed
+lognormal revenue with 3% wholesale days x4, a weekday pattern, five random one-day closures, a wandering level;
+100 with no change and 100 with a +30% step). Arms, Quiet only: **D** the default with `--period 7`; **T** the rule.
+
+| bar | D | T | result |
+|---|---|---|---|
+| F1, fresh year: a revenue alert dated 2010-08-15..11-30, sent within 14 days | dated 2010-09-28, sent 2010-11-26 (59 days) | round 1: same (the rule never fired); round 2: sent **2010-10-04 (6 days)** | round 1 **fails**, round 2 passes |
+| F2, fresh year: at most 2 alerts per 100 checks | 0.33 | 0.39 | passes |
+SIMROWS
+
+- **Round 1 failed because of one Saturday.** Round 1 asked for a zero on *every* occurrence. The fresh year's first
+  Saturday, 2009-12-05, took £9,803 (30 orders), so nothing was left out and the two arms were the same run. Round 2,
+  written down before it ran, changed only that test to the last 8 weeks: the weeks that describe the shop now. In the
+  simulation, and on the design year, every Saturday is 0, so the two rules leave out the same rows and the
+  simulation's bars count for both rounds.
+- **Middle is still deaf** on both years (0 alerts) and is what `--suggest` picks at the default budget, since it is
+  "more eager" and under budget. A shop owner who wants to hear a slow climb should keep Quiet; the suggestion rule
+  counts alerts, not what they hear, and that is not changed here.
+- **The trading Saturday itself is left out** (the decision is made on the whole file each run). A shop that starts
+  opening on Saturdays gets them back after its first Saturday sale; the watch then notes that its last label is gone
+  if the previous run ended on a dropped day.
+
+**What ships (round 2):** `watch.mjs --shut-days auto|keep` (auto is the default; the output and `--json` say which
+weekday was left out, how many rows and the period used), and the page's history replay and "How eager" replay do
+the same (`analyze-job.mjs` `shutPrep`; the replay note names the day). `deploy/watch-metric.yml` runs `watch.mjs`, so a
+deployed Stripe watch gets it with no change: its `revenue` column is a level model.
+
+**Checked:** `shut-weekday.test.mjs` (6 tests): the rule on toy shops (an every-week zero, a one-off zero Friday, a
+recent trading Saturday, short and non-daily series, an all-zero series); round 1 against round 2 on a trading first
+Saturday; both real years' alerts with and without the drop; the CLI default, its line, `--json`, `--shut-days keep`
+and a Poisson column left whole; the page job's `shutDays`.
+
+Next: a deployer's real Stripe series; Middle's deafness to slow climbs (the suggestion picks it); a shop with two
+shut days (Sunday and Monday), which no data here has.

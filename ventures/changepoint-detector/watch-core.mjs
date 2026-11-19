@@ -517,17 +517,19 @@ const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frida
 const dayNumber = (s) => (/^\d{4}-\d{2}-\d{2}$/.test(String(s)) ? Date.parse(`${s}T00:00:00Z`) / 864e5 : NaN);
 
 /**
- * Weekdays a business never opens: on labels that are consecutive calendar days, the weekdays whose value is 0 on every
- * one of at least `minWeeks` occurrences (a shop shut every Saturday). Returns their names, or [] (labels not daily,
- * too short, or no such weekday). A weekday with a single non-zero day is open and is not listed.
+ * Weekdays a business does not open: on labels that are consecutive calendar days, the weekdays whose value is 0 on
+ * each of their last `recent` occurrences (default 8; round 2, eval/shut-weekday.prereg.md), or on every occurrence
+ * with `recent: 0` (round 1, which a single trading Saturday in the first week defeated), with at least `minWeeks`
+ * occurrences. Returns their names, or [] (labels not daily, too short, no such weekday, or every weekday zero).
  */
-export function shutWeekdays(values, labels, { minWeeks = 4 } = {}) {
+export function shutWeekdays(values, labels, { minWeeks = 4, recent = 8 } = {}) {
   if (!labels || labels.length < 7 * minWeeks || labels.length !== values.length) return [];
   const d0 = dayNumber(labels[0]), d1 = dayNumber(labels[1]), dn = dayNumber(labels[labels.length - 1]);
   if (!Number.isFinite(d0) || d1 - d0 !== 1 || dn - d0 !== labels.length - 1) return [];
   const seen = new Array(7).fill(0), open = new Array(7).fill(false);
-  for (let i = 0; i < values.length; i++) {
+  for (let i = values.length - 1; i >= 0; i--) {
     const w = ((d0 + i + 4) % 7 + 7) % 7; // 1970-01-01 was a Thursday
+    if (recent > 0 && seen[w] >= recent) continue;
     seen[w]++;
     if (Number(values[i]) !== 0) open[w] = true;
   }

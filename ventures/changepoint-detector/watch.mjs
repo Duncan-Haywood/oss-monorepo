@@ -19,7 +19,7 @@ import { existsSync } from 'node:fs';
 import process from 'node:process';
 import { parseSeries } from './engine.mjs';
 import { parseColumns } from './multivariate.mjs';
-import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, fillClosed, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector } from './watch-core.mjs';
+import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, fillClosed, dropShutWeekdays, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector } from './watch-core.mjs';
 import { pathToFileURL } from 'node:url';
 
 // The logic lives in watch-core.mjs (no file or network access, so the page and the agent tool import it too).
@@ -64,6 +64,12 @@ Options:
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
   --log                     take logs first (positive values; percentage growth)
+  --shut-days auto|keep     a weekday that is 0 on each of its last 8 weeks (a shop shut every Saturday) is left out
+                            before the level models (mean, meanvar) read the series, and --period 7 becomes 7 minus
+                            the days left out (auto, the default); keep reads those zeros as data. Counts (poisson)
+                            are never changed. On a real UK online shop shut on Saturdays it let Quiet hear the
+                            autumn climb in revenue 6 days after it began, in both years, where it had been deaf (one
+                            year) or 59 days late (the other). README, "A shop shut one weekday".
   --closed <dates|@file>    days the business was shut (bank holidays, a Christmas closure): a comma list of labels
                             (2024-12-25,2024-12-26) or @file with one per line. Each listed day is replaced, before any
                             detector sees it, by the same weekday one week earlier (one --period earlier; the day
@@ -133,6 +139,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--penalty') { const p = argv[++i]; o.penalty = /^\d+(\.\d+)?$/.test(p) ? Number(p) : p; }
     else if (a === '--period') o.period = num(argv[++i], '--period');
     else if (a === '--log') o.log = true;
+    else if (a === '--shut-days') { const v = argv[++i]; if (!['auto', 'keep'].includes(v)) throw new Error('--shut-days takes auto or keep.'); o.shutDays = v; }
     else if (a === '--closed') { closedSpec = argv[++i]; if (!closedSpec || closedSpec.startsWith('-')) throw new Error('--closed takes a comma list of dates (2024-12-25,2024-12-26) or @file.'); }
     else if (a === '--detector' && argv[i + 1] === 'auto') { auto = true; i++; }
     else if (a === '--suggest') suggest = true;
@@ -176,11 +183,12 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   }
   if (floorSpec?.byColumn) throw new Error('--min-shift column=x,... is for --columns; with one column give a number.');
   if (spreadSpec?.byColumn) throw new Error('--min-spread column=k,... is for --columns; with one column give a number.');
-  const { labels, values: raw, column } = parseSeries(csv, o.column ?? null, o.labelColumn ?? null);
+  const { labels: labels0, values: raw, column } = parseSeries(csv, o.column ?? null, o.labelColumn ?? null);
   if (raw.length < 4) throw new Error(`Need at least 4 numbers; got ${raw.length}.`);
-  const fill = closedFill(raw, labels, closed, o);
-  const values = fill.values;
-  const { column: _c, labelColumn: _l, alertHistory: _h, ...detOpts } = o;
+  const fill = shutDrop(closedFill(raw, labels0, closed, o), labels0, o);
+  const { values, labels } = fill;
+  if (fill.period !== undefined) o.period = fill.period;
+  const { column: _c, labelColumn: _l, alertHistory: _h, shutDays: _s, ...detOpts } = o;
   if (suggest) {
     if (values.length < 10) throw new Error(`--suggest needs at least 10 points; got ${values.length}.`);
     const r = eagernessReplay(values, labels, { ...detOpts, ...(budget != null ? { budget } : {}) });
@@ -239,6 +247,24 @@ export function closedFill(values, labels, closed, opts = {}) {
   const n = r.filled.length;
   const line = `Closed: ${n} of ${closed.length} listed day${closed.length === 1 ? '' : 's'} in this series, each read as the same day one cycle earlier${n ? ` (${r.filled.slice(0, 5).map((f) => f.label).join(', ')}${n > 5 ? ', ...' : ''})` : ''}.\n`;
   return { values: r.values, line, json: { closed: { listed: closed.length, filled: r.filled } } };
+}
+
+/**
+ * `--shut-days auto` (the default): for the level models, leave out the weekdays the series is 0 on in each of their last
+ * 8 weeks (dropShutWeekdays; README "A shop shut one weekday", eval/shut-weekday.prereg.md round 2), and turn
+ * `--period 7` into 7 minus the days left out. Takes closedFill's result and the labels; returns it with `values`,
+ * `labels`, `period` (undefined when unchanged), `closedLine` (closedFill's line), `shutLine`, `line` (both) and `json`.
+ */
+export function shutDrop(fill, labels, opts = {}) {
+  const base = { ...fill, labels, closedLine: fill.line, shutLine: '', period: undefined };
+  if (opts.shutDays === 'keep' || (opts.model ?? 'mean') === 'poisson') return base;
+  const d = dropShutWeekdays(fill.values, labels);
+  if (!d.dropped.length) return base;
+  const k = d.dropped.length;
+  const period = Number(opts.period) === 7 ? 7 - k : undefined;
+  const days = d.dropped.join(' and ');
+  const shutLine = `Shut days: ${days} ${k === 1 ? 'is' : 'are'} 0 in each of the last 8 weeks, so ${k === 1 ? 'that day is' : 'those days are'} left out (${labels.length - d.labels.length} rows)${period ? `, and --period 7 is read as ${period}` : ''}; --shut-days keep reads them as data.\n`;
+  return { ...base, values: d.values, labels: d.labels, period, shutLine, line: fill.line + shutLine, json: { ...fill.json, shutDays: { left: d.dropped, rows: labels.length - d.labels.length, ...(period ? { period } : {}) } } };
 }
 
 /**
@@ -308,13 +334,14 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
   // 100 checks of the whole watch, and on the UK seat-belt columns the split sent more (8 against 5), because Quiet sent
   // more than Middle on those seasonal monthly series.
   const whole = budget ?? HINT_BUDGET;
-  const { column: _c, labelColumn, alertHistory: _h, ...base } = o;
+  const { column: _c, labelColumn, alertHistory: _h, shutDays, ...base } = o;
   const series = specs.map((s) => {
     const { labels, values: raw, column } = parseSeries(csv, s.column, labelColumn ?? null);
     if (raw.length < 4) throw new Error(`${column}: need at least 4 numbers; got ${raw.length}.`);
     const opts = { ...base, ...(s.model ? { model: s.model } : {}) };
-    const fill = closedFill(raw, labels, closed, opts);
-    return { ...s, column: String(column), labels, values: fill.values, fill, opts };
+    const fill = shutDrop(closedFill(raw, labels, closed, opts), labels, { ...opts, shutDays });
+    if (fill.period !== undefined) opts.period = fill.period;
+    return { ...s, column: String(column), labels: fill.labels, values: fill.values, fill, opts };
   });
   const applyPerColumn = (spec, key, flag) => {
     if (spec?.byColumn) {
@@ -334,8 +361,8 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
       return { column: c.column, ...eagernessReplay(c.values, c.labels, { ...c.opts, budget: whole }), ...c.fill.json };
     });
     if (json) out(JSON.stringify({ budget: whole, plain: plainBudgetText(whole, every), columns: rows }, null, 2) + '\n');
-    else out(`Budget: ${plainBudgetText(whole, every)} per column, ${k} column${k === 1 ? '' : 's'}.\n${series[0].fill.line}\n`
-      + rows.map((r) => `== ${r.column} ==\n${eagernessText(r, { column: r.column, every })}`).join('\n\n') + '\n');
+    else out(`Budget: ${plainBudgetText(whole, every)} per column, ${k} column${k === 1 ? '' : 's'}.\n${series[0].fill.closedLine}\n`
+      + rows.map((r, j) => `== ${r.column} ==\n${series[j].fill.shutLine}${eagernessText(r, { column: r.column, every })}`).join('\n\n') + '\n');
     return 0;
   }
   let state = emptyMultiState();
@@ -383,7 +410,8 @@ async function watchColumns({ csv, closed = null, specs, o, statePath, json, fai
       const pick = r.picked ? `How eager: ${NAME[r.picked.key]} (${r.picked.detector}), picked from ${r.picked.n} points: ${r.picked.reason}; budget ${plainBudgetText(whole, every)}. Later runs keep it.\n` : '';
       return `== ${r.column} ==\n${pick}${statusText(r.res, { column: r.column, model: r.model, confirm: o.confirm })}`;
     });
-    out([head + (results[0].fill.line ? '\n' + results[0].fill.line.trimEnd() : ''), ...blocks].join('\n\n') + '\n');
+    const shutLines = results.filter((r) => r.fill.shutLine).map((r) => `${r.column}: ${r.fill.shutLine.trimEnd()}`);
+    out([head + (results[0].fill.closedLine ? '\n' + results[0].fill.closedLine.trimEnd() : '') + (shutLines.length ? '\n' + shutLines.join('\n') : ''), ...blocks].join('\n\n') + '\n');
   }
   return failOnAlert && alerting.length ? 1 : 0;
 }
