@@ -59,7 +59,16 @@ DI = NS.SEPS.index(D)
 SNR = -10.0
 RHOS = [0.0, 0.25, 0.5, 0.75, 0.9, 1.0]
 IMPULSIVE = ["Munching", "Neighbor", "ShuttingDoor", "Typing"]
-COLS = ["rt", "trial", "sess", "type", "rho", "snr_hat", "err", "psr", "err_fn", "psr_fn", "ds", "dn"]
+COLS = ["rt", "trial", "sess", "type", "rho", "snr_hat", "err", "psr", "err_fn", "psr_fn", "ds", "dn", "redraws"]
+SCREEN = 0.3  # post hoc (LOG.md 3l): a shared stretch this correlated with a device's independent one is a copy
+MAX_REDRAW = 50
+
+
+def xpeak(x, y):
+    """Peak |normalised cross-correlation| of two signals over all lags."""
+    x = (x - x.mean()) / (np.linalg.norm(x - x.mean()) + 1e-20)
+    y = (y - y.mean()) / (np.linalg.norm(y - y.mean()) + 1e-20)
+    return float(np.max(np.abs(fftconvolve(x, y[::-1]))))
 
 
 def eff_snr_db(rho, snr=SNR):
@@ -75,7 +84,11 @@ def mix(x0, s, ind, sh, rho):
 
 
 def run_chunk(args):
-    root, rt, L_, trials, seed = args
+    """Step 3l's windows. With screen=True (step 3l-b, written after the first score) a shared stretch whose
+    raw recording matches either device's independent stretch (xpeak > SCREEN) is redrawn from a fourth
+    generator seeded by (seed, trial, 4, type), up to MAX_REDRAW times; rho 0 is unchanged."""
+    root, rt, L_, trials, seed = args[:5]
+    screen = len(args) > 5 and args[5]
     rng = np.random.default_rng(seed)
     blocks, nz = NT.speech_blocks(root), NT.noises(root)
     pool = {t: np.concatenate(nz[t]) for t in TYPES[1:]}
@@ -125,6 +138,13 @@ def run_chunk(args):
                 j = int(rng3.integers(0, len(src) - nlen))
                 z = src[j:j + nlen].copy()
             ha, hb = NT.rir(rt, rng3), NT.rir(rt, rng3)
+            redraws = 0
+            if screen and tn != "white":
+                rng4 = np.random.default_rng([seed, t, 4, ti])
+                while redraws < MAX_REDRAW and max(xpeak(z, ind[ti][0]), xpeak(z, ind[ti][1])) > SCREEN:
+                    j = int(rng4.integers(0, len(src) - nlen))
+                    z = src[j:j + nlen].copy()
+                    redraws += 1
             lag = int(round((dn[DI] - ds[DI]) * FS))
             na, nb = NS.shared_tracks(z, ha, hb, lag, need)
             za = na[p0:p0 + n]
@@ -137,15 +157,15 @@ def run_chunk(args):
                 dfn, pfn = gcc(envelope_normalise(a), envelope_normalise(b), gamma=0.25, max_lag_s=SEARCH,
                                centre_s=SEARCH)
                 rows.append([rt, t, sess, ti, rho, sh, d - k_true / FS, p, dfn - k_true / FS, pfn,
-                             ds[DI], dn[DI]])
+                             ds[DI], dn[DI], redraws])
     return rows
 
 
-def collect(root, out, procs, n_trials=1000):
+def collect(root, out, procs, n_trials=1000, screen=False):
     jobs = []
     for ri, rt in enumerate(ROOMS):
         for c in range(8):  # noisetype.collect's chunks and seeds for L = 2 s, exactly
-            jobs.append((root, rt, L, list(range(c, n_trials, 8)), 31000 + 1000 * ri + 100 * LI + c))
+            jobs.append((root, rt, L, list(range(c, n_trials, 8)), 31000 + 1000 * ri + 100 * LI + c, screen))
     with ProcessPoolExecutor(procs) as ex:
         rows = [r for rr in ex.map(run_chunk, jobs) for r in rr]
     np.savez_compressed(out, rows=np.array(rows, float))
@@ -154,7 +174,8 @@ def collect(root, out, procs, n_trials=1000):
 
 def loadrows(path):
     r = np.load(path)["rows"]
-    d = {c: r[:, k] for k, c in enumerate(COLS)}
+    d = {c: r[:, k] for k, c in enumerate(COLS) if k < r.shape[1]}
+    d.setdefault("redraws", np.zeros(len(r)))
     for c in ("trial", "sess", "type"):
         d[c] = d[c].astype(int)
     return d
@@ -165,9 +186,8 @@ def spearman(x, y):
     return float(np.corrcoef(rx, ry)[0, 1])
 
 
-def score(path):
+def score(path, tag=""):
     d = loadrows(path)
-    out, P = [], None
     out = []
     P = out.append
     clock = {"plain": np.abs(d["err"] + d["ds"]) > FRAME, "fn": np.abs(d["err_fn"] + d["ds"]) > FRAME}
@@ -178,6 +198,14 @@ def score(path):
     P("independent (step 3c), total -10 dB window SNR; MS-SNSD speech and noise, statistical rooms, 2 s windows;")
     P("gamma 0.25 GCC (plain) and envelope-normalised (fn); errors against the clock truth at 30 fps")
     P(f"windows: {len(d['rho'])}")
+    if tag:
+        P(f"step 3l-b (screened): shared stretches redrawn when their recording matched a device's independent one "
+          f"(peak normalised cross-correlation > {SCREEN}); windows with a redraw "
+          f"{float(np.mean(d['redraws'][d['rho'] > 0] > 0)):.3f} of rho > 0, still unscreened after {MAX_REDRAW} "
+          f"tries {int(np.sum(d['redraws'] >= MAX_REDRAW))}")
+        summ["redraw_share"] = {f"{rt}|{tn}": float(np.mean(d["redraws"][(d["rt"] == rt) & (d["type"] == ti)
+                                                                          & (d["rho"] == 1.0)] > 0))
+                                for rt in ROOMS for ti, tn in enumerate(TYPES)}
     P("")
     # replays
     ref3c = json.load(open(os.path.join(HERE, "noisetype_summary.json")))["fail"]
@@ -281,8 +309,8 @@ def score(path):
           " ".join(f"{v:.2f}" for v in t["sum_plain"].values()) + " fn " + " ".join(f"{v:.2f}" for v in t["sum_fn"].values()))
         P(f"    gate pooled <= 2% at every rho: {t['gate_pooled_le2_every_rho']}; kept rises: {t['gate_kept_rises']} "
           f"({' '.join(f'{k:.2f}' for k in kept)}); door > 2% at rho >= 0.75: {t['door_over2_at_rho_ge_0.75']}")
-    open(os.path.join(HERE, "noisemix_results.txt"), "w").write("\n".join(out) + "\n")
-    json.dump(summ, open(os.path.join(HERE, "noisemix_summary.json"), "w"), indent=1,
+    open(os.path.join(HERE, f"noisemix{tag}_results.txt"), "w").write("\n".join(out) + "\n")
+    json.dump(summ, open(os.path.join(HERE, f"noisemix{tag}_summary.json"), "w"), indent=1,
               default=lambda o: o.item() if hasattr(o, "item") else str(o))
     print("\n".join(out))
 
@@ -292,6 +320,6 @@ if __name__ == "__main__":
         a = sys.argv
         pr = int(a[a.index("--procs") + 1]) if "--procs" in a else 4
         nt = int(a[a.index("--trials") + 1]) if "--trials" in a else 1000
-        collect(a[2], a[3], pr, nt)
+        collect(a[2], a[3], pr, nt, screen="--screen" in a)
     else:
-        score(sys.argv[2])
+        score(sys.argv[2], "_screened" if "--screened" in sys.argv else "")
