@@ -8,6 +8,17 @@
 - (2026-11-16) a real shoot's picks through the blink detector (eval/blink-*; half faces at the frame edge found by mirroring since 2026-11-16, but under 100 px only 4 of 22: eval/blink-edge-mirror-2026-11-16.md)
 - (2026-11-16) an Adobe render of a known frame (settles `--default-tone-curve always`)
 
+## From the min-eigenvalue noise read (2026-11-19, eval/noise-pca-min-eigen-2026-11-19.md)
+
+- The shipped patch-PCA read under-reads white-balanced noise: a median 0.53 of the true sigma at SNR 12 with
+  white balance, 0.75 without, held out. The oracle model gains +1.02 dB luma over directional against +0.70
+  for what ships. Next: per-colour noise *ratios* from `eig="mpc"` and the *level* from Chen's read of the
+  colour-whitened patches, pre-registered on the `fourth` set (the rows are committed, so the pick costs only
+  the sweep).
+- Dense foliage over-reads are not in the eigenvalues (the quietest direction is full too). On D780 DSC_0336
+  [0, 0] the bins' sigma climbs from 0.001 (dark) to 0.035 (bright), steeper than shot noise allows: try a
+  lower-envelope line fit over the bins, or cap each bin at the darker bins' line.
+
 ## From the float32 check (2026-11-17, eval/noise-aware-float32-2026-11-17.md)
 
 - (moved from flagships.yaml `buildable:`) Bayer trees parked: a range guard passes 6 fresh cameras, misses
