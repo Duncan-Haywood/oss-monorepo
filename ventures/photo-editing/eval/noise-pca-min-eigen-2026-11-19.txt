@@ -1,0 +1,71 @@
+556 rows
+arm            luma   colour losers  worst
+ship+12     +0.8265  +0.5734      0  -0.06
+mp+12       +0.7747  +0.5430      1  -0.14
+mpc+12      +0.9175  +0.6168      4  -0.42
+pick: none (every read has more losers than ship): stop
+958 rows
+arm            luma   colour losers  worst
+ship+12     +0.6959  +0.4804      6  -0.18
+mp+12       +0.7550  +0.5178     10  -0.17
+   SNR    12 equal n= 157  mp+12 - ship+12: luma -0.0273  colour -0.0089
+   SNR    12 wb    n= 157  mp+12 - ship+12: luma +0.1207  colour +0.0793
+   SNR    25 equal n= 147  mp+12 - ship+12: luma +0.0251  colour +0.0223
+   SNR    25 wb    n= 147  mp+12 - ship+12: luma +0.1037  colour +0.0620
+   SNR    60 equal n= 142  mp+12 - ship+12: luma +0.0415  colour +0.0265
+   SNR    60 wb    n= 142  mp+12 - ship+12: luma +0.1044  colour +0.0542
+   SNR   200 equal n=  33  mp+12 - ship+12: luma +0.0173  colour +0.0076
+   SNR   200 wb    n=  33  mp+12 - ship+12: luma +0.0524  colour +0.0215
+   loser Nikon_D600__DSC_3294.NEF [0, 1026] SNR 60 equal: ship+12 -0.11, mp+12 -0.13; sigma18 {'ship': 0.007505, 'mp': 0.007788, 'mpc': 0.010089}, true 0.003
+   loser Nikon_D780__DSC_0334.NEF [0, 0] SNR 60 equal: ship+12 -0.09, mp+12 -0.15; sigma18 {'ship': 0.010186, 'mp': 0.011604, 'mpc': 0.011604}, true 0.003
+   loser Nikon_D780__DSC_0334.NEF [0, 0] SNR 60 wb: ship+12 -0.11, mp+12 -0.17; sigma18 {'ship': 0.011022, 'mp': 0.012217, 'mpc': 0.012217}, true 0.003722
+   loser Nikon_D780__DSC_0334.NEF [0, 0] SNR 25 equal: ship+12 +0.00, mp+12 -0.15; sigma18 {'ship': 0.010507, 'mp': 0.014532, 'mpc': 0.017008}, true 0.0072
+   loser Nikon_D780__DSC_0336.NEF [0, 0] SNR 60 equal: ship+12 -0.18, mp+12 -0.17; sigma18 {'ship': 0.015625, 'mp': 0.015419, 'mpc': 0.015625}, true 0.003
+   loser Nikon_D780__DSC_0336.NEF [0, 0] SNR 60 wb: ship+12 -0.17, mp+12 -0.17; sigma18 {'ship': 0.015442, 'mp': 0.015442, 'mpc': 0.015442}, true 0.0037
+   loser Nikon_D780__DSC_0336.NEF [0, 0] SNR 25 wb: ship+12 -0.12, mp+12 -0.15; sigma18 {'ship': 0.016732, 'mp': 0.017517, 'mpc': 0.021897}, true 0.00888
+   loser Nikon_D780__DSC_0338.NEF [0, 0] SNR 60 equal: ship+12 -0.03, mp+12 -0.14; sigma18 {'ship': 0.009768, 'mp': 0.01244, 'mpc': 0.017095}, true 0.003
+   loser Nikon_D780__DSC_0338.NEF [0, 0] SNR 60 wb: ship+12 -0.12, mp+12 -0.12; sigma18 {'ship': 0.012268, 'mp': 0.012335, 'mpc': 0.017465}, true 0.003694
+   loser Nikon_D780__DSC_0338.NEF [0, 0] SNR 25 equal: ship+12 -0.03, mp+12 -0.11; sigma18 {'ship': 0.011743, 'mp': 0.013938, 'mpc': 0.020728}, true 0.0072
+means: luma +0.0591, colour +0.0374; worst cell -0.0273; losers 6 -> 10, new 4; named rows -0.135 -> -0.152
+FAIL h1 means within 0.005 dB of ship, every cell within 0.02 dB
+FAIL h2 fewer rows lose > 0.1 dB to D, none new
+FAIL h3 the 6 named rows' mean worse gain improves
+verdict: what ships stays
+958 rows
+arm            luma   colour losers  worst
+ship+12     +0.6959  +0.4804      6  -0.18
+mpc+12      +0.8070  +0.5359     21  -0.88
+   SNR    12 equal n= 157  mpc+12 - ship+12: luma +0.0239  colour +0.0119
+   SNR    12 wb    n= 157  mpc+12 - ship+12: luma +0.2493  colour +0.1297
+   SNR    25 equal n= 147  mpc+12 - ship+12: luma +0.0402  colour +0.0244
+   SNR    25 wb    n= 147  mpc+12 - ship+12: luma +0.1841  colour +0.0869
+   SNR    60 equal n= 142  mpc+12 - ship+12: luma +0.0504  colour +0.0277
+   SNR    60 wb    n= 142  mpc+12 - ship+12: luma +0.1461  colour +0.0687
+   SNR   200 equal n=  33  mpc+12 - ship+12: luma +0.0218  colour +0.0067
+   SNR   200 wb    n=  33  mpc+12 - ship+12: luma +0.0588  colour +0.0215
+   loser Nikon_D600__DSC_3294.NEF [0, 1026] SNR 60 equal: ship+12 -0.11, mpc+12 -0.44; sigma18 {'ship': 0.007505, 'mp': 0.007788, 'mpc': 0.010089}, true 0.003
+   loser Nikon_D600__DSC_3294.NEF [0, 1026] SNR 60 wb: ship+12 -0.06, mpc+12 -0.25; sigma18 {'ship': 0.006893, 'mp': 0.007286, 'mpc': 0.009185}, true 0.004091
+   loser Nikon_D600__DSC_3294.NEF [0, 1026] SNR 25 equal: ship+12 +0.00, mpc+12 -0.27; sigma18 {'ship': 0.007948, 'mp': 0.009468, 'mpc': 0.01096}, true 0.0072
+   loser Nikon_D780__DSC_0334.NEF [264, 516] SNR 60 equal: ship+12 -0.01, mpc+12 -0.17; sigma18 {'ship': 0.013831, 'mp': 0.01707, 'mpc': 0.021157}, true 0.003
+   loser Nikon_D780__DSC_0334.NEF [264, 516] SNR 60 wb: ship+12 +0.00, mpc+12 -0.18; sigma18 {'ship': 0.01376, 'mp': 0.017579, 'mpc': 0.021389}, true 0.003722
+   loser Nikon_D780__DSC_0334.NEF [264, 516] SNR 25 equal: ship+12 +0.00, mpc+12 -0.10; sigma18 {'ship': 0.012956, 'mp': 0.01699, 'mpc': 0.020292}, true 0.0072
+   loser Nikon_D780__DSC_0334.NEF [0, 0] SNR 60 equal: ship+12 -0.09, mpc+12 -0.15; sigma18 {'ship': 0.010186, 'mp': 0.011604, 'mpc': 0.011604}, true 0.003
+   loser Nikon_D780__DSC_0334.NEF [0, 0] SNR 60 wb: ship+12 -0.11, mpc+12 -0.17; sigma18 {'ship': 0.011022, 'mp': 0.012217, 'mpc': 0.012217}, true 0.003722
+   loser Nikon_D780__DSC_0334.NEF [0, 0] SNR 25 equal: ship+12 +0.00, mpc+12 -0.33; sigma18 {'ship': 0.010507, 'mp': 0.014532, 'mpc': 0.017008}, true 0.0072
+   loser Nikon_D780__DSC_0336.NEF [0, 0] SNR 60 equal: ship+12 -0.18, mpc+12 -0.18; sigma18 {'ship': 0.015625, 'mp': 0.015419, 'mpc': 0.015625}, true 0.003
+   loser Nikon_D780__DSC_0336.NEF [0, 0] SNR 60 wb: ship+12 -0.17, mpc+12 -0.17; sigma18 {'ship': 0.015442, 'mp': 0.015442, 'mpc': 0.015442}, true 0.0037
+   loser Nikon_D780__DSC_0336.NEF [0, 0] SNR 25 wb: ship+12 -0.12, mpc+12 -0.46; sigma18 {'ship': 0.016732, 'mp': 0.017517, 'mpc': 0.021897}, true 0.00888
+   loser Nikon_D780__DSC_0338.NEF [264, 516] SNR 60 equal: ship+12 -0.01, mpc+12 -0.21; sigma18 {'ship': 0.010162, 'mp': 0.014228, 'mpc': 0.017049}, true 0.003
+   loser Nikon_D780__DSC_0338.NEF [0, 0] SNR 60 equal: ship+12 -0.03, mpc+12 -0.64; sigma18 {'ship': 0.009768, 'mp': 0.01244, 'mpc': 0.017095}, true 0.003
+   loser Nikon_D780__DSC_0338.NEF [0, 0] SNR 60 wb: ship+12 -0.12, mpc+12 -0.68; sigma18 {'ship': 0.012268, 'mp': 0.012335, 'mpc': 0.017465}, true 0.003694
+   loser Nikon_D780__DSC_0338.NEF [0, 0] SNR 25 equal: ship+12 -0.03, mpc+12 -0.88; sigma18 {'ship': 0.011743, 'mp': 0.013938, 'mpc': 0.020728}, true 0.0072
+   loser Nikon_D780__DSC_0338.NEF [0, 0] SNR 25 wb: ship+12 -0.03, mpc+12 -0.58; sigma18 {'ship': 0.012827, 'mp': 0.013369, 'mpc': 0.01942}, true 0.008867
+   loser Nikon_D780__DSC_0340.NEF [0, 0] SNR 25 wb: ship+12 -0.05, mpc+12 -0.55; sigma18 {'ship': 0.015065, 'mp': 0.016042, 'mpc': 0.021406}, true 0.008888
+   loser Nikon_Z_6__DSC_0750.NEF [0, 0] SNR 25 wb: ship+12 +0.21, mpc+12 -0.29; sigma18 {'ship': 0.00648, 'mp': 0.006756, 'mpc': 0.010673}, true 0.009137
+   loser Panasonic_DC-GF10__P1010137.RW2 [192, 336] SNR 200 equal: ship+12 +0.00, mpc+12 -0.12; sigma18 {'ship': 0.001843, 'mp': 0.002082, 'mpc': 0.003344}, true 0.0009
+   loser Panasonic_DC-GF10__P1010137.RW2 [192, 336] SNR 200 wb: ship+12 +0.00, mpc+12 -0.12; sigma18 {'ship': 0.001913, 'mp': 0.00219, 'mpc': 0.003408}, true 0.001242
+means: luma +0.1111, colour +0.0556; worst cell +0.0067; losers 6 -> 21, new 15; named rows -0.135 -> -0.350
+PASS h1 means within 0.005 dB of ship, every cell within 0.02 dB
+FAIL h2 fewer rows lose > 0.1 dB to D, none new
+FAIL h3 the 6 named rows' mean worse gain improves
+verdict: what ships stays

@@ -316,29 +316,26 @@ flagships:
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
       CR2; camera DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with
       the 1.7.1.0 text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear
-      matches the Leica T's preview to 0.18 px; WarpRectilinear2). Phase One IIQ L
-      and S 2026-11-18, no .dcp: file's matrix (eval/phaseone-iiq-*); Hasselblad 3FR
-      and Phocus .fff (eval/hasselblad-*). Kodak DCR 2026-11-18 = LibRaw
-      (eval/kodak-dcr-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4 x 2
-      tiles (177 MP); no public file has a tone curve
-      (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
-      every sensel (eval/panasonic-rw2-177mp-libraw-*). IIQ 16-bit (IQ4, IQ3 100MP,
-      Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs LibRaw's dE 16, unsettled
-      (eval/phaseone-iiq-16bit-*). IIQ calibration (0x110) 2026-11-19: LibRaw's to 3
-      codes off dead columns (eval/phaseone-iiq-calibration-*). Next: the H 25
-      IT8.7-2 card raw to judge the matrices; an iXU180 dark frame or Capture One
-      export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
-      5.2% blue gap is them, calibration = LibRaw on 13 more files,
+      matches the Leica T's preview to 0.18 px; WarpRectilinear2). S1R II 177 MP =
+      LibRaw snapshot 202611, every sensel (eval/panasonic-rw2-177mp-libraw-*). IIQ
+      16-bit (IQ4, IQ3 100MP, Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs
+      LibRaw's dE 16, unsettled (eval/phaseone-iiq-16bit-*). IIQ calibration (0x110)
+      2026-11-19: LibRaw's to 3 codes off dead columns
+      (eval/phaseone-iiq-calibration-*). Next: the H 25 IT8.7-2 card raw to judge
+      the matrices; an iXU180 dark frame or Capture One export to say if IIQ S
+      offset tables apply (LibRaw skips them; the iXU180's 5.2% blue gap is them,
+      calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
       evenly lit frame; Near-clean leak closed on Bayer 2026-11-19 (k 12,
       eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
       day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
       reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);
-      D780/D600 truth noise read from the raw 2026-11-19 (truth_grain18; the old
-      column read foliage 3-12x as grain): 6 of 11 losers are real over-reads on
-      clean truths, the read floors on fine foliage at 2.3-5.2x the noise
-      (eval/near-clean-truth-noise-2026-11-19.md); next a texture-robust noise read
-      for them, pre-registered. More open items: NEXT.md.
+      D780/D600: 6 of 11 losers are real over-reads on clean truths
+      (eval/near-clean-truth-noise-2026-11-19.md); a min-eigenvalue read failed its
+      pre-registered pick 2026-11-19: foliage fills the quietest direction too, and
+      the shipped read under-reads white-balanced noise (0.53x at SNR 12;
+      eval/noise-pca-min-eigen-2026-11-19.md); next per-colour ratios with a
+      texture-safe level, pre-registered. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

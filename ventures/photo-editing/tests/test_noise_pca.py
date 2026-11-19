@@ -47,6 +47,37 @@ class NoisePcaTests(unittest.TestCase):
         p = self.rng.normal(size=(5000, 36)) * 0.01
         self.assertAlmostEqual(eig_sigma2(p) / 1e-4, 1.0, delta=0.1)
 
+    def test_min_eigen_reads_white_noise_and_rejects_dense_texture(self):
+        # eval/noise-pca-min-eigen-2026-11-19.md: the smallest eigenvalue over the Marchenko-Pastur edge reads
+        # white noise's variance; texture spread over every direction but one quiet one does not raise it.
+        from shootflow.noise_pca import _eig_sigma2_idx, _mp_floor
+
+        np = self.np
+        p = self.rng.normal(size=(5000, 36)) * 0.01
+        idx = np.arange(5000)
+        self.assertAlmostEqual(_eig_sigma2_idx(p, idx, "mp") / 1e-4, 1.0, delta=0.06)
+        basis = np.linalg.qr(self.rng.normal(size=(36, 36)))[0][:, :30]  # texture in 30 of 36 directions
+        t = p + (self.rng.normal(size=(5000, 30)) * 0.03) @ basis.T
+        self.assertGreater(_eig_sigma2_idx(t, idx, "chen") / 1e-4, 3.0)
+        self.assertAlmostEqual(_eig_sigma2_idx(t, idx, "mp") / 1e-4, 1.0, delta=0.15)
+        self.assertAlmostEqual(_mp_floor(3600, 36), 0.81, places=6)
+
+    def test_mpc_reads_the_colours_mean_variance(self):
+        from shootflow.noise_pca import _eig_sigma2_idx
+
+        np = self.np
+        sd = np.where(np.arange(36) < 9, 0.02, 0.01)  # one colour (9 columns) twice the others' sigma
+        p = self.rng.normal(size=(8000, 36)) * sd
+        want = float(np.mean(sd**2))
+        cols = [np.arange(9), np.arange(9, 36)]
+        idx = np.arange(8000)
+        self.assertAlmostEqual(_eig_sigma2_idx(p, idx, "mpc", cols) / want, 1.0, delta=0.08)
+        self.assertLess(_eig_sigma2_idx(p, idx, "mp") / want, 0.6)  # the quietest colour only
+        with self.assertRaises(ValueError):
+            from shootflow.noise_pca import estimate_noise_pca
+
+            estimate_noise_pca(p[:100, :1].reshape(10, 10), BAYER, eig="nope")
+
     def test_smooth_field_reads_the_true_sigma(self):
         from shootflow.noise_pca import estimate_noise_pca
 
