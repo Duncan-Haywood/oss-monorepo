@@ -884,8 +884,8 @@ def deepen_to_window(days: int) -> bool:
         if not shallow:
             if not stale:
                 return False
-            return subprocess.run(["git", "fetch", "-q", "origin", "main"], capture_output=True,
-                                  timeout=FETCH_TIMEOUT_S, cwd=here).returncode == 0
+            return _shallow_fetch(["-q", "origin", "main"], cwd=here,
+                                  timeout=FETCH_TIMEOUT_S).returncode == 0
         cutoff = datetime.now(timezone.utc) - timedelta(days=days + 1)
         if not stale and _history_reaches(cutoff, here):
             return False
