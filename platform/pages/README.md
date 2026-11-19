@@ -2153,6 +2153,22 @@ is on the list of pages whose findings sit under an `h3`
 node platform/pages/rendered-headings.mjs [--dist=DIR] [--slugs=a,b] [--json=FILE]
 ```
 
+## Paper: what a printed page loses
+
+`paper.mjs` prints each venture page in Chromium's print mode and finds text
+that fades once the browser drops background colours (the print dialog's
+default). Its model of Chromium's text darkening is fitted to Chromium's own
+PDF output for ten colours (`paper.test.mjs`). On 2026-11-19 it found 1,079
+of 1,391 pages with text under 4.5:1 on paper, 101 of them in the result
+panel. `PAPER_INK_JS`, shipped in `pf-site.js`, keeps the fill under that
+text on `beforeprint`, and nowhere else; with it applied, 5 pages and 15 runs
+remain (`docs/reports/2026-11-19-paper-print-legibility.md`).
+
+```
+python3 -m http.server 8794 -d ventures &
+node platform/pages/paper.mjs [--print-buttons-only] [--with-fix] [--pdf out/] [--strict]
+```
+
 ## Reflow, and the two things that widen a page
 
 `reflow.mjs` is the build half of what `sideways.mjs` measures. Its header

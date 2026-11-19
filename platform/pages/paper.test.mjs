@@ -74,3 +74,16 @@ test('large text needs 3:1, normal text 4.5:1', () => {
   assert.equal(judge([{ text: red, fills: [], px: 28, weight: 400 }]).findings.length, 0);
   assert.ok(Math.abs(contrast([255, 0, 0], [255, 255, 255]) - 4.0) < 0.01);
 });
+
+test('every published page carries the print fix, as valid script', async () => {
+  const { PAPER_INK_JS } = await import('./paper.mjs');
+  const { renderChromeModule } = await import('./build.mjs');
+  const { stripForInjection } = await import('./jobs.mjs');
+  const shipped = renderChromeModule();
+  assert.ok(shipped.includes(stripForInjection(PAPER_INK_JS)), 'pf-site.js lacks PAPER_INK_JS');
+  assert.ok(shipped.includes("addEventListener('beforeprint'"));
+  // Escapes survive the template literal: a lost backslash turns \S into S.
+  assert.ok(PAPER_INK_JS.includes('/\\S/.test(n.data)'));
+  assert.ok(PAPER_INK_JS.includes('/\\bprint\\b/'));
+  new Function(stripForInjection(PAPER_INK_JS)); // throws on a syntax error
+});

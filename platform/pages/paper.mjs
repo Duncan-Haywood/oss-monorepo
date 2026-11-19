@@ -42,6 +42,7 @@
 //   node platform/pages/paper.mjs                       # every ventures/<slug>/index.html
 //   node platform/pages/paper.mjs --print-buttons-only  # only pages with a print button
 //   ONLY_SLUGS=a,b node platform/pages/paper.mjs --pdf out/
+//   node platform/pages/paper.mjs --with-fix            # as published: PAPER_INK_JS applied
 //   node platform/pages/paper.mjs --strict              # exit 1 on a finding
 //
 // Out of scope, counted as such rather than reported clean: text drawn on a
@@ -117,6 +118,122 @@ export function isLarge(px, weight) {
   return px >= 24 || (px >= 18.66 && weight >= 700);
 }
 
+// ------------------------------------------------------------- the fix
+
+/**
+ * Shipped in every published page (`pf-site.js`, via build.mjs's
+ * renderChromeModule). On `beforeprint` it runs the model above with the
+ * screen's colours and, for each run of text that would fade on paper, keeps
+ * the fill it sits on: `print-color-adjust: exact` on the nearest box that
+ * paints one. That box's subtree then prints as it looks on screen, which
+ * `contrast.mjs` already holds to WCAG; every other fill is still dropped, so
+ * a page spends ink only where its text needs it. A fill that would not help
+ * (the text is no more legible on it than on paper) is left alone.
+ *
+ * Why not one stylesheet rule: `:where(html){print-color-adjust:exact}` prints
+ * every cream page tint and every dark hero solid; forcing a white page under
+ * it erases the light text of a dark-themed page. Only the colours decide,
+ * and CSS cannot read them.
+ */
+export const PAPER_INK_JS = `
+(function () {
+  if (typeof window === 'undefined' || !window.addEventListener) return;
+  function parse(s) {
+    var m = /rgba?\\(([^)]+)\\)/.exec(s || '');
+    if (!m) return null;
+    var p = m[1].split(/[ ,\\/]+/).filter(Boolean).map(Number);
+    return { c: [p[0], p[1], p[2]], a: p.length > 3 ? p[3] : 1 };
+  }
+  function lum(c) {
+    var t = c.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * t[0] + 0.7152 * t[1] + 0.0722 * t[2];
+  }
+  function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function onPaper(c) {
+    var d = (255 - c[0]) * (255 - c[0]) + (255 - c[1]) * (255 - c[1]) + (255 - c[2]) * (255 - c[2]);
+    if (d > 65025) return c;
+    var v = Math.max(c[0], c[1], c[2]) / 255, m = v ? Math.max(0, (v - 0.33) / v) : 0;
+    return c.map(function (x) { return Math.round(x * m); });
+  }
+  function keep(el) {
+    el.style.setProperty('print-color-adjust', 'exact');
+    el.style.setProperty('-webkit-print-color-adjust', 'exact');
+    el.setAttribute('data-pf-ink', '');
+  }
+  // Selectors the page's own @media print rules give a fill or ink colour
+  // to. Such a box has a print design already (often a white panel with dark
+  // text), and these screen colours are not what will print; keeping its fill
+  // could only undo that design, so it is left alone.
+  function printStyled() {
+    var out = [];
+    function walk(rules, inPrint) {
+      for (var i = 0; rules && i < rules.length; i++) {
+        var r = rules[i];
+        if (r.media && r.cssRules) walk(r.cssRules, inPrint || /\\bprint\\b/.test(r.media.mediaText));
+        else if (inPrint && r.selectorText && r.style &&
+          (r.style.background || r.style.backgroundColor || r.style.color)) out.push(r.selectorText);
+      }
+    }
+    for (var i = 0; i < document.styleSheets.length; i++) {
+      try { walk(document.styleSheets[i].cssRules, false); } catch (e) { /* cross-origin */ }
+    }
+    return out;
+  }
+  function matchesAny(el, sels) {
+    for (var i = 0; i < sels.length; i++) { try { if (el.matches(sels[i])) return true; } catch (e) {} }
+    return false;
+  }
+  var done = false;
+  function run() {
+    if (done || !document.body) return;
+    done = true;
+    var own = printStyled();
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    var seen = new Set(), n, budget = 6000;
+    while ((n = walker.nextNode()) && budget-- > 0) {
+      var el = n.parentElement;
+      if (!el || seen.has(el) || !/\\S/.test(n.data)) continue;
+      seen.add(el);
+      // WCAG exempts inactive controls, and so does this.
+      if (el.closest(':disabled')) continue;
+      var cs = getComputedStyle(el);
+      if ((cs.printColorAdjust || cs.webkitPrintColorAdjust) === 'exact') continue;
+      var t = parse(cs.color);
+      if (!t || !el.getClientRects().length) continue;
+      var px = parseFloat(cs.fontSize), w = Number(cs.fontWeight) || 400;
+      var need = px >= 24 || (px >= 18.66 && w >= 700) ? 3 : 4.5;
+      if (ratio(onPaper(t.c), [255, 255, 255]) >= need) continue;
+      // Up to the first opaque fill, keeping each translucent one on the way:
+      // a 60% tint prints as itself over white unless what it tints prints too.
+      var chain = [], decided = false;
+      for (var a = el; a; a = a.parentElement) {
+        if (matchesAny(a, own)) { decided = true; chain = []; break; }
+        var bs = getComputedStyle(a), b = parse(bs.backgroundColor);
+        var img = bs.backgroundImage !== 'none';
+        if ((b && b.a > 0) || img) chain.push(a);
+        if ((b && b.a >= 0.99) || img) {
+          decided = true;
+          if (!img && ratio(t.c, b.c) <= ratio(onPaper(t.c), [255, 255, 255])) chain = [];
+          break;
+        }
+      }
+      if (!decided) continue;
+      for (var k = 0; k < chain.length; k++) {
+        keep(chain[k]);
+        if (chain[k] === document.body) keep(document.documentElement);
+      }
+    }
+  }
+  window.addEventListener('beforeprint', run);
+  window.addEventListener('afterprint', function () { done = false; });
+  // Safari before 13 fires no beforeprint; it does flip the print query.
+  if (window.matchMedia) {
+    var q = window.matchMedia('print');
+    if (q && q.addListener) q.addListener(function (e) { if (e.matches) run(); });
+  }
+})();
+`;
+
 // ------------------------------------------------------------------ in page
 
 // Runs inside the page (print media already emulated). Returns one row per
@@ -137,6 +254,8 @@ function collect() {
     if (!el || seen.has(el) || !n.data.trim()) continue;
     seen.add(el);
     if (el.closest('script,style,noscript,template,svg')) continue;
+    // WCAG 1.4.3 exempts inactive controls.
+    if (el.closest(':disabled')) continue;
     const cs = getComputedStyle(el);
     if (cs.visibility !== 'visible' || !el.getClientRects().length) continue;
     const r = el.getBoundingClientRect();
@@ -208,6 +327,9 @@ async function main(argv) {
   const pdfAt = argv.indexOf('--pdf');
   const pdfDir = pdfAt >= 0 ? argv[pdfAt + 1] : null;
   const strict = argv.includes('--strict');
+  // Measure the page as the published site prints it: run the fix that
+  // pf-site.js carries, then fire beforeprint as the browser would.
+  const withFix = argv.includes('--with-fix');
   const asJson = argv.includes('--json');
   const slugs = pagesToCheck({ printButtonsOnly: argv.includes('--print-buttons-only'), only });
   if (!slugs.length) { console.error('No pages matched.'); return 2; }
@@ -223,6 +345,12 @@ async function main(argv) {
       await page.goto(`${base}/${slug}/`, { waitUntil: 'load', timeout: 20000 });
       // Let pages that compute on load fill their result panel first.
       await page.waitForTimeout(150);
+      if (withFix) {
+        await page.emulateMedia({ media: 'screen', colorScheme: 'light' });
+        await page.addScriptTag({ content: PAPER_INK_JS });
+        await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+        await page.emulateMedia({ media: 'print', colorScheme: 'light' });
+      }
       const rows = await page.evaluate(collect);
       const j = judge(rows);
       unknown += j.unknown;
