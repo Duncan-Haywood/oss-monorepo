@@ -83,6 +83,14 @@ const fx = dirname(createRequire(import.meta.url).resolve("fontoxpath/package.js
 const { build } = await import("esbuild");
 await build({ entryPoints: [join(fx, "dist/fontoxpath.esm.js")], bundle: true, format: "esm", minify: true, outfile: join(out, "fontoxpath.esm.js"), logLevel: "warning" });
 copyFileSync(join(fx, "LICENSE.md"), join(out, "fontoxpath.LICENSE.txt"));
+// The bundle also carries xspattern and prsc, whose MIT licences ask for their notices to travel with the code.
+const fxRequire = createRequire(join(fx, "package.json"));
+// Their `exports` hide package.json, so resolve the entry point and walk up to the package root.
+for (const dep of ["xspattern", "prsc"]) {
+  let dir = dirname(fxRequire.resolve(dep));
+  while (!existsSync(join(dir, "package.json"))) dir = dirname(dir);
+  copyFileSync(join(dir, "LICENSE"), join(out, `${dep}.LICENSE.txt`));
+}
 manifest.fontoxpath = JSON.parse(readFileSync(join(fx, "package.json"), "utf8")).version;
 writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + "\n");
 console.log(`Wrote ${out}`);
