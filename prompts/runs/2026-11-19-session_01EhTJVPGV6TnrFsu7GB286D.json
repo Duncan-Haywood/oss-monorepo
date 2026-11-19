@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVPGV6TnrFsu7GB286D",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue-generating products); merge when done",
+  "input_sha256": "707354335feaaa1513c3d3d4087906d147e8cd9ba6f5f2f912d2453fc6665198",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T10:00:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Little Lamps story: Saint Stephen (26 December)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 17623,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The scheduled input asks for revenue-generating products while the router drew the creative track; the creative prompt governs, but the mismatch is not addressed anywhere a run would read first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-stephen-for-children.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, shelf little-lamps, slug stephen-and-the-widows-at-the-table (1,572 words), from the BIBLE's open Next-up proposal; proposal moved to DONE.md, new proposal John the Apostle (27 Dec). Text only: audio 577 MB over the 400 MB cap. Local verification: run_workflow_locally.py --for-changes DONE exit 0 (ventures-tests 5/5, pages 6/6, portfolio-validate 100/100, portfolio-pages 12/12, link/doc/page-integrity checks pass; agent-cross-review and deploy jobs not run locally); node --test 20/20; check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

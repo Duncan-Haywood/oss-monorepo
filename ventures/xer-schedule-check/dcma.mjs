@@ -157,7 +157,7 @@ export function assess(xer, opts = {}) {
     const missed = due.filter((t) => t.actEnd === null || t.actEnd > parseDate(t.row.target_end_date));
     add({ id: 11, name: "Missed tasks", value: pct(missed.length, due.length), unit: "%", threshold: "<= 5%", pass: pct(missed.length, due.length) <= 5, count: missed.length, total: due.length,
       items: missed.map((t) => ({ code: t.code, name: t.name, why: t.actEnd === null ? `planned to finish ${t.row.target_end_date}, not finished` : `planned ${t.row.target_end_date}, finished ${formatDate(t.actEnd)}` })),
-      note: "Activities planned to finish by the data date that finished late or have not finished. Planned dates stand in for the baseline." });
+      note: "Activities planned to finish by the data date that finished late or have not finished. Planned dates stand in for the baseline only on started or finished activities: P6 resets a not-started activity's planned dates to its early dates when it schedules, so late work not yet started is not counted." });
     const finished = due.filter((t) => t.actEnd !== null).length;
     const doneAll = all.filter((t) => !t.span && t.type !== "TT_Mile" && t.type !== "TT_FinMile" && t.status === "TK_Complete").length;
     const bei = due.length ? doneAll / due.length : null;

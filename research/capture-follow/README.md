@@ -4,7 +4,7 @@ Fourth project of track 13, autonomous multi-angle capture for travel creators (
 
 **Live page:** https://marisstella.app/research/capture-follow/
 
-**Builds on.** `capture-crop` (a pole-mounted 360 camera cannot stand back, so something else has to) and `capture-kit` (weight and battery budget). Follow-camera control draws on the autonomous aerial cinematography of Bonatti et al. (2020, *Journal of Field Robotics*); the pedestrian repulsion term is a plain inverse-distance potential in the spirit of Helbing and Moln&aacute;r's (1995) social-force model, not a calibrated one. It builds on none of the CU Boulder groups in `prompt.md` beyond a loose link to RECUV's field-robot interests, and claims no connection to them.
+**Builds on.** `capture-crop` (a pole-mounted 360 camera cannot stand back, so something else has to) and `capture-kit` (weight and battery budget). Follow-camera control draws on the autonomous aerial cinematography of Bonatti et al. (2020, *Journal of Field Robotics*); the pedestrian repulsion term is a plain inverse-distance potential in the spirit of Helbing and Moln&aacute;r's (1995) social-force model, not a calibrated one. The trade-off between avoiding people and keeping up with a target is the well-known "freezing robot" problem (Trautman and Krause, IROS 2010), and the failure of a potential field to go round obstacles is analysed in Koren and Borenstein (ICRA 1991); Islam, Hong and Sattar (*IJRR* 2019) survey person-following robots, and CrowdNav (Chen et al., ICRA 2019) and SocNavBench (Biswas et al., 2022) benchmark crowd navigation. "Avoidance costs framing" restates those results for a follow camera; what is new here is only the side-by-side numbers for four camera platforms, under assumed figures. It builds on none of the CU Boulder groups in `prompt.md` beyond a loose link to RECUV's field-robot interests, and claims no connection to them.
 
 ## Method (`src/capture_follow/model.py`)
 - **World.** A 30 m &times; 30 m periodic plaza. Pedestrians walk at 1.2 m/s, turning by a random angle every 4 to 12 s, and ignore every platform (the conservative case for the platform; real people step aside for a robot). The creator walks the same way at 1.3 m/s.
@@ -16,7 +16,7 @@ Fourth project of track 13, autonomous multi-angle capture for travel creators (
 ```bash
 pip install pytest
 cd research/capture-follow
-python -m pytest -q tests                        # 10 tests
+python -m pytest -q tests                        # 12 tests
 PYTHONPATH=src python experiments/run.py         # about a minute; writes experiments/results.txt
 python experiments/figure.py                     # experiments/framed.svg from results.txt
 ```
@@ -35,20 +35,21 @@ Framed % / contacts per hour, by crowd density (people per m&sup2;), on the plaz
 
 ![Framed time against crowd density](experiments/framed.svg)
 
-- **Steps decide the ground robot.** Wheeled platforms are stopped by step lines for 42 to 47% of the walk. On a flat plaza (density 0.1) the wheeled robot that ignores people frames 97.9% of the time, against 21.6% with steps; wheel-legs, which pay for crossing in power (about 106 against 68 Wh/h) and in size, recover only some of it.
+- **Steps stop a ground robot that cannot plan a route.** Wheeled platforms are stopped by step lines for 42 to 47% of the walk. The controller has no route planner: it drives straight at its target and stops at the curb instead of heading for the 4 m ramp, so this figure measures that controller, not curbs as such (the 2026-11-19 quality audit let the robot slide along the curb and it was still blocked 38 to 42% of the time). On a flat plaza (density 0.1) the wheeled robot that ignores people frames 97.9% of the time, against 21.6% with steps; wheel-legs, which draw more power (about 106 against 68 Wh/h, a gap set by the assumed wattages in `model.py`, not by crossing) and are larger, recover only some of it. How much they recover depends on the assumed 0.4&times; crossing speed, which is not swept: the audit found framed time moving from 12.7% to 41.6% as that factor goes from 0.1 to 1.0.
 - **Avoidance costs framing.** At 0.1 people/m&sup2; the avoiding drone has under a third of the contacts of the one that ignores people (149 against 513 per hour) and loses 31 points of framing. Flat-plaza wheeled framing drops from 97.9% to 40.9% when it avoids. A 2-D repulsion field cannot do what a person does: go round, then catch up.
 - **Nobody is safe among many people if they do not step aside.** Even the tripod has hundreds of passers-by within half a metre per hour at 0.1 people/m&sup2;; those counts are the crowd's own, and measure how much of each platform's number is the baseline.
 - **Weight and battery.** A tripod is 1.2 kg; the drone 0.25 kg but about 0.34 kg of battery per filming hour; wheeled 6 kg; wheel-legs 10 kg and 0.53 kg of battery per hour (assumed figures; section C).
 
 ## Limitations
-- **Everything about the platforms is assumed**: speeds, accelerations, power draw, mass and packed volume are round numbers typical of each class, not datasheets, and nothing was measured. The structure (steps block wheels, avoidance trades off against framing) is the finding, not any number.
+- **Everything about the platforms is assumed**: speeds, accelerations, power draw, mass and packed volume are round numbers typical of each class, not datasheets, and nothing was measured. The structure (a wheeled robot with no route planner is blocked by steps; avoidance trades off against framing) is the finding, not any number. The drone's 60 W draw is about twice what a sub-250 g drone's published battery and flight time imply (roughly 33 W), so its battery-per-hour figure is likely overstated by about 2&times;. Results are means over 10 seeds with no interval: wheel-legs and wheeled at 0.3 people/m&sup2; (4.5 against 3.7) cannot be told apart.
 - Pedestrians do not react to platforms, which overstates contacts for every platform. The tripod is placed once and never moves, so its framing score is not a fair estimate of a repositioned tripod.
 - The drone is treated as unconstrained by altitude, wind, battery, regulation and flight over people; its clear view is assumed. Flying is an owner step (FAA Part 107 or 49 U.S.C. &sect; 44809 in the US, and local rules). A real drone would climb over a crowd rather than steer sideways, and many places ban it.
 - 2-D plaza with straight step lines; no occlusion by walls, no slopes, no sensing or perception errors, no latency. The controller is deliberately simple (no planner), and wheel-legs get no better avoidance than wheels.
 - Safety here means distance to a pedestrian, not injury or comfort; a real design input would be a bystander study.
 
 ## Next steps
-- Add a gap-seeking planner (a local planner that goes round and rejoins) and see how much of the avoidance cost it recovers.
+- Done: a predictive planner is tested in [`capture-followplan`](../capture-followplan/) and tracking in [`capture-followtrack`](../capture-followtrack/).
+- Sweep the crossing factor and the drone's power draw, and report seed intervals (quality audit [2026-11-19](../../portfolio/quality/audits/2026-11-19-capture-follow.json)).
 - Replace assumed platform figures with sourced datasheet values, and add terrain beyond step lines (slopes, grass, sand).
 - `capture-edit` (milestone 5): the automated edit from multi-camera footage.
 

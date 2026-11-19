@@ -438,9 +438,10 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (81 stories)
+### Little Lamps (82 stories)
 
 - [Martha and the Busy Kitchen at Bethany](stories/martha-and-the-busy-kitchen-at-bethany.md) (2026-11-19; 11 min read, text only)
+- [Stephen and the Widows at the Table](stories/stephen-and-the-widows-at-the-table.md) (2026-11-19; 10 min read, text only)
 - [Barnabas and the Friend Nobody Trusted](stories/barnabas-and-the-friend-nobody-trusted.md) (2026-11-18; 12 min read, text only)
 - [Frances of Rome and the Book Put Down](stories/frances-of-rome-and-the-book-put-down.md) (2026-11-18; 10 min read, text only)
 - [Louis and the Oak at Vincennes](stories/louis-and-the-oak-at-vincennes.md) (2026-11-18; 9 min read, text only)

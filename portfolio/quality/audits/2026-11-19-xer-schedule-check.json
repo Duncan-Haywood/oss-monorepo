@@ -1,0 +1,274 @@
+{
+ "date": "2026-11-19",
+ "subject": "ventures/xer-schedule-check",
+ "stratum": "flagship",
+ "seed": "2026-11-19-f-15f5",
+ "round": 79,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior planning/scheduling consultant (AACE PSP, DCMA 14-point assessor who reviews contractor Primavera P6 updates for owners); first checks: do the 14 counts and thresholds match the DCMA guidance on a real file, which baseline drives missed tasks and BEI, does CPLI use float to the contract date, does the recomputed CPM equal P6's own early/late dates and float, is the critical path test a real delay-and-recompute, and are n/a points reported as passes",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed against sources the author did not write. (1) DCMA points 1-8 and 10 recounted by my own Python XER reader (scratchpad xer-schedule-check/dcma_indep.py, no import of the subject) on five public XER files fetched from the same GitHub commits the eval cites: Expressway 105/38/66/995 FS (91.0%)/0/785/0/109/223, terminal 0/0/28/66 FS (78.6%)/1/10/0/1/7, sample, hotel 7/1/1335/5925 (78.1%)/0/2263/0/86/2788, CCA 8/1/3471/36766 (84.0%)/3/8900/544/2454/0: every count equals `node cli.mjs <file>`. (2) Points 9, 11 and 14 on the progressed CCA file by my own script (bei.py): invalid dates 3, missed 1752/2316 (75.6%), BEI 1534/2316 = 0.662: equal. (3) CPLI by hand from the example's calendar (Mon-Fri, holidays serial 46168/46206/46268 = 2026-05-26, 07-03, 09-03): 79 working days data date to finish, +4 to must-finish, (79+4)/79 = 1.0506, tool 1.051; with must-finish moved to 2026-07-17, (79-6)/79 = 0.924, tool 0.924 FAIL. (4) CPM against P6 itself: `node eval/cpm-vs-p6.mjs` on the five files reproduces the README numbers (17,729/19,418; CCA 12,582/14,270, others 100% or 4,216/4,217), and my own comparison of the reported driving path to P6's stored early_end_date/total_float matched 19/19 (terminal) and 79/79 (hotel). (5) Hand CPM on a new SF-lag case (B finish >= A start + 24 h: B Tue 08:00-Wed 17:00, TF 16 h) and a start-float case: equal. Not 4: the arithmetic is right, but points 11 and 14 measure the wrong baseline on any rescheduled file (see domain) and 12% of activities on the progressed file differ from P6.",
+  "completeness": "README/page features walked: CLI scorecard, --json, --csv, --project (and its error), page example button, file input on 30 MB CCA (1.5 s in Chromium), project selector on the 4-project hotel file (shows the 2 scheduled projects, switching recomputes), bad file rejected and report hidden, all 14 points plus loops, out-of-sequence, open finishes, recompute-vs-stored list, driving path, CSV/JSON download buttons wired, opt-out button, served-copy.mjs reports no placeholder origins. No stubs or TODOs. Gaps: no baseline project/second XER input although BEI and missed tasks need one; CLI crashes with a stack trace on a missing or non-XER file.",
+  "verification": "`node --test '*.test.mjs'`: 20 pass, 0 fail, ~105 ms. The CPM tests are hand-worked and good (FS/SS/FF with lags, constraints, negative float, progress, ALAP, loops) and eval/cpm-vs-p6.mjs is a real external check, but it is not run in tests (data not committed). Seeded 9 mutants with quality_mutate.py: 2 caught (start-milestone exemption widened to tasks; FF forward lag dropped), 7 survived: high-float threshold x10, negative-float tolerance -8 h, CPLI pass 0.95 -> 0.5, critical-path-test tolerance 599 -> 300 days, BEI numerator changed to the due-and-finished subset, SF backward-pass lag dropped, start-float type returning finish float. The DCMA test asserts points 1-5, 8, 11, 12, 14 only.",
+  "craft": "Read xer.mjs, calendar.mjs, cpm.mjs (492 lines), dcma.mjs, cli.mjs, index.html script, both test files. No dependencies, one engine shared by CLI and page, Tarjan loop detection, CSV formula-injection guard, page escapes all file text, no console errors in Playwright, 375 px viewport scrollWidth 375 with hotel and CCA loaded, only same-origin requests. Defects: CLI has no error handling (missing file, non-XER file and `--project` without a value give a Node stack trace or 'no project undefined'); points 2-4 count relationships whose predecessor is an LOE/WBS summary (698 on CCA) while point 1 drops those links; dcma.mjs packs each check into 200-400-character lines; scorecard rounds BEI 0.662 to '0.7' and CPLI 1.019 to '1'.",
+  "claims": "Checked 8 claims. Backed: 18,133/19,822 (91.5%) vs P6 (reproduced on the 5 files I could fetch); the Expressway awk tally (38/66/995/88/11); thresholds as published; nothing uploaded (Playwright request log, no fetch in source); usage counted only in localStorage, honours DNT/GPC; disclaimer and independence lines on page and README; served llms.txt clean. Not backed: (1) page FAQ and FAQPage schema: 'P6 keeps each activity's planned start and finish, which equal the baseline' - P6 re-syncs planned dates of not-started activities to their early dates when it schedules (CCA: 11,775 of 11,775 not-started activities have planned finish = early finish, so none can ever be 'missed'); (2) README 'Not checked: ... progress override, start or smallest float, the successor or 24-hour lag calendar, or mandatory constraints (unit tests only)' - there are no unit tests of any of those (grep finds only FT_FF, retained logic, rcal_Predecessor), and a start-float mutant survives; (3) README 'each DCMA point on a small schedule' - points 6, 7, 9, 10 and 13 are not asserted.",
+  "fitness": "Walked the owner's-rep job on the progressed CCA file: load the XER, read the scorecard, open each failing point, download the CSV of 1752 missed tasks, 544 negative-float activities, 2134 out-of-sequence links and the stale-float list - that is a usable 'fix these activities' letter, in 1.5 s, without a P6 seat. Gaps a PSP hits: no way to load the baseline XER, so missed tasks/BEI miss unstarted slippage; CPLI against the must-finish-by date only (no contract-date input); no update-to-update comparison (on the roadmap as paid path).",
+  "domain": "Compared against the DCMA 14-point guidance (DCMA EVMS Program Analysis Pamphlet thresholds) and P6 scheduling behaviour. Matches: populations (incomplete, no LOE/WBS summary), thresholds (5%, 0, 90% FS, 44 working days on each calendar, 0.95), BEI as all completed / baselined-to-finish, CPLI (CPL+TF)/CPL, a real delay-and-recompute critical path test, P6-faithful CPM. Departures: (a) missed tasks and BEI use target dates; P6 overwrites a not-started activity's planned dates on every schedule run, so overdue unstarted work never enters either count (CCA: 0 of 11,775 unstarted); an XER exported with its baseline project is not used; (b) points with nothing to measure are scored PASS and counted in 'N of 14 pass': BEI n/a and missed tasks 0/0 on all four unprogressed files, CPLI forced to 1 with no must-finish date; (c) every start milestone may lack a predecessor and every finish milestone a successor (assessors exempt only the project start and finish; CCA exempts 3 finish milestones); (d) LOE-predecessor links counted in points 2-4."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "DCMA points 1-8 and 10 counts on Expressway (P6 7.0, 823 open)",
+   "method": "own Python XER reader and counter (scratchpad xer-schedule-check/dcma_indep.py), DCMA thresholds",
+   "command": "python3 scratchpad/xer-schedule-check/dcma_indep.py data/Expressway_Project.xer; cd ventures/xer-schedule-check && node cli.mjs data/Expressway_Project.xer",
+   "expected": "logic 105, leads 38, lags 66, FS 995/1094 91.0%, hard 0, high float 785, neg 0, high dur 109/821, no resource 223",
+   "observed": "105, 38, 66, 91 % FS 99 non-FS, 0, 785, 0, 109/821, 223",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "same counts on hotel, terminal, sample and the progressed CCA file",
+   "method": "own Python counter on the raw TASK/TASKPRED/CALENDAR/TASKRSRC tables",
+   "command": "for f in hotel-project terminal-building-airport sample CCA; do python3 scratchpad/xer-schedule-check/dcma_indep.py data/$f.xer; done",
+   "expected": "CCA: logic 8, leads 1, lags 3471, FS 84.0%, hard 3, high float 8900, neg 544, high dur 2454, no res 0",
+   "observed": "identical on all four files",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "invalid dates, missed tasks and BEI on CCA (data date 2011-09-30)",
+   "method": "own script (bei.py) applying DCMA definitions to target_end_date/act_end_date",
+   "command": "python3 scratchpad/xer-schedule-check/bei.py data/CCA.xer 8788",
+   "expected": "invalid 3, missed 1752/2316 = 75.6%, BEI 1534/2316 = 0.662",
+   "observed": "invalid 3, missed 75.65% 1752/2316, BEI 0.662",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "CPLI on the example, on time and late",
+   "method": "hand count of working days on the example calendar (Mon-Fri, holidays 2026-05-26, 07-03, 09-03): (CPL+TF)/CPL",
+   "command": "cd ventures/xer-schedule-check && node samples/make-example.mjs /tmp/o.xer && node cli.mjs /tmp/o.xer --json; sed 's/2026-07-31 15:30/2026-07-17 15:30/' /tmp/o.xer > /tmp/late.xer",
+   "expected": "(79+4)/79 = 1.051; late (79-6)/79 = 0.924 fail",
+   "observed": "1.051 pass; 0.924 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "recomputed CPM vs P6's stored early finish, late finish and total float",
+   "method": "Primavera P6's own stored values in 5 public XERs; plus own comparison of the driving path to stored early_end_date/total_float_hr_cnt",
+   "command": "cd ventures/xer-schedule-check && node eval/cpm-vs-p6.mjs <dir of 5 fetched XERs>",
+   "expected": "README: 100% on Expressway/terminal/sample, 4216/4217 hotel, 12582/14270 CCA",
+   "observed": "17,729/19,418 exactly as documented; driving path 19/19 and 79/79 equal P6",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "hand CPM: SF link with 24 h lag and start-float type",
+   "method": "hand forward/backward pass on an 8 h Mon-Fri calendar",
+   "command": "node scratchpad/xer-schedule-check/hand.mjs",
+   "expected": "B 12-02 08:00 to 12-03 17:00, LF 12-05 17:00, TF 16 h; start float A 16, B 16, C 0",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "missed tasks/BEI baseline on a progressed, rescheduled file",
+   "method": "P6 behaviour: not-started activities' planned dates follow the early dates on scheduling; DCMA requires the baseline finish",
+   "command": "python3 - (count not-started CCA activities with target_end_date == early_end_date and <= data date)",
+   "expected": "unstarted activities past their baseline finish counted as missed",
+   "observed": "11,775 of 11,775 unstarted have planned = early finish; 0 can be counted; the page calls planned dates the baseline",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "points with nothing to measure",
+   "method": "DCMA practice: a point that cannot be computed is reported n/a, not passed",
+   "command": "cd ventures/xer-schedule-check && node cli.mjs data/Expressway_Project.xer",
+   "expected": "BEI and missed tasks n/a, not counted as passes",
+   "observed": "'PASS 11. Missed tasks 0 %' and 'PASS 14. BEI n/a' counted in '8 of 14 pass'",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "page in Chromium: example, 30 MB file, multi-project, bad file, phone width",
+   "method": "Playwright on index.html served locally",
+   "command": "node scratchpad/xer-schedule-check/pw.cjs scratchpad/xer-schedule-check",
+   "expected": "report renders, selector works, bad file rejected, no foreign requests, scrollWidth 375",
+   "observed": "all as expected; CCA in 1540 ms; hotel selector lists CR and HBTF-2; no console errors",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "CLI on bad input",
+   "method": "run",
+   "command": "cd ventures/xer-schedule-check && node cli.mjs /nonexistent.xer; node cli.mjs bad.xer; node cli.mjs o.xer --project",
+   "expected": "one-line error, exit 2",
+   "observed": "Node stack traces; '--project' with no value prints 'no project undefined'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README 'unit tests only' for progress override, start/smallest float, successor/24 h lag calendar, mandatory constraints",
+   "method": "grep engine.test.mjs; mutate the start-float branch",
+   "command": "cd ventures/xer-schedule-check && grep -n 'FT_SF\\|progress_override\\|MAND\\|rcal_' engine.test.mjs",
+   "expected": "a test for each",
+   "observed": "none; FT_SF mutant survives",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "privacy, disclaimer, served llms.txt",
+   "method": "Playwright request log, page source, served-copy.mjs",
+   "command": "node platform/pages/served-copy.mjs xer-schedule-check",
+   "expected": "no third-party requests, no-warranty and not-affiliated lines, marisstella.app URLs",
+   "observed": "as expected (live host 403 through this proxy)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/xer-schedule-check && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "20 pass, 0 fail; 7 of 9 seeded mutants survive",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "dcma.mjs:108",
+   "change": "days(t, floatH(t)) > DAYS_44 -> > 10 * DAYS_44 (high float)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "dcma.mjs:115",
+   "change": "floatH(t) < -1e-9 -> floatH(t) < -8 (negative float)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "dcma.mjs:200",
+   "change": "cpli >= 0.95 -> cpli >= 0.5",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "dcma.mjs:181",
+   "change": "moved >= delayDays - 1 -> moved >= delayDays - 300 (critical path test)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "dcma.mjs:163",
+   "change": "BEI doneAll / due -> finished / due",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "dcma.mjs:73",
+   "change": "start-milestone exemption widened to TT_Task",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "cpm.mjs:354",
+   "change": "SF backward pass subWork(sv.lf, rel.lag) -> subWork(sv.lf, 0)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "cpm.mjs:399",
+   "change": "FT_SF ? startF -> FT_SF ? finF (start float type)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "cpm.mjs:261",
+   "change": "FF forward lag addWork(pF, r.lag) -> addWork(pF, 0)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Missed tasks (11) and BEI (14) use P6 planned dates as the baseline, but P6 re-syncs a not-started activity's planned dates to its early dates on every schedule run, so overdue unstarted work is never 'due' and never 'missed' (CCA: 11,775 of 11,775 unstarted activities have planned finish = early finish). On a rescheduled update without a baseline the two points under-report slippage, and an unprogressed-looking file passes both. No way to load the baseline project/XER",
+   "where": "ventures/xer-schedule-check/dcma.mjs:156",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Page FAQ (visible and FAQPage schema) says planned dates 'equal the baseline when the project uses its own planned dates as the baseline'; false for not-started activities (see above)",
+   "where": "ventures/xer-schedule-check/index.html:112",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17622"
+  },
+  {
+   "severity": "medium",
+   "what": "Points with nothing to measure are scored PASS and counted in 'N of 14 pass': BEI n/a, missed tasks 0/0 (all four unprogressed public files), CPLI forced to 1 when there is no must-finish-by date",
+   "where": "ventures/xer-schedule-check/dcma.mjs:206",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests would not catch threshold bugs in the DCMA points or the less common CPM branches: 7 of 9 mutants survive (high float x10, negative-float tolerance, CPLI 0.95->0.5, CPT tolerance 300 days, BEI numerator, SF backward lag, start-float type); points 6, 7, 9, 10, 13 are never asserted",
+   "where": "ventures/xer-schedule-check/engine.test.mjs:156",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "README says progress override, start/smallest float, successor or 24-hour lag calendar and mandatory constraints are checked by 'unit tests only'; no such tests exist. Also 'each DCMA point on a small schedule' while five points are unasserted",
+   "where": "ventures/xer-schedule-check/README.md:75",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17622"
+  },
+  {
+   "severity": "low",
+   "what": "Every start milestone is exempt from needing a predecessor and every finish milestone from a successor; assessors exempt only the project start and finish (CCA exempts 3 finish milestones)",
+   "where": "ventures/xer-schedule-check/dcma.mjs:73",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Points 2-4 count relationships whose predecessor is an LOE or WBS summary activity (698 on CCA, 563 non-FS) although point 1 and the population exclude those activities; FS share 84.0% vs 85.0% without them",
+   "where": "ventures/xer-schedule-check/dcma.mjs:65",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "CLI has no error handling: a missing or non-XER file gives a Node stack trace, `--project` with no value prints 'no project undefined'",
+   "where": "ventures/xer-schedule-check/cli.mjs:14",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "CLI scorecard rounds indices to one decimal: BEI 0.662 prints '0.7', CPLI 1.019 prints '1' (the page shows 3 decimals)",
+   "where": "ventures/xer-schedule-check/cli.mjs:32",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17622"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17622"],
+ "verdict": "A strong P6 reader and CPM engine: on five public XER files my own counter reproduces every DCMA count for points 1-10 exactly, the progressed CCA file's missed tasks, BEI and invalid dates match my independent script, CPLI matches a hand count on and past the must-finish date, and the recomputed early/late dates and float equal P6's stored values on the documented 17,729 of 19,418 activities (100% on four files). The page handles a 30 MB file in 1.5 s with nothing uploaded. It misses the bar on claims, verification and domain: missed tasks and BEI use planned dates that P6 rewrites for every unstarted activity, so overdue unstarted work is invisible (0 of 11,775 on CCA) while the FAQ calls those dates the baseline; n/a points are scored as passes; 7 of 9 seeded threshold and CPM-branch bugs survive the tests; and the README credits unit tests for settings that have none. Finished for what it claims; a PSP would use the activity lists today but not sign the BEI/missed-task numbers."
+}

@@ -55,3 +55,22 @@ def test_avoidance_reduces_contacts_in_crowd():
     base = sum(simulate(P["drone, no avoidance"], 0.3, s, duration=60)["contacts_per_h"] for s in range(4))
     av = sum(simulate(P["drone"], 0.3, s, duration=60)["contacts_per_h"] for s in range(4))
     assert av < base
+
+
+def test_tripod_crowd_rates_match_the_analytic_flux():
+    """Independent of the controller: pedestrians at density rho walking at v past a fixed point.
+    Time with anyone within 1 m is 1 - exp(-rho*pi*1^2) of the hour (Poisson); contacts within 0.5 m
+    arrive at about rho*v*2r = 432/h at 0.1/m^2, fewer once overlapping episodes merge (quality audit 2026-11-19)."""
+    rho, n = 0.1, 4
+    runs = [simulate(P["tripod"], rho, s, duration=240) for s in range(n)]
+    close = sum(r["close_s_per_h"] for r in runs) / n
+    contacts = sum(r["contacts_per_h"] for r in runs) / n
+    expect_close = 3600 * (1 - math.exp(-rho * math.pi))
+    assert abs(close - expect_close) / expect_close < 0.1, close
+    assert 0.8 * 432 < contacts < 432, contacts
+
+
+def test_framed_share_is_pinned():
+    """The simulation is deterministic; pin one framed share so a change to the band or metric shows up."""
+    r = simulate(P["wheeled, no avoidance"], 0.1, 0, duration=120)
+    assert abs(r["framed"] - 0.13958333333333334) < 1e-9
