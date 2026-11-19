@@ -112,3 +112,23 @@ test("an incomplete_expired row never counts as MRR", () => {
   assert.deepEqual(months.map((m) => m.mrr), Array(10).fill(10000));
   assert.ok(months.every((m) => m.new <= 10000 && m.churn === 0));
 });
+
+test("rows sharing a subscription id are one subscription with several price lines, not a lost line (red team 2026-11-19)", async () => {
+  const { liveMap, breakdown } = await import("./metrics.mjs");
+  const { subs, skipped } = subsFromCsv("id,status,amount,interval,created\nsub_1,active,10,month,2026-01-05\nsub_1,active,20,month,2026-01-05\nsub_2,active,5,month,2026-02-01\n");
+  assert.equal(skipped.length, 0);
+  assert.equal(subs.length, 2);
+  assert.equal(subs[0].mrr, 3000);
+  const live = liveMap(subs);
+  assert.equal(live.sub_1, 3000);
+  // The headline and the plan breakdown count the same money.
+  assert.equal(Object.values(live).reduce((a, b) => a + b, 0), breakdown(subs).total);
+});
+
+test("a repeated subscription id with a different start, end, status or currency is skipped with a reason (red team 2026-11-19)", () => {
+  const { subs, skipped } = subsFromCsv("id,status,amount,interval,created,ended at,currency\nsub_1,active,10,month,2026-01-05,,usd\nsub_1,active,20,month,2026-03-05,,usd\nsub_1,canceled,20,month,2026-01-05,2026-04-01,usd\nsub_1,active,20,month,2026-01-05,,eur\n");
+  assert.equal(subs.length, 1);
+  assert.equal(subs[0].mrr, 1000);
+  assert.deepEqual(skipped.map((s) => s.line), [3, 4, 5]);
+  assert.ok(skipped.every((s) => /sub_1/.test(s.why)));
+});

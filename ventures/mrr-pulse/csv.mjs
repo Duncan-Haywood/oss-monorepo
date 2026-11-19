@@ -53,7 +53,7 @@ export function subsFromCsv(text) {
   for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const missing = ["amount", "interval", "created"].filter((k) => col[k] < 0);
   if (missing.length) return { subs: [], skipped: [], missing };
-  const subs = [], skipped = [];
+  const subs = [], skipped = [], byId = new Map();
   rows.slice(1).forEach((r, i) => {
     const get = (k) => (col[k] >= 0 ? (r[col[k]] ?? "").trim() : "");
     const amount = Number(get("amount").replace(/[$,£€\s]/g, ""));
@@ -75,7 +75,20 @@ export function subsFromCsv(text) {
     if (get("trialEnd") && toMs(get("trialEnd")) === null) return skipped.push({ line: i + 2, why: "trial end is not a date" });
     const status = (get("status") || (endedAt ? "canceled" : "active")).toLowerCase();
     if (status === "canceled" && endedAt === null) return skipped.push({ line: i + 2, why: "canceled with no end date" });
-    subs.push({ id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, trialEnd: toMs(get("trialEnd")), currency });
+    const sub = { id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, trialEnd: toMs(get("trialEnd")), currency };
+    // A repeated id is another price line of the same subscription (an export
+    // or a hand-made sheet with one row per item): add its MRR to the first
+    // row's. Keyed maps downstream kept only the last line, so the headline
+    // dropped money the plan breakdown still counted (red team 2026-11-19).
+    // A repeat that disagrees on dates, status or currency cannot be merged.
+    const first = byId.get(sub.id);
+    if (first) {
+      if (["status", "created", "endedAt", "trialEnd", "currency"].some((k) => first[k] !== sub[k])) return skipped.push({ line: i + 2, why: `repeats subscription ${sub.id} with a different start, end, trial, status or currency` });
+      first.mrr += sub.mrr;
+      return;
+    }
+    byId.set(sub.id, sub);
+    subs.push(sub);
   });
   return { subs, skipped, missing: [] };
 }
