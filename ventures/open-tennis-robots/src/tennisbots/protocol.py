@@ -65,6 +65,7 @@ TAKE_SURVEY = 0x84    # feeder, after LAUNCH while the board has a contact-time 
                       # Since later on 2026-11-19 (README "Straddling wheels vote on the short takes") two more uint8:
                       # the kept wheels whose fit at 1.5 ms (controller.TAKE_STRADDLE_US) put the take across a
                       # revolution's edge and fit it better than the step, and those that fit it worse, each to 255.
+                      # Since later still (README "A second straddle vote at 2.5 ms") two more: the same at 2.5 ms.
 TAKE_SURVEY_TIMES = 9
 TAKE_SURVEY_TENTHS = 10       # the scale byte the board sends when every rms fits in tenths of a ppm
 EIGHT_TAKE_SURVEY_TIMES = 8   # 0, 2, 3, 4, 5, 6, 7, 8 ms (2026-11-19, before the short-take grid)
@@ -86,13 +87,13 @@ FORMATS = {
     LAUNCH: "<BhhhhB",
     ESC_SURVEY: "<BHH" + "H" * ESC_SURVEY_LAGS,
     ESC_TAU: "<H",
-    TAKE_SURVEY: "<BHHH" + "H" * TAKE_SURVEY_TIMES + "BBBB",
+    TAKE_SURVEY: "<BHHH" + "H" * TAKE_SURVEY_TIMES + "BBBBBB",
 }
 # Frames of these lengths from older firmware still decode, to fewer values (the receiver reads the length), newest first:
-# nine candidates in tenths with no straddle vote (2026-11-19, before "Straddling wheels vote on the short takes"), nine candidates in whole ppm with no scale byte (2026-11-19, before tenths), eight candidates (2026-11-19, before the short-take grid), seven with the summed-wheel byte (2026-11-18), then
+# the 1.5 ms straddle vote alone (2026-11-19, before "A second straddle vote at 2.5 ms"), nine candidates in tenths with no straddle vote (2026-11-19, before "Straddling wheels vote on the short takes"), nine candidates in whole ppm with no scale byte (2026-11-19, before tenths), eight candidates (2026-11-19, before the short-take grid), seven with the summed-wheel byte (2026-11-18), then
 # seven without it.
 OLDER_FORMATS = {
-    TAKE_SURVEY: ("<BHHH" + "H" * TAKE_SURVEY_TIMES + "BB", "<BHHH" + "H" * TAKE_SURVEY_TIMES + "B", "<BHHH" + "H" * EIGHT_TAKE_SURVEY_TIMES + "B", "<BHHH" + "H" * OLDER_TAKE_SURVEY_TIMES + "B",
+    TAKE_SURVEY: ("<BHHH" + "H" * TAKE_SURVEY_TIMES + "BBBB", "<BHHH" + "H" * TAKE_SURVEY_TIMES + "BB", "<BHHH" + "H" * TAKE_SURVEY_TIMES + "B", "<BHHH" + "H" * EIGHT_TAKE_SURVEY_TIMES + "B", "<BHHH" + "H" * OLDER_TAKE_SURVEY_TIMES + "B",
                   "<BHHH" + "H" * OLDER_TAKE_SURVEY_TIMES),
 }
 
