@@ -1504,6 +1504,15 @@ directional on average in every set, noise level and scenario, and 0.78% of rows
 clean (worst -0.58 dB). `--demosaic directional` gives the old default and its bytes. The same check found that
 frames under 24 sensels in one dimension crashed the blend; they are one block now.
 
+**Near clean, the leak is closed on Bayer (2026-11-19, eval/near-clean-gate-2026-11-19.md).** The blend spreads
+block weights to pixels by interpolating between block centres, so a detailed block beside a smooth one took part
+of the smooth block's bilinear weight, and near clean bilinear is about 10 dB worse than directional on detail.
+That, not the ramps, was the -0.58 dB tile. Each block's q is now raised to at least its largest neighbour's over
+12 before the blend (`lift_near_detail`, `NEAR_DETAIL`). On 1,272 held-out rows from 29 bodies, rows losing over
+0.1 dB to directional fall from 18 to 11 (none new), the worst at SNR 200 from -0.27 to -0.14 dB, and no noise
+level's mean drops. X-Trans passed two of the three tests but not the third, so it is unchanged. `near_detail=False`
+gives the old blend.
+
 `shootflow develop FILE.dng --demosaic noise-aware` (numpy, Bayer and X-Trans; opt-in until 2026-11-19) blends the
 directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
 directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
