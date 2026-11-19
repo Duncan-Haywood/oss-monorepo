@@ -34,17 +34,29 @@ function startSnapBack(cal, t) {
 }
 
 export function buildModel(xer) {
-  const T = xer.tables;
   const warnings = [];
+  // A TASK row with no task_id cannot be linked or reported (a hand-made
+  // table headed Task_ID, say): it is left out, and said so.
+  const noId = (xer.tables.TASK || []).filter((r) => !r.task_id).length;
+  const T = noId ? { ...xer.tables, TASK: xer.tables.TASK.filter((r) => r.task_id) } : xer.tables;
+  if (noId) warnings.push(`${noId} TASK ${noId === 1 ? "row has" : "rows have"} no task_id and ${noId === 1 ? "was" : "were"} left out`);
   const cals = new Map();
   for (const row of T.CALENDAR || []) {
     if (!(row.clndr_data || "").trim()) {
       // no work pattern stored (hand-made files, some converters): a
       // Monday-to-Friday week of the calendar's hours per day, said aloud
-      const h = num(row.day_hr_cnt);
-      const cal = Calendar.weekdays(h !== null && h > 0 && h <= 24 ? h : 8, row.clndr_id, row.clndr_name || "");
+      // The week's hours over the day's say how many days it works: 48 over
+      // 8 is Monday to Saturday, 168 over 24 every day. Only a whole 5, 6 or
+      // 7 is used; anything else (42 over 8, 24 over 12) keeps Monday to Friday.
+      const h = num(row.day_hr_cnt), w = num(row.week_hr_cnt);
+      const hours = h !== null && h > 0 && h <= 24 ? h : 8;
+      const ratio = h !== null && w !== null && h > 0 ? w / h : null;
+      const days = ratio !== null && [6, 7].includes(Math.round(ratio)) && Math.abs(ratio - Math.round(ratio)) < 1e-6 ? Math.round(ratio) : 5;
+      const cal = Calendar.weekdays(hours, row.clndr_id, row.clndr_name || "", days);
       cals.set(row.clndr_id, cal);
-      warnings.push(`calendar ${row.clndr_id} (${row.clndr_name || "no name"}) stores no work pattern; assumed Monday to Friday, ${cal.hoursPerDay} h a day from 08:00`);
+      const span = hours >= 24 ? "all day" : `${cal.hoursPerDay} h a day from 08:00`;
+      const week = days === 7 ? "every day" : days === 6 ? `Monday to Saturday (${w} h a week)` : "Monday to Friday";
+      warnings.push(`calendar ${row.clndr_id} (${row.clndr_name || "no name"}) stores no work pattern; assumed ${week}, ${span}`);
       continue;
     }
     try {
@@ -109,11 +121,29 @@ export function buildModel(xer) {
     warnings.push(`project ${p.code || p.id}: no data date or planned start in the file, so dates are counted from ${formatDate(anchor)}`);
   }
   const tasks = new Map();
+  // Activities that name no calendar, or one the file does not hold, take
+  // their project's calendar (else the file's default) and are reported
+  // once per missing calendar, not once per activity.
+  const missingCal = new Map();
+  // Number fields that are filled in but do not read as a number ("NaN",
+  // "inf", text) are read as 0 and reported once per field.
+  const unreadable = new Map();
+  const readHours = (row, field, what) => {
+    const v = num(row[field]);
+    if (v === null && row[field] !== undefined && String(row[field]).trim() !== "") {
+      if (!unreadable.has(field)) unreadable.set(field, { what, codes: [] });
+      unreadable.get(field).codes.push(`${what === "lag" ? `link ${row.task_pred_id ?? "?"}` : row.task_code} (${JSON.stringify(String(row[field]).slice(0, 20))})`);
+    }
+    return v ?? 0;
+  };
   for (const r of T.TASK || []) {
     let cal = cals.get(r.clndr_id);
     if (!cal) {
-      cal = fallback;
-      warnings.push(`activity ${r.task_code}: calendar ${r.clndr_id} not in the file, used ${fallback.name || "the default"}`);
+      const pc = projects.get(r.proj_id);
+      cal = (pc && pc.cal) || fallback;
+      const key = r.clndr_id ? `calendar ${r.clndr_id} is not in the file` : "no calendar is named";
+      if (!missingCal.has(key)) missingCal.set(key, { cal, codes: [] });
+      missingCal.get(key).codes.push(r.task_code);
     }
     const cstr = [];
     if (r.cstr_type) cstr.push({ type: r.cstr_type, date: parseDate(r.cstr_date) });
@@ -128,8 +158,8 @@ export function buildModel(xer) {
       type: r.task_type,
       status: r.status_code,
       span: SPAN_TYPES.has(r.task_type),
-      remain: Math.round((num(r.remain_drtn_hr_cnt) ?? 0) * 60),
-      orig: Math.round((num(r.target_drtn_hr_cnt) ?? 0) * 60),
+      remain: Math.round(readHours(r, "remain_drtn_hr_cnt", "remaining duration") * 60),
+      orig: Math.round(readHours(r, "target_drtn_hr_cnt", "original duration") * 60),
       actStart: parseDate(r.act_start_date),
       actEnd: parseDate(r.act_end_date),
       cstr,
@@ -144,11 +174,18 @@ export function buildModel(xer) {
   for (const r of T.TASKPRED || []) {
     const succ = tasks.get(r.task_id);
     const pred = tasks.get(r.pred_task_id);
-    const rel = { id: r.task_pred_id, succId: r.task_id, predId: r.pred_task_id, type: r.pred_type, lag: Math.round((num(r.lag_hr_cnt) ?? 0) * 60), external: !succ || !pred };
+    const rel = { id: r.task_pred_id, succId: r.task_id, predId: r.pred_task_id, type: r.pred_type, lag: Math.round(readHours(r, "lag_hr_cnt", "lag") * 60), external: !succ || !pred };
     rels.push(rel);
     if (!succ || !pred) continue;
     succ.preds.push(rel);
     pred.succs.push(rel);
+  }
+  const some = (codes) => `${codes.slice(0, 5).join(", ")}${codes.length > 5 ? ` and ${codes.length - 5} more` : ""}`;
+  for (const [key, { cal, codes }] of missingCal) {
+    warnings.push(`${codes.length} ${codes.length === 1 ? "activity" : "activities"}: ${key} (${some(codes)}); used ${cal.name || "the default calendar"}`);
+  }
+  for (const { what, codes } of unreadable.values()) {
+    warnings.push(`${codes.length} ${what} ${codes.length === 1 ? "value does" : "values do"} not read as a number and ${codes.length === 1 ? "was" : "were"} taken as 0: ${some(codes)}`);
   }
   // A resource assignment can keep remaining work after its activity's
   // remaining duration is zero (units left on a labour row): P6 rolls the

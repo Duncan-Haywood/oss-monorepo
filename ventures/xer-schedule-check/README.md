@@ -230,6 +230,14 @@ run as a formula in Excel or Sheets.
 - **Files with no data date, no PROJECT table or no calendar pattern**: two
   hand-made fixtures from the same public repositories crashed the engine
   before 2026-11-19; both now give a full report with a warning for each guess.
+- **245 XER files written by converters, other tools and by hand**
+  (`eval/converter-files-2026-11-19.md`, `node eval/converter-corpus.mjs`):
+  every public `.xer` a GitHub code search returned, 50 repositories. Before
+  that day's fixes 1 crashed (a lag of "NotANumber") and 28 printed NaN,
+  undefined or Infinity somewhere; now 241 are assessed with nothing of the
+  kind, 4 that are not P6 files at all are refused with a one-line reason, and
+  the warnings fell from 890 to 134 (activities with no calendar are grouped,
+  and a blank calendar's week and day hours say whether it works 5, 6 or 7 days).
 - **The simple DCMA counts by hand**: leads, lags and relationship types on the
   Expressway file agree with an awk tally of its TASKPRED table (38, 66, and
   995 / 88 / 11 FS / SS / FF of 1,094).
@@ -264,8 +272,8 @@ unrealistic, and some failures are justified. Not modelled:
 expected finish dates, "make open-ended activities critical", multiple float
 paths (resource levelling is the separate `level.mjs` step; the checks always
 use the unlevelled dates; it is a serial pass like P6's, not P6's code, so its
-dates can differ from a P6 levelled run, which no public file stores). 14 activities of the heavily progressed CCA file still differ (10 late
-finishes, 4 early finishes; `eval/cpm-vs-p6-2026-11-19.md`, "What is left"). The float checks use the float the
+dates can differ from a P6 levelled run, which no public file stores). 2 activities of the heavily progressed CCA file still differ (early
+finish and total float; `eval/cpm-vs-p6-2026-11-19.md`, "What is left"). The float checks use the float the
 file stores; the recomputed float is reported next to it, and the recomputed
 schedule (every open activity's dates, total and free float beside the stored
 values) downloads as a CSV from the page or `node cli.mjs file.xer --schedule out.csv`.
