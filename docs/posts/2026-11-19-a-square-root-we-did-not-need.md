@@ -3,7 +3,7 @@ title: "Half the time, same bits: skipping square roots in an exact matrix profi
 seo_title: "Faster exact matrix profile in JavaScript, same output"
 date: 2026-11-19
 tags: [performance, time-series, matrix-profile, javascript]
-description: "The Matrix Profile Explorer now finds motifs and anomalies in about half the time, with output identical to the bit, by comparing correlations before taking square roots."
+description: "Matrix Profile Explorer now finds motifs and anomalies in half the time, output identical to the bit, by comparing correlations before square roots."
 ---
 
 [Matrix Profile Explorer](../../ventures/matrix-profile-explorer/) finds
