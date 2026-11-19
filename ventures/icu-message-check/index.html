@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285c4d'/%3E%3Ctext%20x='16'%20y='22'%20font-size='15'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%7B%23%7D%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ICU MessageFormat Checker: Plurals, Apostrophes and Translations</title>
+<meta name="description" content="Free ICU MessageFormat checker: paste a message or drop JSON/ARB translation files, find syntax errors, apostrophes that hide placeholders, and plural forms each locale needs (Polish few/many, Arabic zero/two). Runs in your browser.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/icu-message-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ICU MessageFormat checker for translation files">
+<meta property="og:description" content="Find broken ICU messages before your users do: syntax, apostrophes that swallow {placeholders}, plural categories each language needs, and placeholders a translator renamed.">
+<meta property="og:url" content="https://example.invalid/icu-message-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ICU Message Check",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser); a Node.js CLI does the same checks",
+  "description": "Checks ICU MessageFormat strings and JSON or ARB translation files: syntax as ICU parses it, apostrophes that turn placeholders into literal text, the CLDR plural categories each locale needs, and placeholders or select options that differ from the source language.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Parses ICU MessageFormat the way ICU4J and ICU4C do, including the apostrophe quoting rules, and points at the column of each syntax error",
+    "Flags an apostrophe before a placeholder, as in French l'{item}, which makes the placeholder print literally",
+    "Checks plural and selectordinal options against the locale's CLDR categories, with example numbers that would fall to 'other'",
+    "Flags 'zero' in English and other categories a locale never selects, and selects written with plural keywords",
+    "Compares each translation with the source file: missing, renamed or extra placeholders, plural turned into plain text, and missing select options",
+    "Reads flat or nested JSON, formatjs extracted messages and Flutter ARB files; a preview shows the text readers see for each plural form",
+    "Nothing is uploaded: files are read in your browser"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does my placeholder show up as {name} instead of the value?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Almost always an apostrophe. In ICU MessageFormat a single apostrophe directly before { starts quoted literal text, so l'{item} or '{name}' prints the braces as written. Write two apostrophes (l''{item}) or use the typographic apostrophe ’, which needs no escaping. The guide to apostrophes in ICU MessageFormat has the full rules."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which plural categories does a language need?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends on the language's CLDR plural rules. English uses one and other; French one, many and other; Polish and Russian one, few, many and other; Arabic all six (zero, one, two, few, many, other); Japanese and Chinese only other. This tool reads the rules from your browser's own CLDR data (Intl.PluralRules) and lists example numbers that would fall to other when a category is missing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is my zero option never used in English?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because English has no zero category: CLDR puts 0 in other. The keyword zero is only selected in languages whose rules define it, such as Arabic, Welsh and Latvian. For a special text at exactly zero in any language, use the exact selector =0."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this work with react-intl, FormatJS, Flutter or ICU4J?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes for the message syntax all of them share. The parser follows ICU4J's rules and was checked against the FormatJS parser on 100,000 generated messages; the README lists the few places where ICU and FormatJS differ. FormatJS rich-text tags such as <b>…</b> are read as plain text here. Flutter ARB files and formatjs extracted JSON files can be dropped in directly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is a file with no errors guaranteed to translate correctly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The checks cover structure: syntax, quoting, plural categories and placeholders. They cannot tell whether a translation is accurate, whether grammatical gender or case agrees, or whether your app passes the values the messages expect. A native-speaking reviewer is still the check for meaning."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; --bg: #fafbfa; --fg: #1a1f1d; --muted: #59625e; --line: #d3d9d6; --card: #ffffff; --accent: #285c4d; --error: #b3261e; --warning: #a15c00; --info: #4f5b67; --ok: #11713f; font: 16px/1.55 system-ui, sans-serif; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #131715; --fg: #e5ebe8; --muted: #a0aaa5; --line: #333b38; --card: #1b201e; --accent: #8fd0bb; --error: #ff8a80; --warning: #f0b45a; --info: #a8b4c0; --ok: #6fd69a; } }
+  body { background: var(--bg); color: var(--fg); max-width: 960px; margin: 0 auto; padding: 1.25rem 16px 2rem; }
+  h1 { font-size: clamp(1.55rem, 4.5vw, 2.3rem); line-height: 1.2; margin: 0.4rem 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.8rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1rem 0 0.3rem; }
+  a { color: var(--accent); }
+  .lede { font-size: 1.08rem; color: var(--muted); margin-top: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0; }
+  label { display: block; font-weight: 600; margin: 0.6rem 0 0.25rem; }
+  label.inline { display: inline-flex; gap: 0.4rem; align-items: center; font-weight: 400; margin-right: 1rem; }
+  textarea, input[type=text] { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+  textarea { min-height: 90px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 3fr 1fr; gap: 0 1rem; }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+  button { font: inherit; padding: 0.45rem 0.95rem; cursor: pointer; margin: 0.6rem 0.5rem 0 0; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--fg); }
+  button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  ul.diags { list-style: none; padding: 0; margin: 0.4rem 0; }
+  ul.diags li { border-left: 4px solid var(--line); padding: 0.3rem 0.7rem; margin: 0.4rem 0; }
+  ul.diags li.error { border-color: var(--error); } ul.diags li.warning { border-color: var(--warning); } ul.diags li.info { border-color: var(--info); }
+  .sev { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-right: 0.4rem; }
+  .sev.error { color: var(--error); } .sev.warning { color: var(--warning); } .sev.info { color: var(--info); }
+  .fix { color: var(--muted); font-size: 0.92rem; }
+  .ok { color: var(--ok); font-weight: 700; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; overflow-wrap: anywhere; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td input[type=text] { min-width: 6rem; }
+  .muted { color: var(--muted); font-size: 0.9rem; }
+  .key { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 600; margin-top: 0.8rem; }
+  .msg { color: var(--muted); font-size: 0.86rem; overflow-wrap: anywhere; }
+  pre.cmd { background: var(--card); border: 1px solid var(--line); padding: 0.7rem 0.85rem; border-radius: 8px; overflow-x: auto; font-size: 0.86rem; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: 0.86rem; color: var(--muted); }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>ICU MessageFormat checker: will every language get the right plural?</h1>
+<p class="lede">Paste an ICU message or drop your JSON or ARB translation files. You get syntax errors with their column, apostrophes that turn a <code>{placeholder}</code> into literal text, the plural forms each language needs (and the numbers that would fall to <code>other</code> without them), and placeholders a translation dropped or renamed. It runs in your browser; nothing is uploaded.</p>
+
+<section class="card" aria-labelledby="one-h">
+  <h2 id="one-h" style="margin-top:0">1. Check one message</h2>
+  <div class="row">
+    <div>
+      <label for="msg">ICU message</label>
+      <textarea id="msg" spellcheck="false">{count, plural, one {# file} other {# files}}</textarea>
+    </div>
+    <div>
+      <label for="msg-locale">Language (BCP 47 tag)</label>
+      <input id="msg-locale" type="text" value="pl" list="locales" spellcheck="false" autocomplete="off">
+      <datalist id="locales"><option value="en"><option value="fr"><option value="de"><option value="es"><option value="pt-BR"><option value="it"><option value="pl"><option value="ru"><option value="uk"><option value="cs"><option value="ar"><option value="he"><option value="cy"><option value="lt"><option value="ja"><option value="zh"><option value="ko"><option value="tr"></datalist>
+    </div>
+  </div>
+  <button type="button" class="primary" id="msg-run">Check message</button>
+  <button type="button" id="msg-ex">Load a French apostrophe bug</button>
+  <div id="msg-out" aria-live="polite"></div>
+</section>
+
+<section class="card" aria-labelledby="files-h">
+  <h2 id="files-h" style="margin-top:0">2. Check translation files</h2>
+  <p class="muted">JSON (flat or nested), formatjs extracted messages (<code>{"key": {"defaultMessage": "…"}}</code>) and Flutter <code>.arb</code> files. The language is read from the file name (<code>fr.json</code>, <code>app_pl.arb</code>, <code>messages.de.json</code>) or an ARB <code>@@locale</code>; correct it in the table if needed.</p>
+  <label for="files">Translation files (choose several)</label>
+  <input id="files" type="file" accept=".json,.arb,application/json" multiple>
+  <button type="button" id="files-ex">Load three example files</button>
+  <div class="table-wrap"><table id="file-table" hidden>
+    <thead><tr><th scope="col">Source</th><th scope="col">File</th><th scope="col">Language</th><th scope="col">Messages</th></tr></thead>
+    <tbody id="file-rows"></tbody>
+  </table></div>
+  <button type="button" class="primary" id="files-run" hidden>Check files</button>
+  <div id="files-out" aria-live="polite"></div>
+</section>
+
+<section aria-labelledby="cli-h">
+  <h2 id="cli-h">The same checks in CI</h2>
+  <p>The CLI needs Node.js 20 or later and nothing else. It exits 1 on an error (add <code>--strict</code> to fail on warnings too), so it can stop a release that would show Polish readers "5 plik".</p>
+  <pre class="cmd">node cli.mjs locales/en.json locales/*.json         # the first file is the source
+node cli.mjs app_en.arb app_pl.arb app_ar.arb --strict
+node cli.mjs --message "{n, plural, one {# file} other {# files}}" --locale pl</pre>
+  <p>Source and README: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/icu-message-check">ventures/icu-message-check</a>.</p>
+</section>
+
+<section aria-labelledby="faq-h">
+  <h2 id="faq-h">Questions</h2>
+  <h3>Why does my placeholder show up as {name} instead of the value?</h3>
+  <p>Almost always an apostrophe. In ICU MessageFormat a single apostrophe directly before <code>{</code> starts quoted literal text, so <code>l'{item}</code> or <code>'{name}'</code> prints the braces as written. Write two apostrophes (<code>l''{item}</code>) or use the typographic apostrophe <code>’</code>, which needs no escaping. The <a href="apostrophes-in-icu-messageformat.html">guide to apostrophes in ICU MessageFormat</a> has the full rules.</p>
+  <h3>Which plural categories does a language need?</h3>
+  <p>It depends on the language's CLDR plural rules. English uses one and other; French one, many and other; Polish and Russian one, few, many and other; Arabic all six (zero, one, two, few, many, other); Japanese and Chinese only other. This tool reads the rules from your browser's own CLDR data (Intl.PluralRules) and lists example numbers that would fall to other when a category is missing.</p>
+  <h3>Why is my zero option never used in English?</h3>
+  <p>Because English has no zero category: CLDR puts 0 in other. The keyword zero is only selected in languages whose rules define it, such as Arabic, Welsh and Latvian. For a special text at exactly zero in any language, use the exact selector <code>=0</code>.</p>
+  <h3>Does this work with react-intl, FormatJS, Flutter or ICU4J?</h3>
+  <p>Yes for the message syntax all of them share. The parser follows ICU4J's rules and was checked against the FormatJS parser on 100,000 generated messages; the README lists the few places where ICU and FormatJS differ. FormatJS rich-text tags such as &lt;b&gt;…&lt;/b&gt; are read as plain text here. Flutter ARB files and formatjs extracted JSON files can be dropped in directly.</p>
+  <h3>Is a file with no errors guaranteed to translate correctly?</h3>
+  <p>No. The checks cover structure: syntax, quoting, plural categories and placeholders. They cannot tell whether a translation is accurate, whether grammatical gender or case agrees, or whether your app passes the values the messages expect. A native-speaking reviewer is still the check for meaning.</p>
+</section>
+</main>
+<footer>
+  <label class="inline"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> The findings describe the message text against the checks listed above, using the plural rules built into your browser. They do not judge whether a translation is correct.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+  <p><strong>Nothing leaves your browser.</strong> The messages and files you check are read on this page and never uploaded. There are no accounts, tracking cookies or analytics vendor. The only thing stored is an anonymous local count of which buttons were used and the day, in this browser's storage; turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does. Not affiliated with the Unicode Consortium, ICU or FormatJS.</p>
+  <p>Related: <a href="../hidden-unicode-check/">Hidden Unicode checker</a> finds invisible and bidirectional characters that also hide in translation files; <a href="../translator-project-quote/">translator project quote</a> prices a translation job.</p>
+</footer>
+<script type="module">
+  import { checkMessage, checkCatalogs, previewRows, readCatalog, lineCol, canonicalLocale } from './icu.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const count = (event) => recordUsage(usageStorage(), $('usageOptOut')?.checked ?? false, event);
+  const diagList = (ds, source) => `<ul class="diags">${ds.map((d) => `<li class="${d.severity}"><span class="sev ${d.severity}">${d.severity}</span>${esc(d.message)}${source !== undefined && d.offset !== undefined ? ` <span class="muted">(column ${lineCol(source, d.offset).col})</span>` : ''}${d.fix ? `<div class="fix">Fix: ${esc(d.fix)}</div>` : ''}</li>`).join('')}</ul>`;
+
+  function checkOne() {
+    const text = $('msg').value;
+    const locRaw = $('msg-locale').value.trim();
+    const loc = locRaw ? canonicalLocale(locRaw) : null;
+    const r = checkMessage(text, loc);
+    let html = '';
+    if (locRaw && !loc) html += `<p class="muted">"${esc(locRaw)}" is not a language tag this browser knows, so plural categories were not checked.</p>`;
+    html += r.diagnostics.length ? diagList(r.diagnostics, text) : `<p class="ok">No problems found${loc ? ` for ${esc(loc)}` : ''}.</p>`;
+    if (r.ast) {
+      const p = previewRows(r.ast, loc || 'en');
+      html += `<h3>What readers see${loc ? ` in ${esc(loc)}` : ''}</h3><div class="table-wrap"><table><thead><tr><th scope="col">Value</th><th scope="col">Chosen by</th><th scope="col">Text</th></tr></thead><tbody>${p.rows.map((row) => `<tr><td class="mono">${row.value === null ? '' : `${esc(row.argument)} = ${esc(row.value)}`}</td><td>${row.category ? esc(row.category) : ''}</td><td>${row.text === null ? `<span class="sev error">error</span>${esc(row.error)}` : esc(row.text)}</td></tr>`).join('')}</tbody></table></div>`;
+      if (p.approx.length) html += `<p class="muted">${p.approx.map(esc).join('; ')}.</p>`;
+      html += '<p class="muted">Other placeholders are shown as ‹name›.</p>';
+    }
+    $('msg-out').innerHTML = html;
+    count('message_checked');
+  }
+
+  let loaded = [];
+  function renderFiles() {
+    $('file-table').hidden = !loaded.length;
+    $('files-run').hidden = !loaded.length;
+    $('file-rows').innerHTML = loaded.map((f, i) => {
+      let n = '?'; let loc = f.locale || '';
+      try { const c = readCatalog(f.text, f.name); n = c.messages.length; if (!loc) loc = c.locale || ''; } catch { n = 'not JSON'; }
+      f.locale = loc;
+      return `<tr><td><input type="radio" name="src" value="${i}" aria-label="Use ${esc(f.name)} as the source"${i === 0 ? ' checked' : ''}></td><td class="mono">${esc(f.name)}</td><td><input type="text" data-i="${i}" value="${esc(loc)}" aria-label="Language of ${esc(f.name)}" spellcheck="false" autocomplete="off"></td><td>${esc(n)}</td></tr>`;
+    }).join('');
+    for (const inp of document.querySelectorAll('#file-rows input[type=text]')) inp.addEventListener('input', () => { loaded[Number(inp.dataset.i)].locale = inp.value.trim(); });
+  }
+  function checkFiles() {
+    const srcIdx = Number(document.querySelector('input[name=src]:checked')?.value ?? 0);
+    const r = checkCatalogs(loaded.map((f) => ({ name: f.name, text: f.text, locale: f.locale })), loaded[srcIdx]?.name);
+    let html = `<p><strong>${r.errors} error${r.errors === 1 ? '' : 's'}, ${r.warnings} warning${r.warnings === 1 ? '' : 's'}, ${r.infos} note${r.infos === 1 ? '' : 's'}.</strong></p>`;
+    for (const f of r.files) {
+      html += `<h3>${esc(f.name)} <span class="muted">(${esc(f.locale || 'language unknown')}${f.isSource ? ', source' : ''}; ${f.total} messages)</span></h3>`;
+      if (f.error) html += diagList([{ severity: 'error', message: f.error }]);
+      if (f.localeWarning) html += diagList([{ severity: 'warning', message: f.localeWarning }]);
+      if (!f.messages.length && !f.error) html += '<p class="ok">No problems found.</p>';
+      for (const m of f.messages) html += `<div class="key">${esc(m.key)}</div><div class="msg">${esc(m.message)}</div>${diagList(m.diagnostics)}`;
+      if (f.missingKeys?.length) html += `<p class="muted">${f.missingKeys.length} key${f.missingKeys.length === 1 ? '' : 's'} from the source not translated: ${f.missingKeys.slice(0, 12).map(esc).join(', ')}${f.missingKeys.length > 12 ? '…' : ''}</p>`;
+    }
+    $('files-out').innerHTML = html;
+    count('files_checked');
+  }
+
+  const EXAMPLES = {
+    'en.json': { 'inbox.count': '{count, plural, =0 {No messages} one {# message} other {# messages}}', 'item.delete': 'Delete {item}?', 'profile.greeting': 'Welcome back, {name}!', 'invite.status': '{gender, select, female {She invited you} male {He invited you} other {They invited you}}', 'cart.place': 'You finished {place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}}' },
+    'fr.json': { 'inbox.count': '{count, plural, =0 {Aucun message} one {# message} other {# messages}}', 'item.delete': "Supprimer l'{item} ?", 'profile.greeting': 'Bon retour, {nom} !', 'invite.status': '{gender, select, female {Elle vous a invité} other {Vous avez été invité}}', 'cart.place': 'Vous avez terminé {place, selectordinal, one {#er} other {#e}}' },
+    'pl.json': { 'inbox.count': '{count, plural, =0 {Brak wiadomości} one {# wiadomość} other {# wiadomości}}', 'item.delete': 'Usunąć {item}?', 'profile.greeting': 'Witaj ponownie, {name}!', 'invite.status': '{gender, select, female {Zaprosiła cię} male {Zaprosił cię} other {Zaproszono cię}}', 'cart.place': 'Zajęłaś {place}. miejsce' },
+  };
+
+  $('msg-run').addEventListener('click', checkOne);
+  $('msg-ex').addEventListener('click', () => { $('msg').value = "Supprimer l'{item} ?"; $('msg-locale').value = 'fr'; checkOne(); });
+  $('files').addEventListener('change', async (e) => {
+    loaded = await Promise.all([...e.target.files].map(async (f) => ({ name: f.name, text: await f.text(), locale: '' })));
+    renderFiles();
+  });
+  $('files-ex').addEventListener('click', () => { loaded = Object.entries(EXAMPLES).map(([name, obj]) => ({ name, text: JSON.stringify(obj, null, 2), locale: '' })); renderFiles(); checkFiles(); });
+  $('files-run').addEventListener('click', checkFiles);
+  const usageControl = $('usageOptOut');
+  usageControl.checked = readOptOut(usageStorage());
+  usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
+</script>
+</body>
+</html>

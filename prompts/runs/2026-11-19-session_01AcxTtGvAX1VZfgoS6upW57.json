@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtGvAX1VZfgoS6upW57",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T05:06:38Z",
+  "ended": "2026-11-19T05:24:56Z",
+  "wall_minutes": 26.77,
+  "tokens_in": 13010798,
+  "tokens_out": 97608,
+  "cost_usd": 6.0444,
+  "tool_calls": 90,
+  "task": "Explore: new venture icu-message-check (ICU MessageFormat checker)",
+  "projects": [
+    "icu-message-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17551",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 36,
+  "outcome": "success",
+  "errors": [
+    "First differential generator used a weak LCG that hid the style-text cases; switched to mulberry32 and the disagreements appeared in every seed.",
+    "venture-preflight failed once: 3 unguarded object-map lookups (inherited_keys.py) and a file:// string entry guard (check_cli_entry.py); fixed with Object.hasOwn and pathToFileURL.",
+    "Second preflight failed on siblings.test.mjs: the new tool had no sibling linking it (crawlable-orphan budget 0); added a footer link from hidden-unicode-check with a page test."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to develop on branch claude/admiring-gauss-14m391 'create if needed'; the container had already checked it out at main's head, so `git checkout -b` failed. Harmless but cost a step."
+    },
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "Placing a new developer tool means appending its slug to a ~250-name regex alternation inside CATEGORY_RULES; easy to miss without the preflight note."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports agent doc: the README, eval/differential-2026-11-19.md and eval/cldr-survey-2026-11-19.md hold everything a next run needs.",
+      "did": "Shipped README + eval records + post instead",
+      "result": "Nothing the next run needs is outside the venture folder."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-an-english-plural-is-wrong-for-every-polish-number-but-one.md",
+    "ventures/icu-message-check/eval/differential-2026-11-19.md",
+    "ventures/icu-message-check/eval/cldr-survey-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: an ICU MessageFormat checker (ventures/icu-message-check). 0 of ~1,410 venture READMEs mentioned ICU MessageFormat or plural rules. Parser written from the ICU user guide/ICU4J MessagePattern docs; plural categories read from Intl.PluralRules (CLDR 48 in Node 22.23.5). Checks: syntax with column, apostrophe-swallowed placeholders, missing/unused CLDR categories with example numbers, select-with-plural-keywords, style typos, source-vs-translation placeholders and select keys; JSON/formatjs/ARB catalogues; preview; CLI exits 1 on errors. Verification: 36 node tests pass; differential vs formatjs 3.5.23/intl-messageformat 12.2.0 on 100,000 generated messages over 5 seeds: 0 unexplained parse disagreements, 0 unexplained format differences in 362,411 comparisons (64 style-text and 112 bare-number known ICU-vs-formatjs differences, documented). The differential found and fixed 3 bugs (# in nested select, offset:1=0, style handling). CLDR survey: a one/other plural is wrong for 41 of 217 languages for at least one integer 0..100; Polish 100/101. venture-preflight icu-message-check: clean on the third run (build + check.mjs). run_venture_tests.py icu-message-check hidden-unicode-check: 2 suites, 0 failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cd3179c9-c699-5506-8e76-970fc114fe18",
+    "transcripts": 1,
+    "first": "2026-11-19T05:06:38Z",
+    "last": "2026-11-19T05:33:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 170,
+        "output": 97608,
+        "thinking": 19532,
+        "cache_read": 12819680,
+        "cache_write_5m": 0,
+        "cache_write_1h": 190948,
+        "api_equivalent_usd": 6.0444,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 170,
+      "output": 97608,
+      "thinking": 19532,
+      "cache_read": 12819680,
+      "cache_write_5m": 0,
+      "cache_write_1h": 190948,
+      "api_equivalent_usd": 6.0444,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 82,
+      "Write": 5,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.77,
+      "active_minutes": 26.77,
+      "model_minutes": 16.34,
+      "tool_minutes": 10.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "parser + linter + CLI + two pages + differential harness for a senior engineer new to ICU internals, estimated",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 397.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
