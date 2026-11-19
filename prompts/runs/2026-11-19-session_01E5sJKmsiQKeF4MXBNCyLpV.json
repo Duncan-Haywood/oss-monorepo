@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKmsiQKeF4MXBNCyLpV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T22:29:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 13 xer-schedule-check: explain CCA's last 2 CPM residuals",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17810",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "stale entries lost their id before the new reschedule loop ran (delete s.id sat between the two blocks), so explained read 0",
+      "fix": "moved the delete after both blocks; caught by checking the CCA output by hand"
+    },
+    {
+      "what": "first detector checked only early dates and missed 5 of 38 planted lags that only ate float",
+      "fix": "added the late-date side; 280/280 on the full run"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/xer-schedule-check/eval/cpm-vs-p6-2026-11-19.md",
+      "issue": "'What is left' listed only forward-rule hypotheses (calendars, start points) for the 608 h residual; asking how much lag the stored dates leave room for solved it in minutes. Recorded the inverse question in the eval doc."
+    },
+    {
+      "file": "ventures/xer-schedule-check/eval/edited-lags.mjs",
+      "issue": "CCA planted runs take ~5 min (one assess per planted lag); run in background, the 120 s tool timeout cannot hold it."
+    },
+    {
+      "file": "platform/ci/unwired_checks.py",
+      "issue": "run while venture-preflight runs, check_pwa_assets.py crashes scanning a temp ventures/discovery-lone-* dir that a concurrent check removes; it passes alone. Not run in parallel with preflight."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-p6-lag-edited-after-scheduling.md",
+    "ventures/xer-schedule-check/eval/edited-lags-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "As found 1 of 46,727 links broken on 7 public P6 files; planted 350 lags, 280 move a date, 280 found, 0 extra, 7,552/7,552 differences explained. Venture tests 139 pass; converter corpus 246 files 0 crashed 0 NaN; check_posts ok. venture-preflight: clean. unwired_checks: 264/265, the one failure (check_pwa_assets.py) was a FileNotFoundError on a temp ventures/discovery-lone-* dir another concurrently running check created and removed; rerun alone it passes (22 manifests, 0 missing).",
+  "corrections": [],
+  "redteam": null
+}
