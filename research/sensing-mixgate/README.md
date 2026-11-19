@@ -1,6 +1,6 @@
 # sensing-mixgate: does the epipolar gate help bundle adjustment under the mismatch mix a real SIFT matcher produces?
 
-`sensing-epigate` found that an epipolar gate was no better than a RANSAC start against its *invented* mismatches, and `sensing-matchreal` then measured what real SIFT mismatches look like. This project closes the loop the second one left open: it runs the epigate trial with each measured mix (mismatch rate and the share of along-epipolar, near and far errors at each ratio-test threshold). **Headline: on the measured mixes the gate plus a Cauchy loss is the best of three methods at ratio tests of 0.8 and tighter (0.0078 against 0.0207 for a RANSAC start at 0.8; 0.0026 against 0.0032 at 0.6), and worse than the RANSAC start only at a loose 0.9 ratio test (0.130 against 0.082), where every method is above 0.08 object radii.** It is the opposite of the ordering `sensing-epigate` reported at 10% uniform mismatches, The 24-seed rerun shows the all-uniform control (table B) does not reproduce that earlier picture: the gate still wins at 0.8 and tighter.
+`sensing-epigate` found that an epipolar gate was no better than a RANSAC start against its *invented* mismatches, and `sensing-matchreal` then measured what real SIFT mismatches look like. This project closes the loop the second one left open: it runs the epigate trial with each measured mix (mismatch rate and the share of along-epipolar, near and far errors at each ratio-test threshold). **Headline (24 seeds, medians; see "24-seed rerun" below): on the measured mixes the gate plus a Cauchy loss beats a RANSAC start at ratio tests of 0.7 and 0.6 (0.0036 against 0.0052; 0.0029 against 0.0040; the gate wins 20 and 19 of 24 seeds, sign test p = 0.002 and 0.007), is ahead but not established at 0.8 (0.0084 against 0.0106, 17 of 24, p = 0.064, intervals overlap), and ties at a loose 0.9 ratio test (0.057 against 0.071, 11 of 24; about 58% of seeds fail for both).** The 6-seed means first reported here (0.0078 against 0.0207 at 0.8; the gate losing at 0.9, 0.130 against 0.082) did not survive the 24-seed rerun. The all-uniform control (table B) does not reproduce the `sensing-epigate` picture either: the gate still wins there at 0.8 and tighter, so the gain is not specific to the measured mix.
 
 **Live page:** https://marisstella.app/research/sensing-mixgate/
 
@@ -17,7 +17,7 @@ Lab tag: none fits (ARPG does perception; this builds on none of its work). Buil
 pip install numpy scipy matplotlib pytest
 cd research/sensing-mixgate
 PYTHONPATH=src:../sensing-baoutlier/src python -m pytest -q tests   # 4 tests
-PYTHONPATH=src python experiments/run.py                           # about 6 minutes on 4 cores, writes experiments/results.txt
+PYTHONPATH=src python experiments/run.py                           # about 6 to 10 minutes on 4 cores (10 min 19 s on 2026-11-19), writes experiments/results.txt
 python experiments/figure.py                                       # writes experiments/error_vs_ratio.svg
 ```
 
@@ -32,11 +32,11 @@ A. Measured mixes:
 | 0.7 | 0.061 | 0.013 | 0.0058 | 0.0033 | 0.84 | 0.02 |
 | 0.6 | 0.047 | 0.0057 | 0.0032 | 0.0026 | 0.83 | 0.02 |
 
-- **At ratio tests people use (0.8 and tighter) the gate wins.** Its recall stays at 0.83 to 0.84 on the measured mixes, because the mixes are dominated by near and along errors, which it removes at 0.79 to 0.87 (`sensing-epigate`), while it fails more on a pure-uniform population at the same rates (table B, noisy, see below).
+- **6-seed reading (superseded by the 24-seed section below).** The gate's recall stays at 0.83 to 0.84 on the measured mixes, lower than on all-uniform mismatches at the same rates (0.90 to 0.94, table B), because along and near errors are harder for an epipolar test.
 - **Plain Cauchy is the weakest** at 0.8 (0.43) even with 10% mismatches; the start matters more than the loss, as in `sensing-baoutlier`.
 - **No method works with no ratio test** (56% wrong; the gate loses 66% of good observations and covers 43% of the points). The conclusion is a preprocessing one: use the ratio test; the gate then adds a modest, consistent gain.
 - **At the tightest tests all three are within 0.0032 of each other** and about 2 times the floor, so little is left to gain.
-- **Table B (all uniform, same rates) is erratic** (gate+cauchy 0.354, 0.126, 0.0055, 0.107 at 0.9 to 0.6): with 6 seeds a single failed seed dominates a mean, so the ordering among methods there is not established; I report it as a control, not a result. Table C (all along) has the gate at or beside the best at every ratio test except none (0.051 against 0.040), so even the "worst case" for an epipolar test is not bad for the gate-then-robust pipeline, because along-line errors of 10 to 40 px are mild for a robust loss (0.0025 to 0.0055 at ratio 0.8 and tighter).
+- **Table B (all uniform, same rates) looked erratic at 6 seeds** (gate+cauchy 0.354, 0.126, 0.0055, 0.107 at 0.9 to 0.6; the 24-seed rerun below shows it is not): with 6 seeds a single failed seed dominates a mean, so 6 seeds could not order the methods there. Table C (all along) has the gate at or beside the best at every ratio test except none (0.051 against 0.040), so even the "worst case" for an epipolar test is not bad for the gate-then-robust pipeline, because along-line errors of 10 to 40 px are mild for a robust loss (0.0025 to 0.0055 at ratio 0.8 and tighter).
 
 ![Surface error against ratio-test threshold for three pipelines](experiments/error_vs_ratio.svg)
 
@@ -63,6 +63,8 @@ Mixes are distributions; the mixed generator corrupts only visible observations 
 - **The geometry is synthetic** (an orbit rig, my object); only the mismatch mix is measured. Applying a stereo-pair mix to a 12-view orbit assumes the same error kinds and offsets, and `near`/`along` use epigate's 10 to 40 px rather than the measured 14 to 17 px medians. Real mismatches are also correlated within tracks and clustered by texture, which independent draws ignore.
 - **Mismatches are drawn independently per observation** at the pair's rate; matches that survive a ratio test in one view are not conditioned on the others.
 - **Main tables: 6 seeds, no intervals (the 24-seed rerun above adds them);** differences below about a factor of two (for example 0.0033 against 0.0026) are not distinguishable here. The gate settings are untuned.
+- **Along errors are not along for most pairs the gate tests** (quality audit 2026-11-19, [`portfolio/quality/audits/2026-11-19-sensing-mixgate.json`](../../portfolio/quality/audits/2026-11-19-sensing-mixgate.json)). Each along error sits on the epipolar line of one of the 11 other views, chosen at random, but the gate checks only views 1 to 3 apart, so about 0.60 of along errors (n = 297) are along for a pair it tests; the rest look like near errors to it. Where the mix is mostly along errors this flatters the gate; not yet rerun with along errors tied to the tested pairs.
+- **Prior and sibling work not yet cited:** `research/sensing-gatemix` and `research/sensing-matchmix` run closely related experiments on the same setup (matchmix reaches a different headline), and the external literature (Lowe 2004 ratio test; Hartley and Zisserman 2004; Schönberger and Frahm 2016, COLMAP; Jin et al. 2021, image-matching benchmark) is not discussed.
 - The 24-seed intervals are bootstrap intervals of the median over seeds on one synthetic rig; they do not cover scene, detector or gate-setting variation.
 
 ## Next steps

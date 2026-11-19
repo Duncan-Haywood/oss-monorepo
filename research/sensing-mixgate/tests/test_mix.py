@@ -38,3 +38,21 @@ def test_run_mixed_restores_gate_and_scores():
     orig = gate.mismatch
     r = run_mixed("0.7", seed=0, n_feat=80, max_nfev=30)
     assert gate.mismatch is orig and r["recall"] >= 0 and np.isfinite(r["g_cauchy"])
+
+
+def test_headline_quotes_the_24_seed_medians():
+    # Quality audit 2026-11-19: the headline quoted 6-seed means that the 24-seed rerun overturned.
+    import pathlib, re
+    root = pathlib.Path(__file__).resolve().parents[1]
+    readme = (root / "README.md").read_text()
+    seeds = (root / "experiments" / "results_seeds.txt").read_text()
+    table_a = seeds.split("== A")[1].split("== B")[0]
+    head = readme[readme.index("**Headline"):].split("**", 2)[1]
+    for ratio in ("0.8", "0.7", "0.6", "0.9"):
+        row = next(l for l in table_a.splitlines() if l.startswith(ratio + " "))
+        cells = row.split("|")
+        ri, g = cells[2].split()[0], cells[3].split()[0]
+        for v in (ri, g):
+            x = float(v)
+            assert f"{x:.4f}" in head or f"{x:.3f}" in head, (ratio, v)
+    assert "0.0207" not in head and "0.130" not in head
