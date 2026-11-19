@@ -2160,6 +2160,27 @@ class TakeSurveyTest(unittest.TestCase):
             self.assertEqual(host.take_survey_bound(dict(shelf, rms_ppm=rms)),
                              take_shelf_bound.bound_ms(rms, host.TAKE_SURVEY_MS))
 
+    def test_bound_floor_lifted_by_straddle_vote(self):
+        # 2026-11-19, README "The straddle vote in the take bound": with TAKE_BOUND_STRADDLE, a frame whose 1.5 ms vote has
+        # a straddling wheel and does not lead names the 2% bar's bound (2.5 ms here, not the floor's 3 ms); no straddling
+        # wheel, a leading vote or an older frame keeps the floor
+        low = {"wheels": 22, "least_ms10": 0, "refined_ms10": 0, "board_ms10": 0,
+               "rms_ppm": [16, 16, 17, 19, 21, 25, 30, 35, 40]}
+        self.assertTrue(host.TAKE_BOUND_STRADDLE)                  # shipped on: held out (eval/take-bound-vote-*)
+        self.assertIn("up to 2.5 ms", host.take_survey_advice(dict(low, straddle_for=0, straddle_against=1)))
+        saved = host.TAKE_BOUND_STRADDLE
+        try:
+            host.TAKE_BOUND_STRADDLE = True
+            self.assertEqual(host.take_survey_bound(dict(low, straddle_for=0, straddle_against=1)), 2.5)
+            self.assertEqual(host.take_survey_bound(dict(low, straddle_for=1, straddle_against=1)), 2.5)
+            self.assertEqual(host.take_survey_bound(dict(low, straddle_for=0, straddle_against=0)), 3.0)
+            self.assertEqual(host.take_survey_bound(dict(low, straddle_for=2, straddle_against=1)), 3.0)
+            self.assertEqual(host.take_survey_bound(low), 3.0)
+            host.TAKE_BOUND_STRADDLE = False
+            self.assertEqual(host.take_survey_bound(dict(low, straddle_for=0, straddle_against=1)), 3.0)
+        finally:
+            host.TAKE_BOUND_STRADDLE = saved
+
     def test_verdict_needs_two_summed_wheels(self):
         # 2026-11-18, README "The take survey's verdict needs two informative wheels": with the minimum at 2, 24 wheels
         # surveyed but one summed (the rest take-blind) is held back; two are enough; older firmware (no count) is not.

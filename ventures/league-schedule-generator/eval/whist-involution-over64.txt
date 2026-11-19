@@ -1,0 +1,3 @@
+{"n":69,"mods":[69],"kind":"whist","ms":99765,"method":"multiplier 22 anneal (C)","seed":1,"restarts":74,"steps":203692223,"tables":[[23,46,51,18],[31,48,61,21],[43,6,49,63],[15,54,32,14],[12,57,44,2],[19,38,4,8],[64,20,28,26],[34,27,58,42],[3,66,22,1],[40,53,52,62],[24,59,45,56],[25,5,67,41],[17,29,13,10],[9,37,60,55],[39,47,30,68],[11,33,35,36],[16,7,50,65]]}
+{"n":77,"mods":[77],"kind":"whist","ms":120000,"method":"multiplier 43 anneal (C)","seed":1,"restarts":88,"steps":222126353,"best":4,"tables":null}
+{"n":77,"mods":[77],"kind":"whist","ms":120000,"method":"multiplier 34 anneal (C)","seed":1,"restarts":98,"steps":222937932,"best":6,"tables":null}

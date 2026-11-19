@@ -172,6 +172,15 @@ CLAIMS = [
     ("results_faltinsen_reflection.txt", "F4 variant area ratios 0.915-0.949"),
     ("results_faltinsen_reflection.txt", "row STAWAVE-2 2.844 0.725 -4.18"),
     ("results_faltinsen_reflection.txt", "row Faltinsen_kT_speed 2.844 0.028 -3.39"),
+    # milestone 7zi: section III-B (wave added resistance against tank data) and Table II
+    ("results_faltinsen_reflection.txt", "row strip+STAWAVE-2_refl 1.134 2.084"),
+    ("results_faltinsen_reflection.txt", "row Faltinsen_kT_speed 2.844 0.028 -3.39 -12.32 True"),
+    ("results_faltinsen_reflection.txt", "row STAWAVE-2 2.844 0.725 -4.18 -14.79 True"),
+    ("results_faltinsen_reflection.txt", "I/B 0.0195"),
+    ("results_faltinsen_reflection.txt", "(I/B 0.0517"),
+    ("results_motion_damping_holdout.txt", "row zeta0 plain 0.0000 0.0000 2.954 -4.31 -15.06 True"),
+    ("results_wigley_seakeeping_tank.txt", "row 0.000 2.95 2.13 0.72 -4.31 -15.06 True"),
+    ("results_wigley_seakeeping_tank.txt", "row 0.091 1.72 1.24 0.72 -2.90 -10.67 True"),
 ]
 
 def check(claims=CLAIMS, root=EXP):

@@ -34,6 +34,17 @@ export const RATE_MODEL = Object.freeze({
   assessments: Object.freeze({ rate: 0.0014, perTransaction: 0.02 }),
 });
 
+// Regulation II (12 CFR 235.3(b) and 235.4): the most a covered issuer (assets
+// of $10 billion or more) may charge on a debit transaction is 21 cents plus
+// 0.05% of the amount, plus a 1-cent fraud-prevention adjustment. This is the
+// cap in force since October 2011; the Federal Reserve proposed lowering it in
+// October 2023, so check federalreserve.gov's Regulation II page for a later
+// change. Debit from smaller (exempt) banks is not capped and stays in the
+// card bands above. Added after quality round 86: with no debit split, a
+// statement that was mostly big-bank debit read as "no markup" when hundreds
+// of dollars of markup were on it.
+export const REGULATED_DEBIT = Object.freeze({ rate: 0.0005, perTransaction: 0.22 });
+
 // Stripe's published standard US online card rate (stripe.com/pricing, read
 // 2026-11-04): a flat blend, so interchange, assessments and markup are not
 // separated. Used only in the page's answer lead; the audit does not use it.
@@ -71,12 +82,22 @@ function toNumber(value, label, { min = 0, max = Infinity, integer = false } = {
 // One month of pass-through at a given point in the band. Split out because
 // the low/mid/high estimates differ only in which interchange point they use,
 // and restating the arithmetic three times is how the three drift apart.
-function passThroughAt(point, { monthlyVolume, transactions, cardPresentShare }) {
+function passThroughAt(point, { monthlyVolume, transactions, cardPresentShare, regulatedDebitShare = 0 }) {
   const presentRate = RATE_MODEL.cardPresent[point];
   const notPresentRate = RATE_MODEL.cardNotPresent[point];
   const blendedRate = presentRate * cardPresentShare + notPresentRate * (1 - cardPresentShare);
+  const blendedPerTransaction =
+    RATE_MODEL.cardPresent.perTransaction * cardPresentShare +
+    RATE_MODEL.cardNotPresent.perTransaction * (1 - cardPresentShare);
+  // Regulated debit is priced at the Regulation II cap, the same at every
+  // point of the band; the rest of the volume (and, at the same average
+  // ticket, the rest of the transactions) takes the card band.
+  const otherShare = 1 - regulatedDebitShare;
   const interchange =
-    monthlyVolume * blendedRate + transactions * RATE_MODEL.cardPresent.perTransaction;
+    monthlyVolume * otherShare * blendedRate +
+    transactions * otherShare * blendedPerTransaction +
+    monthlyVolume * regulatedDebitShare * REGULATED_DEBIT.rate +
+    transactions * regulatedDebitShare * REGULATED_DEBIT.perTransaction;
   const assessments =
     monthlyVolume * RATE_MODEL.assessments.rate +
     transactions * RATE_MODEL.assessments.perTransaction;
@@ -101,6 +122,10 @@ export function auditStatement(input = {}) {
     max: 100,
   });
   const fixedMonthlyFees = toNumber(input.fixedMonthlyFees ?? 0, 'the fixed monthly fees');
+  const regulatedDebitPercent = toNumber(input.regulatedDebitPercent ?? 0, 'the big-bank debit share', {
+    min: 0,
+    max: 100,
+  });
 
   // A statement cannot charge more in flat monthly fees than it charges in
   // total. Catching it here rather than letting it flow through keeps the
@@ -111,7 +136,8 @@ export function auditStatement(input = {}) {
   }
 
   const cardPresentShare = cardPresentPercent / 100;
-  const shape = { monthlyVolume, transactions, cardPresentShare };
+  const regulatedDebitShare = regulatedDebitPercent / 100;
+  const shape = { monthlyVolume, transactions, cardPresentShare, regulatedDebitShare };
 
   const low = passThroughAt('low', shape);
   const mid = passThroughAt('mid', shape);
@@ -157,6 +183,7 @@ export function auditStatement(input = {}) {
     transactions,
     totalFees,
     cardPresentPercent,
+    regulatedDebitPercent,
     fixedMonthlyFees,
     averageTicket,
     effectiveRatePercent,
@@ -169,7 +196,7 @@ export function auditStatement(input = {}) {
       mid: (markupMid / monthlyVolume) * 100,
       high: (markupHigh / monthlyVolume) * 100,
     },
-    // True when even the cheapest reading of the networks' share accounts for
+    // True when the most expensive reading of the networks' share accounts for
     // the whole bill. Not "you are being overcharged nothing" -- it means the
     // statement is at or under what this model can explain, and the markup
     // figure has bottomed out at zero rather than gone negative.

@@ -62,7 +62,8 @@ def exact(people, tol, k, time_limit=60):
 def grid_run(people, tol, k):
     """Best regular grid run: a r x c lattice with spacing 2*tol, shifted to the best offset, r*c <= k.
 
-    This is the classic 'S M L, each a fixed step apart in every measurement' size run.
+    An axis-aligned lattice. Real S-M-L runs are graded diagonally (all measurements step
+    together), which this does not model; see the README's audit correction.
     """
     best = (0.0, None)
     lo = people.min(axis=0)

@@ -1,0 +1,85 @@
+# water-leaks step 28: D2 = step 1's D1 with D1-L's design run on the residual D (real leaks) and D_inj
+# (step 25's injected sets) in place of the raw pressures; h by step 1's rule on 2018; then step 27's 17
+# rules of R30 around D2's alarm day, one selected on 2018's detected leaks, frozen, scored on 2019's
+
+## h grid on D (arm A, the published leaks; 2019 shown for reference, not used)
+  h   10: 2018 TP 12/13 FP 10 | 2019 new TP 17/19 FP  8
+  h   15: 2018 TP 11/13 FP  7 | 2019 new TP 16/19 FP  7
+  h   20: 2018 TP 12/13 FP  3 | 2019 new TP 15/19 FP  6
+  h   30: 2018 TP 11/13 FP  3 | 2019 new TP 13/19 FP  5
+  h   40: 2018 TP 11/13 FP  2 | 2019 new TP 12/19 FP  5
+  h   60: 2018 TP 10/13 FP  2 | 2019 new TP 11/19 FP  4
+  h   80: 2018 TP 10/13 FP  2 | 2019 new TP 11/19 FP  4
+  h  120: 2018 TP 8/13 FP  1 | 2019 new TP 11/19 FP  2
+  h  160: 2018 TP 8/13 FP  1 | 2019 new TP 10/19 FP  3
+  h  240: 2018 TP 7/13 FP  0 | 2019 new TP 9/19 FP  2
+  h  320: 2018 TP 6/13 FP  0 | 2019 new TP 8/19 FP  2
+  h  400: 2018 TP 6/13 FP  0 | 2019 new TP 8/19 FP  2
+  h  480: 2018 TP 6/13 FP  0 | 2019 new TP 8/19 FP  1
+  selected on 2018: h = 40 (2019 false alarms 5)
+
+## selection on 2018: D2 detects 28 leaks (11 real, 17 injected); R30 at the oracle day 16
+  L+0           9   <- selected (S2)
+  L+1           5
+  L-1           9
+  L+2           3
+  L-2           6
+  L+4           4
+  L-4           3
+  L+7           3
+  L-7           2
+  V[-4,+0]      8
+  V[-2,+2]      5
+  V[+0,+4]      4
+  V[+2,+7]      4
+  V[-7,+0]      6
+  V[+0,+7]      4
+  V[-4,+4]      4
+  V[-7,+7]      4
+  S2 = L+0, frozen before any 2019 score below was computed
+
+## alarm day minus oracle half-peak day, detected leaks of both years and arms
+  D2: 56 detected; median +0.0, quartiles -24 and +4, range -57 to +8; median |.| 5.0; within +-2 days 14
+  D1-L: 50 detected; median +1.0, quartiles -21 and +5, range -45 to +21; median |.| 6.5; within +-2 days 11
+
+## test on 2019: D2 detects 28 of 48 2019 leaks (12 real, 16 injected; D1-L 22, both 19); chance expected 1.01; R30 at the oracle day 12
+  S2 = L+0: 4 of 28 (P(chance >=) 0.017); L0 at D2's alarm 4
+    real new 2019: S2 2, L0 2, oracle day 4 of 12
+    injected 2019: S2 2, L0 2, oracle day 8 of 16
+  end to end (2019, of all 48): S2 4 (step 27, D1-L with its S: 4)
+  false alarms: arm A 2019 5, 2018 2; arm B over the 8 sets 42
+
+## pre-registered predictions (LOG.md, step 28 plan)
+  (a) median |k_al - k_or| on D2's detected leaks at most 3 days: 5.0: FAILED
+  (b) D2 detects at least 22 of the 48 2019 leaks: 28: HELD
+  (c) primary, end to end 2019 more than 4: 4: FAILED
+  (d) end to end 2019 at least 8: 4: FAILED
+  (e) S2 beats chance on the detected 2019 leaks at P < 0.01: P = 0.017: FAILED
+  (f) at most 3 false alarms in 2019 on the published data: 5: FAILED
+
+## every rule, both years (no verdicts)
+  L+0            9    4  (2, 2)
+  L+1            5    2  (0, 2)
+  L-1            9    1  (0, 1)
+  L+2            3    3  (1, 2)
+  L-2            6    2  (0, 2)
+  L+4            4    4  (1, 3)
+  L-4            3    5  (1, 4)
+  L+7            3    4  (2, 2)
+  L-7            2    2  (1, 1)
+  V[-4,+0]       8    2  (1, 1)
+  V[-2,+2]       5    2  (0, 2)
+  V[+0,+4]       4    3  (1, 2)
+  V[+2,+7]       4    3  (1, 2)
+  V[-7,+0]       6    2  (1, 1)
+  V[+0,+7]       4    3  (1, 2)
+  V[-4,+4]       4    2  (0, 2)
+  V[-7,+7]       4    2  (0, 2)
+  Spearman 2018 against 2019: -0.44 (P = 0.07); best in 2019 alone L-4 (5)
+
+## post hoc, no verdicts: alarm day against onset and half-peak day, by kind (both years, both arms)
+  detector kind        n   median(k_al-k_on) median(k_al-k_or) median(k_or-k_on)  L0 hits  oracle-day hits
+  D2       abrupt      29       +3.0              +3.0              +0.0          11       17
+  D2       incipient   27       +6.0             -27.0             +35.0           2       11
+  D1-L     abrupt      26       +4.5              +4.5              +0.0           5       16
+  D1-L     incipient   24       +5.5             -22.0             +30.0           6       10

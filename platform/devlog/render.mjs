@@ -30,7 +30,7 @@ const STYLE = `
   .badge { display:inline-block; font-size:.75rem; font-weight:600; padding:1px 8px; border-radius:999px; border:1px solid currentColor; white-space:nowrap; }
   .v-helped, .s-done { color:var(--ok); } .v-worse, .s-dropped { color:var(--bad); }
   .v-too-few-runs, .v-no-change, .s-in_progress { color:var(--warn); } .v-pending, .v-reported, .s-open { color:var(--pend); }
-  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:12px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(290px, 100%),1fr)); gap:12px; }
   .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; }
   .card h3 { margin:0 0 4px; font-size:1rem; } .card p { margin:.4em 0 0; font-size:.9rem; color:var(--muted); }
   .callout { background:var(--panel); border-left:4px solid var(--warn); padding:10px 14px; border-radius:6px; margin:14px 0; }

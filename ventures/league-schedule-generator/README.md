@@ -395,6 +395,33 @@ points, more than 4: order 3 fails (a Wh(4) table is a whole line, and two lines
 players, past the 64 the card takes. Tested in `whist.test.mjs` ("57 players on 14 courts play the
 Singer design", "every table of the stored base lies on one line").
 
+## A second route to 57, and one that reaches 69: a base round fixed by multiplying by 37 (2026-11-19)
+
+Another run on the same afternoon reached 57 by a different structure, before the Singer construction
+above landed. It is kept as a check and as a method for sizes that are not projective planes. The page
+still plays the Singer base (the build keeps the first file's base for a size).
+
+The units mod 57 have two involutions besides -1: 20 and 37. `eval/whist-involution.c` searches only
+base rounds that multiplication by m maps onto themselves. It starts from a random m-invariant layout
+(37 fixes 19 and 38, which must share a table as {19, 38} vs {x, 37x}; every other table is either fixed
+by m or paired with its image) and anneals with moves that swap p with q and m*p with m*q together.
+That swap commutes with the multiplier, so every state stays invariant. The cost is
+(partners(d) - 1)^2 + (opponents(d) - 2)^2 summed over the difference classes. The -1 multiplier was
+already ruled out (patterned starters, below), and an order-3 multiplier cannot fix a whist table.
+
+The multiplier was chosen on small cases first. At 21 and 33, the involution that is 1 mod 3 and -1 mod
+the other prime (13 and 10) finds a design in 2 to 10 s. The other involution (8 and 23) found nothing in
+10 s. At 57 that rule gives 37 (1 mod 3, -1 mod 19). **It found a design in 11 to 15 CPU-seconds in each of
+the four seeds that finished**; the other four were stopped once those had landed
+(`eval/whist-involution.txt`). The base passes `checkWhist` when developed, and `whist.test.mjs`
+("57 by multiplier 37") checks it pair by pair and checks that it is fixed by x -> 37x.
+
+Unlike the Singer route, this one is not tied to 7^2 + 7 + 1. Past the page's 64-player cap, the same
+rule (m = 22: 1 mod 3, -1 mod 23) found a design for 69 in 100 CPU-s, re-checked in Python. 77 (m = 43
+or 34) reached cost 4 and 6 in 120 s without one (`eval/whist-involution-over64.txt`, one seed each; not
+stored, since the page stops at 64).
+
+
 ## Whist designs for 52 and near-whist for 58, by starter and table matching (2026-11-19)
 
 Every earlier search (`eval/whist-search.c`, `eval/whist-anneal.c`, `eval/whist-orbits.c`, the near-whist

@@ -40,7 +40,7 @@
     [hidden] { display: none !important; }
     .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
     .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 12px 0; }
-    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
     #view { position: relative; margin-top: 12px; }
     #gl { display: block; width: 100%; height: min(62vh, 560px); border-radius: 12px; background: #1b1c20; touch-action: none; }
     #msg { min-height: 1.5em; font-weight: 500; }

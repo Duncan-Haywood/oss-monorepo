@@ -33,6 +33,7 @@ const SCENARIO = {
   transactions: 1400,
   totalFees: 1300,
   cardPresentPercent: 85,
+  regulatedDebitPercent: 0,
   fixedMonthlyFees: 45,
   quoteMarkupPercent: 0.25,
   quotePerTransaction: 0.1,

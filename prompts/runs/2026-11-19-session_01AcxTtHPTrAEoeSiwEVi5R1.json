@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtHPTrAEoeSiwEVi5R1",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T21:07:18Z",
+  "ended": "2026-11-19T21:24:57Z",
+  "wall_minutes": 18.29,
+  "tokens_in": 9731854,
+  "tokens_out": 38154,
+  "cost_usd": 3.7579,
+  "tool_calls": 96,
+  "task": "polish: sweep all venture pages for hero button rows and sideways scroll; fix 320 px reflow (auto-fit grid minimums) with a static check",
+  "projects": [
+    "platform/pages",
+    "ventures (54 files)",
+    "research/marriage-divorce-evidence",
+    "platform/devlog"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17795",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first platform/pages test run: 170 failures, all one cause: the new post's description was 170 chars (writing.mjs throws on load); shortened to 160 and re-ran",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "says to screenshot the hub etc. and pick the weakest; after ~30 polish runs today those surfaces show nothing, so the real pick comes from platform/ci/polish_queue.py, which the prompt does not mention"
+    },
+    {
+      "file": "platform/pages/build.mjs (writing.mjs loadPost)",
+      "issue": "a post's description over 160 chars fails every build test (170 of 1,878) with the same message; check_posts.py catches it in 1 s, so running that before the suite saves a 5-minute run"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/polish-2026-11-19-cta-row-phone.md (item 3)",
+      "why": "the picked item was hero button rows; the sweep showed ~180 are form action rows (Check / Load example / Clear) where stretching to full width would make Clear the biggest button, and that it found a WCAG 1.4.10 failure (21 pages sideways at 320 px)",
+      "did": "fixed the reflow failure and left the button rows, with the reason and a gentler option in the report",
+      "result": "21 -> 0 sideways pages among the 44 rebuilt; desktop tracks identical on 44 of 44"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-twenty-one-tools-scrolled-sideways-on-a-small-phone.md",
+    "docs/reports/polish-2026-11-19-reflow-320.md"
+  ],
+  "goal": null,
+  "notes": "Sweep: Playwright over 1,414 built venture pages at 390/360/320 (4 min, 8 tabs). Before: 21 sideways at 320, 0 at 360/390. After (--only preview of the 44 touched pages): 0 at every width; computed grid-template-columns identical before/after at 768 and 1280 on 44 of 44 pages. pairwise-ranking stays 1 px over at 320 (not touched). Codemod: 62 grids in 56 files. New check platform/pages/grid-min-reflow.test.mjs 0.5 s. Changed ventures' own tests and platform/pages suite run locally (results in PR). Local: platform/pages suite 1,877/1,878 (the one failure, 'identical build produces an identical cache name', came from committing during the run; it passes alone); the 44 changed ventures' own tests 0 failures. CI: all green except changed-ventures, where fdr-multiple-testing 'a large list stays fast' took 8,284 ms against an 8,000 ms limit (an engine timing test this PR doesn't touch; 1.4 s locally; the job runs 56 suites at once). Merged with that noted.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c29b3df6-2ff0-5530-aa10-27ef86afeaba",
+    "transcripts": 1,
+    "first": "2026-11-19T21:07:18Z",
+    "last": "2026-11-19T21:25:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 156,
+        "output": 38154,
+        "thinking": 7390,
+        "cache_read": 9597358,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134340,
+        "api_equivalent_usd": 3.7579,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 156,
+      "output": 38154,
+      "thinking": 7390,
+      "cache_read": 9597358,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134340,
+      "api_equivalent_usd": 3.7579,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 96,
+    "tools": {
+      "Bash": 77,
+      "Read": 11,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.29,
+      "active_minutes": 14.87,
+      "model_minutes": 8.97,
+      "tool_minutes": 5.9,
+      "waiting_on_human_minutes": 3.42,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "front-end dev: sweep script over 1,414 pages, codemod across 56 files, verification at 5 widths, a static check, post and report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 133.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

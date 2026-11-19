@@ -82,7 +82,7 @@
       <div><label for="affiliateCommissionPct">Affiliate commission (%)</label><input id="affiliateCommissionPct" inputmode="decimal" value="30"></div>
       <div><label for="fixedCosts">Fixed launch costs: tools, design, webinar, ($)</label><input id="fixedCosts" inputmode="decimal" value="0"></div>
     </div>
-    <p class="note">Use rates from your own past launches, waitlist or webinar. Leave ad spend at 0 for a list-only launch. Affiliate share is the portion of all sales that an affiliate referred.</p>
+    <p class="note">Use rates from your own past launches, waitlist or webinar. Leave ad spend at 0 for a list-only launch. Affiliate share is the portion of all sales that an affiliate referred. The 2.9% + $0.30 processor default is the common US card rate (Stripe's published standard); use your own processor's.</p>
     <button type="button" id="analyze">Calculate</button>
     <button type="button" class="secondary" id="load-example">Load an example</button>
     <button type="button" class="secondary" id="clear-all">Clear</button>
@@ -106,7 +106,7 @@
 
   <section class="card">
     <h2>How it is calculated</h2>
-    <p><strong>Buyers:</strong> list size × visit share × conversion, plus ad spend ÷ cost per visit × ad conversion. <strong>Net kept per buyer:</strong> price − expected refund − processor fee (percentage plus fixed, kept even on a refund) − platform fee and affiliate commission (kept sales only). <strong>Net profit:</strong> buyers × net kept per buyer − ad spend − fixed launch costs. <strong>Break-even buyers:</strong> (ad spend + fixed costs) ÷ net kept per buyer. <strong>Break-even list size:</strong> the organic buyers still needed after paid buyers, divided by visit share × conversion. <strong>Return on ad spend:</strong> ad buyers × net kept per buyer ÷ ad spend. <strong>Scenarios:</strong> conversion scaled from 25% to 150% of what you typed.</p>
+    <p><strong>Buyers:</strong> list size × visit share × conversion, plus ad spend ÷ cost per visit × ad conversion. <strong>Net kept per buyer:</strong> price − expected refund − processor fee (percentage plus fixed, kept even on a refund) − platform fee and affiliate commission (kept sales only). <strong>Net profit:</strong> buyers × net kept per buyer − ad spend − fixed launch costs. <strong>Break-even buyers:</strong> (ad spend + fixed costs) ÷ net kept per buyer. <strong>Break-even list size:</strong> the organic buyers still needed after paid buyers, divided by visit share × conversion. <strong>Return on ad spend (net):</strong> ad buyers × net kept per buyer ÷ ad spend. This is net of fees and refunds, so it reads lower than the usual revenue ÷ spend ROAS an ad dashboard shows. <strong>Scenarios:</strong> conversion scaled from 25% to 150% of what you typed.</p>
     <p><strong>Not modelled:</strong> taxes and sales tax, currency conversion, payment plans and failed instalments, upsells, support cost, your own time, and how price changes conversion. Unverified: tested on hand-calculated examples, not on a real launch's books. It computes arithmetic; it does not predict what your audience will do.</p>
   </section>
 
@@ -135,7 +135,7 @@
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
     <p>Everything runs in your browser. Your figures are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Related tools: the <a href="../breakeven-roas-calculator/">break-even ROAS calculator</a>, the <a href="../gabor-granger-price-analyzer/">Gabor-Granger price analyzer</a>, the <a href="../patreon-fee-calculator/">Patreon fee calculator</a> the <a href="../freelance-rate-increase-calculator/">freelance rate increase calculator</a> and, for a live event, the <a href="../retreat-profit-pricing-calculator/">retreat and workshop profit calculator</a>.</p>
+    <p>Related tools: the <a href="../breakeven-roas-calculator/">break-even ROAS calculator</a>, the <a href="../gabor-granger-price-analyzer/">Gabor-Granger price analyzer</a>, the <a href="../patreon-fee-calculator/">Patreon fee calculator</a>, the <a href="../freelance-rate-increase-calculator/">freelance rate increase calculator</a> and, for a live event, the <a href="../retreat-profit-pricing-calculator/">retreat and workshop profit calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -162,7 +162,7 @@
         [money(t.net), "Net profit after every cost"],
         [t.buyers.toFixed(1), "Expected buyers"],
         [t.beListSize === null ? "n/a" : Math.round(t.beListSize).toLocaleString("en-US"), "List size where this launch breaks even"],
-        [t.roas === null ? "n/a" : t.roas.toFixed(2) + "×", "Return on ad spend, first sale only"],
+        [t.roas === null ? "n/a" : t.roas.toFixed(2) + "×", "Net return per ad dollar (after fees and refunds), first sale only"],
       ];
       $("#big").innerHTML = big.map(([v, x]) => `<div><strong>${esc(v)}</strong>${esc(x)}</div>`).join("");
       $("#verdict").textContent = r.verdict;

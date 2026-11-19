@@ -17,9 +17,10 @@
   pre-registered test (eval/take-straddle-margin-one-2026-11-19.md: 85 of 120 named against 72, but 3 of 48 instant
   builds told to set 1.5 ms on 2-1 splits). The 2.5 ms vote shipped at margin 2 the same day
   (eval/take-straddle-long-2026-11-19.md: held out 70 to 76 of 120 named, 0 of 48 instant misadvised; 11 of the 14
-  2.4-3.5 ms builds still at 0 had one straddling wheel or none). Still open: whether the vote can tighten the TAKE_US = 0 bound (on the design the 8 builds floor 0 misses had no straddling wheel
-  at all, so "no straddle, no 1.5 ms bound" covered them; it won back 2 of 14 loosened instant bounds there, not yet
-  held out). A margin that scales with the straddle count (instant builds vote "for" about 1 in 5) is untested; test it
+  2.4-3.5 ms builds still at 0 had one straddling wheel or none). The vote in the TAKE_US = 0 bound shipped (`host.TAKE_BOUND_STRADDLE`,
+  eval/take-bound-vote-2026-11-19.md: held out 85 of 204 instant builds bounded 1.5 ms against 83, none uncovered; 119
+  still at 2.5 ms or more, 109 of 204 with no wheel straddling at 1.5 ms, so the bound now waits on more straddling
+  balls, not on the frame's reading). A margin that scales with the straddle count (instant builds vote "for" about 1 in 5) is untested; test it
   on fresh seeds, not AA-AH.
 - (2026-11-19) More tach pulses a revolution: tested host-side and closed by its pre-registered rule
   (eval/tach-pulses-2026-11-19.md: four magnets saw 46 of 128 short-take balls against 38, not twice; the step's drop

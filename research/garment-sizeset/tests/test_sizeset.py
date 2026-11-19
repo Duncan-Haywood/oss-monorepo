@@ -34,7 +34,11 @@ def test_exact_beats_greedy_on_constructed_instance():
                        [4.5, 0], [5.5, 0]])
     _, g = greedy(people, 3.0, 2)
     _, e, _ = exact(people, 3.0, 2)
-    assert e >= g
+    # greedy takes the centre and strands a flank; the optimum fits everyone
+    # by hand: a size at 4.5 fits 5 of 8 (2, 4, 4.5, 5.5, 6), then one at 8 adds 8 and 10: 7/8
+    assert abs(g - 0.875) < 1e-9
+    assert g < e - 1e-9
+    assert abs(e - 1.0) < 1e-9
 
 
 def test_grid_run_respects_budget_and_monotone():
