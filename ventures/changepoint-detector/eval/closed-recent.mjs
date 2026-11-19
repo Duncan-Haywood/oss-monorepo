@@ -5,6 +5,8 @@
 //                                                         1 to 7 days after its step)
 //   node eval/closed-recent.mjs sum design d0.jsonl d1.jsonl d2.jsonl d3.jsonl
 //   node eval/closed-recent.mjs sum fresh f0.jsonl f1.jsonl f2.jsonl f3.jsonl
+//   node eval/closed-recent.mjs fresh4 8 0 > g0.jsonl   (... fresh4 8 7; round 4, seeds 20261122, eval/closed-recent-r4.prereg.md)
+//   node eval/closed-recent.mjs sum fresh4 g0.jsonl ... g7.jsonl
 //   node eval/closed-recent.mjs real
 // Arms, replayed with Quiet (bocpd, --model poisson, --period 7):
 //   clean  the closed days left open (side-stream counts); off  closed days as zeros
@@ -43,8 +45,8 @@ function placebos(side, closed) { // 6 dates drawn as the closures are, none a c
 }
 
 function run(mode, K, k) {
-  const r = rng(mode === 'design' ? 20261120 : 20261121);
-  const maxGap = mode === 'design' ? 21 : 7;
+  const r = rng({ design: 20261120, fresh: 20261121, fresh4: 20261122 }[mode]);
+  const maxGap = mode === 'design' ? 21 : 7; // fresh and fresh4: every step series has a closure 1-7 days after
   for (let s = 0; s < 200; s++) {
     let step = null; const closed = new Set();
     {
@@ -55,7 +57,7 @@ function run(mode, K, k) {
       }
       while (closed.size < 6) { const i = 84 + Math.floor(r() * 277); if (openDay(i) && !closed.has(i)) closed.add(i); }
     }
-    const side = rng(1e6 + s * 7919 + (mode === 'design' ? 1 : 2));
+    const side = rng(1e6 + s * 7919 + ({ design: 1, fresh: 2, fresh4: 3 }[mode]));
     const { off, clean } = series(r, side, step, closed);
     const pl = placebos(side, closed);
     if (s % K !== k) continue;
@@ -78,7 +80,7 @@ function summarise(mode, files) {
   const delay = (x, arm) => { const a = x[arm].filter(([i]) => Math.abs(i - x.step) <= 7).map(([, t]) => t - x.step); return a.length ? Math.min(...a) : null; };
   const nul = rows.filter((x) => x.step == null), stp = rows.filter((x) => x.step != null);
   const out = (s) => console.log(s);
-  out(`\n================ ${mode === 'design' ? 'DESIGN: round 2 fresh seeds 20261120 (seen; deciding nothing)' : 'FRESH seeds 20261121 (the pre-registered bars)'} ================`);
+  out(`\n================ ${{ design: 'DESIGN: round 2 fresh seeds 20261120 (seen; deciding nothing)', fresh: 'FRESH seeds 20261121 (round 3, the pre-registered bars)', fresh4: 'FRESH seeds 20261122 (round 4, eval/closed-recent-r4.prereg.md)' }[mode]} ================`);
   out(`alerts over all 200 series: ${ARMS.map((a) => `${a} ${rows.reduce((t, x) => t + x[a].length, 0)}`).join(', ')}`);
   out(`\nno-step series (100): with an alert within 1 day of a closure / of a placebo date (chance)`);
   for (const a of ARMS) out(`  ${a.padEnd(5)}  closure ${String(nul.filter((x) => near(x[a], x.closed)).length).padStart(3)}   placebo ${String(nul.filter((x) => near(x[a], x.placebo)).length).padStart(3)}`);
@@ -131,10 +133,10 @@ async function real() {
 
 const [part, a3, a4] = process.argv.slice(2);
 if (part === 'real') await real();
-if (part === 'design' || part === 'fresh') run(part, Number(a3 ?? 1), Number(a4 ?? 0));
+if (part === 'design' || part === 'fresh' || part === 'fresh4') run(part, Number(a3 ?? 1), Number(a4 ?? 0));
 if (part === 'sum') {
   const { rows, nul, stp, near, caught } = summarise(a3, process.argv.slice(4));
-  if (a3 === 'fresh') {
+  if (a3 === 'fresh' || a3 === 'fresh4') {
     const c = (arm) => stp.filter((x) => caught(x, arm)).length;
     const nc = (arm) => nul.filter((x) => near(x[arm], x.closed)).length, np = (arm) => nul.filter((x) => near(x[arm], x.placebo)).length;
     const nr = (arm) => rows.reduce((t, x) => t + x[arm].length, 0);
@@ -143,7 +145,11 @@ if (part === 'sum') {
     out2(`  T1 closure effect gone: no-step series with an alert at a closure ${nc('rec3')} <= placebo ${np('rec3')} + 3: ${t1 ? 'PASS' : 'FAIL'}`);
     out2(`  T2 a closure in the first week after a step: caught ${c('rec3')} >= fill1 ${c('fill1')} + 5: ${t2 ? 'PASS' : 'FAIL'}`);
     out2(`  T3 near the shop that never shut: caught ${c('rec3')} >= clean ${c('clean')} - 5: ${t3 ? 'PASS' : 'FAIL'}`);
-    out2(`  T4 no noisier: alerts over 200 series ${nr('rec3')} <= 1.05 x fill1 ${nr('fill1')}: ${t4 ? 'PASS' : 'FAIL'}`);
+    out2(`  T4 no noisier: alerts over 200 series ${nr('rec3')} <= 1.05 x fill1 ${nr('fill1')}: ${t4 ? 'PASS' : 'FAIL'}${a3 === 'fresh4' ? ' (round 3 only; replaced by U4 in round 4)' : ''}`);
+    if (a3 === 'fresh4') {
+      const fa = (arm) => nul.reduce((t, x) => t + x[arm].length, 0);
+      out2(`  U4 (round 4) no more false alerts than the shop that never shut: alerts on the 100 no-step series ${fa('rec3')} <= 1.05 x clean ${fa('clean')}: ${fa('rec3') <= 1.05 * fa('clean') ? 'PASS' : 'FAIL'}`);
+    }
   }
 }
 function out2(s) { console.log(s); }
