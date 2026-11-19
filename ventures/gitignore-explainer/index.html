@@ -25,7 +25,7 @@
     select { max-width: 340px; }
     select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #77779a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
     textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 12em; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 14px; }
     @media (max-width: 720px) { body { padding: 16px; } }
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3b3a8f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
     button.secondary { background: #e6e6f2; color: #26254f; }

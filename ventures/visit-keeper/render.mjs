@@ -42,7 +42,7 @@ nav,.range{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}a{color:var(--acc)}n
 h1{font-size:20px;margin:8px 0}h2{font-size:14px;margin:0 0 8px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}.tile,section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
 .k{color:var(--mut);font-size:12px}.v{font-size:24px;font-weight:650}.d{font-size:12px;color:var(--mut)}.up{color:var(--up)}.down{color:var(--down)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin-top:10px}.wide{grid-column:1/-1}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px, 100%),1fr));gap:10px;margin-top:10px}.wide{grid-column:1/-1}
 svg{width:100%;height:auto;fill:var(--acc)}table{width:100%;border-collapse:collapse}td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left;overflow-wrap:anywhere}th{font-size:12px;color:var(--mut)}.n{text-align:right;white-space:nowrap}.muted,footer{color:var(--mut);font-size:13px}
 </style></head><body><main>
 <h1>${esc(meta.title)}</h1><nav aria-label="Sites">${nav}</nav>

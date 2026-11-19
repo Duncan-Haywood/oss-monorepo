@@ -8,7 +8,7 @@ export function widgetSource() {
   var host = document.createElement("div"); s.parentNode.insertBefore(host, s.nextSibling);
   var root = host.attachShadow ? host.attachShadow({ mode: "open" }) : host;
   var css = document.createElement("style");
-  css.textContent = ".w{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;font:15px/1.5 system-ui,sans-serif}" +
+  css.textContent = ".w{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px, 100%),1fr));gap:14px;font:15px/1.5 system-ui,sans-serif}" +
     ".c{background:" + (dark ? "#1f2937" : "#fff") + ";color:" + (dark ? "#f3f4f6" : "#111827") + ";border:1px solid " + (dark ? "#374151" : "#e5e7eb") + ";border-radius:12px;padding:16px}" +
     ".s{color:#d97706;letter-spacing:2px}.n{font-weight:700;margin-top:10px}.r{font-size:13px;opacity:.7}";
   root.appendChild(css);
