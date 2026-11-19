@@ -1,0 +1,49 @@
+tank hull: modified Wigley L 2 m B 0.3 m d 0.125 m, Fn 0.2; Faltinsen waterline integral I = 0.01551 m (I/B 0.0517; a transverse wall gives I/B 1)
+check: parabolic Wigley L 4 B 0.4: I numeric 0.007793, closed form 0.007793 (rel 3.0e-08)
+measured mean area (0.3-2.0) 5.773; short waves (0.3-0.6) 0.327
+## A. tank hull, coupling plain, 7zg motion fit zeta3 0.0375 zeta5 0.0000
+# table: variant area_0.3-2.0 short_0.3-0.6 sigma_rms peak_sigma peak_lambda area_dyn_2p5cm area_dyn_1p0cm area_measured_wave_1p0cm area_superposed_wave_1p0cm
+row strip_alone 0.905 0.269 1.332 10.70 1.06 0.85 0.85 1.13 0.81
+row strip+STAWAVE-2_refl 1.134 2.084 1.555 11.30 1.05 1.07 1.06 1.41 0.93
+row kT,_speed 0.929 0.579 1.289 10.72 1.06 0.88 0.87 1.16 0.82
+row 1.5kT,_speed 0.949 0.654 1.292 10.80 1.05 0.90 0.89 1.18 0.83
+row kT,_no_speed 0.915 0.390 1.313 10.71 1.06 0.86 0.86 1.14 0.82
+row 1.5kT,_no_speed 0.924 0.421 1.312 10.75 1.05 0.87 0.86 1.15 0.82
+short-wave detail (lambda/L, measured mean, strip, STAWAVE-2 refl, Faltinsen refl main):
+  0.30 1.108 0.048 2.049 0.478
+  0.40 1.060 0.166 2.032 0.395
+  0.50 1.100 0.387 1.968 0.289
+  0.60 1.109 0.602 1.818 0.185
+  0.70 1.394 0.936 1.571 0.111
+  0.80 2.263 2.088 1.264 0.066
+## A. tank hull, coupling A0, 7zg motion fit zeta3 0.0000 zeta5 0.0000
+# table: variant area_0.3-2.0 short_0.3-0.6 sigma_rms peak_sigma peak_lambda area_dyn_2p5cm area_dyn_1p0cm area_measured_wave_1p0cm area_superposed_wave_1p0cm
+row strip_alone 0.900 0.270 1.291 10.55 1.06 0.85 0.84 1.12 0.81
+row strip+STAWAVE-2_refl 1.129 2.085 1.520 11.15 1.05 1.07 1.06 1.41 0.93
+row kT,_speed 0.925 0.580 1.247 10.57 1.06 0.87 0.86 1.15 0.82
+row 1.5kT,_speed 0.944 0.655 1.250 10.65 1.06 0.89 0.88 1.18 0.83
+row kT,_no_speed 0.910 0.391 1.272 10.56 1.06 0.86 0.85 1.14 0.81
+row 1.5kT,_no_speed 0.920 0.422 1.271 10.60 1.06 0.87 0.86 1.15 0.82
+short-wave detail (lambda/L, measured mean, strip, STAWAVE-2 refl, Faltinsen refl main):
+  0.30 1.108 0.048 2.049 0.478
+  0.40 1.060 0.166 2.032 0.395
+  0.50 1.100 0.388 1.968 0.289
+  0.60 1.109 0.609 1.818 0.185
+  0.70 1.394 0.961 1.571 0.111
+  0.80 2.263 2.143 1.264 0.066
+## B. carried to the 4 m monohull (plain coupling, 7zg motion fit)
+monohull L 4 B 0.400 T 0.274: I/B 0.0195; calm 30 W range 823.7 km at 1.00 m/s
+# table: reflection pooled_1ms_motion_N pooled_1ms_refl_N loss30W_share025 loss30W_share1 scope200W
+row STAWAVE-2 2.844 0.725 -4.18 -14.79 True
+row Faltinsen_kT_speed 2.844 0.028 -3.39 -12.32 True
+row Faltinsen_1.5kT_speed 2.844 0.057 -3.43 -12.43 True
+row Faltinsen_kT_no_speed 2.844 0.013 -3.38 -12.27 True
+row Faltinsen_1.5kT_no_speed 2.844 0.029 -3.40 -12.33 True
+## expectations
+F1 short-wave ratio 0.579 in 0.5-0.9: True
+F2 area ratio 0.929 in 0.92-1.02: True
+F3 sigma rms 1.289 < strip+STAWAVE-2 1.555: True
+F4 variant area ratios 0.915-0.949 in 0.90-1.05: True
+F5 monohull 30 W loss 3.39% in 3.3-4.1 and < 4.18: True
+F6 200 W scope holds in every row: True
+F7 rule area ratio 0.925 in 0.92-1.02: True

@@ -101,4 +101,4 @@ Oceanic Engineering* for the full study. An aim, not a claim of acceptance.
 
 DOI-bearing entries were checked with `research/_shared/cite_check.py`; the results are in
 `LOG.md`. Entries without a DOI (Holtrop and Mennen, Insel and Molland, ITTC, Savitsky, Rudnick 2004, the VRX
-repository) were not machine-checked and must be opened before use in a paper.
+repository) were not machine-checked and must be opened before use in a paper. Faltinsen et al. (1980), used in milestone 7zh, is in the same position: its formula is taken as quoted in later added-resistance papers, and the proceedings are still to be opened.
