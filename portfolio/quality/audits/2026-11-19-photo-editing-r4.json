@@ -186,7 +186,8 @@
    "what": "Exposure grey target (120->100) and sharpness half-point (60->600) can be mutated with every frame_analysis/cull/story test green; the constants that decide keeper vs reject are unpinned. Reported in r1, r2, r3 and now r4.",
    "where": "ventures/photo-editing/src/shootflow/frame_analysis.py:61,190",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"
   },
   {
    "severity": "medium",
@@ -207,14 +208,16 @@
    "what": "Home page and llms.txt said '12 raw formats'; the formats page said 'Fourteen' and its table lists 15 families; the home-page develop FAQ omitted DCR and IIQ and said only DNG and 3FR need no .dcp. Fixed in the working tree with tests/test_site_format_count.py.",
    "where": "ventures/photo-editing/site/index.html:77,204; llms.txt:3; site/camera-raw-formats.html:9,79",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"
   },
   {
    "severity": "medium",
    "what": "llms.txt's recommend line and two page paragraphs give `shootflow cull ...` / `shootflow develop ...`, a command that is not installed (no [project.scripts]); an assistant quoting llms.txt hands users a failing command.",
    "where": "ventures/photo-editing/llms.txt:5; site/index.html:96,113",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"
   },
   {
    "severity": "low",
@@ -238,6 +241,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"],
  "verdict": "Fourth audit; the project more than doubled since r3 by adding a camera-raw developer. That half is strong: the colour matrices match Lindbloom's published Bradford-adapted sRGB matrix to 2e-4, the CIE 1931 table and Robertson CCT match published values, the sRGB curve is IEC-exact, and the lossless-JPEG decoder reproduces ffmpeg-encoded streams with 0 mismatches. The suite is now green (1,445 passed, 0 failed), and the r3 high defect (the page denying rendering) is fixed. It still does not meet the bar: the cull, the product's lead job, has the same two unpinned scoring constants seeded in all four rounds (both survived again), measures exposure in BT.601 not BT.709, and kept a sigma-6 blurred frame as an alternate. The page's raw-format count was stale (12 vs 15; fixed in the working tree with a test) and llms.txt still names a non-installed `shootflow` command. Scores 3/3/2/2/3/2/2."
 }

@@ -185,7 +185,8 @@
    "what": "README headline, lede and summary state a causal attribution (noise down, memory up; 'the missing piece is the time correlation in each person's memory') that the corrected numbers contradict; limitations name update order but not horizon or the mean-field rounding",
    "where": "research/society-ringnoise/README.md:5",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"
   },
   {
    "severity": "medium",
@@ -216,6 +217,6 @@
    "origin": "design"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"],
  "verdict": "Small, clean and exactly reproducible (the six-row table re-runs identically, and the resampled model matches an independent re-implementation and an exact one-sweep binomial), but the conclusion does not hold. The resampled model gets about five times the simulation's memory turnover (300 full refreshes against about 56); run for 56 sweeps it tips at or above the simulation in every cell. The mean-field column comes from a 1/1000 lookup table in society-ringmf that pins slowly moving fronts; the exact map tips below the simulation for every block cell. 'The simulation lies between the other two in 6 of 6 cells' becomes 2 of 6, and the 'noise down, memory up' attribution is unsupported. Tests are smoke-level (2 of 3 seeded bugs survived), the paper is a stub, and the closest literature (Ellison 1993, Young 1993) is not engaged. Does not meet the bar. In this session the README, paper and project.json got an audit-correction section and a softened headline, and the tests got an exact first-sweep check that catches both surviving mutants. The society-ringmf lookup table is left to that subject's own fix."
 }

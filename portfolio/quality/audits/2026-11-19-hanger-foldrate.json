@@ -153,7 +153,8 @@
    "what": "Section C and the summary measure a single 25-item load timed to the last fold, so with several fold tables the queue drain is counted and the long-run rate a dryer count needs is understated by 11-38% (4 tables, 1 arm: 137 vs about 167/h; 8 tables, 2 arms: 232 vs 319); the conclusion that tables 'recover throughput only slowly' is an artefact",
    "where": "research/hanger-foldrate/experiments/run.py:45",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"
   },
   {
    "severity": "medium",
@@ -167,7 +168,8 @@
    "what": "project.json summary/lede repeats the batch-artefact claim 'More fold tables recover throughput only slowly (115 an hour needs 3 at 120 s)'",
    "where": "research/hanger-foldrate/project.json:4",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"
   },
   {
    "severity": "low",
@@ -188,9 +190,10 @@
    "what": "run.py docstring said '~20 s' (measured 2.4 s; README says 3 s) and gave an unnecessary PYTHONPATH invocation",
    "where": "research/hanger-foldrate/experiments/run.py:1",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17767"],
  "verdict": "A small, honest, reproducible follow-up: swapping hanger-cell's assumed 25 s fold for SpeedFolding's 90-120 s, it re-runs byte-identically in 2.4 s and every headline number (169 -> 58.5/44.2 per hour, 98% fold-table use, 145.9 always-hang, 3.3x, 24.1 s crossover, 1.8-1.3 dryers) matches an independent utilisation-law recomputation to within 2%. It misses the bar on verification (the four tests check literal arithmetic and a regex; three seeded bugs in run.py survived) and claims (the multi-table section and summary use a single-load rate that counts the fold-queue drain, so 'tables recover throughput only slowly' is an artefact: in continuous operation four tables already restore the arm bound). As research it is a one-parameter note whose core result follows from the utilisation law, not a paper-grade contribution. Fixes made in the tree (not committed): README limitation on the batch metric and test count, project.json summary sentence on fold tables, a test pinning section A to the utilisation law and the dryer arithmetic, run.py docstring runtime."
 }
