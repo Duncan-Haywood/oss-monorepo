@@ -34,6 +34,19 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Do people forget a Catholic upbringing as they age? A little, and no faster than the same people's own re-reports (milestone 5b, 2026-11-19)
+
+Within US-born birth cohorts surveyed in person (GSS 1977-2018, ages 25-64), the share who say they were raised Catholic
+falls **0.072 points a year [0.018, 0.124]**, about 1.3 points over 18 years. The 2006-10 panels, which ask the same
+people again four years later, show the same people's reports falling **0.084 points a year [-0.082, +0.250]**. The
+difference, **+0.012 [-0.163, +0.188]**, is consistent with the whole within-cohort fall being people re-describing
+their own upbringing, with no need for mortality or who-responds effects, though the panel is too small to rule a
+composition effect out. Among the mothers' cohorts of the previous step (US-born women with children, born 1937-71) the
+raised-Catholic difference between interviews at 25-44 and 45+ is only **+0.7 points [-0.7, +2.0]** once each birth
+year is weighted by its own size (+0.3 without the 2021-24 web waves), not the +2.4 found when weighting by their
+children: that gap was mostly which cohorts the children's mothers came from. 4 of 4 predictions are supported, the
+fourth only formally. Code `experiments/m5p_recall_drift/run.py`, tables `t45`, `t46`, details in `LOG.md`.
+
 ## Were the mothers more Catholic while raising their children? Partly, and partly a survey artefact (milestone 5b, 2026-11-17)
 
 Mostly closed, but not mostly by switching. m5n left the mothers of US-born adults 3.5 to 5 points more Catholic than US-born

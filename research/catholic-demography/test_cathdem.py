@@ -225,3 +225,21 @@ def test_sibling_size_bias_recovers_mothers():
     assert math.isclose(out['rho_sib'], rho_true)
     assert abs(out['gap M - f(P_m, rho_m)']) < 1e-12 and abs(out['ratio part']) < 1e-12
     assert math.isclose(m5n.f(p_true, rho_true), X.mean())
+
+
+def test_within_cohort_slope_and_band_difference():
+    # y = cohort effect + slope * age exactly: the fixed-effects slope recovers the slope whatever the cohort effects,
+    # and the cohort-standardised (25-44) - (45+) difference equals slope x the age difference.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        'm5p', Path(__file__).resolve().parent / 'experiments' / 'm5p_recall_drift' / 'run.py')
+    m5p = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m5p)
+    rng = np.random.default_rng(0)
+    c = rng.integers(0, 20, 2000)
+    age = rng.uniform(25, 64, 2000)
+    y = 0.3 * np.sin(c) + (-0.002) * age
+    w = rng.uniform(0.5, 2.0, 2000)
+    assert math.isclose(m5p.within_slope(y, age, c, w), -0.002, rel_tol=1e-9)
+    bd = m5p.band_diff(y, age, c, w)
+    assert math.isclose(bd['y'], -0.002 * bd['age'], rel_tol=1e-9)
