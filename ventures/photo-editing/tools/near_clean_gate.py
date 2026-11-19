@@ -15,6 +15,7 @@ Usage (from ``ventures/photo-editing``)::
     PYTHONPATH=src python tools/near_clean_gate.py sweep --bayer --cards cards.json --cache /tmp/truths FILES... > rows.jsonl
     python tools/near_clean_gate.py tune rows.jsonl            # pick k (the committed rule)
     python tools/near_clean_gate.py rule rows.jsonl --k K      # the held-out test (the committed rule)
+    # one sweep, both roles: --split tune for the pick, --split held for the test (rows carry split_of(body))
 """
 
 from __future__ import annotations
@@ -69,6 +70,8 @@ def sweep(argv) -> int:
     from noise_aware_planes import carries, draw, gains_of
     from xtrans_frame_choice import _truth, split_of, tiles
 
+    from shootflow.xtrans_demosaic import frame_noise as xd_frame_noise
+
     if args.bayer:
         from shootflow.bayer_demosaic import directional
 
@@ -89,6 +92,10 @@ def sweep(argv) -> int:
             continue
         for (ty, tx), truth in tiles(truth_full, 480, 3):
             clean = chk.mosaic(truth, pat)
+            # The truth's own noise (the source frame's grain survives 4 x 4 binning): frame_noise on the clean
+            # mosaic, as sigma at 18% grey. Where it rivals the noise added, the score rewards keeping that grain.
+            ts, tr = xd_frame_noise(clean, pat)
+            truth_sigma18 = round(float((ts * 0.18 + tr) ** 0.5), 6)
             for snr in (200.0, 60.0, 25.0, 12.0):
                 for sc in ("equal", "wb"):
                     t0 = time.perf_counter()
@@ -108,17 +115,28 @@ def sweep(argv) -> int:
                         cps[arm], lps[arm] = s["cpsnr"], s["lpsnr"]
                     emit({"layout": "bayer" if args.bayer else "xtrans", "file": name,
                           "card": card_of(name, cards), "split": split_of(card_of(name, cards)),
-                          "tile": [ty, tx], "snr": snr, "scenario": sc, "cpsnr": cps, "lpsnr": lps,
+                          "tile": [ty, tx], "snr": snr, "scenario": sc, "truth_sigma18": truth_sigma18, "cpsnr": cps, "lpsnr": lps,
                           "s": round(time.perf_counter() - t0, 2)})
     return 0
 
 
-def load(paths) -> list[dict]:
+def clean_enough(row: dict) -> bool:
+    """The truth is at least as clean as the noise added: its own SNR at 18% grey (``truth_sigma18``) is no lower
+    than the row's ``snr``. Rows from before the field was recorded count as clean."""
+
+    t = row.get("truth_sigma18")
+    return t is None or t <= 0 or 0.18 / t >= row["snr"]
+
+
+def load(paths, split: str | None = None, clean_truths: bool = False) -> list[dict]:
+    """Scored rows from sweep output; ``split`` keeps only rows whose body ``split_of`` put there;
+    ``clean_truths`` drops rows whose truth is noisier than the noise added (``clean_enough``)."""
+
     rows = []
     for p in paths:
         for line in open(p):
             r = json.loads(line)
-            if "cpsnr" in r:
+            if "cpsnr" in r and (split is None or r.get("split") == split) and (not clean_truths or clean_enough(r)):
                 rows.append(r)
     return rows
 
@@ -145,8 +163,10 @@ def table(rows, ks, base) -> None:
 def tune(argv) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("rows", nargs="+")
+    ap.add_argument("--split", choices=("tune", "held"), help="only rows of this split (default: all)")
+    ap.add_argument("--clean-truths", action="store_true", help="drop rows whose truth is noisier than the noise added")
     args = ap.parse_args(argv)
-    rows = load(args.rows)
+    rows = load(args.rows, args.split, args.clean_truths)
     ks = sorted({float(a.split("+")[1]) for a in rows[0]["cpsnr"] if a.startswith("ship+")})
     print(f"{len(rows)} rows")
     for base in ("true", "ship"):
@@ -163,8 +183,10 @@ def rule(argv) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("rows", nargs="+")
     ap.add_argument("--k", type=float, required=True)
+    ap.add_argument("--split", choices=("tune", "held"), help="only rows of this split (default: all)")
+    ap.add_argument("--clean-truths", action="store_true", help="drop rows whose truth is noisier than the noise added")
     args = ap.parse_args(argv)
-    rows = load(args.rows)
+    rows = load(args.rows, args.split, args.clean_truths)
     arm = f"ship+{args.k:g}"
     ok = True
     for base in ("ship", "true"):

@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVPbExcpwokWS1Aneu3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T16:08:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship: X-Trans tune pass for the near-clean lift's k",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 17714,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "raw.pixls.us refused through the proxy (CONNECT 403), so the tune/held sets of the earlier runs could not be fetched"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/photo-editing/eval/near-clean-gate-2026-11-19.md",
+      "why": "the planned X-Trans tune was on the raw.pixls.us `fourth` set; that host was blocked, so the tune and held-out test ran on a fresh public set (metadata-extractor-images, 51 bodies) split by body before scoring",
+      "did": "rule committed in eval/near-clean-gate-xtrans-tune-2026-11-19.md before any row was scored",
+      "result": "X-Trans: no losing row on the set, lift stays off; Bayer: the 15 losers are one noisy ISO 1600 reference, now filterable with --clean-truths"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-photo-editing-xtrans-near-clean-tune.md",
+    "ventures/photo-editing/eval/near-clean-gate-xtrans-tune-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Checks run here: pytest tests/test_near_clean_gate_split.py tests/test_demosaic_noise_aware.py (26 passed); check_posts.py ok; portfolio/router/validate.py ok; venture-preflight photo-editing (see PR). No src/ change: NEAR_DETAIL stays {2: 12.0, 6: None}.",
+  "corrections": [],
+  "redteam": null
+}
