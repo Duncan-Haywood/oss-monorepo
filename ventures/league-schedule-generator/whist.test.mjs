@@ -1,7 +1,7 @@
 // Whist designs for rotating-partner doubles: whist.mjs, whist-bases.mjs and americano()'s use of them.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { whistDesign, checkWhist, whistSizes, whistRotation } from "./whist.mjs";
+import { whistDesign, checkWhist, checkNearWhist, whistSizes, nearWhistSizes, whistRotation } from "./whist.mjs";
 import { americano, americanoStats, validateAmericano } from "./calc.mjs";
 
 const names = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
@@ -21,7 +21,28 @@ test("whist: every stored base develops into a design where each pair partners o
     assert.ok(checkWhist(m, d), `design ${m}`);
     for (const r of d) assert.equal(r.out.length, m % 4, `sit-outs per round at ${m}`);
   }
-  assert.equal(whistDesign(6), null);
+  assert.equal(whistDesign(7), null);
+});
+
+test("near-whist: every stored 4k+2 base develops into a design that passes checkNearWhist", () => {
+  const sizes = nearWhistSizes();
+  for (const m of [6, 10, 14, 18, 22, 26, 30, 34, 38]) assert.ok(sizes.includes(m), `size ${m} stored`);
+  for (const m of sizes) {
+    const d = whistDesign(m);
+    assert.equal(d.length, m, `round count for ${m}`);
+    for (const r of d) assert.equal(r.out.length, 2, `two sit out each round at ${m}`);
+    assert.ok(checkNearWhist(m, d), `design ${m}`);
+    assert.equal(checkWhist(m, d), false, `${m} cannot be a full whist design`);
+  }
+});
+
+test("near-whist: checkNearWhist rejects a broken design and a whist design", () => {
+  const d = whistDesign(10);
+  const broken = d.map((r) => ({ ...r, tables: r.tables.map((t) => t.slice()) }));
+  [broken[0].tables[0][1], broken[0].tables[1][1]] = [broken[0].tables[1][1], broken[0].tables[0][1]];
+  assert.equal(checkNearWhist(10, broken), false);
+  assert.equal(checkNearWhist(10, d.slice(1)), false);
+  assert.equal(checkNearWhist(8, whistDesign(8)), false);
 });
 
 test("whist: checkWhist rejects a broken design", () => {
@@ -68,8 +89,23 @@ test("americano: 4k+3 players play the next design with one empty seat", () => {
   }
 });
 
-test("americano: 4k+2 players fall back to the greedy search (two empty seats idle a court)", () => {
-  for (const n of [6, 10, 14, 18, 22, 26]) assert.equal(americano(names(n), { courts: Math.floor(n / 4) }).design, undefined, `n=${n}`);
+test("americano: 4k+2 players play a near-whist design: one missed partner each, every pair meets", () => {
+  for (const n of nearWhistSizes().filter((m) => m <= 30)) {
+    const P = names(n);
+    const courts = Math.floor(n / 4);
+    const plan = americano(P, { courts, seed: n });
+    assert.equal(plan.design?.near, true, `n=${n}`);
+    assert.equal(plan.design.ghosts, 0);
+    assert.equal(plan.rounds.length, n);
+    assert.deepEqual(validateAmericano(P, plan), []);
+    const st = americanoStats(P, plan);
+    assert.equal(st.repeatPartners, 0, `n=${n}`);
+    assert.equal(st.unmetPartners, n / 2, `n=${n}: a perfect matching never partners`);
+    assert.ok(st.games.every((g) => g === n - 2), `n=${n} everyone plays ${n - 2}`);
+    assert.deepEqual(opponentRange(plan, n), [1, 2], `n=${n}`);
+    const greedy = americanoStats(P, americano(P, { courts, seed: n, whist: false }));
+    assert.ok(greedy.unmetPartners >= st.unmetPartners, `n=${n} greedy misses at least as many partners`);
+  }
 });
 
 test("americano: fewer courts than tables hints the whole design's length, and uses it when asked", () => {
