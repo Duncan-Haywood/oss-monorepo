@@ -1665,5 +1665,77 @@ class FoldedRowsTests(unittest.TestCase):
                          folded - sum(1 for l in text.splitlines() if l.startswith("... and ")))
 
 
+class YieldRedirectTest(unittest.TestCase):
+    """claim_check.py: a YIELD on a flagship names the free rows to go to instead."""
+
+    from datetime import datetime as _dt, timezone as _tz
+    NOW = _dt(2026, 11, 19, 12, 0, tzinfo=_tz.utc)
+    YAML = """flagships:
+  - venture: alpha
+    next: a
+  - venture: beta
+    inputs_only: a real customer file
+    next: b
+  - venture: gamma
+    next: c
+  - venture: delta
+    not_before: 2099-01-01
+    next: d
+  - venture: eps
+    next: e
+"""
+
+    def setUp(self):
+        self.dir = tempfile.TemporaryDirectory()
+        self.path = Path(self.dir.name) / "flagships.yaml"
+        self.path.write_text(self.YAML)
+
+    def tearDown(self):
+        self.dir.cleanup()
+
+    @staticmethod
+    def pr(n, title, created):
+        return {"number": n, "title": title, "created_at": created,
+                "head": {"ref": f"b{n}", "repo": {"full_name": "duncan-haywood/oss-monorepo"}}}
+
+    def free(self, prs, kw):
+        from claim_check import free_flagships
+        return free_flagships(prs, kw, self.NOW, path=self.path)
+
+    def test_skips_own_row_inputs_only_dated_and_freshly_claimed_rows(self):
+        prs = [self.pr(1, "alpha: item one", "2026-11-19T11:57:38Z"),
+               self.pr(2, "gamma: thing", "2026-11-19T10:00:00Z")]
+        self.assertEqual(self.free(prs, "alpha"), ["eps"])
+
+    def test_a_claim_older_than_the_start_here_window_frees_the_row(self):
+        prs = [self.pr(2, "gamma: thing", "2026-11-19T06:00:00Z")]  # 6 h > CLAIM_FRESH_HOURS
+        self.assertEqual(self.free(prs, "alpha"), ["gamma", "eps"])
+
+    def test_not_a_flagship_gives_none(self):
+        self.assertIsNone(self.free([], "research/water-leaks"))
+        self.assertIsNone(self.free([], "process"))
+
+    def test_redirect_line_picks_by_session_and_handles_none_free(self):
+        from claim_check import redirect_line
+        line = redirect_line(["gamma", "eps"], None)
+        self.assertIn("Go to gamma", line)
+        self.assertIn("allocate.py --venture gamma", line)
+        picks = {redirect_line(["gamma", "eps"], f"session_{i}").split("Go to ")[1].split(" ")[0]
+                 for i in range(20)}
+        self.assertEqual(picks, {"gamma", "eps"})
+        self.assertIn("another item on this row", redirect_line([], "s"))
+
+    def test_report_prints_the_redirect_only_on_yield(self):
+        from claim_check import decide, report
+        prs = [self.pr(1, "alpha: item one", "2026-11-19T11:57:38Z"),
+               self.pr(2, "alpha: item one", "2026-11-19T11:57:38Z")]
+        y = decide(prs, "alpha", mine=2, now=self.NOW)
+        self.assertEqual(y["verdict"], "YIELD")
+        lines = report(y, "alpha", self.NOW, 24, None, "Go to eps")
+        self.assertIn("Go to eps", lines)
+        h = decide(prs, "alpha", mine=1, now=self.NOW)
+        self.assertNotIn("Go to eps", report(h, "alpha", self.NOW, 24, None, "Go to eps"))
+
+
 if __name__ == "__main__":
     unittest.main()
