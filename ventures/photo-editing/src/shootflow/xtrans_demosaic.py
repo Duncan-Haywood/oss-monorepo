@@ -461,9 +461,12 @@ BLOCK = 24
 
 def _block_stat(a: np.ndarray, fn, block: int = BLOCK) -> np.ndarray:
     h, w = a.shape[:2]
-    hb, wb = max(1, h // block), max(1, w // block)
-    a = a[: hb * block, : wb * block] if h >= block and w >= block else a
-    bh, bw = (block, block) if h >= block and w >= block else (h, w)
+    if h >= block and w >= block:
+        hb, wb, bh, bw = h // block, w // block, block, block
+        a = a[: hb * block, : wb * block]
+    else:  # one block, the whole frame, as ``_block_detail`` takes it; until 2026-11-19 a frame under one block
+        # tall but over one wide (or the reverse) got hb = 1 but wb = w // block and failed to reshape
+        hb, wb, bh, bw = 1, 1, h, w
     tiles = a.reshape(hb, bh, wb, bw, *a.shape[2:]).swapaxes(1, 2).reshape(hb, wb, -1)
     return fn(tiles)
 
