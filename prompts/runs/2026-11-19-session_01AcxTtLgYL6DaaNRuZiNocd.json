@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtLgYL6DaaNRuZiNocd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T09:06:49Z",
+  "ended": "2026-11-19T09:25:10Z",
+  "wall_minutes": 18.64,
+  "tokens_in": 8581729,
+  "tokens_out": 44093,
+  "cost_usd": 3.6624,
+  "tool_calls": 77,
+  "task": "photo-editing (flagship 7): rerun the Phase One 0x110 calibration check on IIQ S / 16-bit / aerial files; explain the iXU180's 5.2% blue gap",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17608",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first calibration check pass on the iXU180 reported 0.001% equal sensels",
+      "cause": "the check compared against LibRaw without accounting for LibRaw's IIQ S loader skipping the black offset tables, and LibRaw's adjust_maximum scaled the render 3.3%",
+      "fix": "check zeroes the tables for format 6 and passes adjust_maximum_thr=0"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/eval/phaseone-iiq-s-reader-2026-11-18.md",
+      "issue": "attributed the iXU180's 5.2% level gap to LibRaw's phase_one_correct; it is the offset tables, which LibRaw's IIQ S loader never reads (corrected in the new eval note, the old note left as history)"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing NEXT.md noted raw.pixls.us refused by the proxy on 2026-11-19; it answered fine this run (allocate.py's live probe was right)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "flagship item was a verification/measurement slice, not a new product feature; no llms.txt or marketing page change because no user-facing behaviour changed",
+      "did": "landed the check, two check fixes, a new offsets tool, eval note, README paragraph and post",
+      "result": "the open gap is explained; product behaviour unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-photo-editing-iiq-s-offset-tables.md",
+    "ventures/photo-editing/eval/phaseone-iiq-calibration-newer-backs-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "13 public Phase One files (1.42 B sensels): 9 equal LibRaw on every sensel, IQ180 x2 within 3 codes, iXU180 within 2 outside 4 dead columns. iXU180 levels: tables zeroed + calibration = LibRaw to 4 decimals (B/G 0.4729); tables move B/G 5.6%, calibration 0.2%. Which arm is right is open (needs dark frame or Capture One export). Local verification: run_venture_tests.py photo-editing ok (1438 tests, 177 s); check_posts ok; flagships validate ok; venture-preflight run in background.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "565b04db-d6ce-565b-b0e5-1b13de44d356",
+    "transcripts": 1,
+    "first": "2026-11-19T09:06:49Z",
+    "last": "2026-11-19T09:25:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 144,
+        "output": 44093,
+        "thinking": 10158,
+        "cache_read": 8445222,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136363,
+        "api_equivalent_usd": 3.6624,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 144,
+      "output": 44093,
+      "thinking": 10158,
+      "cache_read": 8445222,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136363,
+      "api_equivalent_usd": 3.6624,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 72,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.64,
+      "active_minutes": 18.64,
+      "model_minutes": 8.61,
+      "tool_minutes": 10.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a raw-format engineer downloading 13 files, running and debugging a sensel comparison, tracing LibRaw's loader and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 163.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

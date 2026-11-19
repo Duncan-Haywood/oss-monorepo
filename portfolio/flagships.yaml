@@ -329,10 +329,12 @@ flagships:
       Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs LibRaw's dE 16, unsettled
       (eval/phaseone-iiq-16bit-*). IIQ calibration (0x110) 2026-11-19: LibRaw's to 3
       codes off dead columns (eval/phaseone-iiq-calibration-*). Next: the H 25
-      IT8.7-2 card raw to judge the matrices; calibration on IIQ S (iXU180 blue
-      5.2%); Sony's vignetting table vs an evenly lit frame; noise-aware's blend in
-      C (guard in C 2026-11-19, eval/noise-aware-native-spread-*). More open items:
-      NEXT.md.
+      IT8.7-2 card raw to judge the matrices; an iXU180 dark frame or Capture One
+      export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
+      5.2% blue gap is them, calibration = LibRaw on 13 more files,
+      eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
+      evenly lit frame; noise-aware's blend in C (guard in C 2026-11-19,
+      eval/noise-aware-native-spread-*). More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
