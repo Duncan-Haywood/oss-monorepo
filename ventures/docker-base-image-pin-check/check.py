@@ -82,6 +82,7 @@ exists.
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -336,8 +337,13 @@ def scan_text(text, filename="<Dockerfile>", stats=None):
 
 def discover_dockerfiles(root):
     """Every `Dockerfile`, `Dockerfile.*`, and `*.dockerfile` under root,
-    skipping `.git` and `node_modules`, sorted for stable output."""
+    skipping `.git` and `node_modules`, sorted for stable output. A file
+    named directly is scanned whatever its name: pre-commit hooks and CI
+    steps pass file names, and skipping one passed the file the gate exists
+    to reject (red-team 2026-11-19)."""
     root_path = Path(root)
+    if root_path.is_file():
+        return [root_path]
     if not root_path.is_dir():
         return []
     files = []
@@ -357,7 +363,10 @@ def scan_path(root, stats=None):
     findings = []
     for path in discover_dockerfiles(root):
         try:
-            text = path.read_text(encoding="utf-8")
+            # utf-8-sig drops a byte order mark the way BuildKit does, so a
+            # BOM no longer hides the first FROM; a stray non-UTF-8 byte (a
+            # Latin-1 comment) is replaced rather than crashing the scan.
+            text = path.read_text(encoding="utf-8-sig", errors="replace")
         except OSError as exc:
             print(f"warning: could not read {path}: {exc}", file=sys.stderr)
             continue
@@ -422,7 +431,8 @@ def render_text(findings, root, from_lines=None):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
-        "path", nargs="?", default=".", help="directory to scan (default: current directory)"
+        "path", nargs="?", default=".",
+        help="directory to scan, or one Dockerfile (default: current directory)",
     )
     parser.add_argument(
         "--format", choices=("text", "json"), default="text", help="output format"
@@ -433,6 +443,10 @@ def main(argv=None):
         help="exit 2 when any mutable or unresolved (unpinned) base image reference is found",
     )
     args = parser.parse_args(argv)
+    if not os.path.exists(args.path):
+        # A mistyped path used to print "No Dockerfile found" and exit 0, so a
+        # CI gate with a typo passed forever.
+        sys.exit(f"path not found: {args.path}")  # exit 1; 2 means "risk found"
 
     stats = {}
     findings = scan_path(args.path, stats=stats)

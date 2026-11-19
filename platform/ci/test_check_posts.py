@@ -160,5 +160,21 @@ class WrongRoot(unittest.TestCase):
             self.assertEqual(check_posts.main(["--root", d]), 2)
 
 
+class RealGit(unittest.TestCase):
+    """Red-team 2026-11-19: every other test passes a fake git, so two mutants
+    of _git (no captured output; success read as failure) escaped. This one
+    runs the real binary on a throwaway repository."""
+
+    def test_git_lines_on_success_and_none_on_failure(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            self.assertIsNone(check_posts._git("rev-parse", "HEAD", root=d))
+            subprocess.run(["git", "init", "-q", d], check=True)
+            self.assertEqual(check_posts._git("rev-parse", "--is-inside-work-tree", root=d), ["true"])
+            (Path(d) / "docs" / "posts").mkdir(parents=True)
+            (Path(d) / "docs" / "posts" / "new.md").write_text("x\n", encoding="utf-8")
+            self.assertIn("docs/posts/new.md", check_posts._git("ls-files", "--others", root=d))
+
+
 if __name__ == "__main__":
     unittest.main()
