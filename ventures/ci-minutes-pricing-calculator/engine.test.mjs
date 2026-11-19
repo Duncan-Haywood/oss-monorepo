@@ -4,7 +4,7 @@ import { DEFAULT_PROVIDERS, providerCost, compare, project, cheapestSegments, su
 
 test("free allowance bills nothing; just above it the cheapest plan applies", () => {
   assert.equal(providerCost(DEFAULT_PROVIDERS.github, 2000), 0);
-  assert.equal(providerCost(DEFAULT_PROVIDERS.github, 3000), 8);
+  assert.equal(providerCost(DEFAULT_PROVIDERS.github, 3000), 6); // 1,000 min x $0.006 (GitHub runner pricing reference, 2026-11-19)
   assert.equal(providerCost(DEFAULT_PROVIDERS.gitlab, 400), 0);
   assert.equal(providerCost(DEFAULT_PROVIDERS.gitlab, 401), 29);
 });
@@ -60,4 +60,17 @@ test("summarize gates on budget for the cheapest or a named provider", () => {
   assert.equal(s.overBudget, true);
   assert.equal(s.errors, 1);
   assert.equal(summarize(rows, { provider: "nope" }).status, "error");
+});
+
+test("a free allowance above the plan's included minutes still applies (quality audit 2026-11-19)", () => {
+  const p = { ...DEFAULT_PROVIDERS.github, freeMinutes: 3000 };
+  assert.equal(providerCost(p, 3001), 0.01);
+});
+
+test("budget exactly equal to the cost is not over budget; annual is 12 x monthly", () => {
+  const rows = compare(12000);
+  const cheapest = rows[0];
+  assert.equal(summarize(rows, { budget: cheapest.monthly }).overBudget, false);
+  assert.equal(summarize(rows, { budget: cheapest.monthly - 0.01 }).overBudget, true);
+  for (const r of rows) assert.equal(r.annual, Math.round(r.monthly * 12 * 100) / 100);
 });

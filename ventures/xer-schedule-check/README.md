@@ -57,7 +57,12 @@ project's updates for delay claims; and the review itself as a service.
   float in working days of each activity's own calendar. The critical path test
   delays an open activity on the driving path by 600 working days and
   recomputes. Missed tasks and BEI use P6's planned dates as the baseline (a
-  single XER rarely carries the baseline project; the page says so).
+  single XER rarely carries the baseline project; the page says so). P6 resets
+  a not-started activity's planned dates to its early dates whenever it
+  schedules (on the CCA sample all 11,775 not-started activities have planned
+  finish equal to early finish), so overdue work that has not started is never
+  counted as missed and both metrics flatter the schedule (quality audit
+  [2026-11-19](../../portfolio/quality/audits/2026-11-19-xer-schedule-check.json)).
 - `compare.mjs`: two updates of one project, activities matched by activity ID
   and relationships by predecessor, successor and type (task_id is a database
   key that changes when a project is copied). The half-step file is the
@@ -92,7 +97,8 @@ node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.cs
   lunch breaks, weekends, a holiday and a half day; FS/SS/FF links with lags,
   float and free float worked by hand; constraints and negative float against a
   must-finish-by date; progress with a lag after a finished predecessor; ALAP;
-  loops; each DCMA point on a small schedule.
+  loops; DCMA points 1 to 5, 8, 11, 12 and 14 on a small schedule (points 6,
+  7, 9, 10 and 13 are checked only against the public XER files above).
 - **Update comparison on real files** (`eval/compare-check-2026-11-19.md`):
   the same six P6 files, each compared with itself (0 changes reported, half-step
   equal to the finish, on all six) and with 20 seeded copies carrying 6 planted
@@ -102,7 +108,8 @@ node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.cs
   was found, so the half-step split itself is checked only on the invented
   example pair (by hand: +15 = +6 progress, +9 revisions) and by construction.
 - **Not checked**: no file used progress override, start or smallest float, the
-  successor or 24-hour lag calendar, or mandatory constraints (unit tests only).
+  successor or 24-hour lag calendar, or mandatory constraints, and no unit test
+  covers them yet.
   An independent DCMA implementation was not run side by side.
 
 ## Limits
