@@ -1,0 +1,11 @@
+/* Hand-written fixture: a browser library bundled by tsc itself. */
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "amd",
+    "outFile": "dist/library.js",
+    "declaration": true,
+    "alwaysStrict": false,
+    "lib": ["dom", "es2015"]
+  }
+}

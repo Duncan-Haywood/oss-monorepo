@@ -53,7 +53,7 @@
     "docs/posts/2026-11-19-redteam-a-comment-hid-the-lock-timeout.md"
   ],
   "goal": null,
-  "notes": "Target picked from files changed on main in the last 3 days with a <1 s suite. node --test in the venture: 163 pass. check_posts ok. Guard (4b): no new automated check; the fix class (a setting read in only some of the forms PG accepts) is product-specific, covered by the new tests. run_workflow_locally --for-changes: portfolio-validate 100/100, pages 6/6, ventures-tests red only on unwired test_research_homepage_publish.py (red on main, fixed here; 20/20 OK after).",
+  "notes": "Target picked from files changed on main in the last 3 days with a <1 s suite. node --test in the venture: 163 pass. check_posts ok. Guard (4b): no new automated check; the fix class (a setting read in only some of the forms PG accepts) is product-specific, covered by the new tests. run_workflow_locally --for-changes: portfolio-validate 100/100, pages 6/6, ventures-tests red only on unwired test_research_homepage_publish.py (red on main; same fix landed on main concurrently, main's copy kept).",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -431,7 +431,7 @@
         "file": "platform/ci/test_research_homepage_publish.py",
         "issue": "Red on main since #17570: the double-escaped-entity check flagged '&amp;S;' (marine-hull LOG.md 'A&S;', Abramowitz and Stegun then a semicolon), which renders as typed. The check now counts only numeric refs and real HTML5 entity names. Found by run_workflow_locally --for-changes; no PR workflow runs this test.",
         "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17581"
+        "patched_in": "already fixed on main: another session landed the same entity-name filter while this PR was open; merge took main's copy"
       }
     ]
   },

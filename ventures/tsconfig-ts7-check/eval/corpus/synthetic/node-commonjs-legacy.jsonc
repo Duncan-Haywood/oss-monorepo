@@ -1,0 +1,14 @@
+// Hand-written fixture: a Node service config from the TypeScript 3/4 era.
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "baseUrl": "src",
+    "paths": { "@lib/*": ["lib/*"], "@config": ["config/index.ts"] },
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": false,
+    "sourceMap": true
+  }
+}

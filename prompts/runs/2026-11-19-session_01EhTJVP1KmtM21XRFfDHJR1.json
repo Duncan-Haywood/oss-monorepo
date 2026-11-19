@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVP1KmtM21XRFfDHJR1",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T07:21:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Creative track: a new Hearth & Horizon science fiction story, 'Every Other Flash' (text only)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 17576,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Saints by Candlelight was the natural pick, but episode 147 was already open in two duplicate PRs (#17572, #17573), and the episode test forbids gaps in numbering, so episode 148 could not land first. Switched to Hearth & Horizon. A note in PRODUCTION.md saying 'claim the next number in a draft PR first' would save the check."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-hearth-and-horizon-every-other-flash.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon; piece: every-other-flash (Hearth & Horizon shelf, 2054, Toulouse and Ifrane, about 5,860 words, text only because the audio folders total 577 MB, over the 400 MB line). Proposal claimed in BIBLE.md first (draft PR #17576), then marked done and moved to DONE.md by bible_done.mjs. Numbers worked in a script: 780 km circular orbit, 100.5 min, 14.3 orbits/day; about 203 m/s to a 50 km perigee; about 160 kg of propellant at Isp 320 s for a 2,550 kg stack; 41 s flash period, 82 s spin, 4.39 vs 8.78 deg/s; inertia model Ix 1360 > Iz 1312 kg m2 so end-over-end spin; ring about 0.98 m from the c.m. at 7.5 cm/s; wing tip 7.0 m at 0.54 m/s. Dates checked: 25 Oct 2054 is the 30th Sunday in Ordinary Time, Year B, Mark 10:46-52; 1 Nov 2054 is a Sunday (All Saints). Ground-track times were checked against the dawn-dusk geometry (capture over the Southern Ocean at 09 UTC, deorbit over the South Pacific at 03 UTC). Verification: node --test in hearth-and-horizon 20/20; python3 platform/ci/run_workflow_locally.py --for-changes ran 11/11 selected workflows and exited 0. Not run: uses: steps, deploy and cross-review jobs, and the session-gate pytest step (pytest is not installed here; this change does not touch it).",
+  "corrections": [],
+  "redteam": null
+}
