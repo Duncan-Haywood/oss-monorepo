@@ -34,10 +34,25 @@ no scripts or outside files, so it prints the same anywhere; "Save as PDF" in
 the print dialog is the PDF. On the six public files it asks for 2 to 11
 corrections (eval/review-report-2026-11-19.md).
 
+**Finish date risk** (2026-11-19, `risk.mjs`): a Monte Carlo run over the
+recomputed schedule. Each run draws every open activity's remaining duration
+from a triangular range (a default of 90 / 100 / 125% the page tells you to
+replace, or your own optimistic, most likely and pessimistic working days per
+activity), with an optional correlation for causes that hit many activities at
+once. You get P10 / P50 / P80 / P90 finish dates, the chance of meeting the
+forecast and the must-finish date, a histogram, and per activity the
+**criticality index** (share of runs on the driving path) and sensitivity. On
+the six public files the zero-width run reproduces the CPM finish exactly, and
+the CCA and hotel programmes have 47 and 76 near-critical activities that the
+single driving path does not show (eval/risk-check-2026-11-19.md). A
+14,000-activity file takes about 70 s for 500 runs in Node; the page runs in
+slices so it stays responsive.
+
 ## Why someone would use it
 
 | Today's option | What it does | What this does better |
 |---|---|---|
+| Paid schedule-risk products (Primavera Risk Analysis, Deltek Acumen Risk, Safran Risk and similar) | Monte Carlo on a P6 schedule with risk registers, desktop licence per seat | P50 / P80 and criticality from the XER in a browser tab, free; no risk register or resource model yet |
 | Paid schedule-analysis products (Deltek Acumen Fuse, SmartPM, Schedule Analyzer and similar) | Full schedule analytics, desktop or subscription, licence per seat | Free, nothing to install, the file never leaves the browser (owners' schedules are often confidential) |
 | P6 Professional's own schedule check | Built into P6 for people who hold a P6 licence | Works for the many who receive XER files without a P6 seat: owners, lenders, subcontractors, claims consultants |
 | Open-source XER libraries and checkers (Python packages, local web apps) | A parser or a few checks; you install and run them | All 14 points plus a critical path test on a recomputed schedule, measured against P6's own numbers, in a page |
@@ -85,6 +100,11 @@ project's updates for delay claims; and the review itself as a service.
 - `report.mjs`: the written review. `reviewItems` turns each failing DCMA
   point, extra check, stale-date list and comparison flag into one ranked
   correction with its activities; `reviewHtml` lays them out for print.
+- `risk.mjs`: the Monte Carlo run. Seeded generator (repeatable), triangular
+  draws (one-factor Gaussian copula when correlated), `cpm.mjs` forward pass
+  only (`forwardOnly`, `durations`), driving path per run, sensitivity as the
+  correlation of each activity's draw with the finish, blank below
+  4 / sqrt(runs).
 - `index.html`: the page. `cli.mjs`: the same from a terminal:
 
 ```
@@ -94,6 +114,7 @@ node cli.mjs schedule.xer --csv out.csv   # one row per finding
 node cli.mjs schedule.xer --report review.html --to "GC scheduler" --from "Owner's rep"
 node cli.mjs current.xer --previous last.xer --report review.html   # review with the update's changes
 node cli.mjs schedule.xer --project CODE  # a file with several projects
+node cli.mjs schedule.xer --risk 1000 --range 90,100,130 --correlation 0.3 [--ranges ranges.csv] [--csv drivers.csv]
 node cli.mjs this-month.xer --previous last-month.xer [--json] [--csv changes.csv] [--project CODE]
 ```
 

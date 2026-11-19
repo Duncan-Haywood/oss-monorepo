@@ -5,14 +5,20 @@
 // Compares two updates of the same project instead (compare.mjs).
 // Either form takes --report review.html [--to NAME] [--from NAME] [--ref TEXT]
 // [--notes TEXT]: the written review (report.mjs) to print or save as a PDF.
+// node cli.mjs schedule.xer --risk [N] [--range 90,100,125] [--correlation 0.3]
+//   [--ranges ranges.csv] [--seed S] [--csv drivers.csv] [--json] [--project CODE]
+// Monte Carlo finish-date risk instead (risk.mjs): P10/P50/P80/P90, the chance
+// of the forecast and must-finish dates, criticality index per activity.
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseXer, decodeXer } from "./xer.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
 import { compare, compareCsv, compareText } from "./compare.mjs";
 import { reviewHtml, reviewItems } from "./report.mjs";
+import { riskAnalysis, riskCsv, parseRanges } from "./risk.mjs";
+import { formatDate } from "./xer.mjs";
 
 const args = process.argv.slice(2);
-const VALUED = ["--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes"];
+const VALUED = ["--range", "--correlation", "--ranges", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes"];
 const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
 function writeReview(report, cmp) {
   if (!args.includes("--report")) return;
@@ -44,6 +50,29 @@ if (args.includes("--previous")) {
   process.exit(0);
 }
 const projId = args.includes("--project") ? projectFor(xer) : null;
+if (args.includes("--risk")) {
+  const nArg = opt("--risk");
+  const iterations = nArg && /^\d+$/.test(nArg) ? Number(nArg) : 500;
+  const [min, likely, max] = (opt("--range") || "90,100,125").split(",").map((x) => Number(x) / 100);
+  let ranges;
+  if (opt("--ranges")) {
+    const pr = parseRanges(readFileSync(opt("--ranges"), "utf8"));
+    if (pr.bad.length) console.error(`skipped range lines ${pr.bad.join(", ")} (need code,min,likely,max in working days, min <= likely <= max)`);
+    ranges = pr.ranges;
+  }
+  const r = riskAnalysis(xer, { projId, iterations, range: { min, likely, max }, correlation: Number(opt("--correlation") || 0), ranges, seed: Number(opt("--seed") || 1) });
+  if (args.includes("--csv")) writeFileSync(opt("--csv"), riskCsv(r));
+  if (args.includes("--json")) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  const p = r.project;
+  console.log(`${p.code}: ${r.iterations} runs, ${r.varied} activities varied, correlation ${r.correlation}, seed ${r.seed}`);
+  for (const w of r.warnings) console.log(`NOTE: ${w}`);
+  console.log(`Forecast finish ${formatDate(p.finish)}: met in ${Math.round(r.pDeterministic * 100)}% of runs${p.mustFinish != null ? `; must finish by ${formatDate(p.mustFinish)}: met in ${Math.round(r.pMustFinish * 100)}%` : ""}`);
+  for (const q of r.percentiles) console.log(`  P${q.p}  ${formatDate(q.date)}  (${q.overDeterministic >= 0 ? "+" : ""}${q.overDeterministic} working days on the forecast)`);
+  console.log("\nMost often on the driving path (criticality index; sensitivity = correlation of duration with finish):");
+  for (const a of r.activities.slice(0, 15)) console.log(`  ${(a.criticality * 100).toFixed(0).padStart(3)}%  ${a.sensitivity === null ? "   -  " : a.sensitivity.toFixed(2).padStart(6)}  ${a.deterministicCritical ? "*" : " "} ${a.code}  ${a.name}`);
+  console.log("  (* on the forecast's driving path)");
+  process.exit(0);
+}
 const report = assess(xer, { projId });
 writeReview(report, null);
 if (args.includes("--csv")) writeFileSync(args[args.indexOf("--csv") + 1], findingsCsv(report));
