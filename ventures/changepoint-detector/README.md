@@ -7813,3 +7813,37 @@ still a provider that documents its own schedule changes.
 Test: `spells-weekdays.test.mjs` (beta 0 is the weekday gain less falling weekdays, beta 4 keeps Tuesdays and
 Thursdays on a planted Mon/Wed/Fri spell; the two arms; the committed verdicts; the shipped setting, South
 Dakota's spell under both scores, the weekday names in the line).
+
+## The weekday spell score on NYT's state series (2026-11-19, pre-registered; W1 passes, W2 fails 4 of 8, stays an opt-in)
+
+The section above shipped the weekday score behind `--spells` on simulated and seen evidence and asked for a fresh
+rerun of the NYT check that had failed the earlier `dow` search. `eval/update-rate-spells-weekdays-nyt.mjs` (header
+committed in d07f29184 before the script first ran) runs the shipped `spellsResult` (default `SHORT_SPELLS`:
+weekdays, arm A, beta 4, m 2.5; nothing changed) on the same NYT `us-states.csv`, with the same 35 states, labels,
++-10 day rule and "explained" rule, imported from the NYT round's script. What was known beforehand is disclosed in
+the header: Alaska's spell is dated by the default line's two cuts on NYT whatever the score does, and Nebraska's
+documented Wednesdays-only spell is in neither provider's series, so the old N1 (search only) could not pass. The
+bars were restated on the line a user reads. 4.5 s.
+
+| bar | result |
+|---|---|
+| W1: the line (search spells plus the edge spells it prints) ends a spell within 10 days of each documented return (bar 3 of 4) | **3 of 4: pass** (Alaska by the edge restatement 2021-06-04..07-31; South Dakota 2021-07-03..08-10 and Arkansas 2021-06-21..07-18 by the score; Nebraska missed, as disclosed) |
+| W2: unexplained search spells on the 35 states (bar at most 3; `dow` had 5 of 9) | **4 of 8: fail** (Idaho 372 days, Kentucky 182, Michigan 105, Nebraska 175) |
+| W3, reported: everything the line prints | 10 spells (8 search, 2 edge), 5 unexplained (the four above and Alabama's edge spell 2021-05-29..07-12) |
+| W4, reported: against `dow` on the same series | same spells within 4 days on eight states; Nevada's 95-day spell (2022-05-07..08-09, unexplained) is gone; 3 of 8 JHU spells seen on NYT, as before |
+
+So the weekday score is one false-looking spell better than the search it replaced on a fresh provider, and keeps
+both short spells the search had found, but it does not meet the bar the first NYT round set. The opt-in stays an
+opt-in; nothing in `update-rate.mjs` changes.
+
+**Read afterwards (post hoc, deciding nothing):** the four unexplained spells are the four longest the score
+reports (105-372 days), with small rises in repeats for three of them (Kentucky 17% inside against 5%, Idaho 33% against
+20%, Michigan 86% against 72%), and Nebraska 2022 is the real schedule change on both providers that the JHU
+README does not list (read in the first NYT round). Every documented spell that ends in a return runs 28-58 days.
+A length cap is the obvious next idea and the data already argue against it: at 120 days it would remove all four
+here but also DC's explained 126-day spell on NYT, and on JHU it would remove three of the seven explained spells
+(Alabama 130 days, DC 127, Idaho 162) with the one unexplained (Washington 184). What would settle it is a
+provider that documents its own schedule changes, including the slow ones, which is still the open item.
+
+Test: `spells-weekdays-nyt.test.mjs` (the line's spell list skips an edge the search overlaps; the committed
+verdicts).

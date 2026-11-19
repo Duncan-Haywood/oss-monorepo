@@ -1,0 +1,48 @@
+Setting: {"score":"weekdays","arm":"A","beta":4,"mult":2.5,"guard":{"kind":"z","z":2.326},"minSegment":20,"minRepeats":10}
+
+W1: the line (search + printed edge spells) ends a spell within +-10 days of a documented return
+  Alaska         return 2021-08-02: HIT 2021-06-04..2021-07-31 (58 days, edge) 59% inside, 31% before, 31% after
+  South Dakota   return 2021-08-16: HIT 2021-07-03..2021-08-10 (39 days, weekdays) 87% inside, 31% around, gain 80.5
+  Nebraska       return 2021-09-25: missed
+  Arkansas       return 2021-07-24: HIT 2021-06-21..2021-07-18 (28 days, weekdays) 29% inside, 1% around, gain 44.2
+W1 3 of 4 (bar >= 3): pass
+  (original N1, search spells only, reported: 2 of 4; 'dow' had 2 of 4)
+
+W2: search spells on the 35 states, with the documented event that explains it (either end within +-10 days)
+  Alabama               2022-07-30..2022-08-30 (32 days, weekdays) 78% inside, 29% around, gain 36.2 [46] -> 2022-08-01 Mon-Fri -> Thursdays only
+  District of Columbia  2022-03-03..2022-07-06 (126 days, weekdays) 56% inside, 36% around, gain 49.0 [62] -> 2022-03-04 Mon-Fri -> weekly (Thu)
+  Idaho                 2022-02-20..2023-02-26 (372 days, weekdays) 33% inside, 20% around, gain 62.7 [65] -> UNEXPLAINED
+  Kentucky              2021-06-21..2021-12-19 (182 days, weekdays) 17% inside, 5% around, gain 42.3 [65] -> UNEXPLAINED
+  Michigan              2022-11-18..2023-03-02 (105 days, weekdays) 86% inside, 72% around, gain 39.5 [24] -> UNEXPLAINED
+  South Dakota          2021-07-03..2021-08-10 (39 days, weekdays) 87% inside, 31% around, gain 80.5 [54] -> 2021-08-16 Wednesdays only -> Mon-Fri
+  Arkansas              2021-06-21..2021-07-18 (28 days, weekdays) 29% inside, 1% around, gain 44.2 [65] -> 2021-07-24 Mon-Fri -> daily (weekends resume)
+  Nebraska              2022-05-05..2022-10-26 (175 days, weekdays) 55% inside, 31% around, gain 82.6 [14] -> UNEXPLAINED
+W2 4 unexplained of 8 search spells (bar <= 3; 'dow' had 5 of 9): FAIL
+
+W3 (descriptive): everything the line prints
+  edge Alabama               2021-05-29..2021-07-12 (45 days, edge) 49% inside, 0% before, 4% after -> UNEXPLAINED
+  edge Alaska                2021-06-04..2021-07-31 (58 days, edge) 59% inside, 31% before, 31% after -> 2021-08-02 Mon/Wed/Fri -> Mon-Fri
+  10 spells printed (8 search, 2 edge), 5 unexplained
+
+W4 (descriptive): weekday score beside the dow search, per state with a spell on either
+  Alabama               weekdays: 2022-07-30..2022-08-30                         dow: 2022-07-30..2022-08-30
+  District of Columbia  weekdays: 2022-03-03..2022-07-06                         dow: 2022-03-03..2022-07-06
+  Idaho                 weekdays: 2022-02-20..2023-02-26                         dow: 2022-02-20..2023-02-26
+  Kentucky              weekdays: 2021-06-21..2021-12-19                         dow: 2021-06-22..2021-12-23
+  Michigan              weekdays: 2022-11-18..2023-03-02                         dow: 2022-11-18..2023-03-03
+  Nevada                weekdays: -                                              dow: 2022-05-07..2022-08-09
+  South Dakota          weekdays: 2021-07-03..2021-08-10                         dow: 2021-07-03..2021-08-10
+  Arkansas              weekdays: 2021-06-21..2021-07-18                         dow: 2021-06-21..2021-07-20
+  Nebraska              weekdays: 2022-05-05..2022-10-26                         dow: 2022-05-06..2022-10-30
+  JHU Alabama               2022-03-01..2022-07-08: no NYT spell
+  JHU Alaska                2021-06-08..2021-07-29: no NYT spell
+  JHU District of Columbia  2022-03-02..2022-07-06: NYT 2022-03-03..2022-07-06
+  JHU Idaho                 2021-03-28..2021-09-05: no NYT spell
+  JHU Kentucky              2022-03-05..2022-04-05: no NYT spell
+  JHU South Dakota          2021-07-03..2021-08-10: NYT 2021-07-03..2021-08-10
+  JHU Washington            2021-07-03..2022-01-01: no NYT spell
+  JHU Arkansas              2021-06-21..2021-07-20: NYT 2021-06-21..2021-07-18
+  3 of 8 JHU spells seen in NYT; 3 of 8 NYT spells seen in JHU
+
+Verdict: FAIL (W2)
+(4.5 s)
