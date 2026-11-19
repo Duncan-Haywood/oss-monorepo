@@ -52,3 +52,6 @@ run in the tool's thread pool, so the waits overlap.
 #17310 itself landed in the same pull request. Main was merged in, the flagship rows were trimmed
 back under their caps, and its suite passed on the merged tree (3,434 tests). Its box-text scores
 were re-run and came out unchanged: 263 of 313 merchants exact on the dev half, 272 of 313 held out.
+With RapidOCR leading, which is the PR's headline, the 626 receipts were read again (39 minutes on
+four CPU workers). The scores came out the same: 239 of 313 on the dev half, and 229 of 313 (73.2%)
+held out.

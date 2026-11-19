@@ -15,6 +15,9 @@ once. A re-read gave `mergeable: false, dirty` for #17310 and #10600.
 apart, while null; still null and otherwise ready → `unknown merge` bucket.
 After: ready 2, red 1, conflicted 7, no checks 0 (before: 3 / 5 / 0 / 2).
 
+**#17310 re-verified on the merged tree:** box text dev 263 / held 272; RapidOCR
+(all 626 re-read, 39 min on 4 CPU workers) dev 239 / held 229 of 313, both as the PR reported.
+
 **For the next sweep.** The conflicted seven (#7442, #8630, #10600, #10881,
 #12130, #12779, plus #17310 landed via PR #17736) need main merged in, not
 closing. #8509 (Dependabot pyarrow pin in a research reproduction) stays
