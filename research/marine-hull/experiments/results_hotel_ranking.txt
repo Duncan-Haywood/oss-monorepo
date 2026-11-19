@@ -1,0 +1,79 @@
+basis: 200 kg, 10000 Wh, eta 0.55 x 0.85; central case of each rung (as 7t); hotel 1 W to 10 kW, 12 per decade
+# per hotel: monohull km, best speed, Fn; each rung ratio to monohull (best speed); order
+hotel      1.0 W  mono   7501.6 km at 0.35 m/s Fn 0.06  catamaran 0.849 (0.30)  SWATH 0.575 (0.30)  planing 0.011 (3.25)  hydrofoil 0.016 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      1.2 W  mono   6662.6 km at 0.35 m/s Fn 0.06  catamaran 0.850 (0.30)  SWATH 0.597 (0.30)  planing 0.012 (3.25)  hydrofoil 0.018 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      1.5 W  mono   5867.5 km at 0.35 m/s Fn 0.06  catamaran 0.851 (0.30)  SWATH 0.620 (0.30)  planing 0.014 (3.25)  hydrofoil 0.020 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      1.8 W  mono   5206.8 km at 0.40 m/s Fn 0.06  catamaran 0.850 (0.35)  SWATH 0.632 (0.30)  planing 0.016 (3.25)  hydrofoil 0.023 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      2.2 W  mono   4590.9 km at 0.45 m/s Fn 0.07  catamaran 0.852 (0.35)  SWATH 0.643 (0.30)  planing 0.018 (3.25)  hydrofoil 0.026 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      2.6 W  mono   4065.8 km at 0.45 m/s Fn 0.07  catamaran 0.851 (0.40)  SWATH 0.646 (0.30)  planing 0.020 (3.25)  hydrofoil 0.029 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      3.2 W  mono   3591.8 km at 0.50 m/s Fn 0.08  catamaran 0.850 (0.40)  SWATH 0.645 (0.30)  planing 0.023 (3.25)  hydrofoil 0.033 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      3.8 W  mono   3168.8 km at 0.50 m/s Fn 0.08  catamaran 0.853 (0.45)  SWATH 0.648 (0.35)  planing 0.026 (3.25)  hydrofoil 0.037 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      4.6 W  mono   2804.1 km at 0.55 m/s Fn 0.09  catamaran 0.851 (0.50)  SWATH 0.647 (0.35)  planing 0.029 (3.25)  hydrofoil 0.042 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      5.6 W  mono   2478.7 km at 0.60 m/s Fn 0.10  catamaran 0.852 (0.50)  SWATH 0.648 (0.40)  planing 0.033 (3.25)  hydrofoil 0.047 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      6.8 W  mono   2183.0 km at 0.65 m/s Fn 0.10  catamaran 0.855 (0.55)  SWATH 0.649 (0.40)  planing 0.037 (3.25)  hydrofoil 0.054 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel      8.3 W  mono   1924.7 km at 0.70 m/s Fn 0.11  catamaran 0.857 (0.60)  SWATH 0.652 (0.45)  planing 0.042 (3.25)  hydrofoil 0.061 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     10.0 W  mono   1698.2 km at 0.70 m/s Fn 0.11  catamaran 0.857 (0.60)  SWATH 0.652 (0.50)  planing 0.048 (3.25)  hydrofoil 0.069 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     12.1 W  mono   1498.8 km at 0.75 m/s Fn 0.12  catamaran 0.858 (0.65)  SWATH 0.654 (0.50)  planing 0.054 (3.25)  hydrofoil 0.078 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     14.7 W  mono   1318.2 km at 0.80 m/s Fn 0.13  catamaran 0.862 (0.70)  SWATH 0.658 (0.55)  planing 0.062 (3.25)  hydrofoil 0.089 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     17.8 W  mono   1162.7 km at 0.85 m/s Fn 0.14  catamaran 0.861 (0.75)  SWATH 0.658 (0.60)  planing 0.070 (3.25)  hydrofoil 0.101 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     21.5 W  mono   1021.2 km at 1.00 m/s Fn 0.16  catamaran 0.866 (0.80)  SWATH 0.662 (0.65)  planing 0.079 (3.25)  hydrofoil 0.114 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     26.1 W  mono    904.3 km at 1.00 m/s Fn 0.16  catamaran 0.864 (0.85)  SWATH 0.660 (0.65)  planing 0.089 (3.25)  hydrofoil 0.129 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     31.6 W  mono    794.2 km at 1.00 m/s Fn 0.16  catamaran 0.867 (0.90)  SWATH 0.664 (0.70)  planing 0.101 (3.25)  hydrofoil 0.147 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     38.3 W  mono    697.2 km at 1.20 m/s Fn 0.19  catamaran 0.870 (1.00)  SWATH 0.667 (0.75)  planing 0.114 (3.25)  hydrofoil 0.167 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     46.4 W  mono    616.6 km at 1.20 m/s Fn 0.19  catamaran 0.869 (1.05)  SWATH 0.665 (0.85)  planing 0.129 (3.25)  hydrofoil 0.188 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     56.2 W  mono    540.8 km at 1.20 m/s Fn 0.19  catamaran 0.874 (1.20)  SWATH 0.670 (0.85)  planing 0.146 (3.25)  hydrofoil 0.214 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     68.1 W  mono    475.2 km at 1.35 m/s Fn 0.22  catamaran 0.880 (1.20)  SWATH 0.669 (0.95)  planing 0.165 (3.25)  hydrofoil 0.242 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel     82.5 W  mono    416.5 km at 1.35 m/s Fn 0.22  catamaran 0.888 (1.35)  SWATH 0.673 (0.95)  planing 0.186 (3.25)  hydrofoil 0.275 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel    100.0 W  mono    363.5 km at 1.60 m/s Fn 0.26  catamaran 0.898 (1.35)  SWATH 0.675 (0.95)  planing 0.211 (3.25)  hydrofoil 0.313 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel    121.2 W  mono    321.4 km at 1.65 m/s Fn 0.26  catamaran 0.892 (1.60)  SWATH 0.673 (1.15)  planing 0.235 (3.25)  hydrofoil 0.352 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel    146.8 W  mono    282.3 km at 1.65 m/s Fn 0.26  catamaran 0.901 (1.60)  SWATH 0.676 (1.15)  planing 0.263 (3.25)  hydrofoil 0.398 (10.25)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel    177.8 W  mono    246.0 km at 1.65 m/s Fn 0.26  catamaran 0.910 (1.65)  SWATH 0.678 (1.15)  planing 0.296 (3.25)  hydrofoil 0.452 (10.50)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel    215.4 W  mono    214.0 km at 2.15 m/s Fn 0.34  catamaran 0.916 (1.65)  SWATH 0.677 (1.15)  planing 0.335 (20.00)  hydrofoil 0.514 (10.50)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel    261.0 W  mono    190.0 km at 2.15 m/s Fn 0.34  catamaran 0.912 (2.15)  SWATH 0.676 (1.50)  planing 0.376 (20.00)  hydrofoil 0.571 (10.50)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel    316.2 W  mono    167.4 km at 2.20 m/s Fn 0.35  catamaran 0.921 (2.15)  SWATH 0.678 (1.50)  planing 0.424 (20.00)  hydrofoil 0.638 (10.50)  | monohull > catamaran > SWATH > hydrofoil > planing
+hotel    383.1 W  mono    146.7 km at 2.20 m/s Fn 0.35  catamaran 0.927 (2.15)  SWATH 0.679 (1.50)  planing 0.481 (20.00)  hydrofoil 0.715 (10.50)  | monohull > catamaran > hydrofoil > SWATH > planing
+hotel    464.2 W  mono    127.6 km at 2.20 m/s Fn 0.35  catamaran 0.934 (2.15)  SWATH 0.679 (1.50)  planing 0.549 (20.00)  hydrofoil 0.804 (10.75)  | monohull > catamaran > hydrofoil > SWATH > planing
+hotel    562.3 W  mono    110.4 km at 2.25 m/s Fn 0.36  catamaran 0.939 (2.20)  SWATH 0.679 (1.55)  planing 0.627 (20.00)  hydrofoil 0.905 (10.75)  | monohull > catamaran > hydrofoil > SWATH > planing
+hotel    681.3 W  mono     95.1 km at 2.30 m/s Fn 0.37  catamaran 0.944 (2.20)  SWATH 0.680 (1.55)  planing 0.720 (20.00)  hydrofoil 1.020 (10.75)  | hydrofoil > monohull > catamaran > planing > SWATH
+hotel    825.4 W  mono     81.6 km at 2.35 m/s Fn 0.38  catamaran 0.948 (2.25)  SWATH 0.679 (1.55)  planing 0.828 (20.00)  hydrofoil 1.148 (11.00)  | hydrofoil > monohull > catamaran > planing > SWATH
+hotel   1000.0 W  mono     69.9 km at 2.40 m/s Fn 0.38  catamaran 0.950 (2.30)  SWATH 0.678 (1.60)  planing 0.952 (20.00)  hydrofoil 1.287 (11.00)  | hydrofoil > monohull > planing > catamaran > SWATH
+hotel   1211.5 W  mono     59.7 km at 2.45 m/s Fn 0.39  catamaran 0.952 (2.35)  SWATH 0.675 (1.60)  planing 1.092 (20.00)  hydrofoil 1.438 (11.25)  | hydrofoil > planing > monohull > catamaran > SWATH
+hotel   1467.8 W  mono     51.4 km at 3.85 m/s Fn 0.61  catamaran 0.969 (3.80)  SWATH 0.667 (1.65)  planing 1.240 (20.00)  hydrofoil 1.585 (11.50)  | hydrofoil > planing > monohull > catamaran > SWATH
+hotel   1778.3 W  mono     46.3 km at 4.25 m/s Fn 0.68  catamaran 0.968 (4.00)  SWATH 0.627 (1.70)  planing 1.339 (20.00)  hydrofoil 1.657 (11.75)  | hydrofoil > planing > monohull > catamaran > SWATH
+hotel   2154.4 W  mono     41.8 km at 4.60 m/s Fn 0.73  catamaran 0.964 (4.20)  SWATH 0.620 (3.70)  planing 1.438 (20.00)  hydrofoil 1.722 (12.00)  | hydrofoil > planing > monohull > catamaran > SWATH
+hotel   2610.2 W  mono     37.6 km at 5.00 m/s Fn 0.80  catamaran 0.958 (4.50)  SWATH 0.633 (3.85)  planing 1.538 (20.00)  hydrofoil 1.778 (12.25)  | hydrofoil > planing > monohull > catamaran > SWATH
+hotel   3162.3 W  mono     33.9 km at 5.40 m/s Fn 0.86  catamaran 0.951 (4.75)  SWATH 0.644 (4.10)  planing 1.636 (20.00)  hydrofoil 1.825 (12.75)  | hydrofoil > planing > monohull > catamaran > SWATH
+hotel   3831.2 W  mono     30.5 km at 5.80 m/s Fn 0.93  catamaran 0.943 (5.05)  SWATH 0.653 (4.30)  planing 1.731 (20.00)  hydrofoil 1.864 (13.00)  | hydrofoil > planing > monohull > catamaran > SWATH
+hotel   4641.6 W  mono     27.3 km at 6.00 m/s Fn 0.96  catamaran 0.935 (5.35)  SWATH 0.662 (4.55)  planing 1.822 (20.00)  hydrofoil 1.897 (13.50)  | hydrofoil > planing > monohull > catamaran > SWATH
+hotel   5623.4 W  mono     24.3 km at 6.00 m/s Fn 0.96  catamaran 0.935 (5.80)  SWATH 0.674 (4.85)  planing 1.918 (20.00)  hydrofoil 1.936 (14.25)  | hydrofoil > planing > monohull > catamaran > SWATH
+hotel   6812.9 W  mono     21.4 km at 6.00 m/s Fn 0.96  catamaran 0.941 (6.00)  SWATH 0.689 (5.20)  planing 2.019 (20.00)  hydrofoil 1.983 (14.75)  | planing > hydrofoil > monohull > catamaran > SWATH
+hotel   8254.0 W  mono     18.7 km at 6.00 m/s Fn 0.96  catamaran 0.948 (6.00)  SWATH 0.709 (5.45)  planing 2.124 (20.00)  hydrofoil 2.039 (15.50)  | planing > hydrofoil > monohull > catamaran > SWATH
+hotel  10000.0 W  mono     16.3 km at 6.00 m/s Fn 0.96  catamaran 0.954 (6.00)  SWATH 0.733 (5.90)  planing 2.230 (20.00)  hydrofoil 2.104 (16.50)  | planing > hydrofoil > monohull > catamaran > SWATH
+# check at 30 W (E1; 7t: 0.866, 0.663, 0.097, 0.141)
+30 W catamaran: ratio 0.866
+30 W SWATH: ratio 0.663
+30 W planing: ratio 0.097
+30 W hydrofoil: ratio 0.141
+# break-even hotel load per rung (central case), and monohull best-speed Fn there
+break-even catamaran: never (to 10 kW); max ratio 0.969
+break-even SWATH: never (to 10 kW); max ratio 0.733
+break-even planing: 1068 W; monohull Fn at next grid hotel 0.39
+break-even hydrofoil: 659 W; monohull Fn at next grid hotel 0.37
+monohull leads every rung at every hotel <= 200 W (central): True
+hydrofoil >= planing at 46 of 49 hotel loads
+monohull best speed first above Fn 0.3 at hotel 215 W
+# box robustness: break-even hotel load against the monohull at k 0.10 / 0.25 / 0.40
+k 0.10 hydrofoil: 972 feasible of 972; overtake by 10 kW in 972; break-even min 329 W, 10th 559, median 903, 90th 1507, max 3513; at or below 200 W: 0
+k 0.10 planing: 16 feasible of 16; overtake by 10 kW in 16; break-even min 675 W, 10th 727, median 1338, 90th 2502, max 2550; at or below 200 W: 0
+k 0.25 hydrofoil: 972 feasible of 972; overtake by 10 kW in 972; break-even min 310 W, 10th 539, median 881, 90th 1425, max 3195; at or below 200 W: 0
+k 0.25 planing: 16 feasible of 16; overtake by 10 kW in 16; break-even min 656 W, 10th 709, median 1298, 90th 2317, max 2360; at or below 200 W: 0
+k 0.40 hydrofoil: 972 feasible of 972; overtake by 10 kW in 972; break-even min 291 W, 10th 520, median 861, 90th 1389, max 2948; at or below 200 W: 0
+k 0.40 planing: 16 feasible of 16; overtake by 10 kW in 16; break-even min 638 W, 10th 692, median 1272, 90th 2171, max 2210; at or below 200 W: 0
+# post hoc: planing central case with speeds to 40 m/s (first run's grid stopped at 20)
+post hoc planing at 100 W: ratio 0.240 at 38.75 m/s
+post hoc planing at 316 W: ratio 0.515 at 38.75 m/s
+post hoc planing at 1000 W: ratio 1.184 at 38.75 m/s
+post hoc planing at 3162 W: ratio 2.164 at 38.75 m/s
+post hoc planing at 10000 W: ratio 3.312 at 38.75 m/s
+post hoc planing break-even: 798 W
+post hoc hydrofoil >= planing (wide grid) at 39 of 49 hotel loads
