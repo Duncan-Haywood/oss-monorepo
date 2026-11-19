@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtHCMMNpN7aGhjFtrKD",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T16:06:52Z",
+  "ended": "2026-11-19T16:26:56Z",
+  "wall_minutes": 20.38,
+  "tokens_in": 13874997,
+  "tokens_out": 95832,
+  "cost_usd": 6.3671,
+  "tool_calls": 86,
+  "task": "Explore (free choice): new GTFS transit feed checker, ventures/gtfs-feed-check",
+  "projects": [
+    "gtfs-feed-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17723",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 50,
+  "outcome": "success",
+  "errors": [
+    "First calendar-coverage pass clipped dates outside a two-year window, so Google's 2007 sample showed no service dates and the broken example's first date read 2024-11-19; fixed with first/last running day of out-of-window ranges, and a test pins it.",
+    "Per-row JS arrays for stop_times used ~670 MB heap on TriMet; switched to columnar typed arrays (339 MB including the raw text).",
+    "Page copy said 'fourteen kinds of problem'; the test that counts them found 17; copy fixed, test keeps it honest.",
+    "A literal U+FEFF in a test string tripped check_hidden_unicode; written as an escape."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "Definition of done names register-tool.mjs and venture-preflight.mjs but not that a new file-pre-flight venture lands in the full 'More free tools' catch-all and needs a slug line in platform/pages/build.mjs; preflight told me, after ~2 minutes."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Post title/description/seo_title limits (110/160/70) are only discovered by running the check; CLAUDE.md's post guidance does not state them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Website requests and IDEAS.md were empty and the route drew explore, so the run picked its own idea.",
+      "did": "Screened GTFS with duplicate_check.py (top 0.20), built a venture with real-feed evaluation.",
+      "result": "Merged with 60 passing tests and a real-data post."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-google-sample-gtfs-feed-has-a-typo.md",
+    "ventures/gtfs-feed-check/eval/real-feeds-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Idea: GTFS Schedule feed checker (browser + CLI), first transit-data tool in the portfolio. Measured on Google's sample, BART, Halifax Transit and TriMet (hashes in eval). Sanity limits (speed, outliers) had zero hits on 3.0M real stop times. Mutation: 5 mutants tried, all caught after two boundary tests added. Chromium check: BART zip loads, no console errors, no external requests, 390 px no overflow. No separate docs/reports agent doc: README's depth path and VENTURE.yaml carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a11ebd5d-73f5-5fce-8dbe-04650a46e5e7",
+    "transcripts": 1,
+    "first": "2026-11-19T16:06:52Z",
+    "last": "2026-11-19T16:27:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 162,
+        "output": 95832,
+        "thinking": 12260,
+        "cache_read": 13660106,
+        "cache_write_5m": 0,
+        "cache_write_1h": 214729,
+        "api_equivalent_usd": 6.3671,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 162,
+      "output": 95832,
+      "thinking": 12260,
+      "cache_read": 13660106,
+      "cache_write_5m": 0,
+      "cache_write_1h": 214729,
+      "api_equivalent_usd": 6.3671,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 76,
+      "Write": 5,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.38,
+      "active_minutes": 20.38,
+      "model_minutes": 15.78,
+      "tool_minutes": 4.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "estimate: a developer writing a GTFS checker (88 rules, zip reader, CLI, two pages, tests, real-feed eval) from the spec",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 376.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
