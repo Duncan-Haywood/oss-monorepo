@@ -547,18 +547,19 @@ flagships:
       finding and a 600-day critical path test.
     buildable: >-
       The six public XER files in eval/cpm-vs-p6-2026-11-19.md (git clone the four
-      repos named there): close the CCA residual (1,688 activities; started
-      activities with mixed FS/SS started predecessors under retained logic) with
+      repos named there): CCA residual down to 89 of 14,270 (late dates of finished
+      nodes with negative float, eval/cpm-vs-p6-2026-11-19.md, What is left) with
       node eval/cpm-vs-p6.mjs; free float on the 24.12 file (361 of 404).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
-      (1) the CCA retained-logic residual (eval/cpm-vs-p6-2026-11-19.md, "What is
-      left"); (2) update comparison shipped 2026-11-19 (compare.mjs, half-step
-      split; eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real
-      files); next a real pair of consecutive updates to check the half-step
-      against, and a windows analysis across many updates; (3) more public XER files
-      from other exporters (search GitHub for ERMHDR fixtures) and progress
-      override, start float and 24-hour lag paths on a real file; (4) a written
-      review report (PDF) an owner's rep can send; (5) resource levelling and
-      expected finish dates.
+      (1) CCA retained-logic rules 7-9 shipped 2026-11-19 (99.4%, 19,732 of 19,822
+      overall); next the 89 left, finished nodes with negative float
+      (eval/cpm-vs-p6-2026-11-19.md, "What is left"); (2) update comparison shipped
+      2026-11-19 (compare.mjs, half-step split; eval/compare-check-2026-11-19.md:
+      720 of 720 planted edits on six real files); next a real pair of consecutive
+      updates to check the half-step against, and a windows analysis across many
+      updates; (3) more public XER files from other exporters (search GitHub for
+      ERMHDR fixtures) and progress override, start float and 24-hour lag paths on a
+      real file; (4) a written review report (PDF) an owner's rep can send; (5)
+      resource levelling and expected finish dates.
