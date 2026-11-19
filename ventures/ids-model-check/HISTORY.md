@@ -8,3 +8,6 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-19) ifcXML streams 2026-11-18 (eval/lazy-ifcxml-2026-11-18.md: 374 MB federated ifcXML 4.0 to 1.5 GB peak, fits 1 GB; strings keep whitespace, 731 MEP labels)
 - (moved 2026-11-19) nested IFC4 ifcXML at scale 2026-11-18 (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3 exports nested, 857,301 entities and 2,160 of 2,160 verdicts as STEP; schema from the root, not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB 1,770 to 1,481 MB, fits 768 MB)
 - (moved 2026-11-19) nested ifcXML read as it closes 2026-11-18 (eval/nested-early-2026-11-18.md: same numbers and notes on 57 files; smallest heap 160 to 96 MB on C20, federated unchanged at 704 MB)
+- (moved 2026-11-19) Sets for one predefined type 2026-11-19 (eval/predefined-sets-2026-11-19.md: 186 IFC4, 343 IFC4X3 sets; audit warns pset-predefined, editor fills the type; 1,008 of 1,008 offers agree)
+- (moved 2026-11-19) Template types 2026-11-19 (eval/template-types-2026-11-19.md: occurrence sets on types, performance sets off IfcPerformanceHistory warned, 1,280 of 1,280 editor pairs agree)
+- (moved 2026-11-19) IDS as a spreadsheet 2026-11-19 (eval/sheet-roundtrip-2026-11-19.md: .xlsx/CSV both ways; 334 of 334 test IDS, 62 of 64 public same back)

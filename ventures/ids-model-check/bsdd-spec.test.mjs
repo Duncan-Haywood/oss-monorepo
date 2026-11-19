@@ -143,3 +143,10 @@ test("a predefinedValue of \"None\" is no value; a set named as a pattern is wri
   assert.deepEqual(props[2].value, { equals: "A" });
   assert.ok(notes.some((n) => /no property code/.test(n)));
 });
+
+test("a standard set name bSDD cut short is completed from the templates", () => {
+  const cls = { ...WALL, code: "IfcAudioVisualAppliance", classProperties: [{ propertySet: "Pset_AudioVisualApplianceTypeRailwayCommunicationT", propertyCode: "Foo", dataType: "String", propertyUri: `${IFC}/prop/Foo` }] };
+  const { spec, notes } = specFromBsddClass(cls, { schema: S, psets: R.psets.IFC4X3 });
+  assert.equal(spec.requirements[0].set, "Pset_AudioVisualApplianceTypeRailwayCommunicationTerminal");
+  assert.ok(notes.some((n) => /cut short/.test(n)));
+});

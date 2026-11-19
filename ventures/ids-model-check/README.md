@@ -444,7 +444,20 @@ one specification per class:
   inside one), Inactive properties, related IFC entities the schema does not
   have. `--sets Pset_DoorCommon,...` keeps only the named sets.
 
-RESULTS_PLACEHOLDER
+Measured on bSDD itself (`eval/bsdd-spec-2026-11-19.md`): from 185 classes in
+the 42 Active, latest-version dictionaries that list properties (IFC 4.3
+included), 9,198 requirement facets. 38 of 42 generated files have no audit
+error, and the 4 that do repeat their dictionary's own faults (a project set
+named `Pset_FM`, a quantity the IFC template lacks, languages as a Boolean's
+values). 42 of 42 pass the bSDD link check with no error. Five generator
+faults found on the way were fixed, the largest being bSDD's
+`"predefinedValue": "None"`, which 165 properties answer and which had been
+written as a required value.
+
+The editor now keeps a facet's `uri` when it opens a file. Before, it dropped
+every one: 0 of 344 links in 53 public files came back, now 344 of 344
+(`eval/editor-uri-roundtrip.txt`). A generated file can therefore be opened,
+edited and downloaded with its links intact.
 
 ### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
 
@@ -1212,6 +1225,9 @@ faster than IfcTester; its point is needing no install.
 
 ## Limitations
 
+- `--from-bsdd` writes non-IFC Real properties as IFCREAL (bSDD's units
+  are not mapped to measure types yet) and leaves complex properties out;
+  like `--bsdd`, it runs from the command line only.
 - bSDD links (`--bsdd`) are checked from the command line only (bSDD's API
   allows no browser calls) and not against the property set, which bSDD gives
   only on a class's property list (`eval/bsdd-links-2026-11-19.md`, Limits).

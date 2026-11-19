@@ -165,7 +165,14 @@ export function specFromBsddClass(cls, { schema = null, psets = null, sets = nul
     }
     // A set named as a pattern (Dura Vermeer's "Pset_.*Common"): written as
     // an xs:pattern, which is what such a name can only mean.
-    const setName = p.propertySet || dictionaryName || cls.dictionaryName || "bSDD";
+    let setName = p.propertySet || dictionaryName || cls.dictionaryName || "bSDD";
+    // bSDD's IFC 4.3 dictionary cuts a long set name short
+    // (Pset_AudioVisualApplianceTypeRailwayCommunicationT): a Pset_/Qto_ name
+    // the templates lack that starts exactly one template set is that set.
+    if (psets && /^(Pset|Qto)_/.test(setName) && !Object.hasOwn(psets, setName)) {
+      const whole = Object.keys(psets).filter((k) => k.startsWith(setName));
+      if (whole.length === 1) { notes.push(`${label}: set "${setName}" is cut short in bSDD; written as ${whole[0]}`); setName = whole[0]; }
+    }
     const f = {
       kind: "property",
       set: /\.[*+]|[\[\]()|\\]/.test(setName) ? { pattern: setName } : setName,
