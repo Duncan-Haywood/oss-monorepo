@@ -23,7 +23,7 @@ import { auditIds } from "./audit.mjs";
 import { bcfZip } from "./bcf.mjs";
 import { junitXml } from "./ci.mjs";
 import { fixStructure } from "./fix.mjs";
-import { sheetFromIds, rowsToCsv, rowsToXlsx, csvToRows, xlsxToRows, rowsToIds } from "./sheet.mjs";
+import { sheetFromIds, rowsToCsv, rowsToXlsx, sheetToRows, rowsToIds } from "./sheet.mjs";
 import { inflateRawSync } from "node:zlib";
 
 const args = process.argv.slice(2);
@@ -56,7 +56,7 @@ if (flag("--fix") && files.length === 1) {
   let rows;
   try {
     const bytes = readFileSync(files[0]);
-    rows = bytes[0] === 0x50 && bytes[1] === 0x4b ? await xlsxToRows(bytes, (b) => inflateRawSync(b)) : csvToRows(bytes.toString("utf8"));
+    rows = await sheetToRows(new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length), (b) => inflateRawSync(b));
   } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
   const r = rowsToIds(rows);
   for (const w of r.warnings) console.error(`warning row ${w.row}: ${w.message}`);

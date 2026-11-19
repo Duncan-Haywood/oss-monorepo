@@ -519,6 +519,9 @@ flagships:
       occurrence sets on types, performance sets off IfcPerformanceHistory warned,
       1,280 of 1,280 editor pairs agree). IDS as a spreadsheet 2026-11-19
       (eval/sheet-roundtrip-2026-11-19.md: .xlsx/CSV both ways; 334 of 334 test IDS,
-      62 of 64 public same back). next: an Excel-saved workbook and a BIM manager's
-      real table via --from-sheet; an RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3
-      export to confirm. More open items: NEXT.md.
+      62 of 64 public same back). Excel-saved workbooks 2026-11-19
+      (eval/excel-workbooks-2026-11-19.md: dates, 15-digit numbers, true/false,
+      _x000D_, .xls named; 65,537 of 65,548 cells agree with openpyxl on 321 POI
+      workbooks; download cells as Text). next: a BIM manager's real table via
+      --from-sheet; Excel itself typing into the download; an RVB/ILS author on \s;
+      a Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.
