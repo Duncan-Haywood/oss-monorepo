@@ -170,6 +170,7 @@ import {
   renderMarquee,
   renderShowcaseSection,
   renderHeroArt,
+  SHOWCASE_DIR,
 } from './showcase.mjs';
 import {
   HOME_SECTIONS_CSS,
@@ -8519,7 +8520,47 @@ function customDevHead({ title, description, url, toRoot, baseUrl, extraHead = '
  * each row linking to that request's own page (`renderCustomRequestPage`).
  * Every tool's footer links here with `?kind=feature&tool=<slug>`.
  */
-export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [], directions, feedbackUrl = SITE_FEEDBACK_URL }) {
+/**
+ * "Built from requests so far": one card per request whose project is a
+ * published tool with a showcase still (showcase/capture.mjs), oldest request
+ * first. Each picture is the real tool with its worked example loaded, so the
+ * page shows what a request turns into instead of describing it
+ * (polish-2026-11-19-custom-dev-built.md). Empty when no request has a still.
+ */
+export function renderRequestShowcase({ requests = [], surfaces = [], shots = [], toRoot = '../' }) {
+  const bySlug = new Map(shots.map((s) => [s.slug, s]));
+  const cards = [...requests]
+    .filter((r) => r.status !== 'declined')
+    .sort((a, b) => String(a.id).localeCompare(String(b.id)))
+    .map((r) => ({ r, slug: requestToolSlug(r, surfaces) }))
+    .filter(({ slug }) => slug && bySlug.has(slug))
+    .map(({ r, slug }) => {
+      const shot = bySlug.get(slug);
+      const surface = surfaces.find((s) => s.slug === slug);
+      // The product's name, not its tagline ("AI Bookkeeper: double-entry books that…").
+      const name = surface ? cardName(surface.title).split(': ')[0] : slug;
+      const src = `${toRoot}${SHOWCASE_DIR}/${shot.hero || shot.file}`;
+      const dims = shot.hero ? 'width="600" height="375"' : 'width="960" height="600"';
+      const srcset = shot.hero && shot.heroWide ? ` srcset="${escapeHtml(src)} 600w, ${escapeHtml(`${toRoot}${SHOWCASE_DIR}/${shot.heroWide}`)} 1200w" sizes="(max-width: 600px) 92vw, 350px"` : '';
+      return `
+        <li class="cd-built-card">
+          <a class="cd-built-img" href="${escapeHtml(`${toRoot}${slug}/`)}" tabindex="-1" aria-hidden="true"><img src="${escapeHtml(src)}"${srcset} ${dims} loading="lazy" decoding="async" alt=""></a>
+          <p class="cd-built-id"><a href="${escapeHtml(`${r.id}/`)}">${escapeHtml(r.id)}</a> · <span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span></p>
+          <h3><a href="${escapeHtml(`${toRoot}${slug}/`)}">${escapeHtml(name)}</a></h3>
+          <p class="cd-built-cap">${escapeHtml(shot.caption)}</p>
+          <p class="cd-built-links"><a href="${escapeHtml(`${toRoot}${slug}/`)}">Try it</a> · <a href="${escapeHtml(`${REPO_URL}/tree/main/${r.project}`)}">Code and README</a></p>
+        </li>`;
+    });
+  if (!cards.length) return '';
+  return `
+      <h2 id="built">Built from requests so far</h2>
+      <p>The first requests are the owner's own, so you can see how far one goes over many sessions. Each picture is the tool on this site with its worked example loaded, and each README says what is tested and what is still unproven.</p>
+      <ul class="cd-built">${cards.join('')}
+      </ul>
+`;
+}
+
+export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [], directions, feedbackUrl = SITE_FEEDBACK_URL, showcase = { shots: [] } }) {
   const url = `${baseUrl}${CUSTOM_DEV_PATH}`;
   const toRoot = '../';
   const title = 'Free custom software for your business';
@@ -8578,6 +8619,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
   </script>`
     : '<p>No requests on file yet. Yours could be the first.</p>';
   const form = renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions });
+  const built = renderRequestShowcase({ requests, surfaces, shots: showcase.shots, toRoot });
   const stages = REQUEST_STAGES.map((s) => `<li class="cd-step"><span class="cd-dot" aria-hidden="true"></span><span class="cd-step-name">${escapeHtml(s)}${requests.length ? ` <small>(${requests.filter((r) => r.status === s).length})</small>` : ''}</span><span class="cd-step-what">${escapeHtml(REQUEST_STATUSES[s])}</span></li>`).join('');
   const feedbackPageUrl = `${toRoot}${FEEDBACK_PATH}`;
   const ideaUrl = `${REPO_URL}/issues/new?template=idea.yml`;
@@ -8629,7 +8671,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
         <li><strong>A feature for a tool already here</strong>: every tool's footer links to this form with that tool chosen.</li>
       </ul>
       <p>What does not fit: anything that needs paid accounts or a cost per user to run, must stay private, scrapes a site against its terms, or gives regulated advice with no safe framing.</p>
-${form}
+${built}${form}
       <h2>How a request moves</h2>
       <ol class="cd-steps cd-steps-intro">${stages}</ol>
       <p>Before triage, every request from outside is <a href="#screening">screened</a> for text aimed at the agents rather than describing a job. A request can also be <em>declined</em>, always with the reason written beside it. Each request has its own page showing which stage it is at and what is still unproven, and once there is something to try you can send feedback on it from that page. Sessions work in the open: every change is a pull request, and the project's README says what was tested and what was not.</p>
@@ -8641,8 +8683,8 @@ ${form}
         <li>Describe the job from the inside: who does it, how, and where today's tools fall short. Real sample material (with private details removed) is the fastest way to move a request forward.</li>
       </ul>
 
-      <h2>What has been built this way</h2>
-      <p>The first requests in the list below are the owner's own, so you can see how deep a request goes over many sessions: an <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/ai-bookkeeper`)}">AI bookkeeper</a> (double-entry ledger, bank reconciliation, QuickBooks and Xero export), a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/wall-framing-takeoff`)}">wall framing takeoff</a> from a floor plan, and a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/sales-agent`)}">sales agent</a>. Each README says what is tested and what is still unproven.</p>
+${built ? '' : `      <h2>What has been built this way</h2>
+      <p>The first requests in the list below are the owner's own, so you can see how deep a request goes over many sessions: an <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/ai-bookkeeper`)}">AI bookkeeper</a> (double-entry ledger, bank reconciliation, QuickBooks and Xero export), a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/wall-framing-takeoff`)}">wall framing takeoff</a> from a floor plan, and a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/sales-agent`)}">sales agent</a>. Each README says what is tested and what is still unproven.</p>`}
 
       <h2>What you can ask for</h2>
       <ul>
@@ -8785,6 +8827,27 @@ const CUSTOM_DEV_STYLE = `
     .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--bg); }
     .cd-filter input { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cd-shown { color: var(--muted); font-size: .88em; }
+    .cd-table td:first-child { white-space: nowrap; }
+    .cd-faq dd { line-height: 1.6; }
+    .prose ul.cd-built { list-style: none; padding: 0; margin: 14px 0 28px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+    /* A phone swipes through the cards instead of scrolling past four of them to reach the form. */
+    @media (max-width: 600px) {
+      .prose ul.cd-built { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%; gap: 12px;
+                           overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; padding-bottom: 6px; }
+      .prose .cd-built-card { scroll-snap-align: start; }
+    }
+    .prose .cd-built-card { margin: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--panel, var(--bg)); overflow: hidden; display: flex; flex-direction: column; }
+    .cd-built-img { display: block; aspect-ratio: 16 / 10; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--bg); }
+    .cd-built-img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; transition: transform .25s ease; }
+    .cd-built-card:hover .cd-built-img img { transform: scale(1.02); }
+    @media (prefers-reduced-motion: reduce) { .cd-built-img img { transition: none; } .cd-built-card:hover .cd-built-img img { transform: none; } }
+    .cd-built-card > p, .cd-built-card > h3 { margin: 0; padding: 0 14px; }
+    .cd-built-card > .cd-built-id { padding-top: 12px; font-size: .85em; color: var(--muted); }
+    .cd-built-card h3 { font-size: 1.05em; margin-top: 4px; }
+    .cd-built-card h3 a { color: var(--ink); text-decoration: none; }
+    .cd-built-card h3 a:hover, .cd-built-card h3 a:focus-visible { text-decoration: underline; }
+    .cd-built-card > .cd-built-cap { color: var(--muted); font-size: .92em; line-height: 1.5; margin-top: 4px; flex: 1; }
+    .cd-built-card > .cd-built-links { padding-top: 10px; padding-bottom: 14px; font-size: .92em; }
     @media (max-width: 700px) { .cd-steps { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 600px) {
       .cd-table thead { display: none; }
@@ -13265,7 +13328,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   await fs.mkdir(customDevDir, { recursive: true });
   await fs.writeFile(
     path.join(customDevDir, 'index.html'),
-    renderCustomDevelopmentPage({ surfaces, baseUrl: base, requests: customRequests, directions: researchDirs }),
+    renderCustomDevelopmentPage({ surfaces, baseUrl: base, requests: customRequests, directions: researchDirs, showcase }),
   );
   // Each request's own page, linked from its row and shared by its requester.
   for (const request of customRequests) {

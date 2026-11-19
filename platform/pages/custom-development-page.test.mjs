@@ -3,7 +3,7 @@
 // portfolio/requests/requests.json with nothing in it unescaped.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderCustomDevelopmentPage, renderCustomRequestPage, customRequestPath, REQUEST_KINDS, CUSTOM_DEV_PATH, renderHubSitemap, REQUEST_ASK_CLIP, REQUEST_NOTE_CLIP, noteSentences } from './build.mjs';
+import { renderCustomDevelopmentPage, renderCustomRequestPage, renderRequestShowcase, customRequestPath, REQUEST_KINDS, CUSTOM_DEV_PATH, renderHubSitemap, REQUEST_ASK_CLIP, REQUEST_NOTE_CLIP, noteSentences } from './build.mjs';
 import { FEEDBACK_TYPES } from '../edge/feedback.mjs';
 import { injectChrome } from './build.mjs';
 import { renderSiteFooterNav } from './site-nav.mjs';
@@ -172,4 +172,36 @@ test('a short request is shown whole, with no fold', () => {
   const page = renderCustomRequestPage({ request: short, baseUrl: base, requests: [short] });
   assert.ok(!page.includes('cd-more"><summary'));
   assert.match(page, /Where it stands:<\/strong> Ship it\./);
+});
+
+test('shows what requests have built: one card per request whose tool has a still', () => {
+  const surfaces = [
+    { slug: 'ai-bookkeeper', title: 'AI Bookkeeper: double-entry books that learn' },
+    { slug: 'sales-agent', title: 'Sales Agent' },
+  ];
+  const requests = [
+    { id: 'R-0003', title: 'Sales', ask: 'a', source: 'owner', status: 'building', received: '2026-10-21', updated: '2026-11-15', project: 'ventures/sales-agent' },
+    { id: 'R-0001', title: 'Books', ask: 'a', source: 'owner', status: 'building', received: '2026-10-21', updated: '2026-10-30', project: 'ventures/ai-bookkeeper' },
+    { id: 'R-0004', title: 'Plans', ask: 'a', source: 'owner', status: 'building', received: '2026-11-02', updated: '2026-11-02', project: 'portfolio/monetization' },
+    { id: 'R-0009', title: 'No', ask: 'a', source: 'issue', status: 'declined', received: '2026-11-02', updated: '2026-11-02', project: 'ventures/sales-agent', reason: 'x' },
+  ];
+  const shots = [
+    { slug: 'ai-bookkeeper', file: 'ai-bookkeeper.webp', caption: 'Files a bank export <fast>', hero: 'ai-bookkeeper-hero.webp', heroWide: 'ai-bookkeeper-hero-1200.webp' },
+    { slug: 'sales-agent', file: 'sales-agent.webp', caption: 'Reads replies' },
+  ];
+  const html = renderRequestShowcase({ requests, surfaces, shots });
+  const cards = html.match(/<li class="cd-built-card">/g) || [];
+  assert.equal(cards.length, 2, 'no card for a request with no tool, or a declined one');
+  assert.ok(html.indexOf('R-0001') < html.indexOf('R-0003'), 'oldest request first');
+  assert.match(html, /<h3><a href="\.\.\/ai-bookkeeper\/">AI Bookkeeper<\/a><\/h3>/, 'the name, not the tagline');
+  assert.match(html, /src="\.\.\/showcase\/ai-bookkeeper-hero\.webp" srcset="\.\.\/showcase\/ai-bookkeeper-hero\.webp 600w, \.\.\/showcase\/ai-bookkeeper-hero-1200\.webp 1200w"/);
+  assert.match(html, /src="\.\.\/showcase\/sales-agent\.webp" width="960" height="600"/);
+  assert.match(html, /loading="lazy"/);
+  assert.ok(html.includes('Files a bank export &lt;fast&gt;'));
+  assert.equal(renderRequestShowcase({ requests, surfaces, shots: [] }), '');
+  const page = renderCustomDevelopmentPage({ baseUrl: base, requests, surfaces, showcase: { shots } });
+  assert.match(page, /id="built"/);
+  assert.ok(!page.includes('What has been built this way'), 'the prose fallback gives way to the cards');
+  assert.ok(page.indexOf('id="built"') < page.indexOf('id="request"') || !page.includes('id="request"'));
+  assert.match(renderCustomDevelopmentPage({ baseUrl: base, requests }), /What has been built this way/);
 });
