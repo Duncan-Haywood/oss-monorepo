@@ -50,7 +50,7 @@ if (flag("--from-bsdd") && files.length) {
   if (schemaId !== undefined && !["IFC2X3", "IFC4", "IFC4X3"].includes(schemaId)) { console.error("--schema takes IFC2X3, IFC4 or IFC4X3 (for classes outside the IFC dictionary)"); process.exit(2); }
   const R = resources();
   const sets = opt("--sets") ? opt("--sets").split(",").map((x) => x.trim()).filter(Boolean) : null;
-  const r = await bsddIds(files, { schemas: R.schemas, psets: R.psets, schema: R.schemas.IFC4X3, schemaId, sets });
+  const r = await bsddIds(files, { schemas: R.schemas, psets: R.psets, units: R.bsddUnits, schema: R.schemas.IFC4X3, schemaId, sets });
   for (const n of r.notes) console.error(`note: ${n}`);
   console.error(`${r.specs.length} of ${files.length} class(es) written`);
   if (opt("-o")) writeFileSync(opt("-o"), r.text); else process.stdout.write(r.text);

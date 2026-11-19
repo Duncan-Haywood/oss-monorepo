@@ -63,7 +63,7 @@ async function one(d) {
     for (const [c, r] of got) if (picked.length < want && r.json && (r.json.classProperties || []).length) picked.push(c.uri);
   }
   if (!picked.length) { rows.push({ dictionary: `${d.name} ${d.version}`, classes: 0 }); return; }
-  const built = await bsddIds(picked, { fetch: cachedFetch, schemas: R.schemas, psets: R.psets, schema: R.schemas.IFC4X3 });
+  const built = await bsddIds(picked, { fetch: cachedFetch, schemas: R.schemas, psets: R.psets, units: args.includes("--no-units") ? null : R.bsddUnits, schema: R.schemas.IFC4X3 });
   const ids = parseIds(built.text);
   const issues = auditIds(ids, { schemas: R.schemas, typeMap: R.typeMap, psets: R.psets });
   const b = await checkBsdd(built.text, { fetch: cachedFetch, schemas: R.schemas });
