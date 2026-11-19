@@ -1,0 +1,96 @@
+cell-fidelity milestone 7h: a fifth fresh DFN pool (16 designs per set, none simulated before; S_C fitted
+on the 104 earlier designs only) and a scale-free drift threshold. Target = 1.25 x the scored pool's
+all-50 q75 of the cycle-99 lithium-loss error (cell 000).
+
+set           n  q75 U10  q75 U50  target   median S_C by pool    5zk    5zy    5zz     7g     7h
+Ai2020       16    0.064    0.039   0.049                      0.063  0.057  0.077  0.120  0.098
+Chen2020     16    0.102    0.045   0.056                      0.028  0.029  0.025  0.047  0.026
+OKane2022    16    0.117    0.055   0.068                      0.065  0.064  0.065  0.067  0.067
+NCA_Kim2011  16    0.072    0.020   0.025                      0.236  0.316  0.314  0.261  0.239
+
+rule                              how     met  cycles  saved vs U50
+theta-tight, 7f policies       frozen    9/12    39.3           21%
+theta-tight, 7g refit          frozen    4/4     37.8           24%
+R50 (relative, K1=50)          refit4    4/4     40.6           19%
+theta50 (absolute, K1=50)      refit4    3/4     40.0           20%
+theta-tight (K1 free)          refit4    3/4     40.0           20%
+F-tight (fraction)             refit4    3/4     40.6           19%
+U-tight (uniform)              refit4    4/4     50.0            0%
+R50 (relative, K1=50)           lopo5   18/20    42.1           16%
+theta50 (absolute, K1=50)       lopo5   19/20    43.5           13%
+theta-tight (K1 free)           lopo5   19/20    43.5           13%
+F-tight (fraction)              lopo5   16/20    43.2           14%
+U-tight (uniform)               lopo5   19/20    48.0            4%
+U50                                 -     all    50.0            0%
+
+frozen 7f theta-tight policies on the 7h pool:
+set          from  margin       policy    q75  target  met  cycles
+Ai2020        5zk    1.05    50>=0.041  0.039   0.049  yes    45.0
+Ai2020        5zy    1.05    50>=0.045  0.039   0.049  yes    45.0
+Ai2020        5zz    1.15    40>=0.041  0.047   0.049  yes    36.2
+Chen2020      5zk    1.00    50>=0.028  0.089   0.056   no    25.0
+Chen2020      5zy    1.00    50>=0.014  0.045   0.056  yes    50.0
+Chen2020      5zz    1.15    50>=0.017  0.045   0.056  yes    50.0
+OKane2022     5zk    1.00    50>=0.031  0.062   0.068  yes    45.0
+OKane2022     5zy    1.00    50>=0.031  0.062   0.068  yes    45.0
+OKane2022     5zz    1.00    50>=0.061  0.072   0.068   no    37.5
+NCA_Kim2011   5zk    1.15    50>=0.297  0.031   0.025   no    22.5
+NCA_Kim2011   5zy    1.10    50>=0.238  0.025   0.025  yes    30.0
+NCA_Kim2011   5zz    1.15    50>=0.212  0.024   0.025  yes    40.0
+Ai2020        all    1.00    40>=0.041  0.047   0.049  yes    36.2
+Chen2020      all    1.15    40>=0.014  0.054   0.056  yes    40.0
+OKane2022     all    1.00    50>=0.031  0.062   0.068  yes    45.0
+NCA_Kim2011   all    1.10    50>=0.232  0.025   0.025  yes    30.0
+
+R50 (relative, K1=50), refit on four pools, scored on 7h:
+set           margin inner       policy    q75  target  met  cycles flag tr flag 7h
+Ai2020          1.00    no 50>=0.68xmed  0.039   0.049  yes    37.5    0.88    0.69
+Chen2020        1.05    ok 50>=0.52xmed  0.045   0.056  yes    50.0    0.97    1.00
+OKane2022       1.00    no 50>=0.48xmed  0.062   0.068  yes    45.0    0.92    0.88
+NCA_Kim2011     1.15    ok 50>=0.95xmed  0.025   0.025  yes    30.0    0.62    0.50
+
+theta50 (absolute, K1=50), refit on four pools, scored on 7h:
+set           margin inner       policy    q75  target  met  cycles flag tr flag 7h
+Ai2020          1.05    ok    50>=0.045  0.039   0.049  yes    45.0    0.81    0.88
+Chen2020        1.00    no    50>=0.026  0.089   0.056   no    30.0    0.64    0.50
+OKane2022       1.00    no    50>=0.031  0.062   0.068  yes    45.0    0.92    0.88
+NCA_Kim2011     1.10    ok    50>=0.212  0.024   0.025  yes    40.0    0.78    0.75
+
+theta-tight (K1 free), refit on four pools, scored on 7h:
+set           margin inner       policy    q75  target  met  cycles flag tr flag 7h
+Ai2020          1.00    no    50>=0.041  0.039   0.049  yes    45.0    0.91    0.88
+Chen2020        1.00    no    50>=0.026  0.089   0.056   no    30.0    0.64    0.50
+OKane2022       1.00    no    50>=0.031  0.062   0.068  yes    45.0    0.92    0.88
+NCA_Kim2011     1.10    ok    50>=0.212  0.024   0.025  yes    40.0    0.78    0.75
+
+F-tight (fraction), refit on four pools, scored on 7h:
+set           margin inner       policy    q75  target  met  cycles flag tr flag 7h
+Ai2020          1.00    no      50@0.90  0.039   0.049  yes    45.0       -       -
+Chen2020        1.00    no      50@0.65  0.067   0.056   no    35.0       -       -
+OKane2022       1.00    no      50@0.95  0.062   0.068  yes    47.5       -       -
+NCA_Kim2011     1.15    ok      50@0.60  0.024   0.025  yes    35.0       -       -
+
+U-tight (uniform), refit on four pools, scored on 7h:
+set           margin inner       policy    q75  target  met  cycles flag tr flag 7h
+Ai2020          1.25    ok          U50  0.039   0.049  yes    50.0       -       -
+Chen2020        1.10    ok          U50  0.045   0.056  yes    50.0       -       -
+OKane2022       1.20    ok          U50  0.055   0.068  yes    50.0       -       -
+NCA_Kim2011     1.20    ok          U50  0.020   0.025  yes    50.0       -       -
+
+lopo5 per held-out pool (met / 4 sets, mean cycles):
+rule                                 5zk         5zy         5zz          7g          7h
+R50 (relative, K1=50)          3/4  41.2   4/4  45.0   4/4  43.8   3/4  40.0   4/4  40.6
+theta50 (absolute, K1=50)      4/4  42.5   4/4  41.2   4/4  46.2   4/4  47.5   3/4  40.0
+theta-tight (K1 free)          4/4  42.5   4/4  41.2   4/4  46.2   4/4  47.5   3/4  40.0
+F-tight (fraction)             3/4  41.7   3/4  42.5   3/4  43.8   4/4  47.5   3/4  40.6
+U-tight (uniform)              3/4  47.5   4/4  47.5   4/4  47.5   4/4  47.5   4/4  50.0
+
+(refit4: picked on 5zk, 5zy, 5zz and 7g; margin t' the most permissive whose four inner folds all meet,
+ else 1.00 (inner 'no'). R policies print as K1>=rho x median. flag tr / flag 7h: share flagged on the
+ training pools and on 7h. lopo5: each of the 5 pools held out, margin from the other 4; 20 folds.)
+
+H285 (frozen 7f theta-tight meets >= 9 of 12 on 7h): supported (9/12)
+H286 (R50 refit meets >= 3 of 4 at <= 40 cycles): inconclusive (4/4, 40.6)
+H287 (R50's flagged share moves less from training to 7h than theta50's): refuted (mean |change| 0.095 vs 0.069)
+H288 (theta50 meets at least as many sets as theta-tight): supported (3 vs 3)
+H289 (R50 meets >= 15 of 20 lopo5 folds): supported (18/20, 42.1 cycles)
