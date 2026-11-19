@@ -7530,3 +7530,63 @@ spells, which are seen.
 
 Test: `update-rate-lasting-more.test.mjs` (the nine cells, a Wednesdays-only move cut at both ends, the 120-day
 daily stretch needing the pass, the sorting rule, the committed verdict).
+
+## Short sparse spells: the return pass reversed (2026-11-19, pre-registered; S1-S4 and the real check K1 pass, an opt-in)
+
+The round above found that in each of JHU's four documented moves to more days that are in the data, the short
+leg is what the data show: one to two months of *fewer* publishing days just before the documented return
+(Alaska's Monday/Wednesday/Friday spell in June-July 2021, South Dakota's Wednesdays-only July). The shipped cut
+pays two cuts for such a spell and rarely gets them. This round tests the mirror of the return pass:
+`bestReturnCost(..., { sparse: true })` looks for the one interval with *more* repeats inside a stretch than in
+the parts around it, which share one model. `eval/update-rate-sparse-spells.mjs` (header and option committed in
+40cc79ce8 before any cell ran) kept round 5's per-stretch model and its 19 null and shift cells, read round 1's
+four return cells as nulls for this direction (a short return is not a sparse spell), and added five power cells:
+Monday-Friday with 30 or 60 days of Wednesdays only, 30 or 60 days of Monday/Wednesday/Friday, and daily with 60
+days of Monday-Friday. Two guards, round 5's mirrored: `twice` (share inside at least twice the share around)
+and `z01` (a one-sided z of the rise of at least 2.326). The header discloses that Alaska's monthly shares had been
+read and that its spell fails `twice` on them, so the choice was on simulation only and K1 could only refuse.
+The shipped check ran with the stale-feed verdict off, as in the round above (it never moves a cut); the whole
+round took 163 s.
+
+**Calibration (seed 20261229).** No guard raises a false spell in the chains, schedules or return cells at m 3
+except `z01`'s R90 cell (0.030); `z01` meets the budget at m 3.5. At their m, `twice` finds 563 of 600 in the
+three 60-day cells and `z01` 567, so `z01` at m 3.5 was chosen. Where they differ is the Monday/Wednesday/Friday
+spell: about 56% repeats against 29% around is a ratio just under 2, so `twice` finds 118 thirty-day spells at
+m 3.5 and `z01` 167.
+
+**Confirmation (seed 20261230, `z01` at m 3.5): all four bars pass.**
+
+| confirmation, found of 200 | pass + shipped | shipped alone |
+|---|---|---|
+| worst null cell, false spells a series | **0.015** (S1, bar 0.020; R90 read as a null) | |
+| worst shift cell | **0.005** (S4, bar 0.010) | |
+| Wednesdays only for 30 days inside Monday-Friday | 200 | 0 |
+| Wednesdays only for 60 days | **200** (S2, bar 120) | 17 |
+| Mon/Wed/Fri for 30 days | 172 | 0 |
+| Mon/Wed/Fri for 60 days | **195** | 162 |
+| Monday-Friday for 60 days inside daily | **157** | 10 |
+
+S3, the three 60-day cells' gain over the shipped check alone, is 363 (bar 60).
+
+**The real check K1 passes: both seen spells end in their documented return's window.** Alaska: a spell
+2021-06-08 to 2021-07-29 (52 days, 58% repeats inside, 32% around) against the documented return to Monday-Friday
+on 2021-08-02. South Dakota: 2021-07-03 to 2021-08-10 (39 days, 85% inside, 32% around) against 2021-08-16. Both
+were seen before the header was written, so this confirms; it does not choose.
+
+**Every spell on the 35 states** (K2, descriptive, deciding nothing): eight. Besides the two above, Arkansas has a
+30-day spell ending 2021-07-20 (27% repeats inside, 1% around), four days before its documented move back to
+daily (weekends resume, 2021-07-24): a documented event K1 did not name, dated by its spell. Kentucky's 27 days
+in March 2022 (85% inside, 30% around) is a spell of the same kind. Four are long (127-183 days) and sit next to
+a return the other pass finds: Idaho's 2021-03-28 to 2021-09-05 ends the day before its documented daily return
+starts, and Washington's 2021-07-03 to 2022-01-01 follows its return; inside one stretch the two passes model the
+same two-schedule split from either side. Alabama's and DC's 2022 spells match no documented event.
+
+**What ships.** `shortSpells(values, { days })` in `update-rate.mjs` with `SHORT_SPELLS` (`z01`, m 3.5): an opt-in
+for callers with a date per value (`daysFromDates`). As pre-registered, it is not a default line: nothing the CLI
+or the page prints changes in this round. The return pass stays off (`SHORT_RETURNS.mult` null). Next: offer the
+spell line behind a flag on the CLI and the page (dated series only), and a fresh real check on spells nobody has
+read, from another provider's documented schedule changes.
+
+Test: `update-rate-sparse-spells.test.mjs` (the reversed search finds a planted spell and leaves the default
+search unchanged, a Wednesdays-only spell is found with its edges while same-count shifts are not, the module
+function equals the eval file's, the committed verdict).

@@ -424,8 +424,13 @@ export function returnGuardPasses(inR, nIn, outR, nOut, guard) {
   throw new Error(`unknown return guard '${guard.kind}'`);
 }
 
-/** Best interval [a, b) of fewer repeats inside z[L..R) under a return cost kind; { a, b, gain } or null. */
-export function bestReturnCost(z, L, R, { kind = 'dow', days = null, minSegment = 20, P = null, guard = null } = {}) {
+/**
+ * Best interval [a, b) of fewer repeats inside z[L..R) under a return cost kind; { a, b, gain } or null.
+ * `sparse: true` (README "Short sparse spells") looks for the mirror instead: a spell of MORE repeats inside (fewer
+ * publishing days), the guard applied with inside and around swapped (ratio r 0.5: share inside at least twice the
+ * share around; z: a significant rise). Off by default: the shipped pass and rounds 1-5 are unchanged.
+ */
+export function bestReturnCost(z, L, R, { kind = 'dow', days = null, minSegment = 20, P = null, guard = null, sparse = false } = {}) {
   if (R - L < 3 * minSegment) return null;
   if (kind !== 'chain' && !days) throw new Error(`a '${kind}' cost needs days`);
   P = P || pairPrefixes(z, days, kind);
@@ -441,8 +446,9 @@ export function bestReturnCost(z, L, R, { kind = 'dow', days = null, minSegment 
     diff(left, a, L + off);
     for (let b = a + minSegment; b <= R - minSegment; b++) {
       const inR = Rp[b] - Rp[a];
-      if (inR / (b - a) >= (totR - inR) / (R - L - (b - a))) continue; // only fewer repeats inside
-      if (guard && !returnGuardPasses(inR, b - a, totR - inR, R - L - (b - a), guard)) continue;
+      const nIn = b - a, nOut = R - L - nIn, outR = totR - inR;
+      if (sparse ? inR / nIn <= outR / nOut : inR / nIn >= outR / nOut) continue; // only fewer (sparse: more) repeats inside
+      if (guard && !(sparse ? returnGuardPasses(outR, nOut, inR, nIn, guard) : returnGuardPasses(inR, nIn, outR, nOut, guard))) continue;
       let ci = 0, co = 0;
       const bi = b * W, ai = (a + off) * W, ri = R * W, bo = (b + off) * W;
       for (let k = 0; k < W; k += 2) {
@@ -467,14 +473,14 @@ export function daysFromDates(dates) {
  * The best return per stretch under a return cost, with no penalty applied (so a caller can test several):
  * [{ L, R, a, b, gain, shareInside, shareOutside }] in z positions. `u` reuses an updateRateChanges result.
  */
-export function returnCandidates(values, { kind = 'dow', days = null, minSegment = SHORT_RETURNS.minSegment, minRepeats = SHORT_RETURNS.minRepeats, u = null, guard = null } = {}) {
+export function returnCandidates(values, { kind = 'dow', days = null, minSegment = SHORT_RETURNS.minSegment, minRepeats = SHORT_RETURNS.minRepeats, u = null, guard = null, sparse = false } = {}) {
   const z = repeatIndicators(values);
   if (z.reduce((s, v) => s + v, 0) < minRepeats) return [];
   const st = (u || updateRateChanges(values)).stretches;
   const spans = st.length ? st.map((s) => [s.from - 1, s.to]) : [[0, z.length]];
   const P = pairPrefixes(z, days, kind), out = [];
   for (const [L, R] of spans) {
-    const r = bestReturnCost(z, L, R, { kind, days, minSegment, P, guard });
+    const r = bestReturnCost(z, L, R, { kind, days, minSegment, P, guard, sparse });
     if (!r) continue;
     const inR = P.R[r.b] - P.R[r.a], outR = P.R[R] - P.R[L] - inR;
     out.push({ L, R, ...r, shareInside: inR / (r.b - r.a), shareOutside: outR / (R - L - (r.b - r.a)) });
@@ -500,3 +506,32 @@ export function weeklyPatternLR(z, days, L, R) {
 
 /** chi-square 0.999 quantile on 12 degrees of freedom: a stretch above it is read as on a weekly schedule. */
 export const WEEKLY_TEST = { df: 12, crit: 32.909 };
+
+// ---- Short sparse spells (README "Short sparse spells: the return pass reversed", 2026-11-19, pre-registered). ----
+// The mirror of the short-returns pass: inside each stretch the shipped check finds, the one interval with MORE
+// repeats (fewer publishing days) than the parts around it, which share one model because the old schedule came
+// back. Round 5's per-stretch model (weekday cost where weeklyPatternLR reads a weekly schedule, else the chain);
+// guard z01 (a significant rise in repeats); reported when gain > mult x 2 log(n + 1). eval/update-rate-sparse-
+// spells.mjs chose z01 at m 3.5 on calibration and passed S1-S4 on confirmation and K1 on seen data (Alaska, South
+// Dakota). An opt-in: nothing the CLI or the page prints calls it yet. Needs a weekday per step (daysFromDates).
+export const SHORT_SPELLS = { mult: 3.5, guard: { kind: 'z', z: 2.326 }, minSegment: 20, minRepeats: 10 };
+
+/**
+ * Short spells of less frequent updates inside the stretches updateRateChanges found. `days[s]` is the weekday of
+ * repeat indicator s. Value indexes: { spells: [{ from, to, steps, shareInside, shareOutside, gain, kind }], penalty }.
+ */
+export function shortSpells(values, { days, mult = SHORT_SPELLS.mult, guard = SHORT_SPELLS.guard, minSegment = SHORT_SPELLS.minSegment, minRepeats = SHORT_SPELLS.minRepeats, u = null } = {}) {
+  if (!days) throw new Error('shortSpells needs a weekday per step (daysFromDates)');
+  const n = values.length - 1, penalty = mult * 2 * Math.log(n + 1), z = repeatIndicators(values);
+  u = u || updateRateChanges(values);
+  const opts = { days, u, guard, minSegment, minRepeats, sparse: true };
+  const D = new Map(returnCandidates(values, { ...opts, kind: 'dow' }).map((q) => [q.L, q]));
+  const F = new Map(returnCandidates(values, { ...opts, kind: 'chain' }).map((q) => [q.L, q]));
+  const spells = [];
+  for (const L of [...new Set([...D.keys(), ...F.keys()])].sort((a, b) => a - b)) {
+    const q = D.get(L) || F.get(L), weekly = weeklyPatternLR(z, days, q.L, q.R) > WEEKLY_TEST.crit;
+    const c = weekly ? D.get(L) : F.get(L);
+    if (c && c.gain > penalty) spells.push({ from: c.a + 1, to: c.b, steps: c.b - c.a, shareInside: c.shareInside, shareOutside: c.shareOutside, gain: c.gain, kind: weekly ? 'dow' : 'chain' });
+  }
+  return { spells, penalty };
+}
