@@ -1,0 +1,67 @@
+Part A: step test on 96 designs never response-tested (36 ms law unless stated)
+  unsettled: simulator 15, model 15; calls agree on 96 of 96; r(model, simulator last-second distance) 0.9995
+  simulator call identical at 33, 36 and 39.1 ms for 96 of 96
+  7l lag36        unsettled sim  1, model  1 of 12; disagree []
+  7l lag39        unsettled sim  3, model  3 of 12; disagree []
+  7l lag45        unsettled sim  3, model  3 of 12; disagree []
+  7l lagrand      unsettled sim  3, model  3 of 12; disagree []
+  aware lag36     unsettled sim  2, model  2 of 12; disagree []
+  aware lag45     unsettled sim  1, model  1 of 12; disagree []
+  aware lag52     unsettled sim  2, model  2 of 12; disagree []
+  aware lagrand   unsettled sim  0, model  0 of 12; disagree []
+
+Reproduction: b = None response flights against 7ac's results.json: 648 flights, 0 field mismatches
+
+Part B: conditional integration on 7ac's 72 designs (36 ms law; medians over designs; per geometry above, below)
+  b = None: unsettled 18 of 72 (2, 2, 5, 4, 3, 2 by set); last-second distance 0.0311, 0.0111 m; rise 1.802, 1.734 s; overshoot 0.0636, 0.0394 m; wind6 peak 0.0312, 0.0206 m, residual 0.0247, 0.0170 m; wind3 peak 0.0111, 0.0088 m; dead 0
+  b = 0.25: unsettled 0 of 72 (0, 0, 0, 0, 0, 0 by set); last-second distance 0.0051, 0.0042 m; rise 2.026, 1.803 s; overshoot 0.0178, 0.0220 m; wind6 peak 0.0312, 0.0206 m, residual 0.0247, 0.0170 m; wind3 peak 0.0111, 0.0088 m; dead 0
+  b = 0.1: unsettled 0 of 72 (0, 0, 0, 0, 0, 0 by set); last-second distance 0.0043, 0.0038 m; rise 2.027, 1.803 s; overshoot 0.0147, 0.0214 m; wind6 peak 0.0312, 0.0206 m, residual 0.0247, 0.0170 m; wind3 peak 0.0111, 0.0088 m; dead 0
+
+Stress (held-out, seed 9999): identified total over 72 designs, b = None (7ac) 820; b = 0.25 819; b = 0.1 814
+  set / geometry                     None              0.25               0.1   (identified total; at 75 ms; median J_45_1 at 36 ms)
+  aware lag39      above   170  331 -1.828   171  331 -1.830   168  329 -1.792
+  aware lag39      below   178  339 -1.667   180  336 -1.668   174  340 -1.663
+  aware lag39c100  above    82  266 -1.814    82  264 -1.819    82  267 -1.819
+  aware lag39c100  below   109  277 -1.714   107  276 -1.715   107  275 -1.714
+  aware lag39c125  above    39  204 -1.911    39  205 -1.910    40  204 -1.911
+  aware lag39c125  below    62  206 -1.794    62  209 -1.796    64  207 -1.796
+  aware lag39c150  above    27  138 -2.001    27  138 -2.001    27  142 -2.001
+  aware lag39c150  below    38  131 -1.862    36  129 -1.866    37  133 -1.867
+  aware lag39c200  above    17   50 -2.221    17   54 -2.222    17   52 -2.233
+  aware lag39c200  below    36   71 -2.052    36   71 -2.052    36   73 -2.052
+  aware lag75      above    29  117 -2.045    29  111 -2.050    29  115 -2.051
+  aware lag75      below    33  103 -1.895    33  104 -1.898    33  106 -1.898
+  law id 33 ms D^0             dead by condition ('45_1_cap', '20_2_cap', '45_2_cap', '20_3_cap'): None [0, 182, 208, 1079]; 0.25 [0, 180, 211, 1079]; 0.1 [0, 180, 212, 1081]
+  law id 39.1 ms D^0           dead by condition ('45_1_cap', '20_2_cap', '45_2_cap', '20_3_cap'): None [17, 266, 332, 1308]; 0.25 [17, 258, 336, 1326]; 0.1 [17, 265, 327, 1317]
+  law inherited 15 ms D^1.5    dead by condition ('45_1_cap', '20_2_cap', '45_2_cap', '20_3_cap'): None [0, 59, 55, 741]; 0.25 [0, 59, 55, 740]; 0.1 [0, 59, 55, 741]
+  law mid 36 ms D^0            dead by condition ('45_1_cap', '20_2_cap', '45_2_cap', '20_3_cap'): None [4, 214, 280, 1179]; 0.25 [4, 210, 272, 1182]; 0.1 [3, 213, 275, 1174]
+  law stress 45 ms D^0         dead by condition ('45_1_cap', '20_2_cap', '45_2_cap', '20_3_cap'): None [72, 469, 553, 1691]; 0.25 [70, 473, 552, 1695]; 0.1 [71, 470, 548, 1697]
+  law stress 52 ms D^0         dead by condition ('45_1_cap', '20_2_cap', '45_2_cap', '20_3_cap'): None [268, 790, 911, 2175]; 0.25 [269, 793, 907, 2177]; 0.1 [267, 792, 901, 2172]
+  law stress 60 ms D^0         dead by condition ('45_1_cap', '20_2_cap', '45_2_cap', '20_3_cap'): None [567, 1227, 1354, 2692]; 0.25 [568, 1230, 1352, 2685]; 0.1 [561, 1222, 1349, 2686]
+  law stress 75 ms D^0         dead by condition ('45_1_cap', '20_2_cap', '45_2_cap', '20_3_cap'): None [1219, 2074, 2233, 3389]; 0.25 [1201, 2070, 2228, 3399]; 0.1 [1196, 2067, 2243, 3388]
+
+Post hoc (paired by design, Wilcoxon signed-rank, two-sided):
+  b = 0.25 step tail_off  median 0.0044 against 0.0243, p = 1.5e-12
+  b = 0.25 step over      median 0.0204 against 0.0512, p = 1.7e-13
+  b = 0.25 step rise      median 1.9110 against 1.7380, p = 1.7e-13
+  b = 0.25 wind6 peak     median 0.0251 against 0.0251, p = nan
+  b = 0.25 wind6 resid    median 0.0197 against 0.0197, p = nan
+  b = 0.25 identified L2-45 per design: total 819 against 820, p = 0.89
+  b = 0.25 J_45_1_cap at 36 ms per design: median -1.897 against -1.895, p = 4.9e-08
+  b = 0.1 step tail_off  median 0.0040 against 0.0243, p = 1.7e-12
+  b = 0.1 step over      median 0.0162 against 0.0512, p = 1.7e-13
+  b = 0.1 step rise      median 1.9120 against 1.7380, p = 1.7e-13
+  b = 0.1 wind6 peak     median 0.0251 against 0.0251, p = 0.0001
+  b = 0.1 wind6 resid    median 0.0197 against 0.0197, p = 2.7e-05
+  b = 0.1 identified L2-45 per design: total 814 against 820, p = 0.67
+  b = 0.1 J_45_1_cap at 36 ms per design: median -1.886 against -1.895, p = 2.4e-06
+
+Verdicts:
+  AD1: held (96 of 96 agree (need 90))
+  AD2: held (r 0.9995 (need 0.95))
+  AD3: held (96 of 96 law-invariant (need 94))
+  AD4: held (0 of 72 unsettled at b = 0.25 (need at most 1))
+  AD5: held (6 m/s wind-step peak within 10% of b = None in both geometries)
+  AD6: held (identified total 819 (need at most 902; None 820))
+  AD7: refuted (b = 0.1: 814 against b = 0.25: 819)
+  AD8: held (median overshoot 0.0204 against 0.0512 m)
