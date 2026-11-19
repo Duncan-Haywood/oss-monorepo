@@ -159,3 +159,17 @@ test("a crop sold in a week leaves that week's bench free for the next one (foun
   assert.deepEqual(by, { C0: 60, C3: 10, C2: 50, C1: 10 });
   for (const w of r.weeks) assert.ok(w.bench <= 30 + 1e-6);
 });
+
+// quality audit 2026-11-19 (portfolio/quality/audits/2026-11-19-greenhouse-bench-planner.json)
+test("an unquoted thousands comma is rejected, not read as a 1-unit crop", () => {
+  const r = analyze("Tomato, 2027-05-08, 1,200, 2, 6, 2.2, 92, 3.50, 1.10, 1");
+  assert.equal(r.rows.length, 0);
+  assert.match(r.errors[0], /too many columns/);
+});
+
+test("the germination-space limit counts survival losses", () => {
+  // 1 sq ft at 20 cells/sq ft holds 20 seeds; at 90% survival that sells floor(20 * 0.9) = 18
+  const r = analyze("Basil, 2027-05-22, 100, 1, 5, 2, 90, 3, 1, 0", { germSqft: 1, germDensity: 20, benchSqft: 1000 });
+  assert.equal(r.rows[0].sold, 18);
+  assert.ok(r.rows[0].sown <= 20);
+});

@@ -359,6 +359,12 @@ export function analyzePattern(src, flags = "", lang = "js") {
           add("nested-quantifier", `${snippet(src, node)} repeats a body that already ends in an unbounded repeat over characters the next iteration can also start with, so a long run of them followed by a non-match splits exponentially many ways.`, node);
         }
       }
+      // 1a. a flexible bounded count over one character class directly under the repeat: in ([a-z0-9]{2,4})+ a run of
+      // n such characters splits into 2..4-long pieces in exponentially many ways (the common email-validator shape;
+      // V8 took 11.7 s on a 56-character tail). Added after quality audit 2026-11-19.
+      if (body.t === "quant" && !body.possessive && body.max !== INF && body.max >= 2 && body.max > body.min && singleChar(body.body)) {
+        add("nested-quantifier", `${snippet(src, node)} repeats ${snippet(src, body)}, a count that can take a run of the same characters in more than one length, so a long run followed by a non-match splits exponentially many ways.`, node);
+      }
       // 1b. an inner repeat that can swallow the delimiters: in (<!--[\s\S]*?-->\s*)* the [\s\S]*? can match
       // "--><!--", so two iterations can also be read as one and a run of n splits 2^n ways. Flag a repeated
       // sequence with an unbounded single-class repeat whose class holds every character the rest can match.
@@ -380,7 +386,10 @@ export function analyzePattern(src, flags = "", lang = "js") {
         outer: for (let a = 0; a < alt.alts.length; a += 1) {
           for (let b = a + 1; b < alt.alts.length; b += 1) {
             const A = alt.alts[a]; const B = alt.alts[b];
-            const sa = singleChar(A); const sb = singleChar(B);
+            // a branch that is a bounded repeat of one class, like a? or a{2}, counts as that class here: (a|a?)+ is on
+            // OWASP's evil-regex list (quality audit 2026-11-19).
+            const boundedOne = (X) => { const u = unwrap(X); return u.t === "quant" && !u.possessive && u.max !== INF && u.max >= 1 ? singleChar(u.body) : null; };
+            const sa = singleChar(A) || boundedOne(A); const sb = singleChar(B) || boundedOne(B);
             const la = literalString(A); const lb = literalString(B);
             let certain = false; let suspect = false;
             if (sa && sb) certain = intersects(firstInfo(sa).set, firstInfo(sb).set);

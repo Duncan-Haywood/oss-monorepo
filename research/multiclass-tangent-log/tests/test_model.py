@@ -78,6 +78,24 @@ class T(unittest.TestCase):
             want = rho * math.log(rho / eps) + eps / 2 + rho + (1 - rho) * math.log(1 - rho)
             self.assertAlmostEqual(regret(r, p, eps), want, 12)
 
+    def test_brier_denominator_and_clip_floor(self):
+        # quality audit 2026-11-19: both mutants (Brier range 1 instead of 2; clip floor halved) survived before this test
+        self.assertAlmostEqual(brier_curv_per_range([1, -1, 0, 0, 0]), 1.0, 14)
+        p = [0.4, 0.3, 0.2, 0.06, 0.04]
+        rng = random.Random(7)
+        for _ in range(20):
+            d = [rng.uniform(-1, 1) for _ in range(5)]
+            m = sum(d) / 5
+            d = [x - m for x in d]
+            t = 1e-4
+            r = [a + t * x for a, x in zip(p, d)]
+            # Brier regret / t^2 / range (2) is the curvature per range (same convention as curvature(): regret ~ curvature * t^2)
+            self.assertAlmostEqual(brier_regret(r, p) / (t * t) / 2, brier_curv_per_range(d), 9)
+        c = clip_report([0.97, 0.03, 0.0, 0.0, 0.0], 0.01)
+        self.assertAlmostEqual(sum(c), 1.0, 14)
+        self.assertEqual(c.index(min(c)), 2)
+        self.assertAlmostEqual(min(c), 0.01 / sum(max(x, 0.01) for x in [0.97, 0.03, 0.0, 0.0, 0.0]), 14)
+
 
 if __name__ == "__main__":
     unittest.main()

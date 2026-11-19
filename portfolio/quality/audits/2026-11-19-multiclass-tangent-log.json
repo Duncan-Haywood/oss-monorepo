@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-19",
+  "subject": "research/multiclass-tangent-log",
+  "stratum": "research",
+  "seed": "2026-11-19-i-58b7",
+  "round": 82,
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a programme-committee reviewer at ACM EC or a Decision Analysis / JASA referee who works on proper scoring rules for categorical forecasts. They would check first that the separable Bregman score is strictly proper and bounded on the whole simplex (Savage / Gneiting-Raftery 2007 representation), that the range 1-ln eps is really K-independent, whether 'curvature per unit of payment range' at a known truth is a meaningful objective, and whether the paper cites the bounded-range scoring-rule optimisation literature (Neyman, Noarov and Weinberg EC 2021; Li, Hartline, Shan and Wu EC 2022) and the Gneiting-Raftery/Dawid multiclass representation. (The brief's suggested comparator, Van der Hoeven 2020 Gaptron, is online multiclass classification with surrogate losses and regret bounds; this subject is elicitation with proper scores, so that is not its nearest prior work.)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` (1.1 s) and diffed with experiments/results.txt: identical. Wrote an independent implementation that does not import the subject (scratchpad mtl/indep.py): the loss is built from the Savage / Gneiting-Raftery (2007) representation S(r,y)=G(r)+<grad G(r), e_y-r> with grad G by central finite differences of a separately written psi. It reproduces the range 1-ln eps (3.995732, 7.907755) for K=2,3,5 by vertex enumeration plus a 1,891-point K=3 simplex grid; the E3 curvature/range by finite-difference regret (3.028 at rho=0.05, 63.44 at 1e-3, 489.4 at 1e-4 vs results 3.03, 63.48, 489.90; the tiny gap is the finite step); the E5 dropped-class regrets 0.026271/0.005050/0.000501 and Brier 0.003125/0.000125/1e-6, plus an off-diagonal case rho=0.05, eps=0.01 (0.086743 = closed form); and the E4 argmax eps=0.001 (63.482) on a finer 5,000-point grid. By hand: h(0)=eps/2, psi'(0)=ln eps, max vertex loss 1+(K-1)eps/2-ln eps, min (K-1)eps/2, so range 1-ln eps; B(p||.) has second derivative p/r^2 above eps and 1/eps below with continuous first derivative, so it is convex and the vertex worst-case formula is valid. Every headline number reproduces. Not 4: the E3 rho=0.5 row is computed at eps=0.2 (run.py:30 min(rho,0.2)) though labelled eps=rho (at eps=rho it is 1.181, not 1.34); E6's 'best clipped report' is not best (reporting r_0=0 through the same floor-and-renormalise gives KL 0.006648 < 0.006657) and its output 0.00991 violates the floor; the general claim 'the cutoff maximising it is eps=p_min' fails for K=2, rho=0.45 (argmax near 0.5, 1.1275 vs 1.1233 at eps=rho).",
+    "completeness": "README claims: '7 tests, ~4 s' (Ran 7 tests in 2.88 s, OK); run.py writes results.txt (byte-identical rerun); figure.py parses results.txt (not rerun to keep the tree clean; curvature_ratio.svg present); live page https://marisstella.app/research/multiclass-tangent-log/ could not be loaded (proxy refused marisstella.app), unverified, not counted against. Every paper section 1-5 maps to a test or an E-block. One exported helper (max_regret_log_clip, model.py:72) is never used by any experiment or test. No TODOs or stubs. 3.",
+    "verification": "`cd research/multiclass-tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests -v`: 7 tests OK in 2.88 s. The tests are real property tests: strict properness on 500 heavy-tailed simplex pairs with coordinates below eps, equality with -ln r_y to 1e-12, the range to 9 places from 20,000 random reports per (K,eps), vertex worst-case vs 3,000 random reports, curvature vs finite-difference regret in both regimes, and the dropped-class closed form at three (K,rho,eps) including rho != eps. Four mutations via quality_mutate.py: d2psi below eps 1/eps -> 1/(2 eps) caught; max_regret dropping vertex 0 caught; brier_curv_per_range /2.0 -> /1.0 SURVIVED (this is the denominator of every 'x times Brier' headline); clip_report floor eps -> eps/2 SURVIVED (E6). Core construction 2/2 caught, comparator/baseline helpers 0/2. 3.",
+    "craft": "Read src/multiclass_tangent_log/model.py (112 lines), __init__.py, tests/test_model.py (83 lines), experiments/run.py, experiments/figure.py (header). Small, stdlib-only, closed forms in docstrings, __all__ declared. Defects: no validation of eps (the construction needs 0<eps<=1, and eps<=1/K for the log-equivalent interior to be nonempty; run.py silently switches to eps=0.2 for rho=0.5 instead); dead helper max_regret_log_clip; `from multiclass_tangent_log import *` in tests and run.py; run.py is an unstructured script with a hard-coded `rho*math.log(1)` in the E5 'closed form' column, so that column only checks the eps=rho special case. Acceptable for a research note: 3.",
+    "claims": "Backed by files and my recomputation: K-independent range 1-ln eps, equality with -ln r_y inside, strict properness, worst-case regret per range 0.60/0.74/0.82 vs Brier 0.56-0.62 (I checked Brier's vertex formula 1-2 p_min+sum p^2), 63x and 490x Brier curvature per range, dropped-class closed form and 0.005 vs 1.3e-4. The abstract says honestly 'Standard Bregman/proper-scoring construction ... not new theory'. Not backed: (1) whitepaper.md:17 'with eps=rho, E3 gives ... 1.34 (rho=0.5)': that row uses eps=0.2 (run.py:30); at eps=rho the ratio is 1.18, and the README figure plots the 1.34 point; (2) whitepaper.md:20 and README:3 'the cutoff maximising it is eps=p_min' is stated generally but proved only for the rare shift when p_min is small (counterexample K=2, rho=0.45); (3) whitepaper.md:23 / run.py:53 'best clipped report ... (unavoidable)': floor-and-renormalise output 0.00991 is below the floor, a lower-KL report exists (0.006648), and the true minimum over the feasible set {r_j>=eps} is 0.006738; (4) the '63x' headline is a comparison at a cutoff tuned to the unknown truth and only within the tangent family, which neither README nor paper says (same issue the 2026-11-12 tangent-log audit raised, carried over); (5) no reference list at all: the paper cites only sibling repo projects. 2.",
+    "fitness": "A researcher could use the construction: it is correct, closed-form, tested, and its multiclass range result (1-ln eps independent of K, no additive constant) is a clean, citable fact. Nearest prior work: the Savage / Gneiting and Raftery (2007, JASA, Sec. 2-3) and Dawid (2007) characterisation of multiclass proper scores as Bregman scores of a convex G (this paper's whole Sec. 1-2 is an instance); the binary analogue in this repo (research/tangent-log, audited 2026-11-12); and the optimisation of scoring rules under a payment-range bound (Neyman, Noarov and Weinberg EC 2021; Li, Hartline, Shan and Wu EC 2022), where the optimal bounded scores for incentivising precision are not log-like. None of the external work is cited. The result is sound but not new, and the paper says 'not new theory'. Missing for a researcher to build on: any analysis when the truth (and so the best eps) is unknown, e.g. over a prior on p; a comparator beyond Brier (spherical, pseudo-spherical, per-class weighted Brier, the bounded-range optimal score); the per-class-eps variant it mentions but does not test. 2.",
+    "domain": "Against standard proper-scoring practice (Gneiting and Raftery 2007): the construction, strict propriety, the K-independent range and the vertex worst-case are correct and would pass review; the honest framing of the worst-case-to-range trade-off (Sec. 4) and the non-locality caveat (Sec. 6) are what a referee would want. Departures: (1) the objective, local curvature at a known truth per unit of range, is not the objective of the incentive-for-precision literature, and the optimality claims (63x, eps=p_min) are within a one-parameter family at a known p; (2) the 'why not just clip' argument in Sec. 5 compares against a mechanism (floor-and-renormalise) whose output violates its own floor and whose 'best' report is misidentified; (3) no references. 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "rerun of experiments/run.py vs committed results.txt",
+      "method": "byte diff",
+      "command": "cd research/multiclass-tangent-log && PYTHONPATH=src python3 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/cd8a26ea-0a44-51cd-b1e0-90f8fa9f06f0/scratchpad/mtl/rerun.txt && diff /tmp/claude-0/-home-user-oss-monorepo/cd8a26ea-0a44-51cd-b1e0-90f8fa9f06f0/scratchpad/mtl/rerun.txt experiments/results.txt",
+      "expected": "identical",
+      "observed": "identical (1.1 s)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E1 payment range independent of K",
+      "method": "own implementation via Gneiting-Raftery (2007) Savage representation, finite-difference gradient, vertex enumeration + 1,891-point K=3 grid; no import of the subject",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/cd8a26ea-0a44-51cd-b1e0-90f8fa9f06f0/scratchpad/mtl/indep.py  (block C1)",
+      "expected": "1-ln eps = 3.995732 (eps 0.05), 7.907755 (eps 0.001) for K=2,3,5",
+      "observed": "3.995732, 7.907755 for every K; results.txt 3.9957, 7.9078",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E3 tangent/Brier curvature per range at eps=rho",
+      "method": "finite-difference regret reg(p+t d,p)/t^2 from own implementation, divided by 1-ln eps; Brier per range = ||d||^2/2 = 1",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/cd8a26ea-0a44-51cd-b1e0-90f8fa9f06f0/scratchpad/mtl/indep.py  (block C2)",
+      "expected": "results.txt 3.03 (0.05), 63.48 (1e-3), 489.90 (1e-4)",
+      "observed": "3.028, 63.44, 489.41 (finite-step bias under 0.1%)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E3 rho=0.5 row labelled eps=rho",
+      "method": "closed form 0.5*(1/max(.5,eps)+1/max(.125,eps))/(1-ln eps) and own finite-difference regret",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/cd8a26ea-0a44-51cd-b1e0-90f8fa9f06f0/scratchpad/mtl/indep.py  (block C2)",
+      "expected": "1.181 at eps=rho=0.5 (paper: 'with eps=rho ... 1.34')",
+      "observed": "1.34 reproduces only at eps=0.2 (run.py:30 min(rho,0.2))",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E5 dropped-class regret and closed form, incl. rho != eps",
+      "method": "direct expected-loss difference from own implementation vs paper formula rho ln(rho/eps)+eps/2+rho+(1-rho)ln(1-rho); hand derivation of B(rho||0)=rho ln(rho/eps)+eps/2",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/cd8a26ea-0a44-51cd-b1e0-90f8fa9f06f0/scratchpad/mtl/indep.py  (block C3)",
+      "expected": "0.026271, 0.005050, 0.000501; 0.086743 at rho=0.05, eps=0.01",
+      "observed": "0.026271, 0.005050, 0.000501, 0.086743; Brier 0.003125, 0.000125, 1e-6",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E4 argmax eps for rho=1e-3, K=5",
+      "method": "closed-form curvature/range on a 5,000-point log grid (finer than the subject's 500)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/cd8a26ea-0a44-51cd-b1e0-90f8fa9f06f0/scratchpad/mtl/indep.py  (block C4)",
+      "expected": "eps=0.001, value 63.482",
+      "observed": "eps=0.001, value 63.4822",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'the cutoff maximising it is eps=p_min' as a general statement",
+      "method": "grid search of curvature/range over eps for K=2 truths",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/cd8a26ea-0a44-51cd-b1e0-90f8fa9f06f0/scratchpad/mtl/indep.py  (block C5)",
+      "expected": "argmax at eps=rho",
+      "observed": "holds for rho=0.3, 0.4; fails at rho=0.45 (argmax ~0.4995, 1.1275 vs 1.1233 at eps=rho)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "E6 'best clipped report ... regret of clipping under log (unavoidable) 0.006657'",
+      "method": "own minimisation of KL(p||clip(r)) over reports, and of KL over the feasible set {r_j>=eps}",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/cd8a26ea-0a44-51cd-b1e0-90f8fa9f06f0/scratchpad/mtl/indep.py  (block C6)",
+      "expected": "the floored report satisfies r_0>=eps and is the KL minimiser",
+      "observed": "floored r_0=0.009911<eps; reporting r_0=0 gives 0.006648<0.006657; feasible-set minimum 0.006738 (paper's rounded 0.0067 survives)",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd research/multiclass-tangent-log && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+      "expected": "README: 7 tests, ~4 s",
+      "observed": "Ran 7 tests in 2.882s, OK",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "live page",
+      "method": "curl",
+      "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/multiclass-tangent-log/",
+      "expected": "200",
+      "observed": "proxy refused marisstella.app (exit 56); unverified",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "prior work cited",
+      "method": "read whitepaper.md in full",
+      "command": "grep -n 'Gneiting\\|Savage\\|Dawid\\|Neyman\\|Hartline' research/multiclass-tangent-log/paper/whitepaper.md",
+      "expected": "a reference list including the Savage/Gneiting-Raftery representation and bounded-range scoring-rule optimisation",
+      "observed": "no matches; only sibling repo projects named",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {"where": "src/multiclass_tangent_log/model.py:28", "change": "d2psi below eps: 1 / eps -> 1 / (2 * eps)", "caught": true, "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"},
+    {"where": "src/multiclass_tangent_log/model.py:66", "change": "max_regret vertex loop range(K) -> range(1, K)", "caught": true, "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"},
+    {"where": "src/multiclass_tangent_log/model.py:97", "change": "brier_curv_per_range sum(d^2) / 2.0 -> / 1.0", "caught": false, "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"},
+    {"where": "src/multiclass_tangent_log/model.py:102", "change": "clip_report max(x, eps) -> max(x, eps / 2)", "caught": false, "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"}
+  ],
+  "defects": [
+    {"severity": "medium", "what": "No reference list: the construction is an instance of the Savage / Gneiting-Raftery (2007) Bregman representation, and the 'incentive per unit of range' question is studied in Neyman-Noarov-Weinberg (EC 2021) and Li-Hartline-Shan-Wu (EC 2022); none is cited, and the 63x / eps=p_min optimality is within the one-parameter tangent family at a known truth without saying so (raised for tangent-log on 2026-11-12, carried over unaddressed)", "where": "research/multiclass-tangent-log/paper/whitepaper.md:4", "category": "research-design", "origin": "design", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17691"},
+    {"severity": "medium", "what": "The 'x times Brier' headline denominator and the E6 clipping baseline are untested: mutating brier_curv_per_range /2.0 -> /1.0 (halves every ratio) or clip_report's floor eps -> eps/2 leaves all 7 tests green", "where": "research/multiclass-tangent-log/src/multiclass_tangent_log/model.py:96", "category": "untested-core", "origin": "tests", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17691"},
+    {"severity": "low", "what": "E3 rho=0.5 row is computed at eps=0.2 (min(rho, 0.2)) while the E3 header and whitepaper say eps=rho; at eps=rho the ratio is 1.18, not 1.34, and the figure plots 1.34", "where": "research/multiclass-tangent-log/experiments/run.py:30", "category": "overclaim", "origin": "claims", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17691"},
+    {"severity": "low", "what": "E6 calls the floor-and-renormalise output the 'best clipped report' with 'unavoidable' regret 0.006657, but that output (r_0=0.00991) violates the floor, reporting r_0=0 gives lower KL (0.006648), and the minimum over the feasible set {r_j>=eps} is 0.006738", "where": "research/multiclass-tangent-log/experiments/run.py:53", "category": "logic-error", "origin": "implementation"},
+    {"severity": "low", "what": "'the cutoff maximising it is eps=p_min' stated generally (abstract, Sec. 4, README) but the argument ignores the other class's 1/max(p_1,eps) term; counterexample K=2, rho=0.45 (argmax near 0.5)", "where": "research/multiclass-tangent-log/paper/whitepaper.md:20", "category": "overclaim", "origin": "claims", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17691"},
+    {"severity": "low", "what": "No validation of eps (needs 0<eps<=1, and eps<=1/K for the -ln r_y interior); dead exported helper max_regret_log_clip; E5 'closed form' column hard-codes rho*log(1), so it only checks eps=rho", "where": "research/multiclass-tangent-log/src/multiclass_tangent_log/model.py:72", "category": "code-craft", "origin": "implementation"}
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17691"],
+  "verdict": "A small, correct and reproducible note: run.py reproduces results.txt byte for byte, and an independent implementation from the Gneiting-Raftery Savage representation (finite-difference gradients, no import of the subject) reproduces the K-independent range 1-ln eps, the 63x/490x curvature-per-range ratios, the dropped-class closed form (also at rho != eps) and the E4 argmax. The tests are genuine property tests and catch both seeded bugs in the core construction, but the Brier denominator of every headline ratio and the clipping baseline are untested (2 of 4 mutants survive). Claims fall short: the E3 rho=0.5 row is computed at eps=0.2 though labelled eps=rho, E6's 'best clipped report' is neither feasible nor best, 'eps=p_min is optimal' is stated beyond what is shown, and there is no reference list despite being, as the paper admits, a standard Bregman construction. Below the bar on claims; finished."
+}

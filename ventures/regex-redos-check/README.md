@@ -18,7 +18,9 @@ node cli.mjs check '(a+)+$'            # analyse a single pattern
 | --- | --- | --- |
 | `nested-quantifier` | error | `(a+)+`, `(\w+\s?)+` -- iterations can split the same text many ways (exponential) |
 | `nested-quantifier` | error | `(<!--[\s\S]*?-->)*`, `(a.*b)+` -- an inner repeat can swallow the next iteration's delimiters (exponential; added 2026-11-15) |
+| `nested-quantifier` | error | `([a-z0-9]{2,4})+` -- a flexible bounded count under a repeat splits a run many ways (exponential; added 2026-11-19, it is the common email-validator shape) |
 | `overlapping-alternation` | error | `(a|aa)+`, `(\d|\w)+` -- two branches match the same text (exponential) |
+| `overlapping-alternation` | error | `(a|a?)+` -- a branch that is a bounded repeat of the other's characters (OWASP's list; added 2026-11-19) |
 | `adjacent-overlap` | warn | `\d+\d+`, `^\s*(.*?)\s*$` -- adjacent repeats over the same characters (polynomial) |
 | `quadratic-end-anchor` | warn / info | `\s+$` with no `^` -- retried from every start position |
 | `dynamic-regexp` | info | `new RegExp(variable)` |
@@ -77,6 +79,12 @@ flag a safe one, and it cannot know whether an attacker controls the input.
 hard timeout) and only labels a pattern *confirmed* if it actually slows down;
 Python patterns are not probed. Engines built on automata (RE2, Go, Rust) are
 not affected. Not security advice, no warranty.
+
+Known gaps (quality audit 2026-11-19, `portfolio/quality/audits/2026-11-19-regex-redos-check.json`):
+`^((ab)*)+$` (a repeated compound body that can be empty) is still not flagged;
+`^(?:\s|#.*)*$` is flagged as exponential though no input we tried slows it;
+`--probe` has no generator for the bounded-count shape, so it cannot confirm it;
+and a probe of `^(a|aa)+$` says "polynomial" when the growth is exponential.
 
 ## Privacy
 

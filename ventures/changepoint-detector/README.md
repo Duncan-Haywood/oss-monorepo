@@ -73,7 +73,7 @@ where it departs from the paper.
 
 ## Verification
 
-`node --test` (581 tests on 2026-11-12). What they check:
+`node --test` (979 tests on 2026-11-19, about 9 minutes; `node --test engine.test.mjs` is the core, about a minute). What they check:
 
 - **Against an independent PELT:** on 100 seeded cases (60-200 points, 0-3
   planted changes, mean and mean-and-variance models, several penalties) the

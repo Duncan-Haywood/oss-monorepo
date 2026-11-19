@@ -56,7 +56,7 @@ export function parseCrops(text) {
     const n = (k, def) => (f[k] === undefined || f[k] === "" ? def : Number(f[k].replace(/[$%\s]/g, "")));
     const sale = parseDate(f[1]);
     const c = { name: f[0], sale, units: n(2, NaN), germ: n(3, NaN), grow: n(4, NaN), density: n(5, NaN), survival: n(6, 90), price: n(7, 0), cost: n(8, 0), flex: n(9, 0) };
-    const bad = !c.name ? "no crop name" : sale === null ? "sale date must be YYYY-MM-DD" : !(c.units > 0) ? "units must be above 0"
+    const bad = f.length > 10 ? "too many columns (write 1200, not 1,200, or put the number in quotes)" : !c.name ? "no crop name" : sale === null ? "sale date must be YYYY-MM-DD" : !(c.units > 0) ? "units must be above 0"
       : !(c.germ >= 0) || !(c.grow >= 0) || c.germ + c.grow <= 0 ? "germination and growing weeks must be numbers" : !(c.density > 0) ? "units per square foot must be above 0"
       : !(c.survival > 0 && c.survival <= 100) ? "survival must be between 1 and 100" : !(c.price >= 0) || !(c.cost >= 0) || !(c.flex >= 0) ? "price, cost and flex weeks cannot be negative" : "";
     if (bad) { errors.push(`Line ${i + 1} (${f[0] || "blank"}): ${bad}.`); return; }
