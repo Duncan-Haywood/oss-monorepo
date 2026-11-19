@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtLbG5gc1LeEdu6qkCr",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T16:07:09Z",
+  "ended": "2026-11-19T16:24:42Z",
+  "wall_minutes": 17.89,
+  "tokens_in": 8786965,
+  "tokens_out": 63333,
+  "cost_usd": 4.3837,
+  "tool_calls": 71,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17716",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First digitiser pass let frame ticks, marker strokes and a legend sample line into the dashed-curve series, and dropped the EUT sigma curve, which rises above the frame top; fixed by calibrating on the exact frames, dropping strokes near markers, and giving solid polylines extra padding (found from a smoothness check before the run).",
+    "A run of the full marine-hull suite with bare python3 -m pytest failed because the default python3 has no pytest; reran through pyenv.py."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/paper/main.tex",
+      "issue": "7zd's edit to Threats to validity broke a sentence ('...exists here, and the solar km/day only as a resistance multiplier'), and check_numbers.py cannot catch prose breakage; fixed here."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says to use PY=$(python3 platform/ci/pyenv.py pytest ...) for tests, but this still cost one failed attempt: `python3 -m unittest discover` fails on marine-hull/tests because it has no __init__.py. A one-line 'run a project suite with $PY -m pytest -q <slug>/tests' would save it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "pick_track's CHAIN note (30 sub-steps of milestone 7) suggested a paper step. I chose a state-of-the-art baseline comparison instead, because the programme had no published-method baseline on its only in-range tank data, and that is a reviewer's first question.",
+      "did": "Milestone 7ze compares against the four published curves, and also repairs one paper sentence.",
+      "result": "The finding (our heave error ties the state of the art; A35 carries the overshoot) goes straight into section III-A of the paper."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-marine-hull-strip-theory-vs-state-of-the-art.md",
+    "research/marine-hull/LOG.md (7ze)"
+  ],
+  "goal": null,
+  "notes": "Programme marine-hull, milestone 7ze. Expectations were committed before the run (3ee5fe778). E1, E4 and E5 held; E2, E3 and E6 were refuted. Part D, added post hoc and marked as such, puts the heave overshoot in the A35/A53 added-mass coupling. Checks: check_numbers ok (146 claims), build.py ok, check_posts ok, check_md_links ok, cite_check ok, 18 new and affected tests pass; full marine-hull suite: 464 passed in 102 s (python3.13 via pyenv.py).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4f55c4dd-a116-5560-93bb-3bdfcdb4b545",
+    "transcripts": 1,
+    "first": "2026-11-19T16:07:09Z",
+    "last": "2026-11-19T16:25:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 124,
+        "output": 63333,
+        "thinking": 18253,
+        "cache_read": 8612582,
+        "cache_write_5m": 0,
+        "cache_write_1h": 174259,
+        "api_equivalent_usd": 4.3837,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 124,
+      "output": 63333,
+      "thinking": 18253,
+      "cache_read": 8612582,
+      "cache_write_5m": 0,
+      "cache_write_1h": 174259,
+      "api_equivalent_usd": 4.3837,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 60,
+      "WebSearch": 3,
+      "Write": 3,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.89,
+      "active_minutes": 17.89,
+      "model_minutes": 11.47,
+      "tool_minutes": 6.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "digitising four curve families from vector PDFs, adding a coupling override to the strip code, a 6-expectation experiment, paper and post: about 1.5 days for a postdoc",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 273.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
