@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-17",
+  "generated": "2026-11-19",
   "shots": [
     {
       "slug": "wall-framing-takeoff",
@@ -63,6 +63,27 @@
       "caption": "Plans sowing weeks against greenhouse bench space",
       "hero": "greenhouse-bench-planner-hero.webp",
       "heroWide": "greenhouse-bench-planner-hero-1200.webp"
+    },
+    {
+      "slug": "ai-bookkeeper",
+      "file": "ai-bookkeeper.webp",
+      "caption": "Files a bank export into double-entry books, then reports profit and loss by month",
+      "hero": "ai-bookkeeper-hero.webp",
+      "heroWide": "ai-bookkeeper-hero-1200.webp"
+    },
+    {
+      "slug": "sales-agent",
+      "file": "sales-agent.webp",
+      "caption": "Reads sales replies, sorts them and drafts the answers for you to approve",
+      "hero": "sales-agent-hero.webp",
+      "heroWide": "sales-agent-hero-1200.webp"
+    },
+    {
+      "slug": "clothing-design-studio",
+      "file": "clothing-design-studio.webp",
+      "caption": "Designs a garment from plain words, then costs it and writes the tech pack",
+      "hero": "clothing-design-studio-hero.webp",
+      "heroWide": "clothing-design-studio-hero-1200.webp"
     }
   ],
   "reel": {

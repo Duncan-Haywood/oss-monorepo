@@ -43,6 +43,11 @@ export const SHOTS = [
   { slug: 'ebay-fee-calculator', focus: 'Promoted Listings Standard vs skip', hero: '#promotedStandardTable', caption: 'Says what an eBay sale really leaves after fees' },
   { slug: 'incident-postmortem-timeline', click: '#load-example', focus: 'Response metrics', hero: '#report-card', caption: 'Measures detect-to-resolve times and drafts a blameless postmortem' },
   { slug: 'greenhouse-bench-planner', click: '#load-ok', focus: 'Result', hero: 'h3:has(+ .scroll #weeks)', caption: 'Plans sowing weeks against greenhouse bench space' },
+  // Built from the custom-development queue (portfolio/requests/requests.json):
+  // /custom-development/ shows these beside their request ids (REQUEST_SHOWCASE in build.mjs).
+  { slug: 'ai-bookkeeper', click: ['#example', '#accept-all', '#file-checked'], hero: '#h-reports', caption: 'Files a bank export into double-entry books, then reports profit and loss by month' },
+  { slug: 'sales-agent', click: ['#load-example', '#go'], hero: '#out', caption: 'Reads sales replies, sorts them and drafts the answers for you to approve' },
+  { slug: 'clothing-design-studio', hero: '#stage', caption: 'Designs a garment from plain words, then costs it and writes the tech pack' },
 ];
 
 // The tools the recording walks through, in order.
@@ -99,8 +104,9 @@ async function heroCrop(page, shot, png) {
 
 async function show(page, shot) {
   await page.goto(`${BASE}/${shot.slug}/`, { waitUntil: 'load' });
-  if (shot.click) {
-    await page.click(shot.click);
+  // `click` is one selector or a list clicked in order (load an example, then run it).
+  for (const selector of [shot.click ?? []].flat()) {
+    await page.click(selector);
     await page.waitForTimeout(1200);
   }
   await page.evaluate((focus) => {
