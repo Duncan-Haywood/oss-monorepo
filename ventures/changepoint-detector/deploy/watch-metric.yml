@@ -9,7 +9,8 @@
 #                               at the first run, within about one alert a month, and keeps that pick
 #                               "--columns orders:poisson,revenue,signups:poisson" (or "--columns all") watches several
 #                               metrics of one CSV, each with its own record, new changes in one message;
-#                               "orders:poisson:bocpd-window" gives one column its own detector
+#                               "orders:poisson:bocpd-window" gives one column its own detector, and
+#                               "orders:poisson:bocpd-window:nb" also a cost for clumped counts (fewer false alerts)
 #   secret   WATCH_WEBHOOK_URL  optional: a Slack, Discord, Teams or Mattermost incoming-webhook URL
 #   secret   STRIPE_API_KEY     optional: a Stripe restricted key with read access to Charges. Each run then writes
 #                               data/stripe.csv (date,payments,revenue,failed per complete day; stripe-metrics.mjs) and,

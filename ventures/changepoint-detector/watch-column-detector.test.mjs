@@ -23,7 +23,7 @@ test('columnSpecs: a model and a detector after the name, in either order; mista
   assert.deepEqual(columnSpecs(csv, 'orders:POISSON'), [{ column: 'orders', model: 'poisson' }]);
   assert.throws(() => columnSpecs(csv, 'orders:poisson:meanvar'), /at most one of each/);
   assert.throws(() => columnSpecs(csv, 'orders:bocpd:pelt'), /at most one of each/);
-  assert.throws(() => columnSpecs(csv, 'orders:fast'), /a model .* or a detector/);
+  assert.throws(() => columnSpecs(csv, 'orders:fast'), /a model .* a detector .* a clumping cost/);
   assert.throws(() => columnSpecs(csv, ':poisson'), /names no column/);
 });
 

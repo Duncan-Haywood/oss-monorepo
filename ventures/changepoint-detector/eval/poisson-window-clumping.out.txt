@@ -1,0 +1,30 @@
+replayWatch, model poisson, 120 points, checks from 90, seeds 401-600 (200 per cell), paired; steps at 108
+Nulls: false alerts per 1,000 checks. Steps: found of 200 (median delay in checks).
+
+| cell | bocpd | C1 bocpd-window + nb | C2 bocpd-window + phi | bocpd-window | bocpd + nb |
+|---|---|---|---|---|---|
+| N1 Poisson 30 | 0.16 | 0.32 | 0.16 | 0.32 | 0.16 |
+| N2 NB 30, var 60 | 3.55 | 0.97 | 2.26 | 7.74 | 0.48 |
+| N3 Poisson 30, weekends 0.6x | 0.97 | 0.48 | 0.65 | 3.23 | 0.00 |
+| N4 Poisson 5 | 0.00 | 0.16 | 0.00 | 0.16 | 0.00 |
+| N5 NB 30, var 90 | 10.81 | 0.16 | 4.19 | 19.35 | 0.16 |
+| S1 30 -> 15 | 191 (4) | 199 (4) | 182 (4) | 199 (4) | 191 (4) |
+| S2 30 -> 21 | 66 (4) | 150 (4) | 109 (5) | 150 (4) | 66 (4) |
+| S3 30 -> 45 | 146 (4) | 195 (4) | 165 (4) | 194 (4) | 144 (4) |
+| S4 5 -> 2 | 44 (5) | 123 (5) | 66 (5) | 123 (5) | 44 (5) |
+| S5 NB(2x) 30 -> 18 | 142 (4) | 150 (4) | 105 (4) | 175 (4) | 92 (5) |
+| S6 NB(3x) 30 -> 18 | 126 (4) | 103 (5) | 58 (5) | 155 (4) | 52 (5) |
+| pooled false (nulls equal) | 3.10 | 0.42 | 1.45 | 6.16 | 0.16 |
+| steps found of 1200 | 715 | 920 | 685 | 996 | 589 |
+
+Against bocpd (10000 stratified paired resamples, 95% percentile intervals):
+C1 bocpd-window + nb: false -2.68 (-3.32 to -2.06); steps +205 (175 to 235); worst null 0.16; worst step cell -23
+  F1 pass, F2 pass, D1 pass, D2 FAIL -> fails
+C2 bocpd-window + phi: false -1.65 (-2.32 to -1.00); steps -30 (-64 to 4); worst null 0.00; worst step cell -68
+  F1 pass, F2 pass, D1 FAIL, D2 FAIL -> fails
+bocpd-window (reported only): false +3.06 (2.48 to 3.68); steps +281 (254 to 308); worst null 8.55; worst step cell 8
+  F1 FAIL, F2 FAIL, D1 pass, D2 pass
+bocpd + nb (reported only): false -2.94 (-3.58 to -2.32); steps -126 (-146 to -106); worst null 0.00; worst step cell -74
+  F1 pass, F2 pass, D1 FAIL, D2 FAIL
+
+decision: keep bocpd
