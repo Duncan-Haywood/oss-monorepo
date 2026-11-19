@@ -26,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": 6,
   "review_findings": null,
   "tests_added": 36,
@@ -80,6 +80,12 @@
       "why": "Did not fix the three ventures whose tsconfig tsc 7 rejects (target es5), because they pin typescript ^5 and nothing breaks today; changing three product configs is better done in its own PR.",
       "did": "Recorded them in docs/reports/tsconfig-ts7-check-2026-11-19.md for the run that bumps TypeScript.",
       "result": "open"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged #17568 with one red check: changed-ventures failed test_research_homepage_publish on research/marine-hull (a double-escaped entity). That came from main and was fixed on main by #17578 while this PR's CI ran. The test passes on current origin/main, and this diff touches neither file.",
+      "did": "Verified on a worktree of origin/main (20/20 OK), then squash-merged instead of merging main in and waiting another 15 min CI cycle",
+      "result": "merged as 53608bb872"
     }
   ],
   "writeups": [
