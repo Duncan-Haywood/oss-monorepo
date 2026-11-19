@@ -381,6 +381,12 @@
         "file": "ventures/xer-schedule-check/calendar.mjs",
         "issue": "hm() accepted clock times past the end of a day (25:00, 99:99 style, 17:60), putting working periods into the next day and shifting dates silently. Fixed: refuses anything past 24:00 or minutes past 59 with the existing 'bad time' error.",
         "patched": true
+      },
+      {
+        "file": "ventures/shift-roster-builder/import-deputy-staff.mjs",
+        "issue": "check_hidden_unicode.py red on main since #17715: a literal U+FEFF inside the BOM-stripping regex at line 32. ventures-tests' unwired-checks step caught it on this PR. Fixed: written as /^\\uFEFF/ (same behaviour; shift-roster-builder 778 tests pass).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17718"
       }
     ]
   },
