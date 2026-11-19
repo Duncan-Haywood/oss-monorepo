@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtHytnU7XZR3DVXqLM5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T13:06:23Z",
+  "ended": "2026-11-19T14:04:27Z",
+  "wall_minutes": 58.29,
+  "tokens_in": 10310687,
+  "tokens_out": 42989,
+  "cost_usd": 3.9847,
+  "tool_calls": 89,
+  "task": "league-schedule-generator (flagship 9): whist designs for 48, 52, 57, 60 and near-whist 4k+2 bases 46, 54-62",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17670",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git merge origin/main refused unrelated histories on the shallow clone",
+      "fix": "git fetch --deepen=500 until merge-base answered, as CLAUDE.md says"
+    },
+    {
+      "what": "a pkill with the bracketed pattern was refused by the hook because the pattern text also appeared later in the same command",
+      "fix": "kill by pid in a separate call"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/README.md",
+      "issue": "'Those groups have no other usable multiplier' (Z51) overlooked the order-4 unit 4; it found nothing in 7 min either, so the conclusion held but the reason was incomplete. Rewritten in the new section."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-americano-48-players-tabu-search.md",
+    "ventures/league-schedule-generator/README.md (section 'Tabu search finds whist designs for 48 and 60 players...')"
+  ],
+  "goal": null,
+  "notes": "New eval/whist-anneal.c (tabu search + annealing, whist and near-whist). Found 48 (1.5 s), 60 (15 s), near-whist 46 (9 s), 54 (9 s, tenure 6), 62 (148 s); not found: 52 (60 CPU-min), 57 (55 CPU-min), near 58 (25 CPU-min); every run in eval/whist-anneal.txt. Bases re-checked by checkWhist/checkNearWhist on build. Verification: node --test whist.test.mjs 16/16; python3 platform/ci/run_venture_tests.py league-schedule-generator: ok, 762 tests; check_posts ok; validate.py ok. No agent doc in docs/reports: the README section and flagships.yaml next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ba636567-bcd7-512f-87aa-b550b52fc4fa",
+    "transcripts": 1,
+    "first": "2026-11-19T13:06:23Z",
+    "last": "2026-11-19T14:04:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 159,
+        "output": 42989,
+        "thinking": 11553,
+        "cache_read": 10174357,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136171,
+        "api_equivalent_usd": 3.9847,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 159,
+      "output": 42989,
+      "thinking": 11553,
+      "cache_read": 10174357,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136171,
+      "api_equivalent_usd": 3.9847,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 84,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 58.29,
+      "active_minutes": 58.29,
+      "model_minutes": 10.33,
+      "tool_minutes": 47.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer writing and tuning a tabu search for combinatorial designs, running it, and wiring results into the app and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 150.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -440,9 +440,13 @@ def claim_recipe(keyword: str, item: Optional[str] = None) -> str:
     minutes each that way (doc_friction on allocate.py: einvoice-preflight,
     chant-forge, league-schedule-generator, quick-pick-survey), and quality
     runs committed placeholder posts to claim a seed. An empty commit is
-    enough to open the PR, and the squash merge drops it."""
+    enough to open the PR, and the squash merge drops it. It goes on the branch
+    you are on: cloud sessions start on a harness-made work branch, and runs that
+    chained `git checkout -b` first hit "already exists" (doc_friction
+    2026-11-19T09:38, 11:10)."""
     it = item or "<item>"
-    return (f"No diff yet? Claim now: `git commit --allow-empty -m \"{keyword}: {it} (claim)\"`, "
+    return (f"No diff yet? Claim now, on the branch you are on (no `checkout -b`): "
+            f"`git commit --allow-empty -m \"{keyword}: {it} (claim)\"`, "
             f"push, and open a draft PR titled '{keyword}: {it}' (name the item, so a second "
             f"session on another item can share the flagship; the squash merge drops the "
             f"empty commit), then `python3 portfolio/router/claim_check.py {keyword} --item \"{it}\"`.")

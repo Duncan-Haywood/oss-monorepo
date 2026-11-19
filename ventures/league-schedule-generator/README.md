@@ -351,7 +351,55 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Americano whist designs for 40 to 64 players: a field construction and multipliers (2026-11-19, latest)
+## Tabu search finds whist designs for 48 and 60 players, and near-whist designs for 46, 54 and 62 (2026-11-19, latest)
+
+The sizes below were left on a fallback because 20 CPU-minutes of backtracking (`eval/whist-search.c`)
+found nothing for 48, 52, 57 or 60, and 15 minutes of annealing (`eval/near-whist-search.mjs`) nothing
+for 46 or 54. `eval/whist-anneal.c` searches the same base round a different way: the state is a
+permutation of the points (each four in a row are a table), the cost is how far the partner and
+opponent difference counts are from a whist design (or the near-whist conditions for 4k+2 players),
+and each step makes the best swap of two players at different tables, with the two players just
+moved barred from moving again for a few steps (tabu search; `WHIST_TABU=<steps barred>`). Plain
+simulated annealing in the same program kept stalling at cost 2, one difference class over and one
+under; the tabu walk climbs out of those.
+
+Results (`eval/whist-anneal.txt`, every base re-checked pair by pair by `checkWhist` or
+`checkNearWhist` when `eval/whist-bases-build.mjs` and `eval/near-whist-bases-build.mjs` store it):
+
+| players | group | found | before |
+|---|---|---|---|
+| 48 | Z47 + infinity | 1.5 s (tenure 4) | design 49 with an empty seat, one idle court each round |
+| 60 | Z59 + infinity | 15 s (tenure 4) | design 61 with an empty seat, one idle court each round |
+| 46 | Z46, near-whist | 9 s (tenure 4) | greedy |
+| 54 | Z54, near-whist | 9 s (tenure 6, restarts every 50,000 steps; tenure 4 found nothing in 10 min) | greedy |
+| 62 | Z62, near-whist | 148 s (tenure 4) | greedy |
+| 52 | Z51 + infinity | nothing in 60 CPU-min (four runs, tenures 3, 4, 5, 7) | unchanged: design 53 with an empty seat |
+| 57 | Z57 | nothing in 55 CPU-min (four runs, tenures 4, 5, 8) | unchanged: greedy |
+| 58 | Z58, near-whist | nothing in 25 CPU-min (tenures 4, 6) | unchanged: greedy |
+
+Also tried for 52: requiring the base round to be fixed by multiplying by 4 (a unit of order 4 mod 51
+that, unlike -1, has no parity obstruction; fixed points 0, 17, 34 join infinity's table), through
+`multiplierSearch` in `eval/whist-multiplier.mjs`: nothing in 7 minutes.
+
+What it changes on the page, with a court for every four players (`eval/whist-vs-greedy.txt`):
+
+- **48 players, 12 courts:** 47 rounds, 47 games each, every pair partners exactly once and meets as
+  opponents exactly twice, every court used every round. Before: 49 rounds of design 49 with one court
+  idle each round, 45 games each, 48 partnerships never used.
+- **47 players, 11 courts:** design 48 with one empty seat: 47 rounds, 44 games each, no partner
+  twice, every pair meets once or twice. Before: greedy.
+- **60 and 59 players** the same way (design 60; 59 with one empty seat).
+- **46 players, 11 courts:** near-whist: 46 rounds, 44 games each, no partner twice, each player
+  misses exactly one partner. Before: greedy. **54 and 62** the same way.
+
+Stored now: every 4k and 4k+1 size from 4 to 49, plus 53, 56, 60, 61 and 64; near-whist every 4k+2
+from 6 to 54, plus 62. Still not stored: 52 (plays 53 with an empty seat), 57 and near-whist 58: the
+two whist sizes are the two left whose group order is 3 times a prime (51, 57), though 21, 33 and 39
+were found, so that is a pattern to test, not a proof. Tested in `whist.test.mjs` (48 and 60
+full-court nights use their own design with no idle court; 47 and 59 play 48 and 60 with one empty
+seat; 46, 54 and 62 among the stored near-whist sizes).
+
+## Americano whist designs for 40 to 64 players: a field construction and multipliers (2026-11-19)
 
 The plain backtracking search below stopped at 37 players plus 44: 40, 41, 45, 48 and 49 found nothing in
 25 minutes each, so big socials (the card takes up to 64) fell back to greedy, which at 48 players on 12
@@ -389,11 +437,11 @@ once or twice, against greedy's 45 repeat partners and pairs meeting up to 5 tim
 Tested in `whist.test.mjs` (stored sizes, full-court nights at 40, 41, 45, 49, 56 and 64, one-seat nights
 at 39 and 63, the field construction from 5 to 101).
 
-## Near-whist designs by SAT: 46 players (2026-11-19, latest)
+## Near-whist designs by SAT: slower than tabu, and two shortcuts ruled out (2026-11-19)
 
-The annealing search above stalls at 46 and 54 players (15 and 10 minutes, nothing). A SAT model of the same
-base round, `eval/near-whist-sat.py` (python-sat, CaDiCaL), finds **46** in 107 s, and the developed design
-passes `checkNearWhist` (`eval/near-whist-check-line.mjs` checks a result line without storing it). It encodes
+The annealing search below stalled at 46 and 54 players (15 and 10 minutes, nothing). A SAT model of the same
+base round, `eval/near-whist-sat.py` (python-sat, CaDiCaL), finds **46** in 107 s (the tabu search above, landed the same day, found it in 9 s and its base is the one
+stored), and the developed design passes `checkNearWhist` (`eval/near-whist-check-line.mjs` checks a result line without storing it). It encodes
 pairs, not seats, so the table order and the eight seatings of a table never enter the search: P(p,q) for
 partners, T(p,q) for sharing a table (transitive, three table-mates each, so the tables are 4-cliques), opponents
 as T and not P, exactly two points out (point 0 fixed out by translation), and each distance 1..2k a
@@ -421,11 +469,11 @@ stored base agrees, `whist.test.mjs`). Multiplying a design by a unit gives anot
 out can also be taken to be a divisor of n: `--out2 d` fixes it, which leaves one case for 62 (d = 2), two for
 58 (1, 29) and three for 54 (2, 6, 18).
 
-**Still open: 54, 58 and 62.** Plain runs of 50 minutes (54 with two seeds, 58, 62) and the `--out2` cases of
-40 minutes (54 with d = 2, 58 with 1 and 29, 62 with 2) found nothing, and none finished as UNSAT
-(`eval/near-whist-sat.txt`). 54 with d = 6 and 18 is untried. Those sizes stay on the greedy search. Next
-ideas: a hybrid that starts annealing from a SAT model's partial answer, or a group other than Z_n (a
-near-whist design need not be cyclic).
+**Where SAT loses.** Plain runs of 50 minutes (54 with two seeds, 58, 62) and the `--out2` cases of 40 minutes
+(54 with d = 2, 58 with 1 and 29, 62 with 2) found nothing and proved nothing (`eval/near-whist-sat.txt`),
+while tabu found 54 in 9 s and 62 in 148 s. So for these sizes the local search is the tool, and SAT is
+worth it only for a proof of impossibility, which it did not reach. 58 is the one near-whist size up to 62
+that neither method has.
 
 ## Americano for 4k+2 players: near-whist designs (2026-11-19)
 
@@ -449,10 +497,10 @@ needs partner distances 1..2k exactly once and never 2k+1, opponent distances 1.
 
 `eval/near-whist-search.mjs` finds the bases by simulated annealing on the base round (swap moves,
 short restarts): 6 to 34 in under 12 s each, 38 in 108 s, 42 in 45 s, 50 in 8.6 min; 46 found nothing in 15 min
-(seed 1) and 54 nothing in 10 min (`eval/near-whist-search.txt`). 46 has a design since: a SAT model found it
-in 107 s (section "Near-whist designs by SAT" below).
+(seed 1) and 54 nothing in 10 min (`eval/near-whist-search.txt`). 46, 54 and 62 have designs since (tabu search,
+section "Tabu search finds whist designs ..." above; 46 also by SAT).
 `eval/near-whist-bases-build.mjs` keeps only bases whose developed design passes `checkNearWhist`, an
-independent pair-by-pair check. Stored: 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46 and 50 players. Against the greedy search on the same
+independent pair-by-pair check. Stored: 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54 and 62 players. Against the greedy search on the same
 players, courts and rounds (`eval/whist-vs-greedy.txt`, a court for every four players):
 
 | players | greedy repeat partners | greedy never partner | greedy opponents | near-whist repeat partners | near-whist never partner | near-whist opponents |

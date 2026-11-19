@@ -29,8 +29,19 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
-const playwright = await import(process.env.PLAYWRIGHT || 'playwright');
+// ESM `import('playwright')` ignores NODE_PATH, where cloud sessions keep their
+// global copy, so fall back to require() and then the cloud image's install
+// (the order platform/pages/load-playwright.mjs uses).
+async function loadPlaywright() {
+  if (process.env.PLAYWRIGHT) return import(process.env.PLAYWRIGHT);
+  const tries = [() => import('playwright'), () => createRequire(import.meta.url)('playwright'),
+    () => import('/opt/node-tools/node_modules/playwright/index.js')];
+  for (const t of tries) { try { return await t(); } catch { /* next */ } }
+  return {};
+}
+const playwright = await loadPlaywright();
 const chromium = playwright.chromium ?? playwright.default?.chromium;
 if (!chromium) {
   console.error('Could not load Playwright. Set PLAYWRIGHT to its entry point, ' +

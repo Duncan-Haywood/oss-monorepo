@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLNWQQW6R3EdBpUY68",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (revenue-generating products)",
+  "input_sha256": "2dc27aa38e72a0d01a81ad6c31426fa06277b56ec401da4b04c00536e0c0524e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T14:11:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17684",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Ran plain `route` first and got process; re-routed with --task as prompt.md says (my miss, not the doc's)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "A scheduled run whose stored prompt is the ventures brief drew process on plain `route`; the --task line is there but sits below the track list, easy to skip on a scheduled run (fourth such report in 2 days)."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here picked ai-bookkeeper, whose buildable items need huggingface.co (refused again) and photo-editing's raw.pixls.us (refused); the probe line said so, which made switching to xer-schedule-check quick."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row ai-bookkeeper's buildable items need huggingface.co, refused this session (probed); took flagship 13 xer-schedule-check item (5) instead.",
+      "did": "Monte Carlo finish-date risk on the P6 engine",
+      "result": "landed with eval on six public files"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "xer-schedule-check: risk.mjs (Monte Carlo, triangular ranges, copula correlation, criticality index, noise-floored sensitivity), cpm.mjs forwardOnly/durations options, page section, CLI --risk, 6 tests. Verification: run_venture_tests xer-schedule-check 54 tests pass; check_posts ok; validate.py ok; Playwright on the page at 390 px: example runs 500 iterations, no console errors, no horizontal scroll. eval/risk-check-2026-11-19.md: zero-width range = CPM finish on all 6 files; CCA 47 and hotel 76 near-critical activities off the forecast path. main_health 294/294 at start.",
+  "corrections": [],
+  "redteam": null
+}

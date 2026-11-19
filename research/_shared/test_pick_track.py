@@ -340,6 +340,11 @@ class ClaimCheckTest(unittest.TestCase):
         lines = self._run([(1, "other")], recent=["abc 1 hour ago: m4 merged"])
         self.assertTrue(any("portfolio/router/claim_check.py cell-fidelity" in l for l in lines))
 
+    def test_race_line_gives_the_empty_commit_claim(self):
+        # A PR needs a commit; three research records waited ~15 min for a real one.
+        lines = self._run([(1, "other")])
+        self.assertTrue(any("git commit --allow-empty" in l for l in lines), lines)
+
     def test_no_race_line_when_a_claim_is_already_listed(self):
         lines = self._run([(9, "research/cell-fidelity: m2")])
         self.assertFalse(any("CLAIM RACE" in l for l in lines))

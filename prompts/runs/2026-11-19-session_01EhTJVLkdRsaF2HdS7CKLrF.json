@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLkdRsaF2HdS7CKLrF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ...)",
+  "input_sha256": "f0940a04757810de07f56e2c3705fe96e1a45d8de98448e85edef4ca28d67d12",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T13:06:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship: TAKE_BOUND_FLOOR_PPM retested on the tenths frame with a pre-registered held-out set",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17668,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud-session notes suggest `pgrep -c '[n]ame'` patterns, but plain pgrep matches the process name (python3), not the script name, so a monitor built that way reported 'processes gone' while the capture was running. Use `ps aux | grep -c '[n]ame'` or `pgrep -fc '[n]ame'`."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-bound-floor-on-tenths.md",
+    "ventures/open-tennis-robots/eval/take-bound-floor-tenths-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Design: floors 0-2 ppm on tenths rescored over J-N, O, P (242 told TAKE_US=0): floor 0 misses 7, floor 2 covers 242 and bounds 27/42 instant builds at 1.5 ms (whole ppm 25/42). Pre-registered rule committed before capturing W (0.46 s, seed 139) and X (0.38 s, seed 151), 132 drills, 0 aborted: floor 2 covered 97/97, instant 9/12 -> both clauses held, floor stays 2 (comment rewritten as a noise margin). Every floor scored the same on W/X, so the held-out sets cannot show the floor is needed; next item is a set built around 1.8-2.2 ms takes. Verification: run_venture_tests.py open-tennis-robots, check_posts.py ok, validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}

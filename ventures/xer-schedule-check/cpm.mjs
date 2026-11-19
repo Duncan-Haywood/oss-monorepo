@@ -150,6 +150,19 @@ export function buildModel(xer) {
     succ.preds.push(rel);
     pred.succs.push(rel);
   }
+  // A resource assignment can keep remaining work after its activity's
+  // remaining duration is zero (units left on a labour row): P6 rolls the
+  // assignment's late dates up, so the activity's late start sits that much
+  // work before its late finish. Its length is restart to reend on the
+  // activity's calendar.
+  for (const a of T.TASKRSRC || []) {
+    const t = tasks.get(a.task_id);
+    if (!t || t.span) continue;
+    const s = parseDate(a.restart_date), e = parseDate(a.reend_date);
+    if (s === null || e === null || e <= s) continue;
+    const w = t.cal.workBetween(s, e);
+    if (w > (t.rsrcRemain || 0)) t.rsrcRemain = w;
+  }
   return { tasks, projects, rels, cals, fallback, warnings, anchor };
 }
 
@@ -244,15 +257,20 @@ export function schedule(xer, options = {}) {
   const proj = (t) => projects.get(t.proj) || { dataDate: model.anchor ?? null, retainedLogic: true, progressOverride: false, floatType: "FT_FF" };
   const done = (t) => t.status === "TK_Complete";
   const active = (t) => t.status === "TK_Active";
-  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ...(options.variant || {}) };
+  const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ...(options.variant || {}) };
   const delay = options.delay || null; // { taskId, minutes }: added remaining duration (critical path test)
+  // options.durations: Map(task id -> remaining minutes) in place of the file's
+  // (risk.mjs's sampled durations); options.forwardOnly: stop after the
+  // forward pass and the project finish (early dates only, ~half the time)
+  const durs = options.durations || null;
+  const remainOf = (t) => (durs && durs.has(t.id) ? durs.get(t.id) : t.remain);
 
   // ---- forward pass
   for (const id of order) {
     const t = tasks.get(id);
     const p = proj(t);
     const cal = t.cal;
-    const remain = t.remain + (delay && delay.taskId === id ? delay.minutes : 0);
+    const remain = remainOf(t) + (delay && delay.taskId === id ? delay.minutes : 0);
     const dd = p.dataDate ?? -Infinity;
     const starts = [dd];
     if (!active(t) && p.plannedStart !== null && p.plannedStart !== undefined) starts.push(p.plannedStart);
@@ -271,6 +289,15 @@ export function schedule(xer, options = {}) {
         if (V.activeSSRem && r.type === "PR_SS" && !pv.done) {
           const pr2 = tasks.get(r.predId);
           starts.push(active(pr2) ? pv.remES : lagCalendar(model, r).addWork(pv.remES, r.lag));
+          // a started predecessor's lag is spent only as far as the data
+          // date: one whose actual start is later (CCA GV10GL10904R2) still
+          // has lag to run, from where its remaining work starts
+          if (V.activeSSLeft && active(pr2) && r.lag && p.dataDate !== null && p.dataDate !== undefined) {
+            const lc = lagCalendar(model, r);
+            const as = pr2.actStart ?? dd;
+            const left = r.lag - (as < dd ? lc.workBetween(as, dd) : 0);
+            if (left > 0 && (V.activeSSLeft === "all" || as > dd)) starts.push(lc.addWork(pv.remES, left));
+          }
         }
         continue;
       }
@@ -367,6 +394,7 @@ export function schedule(xer, options = {}) {
     if (p.finish === -Infinity) p.finish = null;
     p.lateEnd = p.mustFinish !== null && p.useProjectEndForFloat ? p.mustFinish : p.finish;
   }
+  if (options.forwardOnly) return { model, tasks: res, projects, loops, order, warnings: model.warnings };
 
   // ---- backward pass
   for (let k = order.length - 1; k >= 0; k--) {
@@ -376,7 +404,8 @@ export function schedule(xer, options = {}) {
     if (done(t) && !V.bwDoneNode) continue;
     const p = proj(t);
     const cal = t.cal;
-    const remain = t.remain + (delay && delay.taskId === id ? delay.minutes : 0);
+    let remain = remainOf(t) + (delay && delay.taskId === id ? delay.minutes : 0);
+    if (V.bwRsrcRemain && t.rsrcRemain && (V.bwRsrcRemain === "all" || (t.remain === 0 && active(t))) && t.rsrcRemain > remain) remain = t.rsrcRemain;
     const fins = [];
     const starts = [];
     if (p.lateEnd !== null && p.lateEnd !== undefined) fins.push(p.lateEnd);
@@ -389,9 +418,23 @@ export function schedule(xer, options = {}) {
         if (!V.bwDoneNode) continue;
         // mirror of the forward node: a finished successor's late date
         // bounds this one, with no lag (its lag was spent)
-        if (rel.type === "PR_FS") fins.push(sv.remLS);
-        else if (rel.type === "PR_SS") starts.push(sv.remLS);
-        else if (rel.type === "PR_FF") fins.push(sv.lf);
+        // An open predecessor's lag does reach the node (the forward pass
+        // pushes it by pred + lag), so the backward mirror takes it off.
+        const lagd = V.bwDoneSuccLag && !done(t) ? lagCalendar(model, rel) : null;
+        const back = (v, types) => lagd && rel.lag && (types.includes(rel.type) || (rel.type === "PR_SS" && active(t) && V.bwDoneSuccLagSSActive)) ? lagd.subWork(v, rel.lag) : v;
+        if (rel.type === "PR_FS") fins.push(back(sv.remLS, V.bwDoneSuccLag));
+        else if (rel.type === "PR_SS") {
+          starts.push(back(sv.remLS, V.bwDoneSuccLag));
+          // mirror of rule "maxleft": a started predecessor's SS lag not yet
+          // spent at the data date still runs, so its remaining work starts
+          // that much before the finished node's late date
+          if (V.bwDoneSSLeft && active(t) && rel.lag && p.dataDate !== null && p.dataDate !== undefined) {
+            const lc = lagCalendar(model, rel);
+            const left = rel.lag - lc.workBetween(t.actStart ?? p.dataDate, p.dataDate);
+            if (left > 0) starts.push(lc.subWork(sv.remLS, left));
+          }
+        }
+        else if (rel.type === "PR_FF") fins.push(back(sv.lf, V.bwDoneSuccLag));
         continue;
       }
       if (active(s)) {
@@ -523,7 +566,8 @@ export function schedule(xer, options = {}) {
     return (V.ffFloor ? Math.max(0, best) : best) / 60;
   };
 
-  // ---- as late as possible: the early dates take up the free float, so the
+  // ---- as late as possible (started activities too: their remaining work
+  // moves, CCA UP3S305509C0): the early dates take up the free float, so the
   // activity finishes just in time for its successors (its total float
   // shrinks by the same amount and its free float becomes zero). Done from
   // the last activity back, so a chain of ALAP activities moves together.
@@ -531,17 +575,19 @@ export function schedule(xer, options = {}) {
     const id = order[k];
     const t = tasks.get(id);
     const r = res.get(id);
-    if (done(t) || active(t) || r.lf === undefined) continue;
+    if (done(t) || (active(t) && !V.alapActive) || r.lf === undefined) continue;
     if (!t.cstr.some((c) => c.type === "CS_ALAP")) continue;
     const ff = freeFloat(t, r);
     if (ff <= 0) continue;
     const shift = Math.round(ff * 60);
-    if (t.type === "TT_FinMile" || t.type === "TT_Mile" || t.remain === 0) {
+    if (t.type === "TT_FinMile" || t.type === "TT_Mile" || remainOf(t) === 0) {
       r.es = r.remES = r.ef = t.cal.addWork(r.ef, shift);
     } else {
       r.ef = t.cal.addWork(r.ef, shift);
-      r.es = r.remES = t.cal.nextStart(t.cal.subWork(r.ef, t.remain));
+      r.es = r.remES = t.cal.nextStart(t.cal.subWork(r.ef, remainOf(t)));
     }
+    // a started activity's remaining work moves; its start stays the actual start
+    if (active(t)) r.es = t.actStart ?? r.es;
     r.tf -= ff;
   }
 

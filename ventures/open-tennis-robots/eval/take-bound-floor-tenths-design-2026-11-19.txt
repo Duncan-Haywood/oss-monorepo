@@ -1,0 +1,54 @@
+take-dense-jkl-2026-11-19.jsonl.gz: 216 builds with a survey
+  whole ppm, floor 2 (shipped baseline): told 67, covered 67 (100.0%), instant 1.5 ms on 11 of 18
+  tenths, floor 0 ppm: told 67, covered 67 (100.0%), instant 1.5 ms on 14 of 18
+  tenths, floor 0.1 ppm: told 67, covered 67 (100.0%), instant 1.5 ms on 14 of 18
+  tenths, floor 0.2 ppm: told 67, covered 67 (100.0%), instant 1.5 ms on 14 of 18
+  tenths, floor 0.3 ppm: told 67, covered 67 (100.0%), instant 1.5 ms on 14 of 18
+  tenths, floor 0.5 ppm: told 67, covered 67 (100.0%), instant 1.5 ms on 14 of 18
+  tenths, floor 1 ppm: told 67, covered 67 (100.0%), instant 1.5 ms on 13 of 18
+  tenths, floor 2 ppm: told 67, covered 67 (100.0%), instant 1.5 ms on 12 of 18
+take-dense-m-2026-11-19.jsonl.gz: 66 builds with a survey
+  whole ppm, floor 2 (shipped baseline): told 39, covered 39 (100.0%), instant 1.5 ms on 1 of 6
+  tenths, floor 0 ppm: told 39, covered 38 (97.4%), instant 1.5 ms on 2 of 6; misses: take-dense-m-2026-11-19.jsonl.gz 2.9 ms bounded 1.5 (step 14.9 ppm)
+  tenths, floor 0.1 ppm: told 39, covered 38 (97.4%), instant 1.5 ms on 2 of 6; misses: take-dense-m-2026-11-19.jsonl.gz 2.9 ms bounded 1.5 (step 14.9 ppm)
+  tenths, floor 0.2 ppm: told 39, covered 38 (97.4%), instant 1.5 ms on 2 of 6; misses: take-dense-m-2026-11-19.jsonl.gz 2.9 ms bounded 1.5 (step 14.9 ppm)
+  tenths, floor 0.3 ppm: told 39, covered 39 (100.0%), instant 1.5 ms on 2 of 6
+  tenths, floor 0.5 ppm: told 39, covered 39 (100.0%), instant 1.5 ms on 2 of 6
+  tenths, floor 1 ppm: told 39, covered 39 (100.0%), instant 1.5 ms on 1 of 6
+  tenths, floor 2 ppm: told 39, covered 39 (100.0%), instant 1.5 ms on 1 of 6
+take-dense-n-2026-11-19.jsonl.gz: 66 builds with a survey
+  whole ppm, floor 2 (shipped baseline): told 39, covered 39 (100.0%), instant 1.5 ms on 5 of 6
+  tenths, floor 0 ppm: told 39, covered 38 (97.4%), instant 1.5 ms on 6 of 6; misses: take-dense-n-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 16.6 ppm)
+  tenths, floor 0.1 ppm: told 39, covered 38 (97.4%), instant 1.5 ms on 6 of 6; misses: take-dense-n-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 16.6 ppm)
+  tenths, floor 0.2 ppm: told 39, covered 38 (97.4%), instant 1.5 ms on 6 of 6; misses: take-dense-n-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 16.6 ppm)
+  tenths, floor 0.3 ppm: told 39, covered 38 (97.4%), instant 1.5 ms on 6 of 6; misses: take-dense-n-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 16.6 ppm)
+  tenths, floor 0.5 ppm: told 39, covered 39 (100.0%), instant 1.5 ms on 6 of 6
+  tenths, floor 1 ppm: told 39, covered 39 (100.0%), instant 1.5 ms on 6 of 6
+  tenths, floor 2 ppm: told 39, covered 39 (100.0%), instant 1.5 ms on 6 of 6
+take-bound-o-2026-11-19.jsonl.gz: 66 builds with a survey
+  whole ppm, floor 2 (shipped baseline): told 49, covered 49 (100.0%), instant 1.5 ms on 4 of 6
+  tenths, floor 0 ppm: told 49, covered 47 (95.9%), instant 1.5 ms on 5 of 6; misses: take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 19.5 ppm)
+  tenths, floor 0.1 ppm: told 49, covered 47 (95.9%), instant 1.5 ms on 5 of 6; misses: take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 19.5 ppm)
+  tenths, floor 0.2 ppm: told 49, covered 47 (95.9%), instant 1.5 ms on 5 of 6; misses: take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 19.5 ppm)
+  tenths, floor 0.3 ppm: told 49, covered 47 (95.9%), instant 1.5 ms on 5 of 6; misses: take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 19.5 ppm)
+  tenths, floor 0.5 ppm: told 49, covered 47 (95.9%), instant 1.5 ms on 4 of 6; misses: take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 19.5 ppm)
+  tenths, floor 1 ppm: told 49, covered 48 (98.0%), instant 1.5 ms on 4 of 6; misses: take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm)
+  tenths, floor 2 ppm: told 49, covered 49 (100.0%), instant 1.5 ms on 4 of 6
+take-bound-floor-p-2026-11-19.jsonl.gz: 66 builds with a survey
+  whole ppm, floor 2 (shipped baseline): told 48, covered 48 (100.0%), instant 1.5 ms on 4 of 6
+  tenths, floor 0 ppm: told 48, covered 45 (93.8%), instant 1.5 ms on 4 of 6; misses: take-bound-floor-p-2026-11-19.jsonl.gz 1.6 ms bounded 1.5 (step 8.1 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 3.5 ms bounded 1.5 (step 20.9 ppm)
+  tenths, floor 0.1 ppm: told 48, covered 45 (93.8%), instant 1.5 ms on 4 of 6; misses: take-bound-floor-p-2026-11-19.jsonl.gz 1.6 ms bounded 1.5 (step 8.1 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 3.5 ms bounded 1.5 (step 20.9 ppm)
+  tenths, floor 0.2 ppm: told 48, covered 45 (93.8%), instant 1.5 ms on 4 of 6; misses: take-bound-floor-p-2026-11-19.jsonl.gz 1.6 ms bounded 1.5 (step 8.1 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 3.5 ms bounded 1.5 (step 20.9 ppm)
+  tenths, floor 0.3 ppm: told 48, covered 45 (93.8%), instant 1.5 ms on 4 of 6; misses: take-bound-floor-p-2026-11-19.jsonl.gz 1.6 ms bounded 1.5 (step 8.1 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 3.5 ms bounded 1.5 (step 20.9 ppm)
+  tenths, floor 0.5 ppm: told 48, covered 47 (97.9%), instant 1.5 ms on 4 of 6; misses: take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm)
+  tenths, floor 1 ppm: told 48, covered 47 (97.9%), instant 1.5 ms on 4 of 6; misses: take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm)
+  tenths, floor 2 ppm: told 48, covered 48 (100.0%), instant 1.5 ms on 4 of 6
+ALL design: 480 builds with a survey
+  whole ppm, floor 2 (shipped baseline): told 242, covered 242 (100.0%), instant 1.5 ms on 25 of 42
+  tenths, floor 0 ppm: told 242, covered 235 (97.1%), instant 1.5 ms on 31 of 42; misses: take-dense-m-2026-11-19.jsonl.gz 2.9 ms bounded 1.5 (step 14.9 ppm); take-dense-n-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 16.6 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 19.5 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 1.6 ms bounded 1.5 (step 8.1 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 3.5 ms bounded 1.5 (step 20.9 ppm)
+  tenths, floor 0.1 ppm: told 242, covered 235 (97.1%), instant 1.5 ms on 31 of 42; misses: take-dense-m-2026-11-19.jsonl.gz 2.9 ms bounded 1.5 (step 14.9 ppm); take-dense-n-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 16.6 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 19.5 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 1.6 ms bounded 1.5 (step 8.1 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 3.5 ms bounded 1.5 (step 20.9 ppm)
+  tenths, floor 0.2 ppm: told 242, covered 235 (97.1%), instant 1.5 ms on 31 of 42; misses: take-dense-m-2026-11-19.jsonl.gz 2.9 ms bounded 1.5 (step 14.9 ppm); take-dense-n-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 16.6 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 19.5 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 1.6 ms bounded 1.5 (step 8.1 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 3.5 ms bounded 1.5 (step 20.9 ppm)
+  tenths, floor 0.3 ppm: told 242, covered 236 (97.5%), instant 1.5 ms on 31 of 42; misses: take-dense-n-2026-11-19.jsonl.gz 1.9 ms bounded 1.5 (step 16.6 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 19.5 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 1.6 ms bounded 1.5 (step 8.1 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 3.5 ms bounded 1.5 (step 20.9 ppm)
+  tenths, floor 0.5 ppm: told 242, covered 239 (98.8%), instant 1.5 ms on 30 of 42; misses: take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 19.5 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm)
+  tenths, floor 1 ppm: told 242, covered 240 (99.2%), instant 1.5 ms on 28 of 42; misses: take-bound-o-2026-11-19.jsonl.gz 2 ms bounded 1.5 (step 16.2 ppm); take-bound-floor-p-2026-11-19.jsonl.gz 2.8 ms bounded 1.5 (step 12.3 ppm)
+  tenths, floor 2 ppm: told 242, covered 242 (100.0%), instant 1.5 ms on 27 of 42

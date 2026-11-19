@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVPnugaoUwsdzgrh2Jp",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T14:07:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "polish: request pages (/custom-development/R-000N/) open with a still of the tool they became",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 17682,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "full pages suite: 1 fail (identical cache name) because I wrote the post and report while it ran; the test's own message names that cause",
+      "fixed": "re-ran it alone: it failed again because a git commit landed mid-run (the build reads git history and the edit detector only sees files), then passed with nothing touched"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "editedDuringRun() names files changed mid-run but not a commit made mid-run; a commit alone also flips the cache-name hash, and nothing points to it"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-each-free-software-request-now-shows-what-it-built.md",
+    "docs/reports/polish-2026-11-19-request-page-figure.md"
+  ],
+  "goal": null,
+  "notes": "Full local build of main; node --test platform/pages/*.test.mjs: 1854 pass, 1 fail (cache-name, edits during the run; re-run alone). custom-development-page.test.mjs 18/18. Measured on built dist at 390 and 1280: 4 of 5 request pages show the figure, the image decodes, no sideways scroll.",
+  "corrections": [],
+  "redteam": null
+}

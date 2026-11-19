@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVNp6b2tg93stc83wcu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures prompt-1 brief).",
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T13:02:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector: catch-up growth test on real trade prints (flagship row 2, stale-feeds item)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 17669,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Skipped venture-preflight.mjs: the diff adds an eval, README text and an exported function no page or line calls; no site surface changed.",
+      "did": "ran the venture's full suite and check_posts instead",
+      "result": "980 tests ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-catch-up-growth-test.md"
+  ],
+  "goal": "Replace the repeat-share stale test at multi-tick moves with one that real trade prints do not trip.",
+  "notes": "Pre-registered eval/stale-growth.mjs (committed aa5ebc85e before the first run). G1 sim size 5.0%/5.7%, G2 sim power 96.3%, R1 real prints 1/56 (was 56/56 with the likelihood test) pass; R2 real carried windows 22/85 fail, so nothing ships in updateRateChanges; catchUpGrowth stays exported with no sentence. Post hoc by length: carried D=1 caught 7/7 at 4000 steps, prints 0/8. Real growth is small (r 0.09 vs 0.31 in sim) because prices move in trade time. Verification: node --test stale-growth.test.mjs 6/6; run_venture_tests.py changepoint-detector: ok, 980 tests, 219.7 s, 0 failed; check_posts ok; validate.py ok. The flagship_field tool moved one finished result (openings) from next: to HISTORY.md to make room.",
+  "corrections": [],
+  "redteam": null
+}

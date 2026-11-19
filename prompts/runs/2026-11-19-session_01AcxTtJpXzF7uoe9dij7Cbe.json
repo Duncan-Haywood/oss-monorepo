@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJpXzF7uoe9dij7Cbe",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T13:07:30Z",
+  "ended": "2026-11-19T13:20:26Z",
+  "wall_minutes": 24.29,
+  "tokens_in": 4367307,
+  "tokens_out": 26504,
+  "cost_usd": 2.1099,
+  "tool_calls": 52,
+  "task": "perf: check.mjs link-pass resolution (item 2 of ci-perf-2026-11-15 not-changed list)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17673",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first post description was 190 chars; run_workflow_locally's post front-matter gate caught it before the sweep",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Waiting on a background build: a foreground `sleep 100; cat log` is refused by a hook; an `until grep ...; do sleep 2; done` loop worked. Not documented next to 'Long commands'."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Five perf runs had already landed today; finding an untouched target meant reading several history docs' not-changed lists. A one-line index of the latest open not-changed items would save the hunt."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-resolving-links-was-a-fifth-of-our-site-check.md",
+    "docs/history/ci-perf-2026-11-19-check-link-resolution.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of `node platform/pages/check.mjs <dist>` on a fresh `PAGES_CARD_CACHE=... node build.mjs --out=<dist> --audio-cdn` build (11,937 pages), 4-core container. Before/after taken interleaved (old,new x3) with date +%s.%N for total and performance.now() around the link pass's mapLimit. Link pass median 7.1 s -> 3.7 s; total median 20.5 s -> 16.2 s (~21%). Sequential runs drifted +/-1 s, hence interleaving. Output byte-identical (cmp) on the real artifact and on one with 9 planted bad links (both exit 1, 10 problems). New oracle test vs path.resolve (>1,000 cases), two mutants both caught; check.test.mjs 99/99. run_workflow_locally --for-changes: 6/6 selected workflows passed (120 steps ok; portfolio-pages 12/12 run steps); not run locally: agent-cross-review jobs and portfolio-pages gate/deploy jobs (CI-only).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fafa87a2-701a-5dcf-bae2-54331042799f",
+    "transcripts": 1,
+    "first": "2026-11-19T13:07:30Z",
+    "last": "2026-11-19T13:31:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 100,
+        "output": 26504,
+        "thinking": 5442,
+        "cache_read": 4276691,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90516,
+        "api_equivalent_usd": 2.1099,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 100,
+      "output": 26504,
+      "thinking": 5442,
+      "cache_read": 4276691,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90516,
+      "api_equivalent_usd": 2.1099,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.29,
+      "active_minutes": 24.29,
+      "model_minutes": 5.34,
+      "tool_minutes": 18.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, resolver rewrite with oracle test, equivalence checks, write-up: a senior engineer's afternoon",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 142.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
