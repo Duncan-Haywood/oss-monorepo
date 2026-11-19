@@ -119,6 +119,8 @@ test("index's worked example demonstrates all three finding kinds (dogfooding)",
   const kinds = new Set(findings.map((f) => f.kind));
   assert.ok(kinds.has(FINDING_KINDS.APT_UPDATE_INSTALL_SPLIT), "expected an apt update/install split finding");
   assert.ok(kinds.has(FINDING_KINDS.MANIFEST_AFTER_BROAD_COPY), "expected a manifest-after-broad-copy finding");
+  assert.ok(kinds.has(FINDING_KINDS.INSTALL_MISSING_MANIFEST_COPY), "expected an install-with-no-manifest-copy finding (the button says three)");
+  assert.equal(findings.length, 3, "the button promises three real issues");
 });
 
 // The default textarea contents (what a first-time visitor sees before

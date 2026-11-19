@@ -99,7 +99,7 @@ nothing and makes no network call.
 ## Development
 
 ```sh
-node --test engine.test.mjs cli.test.mjs page.test.mjs
+node --test engine.test.mjs cli.test.mjs page.test.mjs usage.test.mjs
 ```
 
 ## Status

@@ -25,7 +25,7 @@ test("scans a directory tree and finds a cache-order issue, exit 0 by default", 
   const dir = makeFixture({ Dockerfile: "FROM node:20\nCOPY . .\nCOPY package.json ./\nRUN npm ci\n" });
   const { exitCode, output } = await run([dir]);
   assert.equal(exitCode, 0);
-  assert.match(output, /manifest copied\/installed/);
+  assert.match(output, /runs after a whole-build-context COPY/);
   assert.match(output, /Scanned 1 Dockerfile/);
 });
 

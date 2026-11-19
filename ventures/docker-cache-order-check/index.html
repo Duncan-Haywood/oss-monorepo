@@ -141,6 +141,12 @@ node cli.mjs --fail-on-risk        # exit 2 if any finding exists</pre>
     // engine to prove it actually demonstrates all three finding kinds
     // (PRODUCT_PLAYBOOK.md §5e, "prove it on a worked example").
     const EXAMPLE_DOCKERFILE = [
+      "FROM python:3.12-slim AS docs",
+      "WORKDIR /docs",
+      "COPY . .",
+      "RUN pip install -r requirements.txt",
+      "RUN mkdocs build",
+      "",
       "FROM node:20-slim",
       "WORKDIR /app",
       "RUN apt-get update",
