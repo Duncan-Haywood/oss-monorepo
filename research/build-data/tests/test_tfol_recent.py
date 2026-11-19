@@ -165,3 +165,35 @@ class AustinSummary(unittest.TestCase):
         self.assertAlmostEqual(s["pooled_fixed_regret"]["cpin_es3_nc4"], 30.0 / 18)
         self.assertAlmostEqual(s["austin_ncrd_regret"], 10.0)
         self.assertEqual(s["austin_chooser_picks"]["cpin_es3_nc3"], 6)
+
+    def test_floor_summary(self):
+        import json, tempfile
+        # SF/Seattle: nc4 best (80), nc2 worst (84); k6 picks nc3 under both choosers
+        k6g = {"cpin_es3_nc3": 1.0, "cpin_es3_nc4": 2.0, "cpin_es3_nc5": 3.0}
+        grid = {"cells": [dict(grid_cell(h, Y, 81.0, 80.0, 81.0), k6=dict(k6g)) for h in ("sf", "seattle")
+                          for Y in tfol_boot.ALL_YEARS]}
+        # Austin: nc3 66 is best of {3, 4, 5}; nc2 64 beats it; k6 ranks nc2 lowest
+        aus = {"cells": [dict(grid_cell("austin", Y, 66.0, 79.0, 84.0), k6=dict(k6g)) for Y in tfol_boot.ALL_YEARS]}
+        R = {}
+        for h in ("austin", "sf", "seattle"):
+            for Y in tfol_boot.ALL_YEARS:
+                t, k6 = (64.0, 0.5) if h == "austin" else (84.0, 9.0)
+                R[f"{h} {Y} cpin_es3_nc2"] = {"test_loss": {"0.9": t}, "test_loss_per_seed": {"0.9": [t] * 3},
+                                              "tgt_k": {"6": {"n": 10, "n_open": 1, "loss": {"0.9": k6}}}}
+        with tempfile.TemporaryDirectory() as td:
+            p, g, a = (os.path.join(td, n) for n in ("r.json", "g.json", "a.json"))
+            json.dump(R, open(p, "w"))
+            json.dump(grid, open(g, "w"))
+            json.dump(aus, open(a, "w"))
+            s = tfol_boot.floor_summary(p, None, g, a)
+        P = s["predictions"]
+        self.assertFalse(P["B0"])  # no rows saved
+        self.assertTrue(P["B1"] and P["B2"])
+        self.assertEqual(s["austin_nc2_beats_nc3"], 6)
+        # chooser4: Austin picks nc2 (regret 0), SF/Seattle nc3 (1): 12/18; chooser3 picks nc3: Austin 2, SF/Se 1
+        self.assertAlmostEqual(s["pooled_chooser4_regret"], 12.0 / 18)
+        self.assertAlmostEqual(s["pooled_chooser3_regret"], 24.0 / 18)
+        self.assertTrue(P["B3"])
+        # fixed nc3: (12*1 + 6*2)/18 = 1.333; nc2: (12*4 + 0)/18 = 2.667
+        self.assertAlmostEqual(s["pooled_fixed_regret"]["cpin_es3_nc2"], 48.0 / 18)
+        self.assertTrue(P["B4"] and P["B5"])

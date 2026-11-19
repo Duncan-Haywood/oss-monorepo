@@ -17,6 +17,8 @@ rules and as a per-deployment chooser (lowest k6_loss over the grid) over all 12
 RESULTS_JSON with _grid.json in place of .json.
 Session 106: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR --austin scores Austin as target at the grid and ncrd,
 pooled with session 103's 12 cells (austin_summary). Writes RESULTS_JSON with _austin.json in place of .json.
+Session 107: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR --floor scores the 2-year cut in all 18 city-years
+against the {3, 4, 5}-year grid (floor_summary). Writes RESULTS_JSON with _floor.json in place of .json.
 Session 104: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR --recent scores cpin_es3_ncr (a cut per source city at
 the 0.99 quantile of its builds completed in the 3 years before D) against session 103's grid oracle in all 12
 cells (recent_summary). Writes RESULTS_JSON with _recent.json in place of .json.
@@ -461,6 +463,90 @@ def austin_summary(path, rows_dir, grid_path, cut_path=None, years=ALL_YEARS, nc
     return res
 
 
+FLOOR_GRID = ("cpin_es3_nc2",) + STALE_GRID  # session 107: the grid extended down to a 2-year cut
+
+
+def floor_summary(path, rows_dir, grid_path, austin_path, sweep_path=None, years=ALL_YEARS,
+                  held=("austin", "sf", "seattle")):
+    """Session 107 (LOG.md): the 2-year cut (cpin_es3_nc2, path) in all 18 city-years, joined to the {3, 4, 5}-year
+    grid cells of sessions 103 (grid_path, SF/Seattle) and 106 (austin_path, Austin). Oracle and regret over the
+    4-member grid {2, 3, 4, 5}; chooser4 = lowest k6 q0.9 over the 4 members, chooser3 = over {3, 4, 5} (session
+    103's), both scored against the 4-member oracle.
+    B0: saved nc2 rows reproduce the JSON test and k6 means within 0.001 in all 18 cells, and (with sweep_path,
+    session 92) the 2021/2022 nc2 test q0.9 is within 0.5 days of session 92's in all 6 cells.
+    B1: nc2 beats nc3 in at least 5 of the 6 Austin cells. B2: nc2 is the 4-member oracle in at most 2 of the 12
+    SF/Seattle cells. B3: pooled over 18 cells chooser4's mean regret is below chooser3's. B4: chooser4's pooled mean
+    regret is below every fixed cut's. B5: fixed nc2's pooled mean regret exceeds fixed nc3's."""
+    R = json.load(open(path))
+    G = {(c["held"], c["year"]): c for c in json.load(open(grid_path))["cells"]}
+    G.update({(c["held"], c["year"]): c for c in json.load(open(austin_path))["cells"]})
+    S = json.load(open(sweep_path)) if sweep_path and os.path.exists(sweep_path) else None
+    m = lambda xs: float(np.mean(xs)) if xs else None  # noqa: E731
+    cells, chk, rep = [], [], []
+    for h in held:
+        for Y in years:
+            r, g = R.get(f"{h} {Y} cpin_es3_nc2"), G.get((h, Y))
+            f = os.path.join(rows_dir, f"{h}_{Y}_cpin_es3_nc2.npz") if rows_dir else ""
+            if r is not None and os.path.exists(f):
+                z = np.load(f)
+                done = ~z["k6_open"]
+                chk.append(max(abs(row_loss(z["test_y"], z["test_pred"]).mean() - r["test_loss"]["0.9"]),
+                               abs(row_loss(z["k6_y"][done], z["k6_pred"][:, done]).mean() - r["tgt_k"]["6"]["loss"]["0.9"])))
+            else:
+                chk.append(float("inf"))
+            if S is not None and Y in OLD_YEARS and r is not None:
+                o = S.get(f"{h} {Y} cpin_es3_nc2")
+                rep.append(abs(r["test_loss"]["0.9"] - o["test_loss"]["0.9"]) if o else float("inf"))
+            if r is None or g is None:
+                continue
+            test = dict(g["test"], cpin_es3_nc2=r["test_loss"]["0.9"])
+            k6 = dict(g["k6"], cpin_es3_nc2=r["tgt_k"]["6"]["loss"]["0.9"])
+            oracle = min(FLOOR_GRID, key=lambda v: test[v])
+            p4 = min(FLOOR_GRID, key=lambda v: k6[v])
+            p3 = min(STALE_GRID, key=lambda v: k6[v])
+            cells.append(dict(held=h, year=Y, test={v: test[v] for v in FLOOR_GRID}, k6={v: k6[v] for v in FLOOR_GRID},
+                              oracle=oracle, pick4=p4, pick3=p3, regret={v: test[v] - test[oracle] for v in FLOOR_GRID},
+                              pick4_regret=test[p4] - test[oracle], pick3_regret=test[p3] - test[oracle],
+                              nc2_minus_nc3=test["cpin_es3_nc2"] - test["cpin_es3_nc3"],
+                              nc2_minus_nc3_per_seed=[a - b for a, b in zip(
+                                  r["test_loss_per_seed"]["0.9"], R.get(f"{h} {Y} cpin_es3_nc3", {}).get(
+                                      "test_loss_per_seed", {}).get("0.9", []))] if R.get(f"{h} {Y} cpin_es3_nc3") else None,
+                              k6_size=dict(n=r["tgt_k"]["6"]["n"], n_open=r["tgt_k"]["6"]["n_open"])))
+    au = [c for c in cells if c["held"] == "austin"]
+    ss = [c for c in cells if c["held"] != "austin"]
+    full = len(cells) == len(held) * len(years) and len(au) == len(years)
+    fx = {v: m([c["regret"][v] for c in cells]) for v in FLOOR_GRID}
+    c4, c3 = m([c["pick4_regret"] for c in cells]), m([c["pick3_regret"] for c in cells])
+    res = dict(n=len(cells), pooled_fixed_regret=fx, pooled_chooser4_regret=c4, pooled_chooser3_regret=c3,
+               austin_fixed_regret={v: m([c["regret"][v] for c in au]) for v in FLOOR_GRID},
+               sfse_fixed_regret={v: m([c["regret"][v] for c in ss]) for v in FLOOR_GRID},
+               austin_chooser4_regret=m([c["pick4_regret"] for c in au]),
+               sfse_chooser4_regret=m([c["pick4_regret"] for c in ss]),
+               austin_nc2_beats_nc3=sum(c["nc2_minus_nc3"] < 0 for c in au),
+               sfse_nc2_oracle=sum(c["oracle"] == "cpin_es3_nc2" for c in ss),
+               oracle_counts={v: sum(c["oracle"] == v for c in cells) for v in FLOOR_GRID},
+               chooser4_picks={v: sum(c["pick4"] == v for c in cells) for v in FLOOR_GRID},
+               rows_check_max_abs=float(max(chk)) if chk else None,
+               sweep_repro_max_abs=float(max(rep)) if rep else None,
+               # post hoc (not pre-registered): worst cell per rule over the 18 cells
+               max_regret_post_hoc=dict({v: max((c["regret"][v] for c in cells), default=None) for v in FLOOR_GRID},
+                                        chooser4=max((c["pick4_regret"] for c in cells), default=None),
+                                        chooser3=max((c["pick3_regret"] for c in cells), default=None)))
+    res["predictions"] = dict(
+        B0=bool(chk and max(chk) < 1e-3 and (S is None or (len(rep) == 2 * len(held) and max(rep) <= 0.5))),
+        B1=bool(full and res["austin_nc2_beats_nc3"] >= 5),
+        B2=bool(full and res["sfse_nc2_oracle"] <= 2),
+        B3=bool(full and c4 < c3),
+        B4=bool(full and c4 < min(fx.values())),
+        B5=bool(full and fx["cpin_es3_nc2"] > fx["cpin_es3_nc3"]))
+    res["note"] = ("session 107: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test rows "
+                   "(days); grid = staleness cuts 2, 3, 4, 5 years (2-year fits here, the rest from sessions 103 and "
+                   "106); oracle = best of the four on the test year; chooser4 / chooser3 = lowest q0.9 pinball on "
+                   "the target's own Y-6 permits completed by D over {2, 3, 4, 5} / {3, 4, 5}")
+    res["cells"] = cells
+    return res
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("results")
@@ -472,7 +558,19 @@ if __name__ == "__main__":
     ap.add_argument("--recent", action="store_true", help="session 104: cpin_es3_ncr against the grid")
     ap.add_argument("--robust", action="store_true", help="session 105: cpin_es3_ncr95 and _ncrd against the grid")
     ap.add_argument("--austin", action="store_true", help="session 106: Austin as target at the grid and ncrd")
+    ap.add_argument("--floor", action="store_true", help="session 107: the 2-year cut joined to the {3, 4, 5} grid")
     a = ap.parse_args()
+    if a.floor:
+        rd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+        s = floor_summary(a.results, a.rows_dir, os.path.join(rd, "rounds_score_grid_i2c_grid.json"),
+                          os.path.join(rd, "rounds_score_austin_i2c_austin.json"),
+                          os.path.join(rd, "rounds_score_sweep_i2c.json"))
+        json.dump(s, open(a.results.replace(".json", "_floor.json"), "w"), indent=1)
+        print(json.dumps({k: v for k, v in s.items() if k not in ("cells", "note")}, indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], {k[8:]: round(x, 2) for k, x in c["test"].items()}, "oracle", c["oracle"][8:],
+                  "pick4", c["pick4"][8:], "pick3", c["pick3"][8:], "k6", {k[8:]: round(x, 2) for k, x in c["k6"].items()})
+        sys.exit(0)
     if a.austin:
         rd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
         s = austin_summary(a.results, a.rows_dir, os.path.join(rd, "rounds_score_grid_i2c_grid.json"),
