@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 9,
   "outcome": "success",
@@ -40,6 +40,10 @@
     {
       "what": "waited 540 s on wait_for.py --marker 'exit ' when the log's last line was 'exit 0' (the marker match wants a whole line)",
       "fix": "read the log directly"
+    },
+    {
+      "what": "build.test.mjs 'repaired out to the private repository' failed after the prefix rename (it grepped HTML, so hand-written oss-monorepo links looked like repairs)",
+      "fix": "the test now reads result.repairs"
     }
   ],
   "integrity_issues": [],
@@ -51,6 +55,10 @@
     {
       "file": "platform/pages/build.mjs",
       "issue": "the 'Repointed N off-site link(s)' line prints only a count; printing the targets (or writing them to the build report) would let a run see what is repaired without grepping 12,000 pages."
+    },
+    {
+      "file": "ventures/deploy-concurrency-check (deploy-concurrency-check-ci.yml)",
+      "issue": "the dogfood step fails on main with 11 findings in .github/workflows (uitest-ci, opencode-high-throughput...). Any PR touching that venture shows a red check it didn't cause. Not recorded in any report or backlog that I could find; the fix (concurrency groups) is control plane."
     }
   ],
   "deviations": [
@@ -66,7 +74,7 @@
     "docs/reports/polish-2026-11-19-ask-examples-check.md"
   ],
   "goal": null,
-  "notes": "Before (full build of main): 6 repaired links on 4 pages to github.com/Duncan-Haywood/monorepo-projects/blob/main/..., 2 of them to research/house-dewpoint which the site serves. After (second full build with the change): both wall-condensation-check links are ../research/house-dewpoint/, the other 4 name oss-monorepo; 42 venture pages that hand-typed monorepo-projects now name oss-monorepo. check.mjs: publishable, 12006 pages, no dead links. ask-check.mjs: exit 0 on the build (3/3); exit 1 with a nonsense question ('answered I found nothing') and with dist/roofing-bid-calculator moved aside (dead link named). Unit tests: build.test.mjs repair cases 3/3, ask-examples.test.mjs 6/6, repo-name.test.mjs 2/2, test_build_pages_site.py 47 passed, test_browser_checks.py 55 passed. Full node --test 'platform/pages/*.test.mjs': see PR.",
+  "notes": "Before (full build of main): 6 repaired links on 4 pages to github.com/Duncan-Haywood/monorepo-projects/blob/main/..., 2 of them to research/house-dewpoint which the site serves. After (second full build with the change): both wall-condensation-check links are ../research/house-dewpoint/, the other 4 name oss-monorepo; 42 venture pages that hand-typed monorepo-projects now name oss-monorepo. check.mjs: publishable, 12006 pages, no dead links. ask-check.mjs: exit 0 on the build (3/3); exit 1 with a nonsense question ('answered I found nothing') and with dist/roofing-bid-calculator moved aside (dead link named). Unit tests: build.test.mjs repair cases 3/3, ask-examples.test.mjs 6/6, repo-name.test.mjs 2/2, test_build_pages_site.py 47 passed, test_browser_checks.py 55 passed. Full node --test 'platform/pages/*.test.mjs': 1862 pass, 3 fail on the first run. Two were my post's 196-char description (fixed). The third, 'no link to a published venture is repaired out to the private repository', grepped the built HTML for SOURCE_URL_PREFIX + 'ventures/'; with the prefix now naming oss-monorepo it matched hand-written source links in posts, which are not repairs. Rewrote it to read the build's own `repairs` list (each repair now records `to` and `repoPath`). Re-run: those tests and the post tests 26/26 pass. CI: deploy-concurrency-check-ci 'test' is red because its dogfood step (check.py .github/workflows/ --fail-on-risk) finds 11 risks in .github/workflows; it exits 1 on main too (checked locally on origin/main). It ran here only because a source link in that venture's index.html changed. The fix belongs in a control-plane PR.",
   "corrections": [],
   "redteam": null,
   "usage": {

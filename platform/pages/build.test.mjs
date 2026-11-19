@@ -9,7 +9,7 @@ import { loadRequests } from '../../portfolio/requests/requests.mjs';
 import { test, after } from 'node:test';
 import { servedPath } from './served-path.mjs';
 import assert from 'node:assert/strict';
-import { promises as fs, statSync } from 'node:fs';
+import { promises as fs, existsSync, statSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import zlib from 'node:zlib';
@@ -5407,32 +5407,25 @@ test('no link to a published venture is repaired out to the private repository',
   // shopify-fee-calculator, quote-margin-check, and one
   // invoice-payment-terms-calculator page.
   //
-  // Asserted over the whole built site rather than over those seven, so the
-  // same mistake cannot return through a venture nobody was watching.
-  const { surfaces, outDir } = await site();
+  // Asserted over every repair the build made rather than over those seven,
+  // so the same mistake cannot return through a venture nobody was watching.
+  // It reads the build's own list (`repairs`), not a grep of the built HTML:
+  // once SOURCE_URL_PREFIX named the repository by its current name
+  // (2026-11-19), the grep also matched the hand-written "source" links in
+  // posts and tool pages, which are not repairs.
+  const { outDir, surfaces, repairs } = await site();
   const published = new Set(surfaces.map((s) => s.slug));
   const offenders = [];
 
-  for (const file of await listFiles(outDir)) {
-    if (!file.endsWith('.html')) continue;
-    const html = await readText(file);
-    for (const [, target] of html.matchAll(
-      new RegExp(`${SOURCE_URL_PREFIX.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}ventures/([^"'\\s>]+)`, 'g'),
-    )) {
-      const [slug, ...rest] = target.split('/');
-      if (!published.has(slug)) continue;
-      // A link into a published venture is only legitimate when it names a file
-      // that venture does not publish -- its README or LICENCE, say.
-      const asPublished = path.join(outDir, slug, ...rest);
-      const candidates = rest.length ? [asPublished] : [path.join(outDir, slug, 'index.html')];
-      for (const candidate of candidates) {
-        try {
-          await fs.access(candidate);
-          offenders.push(`${path.relative(outDir, file)} -> ventures/${target}`);
-        } catch { /* genuinely unpublished: the repair is correct */ }
-      }
-    }
+  for (const { file, repoPath } of repairs) {
+    const m = /^ventures\/([^/]+)(?:\/(.*))?$/.exec(repoPath || '');
+    if (!m || !published.has(m[1])) continue;
+    // A link into a published venture is only legitimate when it names a file
+    // that venture does not publish -- its README or LICENCE, say.
+    const candidate = m[2] ? path.join(outDir, m[1], ...m[2].split('/')) : path.join(outDir, m[1], 'index.html');
+    if (existsSync(candidate) && !statSync(candidate).isDirectory()) offenders.push(`${file} -> ${repoPath}`);
   }
+  assert.ok(repairs.every((r) => r.to), 'every repair records where it sent the link');
 
   assert.deepEqual(offenders, [], `links sent off-site to a private repo: ${offenders.slice(0, 8).join(', ')}`);
 });

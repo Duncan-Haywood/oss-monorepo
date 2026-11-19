@@ -6203,7 +6203,7 @@ export async function repairLinks({ publishedDir, sourceDir, repoRoot, outDir })
         return `${open}${href}${close}`;
       }
       const prefix = statSync(inRepo).isDirectory() ? SOURCE_TREE_PREFIX : SOURCE_URL_PREFIX;
-      repaired.push({ file: path.relative(outDir, file), from: ref });
+      repaired.push({ file: path.relative(outDir, file), from: ref, to: `${prefix}${repoRelative}`, repoPath: repoRelative });
       return `${open}${prefix}${repoRelative}${close}`;
     });
 

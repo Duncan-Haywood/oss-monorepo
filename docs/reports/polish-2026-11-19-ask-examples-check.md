@@ -44,7 +44,10 @@ The other 4 repairs name `oss-monorepo`. `check.mjs` reports 12,006 pages and no
 `vs-vibeappscanner` and `vs-mxtoolbox`) had `monorepo-projects` typed in by hand. Every link
 paid a redirect, and the redirect lasts only while nobody claims the old name. I fixed them in
 the source with one `sed`, plus einvoice-preflight's SARIF `informationUri`.
-`repo-name.test.mjs` fails if a venture page uses the old name again. I did not change two
+`repo-name.test.mjs` fails if a venture page uses the old name again. The build test "no link to a
+published venture is repaired out" used to grep the built HTML for the prefix. With the new name
+it matched hand-written source links in posts, so it now reads the build's `repairs` list (each
+repair records `to` and `repoPath`). I did not change two
 research reproducibility scripts (`marriage-divorce-evidence`) or 12 historical `.md` files:
 they are records, not pages.
 
@@ -87,5 +90,9 @@ The rule has 6 unit tests in `ask-examples.test.mjs`. `test_browser_checks.py` l
    `searchSite`; a visitor asking "which tool" should see the tool first.
 3. **Register the browser checks.** fold-check, ask-check and four others now wait in `pending`
    for one control-plane PR (`browser-checks-ci.yml`).
-4. Carried over: per-request share cards (`request-page-figure` #1), `/engineering/` pinned row
+4. **deploy-concurrency-check-ci is red on main.** Its dogfood step (`check.py .github/workflows/
+   --fail-on-risk`) finds 11 risks in the repository's own workflows (split concurrency groups for
+   `paid-agents`, `cancel-in-progress` on a deploying job in `uitest-ci.yml`). Any PR that touches
+   that venture shows the red. The fix is a control-plane PR to `.github/workflows/`.
+5. Carried over: per-request share cards (`request-page-figure` #1), `/engineering/` pinned row
    names (`pinned-row-names` #2).
