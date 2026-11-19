@@ -101,3 +101,26 @@ test('fill1 on the fresh shop year: Quiet on orders sends no alert at a closure'
   const r = replayWatch(fillClosed(values, labels, closed, { period: 7, round: true, lags: 1 }).values, labels, { model: 'poisson', period: 7, detector: 'bocpd' });
   assert.equal(r.alerts.filter((a) => closed.some((c) => Math.abs(day(c) - day(String(a.label))) <= 1)).length, 0);
 });
+
+// Round 3 (eval/closed-recent.prereg.md): `recent: k` reads the level from the k nearest earlier open days in the last
+// cycle, each scaled to the closed day's phase by phase means over the 4 cycles ending at i-L.
+test('recent: 3 fills a closure a few days after a step at the new level, skipping always-zero days', () => {
+  const l = days(40);
+  const v = l.map((_, i) => (i % 7 === 5 ? 0 : (i % 7 === 6 ? 24 : 40) * (i >= 30 ? 1.4 : 1)));
+  // index 34 (a Sunday, 4 days after the step): recent days 32, 31, 30 (33 is the always-zero Saturday)
+  assert.ok(Math.abs(fillClosed(v, l, [l[34]], { period: 7, recent: 3 }).values[34] - 33.6) < 1e-9);
+  assert.equal(fillClosed(v, l, [l[34]], { period: 7, lags: 1 }).values[34], 24); // fill1: the Sunday before the step
+  // flat series: the fill is the weekday's own level
+  const f = l.map((_, i) => (i % 7 === 5 ? 0 : i % 7 === 6 ? 24 : 40));
+  assert.equal(fillClosed(f, l, [l[34], l[36]], { period: 7, recent: 3 }).values[36], 40);
+  // no history for the closed weekday in the window: falls back to the lags rule (here: the previous open day)
+  assert.equal(fillClosed(v, l, [l[3]], { period: 7, recent: 3 }).values[3], 40);
+});
+
+test('recent: 3 is prefix-honest', () => {
+  const l = days(70);
+  const v = l.map((_, i) => ((i * 37) % 11) + (i % 7 === 5 ? 0 : 5));
+  const shut = [l[9], l[16], l[30], l[31], l[50], l[66]];
+  const whole = fillClosed(v, l, shut, { recent: 3, lags: 1 }).values;
+  for (let n = 10; n <= 70; n++) assert.deepEqual(fillClosed(v.slice(0, n), l.slice(0, n), shut, { recent: 3, lags: 1 }).values, whole.slice(0, n), `prefix ${n}`);
+});
