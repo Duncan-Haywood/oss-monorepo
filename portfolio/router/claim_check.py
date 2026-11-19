@@ -2,6 +2,7 @@
 """Who holds a claim when two sessions open a PR for the same item?
 
     python3 portfolio/router/claim_check.py <keyword> [--item "<words>"] [--pr N] [--hours 24]
+    python3 portfolio/router/claim_check.py --paths-only [--paths FILE ...]
 
 Run it right after you open your draft PR (title naming the slug, milestone
 or target), and again before you merge. Open that PR before exploring, not
@@ -19,6 +20,9 @@ lower number.
   exit 3  UNCLAIMED  no one else claims it, but you have no PR yet either:
                  open your draft PR, then run this again (a check before your
                  PR exists cannot see a session that opens one seconds later)
+  exit 4  OVERLAP  no title claims it, but an older open PR (or one merged
+                 since your clone) changes at least half of your files: read
+                 its diff first (see "paths" below)
 
 Why: the open-PR checks in allocate.py and research/_shared/pick_track.py run
 before a session has opened its PR, so two sessions that start in the same
@@ -72,6 +76,22 @@ Your PR is found by --pr, or else by the current git branch (the PR whose
 head is this branch). Fork PRs never count as claims and are never yours.
 Reads the public REST pulls list (unauthenticated works from cloud sessions;
 the search index can lag a new PR by minutes, the pulls list does not).
+
+Titles name what a PR is *for*, not what it touches, so two sessions that
+fix the same thing under different words both read HOLD. On 2026-11-19 a
+process run untracked three ventures' `*.egg-info/` (a run record had named
+the symptom under run_workflow_locally.py) while #17578, opened 11 minutes
+earlier as "ci: untrack generated *.egg-info", made the same 18-file change;
+the report's words (the tool name, PKG-INFO) were not in that title. So the check
+also compares **paths**: the files your branch changes (commits since
+origin/main plus uncommitted ones, or `--paths`) against the files of fresh
+open PRs and of PRs merged since your clone (`path_overlap`). Shared hubs
+nearly every PR edits (run records, posts, reports, flagships.yaml, the
+ledger), and any path three or more of those PRs touch, are left out. An
+older open PR, or a merged one, that shares at least half of your remaining
+files makes the verdict OVERLAP (exit 4) when the title check found no
+claim: read its diff before building a second copy. Smaller overlaps are
+listed. A keyword is optional (`claim_check.py --paths-only`).
 """
 from __future__ import annotations
 
@@ -88,6 +108,11 @@ from typing import Optional
 REPO = "duncan-haywood/oss-monorepo"
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FRESH_HOURS = 24
+# Files nearly every PR edits: sharing one says nothing about sharing work.
+SHARED_HUBS = re.compile(r"^(?:prompts/runs/|docs/(?:posts|reports|history)/|portfolio/flagships\.yaml$"
+                         r"|portfolio/ledger/|portfolio/usage/|IDEAS\.md$)")
+HOT_PRS = 3      # a path this many candidate PRs touch is a hub too
+PATH_LIMIT = 30  # candidate PRs whose file lists are read, newest first
 
 
 def _when(stamp: str) -> datetime:
@@ -276,6 +301,118 @@ def open_prs(repo: str = REPO, timeout: int = 15) -> Optional[list[dict]]:
     return out
 
 
+def _git_lines(*args: str) -> list[str]:
+    try:
+        out = subprocess.run(["git", *args], cwd=REPO_ROOT, capture_output=True,
+                             text=True, timeout=20).stdout
+    except (OSError, subprocess.SubprocessError):
+        return []
+    return [l.strip() for l in out.splitlines() if l.strip()]
+
+
+def my_paths(base: str = "origin/main") -> list[str]:
+    """Files this branch changes: its commits not on `base`, plus staged,
+    unstaged and untracked (not ignored) files."""
+    paths = set(_git_lines("log", "--format=", "--name-only", f"{base}..HEAD"))
+    paths |= set(_git_lines("diff", "--name-only", "HEAD"))
+    paths |= set(_git_lines("ls-files", "--others", "--exclude-standard"))
+    return sorted(paths)
+
+
+def pr_files(number: int, repo: str = REPO, timeout: int = 15) -> Optional[list[str]]:
+    """The paths a PR changes (renames by both names), or None if unreadable."""
+    out: list[str] = []
+    try:
+        for page in range(1, 4):
+            url = f"https://api.github.com/repos/{repo}/pulls/{number}/files?per_page=100&page={page}"
+            req = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                batch = json.load(r)
+            for f in batch:
+                out += [f["filename"]] + ([f["previous_filename"]] if f.get("previous_filename") else [])
+            if len(batch) < 100:
+                break
+    except Exception:
+        return None
+    return out
+
+
+def path_overlap(paths: list[str], prs: list[dict], merged: Optional[list[dict]] = None,
+                 mine: Optional[int] = None, branch: Optional[str] = None, repo: str = REPO,
+                 now: Optional[datetime] = None, hours: float = FRESH_HOURS,
+                 main_at: Optional[datetime] = None, files=None,
+                 limit: int = PATH_LIMIT) -> dict:
+    """Which fresh open PRs, and PRs merged since `main_at`, change the files in `paths`.
+
+    Returns {"paths": [my files compared], "checked": n, "unreadable": n,
+    "hubs": [left out], "rows": [...]}; each row is a PR (number, title,
+    created, merged or None, older: opened before mine) with "shared" files,
+    most shared first. "strong" marks a row sharing at least half my files."""
+    now = now or datetime.now(timezone.utc)
+    files = files or pr_files
+    since = now - timedelta(hours=hours)
+    def same_repo(p):
+        return (((p.get("head") or {}).get("repo") or {}).get("full_name") or "").lower() == repo.lower()
+    def is_me(p):
+        return int(p["number"]) == mine or (bool(branch) and (p.get("head") or {}).get("ref") == branch)
+    me = next((p for p in prs if same_repo(p) and is_me(p)), None)
+    mine_at = _when(me["created_at"]) if me else None
+    cands = [p for p in prs if same_repo(p) and not is_me(p) and _when(str(p.get("created_at"))) >= since]
+    cut = max(since, main_at or since)
+    cands += [p for p in merged or [] if same_repo(p) and not is_me(p) and p.get("merged_at")
+              and _when(p["merged_at"]) > cut]
+    cands.sort(key=lambda p: _when(str(p.get("merged_at") or p.get("created_at"))), reverse=True)
+    cands = cands[:limit]
+    mineset = {x for x in paths if not SHARED_HUBS.match(x)}
+    result = {"paths": sorted(mineset), "checked": 0, "unreadable": 0, "hubs": [], "rows": []}
+    if not mineset:
+        return result
+    got = []
+    for p in cands:
+        fl = files(int(p["number"]))
+        if fl is None:
+            result["unreadable"] += 1
+            continue
+        result["checked"] += 1
+        got.append((p, set(fl)))
+    counts: dict[str, int] = {}
+    for _, fl in got:
+        for x in fl & mineset:
+            counts[x] = counts.get(x, 0) + 1
+    hubs = {x for x, n in counts.items() if n >= HOT_PRS}
+    mineset -= hubs
+    result["hubs"], result["paths"] = sorted(hubs), sorted(mineset)
+    for p, fl in got:
+        shared = sorted(fl & mineset)
+        if not shared:
+            continue
+        created = str(p.get("created_at", ""))
+        result["rows"].append({
+            "number": int(p["number"]), "title": str(p.get("title", "")), "created": created,
+            "merged": p.get("merged_at"), "shared": shared,
+            "older": bool(p.get("merged_at")) or mine_at is None or _when(created) < mine_at,
+            "strong": len(shared) * 2 >= len(mineset)})
+    result["rows"].sort(key=lambda r: (-len(r["shared"]), r["number"]))
+    return result
+
+
+def path_report(ov: dict, now: datetime) -> list[str]:
+    if not ov["paths"]:
+        return ["Paths: no files of yours to compare yet (commit, or pass --paths)."]
+    lines = [f"Paths: compared your {len(ov['paths'])} file(s) with {ov['checked']} fresh or "
+             f"since-clone PR(s)" + (f" ({ov['unreadable']} unreadable)" if ov["unreadable"] else "")
+             + (f"; left out {len(ov['hubs'])} hub path(s) other PRs share too" if ov["hubs"] else "") + "."]
+    strong = [r for r in ov["rows"] if r["strong"] and r["older"]]
+    if strong:
+        lines.append("OVERLAP: these PRs change at least half of your files; read their diff before "
+                     "building a second copy (merged ones may already be on main):")
+    for r in ov["rows"][:8]:
+        tag = "OVERLAP" if (r["strong"] and r["older"]) else ("newer" if not r["older"] else "shares")
+        sh = ", ".join(r["shared"][:4]) + (f" (+{len(r['shared']) - 4})" if len(r["shared"]) > 4 else "")
+        lines.append(f"  [{tag}] {_line(r, now)}  -- {len(r['shared'])} of {len(ov['paths'])}: {sh}")
+    return lines
+
+
 def current_branch() -> Optional[str]:
     try:
         b = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=REPO_ROOT,
@@ -360,29 +497,52 @@ def report(result: dict, keyword: str, now: datetime, hours: float,
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("keyword", help="slug, milestone or target your PR title names")
+    ap.add_argument("keyword", nargs="?", help="slug, milestone or target your PR title names")
     ap.add_argument("--item", help="the flagship item you are taking; older PRs on other items then share")
     ap.add_argument("--pr", type=int, help="your PR number (default: the PR for the current branch)")
     ap.add_argument("--hours", type=float, default=FRESH_HOURS,
                     help=f"only PRs opened this recently count as claims (default {FRESH_HOURS})")
+    ap.add_argument("--paths", nargs="+", metavar="PATH",
+                    help="files you will change (default: what this branch changes vs origin/main)")
+    ap.add_argument("--paths-only", action="store_true", help="skip the title check")
+    ap.add_argument("--no-paths", action="store_true", help="skip the path check")
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
+    if not args.keyword and not args.paths_only:
+        ap.error("give a keyword, or --paths-only")
     prs = open_prs()
     if prs is None:
         print(f"Could not read open PRs (GitHub API unreachable); search titles for '{args.keyword}' by hand.")
         return 2
     closed = recently_closed()
     now = datetime.now(timezone.utc)
-    result = decide(prs, args.keyword, mine=args.pr,
-                    branch=None if args.pr else current_branch(), now=now, hours=args.hours,
-                    item=args.item, merged=closed, main_at=main_commit_time())
+    branch = None if args.pr else current_branch()
+    main_at = main_commit_time()
+    out: dict = {}
+    code = 0
+    if not args.paths_only:
+        result = decide(prs, args.keyword, mine=args.pr, branch=branch, now=now, hours=args.hours,
+                        item=args.item, merged=closed, main_at=main_at)
+        out["title"] = result
+        code = {"HOLD": 0, "UNCLAIMED": 3}.get(result["verdict"], 1)
+    ov = None
+    if not args.no_paths:
+        paths = args.paths if args.paths is not None else my_paths()
+        ov = path_overlap(paths, prs, merged=closed, mine=args.pr, branch=branch, now=now,
+                          hours=args.hours, main_at=main_at)
+        out["paths"] = ov
+        if code in (0, 3) and any(r["strong"] and r["older"] for r in ov["rows"]):
+            code = 4
     if args.json:
-        print(json.dumps(result, indent=2))
-    else:
-        print("\n".join(report(result, args.keyword, now, args.hours, args.item)))
+        print(json.dumps(out, indent=2))
+        return code
+    if "title" in out:
+        print("\n".join(report(out["title"], args.keyword, now, args.hours, args.item)))
         if closed is None:
             print("(Recently merged PRs could not be read: check `git log origin/main` for the slug by hand.)")
-    return {"HOLD": 0, "UNCLAIMED": 3}.get(result["verdict"], 1)
+    if ov is not None:
+        print("\n".join(path_report(ov, now)))
+    return code
 
 
 if __name__ == "__main__":
