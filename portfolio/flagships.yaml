@@ -306,10 +306,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
-      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend near clean:
-      the true model loses 0.58 dB on a K-3 III tile at SNR 200; a ramp gate on the
-      card sets' tiles (eval/noise-card-floor-rank-2026-11-18.md). DNG 1.7.1.0 spec
-      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend: the 11
+      Bayer rows still losing >0.1 dB are over-read noise (D780, D600;
+      eval/near-clean-gate-2026-11-19.md, tools/near_clean_gate.py); X-Trans k
+      unset. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README, HISTORY.md and eval/ (ingest to
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
@@ -333,9 +333,11 @@ flagships:
       export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
       5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; a near-clean gate in the blend's ramps (auto = noise-aware
-      since 2026-11-19, 1.34x directional's time; 0.78% of 6,008 rows lose >0.1 dB,
-      worst -0.58, eval/auto-noise-aware-*). More open items: NEXT.md.
+      evenly lit frame; Bayer's near-clean leak closed 2026-11-19 (lift_near_detail,
+      k 12: held-out losers 18 to 11, worst SNR 200 -0.27 to -0.14,
+      eval/near-clean-gate-2026-11-19.md); next the 11 left, all over-read noise
+      (D780, D600 tiles), an X-Trans tune pass for its own k. More open items:
+      NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

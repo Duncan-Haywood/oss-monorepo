@@ -869,7 +869,9 @@ LUMA_RAMPS = {6: (0.8, 2.0), 2: (0.8, 1.5)}
 LUMA_WEIGHTS = np.array([0.2126, 0.7152, 0.0722])  # Rec. 709; they sum to 1
 
 
-NEAR_DETAIL: float | None = None  # set by the held-out test in eval/near-clean-gate-2026-11-19.md
+# ``lift_near_detail``'s k per CFA, the default of ``noise_aware`` since 2026-11-19: tuned on the raw.pixls.us
+# `fourth` set and passed a rule committed before the `first` set was scored (eval/near-clean-gate-2026-11-19.md).
+NEAR_DETAIL: dict[int, float | None] = {2: 12.0, 6: None}
 
 
 def lift_near_detail(q_blocks: np.ndarray, k: float) -> np.ndarray:
@@ -1006,7 +1008,7 @@ def noise_aware(
     c, pat, *, bilinear: np.ndarray | None = None, directional_out: np.ndarray | None = None,
     noise: tuple[float, float] | None = None, q_low: float | None = None, q_high: float | None = None,
     per_block: bool = True, luma_ramp: tuple[float, float] | None | bool = True, out: np.ndarray | None = None,
-    clip_hi: float | None = None, near_detail: float | None = None,
+    clip_hi: float | None = None, near_detail: float | None | bool = True,
 ) -> np.ndarray:
     """Directional where it adds detail above the noise, bilinear where it adds mostly noise.
 
@@ -1023,7 +1025,8 @@ def noise_aware(
     measured and gave back most of the luma gain (eval/noise-aware-luma-ramp-2026-11-17.md). ``out``: passed to
     ``blend`` (it may be ``bilinear``); with ``per_block=False`` it is ignored, as is ``clip_hi`` (``blend``'s:
     clip the stored result in the same pass). ``near_detail``: ``lift_near_detail``'s k, applied to the block
-    q before ``blend`` (``None``: off; ``NEAR_DETAIL`` is the default the develop path passes).
+    q before ``blend``: ``True`` (default) takes the CFA's ``NEAR_DETAIL``, a number sets one, ``None``/``False``
+    is off (the blend before 2026-11-19). Only with ``per_block``.
     """
 
     ramp = RAMPS[6 if len(pat) == 36 else 2]
@@ -1031,6 +1034,10 @@ def noise_aware(
         luma_ramp = LUMA_RAMPS[6 if len(pat) == 36 else 2]
     elif luma_ramp is False:
         luma_ramp = None
+    if near_detail is True:
+        near_detail = NEAR_DETAIL[6 if len(pat) == 36 else 2]
+    elif near_detail is False:
+        near_detail = None
     q_low = ramp[0] if q_low is None else q_low
     q_high = ramp[1] if q_high is None else q_high
     c = np.asarray(c, dtype=np.float64)

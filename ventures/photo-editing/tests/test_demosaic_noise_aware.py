@@ -200,7 +200,7 @@ class NoiseAwareTests(unittest.TestCase):
     def test_lift_stops_the_leak_into_a_clean_edge_beside_a_flat_field(self):
         """A clean frame, half flat and half fine stripes: unlifted, the stripes' blocks beside the flat half take
         part of its bilinear weight (``blend`` interpolates block weights between centres) and lose to directional;
-        lifted, the result there is directional's."""
+        lifted (the Bayer default since 2026-11-19, ``NEAR_DETAIL``), the result there is directional's."""
 
         from shootflow.bayer_demosaic import directional as bayer
         from shootflow.xtrans_demosaic import noise_aware
@@ -214,8 +214,10 @@ class NoiseAwareTests(unittest.TestCase):
         c = _mosaic(truth, pat) + self.rng.normal(size=(144, 144)) * 2e-4
         b, d = _bilinear(c, pat), bayer(c, pat)
         noise = (0.0, 4e-8)
-        plain = noise_aware(c, pat, bilinear=b, directional_out=d, noise=noise)
-        lifted = noise_aware(c, pat, bilinear=b, directional_out=d, noise=noise, near_detail=16.0)
+        plain = noise_aware(c, pat, bilinear=b, directional_out=d, noise=noise, near_detail=False)
+        lifted = noise_aware(c, pat, bilinear=b, directional_out=d, noise=noise)  # Bayer default: k = 12
+        np.testing.assert_array_equal(lifted, noise_aware(c, pat, bilinear=b, directional_out=d, noise=noise,
+                                                          near_detail=12.0))
         band = (slice(8, -8), slice(72, 96))  # the stripes' first block column, beside the flat half
         err = lambda a: float(np.mean((a[band] - truth[band]) ** 2))  # noqa: E731
         self.assertGreater(err(plain), err(d) * 2)
