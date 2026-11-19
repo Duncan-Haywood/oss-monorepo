@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqycCpfrsYdAHGYHxrn8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T20:39:03Z",
+  "ended": "2026-11-19T21:15:25Z",
+  "wall_minutes": 36.66,
+  "tokens_in": 7795707,
+  "tokens_out": 36346,
+  "cost_usd": 3.3304,
+  "tool_calls": 67,
+  "task": "open-tennis-robots: the straddle vote in the TAKE_US = 0 bound (flagship 10 buildable item)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17787",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "8241f30eb",
+    "88c5d8a95"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "first design run passed every eval/*.jsonl.gz to take_bound_vote.py and crashed on a non-capture file (list rows); re-run on the 23 nine-point capture files",
+    "a foreground unittest run of tests/test_host.py exceeded 120 s and its output was lost; reran via run_venture_tests.py in the background (465 tests ok)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/eval/take-straddle-long-2026-11-19.md",
+      "issue": "names the design sets by letter (O, P, W...) but not their file names; finding which eval/*.jsonl.gz carry nine-point wheel inputs took a grep over 85 files"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "'Long commands' covers run_in_background but not that a foreground 'sleep N; cat' is refused by a hook; waiting on a background job needs a run_in_background until-loop"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "did not merge origin/main into the branch before landing: the shallow clone refused ('unrelated histories'); the squash merge on GitHub handles a non-conflicting diff",
+      "did": "relied on GitHub's mergeability check",
+      "result": "see PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-straddle-vote-tightens-bound.md",
+    "ventures/open-tennis-robots/eval/take-bound-vote-2026-11-19.md"
+  ],
+  "goal": "deepen flagship 10 (open-tennis-robots) with a pre-registered, held-out firmware/host change",
+  "notes": "Design on 912 stored builds: the 9 real takes the 2% bar alone misses all had no wheel straddling at 1.5 ms; rule 'drop 0' (no ppm floor where >=1 kept wheel straddles at 1.5 ms and against >= for) covered 641/641 and bounded 92 vs 89 of 192 instant at 1.5 ms. Pre-registered in 8241f30eb; held out on fresh BA-BD (seeds 509-541) + 64 instant-only seeds (547-971): 279/279 covered, 85 vs 83 of 204 instant at 1.5 ms, looser on none, host function equal to scorer on every frame. host.TAKE_BOUND_STRADDLE ships True. Small (1%) gain; 109 of 204 instant builds had no straddling wheel. Verification: python3 platform/ci/run_venture_tests.py open-tennis-robots -> ok (280 s, 465 tests, 59 skipped for build123d); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "017ab316-e98d-5f3a-81de-f6e45a4b48cd",
+    "transcripts": 1,
+    "first": "2026-11-19T20:39:03Z",
+    "last": "2026-11-19T21:15:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 124,
+        "output": 36346,
+        "thinking": 8615,
+        "cache_read": 7661756,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133827,
+        "api_equivalent_usd": 3.3304,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 124,
+      "output": 36346,
+      "thinking": 8615,
+      "cache_read": 7661756,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133827,
+      "api_equivalent_usd": 3.3304,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 60,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.66,
+      "active_minutes": 36.66,
+      "model_minutes": 5.93,
+      "tool_minutes": 30.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a firmware/statistics engineer designing the rule, writing the scorer, running 68 captures and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 180.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

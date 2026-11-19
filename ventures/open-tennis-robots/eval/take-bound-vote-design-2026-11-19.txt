@@ -1,0 +1,32 @@
+design (23 files): 912 builds; told TAKE_US = 0 by the shipped advice: 641
+  shipped    covered 641 of 641, instant at 1.5 ms 89 of 192, tighter than shipped 0, looser 0
+  floor0     covered 632 of 641, instant at 1.5 ms 93 of 192, tighter than shipped 39, looser 0; misses: 1.9 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 2 lead 2); 2 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 0 lead 0); 2.1 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 1 lead 1); 1.6 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 2 lead 2); 2.8 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 0 lead 0); 3.5 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 0 lead 0); 2 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 1 lead -1); 2 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 1 lead 1)
+  drop any   covered 641 of 641, instant at 1.5 ms 92 of 192, tighter than shipped 9, looser 0
+  drop 0     covered 641 of 641, instant at 1.5 ms 92 of 192, tighter than shipped 8, looser 0
+  drop 1     covered 641 of 641, instant at 1.5 ms 91 of 192, tighter than shipped 6, looser 0
+  drop 2     covered 641 of 641, instant at 1.5 ms 89 of 192, tighter than shipped 0, looser 0
+  drop 3     covered 641 of 641, instant at 1.5 ms 89 of 192, tighter than shipped 0, looser 0
+  cap any    covered 555 of 641, instant at 1.5 ms 110 of 192, tighter than shipped 175, looser 0; misses: 1.6 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 3 lead 1); 2 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 1 lead 1); 2.8 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 3 lead -1); 2.4 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 1 lead -1); 2 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 1 lead 1); 1.6 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 2 lead 2); 2 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 4 lead 0); 2 ms bounded 1.5 (1.5 vote n 1 lead -1, 2.5 vote n 3 lead -1)
+  cap 0      covered 636 of 641, instant at 1.5 ms 103 of 192, tighter than shipped 51, looser 0; misses: 2.1 ms bounded 1.5 (1.5 vote n 2 lead 0, 2.5 vote n 5 lead -1); 1.6 ms bounded 1.5 (1.5 vote n 1 lead 1, 2.5 vote n 1 lead 1); 1.6 ms bounded 1.5 (1.5 vote n 2 lead 0, 2.5 vote n 4 lead 4); 1.6 ms bounded 1.5 (1.5 vote n 1 lead 1, 2.5 vote n 1 lead 1); 1.6 ms bounded 1.5 (1.5 vote n 2 lead 0, 2.5 vote n 2 lead 2)
+  cap 1      covered 639 of 641, instant at 1.5 ms 99 of 192, tighter than shipped 33, looser 0; misses: 1.6 ms bounded 1.5 (1.5 vote n 1 lead 1, 2.5 vote n 1 lead 1); 1.6 ms bounded 1.5 (1.5 vote n 1 lead 1, 2.5 vote n 1 lead 1)
+  cap 2      covered 641 of 641, instant at 1.5 ms 90 of 192, tighter than shipped 1, looser 0
+  cap 3      covered 641 of 641, instant at 1.5 ms 89 of 192, tighter than shipped 0, looser 0
+  long any   covered 636 of 641, instant at 1.5 ms 92 of 192, tighter than shipped 22, looser 0; misses: 1.9 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 2 lead 2); 2.1 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 1 lead 1); 1.6 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 2 lead 2); 2 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 1 lead -1); 2 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 1 lead 1)
+  long 0     covered 637 of 641, instant at 1.5 ms 92 of 192, tighter than shipped 20, looser 0; misses: 1.9 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 2 lead 2); 2.1 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 1 lead 1); 1.6 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 2 lead 2); 2 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 1 lead 1)
+  long 1     covered 637 of 641, instant at 1.5 ms 92 of 192, tighter than shipped 18, looser 0; misses: 1.9 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 2 lead 2); 2.1 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 1 lead 1); 1.6 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 2 lead 2); 2 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 1 lead 1)
+  long 2     covered 639 of 641, instant at 1.5 ms 92 of 192, tighter than shipped 12, looser 0; misses: 1.9 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 2 lead 2); 1.6 ms bounded 1.5 (1.5 vote n 0 lead 0, 2.5 vote n 2 lead 2)
+  long 3     covered 641 of 641, instant at 1.5 ms 90 of 192, tighter than shipped 3, looser 0
+
+cap rule over (straddling wheels n, against - for lead), design rows:
+n>=1 lead>=0 for==0:False: cov 636/641 inst1.5 103/192 misses [1.6, 1.6, 1.6, 1.6, 2.1]
+n>=1 lead>=1 for==0:False: cov 639/641 inst1.5 99/192 misses [1.6, 1.6]
+n>=1 lead>=2 for==0:False: cov 641/641 inst1.5 90/192 misses []
+n>=1 lead>=3 for==0:False: cov 641/641 inst1.5 89/192 misses []
+n>=2 lead>=0 for==0:False: cov 638/641 inst1.5 94/192 misses [1.6, 1.6, 2.1]
+n>=2 lead>=1 for==0:False: cov 641/641 inst1.5 90/192 misses []
+n>=2 lead>=2 for==0:False: cov 641/641 inst1.5 90/192 misses []
+n>=2 lead>=3 for==0:False: cov 641/641 inst1.5 89/192 misses []
+n>=3 lead>=0 for==0:False: cov 641/641 inst1.5 89/192 misses []
+n>=3 lead>=1 for==0:False: cov 641/641 inst1.5 89/192 misses []
+n>=3 lead>=2 for==0:False: cov 641/641 inst1.5 89/192 misses []
+n>=3 lead>=3 for==0:False: cov 641/641 inst1.5 89/192 misses []

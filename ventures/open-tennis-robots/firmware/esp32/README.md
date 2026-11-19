@@ -3720,3 +3720,25 @@ instant-only seeds (108 builds) give the shipped rule a second held-out reading:
 builds misadvised, none un-named, board counts equal to the rebuild (`eval/take-straddle-long-2026-11-19.md`,
 "Replicated on 108 more builds").
 
+
+## The straddle vote in the take bound (2026-11-19, after "A second straddle vote at 2.5 ms"; `host.TAKE_BOUND_STRADDLE = True` by its pre-registered rule)
+
+**The item.** The bound the Pi names with "keep TAKE_US = 0" needs its 2 ppm floor (the 2% bar alone missed real 2 ms
+takes), but the floor loosens some instant builds' bound past 1.5 ms. NEXT.md noted that the takes the 2% bar alone
+misses had no wheel straddling at 1.5 ms, so the 1.5 ms vote's counts might say where the floor can go.
+
+**What shipped.** `host.TAKE_BOUND_STRADDLE`: where the frame's 1.5 ms vote has at least one straddling kept wheel and
+`straddle_against` >= `straddle_for`, `take_survey_bound` uses the 2% bar alone; elsewhere (no straddling wheel, a vote
+that favours 1.5 ms, or an older frame without counts) the floor stays. Nothing on the board changed.
+`tests/take_bound_vote.py` scores this and the other rules.
+
+**Design, then held out.** On every stored nine-point set with wheel inputs (912 builds, 641 told TAKE_US = 0, 192
+instant), the 2% bar alone missed 9 real 1.6-3.5 ms takes, none with a straddling wheel; the rule covered all 641 and
+bounded 92 instant builds at 1.5 ms against the floor's 89 (the 2% bar alone: 93). Overriding the rms with the vote (a
+1.5 ms cap where against leads by 1) bounded 99 but missed two 1.6 ms takes; the 2.5 ms vote did not help. Rule committed
+in 8241f30eb, then scored on fresh BA-BD (lags 0.50, 0.58, 0.44, 0.62 s; seeds 509-541) and 64 instant-only seeds
+(547-971), 324 builds: 279 of 279 covered, 85 of 204 instant builds at 1.5 ms against 83, looser on none. Every clause
+held. Everything is in `eval/take-bound-vote-2026-11-19.md`.
+
+**Not known.** A 1% gain. 119 of 204 held-out instant builds are still bounded at 2.5 ms or more because their 1.5 ms
+rms sits within 2% of the step's; 109 of the 204 had no kept wheel straddling at 1.5 ms. Simulated only.
