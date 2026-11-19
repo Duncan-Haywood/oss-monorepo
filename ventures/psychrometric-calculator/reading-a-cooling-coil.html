@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285e78'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reading a Cooling Coil on the Psychrometric Chart: Load, SHR, ADP and Bypass Factor</title>
+  <meta name="description" content="A worked example: air enters a cooling coil at 80 °F dry bulb and 67 °F wet bulb and leaves at 55/54. Total load, sensible heat ratio, apparatus dew point, bypass factor and condensate, step by step, and what changes at 5,280 ft.">
+  <meta property="og:title" content="Reading a cooling coil on the psychrometric chart">
+  <meta property="og:description" content="80/67 in, 55/54 out, 1,200 cfm: the load, SHR, ADP and bypass factor worked through, and why the same thermometer readings mean a different coil in Denver.">
+  <link rel="canonical" href="./reading-a-cooling-coil.html">
+  <style>
+    :root { font: 17px Georgia, serif; color: #172026; background: #f7f9fa; }
+    body { max-width: 720px; margin: auto; padding: 28px 18px; }
+    h1 { font: 700 clamp(1.7rem, 4.5vw, 2.4rem)/1.12 system-ui, sans-serif; color: #163c4e; }
+    h2 { font: 700 1.2rem system-ui, sans-serif; color: #163c4e; margin-top: 30px; }
+    p, li { line-height: 1.65; }
+    a { color: #1d4f66; }
+    table { border-collapse: collapse; width: 100%; font: 15px system-ui, sans-serif; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid #dfe7ea; text-align: left; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    footer { font: .85rem system-ui, sans-serif; color: #4a5a63; border-top: 1px solid #d6e0e4; margin-top: 34px; padding-top: 14px; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Psychrometric calculator</a></p>
+  <h1>Reading a cooling coil on the psychrometric chart</h1>
+  <p>A cooling coil is rated with air entering at 80 °F dry bulb and 67 °F wet bulb, the entering condition used for AHRI ratings of residential equipment. Suppose you measure the air leaving it at 55 °F dry bulb and 54 °F wet bulb, with 1,200 cfm across it at sea level. What is the coil doing? Every number below is what the <a href="./">calculator</a> gives for those inputs; load the example there to follow along.</p>
+
+  <h2>1. Fix the two points</h2>
+  <p>Two readings fix a point. At sea level (14.696 psia) the entering air holds <strong>78.2 gr/lb</strong> of moisture, is at 51% relative humidity, and has a dew point of 60.3 °F. The leaving air holds <strong>60.4 gr/lb</strong> at 94% relative humidity.</p>
+  <div class="scroll"><table>
+    <tr><th></th><th class="n">Dry bulb</th><th class="n">Wet bulb</th><th class="n">Dew point</th><th class="n">gr/lb</th><th class="n">Btu/lb</th><th class="n">ft³/lb</th></tr>
+    <tr><td>Entering</td><td class="n">80.0</td><td class="n">67.0</td><td class="n">60.3</td><td class="n">78.2</td><td class="n">31.44</td><td class="n">13.85</td></tr>
+    <tr><td>Leaving</td><td class="n">55.0</td><td class="n">54.0</td><td class="n">53.3</td><td class="n">60.4</td><td class="n">22.57</td><td class="n">13.16</td></tr>
+  </table></div>
+
+  <h2>2. Total load from the enthalpy drop</h2>
+  <p>1,200 cfm of air at 13.85 ft³ per pound of dry air is 5,199 pounds an hour. Each pound gives up 31.44 − 22.57 = 8.88 Btu, so the coil removes <strong>46,178 Btu/h, or 3.85 tons</strong>.</p>
+  <p>The field rule "4.5 × cfm × Δh" gives 47,927 Btu/h here, <strong>3.8% high</strong>. The 4.5 assumes standard air at 13.33 ft³/lb; air at 80 °F and 51% humidity is lighter than that. Using the entering air's own specific volume removes the error.</p>
+
+  <h2>3. Sensible heat ratio</h2>
+  <p>Moisture fell by 17.7 gr/lb. That water, 1.58 gallons an hour of condensate, carries <strong>14,169 Btu/h</strong> of latent heat. The remaining 32,008 Btu/h lowered the temperature, so the <strong>sensible heat ratio is 0.69</strong>: 69% of the coil's work cooled the air and 31% dried it.</p>
+
+  <h2>4. Apparatus dew point and bypass factor</h2>
+  <p>Draw a straight line from the entering point through the leaving point and keep going until it meets the saturation curve. It meets it at <strong>52.5 °F</strong>, the apparatus dew point: the effective temperature of the coil surface. The leaving air sits (55.0 − 52.5) / (80.0 − 52.5) = <strong>0.09</strong> of the way back toward the entering air, so the bypass factor is 0.09. About a tenth of the air behaves as if it missed the fins.</p>
+  <p>Switch the calculator to the "apparatus dew point and bypass factor" process, enter 52.5 °F and 0.09, and it gives back the same leaving air. That is the way to ask what-if questions: a deeper coil lowers the bypass factor, and a colder refrigerant lowers the ADP.</p>
+
+  <h2>5. The same readings in Denver</h2>
+  <p>Take the same 80/67 entering and 55/54 leaving readings and the same 1,200 cfm at 5,280 ft (12.10 psia). The thermometers read the same, but the air does not hold the same water. Entering air now holds <strong>99.9 gr/lb</strong>, not 78.2, and leaving air 73.9. The total load falls to 43,428 Btu/h because each cubic foot holds fewer pounds of air. The split shifts too: 17,004 Btu/h latent and 26,424 sensible, an <strong>SHR of 0.61</strong>, not 0.69.</p>
+  <p>A sea-level chart read in Denver gets the moisture wrong by more than a fifth. It gets the coil's split between cooling and drying wrong too. Set the altitude before you trust a psychrometric reading.</p>
+
+  <h2>What this leaves out</h2>
+  <p>The fan's heat, duct gains, the enthalpy of the condensate (under 1% of the load), and readings taken in poorly mixed air are all left out. A wet bulb read with too little airflow over the wick reads high. A dry bulb read in a stratified duct can be off by several degrees, and a 1 °F wet-bulb error here moves the load by several percent. The equations are those of ASHRAE Fundamentals Chapter 1; the method is described on the <a href="./">calculator page</a>.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> A worked example of arithmetic on stated inputs, not engineering, legal or code-compliance advice, and no substitute for a qualified professional or the equipment maker's data. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any equipment manufacturer, standards body or software vendor, and no product is named or ranked here.</p>
+    <p>Free and open source under the MIT licence. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>.</p>
+  </footer>
+</body>
+</html>
