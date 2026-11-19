@@ -545,7 +545,7 @@ flagships:
       finding and a 600-day critical path test.
     buildable: >-
       The six public XER files in eval/cpm-vs-p6-2026-11-19.md (git clone the four
-      repos): CCA residual down to 2 of 14,270 and 37 finished-node late dates
+      repos): CCA residual: 2 of 14,270 and a 5-node SS chain of late dates
       (eval/cpm-vs-p6-2026-11-19.md, What is left) with node eval/cpm-vs-p6.mjs;
       free float 19,809 of 19,822 (eval/free-float-2026-11-19.md): 9 left in the
       24.12 file where P6 stores 0 against a positive gap; windows check
@@ -557,20 +557,20 @@ flagships:
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
       (1) CPM fourth pass shipped 2026-11-19 (rules 12-16: 19,820 of 19,822, late
-      finish 19,822; eval/cpm-vs-p6-2026-11-19.md); next the 2 left
-      (BAFT/SAFT2305509: a 608 h FS lag from a finished milestone P6 counts some
-      other way) and the 37 finished-node late dates; (2) update comparison shipped
-      2026-11-19 (compare.mjs, half-step split; eval/compare-check-2026-11-19.md:
-      720 of 720 planted edits on six real files); windows analysis across many
-      updates shipped 2026-11-19 (windows.mjs, --windows; a not-started re-estimate
-      is now a revision in the half-step; eval/windows-check-2026-11-19.md); next a
-      real series of updates to check the split and drivers against (windows in the
-      review shipped 2026-11-19); (3) GitHub ERMHDR search, size-split 2026-11-19: a
-      seventh P6 file (Harbour Pointe 17.12) 113/113 once 8 durations edited after
-      its last run are put back; edited-durations list shipped
-      (eval/edited-durations-2026-11-19.md: 300/300 planted); next progress
-      override, start float and 24-hour lag paths on a real P6 file; (4) written
-      review shipped 2026-11-19 (report.mjs, print to PDF;
+      finish 19,822; eval/cpm-vs-p6-2026-11-19.md); fifth pass 2026-11-19 (rule 17,
+      unspent FS/FF lag of a finished node: its late dates 1,529 of 1,534); next the
+      2 left (BAFT/SAFT2305509: 608 h FS lag) and the 5-node SS chain at
+      CFNS103317C0; (2) update comparison shipped 2026-11-19 (compare.mjs, half-step
+      split; eval/compare-check-2026-11-19.md: 720 of 720 planted edits on six real
+      files); windows analysis across many updates shipped 2026-11-19 (windows.mjs,
+      --windows; a not-started re-estimate is now a revision in the half-step;
+      eval/windows-check-2026-11-19.md); next a real series of updates to check the
+      split and drivers against (windows in the review shipped 2026-11-19); (3)
+      GitHub ERMHDR search, size-split 2026-11-19: a seventh P6 file (Harbour Pointe
+      17.12) 113/113 once 8 durations edited after its last run are put back;
+      edited-durations list shipped (eval/edited-durations-2026-11-19.md: 300/300
+      planted); next progress override, start float and 24-hour lag paths on a real
+      P6 file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
       eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
       appendix 2026-11-19; next a real reviewer's reading; (5) Monte Carlo risk and
       risk register shipped 2026-11-19 (risk.mjs; eval/risk-check-,
@@ -579,7 +579,5 @@ flagships:
       branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
       serial pass by early start, the file's priority list, crew-size what-if;
       eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
-      files, 37,670 of 37,670 links hold, x1e6 limits = CPM); (7) expected finish
-      dates shipped 2026-11-19 (cpm.mjs rule + finding;
-      eval/expected-finish-2026-11-19.md: 21 of 21 durations, 404 of 404 with 80 h
-      planted). More open items: NEXT.md.
+      files, 37,670 of 37,670 links hold, x1e6 limits = CPM). More open items:
+      NEXT.md.
