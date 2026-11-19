@@ -351,7 +351,55 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Americano whist designs for 40 to 64 players: a field construction and multipliers (2026-11-19, latest)
+## Tabu search finds whist designs for 48 and 60 players, and near-whist designs for 46, 54 and 62 (2026-11-19, latest)
+
+The sizes below were left on a fallback because 20 CPU-minutes of backtracking (`eval/whist-search.c`)
+found nothing for 48, 52, 57 or 60, and 15 minutes of annealing (`eval/near-whist-search.mjs`) nothing
+for 46 or 54. `eval/whist-anneal.c` searches the same base round a different way: the state is a
+permutation of the points (each four in a row are a table), the cost is how far the partner and
+opponent difference counts are from a whist design (or the near-whist conditions for 4k+2 players),
+and each step makes the best swap of two players at different tables, with the two players just
+moved barred from moving again for a few steps (tabu search; `WHIST_TABU=<steps barred>`). Plain
+simulated annealing in the same program kept stalling at cost 2, one difference class over and one
+under; the tabu walk climbs out of those.
+
+Results (`eval/whist-anneal.txt`, every base re-checked pair by pair by `checkWhist` or
+`checkNearWhist` when `eval/whist-bases-build.mjs` and `eval/near-whist-bases-build.mjs` store it):
+
+| players | group | found | before |
+|---|---|---|---|
+| 48 | Z47 + infinity | 1.5 s (tenure 4) | design 49 with an empty seat, one idle court each round |
+| 60 | Z59 + infinity | 15 s (tenure 4) | design 61 with an empty seat, one idle court each round |
+| 46 | Z46, near-whist | 9 s (tenure 4) | greedy |
+| 54 | Z54, near-whist | 9 s (tenure 6, restarts every 50,000 steps; tenure 4 found nothing in 10 min) | greedy |
+| 62 | Z62, near-whist | 148 s (tenure 4) | greedy |
+| 52 | Z51 + infinity | nothing in 60 CPU-min (four runs, tenures 3, 4, 5, 7) | unchanged: design 53 with an empty seat |
+| 57 | Z57 | nothing in 55 CPU-min (four runs, tenures 4, 5, 8) | unchanged: greedy |
+| 58 | Z58, near-whist | nothing in 25 CPU-min (tenures 4, 6) | unchanged: greedy |
+
+Also tried for 52: requiring the base round to be fixed by multiplying by 4 (a unit of order 4 mod 51
+that, unlike -1, has no parity obstruction; fixed points 0, 17, 34 join infinity's table), through
+`multiplierSearch` in `eval/whist-multiplier.mjs`: nothing in 7 minutes.
+
+What it changes on the page, with a court for every four players (`eval/whist-vs-greedy.txt`):
+
+- **48 players, 12 courts:** 47 rounds, 47 games each, every pair partners exactly once and meets as
+  opponents exactly twice, every court used every round. Before: 49 rounds of design 49 with one court
+  idle each round, 45 games each, 48 partnerships never used.
+- **47 players, 11 courts:** design 48 with one empty seat: 47 rounds, 44 games each, no partner
+  twice, every pair meets once or twice. Before: greedy.
+- **60 and 59 players** the same way (design 60; 59 with one empty seat).
+- **46 players, 11 courts:** near-whist: 46 rounds, 44 games each, no partner twice, each player
+  misses exactly one partner. Before: greedy. **54 and 62** the same way.
+
+Stored now: every 4k and 4k+1 size from 4 to 49, plus 53, 56, 60, 61 and 64; near-whist every 4k+2
+from 6 to 54, plus 62. Still not stored: 52 (plays 53 with an empty seat), 57 and near-whist 58: the
+two whist sizes are the two left whose group order is 3 times a prime (51, 57), though 21, 33 and 39
+were found, so that is a pattern to test, not a proof. Tested in `whist.test.mjs` (48 and 60
+full-court nights use their own design with no idle court; 47 and 59 play 48 and 60 with one empty
+seat; 46, 54 and 62 among the stored near-whist sizes).
+
+## Americano whist designs for 40 to 64 players: a field construction and multipliers (2026-11-19)
 
 The plain backtracking search below stopped at 37 players plus 44: 40, 41, 45, 48 and 49 found nothing in
 25 minutes each, so big socials (the card takes up to 64) fell back to greedy, which at 48 players on 12

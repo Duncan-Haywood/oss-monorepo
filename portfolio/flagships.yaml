@@ -395,12 +395,13 @@ flagships:
       on 3 sessions 0 waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits
       (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
-      (odd-orbit.py, 9,849 s). Bowling bounds and lane limits: README 2026-11-18
-      sections (eval/bowling-*). Americano whist designs 2026-11-19 (whist.mjs;
+      (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); 4k+2 near-whist designs 2026-11-19 (one missed
       partner each, 0 repeats, opponents 1-2; eval/near-whist-search.mjs annealing);
-      Whist 40-64 2026-11-19 (README); next: 48, 52, 57, 60 (C search 20 min none;
-      -1 multiplier impossible), 4k+2 bases 46, 54-62. More open items: NEXT.md.
+      Whist 48, 60 and near-whist 46, 54, 62 by tabu search 2026-11-19
+      (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h each none; order-4
+      multiplier on Z51 none) and near-whist 58 (25 min none). More open items:
+      NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
@@ -495,15 +496,14 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      bSDD: suggested links back; dB as pressure/power level (bsdd-units).
-      Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
-      EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
-      rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
-      2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
-      (eval/ifcxml-twins-2026-11-18.md); more real exports through
-      eval/model-inventory.mjs and eval/model-attr-ranges.mjs; IFC4/IFC4X3 STEP
-      exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as nested ifcXML
-      through eval/ifc4-layout.mjs.
+      bSDD: suggested links back. Excel2IDS's tool runs here (venv: pip ifctester
+      openpyxl tqdm; EXCEL2IDS_PYTHON=venv/bin/python node
+      eval/excel2ids-sidebyside.mjs, 8 s): rerun it after excel2ids.mjs changes.
+      IFC4X3 ifcXML: none public (searched 2026-11-18); B-spline control points cut
+      into rows from knot counts 2026-11-18 (eval/ifcxml-twins-2026-11-18.md); more
+      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs;
+      IFC4/IFC4X3 STEP exports (ThatOpen/engine_web-ifc tests/ifcfiles/public) as
+      nested ifcXML through eval/ifc4-layout.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.
@@ -526,10 +526,12 @@ flagships:
       clean, 42 of 42 bSDD-check clean; editor keeps uris, 0 to 344 of 344). bSDD
       units to measure types 2026-11-19 (bsdd-units.mjs,
       eval/bsdd-units-2026-11-19.md: 867 of 1,625 non-IFC Reals get a measure,
-      values in SI; IfcTester agrees 9 of 9). next: a page route for bSDD if its API
-      ever allows CORS; a BIM manager's real table or filled Excel2IDS workbook via
-      --from-sheet; Excel itself typing into the download; an RVB/ILS author on \s;
-      a Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.
+      values in SI; IfcTester agrees 9 of 9; dB as pressure/power level 2026-11-19,
+      eval/bsdd-db-2026-11-19.md, 6 of 6; count on a bSDD cache). next: a page route
+      for bSDD if its API ever allows CORS; a BIM manager's real table or filled
+      Excel2IDS workbook via --from-sheet; Excel itself typing into the download; an
+      RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open
+      items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
@@ -543,8 +545,8 @@ flagships:
       finding and a 600-day critical path test.
     buildable: >-
       The six public XER files in eval/cpm-vs-p6-2026-11-19.md (git clone the four
-      repos named there): CCA residual down to 14 of 14,270 (three late-finish
-      chains, eval/cpm-vs-p6-2026-11-19.md, What is left) with node
+      repos named there): CCA residual down to 2 of 14,270 and 37 finished-node late
+      dates (eval/cpm-vs-p6-2026-11-19.md, What is left) with node
       eval/cpm-vs-p6.mjs; free float 19,809 of 19,822
       (eval/free-float-2026-11-19.md): 9 left in the 24.12 file where P6 stores 0
       against a positive gap; more hand-made or converter XERs (no data date, no
@@ -552,10 +554,10 @@ flagships:
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
-      (1) CCA rules 10-11 and free float shipped 2026-11-19 (99.9%, 19,808 of 19,822
-      overall; free float 19,809, eval/free-float-2026-11-19.md; recomputed-schedule
-      CSV); next the 14 left: three late-finish chains where P6 is 3-20 days earlier
-      (eval/cpm-vs-p6-2026-11-19.md, "What is left"); (2) update comparison shipped
+      (1) CPM fourth pass shipped 2026-11-19 (rules 12-16: 19,820 of 19,822, late
+      finish 19,822; eval/cpm-vs-p6-2026-11-19.md); next the 2 left
+      (BAFT/SAFT2305509: a 608 h FS lag from a finished milestone P6 counts some
+      other way) and the 37 finished-node late dates; (2) update comparison shipped
       2026-11-19 (compare.mjs, half-step split; eval/compare-check-2026-11-19.md:
       720 of 720 planted edits on six real files); next a real pair of consecutive
       updates to check the half-step against, and a windows analysis across many

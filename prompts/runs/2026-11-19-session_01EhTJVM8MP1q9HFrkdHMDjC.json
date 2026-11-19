@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVM8MP1q9HFrkdHMDjC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled brief)",
+  "input_sha256": "b984be0c789ab318908f984dafed73ec35ff9bfe22dc84e373312ab5add974dd",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T14:03:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17683",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ids-model-check's buildable item 'dB as pressure/power level' could only be built, not counted on the corpus: api.bsdd.buildingsmart.org refused this session and the bSDD class cache from the earlier run is not committed, so the 265 dB properties it refers to are unreadable here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The weighted draw routed to research; the scheduled brief names revenue products, so routed with --task, which picked ventures.",
+      "did": "routed ventures via --task",
+      "result": "ventures/1 champion followed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Flagship 12 ids-model-check, buildable item: dB properties from bSDD as IFCSOUNDPRESSURELEVELMEASURE / IFCSOUNDPOWERLEVELMEASURE by physicalQuantity, name words or ISO symbol (levelOf in bsdd-units.mjs). Verified: node --test bsdd-units/bsdd-spec/bsdd (29 pass); run_venture_tests.py ids-model-check ok (349 tests); eval/bsdd-db-model.mjs built wall class, this checker and IfcTester 0.9.0 agree 6 of 6 (eval/bsdd-db-model.txt). Corpus count not run (bSDD API refused). Post docs/posts/2026-11-19-a-decibel-is-two-measures-in-ifc.md.",
+  "corrections": [],
+  "redteam": null
+}

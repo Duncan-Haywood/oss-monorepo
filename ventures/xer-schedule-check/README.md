@@ -129,18 +129,26 @@ run as a formula in Excel or Sheets.
 
 - **Against P6 itself** (`eval/cpm-vs-p6-2026-11-19.md`): six public XER files
   from P6 5.0 to 24.12, 19,822 open activities. Early finish, late finish and
-  total float all equal P6's stored values on **19,808 (99.9%)**: 100% on five
-  files (the hotel schedule's last one fixed by the free-float rules), 14,256 of 14,270 (99.9%) on a
-  heavily progressed programme with 2,134 out-of-sequence links (88.2% before
-  the retained-logic rules of 2026-11-19, 99.4% before the third pass). Every rule added to get
-  there is listed there with the count it moved.
+  total float all equal P6's stored values on **19,820 (99.99%)**, and late
+  finish on all 19,822: 100% on five files (the hotel schedule's last one fixed
+  by the free-float rules), 14,268 of 14,270 on a heavily progressed programme
+  with 2,134 out-of-sequence links (88.2% before the retained-logic rules of
+  2026-11-19, 99.4% before the third pass, 14,256 before the fourth). The two
+  left are a finish milestone and its successor whose 608 h lag P6 counts in a
+  way no calendar tried reproduces. Every rule added to get there is listed
+  there with the count it moved; the fourth pass added five (an open
+  predecessor's FS lag into a finished node comes back off, a labour
+  assignment's remaining work sets the late start of an activity with no
+  remaining duration, unspent SS lag into a finished node, as late as possible
+  on started work, and a future actual start that has spent no lag).
 - **Free float against P6** (`eval/free-float-2026-11-19.md`): the same files,
-  **19,809 of 19,822 (99.93%)** equal P6's stored free float, up from 18,537
+  **19,810 of 19,822 (99.94%)** equal P6's stored free float (19,809 before the
+  fourth CPM pass), up from 18,537
   (93.5%), after four rules (an open end runs to the project's early finish; SS
   lag already spent on either side of a started link is not free float; a
   finished successor still counts; free float is never negative and not capped
-  at total float), each with its measured count. The 13 left: 4 on CCA
-  activities whose dates already differ, 9 in the 24.12 file where P6 stores 0
+  at total float), each with its measured count. The 12 left: 2 on CCA
+  activities whose dates already differ (another 1 since then), 9 in the 24.12 file where P6 stores 0
   against a positive gap in its own dates.
 - **Files with no data date, no PROJECT table or no calendar pattern**: two
   hand-made fixtures from the same public repositories crashed the engine

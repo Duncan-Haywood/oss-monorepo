@@ -52,6 +52,8 @@ forecast's own driving path.
   activities never on the driving path: chance correlations over many
   activities. Sensitivities below 4 / sqrt(runs) are now reported as blank.
 
+**Engine version.** These numbers were taken on the engine before PR #17679's P6 rules landed (an SS-lag rule on started predecessors and resource-remaining late dates; the first changes a few CCA early dates). After merging it, the zero-width check was re-run on the five smaller files (exact on all five). The CCA row may move slightly on a re-run.
+
 **What this does not show.** Whether the default range is right for any of
 these projects (it is a placeholder the page says to replace), or how the
 P-dates compare with the projects' real finishes (none of the files is paired

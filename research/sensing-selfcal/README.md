@@ -13,6 +13,16 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3s headline** (can a robot camera use only its *past* self-calibrations as a prior? 53 real TUM windows in
+recording order, a soft prior on k<sub>1</sub> and the principal point from the camera's *earlier* windows only, starting after
+five): **yes.** The pooled median focal error falls from **2.88% to 2.32%** (lower in 30 of 43 windows, paired Wilcoxon p = 0.0006),
+the scatter by a quarter to a half, windows more than 10% wrong from 9 to 4, and the median focal length moves under 0.7%: about
+two thirds of milestone 3r's leave-one-out gain, without looking ahead. Five earlier windows already help. Updating the memory
+from the prior-steadied estimates shrinks the prior to a near-pin on k<sub>1</sub> within ten windows; here that cost nothing
+(2.42%) and cut the 10%-wrong windows to 2, but it is a pin learned from the first five windows. All eight predictions held. [Log](LOG.md).
+
+![TUM windows in recording order with a causal prior: per-window focal error by model, and the k1 prior's centre and width as the robot goes](experiments/m3s_causal/causal.png)
+
 **Milestone 3r headline** (can a robot camera's memory of its own earlier self-calibrations steady the next one? 53 real TUM
 windows, rolling-shutter model, a soft prior on k<sub>1</sub> and the principal point set to the median and spread of the same
 camera's *other* windows, no target or reference value): **yes, for scatter.** The window-to-window focal scatter falls by a
@@ -1217,11 +1227,12 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
 
 ## Next steps
 
-After milestone 3r: a soft prior on k<sub>1</sub> from the camera's other windows cuts the scatter by a quarter to a half and the
-pooled focal error from 3.06% to 2.43% without moving the median; a prior from another session works too, k<sub>1</sub> alone
-carries it, and the Xtion's +2% bias stays. Next: a *causal* prior (only windows earlier in time, updated as the robot goes) and
-how many windows it needs; whether the prior makes the pooled sd honest (re-run milestone 3d's pooling with it); the Xtion's bias
-by a second board calibration; and the same prior on milestone 4's accept/reject gate.
+After milestone 3s: a causal prior from the camera's earlier windows alone cuts the pooled focal error from 2.88% to 2.32%
+(p = 0.0006) and keeps two thirds of milestone 3r's leave-one-out gain; five earlier windows are enough to help; a recursive
+memory collapses to a near-pin on k<sub>1</sub> within ten windows, harmless here. Next: a bad-start test of the recursive
+memory (seed it with the worst five windows, or another camera's), and a floor on its width; whether the prior makes the pooled sd
+honest (re-run milestone 3d's pooling with it); the Xtion's +2.8% bias by a second board calibration; and the causal prior on
+milestone 4's accept/reject gate.
 
 After milestone 3q: on the Kinect the leftover error is window-to-window scatter along the f&ndash;k<sub>1</sub>&ndash;principal-point
 ridge, inside the references' own 1.6% disagreement; the Xtion keeps a 1.3&ndash;2.5% high median. Next: a prior on k<sub>1</sub> and
