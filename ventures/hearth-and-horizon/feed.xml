@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Every Other Flash</title>
+      <link>https://example.invalid/hearth-and-horizon/every-other-flash.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/every-other-flash.html</guid>
+      <pubDate>Thu, 19 Nov 2026 12:00:00 GMT</pubDate>
+      <description>In October 2054 a debris-removal firm in Toulouse rules a dead 2028 radar satellite out of reach, because its light curve flashes every 41 seconds and its single-use tug cannot match a spin of 8.8 degrees a second. The retired engineer who built it remembers a second radiator added late and never filed, which would mean two flashes to a turn and a spin of only 4.4 degrees a second. A flight director who will not bet a tug on a memory, a refold of the data that proves nothing, a retired maths teacher in the Middle Atlas with a video camera and a note nobody read, and the one thing the engineer has put in the sky, turning at last to a steady light. Setting: Toulouse, France, and Ifrane, Morocco, Monday 19 to Saturday 31 October 2054. Read the full text at https://example.invalid/hearth-and-horizon/every-other-flash.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>In October 2054 a debris-removal firm in Toulouse rules a dead 2028 radar satellite out of reach, because its light curve flashes every 41 seconds and its single-use tug cannot match a spin of 8.8 degrees a second. The retired engineer who built it remembers a second radiator added late and never filed, which would mean two flashes to a turn and a spin of only 4.4 degrees a second. A flight director who will not bet a tug on a memory, a refold of the data that proves nothing, a retired maths teacher in the Middle Atlas with a video camera and a note nobody read, and the one thing the engineer has put in the sky, turning at last to a steady light.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Martha and the Busy Kitchen at Bethany</title>
       <link>https://example.invalid/hearth-and-horizon/martha-and-the-busy-kitchen-at-bethany.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/martha-and-the-busy-kitchen-at-bethany.html</guid>
