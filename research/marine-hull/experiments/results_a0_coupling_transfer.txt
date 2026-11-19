@@ -1,0 +1,39 @@
+tank hull: modified Wigley L 2 m B 0.3 m d 0.125 m, Fn 0.2; measured mean area 5.773 on 16 lambdas (0.30-2.00); rule A0 = no heave-pitch added-mass coupling (A35 = A53 = 0)
+## B/C. tank hull, coupling plain
+zeta 0: strip area 0.960 of measured mean; strip+refl 1.189; short-wave strip 0.28 of measured
+fitted zeta (mean): 0.0250; per series dyn_2p5cm 0.016, dyn_1p0cm 0.015, measured_wave_1p0cm 0.068, superposed_wave_1p0cm 0.000
+at fitted zeta: strip+refl peak 8.77 at lambda/L 1.05; sigma rms vs measured mean 1.609; heave rms (0.8-2.0) 0.135, pitch rms 0.213, mean heave error at 1.0-1.3 +3.3%
+at zeta 0: heave rms 0.166, pitch rms 0.151, mean heave error at 1.0-1.3 +26.3%
+D: reflection scale f_r 0.402, refitted zeta 0.0059, sigma rms vs measured mean 1.266
+## B/C. tank hull, coupling A0
+zeta 0: strip area 0.900 of measured mean; strip+refl 1.129; short-wave strip 0.28 of measured
+fitted zeta (mean): 0.0180; per series dyn_2p5cm 0.009, dyn_1p0cm 0.008, measured_wave_1p0cm 0.061, superposed_wave_1p0cm 0.000
+at fitted zeta: strip+refl peak 8.96 at lambda/L 1.05; sigma rms vs measured mean 1.579; heave rms (0.8-2.0) 0.179, pitch rms 0.183, mean heave error at 1.0-1.3 -19.1%
+at zeta 0: heave rms 0.140, pitch rms 0.133, mean heave error at 1.0-1.3 -7.3%
+D: reflection scale f_r 0.403, refitted zeta 0.0000, sigma rms vs measured mean 1.263
+## C/D. carried to the 4 m monohull (30 W range loss, 200 W scope)
+reference: calm 30 W range 823.7 km at 1.00 m/s
+# table: case coupling zeta f_r pooled_1ms_motion_N ratio_to_stawave2 pooled_1ms_reflection_N loss30W_share025 loss30W_share1 scope200W
+row zeta0 plain 0.0000 1.000 2.954 2.13 0.725 -4.31 -15.06 True
+row zeta0 A0 0.0000 1.000 2.860 2.06 0.725 -4.20 -14.86 True
+row fit plain 0.0250 1.000 2.409 1.74 0.725 -3.69 -13.30 True
+row fit A0 0.0180 1.000 2.463 1.78 0.725 -3.75 -13.50 True
+row fit_scaled plain 0.0059 0.402 2.800 2.02 0.292 -3.65 -13.14 True
+row fit_scaled A0 0.0000 0.403 2.860 2.06 0.292 -3.71 -13.36 True
+row series_0.000 plain 0.0000 1.000 2.954 2.13 0.725 -4.31 -15.06 True
+row series_0.015 plain 0.0150 1.000 2.595 1.87 0.725 -3.90 -13.98 True
+row series_0.016 plain 0.0160 1.000 2.575 1.86 0.725 -3.88 -13.90 True
+row series_0.068 plain 0.0680 1.000 1.883 1.36 0.725 -3.09 -11.32 True
+row series_0.000 A0 0.0000 1.000 2.860 2.06 0.725 -4.20 -14.86 True
+row series_0.008 A0 0.0080 1.000 2.666 1.92 0.725 -3.98 -14.23 True
+row series_0.009 A0 0.0090 1.000 2.644 1.91 0.725 -3.96 -14.15 True
+row series_0.061 A0 0.0610 1.000 1.912 1.38 0.725 -3.12 -11.43 True
+A0 per-series 30 W loss range (share 0.25): -4.20% to -3.12%
+## expectations
+H1 A0 strip+refl area ratio at zeta 0 1.129 (1.05-1.19), fitted zeta 0.0180 in (0, 0.025): True
+H2 monohull motion term at zeta 0: plain 2.954 N, A0 2.860 N (-3.2%; within 10%): True
+H3 30 W loss at fitted zeta: plain -3.69%, A0 -3.75% (|.| in 3.1-4.3 and within 0.5 of 3.69): True
+H4 sigma rms at fitted zeta: plain 1.609, A0 1.579 (A0 lower): True
+H5 A0 heave rms at fitted zeta 0.179 (<= 0.140): False
+H6 200 W scope holds in every row: True
+H7 A0 with refitted f_r: loss -3.71% (plain -3.65%; within 0.5 of 3.65): True
