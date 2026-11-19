@@ -1,129 +1,135 @@
 {
-  "date": "2026-11-19",
-  "session": "https://claude.ai/code/session_01XpHqyg7KPcSQsNHBZXJGaQ",
-  "track": "perf",
-  "prompt_version": 0,
-  "input": "follow ./prompt.md",
-  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
-  "follow_up_inputs": [],
-  "model": "claude-opus-5-5",
-  "models_seen": [
-    "claude-opus-5-5"
-  ],
-  "started": "2026-11-19T16:39:07Z",
-  "ended": "2026-11-19T16:46:07Z",
-  "wall_minutes": 7.16,
-  "tokens_in": 3919672,
-  "tokens_out": 23677,
-  "cost_usd": 1.9807,
-  "tool_calls": 43,
-  "task": null,
-  "projects": [],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17727",
-  "repo": null,
-  "commits": [],
-  "lines_added": null,
-  "lines_removed": null,
-  "merged": null,
-  "ci_failures_before_green": null,
-  "review_findings": null,
-  "tests_added": null,
-  "outcome": "success",
-  "errors": [],
-  "integrity_issues": [],
-  "doc_friction": [
-    {
-      "file": "platform/ci/suite_file_times.py",
-      "issue": "Per-file times say which file is slow but not which test; I still had to run node --test --test-reporter=spec and sort the durations by hand to find the two sheathing sweeps."
-    },
-    {
-      "file": "CLAUDE.md",
-      "issue": "The work branch claude/brave-tesla-lm1da8 was already checked out at session start, so my `git checkout -b` failed; nothing says the harness may have created the branch already."
-    }
-  ],
-  "deviations": [],
-  "writeups": [
-    "docs/posts/2026-11-19-the-same-cut-six-times.md",
-    "docs/history/ci-perf-2026-11-19-wall-framing-exact-stock-board-twins.md"
-  ],
-  "goal": null,
-  "notes": "Metric: wall time of ventures/wall-framing-takeoff/engine.test.mjs run alone (`node --test engine.test.mjs`, duration_ms, median of 3, 4-core container): before 5489 ms, after 3885 ms. Two sheathing sweeps (spec reporter): 1596/1523 ms -> 727/782 ms. A replay script of both sweeps took 3.3 s before and 1.7 s after; cpu-prof showed 2.48 s self time in exactStock before. Patterns across 553 exactStock calls: 485,014 -> 117,441. Same answers: the new exact-stock-twins.test.mjs pins against the plain DP (300 instances, dedupe fired on 298), SHA-256 digest of the 500 sheathe results unchanged, samplePlan takeoff cmp identical, bench.mjs identical except ms column. run_venture_tests.py wall-framing-takeoff: ok, 1214 tests, 15.3 s.",
-  "corrections": [],
-  "redteam": null,
-  "usage": {
-    "measured_by": "prompts/runcost.py v1",
-    "session_id": "c8488801-cc4c-543a-9496-1c4721e522c1",
-    "transcripts": 1,
-    "first": "2026-11-19T16:39:07Z",
-    "last": "2026-11-19T16:46:17Z",
-    "primary_model": "claude-opus-5-5",
-    "models": {
-      "claude-opus-5-5": {
-        "requests": 42,
-        "input": 84,
-        "output": 23677,
-        "thinking": 6059,
-        "cache_read": 3826902,
-        "cache_write_5m": 0,
-        "cache_write_1h": 92686,
-        "api_equivalent_usd": 1.9807,
-        "fast_requests": 0
-      }
-    },
-    "totals": {
-      "requests": 42,
-      "input": 84,
-      "output": 23677,
-      "thinking": 6059,
-      "cache_read": 3826902,
-      "cache_write_5m": 0,
-      "cache_write_1h": 92686,
-      "api_equivalent_usd": 1.9807,
-      "api_equivalent_complete": true
-    },
-    "cache_hit_share": 0.976,
-    "tool_calls": 43,
-    "tools": {
-      "Bash": 39,
-      "Edit": 1,
-      "Write": 1,
-      "ToolSearch": 1,
-      "mcp__github__create_pull_request": 1
-    },
-    "web_searches": 0,
-    "time": {
-      "wall_minutes": 7.16,
-      "active_minutes": 7.16,
-      "model_minutes": 4.16,
-      "tool_minutes": 3.0,
-      "waiting_on_human_minutes": 0.0,
-      "human_prompts": 1,
-      "stalls": 0,
-      "subagent_minutes": 0.0
-    },
-    "pricing": {
-      "as_of": "2026-10-06",
-      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
-    },
-    "human_equivalent": {
-      "hours": 3.0,
-      "basis": "profiling, a dominance argument, a pinning test and a write-up for a senior engineer",
-      "rate_usd_per_hour": 100.0,
-      "usd": 300.0
-    },
-    "leverage": 151.5,
-    "certainty": {
-      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
-      "model": "high: the `model` field on each API response, not the configured model",
-      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
-      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
-      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
-    },
-    "not_counted": [
-      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
-      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
-      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
-      "CI minutes and the reviewer bots' own model calls"
-    ]
+ "date": "2026-11-19",
+ "session": "https://claude.ai/code/session_01XpHqyg7KPcSQsNHBZXJGaQ",
+ "track": "perf",
+ "prompt_version": 0,
+ "input": "follow ./prompt.md",
+ "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [
+  "claude-opus-5-5"
+ ],
+ "started": "2026-11-19T16:39:07Z",
+ "ended": "2026-11-19T16:46:07Z",
+ "wall_minutes": 7.16,
+ "tokens_in": 3919672,
+ "tokens_out": 23677,
+ "cost_usd": 1.9807,
+ "tool_calls": 43,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17727",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "First push left ventures/open-house-plans/wft-engine.mjs (a byte-for-byte vendored copy of wall-framing's engine.mjs) stale; CI changed-ventures went red on its vendor check. Fixed with `node vendor-framing.mjs` in a follow-up commit."
+ ],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "platform/ci/suite_file_times.py",
+   "issue": "Per-file times say which file is slow but not which test; I still had to run node --test --test-reporter=spec and sort the durations by hand to find the two sheathing sweeps."
+  },
+  {
+   "file": "CLAUDE.md",
+   "issue": "The work branch claude/brave-tesla-lm1da8 was already checked out at session start, so my `git checkout -b` failed; nothing says the harness may have created the branch already."
+  },
+  {
+   "file": "ventures/wall-framing-takeoff/engine.mjs",
+   "issue": "Nothing in wall-framing-takeoff says open-house-plans vendors engine.mjs byte for byte; only the other venture's test catches it. run_venture_tests.py wall-framing-takeoff does not run the dependent suite."
   }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-19-the-same-cut-six-times.md",
+  "docs/history/ci-perf-2026-11-19-wall-framing-exact-stock-board-twins.md"
+ ],
+ "goal": null,
+ "notes": "Metric: wall time of ventures/wall-framing-takeoff/engine.test.mjs run alone (`node --test engine.test.mjs`, duration_ms, median of 3, 4-core container): before 5489 ms, after 3885 ms. Two sheathing sweeps (spec reporter): 1596/1523 ms -> 727/782 ms. A replay script of both sweeps took 3.3 s before and 1.7 s after; cpu-prof showed 2.48 s self time in exactStock before. Patterns across 553 exactStock calls: 485,014 -> 117,441. Same answers: the new exact-stock-twins.test.mjs pins against the plain DP (300 instances, dedupe fired on 298), SHA-256 digest of the 500 sheathe results unchanged, samplePlan takeoff cmp identical, bench.mjs identical except ms column. run_venture_tests.py wall-framing-takeoff: ok, 1214 tests, 15.3 s.",
+ "corrections": [],
+ "redteam": null,
+ "usage": {
+  "measured_by": "prompts/runcost.py v1",
+  "session_id": "c8488801-cc4c-543a-9496-1c4721e522c1",
+  "transcripts": 1,
+  "first": "2026-11-19T16:39:07Z",
+  "last": "2026-11-19T16:46:17Z",
+  "primary_model": "claude-opus-5-5",
+  "models": {
+   "claude-opus-5-5": {
+    "requests": 42,
+    "input": 84,
+    "output": 23677,
+    "thinking": 6059,
+    "cache_read": 3826902,
+    "cache_write_5m": 0,
+    "cache_write_1h": 92686,
+    "api_equivalent_usd": 1.9807,
+    "fast_requests": 0
+   }
+  },
+  "totals": {
+   "requests": 42,
+   "input": 84,
+   "output": 23677,
+   "thinking": 6059,
+   "cache_read": 3826902,
+   "cache_write_5m": 0,
+   "cache_write_1h": 92686,
+   "api_equivalent_usd": 1.9807,
+   "api_equivalent_complete": true
+  },
+  "cache_hit_share": 0.976,
+  "tool_calls": 43,
+  "tools": {
+   "Bash": 39,
+   "Edit": 1,
+   "Write": 1,
+   "ToolSearch": 1,
+   "mcp__github__create_pull_request": 1
+  },
+  "web_searches": 0,
+  "time": {
+   "wall_minutes": 7.16,
+   "active_minutes": 7.16,
+   "model_minutes": 4.16,
+   "tool_minutes": 3.0,
+   "waiting_on_human_minutes": 0.0,
+   "human_prompts": 1,
+   "stalls": 0,
+   "subagent_minutes": 0.0
+  },
+  "pricing": {
+   "as_of": "2026-10-06",
+   "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+  },
+  "human_equivalent": {
+   "hours": 3.0,
+   "basis": "profiling, a dominance argument, a pinning test and a write-up for a senior engineer",
+   "rate_usd_per_hour": 100.0,
+   "usd": 300.0
+  },
+  "leverage": 151.5,
+  "certainty": {
+   "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+   "model": "high: the `model` field on each API response, not the configured model",
+   "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+   "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+   "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+  },
+  "not_counted": [
+   "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+   "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+   "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+   "CI minutes and the reviewer bots' own model calls"
+  ]
+ }
 }
