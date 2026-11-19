@@ -566,21 +566,21 @@ flagships:
       720 of 720 planted edits on six real files); windows analysis across many
       updates shipped 2026-11-19 (windows.mjs, --windows; a not-started re-estimate
       is now a revision in the half-step; eval/windows-check-2026-11-19.md); next a
-      real series of updates to check the split and drivers against, and windows in
-      the written review; (3) GitHub ERMHDR search done 2026-11-19 (245 files, none
-      a new scored P6 export; eval/converter-files-2026-11-19.md); next progress
-      override, start float and 24-hour lag paths on a real P6 file; (4) written
-      review shipped 2026-11-19 (report.mjs, print to PDF;
+      real series of updates to check the split and drivers against (windows in the
+      review shipped 2026-11-19); (3) GitHub ERMHDR search done 2026-11-19 (245
+      files, none a new scored P6 export; eval/converter-files-2026-11-19.md); next
+      progress override, start float and 24-hour lag paths on a real P6 file; (4)
+      written review shipped 2026-11-19 (report.mjs, print to PDF;
       eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
-      next a real reviewer's reading of one and a full-list appendix option; (5)
-      Monte Carlo risk and risk register shipped 2026-11-19 (risk.mjs;
-      eval/risk-check-, eval/risk-register-check-2026-11-19.md); UDF ranges shipped
-      2026-11-19 (eval/udf-ranges-check-*); next: a real file with range UDFs,
-      probabilistic branches; (6) resource levelling shipped 2026-11-19 (level.mjs,
-      --level: serial pass by early start, the file's priority list, crew-size
-      what-if; eval/level-check-2026-11-19.md: 0 h over a limit from placed work on
-      six files, 37,670 of 37,670 links hold, x1e6 limits = CPM); (7) expected
-      finish dates shipped 2026-11-19 (cpm.mjs rule + finding;
+      appendix 2026-11-19; next a real reviewer's reading; (5) Monte Carlo risk and
+      risk register shipped 2026-11-19 (risk.mjs; eval/risk-check-,
+      eval/risk-register-check-2026-11-19.md); UDF ranges shipped 2026-11-19
+      (eval/udf-ranges-check-*); next: a real file with range UDFs, probabilistic
+      branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
+      serial pass by early start, the file's priority list, crew-size what-if;
+      eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
+      files, 37,670 of 37,670 links hold, x1e6 limits = CPM); (7) expected finish
+      dates shipped 2026-11-19 (cpm.mjs rule + finding;
       eval/expected-finish-2026-11-19.md: 21 of 21 durations, 404 of 404 with 80 h
       planted); next a second P6 file using them, a risk-page switch to sample them;
       (8) MSPDI: next a real construction .xml, task splits. More open items:

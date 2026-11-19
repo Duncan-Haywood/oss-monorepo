@@ -22,7 +22,11 @@
 // Windows analysis over a series of updates instead (windows.mjs): per window
 // between consecutive data dates, how far the forecast finish moved, the
 // half-step split into progress and revisions, and the activities on the
-// driving path behind each.
+// driving path behind each. With --report review.html [--appendix] [--risk]:
+// the written review of the latest update, compared with the one before it,
+// with a "Delay by window" section and its corrections.
+// Any --report also takes --appendix: every activity behind every correction
+// printed in an appendix, not only the first 40 of each.
 import { readFileSync, writeFileSync } from "node:fs";
 // A file that cannot be assessed (no PROJECT table, not an XER at all) ends
 // with one line saying why, not a stack trace. XER_DEBUG=1 keeps the trace.
@@ -32,7 +36,7 @@ import { decodeXer } from "./xer.mjs";
 import { parseSchedule } from "./mspdi.mjs";
 import { assess, findingsCsv, scheduleCsv } from "./dcma.mjs";
 import { compare, compareCsv, compareText } from "./compare.mjs";
-import { reviewHtml, reviewItems } from "./report.mjs";
+import { reviewHtml, reviewItems, windowsFor } from "./report.mjs";
 import { riskAnalysis, riskCsv, parseRanges, parseRisks } from "./risk.mjs";
 import { rangesFromUdf, udfFields, udfSpec, udfRangeNote } from "./udf-ranges.mjs";
 import { formatDate } from "./xer.mjs";
@@ -41,16 +45,29 @@ import { level, levelCsv } from "./level.mjs";
 const args = process.argv.slice(2);
 const VALUED = ["--ranges-udf", "--udf-unit", "--range", "--correlation", "--ranges", "--risks", "--seed", "--csv", "--project", "--previous", "--schedule", "--report", "--to", "--from", "--ref", "--notes", "--crew"];
 const opt = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : undefined);
-function writeReview(report, cmp, risk = null) {
+function writeReview(report, cmp, risk = null, win = null) {
   if (!args.includes("--report")) return;
-  writeFileSync(opt("--report"), reviewHtml(report, cmp, { recipient: opt("--to"), reviewer: opt("--from"), reference: opt("--ref"), notes: opt("--notes"), risk }));
-  const items = reviewItems(report, cmp, risk), n = (s) => items.filter((x) => x.severity === s).length;
+  writeFileSync(opt("--report"), reviewHtml(report, cmp, { recipient: opt("--to"), reviewer: opt("--from"), reference: opt("--ref"), notes: opt("--notes"), risk, windows: win, appendix: args.includes("--appendix") }));
+  const items = reviewItems(report, cmp, risk, windowsFor(report, win)), n = (s) => items.filter((x) => x.severity === s).length;
   console.error(`review written to ${opt("--report")}: ${items.length} corrections (${n("high")} high, ${n("medium")} medium, ${n("low")} low)`);
 }
 if (args.includes("--windows")) {
   const files = args.filter((a, i) => !a.startsWith("--") && !VALUED.includes(args[i - 1]));
   if (files.length < 2) { console.error("usage: node cli.mjs --windows update1.xer update2.xer [update3.xer ...] [--json] [--csv windows.csv] [--project CODE]"); process.exit(2); }
-  const rep = windows(files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() })), { projectName: opt("--project") });
+  const ups = files.map((f) => ({ xer: parseSchedule(decodeXer(readFileSync(f))), label: f.split("/").pop() }));
+  const rep = windows(ups, { projectName: opt("--project") });
+  if (args.includes("--report")) {
+    // the review is of the latest update, compared with the one before it,
+    // with the whole series' windows in it
+    const byLabel = (l) => ups.find((u) => u.label === l).xer;
+    const lastX = byLabel(rep.updates[rep.updates.length - 1].label), prevX = byLabel(rep.updates[rep.updates.length - 2].label);
+    const w = rep.windows[rep.windows.length - 1];
+    const idOf = (x) => (x.tables.PROJECT || []).find((p) => p.proj_short_name === rep.project)?.proj_id ?? null;
+    const cur = assess(lastX, { projId: idOf(lastX) });
+    const cmp = compare(prevX, lastX, { curProjId: cur.project.id, ...(idOf(prevX) ? { prevProjId: idOf(prevX) } : {}) });
+    writeReview(cur, cmp, args.includes("--risk") ? runRisk(lastX, cur.project.id) : null, rep);
+    if (w.dataDateTo.slice(0, 16) !== cur.project.dataDate.slice(0, 16)) console.error("note: the latest update's project differs from the windows' project; the windows were left out of the review");
+  }
   if (opt("--csv")) writeFileSync(opt("--csv"), windowsCsv(rep));
   process.stdout.write(args.includes("--json") ? JSON.stringify(rep, null, 2) + "\n" : windowsText(rep));
   process.exit(0);
