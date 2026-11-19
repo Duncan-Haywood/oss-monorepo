@@ -226,8 +226,13 @@ def bench():
 
 def _deps():
     DC = _mod("drift7c_run", EXP / "drift7c" / "run.py")
-    for c in CANDIDATES:
-        DC.LF.WL.SRC[c] = "sets7p"      # balance and OCP tables of these designs live here
+    SF = DC.LF.WL.SF
+    if not getattr(SF, "_sets7p", False):
+        # lawfloor's and drift7c's _job read balance and OCP tables from crossset/ or calmap/ only; these designs'
+        # tables live here, so the loader is pointed at this directory (the per-design code runs unchanged)
+        orig = SF._bal
+        SF._bal = lambda d: orig(HERE)
+        SF._sets7p = True
     return DC
 
 
@@ -288,7 +293,7 @@ def report():
         pn = paired(lopo[a], lopo["U"])
         p6 = p4 + pn
         pair[a] = {}
-        for name, pr in (("four", p4), ("new", pn), ("six", p6)):
+        for name, pr in (("four", p4), ("new", pn), ("all", p6)):
             pos, neg, p = sign_test([r["d"] for r in pr])
             per_set = {s: sum(r["d"] for r in pr if r["set"] == s) / sum(1 for r in pr if r["set"] == s)
                        for s in sorted({r["set"] for r in pr})}
@@ -302,7 +307,7 @@ def report():
     for st in new_sets:
         old_rows = [r for r in rows if r["set"] == st and r["pool"] in POOLS[:N_OLD]]
         rho[st] = {o: spearman([r[o] for r in old_rows], [r["m"] for r in old_rows]) for o in ("O1", "O2", "O3")}
-    six = pair["theta"]["six"]
+    six = pair["theta"]["all"]
     V = dict(
         H309=verdict(six["boot"][1] < 0, six["mean"] >= 0),
         H310=verdict(all(per[st]["theta"]["met"] >= 4 for st in new_sets),
@@ -315,15 +320,15 @@ def report():
                   q75_50=H.quant([r["E"][50] for r in rows if r["set"] == st]),
                   n=sum(1 for r in rows if r["set"] == st),
                   med_sc=median(abs(r["mC"] - 1) for r in rows if r["set"] == st)) for st in new_sets}
-    L = ["cell-fidelity milestone 7p: a fifth and sixth parameter set. Per new set, 50 designs (Sobol seed "
-         f"{SOBOL_SEED}) simulated", "to cycle 100 with 5zk's x-resolved DFN (SEI + plating) bench, split in design "
-         "order into pools of 10, 8, 8, 8, 16;", "7c's correction, then 7h's lopo5 (each pool held out, nested "
+    L = ["cell-fidelity milestone 7p: a fifth and sixth parameter set. Per kept condition, designs 0 to 55 (Sobol "
+         f"seed {SOBOL_SEED}) simulated", "to cycle 100 with 5zk's x-resolved DFN (SEI + plating) bench, split in design "
+         "order into pools of 10, 8, 8, 8, 16 (the first 50 that finish; short pools stay short);", "7c's correction, then 7h's lopo5 (each pool held out, nested "
          "margin from the other four). Cell 000; PyBaMM 26.10.1.1.", "",
          f"kept conditions: {', '.join(kept)}", "",
          f"{'set':14s}{'n':>4s}{'q75 E10':>9s}{'q75 E50':>9s}{'med S_C':>9s}   pick   rho(O1, O2, O3 ; m) on pools 1-3"]
     for st in new_sets:
         e = E[st]
-        L.append(f"{st:14s}{e['n']:4d}{e['q75_10']:9.3f}{e['q75_50']:9.3f}{e['med_sc']:9.3f}   {lines[st][0]:5s}  "
+        L.append(f"{st:14s}{e['n']:4d}{e['q75_10']:9.3f}{e['q75_50']:9.3f}{e['med_sc']:>10.3g}   {lines[st][0]:5s}  "
                  + "  ".join(f"{rho[st][o]:+.2f}" for o in ("O1", "O2", "O3")))
     L += ["", f"{'lopo5 on the new sets':24s}" + "".join(f"{st:>22s}" for st in new_sets)]
     for rule in ("theta", "theta50", "U"):
@@ -333,22 +338,53 @@ def report():
           f"{'rule':9s}{'sets':>6s}{'folds':>6s}{'mean':>8s}{'set bootstrap 95%':>22s}{'cheaper':>9s}{'dearer':>8s}"
           f"{'sign p':>8s}{'met a/b':>9s}"]
     for a in ("theta", "theta50"):
-        for name in ("four", "new", "six"):
+        for name in ("four", "new", "all"):
             d = pair[a][name]
             bt = f"{d['boot'][0]:+.2f} to {d['boot'][1]:+.2f}" if d["boot"] else "-"
             L.append(f"{a:9s}{name:>6s}{d['n']:6d}{d['mean']:+8.2f}{bt:>22s}{d['cheaper']:9d}{d['dearer']:8d}"
                      f"{d['sign_p']:8.3f}{d['met_a']:>5d}/{d['met_b']}")
-    L += ["", "per-set mean difference, theta minus U (six sets): " + ", ".join(
-        f"{s} {v:+.2f}" for s, v in pair["theta"]["six"]["per_set"].items()), "",
-          f"H309 (six-set bootstrap interval of theta - U excludes zero, below): {V['H309']}",
+    L += ["", f"per-set mean difference, theta minus U ({len(pair['theta']['all']['per_set'])} sets): " + ", ".join(
+        f"{s} {v:+.2f}" for s, v in pair["theta"]["all"]["per_set"].items()), "",
+          f"H309 (the all-set bootstrap interval of theta - U excludes zero, below): {V['H309']}",
           f"H310 (theta meets >= 4 of 5 lopo5 folds on each new set): {V['H310']}",
           f"H311 (theta cheaper than U on the mean of each new set's folds): {V['H311']}",
           f"H312 (7c's drift observables track m on each new set, max |rho| >= 0.4): {V['H312']}"]
+    ph = posthoc(rows, new_sets)
+    L += ["", "post hoc (after the report; not a hypothesis of the plan):"] + ph["lines"]
     (HERE / "results.txt").write_text("\n".join(L) + "\n")
-    (HERE / "summary.json").write_text(json.dumps(dict(kept=kept, verdicts=V, pools=E, rho=rho,
+    (HERE / "summary.json").write_text(json.dumps(dict(kept=kept, verdicts=V, posthoc=ph["data"], pools=E, rho=rho,
                                                        lines={s: list(v) for s, v in lines.items()}, per_set=per,
                                                        paired=pair, lopo5=lopo), indent=1, default=str) + "\n")
     print("\n".join(L))
+
+
+def ocp_turns(v):
+    """Direction changes of an OCP table over the grid, ignoring steps under 1 mV (a monotone table has none)."""
+    d = [b - a for a, b in zip(v, v[1:]) if abs(b - a) >= 1e-3]
+    return sum(1 for a, b in zip(d, d[1:]) if (a > 0) != (b > 0))
+
+
+def posthoc(rows, new_sets):
+    """Why the forecast law degenerates on a new cell: OCP-table monotonicity over the 0..1 grid every cell's
+    lithium-law table inverts, for the eight candidates and the four committed sets, and the jump in each new
+    design's R(L) table."""
+    tabs = {}
+    for d in ("crossset", "calmap", "sets7p"):
+        for s, v in json.loads((EXP / d / "ocp.json").read_text())["sets"].items():
+            tabs[s] = v
+    data, lines = {}, [f"{'cell':14s}{'Un turns':>9s}{'Up turns':>9s}{'Un max V':>10s}{'Up range V':>16s}"]
+    for s in sorted(tabs, key=lambda k: (k not in OLD_SETS, k)):
+        v = tabs[s]
+        data[s] = dict(un_turns=ocp_turns(v["Un"]), up_turns=ocp_turns(v["Up"]), un_max=max(v["Un"]),
+                       up_min=min(v["Up"]), up_max=max(v["Up"]))
+        lines.append(f"{s:14s}{data[s]['un_turns']:9d}{data[s]['up_turns']:9d}{data[s]['un_max']:10.2f}"
+                     f"{data[s]['up_min']:8.2f}-{data[s]['up_max']:.2f}")
+    for st in new_sets:
+        e10 = sorted(r["E"][10] for r in rows if r["set"] == st)
+        lines.append(f"{st}: E10 median {statistics.median(e10):.2f} (committed sets' q75 0.06 to 0.12); "
+                     f"E50/E10 median {statistics.median(r['E'][50] / r['E'][10] for r in rows if r['set'] == st):.3f}")
+        data[st + "_E10_median"] = statistics.median(e10)
+    return dict(lines=lines, data=data)
 
 
 def _stats():
