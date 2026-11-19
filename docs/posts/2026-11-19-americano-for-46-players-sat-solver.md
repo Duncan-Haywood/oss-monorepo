@@ -44,7 +44,14 @@ Searches for these designs usually go faster when you demand a symmetry, and bot
   that must meet "exactly once" across the half circle would repeat across a whole orbit. 54 has a
   multiplier that fixes more; the solver rules it out in 0.3 seconds.
 
-RESULTS_PARAGRAPH
+## Still open: 54, 58 and 62 players
+
+Not every size fell. The same model ran 50 minutes each on 54, 58 and 62 players and found nothing. A
+second trick narrowed the search: the k partner pairs at odd distances each join an even and an odd
+point, which fixes how far apart the two players who sit out must be (an even distance when k is odd, an
+odd one when k is even), and multiplying a design by a unit lets that distance be a divisor of the size.
+That leaves one case for 62, two for 58 and three for 54. Forty minutes on each of the four tried found
+nothing either, and none was proved impossible. Those sizes still use the greedy search.
 
 The model and every run are in the repository: `eval/near-whist-sat.py` and `eval/near-whist-sat.txt` under
 [`ventures/league-schedule-generator`](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator).

@@ -421,7 +421,11 @@ stored base agrees, `whist.test.mjs`). Multiplying a design by a unit gives anot
 out can also be taken to be a divisor of n: `--out2 d` fixes it, which leaves one case for 62 (d = 2), two for
 58 (1, 29) and three for 54 (2, 6, 18).
 
-RESULTS_54_58_62
+**Still open: 54, 58 and 62.** Plain runs of 50 minutes (54 with two seeds, 58, 62) and the `--out2` cases of
+40 minutes (54 with d = 2, 58 with 1 and 29, 62 with 2) found nothing, and none finished as UNSAT
+(`eval/near-whist-sat.txt`). 54 with d = 6 and 18 is untried. Those sizes stay on the greedy search. Next
+ideas: a hybrid that starts annealing from a SAT model's partial answer, or a group other than Z_n (a
+near-whist design need not be cyclic).
 
 ## Americano for 4k+2 players: near-whist designs (2026-11-19)
 
