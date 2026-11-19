@@ -17,7 +17,9 @@ within 1 ms of the true take; an instant build is bad when told to set a take ab
 counted the vote carries it in `survey`; older ones are refitted once a wheel at 1.5 ms (the refit matched the board's
 rms on all 5,456 wheels of the six design sets).
 
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_straddle_vote.py [--margins 0,1,2,3] [--procs 4] FILES...
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_straddle_vote.py [--margins 0,1,2,3] [--procs 4] [--base 2] FILES...
+
+--base N (2026-11-19) counts the gained/lost columns against margin N instead of off (eval/take-straddle-margin-one-2026-11-19.md).
 
 Simulated only, as the captures are.
 """
@@ -130,7 +132,8 @@ def main():
     a = sys.argv
     margins = tuple(int(x) for x in a[a.index("--margins") + 1].split(",")) if "--margins" in a else MARGINS
     procs = int(a[a.index("--procs") + 1]) if "--procs" in a else 1
-    skip = {a[a.index(o) + 1] for o in ("--margins", "--procs") if o in a}
+    base = int(a[a.index("--base") + 1]) if "--base" in a else 0   # 2026-11-19: compare against a shipped margin
+    skip = {a[a.index(o) + 1] for o in ("--margins", "--procs", "--base") if o in a}
     paths = [x for x in a[1:] if not x.startswith("--") and x not in skip]
     rows = rows_for(paths, procs)
     sv_ok = [sv for _, sv in rows if sv]
@@ -150,12 +153,13 @@ def main():
             f = by[g]
             print(f"  {g}: {f[2]} builds, straddling wheels {f[0]} for 1.5 ms, {f[1]} against")
     pers = {}
+    ref = "off" if base == 0 else f"margin {base}"
     for m in margins:
-        c, per = score(rows, m)
+        c, per = score(rows, m, base)
         pers[m] = per
         print(f"  margin {m}{' (off)' if m == 0 else ''}: named {c['named']} of {c['spread']} spread takes, wrong "
               f"{c['wrong']}, instant told to set a take {c['bad']} of {c['instant']}, no verdict {c['none']}; "
-              f"judged right that off was not {c['gained']}, judged wrong that off got right {c['lost']}")
+              f"judged right that {ref} was not {c['gained']}, judged wrong that {ref} got right {c['lost']}")
     print("per take: advised TAKE_US in ms at margin " + " | ".join(str(m) for m in margins))
     for t in sorted(pers[margins[0]]):
         print(f"  {t:g} ms: " + " | ".join(" ".join("-" if v is None else f"{v:g}" for v in pers[m][t])
