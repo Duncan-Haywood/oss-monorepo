@@ -1,0 +1,65 @@
+name: roc-analysis
+description: >-
+  Free browser tool, CLI and agent call for clinical researchers, lab and
+  diagnostic-test developers, epidemiologists, ML engineers and fraud or
+  credit-risk analysts: ROC curves, AUC with DeLong intervals, DeLong's paired
+  test and chi-square test for scores measured on the same cases, Youden and
+  target-sensitivity cut-offs, sensitivity, specificity, predictive values and
+  likelihood ratios with intervals, partial AUC and decision curves. Matches
+  scipy and a direct DeLong computation. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-19 on an explore run, as a tool of "research algorithms as
+# tools" (portfolio/research-tools/README.md). No venture in the tree drew ROC
+# curves or compared AUCs: probability-calibration reports a bare AUC,
+# isolation-forest and the sales tools use one internally; none had DeLong,
+# cut-off selection or decision curves (0 of 1,412 venture READMEs mention
+# DeLong, Youden or decision curves).
+# Implemented from the papers' mathematics; no third-party code was ported.
+# numpy 2.5.3 and scipy 1.18.1 (BSD-3-Clause) were used only to produce
+# eval/reference.json and the example's cross-validated probability.
+# Example data: UCI Breast Cancer Wisconsin (Diagnostic), CC BY 4.0
+# (data/SOURCE.md).
+#
+# First visitor: searches such as "roc curve online", "auc calculator",
+# "compare two auc delong test", "youden index calculator", "sensitivity
+# specificity calculator", "partial auc", "decision curve analysis online";
+# people who would otherwise install R's pROC or write scikit-learn code.
+# Volume not measured with an external tool.
+#
+# Alternatives: R's pROC and dcurves packages, MedCalc (paid), scikit-learn's
+# roc_curve/roc_auc_score (no DeLong), easyROC (web, R-based). The
+# differentiators here: no install and no upload, DeLong's paired test beside
+# the cut-off tables and decision curve on one page, and a CLI and agent call.
+#
+# Liability: statistical output from supplied data, not medical advice and not
+# a device evaluation; the page says so and lists spectrum and verification
+# bias. Data never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      People who need to compare diagnostic tests or models on the same cases
+      will use a no-install page with DeLong's paired test and cut-off tables
+      over installing R's pROC or paying for MedCalc.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that disagrees with pROC or scipy on the same data beyond rounding, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/roc-analysis/
+  analytics: null

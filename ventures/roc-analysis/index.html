@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2314394a'/%3E%3Cpath%20d='M6%2026%20L26%206'%20stroke='%23a9cfd9'%20stroke-width='1.6'%20stroke-dasharray='3%202'/%3E%3Cpath%20d='M6%2026%20C7%2012%2012%208%2026%206'%20fill='none'%20stroke='%23ffb347'%20stroke-width='2.6'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ROC Curve and AUC Calculator — DeLong test, Youden cut-off, free</title>
+  <meta name="description" content="Free online ROC analysis: ROC curves and AUC with DeLong confidence intervals, DeLong's paired test to compare two or more AUCs on the same cases, Youden and target-sensitivity cut-offs, sensitivity, specificity and likelihood ratios, partial AUC and decision curves. Nothing is uploaded.">
+  <meta property="og:title" content="How well does this score tell cases from non-cases, and is it better than that one?">
+  <meta property="og:description" content="ROC curves, AUC with DeLong intervals and DeLong's paired test, in your browser. On 569 breast biopsies, two nuclear measurements with AUCs of 0.967 and 0.975 cannot be told apart (p = 0.24), while a cross-validated model that combines them beats both (p &lt; 0.001).">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "ROC analysis", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "ROC curves for one or more scores on the same cases: AUC with DeLong confidence intervals, DeLong's paired test and chi-square test of equal AUCs, Youden, closest-to-corner and target-sensitivity or specificity cut-offs, sensitivity, specificity, predictive values and likelihood ratios with intervals, McClish-standardised partial AUC with a bootstrap interval, and decision curves for predicted probabilities. Runs in the browser.", "license": "https://opensource.org/licenses/MIT"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does the AUC mean?", "acceptedAnswer": {"@type": "Answer", "text": "The area under the ROC curve is the chance that a randomly chosen case scores higher than a randomly chosen non-case, with ties counting half. 0.5 is a coin toss and 1 is perfect separation. It says nothing about calibration or about where to put the cut-off."}}, {"@type": "Question", "name": "How do I compare two AUCs measured on the same patients?", "acceptedAnswer": {"@type": "Answer", "text": "Use DeLong's paired test. Two scores measured on the same people are correlated, so comparing their two confidence intervals, or using a test for independent samples, is too conservative. DeLong's method estimates the covariance of the two AUCs from the same data and tests the difference with it."}}, {"@type": "Question", "name": "Why can two scores with overlapping intervals still differ?", "acceptedAnswer": {"@type": "Answer", "text": "Because the paired test uses the correlation between them. When two scores rank the same people in nearly the same order, the difference between their AUCs varies much less than either AUC, so a small difference can be significant even when the separate intervals overlap."}}, {"@type": "Question", "name": "Which cut-off should I use?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on what a missed case and a false alarm cost. Youden's J weighs sensitivity and specificity equally; a screening test usually wants a target sensitivity, a confirmatory test a target specificity. For a predicted probability, the decision curve shows which threshold gives the most net benefit for a given trade-off."}}, {"@type": "Question", "name": "What is the partial AUC for?", "acceptedAnswer": {"@type": "Answer", "text": "Often only part of the curve matters, for example specificity above 90% because false positives are expensive. The partial AUC measures the area over that part only. McClish's standardisation puts it back on a 0.5 (useless) to 1 (perfect) scale, so two scores can be compared where it counts."}}, {"@type": "Question", "name": "What is a decision curve?", "acceptedAnswer": {"@type": "Answer", "text": "For a model that predicts a probability, the net benefit at a threshold probability pt is true positives per person minus false positives per person weighted by pt/(1 - pt), the odds at which a person would accept treatment. The model is worth using where its curve is above both treating everyone and treating no one (Vickers and Elkin 2006)."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #14262f; background: #eef3f5; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1c5a72; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #14394a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #14394a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #435761; }
+    .card { background: #fff; border: 1px solid #d3dfe4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #14394a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    label.inline { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; margin: 4px 14px 4px 0; }
+    label.inline input, label.inline select { width: auto; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8791; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1c5a72; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0eaee; color: #14394a; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3ebee; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #435761; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dfe4; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #6f8791; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .chart { max-width: 600px; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #edf3f6; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #14394a; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #435761; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+    pre { background: #f1f5f7; border: 1px solid #dbe5e9; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+    #score-list { margin-top: 4px; }
+    .score-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; border-bottom: 1px solid #edf2f4; padding: 2px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">ROC CURVE · AUC WITH DELONG INTERVAL · DELONG PAIRED TEST · YOUDEN CUT-OFF · PARTIAL AUC · DECISION CURVE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How well does this score tell cases from non-cases, and is it better than that one?</h1>
+    <p>Paste one row per person or item with the outcome (disease or not, fraud or not) and one or more scores measured on the same rows: a lab marker, a questionnaire, a model's probability. You get <strong>ROC curves</strong>, each <strong>AUC</strong> with DeLong's interval, <strong>DeLong's paired test</strong> for every pair, <strong>cut-offs</strong> by Youden's J or a target sensitivity with predictive values and likelihood ratios, the <strong>partial AUC</strong> at high specificity and, for probabilities, a <strong>decision curve</strong>.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not medical, legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">A CSV with a header row and one row per person or item: an outcome column (1/0, yes/no, case/control or any two labels) and one or more numeric score columns</label>
+    <textarea id="csv" spellcheck="false" placeholder="disease,marker_a,marker_b&#10;1,4.2,0.81&#10;0,1.3,0.22&#10;0,2.0,0.35&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 569 breast biopsies (UCI Wisconsin Diagnostic), four nuclear measurements and a model</button>
+    <p class="note" id="data-status">Rows with a missing outcome or score are skipped and counted, so every score is compared on the same rows.</p>
+
+    <div class="grid">
+      <div><label for="outcome-col">Outcome column</label><select id="outcome-col"></select></div>
+      <div><label for="positive">Outcome value that is a case (optional)</label><input id="positive" type="text" placeholder="e.g. malignant, 1, fraud"></div>
+    </div>
+    <p style="font-weight:600;margin:14px 0 2px">Scores to analyse (up to 8), and which way each points</p>
+    <div id="score-list" class="note">Paste data to choose scores.</div>
+    <div class="grid">
+      <div><label for="level">Confidence level</label><select id="level"><option value="0.9">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select></div>
+      <div><label for="partial">Partial AUC up to false positive rate</label><select id="partial"><option value="0.05">0.05 (specificity ≥ 95%)</option><option value="0.1" selected>0.10 (specificity ≥ 90%)</option><option value="0.2">0.20 (specificity ≥ 80%)</option><option value="0.3">0.30</option></select></div>
+      <div><label for="t-sens">Target sensitivity</label><select id="t-sens"><option value="0.8">80%</option><option value="0.9" selected>90%</option><option value="0.95">95%</option><option value="0.99">99%</option></select></div>
+      <div><label for="t-spec">Target specificity</label><select id="t-spec"><option value="0.8">80%</option><option value="0.9" selected>90%</option><option value="0.95">95%</option><option value="0.99">99%</option></select></div>
+      <div><label for="prevalence">Prevalence for predictive values (optional, %)</label><input id="prevalence" type="text" inputmode="decimal" placeholder="the sample's own"></div>
+      <div><label for="resamples">Bootstrap resamples (partial AUC)</label><select id="resamples"><option value="0">None (fast)</option><option value="200">200</option><option value="500" selected>500</option><option value="1000">1,000</option></select></div>
+    </div>
+    <button type="button" id="analyze">Analyse ROC</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>ROC curves</h3>
+    <p class="note" id="legend"></p>
+    <div class="chart" id="roc" role="img" aria-label="ROC curves: sensitivity against one minus specificity for each score, with the diagonal of a useless score and a dot at each Youden cut-off"></div>
+    <h3>Area under the curve</h3>
+    <div class="scroll">
+      <table id="auc-table">
+        <thead><tr><th>Score</th><th class="n">AUC</th><th class="n">SE</th><th class="n" id="ci-head">95% CI</th><th class="n">Partial AUC (std.)</th><th class="n">Its CI</th><th class="n">Cut-offs</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="compare-block">
+      <h3>Paired comparisons (DeLong)</h3>
+      <p class="note" id="overall-line"></p>
+      <div class="scroll">
+        <table id="compare-table">
+          <thead><tr><th>Pair</th><th class="n">Difference</th><th class="n">CI</th><th class="n">z</th><th class="n">p</th><th class="n">Correlation</th><th>Reads as</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <h3>Cut-offs</h3>
+    <div class="grid">
+      <div><label for="cut-score">Score</label><select id="cut-score"></select></div>
+      <div><label for="cut-value">Cut-off (blank: Youden's)</label><input id="cut-value" type="text" inputmode="decimal"></div>
+    </div>
+    <div class="scroll">
+      <table id="cut-table">
+        <thead><tr><th>Rule</th><th class="n">Cut-off</th><th class="n">Sensitivity</th><th class="n">Specificity</th><th class="n">Youden's J</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="summary" id="at-line"></p>
+    <div class="scroll">
+      <table id="at-table">
+        <thead><tr><th>Measure</th><th class="n">Value</th><th class="n">Interval</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="dca-block" hidden>
+      <h3>Decision curve</h3>
+      <p class="note"><span class="key" style="background:#e07b00"></span><span id="dca-name"></span> <span class="key" style="background:#6f8791"></span>treat everyone <span class="key" style="background:#14394a"></span>treat no one. Net benefit is true positives per person minus false positives per person weighted by the threshold odds.</p>
+      <div class="chart" id="dca" role="img" aria-label="Decision curve: net benefit against threshold probability for the model, treating everyone and treating no one"></div>
+      <p class="note" id="dca-line"></p>
+    </div>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download every cut-off with sensitivity and specificity (CSV)</button>
+    <button type="button" class="secondary" id="download-report">Download the report (text)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>The curve and the AUC.</strong> Each distinct score value is a cut-off ("a case when the score is at least t"); the curve joins the sensitivity and false positive rate at each. The AUC is the probability that a random case scores higher than a random non-case, ties counted one half, which equals the area under that polyline (Hanley &amp; McNeil 1982).</p>
+    <p><strong>DeLong's interval and paired test.</strong> Every case gets a placement value, the share of non-cases it outscores, and every non-case the share of cases that outscore it. The AUC's variance is the variance of the case placements over the number of cases plus that of the non-case placements over the number of non-cases. For several scores on the same rows the same placements give a covariance matrix, and the difference of two AUCs is tested with its own standard error, which accounts for the correlation (DeLong, DeLong &amp; Clarke-Pearson 1988); with three or more scores a chi-square test asks whether all are equal. Placements are computed from midranks (Sun &amp; Xu 2014), so 200,000 rows take a fraction of a second.</p>
+    <p><strong>Cut-offs and accuracy.</strong> Youden's (1950) J = sensitivity + specificity − 1; the closest point to the top-left corner; the most specific cut-off with sensitivity at or above the target, and the most sensitive with specificity at or above it. At a cut-off: sensitivity, specificity and predictive values with Wilson (1927) intervals (predictive values at a prevalence you give are by Bayes' rule, without an interval), and likelihood ratios with intervals on the log scale (Simel, Samsa &amp; Matchar 1991).</p>
+    <p><strong>Partial AUC and decision curves.</strong> The area over false positive rates 0 to e, standardised to a 0.5 (useless) to 1 (perfect) scale by McClish (1989), with a stratified bootstrap interval. For a score that is a predicted probability, net benefit TP/N − FP/N × pt/(1 − pt) against treating everyone and no one (Vickers &amp; Elkin 2006).</p>
+    <p>Verified by tests in the source against an independent computation (<code>eval/reference.py</code>): on the example, a tied rating scale and a simulated three-score case, the AUCs match <strong>scipy 1.18.1</strong>'s Mann-Whitney U to 10⁻¹²; the DeLong covariance matrices match a direct O(mn) computation from the definition with <strong>numpy 2.5.3</strong> to 10⁻¹⁴; the paired z, p-values and chi-square match scipy; the Wilson intervals match <code>scipy.stats.binomtest</code>; and on Hanley &amp; McNeil's (1982) 109 rated CT images the AUC is 0.8932, the 0.893 the paper reports.</p>
+    <h3>BibTeX</h3>
+    <pre>@article{delong1988comparing,
+  author  = {DeLong, Elizabeth R. and DeLong, David M. and Clarke-Pearson, Daniel L.},
+  title   = {Comparing the areas under two or more correlated receiver operating characteristic curves: a nonparametric approach},
+  journal = {Biometrics},
+  volume  = {44}, number = {3}, pages = {837--845}, year = {1988},
+  doi     = {10.2307/2531595}
+}
+@article{sun2014fast,
+  author  = {Sun, Xu and Xu, Weichao},
+  title   = {Fast implementation of {DeLong}'s algorithm for comparing the areas under correlated receiver operating characteristic curves},
+  journal = {IEEE Signal Processing Letters},
+  volume  = {21}, number = {11}, pages = {1389--1393}, year = {2014},
+  doi     = {10.1109/LSP.2014.2337313}
+}
+@article{hanley1982meaning,
+  author  = {Hanley, James A. and McNeil, Barbara J.},
+  title   = {The meaning and use of the area under a receiver operating characteristic ({ROC}) curve},
+  journal = {Radiology},
+  volume  = {143}, number = {1}, pages = {29--36}, year = {1982},
+  doi     = {10.1148/radiology.143.1.7063747}
+}
+@article{youden1950index,
+  author  = {Youden, W. J.},
+  title   = {Index for rating diagnostic tests},
+  journal = {Cancer},
+  volume  = {3}, number = {1}, pages = {32--35}, year = {1950},
+  doi     = {10.1002/1097-0142(1950)3:1&lt;32::AID-CNCR2820030106&gt;3.0.CO;2-3}
+}
+@article{wilson1927probable,
+  author  = {Wilson, Edwin B.},
+  title   = {Probable inference, the law of succession, and statistical inference},
+  journal = {Journal of the American Statistical Association},
+  volume  = {22}, number = {158}, pages = {209--212}, year = {1927},
+  doi     = {10.1080/01621459.1927.10502953}
+}
+@article{simel1991likelihood,
+  author  = {Simel, David L. and Samsa, Gregory P. and Matchar, David B.},
+  title   = {Likelihood ratios with confidence: sample size estimation for diagnostic test studies},
+  journal = {Journal of Clinical Epidemiology},
+  volume  = {44}, number = {8}, pages = {763--770}, year = {1991},
+  doi     = {10.1016/0895-4356(91)90128-V}
+}
+@article{mcclish1989analyzing,
+  author  = {McClish, Donna Katzman},
+  title   = {Analyzing a portion of the {ROC} curve},
+  journal = {Medical Decision Making},
+  volume  = {9}, number = {3}, pages = {190--195}, year = {1989},
+  doi     = {10.1177/0272989X8900900307}
+}
+@article{vickers2006decision,
+  author  = {Vickers, Andrew J. and Elkin, Elena B.},
+  title   = {Decision curve analysis: a novel method for evaluating prediction models},
+  journal = {Medical Decision Making},
+  volume  = {26}, number = {6}, pages = {565--574}, year = {2006},
+  doi     = {10.1177/0272989X06295361}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Discrimination is not calibration.</strong> The AUC only says how well a score ranks. A model can rank perfectly and still say 90% when the truth is 40%; check its probabilities with the <a href="../probability-calibration/">probability calibration check</a>.</li>
+      <li><strong>Paired scores only.</strong> DeLong's test here compares scores measured on the same rows. Two AUCs from different samples need an unpaired comparison, which this page does not do.</li>
+      <li><strong>Small samples and AUCs near 1.</strong> The interval for one AUC is AUC ± z × SE, clipped to [0, 1]; with few cases and an AUC near 1 it can be too narrow. The page warns below 30 cases or non-cases.</li>
+      <li><strong>The cut-off is fitted to these data.</strong> Youden's cut-off and its sensitivity and specificity are optimistic on the sample that chose them; confirm a cut-off on new data.</li>
+      <li><strong>Spectrum and verification bias.</strong> Accuracy measured on clear-cut cases and healthy volunteers overstates accuracy in practice, and so does checking only the people who tested positive. The numbers are only as good as the sample.</li>
+      <li><strong>Decision curves need the real prevalence.</strong> Net benefit uses the sample's prevalence, so a case-control sample, where the share of cases was set by design, gives a misleading curve.</li>
+      <li>Not modelled: covariate-adjusted ROC, ROC for censored survival times, multi-class ROC, and smoothed (binormal or kernel) curves.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does the AUC mean?</h3>
+    <p>The area under the ROC curve is the chance that a randomly chosen case scores higher than a randomly chosen non-case, with ties counting half. 0.5 is a coin toss and 1 is perfect separation. It says nothing about calibration or about where to put the cut-off.</p>
+    <h3>How do I compare two AUCs measured on the same patients?</h3>
+    <p>Use DeLong's paired test. Two scores measured on the same people are correlated, so comparing their two confidence intervals, or using a test for independent samples, is too conservative. DeLong's method estimates the covariance of the two AUCs from the same data and tests the difference with it.</p>
+    <h3>Why can two scores with overlapping intervals still differ?</h3>
+    <p>Because the paired test uses the correlation between them. When two scores rank the same people in nearly the same order, the difference between their AUCs varies much less than either AUC, so a small difference can be significant even when the separate intervals overlap.</p>
+    <h3>Which cut-off should I use?</h3>
+    <p>It depends on what a missed case and a false alarm cost. Youden's J weighs sensitivity and specificity equally; a screening test usually wants a target sensitivity, a confirmatory test a target specificity. For a predicted probability, the decision curve shows which threshold gives the most net benefit for a given trade-off.</p>
+    <h3>What is the partial AUC for?</h3>
+    <p>Often only part of the curve matters, for example specificity above 90% because false positives are expensive. The partial AUC measures the area over that part only. McClish's standardisation puts it back on a 0.5 (useless) to 1 (perfect) scale, so two scores can be compared where it counts.</p>
+    <h3>What is a decision curve?</h3>
+    <p>For a model that predicts a probability, the net benefit at a threshold probability pt is true positives per person minus false positives per person weighted by pt/(1 - pt), the odds at which a person would accept treatment. The model is worth using where its curve is above both treating everyone and treating no one (Vickers and Elkin 2006).</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: the Breast Cancer Wisconsin (Diagnostic) data set of Wolberg, Mangasarian, Street and Street (1993), UCI Machine Learning Repository, doi:10.24432/C5DW2B, licensed CC BY 4.0, retrieved on 2026-11-19: 569 fine-needle aspirates of breast masses, 212 malignant and 357 benign. Kept: four of its thirty nuclear features, unchanged, and one added column, <code>cv_probability</code>, the out-of-fold probability of malignancy from a three-feature logistic regression fitted by 10-fold cross-validation (<code>data/build_example.py</code>), so no row's probability saw its own diagnosis.</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not medical, legal, tax, or financial advice, it is not a medical device, and it does not replace a qualified statistician or a regulator's evaluation of a diagnostic test. Results are statistical estimates from the data you enter; a difference between two scores is not proof that one test should replace another.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the University of Wisconsin, the UCI Machine Learning Repository, the numpy or scipy projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is stored by us.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data.csv</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roc-analysis" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../probability-calibration/">probability calibration check</a> says whether a model's probabilities are honest, <a href="../method-comparison/">method comparison</a> says whether two measurement methods agree, <a href="../inter-rater-agreement/">inter-rater agreement</a> says whether raters agree beyond chance, <a href="../contingency-table-tests/">contingency table tests</a> compare two groups' proportions, <a href="../meta-analysis/">meta-analysis</a> pools studies, and <a href="../survival-analysis/">survival analysis</a> estimates time to an event.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, profileColumns, readData, atCut, toCsv, report, fmt, fmtP, pct } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const COLORS = ["#e07b00", "#1c7fa6", "#8b3fa8", "#2e8b57", "#c0392b", "#6b5b2e", "#d4508f", "#4a5fc1"];
+    let last = null;
+    let lastData = null;
+
+    function options(sel, names, chosen) {
+      sel.innerHTML = names.map((n) => `<option value="${esc(n)}"${n === chosen ? " selected" : ""}>${esc(n)}</option>`).join("");
+    }
+
+    function refreshColumns() {
+      const text = $("#csv").value;
+      let p;
+      try {
+        p = parseCsv(text);
+      } catch (e) {
+        $("#outcome-col").innerHTML = "";
+        $("#score-list").textContent = "Paste data to choose scores.";
+        $("#data-status").textContent = text.trim() ? e.message : "Paste a table or load the example.";
+        return;
+      }
+      const prof = profileColumns(p);
+      let guess = null;
+      try {
+        guess = readData(p, {}).columns;
+      } catch {
+        /* the analysis will say what is wrong */
+      }
+      options($("#outcome-col"), prof.filter((c) => c.kind === "binary").map((c) => c.name), guess && guess.outcome);
+      const numeric = prof.filter((c) => c.kind === "number" || (c.kind === "binary" && c.values.every((v) => /^[-+.\d]/.test(v)))).map((c) => c.name);
+      const chosen = new Set(guess ? guess.scores : []);
+      $("#score-list").innerHTML = numeric.length
+        ? numeric.map((n, i) => `<div class="score-row"><label class="inline"><input type="checkbox" class="use" data-col="${esc(n)}"${chosen.has(n) ? " checked" : ""}> ${esc(n)}</label><label class="inline">higher value means <select class="dir" data-col="${esc(n)}" aria-label="Direction for ${esc(n)}"><option value="higher">a case</option><option value="lower">not a case</option></select></label></div>`).join("")
+        : "No numeric columns found.";
+      $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.header.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      const scores = [...document.querySelectorAll("#score-list .use")].filter((c) => c.checked).map((c) => c.dataset.col);
+      const direction = {};
+      for (const s of document.querySelectorAll("#score-list .dir")) direction[s.dataset.col] = s.value;
+      const prev = $("#prevalence").value.trim();
+      let prevalence = null;
+      if (prev) {
+        const v = Number(prev.replace("%", ""));
+        if (!(v > 0 && v < 100)) throw new Error("Prevalence must be a percentage between 0 and 100.");
+        prevalence = v / 100;
+      }
+      return {
+        csv: $("#csv").value,
+        outcomeColumn: $("#outcome-col").value || null,
+        positive: $("#positive").value.trim() || null,
+        scoreColumns: scores.length ? scores : null,
+        direction,
+        level: Number($("#level").value),
+        partialFpr: Number($("#partial").value),
+        targetSensitivity: Number($("#t-sens").value),
+        targetSpecificity: Number($("#t-spec").value),
+        resamples: Number($("#resamples").value),
+        prevalence,
+      };
+    }
+
+    // ---------- charts (plain SVG) ----------
+    function axes(L, T, P, xlab, ylab, xt, yt) {
+      let s = `<rect x="${L}" y="${T}" width="${P}" height="${P}" fill="none" stroke="#c9d6dc"/>`;
+      for (const [v, lab] of xt) s += `<line x1="${L + v * P}" x2="${L + v * P}" y1="${T}" y2="${T + P}" stroke="#edf2f4"/><text x="${L + v * P}" y="${T + P + 18}" font-size="12" text-anchor="middle" fill="#435761">${lab}</text>`;
+      for (const [v, lab] of yt) s += `<line x1="${L}" x2="${L + P}" y1="${T + (1 - v) * P}" y2="${T + (1 - v) * P}" stroke="#edf2f4"/><text x="${L - 6}" y="${T + (1 - v) * P + 4}" font-size="12" text-anchor="end" fill="#435761">${lab}</text>`;
+      s += `<text x="${L + P / 2}" y="${T + P + 38}" font-size="12" text-anchor="middle" fill="#435761">${xlab}</text>`;
+      s += `<text x="14" y="${T + P / 2}" font-size="12" text-anchor="middle" fill="#435761" transform="rotate(-90 14 ${T + P / 2})">${ylab}</text>`;
+      return s;
+    }
+    function drawRoc(r) {
+      const L = 56, T = 14, P = 470;
+      const sx = (v) => L + v * P;
+      const sy = (v) => T + (1 - v) * P;
+      const ticks = [0, 0.2, 0.4, 0.6, 0.8, 1].map((v) => [v, v.toFixed(1)]);
+      let s = axes(L, T, P, "1 − specificity (false positive rate)", "sensitivity (true positive rate)", ticks, ticks);
+      const e = r.settings.partialFpr;
+      s += `<rect x="${sx(0)}" y="${T}" width="${e * P}" height="${P}" fill="#e07b00" fill-opacity="0.06"/>`;
+      s += `<line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(1)}" y2="${sy(1)}" stroke="#14394a" stroke-width="1.2" stroke-dasharray="5 4"/>`;
+      r.results.forEach((x, k) => {
+        const d = x.curve.map((p, i) => `${i ? "L" : "M"}${sx(p.fpr).toFixed(1)},${sy(p.tpr).toFixed(1)}`).join(" ");
+        s += `<path d="${d}" fill="none" stroke="${COLORS[k % COLORS.length]}" stroke-width="2.4"/>`;
+        const y = x.cutoffs.youden;
+        s += `<circle cx="${sx(1 - y.specificity).toFixed(1)}" cy="${sy(y.sensitivity).toFixed(1)}" r="4.5" fill="#fff" stroke="${COLORS[k % COLORS.length]}" stroke-width="2.2"/>`;
+      });
+      $("#roc").innerHTML = `<svg viewBox="0 0 ${L + P + 20} ${T + P + 48}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+      $("#legend").innerHTML = r.results.map((x, k) => `<span class="key" style="background:${COLORS[k % COLORS.length]}"></span>${esc(x.name)} (AUC ${fmt(x.auc, 3)})`).join(" &nbsp; ") + ` &nbsp; <span class="key" style="background:#14394a"></span>a useless score. Circles: Youden cut-offs. Shaded: the partial-AUC region.`;
+    }
+    function drawDca(x) {
+      const dc = x.decision;
+      const L = 56, T = 14, P = 470;
+      const top = Math.max(dc.prevalence, ...dc.rows.map((r) => r.model)) * 1.08;
+      const bot = -top * 0.15;
+      const sx = (v) => L + v * P;
+      const sy = (v) => T + ((top - Math.max(bot, Math.min(top, v))) / (top - bot)) * P;
+      const yt = [0, 0.25, 0.5, 0.75, 1].map((f) => [(f * top - bot) / (top - bot), (f * top).toFixed(2)]);
+      let s = axes(L, T, P, "threshold probability", "net benefit", [0, 0.2, 0.4, 0.6, 0.8, 1].map((v) => [v, v.toFixed(1)]), yt);
+      const line = (key, color, w) => `<path d="${dc.rows.map((r, i) => `${i ? "L" : "M"}${sx(r.pt).toFixed(1)},${sy(r[key]).toFixed(1)}`).join(" ")}" fill="none" stroke="${color}" stroke-width="${w}"/>`;
+      s += line("none", "#14394a", 1.4) + line("all", "#6f8791", 1.8) + line("model", "#e07b00", 2.6);
+      $("#dca").innerHTML = `<svg viewBox="0 0 ${L + P + 20} ${T + P + 48}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+      $("#dca-name").textContent = x.name;
+      const at = (pt) => dc.rows.find((r) => Math.abs(r.pt - pt) < 1e-9);
+      const ex = [0.1, 0.2, 0.5].map(at).filter(Boolean);
+      $("#dca-line").textContent = `${x.name} beats both treating everyone and treating no one for threshold probabilities ${dc.usefulFrom == null ? "nowhere between 1% and 99%" : `from ${pct(dc.usefulFrom, 0)} to ${pct(dc.usefulTo, 0)}`}. ${ex.map((r) => `At ${pct(r.pt, 0)}: net benefit ${fmt(r.model, 3)} against ${fmt(Math.max(r.all, 0), 3)}, ${fmt(Math.max(0, r.avoidedPer100), 1)} fewer unnecessary interventions per 100 people than treating everyone.`).join(" ")} Prevalence used: ${pct(dc.prevalence)}, the sample's.`;
+    }
+
+    function verdict(p, alpha, yes, no) {
+      return Number.isFinite(p) ? (p < alpha ? yes : no) : "n/a";
+    }
+
+    function render(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const best = r.results.reduce((a, b) => (b.auc > a.auc ? b : a));
+      const lv = Math.round(r.settings.level * 100);
+      const stats = [
+        [fmt(best.auc, 3), `AUC of ${best.name}`],
+        [`${fmt(best.lower, 3)}–${fmt(best.upper, 3)}`, `${lv}% DeLong interval`],
+        [`${pct(best.at.sensitivity.est)} / ${pct(best.at.specificity.est)}`, "sensitivity / specificity at Youden's cut-off"],
+        [`${r.cases.toLocaleString("en-US")} / ${r.controls.toLocaleString("en-US")}`, "cases / non-cases"],
+      ];
+      if (r.comparison) {
+        const sig = r.comparison.pairs.filter((p) => p.p < r.alpha).length;
+        stats.push([`${sig} of ${r.comparison.pairs.length}`, `pairs differ (paired DeLong, p < ${r.alpha})`]);
+      }
+      $("#stats").innerHTML = stats.map(([b, sp]) => `<div class="stat"><b>${esc(b)}</b><span>${esc(sp)}</span></div>`).join("");
+      $("#warnings").innerHTML = [...(r.skipped ? [`${r.skipped} row${r.skipped === 1 ? " was" : "s were"} skipped (missing or unreadable outcome or score).`] : []), ...r.warnings].map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      drawRoc(r);
+      $("#ci-head").textContent = `${lv}% CI`;
+      $("#auc-table tbody").innerHTML = r.results.map((x, k) => `<tr><td><span class="key" style="background:${COLORS[k % COLORS.length]}"></span>${esc(x.name)}${x.direction === "lower" ? " (lower = case)" : ""}</td><td class="n">${fmt(x.auc, 4)}</td><td class="n">${fmt(x.se, 4)}</td><td class="n">${fmt(x.lower, 3)} to ${fmt(x.upper, 3)}</td><td class="n">${fmt(x.partial.standardised, 3)}</td><td class="n">${x.partial.interval ? `${fmt(x.partial.interval.lower, 3)} to ${fmt(x.partial.interval.upper, 3)}` : ""}</td><td class="n">${x.distinct.toLocaleString("en-US")}</td></tr>`).join("");
+      $("#compare-block").hidden = !r.comparison;
+      if (r.comparison) {
+        const o = r.comparison.overall;
+        $("#overall-line").textContent = o ? `All ${r.results.length} AUCs equal? Chi-square ${fmt(o.chi2, 2)} on ${o.df} degrees of freedom, p ${o.p < 0.0001 ? "< 0.0001" : `= ${fmtP(o.p)}`}. Pairwise p-values below are not adjusted for multiple comparisons.` : "One pair, so the test below is the whole comparison.";
+        $("#compare-table tbody").innerHTML = r.comparison.pairs.map((p) => `<tr><td>${esc(p.a)} − ${esc(p.b)}</td><td class="n">${fmt(p.diff, 4)}</td><td class="n">${fmt(p.lower, 3)} to ${fmt(p.upper, 3)}</td><td class="n">${fmt(p.z, 2)}</td><td class="n">${fmtP(p.p)}</td><td class="n">${fmt(p.correlation, 2)}</td><td>${esc(verdict(p.p, r.alpha, `${p.diff > 0 ? p.a : p.b} discriminates better`, "not distinguishable at this sample size"))}</td></tr>`).join("");
+      }
+      options($("#cut-score"), r.results.map((x) => x.name), $("#cut-score").value && r.results.some((x) => x.name === $("#cut-score").value) ? $("#cut-score").value : best.name);
+      $("#cut-value").value = "";
+      showCut();
+      const dcx = r.results.find((x) => x.decision);
+      $("#dca-block").hidden = !dcx;
+      if (dcx) drawDca(dcx);
+      $("#settings-line").textContent = `Outcome: ${r.columns.outcome}${r.columns.positive ? ` (case: ${r.columns.positive})` : ""}. ${r.n.toLocaleString("en-US")} rows. Partial AUC over false positive rates 0 to ${r.settings.partialFpr}${r.settings.resamples ? `, ${r.settings.resamples} bootstrap resamples, seed ${r.settings.seed}` : ""}.`;
+    }
+
+    function showCut() {
+      if (!last || !lastData) return;
+      const name = $("#cut-score").value;
+      const x = last.results.find((q) => q.name === name);
+      if (!x) return;
+      const op = x.direction === "lower" ? "≤" : "≥";
+      const c = x.cutoffs;
+      const row = (label, k) => k ? `<tr><td>${esc(label)}</td><td class="n">${op} ${esc(String(Number(k.threshold.toPrecision(6))))}</td><td class="n">${pct(k.sensitivity)}</td><td class="n">${pct(k.specificity)}</td><td class="n">${fmt(k.youden, 3)}</td></tr>` : `<tr><td>${esc(label)}</td><td class="n" colspan="4">no cut-off reaches it</td></tr>`;
+      $("#cut-table tbody").innerHTML = row("Youden's J (maximum)", c.youden) + row("Closest to the top-left corner", c.closest) + row(`Sensitivity ≥ ${pct(last.settings.targetSensitivity, 0)}, most specific`, c.forSensitivity) + row(`Specificity ≥ ${pct(last.settings.targetSpecificity, 0)}, most sensitive`, c.forSpecificity);
+      const raw = $("#cut-value").value.trim();
+      let t = c.youden.threshold;
+      if (raw) {
+        const v = Number(raw);
+        if (!Number.isFinite(v)) {
+          $("#at-line").textContent = "Enter a number for the cut-off.";
+          return;
+        }
+        t = v;
+      }
+      const s = lastData.scores[name].map((v) => (x.direction === "lower" ? -v : v));
+      const a = atCut(s, lastData.y, x.direction === "lower" ? -t : t, { level: last.settings.level, prevalence: last.settings.prevalence });
+      $("#at-line").textContent = `A case when ${name} ${op} ${Number(t.toPrecision(6))}${raw ? "" : " (Youden's cut-off)"}: ${a.tp} true positives, ${a.fp} false positives, ${a.fn} missed cases, ${a.tn} true negatives.`;
+      const ci = (q) => (Number.isFinite(q.lower) ? `${pct(q.lower)} to ${pct(q.upper)}` : "");
+      const lr = (q, d) => `${fmt(q.lower, d)} to ${fmt(q.upper, d)}`;
+      const prevNote = a.prevalenceUsed != null ? ` at ${pct(a.prevalenceUsed)} prevalence` : "";
+      const rows = [
+        ["Sensitivity (cases caught)", pct(a.sensitivity.est), ci(a.sensitivity)],
+        ["Specificity (non-cases cleared)", pct(a.specificity.est), ci(a.specificity)],
+        [`Positive predictive value${prevNote}`, pct(a.ppv.est), ci(a.ppv)],
+        [`Negative predictive value${prevNote}`, pct(a.npv.est), ci(a.npv)],
+        ["Positive likelihood ratio", fmt(a.lrPlus.est, 2), lr(a.lrPlus, 2)],
+        ["Negative likelihood ratio", fmt(a.lrMinus.est, 3), lr(a.lrMinus, 3)],
+        ["Accuracy", pct(a.accuracy), ""],
+      ];
+      $("#at-table tbody").innerHTML = rows.map(([m, v, i]) => `<tr><td>${esc(m)}</td><td class="n">${esc(v)}</td><td class="n">${esc(i)}</td></tr>`).join("");
+    }
+    $("#cut-score").addEventListener("change", () => { $("#cut-value").value = ""; showCut(); });
+    $("#cut-value").addEventListener("input", showCut);
+
+    function run() {
+      $("#status").textContent = "Computing…";
+      $("#analyze").disabled = true;
+      setTimeout(() => {
+        try {
+          const t0 = performance.now();
+          const inp = inputs();
+          const r = analyze(inp);
+          lastData = readData(parseCsv(inp.csv), inp);
+          render(r);
+          record("analysis_run");
+          $("#status").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+        } catch (e) {
+          $("#results").hidden = true;
+          $("#status").textContent = e.message;
+        } finally {
+          $("#analyze").disabled = false;
+        }
+      }, 20);
+    }
+    $("#analyze").addEventListener("click", run);
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      $("#positive").value = "";
+      refreshColumns();
+      record("example_loaded");
+      run();
+    });
+    function save(text, name, type) {
+      const blob = new Blob([text], { type });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    }
+    $("#download").addEventListener("click", () => last && save(toCsv(last), "roc-cutoffs.csv", "text/csv"));
+    $("#download-report").addEventListener("click", () => last && save(report(last) + "\n", "roc-report.txt", "text/plain"));
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

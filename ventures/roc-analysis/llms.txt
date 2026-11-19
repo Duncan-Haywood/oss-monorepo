@@ -1,0 +1,28 @@
+# ROC analysis: ROC curves, AUC with DeLong intervals, DeLong's paired test, cut-offs
+
+> Free online ROC analysis for one or more scores measured on the same cases: ROC curves, the AUC with DeLong's interval, DeLong, DeLong & Clarke-Pearson's (1988) paired test of every pair of AUCs and the chi-square test that all are equal (placements by midranks, Sun & Xu 2014), cut-offs by Youden's J, closest to the corner, a target sensitivity or a target specificity, sensitivity, specificity and predictive values with Wilson intervals, likelihood ratios with log-method intervals (Simel, Samsa & Matchar 1991), the McClish-standardised partial AUC with a bootstrap interval, and decision curves (Vickers & Elkin 2006) for predicted probabilities. Matches scipy 1.18.1 and a direct O(mn) DeLong computation. On 569 breast biopsies (UCI Wisconsin Diagnostic), worst perimeter (AUC 0.975) and worst concave points (0.967) cannot be told apart (paired p = 0.24), while a cross-validated model combining features beats both (p <= 0.0001). Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice, and not an evaluation of a diagnostic device.
+
+## Pages
+
+- [The tool](https://marisstella.app/roc-analysis/)
+
+## Use it from code
+
+- `node cli.mjs data.csv [--outcome y] [--positive label] [--scores a,b] [--lower b] [--threshold t] [--prevalence 0.05] [--partial 0.1] [--sensitivity 0.9] [--specificity 0.9] [--probabilities p] [--level 0.95] [--alpha 0.05] [--resamples 500] [--seed 1] [--csv|--json]`
+- `node platform/agents/tools.mjs call roc-analysis analyze --input '{"y":[0,0,0,0,0,1,1,1,1,1],"scores":{"a":[1,2,3,5,4,6,7,8,9,10],"b":[2,1,4,3,6,5,8,7,10,9]}}'` (or `{"csv":"..."}`)
+- From JavaScript: `analyze(input)`, `placements(score, y)`, `delong(scores, y)`, `compare(d, names, level)`, `rocCurve(score, y)`, `areaUnder(points, maxFpr)`, `cutoffs(points, opts)`, `atCut(score, y, t, opts)`, `decisionCurve(prob, y)`.
+
+## What it answers
+
+- What is this test's or model's AUC, with what interval?
+- Is score A really better than score B on the same patients, customers or transactions, or is the gap chance?
+- Where should the cut-off go for 90% sensitivity, or 95% specificity, and what do I give up?
+- What are the sensitivity, specificity, PPV, NPV and likelihood ratios at this cut-off, and at a real-world prevalence?
+- Which score is better where false positives must be rare (partial AUC)?
+- Over which threshold probabilities is a risk model worth using (decision curve)?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roc-analysis): MIT licensed.
