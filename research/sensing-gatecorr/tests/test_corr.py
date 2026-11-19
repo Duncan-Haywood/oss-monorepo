@@ -44,3 +44,15 @@ def test_patch_is_restored_and_trial_runs():
     orig = gate.mismatch
     r = run_corr(4, 0.06, seed=0, n_feat=80, n_views=8)
     assert gate.mismatch is orig and np.isfinite(r["g_cauchy"]) and 0 <= r["recall"] <= 1
+
+
+def test_rate_is_held_at_the_measured_rate_where_uncapped_and_capped_at_span_1():
+    # Quality audit 2026-11-19: at rate 0.102 and span 1, p = 0.102 * 12 = 1.22 caps at 1,
+    # so every feature is wrong in exactly one view: the realised share is 1/12, not 0.102.
+    vis, clean = _rig()
+    def share(span):
+        return np.mean([correlated_mismatch(span, clean, vis, 0.102, np.random.default_rng(s))[1].sum() / vis.sum()
+                        for s in range(60)])
+    for span in (2, 4, 8, 12):
+        assert abs(share(span) - 0.102) < 0.006, span
+    assert abs(share(1) - 1 / 12) < 0.004

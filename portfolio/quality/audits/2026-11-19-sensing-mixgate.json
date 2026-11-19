@@ -186,7 +186,8 @@
    "what": "Headline and project.json lede quote 6-seed means that the project's own 24-seed rerun contradicts: at ratio 0.9 the gate is not worse than the RANSAC start (medians 0.057 vs 0.071, 11/24 wins, both below 0.08), and at 0.8 the 2.65x gap (0.0078 vs 0.0207) is 1.26x by medians with overlapping intervals and sign-test p 0.064",
    "where": "research/sensing-mixgate/README.md:3",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17808"
   },
   {
    "severity": "medium",
@@ -207,7 +208,8 @@
    "what": "'it fails more on a pure-uniform population at the same rates (table B)' is contradicted by results.txt (table B recall 0.90-0.94 vs 0.83-0.84 on the measured mixes); the '0.79 to 0.87 (sensing-epigate)' quoted as removal of near/along errors are epigate's recalls at 8/12/24 views for 10% along",
    "where": "research/sensing-mixgate/README.md:35",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17808"
   },
   {
    "severity": "medium",
@@ -221,7 +223,8 @@
    "what": "Stale and contradictory text after the 24-seed rerun: README.md:3 has a botched sentence join ('mismatches, The 24-seed rerun'); README.md:39 still calls table B erratic and unestablished while README.md:55 says it is not; project.json says the uniform control is 'unestablished' and '6 seeds, no intervals'; run_seeds.py docstring 25 min vs README 45 min",
    "where": "research/sensing-mixgate/project.json:4",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17808"
   },
   {
    "severity": "low",
@@ -238,6 +241,6 @@
    "origin": "build"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17808"],
  "verdict": "Small, clean and exactly reproducible: run.py rewrites results.txt byte for byte, the mismatch generator checks out against an independent Hartley-Zisserman F (along errors on a true epipolar line to 1e-12 px, kind shares within sampling error), and every 24-seed median, fail share and win count recomputes from the committed per-seed json. The problem is what the page says with those numbers. The headline still quotes 6-seed means that the project's own 24-seed rerun overturns: at ratio 0.9 the gate ties the RANSAC start (11/24) rather than losing, and at 0.8 the 2.65x margin is 1.26x by medians with sign-test p 0.064, so the gate's advantage is established only at 0.7 and 0.6. One README claim about table B recall is the reverse of results.txt, and project.json was not updated after the rerun. In design, the stereo 'along' class is transplanted onto a 12-view orbit where about 40% of those errors are not along for any pair the gate tests, which flatters the gate where the mixes are along-dominated. Three of four seeded bugs survive the tests. The same experiment exists twice more in the repo (sensing-gatemix, sensing-matchmix), uncited, and no external literature is cited. Does not meet the bar."
 }
