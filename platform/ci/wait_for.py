@@ -32,6 +32,7 @@ never fired. It prints what it matched first, so a typo that matches nothing say
 `echo EXIT $?` works as a marker line too: with no `--marker`, a `DONE` line or an
 `EXIT 0` line both end the wait (friction 2026-11-11: runs guessed `--pattern` or
 waited out the timeout on an EXIT log), and the printed tail shows the exit code.
+Lower-case `exit 0` or `done` lines (alone, or with an exit code) end the default wait too.
 `--marker X` waits for X alone. A marker followed by more output, in a log a
 process still has open, is an earlier phase's (a second `>>` phase): the wait
 goes on until a marker ends the log or the writer closes it. The default also accepts the line the harness
@@ -66,12 +67,28 @@ def is_marker(line, marker):
     counts too: `--marker BUILD_EXIT` matches `BUILD_EXIT=0` (friction 2026-11-16,
     a full timeout on a log whose last line was exactly that)."""
     s = line.strip()
+    # A marker given with trailing space (`--marker 'exit '`) meant "exit, then
+    # anything", but no stripped line ends in a space, so it never matched: a full
+    # 540 s wait on a log ending `exit 0` (friction 2026-11-19). Strip it here.
+    marker = marker.strip() or marker
     if marker[-1] in "=:" and s.startswith(marker):
         return True
     return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:-=")
 
 
 DEFAULT_MARKERS = ("DONE", "EXIT", "[exited with code")
+
+
+def is_quiet_marker(line):
+    """A lower- or title-case `done` / `exit` line that only an `echo` writes: the
+    word alone, or followed by an exit code (`exit 0`, `Done 3`). Runs end jobs
+    with `echo exit $?` or `echo done` and the upper-case default waited the full
+    timeout on them (six reports, 2026-11-12..19). Words with more after them
+    (`done loading`, `Exit code was ...`) stay out: a job prints those mid-run."""
+    parts = line.strip().split()
+    if not parts or parts[0].lower() not in ("done", "exit") or len(parts) > 2:
+        return False
+    return len(parts) == 1 or parts[1].lstrip("-").isdigit()
 
 
 def boot_time(stat="/proc/stat"):
@@ -86,7 +103,7 @@ def boot_time(stat="/proc/stat"):
     return None
 
 
-def stale_marker(lines, markers, held):
+def stale_marker(lines, markers, held, quiet=False):
     """True when every marker line is an earlier phase's: output follows the last
     one and a process still has the log open, so the job is still writing.
 
@@ -95,7 +112,7 @@ def stale_marker(lines, markers, held):
     2026-11-15). A finished job holds no descriptor, and a marker that is the
     last line still ends the wait, so a wait called after the job is unchanged.
     """
-    idx = [i for i, l in enumerate(lines) if any(is_marker(l, m) for m in markers)]
+    idx = [i for i, l in enumerate(lines) if any(is_marker(l, m) for m in markers) or (quiet and is_quiet_marker(l))]
     if not idx or not any(l.strip() for l in lines[idx[-1] + 1:]):
         return False
     return bool(held())
@@ -118,7 +135,9 @@ def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.m
             with open(path, errors="replace") as f:
                 lines = f.read().splitlines()
             markers = (marker,) if isinstance(marker, str) else marker
-            if any(is_marker(l, m) for l in lines for m in markers) and not stale_marker(lines, markers, held):
+            quiet = markers == DEFAULT_MARKERS
+            if (any(is_marker(l, m) for l in lines for m in markers) or (quiet and any(map(is_quiet_marker, lines)))) \
+                    and not stale_marker(lines, markers, held, quiet):
                 return True, lines
             if boot is not None and os.stat(path).st_mtime < boot and clock() - start >= min(grace, timeout):
                 return None, lines
