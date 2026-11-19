@@ -153,3 +153,19 @@ test('monthly conversion uses averaged weeks, not a flat four', () => {
   assert.ok(Math.abs(WEEKS_PER_MONTH - 52 / 12) < 1e-12);
   assert.ok(WEEKS_PER_MONTH > 4.3);
 });
+
+test('FAQ travel-share sentence matches the starting figures (quality round 88)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  const r = calculateBid({ services: [
+    { name: 'Turf mowing', quantity: 10000, productionRate: 20000 },
+    { name: 'Edging & blowing', unit: 'minutes', quantity: 25, productionRate: 60 },
+    { name: 'Bed weeding / detail', quantity: 350, productionRate: 400 },
+  ], visitsPerWeek: 1, serviceWeeksPerYear: 32, oneWayMinutes: 18, crewSize: 1, hourlyWage: 18,
+  burdenRate: 25, fuelPerVisit: 8, equipmentMonthly: 40, overheadRate: 12, targetMargin: 25 });
+  const [, edging, beds] = r.services.map(s => s.hoursShare);
+  assert.ok(r.travelHoursShare > edging, 'page says travel exceeds edging');
+  assert.ok(r.travelHoursShare < beds, 'page says travel is less than bed weeding');
+  assert.ok(html.includes('though less than the bed weeding'));
+  assert.ok(!html.includes('more than either the edging or the bed-weeding'));
+});
