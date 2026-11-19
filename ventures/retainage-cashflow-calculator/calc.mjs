@@ -29,7 +29,7 @@ export function parseInputs(raw) {
     }
     const parsed = Number(value);
     if (!Number.isFinite(parsed) || parsed < min || parsed > max) {
-      errors.push(`${label} must be between ${min} and ${max}.`);
+      errors.push(`${label} must be ${max === Infinity ? `${min} or more` : min === -Infinity ? `${max} or less` : `between ${min} and ${max}`}.`);
       return fallback;
     }
     return parsed;

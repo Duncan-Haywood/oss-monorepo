@@ -42,3 +42,9 @@ test("usage events named on the page are the ones the code records", () => {
   const recorded = [...html.matchAll(/record\("([a-z_]+)"\)/g)].map((m) => m[1]);
   assert.deepEqual(named, [...new Set(recorded)].sort());
 });
+
+test("zero used hours never prints $Infinity as the cost per used hour", () => {
+  // calc.mjs returns Infinity when nothing is used; the button sweep with
+  // FILL=0 (2026-11-19) caught the page printing "$Infinity".
+  assert.match(page("index.html"), /Number\.isFinite\(p\.costPerUsedHour\)/);
+});
