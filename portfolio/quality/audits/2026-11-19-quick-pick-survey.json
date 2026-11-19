@@ -1,0 +1,275 @@
+{
+  "date": "2026-11-19",
+  "subject": "ventures/quick-pick-survey",
+  "stratum": "flagship",
+  "seed": "2026-11-19-m-30b7",
+  "auditor": "agent session (Claude), 2026-11-19 sample round, independent quality subagent",
+  "status": "audited",
+  "professional": "a survey methodologist / market researcher who runs paired-comparison and MaxDiff (best-worst scaling) studies, with a Bayesian statistician as second reader: first checks are that the Bradley-Terry and best-worst likelihoods and their intervals match the published models, that the rank ranges and 'chance of being the favourite' are calibrated, that the team (random-effects) read is honest about disagreement, and that every 'measured' number on the page traces to a reproducible run",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Seven outputs recomputed independently, all agree. Scripts in the session scratchpad (qa/recompute.mjs, qa/indep.py, qa/t.ts, qa/indep2.py), Python 3.13 with numpy+scipy. (1) Browser Bradley-Terry refit (site/rank-core.mjs fit -> engine/btRefit.mjs refitRatings) on 10 picks over 4 options incl. one tie: mu 1.713962 / -0.142166 / -0.729576 / -0.842220 and posterior variances 2.037086 / 1.404612 / 1.548765 / 1.653577; my scipy BFGS MAP of sum log sigmoid with N(0, (350/173.7178)^2) prior and tie as half a win each way, plus finite-difference Hessian inverse, gives the same to 6 digits. (2) chanceAbove = Phi(diff/sd(diff)): 0.908076 and 0.536988, identical with scipy norm.cdf. (3) Sequential best-worst (MaxDiff) model (site/best-worst.mjs) on three 4-option screens: mu 1.337871 / 0.758432 / -0.766563 / -1.329740, identical to my own softmax-best then softmax-worst-of-rest likelihood. (4) DerSimonian-Laird pool (src/lib/groupRanking.ts) on 5 respondents not in its tests: 1543.13899 / 46.21655 / 74.87049, identical to textbook DL by hand. (5) Glicko-2 rating-period example (updateGlickoPeriod) 1464.0507 / 151.5165 / 0.0599960, matching my from-scratch Glickman (2013) steps 1-8 and the paper's 1464.06/151.52/0.05999. (6) fairCoinTail(30,24) 1.43090636e-3 and (13,2) 2.24609375e-2, identical to 2*scipy binom.cdf. (7) how-many-pairwise-comparisons page: n(n-1)/2 = 190/435/780/1225 and ceil(log2 n!) = 62/108/160/215 for n = 20/30/40/50 all match lgamma; '93 picks, 0.94 vs 0.95 Spearman at 20' matches docs/picks-needed-2026-11-14.jsonl (93.3, 0.935, 0.947). Also re-ran `node scripts/rank-range-coverage.mjs --n 15 --spreads 1.5 --runs 12 --seed 2000` (9 s): the row reproduces the committed jsonl bit for bit (fixed cover 0.8, own 0.961). Held at 3, not 4: in that same row the 'chance of being the favourite' shown at the own prior is 0.40 while the shown favourite was the true one 2 times in 12 (0.167), so the favourite chance is still over-confident for close-call answerers (12 runs, wide interval; RANK-PAGE.md says it still overclaims for ordinary answerers on 15). Not recomputed: question selection, the Postgres routes, decide.html's graded model.",
+    "completeness": "Claims checked end to end: (a) rank.html engine, driven headless from node (qa/e2e.mjs): parseList of 8 options, nextPair loop with a simulated logistic answerer, stopCheck stopped at 48 picks, resultsTable gave an order with 90% rank ranges and favourite chances, encodeAnswers/decodeAnswers QP1 code round-tripped exactly, resultsCsv produced a header and rows; (b) best-worst screens, team combine (groupFit, populationFit), top-k mode, piles: covered by the 124-test site suite, all pass; (c) site/engine/*.mjs is the current strip of src/lib (`node scripts/build-rank-engine.mjs --check` -> 'site/engine is current'); (d) served copy (`node platform/pages/served-copy.mjs quick-pick-survey`): no placeholder or retired origin, and every relative import of rank/decide/maxdiff/photo pages resolves to a file in the served copy; (e) admin survey app: `npx tsc --noEmit` 0, `npx eslint .` 0, fast vitest suite green. Not run: integration suite (no Postgres), `next build`, a real browser (marisstella.app returned no connection from this sandbox), simulations suite. VENTURE.yaml stage prototype, production null, as the page says.",
+    "verification": "`cd site && node --test '*.test.mjs'`: 124 tests, 124 pass, 3.9 s. `npx vitest run --config vitest.fast.config.ts`: 50 files, 521 tests, all pass, 28 s (up from 304 at the 2026-11-10 audit). Six seeded mutations with platform/ci/quality_mutate.py: the three that survived on 2026-11-10 are now caught (Glicko newMu x0.9 caught by glicko2.test.ts; DL (q-(k-1)) -> (q-k) caught by groupRanking.test.ts; plus Davidson pinned probabilities now in conjoint.test.ts:173-191, not re-mutated); new mutants: rank-core diffVar dropping the -2cov term caught; btRefit.ts prior precision halved caught; but two in the MaxDiff likelihood (site/best-worst.mjs) survived: the worst tap read over the whole screen instead of the rest after the best (a different, non-sequential model), and the pair-tie weight 0.5 -> 0.6 in answerTerms. best-worst.test.mjs checks the gradient against finite differences of its own log likelihood and that a 2-screen equals one pick, but never pins the 4-option likelihood or fit to a closed-form value, so a wrong model is self-consistent and passes. 4 of 6 caught.",
+    "craft": "Read: site/rank-core.mjs (fit, piles, stopCheck, chanceAbove, rankTable/resultsFit, groupFit, populationFromInfos), site/best-worst.mjs (answerTerms), site/engine/btRefit.mjs header and refitRatings, src/lib/groupRanking.ts (pool, fairCoinTail), src/lib/glicko2.ts, src/lib/conjoint.ts invertMatrix. Good: generated engine with a --check and a test that fails when stale (one engine, not a copy); log-space softmax; Cholesky with an explicit 'not positive definite' error; refitRatings rejects answers naming unknown ids instead of dropping them; erf approximation documented with its error bound; reasons and measurements written next to each constant. Still standing from 2026-11-10: invertMatrix nudges a singular pivot by 1e-8 rather than surfacing it (src/lib/conjoint.ts:161); MIN_RD 30 floor feeds back into later Glicko updates (src/lib/glicko2.ts:102). rank-core.mjs is ~980 lines and the README/llms.txt carry very long change-log paragraphs (README.md:222 is one 1,500-character line), which a reviewer would ask to move to docs.",
+    "claims": "Earlier claim defects re-checked: 'Glicko-2, the system chess.com's ratings are built on' is gone (README.md:161 and glicko2.ts:3 now say 'chess-style') - FIXED. Test named for the published Glicko value now asserts 1464.06/151.52/0.059996 (glicko2.test.ts:51-65) - FIXED. llms.txt now points at marisstella.app (served-copy check clean) - FIXED, but the duplicate '## Pages' heading remains (llms.txt:7 and :33). 'so screen position cannot bias the result' still stands (site/index.html:41, :60; README.md:176), though slot-run detection now exists. Numbers checked against files: how-many page 93/190/0.94/0.95, 72/189, 204/780, log2(n!) 62/108/160/215 all backed by docs/picks-needed-2026-11-14.jsonl; '90% ranges held the true rank 80-81% before and 89-96% after' (llms.txt) backed by docs/rank-range-coverage-2026-11-15.jsonl and reproduced by re-running the script for one row. Status/disclaimer honest: 'Prototype ... No outside user has run a real survey with it yet, and nothing here is a measured result' (site/index.html:47, :64); every tool page carries a disclaimer and the local usage counter with opt-out (site/usage.mjs). Small looseness: 'log2(n!) ... about n log2 n: 62 for 20 items' (how-many-pairwise-comparisons.html:89) - n log2 n is 86 at 20, so 'about' misleads; README.md:162-163 still says Glicko RD gives 'a real confidence interval' although intervals now come from the Bradley-Terry refit.",
+    "fitness": "Job: a team lead ranks 20 options with 10 colleagues. Now possible without deploying anything: paste the list into rank.html, share the # link, each person answers in the browser (about 93 picks for 20 options at ordinary consistency, measured in simulation), sends back a QP1 code, the lead pastes codes and gets a team order with group and population 90% rank ranges, agreement, and a CSV. I drove the same engine headless for one person (8 options, 48 picks, sensible order, code round-trip, CSV). A solo user can also do a MaxDiff-style best/worst or a weighted decision matrix (decide.html). Limits: no outside user yet; picks per person are high for long lists (about 1.6x for top-k); I did not load the page in a real browser here; the self-hosted Postgres app was not run.",
+    "domain": "Compared against Bradley-Terry / Thurstone paired comparison (David 1988), sequential best-worst scaling (Marley & Louviere 2005), DerSimonian-Laird random effects, and Glickman's Glicko-2. The 2026-11-10 objection (a time-varying Glicko-2 used for static preferences) is largely answered: the per-person results and the rank page now come from a full-likelihood Bayesian Bradley-Terry refit with a Laplace covariance and an empirical-Bayes prior sd, which is what a methodologist would choose, and the btRefit header argues the likelihood principle for the adaptive design correctly. MaxDiff is read with the exact sequential best-worst model instead of five implied pairs, the right call. The team read separates 'this group' (mean of posteriors) from a random-effects 'population' with marginal-likelihood tau, which is principled. Departures: Laplace approximation on few picks per item, and the favourite chance remains over-confident for near-coin-flip answerers (reproduced row above); calibration evidence rests on 12-24 simulated people per row and on logistic answerers, plus Thurstone off-model checks; no real-respondent validation beyond PrefLib replays (scripts/preflib.ts, not run here); position-bias handling is randomisation plus a run test, not a measured bias estimate."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Bradley-Terry MAP and Laplace variances on 10 picks over 4 options with a tie",
+      "method": "own scipy BFGS MAP of logistic BT with N(0,(350/173.7178)^2) prior, tie = half win each way, FD Hessian inverse",
+      "command": "node qa/recompute.mjs ; python3 qa/indep.py",
+      "expected": "mu 1.713962 -0.142166 -0.729576 -0.842220; var 2.037085 1.404612 1.548765 1.653577",
+      "observed": "mu 1.713962 -0.142166 -0.729576 -0.842220; var 2.037086 1.404612 1.548765 1.653577",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "chanceAbove(f,0,1) and (f,2,3) on that fit",
+      "method": "Phi((mu_i-mu_j)/sqrt(v_i+v_j-2c_ij)) with scipy.stats.norm",
+      "command": "node qa/recompute.mjs ; python3 qa/indep.py",
+      "expected": "0.908076, 0.536988",
+      "observed": "0.908076, 0.536988",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Sequential best-worst (MaxDiff) fit on three 4-option screens",
+      "method": "Marley-Louviere sequential best-worst likelihood coded independently (softmax best, softmax of -s for worst among the rest), scipy MAP",
+      "command": "node qa/recompute.mjs ; python3 qa/indep.py",
+      "expected": "mu 1.337871 0.758432 -0.766563 -1.329740",
+      "observed": "mu 1.337871 0.758432 -0.766563 -1.329740",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "DerSimonian-Laird pooled rating/se/tau on 5 untested respondents (1620/55,1480/95,1710/120,1390/70,1555/40)",
+      "method": "DerSimonian & Laird (1986) moment estimator by hand in numpy",
+      "command": "npx tsx qa/t.ts ; python3 qa/indep2.py",
+      "expected": "1543.13899 46.21655 74.87049",
+      "observed": "1543.13899 46.21655 74.87049",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Glicko-2 rating-period worked example",
+      "method": "Glickman (2013) 'Example of the Glicko-2 system', own steps 1-8 with Illinois solver",
+      "command": "npx tsx qa/t.ts ; python3 qa/indep2.py",
+      "expected": "1464.0507 151.5165 0.0599960 (paper 1464.06/151.52/0.05999)",
+      "observed": "1464.0507 151.5165 0.0599960",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Two-sided fair-coin tail used by the slot-run test",
+      "method": "2*scipy.stats.binom.cdf(min(k,n-k), n, 0.5)",
+      "command": "npx tsx qa/t.ts ; python3 qa/indep2.py",
+      "expected": "1.43090636e-03, 2.24609375e-02",
+      "observed": "1.43090636e-03, 2.24609375e-02",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "how-many page: every-pair counts and sorting bound for 20/30/40/50",
+      "method": "n(n-1)/2 and ceil(lgamma(n+1)/ln 2)",
+      "command": "python3 -c (lgamma) over docs/picks-needed-2026-11-14.jsonl",
+      "expected": "190/435/780/1225; 62/108/160/215",
+      "observed": "page: 190, 1225; 62, 108, 160, 215",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Favourite chance calibration for near-coin-flip answerers (15 options, spread 1.5)",
+      "method": "re-ran the author's simulation and compared shown chance to observed hit rate",
+      "command": "node scripts/rank-range-coverage.mjs --n 15 --spreads 1.5 --runs 12 --seed 2000",
+      "expected": "favourite chance close to how often the favourite is right",
+      "observed": "own-prior favChance 0.40 vs favRight 0.167 (2 of 12); row identical to committed jsonl",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "site test suite",
+      "method": "run",
+      "command": "cd ventures/quick-pick-survey/site && node --test '*.test.mjs'",
+      "expected": "green",
+      "observed": "124 pass, 0 fail, 3.9 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "fast vitest suite",
+      "method": "run",
+      "command": "cd ventures/quick-pick-survey && npx vitest run --config vitest.fast.config.ts",
+      "expected": "green",
+      "observed": "50 files, 521 tests pass, 28 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "browser engine is the current generated strip of src/lib",
+      "method": "author's check script",
+      "command": "node scripts/build-rank-engine.mjs --check",
+      "expected": "current",
+      "observed": "site/engine is current",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "rank page engine end to end for one person",
+      "method": "headless drive of parseList/nextPair/stopCheck/resultsTable/encodeAnswers/resultsCsv",
+      "command": "node qa/e2e.mjs",
+      "expected": "stops, gives ranges, code round-trips",
+      "observed": "48 picks, order with 90% ranges, QP1 round-trip true, CSV rows",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "served copy origins and page imports",
+      "method": "platform served-copy tool plus import-resolution loop",
+      "command": "node platform/pages/served-copy.mjs quick-pick-survey",
+      "expected": "no retired origin, all imports resolve",
+      "observed": "no placeholder or retired origin; no missing import",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "typecheck and lint",
+      "method": "run",
+      "command": "npx tsc --noEmit ; npx eslint .",
+      "expected": "exit 0",
+      "observed": "0 ; 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "chess.com uses Glicko-2 (2026-11-10 defect)",
+      "method": "grep README/glicko2.ts/site/llms.txt",
+      "command": "grep -n chess README.md src/lib/glicko2.ts site/index.html llms.txt",
+      "expected": "claim removed or backed",
+      "observed": "now 'chess-style rating system' only",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'screen position cannot bias the result'",
+      "method": "compare with what randomisation guarantees",
+      "command": "grep -n 'cannot bias' site/index.html; grep -n \"can't bias\" README.md",
+      "expected": "claim scoped to 'in expectation'",
+      "observed": "still absolute at site/index.html:41,60 and README.md:176",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "how-many page '93 picks for 20, 0.94 vs 0.95 Spearman'",
+      "method": "read docs/picks-needed-2026-11-14.jsonl",
+      "command": "python3 parse of the jsonl, n=20 spread=6",
+      "expected": "93, 0.94, 0.95",
+      "observed": "93.3, 0.935, 0.947",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "rank-range coverage '80-81% before, 89-96% after' (llms.txt)",
+      "method": "re-ran author's script for one row",
+      "command": "node scripts/rank-range-coverage.mjs --n 15 --spreads 1.5 --runs 12 --seed 2000",
+      "expected": "fixed 0.80, own within 0.89-0.96",
+      "observed": "fixed 0.8, own 0.961 (identical to committed row)",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "site/best-worst.mjs:65",
+      "change": "softmax(rest, a.worst, -1) -> softmax(a.set, a.worst, -1) (worst read over the whole screen, not the sequential model)",
+      "caught": false,
+      "test_cmd": "cd site && node --test '*.test.mjs'"
+    },
+    {
+      "where": "site/best-worst.mjs:69",
+      "change": "pair tie weight y = t ? 0.5 : 1 -> t ? 0.6 : 1",
+      "caught": false,
+      "test_cmd": "cd site && node --test '*.test.mjs'"
+    },
+    {
+      "where": "site/rank-core.mjs:421",
+      "change": "diffVar drops the -2*cov[i,j] term",
+      "caught": true,
+      "test_cmd": "cd site && node --test '*.test.mjs'"
+    },
+    {
+      "where": "src/lib/btRefit.ts:142",
+      "change": "prior precision 1/s^2 -> 1/(2 s^2)",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.fast.config.ts src/lib/btRefit"
+    },
+    {
+      "where": "src/lib/groupRanking.ts:54",
+      "change": "DL tau^2 (q-(k-1))/c -> (q-k)/c (survived on 2026-11-10)",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.fast.config.ts src/lib/groupRanking.test.ts"
+    },
+    {
+      "where": "src/lib/glicko2.ts:99",
+      "change": "newMu step x0.9 (survived on 2026-11-10)",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.fast.config.ts src/lib/glicko2.test.ts"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The MaxDiff (best-worst) likelihood is not pinned to a closed-form value: reading the worst tap over the whole screen instead of the rest after the best (a different model), and changing the tie weight in answerTerms, both pass all 124 site tests. Tests check gradient vs finite differences of the same likelihood and the 2-option reduction only. A 4-option screen's log likelihood and one small fit (e.g. the qa values in this audit: mu 1.337871 / 0.758432 / -0.766563 / -1.329740) would pin it.",
+      "where": "ventures/quick-pick-survey/site/best-worst.mjs:65; site/best-worst.test.mjs:33",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "'Chance of being the favourite' is still over-confident for near-coin-flip answerers: re-running the author's own coverage script for 15 options, spread 1.5, the own-prior table showed 0.40 while the favourite was right 2 times in 12. RANK-PAGE.md admits an overclaim for ordinary answerers; the page does not tell the person.",
+      "where": "ventures/quick-pick-survey/site/rank-core.mjs:605; docs/RANK-PAGE.md:252",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "'randomises which option appears on top, so screen position cannot bias the result' overstates randomisation (removes systematic bias in expectation; a respondent's position lean still adds noise). Unchanged since the 2026-11-10 audit.",
+      "where": "ventures/quick-pick-survey/site/index.html:41; site/index.html:60; README.md:176",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "invertMatrix silently nudges a singular pivot by 1e-8, so a degenerate conjoint Hessian gives arbitrary standard errors with no flag; MIN_RD 30 floor is fed back into later Glicko updates. Unchanged since 2026-11-10.",
+      "where": "ventures/quick-pick-survey/src/lib/conjoint.ts:161; src/lib/glicko2.ts:102",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "'log2(n!) comparisons, about n log2 n: 62 for 20 items': n log2 n is 86 at n=20, so the gloss misleads a reader; log2(n!) ~ n log2 n - 1.44 n.",
+      "where": "ventures/quick-pick-survey/site/how-many-pairwise-comparisons.html:89",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "README 'How it works' still says Glicko-2 RD gives every ranking 'a real confidence interval', though the shown intervals now come from the Bradley-Terry refit (btRefit.ts, insights route); llms.txt still has two '## Pages' headings.",
+      "where": "ventures/quick-pick-survey/README.md:162; llms.txt:33",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Re-audit nine days after the 2026-11-10 audit (which failed on verification and claims). The fixes held: the three mutants that survived then (Glicko update, DerSimonian-Laird tau, Davidson tie) are now pinned and two of them were re-seeded and caught; the chess.com claim and the misnamed Glicko test are fixed; llms.txt points at the served host. The product has also grown a no-install browser ranker whose maths I recomputed independently: Bayesian Bradley-Terry MAP and Laplace variances, pairwise chances, the sequential best-worst model, DL pooling, Glickman's example, the binomial run tail and the page's comparison counts all agree with my own scipy code to 6 digits, and a committed simulation row reproduced bit for bit. 645 tests pass (521 vitest fast + 124 site), typecheck and lint clean, the generated engine is current. It meets the bar at 3 across the board (finished, completeness 3), not 4: the new MaxDiff likelihood is self-consistent but unpinned (two seeded model changes survived), the favourite chance is still over-confident for near-coin-flip answerers, the position-bias sentence and an 'about n log2 n' gloss overstate, and there is still no outside user, real-browser run, Postgres integration run or next build in this audit. Earlier defects still standing: position-bias wording, invertMatrix nudge, MIN_RD feedback, duplicate llms.txt heading."
+}
