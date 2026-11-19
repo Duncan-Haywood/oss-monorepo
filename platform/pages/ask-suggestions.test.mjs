@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 
 import { ASK_EXPECTATIONS, coverage, judgeReply, splitReply } from './ask-suggestions.mjs';
 import { ASK_SUGGESTIONS } from './assistant.mjs';
-import { QUESTION_WORDS, questionWordWeights, rankForQuestion } from './assistant/fill.mjs';
+import { QUESTION_WORDS, feeVerbOf, questionWordWeights, rankForQuestion } from './assistant/fill.mjs';
 
 test('every example question on /ask/ has an expectation, and none is stale', () => {
   assert.deepEqual(coverage(ASK_SUGGESTIONS), { unchecked: [], stale: [] });
@@ -86,8 +86,27 @@ test('two words found only in the text are weak; a name hit plus another word is
 
 test('a one-word question needs only a name hit', () => {
   const data = index([['Poshmark Fee Calculator', 'poshmark fee calculator', ''], ['Resale notes', 'resale notes', 'poshmark']]);
-  assert.deepEqual(rankForQuestion(data, 'How much does Poshmark take?', { variants, score, strongOnly: true, limit: 5 }).map((i) => i.t), []);
+  assert.deepEqual(rankForQuestion(data, 'How much will Poshmark list?', { variants, score, strongOnly: true, limit: 5 }).map((i) => i.t), []);
   assert.deepEqual(rankForQuestion(data, 'Poshmark?', { variants, score, strongOnly: true }).map((i) => i.t), ['Poshmark Fee Calculator']);
+});
+
+test('"how much does <name> take" asks for the fee: the fee calculator is a strong match', () => {
+  // Main found nothing strong for this: "take" is in no fee calculator's name.
+  const data = index([['Poshmark Fee Calculator', 'poshmark fee calculator', ''], ['Resale notes', 'resale notes', 'poshmark']]);
+  for (const q of ['How much does Poshmark take?', 'What does Poshmark charge?', 'How much does Poshmark keep?']) {
+    assert.deepEqual(rankForQuestion(data, q, { variants, score, strongOnly: true }).map((i) => i.t), ['Poshmark Fee Calculator'], q);
+  }
+});
+
+test('the fee reading needs a named subject: "it", "a plumber" keep their own verb', () => {
+  assert.equal(feeVerbOf('how much does etsy take from a sale?'), 'take');
+  assert.equal(feeVerbOf('what does ebay charge to sell a $40 item?'), 'charge');
+  assert.equal(feeVerbOf('how long does it take to frame a wall?'), null);
+  assert.equal(feeVerbOf('how much does a plumber charge?'), null);
+  assert.equal(feeVerbOf('how much paint does it take?'), null);
+  assert.equal(feeVerbOf('should i take this offer?'), null);
+  const data = index([['Wall Framing Takeoff', 'wall framing takeoff', 'frame'], ['Etsy Fee Calculator', 'etsy fee calculator', 'frame']]);
+  assert.deepEqual(rankForQuestion(data, 'How long does it take to frame a wall?', { variants, score, limit: 1 }).map((i) => i.t), ['Wall Framing Takeoff']);
 });
 
 test('the rare word leads: an Etsy question is not answered with another marketplace', () => {
