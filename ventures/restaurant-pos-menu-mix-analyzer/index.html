@@ -173,6 +173,7 @@
       $("#promote").textContent = a.promote.length ? "Worth re-promoting (Puzzles, highest margin per plate first): " + a.promote.map((x) => `${x.name} (${usd(x.cm)} a plate, ${x.qty} sold)`).join("; ") + "." : "No Puzzles in this menu.";
       $("#by-cat").innerHTML = a.categories.map((c) => `<tr><th scope="row">${esc(c.category)}</th><td class="n">${c.items}</td><td class="n">${c.qty}</td><td class="n">${c.mixPct.toFixed(1)}</td><td class="n">${money(c.sales)}</td><td class="n">${c.foodCostPct === null ? "–" : c.foodCostPct.toFixed(1)}</td><td class="n">${money(c.cmPerPlate)}</td><td class="n">${money(c.cmTotal)}</td><td>${c.Star} / ${c.Plowhorse} / ${c.Puzzle} / ${c.Dog}</td></tr>`).join("");
       const notes = [], skipped = s.skipped.concat(list.skipped);
+      if (s.costPctAsFraction) notes.push("Every food cost % in the file was 1 or less, so they were read as fractions (0.38 = 38%).");
       if (skipped.length) notes.push(`${skipped.length} row(s) were skipped: ` + skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (skipped.length > 5 ? "; …" : "") + ".");
       notes.push("Columns read: " + Object.entries(s.columns).map(([k, v]) => `${k} = “${v}”`).join(", ") + ".");
       $("#skipped").textContent = notes.join(" ");

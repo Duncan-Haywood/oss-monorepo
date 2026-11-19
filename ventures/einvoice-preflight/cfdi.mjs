@@ -169,8 +169,8 @@ const num = (v) => {
 const unreadable = (v) => v !== undefined && num(v) === null;
 function roundTo(x, d) {
   const f = 10 ** d;
-  // toPrecision(12) first, as checks.mjs does: 0.285 * 100 is 28.499999999999996.
-  return Math.sign(x) * Math.round(Number((Math.abs(x) * f).toPrecision(12))) / f;
+  // toPrecision(15) first, as checks.mjs does: 0.285 * 100 is 28.499999999999996.
+  return Math.sign(x) * Math.round(Number((Math.abs(x) * f).toPrecision(15))) / f;
 }
 
 /** Decimals SAT allows for a currency. SAT's c_Moneda carries the count; the XSD does

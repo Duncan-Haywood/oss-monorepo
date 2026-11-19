@@ -10,7 +10,7 @@ corresponding author are left for the owner to fill in before any submission.*
 
 - The 1/8 in panel gap shrinks a joint nail's window from ±3.93 to ±3.14 mm.
 - Bowed studs cap single-2x joints at 87% clean sheets, even with perfect reads.
-- Doubled joint studs give 99.94% clean sheets with one read a stud, 76–216 s a sheet.
+- Doubled joint studs give 99.94% clean sheets with one read a stud (94% at high warp).
 - A G1 on a lift base beats a hand crew in only 37% of draws at 100 houses a year.
 - Decayed-wall tests fit only with end nails at about a quarter of their NDS strength.
 

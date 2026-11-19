@@ -765,8 +765,8 @@ export function BusinessPlanPage() {
           ["Core subscription", "€199/mo", "≈ 0.6 incremental sales/month to break even on fee"],
           [
             "+0.3 pp conversion",
-            "~1.5 extra sales/week at 50 entries",
-            "€18k+ gross/year — fee is noise if owner acts",
+            "~1 extra sale/week at 50 entries (350 × 0.003 = 1.05)",
+            "≈ €19k gross/year (1.05 × 52 × €350) — fee is small if owner acts",
           ],
           [
             "2 slow SKUs cleared",

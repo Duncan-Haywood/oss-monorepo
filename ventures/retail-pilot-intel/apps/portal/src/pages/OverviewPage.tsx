@@ -70,7 +70,7 @@ export function OverviewPage() {
         <section className="panel">
           <h2>Hourly footfall & closes</h2>
           <p className="panel-desc">
-            Door entries vs POS purchases — Europe/Rome buckets
+            Door entries vs POS purchases — daily, by UTC date
             {liveHeadline ? " (illustrative hourly series until rollups land)" : ""}.
           </p>
           <BarChart

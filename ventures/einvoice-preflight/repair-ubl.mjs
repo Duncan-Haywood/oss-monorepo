@@ -40,7 +40,7 @@ export const fmt = (n) => roundHalfUpToCents(n).toFixed(2);
 // Half up to the baisa (three decimals), through toPrecision so 0.0475 is not 0.047.
 export const roundBaisa = (n) => {
   const sign = n < 0 ? -1 : 1;
-  return (sign * Math.round(Number((Math.abs(n) * 1000).toPrecision(12)))) / 1000;
+  return (sign * Math.round(Number((Math.abs(n) * 1000).toPrecision(15)))) / 1000;
 };
 // Two decimals when the amount has no baisa part, three when it has.
 export const fmtBaisa = (n) => {
@@ -53,7 +53,7 @@ export const fmtAs = (n, written) => {
   const dp = Math.min(4, Math.max(2, /\.(\d+)/.exec(String(written ?? "").trim())?.[1].length ?? 2));
   const f = 10 ** dp;
   const sign = n < 0 ? -1 : 1;
-  const v = (sign * Math.round(Number((Math.abs(n) * f).toPrecision(12)))) / f;
+  const v = (sign * Math.round(Number((Math.abs(n) * f).toPrecision(15)))) / f;
   return v.toFixed(dp).replace(/(\.\d\d\d*?)0+$/, "$1");
 };
 export const tagRe = (name, flags = "g") => new RegExp(`<((?:[\\w.-]+:)?${name})(\\s[^>]*)?>([\\s\\S]*?)</\\1>`, flags);
