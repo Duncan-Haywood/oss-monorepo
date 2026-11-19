@@ -1,9 +1,9 @@
 ---
 title: "Our schedule comparison could compare your project with a different one"
-seo_title: "Comparing two P6 XER updates with several projects in one file: match the project by ID"
+seo_title: "Comparing P6 XER updates in multi-project files: match by project ID"
 date: 2026-11-19
 tags: [redteam, xer-schedule-check, primavera-p6, csv-injection, testing]
-description: "A red-team run on the new XER update-to-update comparison found three real defects in a day-old feature. Seven of twelve seeded faults went uncaught. All are fixed and tested now."
+description: "A red-team run on our new P6 XER update comparison found three real defects and seven test gaps in a day-old feature. All are fixed and tested."
 ---
 
 This morning the [P6 schedule checker](https://marisstella.app/xer-schedule-check/) gained an
