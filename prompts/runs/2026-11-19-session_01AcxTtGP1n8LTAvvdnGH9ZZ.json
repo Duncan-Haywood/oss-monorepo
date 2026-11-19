@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtGP1n8LTAvvdnGH9ZZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T04:15:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship league-schedule-generator: bowling league nights (averages, handicaps, points, standings, position rounds from score sheets)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17533",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--make-room refused twice with 'still leaves next: at 2136/2063 chars' even though only ~60 chars were added; I had to hand-shorten landed clauses (promotion/playoff) first. The row is at the cap, so every landing needs manual trimming."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator's next: is almost all deep combinatorial items (carry-over floors, 47/49 teams on 8x9); the practical gap (a bowling league's weekly recap) was not listed anywhere; it came from reading the bowling page."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took a product slice not in the row's next: (the listed items are marginal SAT/search records with little user value; the bowling page lacked the secretary's weekly job).",
+      "did": "Built bowling-recap.mjs, the page section, tests, README, llms.txt, post; recorded it in next:.",
+      "result": "7 new tests pass; checked in Chromium at 390 px."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-bowling-league-handicaps-and-standings-from-score-sheets.md",
+    "ventures/league-schedule-generator/README.md (Bowling league nights section)"
+  ],
+  "goal": "Ship a product feature a bowling league secretary would use weekly.",
+  "notes": "node --test bowling-recap.test.mjs: 7 pass. Playwright (Chromium, 390x900): sample nights fill standings (8 rows), night and bowlers tables; scrollWidth 390; nights restored on reload; 0 console errors. Full venture suite via run_venture_tests.py: see PR.",
+  "corrections": [],
+  "redteam": null
+}

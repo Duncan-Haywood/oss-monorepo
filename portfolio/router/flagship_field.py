@@ -87,11 +87,25 @@ or --trim asks for. A clause reporting landed work is never parked (cut it,
 `--landed` lists them). Every park says up front how many items and
 characters it moves, and `--dry-run` shows that without writing.
 
+Rows still filled with results rather than open items: on 2026-11-19
+ids-model-check sat at 1,926 and photo-editing at 1,978, `--landed` found
+nothing to cut (no clause says "landed"), and three runs that day failed
+with "parking every item it may move still leaves 2068". An edit that passes
+the cap (or --make-room, --trim) now first moves dated results that sit
+before the row's last open marker to `ventures/<v>/HISTORY.md`, under
+HISTORY_HEADING, down to FLAGSHIP_NEXT_TARGET; only then are open items
+parked. `history_pieces` says which text counts.
+
 Landed results without the word still went: five records on 2026-11-18 saw
 "proved impossible: 7, 9 on 2x6" and "8 on 2x6, 12 on 2x9 UNSAT" (fragments
 of one landed sentence) parked as open items. Every row names where its open
 items start ("Next:", "Open:", "Wanted, ...:"), so nothing before that marker
 is offered for parking (`open_start`).
+
+Undated results after the marker still went to NEXT.md as open items (five
+records, 2026-11-18..19: "lasting moves to more days: cut has the power (8 of
+9 cells)"). An item the park picks that reads as a result (`is_result`) now
+goes to HISTORY.md instead; one with any open cue still goes to NEXT.md.
 """
 from __future__ import annotations
 
@@ -477,6 +491,160 @@ def park_text(existing: str | None, venture: str, items: list[str], day: str) ->
     return body + add
 
 
+DATE = re.compile(r"\b20\d\d-\d\d-\d\d\b")
+# Words that mark a piece as still open work, whatever its date.
+OPENISH = re.compile(r"\b(?:open|wanted|needs?|not (?:yet|done)|to do|todo)\b", re.I)
+# Abbreviations whose ". " does not end a sentence.
+_ABBREV = re.compile(r"(?:\b(?:e\.g|i\.e|vs|etc|cf|approx|no|v\d+)|\.\.)$", re.I)
+
+
+def history_pieces(value: str, keep: tuple[str, ...] = ()) -> list[tuple[int, int]]:
+    """(start, end) spans in the space-normalised `value` that record finished
+    work and can move to ventures/<v>/HISTORY.md, in row order.
+
+    Why: by 2026-11-19 the rows at the cap were full of results, not open
+    items. ids-model-check sat at 1,926 and photo-editing at 1,978 of 2,000
+    with `--landed` finding 0 clauses (none says "landed"), and --make-room
+    parks only open items, so three runs in a day (2026-11-19T01:17, 02:15,
+    02:28) failed with "parking every item it may move still leaves 2068"
+    and cut other runs' results by hand. Those results are dated sentences
+    ("Kodak DCR 2026-11-18 = LibRaw (eval/kodak-dcr-*)."), so:
+
+    - pieces are the row's sentences (". " outside brackets), cut at open
+      markers; a `; ` fragment alone ("4 x 2 tiles (177 MP)") loses its
+      subject, so a whole sentence moves;
+    - only a piece that carries a date (2026-11-18) and comes before the
+      row's last open marker is offered; ids-model-check's "Next, most
+      valuable first:" is followed by a dozen dated results before its real
+      "next:". Undated text before the first marker is not taken on trust:
+      chant-forge's "Open checks that need a person: ..." sits there;
+    - never the row's first sentence (its pointer), a piece that runs
+      straight into an open marker ("X passed; open: Y" keeps X as Y's
+      subject), a piece saying open, wanted or needs, the run's own NEW
+      text, the NEXT.md pointer, the row's note, or anything in a row with
+      no open marker (history and open items cannot be told apart there).
+    """
+    v = " ".join(value.split())
+    marks: list[tuple[int, int]] = []
+    masked = v.replace(PARK_POINTER, " " * len(PARK_POINTER))
+    seps: list[tuple[int, int]] = []
+    depth = 0
+    depth_at = []
+    for i, ch in enumerate(v):
+        depth_at.append(depth)
+        if ch in "([" and v[i + 1:i + 2] != "?":  # "(?:" is regex text, not a bracket
+            depth += 1
+        elif ch in ")]":
+            depth = max(0, depth - 1)
+        elif depth == 0 and ch == "." and v[i + 1:i + 2] == " ":
+            if ch == "." and _ABBREV.search(v[:i]):
+                continue
+            seps.append((i, i + 2))
+    for m in OPEN_MARK.finditer(masked):
+        if depth_at[m.start()] == 0:
+            end = m.end() + (1 if v[m.end():m.end() + 1] == " " else 0)
+            marks.append((m.start(), end))
+    if not marks:
+        return []
+    last_mark = marks[-1][0]
+    first_sentence = seps[0][1] if seps else len(v)
+    bounds = sorted(seps + marks)
+    out = []
+    pos = 0
+    for a, b in bounds + [(len(v), len(v))]:
+        start, end = pos, a
+        pos = max(pos, b)
+        if end <= start:
+            continue
+        piece = v[start:end].strip()
+        if not piece or start < first_sentence or start >= last_mark:
+            continue
+        if any(ms <= start < me for ms, me in marks):
+            continue
+        if not DATE.search(piece) or OPENISH.search(piece):
+            continue
+        if any(ms == a for ms, _ in marks) and v[start:a].rstrip()[-1:] != ".":
+            continue
+        if (PARK_POINTER in piece or ROW_NOTE.search(piece) or not _balanced(piece)
+                or any(k and (k in piece or piece in k) for k in keep)):
+            continue
+        out.append((start, start + len(piece)))
+    return out
+
+
+def remove_span(value: str, start: int, end: int) -> str:
+    """`value` without v[start:end] and one separator next to it: the one
+    before it when there is one ("a; b. Next:" -> "a. Next:"), else the one
+    after ("Next: x; y" -> "Next: y")."""
+    v = value
+    before = v[:start]
+    m = re.search(r"[;.] $", before)
+    if m:
+        return " ".join((before[:m.start()] + v[end:]).split())
+    after = re.match(r" ?[;.]? ?", v[end:])
+    return " ".join((before + v[end + after.end():]).split())
+
+
+def archive_history(value: str, goal: int, keep: tuple[str, ...] = ()) -> tuple[str, list[str]]:
+    """Move history pieces, oldest (first in the row) first, until `value`
+    and the NEXT.md pointer fit under `goal`. Returns (value, pieces moved)."""
+    value = " ".join(value.split())
+    moved: list[str] = []
+    while True:
+        room = 0 if PARK_POINTER in value else len(PARK_POINTER) + 1
+        if len(value) + room <= goal:
+            break
+        spans = history_pieces(value, keep)
+        if not spans:
+            break
+        a, b = spans[0]
+        moved.append(value[a:b].rstrip("."))
+        value = remove_span(value, a, b)
+    return value, moved
+
+
+HISTORY_HEADING = "## Moved from flagships.yaml `next:`"
+
+# An item a park would move that reads as a finished result, not open work:
+# it states an outcome (a verb below, a count "8 of 9", a share "54%") and
+# carries no sign of work still to do. Why: rows mix undated results into
+# their open list after "Next, most valuable first:", and the parker (which
+# goes by position) filed them in NEXT.md as open items. Five run records on
+# 2026-11-18..19 said so, e.g. "lasting moves to more days: cut has the power
+# (8 of 9 cells)" and "two covariates: ... (bar failed)" in
+# changepoint-detector's NEXT.md. Such items now go to HISTORY.md with the
+# dated results; anything with an open cue still goes to NEXT.md, since
+# losing an open item from the open list costs more than a stray result.
+RESULTISH = re.compile(
+    r"\b(?:ships|shipped|landed|fail|failed|fails|passed|passes|holds|replicated?|replicates)\b"
+    r"|\b\d+(?:\.\d+)? of \d+\b|\d%", re.I)
+STILL_OPEN = re.compile(
+    r"\b(?:open|next|wanted|wants?|needs?|needed|try|test it|re-?run|retest|re-test"
+    r"|to do|todo|not (?:yet|done)|should|could|would|whether|unknown|unclear|tbd|when"
+    r"|left|remaining|miss(?:es|ing)?|a real|tail|refresh)\b|\?", re.I)
+
+
+def is_result(item: str) -> bool:
+    """True when a parked item reads as a finished result (RESULTISH, no STILL_OPEN)."""
+    body = ROW_NOTE.sub("", " ".join(item.split()))
+    return bool(RESULTISH.search(body)) and not STILL_OPEN.search(body)
+
+
+def history_text(existing: str | None, venture: str, pieces: list[str], day: str) -> str:
+    """HISTORY.md with the pieces appended under HISTORY_HEADING."""
+    body = existing if existing is not None else (
+        f"# {venture}: what has landed\n\n"
+        "Results moved out of `portfolio/flagships.yaml`'s `next:` by "
+        "`portfolio/router/flagship_field.py` to keep that row under its "
+        f"{FLAGSHIP_NEXT_MAX}-character cap. The README and eval/ files each "
+        "entry names hold the detail.\n")
+    if HISTORY_HEADING not in body:
+        body = body.rstrip("\n") + f"\n\n{HISTORY_HEADING}\n\n"
+    else:
+        body = body.rstrip("\n") + "\n"
+    return body + "".join(f"- (moved {day}) {p}\n" for p in pieces)
+
+
 def make_room(value: str, keep: tuple[str, ...] = (),
               trigger: int = FLAGSHIP_NEXT_MAX,
               target: int = FLAGSHIP_NEXT_TARGET) -> tuple[str, list[str]]:
@@ -504,7 +672,8 @@ def make_room(value: str, keep: tuple[str, ...] = (),
         return value, parked
     raise ValueError(f"--make-room: parking every item it may move still leaves `next:` at "
                      f"{len(value)} of {FLAGSHIP_NEXT_MAX} characters; shorten the new text, or cut "
-                     "landed clauses (`--landed` lists them; they are never parked)")
+                     "landed clauses (`--landed` lists them; they are never parked). Dated results "
+                     "before the last open marker were already moved to HISTORY.md")
 
 
 def with_pointer(value: str) -> str:
@@ -662,8 +831,19 @@ def _main(argv: list[str]) -> int:
             parks = list(args.park or [])
             if parks:
                 new = remove_items(new, parks)
+            history: list[str] = []
             if args.make_room:
                 before = len(" ".join(new.split()))
+                trigger = FLAGSHIP_NEXT_TARGET if args.trim else FLAGSHIP_NEXT_MAX
+                if before > trigger:
+                    # Finished, dated results go to HISTORY.md before any open
+                    # item is parked (history_pieces' docstring), and down to
+                    # the target even on an implicit edit: the move loses
+                    # nothing, and stopping at the cap left the next run there.
+                    new, history = archive_history(new, FLAGSHIP_NEXT_TARGET, mine)
+                    for piece in history:
+                        print(f"{'would move' if args.dry_run else 'moving'} to HISTORY.md "
+                              f"({len(piece) + 2} chars): {piece}", file=sys.stderr)
                 new, auto = make_room(new, mine,
                                       FLAGSHIP_NEXT_TARGET if args.trim else FLAGSHIP_NEXT_MAX,
                                       FLAGSHIP_NEXT_TARGET if explicit else FLAGSHIP_NEXT_MAX)
@@ -674,18 +854,36 @@ def _main(argv: list[str]) -> int:
                           f"{sum(len(i) + 2 for i in auto)} chars: `next:` was {before} of "
                           f"{FLAGSHIP_NEXT_MAX} after the edit; {how}", file=sys.stderr)
                 for item in auto:
-                    print(f"--make-room parked ({len(item) + 2} chars): {item}", file=sys.stderr)
-                parks += auto
+                    if is_result(item):
+                        # a finished result: HISTORY.md, not NEXT.md's open list (RESULTISH)
+                        history.append(item)
+                        print(f"{'would move' if args.dry_run else 'moving'} to HISTORY.md, "
+                              f"a result rather than an open item ({len(item) + 2} chars): {item}",
+                              file=sys.stderr)
+                    else:
+                        parks.append(item)
+                        print(f"--make-room parked ({len(item) + 2} chars): {item}", file=sys.stderr)
             if args.dry_run:
                 shown = with_pointer(new) if parks else " ".join(new.split())
                 print(f"dry run: {args.venture}.next would be {len(shown)}"
-                      f"{cap_note('next', len(shown))}; {len(parks)} item(s) to NEXT.md; nothing written")
+                      f"{cap_note('next', len(shown))}; {len(parks)} item(s) to NEXT.md, "
+                      f"{len(history)} to HISTORY.md; nothing written")
                 return 0
+            hist_dest = args.ventures_dir / args.venture / "HISTORY.md"
+            if history and not hist_dest.parent.is_dir():
+                raise ValueError(f"no venture folder {hist_dest.parent}")
+            hist_out = (history_text(hist_dest.read_text() if hist_dest.exists() else None,
+                                     args.venture, history, datetime.date.today().isoformat())
+                        if history else None)
             if not parks:
-                # it already fitted: an ordinary edit, no NEXT.md entry
+                # it fitted (perhaps once history moved): no NEXT.md entry
                 new = " ".join(new.split())
                 out = set_value(text, args.venture, "next", new, mine)
                 args.file.write_text(out)
+                if hist_out is not None:
+                    hist_dest.write_text(hist_out)
+                    print(f"moved {len(history)} result(s) to "
+                          f"{hist_dest.relative_to(hist_dest.parents[2])}")
                 print(f"wrote {args.venture}.next: {len(new)}{cap_note('next', len(new))}")
                 return 0
             args.park = parks
@@ -698,6 +896,10 @@ def _main(argv: list[str]) -> int:
                                args.park, datetime.date.today().isoformat())
             args.file.write_text(out)
             dest.write_text(parked)
+            if hist_out is not None:
+                hist_dest.write_text(hist_out)
+                print(f"moved {len(history)} result(s) to "
+                      f"{hist_dest.relative_to(hist_dest.parents[2])}")
             print(f"parked {len(args.park)} item(s) in {dest.relative_to(dest.parents[2])}; "
                   f"wrote {args.venture}.next: {len(new)}{cap_note('next', len(new))}")
             if PARK_POINTER not in new:

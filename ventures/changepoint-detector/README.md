@@ -3690,6 +3690,182 @@ open day after a closure, held until a second open week agrees), on a third shop
 the fill does not swallow a real change that starts within 3 days of a closure (the 2011-09-01 case), in simulation
 with steps placed next to closures.
 
+## Steps beside a closure (2026-11-19, pre-registered; all three bars pass, `--closed` ships)
+
+The section above failed K4b (steps caught fell from 75 to 70 of 100 with the fill) and guessed that a closure just
+after a step is filled from the weeks before it. Two things in that round's design were also wrong: K4a's bar ignored
+the setting's own false-alert rate, and K4b compared the fill with the closures-as-zeros arm, whose alerts *at* a
+closure can land within 7 days of a step and count as catches. This round adds the baseline round 1 lacked, **clean**:
+the same series with its closed days left open (their counts drawn from a side stream, so every other draw is
+identical). `eval/closed-steps.mjs`; Quiet (`bocpd`, `--model poisson`, `--period 7`), replayed.
+
+**Diagnosis on round 1's seeds (already seen; decides nothing; `eval/closed-steps-diag.out.txt`).** The script
+reproduces round 1's numbers exactly (zeros 75, fill 70), and the clean shop catches **67**. So the fill did not
+swallow steps: the zeros arm caught 13 of its 75 only through an alert within a day of a closure, which a shop that
+never shut would not have sent. Against clean, round 1's fill lost 2 steps and found 5 others. On the no-step series it
+put an alert at a closure in 8 of 100 against 16 at random placebo dates; the clean series, with no closures at all,
+had 22 against 18. K4b and K4a measured the wrong thing.
+
+**The candidate and the bars** were committed before the fresh run (`eval/closed-steps.prereg.md`). **fill1**: each
+closed day takes the nearest earlier same-weekday open day (`fillClosed(..., { lags: 1 })`), one week old rather than up
+to four, so a closure 8 or more days after a step is filled from after it. Fresh seeds 20261120: 100 no-step series
+with 6 closures, and 100 series with a +40% step and **one closure placed 1 to 21 days after it** (plus 5 more), the
+case round 1 named. Every series also gets 6 placebo dates drawn like closures: the chance rate of an alert "at a
+closure" for each arm's own alerts.
+
+| fresh seeds 20261120 | clean | zeros | round 1 fill (median of 4) | **fill1** |
+|---|---|---|---|---|
+| no-step series with an alert within 1 day of a closure (of 100) | 16 | 100 | 8 | **16** |
+| ... of a placebo date (chance) | 21 | 40 | 21 | 21 |
+| steps caught within 7 days (of 100) | 57 | 67 | 51 | **52** |
+| of which closure 1-7 days after the step (27) | 16 | 20 | 11 | 11 |
+| of which closure 8-21 days after (73) | 41 | 47 | 40 | 41 |
+| alerts over all 200 series | 846 | 1,584 | 819 | 820 |
+
+- **S1 passes** (closure alerts at most chance + 3): 16 against 21.
+- **S2 passes, at the line** (steps caught at least clean's minus 5): 52 against 57 - 5 = 52.
+- **S3 passes, by one** (at least round 1's fill): 52 against 51. Round 1's fill fails S2 (51).
+
+The zeros arm's 67 is again inflated: 21 of its 67 catches came only through an alert at a closure. The cost of a
+fill is real and sits where the guess put it: with a closure 1 to 7 days after the step, both fills catch 11 of 27
+against 16 for the clean shop, since a fill one week old is still from before the step. One week instead of four
+fixed the 8-21 day case (41, as clean) but not that one. The median delay to the alert was 5 to 6 days in every arm.
+
+**The real shop again (both years already seen; reported, not barred; same output file).** Quiet, `--period 7`:
+
+| | zeros | round 1 fill | fill1 |
+|---|---|---|---|
+| fresh year 2009-10, orders: alerts (at a closure) | 11 (3) | 6 (0) | 7 (0) |
+| fresh year, all 4 columns: alerts at a closure | 5 | 1 | 1 |
+| design year 2010-11, orders: alerts (at a closure) | 4 (2) | 3 (0) | 2 (0) |
+| design year, all 4 columns: alerts at a closure | 5 | 0 | 0 |
+
+On the fresh year fill1 sends the autumn build-up (dated 2010-11-09) on 2010-11-13, six days sooner than with zeros,
+as round 1's fill did. The cancellations alert at a closure is the post-Easter week described above, a real dip. On the
+design year **fill1 also loses the 2011-09-01 build-up alert on orders**, three days after the August bank holiday
+(round 1's fill lost it too, and sent a 2011-03-18 change seven months late instead; fill1 does not). That is the
+1-to-7-day cost from the simulation, seen once on real data: part of what Quiet heard there was the holiday's zero.
+
+**What ships: `--closed <dates|@file>` on `watch.mjs`** (one column, `--columns`, `--suggest` and the normal run),
+filling with fill1 (rounded for counts) before any detector sees the series. The text output says how many listed days
+were in the series and which; `--json` adds `closed: { listed, filled }`. Days a shop is always shut (a Saturday) are
+for `--period 7`, not this list. The page and the agent tool are unchanged.
+
+**Checked:** `closed-days.test.mjs` (now 8 tests): the `lags` rule, its prefix honesty, the CLI with a list and an
+`@file`, and fill1 on the fresh year's orders with no alert at a closure.
+
+Next: a closure in the first week after a step (11 of 27 caught against 16): hold an alert dated within a week before a
+closure for one more open week, or fill from the open days after a found change; pre-register it on fresh seeds and a
+third shop's daily series.
+
+## A closure in the first week after a step (2026-11-19, two pre-registered rounds; both fail, `--closed` keeps fill1)
+
+The section above left one cost of the shipped fill: with a closure 1 to 7 days after a +40% step, fill1 caught 11 of 27
+steps against 16 for the shop that never shut, because a fill one week old is still from before the step. The
+candidate here, **rec3** (`fillClosed(..., { lags: 1, recent: 3 })`), reads the level from the 3 nearest open days in
+the last week instead, each scaled to the closed day's weekday by the weekday means of the 4 weeks ending a week before
+the closure (skipping always-zero days such as Saturday). A closure 3 or more days after a step is then filled at the
+new level, and only earlier points feed it, so a replay stays honest. k = 3 was fixed, not tuned. Script
+`eval/closed-recent.mjs`, output `eval/closed-recent.out.txt`; Quiet (`bocpd`, `--model poisson`, `--period 7`),
+replayed; the simulation is the section above's, except that **every** step series has a closure 1 to 7 days after its
+step, so the case has 100 series rather than 27.
+
+**Round 3** (`eval/closed-recent.prereg.md`, fresh seeds 20261121). A design run on the section above's seeds first
+reproduced its numbers exactly (clean 57, fill1 52) and decided nothing.
+
+| fresh seeds 20261121 | clean | zeros | fill1 (ships) | rec3 |
+|---|---|---|---|---|
+| no-step series with an alert within 1 day of a closure / of a placebo date (of 100) | 17 / 24 | 99 / 41 | 23 / 26 | 18 / 25 |
+| steps caught within 7 days (of 100; closure 1-7 days after each) | 59 | 85 | 53 | 66 |
+| alerts over all 200 series | 874 | 1,580 | 845 | 903 |
+
+T1 (closure effect against chance), T2 (rec3 catches at least fill1 + 5) and T3 (at least clean - 5) passed. **T4
+failed**: 903 alerts against a cap of 1.05 x fill1's 845 = 887. The diagnosis showed the cap's reference was wrong:
+on the step series fill1 sends *fewer* alerts than the shop that never shut (439 against 474), because a pre-step fill
+mutes the step's own alerts, and rec3 (486) sits next to clean. On the no-step series, where every alert is false,
+rec3 sent 417 against clean's 400.
+
+**Round 4** (`eval/closed-recent-r4.prereg.md`, fresh seeds 20261122), written after seeing round 3, changed only the
+noise bar: **U4**, false alerts on the no-step series at most 1.05 x clean's (the 1.05 kept, not re-chosen). T1 to T3
+unchanged.
+
+| fresh seeds 20261122 | clean | zeros | fill1 (ships) | rec3 |
+|---|---|---|---|---|
+| no-step series with an alert within 1 day of a closure / of a placebo date (of 100) | 21 / 29 | 100 / 41 | 17 / 26 | 19 / 28 |
+| steps caught within 7 days (of 100) | 58 | 89 | **60** | 62 |
+| false alerts (100 no-step series) | 346 | 728 | 329 | 358 |
+
+T1, T3 and U4 passed (358 against 363). **T2 failed**: 62 against 60 + 5. On these seeds fill1 caught as many steps as
+the shop that never shut, 18 of its 60 through an alert within a day of a closure. So rec3 does not ship, `--closed`
+keeps fill1, `recent` stays a module option (`closed-days.test.mjs`, 2 new tests: the new level after a step, the
+weekday scaling past a shut Saturday, the fallback and prefix honesty), and there is no round 5 on this candidate.
+
+What the three seed sets say together (descriptive, not barred): over 227 steps with a closure 1 to 7 days after them,
+clean caught 133, fill1 124 and rec3 139. Round 2's "11 of 27 against 16" was mostly the luck of 27 series. fill1's
+real cost is about 4 steps in 100 against a shop that never shut, and rec3 recovers it with about 3% more false alerts,
+but 100 series per round is too few to show a 4-in-100 effect against a bar of 5. A bar that small needs about 1,000
+series, five hours on this container's four cores.
+
+**The real case was a different one.** Both real years were rerun (`real`, reported). On the design year rec3, like
+fill1, does not bring back the 2011-09-01 orders alert, and it sends a 2011-03-18 change on 2011-11-17, eight months
+late (fill1 does not). The data say why: the August bank holiday was **2011-08-29, three days *before* the build-up's
+first day**, not after it (`data/online-retail-daily.csv`). The "closure after a step" this round simulated is not
+what cost the alert on real data. The zeros arm's 2011-09-01 alert was sent partly because the holiday's zero sat a few
+days before the rise, and no fill restores that. On the fresh year rec3 sends the autumn build-up (2010-11-09) on
+2010-11-15, two days later than fill1 and four sooner than zeros.
+
+Next: a closure in the week *before* a step (the 2011-09-01 case), simulated with the step placed 1 to 7 days after a
+closure and scored against clean; rec3's gain needs about 1,000 series per arm to settle, as a long background run.
+
+## A closure in the week before a step (2026-11-19, pre-registered; all four bars pass, `--closed` unchanged)
+
+The section above found that the real alert `--closed` lost, the design year's orders build-up dated 2011-09-01 (sent
+2011-09-05 with closures as zeros), had its bank holiday **before** the rise: Monday 2011-08-29, three days earlier.
+So the case to measure was a closure 1 to 7 days before a step, scored against **clean**, the same shop with the
+closed day left open. The bars were committed before anything ran (`eval/closed-before.prereg.md`), with a written
+prediction that fill1 would sit within noise of clean and that zeros would catch more. Script
+`eval/closed-before.mjs`, output `eval/closed-before.out.txt`; the simulation is the section above's (Quiet: `bocpd`,
+`--model poisson`, `--period 7`, replayed), on fresh seeds 20261123, with **300** step series rather than 100 (each with
+one closure 1 to 7 days before its +40% step and 5 more at random) and 100 no-step series.
+
+| fresh seeds 20261123 | clean | zeros | fill1 (ships) |
+|---|---|---|---|
+| steps caught within 7 days (of 300) | 183 | 274 | **179** |
+| ... closure 1-2 / 3-4 / 5-7 days before the step | 56 / 54 / 73 | 84 / 81 / 109 | 53 / 54 / 72 |
+| paired against clean: lost / found | | 7 / 98 | 18 / 14 |
+| median days from step to the alert being sent (steps both caught) | 5 | 4 | 5 |
+| no-step series with an alert within 1 day of a closure / of a placebo date (of 100) | 15 / 24 | 99 / 37 | 13 / 24 |
+| false alerts (100 no-step series) | 355 | 716 | 343 |
+
+- **V1 passes** (the cost: fill1 at least clean - 9): 179 against 174. The fill costs about 1 step in 100.
+- **V2 passes** (no slower): median 5 days, as clean.
+- **V3 passes** (closure effect gone): 13 against a placebo rate of 24.
+- **V4 passes** (zeros lend catches: zeros at least clean + 9): 274 against 192. Of the zeros arm's 274 catches, **122
+  came only through an alert within a day of the closure**. Its alerts in the step window pile up on the step day
+  itself (74 of 317) and on the days just before it: the zero followed by the higher level reads as one larger change,
+  and the detector dates it between the two.
+
+**The real case, four ways** (already seen; reported, not barred; same output file). Orders on the design year:
+
+| 2011-08-29 (the August bank holiday) | build-up alert dated 2011-09-01 |
+|---|---|
+| left as a zero, all closures zeros | sent 2011-09-05 |
+| fill1 (the shipped `--closed`) | none |
+| left as a zero, every other closure filled | sent 2011-09-05 |
+| read as an ordinary Monday (the mean of the Mondays either side, 65 and 68) | none |
+
+The 28-day mean of open weekdays went from 52.7 to 69.1 orders a day across 2011-09-01, and Quiet does not call that a
+change on its own. The alert came from the holiday's
+zero, and a shop that had opened that Monday would not have been sent it either. So `--closed` did not lose a real
+alert it should have kept; it removed one the closure lent. Whether a busier setting hears that rise was not checked here.
+
+**What ships:** `--closed` is unchanged; its help text now gives the cost of a closure before a step. **Checked:**
+`closed-days.test.mjs` (now 11 tests) pins the real case: with 2011-08-29 a zero Quiet sends the 2011-09-01 alert, and
+with fill1 or the Monday read as an ordinary open day it does not.
+
+Next: rec3 against fill1 at about 1,000 series per arm (a closure after a step; README section above), as a long
+background run; revenue's deafness to a slow climb at Quiet and Middle.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
@@ -7302,3 +7478,372 @@ returns to test.
 Test: `update-rate-returns-guard.test.mjs` (both guards on known shares, no guard leaves the search unchanged, a
 same-count shift is a return without the guard and none with it while a real return survives, the committed
 verdict, the pass off by default).
+
+## Lasting moves to more days: does the shipped cut have the power? (2026-11-19, pre-registered; H1 fails on one cell of nine)
+
+The round above found that five of JHU's eight documented moves back to more frequent reporting were, by the
+documented dates, lasting changes of schedule (four to eight months, or no listed end). The shipped partition
+should cut those, and it dated none of them. That round's "Next" asked why, with simulated cells no round had
+tried. `eval/update-rate-lasting-more.mjs` (header committed in 0b2fb6c07 before any cell ran; one amendment
+in the next commit, before any cell finished: Part A turns off the stale-feed verdict, which took 20 s a series
+and never moves a cut or its direction) asks it in two parts.
+
+**Part A, simulation (seed 20261228, 200 series a cell, n 1,100).** Three moves from the documented list, each
+starting at step 500 and lasting 120 days, 240 days or for good, under rounds 1-5's schedule model. One bar, H1:
+the shipped check alone finds the start (a 'more often' cut within 10 steps) in at least 180 of 200 in every cell.
+
+| move (repeats before to inside) | 120 days | 240 days | for good |
+|---|---|---|---|
+| Wednesdays only to Mon-Fri (82% to 29%) | 198 | 199 | 199 |
+| Mon/Wed/Fri to Mon-Fri (55% to 29%) | 191 | 182 | 186 |
+| Mon-Fri to daily (29% to 3%) | **13** (197 with the guarded pass) | 186 | 195 |
+
+**H1 fails, on one cell.** The shipped cut has the power for a lasting move to more days from a sparse schedule,
+and for a move from Monday-Friday to daily once it lasts eight months. It misses a four-month Monday-Friday to
+daily stretch (13 of 200), which round 5's guarded return pass finds (197 of 200, off by default). Ends are cut
+as reliably as starts (185-198 of 200 where the move ends; 14 for the four-month daily stretch). So at the lengths the documented record gives, the
+cut alone should have dated Alaska, Nebraska and South Dakota.
+
+**Part B, the eight real events (seen data; sorted by a rule fixed in the header).** Repeat shares in the 56
+days either side of each documented date, against what the two schedules imply:
+
+- **N, not in the data (3).** Alabama (11% to 0%; Monday-Friday implies 29%), Michigan (55% to 57%; the
+  weekday shares show the days moving, not a third day added) and Nebraska (46% to 36%; Wednesdays only
+  implies 82%). The schedule the record names before the date never shows in JHU's figures.
+- **E, cut elsewhere (1).** Arkansas (14% to 0%), sorted E only because the 2020 cut's range runs to
+  2021-06-26; the data show weekends half-repeating, so it is close to N.
+- **C, in the data, not cut (4).** Alaska (57% to 32%), Idaho (30% to 2%), South Dakota (66% to 30%) and
+  Vermont (32% to 0%). Each matches its documented schedules within a few points.
+
+**Why the four are missed** (post hoc, monthly shares read after the sort, deciding nothing). In every one the
+*short* leg is in the data, not the lasting one. Alaska's Monday/Wednesday/Friday spell is June-July 2021 (50%,
+58%; 27-35% either side), and South Dakota's Wednesdays-only spell is about July 2021 (77%; 30-48% either side):
+one to two months of *fewer* days before the documented return, so the lasting Monday-Friday that follows is the
+same schedule as the months before the spell. Idaho's and Vermont's daily stretches are about two months
+(September-October 2021, 3-10% and 0%), and round 5's pass already dates both. So the real series are short
+spells, not the cells Part A simulated, and Part A says the cut would have caught the lasting version.
+
+Nothing in the check changes. Next: the mirror of the return pass, a short spell of *fewer* publishing days
+inside a stretch (the guarded pass with the guard reversed: share inside at least twice the share around),
+pre-registered on simulated 30- to 60-day sparse spells with the round 5 nulls; then Alaska's and South Dakota's
+spells, which are seen.
+
+Test: `update-rate-lasting-more.test.mjs` (the nine cells, a Wednesdays-only move cut at both ends, the 120-day
+daily stretch needing the pass, the sorting rule, the committed verdict).
+
+## Short sparse spells: the return pass reversed (2026-11-19, pre-registered; S1-S4 and the real check K1 pass, an opt-in)
+
+The round above found that in each of JHU's four documented moves to more days that are in the data, the short
+leg is what the data show: one to two months of *fewer* publishing days just before the documented return
+(Alaska's Monday/Wednesday/Friday spell in June-July 2021, South Dakota's Wednesdays-only July). The shipped cut
+pays two cuts for such a spell and rarely gets them. This round tests the mirror of the return pass:
+`bestReturnCost(..., { sparse: true })` looks for the one interval with *more* repeats inside a stretch than in
+the parts around it, which share one model. `eval/update-rate-sparse-spells.mjs` (header and option committed in
+40cc79ce8 before any cell ran) kept round 5's per-stretch model and its 19 null and shift cells, read round 1's
+four return cells as nulls for this direction (a short return is not a sparse spell), and added five power cells:
+Monday-Friday with 30 or 60 days of Wednesdays only, 30 or 60 days of Monday/Wednesday/Friday, and daily with 60
+days of Monday-Friday. Two guards, round 5's mirrored: `twice` (share inside at least twice the share around)
+and `z01` (a one-sided z of the rise of at least 2.326). The header discloses that Alaska's monthly shares had been
+read and that its spell fails `twice` on them, so the choice was on simulation only and K1 could only refuse.
+The shipped check ran with the stale-feed verdict off, as in the round above (it never moves a cut); the whole
+round took 163 s.
+
+**Calibration (seed 20261229).** No guard raises a false spell in the chains, schedules or return cells at m 3
+except `z01`'s R90 cell (0.030); `z01` meets the budget at m 3.5. At their m, `twice` finds 563 of 600 in the
+three 60-day cells and `z01` 567, so `z01` at m 3.5 was chosen. Where they differ is the Monday/Wednesday/Friday
+spell: about 56% repeats against 29% around is a ratio just under 2, so `twice` finds 118 thirty-day spells at
+m 3.5 and `z01` 167.
+
+**Confirmation (seed 20261230, `z01` at m 3.5): all four bars pass.**
+
+| confirmation, found of 200 | pass + shipped | shipped alone |
+|---|---|---|
+| worst null cell, false spells a series | **0.015** (S1, bar 0.020; R90 read as a null) | |
+| worst shift cell | **0.005** (S4, bar 0.010) | |
+| Wednesdays only for 30 days inside Monday-Friday | 200 | 0 |
+| Wednesdays only for 60 days | **200** (S2, bar 120) | 17 |
+| Mon/Wed/Fri for 30 days | 172 | 0 |
+| Mon/Wed/Fri for 60 days | **195** | 162 |
+| Monday-Friday for 60 days inside daily | **157** | 10 |
+
+S3, the three 60-day cells' gain over the shipped check alone, is 363 (bar 60).
+
+**The real check K1 passes: both seen spells end in their documented return's window.** Alaska: a spell
+2021-06-08 to 2021-07-29 (52 days, 58% repeats inside, 32% around) against the documented return to Monday-Friday
+on 2021-08-02. South Dakota: 2021-07-03 to 2021-08-10 (39 days, 85% inside, 32% around) against 2021-08-16. Both
+were seen before the header was written, so this confirms; it does not choose.
+
+**Every spell on the 35 states** (K2, descriptive, deciding nothing): eight. Besides the two above, Arkansas has a
+30-day spell ending 2021-07-20 (27% repeats inside, 1% around), four days before its documented move back to
+daily (weekends resume, 2021-07-24): a documented event K1 did not name, dated by its spell. Kentucky's 27 days
+in March 2022 (85% inside, 30% around) is a spell of the same kind. Four are long (127-183 days) and sit next to
+a return the other pass finds: Idaho's 2021-03-28 to 2021-09-05 ends the day before its documented daily return
+starts, and Washington's 2021-07-03 to 2022-01-01 follows its return; inside one stretch the two passes model the
+same two-schedule split from either side. Alabama's and DC's 2022 spells match no documented event.
+
+**What ships.** `shortSpells(values, { days })` in `update-rate.mjs` with `SHORT_SPELLS` (`z01`, m 3.5): an opt-in
+for callers with a date per value (`daysFromDates`). As pre-registered, it is not a default line: nothing the CLI
+or the page prints changes in this round. The return pass stays off (`SHORT_RETURNS.mult` null). Next: offer the
+spell line behind a flag on the CLI and the page (dated series only), and a fresh real check on spells nobody has
+read, from another provider's documented schedule changes.
+
+Test: `update-rate-sparse-spells.test.mjs` (the reversed search finds a planted spell and leaves the default
+search unchanged, a Wednesdays-only spell is found with its edges while same-count shifts are not, the module
+function equals the eval file's, the committed verdict).
+
+## Short sparse spells on the CLI and page (2026-11-19, later)
+
+The spell search from the section above is now something a person can ask for, still off by default. CLI:
+`--spells` (text, `--json` as `shortSpells` and `spellsWarning`, and `--consensus`); page: the box "Look for short
+spells of fewer updates"; the printed change report carries the same line. It runs beside the mean, meanvar,
+trend and poisson models and never moves a cut. It needs a date (YYYY-MM-DD) on every row, because the search
+reads each step's weekday; an undated series is refused with that reason rather than given made-up weekdays. It
+stops at 4,000 points: the search is quadratic in each stretch (about 1 s on 1,143 daily values here), and the
+calibration only covered series of 500 to 1,100 steps.
+
+On South Dakota's committed JHU series (`data/covid-schedules.csv`):
+
+```
+node cli.mjs sd.csv --spells
+...
+Short spells of fewer updates: one spell where the series was refreshed on fewer days for a while and then went
+back to its old schedule: 2021-07-03 to 2021-08-10 (39 steps): the value repeated on 85% of steps inside, against
+32% before and after, read weekday by weekday because the stretch runs on a weekly schedule. ...
+```
+
+That is the K1 spell from the round above, ending six days before the documented return to Monday-Friday on
+2021-08-16. On the other five committed states it says "none found" for Minnesota, California, Utah and Vermont
+and dates Kentucky's 2022-03-05 to 2022-03-31 (the K2 spell; no documented event). Nothing here is new
+evidence: the setting and its checks are the round above's. Still open: a fresh real check on another
+provider's documented schedule changes, spells nobody has read.
+
+Test: `spells-cli.test.mjs` (South Dakota's spell in text, JSON and `--consensus`; off unless asked; undated and
+over-long series refused; Minnesota's "none found"; the page's box, its option and its note; the printed report).
+
+## Short spells on a second provider: The New York Times' state series (2026-11-19, pre-registered; N1 and N2 fail, a restated edge-spell line ships)
+
+The two sections above asked for a fresh real check of the spell search on another provider, on spells nobody
+had read. `eval/update-rate-spells-nyt.mjs` (header committed in 973ea2dbf before the script ran) ran the shipped
+`spellsResult` (the function behind `--spells`, unchanged) on The New York Times' covid-19-data `us-states.csv`:
+cumulative cases per state per day, NYT's own collection, independent of JHU's. No NYT state series had been read
+before. The labels are the same documented state schedule changes as the JHU rounds, since a health department's
+schedule is the state's, not the aggregator's. The NYT file is fetched by `eval/nyt-states-fetch.sh` and not
+committed (its terms are attribution, non-commercial; only derived verdicts are here).
+
+**Both bars fail** (`eval/update-rate-spells-nyt.out.txt`, 3 s):
+
+| bar | result |
+|---|---|
+| N1: a spell ending within 10 days of each of four documented returns after a short spell (bar 3 of 4) | **2 of 4** (South Dakota 2021-07-03..08-10 and Arkansas 2021-06-21..07-20, the same days as on JHU; Alaska and Nebraska missed) |
+| N2: spells with no documented event within 10 days of either end (bar at most 3; JHU had 1 of 8) | **5 of 9** (Idaho 372 days, Kentucky 185, Michigan 106, Nevada 95, Nebraska 178) |
+| N3, descriptive: the same spell on both providers | 3 of 8 JHU spells seen on NYT; 3 of 9 NYT spells seen on JHU |
+
+**Why, read afterwards** (`eval/update-rate-spells-nyt-why.mjs`, post hoc, deciding nothing about the search):
+
+- *Alaska is in NYT's series, and the default line already dates it.* Month by month NYT's Alaska is almost
+  JHU's (repeats 50% and 61% in June and July 2021, against 50% and 58%). But NYT's series starts on 2020-03-12,
+  not 2020-01-22, and with the shorter opening the default update-rate line cuts **2021-06-04 (fewer updates) and
+  2021-08-01 (back to more)**, the day before the documented return. The spell search looks *inside* that line's
+  stretches, so with both edges already cut it had nothing left to find, at any penalty down to m 2.5. The spell
+  was not missed by the tool a user runs; it was missed by the search, and the line said "none found". That
+  sentence was misleading.
+- *Nebraska's documented Wednesdays-only spell (2021-08-11 to 2021-09-25) is in neither series.* NYT's Nebraska
+  moved on every weekday through August and September 2021 (Mon 5/5, Tue 5/5, Wed 4/4, ... in August); JHU's sits
+  near 45% repeats throughout with no spell shape. Whatever the state published on its own dashboard, neither
+  aggregator's series shows a Wednesdays-only spell, so no search over these series could date it. This miss is
+  the label's, as far as the data can say.
+- *"Unexplained" is not "false" here.* Nebraska's 2022-05-06..10-30 spell is in both providers' series (repeats
+  55%, 50%, 52%, 52%, 43%, 74% from May to October on both, publishing on two to three weekdays a week, against
+  27% in April); it is a real schedule change JHU's README does not list. The other four NYT-only spells are long
+  (95-372 days) with small rises (e.g. Kentucky 17% inside against 5%), closer to slow drifts in the schedule than
+  to a short spell. Without a label for them, N2's bar counts them against the search, as it was written to.
+
+**What ships.** Nothing in the search or its setting changes, and it stays an opt-in: it failed a fresh provider.
+One reporting fix ships, because the Alaska case showed the line contradicting the default line beside it:
+`edgeSpellsOf` in `update-rate.mjs` restates the default update-rate line's own pair of changes, fewer updates
+then back to more within 120 steps (`EDGE_SPELL_MAX_STEPS`), as a spell, and the `--spells` line (CLI, page,
+printed report) now says so instead of "none found":
+
+```
+Short spells of fewer updates: none inside the update-rate line's stretches. The update-rate line already dates a
+spell as two changes, fewer updates and then back to more: 2021-06-04 to 2021-07-31 (58 steps, 59% repeats inside,
+31% before, 31% after).
+```
+
+It adds no test and no new p: it is the default line's two cuts, already printed, read together. On the 35
+states it fires on 0 JHU series and 2 NYT series: Alaska (next to the documented return) and Alabama 2021-05-29..
+07-12 (49% repeats inside, 0% before, 4% after; no documented event). The six committed JHU states print exactly
+what they printed before.
+
+Next: the spell search is fragile to where a series starts (Alaska's opening shifted the default cuts by enough to
+take the spell from the search); a check would plant the same spell in series with different openings and count
+how often it falls to the search, the default line, both, or neither. A provider that documents its own schedule
+changes (rather than JHU's labels reused) is still wanted.
+
+Test: `spells-edge.test.mjs` (a fewer-then-more pair is one edge spell, a long or same-direction pair is not; the
+line's new wording; the committed JHU states unchanged; the committed NYT verdicts).
+
+## Short spells under different series openings (2026-11-19, pre-registered; O3 and O4 pass, O1 and O2 fail, nothing changes)
+
+The section above found the spell search fragile to where a series starts: NYT's Alaska opens 50 days later than
+JHU's, the default line then cut both edges of the spell, and the search, which looks inside that line's
+stretches, had nothing left to find. `eval/update-rate-spells-openings.mjs` (header committed in c99ca0229 before
+any cell ran) plants the spells round's five spell shapes after six openings (120, 250, 500 or 800 steps of the
+base schedule, or a quiet start of 50 all-but-always-repeating steps, as a series that begins with its zeros, then
+250 or 500), 200 series a cell, and asks which line dates the spell: the search, the default line's two cuts
+(`edgeSpellsOf`, restated since the round above), both, or neither. It also gives the edge restatement the null
+check it shipped without, on four no-spell schedules (Monday-Friday, Monday/Wednesday/Friday, daily, and a lasting
+move to Wednesdays only) under the same six openings. Module functions unchanged; 142 s.
+
+**The edge restatement is needed, and costs nothing on the nulls (O3, O4 pass).** No null series at any opening
+printed a false spell or produced an edge spell (0.000 a series in all 24 null cells; bar 0.020). Meanwhile, on
+Alaska's own shape (Monday/Wednesday/Friday for 60 days inside Monday-Friday) the default line's two cuts are what
+date the spell in 149 to 186 of 200 series at every opening, the search in 10 to 43. Before the round above the
+line said "none found" for those. On South Dakota's shape (Wednesdays only, 60 days) the prediction from Alaska
+holds exactly: the shorter the opening, the more spells move from the search to the edges (edge only 98 of 200
+at 120 steps, 52 at 250, 19 at 500, 3 at 800), and the line a user reads dates all 200 at every opening. Spells
+the search and the edges both date: none in any cell, as built (the search never looks across a cut).
+
+| found of 200 by the `--spells` line | 120 | 250 | 500 | 800 | quiet + 250 | quiet + 500 |
+|---|---|---|---|---|---|---|
+| Wednesdays only, 30 days | 199 | 200 | 200 | 199 | 200 | 200 |
+| Wednesdays only, 60 days | 200 | 200 | 200 | 200 | 200 | 200 |
+| Mon/Wed/Fri, 30 days | 174 | **135** | 181 | 160 | **139** | **141** |
+| Mon/Wed/Fri, 60 days | 196 | 194 | 193 | 197 | 198 | 192 |
+| Monday-Friday inside daily, 60 days | **146** | **178** | **156** | **141** | **145** | **162** |
+
+**O1 fails** (each shape within 30 of its 500-step cell): the 30-day Mon/Wed/Fri spell falls to 135-141 at three
+openings. **O2 fails** (at most 20 of 200 with neither line, 60-day cells): the 60-day Monday-Friday spell inside
+daily has 22 to 59 at every opening; at the 500-step opening this is the spells round's own cell (157 there, 156
+here), so O2 was set above a power the confirmation had already measured. That bar was wrongly written, not a
+new loss.
+
+**Why O1 failed, read afterwards** (`eval/update-rate-spells-openings-why.mjs`, post hoc, deciding nothing,
+fresh seed): changing the opening's length also changed the spell's first weekday, and the three failing cells
+are the three whose spells start Friday, Saturday or Sunday. A Mon/Wed/Fri spell differs from Monday-Friday only on
+Tuesdays and Thursdays; 30 days hold 9 of them from a Monday to Thursday start and 8 otherwise. Holding the
+opening at 500 and moving only the first step over one week:
+
+| first day of the spell | Thu | Fri | Sat | Sun | Mon | Tue | Wed |
+|---|---|---|---|---|---|---|---|
+| Mon/Wed/Fri 30 days: informative days | 9 | 8 | 8 | 8 | 9 | 9 | 9 |
+| found of 200 | 164 | 146 | 120 | 139 | 163 | 167 | 174 |
+| Monday-Friday in daily, 60 days: weekend days | 18 | 18 | 18 | 17 | 16 | 16 | 17 |
+| found of 200 | 172 | 170 | 177 | 138 | 144 | 134 | 144 |
+
+One weekday's difference in where a spell starts moves its power as much as any opening did (120 to 174 at one
+opening). The 60-day shapes with many informative days (Wednesdays only: 34-35; Mon/Wed/Fri: 16-18 inside
+Monday-Friday, 195-199 found) do not move. So the opening matters to *which* line dates a spell, not to *whether*
+the line a user reads does; what limits the line is how many days inside the spell the two schedules differ on,
+about 16 or more for 60-day spells and more than a 30-day Mon/Wed/Fri spell's 8 or 9.
+
+**What ships.** Nothing in the search, the restatement or their settings changes; both stay behind `--spells`.
+The round adds the null check the edge restatement lacked (it passes) and a measured caveat for the line: a
+spell with fewer than about 16 days on which the schedules differ (a one-month spell of three publishing days
+inside five, or a two-month weekdays-only spell inside daily) is dated in 60-87% of series, depending on its
+weekdays. Next: a spell search that counts informative days directly (a score on the differing weekdays only),
+pre-registered against these cells; and still a provider that documents its own schedule changes.
+
+Test: `spells-openings.test.mjs` (the series builder; a Wednesdays-only spell after the shortest opening is dated
+by the line, and no printed edge spell overlaps a search spell; the committed verdicts and the post hoc table).
+
+## Short spells scored on the weekdays that differ (2026-11-19, pre-registered; C1-C5 and K1 pass, ships behind `--spells`)
+
+The round above found that what limits the `--spells` line is how many days inside a spell the two schedules
+differ on, and asked for a search that counts those days directly. The weekday search's gain is a sum over the
+seven weekdays of one likelihood ratio each (inside against around). On weekdays where the old and the spell
+schedule agree (a Mon/Wed/Fri spell inside Monday-Friday agrees on five of seven) that ratio is noise, and the
+penalty has to sit above the noise of all seven. A diagnostic of the shipped search on a scratch seed, read before
+the header and disclosed in it, showed both weak cells' misses: 11 of 11 missed one-month Mon/Wed/Fri spells had
+the search's best interval at the spell with gain 25-46 against a penalty of 49; 12 of 12 missed Monday-Friday
+spells inside daily had a weekday candidate at the spell, but the stretch failed the weekly-pattern test (it is
+daily outside the spell), so the two-state chain was used.
+
+`eval/update-rate-spells-weekdays.mjs` (header committed in 18bfdf885 before any cell ran) scores an interval by
+summing only the weekdays whose repeat share rises inside and whose ratio clears a floor beta, each less beta
+(`bestSpellWeekdays` in `update-rate.mjs`). Arm A keeps round 5's choice of model per stretch; arm B also tries the
+score where the weekly test says the stretch is not weekly. Beta in {0, 2, 4, 6}, m in {1.5 ... 5}: per arm and
+beta the smallest m with every null cell at most 0.010 false spells a series, then the most spells found. 394 s.
+
+**Calibration (seed 20261232): arm A, beta 4, m 2.5.** Arm A at beta 0 is close to the shipped search and needs its
+m 3.5 (926 of 1,000 found over the five spell cells); with beta 4 the weekdays that agree stop adding noise, the
+null budget is met at m 2.5, and 971 are found. Arm B raises false spells on the clumpy two-state chains (0.235
+a series at beta 0, m 3.5): on a stretch with no weekly pattern a weekday score reads clumps as a calendar, the
+reason round 5 chose the model per stretch. It was not chosen.
+
+**Confirmation (fresh seeds 20261233 and 20261234): all five bars pass.**
+
+| bar | result |
+|---|---|
+| C1 spells round's 23 null cells, false spells a series (bar 0.020) | worst **0.010** (S1p) |
+| C2 shift cells (bar 0.010) | worst **0.010** |
+| C3 openings round's 24 null cells, false spells the line prints (bar 0.020) | **0.000** in every cell |
+| C4 the 12 weak cells (one-month Mon/Wed/Fri, two-month Monday-Friday inside daily, six openings): line found, new minus shipped on the same series (bar 150) | **+283** |
+| C5 no spell cell loses more than 10 | **pass** (worst: P3w60 at P120, 196 vs 197) |
+| C6, reported: the openings round's O1 (each shape within 30 of its 500-step cell) | fails once: one-month Mon/Wed/Fri after a quiet start, 148 vs 184 |
+
+| line found of 200, new / shipped | 120 | 250 | 500 | 800 | quiet + 250 | quiet + 500 |
+|---|---|---|---|---|---|---|
+| Mon/Wed/Fri, 30 days | 177 / 167 | 158 / 141 | 184 / 177 | 178 / 155 | 148 / 131 | 154 / 134 |
+| Monday-Friday inside daily, 60 days | 186 / 144 | 187 / 171 | 194 / 173 | 184 / 131 | 188 / 145 | 190 / 176 |
+
+The other three shapes are unchanged within one series (Wednesdays only: 199-200 both; Mon/Wed/Fri 60 days:
+193-198 both). The Monday-Friday-inside-daily gain comes from arm A, which never applies the weekday score to a
+stretch the weekly test calls not weekly; but arm A applies the chosen penalty (m 2.5, was 3.5) to the chain
+search on those stretches too, which is one likely source. Which part of the gain is the chain's and which the
+score's was not measured. The one-month Mon/Wed/Fri spell is
+still the hardest shape (8 or 9 informative days); the score lifts it by 7 to 23 a cell, but it stays 30 below
+its own 500-step cell after a quiet start, so the measured caveat from the round above stands in a smaller form.
+
+**The real check K1 passes** (seen data): Alaska's spell 2021-06-04 to 2021-07-29 (four days earlier than the
+shipped search's start, 2021-06-08) and South Dakota's 2021-07-03 to 2021-08-10 both end in their documented
+return's window. On the 35 states (K2) the new search reports the same eight spells as the shipped one, with edges
+within 11 days of the old ones.
+
+**What ships.** `SHORT_SPELLS` is now `{ score: 'weekdays', arm: 'A', beta: 4, mult: 2.5 }`, still behind
+`--spells` and the page's box, still not a default line. The line names the weekdays it read: on South Dakota's
+Wednesdays-only spell inside Monday-Friday, "read on the weekdays where the schedule changed (Mondays, Tuesdays,
+Thursdays and Fridays)"; on Kentucky's March 2022 spell, Tuesdays, Wednesdays and Fridays. Kentucky's spell now
+runs to 2022-04-05 (was 03-31); the other committed states print what they printed. Round 5's search stays
+reachable as `score: 'dow'` (`SHORT_SPELLS_DOW`), and the earlier rounds' eval files now pass it, so their committed
+outputs reproduce. Simulated and seen evidence only; the NYT check that failed the shipped search has not been
+rerun on this score. Next: that rerun as a fresh pre-registered check (NYT's file is fetched, not committed), and
+still a provider that documents its own schedule changes.
+
+Test: `spells-weekdays.test.mjs` (beta 0 is the weekday gain less falling weekdays, beta 4 keeps Tuesdays and
+Thursdays on a planted Mon/Wed/Fri spell; the two arms; the committed verdicts; the shipped setting, South
+Dakota's spell under both scores, the weekday names in the line).
+
+## The weekday spell score on NYT's state series (2026-11-19, pre-registered; W1 passes, W2 fails 4 of 8, stays an opt-in)
+
+The section above shipped the weekday score behind `--spells` on simulated and seen evidence and asked for a fresh
+rerun of the NYT check that had failed the earlier `dow` search. `eval/update-rate-spells-weekdays-nyt.mjs` (header
+committed in d07f29184 before the script first ran) runs the shipped `spellsResult` (default `SHORT_SPELLS`:
+weekdays, arm A, beta 4, m 2.5; nothing changed) on the same NYT `us-states.csv`, with the same 35 states, labels,
++-10 day rule and "explained" rule, imported from the NYT round's script. What was known beforehand is disclosed in
+the header: Alaska's spell is dated by the default line's two cuts on NYT whatever the score does, and Nebraska's
+documented Wednesdays-only spell is in neither provider's series, so the old N1 (search only) could not pass. The
+bars were restated on the line a user reads. 4.5 s.
+
+| bar | result |
+|---|---|
+| W1: the line (search spells plus the edge spells it prints) ends a spell within 10 days of each documented return (bar 3 of 4) | **3 of 4: pass** (Alaska by the edge restatement 2021-06-04..07-31; South Dakota 2021-07-03..08-10 and Arkansas 2021-06-21..07-18 by the score; Nebraska missed, as disclosed) |
+| W2: unexplained search spells on the 35 states (bar at most 3; `dow` had 5 of 9) | **4 of 8: fail** (Idaho 372 days, Kentucky 182, Michigan 105, Nebraska 175) |
+| W3, reported: everything the line prints | 10 spells (8 search, 2 edge), 5 unexplained (the four above and Alabama's edge spell 2021-05-29..07-12) |
+| W4, reported: against `dow` on the same series | same spells within 4 days on eight states; Nevada's 95-day spell (2022-05-07..08-09, unexplained) is gone; 3 of 8 JHU spells seen on NYT, as before |
+
+So the weekday score is one false-looking spell better than the search it replaced on a fresh provider, and keeps
+both short spells the search had found, but it does not meet the bar the first NYT round set. The opt-in stays an
+opt-in; nothing in `update-rate.mjs` changes.
+
+**Read afterwards (post hoc, deciding nothing):** the four unexplained spells are the four longest the score
+reports (105-372 days), with small rises in repeats for three of them (Kentucky 17% inside against 5%, Idaho 33% against
+20%, Michigan 86% against 72%), and Nebraska 2022 is the real schedule change on both providers that the JHU
+README does not list (read in the first NYT round). Every documented spell that ends in a return runs 28-58 days.
+A length cap is the obvious next idea and the data already argue against it: at 120 days it would remove all four
+here but also DC's explained 126-day spell on NYT, and on JHU it would remove three of the seven explained spells
+(Alabama 130 days, DC 127, Idaho 162) with the one unexplained (Washington 184). What would settle it is a
+provider that documents its own schedule changes, including the slow ones, which is still the open item.
+
+Test: `spells-weekdays-nyt.test.mjs` (the line's spell list skips an edge the search overlaps; the committed
+verdicts).

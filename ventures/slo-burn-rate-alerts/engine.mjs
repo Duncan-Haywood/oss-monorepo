@@ -81,9 +81,10 @@ export function buildPolicy(slo, periodDays = 30, base = DEFAULT_POLICY) {
 
 // How long until this alert fires, if the service starts failing `errorRatio`
 // of requests (constant traffic). Both windows must exceed the threshold; with
-// constant traffic the long window is the slower one.
+// constant traffic the long window is the slower one. The rule compares with a
+// strict ">", so a ratio exactly at the threshold never fires.
 export function detectionTime(policyRow, errorRatio) {
-  if (!(errorRatio > 0) || errorRatio < policyRow.errorRatioThreshold) return Infinity;
+  if (!(errorRatio > 0) || errorRatio <= policyRow.errorRatioThreshold) return Infinity;
   const longT = (policyRow.long * policyRow.errorRatioThreshold) / errorRatio;
   const shortT = (policyRow.short * policyRow.errorRatioThreshold) / errorRatio;
   return Math.max(longT, shortT);
@@ -99,6 +100,13 @@ export function lint(slo, periodDays, { rps = null } = {}) {
       findings.push({
         rule: "unreachable-threshold", severity: "error", window: promDuration(p.long),
         message: `The ${promDuration(p.long)} alert needs an error ratio above ${(p.errorRatioThreshold * 100).toFixed(1)}%, which can never happen. With a ${slo}% SLO this alert will never fire; use a longer long-window or a smaller budget fraction.`,
+      });
+    }
+    if (p.reachable && p.burnRate < 1) {
+      // A burn rate under 1x spends the budget slower than the SLO allows: the alert fires while the SLO is still met.
+      findings.push({
+        rule: "sub-unit-burn", severity: p.severity === "page" ? "warn" : "info", window: promDuration(p.long),
+        message: `The ${promDuration(p.long)} ${p.severity} fires at a ${p.burnRate}x burn rate, below 1x, so it fires while the ${periodDays}-day SLO is still being met. Use a period of 30 days or more, or a larger budget fraction for this window.`,
       });
     }
     if (rps !== null && rps > 0 && p.reachable) {

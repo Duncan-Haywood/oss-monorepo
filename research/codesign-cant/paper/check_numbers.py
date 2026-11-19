@@ -1,4 +1,4 @@
-"""Check that every figure section VI and the abstract of DRAFT.md quote is still in the results file it is taken from.
+"""Check that every figure sections VI and VII and the abstract of DRAFT.md quote is still in the results file it is taken from.
 
 Each check is (text quoted in DRAFT.md, results file under ../experiments/, a regular expression that must match that file).
 The script fails if the draft no longer contains the quoted text (the claim was edited without updating this list) or the results
@@ -34,8 +34,76 @@ CHECKS = [
     # section VI: table VI-1 (milestone 7f), one check per arm
     ("| 13 | 9 | 3 | 0 | 0 | 0 |", "m7f_sweep/results.txt", r"\[unconstrained\][^\n]*(?:\n[^\n]*)*?cap 45, lever 0: [^\n]*dead 13 "),
     ("| 45 | 32 | 22 | 12 | 13 | 12 |", "m7f_sweep/results.txt", r"\[unconstrained\][^\n]*(?:\n[^\n]*)*?cap 45, lever 2: [^\n]*dead 45 "),
+    # section VII: the lag law and the sourced lag (milestones 7s, 7t)
+    ("at most 1 of 72", "m7s_lag/verdicts.txt", r"aware src_li \[src_li\]: [^\n]*30 ms, b 0 0, 30 ms, b 1\.5 0, 30 ms, b 3 1\n"),
+    ("374 and 376 of 384", "m7t_lag_src/verdicts.txt", r"T2 held: [^\n]*aware above 63 vs 374; aware below 82 vs 376"),
+    ("8 and\n15 flights against the native tunes' 54 and 64", "m7t_lag_src/results.txt", r"\[above, aware lag36\][^\n]*(?:\n[^\n]*){4}\n   inherited 15 ms D\^1\.5 [^\n]*45_2_cap   8;[^\n]*(?:\n[^\n]*)*?\[below, aware lag36\][^\n]*(?:\n[^\n]*){4}\n   inherited 15 ms D\^1\.5 [^\n]*45_2_cap  15;"),
+    # section VII: intervals and tests (paper/table7_stats.py)
+    ("from 486 to 348", "../paper/table7_stats.txt", r"33 vs 39\.1 ms floor, ceiling 78\.2 ms:   lagrand vs     lag39: sums 486 vs 348; U = [\d.]+ of 144, p = 0\.010"),
+    ("62 (p = 0.83)", "../paper/table7_stats.txt", r"lag39c150 vs     lag75: sums 65 vs 62; U = [\d.]+ of 144, p = 0\.(?:82[5-9]|83)"),
+    ("p ≤ 0.0001, the permutation floor", "../paper/table7_stats.txt", r"identified total, above: J = [\d.]+ of 360, p = 0\.00005\nidentified total, below: J = [\d.]+ of 360, p = 0\.00005"),
+    ("78.2→100 ms (p = 0.018)", "../paper/table7_stats.txt", r"identified total:     lag39 vs lag39c100: [^\n]*p = 0\.0177"),
+    ("100→125 ms (p = 0.025)", "../paper/table7_stats.txt", r"identified total: lag39c100 vs lag39c125: [^\n]*p = 0\.025"),
+    ("125→150 ms (p = 0.10)", "../paper/table7_stats.txt", r"identified total: lag39c125 vs lag39c150: [^\n]*p = 0\.10"),
+    ("150→200 ms\n(p = 0.16)", "../paper/table7_stats.txt", r"identified total: lag39c150 vs lag39c200: [^\n]*p = 0\.15[5-9]"),
+    ("101 [79, 125] at 125 ms against 65 [49, 82]", "../paper/table7_stats.txt", r"lag39c125\): [^\n]*total 101 of 2304, 95% \[79, 125\]\n[^\n]*total 65 of 2304, 95% \[49, 82\]"),
+    ("(p ≤ 0.0002), down to 121 crashes of 768", "../paper/table7_stats.txt", r"75 ms law: lag39c150 vs lag39c200: sums 269 vs 121;"),
+    # section VII: why some tunes never settle (milestone 7ad)
+    ("r = 0.9995 on 96 designs", "m7ad_settle/verdicts.txt", r"calls agree on 96 of 96; r\(model, simulator last-second distance\) 0\.9995"),
+    ("(15 unsettled)", "m7ad_settle/verdicts.txt", r"unsettled: simulator 15, model 15"),
+    ("same at 33, 36 and 39.1 ms for all 96", "m7ad_settle/verdicts.txt", r"identical at 33, 36 and 39\.1 ms for 96 of 96"),
+    ("0 of 72 section-VII designs unsettled (18 before)", "m7ad_settle/verdicts.txt", r"b = None: unsettled 18 of 72[^\n]*\n  b = 0\.25: unsettled 0 of 72 \(0, 0, 0, 0, 0, 0 by set\)"),
+    ("from 5.1 to 2.0 cm", "m7ad_settle/verdicts.txt", r"b = 0\.25 step over      median 0\.0204 against 0\.0512"),
+    ("819 against 820", "m7ad_settle/verdicts.txt", r"b = 0\.25 identified L2-45 per design: total 819 against 820, p = 0\.89"),
+    ("median 1.91 against 1.74 s", "m7ad_settle/verdicts.txt", r"b = 0\.25 step rise      median 1\.9110 against 1\.7380"),
+    ("b = 0.1 m, gives the same picture (814)", "m7ad_settle/verdicts.txt", r"b = 0\.1: unsettled 0 of 72[\s\S]*b = 0\.1 identified L2-45 per design: total 814"),
 ]
 ARMS = [("M=1.00", -0.001, 9, 32), ("M=1.11", -0.012, 3, 22), ("M=1.25", -0.011, 0, 12), ("M=1.43", -0.010, 0, 13), ("M=1.67", -0.012, 0, 12)]
+
+
+# section VII: table VII-1 is generated from the results files by table7() and must appear in DRAFT.md verbatim.
+# Each row: (training plant lag shown, milestone, results file with the stress counts, set label, file with the step response or None).
+TABLE7 = [
+    ("33–78.2", "7v", "m7v_lag_rand/results.txt", "lagrand", None),
+    ("36–72", "7t", "m7v_lag_rand/results.txt", "lag36", None),
+    ("39.1–78.2", "7u", "m7ac_ceil125/results.txt", "lag39", "m7y_response/results.txt"),
+    ("45–90", "7w", "m7z_floor75/results.txt", "lag45", "m7y_response/results.txt"),
+    ("52–104", "7x", "m7z_floor75/results.txt", "lag52", "m7y_response/results.txt"),
+    ("60–120", "7x", "m7z_floor75/results.txt", "lag60", "m7y_response/results.txt"),
+    ("75–150", "7z", "m7ac_ceil125/results.txt", "lag75", "m7ac_ceil125/results.txt"),
+    ("39.1–100", "7ab", "m7ac_ceil125/results.txt", "lag39c100", "m7ac_ceil125/results.txt"),
+    ("39.1–125", "7ac", "m7ac_ceil125/results.txt", "lag39c125", "m7ac_ceil125/results.txt"),
+    ("39.1–150", "7aa", "m7ac_ceil125/results.txt", "lag39c150", "m7ac_ceil125/results.txt"),
+    ("39.1–200", "7ab", "m7ac_ceil125/results.txt", "lag39c200", "m7ac_ceil125/results.txt"),
+]
+
+
+def _stress(path, geom, label):
+    text = open(os.path.join(EXP, path)).read().split("== step ==")[0]
+    m = re.search(rf"\[{geom}, aware {label}\] [^\n]*mass ([\d.]+) kg[^\n]*\n((?:   [^\n]*\n?)+)", text)
+    counts = {k: int(v) for k, v in re.findall(r"(\S+) ms D\^\S+ \([^)]*\): [^|]*45_2_cap +(\d+)", m[2])}
+    return float(m[1]), counts
+
+
+def _rise(path, geom, label):
+    m = re.search(rf"mid 36 ms D\^0 {geom} aware {label}: settle [^;]*; rise90 ([\d.]+) s", open(os.path.join(EXP, path)).read())
+    return float(m[1])
+
+
+def table7():
+    """Rows of table VII-1: identified total (L2-45 at 33 + 36 + 39.1 ms, of 1152), L2-45 at 75 ms (of 384), rise to 90% of a 1 m step at 36 ms, mass; above / below."""
+    rows = []
+    for lag, ms, path, label, resp in TABLE7:
+        cells = {k: [] for k in ("id", "75", "rise", "mass")}
+        for geom in ("above", "below"):
+            mass, c = _stress(path, geom, label)
+            cells["id"].append(str(c["33"] + c["36"] + c["39.1"]))
+            cells["75"].append(str(c["75"]) if "75" in c else "—")
+            cells["rise"].append(f"{_rise(resp, geom, label):.2f}" if resp else "—")
+            cells["mass"].append(f"{mass:.2f}")
+        f = lambda k: "—" if cells[k] == ["—", "—"] else ", ".join(cells[k])
+        rows.append(f"| {lag} | {ms} | {f('id')} | {f('75')} | {f('rise')} | {f('mass')} |")
+    return rows
 
 
 def main():
@@ -67,11 +135,18 @@ def main():
     row = "| held-out J − unconstrained, 20°, trained lever | 0 | " + " | ".join(f"{a[1]:.3f}".replace("-", "−") for a in ARMS) + " |"
     if row not in draft:
         bad.append(f"DRAFT.md table row differs from results: expected {row!r}")
+    for r in table7():
+        if r not in draft:
+            bad.append(f"DRAFT.md table VII-1 row differs from results: expected {r!r}")
     for b in bad:
         print("FAIL", b)
-    print(f"{len(CHECKS) + 3 * len(ARMS) + 2 - len(bad)} of {len(CHECKS) + 3 * len(ARMS) + 2} checks ok")
+    n = len(CHECKS) + 3 * len(ARMS) + 2 + len(TABLE7)
+    print(f"{n - len(bad)} of {n} checks ok")
     return 1 if bad else 0
 
 
 if __name__ == "__main__":
+    if sys.argv[1:] == ["--table7"]:
+        print("\n".join(table7()))
+        sys.exit(0)
     sys.exit(main())

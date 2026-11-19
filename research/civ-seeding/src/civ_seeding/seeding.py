@@ -459,7 +459,7 @@ def false_reports(v, rng, fp: float, mode: str = "uniform"):
 
 def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None,
                   recall: "float | np.ndarray" = 0.85, fp: float = 0.0, fp_mode: str = "uniform",
-                  recip: bool = False):
+                  recip: bool = False, fp_joint: float = 0.0):
     """A survey whose respondents forget ties (milestone 11). Each surveyed household i reports
     each true tie (i, j) independently with probability `recall` (R[i, j], drawn once per survey
     after stage 1); a tie is seen if a surveyed end reported it. uniform: k random households.
@@ -476,7 +476,13 @@ def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None
     only if both name each other; a tie with one surveyed end cannot be checked and is kept on
     that one report. Stage-1 counts (which pick stage 2 and estimate unsurveyed degrees) are
     unfiltered, since a field team has not yet surveyed the other end. It uses no random draws,
-    so recip changes nothing but the filter."""
+    so recip changes nothing but the filter.
+    fp_joint (milestone 18): correlated false reports. Each spurious report i -> j is echoed by
+    j -> i with probability fp_joint (both ends remember the same non-existent tie), drawn right
+    after `false_reports`, so the reciprocity filter cannot remove it. The echo adds no new
+    unordered pair, so the set of false ties an unfiltered census sees is unchanged: fp still
+    fixes the number of distinct false ties, and fp_joint only decides how many of them look
+    mutual. fp_joint = 0 draws nothing extra."""
     if design not in ("uniform", "adaptive"):
         raise ValueError(design)
     n = v.n
@@ -491,7 +497,10 @@ def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None
     s1[rng.choice(n, k1, replace=False)] = True
     R = (rng.random((n, n)) < recall) & (v.A > 0)        # R[i, j]: i would report its tie to j
     if fp > 0:
-        R = R | false_reports(v, rng, fp, fp_mode)
+        F = false_reports(v, rng, fp, fp_mode)
+        if fp_joint > 0:
+            F = F | (F & (rng.random((n, n)) < fp_joint)).T
+        R = R | F
     named = (R[s1, :]).sum(0).astype(float)                # stage-1 reports naming each household
     s = s1.copy()
     if k > k1:
@@ -511,15 +520,15 @@ def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None
 
 def rule_recall_degree(v, b, rng, f: float, design: str = "uniform", split: float | None = None,
                        recall: float = 0.85, fp: float = 0.0, fp_mode: str = "uniform",
-                       recip: bool = False):
-    _, est, _ = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip)
+                       recip: bool = False, fp_joint: float = 0.0):
+    _, est, _ = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip, fp_joint)
     return _top(est, b)
 
 
 def rule_recall_dd(v, b, rng, f: float, design: str = "uniform", split: float | None = None,
                    recall: float = 0.85, p: float = 0.05, fp: float = 0.0, fp_mode: str = "uniform",
-                   recip: bool = False):
-    _, est, seen = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip)
+                   recip: bool = False, fp_joint: float = 0.0):
+    _, est, seen = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip, fp_joint)
     return _dd_pick(est, seen, b, p)
 
 

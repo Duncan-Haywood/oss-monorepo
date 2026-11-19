@@ -27,6 +27,12 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(report["finding_counts"], {"changed": 1, "unchanged": 1, "inconclusive": 1})
         self.assertEqual(next(item for item in report["findings"] if item["name"] == "broken")["status"], "inconclusive")
 
+    def test_refused_and_error_on_both_sides_are_inconclusive_not_unchanged(self):
+        # quality audit 2026-11-19: narrowing the uncertain set to timeout alone survived every test
+        for status in ("timeout", "refused", "error"):
+            report = build_report(snapshot([observation("a", status=status)]), snapshot([observation("a", status=status)]))
+            self.assertEqual(report["finding_counts"], {"inconclusive": 1}, status)
+
     def test_resolver_is_part_of_observation_identity(self):
         report = build_report(snapshot([observation("a", ["one"], resolver="a")]), snapshot([observation("a", ["one"], resolver="b")]))
         self.assertEqual(report["finding_counts"], {"inconclusive": 2})

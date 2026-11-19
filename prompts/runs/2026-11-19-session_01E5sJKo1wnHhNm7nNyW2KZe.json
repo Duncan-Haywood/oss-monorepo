@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKo1wnHhNm7nNyW2KZe",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T04:18:30Z",
+  "ended": "2026-11-19T04:43:53Z",
+  "wall_minutes": 25.64,
+  "tokens_in": 20778772,
+  "tokens_out": 158430,
+  "cost_usd": 10.7641,
+  "tool_calls": 234,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17537",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "The client-rebooking auditor's suggested fix for header detection (\\bid\\b) covered only one of the two header failures; 'Client,Service,Date,Price' also needed 'date' to beat 'service'. An auditor's 'small safe fix' should still be verified by a test that reproduces every failing input it listed."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes selected 16 workflows and handed off after 100 s; wait_for.py worked well, but the hand-off message is the only hint that a new run record created afterwards would void the run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "Step 4 says fix what is small and safe; for interview-content-studio the auditor proposed only rewording the claim, but the gate itself was the defect.",
+      "did": "Widened the gate (number words from eleven up, 1-10 with % or x, scheme-less links on Reddit) and reworded the claims to match what it checks, with tests.",
+      "result": "51 of 51 tests pass; the new tests fail on the old gate."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "chant-forge's worst defect (psalm-tone cue sung literally) changes the corpus's off-final counts and needs a domain decision, so it is not small.",
+      "did": "Listed it with the scan-gap and mode-2 findings under the README's 'Not checked yet' and linked the audit file.",
+      "result": "left open in the audit; queue shows it"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-quality-audit-round-76.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample; seed 2026-11-19-c-384e, round 76. Subjects: ventures/chant-forge (flagship, meets bar), ventures/client-rebooking-predictor, ventures/interview-content-studio, research/simdesign-edgescan, research/selfrep-terminal (none meet). Share meeting the bar: 1 of 5 this round (0 of 4 sampled); all sampled 33 of 319 (Wilson 8%-14%). 8 of 25 seeded mutants survived. Lead spot-checks, each rerun: selfrep Euler ratio 0.973 and closed-form shares 97.4/91.0/73.6% by hand; rebooking UK date 07/01/2026 -> 2026-07-01 reproduced; studio plan 6,6,5,3,2/176 min; edgescan peak 98.44 -> 102.04 MPa at h 0.75 -> 0.5; chant-forge 3606 MIDI first 12 notes match the auditor's hand reading. Fix PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/17537 (fixes in all five subjects; mark-fixed applied). Verification: run_workflow_locally.py --for-changes, 16 workflows, all run: steps passed (secret-reading jobs held); edgescan full rescan with the new mesher: edgescan.txt identical, json within 5e-13. No agent doc: the audits and the post carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "91e85e9b-cd3a-5c7c-a0d2-b905f735e8a0",
+    "transcripts": 6,
+    "first": "2026-11-19T04:18:30Z",
+    "last": "2026-11-19T04:44:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 227,
+        "input": 460,
+        "output": 158430,
+        "thinking": 43677,
+        "cache_read": 20133163,
+        "cache_write_5m": 531390,
+        "cache_write_1h": 113759,
+        "api_equivalent_usd": 10.7641,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 227,
+      "input": 460,
+      "output": 158430,
+      "thinking": 43677,
+      "cache_read": 20133163,
+      "cache_write_5m": 531390,
+      "cache_write_1h": 113759,
+      "api_equivalent_usd": 10.7641,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 234,
+    "tools": {
+      "Bash": 215,
+      "Agent": 5,
+      "SubagentHandback": 5,
+      "Read": 4,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.64,
+      "active_minutes": 10.41,
+      "model_minutes": 7.02,
+      "tool_minutes": 3.39,
+      "waiting_on_human_minutes": 15.23,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 27.39
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "five independent expert audits (~2.5 h each) plus four code fixes with tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 148.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

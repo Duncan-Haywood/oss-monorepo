@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtLThRKY7RgzeUx8SNG",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T03:06:44Z",
+  "ended": "2026-11-19T03:13:58Z",
+  "wall_minutes": 7.52,
+  "tokens_in": 4508144,
+  "tokens_out": 28644,
+  "cost_usd": 2.3792,
+  "tool_calls": 46,
+  "task": "verified-dse milestone 151: leave-one-milestone-out choice of the clip alpha at ff, replayed on 118 tt cells (milestone 150's Next)",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17518",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "pre-registered analyse.py used nested same-quote f-strings that the box's Python (<3.12) rejects; the script failed to parse on its first invocation",
+      "fix": "rewrote three lines with a helper before any number was produced; disclosed in LOG.md"
+    },
+    {
+      "what": "one new unit test had wrong arithmetic (expected binds at alpha 1.25 = 1.0, correct 0.5)",
+      "fix": "corrected the test, not the code"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "none blocking; the CLAIM CHECK and HOSTS RECHECK output made claiming quick"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "cloud-session notes do not warn that research scripts should avoid Python 3.12-only f-string nesting, which the default python3 here rejects; cost one re-run"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/verified-dse/LOG.md (milestone 150 Next)",
+      "why": "milestone 150's Next bundled the replay with a blind ff flow run (about 70 min of Yosys/OpenROAD plus tool install); one step per PR",
+      "did": "landed the pre-registered replay as milestone 151 and named the blind flow run, now narrowed to csum2-like short-chain designs, as the next step",
+      "result": "replay answered the per-corner question (keep 1.25) without the flow run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-verified-dse-alpha-per-corner.md",
+    "research/verified-dse/LOG.md (milestone 151)",
+    "research/verified-dse/PAPER.md (Section 4 paragraph)"
+  ],
+  "goal": "advance the verified-dse programme's corner section of the paper",
+  "notes": "Predictions committed in 3a979d9c7 before the run. Primary refuted: ff LOMO 3.62% vs SWC(1.25) 2.98% (interval -0.83 to +2.76). tt: all folds keep 1.25; area-only 9.90% vs 1.84%. Per-corner 2.54% vs single 2.65% vs 1.25 everywhere 2.29%. Post hoc: without csum2, ff area-only 1.85% vs 3.02%. Local checks: pytest tests/test_alpha_corner.py tests/test_detector_ff.py 9 passed; research/_homepage/build.py ok; check_posts ok; check_md_links ok; programme_check ok; research_live_links 0 updated.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f69f995c-8fad-5ecb-8f82-8d3c55b91d3f",
+    "transcripts": 1,
+    "first": "2026-11-19T03:06:44Z",
+    "last": "2026-11-19T03:14:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 84,
+        "output": 28644,
+        "thinking": 6752,
+        "cache_read": 4392112,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115948,
+        "api_equivalent_usd": 2.3792,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 84,
+      "output": 28644,
+      "thinking": 6752,
+      "cache_read": 4392112,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115948,
+      "api_equivalent_usd": 2.3792,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 43,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.52,
+      "active_minutes": 7.52,
+      "model_minutes": 5.6,
+      "tool_minutes": 1.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researcher writing and pre-registering a replay analysis over existing tables, checking reproduction, and writing log/paper/post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 252.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

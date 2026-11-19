@@ -60,8 +60,12 @@ test("the module scripts import only local files, and the inline script parses",
   const html = page("index.html");
   assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./carryover.mjs", "./checkout.mjs", "./divisions.mjs", "./licence.mjs", "./printpack.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
-  // calc.mjs imports sibling modules only (the carry-over search and the doubleheader nights), never a package or URL
-  assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./carryover.mjs", "./nights.mjs"]);
+  // calc.mjs imports sibling modules only (whist designs, the carry-over search and the doubleheader nights), never a package or URL
+  assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./whist.mjs", "./carryover.mjs", "./nights.mjs"]);
+  assert.doesNotMatch(page("whist.mjs"), /from "(?!\.\/(near-)?whist-bases\.mjs")/);
+  // whist-bases.mjs, near-whist-bases.mjs: generated data only (eval/*-bases-build.mjs), no imports
+  assert.doesNotMatch(page("whist-bases.mjs"), /\bimport\b|\bfrom "/);
+  assert.doesNotMatch(page("near-whist-bases.mjs"), /\bimport\b|\bfrom "/);
   assert.doesNotMatch(page("nights.mjs"), /from "(?!\.\/(carryover|session-designs|odd-designs)\.mjs")/);
   // session-designs.mjs and odd-designs.mjs: generated data only (eval/write-*-designs.mjs), no imports
   assert.doesNotMatch(page("session-designs.mjs"), /\bimport\b|\bfrom "/);

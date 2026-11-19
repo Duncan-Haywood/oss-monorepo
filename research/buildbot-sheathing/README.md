@@ -724,6 +724,42 @@ preload the waist. Statics; constant sensor bias.
 
 ![Worst in-envelope residual per fresh hose load under milestone 54's rule and the robust rule, and coverage by section and robot](experiments/m55_robust/figure.png)
 
+**Milestone 56: can the margin be spent only where a flip costs accuracy?** Yes. The residual along the wall is
+linear in the joint error, so each joint's worst flip shifts the nose by c<sub>j</sub> = |w<sub>j</sub>| times the
+largest backlash-term change its torque band can reach (`preload.flip_cost`, 6 tests), and Y = &Sigma; c<sub>j</sub>
+bounds the backlash part of the residual. Planning when Y is at most half the 0.03 mm spec, **every planned
+in-envelope case stays in spec across three load sets (worst 0.0178 mm; H223 held), and coverage returns to 100% on
+the G1 and 99.6 to 99.9% on the H1** (H224 held; from 95.9 to 96.8%): paired with milestone 55, the rule plans every
+case it planned and wins back 637 of its 667 drops. Over 28 158 planned cases the flip shift never beats Y (H225
+held), and on single-joint flips it equals Y, so the bound is tight. The G1 waist and H1 torso that bound milestone
+55 cost nothing here; what is left is 42 H1 cases on the left knee (one flip costs 0.017 to 0.025 mm) or the right
+elbow (0.167 mm). Next: sweep the budget share on a held-out seed and give the z residual a budget too (milestone 57). Statics;
+constant sensor bias.
+
+![The flip bound Y against the flip shift the robot showed, and coverage under milestone 55's and 56's rules](experiments/m56_weighted/figure.png)
+
+**Milestone 57: how much of the spec should the flips get?** On 48 held-out loads (seed 57), the half-spec rule
+replicates (worst 0.0178 mm, coverage G1 99.93% and H1 99.54%; H226 held), but **the budget buys no coverage until
+&beta; = 0.75**: &beta; = 0, 0.25 and 0.5 plan exactly the same presses (H228 held), and &beta; = 0.75 wins back only
+the H1's 25 left-knee cases. At &beta; = 1 one H1 press leaves 0.0315 mm (H227 refuted): the bound held, but it used
+the whole spec and windup adds on top. **Every flip the budget lets through is a knee or ankle pitch joint that moves
+the nose 0.27 to 0.29 mm across the wall (z)**, a direction the rule never budgets; at &beta; = 0 the worst z is
+0.026 mm. On this seed &beta; = 0 dominates. Next: bound the y and z rows together. One seed; statics; constant
+sensor bias.
+
+![Coverage against the worst residual for each budget share, and the worst residual along and across the wall](experiments/m57_beta/figure.png)
+
+**Milestone 58: price each flip across the wall too.** Each joint's flip cost now goes through both in-plane rows of
+the nose Jacobian, along the wall (Y<sub>y</sub>) and across it (Y<sub>z</sub>), each with half of a 0.03 mm spec,
+and the squeeze and hold sides minimise the larger of the two. On 48 more held-out loads (seed 58), the y-only rule
+again leaves 4 G1 and 5 H1 presses over 0.03 mm across the wall (worst 0.27 and 0.29 mm; H231 held). **With both rows,
+every planned press is inside 0.03 mm in both directions (worst z 0.022 mm on the G1, 0.018 mm on the H1; H229
+held), and coverage does not move: 100% on the G1, 99.63% on the H1 (H230 held).** The z row moves plans to other
+hold sides rather than dropping them, and a looser 0.3 mm z spec gives the same plans. One seed; statics; constant
+sensor bias; the z spec is carried over from y, not sourced.
+
+![Worst residual along and across the wall, and coverage, under the y-only and two-row bounds](experiments/m58_tworow/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

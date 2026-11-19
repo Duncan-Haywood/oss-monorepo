@@ -36,6 +36,14 @@ Everything runs in your browser. Your data is never uploaded, and there are no a
 
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
 
+## Known gaps
+
+From the quality audit of 2026-11-19 ([`2026-11-19-freelance-retainer-calculator.json`](../../portfolio/quality/audits/2026-11-19-freelance-retainer-calculator.json)); the cash-float figure it found 4.5 times too high is fixed (it now uses this client's retainer).
+
+- The "client-ready" proposal prints the freelancer's own take-home goal, costs, cash float and walk-away line; a client copy should leave them out.
+- Overage is priced at the hourly floor ($75), below the retainer's own effective rate ($86.25 on the defaults), so buying a small block plus overage can undercut the larger block.
+- The rollover page calls rolled-over hours unpaid work; over two months the client still pays the effective rate, and the cost is capacity, not cash.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.

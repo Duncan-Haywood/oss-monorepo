@@ -66,11 +66,11 @@
   <section class="card" id="inputs">
     <div class="grid">
       <div><label for="year">Tax year of the return you are filing</label><select id="year"><option value="2025">2025/26 (return due 31 Jan 2027)</option><option value="2026">2026/27 (return due 31 Jan 2028)</option></select></div>
-      <div><label for="totalTax">Income tax + Class 4 NIC for that year (&pound;)</label><input id="totalTax" type="number" min="0" step="1"></div>
+      <div><label for="totalTax">Income tax + Class 4 NIC for that year, including any High Income Child Benefit Charge (&pound;)</label><input id="totalTax" type="number" min="0" step="1"></div>
       <div><label for="atSource">Already deducted at source, e.g. PAYE or CIS (&pound;, optional)</label><input id="atSource" type="number" min="0" step="1"></div>
       <div><label for="paid">Payments on account already made for that year (&pound;, optional)</label><input id="paid" type="number" min="0" step="1"></div>
-      <div><label for="other">Other amounts due 31 January: CGT, student loan, child benefit charge (&pound;, optional)</label><input id="other" type="number" min="0" step="1"></div>
-      <div><label for="estimate">Expected income tax + Class 4 NIC next year (&pound;, optional)</label><input id="estimate" type="number" min="0" step="1"></div>
+      <div><label for="other">Other amounts due 31 January: CGT, student loan (&pound;, optional)</label><input id="other" type="number" min="0" step="1"></div>
+      <div><label for="estimate">Expected income tax + Class 4 NIC next year, after tax deducted at source (&pound;, optional)</label><input id="estimate" type="number" min="0" step="1"></div>
     </div>
     <p>
       <button type="button" id="calc">Work out my payments</button>

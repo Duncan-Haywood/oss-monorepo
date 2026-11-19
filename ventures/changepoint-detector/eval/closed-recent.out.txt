@@ -1,0 +1,156 @@
+# node eval/closed-recent.mjs sum design / sum fresh (round 3) / real; then the round 3 diagnosis (decides nothing)
+
+================ DESIGN: round 2 fresh seeds 20261120 (seen; deciding nothing) ================
+alerts over all 200 series: clean 846, off 1584, fill1 820, rec3 845
+
+no-step series (100): with an alert within 1 day of a closure / of a placebo date (chance)
+  clean  closure  16   placebo  21
+  off    closure 100   placebo  40
+  fill1  closure  16   placebo  21
+  rec3   closure  14   placebo  27
+
+step series (100): steps caught (an alert dated within 7 days of the step), by the first closure after the step
+  group                                n   clean    off  fill1   rec3
+  closure 1-2 days after the step      7       4      6      2      4
+  closure 3-7 days after              20      12     14      9      7
+  closure 8-21 days after             73      41     47     41     40
+  no closure within 21 days after      0       0      0      0      0
+  all                                100      57     67     52     51
+
+step series: caught by off only through an alert within 1 day of a closure (would not count with the closures open)
+  21 of 67
+
+step series caught by clean: lost by each arm
+  off     7 lost; first closure after the step at 6, 10, 9, 1, 4, 6, 6 days
+  fill1   8 lost; first closure after the step at 1, 6, 1, 5, 11, 9, 6, 8 days
+  rec3    8 lost; first closure after the step at 6, 4, 5, 11, 6, 9, 6, 8 days
+
+median days from step to the alert being sent (steps caught by both clean and the arm)
+  off   n=50: clean 6, off 5
+  fill1 n=49: clean 6, fill1 5
+  rec3  n=49: clean 5, rec3 5
+
+================ FRESH seeds 20261121 (the pre-registered bars) ================
+alerts over all 200 series: clean 874, off 1580, fill1 845, rec3 903
+
+no-step series (100): with an alert within 1 day of a closure / of a placebo date (chance)
+  clean  closure  17   placebo  24
+  off    closure  99   placebo  41
+  fill1  closure  23   placebo  26
+  rec3   closure  18   placebo  25
+
+step series (100): steps caught (an alert dated within 7 days of the step), by the first closure after the step
+  group                                n   clean    off  fill1   rec3
+  closure 1-2 days after the step     23      13     21     12     16
+  closure 3-7 days after              77      46     64     41     50
+  closure 8-21 days after              0       0      0      0      0
+  no closure within 21 days after      0       0      0      0      0
+  all                                100      59     85     53     66
+
+step series: caught by off only through an alert within 1 day of a closure (would not count with the closures open)
+  53 of 85
+
+step series caught by clean: lost by each arm
+  off     7 lost; first closure after the step at 6, 5, 2, 4, 6, 7, 7 days
+  fill1  14 lost; first closure after the step at 6, 4, 6, 1, 5, 3, 4, 3, 5, 5, 2, 7, 4, 7 days
+  rec3    5 lost; first closure after the step at 6, 1, 5, 5, 7 days
+
+median days from step to the alert being sent (steps caught by both clean and the arm)
+  off   n=52: clean 4, off 8
+  fill1 n=45: clean 4, fill1 5
+  rec3  n=54: clean 4, rec3 5
+
+BARS for rec3 (eval/closed-recent.prereg.md):
+  T1 closure effect gone: no-step series with an alert at a closure 18 <= placebo 25 + 3: PASS
+  T2 a closure in the first week after a step: caught 66 >= fill1 53 + 5: PASS
+  T3 near the shop that never shut: caught 66 >= clean 59 - 5: PASS
+  T4 no noisier: alerts over 200 series 903 <= 1.05 x fill1 845: FAIL
+
+================ ROUND 3 DIAGNOSIS (decides nothing): alerts per arm on no-step and step series; alert dates relative to the step ================
+fresh seeds 20261121:
+no-step clean 400 (at closure 17, placebo 26); off 753 (at closure 290, placebo 46); fill1 406 (at closure 27, placebo 28); rec3 417 (at closure 20, placebo 27)
+step clean 474 (at closure 36, placebo 31); off 827 (at closure 332, placebo 45); fill1 439 (at closure 35, placebo 27); rec3 486 (at closure 38, placebo 29)
+clean caught 59 only via an alert within 1 day of a closure 9 only via alerts dated before the step 18
+fill1 caught 53 only via an alert within 1 day of a closure 13 only via alerts dated before the step 16
+rec3 caught 66 only via an alert within 1 day of a closure 10 only via alerts dated before the step 20
+clean alert dates relative to step (-10..10): -10:3 -9:2 -7:2 -6:1 -5:2 -3:1 -2:7 -1:7 0:25 1:3 2:4 3:2 4:4 5:1 6:2 7:2 8:1 10:2
+fill1 alert dates relative to step (-10..10): -10:3 -9:2 -7:2 -6:1 -5:4 -3:1 -2:4 -1:6 0:17 1:5 2:3 3:4 4:3 5:3 7:2 8:3 10:2
+rec3 alert dates relative to step (-10..10): -10:2 -9:3 -7:2 -6:1 -5:4 -3:2 -2:6 -1:9 0:25 1:5 2:7 3:1 4:5 5:1 6:1 7:1 8:3 10:2
+
+================ REAL SHOP (node eval/closed-recent.mjs real; both years already seen; reported, not barred) ================
+
+== design year 2010-12 to 2011-12 (online-retail-daily.csv); 16 closed days; Quiet, --period 7 ==
+  orders        off    4 alerts, 2 at a closure: 2011-05-03>2011-05-07 2011-05-31>2011-06-04 2011-06-10>2011-06-15 2011-09-01>2011-09-05
+  orders        fill1  2 alerts, 0 at a closure: 2011-05-05>2011-05-11 2011-06-05>2011-06-09
+  orders        rec3   3 alerts, 0 at a closure: 2011-05-05>2011-05-11 2011-06-05>2011-06-09 2011-03-18>2011-11-17
+  revenue       off    2 alerts, 0 at a closure: 2011-03-30>2011-04-05 2011-04-18>2011-08-16
+  revenue       fill1  1 alerts, 0 at a closure: 2011-03-30>2011-04-12
+  revenue       rec3   1 alerts, 0 at a closure: 2011-03-30>2011-04-06
+  cancellations off   14 alerts, 2 at a closure: 2011-02-12>2011-02-16 2011-03-02>2011-03-06 2011-02-23>2011-03-08 2011-03-08>2011-03-16 2011-04-21>2011-04-25 2011-05-03>2011-05-07 2011-06-01>2011-06-05 2011-08-26>2011-08-30 2011-09-01>2011-09-05 2011-09-09>2011-09-13 2011-10-06>2011-10-10 2011-10-25>2011-10-29 2011-11-24>2011-11-28 2011-11-30>2011-12-04
+  cancellations fill1  8 alerts, 0 at a closure: 2011-02-12>2011-02-16 2011-02-25>2011-03-01 2011-05-17>2011-05-21 2011-09-01>2011-09-05 2011-09-09>2011-09-15 2011-10-06>2011-10-10 2011-11-24>2011-11-29 2011-11-30>2011-12-04
+  cancellations rec3  10 alerts, 0 at a closure: 2011-02-12>2011-02-16 2011-03-02>2011-03-06 2011-02-22>2011-03-12 2011-03-08>2011-03-15 2011-09-01>2011-09-05 2011-09-09>2011-09-13 2011-10-06>2011-10-10 2011-10-25>2011-10-29 2011-11-24>2011-11-28 2011-11-30>2011-12-04
+  new_customers off    2 alerts, 1 at a closure: 2011-04-22>2011-04-26 2011-05-04>2011-05-08
+  new_customers fill1  0 alerts, 0 at a closure: 
+  new_customers rec3   0 alerts, 0 at a closure: 
+
+== fresh year 2009-12 to 2010-12 (online-retail-2009-daily.csv); 15 closed days; Quiet, --period 7 ==
+  orders        off   11 alerts, 3 at a closure: 2010-03-03>2010-03-07 2010-03-11>2010-03-15 2010-03-18>2010-03-22 2010-04-06>2010-04-10 2010-05-04>2010-05-08 2010-05-29>2010-06-02 2010-06-06>2010-06-12 2010-06-23>2010-06-29 2010-07-09>2010-07-13 2010-08-31>2010-09-04 2010-11-09>2010-11-19
+  orders        fill1  7 alerts, 0 at a closure: 2010-03-03>2010-03-07 2010-03-11>2010-03-15 2010-03-17>2010-03-22 2010-06-06>2010-06-12 2010-06-23>2010-06-28 2010-07-09>2010-07-13 2010-11-09>2010-11-13
+  orders        rec3   7 alerts, 0 at a closure: 2010-03-03>2010-03-07 2010-03-11>2010-03-15 2010-03-18>2010-03-22 2010-06-06>2010-06-12 2010-06-23>2010-06-29 2010-07-09>2010-07-13 2010-11-09>2010-11-15
+  revenue       off    1 alerts, 0 at a closure: 2010-09-28>2010-11-26
+  revenue       fill1  1 alerts, 0 at a closure: 2010-09-20>2010-09-25
+  revenue       rec3   1 alerts, 0 at a closure: 2010-09-20>2010-09-25
+  cancellations off   18 alerts, 1 at a closure: 2010-02-22>2010-02-26 2010-03-31>2010-04-04 2010-04-13>2010-04-17 2010-04-23>2010-04-27 2010-05-04>2010-05-08 2010-05-15>2010-05-21 2010-05-29>2010-06-02 2010-03-19>2010-06-08 2010-06-24>2010-06-28 2010-07-01>2010-07-05 2010-08-12>2010-08-16 2010-08-18>2010-08-22 2010-09-02>2010-09-06 2010-09-16>2010-09-20 2010-07-21>2010-10-04 2010-06-04>2010-10-16 2010-10-27>2010-10-31 2010-12-01>2010-12-05
+  cancellations fill1 16 alerts, 1 at a closure: 2010-02-22>2010-02-26 2010-03-04>2010-03-08 2010-03-19>2010-03-24 2010-03-25>2010-03-29 2010-04-13>2010-04-18 2010-04-06>2010-04-19 2010-04-23>2010-04-28 2010-04-30>2010-05-06 2010-05-29>2010-06-02 2010-06-24>2010-06-28 2010-07-01>2010-07-06 2010-08-18>2010-08-22 2010-09-02>2010-09-06 2010-09-16>2010-09-20 2010-10-27>2010-10-31 2010-12-01>2010-12-05
+  cancellations rec3  16 alerts, 1 at a closure: 2010-02-09>2010-02-13 2010-02-22>2010-02-26 2010-03-19>2010-03-24 2010-04-13>2010-04-17 2010-04-23>2010-04-27 2010-04-30>2010-05-04 2010-04-01>2010-06-07 2010-06-03>2010-06-10 2010-06-24>2010-06-28 2010-07-01>2010-07-07 2010-08-18>2010-08-22 2010-09-02>2010-09-06 2010-09-16>2010-09-20 2010-07-21>2010-10-06 2010-10-27>2010-10-31 2010-12-01>2010-12-05
+  new_customers off    1 alerts, 1 at a closure: 2010-04-02>2010-04-06
+  new_customers fill1  0 alerts, 0 at a closure: 
+  new_customers rec3   0 alerts, 0 at a closure: 
+
+
+================ FRESH seeds 20261122 (round 4, eval/closed-recent-r4.prereg.md) ================
+alerts over all 200 series: clean 816, off 1574, fill1 801, rec3 844
+
+no-step series (100): with an alert within 1 day of a closure / of a placebo date (chance)
+  clean  closure  21   placebo  29
+  off    closure 100   placebo  41
+  fill1  closure  17   placebo  26
+  rec3   closure  19   placebo  28
+
+step series (100): steps caught (an alert dated within 7 days of the step), by the first closure after the step
+  group                                n   clean    off  fill1   rec3
+  closure 1-2 days after the step     35      19     33     20     22
+  closure 3-7 days after              65      39     56     40     40
+  closure 8-21 days after              0       0      0      0      0
+  no closure within 21 days after      0       0      0      0      0
+  all                                100      58     89     60     62
+
+step series: caught by off only through an alert within 1 day of a closure (would not count with the closures open)
+  47 of 89
+
+step series caught by clean: lost by each arm
+  off     2 lost; first closure after the step at 1, 6 days
+  fill1  11 lost; first closure after the step at 6, 5, 3, 2, 3, 6, 1, 2, 3, 2, 2 days
+  rec3    8 lost; first closure after the step at 7, 3, 2, 3, 3, 2, 2, 2 days
+
+median days from step to the alert being sent (steps caught by both clean and the arm)
+  off   n=56: clean 5, off 7
+  fill1 n=47: clean 5, fill1 5
+  rec3  n=50: clean 5, rec3 5
+
+BARS for rec3 (eval/closed-recent.prereg.md):
+  T1 closure effect gone: no-step series with an alert at a closure 19 <= placebo 28 + 3: PASS
+  T2 a closure in the first week after a step: caught 62 >= fill1 60 + 5: FAIL
+  T3 near the shop that never shut: caught 62 >= clean 58 - 5: PASS
+  T4 no noisier: alerts over 200 series 844 <= 1.05 x fill1 801: FAIL (round 3 only; replaced by U4 in round 4)
+  U4 (round 4) no more false alerts than the shop that never shut: alerts on the 100 no-step series 358 <= 1.05 x clean 346: PASS
+
+round 4 diagnosis (node eval/closed-recent-diag.mjs g0.jsonl ... g7.jsonl; decides nothing):
+no-step clean 346 (at closure 23, placebo 34); off 728 (at closure 300, placebo 60); fill1 329 (at closure 18, placebo 31); rec3 358 (at closure 21, placebo 34)
+step clean 470 (at closure 38, placebo 36); off 846 (at closure 346, placebo 56); fill1 472 (at closure 42, placebo 36); rec3 486 (at closure 31, placebo 38)
+clean caught 58 only via an alert within 1 day of a closure 10 only via alerts dated before the step 14
+fill1 caught 60 only via an alert within 1 day of a closure 18 only via alerts dated before the step 10
+rec3 caught 62 only via an alert within 1 day of a closure 11 only via alerts dated before the step 12
+clean alert dates relative to step (-10..10): -10:1 -8:2 -7:1 -6:1 -5:1 -4:3 -3:2 -2:4 -1:4 0:20 1:12 2:5 3:4 4:1 5:2 7:1 8:2 9:3
+fill1 alert dates relative to step (-10..10): -10:1 -8:2 -7:1 -6:1 -5:1 -4:1 -3:1 -2:4 -1:3 0:17 1:4 2:7 3:6 4:4 5:6 6:2 7:4 8:4 9:1
+rec3 alert dates relative to step (-10..10): -10:1 -8:2 -7:1 -6:1 -5:1 -4:1 -3:1 -2:4 -1:6 0:18 1:10 2:8 3:4 4:2 5:5 6:2 7:2 8:3 9:1

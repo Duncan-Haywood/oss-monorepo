@@ -959,6 +959,20 @@ class StartHereTests(unittest.TestCase):
         self.assertEqual(start_here(queue, None, now=now), (1, "claimed"))
         self.assertIsNone(start_here(queue[1:2] + queue[3:], claims, now=now))
 
+    def test_a_claim_older_than_any_merge_frees_its_row(self):
+        # 100 merged PRs (2026-11-19) took 1-140 min from open to merge; a
+        # 6 h old open PR is stalled and no longer holds its row for a day.
+        from datetime import datetime, timezone
+        from allocate import CLAIM_FRESH_HOURS
+        now = datetime(2026, 11, 19, 14, 0, tzinfo=timezone.utc)
+        queue = [{"venture": "a", "flagship": True, "task": "Deepen (flagship 1): x"}]
+        stalled = {"a": [(17310, "a: stalled", "2026-11-19T08:00:00Z")]}
+        live = {"a": [(17594, "a: live", "2026-11-19T13:00:00Z")]}
+        self.assertLess(CLAIM_FRESH_HOURS, 6)
+        self.assertEqual(start_here(queue, stalled, now=now), (1, "a"))
+        self.assertIsNone(start_here(queue, live, now=now))
+        self.assertIn("older open PRs: #17310", claim_note(stalled["a"], now=now))
+
     def test_session_spreads_concurrent_runs_over_free_rows(self):
         from datetime import datetime, timezone
         now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
@@ -1423,6 +1437,89 @@ class ClaimCheckTest(unittest.TestCase):
         r = self.decide(prs, "x", mine=2, item="closure anchor", merged=merged)
         self.assertEqual(r["verdict"], "YIELD")
         self.assertEqual([x["number"] for x in r["landed"]], [0])
+
+
+class PathOverlapTest(unittest.TestCase):
+    """claim_check.path_overlap: same files under a different title."""
+
+    from datetime import datetime as _dt, timezone as _tz
+    NOW = _dt(2026, 11, 19, 7, 30, tzinfo=_tz.utc)
+    EGG = [".gitignore"] + [f"ventures/v{i}/src/v.egg-info/PKG-INFO" for i in range(3)]
+
+    @staticmethod
+    def pr(n, title, created, branch=None, merged=None, repo="duncan-haywood/oss-monorepo"):
+        return {"number": n, "title": title, "created_at": created, "merged_at": merged,
+                "head": {"ref": branch or f"b{n}", "repo": {"full_name": repo}}}
+
+    def run_overlap(self, paths, prs, files, **kw):
+        from claim_check import path_overlap
+        return path_overlap(paths, prs, now=self.NOW, files=lambda n: files.get(n, []), **kw)
+
+    def test_the_17578_case_a_title_with_other_words_still_overlaps(self):
+        # #17578 "ci: untrack generated *.egg-info" opened 40 min before a second
+        # session made the same 18-file change while thinking of run_workflow_locally.
+        theirs = self.pr(17578, "ci: untrack generated *.egg-info", "2026-11-19T06:50:00Z")
+        mine = self.pr(17590, "process: run_workflow_locally sweeps", "2026-11-19T07:25:00Z", branch="me")
+        ov = self.run_overlap(self.EGG, [theirs, mine], {17578: self.EGG + ["docs/posts/x.md"]}, branch="me")
+        self.assertEqual([r["number"] for r in ov["rows"]], [17578])
+        self.assertTrue(ov["rows"][0]["strong"] and ov["rows"][0]["older"])
+        # the same PR, merged after my clone, still overlaps
+        merged = dict(theirs, merged_at="2026-11-19T07:22:43Z")
+        ov = self.run_overlap(self.EGG, [mine], {17578: self.EGG}, branch="me", merged=[merged],
+                              main_at=self._dt(2026, 11, 19, 7, 17, tzinfo=self._tz.utc))
+        self.assertTrue(ov["rows"][0]["strong"] and ov["rows"][0]["older"])
+        # ... but not once my clone already holds it
+        ov = self.run_overlap(self.EGG, [mine], {17578: self.EGG}, branch="me", merged=[merged],
+                              main_at=self._dt(2026, 11, 19, 7, 23, tzinfo=self._tz.utc))
+        self.assertEqual(ov["rows"], [])
+
+    def test_hubs_forks_stale_and_my_own_pr_never_count(self):
+        prs = [self.pr(1, "a", "2026-11-19T07:00:00Z"), self.pr(2, "b", "2026-11-19T07:01:00Z"),
+               self.pr(3, "c", "2026-11-19T07:02:00Z"),
+               self.pr(4, "fork", "2026-11-19T07:03:00Z", repo="x/fork"),
+               self.pr(5, "stale", "2026-11-15T07:00:00Z"),
+               self.pr(6, "mine", "2026-11-19T07:04:00Z", branch="me")]
+        hot = "ventures/v/index.html"
+        files = {1: [hot, "portfolio/flagships.yaml"], 2: [hot], 3: [hot], 4: ["ventures/v/app.js"],
+                 5: ["ventures/v/app.js"], 6: ["ventures/v/app.js"]}
+        ov = self.run_overlap([hot, "ventures/v/app.js", "portfolio/flagships.yaml",
+                               "prompts/runs/r.json"], prs, files, branch="me")
+        self.assertEqual(ov["hubs"], [hot])
+        self.assertEqual(ov["paths"], ["ventures/v/app.js"])
+        self.assertEqual(ov["rows"], [])
+
+    def test_a_small_overlap_is_listed_not_strong_and_newer_prs_are_not_older(self):
+        mine = self.pr(9, "mine", "2026-11-19T07:00:00Z", branch="me")
+        newer = self.pr(10, "later", "2026-11-19T07:10:00Z")
+        older = self.pr(8, "earlier", "2026-11-19T06:00:00Z")
+        paths = ["a", "b", "c", "d", "e"]
+        ov = self.run_overlap(paths, [mine, newer, older], {10: paths, 8: ["a"]}, branch="me")
+        rows = {r["number"]: r for r in ov["rows"]}
+        self.assertTrue(rows[10]["strong"] and not rows[10]["older"])
+        self.assertTrue(rows[8]["older"] and not rows[8]["strong"])
+
+    def test_main_exits_4_on_overlap_only_when_titles_found_no_claim(self):
+        import claim_check, io, contextlib
+        saved = (claim_check.open_prs, claim_check.recently_closed, claim_check.current_branch,
+                 claim_check.pr_files)
+        theirs = self.pr(17578, "ci: untrack generated *.egg-info",
+                         "2026-11-19T06:50:00Z")
+        theirs["created_at"] = claim_check.datetime.now(claim_check.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        try:
+            claim_check.open_prs = lambda: [theirs]
+            claim_check.recently_closed = lambda: []
+            claim_check.current_branch = lambda: "claude/nobody"
+            claim_check.pr_files = lambda n: list(self.EGG)
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(claim_check.main(["--paths-only", "--paths", *self.EGG]), 4)
+            self.assertIn("OVERLAP", out.getvalue())
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(claim_check.main(["egg-info", "--paths", *self.EGG]), 1)  # title YIELD wins
+                self.assertEqual(claim_check.main(["other", "--no-paths"]), 3)
+                self.assertEqual(claim_check.main(["--paths-only", "--paths", "elsewhere.py"]), 0)
+        finally:
+            (claim_check.open_prs, claim_check.recently_closed, claim_check.current_branch,
+             claim_check.pr_files) = saved
 
 
 class RequestsLineTest(unittest.TestCase):

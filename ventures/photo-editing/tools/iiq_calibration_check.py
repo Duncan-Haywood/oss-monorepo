@@ -59,7 +59,12 @@ def main(argv: list[str]) -> int:
         row: dict = {"file": path.name, "model": iiq.camera_model(data), "format": fields["format"]}
         steps = iiq_calibration.plan(data, directory, fields)
         row["steps"] = [s[-1] if s[0] in ("table", "flat") else f"{s[0]}:{len(s[1])}" for s in steps]
-        values, _ = iiq.decode_sensor(data, fields)
+        # LibRaw's IIQ S loader (``phase_one_load_raw_s``) never reads the per-row and per-column black offset
+        # tables, which this reader applies, so for format 6 the decode is compared with them zeroed: the check
+        # is of the calibration, and the offsets are measured on their own (tools/iiq_offset_banding.py).
+        offsets_skipped = fields["format"] == 6 and bool(fields.get("black_col") or fields.get("black_row"))
+        row["offsets_zeroed"] = offsets_skipped
+        values, _ = iiq.decode_sensor(data, dict(fields, black_col=None, black_row=None) if offsets_skipped else fields)
         bare = np.frombuffer(values, dtype=np.uint16).astype(np.int32)
         t0 = time.perf_counter()
         iiq_calibration.apply(values, data, directory, fields)
@@ -70,7 +75,8 @@ def main(argv: list[str]) -> int:
         ref = rawpy.imread(str(path))
         s = ref.sizes
         img = ref.postprocess(demosaic_algorithm=rawpy.DemosaicAlgorithm.LINEAR, output_color=rawpy.ColorSpace.raw,
-                              gamma=(1, 1), user_wb=[1, 1, 1, 1], no_auto_bright=True, output_bps=16, user_flip=0)
+                              gamma=(1, 1), user_wb=[1, 1, 1, 1], no_auto_bright=True, output_bps=16, user_flip=0,
+                              adjust_maximum_thr=0.0)
         top, left = s.top_margin, s.left_margin
         theirs = _native(img, ref.raw_pattern, top, left)
         del img

@@ -56,3 +56,20 @@ test("the names scorer folds look-alikes and finds a name inside a longer line",
   assert.ok(bestIn("Молоко Эконива", "MonOKo 3KOHMBA y/naCTe  109.99") < 0.8);
   assert.equal(similar("ИП Петров", null), 0);
 });
+
+// eval/receipt-ocr-ru-forms-2026-11-19.md: forms the East Slavic model misreads on val's slips
+test("a misread form is the seller only where what follows rules out an ordinary word", () => {
+  assert.equal(read(SLIP('AD "РОМАШКА"')).merchant, 'АО "РОМАШКА"');
+  assert.equal(read(SLIP('*  до "Планета чудес"  *')).merchant, 'АО "Планета чудес"');
+  assert.equal(read(SLIP("ЗДО ТОРГОВЫЙ ОБЪЕКТ И1")).merchant, "ЗАО ТОРГОВЫЙ ОБЪЕКТ И1");
+  assert.equal(read(SLIP("ИЛ ПЕТРОВА Ю.С.")).merchant, "ИП ПЕТРОВА Ю.С.");
+  assert.equal(read(SLIP("ИЛ Петрова Юлия Сергеевна")).merchant, "ИП Петрова Юлия Сергеевна");
+  // "до" as the word "until", "ил" without a person's name, ЗДО with no name: no seller from them
+  assert.equal(russianSeller(["до 31.12.2026 скидка", "ИТОГ =10.00"]), null);
+  assert.equal(russianSeller(["Действует до конца месяца", "ИЛ МОЛОКО 3.2%", "ЗДО", "ИТОГ =10.00"]), null);
+});
+
+test("a spelled-out ООО whose name wrapped to the next line, form letters and all", () => {
+  assert.equal(read(SLIP('ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТ\nЬЮ "КЛЁН-СТРОЙ"\n127000, г. Москва')).merchant, 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "КЛЁН-СТРОЙ"');
+  assert.equal(read(SLIP('ОБЦЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ\n"ЛУЧ 142"\n654000 г.Новокузнецк')).merchant, 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ЛУЧ 142"');
+});

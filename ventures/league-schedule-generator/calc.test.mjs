@@ -4,7 +4,7 @@ import {
   applyRainouts, changeNotices, dayLabel, applyPinnedMatches, applyWithdrawals, applyLateTeams, toDay, dayIso, dayOfWeek, parseDate, parseDateList, parseWeekdays, parseTime, parseTeams, parseBlackouts, parseTimes,
   readSpec, roundRobin, countBreaks, mulberry32, buildSchedule, validateSchedule, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGrid, seasonGridCsv, standingsCsv, scheduleIcs,
   scheduleText, teamMessages, officialMessages, leaguePageHtml, scoreSheetsHtml, parseTimeLimits, parseCourtLimits, parseCourtClosures, parseResults, standings, seedOrder, playoffBracket, doubleEliminationBracket, bracketText, sampleFields, encodeFields, decodeFields,
-  weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
+  weeklyUpdate, splitPools, clubPairsInPools, buildPoolPlay, poolAdvancers, poolPlayoffSeeds, parseOfficials, assignOfficials, validateOfficials, playoffRace, playoffOdds, remainingFixtures, resultsCheck, overdueResults, gamesLeft, scheduleStrength, raceText, restReport, byeReport, homeAwayReport, rematchReport, seasonCost, deadlineCheck, slotFairness, oneDayTimetable, oneDayText, parseGrounds, groundClashes, applyGroundSharing, parseLinkedTeams, linkedClashes, separateLinkedTeams,
   blackoutsFromCsv, forfeitReport
 } from "./calc.mjs";
 
@@ -525,6 +525,42 @@ test("pool advancers seed winners, then runners-up, best record first", () => {
   const A = standings(["a1", "a2", "a3"], [{ a: 0, b: 1, ga: 2, gb: 0 }, { a: 0, b: 2, ga: 1, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 0 }]);
   const B = standings(["b1", "b2", "b3"], [{ a: 0, b: 1, ga: 5, gb: 0 }, { a: 0, b: 2, ga: 5, gb: 0 }, { a: 1, b: 2, ga: 0, gb: 0 }]);
   assert.deepEqual(poolAdvancers([A, B], 2), ["b1", "a1", "a2", "b2"]);
+});
+
+test("crossover pool seeds: no poolmates in the first knockout round, winners still first", () => {
+  const A = standings(["a1", "a2", "a3"], [{ a: 0, b: 1, ga: 2, gb: 0 }, { a: 0, b: 2, ga: 1, gb: 0 }, { a: 1, b: 2, ga: 1, gb: 0 }]);
+  const B = standings(["b1", "b2", "b3"], [{ a: 0, b: 1, ga: 5, gb: 0 }, { a: 0, b: 2, ga: 5, gb: 0 }, { a: 1, b: 2, ga: 0, gb: 0 }]);
+  // by record alone: b1, a1, a2, b2, so 1 v 4 is b1 v b2, a pool rematch in the semifinal
+  const r = poolPlayoffSeeds([A, B], 2);
+  assert.deepEqual(r.seeds, ["b1", "a1", "b2", "a2"]); // b1 v a2, a1 v b2
+  assert.deepEqual(r.plain, [2, 0]);
+  assert.deepEqual(r.meetings, [0, 2]);
+  const br = playoffBracket(r.seeds);
+  for (const m of br.rounds[0].matches) assert.notEqual(m.a.name[0], m.b.name[0]);
+});
+
+test("crossover pool seeds: four pools of two keep poolmates apart until the final, and match a brute force", () => {
+  const meet = (i, j) => { let r = 0; while (i !== j) { i >>= 1; j >>= 1; r++; } return r; };
+  const perms = (a) => a.length <= 1 ? [a] : a.flatMap((x, i) => perms([...a.slice(0, i), ...a.slice(i + 1)]).map((p) => [x, ...p]));
+  const rnd = mulberry32(5);
+  for (const [k, adv] of [[4, 2], [3, 4], [2, 3], [3, 2], [5, 2]]) {
+    const tables = Array.from({ length: k }, (_, p) => Array.from({ length: adv }, (_, i) => ({ name: `${"ABCDE"[p]}${i + 1}`, points: 20 - 4 * i + Math.floor(rnd() * 4), gd: 0, gf: 0 })));
+    const r = poolPlayoffSeeds(tables, adv);
+    const n = r.seeds.length;
+    for (let place = 0; place < adv; place++) for (let i = place * k; i < (place + 1) * k; i++) assert.equal(r.seeds[i].slice(1), String(place + 1));
+    let size = 1; while (size < n) size *= 2;
+    const line = []; seedOrder(size).forEach((s, i) => { if (s <= n) line[s] = i; });
+    const vec = (pools) => { const v = new Array(Math.log2(size)).fill(0); for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) if (pools[a] === pools[b]) v[meet(line[a + 1], line[b + 1]) - 1]++; return v; };
+    assert.deepEqual(vec(r.pools), r.meetings);
+    let best = null;
+    const tierPerms = Array.from({ length: adv }, () => perms([...Array(k).keys()]));
+    const rec = (t, acc) => {
+      if (t === adv) { const v = vec(acc); const d = best ? v.findIndex((x, i) => x !== best[i]) : -1; if (!best || (d >= 0 && v[d] < best[d])) best = v; return; }
+      for (const p of tierPerms[t]) rec(t + 1, [...acc, ...p]);
+    };
+    if (tierPerms[0].length ** adv <= 20000) { rec(0, []); assert.deepEqual(r.meetings, best, `${k} pools x ${adv}`); }
+    if (k === 4 && adv === 2) assert.deepEqual(r.meetings, [0, 0, 4]);
+  }
 });
 
 // ---- playoff odds

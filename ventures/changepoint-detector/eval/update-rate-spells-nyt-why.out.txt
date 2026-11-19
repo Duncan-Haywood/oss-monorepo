@@ -1,0 +1,57 @@
+1. Published days (value moved) by weekday, of the days in the month
+  Alaska JHU
+    2021-05 repeats  35%  Mo 4/5  Tu 4/4  We 4/4  Th 4/4  Fr 4/4  Sa 0/5  Su 0/5
+    2021-06 repeats  50%  Mo 4/4  Tu 2/5  We 5/5  Th 1/4  Fr 3/4  Sa 0/4  Su 0/4
+    2021-07 repeats  58%  Mo 3/4  Tu 0/4  We 4/4  Th 0/5  Fr 5/5  Sa 1/5  Su 0/4
+    2021-08 repeats  32%  Mo 5/5  Tu 5/5  We 3/4  Th 4/4  Fr 4/4  Sa 0/4  Su 0/5
+    2021-09 repeats  30%  Mo 3/4  Tu 4/4  We 5/5  Th 5/5  Fr 4/4  Sa 0/4  Su 0/4
+  Alaska NYT
+    2021-05 repeats  35%  Mo 4/5  Tu 4/4  We 4/4  Th 4/4  Fr 4/4  Sa 0/5  Su 0/5
+    2021-06 repeats  50%  Mo 4/4  Tu 1/5  We 5/5  Th 1/4  Fr 4/4  Sa 0/4  Su 0/4
+    2021-07 repeats  61%  Mo 3/4  Tu 0/4  We 4/4  Th 0/5  Fr 5/5  Sa 0/5  Su 0/4
+    2021-08 repeats  29%  Mo 5/5  Tu 5/5  We 4/4  Th 4/4  Fr 4/4  Sa 0/4  Su 0/5
+    2021-09 repeats  30%  Mo 3/4  Tu 4/4  We 5/5  Th 5/5  Fr 4/4  Sa 0/4  Su 0/4
+  Nebraska JHU
+    2021-07 repeats  52%  Mo 0/4  Tu 3/4  We 3/4  Th 4/5  Fr 5/5  Sa 0/5  Su 0/4
+    2021-08 repeats  42%  Mo 0/5  Tu 5/5  We 4/4  Th 3/4  Fr 3/4  Sa 3/4  Su 0/5
+    2021-09 repeats  47%  Mo 1/4  Tu 3/4  We 3/5  Th 4/5  Fr 3/4  Sa 2/4  Su 0/4
+    2021-10 repeats  45%  Mo 2/4  Tu 3/4  We 4/4  Th 4/4  Fr 3/5  Sa 1/5  Su 0/5
+  Nebraska NYT
+    2021-07 repeats  23%  Mo 3/4  Tu 4/4  We 4/4  Th 5/5  Fr 5/5  Sa 1/5  Su 2/4
+    2021-08 repeats  29%  Mo 5/5  Tu 5/5  We 4/4  Th 4/4  Fr 4/4  Sa 0/4  Su 0/5
+    2021-09 repeats  27%  Mo 4/4  Tu 4/4  We 5/5  Th 5/5  Fr 4/4  Sa 0/4  Su 0/4
+    2021-10 repeats  32%  Mo 4/4  Tu 4/4  We 4/4  Th 4/4  Fr 5/5  Sa 0/5  Su 0/5
+  Nebraska JHU
+    2022-04 repeats  27%  Mo 3/4  Tu 4/4  We 4/4  Th 4/4  Fr 5/5  Sa 2/5  Su 0/4
+    2022-05 repeats  55%  Mo 1/5  Tu 4/5  We 4/4  Th 3/4  Fr 1/4  Sa 0/4  Su 1/5
+    2022-06 repeats  43%  Mo 1/4  Tu 3/4  We 4/5  Th 5/5  Fr 3/4  Sa 1/4  Su 0/4
+    2022-07 repeats  52%  Mo 0/4  Tu 3/4  We 3/4  Th 4/4  Fr 5/5  Sa 0/5  Su 0/5
+    2022-08 repeats  52%  Mo 0/5  Tu 3/5  We 5/5  Th 3/4  Fr 4/4  Sa 0/4  Su 0/4
+    2022-09 repeats  43%  Mo 0/4  Tu 4/4  We 4/4  Th 4/5  Fr 5/5  Sa 0/4  Su 0/4
+    2022-10 repeats  74%  Mo 0/5  Tu 1/4  We 3/4  Th 2/4  Fr 2/4  Sa 0/5  Su 0/5
+    2022-11 repeats  87%  Mo 0/4  Tu 0/5  We 0/5  Th 2/4  Fr 2/4  Sa 0/4  Su 0/4
+  Nebraska NYT
+    2022-04 repeats  27%  Mo 4/4  Tu 4/4  We 4/4  Th 4/4  Fr 5/5  Sa 0/5  Su 1/4
+    2022-05 repeats  55%  Mo 1/5  Tu 4/5  We 3/4  Th 4/4  Fr 2/4  Sa 0/4  Su 0/5
+    2022-06 repeats  50%  Mo 0/4  Tu 3/4  We 4/5  Th 5/5  Fr 3/4  Sa 0/4  Su 0/4
+    2022-07 repeats  52%  Mo 0/4  Tu 3/4  We 3/4  Th 4/4  Fr 5/5  Sa 0/5  Su 0/5
+    2022-08 repeats  52%  Mo 0/5  Tu 3/5  We 5/5  Th 3/4  Fr 4/4  Sa 0/4  Su 0/4
+    2022-09 repeats  43%  Mo 0/4  Tu 4/4  We 4/4  Th 4/5  Fr 5/5  Sa 0/4  Su 0/4
+    2022-10 repeats  74%  Mo 1/5  Tu 1/4  We 2/4  Th 2/4  Fr 2/4  Sa 0/5  Su 0/5
+    2022-11 repeats  37%  Mo 4/4  Tu 5/5  We 3/5  Th 3/4  Fr 4/4  Sa 0/4  Su 0/4
+
+2. Alaska: the default line's cuts and the spell search
+  JHU n 1143 from 2020-01-22; cuts 2020-03-16 more often 98%->3%, 2021-03-31 less often 3%->38%, 2021-12-03 less often 38%->61%, 2022-04-01 less often 61%->85%
+    m 3.5 (penalty 49.3): 2021-06-08..2021-07-29 gain 64.9
+    m 3 (penalty 42.2): 2021-06-08..2021-07-29 gain 64.9
+    m 2.5 (penalty 35.2): 2021-06-08..2021-07-29 gain 64.9
+  NYT n 1107 from 2020-03-12; cuts 2021-02-06 less often 3%->31%, 2021-06-04 less often 31%->59%, 2021-08-01 more often 59%->31%, 2021-12-03 less often 31%->61%, 2022-04-01 less often 61%->85%
+    m 3.5 (penalty 49.1): none
+    m 3 (penalty 42.1): none
+    m 2.5 (penalty 35.0): none
+
+3. Edge spells (default line: fewer, then more within 120 steps) on the 35 states; documented event within +-10 days of either end
+  JHU: 0 edge spells, 0 next to a documented event
+  NYT Alabama               2021-05-29..2021-07-12 (45 steps) 49% inside, 0% before, 4% after -> no documented event
+  NYT Alaska                2021-06-04..2021-07-31 (58 steps) 59% inside, 31% before, 31% after -> 2021-08-02 Mon/Wed/Fri -> Mon-Fri
+  NYT: 2 edge spells, 1 next to a documented event

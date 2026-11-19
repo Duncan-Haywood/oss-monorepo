@@ -151,7 +151,7 @@ A plan is JSON (optional `blocking: {rows: 1, fire: true}` adds blocking rows; `
 
 ## Verification
 
-`node --test '*.test.mjs'` (1,039 tests across 124 files on 2026-11-07, about 90 s; bare `node --test` is refused by Node 22). What they check:
+`node --test '*.test.mjs'` (1,213 tests across 144 files on 2026-11-19, about 25 s; bare `node --test` is refused by Node 22). What they check:
 
 - **Hand-counted walls.** A plain 10 ft wall at 16 o.c. has studs at exactly
   0, 15-1/4, 31-1/4, ... 111-1/4 and 118-1/2. A 36 x 48 window gets kings at

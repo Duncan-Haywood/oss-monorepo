@@ -48,9 +48,86 @@ On this lattice the hinge element's off-axis bending is 1.0 to 1.6 times the geo
 orthotropy stiffens it, and single-seed differences between models are buried in fold-state noise
 (0.003 to 0.009 for identical energies, up to 0.1 when the fold count jumps).
 
+**Milestone 4c (is it membrane locking?):** yes, in part. Along each fabric's stretch-stiffness
+ladder at a fixed fold count the stretch energy falls as EA^−0.06 to EA^−0.31 rather than 1/EA, and
+the drape coefficient climbs 0.004 to 0.015 per doubling of EA with no plateau from 18.75 N/m to the
+fabric's secant stiffness, on both lattices. That climb from 150 N/m to the secant is +0.044, a
+third of the bias; at 18.75 N/m the bias is +0.045 (RMSE 0.057), but no single stiffness fits all
+nine, so a drape coefficient alone cannot separate a bending error from a stretch error here.
+
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 4c: the triangle element locks, and the stretch input carries a third of the over-drape
+
+**Question.** Milestone 4b ruled out anisotropy and named membrane locking at the fabrics' secant
+stretch stiffness (EA 830 to 4,800 N/m) as the leading suspect for 4a's over-drape. Locking has a
+signature that can be read off the element as it stands: once real stretch is negligible, raising
+EA should not change the shape, the membrane strain should fall as 1/EA and the stretch energy
+with it. A constant-strain triangle that cannot fold without stretching instead keeps its strain
+and stiffens its shape. Does this element do that, and how much of the bias does it buy?
+
+**Method** ([`experiments/m4c_locking/run.py`](experiments/m4c_locking/run.py)). 4a's code path
+unchanged (seed 0, FAST inputs, nine Petrak et al. 2021 wovens) on the 2.5 mm and 3.75 mm
+lattices: each chain rebuilds 4a's upward EA ladder (150 N/m to the secant, steps of at most ×2)
+and adds a downward branch from the 150 N/m state to 75, 37.5 and 18.75 N/m. Every stage records
+the drape coefficient (DC), the fold count, the energy split (gravity, membrane stretch, membrane
+shear, bending) and the Green strain of the free triangles. The locking exponent p is the slope of
+ln(stretch energy) on ln(EA) along the upward ladder at the 150 N/m fold count: −1 is locking-free.
+Predictions C0 to C6 were committed and pushed before any solve; reading the first 30 lines of
+4a's log (F9 and F1 rising with EA at a fixed fold count) while planning is disclosed in them.
+
+**Results** ([`results.txt`](experiments/m4c_locking/results.txt), 18 chains, 150 stages, all
+converged, 2.3 core-hours):
+
+![Simulated minus measured drape coefficient against stretch stiffness, five woven fabrics](experiments/m4c_locking/dc_error_vs_ea.svg)
+
+| 2.5 mm, seed 0, against measured DC (n = 9) | Pearson r | bias | RMSE |
+|---|---|---|---|
+| EA 18.75 N/m | 0.970 | +0.045 | 0.057 |
+| EA 37.5 N/m | 0.969 | +0.070 | 0.078 |
+| EA 75 N/m | 0.969 | +0.092 | 0.098 |
+| EA 150 N/m | 0.969 | +0.110 | 0.115 |
+| secant EA (4a's input) | 0.966 | +0.154 | 0.159 |
+
+- **C0 held:** all 96 of 4a's logged seed-0 stages reproduce in fold count and DC.
+- **C1 held:** at a fixed fold count the DC rises with EA in 39 of 39 steps.
+- **C2 held (locking is present):** p is −0.06 to −0.31 on all nine fabrics (registered bar: above
+  −0.5), and every fabric keeps its fold count from 18.75 N/m to its secant EA.
+- **C3 held, with a caveat:** p is less negative on the coarser lattice on 8 of 9, as locking
+  predicts, but the DC's rise per doubling of EA is larger on the coarser lattice on only 3 of 9
+  (F2, F8, F9; F6 ties): refining 3.75 to 2.5 mm does not reduce the climb.
+- **C4 refuted:** at 150 N/m the 99th-percentile strain is 0.50% to 1.17% (under 1% on 5 of 9);
+  at 18.75 N/m it is 2.0% to 3.4%.
+- **C5 refuted, on its second clause:** the DC falls on 9 of 9 going down to 18.75 N/m, and the bias
+  there is +0.045, under the registered +0.05.
+- **C6 held:** from 150 N/m to the secant EA the DC rises by +0.044 on average, 29% of the seed-0 bias.
+
+Post hoc (after the predictions were scored): along the upward ladder the membrane shear energy
+grows 1.4 to 2.9 times on seven fabrics while the stretch energy falls by only 18% to 63%, so the
+membrane's share of the elastic energy stays at 9% to 17% instead of vanishing. Fitting the DC
+linearly in ln EA through all of each fabric's stages and extrapolating to the measured DC, the
+matching EA runs from 0.01 N/m (F1) to 23 N/m (F8), more than three decades and, for F1 and F2,
+far below any woven's stiffness.
+
+**Reading.** The element locks. With strains under about 1% at 150 N/m and a fold count that never
+changes, a locking-free membrane would leave the DC flat as EA grows 12 to 32 times; this one
+climbs 0.004 to 0.015 per doubling with no sign of a plateau anywhere from 18.75 N/m to the secant,
+and its stretch energy decays at 6% to 31% of the locking-free rate. Refinement does not
+cure it, which is what the constraint count says it should not: on this lattice there are two
+triangles per node, so holding warp and weft strain at zero is four constraints per node against
+three degrees of freedom at every mesh size (English and Bridson 2008's argument for nonconforming
+elements). Two consequences for the programme. First, the 100 gf/cm secant EA that 4a used is not
+a neutral input on this tier: it is worth about +0.044 DC over 150 N/m, a third of the bias.
+Second, the bias can be absorbed by bending (4a's single factor 0.485) or by stretch (EA near
+18.75 N/m, RMSE 0.057), but no single EA fits all nine, so one drape coefficient per fabric
+cannot tell the two errors apart; H3's calibration needs either a locking-free membrane, after
+which EA should stop mattering, or a second measured quantity such as the node count.
+
+**Limits.** Seed 0 only; two lattices; one lattice orientation; G is held at FAST's value along
+every ladder; the matching-EA extrapolation is linear in ln EA beyond the solved range; the
+1/EA locking-free rate assumes a fixed tension field, which this run did not measure separately.
 
 ## Milestone 4b: an orthotropic element does not explain the over-drape
 
@@ -1035,7 +1112,11 @@ no validated solver yet (the continued triangle element passes the Cusick accept
    Milestone 5b did the sharper bound and the loop on a 7-candidate grid (SV(1): 48 of 50 at 3.9
    runs); next is SV inside a design loop over a continuous profile, where the candidate set is
    large enough for the saving to matter, and a curvature-aware K for soft cloth, where SV(1) misses.
-5. Source a table of drape coefficient with B and W for the same fabrics (the Autex paper
+5. After milestone 4c: a nonconforming (edge-midpoint) membrane on the nine wovens, registered to
+   make the DC flat in EA above about 150 N/m; then re-run 4a's comparison, whose bias should drop
+   by about 0.044 if the locking share is right. Separately, a measured node count or a low-load
+   tensile toe for the same fabrics, so bending and stretch errors can be told apart.
+6. Source a table of drape coefficient with B and W for the same fabrics (the Autex paper
    doi:10.2478/aut-2019-0034 with 63 woven fabrics is the first to read) once a session can
    reach it.
 
@@ -1043,7 +1124,7 @@ no validated solver yet (the continued triangle element passes the Cusick accept
 
 ```bash
 cd research/hanger-codesign
-python3 -m unittest discover -s tests              # 49 tests, about a minute; needs numpy (and scipy for test_m3)
+python3 -m unittest discover -s tests              # 79 tests, about a minute; needs numpy (and scipy for test_m3)
 python3 experiments/m1_kes_fidelity/run.py         # about 4 min on 4 cores
 python3 experiments/m1_kes_fidelity/figure.py      # the SVG above, stdlib only
 python3 experiments/m1c_ea_mesh/run.py           # milestone 1c, 70 cases, about 15 min on 4 cores
@@ -1078,5 +1159,8 @@ python3 experiments/m3f_transfer/run.py --phase starts  # start energies, both t
 python3 experiments/m3f_transfer/run.py --phase transfer # 42 affine transfers, about 6 core-hours (resumable)
 python3 experiments/m3f_transfer/run.py --phase report  # seconds
 python3 experiments/m3f_transfer/figure.py              # stdlib only
+python3 experiments/m4c_locking/run.py --phase solve    # milestone 4c, 18 chains, about 2.3 core-hours (resumable)
+python3 experiments/m4c_locking/run.py --phase report   # seconds
+python3 experiments/m4c_locking/figure.py               # stdlib only
 python3 experiments/m3_fem_tier/figure.py                  # stdlib only
 ```

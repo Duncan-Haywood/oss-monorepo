@@ -445,7 +445,7 @@ SURVEY_KEEP = 128      # wheels whose residuals the board keeps for the median (
 # 2026-11-19 (README "An eight-point take grid", eval/take-grid-eight-2026-11-19.md): 7 ms added. With only 6 and 8 ms
 # to bend between, the parabola read 6.6 ms takes as 6.0 and 7.15 ms ones as 8.0; on three fresh held-out sets the
 # eight-point grid had 185 of 216 builds within 0.5 ms against 149, the same 15 large misses, by its pre-registered rule.
-TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 7000, 8000)
+TAKE_SURVEY_GRID_US = (0, 1500, 2500, 3000, 4000, 5000, 6000, 7000, 8000)
 # The take survey's t0 search depth (2026-11-18, README "The first-order take misfit traced"). At the record fit's 3
 # levels a noise-free wheel's first, coarse t0 grid now and then settled in the wrong basin, so its rms against tau had
 # cliffs (227 ppm at 300 ms, 42 at 305) and the golden section stopped at 277-330 ms on single candidates, with 3-12
@@ -670,24 +670,49 @@ def _cmd_columns(T, j0, j1, segs, tau):
 ANCHOR_BACK = 0.9
 
 
-def _anchor(periods, back=None, steps=2):
+def _anchor(periods, back=None, steps=2, per=1):
     """The revolution `drop_from_commands_steps` anchors on: the longest period, walked back over a level run
-    (`back` None reads ANCHOR_BACK)."""
+    (`back` None reads ANCHOR_BACK). `per` (2026-11-19, README "More tach pulses a revolution"): the periods are
+    1 / per of a revolution each (already scaled to a whole revolution's length), so the revolution counts scale."""
     if back is None:
         back = ANCHOR_BACK
     k = 0
     for j in range(1, len(periods)):
         if periods[j] > periods[k]:
             k = j
-    if back <= 0 or k < 4:
+    if back <= 0 or k < 4 * per:
         return k
-    pb = sorted(periods[max(0, k - 8):k - 2])
+    pb = sorted(periods[max(0, k - 8 * per):k - 2 * per])
     base = pb[len(pb) // 2]
-    for _ in range(steps):
-        if k < 4 or periods[k - 1] - base <= back * (periods[k] - base):
+    for _ in range(steps * per):
+        if k < 4 * per or periods[k - 1] - base <= back * (periods[k] - base):
             break
         k -= 1
     return k
+
+
+def magnet_spacing(periods, per):
+    """Each magnet's share of a revolution, from a tach's periods at a steady or slowly changing speed (2026-11-19,
+    README "More tach pulses a revolution"). `periods` start at magnet 0's edge. Each period is taken over the mean of
+    the whole revolution ending with it and the one starting with it, which is exactly per times the period at its own
+    place on a linear change of speed, so a wheel still settling does not lean the shares; the shares are averaged by
+    magnet and scaled to sum to 1. Returns `per` shares, or None with fewer than three whole revolutions. A
+    once-a-revolution tach is [1.0]."""
+    n = len(periods)
+    if per == 1:
+        return [1.0]
+    if n < 3 * per:
+        return None
+    acc = [0.0] * per
+    cnt = [0] * per
+    for j in range(per - 1, n - per + 1):
+        back = sum(periods[j - per + 1:j + 1])
+        fwd = sum(periods[j:j + per])
+        acc[j % per] += periods[j] * 2.0 / (back + fwd)
+        cnt[j % per] += 1
+    sh = [acc[i] / cnt[i] for i in range(per)]
+    tot = sum(sh)
+    return [x / tot for x in sh]
 
 
 # Half-sine take offsets stretched to the profile's own spread (2026-11-18, README "The take fit's four parts and its
@@ -733,7 +758,7 @@ def _stopped(was, now):
 
 
 def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3,
-                             edges=False, back=None, polish=True, take=()):
+                             edges=False, back=None, polish=True, take=(), angles=None, per=1):
     """A ball's whole drop on one wheel from its revolution periods and the ESC commands the speed loop sent around it
     (2026-11-16, README "A recovery shaped by the loop's own commands").
 
@@ -762,19 +787,32 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     the vertex of the parabola through the grid's best point and its neighbours: no extra step, and on
     tests/fit_grid_floor.py's 755 noise-free wheels the readings' scatter about the true drop fell from 0.32% / 0.27%
     (first-order / ESC 50 ms plants) to 0.15% / 0.15%. The 3-level grid's last step, 1/64 of a revolution, was the
-    floor; a fourth level does as well again (0.12%) but costs 12 more steps a wheel."""
+    floor; a fourth level does as well again (0.12%) but costs 12 more steps a wheel.
+
+    `per` and `angles` (2026-11-19, README "More tach pulses a revolution"; host-side, the board still sends one
+    pulse a revolution): a tach with `per` magnets a revolution gives `per` periods a revolution, each the time the
+    wheel took to turn `angles[j]` of a revolution (the magnets' spacing, learnt at a steady speed by
+    `magnet_spacing`; None is 1 / per each). The spans stay the real times; each period's mean speed is angles[j] /
+    periods[j]; `pre`, `after`, the anchor's search and the ball's window are still counted in revolutions."""
     n = len(periods)
-    if n < pre + 4:
+    if angles is None and per == 1:
+        rp = periods
+    else:
+        if angles is None:
+            angles = [1.0 / per] * n
+        rp = [periods[j] / angles[j] for j in range(n)]   # each period stretched to a whole revolution's length
+    pre, after = pre * per, after * per
+    if n < pre + 4 * per:
         yield ("fit", None)
         return
-    k = _anchor(periods, back)
+    k = _anchor(rp, back, per=per)
     if k < pre + 1:
         yield ("fit", None)
         return
-    w0 = 3.0 / (periods[k - 4] + periods[k - 3] + periods[k - 2])
-    J = k - 1 if 1.0 / periods[k - 1] < w0 * (1.0 - min_fall) else k
+    w0 = 3.0 * per / sum(rp[k - 4 * per:k - per])
+    J = k - 1 if 1.0 / rp[k - 1] < w0 * (1.0 - min_fall) else k
     j0, j1 = k - 1 - pre, min(n, J + after)
-    if j1 - k < 3:
+    if j1 - k < 3 * per:
         yield ("fit", None)
         return
     T = [0.0]
@@ -795,8 +833,8 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
         return
     segs.insert(0, (ts, u0))
     # deficits below w0, as fractions of it: small numbers, so MicroPython's single-precision floats keep them
-    ys = [1.0 - 1.0 / (periods[j] * w0) for j in range(j0, j1)]
-    t_lo, t_hi = T[k - 1], T[k + 1]
+    ys = [1.0 - 1.0 / (rp[j] * w0) for j in range(j0, j1)]
+    t_lo, t_hi = T[max(0, k - per)], T[min(n, k + per)]
     if take:
         # first contact can come up to the take's last share before the revolution the fall shows in
         t_lo = max(T[j0], t_lo - take[-1])
@@ -1270,6 +1308,12 @@ BALL_DROP_SEEN = 0.03         # the wheel reads this far under target: the ball 
 # still lowering the target; LOOP_I_FF_MAX bounds it to that share of the feedforward (None: only i_max).
 LOOP_RAMP_HOLD = True
 LOOP_I_FF_MAX = 0.35
+# A ball's recovery with the plant gain the integrator has learned (2026-11-19, firmware/esp32/README.md "The ball
+# hold on a wheel faster than told"): when a stroke starts, the steady command over the feedforward, (ff + i) / ff,
+# is the told free speed over the true one, and the proportional (and integral) gains are scaled by it until the ball
+# hold ends, so a wheel 22% faster than WHEEL_RPM_FULL is not driven 1.22 times as hard. False: the gains as told;
+# "down": the scale capped at 1 (only a wheel faster than told gets softer gains).
+LOOP_BALL_GAIN = "down"
 
 
 class WheelLoop:
@@ -1309,8 +1353,11 @@ class WheelLoop:
     """
 
     def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM, ball_band=-1.0, ball_ms=None, ramp_hold=None, i_ff_max=-1.0,
-                 speed_esc=None):
+                 speed_esc=None, ball_gain=None):
         self.ff = 1.0 / rpm_full
+        self.ball_gain = LOOP_BALL_GAIN if ball_gain is None else ball_gain
+        self.gain = 1.0               # the gain scale latched at the stroke's start (ball_gain)
+        self.last_target = 0
         if ESC_SPEED_LOOP if speed_esc is None else speed_esc:
             # The ESC holds the speed itself (README "An ESC with its own speed loop"): the board's proportional term
             # on a 4-revolution tach in cascade with it rang (+-15% at 2,500 rpm behind a 5 Hz ESC loop, no ball),
@@ -1332,12 +1379,19 @@ class WheelLoop:
         climbed back to its target, its integrator only trims (README "A ball charged the integrator")."""
         if self.band is not None:
             self.recover, self.recover_ms, self.recover_target = 1, 0, None
+            if self.ball_gain and self.last_target > 0:
+                f = self.last_target * self.ff
+                self.gain = _clamp((f + self.i) / f, 0.5, 1.0 if self.ball_gain == "down" else 1.5)
 
     def update(self, target, measured, dt_ms, ramping=False):
         if target <= 0:
             self.i = 0.0
+            self.last_target = 0
             return 0.0
+        self.last_target = target
         g = target / self.low if self.low and target < self.low else 1.0
+        if self.recover:
+            g *= self.gain
         kp, ki = self.kp * g, self.ki * g
         err = target - measured
         if self.recover:
@@ -1350,6 +1404,8 @@ class WheelLoop:
                 self.recover = 2
             elif (self.recover == 2 and err <= 0) or self.recover_ms >= self.ball_ms:
                 self.recover = 0
+            if not self.recover:
+                self.gain = 1.0
         lim = min(self.i_max, self.i_ff * target * self.ff) if self.i_ff is not None else self.i_max
         self.i = _clamp(self.i, -lim, lim)
         raw = target * self.ff + kp * err + self.i

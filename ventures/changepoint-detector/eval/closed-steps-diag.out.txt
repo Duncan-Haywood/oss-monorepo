@@ -1,0 +1,29 @@
+
+================ DIAGNOSIS on the K4 seeds 20261119 (seen; deciding nothing) ================
+alerts over all 200 series: clean 837, off 1593, fill4 775, fill1 798
+
+no-step series (100): with an alert within 1 day of a closure / of a placebo date (chance)
+  clean  closure  22   placebo  18
+  off    closure  99   placebo  39
+  fill4  closure   8   placebo  16
+  fill1  closure  15   placebo  17
+
+step series (100): steps caught (an alert dated within 7 days of the step), by the first closure after the step
+  group                                n   clean    off  fill4  fill1
+  closure 1-7 days after the step     23      13     20     16     14
+  closure 8-21 days after             15      11     10     11      9
+  no closure within 21 days after     62      43     45     43     44
+  all                                100      67     75     70     67
+
+step series: caught by off only through an alert within 1 day of a closure (would not count with the closures open)
+  13 of 75
+
+step series caught by clean: lost by each arm
+  off     5 lost; first closure after the step at 44, 7, 11, 15, 2 days
+  fill4   2 lost; first closure after the step at 7, 9 days
+  fill1   3 lost; first closure after the step at 9, 3, 10 days
+
+median days from step to the alert being sent (steps caught by both clean and the arm)
+  off   n=62: clean 5, off 5
+  fill4 n=65: clean 5, fill4 5
+  fill1 n=64: clean 5, fill1 5

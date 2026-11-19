@@ -24,9 +24,9 @@ Run it locally the same way CI does:
 
 from __future__ import annotations
 
-import subprocess
 import sys
 from pathlib import Path
+from repo_files import ls_files
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -45,14 +45,7 @@ DEFINITE = (OPEN_MARKER, CLOSE_MARKER, BASE_MARKER)
 
 def tracked_files() -> list[Path]:
     """Every file git knows about. Keeps build output and vendored trees out."""
-    listing = subprocess.run(
-        ["git", "ls-files", "-z"],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout
-    return [REPO_ROOT / name for name in listing.split("\0") if name]
+    return [REPO_ROOT / name for name in ls_files(REPO_ROOT)]
 
 
 # Formats whose files always carry a NUL byte in their first 8 KB, so git

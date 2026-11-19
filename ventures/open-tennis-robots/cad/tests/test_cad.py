@@ -2508,6 +2508,7 @@ class EstopResetTest(unittest.TestCase):
         self.assertTrue(any("RESET's NC" in b for b in Feeder(reset_button_dc_a=0.2).check_estop_reset()))
         self.assertTrue(any("K0" in b for b in Feeder(latch_relay_a=0.1).check_estop_reset()))
 
+    @unittest.skipUnless(HAVE_CAD, "build123d not installed")   # otr_cad.feeder imports build123d
     def test_bom_lists_the_latch_and_the_button(self):
         from otr_cad.feeder import COTS_EXTRA
         names = [n for n, _, _ in COTS_EXTRA]

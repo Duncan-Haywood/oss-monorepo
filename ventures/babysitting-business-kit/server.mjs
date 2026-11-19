@@ -146,7 +146,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       return send(200, f, ext === "txt" ? "text/plain; charset=utf-8" : ext === "xml" ? "application/xml; charset=utf-8" : TYPES.html);
     }
     if (req.method === "POST" && url.pathname === "/inquiry") {
-      const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",")[0].trim();
+      const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",").pop().trim();
       const hour = Math.floor(now() / 36e5);
       const key = `${ip}|${hour}`;
       hits.set(key, (hits.get(key) || 0) + 1);
@@ -176,7 +176,7 @@ export function handler(state, save, env = process.env, now = Date.now, fetchImp
       const nowMin = localMinutes(now(), env.TZ);
       const slots = () => openSlots(state.desk, { from: today, weeks, nowMin });
       if (req.method === "GET") return send(200, bookPage(state.desk, slots()));
-      const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",")[0].trim();
+      const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",").pop().trim();
       const key = `book|${ip}|${Math.floor(now() / 36e5)}`;
       hits.set(key, (hits.get(key) || 0) + 1);
       if (hits.size > 5000) hits.clear();

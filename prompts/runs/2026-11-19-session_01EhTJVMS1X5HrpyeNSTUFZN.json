@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVMS1X5HrpyeNSTUFZN",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T07:00:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/cell-fidelity milestone 7f: out-of-batch margin for the triage rule",
+  "projects": [
+    "cell-fidelity"
+  ],
+  "pr": 17574,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/cell-fidelity/experiments/margin7f/run.py",
+      "why": "H278 refutation clause in code did not match the plan's wording; corrected before the report ran",
+      "did": "fixed code to the plan",
+      "result": "H278 scored inconclusive per the plan"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-battery-triage-with-an-out-of-batch-margin.md"
+  ],
+  "goal": null,
+  "notes": "Plan committed first (d78dd72). Tests (5 new + 7e's) pass, build.py ok, programme_check ok, check_posts ok, check_md_links ok. H277 supported 9/12, H278 inconclusive, H279 refuted 9 vs 10, H280 supported at 20.07% (on its 20% line). Model id omitted per session instructions.",
+  "corrections": [],
+  "redteam": null
+}

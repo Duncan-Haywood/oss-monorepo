@@ -247,6 +247,23 @@ export const REFLOW_CSS = `
 /* Paper has no viewport to scroll. The customer's proposal prints from these
    pages and every column of it has to be on the sheet. */
 @media print{.${TABLE_SCROLL_CLASS}{overflow-x:visible;box-shadow:none}}
+/* Row names stay in view while a wide table swipes under them. SCROLL_A11Y_SCRIPT
+   sets data-pf-pin only on a box that is really scrolling, around a real table
+   (not one a venture already lays out as cards) whose first column is at most
+   half the box and spans no rows, and copies the nearest painted background
+   onto --pf-pin-bg. Ordinary specificity, not :where(): the first attempt at
+   zero specificity lost to the ventures' own td{background:transparent} and
+   td{position:relative} rules, and the swiped columns showed through the row
+   names (shed-designer). Only a header cell keeps a venture's own shade, as
+   the background rule for thead is zero specificity. The edge is a shadow
+   because a collapsed border does not travel with a sticky cell. A cell
+   spanning columns (a section heading row) is not pinned: it scrolls with the
+   rest. Measured 2026-11-19: docs/reports/polish-2026-11-19-pinned-row-names.md. */
+.${TABLE_SCROLL_CLASS}[data-pf-pin]>table>*>tr>:first-child:not([colspan]){position:sticky;left:0;z-index:1;
+  box-shadow:inset -1px 0 rgba(128,128,128,.4)}
+.${TABLE_SCROLL_CLASS}[data-pf-pin]>table>:is(tbody,tfoot)>tr>:first-child:not([colspan]){background-color:var(--pf-pin-bg,Canvas)}
+:where(.${TABLE_SCROLL_CLASS}[data-pf-pin]>table>thead>tr>:first-child){background-color:var(--pf-pin-bg,Canvas)}
+@media print{.${TABLE_SCROLL_CLASS}[data-pf-pin]>table>*>tr>:first-child:not([colspan]){position:static;box-shadow:none}}
 /* Cause (3): a <pre> whose longest line does not fit. white-space:pre is the
    element's default and it forbids wrapping outright, so one long command holds
    the whole document open at that width — and no word-break a venture wrote can

@@ -87,7 +87,7 @@ export function handler(cfg) {
         if (r.status === "missing") return page(404, "Not found", "<h1>No such link</h1><p>This short link does not exist.</p>");
         if (r.status === "gone") return page(410, "Link ended", `<h1>This link has ended</h1><p>It was ${esc(r.reason)}.</p>`);
         if (preview) return page(200, "Link preview", `<h1>This short link goes to</h1><p><code>${esc(r.link.url)}</code></p><p>Only follow it if you trust the sender.</p>`);
-        const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",")[0].trim()) || req.socket.remoteAddress || "";
+        const ip = (cfg.trustProxy && String(req.headers["x-forwarded-for"] || "").split(",").pop().trim()) || req.socket.remoteAddress || "";
         if (req.method === "GET") {
           E.recordClick(cfg.state, r.link, { client: r.client, referer: req.headers.referer, country: req.headers["cf-ipcountry"] || req.headers["x-vercel-ip-country"] || req.headers["x-country"], visitor: ip + "|" + ua, hash, newSalt }, now());
           cfg.touch?.();

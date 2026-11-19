@@ -4,11 +4,22 @@ Track 20, robots on the residential building site (`PROJECTS.md`). The first "ne
 
 **Live page:** https://marisstella.app/research/buildbot-holdpose/
 
-**Headline.** For a 3.8 kg 2x4 held 0.3 m ahead and 0.6 m high, the G1's largest joint torque is **0.91 of peak in the default balanced pose** (`buildbot-holdheat`). Two levers lower it. (1) **Where the centre of pressure sits on the foot**: moving it from the sole point to 0.03 m inside the toe edge gives 0.744 with the default arm posture. (2) **A searched arm and waist posture** (the arms are redundant for a fixed hand position): at that centre of pressure the best of three seeds is **0.487** (binding joint: shoulder pitch), but the other two seeds stop at 0.63 and 0.68, so the search is noisy and 0.487 is an upper bound on the true minimum, not the minimum. At 0.487, a continuous rating of 0.5 of peak makes the stud **sustainable** (it was a 0.14 time-constant hold at ρ = 1/3 before; it is 0.61 now), and the search's empty-handed best is 0.41, so for ρ ≤ 0.4 nothing is sustainable at this pose, as before. With the centre of pressure on the sole point the gain is smaller (0.910 to 0.756) and with it at the toe edge the margin is gone (0.586).
+**Headline.** For a 3.8 kg 2x4 held 0.3 m ahead and 0.6 m high, the G1's largest joint torque is **0.91 of peak in the default balanced pose** (`buildbot-holdheat`). Two levers lower it. (1) **Where the centre of pressure sits on the foot**: moving it from the sole point to 0.03 m inside the toe edge gives 0.744 with the default arm posture. (2) **A searched arm and waist posture** (the arms are redundant for a fixed hand position): at that centre of pressure the best of three seeds is **0.487** (binding joint: shoulder pitch), but the other two seeds stop at 0.63 and 0.68, so the search is noisy and 0.487 is an upper bound on the true minimum, not the minimum. At 0.487, and only at that seed (the other two, at 0.63 and 0.68, would not be), a continuous rating of 0.5 of peak would make the stud sustainable, with no margin (0.487 against 0.5; the load sweep below puts 3 kg at 0.57, and section D gives 1 kg as the sustainable load at ρ = 0.5). At ρ = 0.33 the hold rises from 0.14 to 0.61 thermal time constants, and the search's empty-handed best is 0.41, so for ρ ≤ 0.4 nothing is sustainable at this pose, as before. With the centre of pressure on the sole point the gain is smaller (0.910 to 0.756) and with it at the toe edge the margin is gone (0.586).
 
 ![Peak joint fraction against load](experiments/figure.png)
 
 **Not a rated runtime or payload.** ρ and the thermal time constant are still unknown for this robot (see `buildbot-holdheat`). A centre of pressure 3 cm from the toe edge is a thin stability margin that a walking or disturbed robot would not keep.
+
+
+## Known gaps (quality audit 2026-11-19)
+
+From [`2026-11-19-buildbot-holdpose.json`](../../portfolio/quality/audits/2026-11-19-buildbot-holdpose.json); the headline's "sustainable" claim was qualified in the same PR, the rest are open.
+
+- `TOE_EDGE = 0.09` (`src/buildbot_holdpose/__init__.py:14`) is sphere centre plus radius, but a contact sphere on flat ground touches below its centre, so the support edge is 0.085 m: the "at the toe edge" row sits 5 mm outside the support polygon, and its test repeats the mistake. Fixing it needs a full rerun (about 11 min).
+- Prior work is not cited: torque-optimal redundancy resolution (Hollerbach and Suh, 1987) and null-space whole-body control (Khatib, 1987; Sentis and Khatib, 2005).
+- Only hand positions are constrained, not palm orientation; in the 0.487 posture the hands turn about 40° from each other and point upward.
+- One of five seeded bugs was caught: self-collision rejection, the foot-unload check, step growth and the refinement restart are untested.
+- mujoco is unpinned (`>=3.1`): under MuJoCo 4.0.1 the lightweight-block row reruns at 1.71, not the 1.57 reported.
 
 ## Method
 - **Fixed by the task.** Hands at (x, z) and both feet flat where they stood, as in [`buildbot-payload`](../buildbot-payload) (MuJoCo Menagerie G1 at commit `cda5236f`, BSD-3-Clause © Unitree Robotics, fetched not copied). The centre of mass of robot plus load is placed `com_dx` ahead of the sole point; in static equilibrium the centre of pressure of each foot is then exactly `com_dx` (tested).

@@ -1,0 +1,73 @@
+basis: 7z unchanged (monohull L 4 B 0.400 T 0.274; in-range Wigley L/B 7.0 B/T 2.50; 14758 NDBC records; Frank close-fit 16 panels, 30 stations, kyy 0.25 L); viscous B_v = 2 zeta sqrt(C (M + A)) in heave and pitch, A at the zero-speed natural frequency; R_aw from radiation damping only
+## N. natural frequencies and radiation damping (zero speed)
+monohull: heave w_n 6.340 rad/s (T 0.99 s, A33/M 0.335, lambda/L at w_n 0.38), radiation damping 12.9% of critical; pitch w_n 6.050 rad/s (A55/I 0.175), radiation damping 9.8% of critical
+in-range: heave w_n 6.204 rad/s (T 1.01 s, A33/M 0.674, lambda/L at w_n 0.40), radiation damping 19.2% of critical; pitch w_n 6.168 rad/s (A55/I 0.357), radiation damping 15.0% of critical
+reference: calm 30 W range 823.7 km at 1.00 m/s; STAWAVE-2 (7y) share 0.25 -2.52%; share 1 -9.37%
+## zeta 0 (B_v33 0.0 N s/m, B_v55 0.0 N m s on the monohull)
+A monohull Fr 0.16: strip peak 16.93 at lambda/L 0.85; STAWAVE-2 2.97 at 1.05; peak ratio 5.70; area ratio 2.23
+A monohull Fr 0.20: strip peak 22.75 at lambda/L 0.95; STAWAVE-2 3.61 at 1.15; peak ratio 6.29; area ratio 2.29
+A in-range Fr 0.20: strip peak 9.44 at lambda/L 0.90; STAWAVE-2 3.61 at 1.15; peak ratio 2.61; area ratio 1.58
+B pooled head-sea motion term: 0.50 m/s 1.20 N (ratio 2.74); 1.00 m/s 2.95 N (ratio 2.13); 1.50 m/s 5.52 N (ratio 2.28); 2.30 m/s 9.79 N (ratio 2.61)
+C share 0.25: 30 W range 788.2 km (-4.31%) at 1.00 m/s (+0.00)
+C share 1: 30 W range 699.6 km (-15.06%) at 0.90 m/s (-0.10)
+D share 0.25, H_lim none: central foil break-even 641 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+D share 0.25, H_lim 1 m: central foil break-even 649 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+## zeta 0.025 (B_v33 84.6 N s/m, B_v55 71.1 N m s on the monohull)
+A monohull Fr 0.16: strip peak 11.23 at lambda/L 0.85; STAWAVE-2 2.97 at 1.05; peak ratio 3.78; area ratio 1.78
+A monohull Fr 0.20: strip peak 14.85 at lambda/L 0.95; STAWAVE-2 3.61 at 1.15; peak ratio 4.11; area ratio 1.77
+A in-range Fr 0.20: strip peak 7.25 at lambda/L 0.90; STAWAVE-2 3.61 at 1.15; peak ratio 2.00; area ratio 1.35
+B pooled head-sea motion term: 0.50 m/s 1.11 N (ratio 2.54); 1.00 m/s 2.41 N (ratio 1.74); 1.50 m/s 4.25 N (ratio 1.75); 2.30 m/s 7.29 N (ratio 1.94)
+C share 0.25: 30 W range 793.3 km (-3.69%) at 1.00 m/s (+0.00)
+C share 1: 30 W range 714.2 km (-13.29%) at 1.00 m/s (+0.00)
+D share 0.25, H_lim none: central foil break-even 645 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+D share 0.25, H_lim 1 m: central foil break-even 651 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+## zeta 0.05 (B_v33 169.3 N s/m, B_v55 142.2 N m s on the monohull)
+A monohull Fr 0.16: strip peak 8.18 at lambda/L 0.90; STAWAVE-2 2.97 at 1.05; peak ratio 2.75; area ratio 1.49
+A monohull Fr 0.20: strip peak 10.55 at lambda/L 0.95; STAWAVE-2 3.61 at 1.15; peak ratio 2.92; area ratio 1.44
+A in-range Fr 0.20: strip peak 5.83 at lambda/L 0.95; STAWAVE-2 3.61 at 1.15; peak ratio 1.61; area ratio 1.18
+B pooled head-sea motion term: 0.50 m/s 1.06 N (ratio 2.42); 1.00 m/s 2.06 N (ratio 1.49); 1.50 m/s 3.44 N (ratio 1.42); 2.30 m/s 5.70 N (ratio 1.52)
+C share 0.25: 30 W range 796.5 km (-3.30%) at 1.00 m/s (+0.00)
+C share 1: 30 W range 724.9 km (-11.99%) at 1.00 m/s (+0.00)
+D share 0.25, H_lim none: central foil break-even 648 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+D share 0.25, H_lim 1 m: central foil break-even 652 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+## zeta 0.1 (B_v33 338.5 N s/m, B_v55 284.4 N m s on the monohull)
+A monohull Fr 0.16: strip peak 5.22 at lambda/L 0.90; STAWAVE-2 2.97 at 1.05; peak ratio 1.76; area ratio 1.17
+A monohull Fr 0.20: strip peak 6.33 at lambda/L 0.95; STAWAVE-2 3.61 at 1.15; peak ratio 1.75; area ratio 1.06
+A in-range Fr 0.20: strip peak 4.18 at lambda/L 0.90; STAWAVE-2 3.61 at 1.15; peak ratio 1.16; area ratio 0.97
+B pooled head-sea motion term: 0.50 m/s 1.02 N (ratio 2.33); 1.00 m/s 1.66 N (ratio 1.20); 1.50 m/s 2.52 N (ratio 1.04); 2.30 m/s 3.86 N (ratio 1.03)
+C share 0.25: 30 W range 800.3 km (-2.84%) at 1.00 m/s (+0.00)
+C share 1: 30 W range 737.4 km (-10.47%) at 1.00 m/s (+0.00)
+D share 0.25, H_lim none: central foil break-even 650 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+D share 0.25, H_lim 1 m: central foil break-even 654 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+## zeta 0.15 (B_v33 507.8 N s/m, B_v55 426.7 N m s on the monohull)
+A monohull Fr 0.16: strip peak 3.85 at lambda/L 0.90; STAWAVE-2 2.97 at 1.05; peak ratio 1.29; area ratio 0.99
+A monohull Fr 0.20: strip peak 4.44 at lambda/L 0.95; STAWAVE-2 3.61 at 1.15; peak ratio 1.23; area ratio 0.87
+A in-range Fr 0.20: strip peak 3.30 at lambda/L 0.90; STAWAVE-2 3.61 at 1.15; peak ratio 0.91; area ratio 0.85
+B pooled head-sea motion term: 0.50 m/s 1.03 N (ratio 2.35); 1.00 m/s 1.48 N (ratio 1.06); 1.50 m/s 2.04 N (ratio 0.84); 2.30 m/s 2.90 N (ratio 0.77)
+C share 0.25: 30 W range 802.1 km (-2.62%) at 1.00 m/s (+0.00)
+C share 1: 30 W range 743.6 km (-9.72%) at 1.00 m/s (+0.00)
+D share 0.25, H_lim none: central foil break-even 652 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+D share 0.25, H_lim 1 m: central foil break-even 655 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+## zeta 0.2 (B_v33 677.0 N s/m, B_v55 568.9 N m s on the monohull)
+A monohull Fr 0.16: strip peak 3.11 at lambda/L 0.90; STAWAVE-2 2.97 at 1.05; peak ratio 1.05; area ratio 0.90
+A monohull Fr 0.20: strip peak 3.43 at lambda/L 0.95; STAWAVE-2 3.61 at 1.15; peak ratio 0.95; area ratio 0.75
+A in-range Fr 0.20: strip peak 2.78 at lambda/L 0.90; STAWAVE-2 3.61 at 1.15; peak ratio 0.77; area ratio 0.78
+B pooled head-sea motion term: 0.50 m/s 1.07 N (ratio 2.45); 1.00 m/s 1.39 N (ratio 1.00); 1.50 m/s 1.79 N (ratio 0.74); 2.30 m/s 2.35 N (ratio 0.63)
+C share 0.25: 30 W range 802.9 km (-2.52%) at 1.00 m/s (+0.00)
+C share 1: 30 W range 746.3 km (-9.39%) at 1.00 m/s (+0.00)
+D share 0.25, H_lim none: central foil break-even 653 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+D share 0.25, H_lim 1 m: central foil break-even 655 W; monohull leads to 200 W: True; box cases at or below 200 W: 0 of 972
+## summary
+# table: zeta mono_fr016_peak_ratio mono_fr016_area_ratio inrange_fr020_area_ratio pooled_1ms_ratio loss30W_share025 loss30W_share1 scope200W
+row 0.000 5.70 2.23 1.58 2.13 -4.31 -15.06 True
+row 0.025 3.78 1.78 1.35 1.74 -3.69 -13.29 True
+row 0.050 2.75 1.49 1.18 1.49 -3.30 -11.99 True
+row 0.100 1.76 1.17 0.97 1.20 -2.84 -10.47 True
+row 0.150 1.29 0.99 0.85 1.06 -2.62 -9.72 True
+row 0.200 1.05 0.90 0.78 1.00 -2.52 -9.39 True
+area ratio fall zeta 0 -> 0.2: monohull Fr 0.16 2.23 -> 0.90 (-60%); in-range Fr 0.20 1.58 -> 0.78 (-51%)
+check: pooled 1.00 m/s ratio at zeta 0.10 to four digits 1.2008
+## post hoc: zeta calibrated on the in-range Wigley (strip area = STAWAVE-2 area at Fr 0.20), carried to the monohull
+calibrated zeta 0.091 (in-range Fr 0.20 area ratio 0.9999); monohull Fr 0.16 area ratio 1.21; pooled 1.00 m/s motion 1.72 N (ratio 1.24)
+calibrated share 0.25: 30 W range 799.8 km (-2.90%) at 1.00 m/s
+calibrated share 1: 30 W range 735.8 km (-10.67%) at 1.00 m/s

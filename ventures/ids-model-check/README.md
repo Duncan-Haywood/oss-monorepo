@@ -334,6 +334,7 @@ consultant's model checked against it before it is shared. Today the options are
 | Solibri Office, other commercial model checkers | seat licence (thousands a year) | Windows desktop install; does much more (clash detection, geometry rules) |
 | BIMcollab Zoom, usBIM.IDS-checker, other vendor tools | free tier or subscription | install or an account, and often an upload of the model |
 | IfcTester (IfcOpenShell) | free, LGPL | Python and a command line, or Bonsai/BlenderBIM |
+| Excel2IDS (buildingSMART community) | free, GPL-3.0 | Windows .exe to turn its Excel template into IDS; no checking, cannot read an IDS back |
 | **IDS Model Check** | free, MIT | a browser tab; or Node for CI |
 
 What this does better: nothing to install, nothing uploaded (the model is read
@@ -355,8 +356,11 @@ node cli.mjs model.ifcxml spec.ids              # ifcXML, or an .ifczip, the sam
 node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
+node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
 node cli.mjs --fix spec.ids -o spec-fixed.ids   # repair its ids.xsd faults; exit 1 if some need a person
 node cli.mjs model.ifc spec.ids --no-audit      # run invalid specifications as written
+node cli.mjs --to-sheet spec.ids -o spec.xlsx   # the IDS as a spreadsheet, one row per facet (or .csv)
+node cli.mjs --from-sheet spec.xlsx -o spec.ids # a spreadsheet back to IDS 1.0; exit 1 names bad rows
 ```
 
 Library: `import { check } from "./node.mjs"; check(idsText, ifcText)` in Node,
@@ -374,6 +378,139 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### Facet links checked against bSDD (2026-11-19)
+
+An IDS property, classification or material facet may carry a `uri`: the
+buildingSMART Data Dictionary (bSDD) entry it asks for. `ids.xsd` does not tie
+the link to the facet, so an IDS can name `Width` and link IFC's `Name`, or ask
+for an `IFCLABEL` where the dictionary says Boolean; a model authored from the
+dictionary then fails for the IDS author's slip. `node cli.mjs --audit spec.ids
+--bsdd` (bsdd.mjs) looks every link up in bSDD's public API and reports:
+
+- **errors:** a link bSDD does not have (for an IFC link, the IFC 4.3 entry it
+  probably meant is named), a link that is not a property or class, a property
+  facet linking a class, a dataType that cannot hold the dictionary's values;
+- **warnings:** a baseName other than the linked code or name (naming the
+  baseName's own link when the dictionary has one: the uri was pasted from the
+  next row), the IFC dictionary naming another IFC type, values outside the
+  property's allowed values, a classification value, system or required class
+  the bSDD class does not match, an Inactive entry;
+- **notes:** a link bSDD writes another way (http, `ifc-4.3`, case), a
+  dictionary version that is not the latest, a uri outside bSDD.
+
+On every public IDS file with a bSDD link that GitHub code search finds (58
+distinct files, 197 distinct bSDD links), 7 files have a bSDD error and 15 a
+warning, each read by hand: links pasted from the wrong row (in a template and
+in a translation of buildingSMART's own example), a link to an IFC 2x3
+dictionary bSDD never had, case-only name differences, and the Dutch
+Omgevingswet sets relating classes to IFC classes their dictionary does not
+(`eval/bsdd-links-2026-11-19.md`). It is the one option that goes on the
+network: one GET per distinct link to api.bsdd.buildingsmart.org, with the
+link as the only thing sent. It is not on the page: bSDD's API sends no CORS
+header, so a browser cannot ask it.
+
+### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
+
+Many BIM managers already agree requirements in buildingSMART-community's
+[Excel2IDS](https://github.com/buildingsmart-community/Excel2IDS) template:
+asset categories in columns, one requirement per row, an `X` where a category
+needs a requirement. `excel2ids.mjs` reads that workbook as it stands, on the
+page (drop it where the IDS goes) or with `node cli.mjs --from-sheet book.xlsx
+-o out.ids`, and writes one IDS per purpose (`out_MEP.ids`, `out_STR.ids`;
+per phase too with `--by-phase`), each audited like any IDS. No Windows tool,
+nothing uploaded. The other way round, which Excel2IDS cannot do, `node
+cli.mjs --to-excel2ids spec.ids -o book.xlsx` (or *as an Excel2IDS workbook*
+after an audit) lays an IDS out in the template, a requirement shared by
+several categories written once, and names every specification the template
+cannot hold.
+
+On 64 public IDS files, 309 of 507 specifications fit the template and all
+309 come back with the same requirements; 256 of 256 on buildingSMART's test
+pairs, with the checker's verdict unchanged on 255 (the one that changes is a
+lower-case class name the reader upper-cases on purpose). What does not fit:
+`partOf` requirements, a material asked for with no name, ranges and lengths.
+The template's own sample, read by its rules, asks every external door to be
+an `IFCWALL`; the audit names it. Details, and where this reader differs from
+the Excel2IDS tool (booleans written `true`, `REPLACEME` rows keep their value
+and URI, no fixed `LOD400` milestone): `eval/excel2ids-2026-11-19.md`.
+
+**Where Excel2IDS's own tool would differ, cell by cell (2026-11-19).** After a
+workbook is read, the page lists every cell where the Excel2IDS tool (its
+source at `4eb7575`, read, not run) would write a different IDS or stop with
+none: a category with no purpose (the tool stops), a toggle typed as the text
+`FALSE` (on for the tool), a typed `TRUE` (written `True`, which matches
+nothing), a number in the matrix (the tool stops), a `REPLACEME` row that takes
+another row's instructions or hands its value to an earlier property facet,
+`Prohibited` read as required, a moved layout. The CLI prints the same on
+`--from-sheet`. The template's own sample has one: its "External doors"
+category asks for `IsExternal` = `True`, so the tool's MEP IDS selects no door.
+The rules also caught this venture's own download: 316 of 351 workbooks it
+wrote had an empty purpose row the tool cannot read; it now writes `General`
+(the tool's default) and 0 of 351 stop. Details: `eval/excel2ids-tool-2026-11-19.md`.
+
+**The tool run itself, side by side (2026-11-19).** The rules above were then
+checked by running the tool (imported unchanged, ifctester 0.9.0) on the same
+321 workbooks: no stops, `LOD400` in every file, the IFC version and the
+sample's `True` as predicted. Two things the source reading missed are now on
+the list: an empty version cell comes out as `<version>None</version>` (311
+of 321 files), and a carriage return in a cell comes out as the escape
+`_x000D_`, because openpyxl does not undo the escape Excel writes. The run
+also found a fault here: the reader wrote applicability facets in the
+template's column order, which broke ids.xsd on one public set (property
+before attribute); every spreadsheet path now writes ids.xsd's order. Details:
+`eval/excel2ids-sidebyside-2026-11-19.md`.
+
+### An IDS as a spreadsheet and back (2026-11-19)
+
+Requirements are often agreed in a table first and typed into an IDS by hand.
+`sheet.mjs` writes an IDS as one row per facet and reads such a table back
+into IDS 1.0, as `.xlsx` or CSV (comma, semicolon or tab). On the page, drop
+the spreadsheet where the IDS goes, or audit an IDS and press *Download as a
+spreadsheet*; on the command line, `--to-sheet` and `--from-sheet`.
+
+| spec | section | facet | name | ifcVersion | entity | propertySet | property | dataType | value | cardinality |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | specification | | Doors are fire rated | IFC4 | | | | | | required |
+| 1 | applicability | entity | | | IFCDOOR | | | | | |
+| 1 | requirements | property | | | | Pset_DoorCommon | FireRating | IFCLABEL | one of: EI30 \| EI60 | |
+
+A value cell is the exact value, or a restriction written as clauses joined by
+`;`: `one of: A | B`, `pattern: [A-Z]{2}\d+`, `>= 0; < 10` (dates and durations
+too), `length: 4`, `min length: 1`, `max length: 12`, `base: integer` when the
+base is not the one the bounds imply, `note: ...` for an `xs:annotation`. A
+leading backslash keeps a cell literal (`\one of: x`, `\=SUM(A1)`); inside a
+clause `;;` is a literal `;` and in a one-of list `||` a literal `|`. Info rows
+(`section` info, `facet` title, author, ...) fill `<info>`. The workbook has a
+*Read me* sheet with the same rules. A row that cannot become IDS is named by
+its row number. IDS 0.9 forms are repaired (`fix.mjs`) before the sheet is made.
+
+Measured (`eval/sheet-roundtrip-2026-11-19.md`): all 334 of buildingSMART's
+test IDS files come back with the same content through CSV and `.xlsx`, and
+the checker gives the same verdict on each pair, 334 of 334; 62 of 64 public
+IDS files on GitHub come back the same as written or as repaired (one uses
+`<n>` for `<name>`, one has no `<info>`); a workbook LibreOffice saved reads
+back the same as ours, except that CR LF line breaks inside two files'
+instructions become LF. Excel turns `1.10` into `1.1` when it opens a CSV, so
+prefer `.xlsx`.
+
+**Workbooks Excel saved (2026-11-19).** Excel stores what a person types as
+numbers, dates and booleans, so the reader shows each cell as Excel does:
+a date cell as ISO 8601 (`2024-01-01`, `15:30:18`, `2024-01-01T18:00:00`, from
+the cell's number format, with the 1904 date system), a number to Excel's
+15 digits (`0.938271604938272`, not the `0.93827160493827155` Excel saved),
+a boolean as IDS writes it (`true`, not `TRUE`, which matches no IfcBoolean),
+`_x000D_` escapes decoded. An `.xls` or a password-protected workbook is
+named instead of being read as CSV. On 321 workbooks from Apache POI's test
+files (282 saved by Excel), 65,537 of 65,548 cells now read as openpyxl
+reads them, up from 62,182; the rest are cells where no date exists
+(`eval/excel-workbooks-2026-11-19.md`). The downloaded workbook formats every
+cell, and the empty cells of each column, as Text, so a value a person types
+into it later stays as typed (`42.0`, `true`, `1.10`): retyped through
+LibreOffice Calc's input line, 56 of 56 public IDS files and 334 of 334
+buildingSMART test files come back the same, from 24 and 288 with the
+General format. A CSV opened in a spreadsheet still gets typed, so edit the
+`.xlsx`. Our workbook stores a CR inside a cell as `_x000D_`, as Excel does.
 
 ### Repairing an IDS that validating tools refuse (2026-11-18)
 
@@ -1038,6 +1175,10 @@ faster than IfcTester; its point is needing no install.
   report warns.
 
 ## Limitations
+
+- bSDD links (`--bsdd`) are checked from the command line only (bSDD's API
+  allows no browser calls) and not against the property set, which bSDD gives
+  only on a class's property list (`eval/bsdd-links-2026-11-19.md`, Limits).
 
 - ifcJSON is not read. ifcXML is checked on 9 real documents from about
   seven exporters and 43 IFC4 STEP/ifcXML twins, not on every tool's output,

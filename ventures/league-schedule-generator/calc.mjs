@@ -6,6 +6,7 @@
 // assignment by seeded simulated annealing -> outputs (tables, CSV, .ics, text) and an
 // independent validator that re-checks the finished schedule from its output alone.
 
+import { whistRotation } from "./whist.mjs";
 import { lowCarryOverRounds, lowCarryOverDoubleRounds, bestCarryOverRounds, carryOverSummary, carryOverKeepIndex, CARRY_OVER_PICK, carryOver } from "./carryover.mjs";
 import { waitFreeNights, seasonLayout, waitFreePossible, waitFreeProvedImpossible } from "./nights.mjs";
 
@@ -3179,6 +3180,100 @@ export function poolAdvancers(tables, perPool) {
 
 const nextPow2 = (k) => { let p = 1; while (p < k) p *= 2; return p; };
 
+/**
+ * Bracket round (1 = first round) in which the teams on bracket lines `i` and `j` (0-based positions
+ * in seedOrder) can first meet: the lowest level at which both sit in the same block.
+ */
+function meetRound(i, j) {
+  let r = 0;
+  while (i !== j) { i >>= 1; j >>= 1; r++; }
+  return r;
+}
+
+/**
+ * Crossover play-off seeds from pool tables: winners still come before runners-up, and so on, but
+ * within each place the order is chosen so teams from the same pool meet as late as the bracket
+ * allows (A1 v B2, B1 v A2 rather than a pool rematch in the first knockout round). The objective is
+ * lexicographic: fewest possible same-pool meetings in round 1, then round 2, ..., then the least
+ * movement from the best-record order of poolAdvancers (a move near the top weighs more). Swaps inside each place first, then an exact
+ * pruned search over the places' orderings (capped at SEED_SEARCH_NODES nodes; the swap answer
+ * stands if the cap is hit). Returns { seeds, pools (pool index per seed), meetings (same-pool pairings possible per
+ * round), plain (the same counts for the poolAdvancers order) }.
+ */
+const SEED_SEARCH_NODES = 300000;
+export function poolPlayoffSeeds(tables, perPool) {
+  const tiers = [];
+  for (let place = 0; place < perPool; place++) {
+    const tier = tables.map((t, p) => ({ row: t[place], p })).filter((x) => x.row)
+      .sort((x, y) => y.row.points - x.row.points || y.row.gd - x.row.gd || y.row.gf - x.row.gf || x.p - y.p)
+      .map((x) => ({ name: x.row.name, p: x.p }));
+    if (tier.length) tiers.push(tier);
+  }
+  const base = tiers.flat();
+  const n = base.length;
+  if (n < 2) return { seeds: base.map((x) => x.name), pools: base.map((x) => x.p), meetings: [], plain: [] };
+  const size = nextPow2(n);
+  const order = seedOrder(size);
+  const line = new Array(n + 1);
+  order.forEach((s, i) => { if (s <= n) line[s] = i; });
+  const rounds = Math.log2(size);
+  const homeSeed = new Map(base.map((x, i) => [x.name, i]));
+  const score = (arr) => {
+    const v = new Array(rounds + 1).fill(0);
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) if (arr[a].p === arr[b].p) v[meetRound(line[a + 1], line[b + 1]) - 1]++;
+    v[rounds] = arr.reduce((s, x, i) => s + Math.abs(homeSeed.get(x.name) - i) * (n - Math.min(i, homeSeed.get(x.name))), 0); // moving a top seed costs more
+    return v;
+  };
+  const less = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] < y[i]; return false; };
+  const cur = base.slice();
+  let best = score(cur);
+  const starts = [];
+  let off = 0;
+  for (const t of tiers) { starts.push([off, off + t.length]); off += t.length; }
+  for (let guard = 0; guard < 10000; guard++) {
+    let move = null;
+    for (const [lo, hi] of starts) for (let a = lo; a < hi; a++) for (let b = a + 1; b < hi; b++) {
+      if (cur[a].p === cur[b].p) continue;
+      [cur[a], cur[b]] = [cur[b], cur[a]];
+      const v = score(cur);
+      [cur[a], cur[b]] = [cur[b], cur[a]];
+      if (less(v, move ? move.v : best)) move = { a, b, v };
+    }
+    if (!move) break;
+    [cur[move.a], cur[move.b]] = [cur[move.b], cur[move.a]];
+    best = move.v;
+  }
+  // Swaps can stall in a local optimum (3 pools x 4 advancers did), so an exact depth-first search
+  // over each place's orderings follows, pruned whenever a partial vector is already lex-worse than
+  // the best (every count only grows as seeds are added), and stopped after SEED_SEARCH_NODES nodes.
+  const tierOf = [];
+  starts.forEach(([lo, hi], t) => { for (let i = lo; i < hi; i++) tierOf[i] = t; });
+  const used = new Set();
+  const pick = new Array(n);
+  const v = new Array(rounds + 1).fill(0);
+  let nodes = 0;
+  const lexGreater = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false; };
+  const dfs = (a) => {
+    if (++nodes > SEED_SEARCH_NODES) return;
+    if (a === n) { if (less(v, best)) { best = v.slice(); for (let i = 0; i < n; i++) cur[i] = pick[i]; } return; }
+    const [lo, hi] = starts[tierOf[a]];
+    for (let m = lo; m < hi; m++) {
+      if (used.has(m)) continue;
+      const x = base[m];
+      const added = [];
+      for (let b = 0; b < a; b++) if (pick[b].p === x.p) { const r = meetRound(line[a + 1], line[b + 1]) - 1; v[r]++; added.push(r); }
+      const d = Math.abs(m - a) * (n - Math.min(a, m));
+      v[rounds] += d;
+      if (!lexGreater(v, best) && (a + 1 < n || less(v, best))) { used.add(m); pick[a] = x; dfs(a + 1); used.delete(m); }
+      v[rounds] -= d;
+      for (const r of added) v[r]--;
+    }
+  };
+  dfs(0);
+  return { seeds: cur.map((x) => x.name), pools: cur.map((x) => x.p), meetings: best.slice(0, rounds), plain: score(base).slice(0, rounds) };
+}
+
+
 /** Standard single-elimination seed order for a bracket of `size` (1 v size, 2 v size-1, ...). */
 export function seedOrder(size) {
   let order = [1];
@@ -3654,6 +3749,33 @@ export function swissText(players, round, roundNumber) {
 // ---------------------------------------------------------------- Americano
 
 /**
+ * Whether a whist rotation is worth using over the greedy one. Ghost seats sit out whole tables,
+ * so a design can leave courts idle: use it only when its rounds fill, on average, at least 90% of
+ * the courts the greedy search fills (min(courts, floor(n/4))). One ghost (4k+3 players) passes;
+ * two ghosts cost each player 2-3 games over the evening and fall back to greedy
+ * (eval/whist-vs-greedy.txt). 4k+2 players with a stored near-whist design (whist.mjs) use it with
+ * no ghost.
+ */
+/** Lower is better: repeat partnerships first, then the most times one pair meets as opponents, then how many pairs do. */
+function americanoScore(plan) {
+  const n = plan.partner.length;
+  let rep = 0, maxOpp = 0, atMax = 0;
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+    if (plan.partner[i][j] > 1) rep += plan.partner[i][j] - 1;
+    const o = plan.opponent[i][j];
+    if (o > maxOpp) { maxOpp = o; atMax = 1; } else if (o === maxOpp) atMax++;
+  }
+  return rep * 1e6 + maxOpp * 1e4 + atMax;
+}
+
+function whistWorthIt(n, courts, w) {
+  if (w.design.ghosts >= 2) return false;
+  const full = Math.min(courts, Math.floor(n / 4));
+  const games = w.rounds.reduce((s, r) => s + r.matches.length, 0) / w.rounds.length;
+  return games >= 0.9 * full;
+}
+
+/**
  * Rotating-partner doubles ("Americano", social padel / pickleball / badminton nights): every round
  * players are re-paired into teams of two and teams into matches, so each person partners and
  * opposes as many different people as the round count allows. Greedy by round: byes go to whoever
@@ -3661,11 +3783,48 @@ export function swissText(players, round, roundNumber) {
  * partners (heavily), then repeat opponents. Deterministic for a given seed.
  * Returns { rounds: [{ matches: [{ court, a: [i, j], b: [k, l] }], byes: [i] }], partner, opponent }.
  */
-export function americano(players, { courts = 1, rounds = null, seed = 1 } = {}) {
+export function americano(players, { courts = 1, rounds = null, seed = 1, whist = true } = {}) {
   const n = players.length;
   if (n < 4) throw new Error("Americano needs at least 4 players.");
   if (n > 64) throw new Error("Americano supports up to 64 players.");
   if (!(courts >= 1)) throw new Error("Americano needs at least 1 court.");
+  let whistHint = null;
+  if (whist) {
+    // A whist design (whist.mjs): every pair partners exactly once and opposes exactly twice over
+    // the full evening, where the greedy search below repeats partners from 20 players and never
+    // evens out opponents (eval/whist-vs-greedy.txt).
+    const r0 = mulberry32(seed);
+    const order = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(r0() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+    let w = whistRotation(n, { courts, rounds, order });
+    // Fewer courts than tables ("packed"): the whole design runs 2-3x the usual evening, and a
+    // prefix of it measured no better than the greedy search (eval/whist-vs-greedy.txt, 3 courts),
+    // so it is used only when the round count asked for is the whole design; otherwise the plan
+    // says how many rounds the whole design takes (whistHint) and the greedy search runs.
+    if (w && w.design.packed && rounds !== w.design.fullRounds) {
+      const whole = whistRotation(n, { courts, rounds: w.design.fullRounds, order });
+      if (whole && whistWorthIt(n, courts, whole)) whistHint = { rounds: w.design.fullRounds };
+      w = null;
+    }
+    if (w && whistWorthIt(n, courts, w)) {
+      const partner = Array.from({ length: n }, () => new Array(n).fill(0));
+      const opponent = Array.from({ length: n }, () => new Array(n).fill(0));
+      for (const round of w.rounds) for (const m of round.matches) {
+        const [a, b] = m.a, [x, y] = m.b;
+        partner[a][b]++; partner[b][a]++; partner[x][y]++; partner[y][x]++;
+        for (const [p, q] of [[a, x], [a, y], [b, x], [b, y]]) { opponent[p][q]++; opponent[q][p]++; }
+      }
+      const plan = { rounds: w.rounds, partner, opponent, design: w.design };
+      // A short night (a prefix of the design) measured no better than the greedy search, and at
+      // 28 players over 6 rounds slightly worse (eval/whist-vs-greedy.txt, "short nights"), so
+      // below the whole design both are built and the better one kept.
+      if (w.rounds.length < w.design.fullRounds) {
+        const g = americano(players, { courts, rounds: w.rounds.length, seed, whist: false });
+        if (americanoScore(g) < americanoScore(plan)) return g;
+      }
+      return plan;
+    }
+  }
   const roundCount = rounds ?? Math.max(1, n % 4 === 0 && n / 4 <= courts ? n - 1 : n);
   const rng = mulberry32(seed);
   const partner = Array.from({ length: n }, () => new Array(n).fill(0));
@@ -3717,7 +3876,7 @@ export function americano(players, { courts = 1, rounds = null, seed = 1 } = {})
     for (const i of byes) { sat[i]++; lastSat[i] = r; }
     out.push({ matches, byes });
   }
-  return { rounds: out, partner, opponent };
+  return whistHint ? { rounds: out, partner, opponent, whistHint } : { rounds: out, partner, opponent };
 }
 
 /** Check an Americano plan: nobody twice in a round, byes and games within one of even. Returns problems. */

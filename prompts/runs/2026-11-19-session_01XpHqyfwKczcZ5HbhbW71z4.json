@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyfwKczcZ5HbhbW71z4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T03:39:27Z",
+  "ended": "2026-11-19T04:01:36Z",
+  "wall_minutes": 22.33,
+  "tokens_in": 8976475,
+  "tokens_out": 39591,
+  "cost_usd": 3.7193,
+  "tool_calls": 78,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17527",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here sent this session to league-schedule-generator's /join item at the same minute as another session (PR #17526 opened 18 s earlier); claim_check caught it, but only after the claim PR was open."
+    },
+    {
+      "file": "ventures/chant-forge/eval/one-step-rhombus-diag.mjs",
+      "issue": "Its ITEM argument is the archive.org item (gradualesacrosan0000cath), not the GregoBase number the reports name (3421); the first try 404ed. The usage line could say so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Yielded the Start-here row (league-schedule-generator /join) to PR #17526 and took chant-forge's buildable OMR item, whose 'left recently' reason (archive.org refused) no longer held: archive.org answered.",
+      "did": "Retitled the claim PR to the chant-forge work.",
+      "result": "F clef bridge landed with +59 agreeing notes on the tuning lists."
+    },
+    {
+      "file": "ventures/chant-forge/eval/clef-bridge-check.md",
+      "why": "Added the border guard after seeing the tuning lists (leaf 652 staff 2 got worse with the first version), so it is tuned on those pages.",
+      "did": "Re-ran both the tuning and held-out checks with the guard, and said so in the check file.",
+      "result": "Totals unchanged; the held-out pages still show 0 changes."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-chant-forge-a-two-pixel-gap-in-an-f-clef.md",
+    "ventures/chant-forge/eval/clef-bridge-check.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: run_venture_tests.py chant-forge ok (331 tests, 51.6 s); check_posts ok; validate.py ok; venture-preflight run in background (see PR). Tuning lists 24,479 -> 24,538 agreeing; held out 60 leaves / 473 staves 0 changes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "175d03b0-5618-58f6-8cbf-a10aa61cec6f",
+    "transcripts": 1,
+    "first": "2026-11-19T03:39:27Z",
+    "last": "2026-11-19T04:01:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 139,
+        "output": 39591,
+        "thinking": 11627,
+        "cache_read": 8831246,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145090,
+        "api_equivalent_usd": 3.7193,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 139,
+      "output": 39591,
+      "thinking": 11627,
+      "cache_read": 8831246,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145090,
+      "api_equivalent_usd": 3.7193,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 70,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.33,
+      "active_minutes": 22.33,
+      "model_minutes": 6.6,
+      "tool_minutes": 15.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an OMR engineer diagnosing a clef misread, fixing it and running a tuning and a held-out check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 161.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

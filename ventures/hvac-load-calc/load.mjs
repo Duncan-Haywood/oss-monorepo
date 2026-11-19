@@ -28,13 +28,15 @@ const W_PER_M2_TO_BTUH_FT2 = 0.316998;
 const DAY_OF_YEAR_JULY_21 = 202;
 
 export const DEFAULTS = Object.freeze({
-  site: { latitude: 35, elevationFt: 0, heatingOutdoorF: 20, coolingOutdoorF: 95, dailyRangeF: 20, coolingDewPointF: 70, indoorHeatF: 70, indoorCoolF: 75, indoorRH: 50 },
+  site: { latitude: 35, elevationFt: 0, heatingOutdoorF: 20, coolingOutdoorF: 95, dailyRangeF: 20, coolingDewPointF: 70, indoorHeatF: 70, indoorCoolF: 75, indoorRH: 50, annualMeanF: 55, groundAmplitudeF: 20 },
   envelope: {
     wallCavityR: 13, studDepthIn: 3.5, framingFraction: 0.25, wallContinuousR: 0, wallColor: 'medium', wallMass: 'frame',
     ceilingR: 38, roofColor: 'dark', atticRiseF: null,
     floorR: 19, slabF: 0.73,
     windowU: 0.32, windowSHGC: 0.3, interiorShade: 1.0,
     doorU: 0.4,
+    skylightU: 0.55, skylightSHGC: 0.3,
+    soilK: 0.8, basementWallR: 0, basementFloorR: 0,
     ach50: 5, nFactor: 20, ventCFM: 0, ventSensibleRecovery: 0, ventLatentRecovery: 0,
     ductHeatPct: 0, ductCoolPct: 0, supplyDeltaT: 20,
     peopleSensible: 230, peopleLatent: 200,
@@ -52,6 +54,32 @@ const ATTIC_RISE = { light: 20, medium: 28, dark: 35 };
 // hours; masonry damps and delays the swing.
 const WALL_RESPONSE = { frame: { lag: 2, decrement: 0.8 }, masonry: { lag: 6, decrement: 0.35 } };
 const H_OUT = 3.0; // outside surface conductance, Btu/h·ft²·°F (about 17 W/m²K)
+
+// Below-grade heat loss by the path-length method of Latta and Boileau (1969),
+// in the closed form given in ASHRAE Fundamentals (chapter 18 in 2009-2017):
+// heat leaves the inside face of a basement wall at depth z along circular
+// arcs to the ground surface, so a strip from z1 to z2 below grade has an
+// average U-factor
+//   U = 2k / (π (z2 − z1)) × [ln(z2 + 2kR/π) − ln(z1 + 2kR/π)]
+// and a basement floor of shortest width w, z below grade,
+//   U = 2k / (π w) × [ln(w/2 + z/2 + kR/π) − ln(z/2 + kR/π)]
+// with k the soil conductivity (Btu/h·ft·°F) and R the wall or floor's own
+// resistance plus the inside film. Both act on (indoor − ground surface design
+// temperature), where the ground surface design temperature is the annual mean
+// air temperature less the ground surface temperature amplitude.
+const BELOW_GRADE = { concretePerIn: 0.08, wallIn: 8, floorIn: 4 };
+export function belowGradeWallU({ z1Ft, z2Ft, soilK, otherR }) {
+  if (!(z2Ft > z1Ft)) return 0;
+  const a = 2 * soilK * otherR / Math.PI;
+  return (2 * soilK / (Math.PI * (z2Ft - z1Ft))) * (Math.log(z2Ft + a) - Math.log(z1Ft + a));
+}
+export function basementFloorU({ widthFt, depthFt, soilK, otherR }) {
+  if (!(widthFt > 0)) return 0;
+  const a = soilK * otherR / Math.PI;
+  return (2 * soilK / (Math.PI * widthFt)) * (Math.log(widthFt / 2 + depthFt / 2 + a) - Math.log(depthFt / 2 + a));
+}
+export const basementWallOtherR = insulationR => R.filmIn + BELOW_GRADE.wallIn * BELOW_GRADE.concretePerIn + insulationR;
+export const basementFloorOtherR = insulationR => R.filmFloor + BELOW_GRADE.floorIn * BELOW_GRADE.concretePerIn + insulationR;
 
 const R = { filmIn: 0.68, filmOut: 0.17, drywall: 0.45, sheathing: 0.62, siding: 0.62, woodPerIn: 1.25, filmCeiling: 0.61, filmFloor: 0.92, subfloor: 0.94 };
 
@@ -136,7 +164,7 @@ function merge(input) {
 
 const num = (v, name, errs, { min = -Infinity, max = Infinity } = {}) => {
   if (typeof v !== 'number' || !Number.isFinite(v)) { errs.push(`${name} must be a number`); return; }
-  if (v < min || v > max) errs.push(`${name} must be between ${min} and ${max}`);
+  if (v < min || v > max) errs.push(`${name} must be ${max === Infinity ? `${min} or more` : min === -Infinity ? `${max} or less` : `between ${min} and ${max}`}`);
 };
 
 export function validate(input) {
@@ -151,6 +179,8 @@ export function validate(input) {
   num(site.indoorHeatF, 'Indoor heating temperature', errs, { min: 50, max: 80 });
   num(site.indoorCoolF, 'Indoor cooling temperature', errs, { min: 65, max: 85 });
   num(site.indoorRH, 'Indoor relative humidity', errs, { min: 20, max: 70 });
+  num(site.annualMeanF, 'Annual mean outdoor temperature', errs, { min: -20, max: 90 });
+  num(site.groundAmplitudeF, 'Ground surface temperature amplitude', errs, { min: 0, max: 40 });
   if (site.heatingOutdoorF >= site.indoorHeatF) errs.push('Heating design outdoor temperature must be below the indoor heating temperature');
   if (site.coolingDewPointF > site.coolingOutdoorF) errs.push('Cooling design dew point cannot exceed the cooling dry bulb');
   for (const k of ['wallCavityR', 'wallContinuousR', 'ceilingR', 'floorR']) num(envelope[k], k, errs, { min: 0, max: 100 });
@@ -160,6 +190,11 @@ export function validate(input) {
   num(envelope.windowSHGC, 'Window SHGC', errs, { min: 0.05, max: 0.9 });
   num(envelope.interiorShade, 'Interior shade factor', errs, { min: 0.3, max: 1 });
   num(envelope.doorU, 'Door U-factor', errs, { min: 0.05, max: 1.5 });
+  num(envelope.skylightU, 'Skylight U-factor', errs, { min: 0.1, max: 2 });
+  num(envelope.skylightSHGC, 'Skylight SHGC', errs, { min: 0.05, max: 0.9 });
+  num(envelope.soilK, 'Soil conductivity', errs, { min: 0.2, max: 2 });
+  num(envelope.basementWallR, 'Basement wall insulation R', errs, { min: 0, max: 60 });
+  num(envelope.basementFloorR, 'Basement floor insulation R', errs, { min: 0, max: 60 });
   num(envelope.slabF, 'Slab F-factor', errs, { min: 0.05, max: 1.5 });
   num(envelope.ach50, 'ACH50', errs, { min: 0.3, max: 40 });
   num(envelope.nFactor, 'N factor', errs, { min: 5, max: 40 });
@@ -178,7 +213,22 @@ export function validate(input) {
     const n = r.name ? `Room "${r.name}"` : `Room ${i + 1}`;
     num(r.areaFt2, `${n} floor area`, errs, { min: 1, max: 20000 });
     num(r.ceilingFt ?? 8, `${n} ceiling height`, errs, { min: 6, max: 40 });
-    if (!['conditioned', 'slab', 'crawl'].includes(r.floor ?? 'conditioned')) errs.push(`${n} floor must be conditioned, slab or crawl`);
+    if (!['conditioned', 'slab', 'crawl', 'basement'].includes(r.floor ?? 'conditioned')) errs.push(`${n} floor must be conditioned, slab, crawl or basement`);
+    if (r.floor === 'basement') {
+      const b = r.basement || {};
+      num(b.depthFt, `${n} basement depth below grade`, errs, { min: 0, max: 20 });
+      num(b.wallLengthFt ?? 0, `${n} below-grade wall length`, errs, { min: 0, max: 2000 });
+      num(b.widthFt, `${n} basement shortest width`, errs, { min: 4, max: 500 });
+      if (b.depthFt > (r.ceilingFt ?? 8)) errs.push(`${n}: basement depth below grade exceeds the ceiling height`);
+    }
+    (r.skylights || []).forEach((k, j) => {
+      const kn = `${n} skylight ${j + 1}`;
+      num(k.areaFt2, `${kn} area`, errs, { min: 0, max: 1000 });
+      num(k.tiltDeg ?? 0, `${kn} tilt`, errs, { min: 0, max: 90 });
+      if (k.facing != null && !Object.hasOwn(FACINGS, k.facing)) errs.push(`${kn} facing must be one of ${Object.keys(FACINGS).join(', ')}`);
+    });
+    const skyArea = (r.skylights || []).reduce((a, k) => a + (k.areaFt2 || 0), 0);
+    if (skyArea > r.areaFt2) errs.push(`${n}: skylights (${skyArea} ft²) exceed the floor area`);
     if ((r.floor === 'slab')) num(r.slabPerimeterFt ?? 0, `${n} slab perimeter`, errs, { min: 0, max: 2000 });
     num(r.people ?? 0, `${n} people`, errs, { min: 0, max: 100 });
     num(r.applianceBtuh ?? 0, `${n} appliance gain`, errs, { min: 0, max: 50000 });
@@ -216,6 +266,9 @@ export function calculate(input) {
   const atticRise = env.atticRiseF ?? own(ATTIC_RISE, env.roofColor);
   const response = own(WALL_RESPONSE, env.wallMass);
   const dTheat = site.indoorHeatF - site.heatingOutdoorF;
+  // Ground surface design temperature, never above the indoor temperature.
+  const groundF = Math.min(site.indoorHeatF, site.annualMeanF - site.groundAmplitudeF);
+  const dTground = site.indoorHeatF - groundF;
 
   // Design day, hours 1..24 (solar time; the sun is at its highest at 12).
   const hours = Array.from({ length: 24 }, (_, i) => i + 1);
@@ -252,8 +305,8 @@ export function calculate(input) {
 
   const roomResults = rooms.map((r, idx) => {
     const ceilingH = r.ceilingFt ?? 8;
-    const heat = { walls: 0, windows: 0, doors: 0, ceiling: 0, floor: 0, infiltration: 0 };
-    const cool = hours.map(() => ({ walls: 0, windows: 0, windowSolar: 0, doors: 0, ceiling: 0, infiltration: 0, internal: 0 }));
+    const heat = { walls: 0, windows: 0, doors: 0, skylights: 0, ceiling: 0, floor: 0, belowGrade: 0, infiltration: 0 };
+    const cool = hours.map(() => ({ walls: 0, windows: 0, windowSolar: 0, doors: 0, skylights: 0, skylightSolar: 0, ceiling: 0, infiltration: 0, internal: 0 }));
     let windowArea = 0, netWall = 0, shadedSolarSaved = 0;
     for (const w of r.walls || []) {
       const gross = w.lengthFt * (w.heightFt ?? ceilingH);
@@ -276,12 +329,44 @@ export function calculate(input) {
         cool[k].doors += env.doorU * door * (outdoor[k] - site.indoorCoolF);
       });
     }
-    if (r.ceilingToAttic) {
-      heat.ceiling = Uceil * r.areaFt2 * dTheat;
-      hours.forEach((_, k) => { cool[k].ceiling = Uceil * r.areaFt2 * (attic[(k - 1 + 24) % 24] - site.indoorCoolF); });
+    // Skylights: conduction at the skylight U-factor and sun through the glass
+    // on its own tilt and facing (flat when tilt is 0). The light shaft
+    // through the attic is not modelled.
+    let skylightArea = 0;
+    for (const k of r.skylights || []) {
+      const area = k.areaFt2 || 0;
+      if (!(area > 0)) continue;
+      skylightArea += area;
+      const U = k.uFactor ?? env.skylightU, shgc = k.shgc ?? env.skylightSHGC;
+      const tilt = k.tiltDeg ?? 0, az = own(FACINGS, k.facing ?? 'S');
+      heat.skylights += U * area * dTheat;
+      hours.forEach((_, h) => {
+        const i = irradiance(suns[h], az, tilt);
+        cool[h].skylights += U * area * (outdoor[h] - site.indoorCoolF);
+        cool[h].skylightSolar += area * shgc * (i.beam * angleModifier(i.cosIncidence) + (i.diffuse + i.reflected) * DIFFUSE_MODIFIER);
+      });
     }
+    if (r.ceilingToAttic) {
+      const ceilingArea = Math.max(0, r.areaFt2 - skylightArea);
+      heat.ceiling = Uceil * ceilingArea * dTheat;
+      hours.forEach((_, k) => { cool[k].ceiling = Uceil * ceilingArea * (attic[(k - 1 + 24) % 24] - site.indoorCoolF); });
+    }
+    let belowGrade = null;
     if (r.floor === 'slab') heat.floor = env.slabF * (r.slabPerimeterFt ?? 0) * dTheat;
     else if (r.floor === 'crawl') heat.floor = Ufloor * r.areaFt2 * dTheat;
+    else if (r.floor === 'basement') {
+      // Below grade: walls and floor lose heat to the ground surface design
+      // temperature; their cooling gain is taken as zero (the ground is cooler
+      // than the room in summer). Walls above grade go in the room's walls
+      // list with their above-grade height.
+      const b = r.basement;
+      const wallU = belowGradeWallU({ z1Ft: 0, z2Ft: b.depthFt, soilK: env.soilK, otherR: basementWallOtherR(env.basementWallR) });
+      const flU = basementFloorU({ widthFt: b.widthFt, depthFt: b.depthFt, soilK: env.soilK, otherR: basementFloorOtherR(env.basementFloorR) });
+      const wallArea = (b.wallLengthFt ?? 0) * b.depthFt;
+      heat.belowGrade = wallU * wallArea * dTground;
+      heat.floor = flU * r.areaFt2 * dTground;
+      belowGrade = { wallU, floorU: flU, wallAreaFt2: wallArea, groundF };
+    }
     const share = totalExposure > 0 ? exposure[idx] / totalExposure : 0;
     const cfm = infilCFM * share;
     heat.infiltration = sensibleAir * cfm * dTheat;
@@ -295,7 +380,7 @@ export function calculate(input) {
     let peakK = 0; hourlySensible.forEach((v, k) => { if (v > hourlySensible[peakK]) peakK = k; });
     const latent = latentAir * cfm * dGrains + (r.people ?? 0) * env.peopleLatent;
     return {
-      name: r.name || `Room ${idx + 1}`, areaFt2: r.areaFt2, windowArea, netWall, infiltrationCFM: cfm,
+      name: r.name || `Room ${idx + 1}`, areaFt2: r.areaFt2, windowArea, skylightArea, netWall, infiltrationCFM: cfm, belowGrade,
       heating: { ...heat, total: heatTotal },
       cooling: { peakHour: peakK + 1, sensible: hourlySensible[peakK], latent, breakdown: cool[peakK], hourly: hourlySensible, byHour: cool, overhangSavedBtuDay: shadedSolarSaved },
     };
@@ -337,7 +422,7 @@ export function calculate(input) {
     errors: [],
     assumptions: {
       wallU: Uwall, ceilingU: Uceil, floorU: Ufloor, densityRatio: rho, infiltrationCFM: infilCFM, naturalACH: env.ach50 / env.nFactor,
-      volumeFt3: volume, designGrains: dGrains, outdoorGrains: grains(wOut), indoorGrains: grains(wIn), atticRiseF: atticRise,
+      volumeFt3: volume, groundSurfaceF: groundF, designGrains: dGrains, outdoorGrains: grains(wOut), indoorGrains: grains(wIn), atticRiseF: atticRise,
     },
     designDay: hours.map((h, k) => ({ hour: h, outdoorF: outdoor[k], atticF: attic[k], sunAltitude: suns[k].altitude, houseSensible: houseHourly[k] })),
     rooms: roomResults,

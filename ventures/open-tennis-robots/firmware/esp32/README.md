@@ -3292,3 +3292,202 @@ fall in 6-7.5 ms at all is unmeasured. The large misses under 2.5 ms are the fit
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.48 --seed 79 --takes "0.45,1.5,2.35,3.25,4.2,5.1,5.95,6.1,6.6,7.15,7.75,0"
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-eight-j-2026-11-19.jsonl.gz --grids "0,2,3,4,5,6,8;0,2,3,4,5,6,7,8"
+
+## Short takes: the fit sees them, the grid's end does not (2026-11-19, after "An eight-point take grid"; the shipped grid kept by its pre-registered rule)
+
+**The item.** On J to L every build off by more than 1 ms had a take of 2.35 ms or less, and the section above
+called those misses the fit's. Are they?
+
+**How it was checked.** `tests/take_short_blind.py` refits every surveyed wheel of J to L every 0.25 ms (the board's
+fit and depth, cached in `eval/take-dense-jkl-2026-11-19.jsonl.gz`) and sums the wheels the board keeps. The
+prediction (the summed curve's least within 0.5 ms of a 1.5 ms take on at least 12 of 18 builds) and a rule for an
+end-of-grid parabola (`end_pick`) were committed first (a541b2a93).
+
+**What it found.** The fit is not blind: the summed least is within 0.5 ms of true on 13 of 18 1.5 ms builds, 15 of 18
+at 2.35 ms and 197 of 216 overall. The curve is a flat shelf from 0 to about a millisecond below the take, then a
+valley; with points at 0, 2 and 3 ms the parabola reads a 1.5 ms valley as 0 or 1 and leans 2.35 ms takes into the
+shelf. `end_pick` failed (179 against 185 within 0.5 ms; 10 instant builds moved off 0 against 3). Chosen afterwards
+on J to L, a grid of 0, 1.5, 2.5, 3-8 ms scored 196 within 0.5 ms and 9 large misses against 185 and 16.
+
+**Held out.** Set M (lag 0.55 s, seed 97; 66 drills, takes stratified under 3 ms plus three checks), its rule
+committed before capture (9ead6721c): within 0.5 ms 48 against 41, large misses 3 against 11, mean error 0.373
+against 0.523 ms, checks 18 each, but one instant build read 0.80 ms (share 0.99, not advised) where the shipped
+grid read 0. The instant-read clause failed, so **`TAKE_SURVEY_GRID_US` stays at 0, 2, 3, 4, 5, 6, 7, 8 ms**.
+Everything is in `eval/take-short-2026-11-19.md`. `tests/take_survey_pick.py --score` reads seven-candidate captures
+again (it had printed only its header since the eight-point grid).
+
+**Not known.** All simulated, one seed a set. Whether real contacts are under 3 ms at all is unmeasured. A fresh set
+with the instant clause written on advice, not on the rounded read, is the next test; M cannot count toward it.
+
+## The ball hold on a wheel faster than told (2026-11-19, after "Short takes"; `LOOP_BALL_GAIN = "down"` on by its pre-registered rule)
+
+**The item.** "A ball charged the integrator" left one cost of the ball hold: on 0.2 s wheels, ball undershoots over
+2% went from 7 to 17 of 72, every one a wheel whose free speed is 11,000 rpm while the board is told
+`WHEEL_RPM_FULL` 9,000. The plant is 1.22 times stiffer than the loop assumes, so the proportional term overshoots on
+its own once the integrator is held.
+
+**The change.** The integrator already knows the mismatch: at a steady wheel the command is (ff + i), so
+(ff + i) / ff is the told free speed over the true one. `WheelLoop.ball()` now latches that ratio (clamped 0.5-1.0)
+when the stroke starts and scales both gains by it until the ball hold ends. A wheel 22% faster than told gets gains
+about 18% softer for its recovery; a wheel slower than told keeps the gains as told. Nothing changes outside a ball's
+recovery, and a build whose `WHEEL_RPM_FULL` is measured sees a ratio of about 1 and no change at all.
+
+**Two rules, both written before their runs** (`eval/ball-gain-rule-2026-11-19.md`; `tests/ball_gain_sweep.py`,
+same trial as `tests/ball_recovery_sweep.py`, four plants each). Five clauses against the loop without it: undershoots
+over 2% fall, mean time until the gate passes again no more than 0.05 s longer, no more balls over 3% off at the gate,
+worst overshoot no more than 0.5 points higher, no case lost.
+
+1. Scaling both ways (0.5-1.5) passed the 216-case development set (19 to 10 undershoots) and **failed** a 96-case
+   held-out set, 13 to 15: wheels slower than told, given stiffer gains, undershot more (0.15 s at 7,500 rpm: 1 to 3).
+   Kept off (`eval/ball-gain-sweep-2026-11-19.txt`).
+2. Capped at 1 ("down"), judged on the development set and a fresh 96-case set fixed after the first outcome
+   (eval/ball-gain-down-sweep-2026-11-19.txt); the first held-out set is reported, not judged:
+
+| set | undershoot > 2%, off / down | worst undershoot | mean back to the gate | worst overshoot | > 3% at the gate |
+| --- | --- | --- | --- | --- | --- |
+| development, 216 | 19 / 9 | 4.5% / 3.6% | 0.89 / 0.89 s | 6.0% / 4.8% | 1 / 0 |
+| fresh, 96 | 18 / 13 | 5.0% / 4.0% | 0.86 / 0.82 s | 6.4% / 5.4% | 0 / 0 |
+| first held-out, 96 (not judged) | 13 / 13 | 4.6% / 3.8% | 0.73 / 0.71 s | 5.7% / 4.8% | 0 / 0 |
+
+Every clause passed on both judged sets, so `LOOP_BALL_GAIN` ships as "down". On the fast wheels of the fresh set the
+mean recovery fell 0.10-0.12 s (0.18 s wheel at 10,800 rpm: 0.93 to 0.83 s); the 0.8 s wheels at 11,000 rpm took
+0.05 s longer on the development set, the one cell that got slower.
+
+**Not known.** The simulator's first-order wheel and ESC, as before; the held-out sets vary the pairs, lags and free
+speeds but not the ball model. What is left of the undershoot on the fastest wheels (10 of 24 cases at 0.15 s and
+10,500 rpm still over 2%) is not the gain: measuring `WHEEL_RPM_FULL` on the build is still the fix. Test:
+`test_ball_gain_softens_only_a_wheel_faster_than_told` (tests/test_host.py).
+
+## A 432-case replication of the faster-than-told ball hold (2026-11-19, after "The ball hold on a wheel faster than told"; `LOOP_BALL_GAIN` unchanged)
+
+**The item.** "down" was judged on the 216-case development grid and one 96-case fresh set; its first held-out set came
+out 13 to 13. A second session built the same idea in parallel (kp scaled continuously in the hold, ki untouched,
+`LOOP_BALL_KP_LEARN`, passed its own nine-clause rule) and found #17530 on `main` when it came to merge. It dropped its
+copy and ran the shipped "down" on its unused grid instead.
+
+**How it was checked.** `tests/ball_recovery_sweep.py --ball-gain off,down --heldout`: 432 cases (four plants, wheel
+lags 0.15 / 0.25 / 0.3 s, free 8,000 / 10,000 / 10,500 / 12,000 rpm, nine pairs). #17530's five clauses, a prediction
+and two identity checks were committed before the run (a0154030e). Everything is in `eval/ball-kp-learn-2026-11-19.md`.
+
+| | False | "down" |
+| --- | --- | --- |
+| undershoots over 2%: all 432 / faster than told (324) | 126 / 122 | 76 / 72 (predicted 65-85) |
+| gate passes again, mean / slowest | 0.817 / 2.78 s | 0.760 / 1.97 s |
+| over 3% off at the gate / worst overshoot | 4 / 6.3% | 2 / 4.9% |
+
+Every clause held. The 8,000 rpm rows came out identical, and so did the False rows against the session's earlier run.
+The parallel kp-only design scored within a case of "down" everywhere (73 faster-than-told undershoots, 0.769 s), so
+scaling ki as well buys little either way. **`LOOP_BALL_GAIN` stays "down".** 0.15 s wheels behind the 80 ms ESC
+still dip (53 of 144 at 0.15 s), which is the ESC's lag.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/ball_recovery_sweep.py --band 0.005 --ball-gain off,down --heldout --rows rows.jsonl
+
+## Short takes on a second held-out set (2026-11-19, after "Short takes: the fit sees them, the grid's end does not"; 1.5 and 2.5 ms in place of 2 by its pre-registered rule)
+
+**The item.** On set M the grid 0, 1.5, 2.5, 3-8 ms failed only its instant-read clause, on a build the Pi would not
+have advised. Does it pass a fresh set with that clause written on advice, decided before the capture?
+
+**How it was checked.** Set N (wheel lag 0.62 s, seed 101; 66 drills, takes 0.2-2.75 ms at points M did not use,
+3.3, 4.6, 7.4 ms as checks, and an instant build). The prediction and a four-clause rule (at least 4 more builds
+within 0.5 ms, no more off by more than 1 ms, no more instant builds advised, checks no worse) were committed first
+(7348979a6); a fail would have retired the candidate.
+
+**What it found.** Within 0.5 ms 45 of 66 against 40, off by more than 1 ms 6 against 6, no instant build advised or
+read off 0 on either, checks 16 each. Every clause held, so **`TAKE_SURVEY_GRID_US` is now 0, 1.5, 2.5, 3, 4, 5, 6,
+7, 8 ms** (`controller.py`, `config.py`); `host.TAKE_SURVEY_MS` and `protocol.TAKE_SURVEY_TIMES` (9) follow, and the
+Pi still decodes the eight- and seven-candidate frames of older boards. The prediction's "fewer large misses" did not
+happen (6 each). Set N captured again with the new grid live on the board: 49 of 66 within 0.5 ms against the old
+board's 39, large misses 3 against 7, checks 17 against 16.
+
+**The cost.** One more refit a wheel. The Pi's 12 s hold a ball (`host.TAKE_WAIT_S`) cut the unit test's surveys
+short, so it is now 14 s; on set N the balls were held 140.4 s a drill against 127.3 s (+10%), no survey cut. The
+TAKE_SURVEY frame is 26 bytes. Everything is in `eval/take-short-n-2026-11-19.md`.
+
+**Not known.** All simulated. Whether real contacts are under 3 ms is unmeasured. The large misses left are 1.4-1.9 ms
+takes reading 0.
+
+## Short takes that read 0: no ball saw them (2026-11-19, after "Short takes on a second held-out set"; the bound named in the Pi's advice by its pre-registered rule)
+
+**The item.** Set N's large misses were 1.4-1.9 ms takes reading 0, put down to "the summed curve's shelf hides the
+valley". NEXT.md asked for a check of those builds' curves before any new grid or pick.
+
+**What the curves say.** `tests/take_shelf_bound.py --trace` on the stored dense refits (J to L, M, N): of the 17
+builds at 1-2.5 ms off by more than 1 ms, 11 had no kept wheel whose fit at the true take beat the step's by 20% of
+its squared rms, and 3 had one. There is no valley under the shelf. With one tach pulse a revolution, a take shorter
+than a revolution moves a wheel's fit only when its contact straddles an edge ("Take-blind rows traced"), and those
+builds' balls happened not to. Instant builds' curves are flat to 1.5-2.25 ms on 11 of 30, the same shape, so no grid
+or pick can separate the two from those balls.
+
+**What shipped.** What the balls do give is an upper bound: the first candidate whose mean rms is more than 2% over
+the step's. When the Pi says TAKE_US = 0 it now names it (`host.take_survey_bound`, `TAKE_BOUND_TOL`): "these balls
+cannot tell an instant take from one up to X ms ... more balls narrow it". Chosen on the five stored sets (145 of 145
+told TAKE_US = 0 had the true take at most X), then held out on set O (lag 0.42 s, seed 109, 66 drills, committed
+first in 020e567c9): 47 of 49 within the bound (95.9%, the rule asked 95%) and the bound at 1.5 ms on 4 of 6 instant
+builds (half asked). Both held. The two misses were 2.0 ms takes at a 16-19 ppm step, where a whole ppm is 5-6%; a
+ppm floor on the tolerance is NEXT.md's next test. Set O also had two 5 ms builds told "keep 0" (best fit only 9-22%
+under the step's); they now read "up to 6 ms" and "up to 7 ms". No board number or verdict changed. Everything is in
+`eval/take-bound-o-2026-11-19.md`.
+
+## A ppm floor on the bound (2026-11-19, after "Short takes that read 0: no ball saw them"; shipped by its pre-registered rule)
+
+**The item.** The TAKE_US = 0 bound held on set O by one build; both misses were 2.0 ms takes at a 16-19 ppm step,
+where the frame's whole-ppm rounding is 5-6% and clears the 2% bar alone.
+
+**What shipped.** A candidate now counts as worse than the step only when it is more than 2% and at least 2 ppm over
+it (`host.TAKE_BOUND_FLOOR_PPM`). Chosen on J to L, M, N and O (2 ppm is the smallest floor covering all of O, at a
+looser bound on 3 of 30 instant builds), rule committed in 881d6c775, then held out on set P (lag 0.58 s, seed 113,
+66 drills): 48 of 48 builds told TAKE_US = 0 had the true take within the bound, against 46 of 48 at 2% alone, and the
+bound stayed 1.5 ms on 4 of 6 instant builds. Five of P's bounds moved up 0.5-2.5 ms, none down. Above about 100 ppm
+of step rms nothing changes. Everything is in `eval/take-bound-floor-p-2026-11-19.md`.
+
+## More tach pulses a revolution (2026-11-19, after "A ppm floor on the bound"; tested host-side, closed by its pre-registered rule)
+
+**The item.** With one magnet a revolution a take shorter than a revolution shows only on balls whose contact
+straddles an edge ("Short takes that read 0"). Would two or four magnets multiply the balls that see a 1-2.5 ms take?
+
+**What was built to ask.** `drop_from_commands_steps` takes `per` (periods a revolution) and `angles` (each period's
+share of a revolution): spans stay the real times, each period's speed is its share over its time, and the window and
+anchor stay counted in revolutions; `per=1` is the old fit exactly. `magnet_spacing` learns uneven magnets from a
+steady stretch, each period over the mean of the revolutions either side of it (exact on a linear speed change).
+`tests/tach_pulses_sweep.py` refits the same simulated ball with 1, 2 and 4 magnets (0.5 degree placement error, the
+1/8 us capture tach, the take survey's depth), so the control is identical and only the tach differs; 256 balls.
+
+**What it found.** Four magnets "saw" 46 of 128 short-take balls against 38 (the rule asked twice as many) and the
+per-ball bound held on 81% (it asked 95%), so **the board keeps one pulse a revolution**. Instant balls read off 0
+less often (7 of 32 against 16), and spacing must be learnt: taken as even, four magnets misfit by 1,500-3,200 ppm
+and saw 1 ball. Not asked: the ball's least within 0.5 ms went from 51 to 116 of 224, mostly at 3-6 ms takes and high
+speed, but the step's drop (TAKE_US = 0) got worse, 0.11% to 0.55% mean error (1.12% at 6,500 rpm), because short
+periods resolve the take's shape. Not judged either: with 0.5 us of sensor jitter one magnet saw 9 short-take balls and four 24, with a 3.5 ms median
+bound against none, so a jittery tach is where more magnets would pay. Everything is in
+`eval/tach-pulses-2026-11-19.md`.
+
+**Not known.** Point magnets on a first-order wheel; a real Hall edge's width and hysteresis would move each share
+with speed. Reopening it needs a survey-level test written first and an answer for the step's drop.
+
+
+## One informative wheel, counted by drill (2026-11-19, after "More tach pulses a revolution"; `TAKE_SURVEY_MIN_KEPT` kept at 0 by its pre-registered rule)
+
+**The item.** "The take survey's verdict needs two informative wheels" left the minimum at 0 and asked for drill-level
+counts over more fresh sets: prefixes of one drill are near-repeats, so 12 wrong one-wheel verdicts were two wrong
+drills.
+
+**A scorer fix first.** `tests/take_survey_kept.py` rescored stored rows on the board's grid, which went to nine points
+this morning, so it raised an IndexError on every stored set (seven candidates). It now takes each row's grid from its
+length (`GRIDS`: 7, 8 or 9) and reproduces the earlier held-out file line for line; `tests/test_take_survey_kept.py`
+covers it. `--drills` counts by drill and says what a minimum of two spares (a drill that told a wrong time with no
+minimum and never with it) and silences (a drill whose right advice it removes).
+
+**Design, then held out.** On the thirteen stored sets a one-kept-wheel verdict was wrong in 2 of 16 drills against 10
+of 528 on two or more; the minimum spared 2 and silenced 6. The rule, committed before capture (a9af0c377), asked six
+fresh jittery-tach sets (Q to V, lags 0.34-0.74 s, seeds 401-433, 432 drills) for at least 8 one-wheel drills, a
+wrong share three times the rest's with at least 2 wrong, at most 3 silenced per spared, and no loss at the drill's
+end. Only **6 of 432** drills ever rested a verdict on one kept wheel (1 wrong, against 1 of 149 on two or more), so
+the first clause was void and **`host.TAKE_SURVEY_MIN_KEPT` stays 0**. The other clauses held (1 spared, 0
+silenced, 134 right at the drill's end either way). The wrong one: set U's 6 ms build at 3 us of jitter read 8 ms on
+its one wheel from ball 16 to 19, then nothing at the end. Everything is in
+`eval/take-survey-kept-drills-2026-11-19.md`.
+
+**Not known.** Over all nineteen sets one-wheel verdicts were wrong in 3 of 22 drills and the rest in 11 of 677, the
+direction the minimum assumes, but they occur in about one drill in sixty, so the simulator cannot settle it and it
+barely matters there. A real wheel's blind rows will not tie as exactly, which may make one-wheel verdicts more or less
+common; the question reopens on real logs.

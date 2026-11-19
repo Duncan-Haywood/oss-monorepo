@@ -1,0 +1,48 @@
+name: icu-message-check
+description: >-
+  A free browser tool and Node CLI for developers and localisation teams:
+  paste an ICU MessageFormat string or drop JSON/ARB translation files and
+  get syntax errors with their column, apostrophes that turn a placeholder
+  into literal text, the CLDR plural categories each locale needs (with the
+  numbers that would fall to "other"), and placeholders or select options a
+  translation dropped or renamed. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: >-
+      Developers who ship to Slavic, Arabic or French-speaking users search
+      for why a plural shows the wrong form or why "{name}" prints literally,
+      and a page that answers for their own file is used more than the ICU
+      documentation; measured as message_checked and files_checked events
+      once the page is indexed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Teams wire the CLI into CI (it exits 1 on an error, or on warnings with
+      --strict) because translation files arrive from vendors after code
+      review, producing return use with no action from this portfolio.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No organic traffic or CLI engagement after being listed and indexed for a
+    fair run (portfolio/usage/README.md's "fair run" definition).
+  - MessageFormat 2 (Unicode MF2) replaces ICU MessageFormat 1 in the major
+    libraries and nobody adds MF2 support here.
+
+links:
+  production: https://marisstella.app/icu-message-check/
+  analytics: null

@@ -62,6 +62,24 @@ export function numbersIn(s) {
   return (String(s).match(/\d[\d,.:]*\d|\d/g) || []).map((n) => n.replace(/,/g, "").replace(/[.:]$/, ""));
 }
 
+const NUMBER_WORDS = /\b(eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundreds?|thousands?|millions?|billions?|dozens?|double[sd]?|triple[sd]?|quadruple[sd]?|twice|percent)\b/gi;
+
+/**
+ * The figures a text claims: digit numbers, digits with a % or x ("90%",
+ * "3x", which the 1 to 10 list-count allowance does not cover), and number
+ * words from eleven up ("two hundred", "doubled"). Quality audit round 76
+ * found "We now supply two hundred cafes" and "3x revenue" kept.
+ * @param {string} s
+ */
+export function claimsIn(s) {
+  const t = String(s);
+  const out = numbersIn(t);
+  // Only 1 to 10 need the suffixed token: a bigger bare number is already checked as itself.
+  for (const m of t.matchAll(/\b(10|[1-9])\s*(%|x\b|×)/gi)) out.push(m[1].replace(/,/g, "").replace(/\.$/, "") + (m[2] === "%" ? "%" : "x"));
+  for (const m of t.matchAll(NUMBER_WORDS)) out.push(m[1].toLowerCase().replace(/s$/, "").replace(/^(double|triple|quadruple)[d]?$/, "$1"));
+  return out;
+}
+
 /**
  * Numbers the model may use: everything in the interview and the starting
  * draft, plus 1 to 10 (list counts, "3 steps", thread numbering).
@@ -70,9 +88,12 @@ export function numbersIn(s) {
 function allowedNumbers(a, d) {
   const set = new Set(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]);
   const src = [a.about, a.audience, a.problem, a.outcome, a.offer, a.link, ...a.stories, ...a.opinions, ...a.tips, ...a.proof, ...a.keywords, a.name, d.text, material(d.angle, a)].join(" ");
-  for (const n of numbersIn(src)) set.add(n);
+  for (const n of claimsIn(src)) set.add(n);
   return set;
 }
+
+// A link with or without a scheme: "https://x.com", "www.x.com", "juniper.example/tasting".
+const LINK = /https?:\/\/|\bwww\.|\b[a-z0-9-]+\.(?:com|org|net|io|co|app|dev|me|ly|shop|store|biz|info|example|uk|ca|au|de|fr)(?:\/|\b)/i;
 
 /** Pull the JSON object out of a model reply. @param {string} text */
 export function parseReply(text) {
@@ -110,9 +131,9 @@ export function vetPiece(piece, d, a) {
   if (!changed) return { draft: d, kept: false, reason: "empty" };
   const allowed = allowedNumbers(a, d);
   const all = [...Object.values(fields), ...parts].join(" ");
-  const invented = numbersIn(all).filter((n) => !allowed.has(n));
+  const invented = claimsIn(all).filter((n) => !allowed.has(n));
   if (invented.length) return { draft: { ...d, warnings: [...d.warnings, `AI draft discarded: it added numbers not in your interview (${[...new Set(invented)].slice(0, 3).join(", ")}).`] }, kept: false, reason: "invented-number" };
-  if (d.format === "reddit-post" && /https?:\/\//.test(all) && !/https?:\/\//.test(d.text)) return { draft: d, kept: false, reason: "link-on-reddit" };
+  if (d.format === "reddit-post" && LINK.test(all) && !LINK.test(d.text)) return { draft: d, kept: false, reason: "link-on-reddit" };
   const out = fitDraft({ ...d, fields, parts, source: "model", warnings: d.warnings.filter((w) => !/^Has a \[bracketed\]|^Contains words from your banned list/.test(w)) }, a);
   return { draft: out, kept: true };
 }

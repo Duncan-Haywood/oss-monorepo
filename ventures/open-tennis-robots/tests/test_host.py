@@ -410,6 +410,34 @@ class WheelLoopTest(unittest.TestCase):
         moved.update(4000, 2100, 10)               # the Pi sent the next shot's speeds: the hold ends
         self.assertEqual(moved.recover, 0)
 
+    def test_ball_gain_softens_only_a_wheel_faster_than_told(self):
+        # firmware/esp32/README.md "The ball hold on a wheel faster than told": the stroke latches (ff + i) / ff and
+        # scales the gains by it, capped at 1 ("down"), until the hold ends
+        fast = controller.WheelLoop(9000, ball_gain="down", low_rpm=0)
+        fast.update(3000, 3000, 10)
+        fast.i = -0.2 * 3000 / 9000                 # the integrator learned a wheel 1.25x faster than told
+        fast.ball()
+        self.assertAlmostEqual(fast.gain, 0.8)
+        cmd = fast.update(3000, 2000, 10)
+        self.assertAlmostEqual(cmd, 3000 / 9000 + 0.8 * fast.kp * 1000 + fast.i, places=9)
+        fast.update(3000, 3000, 10)                 # back at target: the hold ends, so do the scaled gains
+        self.assertEqual((fast.recover, fast.gain), (0, 1.0))
+        slow = controller.WheelLoop(9000, ball_gain="down")
+        slow.update(3000, 3000, 10)
+        slow.i = 0.2 * 3000 / 9000                  # slower than told: "down" leaves its gains alone
+        slow.ball()
+        self.assertEqual(slow.gain, 1.0)
+        both = controller.WheelLoop(9000, ball_gain=True)
+        both.update(3000, 3000, 10)
+        both.i = 0.2 * 3000 / 9000
+        both.ball()
+        self.assertAlmostEqual(both.gain, 1.2)
+        off = controller.WheelLoop(9000, ball_gain=False)
+        off.update(3000, 3000, 10)
+        off.i = -0.1
+        off.ball()
+        self.assertEqual(off.gain, 1.0)
+
     def test_braking_does_not_wind_the_integrator(self):
         # README "A ball charged the integrator", braking: while the ramp lowers the target the integrator holds, and
         # it never leaves +-LOOP_I_FF_MAX of the feedforward
@@ -2052,18 +2080,18 @@ class SpreadTakeTest(unittest.TestCase):
 
 class TakeSurveyTest(unittest.TestCase):
     """2026-11-17, firmware/esp32/README.md "The contact time surveyed on the board": with SURVEY_TAKE on, the board
-    refits each launched wheel at eight contact times (seven before 2026-11-19), the TAKE_SURVEY frame carries the sums to the Pi, and the Pi says
+    refits each launched wheel at nine contact times (seven before 2026-11-19, then eight that day), the TAKE_SURVEY frame carries the sums to the Pi, and the Pi says
     which TAKE_US the balls pick."""
 
     def test_frames_round_trip(self):
         (cmd, vals), = list(P.Decoder().feed(P.encode(P.SURVEY_TAKE, 1)))
         self.assertEqual((cmd, vals), (P.SURVEY_TAKE, (1,)))
-        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 650, 620, 600, 590, 588, 610, 640, 9)
+        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 640, 625, 620, 600, 590, 588, 610, 640, 9)
         (cmd, vals), = list(P.Decoder().feed(frame))
         self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 5 + P.TAKE_SURVEY_TIMES))
         self.assertEqual(vals[-1], 9)                              # wheels summed (2026-11-18)
         self.assertEqual(len(controller.TAKE_SURVEY_GRID_US), P.TAKE_SURVEY_TIMES)
-        self.assertEqual(tuple(g // 1000 for g in controller.TAKE_SURVEY_GRID_US), host.TAKE_SURVEY_MS)
+        self.assertEqual(tuple(g / 1000 for g in controller.TAKE_SURVEY_GRID_US), host.TAKE_SURVEY_MS)
 
     def test_advice(self):
         sv = {"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0,
@@ -2083,6 +2111,38 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("about 7 ms or longer", host.take_survey_advice(end))
         self.assertIn("set TAKE_US = 8000", host.take_survey_advice(end))
         self.assertIn("already matches", host.take_survey_advice(dict(end, board_ms10=80)))
+
+    def test_instant_verdict_names_its_bound(self):
+        # 2026-11-19 (README "Short takes that read 0: no ball saw them"): a TAKE_US = 0 verdict names the first
+        # candidate that fits clearly worse than the step, the longest take these balls cannot tell from an instant one
+        shelf = {"wheels": 22, "least_ms10": 0, "refined_ms10": 0, "board_ms10": 0,
+                 "rms_ppm": [100, 100, 112, 128, 160, 200, 250, 300, 350]}
+        self.assertEqual(host.take_survey_bound(shelf), 2.5)
+        a = host.take_survey_advice(shelf)
+        self.assertIn("keep TAKE_US = 0", a)
+        self.assertIn("up to 2.5 ms", a)
+        self.assertIn("up to 1.5 ms", host.take_survey_advice(dict(shelf, rms_ppm=[100, 103] + [150] * 7)))
+        # a share over the margin is told TAKE_US = 0 too, and carries the bound
+        flat = dict(shelf, least_ms10=30, refined_ms10=26, rms_ppm=[100, 99, 95, 90, 101, 120, 150, 180, 200])
+        self.assertIn("up to 5 ms", host.take_survey_advice(flat))
+        # every candidate within the tolerance: the balls bound nothing, and the line says nothing more
+        self.assertIsNone(host.take_survey_bound(dict(shelf, rms_ppm=[100] * 9)))
+        self.assertNotIn("up to", host.take_survey_advice(dict(shelf, rms_ppm=[100] * 9)))
+        # older frames read on their own grid (eight: 0, 2-8 ms)
+        self.assertEqual(host.take_survey_bound(dict(shelf, rms_ppm=[100, 101, 130, 140, 150, 160, 170, 180])), 3.0)
+        # a pick the Pi acts on is not given a bound
+        self.assertNotIn("up to", host.take_survey_advice(dict(shelf, least_ms10=40, refined_ms10=40,
+                                                               rms_ppm=[100, 90, 80, 50, 30, 60, 90, 120, 150])))
+        # a ppm floor (2026-11-19, README "A ppm floor on the bound"): at a 16 ppm step, 17 (at 2.5 ms) is 6% over but one ppm
+        # of the frame's rounding, so the bound moves on to the first candidate at least 2 ppm over
+        low = dict(shelf, rms_ppm=[16, 16, 17, 19, 21, 25, 30, 35, 40])
+        self.assertEqual(host.take_survey_bound(low), 3.0)
+        self.assertIn("up to 3 ms", host.take_survey_advice(low))
+        import take_shelf_bound
+        for rms in ([100, 100, 112, 128, 160, 200, 250, 300, 350], [100, 103] + [150] * 7, [100] * 9,
+                    [16, 16, 17, 19, 21, 25, 30, 35, 40]):
+            self.assertEqual(host.take_survey_bound(dict(shelf, rms_ppm=rms)),
+                             take_shelf_bound.bound_ms(rms, host.TAKE_SURVEY_MS))
 
     def test_verdict_needs_two_summed_wheels(self):
         # 2026-11-18, README "The take survey's verdict needs two informative wheels": with the minimum at 2, 24 wheels
@@ -2123,22 +2183,30 @@ class TakeSurveyTest(unittest.TestCase):
 
     def test_seven_candidate_frame_still_reads(self):
         # firmware from 2026-11-18 to 2026-11-19 sends seven candidates (no 7 ms) and the summed-wheel byte
-        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][0], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112, 9)
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][1], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112, 9)
         self.assertEqual(link.take_survey["kept"], 9)
         self.assertEqual(link.take_survey["rms_ppm"], [136, 140, 119, 98, 95, 50, 112])
         self.assertIn("set TAKE_US = 5500", host.take_survey_advice(link.take_survey))
 
-    def test_eight_candidate_frame_reads(self):
-        frame = P.encode(P.TAKE_SURVEY, 24, 70, 68, 0, 136, 140, 119, 98, 95, 70, 50, 112, 9)
-        link = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 70, 68, 0, 136, 140, 119, 98, 95, 70, 50, 112, 9)
-        self.assertEqual(len(frame), 4 + 1 + 2 * 3 + 2 * 8 + 1)
+    def test_eight_candidate_frame_still_reads(self):
+        # firmware on 2026-11-19 before the short-take grid sends eight candidates (0, 2-8 ms) and the summed-wheel byte
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][0], 24, 70, 68, 0, 136, 140, 119, 98, 95, 70, 50, 112, 9)
         self.assertEqual(link.take_survey["kept"], 9)
-        self.assertEqual(link.take_survey["rms_ppm"][-2:], [50, 112])
+        self.assertEqual(link.take_survey["rms_ppm"], [136, 140, 119, 98, 95, 70, 50, 112])
         self.assertIn("set TAKE_US = 7000", host.take_survey_advice(link.take_survey))
+
+    def test_nine_candidate_frame_reads(self):
+        # the short-take grid (2026-11-19, README "Short takes on a second held-out set"): 0, 1.5, 2.5, 3-8 ms
+        frame = P.encode(P.TAKE_SURVEY, 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140, 150, 9)
+        link = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140, 150, 9)
+        self.assertEqual(len(frame), 4 + 1 + 2 * 3 + 2 * 9 + 1)
+        self.assertEqual(link.take_survey["kept"], 9)
+        self.assertEqual(link.take_survey["rms_ppm"][:2], [136, 60])
+        self.assertIn("set TAKE_US = 1500", host.take_survey_advice(link.take_survey))
 
     def test_older_frame_still_reads(self):
         # firmware before 2026-11-18 sends the frame without the summed-wheel byte: it decodes, and the Pi has no count
-        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY][1], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
+        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY][2], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
         b = bytes([P.TAKE_SURVEY, len(body)]) + body
         frame = bytes([P.SYNC]) + b + bytes([P.crc8(b)])
 
@@ -2186,9 +2254,10 @@ class TakeSurveyTest(unittest.TestCase):
         # 2026-11-18, README "Take-blind rows traced": take-blind wheels fit every candidate alike and well; a wheel
         # whose take straddles a revolution's edge tells them apart but fits worse at every candidate. SURVEY_TRIM's
         # 5 x the median best drops it and the pick falls to the step; the take survey sums every wheel.
-        blind = [(3e-6 + 1e-7 * i) ** 2 for i in range(8)]          # 3.0-3.7 ppm, the step least
-        straddle = [(300e-6 - 40e-6 * i) ** 2 for i in range(6)] + [(200e-6) ** 2] * 2   # 6 ms (index 5) at 100 ppm
-        for trim, pick, dropped in ((None, 0, 1), (controller.TAKE_SURVEY_TRIM, 5, 0)):
+        n, k = len(controller.TAKE_SURVEY_GRID_US), controller.TAKE_SURVEY_GRID_US.index(6000)
+        blind = [(3e-6 + 1e-7 * i) ** 2 for i in range(n)]          # 3.0-3.8 ppm, the step least
+        straddle = [(300e-6 - 40e-6 * i) ** 2 for i in range(k + 1)] + [(200e-6) ** 2] * (n - k - 1)   # 6 ms least
+        for trim, pick, dropped in ((None, 0, 1), (controller.TAKE_SURVEY_TRIM, k, 0)):
             rs = controller.ResidualSurvey(controller.TAKE_SURVEY_GRID_US, trim)
             for _ in range(10):
                 rs.add(blind)
@@ -2204,8 +2273,9 @@ class TakeSurveyTest(unittest.TestCase):
         # same to every sum, so it cannot move the pick but pulls the best / step share toward 1. Leaving such wheels
         # out (TAKE_SURVEY_BLIND) keeps the pick and sharpens the share; a wheel that tells them apart stays in.
         grid = controller.TAKE_SURVEY_GRID_US
-        blind = [(30e-6 * (1 + 1e-3 * i)) ** 2 for i in range(8)]   # 30 ppm, every candidate within 0.7% of the step
-        tells = [(60e-6 - 8e-6 * i) ** 2 for i in range(6)] + [(40e-6) ** 2] * 2   # 6 ms (index 5) at 20 ppm, step 60
+        k = grid.index(6000)
+        blind = [(30e-6 * (1 + 1e-3 * i)) ** 2 for i in range(len(grid))]   # 30 ppm, every candidate within 0.8% of the step
+        tells = [(60e-6 - 7e-6 * i) ** 2 for i in range(k + 1)] + [(40e-6) ** 2] * (len(grid) - k - 1)   # 6 ms at 18 ppm
         shares = {}
         for b in (0, controller.TAKE_SURVEY_BLIND):
             rs = controller.ResidualSurvey(grid, 0, b)
@@ -2214,7 +2284,7 @@ class TakeSurveyTest(unittest.TestCase):
             for _ in range(3):
                 rs.add(tells)
             n, least, _, rms = rs.report(100)
-            self.assertEqual((n, least), (23, grid[5] // 100))     # every wheel counts as surveyed; the pick holds
+            self.assertEqual((n, least), (23, grid[k] // 100))     # every wheel counts as surveyed; the pick holds
             self.assertEqual(rs.blind_n, 20 if b else 0)
             shares[b] = min(rms) / rms[0]
         self.assertGreater(shares[0], 0.6)                          # diluted: host.TAKE_ADVISE_RATIO would not advise

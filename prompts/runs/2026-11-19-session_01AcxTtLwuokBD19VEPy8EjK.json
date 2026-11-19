@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtLwuokBD19VEPy8EjK",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T06:07:12Z",
+  "ended": "2026-11-19T06:20:05Z",
+  "wall_minutes": 16.37,
+  "tokens_in": 9924447,
+  "tokens_out": 36437,
+  "cost_usd": 3.7934,
+  "tool_calls": 99,
+  "task": "polish: /custom-development/ shows stills of tools built from requests",
+  "projects": [
+    "platform/pages",
+    "portfolio/requests"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17565",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "PIL in the system python3 is broken (cannot import _imaging); cropped screenshots with Playwright clip and ImageMagick instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to screenshot full pages and pick the weakest; a full-page 390 px screenshot is 10-30k px tall and unreadable when viewed. Clipped viewport-height chunks (page.screenshot clip) are what work; worth saying."
+    },
+    {
+      "file": "portfolio/usage/site-visits.json",
+      "issue": "Last day counted is 2026-11-03, so 'most-visited page' picks rest on 11 days of data that is two weeks old."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-the-custom-development-page-now-shows-what-it-built.md",
+    "docs/reports/polish-2026-11-19-custom-dev-built.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, IDEAS.md and website requests empty; routed polish by draw. Verified by re-rendering the new section into a full local build's dist and measuring at 320/390/1280 plus dark mode (numbers in the report). node --test custom-development-page.test.mjs 17/17 pass; full suite node --test 'platform/pages/*.test.mjs': 1847 pass, 0 fail (358 s; it started before the last CSS-only edit, the phone swipe strip, after which custom-development-page and showcase tests were rerun and pass). check.mjs was not rerun on a fresh build.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b1162b65-8368-59f8-b686-7196c978230b",
+    "transcripts": 1,
+    "first": "2026-11-19T06:07:12Z",
+    "last": "2026-11-19T06:23:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 165,
+        "output": 36437,
+        "thinking": 5961,
+        "cache_read": 9785932,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138350,
+        "api_equivalent_usd": 3.7934,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 165,
+      "output": 36437,
+      "thinking": 5961,
+      "cache_read": 9785932,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138350,
+      "api_equivalent_usd": 3.7934,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 99,
+    "tools": {
+      "Bash": 79,
+      "Read": 18,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.37,
+      "active_minutes": 16.37,
+      "model_minutes": 8.52,
+      "tool_minutes": 7.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "front-end dev: capture three tool stills with scripted example states, new page section with responsive cards, tests, measurements and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 131.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

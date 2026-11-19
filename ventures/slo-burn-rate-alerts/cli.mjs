@@ -53,7 +53,9 @@ export async function run(argv) {
 
   if (args.sub === "rules") {
     try {
-      return { exitCode: 0, output: generateRules({ name: args.name, slo: args.slo, periodDays: args.period, errors: args.errors, total: args.total }).trimEnd() };
+      // An unreachable threshold writes an alert that can never fire: still print the file, but fail like `plan` does.
+      const unreachable = lint(args.slo, args.period).some((f) => f.severity === "error");
+      return { exitCode: unreachable ? 1 : 0, output: generateRules({ name: args.name, slo: args.slo, periodDays: args.period, errors: args.errors, total: args.total }).trimEnd() };
     } catch (err) {
       return { exitCode: 2, output: err.message };
     }

@@ -51,4 +51,5 @@ test("llms.txt and sitemap exist", () => {
 test("index links one hop to the dupehound and csshound siblings", () => {
   assert.match(html, /href="\.\.\/dupehound\/"/);
   assert.match(html, /href="\.\.\/csshound\/"/);
+  assert.match(html, /href="\.\.\/tsconfig-ts7-check\/"/);
 });

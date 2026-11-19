@@ -15,7 +15,7 @@ function num(v, name, { min = 0, max = Infinity, fallback } = {}) {
   }
   const n = Number(v);
   if (!Number.isFinite(n)) throw new Error(`${name} must be a number`);
-  if (n < min || n > max) throw new Error(`${name} must be between ${min} and ${max}`);
+  if (n < min || n > max) throw new Error(`${name} must be ${max === Infinity ? `${min} or more` : min === -Infinity ? `${max} or less` : `between ${min} and ${max}`}`);
   return n;
 }
 const label = (r, d) => String(r.label || r.name || d).trim() || d;

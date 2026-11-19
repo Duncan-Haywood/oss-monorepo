@@ -35,7 +35,7 @@ import { movableGames, tryMove, parseMoveRequest, recordMove, pruneMoves, openMo
 import { parseNotice, addNotice, removeNotice, noticesHtml, adminNoticesHtml, noticeEmails } from "./announcements.mjs";
 import { spiritSettings, parseSpirit, recordSpirit, pruneSpirit, spiritTable, captainSpiritHtml, leagueSpiritHtml, adminSpiritHtml, spiritCsv, SPIRIT_MODES } from "./spirit.mjs";
 import { cleanWaiverText, currentVersion, rememberVersion, parseSignature, parseWaiverForm, recordSignature, removeSignature, waiverFormHtml, registerWaiverHtml, waiverLinkHtml, adminWaiversHtml, waiversCsv, versionText } from "./waivers.mjs";
-import { faSettings, faClosedReason, parseFreeAgent, allowJoin, addFreeAgent, suggestPlacements, placeFreeAgent, removeFreeAgent, placedEmails, freeAgentsCsv, joinFormHtml, joinedHtml, adminFreeAgentsHtml } from "./freeagents.mjs";
+import { MAX_TAG_QUESTIONS, MAX_SHEET, faSettings, faClosedReason, parseFreeAgent, allowJoin, addFreeAgent, suggestPlacements, placeFreeAgent, removeFreeAgent, placedEmails, freeAgentsCsv, joinFormHtml, joinedHtml, adminFreeAgentsHtml } from "./freeagents.mjs";
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
@@ -173,6 +173,8 @@ ${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}
 <label>Fee per player, as you want it shown (optional), e.g. $60<input name="faFee" maxlength="60" value="${esc(f.faFee ?? "")}"></label>
 <label>Roster size to fill teams up to (0 = no limit; a team at this size is not suggested)<input name="faTarget" inputmode="numeric" value="${esc(f.faTarget ?? 0)}"></label>
 <label>Free-agent sign-ups close after (YYYY-MM-DD, optional)<input name="faCloses" value="${esc(f.faCloses ?? "")}"></label>
+<label>Ask free agents to tick these, so they are spread evenly across teams (optional, up to ${MAX_TAG_QUESTIONS}), e.g. <code>Woman=F, Goalie=G</code><input name="faTags" maxlength="300" value="${esc(f.faTags ?? "")}"></label>
+<label>Ratings sheet for rostered players (optional): paste the balanced-teams page's CSV (Team, Player, Rating, Tag). Named players count at their rating and tags; free agents' experience is mapped onto the sheet's range<textarea name="faSheet" maxlength="${MAX_SHEET}" style="min-height:4rem">${esc(f.faSheet ?? "")}</textarea></label>
 <p class="note">Placing a free agent adds them to that team's Rosters line and, with email on, sends the player their team and the team's contacts the player's details.</p></fieldset>
 <fieldset><legend>Waiver (optional)</legend>
 <label>Your waiver, release or code-of-conduct text, as players should read it. Leave empty for none<textarea name="waiverText" maxlength="12000" style="min-height:8rem;font-family:inherit">${esc(f.waiverText ?? "")}</textarea></label>
@@ -236,9 +238,9 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
     if (why) return send(404, page(title, `<p>${esc(why)}</p>`));
     const form = await readForm(req);
     if (!form) return send(413, "too large\n", "text/plain");
-    const r = parseFreeAgent(form, state.freeAgents || []);
+    const r = parseFreeAgent(form, state.freeAgents || [], state.fields);
     if (r.spam) return send(200, page("Joined", "<p class=\"ok\">Thanks.</p>"));
-    const values = Object.fromEntries(["name", "email", "phone", "level", "with", "note"].map((k) => [k, String(form.get(k) ?? "")]));
+    const values = { ...Object.fromEntries(["name", "email", "phone", "level", "with", "note"].map((k) => [k, String(form.get(k) ?? "")])), tags: form.getAll("tag").map(String) };
     if (r.error) return send(400, page(title, `<p class="err">${esc(r.error)}</p>${joinFormHtml(state, today(), values)}`));
     if (!allowJoin(joins, who, clock())) return send(429, page(title, `<p class="err">Too many sign-ups from this connection in the last hour. Try again later.</p>`));
     const a = addFreeAgent(state, r.req, clock());
@@ -462,6 +464,8 @@ export function handler(state, save, env = process.env, clock = Date.now, mail =
       f.faOpen = form.get("faOpen") === "1";
       for (const k of ["faFee", "faCloses"]) f[k] = String(form.get(k) ?? "").trim().slice(0, 500);
       f.faTarget = faSettings({ faTarget: form.get("faTarget") }).target;
+      f.faTags = String(form.get("faTags") ?? "").trim().slice(0, 300);
+      f.faSheet = String(form.get("faSheet") ?? "").slice(0, MAX_SHEET);
       f.waiverText = cleanWaiverText(form.get("waiverText"));
       f.spiritMode = SPIRIT_MODES[form.get("spiritMode")] ? String(form.get("spiritMode")) : "";
       f.spiritShow = form.get("spiritShow") === "1";

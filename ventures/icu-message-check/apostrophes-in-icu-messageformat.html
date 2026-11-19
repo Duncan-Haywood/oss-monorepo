@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285c4d'/%3E%3Ctext%20x='16'%20y='22'%20font-size='15'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%7B%23%7D%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apostrophes in ICU MessageFormat: Why '{name}' Prints Literally</title>
+<meta name="description" content="Why an apostrophe before a placeholder makes ICU MessageFormat print {name} as text (French l'{item}, Italian dell'{x}), the exact quoting rules ICU follows, and three ways to fix it.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/icu-message-check/apostrophes-in-icu-messageformat.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apostrophes in ICU MessageFormat: why '{name}' prints literally">
+<meta property="og:description" content="The quoting rule behind French l'{item} bugs, and how to write apostrophes next to placeholders safely.">
+<meta property="og:url" content="https://example.invalid/icu-message-check/apostrophes-in-icu-messageformat.html">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Put an apostrophe next to a placeholder in an ICU message",
+  "description": "Stop an apostrophe from quoting a placeholder in ICU MessageFormat, so the value is filled in.",
+  "step": [
+    { "@type": "HowToStep", "name": "Find the apostrophe before a brace", "text": "Look for a single apostrophe directly before { or } (or before # inside a plural option). That apostrophe starts quoted literal text." },
+    { "@type": "HowToStep", "name": "Double it, or use the typographic apostrophe", "text": "Write two apostrophes ('') for one literal apostrophe, as in l''{item}, or use the typographic apostrophe ’ (U+2019), which ICU never treats as syntax." },
+    { "@type": "HowToStep", "name": "Check the message", "text": "Paste the message or the whole translation file into the ICU MessageFormat checker, which flags any quote that still swallows a placeholder." }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; --bg: #fafbfa; --fg: #1a1f1d; --muted: #59625e; --line: #d3d9d6; --card: #ffffff; --accent: #285c4d; font: 16px/1.6 system-ui, sans-serif; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #131715; --fg: #e5ebe8; --muted: #a0aaa5; --line: #333b38; --card: #1b201e; --accent: #8fd0bb; } }
+  body { background: var(--bg); color: var(--fg); max-width: 780px; margin: 0 auto; padding: 1.25rem 16px 2rem; }
+  h1 { font-size: clamp(1.45rem, 4vw, 2rem); line-height: 1.25; }
+  h2 { font-size: 1.2rem; margin-top: 1.8rem; }
+  a { color: var(--accent); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; overflow-wrap: anywhere; }
+  pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.85rem; overflow-x: auto; font-size: 0.86rem; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .cta { display: inline-block; background: var(--accent); color: var(--bg); padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-weight: 600; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: 0.86rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>Apostrophes in ICU MessageFormat: why <code>'{name}'</code> prints literally</h1>
+<p>Your French build says <code>Supprimer l'{item} ?</code> instead of <code>Supprimer l'image ?</code>. Nothing is wrong with the value; the apostrophe is. In ICU MessageFormat the apostrophe is the quoting character, and one placed directly before a brace turns everything up to the next apostrophe into literal text, placeholder included.</p>
+<p><a class="cta" href="./">Check your messages or translation files</a></p>
+
+<h2>The rule ICU follows</h2>
+<p>ICU4J and ICU4C use this rule by default (ICU calls it <code>DOUBLE_OPTIONAL</code> mode), and FormatJS (react-intl) follows it too:</p>
+<ul>
+  <li>Two apostrophes <code>''</code> always mean one literal apostrophe.</li>
+  <li>A single apostrophe directly before <code>{</code> or <code>}</code>, or before <code>#</code> inside a plural option, <strong>starts quoted text</strong>. The quote runs to the next single apostrophe, or to the end of the message if there is none.</li>
+  <li>Any other single apostrophe, as in <code>I'm</code> or <code>it's</code>, is just an apostrophe.</li>
+</ul>
+<p>That last rule is why most messages with apostrophes work, and why the bug only appears when an apostrophe happens to touch a placeholder. Elision in French (<code>l'</code>, <code>d'</code>, <code>qu'</code>) and Italian (<code>dell'</code>, <code>un'</code>), and English text that puts a value in quotes, are where it shows up.</p>
+
+<div class="table-wrap"><table>
+  <thead><tr><th scope="col">Message</th><th scope="col">Prints (item = "image")</th></tr></thead>
+  <tbody>
+    <tr><td><code>Supprimer l'{item} ?</code></td><td><code>Supprimer l{item} ?</code> (the quote runs to the end)</td></tr>
+    <tr><td><code>Supprimer l''{item} ?</code></td><td><code>Supprimer l'image ?</code></td></tr>
+    <tr><td><code>Supprimer l’{item} ?</code></td><td><code>Supprimer l’image ?</code> (typographic apostrophe)</td></tr>
+    <tr><td><code>Rename '{item}'</code></td><td><code>Rename {item}</code></td></tr>
+    <tr><td><code>Rename ''{item}''</code></td><td><code>Rename 'image'</code></td></tr>
+    <tr><td><code>Use '{' and '}' for braces</code></td><td><code>Use { and } for braces</code> (quoting used on purpose)</td></tr>
+    <tr><td><code>{n, plural, other {'#' is #}}</code> with n = 3</td><td><code># is 3</code></td></tr>
+  </tbody>
+</table></div>
+<p>Each row is pinned as a test in the checker's source, so the table says what the code does.</p>
+
+<h2>Three fixes</h2>
+<ol>
+  <li><strong>Use the typographic apostrophe <code>’</code> (U+2019).</strong> It is what French and Italian typography prefer anyway, and ICU never treats it as syntax. Many teams adopt it for all translations to make the problem impossible.</li>
+  <li><strong>Double the ASCII apostrophe</strong> wherever it touches a brace: <code>l''{item}</code>. Doubling every apostrophe in a message is also safe, since <code>''</code> always means one.</li>
+  <li><strong>Check files before release.</strong> Translators working in a CAT tool rarely see the ICU syntax, so the bug comes back with each new string. The <a href="./">checker</a> and its CLI flag any quote that swallows a placeholder, with the column.</li>
+</ol>
+
+<h2>Flutter: only with escaping turned on</h2>
+<p>Flutter's <code>gen_l10n</code> treats apostrophes as plain text unless <code>use-escaping: true</code> is set in <code>l10n.yaml</code>. With escaping off, <code>l'{item}</code> works and there is no way to print a literal brace; with it on, the rule above applies.</p>
+
+<h2>Java's MessageFormat is stricter</h2>
+<p>The JDK's own <code>java.text.MessageFormat</code> (not ICU4J's) treats <em>every</em> single apostrophe as a quote, so <code>It's {0}</code> already breaks there and every apostrophe must be doubled. If your messages go through the JDK class, double them all; the checker follows ICU's rule, not the JDK's.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool it links are provided free and as-is, without warranty of any kind, express or implied. They are not legal or professional advice. You are responsible for reviewing and verifying output before relying on it.</p>
+  <p>Sources: ICU User Guide, <a href="https://unicode-org.github.io/icu/userguide/format_parse/messages/" rel="noopener">Formatting Messages</a>; ICU4J API documentation for <a href="https://unicode-org.github.io/icu-docs/apidoc/released/icu4j/com/ibm/icu/text/MessagePattern.ApostropheMode.html" rel="noopener">MessagePattern.ApostropheMode</a>; Oracle, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/MessageFormat.html" rel="noopener">java.text.MessageFormat</a>. Not affiliated with the Unicode Consortium, ICU, Oracle or FormatJS. Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is optional.</p>
+</footer>
+</body>
+</html>

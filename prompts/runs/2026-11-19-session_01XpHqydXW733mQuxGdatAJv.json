@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydXW733mQuxGdatAJv",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T08:39:35Z",
+  "ended": "2026-11-19T08:56:01Z",
+  "wall_minutes": 16.61,
+  "tokens_in": 3851976,
+  "tokens_out": 20421,
+  "cost_usd": 1.8211,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17604",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "main_health.py ran in the background while I dropped and removed a probe dir under ventures/, so test_check_html_is_html.py hit FileNotFoundError (277/278)",
+      "fix": "none needed: my own interference; main is otherwise green"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "Report 2026-11-19T06:39 blamed --for-changes for skipping unwired checks; the real cause was 15 check_*.py listing files with a bare git ls-files, which never sees uncommitted new files. Fixed here (repo_files.ls_files)."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "The 'Doc friction by file' table mostly names CODEOWNERS-gated files (prompts/*, CLAUDE.md); finding an ungated, still-live target took reading the CODEOWNERS list and checking each report against main (the egg-info one was already fixed by #17578)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-local-checks-now-see-new-files.md"
+  ],
+  "goal": null,
+  "notes": "Process/1, Critique mode (backlog had only owner rows). Lens: doc_friction on ungated files. Took the 2026-11-19T06:39 report (PR #17568 failed check_hidden_unicode/check_json_valid in CI after a passing local sweep). Reproduced: untracked bad .json + BOM .mjs pass both checks (exit 0); after git add -N both fail. Root cause: 15 platform/ci/check_*.py used bare `git ls-files`. Added platform/ci/repo_files.py ls_files() (adds --others --exclude-standard outside Actions; tracked-only on Actions, override REPO_FILES_UNTRACKED) and switched all 15; test_repo_files.py (5 tests) includes a guard against bare ls-files in check_*.py. Verification: probe files now fail locally (exit 1), pass under GITHUB_ACTIONS=true; all 15 checks exit 0 on the tree; 159 tests in their test_check_*.py pass; run_workflow_locally --for-changes: 7/7 selected workflows passed (cross-review and deploy jobs not runnable locally); PR CI 16 check runs, none red. No backlog ids touched; no agent doc needed (the post and repo_files.py docstring carry it).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "05d6252e-40e7-5632-b5df-b6a227075109",
+    "transcripts": 1,
+    "first": "2026-11-19T08:39:35Z",
+    "last": "2026-11-19T08:56:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 88,
+        "output": 20421,
+        "thinking": 4500,
+        "cache_read": 3769590,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82298,
+        "api_equivalent_usd": 1.8211,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 88,
+      "output": 20421,
+      "thinking": 4500,
+      "cache_read": 3769590,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82298,
+      "api_equivalent_usd": 1.8211,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 44,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.61,
+      "active_minutes": 16.61,
+      "model_minutes": 3.22,
+      "tool_minutes": 13.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "diagnose, helper + 15 call sites, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 109.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -97,6 +97,7 @@ import {
   renderCatalog,
   externalCallExceptions,
   surfaceExternalFetchHosts,
+  isPlaceholderHost,
   CARD_FOOTER,
   CARD_FOOTER_EXCEPTION,
   EXCEPTION_NOUN,
@@ -4665,11 +4666,11 @@ test('surfaceExternalFetchHosts catches a browser-level third-party request an H
     `<!doctype html><html><head>
       <link rel="canonical" href="https://example.test/site/should-not-count/">
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter">
-      <script src="https://cdn.example.com/widget.js"></script>
+      <script src="https://cdn.widgetvendor.net/widget.js"></script>
     </head><body></body></html>`,
   );
   const hosts = await surfaceExternalFetchHosts(dir);
-  assert.deepEqual(hosts, ['cdn.example.com', 'fonts.googleapis.com']);
+  assert.deepEqual(hosts, ['cdn.widgetvendor.net', 'fonts.googleapis.com']);
 });
 
 test('surfaceExternalFetchHosts ignores an HTML file with no off-origin request', async () => {
@@ -4782,6 +4783,33 @@ test('surfaceExternalFetchHosts does not report an un-resolved template placehol
     }`,
   );
   assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
+});
+
+test('surfaceExternalFetchHosts drops parsing bases, reserved test names and XML namespaces, and keeps a local model', async () => {
+  // Six tool pages said "what you type here also goes to x" because their
+  // self-hosted server parses its path with `new URL(req.url, "http://x")`;
+  // llm-spend-guard said "proxy.local" for the same reason. None of these is a
+  // request a visitor's browser makes.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-reserved-'));
+  await fs.writeFile(
+    path.join(dir, 'server.mjs'),
+    `const url = new URL(req.url, "http://x");
+    const base = new URL(req.url, 'http://proxy.local');
+    const hook = "https://hook.example/in"; const t = "https://s.test/a";
+    const bad = "https://receiver.invalid/"; const ex = "https://www.example.com/";
+    const ns = "http://www.w3.org/2000/svg";
+    const ollama = "http://localhost:11434/api/chat";
+    const real = "https://api.resend.com/emails";
+    await fetch(real);`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), ['api.resend.com', 'localhost:11434']);
+});
+
+test('isPlaceholderHost keeps real hosts that only look like the reserved names', () => {
+  for (const url of ['https://examples.com/', 'https://example.co.uk/', 'https://www.w3.org/TR/', 'http://127.0.0.1:8080/', 'https://my.testing.org/'])
+    assert.equal(isPlaceholderHost(url), false, url);
+  for (const url of ['http://x', 'https://evil.example', 'https://a.test', 'http://foo.localhost', 'https://example.org/', 'http://www.w3.org/1999/xlink'])
+    assert.equal(isPlaceholderHost(url), true, url);
 });
 
 test('a category holding a documented external-call exception says so, not "nothing you type is uploaded" unconditionally', async () => {
@@ -6371,7 +6399,7 @@ function scrollPass({ sheets, elements, matches = (sel) => elements.filter((e) =
   new Function('navigator', 'localStorage', 'document', 'addEventListener', 'getComputedStyle', 'requestAnimationFrame', 'setTimeout',
     renderChromeModule())(
     {}, { getItem: () => null, setItem() {} }, document, () => {},
-    (e) => { asked.push(e.id); return { overflowX: e.overflowX || 'visible' }; },
+    (e) => { asked.push(e.id); return { overflowX: e.overflowX || 'visible', display: e.display, backgroundColor: e.bg }; },
     (fn) => frames.push(fn), (fn) => timers.push(fn),
   );
   const flush = () => { while (frames.length || timers.length) { (frames.shift() || timers.shift())(); } };
@@ -6403,6 +6431,41 @@ test('the scroll pass asks only the elements a rule could make scroll, and after
   assert.deepEqual(page.asked.sort(), ['fits', 'inline', 'scroller'],
     'a <p> no overflow rule names is never asked; a rule inside @media is');
   assert.deepEqual(page.stops().sort(), ['inline', 'scroller'], 'only a box that really scrolls gets a tab stop');
+});
+
+/**
+ * A wide table in our own scrolling box, for the row-name pin
+ * (docs/reports/polish-2026-11-19-pinned-row-names.md).
+ */
+function pinBox(id, { firstWidth = 80, tableDisplay = 'table', rowDisplay = 'table-row', rowSpan = 1, boxBg = 'rgba(0, 0, 0, 0)' } = {}) {
+  const cell = (w, extra = {}) => ({ colSpan: 1, rowSpan: 1, offsetWidth: w, ...extra });
+  const rows = [0, 1, 2].map((r) => ({ id: `${id}-row`, display: rowDisplay, cells: [cell(firstWidth, r === 1 ? { rowSpan } : {}), cell(120), cell(120)] }));
+  const props = {};
+  const box = wide(id, {
+    className: 'pf-table-scroll', overflowX: 'auto', matches: ['.pf-table-scroll'], nodeType: 1, bg: boxBg,
+    style: { getPropertyValue: (k) => props[k] || '', setProperty: (k, v) => { props[k] = v; } },
+    parentElement: { id: `${id}-card`, nodeType: 1, bg: 'rgb(250, 248, 240)', parentElement: null },
+  });
+  const table = { id: `${id}-table`, tagName: 'TABLE', nodeType: 1, display: tableDisplay, rows, parentElement: box };
+  box.firstElementChild = table;
+  box.children = [table];
+  box.props = props;
+  return box;
+}
+
+test('a scrolling table keeps its row names in view, with the background it sits on', () => {
+  const elements = [
+    pinBox('ok'),
+    pinBox('widefirst', { firstWidth: 200 }),
+    pinBox('cards', { tableDisplay: 'block', rowDisplay: 'block' }),
+    pinBox('rowspan', { rowSpan: 2 }),
+  ];
+  const page = scrollPass({ sheets: [{ href: null, cssRules: [rule('.pf-table-scroll', 'auto')] }], elements });
+  page.flush();
+  assert.deepEqual(page.stops().sort(), ['cards', 'ok', 'rowspan', 'widefirst'], 'every scrolling box still gets its tab stop');
+  assert.deepEqual(elements.filter((e) => 'data-pf-pin' in e.attrs).map((e) => e.id), ['ok'],
+    'not when the first column is over half the box, a venture lays rows out as cards, or a cell spans rows');
+  assert.equal(elements[0].props['--pf-pin-bg'], 'rgb(250, 248, 240)', 'a transparent box is skipped for the card it sits in');
 });
 
 test('the scroll pass sweeps every element when a stylesheet hides its rules', () => {

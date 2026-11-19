@@ -595,6 +595,7 @@ ventures/ice-cream-shop-seasonal-profit-calculator/usage.mjs
 ventures/ice-dam-removal-bid-calculator/usage.mjs
 ventures/icp-lens/usage.mjs
 ventures/ics-calendar-check/usage.mjs
+ventures/icu-message-check/usage.mjs
 ventures/ids-model-check/usage.mjs
 ventures/ie-self-employed-tax-set-aside-calculator/usage.mjs
 ventures/ifta-quarterly-fuel-tax-calculator/usage.mjs
@@ -794,6 +795,7 @@ ventures/open-robot-mower/usage.mjs
 ventures/open-tennis-robots/usage.mjs
 ventures/openapi-breaking-change-check/usage.mjs
 ventures/optical-dispensary-margin-calculator/usage.mjs
+ventures/ordinal-regression/usage.mjs
 ventures/osha-trir-dart-calculator/usage.mjs
 ventures/overtime-pay-calculator/usage.mjs
 ventures/owner-operator-cpm-calculator/usage.mjs
@@ -901,6 +903,7 @@ ventures/property-tax-appeal-calculator/usage.mjs
 ventures/proposal-maker/usage.mjs
 ventures/provider-credentialing-delay-cost-calculator/usage.mjs
 ventures/pslf-vs-refinance-calculator/usage.mjs
+ventures/psychrometric-calculator/usage.mjs
 ventures/pte-tax-election-calculator/usage.mjs
 ventures/pto-accrual-liability-calculator/usage.mjs
 ventures/public-record-watch/usage.js
@@ -1221,6 +1224,7 @@ ventures/trial-conversion-timing-analyzer/usage.mjs
 ventures/trial-converter/usage.mjs
 ventures/truck-detention-pay-calculator/usage.mjs
 ventures/trump-account-calculator/usage.mjs
+ventures/tsconfig-ts7-check/usage.mjs
 ventures/tuckpointing-bid-calculator/usage.mjs
 ventures/turo-earnings-report-analyzer/usage.mjs
 ventures/turo-host-payout-calculator/usage.mjs
@@ -1374,6 +1378,7 @@ ventures/workers-comp-audit-dispute-checker/usage.mjs
 ventures/workers-comp-premium-calculator/usage.mjs
 ventures/workflow-audit/usage.mjs
 ventures/world-clock-widget/site/usage.mjs
+ventures/xer-schedule-check/usage.mjs
 ventures/xero-bank-statement-csv-check/usage.mjs
 ventures/xero-contacts-csv-check/usage.mjs
 ventures/xero-invoice-csv-check/usage.mjs

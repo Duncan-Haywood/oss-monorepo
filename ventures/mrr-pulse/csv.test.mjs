@@ -45,8 +45,9 @@ test("Ended At wins over an earlier Canceled At column, and Created over Start D
 });
 
 test("a JPY export is not multiplied by 100 (red team 2026-11-17)", () => {
-  const { subs } = subsFromCsv("id,amount,interval,created,currency\na,5000,month,2026-01-01,jpy\nb,50,month,2026-01-01,usd\n");
-  assert.deepEqual(subs.map((s) => s.mrr), [5000, 5000]);
+  const read = (row) => subsFromCsv(`id,amount,interval,created,currency\n${row}\n`).subs.map((s) => s.mrr);
+  assert.deepEqual(read("a,5000,month,2026-01-01,jpy"), [5000]);
+  assert.deepEqual(read("b,50,month,2026-01-01,usd"), [5000]);
 });
 
 test("a Trial End (UTC) column is read, so history starts MRR when the trial ends (red team 2026-11-18)", () => {
@@ -131,4 +132,25 @@ test("a repeated subscription id with a different start, end, status or currency
   assert.equal(subs[0].mrr, 1000);
   assert.deepEqual(skipped.map((s) => s.line), [3, 4, 5]);
   assert.ok(skipped.every((s) => /sub_1/.test(s.why)));
+});
+
+// Red team 2026-11-19: the CSV path added MRR across currencies, so $100 and
+// 10,000 yen read as "$200" in the browser demo. The server keeps one currency.
+test("a CSV with two currencies keeps the most common one and skips the rest by line", () => {
+  const { subs, skipped, currency } = subsFromCsv("id,status,amount,interval,created,currency\na,active,100,month,2026-01-05,usd\nb,active,10000,month,2026-01-05,jpy\nc,active,50,month,2026-02-05,USD\n");
+  assert.equal(currency, "usd");
+  assert.deepEqual(subs.map((s) => s.id), ["a", "c"]);
+  assert.equal(skipped.length, 1);
+  assert.equal(skipped[0].line, 3);
+  assert.match(skipped[0].why, /JPY/);
+  const s = summarize(backfill(subs, Date.UTC(2026, 10, 19), 12).months);
+  assert.equal(s.mrr, 15000);
+});
+
+test("a one-currency CSV reports that currency, and a tie goes to the first row's", () => {
+  assert.equal(subsFromCsv("amount,interval,created,currency\n500,month,2026-01-05,jpy\n").currency, "jpy");
+  assert.equal(subsFromCsv("amount,interval,created\n5,month,2026-01-05\n").currency, "usd");
+  const tie = subsFromCsv("amount,interval,created,currency\n5,month,2026-01-05,eur\n5,month,2026-01-05,gbp\n");
+  assert.equal(tie.currency, "eur");
+  assert.equal(tie.subs.length, 1);
 });

@@ -53,6 +53,12 @@ def fake_querier(answers=None, status=None):
 
 
 class PlanTests(unittest.TestCase):
+    def test_lookalike_domain_is_not_inside_the_authorized_domain(self):
+        self.assertTrue(name_in_authorized_domain("www.example.test", "example.test"))
+        self.assertTrue(name_in_authorized_domain("EXAMPLE.test.", "example.test"))
+        self.assertFalse(name_in_authorized_domain("evil-example.test", "example.test"))
+        self.assertFalse(name_in_authorized_domain("example.test.evil", "example.test"))
+
     def test_unauthorized_plan_is_rejected(self):
         with self.assertRaisesRegex(CaptureError, "authorized"):
             load_plan(raw=plan(authorized=False))

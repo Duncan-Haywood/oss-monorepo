@@ -2060,6 +2060,18 @@ moved from 2.2% off LibRaw's render to 0.02%. Calibration costs 0.15-0.8 s a fra
 Details: `eval/phaseone-iiq-calibration-2026-11-19.md`; check: `tools/iiq_calibration_check.py`;
 tests: `tests/test_iiq_calibration.py`.
 
+**The calibration on IIQ S, 16-bit and aerial backs, and the iXU180's gap (2026-11-19).** The same check
+was run on the 13 remaining public Phase One files (iXU180, IQ180 IIQ S and L, IQ3 100MP in S, L and 16-bit,
+IQ3 100MP Trichromatic, IQ4 150MP three ways, iXM-100 twice, iXM-RS150F; 1.42 billion sensels). Nine equal
+LibRaw on every sensel, the IQ180s are within 3 codes, and the iXU180 is within 2 outside its four dead
+columns. The iXU180's 5.2% blue gap turned out not to be the calibration. It comes from the file's black
+offset tables. ShootFlow applies them, as LibRaw does for IIQ L, but LibRaw's IIQ S loader never reads
+them. On the iXU180 the row table is a smooth ramp from about -30 codes at the top and bottom edges to
+-333 at the middle row. With the tables zeroed, ShootFlow's levels equal LibRaw's to four decimals. Which
+reader is right needs a dark frame or a Capture One export of an iXU180, and none is public. ShootFlow keeps
+the tables. Details: `eval/phaseone-iiq-calibration-newer-backs-2026-11-19.md`; check:
+`tools/iiq_offsets_check.py`.
+
 ### Hasselblad 3FR (2026-11-18)
 
 Hasselblad's 3FR files (H3D, H4D-60, X1D, X1D II, X2D, the CFV II 50C and CFV 100C backs, and the

@@ -1,0 +1,6 @@
+# eval/whist-search.c, 2026-11-19: ./whist-search N 1200 7 (20 CPU-minutes each, seed 7), five processes on four cores
+{"n":48,"mods":[47],"ms":1200000,"method":"search (C)","tries":1648,"tables":null}
+{"n":52,"mods":[51],"ms":1200000,"method":"search (C)","tries":1553,"tables":null}
+{"n":56,"mods":[55],"ms":190718,"method":"search (C)","tries":231,"tables":[[10,1,44,48],[24,37,46,16],[20,21,6,32],[13,18,40,54],[50,47,45,30],[49,42,36,0],[43,15,39,41],[53,9,2,25],[26,8,31,23],[29,12,19,3],[33,11,34,14],[27,51,7,52],[-1,35,5,17],[4,38,22,28]]}
+{"n":57,"mods":[57],"ms":1200000,"method":"search (C)","tries":1420,"tables":null}
+{"n":60,"mods":[59],"ms":1200000,"method":"search (C)","tries":1398,"tables":null}

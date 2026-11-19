@@ -1121,7 +1121,17 @@ def claims_by_venture(names, prs: list[tuple[int, str, str]]) -> dict[str, list[
     return out
 
 
-CLAIM_FRESH_HOURS = 24
+# Four hours, not 24 (process critique, 2026-11-19). The last 100 merged PRs
+# (GitHub list, closed, newest updated, 2026-11-19 01:39-08:32 UTC) went from
+# open to merged in 1 to 140 minutes, most under an hour; none took 4 h. An
+# open PR older than that has no live session behind it, yet at 24 h it held
+# its row out of the Start here pool for a day: at 08:40 UTC that day
+# ai-bookkeeper (#17310, 19 h) and photo-editing (#17515, 5.6 h) were both
+# "claimed", leaving two free rows, so two sessions starting together shared
+# a row half the time. Collisions caught by claim_check were 4-7% of ventures
+# run records each day 2026-11-14..19. A stale PR's item is still guarded:
+# claim_check.py keeps its own 24 h window (FRESH_HOURS there).
+CLAIM_FRESH_HOURS = 4
 
 
 def _age_hours(created: str, now: datetime) -> float:

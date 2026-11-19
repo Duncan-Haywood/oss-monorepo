@@ -6,7 +6,7 @@ test("parses a single named block", () => {
   const { records } = parseRobotsTxt("User-agent: GPTBot\nDisallow: /\n");
   assert.equal(records.length, 1);
   assert.deepEqual(records[0].agents, ["GPTBot"]);
-  assert.deepEqual(records[0].rules, [{ allow: false, pattern: "/" }]);
+  assert.deepEqual(records[0].rules, [{ allow: false, pattern: "/", line: 2 }]);
 });
 
 test("groups consecutive User-agent lines into one record", () => {
@@ -152,4 +152,19 @@ test("KNOWN_BOTS: DuckAssistBot, MistralAI-User, FacebookBot and Google-CloudVer
   for (const t of ["DuckAssistBot", "MistralAI-User", "FacebookBot", "Google-CloudVertexBot"]) assert.ok(byToken[t], t);
   assert.equal(byToken.FacebookBot.status, "blocked");
   assert.equal(byToken.DuckAssistBot.status, "allowed");
+});
+
+test("DEL (0x7F) is US-ASCII: kept raw in a pattern, so it still matches the raw path", async () => {
+  const { escapePattern } = await import("./audit.mjs");
+  assert.equal(escapePattern("/a\x7f"), "/a\x7f");
+  assert.equal(escapePattern("/café"), "/caf%C3%A9");
+  const { records } = parseRobotsTxt("User-agent: *\nDisallow: /a\x7f\n");
+  assert.equal(isAllowed(records, "GPTBot", "/a\x7fb").allowed, false);
+});
+
+test("two equally long matching rules of one kind: the first line is reported, as Google's matcher keeps it", () => {
+  const { records } = parseRobotsTxt("User-agent: *\nDisallow: /ab*\nDisallow: /abc\n");
+  const r = isAllowed(records, "GPTBot", "/abcd");
+  assert.equal(r.allowed, false);
+  assert.equal(r.matchedRule.line, 2);
 });

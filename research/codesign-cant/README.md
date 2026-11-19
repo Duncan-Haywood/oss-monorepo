@@ -6,6 +6,43 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7ad: why does a co-designed drone stop 5-8 cm short of its set point? The position integrator's slow pole, and conditional integration fixes it
+
+**Question.** In every motor-lag training range of milestones 7y-7ac, one to five of twelve tuned quadrotors end a 1 m position step 5-8 cm from the hold point. Is it the motor lag, the soft position gain, or something else, and can a builder fix it without retuning?
+
+**Headline (`experiments/m7ad_settle/verdicts.txt`, `results.json`; about 32 min on 4 cores; simulated; 8 predictions committed first, 7 held).**
+
+- **The cause is the outer loop alone.** A PID position loop on a double integrator has a slow root near −ki/kp, so what the integrator stores on the way in leaves a tail that decays over kp/ki seconds. A three-state model of the outer loop (no attitude loop, motor lag or side force; [`experiments/m7ad_settle/model.py`](experiments/m7ad_settle/model.py)) called **96 of 96** designs never step-tested before correctly (15 unsettled) and matched the full simulator's last-second distance with **r = 0.9995**; the call did not change between the 33, 36 and 39.1 ms motor-lag laws for any of them.
+- **Conditional integration fixes it for free in crashes.** Running the position integrator only while the error is under 0.25 m (textbook anti-windup) left **0 of 72** designs unsettled (18 before), cut the median overshoot from 5.1 to 2.0 cm and left the stress test where it was (819 against 820 crashes over the identified lags; paired p = 0.89) and the wind-step response unchanged.
+- **The price is rise time:** median 1.74 → 1.91 s on the 1 m step, because the integrator no longer helps pull the vehicle in. A 0.1 m band behaves the same (814 crashes).
+- **For a builder:** if your position loop has integral action, gate it near the set point; and check a tune's ki/kp with a three-state simulation before flying it: on a 6 s horizon, ki/kp above about 0.07 s⁻¹ leaves a visible tail.
+
+![Left: each design's distance from the hold point over the last second of a 1 m step against its outer-loop ki/kp. With the integrator always on (red, 72 designs; orange, 96 untested designs) the distance rises from under 1 cm at ki/kp near 0 to 5-9 cm above 0.07 and 14 cm at 0.17; with conditional integration (blue) every design stays under about 2 cm. Right: the three-state model's last-second distance against the full simulator's for the same 168 designs, all on the diagonal.](experiments/m7ad_settle/m7ad_settle.png)
+
+## Paper step (2026-11-19): how wide should a drone tuner randomise motor lag? Section VII of the draft, with pooled tests
+
+**Question.** Eleven milestones (7s-7ac) retrained the co-designed quadrotor with different motor-lag training ranges, each reported with six seeds per geometry and per-cell tests that rarely separated neighbours. Written up as one section, what do they say, and which differences hold once the two centre-of-pressure geometries are pooled (12 designs a side)?
+
+**Headline ([`paper/DRAFT.md`](paper/DRAFT.md), section VII; [`paper/table7_stats.py`](paper/table7_stats.py) and [`paper/table7_stats.txt`](paper/table7_stats.txt); post hoc, reads existing results files, runs no new flights; simulated).**
+
+- **Drawing the training lag exactly across the measured range is the worst choice tested.** 33-78.2 ms crashes on 486 of 2,304 identified-range stress flights; moving only the floor to the slow identified value (39.1-78.2 ms) gives 348 (pooled Mann-Whitney p = 0.011).
+- **The ceiling, not the floor, buys robustness.** With a 150 ms ceiling the floor no longer matters (39.1 against 75 ms floor: 65 against 62, p = 0.83). Along the ceiling sweep 78.2 / 100 / 125 / 150 / 200 ms the identified-range total falls 348 / 191 / 101 / 65 / 53 (Jonckheere-Terpstra trend p at the permutation floor in both geometries); neighbours separate up to 125 ms (p = 0.018, 0.025), not after (p = 0.10, 0.16). At a 75 ms motor every step of ceiling pays (all p ≤ 0.0002).
+- **Table VII-1** gathers all eleven training ranges with crashes, rise time and mass, and is generated from the results files by `paper/check_numbers.py` (58 checks), so the draft cannot drift from the data.
+- **For a builder:** anchor the randomised lag at the slowest identification for your motor class, never draw faster plants, and set the ceiling at 3-4× it; the price is rise time (1.44 s at 78.2 ms to 2.0-2.3 s at 200 ms), not crashes.
+
+## Milestone 7ac: is there a sharp knee in how wide a drone's motor-lag training range must be? No: a slope, and 3× gets most of it at the measured lag
+
+**Question.** Milestone 7ab found that training over 100 ms of motor lag (2.6× the measured 39.1 ms) leaves the co-designed quadrotor crashing three times as often in the stress test as training up to 150 ms, and that the 150 ms tune rises much slower on a step. Where between the two does the robustness arrive, and does the response price come with it? The same arm was retrained at the 39.1 ms floor with a 125 ms ceiling (24 CMA-ES runs) and scored with all five earlier tunes, which reproduced exactly.
+
+**Headline (`experiments/m7ac_ceil125/results.txt`, `verdicts.txt`, `posthoc.txt`; about 1.5 h on 4 cores; simulated; 6 predictions committed first, 4 held).**
+
+- **A slope, not a cliff.** Stress crashes over the identified lags (of 1152, centre of pressure above, below) by ceiling 78.2 / 100 / 125 / 150 / 200 ms: 170 / 82 / **39** / 27 / 17 and 178 / 109 / **62** / 38 / 36. With six seeds the 125 ms tune is not separated from the 150 ms tune in 5 of 6 identified-lag cells.
+- **Robustness to slower-than-measured motors grows about linearly with the ceiling:** flown at a 75 ms lag, 266 / **204** / 138 / 50 crashes of 384 (above) for 100 / 125 / 150 / 200 ms, 125 against 150 ms p = 0.010.
+- **Response:** rise to 90% of a 1 m step 1.57, 1.65 s, close to the 100 ms tune's 1.47, 1.54 s and faster than the 150 ms tune's 2.23 s with the centre of pressure above (p = 0.026). The cost: 5 of 12 designs never settle within 5 cm (they hover 6-8 cm off), the most of any ceiling.
+- **For a builder:** if your motors are known to sit near the measured lag, about 3× it buys nearly all the robustness at a fast rise; if they may be slower, each extra millisecond of training range keeps paying, so 4× or more.
+
+![Three panels against the training lag ceiling at the 39.1 ms floor (78.2, 100, 125, 150, 200 ms), centre of pressure above in blue and below in red, the 75 ms tune dashed, 125 ms marked. Left: crashes over the identified lags fall 170-178, 82-109, 39-62, 27-38, 17-36. Middle: crashes at the 75 ms law fall almost on a straight line, 331-339, 266-277, 204-206, 131-138, 50-71. Right: rise time 1.4, 1.5, 1.6 s up to 125 ms, then 1.8-2.2 s at 150 ms and 2.0-2.3 s at 200 ms.](experiments/m7ac_ceil125/m7ac_ceil125.png)
+
 ## Milestone 7ab: how wide a motor-lag range should you train a drone over? At least 4× the measured lag
 
 **Question.** Milestone 7aa found that training across a wide motor-lag range (the measured 39.1 ms up to 150 ms), not tuning for a slower nominal motor, is what makes the co-designed quadrotor robust in the stress test (twice the trained centre-of-pressure lever, 45° tilt limit). How wide is enough, and does wider cost anything? The same arm was retrained at the 39.1 ms floor with ceilings of 100 and 200 ms (48 CMA-ES runs) and scored with 7u's 78.2 ms, 7aa's 150 ms and 7z's 75 ms tunes.
@@ -326,7 +363,7 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ## Paper draft (milestone 7, started 2026-11-14): the tilt limit we tested at is PX4's minimum
 
-[`paper/DRAFT.md`](paper/DRAFT.md) is the first draft of the RA-L paper: every section outlined, the stability section (milestones 7c–7g) written in full, a bibliography ([`paper/references.bib`](paper/references.bib)), and [`paper/check_numbers.py`](paper/check_numbers.py), which fails if a quoted figure no longer matches its results file (35 checks; run by `tests/test_paper_numbers.py`).
+[`paper/DRAFT.md`](paper/DRAFT.md) is the first draft of the RA-L paper: every section outlined, the stability section (milestones 7c–7g) and the motor-lag randomisation section (milestones 7s–7ac, with Table VII-1 and pooled tests from [`paper/table7_stats.py`](paper/table7_stats.py)) written in full, a bibliography ([`paper/references.bib`](paper/references.bib)), and [`paper/check_numbers.py`](paper/check_numbers.py), which fails if a quoted figure no longer matches its results file (58 checks, including every row of Table VII-1; run by `tests/test_paper_numbers.py`).
 
 - **Writing it changed how the stability results read.** The simulator's default tilt-command limit is 20°. PX4's `MPC_TILTMAX_AIR` defaults to 45° with 20° as its floor, and ArduPilot's `ANGLE_MAX` defaults to 30° (both read from the autopilots' source on 2026-11-14). So the 45° condition in milestones 7d–7f is the stock PX4 setting, not a stress test: at it, designs CMA-ES tuned onto the linear ceiling diverge on 13 of 384 held-out flights and their position error rises from 0.105 to 0.257 m (`experiments/m7e_margin/tilt.txt`), and the 0.8× margin removes all 13 for 0.7% of cost.
 - No new experiment: the draft only collects numbers already in `experiments/`. Simulated throughout; the gaps before submission (ten seeds, bootstrap intervals, sections I–V written out, LaTeX, hardware) are listed at its end.
@@ -591,6 +628,8 @@ python3 experiments/m7q_closure/fit.py         # seconds, stdlib: closure consta
 "$PY" experiments/m7aa_ceiling/verdicts.py && "$PY" experiments/m7aa_ceiling/posthoc.py && "$PY" experiments/m7aa_ceiling/figure.py
 "$PY" experiments/m7ab_ceilsweep/run.py       # about 2.2 h on 4 cores (48 CMA-ES runs at 39.1 ms x U(1, c/39.1), c = 100 and 200 ms, cached in .cache/; 8 min of stress flights)
 "$PY" experiments/m7ab_ceilsweep/verdicts.py && "$PY" experiments/m7ab_ceilsweep/posthoc.py && "$PY" experiments/m7ab_ceilsweep/figure.py
+"$PY" experiments/m7ac_ceil125/run.py        # about 1.5 h on 4 cores (24 CMA-ES runs at 39.1 ms x U(1, 125/39.1), cached in .cache/; re-scores all five earlier tunes)
+"$PY" experiments/m7ac_ceil125/verdicts.py && "$PY" experiments/m7ac_ceil125/posthoc.py && "$PY" experiments/m7ac_ceil125/figure.py
 python3 paper/check_numbers.py                  # stdlib; every number the paper draft quotes against its results file
 ```
 
@@ -606,7 +645,7 @@ python3 paper/check_numbers.py                  # stdlib; every number the paper
 
 ## Next steps
 
-Milestone 7w follow-up: 52 ms and 60 ms tuning floors to find where slower stops paying, with the certificate also checked at the fast identified corner (33 ms) as a constraint; separate the slower floor from the higher training ceiling (39.1 ms × U(1, 2.3)); 12 seeds for the best floor against 7u; a slow-weighted or worst-case objective over the range; redo 7r's two open steps (a flight-time requirement instead of a fixed 15 min, LiPo at about 12 min) at the chosen floor; a measured step response for one 4-inch and one 6-inch motor-propeller pair to source the diameter exponent.
+After milestone 7ac: a settle-time or position-kp floor as a training constraint, since the 125 ms tune's unsettled designs (5 of 12) are what keep 3× the measured lag from being the default; twelve seeds at 125 and 150 ms to separate them inside the identified range; the same coverage test on the torque-scale and mass ranges. Older items: milestone 7w follow-up: 52 ms and 60 ms tuning floors to find where slower stops paying, with the certificate also checked at the fast identified corner (33 ms) as a constraint; separate the slower floor from the higher training ceiling (39.1 ms × U(1, 2.3)); 12 seeds for the best floor against 7u; a slow-weighted or worst-case objective over the range; redo 7r's two open steps (a flight-time requirement instead of a fixed 15 min, LiPo at about 12 min) at the chosen floor; a measured step response for one 4-inch and one 6-inch motor-propeller pair to source the diameter exponent.
 
 ## Owner steps
 
@@ -615,6 +654,8 @@ Print canted motor mounts at 0° and about 32° for one frame. Then log yaw step
 ## Builds on
 
 The seven `codesign-aero-cant*` projects. Simulator: Folk, Paulos and Kumar (2023), "RotorPy: a Python-based multirotor simulator with aerodynamics for education and research", arXiv:2306.04485 (MIT). Attitude laws: Smeur, Chu and de Croon (2016), *JGCD* 39(3), doi:10.2514/1.G001490; Lee, Leok and McClamroch (2010), IEEE CDC, doi:10.1109/CDC.2010.5717652. Allocation theory: Johansen and Fossen (2013), *Automatica* 49(5), doi:10.1016/j.automatica.2013.01.035; Crowther et al. (2011), *JGCD* 34(4), doi:10.2514/1.51186. Propeller data: Brandt and Selig (2011), AIAA 2011-1255, doi:10.2514/6.2011-1255. CMA-ES: Hansen and Ostermeier (2001), *Evolutionary Computation* 9(2), doi:10.1162/106365601750190398. The full related work is in `PROPOSAL.md`.
+
+Domain randomisation, for section VII of the draft: Tobin et al. (2017), "Domain randomization for transferring deep neural networks from simulation to the real world", IROS, arXiv:1703.06907; Peng et al. (2018), "Sim-to-real transfer of robotic control with dynamics randomization", ICRA, arXiv:1710.06537; Mehta et al. (2019), "Active domain randomization", CoRL, arXiv:1904.04762.
 
 ## Lab tags
 

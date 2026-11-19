@@ -1,0 +1,221 @@
+{
+  "date": "2026-11-19",
+  "subject": "ventures/walk-in-tub-bid-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-19-d-8bc2",
+  "round": 77,
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a licensed plumber / bath-remodel contractor who bids walk-in tub installs (with an electrician sub for powered units)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran the engine and recomputed by hand. Default bid (alcove swap, acrylic soaker, inward door, 8 mi, $42 wage, 30% burden, $95 equipment, 15% OH, 20% margin): hours 1.6+8*0.035+2.2+2.5+3.0+1.2+1.0=11.78; labor 11.78*54.6=643.19; material 1850+8*3.2=1875.60; direct 2613.79; total cost 3005.86; price 3005.86/0.8=3757.32 -> engine 3757.32025, profit/price exactly 0.20 (margin on price, not markup; markup on cost is 25%). Aging-in-place whirlpool preset by hand 18.79 h, cost 6912.34, price 8640.43 = engine. Proposed $3,499 margin (3499-3005.86)/3499=14.09% = engine. Every dollar figure on the three guide pages and vs-a-flat-installed-special (owner-supply $1,097.95/$878.36/+$116.64/-$362.40; Saturday $4,407.98/-$27.39; whirlpool $8,640.43/$6,912.34) reproduced from compareOwnerSupply/compareAccess. Default installed price $3,757 sits within Bob Vila's published $1,500-$12,000 range (national average $4,000 tub+install) and labor at price (~$924) within its $700-$3,000 simple-retrofit labour range. Arithmetic is right; held at 3 not 4 because powered-tub prices omit the electrical circuit a published guide and NEC 680.71 put on every such job.",
+    "completeness": "README claims checked: scope/tub/door presets, six extras, loaded wage, margin pricing, per-tub and effective hourly, four-scope, five-unit, three-way supply and three-way access comparisons, proposed-price scoring, copy summary, printable proposal, share link and local save -- all present and exercised by 159 passing tests (node --test '*.test.mjs'). No stubs/TODOs. served-copy reports no placeholder origin left. Gaps are scope (electrical, water heater, tax), not unfinished claimed features.",
+    "verification": "node --test '*.test.mjs': 159 pass, 0 fail. 4 seeded mutants via quality_mutate.py: margin->markup caught; travel $ doubled caught; handheld hours not multiplied by tub count SURVIVED (no test combines tubCount>1 with handheld); install-only belowBreakEven < -> <= SURVIVED (boundary). Tests pin many headline numbers but multi-tub extras are uncovered.",
+    "craft": "Read calc.mjs (903 lines), proposal.mjs, index.html script. Pure functions, validated inputs, flag() refuses unknown words, ids validated against presets. Defects: calc.mjs has its own money() duplicating proposal.mjs money(); formatBidSummary (documented as customer-facing) prints preset labels 'the cheap special' and repeats tub/door/count on two lines; its hour split omits siteHours so 1.9+2.2+6.7=10.8 h shown under 'Crew labor: 11.8'. Minor, acceptable to a reviewer with notes.",
+    "claims": "FAQ default figures ($1,875.60, $643.19, 11.78 h, $3,757.32) backed by calc.mjs. Guide-page and vs-flat-special tables all reproduce. Unbacked: vs-housecall-pro.html:57 says the tool starts 'from alcove versus freestanding unit, ... drain and valve rough-in' -- there is no freestanding option and no valve rough-in input. index.html:331 FAQ says the 11.78 h default includes 'the surround' but tile surround is off by default. README/index labels whirlpool 'pump, GFCI' while no electrical cost is in the bid. Disclaimer present on index (index.html:358), README, proposal footer and summary; Limitations section discloses no tax.",
+    "fitness": "Walked the job: priced a whirlpool aging-in-place swap with grab bars/handheld/permit, compared Saturday and customer-supplied variants, printed proposal. A contractor can finish a bid, provided they put the electrician sub and any water-heater upgrade into 'Other cost' themselves; the proposal exclusions placeholder suggests the water-heater line. Usable with stated limits.",
+    "domain": "Compared with NEC 680.71 (hydromassage bathtubs: individual branch circuit with readily accessible GFCI; manufacturer manuals often call for separate pump and heater circuits, e.g. Jacuzzi 20A pump + 15A heater) and Bob Vila's cost guide (electrical lines/GFCI/panel; 3/4-inch supply upgrade $600-$1,600). The tool has no electrical line or electrician-sub field for whirlpool/air-jet, so the 'whirlpool' row understates the job by the circuit cost; no water-heater capacity check (walk-in tubs hold large volumes; only an exclusion placeholder); no sales tax on materials; overhead applied to pass-through permit fees. Margin math, burden, travel and OT (1.5x) handling match practice."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Default bid total, hours, labor, materials, margin",
+      "method": "hand arithmetic from first principles (price = cost/(1-m)); author-independent",
+      "command": "node -e \"import('./ventures/walk-in-tub-bid-calculator/calc.mjs').then(c=>{const r=c.calculateBid({scope:'alcove-swap',tub:'soaker-acrylic',door:'inward',tubCount:1,travelMiles:8,hourlyWage:42,burdenRate:30,travelAndEquipment:95,otherCost:0,overheadRate:15,targetMargin:20,...c.suggestedScopeKit('alcove-swap'),...c.suggestedTubKit('soaker-acrylic'),...c.suggestedDoorKit('inward'),...c.suggestedExtraKit(),proposedPrice:3499});console.log(r.totalHours,r.laborCost,r.materialCost,r.totalCost,r.price,r.profit/r.price,r.proposed.margin)})\"",
+      "expected": "11.78 h, labor 643.19, materials 1875.60, cost 3005.86, price 3757.32, margin 0.20, $3,499 margin 14.09%",
+      "observed": "11.780000000000001 643.1880000000001 1875.6 3005.8562 3757.32025 0.2 14.093849671334663",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Typical aging-in-place whirlpool preset (JOB_PRESETS[1])",
+      "method": "hand arithmetic: 18.79 h * 54.6 = 1025.93; material 4200+180+145+95+225+44.8=4889.8; +95; *1.15; /0.8",
+      "command": "node scratch script calling calculateBid with JOB_PRESETS[1] and suggested kits",
+      "expected": "cost 6912.34, price 8640.43",
+      "observed": "6912.34, 8640.43",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Default installed price and labour against a published cost guide",
+      "method": "Bob Vila 'Walk-in tub cost' (updated 2023-08-24, fetched 2026-11-19): $1,500-$12,000, avg $4,000 tub+install; simple-retrofit labour $700-$3,000",
+      "command": "curl -sL https://www.bobvila.com/articles/walk-in-tub-cost/",
+      "expected": "default price and labour inside published ranges",
+      "observed": "price $3,757.32 (avg $4,000); labour at price ~ $924 (643.19*1.15/0.8)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Whirlpool bid includes the dedicated GFCI circuit NEC 680.71 requires",
+      "method": "NEC 680.71 via ECM code-basics articles; Bob Vila electrical note (new lines, GFCI, panel)",
+      "command": "grep -n \"electric\\|circuit\" ventures/walk-in-tub-bid-calculator/calc.mjs",
+      "expected": "an electrical/circuit cost or sub line for whirlpool and air-jet",
+      "observed": "no match; only label text 'pump, GFCI' at calc.mjs:49",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Owner-supply and Saturday page figures",
+      "method": "engine reproduction of numbers printed on should-i-install-a-customer-supplied / should-i-take-a-saturday pages",
+      "command": "compareOwnerSupply(JOB_PRESETS[0],{installOnlyPrice:995}); compareAccess(JOB_PRESETS[0],{installOnlyPrice:3499})",
+      "expected": "1097.95/878.36/+116.64/-362.40; 4407.98/3526.39/-27.39",
+      "observed": "1097.95 878.36 116.64 -362.40; 4407.98 3526.39 -27.39",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-housecall-pro inputs claim",
+      "method": "compare page text against calc.mjs presets/inputs",
+      "command": "grep -n 'freestanding\\|valve rough' ventures/walk-in-tub-bid-calculator/*.mjs",
+      "expected": "freestanding option and valve rough-in input exist",
+      "observed": "no match in any .mjs",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "FAQ: 11.78 h default includes the surround",
+      "method": "index.html:331 vs default checkbox state (includeTileSurround unchecked, hoursTile 0)",
+      "command": "grep -n 'includeTileSurround\" type' ventures/walk-in-tub-bid-calculator/index.html",
+      "expected": "surround included in default",
+      "observed": "checkbox unchecked by default; 11.78 h excludes 8 h tile",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer present on page, README and proposal",
+      "method": "grep",
+      "command": "grep -n 'No warranty' ventures/walk-in-tub-bid-calculator/index.html",
+      "expected": "disclaimer on tool page",
+      "observed": "index.html:358 plus PROPOSAL_DISCLAIMER at index.html:819",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "llms.txt / sitemap URLs on served copy",
+      "method": "platform/pages/served-copy.mjs",
+      "command": "node platform/pages/served-copy.mjs walk-in-tub-bid-calculator",
+      "expected": "no placeholder or retired origin",
+      "observed": "no placeholder or retired origin left in llms.txt, sitemap.xml, robots.txt or canonicals",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "run",
+      "command": "cd ventures/walk-in-tub-bid-calculator && node --test '*.test.mjs'",
+      "expected": "green",
+      "observed": "tests 159, pass 159, fail 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "Copy-summary hour split adds to the stated crew hours",
+      "method": "hand sum of formatBidSummary output on defaults",
+      "command": "formatBidSummary(calculateBid(defaults))",
+      "expected": "travel+unit+extras = 11.8",
+      "observed": "1.9+2.2+6.7=10.8 vs 'Crew labor: 11.8' (siteHours omitted); labels 'the cheap special' on customer-facing text",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "Margin vs markup handling",
+      "method": "textbook: margin = profit/price; price = cost/(1-m)",
+      "command": "same as first check",
+      "expected": "profit/price = target margin",
+      "observed": "0.2 exactly; page text explains margin is share of price",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:336",
+      "change": "price = totalCost / (1 - m) -> totalCost * (1 + m)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:307",
+      "change": "hoursHandheldApplied = tubCount * hoursHandheldEach -> hoursHandheldEach",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:326",
+      "change": "travelInvoice = miles * perMile -> * 2",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:564",
+      "change": "installOnly belowBreakEven < -> <=",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Whirlpool and air-jet units carry no electrical cost: NEC 680.71 requires an individual GFCI-protected branch circuit for hydromassage tubs (manuals often call for separate pump and heater circuits), usually an electrician sub, yet the tub kit is only hours and an invoice and the label says 'pump, GFCI' as if covered; the whirlpool bid and every whirlpool page figure omit it",
+      "where": "ventures/walk-in-tub-bid-calculator/calc.mjs:193",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "vs-housecall-pro claims the tool takes 'alcove versus freestanding unit' and 'drain and valve rough-in'; neither input exists",
+      "where": "ventures/walk-in-tub-bid-calculator/vs-housecall-pro.html:57",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17540"
+    },
+    {
+      "severity": "low",
+      "what": "FAQ says the 11.78 h default covers 'the surround'; tile surround is off by default and its 8 h are not in 11.78",
+      "where": "ventures/walk-in-tub-bid-calculator/index.html:331",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17540"
+    },
+    {
+      "severity": "medium",
+      "what": "No water-heater capacity check or line for large-volume walk-in tubs, and no 3/4-inch supply upgrade line; only an exclusions placeholder mentions the heater",
+      "where": "ventures/walk-in-tub-bid-calculator/calc.mjs:226",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "No sales tax on materials (disclosed in README Limitations); overhead % is also applied to pass-through permit fees",
+      "where": "ventures/walk-in-tub-bid-calculator/calc.mjs:334",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Customer-facing copy summary prints internal labels ('Acrylic soaker — the cheap special', 'Inward-swing door — the cheap special'), repeats tub/door/count, and its hour split omits site hours (10.8 shown vs 11.8 crew-hours)",
+      "where": "ventures/walk-in-tub-bid-calculator/calc.mjs:899",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "No test exercises tubCount>1 with per-tub extras such as handheld; dropping the tubCount multiplier survives the suite",
+      "where": "ventures/walk-in-tub-bid-calculator/calc.mjs:307",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17540"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17540"],
+  "verdict": "Arithmetic is right: default and preset bids recompute by hand to the cent, margin is taken on price, and every figure on the guide and comparison pages reproduces from the engine; defaults sit inside a published cost guide's ranges. It misses the bar on claims (vs-housecall-pro advertises freestanding and valve rough-in inputs that do not exist; the FAQ says the default includes the surround) and verification (2 of 4 seeded mutants survive; multi-tub extras untested). A bath-remodel contractor would also want an electrical line for powered tubs (NEC 680.71 dedicated GFCI circuit) and a water-heater capacity line, which today must be typed into 'Other cost'."
+}

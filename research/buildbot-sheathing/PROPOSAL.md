@@ -486,6 +486,23 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    0.011 mm, from 0.284; H220 held), but coverage falls to 95.9 to 96.8% (H221, H222 refuted), mostly at the G1
    waist and H1 torso, which nothing preloads; the dropped cases were in spec under the old rule. Next: weight the
    margin by a flip's cost at the nose, or preload the waist.
+56. **A held-or-free margin weighted by each flip's cost at the nose** (done 2026-11-19, `experiments/m56_weighted/`):
+   bound the backlash part of the residual by &Sigma;<sub>j</sub> |w<sub>j</sub>| &times; the worst `held_bias` change
+   reachable in each joint's torque band (`preload.flip_cost`) and plan when it is at most half the spec. Every planned
+   in-envelope case stays in spec in three sections (worst 0.0178 mm; H223 held), coverage is G1 100% and H1 99.6 to
+   99.9% (H224 held; 637 of milestone 55's 667 drops won back), and the bound is never beaten (H225 held). The H1 left
+   knee and right elbow are what still bind. Next: sweep the budget share on a held-out seed, add the z residual.
+57. **The budget share on a held-out seed** (done 2026-11-19, `experiments/m57_beta/`): &beta; in {0, 0.25, 0.5,
+   0.75, 1} on 48 new loads (seed 57). &beta; = 0.5 replicates (H226 held: worst 0.0178 mm, coverage G1 99.93%, H1
+   99.54%); coverage is the same from &beta; = 0 to 0.5 (H228 held) and reaches 100% on the H1 at 0.75; &beta; = 1 puts
+   one H1 press at 0.0315 mm (H227 refuted). Every flip the budget admits is a knee or ankle pitch joint that moves the
+   nose 0.27 to 0.29 mm across the wall (z), which no rule budgets; at &beta; = 0 the worst z is 0.026 mm. Next: bound
+   both rows.
+58. **A two-row flip bound** (done 2026-11-19, `experiments/m58_tworow/`): each flip priced along (Y<sub>y</sub>) and
+   across (Y<sub>z</sub>) the wall, each with half a 0.03 mm spec, on 48 new loads (seed 58). The y-only rule leaves
+   0.27 to 0.29 mm across the wall again (H231 held); with both rows every planned press is inside 0.03 mm in both
+   directions (worst z 0.022 mm; H229 held) at the same coverage, G1 100% and H1 99.63% (H230 held). Next: the H1's
+   left knee and right ankle, or the depth point's rows.
 
 ## Target venue
 

@@ -240,6 +240,28 @@ export function localOnlyFiles(checkIgnoreOutput, slug, { copiesDir, isPublishab
   return [...files].sort();
 }
 
+/**
+ * One line naming where the local-only files sit, by their first two
+ * directory levels below the venture, with a count each (most first, at most
+ * `limit`), so a fetched corpus of hundreds of files reads as one entry.
+ * Listing the files buried the preflight's real result (three run records,
+ * 2026-11-19: 834 eval/IDS files from the venture's own fetch script).
+ */
+export function localOnlySummary(localFiles, slug, limit = 5) {
+  const base = `ventures/${slug}/`;
+  const counts = new Map();
+  for (const f of localFiles) {
+    const parts = f.slice(base.length).split('/');
+    const dirs = parts.slice(0, -1).slice(0, 2);
+    const key = dirs.length ? `${dirs.join('/')}/` : parts[0];
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  const rows = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const shown = rows.slice(0, limit).map(([k, n]) => `${k} (${n})`);
+  if (rows.length > limit) shown.push(`+${rows.length - limit} more`);
+  return `Where: ${shown.join(', ')}.`;
+}
+
 /** Recursively list a repo-relative directory's files, repo-relative, skipping what copyTree skips. */
 function listRepoDir(rel, copiesDir) {
   const out = [];
@@ -401,10 +423,9 @@ async function main(argv) {
     failures.push(...placed.failures);
     localFiles = gitLocalOnlyFiles(slug, site);
     if (localFiles.length) {
-      console.log(`   note: ${localFiles.length} git-ignored file(s) under ventures/${slug} that this local build publishes and CI's checkout lacks; `
-        + 'a check.mjs failure on one is local only (keep fetched data outside the venture to silence it):');
-      for (const f of localFiles.slice(0, 10)) console.log(`      ${f}`);
-      if (localFiles.length > 10) console.log(`      (+${localFiles.length - 10} more)`);
+      console.log(`   note (no action needed): ${localFiles.length} git-ignored file(s) under ventures/${slug}, `
+        + `such as fetched eval data, that this local build publishes and CI's checkout lacks; check.mjs problems on them are not counted. `
+        + localOnlySummary(localFiles, slug));
     }
   }
   const posts = changedPosts();

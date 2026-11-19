@@ -15,6 +15,9 @@ Session 103: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR --grid scores the st
 rules and as a per-deployment chooser (lowest k6_loss over the grid) over all 12 SF and Seattle city-years
 (grid_summary; nc4 for 2019 to 2022 from RESULTS_JSON, the rest from sessions 101 and 102's files). Writes
 RESULTS_JSON with _grid.json in place of .json.
+Session 104: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR --recent scores cpin_es3_ncr (a cut per source city at
+the 0.99 quantile of its builds completed in the 3 years before D) against session 103's grid oracle in all 12
+cells (recent_summary). Writes RESULTS_JSON with _recent.json in place of .json.
 """
 import argparse, json, os, sys
 import numpy as np
@@ -266,6 +269,122 @@ def grid_summary(path, rows_dir, oos_path, early_path, held=("sf", "seattle")):
     return s
 
 
+RECENT = "cpin_es3_ncr"
+ALL_YEARS = (2017, 2018, 2019, 2020, 2021, 2022)
+
+
+def recent_score(R, grid, held=("sf", "seattle"), years=ALL_YEARS, nc4_mean_regret=0.78, nc4_max_regret=2.31,
+                 variant=RECENT):
+    """Session 104 (LOG.md): ncr's test q0.9 against the grid {nc3, nc4, nc5} per cell (from session 103's
+    _grid.json cells). Regret = ncr minus the grid oracle (negative when ncr beats every grid cut).
+    N1 to N4 as pre-registered; N0 (the rows check) is added by recent_summary."""
+    G = {(c["held"], c["year"]): c for c in grid["cells"]}
+    cells = []
+    for h in held:
+        for Y in years:
+            r, g = R.get(f"{h} {Y} {variant}"), G.get((h, Y))
+            if r is None or g is None:
+                continue
+            t = r["test_loss"]["0.9"]
+            orc = min(g["test"].values())
+            cells.append(dict(held=h, year=Y, ncr=t, grid=g["test"], oracle=g["oracle"], regret=t - orc,
+                              regret_vs={k: t - v for k, v in g["test"].items()},
+                              thresholds=r.get("stale_threshold_days")))
+    n = len(cells)
+    full = n == len(held) * len(years)
+    reg = [c["regret"] for c in cells]
+    mean_reg = float(np.mean(reg)) if reg else float("nan")
+    se = [c for c in cells if c["held"] == "seattle" and c["thresholds"]]
+    th = lambda ys: [np.mean(list(c["thresholds"].values())) for c in se if c["year"] in ys]  # noqa: E731
+    late, early = th((2020, 2021, 2022)), th((2017, 2018, 2019))
+    grid_means = {k: float(np.mean([c["grid"][k] for c in cells])) for k in (cells[0]["grid"] if cells else {})}
+    return dict(
+        n=n, mean_regret=mean_reg, within_1day=sum(x <= 1.0 for x in reg), max_regret=max(reg) if reg else None,
+        ncr_mean=float(np.mean([c["ncr"] for c in cells])) if cells else None, grid_means=grid_means,
+        seattle_threshold_late=float(np.mean(late)) if late else None,
+        seattle_threshold_early=float(np.mean(early)) if early else None,
+        beats_grid=sum(x < 0 for x in reg),
+        predictions=dict(N1=bool(full and mean_reg < nc4_mean_regret),
+                         N2=bool(full and sum(x <= 1.0 for x in reg) >= 10),
+                         N3=bool(full and max(reg) <= nc4_max_regret),
+                         N4=bool(late and early and float(np.mean(late)) > float(np.mean(early)))),
+        cells=cells)
+
+
+def recent_summary(path, rows_dir, grid_path, share_path=None, held=("sf", "seattle")):
+    """Session 104: recent_score plus N0, the saved ncr rows against the JSON's means and, with share_path
+    (results/open_share_i2c.json, src/open_share.py), the fits' thresholds against the ones recomputed there."""
+    R = json.load(open(path))
+    s = recent_score(R, json.load(open(grid_path)), held)
+    thr_chk = []
+    if share_path and os.path.exists(share_path):
+        S = json.load(open(share_path))
+        thr_chk = [abs(v - S[c][str(cl["year"])]["recent_threshold"]) for cl in s["cells"]
+                   for c, v in (cl["thresholds"] or {}).items()]
+    s["threshold_check_max_abs"] = float(max(thr_chk)) if thr_chk else None
+    chk = []
+    for c in s["cells"]:
+        f = os.path.join(rows_dir, f"{c['held']}_{c['year']}_{RECENT}.npz") if rows_dir else ""
+        if not os.path.exists(f):
+            chk.append(float("inf"))
+            continue
+        z = np.load(f)
+        chk.append(abs(row_loss(z["test_y"], z["test_pred"]).mean() - c["ncr"]))
+    s["rows_check_max_abs"] = float(max(chk)) if chk else None
+    s["predictions"] = dict(N0=bool(chk and max(chk) < 1e-3 and thr_chk and max(thr_chk) < 1e-6), **s["predictions"])
+    s["note"] = ("session 104: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test rows "
+                 "(days); ncr = per-source cut at the 0.99 quantile of builds completed in the 3 years before D; "
+                 "grid = staleness cuts 3, 4, 5 years (sessions 101 to 103's fits); regret = ncr minus grid oracle")
+    return s
+
+
+ROBUST = ("cpin_es3_ncr95", "cpin_es3_ncrd")
+
+
+def robust_summary(path, rows_dir, grid_path, cut_path=None, held=("sf", "seattle"), sweep=(2018, 2019, 2020),
+                   six_years=2191):
+    """Session 105 (LOG.md): the two robust per-source cuts against the {3, 4, 5}-year grid, as session 104 scored
+    ncr. M0: saved rows reproduce the JSON means and the fits' thresholds equal src/robust_cut.py's (cut_path).
+    M1/M2: ncr95's / ncrd's pooled mean regret below nc4's 0.78. M3: each one's worst-cell regret at most nc4's
+    2.31 (M3a ncr95, M3b ncrd). M4: with SF held out, Seattle's source threshold in 2018 to 2020 is under 6 years
+    for both variants (the 2017 sweep no longer sets the cut)."""
+    R = json.load(open(path))
+    grid = json.load(open(grid_path))
+    C = json.load(open(cut_path)) if cut_path and os.path.exists(cut_path) else None
+    out, chk, thr_chk = {}, [], []
+    for v in ROBUST:
+        s = recent_score(R, grid, held, variant=v)
+        for c in s["cells"]:
+            f = os.path.join(rows_dir, f"{c['held']}_{c['year']}_{v}.npz") if rows_dir else ""
+            if not os.path.exists(f):
+                chk.append(float("inf"))
+            else:
+                z = np.load(f)
+                chk.append(abs(row_loss(z["test_y"], z["test_pred"]).mean() - c["ncr"]))
+            if C is not None:
+                thr_chk += [abs(t - C[city][str(c["year"])][v]) for city, t in (c["thresholds"] or {}).items()]
+        s.pop("predictions")
+        out[v] = s
+    full = lambda v: out[v]["n"] == len(held) * len(ALL_YEARS)  # noqa: E731
+    sea = lambda v: [c["thresholds"]["seattle"] for c in out[v]["cells"]  # noqa: E731
+                     if c["held"] == "sf" and c["year"] in sweep and c["thresholds"]]
+    a, b = ROBUST
+    res = dict(variants=out, rows_check_max_abs=float(max(chk)) if chk else None,
+               threshold_check_max_abs=float(max(thr_chk)) if thr_chk else None,
+               seattle_sweep_thresholds={v: sea(v) for v in ROBUST})
+    res["predictions"] = dict(
+        M0=bool(chk and max(chk) < 1e-3 and thr_chk and max(thr_chk) < 1e-6),
+        M1=bool(full(a) and out[a]["mean_regret"] < 0.78), M2=bool(full(b) and out[b]["mean_regret"] < 0.78),
+        M3a=bool(full(a) and out[a]["max_regret"] <= 2.31), M3b=bool(full(b) and out[b]["max_regret"] <= 2.31),
+        M4=bool(all(len(sea(v)) == len(sweep) and max(sea(v)) < six_years for v in ROBUST)))
+    res["note"] = ("session 105: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test rows "
+                   "(days); ncr95 = per-source cut at the 0.95 quantile of builds completed in the 3 years before D; "
+                   "ncrd = the 0.99 quantile after dropping completion days that closed more than 10 permits issued "
+                   "over 8 years earlier; grid = staleness cuts 3, 4, 5 years (sessions 101 to 103); regret = "
+                   "variant minus grid oracle")
+    return res
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("results")
@@ -274,7 +393,31 @@ if __name__ == "__main__":
                                                      "rounds_score_tfol_i2c.json"))
     ap.add_argument("--early", action="store_true", help="session 102: test years 2017 and 2018 (early_summary)")
     ap.add_argument("--grid", action="store_true", help="session 103: the {3, 4, 5}-year grid (grid_summary)")
+    ap.add_argument("--recent", action="store_true", help="session 104: cpin_es3_ncr against the grid")
+    ap.add_argument("--robust", action="store_true", help="session 105: cpin_es3_ncr95 and _ncrd against the grid")
     a = ap.parse_args()
+    if a.robust:
+        rd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+        s = robust_summary(a.results, a.rows_dir, os.path.join(rd, "rounds_score_grid_i2c_grid.json"),
+                           os.path.join(rd, "robust_cut_i2c.json"))
+        json.dump(s, open(a.results.replace(".json", "_robust.json"), "w"), indent=1)
+        print(json.dumps({k: v for k, v in s.items() if k not in ("variants", "note")}, indent=1))
+        for v, o in s["variants"].items():
+            print(v, {k: o[k] for k in ("mean_regret", "within_1day", "max_regret", "ncr_mean", "beats_grid")})
+            for c in o["cells"]:
+                print(" ", c["held"], c["year"], round(c["ncr"], 2), {k[8:]: round(x, 2) for k, x in c["grid"].items()},
+                      "regret", round(c["regret"], 2), "thr", {k: round(x) for k, x in (c["thresholds"] or {}).items()})
+        sys.exit(0)
+    if a.recent:
+        rd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+        s = recent_summary(a.results, a.rows_dir, os.path.join(rd, "rounds_score_grid_i2c_grid.json"),
+                           os.path.join(rd, "open_share_i2c.json"))
+        json.dump(s, open(a.results.replace(".json", "_recent.json"), "w"), indent=1)
+        print(json.dumps({k: v for k, v in s.items() if k not in ("cells", "note")}, indent=1))
+        for c in s["cells"]:
+            print(c["held"], c["year"], "ncr", round(c["ncr"], 2), {k[8:]: round(v, 2) for k, v in c["grid"].items()},
+                  "regret", round(c["regret"], 2), "thr", {k: round(v) for k, v in (c["thresholds"] or {}).items()})
+        sys.exit(0)
     if a.grid:
         rd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
         s = grid_summary(a.results, a.rows_dir, os.path.join(rd, "rounds_score_oos_i2c.json"),

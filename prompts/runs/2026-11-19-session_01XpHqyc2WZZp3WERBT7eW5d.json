@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyc2WZZp3WERBT7eW5d",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T02:37:57Z",
+  "ended": "2026-11-19T03:00:10Z",
+  "wall_minutes": 22.56,
+  "tokens_in": 10193214,
+  "tokens_out": 43153,
+  "cost_usd": 3.8729,
+  "tool_calls": 101,
+  "task": "polish: shared .stack phone table layout for wide blog Markdown tables (item 1 of polish-2026-11-19-ask-page.md)",
+  "projects": [
+    "platform/pages",
+    "platform/devlog"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17509",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First screenshot clipped the page hero, not the table: boundingBox() after scrollIntoView is viewport-relative, fullPage clip wants page coordinates",
+      "fix": "computed rect.top + scrollY in page.evaluate"
+    },
+    {
+      "what": "An intermediate edit made the 4-column wordy mean skip the first column, so build B stacked a slightly different set (360 vs 356) and one more table overflowed",
+      "fix": "reverted to the all-cells mean; documented which build each number comes from instead of a third 20-minute build"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "A first draft of the report carried an estimated height ('375,000 px approx.') and per-column counts from a partial run",
+      "fix": "replaced with exact figures from the complete before/after measurements before committing"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Full build took ~10-20 min each; a before/after comparison needs two, and a CSS-only tweak can be previewed by writing renderSiteStyle() into dist/pf-site.css directly, which the prompt doesn't mention"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '4810/40 runs toward the next review', which reads like a broken counter"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not screenshot the hub, a flagship, research, stories and a post before choosing; took the queue's open item 1 from the newest report instead, then measured all 1,597 blog pages with tables",
+      "did": "Measured every blog table at 390 px rather than a sample of surfaces",
+      "result": "Found 209 overflowing tables; fixed 204"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-wide-tables-become-cards-on-a-phone.md",
+    "docs/reports/polish-2026-11-19-stacked-tables.md"
+  ],
+  "goal": null,
+  "notes": "Local verification: node --test 'platform/pages/*.test.mjs' 1837/1837 pass; devlog + stack-table + assistant tests 42/42; check.mjs on the build: publishable, 11751 pages, no dead links. Browser measurement over 1,760 tables on 1,599 pages: at 390 px overflowing 209 -> 5 (build A rule, committed); at 1280 px 0 of 1,760 tables changed size.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5dd48be3-a4d2-505f-b3a6-71d0ddf6b30f",
+    "transcripts": 1,
+    "first": "2026-11-19T02:37:57Z",
+    "last": "2026-11-19T03:00:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 95,
+        "input": 181,
+        "output": 43153,
+        "thinking": 8742,
+        "cache_read": 10068604,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124429,
+        "api_equivalent_usd": 3.8729,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 95,
+      "input": 181,
+      "output": 43153,
+      "thinking": 8742,
+      "cache_read": 10068604,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124429,
+      "api_equivalent_usd": 3.8729,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 91,
+      "Read": 6,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.56,
+      "active_minutes": 22.56,
+      "model_minutes": 7.71,
+      "tool_minutes": 14.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "measure 1,760 tables in a browser, write renderer + shared CSS + tests, two builds, report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 154.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

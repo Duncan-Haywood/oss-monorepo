@@ -14,6 +14,8 @@ sh = failure_shares(rows)
 print(f"sources {len(sources)}, practices {len(practices)}, validation problems {len(problems)}")
 for p in problems:
     print("  PROBLEM", p)
+latest = max((str(r.get("date") or "") for r in rows), default="")
+print(f"ledger snapshot: {ledger.name}, latest run date {latest or 'unknown'}")
 print(f"ledger rows {len(rows)}; rows with any reported error {sum(1 for r in rows if error_texts(r))}")
 print("\nfailure class: rows matching / rows (Wilson 95%)")
 for m, (k, n) in sh.items():

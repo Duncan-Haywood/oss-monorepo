@@ -45,6 +45,12 @@ pay. Every rate is a number you read off your own bills, payroll and equipment
 specifications. The output is the cost floor underneath your pricing decision,
 not a recommended price and not a market study.
 
+There is no delivery-fee input yet, although the delivery finding suggests
+charging one; model a fee by raising the price on delivery orders
+([quality audit, 2026-11-19](../../portfolio/quality/audits/2026-11-19-wash-and-fold-price-calculator.json)).
+The profit-goal volume treats overhead as fixed: (goal + monthly overhead) /
+contribution per pound, fixed in the same audit round.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your wages, utility rates, volumes and prices

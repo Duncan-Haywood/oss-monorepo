@@ -207,8 +207,11 @@ const RULES = {
   },
   SoftwareApplication(n, f) {
     need(f, n, "name", "error");
-    const hasOne = ["offers", "aggregateRating", "review"].some((k) => !blank(n[k]));
-    if (!hasOne) f.push({ level: "error", path: "offers", message: 'Needs "offers" (price, 0 if free) or "aggregateRating" / "review" to qualify.' });
+    // Google's Software App rich result needs offers.price (0 if free) AND
+    // aggregateRating or review; either one alone is not eligible.
+    if (blank(n.offers)) f.push({ level: "error", path: "offers", message: 'Needs "offers" with "price" (0 if free) to qualify.' });
+    else if (!arr(n.offers).some((o) => o && typeof o === "object" && !blank(o.price))) f.push({ level: "error", path: "offers.price", message: 'Needs "offers.price" (0 if free) to qualify.' });
+    if (blank(n.aggregateRating) && blank(n.review)) f.push({ level: "error", path: "aggregateRating", message: 'Needs "aggregateRating" or "review" as well as "offers" to qualify.' });
     offerChecks(f, n.offers, "offers"); need(f, n, "applicationCategory", "warning"); need(f, n, "operatingSystem", "warning");
     if (n.aggregateRating) { need(f, n.aggregateRating, "ratingValue", "error"); if (blank(n.aggregateRating.ratingCount) && blank(n.aggregateRating.reviewCount)) f.push({ level: "error", path: "aggregateRating.ratingCount", message: 'aggregateRating needs "ratingCount" or "reviewCount".' }); }
   },

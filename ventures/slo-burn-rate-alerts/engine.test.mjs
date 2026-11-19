@@ -85,3 +85,74 @@ test("bad input is rejected, not turned into rules", () => {
   assert.deepEqual(validateInputs({ slo: 99.9, periodDays: 30 }), []);
   assert.equal(validateInputs({ slo: 0, periodDays: 0 }).length, 2);
 });
+
+// Quality audit 2026-11-19 (round 75): `and` -> `or` between the windows and sub-1x burns both passed every test.
+test("alert requires BOTH windows: long and short joined by and", () => {
+  const rules = generateRules({ name: "api", slo: 99.9, errors: "e", total: "t" });
+  assert.match(rules, /ratio_rate1h\{slo=\\"api\\"\} > \(14\.4 \* 0\.001\) and slo:sli_error:ratio_rate5m\{slo=\\"api\\"\} > \(14\.4 \* 0\.001\)/);
+  assert.doesNotMatch(rules, /\) or /);
+});
+
+test("burn rates under 1x are flagged: warn for pages, info for tickets", () => {
+  const day = lint(99.9, 1).filter((f) => f.rule === "sub-unit-burn");
+  assert.ok(day.some((f) => f.severity === "warn" && f.window === "1h"));
+  const week = lint(99.9, 7).filter((f) => f.rule === "sub-unit-burn");
+  assert.deepEqual(week.map((f) => [f.window, f.severity]), [["1d", "info"], ["3d", "info"]]);
+  assert.equal(lint(99.9, 30).filter((f) => f.rule === "sub-unit-burn").length, 0);
+});
+
+// Red-team 2026-11-19: boundaries and outputs that mutants changed without a test noticing.
+test("an error ratio exactly at the threshold never fires: the alert compares with a strict >", () => {
+  const p = buildPolicy(99.9, 30)[0];
+  assert.equal(detectionTime(p, p.errorRatioThreshold), Infinity);
+  assert.ok(Number.isFinite(detectionTime(p, p.errorRatioThreshold * 1.01)));
+  // 90% over 50 days: the 6h page needs exactly 10x * 10% = 100%, so even a total outage never trips it.
+  const six = buildPolicy(90, 50)[1];
+  assert.equal(six.errorRatioThreshold, 1);
+  assert.equal(six.reachable, false);
+  assert.equal(detectionTime(six, 1), Infinity);
+});
+
+test("period accepts 1..366 days and nothing outside", () => {
+  assert.deepEqual(validateInputs({ slo: 99.9, periodDays: 366 }), []);
+  assert.deepEqual(validateInputs({ slo: 99.9, periodDays: 1 }), []);
+  assert.equal(validateInputs({ slo: 99.9, periodDays: 367 }).length, 1);
+  assert.equal(validateInputs({ slo: 99.9, periodDays: 0.5 }).length, 1);
+});
+
+test("the per-year budget row is 365 days", () => {
+  const year = budgetTable(99.9, 30).rows.find((r) => r.label === "Per year");
+  assert.equal(year.seconds, 365 * 86400);
+  assert.ok(Math.abs(year.allowedDowntime - 31536) < 1e-6);
+});
+
+test("low-traffic is only reported for alerts that can fire and with a positive request rate", () => {
+  assert.ok(!lint(99.9, 30, { rps: 0 }).some((x) => x.rule === "low-traffic"));
+  // At 90% the 1h and 6h pages are unreachable; only the reachable rows may be low-traffic.
+  const f = lint(90, 30, { rps: 0.0001 }).filter((x) => x.rule === "low-traffic");
+  const reachableShorts = buildPolicy(90, 30).filter((p) => p.reachable).map((p) => promDuration(p.short));
+  assert.ok(f.length > 0);
+  assert.deepEqual(f.map((x) => x.window).sort(), reachableShorts.sort());
+});
+
+test("a one-letter SLO name is a valid name", () => {
+  const out = generateRules({ name: "a", slo: 99.9, errors: "e_total", total: "t_total" });
+  assert.match(out, /slo: "a"/);
+});
+
+test("alert descriptions state the budget fraction as a whole percent", () => {
+  const out = generateRules({ name: "api", slo: 99.9, errors: "e_total", total: "t_total" });
+  assert.match(out, /At this rate 2% of the 30-day budget is spent in 1h; the whole budget lasts 2d 2h/);
+  assert.match(out, /At this rate 10% of the 30-day budget is spent in 3d/);
+});
+
+test("sweep: an alert shows a finite outage detection time exactly when it is reachable", () => {
+  // The page and CLI print both numbers side by side; they must never disagree.
+  for (const slo of [50, 80, 85, 90, 95, 99, 99.5, 99.9, 99.99, 99.999]) {
+    for (let periodDays = 1; periodDays <= 366; periodDays += 1) {
+      for (const p of buildPolicy(slo, periodDays)) {
+        assert.equal(Number.isFinite(detectionTime(p, 1)), p.reachable, `${slo}% over ${periodDays}d, ${promDuration(p.long)} window`);
+      }
+    }
+  }
+});

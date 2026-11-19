@@ -109,7 +109,7 @@ def newton_svd(res):
 
 
 def traced_slp(ppc, pg_start, vg_start, rounds=30, margin=None, analytic=True, solver="clarabel",
-               hook=None, accept=None):
+               hook=None, accept=None, enlarge=None, enlarge_once=False):
     """vlin.slp's loop, step for step, with diagnostics. Returns (hist, trace): hist as vlin.slp
     returns it; trace one dict per round.
 
@@ -118,18 +118,24 @@ def traced_slp(ppc, pg_start, vg_start, rounds=30, margin=None, analytic=True, s
     (a dict) is stored under the round's trace key "hook". It must not change the repair.
     accept (optional, a method change; None = the frozen merit test): accept(ctx) -> bool decides
     whether a not-clean trial replaces the base point, with ctx as for hook plus "phi_accept", the
-    frozen test's verdict."""
+    frozen test's verdict.
+    enlarge (optional, a method change; None = frozen): rule E's cap as a multiple of the first boxes
+    (vlin.enlarged_step); its per-round record is stored under the trace key "enlarge".
+    enlarge_once: rule O, rule E at most once per base point (as vlin.slp); a blocked round's trace has
+    "enlarge" = {"blocked": True}."""
     margin = margin or vlin.MARGIN
     lay = vlin.Layout(ppc)
     g = ppc["gen"]
     base_mva = ppc["baseMVA"]
     ptrust = np.maximum(0.2 * (g[:, PMAX] - g[:, PMIN]), 0.1)
+    p_first = ptrust.copy()
     vtrust = np.full(lay.nv, vlin.VBOX)
     pg, v = pg_start.copy(), lay.v_of(vg_start)
     cur = vlin.check(ppc, pg, lay.vg_of(v))
     hist, trace = [], []
     warm = None
     halvings = 0
+    used_here = False
     for it in range(1, rounds + 1):
         tr = {"it": it, "halvings": halvings, "phi": None if cur is None else vlin.merit(cur, base_mva)}
         lin = vlin.linearise(ppc, pg, v, lay, warm, analytic=analytic)
@@ -146,6 +152,16 @@ def traced_slp(ppc, pg_start, vg_start, rounds=30, margin=None, analytic=True, s
             xp, xv, ok = vlin.solve(ppc, lin, ptrust=pt, vtrust=vtrust, margin=margin, solver=solver, **kw)
             if ok:
                 break
+            if not kw and enlarge is not None and enlarge_once and used_here:
+                tr["enlarge"] = {"blocked": True}
+            elif not kw and enlarge is not None:
+                xp, xv, ok, inf = vlin.enlarged_step(ppc, lin, pt, vtrust, margin, enlarge * p_first,
+                                                     enlarge * vlin.VBOX, solver)
+                tr["enlarge"] = inf
+                if ok:
+                    kw = {"enlarged": inf["t_used"]}
+                    used_here = True
+                    break
         if not ok:
             hist.append({"it": it, "status": "QP infeasible"})
             tr["status"] = "QP infeasible"
@@ -200,6 +216,7 @@ def traced_slp(ppc, pg_start, vg_start, rounds=30, margin=None, analytic=True, s
             break
         if accepted:
             pg, v, cur = xp.copy(), xv.copy(), c
+            used_here = False
         else:
             ptrust, vtrust = ptrust / 2, vtrust / 2
             halvings += 1

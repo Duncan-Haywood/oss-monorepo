@@ -58,6 +58,9 @@
       .layout { grid-template-columns: 1fr; }
       .result { position: static; color: #111; background: #fff; border: 1px solid #ccc; }
       .hero-number { color: #111; }
+      /* Its screen colour is pale teal for the dark panel; on the white
+         printed panel it was 1.6:1 (platform/pages/paper.mjs). */
+      .result .eyebrow { color: #1c5f7a !important; }
     
       /* The internal sheet is the contractor's own copy; a previewed proposal
          never rides along with it. Scoped by `:not(.printing-proposal)` rather

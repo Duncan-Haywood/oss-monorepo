@@ -1,0 +1,42 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 58: a two-row (y and z) flip bound, held-out section E (48 loads, seed 58; y spec 0.03 mm, b_y = 0.015 mm; B = 0.20 N)
+errors (6 random directions, seed 58): (-0.053, +0.008, -0.193); (-0.174, -0.094, -0.028); (+0.172, +0.026, -0.099); (-0.128, -0.088, -0.126); (-0.147, -0.135, -0.012); (-0.054, -0.190, +0.032)
+check (b_z = inf against milestone 56's weighted_rule, first 4 loads per robot): 756 cases, plan/no-plan mismatches 0, 'how' mismatches 0, largest |y| difference 0.0e+00 mm
+
+## A. Rules: robot | config (b_y, b_z mm; z spec) | in-envelope cases (m51) | planned | coverage | per-load sides | planned with a flip | worst |y| mm (at) | over y spec | worst |z| mm (at) | over z spec | smallest Y_y - y shift | smallest Y_z - z shift
+  g1 | y-only (0.015, inf; 0.03) | 4002 | 4002 | 100.00% | 250 | 34 | 0.0109 (([0.4, -0.15], 1.55, 65.0, 5)) | 0 | 0.2713 (([1.2, -0.15], 5.03, 349.4, 2)) | 4 | 0.00e+00 | -1.11e-16
+  g1 | iso (0.015, 0.015; 0.03) | 4002 | 4002 | 100.00% | 311 | 30 | 0.0109 (([0.4, -0.15], 1.55, 65.0, 5)) | 0 | 0.0220 (([0.4, 0.0], 2.77, 70.6, 1)) | 0 | 0.00e+00 | 0.00e+00
+  g1 | loose (0.015, 0.150; 0.3) | 4002 | 4002 | 100.00% | 311 | 30 | 0.0109 (([0.4, -0.15], 1.55, 65.0, 5)) | 0 | 0.0220 (([0.4, 0.0], 2.77, 70.6, 1)) | 0 | 0.00e+00 | 0.00e+00
+  h1 | y-only (0.015, inf; 0.03) | 5412 | 5392 | 99.63% | 94 | 20 | 0.0117 (([1.2, -0.15], 15.31, 186.8, 2)) | 0 | 0.2865 (([1.6, 0.15], 10.77, 81.4, 1)) | 5 | -3.47e-18 | -5.55e-17
+  h1 | iso (0.015, 0.015; 0.03) | 5412 | 5392 | 99.63% | 129 | 15 | 0.0100 (([1.4, 0.15], 10.32, 263.1, 1)) | 0 | 0.0176 (([1.6, 0.15], 18.53, 237.6, 1)) | 0 | 0.00e+00 | 0.00e+00
+  h1 | loose (0.015, 0.150; 0.3) | 5412 | 5392 | 99.63% | 129 | 15 | 0.0100 (([1.4, 0.15], 10.32, 263.1, 1)) | 0 | 0.0176 (([1.6, 0.15], 18.53, 237.6, 1)) | 0 | 0.00e+00 | 0.00e+00
+
+## B. No plan, by the joint with the largest normalised cost on the pose's sides: robot | config | none | joints (counts)
+  g1 | y-only | 0 | 
+  g1 | iso | 0 | 
+  g1 | loose | 0 | 
+  h1 | y-only | 20 | left_knee 20
+  h1 | iso | 20 | left_knee 13, right_ankle 7
+  h1 | loose | 20 | left_knee 20
+
+## C. Hypotheses (registered in LOG.md before this run)
+H229 (isotropic: every planned case inside 0.03 mm in y and z, both bounds hold): worst y g1 0.0109 h1 0.0100, worst z g1 0.0220 h1 0.0176 mm; over z g1 0 h1 0; smallest slack y 0.00e+00 z 0.00e+00 mm -> held
+H230 (isotropic coverage within 1.0 point of y-only): loss g1 0.00 h1 0.00 points -> held
+H231 (y-only: inside 0.03 mm in y, some case over 0.03 mm in z): worst y g1 0.0109 h1 0.0117, worst z g1 0.2713 h1 0.2865 mm -> held
+
+(run time 914 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

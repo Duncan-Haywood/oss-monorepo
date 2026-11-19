@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKineERo5mxEYhuz1WZ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T04:18:38Z",
+  "ended": "2026-11-19T04:36:30Z",
+  "wall_minutes": 18.16,
+  "tokens_in": 6835382,
+  "tokens_out": 39215,
+  "cost_usd": 3.2337,
+  "tool_calls": 58,
+  "task": "grid-linopf: rule E, enlarge the trust box to the smallest non-empty scale before the elastic fallback (frozen on development, scored held-out)",
+  "projects": [
+    "research/grid-linopf",
+    "research/infra-dcopf"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17536",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/infra-dcopf/LOG.md",
+      "issue": "The 2026-11-19 IIS step's Next said to cap the enlarged box at the first round's box, yet its own numbers show case73 API needs 1.08 to 1.46 times that box, so the rule as named could never fire on the case it was aimed at; caught before the run and declared (cap 2 primary, cap 1 secondary)."
+    },
+    {
+      "file": "research/infra-dcopf/experiments/run_iis.py",
+      "issue": "phase1 builds a dense m x m identity for the slack columns, which is roughly a gigabyte on the 2,000-bus held-out cases (not measured); the new rule uses a one-LP min-t formulation instead of bisection over that phase-1."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/infra-dcopf/LOG.md",
+      "why": "The previous step's Next named a cap of 1 times the first box, which its own data showed cannot fire on case73 API.",
+      "did": "Froze cap 2 as primary before the run and ran cap 1 as a declared secondary arm in development.",
+      "result": "Cap 2 finished case73 API; cap 1 was inert on it and lost the same two finishers."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-widening-a-grid-repairs-trust-box-cycles.md",
+    "research/infra-dcopf/LOG.md (2026-11-19 plan and outcome)",
+    "research/grid-linopf/README.md"
+  ],
+  "goal": "Advance programme grid-linopf by one method-change step under the frozen-dev / held-out protocol.",
+  "notes": "Plan with predictions E1-E7 committed (b60f5d3ac) before any run. Dev cap 2: 94 of 112 failed hard QPs fixed by the enlargement, all solved; finishers 31->30 of 34 (gained case73 API at round 12 +3.258%; lost case30 API, case200 API to a repeat cycle: 68 of 94 firings rebuild the just-rejected QP). Cap 1: 29 of 34, inert on case73. Held-out: 10->8 of 19 (gained case500 SAD; lost case1888 API, case793 API, case588 TYP). Reproduction gates passed (1/1, 12/12, 2/2). Not adopted; next is the enlargement at most once per base point. Checks run here: tests/test_enlarge.py and the infra-dcopf suite, research/_homepage/build.py ok, research_live_links, check_md_links, check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "80a3bcfa-bb33-5ded-9d30-ca8e0fb270a9",
+    "transcripts": 1,
+    "first": "2026-11-19T04:18:38Z",
+    "last": "2026-11-19T04:36:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 110,
+        "output": 39215,
+        "thinking": 9182,
+        "cache_read": 6696570,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138702,
+        "api_equivalent_usd": 3.2337,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 110,
+      "output": 39215,
+      "thinking": 9182,
+      "cache_read": 6696570,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138702,
+      "api_equivalent_usd": 3.2337,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.16,
+      "active_minutes": 18.16,
+      "model_minutes": 7.26,
+      "tool_minutes": 10.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OR researcher designing, coding and running a pre-registered trust-region rule change across 53 benchmark cases and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 309.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

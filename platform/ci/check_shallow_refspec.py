@@ -21,9 +21,9 @@ A refspec split onto a different line from the depth flag is not seen.
 from __future__ import annotations
 
 import re
-import subprocess
 import sys
 from pathlib import Path
+from repo_files import ls_files
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SUFFIXES = {".py", ".mjs", ".js", ".cjs", ".sh"}
@@ -57,8 +57,7 @@ def scan(root: Path, files: list[str]) -> list[tuple[str, int, str]]:
 
 
 def tracked(root: Path) -> list[str]:
-    res = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True, check=True)
-    return [f for f in res.stdout.split("\0") if f]
+    return ls_files(root)
 
 
 def main(root: Path = REPO_ROOT) -> int:

@@ -1,0 +1,89 @@
+wrong: K fons (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K pons (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K mons (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K frons (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K op (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K oc (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K ob (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K of (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K ot (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K ox (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K om (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K on (vowel only) midi 57 p4: left 33, end 27, starts 64 ms after the note's end, 50 ms, level -7.3 -7.8 -8.1 -8.4 -8.7 -9.2 -9.8
+wrong: K u midi 59 p4: left 16, end 5, starts 149 ms after the note's end, 75 ms, level -13.7 -14.1 -14.5 -14.7 -14.9 -15.1 -15.4
+wrong: K runt (vowel only) midi 59 p4: left 16, end 5, starts 149 ms after the note's end, 75 ms, level -13.7 -14.1 -14.5 -14.7 -14.9 -15.1 -15.4
+wrong: K bunt (vowel only) midi 59 p4: left 16, end 5, starts 149 ms after the note's end, 75 ms, level -13.7 -14.1 -14.5 -14.7 -14.9 -15.1 -15.4
+wrong: K lunt (vowel only) midi 59 p4: left 16, end 5, starts 149 ms after the note's end, 75 ms, level -13.7 -14.1 -14.5 -14.7 -14.9 -15.1 -15.4
+wrong: K ux (vowel only) midi 59 p4: left 16, end 5, starts 149 ms after the note's end, 75 ms, level -13.7 -14.1 -14.5 -14.7 -14.9 -15.1 -15.4
+wrong: K u (vowel only) midi 59 p4: left 16, end 5, starts 149 ms after the note's end, 75 ms, level -13.7 -14.1 -14.5 -14.7 -14.9 -15.1 -15.4
+wrong: V tod midi 62 p4: left 59, end 53, starts -66 ms after the note's end, 50 ms, level -25.4 -26.6 -26.2 -25.6 -25.1 -24.7 -24.4
+wrong: W fu midi 56 p2: left 26, end 21, starts 99 ms after the note's end, 45 ms, level -1.9 -2.3 -2.7 -3.1 -3.6 -3.9
+wrong: W nup (vowel only) midi 56 p2: left 42, end 36, starts 19 ms after the note's end, 50 ms, level -3.9 -3.8 -3.7 -3.7 -3.7 -3.8 -3.9
+wrong: W hup (vowel only) midi 56 p2: left 42, end 36, starts 19 ms after the note's end, 50 ms, level -3.9 -3.8 -3.7 -3.6 -3.7 -3.8 -3.9
+wrong: W buc (vowel only) midi 56 p2: left 42, end 36, starts 19 ms after the note's end, 50 ms, level -3.9 -3.8 -3.7 -3.6 -3.7 -3.8 -3.9
+wrong: W rug (vowel only) midi 56 p2: left 42, end 36, starts 19 ms after the note's end, 50 ms, level -3.9 -3.8 -3.7 -3.6 -3.7 -3.8 -3.9
+wrong: W mug (vowel only) midi 56 p2: left 42, end 36, starts 19 ms after the note's end, 50 ms, level -3.9 -3.8 -3.7 -3.6 -3.7 -3.8 -3.9
+wrong: W nut (vowel only) midi 56 p2: left 42, end 36, starts 19 ms after the note's end, 50 ms, level -3.9 -3.8 -3.7 -3.6 -3.7 -3.8 -3.9
+wrong: W pum (vowel only) midi 56 p2: left 42, end 36, starts 19 ms after the note's end, 50 ms, level -3.9 -3.8 -3.7 -3.7 -3.7 -3.8 -3.9
+wrong: W fu (vowel only) midi 56 p2: left 42, end 36, starts 19 ms after the note's end, 50 ms, level -3.9 -3.8 -3.7 -3.6 -3.7 -3.8 -3.9
+wrong: X fub (vowel only) midi 46 p4: left 11, end 3, starts 171 ms after the note's end, 60 ms, level -13.5 -14 -14 -15.3 -15 -16.7 -17
+wrong: X cub (vowel only) midi 46 p4: left 11, end 3, starts 171 ms after the note's end, 60 ms, level -13.5 -14 -14 -15.3 -15 -16.7 -17
+wrong: X bug (vowel only) midi 46 p4: left 11, end 3, starts 171 ms after the note's end, 60 ms, level -13.5 -14 -14 -15.3 -15 -16.7 -17
+wrong: X hud (vowel only) midi 46 p4: left 11, end 3, starts 171 ms after the note's end, 60 ms, level -13.5 -14 -14 -15.3 -15 -16.7 -17
+wrong: X mud (vowel only) midi 46 p4: left 11, end 3, starts 171 ms after the note's end, 60 ms, level -13.5 -14 -14 -15.3 -15 -16.7 -17
+wrong: X tum (vowel only) midi 46 p4: left 11, end 3, starts 171 ms after the note's end, 60 ms, level -13.5 -14 -14 -15.3 -15 -16.7 -17
+wrong: X sunc (vowel only) midi 46 p4: left 11, end 3, starts 171 ms after the note's end, 60 ms, level -13.5 -14 -14 -15.3 -15 -16.7 -17
+wrong: X ruc (vowel only) midi 46 p4: left 11, end 3, starts 171 ms after the note's end, 60 ms, level -13.5 -14 -14 -15.3 -15 -16.7 -17
+wrong: Y mog (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y fog (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y hog (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y sob (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y cob (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y pod (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y gom (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y son (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y ponc (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y ront (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y hont (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y dop (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y pof (vowel only) midi 62 p4: left 23, end 17, starts 111 ms after the note's end, 50 ms, level -7.8 -7.8 -8.2 -8.8 -9.7 -10.9 -12.1
+wrong: Y sob midi 64 p2: left 69, end 64, starts -117 ms after the note's end, 45 ms, level -2.1 -2.4 -3 -3.2 -2.4 -1.1
+left (frames; 20 = 20 or more): right, wrong
+  11: 0, 8
+  16: 0, 6
+  20: 196, 36
+left (frames, bins of 5; 60 = 60 or more): right, wrong
+  10 to 14: 0, 8
+  15 to 19: 0, 6
+  20 to 24: 1, 13
+  25 to 29: 0, 1
+  30 to 34: 0, 12
+  40 to 44: 0, 8
+  50 to 54: 12, 0
+  55 to 59: 146, 1
+  60 to 64: 37, 1
+endLeft (frames, bins of 5; 60 = 60 or more): right, wrong
+  0 to 4: 7, 8
+  5 to 9: 31, 6
+  10 to 14: 28, 0
+  15 to 19: 25, 13
+  20 to 24: 12, 1
+  25 to 29: 10, 12
+  30 to 34: 13, 0
+  35 to 39: 9, 8
+  40 to 44: 8, 0
+  45 to 49: 15, 0
+  50 to 54: 14, 1
+  60 to 64: 24, 1
+afterEnd (ms from the note's end to the run's start, bins of 25): right, wrong
+  -175 to -151: 2, 0
+  -150 to -126: 21, 0
+  -125 to -101: 3, 1
+  -75 to -51: 154, 1
+  -50 to -26: 15, 0
+  0 to 24: 0, 8
+  50 to 74: 0, 12
+  75 to 99: 0, 1
+  100 to 124: 1, 13
+  125 to 149: 0, 6
+  150 to 174: 0, 8

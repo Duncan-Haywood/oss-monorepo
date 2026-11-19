@@ -1,0 +1,38 @@
+POST HOC, seed 20270101, opening P500 with the spell's first step moved over one week; found of 200 by the --spells line
+
+P3w30
+  S 500 (starts Thu)  informative days  9  found 164  neither  36
+  S 501 (starts Fri)  informative days  8  found 146  neither  54
+  S 502 (starts Sat)  informative days  8  found 120  neither  80
+  S 503 (starts Sun)  informative days  8  found 139  neither  61
+  S 504 (starts Mon)  informative days  9  found 163  neither  37
+  S 505 (starts Tue)  informative days  9  found 167  neither  33
+  S 506 (starts Wed)  informative days  9  found 174  neither  26
+
+P5d60
+  S 500 (starts Thu)  informative days 18  found 172  neither  28
+  S 501 (starts Fri)  informative days 18  found 170  neither  30
+  S 502 (starts Sat)  informative days 18  found 177  neither  23
+  S 503 (starts Sun)  informative days 17  found 138  neither  62
+  S 504 (starts Mon)  informative days 16  found 144  neither  56
+  S 505 (starts Tue)  informative days 16  found 134  neither  66
+  S 506 (starts Wed)  informative days 17  found 144  neither  56
+
+P1w60
+  S 500 (starts Thu)  informative days 34  found 200  neither   0
+  S 501 (starts Fri)  informative days 34  found 200  neither   0
+  S 502 (starts Sat)  informative days 34  found 200  neither   0
+  S 503 (starts Sun)  informative days 34  found 200  neither   0
+  S 504 (starts Mon)  informative days 35  found 200  neither   0
+  S 505 (starts Tue)  informative days 35  found 200  neither   0
+  S 506 (starts Wed)  informative days 34  found 200  neither   0
+
+P3w60
+  S 500 (starts Thu)  informative days 17  found 198  neither   2
+  S 501 (starts Fri)  informative days 16  found 195  neither   5
+  S 502 (starts Sat)  informative days 17  found 197  neither   3
+  S 503 (starts Sun)  informative days 17  found 199  neither   1
+  S 504 (starts Mon)  informative days 18  found 198  neither   2
+  S 505 (starts Tue)  informative days 18  found 198  neither   2
+  S 506 (starts Wed)  informative days 17  found 196  neither   4
+(76.4 s)

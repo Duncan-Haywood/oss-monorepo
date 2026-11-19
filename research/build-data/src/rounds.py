@@ -35,6 +35,12 @@ candidate) under the variants that early-stop, and records the round each quanti
   cpin_es3_nc4, _nc6  the same rule at 4 and 6 years (session 102: is 5 years a plateau?)
   cpin_es3_ncq the same rule with a threshold per source city: its own 0.99 quantile of build days over its
                years <= Y-2 completed by D (session 93, q_threshold)
+  cpin_es3_ncr as ncq, the quantile taken only over the source's builds completed in the 3 years before D
+               (session 104, recent_threshold: a cut that moves with recent completions)
+  cpin_es3_ncr95  as ncr at the 0.95 quantile (session 105: a lower quantile, less moved by rare close-outs)
+  cpin_es3_ncrd   as ncr (0.99 quantile, 3 years), after dropping from the quantile's sample every completion on a
+               calendar day on which more than BATCH_N permits issued over OLD_DAYS (8 years) earlier were completed
+               (session 105, batch_days: batch close-outs of old permits removed before the tail is read)
   cpin_es3_nc5_clean  cpin_es3_nc5 with the source permits completed by D whose close-out status is dead (expired,
                void, withdrawn, ... or Seattle's "Closed as Incomplete" marker; src/status_pull.py) dropped from
                training and early stopping: their completion date is an administrative closure, not a build's
@@ -83,7 +89,8 @@ VARIANTS = ("full", "es_truncate", "es3", "cut_only", "ipcw_cut", "ipcw_es3", "c
             "cens_cut_cap", "cens_es3_cap", "cpin_cut", "cpin_es3", "cpin_es3_done",
             "cpin_es3_nc", "cpin_es3_nc5", "cpin_es3_nc2", "cpin_es3_nc3", "cpin_es3_nc8", "cpin_es3_ncq",
             "cpin_es3_nc5_clean", "cpin_es3_nc5_stamp", "cpin_es3_nc3_clean",
-            "cpin_es3_nc5_stamp_len", "cpin_es3_nc5_stamp_long", "cpin_es3_nc4", "cpin_es3_nc6")
+            "cpin_es3_nc5_stamp_len", "cpin_es3_nc5_stamp_long", "cpin_es3_nc4", "cpin_es3_nc6", "cpin_es3_ncr",
+            "cpin_es3_ncr95", "cpin_es3_ncrd")
 STALE_DAYS = 1826  # session 91: 5 years; the cpin_es3_nc5 staleness rule (fixed before any run)
 # session 92: the staleness threshold swept, in days (2, 3, 5, 8 years; the grid session 91's "Next" named)
 STALE = {"cpin_es3_nc2": 730, "cpin_es3_nc3": 1095, "cpin_es3_nc5": STALE_DAYS, "cpin_es3_nc8": 2922,
@@ -109,6 +116,49 @@ def q_threshold(d, decision, q=STALE_Q):
     win = np.array([(decision - x).days for x in s], dtype=float)
     y = d.y.to_numpy(float)
     return float(np.quantile(y[y <= win], q))
+
+
+RECENT_YEARS = 3  # session 104, cpin_es3_ncr: only builds completed in the RECENT_YEARS years before D count
+
+
+def recent_threshold(d, decision, q=STALE_Q, years=RECENT_YEARS):
+    """Session 104 (cpin_es3_ncr): the q-quantile of issue-to-completion days over d's rows whose completion
+    date (start + y) falls in the `years` years before `decision`: a cut that moves with the source's recent
+    completions (session 93's q_threshold pooled every year). A deployment on `decision` can compute it."""
+    s = pd.to_datetime(d.start).dt.date
+    win = np.array([(decision - x).days for x in s], dtype=float)
+    y = d.y.to_numpy(float)
+    m = np.isfinite(y) & (y <= win) & (win - y < 365.25 * years)
+    return float(np.quantile(y[m], q))
+
+
+BATCH_N = 10  # session 105, cpin_es3_ncrd: a day closing more than this many old permits is a batch close-out
+OLD_DAYS = 2922  # session 105: "old" = issued more than 8 years before completion (session 104's open_share count)
+RECENT_Q = {"cpin_es3_ncr": STALE_Q, "cpin_es3_ncr95": 0.95, "cpin_es3_ncrd": STALE_Q}  # session 105
+
+
+def batch_days(d, n=BATCH_N, old_days=OLD_DAYS):
+    """Session 105: bool mask of d's completed rows whose completion day (start + y) is a day on which more than
+    `n` of d's completions closed permits issued more than `old_days` earlier. Every completion on such a day is
+    masked (not only the old ones): the day is treated as an administrative sweep."""
+    y = d.y.to_numpy(float)
+    fin = np.isfinite(y)
+    start = pd.to_datetime(d.start).to_numpy("datetime64[D]")
+    comp = np.where(fin, start + np.where(fin, y, 0).astype("timedelta64[D]"), np.datetime64("NaT", "D"))
+    old = fin & (y > old_days)
+    days, counts = np.unique(comp[old], return_counts=True)
+    bad = days[counts > n]
+    return fin & np.isin(comp, bad)
+
+
+def recent_threshold_robust(d, decision, variant):
+    """Session 105: recent_threshold at RECENT_Q[variant]; for cpin_es3_ncrd, after batch_days rows are dropped.
+    Returns (threshold, number of rows dropped as batch close-outs)."""
+    nb = 0
+    if variant == "cpin_es3_ncrd":
+        m = batch_days(d)
+        nb, d = int(m.sum()), d[~m]
+    return recent_threshold(d, decision, q=RECENT_Q[variant]), nb
 
 
 def stale_drop(d, decision, days=STALE_DAYS):
@@ -231,7 +281,7 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
     frames = {c: (d if nc and c != held else d[np.isfinite(d.y.to_numpy(float))]) for c, d in frames.items()}
     src = [c for c in transfer.CITIES if c != held and c in frames]
     cat = lambda f: pd.concat([frames[c][f(frames[c])] for c in src])  # noqa: E731
-    thresholds, n_dead_dropped, dead_by_city, len_matched = None, None, None, None
+    thresholds, n_dead_dropped, dead_by_city, len_matched, n_batch = None, None, None, None, None
     if variant == "cpin_cut":
         tr, ca = cat(lambda d: d.year <= Y - 2), cat(lambda d: d.year == Y - 1)
         ytr, otr = cpin.censor(tr, D)
@@ -261,6 +311,17 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
             # session 93: a cut per source city, from its own builds of years <= Y-2 completed by D
             thresholds = {c: q_threshold(frames[c][(frames[c].year <= Y - 2) & np.isfinite(frames[c].y)], D)
                           for c in src}
+            tr = pd.concat([stale_drop(frames[c][(frames[c].year <= Y - 4) | (frames[c].year == Y - 2)], D,
+                                       thresholds[c]) for c in src])
+            ca = pd.concat([stale_drop(frames[c][frames[c].year == Y - 3], D, thresholds[c]) for c in src])
+        if variant in RECENT_Q:
+            # session 104: a cut per source city from its builds completed in the 3 years before D
+            # session 105: at the 0.95 quantile (ncr95), or after batch close-out days are dropped (ncrd)
+            rt = {c: recent_threshold_robust(frames[c][(frames[c].year <= Y - 1) & np.isfinite(frames[c].y)], D,
+                                             variant) for c in src}
+            thresholds = {c: v[0] for c, v in rt.items()}
+            if variant == "cpin_es3_ncrd":
+                n_batch = {c: v[1] for c, v in rt.items()}
             tr = pd.concat([stale_drop(frames[c][(frames[c].year <= Y - 4) | (frames[c].year == Y - 2)], D,
                                        thresholds[c]) for c in src])
             ca = pd.concat([stale_drop(frames[c][frames[c].year == Y - 3], D, thresholds[c]) for c in src])
@@ -375,6 +436,8 @@ def cpin_rounds(frames, held, Y, variant, seeds, score=False, pulled=None):
         np.savez_compressed(os.path.join(rows_dir, f"{held}_{Y}_{variant}.npz"), **arrs)
     if thresholds is not None:
         res["stale_threshold_days"] = thresholds
+    if n_batch is not None:
+        res["n_batch_rows_dropped"] = n_batch
     if nc:
         res["n_sel"], res["n_sel_open"] = len(sel), int(osel.sum())
         res["sel_closs"] = {str(t): sum(v) / len(v) for t, v in sel_loss.items()}

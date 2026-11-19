@@ -474,22 +474,30 @@ VBOX = 0.03
 
 
 def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, screen=False, solver="pips",
-        record=False, warm=None, warm_check=False, merit_fn=None):
+        record=False, warm=None, warm_check=False, merit_fn=None, enlarge=None, info=None,
+        enlarge_once=False):
     """Successive linearisation in (P, V): C's step rules (no P box in round 1, then 20 % of range,
     halved on a rejected step), a V box of VBOX pu from round 1 halved with P's, elastic fallback.
     Each history entry keeps its point under "pg" and "vg".
     warm: a power-flow result whose voltages start round 1's Newton (and the start's check);
     warm_check: start each new point's AC check at the current round's linearisation point.
     Both default off, which is every arm before the homotopy start (LOG.md 2026-11-14).
-    merit_fn: the acceptance merit (default `merit`, the frozen test; `merit_sum` is rule S)."""
+    merit_fn: the acceptance merit (default `merit`, the frozen test; `merit_sum` is rule S).
+    enlarge: None (frozen) or rule E's cap as a multiple of the first boxes (LOG.md 2026-11-19): when
+    the hard QP fails, re-solve it once at the smallest non-empty box scale (times 1.1, capped) before
+    the elastic fallback. info: a list that collects rule E's per-round record.
+    enlarge_once: rule O (LOG.md 2026-11-19, E-once): rule E at most once per base point; after an enlarged
+    step from the current base point, a failed hard QP goes to the elastic chain (recorded as blocked)."""
     mf = merit_fn or merit
     lay = Layout(ppc)
     g = ppc["gen"]
     ptrust = np.maximum(0.2 * (g[:, PMAX] - g[:, PMIN]), 0.1)
+    p_first = ptrust.copy()
     vtrust = np.full(lay.nv, VBOX)
     pg, v = pg_start.copy(), lay.v_of(vg_start)
     cur = check(ppc, pg, lay.vg_of(v), warm)
     hist = []
+    used_here = False  # rule O: an enlarged step has been taken from the current base point
     for it in range(1, rounds + 1):
         lin = linearise(ppc, pg, v, lay, warm, analytic=analytic)
         if lin is None:
@@ -503,6 +511,18 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
                                 solver=solver, record=record, **kw)
             if ok:
                 break
+            if not kw and enlarge is not None and enlarge_once and used_here:
+                if info is not None:
+                    info.append({"it": it, "blocked": True})
+            elif not kw and enlarge is not None:
+                xp, xv, ok, inf = enlarged_step(ppc, lin, pt, vtrust, margin, enlarge * p_first,
+                                                enlarge * VBOX, solver, screen)
+                if info is not None:
+                    info.append({"it": it, **inf})
+                if ok:
+                    kw = {"enlarged": inf["t_used"]}
+                    used_here = True
+                    break
         if not ok:
             hist.append({"it": it, "status": "QP infeasible"})
             ptrust, vtrust = ptrust / 2, vtrust / 2
@@ -519,9 +539,88 @@ def slp(ppc, pg_start, vg_start, rounds=ROUNDS, margin=None, analytic=False, scr
             break
         if cur is None or mf(c, ppc["baseMVA"]) < mf(cur, ppc["baseMVA"]):
             pg, v, cur = xp.copy(), xv.copy(), c
+            used_here = False
         else:
             ptrust, vtrust = ptrust / 2, vtrust / 2
     return hist
+
+
+ENLARGE_SLACK = 1.10  # rule E: the hard QP is re-solved at 1.1 times the smallest non-empty box scale
+
+
+def min_box_scale(ppc, lin, ptrust=None, vtrust=None, margin=None, cap=None):
+    """Rule E's test (LOG.md 2026-11-19, box enlargement): the smallest t >= 0 at which the hard QP's
+    feasible set with its trust box multiplied by t (ptrust t, vtrust t, physical and margin-shifted
+    bounds and the linear rows exactly as solve builds them) is non-empty, from one LP in (x, t) solved by
+    HiGHS (min t). Returns t, or None if no t <= cap (inf if cap is None) gives a point, or if there is
+    no box at all."""
+    from scipy.optimize import linprog
+    mg = margin or {}
+    lay = lin["lay"]
+    g, bus = ppc["gen"], ppc["bus"]
+    ng, nv = lay.ng, lay.nv
+    n = ng + nv
+    A, u, _kind, a_eq, b_eq = rows(ppc, lin, margin)
+    pmin = np.where(lay.live, g[:, PMIN], 0.0)
+    pmax = np.where(lay.live, g[:, PMAX], 0.0)
+    vmin, vmax = shrink(bus[lay.vrow, VMIN], bus[lay.vrow, VMAX], mg.get("v", 0.0))
+    s = lay.slack
+    lo_s, hi_s = shrink(pmin[s:s + 1], pmax[s:s + 1], mg.get("slack", 0.0))
+    pmin[s], pmax[s] = lo_s[0], hi_s[0]
+    x0 = np.concatenate([lin["pg0"], lin["v0"]])
+    r = np.full(n, np.nan)
+    if ptrust is not None:
+        r[:ng] = ptrust
+    if vtrust is not None:
+        r[ng:] = vtrust
+    boxed = np.where(np.isfinite(r))[0]
+    if not len(boxed):
+        return None
+    E = np.zeros((2 * len(boxed), n + 1))
+    hb = np.zeros(2 * len(boxed))
+    for k, j in enumerate(boxed):  # x_j - t r_j <= x0_j and -x_j - t r_j <= -x0_j
+        E[2 * k, j], E[2 * k, n], hb[2 * k] = 1.0, -r[j], x0[j]
+        E[2 * k + 1, j], E[2 * k + 1, n], hb[2 * k + 1] = -1.0, -r[j], -x0[j]
+    sc = np.maximum(1.0, np.abs(A).max(axis=1))  # row scaling, as run_iis.empty does
+    Aub = np.vstack([np.hstack([A / sc[:, None], np.zeros((A.shape[0], 1))]), E])
+    bub = np.concatenate([u / sc, hb])
+    c = np.zeros(n + 1)
+    c[n] = 1.0
+    bounds = list(zip(np.concatenate([pmin, vmin]), np.concatenate([pmax, vmax])))
+    bounds.append((0.0, None if cap is None else float(cap)))
+    res = linprog(c, A_ub=Aub, b_ub=bub, A_eq=np.append(a_eq, 0.0)[None, :], b_eq=[b_eq], bounds=bounds,
+                  method="highs")
+    if res.status != 0:
+        return None
+    return float(res.x[n])
+
+
+def enlarged_step(ppc, lin, ptrust, vtrust, margin, cap_p, cap_v, solver, screen=False):
+    """Rule E on a round whose hard QP failed: find the smallest box scale t with a non-empty hard set,
+    capped so the box never exceeds (cap_p, cap_v) (the caps in absolute units, per variable); if t > 1
+    (the box, not the solver, empties the set), re-solve the hard QP once at min(1.1 t, cap) times the
+    box. Returns (xp, xv, ok, info)."""
+    caps = []
+    if ptrust is not None:
+        caps.append(np.min(cap_p[ptrust > 0] / ptrust[ptrust > 0]) if (ptrust > 0).any() else np.inf)
+    if vtrust is not None and len(vtrust):
+        caps.append(np.min(cap_v / vtrust))
+    cap = float(min(caps)) if caps else None
+    info = {"cap": cap}
+    if cap is None or cap <= 1.0:
+        info["fired"] = False
+        return None, None, False, info
+    t = min_box_scale(ppc, lin, ptrust, vtrust, margin, cap)
+    info["t_min"] = t
+    if t is None or t <= 1.0:
+        info["fired"] = False
+        return None, None, False, info
+    tu = min(ENLARGE_SLACK * t, cap)
+    info.update(fired=True, t_used=tu)
+    xp, xv, ok = solve(ppc, lin, ptrust=None if ptrust is None else ptrust * tu,
+                       vtrust=None if vtrust is None else vtrust * tu, margin=margin, screen=screen, solver=solver)
+    info["ok"] = bool(ok)
+    return xp, xv, ok, info
 
 
 def best_of(hist, base_mva):

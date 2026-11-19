@@ -243,19 +243,8 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
   table{border-collapse:collapse;width:100%;font-size:15px}
   th,td{border:1px solid var(--pfs-line);padding:7px 9px;text-align:left;vertical-align:top}
   .tablewrap{overflow-x:auto;margin:14px 0 18px}
-  /* On a phone the four- and five-column tables squeezed to one word per
-     line and clipped at the right edge (2026-11-19, 390 px). Each row becomes
-     a card instead, every cell labelled from its column (data-label). The
-     ARIA roles keep the table semantics that display:block drops in Safari. */
-  @media (max-width:600px){
-    .stack thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-    .stack,.stack tbody,.stack tr,.stack td{display:block}
-    .stack tr{border:1px solid var(--pfs-line);border-radius:10px;background:var(--pfs-panel);padding:2px 12px;margin:0 0 10px}
-    .stack td{border:0;border-top:1px solid var(--pfs-line);padding:7px 0;display:grid;grid-template-columns:minmax(6.5em,34%) 1fr;gap:10px}
-    .stack td::before{content:attr(data-label);color:var(--pfs-muted);font-size:13px;font-weight:600;line-height:1.5}
-    .stack td:first-child{display:block;border-top:0;font-weight:650;padding:9px 0 7px}
-    .stack td:first-child::before{content:none}
-  }
+  /* Wide tables (.stack) become one card per row on a phone: STACK_TABLE_CSS in
+     pf-site.css (site-nav.mjs), shared with the blog's Markdown tables since 2026-11-19. */
   </style>
   ${chrome.styleLink}
 </head>

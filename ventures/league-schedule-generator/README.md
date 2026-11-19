@@ -341,7 +341,7 @@ MIT licence, see `LICENSE`.
 
 **Double-elimination play-offs.** Tick "Double elimination" next to the play-off size (three or more teams) and the bracket becomes winners and losers brackets, a grand final, and a reset game that is played only if the losers-bracket team wins the grand final. A team is out after two losses; byes in an uneven field are carried through the losers bracket so no match is left without an opponent. Tests play every field from 3 to 17 teams, including random results, and check one champion, every other team out on exactly two losses, and 2k-2 games (one more with a reset) (`doubleEliminationBracket` in `calc.mjs`).
 
-**Americano (rotating partners).** For social padel, pickleball, badminton and tennis nights, "Build rotation" takes the players, the number of courts and rounds, and re-pairs everyone each round so people partner and oppose as many different players as possible. Sit-outs and games are shared within one of even, repeat partnerships are minimised by a seeded search and counted, and a validator re-checks the plan (`americano`, `validateAmericano`, `americanoStats`, `americanoText` in `calc.mjs`; tested for every size from 4 to 24 players). Not an official rating system: it does not score or rank the night.
+**Americano (rotating partners).** For social padel, pickleball, badminton and tennis nights, "Build rotation" takes the players, the number of courts and rounds, and re-pairs everyone each round so people partner and oppose as many different players as possible. With a court for every four players and 4k or 4k+1 players it is a whist design: everyone partners everyone else exactly once and faces each of them exactly twice (section "Americano: partner everyone once, face everyone twice"). Sit-outs and games are shared within one of even, repeat partnerships are otherwise minimised by a seeded search and counted, and a validator re-checks the plan (`americano`, `validateAmericano`, `americanoStats`, `americanoText` in `calc.mjs`; tested for every size from 4 to 24 players). Not an official rating system: it does not score or rank the night.
 
 **Mexicano (draw from the table).** For padel and pickleball nights where each round is drawn from the standings, "Draw next round" takes the players, the courts and every finished game (`Ana & Ben 21-17 Cy & Dee`), credits each player with their side's points, and pairs the leaders together: 1 & 4 against 2 & 3 in each group of four, or a split that avoids repeating a partner. The player who has played most sits out, and round one with no scores is a seeded random draw (`parseMexicanoScores`, `mexicanoStandings`, `mexicanoNextRound`, `mexicanoText` in `calc.mjs`; tested for 4 to 20 players on 1 to 3 courts, with games staying within one of even). A format helper, not a rating system.
 
@@ -350,6 +350,204 @@ MIT licence, see `LICENSE`.
 **A message per team.** "Download a message per team" writes one ready-to-paste note for each team ("Hi Hawks, your fixtures: ...") with only that team's dates, venues, opponents and byes, so a coordinator can message each team instead of forwarding the whole league (`teamMessages` in `calc.mjs`).
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
+
+## Americano whist designs for 40 to 64 players: a field construction and multipliers (2026-11-19, latest)
+
+The plain backtracking search below stopped at 37 players plus 44: 40, 41, 45, 48 and 49 found nothing in
+25 minutes each, so big socials (the card takes up to 64) fell back to greedy, which at 48 players on 12
+courts repeats 45 partnerships over the cycle. Two kinds of structure instead of search
+(`eval/whist-multiplier.mjs`, results in `eval/whist-multiplier.txt`, every base checked pair by pair with
+`eval/whist-multiplier-check.mjs`):
+
+- **4k+1 players, no search at all.** Take the field (or product of fields) R of that size and an E with
+  E^2 = -1; multiplying by E splits the nonzero elements into foursomes {a, Ea, -a, -Ea}. Seat each foursome
+  as a & -a vs Ea & -Ea. Partner differences are 2a times the foursome and opponent differences (1-E)a
+  times it, twice, so as long as 2 and 1-E are units every pair partners once and meets twice. That needs
+  each prime-power factor of the size to be 1 mod 4: **41** (GF(41)), **45** (GF(9) x GF(5), stored on
+  Z3 x Z3 x Z5), **49** (GF(49) on Z7 x Z7), **53** and **61**. Checked from 5 to 101 in `whist.test.mjs`.
+- **4k players: search one table per orbit.** Require the base round on Z_{4k-1} + infinity to be mapped
+  onto itself by multiplying by a unit of order 3. For 40 players (Z39, unit 16) that fixes 0, 13 and 26,
+  which must join infinity at its table; the other 9 tables come in 3 orbits, so only 3 tables are
+  searched. **40** is found in about 1 s and **64** (Z63, unit 4) in about 4 s.
+
+What does not work, and why (so the next run does not retry it): with the multiplier -1 every table must
+be a & -a vs b & -b, and summing the squares of the opponent differences forces x^2 = 1^2 + 2^2 + ... +
+h^2 (mod v) for the class x at infinity's table (h = (v-1)/2), or that sum = 0 (mod v) with no infinity.
+Neither holds for Z47, Z51, Z55, Z59 (48, 52, 56, 60 players) or Z57 (57 players); the search agreed on
+every small size (none for 8 to 24, found at once for 28 and 40, where the condition holds). Those groups
+have no other usable multiplier, so 48, 52, 56, 57 and 60 need the plain search: `eval/whist-search.c` is
+that search in C, about 60 times faster than the JavaScript one (29 players in 0.6 s against 37 s).
+Run for 20 CPU-minutes each (`eval/whist-search-c.txt`), it found **56** (Z55, 191 s) and nothing for
+48, 52, 57 or 60.
+
+Stored now: every 4k and 4k+1 size from 4 to 45, plus 49, 53, 56, 61 and 64. The existing one-empty-seat
+rule (use the next design up when its rounds fill at least 90% of the courts) now also covers 39, 55 and 63
+players, and 48, 52 and 60, where it costs a court: 48 players on 12 courts play design 49 with one empty
+seat, so one court sits idle each round. Over the cycle that is 0 repeat partners and every pair meeting
+once or twice, against greedy's 45 repeat partners and pairs meeting up to 5 times, but 45 games each in
+49 rounds instead of 47 in 47 (`eval/whist-vs-greedy.txt`). Still on greedy: 47, 51, 57 and 59 players.
+Tested in `whist.test.mjs` (stored sizes, full-court nights at 40, 41, 45, 49, 56 and 64, one-seat nights
+at 39 and 63, the field construction from 5 to 101).
+
+## Americano for 4k+2 players: near-whist designs (2026-11-19)
+
+The whist designs below cover 4k and 4k+1 players (and 4k+3 with one empty seat). 6, 10, 14, 18, 22 ...
+players stayed on the greedy search, because two empty seats idle a court. A whist design for 4k+2
+players cannot exist: there are (4k+2)(4k+1)/2 pairs, an odd number, and every game uses two
+partnerships. So the best possible night leaves some pairs unpartnered, and for everyone to play the
+same number of games the unpartnered pairs must form a perfect matching: each player misses exactly
+one partner.
+
+`whist.mjs` now plays exactly that bound, a **near-whist design**, built cyclically on Z_{4k+2} from one
+stored base round (`near-whist-bases.mjs`): k tables seat 4k of the 4k+2 points and two sit out; round g
+adds g to every seat. A pair at distance d (1 to 2k) recurs once per base occurrence; distance 2k+1
+(half the circle) only every other round, which is what makes the matching {x, x+2k+1}. The base round
+needs partner distances 1..2k exactly once and never 2k+1, opponent distances 1..2k at most twice and
+2k+1 exactly once (4k opponent slots, so exactly one distance is used once). Over 4k+2 rounds:
+
+- nobody partners anyone twice; each player partners 4k of their 4k+1 others;
+- the one they miss, they face exactly twice; everyone else they face once or twice (no pair never meets);
+- everyone plays 4k games and sits out exactly twice.
+
+`eval/near-whist-search.mjs` finds the bases by simulated annealing on the base round (swap moves,
+short restarts): 6 to 34 in under 12 s each, 38 in 108 s, 42 in 45 s, 50 in 8.6 min; 46 found nothing in 15 min
+(seed 1) and 54 nothing in 10 min, so those stay on greedy (`eval/near-whist-search.txt`).
+`eval/near-whist-bases-build.mjs` keeps only bases whose developed design passes `checkNearWhist`, an
+independent pair-by-pair check. Stored: 6, 10, 14, 18, 22, 26, 30, 34, 38, 42 and 50 players. Against the greedy search on the same
+players, courts and rounds (`eval/whist-vs-greedy.txt`, a court for every four players):
+
+| players | greedy repeat partners | greedy never partner | greedy opponents | near-whist repeat partners | near-whist never partner | near-whist opponents |
+|---|---|---|---|---|---|---|
+| 6 | 0 | 3 | 1-4 | 0 | 3 | 1-2 |
+| 10 | 2 | 7 | 0-3 | 0 | 5 | 1-2 |
+| 14 | 1 | 8 | 1-3 | 0 | 7 | 1-2 |
+| 18 | 1 | 10 | 1-4 | 0 | 9 | 1-2 |
+| 22 | 1 | 12 | 0-4 | 0 | 11 | 1-2 |
+| 26 | 1 | 14 | 1-4 | 0 | 13 | 1-2 |
+| 30 | 5 | 20 | 0-4 | 0 | 15 | 1-2 |
+| 34 | 11 | 28 | 0-4 | 0 | 17 | 1-2 |
+| 38 | 15 | 34 | 0-5 | 0 | 19 | 1-2 |
+| 42 | 24 | 45 | 0-5 | 0 | 21 | 1-2 |
+
+With fewer courts than tables the design is dealt into rounds as before (26 players on 3 courts: 52
+rounds, 0 repeats, against greedy's 25 on the same 52 rounds), and the page hints that round count.
+A shorter night still keeps the better of the design's first rounds and the greedy search. The page
+says which it used ("Built from a near-whist design ..."). Tested in `whist.test.mjs` (every stored
+size checked, 4k+2 nights from 6 to 30 players, broken designs rejected). An annealing try at the
+missing 4k and 4k+1 whist sizes (40, 41, 45, 48, 49) did not reach even 29, 32 and 33 in 25 s each
+(the exact "twice" condition leaves no slack), so it was dropped (not kept in eval/). 40, 41, 45 and 49 have
+designs since (section "Americano whist designs for 40 to 64 players").
+
+## Americano: partner everyone once, face everyone twice (whist designs, 2026-11-19)
+
+The Americano card (rotating partners for padel, pickleball, badminton and tennis nights) used a greedy
+round-by-round search. Over a full cycle with a court for every four players it repeats partners from 20
+players up (20: 2 repeats, 24: 4, 28: 6, 32: 15, 48: 45) and never evens out opponents: some pairs meet
+four or five times while others never face each other (`eval/whist-vs-greedy.txt`).
+
+The fix is a **whist tournament**: rounds of tables a&b vs x&y in which every pair partners exactly once
+and plays against each other exactly twice. They exist for every 4k and 4k+1 players. `whist.mjs` builds
+them cyclically from one stored base round per size (`whist-bases.mjs`): for 4k+1 players the players are
+the elements of an abelian group and round g adds g to every seat of the base round; for 4k players one
+fixed player ("infinity") joins a group of order 4k-1. `eval/whist-search.mjs` finds the base rounds by
+randomised backtracking on the difference counts (partner differences once, opponent differences twice);
+9 players has no Z9 base (exhaustive), so it uses Z3 x Z3. `eval/whist-bases-build.mjs` stores only bases
+whose developed design passes `checkWhist`. Stored by this search: 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29, 32, 33, 36, 37 and 44 players (more in the section above). Search times are in
+`eval/whist-search.txt` (seconds up to 28; 37 s to 19 min from 29 on, eleven processes sharing four cores). 40, 41,
+45, 48 and 49 found nothing in 25 minutes each (4e8-node budget); all but 48 are stored now by other means
+(section "Americano whist designs for 40 to 64 players").
+
+How `americano()` uses them (the greedy search stays as the fallback and the comparison):
+
+- **A court for every four players, whole cycle:** the design. 16 players on 4 courts play 15 rounds,
+  everyone partners all 15 others once and faces each of them twice; greedy gave opponents 1-4.
+- **4k+3 players (7, 11, 15, 19, 23, 27 ...):** the next design up with one empty seat; the table holding
+  it sits out. Same games per player as greedy, no repeat partner, every pair meets once or twice
+  (greedy 0-4).
+- **4k+2 players (6, 10, 14 ...):** a near-whist design (section above, 2026-11-19); two empty seats in a
+  bigger design would idle a court and cost each player 2-3 games (18 players: 13-14 against 16).
+- **Fewer courts than tables (20 players on 3 courts):** the design's games are dealt into rounds of at
+  most 3, least-played players first. The whole design then takes 32 rounds instead of 19; the page says
+  so ("set Rounds to 32") and uses it when asked. A prefix measured no better than greedy, so a blank
+  round count stays on greedy.
+- **A shorter night than the whole design:** both are built and the better kept (repeat partners, then
+  the most times one pair meets as opponents). Measured honestly: on 6- and 8-round nights the two tie
+  (max 2 meetings, no repeats, 12-28 players, 20 seeds each), and at 28 players over 6 rounds greedy is
+  slightly better (max 1). The design's edge is the full cycle: multi-week social leagues, long club
+  nights, and anyone who wants the guarantee in writing.
+
+Seeds still change who gets which seat, so the same seed gives the same sheet. Tested in `whist.test.mjs`
+(every stored design checked pair by pair, the four cases above, a broken design rejected). Guide:
+`how-to-run-an-americano-tournament.html` ("Partner everyone once, face everyone twice"; its 8-player
+worked example is now the whist design and still recomputed by `page.test.mjs`). Not yet used by a real
+club night.
+
+## Bowling league nights: averages, handicaps, points and standings (2026-11-19, latest)
+
+The bowling page scheduled the lanes and stopped there, but a bowling league's weekly job is the
+secretary's sums: each bowler's average and handicap, every match's games with handicap, points
+won, and the standings sheet, then next week's position round from those standings. Leagues do it in
+a spreadsheet they maintain themselves, or in paid desktop league secretary software, or on their
+centre's scoring system if it has a league module. The page now does it from typed score sheets,
+in the browser, on the schedule it just built (`bowling-recap.mjs`).
+
+- **Input:** a `Week 1` line, then one line per team: `Pin Pals: Ana 180 165 201, Ben 140 152 133,
+  Cy absent`. Optional entering averages (`Ana 165, Ben Ortiz 142`). Rules, all editable: games a
+  night (3), bowlers a team (4), handicap % (90) of basis (220), highest handicap (none), points a
+  game (2) and for the series (2), absent penalty (10), blind score (150).
+- **Rules applied:** average = pins / games through last week, fractions dropped; a bowler with no
+  games uses the entering average, else the night's own games (retroactive first night). Handicap =
+  floor(pct x (basis - average) / 100), floor 0, capped; 0% is a scratch league. Absent bowlers
+  score average - penalty plus handicap and the games never count to their average; absent with no
+  average, or a short lineup, is a blind with no handicap. Ties split points. Against the Vacancy a
+  team bowls to its par (each spot's average plus handicap). Standings: points won, then handicap pins.
+  Position rounds are paired from the standings before that night (`1st place` v `2nd place` on the
+  schedule becomes two team names).
+- **Output:** standings, the last night match by match (each bowler's average, handicap, games and
+  series, team totals and points), bowlers' averages and next week's handicap, highs and absences;
+  copy as text, standings CSV and bowlers CSV (formula cells guarded). The typed nights stay in that
+  browser's `localStorage` and are worked out again on the next visit; nothing is uploaded.
+- **Checked:** `bowling-recap.test.mjs` (7 tests): handicap arithmetic (90% of 220: 160 gives 54,
+  165 gives 49, cap, scratch); two nights worked by hand (retroactive average, absent at average - 10,
+  absent with no average as a blind, 16-0 points, averages that skip absences); split points on ties
+  with entering averages; a position round paired from night one's standings; a Vacancy match against
+  par (tie, loss, win, tied series); typing slips named (no week line, unknown team, wrong game count,
+  over 300, missing opponent, one bowler on two teams, a week past the season, too many bowlers);
+  names with spaces and a team name inside another. In Chromium at 390 px: sample nights on the
+  8-team sample season fill the tables, no sideways scroll, the nights return on reload, no console
+  errors. Not yet used by a real league.
+- **Not done:** split handicaps per game, mid-night substitutions, USBC sanctioned-average reports,
+  awards and the prize fund; the league's own and its association's rules decide.
+
+## Pool play into a knockout bracket, seeded so poolmates meet late (2026-11-19, latest)
+
+Pool play listed its play-off seeds by record alone: every pool winner (best record first), then every
+runner-up, and so on. Fed into a standard bracket (1 v 4, 2 v 3), that often pairs two teams from the
+same pool in the first knockout round, a rematch nobody wants: with two pools of three and two
+advancing, `b1, a1, a2, b2` puts b1 against b2 in the semifinal. Tournaments avoid this with a
+crossover (A1 v B2, B1 v A2).
+
+- **`poolPlayoffSeeds(tables, perPool)`** (`calc.mjs`) keeps the places in order (every winner is
+  still seeded above every runner-up) and reorders teams inside each place so that poolmates can
+  meet as late as the bracket allows. The objective is lexicographic: fewest possible same-pool
+  meetings in round 1, then round 2, and so on, then the least movement from the record order, with
+  a move near the top weighing more. It climbs by swaps inside a place, then runs an exact
+  depth-first search over the places' orderings, pruned whenever a partial count is already worse
+  (counts only grow as seeds are placed) and capped at 300,000 nodes. It returns the seeds, each
+  seed's pool, and the possible poolmate meetings per round for the new order and the record order.
+- **The pool card** now prints each seed's pool, a one-line note when the crossover changed the
+  order, and the knockout bracket itself (single or double elimination and the third-place game,
+  from the step 4 play-off options; play-off results typed in step 4 fill it in).
+- **Checked:** the tests compare the result with a brute force over every ordering for 2 to 5
+  pools; a swap-only version stalled in a local optimum on 3 pools x 4 and 4 pools x 4 (rounds-1-2
+  counts 0, 1 against 0, 0), which is why the exact search follows. `eval/crossover-seeds.mjs`
+  draws 500 random pool tables per shape: by record order, poolmates could meet in the first
+  knockout round in 29 to 86% of draws (2 x 4: 383 of 500; 4 x 4: 428), and in rounds 1-2 in up to
+  every draw; the crossover order has 0 in round 1 for every shape, and 0 in rounds 1-2 for every
+  shape with three or more pools (`eval/crossover-seeds.txt`). Two pools can't keep poolmates out of
+  rounds 1-2: each half of the bracket holds at least two teams of one pool, and they meet by round 2.
+- **Not done:** pools with uneven strength (a pool's winner may deserve a lower seed than another
+  pool's runner-up); places stay in order, the usual convention.
 
 ## Balanced teams from a player list (2026-11-19)
 
@@ -390,10 +588,87 @@ events and FAQ. Clicked through in Chromium at 390 px over http (example, re-dra
 schedule page): no console errors, no horizontal scroll.
 
 Limits: the rating is whatever the organiser types, so "even on paper" is only as good as those numbers;
-totals are compared, so with uneven team sizes the larger team may carry a higher total. Next: a real
-league's sign-up sheet; position quotas beyond one tag (e.g. one goalie and two women per team at once,
-which needs tag pairs); and placing late sign-ups onto existing teams with the same objective (the
-self-hosted page's free-agent placement uses a simpler least-filled rule, `freeagents.mjs`).
+totals are compared, so with uneven team sizes the larger team may carry a higher total. Two tags and late
+sign-ups landed the same day (next section).
+
+### Two tags per player, and late sign-ups onto announced teams (2026-11-19, later)
+
+- **Two tags at once.** The tag cell can hold several tags (`F G`, `F/G`, `F+G`; `splitTags`), so a woman
+  who keeps goal counts toward both splits. Each tag is spread on its own (count per team within one), which
+  covers "one goalie and two women per team" without a separate quota syntax. The CSV writes both tags back
+  and `parseTeamsCsv` reads them. Tested against the exhaustive search on 40 random two-tag lists
+  (`teams.test.mjs`).
+- **Late sign-ups.** Paste the announced teams (the page's CSV, or `Team, Player, Rating, Tag` columns; quotes
+  and the formula-guard apostrophe handled) and put only the new players in the players box. `addLateSignups`
+  pins every announced player to their team (`balanceTeams(..., { fixed, maxMoves, teamNames })`), keeps the
+  team names and order, and places the newcomers with the same hard rules and objective. "Announced players
+  who may switch teams" (default 0) lets the search move up to that many; among equal gaps it moves the
+  fewest, and the page names every new placement, move and `drop: Name` leaver. A re-listed announced player
+  updates their rating or tag. For up to 16 players the exhaustive search runs with the pins (no symmetry cut,
+  since named teams differ). `checkTeams(parsed, result, before)` re-reads the output and also faults a
+  renamed team or more switches than allowed. "Use the teams above" copies a fresh draft in, so a second
+  round of late sign-ups is two clicks.
+- **How it was checked** (`eval/late-signups.mjs`, output `eval/late-signups.txt`; invented lists, ratings
+  1-5, ~40% F, ~20% also G; announced teams drafted by `balanceTeams`, then 3-12 late players):
+  - with 0 moves, on every case where a least-filled rule (smallest team first, ties to the lowest total; the
+    rule `freeagents.mjs` uses) kept the size and tag split, the shipped placement matched its mean gap
+    exactly (e.g. 1.84 vs 1.84 at 9 players, 2.36 vs 2.36 at 40). Least-filled broke the coed or goalie split
+    where the shipped placement kept it in 8, 7 and 22 of 40 small cases, 14 of 30 at 40 players, 15 of 20 at
+    80 and 10 of 10 at 160. So with nobody moved the gain is the rules, not the gap.
+  - allowing 2 moves cuts the mean gap from 2.02-2.52 to 0.65-0.72 at 9-12 players (a full redraft: 0.65-0.70)
+    and 2.50 to 0.87 at 40 (redraft 0.80), moving 0.8-1.1 players on average. At 160 players and 12 late
+    sign-ups on 16 teams 2 moves are not enough (4.40 to 3.60, redraft 0.80).
+  - annealing alone (exhaustive fallback off) equalled the pinned exhaustive search on 95 of 95 small cases
+    with a valid placement; 0 rule faults in any run; 160 players placed in 0.4 s at most.
+  - Tests: `teams.test.mjs` 16 (7 new: tag splitting, two-tag lists against the exhaustive search, CSV read
+    back, pinned placement, pins with and without moves, drops and re-rated players). Clicked through in
+    Chromium at 390 px over http (example, use the teams above, three late players with a drop, 0 then 2
+    moves, bad inputs): no console errors, no horizontal scroll.
+
+Limits: a late player is placed by rating only, like the draft; with tags already uneven on the announced
+teams and no moves allowed the page names the team that is off instead of fixing it. Next: a real league's
+sign-up sheet and late list. The `/join` free agents went onto this search the same day (next section).
+
+### Free agents from `/join` placed by the late-sign-up search (2026-11-19, latest)
+
+The self-hosted league page used to pre-pick each free agent's team by a least-filled rule (smallest roster
+first, ties to the least free-agent experience). It now runs `addLateSignups` from `teams.mjs`:
+
+- **Rostered players are pinned**, free agents are the late sign-ups, friend pairs are `together` groups.
+  Team sizes are evened up (the shortest rosters fill first), each team is capped at the organiser's
+  "Roster size to fill teams up to" (`balanceTeams(..., { capacity })`, a new hard rule that the annealing
+  and the exhaustive check both read), then the gap between the strongest and weakest team total is made as
+  small as it can be.
+- **Tag questions on `/join`.** The organiser types `Woman=F, Goalie=G` (up to 4; a plain label works too)
+  and `/join` shows a checkbox for each. Each tag is spread so its count per team differs by at most one,
+  like the balanced-teams page. The `/admin` list shows each player's answers and the CSV gains a `tags`
+  column.
+- **Optional ratings sheet.** Paste the balanced-teams page's CSV (`Team, Player, Rating, Tag`) in `/admin`:
+  named rostered players count at their rating and tags, and a free agent's experience (1-3) is mapped onto
+  the sheet's range (1 = lowest, 3 = highest). Without it rostered players count as 2 and carry no tags.
+- **Kept only when it is no worse.** Who can be placed at all is still decided by the old rule (a group too
+  big for any team's room stays unplaced with the reason). The search's answer replaces the old picks only
+  if it keeps every tag at least as evenly (tag excess, the sum over tags of how far each tag's per-team
+  spread goes past one) and its gap is no larger; the `/admin` note shows both gaps.
+- **How it was checked** (`eval/free-agent-fit.mjs`, output `eval/free-agent-fit.txt`; invented leagues of
+  4-16 teams with rosters of 6-11, 3-30 free agents, levels 1-3, ~40% ticking Woman and ~10% Goalie, ~20%
+  in friend pairs, half with a cap of 12; 420 cases):
+  - no sheet: cases with a tag split unevenly fall from 25-34 of 60 to 12 (4-6 teams), 32 to 13 of 40
+    (8 teams), 26 to 11 of 30 (12) and 17 to 6 of 20 (16); mean tag excess 0.47-1.23 to 0.20-0.37; mean gap
+    2.58-3.50 to 2.35-3.25.
+  - with a sheet (ratings 1-10, rostered tags random, so most rosters are already uneven): mean gap 21.4-31.0
+    to 18.3-25.6, mean tag excess 3.0-6.2 to 2.1-5.3.
+  - the cap was never broken and friend pairs never split (0 of 420); the search's answer was kept in 410 of
+    420 cases (in the rest the old picks stood). One suggestion took at most 302 ms (16 teams, 30 free
+    agents); the `/admin` page computes it on each load.
+  - Tests: `freeagents.test.mjs` 11 (3 new: tag questions and the form, the fit spreading tagged players
+    under a cap with a pair kept together, a ratings sheet), the server test now sets a tag question through
+    `/admin`, ticks it on `/join` and reads it back in `/admin`.
+
+Limits: the ratings are what the organiser types or a 1-3 self-rating; size and tag rules are weighed the same,
+so with a sheet the smallest roster after placing averaged 0.05-0.15 players smaller than the old rule in
+three of the five sheet rows (it traded a short roster for a tag split). Placing still happens one click at a
+time or all at once; nobody already on a roster is ever moved. Next: a real league's free-agent list.
 
 ## Play-off results fill the bracket (2026-11-18, latest)
 

@@ -1,0 +1,32 @@
+
+== dev set, 216 cases ==
+  gain off: never 0/216 | back median 0.69 / mean 0.89 / worst 2.43 s | >3% at gate 1 | overshoot worst 6.0% | undershoot >2% 19, worst 4.5%
+  gain on : never 0/216 | back median 0.67 / mean 0.88 / worst 2.05 s | >3% at gate 0 | overshoot worst 4.8% | undershoot >2% 10, worst 3.6%
+  wheel 0.2 s, free 7000: off under>2%  0 worst 1.7% mean 0.71 s | on under>2%  1 worst 2.4% mean 0.77 s
+  wheel 0.2 s, free 11000: off under>2% 17 worst 4.5% mean 0.86 s | on under>2%  9 worst 3.6% mean 0.77 s
+  wheel 0.4 s, free 7000: off under>2%  0 worst 0.7% mean 0.85 s | on under>2%  0 worst 1.1% mean 0.83 s
+  wheel 0.4 s, free 11000: off under>2%  2 worst 2.4% mean 0.82 s | on under>2%  0 worst 1.8% mean 0.81 s
+  wheel 0.8 s, free 7000: off under>2%  0 worst 0.1% mean 1.13 s | on under>2%  0 worst 0.1% mean 1.05 s
+  wheel 0.8 s, free 11000: off under>2%  0 worst 0.5% mean 1.00 s | on under>2%  0 worst 0.3% mean 1.05 s
+  PASS undershoots >2% fall
+  PASS mean back <= +0.05 s
+  PASS no more >3% at gate
+  PASS overshoot <= +0.5 pt
+  PASS no case lost
+
+== heldout set, 96 cases ==
+  gain off: never 0/96 | back median 0.58 / mean 0.73 / worst 1.86 s | >3% at gate 0 | overshoot worst 5.7% | undershoot >2% 13, worst 4.6%
+  gain on : never 0/96 | back median 0.58 / mean 0.72 / worst 1.59 s | >3% at gate 0 | overshoot worst 4.8% | undershoot >2% 15, worst 3.8%
+  wheel 0.15 s, free 7500: off under>2%  1 worst 2.3% mean 0.61 s | on under>2%  3 worst 2.9% mean 0.67 s
+  wheel 0.15 s, free 10500: off under>2% 10 worst 4.6% mean 0.78 s | on under>2% 10 worst 3.8% mean 0.69 s
+  wheel 0.3 s, free 7500: off under>2%  0 worst 1.2% mean 0.65 s | on under>2%  0 worst 1.7% mean 0.69 s
+  wheel 0.3 s, free 10500: off under>2%  2 worst 3.0% mean 0.74 s | on under>2%  2 worst 2.3% mean 0.68 s
+  wheel 0.6 s, free 7500: off under>2%  0 worst 0.2% mean 0.83 s | on under>2%  0 worst 0.4% mean 0.79 s
+  wheel 0.6 s, free 10500: off under>2%  0 worst 1.0% mean 0.77 s | on under>2%  0 worst 0.7% mean 0.80 s
+  FAIL undershoots >2% fall
+  PASS mean back <= +0.05 s
+  PASS no more >3% at gate
+  PASS overshoot <= +0.5 pt
+  PASS no case lost
+
+Rule (eval/ball-gain-rule-2026-11-19.md): kept off

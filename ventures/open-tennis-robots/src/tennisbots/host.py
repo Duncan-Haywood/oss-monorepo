@@ -394,7 +394,8 @@ def esc_lag_check(sv: dict | None, board_ms: int | None) -> str | None:
             f"{pick * 1000} in config.py and re-flash, or this drill's drop fits read spin far off")
 
 
-TAKE_SURVEY_MS = (0, 2, 3, 4, 5, 6, 7, 8)   # the firmware's TAKE_SURVEY_GRID_US, in ms (7 added 2026-11-19)
+TAKE_SURVEY_MS = (0, 1.5, 2.5, 3, 4, 5, 6, 7, 8)   # the firmware's TAKE_SURVEY_GRID_US, in ms (7 added 2026-11-19; 1.5 and
+#                                                   2.5 in place of 2 later that day, README "Short takes on a second held-out set")
 TAKE_SURVEY_S = 16.0          # a contact-time survey (5 t0 levels a fit, 2026-11-18) is the board's work after the last ball
 # Advise a contact time only when the survey's best candidate misses by at most this share of the step's rms (README
 # "The contact time surveyed on the board"): on the simulator 4 of 6 builds with an instant take picked 1.5-2.5 ms at
@@ -407,11 +408,51 @@ TAKE_ADVISE_RATIO = 0.6
 # rested on one summed wheel was wrong 12 times in 37, on two 3 in 67, so 2 was pre-registered; on the fresh held-out
 # set the six one-wheel verdicts were all right while 6 of 146 others were wrong, so by its rule it ships at 0 (off:
 # the count is reported, nothing is held; tests/take_survey_kept.py, eval/take-survey-kept-2026-11-18.md). Older
-# firmware sends no such count.
+# firmware sends no such count. Counted by drill on six more fresh sets (2026-11-19,
+# eval/take-survey-kept-drills-2026-11-19.md): 6 of 432 drills ever rested a verdict on one kept wheel, too few for
+# its pre-registered rule, so it stays 0 for simulated sets; reopen on a real wheel's logs.
 TAKE_SURVEY_MIN_KEPT = 0
 # The longest a calibration drill holds a ball for the last one's surveys: 8 s until the take survey's refits went to 5
-# t0 levels (2026-11-18, README "The first-order take misfit traced"), about 10 s of control ticks a two-wheel ball.
-TAKE_WAIT_S = 12.0
+# t0 levels (2026-11-18, README "The first-order take misfit traced"), about 10 s of control ticks a two-wheel ball;
+# 14 s since the nine-point short-take grid (2026-11-19, README "Short takes on a second held-out set"): one more
+# refit a wheel, and 12 s cut the test drill's surveys short.
+TAKE_WAIT_S = 14.0
+
+
+# The bound named when the Pi says TAKE_US = 0 (2026-11-19, firmware/esp32/README.md "Short takes that read 0: no ball
+# saw them"): the first grid contact time whose mean rms is more than this share over the step's. A take shorter than
+# a revolution shows only on balls whose contact straddles a revolution's edge; on 11 of the 17 short builds off by
+# more than 1 ms no kept wheel did, and those balls fit an instant take as well as the true one. On five stored sets
+# the true take was at most the bound on every build told TAKE_US = 0 (tests/take_shelf_bound.py), held out on set O.
+TAKE_BOUND_TOL = 0.02
+# ... and at least this many ppm over it (2026-11-19, README "A ppm floor on the bound"): the frame carries whole ppm, so
+# at a 16-20 ppm step one ppm of rounding is 5-6% and cleared 2% alone (set O's two misses). Held out on set P: 48 of
+# 48 within the bound against 46 of 48 at 2% alone, the instant builds still at 1.5 ms on 4 of 6.
+TAKE_BOUND_FLOOR_PPM = 2
+# The grid each frame length carries (older firmware: eight candidates before the short-take grid, seven before 7 ms)
+TAKE_SURVEY_GRIDS_MS = {9: TAKE_SURVEY_MS, 8: (0, 2, 3, 4, 5, 6, 7, 8), 7: (0, 2, 3, 4, 5, 6, 8)}
+
+
+def take_survey_bound(sv: dict | None) -> float | None:
+    """The longest contact time, in ms, the survey's balls cannot tell from an instant one: the first grid candidate
+    whose mean rms is more than TAKE_BOUND_TOL, and at least TAKE_BOUND_FLOOR_PPM, over the step's (0 ms). None without rms, or when every candidate fits
+    within the tolerance (the balls bound nothing)."""
+    rms = list((sv or {}).get("rms_ppm") or ())
+    grid = TAKE_SURVEY_GRIDS_MS.get(len(rms))
+    if not grid or not rms[0] or any(v is None for v in rms):
+        return None
+    for g, r in zip(grid[1:], rms[1:]):
+        if r > max(rms[0] * (1 + TAKE_BOUND_TOL), rms[0] + TAKE_BOUND_FLOOR_PPM):
+            return float(g)
+    return None
+
+
+def _bound_note(sv: dict) -> str:
+    b = take_survey_bound(sv)
+    if b is None:
+        return ""
+    return (f" (these balls cannot tell an instant take from one up to {b:g} ms: only a ball whose contact crosses a "
+            f"revolution's edge shows a short one, so more balls narrow it)")
 
 
 def _take_count(link) -> int:
@@ -444,10 +485,10 @@ def take_survey_advice(sv: dict | None) -> str | None:
     if pick > 0 and gain > TAKE_ADVISE_RATIO:
         return (f"contact-time survey: {n} wheels pick {pick:g} ms, but its fits miss only {1 - gain:.0%} less than the "
                 f"step's (an instant take's builds reached 34% on the simulator): " +
-                ("keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash"))
+                ("keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash") + _bound_note(sv))
     if pick == 0:
         return f"contact-time survey: {n} wheels pick an instant take; " + (
-            "keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash")
+            "keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash") + _bound_note(sv)
     if pick >= TAKE_SURVEY_MS[-1]:
         # the grid's last contact time: no candidate above it to refine against (2026-11-18, firmware/esp32/README.md
         # "The take survey's pick between contact times": every simulated 7 ms take read 8 ms)
@@ -520,8 +561,10 @@ class FeederLink:
             elif cmd == P.ESC_TAU:
                 self.esc_tau_ms = vals[0]
             elif cmd == P.TAKE_SURVEY:
-                # the frame's length says how many candidates it carries: firmware before 2026-11-19 sent seven
-                times = P.TAKE_SURVEY_TIMES if len(vals) == 5 + P.TAKE_SURVEY_TIMES else P.OLDER_TAKE_SURVEY_TIMES
+                # the frame's length says how many candidates it carries: firmware before 2026-11-19 sent seven, and
+                # before that day's short-take grid eight (always with the summed-wheel byte)
+                times = {5 + P.TAKE_SURVEY_TIMES: P.TAKE_SURVEY_TIMES,
+                         5 + P.EIGHT_TAKE_SURVEY_TIMES: P.EIGHT_TAKE_SURVEY_TIMES}.get(len(vals), P.OLDER_TAKE_SURVEY_TIMES)
                 nt = 4 + times
                 self.take_survey = {"t": now, "wheels": vals[0], "least_ms10": vals[1], "refined_ms10": vals[2],
                                     "board_ms10": vals[3], "rms_ppm": [None if v == 65535 else v for v in vals[4:nt]],

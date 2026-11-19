@@ -1,0 +1,66 @@
+name: ordinal-regression
+description: >-
+  Free browser tool, CLI and agent call for survey researchers, UX and market
+  researchers, social scientists, clinical and health-services researchers,
+  educators and students: ordinal logistic regression (proportional odds,
+  ordered logit) and ordered probit for ratings, Likert answers, grades and
+  stages, with odds ratios and intervals, cut-points, the likelihood-ratio
+  test, pseudo R-squared, Brant's test of proportional odds with per-cut
+  slopes, and predicted probabilities of every level. Matches statsmodels.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-19 on an explore run, as a tool of "research algorithms as
+# tools" (portfolio/research-tools/README.md). No venture in the tree fitted a
+# regression to an ordered outcome: 0 of 1,414 venture READMEs mention ordinal
+# or ordered logistic regression, proportional odds, polr or Brant's test,
+# while several neighbours produce exactly that kind of outcome
+# (scale-reliability, inter-rater-agreement, item-response-theory).
+# Implemented from the papers' mathematics; no third-party code was ported.
+# statsmodels 0.15.0, numpy 2.5.3, scipy 1.18.1 and pandas 3.0.5 (BSD-3-Clause)
+# were used only to produce eval/reference.json.
+# Example data: UCI Wine Quality (red), CC BY 4.0 (data/SOURCE.md).
+#
+# First visitor: searches such as "ordinal logistic regression online",
+# "ordinal regression calculator", "proportional odds model", "brant test",
+# "likert scale regression", "ordered logit"; students and researchers who
+# would otherwise install R (MASS::polr, brant), Stata or SPSS PLUM. Volume
+# not measured with an external tool.
+#
+# Alternatives: R's MASS::polr and ordinal::clm with the brant package,
+# Stata's ologit/brant, SPSS PLUM (paid), statsmodels' OrderedModel (no Brant
+# test), jamovi (desktop install). The differentiators here: no install and no
+# upload, Brant's test with the per-cut slopes beside the fit, automatic order
+# for common answer scales, and a CLI and agent call.
+#
+# Liability: statistical output from supplied data, not medical, legal or
+# financial advice; the page says association is not cause. Data never leave
+# the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Students and researchers with a Likert or rating outcome will use a
+      no-install page with Brant's test and predicted probabilities rather
+      than install R, Stata or SPSS for one model.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that disagrees with R's MASS::polr or statsmodels on the same data beyond rounding, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/ordinal-regression/
+  analytics: null

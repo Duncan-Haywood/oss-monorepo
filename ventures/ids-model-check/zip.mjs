@@ -76,6 +76,12 @@ export async function unzipModel(bytes, inflateRaw, opts = {}) {
   const entries = zipEntries(bytes);
   const e = pickModel(entries);
   if (!e) throw new Error(`no .ifc or .ifcxml file in the archive (found: ${entries.map((x) => x.name).join(", ") || "nothing"})`);
+  const data = await readEntry(bytes, e, inflateRaw);
+  return opts.bytes ? { name: e.name, bytes: data } : { name: e.name, text: new TextDecoder().decode(data) };
+}
+
+// One entry's unpacked bytes (stored or deflate).
+export async function readEntry(bytes, e, inflateRaw) {
   if (e.encrypted) throw new Error(`${e.name} is encrypted`);
   const o = e.offset;
   if (u32(bytes, o) !== 0x04034b50) throw new Error("zip local header is damaged");
@@ -86,7 +92,7 @@ export async function unzipModel(bytes, inflateRaw, opts = {}) {
   else if (e.method === 8) data = await inflateRaw(raw);
   else throw new Error(`${e.name} uses zip method ${e.method}; only stored and deflate are read`);
   if (data.length !== e.size) throw new Error(`${e.name} unpacked to ${data.length} bytes, the archive says ${e.size}`);
-  return opts.bytes ? { name: e.name, bytes: data } : { name: e.name, text: new TextDecoder().decode(data) };
+  return data;
 }
 
 // Browser inflater, for the page.

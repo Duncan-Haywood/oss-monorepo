@@ -573,3 +573,157 @@ def test_real_rows_offer_no_item_before_their_open_marker():
         norm, start = " ".join(v.split()), ff.open_start(v)
         for c, _ in ff.park_candidates(v, 10**6):
             assert norm.find(c) + len(c) > start, (e["venture"], c)
+
+
+# --- dated results move to HISTORY.md before open items are parked ---------
+
+ROW = ("History: README. Kodak DCR 2026-11-18 = LibRaw (eval/kodak-dcr-*). "
+       "Open checks that need a person: listen to the page. "
+       "Hasselblad 3FR (eval/hasselblad-*). "
+       "Next, most valuable first: (audit 2026-11-16: 26 of 27; faults in 21) . "
+       "master-cli passed EBU 3341 2026-11-17; open: the EBU's WAVs (403). "
+       "Sets 2026-11-19 (eval/sets.md: 186 sets). "
+       "next: an RVB author 2026-11-19; a Revit export.")
+
+
+def test_history_pieces_take_only_dated_finished_sentences():
+    v = " ".join(ROW.split())
+    got = [v[a:b] for a, b in ff.history_pieces(v)]
+    assert any(g.startswith("Kodak DCR") for g in got)
+    assert any(g.startswith("Sets 2026-11-19") for g in got)
+    # the pointer, undated text, open work, a piece running into "open:",
+    # and anything after the last open marker all stay
+    assert not any(g.startswith("History") for g in got)
+    assert not any("Hasselblad" in g or "need a person" in g for g in got)
+    assert not any("master-cli" in g for g in got)
+    assert not any("RVB" in g or "Revit" in g for g in got)
+    # the run's own text is never moved
+    assert not any("Sets" in v[a:b] for a, b in ff.history_pieces(v, ("Sets 2026-11-19",)))
+    # a row with no open marker: history and open items cannot be told apart
+    assert ff.history_pieces("History: README. Kodak DCR 2026-11-18 = LibRaw. More.") == []
+
+
+def test_history_pieces_ignore_regex_brackets():
+    # ids-model-check's row quotes "(?:", which unbalanced the bracket depth
+    v = ("History: README. Patterns 2026-11-18 (anchors, (?: and \\/ repaired). "
+         "Types 2026-11-19 (eval/t.md). next: a Revit export.")
+    got = [v[a:b] for a, b in ff.history_pieces(v)]
+    assert any(g.startswith("Types") for g in got)
+
+
+def test_archive_history_removes_cleanly_oldest_first():
+    v = " ".join(ROW.split())
+    out, moved = ff.archive_history(v, 0)
+    assert moved[0].startswith("Kodak DCR")
+    assert "Kodak" not in out and "Sets 2026-11-19" not in out and "audit" not in out
+    assert "Next, most valuable first: master-cli passed" in out
+    assert "listen to the page. Hasselblad" in out and out.startswith("History: README. Open checks")
+    assert ";." not in out and ". ." not in out and "  " not in out
+    # stops once it fits
+    out2, moved2 = ff.archive_history(v, len(v) + len(ff.PARK_POINTER) + 1 - 10)
+    assert len(moved2) == 1
+
+
+def test_history_text_creates_then_appends():
+    first = ff.history_text(None, "a", ["X 2026-11-18 (eval/x.md)"], "2026-11-19")
+    assert first.startswith("# a: what has landed") and ff.HISTORY_HEADING in first
+    assert "- (moved 2026-11-19) X 2026-11-18 (eval/x.md)\n" in first
+    again = ff.history_text(first, "a", ["Y 2026-11-19"], "2026-11-20")
+    assert again.count(ff.HISTORY_HEADING) == 1 and again.endswith("- (moved 2026-11-20) Y 2026-11-19\n")
+    # an existing HISTORY.md (ai-bookkeeper's) keeps its text, gains the heading
+    own = ff.history_text("# b: what has landed\n- old entry\n", "b", ["Z 2026-11-19"], "d")
+    assert own.startswith("# b: what has landed\n- old entry\n\n" + ff.HISTORY_HEADING)
+
+
+def test_edit_over_the_cap_moves_history_before_parking(tmp_path, capsys):
+    head = "History: README. " + " ".join(
+        f"Result {i} 2026-11-{10 + i} (eval/r{i}.md: {'x' * 130})." for i in range(8))
+    tail = " Next: (a) " + "a" * 200 + "; (b) " + "b" * 200 + "."
+    value = head + tail
+    assert 1700 < len(value) < 2000
+    doc = ("flagships:\n  - venture: a\n    next: >-\n      " + value + "\n")
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "a").mkdir(parents=True)
+    new = "(c) " + "c" * 300
+    rc = ff.main(["a", "--replace", "; (b)", f"; {new}; (b)", "--file", str(f),
+                  "--ventures-dir", str(tmp_path / "ventures")])
+    assert rc == 0
+    got = ff.read_value(f.read_text(), "a", "next")
+    assert len(got) <= ff.FLAGSHIP_NEXT_TARGET
+    assert "a" * 200 in got and "b" * 200 in got and new in got  # no open item parked
+    assert not (tmp_path / "ventures" / "a" / "NEXT.md").exists()
+    hist = (tmp_path / "ventures" / "a" / "HISTORY.md").read_text()
+    assert "Result 0 2026-11-10" in hist and "Result 0" not in got
+    assert "HISTORY.md" in capsys.readouterr().out
+
+
+def test_dry_run_reports_history_moves_without_writing(tmp_path, capsys):
+    value = ("History: README. " + " ".join(f"R{i} 2026-11-1{i} ({'x' * 200})." for i in range(9))
+             + " Next: a real file.")
+    f = tmp_path / "flagships.yaml"
+    f.write_text("flagships:\n  - venture: a\n    next: >-\n      " + value + "\n")
+    before = f.read_text()
+    (tmp_path / "ventures" / "a").mkdir(parents=True)
+    assert ff.main(["a", "--trim", "--dry-run", "--file", str(f),
+                    "--ventures-dir", str(tmp_path / "ventures")]) == 0
+    err = capsys.readouterr()
+    assert "would move to HISTORY.md" in err.err and "to HISTORY.md; nothing written" in err.out
+    assert f.read_text() == before and not (tmp_path / "ventures" / "a" / "HISTORY.md").exists()
+
+
+def test_real_rows_move_no_open_work_to_history():
+    text = ff.FLAGSHIPS_PATH.read_text()
+    import yaml
+    for e in ff._entries(yaml.safe_load(text)):
+        v = " ".join((ff.read_value(text, e["venture"], "next") or "").split())
+        for a, b in ff.history_pieces(v):
+            piece = v[a:b]
+            assert ff.DATE.search(piece) and not ff.OPENISH.search(piece), (e["venture"], piece)
+            assert a < ff.open_start(v) or a < [m.start() for m in ff.OPEN_MARK.finditer(v)][-1]
+
+
+# --- an undated result a park picks goes to HISTORY.md, not NEXT.md ---------
+
+@pytest.mark.parametrize("item", [
+    "lasting moves to more days: cut has the power (8 of 9 cells)",
+    "two covariates: harmless one's warning 0 of 170 false finds, 1.27x bias (bar failed)",
+    "(2) clumpy counts: NB1 shipped",
+    "gapShape word on listed units (pulse faded 90%, 20% false)",
+])
+def test_is_result_finished_results(item):
+    assert ff.is_result(item)
+
+
+@pytest.mark.parametrize("item", [
+    "next a real panel with a known slope event",
+    "(4) driftWarning on real shocks",
+    "3 log n led on all TCPD post hoc (0.754 vs 0.697), test it on fresh labelled data",
+    "TSSB/HAS/UTSA (README): count, shape checks failed; next phase-tolerant shapes",
+    "a real CR3 with tiles stacked (0 of 986 M sensels differ on 39 frames)",
+    "bowling: most even of several dealings landed; left: 10 x 32 misses",
+    "refresh the Bulgaria page when its draft passes",
+    "the note quotes it",
+])
+def test_is_result_keeps_open_items_open(item):
+    assert not ff.is_result(item)
+
+
+def test_park_files_results_in_history_and_open_items_in_next(tmp_path, capsys):
+    res = "cut has the power on lasting moves (8 of 9 cells, " + "r" * 150 + ")"
+    opn = "next a real panel with a known slope event " + "o" * 150
+    value = "History: README. Next: (a) " + "a" * 1500 + "; " + opn + "; " + res + "."
+    assert len(value) < ff.FLAGSHIP_NEXT_MAX
+    f = tmp_path / "flagships.yaml"
+    f.write_text("flagships:\n  - venture: a\n    next: >-\n      " + value + "\n")
+    (tmp_path / "ventures" / "a").mkdir(parents=True)
+    rc = ff.main(["a", "--replace", "(a) ", "(a) " + "z" * 200 + " ", "--file", str(f),
+                  "--ventures-dir", str(tmp_path / "ventures")])
+    assert rc == 0, capsys.readouterr().err
+    got = ff.read_value(f.read_text(), "a", "next")
+    assert len(got) <= ff.FLAGSHIP_NEXT_MAX and res not in got
+    hist = (tmp_path / "ventures" / "a" / "HISTORY.md").read_text()
+    assert res in hist
+    nxt = tmp_path / "ventures" / "a" / "NEXT.md"
+    assert not nxt.exists() or res not in nxt.read_text()
+    assert "a result rather than an open item" in capsys.readouterr().err

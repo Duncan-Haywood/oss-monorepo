@@ -1,15 +1,20 @@
 // Free agents for the self-hosted league page (server.mjs): a player with no team opens /join, types their
 // name, email, how much they have played and (optionally) a friend to be placed with. The organiser sees
-// them in /admin with a suggested team for each, chosen to fill the smallest rosters first and to spread
-// experience evenly, and places them one at a time or all at once. Placing a player adds them to that
+// them in /admin with a suggested team for each, chosen by the same search the balanced-teams page uses for
+// late sign-ups (teams.mjs addLateSignups): rosters pinned, the smallest filled first, any tags the
+// organiser asks about (a coed league's women, goalies) spread evenly, then team strength as even as it
+// can be. The organiser places them one at a time or all at once. Placing a player adds them to that
 // team's roster line (so availability, reminders and waivers see them at once) and, with SMTP on, emails
 // the player their team and league link and tells the team's contacts who joined. Zero dependencies.
 import { cleanName, EMAIL, MAX_ROSTER, parseRosters, parseContacts } from "./availability.mjs";
+import { addLateSignups, parseTeamsCsv, MAX_PLAYERS } from "./teams.mjs";
 
 export const MAX_FREE_AGENTS = 300; // waiting players; bounds the state file
 export const MAX_NOTE = 300;
 export const MAX_PER_ADDRESS = 5; // joins from one address per hour
 export const LEVELS = { 1: "New to the sport", 2: "Played a season or two", 3: "Experienced" };
+export const MAX_TAG_QUESTIONS = 4;
+export const MAX_SHEET = 20000; // characters of the optional ratings sheet
 const HOUR = 60 * 60 * 1000;
 const levelLabel = (n) => (Object.hasOwn(LEVELS, n) ? LEVELS[n] : "");
 
@@ -17,7 +22,26 @@ const tidy = (s) => String(s ?? "").normalize("NFC").replace(/\s+/g, " ").trim()
 const lower = (s) => String(s).toLocaleLowerCase();
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
-/** Settings the organiser types in /admin, cleaned: { open, fee, target, closes }. */
+/**
+ * The tag questions the organiser asks on /join: "Woman=F, Goalie=G" (label=tag), or plain labels
+ * ("Goalie", whose tag is GOALIE). The tag is what the balanced-teams sheet uses, so a free agent's
+ * "Woman" counts with the sheet's F players. Returns [{ label, tag }], at most MAX_TAG_QUESTIONS.
+ */
+export function faTagQuestions(text) {
+  const out = [], seen = new Set();
+  for (const part of String(text ?? "").split(/[,\n]/)) {
+    const [l, t] = part.split("=");
+    const label = tidy(l).replace(/[<>"]/g, "").slice(0, 30);
+    if (!label) continue;
+    const tag = tidy(t ?? label).toUpperCase().replace(/[\s/+|&,]+/g, "-").replace(/[^\p{L}\p{N}_-]/gu, "").slice(0, 20);
+    if (!tag || seen.has(tag)) continue;
+    seen.add(tag); out.push({ label, tag });
+    if (out.length >= MAX_TAG_QUESTIONS) break;
+  }
+  return out;
+}
+
+/** Settings the organiser types in /admin, cleaned: { open, fee, target, closes, tagQuestions }. */
 export function faSettings(f = {}) {
   const closes = /^\d{4}-\d{2}-\d{2}$/.test(String(f.faCloses || "").trim()) ? String(f.faCloses).trim() : "";
   return {
@@ -25,6 +49,7 @@ export function faSettings(f = {}) {
     fee: tidy(f.faFee).slice(0, 60),
     target: Math.min(MAX_ROSTER, Math.max(0, Math.trunc(Number(f.faTarget) || 0))),
     closes,
+    tagQuestions: faTagQuestions(f.faTags),
   };
 }
 
@@ -40,7 +65,7 @@ export function faClosedReason(f, today) {
  * A /join form post -> { req } or { error }; a filled honeypot ("website") -> { spam: true }.
  * `taken` is the free agents already waiting, so the same name and email cannot join twice.
  */
-export function parseFreeAgent(form, taken = []) {
+export function parseFreeAgent(form, taken = [], fields = {}) {
   if (String(form.get("website") || "").trim()) return { spam: true };
   const n = cleanName(form.get("name"));
   if (n.error) return { error: n.error };
@@ -61,7 +86,10 @@ export function parseFreeAgent(form, taken = []) {
   const note = String(form.get("note") || "").replace(/\r\n/g, "\n").trim();
   if ([...note].length > MAX_NOTE) return { error: `Keep the note to ${MAX_NOTE} characters.` };
   if (/[\u0000-\u0009\u000b-\u001f\u007f]/.test(note)) return { error: "The note has characters the page cannot show." };
-  return { req: { name: n.name, email, phone, level, with: withName, note } };
+  const asked = faTagQuestions(fields.faTags);
+  const picked = new Set(typeof form.getAll === "function" ? form.getAll("tag").map(String) : []);
+  const tags = asked.filter((q) => picked.has(q.tag)).map((q) => q.tag);
+  return { req: { name: n.name, email, phone, level, with: withName, note, tags } };
 }
 
 /** Per-address limit: true when this address may post another join now. Mutates `hits`. */
@@ -121,7 +149,7 @@ export function friendGroups(agents, max = 4) {
  * target roster size (0 = none) takes no one, and a group that fits no team is left unplaced with the
  * reason. Returns { picks: Map(agentId -> team), unplaced: [{ agent, why }] }.
  */
-export function suggestPlacements(state, teams) {
+function leastFilled(state, teams) {
   const f = state.fields || {}, s = faSettings(f);
   const rosters = parseRosters(f.rosters, teams).rosters;
   const count = new Map(teams.map((t) => [t, (Object.prototype.hasOwnProperty.call(rosters, t) ? rosters[t] : []).length]));
@@ -141,6 +169,103 @@ export function suggestPlacements(state, teams) {
     xp.set(best, xp.get(best) + g.reduce((s, a) => s + a.level, 0));
   }
   return { picks, unplaced };
+}
+
+const tagsOfAgent = (a) => (Array.isArray(a.tags) ? a.tags : []);
+
+/**
+ * The optional ratings sheet: the balanced-teams page's CSV (Team, Player, Rating, Tag), pasted in /admin,
+ * read by player name. Returns { byName: Map(lower name -> { rating, tags }), lo, hi, mid, errors }.
+ */
+export function readSheet(text) {
+  const { teams, errors } = parseTeamsCsv(String(text ?? "").slice(0, MAX_SHEET));
+  const byName = new Map();
+  for (const T of teams) for (const p of T.players) byName.set(lower(p.name), { rating: p.rating, tags: p.tags });
+  const r = [...byName.values()].map((x) => x.rating).sort((a, b) => a - b);
+  const lo = r.length ? r[0] : 1, hi = r.length ? r[r.length - 1] : 3;
+  const mid = r.length ? (r.length % 2 ? r[(r.length - 1) / 2] : (r[r.length / 2 - 1] + r[r.length / 2]) / 2) : 2;
+  return { byName, lo, hi, mid, errors: errors.slice(0, 5) };
+}
+
+/** Team totals and tag counts for a placement, on the same ratings the fit used. */
+function measure(base, add, teams) {
+  const total = new Map(teams.map((t) => [t, 0])), size = new Map(teams.map((t) => [t, 0]));
+  const tc = new Map();
+  const put = (t, p) => {
+    total.set(t, total.get(t) + p.rating); size.set(t, size.get(t) + 1);
+    for (const g of p.tags) { if (!tc.has(g)) tc.set(g, new Map(teams.map((x) => [x, 0]))); tc.get(g).set(t, tc.get(g).get(t) + 1); }
+  };
+  base.forEach((T, i) => T.players.forEach((p) => put(teams[i], p)));
+  for (const [p, t] of add) put(t, p);
+  const v = [...total.values()];
+  let tagExcess = 0;
+  for (const m of tc.values()) { const c = [...m.values()]; tagExcess += Math.max(0, Math.max(...c) - Math.min(...c) - 1); }
+  return { spread: Math.round((Math.max(...v) - Math.min(...v)) * 1000) / 1000, tagExcess, size };
+}
+
+/**
+ * Suggested teams for the waiting players. Who can be placed at all is decided as before (groups that fit
+ * under the roster size the organiser set; the rest are named with the reason). Those players are then
+ * placed by teams.mjs's late-sign-up search: every rostered player pinned to their team, friends kept
+ * together, team sizes evened up (the smallest rosters fill first) and capped at the roster size, each tag
+ * the organiser asks about on /join spread so its count per team differs by at most one, then the gap
+ * between the strongest and weakest team total made as small as it can be. Ratings: a free agent's level
+ * (1-3), or with a ratings sheet pasted, the sheet's rating for a named player and the level mapped onto the
+ * sheet's range for the rest. The answer is kept only when it is no worse than the least-filled rule on
+ * (tags kept, gap); otherwise, or with under two teams or too many players, the least-filled rule stands.
+ * Returns { picks: Map(agentId -> team), unplaced: [{ agent, why }], fit: { by, spread, leastFilledSpread,
+ * tagsSplitBy, notes } }.
+ */
+export function suggestPlacements(state, teams) {
+  const old = leastFilled(state, teams);
+  const f = state.fields || {}, s = faSettings(f);
+  const notes = [];
+  const fit = (by, extra = {}) => ({ ...old, fit: { by, notes, ...extra } });
+  if (teams.length < 2 || !old.picks.size) return fit("least-filled");
+  const sheet = readSheet(f.faSheet);
+  if (sheet.errors.length) notes.push(`Ratings sheet: ${sheet.errors[0]}`);
+  const useSheet = sheet.byName.size > 0;
+  const fromLevel = (lv) => (useSheet && sheet.hi > sheet.lo ? sheet.lo + ((lv - 1) / 2) * (sheet.hi - sheet.lo) : useSheet ? sheet.mid : lv);
+  const rosters = parseRosters(f.rosters, teams).rosters;
+  const placedBy = new Map((state.placedAgents || []).map((a) => [`${lower(a.team)}\n${lower(a.name)}`, a]));
+  let unknown = 0;
+  const before = { teams: teams.map((t, ti) => ({
+    name: t,
+    players: (Object.prototype.hasOwnProperty.call(rosters, t) ? rosters[t] : []).map((nm, j) => {
+      const sh = sheet.byName.get(lower(nm)), pa = placedBy.get(`${lower(t)}\n${lower(nm)}`);
+      const rating = sh ? sh.rating : pa ? fromLevel(pa.level) : (unknown++, useSheet ? sheet.mid : 2);
+      const tags = sh ? sh.tags : pa ? tagsOfAgent(pa) : [];
+      return { name: `r${ti}.${j}`, rating, tags, tag: tags.join(" ") };
+    }),
+  })) };
+  const waiting = (state.freeAgents || []).filter((a) => old.picks.has(a.id));
+  const players = waiting.map((a) => ({ name: `a${a.id}`, rating: fromLevel(a.level), tags: tagsOfAgent(a), tag: tagsOfAgent(a).join(" ") }));
+  const together = friendGroups(waiting).filter((g) => g.length > 1).map((g) => g.map((a) => `a${a.id}`));
+  if (players.length + before.teams.reduce((n, T) => n + T.players.length, 0) > MAX_PLAYERS) {
+    notes.push(`Over ${MAX_PLAYERS} players in all, so the least-filled rule picked the teams.`);
+    return fit("least-filled");
+  }
+  const cap = teams.map(() => s.target || MAX_ROSTER);
+  let res;
+  try {
+    res = addLateSignups({ players, together, apart: [], drop: [] }, before, { maxMoves: 0, capacity: cap });
+  } catch (e) {
+    notes.push(`The balanced search stopped (${e.message}), so the least-filled rule picked the teams.`);
+    return fit("least-filled");
+  }
+  const byInternal = new Map(waiting.map((a, i) => [`a${a.id}`, [a, players[i]]]));
+  const picks = new Map(), add = [];
+  for (const l of res.late) { const [a, p] = byInternal.get(l.name); picks.set(a.id, l.team); add.push([p, l.team]); }
+  const oldAdd = waiting.map((a, i) => [players[i], old.picks.get(a.id)]);
+  const mNew = measure(before.teams, add, teams), mOld = measure(before.teams, oldAdd, teams);
+  const overCap = teams.some((t, i) => mNew.size.get(t) > cap[i] && mNew.size.get(t) > before.teams[i].players.length);
+  const together_ok = together.every((g) => new Set(g.map((nm) => picks.get(byInternal.get(nm)[0].id))).size === 1);
+  if (unknown && useSheet) notes.push(`${unknown} rostered player${unknown === 1 ? " is" : "s are"} not on the ratings sheet, so counted at its middle rating (${sheet.mid}).`);
+  const extra = { spread: mNew.spread, leastFilledSpread: mOld.spread, tagsSplitBy: mNew.tagExcess, leastFilledTagsSplitBy: mOld.tagExcess };
+  if (picks.size !== old.picks.size || overCap || !together_ok || mNew.tagExcess > mOld.tagExcess || (mNew.tagExcess === mOld.tagExcess && mNew.spread > mOld.spread + 1e-9)) {
+    return fit("least-filled", { spread: mOld.spread, leastFilledSpread: mOld.spread, tagsSplitBy: mOld.tagExcess, leastFilledTagsSplitBy: mOld.tagExcess });
+  }
+  return { picks, unplaced: old.unplaced, fit: { by: "balanced", notes, ...extra } };
 }
 
 const addLine = (text, line) => { const prev = String(text || "").replace(/\s+$/, ""); return (prev ? prev + "\n" : "") + line; };
@@ -222,9 +347,9 @@ const csvCell = (v) => {
 
 /** Every free agent, placed first then waiting, as CSV for the organiser's records. */
 export function freeAgentsCsv(state) {
-  const rows = [["status", "name", "email", "phone", "experience", "with", "team", "signed_up_utc", "placed_utc", "note"]];
-  for (const a of state.placedAgents || []) rows.push(["placed", a.name, a.email, a.phone, levelLabel(a.level), a.with, a.team, new Date(a.at).toISOString(), new Date(a.placedAt).toISOString(), a.note]);
-  for (const a of state.freeAgents || []) rows.push(["waiting", a.name, a.email, a.phone, levelLabel(a.level), a.with, "", new Date(a.at).toISOString(), "", a.note]);
+  const rows = [["status", "name", "email", "phone", "experience", "with", "team", "signed_up_utc", "placed_utc", "note", "tags"]];
+  for (const a of state.placedAgents || []) rows.push(["placed", a.name, a.email, a.phone, levelLabel(a.level), a.with, a.team, new Date(a.at).toISOString(), new Date(a.placedAt).toISOString(), a.note, tagsOfAgent(a).join(" ")]);
+  for (const a of state.freeAgents || []) rows.push(["waiting", a.name, a.email, a.phone, levelLabel(a.level), a.with, "", new Date(a.at).toISOString(), "", a.note, tagsOfAgent(a).join(" ")]);
   return rows.map((row) => row.map(csvCell).join(",")).join("\r\n") + "\r\n";
 }
 
@@ -240,6 +365,7 @@ export function joinFormHtml(state, today, values = {}) {
 <label>Email<input name="email" type="email" required maxlength="200" autocomplete="email" value="${v("email")}"></label>
 <label>Phone (optional)<input name="phone" type="tel" maxlength="30" autocomplete="tel" value="${v("phone")}"></label>
 <label>How much have you played?<select name="level" required><option value="">Pick one</option>${opts}</select></label>
+${s.tagQuestions.length ? `<fieldset><legend>Tick any that apply (the organiser spreads these evenly across teams; optional)</legend>${s.tagQuestions.map((q) => `<label><input type="checkbox" name="tag" value="${esc(q.tag)}" style="width:auto"${(values.tags || []).includes(q.tag) ? " checked" : ""}> ${esc(q.label)}</label>`).join("")}</fieldset>` : ""}
 <label>A friend also signing up as a free agent, to be placed with (optional)<input name="with" maxlength="40" value="${v("with")}"></label>
 <label>Anything the organiser should know, e.g. nights you cannot play or a position (optional)<textarea name="note" maxlength="${MAX_NOTE}" style="min-height:3rem">${v("note")}</textarea></label>
 <label style="position:absolute;left:-9999px" aria-hidden="true">Leave this empty<input name="website" tabindex="-1" autocomplete="off"></label>
@@ -257,19 +383,25 @@ export function adminFreeAgentsHtml(state, key, teams) {
   const waiting = state.freeAgents || [], placed = state.placedAgents || [];
   if (!waiting.length && !placed.length) return "";
   const k = esc(key), s = faSettings(state.fields);
-  const { picks, unplaced } = suggestPlacements(state, teams);
+  const { picks, unplaced, fit } = suggestPlacements(state, teams);
+  const tagLabel = new Map(s.tagQuestions.map((q) => [q.tag, q.label]));
   const why = new Map(unplaced.map((u) => [u.agent.id, u.why]));
   const rosters = parseRosters(state.fields?.rosters, teams).rosters;
   const size = (t) => (Object.prototype.hasOwnProperty.call(rosters, t) ? rosters[t] : []).length;
   const row = (a) => {
     const pick = picks.get(a.id);
     const opts = teams.map((t) => `<option${t === pick ? " selected" : ""} value="${esc(t)}">${esc(t)} (${size(t)})</option>`).join("");
-    return `<li><strong>${esc(a.name)}</strong> · ${esc(levelLabel(a.level))}${a.with ? ` · with ${esc(a.with)}` : ""} · <a href="mailto:${esc(a.email)}">${esc(a.email)}</a>${a.phone ? ", " + esc(a.phone) : ""}${a.note ? `<br><span class="note">${esc(a.note)}</span>` : ""}${pick ? "" : `<br><span class="note">No suggestion: ${esc(why.get(a.id) || "no teams yet")}.</span>`}
+    const tg = tagsOfAgent(a).map((t) => tagLabel.get(t) || t);
+    return `<li><strong>${esc(a.name)}</strong> · ${esc(levelLabel(a.level))}${tg.length ? ` · ${esc(tg.join(", "))}` : ""}${a.with ? ` · with ${esc(a.with)}` : ""} · <a href="mailto:${esc(a.email)}">${esc(a.email)}</a>${a.phone ? ", " + esc(a.phone) : ""}${a.note ? `<br><span class="note">${esc(a.note)}</span>` : ""}${pick ? "" : `<br><span class="note">No suggestion: ${esc(why.get(a.id) || "no teams yet")}.</span>`}
 <form method="post" action="/admin/free-agent?key=${k}" style="display:inline"><input type="hidden" name="id" value="${a.id}"><select name="team" style="width:auto">${opts}</select><button name="act" value="place">Place</button><button name="act" value="remove">Remove</button></form></li>`;
   };
   const parts = [];
   if (waiting.length) {
-    parts.push(`<h2>Free agents waiting (${waiting.length})</h2><p class="note">Each player's team is pre-picked: the smallest roster first (numbers in brackets), experience spread evenly, friends kept together${s.target ? `, no team past ${s.target} players` : ""}. Change the pick before you click Place if you know better.</p><ul>${waiting.map(row).join("")}</ul>`);
+    const how = fit.by === "balanced"
+      ? `the smallest rosters filled first (numbers in brackets), friends kept together${s.target ? `, no team past ${s.target} players` : ""}${s.tagQuestions.length ? `, ${s.tagQuestions.map((q) => q.label).join(" and ")} spread evenly` : ""}, then team strength made as even as it can be: strongest minus weakest team total ${fit.spread} after placing (the smallest-roster-first rule alone: ${fit.leastFilledSpread}${fit.leastFilledTagsSplitBy > fit.tagsSplitBy ? `, and it splits a tag unevenly` : ""})`
+      : `the smallest roster first (numbers in brackets), experience spread evenly, friends kept together${s.target ? `, no team past ${s.target} players` : ""}`;
+    const rated = String(state.fields?.faSheet || "").trim() ? "Ratings come from the sheet you pasted." : "Ratings are each free agent's experience (1-3); rostered players count as 2 unless you paste a ratings sheet below.";
+    parts.push(`<h2>Free agents waiting (${waiting.length})</h2><p class="note">Each player's team is pre-picked: ${how}. ${fit.by === "balanced" ? rated + " " : ""}Change the pick before you click Place if you know better.</p>${fit.notes.length ? `<ul class="err">${fit.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}<ul>${waiting.map(row).join("")}</ul>`);
     if (picks.size) parts.push(`<form method="post" action="/admin/free-agent?key=${k}"><button name="act" value="place-all">Place all ${picks.size} as suggested</button></form>`);
   }
   if (placed.length) parts.push(`<p class="note">${placed.length} free agent${placed.length === 1 ? "" : "s"} placed so far.</p>`);

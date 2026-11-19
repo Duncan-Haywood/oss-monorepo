@@ -1,0 +1,13 @@
+shipped 0,2..8     parabola   within0.5 185/216 off>1 16 mae 0.375 instant-moved 3 short(0.45-2.35) within0.5 31/54
+shipped 0,2..8     spline     within0.5 191/216 off>1 18 mae 0.349 instant-moved 3 short(0.45-2.35) within0.5 35/54
+shipped 0,2..8     grid least within0.5 182/216 off>1 16 mae 0.381 instant-moved 3 short(0.45-2.35) within0.5 37/54
+nine 0..8          parabola   within0.5 188/216 off>1 13 mae 0.349 instant-moved 3 short(0.45-2.35) within0.5 34/54
+nine 0..8          spline     within0.5 192/216 off>1 16 mae 0.317 instant-moved 4 short(0.45-2.35) within0.5 37/54
+nine 0..8          grid least within0.5 178/216 off>1 13 mae 0.380 instant-moved 7 short(0.45-2.35) within0.5 37/54
+0,1.5,2.5,3..8     parabola   within0.5 196/216 off>1 9 mae 0.335 instant-moved 3 short(0.45-2.35) within0.5 41/54
+0,1.5,2.5,3..8     spline     within0.5 195/216 off>1 12 mae 0.322 instant-moved 2 short(0.45-2.35) within0.5 38/54
+0,1.5,2.5,3..8     grid least within0.5 185/216 off>1 13 mae 0.317 instant-moved 3 short(0.45-2.35) within0.5 40/54
+half 0..3 then 1   parabola   within0.5 195/216 off>1 9 mae 0.305 instant-moved 4 short(0.45-2.35) within0.5 41/54
+half 0..3 then 1   spline     within0.5 194/216 off>1 10 mae 0.292 instant-moved 5 short(0.45-2.35) within0.5 40/54
+half 0..3 then 1   grid least within0.5 183/216 off>1 10 mae 0.318 instant-moved 5 short(0.45-2.35) within0.5 40/54
+summed dense least itself: 197 / 216 off>1 10 instant moved 5

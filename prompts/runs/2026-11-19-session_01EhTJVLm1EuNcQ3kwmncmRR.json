@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLm1EuNcQ3kwmncmRR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: ventures brief (continue work on the repo ...)",
+  "input_sha256": "dad579ed8218448eb224620d3de26aa4747187c67db9459eb143cf460acc2f69",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T07:05:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots: 2 ppm floor on the TAKE_US = 0 bound, pre-registered and held out on set P",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17575,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The open-tennis-robots row's buildable items are increasingly narrow simulated-tuning steps; worth an owner/agent judgment on whether the next run's effort belongs on the multi-pulse tach (the stated deeper limit) instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-ppm-floor-on-the-bound.md",
+    "ventures/open-tennis-robots/eval/take-bound-floor-p-2026-11-19.md"
+  ],
+  "goal": "Deepen flagship 10 (allocate.py row 5): the buildable ppm-floor item",
+  "notes": "Design on J-N + O: floors 0-4 ppm; 2 ppm smallest covering O. Rule committed 881d6c775 before set P (lag 0.58, seed 113, 66 drills). P: 2% alone 46/48, floor 48/48, instant 1.5 ms 4/6 -> shipped host.TAKE_BOUND_FLOOR_PPM=2. Local: tests/test_host.py 143 tests OK (unittest; bare python3 lacks pytest); run_venture_tests.py open-tennis-robots run before merge (result in PR). check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}

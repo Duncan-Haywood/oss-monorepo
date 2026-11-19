@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLwub4Q4ieV83DweY9",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "Scheduled routine: continue work on the repo (develop, deploy, market, sell, support products); merge when done.",
+  "input_sha256": "fb58d4edf4d01d2635139ef6087e6ed2e0be50a2752638021b5fb89b47ddb83d",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T05:11:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Polish: sticky first column for wide tool tables on phones (item 2 of polish-2026-11-19-stacked-tables.md)",
+  "projects": [
+    "platform/pages",
+    "bounce-house-rental-calculator"
+  ],
+  "pr": 17543,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First CSS used :where() and venture td background rules won, so pinned cells were transparent; and a JS regex lost its backslashes inside a template literal",
+      "fix": "Ordinary specificity; doubled escapes; a stub-page test runs the shipped pf-site.js"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-19-stacked-tables.md",
+      "issue": "Item 2 assumed long wide blog tables still overflow; measured: 0 of 406 blog tables lose their first column. Measuring before building saved a no-op; the defect was on tool pages instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Shipped the fix on tool pages (pf-site.js/pf-chrome.css) rather than the blog the queued item named, because measurement showed the blog had no instances.",
+      "did": "Built and reverted the blog .pin; pinned .pf-table-scroll tables at runtime",
+      "result": "104 -> 12 tool tables losing their first column at 390 px"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-wide-tables-keep-their-row-names.md",
+    "docs/reports/polish-2026-11-19-pinned-row-names.md"
+  ],
+  "goal": "Impressive sites: tool tables usable on a phone",
+  "notes": "Measured at 390x844 over a full local build with the new pf-site.js/pf-chrome.css swapped in: .pf-table-scroll tables hiding their first column at full swipe 104 (61 pages) -> 12 (10 pages); 160 pinned; 0 pinned cells transparent; 0 pages wider than viewport. Local checks: reflow.test.mjs 23/23, build.test.mjs scroll-pass tests pass, full node --test platform/pages/*.test.mjs see PR.",
+  "corrections": [],
+  "redteam": null
+}

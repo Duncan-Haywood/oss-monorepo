@@ -263,7 +263,7 @@
 
   <section class="card" id="pool-card">
     <h2>Pool play for a tournament (optional)</h2>
-    <p class="note">List the teams best seed first above, then split them into pools by snake draft so the strong seeds are spread out. Each pool gets its own round robin using your dates, courts, blackouts and time slots, and every pool schedule is re-checked. Type results as <code>Hawks 3 - 2 Owls</code> in step 4 to see who advances.</p>
+    <p class="note">List the teams best seed first above, then split them into pools by snake draft so the strong seeds are spread out. Each pool gets its own round robin using your dates, courts, blackouts and time slots, and every pool schedule is re-checked. Type results as <code>Hawks 3 - 2 Owls</code> in step 4 to see who advances and the knockout bracket. The seeds cross over (A1 v B2, B1 v A2), so teams from the same pool meet as late as the bracket allows; the play-off options and results in step 4 apply.</p>
     <div class="row4">
       <div><label for="pools">Number of pools</label><input id="pools" inputmode="numeric" value="2"></div>
       <div><label for="advance">Teams advancing from each pool</label><input id="advance" inputmode="numeric" value="2"></div>
@@ -308,7 +308,7 @@
 
   <section class="card" id="americano-card">
     <h2>Americano: rotating partners for doubles nights</h2>
-    <p class="note">For social padel, pickleball, badminton and tennis nights where everyone plays with and against as many different people as possible. List the players in the Teams box above, say how many courts you have and how many rounds, and get a sheet of who partners whom each round. Games and sit-outs are shared evenly; repeat partners are avoided as far as the round count allows and counted below.</p>
+    <p class="note">For social padel, pickleball, badminton and tennis nights where everyone plays with and against as many different people as possible. List the players in the Teams box above, say how many courts you have and how many rounds, and get a sheet of who partners whom each round. Games and sit-outs are shared evenly; repeat partners are avoided as far as the round count allows and counted below. With 8, 9, 12, 13, 16, 17 ... 44 or 45 players (and 49, 53, 56, 61 or 64) and a court for every four, everyone partners everyone else exactly once and plays against each of them exactly twice (a whist design, <a href=\"./how-to-run-an-americano-tournament.html\">how it works</a>).</p>
     <label for="am-courts">Courts</label>
     <input id="am-courts" type="number" min="1" max="16" value="2">
     <label for="am-rounds">Rounds (blank = a sensible number)</label>
@@ -404,7 +404,7 @@
   </footer>
 
   <script type="module">
-    import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, teamSnapCsv, sportsEngineCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, playBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
+    import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, teamSnapCsv, sportsEngineCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, playBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolPlayoffSeeds, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
     import { singleAsDivisions, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsTeamSheetsHtml, divisionsDutiesText } from "./divisions.mjs";
     import { carryOverTry, carryOverSummary, combineCarryOverTries, splitCarryOverTries, carryOverCandidatesText, carryOverDistinct, carryOverKeepText, carryOverKeepIndex, CARRY_OVER_GAP, CARRY_OVER_SQUEEZE, carryOverSqueeze, CARRY_OVER_POLISH, carryOverPolish, CARRY_OVER_FLOOR_PRICED, carryOverFloorPriced, carryOverPure } from "./carryover.mjs";
@@ -1037,8 +1037,18 @@
       }
       if (tables.length) {
         parts.push(tables.map((t, i) => `${play[i].name} table\n` + t.map((r) => `  ${r.rank}. ${r.name}  ${r.points} pts  GD ${r.gd}`).join("\n")).join("\n\n"));
-        const adv = poolAdvancers(tables, Math.max(1, Math.trunc(Number($("#advance").value) || 1))); /* zero-default: at least one team advances from a pool */
-        parts.push("Play-off seeds\n" + adv.map((n, i) => `  ${i + 1}. ${n}`).join("\n"));
+        const ps = poolPlayoffSeeds(tables, Math.max(1, Math.trunc(Number($("#advance").value) || 1))); /* zero-default: at least one team advances from a pool */
+        const meetText = (v) => v.map((c, r) => c ? `${c} in round ${r + 1}` : "").filter(Boolean).join(", ");
+        const crossNote = ps.plain.join() !== ps.meetings.join() ? `\n  Crossover: winners still come before runners-up, but each place is ordered to keep poolmates apart. Possible poolmate meetings by record order alone: ${meetText(ps.plain)}; in this order: ${meetText(ps.meetings)}.` : "";
+        parts.push("Play-off seeds\n" + ps.seeds.map((n, i) => `  ${i + 1}. ${n} (${play[ps.pools[i]].name})`).join("\n") + crossNote);
+        if (ps.seeds.length >= 2) {
+          try {
+            const dbl = $("#playoffDouble").checked && ps.seeds.length >= 3;
+            let br = dbl ? doubleEliminationBracket(ps.seeds) : playoffBracket(ps.seeds, { thirdPlace: $("#playoffThird").checked });
+            if ($("#playoffResults").value.trim()) br = playBracket(br, $("#playoffResults").value);
+            parts.push(bracketText(br) + (br.errors && br.errors.length ? "\n" + br.errors.join("\n") : ""));
+          } catch (e) { parts.push(e.message); }
+        }
       }
       poolText = parts.join("\n\n");
       $("#pool-out").textContent = poolText;
@@ -1103,7 +1113,18 @@
       const st = americanoStats(players, plan);
       amOut = americanoText(players, plan);
       $("#am-out").textContent = amOut;
-      out.textContent = `${plan.rounds.length} rounds for ${players.length} players on ${courts} court${courts === 1 ? "" : "s"}. Games per player ${Math.min(...st.games)}-${Math.max(...st.games)}, repeat partnerships ${st.repeatPartners}, pairs who never partner ${st.unmetPartners}. The rotation passed the check.`;
+      let design = "";
+      if (plan.design) {
+        const whole = plan.rounds.length === plan.design.fullRounds;
+        design = plan.design.near
+          ? whole ? ` Built from a near-whist design for ${plan.design.size}: nobody partners anyone twice, each player misses exactly one partner (an odd count of pairs cannot all be used), faces that player twice and everyone else once or twice.` : " Built from a near-whist design: nobody partners anyone twice."
+          : plan.design.ghosts
+          ? ` Built from a whist design for ${plan.design.size} with ${plan.design.ghosts} empty seat: nobody partners anyone twice${whole ? ", and every pair meets as opponents once or twice" : ""}.`
+          : whole ? " Built from a whist design: every pair partners exactly once and plays against each other exactly twice." : " Built from a whist design: nobody partners anyone twice.";
+      } else if (plan.whistHint) {
+        design = ` For every pair to partner once and face each other twice on ${courts} court${courts === 1 ? "" : "s"}, set Rounds to ${plan.whistHint.rounds}.`;
+      }
+      out.textContent = `${plan.rounds.length} rounds for ${players.length} players on ${courts} court${courts === 1 ? "" : "s"}. Games per player ${Math.min(...st.games)}-${Math.max(...st.games)}, repeat partnerships ${st.repeatPartners}, pairs who never partner ${st.unmetPartners}.${design} The rotation passed the check.`;
       record("americano_built");
     }));
     $("#dl-americano").addEventListener("click", () => { if (amOut) download("americano-rotation.txt", amOut, "text/plain"); });

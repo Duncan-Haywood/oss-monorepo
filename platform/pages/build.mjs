@@ -130,7 +130,8 @@ import {
   renderInvalidStyle,
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
-import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
+import { REFLOW_CSS, TABLE_SCROLL_CLASS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
+import { PAPER_INK_JS } from './paper.mjs';
 import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
 import { JUMP_ROW_CSS } from './jump-row.mjs';
 import { ANSWER_LEAD_CSS } from './answer-lead-style.mjs';
@@ -169,6 +170,7 @@ import {
   renderMarquee,
   renderShowcaseSection,
   renderHeroArt,
+  SHOWCASE_DIR,
 } from './showcase.mjs';
 import {
   HOME_SECTIONS_CSS,
@@ -515,7 +517,7 @@ function shipsDeployableApp(slug) {
 }
 
 // Tools that implement a published paper (portfolio/research-tools/README.md).
-export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'cost-sharing-calculator', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering', 'kalman-smoother', 'extreme-value-analysis', 'meta-analysis', 'dynamic-time-warping', 'stable-matching', 'kriging-interpolation', 'scale-reliability', 'item-response-theory', 'difference-in-differences', 'method-comparison', 'regression-discontinuity', 'contingency-table-tests', 'propensity-score', 'instrumental-variables', 'gage-rr', 'conjoint-analysis', 'capture-recapture', 'heckman-selection', 'spatial-autocorrelation', 'pairwise-ranking', 'species-diversity', 'roc-analysis'];
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'ordinal-regression', 'cost-sharing-calculator', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis', 'fdr-multiple-testing', 'synthetic-control', 'stl-decomposition', 'fuzzy-dedupe', 'spc-control-charts', 'isolation-forest', 'gaussian-process-regression', 'wasserstein-distance', 'ranked-ballot-counter', 'assembly-line-balancer', 'job-shop-scheduler', 'robust-pca', 'lomb-scargle-periodogram', 'mann-kendall-trend', 'inter-rater-agreement', 'probability-calibration', 'hdbscan-clustering', 'kalman-smoother', 'extreme-value-analysis', 'meta-analysis', 'dynamic-time-warping', 'stable-matching', 'kriging-interpolation', 'scale-reliability', 'item-response-theory', 'difference-in-differences', 'method-comparison', 'regression-discontinuity', 'contingency-table-tests', 'propensity-score', 'instrumental-variables', 'gage-rr', 'conjoint-analysis', 'capture-recapture', 'heckman-selection', 'spatial-autocorrelation', 'pairwise-ranking', 'species-diversity', 'roc-analysis'];
 
 // The `personal-tax` section's members (CATEGORY_RULES, below). A Set so the rule is one lookup.
 const PERSONAL_TAX_SLUGS = new Set([
@@ -890,6 +892,8 @@ const CATEGORY_RULES = [
     // same site reader as `wall-framing-takeoff` and the concrete bid calculators.
     // `wall-condensation-check` joined 2026-11-11 on its first commit: the month-by-month
     // Glaser moisture check of a wall a builder or designer runs beside `hvac-load-calc`.
+    // `psychrometric-calculator` joined 2026-11-19 on its first commit: moist-air states and
+    // coil, mixing and evaporative processes an HVAC technician reads beside `hvac-load-calc`.
     // `hvac-load-calc` joined 2026-11-11 on its first commit: the room-by-room heating and
     // cooling load an installer or builder checks before quoting a heat pump, beside the
     // furnace, mini-split and heat pump bid calculators.
@@ -911,7 +915,10 @@ const CATEGORY_RULES = [
     // model against a client's buildingSMART IDS, beside the IFC reader in `wall-framing-takeoff`.
     // `submittal-register` joined 2026-11-19 on its first commit: a GC's project engineer
     // turning the project manual into the submittal log, beside `ids-model-check`.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'submittal-register' || slug === 'concrete-maturity' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    // `xer-schedule-check` joined 2026-11-19 on its first commit: an owner's rep, claims
+    // consultant or scheduler running the DCMA 14-point check on a P6 XER update, beside
+    // `submittal-register`.
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'ids-model-check' || slug === 'submittal-register' || slug === 'xer-schedule-check' || slug === 'concrete-maturity' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'voltage-drop-calculator' || slug === 'wall-condensation-check' || slug === 'psychrometric-calculator' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -3625,7 +3632,7 @@ const CATEGORY_RULES = [
     // `npm-audit-triage`, `pip-audit-triage` and `cargo-audit-triage`, which
     // it links.
     test: (slug) =>
-      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|csp-policy-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|gitignore-explainer|semver-range-explainer|rrule-explainer|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|cvss-vector-check|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|systemd-unit-hardening-check|nginx-config-security-check|sudoers-check|sshd-config-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|cyclehound|csshound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit|stranded-branch-finder)/.test(
+      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|csp-policy-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|gitignore-explainer|semver-range-explainer|rrule-explainer|icu-message-check|tsconfig-ts7-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|cvss-vector-check|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|systemd-unit-hardening-check|nginx-config-security-check|sudoers-check|sshd-config-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|cyclehound|csshound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit|stranded-branch-finder)/.test(
         slug,
       ),
   },
@@ -5061,10 +5068,11 @@ const SUBCATEGORY_RULES = {
       // `voltage-drop-calculator` (2026-11-17): voltage drop and wire size for DC, single and three-phase runs, the conductor step after the service and string sizing.
       // `hvac-load-calc` (2026-11-11): room-by-room heating and cooling loads, the sizing step before a heat pump, mini-split or furnace bid.
       // `wall-condensation-check` (2026-11-11): the moisture check on the same wall `hvac-load-calc` sizes heat for.
+      // `psychrometric-calculator` (2026-11-19): moist-air properties, coil load, SHR, ADP and bypass factor, the air side of the same HVAC job.
       // `water-supply-sizing` (2026-11-13): peak water demand and supply pipe sizes, the plumbing step beside the water heater and softener bids.
       // `sprinkler-hydraulic-calc` (2026-11-13): fire sprinkler hydraulics for trees, loops and grids, the pipe work beside the domestic water sizing.
       // `elevator-traffic-analysis` (2026-11-14): up-peak lift traffic (round trip time, interval, handling capacity), the vertical transportation step of the same building services.
-      test: (slug) => /^(hvac-load-calc|water-supply-sizing|sprinkler-hydraulic-calc|elevator-traffic-analysis|wall-condensation-check|service-load-check|pv-string-sizer|voltage-drop-calculator|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      test: (slug) => /^(hvac-load-calc|water-supply-sizing|sprinkler-hydraulic-calc|elevator-traffic-analysis|wall-condensation-check|psychrometric-calculator|service-load-check|pv-string-sizer|voltage-drop-calculator|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -5082,7 +5090,8 @@ const SUBCATEGORY_RULES = {
       // before the drywall here, and its lumber list is the same job as `cut-list`.
       // `ids-model-check` joined 2026-11-16 beside it: the IFC model check before the build.
       // `submittal-register` joined 2026-11-19 beside it: the submittal log from the spec book.
-      test: (slug) => /^(ids-model-check|submittal-register|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
+      // `xer-schedule-check` joined 2026-11-19 beside it: the DCMA check of the P6 schedule.
+      test: (slug) => /^(ids-model-check|submittal-register|xer-schedule-check|painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list|tile-layout|home-staging|wall-framing|continuous-beam)/.test(slug),
     },
     {
       id: 'trades-site',
@@ -5700,6 +5709,45 @@ function stripJsComments(src) {
 // never reaches the published exception list.
 const PLAUSIBLE_HOST = /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?(?::\d+)?$/i;
 
+// A URL whose host can never be a real third party is not a disclosure: it
+// is a test fixture, a placeholder or a parsing base. Before this filter the
+// scanner published four kinds of them as places "what you type also goes":
+//
+//   - single-label hosts (`x`, `r`, `k`, `spam`): `new URL(req.url,
+//     "http://x")` is the usual way a self-hosted server parses its own
+//     request path, and 25 tools do it. Six tool pages (changelog-keeper,
+//     error-keeper, sign-keeper, survey-keeper, testimonial-keeper,
+//     webhook-relay) told visitors their text "also goes to x".
+//   - names reserved by RFC 2606 / RFC 6761 / RFC 6762 (`*.example`, `*.test`,
+//     `*.invalid`, `*.localhost`, `*.local`, `example.com|net|org`): fixtures
+//     such as `evil.example` and llm-spend-guard's `http://proxy.local` base,
+//     which its page published as "also goes to proxy.local".
+//   - `http://www.w3.org/...`: XML, XSLT and SVG namespace identifiers, which
+//     no browser requests (and an https page could not load over http anyway).
+//
+// `localhost` and loopback IPs stay listed: a tool that talks to a local model
+// (Ollama on localhost:11434) really does send your text there, and saying so
+// is true. Each of the seven tools this removes from the list entirely was
+// read by hand on 2026-11-19: their browser code fetches only same-origin
+// paths or a server the user runs themselves (docs/reports/
+// polish-2026-11-19-reserved-hosts.md).
+const RESERVED_TLD = /\.(?:example|test|invalid|localhost|local)$/i;
+const RESERVED_DOMAIN = /(?:^|\.)example\.(?:com|net|org)$/i;
+export function isPlaceholderHost(url) {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+  const name = parsed.hostname.toLowerCase();
+  if (name === 'localhost' || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(name) || name.startsWith('[')) return false;
+  if (!name.includes('.')) return true;
+  if (RESERVED_TLD.test(name) || RESERVED_DOMAIN.test(name)) return true;
+  if (parsed.protocol === 'http:' && name === 'www.w3.org') return true;
+  return false;
+}
+
 export async function surfaceExternalFetchHosts(dir) {
   // `.mjs` too, not just `.js`: ventures overwhelmingly ship ES modules
   // (`calc.mjs`, `share.mjs`, …), and a scanner that only reads `.js` never
@@ -5770,7 +5818,7 @@ export async function surfaceExternalFetchHosts(dir) {
         // back holding `$`/`{`/`(`/… — characters no real hostname has —
         // which `PLAUSIBLE_HOST` below exists to catch.
         const host = new URL(url).host;
-        if (PLAUSIBLE_HOST.test(host)) hosts.add(host);
+        if (PLAUSIBLE_HOST.test(host) && !isPlaceholderHost(url)) hosts.add(host);
       } catch {
         // Not a resolvable absolute URL — skip rather than guess.
       }
@@ -8518,7 +8566,47 @@ function customDevHead({ title, description, url, toRoot, baseUrl, extraHead = '
  * each row linking to that request's own page (`renderCustomRequestPage`).
  * Every tool's footer links here with `?kind=feature&tool=<slug>`.
  */
-export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [], directions, feedbackUrl = SITE_FEEDBACK_URL }) {
+/**
+ * "Built from requests so far": one card per request whose project is a
+ * published tool with a showcase still (showcase/capture.mjs), oldest request
+ * first. Each picture is the real tool with its worked example loaded, so the
+ * page shows what a request turns into instead of describing it
+ * (polish-2026-11-19-custom-dev-built.md). Empty when no request has a still.
+ */
+export function renderRequestShowcase({ requests = [], surfaces = [], shots = [], toRoot = '../' }) {
+  const bySlug = new Map(shots.map((s) => [s.slug, s]));
+  const cards = [...requests]
+    .filter((r) => r.status !== 'declined')
+    .sort((a, b) => String(a.id).localeCompare(String(b.id)))
+    .map((r) => ({ r, slug: requestToolSlug(r, surfaces) }))
+    .filter(({ slug }) => slug && bySlug.has(slug))
+    .map(({ r, slug }) => {
+      const shot = bySlug.get(slug);
+      const surface = surfaces.find((s) => s.slug === slug);
+      // The product's name, not its tagline ("AI Bookkeeper: double-entry books that…").
+      const name = surface ? cardName(surface.title).split(': ')[0] : slug;
+      const src = `${toRoot}${SHOWCASE_DIR}/${shot.hero || shot.file}`;
+      const dims = shot.hero ? 'width="600" height="375"' : 'width="960" height="600"';
+      const srcset = shot.hero && shot.heroWide ? ` srcset="${escapeHtml(src)} 600w, ${escapeHtml(`${toRoot}${SHOWCASE_DIR}/${shot.heroWide}`)} 1200w" sizes="(max-width: 600px) 92vw, 350px"` : '';
+      return `
+        <li class="cd-built-card">
+          <a class="cd-built-img" href="${escapeHtml(`${toRoot}${slug}/`)}" tabindex="-1" aria-hidden="true"><img src="${escapeHtml(src)}"${srcset} ${dims} loading="lazy" decoding="async" alt=""></a>
+          <p class="cd-built-id"><a href="${escapeHtml(`${r.id}/`)}">${escapeHtml(r.id)}</a> · <span class="cd-st cd-${escapeHtml(r.status)}">${escapeHtml(r.status)}</span></p>
+          <h3><a href="${escapeHtml(`${toRoot}${slug}/`)}">${escapeHtml(name)}</a></h3>
+          <p class="cd-built-cap">${escapeHtml(shot.caption)}</p>
+          <p class="cd-built-links"><a href="${escapeHtml(`${toRoot}${slug}/`)}">Try it</a> · <a href="${escapeHtml(`${REPO_URL}/tree/main/${r.project}`)}">Code and README</a></p>
+        </li>`;
+    });
+  if (!cards.length) return '';
+  return `
+      <h2 id="built">Built from requests so far</h2>
+      <p>The first requests are the owner's own, so you can see how far one goes over many sessions. Each picture is the tool on this site with its worked example loaded, and each README says what is tested and what is still unproven.</p>
+      <ul class="cd-built">${cards.join('')}
+      </ul>
+`;
+}
+
+export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests = [], directions, feedbackUrl = SITE_FEEDBACK_URL, showcase = { shots: [] } }) {
   const url = `${baseUrl}${CUSTOM_DEV_PATH}`;
   const toRoot = '../';
   const title = 'Free custom software for your business';
@@ -8577,6 +8665,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
   </script>`
     : '<p>No requests on file yet. Yours could be the first.</p>';
   const form = renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions });
+  const built = renderRequestShowcase({ requests, surfaces, shots: showcase.shots, toRoot });
   const stages = REQUEST_STAGES.map((s) => `<li class="cd-step"><span class="cd-dot" aria-hidden="true"></span><span class="cd-step-name">${escapeHtml(s)}${requests.length ? ` <small>(${requests.filter((r) => r.status === s).length})</small>` : ''}</span><span class="cd-step-what">${escapeHtml(REQUEST_STATUSES[s])}</span></li>`).join('');
   const feedbackPageUrl = `${toRoot}${FEEDBACK_PATH}`;
   const ideaUrl = `${REPO_URL}/issues/new?template=idea.yml`;
@@ -8628,7 +8717,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
         <li><strong>A feature for a tool already here</strong>: every tool's footer links to this form with that tool chosen.</li>
       </ul>
       <p>What does not fit: anything that needs paid accounts or a cost per user to run, must stay private, scrapes a site against its terms, or gives regulated advice with no safe framing.</p>
-${form}
+${built}${form}
       <h2>How a request moves</h2>
       <ol class="cd-steps cd-steps-intro">${stages}</ol>
       <p>Before triage, every request from outside is <a href="#screening">screened</a> for text aimed at the agents rather than describing a job. A request can also be <em>declined</em>, always with the reason written beside it. Each request has its own page showing which stage it is at and what is still unproven, and once there is something to try you can send feedback on it from that page. Sessions work in the open: every change is a pull request, and the project's README says what was tested and what was not.</p>
@@ -8640,8 +8729,8 @@ ${form}
         <li>Describe the job from the inside: who does it, how, and where today's tools fall short. Real sample material (with private details removed) is the fastest way to move a request forward.</li>
       </ul>
 
-      <h2>What has been built this way</h2>
-      <p>The first requests in the list below are the owner's own, so you can see how deep a request goes over many sessions: an <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/ai-bookkeeper`)}">AI bookkeeper</a> (double-entry ledger, bank reconciliation, QuickBooks and Xero export), a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/wall-framing-takeoff`)}">wall framing takeoff</a> from a floor plan, and a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/sales-agent`)}">sales agent</a>. Each README says what is tested and what is still unproven.</p>
+${built ? '' : `      <h2>What has been built this way</h2>
+      <p>The first requests in the list below are the owner's own, so you can see how deep a request goes over many sessions: an <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/ai-bookkeeper`)}">AI bookkeeper</a> (double-entry ledger, bank reconciliation, QuickBooks and Xero export), a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/wall-framing-takeoff`)}">wall framing takeoff</a> from a floor plan, and a <a href="${escapeHtml(`${REPO_URL}/tree/main/ventures/sales-agent`)}">sales agent</a>. Each README says what is tested and what is still unproven.</p>`}
 
       <h2>What you can ask for</h2>
       <ul>
@@ -8784,6 +8873,27 @@ const CUSTOM_DEV_STYLE = `
     .cd-filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--bg); }
     .cd-filter input { font: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink); }
     #cd-shown { color: var(--muted); font-size: .88em; }
+    .cd-table td:first-child { white-space: nowrap; }
+    .cd-faq dd { line-height: 1.6; }
+    .prose ul.cd-built { list-style: none; padding: 0; margin: 14px 0 28px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+    /* A phone swipes through the cards instead of scrolling past four of them to reach the form. */
+    @media (max-width: 600px) {
+      .prose ul.cd-built { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 84%; gap: 12px;
+                           overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; padding-bottom: 6px; }
+      .prose .cd-built-card { scroll-snap-align: start; }
+    }
+    .prose .cd-built-card { margin: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--panel, var(--bg)); overflow: hidden; display: flex; flex-direction: column; }
+    .cd-built-img { display: block; aspect-ratio: 16 / 10; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--bg); }
+    .cd-built-img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; transition: transform .25s ease; }
+    .cd-built-card:hover .cd-built-img img { transform: scale(1.02); }
+    @media (prefers-reduced-motion: reduce) { .cd-built-img img { transition: none; } .cd-built-card:hover .cd-built-img img { transform: none; } }
+    .cd-built-card > p, .cd-built-card > h3 { margin: 0; padding: 0 14px; }
+    .cd-built-card > .cd-built-id { padding-top: 12px; font-size: .85em; color: var(--muted); }
+    .cd-built-card h3 { font-size: 1.05em; margin-top: 4px; }
+    .cd-built-card h3 a { color: var(--ink); text-decoration: none; }
+    .cd-built-card h3 a:hover, .cd-built-card h3 a:focus-visible { text-decoration: underline; }
+    .cd-built-card > .cd-built-cap { color: var(--muted); font-size: .92em; line-height: 1.5; margin-top: 4px; flex: 1; }
+    .cd-built-card > .cd-built-links { padding-top: 10px; padding-bottom: 14px; font-size: .92em; }
     @media (max-width: 700px) { .cd-steps { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 600px) {
       .cd-table thead { display: none; }
@@ -10767,6 +10877,46 @@ const SCROLL_A11Y_SCRIPT = `
       if(o==='auto'||o==='scroll')candidates.push(all[i]);
     }
   };
+  // A table that scrolls sideways keeps its row names in view (data-pf-pin,
+  // styled in reflow.mjs's REFLOW_CSS): swiped to column six, a phone reader
+  // otherwise sees six numbers and no row they belong to. Measured 2026-11-19
+  // at 390px: 107 tables across the tool pages lost their first column when
+  // swiped to the end (docs/reports/polish-2026-11-19-pinned-row-names.md).
+  // Only our own box around a table of 2+ columns, and only while the first
+  // column is at most half the box, so pinning it leaves room to read the
+  // rest. A cell spanning rows breaks the column, so such a table is left
+  // alone; a cell spanning columns (a section heading row) just scrolls, the
+  // CSS skips it. Re-checked on every width check, because a calculator fills
+  // its table after load and the first column only then has its real width.
+  // The pinned cell needs an opaque background or the columns sliding under
+  // it show through, so the nearest painted background above the table is
+  // copied onto the box once.
+  var pin=function(el){
+    if(el.className!==${JSON.stringify(TABLE_SCROLL_CLASS)})return;
+    var t=el.firstElementChild,ok=false,w=0;
+    // A venture that already turns its rows into cards on a phone (display:
+    // block rows) has solved this its own way; pinning a card would break it.
+    if(t&&t.tagName==='TABLE'&&el.children.length===1&&t.rows&&t.rows.length&&
+      getComputedStyle(t).display==='table'&&getComputedStyle(t.rows[t.rows.length-1]).display==='table-row'){
+      ok=true;
+      for(var r=0;r<t.rows.length&&ok;r++){
+        var c=t.rows[r].cells[0];
+        if(!c||c.rowSpan>1)ok=false;
+        else if(c.colSpan===1&&t.rows[r].cells.length>1&&!w)w=c.offsetWidth;
+      }
+      ok=ok&&w>0&&w<=el.clientWidth*0.5;
+    }
+    if(!ok){el.removeAttribute('data-pf-pin');return;}
+    if(!el.style.getPropertyValue('--pf-pin-bg')){
+      var n=t;
+      while(n&&n.nodeType===1){
+        var b=getComputedStyle(n).backgroundColor;
+        if(b&&b!=='transparent'&&!/rgba\\([^)]*,\\s*0\\)$/.test(b)){el.style.setProperty('--pf-pin-bg',b);break;}
+        n=n.parentElement;
+      }
+    }
+    if(!el.hasAttribute('data-pf-pin'))el.setAttribute('data-pf-pin','');
+  };
   var measure=function(){
     for(var i=0;i<candidates.length;i++){
       var el=candidates[i];
@@ -10775,11 +10925,13 @@ const SCROLL_A11Y_SCRIPT = `
           el.setAttribute('tabindex','0');
           el.setAttribute('data-pf-scrollable','');
         }
+        if(el.hasAttribute('data-pf-scrollable'))pin(el);
       }else if(el.hasAttribute('data-pf-scrollable')){
         // It fits now — drop the tab stop rather than stranding a keyboard user
         // on a box that no longer moves.
         el.removeAttribute('tabindex');
         el.removeAttribute('data-pf-scrollable');
+        el.removeAttribute('data-pf-pin');
       }
     }
   };
@@ -10837,7 +10989,7 @@ export const CHROME_MODULE_FILE = 'pf-site.js';
 
 /** The contents of that file. Written once by the build, at the site root. */
 export function renderChromeModule({ counterUrl = SITE_COUNTER_URL } = {}) {
-  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(VENTURE_CHROME_JS)}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(STICKY_FIT_JS)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
+  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(VENTURE_CHROME_JS)}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(STICKY_FIT_JS)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n${stripForInjection(PAPER_INK_JS)}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -13222,7 +13374,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   await fs.mkdir(customDevDir, { recursive: true });
   await fs.writeFile(
     path.join(customDevDir, 'index.html'),
-    renderCustomDevelopmentPage({ surfaces, baseUrl: base, requests: customRequests, directions: researchDirs }),
+    renderCustomDevelopmentPage({ surfaces, baseUrl: base, requests: customRequests, directions: researchDirs, showcase }),
   );
   // Each request's own page, linked from its row and shared by its requester.
   for (const request of customRequests) {
@@ -13436,7 +13588,18 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       options: toolCardOptions(surface, { baseUrl: base }),
     });
   }
-  await renderCards(cardJobs);
+  // Drawn beside the chrome pass below, and awaited before the page finish.
+  // Until 2026-11-19 the build waited here: on a cold card cache that was
+  // about 15 s of a 4-core build with the main thread idle while workers drew
+  // ~1,400 tool cards, then about 15 s of chrome with the workers idle. Nothing
+  // between here and the await reads a card: the chrome pass lists only
+  // `.html` files and names a tool's card by its path, and the finish pass
+  // draws the remaining cards on the same pool once these are done
+  // (docs/history/pages-build-perf-2026-11-19-tool-cards-beside-chrome.md).
+  const toolCards = renderCards(cardJobs);
+  // A failed draw is reported at the await; until then this keeps it from
+  // counting as an unhandled rejection.
+  toolCards.catch(() => {});
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -13457,6 +13620,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // below, which hashes the finished HTML: a cache named from a hash taken
   // earlier would ship pages that no longer match it.
   // One read and one write per page for all four (`finishPagesInOneWalk`).
+  await toolCards;
   const { sponsored, noscripted, retitled, shareCards } = await finishPagesInOneWalk(outDir, {
     baseUrl: base, siteName: SITE_NAME, siteCard: SOCIAL_CARD_FILE, log,
   });

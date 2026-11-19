@@ -341,12 +341,14 @@ export function formatIncomeCoverageAdvice(coverage, currency = 'USD') {
 
 /**
  * A monthly retainer price is not cash. Days until first payment times
- * the monthly revenue target / 30 is the working capital this client
- * asks you to lend. Prepaid is zero. Month-end plus Net 30 is ~60 days.
+ * what this client is billed each month / 30 is the working capital this
+ * client asks you to lend: the client's receivable, not your whole income
+ * target (other clients pay on their own terms). Prepaid is zero.
+ * Month-end plus Net 30 is ~60 days.
  */
 export function calculateCashFloat(target, paymentTerms = 'prepaid') {
   if (!Number.isFinite(Number(target)) || Number(target) < 0) {
-    throw new Error('Enter a valid monthly revenue target before estimating cash you must float.');
+    throw new Error('Enter a valid monthly amount billed (revenue target or retainer) before estimating cash you must float.');
   }
   const key = usablePaymentTerms(paymentTerms) || 'prepaid';
   const term = PAYMENT_TERMS[key];
@@ -372,7 +374,7 @@ export function formatCashFloatAdvice(float, currency = 'USD') {
   if (float.prepaid) {
     return `Payment terms: ${float.label}. First cash arrives at kickoff, so you do not float this retainer.`;
   }
-  return `Payment terms: ${float.label}. First cash is about ${float.days} days after kickoff. You need to float ${moneyText(float.cashToFloat, currency)} — one monthly revenue target times ${float.days}/30 — from savings or other clients. If you cannot float that, require prepaid or 50% on kickoff.`;
+  return `Payment terms: ${float.label}. First cash is about ${float.days} days after kickoff. You need to float ${moneyText(float.cashToFloat, currency)} — one month of this client's billing times ${float.days}/30 — from savings or other clients. If you cannot float that, require prepaid or 50% on kickoff.`;
 }
 
 export function formatArrearsComparison(target, currency = 'USD') {
@@ -549,7 +551,7 @@ export function formatProposalSummary(input, plan, currency = 'USD', comparison 
   const money = (value) => moneyText(value, currency);
   const usage = comparison ?? compareRetainerUsage(plan, { retainerHours: Number(input.retainerHours) });
   const roll = rollover ?? compareUnusedHourRollover(plan, { retainerHours: Number(input.retainerHours) });
-  const float = calculateCashFloat(plan.target, input.paymentTerms);
+  const float = calculateCashFloat(plan.retainer, input.paymentTerms);
   return `Monthly retainer proposal\n\nIncluded: ${input.retainerHours} hours per month\nMonthly price: ${money(plan.retainer)}\nAdditional work: ${money(plan.rate)} per hour\nCapacity left after retainer: ${plan.remainingCapacity.toFixed(1)} hours\nUnpaid extras drop below the floor after: ${usage.breakEvenHours} hours\nUnused-hour rollover: ${formatRolloverAdvice(roll, currency)}\n${formatCashFloatAdvice(float, currency)}\n\nPricing assumptions\nTake-home goal: ${money(Number(input.income))} per month\nBusiness costs and taxes: ${money(Number(input.costs))} per month\nAvailable work hours: ${input.hours} per month\nBillable utilization: ${input.utilization}%\nScope / revision buffer: ${input.buffer}%\n\nResponse time and out-of-scope work: define in the agreement.\n\n${DISCLAIMER}`;
 }
 
@@ -756,7 +758,7 @@ if (typeof document !== 'undefined') {
           fillRatePercent: input.fillRate === '' ? DEFAULT_FILL_RATE : Number(input.fillRate),
           currency: input.currency,
         });
-        const float = calculateCashFloat(plan.target, input.paymentTerms);
+        const float = calculateCashFloat(plan.retainer, input.paymentTerms);
         const offer = compareOffer(plan, input.offeredPrice);
         $('errors').hidden = true;
         $('results').hidden = false;
@@ -768,7 +770,7 @@ if (typeof document !== 'undefined') {
         $('termsLabel').textContent = float.label;
         $('cashFloat').textContent = money(float.cashToFloat);
         $('cashFloat').classList.toggle('needs-float', !float.prepaid);
-        $('explanation').textContent = `Your ${input.utilization}% utilization leaves ${plan.capacity.toFixed(1)} billable hours from ${input.hours} available hours. After this retainer, ${plan.remainingCapacity.toFixed(1)} hours remain for other work, admin, and recovery. The retainer includes a ${input.buffer}% buffer for scope drift; it is a planning floor, not a promise of results. ${formatCashFloatAdvice(float, input.currency)} ${formatArrearsComparison(plan.target, input.currency)}`;
+        $('explanation').textContent = `Your ${input.utilization}% utilization leaves ${plan.capacity.toFixed(1)} billable hours from ${input.hours} available hours. After this retainer, ${plan.remainingCapacity.toFixed(1)} hours remain for other work, admin, and recovery. The retainer includes a ${input.buffer}% buffer for scope drift; it is a planning floor, not a promise of results. ${formatCashFloatAdvice(float, input.currency)} ${formatArrearsComparison(plan.retainer, input.currency)}`;
         renderCoverage(coverage);
         renderOffer(offer, input.currency);
         renderUsage(comparison);

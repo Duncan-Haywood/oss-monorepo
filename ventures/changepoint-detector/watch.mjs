@@ -19,7 +19,7 @@ import { existsSync } from 'node:fs';
 import process from 'node:process';
 import { parseSeries } from './engine.mjs';
 import { parseColumns } from './multivariate.mjs';
-import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector } from './watch-core.mjs';
+import { WATCH_DEFAULTS, DETECTORS, HINT_BUDGET, fillClosed, emptyState, detectChanges, advance, alertText, statusText, webhookBody, eagernessReplay, eagernessText, budgetFromPlain, plainBudgetText, chooseDetector } from './watch-core.mjs';
 import { pathToFileURL } from 'node:url';
 
 // The logic lives in watch-core.mjs (no file or network access, so the page and the agent tool import it too).
@@ -64,6 +64,17 @@ Options:
   --penalty bic|aic|<number>     PELT penalty per change (default: bic)
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
   --log                     take logs first (positive values; percentage growth)
+  --closed <dates|@file>    days the business was shut (bank holidays, a Christmas closure): a comma list of labels
+                            (2024-12-25,2024-12-26) or @file with one per line. Each listed day is replaced, before any
+                            detector sees it, by the same weekday one week earlier (one --period earlier; the day
+                            before when labels are not daily), so a closed day's zero is not read as a drop and a
+                            recovery. Do not list days the shop is always shut (a Saturday): --period 7 handles those.
+                            On 100 simulated shops it took series with an alert at a closure from 100 to 16, the chance
+                            rate (21 at random dates), and kept steps that start just before a closure (52 caught
+                            against 57 had the shop never shut). A closure 1 to 7 days before a step costs about
+                            1 step in 100 (179 of 300 caught against 183); left as zeros it lends alerts instead
+                            (122 of 274 'catches' were only the closure). README, "Steps beside a closure" and
+                            "A closure in the week before a step".
   --detector <name>         which detector's changes to alert on: bocpd-ar1-window (default for --model mean: the Bayesian
                             detections allowing for sticky, autocorrelated noise, probability summed over 5 neighbouring
                             points), bocpd-ar1, bocpd (default for poisson and meanvar), bocpd-window, or pelt (finds
@@ -109,7 +120,7 @@ Statistical analysis of data you supply, not advice. MIT licence.`;
 export async function main(argv, { out = (s) => process.stdout.write(s), env = process.env, fetchImpl = globalThis.fetch } = {}) {
   const o = {};
   let src = null, statePath = null, json = false, failOnAlert = false, dry = false, hookEnv = null;
-  let suggest = false, auto = false, budget = null, plain = null, every = 'day', columnsSpec = null, floorSpec = null, spreadSpec = null;
+  let closedSpec = null, suggest = false, auto = false, budget = null, plain = null, every = 'day', columnsSpec = null, floorSpec = null, spreadSpec = null;
   const num = (s, name) => { const v = Number(s); if (!(v > 0) || !Number.isInteger(v)) throw new Error(`${name} takes a whole number above 0.`); return v; };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -122,6 +133,7 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--penalty') { const p = argv[++i]; o.penalty = /^\d+(\.\d+)?$/.test(p) ? Number(p) : p; }
     else if (a === '--period') o.period = num(argv[++i], '--period');
     else if (a === '--log') o.log = true;
+    else if (a === '--closed') { closedSpec = argv[++i]; if (!closedSpec || closedSpec.startsWith('-')) throw new Error('--closed takes a comma list of dates (2024-12-25,2024-12-26) or @file.'); }
     else if (a === '--detector' && argv[i + 1] === 'auto') { auto = true; i++; }
     else if (a === '--suggest') suggest = true;
     else if (a === '--budget') { budget = Number(argv[++i]); if (!(budget >= 0) || !Number.isFinite(budget)) throw new Error('--budget takes a number of 0 or more (alerts per 100 checks).'); }
@@ -157,19 +169,22 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     if (!r.ok) throw new Error(`Fetching ${src} answered ${r.status}.`);
     csv = await r.text();
   } else csv = await readFile(src, 'utf8');
+  const closed = closedSpec == null ? null : await closedList(closedSpec);
   if (columnsSpec) {
     if (o.column != null) throw new Error('Give --column or --columns, not both.');
-    return watchColumns({ csv, specs: columnSpecs(csv, columnsSpec, o.labelColumn ?? null), o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec, spreadSpec });
+    return watchColumns({ csv, closed, specs: columnSpecs(csv, columnsSpec, o.labelColumn ?? null), o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec, spreadSpec });
   }
   if (floorSpec?.byColumn) throw new Error('--min-shift column=x,... is for --columns; with one column give a number.');
   if (spreadSpec?.byColumn) throw new Error('--min-spread column=k,... is for --columns; with one column give a number.');
-  const { labels, values, column } = parseSeries(csv, o.column ?? null, o.labelColumn ?? null);
-  if (values.length < 4) throw new Error(`Need at least 4 numbers; got ${values.length}.`);
+  const { labels, values: raw, column } = parseSeries(csv, o.column ?? null, o.labelColumn ?? null);
+  if (raw.length < 4) throw new Error(`Need at least 4 numbers; got ${raw.length}.`);
+  const fill = closedFill(raw, labels, closed, o);
+  const values = fill.values;
   const { column: _c, labelColumn: _l, alertHistory: _h, ...detOpts } = o;
   if (suggest) {
     if (values.length < 10) throw new Error(`--suggest needs at least 10 points; got ${values.length}.`);
     const r = eagernessReplay(values, labels, { ...detOpts, ...(budget != null ? { budget } : {}) });
-    out((json ? JSON.stringify({ column, ...r, plain: plainBudgetText(r.budget, every) }, null, 2) : eagernessText(r, { column, every })) + '\n');
+    out((json ? JSON.stringify({ column, ...r, plain: plainBudgetText(r.budget, every), ...fill.json }, null, 2) : fill.line + eagernessText(r, { column, every })) + '\n');
     return 0;
   }
   const state = statePath && existsSync(statePath) ? JSON.parse(await readFile(statePath, 'utf8')) : emptyState();
@@ -201,8 +216,29 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
   const pickLine = picked
     ? `How eager: ${NAME[picked.key]} (${picked.detector}), picked from ${picked.n} points of history: ${picked.reason}${picked.per100 != null ? ` (${picked.per100} per 100 checks there)` : ''}; budget ${plainBudgetText(picked.budget, every)}. Later runs keep it.`
     : null;
-  out((json ? JSON.stringify({ column, n: values.length, ...(picked ? { picked } : {}), ...res }, null, 2) : (pickLine ? pickLine + '\n' : '') + statusText(res, textOpts)) + '\n');
+  out((json ? JSON.stringify({ column, n: values.length, ...(picked ? { picked } : {}), ...fill.json, ...res }, null, 2) : fill.line + (pickLine ? pickLine + '\n' : '') + statusText(res, textOpts)) + '\n');
   return failOnAlert && res.alerts.length ? 1 : 0;
+}
+
+/** `--closed`: the listed dates, from "a,b" or "@file" (one per line, # comments and blank lines skipped). */
+export async function closedList(spec) {
+  const s = String(spec).trim();
+  const text = s.startsWith('@') ? await readFile(s.slice(1), 'utf8') : s;
+  const dates = text.split(/[,\n]/).map((t) => t.replace(/#.*/, '').trim()).filter(Boolean);
+  if (!dates.length) throw new Error('--closed lists no dates.');
+  return dates;
+}
+
+/**
+ * The `--closed` fill (README "Steps beside a closure", eval/closed-steps.prereg.md: fillClosed with lags 1, rounded for
+ * counts). Returns { values, line, json }: line is the text note ('' with no fill), json the fields for --json.
+ */
+export function closedFill(values, labels, closed, opts = {}) {
+  if (!closed) return { values, line: '', json: {} };
+  const r = fillClosed(values, labels, closed, { period: opts.period ?? null, round: opts.model === 'poisson', lags: 1 });
+  const n = r.filled.length;
+  const line = `Closed: ${n} of ${closed.length} listed day${closed.length === 1 ? '' : 's'} in this series, each read as the same day one cycle earlier${n ? ` (${r.filled.slice(0, 5).map((f) => f.label).join(', ')}${n > 5 ? ', ...' : ''})` : ''}.\n`;
+  return { values: r.values, line, json: { closed: { listed: closed.length, filled: r.filled } } };
 }
 
 /**
@@ -265,7 +301,7 @@ function parseColumnNumbers(spec, flag, what0, forms) {
 /** The record for several columns: { version, columns: { <name>: <one column's state> } }. */
 export function emptyMultiState() { return { version: 1, columns: {} }; }
 
-async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec = null, spreadSpec = null }) {
+async function watchColumns({ csv, closed = null, specs, o, statePath, json, failOnAlert, dry, hookEnv, suggest, auto, budget, every, out, env, fetchImpl, floorSpec = null, spreadSpec = null }) {
   const k = specs.length;
   // Each column is picked against the whole budget, as a one-column watch would be. Splitting it (1/k each) was
   // pre-registered and failed (eval/watch-columns.mjs): on 5 noise columns the unsplit picks already sent 1.33 alerts per
@@ -274,9 +310,11 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
   const whole = budget ?? HINT_BUDGET;
   const { column: _c, labelColumn, alertHistory: _h, ...base } = o;
   const series = specs.map((s) => {
-    const { labels, values, column } = parseSeries(csv, s.column, labelColumn ?? null);
-    if (values.length < 4) throw new Error(`${column}: need at least 4 numbers; got ${values.length}.`);
-    return { ...s, column: String(column), labels, values, opts: { ...base, ...(s.model ? { model: s.model } : {}) } };
+    const { labels, values: raw, column } = parseSeries(csv, s.column, labelColumn ?? null);
+    if (raw.length < 4) throw new Error(`${column}: need at least 4 numbers; got ${raw.length}.`);
+    const opts = { ...base, ...(s.model ? { model: s.model } : {}) };
+    const fill = closedFill(raw, labels, closed, opts);
+    return { ...s, column: String(column), labels, values: fill.values, fill, opts };
   });
   const applyPerColumn = (spec, key, flag) => {
     if (spec?.byColumn) {
@@ -293,10 +331,10 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
   if (suggest) {
     const rows = series.map((c) => {
       if (c.values.length < 10) throw new Error(`--suggest needs at least 10 points; ${c.column} has ${c.values.length}.`);
-      return { column: c.column, ...eagernessReplay(c.values, c.labels, { ...c.opts, budget: whole }) };
+      return { column: c.column, ...eagernessReplay(c.values, c.labels, { ...c.opts, budget: whole }), ...c.fill.json };
     });
     if (json) out(JSON.stringify({ budget: whole, plain: plainBudgetText(whole, every), columns: rows }, null, 2) + '\n');
-    else out(`Budget: ${plainBudgetText(whole, every)} per column, ${k} column${k === 1 ? '' : 's'}.\n\n`
+    else out(`Budget: ${plainBudgetText(whole, every)} per column, ${k} column${k === 1 ? '' : 's'}.\n${series[0].fill.line}\n`
       + rows.map((r) => `== ${r.column} ==\n${eagernessText(r, { column: r.column, every })}`).join('\n\n') + '\n');
     return 0;
   }
@@ -323,7 +361,7 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
     }
     const res = advance(st, detectChanges(c.values, c.labels, det), c.values.length, c.labels, { ...o, ...det });
     state.columns[c.column] = res.state;
-    results.push({ column: c.column, model: det.model || 'mean', n: c.values.length, picked, res });
+    results.push({ column: c.column, model: det.model || 'mean', n: c.values.length, picked, res, fill: c.fill });
   }
   const alerting = results.filter((r) => r.res.alerts.length);
   const message = alerting.map((r) => alertText(r.res, { column: r.column, model: r.model })).join('\n');
@@ -336,7 +374,7 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
   if (!dry) await writeFile(statePath, JSON.stringify(state, null, 2) + '\n');
   if (json) {
     out(JSON.stringify({ alerts: alerting.reduce((s, r) => s + r.res.alerts.length, 0), budget: auto ? whole : undefined,
-      columns: results.map((r) => ({ column: r.column, model: r.model, n: r.n, ...(r.picked ? { picked: r.picked } : {}), ...r.res })) }, null, 2) + '\n');
+      columns: results.map((r) => ({ column: r.column, model: r.model, n: r.n, ...(r.picked ? { picked: r.picked } : {}), ...r.fill.json, ...r.res })) }, null, 2) + '\n');
   } else {
     const head = alerting.length
       ? `New changes in ${alerting.length} of ${k} column${k === 1 ? '' : 's'}: ${alerting.map((r) => r.column).join(', ')}.`
@@ -345,7 +383,7 @@ async function watchColumns({ csv, specs, o, statePath, json, failOnAlert, dry, 
       const pick = r.picked ? `How eager: ${NAME[r.picked.key]} (${r.picked.detector}), picked from ${r.picked.n} points: ${r.picked.reason}; budget ${plainBudgetText(whole, every)}. Later runs keep it.\n` : '';
       return `== ${r.column} ==\n${pick}${statusText(r.res, { column: r.column, model: r.model, confirm: o.confirm })}`;
     });
-    out([head, ...blocks].join('\n\n') + '\n');
+    out([head + (results[0].fill.line ? '\n' + results[0].fill.line.trimEnd() : ''), ...blocks].join('\n\n') + '\n');
   }
   return failOnAlert && alerting.length ? 1 : 0;
 }

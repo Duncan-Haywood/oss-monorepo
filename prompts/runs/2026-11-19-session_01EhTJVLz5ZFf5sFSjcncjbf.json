@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLz5ZFf5sFSjcncjbf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief)",
+  "input_sha256": "4e2352a9fa2c31eb11584516c1d676ea6013fdf7b16d5bd1d9485d73e31d4c81",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T08:55:47Z",
+  "ended": "2026-11-19T09:18:53Z",
+  "wall_minutes": 23.29,
+  "tokens_in": 22980035,
+  "tokens_out": 122729,
+  "cost_usd": 9.1316,
+  "tool_calls": 127,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17613",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Two hand-written calendar strings (test fixture, example generator) had an unbalanced parenthesis; the engine fell back to a 24-hour calendar with only a warning. Fixed the strings, made the CLI and page print calendar warnings, added a test.",
+    "The critical path test's what-if re-run mutated shared project state (forecast finish moved by 600 days in the report). Fixed by copying project state per schedule run.",
+    "Two hand-arithmetic test expectations were wrong (float of 16 h should be 8 h); the engine was right."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here pointed at ids-model-check, whose buildable items are ifcXML/eval niches after 24 records in 2 days; its remaining next: items need outside inputs. Its buildable note should be pruned by the next ids-model-check run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Running a downloaded third-party library (PyP6Xer, LGPL) as a cross-check reference was refused by the auto-mode classifier; no doc says independent cross-checks against third-party code need a different route (e.g. pip install from pypi)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took a new venture instead of the allocator's Start here row (ids-model-check): its remaining work is ifcXML eval niches or needs outside inputs, the brief asks to start new ventures too, and the owner's top direction is construction.",
+      "did": "Built xer-schedule-check (P6 XER reader, P6-faithful CPM engine, DCMA 14-point) and added it to portfolio/flagships.yaml so later runs deepen it.",
+      "result": "Engine matches P6's stored dates and float on 18,133 of 19,822 activities in six public files; page live on merge."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-reproducing-p6-float-from-an-xer-file.md",
+    "ventures/xer-schedule-check/eval/cpm-vs-p6-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: run_venture_tests.py xer-schedule-check ok (20 tests); optout-persistence ok after sync_tree_counts.py; check_posts ok; validate.py ok; Playwright smoke (example, 30 MB CCA in 1.9 s, mobile no overflow, no console errors). venture-preflight run in background, result in PR. Eval data (six public XER files) not committed: licences unclear.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "63c035e9-9214-56c0-9c5f-bc5fbe409f6e",
+    "transcripts": 1,
+    "first": "2026-11-19T08:55:47Z",
+    "last": "2026-11-19T09:19:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 124,
+        "input": 238,
+        "output": 122729,
+        "thinking": 31355,
+        "cache_read": 22713120,
+        "cache_write_5m": 0,
+        "cache_write_1h": 266677,
+        "api_equivalent_usd": 9.1316,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 124,
+      "input": 238,
+      "output": 122729,
+      "thinking": 31355,
+      "cache_read": 22713120,
+      "cache_write_5m": 0,
+      "cache_write_1h": 266677,
+      "api_equivalent_usd": 9.1316,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 127,
+    "tools": {
+      "Bash": 115,
+      "Write": 6,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.29,
+      "active_minutes": 23.29,
+      "model_minutes": 19.74,
+      "tool_minutes": 3.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 40.0,
+      "basis": "senior scheduler-developer: XER parser, P6 calendar engine, CPM with progress rules reverse-engineered on real files, DCMA module, page, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 4000.0
+    },
+    "leverage": 438.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

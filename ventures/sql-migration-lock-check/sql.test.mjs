@@ -205,3 +205,31 @@ test('maskNonCode marks string characters, not comment characters, as inString',
   assert.equal(inString[7], false, 'a comment is not a string');
   assert.equal(isComment[7], true);
 });
+
+// Red team 2026-11-19: boundary cases the tests above left open.
+test('a line comment that ends the file keeps the masked text the same length', () => {
+  for (const text of ['SELECT 1; -- last', '-- only a comment']) {
+    assert.equal(maskNonCode(text).masked.length, text.length);
+  }
+});
+
+test("an E-string after a keyword and a space still takes backslash escapes", () => {
+  // The character two before the quote is a space; the one before that is a
+  // letter. Only the space decides whether the E starts a name.
+  const st = splitStatements("SELECT E'it\\'s';\nCREATE INDEX idx ON t (a);");
+  assert.deepEqual(st.map((s) => s.masked), ['SELECT E', 'CREATE INDEX idx ON t (a)']);
+});
+
+test("an E that ends a name at the start of the file is not an E-string prefix", () => {
+  // Quote at offset 2: text[0] is a name character, so `de'...'` is a plain
+  // literal and `\\'` ends it.
+  const st = splitStatements("de'a\\';\nCREATE INDEX idx ON t (a);");
+  assert.equal(st.length, 2);
+  assert.equal(st[1].masked, 'CREATE INDEX idx ON t (a)');
+});
+
+test('a quoted identifier that starts with an escaped quote ("") keeps it', () => {
+  // `"""a"` is the identifier `"a`: the opening quote, an escaped quote, a,
+  // and the closing quote. Only the outer two quotes are blanked.
+  assert.equal(maskNonCode('"""a" x').masked, ' ""a  x');
+});

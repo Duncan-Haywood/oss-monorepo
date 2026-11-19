@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydwzVn6WBdZHavt2ia",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T03:52:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "flagship 9 league-schedule-generator: /join free agents placed by the late-sign-up search",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17526",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "freeagents.test.mjs hung after my change",
+      "cause": "a failed assertion in a server test skipped s.close(), so the HTTP server kept node --test alive past the 120 s tool timeout; found by running each test with --test-name-pattern and --test-timeout"
+    },
+    {
+      "what": "Dockerfile did not copy teams.mjs, which freeagents.mjs now imports",
+      "cause": "new cross-module import; caught by venture-preflight (check_docker_copy.py), fixed before merge"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/freeagents.test.mjs",
+      "issue": "server tests close their server only on success, so any assertion failure shows up as a hang, not a failure; --test-timeout=20000 surfaces it"
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "the next: row was at 1993 of 2000 with landed clauses only, so a descriptive replacement could not fit; had to cut it to a short phrase"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-free-agents-placed-like-a-balanced-draft.md",
+    "ventures/league-schedule-generator/README.md (Free agents from /join placed by the late-sign-up search)"
+  ],
+  "goal": "deepen flagship 9 with a working product slice",
+  "notes": "suggestPlacements now runs addLateSignups (rosters pinned, capacity cap added to balanceTeams and the exhaustive check, /join tag questions, optional ratings sheet), kept only when no worse than least-filled on (tag excess, gap). eval/free-agent-fit.txt: 420 invented leagues; uneven-tag cases e.g. 34 to 12 of 60 at 6 teams without a sheet; cap and friend pairs 0 broken; max 302 ms. Local: freeagents.test.mjs 11/11 pass; full venture suite ok (737 tests, 221.7 s); venture-preflight first failed on check_docker_copy (teams.mjs not in the image), fixed, rerun.",
+  "corrections": [],
+  "redteam": null
+}

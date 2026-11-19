@@ -3078,6 +3078,16 @@ poor and it added nothing either. For Russian photos the advice stays `--rapidoc
 [`eval/receipt-ocr-ru-rus-vote-2026-11-18.md`](eval/receipt-ocr-ru-rus-vote-2026-11-18.md).
 Tests: `receipt-lead-vote.test.mjs`.
 
+### Russian slips: misread legal forms (2026-11-19)
+
+The seller on a Russian slip is the line that opens with a legal form, and the Cyrillic model
+sometimes misreads the form itself: `AD "…"` or `до "…"` for АО, `ИЛ ПЕТРОВА Ю.С.` for ИП, `ЗДО`
+for ЗАО, `ОБЦЕСТВО` for ОБЩЕСТВО, or a spelled-out ООО whose name wrapped to the next line. Each is
+now read, but only where what follows rules out an ordinary word (a quoted name after АО, a surname
+with initials after ИП). **Held-out test: seller right on 104 to 106 of 146 slips (72.6%)**; val
+113 to 117; no slip lost on either split; totals unchanged. Details:
+[`eval/receipt-ocr-ru-forms-2026-11-19.md`](eval/receipt-ocr-ru-forms-2026-11-19.md).
+
 ### Russian slips with a Cyrillic recogniser (2026-11-18)
 
 RapidOCR's default recognition model has no Cyrillic: on Russian slips it reads the totals well

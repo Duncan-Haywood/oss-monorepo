@@ -13,4 +13,11 @@
 
 ## Buildable here (added 2026-11-18)
 
-- (2026-11-19) The eight-point grid (0, 2, 3, 4, 5, 6, 7, 8 ms) shipped (eval/take-grid-eight-2026-11-19.md). The nine-point grid now adds only the 1 ms point; G to I's large misses at 1-2.5 ms are the fit's (the same builds on every grid), so test the fit's take-blindness under 2.5 ms before another grid point.
+- (2026-11-19) More tach pulses a revolution: tested host-side and closed by its pre-registered rule
+  (eval/tach-pulses-2026-11-19.md: four magnets saw 46 of 128 short-take balls against 38, not twice; the step's drop
+  error rose 0.11% to 0.55%). Reopen only with a survey-level test written first (the board sums ~22 wheels) and a plan
+  for the step's drop. Best lead: with 0.5 us sensor jitter (not judged) four magnets saw 24 short-take balls against 9
+  and bounded them at a median 3.5 ms against none, so test it on a jittery tach first; `drop_from_commands_steps(per=, angles=)` and `magnet_spacing` are ready for it.
+- (2026-11-19) One informative wheel, counted by drill: closed for simulated sets (eval/take-survey-kept-drills-2026-11-19.md:
+  6 of 432 fresh drills rested a verdict on one kept wheel, too few for the rule; `TAKE_SURVEY_MIN_KEPT` stays 0). Reopen
+  on a real wheel's logs with `tests/take_survey_kept.py --drills`.

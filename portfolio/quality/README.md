@@ -94,7 +94,7 @@ before either claim PR was visible: seeds `2026-11-13-e`, `-h` and `-o` were
 each audited twice ([`blind-pairs/`](blind-pairs/)). Two sessions can still
 share a round number; the second renames its post. It
 fetches `origin main` itself and prints the open round PRs it skipped
-(`--offline` skips both). Keep that title shape so the next run sees your
+(`--offline` skips both). It also replays each open round's seed from the last day and skips the subjects that round drew, flagship included: the flagship pick is deterministic, so rounds 76 and 77 both drew `ventures/chant-forge` before this. Keep that title shape so the next run sees your
 claim, and open the PR as soon as you have drawn. Because the non-flagship strata are uniform random, the share of
 them that meets the bar is an unbiased estimate for that stratum, and
 `summary` reports it with a Wilson 95% interval. Flagships are reported apart:
