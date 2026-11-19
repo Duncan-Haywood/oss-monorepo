@@ -69,7 +69,8 @@ runs each, Node 22:
   custom `exactLimit`/`seed`/`restarts`): every `analyze` result
   `isDeepStrictEqual`, error messages included, plus `search().best` and
   68,452 seatings compared mask by mask. A second lockstep on 60 large
-  instances (11 to 24 slots, 20 to 139 students): LOCKSTEP_BIG.
+  instances (11 to 24 slots, 20 to 139 students): all 60 `analyze` results
+  and `search().best` equal, 3,840 seatings compared.
 - `node --test` in the venture: 32 tests pass.
   `suite_file_times.py tutoring-group-schedule-optimizer --jobs 1`: 3.1 s
   before, 1.9 s after with the new file (calc.test.mjs 3.0 to 0.3 s; the

@@ -50,7 +50,7 @@
     "docs/history/ci-perf-2026-11-19-tutoring-schedule-bound.md"
   ],
   "goal": null,
-  "notes": "Metric: analyze() wall time on seeded random instances (scratch bench, Node 22, mean of 2-5 calls, two runs). Before: sample 72 ms, 20 slots x 120 students 4,197 ms, 30 slots x 250 students ~40,000 ms. After typed-array seat only: 24 ms / 971 ms / 7,800 ms. After bound + one-seat baseline: 7 ms / 157 ms / 634 ms. Suite (suite_file_times.py --jobs 1): 3.1 s -> 1.9 s including new 1.4 s pinning file; calc.test.mjs 3.0 -> 0.3 s. Profile before: seat self time 3,833 ms of 4.3 s. Verification: node --test 32/32 pass; scratch lockstep old vs new on 1,500 instances isDeepStrictEqual (68,452 seatings); mutation (bound -15) fails 3 tests. Local checks only for this node-only venture change.",
+  "notes": "Metric: analyze() wall time on seeded random instances (scratch bench, Node 22, mean of 2-5 calls, two runs). Before: sample 72 ms, 20 slots x 120 students 4,197 ms, 30 slots x 250 students ~40,000 ms. After typed-array seat only: 24 ms / 971 ms / 7,800 ms. After bound + one-seat baseline: 7 ms / 157 ms / 634 ms. Suite (suite_file_times.py --jobs 1): 3.1 s -> 1.9 s including new 1.4 s pinning file; calc.test.mjs 3.0 -> 0.3 s. Profile before: seat self time 3,833 ms of 4.3 s. Verification: node --test 32/32 pass; scratch lockstep old vs new on 1,500 instances isDeepStrictEqual (68,452 seatings) and on 60 large instances (11-24 slots, up to 139 students); mutation (bound -15) fails 3 tests. Local checks only for this node-only venture change.",
   "corrections": [],
   "redteam": null,
   "usage": {
