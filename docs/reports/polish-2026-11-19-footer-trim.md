@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design, accessibility]
+date: 2026-11-19
+---
 # Polish: the shared footer on a phone, 2,128 px to 1,595 px
 
 Date: 2026-11-19. Track: polish/0. Picked item 2 of `polish-2026-11-19-about-one-list.md`
