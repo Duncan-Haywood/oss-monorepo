@@ -4,13 +4,20 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from robofab_solrefsafe.model import G, force_bound, gripper, mass_kg, moving_bound  # noqa: E402
-from robofab_solrefsafe.sim import holds, mjcf  # noqa: E402
+from robofab_solrefsafe.sim import first_hold, holds, mjcf  # noqa: E402
 import mujoco  # noqa: E402
 
 CUBE = [(0, 0, 0, 10, 10, 10)]
 
 
 class T(unittest.TestCase):
+    def test_first_hold_survives_a_failing_pocket(self):
+        # holds from 3 N, but slips in a pocket 24..33 N: plain bisection on 0..60 probes 30 first and
+        # reports ~33 N (the 2026-11-19 audit's 13.26x defect); the grid scan finds ~3 N
+        pred = lambda f: f >= 3.0 and not (24.0 <= f <= 33.0)
+        self.assertAlmostEqual(first_hold(pred, 60.0, tol=0.01), 3.0, delta=0.05)
+        self.assertIsNone(first_hold(lambda f: False, 60.0))
+
     def test_bound_reduces_to_static(self):
         self.assertAlmostEqual(moving_bound(CUBE, 0.5), force_bound(CUBE, 0.5))
 

@@ -1,0 +1,233 @@
+{
+ "date": "2026-11-19",
+ "subject": "ventures/retail-pilot-intel",
+ "stratum": "venture",
+ "seed": "2026-11-19-j-4c63",
+ "round": 83,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior retail analytics consultant who installs door counters and joins them to POS data for small independent stores (footfall/conversion practice of the ShopperTrak/RetailNext kind, working in Italy); first checks: is conversion transactions / entrants on the store's local trading day, is each store reported apart, are sales net of refunds and discounts, are staff and synthetic counts excluded, are experiment results backed by enough traffic to mean anything, and is the in-store camera lawful for the shop's staff as well as its shoppers",
+ "scores": {
+  "correctness": 2,
+  "completeness": 1,
+  "verification": 2,
+  "craft": 3,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the real pipeline (pos cli --file, analytics sync, report) in a scratch dir. Happy path right: the shipped fixture CSV plus 8 hourly entry buckets (47 entries, 12 bounces) gives purchases 3, revenue 103800, conversion 0.0638, revenue/entrant 2209; my Python csv.DictReader recompute of the same CSV gives baskets 30300/9500/64000 = 103800, 3/47 = 0.0638, 103800/47 = 2208.5 -> 2209, ATV 34600. The CSV parser matches Python's csv module on quoted commas, doubled quotes, embedded newlines and CRLF. Wrong outside it: days are UTC dates (date(closed_at) in SQLite), so a sale at 00:30 Europe/Rome on 2026-08-20 lands on 08-19; no query filters store_id, so a 'milano' receipt is added to pilot-leather-01's day (report for 08-19 became 4 purchases / 112800 instead of 3 / 103800); a USD basket is summed into EUR revenue. The business-plan ROI table says +0.3 pp conversion at 50 entries/day is '~1.5 extra sales/week'; 50 x 7 x 0.003 = 1.05. The ROI page says one extra sale a month pays back Core (EUR 149-249/mo) at pilot AOV; at the low AOV EUR 180 and the page's own 55% margin that sale is EUR 99 gross profit. Demo-store figures are internally consistent (9/47 = 19.1%, 2840/9 = 316, 2840/47 = 60.4, hourly sums 47 and 9).",
+  "completeness": "README features walked. Works: POS CSV import with dedup by stable event id and per-store grouping, inbox sync and archive, SQLite schema with migration, daily report (entries, bounces, purchases, conversion, revenue, revenue/entrant), read-only KPI API (/health, /today, /latest, ?date=), portal live-KPI mode, docs and portal builds, `pnpm run ci` green. Not built: the door camera ('Edge ingest not connected to RTSP', stub only, so the 'Indoor door camera -> aggregate counts' Phase 1 item and every vision metric are absent); SKU desirability gap, upsell, experiments and window funnel exist only as hard-coded demo data in apps/portal/src/data/demoStore.ts; no hourly rollup although the portal and docs describe 5m/1h/1d buckets. `pnpm bootstrap` (README: 'sample edge + POS events -> SQLite + report') prints a report of all zeros, because the sample events it writes are marked synthetic and excluded. The README's live page returns 404.",
+  "verification": "`pnpm test` (pnpm -r --if-present run test): portal 9, pos 15, edge 4, analytics 32 = 60 pass, 0 fail, about 3 s. `pnpm run ci` passes typecheck, lint, build and bootstrap. Seeded 11 mutants with quality_mutate.py: 5 caught (conversion rounding precision, prior-week offset -7 -> -6, CSV doubled-quote escape, latest-day pick, portal bounce % x10) and 6 survived: basket total ignores quantity (the fixture's quantity-2 line is never asserted), quantity < 1 -> < 0 (zero-quantity lines accepted), revenue/entrant and average basket Math.round -> Math.floor, synthetic filter dropped from the bounce query, currency always forced to EUR. No test covers time zones, store filtering, refunds or discounts.",
+  "craft": "Read report.ts, kpi.ts, kpi-server.ts, db.ts, sync-inbox.ts, importer.ts, csv.ts, edge/sample.ts, both CLIs, portal pilot-kpis.ts and the tests. Clean, typed, dependency-free TypeScript with comments that explain why (stable sha256 event ids so re-import dedups, NUL-separated store+receipt group key, Number() over parseInt, synthetic flag, explicit column migration, CORS allow-list, 127.0.0.1 default bind). Defects: when one line of a basket is rejected the rest of the basket is still emitted, so a basket with a discount line keeps its gross total (R-4: 30000 kept, 27000 actual) with only a 'skipped row' warning; openDb runs the schema and two ALTERs on every dailySummary call and never closes the handle (a KPI request opens three); a closed_at without an offset is parsed in the server's local zone; sync-inbox JSON.parse on a malformed file throws and aborts the whole sync with no file named.",
+  "claims": "Checked 9 claims. Backed: privacy and no-warranty disclaimer on site/index.html, GDPR responsibility line, 'Prototype ... untested' status, portal numbers labelled illustrative, docs note DPIA/Garante, CSV importer behaviour as described in packages/pos/README.md. Not backed: (1) README line 5 'Live page: https://marisstella.app/retail-pilot-intel/' - the slug is in EXCLUDED_SLUGS in platform/pages/build.mjs:302, the URL returns 404 (marisstella.app/ and /xer-schedule-check/ return 200), and served-copy.mjs says 'not a published product'; llms.txt points at the old github.io address of the same unpublished page; (2) portal FunnelPage 'Production builds bucket at 5m / 1h / 1d and align POS timestamps to Europe/Rome' and Overview 'Europe/Rome buckets' - all bucketing is UTC calendar days and no hourly rollup exists; (3) README/site 'pnpm bootstrap loads sample events and builds a report' - the report is all zeros; (4) site description 'SKU gaps, experiments and ROI reporting' and README 'Experiments - measurable EUR lift per change' - no code computes either; (5) ROI and business-plan arithmetic above.",
+  "fitness": "Walked the pilot owner's job: get yesterday's conversion and revenue per entrant from the door and the till. Without a working door counter there are no entries, so conversion cannot be produced; the CSV import needs exact English headers, comma delimiter and prices in integer cents, so a typical Italian POS export (semicolon, euro amounts with decimal comma) imports 0 baskets with every row reported missing; refunds are rejected rather than netted. A sales demo can be given with the portal, which is what the venture uses it for; an owner cannot run their store on it.",
+  "domain": "Compared with retail traffic-analytics practice (conversion = transactions / entrants on the store's trading day, ATV, sales per shopper; net sales after returns and discounts; staff counts excluded; counter accuracy validated against a manual count) and Italian rules for in-store cameras. Matches: the three KPI definitions, synthetic data kept out of totals, aggregate-only privacy posture, DPIA and Garante named. Departures: UTC day instead of Europe/Rome trading day; no store dimension in reports; gross not net sales; no staff exclusion or counter-accuracy check; demo experiments report results from 11 touches ('9.1% day 4') and promote a change with no sample size or significance; no mention anywhere of Statuto dei Lavoratori art. 4, which requires a union agreement or Ispettorato del Lavoro authorisation for a camera that can see employees, the first legal question for a shop camera in Italy."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "daily funnel on the shipped fixture CSV plus 47 entries / 12 bounces",
+   "method": "Python csv.DictReader recompute of basket totals from packages/pos/fixtures/sample-export.csv; standard conversion = transactions / entrants",
+   "command": "tsx packages/pos/src/cli.ts --file packages/pos/fixtures/sample-export.csv && tsx packages/analytics/src/cli.ts sync && tsx packages/analytics/src/cli.ts report --date 2026-08-19 (scratch cwd with 9 aggregate JSONs)",
+   "expected": "purchases 3, revenue 103800, conversion 0.0638, revenue/entrant 2209 (103800/47 = 2208.5)",
+   "observed": "purchases 3, revenue_cents 103800, conversion_rate 0.0638, revenue_per_entrant_cents 2209",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "CSV parser on quoted commas, doubled quotes, embedded newline, CRLF, empty fields",
+   "method": "Python csv.reader on the same bytes",
+   "command": "tsx p.ts (parseCsv) vs python3 -c 'csv.reader(open(tricky.csv, newline=\"\"))'",
+   "expected": "[[a,b,c],[\"x, y\",'he said \"hi\"',\"line1\\nline2\"],[\"\",\"\",\"\"],[\"\",z,\"\"]]",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "store day for pilot-leather-01 after importing a second store and a 00:30 Europe/Rome sale",
+   "method": "Europe/Rome trading day (CEST = UTC+2) and per-store reporting",
+   "command": "tsx packages/pos/src/cli.ts --file edge.csv (R-2 milano 2026-08-20T00:30:00+02:00) && sync && report --date 2026-08-19",
+   "expected": "pilot-leather-01 on 2026-08-19: purchases 3, revenue 103800",
+   "observed": "purchases 4, revenue_cents 112800 (milano's 08-20 00:30 sale counted on 08-19 for the wrong store)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "business plan: +0.3 pp conversion at ~50 entries/day",
+   "method": "hand arithmetic: 50 x 7 x 0.003",
+   "command": "sed -n 765,770p apps/docs/src/pages/BusinessPlanPage.tsx",
+   "expected": "1.05 extra sales/week (EUR 19.1k/yr at EUR 350 AOV)",
+   "observed": "'~1.5 extra sales/week at 50 entries'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "ROI page: one incremental sale a month pays back Core EUR 149-249/mo at pilot AOV",
+   "method": "the page's own profit formula (AOV x margin) at its own ranges AOV EUR 180-450, margin 55-70%",
+   "command": "sed -n 34,38p apps/docs/src/pages/RoiPage.tsx; sed -n 108,118p apps/docs/src/pages/RoiPage.tsx",
+   "expected": "gross profit per sale EUR 99-315: does not cover EUR 149 at the low end or EUR 249 below ~EUR 400 AOV",
+   "observed": "'typically pays back a Core subscription (EUR 149-249/mo) with one incremental sale per month'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "demo-store figures internally consistent",
+   "method": "hand arithmetic on apps/portal/src/data/demoStore.ts",
+   "command": "sed -n 1,60p apps/portal/src/data/demoStore.ts",
+   "expected": "9/47 = 19.1%, 2840/9 = 316, 2840/47 = 60.4, 12/47 = 25.5%, hourly sums 47 and 9, +1 sale/week x 52 x EUR 180-450 = EUR 9.4k-23.4k",
+   "observed": "all match",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "pnpm bootstrap produces a report",
+   "method": "run",
+   "command": "cd ventures/retail-pilot-intel && pnpm bootstrap",
+   "expected": "a report showing the sample entry and sale",
+   "observed": "entries 0, purchases 0, revenue_cents 0 (sample events are synthetic and excluded)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README 'Live page: https://marisstella.app/retail-pilot-intel/'",
+   "method": "HTTP status and the Pages builder's exclusion list",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/retail-pilot-intel/; node platform/pages/served-copy.mjs retail-pilot-intel; grep -n retail-pilot-intel platform/pages/build.mjs",
+   "expected": "200 and a published page",
+   "observed": "404; 'not a published product'; build.mjs:302 EXCLUDED_SLUGS",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "portal 'align POS timestamps to Europe/Rome' / 'Europe/Rome buckets'",
+   "method": "read report.ts queries; run the 00:30 CEST case above",
+   "command": "grep -n 'date(closed_at)' packages/analytics/src/report.ts",
+   "expected": "local-time bucketing",
+   "observed": "SQLite date() on UTC ISO strings; no hourly rollup",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, privacy line and prototype status on the site page",
+   "method": "read site/index.html",
+   "command": "grep -n -i 'warranty\\|GDPR\\|Prototype' site/index.html",
+   "expected": "no-warranty, GDPR responsibility, honest status",
+   "observed": "all three present",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Italian-style POS export (semicolon delimiter)",
+   "method": "run importer",
+   "command": "tsx p.ts on semi.csv (receipt_id;closed_at;sku;quantity;unit_price_cents)",
+   "expected": "1 basket, or a clear delimiter error",
+   "observed": "0 events, row 2 'missing one of: receipt_id, ...'",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite and CI",
+   "method": "run",
+   "command": "cd ventures/retail-pilot-intel && pnpm install --frozen-lockfile && pnpm test && pnpm run ci",
+   "expected": "all pass",
+   "observed": "60 pass, 0 fail; CI pipeline passed; 6 of 11 seeded mutants survive",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {"where": "packages/analytics/src/report.ts:43", "change": "* 10000) / 10000 -> * 100) / 100 (conversion rounding)", "caught": true, "test_cmd": "pnpm -r --if-present run test"},
+  {"where": "packages/analytics/src/report.ts:47", "change": "Math.round(revenueCents / entryCount) -> Math.floor(...)", "caught": false, "test_cmd": "pnpm -r --if-present run test"},
+  {"where": "packages/analytics/src/kpi.ts:34", "change": "shiftIsoDate(date, -7) -> shiftIsoDate(date, -6)", "caught": true, "test_cmd": "pnpm -r --if-present run test"},
+  {"where": "packages/analytics/src/kpi.ts:51", "change": "Math.round(summary.revenue_cents / summary.purchases) -> Math.floor(...)", "caught": false, "test_cmd": "pnpm -r --if-present run test"},
+  {"where": "packages/pos/src/importer.ts:100", "change": "quantity < 1 -> quantity < 0", "caught": false, "test_cmd": "pnpm -r --if-present run test"},
+  {"where": "packages/pos/src/importer.ts:142", "change": "sum + item.quantity * item.unit_price_cents -> sum + item.unit_price_cents", "caught": false, "test_cmd": "pnpm -r --if-present run test"},
+  {"where": "packages/pos/src/csv.ts:29", "change": "field += '\"' -> field += '' (doubled-quote escape)", "caught": true, "test_cmd": "pnpm -r --if-present run test"},
+  {"where": "packages/analytics/src/report.ts:94", "change": "candidates.sort().at(-1) -> .at(0)", "caught": true, "test_cmd": "pnpm -r --if-present run test"},
+  {"where": "packages/analytics/src/report.ts:24", "change": "drop synthetic = 0 from the bounce query", "caught": false, "test_cmd": "pnpm -r --if-present run test"},
+  {"where": "packages/pos/src/importer.ts:124", "change": "valid currency kept -> always EUR", "caught": false, "test_cmd": "pnpm -r --if-present run test"},
+  {"where": "apps/portal/src/lib/pilot-kpis.ts:56", "change": "(bounces / entries) * 100 -> * 10", "caught": true, "test_cmd": "pnpm -r --if-present run test"}
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Daily KPIs use the UTC calendar date (SQLite date() on UTC ISO strings) and never filter by store_id, so a multi-store database or an early-morning Europe/Rome sale moves purchases and revenue into the wrong store's or wrong day's conversion: pilot-leather-01 on 2026-08-19 reported 4 purchases / 112800 cents instead of 3 / 103800. The /api/kpis/today endpoint also picks the UTC day. Mixed currencies are summed into one revenue number",
+   "where": "ventures/retail-pilot-intel/packages/analytics/src/report.ts:30",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "README 'Live page: https://marisstella.app/retail-pilot-intel/' is false: the slug is in EXCLUDED_SLUGS, the URL returns 404 and served-copy.mjs reports 'not a published product'; llms.txt links the old github.io address of the same unpublished page",
+   "where": "ventures/retail-pilot-intel/README.md:5",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Portal says production builds 'bucket at 5m / 1h / 1d and align POS timestamps to Europe/Rome' and labels the Overview chart 'Europe/Rome buckets'; no hourly rollup exists and all bucketing is UTC days",
+   "where": "ventures/retail-pilot-intel/apps/portal/src/pages/FunnelPage.tsx:58",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Sales-material arithmetic is wrong: '+0.3 pp conversion ~1.5 extra sales/week at 50 entries' is 1.05 (50 x 7 x 0.003); 'one incremental sale per month pays back Core (EUR 149-249/mo)' fails at the page's own low AOV EUR 180 x 55% margin = EUR 99, and the EUR 199 break-even of '0.6 sales/month' is on revenue, not the gross profit the page's own formula uses",
+   "where": "ventures/retail-pilot-intel/apps/docs/src/pages/BusinessPlanPage.tsx:768",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests miss core revenue logic: 6 of 11 seeded mutants survive, including a basket total that ignores quantity, zero-quantity lines accepted, rounding changes to revenue/entrant and average basket, the synthetic filter dropped from bounces, and currency forced to EUR. No test covers time zones, store separation, refunds or discounts",
+   "where": "ventures/retail-pilot-intel/packages/pos/src/__tests__/importer.test.ts:6",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "A rejected line (negative discount or refund line) is skipped but the rest of its basket is still emitted at gross: R-4 with a -3000 discount line is stored at 30000 instead of 27000; refunds cannot be imported at all, so revenue is gross, not net sales",
+   "where": "ventures/retail-pilot-intel/packages/pos/src/importer.ts:105",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "`pnpm bootstrap`, described in README and on the page as loading sample events and building a report, prints a report of all zeros because the sample events it writes are flagged synthetic and excluded",
+   "where": "ventures/retail-pilot-intel/scripts/bootstrap.ts:20",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "The page description and README present SKU desirability gap, upsell, experiments and 'measurable EUR lift per change' as what the stack does; none is computed by any code (only hard-coded demo data), and the door camera ingest is a stub, so no real conversion can be produced",
+   "where": "ventures/retail-pilot-intel/site/index.html:6",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "No mention of Statuto dei Lavoratori art. 4 (union agreement or Ispettorato del Lavoro authorisation for cameras that can see employees), the first legal question for an in-store camera in Italy; demo experiments report results from 11 touches with no sample size or significance",
+   "where": "ventures/retail-pilot-intel/apps/docs/src/pages/PrivacyPage.tsx:17",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "CSV import requires exact English headers, comma delimiter and integer cents; a semicolon-delimited Italian export imports 0 baskets with every row reported as 'missing' rather than a delimiter error",
+   "where": "ventures/retail-pilot-intel/packages/pos/src/csv.ts:42",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "openDb re-runs the schema and two ALTER TABLE attempts on every dailySummary call and never closes the handle; one KPI request opens three connections",
+   "where": "ventures/retail-pilot-intel/packages/analytics/src/report.ts:14",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A tidy, well-commented TypeScript prototype whose working core is a POS CSV importer, a SQLite store and a daily door-plus-till report: on the shipped fixture my independent recompute matches (3 baskets, 103800 cents, conversion 0.0638, 2209 per entrant) and the CSV parser equals Python's csv module. It misses the bar on correctness, claims and verification: days are UTC and stores are never separated, so a second store or a 00:30 Rome sale lands in the wrong store-day (4 purchases instead of 3); the README's live page is a 404 because the slug is excluded from the Pages build; the portal claims Europe/Rome hourly buckets that do not exist; bootstrap's report is all zeros; the sales maths overstates extra sales (1.5 vs 1.05 a week) and payback; and 6 of 11 seeded revenue bugs pass the tests. The camera ingest, SKU gap and experiments are demo data only. Not finished; a retail analytics consultant could use the portal as a sales demo but would not hand a pilot owner its numbers."
+}

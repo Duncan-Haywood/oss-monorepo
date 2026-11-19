@@ -1773,7 +1773,7 @@
     {
      "slug": "robofab-solrefsafe",
      "title": "Is MuJoCo's refsafe clamp what breaks a moving grasp at a coarse timestep?",
-     "summary": "A follow-up to <code>robofab-solreftimestep</code>, which only read the documentation on the <code>refsafe</code> flag. The same jaw-force test (cover part, 400 and 800&nbsp;m/s<sup>2</sup>) is run over contact time constants of 0.5 to 0.1&nbsp;ms and timesteps of 0.4 to 0.05&nbsp;ms with the flag on and off. 11 of 32 cells hold with it on and 10 of 32 with it off, and the two settings disagree in 7 cells. With it off, 10 runs end in a solver instability, so the clamp protects some cells and costs others, and the non-monotone timestep behaviour survives with it off. Stylised: one part, upward acceleration only, rigid box pads, no arm."
+     "summary": "A follow-up to <code>robofab-solreftimestep</code>, which only read the documentation on the <code>refsafe</code> flag. The same jaw-force test (cover part, 400 and 800&nbsp;m/s<sup>2</sup>) is run over contact time constants of 0.5 to 0.1&nbsp;ms and timesteps of 0.4 to 0.05&nbsp;ms with the flag on and off. 11 of 32 cells hold with it on and 10 of 32 with it off, and the two settings disagree in 7 cells. With it off, 10 cells see a solver instability, so the clamp protects some cells and costs others, and the non-monotone timestep behaviour survives with it off. Stylised: one part, upward acceleration only, rigid box pads, no arm."
     },
     {
      "slug": "robofab-graspoffset",
