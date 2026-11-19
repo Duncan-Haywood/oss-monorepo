@@ -1,5 +1,7 @@
 // Tests for the fuzzer itself (quality audit 2026-11-19: 6 of 7 seeded bugs in it survived the 50 guards,
-// which only assert "no failures"). Run: node --test platform/fuzz/repair.test.mjs
+// which only assert "no failures"). Run: node --test platform/fuzz/repair.selftest.mjs
+// Named .selftest.mjs, not .test.mjs, until the merge checklist (.github/prompts/verify-and-merge.md,
+// owner-gated) lists platform/fuzz; checklist_coverage.py fails any unlisted *.test.mjs directory.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";

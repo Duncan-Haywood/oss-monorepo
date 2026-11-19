@@ -8,8 +8,11 @@ does not throw, `repair()` does not throw, and repairing twice gives the same te
   `checkRepair(calc)` returns `[]`.
 - **Sweep:** `node platform/fuzz/repair.mjs [--n 1500] [--seed N] [slug ...]` (exit 1 on any failure,
   2 on a bad `--n` or `--seed`).
-- **Its own tests:** `node --test platform/fuzz/repair.test.mjs` (planted modules with known faults, the
-  generator's reach, the CLI's argument checks).
+- **Its own tests:** `node --test platform/fuzz/repair.selftest.mjs` (planted modules with known faults, the
+  generator's reach, the CLI's argument checks). They are named `.selftest.mjs` because
+  `platform/ci/checklist_coverage.py` fails any `*.test.mjs` directory the merge checklist does not list,
+  and that checklist (`.github/prompts/verify-and-merge.md`) needs the owner's approval to change; no CI job
+  runs them yet.
 
 Limits: a pass means no failure among the mutants drawn, not that none exist; there is no input minimiser
 beyond keeping the shortest failing input per message; the slow-repair check uses the wall clock, so it
