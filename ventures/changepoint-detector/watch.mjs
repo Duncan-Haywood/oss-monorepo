@@ -220,8 +220,8 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
 /** `--closed`: the listed dates, from "a,b" or "@file" (one per line, # comments and blank lines skipped). */
 export async function closedList(spec) {
   const s = String(spec).trim();
-  const text = s.startsWith('@') ? await readFile(s.slice(1), 'utf8') : s.replace(/,/g, '\n');
-  const dates = text.split('\n').map((t) => t.replace(/#.*/, '').trim()).filter(Boolean);
+  const text = s.startsWith('@') ? await readFile(s.slice(1), 'utf8') : s;
+  const dates = text.split(/[,\n]/).map((t) => t.replace(/#.*/, '').trim()).filter(Boolean);
   if (!dates.length) throw new Error('--closed lists no dates.');
   return dates;
 }
