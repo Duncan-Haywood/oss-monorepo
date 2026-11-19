@@ -111,6 +111,15 @@ CLAIMS = [
     ("results_wind_air_drag.txt", "hydrofoil 874 W (+6.9%)"),
     ("results_wind_air_drag.txt", "buoy-month break-even range: 701 to 711 W"),
     ("results_wind_air_drag.txt", "monohull best speed 2.30 -> 2.30 m/s"),
+    ("results_wave_added_resistance.txt", "waves: 14758 hourly NDBC records, 20 buoy-months; Hs mean 1.44 m"),
+    ("results_wave_added_resistance.txt", "share 0.25: monohull 802.9 km (-2.52%) at 1.00 m/s"),
+    ("results_wave_added_resistance.txt", "share 1: monohull 746.5 km (-9.37%) at 1.00 m/s"),
+    ("results_wave_added_resistance.txt", "share 0.25, H_lim none: foilborne share 100.0% of hours; central foil break-even 651 W"),
+    ("results_wave_added_resistance.txt", "share 1, H_lim none: foilborne share 100.0% of hours; central foil break-even 627 W"),
+    ("results_wave_added_resistance.txt", "unlimited H_lim): 698 W"),
+    ("results_wave_added_resistance.txt", "pooled share of hours with Hs <= 0.3 m: 2.4%"),
+    ("results_wave_added_resistance.txt", "pooled share of hours with Hs <= 0.5 m: 11.9%"),
+    ("results_wave_added_resistance.txt", "pooled share of hours with Hs <= 1 m: 37.0%"),
 ]
 
 def check(claims=CLAIMS, root=EXP):
