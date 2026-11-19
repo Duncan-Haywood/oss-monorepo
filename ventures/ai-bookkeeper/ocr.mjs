@@ -14,6 +14,7 @@ import { xlsxToCsvSync, looksLikeXlsx } from "./xlsx.mjs";
 import { xlsToCsv, looksLikeXls } from "./xls.mjs";
 import { readStatement, checkRunningBalance } from "./bank.mjs";
 import { lightSpread, SHADED_CUT, SHADE_SIDE } from "./photoocr.mjs";
+import { needsSellerLook, withBandSeller } from "./receipts.mjs";
 
 export { cleanOcr };
 
@@ -154,7 +155,13 @@ export function receiptTextRapid(path, { run = spawnSync, env = process.env } = 
   if (timedOut(r)) throw timeoutError(path, "RapidOCR", ro);
   if (r.error) throw new Error(`could not read ${path} with RapidOCR: ${py} is needed (or set RAPIDOCR_PYTHON)`);
   if (r.status !== 0) throw new Error(`could not read ${path} with RapidOCR: ${String(r.stderr || "").trim().split("\n").pop().slice(0, 160) || `${py} failed`}`);
-  return cleanOcr(r.stdout);
+  const text = cleanOcr(r.stdout);
+  // A Russian slip whose reading names no seller is read again as three bands enlarged twice
+  // (rapidocr_rows.py --bands), and a seller found there leads the text (receipts.mjs
+  // withBandSeller); a second look that fails or runs out of time keeps the first reading.
+  if (!needsSellerLook(text)) return text;
+  const b = run(py, [RAPIDOCR_SCRIPT, "--bands", path], ro);
+  return !b || b.error || b.status !== 0 || timedOut(b) ? text : withBandSeller(text, cleanOcr(b.stdout));
 }
 
 // The grey copy the page draws (photoocr.mjs greyCopy), made with ImageMagick:

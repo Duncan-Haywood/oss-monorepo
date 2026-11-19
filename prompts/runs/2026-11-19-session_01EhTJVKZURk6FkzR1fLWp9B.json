@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVKZURk6FkzR1fLWp9B",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T11:15:33Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship: the sub-8 advised instant build",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17637,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "tests/take_survey_jitter.py",
+      "issue": "a 72-drill sub-8 capture takes about 16 min on 4 cores, not the few minutes earlier write-ups imply; four sets plus a paired capture filled most of the run"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "PR #17636 worked the same item (sub-8 advised instant build) in parallel and merged first; this run's draft claim PR #17637 was open from the start, but the other session's claim check did not stop it. The overlap cost this run's scorer fix and rounding analysis, both superseded by #17636 at merge."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-advised-instant-build-closed.md",
+    "ventures/open-tennis-robots/eval/take-instant-sub8-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Prediction committed first (f2e5f923a). Recapture of four sub-8 sets on today's tree: instant advised 0 of 72, named build picks 0 ms, spread takes named and advised 193 of 216 with #17636's share guard (194 without; README 173, stored rescored 187). #17636 landed the rounding trace and guard in parallel; at merge this PR took main's scorer fix (grid_for) and dropped its own. Design set 44 -> 37: one build traced to LOOP_BALL_GAIN 'down'; paired 96-build capture 66 vs 68 of 72, kept. Checks: run_venture_tests open-tennis-robots 456 ok (pre-merge), unittest test_take_instant_sub8 + test_take_survey_kept OK after merge, check_posts ok, validate ok.",
+  "corrections": [],
+  "redteam": null
+}

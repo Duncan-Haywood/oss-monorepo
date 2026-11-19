@@ -1,0 +1,24 @@
+# Milestone 11ao (--all12, no prediction): operator-specific barometer speed offsets in 11an's --rtk5 planner (speed_offset.py's docstring). deliv ages, Z = 7.62 m, H = 120 m, 30 spacings, best of 200 descents, 48 layouts, 4 draws
+# offsets at 10 m/s from 12 flights (m): -7.44, -4.70, -1.44, -0.34, +0.81, +1.06, +1.16, +1.55, +1.90, +2.34, +5.05, +8.86; sd 4.177, sd of b_i - b_j 5.655; per-drone noise from 7 flights
+# ratios: blind/aware, dist/aware (each plan under the truth), aware/base (base = no offsets)
+
+## M = 12 (24 layouts x 4 draws); base h* median 13.33, bands 5.0
+  s      h*_aware  bands  h*_dist  blind/aware  max     dist/aware  max     aware/base  p90
+  0.25     13.33    5.0    13.33     1.0000    1.0076     1.0000    1.0076     1.0012    1.0059
+  0.5      13.33    5.0    13.33     1.0021    1.3366     1.0059    1.1930     1.0171    1.0481
+  1        17.14    4.0    17.14     1.1526    1.9966     1.0736    1.7294     1.0324    1.0960
+  2        24.00    3.0    13.33     1.3946    2.7058     1.2759    2.3177     1.0073    1.0954
+  h*_aware distribution (s: h x count)
+    0.25  13.33: 96
+    0.5   13.33: 92, 17.14: 4
+    1     13.33: 38, 17.14: 24, 24: 34
+    2     11: 1, 13.33: 29, 17.14: 3, 24: 30, 40: 33
+
+# predictions (stated for the 5-flight set; shown for comparison only)
+  P1 M=12 s=1 median h*_aware >= 17.14: 17.14 -> held
+  P2 M=12 s=1 blind/aware median >= 1.25: 1.1526 -> refuted
+  P3 M=12 s=0.25 median h*_aware = 13.33 and blind/aware <= 1.05: 13.33, 1.0000 -> held
+  P4 M=12 s=1 dist/aware median <= 1.10: 1.0736 -> held
+  P5 M=12 s=1 aware/base median >= 1.2: 1.0324 -> refuted
+
+# analysis CPU s per layout: median 448

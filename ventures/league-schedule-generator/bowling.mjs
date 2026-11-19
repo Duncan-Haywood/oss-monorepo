@@ -48,11 +48,11 @@ export function hungarian(cost) {
     const used = new Array(n + 1).fill(false);
     do {
       used[j0] = true;
-      const i0 = p[j0];
+      const i0 = p[j0], row = cost[i0 - 1], ui = u[i0];
       let delta = INF, j1 = 0;
       for (let j = 1; j <= n; j++) {
         if (used[j]) continue;
-        const cur = cost[i0 - 1][j - 1] - u[i0] - v[j];
+        const cur = row[j - 1] - ui - v[j];
         if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
         if (minv[j] < delta) { delta = minv[j]; j1 = j; }
       }
@@ -456,7 +456,12 @@ function annealRepeats(source, nTeams, nPairs, seed, steps, lim, t0, t1) {
   let best = r, bestPlan = plan.map((wk) => wk.map((m) => m.slice()));
   const rep = (w, t, p) => (w > 0 && pos[w - 1][t] === p ? 1 : 0) + (w < W - 1 && pos[w + 1][t] === p ? 1 : 0);
   // change of (off, repeats) when team t moves from pair p to pair q in week w
-  const dOff = (t, p, q) => off(t, p, cnt[t][p] - 1) - off(t, p, cnt[t][p]) + off(t, q, cnt[t][q] + 1) - off(t, q, cnt[t][q]);
+  // With lo <= hi: off(c - 1) - off(c) is -1 above hi, +1 at or below lo, else 0; off(c + 1) - off(c)
+  // is +1 at or above hi, -1 below lo, else 0 (the same values off() gives, without four calls).
+  const dOff = (t, p, q) => {
+    const ct = cnt[t], c = ct[p], d = ct[q];
+    return (c > hi[t][p] ? -1 : c <= lo[t][p] ? 1 : 0) + (d >= hi[t][q] ? 1 : d < lo[t][q] ? -1 : 0);
+  };
   const dRep = (w, t, p, q) => rep(w, t, q) - rep(w, t, p);
   for (let step = 0; step < steps && best > 0; step++) {
     const w = Math.floor(rnd() * W);
@@ -501,13 +506,35 @@ function polishLanes(plan, nTeams, nPairs, seed, kicks, lim) {
   for (let w = 0; w < W; w++) put(w, 1);
   const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
   const OFF = 4096, SQ = 16;
-  const price = (w, t, p) => {
-    const c = cnt[t][p];
-    return (ban !== null && ban[t][p] ? FORBID : 0) + OFF * (off(t, p, c + 1) - off(t, p, c)) + SQ * (2 * c + 1) + (w > 0 && pos[w - 1][t] === p ? 1 : 0) + (w < W - 1 && pos[w + 1][t] === p ? 1 : 0);
-  };
+  // The price of a match on pair p is, for each of its two teams t with count c there:
+  //   FORBID if banned + OFF * (off(c + 1) - off(c)) + SQ * (2c + 1) + 1 per neighbouring week on p.
+  // With lo <= hi, off(c + 1) - off(c) is +1 when c >= hi, -1 when c < lo and 0 between, so the
+  // loop below prices it without calling off(), with each team's rows looked up once per match
+  // instead of once per pair (the per-cell closure was 57% of a stored season's time). Same
+  // integers, so the Hungarian step sees the same matrix.
   const resolve = (w) => {
     put(w, -1);
-    const cost = plan[w].map(([a, b]) => Array.from({ length: nPairs }, (_, p) => price(w, a, p) + price(w, b, p)));
+    const wk = plan[w], prev = w > 0 ? pos[w - 1] : null, next = w < W - 1 ? pos[w + 1] : null;
+    const cost = new Array(wk.length);
+    for (let k = 0; k < wk.length; k++) {
+      const a = wk[k][0], b = wk[k][1];
+      const ca = cnt[a], cb = cnt[b], la = lo[a], lb = lo[b], ha = hi[a], hb = hi[b];
+      const ba = ban !== null ? ban[a] : null, bb = ban !== null ? ban[b] : null;
+      const pa = prev !== null ? prev[a] : -1, pb = prev !== null ? prev[b] : -1;
+      const na = next !== null ? next[a] : -1, nb = next !== null ? next[b] : -1;
+      const row = new Array(nPairs);
+      for (let p = 0; p < nPairs; p++) {
+        const x = ca[p], y = cb[p];
+        let v = OFF * ((x >= ha[p] ? 1 : x < la[p] ? -1 : 0) + (y >= hb[p] ? 1 : y < lb[p] ? -1 : 0)) + SQ * (2 * x + 2 * y + 2);
+        if (pa === p) v++;
+        if (na === p) v++;
+        if (pb === p) v++;
+        if (nb === p) v++;
+        if (ba !== null) { if (ba[p]) v += FORBID; if (bb[p]) v += FORBID; }
+        row[p] = v;
+      }
+      cost[k] = row;
+    }
     const col = hungarian(cost);
     plan[w].forEach((m, k) => { m[2] = col[k]; });
     put(w, 1);

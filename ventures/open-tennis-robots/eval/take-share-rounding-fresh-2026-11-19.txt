@@ -1,0 +1,6 @@
+
+eval/take-share-rounding-fresh-2026-11-19.jsonl.gz: 72 survey drills (54 spread takes, 18 instant)
+  rounded share (the Pi until now): spread takes named within 1 ms and advised 53 of 54, instant advised 0 of 18
+  guard G (bound <= margin): spread takes named within 1 ms and advised 53 of 54, instant advised 0 of 18
+  exact share (the board's sums): spread takes named within 1 ms and advised 53 of 54, instant advised 0 of 18
+  verdicts where G and the rounded share differ: 0

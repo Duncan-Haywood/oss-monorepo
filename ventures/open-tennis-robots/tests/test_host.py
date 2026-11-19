@@ -2086,10 +2086,10 @@ class TakeSurveyTest(unittest.TestCase):
     def test_frames_round_trip(self):
         (cmd, vals), = list(P.Decoder().feed(P.encode(P.SURVEY_TAKE, 1)))
         self.assertEqual((cmd, vals), (P.SURVEY_TAKE, (1,)))
-        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 640, 625, 620, 600, 590, 588, 610, 640, 9)
+        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 640, 625, 620, 600, 590, 588, 610, 640, 9, 10)
         (cmd, vals), = list(P.Decoder().feed(frame))
-        self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 5 + P.TAKE_SURVEY_TIMES))
-        self.assertEqual(vals[-1], 9)                              # wheels summed (2026-11-18)
+        self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 6 + P.TAKE_SURVEY_TIMES))
+        self.assertEqual(vals[-2:], (9, 10))                       # wheels summed (2026-11-18), tenths (2026-11-19)
         self.assertEqual(len(controller.TAKE_SURVEY_GRID_US), P.TAKE_SURVEY_TIMES)
         self.assertEqual(tuple(g / 1000 for g in controller.TAKE_SURVEY_GRID_US), host.TAKE_SURVEY_MS)
 
@@ -2111,6 +2111,21 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("about 7 ms or longer", host.take_survey_advice(end))
         self.assertIn("set TAKE_US = 8000", host.take_survey_advice(end))
         self.assertIn("already matches", host.take_survey_advice(dict(end, board_ms10=80)))
+
+    def test_share_bound_from_whole_ppm(self):
+        # the sub-8 instant build (2026-11-19, README "The sub-8 advised instant build was the frame's rounding"): the
+        # frame carried 7 and 4 ppm, 0.571, where the board's sums gave 0.635; the frame allows up to 4.5 / 6.5
+        self.assertAlmostEqual(host.take_share_bound([7, 8, 6, 4, 26, 54, 132]), 4.5 / 6.5)
+        self.assertGreater(host.take_share_bound([7, 8, 6, 4, 26, 54, 132]), host.TAKE_ADVISE_RATIO)
+        self.assertLess(host.take_share_bound([136, 140, 119, 98, 95, 50, 112]), host.TAKE_ADVISE_RATIO)
+        self.assertEqual(host.take_share_bound([0, 0, 0]), 1.0)
+        self.assertEqual(host.take_share_bound([]), 1.0)
+        # shipped by its pre-registered rule (eval/take-share-rounding-2026-11-19.md): no advice on that build
+        sv = {"wheels": 22, "least_ms10": 30, "refined_ms10": 35, "board_ms10": 0, "rms_ppm": [7, 8, 6, 4, 26, 54, 132]}
+        got = host.take_survey_advice(sv)
+        self.assertIn("keep TAKE_US = 0", got)
+        self.assertIn("too close to the frame's 1 ppm", got)
+        self.assertNotIn("set TAKE_US = 3", got)
 
     def test_instant_verdict_names_its_bound(self):
         # 2026-11-19 (README "Short takes that read 0: no ball saw them"): a TAKE_US = 0 verdict names the first
@@ -2183,30 +2198,69 @@ class TakeSurveyTest(unittest.TestCase):
 
     def test_seven_candidate_frame_still_reads(self):
         # firmware from 2026-11-18 to 2026-11-19 sends seven candidates (no 7 ms) and the summed-wheel byte
-        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][1], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112, 9)
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][2], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112, 9)
         self.assertEqual(link.take_survey["kept"], 9)
         self.assertEqual(link.take_survey["rms_ppm"], [136, 140, 119, 98, 95, 50, 112])
         self.assertIn("set TAKE_US = 5500", host.take_survey_advice(link.take_survey))
 
     def test_eight_candidate_frame_still_reads(self):
         # firmware on 2026-11-19 before the short-take grid sends eight candidates (0, 2-8 ms) and the summed-wheel byte
-        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][0], 24, 70, 68, 0, 136, 140, 119, 98, 95, 70, 50, 112, 9)
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][1], 24, 70, 68, 0, 136, 140, 119, 98, 95, 70, 50, 112, 9)
         self.assertEqual(link.take_survey["kept"], 9)
         self.assertEqual(link.take_survey["rms_ppm"], [136, 140, 119, 98, 95, 70, 50, 112])
         self.assertIn("set TAKE_US = 7000", host.take_survey_advice(link.take_survey))
 
     def test_nine_candidate_frame_reads(self):
-        # the short-take grid (2026-11-19, README "Short takes on a second held-out set"): 0, 1.5, 2.5, 3-8 ms
-        frame = P.encode(P.TAKE_SURVEY, 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140, 150, 9)
-        link = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140, 150, 9)
-        self.assertEqual(len(frame), 4 + 1 + 2 * 3 + 2 * 9 + 1)
+        # the short-take grid (2026-11-19, README "Short takes on a second held-out set"): 0, 1.5, 2.5, 3-8 ms, in whole
+        # ppm before the tenths frame
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][0], 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140,
+                                150, 9)
         self.assertEqual(link.take_survey["kept"], 9)
         self.assertEqual(link.take_survey["rms_ppm"][:2], [136, 60])
+        self.assertEqual(link.take_survey["rms_step_ppm"], 1)
         self.assertIn("set TAKE_US = 1500", host.take_survey_advice(link.take_survey))
+
+    def test_tenths_frame_reads(self):
+        # 2026-11-19, README "The take survey's rms in tenths of a ppm": a last byte gives the units per ppm
+        frame = P.encode(P.TAKE_SURVEY, 24, 15, 14, 0, 1360, 600, 1190, 1250, 1280, 1300, 1350, 1400, 65535, 9, 10)
+        self.assertEqual(len(frame), 4 + 1 + 2 * 3 + 2 * 9 + 2)
+        link = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 15, 14, 0, 1361, 604, 1190, 1250, 1280, 1300, 1350, 1400,
+                                65535, 9, 10)
+        sv = link.take_survey
+        self.assertEqual((sv["kept"], sv["rms_step_ppm"]), (9, 0.1))
+        self.assertEqual(sv["rms_ppm"][:2], [136.1, 60.4])
+        self.assertIsNone(sv["rms_ppm"][-1])                         # 65535 still means none
+        self.assertIn("set TAKE_US = 1500", host.take_survey_advice(sv))
+        whole = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140, 150, 9, 1)
+        self.assertEqual((whole.take_survey["rms_ppm"][:2], whole.take_survey["rms_step_ppm"]), ([136, 60], 1))
+
+    def test_tenths_lift_the_rounding_guard(self):
+        # the traced sub-8 build (README "The sub-8 advised instant build was the frame's rounding"): 4 / 7 whole ppm
+        # sits inside the margin but the frame cannot tell it from 0.6, so the guard withholds it; in tenths the same
+        # fits read 4.4 / 6.9 (0.638) and are judged on their share, and a true 3.9 / 7.1 (0.549) is advised
+        sv = {"wheels": 24, "least_ms10": 30, "refined_ms10": 35, "board_ms10": 0, "kept": 20}
+        whole = host.take_survey_advice(dict(sv, rms_ppm=[7, 6, 5, 4, 8, 9, 10, 11, 12], rms_step_ppm=1))
+        self.assertIn("too close to the frame's 1 ppm", whole)
+        tenths = host.take_survey_advice(dict(sv, rms_ppm=[6.9, 6.0, 5.1, 4.4, 8, 9, 10, 11, 12], rms_step_ppm=0.1))
+        self.assertIn("miss only", tenths)
+        good = host.take_survey_advice(dict(sv, rms_ppm=[7.1, 6.0, 5.1, 3.9, 8, 9, 10, 11, 12], rms_step_ppm=0.1))
+        self.assertIn("set TAKE_US = 3500", good)
+        self.assertAlmostEqual(host.take_share_bound([7.1, 3.9], 0.1), 3.95 / 7.05)
+
+    def test_board_sends_tenths_and_falls_back_to_whole_ppm(self):
+        launch = controller.LaunchCheck(1e-3, 0.057, 0.05, 0.033, 0.9, 0.9, take_grid=(0, 3000, 6000))
+        ts = launch.take_survey
+        ts.add([(4.04e-6) ** 2, (2.0e-6) ** 2, (1.0e-6) ** 2])
+        r = launch.take_report()
+        self.assertEqual((r[3], r[4]), ([40, 20, 10], P.TAKE_SURVEY_TENTHS))
+        ts.add([(12000e-6) ** 2, (8000e-6) ** 2, (1.0e-6) ** 2])    # mean rms over 6553 ppm: tenths would clip
+        r = launch.take_report()
+        self.assertEqual(r[4], 1)
+        self.assertTrue(all(v < 65535 for v in r[3]))
 
     def test_older_frame_still_reads(self):
         # firmware before 2026-11-18 sends the frame without the summed-wheel byte: it decodes, and the Pi has no count
-        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY][2], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
+        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY][3], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
         b = bytes([P.TAKE_SURVEY, len(body)]) + body
         frame = bytes([P.SYNC]) + b + bytes([P.crc8(b)])
 

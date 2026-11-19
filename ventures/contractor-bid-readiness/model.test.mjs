@@ -71,3 +71,21 @@ test('deadline wording never reads as slack on the day it is due', () => {
   assert.equal(deadlineSentence(-1), 'The deadline passed 1 day ago.');
   assert.equal(deadlineSentence(-3), 'The deadline passed 3 days ago.');
 });
+
+test('a calendar-invalid due date is no deadline, not a rolled-over one (quality audit 2026-11-19)', () => {
+  assert.equal(daysUntilDue('2099-02-30', new Date(2099, 1, 27)), null);
+  assert.equal(daysUntilDue('2099-04-31', new Date(2099, 1, 27)), null);
+  assert.equal(daysUntilDue('2028-02-29', new Date(2028, 1, 27)), 2, 'a real leap day still counts');
+});
+
+test('an empty checklist is never ready', () => {
+  assert.equal(assessBid([], '').ready, false);
+});
+
+test('the report carries the deadline even when every item is ready (quality audit 2026-11-19)', () => {
+  const row = { name: 'Bid bond', owner: '', status: 'ready', note: '' };
+  const result = assessBid([row], '2026-11-10', new Date(2026, 10, 19, 10));
+  assert.equal(result.ready, true);
+  const md = markdownReport(result, 'x', '2026-11-10');
+  assert.match(md, /Deadline: The deadline passed 9 days ago\. \(past-due\)/);
+});

@@ -62,5 +62,37 @@ class T(unittest.TestCase):
             self.assertAlmostEqual(emp / th, 1.0, delta=0.05)
 
 
+class Audit20261119(unittest.TestCase):
+    """Pins added after the 2026-11-19 quality audit: rounds_to_shrink was untested
+    (a log(r) -> log(r*r) mutant left every test green), and the README stated
+    tau* = ceil(L/Tc) unconditionally although it holds at one target floor."""
+
+    def test_rounds_to_shrink_tau0_closed_form(self):
+        eta, H, al = 0.2, 4, 0.5
+        a = 1.0
+        r = abs(1 - al * curvature(eta, a, H))
+        self.assertAlmostEqual(rounds_to_shrink([a], eta, H, al, 0, 1e3), math.log(1e3) / -math.log(r), places=6)
+
+    def _best_tau(self, a0, L):
+        eta, sg, N, H = 0.2, 1.0, 8, 4
+        F = floor(A, eta, sg, N, H, a0, 0)
+        best = None
+        for t in range(0, 17):
+            al = alpha_for_floor(A, eta, sg, N, H, t, F)
+            w = rounds_to_shrink(A, eta, H, al, t, 1e3) * round_time(1.0, L, t)
+            if best is None or w < best[1]:
+                best = (t, w)
+        return best
+
+    def test_ceil_rule_at_the_tested_floor(self):
+        t, w = self._best_tau(0.3, 7)
+        self.assertEqual(t, 7)
+        self.assertAlmostEqual(w, 855, delta=2)
+
+    def test_ceil_rule_fails_at_a_looser_floor(self):
+        self.assertEqual(self._best_tau(2.0, 7)[0], 2)
+        self.assertEqual(self._best_tau(3.0, 7)[0], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

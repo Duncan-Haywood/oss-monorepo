@@ -38,7 +38,7 @@ import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
 import { payeeReport } from "./payees.mjs";
 import { receiptTextFromFile, receiptPassesFromFile, receiptTextRapid, statementTextFromFile, readStatementFile } from "./ocr.mjs";
-import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
+import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt, receiptScript } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
 import { cashBasis } from "./cashbasis.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
@@ -564,7 +564,13 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     // --four-pass: twice more as a grey copy enlarged to 2,000 px (ImageMagick), and the readings vote
     // --rapidocr: read once by RapidOCR (rapidocr_rows.py; pip install rapidocr-onnxruntime);
     // with --four-pass, RapidOCR's reading leads tesseract's four and all five vote
-    try { text = has("--rapidocr") && has("--four-pass") ? receiptPassesFromFile(rest[0], { grow: 2000, lead: (p) => receiptTextRapid(p) }) : has("--rapidocr") ? receiptTextRapid(rest[0]) : has("--four-pass") ? receiptPassesFromFile(rest[0], { grow: 2000 }) : has("--two-pass") ? receiptPassesFromFile(rest[0]) : receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
+    // has() removes the flag it reads, so each is read once here (before 2026-11-19 a lone
+    // --rapidocr was spent by the first test and the photo went to tesseract instead)
+    const rapidocr = has("--rapidocr"), fourPass = has("--four-pass"), twoPass = has("--two-pass");
+    try { text = rapidocr && fourPass ? receiptPassesFromFile(rest[0], { grow: 2000, lead: (p) => receiptTextRapid(p) }) : rapidocr ? receiptTextRapid(rest[0]) : fourPass ? receiptPassesFromFile(rest[0], { grow: 2000 }) : twoPass ? receiptPassesFromFile(rest[0]) : receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
+    // a Cyrillic slip read by the Latin recogniser keeps its total but loses its seller and items
+    // (eval/receipt-script-2026-11-19.md): say which recogniser to set
+    if (rapidocr && !process.env.RAPIDOCR_REC_MODEL && receiptScript(text) === "cyrillic") console.error("This receipt looks Cyrillic: RapidOCR's default recogniser reads it in Latin look-alikes. For the seller and item names, set RAPIDOCR_REC_MODEL and RAPIDOCR_REC_KEYS to PaddleOCR's East Slavic recogniser (README, \"Russian slips with a Cyrillic recogniser\").");
     const r = addReceipts(books, text);
     books = r.books; save();
     console.log(`Read ${r.added.length} receipt${r.added.length === 1 ? "" : "s"}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read.`);

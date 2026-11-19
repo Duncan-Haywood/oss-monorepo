@@ -230,3 +230,13 @@ test("Second B Notice runs 30 business days from the B notice date; same-year se
   assert.equal(bNoticeDates("2026-10-05", { second: true, firstNotice: "2025-03-02" }).disregard, false);
   assert.equal(r.stopWithholdingWithinDays, 30);
 });
+
+test("the $400 Schedule SE threshold is inclusive: net earnings of exactly $400 are taxed (quality audit 2026-11-19)", () => {
+  // 433.13 x 0.9235 = 399.9956, which rounds to 400.00: SE line 4c is $400 or more, so it is taxed.
+  const at = selfEmployment(43313, { year: 2026 });
+  assert.equal(at.netEarnings, 40000);
+  assert.equal(at.tax, 4960 + 1160);
+  const under = selfEmployment(43312, { year: 2026 });
+  assert.equal(under.netEarnings, 39999);
+  assert.equal(under.tax, 0);
+});
