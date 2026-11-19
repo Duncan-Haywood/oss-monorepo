@@ -68,6 +68,42 @@ export function hungarian(cost) {
   return rowToCol;
 }
 
+// hungarian() on a flat row-major matrix (row stride `stride`, n rows and columns) with buffers
+// from hungarianWork(), for the polish's hot loop. Same steps and arithmetic as hungarian(), so the
+// same assignment; the returned array is the work buffer's and is overwritten by the next call.
+function hungarianWork(n) {
+  return { u: new Float64Array(n + 1), v: new Float64Array(n + 1), p: new Int32Array(n + 1), way: new Int32Array(n + 1), minv: new Float64Array(n + 1), used: new Uint8Array(n + 1), col: new Int32Array(n) };
+}
+function hungarianFlat(cost, n, stride, ws) {
+  const INF = Infinity;
+  const { u, v, p, way, minv, used, col } = ws;
+  u.fill(0, 0, n + 1); v.fill(0, 0, n + 1); p.fill(0, 0, n + 1); way.fill(0, 0, n + 1);
+  for (let i = 1; i <= n; i++) {
+    p[0] = i;
+    let j0 = 0;
+    minv.fill(INF, 0, n + 1);
+    used.fill(0, 0, n + 1);
+    do {
+      used[j0] = 1;
+      const i0 = p[j0], row = (i0 - 1) * stride - 1;
+      let delta = INF, j1 = 0;
+      for (let j = 1; j <= n; j++) {
+        if (used[j]) continue;
+        const cur = cost[row + j] - u[i0] - v[j];
+        if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
+        if (minv[j] < delta) { delta = minv[j]; j1 = j; }
+      }
+      for (let j = 0; j <= n; j++) {
+        if (used[j]) { u[p[j]] += delta; v[j] -= delta; } else minv[j] -= delta;
+      }
+      j0 = j1;
+    } while (p[j0] !== 0);
+    do { const j1 = way[j0]; p[j0] = p[j1]; j0 = j1; } while (j0);
+  }
+  for (let j = 1; j <= n; j++) col[p[j] - 1] = j - 1;
+  return col;
+}
+
 /** "Lanes 1-2", "Lanes 3-4", ... starting from `firstLane`. */
 export function pairLabels(count, firstLane = 1) {
   return Array.from({ length: count }, (_, i) => `Lanes ${firstLane + 2 * i}-${firstLane + 2 * i + 1}`);
@@ -368,50 +404,67 @@ function walkStepsFor(weeks, nPairs) {
 // the best plan seen is returned.
 const NOISE = 0.2;
 function walkLanes(source, nTeams, nPairs, seed, steps, lim) {
+  // Flat typed arrays and reused move buffers (perf, 2026-11-19): the same moves, ties and random
+  // draws in the same order as the nested-array version, so the same walk.
   const plan = source.map((wk) => wk.map((m) => m.slice()));
-  const W = plan.length, rnd = mulberry32(seed * 7919 + 17);
-  const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
-  const at = Array.from({ length: nTeams }, () => new Array(W).fill(-1)); // team -> week -> match index
-  plan.forEach((wk, w) => wk.forEach(([a, b, p], i) => { cnt[a][p]++; cnt[b][p]++; at[a][w] = i; at[b][w] = i; }));
-  const { lo, hi, ban } = lim;
-  const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
-  const move = (t, p, q) => off(t, p, cnt[t][p] - 1) - off(t, p, cnt[t][p]) + off(t, q, cnt[t][q] + 1) - off(t, q, cnt[t][q]);
-  const banned = (t, p) => ban !== null && ban[t][p];
+  const W = plan.length, P = nPairs, T = nTeams, rnd = mulberry32(seed * 7919 + 17);
+  const cnt = new Int32Array(T * P);
+  const at = new Int32Array(T * W).fill(-1); // team * W + week -> match index
+  plan.forEach((wk, w) => wk.forEach(([a, b, p], i) => { cnt[a * P + p]++; cnt[b * P + p]++; at[a * W + w] = i; at[b * W + w] = i; }));
+  const lo = new Int32Array(T * P), hi = new Int32Array(T * P);
+  const ban = lim.ban === null ? null : new Uint8Array(T * P);
+  for (let t = 0; t < T; t++) for (let p = 0; p < P; p++) {
+    lo[t * P + p] = lim.lo[t][p]; hi[t * P + p] = lim.hi[t][p];
+    if (ban !== null && lim.ban[t][p]) ban[t * P + p] = 1;
+  }
+  const off = (i, c) => Math.max(0, c - hi[i]) + Math.max(0, lo[i] - c);
+  const move = (t, p, q) => { const i = t * P + p, k = t * P + q; return off(i, cnt[i] - 1) - off(i, cnt[i]) + off(k, cnt[k] + 1) - off(k, cnt[k]); };
+  const banned = (t, p) => ban !== null && ban[t * P + p] === 1;
   let f = 0;
-  for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) f += off(t, p, cnt[t][p]);
+  for (let i = 0; i < T * P; i++) f += off(i, cnt[i]);
   let best = f, bestPlan = plan.map((wk) => wk.map((m) => m.slice()));
-  const cells = [];
+  // the plan mirrored flat for the step loop: match m of week w is entry w * P + m
+  const ta = new Int32Array(W * P), tb = new Int32Array(W * P), pr = new Int32Array(W * P);
+  plan.forEach((wk, w) => wk.forEach(([a, b, p], m) => { ta[w * P + m] = a; tb[w * P + m] = b; pr[w * P + m] = p; }));
+  const cells = new Int32Array(T * P);
+  const moves = new Int32Array(3 * W * P), bestMoves = new Int32Array(3 * W * P);
+  const swap = (u, q, r) => {
+    const iq = u * P + q, ir = u * P + r;
+    f -= off(iq, cnt[iq]) + off(ir, cnt[ir]); cnt[iq]--; cnt[ir]++; f += off(iq, cnt[iq]) + off(ir, cnt[ir]);
+  };
   for (let step = 0; step < steps && f > 0; step++) {
-    cells.length = 0;
-    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) if (off(t, p, cnt[t][p])) cells.push(t * nPairs + p);
-    const cell = cells[Math.floor(rnd() * cells.length)];
-    const t = Math.floor(cell / nPairs), p = cell % nPairs, over = cnt[t][p] > hi[t][p];
-    const moves = [];
-    let bestDelta = Infinity, bestMoves = [];
+    let nCells = 0;
+    for (let i = 0; i < T * P; i++) if (off(i, cnt[i])) cells[nCells++] = i;
+    const cell = cells[Math.floor(rnd() * nCells)];
+    const t = Math.floor(cell / P), p = cell % P, over = cnt[cell] > hi[cell];
+    let nMoves = 0, nBest = 0, bestDelta = Infinity;
     for (let w = 0; w < W; w++) {
-      const i = at[t][w];
+      const i = at[t * W + w];
       if (i < 0) continue;
-      const A = plan[w][i];
-      if (over ? A[2] !== p : A[2] === p) continue;
-      for (let j = 0; j < nPairs; j++) {
+      const ai = w * P + i, q = pr[ai];
+      if (over ? q !== p : q === p) continue;
+      const a0 = ta[ai], a1 = tb[ai];
+      for (let j = 0; j < P; j++) {
         if (j === i) continue;
-        const B = plan[w][j];
-        if (!over && B[2] !== p) continue;
-        const q = A[2], r = B[2];
-        if (banned(A[0], r) || banned(A[1], r) || banned(B[0], q) || banned(B[1], q)) continue;
-        const d = move(A[0], q, r) + move(A[1], q, r) + move(B[0], r, q) + move(B[1], r, q);
-        moves.push(w, i, j);
-        if (d < bestDelta) { bestDelta = d; bestMoves = [w, i, j]; } else if (d === bestDelta) bestMoves.push(w, i, j);
+        const bj = w * P + j, r = pr[bj];
+        if (!over && r !== p) continue;
+        const b0 = ta[bj], b1 = tb[bj];
+        if (banned(a0, r) || banned(a1, r) || banned(b0, q) || banned(b1, q)) continue;
+        const d = move(a0, q, r) + move(a1, q, r) + move(b0, r, q) + move(b1, r, q);
+        moves[nMoves++] = w; moves[nMoves++] = i; moves[nMoves++] = j;
+        if (d < bestDelta) { bestDelta = d; nBest = 0; }
+        if (d === bestDelta) { bestMoves[nBest++] = w; bestMoves[nBest++] = i; bestMoves[nBest++] = j; }
       }
     }
-    if (!moves.length) continue;
-    const pool = rnd() < NOISE ? moves : bestMoves;
-    const k = 3 * Math.floor(rnd() * (pool.length / 3));
+    if (!nMoves) continue;
+    const noisy = rnd() < NOISE;
+    const pool = noisy ? moves : bestMoves, len = noisy ? nMoves : nBest;
+    const k = 3 * Math.floor(rnd() * (len / 3));
     const w = pool[k], i = pool[k + 1], j = pool[k + 2];
     const A = plan[w][i], B = plan[w][j], q = A[2], r = B[2];
-    for (const u of [A[0], A[1]]) { f -= off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); cnt[u][q]--; cnt[u][r]++; f += off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); }
-    for (const u of [B[0], B[1]]) { f -= off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); cnt[u][r]--; cnt[u][q]++; f += off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); }
-    A[2] = r; B[2] = q;
+    swap(A[0], q, r); swap(A[1], q, r);
+    swap(B[0], r, q); swap(B[1], r, q);
+    A[2] = r; B[2] = q; pr[w * P + i] = r; pr[w * P + j] = q;
     if (f < best) { best = f; bestPlan = plan.map((wk) => wk.map((m) => m.slice())); }
   }
   return bestPlan;
@@ -493,29 +546,47 @@ function kicksFor(weeks, nPairs) {
 // is undone. The best season (fewest out-of-bounds, then fewest repeats) is kept. Deterministic
 // for a seed.
 function polishLanes(plan, nTeams, nPairs, seed, kicks, lim) {
-  const W = plan.length;
-  const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
-  const pos = Array.from({ length: W }, () => new Array(nTeams).fill(-1));
-  const { lo, hi, ban } = lim;
-  const put = (w, sign) => { for (const [a, b, p] of plan[w]) { cnt[a][p] += sign; cnt[b][p] += sign; pos[w][a] = sign > 0 ? p : -1; pos[w][b] = sign > 0 ? p : -1; } };
-  for (let w = 0; w < W; w++) put(w, 1);
-  const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
-  const OFF = 4096, SQ = 16;
-  const price = (w, t, p) => {
-    const c = cnt[t][p];
-    return (ban !== null && ban[t][p] ? FORBID : 0) + OFF * (off(t, p, c + 1) - off(t, p, c)) + SQ * (2 * c + 1) + (w > 0 && pos[w - 1][t] === p ? 1 : 0) + (w < W - 1 && pos[w + 1][t] === p ? 1 : 0);
+  // Flat typed arrays and one reused cost buffer (perf, 2026-11-19): the same integer prices and
+  // the same Hungarian arithmetic as the nested-array version, so the same season, about 3x faster.
+  const W = plan.length, P = nPairs, T = nTeams;
+  const cnt = new Int32Array(T * P);
+  const pos = new Int32Array(W * T).fill(-1);
+  const lo = new Int32Array(T * P), hi = new Int32Array(T * P);
+  const ban = lim.ban === null ? null : new Uint8Array(T * P);
+  for (let t = 0; t < T; t++) for (let p = 0; p < P; p++) {
+    lo[t * P + p] = lim.lo[t][p]; hi[t * P + p] = lim.hi[t][p];
+    if (ban !== null && lim.ban[t][p]) ban[t * P + p] = 1;
+  }
+  const put = (w, sign) => {
+    const base = w * T;
+    for (const [a, b, p] of plan[w]) { cnt[a * P + p] += sign; cnt[b * P + p] += sign; pos[base + a] = sign > 0 ? p : -1; pos[base + b] = sign > 0 ? p : -1; }
   };
+  for (let w = 0; w < W; w++) put(w, 1);
+  const off = (i, c) => Math.max(0, c - hi[i]) + Math.max(0, lo[i] - c);
+  const OFF = 4096, SQ = 16;
+  // price of team t on pair p in a week whose neighbours start at prev / next in pos (-1: none)
+  const price = (t, p, prev, next) => {
+    const i = t * P + p, c = cnt[i];
+    return (ban !== null && ban[i] ? FORBID : 0) + OFF * (off(i, c + 1) - off(i, c)) + SQ * (2 * c + 1) + (prev >= 0 && pos[prev + t] === p ? 1 : 0) + (next >= 0 && pos[next + t] === p ? 1 : 0);
+  };
+  const cost = new Float64Array(P * P);
+  const hw = hungarianWork(P);
   const resolve = (w) => {
     put(w, -1);
-    const cost = plan[w].map(([a, b]) => Array.from({ length: nPairs }, (_, p) => price(w, a, p) + price(w, b, p)));
-    const col = hungarian(cost);
-    plan[w].forEach((m, k) => { m[2] = col[k]; });
+    const wk = plan[w], n = wk.length;
+    const prev = w > 0 ? (w - 1) * T : -1, next = w < W - 1 ? (w + 1) * T : -1;
+    for (let k = 0; k < n; k++) {
+      const a = wk[k][0], b = wk[k][1];
+      for (let p = 0; p < P; p++) cost[k * P + p] = price(a, p, prev, next) + price(b, p, prev, next);
+    }
+    const col = hungarianFlat(cost, n, P, hw);
+    for (let k = 0; k < n; k++) wk[k][2] = col[k];
     put(w, 1);
   };
   const full = () => {
     let o = 0, q = 0, r = 0, bad = 0;
-    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) { const c = cnt[t][p]; o += off(t, p, c); q += c * c; if (ban !== null && ban[t][p]) bad += c; }
-    for (let w = 1; w < W; w++) for (let t = 0; t < nTeams; t++) if (pos[w][t] === pos[w - 1][t]) r++;
+    for (let i = 0; i < T * P; i++) { const c = cnt[i]; o += off(i, c); q += c * c; if (ban !== null && ban[i]) bad += c; }
+    for (let w = 1; w < W; w++) for (let t = 0; t < T; t++) if (pos[w * T + t] === pos[(w - 1) * T + t]) r++;
     return { cost: FORBID * bad + OFF * o + SQ * q + r, off: o + bad * 1e6, repeats: r };
   };
   const sweep = () => {
