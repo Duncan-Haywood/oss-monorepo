@@ -88,8 +88,34 @@ test("a monthly profit goal converts into pounds and orders", () => {
   const r = computeWashAndFold(counter);
   assert.equal(r.profitPerPound, 1.075);
   assert.equal(r.monthlyProfitAtVolume, 8600); // 8000 lb at $1.075
-  assert.equal(r.poundsForGoal, Math.ceil(3000 / 1.075));
-  assert.equal(r.ordersForGoal, Math.ceil(Math.ceil(3000 / 1.075) / 20));
+  // Cost-volume-profit: overhead $2,000 is fixed, so each pound contributes
+  // $1.075 + $0.25 overhead share = $1.325; (3000 + 2000) / 1.325 = 3773.6.
+  assert.equal(r.poundsForGoal, 3774);
+  assert.equal(r.ordersForGoal, Math.ceil(3774 / 20));
+});
+
+test("running the tool at the goal volume returns at least the goal, and no more than one pound over", () => {
+  // Quality audit 2026-11-19 (round 77): the goal divided by the loaded
+  // profit per pound counted the fixed overhead twice, so the stated volume
+  // earned $4,533.87 against a $3,000 goal on the guide's example.
+  const guide = {
+    pricePerPound: 1.75, avgOrderPounds: 22, minimumCharge: 20, minimumOrderPounds: 10,
+    laborMinutesPerPound: 0.9, fixedMinutesPerOrder: 9, wagePerHour: 16, payrollLoadPct: 18,
+    poundsPerWasherLoad: 20, washCostPerLoad: 1.35, poundsPerDryerLoad: 30, dryCostPerLoad: 1.1,
+    suppliesCostPerPound: 0.06, deliveryStopsPerOrder: 2, driveMinutesPerStop: 7, milesPerStop: 4,
+    vehicleCostPerMile: 0.55, monthlyOverhead: 2400, monthlyPounds: 6000, targetMarginPct: 35,
+    monthlyProfitGoal: 3000,
+  };
+  for (const input of [counter, guide]) {
+    const r = computeWashAndFold(input);
+    const fixed = input.monthlyOverhead;
+    const contribution = (r.monthlyProfitAtVolume + fixed) / input.monthlyPounds;
+    const profitAtGoal = contribution * r.poundsForGoal - fixed;
+    assert.ok(profitAtGoal >= input.monthlyProfitGoal - 0.01, `short of goal: ${profitAtGoal}`);
+    assert.ok(profitAtGoal < input.monthlyProfitGoal + contribution + 0.01, `over by more than a pound: ${profitAtGoal}`);
+  }
+  assert.equal(computeWashAndFold(guide).poundsForGoal, 7660);
+  assert.equal(computeWashAndFold(guide).ordersForGoal, 349);
 });
 
 test("no goal and no volume leaves those outputs null rather than zero", () => {

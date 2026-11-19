@@ -156,9 +156,17 @@ export function computeWashAndFold(input = {}) {
 
   const monthlyProfitAtVolume =
     monthlyPounds > 0 && avgOrderPounds > 0 ? round(profitPerPound * monthlyPounds, 2) : null;
+  // Fixed overhead does not grow with volume, so each extra pound adds its
+  // contribution (price less the variable cost), not its fully loaded profit.
+  // Volume for a goal is (goal + fixed overhead) / contribution per pound;
+  // dividing the goal by the loaded profit per pound counts the overhead
+  // share twice and overstates the volume needed.
+  const contributionPerPound =
+    avgOrderPounds > 0 ? (revenuePerOrder - (order.total - order.overhead)) / avgOrderPounds : 0;
+  const fixedOverhead = monthlyPounds > 0 ? monthlyOverhead : 0;
   const poundsForGoal =
-    monthlyProfitGoal > 0 && profitPerPound > 0
-      ? Math.ceil(monthlyProfitGoal / profitPerPound)
+    monthlyProfitGoal > 0 && contributionPerPound > 0
+      ? Math.ceil((monthlyProfitGoal + fixedOverhead) / contributionPerPound - 1e-9)
       : null;
   const ordersForGoal =
     poundsForGoal !== null && avgOrderPounds > 0 ? Math.ceil(poundsForGoal / avgOrderPounds) : null;
