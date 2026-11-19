@@ -150,7 +150,7 @@ wrote dies-irae.mid
   - the choir line (GM Choir Aahs) with one lyric event per syllable;
   - an optional drone on the final, an octave down (GM Church Organ).
 
-Tests: `node --test ventures/chant-forge/chant-forge.test.mjs` (8 tests,
+Tests: `node --test ventures/chant-forge/chant-forge.test.mjs` (14 tests,
 passing 2026-11-03). On 2026-11-03 the example's output was also read back with
 an independent parser (Python `mido` 1.x): 3 tracks, 3.87 s, lyrics in order.
 
@@ -2422,7 +2422,7 @@ Open: the EBU's own WAVs (cases 5 and 6, programme material) and a real mix.
 ## Real Gregorio files (2026-11-03)
 
 Fixed after reading the format, tested on made-up strings shaped like real files
-(`real-files.test.mjs`, 6 tests), not yet run on a batch of GregoBase files:
+(`real-files.test.mjs`, 6 tests), not yet run on a batch of GregoBase files (on 2026-11-03; since run on 139, see "Not checked yet"):
 CRLF line endings no longer defeat `%` comment stripping (a comment's text was
 being sung as a lyric); `<sp>R/</sp>`, `<sp>V/</sp>` and `<sp>'ae</sp>` keep their
 signs; `<v>` (raw TeX) and `<alt>` text, `{}` centre braces, `*` and the cross
@@ -2916,7 +2916,7 @@ there to fix. Details: `eval/clef-bridge-check.md`; look at a staff's start with
   `node eval/batch-check.mjs`, `batch.test.mjs`). Checked: no crash, no warning,
   pitches 36-84, no markup left in lyrics, valid MIDI, communions, tracts, hymns
   and sequences end on their mode final. Not checked: the notes against the page
-  scans (except the ones below), or by ear. 11 of the 59 end off the mode final (introits, graduals,
+  scans (except the ones below), or by ear. 10 of the 60 now in that folder end off the mode final (introits, graduals,
   alleluias and offertories finish on a psalm-tone differentia or a verse). `node eval/offfinal-report.mjs` lists them with last notes and syllables
   (`eval/offfinal-report.md`); 5 are introits ending on "euouae". Seven of the
   11 were read against the 1908 scan on 2026-11-13 (next section): their
@@ -2932,6 +2932,14 @@ there to fix. Details: `eval/clef-bridge-check.md`; look at a staff's start with
 - `fuzz.test.mjs` throws 2000 random made-up GABC strings at the reader and
   MIDI writer (no crash, pitches in range); it says nothing about real files.
 - Nothing has been arranged, sung, mixed or published.
+- **Open from the 2026-11-19 quality audit** ([`portfolio/quality/audits/2026-11-19-chant-forge.json`](../../portfolio/quality/audits/2026-11-19-chant-forge.json)):
+  introit files sing their psalm-tone cue literally. A bare "Gloria Patri" and the vowel placeholder
+  "E u o u a e" (for *saeculorum. Amen*) become sung notes in the MIDI, cue sheet and `--sing` preview,
+  and the track ends on the differentia instead of the antiphon repeat (32 corpus files). The scan
+  reader also fills vertical white gaps of a fixed 3 px whatever the staff spacing, so a head that
+  clears a staff line by 1 to 3 px can be read as two notes (`scan.mjs:74`). The mode-2 pieces
+  ending on A (3426, 3429, 3434, 3451) are the transposed second mode ending on its affinal, not
+  differentiae; the mode check should accept them.
 
 ## Rules this project keeps
 
