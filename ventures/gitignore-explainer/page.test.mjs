@@ -97,6 +97,7 @@ test("the guide's git output is what the engine says", async () => {
 
 test("links: sibling, guide, robots, sitemap, README, llms.txt, LICENSE and VENTURE.yaml", () => {
   assert.match(page("index.html"), /href="\.\.\/codeowners-shadow-check\/"/);
+  assert.match(page("index.html"), /href="\.\.\/gitattributes-explainer\/"/);
   assert.match(page("index.html"), /href="why-gitignore-negation-does-not-work\.html"/);
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("README.md"), /No warranty/);
