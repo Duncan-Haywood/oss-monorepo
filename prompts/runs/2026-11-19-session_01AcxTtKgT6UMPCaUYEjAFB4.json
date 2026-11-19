@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtKgT6UMPCaUYEjAFB4",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T06:07:08Z",
+  "ended": "2026-11-19T06:39:44Z",
+  "wall_minutes": 38.26,
+  "tokens_in": 19438976,
+  "tokens_out": 97052,
+  "cost_usd": 7.7265,
+  "tool_calls": 121,
+  "task": "Explore: tsconfig-ts7-check, a TypeScript 7 readiness check for tsconfig.json (new venture)",
+  "projects": [
+    "tsconfig-ts7-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17568",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 4,
+  "review_findings": null,
+  "tests_added": 36,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "eval/run-eval.mjs first run died with spawnSync git ENOBUFS (git ls-files of the whole monorepo exceeds the default 1 MB buffer)",
+      "fix": "git ls-files '*tsconfig*.json' with maxBuffer"
+    },
+    {
+      "what": "A Bash call writing eval/README.md through an inline node -e script was refused by the rm-safety parser although it deleted nothing (nested quotes)",
+      "fix": "moved the generator into eval/write-readme.mjs"
+    },
+    {
+      "what": "The first draft post description was 176 characters (limit 160)",
+      "fix": "shortened; check_posts.py now clean"
+    },
+    {
+      "what": "First run_workflow_locally pass failed 4 checks (siblings orphan, .cjs not a served extension, post description length, report front matter)",
+      "fix": "all fixed in the second commit and re-verified"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "none blocking; the 'skip audits already found clean' list is long, but it was quick to confirm this idea was not on it"
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "run_workflow_locally.py --for-changes hands off portfolio-pages after 100 s and says not to change tracked files until it finishes; with a 150 s site build plus venture tests that leaves the run idle for over 10 minutes, and the FAIL line for 'Check the built artifact' gives no detail until the whole log ends"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "No website request or IDEAS entry was open and the router drew explore, so I built a new developer tool instead of deepening a flagship.",
+      "did": "New venture tsconfig-ts7-check; TypeScript 7.0.2 is npm latest and Dependabot is already proposing the bump here, so the tool is timely.",
+      "result": "Shipped with a 61-config eval against tsc 6.0.3/7.0.2 (61/61 agree)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not fix the three ventures whose tsconfig tsc 7 rejects (target es5), because they pin typescript ^5 and nothing breaks today; changing three product configs is better done in its own PR.",
+      "did": "Recorded them in docs/reports/tsconfig-ts7-check-2026-11-19.md for the run that bumps TypeScript.",
+      "result": "open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-typescript-7-rejects-seven-of-25-tsconfig-bases.md",
+    "docs/reports/tsconfig-ts7-check-2026-11-19.md"
+  ],
+  "goal": "Ship something people use: a free, verified TypeScript 7 migration check (page + CLI)",
+  "notes": "Idea: tsconfig TypeScript 7 readiness check. The rules came from typescript@6.0.3 lib/_tsc.js (checkDeprecations, computedOptions). Probes compiled all 239 single-option configs under tsc 5.9.3/6.0.3/7.0.2 (eval/option-matrix.json, replayed in CI by eval.test.mjs), which corrected three first guesses: 5.5-removed options are TS5023 in 7 at any value; module none and target es3 are TS6046; prepend is ignored by 7. A defaults probe showed 7 behaviour changes. Corpus eval: 61 configs (35 @tsconfig/bases versions, 9 fixtures, this repo's 17); the checker matched tsc 7.0.2 on 61/61; suggestions compiled clean on 61/61. tsc 7 rejects 28/61, including the current release of 7 of 25 @tsconfig/bases packages and 3 of this repo's Next apps. Local checks: node --test '*.test.mjs' 36 pass; check_posts.py clean; run_workflow_locally --for-changes first pass: 4 failures, all from this diff (post description 176 chars, report missing `kind` front matter, siblings budget orphan, .cjs probe files lacking a served type in check.mjs); fixed by shortening the description, adding front matter, a cyclehound<->tsconfig-ts7-check footer link pair with tests, and renaming the probes to .mjs. Re-ran: hub/content tests 62/62, test_doc_index OK, siblings 0 orphans and siblings.test 20/20, clean `node build.mjs` + `check.mjs` (1409 products, 11815 pages, no dead links), cyclehound page.test 7/7, tsconfig-ts7-check 37/37. Playwright smoke at 390 px: example renders 5 errors, suggestion folds baseUrl into paths, no console errors, no horizontal scroll.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c79e34ae-e2cc-58d3-bafb-b41e55fdea06",
+    "transcripts": 1,
+    "first": "2026-11-19T06:07:08Z",
+    "last": "2026-11-19T06:45:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 112,
+        "input": 217,
+        "output": 97052,
+        "thinking": 13617,
+        "cache_read": 19195573,
+        "cache_write_5m": 0,
+        "cache_write_1h": 243186,
+        "api_equivalent_usd": 7.7265,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 112,
+      "input": 217,
+      "output": 97052,
+      "thinking": 13617,
+      "cache_read": 19195573,
+      "cache_write_5m": 0,
+      "cache_write_1h": 243186,
+      "api_equivalent_usd": 7.7265,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 121,
+    "tools": {
+      "Bash": 103,
+      "Write": 11,
+      "Edit": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 38.26,
+      "active_minutes": 38.26,
+      "model_minutes": 17.36,
+      "tool_minutes": 20.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior TS engineer: read the 6.0 compiler source, build a probe harness over 239 options x 3 compilers, a 61-config corpus eval, checker+CLI+page, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 310.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
