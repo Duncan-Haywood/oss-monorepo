@@ -8,3 +8,4 @@
 - (2026-11-19) (8) MSPDI: next a real construction .xml, task splits
 - (2026-11-19) next a second P6 file using them, a risk-page switch to sample them
 - (2026-11-19) next: a real file with range UDFs, probabilistic branches
+- (2026-11-19) next: a public XER with P6's own float_path values to check path order against, the review section for an interim milestone

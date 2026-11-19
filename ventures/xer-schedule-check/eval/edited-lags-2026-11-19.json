@@ -1,0 +1,808 @@
+{
+ "seeds": 10,
+ "k": 5,
+ "totals": {
+  "checked": 46727,
+  "broken": 1,
+  "planted": 350,
+  "moved": 280,
+  "found": 280,
+  "missed": 0,
+  "extra": 0,
+  "differ": 7552,
+  "explained": 7552,
+  "near": 0
+ },
+ "files": [
+  {
+   "file": "CCA_R03_dt_24Oct11SC.xer",
+   "version": "6.0",
+   "compared": 14270,
+   "matched": 14268,
+   "linksChecked": 37211,
+   "broken": [
+    {
+     "succ": "BAFT2305509C1",
+     "pred": "BAFT1005509C1",
+     "type": "PR_FS",
+     "lagH": 608,
+     "roomH": 440
+    }
+   ],
+   "listed": {
+    "count": 1,
+    "explained": 1,
+    "near": 1,
+    "differ": 2
+   },
+   "seeds": [
+    {
+     "seed": 1,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 28,
+     "explained": 28,
+     "near": 0
+    },
+    {
+     "seed": 2,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 57,
+     "explained": 57,
+     "near": 0
+    },
+    {
+     "seed": 3,
+     "planted": 5,
+     "moved": 2,
+     "found": 2,
+     "extra": 0,
+     "differ": 20,
+     "explained": 20,
+     "near": 0
+    },
+    {
+     "seed": 4,
+     "planted": 5,
+     "moved": 1,
+     "found": 1,
+     "extra": 0,
+     "differ": 39,
+     "explained": 39,
+     "near": 0
+    },
+    {
+     "seed": 5,
+     "planted": 5,
+     "moved": 1,
+     "found": 1,
+     "extra": 0,
+     "differ": 80,
+     "explained": 80,
+     "near": 0
+    },
+    {
+     "seed": 6,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 4,
+     "explained": 4,
+     "near": 0
+    },
+    {
+     "seed": 7,
+     "planted": 5,
+     "moved": 2,
+     "found": 2,
+     "extra": 0,
+     "differ": 28,
+     "explained": 28,
+     "near": 0
+    },
+    {
+     "seed": 8,
+     "planted": 5,
+     "moved": 1,
+     "found": 1,
+     "extra": 0,
+     "differ": 1,
+     "explained": 1,
+     "near": 0
+    },
+    {
+     "seed": 9,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 62,
+     "explained": 62,
+     "near": 0
+    },
+    {
+     "seed": 10,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 82,
+     "explained": 82,
+     "near": 0
+    }
+   ]
+  },
+  {
+   "file": "Expressway_Project.xer",
+   "version": "7.0",
+   "compared": 823,
+   "matched": 823,
+   "linksChecked": 1094,
+   "broken": [],
+   "listed": null,
+   "seeds": [
+    {
+     "seed": 1,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 180,
+     "explained": 180,
+     "near": 0
+    },
+    {
+     "seed": 2,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 44,
+     "explained": 44,
+     "near": 0
+    },
+    {
+     "seed": 3,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 50,
+     "explained": 50,
+     "near": 0
+    },
+    {
+     "seed": 4,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 46,
+     "explained": 46,
+     "near": 0
+    },
+    {
+     "seed": 5,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 213,
+     "explained": 213,
+     "near": 0
+    },
+    {
+     "seed": 6,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 16,
+     "explained": 16,
+     "near": 0
+    },
+    {
+     "seed": 7,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 14,
+     "explained": 14,
+     "near": 0
+    },
+    {
+     "seed": 8,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 158,
+     "explained": 158,
+     "near": 0
+    },
+    {
+     "seed": 9,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 394,
+     "explained": 394,
+     "near": 0
+    },
+    {
+     "seed": 10,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 55,
+     "explained": 55,
+     "near": 0
+    }
+   ]
+  },
+  {
+   "file": "Harbour Pointe Assisted Living Center.xer",
+   "version": "17.12",
+   "compared": 113,
+   "matched": 88,
+   "linksChecked": 193,
+   "broken": [],
+   "listed": null,
+   "seeds": [
+    {
+     "seed": 1,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 39,
+     "explained": 39,
+     "near": 0
+    },
+    {
+     "seed": 2,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 80,
+     "explained": 80,
+     "near": 0
+    },
+    {
+     "seed": 3,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 23,
+     "explained": 23,
+     "near": 0
+    },
+    {
+     "seed": 4,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 35,
+     "explained": 35,
+     "near": 0
+    },
+    {
+     "seed": 5,
+     "planted": 5,
+     "moved": 0,
+     "found": 0,
+     "extra": 0,
+     "differ": 0,
+     "explained": 0,
+     "near": 0
+    },
+    {
+     "seed": 6,
+     "planted": 5,
+     "moved": 2,
+     "found": 2,
+     "extra": 0,
+     "differ": 69,
+     "explained": 69,
+     "near": 0
+    },
+    {
+     "seed": 7,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 80,
+     "explained": 80,
+     "near": 0
+    },
+    {
+     "seed": 8,
+     "planted": 5,
+     "moved": 0,
+     "found": 0,
+     "extra": 0,
+     "differ": 0,
+     "explained": 0,
+     "near": 0
+    },
+    {
+     "seed": 9,
+     "planted": 5,
+     "moved": 2,
+     "found": 2,
+     "extra": 0,
+     "differ": 18,
+     "explained": 18,
+     "near": 0
+    },
+    {
+     "seed": 10,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 68,
+     "explained": 68,
+     "near": 0
+    }
+   ]
+  },
+  {
+   "file": "example_xer_file.xer",
+   "version": "24.12",
+   "compared": 404,
+   "matched": 404,
+   "linksChecked": 518,
+   "broken": [],
+   "listed": null,
+   "seeds": [
+    {
+     "seed": 1,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 136,
+     "explained": 136,
+     "near": 0
+    },
+    {
+     "seed": 2,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 147,
+     "explained": 147,
+     "near": 0
+    },
+    {
+     "seed": 3,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 97,
+     "explained": 97,
+     "near": 0
+    },
+    {
+     "seed": 4,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 133,
+     "explained": 133,
+     "near": 0
+    },
+    {
+     "seed": 5,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 125,
+     "explained": 125,
+     "near": 0
+    },
+    {
+     "seed": 6,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 107,
+     "explained": 107,
+     "near": 0
+    },
+    {
+     "seed": 7,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 124,
+     "explained": 124,
+     "near": 0
+    },
+    {
+     "seed": 8,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 97,
+     "explained": 97,
+     "near": 0
+    },
+    {
+     "seed": 9,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 117,
+     "explained": 117,
+     "near": 0
+    },
+    {
+     "seed": 10,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 72,
+     "explained": 72,
+     "near": 0
+    }
+   ]
+  },
+  {
+   "file": "hotel-project.xer",
+   "version": "6.0",
+   "compared": 4217,
+   "matched": 4217,
+   "linksChecked": 7586,
+   "broken": [],
+   "listed": null,
+   "seeds": [
+    {
+     "seed": 1,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 689,
+     "explained": 689,
+     "near": 0
+    },
+    {
+     "seed": 2,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 938,
+     "explained": 938,
+     "near": 0
+    },
+    {
+     "seed": 3,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 170,
+     "explained": 170,
+     "near": 0
+    },
+    {
+     "seed": 4,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 240,
+     "explained": 240,
+     "near": 0
+    },
+    {
+     "seed": 5,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 41,
+     "explained": 41,
+     "near": 0
+    },
+    {
+     "seed": 6,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 750,
+     "explained": 750,
+     "near": 0
+    },
+    {
+     "seed": 7,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 44,
+     "explained": 44,
+     "near": 0
+    },
+    {
+     "seed": 8,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 48,
+     "explained": 48,
+     "near": 0
+    },
+    {
+     "seed": 9,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 122,
+     "explained": 122,
+     "near": 0
+    },
+    {
+     "seed": 10,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 579,
+     "explained": 579,
+     "near": 0
+    }
+   ]
+  },
+  {
+   "file": "sample.xer",
+   "version": "20.12",
+   "compared": 42,
+   "matched": 42,
+   "linksChecked": 41,
+   "broken": [],
+   "listed": null,
+   "seeds": [
+    {
+     "seed": 1,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 38,
+     "explained": 38,
+     "near": 0
+    },
+    {
+     "seed": 2,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 29,
+     "explained": 29,
+     "near": 0
+    },
+    {
+     "seed": 3,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 35,
+     "explained": 35,
+     "near": 0
+    },
+    {
+     "seed": 4,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 30,
+     "explained": 30,
+     "near": 0
+    },
+    {
+     "seed": 5,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 39,
+     "explained": 39,
+     "near": 0
+    },
+    {
+     "seed": 6,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 33,
+     "explained": 33,
+     "near": 0
+    },
+    {
+     "seed": 7,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 40,
+     "explained": 40,
+     "near": 0
+    },
+    {
+     "seed": 8,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 35,
+     "explained": 35,
+     "near": 0
+    },
+    {
+     "seed": 9,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 37,
+     "explained": 37,
+     "near": 0
+    },
+    {
+     "seed": 10,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 37,
+     "explained": 37,
+     "near": 0
+    }
+   ]
+  },
+  {
+   "file": "terminal-building-airport.xer",
+   "version": "5.0",
+   "compared": 66,
+   "matched": 66,
+   "linksChecked": 84,
+   "broken": [],
+   "listed": null,
+   "seeds": [
+    {
+     "seed": 1,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 66,
+     "explained": 66,
+     "near": 0
+    },
+    {
+     "seed": 2,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 60,
+     "explained": 60,
+     "near": 0
+    },
+    {
+     "seed": 3,
+     "planted": 5,
+     "moved": 4,
+     "found": 4,
+     "extra": 0,
+     "differ": 25,
+     "explained": 25,
+     "near": 0
+    },
+    {
+     "seed": 4,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 29,
+     "explained": 29,
+     "near": 0
+    },
+    {
+     "seed": 5,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 39,
+     "explained": 39,
+     "near": 0
+    },
+    {
+     "seed": 6,
+     "planted": 5,
+     "moved": 3,
+     "found": 3,
+     "extra": 0,
+     "differ": 44,
+     "explained": 44,
+     "near": 0
+    },
+    {
+     "seed": 7,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 64,
+     "explained": 64,
+     "near": 0
+    },
+    {
+     "seed": 8,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 27,
+     "explained": 27,
+     "near": 0
+    },
+    {
+     "seed": 9,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 42,
+     "explained": 42,
+     "near": 0
+    },
+    {
+     "seed": 10,
+     "planted": 5,
+     "moved": 5,
+     "found": 5,
+     "extra": 0,
+     "differ": 44,
+     "explained": 44,
+     "near": 0
+    }
+   ]
+  }
+ ]
+}

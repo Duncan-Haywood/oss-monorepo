@@ -22,13 +22,20 @@
 // dates (target_start/end_date), which P6 keeps as the baseline when the
 // project is set to use its own planned dates.
 
-import { schedule, drivingPath, hardConstraint } from "./cpm.mjs";
+import { schedule, drivingPath, hardConstraint, lagCalendar } from "./cpm.mjs";
 import { longestPath } from "./floatpaths.mjs";
 import { parseDate, formatDate, num } from "./xer.mjs";
 
 const DAYS_44 = 44;
 
 const pct = (n, d) => (d ? (100 * n) / d : 0);
+
+// the predecessor date a link's lag is counted from, as the file stores it
+function fromLabel(pr, rel) {
+  const fin = rel.type === "PR_FS" || rel.type === "PR_FF";
+  if (pr.status === "TK_Complete") return `${fin ? "finished" : "started"} ${formatDate(fin ? pr.actEnd : pr.actStart)}`;
+  return `${fin ? "early finish" : "early start"} ${fin ? pr.row.early_end_date : pr.row.early_start_date}`;
+}
 
 function pickProject(model, projId) {
   if (projId && model.projects.has(projId)) return model.projects.get(projId);
@@ -38,6 +45,49 @@ function pickProject(model, projId) {
   let best = null;
   for (const p of model.projects.values()) if (!best || (counts.get(p.id) || 0) > (counts.get(best.id) || 0)) best = p;
   return best;
+}
+
+// Links the stored dates break: for each unstarted activity in `open` (but
+// not those in `skip`), every link whose lag is longer than the working time
+// the stored dates leave between the predecessor's date it counts from (its
+// actual date when finished, else its stored early date) and the successor's
+// stored early start (FS, SS) or finish (FF, SF). P6 meets every link when it
+// schedules, so one it breaks was lengthened or added after that run.
+// Returns [{ t, pr, rel, room }], room in minutes of the lag calendar
+// (negative: the stored dates break the link even with no lag).
+export function brokenLinks(model, open, skip = new Set(), stats = null) {
+  const out = [];
+  for (const t of open) {
+    if (t.status !== "TK_NotStart" || skip.has(t.id)) continue;
+    const sES = parseDate(t.row.early_start_date), sEF = parseDate(t.row.early_end_date);
+    if (sES === null || sEF === null) continue;
+    for (const rel of t.preds) {
+      const pr = model.tasks.get(rel.predId);
+      if (!pr || pr.span || rel.external) continue;
+      const fromFinish = rel.type === "PR_FS" || rel.type === "PR_FF";
+      let anchor;
+      if (pr.status === "TK_Complete") anchor = fromFinish ? pr.actEnd : pr.actStart;
+      else if (fromFinish) anchor = parseDate(pr.row.early_end_date);
+      else if (pr.status === "TK_NotStart") anchor = parseDate(pr.row.early_start_date);
+      else continue; // an in-progress predecessor's start link: its lag is partly spent
+      if (anchor === null || anchor === undefined) continue;
+      const target = rel.type === "PR_FS" || rel.type === "PR_SS" ? sES : sEF;
+      const lc = lagCalendar(model, rel);
+      const gap = (a, b) => (b >= a ? lc.workBetween(a, b) : -lc.workBetween(b, a));
+      let room = gap(anchor, target), side = "early";
+      // the backward pass meets it too: the predecessor's stored late date
+      // is at least the lag before the successor's (a lengthened lag that
+      // moves no early date still eats the predecessor's float)
+      if (pr.status !== "TK_Complete" && !(pr.status === "TK_Active" && !fromFinish)) {
+        const pL = parseDate(fromFinish ? pr.row.late_end_date : pr.row.late_start_date);
+        const sL = parseDate(rel.type === "PR_FS" || rel.type === "PR_SS" ? t.row.late_start_date : t.row.late_end_date);
+        if (pL !== null && sL !== null) { const r2 = gap(pL, sL); if (r2 < room) { room = r2; side = "late"; } }
+      }
+      if (stats) stats.checked = (stats.checked || 0) + 1;
+      if (room < rel.lag - 1) out.push({ t, pr, rel, room, side });
+    }
+  }
+  return out;
 }
 
 export function assess(xer, opts = {}) {
@@ -329,12 +379,60 @@ export function assess(xer, opts = {}) {
       }
     }
   }
-  for (const s of stale) delete s.id;
   if (edited.length) {
     const items = edited.map(({ t, spanH, d }) => ({ code: t.code, name: t.name, why: `remaining duration ${round1(days(t, d))} d; the stored dates ${t.row.early_start_date} to ${t.row.early_end_date} span ${round1(days(t, spanH))} d` }));
     extra.push({ id: "edited-durations", name: "Durations edited after the last schedule run", count: items.length, pass: false, items, explained, differ: stale.length,
       note: `The stored early dates of each activity listed span a different amount of work than its remaining duration, so the duration was changed after P6 last scheduled and the file was exported without rescheduling.${explained === null ? "" : ` Rescheduled with the durations the stored dates imply, ${explained} of the ${stale.length} activities whose stored dates disagree with the logic agree.`}` });
   }
+
+  // Lags edited after the last schedule run (or links added since). P6 leaves
+  // every link it scheduled met by the dates it stores: an unstarted
+  // successor's stored early start (finish, for FF and SF links) is at least
+  // the lag after the predecessor's actual date, or its stored early date if
+  // it is unfinished. A link the stored dates break was lengthened or added
+  // after that run. CCA (P6 6.0): one 608 h lag where the stored dates leave
+  // exactly 440 h (55 days of 8 h) explains both of its open activities that
+  // differ; none of the other links on six P6 files breaks its dates
+  // (eval/edited-lags-2026-11-19.md).
+  const editedLags = stale.length && xer.format !== "mspdi" ? brokenLinks(model, open, new Set(edited.map((e) => e.t.id))) : [];
+  let lagsExplained = null, lagsNear = 0;
+  // two dates with no working time between them on the activity's calendar
+  const near = (t, a, b) => a === b || (a !== null && b !== null && t.cal.workBetween(Math.min(a, b), Math.max(a, b)) === 0);
+  if (editedLags.length && !opts.result) {
+    const implied = new Map(editedLags.map((e) => [e.rel.id, e.room / 60]));
+    const TASKPRED = (xer.tables.TASKPRED || []).map((r) => (implied.has(r.task_pred_id) ? { ...r, lag_hr_cnt: String(implied.get(r.task_pred_id)) } : r));
+    const again = schedule({ ...xer, tables: { ...xer.tables, TASKPRED } }).tasks;
+    lagsExplained = 0;
+    for (const s of stale) {
+      const t = model.tasks.get(s.id), r = again.get(s.id);
+      if (!r || r.lf === undefined) continue;
+      if (sameDate(t, parseDate(t.row.early_end_date), r.ef) && sameDate(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null && Math.abs(stored(t) - r.tf) < 0.01) {
+        lagsExplained++;
+        s.why += "; agrees once the edited lags are put back";
+      } else if (near(t, parseDate(t.row.early_end_date), r.ef) && near(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null && Math.abs(stored(t) - r.tf) < 0.01) {
+        lagsNear++;
+        s.why += "; once the edited lags are put back, agrees but for a gap with no working time in it (P6 wrote the next working start)";
+      }
+    }
+  }
+  if (editedLags.length) {
+    const kind = { PR_FS: "FS", PR_SS: "SS", PR_FF: "FF", PR_SF: "SF" };
+    const items = editedLags.map(({ t, pr, rel, room, side }) => {
+      const k = kind[rel.type] || rel.type;
+      const lagTxt = `${k} link from ${pr.code}, lag ${round1(rel.lag / 60)} h (${round1(days(t, rel.lag / 60))} d)`;
+      const fromS = rel.type === "PR_FS" || rel.type === "PR_FF" ? "finish" : "start", toS = rel.type === "PR_FS" || rel.type === "PR_SS" ? "start" : "finish";
+      const between = side === "late"
+        ? `between ${pr.code}'s stored late ${fromS} ${fromS === "finish" ? pr.row.late_end_date : pr.row.late_start_date} and this activity's stored late ${toS}`
+        : `after ${pr.code} ${fromLabel(pr, rel)}`;
+      return { code: t.code, name: t.name, pred: pr.code, why: room < 0
+        ? `${lagTxt}: the stored dates break it even with no lag (${round1(-room / 60)} h short ${between}), so the link was added or changed after the last schedule run`
+        : `${lagTxt}; the stored dates leave ${round1(room / 60)} h (${round1(days(t, room / 60))} d) ${between}` };
+    });
+    extra.push({ id: "edited-lags", name: "Lags edited after the last schedule run", count: items.length, pass: false, items, explained: lagsExplained, near: lagsNear, differ: stale.length,
+      note: `Each link listed is broken by the dates the file stores: the successor's stored date is closer to its predecessor than the lag allows. P6 meets every link when it schedules, so after the last schedule run the lag was lengthened, the link added, or the predecessor's actual date moved later, and the file was exported without rescheduling.${lagsExplained === null ? "" : ` Rescheduled with the lags the stored dates leave room for, ${lagsExplained} of the ${stale.length} activities whose stored dates disagree with the logic agree${lagsNear ? `, and ${lagsNear} more but for a gap with no working time in it` : ""}.`}` });
+  }
+
+  for (const s of stale) delete s.id;
 
   // every open activity as recomputed, with what the file stores beside it
   const fmtH = (h) => (h === null || h === undefined || Number.isNaN(h) ? null : Math.round(h * 100) / 100);

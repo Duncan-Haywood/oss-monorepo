@@ -219,7 +219,7 @@ export function buildModel(xer) {
   return { tasks, projects, rels, cals, fallback, warnings, anchor };
 }
 
-function lagCalendar(model, rel) {
+export function lagCalendar(model, rel) {
   const pred = model.tasks.get(rel.predId);
   const succ = model.tasks.get(rel.succId);
   const proj = model.projects.get(succ.proj);
