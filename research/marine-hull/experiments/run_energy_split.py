@@ -66,6 +66,15 @@ def main(out=sys.stdout):
         r = split(v)
         h = r["friction"] + r["form"] + r["wave"]
         p(f"at {v:.2f} m/s: hotel {r['hotel']:.2f}, hull {h:.2f} Wh/km, hotel/hull {r['hotel'] / h:.2f}")
+    # descriptive, added after the first run (not in the expectations above)
+    a, b = split(0.5), split(2.0)
+    p(f"friction term log-log slope 0.50 to 2.00 m/s {math.log(b['friction'] / a['friction']) / math.log(4.0):.2f}")
+    p(f"wave share of hull resistance at 2.00 m/s {b['wave'] / (b['friction'] + b['form'] + b['wave']):.3f}"
+      f" (Fr {2.0 / math.sqrt(9.81 * LENGTH):.3f})")
+    nw = min(rows, key=lambda r: r[1]["friction"] + r[1]["form"] + r[1]["hotel"])
+    nt = nw[1]["friction"] + nw[1]["form"] + nw[1]["hotel"]
+    p(f"without the wave term: minimum {nt:.2f} Wh/km at {nw[0]:.2f} m/s, propulsive share "
+      f"{(nt - nw[1]['hotel']) / nt:.3f}")
     worst = max(abs(r["form"] / (r["friction"] + r["form"]) - K / (1 + K)) for _, r in rows)
     p(f"form share of viscous, max deviation from k/(1+k): {worst:.2e}")
     p("# split: speed_m_s friction form wave hotel total (Wh/km)")
