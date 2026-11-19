@@ -59,14 +59,15 @@
   .cta-row > a.cta { flex: 1 1 auto; text-align: center; margin: 0; }
 }
 </style>
-<style>/* flagship-hero */ header .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; line-height: 1.5; color: #1f4a5d; margin: 0 0 8px; }</style>
+<style>/* flagship-hero */ header .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; line-height: 1.5; color: #1f4a5d; margin: 0 0 8px; } header details.hero-more { margin: 0 0 12px; } header details.hero-more summary { cursor: pointer; font-weight: 600; color: #1f4a5d; padding: 4px 0; } header details.hero-more summary:focus-visible { outline: 3px solid #1f4a5d; outline-offset: 2px; border-radius: 4px; } header details.hero-more p { margin: 6px 0 0; }</style>
 </head>
 <body>
   <header>
     <p class="note eyebrow">CHANGEPOINT DETECTOR · RESEARCH ALGORITHMS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>When did your series change?</h1>
     <p class="cta-row"><a class="cta" href="#data-h">Analyse a series</a> <a class="cta alt" href="#data-h" id="cta-example">Try the Nile river example</a></p>
-    <p>Paste or upload a time series — sales, sign-ups, sensor readings, latency, prices — and find the points where its <strong>level</strong> or its <strong>volatility</strong> shifted. Two published methods run side by side: <strong>PELT</strong> returns the exact best segmentation, and <strong>Bayesian online changepoint detection</strong> gives the probability that a change happened at each point.</p>
+    <p class="lede">Paste or upload a time series (sales, sign-ups, sensor readings, latency, prices) and find the points where its <strong>level</strong> or its <strong>volatility</strong> shifted.</p>
+    <details class="hero-more"><summary>The two methods it runs</summary><p>Two published methods run side by side: PELT returns the exact best segmentation, and Bayesian online changepoint detection gives the probability that a change happened at each point.</p></details>
     <p class="note">Nothing you enter leaves this browser tab. Statistical analysis of data you supply, not advice. Not legal, tax, or financial advice.</p>
   </header>
 <main>
