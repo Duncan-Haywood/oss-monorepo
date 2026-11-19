@@ -530,9 +530,15 @@
         el('summaryStatus').textContent = error.message;
       }
     });
-    el('compareLayout').addEventListener('click', showLayoutCompare);
-    el('compareAda').addEventListener('click', showAdaCompare);
-    el('compareCoats').addEventListener('click', showCoatCompare);
+    // A rejected input (e.g. -1 stalls) throws in calc.mjs; show the reason in
+    // the comparison box instead of an uncaught error and a stale table
+    // (button sweep, FILL=-1, 2026-11-19).
+    const guarded = (show) => () => {
+      try { show(); } catch (error) { el('compare').textContent = `Can't compare yet: ${error.message}.`; }
+    };
+    el('compareLayout').addEventListener('click', guarded(showLayoutCompare));
+    el('compareAda').addEventListener('click', guarded(showAdaCompare));
+    el('compareCoats').addEventListener('click', guarded(showCoatCompare));
 
     applyJob(JOB_PRESETS[0]);
 

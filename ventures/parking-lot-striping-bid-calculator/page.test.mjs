@@ -222,3 +222,12 @@ test('index links one hop to the asphalt-sealcoat-bid-calculator sibling', () =>
   );
   assert.match(html, /asphalt sealcoating bid calculator/i);
 });
+
+test('the compare buttons report a rejected input instead of throwing', () => {
+  // The button sweep with FILL=-1 (2026-11-19) found all three compare
+  // buttons threw an uncaught "Standard stalls must be at least 0".
+  for (const fn of ['showLayoutCompare', 'showAdaCompare', 'showCoatCompare']) {
+    assert.match(html, new RegExp(`addEventListener\\('click', guarded\\(${fn}\\)\\)`));
+  }
+  assert.match(html, /catch \(error\) \{ el\('compare'\)\.textContent = /);
+});

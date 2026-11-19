@@ -68,7 +68,7 @@ test("a custom threshold and cap are honoured", () => {
 test("bad input throws a readable error", () => {
   assert.throws(() => computeBudget({ salaries: "abc" }), /Salaries must be a number/);
   assert.throws(() => computeBudget({ ratePct: 150 }), /between 0 and 100/);
-  assert.throws(() => computeBudget({ travel: -5 }), /Travel must be between/);
+  assert.throws(() => computeBudget({ travel: -5 }), /Travel must be 0 or more/);
   assert.throws(() => parseAmounts("12, x"), /must be a number/);
 });
 
@@ -86,4 +86,10 @@ test("summarize explains the effective rate and the cap", () => {
   assert.match(s.text, /only 12\.2% of direct costs/);
   assert.equal(summarize(computeBudget({ salaries: 0, fringe: 0, supplies: 0, travel: 0, services: 0, otherDirect: 0 })).status, "error");
   assert.equal(money(-0.001), "$0.00");
+});
+
+test("an open-ended range says '0 or more', not 'between 0 and Infinity'", () => {
+  // Button sweep, FILL=-1, 2026-11-19.
+  assert.throws(() => computeBudget({ salaries: -1 }), /^Error: Salaries must be 0 or more\.$/);
+  assert.throws(() => computeBudget({ ratePct: 150 }), /between 0 and 100/);
 });
