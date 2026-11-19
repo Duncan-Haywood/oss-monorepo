@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { resources, check } from "./node.mjs";
-import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, templateTypeRow, fileTypeRefused, fileTypeOf, nameSuggestion, renameSuggestion, renameRow, specBases, blankReq, blankSpec, classListBases, boxSubclasses, deprecatedFor, DEPRECATED, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
+import { modelSubclassesLeftOut, modelSpec, classesWithSets, setsFor, propertiesOf, subclasses, predefinedTypes, buildIds, entityFacet, xsBase, PARTOF_RELATIONS, importIds, stateToDoc, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, importIdsAs, specClassNames, commonSets, setTypeLimit, commonAttributes, sameAttributeType, commonPredefinedTypes, parseClassList, valueChoices, attributeValueKind, modelAttributes, modelValueOffer, typeRow, appMatchCount, untypeRow, templateTypeRow, fileTypeRefused, fileTypeOf, nameSuggestion, renameSuggestion, renameRow, specBases, blankReq, blankSpec, classListBases, boxSubclasses, deprecatedFor, DEPRECATED, temporalType, modelSets, datePattern, numberValueProblem, NUMBER_ONEOF_MAX } from "./editor.mjs";
 import { Model } from "./ids.mjs";
 import { modelInventory } from "./inventory.mjs";
 
@@ -942,4 +942,24 @@ test("in IFC4X3 a ticked subclass box leaves out the classes IFC 4.3 deprecates,
     if (list.length === 2) assert.deepEqual([sp.cls, sp.withSub, sp.also], ["IFCWALL", false, ["IFCWALLSTANDARDCASE"]]);
     assert.deepEqual(said(back.specs[0]), said(parsed.specs[0]), list.join(" ").slice(-60));
   }
+});
+
+test("sets the standard gives only some predefined types: named, and left out once another type is chosen", () => {
+  for (const id of ["IFC4", "IFC4X3"]) {
+    const L = loadFor(id);
+    assert.deepEqual(setTypeLimit(L, "Pset_ActuatorTypeElectricActuator", ["IFCACTUATOR"]), ["ELECTRICACTUATOR"]);
+    assert.deepEqual(setTypeLimit(L, "Pset_ActuatorTypeElectricActuator", ["IFCACTUATORTYPE"]), ["ELECTRICACTUATOR"]);
+    assert.equal(setTypeLimit(L, "Pset_ActuatorTypeCommon", ["IFCACTUATOR"]), null);
+    const any = commonSets(L, ["IFCACTUATOR"]);
+    assert.ok(any.includes("Pset_ActuatorTypeElectricActuator") && any.includes("Pset_ActuatorTypePneumaticActuator"));
+    const el = commonSets(L, ["IFCACTUATOR"], "ELECTRICACTUATOR");
+    assert.ok(el.includes("Pset_ActuatorTypeElectricActuator") && el.includes("Pset_ActuatorTypeCommon"));
+    assert.ok(!el.includes("Pset_ActuatorTypePneumaticActuator"));
+    // The specification the page writes once it takes the set's type audits clean.
+    const doc = { schema: id, specs: [{ ...blankSpec(), name: "a", cls: "IFCACTUATOR", predefinedType: "ELECTRICACTUATOR", reqs: [{ ...blankReq(), kind: "property", set: "Pset_ActuatorTypeElectricActuator", name: "ActuatorInputPower", dataType: "IFCPOWERMEASURE" }] }] };
+    const issues = auditIds(parseIds(buildIds(stateToDoc({ title: "t", ...doc }, L), L.S)), resources());
+    assert.deepEqual(issues.map((x) => x.code), []);
+  }
+  // IFC4's IfcMaterial/Concrete is a category, not a type: no limit.
+  assert.equal(setTypeLimit(loadFor("IFC4"), "Pset_MaterialConcrete", ["IFCMATERIAL"]), null);
 });

@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtGcozpzAUS4dNiPt76",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T01:06:54Z",
+  "ended": "2026-11-19T01:22:40Z",
+  "wall_minutes": 16.03,
+  "tokens_in": 5044747,
+  "tokens_out": 23255,
+  "cost_usd": 2.1937,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17489",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-18-fold-check.md",
+      "issue": "Names a `polish_queue.py` that does not exist; the 'Still weakest' lists across ~270 polish reports are the only queue, so finding an unclaimed item means reading several reports and recent merges by hand."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "System python3's PIL is broken (ImportError _imaging); cropping screenshots had to go through Playwright clip instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-the-about-page-said-the-same-54-names-five-times.md",
+    "docs/reports/polish-2026-11-19-about-one-list.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, IDEAS.md and website requests empty; routed polish/0. /about/ repeated the 54-name external-call exception list in 4 sentences + hero details; now one #outside-services list. 390px height 19,771 -> 13,138; 1280px 10,126 -> 7,531. Local verification: node --test 'platform/pages/*.test.mjs' 1828/1828 pass; check.mjs publishable, no dead links; check_posts ok. Found scanner false-positive hosts (x, h.example, proxy.local) left for a later run (report item 1) since removal could under-disclose.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e00d4891-0529-5886-a4c7-1ce0def9f6ff",
+    "transcripts": 1,
+    "first": "2026-11-19T01:06:54Z",
+    "last": "2026-11-19T01:22:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 111,
+        "output": 23255,
+        "thinking": 5616,
+        "cache_read": 4952431,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92205,
+        "api_equivalent_usd": 2.1937,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 111,
+      "output": 23255,
+      "thinking": 5616,
+      "cache_read": 4952431,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92205,
+      "api_equivalent_usd": 2.1937,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 53,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.03,
+      "active_minutes": 16.03,
+      "model_minutes": 4.94,
+      "tool_minutes": 11.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "measure page, refactor template + tests, screenshots, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 136.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

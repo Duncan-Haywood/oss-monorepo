@@ -529,11 +529,10 @@ flagships:
       check). xs:pattern as XML Schema regex 2026-11-18
       (eval/xsd-regex-2026-11-18.md: same verdict as elementpath on 78 of 78 corpus
       patterns; anchors, (?: and \/ flagged and repaired; 4 of 65 public IDS read
-      differently per tool). Editor repairs a file on open 2026-11-18
-      (eval/editor-open-repair-2026-11-18.md: 9 to 0 pattern findings written back,
-      65 public IDS). Bare \w/\s 2026-11-18 (eval/word-class-2026-11-18.md: page
-      asks IfcTester's or the standard's meaning; 1,500 of 1,500 patterns then read
-      alike). Subclass boxes 2026-11-18/19 (eval/also-subclasses-2026-11-18.md,
-      eval/deprecated-subclasses-2026-11-19.md: 506 to 270 names; IFC4X3 boxes skip
-      deprecated classes, 0 in 57 IFC4X3 exports). next: an RVB/ILS author on \s; a
-      Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.
+      differently per tool). Editor repair on open, bare \w/\s, subclass boxes
+      2026-11-18/19 (eval/editor-open-repair-*, eval/word-class-*,
+      eval/deprecated-subclasses-*). Sets for one predefined type 2026-11-19
+      (eval/predefined-sets-2026-11-19.md: 186 IFC4, 343 IFC4X3 sets; audit warns
+      pset-predefined, editor fills the type; 1,008 of 1,008 offers agree). next: an
+      RVB/ILS author on \s; a Revit/ARCHICAD IFC4X3 export to confirm. More open
+      items: NEXT.md.
