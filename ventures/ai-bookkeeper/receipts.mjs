@@ -126,11 +126,15 @@ function ruForm(t) {
 // photos read by RapidOCR's Latin model, 147 have three or more (the other two are a near-blank
 // photo and a 33-word one with two); on the 200 SRD photos (US) none has more than two
 // (eval/receipt-script-2026-11-19.md). Text already in Cyrillic (ten letters or more) is Cyrillic.
+// A quantity glued to an item name (1xBTL) is cut off first: it was the cause of the only two
+// Latin receipts taken for Cyrillic, 2 of WildReceipt's 472 (found there, so that set is no
+// longer held out for this cut).
 const BRAND_PREFIX = /^(?:Ma?c(?=[A-Z])|[ie](?=(?:PHONE|PAD|MAC|POD|BAY|TUNES|CLOUD|WATCH)))/;
 export function receiptScript(text) {
   const t = String(text || "");
   if ((t.match(/[\u0400-\u04ff]/g) || []).length >= 10) return "cyrillic";
-  const words = (t.match(/[A-Za-z0-9]{3,}/g) || []).map((w) => w.replace(BRAND_PREFIX, ""));
+  // a quantity glued to the item ("1xBTL", "10xTVA") is not a word: WildReceipt's two misses
+  const words = (t.match(/[A-Za-z0-9]{3,}/g) || []).map((w) => w.replace(/^\d+x(?=[A-Z])/, "").replace(BRAND_PREFIX, ""));
   return words.filter((w) => /[a-z][A-Z]{2}/.test(w)).length >= 3 ? "cyrillic" : "latin";
 }
 export function russianSeller(lines) {

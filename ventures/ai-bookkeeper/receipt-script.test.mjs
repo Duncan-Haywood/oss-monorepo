@@ -19,6 +19,8 @@ test("receiptScript: look-alike Russian, real Cyrillic and a Latin receipt with 
   assert.equal(receiptScript(null), "latin");
   // two such words are not enough (SRD's most was two)
   assert.equal(receiptScript("eBBQ GRILL\npTOTAL 9.00\nTOTAL 9.00"), "latin");
+  // quantities glued to item names are not words (WildReceipt's two misses had these)
+  assert.equal(receiptScript("1xBTL WINE 24.00\n2xPT LAGER 9.00\n10xTVA 3.30\n3xESPRESSO 6.00\nTOTAL 42.30"), "latin");
 });
 
 const photo = (name) => ({ name, type: "image/jpeg" });

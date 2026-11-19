@@ -3133,8 +3133,9 @@ Latin recogniser first; when that reading looks like a Cyrillic slip printed in 
 capitals, such as `CyMMA` for СУММА or `nPHXOA` for ПРИХОД), the page downloads the Cyrillic
 recogniser once and reads that photo again, and the Cyrillic reading leads. A batch of Latin
 receipts never downloads it. Picked right: Russian slips **147 of 149** (val) and **148 of 151**
-(test, held out); Latin receipts **200 of 200** (SRD, US) and **100 of 100** (CORD, Indonesia,
-held out); in the page's own browser reading, 29 of 29 and 28 of 28. For a visitor who leaves
+(test, held out); Latin receipts **200 of 200** (SRD, US), **100 of 100** (CORD, Indonesia,
+held out) and 470 of 472 (WildReceipt, held out; 472 after cutting glued quantities such as
+`1xBTL`, the cause of both misses); in the page's own browser reading, 29 of 29 and 28 of 28. For a visitor who leaves
 the default, held-out Russian sellers taken go from **16 to 106 of 146** and item names from 81
 to 379 of 459, the same as picking Cyrillic by hand; one total of 148 is lost on a short slip the
 rule left on Latin. Details: [`eval/receipt-script-2026-11-19.md`](eval/receipt-script-2026-11-19.md).

@@ -2,7 +2,7 @@
 title: "Telling a Russian receipt from an English one by its misread capitals"
 seo_title: "Detecting Cyrillic receipts from a Latin OCR reading"
 date: 2026-11-19
-description: "The bookkeeper's receipt reader now picks Latin or Cyrillic from the photo: 148 of 151 held-out Russian slips and every Latin receipt tested."
+description: "The bookkeeper's receipt reader now picks Latin or Cyrillic from the photo: 148 of 151 held-out Russian slips, 570 of 572 held-out Latin receipts."
 tags: [ai-bookkeeper, receipts, ocr, browser]
 ---
 
@@ -46,13 +46,20 @@ The threshold was set on two development sets, then the rule was scored once on 
 | US receipts, SRD (development) | 200 | 200 Latin |
 | Russian slips, test (held out) | 151 | 148 Cyrillic |
 | Indonesian receipts, CORD (held out) | 100 | 100 Latin |
-| US, European and Asian receipts, WildReceipt (held out) | 472 | WR_RESULT |
+| US, European and Asian receipts, WildReceipt (held out) | 472 | 470 Latin |
 
 On the development slips the count ran from 3 to 30. No US receipt had more than 2. Every slip the
 rule missed is short, 5 to 43 words, so there are only a few words to count. Some of those
 readings do contain `KACCA` and `HAC 5%` (НДС, the VAT line), so a rule based on known words might
 catch them. We saw those words only by looking at the held-out misses, though, so building that
 rule now would mean fitting it to the test. It waits for a fresh set.
+
+WildReceipt's two misses went the other way: Latin receipts taken for Cyrillic. Both had
+quantities glued to item names, `1xBTL` and `10xTVA`, where the `x` is the lower-case letter
+before two capitals. A quantity is not a word, so the rule now cuts a leading `1x` before it looks.
+With that, WildReceipt reads 472 of 472, and no other set's count moves. Because the fix came from
+WildReceipt, that 472 is not a held-out result. This direction matters more than the other: a Latin
+receipt taken for Cyrillic is read twice, and the Cyrillic reading leads.
 
 ## What a visitor gets
 

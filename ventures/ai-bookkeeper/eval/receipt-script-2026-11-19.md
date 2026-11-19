@@ -32,13 +32,21 @@ and then scored once on three held-out sets.
 | SRD (development) | US restaurant and shop receipts | 200 | **200 Latin** |
 | receipt-ocr-ru test (held out) | Russian slips | 151 | **148 Cyrillic** |
 | CORD validation (held out) | Indonesian receipts | 100 | **100 Latin** |
-| WildReceipt test (held out) | US, European and Asian receipts | 472 | see below |
+| WildReceipt test (held out) | US, European and Asian receipts | 472 | **470 Latin**, then 472 (below) |
 
 On val, the count the rule uses was 3 to 30 on 147 slips (2nd percentile 3); the most on any
 SRD receipt was 2. The two val misses are a near-blank photo (5 words) and a 33-word slip with two
 such words. The three test misses are short slips too (27, 34 and 43 words), whose readings carry
 `KACCA` and `HAC 5%` (НДС) but fewer than three mixed words: a known-word rule would catch them,
 but it would be fitted to test, so it is left for a fresh set (see Next).
+
+The two WildReceipt misses were quantities glued to item names, `1xBTL`, `1xPT`, `10xTVA` (with
+`PrixHT` and `VAPiANO`, three words each). A quantity is not a word, so the rule now cuts a leading
+`<digits>x` before it looks. That cut was found on WildReceipt, so WildReceipt is no longer a
+held-out check of it: with it, 472 of 472; every other set's count is unchanged (147, 200, 148,
+100, and 29 and 28 in the browser). A Latin receipt taken for Cyrillic costs a second reading and
+the Cyrillic model's download, and its Cyrillic reading leads the vote, so this direction matters
+more than the other.
 
 ### What a visitor gets, by recogniser
 
@@ -76,9 +84,10 @@ The Cyrillic model downloads once, the first time a photo needs it.
 
 ## Integrity notes
 
-- The threshold (three words) and the brand prefixes were set on val and SRD only. CORD and
-  receipt-ocr-ru test were scored once with the finished rule; their misses were then printed to
-  describe them, and the rule was not changed after.
+- The threshold (three words) and the brand prefixes were set on val and SRD only. CORD,
+  receipt-ocr-ru test and WildReceipt test were scored once with that rule; their misses were then
+  printed to describe them. The rule was changed once after, for WildReceipt's glued quantities,
+  and that is reported as a change found on WildReceipt, not a held-out result.
 - No photo, reading, seller or item name from any dataset is in the repository. The test file's
   slips are written in the datasets' style, not copied from them.
 
