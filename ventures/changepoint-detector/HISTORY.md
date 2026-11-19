@@ -9,3 +9,4 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 - (moved 2026-11-19) growth test by moves (README "The catch-up test by stretch length", LOBSTER): 1,000 moves 29/38 (fail)
 - (moved 2026-11-19) NYT failed (N1 2/4, N2 5/9, README "Short spells on a second provider"), edge-spell line ships
 - (moved 2026-11-19) the shipped one-tick LR on them fails size, prints 16/68 stale (README "The shipped one-tick stale test on real one-tick feeds"), caveat ships
+- (moved 2026-11-19) penny-spread stocks reverse (the half-cent tick passes the gate)

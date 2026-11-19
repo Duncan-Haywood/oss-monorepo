@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVPZCRhGbqwBr6gVZHw",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine prompt)",
+  "input_sha256": "4207abd77e9a8607d5ea627a8aa7754abc9fab62bb68e0f6eb3a480afbda5e64",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T19:55:55Z",
+  "ended": "2026-11-19T20:13:09Z",
+  "wall_minutes": 17.4,
+  "tokens_in": 10848304,
+  "tokens_out": 48997,
+  "cost_usd": 4.347,
+  "tool_calls": 76,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17774",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Shipped the CLI/page wiring before the simulation finished, then took it back out when F4 failed (wasted ~20 min of edits)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The changepoint-detector next: item 'revenue deaf at Quiet' named --log as the suggested fix; exploration showed --log makes it worse. The row's items are terse enough that the README section had to be read to understand any of them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The brief asks for revenue-focused products; the allocator's flagship default sent this run to a research-style item on changepoint-detector. Followed the flagship default since the watch is the venture's sellable surface (a Stripe revenue watch).",
+      "did": "Pre-registered and tested a fix for the watch missing revenue climbs on a real shop",
+      "result": "Real-data bars passed, the simulation power bar failed; not offered, written up with the failure"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-shut-saturday-hid-revenue-climb.md",
+    "ventures/changepoint-detector/README.md (A shop shut one weekday)"
+  ],
+  "goal": null,
+  "notes": "Venture suite: 1013 tests pass (run_venture_tests.py changepoint-detector, 254 s) with the wiring in; after removing the wiring, shut-weekday.test.mjs 4/4 pass and the rest of the suite is unchanged from main. venture-preflight rerun after the post description fix. Pre-registration committed (55ab48a01) before the fresh year or the simulation ran; round 2 committed (172b932b0) before it ran.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "00b8161d-a51e-5f0a-aea2-10559cbae33b",
+    "transcripts": 1,
+    "first": "2026-11-19T19:55:55Z",
+    "last": "2026-11-19T20:13:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 165,
+        "output": 48997,
+        "thinking": 12227,
+        "cache_read": 10694705,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153434,
+        "api_equivalent_usd": 4.347,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 165,
+      "output": 48997,
+      "thinking": 12227,
+      "cache_read": 10694705,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153434,
+      "api_equivalent_usd": 4.347,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 72,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.4,
+      "active_minutes": 12.3,
+      "model_minutes": 8.98,
+      "tool_minutes": 3.33,
+      "waiting_on_human_minutes": 5.09,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician designing, pre-registering and running two rounds plus a 200-shop simulation and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 138.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

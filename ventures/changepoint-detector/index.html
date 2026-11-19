@@ -608,7 +608,6 @@
           : "";
         const notes = [];
         if (job.replayedAs) notes.push(`Replayed with the level model: the watch has level, volatility and counts models, not the ${esc(job.replayedAs)} model chosen above.`);
-        if (r.shutDays) notes.push(`${esc(r.shutDays.left.join(" and "))} ${r.shutDays.left.length === 1 ? "is" : "are"} 0 in each of the last 8 weeks, so ${r.shutDays.rows} rows were left out${r.shutDays.period ? ` and the weekly cycle read as ${r.shutDays.period} rows` : ""}: a day the business never opens is not news (as the watch does by default; <code>--shut-days keep</code> turns it off).`);
         notes.push(`Detector: ${esc(r.settings.detector)}. Measured on 31 labelled real series, the default sent about 18 alerts per 1,000 daily checks, 41% of them at a change people had marked, and it often misses steps of about 1 noise sd (details on the <a href="watch-a-metric-for-changes.html">watch page</a>). If this history looks right to you, keep watching it below, or set the same thing up on GitHub Actions in your own account, free.`);
         $("#replay-note").innerHTML = notes.join(" ");
         $("#replay-note").hidden = false;
@@ -638,7 +637,7 @@
       $("#eager-summary").textContent = lines.filter((l) => l.startsWith("Suggested") || l.startsWith("Budget")).join(" ");
       $("#eager-table").innerHTML = `<tr><th>Setting</th><th class="n">Alerts</th><th class="n">Per 100 checks</th><th class="n">Median rows late</th></tr>` +
         res.settings.map((s) => `<tr><td>${EAGER_LABEL[s.key]}${s.key === res.suggest ? " (suggested)" : ""}</td><td class="n">${s.alerts}</td><td class="n">${s.per100.toFixed(1)}</td><td class="n">${s.medianDelay ?? ""}</td></tr>`).join("");
-      $("#eager-note").textContent = `${r.shutDays ? `${r.shutDays.left.join(" and ")} left out (0 in each of the last 8 weeks). ` : ""}${lines[0]} ${lines[lines.length - 1]}`;
+      $("#eager-note").textContent = `${lines[0]} ${lines[lines.length - 1]}`;
       $("#eager-note").hidden = false;
       const use = $("#eager-use");
       use.textContent = `Use ${EAGER_LABEL[res.suggest]} for the watch below`;

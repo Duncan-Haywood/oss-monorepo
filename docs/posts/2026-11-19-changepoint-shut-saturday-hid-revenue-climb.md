@@ -1,9 +1,9 @@
 ---
-title: "A shop's closed Saturday hid a 50% revenue climb from our change alerts"
-seo_title: "Why a closed weekday hides revenue changes from alerts"
+title: "A closed Saturday seemed to hide a 50% revenue climb. The simulation disagreed"
+seo_title: "Does a closed weekday hide revenue changes from alerts?"
 date: 2026-11-19
 tags: [changepoint-detection, ecommerce, monitoring, statistics]
-description: "Our metric watch never heard a UK shop's autumn revenue climb. The cause was the Saturday it never opens, not heavy tails. Leaving it out fixed both years."
+description: "Leaving out a UK shop's closed Saturdays let our watch hear its autumn revenue climb in two years. On 200 simulated shops it gained nothing, so it did not ship."
 ---
 
 The [changepoint detector](../../ventures/changepoint-detector/README.md)'s metric watch is meant for the numbers a
@@ -19,11 +19,9 @@ September and November. That is the change a shop owner most wants to hear about
 The obvious suspect was heavy tails: a single wholesale order can double a day. The suggested fix was to take logs.
 We tried that first, on the trading days. It made things worse: zero alerts at every setting.
 
-The real cause was duller. The shop never trades on Saturdays. One row in seven is a zero that is simply part of the
-week. Even with the weekly cycle removed (`--period 7`), the watch's default level model, which allows for sticky,
-autocorrelated noise, read that built-in zero as noise loud enough to drown a 50% climb.
-
-Leave the Saturdays out and the quiet setting heard it: a change dated 2011-09-15, sent six days later.
+The next suspect was duller. The shop never trades on Saturdays, so one row in seven is a zero that is simply part of
+the week. Leave the Saturdays out (and read the weekly cycle as six rows) and the quiet setting heard the climb: a
+change dated 2011-09-15, sent six days later.
 
 ## Testing it on a year we hadn't tuned on
 
@@ -38,17 +36,25 @@ Round 2 changed one thing, written down before it ran: a weekday counts as shut 
 **last eight weeks**, the weeks that describe the shop now. On the earlier year the same climb was sent **6 days**
 after it began instead of 59, at 0.39 alerts per 100 daily checks.
 
-SIMPARA
+Then the simulation: 200 made-up shops shut on Saturdays, with heavy-tailed takings, half with no change and half
+with a 30% jump in revenue. The bar was that dropping Saturdays should catch at least 60 jumps and 15 more than the
+default. It caught 34; the default caught 38. False alarms were the same (1.9 per 100 daily checks either way).
+
+So the simulated watch was never deaf in the first place, and leaving Saturdays out did not help it. Whatever deafened
+the watch on the real shop, the closed Saturday alone doesn't explain it. Our best guess is the shape of the change:
+the real climb builds over weeks, while the simulated one is a single jump. That guess is the next test.
 
 ## What changed in the tool
 
-The watch now does this by default for money and other level columns: a weekday that has been zero for eight weeks
-is left out, and a weekly cycle of 7 becomes 6. It says so in its output, and `--shut-days keep` turns it off. Count
-columns such as orders are untouched, because the count model already handles a zero Saturday once the weekly cycle
-is on. The page's history replay does the same.
+Nothing on the command line or the page. We said in advance that all four bars had to pass, and one didn't. The
+helper functions and the full results ([README section](../../ventures/changepoint-detector/README.md), eval outputs)
+are in the repository for the next round.
 
-Two things it does not fix. The "middle" setting is still deaf to slow climbs, and the replay that suggests a
-setting tends to pick it because it is under budget. And no data here has a shop shut two days a week. Both are
-written down as the next items in the [README](../../ventures/changepoint-detector/README.md).
+If you run a shop that closes one day a week and want to try it by hand, delete that day's rows from your CSV and use
+`--period 6`. On this one shop it would have flagged the autumn climb within a week, in both years. On the simulated
+shops it changed nothing.
+
+The "middle" setting stays deaf to slow climbs either way, and the replay that suggests a setting tends to pick it
+because it stays under budget. That is the other open item.
 
 *This is statistical analysis of data you supply, not financial advice.*

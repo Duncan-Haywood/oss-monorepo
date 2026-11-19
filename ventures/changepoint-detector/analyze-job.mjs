@@ -10,18 +10,7 @@
 import { analyze, parseSeries } from './engine.mjs';
 import { parseColumns, analyzeMulti } from './multivariate.mjs';
 import { driftResult } from './drift-cli.mjs';
-import { replayWatch, eagernessReplay, dropShutWeekdays } from './watch-core.mjs';
-
-// The watch CLI's `--shut-days auto` default (README "A shop shut one weekday"): a level model leaves out a weekday that
-// is 0 in each of its last 8 weeks, and a period of 7 becomes 7 minus the days left out. opts.shutDays 'keep' skips it.
-export function shutPrep(values, labels, opts = {}) {
-  const { shutDays, ...rest } = opts;
-  if (shutDays === 'keep' || rest.model === 'poisson') return { values, labels, opts: rest, shutDays: null };
-  const d = dropShutWeekdays(values, labels);
-  if (!d.dropped.length) return { values, labels, opts: rest, shutDays: null };
-  const period = Number(rest.period) === 7 ? 7 - d.dropped.length : rest.period;
-  return { values: d.values, labels: d.labels, opts: { ...rest, ...(period !== undefined ? { period } : {}) }, shutDays: { left: d.dropped, rows: labels.length - d.labels.length, ...(period !== rest.period ? { period } : {}) } };
-}
+import { replayWatch, eagernessReplay } from './watch-core.mjs';
 import { synthResult } from './synth-cli.mjs';
 
 export const MULTI_NEEDS_TWO = 'Several-columns mode needs two or more numeric columns; for one column pick “One column”.';
@@ -35,12 +24,12 @@ export function analyzeJob(job) {
     }
     if (job.kind === 'drift') return { result: driftResult(job.opts) };
     if (job.kind === 'replay') {
-      const p = parseSeries(job.csv, job.column ?? null, null), s = shutPrep(p.values, p.labels, job.opts);
-      return { result: { column: p.column, ...replayWatch(s.values, s.labels, s.opts), ...(s.shutDays ? { shutDays: s.shutDays } : {}) } };
+      const { labels, values, column } = parseSeries(job.csv, job.column ?? null, null);
+      return { result: { column, ...replayWatch(values, labels, job.opts) } };
     }
     if (job.kind === 'eagerness') {
-      const p = parseSeries(job.csv, job.column ?? null, null), s = shutPrep(p.values, p.labels, job.opts);
-      return { result: { column: p.column, ...eagernessReplay(s.values, s.labels, s.opts), ...(s.shutDays ? { shutDays: s.shutDays } : {}) } };
+      const { labels, values, column } = parseSeries(job.csv, job.column ?? null, null);
+      return { result: { column, ...eagernessReplay(values, labels, job.opts) } };
     }
     const result = analyze(job.opts);
     if (job.synth) {
