@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-19 · Rule E-once: outcome. 0 repeats and case73 API still clean (round 12, +3.26 %), but a two-round cycle (rejected widened step, tiny accepted elastic step that re-arms the rule) loses case30 API and held-out case793 API; development 31 of 34 (as frozen), held-out 9 of 19 (frozen 10). Not adopted
+- Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-19); numbers in `research/infra-dcopf/experiments/results_enlarge_once.txt`. O1, O2, O4, O6 held; O3, O5 refuted.
+- Next: cap the widened box at twice the current stored box (so each rejection also shrinks what widening can reach), frozen on development, scored held-out.
+
 ## 2026-11-19 · Rule E-once: enlarge the box at most once per base point (plan)
 - Plan, rule O (rule E, but at most one enlarged step per base point: after a rejected enlarged step the frozen elastic chain runs at the unchanged box) and predictions O1 to O6: `research/infra-dcopf/LOG.md` (2026-11-19); script `research/infra-dcopf/experiments/run_enlarge_once.py`. Frozen on the 34 development cases, scored on the 19 held-out cases that reach the repair.
 
