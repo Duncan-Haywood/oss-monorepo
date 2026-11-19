@@ -165,7 +165,8 @@
    "what": "Headline says a continuous rating of 0.5 of peak 'makes the stud sustainable', resting on one seed of three (0.487; others 0.63, 0.68); the README's own load sweep has 3 kg at 0.57 and 4.5 kg at 0.55 and section D gives 1 kg as the sustainable load at rho = 0.5, so the stud is not sustainable by the project's own sweep",
    "where": "research/buildbot-holdpose/README.md:7",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17614"
   },
   {
    "severity": "medium",
@@ -217,6 +218,6 @@
    "origin": "audit"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17614"],
  "verdict": "The mechanics are right: an independent hand statics reproduces the waist and shoulder torques to 1e-3 N m, foot loads sum to (M+m)g, hold times recompute, and a full 11-minute rerun reproduces results.txt except one block row (1.71 vs 1.57). It misses the bar on claims, verification and research design: the headline 'rho = 0.5 makes the stud sustainable' rests on one of three seeds and is contradicted by the project's own load sweep (3 and 4.5 kg above 0.5; sustainable load 1 kg), the toe edge is 5 mm beyond the real support polygon (so the 'at the toe edge' row is infeasible), 4 of 5 seeded bugs survive, palm orientation is unconstrained, and no prior work is cited, including the sibling project's grid search that already reached 0.33 of peak. A reviewer at a robotics venue would read it as a short case study with a weak optimiser, not a result."
 }
