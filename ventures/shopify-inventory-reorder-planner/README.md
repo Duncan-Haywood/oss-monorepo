@@ -24,6 +24,8 @@ that cannot be read are listed with a line number and reason.
 Velocity = units/day (60% last 28 days + 40% whole file once there are 8 weeks). Reorder point =
 velocity x lead time + z x weekly-sd/sqrt(7) x sqrt(lead time). Order quantity tops position up to
 velocity x (lead + cover days) + safety stock. Sales at risk = velocity x price x uncovered days.
+Weekly sd uses whole weeks only (days before the oldest whole week are left out). Stock rows for
+the same SKU, such as Shopify's one row per location, are added up and the plan lists them.
 Seasonality, promotions, supplier minimums and out-of-stock-censored demand are not modelled.
 
 ## Run

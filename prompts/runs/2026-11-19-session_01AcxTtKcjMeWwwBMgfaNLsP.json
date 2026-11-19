@@ -1,0 +1,304 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtKcjMeWwwBMgfaNLsP",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T18:06:55Z",
+  "ended": "2026-11-19T18:07:33Z",
+  "wall_minutes": 18.89,
+  "tokens_in": 3054447,
+  "tokens_out": 19459,
+  "cost_usd": 1.648,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17754",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First campaign aimed with --target at ventures/shift-roster-builder/import-deputy-staff.mjs (changed on main today): the whole-venture suite takes 227 s, so the foreground run hit the 580 s timeout with no output; file restored cleanly. Redrew with the default probe."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "It says to check a --target with `targets --probe 20` first, but `targets` has no filter by path, so a specific file can't be probed; I timed the suite by hand instead. A `--target` probe (or `targets --probe 20 --under ventures/<slug>`) would make this one step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 12 open entries are control-plane edits waiting for owner approval, except help-keeper stemming (needs a help-center eval set) and ids-model-check (workflow step). None is safe to fix in a non-control-plane PR.",
+      "did": "Left them open and went straight to seeding.",
+      "result": "The whole run went to the campaign and two real fixes."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b: the defect (last row wins in a by-SKU Map) has no sibling. service-van-stock-optimizer and ai-bookkeeper already sum duplicates, and a grep for the pattern found no other copy, so a lint would guard one file.",
+      "did": "Added the guard as tests in the venture suite, not a repo-wide lint.",
+      "result": "6 escaped mutants now caught; no new CI check."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-reorder-planner-forgot-your-second-location.md"
+  ],
+  "goal": null,
+  "notes": "Campaign seed 667892505 on calc.mjs, 10 mutants, 2 caught, 2 equivalent, 6 gaps all caught_after_fix. node --test in the venture: 38/38. README model section updated; llms.txt left alone (unchanged claims).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+        "test": "node --test ventures/shopify-inventory-reorder-planner/**/*.test.mjs  (in .)",
+        "seed": 667892505,
+        "commit": "5c63427a6",
+        "sites": 518,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+            "line": 72,
+            "col": 24,
+            "operator": "or-to-and",
+            "before": "else if (c === \"\\n\" || c === \"\\r\") {",
+            "after": "else if (c === \"\\n\" && c === \"\\r\") {",
+            "line_text": "    else if (c === \"\\n\" || c === \"\\r\") {",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+            "line": 97,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const tm = rest.match(/(\\d{1,2}):(\\d{2})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "after": "const tm = rest.match(/(\\d{1,3}):(\\d{2})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "line_text": "  const tm = rest.match(/(\\d{1,2}):(\\d{2})(?::\\d{2})?\\s*([ap]\\.?m\\.?)?/i);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Only a three-digit hour before a colon (\"100:00\") differs: the original reads its last two digits, the mutant rejects the row. No date export writes a 3-digit hour; checked Shopify, CSV and spreadsheet date forms."
+          },
+          {
+            "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+            "line": 137,
+            "col": 38,
+            "operator": "div-to-times",
+            "before": "const r2 = (n) => Math.round(n * 100) / 100;",
+            "after": "const r2 = (n) => Math.round(n * 100) * 100;",
+            "line_text": "const r2 = (n) => Math.round(n * 100) / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+            "line": 148,
+            "col": 55,
+            "operator": "false-to-true",
+            "before": "export function normalizeSales(table, { decimalComma = false } = {}) {",
+            "after": "export function normalizeSales(table, { decimalComma = true } = {}) {",
+            "line_text": "export function normalizeSales(table, { decimalComma = false } = {}) {",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test 'amounts default to a decimal point in both files'"
+          },
+          {
+            "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+            "line": 190,
+            "col": 37,
+            "operator": "eq-flip",
+            "before": "const num = (c) => { if (cols[c] === undefined) return null; const v = parseNumber(r[cols[c]], decimalComma); return Number.isFinite(v) && (r[cols[c]] ?? \"\").trim() !== \"\" ? v : null; };",
+            "after": "const num = (c) => { if (cols[c] !== undefined) return null; const v = parseNumber(r[cols[c]], decimalComma); return Number.isFinite(v) && (r[cols[c]] ?? \"\").trim() !== \"\" ? v : null; };",
+            "line_text": "    const num = (c) => { if (cols[c] === undefined) return null; const v = parseNumber(r[cols[c]], decimalComma); return Number.isFinite(v) && (r[cols[c]] ?? \"\").trim() !== \"\" ? v : null; };",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same test: stock incoming/cost/price read when present, null when blank"
+          },
+          {
+            "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+            "line": 253,
+            "col": 182,
+            "operator": "const-plus-one",
+            "before": "const atRisk = price !== null && velocity > 0 && (status === \"reorder\" || status === \"stocked-out\") ? r2(velocity * price * (status === \"stocked-out\" ? o.leadDays : lostDays)) : 0;",
+            "after": "const atRisk = price !== null && velocity > 0 && (status === \"reorder\" || status === \"stocked-out\") ? r2(velocity * price * (status === \"stocked-out\" ? o.leadDays : lostDays)) : 1;",
+            "line_text": "    const atRisk = price !== null && velocity > 0 && (status === \"reorder\" || status === \"stocked-out\") ? r2(velocity * price * (status === \"stocked-out\" ? o.leadDays : lostDays)) : 0;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test 'nothing is at risk on a SKU that is fine'"
+          },
+          {
+            "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+            "line": 286,
+            "col": 49,
+            "operator": "and-to-or",
+            "before": "const aRisk = rows.filter((r) => r.abc === \"A\" && (r.status === \"reorder\" || r.status === \"stocked-out\"));",
+            "after": "const aRisk = rows.filter((r) => r.abc === \"A\" || (r.status === \"reorder\" || r.status === \"stocked-out\"));",
+            "line_text": "  const aRisk = rows.filter((r) => r.abc === \"A\" && (r.status === \"reorder\" || r.status === \"stocked-out\"));",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test 'the top-revenue warning names only A SKUs that need action'"
+          },
+          {
+            "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+            "line": 290,
+            "col": 57,
+            "operator": "lt-to-le",
+            "before": "const thin = rows.filter((r) => r.units > 0 && r.units < 5).length;",
+            "after": "const thin = rows.filter((r) => r.units > 0 && r.units <= 5).length;",
+            "line_text": "  const thin = rows.filter((r) => r.units > 0 && r.units < 5).length;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test 'the thin-history note counts SKUs under five units, not five'"
+          },
+          {
+            "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+            "line": 341,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "if (!/\\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "after": "if (!/\\d/.test(s) || /[a-z]{4,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "line_text": "      if (!/\\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, \"\"))) continue;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test 'text cells with a number in them do not vote on the decimal mark'"
+          },
+          {
+            "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+            "line": 342,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{2,4}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "after": "if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{2,5}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "line_text": "      if (/^\\d{1,4}[/.-]\\d{1,2}[/.-]\\d{2,4}/.test(s) || /\\d:\\d\\d/.test(s)) continue;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "The date regex has no end anchor, so \\d{2,4} and \\d{2,5} accept the same strings (any 2+ digits match a 2-digit prefix)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+        "issue": "analyze kept only the last stock row per SKU, but Shopify's inventory export has one row per variant per location: 40 units in a warehouse plus 5 in the shop read as 5 on hand, status reorder, order 51 (should be ok, order 0). Fixed: rows summed per SKU (cost/price from the first row that has one) with an info finding naming the merged SKUs.",
+        "patched": true
+      },
+      {
+        "file": "ventures/shopify-inventory-reorder-planner/calc.mjs",
+        "issue": "Sales in the days before the oldest whole week were added into the oldest week's bin, so perfectly steady demand (2/day) over 66 or 69 days got 6 or 12 units of safety stock and a reorder point of 48 or 54 instead of 42. Fixed: only whole weeks feed the week-to-week variation.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5067bb10-5ee1-501e-bff5-c101ecbcd0bf",
+    "transcripts": 1,
+    "first": "2026-11-19T18:06:55Z",
+    "last": "2026-11-19T18:25:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 72,
+        "output": 19459,
+        "thinking": 5708,
+        "cache_read": 2971348,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83027,
+        "api_equivalent_usd": 1.648,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 72,
+      "output": 19459,
+      "thinking": 5708,
+      "cache_read": 2971348,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83027,
+      "api_equivalent_usd": 1.648,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 34,
+      "Grep": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.89,
+      "active_minutes": 18.89,
+      "model_minutes": 3.52,
+      "tool_minutes": 15.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, two inventory-math fixes with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 242.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

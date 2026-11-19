@@ -215,10 +215,23 @@ export function analyze(sales, stock = [], opts = {}) {
     if (s.price !== null) { d.revenue += s.qty * s.price; d.priced += s.qty; }
     if (s.t > recentFrom && s.t <= asOf) d.recent += s.qty;
     if (s.qty > 0 && (d.lastSold === null || s.t > d.lastSold)) d.lastSold = s.t;
-    const wk = Math.min(weeks - 1, Math.floor((asOf - s.t) / (7 * DAY)));
-    if (wk >= 0) d.weekly[wk] += s.qty;
+    // Whole weeks only: the days before the oldest whole week are left out of the variation (red team
+    // 2026-11-19: piling them into the oldest week gave steady demand safety stock it does not need).
+    const wk = Math.floor((asOf - s.t) / (7 * DAY));
+    if (wk >= 0 && wk < weeks) d.weekly[wk] += s.qty;
   }
-  const stockBy = new Map(stock.map((s) => [key(s.sku), s]));
+  // Shopify's inventory export has one row per variant per location, so rows for one SKU are added up
+  // (red team 2026-11-19: keeping the last row read 40 in the warehouse plus 5 in the shop as 5 on hand).
+  const stockBy = new Map(), multiRow = new Set();
+  for (const s of stock) {
+    const k = key(s.sku), prev = stockBy.get(k);
+    if (!prev) { stockBy.set(k, { ...s, incoming: s.incoming ?? 0 }); continue; }
+    multiRow.add(k);
+    prev.onHand += s.onHand; prev.incoming += s.incoming ?? 0;
+    if (prev.cost === null || prev.cost === undefined) prev.cost = s.cost ?? null;
+    if (prev.price === null || prev.price === undefined) prev.price = s.price ?? null;
+    if (!prev.name && s.name) prev.name = s.name;
+  }
   for (const s of stock) if (!skus.has(key(s.sku))) get(s.sku, s.name);
   const hasStock = stock.length > 0;
 
@@ -276,10 +289,11 @@ export function analyze(sales, stock = [], opts = {}) {
     stockedOut: count("stocked-out"), reorder: count("reorder"), overstock: count("overstock"), dead: count("dead"), slow: count("slow"),
     poUnits: sum(rows.map((r) => r.orderQty)), poCost: r2(sum(rows.map((r) => r.orderCost ?? 0))), poMissingCost: rows.filter((r) => r.orderQty > 0 && r.orderCost === null).length,
     atRisk: r2(sum(rows.map((r) => r.atRisk))), excessCash: r2(sum(rows.map((r) => r.excessCash ?? 0))), excessMissingCost: rows.filter((r) => r.excessUnits > 0 && r.excessCash === null).length,
-    leadDays: o.leadDays, cycleDays: o.cycleDays, serviceLevel: o.serviceLevel, weeks,
+    leadDays: o.leadDays, cycleDays: o.cycleDays, serviceLevel: o.serviceLevel, weeks, multiRowSkus: multiRow.size,
   };
   const findings = [];
   if (!hasStock) findings.push({ severity: "info", title: "No stock file, so this is sales velocity only", detail: "Add a stock CSV (SKU and units on hand) to get reorder points, order quantities, cover and overstock." });
+  if (multiRow.size) findings.push({ severity: "info", title: `${multiRow.size} SKU(s) appear on more than one stock row, so their units were added up`, detail: `Shopify's inventory export has one row per location; on hand and incoming are summed across rows (${[...multiRow].slice(0, 3).map((k) => stockBy.get(k).sku).join(", ")}). If those rows are duplicates rather than locations, remove the extras.` });
   if (summary.stockedOut) findings.push({ severity: "high", title: `${summary.stockedOut} selling SKU(s) show zero or negative stock`, detail: `About $${money(rows.filter((r) => r.status === "stocked-out").reduce((s, r) => s + r.atRisk, 0))} of sales over one lead time (${o.leadDays} days) is at risk if nothing is on the way. Top: ${rows.filter((r) => r.status === "stocked-out").slice(0, 3).map((r) => r.sku).join(", ")}.` });
   if (summary.reorder) findings.push({ severity: "high", title: `${summary.reorder} SKU(s) are at or below their reorder point`, detail: `Ordering ${summary.poUnits.toLocaleString("en-US")} units in total brings them up to ${o.leadDays + o.cycleDays} days of cover${summary.poCost ? ` (about $${money(summary.poCost)} at cost${summary.poMissingCost ? `; ${summary.poMissingCost} line(s) have no cost` : ""})` : ""}.` });
   if (summary.overstock || summary.dead || summary.slow) findings.push({ severity: "medium", title: `${summary.overstock} overstocked, ${summary.dead} dead and ${summary.slow} slow SKU(s)`, detail: `${summary.excessCash ? `About $${money(summary.excessCash)} of stock at cost is beyond ${o.overstockDays} days of cover or has not moved in ${o.deadDays}+ days.` : "Add a cost column to see the cash this ties up."} Consider a bundle, markdown or a smaller next order.` });
