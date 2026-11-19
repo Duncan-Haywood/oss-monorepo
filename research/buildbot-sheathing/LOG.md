@@ -1,5 +1,14 @@
 # buildbot-sheathing research log
 
+## 2026-11-19 · Milestone 59 planned: does the two-row bound also keep the nail's depth point (44.4 mm past the nose) in spec, or does the press's angle need its own rows?
+
+- **Why.** Milestone 58 certified the nose in y and z; its "Not measured" says the depth point, the second point of `compensated` (`tool_lean.DEPTH_CHECK` = sheathing + required penetration, 44.4 mm along the nail), is not budgeted. A flip that rotates the tool about the nose moves the depth point and not the nose, so the two-row bound cannot see it.
+- **Model.** Milestone 58's plan unchanged except the bound: each joint's flip cost through four rows of `backlash.tool_rows`, the nose (y, z) and the depth point (y<sub>d</sub>, z<sub>d</sub>, offset L0 + 44.4 mm), giving Y<sub>y</sub>, Y<sub>z</sub>, Y<sub>yd</sub>, Y<sub>zd</sub>. The squeeze minimises the largest Y/b; a plan passes if every Y &le; its b; the side search as milestone 58. Two configs: two-row (b<sub>y</sub> = b<sub>z</sub> = 0.015 mm, depth unbudgeted; milestone 58's "iso") and four-row (all four 0.015 mm). The depth spec 0.03 mm is the nose spec carried over, not sourced. Section F, held out: 48 Latin-hypercube loads (seed 59), 6 random-direction 0.2 N sensor errors (seed 59). Check: the two-row config against milestone 58's own `rule_all` ("iso") on the first 2 loads of each robot. Also reported: the tool's tilt, (depth &minus; nose)/44.4 mm, in mrad.
+- **Hypotheses, registered before the run.**
+  - **H232 (the depth gap).** Under the two-row rule on seed 59 every planned case is inside 0.03 mm at the nose in y and z, and at least one planned case on at least one robot is over 0.03 mm at the depth point in y or z. Refuted if either part fails.
+  - **H233 (four-row bound).** Under the four-row rule every planned in-envelope case is inside 0.03 mm at both points in both directions on both robots, and all four bounds hold (each Y at least the change the robot's flips make to that residual, within 1e-9 mm). Refuted if any fails.
+  - **H234 (the depth rows are cheap).** Four-row coverage is within 1.0 percentage point of two-row coverage on each robot. Refuted if either robot loses more.
+
 ## 2026-11-19 · Milestone 58 result: pricing each flip across the wall as well as along it keeps every planned press inside 0.03 mm in both directions (worst z 0.022 mm, from 0.27 to 0.29 mm) at no coverage cost (H229, H230 and H231 held)
 
 `experiments/m58_tworow/` (run, results, figure), `reproduce.py` (m58 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL. No new library code (`preload.flip_cost` takes any Jacobian row), so no new tests. Run time 914 s on 4 processes. One 2-load smoke run (`M58_N=2`) ran after the hypotheses were committed and before the full run; it is not reported.
