@@ -53,13 +53,19 @@
       "why": "Proposal gains (0.14, 0.23...) assume an exact start; a real dip has ~20 L error",
       "did": "Recomputed with a 20 L dip start: 0.151, 0.237, 0.284, 0.308, 0.319, steady 0.328, spread ~86 L; the story uses these",
       "result": "Every figure in the story is reproduced in its closing note"
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "A main-branch CI failure outside the creative track blocked this PR's green CI",
+      "did": "Added the CSV formula-injection guard to xer-schedule-check compareCsv",
+      "result": "check_csv_formula_guard ok locally"
     }
   ],
   "writeups": [
     "docs/posts/2026-11-19-for-other-minds-the-gauge-and-the-hour-meter.md"
   ],
   "goal": null,
-  "notes": "Creative track. Project: Hearth & Horizon, For Other Minds shelf. Piece: the-gauge-and-the-hour-meter (text only; audio dirs at 577 MB of the 400 MB cap). Also a Next up proposal for the H&H shelf, 'The wall that is warm at nine' (Trombe wall, 30 cm masonry lag ~8 h). Claim committed first (Drafting marker) and draft PR opened before drafting; Stephen (Little Lamps) was already taken by PR #17623. Verification: node --test in hearth-and-horizon 20/20 pass; check_posts ok; run_workflow_locally --for-changes 11/11 workflows passed (uses: steps, agent-cross-review and deploy jobs not run locally).",
+  "notes": "Creative track. Project: Hearth & Horizon, For Other Minds shelf. Piece: the-gauge-and-the-hour-meter (text only; audio dirs at 577 MB of the 400 MB cap). Also a Next up proposal for the H&H shelf, 'The wall that is warm at nine' (Trombe wall, 30 cm masonry lag ~8 h). Claim committed first (Drafting marker) and draft PR opened before drafting; Stephen (Little Lamps) was already taken by PR #17623. Verification: node --test in hearth-and-horizon 20/20 pass; check_posts ok; run_workflow_locally --for-changes 11/11 workflows passed (uses: steps, agent-cross-review and deploy jobs not run locally). CI's changed-ventures job failed on main's check_csv_formula_guard (ventures/xer-schedule-check/compare.mjs, from PR #17621, had no CSV formula-injection guard); fixed forward in this PR with the same guard dcma.mjs uses; guard check, its unittest and xer-schedule-check node --test (27/27) pass.",
   "corrections": [],
   "redteam": null,
   "usage": {
