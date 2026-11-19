@@ -794,6 +794,7 @@ ventures/open-robot-mower/usage.mjs
 ventures/open-tennis-robots/usage.mjs
 ventures/openapi-breaking-change-check/usage.mjs
 ventures/optical-dispensary-margin-calculator/usage.mjs
+ventures/ordinal-regression/usage.mjs
 ventures/osha-trir-dart-calculator/usage.mjs
 ventures/overtime-pay-calculator/usage.mjs
 ventures/owner-operator-cpm-calculator/usage.mjs

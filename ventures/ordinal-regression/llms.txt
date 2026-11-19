@@ -1,0 +1,27 @@
+# Ordinal regression: proportional odds (ordered logit), ordered probit and Brant's test
+
+> Free online ordinal logistic regression for ratings, Likert answers, grades and stages with 3 to 15 ordered levels: the proportional-odds model (McCullagh 1980; Walker & Duncan 1967) or the ordered probit, fitted by Newton-Raphson; coefficients with standard errors, z, p and Wald intervals; odds ratios per unit and per standard deviation; cut-points; the likelihood-ratio test and McFadden's pseudo R-squared; Brant's (1990) test of proportional odds, overall and per predictor, with the per-cut binary-logit slopes; predicted probabilities of every level at a profile and along each predictor; categorical predictors as dummies against a chosen reference. Matches statsmodels 0.15.0's OrderedModel (log-likelihoods within 3e-12). On 1,599 red wines (UCI Wine Quality), each extra percent of alcohol multiplies the odds of a higher grade by 2.43, but Brant's test rejects proportional odds: alcohol barely separates the 4s from the 5s. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/ordinal-regression/)
+
+## Use it from code
+
+- `node cli.mjs data.csv [--outcome rating] [--levels "Poor,Fair,Good"] [--predictors a,b] [--categorical c] [--reference c=level] [--at a=1.5] [--link logit|probit] [--level 0.95] [--alpha 0.05] [--csv|--json]`
+- `node platform/agents/tools.mjs call ordinal-regression analyze --input '{"columns":{"rating":[1,2,3,2,3,1,2,3,3,1,2,2,3,1,1],"x":[1,2,5,3,4,1,3,6,5,2,2,4,6,1,3]}}'` (or `{"csv":"..."}` or `{"rows":[...]}`)
+- From JavaScript: `analyze(input)`, `fitOrdinal(y, X, J, link, names)`, `brantTest(y, X, J, names)`, `categoryProbs(theta, eta, link)`, `orderLevels(values, given)`, `readData(parsed, opts)`.
+
+## What it answers
+
+- Which predictors push a rating, a Likert answer or a stage up or down the scale, and by how much (odds ratios with intervals)?
+- Does a treatment group answer higher than control after adjusting for age or other covariates?
+- What is the chance of each level for a given profile?
+- Does one odds ratio per predictor really hold at every cut of the scale (Brant's test), and if not, where does the predictor act differently?
+- Logit or probit: which fits better (AIC)?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ordinal-regression): MIT licensed.
