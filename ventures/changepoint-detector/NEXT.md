@@ -41,3 +41,4 @@
 - (2026-11-19) next a real panel with a known slope event
 - (2026-11-19) the note quotes it
 - (2026-11-19) slope and pulse shocks 2026-11-18: warning holds 42 of 43 false finds (README "Shocks that are not steps")
+- (2026-11-19) two covariates: harmless one's warning 0 of 170 false finds, 1.27x bias (bar failed)

@@ -1,0 +1,42 @@
+# node eval/closed-before.mjs sum b0..b3.jsonl, then real
+================ FRESH seeds 20261123: 100 no-step series, 300 step series with a closure 1-7 days before the step (eval/closed-before.prereg.md) ================
+alerts over all 400 series: clean 1785, off 3183, fill1 1759
+false alerts (no-step series): clean 355, off 716, fill1 343
+
+no-step series (100): with an alert within 1 day of a closure / of a placebo date (chance)
+  clean  closure  15   placebo  24
+  off    closure  99   placebo  37
+  fill1  closure  13   placebo  24
+
+step series (300): steps caught (an alert dated within 7 days of the step), by days from the closure to the step
+  group                        n   clean    off  fill1
+  closure 1-2 days before     87      56     84     53
+  closure 3-4 days before     88      54     81     54
+  closure 5-7 days before    125      73    109     72
+  all                        300     183    274    179
+
+off: steps caught only through an alert within 1 day of a closure: 122 of 274
+off: alert dates in the step window, relative to the step (alert day - step day), counted:
+  -7:8 -6:21 -5:21 -4:24 -3:21 -2:26 -1:34 0:74 1:30 2:16 3:8 4:9 5:9 6:9 7:7
+
+paired against clean: caught by clean and not the arm / by the arm and not clean
+  off   lost 7, found 98
+  fill1 lost 18, found 14
+
+median days from step to the alert being sent (steps caught by both clean and the arm)
+  off   n=176: clean 5, off 4
+  fill1 n=165: clean 5, fill1 5
+
+BARS (eval/closed-before.prereg.md):
+  V1 the cost: fill1 caught 179 >= clean 183 - 9: PASS
+  V2 no slower: fill1 median delay 5 <= clean 5 + 1: PASS
+  V3 closure effect gone: fill1 no-step series with an alert at a closure 13 <= placebo 24 + 3: PASS
+  V4 zeros lend catches: off caught 274 >= clean 183 + 9: PASS
+
+================ REAL: design year orders (online-retail-daily.csv), Quiet, --period 7 (seen; reported, not barred) ================
+16 closed days, including 2011-08-29. Mondays around it: 2011-08-15 48, 2011-08-22 65, 2011-08-29 0, 2011-09-05 68, 2011-09-12 68
+28-day mean of open weekdays before / after 2011-09-01: 52.7 / 69.1
+  zeros                                       4 alerts; build-up (dated within 7 days of 2011-09-01): 2011-09-01>2011-09-05; all: 2011-05-03>2011-05-07 2011-05-31>2011-06-04 2011-06-10>2011-06-15 2011-09-01>2011-09-05
+  fill1                                       2 alerts; build-up (dated within 7 days of 2011-09-01): none; all: 2011-05-05>2011-05-11 2011-06-05>2011-06-09
+  fill1, 2011-08-29 left zero                 3 alerts; build-up (dated within 7 days of 2011-09-01): 2011-09-01>2011-09-05; all: 2011-05-05>2011-05-11 2011-06-05>2011-06-09 2011-09-01>2011-09-05
+  fill1, 2011-08-29 = mean of Mondays either side  2 alerts; build-up (dated within 7 days of 2011-09-01): none; all: 2011-05-05>2011-05-11 2011-06-05>2011-06-09
