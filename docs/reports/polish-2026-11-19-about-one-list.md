@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, privacy, mobile]
+topics: [design, privacy]
 date: 2026-11-19
 ---
 # Polish: /about/ names its outside-service tools once
