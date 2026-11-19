@@ -1,6 +1,6 @@
 ---
 title: "A comment hid the lock_timeout, and '0h' passed for a real one"
-seo_title: "PostgreSQL lock_timeout '0us' and a comment above SET: two checker bugs"
+seo_title: "PostgreSQL lock_timeout '0us' and a comment above SET: 2 checker bugs"
 date: 2026-11-19
 tags: [redteam, testing, postgresql, migration]
 description: "24 faults seeded in a PostgreSQL migration lock checker, 18 caught; two real bugs in how it reads SET lock_timeout, one a false alarm and one a false all-clear."
