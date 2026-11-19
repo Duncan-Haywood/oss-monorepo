@@ -72,7 +72,25 @@ These were not pre-registered and are reported, not judged.
 
 ## Robustness (not judged)
 
-ROBUSTNESS_PLACEHOLDER
+Two more 256-ball runs with the same grid and seeds, chosen before the main run was scored but with no rule of their
+own (`eval/tach-pulses-sp2-2026-11-19.*`, `eval/tach-pulses-j05-2026-11-19.*`):
+
+| run | fit | sees 1-2.5 ms | ball's least within 0.5 ms | instant least > 0.5 ms | step drop error | per-ball bound holds / median 1-2.5 ms |
+| --- | --- | --- | --- | --- | --- | --- |
+| spacing 2 deg | 1 magnet | 38 of 128 | 51 of 224 | 16 of 32 | 0.11% | 163 of 256 / 2.5 ms |
+| spacing 2 deg | 4 learnt | 50 | 123 | 6 | 0.55% | 201 / 2.5 ms |
+| spacing 2 deg | 4 naive | 0 | 9 | 19 | 5.51% | 253 / 8.5 ms |
+| 0.5 us sensor jitter | 1 magnet | 9 of 128 | 41 of 224 | 9 of 32 | 0.16% | 233 of 256 / 8.5 ms |
+| 0.5 us sensor jitter | 4 learnt | 24 | 121 | 13 | 0.57% | 250 / 3.5 ms |
+
+- Learnt spacing copes with a 2 degree placement error as well as with 0.5 degrees: the four-magnet numbers barely
+  move, while assumed-even spacing misfits by 5.5% of the drop.
+- **With 0.5 us of sensor jitter, four magnets' advantage grows.** The jitter blinds one magnet (9 short-take balls
+  seen, no useful bound: median 8.5 ms). Four magnets still see 24 (2.7 times as many) and bound short takes at a
+  median 3.5 ms, holding on 98% of balls. On the clean tach the per-ball bound misses because single-ball curves are
+  bumpy at a few ppm; jitter lifts the floor, and the 2 ppm floor stops counting those bumps. Had this been the main
+  run, (a) would have passed. It was not, so the verdict stands. It is the strongest reason to reopen the item, as a
+  pre-registered test on a jittery (pin-interrupt or noisy-sensor) tach, which is the tach most builds will have.
 
 ## Not known
 

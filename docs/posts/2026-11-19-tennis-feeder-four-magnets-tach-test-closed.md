@@ -55,6 +55,14 @@ model misfits more, and the drop it reads gets five times worse (1.12% at
 6,500 rpm). More magnets only pay if the contact time is surveyed before
 every drill.
 
+Two side runs came after the verdict and carry no rule of their own. A
+2 degree placement error changed almost nothing once the spacing was learnt.
+Half a microsecond of sensor jitter did change things. It blinds the single
+magnet (9 short-contact balls seen, no useful bound), while four magnets
+still saw 24 and bounded short contacts at a median of 3.5 ms, holding on 98%
+of balls. Most home builds will have the jittery kind of tach, so that is
+where a second test should start.
+
 More magnets did help the longer contacts and each ball's own best fit
 (116 against 51). That could be worth a fresh test at the level the board
 actually decides on, a survey summed over about 22 wheels, with its bar set

@@ -67,7 +67,7 @@
     "ventures/open-tennis-robots/eval/tach-pulses-2026-11-19.md"
   ],
   "goal": null,
-  "notes": "Pre-registered (225c6308a) paired simulation, 256 balls: (a) failed 46 vs 38 of 128, (b) held 7 vs 16 of 32, (c) held, (d) failed 207/256 bound coverage. Item closed by rule; board unchanged (per=1 default is byte-identical, unit-tested). Robustness runs (2 deg spacing, 0.5 us jitter) reported in the eval note when finished. Local venture tests and PR CI: see PR.",
+  "notes": "Pre-registered (225c6308a) paired simulation, 256 balls: (a) failed 46 vs 38 of 128, (b) held 7 vs 16 of 32, (c) held, (d) failed 207/256 bound coverage. Item closed by rule; board unchanged (per=1 default byte-identical, unit-tested). Unjudged robustness: 2 deg spacing same picture; 0.5 us sensor jitter: 4 magnets saw 24 vs 9 short-take balls and bounded them at median 3.5 ms vs none (98% coverage) - recorded in NEXT.md as the lead for a reopened test. Local: run_venture_tests.py open-tennis-robots ok (448 tests, 0 failed, 59 skipped for build123d); check_posts ok; promptctl validate ok. PR CI green on checks completed at last look.",
   "corrections": [],
   "redteam": null
 }

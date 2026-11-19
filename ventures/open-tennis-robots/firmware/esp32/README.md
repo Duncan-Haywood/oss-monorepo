@@ -3457,7 +3457,9 @@ per-ball bound held on 81% (it asked 95%), so **the board keeps one pulse a revo
 less often (7 of 32 against 16), and spacing must be learnt: taken as even, four magnets misfit by 1,500-3,200 ppm
 and saw 1 ball. Not asked: the ball's least within 0.5 ms went from 51 to 116 of 224, mostly at 3-6 ms takes and high
 speed, but the step's drop (TAKE_US = 0) got worse, 0.11% to 0.55% mean error (1.12% at 6,500 rpm), because short
-periods resolve the take's shape. Everything is in `eval/tach-pulses-2026-11-19.md`.
+periods resolve the take's shape. Not judged either: with 0.5 us of sensor jitter one magnet saw 9 short-take balls and four 24, with a 3.5 ms median
+bound against none, so a jittery tach is where more magnets would pay. Everything is in
+`eval/tach-pulses-2026-11-19.md`.
 
 **Not known.** Point magnets on a first-order wheel; a real Hall edge's width and hysteresis would move each share
 with speed. Reopening it needs a survey-level test written first and an answer for the step's drop.

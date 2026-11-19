@@ -1,0 +1,15 @@
+256 balls; spacing 0.5 deg, jitter 0.5 us
+fit            | sees 1-2.5 ms | sees 3-6 ms | least within 0.5 ms (takes > 0) | instant least > 0.5 ms | drop err at step / at true take (mean abs, %)
+1 learnt       |   9 of 128    |  13 of  96  |  41 of 224                     |  9 of 32               | 0.16 / 0.08 | bound holds 233 of 256, median on 1-2.5 ms 8.5 ms
+2 learnt       |  12 of 128    |  28 of  96  |  63 of 224                     | 11 of 32               | 0.28 / 0.09 | bound holds 249 of 256, median on 1-2.5 ms 5 ms
+2 naive        |   2 of 128    |   7 of  96  |  15 of 224                     | 23 of 32               | 0.50 / 0.29 | bound holds 249 of 256, median on 1-2.5 ms 8.5 ms
+4 learnt       |  24 of 128    |  54 of  96  | 121 of 224                     | 13 of 32               | 0.57 / 0.09 | bound holds 250 of 256, median on 1-2.5 ms 3.5 ms
+4 naive        |   1 of 128    |   1 of  96  |  26 of 224                     | 21 of 32               | 1.78 / 1.53 | bound holds 255 of 256, median on 1-2.5 ms 7.5 ms
+
+16 surveys of 16 balls (take, wheel lag)
+fit            | pick within 0.5 ms (takes > 0) | instant picked > 0.5 ms | bound holds | bound on 1-2.5 ms takes
+1 learnt       | 12 of 14                       | 0 of 2                  | 16 of 16    | 2 2 2.5 5 3 3 3.5 3.5
+2 learnt       | 12 of 14                       | 1 of 2                  | 16 of 16    | 1.5 2 2.5 2 3 3 3.5 3.5
+2 naive        |  3 of 14                       | 1 of 2                  | 16 of 16    | 4.5 8 6 5 4.5 4 5 5.5
+4 learnt       | 14 of 14                       | 0 of 2                  | 16 of 16    | 1.5 1.5 2.5 2 3 3 4 3.5
+4 naive        |  3 of 14                       | 0 of 2                  | 16 of 16    | 5.5 6 7 6 5.5 5.5 6 7
