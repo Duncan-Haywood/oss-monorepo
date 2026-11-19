@@ -17,7 +17,9 @@ Consumer Credit Protection Act, Title III (15 U.S.C. 1671-1677). Disposable earn
 deductions required by law. Ordinary debt: the lesser of 25% of disposable earnings or the excess over
 30 x the federal minimum wage per week. Defaulted federal student loan: 15% (with ordinary debt, 25%
 together). Child support or alimony: 50% or 60%, plus 5 points for arrears over 12 weeks, and all
-garnishments together stay within that. Support is processed first. The pay-period floor is 30, 60, 65
+garnishments together stay within that. Support is processed first, and the support actually withheld
+counts toward the 25% limit on a later ordinary or student-loan order (DOL Fact Sheet #30; 31 CFR
+285.11(i)(3)); a typed state percent limits ordinary debt only, not a federal student loan. The pay-period floor is 30, 60, 65
 or 130 x the wage for weekly, two-week, twice-monthly and monthly pay.
 
 Checks against the stub: amount withheld above the maximum, an order that asks for more than the limit,
@@ -27,6 +29,11 @@ garnishment. The "most in question" figure is not a refund estimate.
 Not checked: state law (often stricter, sometimes no wage garnishment for ordinary debt; a confirmed
 state percent can be typed in), federal tax levies, bankruptcy plans, court exemptions, the validity of
 the order. Unverified against a real payroll worksheet.
+
+Known gaps (quality audit 2026-11-19, `portfolio/quality/audits/2026-11-19-wage-garnishment-limit-calculator.json`):
+the "most in question" figure adds the blocked part of an over-limit order (still owed, not taken
+from pay) to the over-withholding; state law is one percent, with no state floor multiplier or state
+minimum-wage basis.
 
 ## Run
 

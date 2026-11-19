@@ -728,7 +728,8 @@ def next_task(v: Venture) -> str:
             f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks; "
             "an edit that would pass the cap parks open items from the end of the row to the "
             "venture's NEXT.md by itself, just enough to fit, and says what it moved; `--dry-run` "
-            "previews it, `--park ITEM` chooses which, `--no-make-room` refuses instead)."
+            "previews it, `--park ITEM` chooses which, `--history TEXT` moves a finished result you name "
+            "to HISTORY.md, `--no-make-room` refuses instead)."
             + buildable_edit
         )
     if not v.measured:

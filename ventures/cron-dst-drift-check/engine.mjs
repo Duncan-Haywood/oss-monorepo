@@ -102,8 +102,28 @@ function substituteCronNames(raw, names) {
  * work the same as their numeric equivalents; a name spelled outside the
  * three-letter set (a typo, a full month name) throws naming the bad token.
  */
+// Vixie/cronie "@" macros. @reboot has no clock time, so it is refused rather than guessed.
+const CRON_MACROS = {
+  "@yearly": "0 0 1 1 *",
+  "@annually": "0 0 1 1 *",
+  "@monthly": "0 0 1 * *",
+  "@weekly": "0 0 * * 0",
+  "@daily": "0 0 * * *",
+  "@midnight": "0 0 * * *",
+  "@hourly": "0 * * * *",
+};
+
 export function parseCronExpression(expr) {
-  const fields = String(expr).trim().split(/\s+/);
+  const trimmed = String(expr).trim();
+  if (trimmed.startsWith("@")) {
+    const expanded = CRON_MACROS[trimmed.toLowerCase()];
+    if (!expanded) {
+      throw new Error(`unknown cron macro "${trimmed}" (supported: ${Object.keys(CRON_MACROS).join(", ")}; @reboot has no time to check)`);
+    }
+    expr = expanded;
+  }
+  // "?" (Quartz/Spring "no specific value") in day-of-month or day-of-week means the same as "*" here.
+  const fields = String(expr).trim().split(/\s+/).map((f, i) => ((i === 2 || i === 4) && f === "?" ? "*" : f));
   if (fields.length !== 5) {
     throw new Error(`expected 5 whitespace-separated fields (minute hour dom month dow), got ${fields.length}: "${expr}"`);
   }
@@ -113,7 +133,13 @@ export function parseCronExpression(expr) {
     if (name === "month") field = substituteCronNames(field, MONTH_NAMES);
     else if (name === "dow") field = substituteCronNames(field, DOW_NAMES);
     parsed[name] = parseCronField(field, min, max);
-    parsed[`${name}IsWildcard`] = fields[i].trim() === "*";
+    // "Star" means the field *starts with* "*", exactly as Vixie cron and
+    // cronie set DOM_STAR / DOW_STAR (cronie src/entry.c tests the field's
+    // first character before parsing the list). So "*/2" in day-of-month is a
+    // star field: "0 0 */2 * MON" runs on odd days that are also Mondays (AND),
+    // not on every odd day plus every Monday (OR). Libraries that test for a
+    // bare "*" disagree here; `dayRuleNote` reports when it matters.
+    parsed[`${name}IsWildcard`] = fields[i].trim().startsWith("*");
   });
   // Normalize dow 7 -> 0 (both mean Sunday) so downstream matching only checks one value.
   if (parsed.dow.has(7)) {
@@ -125,19 +151,34 @@ export function parseCronExpression(expr) {
 
 /**
  * Standard (Vixie) cron day-matching rule: if *both* day-of-month and
- * day-of-week are restricted (neither is "*"), a date matches if it satisfies
- * *either* one (OR), not both (AND). If only one is restricted, that one
- * alone decides. This is the single most common cron misreading, and getting
- * it right (and stating it) is worth more here than in a schedule that just
- * runs the field intersection.
+ * day-of-week are restricted (neither starts with "*"), a date matches if it satisfies
+ * *either* one (OR), not both (AND). Otherwise both field sets must
+ * match (AND) -- cronie's find_jobs predicate. A bare "*" holds every value,
+ * so the AND reduces to "the other field alone decides"; a stepped star
+ * ("*\/2") does not, so it still filters. This is the single most common
+ * cron misreading, and getting it right (and stating it) is worth more here
+ * than in a schedule that just runs the field intersection.
  */
 function dayMatches(fields, day, dow) {
-  const domRestricted = !fields.domIsWildcard;
-  const dowRestricted = !fields.dowIsWildcard;
-  if (domRestricted && dowRestricted) return fields.dom.has(day) || fields.dow.has(dow);
-  if (domRestricted) return fields.dom.has(day);
-  if (dowRestricted) return fields.dow.has(dow);
-  return true;
+  if (!fields.domIsWildcard && !fields.dowIsWildcard) return fields.dom.has(day) || fields.dow.has(dow);
+  return fields.dom.has(day) && fields.dow.has(dow);
+}
+
+/**
+ * Says when the day-of-month / day-of-week rule is one that cron
+ * implementations read differently: a stepped star field ("*\/2") next to a
+ * restricted other day field. Vixie cron and cronie AND the two fields there
+ * (the star flag is set by the leading "*"); libraries that only treat a bare
+ * "*" as a wildcard OR them. Returns null when every reading agrees.
+ */
+export function dayRuleNote(cronExpr) {
+  const f = String(cronExpr).trim().split(/\s+/);
+  if (f.length !== 5) return null;
+  const [dom, dow] = [f[2], f[4]];
+  const stepStar = (x) => x.startsWith("*") && x !== "*";
+  if (!((stepStar(dom) && dow !== "*") || (stepStar(dow) && dom !== "*"))) return null;
+  const which = stepStar(dom) ? `day-of-month "${dom}"` : `day-of-week "${dow}"`;
+  return `Day fields "${dom}" (day-of-month) and "${dow}" (day-of-week): ${which} starts with "*", so Vixie cron and cronie require both to match (AND), and that is what these run times use. Some libraries treat only a bare "*" as a wildcard and run on either match (OR), which gives more runs. Check your scheduler's documentation.`;
 }
 
 /** Reads y/mo/d/h/mi/s for a UTC instant as displayed in `timeZone`. Never ambiguous: a UTC instant is always a single point in time. */
@@ -293,7 +334,7 @@ export function nextRuns(cronExpr, timeZone, { from = new Date(), count = 10, ma
     }
   }
 
-  return { occurrences: occurrences.slice(0, count), flagged, exhausted: occurrences.length < count };
+  return { occurrences: occurrences.slice(0, count), flagged, exhausted: occurrences.length < count, dayRuleNote: dayRuleNote(cronExpr) };
 }
 
 /**
@@ -360,6 +401,9 @@ export function utcOffsetDrift(hour, minute, timeZone, year = new Date().getUTCF
 }
 
 export function summarizeRuns({ occurrences, flagged }) {
+  if (occurrences.length === 0 && flagged.length === 0) {
+    return { status: "never-fires", text: "0 runs found in the search window -- this expression never fires (for example, day 31 of a 30-day month, or Feb 30), so there is nothing to check." };
+  }
   const skipped = flagged.filter((f) => f.kind === "skipped").length;
   const ambiguous = flagged.filter((f) => f.kind === "ambiguous").length;
   if (skipped === 0 && ambiguous === 0) {

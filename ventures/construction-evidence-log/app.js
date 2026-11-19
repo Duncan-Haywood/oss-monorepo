@@ -90,6 +90,8 @@ function truncate(text, max = 90) {
   return flat.length > max ? `${flat.slice(0, max - 1)}…` : flat;
 }
 
+const escHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
 function renderEntries() {
   const entries = filteredEntries();
   const list = $('history-list');
@@ -99,7 +101,7 @@ function renderEntries() {
     const li = document.createElement('li');
     const info = document.createElement('div');
     const findingsBadge = e.findings.length ? ` <span class="badge warn">${e.findings.length} notes</span>` : '';
-    info.innerHTML = `<strong>${e.record.log.date || '(no date)'}</strong> — ${e.record.log.project || '(no project)'}${findingsBadge}<br><span class="muted">${truncate(e.record.log.work)}</span>`;
+    info.innerHTML = `<strong>${escHtml(e.record.log.date || '(no date)')}</strong> — ${escHtml(e.record.log.project || '(no project)')}${findingsBadge}<br><span class="muted">${escHtml(truncate(e.record.log.work))}</span>`;
     const del = document.createElement('button');
     del.type = 'button';
     del.className = 'secondary small';

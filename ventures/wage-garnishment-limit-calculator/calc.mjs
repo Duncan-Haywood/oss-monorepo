@@ -150,6 +150,9 @@ export function analyze(raw) {
   const results = [];
   let remainingAll = has.support ? supportCap : Infinity;
   let nonSupportUsed = 0;
+  // Support withheld first counts toward the 25% aggregate limit on later
+  // creditor and student-loan orders (DOL Fact Sheet #30; 31 CFR 285.11(i)(3)).
+  let supportTaken = 0;
   const order = ["support", "student", "ordinary"];
   for (const t of order) {
     for (const o of byType(t)) {
@@ -159,18 +162,19 @@ export function analyze(raw) {
         cap = Math.min(supportCap, remainingAll);
         reason = `${supportPct}% of disposable earnings (${i.supportsOther ? "supporting another spouse or child" : "not supporting another"}${i.arrears12 ? ", arrears over 12 weeks" : ""})`;
       } else if (t === "student") {
-        cap = Math.min(studentCap, remainingAll, Math.max(0, pct(25) - nonSupportUsed));
+        cap = Math.min(studentCap, remainingAll, Math.max(0, pct(25) - supportTaken - nonSupportUsed));
         reason = studentCap === over && over < pct(15) ? "everything above the federal floor" : "15% of disposable earnings";
       } else {
-        cap = Math.min(ordinaryCap - nonSupportUsed, remainingAll);
+        cap = Math.min(ordinaryCap - supportTaken - nonSupportUsed, remainingAll);
         reason = ordinaryCap === over && over < pct(25) ? "everything above the federal floor" : "25% of disposable earnings";
       }
       let limitedByState = false;
-      if (t !== "support" && stateCapC < cap) { cap = Math.max(0, stateCapC - nonSupportUsed); limitedByState = true; }
+      // A federal student-loan garnishment applies regardless of state law (20 U.S.C. 1095a(a)).
+      if (t === "ordinary" && stateCapC < cap) { cap = Math.max(0, stateCapC - nonSupportUsed); limitedByState = true; }
       cap = Math.max(0, cap);
       const takeC = Math.min(cap, demandC);
       results.push({ type: t, demand: o.demand, cap: fromCents(cap), take: fromCents(takeC), reason, limitedByState });
-      if (t === "support") remainingAll -= takeC; else { nonSupportUsed += takeC; remainingAll -= takeC; }
+      if (t === "support") { remainingAll -= takeC; supportTaken += takeC; } else { nonSupportUsed += takeC; remainingAll -= takeC; }
     }
   }
   const totalTakeC = results.reduce((s, r) => s + cents(r.take), 0);

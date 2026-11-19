@@ -95,18 +95,83 @@ def _grad_matrix(d: int, step: int = 1) -> np.ndarray:
     return np.asarray(rows)
 
 
-def eig_sigma2(p: np.ndarray) -> float:
-    """sigma^2 from a patch set's covariance eigenvalues: the mean of the longest ascending prefix whose mean is
-    no larger than its median (Chen et al. 2015)."""
+def _cov_ref(p: np.ndarray, idx: np.ndarray) -> np.ndarray:
+    """The covariance of rows ``idx`` of ``p`` in a fixed order (2026-11-19): each column's mean is numpy's
+    pairwise sum over the rows (``np.add.reduce`` along a contiguous axis) over the count, each entry the
+    pairwise sum of the centred products over count - 1. ``np.cov`` hands the products to BLAS, whose order
+    (and so the last bits) moves with the library and its threads; this does not, and
+    ``noise_native.patch_cov`` gives the same bits in C."""
 
-    if p.shape[0] < p.shape[1] + 2:
+    x = np.ascontiguousarray(p[idx].T, dtype=np.float64)
+    m = x.shape[1]
+    xc = x - (np.add.reduce(x, axis=1) / m)[:, None]
+    dd = x.shape[0]
+    cov = np.empty((dd, dd))
+    for j in range(dd):
+        s = np.add.reduce(xc[j:] * xc[j], axis=1) / (m - 1)
+        cov[j, j:] = s
+        cov[j:, j] = s
+    return cov
+
+
+def _cov(p: np.ndarray, idx: np.ndarray) -> np.ndarray:
+    from shootflow import noise_native
+
+    out = noise_native.patch_cov(p, idx)
+    return _cov_ref(p, idx) if out is None else out
+
+
+def _eig_sigma2_idx(p: np.ndarray, idx: np.ndarray) -> float:
+    if idx.size < p.shape[1] + 2:
         return float("nan")
-    lam = np.clip(np.linalg.eigvalsh(np.cov(p, rowvar=False)), 0.0, None)
+    lam = np.clip(np.linalg.eigvalsh(_cov(p, idx)), 0.0, None)
     for m in range(lam.size, 0, -1):
         head = lam[:m]
         if head.mean() <= np.median(head):
             return float(head.mean())
     return float(lam[0])
+
+
+def eig_sigma2(p: np.ndarray) -> float:
+    """sigma^2 from a patch set's covariance eigenvalues: the mean of the longest ascending prefix whose mean is
+    no larger than its median (Chen et al. 2015). The covariance is ``_cov_ref``'s fixed order."""
+
+    p = np.ascontiguousarray(p, dtype=np.float64)
+    return _eig_sigma2_idx(p, np.arange(p.shape[0]))
+
+
+def _csr(D: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """D's nonzero entries row by row, columns ascending: (rowptr, cols, coef)."""
+
+    rowptr, cols, coef = [0], [], []
+    for row in D:
+        nz = np.flatnonzero(row)
+        cols.extend(nz.tolist())
+        coef.extend(row[nz].tolist())
+        rowptr.append(len(cols))
+    return np.asarray(rowptr, dtype=np.intc), np.asarray(cols, dtype=np.intc), np.asarray(coef, dtype=np.float64)
+
+
+def _energy_ref(p: np.ndarray, rowptr, cols, coef) -> np.ndarray:
+    """Each patch's texture energy, the sum over D's rows of the squared row product, in a fixed order: per
+    row, t = 0 then t + coef * x over the nonzero columns ascending; g = 0 then g + t * t row by row
+    (``noise_native.patch_energy`` in C, the same bits; ``p @ D.T`` was BLAS's order)."""
+
+    g = np.zeros(p.shape[0])
+    for r in range(len(rowptr) - 1):
+        t = np.zeros(p.shape[0])
+        for k in range(rowptr[r], rowptr[r + 1]):
+            t = t + coef[k] * p[:, cols[k]]
+        g = g + t * t
+    return g
+
+
+def _energy(p: np.ndarray, D: np.ndarray) -> np.ndarray:
+    from shootflow import noise_native
+
+    csr = _csr(D)
+    g = noise_native.patch_energy(p, *csr)
+    return _energy_ref(p, *csr) if g is None else g
 
 
 def _colour_residual_matrix(pat, d: int) -> tuple[np.ndarray, float]:
@@ -144,30 +209,43 @@ def _near_matrix(pat, d: int) -> np.ndarray:
     return np.asarray(rows)
 
 
+def _texture_params(d: int, step: int, D: np.ndarray | None, dof: float | None):
+    if D is None:
+        D = _grad_matrix(d, step)
+    tr = float((D * D).sum())  # white noise of variance s2 gives mean s2 * tr
+    q = _gamma_q99((D.shape[0] if dof is None else dof) / 2.0)
+    return D, tr, q
+
+
+def _weak_texture_idx(p: np.ndarray, idx: np.ndarray, g: np.ndarray, tr: float, q: float,
+                      iters: int = 6) -> tuple[float, int]:
+    """Liu's iteration on the patches ``idx`` of ``p`` (``g``: every patch's texture energy)."""
+
+    gi = g[idx]
+    s2 = _eig_sigma2_idx(p, idx)
+    keep = idx
+    for _ in range(iters):
+        if not s2 == s2:
+            break
+        new = idx[gi < s2 * tr * q]
+        if new.size < p.shape[1] + 2:
+            break
+        if np.array_equal(new, keep):
+            break
+        keep = new
+        s2 = _eig_sigma2_idx(p, keep)
+    return s2, int(keep.size)
+
+
 def weak_texture_sigma2(p: np.ndarray, d: int, iters: int = 6, step: int = 1, D: np.ndarray | None = None,
                         dof: float | None = None) -> tuple[float, int]:
     """Liu et al.'s iteration on one bin's patches: (sigma^2, patches kept). ``D`` (rows: linear maps whose
     squares sum to the patch's texture energy) defaults to the step-``step`` gradients; ``dof`` (the Gamma's
     degrees of freedom) defaults to its row count."""
 
-    if D is None:
-        D = _grad_matrix(d, step)
-    g = ((p @ D.T) ** 2).sum(axis=1)  # gradient energy per patch
-    tr = float((D * D).sum())  # white noise of variance s2 gives mean s2 * tr
-    q = _gamma_q99((D.shape[0] if dof is None else dof) / 2.0)
-    s2 = eig_sigma2(p)
-    keep = np.ones(p.shape[0], dtype=bool)
-    for _ in range(iters):
-        if not s2 == s2:
-            break
-        new = g < s2 * tr * q
-        if new.sum() < p.shape[1] + 2:
-            break
-        if np.array_equal(new, keep):
-            break
-        keep = new
-        s2 = eig_sigma2(p[keep])
-    return s2, int(keep.sum())
+    p = np.ascontiguousarray(p, dtype=np.float64)
+    D, tr, q = _texture_params(d, step, D, dof)
+    return _weak_texture_idx(p, np.arange(p.shape[0]), _energy(p, D), tr, q, iters)
 
 
 def pca_bins(c: np.ndarray, period: int, d: int = 4, stride: int = 2, bins: int = 8,
@@ -196,16 +274,32 @@ def pca_bins(c: np.ndarray, period: int, d: int = 4, stride: int = 2, bins: int 
     # a small frame: fewer bins, so each keeps at least 4 x d^2 patches (a 480 x 480 tile keeps all eight)
     bins = max(1, min(bins, p.shape[0] // (4 * d * d)))
     edges = np.quantile(lv, np.linspace(0, 1, bins + 1))
+    p = np.ascontiguousarray(p, dtype=np.float64)
+    D, tr, q = _texture_params(d, step, D, dof)
+    g = _energy(p, D)  # once for every patch: a patch's energy does not depend on its bin
+    res: list = [None] * bins
+
+    def run(i0, i1):  # one bin per call; bins are independent, so the thread count changes no bit
+        for i in range(i0, i1):
+            sel = (lv >= edges[i]) & (lv <= edges[i + 1])
+            idx = np.flatnonzero(sel)
+            if idx.size < d * d + 2:
+                continue
+            s2, k = _weak_texture_idx(p, idx, g, tr, q)
+            res[i] = (s2, k, idx.size, float(np.median(lv[sel])))
+
+    from shootflow.raw_develop_np import _run_bands
+
+    _run_bands(run, bins, band=1)
     xs, ys = [], []
     kept = total = 0
-    for i in range(bins):
-        sel = (lv >= edges[i]) & (lv <= edges[i + 1])
-        if sel.sum() < d * d + 2:
+    for r in res:
+        if r is None:
             continue
-        s2, k = weak_texture_sigma2(p[sel], d, step=step, D=D, dof=dof)
-        kept, total = kept + k, total + int(sel.sum())
+        s2, k, n, med = r
+        kept, total = kept + k, total + n
         if s2 == s2:
-            xs.append(float(np.median(lv[sel])))
+            xs.append(med)
             ys.append(s2)
     if info is not None:
         info["kept"], info["patches"] = kept, total

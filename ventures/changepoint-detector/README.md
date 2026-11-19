@@ -7847,3 +7847,105 @@ provider that documents its own schedule changes, including the slow ones, which
 
 Test: `spells-weekdays-nyt.test.mjs` (the line's spell list skips an edge the search overlaps; the committed
 verdicts).
+
+## A real carried-forward feed: last-trade prices (2026-11-19, pre-registered; B1 and B3 pass, B2 fails, the one-tick gate stays)
+
+Every round of the stale-feed test ("One-tick stale feeds", rounds one to five) was scored on simulation, and this
+README has asked since 2026-11-12 for "a real series with documented carry-forward to check a call against". A
+last-trade price sampled every D seconds is one: a sample with no trade in its D seconds repeats the last trade, and
+the trade times say exactly which samples were carried. The trade prints themselves, one step per trade, carry
+nothing forward, so they are the real null. Data: the trade samples of the R package highfrequency (Boudt, Kleen and
+Sjoerup 2022, GPL >= 2, fetched by `python3 eval/hf-trades-fetch.py <dir>`, not committed). Judged: one day of a
+European stock (33,488 trades, price about 39.5). Reported only: two days of a pseudonymised NYSE stock, because its
+package page calls the raw sample it was cleaned from "imaginary".
+
+`eval/stale-real-trades.mjs` (header committed in 7f6fe11f7 before the first run) calls the shipped
+`staleTestMarkov` (threshold 6.56) on non-overlapping 300-step windows at D = 1, 2 and 5 s and on the prints. It
+calls the test directly, because these prices move 2 to 4 ticks at the median and the shipped one-tick gate
+(median move <= 1.5 ticks) never runs it on them; the gate's verdict is recorded per window (it ran on none). Each
+window's truth is its share of steps with no trade. The fitted share is the Markov fit's stationary carry share.
+
+**Run 1 found a bug in the product, not the test.** The European file holds prices such as 39.8025 beside
+39.802499999999995, written after float arithmetic. The shipped `smallestStep` took their difference, 7e-15, as the
+tick, so every real move read as 10^12 ticks, the 50-tick guard refused the D = 1 and D = 2 windows, and B1 could not
+be scored (`eval/stale-real-trades-run1.out.txt`). Two values that agree to nine significant digits are now one value
+written twice: they set no tick and are no move (`floatNoise` in `update-rate.mjs`; exact repeats are still counted
+exactly). Any user file with such values had the same broken tick. Run 2 is the same script and bars, with the fix
+(`eval/stale-real-trades.out.txt`, 98 min on four threads):
+
+| bar (Europe) | result |
+|---|---|
+| B1 power: windows with carried share >= 0.30 called stale (bar 80%) | **84 of 85: pass** |
+| B2 size: trade-print windows (nothing carried) called stale (bar <= 10%) | **56 of 56: fail** |
+| B3 the estimate: fitted carry share within 0.10 of the true share, among windows called stale (bar 80%) | **112 of 119: pass** (median error 0.04 at D = 1, 0.05 at D = 2, 0.06 at D = 5) |
+| reported: carried share under 0.30 | 35 of 36 called stale (10 of 11 under 0.10) |
+| reported: the US sample | 12 of 48 carried windows called stale; most windows are refused by the 50-tick guard (ticks of 0.0005, moves of 20 to 40 ticks) |
+
+So on a real carried feed the test is sharp and its estimate is good: it says how much of the feed was carried
+forward to within about 0.05. But it says the same of the trade prints, where nothing was carried, with a fitted
+share of 0.27 against a truth of 0. By the pre-registered rule nothing ships and the gate stays as it is.
+
+**Read afterwards (post hoc, deciding nothing).** The prints show no catch-up. The move that ends a run of repeats
+is no bigger after a long run than after none (RMS 3.6 ticks after no repeat, 3.2 after three or more). In the
+carried D = 1 series it grows only from 4.8 to 5.6. What the prints do have is repeats: 40% of steps, far more than a
+walk with 3.5-tick steps would land on the same price by chance. M0 cannot make that many exact zeros without
+shrinking its step, and M1 can, so the likelihood ratio rewards M1 for excess repeats, not for catch-ups. In the
+one-tick regime the simulations covered, excess repeats beyond rounding do mean staleness, and that is what the gate
+protects. Above about 1.5 ticks the test is a test for zero inflation, and any market where the price sits at a
+quote (trades at the bid until the queue empties) is zero-inflated. So opening the gate would mislabel real tick
+data as stale, and the gate stays closed. A test for staleness at multi-tick moves would have to score the growth
+of the move after a run (round two's ratio idea) rather than the share of zeros. The prints here are the null to
+check it on.
+
+Tests: `stale-real-trades.test.mjs` (the sampling that labels each repeat, the windows, the bars, the float-noise
+tick rule and the committed verdicts).
+
+## A catch-up test for multi-tick feeds (2026-11-19, pre-registered; G1, G2 and R1 pass, R2 fails, not offered)
+
+The section above ends with the shipped stale test calling every real trade-print window stale (B2, 56 of 56):
+above about 1.5 ticks it scores excess exact repeats, and prices that sit at a quote have them with nothing carried.
+It named what a test at multi-tick moves would have to score instead: the growth of the move that ends a run, since
+a carried figure's next move sums the k + 1 hidden moves it missed and a quote's does not.
+
+`catchUpGrowth` (`update-rate.mjs`) is that test, with nothing fitted. For each move that ends a run, k is the
+repeats directly before it (0 after a move); it correlates the ranks of k and |move| (Pearson on mid-ranks). Under
+the null that the move does not depend on k, the permutation variance of that correlation is exactly 1 / (n - 1)
+whatever the ties, so z = r sqrt(n - 1) needs no simulation. Stale when z >= 1.645 (one-sided 5%), with at least 30
+moves, 10 of them after a run. It runs in microseconds a window; the likelihood test took about a minute.
+`eval/stale-growth.mjs` (header and code committed in aa5ebc85e before the first run) scored it on simulation and
+on the same highfrequency files, windows and plan as the section above (`eval/stale-growth.out.txt`):
+
+| bar | result |
+|---|---|
+| G1 size in simulation: zero-inflated walks (30% quote holds, 3.5-tick Gaussian or t3 steps) called stale (bar <= 7% each) | 5.0% and 5.7%: **pass** |
+| G2 power in simulation: a walk carried forward in runs (share 0.55) called stale (bar 80%) | 96.3%: **pass** |
+| R1 size on the real null: Europe trade-print windows called stale (bar <= 10%) | **1 of 56: pass** (the likelihood test: 56 of 56) |
+| R2 power on the real carried feed: Europe windows with carried share >= 0.30 called stale (bar 80%) | **22 of 85: fail** |
+| reported: share 0.30 carried, t3 steps, volatility regimes in the null | 85.5%, 97.0%, 1.4% |
+| reported: the US sample | prints 0 of 6; carried windows 2 of 48 |
+
+So the test does what the likelihood test could not: it leaves real trade prints alone (whole day pooled, z = -4.8:
+on the prints a move after repeats is if anything smaller). But on a real carried feed it misses most 300-step
+windows. By the pre-registered rule nothing changes in `updateRateChanges` or the lines; `catchUpGrowth` stays an
+exported function with no sentence.
+
+**Why the real feed is harder than the simulation (read afterwards, deciding nothing).** In simulation the mean
+correlation in a carried window is 0.31; on the real D = 1 feed it is 0.09 (whole day 0.08, z = 7.95 over 10,620
+moves). The simulated hidden price moves every second whether anyone trades or not. A real price moves in trade
+time: the seconds with no trade are mostly the seconds when nothing happened, so a carried run hides much less
+movement than k + 1 clock steps would. The growth is real but small, and it takes length to see.
+`eval/stale-growth-length.mjs` (post hoc, `eval/stale-growth-length.out.txt`) reruns the same test on longer windows:
+
+| Europe | 300 steps | 1,000 | 2,000 | 4,000 |
+|---|---|---|---|---|
+| D = 1, carried >= 0.30: called stale | 29 of 99 | 15 of 30 | 11 of 15 | 7 of 7 |
+| D = 2, carried >= 0.30 | 9 of 34 | 5 of 11 | 4 of 5 | 2 of 3 |
+| trade prints | 3 of 111 | 0 of 33 | 0 of 16 | 0 of 8 |
+
+A stale stretch with roughly a thousand moves in it (about 2,000 one-second samples here) is caught most of the
+time, and the prints stay clean at every length. The next item is a pre-registered round on fresh data with a bar
+stated by stretch length (moves >= 600, say), so a user is told the test's reach rather than given a coin flip on a
+short stretch. These prints and samples are now spent for choosing that length.
+
+Tests: `stale-growth.test.mjs` (run lengths, float-noise repeats, the standardised z, the simulation cells, the
+committed verdicts, and that `updateRateChanges` does not call the test).

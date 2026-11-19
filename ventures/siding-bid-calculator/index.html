@@ -352,7 +352,7 @@
       loadCompany,
       saveCompany,
       forgetCompany,
-      renderProposalHtml,
+      renderProposalHtml, escapeHtml,
     } from './proposal.mjs';
     import { encodeShare, decodeShare } from './share.mjs';
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
@@ -567,7 +567,7 @@
         : worked
           .slice()
           .sort((a, b) => b.grossSqFt - a.grossSqFt)
-          .map(wall => `<li><span>${wall.name} (${wall.lengthFt}×${wall.heightFt})</span><span>${wall.areaShare.toFixed(0)}% of wall area</span>
+          .map(wall => `<li><span>${escapeHtml(wall.name)} (${wall.lengthFt}×${wall.heightFt})</span><span>${wall.areaShare.toFixed(0)}% of wall area</span>
             <span class="bar"><span style="width:${wall.areaShare.toFixed(1)}%"></span></span></li>`)
           .join('');
 

@@ -3556,3 +3556,58 @@ switching the gains off for calibration drills, so `LOOP_BALL_GAIN` stays. The r
 
 **Not known.** All simulated, and the four sets reuse the stored sets' seeds and lags, so they test the tree, not a new
 plant.
+
+## The take survey's rms in tenths of a ppm (2026-11-19, after "The sub-8 advised instant build was the frame's rounding"; the frame's cause of the guard removed)
+
+**The item.** The share guard (`host.take_share_bound`) withholds a nonzero pick whenever the whole-ppm rounding could
+put the best / step share either side of `TAKE_ADVISE_RATIO`. That section named the fix for the cause: send the rms
+finer. This does it.
+
+**The frame.** TAKE_SURVEY gains a last byte, the rms slots' units per ppm (`protocol.FORMATS`, 27 bytes of payload
+against 26). The board sends 10, tenths of a ppm, unless a candidate's mean rms would reach 65535 tenths (6553.5 ppm:
+a wheel fitting that badly), and then 1, whole ppm, so a bad wheel still reads as a number rather than "none"
+(`LaunchCheck.take_report`). The Pi reads the byte, keeps `rms_ppm` in ppm (now with a decimal) and sets
+`rms_step_ppm` to 0.1; the guard's half-step shrinks from 0.5 to 0.05 ppm and the advice names the step it used. The
+nine-candidate whole-ppm frame of this morning is now the first of `protocol.OLDER_FORMATS` and reads as before, step
+1 ppm, as do the eight- and seven-candidate frames. A Pi from before this change drops the new frame as a wrong
+length (the same break every TAKE_SURVEY change has had): flash the board and update the Pi together.
+`TAKE_BOUND_FLOOR_PPM` (2) stays: it was set on whole-ppm rounding, but lowering it is a change of rule that needs its
+own held-out set.
+
+**What it buys, on every stored set.** `tests/take_share_tenths.py` rescores the 41 stored capture files with survey
+rows (2,964 drills, 2,310 nonzero picks) by the board's `ResidualSurvey` with the shipped trim and blind, and compares
+each verdict with the exact share from the board's sums (`eval/take-share-tenths-2026-11-19.txt`):
+
+| frame | verdicts unlike the exact share | spread takes named within 1 ms and advised (of 2,394) | instant builds advised (of 570) |
+| --- | --- | --- | --- |
+| exact (the board's sums) | 0 | 1,553 | 0 |
+| whole ppm with guard G (until now) | 6 | 1,547 | 0 |
+| tenths with its guard | 1 | 1,552 | 0 |
+
+All six verdicts the whole-ppm guard withheld were right: each named the true take within 1 ms, with exact shares of
+0.590 to 0.599. Five come back in tenths. The one still withheld has an exact share of 0.599 and a tenths bound of
+0.6002. None of the six was a small-rms build: their step rms were 29 to 196 ppm. So the earlier note that rounding
+"hardly matters" at tens of ppm was right about the share itself but not about the guard. The guard bites on shares
+near the margin at any rms, and a whole ppm on a 30 ppm step moves the bound by about 0.035.
+
+**Not known.** All simulated. The 41 files are the stored sets, not a fresh capture, so this checks the arithmetic of
+the frame on known rows rather than a new plant. On a real tach the shares near the margin are what matter, and how
+often a real drill lands within 0.04 of 0.6 is unmeasured.
+
+## The bound's ppm floor on tenths (2026-11-19, after "The take survey's rms in tenths of a ppm"; the floor kept at 2 by its pre-registered rule)
+
+**The item.** `TAKE_BOUND_FLOOR_PPM` (2) was set because whole-ppm rounding cleared the bound's 2% bar alone at a
+16-20 ppm step. The tenths frame removed that rounding, so the floor might no longer be needed.
+
+**Design (all seen).** `tests/take_bound_floor_tenths.py` rescores the stored J-L, M and N dense refits and the O and P
+captures into both frames from their per-wheel scores, using the board's `ResidualSurvey`. Of 242 builds told
+TAKE_US = 0, the true take is at most the bound on 235 at floor 0, 239 at 0.5, 240 at 1 and 242 at 2. The misses
+are real 1.6-3.5 ms takes whose first candidate past them is just over 2%, not rounding. Floor 2 on tenths bounds 27
+of 42 instant builds at 1.5 ms, against 25 on whole ppm. A relative bar alone does no better: 10-12% covers all 242
+but bounds only 24 instant builds at 1.5 ms. The floor is a noise margin, so the design kept it.
+
+**Held out (rule committed before capture; sets W, lag 0.46 s, seed 139, and X, lag 0.38 s, seed 151, 132 drills).**
+97 builds were told TAKE_US = 0, and floor 2 covered 97 of 97, with the bound at 1.5 ms on 9 of 12 instant builds.
+Both clauses held, so the floor stays 2. Every floor from 0 to 2 scored the same on W and X, so these sets confirm the
+floor costs nothing but cannot show it is needed. That evidence is the design's 7 misses. Everything is in
+`eval/take-bound-floor-tenths-2026-11-19.md`.

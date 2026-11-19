@@ -372,7 +372,7 @@
     import { calculateBid, PRODUCT_PRESETS, ADD_ON_PRESETS } from './calc.mjs';
     import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import {
-      COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany, escapeHtml,
     } from './proposal.mjs';
     import { encodeShare, decodeShare } from './share.mjs';
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
@@ -594,7 +594,7 @@
               : area.alreadyAtTarget
                 ? 'already at target'
                 : `+${area.inchesAdded.toFixed(1)} in`;
-            return `<li><span>${area.name} (${area.lengthFt}×${area.widthFt}, R-${area.existingR}→R-${area.targetR}, ${note})</span><span>${area.areaShare.toFixed(0)}% of attic</span>
+            return `<li><span>${escapeHtml(area.name)} (${area.lengthFt}×${area.widthFt}, R-${area.existingR}→R-${area.targetR}, ${note})</span><span>${area.areaShare.toFixed(0)}% of attic</span>
             <span class="bar"><span style="width:${area.areaShare.toFixed(1)}%"></span></span></li>`;
           })
           .join('');

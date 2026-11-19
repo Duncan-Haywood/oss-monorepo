@@ -368,50 +368,67 @@ function walkStepsFor(weeks, nPairs) {
 // the best plan seen is returned.
 const NOISE = 0.2;
 function walkLanes(source, nTeams, nPairs, seed, steps, lim) {
+  // Flat typed arrays and reused move buffers (perf, 2026-11-19): the same moves, ties and random
+  // draws in the same order as the nested-array version, so the same walk.
   const plan = source.map((wk) => wk.map((m) => m.slice()));
-  const W = plan.length, rnd = mulberry32(seed * 7919 + 17);
-  const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
-  const at = Array.from({ length: nTeams }, () => new Array(W).fill(-1)); // team -> week -> match index
-  plan.forEach((wk, w) => wk.forEach(([a, b, p], i) => { cnt[a][p]++; cnt[b][p]++; at[a][w] = i; at[b][w] = i; }));
-  const { lo, hi, ban } = lim;
-  const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
-  const move = (t, p, q) => off(t, p, cnt[t][p] - 1) - off(t, p, cnt[t][p]) + off(t, q, cnt[t][q] + 1) - off(t, q, cnt[t][q]);
-  const banned = (t, p) => ban !== null && ban[t][p];
+  const W = plan.length, P = nPairs, T = nTeams, rnd = mulberry32(seed * 7919 + 17);
+  const cnt = new Int32Array(T * P);
+  const at = new Int32Array(T * W).fill(-1); // team * W + week -> match index
+  plan.forEach((wk, w) => wk.forEach(([a, b, p], i) => { cnt[a * P + p]++; cnt[b * P + p]++; at[a * W + w] = i; at[b * W + w] = i; }));
+  const lo = new Int32Array(T * P), hi = new Int32Array(T * P);
+  const ban = lim.ban === null ? null : new Uint8Array(T * P);
+  for (let t = 0; t < T; t++) for (let p = 0; p < P; p++) {
+    lo[t * P + p] = lim.lo[t][p]; hi[t * P + p] = lim.hi[t][p];
+    if (ban !== null && lim.ban[t][p]) ban[t * P + p] = 1;
+  }
+  const off = (i, c) => Math.max(0, c - hi[i]) + Math.max(0, lo[i] - c);
+  const move = (t, p, q) => { const i = t * P + p, k = t * P + q; return off(i, cnt[i] - 1) - off(i, cnt[i]) + off(k, cnt[k] + 1) - off(k, cnt[k]); };
+  const banned = (t, p) => ban !== null && ban[t * P + p] === 1;
   let f = 0;
-  for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) f += off(t, p, cnt[t][p]);
+  for (let i = 0; i < T * P; i++) f += off(i, cnt[i]);
   let best = f, bestPlan = plan.map((wk) => wk.map((m) => m.slice()));
-  const cells = [];
+  // the plan mirrored flat for the step loop: match m of week w is entry w * P + m
+  const ta = new Int32Array(W * P), tb = new Int32Array(W * P), pr = new Int32Array(W * P);
+  plan.forEach((wk, w) => wk.forEach(([a, b, p], m) => { ta[w * P + m] = a; tb[w * P + m] = b; pr[w * P + m] = p; }));
+  const cells = new Int32Array(T * P);
+  const moves = new Int32Array(3 * W * P), bestMoves = new Int32Array(3 * W * P);
+  const swap = (u, q, r) => {
+    const iq = u * P + q, ir = u * P + r;
+    f -= off(iq, cnt[iq]) + off(ir, cnt[ir]); cnt[iq]--; cnt[ir]++; f += off(iq, cnt[iq]) + off(ir, cnt[ir]);
+  };
   for (let step = 0; step < steps && f > 0; step++) {
-    cells.length = 0;
-    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) if (off(t, p, cnt[t][p])) cells.push(t * nPairs + p);
-    const cell = cells[Math.floor(rnd() * cells.length)];
-    const t = Math.floor(cell / nPairs), p = cell % nPairs, over = cnt[t][p] > hi[t][p];
-    const moves = [];
-    let bestDelta = Infinity, bestMoves = [];
+    let nCells = 0;
+    for (let i = 0; i < T * P; i++) if (off(i, cnt[i])) cells[nCells++] = i;
+    const cell = cells[Math.floor(rnd() * nCells)];
+    const t = Math.floor(cell / P), p = cell % P, over = cnt[cell] > hi[cell];
+    let nMoves = 0, nBest = 0, bestDelta = Infinity;
     for (let w = 0; w < W; w++) {
-      const i = at[t][w];
+      const i = at[t * W + w];
       if (i < 0) continue;
-      const A = plan[w][i];
-      if (over ? A[2] !== p : A[2] === p) continue;
-      for (let j = 0; j < nPairs; j++) {
+      const ai = w * P + i, q = pr[ai];
+      if (over ? q !== p : q === p) continue;
+      const a0 = ta[ai], a1 = tb[ai];
+      for (let j = 0; j < P; j++) {
         if (j === i) continue;
-        const B = plan[w][j];
-        if (!over && B[2] !== p) continue;
-        const q = A[2], r = B[2];
-        if (banned(A[0], r) || banned(A[1], r) || banned(B[0], q) || banned(B[1], q)) continue;
-        const d = move(A[0], q, r) + move(A[1], q, r) + move(B[0], r, q) + move(B[1], r, q);
-        moves.push(w, i, j);
-        if (d < bestDelta) { bestDelta = d; bestMoves = [w, i, j]; } else if (d === bestDelta) bestMoves.push(w, i, j);
+        const bj = w * P + j, r = pr[bj];
+        if (!over && r !== p) continue;
+        const b0 = ta[bj], b1 = tb[bj];
+        if (banned(a0, r) || banned(a1, r) || banned(b0, q) || banned(b1, q)) continue;
+        const d = move(a0, q, r) + move(a1, q, r) + move(b0, r, q) + move(b1, r, q);
+        moves[nMoves++] = w; moves[nMoves++] = i; moves[nMoves++] = j;
+        if (d < bestDelta) { bestDelta = d; nBest = 0; }
+        if (d === bestDelta) { bestMoves[nBest++] = w; bestMoves[nBest++] = i; bestMoves[nBest++] = j; }
       }
     }
-    if (!moves.length) continue;
-    const pool = rnd() < NOISE ? moves : bestMoves;
-    const k = 3 * Math.floor(rnd() * (pool.length / 3));
+    if (!nMoves) continue;
+    const noisy = rnd() < NOISE;
+    const pool = noisy ? moves : bestMoves, len = noisy ? nMoves : nBest;
+    const k = 3 * Math.floor(rnd() * (len / 3));
     const w = pool[k], i = pool[k + 1], j = pool[k + 2];
     const A = plan[w][i], B = plan[w][j], q = A[2], r = B[2];
-    for (const u of [A[0], A[1]]) { f -= off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); cnt[u][q]--; cnt[u][r]++; f += off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); }
-    for (const u of [B[0], B[1]]) { f -= off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); cnt[u][r]--; cnt[u][q]++; f += off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); }
-    A[2] = r; B[2] = q;
+    swap(A[0], q, r); swap(A[1], q, r);
+    swap(B[0], r, q); swap(B[1], r, q);
+    A[2] = r; B[2] = q; pr[w * P + i] = r; pr[w * P + j] = q;
     if (f < best) { best = f; bestPlan = plan.map((wk) => wk.map((m) => m.slice())); }
   }
   return bestPlan;

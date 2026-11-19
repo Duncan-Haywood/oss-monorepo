@@ -1,0 +1,73 @@
+# Milestone 152: SWC(0) (area-only) against SWC(1.25) on fresh short add chains at ff_n40C_1v95 (flow run)
+
+theta = 3; grid 0, 0.5, 0.8, 1, 1.25; bootstrap 2000 resamples, seed 152
+tools: {'yosys': 'Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)', 'openroad': '26Q3'}
+
+candidate | baseline no-wire period ns | kept (FAST <= 15.0) | clock
+csum4 | 10.100 | yes | relaxed
+csum7 | 12.630 | yes | tight
+csum9 | 14.010 | yes | relaxed
+dot3r | 6.630 | yes | relaxed
+dot7r | 7.220 | yes | relaxed
+dot9r | 10.750 | yes | relaxed
+sad2 | 10.370 | yes | relaxed
+sad6 | 13.990 | yes | tight
+sad7 | 7.930 | yes | tight
+wsum3 | 7.090 | yes | tight
+wsum5 | 7.020 | yes | tight
+wsum8 | 8.630 | yes | relaxed
+avg6 | 9.400 | yes | tight
+avg8 | 7.520 | yes | tight
+avg10 | 7.360 | yes | tight
+
+complete designs (order prefix): 15 of 15
+
+## Per design (regret %)
+
+design | clock | routed/r2 | branch | random | SWC(0) | SWC(0.5) | SWC(0.8) | SWC(1) | SWC(1.25) | d(0)
+wsum3 | tight | 5.86 | ladder | 13.81 | 6.64 | 6.64 | 6.64 | 0.00 | 0.00 | +6.64
+wsum8 | relaxed | 6.23 | ladder | 4.62 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | +0.00
+sad7 | tight | 5.06 | ladder | 4.99 | 0.00 | 0.00 | 0.00 | 2.73 | 14.39 | -14.39
+dot7r | relaxed | 4.82 | ladder | 2.15 | 13.92 | 13.92 | 13.92 | 13.92 | 13.92 | +0.00
+avg10 | tight | 5.77 | ladder | 11.02 | 12.60 | 12.60 | 12.60 | 0.00 | 12.60 | +0.00
+dot9r | relaxed | 4.95 | ladder | 2.85 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | +0.00
+sad6 | tight | 5.90 | ladder | 7.93 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | +0.00
+csum4 | relaxed | 5.07 | ladder | 15.97 | 21.96 | 21.96 | 21.96 | 21.96 | 21.96 | +0.00
+csum7 | tight | 5.34 | ladder | 6.64 | 0.00 | 0.00 | 0.00 | 16.74 | 16.74 | -16.74
+dot3r | relaxed | 4.56 | ladder | 1.30 | 0.00 | 0.00 | 0.00 | 3.34 | 3.34 | -3.34
+avg8 | tight | 5.81 | ladder | 10.28 | 13.47 | 13.47 | 17.82 | 0.00 | 0.00 | +13.47
+csum9 | relaxed | 5.03 | ladder | 7.42 | 8.72 | 8.72 | 8.72 | 8.72 | 8.72 | +0.00
+wsum5 | tight | 6.82 | ladder | 6.89 | 0.00 | 0.00 | 0.00 | 1.14 | 1.14 | -1.14
+sad2 | relaxed | 5.75 | ladder | 10.53 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | +0.00
+avg6 | tight | 5.71 | ladder | 17.01 | 14.95 | 14.95 | 14.95 | 14.95 | 14.95 | +0.00
+
+## Fresh designs
+
+designs 15, ladder branch 15
+alpha | mean regret % | worst % (design)
+0 | 6.15 | 21.96 (csum4)
+0.5 | 6.15 | 21.96 (csum4)
+0.8 | 6.44 | 21.96 (csum4)
+1 | 5.57 | 21.96 (csum4)
+1.25 | 7.18 | 21.96 (csum4)
+random | 8.23 |
+
+(1) PRIMARY mean d(0) = -1.03 points (SWC(0) 6.15% against SWC(1.25) 7.18%), 95% interval -4.50 to +2.38: refuted
+(2) csum2-like misses (SWC(0) >= 20%, SWC(1.25) <= 5%): none: refuted
+(3) SWC(0) better / worse / tied against SWC(1.25): 4 / 2 / 9 (sign p = 0.688): held
+(4) SWC(1.25) 7.18% against random 8.23%: held
+(5) pooled ff (92 designs): 0 3.25%, 0.5 3.30%, 0.8 3.89%, 1 3.78%, 1.25 3.66%; best 0: held
+(6) leave-one-milestone-out picks m144 1.25, m145 0, m146 0, m147 0, m152 0; pooled 4.04% against SWC(1.25) 3.66%: held
+(7) csum d(0): csum4 +0.00, csum7 -16.74, csum9 +0.00: refuted
+
+## Reported, not predicted
+
+family | designs | mean d(0) points
+avg | 3 | +4.49
+csum | 3 | -5.58
+dot | 3 | -1.11
+sad | 3 | -4.80
+wsum | 3 | +1.83
+
+pooled ff without m147:csum2 (91 designs): SWC(0) 2.55% against SWC(1.25) 3.70%
+pooled ff mean d(0) -0.41 points, 95% interval -2.05 to +1.71; designs with d(0) >= 20: m147:csum2

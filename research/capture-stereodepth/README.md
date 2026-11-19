@@ -2,6 +2,8 @@
 
 Follow-up to `capture-novelview` (track 13), whose first "Next step" was to replace its oracle and assumed depth noise with depth that is measured. It matters because `capture-novelview` found synthesis helps only if depth is within a few percent, and guessed 2 to 5% was plausible for stereo. **Headline:** with classic block-matching stereo on a rendered rectified pair, mean depth error falls from 14.9% at a 3 cm baseline to 2.7% at 50 cm, but coverage (the share of surface pixels that get a depth) peaks at 91% near 20 cm, and the synthesised in-between view at a 15 degree gap never beats cutting to the nearest camera: best 22.3 dB (20 cm baseline) against 24.8 dB, with exact depth at 27.3 dB. The assumed model (independent noise with the same mean error) is optimistic by 1 to 7 dB, because stereo errors are correlated and missing depth leaves holes. A toy scene: read the ordering, not the decibels. Produced with AI assistance (Claude).
 
+**Correction (2026-11-19, quality audit round 81, [`portfolio/quality/audits/2026-11-19-capture-stereodepth.json`](../../portfolio/quality/audits/2026-11-19-capture-stereodepth.json)).** "Never beats cutting to the nearest camera" holds only with holes left unfilled: pixels with no depth are painted sky blue (`synth.py`), the worst case, and the text above did not say so. With `capture-novelview`'s own nearest-camera hole fill, measured stereo depth scores 27.12 / 27.19 / 27.58 dB at 10 / 20 / 30 cm (seed 0) against 24.82 dB for the nearest camera, so the ordering reverses; [`capture-hybrid`](../capture-hybrid/) found the same (27.4 dB). The "optimistic by 1 to 7 dB because stereo errors are correlated" sentence is also not supported: given the same holes as stereo, the independent-noise model scores within about 0.4 dB of measured depth (13.98 vs 13.56 dB at 3 cm, 21.85 vs 22.25 at 20 cm), so the gap is the holes, not error correlation. The 3 cm row is near the 1 px disparity floor (true disparity at most 1.9 px), so its coverage measures that cut-off. The numbers in `results.txt` are unchanged and reproduce.
+
 **Live page:** https://marisstella.app/research/capture-stereodepth/
 
 **Builds on.** `capture-novelview` (scene, warp and score, copied here so the project is self-contained; the only changes are a rectified `stereo_pair`, sensor noise and a pose-based `render_pose`) and `capture-rig` (triangulation geometry). Stereo matching after Scharstein and Szeliski (2002), "A taxonomy and evaluation of dense two-frame stereo correspondence algorithms", *International Journal of Computer Vision*; the left-right consistency check is the standard occlusion test from the same literature. It builds on none of the CU Boulder groups in `prompt.md` and claims no connection to them.
@@ -47,7 +49,7 @@ A. Stereo baseline, gap 15 degrees, sensor noise 1%, no bystander (PSNR dB):
 - One azimuth, one bystander position, 3 noise seeds, image noise independent per channel and pixel.
 
 ## Next steps
-- Add a hole filler and semi-global matching and see how much of the 2.5 dB gap closes; try three source cameras.
+- Add a hole filler and semi-global matching and see how much of the 2.5 dB gap closes; try three source cameras. (The hole filler is done in [`capture-hybrid`](../capture-hybrid/): it closes the gap and passes the nearest camera.)
 - Run a real open depth model on openly licensed multi-view footage and have people rate the in-between frames.
 - Use the left-right mask as a confidence map: fall back to the nearest camera in low-confidence regions.
 

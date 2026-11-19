@@ -69,6 +69,7 @@ M55 = E + "m55_robust/results.txt"
 M56 = E + "m56_weighted/results.txt"
 M57 = E + "m57_beta/results.txt"
 M58 = E + "m58_tworow/results.txt"
+M59 = E + "m59_depth/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -285,6 +286,9 @@ CHECKS = [
     (M58, "worst z g1 0.2713 h1 0.2865 mm -> held", "presses 0.2713 mm (G1) and 0.2865 mm (H1)"),
     (M58, "worst z g1 0.0220 h1 0.0176 mm; over z g1 0 h1 0", "(worst 0.0220 mm across)"),
     (M58, "| 5412 | 5392 | 99.63% | 129 |", "99.63% on the H1"),
+    (M59, "z_d g1 0.0220 h1 0.0177 mm; over at depth g1 0 h1 0 -> refuted", "0.0220 mm (G1) and 0.0177 mm (H1)"),
+    (M59, "| 0.034 |", "tilts at most 0.034 mrad"),
+    (M59, "| 5424 | 5405 | 99.65% | 191 |", "99.65% on the H1"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

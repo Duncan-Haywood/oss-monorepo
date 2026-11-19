@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqycZjmWZpafn2N1cm2u",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T12:39:23Z",
+  "ended": "2026-11-19T12:50:31Z",
+  "wall_minutes": 11.39,
+  "tokens_in": 16978681,
+  "tokens_out": 142758,
+  "cost_usd": 9.7452,
+  "tool_calls": 185,
+  "task": "quality audit round 81 (sample mode)",
+  "projects": [
+    "ventures/sales-agent",
+    "ventures/wage-garnishment-limit-calculator",
+    "ventures/dining-room-table-mix-optimizer",
+    "research/capture-syncedit",
+    "research/capture-stereodepth"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17665",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "CI ventures-tests changed-ventures job red on PR #17665: all 4 changed venture suites passed (wage 43, ics 96, sales-agent 590, dining 28); the failing step was the unwired check portfolio/pipeline/test_validate_doc_consistency.py, 'PyYAML is required' on the runner, untouched by this diff (wired by PR #17660). Merged on that basis."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 4 says fix in 'its own commit' and list 'the PR' in fix_prs; with several fixes in the round PR, mark-fixed --pr <round PR> was the only sensible reading, which the prompt does not say."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "The open-the-claim-PR-right-after-drawing advice needs a commit before any audit exists; a placeholder post was the cheapest claim, but nothing documents what to commit."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "the unwired-checks pass inside ventures-tests fails a PR for a missing PyYAML on the runner (test_validate_doc_consistency.py) while 28 sibling checks lacking packages are skipped; it should skip like them or install PyYAML."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 asks for each fix in its own PR; small fixes went into the round PR as separate commits to avoid five extra PRs.",
+      "did": "one commit per subject in PR #17665, fix_prs points at it",
+      "result": "fix_prs and fixed_by recorded; validate 0 problems"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-quality-audit-round-81.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-19-h-cd32, round 81, mode sample. Subjects: ventures/sales-agent (flagship, meets bar), ventures/wage-garnishment-limit-calculator, ventures/dining-room-table-mix-optimizer, research/capture-syncedit, research/capture-stereodepth (none meet bar). Share meeting bar: 1 of 5 this round (0 of 4 sampled); cumulative sampled 33 of 339 (Wilson 7-13%). Seeded mutations 13 of 26 caught. Spot-checks rerun by the session: VA holidays (tool false/false vs python-holidays 0.109 True/True), FS#30 $370/$140 case (ordinary 45 vs 0), dining combine=no 112.28 vs 116.71, stereodepth hole fill 27.12/27.19/27.58 vs 24.82 dB; capture-syncedit's 48.37 ms drift check not rerun. Fixes in PR #17665: garnishment support-counts-toward-25% + state/student; dining exhaustive search <=5000 mixes + money tests; sales-agent VA holidays (fixture to 0.109) + first-week total; dated README corrections in both research projects. Tests after fixes: wage 43/43, dining 28/28, sales-agent 530/530, check_posts ok, quality_audit validate 0 problems.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bb435bdd-33cf-5969-9753-3cdd69bf9135",
+    "transcripts": 6,
+    "first": "2026-11-19T12:39:23Z",
+    "last": "2026-11-19T12:50:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 178,
+        "input": 358,
+        "output": 142758,
+        "thinking": 33948,
+        "cache_read": 16338796,
+        "cache_write_5m": 498460,
+        "cache_write_1h": 141067,
+        "api_equivalent_usd": 9.7452,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 178,
+      "input": 358,
+      "output": 142758,
+      "thinking": 33948,
+      "cache_read": 16338796,
+      "cache_write_5m": 498460,
+      "cache_write_1h": 141067,
+      "api_equivalent_usd": 9.7452,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 185,
+    "tools": {
+      "Bash": 161,
+      "Agent": 5,
+      "SubagentHandback": 5,
+      "Read": 4,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__list_commits": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "ScheduleWakeup": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.39,
+      "active_minutes": 8.21,
+      "model_minutes": 5.85,
+      "tool_minutes": 2.36,
+      "waiting_on_human_minutes": 3.18,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 24.04
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "five independent expert audits with recomputation, plus three code fixes with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 246.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

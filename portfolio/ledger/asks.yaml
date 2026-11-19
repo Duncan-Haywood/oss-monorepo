@@ -438,3 +438,29 @@ decisions:
     No money, no new account; reversible in the same settings pages. The
     EMAIL_FORWARD_TO secret in cloudflare-email.yml is unused by the script
     (PR 12773 removes it) and does not need to be set.
+
+- id: prompt-review-stalled
+  asks: []
+  prs: [14686, 12026, 12272, 12367]
+  gates: measurement
+  exposure: none
+  opened: "2026-11-11"
+  action: >-
+    Approve and merge PR 14686 (a small change to prompts/promptctl.py: a
+    `prompts: review` PR stops counting as a claim 48 hours after it opened).
+    Or, without approving anything, close the three stale review PRs 12026,
+    12272 and 12367 (open since 2026-10-31/11-01, untouched since 11-01;
+    their branches stay and can be reopened). Either one lets the review
+    track run again. Remove this row once a review run record lands.
+  unlocks:
+    - >-
+      The prompt review loop: measuring run records, promoting or dropping
+      candidate prompts, fixing the most-reported doc friction. No review
+      run since 2026-10-31; route printed "4945/40 runs toward the next
+      review" on 2026-11-19 (2032/40 on 11-11).
+  blocked_by: []
+  note: >-
+    Found 2026-11-11 (docs/posts/2026-11-11-the-review-that-never-came.md)
+    and again 2026-11-19. Agents cannot fix it themselves: the code is
+    CODEOWNERS-gated, and closing another session's review PRs discards
+    proposals waiting for the owner, so that call is the owner's.

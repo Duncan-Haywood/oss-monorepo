@@ -79,6 +79,7 @@ class Unwired(unittest.TestCase):
 
         with mock.patch.object(u, "unwired", return_value=["check_a.py"]), \
                 mock.patch.object(u, "unwired_tests", return_value=["test_b.py"]), \
+                mock.patch.object(u, "unwired_portfolio_tests", return_value=["portfolio/d/test_d.py"]), \
                 mock.patch.object(u, "unwired_node_suites", return_value=["c.test.mjs"]), \
                 mock.patch.object(u, "unwired_extra", return_value=[]), \
                 mock.patch.object(u.main_health, "label", side_effect=lambda p: p), \
@@ -88,7 +89,8 @@ class Unwired(unittest.TestCase):
                 redirect_stdout(io.StringIO()):
             results = u.run_everything()
         self.assertEqual([r[:2] for r in results],
-                         [("c.test.mjs", 0), ("check_a.py", 0), ("test_b.py", 0)])
+                         [("c.test.mjs", 0), ("check_a.py", 0), ("portfolio/d/test_d.py", 0),
+                          ("test_b.py", 0)])
         self.assertEqual(seen.count(("suite", "test_b.py")), 2)
         self.assertIn(("check", "check_a.py"), seen)
         self.assertIn(("node", "c.test.mjs"), seen)
@@ -283,6 +285,55 @@ class PullRequestTrigger(unittest.TestCase):
             self.assertTrue(out.startswith(u.SKIPPED))
         self.assertIn("cd platform/s && node --test r.test.mjs",
                       u.report([("platform/s/r.test.mjs", 1, "boom")]))
+
+
+class PortfolioSuites(unittest.TestCase):
+    """portfolio/**/test_*.py that no pull-request workflow runs (2026-11-19)."""
+
+    def wired(self, rel, workflow):
+        steps = u._steps(workflow)
+        return u.suite_is_wired(rel, steps)
+
+    def test_a_module_named_from_its_own_folder_is_wired(self):
+        wf = ("on:\n  pull_request:\njobs:\n  t:\n    steps:\n"
+              "      - working-directory: portfolio/router\n"
+              "        run: python3 -m unittest test_allocate\n")
+        self.assertTrue(self.wired("portfolio/router/test_allocate.py", wf))
+        self.assertFalse(self.wired("portfolio/ledger/test_allocate.py", wf))
+
+    def test_a_longer_module_name_does_not_wire_its_prefix(self):
+        # test_validate_usage named in portfolio-validate.yml hid test_validate.py.
+        wf = ("on:\n  pull_request:\njobs:\n  t:\n    steps:\n"
+              "      - working-directory: portfolio/router\n"
+              "        run: python3 -m unittest test_validate_usage\n")
+        self.assertFalse(self.wired("portfolio/router/test_validate.py", wf))
+
+    def test_a_path_filter_alone_does_not_wire_a_suite(self):
+        wf = ("on:\n  pull_request:\n    paths:\n      - portfolio/ledger/test_x.py\n"
+              "jobs:\n  t:\n    steps:\n      - run: python3 other.py\n")
+        # The path is in the text, so the lenient path rule counts it: a
+        # workflow that filters on a suite almost always runs it.
+        self.assertTrue(self.wired("portfolio/ledger/test_x.py", wf))
+        self.assertFalse(self.wired("portfolio/ledger/test_y.py", wf))
+
+    def test_a_folder_run_from_a_defaults_working_directory_wires_everything_below(self):
+        wf = ("on:\n  pull_request:\ndefaults:\n  run:\n"
+              "    working-directory: portfolio/pipeline/probes/p\n"
+              "jobs:\n  t:\n    steps:\n      - run: pip install pytest\n"
+              "      - run: python3 -m pytest -q\n")
+        self.assertTrue(self.wired("portfolio/pipeline/probes/p/tests/test_a.py", wf))
+        self.assertFalse(self.wired("portfolio/pipeline/probes/q/test_a.py", wf))
+
+    def test_the_real_tree(self):
+        names = [u.suite_name(p) for p in u.unwired_portfolio_tests()]
+        self.assertIn("portfolio/ledger/test_no_duplicate_yaml_keys.py", names)
+        self.assertIn("portfolio/router/test_validate.py", names)
+        self.assertNotIn("portfolio/router/test_allocate.py", names)
+        self.assertFalse([n for n in names if "/probes/mcp-drift-watch/" in n])
+
+    def test_a_portfolio_suite_says_how_to_rerun_it(self):
+        self.assertIn("cd portfolio/ledger && python3 -m pytest -q test_x.py",
+                      u.reproduce("portfolio/ledger/test_x.py"))
 
 if __name__ == "__main__":
     unittest.main()

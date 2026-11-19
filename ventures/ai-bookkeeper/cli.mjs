@@ -38,7 +38,7 @@ import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
 import { payeeReport } from "./payees.mjs";
 import { receiptTextFromFile, receiptPassesFromFile, receiptTextRapid, statementTextFromFile, readStatementFile } from "./ocr.mjs";
-import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
+import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt, receiptScript } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
 import { cashBasis } from "./cashbasis.mjs";
 import { addTrip, removeTrip, setHomeOffice, mileageDeduction } from "./deductions.mjs";
@@ -162,7 +162,12 @@ No warranty. Not accounting, tax or financial advice; check its output before yo
 
 const argv = process.argv.slice(2);
 // flag() removes what it reads (so repeated flags like --rate can be read in a loop): read each flag once into a const.
-const flag = (k) => { const i = argv.indexOf(k); if (i === -1) return null; const v = argv[i + 1]; argv.splice(i, 2); return v; };
+const NUMERIC_FLAGS = new Set(["--year", "--months", "--wages", "--withholding", "--paid", "--prior-tax", "--prior-agi", "--threshold", "--days", "--reserve", "--age", "--business-wages", "--itemized", "--investment", "--eitc-children"]);
+const flag = (k) => {
+  const i = argv.indexOf(k); if (i === -1) return null; const v = argv[i + 1]; argv.splice(i, 2);
+  if (NUMERIC_FLAGS.has(k) && !Number.isFinite(Number(v ?? NaN))) { console.error(`${k} needs a number, got "${v ?? ""}".`); process.exit(2); }
+  return v;
+};
 const has = (k) => { const i = argv.indexOf(k); if (i === -1) return false; argv.splice(i, 1); return true; };
 if (has("--help") || has("-h") || !argv.length) { console.log(HELP); process.exit(0); }
 
@@ -381,7 +386,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "fx") {
   try {
     if (rest[0] === "account") { books = addFxAccount(books, { code: rest[1], currency: rest[2] }); save(); console.log(`${rest[1]} is held in ${rest[2].toUpperCase()}. Add rates, then import its statements.`); }
-    else if (rest[0] === "rate") { books = setRates(books, [{ date: rest[2], currency: String(rest[1]).toUpperCase(), rate: Number(rest[3]) }]); save(); console.log("Rate saved."); }
+    else if (rest[0] === "rate") { if (!Number.isFinite(Number(rest[3] ?? NaN))) throw new Error(`fx rate needs a number, got "${rest[3] ?? ""}".`); books = setRates(books, [{ date: rest[2], currency: String(rest[1]).toUpperCase(), rate: Number(rest[3]) }]); save(); console.log("Rate saved."); }
     else if (rest[0] === "rates") {
       const r = parseRates(readFileSync(rest[1], "utf8"));
       for (const p of r.problems) console.error(p);
@@ -564,7 +569,13 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     // --four-pass: twice more as a grey copy enlarged to 2,000 px (ImageMagick), and the readings vote
     // --rapidocr: read once by RapidOCR (rapidocr_rows.py; pip install rapidocr-onnxruntime);
     // with --four-pass, RapidOCR's reading leads tesseract's four and all five vote
-    try { text = has("--rapidocr") && has("--four-pass") ? receiptPassesFromFile(rest[0], { grow: 2000, lead: (p) => receiptTextRapid(p) }) : has("--rapidocr") ? receiptTextRapid(rest[0]) : has("--four-pass") ? receiptPassesFromFile(rest[0], { grow: 2000 }) : has("--two-pass") ? receiptPassesFromFile(rest[0]) : receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
+    // has() removes the flag it reads, so each is read once here (before 2026-11-19 a lone
+    // --rapidocr was spent by the first test and the photo went to tesseract instead)
+    const rapidocr = has("--rapidocr"), fourPass = has("--four-pass"), twoPass = has("--two-pass");
+    try { text = rapidocr && fourPass ? receiptPassesFromFile(rest[0], { grow: 2000, lead: (p) => receiptTextRapid(p) }) : rapidocr ? receiptTextRapid(rest[0]) : fourPass ? receiptPassesFromFile(rest[0], { grow: 2000 }) : twoPass ? receiptPassesFromFile(rest[0]) : receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
+    // a Cyrillic slip read by the Latin recogniser keeps its total but loses its seller and items
+    // (eval/receipt-script-2026-11-19.md): say which recogniser to set
+    if (rapidocr && !process.env.RAPIDOCR_REC_MODEL && receiptScript(text) === "cyrillic") console.error("This receipt looks Cyrillic: RapidOCR's default recogniser reads it in Latin look-alikes. For the seller and item names, set RAPIDOCR_REC_MODEL and RAPIDOCR_REC_KEYS to PaddleOCR's East Slavic recogniser (README, \"Russian slips with a Cyrillic recogniser\").");
     const r = addReceipts(books, text);
     books = r.books; save();
     console.log(`Read ${r.added.length} receipt${r.added.length === 1 ? "" : "s"}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read.`);
@@ -602,6 +613,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   try {
     if (rest[0] === "941") {
       const di = argv.indexOf("--deposited");
+      if (di >= 0 && !Number.isFinite(Number(argv[di + 1] ?? NaN))) throw new Error(`--deposited needs a number, got "${argv[di + 1] ?? ""}".`);
       const f = form941(books, rest[1], rest[2], di >= 0 ? { depositedCents: Math.round(Number(argv[di + 1]) * 100) } : {});
       if (json) { console.log(JSON.stringify(f, null, 2)); process.exit(0); }
       console.log(`FORM 941 WORKSHEET ${f.year} Q${f.quarter} (${f.from} to ${f.to}), ${f.runs} run${f.runs === 1 ? "" : "s"}`);
@@ -868,7 +880,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const w of r.warnings) console.log(`  ! ${w}`);
   console.log("  A worksheet. Not tax advice; it leaves out income tax, the 0.9% additional Medicare tax and state tax.");
 } else if (cmd === "scorp") {
-  const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
+  const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); if (v !== null && !Number.isFinite(Number(v))) { console.error(`${n} needs a number, got "${v}".`); process.exit(2); } return v !== null ? Math.round(+v * 100) : undefined; };
   try {
     const r = scorpFromBooks(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", salary: c("--salary"), salaryPct: ((v) => v !== null ? +v / 100 : undefined)(flag("--salary-pct")), extraCost: c("--extra-cost"), stateUnemployment: c("--suta"), otherIncome: c("--other-income"), service: has("--service") });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
@@ -882,7 +894,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     console.log("  A worksheet. Not tax advice; the salary must be reasonable for the work, and state tax is left out.");
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "estimate") {
-  const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
+  const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); if (v !== null && !Number.isFinite(Number(v))) { console.error(`${n} needs a number, got "${v}".`); process.exit(2); } return v !== null ? Math.round(+v * 100) : undefined; };
   try {
     const ttFile = flag("--tax-table");
     const table = ttFile ? taxTableOptions(JSON.parse(readFileSync(ttFile, "utf8"))) : {};
@@ -898,7 +910,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     console.log(`  A worksheet. Not tax advice; it leaves out ${r.state ? "state brackets" : "state tax"}, credits and itemised deductions.`);
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "annualized") {
-  const yr = flag("--year"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
+  const yr = flag("--year"), c = (n) => { const v = flag(n); if (v !== null && !Number.isFinite(Number(v))) { console.error(`${n} needs a number, got "${v}".`); process.exit(2); } return v !== null ? Math.round(+v * 100) : undefined; };
   try {
     const ttFile = flag("--tax-table");
     const table = ttFile ? taxTableOptions(JSON.parse(readFileSync(ttFile, "utf8"))) : {};
