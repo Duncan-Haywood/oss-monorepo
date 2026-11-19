@@ -79,3 +79,78 @@ def _median_np_block(a, block):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def _no_native(name):
+    """A context in which ``noise_native.<name>`` declines, so the numpy reference runs."""
+
+    from unittest import mock
+
+    return mock.patch.object(noise_native, name, lambda *a, **k: False)
+
+
+@unittest.skipUnless(HAVE, "needs numpy and a C compiler")
+class NativeBlendTest(unittest.TestCase):
+    """The bilinear image and the blend in C (2026-11-19, eval/noise-aware-native-blend-2026-11-19.md)."""
+
+    def test_bilinear_sink_equals_numpy(self):
+        from shootflow import raw_develop_np as rnp
+
+        rng = np.random.default_rng(11)
+        for trial in range(30):
+            pat = XTRANS if trial % 3 == 0 else BAYERS[trial % 4]
+            h, w = (int(v) for v in rng.integers(1, 70, 2))
+            norm = rng.normal(0.4, 0.3, (h, w)) * rng.choice([1.0, -1.0, 1.0], (h, w))
+            mults = tuple(float(v) for v in rng.uniform(0.5, 2.5, 3))
+            hi = float(rng.choice([1.0, 0.7, 1e9]))
+            dtype = np.float32 if trial % 2 else np.float64
+            got = np.full((h, w, 3), np.nan, dtype=dtype)
+            self.assertTrue(noise_native.bilinear(norm, pat, mults, hi, got, threads=int(rng.integers(1, 4))))
+            want = np.full((h, w, 3), np.nan, dtype=dtype)
+            with _no_native("bilinear"):
+                rnp._bilinear(norm, w, h, pat, mults, hi, None, None, None, None, sink=want, threads=1)
+            self.assertTrue(np.array_equal(got.view(np.uint8), want.view(np.uint8)), (trial, h, w))
+
+    def test_blend_equals_numpy(self):
+        rng = np.random.default_rng(5)
+        for trial in range(24):
+            h, w = (int(v) for v in rng.integers(1, 200, 2))
+            hb, wb = max(1, h // 24), max(1, w // 24)
+            q = rng.uniform(0.0, 2.5, (hb, wb))
+            bt = np.float32 if trial % 2 else np.float64
+            dt = np.float32 if trial % 3 else np.float64
+            b = rng.normal(0.4, 0.3, (h, w, 3)).astype(bt)
+            d = (b + rng.normal(0, 0.05, (h, w, 3))).astype(dt)
+            luma = None if trial % 4 == 0 else (0.8, 1.5)
+            clip = trial % 2 == 1 and trial % 5 != 0  # float32 out only
+            out_t = np.float32 if trial % 2 else np.float64
+            hi = 0.6 if clip else None
+            threads = int(rng.integers(1, 4))
+            got = xd.blend(b.copy(), d, q, 0.4, 1.2, luma_ramp=luma, out=np.empty((h, w, 3), out_t),
+                           threads=threads, clip_hi=hi)
+            with _no_native("blend"):
+                want = xd.blend(b.copy(), d, q, 0.4, 1.2, luma_ramp=luma, out=np.empty((h, w, 3), out_t),
+                                threads=1, clip_hi=hi)
+            self.assertTrue(np.array_equal(got.view(np.uint8), want.view(np.uint8)), (trial, h, w, bt, dt, luma, clip))
+
+    def test_blend_in_place_over_the_bilinear_image(self):
+        rng = np.random.default_rng(9)
+        b = rng.normal(0.4, 0.2, (97, 130, 3)).astype(np.float32)
+        d = (b + rng.normal(0, 0.05, b.shape)).astype(np.float32)
+        q = rng.uniform(0, 2, (4, 5))
+        want = xd.blend(b.copy(), d, q, 0.4, 1.2, luma_ramp=(0.8, 1.5), out=np.empty_like(b), clip_hi=0.5)
+        bb = b.copy()
+        got = xd.blend(bb, d, q, 0.4, 1.2, luma_ramp=(0.8, 1.5), out=bb, clip_hi=0.5)
+        self.assertIs(got, bb)
+        self.assertTrue(np.array_equal(got, want))
+
+    def test_luma_order_is_the_fixed_elementwise_one(self):
+        # one channel moved by (a_l - a) * Y with Y in the documented order, not a BLAS product's
+        b = np.zeros((24, 24, 3))
+        d = np.tile(np.array([0.1, 0.3, 0.7]), (24, 24, 1))
+        q = np.array([[1.0]])
+        got = xd.blend(b, d, q, 0.0, 2.0, luma_ramp=(0.0, 4.0))
+        y = (0.1 * 0.2126 + 0.3 * 0.7152) + 0.7 * 0.0722
+        a, a_l = 0.5, 0.25
+        want = np.array([a * v + (1 - a) * 0.0 for v in (0.1, 0.3, 0.7)]) + (a_l - a) * y
+        self.assertTrue(np.array_equal(got[5, 5], want))

@@ -1086,6 +1086,17 @@ develop to the same bytes. The time noise-aware adds over directional fell by a 
 megapixel), and noise-aware now takes 1.77x directional's time instead of 2.05x. `auto` still picks
 directional. The measurements and what is left are in eval/noise-aware-native-spread-2026-11-19.md.
 
+## The blend and its bilinear image in C: same bytes, 43% less added time (2026-11-19)
+
+The same afternoon, the two biggest remaining costs of `--demosaic noise-aware` moved into that helper too: the
+bilinear image it blends toward and the per-pixel blend itself, with the final clip folded into the blend's own
+pass. The blend's luma step had been a BLAS matrix-vector product, whose fused multiply-adds give different last
+bits on different machines; it is now a fixed elementwise order in numpy, which C copies exactly, so a raw
+develops to the same bits everywhere. On the 14 large sample raws every output is still the same bytes as before.
+The time noise-aware adds over directional fell by a median 43% (0.094 to 0.053 s per megapixel), noise-aware now
+takes 1.46x directional's time instead of 1.74x, and the memory it adds at peak fell by a median 16%. `auto` still
+picks directional. Details: eval/noise-aware-native-blend-2026-11-19.md.
+
 ## The sRGB encode, interpolated (2026-11-17)
 
 The develop's last step, linear light to sRGB, read a 4,096-entry table at the nearest entry, so a 16-bit

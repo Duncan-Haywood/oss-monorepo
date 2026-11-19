@@ -872,6 +872,12 @@ def _interp_taps(n: int, nb: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return j, j + 1, t
 
 
+def _ramp(q: np.ndarray, q_low: float, q_high: float) -> np.ndarray:
+    """Block weights: 0 at ``q_low``, 1 at ``q_high``, linear between."""
+
+    return np.clip((q - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0)
+
+
 def _weights(q_blocks: np.ndarray, q_low: float, q_high: float, h: int, w: int,
              rows: slice | None = None) -> np.ndarray:
     """Per-pixel blend weights (h, w), or only ``rows`` of them: ``_interp_matrix(h) @ ab @ _interp_matrix(w).T``
@@ -880,7 +886,7 @@ def _weights(q_blocks: np.ndarray, q_low: float, q_high: float, h: int, w: int,
     the dense product's blocking changed with the row count and moved 1 value in 1,000 by a last bit
     (eval/noise-aware-full-frame-cost-2026-11-17.md)."""
 
-    ab = np.clip((np.asarray(q_blocks, dtype=np.float64) - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0)
+    ab = _ramp(np.asarray(q_blocks, dtype=np.float64), q_low, q_high)
     jy, jy1, ty = _interp_taps(h, ab.shape[0])
     if rows is not None:
         jy, jy1, ty = jy[rows], jy1[rows], ty[rows]
@@ -892,6 +898,7 @@ def _weights(q_blocks: np.ndarray, q_low: float, q_high: float, h: int, w: int,
 def blend(
     bilinear: np.ndarray, directional_out: np.ndarray, q_blocks: np.ndarray, q_low: float, q_high: float,
     luma_ramp: tuple[float, float] | None = None, *, out: np.ndarray | None = None, threads: int | None = None,
+    clip_hi: float | None = None,
 ) -> np.ndarray:
     """``a * directional + (1 - a) * bilinear``, ``a`` per block from its ``q`` (0 at ``q_low``, 1 at ``q_high``,
     linear between), spread to pixels by bilinear interpolation between block centres.
@@ -903,13 +910,28 @@ def blend(
     Runs in bands of rows on a thread pool, each band's weights made for its rows only, so no full-frame
     weight map or (h, w, 3) temporary is held. ``out``: an (h, w, 3) float64 array to write into; it may be
     ``bilinear`` itself (each band reads its own rows before writing them), which the develop path passes to
-    save a frame (eval/noise-aware-full-frame-cost-2026-11-17.md)."""
+    save a frame (eval/noise-aware-full-frame-cost-2026-11-17.md).
 
-    from shootflow.raw_develop_np import _run_bands
+    The luma of D - B is ``(x0 * 0.2126 + x1 * 0.7152) + x2 * 0.0722`` in that order, elementwise. Until
+    2026-11-19 it was a matrix-vector product, whose BLAS fused multiply-adds in a CPU-dependent order, so the
+    same raw could develop to different last bits on different machines; the fixed order gives one answer
+    everywhere and lets ``noise_native.blend`` (tried first) copy it bit for bit
+    (eval/noise-aware-native-blend-2026-11-19.md). ``clip_hi``: clip the stored result to [0, clip_hi] as
+    ``raw_develop_np._clip`` does, in the same pass (the develop path's float32 image)."""
+
+    from shootflow import noise_native
+    from shootflow.raw_develop_np import _clip, _run_bands
 
     h, w = bilinear.shape[:2]
     if out is None:
         out = np.empty((h, w, 3), dtype=np.float64)
+    q = np.asarray(q_blocks, dtype=np.float64)
+    ab = _ramp(q, q_low, q_high)
+    abl = None if luma_ramp is None else _ramp(q, luma_ramp[0], luma_ramp[1])
+    if noise_native.blend(bilinear, directional_out, ab, abl, _interp_taps(h, q.shape[0]), _interp_taps(w, q.shape[1]),
+                          LUMA_WEIGHTS, out, clip_hi=clip_hi, band=_MEASURE_BAND, threads=threads):
+        return out
+
     def run(y0, y1):
         rows = slice(y0, y1)
         a = _weights(q_blocks, q_low, q_high, h, w, rows)[..., None]
@@ -917,9 +939,13 @@ def blend(
         res = a * d + (1.0 - a) * b
         if luma_ramp is not None:
             a_l = _weights(q_blocks, luma_ramp[0], luma_ramp[1], h, w, rows)
-            dy = (np.asarray(d, dtype=np.float64) - b) @ LUMA_WEIGHTS  # luma of D - B
+            x = np.asarray(d, dtype=np.float64) - b  # D - B
+            dy = (x[..., 0] * LUMA_WEIGHTS[0] + x[..., 1] * LUMA_WEIGHTS[1]) + x[..., 2] * LUMA_WEIGHTS[2]
             res = res + ((a_l - a[..., 0]) * dy)[..., None]
         out[rows] = res
+        if clip_hi is not None:
+            o = out[rows]
+            o[...] = _clip(o, clip_hi)
 
     _run_bands(run, h, band=_MEASURE_BAND, threads=threads)
     return out
@@ -929,6 +955,7 @@ def noise_aware(
     c, pat, *, bilinear: np.ndarray | None = None, directional_out: np.ndarray | None = None,
     noise: tuple[float, float] | None = None, q_low: float | None = None, q_high: float | None = None,
     per_block: bool = True, luma_ramp: tuple[float, float] | None | bool = True, out: np.ndarray | None = None,
+    clip_hi: float | None = None,
 ) -> np.ndarray:
     """Directional where it adds detail above the noise, bilinear where it adds mostly noise.
 
@@ -943,7 +970,8 @@ def noise_aware(
     2026-11-17. It applies only with ``per_block``. The luma ramp moves every channel of a pixel by the same
     ``(a_l - a) * Y(D - B)``, so a sensel's own channel is no longer its raw value; putting it back was
     measured and gave back most of the luma gain (eval/noise-aware-luma-ramp-2026-11-17.md). ``out``: passed to
-    ``blend`` (it may be ``bilinear``); with ``per_block=False`` it is ignored.
+    ``blend`` (it may be ``bilinear``); with ``per_block=False`` it is ignored, as is ``clip_hi`` (``blend``'s:
+    clip the stored result in the same pass).
     """
 
     ramp = RAMPS[6 if len(pat) == 36 else 2]
@@ -971,4 +999,5 @@ def noise_aware(
     if not per_block:
         a = float(np.clip((m["q"] - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0))
         return a * directional_out + (1.0 - a) * bilinear
-    return blend(bilinear, directional_out, m["q_blocks"], q_low, q_high, luma_ramp=luma_ramp, out=out)
+    return blend(bilinear, directional_out, m["q_blocks"], q_low, q_high, luma_ramp=luma_ramp, out=out,
+                 clip_hi=clip_hi)
