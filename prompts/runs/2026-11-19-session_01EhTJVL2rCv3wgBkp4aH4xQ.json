@@ -30,7 +30,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 1,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -48,15 +48,15 @@
       "file": "portfolio/router/claim_check.py",
       "why": "claim_check said YIELD to PR #17790 (opened 2 min earlier, no files). By then this session's search had already found four verified Z57 designs in about 15 CPU-s each, so yielding would have thrown away a finished, checked result; no peer session was reachable through ListAgents.",
       "did": "Landed the result in PR 17791 and left #17790 open; its session can close it or extend it (for example 69/77, or near-whist structure).",
-      "result": "57 stored; whist.test.mjs and calc/page tests pass (19 + 242)."
+      "result": "PR #17790 merged first with a Singer-plane design for 57, so the page keeps that base; this PR lands the involution search as a second, independent method (57 in 11-15 s, 69 in 100 s) with its own test, merged over main. Overlap cost the page-level win, not the result."
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-19-americano-for-57-players-a-whist-design-found.md",
-    "ventures/league-schedule-generator/README.md (A whist design for 57 players)"
+    "docs/posts/2026-11-19-two-roads-to-a-57-player-americano.md",
+    "ventures/league-schedule-generator/README.md (A second route to 57, and one that reaches 69)"
   ],
   "goal": null,
-  "notes": "New eval/whist-involution.c: anneals Z_v base rounds invariant under an involutive multiplier m (moves (p q)(mp mq) commute with m). Rule found on small cases: m = 1 mod 3 and -1 mod the other prime (21: 13, 33: 10 find designs in 2-10 s; 8 and 23 do not in 10 s). At 57, m=37: found in 10.6-15.0 CPU-s in 4 of 4 seeds that finished (other 4 stopped). checkWhist passes on the developed design. Page effect at 57 players/14 courts seed 57: repeat partners 87 -> 0, unmet 87 -> 0, opponents 0-5 -> exactly 2. Checks run: node --test whist.test.mjs (19 pass), node --test calc.test.mjs page.test.mjs (242 pass), check_posts ok, venture-preflight clean (exit 0). No agent doc in docs/reports: README section and flagships next carry what the next run needs. Same rule past the page cap: 69 (m=22) found in 100 CPU-s and re-checked in Python; 77 (m=43, 34) not found in 120 s (eval/whist-involution-over64.txt).",
+  "notes": "New eval/whist-involution.c: anneals Z_v base rounds invariant under an involutive multiplier m (moves (p q)(mp mq) commute with m). Rule found on small cases: m = 1 mod 3 and -1 mod the other prime (21: 13, 33: 10 find designs in 2-10 s; 8 and 23 do not in 10 s). At 57, m=37: found in 10.6-15.0 CPU-s in 4 of 4 seeds that finished (other 4 stopped). checkWhist passes on the developed design. Page effect at 57 players/14 courts seed 57: repeat partners 87 -> 0, unmet 87 -> 0, opponents 0-5 -> exactly 2. Checks run: node --test whist.test.mjs (19 pass), node --test calc.test.mjs page.test.mjs (242 pass), check_posts ok, venture-preflight clean (exit 0). No agent doc in docs/reports: README section and flagships next carry what the next run needs. Same rule past the page cap: 69 (m=22) found in 100 CPU-s and re-checked in Python; 77 (m=43, 34) not found in 120 s (eval/whist-involution-over64.txt). Merge with main: #17790 (Singer plane, eval/whist-singer.c) landed first; whist-bases.mjs keeps its 57 base (build order), post rewritten as a second-route post, flagships next merged.",
   "corrections": [],
   "redteam": null,
   "usage": {

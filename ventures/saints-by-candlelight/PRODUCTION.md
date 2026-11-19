@@ -197,7 +197,6 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - David and the Song of the Bow, the lament for Saul and Jonathan, swifter than eagles and stronger than lions (Second Samuel 1; left by episode 147).
 - David at the gate of Gath, the first time he fled to Achish and let his spittle run down his beard (First Samuel 21:10-15, with Psalm 34's title; left by episode 148).
 - Abiathar and the bread of the Presence at Nob, the priest's son who escaped with the ephod (First Samuel 21:1-9 and 22, with Mark 2:25-26; left by episode 148).
-- Barzillai the Gileadite at the Jordan, eighty years old, who fed the king at Mahanaim and asked only to go home and be buried near his father and mother (Second Samuel 17:27-29 and 19:31-40; left by episode 150).
 - Hushai the Archite, David's friend, who went back into Jerusalem to defeat Ahithophel's counsel (Second Samuel 15:32-37, 16:15-19 and 17:1-16; left by episode 150).
 - Saint Silvanus of Tarsus and the councils of Seleucia, the bishop who would not silence a guest (Theodoret, Sozomen and Socrates on the council of three hundred and fifty-nine; a sequel to episode 136).
 - The ark at Kiriath-jearim, twenty years in the house of Abinadab on the hill, and Eleazar who kept it (First Samuel 6:19 to 7:2, with Second Samuel 6:1-4 and Psalm 132:6; left by episode 149).
@@ -205,11 +204,13 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Jonathan and his armour-bearer at Michmash, the climb up the crag and the honey on the end of his staff (First Samuel 14; left by episode 151).
 - Michal and the image in David's bed, the night she let him down through the window (First Samuel 19:11-17; left by episode 151).
 - Saul among the prophets at Naioth in Ramah, three lots of messengers and then the king himself (First Samuel 19:18-24; left by episode 151).
+- Absalom at the city gate and the long flight up the Mount of Olives, Ittai the Gittite who would not go home and Zadok who carried the ark back (Second Samuel 15; left by episode 152).
+- The two runners from the battle in the forest of Ephraim, Ahimaaz who outran the Cushite by the plain and would not tell the king the worst (Second Samuel 18:19-33; left by episode 152).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 151 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 151.
+Audio: 29 of 152 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 152.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.

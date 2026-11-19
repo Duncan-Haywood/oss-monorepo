@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { whistDesign, checkWhist, checkNearWhist, whistSizes, nearWhistSizes, whistRotation } from "./whist.mjs";
 import { americano, americanoStats, validateAmericano } from "./calc.mjs";
 import { directBase, multiplierSearch } from "./eval/whist-multiplier.mjs";
-import { WHIST_BASES } from "./whist-bases.mjs";
+import { readFileSync } from "node:fs";
 
 const names = (n) => Array.from({ length: n }, (_, i) => `P${i + 1}`);
 const opponentRange = (plan, n) => {
@@ -174,6 +174,27 @@ test("americano: 52 and near-whist 58 (eval/whist-starter.c) play their own desi
   }
 });
 
+test("americano: 57 players on 14 courts play the Singer design (eval/whist-singer.c): every pair partners once, meets twice", () => {
+  assert.ok(whistSizes().includes(57));
+  assert.ok(checkWhist(57, whistDesign(57)));
+  const P = names(57);
+  const plan = americano(P, { courts: 14, seed: 57 });
+  assert.equal(plan.design?.size, 57);
+  assert.equal(plan.rounds.length, 57);
+  assert.deepEqual(validateAmericano(P, plan), []);
+  const st = americanoStats(P, plan);
+  assert.equal(st.repeatPartners, 0);
+  assert.equal(st.unmetPartners, 0);
+  assert.deepEqual(opponentRange(plan, 57), [2, 2]);
+  assert.ok(plan.rounds.every((r) => r.matches.length === 14), "every court used every round");
+});
+
+test("whist 57: every table of the stored base lies on one line of the Singer plane {0,1,3,13,32,36,43,52} + s", () => {
+  const D = [0, 1, 3, 13, 32, 36, 43, 52];
+  const lines = Array.from({ length: 57 }, (_, s) => new Set(D.map((d) => (d + s) % 57)));
+  for (const t of whistDesign(57)[0].tables) assert.ok(lines.some((L) => t.every((p) => L.has(p))), `table ${t}`);
+});
+
 test("americano: 4k+2 players play a near-whist design: one missed partner each, every pair meets", () => {
   for (const n of nearWhistSizes().filter((m) => m <= 30)) {
     const P = names(n);
@@ -240,20 +261,23 @@ test("whistRotation: refuses a round count longer than the design", () => {
   assert.equal(whistRotation(8, { courts: 2, rounds: 8 }), null);
 });
 
-test("americano: 57 plays its own whist design (eval/whist-involution.c, a base round fixed by multiplier 37)", () => {
-  const n = 57, P = names(n);
-  const plan = americano(P, { courts: 14, seed: n });
-  assert.equal(plan.design?.size, 57);
-  assert.deepEqual(validateAmericano(P, plan), []);
-  const st = americanoStats(P, plan);
-  assert.equal(plan.rounds.length, 57);
-  assert.equal(st.repeatPartners, 0);
-  assert.equal(st.unmetPartners, 0);
-  assert.deepEqual(opponentRange(plan, n), [2, 2]);
-  assert.ok(plan.rounds.every((r) => r.matches.length === 14), "every court used every round");
-  // the stored base round really is fixed by x -> 37x (the structure the search kept)
+test("whist 57 by multiplier 37 (eval/whist-involution.txt): a second base round, fixed by x -> 37x, partners once and meets twice", () => {
+  const v = 57;
+  const line = readFileSync(new URL("./eval/whist-involution.txt", import.meta.url), "utf8").split("\n").find((l) => l.includes('"n":57') && l.includes('"tables":[['));
+  const tables = JSON.parse(line).tables;
+  assert.deepEqual(tables.flat().sort((a, b) => a - b), Array.from({ length: v - 1 }, (_, i) => i + 1), "every player but 0 seated once");
+  const partner = new Map(), opp = new Map();
+  const bump = (m, a, b) => { const k = a < b ? a * v + b : b * v + a; m.set(k, (m.get(k) || 0) + 1); };
+  for (let s = 0; s < v; s++) for (const t of tables) {
+    const [a, b, x, y] = t.map((p) => (p + s) % v);
+    bump(partner, a, b); bump(partner, x, y);
+    for (const [p, q] of [[a, x], [a, y], [b, x], [b, y]]) bump(opp, p, q);
+  }
+  assert.equal(partner.size, (v * (v - 1)) / 2);
+  assert.ok([...partner.values()].every((c) => c === 1), "each pair partners once");
+  assert.equal(opp.size, (v * (v - 1)) / 2);
+  assert.ok([...opp.values()].every((c) => c === 2), "each pair meets twice");
   const key = (t) => [[t[0], t[1]].sort((a, b) => a - b).join("-"), [t[2], t[3]].sort((a, b) => a - b).join("-")].sort().join("|");
-  const tables = WHIST_BASES[57].tables;
   const set = new Set(tables.map(key));
-  assert.ok(tables.every((t) => set.has(key(t.map((x) => (x * 37) % 57)))));
+  assert.ok(tables.every((t) => set.has(key(t.map((x) => (x * 37) % v)))), "fixed by x -> 37x");
 });
