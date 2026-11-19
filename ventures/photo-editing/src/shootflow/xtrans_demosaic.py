@@ -869,6 +869,27 @@ LUMA_RAMPS = {6: (0.8, 2.0), 2: (0.8, 1.5)}
 LUMA_WEIGHTS = np.array([0.2126, 0.7152, 0.0722])  # Rec. 709; they sum to 1
 
 
+def lift_near_detail(q_blocks: np.ndarray, k: float) -> np.ndarray:
+    """Each block's ``q`` raised to at least its largest 3 x 3 neighbour's over ``k``.
+
+    ``blend`` spreads block weights to pixels by interpolating between block centres, so half of a detailed
+    block's area takes part of its smooth neighbour's bilinear weight. Near clean that leak is what loses: a
+    smooth block (q under ``q_low``) beside a block of q 30 pulls the detailed block's edge toward a bilinear
+    demosaic 10 dB worse than directional there (Pentax K-3 Mark III tile, SNR 200: -0.58 dB luma with the
+    true noise model, eval/near-clean-gate-2026-11-19.md). The lift lets a block keep its bilinear weight only
+    when no neighbour's detail stands over ``k`` times its own noise ratio's scale; on noisy frames the
+    neighbours' q are small and nothing moves."""
+
+    q = np.asarray(q_blocks, dtype=np.float64)
+    h, w = q.shape
+    p = np.pad(q, 1, mode="edge")
+    m = q.copy()
+    for dy in range(3):
+        for dx in range(3):
+            np.maximum(m, p[dy:dy + h, dx:dx + w], out=m)
+    return np.maximum(q, m / k)
+
+
 def _interp_matrix(n: int, nb: int) -> np.ndarray:
     """(n, nb) weights that interpolate nb block-centre values linearly to n pixel centres, held flat past
     the first and last centre (``np.interp``'s rule)."""
