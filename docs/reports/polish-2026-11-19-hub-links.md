@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [links, navigation]
+topics: [hosting, design]
 date: 2026-11-19
 ---
 # Polish: "More free tools" opened a GitHub folder on 12 pages
