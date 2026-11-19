@@ -52,7 +52,7 @@
     "research/marine-hull/LOG.md (milestone 7x entry)"
   ],
   "goal": "advance the marine-hull paper: close the still-air limit of 7w with measured wind",
-  "notes": "Five of seven pre-registered expectations held. W3 refuted (sign): wind raises the foil crossover 700->706 W at CdA 0.1, 818->841 W at 0.4, though it costs the slow monohull the most 30 W range (-2.21%/-8.23%). W5 refuted (SWATH/catamaran ratios move >1% at larger CdA). 200 W scope holds in all 24 scenario rows and 972 foil cases. Post hoc diagnostics marked in script. Local checks: paper/check_numbers.py ok; research/_homepage/build.py ok; check_posts ok; marine-hull unittest discover run (see PR). No pdflatex in container, main.tex not compiled. No agent doc in docs/reports: the LOG entry's Next carries what the next run needs.",
+  "notes": "Five of seven pre-registered expectations held. W3 refuted (sign): wind raises the foil crossover 700->706 W at CdA 0.1, 818->841 W at 0.4, though it costs the slow monohull the most 30 W range (-2.21%/-8.23%). W5 refuted (SWATH/catamaran ratios move >1% at larger CdA). 200 W scope holds in all 24 scenario rows and 972 foil cases. Post hoc diagnostics marked in script. Local checks: paper/check_numbers.py ok; research/_homepage/build.py ok; check_posts ok; marine-hull pytest 429 passed (bare python3 unittest: 11 modules error on missing numpy, environment only); run_workflow_locally --for-changes 10/10 passed (reviewer bots and deploy steps not runnable locally). No pdflatex in container, main.tex not compiled. No agent doc in docs/reports: the LOG entry's Next carries what the next run needs.",
   "corrections": [],
   "redteam": null,
   "usage": {
