@@ -139,7 +139,15 @@ passed Froude number 0.3 (from 215\,W), the regime in which our displacement and
 not validated (Section~\ref{sec:tank}); so the table's ranking is a statement about low-power
 payloads, and the fast-rung crossover is indicative only. The planing figure is also a grid
 artefact: its peak sits at the 20\,m/s grid ceiling from 215\,W up, and a 40\,m/s grid moves its
-break-even to 798\,W at speeds where air and spray drag, which the model omits, are no longer small.
+break-even to 798\,W at speeds where air and spray drag, omitted from these runs, are no longer small.
+Adding still-air drag $\tfrac12\rho_a C_DA\,u^2$ ($\rho_a=1.225$\,kg/m$^3$~\cite{iso2533}) to every rung, with
+$C_DA$ swept from 0 to 0.4\,m$^2$ since no measured drag area exists for these craft (bluff to faired bodies, $C_D$ about 1.2 to 0.3~\cite{hoerner1965})
+(\texttt{results\_air\_drag.txt}), leaves the monohull first up to 200\,W at every $C_DA$, in the
+central case and in all 972 hydrofoil cases. It moves the central hydrofoil's break-even from 659\,W
+to 700\,W at 0.1\,m$^2$ and 818\,W at 0.4\,m$^2$ (box median 935\,W and 1{,}063\,W, minimum 398\,W),
+and the planing hull's to 1{,}744\,W at 0.4\,m$^2$, where its best speed falls to 23.5\,m/s and the
+hydrofoil out-ranges it at every load. Air drag therefore sharpens the scope statement rather than
+changing it; spray drag and waves remain unmodelled.
 
 \begin{figure}[t]
 \centering

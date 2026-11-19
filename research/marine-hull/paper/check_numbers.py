@@ -94,6 +94,14 @@ CLAIMS = [
     ("results_hotel_ranking.txt", "k 0.10 planing: 16 feasible of 16; overtake by 10 kW in 16; break-even min 675 W"),
     ("results_hotel_ranking.txt", "monohull best speed first above Fn 0.3 at hotel 215 W"),
     ("results_hotel_ranking.txt", "post hoc planing break-even: 798 W"),
+    ("results_air_drag.txt", "break-even hydrofoil: 659 W"),
+    ("results_air_drag.txt", "break-even hydrofoil: 700 W"),
+    ("results_air_drag.txt", "break-even hydrofoil: 818 W"),
+    ("results_air_drag.txt", "break-even planing: 1744 W"),
+    ("results_air_drag.txt", "best speed at 10 kW 23.50 m/s"),
+    ("results_air_drag.txt", "hydrofoil >= planing at 49 of 49 (20 m/s grid), 49 of 49"),
+    ("results_air_drag.txt", "break-even min 398 W, 10th 669, median 1063"),
+    ("results_air_drag.txt", "break-even min 333 W, 10th 577, median 935"),
 ]
 
 def check(claims=CLAIMS, root=EXP):
