@@ -272,6 +272,20 @@ class NeverCompleted(unittest.TestCase):
         self.assertEqual(rounds.q_threshold(d, D, q=0.5), 200.0)
         self.assertIn("cpin_es3_ncq", rounds.VARIANTS)
 
+    def test_recent_threshold(self):
+        """Session 104: the recent cut counts only builds completed in the 3 years before D."""
+        import datetime, rounds
+        import pandas as pd
+        D = datetime.date(2020, 1, 1)
+        d = pd.DataFrame(dict(start=["2010-01-01", "2014-01-01", "2016-06-01", "2019-06-01", "2019-12-01",
+                                     "2013-01-01"],
+                              y=[100.0, 1500.0, 600.0, 50.0, 400.0, np.inf]))
+        # 2010's build ended in 2010 (too old), 2019-12's ends after D, 2013's never ends: three count
+        self.assertEqual(rounds.recent_threshold(d, D, q=1.0), 1500.0)
+        self.assertEqual(rounds.recent_threshold(d, D, q=0.0), 50.0)
+        self.assertEqual(rounds.recent_threshold(d, D, q=0.5), 600.0)
+        self.assertIn("cpin_es3_ncr", rounds.VARIANTS)
+
     def test_dead_drop_and_attach_status(self):
         """Session 95: a dead close-out is dropped only when its completion date is known by D; a dead permit
         completed after D stays (as an open row on D), and the join is on permit id and completion day."""
