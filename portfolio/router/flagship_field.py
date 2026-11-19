@@ -101,6 +101,11 @@ Landed results without the word still went: five records on 2026-11-18 saw
 of one landed sentence) parked as open items. Every row names where its open
 items start ("Next:", "Open:", "Wanted, ...:"), so nothing before that marker
 is offered for parking (`open_start`).
+
+Undated results after the marker still went to NEXT.md as open items (five
+records, 2026-11-18..19: "lasting moves to more days: cut has the power (8 of
+9 cells)"). An item the park picks that reads as a result (`is_result`) now
+goes to HISTORY.md instead; one with any open cue still goes to NEXT.md.
 """
 from __future__ import annotations
 
@@ -600,6 +605,30 @@ def archive_history(value: str, goal: int, keep: tuple[str, ...] = ()) -> tuple[
 
 HISTORY_HEADING = "## Moved from flagships.yaml `next:`"
 
+# An item a park would move that reads as a finished result, not open work:
+# it states an outcome (a verb below, a count "8 of 9", a share "54%") and
+# carries no sign of work still to do. Why: rows mix undated results into
+# their open list after "Next, most valuable first:", and the parker (which
+# goes by position) filed them in NEXT.md as open items. Five run records on
+# 2026-11-18..19 said so, e.g. "lasting moves to more days: cut has the power
+# (8 of 9 cells)" and "two covariates: ... (bar failed)" in
+# changepoint-detector's NEXT.md. Such items now go to HISTORY.md with the
+# dated results; anything with an open cue still goes to NEXT.md, since
+# losing an open item from the open list costs more than a stray result.
+RESULTISH = re.compile(
+    r"\b(?:ships|shipped|landed|fail|failed|fails|passed|passes|holds|replicated?|replicates)\b"
+    r"|\b\d+(?:\.\d+)? of \d+\b|\d%", re.I)
+STILL_OPEN = re.compile(
+    r"\b(?:open|next|wanted|wants?|needs?|needed|try|test it|re-?run|retest|re-test"
+    r"|to do|todo|not (?:yet|done)|should|could|would|whether|unknown|unclear|tbd|when"
+    r"|left|remaining|miss(?:es|ing)?|a real|tail|refresh)\b|\?", re.I)
+
+
+def is_result(item: str) -> bool:
+    """True when a parked item reads as a finished result (RESULTISH, no STILL_OPEN)."""
+    body = ROW_NOTE.sub("", " ".join(item.split()))
+    return bool(RESULTISH.search(body)) and not STILL_OPEN.search(body)
+
 
 def history_text(existing: str | None, venture: str, pieces: list[str], day: str) -> str:
     """HISTORY.md with the pieces appended under HISTORY_HEADING."""
@@ -825,8 +854,15 @@ def _main(argv: list[str]) -> int:
                           f"{sum(len(i) + 2 for i in auto)} chars: `next:` was {before} of "
                           f"{FLAGSHIP_NEXT_MAX} after the edit; {how}", file=sys.stderr)
                 for item in auto:
-                    print(f"--make-room parked ({len(item) + 2} chars): {item}", file=sys.stderr)
-                parks += auto
+                    if is_result(item):
+                        # a finished result: HISTORY.md, not NEXT.md's open list (RESULTISH)
+                        history.append(item)
+                        print(f"{'would move' if args.dry_run else 'moving'} to HISTORY.md, "
+                              f"a result rather than an open item ({len(item) + 2} chars): {item}",
+                              file=sys.stderr)
+                    else:
+                        parks.append(item)
+                        print(f"--make-room parked ({len(item) + 2} chars): {item}", file=sys.stderr)
             if args.dry_run:
                 shown = with_pointer(new) if parks else " ".join(new.split())
                 print(f"dry run: {args.venture}.next would be {len(shown)}"
