@@ -959,6 +959,20 @@ class StartHereTests(unittest.TestCase):
         self.assertEqual(start_here(queue, None, now=now), (1, "claimed"))
         self.assertIsNone(start_here(queue[1:2] + queue[3:], claims, now=now))
 
+    def test_a_claim_older_than_any_merge_frees_its_row(self):
+        # 100 merged PRs (2026-11-19) took 1-140 min from open to merge; a
+        # 6 h old open PR is stalled and no longer holds its row for a day.
+        from datetime import datetime, timezone
+        from allocate import CLAIM_FRESH_HOURS
+        now = datetime(2026, 11, 19, 14, 0, tzinfo=timezone.utc)
+        queue = [{"venture": "a", "flagship": True, "task": "Deepen (flagship 1): x"}]
+        stalled = {"a": [(17310, "a: stalled", "2026-11-19T08:00:00Z")]}
+        live = {"a": [(17594, "a: live", "2026-11-19T13:00:00Z")]}
+        self.assertLess(CLAIM_FRESH_HOURS, 6)
+        self.assertEqual(start_here(queue, stalled, now=now), (1, "a"))
+        self.assertIsNone(start_here(queue, live, now=now))
+        self.assertIn("older open PRs: #17310", claim_note(stalled["a"], now=now))
+
     def test_session_spreads_concurrent_runs_over_free_rows(self):
         from datetime import datetime, timezone
         now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
