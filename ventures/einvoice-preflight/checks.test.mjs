@@ -245,3 +245,13 @@ test("half-cent VAT is rounded half up, not down by float noise (1.50 at 19% is 
   assert.equal(roundHalfUpToCents(14.5 * 7 / 100), 1.02);
   assert.equal(roundHalfUpToCents(-1.5 * 19 / 100), -0.29);
 });
+
+test("amounts of 10^10 and more keep their cents (quality audit 2026-11-19: 12 significant digits cut them)", () => {
+  assert.equal(roundHalfUpToCents(12345678901.23), 12345678901.23);
+  assert.equal(roundHalfUpToCents(13703703580.37), 13703703580.37);
+  assert.equal(roundHalfUpToCents(12345678901.23 * 11 / 100), 1358024679.14);
+  const idr = { ...clone(VALID), currency: "IDR",
+    lines: [{ description: "Work", quantity: 1, unit_price: 12345678901.23, tax_percent: 11, net: 12345678901.23 }],
+    totals: { net: 12345678901.23, tax: 1358024679.14, gross: 13703703580.37 } };
+  assert.deepEqual(checkInvoice(idr).filter((e) => e.severity !== "warning").map((e) => e.rule), []);
+});
