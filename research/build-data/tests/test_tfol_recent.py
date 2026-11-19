@@ -136,3 +136,32 @@ class Session105(unittest.TestCase):
         self.assertTrue(P["M1"] and P["M3a"] and P["M4"])
         self.assertFalse(P["M2"] or P["M3b"])
         self.assertAlmostEqual(s["variants"]["cpin_es3_ncrd"]["mean_regret"], 4.0)
+
+
+class AustinSummary(unittest.TestCase):
+    def test_austin_summary(self):
+        import json, tempfile
+        # 12 SF/Seattle cells: nc4 best by 1 day, chooser picks nc3
+        grid = {"cells": [dict(grid_cell(h, Y, 81.0, 80.0, 81.0), regret={"cpin_es3_nc3": 1.0, "cpin_es3_nc4": 0.0,
+                                                                         "cpin_es3_nc5": 1.0}, pick_regret=1.0)
+                          for h in ("sf", "seattle") for Y in tfol_boot.ALL_YEARS]}
+        R = {}
+        for Y in tfol_boot.ALL_YEARS:
+            for v, t, k6 in (("cpin_es3_nc3", 70.0, 1.0), ("cpin_es3_nc4", 75.0, 2.0), ("cpin_es3_nc5", 85.0, 3.0),
+                             ("cpin_es3_ncrd", 80.0, 9.0)):
+                R[f"austin {Y} {v}"] = {"test_loss": {"0.9": t}, "stale_threshold_days": {"sf": 1700.0},
+                                        "tgt_k": {"6": {"n": 10, "n_open": 1, "loss": {"0.9": k6}}}}
+        with tempfile.TemporaryDirectory() as td:
+            p, g = os.path.join(td, "r.json"), os.path.join(td, "g.json")
+            json.dump(R, open(p, "w"))
+            json.dump(grid, open(g, "w"))
+            s = tfol_boot.austin_summary(p, None, g)
+        P = s["predictions"]
+        self.assertFalse(P["A0"])  # no rows saved
+        self.assertTrue(P["A1"] and P["A2"] and P["A4"])
+        # pooled: nc3 (12*1 + 0)/18 = 0.667, nc4 (0 + 6*5)/18 = 1.667: nc3 lowest; chooser = nc3 exactly, not below
+        self.assertTrue(P["A3"])
+        self.assertFalse(P["A5"])
+        self.assertAlmostEqual(s["pooled_fixed_regret"]["cpin_es3_nc4"], 30.0 / 18)
+        self.assertAlmostEqual(s["austin_ncrd_regret"], 10.0)
+        self.assertEqual(s["austin_chooser_picks"]["cpin_es3_nc3"], 6)

@@ -15,6 +15,8 @@ Session 103: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR --grid scores the st
 rules and as a per-deployment chooser (lowest k6_loss over the grid) over all 12 SF and Seattle city-years
 (grid_summary; nc4 for 2019 to 2022 from RESULTS_JSON, the rest from sessions 101 and 102's files). Writes
 RESULTS_JSON with _grid.json in place of .json.
+Session 106: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR --austin scores Austin as target at the grid and ncrd,
+pooled with session 103's 12 cells (austin_summary). Writes RESULTS_JSON with _austin.json in place of .json.
 Session 104: python3 src/tfol_boot.py RESULTS_JSON ROWS_DIR --recent scores cpin_es3_ncr (a cut per source city at
 the 0.99 quantile of its builds completed in the 3 years before D) against session 103's grid oracle in all 12
 cells (recent_summary). Writes RESULTS_JSON with _recent.json in place of .json.
@@ -385,6 +387,80 @@ def robust_summary(path, rows_dir, grid_path, cut_path=None, held=("sf", "seattl
     return res
 
 
+AUSTIN_VARIANTS = STALE_GRID + ("cpin_es3_ncrd",)  # session 106
+
+
+def austin_summary(path, rows_dir, grid_path, cut_path=None, years=ALL_YEARS, nc4_max_regret_12=2.31):
+    """Session 106 (LOG.md): Austin as target (sources SF and Seattle), Y = 2017 to 2022, at the {3, 4, 5}-year grid
+    and session 105's ncrd. Pooled with the 12 SF/Seattle grid cells of session 103 (grid_path) for 18 cells.
+    A0: saved rows reproduce the JSON means within 0.001 and ncrd's SF/Seattle source thresholds equal
+    src/robust_cut.py's (cut_path) within 1e-6. A1: nc3 is the grid oracle in at least 5 of the 6 Austin cells.
+    A2: fixed nc4's mean Austin regret exceeds 2.31 days (its worst SF/Seattle cell). A3: pooled over 18 cells nc3
+    has the lowest mean regret of the three fixed cuts. A4: ncrd's mean Austin regret is at least nc4's.
+    A5: the k6 chooser over the grid picks nc3 in at least 5 of 6 Austin cells and its 18-cell mean regret is below
+    every fixed cut's."""
+    R = json.load(open(path))
+    grid = json.load(open(grid_path))
+    C = json.load(open(cut_path)) if cut_path and os.path.exists(cut_path) else None
+    m = lambda xs: float(np.mean(xs)) if xs else None  # noqa: E731
+    cells, chk, thr = [], [], []
+    for Y in years:
+        rs = {v: R.get(f"austin {Y} {v}") for v in AUSTIN_VARIANTS}
+        for v, r in rs.items():
+            f = os.path.join(rows_dir, f"austin_{Y}_{v}.npz") if rows_dir else ""
+            if r is None or not os.path.exists(f):
+                chk.append(float("inf"))
+                continue
+            z = np.load(f)
+            chk.append(abs(row_loss(z["test_y"], z["test_pred"]).mean() - r["test_loss"]["0.9"]))
+        r = rs["cpin_es3_ncrd"]
+        if C is not None and r is not None:
+            thr += [abs(t - C[city][str(Y)]["cpin_es3_ncrd"]) for city, t in (r.get("stale_threshold_days") or {}).items()]
+        if not all(rs[v] for v in STALE_GRID):
+            continue
+        test = {v: rs[v]["test_loss"]["0.9"] for v in STALE_GRID}
+        k6 = {v: rs[v]["tgt_k"]["6"]["loss"]["0.9"] for v in STALE_GRID}
+        oracle, pick = min(test, key=test.get), min(k6, key=k6.get)
+        c = dict(held="austin", year=Y, test=test, k6=k6, oracle=oracle, pick=pick,
+                 regret={v: test[v] - test[oracle] for v in STALE_GRID}, pick_regret=test[pick] - test[oracle],
+                 k6_size=dict(n=rs["cpin_es3_nc4"]["tgt_k"]["6"]["n"], n_open=rs["cpin_es3_nc4"]["tgt_k"]["6"]["n_open"]))
+        if r is not None:
+            c["ncrd"] = r["test_loss"]["0.9"]
+            c["ncrd_regret"] = c["ncrd"] - test[oracle]
+            c["ncrd_thresholds"] = r.get("stale_threshold_days")
+        cells.append(c)
+    both = cells + list(grid["cells"])
+    fx_a = {v: m([c["regret"][v] for c in cells]) for v in STALE_GRID}
+    fx_18 = {v: m([c["regret"][v] for c in both]) for v in STALE_GRID}
+    ch_a, ch_18 = m([c["pick_regret"] for c in cells]), m([c["pick_regret"] for c in both])
+    nd = [c["ncrd_regret"] for c in cells if "ncrd_regret" in c]
+    full = len(cells) == len(years) and len(both) == len(years) + 12
+    res = dict(n_austin=len(cells), n_pooled=len(both), austin_fixed_mean={v: m([c["test"][v] for c in cells])
+               for v in STALE_GRID}, austin_fixed_regret=fx_a, pooled_fixed_regret=fx_18,
+               austin_chooser_regret=ch_a, pooled_chooser_regret=ch_18,
+               austin_oracle_counts={v: sum(c["oracle"] == v for c in cells) for v in STALE_GRID},
+               austin_chooser_picks={v: sum(c["pick"] == v for c in cells) for v in STALE_GRID},
+               austin_ncrd_regret=m(nd), austin_ncrd_mean=m([c["ncrd"] for c in cells if "ncrd" in c]),
+               rows_check_max_abs=float(max(chk)) if chk else None,
+               threshold_check_max_abs=float(max(thr)) if thr else None,
+               # post hoc (not pre-registered): worst cell per fixed cut over the 18 cells
+               pooled_max_regret_post_hoc={v: max((c["regret"][v] for c in both), default=None) for v in STALE_GRID},
+               pooled_chooser_max_regret_post_hoc=max((c["pick_regret"] for c in both), default=None))
+    res["predictions"] = dict(
+        A0=bool(chk and max(chk) < 1e-3 and thr and max(thr) < 1e-6),
+        A1=bool(full and res["austin_oracle_counts"]["cpin_es3_nc3"] >= 5),
+        A2=bool(full and fx_a["cpin_es3_nc4"] > nc4_max_regret_12),
+        A3=bool(full and min(fx_18, key=fx_18.get) == "cpin_es3_nc3"),
+        A4=bool(full and len(nd) == len(years) and m(nd) >= fx_a["cpin_es3_nc4"]),
+        A5=bool(full and res["austin_chooser_picks"]["cpin_es3_nc3"] >= 5 and ch_18 < min(fx_18.values())))
+    res["note"] = ("session 106: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds on completed test rows "
+                   "(days); Austin held out, sources SF and Seattle; grid = staleness cuts 3, 4, 5 years; oracle = "
+                   "best grid member on the test year; chooser = lowest q0.9 pinball on the target's own Y-6 permits "
+                   "completed by D; pooled = these 6 cells plus session 103's 12 SF/Seattle cells")
+    res["cells"] = cells
+    return res
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("results")
@@ -395,7 +471,18 @@ if __name__ == "__main__":
     ap.add_argument("--grid", action="store_true", help="session 103: the {3, 4, 5}-year grid (grid_summary)")
     ap.add_argument("--recent", action="store_true", help="session 104: cpin_es3_ncr against the grid")
     ap.add_argument("--robust", action="store_true", help="session 105: cpin_es3_ncr95 and _ncrd against the grid")
+    ap.add_argument("--austin", action="store_true", help="session 106: Austin as target at the grid and ncrd")
     a = ap.parse_args()
+    if a.austin:
+        rd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
+        s = austin_summary(a.results, a.rows_dir, os.path.join(rd, "rounds_score_grid_i2c_grid.json"),
+                           os.path.join(rd, "robust_cut_i2c.json"))
+        json.dump(s, open(a.results.replace(".json", "_austin.json"), "w"), indent=1)
+        print(json.dumps({k: v for k, v in s.items() if k not in ("cells", "note")}, indent=1))
+        for c in s["cells"]:
+            print(c["year"], {k[8:]: round(x, 2) for k, x in c["test"].items()}, "ncrd", round(c.get("ncrd", float("nan")), 2),
+                  "oracle", c["oracle"][8:], "pick", c["pick"][8:], "thr", c.get("ncrd_thresholds"))
+        sys.exit(0)
     if a.robust:
         rd = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
         s = robust_summary(a.results, a.rows_dir, os.path.join(rd, "rounds_score_grid_i2c_grid.json"),
