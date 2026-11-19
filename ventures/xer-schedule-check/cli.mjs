@@ -29,7 +29,7 @@ if (args.includes("--json")) {
   for (const w of report.warnings) console.log(`WARNING: ${w}`);
   console.log(`DCMA 14-point: ${report.passed} of 14 pass\n`);
   for (const c of report.checks) {
-    const v = c.value === null ? "n/a" : `${typeof c.value === "number" ? Math.round(c.value * 10) / 10 : c.value}${c.unit ? " " + c.unit : ""}`;
+    const v = c.value === null ? "n/a" : `${typeof c.value === "number" ? (Math.abs(c.value) < 10 ? Math.round(c.value * 1000) / 1000 : Math.round(c.value * 10) / 10) : c.value}${c.unit ? " " + c.unit : ""}`;
     console.log(`${c.pass ? "PASS" : "FAIL"}  ${String(c.id).padStart(2)}. ${c.name.padEnd(36)} ${v.padEnd(22)} (${c.threshold})${c.total ? `  ${c.count}/${c.total}` : ""}`);
   }
   console.log("");

@@ -46,7 +46,12 @@ changed) for monthly pay-application reviews; and the review itself as a service
   float in working days of each activity's own calendar. The critical path test
   delays an open activity on the driving path by 600 working days and
   recomputes. Missed tasks and BEI use P6's planned dates as the baseline (a
-  single XER rarely carries the baseline project; the page says so).
+  single XER rarely carries the baseline project; the page says so). P6 resets
+  a not-started activity's planned dates to its early dates whenever it
+  schedules (on the CCA sample all 11,775 not-started activities have planned
+  finish equal to early finish), so overdue work that has not started is never
+  counted as missed and both metrics flatter the schedule (quality audit
+  [2026-11-19](../../portfolio/quality/audits/2026-11-19-xer-schedule-check.json)).
 - `index.html`: the page. `cli.mjs`: the same from a terminal:
 
 ```
@@ -71,9 +76,11 @@ node cli.mjs schedule.xer --project CODE  # a file with several projects
   lunch breaks, weekends, a holiday and a half day; FS/SS/FF links with lags,
   float and free float worked by hand; constraints and negative float against a
   must-finish-by date; progress with a lag after a finished predecessor; ALAP;
-  loops; each DCMA point on a small schedule.
+  loops; DCMA points 1 to 5, 8, 11, 12 and 14 on a small schedule (points 6,
+  7, 9, 10 and 13 are checked only against the public XER files above).
 - **Not checked**: no file used progress override, start or smallest float, the
-  successor or 24-hour lag calendar, or mandatory constraints (unit tests only).
+  successor or 24-hour lag calendar, or mandatory constraints, and no unit test
+  covers them yet.
   An independent DCMA implementation was not run side by side.
 
 ## Limits
