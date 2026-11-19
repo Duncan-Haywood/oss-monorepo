@@ -407,12 +407,11 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The bound's ppm floor on tenths"
-      (2026-11-19: floor 2 kept as a noise margin; design 7 of 242 missed at floor
-      0, held out W+X 97 of 97 at every floor;
-      eval/take-bound-floor-tenths-2026-11-19.md). Next: a fresh set with 1.8-2.2 ms
-      takes to show whether the floor is needed on tenths; TAKE_SURVEY_BLIND's 1.5
-      rechecked on a fresh jittery-tach set at the nine-point grid.
+      see firmware/esp32/README.md, latest "The bound's ppm floor on takes near 2
+      ms" (2026-11-19: floor 2 shown needed, Y+Z floor 0 missed 3 of 54, floor 2
+      none; eval/take-bound-floor-near2-2026-11-19.md). Next: a floor scaled to the
+      survey's noise (NEXT.md); TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh
+      jittery-tach set at the nine-point grid.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
