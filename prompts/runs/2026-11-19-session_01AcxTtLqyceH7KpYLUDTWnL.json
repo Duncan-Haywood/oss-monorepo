@@ -33,7 +33,7 @@
   "outcome": "success",
   "errors": [
     "git checkout -b failed because the harness had already created the work branch; switched to it instead",
-    "CI changed-ventures failed on platform/ci/test_shallow_repair.py (from PR #17478 on main, not this diff): passes locally, fails on the runner; fixed forward by naming the fake git process with a shell script instead of a renamed copy of sleep (a multi-call coreutils binary refuses an unknown name; hypothesis, confirmed only if the rerun goes green)"
+    "CI changed-ventures failed on platform/ci/test_shallow_repair.py (from PR #17478, not this diff); I pushed a fix (script instead of a renamed sleep binary), but PR #17484 landed the same fix and diagnosis on main meanwhile, so the merge took main's version and this PR no longer touches the file"
   ],
   "integrity_issues": [],
   "doc_friction": [
