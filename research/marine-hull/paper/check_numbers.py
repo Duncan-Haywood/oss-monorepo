@@ -167,6 +167,11 @@ CLAIMS = [
     ("results_motion_damping_holdout.txt", "heave rms (0.8-2.0) 0.127, pitch rms 0.138"),
     ("results_motion_damping_holdout.txt", "strip+refl area 1.134 of measured mean"),
     ("results_motion_damping_holdout.txt", "plain: 30 W loss (share 0.25) over the fit and near cells 4.10% to 4.23%"),
+    # milestone 7zh: Faltinsen et al. (1980) waterline reflection term in place of STAWAVE-2's
+    ("results_faltinsen_reflection.txt", "row kT,_speed 0.929 0.579 1.289"),
+    ("results_faltinsen_reflection.txt", "F4 variant area ratios 0.915-0.949"),
+    ("results_faltinsen_reflection.txt", "row STAWAVE-2 2.844 0.725 -4.18"),
+    ("results_faltinsen_reflection.txt", "row Faltinsen_kT_speed 2.844 0.028 -3.39"),
 ]
 
 def check(claims=CLAIMS, root=EXP):

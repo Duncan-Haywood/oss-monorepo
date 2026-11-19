@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKnmg3mAtpMgiC9f1pn",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T20:18:35Z",
+  "ended": "2026-11-19T20:30:09Z",
+  "wall_minutes": 11.75,
+  "tokens_in": 3954945,
+  "tokens_out": 30026,
+  "cost_usd": 2.2961,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17782",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The full marine-hull unittest discover run takes ~116 s and 11 modules fail to import under the system python (numpy/pytest missing); the stdlib subset is what a run can check in the foreground. A note naming which marine-hull tests need numpy would save a step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "Faltinsen et al. (1980) proceedings could not be opened (no DOI; doi.org and publisher hosts refused through the proxy), so the formula is used as reproduced secondarily and marked so in refs.bib, PROPOSAL citation status, LOG limits and the post.",
+      "did": "Ran the draft-factor and speed-factor variants as a sensitivity instead of picking one",
+      "result": "Conclusion (area ratio 0.915-0.949, loss 3.38-3.43%) is insensitive to the unsettled details"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-marine-hull-reflection-term-waterline-shape.md",
+    "research/marine-hull/LOG.md (7zh entry)"
+  ],
+  "goal": null,
+  "notes": "Milestone 7zh: all seven pre-registered expectations held. Checks run locally: tests/test_faltinsen_reflection.py 6/6; paper/check_numbers.py ok; research/_homepage/build.py ok; check_md_links ok; check_posts ok; research_live_links no change. Full suite: 380 stdlib tests pass, 11 modules need numpy/pytest (pre-existing, CI covers).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "33d5cf9a-8aa3-5d10-85a4-18dedc7983ac",
+    "transcripts": 1,
+    "first": "2026-11-19T20:18:35Z",
+    "last": "2026-11-19T20:30:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 70,
+        "output": 30026,
+        "thinking": 7641,
+        "cache_read": 3838939,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115936,
+        "api_equivalent_usd": 2.2961,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 70,
+      "output": 30026,
+      "thinking": 7641,
+      "cache_read": 3838939,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115936,
+      "api_equivalent_usd": 2.2961,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 34,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.75,
+      "active_minutes": 11.75,
+      "model_minutes": 4.44,
+      "tool_minutes": 7.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "implement and verify an added-resistance formula, rerun tank hold-out and monohull, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 435.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
