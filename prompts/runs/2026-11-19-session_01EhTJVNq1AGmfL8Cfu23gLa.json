@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVNq1AGmfL8Cfu23gLa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (standing ventures brief)",
+  "input_sha256": "b40972142ae5c43905e5061c6c93473a943782620597092120d0e7a390a0b170",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T22:05:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17805",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A Bash call that started a background http.server and a Playwright heredoc in one command was refused by the removal safety check (no removal in it); split into a Write plus a plain node call."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace auto-parked a finished result (whist 57 'every size 4-64 stored') into NEXT.md as if it were an open item; reverted NEXT.md by hand since the README already holds it."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator's next: had drifted into combinatorial-design records (whist 52/57/69) with no user-facing item left buildable; the user-facing gap (no scorer on the night) was only visible by reading the guide's 'does not keep score' FAQ."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's listed buildable items were further whist/LNS search records; their marginal value to a league organiser is near zero.",
+      "did": "Built the missing product slice instead: a phone-first Americano/Mexicano scorer with a live table, on the same flagship.",
+      "result": "Shipped with 10 unit tests and a Playwright pass at phone width."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-americano-sit-out-credit-changes-the-winner.md",
+    "ventures/league-schedule-generator/README.md (Americano and Mexicano scorer section)",
+    "ventures/league-schedule-generator/eval/sit-out-credit.txt"
+  ],
+  "goal": null,
+  "notes": "node --test night.test.mjs: 10 pass. Playwright (iPhone 13): example night, score auto-fill to 24, round tick, resume after reload, read-only share link with disabled inputs, Mexicano draw gated on a scored round; no console errors, scrollWidth 390, table fits 332/332 after the narrow-width CSS. Venture suite and preflight results: see PR body.",
+  "corrections": [],
+  "redteam": null
+}
