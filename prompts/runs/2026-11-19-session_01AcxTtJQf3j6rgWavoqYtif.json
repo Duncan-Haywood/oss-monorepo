@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJQf3j6rgWavoqYtif",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T08:18:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship (allocate.py row 5): NEXT.md buildable item 'More tach pulses a revolution'",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17594",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First sweep draft passed refine=0 to the take fits; the board's take survey refines tau, so every candidate misfit ~500 ppm and scored alike",
+      "fix": "matched the board call (tau refined, TAKE_SURVEY_AFTER) before any scored run"
+    },
+    {
+      "what": "per/angles first stretched periods by angle*per instead of angle, so the fit's rpm output was N times high (drop ratio and rms unaffected: scale-invariant)",
+      "fix": "caught by the new unit test, fixed; the main run's drop/rms numbers do not depend on it"
+    },
+    {
+      "what": "Chained the robustness runs on main.jsonl reaching 512 lines; the grid is 256 balls, so the chain waited ~10 minutes doing nothing",
+      "fix": "stopped and restarted directly"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "issue": "Clause (d) of the prediction (the per-ball bound) was added after a 3-ball look at the curves, before the main run and before commit 225c6308a; stated in the script, eval note and post. It did not change the verdict: (d) failed."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/tests/",
+      "issue": "60+ sweep scripts and no index: finding how the board's take survey calls the fit (refine on, TAKE_SURVEY_AFTER) meant reading controller.LaunchCheck._take_survey; a one-line 'how to refit like the board' helper or note would have saved a misfit run"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "llms.txt and marketing page not touched: the change is a host-side test and a closed firmware item with no user-facing behaviour change",
+      "did": "left them as they are",
+      "result": "nothing a user sees changed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-four-magnets-tach-test-closed.md",
+    "ventures/open-tennis-robots/eval/tach-pulses-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registered (225c6308a) paired simulation, 256 balls: (a) failed 46 vs 38 of 128, (b) held 7 vs 16 of 32, (c) held, (d) failed 207/256 bound coverage. Item closed by rule; board unchanged (per=1 default is byte-identical, unit-tested). Robustness runs (2 deg spacing, 0.5 us jitter) reported in the eval note when finished. Local venture tests and PR CI: see PR.",
+  "corrections": [],
+  "redteam": null
+}
