@@ -74,7 +74,14 @@ budget). Rounded instant reads are printed but are not a clause.
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture n.jsonl --lag 0.62 --seed 101 --takes "0.2,0.6,1.0,1.4,1.9,2.3,2.75,3.3,4.6,7.4,0"
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --dense dense-n.jsonl.gz n.jsonl
+RESULT (set N, eval/take-short-n-2026-11-19.txt): within 0.5 ms 45 of 66 against 40, off by more than 1 ms 6 against 6
+(the prediction's "fewer" failed; the rule asked for no more, which held), no instant build advised on either, checks
+16 each. Every clause held, so `TAKE_SURVEY_GRID_US` is now 0, 1.5, 2.5, 3, 4, 5, 6, 7, 8 ms. Set N captured again on
+the board with that grid live (`--live`, eval/take-short-n-live-2026-11-19.txt): 49 of 66 within 0.5 ms against 39,
+large misses 3 against 7, no survey cut at host.TAKE_WAIT_S 14 s, balls held 140.4 s against 127.3 s.
+
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --compare dense-n.jsonl.gz "0,2,3,4,5,6,7,8" "0,1.5,2.5,3,4,5,6,7,8" --rule advice
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --live n.jsonl [n9.jsonl ...]
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --dense out.jsonl.gz rows-j.jsonl.gz [rows-k ...]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_short_blind.py --report out.jsonl.gz
@@ -237,7 +244,28 @@ def compare(rows, shipped, candidate, rule="read"):
     print("Decision: " + ("the candidate grid ships" if all(clauses.values()) else "the shipped grid stays"))
 
 
+def live(paths):
+    """The board's own verdicts in captures (each drill's TAKE_SURVEY refined time, rounded to 0.5 ms as the Pi rounds
+    it; advised when the best / step rms share is at most host.TAKE_ADVISE_RATIO), one line a capture."""
+    from tennisbots import host
+    for path in paths:
+        v = []
+        for r in load(path):
+            sv = r["survey"]
+            rms = sv["rms_ppm"]
+            v.append((r["take_ms"], round(2 * sv["refined_ms10"] / 10) / 2, min(rms) / rms[0] if rms[0] else 1.0))
+        ok = lambda a, b: abs(a - b) <= 0.5 + 1e-9
+        print(f"{path.split('/')[-1]}: within 0.5 ms {sum(ok(a, b) for a, b, _ in v)}/{len(v)}, off by more than 1 ms "
+              f"{sum(abs(a - b) > 1 + 1e-9 for a, b, _ in v)}, mean abs {sum(abs(a - b) for a, b, _ in v) / len(v):.3f} ms, "
+              f"instant builds off 0 by more than 0.5 ms {sum(a == 0 and abs(b) > 0.5 for a, b, _ in v)}, instant builds "
+              f"advised {sum(a == 0 and x <= host.TAKE_ADVISE_RATIO for a, _, x in v)}, builds advised "
+              f"{sum(x <= host.TAKE_ADVISE_RATIO for *_, x in v)}, checks (3 ms and up) within 0.5 ms "
+              f"{sum(a >= 3 and ok(a, b) for a, b, _ in v)}")
+
+
 def main():
+    if "--live" in sys.argv:
+        return live(sys.argv[sys.argv.index("--live") + 1:])
     if "--dense" in sys.argv:
         i = sys.argv.index("--dense")
         out, ins = sys.argv[i + 1], sys.argv[i + 2:]
