@@ -174,7 +174,8 @@
    "what": "Headline 'every cell is far from its null ... separates machine text from human text in all 20 cells' rests on cell means only; per draw, wiki/mistral-chat (test 0.918/0.901 vs own null 0.919/0.902) and recipes/mpt-chat (0.978 above 4 of 5 nulls) overlap, and no per-cell test is run; repeated in research/README.md:779",
    "where": "research/mimic-mauve/README.md:15",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17691"
   },
   {
    "severity": "medium",
@@ -188,7 +189,8 @@
    "what": "Nearest prior work on MAUVE embedding choice and classifier comparison (Pillutla et al. JMLR 2023; Pimentel et al. ICLR 2023) not cited, so the novelty of 'lexical MAUVE loosely tracks a lexical detector' is not positioned",
    "where": "research/mimic-mauve/README.md:41",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17691"
   },
   {
    "severity": "low",
@@ -209,7 +211,8 @@
    "what": "'and the reverse' has no backing cell: every cell with MAUVE < 0.15 has AUROC >= 0.97",
    "where": "research/mimic-mauve/README.md:17",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17691"
   },
   {
    "severity": "low",
@@ -219,6 +222,6 @@
    "origin": "build"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17691"],
  "verdict": "The computation is right and reproducible: results.json, results.txt and the figure rebuild byte-identically, and my own divergence-frontier implementation on the library's histograms, closed-form cases (1 and 1/252), Mann-Whitney AUROC, bigram counter and rank correlation all match to machine precision. It falls short of a MAUVE practitioner's sign-off on interpretation: the headline 'every cell far from its null' fails per draw in 2 of 20 cells, MAUVE is run at n = 48 to 100 (5 to 10 buckets) where it is noisy and embedding-sensitive, the Spearman p ignores shared human pools, the nearest prior work on embedding choice is uncited, and the tests would not notice a broken null. Finished (completeness 3), does not meet the bar (claims 2, verification 2, median 2)."
 }
