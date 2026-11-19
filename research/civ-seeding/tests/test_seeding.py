@@ -528,3 +528,38 @@ def test_m18_joint_reports_survive_the_filter_at_rate_kappa():
                                 recip=True, fp_joint=1.0)
     assert np.array_equal(s1.astype(bool) & ~A, s0.astype(bool) & ~A)
     assert (s1.astype(bool) & A).sum() < (s0.astype(bool) & A).sum()
+
+
+# ---- milestone 19: the soft reciprocity filter ----
+
+def test_m19_soft_filter_endpoints():
+    # recip_w = 0 is the hard filter (milestone 17); recip_w = 1 keeps every report (unfiltered)
+    v = _m9_village()
+    for f, design in ((1.0, "uniform"), (0.5, "adaptive")):
+        kw = dict(fp=0.5, fp_mode="closure", fp_joint=0.5)
+        hard = sd.survey_recall(v, f, np.random.default_rng(5), design, 0.75, 0.85, recip=True, **kw)
+        w0 = sd.survey_recall(v, f, np.random.default_rng(5), design, 0.75, 0.85, recip=True, recip_w=0.0, **kw)
+        raw = sd.survey_recall(v, f, np.random.default_rng(5), design, 0.75, 0.85, **kw)
+        w1 = sd.survey_recall(v, f, np.random.default_rng(5), design, 0.75, 0.85, recip=True, recip_w=1.0, **kw)
+        assert all(np.array_equal(x, y) for x, y in zip(hard, w0))
+        assert all(np.array_equal(x, y) for x, y in zip(raw, w1))
+
+
+def test_m19_soft_filter_weights_only_one_sided_checkable_ties():
+    v = _m9_village()
+    kw = dict(recall=0.85, fp=0.5, fp_mode="closure")
+    s, est0, raw = sd.survey_recall(v, 0.5, np.random.default_rng(8), "adaptive", 0.75, **kw)
+    _, _, hard = sd.survey_recall(v, 0.5, np.random.default_rng(8), "adaptive", 0.75, recip=True, **kw)
+    _, est, soft = sd.survey_recall(v, 0.5, np.random.default_rng(8), "adaptive", 0.75, recip=True,
+                                    recip_w=0.3, **kw)
+    assert np.allclose(soft, soft.T)
+    assert np.allclose(soft, hard + 0.3 * (raw - hard))       # between the two, linearly in the weight
+    assert set(np.unique(soft)) <= {0.0, 0.3, 1.0} and (soft == 0.3).any()
+    both = s[:, None] & s[None, :]
+    assert not (soft[~both] == 0.3).any()                     # uncheckable ties are never down-weighted
+    assert np.allclose(est[s], soft[s].sum(1)) and np.array_equal(est[~s], est0[~s])
+    try:
+        sd.survey_recall(v, 1.0, np.random.default_rng(0), recip=True, recip_w=1.5)
+        assert False
+    except ValueError:
+        pass

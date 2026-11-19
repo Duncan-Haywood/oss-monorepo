@@ -1,0 +1,98 @@
+# Milestone 19: the soft reciprocity filter against correlated false ties (recall 0.85, phi = 0.5, closure), five Monte Carlo copies of 26 rules
+B = 500 joint draws; 5 copies; reference = 47 primary rules (milestone 15's set), never swapped
+share of (draw, family, rule) cells where a key rule beats the reference best: copies 0.0017-0.0075, pooled 0.0000
+
+## sanity: the 8 unfiltered and hard-filtered rules against milestone 18's copies 0-4, max |difference| 4.78e-06
+
+## per rule: joint median per copy | pooled median [5%, 95% bootstrap] | MC se | beats perfect-census top degree
+  census-degree-r0.85-fp0.5-closure                    4.24 5.56 5.54 4.93 5.61 | 5.12 [3.96, 6.64] | 0.26 | 0.008
+  census-degree-r0.85-fp0.5-closure-recip              4.39 4.86 4.53 4.36 5.18 | 4.63 [3.49, 6.00] | 0.16 | 0.130
+  census-degree-r0.85-fp0.5-closure-recip-w0.25        4.29 5.11 4.81 5.06 4.77 | 4.74 [3.59, 6.19] | 0.15 | 0.094
+  census-degree-r0.85-fp0.5-closure-recip-w0.5         4.99 5.04 4.88 4.27 4.79 | 4.74 [3.63, 6.15] | 0.14 | 0.084
+  census-degree-r0.85-fp0.5-closure-recip-w0.75        5.11 5.04 4.69 4.52 5.13 | 4.87 [3.75, 6.35] | 0.12 | 0.078
+  census-degree-r0.85-fp0.5-closure-recip-j0.5         4.96 4.42 4.39 4.91 4.28 | 4.59 [3.43, 5.86] | 0.14 | 0.134
+  census-degree-r0.85-fp0.5-closure-recip-j0.5-w0.25   5.10 4.56 4.88 5.22 4.81 | 4.87 [3.72, 6.33] | 0.12 | 0.050
+  census-degree-r0.85-fp0.5-closure-recip-j0.5-w0.5    4.77 4.94 4.76 5.10 4.80 | 4.84 [3.67, 6.48] | 0.07 | 0.052
+  census-degree-r0.85-fp0.5-closure-recip-j0.5-w0.75   4.88 5.06 4.92 4.98 5.00 | 4.95 [3.69, 6.53] | 0.03 | 0.034
+  census-degree-r0.85-fp0.5-closure-recip-j1           4.42 5.44 5.22 5.02 4.80 | 4.96 [3.66, 6.50] | 0.18 | 0.042
+  census-degree-r0.85-fp0.5-closure-recip-j1-w0.25     5.24 5.15 5.23 4.85 5.13 | 5.13 [3.79, 6.56] | 0.07 | 0.032
+  census-degree-r0.85-fp0.5-closure-recip-j1-w0.5      5.10 5.08 4.86 4.72 4.46 | 4.85 [3.66, 6.21] | 0.12 | 0.066
+  census-degree-r0.85-fp0.5-closure-recip-j1-w0.75     4.48 5.08 5.23 4.63 5.15 | 4.89 [3.62, 6.18] | 0.15 | 0.044
+  census-dd-r0.85-fp0.5-closure                        2.68 2.37 3.33 3.45 2.54 | 2.78 [1.95, 4.06] | 0.22 | 0.954
+  census-dd-r0.85-fp0.5-closure-recip                  1.43 2.44 2.30 2.68 2.16 | 2.18 [1.33, 3.41] | 0.21 | 0.976
+  census-dd-r0.85-fp0.5-closure-recip-w0.25            1.41 2.10 2.31 2.41 1.78 | 1.95 [1.22, 3.14] | 0.18 | 0.986
+  census-dd-r0.85-fp0.5-closure-recip-w0.5             2.09 1.71 2.48 2.17 2.27 | 2.05 [1.29, 3.18] | 0.13 | 0.980
+  census-dd-r0.85-fp0.5-closure-recip-w0.75            2.74 2.42 3.23 2.86 2.35 | 2.62 [1.82, 3.89] | 0.16 | 0.954
+  census-dd-r0.85-fp0.5-closure-recip-j0.5             3.30 2.72 3.26 2.95 2.84 | 2.99 [2.10, 4.12] | 0.12 | 0.920
+  census-dd-r0.85-fp0.5-closure-recip-j0.5-w0.25       3.61 2.49 1.99 3.58 2.55 | 2.75 [1.96, 3.85] | 0.32 | 0.946
+  census-dd-r0.85-fp0.5-closure-recip-j0.5-w0.5        2.80 2.73 2.34 2.65 2.21 | 2.49 [1.76, 3.69] | 0.12 | 0.972
+  census-dd-r0.85-fp0.5-closure-recip-j0.5-w0.75       2.42 3.13 3.45 2.34 2.55 | 2.77 [1.85, 3.90] | 0.22 | 0.956
+  census-dd-r0.85-fp0.5-closure-recip-j1               3.30 3.41 3.93 3.26 3.41 | 3.41 [2.61, 4.56] | 0.12 | 0.876
+  census-dd-r0.85-fp0.5-closure-recip-j1-w0.25         3.19 2.45 3.34 2.96 3.18 | 2.97 [2.07, 4.19] | 0.16 | 0.936
+  census-dd-r0.85-fp0.5-closure-recip-j1-w0.5          2.83 3.22 2.82 2.76 2.66 | 2.83 [1.98, 4.09] | 0.09 | 0.940
+  census-dd-r0.85-fp0.5-closure-recip-j1-w0.75         2.15 3.18 2.32 2.58 3.62 | 2.70 [1.91, 3.87] | 0.28 | 0.952
+
+## reference rows (same reference): perfect census dd-0.05 1.18, census top degree 4.02
+
+## filter at weight w: filtered minus unfiltered (pooled, MC se from paired copies, z; negative = it helps)
+  census-degree  kappa 0    w 0   : -0.48 (se 0.19, z -2.6)
+  census-degree  kappa 0    w 0.25: -0.38 (se 0.20, z -1.9)
+  census-degree  kappa 0    w 0.5 : -0.38 (se 0.29, z -1.3)
+  census-degree  kappa 0    w 0.75: -0.25 (se 0.30, z -0.8)
+  census-degree  kappa 0.5  w 0   : -0.53 (se 0.40, z -1.3)
+  census-degree  kappa 0.5  w 0.25: -0.25 (se 0.36, z -0.7)
+  census-degree  kappa 0.5  w 0.5 : -0.27 (se 0.27, z -1.0)
+  census-degree  kappa 0.5  w 0.75: -0.17 (se 0.24, z -0.7)
+  census-degree  kappa 1    w 0   : -0.16 (se 0.17, z -0.9)
+  census-degree  kappa 1    w 0.25: +0.01 (se 0.27, z +0.0)
+  census-degree  kappa 1    w 0.5 : -0.27 (se 0.33, z -0.8)
+  census-degree  kappa 1    w 0.75: -0.23 (se 0.13, z -1.8)
+  census-dd      kappa 0    w 0   : -0.60 (se 0.23, z -2.6)
+  census-dd      kappa 0    w 0.25: -0.83 (se 0.17, z -4.9)
+  census-dd      kappa 0    w 0.5 : -0.73 (se 0.17, z -4.4)
+  census-dd      kappa 0    w 0.75: -0.16 (se 0.12, z -1.3)
+  census-dd      kappa 0.5  w 0   : +0.21 (se 0.19, z +1.1)
+  census-dd      kappa 0.5  w 0.25: -0.03 (se 0.37, z -0.1)
+  census-dd      kappa 0.5  w 0.5 : -0.29 (se 0.26, z -1.1)
+  census-dd      kappa 0.5  w 0.75: -0.01 (se 0.30, z -0.0)
+  census-dd      kappa 1    w 0   : +0.63 (se 0.21, z +3.0)
+  census-dd      kappa 1    w 0.25: +0.19 (se 0.20, z +0.9)
+  census-dd      kappa 1    w 0.5 : +0.05 (se 0.27, z +0.2)
+  census-dd      kappa 1    w 0.75: -0.08 (se 0.44, z -0.2)
+
+## against linear interpolation hard + w (unfiltered - hard), pooled (negative = soft beats the line)
+  census-degree  kappa 0    w 0.25: -0.01
+  census-degree  kappa 0    w 0.5 : -0.14
+  census-degree  kappa 0    w 0.75: -0.13
+  census-degree  kappa 0.5  w 0.25: +0.15
+  census-degree  kappa 0.5  w 0.5 : -0.01
+  census-degree  kappa 0.5  w 0.75: -0.04
+  census-degree  kappa 1    w 0.25: +0.13
+  census-degree  kappa 1    w 0.5 : -0.19
+  census-degree  kappa 1    w 0.75: -0.19
+  census-dd      kappa 0    w 0.25: -0.38
+  census-dd      kappa 0    w 0.5 : -0.43
+  census-dd      kappa 0    w 0.75: -0.01
+  census-dd      kappa 0.5  w 0.25: -0.19
+  census-dd      kappa 0.5  w 0.5 : -0.39
+  census-dd      kappa 0.5  w 0.75: -0.06
+  census-dd      kappa 1    w 0.25: -0.28
+  census-dd      kappa 1    w 0.5 : -0.26
+  census-dd      kappa 1    w 0.75: -0.24
+
+## worst over kappa in (0, 0.5, 1) of pooled regret (a field team does not know kappa)
+  census-degree  unfiltered: 5.12 (kappa-invariant)
+  census-degree  w 0   : 4.96 at kappa 1; minus unfiltered there -0.16 (se 0.17)
+  census-degree  w 0.25: 5.13 at kappa 1; minus unfiltered there +0.01 (se 0.27)
+  census-degree  w 0.5 : 4.85 at kappa 1; minus unfiltered there -0.27 (se 0.33)
+  census-degree  w 0.75: 4.95 at kappa 0.5; minus unfiltered there -0.17 (se 0.24)
+  census-dd      unfiltered: 2.78 (kappa-invariant)
+  census-dd      w 0   : 3.41 at kappa 1; minus unfiltered there +0.63 (se 0.21)
+  census-dd      w 0.25: 2.97 at kappa 1; minus unfiltered there +0.19 (se 0.20)
+  census-dd      w 0.5 : 2.83 at kappa 1; minus unfiltered there +0.05 (se 0.27)
+  census-dd      w 0.75: 2.77 at kappa 0.5; minus unfiltered there -0.01 (se 0.30)
+
+H56 (the soft filter keeps the gain: census dd, kappa = 0, w = 0.5, better than unfiltered by > 2 MC se): held; -0.73 (se 0.17)
+H57 (the soft filter caps the cost: census dd, kappa = 1, w = 0.5, not worse than unfiltered by > 2 MC se): held; +0.05 (se 0.27)
+H58 (some soft weight beats both ends in the worst case over kappa, census dd, pooled point estimates): held; best w 0.75 at 2.77 against unfiltered 2.78 and hard 3.41
+H59 (census top degree, kappa = 0, w = 0.5, better than unfiltered by > 2 MC se): refuted; -0.38 (se 0.29)
