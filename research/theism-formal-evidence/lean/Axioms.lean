@@ -89,3 +89,9 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms TheismFormal.AndersonK.NP.sep_iff
 #print axioms TheismFormal.AndersonK.NP.serial
 #print axioms TheismFormal.AndersonK.NP.reach_ne_w
+#print axioms TheismFormal.AndersonK.not_sep_of_reach_w
+#print axioms TheismFormal.AndersonK.not_sep_symm
+#print axioms TheismFormal.AndersonK.sep_of_acyclic
+#print axioms TheismFormal.AndersonK.sep_iff_trans
+#print axioms TheismFormal.AndersonK.KT.refl
+#print axioms TheismFormal.AndersonK.KT.sep_iff
