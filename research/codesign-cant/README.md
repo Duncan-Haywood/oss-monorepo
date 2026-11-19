@@ -6,6 +6,19 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7ac: is there a sharp knee in how wide a drone's motor-lag training range must be? No: a slope, and 3× gets most of it at the measured lag
+
+**Question.** Milestone 7ab found that training over 100 ms of motor lag (2.6× the measured 39.1 ms) leaves the co-designed quadrotor crashing three times as often in the stress test as training up to 150 ms, and that the 150 ms tune rises much slower on a step. Where between the two does the robustness arrive, and does the response price come with it? The same arm was retrained at the 39.1 ms floor with a 125 ms ceiling (24 CMA-ES runs) and scored with all five earlier tunes, which reproduced exactly.
+
+**Headline (`experiments/m7ac_ceil125/results.txt`, `verdicts.txt`, `posthoc.txt`; about 1.5 h on 4 cores; simulated; 6 predictions committed first, 4 held).**
+
+- **A slope, not a cliff.** Stress crashes over the identified lags (of 1152, centre of pressure above, below) by ceiling 78.2 / 100 / 125 / 150 / 200 ms: 170 / 82 / **39** / 27 / 17 and 178 / 109 / **62** / 38 / 36. With six seeds the 125 ms tune is not separated from the 150 ms tune in 5 of 6 identified-lag cells.
+- **Robustness to slower-than-measured motors grows about linearly with the ceiling:** flown at a 75 ms lag, 266 / **204** / 138 / 50 crashes of 384 (above) for 100 / 125 / 150 / 200 ms, 125 against 150 ms p = 0.010.
+- **Response:** rise to 90% of a 1 m step 1.57, 1.65 s, close to the 100 ms tune's 1.47, 1.54 s and faster than the 150 ms tune's 2.23 s with the centre of pressure above (p = 0.026). The cost: 5 of 12 designs never settle within 5 cm (they hover 6-8 cm off), the most of any ceiling.
+- **For a builder:** if your motors are known to sit near the measured lag, about 3× it buys nearly all the robustness at a fast rise; if they may be slower, each extra millisecond of training range keeps paying, so 4× or more.
+
+![Three panels against the training lag ceiling at the 39.1 ms floor (78.2, 100, 125, 150, 200 ms), centre of pressure above in blue and below in red, the 75 ms tune dashed, 125 ms marked. Left: crashes over the identified lags fall 170-178, 82-109, 39-62, 27-38, 17-36. Middle: crashes at the 75 ms law fall almost on a straight line, 331-339, 266-277, 204-206, 131-138, 50-71. Right: rise time 1.4, 1.5, 1.6 s up to 125 ms, then 1.8-2.2 s at 150 ms and 2.0-2.3 s at 200 ms.](experiments/m7ac_ceil125/m7ac_ceil125.png)
+
 ## Milestone 7ab: how wide a motor-lag range should you train a drone over? At least 4× the measured lag
 
 **Question.** Milestone 7aa found that training across a wide motor-lag range (the measured 39.1 ms up to 150 ms), not tuning for a slower nominal motor, is what makes the co-designed quadrotor robust in the stress test (twice the trained centre-of-pressure lever, 45° tilt limit). How wide is enough, and does wider cost anything? The same arm was retrained at the 39.1 ms floor with ceilings of 100 and 200 ms (48 CMA-ES runs) and scored with 7u's 78.2 ms, 7aa's 150 ms and 7z's 75 ms tunes.
@@ -591,6 +604,8 @@ python3 experiments/m7q_closure/fit.py         # seconds, stdlib: closure consta
 "$PY" experiments/m7aa_ceiling/verdicts.py && "$PY" experiments/m7aa_ceiling/posthoc.py && "$PY" experiments/m7aa_ceiling/figure.py
 "$PY" experiments/m7ab_ceilsweep/run.py       # about 2.2 h on 4 cores (48 CMA-ES runs at 39.1 ms x U(1, c/39.1), c = 100 and 200 ms, cached in .cache/; 8 min of stress flights)
 "$PY" experiments/m7ab_ceilsweep/verdicts.py && "$PY" experiments/m7ab_ceilsweep/posthoc.py && "$PY" experiments/m7ab_ceilsweep/figure.py
+"$PY" experiments/m7ac_ceil125/run.py        # about 1.5 h on 4 cores (24 CMA-ES runs at 39.1 ms x U(1, 125/39.1), cached in .cache/; re-scores all five earlier tunes)
+"$PY" experiments/m7ac_ceil125/verdicts.py && "$PY" experiments/m7ac_ceil125/posthoc.py && "$PY" experiments/m7ac_ceil125/figure.py
 python3 paper/check_numbers.py                  # stdlib; every number the paper draft quotes against its results file
 ```
 
@@ -606,7 +621,7 @@ python3 paper/check_numbers.py                  # stdlib; every number the paper
 
 ## Next steps
 
-Milestone 7w follow-up: 52 ms and 60 ms tuning floors to find where slower stops paying, with the certificate also checked at the fast identified corner (33 ms) as a constraint; separate the slower floor from the higher training ceiling (39.1 ms × U(1, 2.3)); 12 seeds for the best floor against 7u; a slow-weighted or worst-case objective over the range; redo 7r's two open steps (a flight-time requirement instead of a fixed 15 min, LiPo at about 12 min) at the chosen floor; a measured step response for one 4-inch and one 6-inch motor-propeller pair to source the diameter exponent.
+After milestone 7ac: a settle-time or position-kp floor as a training constraint, since the 125 ms tune's unsettled designs (5 of 12) are what keep 3× the measured lag from being the default; twelve seeds at 125 and 150 ms to separate them inside the identified range; the same coverage test on the torque-scale and mass ranges. Older items: milestone 7w follow-up: 52 ms and 60 ms tuning floors to find where slower stops paying, with the certificate also checked at the fast identified corner (33 ms) as a constraint; separate the slower floor from the higher training ceiling (39.1 ms × U(1, 2.3)); 12 seeds for the best floor against 7u; a slow-weighted or worst-case objective over the range; redo 7r's two open steps (a flight-time requirement instead of a fixed 15 min, LiPo at about 12 min) at the chosen floor; a measured step response for one 4-inch and one 6-inch motor-propeller pair to source the diameter exponent.
 
 ## Owner steps
 
