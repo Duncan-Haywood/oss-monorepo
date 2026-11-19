@@ -492,7 +492,9 @@ TAKE_STRADDLE_MARGIN = 2
 # kept wheels whose fit at 2.5 ms put the take across an edge. When the sums say TAKE_US = 0 and it leads by at least
 # this many, the Pi advises 2.5 ms, ahead of the 1.5 ms vote (a take both votes see is long enough that 2.5 ms is the
 # nearer). 0 turns it off. On ten stored sets (636 builds) margin 2 named 23 more spread takes (333 to 356 of 540), told
-# no instant build of 96 to set one and un-named none; margin 1 told 5 of 96 instant builds to set 2.5 ms.
+# no instant build of 96 to set one and un-named none; margin 1 told 5 of 96 instant builds to set 2.5 ms. Held out
+# with the rule committed first (fresh AI-AL and 12 instant-only seeds, 168 builds): 70 to 76 of 120 named, 0 of 48
+# instant builds misadvised, 0 un-named (eval/take-straddle-long-2026-11-19.md).
 TAKE_STRADDLE_LONG_MARGIN = 2
 
 

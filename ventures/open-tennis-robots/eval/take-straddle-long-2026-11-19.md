@@ -2,7 +2,7 @@
 
 Item from `portfolio/flagships.yaml` (open-tennis-robots `buildable:`, NEXT.md): "a vote at 2.5 ms for the 2.4-3 ms
 builds still read 0". The 1.5 ms straddle vote shipped at `host.TAKE_STRADDLE_MARGIN = 2`
-(eval/take-straddle-vote-2026-11-19.md, held out twice). On AA-AD at margin 2, 8 of 12 builds at 2.4 ms, 6 of 12 at
+(eval/take-straddle-vote-2026-11-19.md, held out twice). On AA-AD at margin 2, 7 of 12 builds at 2.4 ms, 6 of 12 at
 2.8 ms and 7 of 12 at 3.5 ms still read TAKE_US = 0, and a 2.8 ms build the 1.5 ms vote named was advised 1.5 ms,
 more than 1 ms off. The board already fits every wheel at 2.5 ms (the grid's third candidate), so the same count there
 costs one more flag per wheel and two bytes in the frame.
@@ -74,4 +74,34 @@ are reported, not decided on.
 
 ## Result
 
-(filled in after the captures)
+Pre-registration committed in a08ca3779; all sixteen captures then made on that tree (132 standard drills and 36
+instant ones, none aborted; stored as eval/take-straddle-long-{ai,aj,ak,al,inst}-2026-11-19.jsonl.gz) and scored
+(eval/take-straddle-long-heldout-2026-11-19.txt), the 1.5 ms vote at its shipped 2:
+
+| 2.5 ms margin | named (of 120 spread) | instant told to set a take (of 48) | right that off was not | wrong that off got right |
+| --- | --- | --- | --- | --- |
+| 0 (off) | 70 | 0 | - | - |
+| 1 | 85 | 2 | 16 | 3 |
+| **2 (pre-registered)** | **76** | **0** | **6** | **0** |
+| 3 | 72 | 0 | 2 | 0 |
+
+- (a) held: 76 against 70.
+- (b) held: 0 of 48 instant builds told to set a take.
+- (c) held: 0 un-named against 6 newly named.
+- (d) held: every frame carried both votes' counts and each equalled the rebuild's (the scorer's asserts did not fire).
+
+So **`host.TAKE_STRADDLE_LONG_MARGIN` ships at 2.**
+
+Straddling wheels at 2.5 ms, pooled: instant builds 5 for and 70 against, 0.1-0.9 ms 3 and 60, 1.3-2.1 ms 24 and 53,
+2.4 ms and up 76 and 6. As on the design, no instant or sub-1 ms build led by 2. Margin 1 again told instant builds
+to set 2.5 ms (2 of 48; design 5 of 96) and is closed. Where margin 2 changed a verdict: a 2 ms build read 0 now reads
+2.5, two 2.4 ms builds and two 2.8 ms builds 0 to 2.5 and a 3.5 ms build 0 to 2.5; three 2.4 ms builds the 1.5 ms vote
+had named move to 2.5 (named either way).
+
+**The size of it.** Six builds of 120 is a small gain, smaller than the design's 23 of 540 (4%, here 5%). Of the
+14 of 36 builds at 2.4-3.5 ms that still read 0, 11 had one straddling kept wheel at 2.5 ms or none (6 none), the same limit the
+1.5 ms vote hit: with one tach pulse a revolution, a drill of 22 balls has only a few whose contact crosses an edge.
+Nothing at the board's end of the fit can see a take on a ball that did not straddle.
+
+**Not known.** Simulated only, one jittery tach model, three launchers, four fresh seeds and twelve instant-only ones. A
+real wheel's counts arrive in the TAKE_SURVEY frame's last two bytes.
