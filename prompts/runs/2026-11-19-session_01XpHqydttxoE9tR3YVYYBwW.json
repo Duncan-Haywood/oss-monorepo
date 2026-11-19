@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydttxoE9tR3YVYYBwW",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T14:55:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship 7: whether --demosaic auto should pick noise-aware",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17696",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First pytest run used /usr/local/bin/python3 (3.11, no pytest); pyenv.py had named /usr/bin/python3.13. Second run lacked PYTHONPATH=src. Third run worked.",
+    "The first three cost rows were timed while the C helpers were compiling after a container restart (and while pytest ran). Re-timed after; the JSONL carries the second timing."
+  ],
+  "integrity_issues": [
+    "The quality half of the decision rule summarises rows that earlier runs had already scored, and this run tabulated them per cell before writing the rule. The note says so. Only the cost half is a test made before its data existed.",
+    "q2 ('at most 1% of rows') was read as pooled (0.78%). One of the three sets alone is 1.42%. The note and post both say this."
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says PY=$(python3 platform/ci/pyenv.py pytest numpy) finds an interpreter. A bare python3 here is 3.11 without pytest, so the printed path (/usr/bin/python3.13) has to be used directly. Easy to miss when the call runs in the background."
+    },
+    {
+      "file": "ventures/photo-editing/tools/noise_aware_cost.py",
+      "issue": "Recorded only noise-aware's peak memory, so no note compared the two demosaics' memory. Added --peaks."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Committed the provisional auto switch before the cost rule was tested, because the Stop hook asked for uncommitted changes to be pushed. The commit message says it would be reverted if the rule failed.",
+      "did": "Pushed it as provisional, then measured.",
+      "result": "The rule passed, so no revert was needed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-photo-editing-noise-aware-becomes-the-default.md",
+    "ventures/photo-editing/eval/auto-noise-aware-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; route drew ventures/2; allocate.py row 3 photo-editing. Rule committed before the cost run (commit 3c224aee6). Five of five tests pass: time 1.34x directional (median, 53 raws), 0.062 s/MP added; memory 1.015x (max 1.21x); quality q1-q3 pass on 6,008 earlier rows. Switching auto ran the test suite into 23 failures from a real crash in xtrans_demosaic._block_stat on frames under one 24-px block in one dimension; fixed, with a regression test. Local checks are below in 'verification'.",
+  "corrections": [],
+  "redteam": null
+}
