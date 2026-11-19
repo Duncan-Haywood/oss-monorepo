@@ -334,6 +334,25 @@ class FirmwareTest(unittest.TestCase):
         self.assertEqual(hw.log[-1], ("drive", 0, 0))
         c.tick(protocol.encode(protocol.DRIVE, -200, -200), 20)
         self.assertEqual(hw.log[-1], ("drive", -200, -200))
+        # A pivot with either wheel forward is still forward motion into the obstacle (quality audit 2026-11-19:
+        # `or` -> `and` in the bumper rule passed every test).
+        # tick() re-zeroes forward drive as a second line, so also check the handler never commands it at all.
+        c.tick(protocol.encode(protocol.DRIVE, 300, -100), 30)
+        self.assertEqual(hw.log[-1], ("drive", 0, 0))
+        c.tick(protocol.encode(protocol.DRIVE, -100, 300), 40)
+        self.assertEqual(hw.log[-1], ("drive", 0, 0))
+        self.assertNotIn(("drive", 300, -100), hw.log)
+        self.assertNotIn(("drive", -100, 300), hw.log)
+
+    def test_safety_doc_speed_covers_firmware_limit(self):
+        # safety.md once said ~30 m/s while MAX_RPM allows ~47 m/s (quality audit 2026-11-19).
+        import re
+        from tennisbots import launcher
+        v = launcher.WheelLauncher().exit(controller.MAX_RPM, controller.MAX_RPM)[0]
+        path = os.path.join(os.path.dirname(__file__), "..", "hardware", "safety.md")
+        with open(path, encoding="utf-8") as f:
+            stated = float(re.search(r"up to about (\d+(?:\.\d+)?) m/s", f.read()).group(1))
+        self.assertGreaterEqual(stated, v - 0.5)
 
     def test_telemetry(self):
         hw = FakeHw()
