@@ -34,6 +34,15 @@ Milestone 11 (`mimic-codeloop`) of track 11, adversarial human imitation: replac
 - The component search's templates make the comparison unequal in the component search's favour on information; the model had none.
 - Rejections for banned tokens may reflect the sandbox's rules rather than the model's ability.
 
+## Known gaps (quality audit, 2026-11-19)
+
+From [`portfolio/quality/audits/2026-11-19-mimic-codeloop.json`](../../portfolio/quality/audits/2026-11-19-mimic-codeloop.json), not yet addressed:
+
+- **The comparison sits at the ceiling by design.** At 24 candidates the component-search baseline and the naive start program both score 0.998 to 1.000 on the reference detector in every run, so a tie was guaranteed before the code model ran. A budget where the baseline moves (it only falls, to 0.82 to 0.96, in later rounds of its 30) is needed before any condition can be compared.
+- **Failures are not all the model's.** 17 of the 48 rejections are the sandbox's own banned-token rule, and which token tripped it is not logged; 7 are SyntaxErrors under a 450-token output cap, with the replies not saved. Neither the error nor a retry is fed back to the model (`codeloop.py`).
+- **Prior work is not cited:** execution-feedback and evolutionary code search (FunSearch, ELM, Eureka, Self-Debug, Reflexion, CodeT).
+- Only `sandbox.py` has tests; 3 of 4 seeded bugs in the loop survived.
+
 ## Reproduce
 
 ```bash
