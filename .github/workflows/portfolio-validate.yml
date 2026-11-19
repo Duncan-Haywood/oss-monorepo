@@ -548,6 +548,16 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_step_grid
 
+      # "Only code we can relicense" (prompts/goals.md, hard limits): every
+      # licence file, foreign copyright line, licence banner or minified bundle
+      # must be recorded in platform/ci/third_party.json (THIRD_PARTY.md).
+      - name: Check third-party material is recorded with its notice
+        run: python3 platform/ci/check_third_party.py
+
+      - name: Third-party checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_third_party
+
       # Reading the `localStorage` global throws SecurityError when a visitor
       # blocks site data, `typeof` included; 990 usage.mjs files did it bare.
       - name: Check usage.mjs never reads localStorage outside try
