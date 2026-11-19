@@ -1,0 +1,102 @@
+cell-fidelity milestone 7e: the triage frontier. DFN cycles per design needed to bring the q75 of the
+cycle-99 lithium-loss forecast error (cell 000, the real forecast) to t x q75 of the all-50 policy.
+
+q75 of the uniform policies U(k):
+set           n     k10     k15     k20     k30     k40     k50
+Ai2020       24   0.045   0.046   0.042   0.042   0.036   0.027
+Chen2020     28   0.114   0.113   0.097   0.071   0.063   0.057
+OKane2022    28   0.100   0.089   0.075   0.063   0.049   0.040
+NCA_Kim2011  24   0.075   0.063   0.053   0.040   0.030   0.022
+
+Ai2020: cost (cycles/design) to meet t x q75(U50) = t x 0.027; policy as K1@f or Uk
+    t         uniform             S_C          random          oracle
+ 1.00  50.0       U50  37.0   40@0.90  50.0   50@1.00  25.0   40@0.50
+ 1.10  50.0       U50  37.0   40@0.90  46.0   50@0.90  25.0   40@0.50
+ 1.20  50.0       U50  32.0   50@0.55  40.0   50@0.75  17.5   40@0.25
+ 1.25  50.0       U50  28.0   30@0.90  38.0   50@0.70  16.0   30@0.30
+ 1.30  50.0       U50  28.0   30@0.90  36.0   50@0.65  16.0   30@0.30
+ 1.40  40.0       U40  28.0   30@0.90  32.0   50@0.55  16.0   30@0.30
+ 1.50  40.0       U40  24.0   50@0.35  26.0   50@0.40  16.0   30@0.30
+ 1.60  20.0       U20  19.0   20@0.90  18.5   20@0.85  14.0   20@0.40
+ 1.70  10.0       U10  10.0   15@0.00  10.0   15@0.00  10.0   15@0.00
+ 1.80  10.0       U10  10.0   15@0.00  10.0   15@0.00  10.0   15@0.00
+ 1.90  10.0       U10  10.0   15@0.00  10.0   15@0.00  10.0   15@0.00
+ 2.00  10.0       U10  10.0   15@0.00  10.0   15@0.00  10.0   15@0.00
+mean saved: uniform 36%, S_C 55%, random 48%, oracle 70%; S_C strictly cheaper than uniform at 14/21 targets
+t = 1.25, S_C with K1 <= 30: 28.0 (30@0.90); K1 = 50: 32.0 (50@0.55)
+
+Chen2020: cost (cycles/design) to meet t x q75(U50) = t x 0.057; policy as K1@f or Uk
+    t         uniform             S_C          random          oracle
+ 1.00  50.0       U50  50.0   50@1.00  50.0      none  26.5   40@0.55
+ 1.10  50.0       U50  48.0   50@0.95  40.0   50@0.75  25.0   40@0.50
+ 1.20  40.0       U40  16.0   40@0.20  34.0   50@0.60  14.0   50@0.10
+ 1.25  30.0       U30  16.0   40@0.20  30.0   30@1.00  14.0   50@0.10
+ 1.30  30.0       U30  16.0   40@0.20  28.0   30@0.90  14.0   50@0.10
+ 1.40  30.0       U30  14.0   30@0.20  24.0   50@0.35  14.0   30@0.20
+ 1.50  30.0       U30  14.0   30@0.20  22.0   30@0.60  13.0   40@0.10
+ 1.60  30.0       U30  13.0   40@0.10  19.0   30@0.45  13.0   30@0.15
+ 1.70  30.0       U30  12.0   30@0.10  16.0   40@0.20  12.0   30@0.10
+ 1.80  20.0       U20  11.0   30@0.05  14.0   30@0.20  11.5   20@0.15
+ 1.90  20.0       U20  11.0   20@0.10  12.0   30@0.10  11.0   20@0.10
+ 2.00  15.0       U15  10.5   20@0.05  10.5   20@0.05  10.5   20@0.05
+mean saved: uniform 39%, S_C 61%, random 52%, oracle 70%; S_C strictly cheaper than uniform at 18/21 targets
+t = 1.25, S_C with K1 <= 30: 30.0 (30@1.00); K1 = 50: 16.0 (50@0.15)
+
+OKane2022: cost (cycles/design) to meet t x q75(U50) = t x 0.040; policy as K1@f or Uk
+    t         uniform             S_C          random          oracle
+ 1.00  50.0       U50  48.0   50@0.95  50.0   50@1.00  44.0   50@0.85
+ 1.10  50.0       U50  48.0   50@0.95  50.0   50@1.00  44.0   50@0.85
+ 1.20  50.0       U50  48.0   50@0.95  48.0   50@0.95  44.0   50@0.85
+ 1.25  40.0       U40  38.5   40@0.95  40.0   40@1.00  35.5   40@0.85
+ 1.30  40.0       U40  38.5   40@0.95  40.0   40@1.00  35.5   40@0.85
+ 1.40  40.0       U40  38.5   40@0.95  38.5   40@0.95  32.0   50@0.55
+ 1.50  40.0       U40  32.5   40@0.75  37.0   40@0.90  30.0   50@0.50
+ 1.60  30.0       U30  26.0   30@0.80  29.0   30@0.95  27.0   30@0.85
+ 1.70  30.0       U30  25.0   30@0.75  28.0   30@0.90  22.0   30@0.60
+ 1.80  30.0       U30  25.0   30@0.75  26.0   30@0.80  18.0   50@0.20
+ 1.90  20.0       U20  18.0   20@0.80  19.5   20@0.95  16.0   20@0.60
+ 2.00  20.0       U20  16.0   50@0.15  18.0   20@0.80  14.0   50@0.10
+mean saved: uniform 27%, S_C 33%, random 30%, oracle 41%; S_C strictly cheaper than uniform at 21/21 targets
+t = 1.25, S_C with K1 <= 30: 50.0 (none); K1 = 50: 48.0 (50@0.95)
+
+NCA_Kim2011: cost (cycles/design) to meet t x q75(U50) = t x 0.022; policy as K1@f or Uk
+    t         uniform             S_C          random          oracle
+ 1.00  50.0       U50  40.0   50@0.75  50.0   50@1.00  42.0   50@0.80
+ 1.10  50.0       U50  38.0   50@0.70  46.0   50@0.90  38.0   50@0.70
+ 1.20  50.0       U50  32.0   50@0.55  42.0   50@0.80  30.0   50@0.50
+ 1.25  50.0       U50  28.0   50@0.45  40.0   50@0.75  26.0   50@0.40
+ 1.30  50.0       U50  28.0   50@0.45  38.0   50@0.70  26.0   50@0.40
+ 1.40  40.0       U40  28.0   40@0.60  36.0   50@0.65  26.0   50@0.40
+ 1.50  40.0       U40  24.0   50@0.35  32.5   40@0.75  22.0   40@0.40
+ 1.60  40.0       U40  24.0   50@0.35  31.0   40@0.70  22.0   40@0.40
+ 1.70  40.0       U40  23.5   40@0.45  29.5   40@0.65  22.0   40@0.40
+ 1.80  30.0       U30  21.0   30@0.55  28.0   30@0.90  19.0   30@0.45
+ 1.90  30.0       U30  20.5   40@0.35  26.0   30@0.80  17.5   40@0.25
+ 2.00  30.0       U30  20.0   30@0.50  23.0   30@0.65  17.0   30@0.35
+mean saved: uniform 18%, S_C 46%, random 31%, oracle 49%; S_C strictly cheaper than uniform at 21/21 targets
+t = 1.25, S_C with K1 <= 30: 50.0 (none); K1 = 50: 28.0 (50@0.45)
+
+leave one pool out, t = 1.25 (policy picked on two pools, scored on the third):
+set          pool   n  S_C policy    q75  target  met  U policy    q75  met
+Ai2020        5zk   8     50@0.35  0.024   0.017   no       U40  0.017  yes
+Ai2020        5zy   8     40@0.85  0.047   0.047  yes       U40  0.047  yes
+Ai2020        5zz   8     30@0.85  0.073   0.058   no       U50  0.046  yes
+Chen2020      5zk  12     40@0.30  0.093   0.077   no       U40  0.078   no
+Chen2020      5zy   8     50@0.05  0.135   0.097   no       U30  0.101   no
+Chen2020      5zz   8     50@0.20  0.046   0.064  yes       U50  0.051  yes
+OKane2022     5zk  12     40@0.95  0.071   0.064   no       U40  0.071   no
+OKane2022     5zy   8     40@0.90  0.060   0.067  yes       U40  0.060  yes
+OKane2022     5zz   8     30@0.80  0.068   0.050   no       U30  0.068   no
+NCA_Kim2011   5zk   8     50@0.50  0.025   0.032  yes       U50  0.025  yes
+NCA_Kim2011   5zy   8     50@0.50  0.028   0.025   no       U40  0.026   no
+NCA_Kim2011   5zz   8     50@0.50  0.060   0.031   no       U50  0.025  yes
+
+(e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3, 7b's line through cycles 2..k. S_C = |m_hat_C - 1|,
+ 7c's leave-one-out drift correction; random = expected q75 over 2,000 random flag sets; oracle = flags
+ by the design's own e10 - eK1. cost = least over the family's policies meeting the target, in hindsight
+ within the set; unmet = 50. saved = 1 - cost/50, averaged over t = 1.00, 1.05, ..., 2.00.)
+
+H273 (S_C strictly cheaper than uniform at >= 11 of 21 targets, >= 3 of 4 sets): supported (4/4)
+H274 (t = 1.25: S_C with K1 <= 30 costs <= K1 = 50, >= 3 of 4 sets): refuted (1/4, more on 3)
+H275 (mean saved S_C > random, >= 3 of 4 sets): supported (4/4)
+H276 (transferred S_C policy meets the held-out target in >= 8 of 12 folds): refuted (4/12; uniform 7/12)
