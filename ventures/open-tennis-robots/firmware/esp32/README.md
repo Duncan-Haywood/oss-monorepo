@@ -3714,3 +3714,9 @@ Every clause held. Everything is in `eval/take-straddle-long-2026-11-19.md`.
 **Not known.** A small gain (6 of 120). 14 of 36 held-out 2.4-3.5 ms builds still read 0, 11 of them with one
 straddling kept wheel at 2.5 ms or none: the one-pulse tach's limit again. Simulated only.
 
+**Replicated (2026-11-19, a second session).** A parallel session built the same vote. On the 162 builds both captured,
+its frames were identical to these, 2.5 ms counts included. Its two extra standard sets (AM, AN) and fourteen fresh
+instant-only seeds (108 builds) give the shipped rule a second held-out reading: 32 to 34 of 60 named, 0 of 48 instant
+builds misadvised, none un-named, board counts equal to the rebuild (`eval/take-straddle-long-2026-11-19.md`,
+"Replicated on 108 more builds").
+

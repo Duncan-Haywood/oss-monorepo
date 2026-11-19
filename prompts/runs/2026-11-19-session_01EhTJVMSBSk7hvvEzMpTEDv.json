@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVMSBSk7hvvEzMpTEDv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ...)",
+  "input_sha256": "f0940a04757810de07f56e2c3705fe96e1a45d8de98448e85edef4ca28d67d12",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T20:05:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 4) changepoint-detector: Shopify as a source for the metric watch",
+  "projects": [
+    "ventures/changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17776",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/claim_check.py",
+      "issue": "It said YIELD to a PR on a different item of the same flagship until I reran it with --item. The Start-here line could tell runs to pass --item from the start."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's listed next items were narrow continuations of a long, mined line (or needed a live GitHub repo). Instead I widened the watch's funnel to Shopify merchants, a business-facing source in the same product.",
+      "did": "shopify-metrics.mjs + workflow wiring + pre-registered count-detector test",
+      "result": "shipped; the prereg rule failed by one alert, so the default was kept"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-shopify-sales-drop-alert-in-your-own-github.md"
+  ],
+  "goal": null,
+  "notes": "shopify-metrics.test.mjs 9/9 locally. Prereg eval/poisson-window: bocpd-window 84/100 vs 60 steps, false 1.61 vs 1.21 per 1000 checks -> keep bocpd. Venture suite and preflight were started in the background; their results are in the PR merge note.",
+  "corrections": [],
+  "redteam": null
+}

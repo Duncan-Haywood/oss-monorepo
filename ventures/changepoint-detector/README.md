@@ -65,6 +65,10 @@ where it departs from the paper.
 - **Watch your Stripe account** (2026-11-16): `STRIPE_API_KEY=rk_live_... node stripe-metrics.mjs --out data/stripe.csv`
   writes payments, revenue and failed payments per complete day from your own account; the self-deploy workflow
   fetches and watches it when the secret `STRIPE_API_KEY` is set. README "Stripe as a source".
+- **Watch your Shopify store** (2026-11-19): `SHOPIFY_SHOP=my-store SHOPIFY_ACCESS_TOKEN=shpat_... node shopify-metrics.mjs --out data/shopify.csv`
+  writes orders, revenue and cancelled orders per complete day from your own store's Admin GraphQL API; the self-deploy
+  workflow fetches and watches it when the secret `SHOPIFY_ACCESS_TOKEN` and variable `SHOPIFY_SHOP` are set. README
+  "Shopify as a source".
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   (the watch replay: `call changepoint-detector replayWatch --module watch-core.mjs --args '[[...]]'`)
@@ -469,6 +473,11 @@ Free and open source (MIT, see `LICENSE`). Optional support:
 - **Stripe analytics apps (Baremetrics, ChartMogul, ProfitWell and the like):** subscription dashboards, mostly
   paid, holding the merchant's data. `stripe-metrics.mjs` plus the watch sends one message when payments, revenue
   or declines move to a new level, from the merchant's own GitHub account, free (see "Stripe as a source").
+- **Shopify's own analytics and alert apps (Shopify's reports, Triple Whale, Lifetimely, Better Reports and the
+  like):** dashboards and scheduled reports, the useful ones on paid plans, with the store's data on their servers;
+  a person still has to read them to notice a lasting drop. `shopify-metrics.mjs` plus the watch sends one message
+  when orders, revenue or cancellations move to a new level and stay there, from the merchant's own GitHub account,
+  free (see "Shopify as a source").
 
 
 **Page (2026-10-21).** The web page now has a "Known holidays" box (comma-separated dates or row numbers, counts model) that passes `holidays` to the engine. Checked on 200 seeded daily counts with every 17th day at 0.3x: 6 changes without the list, 0 with it (factor 0.304).
@@ -3536,6 +3545,76 @@ The 12 payments/revenue alerts in the first row are true: a quarter of attempts 
 succeeded payments. The quiet is optimistic: these shops have no weekly cycle, promotions or growth, all of which a
 real shop has and which the watch's own history replay (`--suggest`) is there to measure. Next: a real shop's
 daily Stripe series (a deployer's, or a public one) through `--suggest`, and a weekly cycle (`--period 7`) per column.
+
+## Shopify as a source (2026-11-19)
+
+Stripe covers merchants who take payments directly; most small online shops sell through Shopify, where the payment
+processor is Shopify Payments and a Stripe key does not exist. `shopify-metrics.mjs` turns the deployer's own store
+into the daily CSV the watch reads, with the Admin API access token of a **custom app** the merchant makes in their
+own admin (Settings > Apps and sales channels > Develop apps; scope `read_orders`, `read_all_orders` for more than 60
+days of history, `read_customers` for `--customers`), from an environment variable:
+
+- one row per **complete** day in `--utc-offset`, zeros on quiet days, today left out, as for Stripe;
+- `orders`: orders placed that day, not cancelled, not test orders (`--include-test` counts them); `revenue`: their
+  `totalPriceSet.shopMoney` (the total after discounts, with tax and shipping, always in the store's own currency, so
+  one column never mixes two unless the store changed currency, which is printed), summed exactly in thousandths of
+  the decimal strings Shopify returns; `cancelled`: orders placed that day and cancelled since; `new_customers` with
+  `--customers`. Refunds are not subtracted;
+- the Admin GraphQL API (`orders` and `customers` connections, `query: "created_at:>='...' AND created_at:<'...'"`,
+  250 a page, `pageInfo.endCursor`), version pinned at 2025-01; the REST Admin API is legacy since 2024-10 and was
+  not used;
+- an existing CSV is extended: its last `--refetch` days (default 3) are fetched again (late cancellations);
+- HTTP 429/5xx and GraphQL `THROTTLED` errors (Shopify's cost-based limit answers 200 with that code) retried with
+  backoff; 401, 403, 404 and `ACCESS_DENIED` answered with what to fix (the token, the scope, the store name). A
+  shared secret (`shpss_`) is refused before any call;
+- the token goes only to `https://<name>.myshopify.com`: `SHOPIFY_SHOP` must read as a myshopify.com name (a custom
+  domain or anything with another host is refused), and `SHOPIFY_API_BASE` (tests only) takes a loopback address;
+- Shopify silently returns only the last 60 days of orders without `read_all_orders`. A first fetch that asked for
+  more and got nothing older says so, so a short history is not mistaken for a new store.
+
+`deploy/watch-metric.yml` runs it before the watch when the secret `SHOPIFY_ACCESS_TOKEN` is set (store in the
+variable `SHOPIFY_SHOP`, options in `SHOPIFY_OPTIONS`), caches `data/shopify.csv` beside the Stripe file, and with
+`METRIC_CSV` unset and no Stripe file watches `--columns orders:poisson,revenue,cancelled:poisson`.
+`make-watch-repo.sh` and the no-terminal zip on the watch page copy the script and ignore the CSV. As for Stripe, the
+repository should be private.
+
+**Checked** (`shopify-metrics.test.mjs`, 9 tests): against a stand-in for the Admin GraphQL API with its documented
+shape (POST with `X-Shopify-Access-Token`, connections with `pageInfo` and `nodes`, the `created_at` search syntax,
+`THROTTLED` with HTTP 200, string errors on 401): every order read once across 10+ pages with a throttle and a 502 in
+between; exact sums (0.1 + 0.2 writes 0.30; yen whole); day boundaries at an offset; cancelled and test orders kept out
+of `orders`; the incremental refetch window; the 60-day note; the host guard; then the made repository's workflow run
+under `deploy/run-workflow.mjs` against the stand-in over HTTP (fetch step writes 400 days, state holds the three
+columns, the CSV is not committed, the token never printed). **Not checked against a live store**: no session holds
+a token. A deployer's first run is that check; the fields used (`id`, `createdAt`, `cancelledAt`, `test`,
+`totalPriceSet.shopMoney`) are core Order fields of the 2025-01 schema.
+
+## Counts and the windowed detector (2026-11-19, pre-registered; the rule fails, the default stays)
+
+The Shopify end-to-end test watched 30 orders a day that halved 12 days before the end. The `--model poisson`
+default, `bocpd`, sent no orders alert in 2 of 8 scratch shops, while revenue (level model, `bocpd-ar1-window`) was
+heard in 8 of 8: on one of them the Bayesian pass puts 49% on a change within 3 points of PELT's date, spread over
+neighbouring days, and `bocpd` alerts on single points. The level model fixed this on 2026-11-12 by summing over 5
+neighbours ("Round 4"), but counts kept `bocpd`, and `bocpd-window` had never been tested on them.
+
+The rule was committed before the run (`eval/poisson-window.prereg.md`): switch only if mean false alerts over four
+nulls are at or below `bocpd`'s and at least one more step is found over five step cells. `eval/poisson-window.mjs`,
+output `eval/poisson-window.out.txt`: `replayWatch` on 120 daily points, checks from point 90 (31 checks), fresh
+seeds 101-120, steps at point 108, found = an alert within 3 points of it.
+
+| detector | N1 Poisson 30 | N2 NB 30, var 60 | N3 weekends 0.6x | N4 Poisson 5 | S1 30 to 15 | S2 30 to 21 | S3 30 to 45 | S4 5 to 2 | S5 NB 30 to 18 |
+|---|---|---|---|---|---|---|---|---|---|
+| `bocpd` (default) | 0.00 | 3.23 | 1.61 | 0.00 | 19/20 | 10/20 | 14/20 | 3/20 | 14/20 |
+| `bocpd-window` | 0.00 | 4.84 | 1.61 | 0.00 | 20/20 | 18/20 | 19/20 | 10/20 | 17/20 |
+
+(False alerts per 1,000 checks on the nulls, then steps found; median delay 4 checks for both, 5 on S4.)
+`bocpd-window` found 84 of 100 steps against 60, but its mean false-alert rate was 1.61 against 1.21 per 1,000
+checks (one more alert in 620 checks, on the overdispersed null), so part (a) fails and **the default stays
+`bocpd`**. The trade is printed, not hidden: a merchant who would rather hear a 30% drop in orders (18 of 20
+against 10 of 20 here) at about one more false alert in 600 days can add `--detector bocpd-window` with a count
+column (`--column orders --model poisson --detector bocpd-window`). With `--columns` the detector applies to every
+column, so for a mixed CSV it is set per run. Next: a fresh-seed re-test with a rule written for the margin (the
+nulls' 95% interval at 620 checks is wide enough that one alert decides it), and a per-column detector in
+`--columns` so a count column can take `bocpd-window` beside a level column's default.
 
 ## A real shop's daily series through `--suggest` (2026-11-18, pre-registered; all three bars fail; a weekly-cycle line ships)
 
@@ -8143,3 +8222,56 @@ their sign-ups will not take. The watch page now has a **"No terminal?"** box th
   if it does not.
 - **Counted.** `watch_repo_zip` and `watch_repo_link`, in local storage only, like the page's other events
   (listed in the index page's privacy line).
+
+## A shop shut one weekday: revenue's slow climb (2026-11-19, pre-registered twice; round 1 fails F1, round 2 fails F4; not offered)
+
+"A real shop's daily series" left one item open: on the UCI Online Retail shop, **Quiet and Middle never alerted on
+daily revenue while it climbed from about £26k to £50k a day** (September to November 2011), and the suggested fix
+was `--log`. Exploring on that year (the design year) pointed away from the heavy tails. `--log` on the trading days
+made Quiet deafer (0 alerts). The shop never trades on Saturdays, so one row in seven is a 0 that belongs to the
+week; with those rows left out, Quiet heard the build-up (dated 2011-09-15, sent 2011-09-21) at 2 alerts in 257
+checks (2 in 300 before, neither of them the climb).
+
+**The rule tested** (`watch-core.mjs` `shutWeekdays`, `dropShutWeekdays`): on labels that are consecutive calendar
+days, a weekday whose value is 0 in each of its **last 8 weeks** (round 2; round 1: on every occurrence) is left out
+before a level model reads the series, and `--period 7` becomes 7 minus the days left out. Counts would be untouched.
+
+**Pre-registered** (`eval/shut-weekday.prereg.md`), on the fresh year (UCI Online Retail II, 2009-12 to 2010-12, the
+same shop's earlier year) and on 200 simulated shops (`eval/shut-weekday-sim.mjs`: Saturdays shut, lognormal revenue
+(sd 0.35) with 3% wholesale days x4, a weekday pattern, five random one-day closures, an AR(1) wobble in the level;
+100 with no change and 100 with a +30% step). Arms, Quiet only: **D** the default with `--period 7`; **T** the rule.
+
+| bar | D | T | result |
+|---|---|---|---|
+| F1, fresh year: a revenue alert dated 2010-08-15..11-30, sent within 14 days | dated 2010-09-28, sent 2010-11-26 (59 days) | round 1: same run (never fired); round 2: sent **2010-10-04 (6 days)** | round 1 **fails**, round 2 passes |
+| F2, fresh year: at most 2 alerts per 100 checks | 0.33 | 0.39 | passes |
+| F3, simulation, no step: T at most 2 false alerts per 100 checks | 1.93 (572 / 29,700) | 1.89 (480 / 25,400) | passes |
+| F4, simulation, +30% step: T catches at least 60 and D + 15 | 38 | 34 | **fails** |
+
+Outputs: `eval/shut-weekday.out.txt` (round 1), `eval/shut-weekday-r2.out.txt` (round 2, both years),
+`eval/shut-weekday-sim.out.txt` (every shop). The simulation's rows count for both rounds: every simulated Saturday
+is 0, so both rules leave out the same rows.
+
+What it shows:
+
+- **Round 1 failed because of one Saturday.** The fresh year's first Saturday, 2009-12-05, took £9,803 (30 orders),
+  so "zero on every occurrence" left nothing out. Round 2, written down before it ran, changed only that test.
+- **On the real shop the drop works in both years; in the simulation it does nothing.** The simulated default was
+  not deaf (38 of 100 steps caught, 31 of them by both arms), so the shut Saturday is not, by itself, what deafened
+  the real watch. Something the simulation lacks does: the real climb is gradual over weeks rather than a step, and
+  the real Saturday zeros may interact with the AR(1) estimate on a rising level in a way an i.i.d. wobble does not
+  show. The pre-registered bar asked for a gain on simulated steps, and there was none.
+- **Not offered.** The CLI and the page are unchanged. The helpers stay in `watch-core.mjs` for the eval and a later
+  round. A shop owner can do the same by hand today: drop the shut weekday's rows from the CSV and use `--period 6`.
+  On this shop that would have sent the autumn climb within a week in both years; on simulated steps it gives no
+  gain and loses 4 in 100.
+- **Middle is deaf to the climb** on both years, with or without the drop, and `--suggest` picks it at the default
+  budget because it is "more eager" and under budget.
+
+**Checked:** `shut-weekday.test.mjs` (4 tests): the rule on toy shops (an every-week zero, a one-off zero Friday, a
+recent trading Saturday, short, non-daily and all-zero series); round 1 against round 2 on a trading first Saturday;
+both real years' Quiet alerts with and without the drop.
+
+Next (most useful first): a simulation with a gradual climb (a ramp over 4 to 8 weeks) instead of a step, to see
+whether the real result is about ramps; Middle's deafness to slow climbs (the suggestion picks it); a deployer's real
+Stripe series; a shop with two shut days, which no data here has.

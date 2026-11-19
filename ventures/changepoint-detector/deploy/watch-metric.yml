@@ -15,6 +15,13 @@
 #                               with METRIC_CSV unset, watches it: payments and failed payments as counts, revenue as a
 #                               level. Use a PRIVATE repository: watch-state.json records your revenue around each change.
 #   variable STRIPE_OPTIONS     optional, e.g. "--utc-offset -5 --currency usd --customers"
+#   secret   SHOPIFY_ACCESS_TOKEN  optional: the Admin API access token of a custom app in your Shopify store (scope
+#                               read_orders; read_all_orders for more than 60 days of history). With the variable
+#                               SHOPIFY_SHOP (my-store or my-store.myshopify.com) each run writes data/shopify.csv
+#                               (date,orders,revenue,cancelled per complete day; shopify-metrics.mjs) and, with
+#                               METRIC_CSV unset and no Stripe key, watches it: orders and cancellations as counts,
+#                               revenue as a level. Use a PRIVATE repository.
+#   variable SHOPIFY_OPTIONS    optional, e.g. "--utc-offset -5 --customers"
 # With no webhook, a new change fails the run and GitHub emails you (--fail-on-alert).
 name: watch-metric
 on:
@@ -32,12 +39,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      # Keeps data/stripe.csv between runs, so a run fetches a few days, not all 400.
+      # Keeps data/stripe.csv and data/shopify.csv between runs, so a run fetches a few days, not all 400.
       - uses: actions/cache@v4
         with:
-          path: data/stripe.csv*
-          key: stripe-${{ github.run_id }}
-          restore-keys: stripe-
+          path: |
+            data/stripe.csv*
+            data/shopify.csv
+          key: metrics-${{ github.run_id }}
+          restore-keys: metrics-
       - name: Fetch Stripe metrics
         env:
           STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
@@ -47,6 +56,16 @@ jobs:
           if [ -z "$STRIPE_API_KEY" ]; then exit 0; fi
           # word-splitting of STRIPE_OPTIONS is intended
           node stripe-metrics.mjs --out data/stripe.csv $STRIPE_OPTIONS
+      - name: Fetch Shopify metrics
+        env:
+          SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+          SHOPIFY_SHOP: ${{ vars.SHOPIFY_SHOP }}
+          SHOPIFY_OPTIONS: ${{ vars.SHOPIFY_OPTIONS }}
+        run: |
+          set -u
+          if [ -z "$SHOPIFY_ACCESS_TOKEN" ]; then exit 0; fi
+          # word-splitting of SHOPIFY_OPTIONS is intended
+          node shopify-metrics.mjs --out data/shopify.csv $SHOPIFY_OPTIONS
       - name: Check for a new change
         env:
           METRIC_CSV: ${{ vars.METRIC_CSV }}
@@ -57,8 +76,11 @@ jobs:
           if [ -z "$METRIC_CSV" ] && [ -f data/stripe.csv ]; then
             METRIC_CSV=data/stripe.csv
             [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns payments:poisson,revenue,failed:poisson"
+          elif [ -z "$METRIC_CSV" ] && [ -f data/shopify.csv ]; then
+            METRIC_CSV=data/shopify.csv
+            [ -z "$WATCH_OPTIONS" ] && WATCH_OPTIONS="--columns orders:poisson,revenue,cancelled:poisson"
           fi
-          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable or the STRIPE_API_KEY secret (see the top of this file)."; exit 2; fi
+          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, the STRIPE_API_KEY secret or the SHOPIFY_ACCESS_TOKEN secret (see the top of this file)."; exit 2; fi
           HOOK=""; [ -n "$WATCH_WEBHOOK_URL" ] && HOOK="--webhook-env WATCH_WEBHOOK_URL"
           FAIL="--fail-on-alert"; [ -n "$HOOK" ] && FAIL=""
           # word-splitting of WATCH_OPTIONS is intended

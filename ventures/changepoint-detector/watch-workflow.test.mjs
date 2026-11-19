@@ -36,14 +36,14 @@ function deployerRepo(values, history) {
   return { dev, remote, workflow: join(dev, '.github/workflows/watch-metric.yml'), addRow };
 }
 // Step positions in a run's results: checkout, setup-node, cache, Stripe fetch, check, save.
-const CHECK = 4, SAVE = 5;
+const CHECK = 5, SAVE = 6;
 const stateOnRemote = (r) => { git(r.dev, 'pull', '-q', '--rebase'); return JSON.parse(readFileSync(join(r.dev, 'watch-state.json'), 'utf8')); };
 
 test('the workflow file has the steps the runner emulation expects', () => {
   const steps = parseSteps(readFileSync(new URL('./deploy/watch-metric.yml', import.meta.url), 'utf8'));
-  assert.deepEqual(steps.map((s) => s.uses || s.name), ['actions/checkout@v4', 'actions/setup-node@v4', 'actions/cache@v4', 'Fetch Stripe metrics', 'Check for a new change', 'Save what was reported']);
-  assert.equal(steps[5].if, 'always()');
-  assert.match(steps[4].run, /node watch\.mjs "\$METRIC_CSV" --state watch-state\.json/);
+  assert.deepEqual(steps.map((s) => s.uses || s.name), ['actions/checkout@v4', 'actions/setup-node@v4', 'actions/cache@v4', 'Fetch Stripe metrics', 'Fetch Shopify metrics', 'Check for a new change', 'Save what was reported']);
+  assert.equal(steps[6].if, 'always()');
+  assert.match(steps[5].run, /node watch\.mjs "\$METRIC_CSV" --state watch-state\.json/);
 });
 
 test('without a webhook: a baseline run, quiet days, one red run for the new level, then quiet again', () => {
@@ -137,6 +137,6 @@ test('an unset METRIC_CSV fails the first step with the instruction, and saves n
   const run = runWorkflow({ workflow: r.workflow, remote: r.remote });
   assert.equal(run.ok, false);
   assert.equal(run.steps[CHECK].code, 2);
-  assert.match(run.steps[CHECK].stdout, /Set the METRIC_CSV variable or the STRIPE_API_KEY secret/);
+  assert.match(run.steps[CHECK].stdout, /Set the METRIC_CSV variable, the STRIPE_API_KEY secret or the SHOPIFY_ACCESS_TOKEN secret/);
   assert.equal(run.steps[SAVE].code, 0);
 });

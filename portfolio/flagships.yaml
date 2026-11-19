@@ -186,26 +186,24 @@ flagships:
       History and every measurement: README and git (TCPD consensus F1 0.702 shipped
       / 0.711 held out, binseg 0.714/0.727). Next, most valuable first: (w) watch
       (README "Watching a growing series", "Round 5" to "Round 10"): hint, budget
-      box and "Wandering level" (drift) shipped; Rounds 10-18 failed (NAB; SKAB 33
-      pump faults: floors bracket the bar; SMD 28 servers, Round 18: no floor 75.8
-      false/100, floors lose 63-86% of segments): no more label-free floors; next
-      per-group floors named by a person (needs a set with metric names), SMD
-      10-min: no rescue, delay 4h to 1h (Round 19); a real deployer's repository on
-      GitHub Actions (no-terminal set-up from the watch page 2026-11-19, README
-      "Self-deploy with no terminal"; next: its four links tried on a live empty
-      repository) (real shop, README "A real shop's daily series": weekly line
-      ships; next revenue deaf at Quiet; --closed ships; a recent-days fill failed 2
-      rounds (README "A closure in the first week after a step": cost ~4/100,
-      pooled); a closure 1-7 days before a step costs ~1/100 and the 2011-09-01
-      alert was the holiday's zero (README "A closure in the week before a step"));
-      (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted
-      note ships); update-rate: pegs 4 of 7 dated; next a provider that documents
-      its own changes. Stale feeds: real carry-forward 84/85 caught but prints 56/56
-      false; AAPL/AMZN/GOOG 28/33, prints 0/34; penny-spread stocks reverse (the
-      half-cent tick passes the gate); side-adjusted prints fail worse (21/39,
-      README "The trade side"): no price-only fix, the line ends. joint drift
-      (measured, not offered) and its 2x penalty on fresh multi-column labelled
-      data. Open: (0) drift model: t-walk increments, biweight on fresh data, why it
+      box and "Wandering level" (drift) shipped; next per-group floors named by a
+      person (needs a set with metric names), SMD 10-min: no rescue, delay 4h to 1h
+      (Round 19); a real deployer's repository on GitHub Actions (no-terminal set-up
+      from the watch page 2026-11-19, README "Self-deploy with no terminal"; next:
+      its four links tried on a live empty repository) (real shop, README "A real
+      shop's daily series": weekly line ships; revenue deaf at Quiet: shut-Saturday
+      drop heard it both years, failed sim power (README "A shop shut one weekday");
+      next a ramp sim; --closed ships; a recent-days fill failed 2 rounds (README "A
+      closure in the first week after a step": cost ~4/100, pooled); a closure 1-7
+      days before a step costs ~1/100 and the 2011-09-01 alert was the holiday's
+      zero (README "A closure in the week before a step")); next a provider that
+      documents its own changes. Stale feeds: real carry-forward 84/85 caught but
+      prints 56/56 false; side-adjusted prints fail worse (21/39, README "The trade
+      side"): no price-only fix, the line ends. Shopify source ships 2026-11-19
+      (README "Shopify as a source"); counts: bocpd-window 84/100 steps vs 60, false
+      1.61 vs 1.21/1000 (prereg fails, README "Counts and the windowed detector"):
+      next a margin rule, per-column detector. joint drift (measured, not offered).
+      Open: (0) drift model: t-walk increments, biweight on fresh data, why it
       absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
       Curvature word ships under --shape-word panel (README "A curvature word"):
       slope donors straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items:
@@ -409,9 +407,9 @@ flagships:
       see firmware/esp32/README.md, latest "A second straddle vote at 2.5 ms"
       (2026-11-19: host.TAKE_STRADDLE_LONG_MARGIN 2 held out on fresh AI-AL + 12
       instant seeds, 76 of 120 named vs 70, 0 of 48 instant misadvised;
-      eval/take-straddle-long-2026-11-19.md). 1.5 ms vote: margin 2, margin 1 failed
-      held out. Next: the vote in the TAKE_US = 0 bound; a margin scaled to the
-      straddle count (NEXT.md).
+      eval/take-straddle-long-2026-11-19.md, replicated on 108 more builds). 1.5 ms
+      vote: margin 2, margin 1 failed held out. Next: the vote in the TAKE_US = 0
+      bound; a margin scaled to the straddle count (NEXT.md).
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

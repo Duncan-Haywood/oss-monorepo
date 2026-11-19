@@ -299,8 +299,9 @@ export function matrixProfile(values, m) {
   const zone = exclusionZone(m);
   const P = new Float64Array(l).fill(Infinity);
   const I = new Int32Array(l).fill(-1);
+  // R[x]: the correlation behind P[x], the screen for the sqrt below.
+  const R = new Float64Array(l).fill(-Infinity);
   const twoM = 2 * m;
-  const sqrtM = Math.sqrt(m);
 
   // First row: QT[0][j] by direct dot products (equal to the first column by symmetry).
   const first = new Float64Array(l);
@@ -320,20 +321,39 @@ export function matrixProfile(values, m) {
       // QT[i] (the diagonal) is kept: row i+1 needs it for QT[i+1].
       for (let j = l - 1; j >= i; j--) QT[j] = QT[j - 1] - a * T[j - 1] + b * T[j + m - 1];
     }
+    // Row i, compared as correlations. d = sqrt(2m(1 - r)) is a monotone
+    // (non-increasing) function of r under IEEE rounding, so r <= R[x] means
+    // d >= P[x] and the `d < P[x]` test could not pass: the sqrt is taken
+    // only for a candidate that beats the stored correlation, and the update
+    // still uses the exact distance test, so ties resolve as before. Flat
+    // windows map to r = 1 (d = 0) and r = 0.5 (d = sqrt(m)) exactly.
+    // m * mu[i] and m * sig[i] are the left-to-right products of the
+    // original `m * mi * mu[j]` and `m * si * sig[j]`, so r is bit-identical.
     const ci = constant[i];
-    const mi = mu[i];
-    const si = sig[i];
+    const mmi = m * mu[i];
+    const msi = m * sig[i];
+    let bestD = P[i];
+    let bestR = R[i];
+    let bestJ = I[i];
     for (let j = i + zone + 1; j < l; j++) {
-      let d;
-      if (ci || constant[j]) d = ci && constant[j] ? 0 : sqrtM;
+      let r;
+      if (ci || constant[j]) r = ci && constant[j] ? 1 : 0.5;
       else {
-        let r = (QT[j] - m * mi * mu[j]) / (m * si * sig[j]);
+        r = (QT[j] - mmi * mu[j]) / (msi * sig[j]);
         if (r > 1) r = 1; else if (r < -1) r = -1;
-        d = Math.sqrt(twoM * (1 - r));
       }
-      if (d < P[i]) { P[i] = d; I[i] = j; }
-      if (d < P[j]) { P[j] = d; I[j] = i; }
+      if (r > bestR) {
+        const d = Math.sqrt(twoM * (1 - r));
+        if (d < bestD) { bestD = d; bestR = r; bestJ = j; }
+      }
+      if (r > R[j]) {
+        const d = Math.sqrt(twoM * (1 - r));
+        if (d < P[j]) { P[j] = d; R[j] = r; I[j] = i; }
+      }
     }
+    P[i] = bestD;
+    R[i] = bestR;
+    I[i] = bestJ;
   }
   return { profile: P, index: I, mu, sigma: sig, constant, zone };
 }

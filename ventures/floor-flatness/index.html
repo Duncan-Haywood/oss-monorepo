@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23475569'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EF%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FF/FL Floor Flatness Calculator | F-Numbers from Survey Lines, Grids and Point Clouds</title>
+  <meta name="description" content="Free FF/FL calculator for concrete floors: paste sample-line readings, a 12-inch elevation grid or a point cloud and get flatness and levelness F-numbers, a spec check, straightedge gaps, a heat map and a grind estimate. Runs in your browser.">
+  <meta property="og:title" content="FF/FL Floor Flatness Calculator">
+  <meta property="og:description" content="Survey readings in; FF and FL by section, pass or fail against your spec, 10 ft straightedge gaps, a heat map of high and low spots and where grinding would lift FF. Nothing uploaded.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"FF/FL Floor Flatness Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"FF flatness and FL levelness F-numbers after ASTM E1155 from sample lines read at 12 in; 12-inch elevation grids read along rows and columns; point clouds resampled to a 12-inch lattice; sections with areas and area-weighted overall values; pass or fail against specified overall and minimum local values; gap under a 10 ft straightedge; heat map of elevations; grind estimate for a target FF; CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What are FF and FL?","acceptedAnswer":{"@type":"Answer","text":"FF (flatness) measures how bumpy a floor is over short distances, from the change in slope between readings 12 inches apart. FL (levelness) measures how far the floor wanders from level over 10 feet. Higher is better for both, and the scale is linear: a floor with FF 50 is about twice as flat as one with FF 25. ASTM E1155 is the US test method that defines them."}},{"@type":"Question","name":"What readings do I need?","acceptedAnswer":{"@type":"Answer","text":"Elevations every 12 inches along straight sample lines, from a dipstick-type profiler, a laser level and rod, a total station or a robotic profiler, or a point cloud from a laser scanner. For FL a line needs at least 11 consecutive readings (10 feet). The tool pools every line in a section, as the method does."}},{"@type":"Question","name":"How is the overall F-number for several sections worked out?","acceptedAnswer":{"@type":"Answer","text":"Each section's FF and FL come from all its readings pooled. The overall value for the floor is the area-weighted mean of the section values, the reading of ASTM E1155 section 9.15 that secondary copies of the standard give. Check it against your own copy of the standard before a contract result rests on it."}},{"@type":"Question","name":"Is the grind estimate a grind plan?","acceptedAnswer":{"@type":"Answer","text":"No. It lowers the readings that stand highest above their neighbours until the section's FF reaches your target, and reports how many readings that took and how deep. It sees the floor only every 12 inches, cannot add material, and ignores what grinding does to wear surfaces, hardeners or embedded items. Use it to judge whether remediation is a small or a large job, then plan it with the flooring contractor."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read and every calculation runs in your browser. Nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2125; background: #e9ebee; --accent: #334155; --hot: #b45309; --ink2: #555c63; --line: #c7ccd3; --panel: #fbfbfc; }
+    body { max-width: 1160px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 780px; margin-bottom: 24px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.02; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--hot); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 18px; align-items: start; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    h3 { margin: 14px 0 6px; font-size: .98rem; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    label { display: grid; gap: 5px; font-size: .86rem; font-weight: 650; }
+    input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #aeb5bf; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .78rem; min-height: 170px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #aeb5bf; background: #eef0f3; padding: 9px 13px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e1e5ea; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: #1e293b; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .muted { color: var(--ink2); font-size: .84rem; }
+    .xyzonly { display: none; } .xyz .xyzonly { display: grid; }
+    .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; }
+    .big { font-size: 2.2rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin: 2px 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .84rem; font-variant-numeric: tabular-nums; color: var(--ink2); }
+    .warn { font-size: .82rem; background: #fff4e5; border-left: 3px solid #d97706; padding: 6px 9px; margin: 6px 0 0; border-radius: 4px; }
+    .err { color: #b42318; font-size: .86rem; white-space: pre-line; }
+    .pass { color: #047857; font-weight: 700; } .fail { color: #b42318; font-weight: 700; }
+    table { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e1e4e8; }
+    tbody tr { cursor: pointer; } tbody tr:hover td { background: #f1f3f6; } tr.sel td { background: #e7ebf0; font-weight: 650; }
+    .tablewrap { max-height: 320px; overflow: auto; }
+    canvas { width: 100%; height: auto; image-rendering: pixelated; border-radius: 6px; display: block; }
+    svg { width: 100%; height: auto; display: block; }
+    .legend { display: flex; justify-content: space-between; font-size: .75rem; color: var(--ink2); margin-top: 4px; }
+    .ramp { height: 10px; border-radius: 4px; background: linear-gradient(90deg, #1d4ed8, #93c5fd, #f8fafc, #fdba74, #b91c1c); }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a, section a { color: #1e40af; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { .fields, .kpis { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">CONCRETE FLOORS · ASTM E1155 METHOD</p>
+    <h1>FF/FL floor flatness calculator</h1>
+    <p>Paste your survey readings, a 12-inch elevation grid or a laser-scan point cloud. Get the floor's FF flatness and FL levelness numbers by section, pass or fail against your spec, the gap under a 10 ft straightedge, a heat map of the high and low spots, and an estimate of how much grinding would lift FF to the target. <a href="ff-fl-for-concrete-contractors.html">How F-numbers work, with a worked example</a>.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section id="inputs">
+        <h2>1. Readings</h2>
+        <div class="fields">
+          <label>Format
+            <select id="format">
+              <option value="grid">Grid, 12 in apart (CSV)</option>
+              <option value="lines">Sample lines</option>
+              <option value="xyz">Point cloud (x y z)</option>
+            </select>
+          </label>
+          <label>Units of the readings
+            <select id="unit">
+              <option value="in">inches</option>
+              <option value="mm">millimetres</option>
+              <option value="ft">feet</option>
+              <option value="cm">centimetres</option>
+              <option value="m">metres</option>
+            </select>
+          </label>
+          <label>Leave out a band at the edges (ft)
+            <input id="edge" type="number" min="0" step="1" value="0">
+          </label>
+          <label class="xyzonly">Points used per lattice node: radius (in)
+            <input id="radius" type="number" min="0.5" step="0.5" value="3">
+          </label>
+        </div>
+        <p class="hint" id="formatHint" style="margin-top:10px"></p>
+        <label>Readings
+          <textarea id="readings" spellcheck="false" aria-describedby="formatHint"></textarea>
+        </label>
+        <div class="actions">
+          <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="file" type="file" accept=".csv,.txt,.xyz,.pts,text/plain" style="width:auto"></label>
+          <button id="example" type="button">Load the example bay</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Specification</h2>
+        <p class="hint">From the contract. E1155 only measures; the limits are yours. Leave a box blank to skip it.</p>
+        <div class="fields">
+          <label>Specified overall FF <input id="ffOverall" type="number" min="0" step="1" placeholder="e.g. 35"></label>
+          <label>Specified overall FL <input id="flOverall" type="number" min="0" step="1" placeholder="e.g. 25"></label>
+          <label>Minimum local FF (each section) <input id="ffLocal" type="number" min="0" step="1"></label>
+          <label>Minimum local FL (each section) <input id="flLocal" type="number" min="0" step="1"></label>
+          <label>Section area (sq ft) <input id="area" type="number" min="0" step="1" placeholder="lines format: ## Bay 1, area 2400"></label>
+          <label>Straightedge length (ft) <input id="straightedge" type="number" min="2" step="1" value="10"></label>
+          <label>Largest gap allowed (in) <input id="gap" type="number" min="0" step="0.0625" placeholder="e.g. 0.25"></label>
+          <label>Grind estimate: target FF <input id="grind" type="number" min="1" step="1" placeholder="optional"></label>
+        </div>
+        <div class="actions">
+          <button id="go" class="primary" type="button">Work out FF and FL</button>
+          <button id="csv" type="button" disabled>Download results (CSV)</button>
+          <button id="print" type="button" disabled>Print report</button>
+        </div>
+        <p class="err" id="errors" role="alert"></p>
+      </section>
+    </div>
+
+    <div>
+      <section id="results" aria-live="polite">
+        <h2>3. Results</h2>
+        <p class="muted" id="empty">Load the example or paste readings, then press the button.</p>
+        <div class="kpis" id="kpis"></div>
+        <div id="checks"></div>
+        <div id="notes"></div>
+      </section>
+
+      <section id="mapSection" hidden>
+        <h2>Heat map</h2>
+        <p class="hint">Elevation against the section's mean, one cell per reading. Black dots: readings the grind estimate lowers. Click a cell to see its row's profile.</p>
+        <canvas id="map" width="10" height="10" aria-label="Heat map of elevations"></canvas>
+        <div class="ramp" aria-hidden="true"></div>
+        <div class="legend"><span id="lo"></span><span>mean</span><span id="hi"></span></div>
+      </section>
+
+      <section id="profileSection" hidden>
+        <h2 id="profileTitle">Profile</h2>
+        <div id="profile"></div>
+        <p class="muted" id="profileNote"></p>
+      </section>
+
+      <section id="linesSection" hidden>
+        <h2>Sample lines</h2>
+        <p class="hint">FF and FL of each line on its own, for finding the bad ones. Pass or fail is judged on the pooled section, not per line.</p>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Line</th><th>Readings</th><th>FF</th><th>FL</th><th>Worst gap (in)</th></tr></thead>
+            <tbody id="lineRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>What are FF and FL?</h3>
+    <p>FF (flatness) measures how bumpy a floor is over short distances, from the change in slope between readings 12 inches apart. FL (levelness) measures how far the floor wanders from level over 10 feet. Higher is better for both, and the scale is linear: a floor with FF 50 is about twice as flat as one with FF 25. ASTM E1155 is the US test method that defines them.</p>
+    <h3>What readings do I need?</h3>
+    <p>Elevations every 12 inches along straight sample lines, from a dipstick-type profiler, a laser level and rod, a total station or a robotic profiler, or a point cloud from a laser scanner. For FL a line needs at least 11 consecutive readings (10 feet). The tool pools every line in a section, as the method does.</p>
+    <h3>How is the overall F-number for several sections worked out?</h3>
+    <p>Each section's FF and FL come from all its readings pooled. The overall value for the floor is the area-weighted mean of the section values, the reading of ASTM E1155 section 9.15 that secondary copies of the standard give. Check it against your own copy of the standard before a contract result rests on it.</p>
+    <h3>Is the grind estimate a grind plan?</h3>
+    <p>No. It lowers the readings that stand highest above their neighbours until the section's FF reaches your target, and reports how many readings that took and how deep. It sees the floor only every 12 inches, cannot add material, and ignores what grinding does to wear surfaces, hardeners or embedded items. Use it to judge whether remediation is a small or a large job, then plan it with the flooring contractor.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. The file is read and every calculation runs in your browser. Nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day.</p>
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind. It is not engineering, structural, construction, legal or financial advice, and it is not a test to ASTM E1155 by a qualified testing agency. It follows the method's published equations as secondary sources give them; the standard's own text was not read. You are responsible for reviewing and verifying its output before relying on it, and for any acceptance, rejection, payment or remediation decision. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record; keep your survey files.</p>
+    <p><strong>Nothing leaves your browser.</strong> Your readings are read and calculated on this device and never uploaded. We don't have accounts, tracking cookies or an analytics vendor. An anonymous counter in this browser's local storage records which features were used and the day, never a reading, an F-number or a file name; the box above turns it off.</p>
+    <p>Before the slab: the <a href="../concrete-maturity/">concrete maturity calculator</a> estimates in-place strength from logger data, and the <a href="../formwork-pressure/">formwork pressure calculator</a> sizes forms and pour rates.</p>
+    <p>Free and open source: the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> (<a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/floor-flatness" rel="noopener">source</a>, with a command-line version). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseLines, parseGrid, parseXyz, latticeFromPoints, gridSurvey, analyseSection, overall, checkSpec, grindEstimate, exampleGrid, gridToCsv, lineValues, csvCell } from './flatness.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    const NS = 'http://www.w3.org/2000/svg';
+    let last = null;
+
+    const HINTS = {
+      grid: 'One row of the CSV per row of readings, 12 in apart both ways; leave a cell empty (or write x) where a column, drain or joint is. Lines are read along every row and every column.',
+      lines: 'One sample line per row, readings 12 in apart, separated by spaces or commas: "A1: 0.12 0.10 - 0.08" (label optional, "-" for a missing reading). Start a section with "## Bay 3, area 2400".',
+      xyz: 'A point cloud as text: x y z on each row (scanner export, .xyz or .pts as text), all in the units chosen. It is resampled to a 12 in lattice: each node takes the median height of the points within the radius. Crop the cloud to one test section first.',
+    };
+
+    function count(event) { recordUsage(usageStorage(), el('usageOptOut').checked, event); }
+    function num(id) { const v = el(id).value.trim(); return v === '' ? null : Number(v); }
+    const f1 = v => (v == null ? '-' : !Number.isFinite(v) ? 'no curvature' : v.toFixed(1));
+    function text(tag, content, attrs = {}) {
+      const n = document.createElement(tag);
+      if (content != null) n.textContent = content;
+      for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+      return n;
+    }
+    function svgEl(tag, attrs = {}, content) {
+      const n = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+      if (content != null) n.textContent = content;
+      return n;
+    }
+
+    function setFormat() {
+      el('formatHint').textContent = HINTS[el('format').value];
+      el('inputs').classList.toggle('xyz', el('format').value === 'xyz');
+    }
+
+    function build() {
+      const format = el('format').value, unit = el('unit').value, txt = el('readings').value;
+      const edgeFt = Math.max(0, Math.round(num('edge') || 0));
+      if (!txt.trim()) throw new Error('Paste readings or choose a file first.');
+      if (format === 'lines') {
+        const { sections, errors } = parseLines(txt, unit);
+        if (errors.length) throw new Error(errors.slice(0, 5).join('\n'));
+        for (const s of sections) if (s.areaSqFt == null) s.areaSqFt = num('area') || 1;
+        return { sections, grid: null };
+      }
+      let grid;
+      if (format === 'grid') {
+        const g = parseGrid(txt, unit);
+        if (g.errors.length) throw new Error(g.errors.slice(0, 5).join('\n'));
+        grid = g.grid;
+      } else {
+        const p = parseXyz(txt, unit);
+        if (!p.points.length) throw new Error(p.errors.slice(0, 5).join('\n') || 'No x y z rows found.');
+        grid = latticeFromPoints(p.points, { radiusIn: num('radius') || 3 }).grid;
+      }
+      const survey = gridSurvey(grid, { edgeFt });
+      return { sections: [{ name: 'Section 1', areaSqFt: num('area') || 1, survey }], grid: survey.grid };
+    }
+
+    function runAll() {
+      el('errors').textContent = '';
+      let built;
+      try { built = build(); } catch (e) { el('errors').textContent = e.message; return; }
+      const { sections } = built;
+      if (!sections.length || !sections.some(s => s.survey.lines.length)) { el('errors').textContent = 'No sample line with 3 or more readings found.'; return; }
+      const se = num('straightedge') || 10;
+      for (const s of sections) s.result = analyseSection(s.survey, { straightedgeFt: se });
+      const total = overall(sections);
+      const spec = checkSpec(sections, total, { ffOverall: num('ffOverall'), flOverall: num('flOverall'), ffLocal: num('ffLocal'), flLocal: num('flLocal') });
+      let grind = null;
+      const target = num('grind');
+      if (target > 0) {
+        if (sections.length > 1) el('errors').textContent = 'The grind estimate works on one section at a time; it ran on the first.';
+        grind = grindEstimate(sections[0].survey, { targetFF: target });
+        count('grind_estimated');
+      }
+      last = { sections, total, spec, grind, grid: built.grid, se, gapLimit: num('gap'), selected: 0 };
+      count('flatness_measured');
+      if (el('format').value === 'xyz') count('point_cloud_read');
+      render();
+    }
+
+    function render() {
+      const { sections, total, spec, grind, gapLimit } = last;
+      el('empty').hidden = true;
+      const multi = sections.length > 1;
+      const ff = multi ? total.ff : sections[0].result.ff.F, fl = multi ? total.fl : sections[0].result.fl.F;
+      const s0 = sections[0].result;
+      const k = el('kpis'); k.replaceChildren();
+      for (const [label, v, sub] of [
+        ['FF flatness', ff, multi ? `area-weighted over ${sections.length} sections` : `${s0.ff.n} curvatures, mean ${s0.ff.mean?.toFixed(4) ?? '-'} in, SD ${s0.ff.sd?.toFixed(4) ?? '-'} in`],
+        ['FL levelness', fl, multi ? 'area-weighted' : `${s0.fl.n} 10-ft differences, mean ${s0.fl.mean?.toFixed(3) ?? '-'} in, SD ${s0.fl.sd?.toFixed(3) ?? '-'} in`],
+      ]) {
+        const c = text('div', null, { class: 'card' });
+        c.append(text('div', label, { class: 'muted' }), text('div', f1(v), { class: 'big' }), text('div', sub, { class: 'row' }));
+        k.append(c);
+      }
+      const ch = el('checks'); ch.replaceChildren();
+      if (multi) {
+        const t = text('table'); const tb = text('tbody');
+        t.append(text('thead')); t.firstChild.append(row(['Section', 'Area (sq ft)', 'FF', 'FL'], 'th'));
+        for (const s of sections) tb.append(row([s.name, String(s.areaSqFt), f1(s.result.ff.F), f1(s.result.fl.F)]));
+        t.append(tb); ch.append(text('h3', 'Sections'), t);
+      }
+      if (spec.length) {
+        ch.append(text('h3', 'Against the specification'));
+        for (const c of spec) {
+          const p = text('p', null, { style: 'margin:4px 0' });
+          p.append(text('span', c.pass ? 'PASS ' : 'FAIL ', { class: c.pass ? 'pass' : 'fail' }), document.createTextNode(`${c.what}: ${f1(c.got)} against ${c.limit}`));
+          ch.append(p);
+        }
+      }
+      let worst = null;
+      for (const s of sections) for (const l of s.result.lines) if (l.worstGap && (!worst || l.worstGap.gap > worst.l.worstGap.gap)) worst = { s, l };
+      if (worst) {
+        const over = gapLimit != null ? sections.flatMap(s => s.result.lines).filter(l => l.worstGap && l.worstGap.gap > gapLimit).length : null;
+        ch.append(text('p', `Largest gap under a ${last.se} ft straightedge: ${worst.l.worstGap.gap.toFixed(3)} in (${worst.l.name}, reading ${worst.l.worstGap.atReading + 1})${over != null ? `; ${over} line${over === 1 ? '' : 's'} over ${gapLimit} in` : ''}.`, { class: 'muted' }));
+      }
+      if (grind) {
+        ch.append(text('h3', `Grind estimate to FF ${grind.targetFF}`));
+        ch.append(text('p', `${grind.reached ? 'Reached' : 'Not reached'}: FF ${f1(grind.startFF)} to ${f1(grind.endFF)} by lowering ${grind.points} readings, the deepest by ${grind.maxDepthIn.toFixed(3)} in, about ${grind.volumeCuFt.toFixed(2)} cu ft of concrete in all. FL ${f1(grind.startFL)} to ${f1(grind.endFL)}. A rough lower bound read every 12 in, not a grind plan.`));
+      }
+      const notes = el('notes'); notes.replaceChildren();
+      for (const s of sections) for (const w of s.result.warnings.slice(0, 6)) notes.append(text('p', (multi ? `${s.name}: ` : '') + w, { class: 'warn' }));
+      renderLines(); renderMap(); renderProfile();
+      el('csv').disabled = false; el('print').disabled = false;
+    }
+
+    function row(cells, tag = 'td') { const tr = text('tr'); for (const c of cells) tr.append(text(tag, c)); return tr; }
+
+    function allLines() { return last.sections.flatMap((s, si) => s.result.lines.map((l, li) => ({ s, si, l, li }))); }
+
+    function renderLines() {
+      el('linesSection').hidden = false;
+      const tb = el('lineRows'); tb.replaceChildren();
+      allLines().forEach((x, k) => {
+        const tr = row([(last.sections.length > 1 ? `${x.s.name} / ` : '') + x.l.name, String(x.l.readings), f1(x.l.ff.F), f1(x.l.fl.F), x.l.worstGap ? x.l.worstGap.gap.toFixed(3) : '-']);
+        if (k === last.selected) tr.className = 'sel';
+        tr.addEventListener('click', () => { last.selected = k; renderLines(); renderProfile(); });
+        tb.append(tr);
+      });
+    }
+
+    function color(t) { // t in [-1, 1]
+      const stops = [[-1, [29, 78, 216]], [-0.5, [147, 197, 253]], [0, [248, 250, 252]], [0.5, [253, 186, 116]], [1, [185, 28, 28]]];
+      t = Math.max(-1, Math.min(1, t));
+      for (let i = 1; i < stops.length; i++) if (t <= stops[i][0]) {
+        const [a, ca] = stops[i - 1], [b, cb] = stops[i], f = (t - a) / (b - a);
+        return ca.map((v, j) => Math.round(v + f * (cb[j] - v)));
+      }
+      return stops[4][1];
+    }
+
+    function renderMap() {
+      const g = last.grid;
+      el('mapSection').hidden = !g;
+      if (!g) return;
+      const survey = last.sections[0].survey;
+      const z = survey.z; let m = 0; for (const v of z) m += v; m /= z.length;
+      let span = 0; for (const v of z) span = Math.max(span, Math.abs(v - m));
+      span = span || 1;
+      const ground = new Set(last.grind ? last.grind.ground.map(p => p.point) : []);
+      const cell = Math.max(4, Math.min(16, Math.floor(1000 / g.cols)));
+      const cv = el('map'); cv.width = g.cols * cell; cv.height = g.rows * cell;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#d4d8de'; ctx.fillRect(0, 0, cv.width, cv.height);
+      for (let r = 0; r < g.rows; r++) for (let c = 0; c < g.cols; c++) {
+        const i = g.id[r][c]; if (i == null) continue;
+        const [R, G, B] = color((z[i] - m) / span);
+        ctx.fillStyle = `rgb(${R},${G},${B})`; ctx.fillRect(c * cell, r * cell, cell, cell);
+        if (ground.has(i)) { ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(c * cell + cell / 2, r * cell + cell / 2, Math.max(1.5, cell / 5), 0, 7); ctx.fill(); }
+      }
+      el('lo').textContent = `${(-span).toFixed(3)} in`; el('hi').textContent = `+${span.toFixed(3)} in`;
+      cv.onclick = ev => {
+        const rect = cv.getBoundingClientRect();
+        const r = Math.floor((ev.clientY - rect.top) / rect.height * g.rows);
+        const name = `Row ${r + 1}`;
+        const k = allLines().findIndex(x => x.l.name === name);
+        if (k >= 0) { last.selected = k; renderLines(); renderProfile(); }
+      };
+    }
+
+    function renderProfile() {
+      const x = allLines()[last.selected];
+      el('profileSection').hidden = !x;
+      if (!x) return;
+      const z = lineValues(x.s.survey, x.s.survey.lines[x.li]);
+      const zg = last.grind && x.si === 0 ? x.s.survey.lines[x.li].map(i => (i == null ? null : last.grind.z[i])) : null;
+      el('profileTitle').textContent = `Profile: ${x.l.name}`;
+      const box = el('profile'); box.replaceChildren();
+      const vals = z.filter(v => v != null).concat(zg ? zg.filter(v => v != null) : []);
+      if (!vals.length) return;
+      let lo = Math.min(...vals), hi = Math.max(...vals); if (hi - lo < 0.01) { lo -= 0.005; hi += 0.005; }
+      const W = 560, H = 220, L = 54, R = 12, T = 12, B = 34;
+      const X = i => L + (i / Math.max(1, z.length - 1)) * (W - L - R), Y = v => H - B - ((v - lo) / (hi - lo)) * (H - T - B);
+      const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': `Elevation profile of ${x.l.name}` });
+      for (let k = 0; k <= 4; k++) {
+        const v = lo + (hi - lo) * k / 4;
+        svg.append(svgEl('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: '#e1e4e8' }));
+        svg.append(svgEl('text', { x: L - 6, y: Y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#555c63' }, v.toFixed(3)));
+      }
+      svg.append(svgEl('text', { x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle', 'font-size': 12 }, `distance along the line (ft), ${z.length - 1} ft`));
+      const path = arr => { let d = '', pen = false; arr.forEach((v, i) => { if (v == null) { pen = false; return; } d += `${pen ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`; pen = true; }); return d; };
+      if (zg) svg.append(svgEl('path', { d: path(zg), fill: 'none', stroke: '#b45309', 'stroke-width': 1.6, 'stroke-dasharray': '4 3' }));
+      svg.append(svgEl('path', { d: path(z), fill: 'none', stroke: '#334155', 'stroke-width': 2 }));
+      if (x.l.worstGap) svg.append(svgEl('circle', { cx: X(x.l.worstGap.atReading), cy: Y(z[x.l.worstGap.atReading]), r: 4, fill: '#b91c1c' }));
+      box.append(svg);
+      el('profileNote').textContent = `Elevation in inches. Red dot: the largest gap under the straightedge on this line (${x.l.worstGap ? x.l.worstGap.gap.toFixed(3) : '-'} in).${zg ? ' Dashed: after the grind estimate.' : ''}`;
+    }
+
+    function downloadCsv() {
+      const rows = [['section', 'line', 'readings', 'FF', 'FL', 'worst_gap_in']];
+      for (const s of last.sections) {
+        rows.push([s.name, 'SECTION (pooled)', '', s.result.ff.F?.toFixed(2) ?? '', s.result.fl.F?.toFixed(2) ?? '', '']);
+        for (const l of s.result.lines) rows.push([s.name, l.name, l.readings, l.ff.F == null ? '' : l.ff.F.toFixed(2), l.fl.F == null ? '' : l.fl.F.toFixed(2), l.worstGap ? l.worstGap.gap.toFixed(4) : '']);
+      }
+      if (last.sections.length > 1) rows.push(['OVERALL (area-weighted)', '', '', last.total.ff?.toFixed(2) ?? '', last.total.fl?.toFixed(2) ?? '', '']);
+      const blob = new Blob([rows.map(r => r.map(csvCell).join(',')).join('\n') + '\n'], { type: 'text/csv' });
+      const a = text('a', null, { href: URL.createObjectURL(blob), download: 'ff-fl-results.csv' });
+      document.body.append(a); a.click(); a.remove();
+      count('csv_downloaded');
+    }
+
+    el('format').addEventListener('change', setFormat);
+    el('example').addEventListener('click', () => {
+      el('format').value = 'grid'; el('unit').value = 'in'; el('edge').value = '2'; el('area').value = '1200';
+      el('ffOverall').value = '35'; el('flOverall').value = '25'; el('ffLocal').value = '24'; el('gap').value = '0.25'; el('grind').value = '40';
+      el('readings').value = '# Made-up 40 x 30 ft bay, elevations in inches every 12 in (not a measured floor)\n' + gridToCsv(exampleGrid());
+      setFormat(); count('example_loaded'); runAll();
+    });
+    el('file').addEventListener('change', async () => {
+      const f = el('file').files[0]; if (!f) return;
+      if (f.size > 60e6) { el('errors').textContent = 'That file is over 60 MB; crop the cloud to one section or thin it first.'; return; }
+      el('readings').value = await f.text();
+      if (/\.(xyz|pts)$/i.test(f.name)) el('format').value = 'xyz';
+      setFormat();
+    });
+    el('go').addEventListener('click', runAll);
+    el('csv').addEventListener('click', downloadCsv);
+    el('print').addEventListener('click', () => { count('report_printed'); window.print(); });
+    el('usageOptOut').checked = readOptOut(usageStorage());
+    el('usageOptOut').addEventListener('change', () => writeOptOut(usageStorage(), el('usageOptOut').checked));
+    setFormat();
+  </script>
+</body>
+</html>
