@@ -48,4 +48,17 @@ licensed by a failure) and the floor's shape goes back to NEXT.md with W's and X
 
 ## Result
 
-(filled in after the capture)
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture w.jsonl --lag 0.46 --seed 139 --procs 2 --takes "0.1,0.5,0.9,1.3,1.6,2.0,2.4,2.8,3.5,5.0,0"
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture x.jsonl --lag 0.38 --seed 151 --procs 2 --takes "0.1,0.5,0.9,1.3,1.6,2.0,2.4,2.8,3.5,5.0,0"
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_bound_floor_tenths.py --heldout eval/take-bound-floor-tenths-w-2026-11-19.jsonl.gz eval/take-bound-floor-tenths-x-2026-11-19.jsonl.gz
+
+All 132 drills completed, none aborted (eval/take-bound-floor-tenths-heldout-2026-11-19.txt). On the tenths frame, 97
+builds were told TAKE_US = 0 (98 on whole ppm). With floor 2 the true take was at most the bound on 97 of 97, and the
+bound was 1.5 ms on 9 of 12 instant builds. Both clauses held, so `TAKE_BOUND_FLOOR_PPM` stays 2 and its comment now
+calls it a noise margin.
+
+The held-out sets do not separate the floors. Every floor from 0 to 2 ppm covers 97 of 97 and bounds 9 of 12 instant
+builds at 1.5 ms. Neither W nor X had a take near 2 ms whose candidate sat just over the bar, the case that made the
+design sets miss. So the evidence that the floor does work on tenths rests on the design sets (7 misses at floor 0 in
+242). W and X show only that keeping it costs nothing there. What the floor protects against is a real feature of the
+fits, not of the frame, and how often it happens on a real wheel is unmeasured. Simulated only.

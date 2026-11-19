@@ -427,7 +427,11 @@ TAKE_WAIT_S = 14.0
 TAKE_BOUND_TOL = 0.02
 # ... and at least this many ppm over it (2026-11-19, README "A ppm floor on the bound"): the frame carries whole ppm, so
 # at a 16-20 ppm step one ppm of rounding is 5-6% and cleared 2% alone (set O's two misses). Held out on set P: 48 of
-# 48 within the bound against 46 of 48 at 2% alone, the instant builds still at 1.5 ms on 4 of 6.
+# 48 within the bound against 46 of 48 at 2% alone, the instant builds still at 1.5 ms on 4 of 6. Retested on the tenths
+# frame (2026-11-19, README "The bound's ppm floor on tenths"): rounding was not its only job. Rescored to tenths, the
+# design sets still miss 7 of 242 at floor 0 (real 2 ms takes just over 2%), cover 242 at floor 2, and bound 27 of 42
+# instant builds at 1.5 ms against 25 on whole ppm; it is a noise margin. Held out on sets W and X: 97 of 97 at every
+# floor 0-2, instant 9 of 12, so it stays 2 (eval/take-bound-floor-tenths-2026-11-19.md).
 TAKE_BOUND_FLOOR_PPM = 2
 # The grid each frame length carries (older firmware: eight candidates before the short-take grid, seven before 7 ms)
 TAKE_SURVEY_GRIDS_MS = {9: TAKE_SURVEY_MS, 8: (0, 2, 3, 4, 5, 6, 7, 8), 7: (0, 2, 3, 4, 5, 6, 8)}

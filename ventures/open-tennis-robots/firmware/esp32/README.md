@@ -3593,3 +3593,21 @@ near the margin at any rms, and a whole ppm on a 30 ppm step moves the bound by 
 **Not known.** All simulated. The 41 files are the stored sets, not a fresh capture, so this checks the arithmetic of
 the frame on known rows rather than a new plant. On a real tach the shares near the margin are what matter, and how
 often a real drill lands within 0.04 of 0.6 is unmeasured.
+
+## The bound's ppm floor on tenths (2026-11-19, after "The take survey's rms in tenths of a ppm"; the floor kept at 2 by its pre-registered rule)
+
+**The item.** `TAKE_BOUND_FLOOR_PPM` (2) was set because whole-ppm rounding cleared the bound's 2% bar alone at a
+16-20 ppm step. The tenths frame removed that rounding, so the floor might no longer be needed.
+
+**Design (all seen).** `tests/take_bound_floor_tenths.py` rescores the stored J-L, M and N dense refits and the O and P
+captures into both frames from their per-wheel scores, using the board's `ResidualSurvey`. Of 242 builds told
+TAKE_US = 0, the true take is at most the bound on 235 at floor 0, 239 at 0.5, 240 at 1 and 242 at 2. The misses
+are real 1.6-3.5 ms takes whose first candidate past them is just over 2%, not rounding. Floor 2 on tenths bounds 27
+of 42 instant builds at 1.5 ms, against 25 on whole ppm. A relative bar alone does no better: 10-12% covers all 242
+but bounds only 24 instant builds at 1.5 ms. The floor is a noise margin, so the design kept it.
+
+**Held out (rule committed before capture; sets W, lag 0.46 s, seed 139, and X, lag 0.38 s, seed 151, 132 drills).**
+97 builds were told TAKE_US = 0, and floor 2 covered 97 of 97, with the bound at 1.5 ms on 9 of 12 instant builds.
+Both clauses held, so the floor stays 2. Every floor from 0 to 2 scored the same on W and X, so these sets confirm the
+floor costs nothing but cannot show it is needed. That evidence is the design's 7 misses. Everything is in
+`eval/take-bound-floor-tenths-2026-11-19.md`.
