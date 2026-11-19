@@ -2112,6 +2112,15 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("set TAKE_US = 8000", host.take_survey_advice(end))
         self.assertIn("already matches", host.take_survey_advice(dict(end, board_ms10=80)))
 
+    def test_share_bound_from_whole_ppm(self):
+        # the sub-8 instant build (2026-11-19, README "The sub-8 advised instant build was the frame's rounding"): the
+        # frame carried 7 and 4 ppm, 0.571, where the board's sums gave 0.635; the frame allows up to 4.5 / 6.5
+        self.assertAlmostEqual(host.take_share_bound([7, 8, 6, 4, 26, 54, 132]), 4.5 / 6.5)
+        self.assertGreater(host.take_share_bound([7, 8, 6, 4, 26, 54, 132]), host.TAKE_ADVISE_RATIO)
+        self.assertLess(host.take_share_bound([136, 140, 119, 98, 95, 50, 112]), host.TAKE_ADVISE_RATIO)
+        self.assertEqual(host.take_share_bound([0, 0, 0]), 1.0)
+        self.assertEqual(host.take_share_bound([]), 1.0)
+
     def test_instant_verdict_names_its_bound(self):
         # 2026-11-19 (README "Short takes that read 0: no ball saw them"): a TAKE_US = 0 verdict names the first
         # candidate that fits clearly worse than the step, the longest take these balls cannot tell from an instant one

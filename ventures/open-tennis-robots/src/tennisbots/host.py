@@ -459,6 +459,16 @@ def _take_count(link) -> int:
     return link.take_survey["wheels"] if link.take_survey else 0
 
 
+def take_share_bound(rms) -> float:
+    """The largest best / step share the TAKE_SURVEY frame's rms allow: each is whole ppm, so +-0.5 ppm (2026-11-19,
+    firmware/esp32/README.md "The sub-8 advised instant build was the frame's rounding"). 1.0 when the step's rms is
+    under 1 ppm and the frame cannot bound it."""
+    rms = [v for v in rms if v is not None]
+    if not rms or rms[0] < 1:
+        return 1.0
+    return min(1.0, (min(rms) + 0.5) / (rms[0] - 0.5))
+
+
 def take_survey_advice(sv: dict | None) -> str | None:
     """One line on the board's contact-time survey (firmware/esp32/README.md "The contact time surveyed on the board"):
     the contact time its balls pick and whether config.TAKE_US should change. None without a survey. Times are in ms;
