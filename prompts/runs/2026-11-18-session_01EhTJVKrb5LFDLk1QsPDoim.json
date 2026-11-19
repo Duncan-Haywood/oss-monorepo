@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVKrb5LFDLk1QsPDoim",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T20:03:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9): league-schedule-generator",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17408",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The bare route drew the research track, but the scheduled message asks for revenue-generating products; re-routed with --task, which picks ventures as prompt.md describes.",
+      "did": "routed with --task",
+      "result": "ventures/1, flagship row 4"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's next: items all need a real league or are combinatorial bounds with little organiser value; took a user-facing gap found by measurement (time/court limits) instead.",
+      "did": "measured limits on 300 random leagues, fixed and documented",
+      "result": "0 of 3,033 legal rounds broken (was 1), 87 of 90 impossible leagues named before the build"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-when-two-captains-want-different-slots-league-schedule.md"
+  ],
+  "goal": null,
+  "notes": "Exact per-round matching pass for team time/court limits (legalRoundSlots) and limitConflicts() naming impossible limits as the first notice; eval/limit-conflicts.mjs and .txt; tennis-league-schedule.html guide (tested, in sitemap, index and llms.txt); README section; flagship next: updated. Verification: node --test limit-conflicts.test.mjs and page.test.mjs tennis test pass; full venture suite via run_venture_tests.py (see PR).",
+  "corrections": [],
+  "redteam": null
+}

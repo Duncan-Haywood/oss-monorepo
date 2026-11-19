@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVPFJA8vgsvyHVTYhvu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T22:02:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check (flagship 12, allocate.py row 7): the IDS editor repairs a file's one-answer ids.xsd faults and foreign-regex patterns as it opens it",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": 17436,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ids-model-check next: sits at the 2000-character cap; landing one item meant trimming two older landed clauses by hand, since flagship_field.py never parks landed clauses."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-ids-editor-repairs-patterns-on-open.md",
+    "ventures/ids-model-check/eval/editor-open-repair-2026-11-18.md"
+  ],
+  "goal": "Editor writes back IDS files other checkers read as their authors meant",
+  "notes": "repairOnOpen in editor.mjs runs fix.mjs before importIds; editor.html lists the fixes in the open message. eval/editor-open-repair.mjs on 65 public + 80 IDS-Audit-tool files: pattern findings in written-back files 9->0 and 51->1; written back clean 55->60 and 65->68; editable facets unchanged; repaired files ask what the original asked 14/14 and 7/7 (differences only in rewritten patterns). Found in passing: parseIds already tolerates a bare &, so the repair does not make new files openable (claim dropped). Checks: node --test editor-repair.test.mjs editor.test.mjs fix.test.mjs page.test.mjs (55 pass); run_venture_tests.py ids-model-check: ok, 268 tests; venture-preflight.mjs ids-model-check: 'preflight clean'; editor.html driven in Chromium on Issue 61's file: 3 fixes listed, no page errors.",
+  "corrections": [],
+  "redteam": null
+}

@@ -60,11 +60,13 @@ separate batch tallying step?
     marginal report probability, so that any *uninformative* fixed/random
     reporting strategy earns ~0 expected payment while truthful reporting
     earns strictly more.
-  - **Correlated Agreement (CA)** (Dasgupta & Ghosh, 2013), a simplified
-    practical variant: estimates a "same task vs. different task" delta
-    matrix over the population's pairwise reports and pays agreement that is
-    more common on shared tasks than a cross-task shuffle baseline would
-    predict.
+  - **Correlated Agreement (CA)** (Dasgupta & Ghosh, 2013; Shnayder et al.,
+    2016): estimates a "same task vs. different task" delta matrix over the
+    population's pairwise reports. `multi_task_ca_payment` is the published
+    multi-task mechanism: the score `S = sign(Delta)` on a shared bonus task
+    minus the score on two distinct penalty tasks, one per agent.
+    `ca_payment` is the bonus-only variant (no penalty term) this package
+    first shipped; its results are kept below for comparison, labelled.
 - `market_maker.py` — an LMSR cost-function market maker (Hanson, 2003).
 - `agents.py` — verifier strategies: `honest`, `lazy` (free-rides, always
   reports "correct"), `colluding` (a coordinated block that always reports
@@ -78,13 +80,13 @@ separate batch tallying step?
 - `reputation.py` — a follow-up mechanism (see "Follow-up" section below)
   that bootstraps a per-verifier trust weight from PTS payoffs measured on a
   held-out calibration window, then uses it to repair Correlated
-  Agreement's collusion vulnerability and to reputation-weight LMSR trades.
+  Agreement's collusion vulnerability (a vulnerability of the bonus-only variant only; see the correction under Results) and to reputation-weight LMSR trades.
 
 Run it:
 
 ```bash
 cd research/decentralized-verification-markets
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 72 tests
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 76 tests
 python3 experiments/run_experiment.py                       # full report
 ```
 
@@ -99,17 +101,49 @@ corruption rate, 14 honest / 3 lazy / 3 colluding / 2 adversarial verifiers)
 | mechanism | honest | lazy | colluding | adversarial | honest advantage |
 |---|---|---|---|---|---|
 | Peer Truth Serum | **+519.88** | -30.20 | -30.62 | -734.32 | **+550.08** |
-| Correlated Agreement | +23.63 | +27.51 | **+27.29** | -24.82 | **-3.87** |
+| Correlated Agreement, multi-task (published, `sign(Delta)`) | **+163.71** | +7.00 | -16.00 | -165.00 | **+156.71** |
+| Correlated Agreement, multi-task, `Delta` as the score | +7.49 | +0.33 | -0.74 | -7.55 | **+7.17** |
+| Correlated Agreement, bonus-only variant (no penalty term) | +23.63 | +27.51 | **+27.29** | -24.82 | **-3.87** |
 
-PTS stays robustly incentive-compatible even under a heavy, simultaneous
-mix of deviating strategies. CA does not — see **Limitations** below. **Caveat (quality audit
-2026-11-17):** this CA pays only the same-task bonus `Delta[x][y]` and omits
-the penalty term of published Correlated Agreement (Shnayder et al. 2016;
-Dasgupta & Ghosh 2013), which subtracts the score on a pair of distinct tasks.
-With that term restored on the same reports and the same delta matrix, honest
-beats every deviation by +153 (sign of Delta) or +7.3 (Delta itself), so the
-vulnerability shown here is a property of the bonus-only variant, not of CA
-as published (`portfolio/quality/audits/2026-11-17-decentralized-verification-markets.json`).
+Both PTS and published Correlated Agreement stay incentive-compatible under
+a heavy, simultaneous mix of deviating strategies. The lazy and colluding
+blocks, which always report "correct" without looking, earn close to zero
+under multi-task CA, as the theory says an uninformed strategy should
+(Shnayder et al. 2016): the penalty pair agrees with the peer exactly as often
+as the bonus task does. Only the **bonus-only variant** is broken, because it
+pays `Delta[(1, 1)] > 0` to anyone who reports the popular label, with nothing
+to subtract. Earlier versions of this README presented that as "CA is
+vulnerable to simultaneous correlated deviation"; that was wrong, an artefact
+of the missing penalty term (quality audit,
+`portfolio/quality/audits/2026-11-17-decentralized-verification-markets.json`;
+fixed in the 2026-11-18 change that added `multi_task_ca_payment`).
+Payoff scales differ between rows (a `sign` score is 0 or 1 per task, `Delta`
+entries are about 0.05), so compare the sign of the gap across rows, not
+its size.
+
+Over ten seeds of the same population (`experiments/ca_penalty_seeds.py`,
+about 6 s), the bonus-only variant puts honest behind on every seed and every
+multi-task row puts honest ahead on every seed:
+
+| seed | bonus-only, full | bonus-only, held-out | trust-weighted, held-out | multi-task sign, full | multi-task Delta, full | multi-task sign, held-out |
+|---|---|---|---|---|---|---|
+| 1 | -3.84 | -2.03 | +13.32 | +161.33 | +7.02 | +115.74 |
+| 2 | -3.76 | -1.53 | +15.46 | +156.50 | +7.18 | +100.86 |
+| 3 | -2.31 | -1.81 | +13.44 | +164.14 | +6.91 | +129.31 |
+| 4 | -2.09 | -2.06 | +14.28 | +152.14 | +6.45 | +112.50 |
+| 5 | -3.27 | -2.85 | +15.38 | +172.71 | +8.52 | +129.67 |
+| 6 | -2.45 | -0.67 | +15.49 | +177.62 | +9.03 | +133.05 |
+| 7 | -2.68 | -2.49 | +18.70 | +190.67 | +9.64 | +134.26 |
+| 8 | -3.05 | -1.72 | +12.45 | +147.57 | +6.66 | +124.33 |
+| 9 | -4.82 | -3.28 | +15.38 | +176.62 | +8.33 | +128.48 |
+| 10 | -3.69 | -1.41 | +12.89 | +165.45 | +8.04 | +115.95 |
+| mean | -3.19 | -1.98 | +14.68 | +166.48 | +7.78 | +122.41 |
+| min | -4.82 | -3.28 | +12.45 | +147.57 | +6.45 | +100.86 |
+| seeds with honest ahead | 0/10 | 0/10 | 10/10 | 10/10 | 10/10 | 10/10 |
+
+The "trust-weighted" column is the Follow-up 1 repair below, which was built
+to fix the bonus-only variant. Published CA, held out the same way, needs no
+repair in this population.
 
 **Aggregate accuracy**: the LMSR market's price tracks ground truth with a
 Brier score of **0.0203** (0 = perfect, 0.25 = an uninformative 50/50
@@ -143,6 +177,13 @@ here is illustrative, not a claim that majority vote satisfies the same
 guarantee.
 
 ## Follow-up: reputation-weighted mechanisms (closes Limitations 1-3, below)
+
+**Read with the correction above.** This follow-up repairs the *bonus-only*
+CA variant. Published multi-task CA does not have the vulnerability it
+repairs (held-out honest advantage +114.26 at seed 42 with no trust weights,
+10/10 seeds), so the CA half of this section is a fix for a
+self-inflicted problem. The LMSR half (trust-weighted trade sizes) stands on
+its own, with the liquidity caveat below.
 
 The initial version of this package documented three limitations of its own
 mechanisms as "natural next steps": Correlated Agreement's population-pooled
@@ -181,8 +222,9 @@ scored on the held-out remainder; reproduce with
 
 | mechanism | honest advantage over best deviation |
 |---|---|
-| Correlated Agreement, plain (held-out scoring window) | **-1.73** (still broken) |
-| Correlated Agreement, trust-weighted | **+14.12** (fixed) |
+| Correlated Agreement, bonus-only (held-out scoring window) | **-1.73** (broken) |
+| Correlated Agreement, bonus-only, trust-weighted | **+14.12** (repaired) |
+| Correlated Agreement, published multi-task (held-out, no trust weights) | **+114.26** (never broken) |
 
 | market | Brier score (scoring window) |
 |---|---|
@@ -457,16 +499,18 @@ deliberately simplifies the underlying theorems in ways worth being
 explicit about:
 
 1. ~~**Correlated Agreement here is not collusion-resistant** against a
-   *simultaneously* deviating block (the Dasgupta & Ghosh (2013)
-   incentive-compatibility theorem is proved only for a single unilateral
-   deviator).~~ **Closed** by the trust-weighted CA in the "Follow-up"
-   section above — with the caveat, documented there, that the fix itself
-   needs enough calibration-window data per agent to separate strategies
-   reliably. The plain, population-pooled estimator (`peer_prediction.py`)
-   is kept as-is and still exhibits the original vulnerability
-   (`test_ca_is_vulnerable_to_simultaneous_correlated_deviation`); it is the
-   thing being fixed, not something this package still claims is safe to
-   use un-weighted.
+   *simultaneously* deviating block.~~ **Withdrawn** (2026-11-18). This was
+   true only of the bonus-only variant (`ca_payment`), which omitted CA's
+   penalty term; the earlier claim that the CA theorem covers only a
+   single unilateral deviator was also wrong, since multi-task CA's
+   informed truthfulness holds against any strategy profile (Shnayder et
+   al. 2016). Published CA (`multi_task_ca_payment`) is incentive-compatible
+   in the same scenario
+   (`test_multi_task_ca_survives_simultaneous_correlated_deviation`). The
+   bonus-only variant is kept, with its failing test, as a worked example
+   of why the penalty term exists. What multi-task CA does not cover is a
+   block that looks at its signals and coordinates on them, which no agent
+   here models.
 2. ~~Both mechanisms used an *empirically estimated* prior/delta matrix
    computed from the same batch of reports being scored (circular).~~
    **Closed**: the trust-weighted path in `reputation.py` estimates trust
@@ -498,6 +542,9 @@ explicit about:
   Science: Eliciting Truthful Information* (Peer Truth Serum, ch. 4).
 - Dasgupta, S. & Ghosh, A. (2013). "Crowdsourced Judgement Elicitation with
   Endogenous Proficiency." (Correlated Agreement.)
+- Shnayder, V., Agarwal, A., Frongillo, R. & Parkes, D. C. (2016). "Informed
+  Truthfulness in Multi-Task Peer Prediction." *EC '16*. (Multi-task CA with
+  `sign(Delta)` scoring; `multi_task_ca_payment` follows its definition.)
 - Chen, Y. & Vaughan, J. W. (2010). "A New Understanding of Prediction
   Markets via No-Regret Learning."
 - Frongillo, R., Della Penna, N. & Reid, M. (2012). "Interpreting Prediction

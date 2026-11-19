@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqycHaAZTgqmj2CqQQMo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T19:38:04Z",
+  "ended": "2026-11-18T20:03:52Z",
+  "wall_minutes": 29.9,
+  "tokens_in": 19152029,
+  "tokens_out": 86067,
+  "cost_usd": 7.4372,
+  "tool_calls": 111,
+  "task": "photo-editing (flagship 7): read Hasselblad 3FR directly",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17403",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    "First venture-suite run failed one test (test_camera_profiles pinned the old refusal text that now names 3FR); fixed in the PR.",
+    "Hasselblad JPEG header parser first rejected the CFV's 0xFF fill byte after SOF3; fixed before any real-file result.",
+    "The H4D-60 first differed from LibRaw in every sensel (wrapped below-zero data); fixed by a histogram-gap test.",
+    "CI lint (mypy 1.19.1) failed once on hasselblad.py: jpeg_header's height not narrowed from None, and the np = None import pattern; fixed, checked locally with CI's ruff 0.15.8 and mypy 1.19.1 in a venv without numpy."
+  ],
+  "integrity_issues": [
+    "Found that tools/mrw_develop_check.py (landed earlier today) undid LibRaw's BT.709 output with the sRGB curve, so the MRW eval's 0.003-0.016 colour gaps are overstated; recorded in eval/hasselblad-3fr-reader-2026-11-18.md and NEXT.md, not rerun (the MRW files were not re-downloaded)."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Its shallow fetch timed out at 50 s and left .git/shallow.lock behind, which made the next git fetch fail until the stale lock was removed by hand."
+    },
+    {
+      "file": "ventures/photo-editing/src/shootflow/cli.py",
+      "issue": "The develop subcommand's help still said CR3 needed converting and listed only five formats; corrected in this PR."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-photo-editing-hasselblad-3fr-reader.md",
+    "ventures/photo-editing/eval/hasselblad-3fr-reader-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Routed ventures/1; allocate.py picked flagship row 3 photo-editing. Chose a new raw format (Hasselblad 3FR) from the BUILDABLE HERE source raw.pixls.us. Verification: tools/hasselblad_libraw_check.py on 10 real 3FRs: 561,488,912 sensels, 0 differing, CFA and WB equal LibRaw 0.22.2 (rawpy 0.28.0). tools/hasselblad_develop_check.py --colour=dng,dcraw: all 10 under the 0.02 chroma gate (dcraw method 0.0000 on 8, 0.002-0.003 on the 100 MP two; DNG model max 0.0172 on a tungsten frame). tests/test_hasselblad.py 15 tests pass with C, with SHOOTFLOW_NATIVE=0 and with numpy. run_venture_tests.py photo-editing: ok, 1388 tests (219 s, 9 skipped), after fixing one test that pinned the old refusal text. venture-preflight.mjs photo-editing: clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2a7ea797-32b1-5020-b988-20315a1bfdf9",
+    "transcripts": 1,
+    "first": "2026-11-18T19:38:04Z",
+    "last": "2026-11-18T20:07:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 109,
+        "input": 216,
+        "output": 86067,
+        "thinking": 21589,
+        "cache_read": 18910191,
+        "cache_write_5m": 0,
+        "cache_write_1h": 241622,
+        "api_equivalent_usd": 7.4372,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 109,
+      "input": 216,
+      "output": 86067,
+      "thinking": 21589,
+      "cache_read": 18910191,
+      "cache_write_5m": 0,
+      "cache_write_1h": 241622,
+      "api_equivalent_usd": 7.4372,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 111,
+    "tools": {
+      "Bash": 103,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.9,
+      "active_minutes": 27.18,
+      "model_minutes": 14.52,
+      "tool_minutes": 12.66,
+      "waiting_on_human_minutes": 2.72,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a senior imaging engineer reverse-reading the 3FR layouts from dcraw/LibRaw, writing a C+Python decoder, a LibRaw check on ten files, the signed-data fix and the docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 322.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

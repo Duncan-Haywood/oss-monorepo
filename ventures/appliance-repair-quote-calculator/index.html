@@ -301,9 +301,14 @@
       location.reload();
     });
     el('copy').addEventListener('click', async () => {
-      const r = calculateQuote(readInput());
-      const comparison = compareServiceCallVsReplace(readInput(), currentReplace());
-      const text = `Appliance repair quote draft\nTarget price: ${money(r.target)}\nWalk-away floor: ${money(r.walkAway)}\nModeled labor: ${r.laborHours.toFixed(2)} hours\nParts after markup: ${money(r.parts)}\nRepair vs replace: ${serviceCallVsReplaceNote(comparison)}\nReview and verify before sending.`;
+      let r;
+      try { r = calculateQuote(readInput()); } catch (error) { flash(`Nothing to copy yet: ${error.message}.`); return; }
+      // The repair-vs-replace panel is optional: a blank years field there must
+      // not stop the quote itself from copying.
+      let replaceLine;
+      try { replaceLine = serviceCallVsReplaceNote(compareServiceCallVsReplace(readInput(), currentReplace())); }
+      catch (error) { replaceLine = `not compared (${error.message})`; }
+      const text = `Appliance repair quote draft\nTarget price: ${money(r.target)}\nWalk-away floor: ${money(r.walkAway)}\nModeled labor: ${r.laborHours.toFixed(2)} hours\nParts after markup: ${money(r.parts)}\nRepair vs replace: ${replaceLine}\nReview and verify before sending.`;
       try { await navigator.clipboard.writeText(text); flash('Summary copied.'); }
       catch { flash('Copy unavailable; review the values on screen.'); }
       count('summary_copied');

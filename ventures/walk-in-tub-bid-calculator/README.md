@@ -128,6 +128,11 @@ Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 - Accessibility clearances, structural engineering, and plumbing
   design are not designed here — that is the contractor or the
   building official.
+- **No electrical line for jetted tubs.** A whirlpool or air-jet tub
+  needs its own GFCI-protected circuit (NEC 680.71), usually run by an
+  electrician; the tub option's "pump, GFCI" label does not add that cost,
+  so enter it in other cost. No input for water-heater capacity either
+  ([quality audit, 2026-11-19](../../portfolio/quality/audits/2026-11-19-walk-in-tub-bid-calculator.json)).
 
 ## Disclaimer
 

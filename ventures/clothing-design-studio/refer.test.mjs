@@ -204,3 +204,44 @@ test("raising the price does not move the artwork", () => {
   assert.equal(parseCommand("move it up", h.present).steps[0].ops[0].op, "move");
   assert.equal(parseCommand("raise the print a bit", h.present).steps[0].ops[0].op, "move");
 });
+
+test("colour comparisons: the eval's dev and held-out sets all read right", async () => {
+  const ev = await import("./eval/colour-versions.mjs");
+  const h0 = ev.session();
+  const LINE = [...h0.past, h0.present];
+  for (const [text, check, want] of [...ev.S, ...ev.HELD]) {
+    const h = ev.session();
+    const r = parseCommand(text, h.present, [...h.past, h.present]);
+    for (const step of r.steps) {
+      for (const u of step.ui) {
+        if (u.ui === "undo") for (let i = 0; i < (u.count ?? 1); i++) h.undo();
+        else if (u.ui === "restore") h.replace(LINE[u.index]);
+      }
+      if (step.ops.length) h.apply(step.ops);
+    }
+    assert.ok(check({ d: h.present, r, h }), `${text}: want ${want}`);
+  }
+});
+
+test("colour comparisons: lightness, vividness and warmth with the colour named", async () => {
+  const ev = await import("./eval/colour-versions.mjs");
+  const h = ev.session();
+  const l = [...h.past, h.present];
+  assert.match(comparedVersion("when it was darker", l).did, /lightness .*9\.8, black; now 17\.3, navy/);
+  assert.match(comparedVersion("the one where the halo was duller", l).did, /ink vividness .*navy; now 63\.8, red/);
+  // "the lighter one" and "the lighter fabric" stay fabric weight; "make it darker" is an edit.
+  assert.match(comparedVersion("the lighter one", l).did, /fabric/);
+  assert.match(comparedVersion("the one with the lighter fabric", l).did, /fabric/);
+  assert.equal(comparedVersion("make it darker", l), null);
+  assert.equal(comparedVersion("when the price was darker", l), null);
+});
+
+test("colour comparisons: an uploaded image has no ink to compare", () => {
+  let d = newDesign({ name: "Image tee" });
+  d = applyOp(d, { op: "add", kind: "image", src: "data:image/png;base64,AA", label: "Painting", w: 20 });
+  const h = new History(d);
+  h.apply([{ op: "colour", value: "cream" }]);
+  const r = comparedVersion("when the print was darker", [...h.past, h.present]);
+  assert.deepEqual([r.ops, r.ui], [[], []]);
+  assert.match(r.did, /own colours/);
+});

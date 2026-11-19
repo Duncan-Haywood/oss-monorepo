@@ -159,6 +159,11 @@ def post_limits() -> str:
 PR_ROUND_RE = re.compile(r"^quality:\s*round\s+(\d+)(?:\s*\(seed\s+([\w-]+)\))?", re.I)
 
 
+def claim_title(rnd: int, seed: str) -> str:
+    """The round PR title open_round_prs() reads back (PR_ROUND_RE)."""
+    return f"quality: round {rnd} (seed {seed})"
+
+
 def open_round_prs(timeout: int = 20) -> list[tuple[int, str | None]]:
     """(round, seed) of every open `quality: round N (seed S)` PR.
 
@@ -195,8 +200,10 @@ def fetch_main(timeout: int = 60) -> bool:
     2026-11-13); the README's "fetch first" step was the fix, so do it here."""
     import subprocess
     try:
-        return subprocess.run(["git", "fetch", "-q", "--depth=1", "origin", "main"], capture_output=True,
-                              timeout=timeout, cwd=ROOT).returncode == 0
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import shallow_repair  # SIGTERM on timeout, so git does not leave .git/shallow.lock behind
+        return shallow_repair.fetch(["-q", "--depth=1", "origin", "main"], cwd=ROOT,
+                                    timeout=timeout).returncode == 0
     except Exception:
         return False
 
@@ -395,8 +402,10 @@ def render_md(s: dict) -> str:
 
 # --- sampling ----------------------------------------------------------------
 
-def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None = None, pop: dict[str, list[str]] | None = None, today: dt.date | None = None) -> list[dict]:
-    """Today's subjects: the least recently audited flagship, then uniform draws per stratum."""
+def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None = None, pop: dict[str, list[str]] | None = None, today: dt.date | None = None, exclude: set[str] | frozenset = frozenset()) -> list[dict]:
+    """Today's subjects: the least recently audited flagship, then uniform draws per stratum.
+
+    `exclude` holds subjects another round in flight already drew (held_subjects)."""
     audits = load_audits() if audits is None else audits
     pop = population() if pop is None else pop
     today = today or dt.date.today()
@@ -404,9 +413,9 @@ def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None =
     cutoff = (today - dt.timedelta(days=SKIP_DAYS)).isoformat()
     rng = random.Random(int(hashlib.sha256(seed.encode()).hexdigest()[:16], 16))
     picked: list[dict] = []
-    taken: set[str] = set()
+    taken: set[str] = set(exclude)
     flag_cutoff = (today - dt.timedelta(days=FLAGSHIP_REAUDIT_DAYS)).isoformat()
-    due = [s for s in pop["flagship"] if last.get(s, "") < flag_cutoff]
+    due = [s for s in pop["flagship"] if last.get(s, "") < flag_cutoff and s not in taken]
     if due:
         order = sorted(due, key=lambda s: (last.get(s, ""), pop["flagship"].index(s)))
         picked.append({"stratum": "flagship", "subject": order[0], "last_audited": last.get(order[0])})
@@ -418,6 +427,37 @@ def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None =
             picked.append({"stratum": stratum, "subject": s, "last_audited": last.get(s), "population": len(pop[stratum])})
             taken.add(s)
     return picked
+
+
+SEED_DATE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})")
+
+
+def held_subjects(prs: list[tuple[int, str | None]], audits: list[dict], pop: dict[str, list[str]] | None = None,
+                  today: dt.date | None = None, max_age_days: int = 1) -> set[str]:
+    """Subjects the open round PRs drew, replayed from the seeds in their titles.
+
+    The flagship pick is deterministic (least recently audited), so two rounds
+    in flight both drew ventures/chant-forge on 2026-11-19 (rounds 76 and 77,
+    doc_friction on this file); the second audit was renamed -b at merge. A
+    round's title carries its seed, so its draw can be replayed with no extra
+    API call. Replay in round order, each excluding what earlier rounds hold,
+    the way each was drawn. Only seeds dated within `max_age_days`: an older
+    PR's draw no longer replays faithfully, and a stale one is not in flight."""
+    pop = population() if pop is None else pop
+    today = today or dt.date.today()
+    held: set[str] = set()
+    for _, sd in sorted((r, s) for r, s in prs if s):
+        m = SEED_DATE_RE.match(sd)
+        if not m:
+            continue
+        try:
+            day = dt.date.fromisoformat(m.group(1))
+        except ValueError:
+            continue
+        if not 0 <= (today - day).days <= max_age_days:
+            continue
+        held |= {p["subject"] for p in draw(sd, audits=audits, pop=pop, today=day, exclude=held)}
+    return held
 
 
 # --- cli ---------------------------------------------------------------------
@@ -516,7 +556,10 @@ def main(argv: list[str] | None = None) -> int:
         every = local + remote_audits(local)
         held = [{"seed": sd} for _, sd in prs if sd]  # seeds open round PRs hold
         seed = args.seed or claim_seed(free_seed(dt.date.today().isoformat(), every + held))
-        picks = draw(seed, args.k, args.k_platform, audits=every)
+        pop = population()
+        # --seed reproduces a round, so its own claim PR is not another round in flight
+        in_flight = held_subjects([(r, sd) for r, sd in prs if sd != args.seed], every, pop)
+        picks = draw(seed, args.k, args.k_platform, audits=every, pop=pop, exclude=in_flight)
         rnd = next_round(in_flight=tuple(r for r, _ in prs))
         if args.json:
             print(json.dumps({"seed": seed, "round": rnd, "subjects": picks}, indent=1))
@@ -528,7 +571,14 @@ def main(argv: list[str] | None = None) -> int:
                 held_txt = ", ".join(f"{r}/{sd or '?'}" for r, sd in sorted(prs)) or "none"
                 print(f"  open round PRs (round/seed, skipped): {held_txt}"
                       + ("" if fetched else "; origin/main NOT fetched, so merged rounds may be missing"))
+                if in_flight:
+                    print(f"  subjects those rounds drew (replayed from their seeds, skipped): {', '.join(sorted(in_flight))}")
             print(f"  post {post_limits()}")
+            # A PR needs a commit, and two quality records (2026-11-19T04:38, 12:39) committed
+            # placeholder posts to claim a round; an empty commit is enough, and this title is
+            # the one open_round_prs() parses, so the next session skips this round and seed.
+            print(f"  claim now: git commit --allow-empty -m \"{claim_title(rnd, seed)}\", push, and open "
+                  f"a draft PR with that title (the squash merge drops the empty commit)")
             for p in picks:
                 extra = f" (of {p['population']})" if p.get("population") else ""
                 print(f"  {p['stratum']:<9} {p['subject']}{extra}  last audited: {p['last_audited'] or 'never'}")

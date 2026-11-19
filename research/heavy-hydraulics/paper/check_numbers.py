@@ -1,7 +1,7 @@
 """Check that numbers quoted in paper/draft.md appear in the results files they cite.
 
     python3 paper/check_numbers.py                        # draft.md
-    python3 paper/check_numbers.py --paper manuscript.md  # the venue-length cut (milestone 6s)
+    python3 paper/check_numbers.py --paper manuscript.md  # the venue-length cut (milestone 6s) and supplement.md (7v)
 
 Each row is (draft snippet, results file, snippet in that file). Exit 1 on any miss.
 """
@@ -434,7 +434,7 @@ MANUSCRIPT_CHECKS = [
     ('between 0.0162 and 0.0198 per kW', "gear_pump_five_results.txt", '0.8242, +0.0162'),
     ('does not help a left-out family (RMS 0.0046)', "gear_pump_five_results.txt", 'three-number 0.0046'),
     ('by at most 0.0202 from the pooled 0.8212', "gear_pump_five_results.txt", "largest distance from 6r's pooled 0.8212: 0.0202"),
-    ('predicts every family left out of the fit within 0.0042', "gear_pump_five_results.txt", 'rexroth          0.8040      -0.0166     -0.0042'),
+    ('predicts each family left out of the fit with an RMS of 0.0022', "gear_pump_eight_results.txt", 'RMS over the eight held-out diagonals: one-number 0.0113, two-number 0.0022'),
     # milestone 6y: the sixth family (Rexroth AZPN)
     ("Its largest size gives 75.58 L/min", "gear_pump_six_results.txt", "largest size gives 75.58 L/min"),
     ("its idle power at 85 L/min is 2.49 kW", "gear_pump_six_results.txt", "azpn       0.9587       -0.0352     2.49"),
@@ -445,7 +445,7 @@ MANUSCRIPT_CHECKS = [
     ("the AZPN crosses at 0.8050 and the rule as committed predicts 0.8049", "gear_pump_six_results.txt", "6x's two-number rule 0.8049: error +0.0001"),
     ("E<sub>50</sub> = 0.8245 + 0.0183 (kW &minus; 3.57)", "gear_pump_six_results.txt", "E50 = 0.8245 + 0.0183 (kW - 3.57)"),
     ("an RMS of 0.0023 against 0.0120 for a constant", "gear_pump_six_results.txt", "one-number 0.0120, two-number 0.0023"),
-    ("the registered test fails by 0.0293;", "gear_pump_six_results.txt", "error +0.0293"),
+    ("failed its registered test by +0.0293", "gear_pump_six_results.txt", "error +0.0293"),
     # milestone 6z: seventh family (AZPU) under the fixed index
     ("lands 0.0011 from the committed rule, against 0.0142 for a constant", "gear_pump_seven_results.txt", "(C) one-number 0.8172; error -0.0142"),
     ("the largest giving 136.73 L/min", "gear_pump_seven_results.txt", "largest size gives 136.73 L/min"),
@@ -462,7 +462,7 @@ MANUSCRIPT_CHECKS = [
     ("Held at size 25 instead, the error is +0.0010", "gear_pump_eight_results.txt", "rule (Z) at its kW 0.8042, error +0.0010"),
     ("E<sub>50</sub> = 0.8238 + 0.0177 (kW &minus; 3.57)", "gear_pump_eight_results.txt", "E50 = 0.8238 + 0.0177 (kW - 3.57)"),
     ("an RMS of 0.0022 against 0.0113 for a constant", "gear_pump_eight_results.txt", "eight held-out diagonals: one-number 0.0113, two-number 0.0022"),
-    ("lands 0.0008 from the seven-family rule", "gear_pump_eight_results.txt", "AF1 AZPF within 0.006 of rule (Z): held (+0.0008)"),
+    ("whose largest size gives 58.87 L/min, 0.0008", "gear_pump_eight_results.txt", "AF1 AZPF within 0.006 of rule (Z): held (+0.0008)"),
     # milestone 7b: the largest size spun instead of held
     ("its efficiency at the index point falls only to 0.9043", "gear_pump_spin_results.txt", "azpf_spin   0.9043"),
     ("rises from 7.7 to 12.3 W per L/min", "gear_pump_spin_results.txt", "85.00         3000      0.8865      0.9043      0.9037              12.3             0.9103               7.7"),
@@ -507,6 +507,68 @@ MANUSCRIPT_CHECKS = [
     ("trade 0.98 for one", "gear_pump_ownpick_results.txt", "owh 1.22, owhs 0.98"),
     ("pays 0.782 of its pooled-pick drag", "gear_pump_ownpick_results.txt", "s/w 0.782"),
     ("only 0.743 kW per kW", "gear_pump_ownpick_results.txt", "pooled with condition fixed effects 0.743"),
+    # milestone 7o
+    ("mean (one constant, calibrated on the six families' own picks, 2.15 per kW)", "gear_pump_tilt_results.txt", "all six                       2.15"),
+    ("left-out RMS 0.0053 against 0.0056", "gear_pump_tilt_results.txt", "owdt  0.0053  (max 0.0061"),
+    ("calibrated without it, the best tilt is 0.00", "gear_pump_tilt_results.txt", "without danfoss               0.00"),
+    # milestone 7p
+    ("the left-out RMS is 0.0047", "gear_pump_leak_results.txt", "owdm   0.0047  (max 0.0056"),
+    ("(0.0049 at unseen half idle speed)", "gear_pump_leak_results.txt", "owdm   0.0049  (+0.0002)"),
+    # milestone 7q
+    ("gives a left-out RMS of 0.0075", "gear_pump_table_results.txt", "owdt1  0.0075  (max 0.0102"),
+    ("and 0.0061 with every donor pooled", "gear_pump_table_results.txt", "owdtp  0.0061  (max 0.0076"),
+    ("no donor bends like Danfoss (1.781)", "gear_pump_table_results.txt", "danfoss                       b 1.781"),
+    ("charges that family 1.467 times", "gear_pump_table_results.txt", "t1 1.467"),
+    # milestone 7r
+    ("gets a left-out RMS of 0.0052", "gear_pump_bendtable_results.txt", "owdb   0.0052  (max 0.0060"),
+    ("(half idle speed 0.0056 against the two-price rule's 0.0059)", "gear_pump_bendtable_results.txt", "owdb   0.0056  (-0.0015)"),
+    ("from 0.0122 under the pooled table to 0.0063", "gear_pump_bendtable_results.txt", "danfoss                       0.0061 / 0.0066 / 0.0122 / 0.0063"),
+    ("charges it 1.197 times", "gear_pump_bendtable_results.txt", "b 1.197"),
+    # milestone 7s
+    ("holding the level at 64 L/min, gives 0.0053", "gear_pump_bendshape_results.txt", "owdbh   0.0053  (max 0.0060"),
+    ("the table scores 0.0059", "gear_pump_bendshape_results.txt", "owdbv   0.0059  (max 0.0072"),
+    ("with Danfoss at 0.0110", "gear_pump_bendshape_results.txt", "0.0063 / 0.0066 / 0.0110 / 0.0065"),
+    ("its picks stay near 72 L/min", "gear_pump_bendshape_results.txt", "1.8    68.0    68.0    72.0    68.0"),
+    # milestone 7t
+    ("pivot of a power-law bend at 65.4 L/min", "gear_pump_anchor_results.txt", "lam_pool +0.105 (pivot  65.4)"),
+    ("puts it at 61.1 L/min", "gear_pump_anchor_results.txt", "lam_fe -0.219 (pivot  61.1)"),
+    ("the table scores 0.0052 and 0.0050 left out", "gear_pump_anchor_results.txt", "owdbf   0.0050  (max 0.0057"),
+    ("its Danfoss error, 0.0054", "gear_pump_anchor_results.txt", "0.0061 / 0.0066 / 0.0063 / 0.0110 / 0.0068 / 0.0054"),
+    ("sits 0.251 in log terms above", "gear_pump_anchor_results.txt", "residual +0.251"),
+    ("left out of the fit with an RMS of 0.0056 over 308 cases", "gear_pump_onerule_results.txt", "owh  0.0056  (max 0.0064"),
+    ("0.0050 to 0.0052 on rows the model builds", "gear_pump_anchor_results.txt", "owdbf   0.0050  (max 0.0057"),
+    # milestone 7u (paper step): Table 2, the selection rules in the order they were tested
+    ("| eight held families | 0.0113 |", "gear_pump_eight_results.txt", "one-number 0.0113, two-number 0.0022"),
+    ("| eight held families | 0.0022 |", "gear_pump_eight_results.txt", "one-number 0.0113, two-number 0.0022"),
+    ("| 14 readings, held, spun and geared | 0.0084 |", "gear_pump_third_results.txt", "RMS over 14 diagonals: one 0.0120, two 0.0084, lo 0.0068"),
+    ("| adds efficiency at 57 L/min | 14 readings | 0.0068 |", "gear_pump_third_results.txt", "RMS over 14 diagonals: one 0.0120, two 0.0084, lo 0.0068"),
+    ("| adds efficiency over the published picks | 14 readings | 0.0069 |", "gear_pump_chosen_results.txt", "lo 0.0068, w 0.0069"),
+    ("at the picks | 14 readings | 0.0056 |", "gear_pump_holddrag_results.txt", "OD2 pooled ow diagonal RMS at least 20% below two-number: held (0.0056 against 0.0084"),
+    ("| 308 diagonals, 22 idle conditions | 0.0056 |", "gear_pump_onerule_results.txt", "owh  0.0056  (max 0.0064"),
+    ("| drag at the picks' median flow | 308 diagonals | 0.0065 |", "gear_pump_onepoint_results.txt", "owdq  0.0065  (max 0.0085"),
+    ("| drag at the picks' quartiles | 308 diagonals | 0.0066 |", "gear_pump_twopoint_results.txt", "owd2  0.0066  (max 0.0084"),
+    ("| published picks tilted by the pump's drag | 308 diagonals | 0.0053 |", "gear_pump_tilt_results.txt", "owdt  0.0053  (max 0.0061"),
+    ("| drag bend 79/64 L/min, nearest donors | 308 diagonals | 0.0075 |", "gear_pump_table_results.txt", "owdt1  0.0075  (max 0.0102"),
+    ("| drag bend, rows anchored at 64 L/min | 308 diagonals | 0.0052 |", "gear_pump_bendtable_results.txt", "owdb   0.0052  (max 0.0060"),
+    ("| drag bend, rows anchored at 79 L/min | 308 diagonals | 0.0059 |", "gear_pump_bendshape_results.txt", "owdbv   0.0059  (max 0.0072"),
+    ("| drag bend, within-family anchor | 308 diagonals | 0.0050 |", "gear_pump_anchor_results.txt", "owdbf   0.0050  (max 0.0057"),
+    ("| the model's picks for the held-out pump | 308 diagonals | 0.0047 |", "gear_pump_leak_results.txt", "owdm   0.0047  (max 0.0056"),
+    ("| the model's picks at the pump's own crossing | 308 diagonals | 0.0042 |", "gear_pump_ownpick_results.txt", "owds  0.0042  (max 0.0052"),
+    # milestone 7v: the condensed sections 3.6 and 3.7 of the manuscript (the full text is in supplement.md)
+    ("the committed rule predicts 0.8091, an error of 0.0052", "gear_pump_rexroth_results.txt", "0.8091"),
+    ("against 0.0142 for a constant, and the AZPF", "gear_pump_seven_results.txt", "0.0142"),
+    ("the drag rule's left-out RMS rises to 0.0084", "gear_pump_third_results.txt", "0.0084"),
+    ("the frozen rule misses by up to 0.0349", "gear_pump_settings_results.txt", "max 0.0349"),
+    ("It puts a standby kW at 1.22 drag kW", "gear_pump_onerule_results.txt", "owh: -d/b = 1.22"),
+    ("standby and drag trade 0.98 for one and the one-price rule's left-out RMS falls to 0.0042", "gear_pump_ownpick_results.txt", "owds  0.0042  (max 0.0052"),
+    ("does not leak in, leaves 0.0047", "gear_pump_leak_results.txt", "owdm   0.0047  (max 0.0056"),
+    ("score 0.0065 and 0.0066", "gear_pump_onepoint_results.txt", "owdq  0.0065  (max 0.0085"),
+    ("score 0.0065 and 0.0066", "gear_pump_twopoint_results.txt", "owd2  0.0066  (max 0.0084"),
+    ("tilted by the pump's drag scores 0.0053", "gear_pump_tilt_results.txt", "owdt  0.0053  (max 0.0061"),
+    ("scores 0.0075 on measured rows", "gear_pump_table_results.txt", "owdt1  0.0075  (max 0.0102"),
+    ("0.0050 to 0.0052 on rows the model builds", "gear_pump_anchor_results.txt", "owdbq   0.0052  (max 0.0060"),
+    ("(61.1 to 65.4 L/min)", "gear_pump_anchor_results.txt", "pivot  61.1"),
+    ("anchored at 79 L/min it scores 0.0059", "gear_pump_bendshape_results.txt", "owdbv   0.0059  (max 0.0072"),
 ]
 
 
@@ -514,6 +576,8 @@ MANUSCRIPT_CHECKS = [
 def orphans(text, pool):
     """Decimal numbers in text that occur nowhere in pool (draft.md plus every results file)."""
     import re
+    # section numbers in headings ("### 3.10 ...") are not results
+    text = "\n".join(l for l in text.splitlines() if not l.startswith("#"))
     found = set(re.findall(r"(?<![\w.])\d+\.\d+(?!\d)", text))
     return sorted(n for n in found if not re.search(r"(?<![\d.])" + re.escape(n) + r"(?!\d)", pool))
 
@@ -539,12 +603,16 @@ def main():
         bad = check(paper, CHECKS)
         print("checked", len(CHECKS), "claims;", bad, "missing")
     else:
-        bad = check(paper, MANUSCRIPT_CHECKS)
+        # milestone 7v: the gear-pump selection detail moved verbatim to supplement.md; a
+        # claim may sit in either file, and both are scanned for orphan numbers.
+        sup = P / "supplement.md"
+        both = paper + ("\n" + sup.read_text() if sup.exists() else "")
+        bad = check(both, MANUSCRIPT_CHECKS)
         pool = (P / "draft.md").read_text() + "\n".join(f.read_text() for f in sorted(EXP.glob("*.txt")))
-        lost = orphans(paper, pool)
+        lost = orphans(both, pool)
         for n in lost:
             print("ORPHAN", n, "appears in neither draft.md nor any results file")
-        print("checked", len(MANUSCRIPT_CHECKS), "claims;", bad, "missing;", len(lost), "orphan numbers")
+        print("checked", len(MANUSCRIPT_CHECKS), "claims in", a.paper, "+ supplement.md;", bad, "missing;", len(lost), "orphan numbers")
         bad += len(lost)
     sys.exit(1 if bad else 0)
 

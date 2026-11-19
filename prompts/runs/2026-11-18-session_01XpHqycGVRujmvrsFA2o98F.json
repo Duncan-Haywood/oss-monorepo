@@ -1,0 +1,119 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqycGVRujmvrsFA2o98F",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T23:37:41Z",
+  "ended": "2026-11-18T23:51:00Z",
+  "wall_minutes": 13.43,
+  "tokens_in": 2238251,
+  "tokens_out": 16377,
+  "cost_usd": 1.2604,
+  "tool_calls": 32,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17467",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/ci-perf-2026-11-15-open-tennis-settle-early-stop.md",
+      "issue": "Its 'not changed' list capped memoisation at 15% because it keyed on the Feeder. Keyed on the ten numbers the train reads, 70% of calls were repeats, so the estimate understated the win and could have put the next run off."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-18-open-tennis-bounce-train-cache.md",
+    "docs/posts/2026-11-18-the-tests-asked-the-same-question-1330-times.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of `python3 -m unittest discover -s tests` in ventures/open-tennis-robots/cad (141 tests, 58 skipped without build123d), same container. Before 74.0 s (HEAD, run after the change via git stash), after 46.5 s and 47.7 s. Profile: cProfile showed contactor_bounce_train at 57.2 s tottime / 78.5 s cumtime over 1,899 calls. An instrumented run counted 569 distinct input tuples. Verification: 39/39 contactor_bounces results repr-identical to the old params.py; new cache test passes; full suite OK. Pool reading: ci_profile --runs 600, open-tennis-robots CI 44.8 job-min, with the CAD step at 19.7 m.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ced5c491-f3dd-5caa-b29e-a06ecde269f5",
+    "transcripts": 1,
+    "first": "2026-11-18T23:37:41Z",
+    "last": "2026-11-18T23:51:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 63,
+        "output": 16377,
+        "thinking": 3744,
+        "cache_read": 2176011,
+        "cache_write_5m": 0,
+        "cache_write_1h": 62177,
+        "api_equivalent_usd": 1.2604,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 63,
+      "output": 16377,
+      "thinking": 3744,
+      "cache_read": 2176011,
+      "cache_write_5m": 0,
+      "cache_write_1h": 62177,
+      "api_equivalent_usd": 1.2604,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 29,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.43,
+      "active_minutes": 13.43,
+      "model_minutes": 2.75,
+      "tool_minutes": 10.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

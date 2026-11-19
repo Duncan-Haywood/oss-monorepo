@@ -381,7 +381,7 @@
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
       overlongTermsNote } from './proposal-terms.mjs';
     import {
-      COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany, escapeHtml,
     } from './proposal.mjs';
 
     const COST_IDS = [
@@ -553,7 +553,7 @@
           .sort((a, b) => b.hours - a.hours)
           .map(row => {
             const note = `${row.widthIn}×${row.heightIn} (${row.ui} UI), story ${row.story}${row.condition !== 'clean' ? `, ${row.conditionLabel}` : ''}`;
-            return `<li><span>${row.quantity}× ${row.name} — ${row.typeLabel}, ${note}</span><span>${row.hoursShare.toFixed(0)}% of hours</span>
+            return `<li><span>${row.quantity}× ${escapeHtml(row.name)} — ${escapeHtml(row.typeLabel)}, ${note}</span><span>${row.hoursShare.toFixed(0)}% of hours</span>
             <span class="bar"><span style="width:${row.hoursShare.toFixed(1)}%"></span></span></li>`;
           })
           .join('');

@@ -728,7 +728,8 @@ def next_task(v: Venture) -> str:
             f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks; "
             "an edit that would pass the cap parks open items from the end of the row to the "
             "venture's NEXT.md by itself, just enough to fit, and says what it moved; `--dry-run` "
-            "previews it, `--park ITEM` chooses which, `--no-make-room` refuses instead)."
+            "previews it, `--park ITEM` chooses which, `--history TEXT` moves a finished result you name "
+            "to HISTORY.md, `--no-make-room` refuses instead)."
             + buildable_edit
         )
     if not v.measured:
@@ -884,8 +885,8 @@ def deepen_to_window(days: int) -> bool:
         if not shallow:
             if not stale:
                 return False
-            return subprocess.run(["git", "fetch", "-q", "origin", "main"], capture_output=True,
-                                  timeout=FETCH_TIMEOUT_S, cwd=here).returncode == 0
+            return _shallow_fetch(["-q", "origin", "main"], cwd=here,
+                                  timeout=FETCH_TIMEOUT_S).returncode == 0
         cutoff = datetime.now(timezone.utc) - timedelta(days=days + 1)
         if not stale and _history_reaches(cutoff, here):
             return False
@@ -1121,7 +1122,17 @@ def claims_by_venture(names, prs: list[tuple[int, str, str]]) -> dict[str, list[
     return out
 
 
-CLAIM_FRESH_HOURS = 24
+# Four hours, not 24 (process critique, 2026-11-19). The last 100 merged PRs
+# (GitHub list, closed, newest updated, 2026-11-19 01:39-08:32 UTC) went from
+# open to merged in 1 to 140 minutes, most under an hour; none took 4 h. An
+# open PR older than that has no live session behind it, yet at 24 h it held
+# its row out of the Start here pool for a day: at 08:40 UTC that day
+# ai-bookkeeper (#17310, 19 h) and photo-editing (#17515, 5.6 h) were both
+# "claimed", leaving two free rows, so two sessions starting together shared
+# a row half the time. Collisions caught by claim_check were 4-7% of ventures
+# run records each day 2026-11-14..19. A stale PR's item is still guarded:
+# claim_check.py keeps its own 24 h window (FRESH_HOURS there).
+CLAIM_FRESH_HOURS = 4
 
 
 def _age_hours(created: str, now: datetime) -> float:
@@ -1187,7 +1198,13 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
         free.append((i, item["venture"]))
         if session is None or len(free) >= spread:
             break
-    free = (free + dated + later)[:1 if session is None else spread]
+    # Fall back tier by tier: a dated or declined row joins the session-hash
+    # pool only when no row of a better tier is free. Padding the pool with
+    # them (the old `free + dated + later`) sent sessions to declined rows
+    # whenever fewer than `spread` rows were free: chant-forge, declined with
+    # 19 leaves to 10 works, was still Start here for 18:52 on 2026-11-18
+    # (doc_friction on this file), since most rows held fresh claims.
+    free = (free or dated or later)[:1 if session is None else spread]
     if not free:
         return None
     if session is None:

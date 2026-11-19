@@ -1,0 +1,12 @@
+plant          n  loop err mean/worst %   rms median/max x1e-4  parabola worst %  marked (se > LOOP_SE_MAX)  worst unmarked %
+first         22       0.14 /     0.38       0.42 /     1.03         4.47                    0/22            0.38
+speed 2Hz z0.7  18      17.34 /    29.24      27.92 /    57.23        38.36                   18/18            0.00
+speed 2Hz z0.4  22      57.03 /   690.85      23.65 /   210.68      1079.25                   22/22            0.00
+speed 5Hz z0.7   6      28.03 /    37.30      44.62 /    70.78       409.57                    6/6             0.00
+speed 5Hz z0.4   7      47.53 /    94.58      24.24 /   182.81      1176.47                    7/7             0.00
+speed 10Hz z0.7   3      41.62 /    51.05      44.13 /    95.08       372.44                    3/3             0.00
+speed 10Hz z0.4   2      32.91 /    48.05     107.32 /   107.32      1079.42                    2/2             0.00
+speed 20Hz z0.7   4      47.78 /    65.24     135.90 /   248.80        92.86                    4/4             0.00
+speed 20Hz z0.4   5      75.56 /    97.05      90.28 /   265.39       214.59                    5/5             0.00
+
+drops more than 2% off: 64, marked 64; drops within 1%: 22, marked 0; no fit (too little to fit or out of range): 127 of 216

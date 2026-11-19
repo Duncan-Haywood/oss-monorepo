@@ -4,6 +4,8 @@ height-keeping noise taken from the PX4 logs (px4_height_2026.json, main set mis
     OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 level_leak_run.py --build      # 11ai's inputs, unchanged
     OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 px4_height_run.py > px4_height_results.txt
     OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 px4_height_run.py --bound > px4_height_bound_results.txt  # post hoc
+    OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 px4_height_run.py --rtk > rtk_baro_results.txt  # 11an
+    OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 px4_height_run.py --rtk5 > rtk_baro_s5_results.txt  # 11an post hoc
 """
 import math
 import multiprocessing as mp
@@ -28,11 +30,22 @@ HG = dr.HG
 
 
 BOUND = "--bound" in sys.argv
+RTK = "--rtk" in sys.argv      # milestone 11an (rtk_baro.py's docstring, P6 and P7)
+RTK5 = "--rtk5" in sys.argv    # 11an post hoc: the baro - RTK difference smoothed over 5 s (rtk_baro_posthoc.py)
 
 
 def flight_rms(set_name="mission_enroute"):
     """Per-flight RMS (m). With --bound (post hoc, not predicted): sqrt(FTE^2 + (baro - GNSS)^2) per flight from
     px4_height_posthoc.json, an upper bound on the height-keeping noise (baro - GNSS holds both sensors' noise)."""
+    if RTK5:
+        import json
+        rows = json.load(open(os.path.join(HERE, "rtk_baro_posthoc.json")))["flights"]
+        import rtk_baro as rb
+        fte = {f["id"]: f["fte"] for f in rb.usable(rb.load(), "enroute")}
+        return np.array([math.hypot(fte[r["id"]], r["enroute"]["s5"]) for r in rows if "enroute" in r])
+    if RTK:
+        import rtk_baro as rb
+        return np.array([math.hypot(f["fte"], f["r_lin"]) for f in rb.usable(rb.load(), "enroute")])
     if BOUND:
         import json
         rows = json.load(open(os.path.join(HERE, "px4_height_posthoc.json")))["flights"]
@@ -126,6 +139,13 @@ def main(done):
     rms = flight_rms()
     sc = mix_scales(rms)
     P = print
+    if RTK5:
+        P("# POST HOC (--rtk5, no prediction): per-flight r = sqrt(FTE^2 + s5^2), s5 = line-detrended RMS of baro "
+          "minus RTK height after a 5 s centred running mean (rtk_baro_posthoc.json, enroute set)")
+    if RTK:
+        P("# Milestone 11an (--rtk): per-flight r = sqrt(FTE^2 + r_lin^2), r_lin = line-detrended RMS of baro minus "
+          "RTK-fixed GNSS height (rtk_baro_2026.json, enroute set); P5 to P7 below are 11am's, P6 and P7 of 11an are "
+          "the deliv h*_mix and old/mix rows")
     if BOUND:
         P("# POST HOC (--bound, no prediction): per-flight r = sqrt(FTE^2 + detrended baro-GNSS RMS^2), an upper "
           "bound on the height-keeping noise")

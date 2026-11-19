@@ -21,7 +21,12 @@ export const FIELDS = [
   { id: "targetDscr", label: "Lender DSCR floor", def: 1.25, min: 1, max: 5 },
 ];
 
-const num = (v) => (typeof v === "number" ? v : parseFloat(String(v ?? "").replace(/[$,%\s,]/g, "")));
+// Number(), not parseFloat(): "90k" or "1.2M" must be an error, not 90 or 1.2 (quality audit 2026-11-19).
+const num = (v) => {
+  if (typeof v === "number") return v;
+  const s = String(v ?? "").replace(/[$,%\s,]/g, "");
+  return s === "" ? NaN : Number(s);
+};
 export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(x)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
 export const pct = (x) => (Math.round(x * 10) / 10).toFixed(1) + "%";
 

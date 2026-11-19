@@ -23,7 +23,7 @@ Runs in your browser, works with no AI key, and never posts anything for you. Op
    are the tool's starting assumptions, not measured benchmarks, and the page says so.
 3. **Calendar.** `buildCalendar` spreads each format over 28 days (LinkedIn, newsletter and articles on weekdays only) and gives
    every day one theme from your answers, so the same story is repurposed across that day's platforms. About one piece in
-   five carries your offer; Reddit never does.
+   six carries your offer; Reddit never does.
 4. **Drafts.** `templateDraft` builds every piece only from your answers, in the shape each platform wants: X 280 characters
    (links count as 23), Threads 500, Bluesky 300 graphemes, LinkedIn 3,000, Instagram captions 2,200 with "link in bio" (caption
    links are not clickable), Reels/TikTok/Shorts as a hook, beats, on-screen text and call to action with a spoken-length
@@ -40,7 +40,8 @@ Runs in your browser, works with no AI key, and never posts anything for you. Op
 the shared client `platform/llm/byok.mjs` (`byok.mjs` here is a synced copy; `ai.test.mjs` fails if they drift). The system
 prompt forbids inventing facts, numbers, testimonials or claims and asks for strict JSON per piece. Every reply is checked:
 unknown fields are ignored, platform limits are re-applied, a Reddit rewrite that adds a link is dropped, and **any piece that
-contains a number not present in your interview is thrown away** and the built-in draft kept. With no key, or on any error,
+states a figure not present in your interview is thrown away** (digits, `90%`, `3x`, and number words from eleven
+up such as "two hundred" or "doubled"; 1 to 10 in digits or words stay allowed for list counts) and the built-in draft kept. With no key, or on any error,
 the built-in drafts stand and the page says why. The key stays in your browser; "remember" is opt-in.
 
 ## Posting rules

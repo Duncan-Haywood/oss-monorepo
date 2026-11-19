@@ -1,0 +1,179 @@
+
+growing | all panels: 1200 panels, 537 switched (44.8%)
+  clean worded        plain  57.5%  panel  39.4%  (n 13800)
+  clean above worded  plain  70.6%  panel  42.2%  (n 4735)
+  clean grew          plain  52.1%  panel  28.5%  (n 13800)
+  clean faded         plain   5.3%  panel  11.0%  (n 13800)
+  slope grew          plain  81.8%  panel  30.3%  (n 400)
+  big slope grew      plain  92.0%  panel  30.5%  (n 200)
+  slope above grew    plain  93.2%  panel  34.3%  (n 251)
+  pulse faded         plain  68.0%  panel  73.3%  (n 400)
+  pulse above faded   plain  77.8%  panel  80.6%  (n 288)
+  step held           plain  74.0%  panel  72.5%  (n 200)
+  step above held     plain  75.5%  panel  75.5%  (n 94)
+  slope lift          plain  29.6 pts  panel   1.8 pts
+  pulse lift          plain  62.7 pts  panel  62.3 pts
+
+growing | switched: 537 panels, 537 switched (100.0%)
+  clean worded        plain  68.2%  panel  28.9%  (n 6323)
+  clean above worded  plain  80.8%  panel  21.1%  (n 2253)
+  clean grew          plain  65.1%  panel  13.4%  (n 6323)
+  clean faded         plain   3.2%  panel  15.5%  (n 6323)
+  slope grew          plain  85.0%  panel   9.9%  (n 274)
+  big slope grew      plain  94.4%  panel   8.4%  (n 143)
+  slope above grew    plain  93.8%  panel  10.2%  (n 177)
+  pulse faded         plain  67.9%  panel  93.8%  (n 81)
+  pulse above faded   plain  84.2%  panel  98.2%  (n 57)
+  step held           plain  69.9%  panel  65.8%  (n 73)
+  step above held     plain  71.1%  panel  71.1%  (n 38)
+  slope lift          plain  20.0 pts  panel  -3.6 pts
+  pulse lift          plain  64.7 pts  panel  78.3 pts
+
+growing-all | all panels: 3600 panels, 1491 switched (41.4%)
+  clean worded        plain  56.0%  panel  39.3%  (n 41400)
+  clean above worded  plain  68.7%  panel  42.6%  (n 13305)
+  clean grew          plain  50.6%  panel  28.5%  (n 41400)
+  clean faded         plain   5.4%  panel  10.8%  (n 41400)
+  slope grew          plain  81.4%  panel  33.6%  (n 1200)
+  big slope grew      plain  89.8%  panel  33.0%  (n 600)
+  slope above grew    plain  92.2%  panel  37.5%  (n 769)
+  pulse faded         plain  71.4%  panel  75.2%  (n 1200)
+  pulse above faded   plain  78.9%  panel  81.9%  (n 878)
+  step held           plain  78.7%  panel  75.8%  (n 600)
+  step above held     plain  82.1%  panel  82.1%  (n 280)
+  slope lift          plain  30.8 pts  panel   5.1 pts
+  pulse lift          plain  66.0 pts  panel  64.4 pts
+
+growing-all | switched: 1491 panels, 1491 switched (100.0%)
+  clean worded        plain  68.1%  panel  29.0%  (n 17764)
+  clean above worded  plain  80.5%  panel  21.9%  (n 5934)
+  clean grew          plain  65.2%  panel  13.6%  (n 17764)
+  clean faded         plain   2.9%  panel  15.4%  (n 17764)
+  slope grew          plain  85.9%  panel  10.4%  (n 760)
+  big slope grew      plain  92.2%  panel   9.0%  (n 410)
+  slope above grew    plain  94.8%  panel  10.8%  (n 501)
+  pulse faded         plain  72.5%  panel  94.2%  (n 207)
+  pulse above faded   plain  80.7%  panel  98.0%  (n 150)
+  step held           plain  71.5%  panel  63.0%  (n 200)
+  step above held     plain  73.5%  panel  73.5%  (n 98)
+  slope lift          plain  20.8 pts  panel  -3.2 pts
+  pulse lift          plain  69.6 pts  panel  78.8 pts
+
+growing-ar0.7 | all panels: 1200 panels, 344 switched (28.7%)
+  clean worded        plain  49.9%  panel  39.7%  (n 13800)
+  clean above worded  plain  62.1%  panel  44.9%  (n 4783)
+  clean grew          plain  44.1%  panel  29.7%  (n 13800)
+  clean faded         plain   5.8%  panel  10.0%  (n 13800)
+  slope grew          plain  78.8%  panel  48.0%  (n 400)
+  big slope grew      plain  87.0%  panel  48.5%  (n 200)
+  slope above grew    plain  88.0%  panel  54.1%  (n 259)
+  pulse faded         plain  70.3%  panel  74.0%  (n 400)
+  pulse above faded   plain  75.8%  panel  79.9%  (n 298)
+  step held           plain  76.0%  panel  77.0%  (n 200)
+  step above held     plain  77.7%  panel  81.9%  (n 94)
+  slope lift          plain  34.7 pts  panel  18.3 pts
+  pulse lift          plain  64.4 pts  panel  64.0 pts
+
+growing-ar0.7 | switched: 344 panels, 344 switched (100.0%)
+  clean worded        plain  64.5%  panel  30.3%  (n 4106)
+  clean above worded  plain  77.8%  panel  24.6%  (n 1547)
+  clean grew          plain  61.3%  panel  13.0%  (n 4106)
+  clean faded         plain   3.2%  panel  17.3%  (n 4106)
+  slope grew          plain  85.5%  panel  16.8%  (n 179)
+  big slope grew      plain  87.9%  panel  15.9%  (n 107)
+  slope above grew    plain  93.2%  panel  17.9%  (n 117)
+  pulse faded         plain  54.5%  panel  88.6%  (n 44)
+  pulse above faded   plain  55.2%  panel  96.6%  (n 29)
+  step held           plain  62.5%  panel  67.5%  (n 40)
+  step above held     plain  59.1%  panel  77.3%  (n 22)
+  slope lift          plain  24.2 pts  panel   3.8 pts
+  pulse lift          plain  51.4 pts  panel  71.3 pts
+
+growing-ar0.97 | all panels: 1200 panels, 610 switched (50.8%)
+  clean worded        plain  60.8%  panel  38.7%  (n 13800)
+  clean above worded  plain  74.5%  panel  40.1%  (n 3787)
+  clean grew          plain  55.6%  panel  27.3%  (n 13800)
+  clean faded         plain   5.1%  panel  11.4%  (n 13800)
+  slope grew          plain  83.8%  panel  22.5%  (n 400)
+  big slope grew      plain  90.5%  panel  20.0%  (n 200)
+  slope above grew    plain  95.4%  panel  23.9%  (n 259)
+  pulse faded         plain  76.0%  panel  78.3%  (n 400)
+  pulse above faded   plain  83.2%  panel  85.3%  (n 292)
+  step held           plain  86.0%  panel  78.0%  (n 200)
+  step above held     plain  93.5%  panel  89.1%  (n 92)
+  slope lift          plain  28.1 pts  panel  -4.8 pts
+  pulse lift          plain  70.9 pts  panel  66.8 pts
+
+growing-ar0.97 | switched: 610 panels, 610 switched (100.0%)
+  clean worded        plain  69.9%  panel  28.4%  (n 7335)
+  clean above worded  plain  82.1%  panel  20.9%  (n 2134)
+  clean grew          plain  67.4%  panel  14.0%  (n 7335)
+  clean faded         plain   2.5%  panel  14.3%  (n 7335)
+  slope grew          plain  87.0%  panel   7.2%  (n 307)
+  big slope grew      plain  93.1%  panel   5.0%  (n 160)
+  slope above grew    plain  96.6%  panel   7.2%  (n 207)
+  pulse faded         plain  86.6%  panel  97.6%  (n 82)
+  pulse above faded   plain  89.1%  panel  98.4%  (n 64)
+  step held           plain  77.0%  panel  58.6%  (n 87)
+  step above held     plain  84.2%  panel  73.7%  (n 38)
+  slope lift          plain  19.6 pts  panel  -6.9 pts
+  pulse lift          plain  84.0 pts  panel  83.2 pts
+
+trendless | all panels: 2000 panels, 0 switched (0.0%)
+  clean worded        plain  15.1%  panel  15.1%  (n 23000)
+  clean above worded  plain  19.4%  panel  19.4%  (n 6015)
+  clean grew          plain   6.8%  panel   6.8%  (n 23000)
+  clean faded         plain   8.3%  panel   8.3%  (n 23000)
+  slope grew          plain  48.8%  panel  48.8%  (n 600)
+  big slope grew      plain  71.0%  panel  71.0%  (n 200)
+  slope above grew    plain  56.5%  panel  56.5%  (n 464)
+  pulse faded         plain  83.1%  panel  83.1%  (n 800)
+  pulse above faded   plain  89.8%  panel  89.8%  (n 674)
+  step held           plain  94.0%  panel  94.0%  (n 400)
+  step above held     plain  95.2%  panel  95.2%  (n 189)
+  slope lift          plain  42.0 pts  panel  42.0 pts
+  pulse lift          plain  74.8 pts  panel  74.8 pts
+
+wander | all panels: 2400 panels, 15 switched (0.6%)
+  clean worded        plain  24.1%  panel  23.9%  (n 27600)
+  clean above worded  plain  29.8%  panel  29.5%  (n 9172)
+  clean grew          plain  16.5%  panel  16.2%  (n 27600)
+  clean faded         plain   7.5%  panel   7.7%  (n 27600)
+  slope grew          plain  54.3%  panel  53.5%  (n 800)
+  big slope grew      plain  69.5%  panel  68.0%  (n 400)
+  slope above grew    plain  63.4%  panel  62.3%  (n 538)
+  pulse faded         plain  77.4%  panel  77.4%  (n 800)
+  pulse above faded   plain  82.0%  panel  82.0%  (n 667)
+  step held           plain  81.0%  panel  81.0%  (n 400)
+  step above held     plain  79.8%  panel  79.8%  (n 193)
+  slope lift          plain  37.7 pts  panel  37.3 pts
+  pulse lift          plain  69.8 pts  panel  69.7 pts
+
+wander | switched: 15 panels, 15 switched (100.0%)
+  clean worded        plain  62.8%  panel  31.7%  (n 145)
+  clean above worded  plain  67.7%  panel  27.7%  (n 65)
+  clean grew          plain  57.9%  panel   5.5%  (n 145)
+  clean faded         plain   4.8%  panel  26.2%  (n 145)
+  slope grew          plain  75.0%  panel   0.0%  (n 8)
+  big slope grew      plain  85.7%  panel   0.0%  (n 7)
+  slope above grew    plain  75.0%  panel   0.0%  (n 8)
+  pulse faded         plain 100.0%  panel 100.0%  (n 2)
+  pulse above faded   plain 100.0%  panel 100.0%  (n 1)
+  step held           plain  50.0%  panel  50.0%  (n 4)
+  step above held     plain  66.7%  panel  66.7%  (n 3)
+  slope lift          plain  17.1 pts  panel  -5.5 pts
+  pulse lift          plain  95.2 pts  panel  73.8 pts
+
+word distribution, switched panels of the three growing generators (exploratory, base 89000, 100 panels a cell):
+clean panel    17764 held 71.0  grew 13.6  faded 15.4 worded 29.0
+clean plain    17764 held 31.9  grew 65.2  faded 2.9 worded 68.1
+pulse1 panel   119 held 7.6  grew 2.5  faded 89.9 worded 92.4
+pulse1 plain   119 held 32.8  grew 6.7  faded 60.5 worded 67.2
+pulse2 panel   88 held 0.0  grew 0.0  faded 100.0 worded 100.0
+pulse2 plain   88 held 11.4  grew 0.0  faded 88.6 worded 88.6
+slope1 panel   350 held 81.1  grew 12.0  faded 6.9 worded 18.9
+slope1 plain   350 held 19.1  grew 78.6  faded 2.3 worded 80.9
+slope2 panel   410 held 87.8  grew 9.0  faded 3.2 worded 12.2
+slope2 plain   410 held 6.6  grew 92.2  faded 1.2 worded 93.4
+step1 panel    200 held 63.0  grew 0.0  faded 37.0 worded 37.0
+step1 plain    200 held 71.5  grew 21.0  faded 7.5 worded 28.5

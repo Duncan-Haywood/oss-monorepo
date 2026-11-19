@@ -66,6 +66,32 @@ await page.fill("#avoid", "Team 7: ends");
 await page.click("#build");
 await page.waitForFunction(() => /Lane limits kept/.test(document.querySelector("#summary").textContent) && /20 of 20 teams are inside/.test(document.querySelector("#summary").textContent), null, { timeout: 30000 });
 check(true, "limits: 20 teams x 30 weeks, one team off both ends, 20 of 20 in share");
+// The slowest season measured (24 teams x 26 weeks, six teams off both end pairs: several full
+// lane searches, ~10 s) builds in a Web Worker, so the page thread keeps running: the longest gap
+// between 50 ms timer ticks while it builds is the time the tab was frozen.
+await page.fill("#teams", Array.from({ length: 24 }, (_, i) => `Team ${i + 1}`).join("\n"));
+await page.fill("#weeks", "26");
+await page.fill("#positions", "");
+await page.fill("#avoid", Array.from({ length: 6 }, (_, i) => `Team ${i + 1}: ends`).join("\n"));
+await page.evaluate(() => { window.__gap = 0; let t = performance.now(); window.__tick = setInterval(() => { const n = performance.now(); window.__gap = Math.max(window.__gap, n - t); t = n; }, 50); });
+const tBuild = Date.now();
+await page.click("#build");
+await page.waitForFunction(() => /24 teams on 12 lane pairs/.test(document.querySelector("#summary").textContent) && !/Dealing/.test(document.querySelector("#status").textContent), null, { timeout: 120000 });
+const slowMs = Date.now() - tBuild;
+const gap = await page.evaluate(() => { clearInterval(window.__tick); return window.__gap; });
+const slowSum = await page.textContent("#summary");
+check(/Lane limits kept/.test(slowSum) && /Checked:/.test(slowSum), "slow season: built, limits kept, validated");
+check(gap < 500, `slow season: page thread never blocked 0.5 s (longest gap ${Math.round(gap)} ms over a ${slowMs} ms build)`);
+console.log(`slow season (24 x 26, six off both ends): built in ${slowMs} ms; longest page-thread gap ${Math.round(gap)} ms`);
+// A second click while one search runs: the newer one wins and the older result never lands.
+await page.click("#build");
+await page.fill("#teams", "A\nB\nC\nD\nE\nF");
+await page.fill("#weeks", "10");
+await page.fill("#avoid", "");
+await page.click("#build");
+await page.waitForFunction(() => /6 teams on 3 lane pairs/.test(document.querySelector("#summary").textContent), null, { timeout: 30000 });
+await page.waitForTimeout(12000);
+check(/6 teams on 3 lane pairs/.test(await page.textContent("#summary")), "a newer click replaces an older search's result");
 await page.fill("#weeks", savedWeeks);
 await page.fill("#avoid", "Nobody: 1");
 await page.click("#build");

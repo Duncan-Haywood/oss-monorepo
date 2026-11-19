@@ -534,14 +534,17 @@ def deepen_for(oldest: str, today: dt.date, git=_git, git_run=None) -> str:
     return f"(fetch of main since {oldest} failed or exceeded {FETCH_TIMEOUT_S}s; rows below may say unknown)"
 
 
-def changes_since(subject: str, date: str, git=_git) -> dict:
+def changes_since(subject: str, date: str, git=_git, audit_path: str | None = None) -> dict:
     """Commits under `subject` since its audit `date`, so a fix session can tell a defect that may already be fixed
     (with no fix_prs recorded) from one nobody touched. On 2026-11-11 a fix run found PR #14327 had fixed a queued
     high defect without recording it. Fail-soft: no git gives status "unknown". Shallow clones: the boundary commit
     looks as if it touches every path, so it is dropped, and a history that starts after the audit date is reported
     as "unknown" with the fetch that would answer it.
     Audit-round commits are kept: they only appear when they touched the subject itself, and round 30 (#14329)
-    shipped a photo-editing page fix that way."""
+    shipped a photo-editing page fix that way.
+    The audit's own commit is not a change since the audit: given `audit_path`, the log starts after the commit that
+    added that file. Before this, every queued row of a census day pointed at the census commit itself, which edits
+    the subject's README (process run 2026-11-18T18:52 and #17455: 14 of 15 shown rows were that commit)."""
     ref = "origin/main" if git(["rev-parse", "--verify", "-q", "origin/main"]).strip() else "HEAD"
     boundary = _shallow_boundary(git)
     if boundary:
@@ -550,7 +553,12 @@ def changes_since(subject: str, date: str, git=_git) -> dict:
         if dates and max(dates) > date:
             return {"status": "unknown", "commits": [],
                     "why": f"history starts {max(dates)}; git fetch --shallow-since={date} origin main"}
-    out = git(["log", ref, f"--since={date} 00:00", "--format=%H%x09%h%x09%s", "--", subject])
+    own = ""
+    if audit_path:
+        added = git(["log", "--diff-filter=A", "--format=%H", ref, "--", audit_path]).split()
+        own = added[-1] if added else ""
+    span = [f"{own}..{ref}"] if own else [ref, f"--since={date} 00:00"]
+    out = git(["log", *span, "--format=%H%x09%h%x09%s", "--", subject])
     if not out and not git(["rev-parse", "--verify", "-q", ref]).strip():
         return {"status": "unknown", "commits": [], "why": "no git history"}
     commits = []
@@ -881,9 +889,10 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
                 print("    open PR naming it: " + "; ".join(f"#{n} {t[:80]}" for n, t in naming[:3]))
             if getattr(args, "no_git", False):
                 continue
-            key = (r["subject"], r["audit"][:10])
+            key = (r["subject"], r["audit"])
             if key not in seen:
-                seen[key] = changes_since(*key)
+                seen[key] = changes_since(r["subject"], r["audit"][:10],
+                                          audit_path=f"portfolio/quality/audits/{r['audit']}")
             c = seen[key]
             if c["status"] == "changed":
                 changed += 1

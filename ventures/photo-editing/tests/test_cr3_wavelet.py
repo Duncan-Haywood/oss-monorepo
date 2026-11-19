@@ -217,6 +217,72 @@ def make_craw(values: list[int], levels: int = 3) -> bytes:
     return make_cr3(values, version=0x200, levels=levels, sample=sample, header_size=len(header))
 
 
+def make_craw_old(values: list[int], levels: int = 3, qps=None, word_extra: int = 0) -> bytes:
+    """A whole C-RAW CR3 in the older layout (CMP1 version 0x100 with wavelet levels, as the EOS R100, M50, RP and
+    250D write it): a 0xFF01 tile header with no QP stream, and 0xFF03 subband headers of one 32-bit word each
+    (band number in the top four bits, QP in bits 19-26, padding in the low 19). ``qps`` gives each subband's
+    QP (default 4: step 1, lossless); the bands are divided by their step here, so a step above 1 is lossy."""
+
+    w2, h2 = SENSOR_W // 2, SENSOR_H // 2
+    nb = 3 * levels + 1
+    qps = qps or [4] * nb
+    header = b""
+    plane_blobs = []
+    for plane in range(4):
+        oy, ox = plane >> 1, plane & 1
+        rows = [[values[(2 * y + oy) * SENSOR_W + 2 * x + ox] - MID for x in range(w2)] for y in range(h2)]
+        bands = forward_plane(rows, levels)
+        coded = []
+        for b, band in enumerate(bands):
+            step = cw.q_step(qps[b])
+            band = [[int(v / step) for v in line] for line in band] if step > 1 else band
+            coded.append(encode_band(band) if b == 0 else (encode_highpass(band) if band and band[0] else b""))
+        blob = b"".join(c + bytes(3) for c in coded)
+        sub = b""
+        for b, c in enumerate(coded):
+            sub += struct.pack(">HHII", 0xFF03, 8, len(c) + 3, (b << 28) | (qps[b] << 19) | 3 | word_extra)
+        header += struct.pack(">HHIB3s", 0xFF02, 8, len(blob), (plane << 4) | 8, bytes(3)) + sub
+        plane_blobs.append(blob)
+    tile = struct.pack(">HHIHH", 0xFF01, 8, sum(map(len, plane_blobs)), 0, 0)
+    header = tile + header + bytes(4)
+    sample = header + b"".join(plane_blobs)
+    return make_cr3(values, version=0x100, levels=levels, sample=sample, header_size=len(header))
+
+
+class OldStyleCrawTests(unittest.TestCase):
+    """The older C-RAW layout (no QP grid, one step per subband). Real files against LibRaw: EOS R100, M50, M6
+    Mark II, EOS R, RP, 250D, 90D, SL3 (``eval/canon-cr3-every-body-2026-11-18.md``)."""
+
+    def test_reads_back_sensel_for_sensel_at_step_one(self):
+        values = sensor()
+        for levels in (3, 1):
+            with self.subTest(levels=levels):
+                raw = rd.parse_raw(make_craw_old(values, levels))
+                self.assertEqual(list(raw.values), values)
+
+    def test_each_band_takes_its_own_step_on_both_engines(self):
+        values = sensor(seed=3)
+        qps = [4] + [16, 16, 22] * 2 + [26, 26, 28]  # steps 1, 4, 4, 8, 12, 12, 16
+        blob = make_craw_old(values, 3, qps)
+        box = cr3.Container(blob)
+        sample = blob[box.raw.offset : box.raw.offset + box.raw.size]
+        layout = cw.read_layout(sample, box.head.header_size, 3, 4, SENSOR_W // 2, SENSOR_H // 2)
+        self.assertEqual([(b.mult, b.base) for b in layout.tiles[0].planes[0].bands], [(0, cw.q_step(q)) for q in qps])
+        python = cr3.parse_cr3(blob, engine="python").values
+        self.assertGreater(differing(python, values), 0)  # lossy: the steps were applied
+        self.assertLess(max(abs(a - b) for a, b in zip(python, values)), 200)
+        if ljpeg_native.craw_function() is not None:
+            self.assertEqual(differing(cr3.parse_cr3(blob, engine="c").values, python), 0)
+
+    def test_refusals(self):
+        with self.assertRaisesRegex(rd.DevelopError, "per-line quantisation"):
+            rd.parse_raw(make_craw_old(sensor(), word_extra=0x08000000))
+        with self.assertRaisesRegex(rd.DevelopError, "zero step"):
+            rd.parse_raw(make_craw_old(sensor(), qps=[0] * 10))
+        with self.assertRaisesRegex(rd.DevelopError, "DNG Converter"):
+            rd.parse_raw(make_cr3(version=0x200, levels=0))
+
+
 class TransformTests(unittest.TestCase):
     def test_inverse_undoes_the_forward_53(self):
         rng = random.Random(1)

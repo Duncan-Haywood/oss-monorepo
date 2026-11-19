@@ -11,6 +11,10 @@ to compare their cost, and their digests to check the outputs are the same bytes
     python tools/noise_aware_cost.py --compare old.jsonl new.jsonl
     python tools/noise_aware_cost.py --codes OLD_DIR NEW_DIR    # 16-bit code differences of kept outputs
 
+``--peaks`` also develops each file a second time with ``demosaic="directional"`` under ``tracemalloc``, so the
+row carries directional's own added peak (``added_peak_gb_directional``) next to noise-aware's
+(eval/auto-noise-aware-2026-11-19.md).
+
 ``--keep DIR`` saves each noise-aware output as ``DIR/<stem>.npy`` (uint16, (h, w, 3)), so two versions whose
 digests differ can be compared code by code (``--codes``; eval/noise-aware-float32-2026-11-17.md).
 
@@ -28,7 +32,7 @@ import tracemalloc
 from pathlib import Path
 
 
-def one(path: Path, keep: Path | None = None) -> dict:
+def one(path: Path, keep: Path | None = None, peaks: bool = False) -> dict:
     from shootflow.raw_develop import TAG_COLOR_MATRIX_1, DevelopSettings, develop, read_raw
 
     sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -46,6 +50,12 @@ def one(path: Path, keep: Path | None = None) -> dict:
         t = time.perf_counter()
         develop(raw, DevelopSettings(engine="numpy", demosaic="directional"))
         row["t_directional"] = round(time.perf_counter() - t, 2)
+        if peaks:  # directional's own added peak, traced in a second run so its time above stays untraced
+            tracemalloc.start()
+            base = tracemalloc.get_traced_memory()[0]
+            develop(raw, DevelopSettings(engine="numpy", demosaic="directional"))
+            row["added_peak_gb_directional"] = round((tracemalloc.get_traced_memory()[1] - base) / 1e9, 3)
+            tracemalloc.stop()
         tracemalloc.start()
         base = tracemalloc.get_traced_memory()[0]
         t = time.perf_counter()
@@ -112,8 +122,11 @@ if __name__ == "__main__":
     elif args[:1] == ["--codes"]:
         codes(Path(args[1]), Path(args[2]))
     else:
-        keep = None
-        if args[:1] == ["--keep"]:
-            keep, args = Path(args[1]), args[2:]
+        keep, peaks = None, False
+        while args[:1] in (["--keep"], ["--peaks"]):
+            if args[0] == "--peaks":
+                peaks, args = True, args[1:]
+            else:
+                keep, args = Path(args[1]), args[2:]
         for a in args:
-            print(json.dumps(one(Path(a), keep)), flush=True)
+            print(json.dumps(one(Path(a), keep, peaks)), flush=True)

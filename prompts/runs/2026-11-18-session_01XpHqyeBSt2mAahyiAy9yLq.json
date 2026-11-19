@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyeBSt2mAahyiAy9yLq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T14:37:44Z",
+  "ended": "2026-11-18T16:17:49Z",
+  "wall_minutes": 100.45,
+  "tokens_in": 15592507,
+  "tokens_out": 48483,
+  "cost_usd": 5.4133,
+  "tool_calls": 105,
+  "task": "Deepen (flagship 9) league-schedule-generator: back-to-back lane repeats in the SAT-table bowling seasons (NEXT.md item)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17331",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A shell waiter that ran batch 2 after batch 1 used pgrep -f '[b]owling-repeat-sat.py' inside a command line that itself contained 'bowling-repeat-sat.py', so it matched itself and never fired; cost ~30 min of idle wait before it was killed and batch 2 started by hand."
+    },
+    {
+      "what": "Raising the anneal's step budget alone did not monotonically help (500k steps: 284 repeats vs 269 at 200k); the out-of-bounds weight mattered far more (3: 369, 1: 269). Settled at weight 1, T0 0.6, 600k steps."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "python-sat was not installed; `pip install` silently installed to a different interpreter than /usr/local/bin/python3 (no error, module still missing); `python3 -m pip install python-sat` worked. Worth a line next to the pyenv.py advice."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/league-schedule-generator/eval/bowling-repeat-merge.mjs",
+      "why": "The merge keeps the stored answer with fewer repeats, but what matters is the page's season after polish and anneal; three entries were judged by hand on page-level repeats (20x40 reverted, 24x26 and 24x34 dropped) rather than coding that selection into the merge.",
+      "did": "Compared main and branch with eval/bowling-repeat-table.mjs per key and edited three entries.",
+      "result": "Page repeats 787 -> 439 on 38 seasons, none worse than main."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-bowling-lanes-never-the-same-pair-twice-running.md",
+    "ventures/league-schedule-generator/README.md (Bowling: fewer weeks on the same pair running, 2026-11-18)"
+  ],
+  "goal": null,
+  "notes": "Bowling lane repeats: cutRepeats anneal in assignLanes (keeps only in-target seasons) + stored SAT answers re-solved with a totalizer cap on repeats (eval/bowling-repeat-sat.py, 400 s each, 38 seasons). 36-season grid 392 -> 148 repeats, 36/36 still at the bound; stored/pinned seasons 787 -> 439; 12x18/24/30 and 10x30 at 0 repeats with exact balance (proved least on 9 seasons). No agent doc in docs/reports: README section and NEXT.md carry what the next run needs. Verification: bowling.test.mjs targeted runs pass; full venture suite and venture-preflight results in PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "98d386a4-949e-5820-93c0-093627f51b4e",
+    "transcripts": 1,
+    "first": "2026-11-18T14:37:44Z",
+    "last": "2026-11-18T16:18:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 113,
+        "input": 234,
+        "output": 48483,
+        "thinking": 11570,
+        "cache_read": 15422495,
+        "cache_write_5m": 0,
+        "cache_write_1h": 169778,
+        "api_equivalent_usd": 5.4133,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 113,
+      "input": 234,
+      "output": 48483,
+      "thinking": 11570,
+      "cache_read": 15422495,
+      "cache_write_5m": 0,
+      "cache_write_1h": 169778,
+      "api_equivalent_usd": 5.4133,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 105,
+    "tools": {
+      "Bash": 97,
+      "Monitor": 5,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 100.45,
+      "active_minutes": 25.29,
+      "model_minutes": 8.83,
+      "tool_minutes": 16.46,
+      "waiting_on_human_minutes": 75.16,
+      "human_prompts": 11,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer tuning an anneal, writing a repeat-capped SAT model and running/merging 38 solves",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 184.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

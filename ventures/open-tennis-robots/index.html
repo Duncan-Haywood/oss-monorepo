@@ -42,6 +42,8 @@
     footer { margin-top: 28px; border-top: 1px solid #d8dee3; padding-top: 16px; }
     .check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
     .check input { width: auto; }
+    #dtable input { min-width: 4.6em; padding: 4px 6px; }
+    #dtable button { margin: 0; padding: 4px 8px; }
     @media (max-width: 720px) { body { padding: 16px; } }
       .cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
     a.cta { display: inline-block; padding: 11px 18px; border-radius: 8px; background: #2f6b2a; color: #fff; font-weight: 700; text-decoration: none; }
@@ -53,7 +55,7 @@
   <header>
     <p class="note">OPEN TENNIS ROBOTS · OPEN-SOURCE HARDWARE + SOFTWARE · MIT LICENCE</p>
     <h1>A tennis ball machine that catches your returns, and a robot that picks up the rest</h1>
-    <p class="cta-row"><a class="cta" href="#feeder">Try the shot planner</a></p>
+    <p class="cta-row"><a class="cta" href="#feeder">Try the shot planner</a> <a class="cta alt" href="#drills">Build a drill</a></p>
     <p>Two open-source robots for solo and coached practice. The <strong>feeder</strong> fires drills with topspin or backspin, watches your shot with two cameras, and <strong>slides a 3 m catch net to where your return will arrive</strong>. Caught balls roll back into its hopper. The <strong>collector</strong> roams the court and <strong>picks up tennis balls while you play</strong>, staying out of the player's and coach's zones.</p>
     <p>The <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/open-tennis-robots">designs, firmware and software</a> are free to build, change and sell. Try the shot planner below; it runs the same flight model the robot uses.</p>
     <p class="note">Status: the collector has a complete manufacturing package (v0.2); the feeder is a v0.1 design whose CAD is next. Everything has been simulated, but no robot has been built yet. Not engineering or safety advice.</p>
@@ -86,6 +88,37 @@
     <svg class="side" id="side" viewBox="-13 -0.3 26 4.3" role="img" aria-label="Side view of the ball's flight">
       <title>Ball flight, side view</title>
     </svg>
+  </section>
+
+  <section class="card" id="drills">
+    <h2>Drill builder: plan a session and export it to the machine</h2>
+    <p>Tap the court to add balls, set each one's speed, spin and pause, and the builder checks every ball against the machine: the head's range (−15° to 45° up, ±30° across), the wheels' 500–7,000 rpm window and the net. It also estimates how long the machine needs between balls (the shuttle, turning, tilting and the wheels changing speed), so you can see which pauses it may not keep. Save the drill as <code>drill.json</code> and run it with <code>tennisbots run drill.json</code> on the feeder's Raspberry Pi, or run <code>tennisbots serve</code> there once and send drills straight to it from this page.</p>
+    <div class="grid">
+      <div><label for="dpreset">Start from</label><select id="dpreset"></select></div>
+      <div><label for="dmy">Machine position, m left of centre</label><input id="dmy" type="number" step="0.1" min="-4" max="4" value="0"></div>
+      <div><label for="dint">Pause between balls, s</label><input id="dint" type="number" step="0.1" min="0.5" max="30" value="3"></div>
+      <div><label for="dspeed">New ball speed, km/h</label><input id="dspeed" type="number" step="1" min="30" max="140" value="79"></div>
+      <div><label for="dspin">New ball spin, rpm</label><input id="dspin" type="number" step="100" min="-3000" max="4000" value="1500"></div>
+    </div>
+    <svg class="court" id="dcourt" viewBox="-14 -7 28 14" role="img" aria-label="Top view of a court; tap to add a ball to the drill">
+      <title>Drill, top view</title>
+    </svg>
+    <p class="note">Tap the far half to add a ball. Numbered dots are the drill in order; red ones cannot be fed as set.</p>
+    <div id="dsummary" aria-live="polite"></div>
+    <div class="scroll"><table id="dtable">
+      <thead><tr><th>#</th><th class="n">Past net, m</th><th class="n">Left, m</th><th class="n">km/h</th><th class="n">Spin rpm</th><th class="n">Pause s</th><th>Machine</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <button id="dsave">Save drill.json</button>
+    <button class="secondary" id="dcopy">Copy share link</button>
+    <button class="secondary" id="dclear">Clear</button>
+    <label for="dfile">Open a drill.json</label><input id="dfile" type="file" accept="application/json,.json">
+    <div class="grid" id="dsendrow">
+      <div><label for="dpi">Your machine's address (where <code>tennisbots serve</code> runs on its Pi)</label><input id="dpi" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="raspberrypi.local:8080"></div>
+    </div>
+    <button class="secondary" id="dsend">Send to my machine</button>
+    <p class="note">"Send to my machine" opens your Pi's own page with this drill in the link (<code>http://your-pi:8080/#drill=...</code>): it is checked again by the runner's planner there, and you start it with the key the Pi printed. The drill goes from your browser to your machine on your own network; nothing passes through this site. A page served over HTTPS cannot call a plain-HTTP address at home directly, which is why it opens the Pi's page instead. The physical e-stop is the safety stop.</p>
+    <p class="note">The pause counts from one ball leaving to the next feed, as <code>tennisbots run</code> does; the machine never feeds early, so a pause it cannot keep just runs late. The timing is an estimate from the firmware's own limits, checked on the project's simulated feeder (within 0.3 s on 25 of 42 random gaps, at most 0.34 s short, often up to 0.65 s long), not on a built machine. Your drill stays in this page and in the link you copy; nothing is uploaded.</p>
   </section>
 
   <section class="card" id="catch-net">
@@ -178,6 +211,7 @@
   <script type="module">
     import { aim, defaultOrigin, wheelRpm, RPM, COURT, collectRoute } from "./sim.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { PRESETS, parseDrill, planDrill, drillSummary, drillJson, encodeDrill, decodeDrill, piDrillUrl } from "./drill.mjs";
 
     const NS = "http://www.w3.org/2000/svg";
     const $ = (id) => document.getElementById(id);
@@ -289,6 +323,135 @@
       if (!silent) record("collector_route");
     }
     $("scatter").addEventListener("click", () => scatter());
+
+    // ---- Drill builder ----
+    let drill = parseDrill(PRESETS.example.spec);
+    const dsvg = $("dcourt");
+    const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const sel = $("dpreset");
+    sel.innerHTML = Object.entries(PRESETS).map(([k, p]) => `<option value="${k}">${esc(p.label)}</option>`).join("") + '<option value="">Empty drill</option>';
+    function loadDrill(spec) {
+      drill = spec;
+      $("dmy").value = String(drill.machine.y);
+      $("dint").value = String(drill.interval);
+      renderDrill();
+    }
+    function renderDrill() {
+      const planned = planDrill(drill);
+      const g = drawCourt(dsvg);
+      const my = drill.machine.y;
+      el("rect", { x: -COURT.halfLength - 0.9, y: sy(my) - 0.35, width: 0.8, height: 0.7, fill: "#e5533d", stroke: "none" }, g);
+      planned.forEach((p, i) => {
+        const s = p.shot;
+        if (p.ok) {
+          const pts = p.flight.points.filter((_, j) => j % 4 === 0).map((q) => `${q.pos[0].toFixed(2)},${sy(q.pos[1]).toFixed(2)}`).join(" ");
+          el("polyline", { points: pts, stroke: "#c8dc3c", "stroke-width": "0.05", opacity: "0.5" }, g);
+        }
+        el("circle", { cx: s.x, cy: sy(s.y), r: 0.32, fill: p.ok ? (p.late ? "#f6c445" : "#c8dc3c") : "#e5533d", stroke: "#1d2a00", "stroke-width": "0.04" }, g);
+        const t = el("text", { x: s.x, y: sy(s.y) + 0.14, "font-size": "0.4", "text-anchor": "middle", fill: "#18222b", stroke: "none" }, g);
+        t.textContent = String(i + 1);
+      });
+      const sum = drillSummary(planned);
+      const mm = Math.floor(sum.seconds / 60), ss = Math.round(sum.seconds % 60);
+      $("dsummary").innerHTML = `<div class="big"><div>Balls<strong>${sum.balls}</strong></div>
+        <div>Cannot be fed<strong>${sum.bad}</strong></div><div>Pauses that may run late<strong>${sum.late}</strong></div>
+        <div>Running time<strong>${mm}:${String(ss).padStart(2, "0")}</strong></div></div>` +
+        (sum.bad ? `<p class="warn">${sum.bad} ball${sum.bad > 1 ? "s" : ""} cannot be fed as set; <code>tennisbots run</code> refuses a drill until every ball can. See the red rows.</p>` : "");
+      $("dtable").querySelector("tbody").innerHTML = planned.map((p, i) => {
+        const s = p.shot;
+        const f = (k, v, step) => `<input aria-label="Ball ${i + 1} ${k}" data-i="${i}" data-k="${k}" type="number" step="${step}" value="${v}">`;
+        let what;
+        if (!p.ok) what = `<span class="warn">${esc(p.error)}</span>`;
+        else {
+          what = `${p.elevationDeg.toFixed(1)}° up, ${p.azimuthDeg.toFixed(1)}° across; wheels ${Math.round(p.rpmTop)}/${Math.round(p.rpmBottom)} rpm`;
+          if (p.gap) what += `; ready in ~${p.gap.seconds.toFixed(1)} s (${p.gap.by})`;
+          else what += `; spin-up ~${p.spinupS.toFixed(1)} s`;
+          if (p.late) what += ` <strong>pause may run late</strong>`;
+        }
+        return `<tr><td>${i + 1}</td><td class="n">${f("x", s.x, 0.1)}</td><td class="n">${f("y", s.y, 0.1)}</td>
+          <td class="n">${f("kmh", Math.round(s.speed * 36) / 10, 1)}</td><td class="n">${f("topspin", s.topspin, 100)}</td>
+          <td class="n">${f("interval", s.interval ?? drill.interval, 0.1)}</td><td>${what}</td>
+          <td><button class="secondary" data-del="${i}" aria-label="Remove ball ${i + 1}">✕</button></td></tr>`;
+      }).join("");
+    }
+    $("dtable").addEventListener("change", (ev) => {
+      const t = ev.target;
+      if (!t.dataset.k) return;
+      const s = drill.shots[Number(t.dataset.i)], v = Number(t.value);
+      if (!Number.isFinite(v)) return;
+      if (t.dataset.k === "kmh") s.speed = v / 3.6;
+      else if (t.dataset.k === "interval") { if (v === drill.interval) delete s.interval; else s.interval = v; }
+      else s[t.dataset.k] = v;
+      record("drill_edited");
+      renderDrill();
+    });
+    $("dtable").addEventListener("click", (ev) => {
+      const b = ev.target.closest("button[data-del]");
+      if (!b) return;
+      drill.shots.splice(Number(b.dataset.del), 1);
+      renderDrill();
+    });
+    dsvg.addEventListener("click", (ev) => {
+      const pt = dsvg.createSVGPoint();
+      pt.x = ev.clientX; pt.y = ev.clientY;
+      const p = pt.matrixTransform(dsvg.getScreenCTM().inverse());
+      if (p.x <= 0.3 || drill.shots.length >= 200) return;
+      drill.shots.push({ x: Math.round(Math.min(11.8, p.x) * 10) / 10, y: Math.round(Math.max(-4.1, Math.min(4.1, -p.y)) * 10) / 10,
+        speed: Number($("dspeed").value) / 3.6, topspin: Number($("dspin").value) });
+      record("drill_ball_added");
+      renderDrill();
+    });
+    sel.addEventListener("change", () => {
+      loadDrill(sel.value ? parseDrill(JSON.parse(JSON.stringify(PRESETS[sel.value].spec))) : parseDrill({ shots: [] }));
+      record("drill_preset");
+    });
+    $("dmy").addEventListener("change", () => { drill.machine.y = Number($("dmy").value) || 0; renderDrill(); });
+    $("dint").addEventListener("change", () => { const v = Number($("dint").value); if (v > 0) { drill.interval = v; renderDrill(); } });
+    $("dclear").addEventListener("click", () => { drill.shots = []; renderDrill(); });
+    $("dsave").addEventListener("click", () => {
+      const blob = new Blob([drillJson(drill)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "drill.json";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("drill_saved");
+    });
+    $("dcopy").addEventListener("click", async () => {
+      const url = location.href.split("#")[0] + "#drill=" + encodeDrill(drill);
+      history.replaceState(null, "", url);
+      try { await navigator.clipboard.writeText(url); $("dcopy").textContent = "Link copied"; }
+      catch { $("dcopy").textContent = "Link is in the address bar"; }
+      setTimeout(() => { $("dcopy").textContent = "Copy share link"; }, 2500);
+      record("drill_shared");
+    });
+    {
+      const KEYPI = "open-tennis-robots-pi";
+      try { $("dpi").value = localStorage.getItem(KEYPI) || ""; } catch { /* storage blocked: type it each time */ }
+      $("dsend").addEventListener("click", () => {
+        const url = piDrillUrl($("dpi").value || $("dpi").placeholder, encodeDrill(drill));
+        if (!url) { $("dsummary").innerHTML = `<p class="warn">Type your Pi's address, such as raspberrypi.local:8080 or 192.168.1.20:8080.</p>`; return; }
+        try { localStorage.setItem(KEYPI, $("dpi").value.trim()); } catch { /* not remembered */ }
+        record("drill_sent");
+        window.open(url, "_blank", "noopener");
+      });
+    }
+    $("dfile").addEventListener("change", () => {
+      const f = $("dfile").files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = () => {
+        try { loadDrill(parseDrill(String(r.result))); sel.value = ""; record("drill_opened"); }
+        catch (e) { $("dsummary").innerHTML = `<p class="warn">Could not read that file: ${esc(e.message)}</p>`; }
+      };
+      r.readAsText(f);
+    });
+    {
+      const m = location.hash.match(/#drill=([A-Za-z0-9_-]+)/);
+      let loaded = false;
+      if (m) { try { loadDrill(decodeDrill(m[1])); sel.value = ""; loaded = true; } catch { /* a broken link falls back to the example */ } }
+      if (!loaded) renderDrill();
+    }
 
     const opt = $("optout");
     opt.checked = usageOptedOut();

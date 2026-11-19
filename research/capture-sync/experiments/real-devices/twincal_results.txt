@@ -1,0 +1,77 @@
+capture-sync step 3k: the statistical-room twin calibrated to LibriWASN's real phones (DRR and noise floor
+set from real sessions 0-4: the floor label-free from the blind SNR, the DRR from white-noise failure only),
+then tested on the nine MS-SNSD noise types it never saw and on a gate calibrated wholly in the twin
+failure = more than a 30 fps frame (33.3 ms); gamma 0.25, 2 s windows; `fn` = envelope-normalised GCC
+
+== Fit (real sessions 0-4) ==
+  room 200: real as-recorded median snr_hat 25.8 dB
+    drr    +6 floor   25 (sim median 24.8) sse 0.00524  real/sim: plain rec 0.007/0.000  fn rec 0.005/0.000  plain 0.0dB 0.015/0.000  fn 0.0dB 0.011/0.000  plain -10.0dB 0.048/0.000  fn -10.0dB 0.050/0.000
+    drr    +0 floor   30 (sim median 25.7) sse 0.00484  real/sim: plain rec 0.007/0.000  fn rec 0.005/0.000  plain 0.0dB 0.015/0.000  fn 0.0dB 0.011/0.000  plain -10.0dB 0.048/0.000  fn -10.0dB 0.050/0.004
+    drr    -6 floor none (sim median 25.3) sse 0.00116  real/sim: plain rec 0.007/0.004  fn rec 0.005/0.004  plain 0.0dB 0.015/0.004  fn 0.0dB 0.011/0.004  plain -10.0dB 0.048/0.029  fn -10.0dB 0.050/0.025
+    drr   -12 floor none (sim median 25.2) sse 0.00177  real/sim: plain rec 0.007/0.000  fn rec 0.005/0.000  plain 0.0dB 0.015/0.000  fn 0.0dB 0.011/0.000  plain -10.0dB 0.048/0.013  fn -10.0dB 0.050/0.042
+    drr   -18 floor none (sim median 25.3) sse 0.00081  real/sim: plain rec 0.007/0.000  fn rec 0.005/0.000  plain 0.0dB 0.015/0.000  fn 0.0dB 0.011/0.000  plain -10.0dB 0.048/0.029  fn -10.0dB 0.050/0.054 <- chosen
+  room 800: real as-recorded median snr_hat 15.8 dB
+    drr    +6 floor   15 (sim median 15.7) sse 0.01512  real/sim: plain rec 0.004/0.000  fn rec 0.001/0.000  plain 0.0dB 0.009/0.000  fn 0.0dB 0.006/0.000  plain -10.0dB 0.074/0.000  fn -10.0dB 0.098/0.000
+    drr    +0 floor   20 (sim median 15.7) sse 0.01296  real/sim: plain rec 0.004/0.000  fn rec 0.001/0.000  plain 0.0dB 0.009/0.000  fn 0.0dB 0.006/0.000  plain -10.0dB 0.074/0.004  fn -10.0dB 0.098/0.008 <- chosen
+    drr    -6 floor none (sim median 15.0) sse 0.16293  real/sim: plain rec 0.004/0.083  fn rec 0.001/0.092  plain 0.0dB 0.009/0.129  fn 0.0dB 0.006/0.171  plain -10.0dB 0.074/0.296  fn -10.0dB 0.098/0.338
+    drr   -12 floor none (sim median 14.7) sse 0.39902  real/sim: plain rec 0.004/0.163  fn rec 0.001/0.221  plain 0.0dB 0.009/0.208  fn 0.0dB 0.006/0.229  plain -10.0dB 0.074/0.408  fn -10.0dB 0.098/0.450
+    drr   -18 floor none (sim median 14.8) sse 0.37474  real/sim: plain rec 0.004/0.175  fn rec 0.001/0.237  plain 0.0dB 0.009/0.200  fn 0.0dB 0.006/0.229  plain -10.0dB 0.074/0.408  fn -10.0dB 0.098/0.400
+
+== (a) Replay: 62 of 62 uncalibrated cells (plain, fn) equal step 3h's ==
+
+== Raw failure at -10 dB, real (all sessions) / uncalibrated twin / calibrated twin, plain | fn ==
+  room 200 white                 0.050/0.002/0.019 | 0.052/0.001/0.039
+  room 200 AirConditioner        0.142/0.119/0.314 | 0.216/0.205/0.477
+  room 200 AirportAnnouncements  0.199/0.252/0.519 | 0.208/0.202/0.514
+  room 200 Babble                0.411/0.587/0.789 | 0.364/0.390/0.672
+  room 200 CopyMachine           0.241/0.304/0.588 | 0.162/0.141/0.364
+  room 200 Munching              0.275/0.296/0.509 | 0.029/0.001/0.006
+  room 200 Neighbor              0.518/0.672/0.870 | 0.144/0.088/0.309
+  room 200 ShuttingDoor          0.216/0.213/0.422 | 0.029/0.002/0.006
+  room 200 Typing                0.657/0.781/0.873 | 0.028/0.001/0.007
+  room 200 VacuumCleaner         0.068/0.025/0.106 | 0.100/0.055/0.200
+  room 200 uncal: nine types mean |sim - real| 5.0 points (max 17.6); mean real/sim plain 0.303/0.361, fn 0.142/0.121; Spearman plain 0.98 fn 0.89; fn's sign 9/10; white gap plain -4.8 fn -5.1 points
+  room 200 cal  : nine types mean |sim - real| 20.4 points (max 37.8); mean real/sim plain 0.303/0.554, fn 0.142/0.284; Spearman plain 0.94 fn 0.95; fn's sign 10/10; white gap plain -3.1 fn -1.3 points
+  room 800 white                 0.072/0.007/0.006 | 0.097/0.010/0.010
+  room 800 AirConditioner        0.245/0.157/0.145 | 0.350/0.227/0.222
+  room 800 AirportAnnouncements  0.352/0.286/0.287 | 0.370/0.252/0.226
+  room 800 Babble                0.599/0.635/0.655 | 0.512/0.435/0.452
+  room 800 CopyMachine           0.437/0.357/0.371 | 0.304/0.179/0.166
+  room 800 Munching              0.385/0.293/0.327 | 0.024/0.003/0.000
+  room 800 Neighbor              0.693/0.738/0.737 | 0.235/0.084/0.106
+  room 800 ShuttingDoor          0.323/0.231/0.213 | 0.021/0.001/0.000
+  room 800 Typing                0.791/0.804/0.799 | 0.013/0.000/0.000
+  room 800 VacuumCleaner         0.108/0.034/0.034 | 0.183/0.078/0.090
+  room 800 uncal: nine types mean |sim - real| 7.4 points (max 15.1); mean real/sim plain 0.437/0.393, fn 0.224/0.140; Spearman plain 1.00 fn 1.00; fn's sign 8/10; white gap plain -6.5 fn -8.7 points
+  room 800 cal  : nine types mean |sim - real| 7.4 points (max 14.4); mean real/sim plain 0.437/0.396, fn 0.224/0.140; Spearman plain 1.00 fn 0.96; fn's sign 8/10; white gap plain -6.6 fn -8.7 points
+
+== As-recorded blind SNR (median [5th, 95th]), real sessions 0-4 / uncalibrated / calibrated twin ==
+  room 200: 25.8 [14.1, 36.9] / 27.0 [15.0, 49.0] / 25.0 [14.6, 48.8]
+  room 800: 15.8 [6.4, 28.8] / 17.4 [10.4, 33.4] / 16.2 [10.1, 23.5]
+
+== (f) T4 gate calibrated wholly in a twin (none + all ten types at 0 and -10 dB, all twin windows),
+   tested on real sessions 5-9, each type at -10 dB: kept, wrong among accepted, fn (plain in brackets) ==
+  room 200 white                 uncal 0.77 0.0020 (0.76 0.0013) | cal 0.72 0.0007 (0.00   -   )
+  room 200 AirConditioner        uncal 0.58 0.0060 (0.59 0.0042) | cal 0.39 0.0000 (0.00   -   )
+  room 200 AirportAnnouncements  uncal 0.65 0.0279 (0.27 0.0242) | cal 0.51 0.0097 (0.00   -   )
+  room 200 Babble                uncal 0.46 0.0473 (0.12 0.0544) | cal 0.33 0.0184 (0.00   -   )
+  room 200 CopyMachine           uncal 0.73 0.0159 (0.27 0.0260) | cal 0.57 0.0026 (0.00   -   )
+  room 200 Munching              uncal 0.97 0.0103 (0.02 0.2683) | cal 0.95 0.0016 (0.00   -   )
+  room 200 Neighbor              uncal 0.92 0.0949 (0.00 1.0000) | cal 0.77 0.0189 (0.00   -   )
+  room 200 ShuttingDoor          uncal 0.97 0.0103 (0.01 1.0000) | cal 0.96 0.0016 (0.00   -   )
+  room 200 Typing                uncal 0.98 0.0097 (0.01 0.1304) | cal 0.96 0.0026 (0.00   -   )
+  room 200 VacuumCleaner         uncal 0.73 0.0027 (0.77 0.0071) | cal 0.57 0.0000 (0.00   -   )
+  room 200 pooled                uncal 0.88 0.0098 (0.16 0.0237) | cal 0.83 0.0020 (0.00   -   )
+  room 200 tally: uncal fn 7/10 at or under 2% (kept 0.77)  uncal plain 3/10 at or under 2% (kept 0.28)  cal fn 10/10 at or under 2% (kept 0.67)  cal plain 10/10 at or under 2% (kept 0.00)
+  room 800 white                 uncal 0.70 0.0135 (0.69 0.0065) | cal 0.70 0.0114 (0.69 0.0051)
+  room 800 AirConditioner        uncal 0.39 0.0127 (0.41 0.0049) | cal 0.37 0.0120 (0.39 0.0052)
+  room 800 AirportAnnouncements  uncal 0.47 0.0583 (0.16 0.0372) | cal 0.46 0.0560 (0.14 0.0418)
+  room 800 Babble                uncal 0.31 0.0879 (0.05 0.1170) | cal 0.30 0.0864 (0.04 0.1026)
+  room 800 CopyMachine           uncal 0.53 0.0442 (0.12 0.0370) | cal 0.52 0.0411 (0.11 0.0330)
+  room 800 Munching              uncal 0.98 0.0102 (0.02 0.5957) | cal 0.98 0.0092 (0.02 0.6087)
+  room 800 Neighbor              uncal 0.85 0.1388 (0.00 1.0000) | cal 0.82 0.1121 (0.00 1.0000)
+  room 800 ShuttingDoor          uncal 0.99 0.0132 (0.01 1.0000) | cal 0.98 0.0112 (0.01 1.0000)
+  room 800 Typing                uncal 0.99 0.0066 (0.01 0.0000) | cal 0.99 0.0071 (0.01 0.0000)
+  room 800 VacuumCleaner         uncal 0.58 0.0103 (0.62 0.0065) | cal 0.56 0.0071 (0.59 0.0067)
+  room 800 pooled                uncal 0.84 0.0158 (0.15 0.0242) | cal 0.83 0.0138 (0.14 0.0241)
+  room 800 tally: uncal fn 6/10 at or under 2% (kept 0.68)  uncal plain 4/10 at or under 2% (kept 0.21)  cal fn 6/10 at or under 2% (kept 0.67)  cal plain 4/10 at or under 2% (kept 0.20)

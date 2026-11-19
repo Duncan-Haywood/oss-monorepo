@@ -81,3 +81,9 @@ test("renderText puts a loss's minus sign outside the dollar sign", () => {
   assert.match(text, /Cash left after tax -\$508,000\.00/);
   assert.doesNotMatch(text, /\$-/);
 });
+
+test("an open-ended range says '0 or more', not 'between 0 and Infinity'", () => {
+  // The button sweep with FILL=-1 (2026-11-19) caught the page printing
+  // "Gross receipts must be between 0 and Infinity".
+  assert.throws(() => estimate({ ...EXAMPLE, receipts: -1 }), /^Error: Gross receipts must be 0 or more$/);
+});

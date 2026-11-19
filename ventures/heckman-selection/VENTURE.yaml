@@ -1,0 +1,67 @@
+name: heckman-selection
+description: >-
+  Free browser tool, CLI and agent call for labour, health and development
+  economists, credit and insurance analysts, survey researchers and students
+  whose outcome is seen only for selected units (wages for people in work,
+  losses for approved loans, scores for students who sat the test): upload
+  one row per unit and get the selection probit, OLS on the selected rows,
+  Heckman's two-step estimator with the Heckman-Greene corrected covariance,
+  and full maximum likelihood with conventional, robust or clustered errors,
+  rho with likelihood-ratio and Wald tests, and exclusion-restriction and
+  inverse-Mills-ratio collinearity checks. Matches statsmodels within
+  1e-12 and an independent scipy fit within 1e-5. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-18 on an explore run, as a research algorithm tool beside
+# instrumental-variables, propensity-score, regression-discontinuity and
+# difference-in-differences; no venture README mentioned Heckman or sample
+# selection (1,405 searched). Implemented from the papers' definitions; no
+# third-party code was ported. statsmodels 0.15 and scipy 1.18 were run only
+# as external programs to produce eval/reference.json. Example data are
+# simulated (eval/simulate.py; data/SOURCE.md).
+#
+# First visitor: searches such as "Heckman correction online", "Heckman
+# two-step calculator", "inverse Mills ratio", "sample selection bias
+# correction", "heckman selection model python"; students in labour and
+# applied econometrics courses and analysts without Stata or R. Volume not
+# measured with an external tool.
+#
+# Alternatives: Stata heckman; R sampleSelection; Python has no maintained
+# Heckman estimator in statsmodels (all need an environment and code). Not
+# surveyed for hosted web versions. The differentiators here are no install,
+# two-step and maximum likelihood side by side with OLS and a reading in
+# words, robust and clustered ML errors, and the identification checks.
+#
+# Liability: statistical output from supplied data, not legal, financial,
+# medical or policy advice; the page says the exclusion restriction cannot be
+# tested and that the correction rests on normality. Data never leave the
+# browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Students and analysts who need a selection correction will use a
+      no-install page that puts the two-step and maximum-likelihood Heckman
+      estimates beside OLS with the identification checks, and will link or
+      cite it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports estimates that disagree with Stata heckman or R sampleSelection on the same data and specification, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/heckman-selection/
+  analytics: null

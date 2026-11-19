@@ -1,7 +1,0 @@
-
-[serial]
-pyserial
-
-[vision]
-opencv-python-headless
-numpy

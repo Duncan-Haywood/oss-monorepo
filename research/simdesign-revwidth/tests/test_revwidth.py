@@ -11,6 +11,19 @@ def test_area_and_mass():
 def test_find_width_on_known_function():
     w, hist = sw.find_width(3.0, 10, 30, lambda w: w / 5.0, tol=1e-3)
     assert abs(w - 15.0) < 2e-3 and len(hist) > 2
+    assert w / 5.0 >= 3.0  # the returned width must meet the target, not just lie near it
+
+
+def test_find_width_step_function_meets_target():
+    f = lambda w: 3.0 if w >= 15 else 2.0
+    w, _ = sw.find_width(3.0, 10, 30, f, tol=1e-3)
+    assert f(w) >= 3.0 and w - 15 < 1e-3
+
+
+def test_mass_pinned_to_reported_values():
+    # steel 7.85 g/cm^3, 1.5 mm sheet, 80 x 80 mm L: hand-computed 30.68 g and 36.59 g (README table)
+    assert abs(sw.mass_g(18.4) - 30.68) < 0.01
+    assert abs(sw.mass_g(22.619) - 36.59) < 0.01
 
 
 def test_find_width_unbracketed_raises():

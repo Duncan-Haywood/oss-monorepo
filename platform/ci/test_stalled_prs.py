@@ -28,19 +28,21 @@ GREEN = [{"status": "completed", "conclusion": "success"},
          {"status": "completed", "conclusion": "skipped"}]
 
 
-def run(prs, files=None, checks=None, records=None):
+def run(prs, files=None, checks=None, records=None, main=None):
     by_n = {p["number"]: p for p in prs}
     by_sha = {p["head"]["sha"]: p for p in prs}
     files = files or {}
     checks = checks or {}
     return sp.stalled(
         prs,
-        files_of=lambda n: [{"filename": f} for f in files.get(n, ["ventures/x/a.mjs"])],
+        files_of=lambda n: [f if isinstance(f, dict) else {"filename": f}
+                            for f in files.get(n, ["ventures/x/a.mjs"])],
         detail_of=lambda n: by_n[n],
         checks_of=lambda sha: checks.get(sha, GREEN),
         head_time_of=lambda sha: NOW - dt.timedelta(hours=by_sha[sha]["_quiet"]),
         rules=RULES, now=NOW,
-        record_of=None if records is None else lambda path, sha: records[(path, sha)])
+        record_of=None if records is None else lambda path, sha: records[(path, sha)],
+        main_blob=None if main is None else main.get)
 
 
 class ChecksState(unittest.TestCase):
@@ -121,6 +123,35 @@ class Buckets(unittest.TestCase):
         self.assertIsNone(sp.unfinished_record(
             [{"filename": "prompts/runs/r.json", "status": "removed"}], "s",
             lambda p, s: {"outcome": None}))
+
+    def test_work_already_on_main_is_landed(self):
+        # 2026-11-18: #8720 sat 29 days as "ready" with 57 of 62 files already on main.
+        files = {1: [{"filename": f"r/f{i}.py", "sha": f"b{i}"} for i in range(5)]}
+        main = {f"r/f{i}.py": f"b{i}" for i in range(4)} | {"r/f4.py": "newer"}
+        rows = run([pr(1, 72)], files=files, main=main)
+        self.assertEqual((rows[0]["bucket"], rows[0]["on_main"]), ("landed", "4/5"))
+        self.assertIn("(4/5 identical on main)", sp.render(rows))
+
+    def test_a_file_main_lacks_or_too_few_identical_is_not_landed(self):
+        files = {1: [{"filename": "r/a.py", "sha": "x"}, {"filename": "r/new.py", "sha": "y"}],
+                 2: [{"filename": f"r/f{i}.py", "sha": f"b{i}"} for i in range(5)],
+                 3: [{"filename": "r/gone.py", "sha": "z", "status": "removed"}]}
+        main = {"r/a.py": "x"} | {f"r/f{i}.py": ("b0" if i == 0 else "old") for i in range(5)}
+        rows = run([pr(1, 72), pr(2, 72), pr(3, 72)], files=files, main=main)
+        self.assertEqual([r["bucket"] for r in rows], ["ready"] * 3)
+        self.assertNotIn("on_main", rows[0])
+        self.assertEqual(rows[1]["on_main"], "1/5")
+
+    def test_blocked_stays_blocked_and_no_reader_means_no_check(self):
+        files = {1: [{"filename": "r/a.py", "sha": "x"}]}
+        rows = run([pr(1, 72, title="parked: x")], files=files, main={"r/a.py": "x"})
+        self.assertEqual(rows[0]["bucket"], "blocked")
+        self.assertEqual(run([pr(1, 72)], files=files)[0]["bucket"], "ready")
+
+    def test_main_blobs_reads_this_clone(self):
+        blobs = sp.main_blobs("HEAD")
+        self.assertIn("platform/ci/stalled_prs.py", blobs)
+        self.assertEqual(sp.main_blobs("no-such-ref-xyz"), {})
 
     def test_order_ready_first_then_oldest(self):
         rows = run([pr(3, 30, draft=True), pr(2, 5), pr(1, 5)])

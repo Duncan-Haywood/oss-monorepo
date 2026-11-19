@@ -126,3 +126,7 @@ test("sitemap lists every published page and no extras", () => {
 test("robots.txt allows crawling", () => {
   assert.match(robots, /Allow:\s*\//);
 });
+
+test("footer links the ICU Message Check sibling (siblings.mjs crawlable-orphan budget)", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/icu-message-check\/"/);
+});

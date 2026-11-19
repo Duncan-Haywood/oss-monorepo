@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVPx3bocnD9akbzCmaQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled routine)",
+  "input_sha256": "06803603fe2aa19203b94097a4e6666d9fdd6c696580e63c7dd3bd9b079c39f5",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T21:02:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17422",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Dockerfile did not copy the new waivers.mjs; caught by deploy.test.mjs and check_docker_copy.py in the local suite/preflight, fixed before merge"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The 'Start here' row (open-tennis-robots) had 25 run records in 2 days, all on simulated firmware surveys for an unbuilt machine; the pick ignores how far a row's open items are from a paying user."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "The first --replace refused at 2045 of 2000 characters even with parking; had to shorten the landed clause by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Brief asks for revenue-generating products; open-tennis-robots' buildable items are further ESC-lag/take-survey simulation refinements with no user. league-schedule-generator (row 4, free, no open PR) had a named product gap against paid competitors: player waivers.",
+      "did": "Built player waivers for the self-hosted league page (waivers.mjs, server routes, captain signing on /register, admin roster status, CSV, versioned text) plus a guide page, README/llms.txt and a post.",
+      "result": "Shipped with 8 new unit/server tests and a page test; venture suite run locally."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-rec-league-waivers-who-has-not-signed.md",
+    "ventures/league-schedule-generator/how-to-collect-player-waivers-for-a-rec-league.html"
+  ],
+  "goal": null,
+  "notes": "waivers.test.mjs 8/8; page/registration/waivers 76/76; full suite (run_venture_tests.py league-schedule-generator) failed only 'the Dockerfile copies every module server.mjs imports', fixed (deploy.test 2/2, check_docker_copy 0 problems); venture-preflight rerun after the fix.",
+  "corrections": [],
+  "redteam": null,
+  "venture": "league-schedule-generator"
+}

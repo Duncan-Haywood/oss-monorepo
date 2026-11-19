@@ -11,6 +11,7 @@ of what you actually buy before cutting metal.
 
 from __future__ import annotations
 
+import copy
 import functools
 import math
 from dataclasses import dataclass, field
@@ -50,6 +51,11 @@ COLLAR_SOCKET_MM = 25.0  # depth of the hose socket in the sleeve take-up's prin
 
 
 _SETTLE_BLOCK = 64
+
+
+# `Feeder._bounce_train` results by the exact inputs they read (perf note 2026-11-18); cleared when full.
+_BOUNCE_TRAINS: dict = {}
+_BOUNCE_TRAINS_MAX = 4096
 
 
 def _settle_contracts(r: float, l: float, c: float, g: float, h: float) -> bool:
@@ -1064,7 +1070,21 @@ class Feeder:
                                       # braking: one 10 ms tick, up to 20 ms for the next 50 Hz pulse, and one frame
                                       # of the ESC's own input filter (assumption)
     contactor_dropout_ms: float = 5.0  # coil de-energised to contacts open: the fast end, the worst case here
-    regen_diode: bool = True          # Schottky across the contactor and precharge relay, anode on the switched bus:
+    # Reset at the machine (2026-11-18, `estop_reset_chain`, `check_estop_reset`; quality audit 2026-11-08). Before, the
+    # e-stop and the fob fed the precharge relay and the timer straight, so releasing them re-powered the motors and a
+    # CLEAR_ESTOP from a phone anywhere on the network was the only other step. Now a small latch relay K0 sits after
+    # them: its coil through the RESET button's NO contact or its own hold contact, so it drops on any cut and stays
+    # dropped until someone presses RESET on the feeder. The precharge relay and the timer take their feed from K0's
+    # node through RESET's NC contact, so power comes back as the button is let go, not while it is held: a button
+    # jammed or taped down never powers the motors. Coil figures are assumptions: read your parts' sheets.
+    estop_reset_latch: bool = True    # False: the pre-2026-11-18 wiring, a release re-powers the bus
+    latch_relay_a: float = 10.0       # K0's contacts (the same 24 V 10 A class relay as the precharge's)
+    latch_coil_a: float = 0.04        # K0's own coil (a 24 V sugar-cube relay draws about 0.9 W)
+    precharge_coil_a: float = 0.04    # the precharge relay's coil
+    timer_module_a: float = 0.03      # the on-delay timer module's own draw
+    contactor_coil_a: float = 0.25    # the contactor's coil (24 V coils on 30-50 A DC contactors: about 3-6 W)
+    reset_button_dc_a: float = 1.0    # RESET's contact rating switching a 24 V DC coil (DC-13; 22 mm blocks: 1-3 A)
+    regen_diode: bool = True         # Schottky across the contactor and precharge relay, anode on the switched bus:
                                       # returns braking current to the pack with the contactor open, and cannot power
                                       # the bus from the pack, so the e-stop still isolates every motor
     regen_diode_vf: float = 0.55      # its forward drop at the braking current (assumption: a 45 V 20 A class part)
@@ -1841,6 +1861,7 @@ class Feeder:
         bad += self.check_power()
         bad += self.check_inrush()
         bad += self.check_regen()
+        bad += self.check_estop_reset()
         bad += self.check_trough()
         bad += self.check_lift()
         bad += self.check_lift_jam()
@@ -3277,7 +3298,25 @@ class Feeder:
         current stops (its 1/2 L i^2 goes into the arc) and the bus relaxes toward Vpack - load x Rp. A short close can
         open before the bus has caught up, so a re-close can start from a larger gap than one long bounce leaves.
         Returns each make's peak and each break's current. RK4 at a 60th of the loop's fastest time constant."""
-        d = self.contactor_inrush()
+        return self._bounce_train(self.contactor_inrush(), load_a, n, open_frac)
+
+    def _bounce_train(self, d: dict, load_a: float, n: int, open_frac: float) -> dict:
+        """`contactor_bounce_train` given `contactor_inrush()` as `d`. The result depends only on the numbers read
+        below, and the CAD suite's mutated Feeders repeat them: 1,330 of 1,899 trains (perf note 2026-11-18), so each
+        result is kept under those numbers' exact bit patterns and handed out as a deep copy."""
+        pre = d["precharge"]
+        key = tuple((type(x).__name__, x.hex() if isinstance(x, float) else x) for x in (
+            d["r_ohm"], d["l_h"], d["c_f"], self.battery_v_max, self.precharge_ohm,
+            pre["residual_v"] if pre else None, self.contactor_bounce_ms, load_a, n, open_frac))
+        hit = _BOUNCE_TRAINS.get(key)
+        if hit is None:
+            hit = self._bounce_train_run(d, load_a, n, open_frac)
+            if len(_BOUNCE_TRAINS) >= _BOUNCE_TRAINS_MAX:
+                _BOUNCE_TRAINS.clear()
+            _BOUNCE_TRAINS[key] = hit
+        return copy.deepcopy(hit)
+
+    def _bounce_train_run(self, d: dict, load_a: float, n: int, open_frac: float) -> dict:
         r, l, c = d["r_ohm"], d["l_h"], d["c_f"]
         vp = self.battery_v_max
         rp = self.precharge_ohm + r if self.precharge_ohm > 0 else math.inf
@@ -3358,9 +3397,9 @@ class Feeder:
         """Every bounce train in `bounce_counts` x `bounce_open_fracs`, with the idle loads and with the stepper driver
         enabled, and the worst make and break of each."""
         stepper = next(b for b in self.power_distribution()["branches"] if b["name"] == "azimuth stepper driver")
-        out = {}
+        d, out = self.contactor_inrush(), {}  # once per call, not once per train (perf note 2026-11-18)
         for name, load in (("idle", self.bus_idle_a), ("stepper enabled", self.bus_idle_a + stepper["run_a"])):
-            runs = [self.contactor_bounce_train(load, n, f) for n in self.bounce_counts for f in self.bounce_open_fracs]
+            runs = [self._bounce_train(d, load, n, f) for n in self.bounce_counts for f in self.bounce_open_fracs]
             worst = max(runs, key=lambda x: x["peak_a"])
             out[name] = {"runs": runs, "worst": worst, "break_a": max(x["break_a"] for x in runs),
                          "arc_j": max(x["arc_j"] for x in runs), "makes_max": max(len(x["makes"]) for x in runs)}
@@ -3509,6 +3548,104 @@ class Feeder:
                 "slow_j": slow_j, "slows_per_pct": self.pack_wh * 3600 * 0.01 / slow_j,
                 # a loaded reading admits braking from a pack resting higher than the threshold: the top cell then
                 "loaded_top_cell_v": (top + hold_sag + rise) / self.pack_cells + self.cell_spread_v}
+
+    def estop_reset_chain(self, events: list[tuple[float, str, bool]], until_s: float,
+                          no_welded: bool = False) -> dict:
+        """The feeder's control chain as switch logic (2026-11-18), stepped at 1 ms from power-up (the pack connected at
+        t = 0). `events` are (t_s, "estop" | "fob" | "reset", pressed / cut / held). The e-stop's NC contact and the
+        fob's relay are in series and feed node S. With `estop_reset_latch`, K0's coil sits on S through RESET's NO
+        contact in parallel with K0's own hold contact, and the precharge relay and the timer take their feed P from
+        K0 through RESET's NC contact; without it P is S. The timer closes the contactor's coil once P has been on for
+        `precharge_delay_s` without a break and drops it with P. `no_welded` is RESET's NO contact stuck closed with
+        the button let go (its NC still closed), the single fault that defeats the latch.
+        Returns the contactor coil's on intervals [(on_s, off_s or None)] and the latch's state at the end."""
+        ev = sorted(events)
+        state = {"estop": False, "fob": False, "reset": False}
+        k0 = False
+        p_since = None
+        coil = False
+        spans: list[list] = []
+        n = int(round(until_s * 1000))
+        j = 0
+        for ms in range(n + 1):
+            t = ms / 1000
+            while j < len(ev) and ev[j][0] <= t + 1e-9:
+                state[ev[j][1]] = ev[j][2]
+                j += 1
+            s = not state["estop"] and not state["fob"]
+            if self.estop_reset_latch:
+                k0 = s and (state["reset"] or no_welded or k0)
+                p = k0 and not state["reset"]
+            else:
+                p = s
+            if not p:
+                p_since = None
+            elif p_since is None:
+                p_since = t
+            on = p and t - p_since >= self.precharge_delay_s - 1e-9
+            if on and not coil:
+                spans.append([t, None])
+            elif coil and not on:
+                spans[-1][1] = t
+            coil = on
+        return {"spans": [tuple(x) for x in spans], "latched": k0, "coil_on": coil}
+
+    def estop_reset(self) -> dict:
+        """The reset scenarios `check_estop_reset` judges (2026-11-18). Times in seconds from power-up; the drill
+        scenarios start from a reset pressed at 1.0 s and let go at 1.3 s, so the bus is up from 1.3 s + the delay."""
+        d = self.precharge_delay_s
+        up = [(1.0, "reset", True), (1.3, "reset", False)]
+        out = {
+            "power_up": self.estop_reset_chain([], 10.0),
+            "reset_held": self.estop_reset_chain([(1.0, "reset", True)], 10.0),
+            "reset": self.estop_reset_chain(up, 10.0),
+            "estop_released": self.estop_reset_chain(up + [(4.0, "estop", True), (5.0, "estop", False)], 30.0),
+            "fob_restored": self.estop_reset_chain(up + [(4.0, "fob", True), (5.0, "fob", False)], 30.0),
+            "reset_after_release": self.estop_reset_chain(
+                up + [(4.0, "estop", True), (5.0, "estop", False), (8.0, "reset", True), (8.2, "reset", False)], 30.0),
+            "reset_taped_down": self.estop_reset_chain(
+                up + [(4.0, "estop", True), (4.5, "reset", True), (5.0, "estop", False)], 30.0),
+            "reset_while_running": self.estop_reset_chain(up + [(4.0, "reset", True), (4.4, "reset", False)], 10.0),
+            "no_welded": self.estop_reset_chain([(4.0, "estop", True), (5.0, "estop", False)], 30.0, no_welded=True),
+            "power_up_reset_at": 1.3 + d,
+            "after_reset_at": 8.2 + d,
+        }
+        # what K0's hold contact and RESET's NC contact carry once the bus is up: both coils ahead of the contactor,
+        # the timer module and the contactor's coil (the timer's own contact switches the last from P)
+        out["feed_a"] = self.precharge_coil_a + self.timer_module_a + self.contactor_coil_a
+        return out
+
+    def check_estop_reset(self) -> list[str]:
+        """Releasing the e-stop or the fob must not re-power the motors by itself (2026-11-18; ISO 13850 asks the same
+        of an emergency stop: its reset must not restart the machine, and a restart is a separate, deliberate act)."""
+        bad = []
+        r = self.estop_reset()
+        if not self.estop_reset_latch:
+            return ["no reset latch: releasing the e-stop or the fob re-powers the motors with nobody at the machine, and "
+                    "a CLEAR_ESTOP from any phone on the network is then the only other step (set estop_reset_latch)"]
+        if r["power_up"]["spans"]:
+            bad.append("the bus comes up at power-up without RESET")
+        if r["reset_held"]["spans"]:
+            bad.append("the bus comes up while RESET is held: a jammed button would restart the machine")
+        sp = r["reset"]["spans"]
+        if not sp or abs(sp[0][0] - r["power_up_reset_at"]) > 0.002 or sp[0][1] is not None:
+            bad.append(f"RESET let go at 1.3 s does not bring the bus up at {r['power_up_reset_at']:.1f} s and hold it: {sp}")
+        for k in ("estop_released", "fob_restored", "reset_taped_down"):
+            s = r[k]["spans"]
+            if len(s) != 1 or s[0][1] is None or r[k]["coil_on"]:
+                bad.append(f"{k.replace('_', ' ')}: the bus comes back without a RESET at the machine ({s})")
+        s = r["reset_after_release"]["spans"]
+        if len(s) != 2 or abs(s[1][0] - r["after_reset_at"]) > 0.002:
+            bad.append(f"RESET after the e-stop's release does not bring the bus back at {r['after_reset_at']:.1f} s ({s})")
+        s = r["reset_while_running"]["spans"]
+        if len(s) < 1 or s[0][1] is None or abs(s[0][1] - 4.0) > 0.002:
+            bad.append(f"RESET pressed while running does not drop the bus ({s})")
+        a = r["feed_a"]
+        if a > self.latch_relay_a + 1e-9:
+            bad.append(f"K0's hold contact carries {a:.2f} A, over its {self.latch_relay_a:g} A")
+        if a > self.reset_button_dc_a + 1e-9:
+            bad.append(f"RESET's NC contact carries {a:.2f} A of coil current, over its {self.reset_button_dc_a:g} A DC rating")
+        return bad
 
     def check_regen(self) -> list[str]:
         bad = []

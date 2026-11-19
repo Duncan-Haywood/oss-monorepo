@@ -30,14 +30,33 @@ const ALIASES = {
 // Major-unit amount -> number. "1,234.50" and "1.234,50" both read 1234.5: a comma
 // followed by one or two final digits is a decimal comma (a thousands group is
 // always three digits), so a European export is not read 100 times too large.
+// Any currency sign (\p{Sc}: ¥, ₹, ₩, R$ ...) and a currency code or abbreviation
+// on either side ("USD 100", "100 CHF", "kr 99") are dropped; only $, £, € and a
+// trailing code were, so a yen or rupee export was skipped row by row (red team
+// 2026-11-18, second run). Letters inside the number still make it NaN.
+const plainAmount = (v) => {
+  const x = String(v).replace(/[\p{Sc}()\s]/gu, "").replace(/^([+-]?)\p{L}{1,3}(?=[\d.,+-])/u, "$1").replace(/(?<=[\d.,])\p{L}{2,3}$/u, "");
+  return /,\d{1,2}$/.test(x) ? x.replace(/\./g, "").replace(",", ".") : x.replace(/,/g, "");
+};
 export function parseAmount(v) {
-  let x = String(v).replace(/[$£€()\s]/g, "").replace(/[a-z]{3}$/i, "");
-  x = /,\d{1,2}$/.test(x) ? x.replace(/\./g, "").replace(",", ".") : x.replace(/,/g, "");
+  const x = plainAmount(v);
   return x ? Number(x) : NaN;
+}
+// True when the amount is written with more decimals than the currency has and
+// they could matter: a non-zero extra digit ("100.5" yen), or exactly three
+// ("1.000", which a European export means as a thousand). Padding zeros such
+// as "5000.00" yen are fine.
+export function tooPrecise(v, exponent) {
+  const f = /\.(\d+)$/.exec(plainAmount(v))?.[1] ?? "";
+  const extra = f.slice(exponent);
+  return extra !== "" && (f.length === 3 || /[^0]/.test(extra));
 }
 const toMs = (v) => {
   const x = String(v || "").trim();
   if (!x) return null;
+  // Date.parse rolls 2026-02-30 into 2 March: check the day exists (red team 2026-11-18).
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(x);
+  if (ymd && +ymd[3] > new Date(Date.UTC(+ymd[1], +ymd[2], 0)).getUTCDate()) return null;
   const t = Date.parse(/[zZ]$|[+-]\d\d:?\d\d$/.test(x) ? x : `${x.replace(" ", "T")}${x.includes(":") ? "Z" : "T00:00:00Z"}`);
   return Number.isFinite(t) ? t : null;
 };
@@ -53,7 +72,7 @@ export function linesFromCsv(text) {
   rows.slice(1).forEach((r, i) => {
     const get = (k) => (col[k] >= 0 ? (r[col[k]] ?? "").trim() : "");
     if (!get("amount")) return skipped.push({ line: i + 2, why: "amount is blank" });
-    const neg = /^\(.*\)$/.test(get("amount"));
+    const neg = /\([^()]*\d[^()]*\)/.test(get("amount")); // "($5)", "$(5)" (Excel accounting) and "(5) USD" alike
     const raw = parseAmount(get("amount"));
     const billedAt = toMs(get("billed")), start = toMs(get("start"));
     if (!Number.isFinite(raw)) return skipped.push({ line: i + 2, why: "amount is not a number" });
@@ -65,6 +84,9 @@ export function linesFromCsv(text) {
     if (end === null) return skipped.push({ line: i + 2, why: "period end is not a date" });
     if (end < start) return skipped.push({ line: i + 2, why: "period end is before period start" });
     const currency = (get("currency") || "usd").toLowerCase();
+    // More decimals than the currency has ("€ 1.000", a European thousand) would be
+    // rounded away silently, so flag the row instead of guessing (red team 2026-11-18).
+    if (tooPrecise(get("amount"), minorExponent(currency))) return skipped.push({ line: i + 2, why: `amount has more decimals than ${currency.toUpperCase()} allows (is . a thousands separator?)` });
     lines.push({ id: get("id") || `row${i + 2}`, billedAt, start, end, amount: Math.round((neg ? -raw : raw) * 10 ** minorExponent(currency)), currency, ...(get("credits") ? { credits: get("credits") } : {}) });
   });
   return { lines, skipped, missing: [] };

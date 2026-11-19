@@ -1,0 +1,416 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKihxwuYDw4qJY1hjVA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T13:22:46Z",
+  "ended": "2026-11-19T13:23:12Z",
+  "wall_minutes": 5.19,
+  "tokens_in": 3118219,
+  "tokens_out": 18079,
+  "cost_usd": 1.6084,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17676",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First fuzz invariant (rows counted or skipped) passed on the unfixed code because the rows vanished downstream, not in the parser; tightened to also check imported statuses, now fails on the old reader.",
+    "Post description was 181 chars; check_posts caught it, shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets --probe 20` over the whole tree printed nothing within a 300 s timeout; `--under ventures/<slug>` was needed to get a listing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open entries first; all 11 remaining control-plane entries need owner-approved PRs and help-keeper needs a new eval set.",
+      "did": "Checked each still reproduces on main (grep of the named files), left them open, seeded and hunted instead.",
+      "result": "No entries closed; one new defect found and patched."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-cancelled-with-two-ls-vanished-from-mrr-history.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: fuzzed csv.test.mjs invariant (every row counted or skipped; every counted status is one of Stripe's eight); fails on the pre-fix reader. mrr-pulse node --test: 99 pass, 0 fail. Catch rate 13/16 -> 16/16 (2 equivalent).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/mrr-pulse/metrics.mjs",
+        "test": "node --test ventures/mrr-pulse/**/*.test.mjs  (in .)",
+        "seed": 339825539,
+        "commit": "05c960fb8",
+        "sites": 276,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 14,
+            "col": 70,
+            "operator": "const-plus-one",
+            "before": "return Math.round((Number(amount) * Math.max(0, Number(quantity) || 0) * f) / n);",
+            "after": "return Math.round((Number(amount) * Math.max(0, Number(quantity) || 1) * f) / n);",
+            "line_text": "  return Math.round((Number(amount) * Math.max(0, Number(quantity) || 0) * f) / n);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 36,
+            "col": 31,
+            "operator": "max-to-min",
+            "before": "export const paidFrom = (s) => Math.max(s.created || 0, s.trialEnd || 0);",
+            "after": "export const paidFrom = (s) => Math.min(s.created || 0, s.trialEnd || 0);",
+            "line_text": "export const paidFrom = (s) => Math.max(s.created || 0, s.trialEnd || 0);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 58,
+            "col": 126,
+            "operator": "const-plus-one",
+            "before": "const m = { new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0 };",
+            "after": "const m = { new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 1 };",
+            "line_text": "  const m = { new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0 };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 85,
+            "col": 152,
+            "operator": "const-plus-one",
+            "before": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "after": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 1, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "line_text": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 120,
+            "col": 35,
+            "operator": "minus-to-plus",
+            "before": "const cur = months[months.length - 1];",
+            "after": "const cur = months[months.length + 1];",
+            "line_text": "  const cur = months[months.length - 1];",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 135,
+            "col": 17,
+            "operator": "gt-to-ge",
+            "before": "nrr: start > 0 ? (start + base.expansion - base.contraction - base.churn) / start : null,",
+            "after": "nrr: start >= 0 ? (start + base.expansion - base.contraction - base.churn) / start : null,",
+            "line_text": "      nrr: start > 0 ? (start + base.expansion - base.contraction - base.churn) / start : null,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 206,
+            "col": 67,
+            "operator": "const-plus-one",
+            "before": "const ranked = Object.entries(customers).sort((a, b) => b[1] - a[1]);",
+            "after": "const ranked = Object.entries(customers).sort((a, b) => b[1] - a[2]);",
+            "line_text": "  const ranked = Object.entries(customers).sort((a, b) => b[1] - a[1]);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 208,
+            "col": 226,
+            "operator": "const-plus-one",
+            "before": "return { total, atRisk: { mrr: atRisk, subs: atRiskSubs, share: total ? atRisk / total : 0 }, plans: byPlan, concentration: { customers: ranked.length, top1: share(1), top5: share(top), topN: top, largest: ranked[0]?.[1] || 0 } };",
+            "after": "return { total, atRisk: { mrr: atRisk, subs: atRiskSubs, share: total ? atRisk / total : 0 }, plans: byPlan, concentration: { customers: ranked.length, top1: share(1), top5: share(top), topN: top, largest: ranked[0]?.[1] || 1 } };",
+            "line_text": "  return { total, atRisk: { mrr: atRisk, subs: atRiskSubs, share: total ? atRisk / total : 0 }, plans: byPlan, concentration: { customers: ranked.length, top1: share(1), top5: share(top), topN: top, largest: ranked[0]?.[1] || 0 } };",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "breakdown() with no paying subscription returned largest 1 instead of 0; new test in metrics.test.mjs pins the empty concentration."
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 218,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "if (months.length < 2) return null;",
+            "after": "if (months.length <= 2) return null;",
+            "line_text": "  if (months.length < 2) return null;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "forecast(): with exactly 2 months, months.slice(0,-1) holds one month, so usable.length < 2 returns null on the next line anyway; the first guard is redundant for length 2."
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 252,
+            "col": 59,
+            "operator": "or-to-and",
+            "before": "const risk = share(1) >= 0.25 ? \"high\" : share(1) >= 0.1 || share(5) >= 0.5 ? \"moderate\" : \"low\";",
+            "after": "const risk = share(1) >= 0.25 ? \"high\" : share(1) >= 0.1 && share(5) >= 0.5 ? \"moderate\" : \"low\";",
+            "line_text": "  const risk = share(1) >= 0.25 ? \"high\" : share(1) >= 0.1 || share(5) >= 0.5 ? \"moderate\" : \"low\";",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/mrr-pulse/csv.mjs",
+        "test": "node --test ventures/mrr-pulse/**/*.test.mjs  (in .)",
+        "seed": 448043337,
+        "commit": "05c960fb8",
+        "sites": 143,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/mrr-pulse/csv.mjs",
+            "line": 15,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && s[i + 1] === \"\\n\") i++; row.push(cur); if (row.some((x) => x.trim())) rows.push(row); row = []; cur = \"\"; }",
+            "after": "else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && s[i + 2] === \"\\n\") i++; row.push(cur); if (row.some((x) => x.trim())) rows.push(row); row = []; cur = \"\"; }",
+            "line_text": "    else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && s[i + 1] === \"\\n\") i++; row.push(cur); if (row.some((x) => x.trim())) rows.push(row); row = []; cur = \"\"; }",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A lone CR (old Mac line ending) with a newline two characters on skipped the next row's first character; new parseCsv test \"a\\rb\\nc\"."
+          },
+          {
+            "file": "ventures/mrr-pulse/csv.mjs",
+            "line": 70,
+            "col": 48,
+            "operator": "times-to-div",
+            "before": "const mrr = monthlyAmount(Math.round(amount * 10 ** minorExponent(currency)), interval, Number(get(\"intervalCount\")) || 1, quantity);",
+            "after": "const mrr = monthlyAmount(Math.round(amount / 10 ** minorExponent(currency)), interval, Number(get(\"intervalCount\")) || 1, quantity);",
+            "line_text": "    const mrr = monthlyAmount(Math.round(amount * 10 ** minorExponent(currency)), interval, Number(get(\"intervalCount\")) || 1, quantity);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/csv.mjs",
+            "line": 101,
+            "col": 32,
+            "operator": "minus-to-plus",
+            "before": "skipped.sort((a, b) => a.line - b.line);",
+            "after": "skipped.sort((a, b) => a.line + b.line);",
+            "line_text": "  skipped.sort((a, b) => a.line - b.line);",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a currency skip from an earlier line than a row skip, so the sort comparator was never exercised; new test asserts line order [2,3,6,7]."
+          },
+          {
+            "file": "ventures/mrr-pulse/csv.mjs",
+            "line": 107,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "let seed = 7; const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) % 10000) / 10000;",
+            "after": "let seed = 8; const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) % 10000) / 10000;",
+            "line_text": "  let seed = 7; const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) % 10000) / 10000;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/csv.mjs",
+            "line": 110,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < 160; i++) {",
+            "after": "for (let i = 1; i < 160; i++) {",
+            "line_text": "  for (let i = 0; i < 160; i++) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/csv.mjs",
+            "line": 110,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < 160; i++) {",
+            "after": "for (let i = 0; i <= 160; i++) {",
+            "line_text": "  for (let i = 0; i < 160; i++) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/csv.mjs",
+            "line": 113,
+            "col": 26,
+            "operator": "lt-to-le",
+            "before": "const churned = rnd() < 0.28 && now - start > 60 * 86400000;",
+            "after": "const churned = rnd() <= 0.28 && now - start > 60 * 86400000;",
+            "line_text": "    const churned = rnd() < 0.28 && now - start > 60 * 86400000;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "sampleCsv: the LCG with fixed seed 7 never draws exactly 0.28 at the churn draw (draw order does not depend on now); sampleCsv output identical with and without the mutant for three different now values."
+          },
+          {
+            "file": "ventures/mrr-pulse/csv.mjs",
+            "line": 114,
+            "col": 101,
+            "operator": "times-to-div",
+            "before": "const end = churned ? start + Math.floor((60 + rnd() * (now - start - 59 * 86400000) / 86400000) * 86400000 * 0.9) : null;",
+            "after": "const end = churned ? start + Math.floor((60 + rnd() * (now - start - 59 * 86400000) / 86400000) / 86400000 * 0.9) : null;",
+            "line_text": "    const end = churned ? start + Math.floor((60 + rnd() * (now - start - 59 * 86400000) / 86400000) * 86400000 * 0.9) : null;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/mrr-pulse/csv.mjs",
+        "issue": "A CSV status other than Stripe's exact spellings ('Cancelled', 'Past due', 'expired') was kept but matched no rule in mapAt/liveMap/cohorts, so the row vanished from every month of the rebuilt history: a subscription canceled in June read as never having existed (Jan-May MRR understated, its churn and logo churn never counted), and nothing in 'skipped' said so. Fixed: statuses are normalised (case, spaces/hyphens to _, cancelled->canceled) and any status outside Stripe's eight is skipped with a reason.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c51562b5-8f1b-54dc-b466-7e6fb9c6d6a2",
+    "transcripts": 1,
+    "first": "2026-11-19T13:22:46Z",
+    "last": "2026-11-19T13:27:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 18079,
+        "thinking": 5558,
+        "cache_read": 3038284,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79863,
+        "api_equivalent_usd": 1.6084,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 18079,
+      "thinking": 5558,
+      "cache_read": 3038284,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79863,
+      "api_equivalent_usd": 1.6084,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 34,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.19,
+      "active_minutes": 5.19,
+      "model_minutes": 2.94,
+      "tool_minutes": 2.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: read two modules, mutation triage, fix and tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 186.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

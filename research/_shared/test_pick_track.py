@@ -340,6 +340,11 @@ class ClaimCheckTest(unittest.TestCase):
         lines = self._run([(1, "other")], recent=["abc 1 hour ago: m4 merged"])
         self.assertTrue(any("portfolio/router/claim_check.py cell-fidelity" in l for l in lines))
 
+    def test_race_line_gives_the_empty_commit_claim(self):
+        # A PR needs a commit; three research records waited ~15 min for a real one.
+        lines = self._run([(1, "other")])
+        self.assertTrue(any("git commit --allow-empty" in l for l in lines), lines)
+
     def test_no_race_line_when_a_claim_is_already_listed(self):
         lines = self._run([(9, "research/cell-fidelity: m2")])
         self.assertFalse(any("CLAIM RACE" in l for l in lines))
@@ -697,6 +702,17 @@ class StaleHostsTest(unittest.TestCase):
         self.assertIn("arxiv.org (LOG.md:2), zenodo.org (LOG.md:6)", lines[0])
         self.assertTrue(lines[1].endswith("still refused here: gss.norc.org, data.sf.gov"))
 
+    def test_recheck_names_a_refused_host_the_code_fetches(self):
+        import stale_hosts
+        src = self.root / "prog" / "src"
+        src.mkdir()
+        (src / "data.py").write_text('RECORD = "https://zenodo.org/api/records/1/files/{name}/content"\n')
+        lines = stale_hosts.recheck_lines("prog", answers=lambda u: False, root=self.root)
+        self.assertEqual(len(lines), 2)
+        self.assertIn("its own code fetches from zenodo.org", lines[1])
+        self.assertIn("research/prog/HOSTS", lines[1])
+        self.assertNotIn("gss.norc.org", lines[1])  # named in notes only, not fetched by code
+
     def test_no_notes_no_lines(self):
         import stale_hosts
         (self.root / "empty").mkdir()
@@ -740,3 +756,22 @@ class TrackFallbackTest(unittest.TestCase):
 
     def test_no_programmes_for_track_prints_nothing(self):
         self.assertEqual(self.lines([]), [])
+
+
+class ChainLineTest(unittest.TestCase):
+    LOG = "".join(f"## 2026-11-{10 + i // 10:02d} · Milestone 6{'z' * (i // 26)}{chr(97 + i % 26)}: knob {i}\n"
+                  for i in range(30, -1, -1))
+
+    def test_long_chain_prints_cue(self):
+        line = pick_track.chain_line("x", text=self.LOG)
+        self.assertTrue(line.startswith("CHAIN: milestone 6 has 31 sub-steps"))
+        self.assertIn("no LOG heading names a paper step yet", line)
+
+    def test_short_chain_prints_nothing(self):
+        self.assertIsNone(pick_track.chain_line("x", minimum=40, text=self.LOG))
+
+    def test_unlabelled_log_prints_nothing(self):
+        self.assertIsNone(pick_track.chain_line("x", text="## 2026-11-10 · notes\n- a\n"))
+
+    def test_missing_log_prints_nothing(self):
+        self.assertIsNone(pick_track.chain_line("no-such-programme-slug"))

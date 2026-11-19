@@ -40,8 +40,8 @@ def main():
     print("values: mean +- 95% t-interval half-width over seeds")
     print()
     for key, label in [("miou", "mIoU (obstacle, water, sky)"), ("iou_obstacle", "obstacle IoU"),
-                       ("recall", "floating-obstacle recall (>=50% of pixels found)"),
-                       ("false_alarms_per_frame", "false alarms per frame (obstacle blobs >= 4 px on water)")]:
+                       ("recall", "floating-obstacle recall (8-connected, >= 4 px; >=50% of pixels found)"),
+                       ("false_alarms_per_frame", "false alarms per frame (8-connected obstacle blobs >= 4 px on water)")]:
         print(f"== {label}")
         print("condition".ljust(14) + "".join(m.rjust(22) for m in MODELS if m in runs))
         for c in CONDS:
@@ -53,7 +53,7 @@ def main():
                 row += f"{mu:.3f} +- {hw:.3f}".rjust(22)
             print(row)
         print()
-    for lo, hi, lab in [(16, 10 ** 9, "at least 16 px (41 px at 512x384)"), (0, 16, "under 16 px: distant buoys and swimmers, and fragments of thin structures")]:
+    for lo, hi, lab in [(16, 10 ** 9, "at least 16 px (41 px at 512x384)"), (0, 16, "4 to 15 px: distant buoys and swimmers, and short thin structures")]:
         n = sum(1 for o in any_r["conditions"]["fog t=1.0"]["objects"] if lo <= o[1] < hi)
         print(f"== floating-obstacle recall, objects {lab} (n = {n})")
         print("condition".ljust(14) + "".join(m.rjust(22) for m in MODELS if m in runs))
@@ -69,6 +69,21 @@ def main():
                 mu, hw = ms(vals)
                 row += f"{mu:.3f} +- {hw:.3f}".rjust(22)
             print(row)
+        print()
+    if all("legacy_4conn" in r["conditions"]["fog t=1.0"] for m in runs for r in runs[m]):
+        lg = any_r["conditions"]["fog t=1.0"]["legacy_4conn"]["n_floating"]
+        print(f"== the pre-2026-11-18 rule on the same predictions: 4-connected, no size floor (n = {lg} clean)")
+        print("   recall, then false alarms per frame (4-connected blobs >= 4 px)")
+        print("condition".ljust(14) + "".join(m.rjust(22) for m in MODELS if m in runs))
+        for key in ("recall", "false_alarms_per_frame"):
+            for c in CONDS:
+                row = (c if key == "recall" else c + " FA").ljust(14)
+                for m in MODELS:
+                    if m not in runs:
+                        continue
+                    mu, hw = ms([r["conditions"][c]["legacy_4conn"][key] for r in runs[m]])
+                    row += f"{mu:.3f} +- {hw:.3f}".rjust(22)
+                print(row)
         print()
     hz = json.loads((HERE / "horizon_rows.json").read_text())["water_edge_row"]
     for title, fn, bins in [

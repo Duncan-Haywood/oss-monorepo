@@ -35,3 +35,15 @@
 - (2026-11-18) next a real deployer's panel
 - (2026-11-18) on West Germany 12 of 16 placebos grew (note says so)
 - (2026-11-18) gapShape word on listed units (pulse faded 90%, 20% false)
+- (2026-11-18) donor slope or pulse 2026-11-18 (README "A donor's own event that is not a step"): pulse 12-14%, slope 29-35%, step 37-40%
+- (2026-11-18) anticipation 2026-11-18: --anticipation N ships (power 25-40% to 54-55% backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A shock before the date")
+- (2026-11-18) two shocked donors 2026-11-18 (README "Two shocked donors"): 54-56% to 27-28%, both left out 53-56%, one 35%
+- (2026-11-19) next a real panel with a known slope event
+- (2026-11-19) the note quotes it
+- (2026-11-19) slope and pulse shocks 2026-11-18: warning holds 42 of 43 false finds (README "Shocks that are not steps")
+- (2026-11-19) two covariates: harmless one's warning 0 of 170 false finds, 1.27x bias (bar failed)
+- (2026-11-19) JHU state switches to weekly reporting 20 of 27, returns to more days 0 of 8 (README "A provider's own schedule changes")
+- (2026-11-19) lasting moves to more days: cut has the power (8 of 9 cells)
+- (2026-11-19) short returns: a half-share guard clears same-count day shifts (1.00 to 0 false, power kept) but JHU 2 of 8 (README "a real drop in repeats")
+- (2026-11-19) real misses are 1-2 month sparse spells, and shortSpells ships as an opt-in (README "Short sparse spells": S1-S4, Alaska and South Dakota dated)
+- (2026-11-19) NYT rerun: line 3/4 ends, 4/8 unexplained (all 105-372 days; README "The weekday spell score on NYT's state series")

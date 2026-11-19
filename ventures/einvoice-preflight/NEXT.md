@@ -25,3 +25,13 @@
 - (2026-11-18) SdI: open: a real FatturaPA rejection with its file
 - (2026-11-18) ZATCA: a real KSA note
 - (2026-11-18) a real business's signed Facturae or FACe rejection (eval/facturae-gob-*)
+
+## From the quality audit of 2026-11-19
+
+[`portfolio/quality/audits/2026-11-19-einvoice-preflight.json`](../../portfolio/quality/audits/2026-11-19-einvoice-preflight.json). The large-amount rounding defect is fixed (PR #17724); open:
+
+- BR-CO-17: a VAT subtotal 0.01 off taxable x rate is a blocking INV-038/INV-018 here, while CEN's Schematron accepts it within one unit (151 of 600 random invoices). Downgrade to a warning or match CEN, and say so on the page.
+- The page and the Python CLI do not run the same rules (Norway and Switzerland VAT, profiles, PDF checks are JS only; fix texts differ), though `checks.mjs` and the page say they do. Fourth audit to report it.
+- CI runs `node --test` without slimdom and fontoxpath, so the 139 tests of the official route are skipped there.
+- No test has a remainder-10 Bulgarian or Czech VAT number.
+- The cent-rounding idiom is copied in seven files; one integer-cents helper would remove the class of bug.

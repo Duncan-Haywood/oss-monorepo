@@ -1,4 +1,4 @@
-"""Command line: `tennisbots aim | drill | run | esc-lag | tach-jitter | fit-launcher | catch-study | collect`."""
+"""Command line: `tennisbots aim | drill | run | serve | esc-lag | tach-jitter | fit-launcher | catch-study | collect`."""
 
 from __future__ import annotations
 
@@ -116,6 +116,24 @@ def cmd_run(a: argparse.Namespace) -> int:
     advice = host.take_survey_advice(res.take_survey)
     if advice:
         print(advice)
+    return 0
+
+
+def cmd_serve(a: argparse.Namespace) -> int:
+    """Serve the drill page on the Pi so the project page's drill builder can send drills to the machine."""
+    from . import remote
+    print(DISCLAIMER, file=sys.stderr)
+    try:
+        import serial  # noqa: F401  (optional dependency, checked before the server starts)
+    except ImportError:
+        print("not started: needs pyserial (pip install 'tennisbots[serial]')", file=sys.stderr)
+        return 2
+    try:
+        remote.serve(a.port, a.listen, shot_log=a.shot_log, esc_lag_ok=a.esc_lag_ok, use_key=not a.no_key,
+                     allow_hosts=tuple(h.lower() for h in a.allow_host or ()))
+    except OSError as exc:
+        print(f"not started: {exc}", file=sys.stderr)
+        return 2
     return 0
 
 
@@ -315,6 +333,19 @@ def build_parser() -> argparse.ArgumentParser:
                    help="run a calibration drill even when the board's ESC_TAU_US disagrees with the shot log's last "
                         "ESC lag survey (by default it stops before the first ball, exit 4)")
     s.set_defaults(func=cmd_run)
+
+    s = sub.add_parser("serve", help="on the feeder's Pi: a page that runs drills sent from the drill builder, with "
+                                     "a Stop button (README \"Running a drill from the page\")")
+    s.add_argument("--port", default="/dev/ttyAMA0", help="serial device wired to the ESP32 (default /dev/ttyAMA0)")
+    s.add_argument("--listen", default="0.0.0.0:8080", help="address:port to serve on (default 0.0.0.0:8080)")
+    s.add_argument("--shot-log", help="append each drill's wheel speed drops to this JSON-lines file")
+    s.add_argument("--esc-lag-ok", action="store_true", help="as for run: run a calibration drill despite an ESC "
+                                                             "lag mismatch")
+    s.add_argument("--no-key", action="store_true", help="let anyone on the network start a drill without the "
+                                                         "printed key (Stop never needs it)")
+    s.add_argument("--allow-host", action="append", metavar="NAME",
+                   help="another host name the page may be opened by (IP addresses, localhost and .local always work)")
+    s.set_defaults(func=cmd_serve)
 
     s = sub.add_parser("esc-lag", help="the ESC lag the shot log's last survey picks, and whether ESC_TAU_US should "
                                        "change")

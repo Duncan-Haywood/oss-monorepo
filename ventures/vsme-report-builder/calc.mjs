@@ -166,6 +166,8 @@ export function analyse(input) {
   };
 }
 
+// Text datapoints (legal form "GmbH", NACE "C25.1", country "DE") printed as "NaN" through show() until 2026-11-19.
+const showText = (x) => (x === null || x === undefined || String(x).trim() === "" ? "not reported" : String(x).trim());
 const show = (x, unit = "") => (x === null || x === undefined ? "not reported" : `${Number(x).toLocaleString("en-GB", { maximumFractionDigits: 2 })}${unit ? " " + unit : ""}`);
 
 /** A draft Basic Module report as Markdown. Missing datapoints print as "not reported", never as zero. */
@@ -175,10 +177,10 @@ export function reportMarkdown(input) {
   L.push(`# Sustainability report (VSME Basic Module, draft): ${v.name ?? "[undertaking]"}, ${v.year ?? "year not set"}`, "");
   L.push("Draft prepared with the VSME Report Builder. Check every figure and the wording against the EFRAG VSME standard before sending it to a customer, bank or investor. Not assurance, not advice.", "");
   const sec = (k, lines) => { L.push(`## ${k} ${DISCLOSURES[k]}`, ...lines.map((x) => `- ${x}`), ""); };
-  sec("B1", [`Reporting year: ${v.year ?? "not reported"}`, `Basis: ${v.scope ?? "not reported"} (Basic Module)`, `Legal form: ${show(v.legalForm)}; sector (NACE): ${show(v.nace)}; country: ${show(v.country)}`, `Turnover: ${show(v.turnover, "EUR")}; balance sheet total: ${show(v.balanceSheet, "EUR")}; employees: ${show(v.empTotal)}`]);
+  sec("B1", [`Reporting year: ${v.year ?? "not reported"}`, `Basis: ${v.scope ?? "not reported"} (Basic Module)`, `Legal form: ${showText(v.legalForm)}; sector (NACE): ${showText(v.nace)}; country: ${showText(v.country)}`, `Turnover: ${show(v.turnover, "EUR")}; balance sheet total: ${show(v.balanceSheet, "EUR")}; employees: ${show(v.empTotal)}`]);
   sec("B2", [v.practices ? v.practices.split(/\n|;/).map((s) => s.trim()).filter(Boolean).join("; ") : "not reported"]);
-  sec("B3", [`Electricity: ${show(v.elecMWh, "MWh")} (renewable ${show(v.elecRenMWh, "MWh")})`, `Fuels: ${show(v.fuelMWh, "MWh")} (renewable ${show(v.fuelRenMWh, "MWh")})`, `Total energy: ${show(d.energyMWh, "MWh")}; renewable share: ${show(d.renewableSharePct, "%")}`, `Scope 1: ${show(v.scope1t, "tCO2e")}; Scope 2 (location-based): ${show(v.scope2t, "tCO2e")}; total: ${show(d.ghgT, "tCO2e")}`, `Emission factor source: ${show(v.factorSource)}`]);
-  sec("B4", [`Releases reported to authorities: ${show(v.pollution)}`]);
+  sec("B3", [`Electricity: ${show(v.elecMWh, "MWh")} (renewable ${show(v.elecRenMWh, "MWh")})`, `Fuels: ${show(v.fuelMWh, "MWh")} (renewable ${show(v.fuelRenMWh, "MWh")})`, `Total energy: ${show(d.energyMWh, "MWh")}; renewable share: ${show(d.renewableSharePct, "%")}`, `Scope 1: ${show(v.scope1t, "tCO2e")}; Scope 2 (location-based): ${show(v.scope2t, "tCO2e")}; total: ${show(d.ghgT, "tCO2e")}`, `Emission factor source: ${showText(v.factorSource)}`]);
+  sec("B4", [`Releases reported to authorities: ${showText(v.pollution)}`]);
   sec("B5", [`Sites in or near biodiversity-sensitive areas: ${show(v.bioSites)}`, `Sealed land: ${show(v.sealedHa, "ha")}`]);
   sec("B6", [`Water withdrawn: ${show(v.waterM3, "m3")}`]);
   sec("B7", [`Waste generated: ${show(v.wasteT, "t")}; hazardous: ${show(v.hazWasteT, "t")}; recycled or reused: ${show(v.recycledT, "t")} (${show(d.recycledPct, "%")})`]);

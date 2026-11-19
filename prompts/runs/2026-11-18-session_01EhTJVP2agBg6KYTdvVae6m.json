@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVP2agBg6KYTdvVae6m",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled)",
+  "input_sha256": "22ad619f9509f3b95d15aa5aec6eb43d01c80a2b2fc6623eadb43ae7f245ba82",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T21:14:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new venture dxf-nesting (free true-shape DXF nesting for laser/plasma/CNC shops)",
+  "projects": [
+    "ventures/dxf-nesting"
+  ],
+  "pr": 17428,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 45,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "The catch-all section cap (5) only surfaces at preflight; register-tool.mjs could name the CATEGORY_RULES step up front for a new slug."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-free-dxf-nesting-in-the-browser-with-a-gap-you-can-check.md"
+  ],
+  "goal": "Ship a tool for the industrial/construction direction that no venture covered: irregular-part nesting from DXF.",
+  "notes": "Idea: DXF nesting (explore). Conservative raster + k-cell border proves the gap; verify() re-measures edge distances. Reader vs ezdxf 1.4.5 fixtures: 6/6 parts within 0.05%; output opens in ezdxf strict with 0 errors; ezdxf's own periodic spline flattening was found wrong and excluded. Worked example: 72 parts on one 2500x1250 sheet, 1.1 s in Chromium. Seeded bugs (gap border, bulge sweep) both caught. Local checks: run_venture_tests (dxf-nesting, laser calc) 73 tests ok, clauses ok, validate.py ok, check_posts ok, venture-preflight with build. Next if used: local search across last two sheets; quote page from cut length/pierces/sheets.",
+  "corrections": [],
+  "redteam": null
+}

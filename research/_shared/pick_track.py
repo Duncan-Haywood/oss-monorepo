@@ -475,10 +475,14 @@ def race_line(slug):
     programme, the 7 same-programme pairs whose sessions overlapped all started 0-2 minutes
     apart (scheduled sessions launch in batches). Until 2026-11-18 this pointer was printed
     only on the 'clear' path, so a draw of an active programme (recent commits) never got it,
-    and the aerolog-scaling pair (#16842, #16843) found the clash at merge time."""
+    and the aerolog-scaling pair (#16842, #16843) found the clash at merge time.
+    The empty-commit recipe is spelled out because research records (2026-11-18T11:39,
+    15:38, 2026-11-19T09:18) said a PR needs a commit and waited ~15 min for a real one."""
     return (f"CLAIM RACE: a sibling started this same minute is invisible to the checks above "
             f"(all 7 same-programme overlaps in a week of research runs started 0-2 min apart). "
-            f"Open your draft PR (title naming {slug}) before any real work, then run "
+            f"Open your draft PR (title naming {slug}) before any real work; with nothing to "
+            f"commit yet, `git commit --allow-empty -m \"research/{slug}: claim\"` and a push "
+            f"are enough (the squash merge drops it). Then run "
             f"`python3 portfolio/router/claim_check.py {slug}`; on YIELD, redraw with "
             f"`python3 research/_shared/pick_track.py --new`")
 
@@ -795,6 +799,35 @@ def reproduce_gap_line(slug):
         return None
 
 
+# A milestone number with this many sub-step labels gets a CHAIN line in the draw.
+CHAIN_MIN = 20
+
+
+def chain_line(slug, minimum=CHAIN_MIN, text=None):
+    """A cue when the programme's newest milestone number has `minimum`+ sub-steps, else None.
+    Why: a research run on 2026-11-18 (PR #17327) found marine-hull's last ten milestones were
+    single-knob reruns and the draw gave no sign of a chain past diminishing returns; that day
+    four programmes had 40-89 labels under one number (research_log.py, `chain`)."""
+    try:
+        from research_log import chain
+        if text is None:
+            log = RESEARCH / slug / "LOG.md"
+            if not log.is_file():
+                return None
+            text = log.read_text(errors="replace")
+        c = chain(text)
+    except Exception:  # a hint; never let it break the draw
+        return None
+    if not c or c[1] < minimum:
+        return None
+    num, n, first, last, d0, d1, since = c
+    paper = ("no LOG heading names a paper step yet" if since is None
+             else f"{since} entries since a LOG heading named a paper step")
+    return (f"CHAIN: milestone {num} has {n} sub-steps ({first}..{last}, {d0}..{d1}); {paper}. "
+            "If the recent ones each turn one knob, a paper section or a new question may serve "
+            "the programme more (research/PROGRAMMES.md, 'A programme is done when ...'); your call")
+
+
 def post_limits_line():
     """The blog post front-matter caps, printed at the end of the draw: nine research
     sessions in three days (friction_rank.py --live, 2026-11-12..15) met the 160-character
@@ -846,6 +879,9 @@ if __name__ == "__main__":
             gap = reproduce_gap_line(slug)
             if gap:
                 print(gap)
+            cue = chain_line(slug)
+            if cue:
+                print(cue)
             for line in newest_log_entries(slug):
                 print(f"  LOG.md {line}")
         else:

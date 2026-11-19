@@ -294,12 +294,12 @@ Misses:
 
 ## F. Final /l/ against the nasals: the 51 files of the other gregobase-1908-* folders
 
-78 files, none scored by this check before (the scan-check sets); same settings and filters as B. Pre-registered in this script's header before its first run: the murmur's own tilt (readCoda `murmurTilt`, 28 dB) against the same reader without it.
+79 files, none scored by this check before (the scan-check sets); same settings and filters as B. Pre-registered in this script's header before its first run: the murmur's own tilt (readCoda `murmurTilt`, 28 dB) against the same reader without it.
 
 | final consonant | read with the tilt rule | without it |
 |---|---|---|
 | /l/ (should read as none) | none 6 of 6 (100.0%), nasal 0 of 6 (0.0%) | none 5 of 6 (83.3%), nasal 1 of 6 (16.7%) |
-| m, n, gn (should read as nasal) | 206 of 215 (95.8%) | 206 of 215 (95.8%) |
+| m, n, gn (should read as nasal) | 209 of 218 (95.9%) | 209 of 218 (95.9%) |
 
 /l/ not read as none (with the rule):
 
@@ -744,7 +744,71 @@ Misses with `levelFade`:
 
 crum as none 2; snum as none 2; drum as none 2; lo as nasal 1; trun as none 1; clun as none 1; trub as voiced vel stop 1; pont as voiceless alv stop 1; prog as voiced lab stop 1; prog as voiceless vel stop 1; blog as voiceless vel stop 1
 
+## e. Held out: where the release lands (twenty-ninth round)
+
+Nasals after /u/ or /o/: *grom*, *crom*, *trom*, *frum*, *drun*, *prum*, *blum*, *clum*, *spum*, *flon*, *plom*, *brom*; voiced stops: *trog*, *brub*, *frod*, *clog*, *crud*; nasals after a bright vowel: *dram*, *flem*, *brin*, *glen*; n-clusters: *brant*, *clonc*, *plunt*, *grons*; voiceless stops: *frup*, *clot*, *drup*; others: *brus*, *frul*, *clu*, *dro*. 84 BPM, each followed by a rest: quarters on B2, G3, C4, D4 and eighths on G2, B2, D3, E3, F3, A3, B3, E4 (eval/release-cells-report.md's 84 BPM cells that land 4 or more of 8).
+
+| | default | `levelFade: { tail: 6 }` | `longTilt: { span: 0.3, gap: 0.45 }` |
+|---|---|---|---|
+| nasals after /u/ or /o/ read exactly | 139 of 144 (96.5%) | 139 of 144 (96.5%) | 137 of 144 (95.1%) |
+| nasals after a bright vowel read exactly | 48 of 48 (100.0%) | 48 of 48 (100.0%) | 48 of 48 (100.0%) |
+| n-clusters read as their nasal | 47 of 48 (97.9%) | 47 of 48 (97.9%) | 47 of 48 (97.9%) |
+| voiced stop codas read exactly | 55 of 60 (91.7%) | 55 of 60 (91.7%) | 55 of 60 (91.7%) |
+| voiceless stop codas read exactly | 36 of 36 (100.0%) | 36 of 36 (100.0%) | 36 of 36 (100.0%) |
+| other syllables read exactly | 48 of 48 (100.0%) | 48 of 48 (100.0%) | 48 of 48 (100.0%) |
+| vowel-only control read as none | 370 of 384 (96.4%) | 370 of 384 (96.4%) | 370 of 384 (96.4%) |
+| stops, others and vowel-only control read as a nasal | 14 | 14 | 14 |
+| vowel-only misses on the four 8-of-8 eighth cells | 0 | 0 | 0 |
+
+Vowel-only misses by cell:
+
+- def: eighth E4 14
+- fade: eighth E4 14
+- tilt: eighth E4 14
+
+Misses, default (count over the twelve cells):
+
+clog as voiced lab stop 2; frum as none 2; prum as none 1; trog as voiced lab stop 1; clum as none 1; brub as voiceless lab stop 1; plunt as voiceless alv stop 1; blum as none 1; crud as voiceless alv stop 1; frum (vowel only) as nasal 1; drun (vowel only) as nasal 1; prum (vowel only) as nasal 1; blum (vowel only) as nasal 1; clum (vowel only) as nasal 1; spum (vowel only) as nasal 1; brub (vowel only) as nasal 1; crud (vowel only) as nasal 1; plunt (vowel only) as nasal 1; frup (vowel only) as nasal 1; drup (vowel only) as nasal 1; brus (vowel only) as nasal 1; frul (vowel only) as nasal 1; clu (vowel only) as nasal 1
+
+Misses with `levelFade`:
+
+clog as voiced lab stop 2; frum as none 2; prum as none 1; trog as voiced lab stop 1; clum as none 1; brub as voiceless lab stop 1; plunt as voiceless alv stop 1; blum as none 1; crud as voiceless alv stop 1; frum (vowel only) as nasal 1; drun (vowel only) as nasal 1; prum (vowel only) as nasal 1; blum (vowel only) as nasal 1; clum (vowel only) as nasal 1; spum (vowel only) as nasal 1; brub (vowel only) as nasal 1; crud (vowel only) as nasal 1; plunt (vowel only) as nasal 1; frup (vowel only) as nasal 1; drup (vowel only) as nasal 1; brus (vowel only) as nasal 1; frul (vowel only) as nasal 1; clu (vowel only) as nasal 1
+
+Misses with `longTilt`:
+
+frum as none 3; clog as voiced lab stop 2; clum as none 2; prum as none 1; trog as voiced lab stop 1; brub as voiceless lab stop 1; plunt as voiceless alv stop 1; blum as none 1; crud as voiceless alv stop 1; frum (vowel only) as nasal 1; drun (vowel only) as nasal 1; prum (vowel only) as nasal 1; blum (vowel only) as nasal 1; clum (vowel only) as nasal 1; spum (vowel only) as nasal 1; brub (vowel only) as nasal 1; crud (vowel only) as nasal 1; plunt (vowel only) as nasal 1; frup (vowel only) as nasal 1; drup (vowel only) as nasal 1; brus (vowel only) as nasal 1; frul (vowel only) as nasal 1; clu (vowel only) as nasal 1
+
+## f. Held out: a near-rule murmur after the note's end (thirtieth round)
+
+Nasals after /u/ or /o/: *fon*, *blon*, *cron*, *con*, *glun*, *snom*, *clon*, *smum*, *crun*, *plon*, *frun*, *slun*; voiced stops: *snug*, *frub*, *plud*, *glob*, *crod*; nasals after a bright vowel: *pren*, *len*, *gran*, *clen*; n-clusters: *banc*, *flont*, *spant*, *snons*; voiceless stops: *glop*, *gluc*, *brop*; others: *dor*, *snor*, *pu*, *stur*. Quarters and eighths at 86 BPM, each followed by a rest, on E2, G2, A2, B2, D3, E3, F3, G3, A3, B3, C4, D4, E4.
+
+| | default | `nearRelease` |
+|---|---|---|
+| nasals after /u/ or /o/ read exactly | 300 of 312 (96.2%) | 298 of 312 (95.5%) |
+| nasals after a bright vowel read exactly | 102 of 104 (98.1%) | 102 of 104 (98.1%) |
+| n-clusters read as their nasal | 102 of 104 (98.1%) | 102 of 104 (98.1%) |
+| voiced stop codas read exactly | 128 of 130 (98.5%) | 128 of 130 (98.5%) |
+| voiceless stop codas read exactly | 78 of 78 (100.0%) | 78 of 78 (100.0%) |
+| other syllables read exactly | 84 of 104 (80.8%) | 84 of 104 (80.8%) |
+| vowel-only control read as none | 806 of 832 (96.9%) | 821 of 832 (98.7%) |
+| vowel-only control read as a nasal | 26 | 11 |
+| of them, by the near rule | 15 | 0 |
+| stops and others read as a nasal | 1 | 1 |
+
+Vowel-only near-rule nasals by cell:
+
+- def: quarter D3 15
+- rel: none
+
+Misses, default (count over the 26 cells):
+
+stur as none 9; dor as none 6; glun as none 4; snor as none 3; plud as voiceless alv stop 2; slun as none 2; smum as none 2; len as voiced lab stop 1; cron as voiced lab stop 1; fon (vowel only) as nasal 1; blon (vowel only) as nasal 1; cron (vowel only) as nasal 1; con (vowel only) as nasal 1; snom (vowel only) as nasal 1; clon (vowel only) as nasal 1; plon (vowel only) as nasal 1; glob (vowel only) as nasal 1; crod (vowel only) as nasal 1; flont (vowel only) as nasal 1; snons (vowel only) as nasal 1; glop (vowel only) as nasal 1; brop (vowel only) as nasal 1; dor (vowel only) as nasal 1; snor (vowel only) as nasal 1; banc as voiceless vel stop 1; glun (vowel only) as nasal 1; smum (vowel only) as nasal 1; crun (vowel only) as nasal 1; frun (vowel only) as nasal 1; slun (vowel only) as nasal 1; snug (vowel only) as nasal 1; frub (vowel only) as nasal 1; plud (vowel only) as nasal 1; gluc (vowel only) as nasal 1; pu (vowel only) as nasal 1; stur (vowel only) as nasal 1; crun as none 1; frun as none 1; pren as voiced lab stop 1; spant as voiceless alv stop 1; pu as nasal 1; stur as voiced lab stop 1; con as tap 1
+
+Misses with `nearRelease`:
+
+stur as none 9; dor as none 6; glun as none 4; snor as none 3; plud as voiceless alv stop 2; slun as none 2; smum as none 2; crun as none 2; frun as none 2; len as voiced lab stop 1; cron as voiced lab stop 1; banc as voiceless vel stop 1; glun (vowel only) as nasal 1; smum (vowel only) as nasal 1; crun (vowel only) as nasal 1; frun (vowel only) as nasal 1; slun (vowel only) as nasal 1; snug (vowel only) as nasal 1; frub (vowel only) as nasal 1; plud (vowel only) as nasal 1; gluc (vowel only) as nasal 1; pu (vowel only) as nasal 1; stur (vowel only) as nasal 1; pren as voiced lab stop 1; spant as voiceless alv stop 1; pu as nasal 1; stur as voiced lab stop 1; con as tap 1
+
 ## C. Closing consonants in the corpus
 
-146 GABC files, 9903 sung syllables; 3634 of 9903 (36.7%) close on a consonant, 266 on a cluster. First phone: s 938, n 720, m 649, t 448, r 420, l 168, k 145, d 75, b 28, p 25, f 15, g 3.
+147 GABC files, 9999 sung syllables; 3665 of 9999 (36.7%) close on a consonant, 268 on a cluster. First phone: s 944, n 724, m 652, t 452, r 426, l 173, k 147, d 76, b 28, p 25, f 15, g 3.
 

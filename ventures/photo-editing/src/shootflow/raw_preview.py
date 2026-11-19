@@ -99,17 +99,45 @@ def is_raf_path(path: Path) -> bool:
     return path.suffix.lower() == ".raf"
 
 
-def needs_profile_path(path: Path) -> bool:
-    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF)."""
+def is_mrw_path(path: Path) -> bool:
+    """Minolta and Konica Minolta MRW (DiMAGE 7, 7i, 7Hi, A1, A2, A200; Dynax / Maxxum / Alpha-7 Digital)."""
 
-    return is_crw_path(path) or is_cr2_path(path) or is_cr3_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path) or is_pef_path(path) or is_raf_path(path)
+    return path.suffix.lower() == ".mrw"
+
+
+def is_dcr_path(path: Path) -> bool:
+    """Kodak DCR (DCS Pro SLR/n, SLR/c, Pro 14n and 14nx; Kodak compression 65000)."""
+
+    return path.suffix.lower() == ".dcr"
+
+
+def is_3fr_path(path: Path) -> bool:
+    """Hasselblad 3FR (H3D, H4D, X1D, X1D II, X2D, CF and CFV backs) and Phocus's ``.fff`` export of one. Both
+    carry their own colour matrix (or ``hasselblad.OWN_MATRICES`` holds the body's), so like a DNG they develop
+    without a camera profile. An Imacon/FlexColor scanner ``.fff`` (RGB, no CFA image) is refused by the
+    reader with the reason."""
+
+    return path.suffix.lower() in (".3fr", ".fff")
+
+
+def is_iiq_path(path: Path) -> bool:
+    """Phase One IIQ (P+ and IQ backs, the H 25, iXU and iXM bodies). It carries its own colour matrix, so it
+    develops without a camera profile, like a DNG; a ``.dcp`` given for it is used (``camera_profiles``)."""
+
+    return path.suffix.lower() == ".iiq"
+
+
+def needs_profile_path(path: Path) -> bool:
+    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF, MRW, DCR)."""
+
+    return is_crw_path(path) or is_cr2_path(path) or is_cr3_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path) or is_pef_path(path) or is_raf_path(path) or is_mrw_path(path) or is_dcr_path(path)
 
 
 def is_developable_path(path: Path) -> bool:
     """True for the RAW formats ``raw_develop`` reads from sensor data: DNG, and
-    Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF given a camera profile (``camera_profiles``)."""
+    Hasselblad 3FR and Phase One IIQ (their own colour matrices), and Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, Minolta MRW and Kodak DCR given a camera profile (``camera_profiles``)."""
 
-    return is_dng_path(path) or needs_profile_path(path)
+    return is_dng_path(path) or is_3fr_path(path) or is_iiq_path(path) or needs_profile_path(path)
 
 
 def extract_preview(path: Path) -> bytes | None:

@@ -74,10 +74,17 @@
   <p>Give a wall an overhang depth, the gap from the window head up to the overhang and the window height, and each hour the calculator works out where the shadow edge falls. It drops below the overhang by <em>depth × tan(altitude) ÷ cos(sun azimuth − wall azimuth)</em>, the sun's height seen square-on to the wall. The shaded share of the window's height gets no direct sun; the sky and ground light are kept in full, which slightly overstates the load. The overhang is assumed to run well past both sides of the window.</p>
   <p>On the example house a 2 ft eave 1 ft above every 5 ft window lowers the 3 pm sensible peak by 3.3% (19,732 to 19,072 Btu/h). The south rooms drop 7 to 13%, because the high midday sun is what an eave stops; west glass at 3 pm barely changes, because that sun is low enough to get under it.</p>
 
+  <h2>Basements</h2>
+  <p>Pick "Basement (below grade)" as a room's floor, then give how deep the floor sits below grade, the length of wall below grade and the basement's shortest width. Walls above grade go in the room's walls list as usual, with their above-grade height. Heat leaves a below-grade wall along roughly circular paths through the soil to the ground surface, so the deeper a strip of wall, the longer its path. Averaged from grade down to depth <em>z</em>, the wall's U-factor is <em>2k ÷ (π z) × ln((z + 2kR/π) ÷ (2kR/π))</em>, and the floor's, for shortest width <em>w</em>, is <em>2k ÷ (π w) × ln((w/2 + z/2 + kR/π) ÷ (z/2 + kR/π))</em>: the path-length method of Latta and Boileau as given in ASHRAE Fundamentals, with <em>k</em> the soil conductivity and <em>R</em> the concrete, insulation and inside film. Both work against the ground surface design temperature, the annual mean outdoor temperature less its seasonal swing, not the winter air temperature. In summer the ground is cooler than the room, so below-grade gains are taken as zero.</p>
+  <p>Checked against a 2-D soil model solved cell by cell (<code>eval/basement-fd.mjs</code>): the wall formula reads 10 to 16% low on bare concrete and within 5% with R-10 on it; the floor formula reads 5 to 43% low against the same model, and between 31% low and 24% high when the deep ground is held at the annual mean. On a cold-climate example the floor is about 4% of the house's heating load, so that gap is about 1% of the total.</p>
+
+  <h2>Skylights</h2>
+  <p>Each room can carry skylights with an area, a tilt (0 for flat, 18.4° for a 4-in-12 roof) and the direction the roof slopes toward. Winter: area × skylight U × the temperature difference. Summer: conduction plus the sun on glass at that tilt and facing, hour by hour, through the skylight SHGC with the same angle modifier as windows; the skylight's area comes out of the attic ceiling. On the example ranch, two 8 ft² skylights add 1,260 to 1,410 Btu/h of sun at the house peak (about 0.13 tons), more when the roof faces west.</p>
+
   <h2>What it leaves out</h2>
   <ul>
     <li>Side fins, trees and neighbouring buildings shading windows (it assumes full sun on glass with no overhang, which overstates the load of shaded glass). Overhangs are modelled: see below.</li>
-    <li>Basements and below-grade walls; multi-storey stack effects beyond the N factor; skylights.</li>
+    <li>Multi-storey stack effects beyond the N factor; the light shaft of a skylight through the attic; summer heat gain or loss through below-grade walls (taken as zero).</li>
     <li>Heat stored in furniture and floors (it treats window sun as an instant load, which overstates the peak slightly).</li>
     <li>Duct leakage modelled in detail; it takes a percentage.</li>
     <li>Design temperatures: you enter them; the tool has no weather database.</li>

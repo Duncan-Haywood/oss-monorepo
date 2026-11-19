@@ -166,6 +166,18 @@ const esc = (value) =>
  * disclaimer, stylesheet links, the shared script tag), so this page cannot
  * drift from the rest of the site.
  */
+/**
+ * The example questions under the /ask/ panel's greeting. Each is answered by
+ * the default engine (no model): two find tools through the site search, one
+ * quotes this page. Checked by hand in the built site on 2026-11-19 (each
+ * gave a non-empty answer); re-check after renaming the tools they find.
+ */
+export const ASK_SUGGESTIONS = [
+  'Which tool prices a roofing job?',
+  'What does eBay charge to sell a $40 item?',
+  'Does what I type leave my device?',
+];
+
 export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
   const url = `${baseUrl}${ASK_PATH}`;
   const toRoot = '../';
@@ -230,7 +242,9 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
   @media (scripting:enabled){.ask-app{min-height:460px}}
   table{border-collapse:collapse;width:100%;font-size:15px}
   th,td{border:1px solid var(--pfs-line);padding:7px 9px;text-align:left;vertical-align:top}
-  .tablewrap{overflow-x:auto}
+  .tablewrap{overflow-x:auto;margin:14px 0 18px}
+  /* Wide tables (.stack) become one card per row on a phone: STACK_TABLE_CSS in
+     pf-site.css (site-nav.mjs), shared with the blog's Markdown tables since 2026-11-19. */
   </style>
   ${chrome.styleLink}
 </head>
@@ -256,13 +270,13 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
 
       <h2 id="how">How it works, and where your words go</h2>
       <p>You choose the engine in the panel’s Settings. The default is the first row. Nothing below the first row downloads or connects until you click to turn it on.</p>
-      <div class="tablewrap"><table>
-        <thead><tr><th>Engine</th><th>Downloads</th><th>What you type or say goes to</th><th>Good at</th></tr></thead>
-        <tbody>
-          <tr><td>No model (default)</td><td>Nothing (the assistant code is about 40 KB, fetched when you first open it)</td><td>Nowhere</td><td>Filling forms from clear sentences; finding tools; quoting the paragraph on this page that answers you</td></tr>
-          <tr><td>Your browser’s built-in model</td><td>Nothing from this site. Chrome downloads and manages its own model</td><td>Nowhere: it runs on your device</td><td>Looser sentences, short answers</td></tr>
-          <tr><td>On-device model (Qwen2.5 0.5B or 1.5B, through WebLLM on the GPU, or llama.cpp compiled to WebAssembly on the CPU where there is no WebGPU)</td><td>290 MB or 880 MB with WebGPU, 430 MB or 1.1 GB on the CPU, once, from huggingface.co (the engine from cdn.jsdelivr.net), then kept in your browser’s storage</td><td>Nowhere: it runs in a background worker on your device</td><td>The same, offline. On the CPU it is several times slower</td></tr>
-          <tr><td>Your own key or local server</td><td>Nothing</td><td>The provider you choose (Anthropic, OpenAI, Gemini, any OpenAI-compatible URL) or Ollama, LM Studio or llama.cpp on your computer. The key stays in your browser</td><td>The strongest answers, depending on your model</td></tr>
+      <div class="tablewrap"><table class="stack" role="table">
+        <thead role="rowgroup"><tr role="row"><th role="columnheader">Engine</th><th role="columnheader">Downloads</th><th role="columnheader">What you type or say goes to</th><th role="columnheader">Good at</th></tr></thead>
+        <tbody role="rowgroup">
+          <tr role="row"><td role="cell" data-label="Engine">No model (default)</td><td role="cell" data-label="Downloads">Nothing (the assistant code is about 40 KB, fetched when you first open it)</td><td role="cell" data-label="What you type or say goes to">Nowhere</td><td role="cell" data-label="Good at">Filling forms from clear sentences; finding tools; quoting the paragraph on this page that answers you</td></tr>
+          <tr role="row"><td role="cell" data-label="Engine">Your browser’s built-in model</td><td role="cell" data-label="Downloads">Nothing from this site. Chrome downloads and manages its own model</td><td role="cell" data-label="What you type or say goes to">Nowhere: it runs on your device</td><td role="cell" data-label="Good at">Looser sentences, short answers</td></tr>
+          <tr role="row"><td role="cell" data-label="Engine">On-device model (Qwen2.5 0.5B or 1.5B, through WebLLM on the GPU, or llama.cpp compiled to WebAssembly on the CPU where there is no WebGPU)</td><td role="cell" data-label="Downloads">290 MB or 880 MB with WebGPU, 430 MB or 1.1 GB on the CPU, once, from huggingface.co (the engine from cdn.jsdelivr.net), then kept in your browser’s storage</td><td role="cell" data-label="What you type or say goes to">Nowhere: it runs in a background worker on your device</td><td role="cell" data-label="Good at">The same, offline. On the CPU it is several times slower</td></tr>
+          <tr role="row"><td role="cell" data-label="Engine">Your own key or local server</td><td role="cell" data-label="Downloads">Nothing</td><td role="cell" data-label="What you type or say goes to">The provider you choose (Anthropic, OpenAI, Gemini, any OpenAI-compatible URL) or Ollama, LM Studio or llama.cpp on your computer. The key stays in your browser</td><td role="cell" data-label="Good at">The strongest answers, depending on your model</td></tr>
         </tbody>
       </table></div>
       <p><strong>Voice in</strong> uses your browser’s on-device speech recognition where it has one. Otherwise it uses Whisper tiny.en (96 MB, once, from huggingface.co), which runs in your browser: an 11-second clip took about 4 seconds to transcribe on a laptop-class CPU in our test, word for word. Cloud speech recognition is never used, because it would send your audio to a company this page cannot name. <strong>Voice out</strong> uses your device’s own voices.</p>
@@ -270,10 +284,10 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
 
       <h2 id="quality">How well it is measured to work</h2>
       <p>The rule-based reader is tested on ${all.cases} sentences against ${formCount} real calculator forms. The sentences are in ${src('platform/pages/assistant/evals.json')} and the test is ${src('platform/pages/assistant.test.mjs')}. Today it gets ${all.passed} of ${all.cases} fully right. That number is not an estimate of how it does on your sentences, because every mistake found was fixed. The estimate is the <strong>blind rounds</strong>: new sentences written before the rules were run on them, scored once, and recorded with the commit that produced the score, so anyone can reproduce it.</p>
-      <div class="tablewrap"><table>
-        <thead><tr><th>Blind round</th><th>Sentences</th><th>Fully right</th><th>Wrong value written</th><th>Reproduce at</th></tr></thead>
-        <tbody>
-          ${rounds.map((r) => `<tr><td>${r.round} (${esc(r.date)}): ${esc(r.forms)}</td><td>${r.cases}</td><td>${r.passed}</td><td>${r.wrong_writes}</td><td><a href="${esc(`https://github.com/Duncan-Haywood/oss-monorepo/tree/${r.commit}/platform/pages/assistant`)}"><code>${esc(r.commit)}</code></a></td></tr>`).join('\n          ')}
+      <div class="tablewrap"><table class="stack" role="table">
+        <thead role="rowgroup"><tr role="row"><th role="columnheader">Blind round</th><th role="columnheader">Sentences</th><th role="columnheader">Fully right</th><th role="columnheader">Wrong value written</th><th role="columnheader">Reproduce at</th></tr></thead>
+        <tbody role="rowgroup">
+          ${rounds.map((r) => `<tr role="row"><td role="cell" data-label="Blind round">${r.round} (${esc(r.date)}): ${esc(r.forms)}</td><td role="cell" data-label="Sentences">${r.cases}</td><td role="cell" data-label="Fully right">${r.passed}</td><td role="cell" data-label="Wrong value written">${r.wrong_writes}</td><td role="cell" data-label="Reproduce at"><a href="${esc(`https://github.com/Duncan-Haywood/oss-monorepo/tree/${r.commit}/platform/pages/assistant`)}"><code>${esc(r.commit)}</code></a></td></tr>`).join('\n          ')}
         </tbody>
       </table></div>
       <p>The samples are small, and a wrong value written is the mistake that matters most, which is why every change the assistant makes is listed with an Undo. The on-device models were scored on the same 52 sentences on 2026-10-21: on their own, Qwen2.5 0.5B wrote 337 wrong values and 1.5B wrote 87, and with the checks above the panel wrote none for either. The rules already pass all 52, so this shows the checks stop a model doing harm, not that a model helps; that needs new sentences the rules get wrong (${src('platform/pages/assistant/model-bench/score.mjs')}).</p>
@@ -309,7 +323,7 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
   </div>
   <script type="module">
     import { mount } from '../${ASSISTANT_MODULE_FILE}';
-    mount(document.getElementById('ask-app'));
+    mount(document.getElementById('ask-app'), { suggestions: ${JSON.stringify(ASK_SUGGESTIONS).replace(/</g, '\\u003c')} });
   </script>
   ${chrome.script}
 </body>

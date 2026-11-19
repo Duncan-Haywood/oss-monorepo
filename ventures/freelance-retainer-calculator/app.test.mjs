@@ -113,7 +113,12 @@ const floatSummary = formatProposalSummary({
   paymentTerms: 'arrears30',
 }, plan, 'USD');
 assert.match(floatSummary, /Invoice at month-end, Net 30/);
-assert.match(floatSummary, /\$15,600/);
+// The float is this client's receivable (the retainer), not the whole income
+// target: $1,725 billed at month-end + Net 30 is 1,725 x 60/30 = $3,450
+// (quality audit 2026-11-19 found $15,600 here).
+assert.match(floatSummary, /\$3,450/);
+assert.doesNotMatch(floatSummary, /\$15,600/);
+assert.equal(calculateCashFloat(plan.retainer, 'arrears30').cashToFloat, plan.retainer * 2);
 assert.match(floatSummary, /Unpaid extras drop below the floor after: 23 hours/);
 assert.match(floatSummary, /Unused-hour rollover:/);
 assert.match(floatSummary, /\$750/);

@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVPU5bDMxwi5FA2J4WC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T15:10:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17334",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here sent this session to ids-model-check 'a smaller record per entity' at the same minute as PR #17332; claim_check said YIELD 16 s later. Picked a different item on the same flagship (IDS structure vs ids.xsd, from the README's Limitations) rather than a different flagship."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Did not rewrite ids-model-check's next: (1984/2000 chars) because PR #17332 is rewriting the same field for its item; the landed item and its follow-ups went to the venture's NEXT.md instead to avoid a merge conflict.",
+      "did": "NEXT.md entry",
+      "result": "no conflict with #17332"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "structure.mjs checks IDS files against ids.xsd 1.0. Verdict agreement with IfcTester's xmlschema validation: 145/145 public+audit-tool files, 678/678 + 1128/1128 mutated (rules tuned on these), 1129/1129 held-out seed 31. 12 of 65 public IDS break ids.xsd. Audit-tool InvalidFiles read invalid 17 -> 20 of 35, ValidFiles unchanged 1 of 9; buildingSMART testcases unchanged 334/334 (strict 333). Model checks: structure findings are warnings, verdicts unchanged. Local: run_venture_tests.py ids-model-check ok (217 tests), check_posts ok. Page audit verified in Chromium.",
+  "corrections": [],
+  "redteam": null
+}

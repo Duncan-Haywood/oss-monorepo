@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, validateSchedule, dayLabel, parseDate } from "./calc.mjs";
+import { buildSchedule, readSpec, teamSchedule, roundRobin, countBreaks, validateSchedule, dayLabel, parseDate, dayIso } from "./calc.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-make-a-round-robin-schedule.html";
@@ -60,8 +60,12 @@ test("the module scripts import only local files, and the inline script parses",
   const html = page("index.html");
   assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./carryover.mjs", "./checkout.mjs", "./divisions.mjs", "./licence.mjs", "./printpack.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
-  // calc.mjs imports sibling modules only (the carry-over search and the doubleheader nights), never a package or URL
-  assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./carryover.mjs", "./nights.mjs"]);
+  // calc.mjs imports sibling modules only (whist designs, the carry-over search and the doubleheader nights), never a package or URL
+  assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./whist.mjs", "./carryover.mjs", "./nights.mjs"]);
+  assert.doesNotMatch(page("whist.mjs"), /from "(?!\.\/(near-)?whist-bases\.mjs")/);
+  // whist-bases.mjs, near-whist-bases.mjs: generated data only (eval/*-bases-build.mjs), no imports
+  assert.doesNotMatch(page("whist-bases.mjs"), /\bimport\b|\bfrom "/);
+  assert.doesNotMatch(page("near-whist-bases.mjs"), /\bimport\b|\bfrom "/);
   assert.doesNotMatch(page("nights.mjs"), /from "(?!\.\/(carryover|session-designs|odd-designs)\.mjs")/);
   // session-designs.mjs and odd-designs.mjs: generated data only (eval/write-*-designs.mjs), no imports
   assert.doesNotMatch(page("session-designs.mjs"), /\bimport\b|\bfrom "/);
@@ -884,4 +888,93 @@ test("single-league page: duty box and team sheets reuse the multi-division code
   assert.match(html, /const errors = validateDivisionDuties\(shaped, pd\.duties, result\)/);
   assert.match(html, /if \(td\.errors\.length\) \{ \$\("#duty-line"\)\.textContent = "Not downloaded/);
   assert.match(html, /record\("team_sheets_downloaded"\)/);
+});
+
+test("the tennis guide's limits example matches buildSchedule(), keeps every limit and its conflict quote is what the tool says", async () => {
+  const { limitConflicts } = await import("./calc.mjs");
+  const name = "tennis-league-schedule.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const teams = ["Aces", "Baseliners", "Net Rushers", "Topspin", "Love All", "Deuce Crew", "Slice Squad", "Drop Volleys"];
+  const { errors, spec } = readSpec({ teams: teams.join("\n"), start: "2027-04-06", weekdays: ["Tue"], courts: "Court 1\nCourt 2", times: "18:30\n20:00", minutes: 90, timeLimits: html.match(/<pre>(.*?)<\/pre>/s)[1], courtLimits: "Slice Squad: Court 2" });
+  assert.deepEqual(errors, []);
+  const s = buildSchedule(spec);
+  assert.deepEqual(validateSchedule(s).errors, []);
+  assert.deepEqual(s.notices, []);
+  s.rounds.forEach((r) => {
+    const row = `<tr><td>${r.number}</td><td>${dayIso(r.day)}</td><td>${r.matches.map((m) => `${m.homeName} v ${m.awayName} (${m.court} ${m.time})`).join(", ")}</td></tr>`;
+    assert.ok(html.includes(row), row);
+  });
+  const c = limitConflicts([...teams, "Night Owls"], { times: ["18:30", "20:00"], courts: ["Court 1", "Court 2"], timeLimits: { 0: ["18:30"], 3: ["18:30"], 8: ["20:00"] } });
+  assert.ok(c.some((x) => html.includes(`<em>${x.text.replace(/ Give one.*$/, "")}</em>`)));
+  assert.match(page("sitemap.xml"), new RegExp(name));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));
+});
+
+test("the waiver guide's worked example matches waiverStatus() and is linked and in the sitemap", async () => {
+  const { waiverStatus, recordSignature, rememberVersion } = await import("./waivers.mjs");
+  const html = page("how-to-collect-player-waivers-for-a-rec-league.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal advice/);
+  assert.match(html, /<link rel="canonical" href="\.\/how-to-collect-player-waivers-for-a-rec-league\.html">/);
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const state = { fields: { waiverText: "Play at your own risk." } };
+  rememberVersion(state, 1);
+  recordSignature(state, { team: "Hawks", name: "Ben Ong" }, 2);
+  recordSignature(state, { team: "Hawks", name: "Cara Lee" }, 3);
+  state.fields.waiverText += "\nNo alcohol at the venue.";
+  recordSignature(state, { team: "Hawks", name: "Dev Rao" }, 4);
+  const t = waiverStatus(state, { Hawks: ["Ben", "Cara", "Dev", "Eli"] }, ["Hawks"]).teams[0];
+  const label = new Map([...t.signed.map((x) => [x.entry, "signed"]), ...t.older.map((x) => [x.entry, "signed an earlier version"]), ...t.missing.map((e) => [e, "not signed"])]);
+  for (const e of ["Ben", "Cara", "Dev", "Eli"]) assert.ok(html.includes(`<tr><td>${e}</td><td>${label.get(e)}</td></tr>`), e);
+  assert.match(page("sitemap.xml"), /how-to-collect-player-waivers-for-a-rec-league\.html/);
+  assert.match(page("index.html"), /href="\.\/how-to-collect-player-waivers-for-a-rec-league\.html"/);
+});
+
+test("the sportsmanship guide's worked table matches spiritTable() and is linked and in the sitemap", async () => {
+  const { recordSpirit, spiritTable } = await import("./spirit.mjs");
+  const name = "how-to-run-sportsmanship-ratings-in-a-rec-league.html";
+  const html = page(name);
+  assert.match(html, /No warranty/);
+  assert.match(html, new RegExp(`<link rel="canonical" href="\\./${name.replace(/\./g, "\\.")}">`));
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  const sched = { teams: ["Hawks", "Owls", "Wrens", "Kites"], rounds: [
+    { day: 20400, matches: [{ fixture: "0-1-0", home: 0, away: 1 }, { fixture: "2-3-0", home: 2, away: 3 }] },
+    { day: 20407, matches: [{ fixture: "0-2-0", home: 0, away: 2 }, { fixture: "3-1-0", home: 3, away: 1 }] }] };
+  const sp = {};
+  for (const [f, side, scores] of [["0-1-0", "home", [2, 2, 3, 2, 2]], ["0-1-0", "away", [2, 1, 2, 1, 2]], ["2-3-0", "home", [3, 2, 2, 3, 3]], ["2-3-0", "away", [2, 2, 2, 2, 2]],
+    ["0-2-0", "home", [2, 2, 2, 2, 3]], ["0-2-0", "away", [1, 0, 1, 1, 2]], ["3-1-0", "home", [2, 3, 2, 2, 2]], ["3-1-0", "away", [1, 1, 1, 2, 1]]]) recordSpirit(sp, { fixture: f, side, scores, comment: "" }, "categories", 0);
+  const n = (x) => (Number.isInteger(x) ? String(x) : x.toFixed(2));
+  const rows = spiritTable(sp, sched, "categories");
+  assert.deepEqual(rows.map((r) => r.name), ["Owls", "Wrens", "Kites", "Hawks"]);
+  for (const r of rows) {
+    const tr = `<tr><td>${r.name}</td><td>${r.received}</td><td>${n(r.avg)}</td>${r.cats.map((c) => `<td>${n(c)}</td>`).join("")}<td>${r.low}</td><td>${n(r.avgGiven)}</td></tr>`;
+    assert.ok(html.includes(tr), tr);
+  }
+  assert.match(page("sitemap.xml"), new RegExp(name.replace(/\./g, "\\.")));
+  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(/\./g, "\\.")}"`));
+});
+
+test("balanced teams page: disclaimer, private, usage events named, FAQ matches its JSON-LD", () => {
+  const html = page("balanced-teams.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal or financial advice/i);
+  assert.match(html, /never uploaded/);
+  assert.match(html, /Turn usage counting off/);
+  for (const ev of [...html.matchAll(/record\("([a-z_]+)"\)/g)].map((m) => m[1]).concat([...html.matchAll(/build\("([a-z_]+)"\)/g)].map((m) => m[1]))) {
+    assert.ok(html.includes(`<code>${ev}</code>`), `event ${ev} named in the footer`);
+  }
+  const faq = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
+  for (const q of faq.mainEntity) {
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
+  }
+  assert.match(html, /<link rel="canonical" href="\.\/balanced-teams\.html">/);
+  assert.match(page("index.html"), /href="\.\/balanced-teams\.html"/);
 });

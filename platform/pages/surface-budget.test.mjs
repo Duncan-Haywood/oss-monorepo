@@ -16,6 +16,14 @@ import {
   surfacesByVenture,
 } from './surface-budget.mjs';
 
+/**
+ * The live tree, scanned once and shared: the tests that read it only read it,
+ * and five separate scans of ~2,600 pages were most of this file's time
+ * (docs/history/pages-test-perf-2026-11-18-surface-budget-sync-scan.md).
+ */
+let liveScan;
+const live = () => (liveScan ??= surfacesByVenture());
+
 const page = (h1, title = 'Some Title') =>
   `<!doctype html><html><head><title>${title}</title></head><body><h1>${h1}</h1></body></html>`;
 
@@ -117,7 +125,7 @@ test('the recorded override is what keeps the live collision out of the red', as
   // The honest version of the test above against the real tree: this venture
   // does carry two generic-method pages, and only its override row makes the
   // check exit 0. Fails if either the pages or the row quietly change.
-  const pages = (await surfacesByVenture()).get('overtime-pay-calculator');
+  const pages = (await live()).get('overtime-pay-calculator');
   assert.ok(pages, 'overtime-pay-calculator should still be a published venture');
   assert.equal(pages.filter((p) => p.generic).length, 2);
   assert.equal(budgetFor('overtime-pay-calculator'), 2);
@@ -142,7 +150,7 @@ test('the live catalogue is within budget', async () => {
   // The check this file guards has to pass on `main`, or it is a red nobody
   // can act on. If this fails, either a new generic-method page needs folding
   // into its sibling or its override row is missing.
-  const over = overBudget(await surfacesByVenture());
+  const over = overBudget(await live());
   assert.deepEqual(
     over.map((o) => `${o.slug} (${o.generic.length} > ${o.allowed})`),
     [],
@@ -153,7 +161,7 @@ test('every override is still needed, so a stale one cannot sit here forever', a
   // An override that no longer describes the tree is a licence nobody is
   // using, and the next session reads it as precedent. Fails if a venture was
   // consolidated but its row was left behind.
-  const bySlug = await surfacesByVenture();
+  const bySlug = await live();
   for (const slug of Object.keys(GENERIC_BUDGET_OVERRIDES)) {
     const pages = bySlug.get(slug);
     assert.ok(pages, `override for ${slug}, which is not a venture with a published entry point`);
@@ -169,7 +177,7 @@ const cli = (...args) => spawnSync(process.execPath, [SCRIPT, ...args], { encodi
 
 test('an override is tight: it allows exactly what the live tree has, not one more', async () => {
   // A row allowing one page too many lets the next duplicate through silently.
-  const bySlug = await surfacesByVenture();
+  const bySlug = await live();
   for (const [slug, row] of Object.entries(GENERIC_BUDGET_OVERRIDES)) {
     assert.equal(bySlug.get(slug).filter((p) => p.generic).length, row.allowed, `${slug} override is looser than the tree`);
   }
@@ -180,7 +188,7 @@ test('--check exits 0 on the live tree and its per-venture totals match the tree
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /no venture is over/);
   const expected = new Map();
-  for (const pages of (await surfacesByVenture()).values()) {
+  for (const pages of (await live()).values()) {
     const n = pages.filter((p) => p.generic).length;
     expected.set(n, (expected.get(n) ?? 0) + 1);
   }

@@ -68,7 +68,7 @@ test("a custom threshold and cap are honoured", () => {
 test("bad input throws a readable error", () => {
   assert.throws(() => computeBudget({ salaries: "abc" }), /Salaries must be a number/);
   assert.throws(() => computeBudget({ ratePct: 150 }), /between 0 and 100/);
-  assert.throws(() => computeBudget({ travel: -5 }), /Travel must be between/);
+  assert.throws(() => computeBudget({ travel: -5 }), /Travel must be 0 or more/);
   assert.throws(() => parseAmounts("12, x"), /must be a number/);
 });
 

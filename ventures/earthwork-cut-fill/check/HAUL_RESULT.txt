@@ -1,0 +1,7 @@
+ok  example, balanced pad, 15% shrink, 10 ft cells: 136 cells, 77x60 LP; haul.mjs 97471.592520 cu yd-ft (avg 105.89 ft, 474 pivots, 18 ms), HiGHS 97471.592520, rel diff 1.9e-12
+ok  example, 1% sloped pad at 107, 7.5 ft cells: 260 cells, 189x72 LP; haul.mjs 28398.496519 cu yd-ft (avg 77.93 ft, 1416 pivots, 39 ms), HiGHS 28398.496519, rel diff 8.9e-12
+ok  example, pad at 104 (export): 136 cells, 120x17 LP; haul.mjs 1833.404150 cu yd-ft (avg 35.31 ft, 83 pivots, 1 ms), HiGHS 1833.404150, rel diff 8.7e-13
+ok  example, pad at 112 (import): 136 cells, 45x92 LP; haul.mjs 16702.454599 cu yd-ft (avg 61.14 ft, 248 pivots, 2 ms), HiGHS 16702.454599, rel diff 1.5e-11
+ok  example, no boundary, 900-cell cap: 850 cells, 489x362 LP; haul.mjs 152811.343733 cu yd-ft (avg 109.59 ft, 12988 pivots, 529 ms), HiGHS 152811.343738, rel diff 2.9e-11
+ok  mound, balanced, 10 ft cells: 400 cells, 112x289 LP; haul.mjs 22632.859260 cu yd-ft (avg 66.93 ft, 862 pivots, 30 ms), HiGHS 22632.859260, rel diff 1.1e-11
+6 of 6 instances agree

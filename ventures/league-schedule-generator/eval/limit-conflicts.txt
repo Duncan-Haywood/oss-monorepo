@@ -1,0 +1,16 @@
+# node eval/limit-conflicts.mjs 300  (2026-11-18)
+# 300 random leagues: 6-16 teams, 1-3 courts, enough time slots, 1-5 random time or court limits; one build each (seed = trial + 1).
+# Before the exact pass (annealing alone, same leagues): brokenInFeasibleRounds 1 of 3033.
+{
+ "leagues": 300,
+ "rounds": 3182,
+ "feasibleRounds": 3033,
+ "brokenInFeasibleRounds": 0,
+ "infeasibleRounds": 149,
+ "deadPairRounds": 139,
+ "crowdRounds": 10,
+ "leaguesWithInfeasibleRound": 90,
+ "flagged": 87,
+ "flaggedWithInfeasibleRound": 87,
+ "infeasibleUnflagged": 3
+}

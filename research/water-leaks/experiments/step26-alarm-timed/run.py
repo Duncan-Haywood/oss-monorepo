@@ -72,7 +72,8 @@ def run_detectors(Ph, hrs, Lv, F):
     return out
 
 
-def main():
+def build():
+    """Everything up to the report: per-leak rows, alarms and trackers for arms A and B (step 27 reuses it)."""
     S_ = harness.setup()
     hrs, P, Lv, F, events, pcols, links = (S_[k] for k in ("hrs", "P", "Lv", "F", "events", "pcols", "links"))
     fcols = list(S_["fcols"])
@@ -226,6 +227,14 @@ def main():
             row["k_LILA"], row["R30_LILA"], row["TD_LILA"] = -1, math.nan, math.nan
             rowsB.append(row)
             offB.append(({"node": node, "k_or": k_or}, states))
+    return dict(locals())
+
+
+def main():
+    c = build()
+    rowsA, rowsB, fpA, fpB, falsepick, real_detB = (c[k] for k in ("rowsA", "rowsB", "fpA", "fpB", "falsepick", "real_detB"))
+    offA, offB, dpipe, ndist, est, sc, real_T = (c[k] for k in ("offA", "offB", "dpipe", "ndist", "est", "sc", "real_T"))
+    items = c["items"]
 
     # ---- report
     def hits(rows, key):

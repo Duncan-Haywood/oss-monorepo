@@ -1,0 +1,204 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/simdesign-revwidth",
+ "stratum": "research",
+ "seed": "2026-11-19-b-a496",
+ "round": 75,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior structural/mechanical engineer who sizes thin sheet-steel brackets against lateral-torsional and flexural buckling (EN 1993-1-1 / AISI S100 practice); first checks: does the eigenvalue at the baseline match the narrow-beam LTB closed form, is the root mesh-converged, is the factor floor applied to a code-reduced resistance or to the elastic eigenvalue, and is a thicker gauge lighter than a wider web",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed against sources the author did not write: (1) mass by square-minus-void formula matches 30.68/36.39/36.59/41.02 g and +5.91 g (+19.3%); (2) Timoshenko & Gere narrow-cantilever LTB with axial-compression interaction gives 2.271 at w = 18.4 vs FE 2.267 coarse / 2.247 fine (its moment-only form reproduces bucklebound's 3.47); (3) that closed form brackets the factor-3 width between 20.05 mm (column length H - w/2) and 23.70 mm (H); the FE root 22.54-22.62 lies inside. Re-ran the FE at 22.469 coarse (3.006), 22.544 fine (2.9906), 22.619 fine (3.0051): exact match to sweep.txt. Refinement at 22.619: nz=2 3.0024, (6,54,42,1) 2.9964 (root drifts about +0.02 mm with in-plane refinement, immaterial). Only slip: a slope figure (claims). Score 3.",
+  "completeness": "Method, the 5-width sweep, coarse and fine bisection, mass, table, plot and reproduce steps all present and consistent; every README table row matches sweep.txt; served page loads (200). The thickness alternative and constraint checks are listed as next steps, not claimed. 3.",
+  "verification": "pytest: 4 passed in 26.7 s. Mutations with platform/ci/quality_mutate.py: RHO x10 survived, fm >= target -> > survived, return hi -> return lo survived (returns a width below target), sign -1 -> +1 caught by the single FE regression test at w = 18.4. No test pins the reported root or any mass. 1.",
+  "craft": "Read sweep.py (48 lines), tests/test_revwidth.py, experiments/run.py, plot.py, and the imported simdesign_lbuckle/lbracket.py. Small, readable, reuses the model rather than copying it; bisection with history logging is sensible. Defects: undeclared sibling import via sys.path, run.py writes the file with open().write without closing, plot.py parses by line shape. 3.",
+  "claims": "Checked: roots 22.47 and 22.54-22.62 (backed), 0.15 mm shift <1% (backed, 0.7%), mass +5.9 g/+19% (backed), monotone over sweep (backed by 5 points), 4 tests ~35 s (26.7 s), limitations honest (upper bounds, sharp corner, floor an assumption, AI-assisted, preliminary). Unbacked: 'factor rises about 0.22 per mm' (sweep.txt gives 0.193), also on the served page. One wrong number on the page caps at 2.",
+  "fitness": "A researcher could reuse the sweep/bisection and the root as a sizing data point, and the honest bracketing makes it easy to build on. But the result is a textbook-level sizing step (nearest prior: Timoshenko & Gere ch. 6; Trahair 1993; EN 1993-1-1 6.3), not new, with no baseline other than the parent project and no comparison with the thickness route that b^3 scaling suggests is lighter (1.7 mm: about 34.8 g vs 36.6 g). Far below the PhD bar of research/CLAUDE.md. 2.",
+  "domain": "Professional: a senior structural/mechanical engineer who sizes thin sheet-steel brackets. Method (3D quadratic-hex linear eigenbuckling with pre-stress from the full body, two meshes, bisection) is standard and agrees with the closed form at the baseline. Departures: the floor of 3 is applied to an elastic eigenvalue with no inelastic/imperfection reduction (EN 1993-1-1 6.3.2.2 chi about 0.36-0.41 at lambda_LT 1.25), no yield check at the critical load, sharp corner, gauge alternative not considered. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Mass of the L at w = 18.4, 22.469, 22.619, 26 mm and the +5.9 g (+19%) headline",
+   "method": "auditor's own formula: full 80x80 square minus the empty (80-w)^2 block, x 1.5 mm x 7.85 g/cm^3 (not the author's arm-by-arm area())",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8004019b-e115-589f-80d3-1aac7b8c173a/scratchpad/revwidth/indep.py | head -5",
+   "expected": "30.68, 36.39, 36.59, 41.02 g; delta 5.91 g, 19.3%",
+   "observed": "README/sweep.txt: 30.68, 36.39, 36.59, 41.02 g; +5.9 g (+19%)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Reversed-load factor at the baseline w = 18.4 mm against a closed form",
+   "method": "Timoshenko & Gere, Theory of Elastic Stability (2nd ed.) ch. 6: narrow rectangular cantilever LTB, Mcr0 = pi/(2H) sqrt(E Iy G J), J = w b^3/3 (1 - 0.63 b/w), interacting with axial compression as Mcr(P) = Mcr0 sqrt((1 - P/PE)(1 - P/PT)), PE = pi^2 E Iy/(4H^2), arm L - w/2",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8004019b-e115-589f-80d3-1aac7b8c173a/scratchpad/revwidth/indep.py | grep 'closed 18.4'",
+   "expected": "2.271 (closed form; moment-only 3.468 reproduces simdesign-bucklebound's 3.47)",
+   "observed": "FE coarse 2.267 (sweep.txt), fine 2.247: within 0.2% / 1.1%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Width that restores a reversed-load factor of 3, bracketed by the closed form",
+   "method": "same Timoshenko closed form with the column length bounded between H - w/2 (to the corner centreline) and H (full arm), bisected for factor 3",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8004019b-e115-589f-80d3-1aac7b8c173a/scratchpad/revwidth/indep.py | grep root",
+   "expected": "root between 20.05 mm (short column) and 23.70 mm (full length)",
+   "observed": "FE fine-mesh root 22.54-22.62 mm: inside the bracket; FE grows faster with w than the full-length closed form (0.19 vs about 0.14 per mm), consistent with the shortening free length",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Re-ran the author's FE at the reported root points",
+   "method": "simdesign-lbuckle eigenbuckling model via sweep.factor (reproduction, not independent)",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/8004019b-e115-589f-80d3-1aac7b8c173a/scratchpad/revwidth && /usr/bin/python3.13 fe_repro.py",
+   "expected": "coarse 22.469 -> 3.006; fine 22.544 -> 2.991; fine 22.619 -> 3.005 (sweep.txt)",
+   "observed": "3.006, 2.9906, 3.0051",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Mesh sensitivity of the fine-mesh root (two meshes only in the subject)",
+   "method": "auditor-chosen refinements at w = 22.619: two layers through thickness (4,36,28,2) and 1.5x in-plane (6,54,42,1)",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/8004019b-e115-589f-80d3-1aac7b8c173a/scratchpad/revwidth && /usr/bin/python3.13 fe_repro.py",
+   "expected": "factor stays at or above 3.0 if the root bracket is mesh-converged",
+   "observed": "nz=2: 3.0024; (6,54,42,1): 2.9964. The 1.5x in-plane mesh drops just under 3, so at slope 0.19/mm the converged root sits about 0.02 mm above 22.62 (still under 22.7); the 'between 22.54 and 22.62' bracket is mesh-dependent by that much, immaterial to the mass cost",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'The factor rises about 0.22 per extra mm of width near the root (finer mesh)' (README:36, served page)",
+   "method": "least-squares slope over the six fine-mesh rows of experiments/sweep.txt; pairwise slopes",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8004019b-e115-589f-80d3-1aac7b8c173a/scratchpad/revwidth/indep.py | grep slope",
+   "expected": "0.22 per mm",
+   "observed": "0.193 per mm (pairwise 0.187-0.193; coarse 0.196-0.200); no row supports 0.22",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Coarse root 22.47 mm, fine bracket 22.54-22.62 mm, mesh moves root about 0.15 mm (<1%)",
+   "method": "read experiments/sweep.txt bisection history; linear interpolation in the fine bracket",
+   "command": "cat research/simdesign-revwidth/experiments/sweep.txt",
+   "expected": "as README",
+   "observed": "coarse 22.469, fine bracket [22.544 (2.991), 22.619 (3.005)], interpolated 22.592; shift 0.15 mm = 0.7%",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run as README says",
+   "command": "cd research/simdesign-revwidth && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "4 tests pass, about 35 s",
+   "observed": "4 passed in 26.7 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Is an elastic eigenvalue factor of 3 a design resistance a structural engineer would sign?",
+   "method": "EN 1993-1-1 section 6.3.2.2 general-case LTB reduction (curves c and d), fy = 250 MPa assumed (the subject states no grade), at w = 22.619, F = 300 N",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8004019b-e115-589f-80d3-1aac7b8c173a/scratchpad/revwidth/ec3.py | head -2",
+   "expected": "a code check of the chosen width",
+   "observed": "lambda_LT = 1.25, chi = 0.36-0.41: code resistance about 1.7-1.9 x 100 N, not 3; the subject has no yield/imperfection reduction and only calls factors 'upper bounds'",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Is the wider web the cheapest route to a factor of 3 (the README's mass-cost claim)?",
+   "method": "factor scales as b^3 (Iy, J, PE all ~ b^3) from the fine-mesh 2.247 at w = 18.4; mass from the plan area",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/8004019b-e115-589f-80d3-1aac7b8c173a/scratchpad/revwidth/ec3.py | tail -5",
+   "expected": "width route (36.6 g) lightest",
+   "observed": "b = 1.7 mm at w = 18.4: factor about 3.27, 34.8 g (lighter); standard 14 ga 1.9 mm: 4.6, 38.9 g. Thickness route not modelled (next steps only)",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Every README results-table row, the plot and the reproduce steps",
+   "method": "compared README table to sweep.txt row by row; checked experiments/sweep.png and plot.py exist; served page loads",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/simdesign-revwidth/",
+   "expected": "all rows match, page 200",
+   "observed": "all 8 rows match sweep.txt; sweep.png present; page 200",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/simdesign_revwidth/sweep.py:11",
+   "change": "RHO = 7.85e-6 -> RHO = 7.85e-5",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_revwidth/sweep.py:44",
+   "change": "if fm >= target: -> if fm > target:",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_revwidth/sweep.py:48",
+   "change": "return hi, hist -> return lo, hist",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/simdesign_revwidth/sweep.py:23",
+   "change": "def factor(w, b=1.5, sign=-1, -> def factor(w, b=1.5, sign=1,",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Tests miss the project's own logic: 3 of 4 seeded mutants survive. Mass is only checked > 0 (RHO x10 survives); find_width's 'smallest w with f >= target' contract is untested (returning lo, a width that FAILS the target, survives because the test tolerance 2e-3 exceeds tol 1e-3); no test pins the reported root or a mass value",
+   "where": "research/simdesign-revwidth/tests/test_revwidth.py:7",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17516"
+  },
+  {
+   "severity": "medium",
+   "what": "The floor of 3 is applied to the linear elastic eigenvalue with no inelastic or imperfection reduction. At the chosen w = 22.6 mm the relative LTB slenderness is about 1.25; EN 1993-1-1 6.3.2.2 gives chi = 0.36-0.41 (fy = 250 MPa assumed; no grade is stated), i.e. a code resistance about 1.7-1.9 x 100 N. A structural engineer would not sign the width off as 'clearing the floor' without stating that the floor is meant to cover this",
+   "where": "research/simdesign-revwidth/README.md:9",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "'The factor rises about 0.22 per extra mm of width near the root (finer mesh)' is not backed by sweep.txt: the fine-mesh slope is 0.193 per mm (pairwise 0.187-0.193). Same number on the served page",
+   "where": "research/simdesign-revwidth/README.md:36",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17516"
+  },
+  {
+   "severity": "low",
+   "what": "The mass cost (+5.9 g, +19%) is reported for the width route only; by the b^3 scaling the FE itself follows at w = 18.4, a 1.7 mm sheet would reach about 3.27 at 34.8 g, lighter than the 36.6 g wide web (standard 14 ga 1.9 mm is heavier, 38.9 g). The comparison that decides the redesign is left to next steps",
+   "where": "research/simdesign-revwidth/README.md:36",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Not new and well below the research brief's PhD bar: a one-parameter sizing bisection on an existing model (nearest prior: Timoshenko & Gere ch. 6 narrow-beam LTB; Trahair, Flexural-Torsional Buckling of Structures, 1993; EN 1993-1-1 6.3.3 bending + compression interaction), opened as a new slug rather than a step inside a programme; no prior work cited, no closed-form cross-check of its own",
+   "where": "research/simdesign-revwidth/README.md:1",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Imports the sibling project by inserting ../../../simdesign-lbuckle/src on sys.path; the dependency is not declared in pyproject.toml, so an installed package or a moved directory fails with ImportError",
+   "where": "research/simdesign-revwidth/src/simdesign_revwidth/sweep.py:7",
+   "category": "repo-hygiene",
+   "origin": "build"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17516"],
+ "verdict": "A small, honest, reproducible sizing step: the author's FE numbers reproduce exactly, the masses recompute, and an independent Timoshenko narrow-cantilever LTB closed form with axial-compression interaction matches the baseline reversed factor to 0.2% and brackets the reported 22.5-22.6 mm root (20.0-23.7 mm). It misses the bar on verification (3 of 4 seeded mutants survive; mass and the bisection contract are untested) and on claims (a 0.22 per mm slope the data put at 0.19). As engineering it stops at the elastic eigenvalue (a code LTB reduction at this slenderness would roughly halve the factor) and does not compare the thickness route, which b^3 scaling suggests is lighter at about 1.7 mm. As research it is a textbook-level sizing iteration, not new, far below the PhD bar."
+}

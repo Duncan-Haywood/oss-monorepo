@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Balanced Team Generator: Fair Teams By Skill, Coed Split And Friend Requests</title>
+  <meta name="description" content="Paste your players with a skill rating and split them into fair teams: even team sizes, women and men spread evenly for coed leagues, friends kept together, rivals apart. Free, private, no sign-up.">
+  <meta property="og:title" content="Balanced Team Generator for rec, coed and hat leagues">
+  <meta property="og:description" content="Fair teams by skill with even sizes, an even coed split and friend requests kept. Says when the split is proved the most even possible.">
+  <link rel="canonical" href="./balanced-teams.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does it decide teams are fair?", "acceptedAnswer": {"@type": "Answer", "text": "Each team's ratings are added up, and the tool makes the gap between the strongest and weakest team total as small as it can, then makes every total as close to the average as it can. Team sizes never differ by more than one, and each tag (for example F and M in a coed league) is split as evenly as the numbers allow."}}, {"@type": "Question", "name": "What does proved the most even possible mean?", "acceptedAnswer": {"@type": "Answer", "text": "The tool works out a floor no split can beat: with whole-number ratings that do not divide evenly, some team must be at least one point ahead, and one star player stronger than everyone else combined forces a gap too. For lists of up to 16 players it also tries every split. When the answer meets the floor, or every split was tried, the page says it is proved; otherwise it shows the floor so you can see how close it got."}}, {"@type": "Question", "name": "Can friends or carpools stay on the same team?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Add a line like together: Ana, Ben and they are placed as one unit. Add apart: Cy, Dee to keep two players on different teams. If a request cannot be kept without breaking the size or coed split, the page names it instead of hiding it."}}, {"@type": "Question", "name": "What rating scale should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Any scale works: 1 to 5 stars, 1 to 10, a club rating, even decimals like a DUPR or NTRP number. Use the same scale for everyone. A player with no rating is counted at the middle rating of the list, and the page says who."}}, {"@type": "Question", "name": "Is my player list uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The teams are worked out in your browser. Names and ratings are never sent anywhere, there are no accounts, and the page works offline once loaded."}}, {"@type": "Question", "name": "Can I add players who sign up after the teams are announced?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Paste the announced teams (the CSV this page downloads, or any sheet with Team, Player, Rating and Tag columns) into the late sign-ups box and put only the new players in the players box. Nobody already told their team is moved unless you allow it: set how many announced players may switch, and the page names each one it moved. A line like drop: Kai takes out a player who left. The same rules apply: sizes within one, every tag split evenly, requests kept, the gap as small as it can be."}}, {"@type": "Question", "name": "Can a player have two tags, like a woman who plays goalie?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Put both in the tag column with a space or slash between them, such as F G or F/G. Each tag is split evenly on its own, so every team gets its share of women and its share of goalies at the same time. If the numbers make that impossible, the page says which team is off and by how much."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Balanced Team Generator", "applicationCategory": "SportsApplication", "operatingSystem": "Any (browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "url": "./balanced-teams.html"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 860px; margin: 0 auto; padding: 32px 16px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.05; margin-bottom: .3em; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    .card { background: #fff; border: 1px solid #d4dad2; border-radius: 12px; padding: 16px; margin: 16px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 220px; font: 14px/1.4 ui-monospace, monospace; padding: 8px; border: 1px solid #b9c2b6; border-radius: 8px; }
+    input { font: inherit; padding: 6px 8px; border: 1px solid #b9c2b6; border-radius: 8px; width: 6em; }
+    button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 0; background: #1d5a3f; color: #fff; cursor: pointer; margin: 8px 8px 0 0; }
+    button.secondary { background: #e4e9e2; color: #1d2330; }
+    .note { color: #4a5148; font-size: .92rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .team { border: 1px solid #d4dad2; border-radius: 10px; padding: 10px 12px; background: #fbfcfa; }
+    .team h3 { margin: 0 0 4px; }
+    .team ul { margin: 6px 0 0; padding-left: 1.1em; }
+    .meta { font-size: .85rem; color: #4a5148; }
+    .ok { color: #1d5a3f; font-weight: 650; }
+    .warn { color: #8a4b00; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>Balanced team generator</h1>
+  <p>Paste your sign-up list with a skill rating for each player and get fair teams: sizes within one of each other, women and men (or any tag you use) spread evenly, friends kept together and rivals apart. It tells you when the split is <strong>proved the most even possible</strong>, and otherwise how close it is. Then send the teams straight to the schedule builder.</p>
+
+  <section class="card">
+    <label for="players">Players: one per line as <code>Name, rating, tag</code> (paste spreadsheet columns as they are)</label>
+    <textarea id="players" spellcheck="false"></textarea>
+    <p class="note">Rating: any scale, same for everyone (1-5, 1-10, a DUPR or NTRP number). Tag is optional: <code>F</code>/<code>M</code> for a coed league, <code>G</code> for goalies, a position; two at once as <code>F G</code> (each is split evenly on its own). Requests go on their own lines: <code>together: Ana, Ben</code> and <code>apart: Cy, Dee</code>. Lines starting <code>#</code> are ignored.</p>
+    <label for="k">Number of teams</label>
+    <input id="k" inputmode="numeric" value="3">
+    <div>
+      <button type="button" id="build">Make balanced teams</button>
+      <button type="button" class="secondary" id="redraw">Another fair draw</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </div>
+    <p id="status" role="status" class="note"></p>
+  </section>
+
+  <section class="card" id="out" hidden>
+    <h2 style="margin-top:0">Teams</h2>
+    <p id="summary"></p>
+    <ul id="notes" class="warn"></ul>
+    <div class="grid" id="teams"></div>
+    <div>
+      <button type="button" id="dl-csv">Download CSV</button>
+      <button type="button" class="secondary" id="copy">Copy as text</button>
+      <a id="to-schedule" class="note" href="./">Build a schedule for these teams &rarr;</a>
+    </div>
+  </section>
+
+  <section class="card" id="late">
+    <h2 style="margin-top:0">Late sign-ups: add players to teams you already announced</h2>
+    <p class="note">Paste the announced teams below (this page's CSV, or columns <code>Team, Player, Rating, Tag</code>), then put only the new players in the players box above. <code>drop: Name</code> there takes out a player who left; listing an announced player again updates their rating or tag. Team names and order are kept.</p>
+    <label for="announced">Announced teams</label>
+    <textarea id="announced" spellcheck="false" style="min-height:140px"></textarea>
+    <button type="button" class="secondary" id="use-above">Use the teams above</button>
+    <label for="moves">Announced players who may switch teams</label>
+    <input id="moves" inputmode="numeric" value="0">
+    <p class="note">0 keeps everyone where they were told. Allowing one or two moves usually closes most of the gap (<a href="eval/late-signups.txt">measurements</a>); every move is named.</p>
+    <div><button type="button" id="add-late">Add late sign-ups</button></div>
+    <p id="late-status" role="status" class="note"></p>
+  </section>
+
+  <h2>How it works</h2>
+  <p>Each team's ratings are added up. The tool keeps the hard rules (team sizes within one, every tag split as evenly as the numbers allow, together groups whole, apart pairs split) and, inside them, makes the gap between the strongest and weakest team total as small as it can, by thousands of trial swaps from several starting drafts. For up to 16 players it then checks every possible split. On 420 random invented lists of 8 to 16 players it matched the least gap an exhaustive search finds on all 417 that had a valid split (the swaps alone, before that check, matched 413), and on lists of 40 to 200 players it reached its own proved floor (<a href="eval/balanced-teams-exact.txt">measurements</a>).</p>
+  <p>Ratings are only as good as the person typing them. A balanced sheet on paper is a starting point: swap two players by hand if you know something the numbers do not.</p>
+
+  <h2>Questions</h2>
+  <h3>How does it decide teams are fair?</h3>
+  <p>Each team's ratings are added up, and the tool makes the gap between the strongest and weakest team total as small as it can, then makes every total as close to the average as it can. Team sizes never differ by more than one, and each tag (for example F and M in a coed league) is split as evenly as the numbers allow.</p>
+  <h3>What does proved the most even possible mean?</h3>
+  <p>The tool works out a floor no split can beat: with whole-number ratings that do not divide evenly, some team must be at least one point ahead, and one star player stronger than everyone else combined forces a gap too. For lists of up to 16 players it also tries every split. When the answer meets the floor, or every split was tried, the page says it is proved; otherwise it shows the floor so you can see how close it got.</p>
+  <h3>Can friends or carpools stay on the same team?</h3>
+  <p>Yes. Add a line like together: Ana, Ben and they are placed as one unit. Add apart: Cy, Dee to keep two players on different teams. If a request cannot be kept without breaking the size or coed split, the page names it instead of hiding it.</p>
+  <h3>What rating scale should I use?</h3>
+  <p>Any scale works: 1 to 5 stars, 1 to 10, a club rating, even decimals like a DUPR or NTRP number. Use the same scale for everyone. A player with no rating is counted at the middle rating of the list, and the page says who.</p>
+  <h3>Is my player list uploaded?</h3>
+  <p>No. The teams are worked out in your browser. Names and ratings are never sent anywhere, there are no accounts, and the page works offline once loaded.</p>
+  <h3>Can I add players who sign up after the teams are announced?</h3>
+  <p>Yes. Paste the announced teams (the CSV this page downloads, or any sheet with Team, Player, Rating and Tag columns) into the late sign-ups box and put only the new players in the players box. Nobody already told their team is moved unless you allow it: set how many announced players may switch, and the page names each one it moved. A line like drop: Kai takes out a player who left. The same rules apply: sizes within one, every tag split evenly, requests kept, the gap as small as it can be.</p>
+  <h3>Can a player have two tags, like a woman who plays goalie?</h3>
+  <p>Yes. Put both in the tag column with a space or slash between them, such as F G or F/G. Each tag is split evenly on its own, so every team gets its share of women and its share of goalies at the same time. If the numbers make that impossible, the page says which team is off and by how much.</p>
+  <p>Related: <a href="./">the league schedule generator</a> (round robins, courts, blackouts, standings), <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a> and <a href="./how-to-run-a-swiss-tournament.html">how a Swiss tournament works</a>.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice, and does not replace your league's own rules. You are responsible for checking the teams before you announce them. The example players are invented.</p>
+  <p><strong>Independent.</strong> Not affiliated with any league, sports body, club or rating system; a rating scale named here is only an example.</p>
+  <p>Everything runs in your browser; player names and ratings are never uploaded. Anonymous feature events (<code>teams_balanced</code>, <code>teams_redrawn</code>, <code>teams_example</code>, <code>teams_csv</code>, <code>teams_copied</code>, <code>teams_to_schedule</code>, <code>teams_late_added</code>, <code>teams_use_above</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free and open source under an <a href="LICENSE">MIT licence</a>; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+<script type="module">
+  import { parsePlayers, balanceTeams, checkTeams, teamsCsv, teamsText, parseTeamsCsv, addLateSignups } from "./teams.mjs";
+  import { encodeFields, sampleFields } from "./calc.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const EXAMPLE = `Name, Rating, Gender
+Ana, 5, F
+Ben, 4, M
+Cy, 3, M
+Dee, 5, F
+Eli, 2, M
+Fay, 1, F
+Gus, 4, M
+Hal, 3, M
+Ivy, 2, F
+Jo, 4, F
+Kai, 5, M
+Lu, 1, M
+Max, 3, M
+Nia, 3, F
+Oz, 2, M
+together: Ana, Ben
+apart: Kai, Gus`;
+  let seed = 1, last = null;
+  function show(res, faults, extra = []) {
+    last = res;
+    const proof = res.proved
+      ? `<span class="ok">Proved the most even possible${res.exhaustive ? " (every split was checked)" : ""}.</span>`
+      : `No split can get under ${res.lowerBound}${res.exhaustive ? " (every split was checked)" : ""}.`;
+    $("#summary").innerHTML = `Strongest minus weakest team total: <strong>${res.spread}</strong>. ${proof}`;
+    $("#notes").innerHTML = [...extra, ...res.warnings, ...res.broken, ...faults].map((m) => `<li>${esc(m)}</li>`).join("");
+    const lateNames = new Set((res.late ?? []).map((x) => x.name));
+    const movedNames = new Set((res.moved ?? []).map((x) => x.name));
+    $("#teams").innerHTML = res.teams.map((T) => {
+      const tags = Object.entries(T.tags).map(([t, c]) => `${c} ${esc(t)}`).join(", ");
+      return `<div class="team"><h3>${esc(T.name)}</h3><div class="meta">${T.players.length} players${tags ? `, ${tags}` : ""}; total ${T.total}, average ${T.average}</div><ul>${T.players.map((p) => `<li>${esc(p.name)} <span class="meta">${p.rating}${p.tag ? ` ${esc(p.tag)}` : ""}${lateNames.has(p.name) ? " (new)" : ""}${movedNames.has(p.name) ? " (moved)" : ""}</span></li>`).join("")}</ul></div>`;
+    }).join("");
+    const fields = { ...sampleFields(), teams: res.teams.map((T) => T.name).join("\n") };
+    $("#to-schedule").href = `./#s=${encodeFields(fields)}`;
+    $("#out").hidden = false;
+  }
+  function build(kind) {
+    const status = $("#status");
+    const parsed = parsePlayers($("#players").value);
+    if (parsed.errors.length) { status.textContent = parsed.errors.join(" "); $("#out").hidden = true; return; }
+    if (parsed.drop.length) { status.textContent = "drop: lines are for late sign-ups; use \"Add late sign-ups\" below, or delete the player's line."; $("#out").hidden = true; return; }
+    const k = Math.trunc(Number($("#k").value));
+    let res;
+    try { res = balanceTeams(parsed, k, { seed }); } catch (e) { status.textContent = e.message; $("#out").hidden = true; return; }
+    status.textContent = `${parsed.players.length} players into ${k} teams.`;
+    show(res, checkTeams(parsed, res));
+    record(kind);
+  }
+  function addLate() {
+    const status = $("#late-status");
+    const box = parsePlayers($("#players").value);
+    const before = parseTeamsCsv($("#announced").value);
+    const errs = [...box.errors, ...before.errors];
+    if (errs.length) { status.textContent = errs.join(" "); return; }
+    const raw = $("#moves").value.trim();
+    const maxMoves = raw === "" ? 0 : Number(raw);
+    if (!Number.isInteger(maxMoves) || maxMoves < 0) { status.textContent = "Players who may switch: a whole number, 0 or more."; return; }
+    let res;
+    try { res = addLateSignups(box, before, { maxMoves, seed }); } catch (e) { status.textContent = e.message; return; }
+    const extra = [
+      ...res.late.map((x) => `New: ${x.name} to ${x.team}.`),
+      ...res.moved.map((x) => `Moved: ${x.name} from ${x.from} to ${x.to}.`),
+      ...res.dropped.map((x) => `Dropped: ${x.name} (was on ${x.team}).`),
+    ];
+    status.textContent = res.late.length || res.dropped.length
+      ? `${res.late.length} new player${res.late.length === 1 ? "" : "s"} placed, ${res.moved.length} announced player${res.moved.length === 1 ? "" : "s"} moved. The teams are shown above.`
+      : "No new players: everyone in the players box is already on a team.";
+    show(res, checkTeams(res.parsed, res, res.before), extra);
+    $("#out").scrollIntoView({ block: "start" });
+    record("teams_late_added");
+  }
+  $("#build").addEventListener("click", () => build("teams_balanced"));
+  $("#redraw").addEventListener("click", () => { seed += 1; build("teams_redrawn"); });
+  $("#example").addEventListener("click", () => { $("#players").value = EXAMPLE; $("#k").value = "3"; seed = 1; build("teams_example"); });
+  $("#dl-csv").addEventListener("click", () => {
+    if (!last) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([teamsCsv(last)], { type: "text/csv" }));
+    a.download = "balanced-teams.csv"; a.click(); URL.revokeObjectURL(a.href);
+    record("teams_csv");
+  });
+  $("#copy").addEventListener("click", async () => {
+    if (!last) return;
+    try { await navigator.clipboard.writeText(teamsText(last)); $("#status").textContent = "Copied."; } catch { $("#status").textContent = "Copy was blocked by the browser; use the CSV."; }
+    record("teams_copied");
+  });
+  $("#to-schedule").addEventListener("click", () => record("teams_to_schedule"));
+  $("#add-late").addEventListener("click", addLate);
+  $("#use-above").addEventListener("click", () => {
+    if (!last) { $("#late-status").textContent = "Make teams first, or paste the announced teams."; return; }
+    $("#announced").value = teamsCsv(last);
+    $("#players").value = "";
+    $("#late-status").textContent = "Teams copied in. Now type the late sign-ups in the players box above.";
+    record("teams_use_above");
+  });
+  $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
+  if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+</script>
+</body>
+</html>

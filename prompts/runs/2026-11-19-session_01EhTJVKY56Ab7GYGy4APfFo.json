@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVKY56Ab7GYGy4APfFo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T03:25:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots flagship: test whether the take fit is blind to contacts under 2.5 ms",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17513,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first dense cache rounded rms (~1e-5) to 3 decimals, writing zeros; caught on inspection and rerun at 4 significant figures (6.5 min lost)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "two sessions claimed the same flagship item within 2 s (PR #17514 opened right after #17513); claim_check named the older one, as designed"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-short-contacts-not-blind-test-failed-by-one.md",
+    "ventures/open-tennis-robots/eval/take-short-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registered (a541b2a93, 9ead6721c). J-L dense refits: summed least within 0.5 ms of true on 13/18 1.5 ms builds (predicted >=12), 197/216 overall: the fit is not blind; the grid end/parabola is. end_pick failed its rule. Exploratory grid 0,1.5,2.5,3-8 ms (196 vs 185 within 0.5 ms on J-L) went to fresh set M (lag 0.55, seed 97, 66 drills): 48 vs 41 within 0.5 ms, large misses 3 vs 11, but one instant build read 0.80 ms (share 0.99, not advised) so the instant clause failed and the shipped grid stays. Also fixed take_survey_pick.py --score, which printed only its header on seven-candidate captures since the eight-point grid. Verification: run_venture_tests.py open-tennis-robots: 438 tests, 1 error (test_bom_lists_the_latch_and_the_button imported build123d unguarded, from PR #17465; now skipUnless HAVE_CAD, EstopResetTest OK skipped=1), check_posts ok, validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}

@@ -271,7 +271,9 @@ export function textRuns(content, fonts) {
       width = size * 0.5 * text.length * Math.abs(tm[0] || 1);
       tx = width / (Math.abs(ctm[0]) || 1);
     }
-    if (text !== '') runs.push({ text, x: trm[4], y: trm[5], size, flip: ctm[3] < 0 || tm[3] < 0, unreadable: Boolean(font && font.unreadable && text === ''), width, exact: Boolean(sw) });
+    // A run is flipped only when its final matrix (Tm x CTM) is: browser "Print to PDF" pages draw
+    // with a y-down CTM and a y-down Tm that cancel out (pdf-flip.test.mjs, 2026-11-19).
+    if (text !== '') runs.push({ text, x: trm[4], y: trm[5], size, flip: trm[3] < 0, unreadable: Boolean(font && font.unreadable && text === ''), width, exact: Boolean(sw) });
     else if (font && font.unreadable && str.length) runs.push({ text: '', x: trm[4], y: trm[5], size, flip: false, unreadable: true });
     tm = mul([1, 0, 0, 1, tx, 0], tm);
   };

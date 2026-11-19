@@ -450,6 +450,71 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    margin over 17 hose loads returns the G1 to 0.016 / 0.011 / 0.011 mm at 0 / 5 / 20 N and keeps the H1's 0.010 /
    0.014 / 0.010, at no stack cost; but at 8 of 34 poses no side has a plan under 20 N of backward drag at the 50 N
    press, and the G1's worst residuals since milestone 41 cover only 83% of the swept cases (the rest have no plan).
+49. **Backward-hose infeasibility** (done 2026-11-18, `experiments/m49_backload/`): a stance limit, not a solver
+   false negative. At the 50 N end of all 24 cells no force balances the base in the μ 0.5 cones (best slack
+   &minus;23.77 to &minus;0.10 N); the robot tips back. 20 N of backward drag lowers the top of the press window by
+   about 15 N (G1 51.6 to 36.4 N, H1 58.7 to 42.8 N), below the 50 N press. Next: re-lean those poses for the drag.
+50. **Re-lean under drag** (done 2026-11-18, `experiments/m50_relean/`): no forward lean keeps the 8 poses balanced
+   at 25 and 50 N under all 17 hose loads (best worst cone slack &minus;0.69 to &minus;10.12 N); a forward lean trades
+   backward-drag headroom for forward. The drag each pose tolerates is linear in its press headroom (H206 held): the
+   G1 at 1.2 m grips 4.0 N straight back, 11.4 to 13.4 N in every direction at its best lean; every pose that has a
+   plan tolerates at least 20.1 N. Next: a hose-management rule (dragged length or reel tension per pose).
+51. **Drag envelope** (done 2026-11-18, `experiments/m51_envelope/`): every swept case past milestone 50's drag
+   limits (at the pose or the calibration pose) has no plan (G1 162 of 162, H1 36 of 36); inside them the G1 plans
+   93.0% (83.1% overall), the H1 99.7%, in spec (H209 held). 101 cases inside have no plan (H208 refuted), 75 of the
+   G1's 96 at its one calibration pose. Next: calibrate with the hose slack and rerun the sweep.
+52. **Slack-hose calibration** (done 2026-11-18, `experiments/m52_slackcal/`): calibrating under the hanging hose's
+   weight alone plans at every sensor-error axis (H213 held); the G1 plans 98.1% of in-envelope cases (from 93.0%,
+   H211 held), the H1 99.7%, and no residual changes (H212 held: the calibration error is the sensor bias alone,
+   load-independent once the measured load is compensated). Left: 21 G1 and 5 H1 plan limits at 1.0 to 1.6 m grips,
+   5 G1 sensor-error cases. Next: which hold row binds at those plan limits.
+53. **Hold sides per load** (done 2026-11-18, `experiments/m53_loadside/`): at 20 of the 26 remaining plan limits
+   the leg preload binds, not the hold QP (H214 refuted; the pose's sides leave 0.004 to 0.092 N m of common leg
+   margin against 0.1 N m). Choosing the hold sides per measured load recovers 31 of 33 drops, so both robots plan
+   100% of in-envelope cases (G1 1368, H1 1902), in spec (H216 held; largest recovered 0.0106 mm). Left: 2 G1
+   sensor-error cases outside milestone 51's envelope with no hold solution on any side (H215 refuted). Next: sample
+   hose loads off the 8-direction grid; the cost of side switches.
+54. **Hose loads off the grid** (done 2026-11-18, `experiments/m54_lhs/`): at 48 Latin-hypercube loads (0 to 20 N,
+   any direction) both robots plan every in-envelope case (G1 4002, H1 5436; H217 held), but 4 of 9438 leave the
+   0.03 mm spec, worst 0.284 mm (H218 refuted): one joint at the 0.2 N m friction threshold, held in the plan and free
+   under the true load (or the reverse), in direction spans under 5 degrees wide. Per-load sides fix the 3 H1 cases,
+   not the G1 arm joint. The grid's drag limits are up to 2.17 N optimistic between directions, only above 23 N (H219
+   refuted). Next: a held-or-free margin covering the sensor error on every joint.
+55. **A held-or-free margin covering the sensor error** (done 2026-11-19, `experiments/m55_robust/`): plan only when
+   every joint sits more than 0.2 N &times; ||G<sub>j</sub>|| (its worst settle change under the sensor bound) from the
+   0.2 N m friction torque, re-choosing the squeeze and hold sides. Every planned in-envelope case is in spec (worst
+   0.011 mm, from 0.284; H220 held), but coverage falls to 95.9 to 96.8% (H221, H222 refuted), mostly at the G1
+   waist and H1 torso, which nothing preloads; the dropped cases were in spec under the old rule. Next: weight the
+   margin by a flip's cost at the nose, or preload the waist.
+56. **A held-or-free margin weighted by each flip's cost at the nose** (done 2026-11-19, `experiments/m56_weighted/`):
+   bound the backlash part of the residual by &Sigma;<sub>j</sub> |w<sub>j</sub>| &times; the worst `held_bias` change
+   reachable in each joint's torque band (`preload.flip_cost`) and plan when it is at most half the spec. Every planned
+   in-envelope case stays in spec in three sections (worst 0.0178 mm; H223 held), coverage is G1 100% and H1 99.6 to
+   99.9% (H224 held; 637 of milestone 55's 667 drops won back), and the bound is never beaten (H225 held). The H1 left
+   knee and right elbow are what still bind. Next: sweep the budget share on a held-out seed, add the z residual.
+57. **The budget share on a held-out seed** (done 2026-11-19, `experiments/m57_beta/`): &beta; in {0, 0.25, 0.5,
+   0.75, 1} on 48 new loads (seed 57). &beta; = 0.5 replicates (H226 held: worst 0.0178 mm, coverage G1 99.93%, H1
+   99.54%); coverage is the same from &beta; = 0 to 0.5 (H228 held) and reaches 100% on the H1 at 0.75; &beta; = 1 puts
+   one H1 press at 0.0315 mm (H227 refuted). Every flip the budget admits is a knee or ankle pitch joint that moves the
+   nose 0.27 to 0.29 mm across the wall (z), which no rule budgets; at &beta; = 0 the worst z is 0.026 mm. Next: bound
+   both rows.
+58. **A two-row flip bound** (done 2026-11-19, `experiments/m58_tworow/`): each flip priced along (Y<sub>y</sub>) and
+   across (Y<sub>z</sub>) the wall, each with half a 0.03 mm spec, on 48 new loads (seed 58). The y-only rule leaves
+   0.27 to 0.29 mm across the wall again (H231 held); with both rows every planned press is inside 0.03 mm in both
+   directions (worst z 0.022 mm; H229 held) at the same coverage, G1 100% and H1 99.63% (H230 held). Next: the H1's
+   left knee and right ankle, or the depth point's rows.
+59. **The depth point in the bound** (done 2026-11-19, `experiments/m59_depth/`): the same flip cost through the
+   rows of the point 44.4 mm along the nail (y<sub>d</sub>, z<sub>d</sub>) as well as the nose's, half a 0.03 mm spec
+   each, on 48 new loads (seed 59). The two-row bound already keeps the depth point inside 0.03 mm (worst 0.022 mm;
+   H232 refuted; tilt at most 0.034 mrad), so the four-row bound holds (H233) and changes no plan or coverage, G1 100%
+   and H1 99.65% (H234 held). Next: the H1's left knee and right ankle.
+60. **A raised leg preload for the unplanned presses** (done 2026-11-19, `experiments/m60_jointpreload/`): for each
+   case the four-row rule leaves unplanned, the leg preload margin raised (binding joint only, or every leg joint)
+   up a ladder from 0.12 N m, on 48 new loads (seed 60). 17 of the H1's 18 unplanned cases (all left knee) plan at
+   0.12 to 0.18 N m, in spec at both points with no flip (H237 held); H1 coverage 99.67% to 99.98%; median leg
+   effort +0.1%, at most +13.5%. An H1 elbow case and 3 G1 cases with no plan on any side stay unplanned (H235
+   refuted), and the binding joint alone plans as many as the uniform raise (H236 refuted). Next: the arm-side
+   squeeze for the elbow case, and why the G1's (1.2 m) poses have no plan on any side at one load.
 
 ## Target venue
 

@@ -4,6 +4,8 @@ Track 16 (energy), next step 1 of [`energy-thermal-hourly`](../energy-thermal-ho
 
 **Live page:** https://marisstella.app/research/energy-thermal-real/
 
+**Known gap (inherited, found 2026-11-17, corrected at source 2026-11-18):** this project prices the store with [`energy-thermal-cost`](../energy-thermal-cost)'s `store_lcoh`, which until 2026-11-18 billed every cycle as a first charge from 10 &deg;C and sized the store with cold insulation. A cycling store only discharges to 100 &deg;C, so the store's electricity here is overstated for daily and weekly cycling (at house size, daily: 0.63 of the heat put in comes back on the old rule, 0.81 at cyclic steady state). The code pins `accounting="first-charge"` so the committed results still reproduce; rerunning with the default `"steady"` and rewriting the headline is the next step. The direction is known: every store result below is too pessimistic for short cycles. See the [audit file](../../portfolio/quality/audits/2026-11-17-energy-thermal-cost.json).
+
 ![Store minus heat pump cost of heat by year, real prices](experiments/real.svg)
 
 ## Headline (real wholesale prices, no taxes, network charges or retail margin)

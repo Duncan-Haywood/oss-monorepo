@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVLweSvhbqmTKzwCNQ8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt.md)",
+  "input_sha256": "e7710cfbf7593885a44c98515fb38155574d91e862caf0f63f8c83124ca0298e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T04:02:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots: ball hold on a wheel faster than told",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17530,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace with a longer buildable text failed with 'NOT WRITTEN: exit 1' and no stated reason (likely the 600-char cap); a shorter text worked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-ball-hold-wheel-faster-than-told.md"
+  ],
+  "goal": null,
+  "notes": "Allocator pick (row 5). LOOP_BALL_GAIN scaled both ways failed its pre-registered held-out clause (13->15); capped 'down' variant passed dev (19->9) and a fresh pre-registered set (18->13). Kept the failed result in eval/. Local checks: tests/test_host.py ball/loop subset 34 passed; run_venture_tests.py open-tennis-robots (see PR); check_posts ok.",
+  "corrections": [],
+  "redteam": null
+}

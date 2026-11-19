@@ -83,7 +83,7 @@ export function binarize(img, t = threshold(img)) {
 // `staffV1: true` gives the finder as it was before 2026-11-14 (no line
 // trimming, no outer-pair spacing, no median-spacing check), for
 // eval/thick-line-check.mjs.
-export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4, staffV1 = false } = {}) {
+export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4, staffV1 = false, staffJoin = true } = {}) {
   const { width, height, ink } = bin;
   const rowInk = new Array(height).fill(0);
   for (let y = 0; y < height; y++) {
@@ -140,7 +140,7 @@ export function findStaves(bin, { minCover = 0.2, linesPerStaff = 4, staffV1 = f
     if (c.idx.some((k) => used.has(k))) continue;
     const group = c.idx.map((k) => lines[k]);
     const mean = (group[linesPerStaff - 1].y - group[0].y) / (linesPerStaff - 1);
-    const extent = staffExtent(bin, group);
+    const extent = staffExtent(bin, group, { join: staffJoin && !staffV1 });
     if (extent.right - extent.left < 8 * mean) continue;
     c.idx.forEach((k) => used.add(k));
     staves.push({ lines: group, space: mean, top: group[0].y, bottom: group[linesPerStaff - 1].y, ...extent });
@@ -190,7 +190,19 @@ export function trimLine(bin, top, bottom) {
   return [top + Math.max(0, a - 1), top + Math.min(long.length - 1, b + 1)];
 }
 
-function staffExtent(bin, lines) {
+// Staff lines broken by a short white gap (STAFF_JOIN, 2026-11-18,
+// eval/staff-gap-check.md). The 1908 Graduale prints some staves with
+// every line broken for 5-15 px, at a bar line or mid-phrase (leaf 434
+// staff 3 after "re-", leaf 489 staff 2 between its clef and the rest),
+// and the longest unbroken stretch alone was read, so everything on the
+// other side was lost: the cephalicus on 3421 "non" and ten notes beside
+// it, or a staff's clef. Two stretches, each over minLen spaces, are now
+// one staff when the gap between them is at most `gap` spaces and neither
+// is a decorated initial's box (its frame crosses the lines; between the
+// lines it is over `dense` inked, where a staff stretch, heads and all,
+// is far under). `findStaves(bin, { staffJoin: false })` reads as before.
+export const STAFF_JOIN = { gap: 0.5, minLen: 3, dense: 0.35 };
+function staffExtent(bin, lines, { join = true } = {}) {
   const { width, ink } = bin;
   const covered = new Uint8Array(width);
   for (const l of lines) {
@@ -200,18 +212,40 @@ function staffExtent(bin, lines) {
       covered[x] += any;
     }
   }
-  // the longest stretch where every line has ink (gaps of a few pixels
+  // every stretch where every line has ink (gaps of a few pixels
   // allowed): a page frame's vertical rule crosses the lines but is not staff
-  let best = [0, -1], start = -1, miss = 0;
+  const runs = [];
+  let start = -1, miss = 0;
   for (let x = 0; x <= width; x++) {
     const on = x < width && covered[x] >= lines.length - 1;
     if (on) { if (start < 0) start = x; miss = 0; }
     else if (start >= 0 && ++miss > 4) {
-      const end = x - miss;
-      if (end - start > best[1] - best[0]) best = [start, end];
+      runs.push([start, x - miss]);
       start = -1; miss = 0;
     }
   }
+  if (join && runs.length > 1) {
+    const space = (lines[lines.length - 1].y - lines[0].y) / (lines.length - 1);
+    // ink between the lines (line rows and 2 px either side left out)
+    const between = (a, b) => {
+      let n = 0, c = 0;
+      for (let y = Math.round(lines[0].y); y <= Math.round(lines[lines.length - 1].y); y++) {
+        if (lines.some((l) => y >= l.top - 2 && y <= l.bottom + 2)) continue;
+        for (let x = a; x <= b; x++) { n++; c += ink[y * width + x]; }
+      }
+      return n ? c / n : 0;
+    };
+    const ok = (r) => r[1] - r[0] > STAFF_JOIN.minLen * space && between(r[0], r[1]) <= STAFF_JOIN.dense;
+    const merged = [runs[0]];
+    for (const r of runs.slice(1)) {
+      const last = merged[merged.length - 1];
+      if (r[0] - last[1] - 1 <= STAFF_JOIN.gap * space && ok(last) && ok(r)) last[1] = r[1];
+      else merged.push(r);
+    }
+    runs.splice(0, runs.length, ...merged);
+  }
+  let best = [0, -1];
+  for (const r of runs) if (r[1] - r[0] > best[1] - best[0]) best = r;
   const [left, right] = best;
   return { left, right };
 }
@@ -748,7 +782,18 @@ export function oneStepCephalicus(isInk, h, staff, y0, y1, { gap = true } = {}) 
 
 // The clef is the first glyph on the staff: its two blocks sit either side
 // of the clef line. Returns {line position, number of heads it used}.
-export function findClef(bin, staff) {
+//
+// An F clef is a square with a stem down its right side, then the C clef's
+// two blocks. Where the stem and the blocks' left curve touch, their tall
+// columns are one run and the glyph's middle is the F line. Where a white gap
+// of a pixel or two parts them, only the stem was read before 2026-11-19, and
+// its middle sits about a space below the line, so the whole staff was read
+// two steps high (leaf 434 staff 3, GregoBase 3421, eval/clef-bridge-check.md).
+// The run now carries on over a gap of up to CLEF_BRIDGE spaces, to columns
+// whose ink stays inside the search window; `readPage(img, { clefBridge: false })`
+// reads as before.
+export const CLEF_BRIDGE = 0.15;
+export function findClef(bin, staff, { clefBridge = true } = {}) {
   const { width, ink } = bin;
   const s = staff.space;
   const ya = Math.round(staff.top - 1.2 * s), yb = Math.round(staff.bottom + 1.2 * s);
@@ -769,9 +814,22 @@ export function findClef(bin, staff) {
   while (x < staff.left + 3 * s && !tall(x)) x++;
   if (x >= staff.left + 3 * s) return null;
   let lo = Infinity, hi = -Infinity, x1 = x;
-  for (; x1 < x + 1.4 * s && tall(x1); x1++) {
-    const [a, b] = longest(x1);
-    lo = Math.min(lo, a); hi = Math.max(hi, b);
+  const gapMax = clefBridge ? Math.round(CLEF_BRIDGE * s) : 0;
+  for (let c = x; c < x + 1.4 * s;) {
+    if (tall(c)) {
+      const [a, b] = longest(c);
+      lo = Math.min(lo, a); hi = Math.max(hi, b);
+      x1 = ++c;
+      continue;
+    }
+    // across the gap only to a glyph's columns: a run reaching the window's
+    // edge is a page frame or an initial's border (leaf 652 staff 2), never a clef
+    let g = c;
+    while (g - c < gapMax && g < x + 1.4 * s && !tall(g)) g++;
+    if (g === c || g >= x + 1.4 * s || !tall(g)) break;
+    const [ga, gb] = longest(g);
+    if (ga <= ya || gb >= yb) break;
+    c = g;
   }
   x1 = Math.max(x1, Math.round(x + 0.75 * s)); // the blocks reach right of the stem
   // the c clef's two blocks sit either side of its line, so the glyph's
@@ -941,7 +999,7 @@ export function readPage(img, opts = {}) {
     }
     const back = (x, y) => y + shiftOf(x, t, raw.width);
     const heads = readStaff(bin, staff, opts);
-    const clef = findClef(bin, staff);
+    const clef = findClef(bin, staff, opts);
     let notes = clef ? heads.filter((h) => h.x0 > clef.x1) : heads;
     // a clef printed inside the staff: its blocks are not notes, and the
     // notes after it are read against it (findClefChanges)

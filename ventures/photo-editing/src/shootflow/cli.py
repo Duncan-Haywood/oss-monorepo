@@ -1255,12 +1255,12 @@ def _build_parser() -> argparse.ArgumentParser:
 
     develop = subparsers.add_parser(
         "develop",
-        help="Develop DNG (or Canon CR2, Sony ARW, Nikon NEF, Olympus ORF or Panasonic RW2, with --dcp) raw files into 16-bit TIFF (or PNG) masters for the grade stage (stdlib only).",
+        help="Develop DNG and Hasselblad 3FR raw files (or, with --dcp, Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, Minolta MRW and Kodak DCR) into 16-bit TIFF (or PNG) masters for the grade stage (stdlib only).",
     )
     develop.add_argument(
         "files",
         nargs="+",
-        help="DNG files, or Canon CR2, Sony ARW, Nikon NEF, Olympus ORF or Panasonic RW2 files with --dcp (convert CR3 and others with Adobe DNG Converter).",
+        help="DNG or Hasselblad 3FR files, or other makers' raws (CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF, MRW, DCR) with --dcp (convert any other format with Adobe DNG Converter).",
     )
     develop.add_argument("--out", required=True, help="Folder for the masters; existing files are never overwritten.")
     develop.add_argument("--format", choices=("tif", "png", "png16"), default="tif", help="tif (16-bit, default), png (8-bit) or png16.")
@@ -1334,8 +1334,9 @@ def _build_parser() -> argparse.ArgumentParser:
         choices=("auto", "bilinear", "directional", "learned", "noise-aware"),
         default="auto",
         help=(
-            "How the sensor's colour mosaic becomes full colour: 'auto' (default) uses the directional demosaic "
-            "when numpy is installed and bilinear otherwise; 'directional' (numpy) builds green along the edges "
+            "How the sensor's colour mosaic becomes full colour: 'auto' (default) uses the noise-aware demosaic "
+            "when numpy is installed (since 2026-11-19; Bayer half size bins and reports directional) and bilinear "
+            "otherwise; 'directional' (numpy; the default until 2026-11-19) builds green along the edges "
             "(four directions on Fujifilm X-Trans, row and column on Bayer) and follows the smoother one, which cuts "
             "the zippering and false colour bilinear leaves on edges; 'learned' (Bayer, numpy; in C when a compiler is present) is directional "
             "with a per-pixel detail weight from a fitted model: a little sharper and truer on real photos, about 3x slower; "

@@ -197,6 +197,41 @@ const isExternal = (target) => EXTERNAL_PREFIXES.some((prefix) => target.startsW
 
 const exists = (target) => fs.access(target).then(() => true, () => false);
 
+/**
+ * `path.resolve(root, dir, link)`, or null when `path.relative(root, ...)` of
+ * it starts with '..' (the link leaves the site root). Same answer, cheaper.
+ *
+ * `root` is absolute and normalized (no trailing separator); `dir` is a
+ * site-relative directory from the walk ('.' or real names joined by '/').
+ * For a link that does not start with '/', the same answer comes from
+ * normalizing the segments by hand ('' and '.' dropped, '..' pops), which
+ * skips `resolve`'s and `relative`'s whole-path normalizing; an absolute link
+ * still takes `path.resolve`, as does one that climbs above the root. That work was ~3 s of a ~19 s run
+ * (docs/history/ci-perf-2026-11-19-check-link-resolution.md).
+ */
+export function resolveUnder(root, dir, link) {
+  const slow = () => {
+    const resolved = path.resolve(root, dir, link);
+    return path.relative(root, resolved).startsWith('..') ? null : resolved;
+  };
+  if (path.sep !== '/' || link.charCodeAt(0) === 47 /* / */) return slow();
+  const stack = dir === '.' ? [] : dir.split('/');
+  for (const segment of link.split('/')) {
+    if (segment === '' || segment === '.') continue;
+    if (segment === '..') {
+      // Above the root, `path.resolve` can climb out and back in
+      // ('../dist/x' under a root named dist), so it decides.
+      if (stack.length === 0) return slow();
+      stack.pop();
+    } else stack.push(segment);
+  }
+  if (stack.length === 0) return root;
+  // `path.relative` would start with '..' for a first segment like '..x' too;
+  // the old check treated that as an escape, so this does as well.
+  if (stack[0].startsWith('..')) return null;
+  return `${root}/${stack.join('/')}`;
+}
+
 async function walk(dir, prefix = '') {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const files = [];
@@ -1336,17 +1371,14 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
   // 22 s run, partly from re-resolving the site root per link), so the root is
   // resolved once and each pair once. Holds the resolved path, or null when it
   // escapes the site root.
-  const resolvedLinks = new Map();
-  const resolveLink = (dir, cleaned) => {
-    const key = `${dir}\0${cleaned}`;
-    let resolved = resolvedLinks.get(key);
-    if (resolved === undefined) {
-      resolved = path.resolve(siteRoot, dir, cleaned);
-      if (path.relative(siteRoot, resolved).startsWith('..')) resolved = null;
-      resolvedLinks.set(key, resolved);
-    }
-    return resolved;
-  };
+  //
+  // 2026-11-19: the memo now holds the link's whole outcome (final target,
+  // whether it is skipped, whether it exists, its site-relative path), keyed
+  // also by whether the source is HTML (only non-HTML sources try bundler
+  // extensions), and a miss resolves with string concatenation when it can
+  // (`resolveUnder`). The artifact does not change while it is checked, so a
+  // disk answer is as good the second time.
+  const linkOutcomes = new Map();
   const deployIndex = path.resolve(site, DEPLOY_DIR, 'index.html');
   const devPrefix = path.resolve(site, DEV_DIR) + path.sep;
 
@@ -1354,6 +1386,36 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
   // on the disk lookups for a link the walk did not list. Each file's problems
   // are kept apart and joined in file order, so the report reads the same as a
   // serial pass.
+  const ESCAPES = 0;
+  const SKIPPED = 1;
+  const DEAD = 2;
+  const siteRelative = (resolved) =>
+    resolved.startsWith(`${siteRoot}/`) ? resolved.slice(siteRoot.length + 1) : path.relative(site, resolved);
+  const linkOutcome = async (dir, cleaned, isHtml) => {
+    let resolved = resolveUnder(siteRoot, dir, cleaned);
+    if (resolved === null) return ESCAPES;
+    if (cleaned.endsWith('/')) resolved = path.join(resolved, 'index.html');
+    else if (!path.extname(resolved)) {
+      // A extension-less link is served as a directory if one is there.
+      if (await present(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
+      else if (!isHtml) {
+        // A bundler-style import ('./App', './src/store') names a module
+        // without its extension (React Native sources shipped as files).
+        for (const ext of ['.js', '.jsx', '.mjs', '.ts', '.tsx']) {
+          if (await present(resolved + ext)) { resolved += ext; break; }
+        }
+      }
+    }
+    // Every tool page footer links `deploy/?app=<slug>` (the "Run your own copy" link), and the page is
+    // written after this check runs.
+    if (resolved === deployIndex) return SKIPPED;
+    // Everything under dev/ (the dashboard, its stats.json and dev/analyses/)
+    // is written by publish-branch.sh after this check, on the same terms.
+    if (resolved.startsWith(devPrefix)) return SKIPPED;
+    if (!(await present(resolved))) return DEAD;
+    return { resolved, page: resolved.endsWith('.html') ? siteRelative(resolved) : null };
+  };
+
   const linkProblems = await mapLimit(files, 32, async (relative) => {
     const extension = path.extname(relative).toLowerCase();
     if (!TEXT_EXTENSIONS.has(extension)) return [];
@@ -1389,6 +1451,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     ];
     const navigable = new Set(markupTargets);
     const dir = path.dirname(relative);
+    const isHtml = extension === '.html';
     for (const target of targets) {
       // SCRIPT_OR_STYLE_RE only strips `<script>` wrappers inside HTML; a
       // `.mjs`/`.js` file has no such wrapper, so its raw source is scanned
@@ -1402,36 +1465,24 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
       if (!cleaned) continue;
 
-      let resolved = resolveLink(dir, cleaned);
-      if (resolved === null) {
+      const key = `${isHtml ? 'h' : 'o'}${dir}\0${cleaned}`;
+      let outcome = linkOutcomes.get(key);
+      if (outcome === undefined) {
+        outcome = await linkOutcome(dir, cleaned, isHtml);
+        linkOutcomes.set(key, outcome);
+      }
+      if (outcome === ESCAPES) {
         found.push(`${relative}: link escapes the site root -> ${target}`);
         continue;
       }
-      if (cleaned.endsWith('/')) resolved = path.join(resolved, 'index.html');
-      else if (!path.extname(resolved)) {
-        // A extension-less link is served as a directory if one is there.
-        if (await present(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
-        else if (extension !== '.html') {
-          // A bundler-style import ('./App', './src/store') names a module
-          // without its extension (React Native sources shipped as files).
-          for (const ext of ['.js', '.jsx', '.mjs', '.ts', '.tsx']) {
-            if (await present(resolved + ext)) { resolved += ext; break; }
-          }
-        }
-      }
-      // Every tool page footer links `deploy/?app=<slug>` (the "Run your own copy" link), and the page is
-      // written after this check runs.
-      if (resolved === deployIndex) continue;
-      // Everything under dev/ (the dashboard, its stats.json and dev/analyses/)
-      // is written by publish-branch.sh after this check, on the same terms.
-      if (resolved.startsWith(devPrefix)) continue;
-      if (!(await present(resolved))) found.push(`${relative}: dead link -> ${target}`);
+      if (outcome === SKIPPED) continue;
+      if (outcome === DEAD) found.push(`${relative}: dead link -> ${target}`);
       else {
-        inboundLinks.add(resolved);
-        if (extension === '.html' && navigable.has(target) && resolved.endsWith('.html')) {
+        inboundLinks.add(outcome.resolved);
+        if (isHtml && outcome.page !== null && navigable.has(target)) {
           let edges = outboundPages.get(relative);
           if (!edges) outboundPages.set(relative, (edges = new Set()));
-          edges.add(path.relative(site, resolved));
+          edges.add(outcome.page);
         }
       }
     }

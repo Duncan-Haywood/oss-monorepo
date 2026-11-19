@@ -1,0 +1,230 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/straggler-backup",
+ "stratum": "research",
+ "seed": "2026-11-19-e2e7",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior distributed-systems / queueing researcher who works on stragglers and redundancy (the reviewer a MLSys, SIGMETRICS or AISTATS paper on synchronous SGD with backup workers would get), who knows Dean & Barroso 2013 (tail at scale, hedged requests), MapReduce backup tasks (Dean & Ghemawat 2004), Ananthanarayanan et al. 2013 (clones), Wang/Joshi/Wornell redundancy and replication analyses (2014-2019), Dutta et al. 2018 (K-sync SGD error-runtime trade-off) and Cho/Wang/Joshi 2022 (biased client selection in FL); first checks: are the order-statistic laws right, is the SGD time-to-accuracy model sound and not an artefact of a degenerate problem, is the nearest prior work cited, and is anything new",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran my own script (/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f0a22e44-6fe8-570c-a2e7-7514a20f37a9/scratchpad/straggler/indep.py, does not import straggler_backup). Exponential E X_(k), n=32, s=1, mu=1, by trapezoid quadrature of the order-statistic density k C(n,k) F^{k-1}(1-F)^{n-k} f (Arnold, Balakrishnan & Nagaraja, A First Course in Order Statistics, eq. 2.2.2): 1.1313, 1.6778, 2.3406, 2.9752 for k=4,16,24,28 (results.txt identical to 4 dp); numpy MC 200k gives 5.0585 at k=32 (results 5.0585). Pareto via the textbook Gamma-function form x_m n!/(n-k)! Gamma(n-k+1-1/a)/Gamma(n+1-1/a): a=0.8 -> 2.390, 13.957, 92.808, inf; a=1.5 -> 1.582, 3.903, 9.032, 27.096; a=2.5 -> 1.315, 2.239, 3.587, 5.979, all equal to results.txt E2, and numpy MC for a=2.5 agrees. SGD: my own second-moment recursion m_{t+1}=rho^2 m_t+eta^2 sigma^2/k gives rounds 12 (k=5), 8 (k=10), 7 (k=36), 8 (k=35), and E3 rows k*=5/10/10/36/36 with wait-all ratios 34.30, 6.86, 2.72, 1.45, 1.12 and Pareto(1.5) 33.56x, all as committed; numpy MC of the SGD MSE at k=5, t=12 is 0.049 = recursion. E5 inclusion probabilities by 400k-round numpy MC: pi_min 0.0370 (k=2), 0.1993 (k=8), 0.4090 (k=12) vs 0.037/0.200/0.411; bias -0.532/-0.382/-0.2275 vs -0.531/-0.382/-0.227. Every printed number I recomputed is right. One analytic statement in the paper is wrong: 'the fewest workers to drop is ceil(1/alpha)-1' (whitepaper.md:11, :36) fails when 1/alpha is an integer: my brute-force on the code's own finiteness condition n-k+1>1/alpha gives 2 at alpha=0.5 (paper 1), 1 at alpha=1 (paper 0), 3 at alpha=1/3 (paper 2); the correct count is floor(1/alpha). The code (pareto_order_mean(32,32,1,1.0)=inf, (32,31)=32.0) is right; only the paper's formula is wrong.",
+  "completeness": "Everything README and paper say is done exists and runs. `PYTHONPATH=src python3 -m unittest discover -s tests` -> 'Ran 10 tests in 2.014s OK' (README: 10 tests, ~3 s). `PYTHONPATH=src python3 experiments/run.py` reproduces experiments/results.txt byte-identically (diff -> IDENTICAL) in 5.6 s (README says ~1 min: stale). E1-E5 all present; figure.py parses results.txt. Live page https://marisstella.app/research/straggler-backup/ returns 200. No stubs or TODOs. Missing only what a paper would need, not what the README claims.",
+  "verification": "10 tests pass (2.0 s). Tests compare closed forms with independent integrals and simulation, which is good. Seeded 4 mutants with platform/ci/quality_mutate.py: harmonic(n-k)->harmonic(n-k+1) in exp_order_mean CAUGHT; Poisson-binomial truncation k->k+1 in inclusion_probs CAUGHT; Pareto finiteness guard 'd <= 0' -> 'd < 0' SURVIVED (no test at integer 1/alpha, where the mutant divides by zero); Hajek normaliser '/ w' -> '/ n' SURVIVED (estimators' Hajek output, recommended in the paper as 'a safe default', is never tested). 2 of 4 survived, and no test covers step sizes with rho<=0 (see craft).",
+  "craft": "Read src/straggler_backup/model.py (166 lines), tests/test_model.py, experiments/run.py, figure.py. Readable, stdlib-only, docstrings state the maths. Defects: sgd_rounds (model.py:93-105) takes math.log(rho) without guarding rho<=0: `sgd_rounds(64,1.0,1.0,2.0,1.0,0.05)` and eta=1.2 raise 'ValueError: math domain error', and best_k inherits it; E4 avoids it only because its eta grid stops at 0.98. inclusion_probs is a midpoint rule in u with O(n^2 k steps) pure-Python loops yet the paper calls pi_i 'computed exactly' (whitepaper.md:31). `from .model import *` / `from straggler_backup import *` throughout; E4 calls best_k twice per eta for the same value (run.py). Senior reviewer would ask for the rho guard and tests on edge inputs.",
+  "claims": "Checked against files: E1 3.0x/1.70x per-round ratios (results.txt 3.015/1.700) backed; E3 table, 34x/1.12x, 33.6x Pareto backed; E4 1.09x-6.91x backed; E5 HT 7-40% worse with no coupling (0.689/0.493=1.40 ... 0.088/0.082=1.07) backed, 21-24% better at k=8-12 (0.244/0.309, 0.109/0.144) backed, tie at k=4 (0.623/0.614) backed. Not backed or wrong: 'fewest workers to drop is ceil(1/alpha)-1' (wrong at integer 1/alpha, whitepaper.md:11 and :36); 'Hajek is a safe default' (whitepaper.md:36) while results.txt shows Hajek worse than plain at k=2 c=1 (1.187 vs 1.107) and in every c=0 row; pi_i 'computed exactly' (numerical midpoint integral); README '~1 min' (observed 5.6 s). The abstract presents the K-sync exponential round-time law and error-runtime trade-off as results 'we give' without citing Dutta et al. 2018, which derived them; related work cites only Dutta et al. 2016 (coded computation).",
+  "fitness": "Nearest prior work, checked by knowledge of the literature (not cited in the paper): Dutta, Joshi, Ghosh, Dube, Nagpurkar, 'Slow and Stale Gradients Can Win the Race' (AISTATS 2018) analyses K-sync SGD with exponential and shifted-exponential runtimes, E[X_(K:n)] = (H_n - H_{n-K})/mu, and the error-versus-wall-clock trade-off that gives an interior optimal K - this is the paper's sections 2-3. Pareto order-statistic moments and their finiteness condition are textbook (Arnold, Balakrishnan & Nagaraja 1992), and Wang, Joshi & Wornell (2014-2019) already showed redundancy/cancellation helps more under heavy tails. The speed-data selection bias and its importance-weighting fix are the subject of Cho, Wang & Joshi (AISTATS 2022, biased client selection in FL) and the FL partial-participation literature (unbiased HT-style aggregation, e.g. Chen, Horvath & Richtarik 2020). A researcher could reuse the code as a correct, tested reference, but the results are sound restatements of known results on a 1-D quadratic with single-seed simulations and no real straggler trace; nothing here is new enough for the stated PhD/publishable bar.",
+  "domain": "Against the straggler/queueing practice: the order-statistic and Renyi-representation analysis is standard and correctly done; the HT/Hajek estimators are standard survey sampling. Departures a senior reviewer would hit: (1) the SGD model is a 1-D quadratic with a=1 (condition number 1); E4's headline 5.9-6.9x joint (k, eta) gain comes from eta*=0.92 ~ 1/a, where one step nearly solves the problem (`sgd_rounds(39,1.0,0.92,2.0,1.0,0.05)` -> 1 round) - an artefact of the degenerate problem, not a property of backup workers; with a=0.1 my run of best_k over the same grid gives no gain at all (fixed and joint both k*=50, T=398.1). (2) Independent iid-per-round finishing times ignore the persistent per-worker slowness that real clusters show (Dean & Barroso 2013; Google/Alibaba traces), and no real trace is used despite the research brief's real-data expectation. (3) No comparison with hedging/replication or asynchronous/K-async alternatives that the field treats as baselines."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "E[X_(k)] shifted-exponential, n=32, s=1, mu=1, k=4,16,24,28",
+   "method": "own trapezoid quadrature of the order-statistic density (Arnold-Balakrishnan-Nagaraja eq. 2.2.2), not the harmonic closed form",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f0a22e44-6fe8-570c-a2e7-7514a20f37a9/scratchpad/straggler/indep.py",
+   "expected": "1.1313, 1.6778, 2.3406, 2.9752 (results.txt E1)",
+   "observed": "1.1313, 1.6778, 2.3406, 2.9752",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Pareto E[X_(k)], n=32, alpha=0.8/1.5/2.5, k=16,28,31,32",
+   "method": "textbook Gamma-function closed form via math.lgamma (not the paper's product), plus numpy MC 200k at alpha=2.5",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f0a22e44-6fe8-570c-a2e7-7514a20f37a9/scratchpad/straggler/indep.py",
+   "expected": "0.8: 2.390,13.957,92.808,inf; 1.5: 1.582,3.903,9.032,27.096; 2.5: 1.315,2.239,3.587,5.979",
+   "observed": "identical to 3 dp; MC 1.315,2.239,3.588,5.979",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E3 time-to-accuracy optimum and wait-all ratios, n=64",
+   "method": "own second-moment recursion and first-crossing search, own harmonic sums; numpy MC of MSE at k=5,t=12",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f0a22e44-6fe8-570c-a2e7-7514a20f37a9/scratchpad/straggler/indep.py",
+   "expected": "k*=5,10,10,36,36; ratios 34.30,6.86,2.72,1.45,1.12; Pareto(1.5) 33.56x",
+   "observed": "k*=5,10,10,36,36; 34.30,6.86,2.72,1.45,1.12; 33.56x; MC MSE 0.049",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E5 inclusion probabilities and plain-average bias, n=16, coupling c=1",
+   "method": "numpy Monte Carlo, 400k rounds, ranks of exponential draws",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f0a22e44-6fe8-570c-a2e7-7514a20f37a9/scratchpad/straggler/indep.py",
+   "expected": "pi_min 0.037/0.200/0.411, bias -0.531/-0.382/-0.227 at k=2/8/12",
+   "observed": "pi_min 0.0370/0.1993/0.4090, bias -0.532/-0.382/-0.2275",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "paper rule: fewest workers to drop for a finite Pareto mean is ceil(1/alpha)-1",
+   "method": "brute force smallest d with d+1 > 1/alpha (the finiteness condition, from the textbook Gamma form)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f0a22e44-6fe8-570c-a2e7-7514a20f37a9/scratchpad/straggler/indep.py",
+   "expected": "ceil(1/alpha)-1 per paper",
+   "observed": "alpha=0.5: 2 vs paper 1; alpha=1: 1 vs paper 0; alpha=1/3: 3 vs 2; right only for non-integer 1/alpha",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments reproduce committed results",
+   "method": "rerun and diff",
+   "command": "PYTHONPATH=src python3 experiments/run.py > scratch/results.txt; diff experiments/results.txt scratch/results.txt",
+   "expected": "no diff",
+   "observed": "IDENTICAL, 5.6 s (README says ~1 min)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "10 tests pass",
+   "observed": "Ran 10 tests in 2.014s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "sgd_rounds / best_k at step sizes with rho <= 0",
+   "method": "call the shipped functions",
+   "command": "PYTHONPATH=src python3 -c 'from straggler_backup import *; sgd_rounds(64,1.0,1.0,2.0,1.0,0.05)'",
+   "expected": "a number or inf",
+   "observed": "ValueError: math domain error (also eta=1.2 and best_k(...,eta=1.0,...))",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Hajek is a safe default'",
+   "method": "compare with committed results.txt E5",
+   "command": "grep -n 'Hajek' experiments/results.txt",
+   "expected": "Hajek never much worse than the better of plain/HT",
+   "observed": "c=1,k=2: Hajek 1.187 vs plain 1.107; c=0: Hajek worse than plain at every k<16 (0.558 vs 0.493 at k=2)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "HT 7-40% worse (no coupling), 21-24% better at k=8-12 (strong coupling)",
+   "method": "ratios from results.txt",
+   "command": "cat experiments/results.txt",
+   "expected": "as stated",
+   "observed": "1.40,1.36,1.22,1.07 worse; 0.79,0.76 i.e. 21%,24% better",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page loads",
+   "method": "curl served page",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/straggler-backup/",
+   "expected": "200",
+   "observed": "200",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "novelty of K-sync round-time law and error-runtime optimum",
+   "method": "literature: Dutta et al. AISTATS 2018; Cho, Wang & Joshi AISTATS 2022; Wang, Joshi & Wornell 2014-2019; Arnold-Balakrishnan-Nagaraja 1992",
+   "command": "grep -n 'Dutta\\|Joshi\\|Wang\\|Dean' paper/whitepaper.md",
+   "expected": "nearest prior work cited and the delta stated",
+   "observed": "only 'Dutta et al. 2016' (coded computation) cited; Dutta 2018, Joshi/Wang and FL client-selection bias work absent",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "is E4's joint-step gain a property of backup workers or of the 1-D a=1 quadratic",
+   "method": "rerun best_k over the same eta grid with a=0.1 (condition changes) and check rounds at eta*=0.92",
+   "command": "PYTHONPATH=src python3 -c '... best_k(64,2.0,1.0,a,eta,2.0,1.0,0.05) for a in (1.0,0.1) ...; sgd_rounds(39,1.0,0.92,2.0,1.0,0.05)'",
+   "expected": "gain persists",
+   "observed": "a=1: 17.35 -> 2.93 (eta*=0.92, 1 round); a=0.1: fixed and joint identical (k*=50, T=398.1)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/straggler_backup/model.py:28",
+   "change": "harmonic(n - k) -> harmonic(n - k + 1)",
+   "caught": true,
+   "test_cmd": "sh -c PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/straggler_backup/model.py:130",
+   "change": "new = [0.0] * min(len(dist) + 1, k) -> min(len(dist) + 1, k + 1)",
+   "caught": true,
+   "test_cmd": "sh -c PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/straggler_backup/model.py:41",
+   "change": "if d <= 0: -> if d < 0:",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/straggler_backup/model.py:161",
+   "change": "hajek = ... / w -> hajek = ... / n",
+   "caught": false,
+   "test_cmd": "sh -c PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited and novelty overstated: Dutta et al. AISTATS 2018 ('Slow and Stale Gradients Can Win the Race') already derives the K-sync exponential round-time law and the error-runtime interior optimum (sections 2-3); the speed-data selection bias and its reweighting fix are covered by Cho, Wang & Joshi AISTATS 2022 and FL partial-participation work; Wang/Joshi/Wornell redundancy analyses and Dean & Barroso 2013 are also absent. The abstract presents these as results 'we give'.",
+   "where": "research/straggler-backup/paper/whitepaper.md:39",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Paper's 'fewest workers to drop for a finite mean is ceil(1/alpha)-1' is wrong whenever 1/alpha is an integer (alpha=0.5 needs 2, paper says 1; alpha=1 needs 1, paper says 0, contradicting the README's own 'alpha<=1 => wait-for-all infinite'); correct is floor(1/alpha). Code is right.",
+   "where": "research/straggler-backup/paper/whitepaper.md:11",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"
+  },
+  {
+   "severity": "medium",
+   "what": "E4's 5.9-6.9x 'joint (k, eta)' gain is an artefact of a 1-D quadratic with a=1: eta*=0.92 ~ 1/a solves it in one round; at a=0.1 the same search gives no gain. Presented as 'the honest comparison' and a general implication (iii).",
+   "where": "research/straggler-backup/paper/whitepaper.md:28",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "sgd_rounds takes math.log(rho) with no guard for rho<=0 (eta>=1/a): sgd_rounds(64,1,1.0,2,1,0.05) and best_k raise ValueError: math domain error; E4 avoids it only because its grid stops at 0.98.",
+   "where": "research/straggler-backup/src/straggler_backup/model.py:101",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"
+  },
+  {
+   "severity": "low",
+   "what": "Hajek estimator and the integer-1/alpha finiteness boundary are untested: mutants '/ w'->'/ n' and 'd <= 0'->'d < 0' both survive.",
+   "where": "research/straggler-backup/tests/test_model.py:1",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"
+  },
+  {
+   "severity": "low",
+   "what": "'Hajek is a safe default' is contradicted by the committed E5 table (worse than plain at k=2 with coupling, 1.187 vs 1.107, and at every k<16 without); pi_i described as 'computed exactly' though inclusion_probs is a midpoint-rule integral.",
+   "where": "research/straggler-backup/paper/whitepaper.md:36",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "README says experiments take ~1 min; they run in 5.6 s.",
+   "where": "research/straggler-backup/README.md:10",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17485"],
+ "verdict": "A small, clean, correct reference implementation of known results. Every number I recomputed from sources the author did not write (order-statistic density quadrature, the textbook Gamma-form Pareto moments, my own SGD recursion and numpy Monte Carlo for the inclusion probabilities and bias) matches results.txt, and the experiments reproduce byte-identically in 5.6 s. It does not meet the bar: verification is 2 (2 of 4 seeded mutants survive: the Hajek estimator and the Pareto finiteness boundary are untested), claims are 2 (the paper's ceil(1/alpha)-1 rule is wrong at integer 1/alpha, 'Hajek safe default' is contradicted by its own table), and as research it falls short of the PhD bar: the K-sync round-time law and error-runtime optimum are Dutta et al. 2018, the selection bias is Cho/Wang/Joshi 2022, neither is cited, and the headline joint-step gain is an artefact of a condition-number-1 one-dimensional quadratic. Median score 2."
+}

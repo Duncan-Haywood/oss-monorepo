@@ -1,7 +1,7 @@
 import os, sys, tempfile, unittest
 import contextlib, io
 import subprocess
-from wait_for import main, wait, wait_until, wait_pid, pid_alive
+from wait_for import main, wait, wait_until, wait_pid, pid_alive, matching, wait_gone, ancestors
 
 
 class WaitFor(unittest.TestCase):
@@ -135,6 +135,32 @@ class WaitFor(unittest.TestCase):
             with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(out):
                 self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 0)
             self.assertIn("timing 3.2 s", out.getvalue())
+
+    def test_until_with_a_missing_log_returns_once_the_condition_holds(self):
+        # friction 2026-11-18: a log path that never existed waited 9 minutes after the condition was met
+        import wait_for
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "never.log")
+            out = io.StringIO()
+            old, wait_for.LOG_GRACE = wait_for.LOG_GRACE, 0.0
+            try:
+                with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(out):
+                    self.assertEqual(main([p, "--until", "true", "--timeout", "30", "--ignore-restart"]), 0)
+            finally:
+                wait_for.LOG_GRACE = old
+            self.assertIn("does not exist", out.getvalue())
+
+    def test_log_appears_waits_its_grace_for_the_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "late.log")
+            t = [0.0]
+            def nap(s):
+                t[0] += s
+                if t[0] >= 3:
+                    open(p, "w").close()
+            from wait_for import log_appears
+            self.assertTrue(log_appears(p, grace=10, clock=lambda: t[0], nap=nap))
+            self.assertFalse(log_appears(os.path.join(d, "no.log"), grace=2, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s)))
 
     def test_until_runs_through_a_shell(self):
         self.assertTrue(wait_until("exit 0", timeout=1))
@@ -444,3 +470,47 @@ class Restart(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Gone(unittest.TestCase):
+    """--gone NAME: wait on a job by name without matching wait_for or its shell
+    (friction 2026-11-18: `pgrep -f '[b]owling...'` in a line naming the script matched itself)."""
+
+    def test_waits_for_a_named_process_then_returns(self):
+        tag = f"gone-test-{os.getpid()}"
+        p = subprocess.Popen(["sh", "-c", f"sleep 30 # {tag}"])
+        try:
+            self.assertTrue(wait_until(f"grep -q {tag} /proc/{p.pid}/cmdline", timeout=5, interval=0.05))
+            self.assertIn(p.pid, [pid for pid, _ in matching(tag)])
+            with contextlib.redirect_stderr(io.StringIO()) as err:
+                self.assertEqual(main(["--gone", tag, "--timeout", "0"]), 1)
+            self.assertIn(str(p.pid), err.getvalue())
+        finally:
+            p.kill()
+            p.wait()
+        self.assertEqual(matching(tag), [])
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(main(["--gone", tag, "--timeout", "1"]), 0)
+        self.assertIn("no process matches", out.getvalue())
+
+    def test_never_matches_itself_or_its_parents(self):
+        # The shell that runs wait_for has NAME on its command line, and so does wait_for.
+        tag = f"self-match-{os.getpid()}"
+        code = ("import sys; sys.path.insert(0, %r); from wait_for import main; "
+                "sys.exit(main(['--gone', %r, '--timeout', '0']))") % (os.path.dirname(os.path.abspath(__file__)), tag)
+        r = subprocess.run(["sh", "-c", f"{sys.executable} -c \"{code}\"; echo {tag}"],
+                           capture_output=True, text=True, timeout=30)
+        self.assertIn("no process matches", r.stdout)
+        self.assertIn(os.getpid(), ancestors())
+
+    def test_times_out_while_a_match_lives(self):
+        ticks = iter(range(100))
+        self.assertFalse(wait_gone("x", timeout=3, clock=lambda: next(ticks), nap=lambda s: None,
+                                   find=lambda n: [(1, "x")]))
+        self.assertTrue(wait_gone("x", timeout=0, find=lambda n: []))
+
+    def test_rejects_an_empty_name(self):
+        # "" is in every command line: the wait could never end.
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as e:
+            main(["--gone", " ", "--timeout", "0"])
+        self.assertEqual(e.exception.code, 2)

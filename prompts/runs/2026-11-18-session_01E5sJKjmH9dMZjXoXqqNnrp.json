@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKjmH9dMZjXoXqqNnrp",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T18:19:01Z",
+  "ended": "2026-11-18T18:55:41Z",
+  "wall_minutes": 36.99,
+  "tokens_in": 10134211,
+  "tokens_out": 57782,
+  "cost_usd": 4.4559,
+  "tool_calls": 77,
+  "task": "photo-editing flagship (allocate.py row 3): NEXT.md cull item 'a C helper for the index build'",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17386",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First C draft laid each frame's row out as [whole, crops, zooms, fines], so the 49 fine-grid windows were not contiguous and fine lanes read zoom hashes",
+      "caught_by": "equality test against the all-pairs scan (101 extra pairs)",
+      "fixed": true
+    },
+    {
+      "what": "Synthetic-burst tests let two seeded faults through (one crop direction dropped, fine gain off by one): their whole-frame distances sat under the near-duplicate line",
+      "caught_by": "seeded-fault run",
+      "fixed": "added a boundary test with lanes at and one past each limit above the near-duplicate line; 15 of 15 seeded faults now fail"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/tests/test_cull.py",
+      "issue": "Running `python3 -m unittest tests.test_cull` from the venture directory fails with ModuleNotFoundError: shootflow; it needs PYTHONPATH=src (run_venture_tests.py sets it). One wasted run."
+    },
+    {
+      "file": "ventures/photo-editing/tools/cull_crop_grouping_eval.py",
+      "issue": "To get the timing corpus you must run the whole eval, whose all-pairs scoring runs single-threaded for many minutes after the frames are cut; only the frames are needed for tools/cull_group_timing.py. A --cut-only flag would save the wait (I killed it once the frames were written)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "The landed item lived in NEXT.md, not the flagship's next: field (1990/2000 chars), so I updated NEXT.md instead of rewriting flagships.yaml next:",
+      "did": "NEXT.md item replaced with the landed result",
+      "result": "flagships.yaml unchanged; next: still lists the open items"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-burst-grouping-in-c-same-groups-twenty-times-faster.md",
+    "ventures/photo-editing/eval/cull-grouping-native-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "shootflow.cull_native: the cull's candidate index and burst_match's exact rule in C (compiled on first use, cached, SHOOTFLOW_NATIVE=0 off), pthreads over frames. Constants and lane tables passed from Python at call time. On 30,121 real-photo variants (metadata-extractor-images jpg/ at 7b56b64): identical groups to both Python paths at 200-10,000 frames; 10,000 frames 114.6 s -> 5.78 s (4 threads; 21.2 s on 1), 2,000 7.89 -> 0.35 s, 20,000 21.7 s. Local checks: run_venture_tests.py photo-editing ok (1373 tests, 9 skipped); test_cull_native 8 tests; check_posts ok; venture-preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2d9046e0-7fc5-52e9-a32b-df17b21c3b1d",
+    "transcripts": 1,
+    "first": "2026-11-18T18:19:01Z",
+    "last": "2026-11-18T18:56:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 141,
+        "output": 57782,
+        "thinking": 15297,
+        "cache_read": 9970877,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163193,
+        "api_equivalent_usd": 4.4559,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 141,
+      "output": 57782,
+      "thinking": 15297,
+      "cache_read": 9970877,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163193,
+      "api_equivalent_usd": 4.4559,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 71,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.99,
+      "active_minutes": 36.99,
+      "model_minutes": 8.8,
+      "tool_minutes": 28.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: port an exact Hamming index and match rule to C with threads, equivalence and seeded-fault tests, corpus timing",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 224.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

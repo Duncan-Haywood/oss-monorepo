@@ -794,3 +794,30 @@ averaged 1981-89, schooling 1980 and 1985, investment 1980-84 and GDP per head 1
   model-based customer segmentation using data mining. *J. Database Marketing and Customer Strategy Management* 19(3),
   197-208. doi:10.1057/dbm.2012.17.
 - **Used by:** `eval/real-shop-suggest.mjs`, `real-shop.test.mjs` (README "A real shop's daily series").
+
+## online-retail-2009-daily.csv
+
+- **Source:** UCI Machine Learning Repository, "Online Retail II" (dataset 502), CC BY 4.0: the same UK online gift
+  retailer's invoice lines, sheet "Year 2009-2010", 2009-12-01 to 2010-12-09 (525,461 lines). Fetched 2026-11-19 from
+  archive.ics.uci.edu/static/public/502/online+retail+ii.zip (workbook `online_retail_II.xlsx`, sha256
+  `bcbe73b35f5b7babf197fb0cb983a11f5d9ff929078d4aa53d171b1f2df2e980`).
+- **Reshaped** by `python3 eval/real-shop-xlsx.py online_retail_II.xlsx "Year 2009-2010" online-retail-ii-2009.csv`
+  (the sheet as CSV, dates ISO; needs `openpyxl`) and then `python3 eval/real-shop-daily.py online-retail-ii-2009.csv
+  data/online-retail-2009-daily.csv`, with the same column rules as `online-retail-daily.csv` above (the script reads
+  both files' column names; on the 2010-11 file it still writes `online-retail-daily.csv` byte for byte).
+- **Cite:** Chen, D. (2019). Online Retail II. UCI Machine Learning Repository. doi:10.24432/C5CG6D.
+- **Used by:** `eval/closed-days.mjs` (output `eval/closed-days.out.txt`, simulation shards `eval/closed-days-sim/`), `closed-days.test.mjs` (README "Closed days filled as missing").
+
+## covid-schedules.csv
+
+- **Source:** Johns Hopkins University CSSE COVID-19 Data Repository, github.com/CSSEGISandData/COVID-19, CC BY 4.0:
+  `csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv` (cumulative confirmed cases per
+  county, 2020-01-22 to 2023-03-09; fetched 2026-11-18, sha256 `e8fe5837b1a7ce09e6187ef778bf69fdcfa9fcd7015b1ba597f248b0736d8cf3`).
+- **Reshaped** by `readStates` in `eval/update-rate-covid-schedules.mjs`: each state's rows summed per day. Six states
+  kept (Minnesota, Utah, Vermont, South Dakota, California, Kentucky), every day.
+- **Labels:** the repository README's "Irregular Update Schedules" section, which gives each state's documented
+  reporting schedule and the date it changed (e.g. "Minnesota: Providing data once per week (Thursdays) (as of June 30, 2022)").
+- **Cite:** Dong, E., Du, H. and Gardner, L. (2020). An interactive web-based dashboard to track COVID-19 in real time.
+  *Lancet Infectious Diseases* 20(5), 533-534. doi:10.1016/S1473-3099(20)30120-1.
+- **Used by:** `eval/update-rate-covid-schedules.mjs` (full file via `eval/covid-schedules-fetch.sh`),
+  `update-rate-covid.test.mjs` (README "A provider's own schedule changes").

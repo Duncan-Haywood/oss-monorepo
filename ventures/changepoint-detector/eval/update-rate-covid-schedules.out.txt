@@ -1,0 +1,160 @@
+Primary events (a dated switch to once a week)
+Alabama               2022-08-01 less often Mon-Fri -> Thursdays only    window 2022-07-22..2022-08-11: DATED at 2022-07-29 [2022-07-28..2022-08-05], width 8 rows, repeats 18% -> 86%
+Alaska                2022-04-04 less often Mon/Wed/Fri -> weekly (Wed)  window 2022-03-25..2022-04-14: DATED at 2022-04-01 [2022-03-16..2022-04-16], width 31 rows, repeats 61% -> 85%
+California            2022-09-15 less often Tue+Fri -> weekly (Thu)      window 2022-09-05..2022-09-25: missed
+Delaware              2022-12-15 less often Mon-Fri -> weekly (Wed)      window 2022-12-05..2022-12-25: DATED at 2022-12-15 [2022-12-14..2022-12-28], width 14 rows, repeats 35% -> 86%
+District of Columbia  2022-03-04 less often Mon-Fri -> weekly (Thu)      window 2022-02-22..2022-03-14: missed
+Georgia               2022-04-20 less often Mon-Fri -> weekly (Wed)      window 2022-04-10..2022-04-30: DATED at 2022-04-15 [2022-04-14..2022-04-28], width 14 rows, repeats 32% -> 85%
+Idaho                 2022-10-17 less often Mon/Wed/Fri -> weekly (Wed)  window 2022-10-07..2022-10-27: DATED at 2022-10-07 [2022-09-28..2022-10-26], width 28 rows, repeats 59% -> 84%
+Indiana               2022-10-01 less often Mon/Wed/Fri -> weekly (Wed)  window 2022-09-21..2022-10-11: DATED at 2022-09-28 [2022-09-16..2022-10-08], width 22 rows, repeats 59% -> 85%
+Kansas                2022-04-01 less often Mon/Wed/Fri -> weekly (Fri)  window 2022-03-22..2022-04-11: DATED at 2022-04-03 [2022-03-25..2022-04-11], width 17 rows, repeats 17% -> 62%
+Kentucky              2022-03-07 less often Mon-Fri -> weekly (Mon)      window 2022-02-25..2022-03-17: missed
+Louisiana             2022-10-14 less often Mon-Fri -> weekly (Wed)      window 2022-10-04..2022-10-24: DATED at 2022-10-14 [2022-10-13..2022-10-26], width 13 rows, repeats 33% -> 85%
+Massachusetts         2022-07-11 less often Mon-Fri -> weekly (Thu)      window 2022-07-01..2022-07-21: DATED at 2022-07-08 [2022-07-07..2022-07-21], width 14 rows, repeats 31% -> 85%
+Michigan              2022-04-04 less often Mon/Wed/Fri -> weekly (Wed)  window 2022-03-25..2022-04-14: DATED at 2022-04-01 [2022-03-23..2022-04-15], width 23 rows, repeats 60% -> 85%
+Minnesota             2022-06-30 less often Mon-Fri -> weekly (Thu)      window 2022-06-20..2022-07-10: DATED at 2022-06-29 [2022-06-28..2022-07-08], width 10 rows, repeats 31% -> 85%
+Missouri              2022-04-01 less often Mon-Fri -> weekly (Fri)      window 2022-03-22..2022-04-11: missed
+Montana               2022-05-06 less often Mon-Fri -> weekly (Fri)      window 2022-04-26..2022-05-16: DATED at 2022-05-06 [2022-05-06..2022-05-15], width 9 rows, repeats 31% -> 85%
+Nevada                2022-03-16 less often Mon-Fri -> weekly (Wed)      window 2022-03-06..2022-03-26: DATED at 2022-03-11 [2022-03-10..2022-03-23], width 13 rows, repeats 32% -> 85%
+New Hampshire         2022-05-16 less often Mon-Fri -> weekly (Thu)      window 2022-05-06..2022-05-26: missed
+North Carolina        2022-04-06 less often Mon-Fri -> weekly (Wed)      window 2022-03-27..2022-04-16: DATED at 2022-04-06 [2022-04-05..2022-04-15], width 10 rows, repeats 31% -> 86%
+Oregon                2022-09-15 less often Mon-Fri -> weekly (Wed)      window 2022-09-05..2022-09-25: DATED at 2022-09-14 [2022-09-13..2022-09-23], width 10 rows, repeats 32% -> 85%
+South Carolina        2022-03-15 less often Mon-Fri -> weekly (Tue)      window 2022-03-05..2022-03-25: DATED at 2022-03-11 [2022-03-10..2022-03-23], width 13 rows, repeats 32% -> 84%
+South Dakota          2022-04-12 less often Mon-Fri -> weekly            window 2022-04-02..2022-04-22: missed
+Texas                 2022-11-30 less often Mon/Wed/Fri -> weekly (Mon)  window 2022-11-20..2022-12-10: missed
+Utah                  2022-03-31 less often Mon-Fri -> weekly (Thu)      window 2022-03-21..2022-04-10: DATED at 2022-03-31 [2022-03-31..2022-04-09], width 9 rows, repeats 32% -> 85%
+Vermont               2022-05-19 less often daily -> weekly (Wed)        window 2022-05-09..2022-05-29: DATED at 2022-05-18 [2022-05-18..2022-05-27], width 9 rows, repeats 21% -> 86%
+Virginia              2022-12-27 less often Mon-Fri -> weekly (Tue)      window 2022-12-17..2023-01-06: DATED at 2022-12-28 [2022-12-21..2023-01-06], width 16 rows, repeats 30% -> 82%
+Washington            2022-11-02 less often Mon-Sat -> weekly (Wed)      window 2022-10-23..2022-11-12: DATED at 2022-11-02 [2022-10-19..2022-11-13], width 25 rows, repeats 59% -> 82%
+
+D1 dated 20 of 27 (bar >= 19): pass
+D2 median range width 13.5 rows (bar <= 60): pass
+
+D3 (descriptive) secondary events
+Arkansas              2021-07-24 more often Mon-Fri -> daily (weekends resume) window 2021-07-14..2021-08-03: missed
+Alaska                2021-08-02 more often Mon/Wed/Fri -> Mon-Fri       window 2021-07-23..2021-08-12: missed
+Alaska                2021-12-07 less often Mon-Fri -> Mon/Wed/Fri       window 2021-11-27..2021-12-17: DATED at 2021-12-03 [2021-12-02..2021-12-13], width 11 rows, repeats 38% -> 61%
+Alabama               2021-09-17 more often Mon-Fri -> daily             window 2021-09-07..2021-09-27: missed
+Alabama               2022-03-04 less often daily -> Mon-Fri             window 2022-02-22..2022-03-14: missed
+California            2022-04-04 less often Mon-Fri -> Tue+Fri           window 2022-03-25..2022-04-14: missed
+Florida               2022-03-11 less often weekly -> every two weeks    window 2022-03-01..2022-03-21: missed
+Idaho                 2021-09-11 more often Mon-Fri -> daily             window 2021-09-01..2021-09-21: missed
+Idaho                 2021-11-06 less often daily -> Mon-Sat             window 2021-10-27..2021-11-16: missed
+Idaho                 2022-04-20 less often Mon-Fri -> Mon/Wed/Fri       window 2022-04-10..2022-04-30: DATED at 2022-04-15 [2022-04-14..2022-04-21], width 7 rows, repeats 22% -> 59%
+Indiana               2022-03-29 less often Mon-Fri -> Mon/Wed/Fri       window 2022-03-19..2022-04-08: DATED at 2022-03-29 [2022-03-24..2022-04-05], width 12 rows, repeats 23% -> 59%
+Michigan              2021-08-09 more often Tue+Fri -> Mon/Wed/Fri       window 2021-07-30..2021-08-19: missed
+Nebraska              2021-08-11 less often ? -> Wednesdays only         window 2021-08-01..2021-08-21: missed
+Nebraska              2021-09-25 more often Wednesdays only -> Mon-Fri   window 2021-09-15..2021-10-05: missed
+Oregon                2021-07-10 less often daily -> Mon-Fri             window 2021-06-30..2021-07-20: DATED at 2021-07-03 [2021-06-19..2021-07-04], width 15 rows, repeats 3% -> 32%
+South Dakota          2021-08-16 more often Wednesdays only -> Mon-Fri   window 2021-08-06..2021-08-26: missed
+Texas                 2022-09-12 less often Mon-Fri -> Mon/Wed/Fri       window 2022-09-02..2022-09-22: missed
+Vermont               2021-08-21 more often Mon-Fri -> daily             window 2021-08-11..2021-08-31: missed
+West Virginia         2022-03-14 less often daily -> Mon-Fri             window 2022-03-04..2022-03-24: DATED at 2021-05-22 [2021-05-04..2022-03-12], width 312 rows, repeats 2% -> 27%
+  less often: 5 of 11 dated
+  more often: 0 of 8 dated
+
+D4 (descriptive) every change on the primary states, * = matched a primary event
+Alabama: n 1143, repeats 323 (28%), 2 changes
+    2021-05-04 [2021-01-30..2021-05-29] less often 10% -> 18%
+  * 2022-07-29 [2022-07-28..2022-08-05] less often 18% -> 86%
+Alaska: n 1143, repeats 524 (46%), 4 changes
+    2020-03-16 [2020-03-12..2020-04-25] more often 98% -> 3%
+    2021-03-31 [2021-02-03..2021-04-10] less often 3% -> 38%
+    2021-12-03 [2021-12-02..2021-12-13] less often 38% -> 61%
+  * 2022-04-01 [2022-03-16..2022-04-16] less often 61% -> 85%
+California: n 1143, repeats 33 (3%), 1 changes
+    2020-03-01 [2020-02-19..2020-03-05] more often 74% -> 0%
+Delaware: n 1143, repeats 217 (19%), 3 changes
+    2020-03-10 [2020-03-09..2020-03-16] more often 100% -> 2%
+    2022-04-16 [2022-03-12..2022-04-24] less often 2% -> 35%
+  * 2022-12-15 [2022-12-14..2022-12-28] less often 35% -> 86%
+District of Columbia: n 1143, repeats 390 (34%), 3 changes
+    2020-03-15 [2020-03-14..2020-08-26] more often 100% -> 2%
+    2021-05-29 [2021-05-18..2021-05-30] less often 2% -> 41%
+    2022-10-14 [2022-10-13..2022-10-29] less often 41% -> 85%
+Georgia: n 1143, repeats 414 (36%), 3 changes
+    2020-03-08 [2020-03-04..2020-03-11] more often 93% -> 0%
+    2021-07-03 [2021-06-20..2021-07-03] less often 0% -> 32%
+  * 2022-04-15 [2022-04-14..2022-04-28] less often 32% -> 85%
+Idaho: n 1143, repeats 411 (36%), 5 changes
+    2020-03-13 [2020-03-11..2020-04-28] more often 100% -> 21%
+    2020-06-28 [2020-06-15..2020-07-11] more often 21% -> 2%
+    2020-12-25 [2020-11-22..2021-02-28] less often 2% -> 22%
+    2022-04-15 [2022-04-14..2022-04-21] less often 22% -> 59%
+  * 2022-10-07 [2022-09-28..2022-10-26] less often 59% -> 84%
+Indiana: n 1143, repeats 360 (32%), 3 changes
+    2021-05-31 [2021-05-13..2021-06-01] less often 9% -> 23%
+    2022-03-29 [2022-03-24..2022-04-05] less often 23% -> 59%
+  * 2022-09-28 [2022-09-16..2022-10-08] less often 59% -> 85%
+Kansas: n 1143, repeats 344 (30%), 2 changes
+    2020-11-29 [2020-11-12..2020-12-13] less often 16% -> 17%
+  * 2022-04-03 [2022-03-25..2022-04-11] less often 17% -> 62%
+Kentucky: n 1143, repeats 293 (26%), 4 changes
+    2020-03-06 [2020-03-03..2020-04-03] more often 100% -> 7%
+    2020-12-31 [2020-06-14..2021-01-22] more often 7% -> 1%
+    2021-12-23 [2021-12-12..2021-12-23] less often 1% -> 36%
+    2022-09-20 [2022-09-14..2022-10-20] less often 36% -> 75%
+Louisiana: n 1143, repeats 406 (36%), 3 changes
+    2020-05-23 [2020-05-07..2020-05-23] more often 40% -> 15%
+    2021-03-20 [2020-12-12..2021-04-03] less often 15% -> 33%
+  * 2022-10-14 [2022-10-13..2022-10-26] less often 33% -> 85%
+Massachusetts: n 1143, repeats 367 (32%), 3 changes
+    2020-03-02 [2020-02-29..2020-03-04] more often 92% -> 1%
+    2021-07-03 [2021-05-31..2021-07-04] less often 1% -> 31%
+  * 2022-07-08 [2022-07-07..2022-07-21] less often 31% -> 85%
+Michigan: n 1143, repeats 557 (49%), 3 changes
+    2020-08-21 [2020-08-06..2020-08-21] more often 23% -> 17%
+    2021-07-02 [2021-07-01..2021-07-07] less often 17% -> 60%
+  * 2022-04-01 [2022-03-23..2022-04-15] less often 60% -> 85%
+Minnesota: n 1143, repeats 384 (34%), 3 changes
+    2020-03-10 [2020-03-05..2020-03-16] more often 96% -> 2%
+    2021-07-04 [2021-06-20..2021-07-10] less often 2% -> 31%
+  * 2022-06-29 [2022-06-28..2022-07-08] less often 31% -> 85%
+Missouri: n 1143, repeats 167 (15%), 2 changes
+    2020-03-12 [2020-03-10..2020-03-14] more often 96% -> 1%
+    2022-02-13 [2021-11-26..2022-02-27] less often 1% -> 30%
+Montana: n 1143, repeats 439 (38%), 4 changes
+    2020-03-13 [2020-03-08..2020-04-20] more often 100% -> 22%
+    2020-05-26 [2020-05-17..2020-06-15] more often 22% -> 2%
+    2021-06-05 [2021-05-22..2021-06-12] less often 2% -> 31%
+  * 2022-05-06 [2022-05-06..2022-05-15] less often 31% -> 85%
+Nevada: n 1143, repeats 464 (41%), 3 changes
+    2020-03-21 [2020-03-18..2020-03-25] more often 81% -> 0%
+    2021-04-17 [2021-04-04..2021-04-17] less often 0% -> 32%
+  * 2022-03-11 [2022-03-10..2022-03-23] less often 32% -> 85%
+New Hampshire: n 1143, repeats 300 (26%), 2 changes
+    2020-03-10 [2020-03-07..2020-03-24] more often 94% -> 4%
+    2021-05-31 [2021-05-18..2021-06-12] less often 4% -> 37%
+North Carolina: n 1143, repeats 464 (41%), 3 changes
+    2020-03-11 [2020-03-05..2020-03-12] more often 94% -> 1%
+    2021-02-28 [2020-11-26..2021-03-27] less often 1% -> 31%
+  * 2022-04-06 [2022-04-05..2022-04-15] less often 31% -> 86%
+Oregon: n 1143, repeats 348 (30%), 3 changes
+    2020-03-10 [2020-03-05..2020-03-17] more often 91% -> 3%
+    2021-07-03 [2021-06-19..2021-07-04] less often 3% -> 32%
+  * 2022-09-14 [2022-09-13..2022-09-23] less often 32% -> 85%
+South Carolina: n 1143, repeats 447 (39%), 3 changes
+    2020-03-06 [2020-03-05..2020-03-16] more often 100% -> 2%
+    2021-06-12 [2021-05-19..2021-06-26] less often 2% -> 32%
+  * 2022-03-11 [2022-03-10..2022-03-23] less often 32% -> 84%
+South Dakota: n 1143, repeats 493 (43%), 3 changes
+    2020-03-21 [2020-03-09..2020-03-26] more often 90% -> 1%
+    2021-04-04 [2021-03-23..2021-05-01] less often 1% -> 38%
+    2022-03-18 [2022-03-18..2022-03-31] less often 38% -> 85%
+Texas: n 1143, repeats 53 (5%), 1 changes
+    2023-01-28 [2023-01-11..2023-01-28] less often 4% -> 27%
+Utah: n 1143, repeats 433 (38%), 3 changes
+    2020-03-09 [2020-03-05..2020-04-01] more often 98% -> 1%
+    2021-07-03 [2021-06-20..2021-07-04] less often 1% -> 32%
+  * 2022-03-31 [2022-03-31..2022-04-09] less often 32% -> 85%
+Vermont: n 1143, repeats 389 (34%), 3 changes
+    2020-03-17 [2020-03-11..2020-03-19] more often 93% -> 3%
+    2021-06-05 [2021-04-20..2021-06-12] less often 3% -> 21%
+  * 2022-05-18 [2022-05-18..2022-05-27] less often 21% -> 86%
+Virginia: n 1143, repeats 263 (23%), 2 changes
+    2021-07-17 [2021-07-04..2021-07-24] less often 9% -> 30%
+  * 2022-12-28 [2022-12-21..2023-01-06] less often 30% -> 82%
+Washington: n 1143, repeats 414 (36%), 3 changes
+    2020-12-16 [2020-12-02..2020-12-17] less often 12% -> 26%
+    2022-01-22 [2022-01-20..2022-01-29] less often 26% -> 59%
+  * 2022-11-02 [2022-10-19..2022-11-13] less often 59% -> 82%

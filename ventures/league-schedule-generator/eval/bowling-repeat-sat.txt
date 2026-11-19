@@ -1,0 +1,51 @@
+# Back-to-back lane repeats on the seasons with stored lane answers, and the pinned season lengths (2026-11-18).
+# SAT: timeout 400 python3 eval/bowling-repeat-sat.py <teams> <weeks> per season (CaDiCaL 1.5.3 via python-sat,
+#   4 cores shared; the repeat cap lowered one solve at a time), merged by eval/bowling-repeat-merge.mjs.
+# Page: node eval/bowling-repeat-table.mjs <keys> (assignLanes, seed 1) on main before this change and after.
+# "stored" = repeats in the stored answer itself; "page" = repeats in the season the page builds from it
+# (polish + repeat anneal). Every season, before and after, has every team at the bound (off 0).
+# Kept per season: the entry whose page season has fewer repeats. Three were not kept: 20 x 40 (the new
+# answer's page season had 48 repeats against 38: the old entry stays) and 24 x 26, 24 x 34 (not stored:
+# the search's own seasons, 6 and 9, beat the stored answers' 25 and 19).
+
+teams weeks | stored before -> after        | page before | page after
+   12    18 | 21 -> 0 (least, proved)      |          12 |          0
+   12    24 | 35 -> 0 (least, proved)      |          17 |          0
+   12    30 | 44 -> 0 (least, proved)      |          13 |          0
+   14    14 | 14 -> 1 (least, proved)      |           8 |          1
+   14    21 | 28 -> 3                      |           9 |          2
+   14    28 | 33 -> 1                      |          19 |          1
+   14    35 | 52 -> 14                     |          31 |         10
+   16    16 | 16 -> 1                      |          14 |          1
+   16    24 | 32 -> 10                     |          17 |          8
+   16    32 | 56 -> 21                     |          31 |         17
+   16    40 | 91 -> 25                     |          58 |         20
+   18     8 | 0 -> 0 (least, proved)       |           0 |          0
+   18    17 | 16 -> 10                     |          16 |         10
+   18    18 | 19 -> 4                      |          19 |          4
+   18    27 | 25 -> 25                     |          18 |         18
+   18    36 | 54 -> 49                     |          31 |         28
+   20     9 | 0 -> 0 (least, proved)       |           0 |          0
+   20    11 | 2 -> 0 (least, proved)       |           2 |          0
+   20    19 | 21 -> 15                     |          20 |         15
+   20    20 | 12 -> 6                      |          12 |          6
+   20    21 | 21 -> 13                     |          20 |         13
+   20    29 | 36 -> 28                     |          36 |         28
+   20    30 | 45 -> 45                     |          22 |         22
+   20    40 | 75 -> 70 (not kept)          |          38 |         38
+   22    12 | 3 -> 3                       |           3 |          3
+   22    22 | 27 -> 17                     |          25 |         16
+   22    23 | 36 -> 36                     |          36 |         36
+   22    32 | 57 -> 41                     |          54 |         41
+   24    13 | 3 -> 3                       |           3 |          3
+   24    35 | 45 -> 45                     |          44 |         44
+    6    30 | - -> 4 (least, proved)       |          23 |          4
+    8    32 | - -> 6                       |          19 |          6
+   10    30 | - -> 0 (least, proved)       |          25 |          0
+   18    26 | - -> 16                      |          39 |         13
+   20    32 | - -> 14                      |          15 |          0
+   24    34 | none -> 40 (not kept)        |           9 |          9
+   14    34 | - -> 18                      |          23 |         16
+   24    26 | none -> 25 (not kept)        |           6 |          6
+
+page repeats 787 -> 439 over 38 seasons; 8 with none; every season still at the bound

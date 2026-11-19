@@ -78,6 +78,7 @@ import subprocess
 import urllib.request
 import sys
 import time
+import types
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -204,8 +205,15 @@ LOCK_WAIT_S = 240  # promptctl measure's 14-day fetch takes 70 s to 3 min
 
 
 def wait_unlocked(root=ROOT, limit=LOCK_WAIT_S, sleep=time.sleep, clock=time.monotonic):
-    """Wait while another fetch holds .git/shallow.lock; True once it is free."""
+    """Wait while another fetch holds .git/shallow.lock; True once it is free. A lock no running
+    git process can own (a killed fetch left it) is removed first rather than waited out."""
     lock = Path(root) / ".git" / "shallow.lock"
+    if lock.exists() and root == ROOT:
+        try:
+            import shallow_repair
+            shallow_repair.clear_stale_lock(root)
+        except ImportError:
+            pass
     end = clock() + limit
     while lock.exists():
         if clock() >= end:
@@ -234,6 +242,12 @@ def deepen(since, root=ROOT, run=subprocess.run, timeout=180, today=None,
     print(f"(shallow clone: fetching main since {day} to date the reports, "
           "about 40 s; --no-fetch skips)", file=sys.stderr)
     why = ""
+    if run is subprocess.run and isinstance(run, types.FunctionType):
+        try:  # a timed-out fetch gets SIGTERM, so git removes its shallow.lock (see shallow_repair)
+            import shallow_repair
+            run = shallow_repair.run_gently
+        except ImportError:
+            pass
     for _ in range(2):
         if not wait_unlocked(root, sleep=sleep, clock=clock):
             why = f"another fetch held .git/shallow.lock for over {LOCK_WAIT_S} s"

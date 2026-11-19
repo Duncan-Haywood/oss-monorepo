@@ -1,0 +1,161 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKnmHjSMkevghkuNdSv",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T11:18:00Z",
+  "ended": "2026-11-19T11:55:46Z",
+  "wall_minutes": 38.42,
+  "tokens_in": 6796751,
+  "tokens_out": 35676,
+  "cost_usd": 3.0037,
+  "tool_calls": 71,
+  "task": "perf: bowling.test.mjs in league-schedule-generator (slowest file of the slowest venture suite); landed the walkLanes speed-up after PR #17631 landed the same polishLanes fix first",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17650",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "post description 175 chars failed check_post_frontmatter in run_workflow_locally --for-changes",
+      "fix": "shortened to 151 chars"
+    },
+    {
+      "what": "scratch copy of the old bowling.mjs failed to import (orient.mjs needs wasm/minplus-wasm.mjs)",
+      "fix": "copied wasm/ into the scratch copy too"
+    },
+    {
+      "what": "duplicate work: PR #17631 (another perf session, same day) merged the same polishLanes hotspot fix while this run worked; the PR showed mergeable_state dirty",
+      "fix": "merged main, kept main's polishLanes (mine was only ~5% faster on top), kept this run's walkLanes rewrite, rewrote history doc and post around the walk"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Step 1 sends every run to P063/P064 first; both have been owner-gated for 10+ days and every perf run re-reports it. A note that perf items with all-CODEOWNERS touches are skipped by default would save the detour."
+    },
+    {
+      "file": "platform/ci/venture_suite_times.json",
+      "issue": "Taken 2026-11-17; slug-level times hide the per-file picture (league's slowest file had no write-up after 8 league passes). suite_file_times.py found it in one run; worth naming it in the perf prompt's step 3."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' says to search open PRs before opening one; I did, but the overlapping PR #17631 was opened and merged during my profiling. Searching open PRs and main's log for the target file right before starting the edit (not only before opening the PR) would have caught it: two perf runs drawn the same hour both read venture_suite_times.json and chose the same top file."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Both backlog perf items (P063, P064) are owner-gated (.github/ paths)",
+      "did": "took step 2/3: the slowest file of the slowest venture suite",
+      "result": "landed a 41% cut to that file with byte-identical output"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No pinned-equivalence test committed: walkLanes is internal and a committed hash of search output would break every future intentional search change",
+      "did": "scratch old-vs-new digest over 272 cases, recorded in the history doc",
+      "result": "digests identical; 762 suite tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-two-agents-one-hotspot-and-the-walk-that-cannot-finish.md",
+    "docs/history/ci-perf-2026-11-19-league-bowling-walk-flat.md"
+  ],
+  "goal": null,
+  "notes": "Metric: test-14 workload of bowling.test.mjs (35 out-of-reach seasons, bowlingSchedule+laneReport, scratch bench wall): main after #17631 30.8 s, with this change 16.9 s; in-suite test 14 TAP duration 27.3 s before -> 17.1 s after. Polish (dropped as duplicate of #17631): my flat version 1,066/1,040 ms vs main's 1,107/1,137 ms on 24x35. Equivalence: 272-case digest 10c2331ee0c43f9f identical for pre-#17631 code, main, and main+walk. Merged tree: bowling.test.mjs 32/32 pass; run_venture_tests.py league-schedule-generator ok, 762 tests, 260.8 s; site page checks ok. Before the merge, local CI (run_workflow_locally --for-changes): ventures-tests 5/5, portfolio-validate 100/100, portfolio-pages 12/12, pages 6/6, doc-refs 3/3, conflict-markers 2/2, control-plane-guard 2/2; prompts-ci failed only on this record's null outcome mid-run, then validate ok and 136 prompts tests OK. Pool reading (ci_profile --runs 600, 11:18 UTC): ventures tests 114.7 job-min. Also read photo-editing Python suite: 103.9 s / 1,442 tests, spread thin.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "828917f3-ec79-5ac7-ae6f-0470d57d0907",
+    "transcripts": 1,
+    "first": "2026-11-19T11:18:00Z",
+    "last": "2026-11-19T11:56:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 133,
+        "output": 35676,
+        "thinking": 7847,
+        "cache_read": 6677342,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119276,
+        "api_equivalent_usd": 3.0037,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 133,
+      "output": 35676,
+      "thinking": 7847,
+      "cache_read": 6677342,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119276,
+      "api_equivalent_usd": 3.0037,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 66,
+      "ToolSearch": 2,
+      "Write": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 38.42,
+      "active_minutes": 38.42,
+      "model_minutes": 6.83,
+      "tool_minutes": 31.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "profile, typed-array rewrite of two search loops, equivalence harness, write-ups: about a day's half for a senior JS engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 166.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

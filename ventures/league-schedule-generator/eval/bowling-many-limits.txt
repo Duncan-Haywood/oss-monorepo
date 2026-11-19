@@ -1,60 +1,60 @@
 kind | teams weeks | page: in-target off repeats violations ms
-five teams, last pair | 10 26 | 8/10 3 22 0 733
-five teams, last pair | 10 30 | 8/10 2 28 0 678
-five teams, last pair | 10 32 | 9/10 1 37 0 604
-five teams, last pair | 10 34 | 9/10 2 39 0 1051
-five teams, last pair | 12 26 | 12/12 0 13 0 416
-five teams, last pair | 12 30 | 12/12 0 41 0 463
-five teams, last pair | 12 32 | 12/12 0 14 0 542
-five teams, last pair | 12 34 | 12/12 0 31 0 590
-five teams, last pair | 14 26 | 14/14 0 4 0 460
-five teams, last pair | 14 30 | 14/14 0 29 0 703
-five teams, last pair | 14 32 | 14/14 0 3 0 705
-five teams, last pair | 14 34 | 14/14 0 9 0 789
-five teams, last pair | 16 26 | 16/16 0 27 0 1689
-five teams, last pair | 16 30 | 16/16 0 4 0 811
-five teams, last pair | 16 32 | 16/16 0 4 0 883
-five teams, last pair | 16 34 | 15/16 1 31 0 1928
-five teams, last pair | 18 26 | 16/18 2 5 0 1709
-five teams, last pair | 18 30 | 18/18 0 15 0 1198
-five teams, last pair | 18 32 | 18/18 0 10 0 1111
-five teams, last pair | 18 34 | 18/18 0 6 0 1538
-five teams, last pair | 20 26 | 20/20 0 0 0 1244
-five teams, last pair | 20 30 | 20/20 0 39 0 3198
-five teams, last pair | 20 32 | 20/20 0 44 0 3348
-five teams, last pair | 20 34 | 20/20 0 4 0 1738
-five teams, last pair | 24 26 | 24/24 0 3 0 1860
+five teams, last pair | 10 26 | 10/10 0 14 0 912
+five teams, last pair | 10 30 | 10/10 0 16 0 1864
+five teams, last pair | 10 32 | 9/10 1 35 0 5876
+five teams, last pair | 10 34 | 9/10 2 25 0 7692
+five teams, last pair | 12 26 | 12/12 0 8 0 564
+five teams, last pair | 12 30 | 12/12 0 41 0 564
+five teams, last pair | 12 32 | 12/12 0 9 0 686
+five teams, last pair | 12 34 | 12/12 0 31 0 721
+five teams, last pair | 14 26 | 14/14 0 0 0 704
+five teams, last pair | 14 30 | 14/14 0 29 0 933
+five teams, last pair | 14 32 | 14/14 0 1 0 867
+five teams, last pair | 14 34 | 14/14 0 0 0 829
+five teams, last pair | 16 26 | 16/16 0 27 0 1712
+five teams, last pair | 16 30 | 16/16 0 0 0 757
+five teams, last pair | 16 32 | 16/16 0 0 0 790
+five teams, last pair | 16 34 | 15/16 1 20 0 6659
+five teams, last pair | 18 26 | 18/18 0 3 0 3127
+five teams, last pair | 18 30 | 18/18 0 1 0 1447
+five teams, last pair | 18 32 | 18/18 0 10 0 1467
+five teams, last pair | 18 34 | 18/18 0 0 0 1460
+five teams, last pair | 20 26 | 20/20 0 0 0 981
+five teams, last pair | 20 30 | 20/20 0 39 0 3191
+five teams, last pair | 20 32 | 20/20 0 44 0 3501
+five teams, last pair | 20 34 | 20/20 0 0 0 1881
+five teams, last pair | 24 26 | 24/24 0 3 0 2027
 five teams, last pair | 24 30 | 24/24 0 0 0 12
-five teams, last pair | 24 32 | 24/24 0 0 0 1384
-five teams, last pair | 24 34 | 24/24 0 4 0 2680
-five teams, a random pair each | 10 26 | 10/10 0 27 0 286
-five teams, a random pair each | 10 30 | 10/10 0 35 0 327
-five teams, a random pair each | 10 32 | 10/10 0 24 0 328
-five teams, a random pair each | 10 34 | 10/10 0 22 0 388
-five teams, a random pair each | 12 26 | 12/12 0 16 0 473
-five teams, a random pair each | 12 30 | 12/12 0 11 0 661
-five teams, a random pair each | 12 32 | 12/12 0 30 0 596
-five teams, a random pair each | 12 34 | 12/12 0 19 0 524
-five teams, a random pair each | 14 26 | 14/14 0 3 0 538
-five teams, a random pair each | 14 30 | 14/14 0 14 0 640
-five teams, a random pair each | 14 32 | 14/14 0 10 0 836
-five teams, a random pair each | 14 34 | 14/14 0 22 0 632
-five teams, a random pair each | 16 26 | 16/16 0 13 0 669
-five teams, a random pair each | 16 30 | 16/16 0 9 0 697
-five teams, a random pair each | 16 32 | 16/16 0 10 0 719
-five teams, a random pair each | 16 34 | 16/16 0 26 0 1010
-five teams, a random pair each | 18 26 | 18/18 0 24 0 2011
-five teams, a random pair each | 18 30 | 18/18 0 8 0 1311
-five teams, a random pair each | 18 32 | 18/18 0 14 0 1455
-five teams, a random pair each | 18 34 | 18/18 0 15 0 1264
-five teams, a random pair each | 20 26 | 20/20 0 6 0 1307
-five teams, a random pair each | 20 30 | 20/20 0 12 0 1429
-five teams, a random pair each | 20 32 | 20/20 0 12 0 1475
-five teams, a random pair each | 20 34 | 20/20 0 4 0 1564
-five teams, a random pair each | 24 26 | 24/24 0 2 0 1677
-five teams, a random pair each | 24 30 | 24/24 0 0 0 222
-five teams, a random pair each | 24 32 | 24/24 0 1 0 2185
-five teams, a random pair each | 24 34 | 24/24 0 22 0 5103
+five teams, last pair | 24 32 | 24/24 0 0 0 1281
+five teams, last pair | 24 34 | 24/24 0 4 0 2632
+five teams, a random pair each | 10 26 | 10/10 0 8 0 447
+five teams, a random pair each | 10 30 | 10/10 0 7 0 518
+five teams, a random pair each | 10 32 | 10/10 0 5 0 497
+five teams, a random pair each | 10 34 | 10/10 0 22 0 531
+five teams, a random pair each | 12 26 | 12/12 0 16 0 603
+five teams, a random pair each | 12 30 | 12/12 0 3 0 686
+five teams, a random pair each | 12 32 | 12/12 0 4 0 591
+five teams, a random pair each | 12 34 | 12/12 0 3 0 774
+five teams, a random pair each | 14 26 | 14/14 0 1 0 728
+five teams, a random pair each | 14 30 | 14/14 0 9 0 703
+five teams, a random pair each | 14 32 | 14/14 0 0 0 656
+five teams, a random pair each | 14 34 | 14/14 0 22 0 859
+five teams, a random pair each | 16 26 | 16/16 0 0 0 899
+five teams, a random pair each | 16 30 | 16/16 0 3 0 1124
+five teams, a random pair each | 16 32 | 16/16 0 1 0 1141
+five teams, a random pair each | 16 34 | 16/16 0 1 0 1211
+five teams, a random pair each | 18 26 | 18/18 0 24 0 2180
+five teams, a random pair each | 18 30 | 18/18 0 0 0 1049
+five teams, a random pair each | 18 32 | 18/18 0 0 0 1446
+five teams, a random pair each | 18 34 | 18/18 0 1 0 1473
+five teams, a random pair each | 20 26 | 20/20 0 1 0 1626
+five teams, a random pair each | 20 30 | 20/20 0 12 0 1453
+five teams, a random pair each | 20 32 | 20/20 0 0 0 1616
+five teams, a random pair each | 20 34 | 20/20 0 0 0 1662
+five teams, a random pair each | 24 26 | 24/24 0 2 0 1859
+five teams, a random pair each | 24 30 | 24/24 0 0 0 277
+five teams, a random pair each | 24 32 | 24/24 0 1 0 1986
+five teams, a random pair each | 24 34 | 24/24 0 22 0 4841
 six teams, both ends | 10 26 | no deal: Week 1: the lane limits leave no way to put every match on a pair its teams may use (T4, T5). Too many of that week's matches avoid the same pairs, and no dealing of the teams to round-robin slots tried gives every week a legal deal; loosen a limit.
 six teams, both ends | 10 30 | no deal: Week 1: the lane limits leave no way to put every match on a pair its teams may use (T4, T5). Too many of that week's matches avoid the same pairs, and no dealing of the teams to round-robin slots tried gives every week a legal deal; loosen a limit.
 six teams, both ends | 10 32 | no deal: Week 1: the lane limits leave no way to put every match on a pair its teams may use (T4, T5). Too many of that week's matches avoid the same pairs, and no dealing of the teams to round-robin slots tried gives every week a legal deal; loosen a limit.
@@ -63,69 +63,63 @@ six teams, both ends | 12 26 | no deal: Week 1: the lane limits leave no way to 
 six teams, both ends | 12 30 | no deal: Week 1: the lane limits leave no way to put every match on a pair its teams may use (T8, T6). Too many of that week's matches avoid the same pairs, and no dealing of the teams to round-robin slots tried gives every week a legal deal; loosen a limit.
 six teams, both ends | 12 32 | no deal: Week 1: the lane limits leave no way to put every match on a pair its teams may use (T8, T6). Too many of that week's matches avoid the same pairs, and no dealing of the teams to round-robin slots tried gives every week a legal deal; loosen a limit.
 six teams, both ends | 12 34 | no deal: Week 1: the lane limits leave no way to put every match on a pair its teams may use (T8, T6). Too many of that week's matches avoid the same pairs, and no dealing of the teams to round-robin slots tried gives every week a legal deal; loosen a limit.
-six teams, both ends | 14 26 | 14/14 0 3 0 502
-six teams, both ends | 14 30 | 11/14 6 22 0 2026
-six teams, both ends | 14 32 | 14/14 0 7 0 717
-six teams, both ends | 14 34 | 14/14 0 5 0 741
-six teams, both ends | 16 26 | 16/16 0 14 0 765
-six teams, both ends | 16 30 | 12/16 8 45 0 2537
-six teams, both ends | 16 32 | 16/16 0 23 0 846
-six teams, both ends | 16 34 | 16/16 0 25 0 1099
-six teams, both ends | 18 26 | 18/18 0 2 0 963
-six teams, both ends | 18 30 | 15/18 4 19 0 2069
-six teams, both ends | 18 32 | 18/18 0 23 0 1296
-six teams, both ends | 18 34 | 18/18 0 9 0 1500
-six teams, both ends | 20 26 | 20/20 0 1 0 1261
-six teams, both ends | 20 30 | 20/20 0 4 0 1433
-six teams, both ends | 20 32 | 20/20 0 48 0 3317
-six teams, both ends | 20 34 | 19/20 1 51 0 4187
-six teams, both ends | 24 26 | 20/24 4 30 0 4604
-six teams, both ends | 24 30 | 24/24 0 4 0 2103
-six teams, both ends | 24 32 | 24/24 0 0 0 401
-six teams, both ends | 24 34 | 24/24 0 0 0 2683
-eight teams, a random pair each | 10 26 | 10/10 0 37 0 290
-eight teams, a random pair each | 10 30 | 10/10 0 34 0 341
-eight teams, a random pair each | 10 32 | 10/10 0 38 0 358
-eight teams, a random pair each | 10 34 | 10/10 0 50 0 357
-eight teams, a random pair each | 12 26 | 12/12 0 15 0 393
-eight teams, a random pair each | 12 30 | 12/12 0 21 0 494
-eight teams, a random pair each | 12 32 | 12/12 0 27 0 568
-eight teams, a random pair each | 12 34 | 12/12 0 33 0 599
-eight teams, a random pair each | 14 26 | 14/14 0 11 0 547
-eight teams, a random pair each | 14 30 | 14/14 0 8 0 550
-eight teams, a random pair each | 14 32 | 14/14 0 15 0 524
-eight teams, a random pair each | 14 34 | 14/14 0 28 0 615
-eight teams, a random pair each | 16 26 | 16/16 0 9 0 771
-eight teams, a random pair each | 16 30 | 16/16 0 8 0 868
-eight teams, a random pair each | 16 32 | 16/16 0 13 0 1034
-eight teams, a random pair each | 16 34 | 16/16 0 28 0 1235
-eight teams, a random pair each | 18 26 | 18/18 0 24 0 1088
-eight teams, a random pair each | 18 30 | 18/18 0 10 0 1013
-eight teams, a random pair each | 18 32 | 18/18 0 14 0 1109
-eight teams, a random pair each | 18 34 | 18/18 0 13 0 1303
-eight teams, a random pair each | 20 26 | 20/20 0 8 0 1225
-eight teams, a random pair each | 20 30 | 20/20 0 25 0 1431
-eight teams, a random pair each | 20 32 | 20/20 0 7 0 1503
-eight teams, a random pair each | 20 34 | 20/20 0 9 0 1650
-eight teams, a random pair each | 24 26 | 24/24 0 2 0 1701
-eight teams, a random pair each | 24 30 | 24/24 0 1 0 2378
-eight teams, a random pair each | 24 32 | 24/24 0 6 0 2460
-eight teams, a random pair each | 24 34 | 24/24 0 20 0 5503
+six teams, both ends | 14 26 | 14/14 0 2 0 712
+six teams, both ends | 14 30 | 12/14 4 24 0 10742
+six teams, both ends | 14 32 | 14/14 0 2 0 922
+six teams, both ends | 14 34 | 14/14 0 1 0 885
+six teams, both ends | 16 26 | 16/16 0 9 0 869
+six teams, both ends | 16 30 | 16/16 0 32 0 7119
+six teams, both ends | 16 32 | 16/16 0 23 0 1045
+six teams, both ends | 16 34 | 16/16 0 9 0 1122
+six teams, both ends | 18 26 | 18/18 0 0 0 922
+six teams, both ends | 18 30 | 18/18 0 19 0 3958
+six teams, both ends | 18 32 | 18/18 0 23 0 1213
+six teams, both ends | 18 34 | 18/18 0 9 0 1462
+six teams, both ends | 20 26 | 20/20 0 0 0 1327
+six teams, both ends | 20 30 | 20/20 0 0 0 1325
+six teams, both ends | 20 32 | 20/20 0 48 0 3087
+six teams, both ends | 20 34 | 19/20 1 51 0 8277
+six teams, both ends | 24 26 | 21/24 3 29 0 8735
+six teams, both ends | 24 30 | 24/24 0 4 0 2185
+six teams, both ends | 24 32 | 24/24 0 0 0 362
+six teams, both ends | 24 34 | 24/24 0 0 0 2437
+eight teams, a random pair each | 10 26 | 10/10 0 24 0 377
+eight teams, a random pair each | 10 30 | 10/10 0 26 0 435
+eight teams, a random pair each | 10 32 | 10/10 0 21 0 481
+eight teams, a random pair each | 10 34 | 10/10 0 34 0 492
+eight teams, a random pair each | 12 26 | 12/12 0 5 0 536
+eight teams, a random pair each | 12 30 | 12/12 0 7 0 592
+eight teams, a random pair each | 12 32 | 12/12 0 4 0 656
+eight teams, a random pair each | 12 34 | 12/12 0 5 0 656
+eight teams, a random pair each | 14 26 | 14/14 0 1 0 707
+eight teams, a random pair each | 14 30 | 14/14 0 0 0 725
+eight teams, a random pair each | 14 32 | 14/14 0 5 0 734
+eight teams, a random pair each | 14 34 | 14/14 0 4 0 890
+eight teams, a random pair each | 16 26 | 16/16 0 2 0 942
+eight teams, a random pair each | 16 30 | 16/16 0 0 0 949
+eight teams, a random pair each | 16 32 | 16/16 0 1 0 1154
+eight teams, a random pair each | 16 34 | 16/16 0 2 0 1279
+eight teams, a random pair each | 18 26 | 18/18 0 24 0 1181
+eight teams, a random pair each | 18 30 | 18/18 0 0 0 1191
+eight teams, a random pair each | 18 32 | 18/18 0 0 0 1316
+eight teams, a random pair each | 18 34 | 18/18 0 0 0 1188
+eight teams, a random pair each | 20 26 | 20/20 0 0 0 1452
+eight teams, a random pair each | 20 30 | 20/20 0 1 0 1570
+eight teams, a random pair each | 20 32 | 20/20 0 7 0 1680
+eight teams, a random pair each | 20 34 | 20/20 0 1 0 1913
+eight teams, a random pair each | 24 26 | 24/24 0 2 0 1928
+eight teams, a random pair each | 24 30 | 24/24 0 0 0 2533
+eight teams, a random pair each | 24 32 | 24/24 0 6 0 2667
+eight teams, a random pair each | 24 34 | 24/24 0 20 0 5212
 
-five teams, last pair: every team in target 22 of 28; off-target counts 11; repeats 466
-five teams, a random pair each: every team in target 28 of 28; off-target counts 0; repeats 411
-six teams, both ends (8 with no deal, left out): every team in target 15 of 20; off-target counts 23; repeats 335
-eight teams, a random pair each: every team in target 28 of 28; off-target counts 0; repeats 514
-1176 ms per season on average on this machine
+five teams, last pair: every team in target 25 of 28; off-target counts 4; repeats 360
+five teams, a random pair each: every team in target 28 of 28; off-target counts 0; repeats 168
+six teams, both ends (8 with no deal, left out): every team in target 17 of 20; off-target counts 8; repeats 285
+eight teams, a random pair each: every team in target 28 of 28; off-target counts 0; repeats 202
+1634 ms per season on average on this machine
 
-Before this change (2026-11-18, same script, slot t = team t whenever no stored shape answer fits):
-five teams, last pair (4 with no deal, left out): every team in target 22 of 24; off-target counts 3
-six teams, both ends (8 with no deal, left out): every team in target 15 of 20; off-target counts 23
-(the two random kinds identical). The four 10-team seasons with five teams off the last pair were
-refused ("Week 1: ... loosen a limit"); feasibleDealing() now deals them, 0 limits broken,
-8-9 of 10 teams in target. The 8 refusals left (six teams off both ends on 10 and 12 teams) are
-out of reach for every dealing, by counting: each round needs two matches of two unlimited teams
-for the two end pairs, 2 x 9 = 18 (10 teams) and 2 x 11 = 22 (12 teams) a cycle, but the 4 and 6
-unlimited teams meet only C(4,2) = 6 and C(6,2) = 15 times a cycle, and these seasons play every
-round. eval/bowling-lane-avoid.mjs (the 142-season grid, at most 3 limited teams) re-run with the
-change: every row identical.
+2026-11-18, latest: bowlingSchedule now keeps the most even of several legal dealings (evenDealing,
+dealingsFor caps them by season size). The same script on the previous bowling.mjs, the same day:
+five teams, last pair 22 of 28 in target, off 11, repeats 409; six teams, both ends 15 of 20, off
+23, repeats 297; the two random kinds unchanged; 1212 ms per season. README "Five or more limited
+teams: the most even of several dealings".

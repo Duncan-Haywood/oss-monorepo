@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKmttMJihKHUCJ13o8J",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T20:09:56Z",
+  "ended": "2026-11-18T20:34:36Z",
+  "wall_minutes": 24.87,
+  "tokens_in": 13964372,
+  "tokens_out": 113876,
+  "cost_usd": 6.8913,
+  "tool_calls": 92,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17417",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A literal U+FEFF ended up in engine.mjs's parseCsv regex (the file-writing tool turned the escape into the character); CI's changed-ventures job (check_hidden_unicode.py) caught it on the PR, and it was rewritten as an escape.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Still no pointer to portfolio/research-tools/README.md (register-tool.mjs, venture-preflight.mjs, the definition of done); I found it via an earlier run record's doc_friction, which has asked for the same line already."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Outbound hosts: only GitHub raw and PyPI were reachable (CRAN, GBIF, Zenodo, Dryad, figshare, NEON, ScienceBase all refused). One line listing 'CC0 datasets on GitHub (e.g. weecology/PortalData)' as the working route for example data would save probing."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight said clean, but changed-ventures failed on check_hidden_unicode.py for the new venture; preflight's repository checks do not run the hidden-unicode scan over a new venture's files."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "why": "Asks for tests against a published or independently computed reference; no published iNEXT numbers were reachable (CRAN vignette blocked, no R).",
+      "did": "Independent Python reference by different routes (scipy hypergeom, mpmath Lerch phi, scikit-bio) plus Monte Carlo subsamples and a coverage simulation; README states plainly that no side-by-side iNEXT run was done.",
+      "result": "Agreement to 1e-10; simulation found and fixed a real interval bug."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-plot-with-the-fewest-species-is-not-the-poorest.md",
+    "ventures/species-diversity/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: species diversity (Chao1/ACE, Hill numbers q=0,1,2, rarefaction/extrapolation by size and coverage, coverage-standardised comparison, iNEXT conventions) as a research-algorithm tool; 0 of 1,408 other venture READMEs mentioned rarefaction, Chao1, species richness, Hill numbers or Shannon. Example: Portal Project rodents 2016-2025 (CC0, GitHub raw). Reference: scipy 1.17.1 / mpmath 1.4.1 / scikit-bio 0.7.4 on 13 assemblages to 1e-10; 20,000-subsample Monte Carlo within 1%. Coverage simulation (1,000 x 4): rarefied S 92-98%, extrapolated S 87-99%, Shannon 85-96%, Simpson 90-94%, Chao1 50-93% (lower bound). The simulation caught a clip of q=1,2 intervals at the observed value that cut q=2 coverage to 69%; removed. Not run against iNEXT itself (no R): next check. No separate agent doc in docs/reports: the venture README and eval/README carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ca391d62-b9a6-55ca-a64f-33dccd36b27c",
+    "transcripts": 1,
+    "first": "2026-11-18T20:09:56Z",
+    "last": "2026-11-18T20:34:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 174,
+        "output": 113876,
+        "thinking": 25083,
+        "cache_read": 13730834,
+        "cache_write_5m": 0,
+        "cache_write_1h": 233364,
+        "api_equivalent_usd": 6.8913,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 174,
+      "output": 113876,
+      "thinking": 25083,
+      "cache_read": 13730834,
+      "cache_write_5m": 0,
+      "cache_write_1h": 233364,
+      "api_equivalent_usd": 6.8913,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 92,
+    "tools": {
+      "Bash": 84,
+      "Write": 4,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.87,
+      "active_minutes": 24.86,
+      "model_minutes": 16.31,
+      "tool_minutes": 8.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 30.0,
+      "basis": "estimate: a statistician implementing and verifying iNEXT-equivalent estimators, a page and a simulation",
+      "rate_usd_per_hour": 100.0,
+      "usd": 3000.0
+    },
+    "leverage": 435.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

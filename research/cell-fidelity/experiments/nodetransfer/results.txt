@@ -1,0 +1,25 @@
+cell-fidelity milestone 5zw: leave-one-design-out node-gain levers. T = the other designs' late gain profile
+(median), R = own ten-cycle gains relaxing toward 1 at a rate chosen on the other designs. 5zk's records,
+40 designs, no new simulation. Set medians.
+
+set           n   levN   levG   levT   levR  levTs    eNS    eNG    eNT    eNR    eTs     eC   rho  NT<NS  NR<NS
+Ai2020        8   3.52   6.58   1.73   6.58   1.68  0.023  0.025  0.022  0.025  0.021  0.035   inf      2      4
+Chen2020     12   5.08   2.52   3.70   2.34   1.14  0.054  0.039  0.065  0.040  0.039  0.039 10.00      8      7
+OKane2022    12   5.89  14.83   5.31   3.04   1.91  0.067  0.069  0.041  0.047  0.030  0.035  0.75      7      9
+NCA_Kim2011   8  23.24  17.20  19.41  17.55   1.07  0.030  0.023  0.042  0.057  0.021  0.010  5.00      6      5
+
+set-median late gain h by node (cycles 3..99), collector (1) to separator (20), every third node and the
+last; IQR of the separator node's h across designs:
+  Ai2020      0.85 0.86 0.86 0.93 0.98 1.10 1.09 1.07   IQR 1.04..1.10
+  Chen2020    0.61 0.64 0.71 0.87 1.06 0.92 1.05 1.17   IQR 0.91..1.34
+  OKane2022   0.52 0.58 0.56 0.78 0.96 0.78 0.72 1.01   IQR 0.79..1.23
+  NCA_Kim2011 1.07 0.99 0.91 0.98 1.06 1.17 1.35 2.83   IQR 2.46..3.00
+
+(lev = |du(L_99) - du(L_2) - Mw_99| in mV; e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3, line through
+ cycles 2..10, q_S, no drift; NS, NG, C as 5zv; Ts = constant gains at the design's own h (reads cycle 99,
+ an in-sample ceiling for a constant-gain lever); rho = set median of the per-design LOO choice)
+
+H240 (lever error T < N on >= 3 of 4 sets): supported (4 of 4)
+H241 (OKane2022 e_NT <= (e_NS + e_C)/2): supported
+H242 (e_NR <= min(e_NS, e_NG) on >= 3 of 4 sets): refuted (1 of 4)
+H243 (NT < NS on >= 26 of 40): inconclusive (23 of 40)

@@ -55,6 +55,22 @@ M46 = E + "m46_holdside/results.txt"
 M47 = E + "m47_poseside/results.txt"
 M48 = E + "m48_loadside/results.txt"
 M48P = E + "m48_loadside/posthoc.txt"
+M49 = E + "m49_backload/results.txt"
+M49P = E + "m49_backload/posthoc.txt"
+M50 = E + "m50_relean/results.txt"
+M50P = E + "m50_relean/posthoc.txt"
+M51 = E + "m51_envelope/results.txt"
+M51P = E + "m51_envelope/posthoc.txt"
+M52 = E + "m52_slackcal/results.txt"
+M53 = E + "m53_loadside/results.txt"
+M54 = E + "m54_lhs/results.txt"
+M54P = E + "m54_lhs/posthoc.txt"
+M55 = E + "m55_robust/results.txt"
+M56 = E + "m56_weighted/results.txt"
+M57 = E + "m57_beta/results.txt"
+M58 = E + "m58_tworow/results.txt"
+M59 = E + "m59_depth/results.txt"
+M60 = E + "m60_jointpreload/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -229,6 +245,54 @@ CHECKS = [
     (M48, "  h1: poses on S_H 17 of 19", "At 8 of 34 poses no side has a plan"),
     (M48P, "  g1: 258 of 1530 pose-cases dropped", "the G1 has none in 258 of 1530 swept pose-cases"),
     (M48P, "  h1: 41 of 1938 pose-cases dropped", "the H1 in 41 of 1938"),
+    (M49, "50 N end: 0 of 24 cells balance; best cone slack -23.77 to -0.10 N", "(best cone slack −23.77 to −0.10 N)"),
+    (M49, "25 N end: 24 of 24 cells balance", "while the 25 N end balances at every cell"),
+    (M49P, "largest |F_h|/F_z 0.189 (mu 0.5)", "at most 0.189 of the\nvertical"),
+    (M49P, "  g1 [1.2, -0.15] | 20 | 180 | -20.0, +0.0, -11.7 | False | > 5 | 36.4 | 51.6", "falls from 51.6 to 36.4 N"),
+    (M49P, "  h1 [1.6, 0.0] | 20 | 180 | -20.0, +0.0, -13.8 | True | > 5 | 42.8 | 58.7", "58.7 to 42.8 N"),
+    (M50, "  g1 [1.0, 0.0] | 90.7 | -0.69 |", "peaks at −0.69 N for the\nG1 at 1.0 m grips"),
+    (M50, "  g1 [1.2, 0.0] | 110.3 | -10.12 |", "−10.12 N at 1.2 m"),
+    (M50, "  H206 g1 [1.2, 0.0]: tolerated at phi 180 4.1 N, linear prediction 3.8 N, off 9%", "to within 9% at all 8 poses"),
+    (M50, "  g1 [1.2, -0.15] | yes | 21.9 | 30.2 | 51.2 | 6.3 | 4.0 |", "tolerates 4.0 N at its current lean"),
+    (M50, "  g1 [1.2, -0.15] | 110.3 | -10.12 | 14.6 | 20.1 | 51.5 | 15.5 | 11.4 |", "11.4 N in every direction at its best"),
+    (M50P, "  g1 [1.2, -0.15] | current | 4.0 | 9.0 | 5.4 | 3.4 | 5.0 | 3.0 |", "with about 3 m on the\nfloor"),
+    (M51P, "  g1 | 1530 | 1272 (83.1%) | 1368 | 1272 (93.0%) | 162", "the G1 plans 1272 of 1368\ncases (93.0%)"),
+    (M51P, "  h1 | 1938 | 1897 (97.9%) | 1902 | 1897 (99.7%) | 36", "the H1 1897 of 1902"),
+    (M51P, "  g1 | 20 | 90 | calibration pose [1.0, 0.0] | calibration, plan limit | 45 | 57.0 (35% of it)", "45 under 20 N\npulling sideways, at 35% of the drag"),
+    (M51, "H208 (every dropped pose-case lies outside the envelope): 101 inside -> refuted", "Of the\n101 cases inside with no plan"),
+    (M52, "inside milestone 51's envelope 1342 of 1368 (98.1%; loaded 93.0%)", "the G1 plans 1342 of the\n1368 cases inside the limits (98.1%, from 93.0%)"),
+    (M52, "H213 (the slack calibration plans at every sensor-error axis on both robots): 0 cases", "plans at every sensor-error axis"),
+    (M52, "  g1 | 20.0 | 519 | -0.0000 | +0.0000 | +0.0000 | 0.0107, 0.0107", "changes no residual"),
+    (M53, "H214 (hold QP is the failing stage at more than 13 of the 26 plan-limit cases): 6 of 26", "at 6 the hold QP itself fails"),
+    (M53, "  g1 | 1342 | 26 | 1368 | 1368 | 100.0%", "G1 1368 of 1368"),
+    (M53, "  h1 | 1897 | 5 | 1902 | 1902 | 100.0%", "H1 1902 of 1902"),
+    (M53, "H215 (per-load rule plans every one of the 33 drops): 31 recovered", "recovers 31 of the 33 drops"),
+    (M53, "largest 0.0106 -> held", "largest recovered residual is 0.0106 mm"),
+    (M54, "H217 (every LHS pose-case inside milestone 51's envelope has a plan): g1 4002 of 4002, h1 5436 of 5436", "G1 4002 of 4002, H1 5436 of 5436"),
+    (M54, "worst g1 0.2841, h1 0.0423 -> refuted", "the worst 0.284 mm on the G1"),
+    (M54, "phi 202.6, limit 26.44 N, smaller neighbour 28.61 N, shortfall 2.17 N", "up to\n2.17 N optimistic"),
+    (M54P, "over 0.03 mm at offsets -1.75 to +3.00 deg (20 points)", "spans 2.75 to 4.75 degrees wide"),
+    (M55, "worst g1 0.0107, h1 0.0099 -> held", "(worst 0.0107 mm on the G1)"),
+    (M55, "g1 96.35%, h1 96.63% -> refuted", "96.4% (G1) and 96.6% (H1)"),
+    (M55, "coverage g1 95.87%, h1 96.76% -> refuted", "95.9% and 96.8% on 48 fresh loads"),
+    (M55, "largest misfit 2.13e-13 N m", "linear in the load error"),
+    (M56, "A h1 0.0178, B g1 0.0110", "(worst 0.0178 mm)"),
+    (M56, "A h1 99.56%", "99.6% to 99.9% on\nthe H1"),
+    (M56, "B h1 99.89%", "99.6% to 99.9% on\nthe H1"),
+    (M56, "-> held", "flip shift never\nbeats Y"),
+    (M57, "worst g1 0.0105 h1 0.0178 mm; coverage g1 99.93% h1 99.54%", "(worst 0.0178 mm) and plans\n99.93%"),
+    (M57, "worst g1 0.0278 h1 0.0315 mm, over spec g1 0 h1 1 -> refuted", "one H1 case leaves 0.0315 mm"),
+    (M57, "loss g1 0.00 h1 0.00 points -> held", "coverage\ndoes not move between 0 and 0.5"),
+    (M57, "| 0 | 0.0256 | 15 |", "worst residual across the wall is 0.026 mm"),
+    (M58, "worst z g1 0.2713 h1 0.2865 mm -> held", "presses 0.2713 mm (G1) and 0.2865 mm (H1)"),
+    (M58, "worst z g1 0.0220 h1 0.0176 mm; over z g1 0 h1 0", "(worst 0.0220 mm across)"),
+    (M58, "| 5412 | 5392 | 99.63% | 129 |", "99.63% on the H1"),
+    (M59, "z_d g1 0.0220 h1 0.0177 mm; over at depth g1 0 h1 0 -> refuted", "0.0220 mm (G1) and 0.0177 mm (H1)"),
+    (M59, "| 0.034 |", "tilts at most 0.034 mrad"),
+    (M59, "| 5424 | 5405 | 99.65% | 191 |", "99.65% on the H1"),
+    (M60, "| 5424 | 5406 | 18 | 17 | 17 | 99.67% -> 99.98% |", "from 99.67% to 99.98%"),
+    (M60, "| 0.0089, 0.0167, 0.0095, 0.0181 | 0 | 1.001 [1.001, 1.135]", "(worst 0.0181 mm at the depth point)"),
+    (M60, "targeted 17, uniform 17 -> refuted", "alone plans the same 17"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
@@ -419,6 +483,7 @@ CHECKS = [
     (M5, "two 2x, single read (ledger, s_x 1 mm, low warp) = 0.9994", "lift a one-read robot to 99.94%"),
     (M5, "two 2x, single read (ledger, s_x 1 mm, low warp) = 0.9994", "the robot gets its 99.94% for free"),
     (M5, "two 2x, single read (ledger, s_x 1 mm, low warp) = 0.9994", "reads each stud once reach 99.94%"),
+    (M5, "2x2x  high: best single  109.5 s, clean 0.9404", "(94% at high warp)"),
     (M5, "two 2x, single read: 76 to 216 s a sheet (median 146); best single 2x: 94 to 282 s (median 184)", "takes 76 to 216 s (median 146)"),
     (M5, "best single 2x: 94 to 282 s (median 184)", "takes 94 to 282 s (median 184)"),
     (M5, "2x2x: {'single': 108, 'three': 0, 'dense': 0}", "fastest policy in all 108 time cells"),

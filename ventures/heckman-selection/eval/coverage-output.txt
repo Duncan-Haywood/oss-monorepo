@@ -1,0 +1,16 @@
+reps 1000, n 1000, seed 11; true educ coefficient 0.085
+
+A. example design, rho 0.6: 1000 fits (0 failed), mean selected 61.8%, 120 s
+  educ mean estimate: OLS 0.0719, two-step 0.0851, MLE 0.0851
+  educ 95% CI coverage: OLS 57.4%, two-step 95.5%, MLE 95.3%; median width two-step 0.0330, MLE 0.0320
+  MLE rho 95% CI coverage 93.0%; reject rho = 0 at 5%: LR 98.8%, two-step t 98.4%; two-step rho truncated 0.0%
+
+B. rho 0 (no selection bias): 1000 fits (0 failed), mean selected 61.7%, 75 s
+  educ mean estimate: OLS 0.0854, two-step 0.0855, MLE 0.0855
+  educ 95% CI coverage: OLS 94.8%, two-step 94.2%, MLE 94.2%; median width two-step 0.0344, MLE 0.0345
+  MLE rho 95% CI coverage 93.8%; reject rho = 0 at 5%: LR 6.1%, two-step t 5.5%; two-step rho truncated 0.0%
+
+C. no exclusion restriction, rho 0.6: 1000 fits (0 failed), mean selected 61.1%, 175 s
+  educ mean estimate: OLS 0.0663, two-step 0.0854, MLE 0.0740
+  educ 95% CI coverage: OLS 27.7%, two-step 100.0%, MLE 79.0%; median width two-step 0.3166, MLE 0.0442
+  MLE rho 95% CI coverage 72.1%; reject rho = 0 at 5%: LR 15.3%, two-step t 7.2%; two-step rho truncated 54.6%

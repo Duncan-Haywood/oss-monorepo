@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVNZ9uk5funX24E6DKM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T12:01:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots: TAKE_SURVEY rms in 0.1 ppm (flagship 10 buildable item)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": 17651,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/tests/take_share_rounding.py",
+      "issue": "assumes every row's build indexes take_survey_sweep.TAKES; rows with take_ms (grid/short/bound sets) and list rows need a fallback, so the earlier '38 stored files' count is not reproducible from the script alone"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-rms-in-tenths-of-a-ppm.md",
+    "ventures/open-tennis-robots/eval/take-share-tenths-2026-11-19.md"
+  ],
+  "goal": "Remove the cause of the whole-ppm share guard by sending the take survey's rms in tenths of a ppm",
+  "notes": "TAKE_SURVEY gains a scale byte (10 = tenths; 1 when a slot would overflow). Old nine-candidate frame heads OLDER_FORMATS. Stored-set rescore (tests/take_share_tenths.py, 41 files, 2,964 drills): verdicts unlike exact share 6 -> 1; right takes advised 1,547 -> 1,552 of 2,394; instant advised 0 -> 0 of 570. A parallel PR #17652 claimed the same item a minute after this PR (#17651) opened; claim_check says it should yield. Verification: run_venture_tests.py open-tennis-robots and venture-preflight, outputs summarised in the PR.",
+  "corrections": [],
+  "redteam": null
+}

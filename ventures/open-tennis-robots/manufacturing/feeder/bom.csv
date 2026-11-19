@@ -180,7 +180,9 @@ Silicone wire 20 AWG pair,cots,1,Silicone wire 20 AWG pair,"lift gearmotor, deck
 TCRT5000 reflective sensor,cots,2,TCRT5000 reflective sensor,wheel tachometers
 "22 mm NC mushroom e-stop + 24 V coil contactor, 30 A DC or more",cots,1,"22 mm NC mushroom e-stop + 24 V coil contactor, 30 A DC or more",hard power cut; everything but the Pi's buck is after it; its coil through the on-delay timer (manifest inrush line)
 "Precharge resistor 4.7 ohm, aluminium-housed 50 W class",cots,1,"Precharge resistor 4.7 ohm, aluminium-housed 50 W class",across the contactor's contacts in series with the precharge relay; must survive the manifest inrush line's fault energy or fail open
-"24 V relay, 10 A contacts",cots,1,"24 V relay, 10 A contacts","precharge relay: its coil through the e-stop, ahead of the contactor"
+"24 V relay, 10 A contacts",cots,1,"24 V relay, 10 A contacts","precharge relay: its coil through the e-stop, the reset latch and RESET's NC contact, ahead of the contactor"
+"24 V relay, 10 A contacts (SPDT or better)",cots,1,"24 V relay, 10 A contacts (SPDT or better)",reset latch K0: coil after the e-stop and the fob through RESET's NO contact in parallel with its own NO hold contact; feeds the precharge relay and the timer through RESET's NC contact (manifest estop reset line)
+"22 mm momentary push button, 1 NO + 1 NC, flush, blue, labelled RESET",cots,1,"22 mm momentary push button, 1 NO + 1 NC, flush, blue, labelled RESET","on the feeder beside the e-stop: the motors get power only when it is pressed and let go at the machine (hardware/electronics.md ""Reset at the machine"")"
 "24 V on-delay timer relay module, set 0.5 s",cots,1,"24 V on-delay timer relay module, set 0.5 s",closes the contactor's coil after the precharge (manifest inrush line)
 PC817 optocoupler + 10k 0.5 W resistor,cots,1,PC817 optocoupler + 10k 0.5 W resistor,"contactor coil sense: LED across the coil through the 10k, transistor from ESP32 GPIO 15 to GND (cad/README.md ""Stepper ENABLE after the contactor"")"
 4.7k resistor,cots,1,4.7k resistor,"stepper driver EN pull-up to 3.3 V, EN to ESP32 GPIO 5: the driver stays off until the contactor has closed"

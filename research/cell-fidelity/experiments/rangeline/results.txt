@@ -1,0 +1,22 @@
+cell-fidelity milestone 5zz: the anode-thickness line on a second fresh DFN pool (8 designs per set, none of
+5z's or 5zy's picks), fitted on all 72 designs simulated so far (L) or on 5zk's 40 (L40); R = L inside the
+pooled training thickness range of the set, else NS. Set medians over the fresh designs.
+
+set          tr   rho in    eNS    eNT  eNL40    eNL    eNR     eC    eTs NT<NS NL<NS  maxNS  maxNL  maxNR
+Ai2020       16 -0.29  6  0.012  0.023  0.026  0.034  0.034  0.085  0.013     1     2  0.147  0.194  0.147
+Chen2020     20  0.40  8  0.045  0.081  0.054  0.047  0.047  0.070  0.076     2     5  0.133  0.089  0.089
+OKane2022    20  0.21  8  0.051  0.061  0.065  0.062  0.062  0.046  0.058     4     3  0.103  0.089  0.089
+NCA_Kim2011  16  0.70  7  0.053  0.045  0.048  0.047  0.037  0.007  0.023     7     4  0.084  0.088  0.088
+
+set            levN   levT levL40   levL  levTs
+Ai2020         6.14   2.50   4.55   2.51   2.51
+Chen2020       4.28   2.37   4.26   4.86   1.52
+OKane2022      6.33   5.49   5.01   5.38   2.01
+NCA_Kim2011   25.97  17.88  21.49  20.78   1.27
+
+(tr = training designs, 5zk's and 5zy's; rho = their Spearman of anode thickness against the separator-node late gain; in = fresh designs inside the training thickness range; e = |ln(L_pred(99) / L_DFN(99))| at kappa = 25.3, line through cycles 2..10, q_S, no drift; eTs = the design's own late gains, reads cycle 99, an in-sample ceiling; max = worst fresh design; lev in mV)
+
+H252 (e_NR < e_NS on >= 3 of 4 sets): refuted (1 of 4)
+H253 (NL < NS on the in-range designs, one-sided sign test p <= 0.05): refuted (14 of 29, p = 0.644)
+H254 (pooled line beats 5zk-only line, e_NL < e_NL40 on >= 3 of 4 sets): supported (3 of 4)
+H255 (OKane2022 e_NR <= (e_NS + e_C)/2): refuted

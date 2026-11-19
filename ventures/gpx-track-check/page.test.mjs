@@ -58,3 +58,7 @@ test("page offers sample-data buttons and a downloadable fixed file", () => {
   const html = page("index.html");
   for (const id of ["load-example", "load-broken", "download-fixed", "thin-run", "download-thin", "optout"]) assert.match(html, new RegExp(`id="${id}"`));
 });
+
+test("links the GTFS feed check, its transit-data sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/gtfs-feed-check\/"/);
+});

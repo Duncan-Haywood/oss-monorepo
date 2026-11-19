@@ -1,0 +1,22 @@
+name: submittal-register
+description: Drop a construction project manual (spec book) PDF and get a submittal register, every Part 1 submittal by spec section, typed and phased, as a CSV. Browser or CLI, nothing uploaded.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: General contractors' project engineers and subcontractors' PMs who build submittal logs by hand from a 300-1,000 page project manual will search "submittal register from specs" or "submittal log template" and use a free in-browser extractor, measured as the share of book_read events followed by csv_downloaded.
+    status: untested
+    checked: null
+    evidence: customer-contact  # usage counters book_read, register_built, csv_downloaded (local only)
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: false
+kill_criteria:
+  - Fewer than ten csv_downloaded events reported within 120 days of the page being indexed.
+links:
+  production: https://marisstella.app/submittal-register/
+  analytics: null

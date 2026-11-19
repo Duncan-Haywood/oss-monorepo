@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJKvYpFhH5HSj2RTSb",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T00:07:03Z",
+  "ended": "2026-11-19T00:19:18Z",
+  "wall_minutes": 15.69,
+  "tokens_in": 6723827,
+  "tokens_out": 29666,
+  "cost_usd": 2.8118,
+  "tool_calls": 82,
+  "task": "polish: /ask/ (2nd most-loaded page) tables stack as cards on phones, example questions in the empty panel",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17474",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says the build takes 3 to 20 minutes; here it took about 3 to 4 minutes both times. Starting it before reading anything else, as the prompt says, worked well."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Screenshots taken 300 ms after load catch the hub's count-up stat tiles mid-animation ('Research projects 635' next to '1,080 research projects'). This looked like a data bug until I waited 3 s. Worth a line telling runs to wait about 2 s on the hub."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Starting the build wiped platform/pages/dist at once, so a page's 'before' HTML is gone unless it is copied first. I rebuilt a 'before' by stripping this diff from the new HTML. The polish prompt could tell runs to copy the pages they plan to change before rebuilding."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/polish_queue.py",
+      "why": "The queue's 34 open items were mostly audience pages at 320 to 360 px, worked over by about 15 runs on 2026-11-18. The prompt's own rule (pick the weakest surface a visitor is most likely to see) pointed to /ask/, the 2nd most-loaded page in site-visits.json, which no report had looked at.",
+      "did": "Screenshotted the 4 most-loaded pages plus the prompt's 5 surfaces and fixed /ask/",
+      "result": "3 measurable defects fixed on a high-traffic page; the queue items are left for later runs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-the-ask-page-on-a-phone.md",
+    "docs/reports/polish-2026-11-19-ask-page.md"
+  ],
+  "goal": null,
+  "notes": "Measured with Chromium over the full local build; 'before' = the same build with this diff's HTML and CSS removed. At 390: narrowest table cell 54 -> 328 px; tables overflowing their scroller 2 -> 0; gap from table to next paragraph 0 -> 18 px; blank space in the panel 183 -> 53 px; page 10,253 -> 10,172 px. At 320: page 11,801 -> 11,954 px. At 1280: tables unchanged; blank space in the panel 266 -> 220 px. No sideways scroll at 320, 390 or 1280. Each example question clicked with the rules engine gives a useful answer; 'eBay fees on a $40 sale' was dropped because bestPassage led with a blind-round table row. node --test 'platform/pages/*.test.mjs': 1827 of 1827 pass. node platform/pages/check.mjs: exit 0, 11,708 pages, no dead links.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ba1c6134-ea86-5c53-9d39-062f16f1b4f5",
+    "transcripts": 1,
+    "first": "2026-11-19T00:07:03Z",
+    "last": "2026-11-19T00:22:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 131,
+        "output": 29666,
+        "thinking": 5325,
+        "cache_read": 6611740,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111956,
+        "api_equivalent_usd": 2.8118,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 131,
+      "output": 29666,
+      "thinking": 5325,
+      "cache_read": 6611740,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111956,
+      "api_equivalent_usd": 2.8118,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 59,
+      "Read": 21,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.69,
+      "active_minutes": 15.69,
+      "model_minutes": 7.13,
+      "tool_minutes": 8.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a front-end dev auditing 9 pages, building responsive tables and an example-prompts row, measuring and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 106.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

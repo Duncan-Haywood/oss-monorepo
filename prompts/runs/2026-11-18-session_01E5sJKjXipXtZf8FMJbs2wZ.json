@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKjXipXtZf8FMJbs2wZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T21:09:44Z",
+  "ended": "2026-11-18T21:35:42Z",
+  "wall_minutes": 26.27,
+  "tokens_in": 5657335,
+  "tokens_out": 24280,
+  "cost_usd": 2.45,
+  "tool_calls": 54,
+  "task": "open-tennis-robots flagship (row 5): fresh take survey with the stretched half-sine offsets live (NEXT.md 'Buildable here')",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17426",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "git checkout -b failed because the session branch already existed (harmless: already on it)",
+    "first check_posts run failed: post description 161 chars, fixed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "says a bare python3 often lacks pytest; true here, but test_host.py runs fine under plain unittest from tests/ with PYTHONPATH=../src:.:../firmware/esp32, which no doc mentions for this venture"
+    },
+    {
+      "file": "ventures/open-tennis-robots/tests/take_survey_pick.py",
+      "issue": "--capture writes stderr progress lines but they never reached the redirected log file in a pool (0 lines), so progress was only visible from the output file's line count"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/open-tennis-robots/NEXT.md",
+      "why": "the buildable item asked only for a fresh capture; its results exposed the parabola pick's low lean, so I pre-registered and ran a second held-out set (C) to decide the spline pick in the same run",
+      "did": "committed prediction and decision rule (334f5ca1e) before capturing set C; built TAKE_SURVEY_SPLINE",
+      "result": "spline tied the parabola held out; flag ships off per the rule"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-tennis-feeder-fixing-one-bias-exposed-another.md",
+    "ventures/open-tennis-robots/eval/take-survey-fresh-2026-11-18.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (section 'A fresh take survey with the stretched offsets live')"
+  ],
+  "goal": null,
+  "notes": "162 simulated survey drills on three unused (lag, seed) sets; all four pre-registered clauses held (7 ms takes off the grid's end 6/6 on the capture tach; dense least +0.08/-0.12 ms; 3 ms within 0.5 ms 5/6; no instant build advised). New finding: parabola pick reads 0.4-0.5 ms below the residual's least. Spline held out on set C: 48 vs 48 within 0.5 ms, so off. Nine-point grid scored offline 47/52/49 vs 43/46/48; next item. test_host.py: 135 tests OK under unittest.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a6836b56-0dfe-5ef9-9f94-88f5d16a48c2",
+    "transcripts": 1,
+    "first": "2026-11-18T21:09:44Z",
+    "last": "2026-11-18T21:36:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 110,
+        "output": 24280,
+        "thinking": 4838,
+        "cache_read": 5550494,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106731,
+        "api_equivalent_usd": 2.45,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 110,
+      "output": 24280,
+      "thinking": 4838,
+      "cache_read": 5550494,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106731,
+      "api_equivalent_usd": 2.45,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.27,
+      "active_minutes": 22.81,
+      "model_minutes": 4.0,
+      "tool_minutes": 18.82,
+      "waiting_on_human_minutes": 3.45,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer running three simulated survey sets, scoring, a flag with a test and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 244.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -561,7 +561,7 @@
       document.getElementById('returnVerdict').textContent = returnResolutionNote(resolution);
       document.getElementById('returnMatch').textContent = resolution.breakEvenRefundCappedByOrder
         ? `The return is dearer than the whole order on these inputs, so no concession short of a full refund ties it.`
-        : `Break-even concession is ${money(resolution.breakEvenPartialRefund)} — that is ${(resolution.breakEvenPartialRefund / resolution.sold.salePrice * 100).toFixed(1)}% of the ${money(resolution.sold.salePrice)} sale price. Your typed ${money(resolution.partialRefund)} leaves ${signed(resolution.rows[1].vsReturn)} against taking it back.`;
+        : `Break-even concession is ${money(resolution.breakEvenPartialRefund)} — ${resolution.sold.salePrice > 0 ? `that is ${(resolution.breakEvenPartialRefund / resolution.sold.salePrice * 100).toFixed(1)}% of the ${money(resolution.sold.salePrice)} sale price` : `with no sale price to take a share of`}. Your typed ${money(resolution.partialRefund)} leaves ${signed(resolution.rows[1].vsReturn)} against taking it back.`;
 
       field('whereToSellLink').href = whereToSellUrl(inputs);
 

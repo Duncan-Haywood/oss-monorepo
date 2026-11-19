@@ -1,0 +1,55 @@
+name: gitattributes-explainer
+description: >-
+  Free browser tool and CLI for developers: resolves .gitattributes files
+  (root, nested, .git/info/attributes, global) the way git check-attr does
+  and names the line and macro that set every attribute of every path, finds
+  lines git silently drops (! patterns, [attr] macros below the root, invalid
+  names), docs/ folder patterns that never reach a file, Git LFS lines without
+  -text and misspelled names or values, and says per file what git does to
+  line endings under core.autocrlf and core.eol. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-19 in an explore run. duplicate_check.py: top score 0.16
+# (gitignore-explainer), nothing near the 0.45 bar; no venture README
+# mentioned .gitattributes. gitignore-explainer shares the pattern matcher but
+# attributes have their own rules: no negation, per-attribute precedence,
+# macros, folder patterns that do not recurse, and line-ending conversion.
+#
+# Why a tool and not a chatbot answer: which line wins is decided per
+# attribute across several files and macro expansions, and a reply that
+# guesses gets the folder-pattern and macro cases wrong; this engine is
+# checked against git check-attr and git ls-files --eol on thousands of
+# random repositories and against real git add/checkout round trips, and the
+# CLI re-checks itself against the user's own git (--verify).
+#
+# First visitor: developers searching "gitattributes not working",
+# "linguist-vendored not working", "gitattributes eol=crlf not working",
+# "gitattributes negative pattern"; volume not measured with an external tool.
+
+hypotheses:
+  - claim: >-
+      Developers whose .gitattributes line has no effect will use a paste-in
+      tool that names the deciding line per attribute and flags dropped lines,
+      rather than running git check-attr path by path.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a path where the tool's attributes disagree with git check-attr and the cause is the engine, twice after fixes.
+
+links:
+  production: https://marisstella.app/gitattributes-explainer/
+  analytics: null

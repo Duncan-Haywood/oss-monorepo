@@ -350,7 +350,7 @@
     });
 
     el('copyLink').addEventListener('click', async () => {
-      const query = encodeInputs(readAllInputs());
+      const query = encodeInputs(readInput());
       history.replaceState(null, '', `${location.pathname}${location.search}${query ? `#${query}` : ''}`);
       try {
         await navigator.clipboard.writeText(location.href);

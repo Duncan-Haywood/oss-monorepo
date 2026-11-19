@@ -1,0 +1,64 @@
+# water-leaks step 27: R30 (step 24) re-timed to D1-L's alarm day k_al; 17 rules (lag L: R30 on day
+# k_al + delta; vote V[a,b]: the node R30 picks on most days of [k_al + a, k_al + b]); one selected on
+# 2018's detected leaks (real and injected pooled), frozen, then scored on 2019's; rule 300 m along pipes
+
+## selection on 2018: D1-L detects 28 leaks (10 real, 18 injected); R30 at the oracle day 14
+  rule        hits 2018
+  L+0           8
+  L+1           6
+  L-1           9
+  L+2           7
+  L-2           8
+  L+4           4
+  L-4           5
+  L+7           4
+  L-7           2
+  V[-4,+0]     10   <- selected (S)
+  V[-2,+2]      5
+  V[+0,+4]      7
+  V[+2,+7]      6
+  V[-7,+0]      5
+  V[+0,+7]      5
+  V[-4,+4]      5
+  V[-7,+7]      5
+  S = V[-4,+0], frozen before any 2019 score below was computed into this report
+
+## test on 2019: D1-L detects 22 leaks (10 real, 12 injected); chance expected 0.79; R30 at the oracle day 12
+  S = V[-4,+0]: 4 of 22 (P(chance >=) 0.0071); L0 (step 26) 3
+  paired S against L0: S only 1, L0 only 0, P = 1.000
+    real new 2019: S 3, L0 2, oracle day 6 of 10
+    injected 2019: S 1, L0 1, oracle day 6 of 12
+  end to end (2019, of all 48 leaks: 19 real, 29 injected): S 4, L0 3
+
+## pre-registered predictions (LOG.md, step 27 plan; detector D1-L, 2019's detected leaks)
+  (a) S more hits than L0: 4 against 3: HELD
+  (b) S at least 8 hits: 4: FAILED
+  (c) S beats chance at P < 0.01: P = 0.0071: HELD
+  (d) S beats L0 at P < 0.05 (sign test): P = 1.000: FAILED
+  (e) S keeps at least half its 2018 gain per leak: +0.045 against 0.5 x +0.071: HELD
+
+## every rule, both years (no verdicts)
+  rule        2018 of 28  2019 of 22  (real, injected)
+  L+0            8          3       (2, 1)
+  L+1            6          2       (1, 1)
+  L-1            9          6       (4, 2)
+  L+2            7          2       (1, 1)
+  L-2            8          2       (1, 1)
+  L+4            4          4       (3, 1)
+  L-4            5          2       (1, 1)
+  L+7            4          4       (2, 2)
+  L-7            2          2       (1, 1)
+  V[-4,+0]      10          4       (3, 1)
+  V[-2,+2]       5          2       (1, 1)
+  V[+0,+4]       7          2       (1, 1)
+  V[+2,+7]       6          4       (3, 1)
+  V[-7,+0]       5          3       (2, 1)
+  V[+0,+7]       5          3       (2, 1)
+  V[-4,+4]       5          2       (1, 1)
+  V[-7,+7]       5          4       (3, 1)
+  rank correlation of the rules' hits, 2018 against 2019: Spearman 0.09 (P = 0.73)
+  best rule in 2019 alone: L-1 (6)
+
+## reference detector D1-F, same S (no verdicts): 2018 11 of 32 (L0 8), 2019 5 of 21 (L0 4, oracle day 8)
+  D1-F's own 2018 selection would be V[-4,+0] (11); it scores 5 in 2019
+

@@ -1,6 +1,6 @@
 """Write experiments/results.txt: levelised cost of heat from a sand or water store against a heat pump.
 
-    PYTHONPATH=src:../energy-thermal/src python experiments/run.py      # a few minutes; deterministic
+    PYTHONPATH=src:../energy-thermal/src python experiments/run.py      # about 2 minutes; deterministic
 
 Costs, lifetimes, O&M and efficiencies come from data/params.csv (PyPSA technology-data, pinned
 revisions). Not from a source (set below, swept in section C): the electricity prices, the 2,000
@@ -26,6 +26,9 @@ def out(s=""):
 
 
 td = load("head_2030")
+out("Store electricity is billed at cyclic steady state (each charge lifts the store from where the last cycle left it; cost.cycle_steady).")
+out("Until 2026-11-18 every cycle was billed as a first charge from 10 C; that rule is store_lcoh(..., accounting=\"first-charge\").")
+out()
 out("A. Sourced inputs (PyPSA technology-data, commit 65244b4c, cost year 2030; v0.9.2 in section C). Currency years as in the table.")
 out("%-34s %10s %-16s %8s %7s %5s" % ("technology", "investment", "unit", "FOM_%/yr", "life_yr", "eff"))
 for name in ("Sand-store", "Sand-charger", "decentral water tank storage", "central water tank storage",

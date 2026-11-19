@@ -28,6 +28,7 @@
 // ifcVersion names that were passed, or every passed schema when none match).
 
 import { temporalKind } from "./temporal.mjs";
+import { parseXsdRegex, repairXsdRegex } from "./xsdregex.mjs";
 
 const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
 
@@ -97,7 +98,7 @@ function valueProblem(value, prim, enumValues) {
   // true or false), but buildingSMART's test cases make one on a number invalid.
   if (r.pattern.length && numeric) return { error: `a pattern only applies to text; this value is ${prim === "double" ? "a number" : "an integer"}, so the pattern can never match` };
   if (r.pattern.length && (prim === "boolean" || prim === "logical") && (r.regexes || []).every(Boolean) && !["true", "false"].some((t) => r.regexes.some((re) => re.test(t)))) return { warning: `the pattern matches neither true nor false, so this boolean can never match` };
-  for (const [i, re] of (r.regexes || []).entries()) if (!re) return { error: `pattern /${r.pattern[i]}/ is not a valid regular expression` };
+  for (const [i, re] of (r.regexes || []).entries()) if (!re) return { error: `pattern /${r.pattern[i]}/ is not a valid regular expression: ${parseXsdRegex(r.pattern[i]).error}` };
   for (const t of r.enumeration) {
     const p = literalProblem(t, prim, "enumeration value");
     if (p) return { error: p };
@@ -146,7 +147,7 @@ function entityNameIssues(f, ctx, where) {
     }
   } else if (f.name.r && f.name.r.pattern.length) {
     const res = f.name.r.regexes || [];
-    if (res.some((re) => !re)) issues.push({ level: "error", code: "pattern-invalid", message: `${where}class name pattern is not a valid regular expression` });
+    if (res.some((re) => !re)) issues.push({ level: "error", code: "pattern-invalid", message: `${where}class name pattern is not a valid regular expression: ${f.name.r.pattern.map((p) => parseXsdRegex(p)).find((x) => !x.ok)?.error}` });
     else if (!ctx.list.some(({ S }) => Object.keys(S.entities).some((n) => res.some((re) => re.test(n))))) issues.push({ level: "warning", code: "class-pattern-empty", message: `${where}class name pattern ${f.name} matches no ${label} class` });
   }
   // A predefined type the class's enumeration lacks only matches USERDEFINED
@@ -403,6 +404,72 @@ function canCarry(S, cls, classes) {
   return names.some((c) => classes.some((t) => isA(S, c, t) || isA(S, t, c) || (c.endsWith("TYPE") && (isA(S, c, t + "TYPE") || isA(S, c, t.replace(/STANDARDCASE$/, "") + "TYPE"))) || (/^IFC(TYPEOBJECT|TYPEPRODUCT|ELEMENTTYPE)$/.test(t) && isA(S, c, "IFCTYPEOBJECT"))));
 }
 
+// A standard set the templates give only to some predefined types of a class
+// (Pset_ActuatorTypeElectricActuator: IfcActuator/ELECTRICACTUATOR; IFC4 and
+// IFC4X3 templates, schema/psets-*.json `pt`). Warns when the specification's
+// predefinedType names none of those types, or names no type at all, so
+// objects of the other types are asked for a set the standard never gives
+// them. Fine when any selected class can carry the set whatever its type.
+// Types compare without case: IFC4 writes some as ObjectType text
+// ("IfcDiscreteAccessory/Wire loop"), IFC4X3 upper-cases them.
+function predefinedIssue(S, spec, setName, set, classes, id) {
+  if (!set.pt) return null;
+  const allowed = new Set();
+  const hasType = (n) => S.has(n) && S.attrs(n).some((x) => x.name === "PredefinedType");
+  for (const c of classes) {
+    const via = set.classes.filter((t) => canCarry(S, c, [t]));
+    if (!via.length) continue;
+    // IFC4's IfcMaterial/Concrete names a Category, not a predefined type.
+    if (!hasType(c) && !hasType(c + "TYPE")) return null;
+    if (via.some((t) => !own(set.pt, t))) return null;
+    for (const t of via) for (const v of set.pt[t]) allowed.add(v);
+  }
+  if (!allowed.size) return null;
+  const ef = spec.applicability.find((x) => x.kind === "entity");
+  // An attribute facet on PredefinedType selects types as well.
+  const af = spec.applicability.find((x) => x.kind === "attribute" && listedNames(x.name)?.includes("PredefinedType"));
+  const typeValue = ef && ef.predefinedType.present ? ef.predefinedType : af && af.value && af.value.present ? af.value : null;
+  const types = [...allowed];
+  const list = types.slice(0, 4).join(", ") + (types.length > 4 ? ", ..." : "");
+  const on = [...new Set(set.classes.filter((t) => own(set.pt, t)))].slice(0, 2).join(", ");
+  if (!typeValue) return { code: "pset-predefined", message: `${setName} is the ${id} standard set only for ${on} of predefined type ${list}; the applicability selects every ${classes.join(", ")} whatever its type, so objects of the other types are asked for a set the standard does not give them. Add predefinedType ${types.length === 1 ? types[0] : "(" + list + ")"} to the entity facet`, predefinedType: types };
+  const named = listedNames(typeValue);
+  if (!named) return null;
+  const lower = new Set(types.map((v) => v.toLowerCase()));
+  if (named.some((v) => lower.has(v.toLowerCase()))) return null;
+  return { code: "pset-predefined", message: `${setName} is the ${id} standard set only for ${on} of predefined type ${list}; the applicability selects predefined type ${named.join(", ")}, which the standard does not give this set`, predefinedType: types };
+}
+
+// Where the template type says a standard set may sit (schema/psets-*.json
+// `tt`, IFC4 and IFC4X3). PSET_OCCURRENCEDRIVEN and QTO_OCCURRENCEDRIVEN sets
+// go on occurrences only (Pset_FanOccurrence on each IfcFan, never on an
+// IfcFanType), so a type object selected for one is asked for a set the
+// standard never gives it: warns pset-occurrence. PSET_PERFORMANCEDRIVEN sets
+// (Pset_ActuatorPHistory) go on the IfcPerformanceHistory that records the
+// element's performance over time, not on the element: warns
+// pset-performance for any selected class that is not a performance history.
+// Warnings, like pset-predefined: the template type is the standard's
+// guidance, not a schema rule, and a model can still satisfy the
+// specification. Material and profile sets are left to pset-class.
+function templateTypeIssue(S, setName, set, classes, id) {
+  const tt = set.tt;
+  if (!tt) return null;
+  const list = (xs) => xs.slice(0, 4).join(", ") + (xs.length > 4 ? ", ..." : "");
+  if (/OCCURRENCEDRIVEN$/.test(tt)) {
+    // Type objects that reach the set only as the type of its occurrence.
+    const types = classes.filter((c) => isA(S, c, "IFCTYPEOBJECT") && canCarry(S, c, set.classes));
+    if (!types.length) return null;
+    const occ = [...new Set(types.map((c) => c.replace(/TYPE$/, "")).filter((c) => S.has(c) && canCarry(S, c, set.classes)))];
+    return { code: "pset-occurrence", message: `${setName} is an occurrence set in the ${id} templates (${tt}): the standard puts it on each ${list(set.classes)} and never on a type, so ${list(types)} ${types.length === 1 ? "is" : "are"} asked for a set ${types.length === 1 ? "it" : "they"} should not have${occ.length ? `. Select ${list(occ)} instead` : ""}`, occurrences: occ };
+  }
+  if (tt === "PSET_PERFORMANCEDRIVEN") {
+    const others = classes.filter((c) => !isA(S, c, "IFCPERFORMANCEHISTORY"));
+    if (!others.length || !S.has("IFCPERFORMANCEHISTORY")) return null;
+    return { code: "pset-performance", message: `${setName} is a performance history set in the ${id} templates (${tt}): the standard puts it on the IfcPerformanceHistory that records the performance of ${list(set.classes)} over time, not on the element itself, so ${list(others)} ${others.length === 1 ? "is" : "are"} asked for a set ${others.length === 1 ? "it" : "they"} should not carry. Select IFCPERFORMANCEHISTORY instead` };
+  }
+  return null;
+}
+
 // Standard property set template checks, following buildingSMART's
 // IDS-Audit-tool: a Pset_/Qto_ set the templates lack, a property its standard
 // set lacks, a dataType the template does not give, and a set the applicable
@@ -428,6 +495,7 @@ function templateIssues(f, spec, ctx, where) {
       found.push([setName, set]);
     }
     // Applicability: can any class the specification selects carry the set?
+    let ptWarning = null;
     if (where === "requirements") {
       // An IFC2X3 type-mapping name (IFCACTUATOR: an
       // IfcDistributionControlElement typed by an IfcActuatorType) also
@@ -436,14 +504,20 @@ function templateIssues(f, spec, ctx, where) {
       const mappedTypes = id === "IFC2X3" && ef ? (listedNames(ef.name) || []).map((n) => own(ctx.typeMap, n)).filter((m) => m && m[1]).map((m) => m[1]) : [];
       for (const [setName, set] of found) {
         const classes = applicableClasses(spec, S, ctx.typeMap, id);
-        if (classes && classes.length && set.classes.length && !classes.some((c) => canCarry(S, c, set.classes)) && !mappedTypes.some((t) => S.has(t) && canCarry(S, t, set.classes))) {
+        // A performance set sits on the IfcPerformanceHistory that records
+        // the element's performance, so selecting the history is right.
+        const history = set.tt === "PSET_PERFORMANCEDRIVEN" && classes && classes.some((c) => isA(S, c, "IFCPERFORMANCEHISTORY"));
+        if (classes && classes.length && set.classes.length && !history && !classes.some((c) => canCarry(S, c, set.classes)) && !mappedTypes.some((t) => S.has(t) && canCarry(S, t, set.classes))) {
           return { error: { code: "pset-class", message: `${setName} applies to ${set.classes.slice(0, 4).join(", ")}${set.classes.length > 4 ? ", ..." : ""} in ${id}; the applicability selects ${classes.join(", ")}, which cannot carry it` } };
         }
+        // The wrong kind of object outranks a missing predefined type.
+        if (classes && classes.length) ptWarning ||= templateTypeIssue(S, setName, set, classes, id);
+        if (classes && classes.length && !mappedTypes.length) ptWarning ||= predefinedIssue(S, spec, setName, set, classes, id);
       }
     }
     const propNames = listedNames(f.baseName);
-    if (!propNames) return null;
-    let warning = null;
+    if (!propNames) return ptWarning ? { warning: ptWarning } : null;
+    let warning = ptWarning;
     for (const [setName, set] of found) {
       for (const pn of propNames) {
         const tpl = own(set.props, pn);
@@ -506,8 +580,41 @@ function propertyIssues(f, ctx, spec, where) {
   return [...issues, ...tpl];
 }
 
-export function auditIds(ids, { schemas, typeMap, psets } = {}) {
+// Every xs:pattern in a facet read as XML Schema regex (xsdregex.mjs): one
+// that is not XSD (a "(?:" group, a lazy "*?", "{,3}") is an error, because
+// IfcTester stops on it and schema validators refuse it, even where this
+// checker's looser fallback still ran it; one that is XSD but means something
+// else in JavaScript or Python ("^" and "$" are characters, not anchors; "\w"
+// is wider) is a warning. Each says what to write instead. A pattern no
+// reader takes at all is reported by the value checks above, not twice.
+// (eval/xsd-regex-2026-11-18.md)
+function patternIssues(f) {
   const out = [];
+  const values = Object.entries(f).filter(([, v]) => v && typeof v === "object" && "r" in v && "simple" in v);
+  if (f.entity) values.push(...Object.entries(f.entity).filter(([, v]) => v && typeof v === "object" && "r" in v && "simple" in v).map(([k, v]) => ["partOf " + k, v]));
+  for (const [key, v] of values) {
+    if (!v.r) continue;
+    v.r.pattern.forEach((p, i) => {
+      if (!v.r.regexes || !v.r.regexes[i]) return;
+      const r = parseXsdRegex(p);
+      const fix = repairXsdRegex(p);
+      const instead = fix !== null ? `; write /${fix}/` : "";
+      const label = key.replace(/([A-Z])/g, " $1").toLowerCase();
+      if (!r.ok) out.push({ level: "error", code: "pattern-not-xsd", message: `${label} pattern /${p}/ is not an XML Schema regex, which IDS patterns are: ${r.error}${instead}. IfcTester stops on it, so the file checks differently in each tool`, ...(fix !== null ? { fix } : {}) });
+      else for (const n of r.notes) out.push({ level: "warning", code: n.code, message: `${label} pattern /${p}/: ${n.message}${n.fix && fix !== null ? `; write /${fix}/` : ""}`, ...(n.fix && fix !== null ? { fix } : {}) });
+    });
+  }
+  return out;
+}
+
+export function auditIds(ids, { schemas, typeMap, psets } = {}) {
+  // The file's structure against ids.xsd first (structure.mjs): element order,
+  // allowed attributes and their fixed values. `structure: true` marks them.
+  // Capped at 200: a file written without <simpleValue> wrappers can break
+  // the schema 50,000 times, and the first findings say what to fix.
+  const structure = ids.structure || [];
+  const out = structure.slice(0, 200).map((x) => ({ spec: x.spec, specName: x.spec === null ? "IDS file" : ids.specs[x.spec]?.name ?? `specification ${x.spec + 1}`, facet: x.line ? `line ${x.line}` : null, level: x.level, code: x.code, message: x.message, structure: true, ...(x.topic ? { topic: x.topic } : {}) }));
+  if (structure.length > 200) out.push({ spec: null, specName: "IDS file", facet: null, level: "error", code: "xsd-more", message: `${(structure.length - 200).toLocaleString("en-US")} more places break ids.xsd; fix the ones above and audit again`, structure: true });
   ids.specs.forEach((spec, i) => {
     const add = (facet, issue) => out.push({ spec: i, specName: spec.name, facet, ...issue });
     for (const v of spec.ifcVersion) if (!VERSIONS.includes(v)) add(null, { level: "error", code: "version-unknown", message: `ifcVersion ${v} is not one of IFC2X3, IFC4, IFC4X3_ADD2` });
@@ -537,9 +644,15 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
             if (!named.some((x) => x.level === "error")) issues.push(...abstractIssues(f.entity, ctx, "partOf: ", spec, false));
           }
         }
+        issues.push(...patternIssues(f));
         for (const x of issues) add(where + " " + f.describe(), x);
       }
     }
   });
-  return out;
+  // A structure finding the checks above already made in their own words
+  // (a partOf relation, an ifcVersion, a classification with no system) is
+  // kept once: the specific message, which says what to write instead.
+  const SAME = { relation: ["relation-voids-fills", "relation-unknown"], ifcVersion: ["version-unknown"], "classification-system": ["classification-no-system"] };
+  const said = new Set(out.filter((x) => !x.structure).map((x) => x.spec + " " + x.code));
+  return out.filter((x) => !(x.structure && x.topic && SAME[x.topic].some((c) => said.has(x.spec + " " + c))));
 }

@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJTdQRoQq7YwUygQfR",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T02:06:19Z",
+  "ended": "2026-11-19T03:11:08Z",
+  "wall_minutes": 64.99,
+  "tokens_in": 7416118,
+  "tokens_out": 35880,
+  "cost_usd": 3.1752,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17501",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "tfol_boot --recent first crashed writing JSON: numpy bools in predictions; cast to bool and reran",
+    "one new unit test had a wrong expected value (2/3, not 1/2); fixed the test, not the code"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py with -r requirements resolved to /usr/bin/python3.13 but that interpreter lacked lightgbm at first check; the background install handled it, but the note does not say the returned interpreter may have been modified in place"
+    },
+    {
+      "file": "research/build-data/src/rounds.py",
+      "issue": "--out-name loads and rewrites an existing file, so parallel processes need distinct out names and a manual merge; nothing in the docstring says so"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-build-data-one-seattle-close-out-batch.md",
+    "research/build-data/LOG.md (session 104)"
+  ],
+  "goal": null,
+  "notes": "build-data session 104: new variant cpin_es3_ncr (per-source 0.99 quantile of builds completed in the 3 years before D), 12 fits (SF, Seattle x 2017-2022), pre-registered in commit 3a0237296. N0 held, N1-N4 refuted: 6.65 days mean regret vs fixed 4-year cut 0.78; mechanism a 2017 Seattle batch of 467 completions of >8-year-old permits. Local checks: build-data tests 173 passed 2 skipped; research homepage build ok; check_posts ok; check_md_links ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e9d54982-afa2-514a-9c8c-fe0df916b3f4",
+    "transcripts": 1,
+    "first": "2026-11-19T02:06:19Z",
+    "last": "2026-11-19T03:11:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 126,
+        "output": 35880,
+        "thinking": 7226,
+        "cache_read": 7291137,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124855,
+        "api_equivalent_usd": 3.1752,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 126,
+      "output": 35880,
+      "thinking": 7226,
+      "cache_read": 7291137,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124855,
+      "api_equivalent_usd": 3.1752,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 64.99,
+      "active_minutes": 64.99,
+      "model_minutes": 6.82,
+      "tool_minutes": 58.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "implement and test a new variant and scorer, pull three feeds, run and analyse 12 fits, mechanism check, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 314.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,510 @@
+# Milestone 6: seeding regret under parameter uncertainty
+grid 5400 points (I 600, T 2400, R 2400), sigma in [0.0, 0.25, 0.5, 0.75], S_fit 75 (seed 0); bootstrap B = 500 (seed 42); scoring S = 100 (seed 5); randomised rules 100 draws, one run each; greedy S = 32 at the point fits
+grid simulated in 321 s
+
+## point fits (sanity: milestone 3b found I qN 0.05 qP 0.3 delta 0; T theta 0.5 delta -0.25 qN 0.075 qP 0.1; R gamma 0.1 delta -0.25 qN 0.1 qP 0.1; all sigma 0)
+  I qN=0.050 qP=0.3 delta=+0.00 sigma=0.00
+  T qN=0.075 qP=0.1 delta=-0.25 sigma=0.00 theta=0.50
+  R qN=0.100 qP=0.1 delta=-0.25 sigma=0.00 gamma=0.10
+
+## bootstrap distribution of the refitted point (share of draws)
+### I: 38 distinct points; point fit in 0.072 of draws
+  0.198  I qN=0.050 qP=0.2 delta=+0.00 sigma=0.25
+  0.162  I qN=0.050 qP=0.2 delta=+0.00 sigma=0.50
+  0.128  I qN=0.050 qP=0.3 delta=+0.00 sigma=0.25
+  0.072  I qN=0.050 qP=0.2 delta=+0.00 sigma=0.00
+  0.072  I qN=0.050 qP=0.3 delta=+0.00 sigma=0.00
+  0.062  I qN=0.025 qP=0.2 delta=+0.00 sigma=0.50
+  0.036  I qN=0.025 qP=0.3 delta=+0.00 sigma=0.50
+  0.032  I qN=0.025 qP=0.3 delta=+0.00 sigma=0.25
+  0.030  I qN=0.050 qP=0.3 delta=+0.00 sigma=0.50
+  0.024  I qN=0.075 qP=0.1 delta=+0.00 sigma=0.50
+  0.020  I qN=0.050 qP=0.1 delta=+0.00 sigma=0.50
+  0.018  I qN=0.025 qP=0.3 delta=+0.00 sigma=0.00
+    sigma: 0 0.19, 0.25 0.42, 0.5 0.37, 0.75 0.02
+    qN: 0.025 0.19, 0.05 0.72, 0.075 0.09, 0.1 0.00
+    qP: 0.1 0.07, 0.2 0.55, 0.3 0.33, 0.4 0.04, 0.5 0.00
+    delta: -0.25 0.02, 0 0.98
+### T: 47 distinct points; point fit in 0.134 of draws
+  0.134  T qN=0.075 qP=0.1 delta=-0.25 sigma=0.00 theta=0.50
+  0.134  T qN=0.075 qP=0.1 delta=+0.00 sigma=0.00 theta=0.60
+  0.120  T qN=0.075 qP=0.1 delta=-0.50 sigma=0.00 theta=0.40
+  0.068  T qN=0.050 qP=0.1 delta=+0.00 sigma=0.00 theta=0.60
+  0.066  T qN=0.050 qP=0.1 delta=+0.00 sigma=0.00 theta=0.50
+  0.062  T qN=0.050 qP=0.1 delta=+0.00 sigma=0.25 theta=0.60
+  0.054  T qN=0.075 qP=0.1 delta=-0.25 sigma=0.25 theta=0.50
+  0.042  T qN=0.050 qP=0.2 delta=+0.00 sigma=0.00 theta=0.60
+  0.042  T qN=0.050 qP=0.2 delta=-0.25 sigma=0.00 theta=0.50
+  0.032  T qN=0.075 qP=0.1 delta=+0.00 sigma=0.25 theta=0.60
+  0.030  T qN=0.100 qP=0.1 delta=-0.25 sigma=0.00 theta=0.50
+  0.028  T qN=0.100 qP=0.1 delta=-0.50 sigma=0.00 theta=0.40
+    sigma: 0 0.76, 0.25 0.24
+    qN: 0.025 0.04, 0.05 0.35, 0.075 0.52, 0.1 0.08, 0.15 0.01
+    qP: 0.1 0.79, 0.2 0.19, 0.3 0.02, 0.4 0.00
+    delta: -0.5 0.19, -0.25 0.32, 0 0.49
+    theta: 0.4 0.17, 0.5 0.37, 0.6 0.44, 0.75 0.02
+### R: 120 distinct points; point fit in 0.028 of draws
+  0.064  R qN=0.075 qP=0.2 delta=-0.25 sigma=0.00 gamma=0.10
+  0.042  R qN=0.100 qP=0.3 delta=-0.50 sigma=0.00 gamma=0.15
+  0.034  R qN=0.150 qP=0.2 delta=-0.50 sigma=0.00 gamma=0.15
+  0.034  R qN=0.075 qP=0.1 delta=+0.00 sigma=0.00 gamma=0.05
+  0.032  R qN=0.100 qP=0.2 delta=-0.50 sigma=0.00 gamma=0.15
+  0.032  R qN=0.100 qP=0.4 delta=-0.50 sigma=0.00 gamma=0.15
+  0.028  R qN=0.075 qP=0.3 delta=-0.50 sigma=0.00 gamma=0.15
+  0.028  R qN=0.050 qP=0.2 delta=+0.00 sigma=0.00 gamma=0.05
+  0.028  R qN=0.150 qP=0.3 delta=-0.50 sigma=0.00 gamma=0.15
+  0.028  R qN=0.100 qP=0.1 delta=-0.25 sigma=0.00 gamma=0.10
+  0.028  R qN=0.075 qP=0.3 delta=-0.25 sigma=0.00 gamma=0.10
+  0.026  R qN=0.050 qP=0.3 delta=-0.25 sigma=0.00 gamma=0.10
+    sigma: 0 0.71, 0.25 0.26, 0.5 0.02
+    qN: 0.025 0.00, 0.05 0.14, 0.075 0.36, 0.1 0.33, 0.15 0.17
+    qP: 0.1 0.10, 0.2 0.20, 0.3 0.22, 0.4 0.14, 0.5 0.12, 0.6 0.05, 0.7 0.03, 0.8 0.04, 0.9 0.03, 1 0.06
+    delta: -0.5 0.60, -0.25 0.32, 0 0.08
+    gamma: 0.05 0.18, 0.1 0.49, 0.15 0.33
+
+greedy searches done at 508 s
+scoring 200 rules under 205 distinct processes
+scored at 3340 s
+
+## sanity: point fits, equal weights (milestone 5 at S = 200: greedy-T 0.005, dd-0.05 0.014, degree 0.041)
+
+## worst-case regret over I, T, R: point fits | joint bootstrap (median [5%, 95%]) | fixed fits, same weights
+  greedy-T            0.003 | 0.007 [0.002, 0.026] | 0.005 [0.002, 0.010]  I 0.003  T 0.002  R 0.005
+  census-dd-r0.85-recip#r3 0.011 | 0.010 [0.002, 0.022] | 0.012 [0.006, 0.018]  I 0.007  T 0.006  R 0.003
+  greedy-R            0.010 | 0.011 [0.003, 0.044] | 0.010 [0.007, 0.014]  I 0.003  T 0.010  R 0.004
+  dd-0.075            0.012 | 0.011 [0.005, 0.019] | 0.012 [0.007, 0.016]  I 0.008  T 0.005  R 0.007
+  dd-0.1              0.013 | 0.012 [0.006, 0.020] | 0.013 [0.009, 0.017]  I 0.009  T 0.006  R 0.008
+  dd-0.05             0.013 | 0.012 [0.006, 0.021] | 0.013 [0.009, 0.017]  I 0.010  T 0.006  R 0.008
+  census-dd-stress    0.015 | 0.012 [0.003, 0.022] | 0.015 [0.008, 0.021]  I 0.010  T 0.007  R 0.006
+  dd-0.15             0.013 | 0.012 [0.007, 0.020] | 0.013 [0.009, 0.017]  I 0.009  T 0.007  R 0.009
+  dd-0.025            0.014 | 0.013 [0.007, 0.021] | 0.014 [0.010, 0.018]  I 0.011  T 0.008  R 0.008
+  census-dd-r0.85#r4  0.009 | 0.013 [0.003, 0.029] | 0.010 [0.004, 0.018]  I 0.010  T 0.004  R 0.001
+  census-dd-r0.85-fp0.25-uniform-recip#r2 0.013 | 0.014 [0.005, 0.026] | 0.014 [0.006, 0.021]  I 0.011  T 0.011  R 0.003
+  dd-0.2              0.014 | 0.014 [0.008, 0.022] | 0.014 [0.010, 0.018]  I 0.011  T 0.010  R 0.010
+  dd-0.01             0.015 | 0.014 [0.008, 0.021] | 0.015 [0.011, 0.019]  I 0.012  T 0.009  R 0.008
+  census-dd-r0.85-fp0.25-uniform#r4 0.015 | 0.014 [0.006, 0.023] | 0.015 [0.010, 0.022]  I 0.011  T 0.012  R 0.006
+  census-dd-r0.85-fp0.25-uniform#r2 0.016 | 0.014 [0.006, 0.023] | 0.017 [0.010, 0.024]  I 0.011  T 0.012  R 0.007
+  census-dd-r0.85-fp0.5-closure-recip 0.013 | 0.014 [0.007, 0.027] | 0.015 [0.008, 0.022]  I 0.012  T 0.011  R 0.006
+  census-dd-r0.75     0.014 | 0.015 [0.007, 0.024] | 0.015 [0.010, 0.021]  I 0.010  T 0.012  R 0.007
+  census-dd-measured  0.015 | 0.015 [0.006, 0.028] | 0.015 [0.008, 0.022]  I 0.012  T 0.009  R 0.007
+  census-dd-r0.85-fp0.5-uniform-recip 0.015 | 0.015 [0.008, 0.025] | 0.015 [0.009, 0.022]  I 0.011  T 0.013  R 0.005
+  census-dd-r0.5      0.018 | 0.015 [0.007, 0.027] | 0.018 [0.012, 0.027]  I 0.008  T 0.014  R 0.005
+  census-dd-r0.85-fp0.25-uniform-recip 0.015 | 0.015 [0.006, 0.025] | 0.016 [0.010, 0.023]  I 0.010  T 0.013  R 0.005
+  census-dd-r0.85-recip#r2 0.017 | 0.017 [0.009, 0.029] | 0.018 [0.012, 0.025]  I 0.013  T 0.015  R 0.008
+  census-dd-r0.85-fp0.25-uniform-recip#r4 0.020 | 0.017 [0.008, 0.032] | 0.020 [0.013, 0.028]  I 0.012  T 0.015  R 0.009
+  census-dd-r0.85-fp0.25-closure#r3 0.018 | 0.017 [0.009, 0.028] | 0.019 [0.013, 0.026]  I 0.013  T 0.015  R 0.008
+  census-dd-matched   0.015 | 0.017 [0.008, 0.029] | 0.015 [0.009, 0.021]  I 0.015  T 0.009  R 0.008
+  census-dd-r0.85-fp0.25-closure-recip#r1 0.014 | 0.017 [0.007, 0.032] | 0.015 [0.009, 0.022]  I 0.015  T 0.012  R 0.005
+  census-dd-r0.85#r3  0.015 | 0.017 [0.008, 0.031] | 0.016 [0.008, 0.023]  I 0.013  T 0.012  R 0.008
+  adaptive-dd-0.5-s0.75-matched 0.018 | 0.018 [0.010, 0.031] | 0.018 [0.012, 0.025]  I 0.013  T 0.016  R 0.009
+  census-dd-r0.85-fp0.25-uniform-recip#r3 0.018 | 0.018 [0.010, 0.030] | 0.018 [0.011, 0.026]  I 0.014  T 0.015  R 0.008
+  census-dd-r0.85     0.015 | 0.018 [0.009, 0.032] | 0.016 [0.009, 0.023]  I 0.015  T 0.012  R 0.009
+  census-dd-r0.85-fp0.5-uniform-recip#r4 0.020 | 0.018 [0.010, 0.031] | 0.021 [0.014, 0.029]  I 0.014  T 0.016  R 0.009
+  adaptive-dd-0.5-s0.25 0.015 | 0.018 [0.009, 0.033] | 0.015 [0.009, 0.022]  I 0.015  T 0.013  R 0.007
+  adaptive-dd-0.5-s0.75-r0.85#r4 0.018 | 0.019 [0.011, 0.032] | 0.019 [0.014, 0.024]  I 0.017  T 0.016  R 0.010
+  census-dd-r0.85-fp0.5-uniform-recip#r3 0.019 | 0.019 [0.010, 0.032] | 0.019 [0.013, 0.026]  I 0.013  T 0.017  R 0.008
+  adaptive-dd-0.5-s0.75-r0.85#r3 0.018 | 0.019 [0.010, 0.031] | 0.018 [0.012, 0.025]  I 0.014  T 0.016  R 0.008
+  dd-0.3              0.019 | 0.019 [0.014, 0.027] | 0.020 [0.016, 0.024]  I 0.015  T 0.018  R 0.014
+  census-dd-r0.85-fp0.25-closure-recip 0.014 | 0.019 [0.009, 0.036] | 0.015 [0.009, 0.023]  I 0.017  T 0.013  R 0.008
+  census-dd-r0.85-fp0.25-uniform#r1 0.016 | 0.020 [0.009, 0.034] | 0.017 [0.010, 0.025]  I 0.018  T 0.015  R 0.010
+  adaptive-dd-0.5-s0.75 0.014 | 0.020 [0.010, 0.034] | 0.016 [0.009, 0.021]  I 0.018  T 0.012  R 0.005
+  census-dd-r0.85-fp0.25-closure#r2 0.020 | 0.020 [0.012, 0.032] | 0.020 [0.013, 0.028]  I 0.014  T 0.018  R 0.009
+  census-dd-r0.85-fp0.25-closure 0.019 | 0.020 [0.011, 0.033] | 0.020 [0.013, 0.027]  I 0.015  T 0.018  R 0.009
+  census-dd-r0.85-fp0.5-uniform#r1 0.017 | 0.020 [0.012, 0.032] | 0.018 [0.012, 0.025]  I 0.018  T 0.017  R 0.008
+  census-dd-r0.85-fp0.5-uniform-recip#r2 0.018 | 0.020 [0.011, 0.034] | 0.018 [0.011, 0.025]  I 0.019  T 0.014  R 0.007
+  adaptive-dd-0.5-s0.75-stress 0.022 | 0.021 [0.011, 0.034] | 0.022 [0.015, 0.031]  I 0.015  T 0.019  R 0.010
+  census-dd-r0.85-fp0.5-uniform-recip#r1 0.020 | 0.021 [0.012, 0.035] | 0.020 [0.012, 0.029]  I 0.017  T 0.017  R 0.007
+  census-dd-r0.85-fp0.25-uniform-recip#r1 0.018 | 0.021 [0.012, 0.037] | 0.019 [0.012, 0.026]  I 0.018  T 0.016  R 0.009
+  census-dd-r0.85-fp0.5-uniform#r3 0.021 | 0.021 [0.013, 0.035] | 0.021 [0.015, 0.029]  I 0.016  T 0.019  R 0.010
+  census-dd-r0.85-fp0.25-closure#r1 0.019 | 0.021 [0.010, 0.040] | 0.019 [0.013, 0.025]  I 0.019  T 0.016  R 0.006
+  adaptive-dd-0.5-s0.75-r0.75 0.020 | 0.022 [0.012, 0.034] | 0.022 [0.015, 0.029]  I 0.017  T 0.020  R 0.009
+  census-dd-r0.85-fp0.5-closure-recip#r4 0.018 | 0.022 [0.013, 0.035] | 0.019 [0.014, 0.025]  I 0.018  T 0.018  R 0.010
+  census-dd-r0.85-fp0.25-closure-recip#r4 0.017 | 0.022 [0.014, 0.036] | 0.018 [0.012, 0.023]  I 0.019  T 0.017  R 0.009
+  adaptive-dd-0.5-s0.75-measured 0.019 | 0.022 [0.013, 0.036] | 0.020 [0.015, 0.027]  I 0.019  T 0.019  R 0.011
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform 0.024 | 0.022 [0.013, 0.034] | 0.025 [0.019, 0.031]  I 0.016  T 0.021  R 0.012
+  census-dd-r0.85#r2  0.016 | 0.022 [0.012, 0.039] | 0.018 [0.011, 0.025]  I 0.020  T 0.014  R 0.008
+  adaptive-dd-0.5-s0.75-r0.85-recip#r1 0.021 | 0.023 [0.015, 0.033] | 0.022 [0.016, 0.028]  I 0.017  T 0.021  R 0.011
+  adaptive-dd-0.5-r0.75 0.022 | 0.023 [0.014, 0.035] | 0.022 [0.015, 0.030]  I 0.019  T 0.019  R 0.011
+  census-dd-r0.85-fp0.5-uniform 0.021 | 0.023 [0.014, 0.036] | 0.022 [0.016, 0.030]  I 0.018  T 0.020  R 0.010
+  single-discount     0.024 | 0.023 [0.018, 0.031] | 0.024 [0.020, 0.028]  I 0.020  T 0.022  R 0.012
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform#r4 0.022 | 0.023 [0.015, 0.033] | 0.022 [0.017, 0.029]  I 0.018  T 0.022  R 0.012
+  census-dd-r0.85-fp0.5-uniform#r4 0.023 | 0.023 [0.014, 0.035] | 0.023 [0.017, 0.030]  I 0.018  T 0.021  R 0.012
+  adaptive-dd-0.5-s0.75-r0.85-recip#r4 0.022 | 0.023 [0.014, 0.037] | 0.023 [0.016, 0.032]  I 0.017  T 0.021  R 0.013
+  census-dd-r0.85-fp0.5-closure-recip#r2 0.019 | 0.023 [0.012, 0.036] | 0.019 [0.013, 0.027]  I 0.021  T 0.017  R 0.008
+  adaptive-dd-0.5-s0.75-r0.85 0.015 | 0.023 [0.011, 0.039] | 0.017 [0.010, 0.024]  I 0.021  T 0.015  R 0.008
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip#r1 0.024 | 0.023 [0.016, 0.035] | 0.024 [0.017, 0.033]  I 0.019  T 0.022  R 0.009
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip#r4 0.025 | 0.023 [0.014, 0.039] | 0.025 [0.020, 0.032]  I 0.014  T 0.023  R 0.008
+  census-dd-r0.85-fp0.25-uniform#r3 0.014 | 0.023 [0.011, 0.042] | 0.015 [0.007, 0.023]  I 0.022  T 0.013  R 0.006
+  census-dd-r0.85-recip#r4 0.017 | 0.024 [0.014, 0.039] | 0.018 [0.012, 0.025]  I 0.021  T 0.016  R 0.010
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform#r3 0.023 | 0.024 [0.016, 0.038] | 0.024 [0.016, 0.031]  I 0.019  T 0.022  R 0.012
+  census-dd-r0.85-fp0.25-closure#r4 0.019 | 0.024 [0.014, 0.040] | 0.020 [0.014, 0.026]  I 0.020  T 0.018  R 0.010
+  census-dd-r0.85-fp0.5-closure#r1 0.026 | 0.024 [0.015, 0.036] | 0.026 [0.019, 0.035]  I 0.019  T 0.023  R 0.012
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform#r2 0.022 | 0.024 [0.015, 0.037] | 0.022 [0.015, 0.029]  I 0.020  T 0.021  R 0.012
+  census-dd-r0.85#r1  0.014 | 0.024 [0.010, 0.040] | 0.015 [0.008, 0.022]  I 0.020  T 0.012  R 0.007
+  adaptive-dd-0.5-r0.85 0.024 | 0.024 [0.015, 0.038] | 0.024 [0.017, 0.032]  I 0.018  T 0.022  R 0.012
+  census-dd-r0.85-fp0.5-closure-recip#r1 0.021 | 0.024 [0.014, 0.042] | 0.021 [0.014, 0.028]  I 0.022  T 0.019  R 0.009
+  census-dd-r0.85-fp0.25-uniform 0.022 | 0.025 [0.016, 0.040] | 0.022 [0.016, 0.030]  I 0.020  T 0.019  R 0.014
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip#r3 0.026 | 0.025 [0.015, 0.038] | 0.026 [0.019, 0.033]  I 0.018  T 0.023  R 0.008
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure 0.025 | 0.025 [0.015, 0.039] | 0.026 [0.019, 0.033]  I 0.019  T 0.023  R 0.011
+  adaptive-dd-0.5-s0.75-r0.85-recip 0.021 | 0.025 [0.017, 0.039] | 0.022 [0.016, 0.029]  I 0.022  T 0.021  R 0.010
+  census-dd-r0.85-recip#r1 0.012 | 0.025 [0.010, 0.045] | 0.013 [0.005, 0.021]  I 0.023  T 0.011  R 0.005
+  census-dd-r0.85-fp0.5-uniform#r2 0.020 | 0.026 [0.015, 0.044] | 0.021 [0.015, 0.027]  I 0.024  T 0.018  R 0.009
+  census-dd-r0.85-fp0.5-closure#r4 0.026 | 0.026 [0.015, 0.039] | 0.026 [0.019, 0.033]  I 0.019  T 0.024  R 0.011
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip#r2 0.027 | 0.026 [0.014, 0.039] | 0.027 [0.020, 0.035]  I 0.019  T 0.024  R 0.013
+  uniform-dd-0.5      0.025 | 0.026 [0.015, 0.041] | 0.025 [0.018, 0.033]  I 0.019  T 0.024  R 0.006
+  census-dd-r0.85-fp0.25-closure-recip#r3 0.024 | 0.026 [0.014, 0.042] | 0.024 [0.017, 0.030]  I 0.023  T 0.021  R 0.010
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform#r4 0.019 | 0.026 [0.015, 0.041] | 0.020 [0.014, 0.026]  I 0.024  T 0.019  R 0.011
+  census-dd-r0.85-recip 0.019 | 0.026 [0.015, 0.045] | 0.019 [0.013, 0.026]  I 0.024  T 0.018  R 0.009
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform 0.021 | 0.027 [0.016, 0.043] | 0.022 [0.016, 0.028]  I 0.024  T 0.021  R 0.010
+  census-dd-r0.85-fp0.5-closure-recip#r3 0.017 | 0.027 [0.013, 0.045] | 0.018 [0.010, 0.025]  I 0.025  T 0.017  R 0.007
+  census-dd-r0.85-fp0.5-closure 0.022 | 0.027 [0.015, 0.042] | 0.022 [0.014, 0.030]  I 0.024  T 0.022  R 0.008
+  adaptive-dd-0.5-s0.75-r0.85#r2 0.026 | 0.027 [0.017, 0.040] | 0.026 [0.020, 0.033]  I 0.022  T 0.024  R 0.015
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure#r3 0.027 | 0.028 [0.017, 0.042] | 0.027 [0.020, 0.034]  I 0.021  T 0.025  R 0.012
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure#r4 0.028 | 0.028 [0.020, 0.041] | 0.028 [0.020, 0.036]  I 0.023  T 0.026  R 0.012
+  adaptive-dd-0.5-r0.5 0.028 | 0.028 [0.018, 0.041] | 0.029 [0.022, 0.035]  I 0.021  T 0.026  R 0.013
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure#r1 0.025 | 0.028 [0.019, 0.040] | 0.025 [0.018, 0.033]  I 0.022  T 0.025  R 0.012
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip 0.025 | 0.028 [0.019, 0.044] | 0.026 [0.019, 0.033]  I 0.024  T 0.025  R 0.013
+  greedy-I            0.027 | 0.028 [0.008, 0.074] | 0.027 [0.024, 0.032]  I 0.003  T 0.028  R 0.006
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip#r3 0.030 | 0.028 [0.019, 0.043] | 0.030 [0.024, 0.037]  I 0.021  T 0.027  R 0.012
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure#r1 0.028 | 0.028 [0.019, 0.040] | 0.028 [0.022, 0.034]  I 0.023  T 0.026  R 0.014
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip#r4 0.025 | 0.028 [0.019, 0.042] | 0.026 [0.020, 0.032]  I 0.024  T 0.025  R 0.013
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform#r3 0.024 | 0.028 [0.019, 0.043] | 0.023 [0.017, 0.031]  I 0.025  T 0.024  R 0.012
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure#r4 0.028 | 0.028 [0.019, 0.044] | 0.028 [0.021, 0.035]  I 0.022  T 0.027  R 0.015
+  adaptive-dd-0.5-s0.75-r0.85-recip#r2 0.026 | 0.029 [0.017, 0.046] | 0.026 [0.019, 0.034]  I 0.024  T 0.025  R 0.010
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip 0.026 | 0.029 [0.018, 0.045] | 0.026 [0.018, 0.034]  I 0.024  T 0.025  R 0.012
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform#r2 0.028 | 0.029 [0.019, 0.042] | 0.028 [0.021, 0.036]  I 0.024  T 0.027  R 0.015
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip#r2 0.031 | 0.029 [0.020, 0.042] | 0.031 [0.024, 0.038]  I 0.021  T 0.028  R 0.014
+  census-dd-r0.85-fp0.25-closure-recip#r2 0.024 | 0.029 [0.018, 0.046] | 0.024 [0.017, 0.031]  I 0.026  T 0.022  R 0.013
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure#r2 0.029 | 0.029 [0.019, 0.044] | 0.029 [0.023, 0.036]  I 0.023  T 0.027  R 0.011
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip#r4 0.030 | 0.029 [0.020, 0.042] | 0.030 [0.023, 0.038]  I 0.023  T 0.028  R 0.015
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip 0.028 | 0.029 [0.018, 0.044] | 0.029 [0.022, 0.034]  I 0.025  T 0.027  R 0.012
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform#r1 0.030 | 0.029 [0.019, 0.042] | 0.030 [0.022, 0.037]  I 0.022  T 0.028  R 0.013
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip#r2 0.027 | 0.029 [0.019, 0.043] | 0.026 [0.020, 0.034]  I 0.024  T 0.027  R 0.013
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip 0.029 | 0.030 [0.018, 0.046] | 0.029 [0.022, 0.036]  I 0.022  T 0.027  R 0.010
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip#r4 0.025 | 0.030 [0.020, 0.047] | 0.025 [0.019, 0.033]  I 0.026  T 0.025  R 0.014
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip#r1 0.032 | 0.030 [0.020, 0.045] | 0.032 [0.025, 0.039]  I 0.022  T 0.029  R 0.016
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip#r3 0.030 | 0.030 [0.021, 0.044] | 0.030 [0.023, 0.037]  I 0.025  T 0.028  R 0.016
+  adaptive-dd-0.5     0.017 | 0.030 [0.012, 0.048] | 0.017 [0.010, 0.026]  I 0.027  T 0.015  R 0.008
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure#r2 0.026 | 0.030 [0.019, 0.049] | 0.026 [0.017, 0.035]  I 0.026  T 0.025  R 0.011
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip#r2 0.023 | 0.031 [0.020, 0.047] | 0.023 [0.017, 0.030]  I 0.028  T 0.023  R 0.012
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure#r3 0.031 | 0.031 [0.022, 0.043] | 0.031 [0.025, 0.038]  I 0.023  T 0.030  R 0.015
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform#r1 0.028 | 0.031 [0.021, 0.045] | 0.028 [0.021, 0.035]  I 0.026  T 0.027  R 0.013
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip#r3 0.032 | 0.031 [0.021, 0.045] | 0.032 [0.025, 0.039]  I 0.024  T 0.029  R 0.016
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip#r1 0.031 | 0.031 [0.021, 0.046] | 0.031 [0.024, 0.039]  I 0.023  T 0.030  R 0.015
+  adaptive-dd-0.5-s0.75-r0.85#r1 0.022 | 0.032 [0.020, 0.051] | 0.023 [0.017, 0.029]  I 0.029  T 0.023  R 0.013
+  adaptive-dd-0.5-s0.75-r0.85-recip#r3 0.026 | 0.032 [0.019, 0.051] | 0.026 [0.019, 0.033]  I 0.029  T 0.024  R 0.013
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip#r1 0.034 | 0.032 [0.024, 0.043] | 0.034 [0.028, 0.040]  I 0.026  T 0.031  R 0.017
+  spread-degree       0.033 | 0.032 [0.024, 0.048] | 0.033 [0.028, 0.039]  I 0.022  T 0.032  R 0.020
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure 0.034 | 0.033 [0.023, 0.047] | 0.034 [0.027, 0.042]  I 0.024  T 0.031  R 0.016
+  census-dd-r0.85-fp0.5-closure#r2 0.029 | 0.033 [0.022, 0.053] | 0.029 [0.021, 0.037]  I 0.030  T 0.028  R 0.013
+  census-degree-r0.85-fp0.25-uniform#r2 0.037 | 0.035 [0.024, 0.049] | 0.037 [0.027, 0.047]  I 0.024  T 0.034  R 0.009
+  census-dd-r0.85-fp0.5-closure#r3 0.034 | 0.035 [0.024, 0.049] | 0.035 [0.027, 0.043]  I 0.030  T 0.031  R 0.018
+  patches             0.037 | 0.036 [0.029, 0.049] | 0.037 [0.031, 0.042]  I 0.028  T 0.036  R 0.019
+  census-degree-r0.85-fp0.25-uniform-recip#r2 0.038 | 0.037 [0.025, 0.051] | 0.039 [0.031, 0.047]  I 0.026  T 0.037  R 0.012
+  adaptive-dd-0.5-s0.75-r0.5 0.035 | 0.038 [0.027, 0.055] | 0.035 [0.028, 0.041]  I 0.032  T 0.036  R 0.020
+  census-degree-r0.85-fp0.5-uniform#r2 0.038 | 0.038 [0.029, 0.051] | 0.039 [0.031, 0.047]  I 0.028  T 0.038  R 0.015
+  census-degree-r0.75 0.039 | 0.038 [0.028, 0.049] | 0.039 [0.031, 0.047]  I 0.031  T 0.037  R 0.017
+  census-degree-r0.85-fp0.25-uniform#r1 0.040 | 0.040 [0.030, 0.052] | 0.040 [0.031, 0.050]  I 0.029  T 0.039  R 0.016
+  degree              0.041 | 0.041 [0.032, 0.051] | 0.042 [0.035, 0.048]  I 0.032  T 0.040  R 0.020
+  census-degree-r0.85-fp0.5-uniform-recip#r2 0.043 | 0.041 [0.027, 0.056] | 0.043 [0.033, 0.053]  I 0.029  T 0.041  R 0.017
+  census-degree-r0.85#r1 0.043 | 0.041 [0.028, 0.055] | 0.043 [0.035, 0.052]  I 0.032  T 0.040  R 0.016
+  census-degree-r0.85#r2 0.043 | 0.042 [0.033, 0.058] | 0.043 [0.035, 0.052]  I 0.034  T 0.042  R 0.019
+  census-degree-r0.85-fp0.5-closure 0.043 | 0.043 [0.030, 0.057] | 0.043 [0.033, 0.053]  I 0.030  T 0.043  R 0.013
+  census-degree-r0.85-fp0.5-uniform#r1 0.041 | 0.043 [0.032, 0.057] | 0.041 [0.031, 0.052]  I 0.033  T 0.042  R 0.017
+  census-degree-r0.85-fp0.25-closure-recip 0.041 | 0.043 [0.031, 0.059] | 0.042 [0.032, 0.051]  I 0.033  T 0.042  R 0.016
+  census-degree-r0.85-fp0.5-closure-recip#r3 0.045 | 0.044 [0.031, 0.057] | 0.045 [0.037, 0.054]  I 0.031  T 0.043  R 0.019
+  census-degree-r0.85#r4 0.044 | 0.044 [0.031, 0.060] | 0.044 [0.036, 0.052]  I 0.032  T 0.044  R 0.016
+  census-degree-matched 0.041 | 0.044 [0.033, 0.061] | 0.041 [0.033, 0.050]  I 0.038  T 0.041  R 0.019
+  census-degree-measured 0.041 | 0.044 [0.032, 0.060] | 0.042 [0.033, 0.050]  I 0.036  T 0.042  R 0.019
+  census-degree-r0.85-fp0.5-uniform-recip#r1 0.048 | 0.044 [0.030, 0.061] | 0.048 [0.039, 0.057]  I 0.030  T 0.044  R 0.017
+  adaptive-dd-0.25    0.045 | 0.044 [0.032, 0.062] | 0.046 [0.036, 0.055]  I 0.031  T 0.044  R 0.021
+  census-degree-r0.85-fp0.5-closure-recip 0.045 | 0.044 [0.031, 0.059] | 0.046 [0.038, 0.053]  I 0.032  T 0.044  R 0.014
+  census-degree-r0.85-fp0.5-uniform 0.044 | 0.044 [0.033, 0.059] | 0.044 [0.036, 0.054]  I 0.035  T 0.043  R 0.018
+  census-degree-r0.85-fp0.25-uniform-recip#r4 0.047 | 0.045 [0.035, 0.057] | 0.048 [0.040, 0.054]  I 0.033  T 0.044  R 0.021
+  census-degree-r0.85-fp0.25-uniform-recip 0.044 | 0.045 [0.033, 0.060] | 0.044 [0.036, 0.054]  I 0.036  T 0.045  R 0.019
+  census-degree-r0.85-fp0.25-closure-recip#r3 0.045 | 0.045 [0.032, 0.061] | 0.045 [0.038, 0.055]  I 0.035  T 0.045  R 0.019
+  census-degree-r0.85-fp0.25-uniform#r3 0.040 | 0.045 [0.035, 0.063] | 0.041 [0.032, 0.050]  I 0.040  T 0.042  R 0.022
+  census-degree-r0.85#r3 0.043 | 0.045 [0.033, 0.064] | 0.043 [0.035, 0.052]  I 0.036  T 0.045  R 0.019
+  census-degree-r0.85-recip 0.048 | 0.045 [0.032, 0.066] | 0.048 [0.039, 0.058]  I 0.034  T 0.045  R 0.018
+  census-degree-r0.85-fp0.5-closure-recip#r2 0.049 | 0.045 [0.032, 0.063] | 0.049 [0.041, 0.058]  I 0.031  T 0.045  R 0.019
+  census-degree-r0.85-fp0.25-closure-recip#r4 0.046 | 0.046 [0.033, 0.060] | 0.047 [0.036, 0.056]  I 0.035  T 0.045  R 0.021
+  census-degree-r0.85 0.044 | 0.046 [0.035, 0.061] | 0.044 [0.035, 0.053]  I 0.039  T 0.044  R 0.020
+  census-degree-r0.85-recip#r1 0.042 | 0.046 [0.033, 0.063] | 0.042 [0.032, 0.052]  I 0.039  T 0.043  R 0.020
+  census-degree-r0.85-recip#r3 0.047 | 0.046 [0.036, 0.063] | 0.047 [0.039, 0.055]  I 0.034  T 0.046  R 0.022
+  census-degree-r0.85-fp0.5-uniform#r4 0.045 | 0.047 [0.035, 0.061] | 0.045 [0.037, 0.056]  I 0.038  T 0.046  R 0.021
+  census-degree-r0.85-recip#r4 0.046 | 0.047 [0.034, 0.065] | 0.046 [0.037, 0.054]  I 0.037  T 0.045  R 0.020
+  census-degree-r0.85-fp0.5-uniform-recip#r3 0.045 | 0.047 [0.034, 0.066] | 0.045 [0.037, 0.053]  I 0.038  T 0.045  R 0.019
+  census-degree-r0.85-fp0.25-uniform-recip#r1 0.049 | 0.047 [0.035, 0.065] | 0.049 [0.041, 0.057]  I 0.035  T 0.046  R 0.020
+  census-degree-r0.85-fp0.25-uniform-recip#r3 0.043 | 0.047 [0.033, 0.068] | 0.042 [0.035, 0.051]  I 0.040  T 0.043  R 0.018
+  census-degree-r0.85-recip#r2 0.043 | 0.047 [0.034, 0.066] | 0.043 [0.037, 0.050]  I 0.038  T 0.045  R 0.017
+  adaptive-dd-0.25-s0.75 0.047 | 0.047 [0.034, 0.065] | 0.047 [0.039, 0.055]  I 0.038  T 0.045  R 0.021
+  census-degree-r0.85-fp0.25-closure#r2 0.044 | 0.048 [0.036, 0.064] | 0.044 [0.037, 0.052]  I 0.041  T 0.045  R 0.022
+  census-degree-stress 0.047 | 0.048 [0.036, 0.065] | 0.047 [0.039, 0.055]  I 0.038  T 0.047  R 0.022
+  census-degree-r0.85-fp0.25-uniform 0.048 | 0.049 [0.034, 0.068] | 0.048 [0.039, 0.057]  I 0.037  T 0.047  R 0.022
+  census-degree-r0.85-fp0.5-closure-recip#r1 0.046 | 0.049 [0.037, 0.064] | 0.046 [0.037, 0.055]  I 0.039  T 0.048  R 0.024
+  survey-spread-0.25  0.050 | 0.049 [0.036, 0.065] | 0.051 [0.043, 0.058]  I 0.035  T 0.049  R 0.019
+  census-degree-r0.85-fp0.25-closure-recip#r2 0.049 | 0.049 [0.036, 0.063] | 0.049 [0.041, 0.056]  I 0.038  T 0.047  R 0.021
+  census-degree-r0.85-fp0.5-closure#r3 0.051 | 0.050 [0.037, 0.068] | 0.051 [0.043, 0.059]  I 0.037  T 0.049  R 0.021
+  census-degree-r0.85-fp0.5-uniform-recip#r4 0.052 | 0.050 [0.037, 0.070] | 0.052 [0.044, 0.061]  I 0.038  T 0.050  R 0.024
+  census-degree-r0.85-fp0.5-uniform#r3 0.051 | 0.050 [0.038, 0.065] | 0.051 [0.042, 0.060]  I 0.039  T 0.050  R 0.024
+  census-degree-r0.5  0.052 | 0.050 [0.036, 0.066] | 0.053 [0.044, 0.061]  I 0.036  T 0.050  R 0.022
+  census-degree-r0.85-fp0.25-uniform#r4 0.048 | 0.051 [0.037, 0.068] | 0.048 [0.038, 0.058]  I 0.041  T 0.049  R 0.022
+  uniform-dd-0.25     0.050 | 0.051 [0.039, 0.066] | 0.050 [0.041, 0.059]  I 0.041  T 0.049  R 0.024
+  census-degree-r0.85-fp0.25-closure 0.050 | 0.051 [0.038, 0.064] | 0.051 [0.042, 0.059]  I 0.041  T 0.050  R 0.023
+  census-degree-r0.85-fp0.5-uniform-recip 0.048 | 0.051 [0.037, 0.069] | 0.049 [0.041, 0.057]  I 0.042  T 0.049  R 0.021
+  survey-degree-0.25  0.051 | 0.051 [0.038, 0.069] | 0.052 [0.042, 0.060]  I 0.038  T 0.051  R 0.022
+  census-degree-r0.85-fp0.25-closure-recip#r1 0.047 | 0.052 [0.040, 0.066] | 0.047 [0.039, 0.056]  I 0.045  T 0.048  R 0.025
+  census-degree-r0.85-fp0.25-closure#r1 0.051 | 0.052 [0.038, 0.069] | 0.051 [0.042, 0.061]  I 0.041  T 0.050  R 0.024
+  census-degree-r0.85-fp0.5-closure-recip#r4 0.052 | 0.052 [0.039, 0.069] | 0.052 [0.043, 0.062]  I 0.041  T 0.051  R 0.024
+  census-degree-r0.85-fp0.25-closure#r3 0.052 | 0.053 [0.039, 0.070] | 0.053 [0.043, 0.062]  I 0.042  T 0.051  R 0.024
+  census-degree-r0.85-fp0.25-closure#r4 0.050 | 0.053 [0.039, 0.069] | 0.050 [0.042, 0.058]  I 0.046  T 0.050  R 0.026
+  adaptive-dd-0.25-s0.25 0.056 | 0.055 [0.039, 0.083] | 0.056 [0.047, 0.066]  I 0.036  T 0.055  R 0.023
+  census-degree-r0.85-fp0.5-closure#r2 0.053 | 0.056 [0.040, 0.078] | 0.053 [0.045, 0.061]  I 0.045  T 0.053  R 0.023
+  census-degree-r0.85-fp0.5-closure#r1 0.056 | 0.056 [0.041, 0.070] | 0.057 [0.049, 0.065]  I 0.045  T 0.055  R 0.026
+  census-degree-r0.85-fp0.5-closure#r4 0.056 | 0.057 [0.045, 0.073] | 0.056 [0.047, 0.064]  I 0.046  T 0.056  R 0.026
+  adaptive-deg-0.25   0.061 | 0.057 [0.042, 0.077] | 0.061 [0.051, 0.071]  I 0.037  T 0.057  R 0.023
+  friend              0.067 | 0.073 [0.053, 0.095] | 0.067 [0.058, 0.077]  I 0.058  T 0.069  R 0.037
+  diffusion           0.078 | 0.078 [0.060, 0.100] | 0.078 [0.067, 0.091]  I 0.057  T 0.078  R 0.034
+  eigenvector         0.099 | 0.101 [0.076, 0.129] | 0.100 [0.084, 0.119]  I 0.075  T 0.101  R 0.044
+  ball                0.104 | 0.104 [0.079, 0.138] | 0.104 [0.087, 0.125]  I 0.078  T 0.104  R 0.052
+  leaders             0.105 | 0.107 [0.078, 0.150] | 0.106 [0.093, 0.120]  I 0.071  T 0.107  R 0.050
+  random              0.115 | 0.118 [0.082, 0.166] | 0.116 [0.102, 0.132]  I 0.074  T 0.118  R 0.054
+
+## share of joint draws in which the rule's worst-case regret is below top degree's / is the minimax rule
+  greedy-T            1.000  0.238
+  census-dd-r0.85-recip#r3 0.998  0.152
+  greedy-R            0.968  0.136
+  dd-0.075            1.000  0.048
+  dd-0.1              1.000  0.006
+  dd-0.05             1.000  0.004
+  census-dd-stress    0.998  0.054
+  dd-0.15             1.000  0.000
+  dd-0.025            1.000  0.006
+  census-dd-r0.85#r4  0.988  0.084
+  census-dd-r0.85-fp0.25-uniform-recip#r2 1.000  0.044
+  dd-0.2              1.000  0.000
+  dd-0.01             1.000  0.000
+  census-dd-r0.85-fp0.25-uniform#r4 0.992  0.028
+  census-dd-r0.85-fp0.25-uniform#r2 1.000  0.026
+  census-dd-r0.85-fp0.5-closure-recip 0.996  0.016
+  census-dd-r0.75     0.996  0.018
+  census-dd-measured  0.992  0.024
+  census-dd-r0.85-fp0.5-uniform-recip 0.996  0.012
+  census-dd-r0.5      0.996  0.008
+  census-dd-r0.85-fp0.25-uniform-recip 0.998  0.024
+  census-dd-r0.85-recip#r2 0.994  0.006
+  census-dd-r0.85-fp0.25-uniform-recip#r4 0.992  0.004
+  census-dd-r0.85-fp0.25-closure#r3 0.998  0.002
+  census-dd-matched   0.990  0.004
+  census-dd-r0.85-fp0.25-closure-recip#r1 0.970  0.002
+  census-dd-r0.85#r3  0.988  0.002
+  adaptive-dd-0.5-s0.75-matched 0.992  0.004
+  census-dd-r0.85-fp0.25-uniform-recip#r3 0.986  0.004
+  census-dd-r0.85     0.978  0.004
+  census-dd-r0.85-fp0.5-uniform-recip#r4 0.988  0.002
+  adaptive-dd-0.5-s0.25 0.980  0.008
+  adaptive-dd-0.5-s0.75-r0.85#r4 0.978  0.000
+  census-dd-r0.85-fp0.5-uniform-recip#r3 0.984  0.000
+  adaptive-dd-0.5-s0.75-r0.85#r3 0.978  0.004
+  dd-0.3              1.000  0.000
+  census-dd-r0.85-fp0.25-closure-recip 0.972  0.000
+  census-dd-r0.85-fp0.25-uniform#r1 0.986  0.000
+  adaptive-dd-0.5-s0.75 0.976  0.004
+  census-dd-r0.85-fp0.25-closure#r2 0.982  0.000
+  census-dd-r0.85-fp0.25-closure 0.982  0.000
+  census-dd-r0.85-fp0.5-uniform#r1 0.986  0.000
+  census-dd-r0.85-fp0.5-uniform-recip#r2 0.978  0.000
+  adaptive-dd-0.5-s0.75-stress 0.986  0.002
+  census-dd-r0.85-fp0.5-uniform-recip#r1 0.962  0.000
+  census-dd-r0.85-fp0.25-uniform-recip#r1 0.974  0.002
+  census-dd-r0.85-fp0.5-uniform#r3 0.980  0.000
+  census-dd-r0.85-fp0.25-closure#r1 0.930  0.000
+  adaptive-dd-0.5-s0.75-r0.75 0.974  0.000
+  census-dd-r0.85-fp0.5-closure-recip#r4 0.976  0.000
+  census-dd-r0.85-fp0.25-closure-recip#r4 0.970  0.000
+  adaptive-dd-0.5-s0.75-measured 0.962  0.002
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform 0.988  0.000
+  census-dd-r0.85#r2  0.954  0.000
+  adaptive-dd-0.5-s0.75-r0.85-recip#r1 0.988  0.000
+  adaptive-dd-0.5-r0.75 0.990  0.000
+  census-dd-r0.85-fp0.5-uniform 0.984  0.000
+  single-discount     1.000  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform#r4 0.992  0.000
+  census-dd-r0.85-fp0.5-uniform#r4 0.982  0.000
+  adaptive-dd-0.5-s0.75-r0.85-recip#r4 0.974  0.000
+  census-dd-r0.85-fp0.5-closure-recip#r2 0.972  0.000
+  adaptive-dd-0.5-s0.75-r0.85 0.940  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip#r1 0.978  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip#r4 0.980  0.000
+  census-dd-r0.85-fp0.25-uniform#r3 0.926  0.000
+  census-dd-r0.85-recip#r4 0.944  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform#r3 0.966  0.000
+  census-dd-r0.85-fp0.25-closure#r4 0.942  0.000
+  census-dd-r0.85-fp0.5-closure#r1 0.974  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform#r2 0.966  0.000
+  census-dd-r0.85#r1  0.932  0.000
+  adaptive-dd-0.5-r0.85 0.958  0.000
+  census-dd-r0.85-fp0.5-closure-recip#r1 0.920  0.000
+  census-dd-r0.85-fp0.25-uniform 0.952  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip#r3 0.974  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure 0.954  0.000
+  adaptive-dd-0.5-s0.75-r0.85-recip 0.946  0.000
+  census-dd-r0.85-recip#r1 0.888  0.004
+  census-dd-r0.85-fp0.5-uniform#r2 0.894  0.000
+  census-dd-r0.85-fp0.5-closure#r4 0.960  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip#r2 0.946  0.000
+  uniform-dd-0.5      0.946  0.000
+  census-dd-r0.85-fp0.25-closure-recip#r3 0.934  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform#r4 0.934  0.000
+  census-dd-r0.85-recip 0.914  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform 0.908  0.000
+  census-dd-r0.85-fp0.5-closure-recip#r3 0.886  0.000
+  census-dd-r0.85-fp0.5-closure 0.910  0.000
+  adaptive-dd-0.5-s0.75-r0.85#r2 0.938  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure#r3 0.962  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure#r4 0.954  0.000
+  adaptive-dd-0.5-r0.5 0.960  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure#r1 0.942  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip 0.918  0.000
+  greedy-I            0.728  0.010
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip#r3 0.948  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure#r1 0.942  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip#r4 0.924  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform#r3 0.926  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure#r4 0.906  0.000
+  adaptive-dd-0.5-s0.75-r0.85-recip#r2 0.862  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip 0.884  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform#r2 0.920  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip#r2 0.930  0.000
+  census-dd-r0.85-fp0.25-closure-recip#r2 0.880  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure#r2 0.918  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip#r4 0.950  0.002
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip 0.886  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform#r1 0.934  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip#r2 0.932  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip 0.868  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip#r4 0.842  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip#r1 0.902  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip#r3 0.886  0.000
+  adaptive-dd-0.5     0.804  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure#r2 0.822  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip#r2 0.840  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure#r3 0.956  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform#r1 0.888  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip#r3 0.904  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip#r1 0.892  0.000
+  adaptive-dd-0.5-s0.75-r0.85#r1 0.778  0.000
+  adaptive-dd-0.5-s0.75-r0.85-recip#r3 0.784  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip#r1 0.914  0.000
+  spread-degree       0.906  0.000
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure 0.870  0.000
+  census-dd-r0.85-fp0.5-closure#r2 0.784  0.000
+  census-degree-r0.85-fp0.25-uniform#r2 0.816  0.000
+  census-dd-r0.85-fp0.5-closure#r3 0.772  0.000
+  patches             0.908  0.000
+  census-degree-r0.85-fp0.25-uniform-recip#r2 0.720  0.000
+  adaptive-dd-0.5-s0.75-r0.5 0.630  0.000
+  census-degree-r0.85-fp0.5-uniform#r2 0.648  0.000
+  census-degree-r0.75 0.684  0.000
+  census-degree-r0.85-fp0.25-uniform#r1 0.588  0.000
+  degree              0.000  0.000
+  census-degree-r0.85-fp0.5-uniform-recip#r2 0.524  0.000
+  census-degree-r0.85#r1 0.500  0.000
+  census-degree-r0.85#r2 0.388  0.000
+  census-degree-r0.85-fp0.5-closure 0.328  0.000
+  census-degree-r0.85-fp0.5-uniform#r1 0.378  0.000
+  census-degree-r0.85-fp0.25-closure-recip 0.334  0.000
+  census-degree-r0.85-fp0.5-closure-recip#r3 0.342  0.000
+  census-degree-r0.85#r4 0.378  0.000
+  census-degree-matched 0.340  0.000
+  census-degree-measured 0.354  0.000
+  census-degree-r0.85-fp0.5-uniform-recip#r1 0.362  0.000
+  adaptive-dd-0.25    0.272  0.000
+  census-degree-r0.85-fp0.5-closure-recip 0.316  0.000
+  census-degree-r0.85-fp0.5-uniform 0.268  0.000
+  census-degree-r0.85-fp0.25-uniform-recip#r4 0.262  0.000
+  census-degree-r0.85-fp0.25-uniform-recip 0.192  0.000
+  census-degree-r0.85-fp0.25-closure-recip#r3 0.218  0.000
+  census-degree-r0.85-fp0.25-uniform#r3 0.242  0.000
+  census-degree-r0.85#r3 0.210  0.000
+  census-degree-r0.85-recip 0.232  0.000
+  census-degree-r0.85-fp0.5-closure-recip#r2 0.202  0.000
+  census-degree-r0.85-fp0.25-closure-recip#r4 0.238  0.000
+  census-degree-r0.85 0.178  0.000
+  census-degree-r0.85-recip#r1 0.258  0.000
+  census-degree-r0.85-recip#r3 0.112  0.000
+  census-degree-r0.85-fp0.5-uniform#r4 0.140  0.000
+  census-degree-r0.85-recip#r4 0.202  0.000
+  census-degree-r0.85-fp0.5-uniform-recip#r3 0.220  0.000
+  census-degree-r0.85-fp0.25-uniform-recip#r1 0.180  0.000
+  census-degree-r0.85-fp0.25-uniform-recip#r3 0.232  0.000
+  census-degree-r0.85-recip#r2 0.224  0.000
+  adaptive-dd-0.25-s0.75 0.178  0.000
+  census-degree-r0.85-fp0.25-closure#r2 0.160  0.000
+  census-degree-stress 0.106  0.000
+  census-degree-r0.85-fp0.25-uniform 0.096  0.000
+  census-degree-r0.85-fp0.5-closure-recip#r1 0.088  0.000
+  survey-spread-0.25  0.142  0.000
+  census-degree-r0.85-fp0.25-closure-recip#r2 0.132  0.000
+  census-degree-r0.85-fp0.5-closure#r3 0.088  0.000
+  census-degree-r0.85-fp0.5-uniform-recip#r4 0.058  0.000
+  census-degree-r0.85-fp0.5-uniform#r3 0.060  0.000
+  census-degree-r0.5  0.088  0.000
+  census-degree-r0.85-fp0.25-uniform#r4 0.112  0.000
+  uniform-dd-0.25     0.050  0.000
+  census-degree-r0.85-fp0.25-closure 0.034  0.000
+  census-degree-r0.85-fp0.5-uniform-recip 0.074  0.000
+  survey-degree-0.25  0.042  0.000
+  census-degree-r0.85-fp0.25-closure-recip#r1 0.042  0.000
+  census-degree-r0.85-fp0.25-closure#r1 0.028  0.000
+  census-degree-r0.85-fp0.5-closure-recip#r4 0.028  0.000
+  census-degree-r0.85-fp0.25-closure#r3 0.050  0.000
+  census-degree-r0.85-fp0.25-closure#r4 0.050  0.000
+  adaptive-dd-0.25-s0.25 0.042  0.000
+  census-degree-r0.85-fp0.5-closure#r2 0.020  0.000
+  census-degree-r0.85-fp0.5-closure#r1 0.008  0.000
+  census-degree-r0.85-fp0.5-closure#r4 0.000  0.000
+  adaptive-deg-0.25   0.016  0.000
+  friend              0.000  0.000
+  diffusion           0.000  0.000
+  eigenvector         0.000  0.000
+  ball                0.000  0.000
+  leaders             0.000  0.000
+  random              0.000  0.000
+
+## diagnostic (post hoc): worst-case regret against the best deterministic rule only, joint draws
+  greedy-T            0.005 [0.001, 0.024]
+  dd-0.075            0.009 [0.001, 0.015]
+  greedy-R            0.009 [0.001, 0.041]
+  dd-0.1              0.010 [0.003, 0.016]
+  dd-0.05             0.010 [0.003, 0.016]
+  dd-0.15             0.010 [0.004, 0.016]
+  dd-0.025            0.011 [0.004, 0.018]
+  dd-0.2              0.012 [0.006, 0.017]
+
+## diagnostic (post hoc): the 25 joint draws with dd-0.05's largest worst-case regret
+  draw 382: worst under I (I qN=0.025 qP=0.3 delta=-0.25 sigma=0.75), regret 0.041, best rule census-dd-matched, max village weight 3.9x
+  draw 372: worst under I (I qN=0.025 qP=0.3 delta=+0.00 sigma=0.50), regret 0.031, best rule census-dd-r0.85-fp0.25-uniform#r4, max village weight 5.9x
+  draw 482: worst under I (I qN=0.025 qP=0.2 delta=+0.00 sigma=0.50), regret 0.028, best rule adaptive-dd-0.5-s0.75-r0.85#r3, max village weight 4.6x
+  draw 102: worst under I (I qN=0.025 qP=0.2 delta=+0.00 sigma=0.50), regret 0.025, best rule census-dd-r0.85-fp0.25-uniform-recip#r2, max village weight 6.0x
+  draw 445: worst under I (I qN=0.050 qP=0.2 delta=+0.00 sigma=0.50), regret 0.025, best rule adaptive-dd-0.5-s0.75-measured, max village weight 6.1x
+  draw 469: worst under I (I qN=0.050 qP=0.2 delta=+0.00 sigma=0.50), regret 0.025, best rule census-dd-r0.5, max village weight 3.5x
+  draw 268: worst under I (I qN=0.050 qP=0.2 delta=+0.00 sigma=0.50), regret 0.024, best rule adaptive-dd-0.5-s0.75-matched, max village weight 7.3x
+  draw 130: worst under I (I qN=0.050 qP=0.3 delta=+0.00 sigma=0.50), regret 0.024, best rule adaptive-dd-0.5-s0.75-matched, max village weight 3.5x
+  draw 383: worst under I (I qN=0.050 qP=0.2 delta=+0.00 sigma=0.50), regret 0.024, best rule adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure, max village weight 3.8x
+  draw 32: worst under R (R qN=0.075 qP=0.5 delta=-0.50 sigma=0.50 gamma=0.10), regret 0.024, best rule adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform, max village weight 4.0x
+  family of the worst case in the tail: I 20, T 0, R 5
+  tail draws' refitted sigma: I 0.75/0.5/0.5/0.5/0.5/0.5/0.5/0.5/0.5/0.5, T 0/0/0/0/0.25/0/0/0.25/0/0.25, R 0/0/0/0/0/0/0/0/0/0.5
+
+## adopters per village under the point fits (share of households)
+  I: greedy-I 44.56, greedy-R 44.43, greedy-T 44.41, census-dd-r0.85#r4 44.14, census-dd-r0.85-fp0.25-uniform-recip#r2 44.06 | random 41.75
+  T: greedy-T 43.90, dd-0.075 43.57, dd-0.05 43.56, census-dd-stress 43.54, census-dd-r0.85#r4 43.54 | random 38.86
+  R: census-dd-r0.85#r4 45.65, census-dd-r0.85-recip#r3 45.58, census-dd-r0.85-fp0.25-uniform-recip#r2 45.47, census-dd-r0.85-recip#r1 45.45, adaptive-dd-0.5-s0.75 45.44 | random 42.26
+
+## degree discount p sweep: median worst-case regret over joint draws
+  p 0.01 0.0138, p 0.025 0.0131, p 0.05 0.0120, p 0.075 0.0112, p 0.1 0.0119, p 0.15 0.0123, p 0.2 0.0136, p 0.3 0.0194
+
+H8 (dd p=0.05 median worst-case <= 2% and beats top degree in >= 90% of draws): held; median 0.0120, beats degree in 1.000
+   greedy-T (reported, not tested): median 0.0075, beats degree in 1.000
+H9 (p spread <= 1 point over [0.01, 0.1]; p 0.05 within 0.5 point of best): held; spread 0.0026, gap to best 0.0008 (best p 0.075)
+runtime 3340 s

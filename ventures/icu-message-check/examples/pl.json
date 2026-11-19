@@ -1,0 +1,7 @@
+{
+  "inbox.count": "{count, plural, =0 {Brak wiadomości} one {# wiadomość} other {# wiadomości}}",
+  "item.delete": "Usunąć {item}?",
+  "profile.greeting": "Witaj ponownie, {name}!",
+  "invite.status": "{gender, select, female {Zaprosiła cię} male {Zaprosił cię} other {Zaproszono cię}}",
+  "cart.place": "Zajęłaś {place}. miejsce"
+}

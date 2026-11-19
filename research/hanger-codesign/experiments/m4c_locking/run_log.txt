@@ -1,0 +1,168 @@
+F3 2.5mm up EA 150.00: DC 0.3639 folds 10 E -2.72851221e-03 Es 5.906e-05 Eg 5.363e-05 Eb 7.170e-04 eps99 1.17e-02 steps 130 conv True 242s
+F3 2.5mm up EA 265.43: DC 0.3750 folds 10 E -2.69709546e-03 Es 5.121e-05 Eg 6.318e-05 Eb 7.259e-04 eps99 8.68e-03 steps 29 conv True 51s
+F4 2.5mm up EA 150.00: DC 0.4546 folds 9 E -1.37846198e-03 Es 3.986e-05 Eg 2.955e-05 Eb 4.366e-04 eps99 1.04e-02 steps 161 conv True 297s
+F4 2.5mm up EA 285.46: DC 0.4685 folds 9 E -1.35479251e-03 Es 3.383e-05 Eg 3.566e-05 Eb 4.424e-04 eps99 7.47e-03 steps 18 conv True 32s
+F1 2.5mm up EA 150.00: DC 0.3601 folds 10 E -1.29461958e-03 Es 2.602e-05 Eg 2.387e-05 Eb 3.395e-04 eps99 9.12e-03 steps 177 conv True 329s
+F3 2.5mm up EA 469.68: DC 0.3837 folds 10 E -2.66971081e-03 Es 4.519e-05 Eg 7.120e-05 Eb 7.320e-04 eps99 6.43e-03 steps 22 conv True 40s
+F4 2.5mm up EA 543.25: DC 0.4794 folds 9 E -1.33461145e-03 Es 2.923e-05 Eg 4.047e-05 Eb 4.464e-04 eps99 5.24e-03 steps 22 conv True 40s
+F3 2.5mm up EA 831.10: DC 0.3921 folds 10 E -2.64490520e-03 Es 4.237e-05 Eg 7.700e-05 Eb 7.349e-04 eps99 4.88e-03 steps 24 conv True 45s
+F1 2.5mm up EA 299.18: DC 0.3710 folds 10 E -1.27796634e-03 Es 2.246e-05 Eg 2.729e-05 Eb 3.459e-04 eps99 6.48e-03 steps 47 conv True 87s
+F4 2.5mm up EA 1033.84: DC 0.4900 folds 9 E -1.31663985e-03 Es 2.708e-05 Eg 4.356e-05 Eb 4.481e-04 eps99 3.72e-03 steps 27 conv True 51s
+F2 2.5mm up EA 150.00: DC 0.3191 folds 9 E -8.33741850e-04 Es 1.331e-05 Eg 1.309e-05 Eb 1.963e-04 eps99 7.61e-03 steps 225 conv True 428s
+F4 2.5mm up EA 1967.46: DC 0.4991 folds 9 E -1.29956200e-03 Es 2.652e-05 Eg 4.365e-05 Eb 4.516e-04 eps99 2.69e-03 steps 27 conv True 52s
+F1 2.5mm up EA 596.72: DC 0.3780 folds 10 E -1.26333067e-03 Es 2.032e-05 Eg 2.892e-05 Eb 3.511e-04 eps99 4.40e-03 steps 33 conv True 63s
+F2 2.5mm up EA 280.24: DC 0.3243 folds 9 E -8.26037420e-04 Es 1.147e-05 Eg 1.334e-05 Eb 2.016e-04 eps99 5.16e-03 steps 29 conv True 59s
+F4 2.5mm up EA 3744.20: DC 0.5058 folds 9 E -1.28225173e-03 Es 2.744e-05 Eg 4.049e-05 Eb 4.575e-04 eps99 2.13e-03 steps 26 conv True 53s
+F1 2.5mm up EA 1190.18: DC 0.3849 folds 10 E -1.24950604e-03 Es 1.985e-05 Eg 2.865e-05 Eb 3.551e-04 eps99 3.14e-03 steps 23 conv True 47s
+F2 2.5mm up EA 523.55: DC 0.3278 folds 9 E -8.19181990e-04 Es 1.058e-05 Eg 1.323e-05 Eb 2.050e-04 eps99 3.59e-03 steps 21 conv True 42s
+F4 2.5mm down EA 75.00: DC 0.4355 folds 9 E -1.40833383e-03 Es 4.610e-05 Eg 2.238e-05 Eb 4.293e-04 eps99 1.45e-02 steps 14 conv True 25s
+F4 2.5mm down EA 37.50: DC 0.4121 folds 9 E -1.44183244e-03 Es 5.002e-05 Eg 1.577e-05 Eb 4.228e-04 eps99 2.01e-02 steps 12 conv True 21s
+F1 2.5mm up EA 2373.84: DC 0.3882 folds 10 E -1.23577560e-03 Es 2.001e-05 Eg 2.604e-05 Eb 3.607e-04 eps99 2.31e-03 steps 24 conv True 50s
+F2 2.5mm up EA 978.12: DC 0.3301 folds 9 E -8.12738615e-04 Es 1.008e-05 Eg 1.229e-05 Eb 2.081e-04 eps99 2.57e-03 steps 29 conv True 61s
+F4 2.5mm down EA 18.75: DC 0.3849 folds 9 E -1.47681032e-03 Es 5.027e-05 Eg 1.061e-05 Eb 4.185e-04 eps99 2.75e-02 steps 12 conv True 22s
+done F4 0.0025
+F1 2.5mm up EA 4734.70: DC 0.3921 folds 10 E -1.22160630e-03 Es 2.128e-05 Eg 2.208e-05 Eb 3.667e-04 eps99 1.66e-03 steps 22 conv True 48s
+F2 2.5mm up EA 1827.36: DC 0.3327 folds 9 E -8.06432435e-04 Es 1.024e-05 Eg 1.092e-05 Eb 2.110e-04 eps99 1.83e-03 steps 18 conv True 40s
+F2 2.5mm down EA 75.00: DC 0.3108 folds 9 E -8.43789813e-04 Es 1.577e-05 Eg 1.172e-05 Eb 1.902e-04 eps99 1.06e-02 steps 16 conv True 29s
+F1 2.5mm down EA 75.00: DC 0.3476 folds 10 E -1.31424285e-03 Es 3.069e-05 Eg 1.944e-05 Eb 3.313e-04 eps99 1.31e-02 steps 21 conv True 40s
+F2 2.5mm down EA 37.50: DC 0.2999 folds 9 E -8.55702105e-04 Es 1.862e-05 Eg 9.658e-06 Eb 1.835e-04 eps99 1.52e-02 steps 14 conv True 26s
+F3 2.5mm down EA 75.00: DC 0.3481 folds 10 E -2.77318560e-03 Es 6.841e-05 Eg 4.068e-05 Eb 7.057e-04 eps99 1.71e-02 steps 177 conv True 318s
+F2 2.5mm down EA 18.75: DC 0.2859 folds 9 E -8.69521413e-04 Es 2.110e-05 Eg 7.429e-06 Eb 1.766e-04 eps99 2.05e-02 steps 12 conv True 22s
+done F2 0.0025
+F5 2.5mm up EA 150.00: DC 0.4341 folds 10 E -1.56413394e-03 Es 3.890e-05 Eg 3.672e-05 Eb 4.854e-04 eps99 9.70e-03 steps 166 conv True 301s
+F3 2.5mm down EA 37.50: DC 0.3279 folds 10 E -2.82260771e-03 Es 7.329e-05 Eg 2.886e-05 Eb 6.955e-04 eps99 2.45e-02 steps 125 conv True 223s
+F1 2.5mm down EA 37.50: DC 0.3321 folds 10 E -1.33744737e-03 Es 3.542e-05 Eg 1.452e-05 Eb 3.228e-04 eps99 1.84e-02 steps 143 conv True 258s
+F5 2.5mm up EA 280.10: DC 0.4466 folds 10 E -1.54173043e-03 Es 3.304e-05 Eg 4.373e-05 Eb 4.895e-04 eps99 7.04e-03 steps 25 conv True 45s
+F3 2.5mm down EA 18.75: DC 0.3050 folds 10 E -2.87354081e-03 Es 7.321e-05 Eg 1.961e-05 Eb 6.888e-04 eps99 3.38e-02 steps 15 conv True 26s
+done F3 0.0025
+F6 2.5mm up EA 150.00: DC 0.5690 folds 8 E -1.14879066e-03 Es 3.787e-05 Eg 3.764e-05 Eb 4.377e-04 eps99 8.51e-03 steps 133 conv True 241s
+F1 2.5mm down EA 18.75: DC 0.3118 folds 10 E -1.36283055e-03 Es 3.739e-05 Eg 1.046e-05 Eb 3.146e-04 eps99 2.55e-02 steps 21 conv True 37s
+done F1 0.0025
+F6 2.5mm up EA 275.35: DC 0.5837 folds 8 E -1.12770117e-03 Es 3.164e-05 Eg 4.560e-05 Eb 4.353e-04 eps99 6.24e-03 steps 16 conv True 29s
+F5 2.5mm up EA 523.05: DC 0.4573 folds 10 E -1.52248120e-03 Es 2.900e-05 Eg 4.929e-05 Eb 4.913e-04 eps99 4.98e-03 steps 29 conv True 52s
+F6 2.5mm up EA 505.46: DC 0.5950 folds 8 E -1.11012596e-03 Es 2.651e-05 Eg 5.231e-05 Eb 4.322e-04 eps99 4.47e-03 steps 17 conv True 30s
+F6 2.5mm up EA 927.86: DC 0.6044 folds 8 E -1.09506352e-03 Es 2.351e-05 Eg 5.729e-05 Eb 4.275e-04 eps99 3.27e-03 steps 19 conv True 35s
+F5 2.5mm up EA 976.72: DC 0.4673 folds 10 E -1.50492745e-03 Es 2.772e-05 Eg 5.285e-05 Eb 4.907e-04 eps99 3.76e-03 steps 34 conv True 63s
+F6 2.5mm up EA 1703.25: DC 0.6145 folds 8 E -1.08100210e-03 Es 2.330e-05 Eg 6.012e-05 Eb 4.212e-04 eps99 2.57e-03 steps 20 conv True 37s
+F6 2.5mm down EA 75.00: DC 0.5492 folds 8 E -1.17744958e-03 Es 4.462e-05 Eg 2.790e-05 Eb 4.404e-04 eps99 1.20e-02 steps 14 conv True 26s
+F6 2.5mm down EA 37.50: DC 0.5226 folds 8 E -1.21011919e-03 Es 4.910e-05 Eg 1.881e-05 Eb 4.440e-04 eps99 1.70e-02 steps 13 conv True 23s
+F5 2.5mm up EA 1823.88: DC 0.4766 folds 10 E -1.48725629e-03 Es 2.924e-05 Eg 5.356e-05 Eb 4.899e-04 eps99 2.93e-03 steps 37 conv True 74s
+F6 2.5mm down EA 18.75: DC 0.4934 folds 8 E -1.24469481e-03 Es 5.013e-05 Eg 1.184e-05 Eb 4.488e-04 eps99 2.33e-02 steps 12 conv True 22s
+done F6 0.0025
+F5 2.5mm down EA 75.00: DC 0.4168 folds 10 E -1.59347249e-03 Es 4.557e-05 Eg 2.816e-05 Eb 4.795e-04 eps99 1.42e-02 steps 31 conv True 56s
+F8 2.5mm up EA 150.00: DC 0.6169 folds 8 E -1.67647307e-03 Es 7.510e-05 Eg 3.866e-05 Eb 7.040e-04 eps99 1.09e-02 steps 145 conv True 263s
+F8 2.5mm up EA 299.41: DC 0.6386 folds 8 E -1.62818041e-03 Es 6.415e-05 Eg 5.372e-05 Eb 6.947e-04 eps99 7.67e-03 steps 17 conv True 32s
+F5 2.5mm down EA 37.50: DC 0.3947 folds 10 E -1.62675557e-03 Es 4.989e-05 Eg 1.991e-05 Eb 4.744e-04 eps99 2.03e-02 steps 41 conv True 76s
+F7 2.5mm up EA 150.00: DC 0.5857 folds 8 E -1.24542737e-03 Es 4.908e-05 Eg 3.493e-05 Eb 4.874e-04 eps99 9.52e-03 steps 187 conv True 341s
+F8 2.5mm up EA 597.65: DC 0.6553 folds 8 E -1.58807892e-03 Es 5.194e-05 Eg 6.817e-05 Eb 6.867e-04 eps99 5.34e-03 steps 18 conv True 32s
+F8 2.5mm up EA 1192.97: DC 0.6677 folds 8 E -1.55590088e-03 Es 4.175e-05 Eg 8.025e-05 Eb 6.778e-04 eps99 3.67e-03 steps 20 conv True 36s
+F7 2.5mm up EA 272.59: DC 0.6026 folds 8 E -1.21844620e-03 Es 4.115e-05 Eg 4.433e-05 Eb 4.855e-04 eps99 6.64e-03 steps 22 conv True 39s
+F9 2.5mm up EA 150.00: DC 0.7301 folds 8 E -1.88378410e-03 Es 8.443e-05 Eg 4.189e-05 Eb 1.011e-03 eps99 1.03e-02 steps 112 conv True 204s
+F7 2.5mm up EA 495.38: DC 0.6159 folds 8 E -1.19618633e-03 Es 3.362e-05 Eg 5.296e-05 Eb 4.833e-04 eps99 4.67e-03 steps 21 conv True 38s
+F8 2.5mm up EA 2381.27: DC 0.6776 folds 8 E -1.52932236e-03 Es 3.603e-05 Eg 8.881e-05 Eb 6.665e-04 eps99 2.56e-03 steps 23 conv True 41s
+F8 2.5mm down EA 75.00: DC 0.5895 folds 8 E -1.73109014e-03 Es 8.148e-05 Eg 2.532e-05 Eb 7.161e-04 eps99 1.52e-02 steps 13 conv True 24s
+F7 2.5mm up EA 900.24: DC 0.6262 folds 8 E -1.17785848e-03 Es 2.818e-05 Eg 5.997e-05 Eb 4.796e-04 eps99 3.34e-03 steps 18 conv True 33s
+F9 2.5mm up EA 299.81: DC 0.7492 folds 8 E -1.82894913e-03 Es 7.314e-05 Eg 6.143e-05 Eb 9.790e-04 eps99 7.14e-03 steps 42 conv True 75s
+F7 2.5mm up EA 1636.00: DC 0.6356 folds 8 E -1.16195520e-03 Es 2.556e-05 Eg 6.496e-05 Eb 4.739e-04 eps99 2.52e-03 steps 18 conv True 34s
+F7 2.5mm up EA 2973.08: DC 0.6455 folds 8 E -1.14672833e-03 Es 2.590e-05 Eg 6.759e-05 Eb 4.664e-04 eps99 2.04e-03 steps 29 conv True 56s
+F7 2.5mm down EA 75.00: DC 0.5621 folds 8 E -1.28207994e-03 Es 5.607e-05 Eg 2.461e-05 Eb 4.909e-04 eps99 1.41e-02 steps 15 conv True 27s
+F8 2.5mm down EA 37.50: DC 0.5590 folds 8 E -1.78815012e-03 Es 8.202e-05 Eg 1.564e-05 Eb 7.299e-04 eps99 2.08e-02 steps 72 conv True 132s
+F9 2.5mm up EA 599.26: DC 0.7640 folds 8 E -1.78319759e-03 Es 5.885e-05 Eg 8.230e-05 Eb 9.508e-04 eps99 4.75e-03 steps 58 conv True 105s
+F7 2.5mm down EA 37.50: DC 0.5334 folds 8 E -1.32211349e-03 Es 5.864e-05 Eg 1.619e-05 Eb 4.971e-04 eps99 1.97e-02 steps 15 conv True 27s
+F8 2.5mm down EA 18.75: DC 0.5284 folds 8 E -1.84410539e-03 Es 7.940e-05 Eg 9.949e-06 Eb 7.422e-04 eps99 2.79e-02 steps 17 conv True 31s
+done F8 0.0025
+F7 2.5mm down EA 18.75: DC 0.5018 folds 8 E -1.36243116e-03 Es 5.723e-05 Eg 1.036e-05 Eb 5.045e-04 eps99 2.62e-02 steps 13 conv True 23s
+done F7 0.0025
+F9 2.5mm up EA 1197.77: DC 0.7748 folds 8 E -1.74728465e-03 Es 4.526e-05 Eg 1.008e-04 Eb 9.271e-04 eps99 3.11e-03 steps 17 conv True 30s
+F5 2.5mm down EA 18.75: DC 0.3697 folds 10 E -1.66217418e-03 Es 5.002e-05 Eg 1.329e-05 Eb 4.723e-04 eps99 2.78e-02 steps 183 conv True 327s
+done F5 0.0025
+F9 2.5mm up EA 2394.06: DC 0.7829 folds 8 E -1.71963411e-03 Es 3.542e-05 Eg 1.148e-04 Eb 9.065e-04 eps99 2.04e-03 steps 20 conv True 36s
+F1 3.75mm up EA 150.00: DC 0.3357 folds 9 E -1.34049016e-03 Es 2.446e-05 Eg 2.225e-05 Eb 3.315e-04 eps99 8.33e-03 steps 96 conv True 66s
+F2 3.75mm up EA 150.00: DC 0.3146 folds 10 E -8.50711552e-04 Es 1.162e-05 Eg 1.186e-05 Eb 2.076e-04 eps99 4.98e-03 steps 107 conv True 75s
+F9 2.5mm up EA 4785.16: DC 0.7893 folds 8 E -1.69689953e-03 Es 3.132e-05 Eg 1.231e-04 Eb 8.866e-04 eps99 1.48e-03 steps 24 conv True 42s
+F3 3.75mm up EA 150.00: DC 0.3425 folds 9 E -2.83860987e-03 Es 6.293e-05 Eg 5.725e-05 Eb 6.822e-04 eps99 1.23e-02 steps 93 conv True 58s
+F2 3.75mm up EA 280.24: DC 0.3179 folds 10 E -8.43939582e-04 Es 1.070e-05 Eg 1.165e-05 Eb 2.103e-04 eps99 3.34e-03 steps 21 conv True 16s
+F3 3.75mm up EA 265.43: DC 0.3527 folds 9 E -2.80476189e-03 Es 5.605e-05 Eg 6.414e-05 Eb 6.934e-04 eps99 9.22e-03 steps 25 conv True 16s
+F1 3.75mm up EA 299.18: DC 0.3388 folds 9 E -1.32658983e-03 Es 2.003e-05 Eg 2.206e-05 Eb 3.421e-04 eps99 5.00e-03 steps 59 conv True 44s
+F9 2.5mm down EA 75.00: DC 0.7078 folds 8 E -1.94483271e-03 Es 9.110e-05 Eg 2.686e-05 Eb 1.044e-03 eps99 1.46e-02 steps 18 conv True 31s
+F3 3.75mm up EA 469.68: DC 0.3599 folds 9 E -2.77444650e-03 Es 5.042e-05 Eg 6.665e-05 Eb 7.071e-04 eps99 6.55e-03 steps 17 conv True 11s
+F2 3.75mm up EA 523.55: DC 0.3222 folds 10 E -8.37204343e-04 Es 1.107e-05 Eg 1.092e-05 Eb 2.118e-04 eps99 2.47e-03 steps 28 conv True 22s
+F1 3.75mm up EA 596.72: DC 0.3415 folds 9 E -1.31367865e-03 Es 1.783e-05 Eg 2.058e-05 Eb 3.497e-04 eps99 3.44e-03 steps 21 conv True 15s
+F1 3.75mm up EA 1190.18: DC 0.3450 folds 9 E -1.30142353e-03 Es 1.801e-05 Eg 1.833e-05 Eb 3.543e-04 eps99 2.40e-03 steps 17 conv True 12s
+F2 3.75mm up EA 978.12: DC 0.3283 folds 10 E -8.29848846e-04 Es 1.265e-05 Eg 9.807e-06 Eb 2.122e-04 eps99 1.95e-03 steps 18 conv True 13s
+F3 3.75mm up EA 831.10: DC 0.3656 folds 9 E -2.74656037e-03 Es 4.761e-05 Eg 6.522e-05 Eb 7.204e-04 eps99 4.91e-03 steps 35 conv True 26s
+F1 3.75mm up EA 2373.84: DC 0.3505 folds 9 E -1.28832039e-03 Es 2.028e-05 Eg 1.553e-05 Eb 3.567e-04 eps99 1.73e-03 steps 17 conv True 12s
+F2 3.75mm up EA 1827.36: DC 0.3367 folds 10 E -8.21183593e-04 Es 1.524e-05 Eg 8.404e-06 Eb 2.118e-04 eps99 1.62e-03 steps 22 conv True 16s
+F9 2.5mm down EA 37.50: DC 0.6846 folds 8 E -2.00978264e-03 Es 9.666e-05 Eg 1.691e-05 Eb 1.069e-03 eps99 2.03e-02 steps 19 conv True 34s
+F1 3.75mm up EA 4734.70: DC 0.3589 folds 9 E -1.27302108e-03 Es 2.429e-05 Eg 1.250e-05 Eb 3.573e-04 eps99 1.26e-03 steps 21 conv True 16s
+F3 3.75mm down EA 75.00: DC 0.3275 folds 9 E -2.88565250e-03 Es 7.275e-05 Eg 4.585e-05 Eb 6.676e-04 eps99 1.72e-02 steps 32 conv True 20s
+F3 3.75mm down EA 37.50: DC 0.3085 folds 9 E -2.94057178e-03 Es 7.826e-05 Eg 3.425e-05 Eb 6.574e-04 eps99 2.44e-02 steps 65 conv True 40s
+F1 3.75mm down EA 75.00: DC 0.3258 folds 9 E -1.36224413e-03 Es 3.081e-05 Eg 2.125e-05 Eb 3.161e-04 eps99 1.29e-02 steps 63 conv True 41s
+F9 2.5mm down EA 18.75: DC 0.6622 folds 8 E -2.08047419e-03 Es 1.096e-04 Eg 1.118e-05 Eb 1.075e-03 eps99 2.81e-02 steps 33 conv True 58s
+done F9 0.0025
+F2 3.75mm down EA 75.00: DC 0.3074 folds 10 E -8.62223436e-04 Es 1.464e-05 Eg 1.162e-05 Eb 2.010e-04 eps99 8.67e-03 steps 85 conv True 61s
+F1 3.75mm down EA 37.50: DC 0.3125 folds 9 E -1.38564515e-03 Es 3.641e-05 Eg 1.756e-05 Eb 3.041e-04 eps99 1.88e-02 steps 16 conv True 11s
+F3 3.75mm down EA 18.75: DC 0.2862 folds 9 E -2.99646321e-03 Es 8.220e-05 Eg 2.524e-05 Eb 6.445e-04 eps99 3.42e-02 steps 21 conv True 13s
+done F3 0.00375
+F1 3.75mm down EA 18.75: DC 0.2947 folds 9 E -1.41217493e-03 Es 3.972e-05 Eg 1.359e-05 Eb 2.947e-04 eps99 2.61e-02 steps 15 conv True 9s
+done F1 0.00375
+F2 3.75mm down EA 37.50: DC 0.2980 folds 10 E -8.75730878e-04 Es 1.849e-05 Eg 1.093e-05 Eb 1.918e-04 eps99 1.41e-02 steps 70 conv True 48s
+F4 3.75mm up EA 150.00: DC 0.4416 folds 9 E -1.42722458e-03 Es 4.062e-05 Eg 3.129e-05 Eb 4.396e-04 eps99 1.04e-02 steps 88 conv True 57s
+F5 3.75mm up EA 150.00: DC 0.4106 folds 9 E -1.63625315e-03 Es 4.053e-05 Eg 3.864e-05 Eb 4.689e-04 eps99 1.01e-02 steps 81 conv True 52s
+F5 3.75mm up EA 280.10: DC 0.4217 folds 9 E -1.61253370e-03 Es 3.567e-05 Eg 4.327e-05 Eb 4.753e-04 eps99 7.33e-03 steps 24 conv True 15s
+F4 3.75mm up EA 285.46: DC 0.4539 folds 9 E -1.40289746e-03 Es 3.507e-05 Eg 3.552e-05 Eb 4.469e-04 eps99 7.51e-03 steps 26 conv True 17s
+F5 3.75mm up EA 523.05: DC 0.4298 folds 9 E -1.59154863e-03 Es 3.153e-05 Eg 4.397e-05 Eb 4.860e-04 eps99 4.86e-03 steps 17 conv True 12s
+F4 3.75mm up EA 543.25: DC 0.4623 folds 9 E -1.38197873e-03 Es 3.058e-05 Eg 3.690e-05 Eb 4.554e-04 eps99 5.16e-03 steps 31 conv True 21s
+F6 3.75mm up EA 150.00: DC 0.5425 folds 7 E -1.20294473e-03 Es 4.004e-05 Eg 3.847e-05 Eb 4.235e-04 eps99 8.91e-03 steps 144 conv True 91s
+F5 3.75mm up EA 976.72: DC 0.4338 folds 9 E -1.57280289e-03 Es 2.931e-05 Eg 4.188e-05 Eb 4.958e-04 eps99 3.45e-03 steps 32 conv True 24s
+F2 3.75mm down EA 18.75: DC 0.2851 folds 10 E -8.91284550e-04 Es 2.136e-05 Eg 9.154e-06 Eb 1.847e-04 eps99 2.02e-02 steps 95 conv True 59s
+done F2 0.00375
+F4 3.75mm up EA 1033.84: DC 0.4691 folds 9 E -1.36296058e-03 Es 2.892e-05 Eg 3.656e-05 Eb 4.599e-04 eps99 3.61e-03 steps 22 conv True 15s
+F6 3.75mm up EA 275.35: DC 0.5562 folds 7 E -1.18065826e-03 Es 3.361e-05 Eg 4.538e-05 Eb 4.241e-04 eps99 6.56e-03 steps 24 conv True 15s
+F5 3.75mm up EA 1823.88: DC 0.4387 folds 9 E -1.55440860e-03 Es 3.010e-05 Eg 3.834e-05 Eb 5.021e-04 eps99 2.60e-03 steps 17 conv True 12s
+F4 3.75mm up EA 1967.46: DC 0.4733 folds 9 E -1.34493136e-03 Es 2.812e-05 Eg 3.311e-05 Eb 4.675e-04 eps99 2.50e-03 steps 24 conv True 17s
+F5 3.75mm down EA 75.00: DC 0.3945 folds 9 E -1.66658335e-03 Es 4.699e-05 Eg 3.132e-05 Eb 4.613e-04 eps99 1.48e-02 steps 18 conv True 11s
+F6 3.75mm up EA 505.46: DC 0.5680 folds 7 E -1.16166328e-03 Es 2.936e-05 Eg 5.048e-05 Eb 4.231e-04 eps99 4.74e-03 steps 19 conv True 13s
+F5 3.75mm down EA 37.50: DC 0.3745 folds 9 E -1.70108596e-03 Es 5.219e-05 Eg 2.367e-05 Eb 4.539e-04 eps99 2.01e-02 steps 15 conv True 9s
+F4 3.75mm up EA 3744.20: DC 0.4777 folds 9 E -1.32645050e-03 Es 2.964e-05 Eg 2.820e-05 Eb 4.736e-04 eps99 1.81e-03 steps 19 conv True 14s
+F6 3.75mm up EA 927.86: DC 0.5786 folds 7 E -1.14444529e-03 Es 2.775e-05 Eg 5.335e-05 Eb 4.206e-04 eps99 3.48e-03 steps 20 conv True 14s
+F4 3.75mm down EA 75.00: DC 0.4235 folds 9 E -1.45756837e-03 Es 4.687e-05 Eg 2.502e-05 Eb 4.318e-04 eps99 1.50e-02 steps 15 conv True 9s
+F5 3.75mm down EA 18.75: DC 0.3502 folds 9 E -1.73825879e-03 Es 5.452e-05 Eg 1.718e-05 Eb 4.481e-04 eps99 2.79e-02 steps 23 conv True 14s
+done F5 0.00375
+F6 3.75mm up EA 1703.25: DC 0.5880 folds 7 E -1.12758401e-03 Es 2.817e-05 Eg 5.334e-05 Eb 4.192e-04 eps99 2.63e-03 steps 25 conv True 18s
+F4 3.75mm down EA 37.50: DC 0.4009 folds 9 E -1.49184854e-03 Es 5.167e-05 Eg 1.881e-05 Eb 4.239e-04 eps99 2.02e-02 steps 19 conv True 12s
+F6 3.75mm down EA 75.00: DC 0.5223 folds 7 E -1.23355290e-03 Es 4.811e-05 Eg 2.931e-05 Eb 4.223e-04 eps99 1.26e-02 steps 24 conv True 16s
+F4 3.75mm down EA 18.75: DC 0.3749 folds 9 E -1.52857214e-03 Es 5.361e-05 Eg 1.379e-05 Eb 4.171e-04 eps99 2.81e-02 steps 31 conv True 21s
+done F4 0.00375
+F6 3.75mm down EA 37.50: DC 0.4970 folds 7 E -1.26908968e-03 Es 5.394e-05 Eg 2.080e-05 Eb 4.224e-04 eps99 1.75e-02 steps 21 conv True 13s
+F7 3.75mm up EA 150.00: DC 0.5583 folds 7 E -1.31159356e-03 Es 5.158e-05 Eg 3.604e-05 Eb 4.747e-04 eps99 1.02e-02 steps 149 conv True 95s
+F7 3.75mm up EA 272.59: DC 0.5735 folds 7 E -1.28312709e-03 Es 4.378e-05 Eg 4.381e-05 Eb 4.765e-04 eps99 7.44e-03 steps 18 conv True 12s
+F7 3.75mm up EA 495.38: DC 0.5866 folds 7 E -1.25904334e-03 Es 3.720e-05 Eg 5.012e-05 Eb 4.777e-04 eps99 5.31e-03 steps 18 conv True 11s
+F7 3.75mm up EA 900.24: DC 0.5969 folds 7 E -1.23817885e-03 Es 3.309e-05 Eg 5.428e-05 Eb 4.777e-04 eps99 3.80e-03 steps 19 conv True 13s
+F9 3.75mm up EA 150.00: DC 0.7027 folds 7 E -2.04041201e-03 Es 9.501e-05 Eg 4.684e-05 Eb 1.019e-03 eps99 1.08e-02 steps 108 conv True 68s
+F7 3.75mm up EA 1636.00: DC 0.6067 folds 7 E -1.21900923e-03 Es 3.151e-05 Eg 5.585e-05 Eb 4.771e-04 eps99 2.87e-03 steps 23 conv True 16s
+F6 3.75mm down EA 18.75: DC 0.4664 folds 7 E -1.31012618e-03 Es 5.448e-05 Eg 1.452e-05 Eb 4.276e-04 eps99 2.48e-02 steps 105 conv True 65s
+done F6 0.00375
+F9 3.75mm up EA 299.81: DC 0.7241 folds 7 E -1.97811970e-03 Es 8.394e-05 Eg 6.775e-05 Eb 9.842e-04 eps99 7.38e-03 steps 11 conv True 7s
+F8 3.75mm up EA 150.00: DC 0.6178 folds 9 E -1.71109010e-03 Es 7.510e-05 Eg 3.886e-05 Eb 7.463e-04 eps99 1.13e-02 steps 178 conv True 111s
+F9 3.75mm up EA 599.26: DC 0.7405 folds 9 E -1.92502265e-03 Es 6.921e-05 Eg 9.006e-05 Eb 9.541e-04 eps99 4.88e-03 steps 13 conv True 8s
+F7 3.75mm up EA 2973.08: DC 0.6163 folds 7 E -1.20005746e-03 Es 3.242e-05 Eg 5.444e-05 Eb 4.769e-04 eps99 2.24e-03 steps 22 conv True 16s
+F9 3.75mm up EA 1197.77: DC 0.7532 folds 7 E -1.88190398e-03 Es 5.596e-05 Eg 1.094e-04 Eb 9.276e-04 eps99 3.26e-03 steps 15 conv True 9s
+F8 3.75mm up EA 299.41: DC 0.6396 folds 9 E -1.66269359e-03 Es 6.459e-05 Eg 5.226e-05 Eb 7.374e-04 eps99 7.78e-03 steps 26 conv True 16s
+F7 3.75mm down EA 75.00: DC 0.5354 folds 7 E -1.35021866e-03 Es 5.940e-05 Eg 2.666e-05 Eb 4.741e-04 eps99 1.41e-02 steps 17 conv True 11s
+F9 3.75mm up EA 2394.06: DC 0.7630 folds 7 E -1.84624905e-03 Es 4.812e-05 Eg 1.227e-04 Eb 9.026e-04 eps99 2.33e-03 steps 17 conv True 11s
+F7 3.75mm down EA 37.50: DC 0.5074 folds 7 E -1.39300245e-03 Es 6.328e-05 Eg 1.863e-05 Eb 4.767e-04 eps99 1.96e-02 steps 18 conv True 11s
+F8 3.75mm up EA 597.65: DC 0.6559 folds 10 E -1.62189947e-03 Es 5.369e-05 Eg 6.461e-05 Eb 7.293e-04 eps99 5.41e-03 steps 26 conv True 16s
+F9 3.75mm up EA 4785.16: DC 0.7715 folds 7 E -1.81354318e-03 Es 4.764e-05 Eg 1.290e-04 Eb 8.767e-04 eps99 1.81e-03 steps 24 conv True 16s
+F7 3.75mm down EA 18.75: DC 0.4766 folds 7 E -1.43692169e-03 Es 6.282e-05 Eg 1.289e-05 Eb 4.822e-04 eps99 2.65e-02 steps 20 conv True 12s
+done F7 0.00375
+F9 3.75mm down EA 75.00: DC 0.6782 folds 7 E -2.10835393e-03 Es 1.001e-04 Eg 3.063e-05 Eb 1.055e-03 eps99 1.51e-02 steps 11 conv True 7s
+F9 3.75mm down EA 37.50: DC 0.6528 folds 7 E -2.17847351e-03 Es 1.022e-04 Eg 1.994e-05 Eb 1.087e-03 eps99 2.07e-02 steps 11 conv True 7s
+F8 3.75mm up EA 1192.97: DC 0.6689 folds 9 E -1.58768098e-03 Es 4.615e-05 Eg 7.386e-05 Eb 7.189e-04 eps99 3.74e-03 steps 33 conv True 21s
+F9 3.75mm down EA 18.75: DC 0.6285 folds 7 E -2.25101184e-03 Es 1.088e-04 Eg 1.384e-05 Eb 1.104e-03 eps99 2.78e-02 steps 11 conv True 7s
+done F9 0.00375
+F8 3.75mm up EA 2381.27: DC 0.6799 folds 9 E -1.55677260e-03 Es 4.432e-05 Eg 7.863e-05 Eb 7.047e-04 eps99 2.80e-03 steps 40 conv True 26s
+F8 3.75mm down EA 75.00: DC 0.5905 folds 9 E -1.76660288e-03 Es 7.978e-05 Eg 2.687e-05 Eb 7.602e-04 eps99 1.62e-02 steps 90 conv True 53s
+F8 3.75mm down EA 37.50: DC 0.5624 folds 9 E -1.82205652e-03 Es 7.968e-05 Eg 1.838e-05 Eb 7.752e-04 eps99 2.17e-02 steps 22 conv True 13s
+F8 3.75mm down EA 18.75: DC 0.5342 folds 9 E -1.87697664e-03 Es 7.901e-05 Eg 1.329e-05 Eb 7.854e-04 eps99 2.96e-02 steps 60 conv True 36s
+done F8 0.00375

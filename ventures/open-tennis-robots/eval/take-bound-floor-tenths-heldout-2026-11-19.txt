@@ -1,0 +1,11 @@
+held out: 132 builds with a survey
+  whole ppm, floor 2 (shipped baseline): told 98, covered 98 (100.0%), instant 1.5 ms on 9 of 12
+  tenths, floor 0 ppm: told 97, covered 97 (100.0%), instant 1.5 ms on 9 of 12
+  tenths, floor 0.1 ppm: told 97, covered 97 (100.0%), instant 1.5 ms on 9 of 12
+  tenths, floor 0.2 ppm: told 97, covered 97 (100.0%), instant 1.5 ms on 9 of 12
+  tenths, floor 0.3 ppm: told 97, covered 97 (100.0%), instant 1.5 ms on 9 of 12
+  tenths, floor 0.5 ppm: told 97, covered 97 (100.0%), instant 1.5 ms on 9 of 12
+  tenths, floor 1 ppm: told 97, covered 97 (100.0%), instant 1.5 ms on 9 of 12
+  tenths, floor 2 ppm: told 97, covered 97 (100.0%), instant 1.5 ms on 9 of 12
+  floor 2 ppm on tenths: (a) coverage at least 95% and at least floor 0's 97 of 97: held; (b) bound 1.5 ms on at least half the instant builds: held
+Decision: host.TAKE_BOUND_FLOOR_PPM stays 2 on the tenths frame, as a noise margin

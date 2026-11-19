@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqybfMKarBPB6KRAHYWb",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T10:38:33Z",
+  "ended": "2026-11-19T10:58:10Z",
+  "wall_minutes": 20.14,
+  "tokens_in": 6824993,
+  "tokens_out": 28837,
+  "cost_usd": 2.9287,
+  "tool_calls": 63,
+  "task": "ai-bookkeeper (flagship row 1, allocate.py Start here): bring the East Slavic recogniser to the page's RapidOCR port (buildable item: 'Russian slips ... next: the page's port')",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17633",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Foreground `sleep N; cat` waiting on a background job is blocked by a hook; the doc says to use run_in_background but not how to wait on a job's output file. A `timeout N bash -c 'until <check>; do sleep 3; done'` loop works."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "The held-out test split was not re-read: the change is a port of an existing reader, not a rule fitted to val, so the claim is agreement with the Python engine on val.",
+      "did": "Measured the browser port against the Python reading on the 149 val slips only.",
+      "result": "Totals 139=139, sellers 116 vs 117, items 412=412; test left for a run that changes rules."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-ai-bookkeeper-russian-receipts-in-the-browser.md",
+    "ventures/ai-bookkeeper/eval/receipt-ocr-ru-page-2026-11-19.md"
+  ],
+  "goal": "Russian slips get sellers on the page, not only in the CLI",
+  "notes": "Page gets a 'RapidOCR alphabet' choice (Latin/Cyrillic). Cyrillic model from Hugging Face at pinned revision 7b02d0a3, sha256-checked in the page (fetchRapidModels). HF answers CORS (checked with curl -I and an Origin header). Val, headless Chromium through loadRapidEngine({script:'cyrillic'}) (worker path): totals 139/145, seller taken 116/146, items 412/482; Python CLI reading re-run here: 139, 117, 412 (matches the 2026-11-19 forms note). Rows identical on 87/149, 97.2% of Python lines unchanged. Unit tests: node --test rapidocr-worker/rapidocr-web/photoocr/page 70/70; full venture suite and venture-preflight run before merge (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c3199745-df14-5a82-9852-c5b9e947b856",
+    "transcripts": 1,
+    "first": "2026-11-19T10:38:33Z",
+    "last": "2026-11-19T10:58:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 111,
+        "output": 28837,
+        "thinking": 4617,
+        "cache_read": 6698399,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126483,
+        "api_equivalent_usd": 2.9287,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 111,
+      "output": 28837,
+      "thinking": 4617,
+      "cache_read": 6698399,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126483,
+      "api_equivalent_usd": 2.9287,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.14,
+      "active_minutes": 20.14,
+      "model_minutes": 4.44,
+      "tool_minutes": 15.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "port a second OCR model into a browser pipeline with integrity checks, tests, and a 149-photo browser-vs-Python measurement",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 204.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

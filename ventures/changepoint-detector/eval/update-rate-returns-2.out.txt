@@ -1,0 +1,50 @@
+CALIBRATION, seed 20261220: mean false returns a series (null cells), found of 200 (power cells)
+  cell              m 2   m 2.5     m 3   m 3.5     m 4
+  B10 n300        0.040   0.000   0.000   0.000   0.000
+  B10 n600        0.045   0.005   0.000   0.000   0.000
+  B25 n300        0.030   0.000   0.000   0.000   0.000
+  B25 n600        0.015   0.000   0.000   0.000   0.000
+  B40 n300        0.020   0.000   0.000   0.000   0.000
+  B40 n600        0.005   0.000   0.000   0.000   0.000
+  B60 n300        0.015   0.000   0.000   0.000   0.000
+  B60 n600        0.010   0.000   0.000   0.000   0.000
+  M40 n300        0.040   0.005   0.000   0.000   0.000
+  M40 n600        0.010   0.000   0.000   0.000   0.000
+  M60 n300        0.045   0.005   0.000   0.000   0.000
+  M60 n600        0.015   0.000   0.000   0.000   0.000
+  W5 n1100        0.000   0.000   0.000   0.000   0.000
+  W3 n1100        0.090   0.015   0.000   0.000   0.000
+  W5c n1100       0.005   0.000   0.000   0.000   0.000
+  R30 found           0       0       0       0       0   (shipped alone 0)
+  R60 found         105      37       0       0       0   (shipped alone 0)
+  R90 found         176     116      53      20       0   (shipped alone 0)
+  I60 found         146     104      35       2       2   (shipped alone 2)
+
+Smallest m meeting <= 0.010 in every null cell: m 3
+
+CONFIRMATION, seed 20261221, chosen m only
+  cell              m 3
+  B10 n300        0.000
+  B10 n600        0.000
+  B25 n300        0.000
+  B25 n600        0.000
+  B40 n300        0.000
+  B40 n600        0.000
+  B60 n300        0.000
+  B60 n600        0.000
+  M40 n300        0.000
+  M40 n600        0.000
+  M60 n300        0.000
+  M60 n600        0.000
+  W5 n1100        0.000
+  W3 n1100        0.000
+  W5c n1100       0.000
+  R30 found           0   (shipped alone 0)
+  R60 found           0   (shipped alone 0)
+  R90 found          42   (shipped alone 0)
+  I60 found          23   (shipped alone 1)
+
+R1 every null cell <= 0.020 (worst 0.000): pass
+R2 R60 found >= 120 (0): FAIL
+R3 R60 gain over shipped >= 60 (0): FAIL
+(2016.3 s)

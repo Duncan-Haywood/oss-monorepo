@@ -186,7 +186,8 @@ def convert(md: str) -> tuple[str, list[str]]:
             i += 1
             continue
         if line.startswith("### "):
-            body.append(r"\subsection{" + inline(heading_text(line)) + "}")
+            # LaTeX numbers subsections itself; drop the markdown's "3.6 " so the PDF does not print "3.6 3.6"
+            body.append(r"\subsection{" + inline(re.sub(r"^\d+\.\d+\s+", "", heading_text(line))) + "}")
             i += 1
             continue
         if line.startswith("|"):

@@ -123,7 +123,7 @@
       const o = read();
       const a = analyze(o);
       const p = a.now;
-      let h = `<div class="finding"><h3>${money(p.profit)} a month at ${percent(o.utilization)} utilization</h3><p class="stats">${money(p.gross)} billed (${money(p.memberRevenue)} memberships + ${money(p.hourlyRevenue)} hourly) − ${money(p.fees)} fees − ${money(p.cost)} costs · ${Math.round(p.used)} of ${Math.round(p.capacity)} station-hours used · cost per used hour ${money2(p.costPerUsedHour)}</p></div>`;
+      let h = `<div class="finding"><h3>${money(p.profit)} a month at ${percent(o.utilization)} utilization</h3><p class="stats">${money(p.gross)} billed (${money(p.memberRevenue)} memberships + ${money(p.hourlyRevenue)} hourly) − ${money(p.fees)} fees − ${money(p.cost)} costs · ${Math.round(p.used)} of ${Math.round(p.capacity)} station-hours used · cost per used hour ${Number.isFinite(p.costPerUsedHour) ? money2(p.costPerUsedHour) : "n/a (no station-hours used)"}</p></div>`;
       h += `<div class="finding"><h3>What gets you there</h3><p>Break-even utilization: ${a.be === null ? "not reachable at this rate" : percent(a.be)}. Utilization for your goal: ${a.goal === null ? "not reachable" : percent(a.goal)}. Hourly rate to break even at ${percent(o.utilization)}: ${a.beRate === null ? "no hourly rate works" : money2(a.beRate)}. Rate for your goal: ${a.goalRate === null ? "no hourly rate works" : money2(a.goalRate)}.</p></div>`;
       for (const f of a.findings) h += `<div class="finding"><h3><span class="pill ${f.level}">${LABEL[f.level]}</span>${esc(f.title)}</h3><p>${esc(f.text)}</p></div>`;
       const s = sensitivity(o);

@@ -80,7 +80,7 @@ gets its proxy and its scores from a half-size development instead of failing. S
 2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
 from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
 2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
-"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Since 2026-11-16 a C-RAW CR3 stored in several tiles too ("C-RAW in tiles" below). Other RAW formats (a CR3 with an unknown codec version, ...) are still scored from their preview but stop at the grade
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Since 2026-11-16 a C-RAW CR3 stored in several tiles too ("C-RAW in tiles" below). Since 2026-11-18 the 2018-2023 bodies' tiled CR3s and older C-RAW layout too (EOS R, RP, M50, M6 Mark II, 250D, 90D, 850D, M200, R100: "Every CR3 body on raw.pixls.us" below). Other RAW formats (a CR3 with an unknown codec version, ...) are still scored from their preview but stop at the grade
 stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
@@ -390,7 +390,10 @@ This repo currently contains the first testable core utilities:
   21.7 s), `eval/cull-pan-all-pairs-2026-11-18.md`; since the same day, from 500 photos up, a
   chunked hash index finds the only pairs any match could link instead of comparing
   every pair, with identical groups: 2,000 frames 10.0 to 3.6 s, 10,000 frames 251
-  to 42 s, `eval/cull-grouping-index-2026-11-18.md`; and later that day a fine-offset
+  to 42 s, `eval/cull-grouping-index-2026-11-18.md`, and since later that day the
+  index and the exact checks run in C on every core when a C compiler is present
+  (`shootflow.cull_native`; same groups, 10,000 frames 115 to 5.8 s with the fine
+  match in, `eval/cull-grouping-native-2026-11-18.md`); and later that day a fine-offset
   match: 24 more 88% windows at 1% and 2% of the frame make a 7 x 7 grid whose
   offsets differ by every whole percent from 0 to 12, so a pan between the 3% steps
   (a 10% pan moves the content 11.1%, a 7% pan 7.5%) still finds a window pair
@@ -1072,6 +1075,43 @@ How it was checked:
   or `SHOOTFLOW_NATIVE=0`: the pure loop runs. `raw_develop.HUFFMAN_ENGINE` (`auto`, `python`,
   `native`) chooses; an invalid code falls back to the pure loop, which raises as before.
 
+## The noise reading in C: same bytes, a third less added time (2026-11-19)
+
+`--demosaic noise-aware` reads the frame's noise before it blends. Its profile guard took 1.4 s of the 3.1 s
+that noise-aware adds to a 24 MP develop. That guard builds a leave-one-out residual for every sensel and
+takes the median of each 24 x 24 block. Both steps now run in a small C helper (`src/shootflow/noise_native.py`).
+It is built on first use like the decoders, and `SHOOTFLOW_NATIVE=0` or a missing compiler keeps the numpy path.
+The C code uses numpy's arithmetic in numpy's order, so the output does not change: 14 of 14 large sample raws
+develop to the same bytes. The time noise-aware adds over directional fell by a median 31% (0.124 to 0.085 s per
+megapixel), and noise-aware now takes 1.77x directional's time instead of 2.05x. `auto` still picks
+directional. The measurements and what is left are in eval/noise-aware-native-spread-2026-11-19.md.
+
+## The blend and its bilinear image in C: same bytes, 43% less added time (2026-11-19)
+
+The same afternoon, the two biggest remaining costs of `--demosaic noise-aware` moved into that helper too: the
+bilinear image it blends toward and the per-pixel blend itself, with the final clip folded into the blend's own
+pass. The blend's luma step had been a BLAS matrix-vector product, whose fused multiply-adds give different last
+bits on different machines; it is now a fixed elementwise order in numpy, which C copies exactly, so a raw
+develops to the same bits everywhere. On the 14 large sample raws every output is still the same bytes as before.
+The time noise-aware adds over directional fell by a median 43% (0.094 to 0.053 s per megapixel), noise-aware now
+takes 1.46x directional's time instead of 1.74x, and the memory it adds at peak fell by a median 16%. `auto` still
+picks directional. Details: eval/noise-aware-native-blend-2026-11-19.md.
+
+That evening the per-block statistics the noise reading and the blend weights share went to C too. Two
+statistics were done in numpy: each 24 x 24 block's mean level and its largest value. numpy built each one
+from two whole-frame copies. Now one pass computes both. It sums each block in numpy's own pairwise order, so
+the bits stay the same. All 12 of the 12 largest sample raws tried are the same bytes. The noise-aware develop
+is a median 1.11x faster and now takes 1.32x directional's time. The develop is also checked against machine
+dependence: the remaining BLAS step, the patch-PCA noise read, would need an error about 10,000 times larger
+than a BLAS reordering gives before one 16-bit code moved. Details: eval/noise-aware-native-levels-2026-11-19.md.
+
+Later that night the patch-PCA noise read lost its BLAS calls too. Its covariance and texture energy are now sums
+in a fixed order (numpy's pairwise tree), the same in a C helper and in the numpy fallback. So the noise model a
+raw gets no longer depends on the BLAS library or its thread count. The bins run side by side and no bin's patches
+are copied. The step is a median 1.25x faster on 12 real planes, the model moves by at most 2e-12 relative, and all
+12 sample raws still develop to the same bytes. Noise-aware now takes 1.26x directional's time. Details:
+eval/noise-pca-native-2026-11-19.md.
+
 ## The sRGB encode, interpolated (2026-11-17)
 
 The develop's last step, linear light to sRGB, read a 4,096-entry table at the nearest entry, so a 16-bit
@@ -1298,6 +1338,22 @@ Python reference too on two of them). Two things changed:
   In the APS-C crop the old black lifted a tone five stops under middle grey by half a stop
   (`eval/canon-cr3-r5-real-2026-11-18.md`).
 
+**Every CR3 body on raw.pixls.us (later on 2026-11-18).** 39 files of 21 cameras, from the EOS M50 and EOS R
+of 2018 to the R6 Mark III and PowerShot V1, against LibRaw 0.22.2. The older bodies (EOS R, RP, M50 and
+Kiss M, M50 Mark II, M6 Mark II, M200, 250D/SL3, 90D, 850D, R100) do store tiles: two side by side, 6288 to
+7128 sensels wide, while every later body stores one tile even at 8480. ShootFlow refused 17 of their 18
+files: their RAW leaves CMP1's several-tiles flags at 0 (the reader demanded they match the grid; LibRaw
+reads the grid from the sizes), and their C-RAW is an older layout, CMP1 version 0x100 with no QP grid and
+one fixed step per subband, packed with the band's QP and padding into one word of the 0xFF03 header. Both
+are now read: **0 of 986.8 M sensels differ** from LibRaw on all 39 (17 tiled, 17 C-RAW, 8 of the old
+layout), the first real tiled CR3s this reader has seen, and the as-shot balance is equal on all 39.
+The stated black level is now found by ColorData's length and version (3,778 entries is two layouts:
+version 48 on the R7/R10/R50/R6 Mark II/R8 at 0x16B, 65-66 on the PowerShot V1 and R6 Mark III at 0x17F;
+the older bodies at 0x149), which took the R50 C-RAW's black from 13 levels high to within 2 of LibRaw.
+On the R6 Mark III and PowerShot V1, LibRaw 0.22.2 itself reads a wrong black (0 to 145 per channel, where
+the masked columns read 512.0-512.2 and ColorData states 512); ShootFlow uses 512
+(`eval/canon-cr3-every-body-2026-11-18.md`).
+
 ## Fujifilm RAF (2026-11-14)
 
 Fujifilm raw files no longer need Adobe's DNG Converter, and that includes X-Trans, the 6x6 colour
@@ -1440,7 +1496,32 @@ unchanged.
 
 ### Noise-aware demosaic: bilinear where edge-keeping only adds noise (2026-11-16)
 
-`shootflow develop FILE.dng --demosaic noise-aware` (opt-in, numpy, Bayer and X-Trans) blends the
+**The default since 2026-11-19** (eval/auto-noise-aware-2026-11-19.md): `--demosaic auto` picks noise-aware
+wherever it picked directional, after a rule committed before the cost was measured passed all five tests. On 53
+public sample raws from 49 bodies it takes 1.34x directional's time (median, 0.062 s per megapixel added) and
+1.015x its added peak memory (none over 1.21x). On 6,008 rows from three raw.pixls.us sweeps it is ahead of
+directional on average in every set, noise level and scenario, and 0.78% of rows lose over 0.1 dB, all near
+clean (worst -0.58 dB). `--demosaic directional` gives the old default and its bytes. The same check found that
+frames under 24 sensels in one dimension crashed the blend; they are one block now.
+
+**Near clean, the leak is closed on Bayer (2026-11-19, eval/near-clean-gate-2026-11-19.md).** The blend spreads
+block weights to pixels by interpolating between block centres, so a detailed block beside a smooth one took part
+of the smooth block's bilinear weight, and near clean bilinear is about 10 dB worse than directional on detail.
+That, not the ramps, was the -0.58 dB tile. Each block's q is now raised to at least its largest neighbour's over
+12 before the blend (`lift_near_detail`, `NEAR_DETAIL`). On 1,272 held-out rows from 29 bodies, rows losing over
+0.1 dB to directional fall from 18 to 11 (none new), the worst at SNR 200 from -0.27 to -0.14 dB, and no noise
+level's mean drops. X-Trans passed two of the three tests but not the third, so it is unchanged. `near_detail=False`
+gives the old blend.
+
+**X-Trans tuned on its own, and a noisy-reference check (2026-11-19, eval/near-clean-gate-xtrans-tune-2026-11-19.md).**
+A tune pass on 53 fresh sample raws (51 bodies, github.com/drewnoakes/metadata-extractor-images) on the X-Trans
+layout found no row losing over 0.1 dB to directional at any k, so there is nothing for the lift to fix and X-Trans
+keeps the old blend. On the Bayer layout all 15 losing rows were one ISO 1600, 30 s Pentax K-1 Mark II frame whose
+binned reference is itself at SNR 7 to 17. Sweep rows now carry the reference's own noise (`truth_sigma18`), and
+`near_clean_gate.py tune|rule --clean-truths` drops rows whose reference is noisier than the noise added. On the
+352 rows left, what ships loses over 0.1 dB on none.
+
+`shootflow develop FILE.dng --demosaic noise-aware` (numpy, Bayer and X-Trans; opt-in until 2026-11-19) blends the
 directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
 directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
 comes from the DNG's own NoiseProfile tag, which phones and converted DNGs write. Without the tag the
@@ -1878,6 +1959,13 @@ other decoder to compare against, `tools/rw2_grid_check.py` scores the decode: t
 smooth as on files LibRaw confirms (0.98 to 1.07), against 19 to 46 when a block is swapped,
 and the C and Python decoders agree.
 
+Later the same day a second decoder confirmed it: LibRaw's git snapshot 202611 (built by hand,
+`tools/libraw_dump.cpp`; rawpy still bundles 0.22.2) opens the frame, and every one of its
+176,909,376 sensels, the white balance, black, CFA, crop and white level equal ours
+(`tools/libraw_dump_check.py`, `eval/panasonic-rw2-177mp-libraw-snapshot-2026-11-18.md`). 0.22.x
+refused it because it holds only single-row stripes; the snapshot sums each tile's top from the
+heights above it and drops the top that tag 0x45 stores, which this reader cross-checks.
+
 Tone curves: none of the 35 public RawFormat 8 files on raw.pixls.us, from all nine bodies,
 carries one, and none has shifts or starting values either
 (`eval/panasonic-rw2-format8-curve-survey-2026-11-18.txt`), so the refusal stays.
@@ -1912,6 +2000,165 @@ one, black within 2; 2-4 s a file in Python. A PowerShot on Auto white balance k
 the shot, so none is applied and the report says so. The four-colour G1, Pro70 and Pro90 IS are
 refused. Details: `eval/canon-crw-reader-2026-11-16.md`; check: `tools/crw_libraw_check.py`;
 tests: `tests/test_crw.py`.
+
+### Minolta and Konica Minolta MRW (2026-11-18)
+
+Minolta's MRW files (the DiMAGE 7, 7i, 7Hi, A1, A2 and A200, 2001-2005, and the Konica Minolta
+Dynax 7D, sold as the Maxxum 7D and Alpha-7 Digital) now develop directly: `shootflow develop
+PICT0001.MRW --dcp DIR`, and the grade stage takes them like any other profiled raw
+(`src/shootflow/mrw.py`). An MRW is not a TIFF: a `\0MRM` header and a chain of named blocks come
+before the sensor. PRD gives the sensor size, the storage (12-bit packed, or the DiMAGE 7 family's
+big-endian 16-bit words) and the Bayer pattern (RGGB, or GBRG on the A200); WBG the as-shot gains in
+the pattern's own 2x2 order; TTW a whole TIFF with Make, Model, orientation and EXIF. On nine real
+files from raw.pixls.us every one of 54.1 M sensels, the CFA, the white balance and the black level
+(0 on every body) equal LibRaw 0.22's, 0.02-0.16 s a file. Developed with LibRaw's own colour matrix
+as a stand-in profile, the mean colour of each picture is within 0.017 in chromaticity of LibRaw's
+render. The DiMAGE Z2's `.MRW` has no MRW header at all and is refused. Details:
+`eval/minolta-mrw-reader-2026-11-18.md`; checks: `tools/mrw_libraw_check.py`,
+`tools/mrw_develop_check.py`; tests: `tests/test_mrw.py`.
+
+### Kodak DCR (2026-11-18)
+
+Kodak's DCR files from the DCS Pro SLR/n (2004) and its siblings now develop directly: `shootflow
+develop M3XV3143.DCR --dcp DIR` (`src/shootflow/kodak.py`). A DCR is a big-endian TIFF whose sensor
+sits in a SubIFD with Kodak's own compression, 65000: each row in blocks of up to 256 sensels, a
+4-bit bit length per sensel, then the differences read least-significant bit first from pairs of
+big-endian 16-bit words, two predictors (one per CFA column) reset every block; a block with a length
+over 12 is stored as plain 12-bit values instead. The codes are 10-bit and go through Kodak IFD entry
+2317, a 1024-step linearisation table whose last step is the white level (3700). The as-shot white
+balance is the 72-byte record in entry 1021 (2048 over each multiplier), or entry 2120 + n when that
+record is missing. On the one public DCR (the DCS Pro SLR/n file in metadata-extractor-images) every
+one of 13.6 M sensels, the CFA, the white level and the white balance equal LibRaw 0.22's; the C
+decoder reads the frame in 0.13 s, the pure-Python reference in 5.1 s, with identical output.
+Developed with LibRaw's colour matrix for the body as a stand-in profile, the picture's mean colour is
+within 0.0023 in chromaticity of LibRaw's render (compared in linear light). Other Kodak compressions
+(the DC-series 262 and 32867 and the KDC formats) are refused with the reason. Details:
+`eval/kodak-dcr-reader-2026-11-18.md`; checks: `tools/dcr_libraw_check.py`,
+`tools/dcr_develop_check.py`; tests: `tests/test_kodak.py`.
+
+### Phase One IIQ (2026-11-18)
+
+Phase One's IIQ files (the P+ and IQ backs, the H 25, the iXU and iXM aerial cameras, and the `.TIF`
+raws of the P25, P30 and P45) now develop directly, and with no `.dcp`: an IIQ carries its own
+camera-to-ROMM matrix, which `src/shootflow/iiq.py` turns into a DNG ColorMatrix1 at D50 (the as-shot
+neutral maps to D50 white exactly), so `shootflow develop CF000001.IIQ --out masters` works like a DNG
+and the grade stage takes them too. The sensor sits in an `IIII` container inside the TIFF; IIQ L
+(format 3, and the P+ backs' 8-bit-coded format 5) is decoded row by row, with each row's and column's
+black offsets for the split sensor halves added as dcraw does, by an optional C decoder (about 0.8 s for
+106 M sensels) or the pure-Python reference. On ten real files from raw.pixls.us (H 25, P25, P20+, P25+,
+P30, P45+, P65+, IQ140, IQ150, IQ3 100MP) every one of 342.7 M sensels, the CFA, the white balance and
+the orientation equal LibRaw 0.22's; per-channel levels after black are within 0.7% of LibRaw's linear
+render on nine (P45+: 2.2%, where LibRaw also applies Phase One's flat-field and defect corrections; applied
+here too since 2026-11-19, which brings it to 0.02%). The mean colour of eight of nine developed frames is within 0.02 in chromaticity of
+LibRaw's render (P25+ 0.026; the two colour models differ, see the eval). The uncompressed formats and
+the 16-bit format 8 (IQ4, Trichromatic) are refused with the reason. Details:
+`eval/phaseone-iiq-reader-2026-11-18.md`; checks: `tools/iiq_libraw_check.py`,
+`tools/iiq_develop_check.py`; tests: `tests/test_iiq.py`.
+
+**IIQ S (later the same day).** Phase One's smaller compressed setting (format 6), the one the iXU180,
+iXM-100 and iXM-RS150F aerial cameras and half the IQ180 files on raw.pixls.us use, now reads too: per
+block of eight columns a scale for each colour lane and a shared refinement, then eight samples, written
+independently from the layout LibRaw 0.21+ decodes (the module docstring describes it). On six real IIQ S
+files from five bodies (IQ180 twice, iXU180, IQ3 100MP, iXM-100, iXM-RS150F) every one of 546.9 M
+sensels, the CFA, white balance, crop and orientation equal LibRaw 0.22's, and on three IIQ L files from
+two bodies the first check had not read (IQ180, iXM-100) 205.8 M more; a 154 MP frame reads in 1.2 s with
+the C decoder. Three of the six files send a refinement above the scale, which in LibRaw's C is a shift by a
+negative count; all 880 such samples carry zero bits, so any reading gives LibRaw's values, and non-zero
+bits there are refused as corrupt (`tools/iiq_s_shift_check.py`). Levels after black are within
+0.6% of LibRaw's render on five of six; the iXU180, with offset tables down to -336, is 5.2% apart on
+blue, where Phase One's flat-field corrections (applied since 2026-11-19, see below) matter most. Details:
+`eval/phaseone-iiq-s-reader-2026-11-18.md`.
+
+**16-bit IIQ L: the IQ4 150MP and the Trichromatic (that evening).** Format 8, the last coded IIQ format
+still refused, is the IIQ L code with 16-bit values stored as they are rather than times four; the IQ4
+150MP writes it for its "IIQ L 16-bit" and "IIQ L 16 Extended" settings, and the IQ3 100MP and its
+Trichromatic for their 16-bit IIQ L. On all four public files (raw.pixls.us: two IQ4 150MP, an IQ3 100MP,
+the Trichromatic) every one of 519.9 M sensels, the CFA, white balance, crop and orientation equal LibRaw
+0.22's, and so do the IQ4's 14-bit IIQ L (154.0 M, a body new to the check) and eleven files from ten
+bodies already read (no regression). A 154 MP 16-bit frame reads in 1.1-1.4 s with the C decoder. The two
+extra bits are used (each of the four low-bit values in 25.0% of sensels), but the IQ4's masked-area
+noise is 6.0-6.8 of the 16-bit steps, so 14-bit rounding would add 1.4-1.8% to it. The IQ4's own
+matrix and LibRaw's disagree: on the IQ4's blue-sky frames the mean colour is 0.09 apart, and the 24
+ColorChecker patches through the two matrices differ by a mean delta E of 16 (cyan 58); the file's matrix
+gives a cyan-blue sky and LibRaw's a lavender one, and with no photographed target neither can be called
+right, so the file's own matrix stays the default (`--dcp` overrides it). Details:
+`eval/phaseone-iiq-16bit-2026-11-18.md`; check: `tools/iiq_matrix_check.py`.
+
+**Phase One's sensor calibration (2026-11-19).** Every Phase One back writes a factory calibration into
+each raw, in the block at sensor tag `0x110`: defect maps, flat fields per tile and colour, a polynomial
+for the right readout half shifted by the sensor temperature, and per-quadrant gains and linearisation
+splines. Capture One and LibRaw apply it, and ShootFlow now does too, by default
+(`src/shootflow/iiq_calibration.py`; `iiq.parse_iiq(..., calibrate=False)` leaves it off). It matters:
+LibRaw's calibration moves the P45+ by 0.94-1.06 across the frame and the IQ180's four tiles by up to
+11%. On ten backs (H 25, P20+, P25, P25+, P30, P45+, P65+, IQ140, IQ150, IQ180; 387 M sensels) the
+calibrated sensels were compared with LibRaw 0.22's calibrated render. Leaving out the columns a file
+marks dead, five backs are equal on every sensel and the other five are within 3 codes, with none off
+by more than 1%. Before calibration, 1.7-96% of sensels were within 1%. The dead columns are filled
+with fixed weights, where LibRaw picks a direction for each sensel; on 300 good columns a frame,
+blanked and refilled on four backs, the two kinds of fill were equally good. The P45+'s channel levels
+moved from 2.2% off LibRaw's render to 0.02%. Calibration costs 0.15-0.8 s a frame with the C helper.
+Details: `eval/phaseone-iiq-calibration-2026-11-19.md`; check: `tools/iiq_calibration_check.py`;
+tests: `tests/test_iiq_calibration.py`.
+
+**The calibration on IIQ S, 16-bit and aerial backs, and the iXU180's gap (2026-11-19).** The same check
+was run on the 13 remaining public Phase One files (iXU180, IQ180 IIQ S and L, IQ3 100MP in S, L and 16-bit,
+IQ3 100MP Trichromatic, IQ4 150MP three ways, iXM-100 twice, iXM-RS150F; 1.42 billion sensels). Nine equal
+LibRaw on every sensel, the IQ180s are within 3 codes, and the iXU180 is within 2 outside its four dead
+columns. The iXU180's 5.2% blue gap turned out not to be the calibration. It comes from the file's black
+offset tables. ShootFlow applies them, as LibRaw does for IIQ L, but LibRaw's IIQ S loader never reads
+them. On the iXU180 the row table is a smooth ramp from about -30 codes at the top and bottom edges to
+-333 at the middle row. With the tables zeroed, ShootFlow's levels equal LibRaw's to four decimals. Which
+reader is right needs a dark frame or a Capture One export of an iXU180, and none is public. ShootFlow keeps
+the tables. Details: `eval/phaseone-iiq-calibration-newer-backs-2026-11-19.md`; check:
+`tools/iiq_offsets_check.py`.
+
+### Hasselblad 3FR (2026-11-18)
+
+Hasselblad's 3FR files (H3D, H4D-60, X1D, X1D II, X2D, the CFV II 50C and CFV 100C backs, and the
+older CFV, CFV-50c and Ixpress CF132) now develop directly: `shootflow develop B0000079.3FR --out DIR`,
+with no `.dcp`, because a 3FR carries its own ColorMatrix1 and AsShotNeutral in IFD0; the grade stage
+takes them like a DNG (`src/shootflow/hasselblad.py`). The X-series and new backs store plain 16-bit
+words; the H-series and older backs use Hasselblad's own lossless JPEG (pairs of size codes, read from
+little-endian 32-bit words), decoded in C with a pure-Python reference. On ten real files from
+raw.pixls.us every one of 561.5 M sensels, the CFA and the white balance equal LibRaw 0.22's, 0.1-1.4 s
+a file. The H4D-60's data is black-subtracted and its noise wraps to the top of the 16-bit range (0.5% of
+the frame would develop as white specks); the reader finds that from the gap it leaves in the histogram
+and reads the frame with a 256 offset, as LibRaw does by model. The mean colour of each developed frame
+equals LibRaw's to four places with `--colour dcraw` on eight of ten bodies (the 100 MP two carry
+Hasselblad's own matrix). Writing the colour check found the MRW check's flaw: it undid LibRaw's BT.709
+output with the sRGB curve. Multi-shot frames are not read. Details:
+`eval/hasselblad-3fr-reader-2026-11-18.md`; checks: `tools/hasselblad_libraw_check.py`,
+`tools/hasselblad_develop_check.py`; tests: `tests/test_hasselblad.py`.
+
+### Hasselblad Phocus .fff (2026-11-18)
+
+Phocus's `.fff` files (what Hasselblad's tethering and export software writes) now develop like 3FRs:
+`shootflow develop Job_0079.fff --out DIR`, and the grade stage takes them. The sensor data is the 3FR
+layout written big-endian; on eleven real files from nine bodies on raw.pixls.us (713.7 M sensels; CFV-50, CFV-50c,
+H4D-40, H4D-50, H5D-40, H5D-50c, H6D-100c, X1D II 50C, X2D 100C) every sensel, the CFA and the stored
+white balance equal LibRaw 0.22's. Three things differ from a 3FR, and each is now read:
+
+- **Newer Phocus exports scale red and blue by AnalogBalance and keep the old neutral.** Two frames on
+  raw.pixls.us exist as both 3FR and `.fff` (an X2D 100C and a CFV-50c). Green sensels are identical; red
+  and blue are multiplied by the file's AnalogBalance (1.028 and 1.014 on the X2D) while AsShotNeutral is
+  copied unchanged. Read as the DNG specification reads it, that leaves a cast (chromaticity 0.008-0.017
+  off the 3FR's own develop; LibRaw has the same cast). A digital gain leaves its mark in the data: a gain
+  of g empties 1 - 1/g of the codes. On six of the eleven files (CFV-50c, X1D II, H6D-100c, X2D) every
+  channel's empty share equals its AnalogBalance's to 0.001, and there the reader scales the neutral by the
+  same gains; each paired `.fff` then develops to its 3FR's colour within 0.0001. The other five (CFV-50,
+  H4D-40, H4D-50, H5D-40, H5D-50c, older exports) carry the tag without that gain, and their neutral is
+  used as written.
+- **The colour matrix is ColorMatrix2, or missing.** Six files carry it as ColorMatrix2 with no
+  illuminant, used alone; five carry none. For the CFV-50c and X2D 100C the body's own matrix is taken
+  from its 3FR (`hasselblad.OWN_MATRICES`); the H4D-40 and H6D-100c have no public 3FR to read it from,
+  so those need a `.dcp` (the develop says so).
+- **UniqueCameraModel names only the series** ("Hasselblad H4D" on H4D-40 and H4D-50 files, whose
+  matrices differ), so the camera name for the profile chooser now comes from the Model tag when it
+  extends it ("Hasselblad H4D-40", "Hasselblad CFV-50c").
+
+Details: `eval/hasselblad-fff-reader-2026-11-18.md`; checks: `tools/hasselblad_fff_pair_check.py`
+(3FR against its `.fff`), `tools/hasselblad_libraw_check.py`, `tools/hasselblad_develop_check.py`;
+tests: `PhocusFffTests` in `tests/test_hasselblad.py`.
 
 ## Olympus ORF (2026-11-14)
 

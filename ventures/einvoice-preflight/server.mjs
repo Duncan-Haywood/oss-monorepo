@@ -181,7 +181,7 @@ export function createApp(config = loadConfig()) {
         return;
       }
     }
-    const ip = req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.socket.remoteAddress || "?";
+    const ip = req.headers["x-forwarded-for"]?.split(",").pop().trim() || req.socket.remoteAddress || "?";
     if (limited(ip, Date.now())) {
       send(res, 429, { error: "Rate limit exceeded." }, { "retry-after": "60" });
       return;

@@ -1,0 +1,46 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 49 post hoc: what limits the stance at the 50 N end of the 24 cells (mu 0.5)
+robot | pose | H | phi | hose force at the hand (N) | balances with unlimited friction | smallest mu that balances | largest press that balances at mu 0.5 (N) | same, no hose (N) | net sole load Fx, Fy, Fz (N) | |F_h|/F_z
+  g1 [1.0, -0.15] | 20 | 135 | -14.1, +14.1, -10.6 | True | 0.509 | 49.6 | 58.6 | +64.1, -14.1, 371.1 | 0.177
+  g1 [1.0, -0.15] | 20 | 180 | -20.0, +0.0, -10.6 | False | > 5 | 43.8 | 58.6 | +70.0, -0.0, 371.1 | 0.189
+  g1 [1.0, -0.15] | 20 | 225 | -14.1, -14.1, -10.6 | True | 0.503 | 49.8 | 58.6 | +64.1, +14.1, 371.1 | 0.177
+  g1 [1.0, 0.0] | 20 | 180 | -20.0, +0.0, -10.6 | False | > 5 | 47.4 | 62.2 | +70.0, +0.0, 371.1 | 0.189
+  g1 [1.0, 0.15] | 20 | 180 | -20.0, +0.0, -10.6 | False | > 5 | 47.4 | 62.2 | +70.0, +0.0, 371.1 | 0.189
+  g1 [1.2, -0.15] | 20 | 135 | -14.1, +14.1, -11.7 | False | > 5 | 42.2 | 51.6 | +64.1, -14.1, 372.2 | 0.176
+  g1 [1.2, -0.15] | 20 | 180 | -20.0, +0.0, -11.7 | False | > 5 | 36.4 | 51.6 | +70.0, +0.0, 372.2 | 0.188
+  g1 [1.2, -0.15] | 20 | 225 | -14.1, -14.1, -11.7 | False | > 5 | 41.0 | 51.6 | +64.1, +14.1, 372.2 | 0.176
+  g1 [1.2, -0.15] | 20 | 270 | -0.0, -20.0, -11.7 | True | 0.563 | 47.4 | 51.6 | +50.0, +20.0, 372.2 | 0.145
+  g1 [1.2, -0.15] | 5 | 180 | -5.0, +0.0, -6.5 | True | > 5 | 49.2 | 51.6 | +55.0, +0.0, 366.9 | 0.150
+  g1 [1.2, 0.0] | 20 | 135 | -14.1, +14.1, -11.7 | False | > 5 | 42.3 | 51.6 | +64.1, -14.1, 372.2 | 0.176
+  g1 [1.2, 0.0] | 20 | 180 | -20.0, +0.0, -11.7 | False | > 5 | 36.4 | 51.6 | +70.0, +0.0, 372.2 | 0.188
+  g1 [1.2, 0.0] | 20 | 225 | -14.1, -14.1, -11.7 | False | > 5 | 42.3 | 51.6 | +64.1, +14.1, 372.2 | 0.176
+  g1 [1.2, 0.0] | 5 | 180 | -5.0, +0.0, -6.5 | False | > 5 | 49.3 | 51.6 | +55.0, +0.0, 366.9 | 0.150
+  g1 [1.2, 0.15] | 20 | 135 | -14.1, +14.1, -11.7 | False | > 5 | 42.3 | 51.7 | +64.1, -14.1, 372.2 | 0.176
+  g1 [1.2, 0.15] | 20 | 180 | -20.0, +0.0, -11.7 | False | > 5 | 36.5 | 51.7 | +70.0, -0.0, 372.2 | 0.188
+  g1 [1.2, 0.15] | 20 | 225 | -14.1, -14.1, -11.7 | False | > 5 | 42.3 | 51.7 | +64.1, +14.1, 372.2 | 0.176
+  g1 [1.2, 0.15] | 5 | 180 | -5.0, +0.0, -6.5 | True | > 5 | 49.3 | 51.7 | +55.0, -0.0, 366.9 | 0.150
+  h1 [1.6, 0.0] | 20 | 135 | -14.1, +14.1, -13.8 | True | > 5 | 48.6 | 58.7 | +64.1, -14.1, 551.8 | 0.119
+  h1 [1.6, 0.0] | 20 | 180 | -20.0, +0.0, -13.8 | True | > 5 | 42.8 | 58.7 | +70.0, +0.0, 551.8 | 0.127
+  h1 [1.6, 0.0] | 20 | 225 | -14.1, -14.1, -13.8 | True | > 5 | 48.6 | 58.7 | +64.1, +14.1, 551.8 | 0.119
+  h1 [1.6, 0.15] | 20 | 135 | -14.1, +14.1, -13.8 | True | > 5 | 48.6 | 58.7 | +64.1, -14.1, 551.8 | 0.119
+  h1 [1.6, 0.15] | 20 | 180 | -20.0, +0.0, -13.8 | True | > 5 | 42.8 | 58.7 | +70.0, -0.0, 551.8 | 0.127
+  h1 [1.6, 0.15] | 20 | 225 | -14.1, -14.1, -13.8 | True | > 5 | 48.6 | 58.7 | +64.1, +14.1, 551.8 | 0.119
+  g1: 18 cells; balance with unlimited friction 5; smallest mu 0.503-0.563; largest press 36.4-49.8 N; press window top with no hose 51.6-62.2 N; largest |F_h|/F_z 0.189 (mu 0.5)
+  h1: 6 cells; balance with unlimited friction 6; smallest mu > 5 at every cell; largest press 42.8-48.6 N; press window top with no hose 58.7-58.7 N; largest |F_h|/F_z 0.127 (mu 0.5)
+
+(run time 2 s)

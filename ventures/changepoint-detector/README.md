@@ -3618,6 +3618,254 @@ Next: revenue's deafness to a slow seasonal climb at Quiet and Middle (a heavy-t
 pre-registered bar on a second shop); one-day closures (a `--closed` list of dates treated as missing, pre-registered,
 on a second shop); a deployer's real Stripe series.
 
+## Closed days filled as missing (2026-11-19, pre-registered; three of five bars fail, `--closed` not offered)
+
+The section above left "one-day closures (a `--closed` list of dates treated as missing, pre-registered, on a second
+shop)". A closed weekday is a zero the count model reads as a step down and back up, so a shop that shuts on bank
+holidays hears about each one. The rule and four bars were committed before the fill was coded or any watch ran on
+the fresh data (`eval/closed-days.prereg.md`):
+
+- each listed date is filled with the **median of the same weekday in up to 4 earlier weeks** (the `--period` phase
+  when one is given; lag 1 when the labels are not consecutive days), rounded for counts. Only earlier points feed a
+  fill, so filling a whole history once equals filling each prefix and the replay is honest;
+- the closed list is a calendar fact: every non-Saturday day with no orders, cancellations or new customers.
+
+**Fresh data:** UCI **Online Retail II** (Chen 2019, CC BY 4.0), the same shop's earlier year, 2009-12-01 to
+2010-12-09, which no earlier round used (`data/online-retail-2009-daily.csv`, `data/SOURCE.md`). Its 15 closed days
+are the Christmas closure and exactly the 2010 English bank holidays (Good Friday, Easter Monday, the two May
+Mondays, the August Monday). The 2010-11 year from the section above is the design year: reported, not barred.
+Runs: `eval/closed-days.mjs`, output `eval/closed-days.out.txt`; four columns as in the Stripe workflow, `--period 7`,
+the "How eager" replay at the default budget and at about 1 a month, with and without the fill.
+
+| bar (fresh year) | without fill | with fill | result |
+|---|---|---|---|
+| K1: alerts within a day of a closure at the suggested settings (4 columns x 2 budgets) | 10 | 2 | **fails** (bar: 0) |
+| K2: Quiet's alerts, 4 columns | 31 | 22 | passes |
+| K3: alerts away from closures kept (within 3 days) | 42 | 36 kept | passes (86%, bar 80%) |
+| K4a: simulation, no-step series with an alert at a closure (of 100) | 99 | 8 | **fails** (bar: at most 2) |
+| K4b: simulation, +40% steps caught within 7 days (of 100) | 75 | 70 | **fails** (bar: at least 72) |
+
+The simulation (`eval/closed-days-sim/`, 200 series of 371 days, Gamma-Poisson counts with mean 40, Saturdays shut, 6
+random one-day closures, Quiet with `--period 7`; run as 4 shards that each draw all 200 series from the one seed and
+replay every 4th) took the alerts over all 200 series from 1,593 to 775.
+
+On the design year the fill took the closure alerts from 11 to 0, Quiet's from 22 to 14, and kept 26 of 29 alerts
+away from closures.
+
+What the alerts show:
+
+- **The two survivors are one alert, counted at both budgets:** cancellations dated 2010-04-06, the Tuesday after
+  Easter Monday. It does not look like a holiday artefact: cancellations ran at 2 to 6 a day for the whole week after
+  Easter against about 14 on a usual trading day, then came back on 04-12. The bar counted any alert within a day of
+  a closure, and this one is. The verdict stands: the bar was fixed, and a real dip that starts the day a shop
+  reopens is exactly what a stricter rule would have to tell apart from a catch-up day.
+- **Orders, the column a shop owner reads first:** Quiet went from 11 alerts (3 at a closure: after Easter, after
+  the May Monday, after the August Monday) to 6, none at a closure, and the autumn build-up, dated 2010-11-09 either
+  way, was **sent 2010-11-13 instead of 2010-11-19**, six days sooner, because the filled holidays no longer muddied
+  the weeks before it.
+- **A cost on the design year:** Quiet on orders lost its 2011-09-01 alert (the start of that year's build-up, sent
+  2011-09-05), and instead sent a change dated 2011-03-18 on 2011-10-07, seven months late. K3 did not count the lost
+  one, because 2011-09-01 is three days after the August bank holiday and K3 only scored alerts more than 3 days
+  from a closure. Part of what Quiet heard there in 2011 was the holiday's zero.
+
+- **K4a's 8 is the background, not the holidays.** With the fill, Quiet still sent 3.2 alerts per no-step series on
+  this overdispersed noise (321 over 100 series). Six closures with a day either side cover 18 of the 287 watched
+  days, so alerts placed at random would put one near a closure in about 18 of 100 series; 8 is under that. The fill
+  removed the closure effect (99 to 8), but the bar of 2 ignored the base rate of false alerts and could not have
+  passed at Quiet on this noise. The verdict stands as fixed.
+- **K4b: five fewer steps caught** (75 to 70). Not diagnosed. A likely cause, untested: steps drawn from days 150 to 330
+  often fall within a week of a closure, and filling a closed day after a step from the weeks before it puts a
+  pre-step value into the post-step stretch.
+
+So the fill does most of what it was for (closure alerts down 80% on the fresh year, 100% on the design year,
+Quiet quieter, the build-up sooner on the fresh year), but not what was barred, and it moved the one alert a shop
+owner most wants on the design year. Not offered: `fillClosed` stays in `watch-core.mjs` as a module function, with
+its rule and the fresh-year numbers pinned in `closed-days.test.mjs` (5 tests), and the CLI, the page and the agent
+tool are unchanged. A deployer whose shop shuts on holidays should still expect an alert around each one; the
+`--suggest` replay shows where.
+
+Next, pre-registered before it runs: a closure bar scored against the chance rate of the setting's own alerts; fills
+taken from the open days after a step once one is found (so a fill does not pull a new level back); separate a post-holiday dip from a holiday artefact (alerts dated the first
+open day after a closure, held until a second open week agrees), on a third shop's daily series; and a check that
+the fill does not swallow a real change that starts within 3 days of a closure (the 2011-09-01 case), in simulation
+with steps placed next to closures.
+
+## Steps beside a closure (2026-11-19, pre-registered; all three bars pass, `--closed` ships)
+
+The section above failed K4b (steps caught fell from 75 to 70 of 100 with the fill) and guessed that a closure just
+after a step is filled from the weeks before it. Two things in that round's design were also wrong: K4a's bar ignored
+the setting's own false-alert rate, and K4b compared the fill with the closures-as-zeros arm, whose alerts *at* a
+closure can land within 7 days of a step and count as catches. This round adds the baseline round 1 lacked, **clean**:
+the same series with its closed days left open (their counts drawn from a side stream, so every other draw is
+identical). `eval/closed-steps.mjs`; Quiet (`bocpd`, `--model poisson`, `--period 7`), replayed.
+
+**Diagnosis on round 1's seeds (already seen; decides nothing; `eval/closed-steps-diag.out.txt`).** The script
+reproduces round 1's numbers exactly (zeros 75, fill 70), and the clean shop catches **67**. So the fill did not
+swallow steps: the zeros arm caught 13 of its 75 only through an alert within a day of a closure, which a shop that
+never shut would not have sent. Against clean, round 1's fill lost 2 steps and found 5 others. On the no-step series it
+put an alert at a closure in 8 of 100 against 16 at random placebo dates; the clean series, with no closures at all,
+had 22 against 18. K4b and K4a measured the wrong thing.
+
+**The candidate and the bars** were committed before the fresh run (`eval/closed-steps.prereg.md`). **fill1**: each
+closed day takes the nearest earlier same-weekday open day (`fillClosed(..., { lags: 1 })`), one week old rather than up
+to four, so a closure 8 or more days after a step is filled from after it. Fresh seeds 20261120: 100 no-step series
+with 6 closures, and 100 series with a +40% step and **one closure placed 1 to 21 days after it** (plus 5 more), the
+case round 1 named. Every series also gets 6 placebo dates drawn like closures: the chance rate of an alert "at a
+closure" for each arm's own alerts.
+
+| fresh seeds 20261120 | clean | zeros | round 1 fill (median of 4) | **fill1** |
+|---|---|---|---|---|
+| no-step series with an alert within 1 day of a closure (of 100) | 16 | 100 | 8 | **16** |
+| ... of a placebo date (chance) | 21 | 40 | 21 | 21 |
+| steps caught within 7 days (of 100) | 57 | 67 | 51 | **52** |
+| of which closure 1-7 days after the step (27) | 16 | 20 | 11 | 11 |
+| of which closure 8-21 days after (73) | 41 | 47 | 40 | 41 |
+| alerts over all 200 series | 846 | 1,584 | 819 | 820 |
+
+- **S1 passes** (closure alerts at most chance + 3): 16 against 21.
+- **S2 passes, at the line** (steps caught at least clean's minus 5): 52 against 57 - 5 = 52.
+- **S3 passes, by one** (at least round 1's fill): 52 against 51. Round 1's fill fails S2 (51).
+
+The zeros arm's 67 is again inflated: 21 of its 67 catches came only through an alert at a closure. The cost of a
+fill is real and sits where the guess put it: with a closure 1 to 7 days after the step, both fills catch 11 of 27
+against 16 for the clean shop, since a fill one week old is still from before the step. One week instead of four
+fixed the 8-21 day case (41, as clean) but not that one. The median delay to the alert was 5 to 6 days in every arm.
+
+**The real shop again (both years already seen; reported, not barred; same output file).** Quiet, `--period 7`:
+
+| | zeros | round 1 fill | fill1 |
+|---|---|---|---|
+| fresh year 2009-10, orders: alerts (at a closure) | 11 (3) | 6 (0) | 7 (0) |
+| fresh year, all 4 columns: alerts at a closure | 5 | 1 | 1 |
+| design year 2010-11, orders: alerts (at a closure) | 4 (2) | 3 (0) | 2 (0) |
+| design year, all 4 columns: alerts at a closure | 5 | 0 | 0 |
+
+On the fresh year fill1 sends the autumn build-up (dated 2010-11-09) on 2010-11-13, six days sooner than with zeros,
+as round 1's fill did. The cancellations alert at a closure is the post-Easter week described above, a real dip. On the
+design year **fill1 also loses the 2011-09-01 build-up alert on orders**, three days after the August bank holiday
+(round 1's fill lost it too, and sent a 2011-03-18 change seven months late instead; fill1 does not). That is the
+1-to-7-day cost from the simulation, seen once on real data: part of what Quiet heard there was the holiday's zero.
+
+**What ships: `--closed <dates|@file>` on `watch.mjs`** (one column, `--columns`, `--suggest` and the normal run),
+filling with fill1 (rounded for counts) before any detector sees the series. The text output says how many listed days
+were in the series and which; `--json` adds `closed: { listed, filled }`. Days a shop is always shut (a Saturday) are
+for `--period 7`, not this list. The page and the agent tool are unchanged.
+
+**Checked:** `closed-days.test.mjs` (now 8 tests): the `lags` rule, its prefix honesty, the CLI with a list and an
+`@file`, and fill1 on the fresh year's orders with no alert at a closure.
+
+Next: a closure in the first week after a step (11 of 27 caught against 16): hold an alert dated within a week before a
+closure for one more open week, or fill from the open days after a found change; pre-register it on fresh seeds and a
+third shop's daily series.
+
+## A closure in the first week after a step (2026-11-19, two pre-registered rounds; both fail, `--closed` keeps fill1)
+
+The section above left one cost of the shipped fill: with a closure 1 to 7 days after a +40% step, fill1 caught 11 of 27
+steps against 16 for the shop that never shut, because a fill one week old is still from before the step. The
+candidate here, **rec3** (`fillClosed(..., { lags: 1, recent: 3 })`), reads the level from the 3 nearest open days in
+the last week instead, each scaled to the closed day's weekday by the weekday means of the 4 weeks ending a week before
+the closure (skipping always-zero days such as Saturday). A closure 3 or more days after a step is then filled at the
+new level, and only earlier points feed it, so a replay stays honest. k = 3 was fixed, not tuned. Script
+`eval/closed-recent.mjs`, output `eval/closed-recent.out.txt`; Quiet (`bocpd`, `--model poisson`, `--period 7`),
+replayed; the simulation is the section above's, except that **every** step series has a closure 1 to 7 days after its
+step, so the case has 100 series rather than 27.
+
+**Round 3** (`eval/closed-recent.prereg.md`, fresh seeds 20261121). A design run on the section above's seeds first
+reproduced its numbers exactly (clean 57, fill1 52) and decided nothing.
+
+| fresh seeds 20261121 | clean | zeros | fill1 (ships) | rec3 |
+|---|---|---|---|---|
+| no-step series with an alert within 1 day of a closure / of a placebo date (of 100) | 17 / 24 | 99 / 41 | 23 / 26 | 18 / 25 |
+| steps caught within 7 days (of 100; closure 1-7 days after each) | 59 | 85 | 53 | 66 |
+| alerts over all 200 series | 874 | 1,580 | 845 | 903 |
+
+T1 (closure effect against chance), T2 (rec3 catches at least fill1 + 5) and T3 (at least clean - 5) passed. **T4
+failed**: 903 alerts against a cap of 1.05 x fill1's 845 = 887. The diagnosis showed the cap's reference was wrong:
+on the step series fill1 sends *fewer* alerts than the shop that never shut (439 against 474), because a pre-step fill
+mutes the step's own alerts, and rec3 (486) sits next to clean. On the no-step series, where every alert is false,
+rec3 sent 417 against clean's 400.
+
+**Round 4** (`eval/closed-recent-r4.prereg.md`, fresh seeds 20261122), written after seeing round 3, changed only the
+noise bar: **U4**, false alerts on the no-step series at most 1.05 x clean's (the 1.05 kept, not re-chosen). T1 to T3
+unchanged.
+
+| fresh seeds 20261122 | clean | zeros | fill1 (ships) | rec3 |
+|---|---|---|---|---|
+| no-step series with an alert within 1 day of a closure / of a placebo date (of 100) | 21 / 29 | 100 / 41 | 17 / 26 | 19 / 28 |
+| steps caught within 7 days (of 100) | 58 | 89 | **60** | 62 |
+| false alerts (100 no-step series) | 346 | 728 | 329 | 358 |
+
+T1, T3 and U4 passed (358 against 363). **T2 failed**: 62 against 60 + 5. On these seeds fill1 caught as many steps as
+the shop that never shut, 18 of its 60 through an alert within a day of a closure. So rec3 does not ship, `--closed`
+keeps fill1, `recent` stays a module option (`closed-days.test.mjs`, 2 new tests: the new level after a step, the
+weekday scaling past a shut Saturday, the fallback and prefix honesty), and there is no round 5 on this candidate.
+
+What the three seed sets say together (descriptive, not barred): over 227 steps with a closure 1 to 7 days after them,
+clean caught 133, fill1 124 and rec3 139. Round 2's "11 of 27 against 16" was mostly the luck of 27 series. fill1's
+real cost is about 4 steps in 100 against a shop that never shut, and rec3 recovers it with about 3% more false alerts,
+but 100 series per round is too few to show a 4-in-100 effect against a bar of 5. A bar that small needs about 1,000
+series, five hours on this container's four cores.
+
+**The real case was a different one.** Both real years were rerun (`real`, reported). On the design year rec3, like
+fill1, does not bring back the 2011-09-01 orders alert, and it sends a 2011-03-18 change on 2011-11-17, eight months
+late (fill1 does not). The data say why: the August bank holiday was **2011-08-29, three days *before* the build-up's
+first day**, not after it (`data/online-retail-daily.csv`). The "closure after a step" this round simulated is not
+what cost the alert on real data. The zeros arm's 2011-09-01 alert was sent partly because the holiday's zero sat a few
+days before the rise, and no fill restores that. On the fresh year rec3 sends the autumn build-up (2010-11-09) on
+2010-11-15, two days later than fill1 and four sooner than zeros.
+
+Next: a closure in the week *before* a step (the 2011-09-01 case), simulated with the step placed 1 to 7 days after a
+closure and scored against clean; rec3's gain needs about 1,000 series per arm to settle, as a long background run.
+
+## A closure in the week before a step (2026-11-19, pre-registered; all four bars pass, `--closed` unchanged)
+
+The section above found that the real alert `--closed` lost, the design year's orders build-up dated 2011-09-01 (sent
+2011-09-05 with closures as zeros), had its bank holiday **before** the rise: Monday 2011-08-29, three days earlier.
+So the case to measure was a closure 1 to 7 days before a step, scored against **clean**, the same shop with the
+closed day left open. The bars were committed before anything ran (`eval/closed-before.prereg.md`), with a written
+prediction that fill1 would sit within noise of clean and that zeros would catch more. Script
+`eval/closed-before.mjs`, output `eval/closed-before.out.txt`; the simulation is the section above's (Quiet: `bocpd`,
+`--model poisson`, `--period 7`, replayed), on fresh seeds 20261123, with **300** step series rather than 100 (each with
+one closure 1 to 7 days before its +40% step and 5 more at random) and 100 no-step series.
+
+| fresh seeds 20261123 | clean | zeros | fill1 (ships) |
+|---|---|---|---|
+| steps caught within 7 days (of 300) | 183 | 274 | **179** |
+| ... closure 1-2 / 3-4 / 5-7 days before the step | 56 / 54 / 73 | 84 / 81 / 109 | 53 / 54 / 72 |
+| paired against clean: lost / found | | 7 / 98 | 18 / 14 |
+| median days from step to the alert being sent (steps both caught) | 5 | 4 | 5 |
+| no-step series with an alert within 1 day of a closure / of a placebo date (of 100) | 15 / 24 | 99 / 37 | 13 / 24 |
+| false alerts (100 no-step series) | 355 | 716 | 343 |
+
+- **V1 passes** (the cost: fill1 at least clean - 9): 179 against 174. The fill costs about 1 step in 100.
+- **V2 passes** (no slower): median 5 days, as clean.
+- **V3 passes** (closure effect gone): 13 against a placebo rate of 24.
+- **V4 passes** (zeros lend catches: zeros at least clean + 9): 274 against 192. Of the zeros arm's 274 catches, **122
+  came only through an alert within a day of the closure**. Its alerts in the step window pile up on the step day
+  itself (74 of 317) and on the days just before it: the zero followed by the higher level reads as one larger change,
+  and the detector dates it between the two.
+
+**The real case, four ways** (already seen; reported, not barred; same output file). Orders on the design year:
+
+| 2011-08-29 (the August bank holiday) | build-up alert dated 2011-09-01 |
+|---|---|
+| left as a zero, all closures zeros | sent 2011-09-05 |
+| fill1 (the shipped `--closed`) | none |
+| left as a zero, every other closure filled | sent 2011-09-05 |
+| read as an ordinary Monday (the mean of the Mondays either side, 65 and 68) | none |
+
+The 28-day mean of open weekdays went from 52.7 to 69.1 orders a day across 2011-09-01, and Quiet does not call that a
+change on its own. The alert came from the holiday's
+zero, and a shop that had opened that Monday would not have been sent it either. So `--closed` did not lose a real
+alert it should have kept; it removed one the closure lent. Whether a busier setting hears that rise was not checked here.
+
+**What ships:** `--closed` is unchanged; its help text now gives the cost of a closure before a step. **Checked:**
+`closed-days.test.mjs` (now 11 tests) pins the real case: with 2011-08-29 a zero Quiet sends the 2011-09-01 alert, and
+with fill1 or the Monday read as an ordinary open day it does not.
+
+Next: rec3 against fill1 at about 1,000 series per arm (a closure after a step; README section above), as a long
+background run; revenue's deafness to a slow climb at Quiet and Middle.
+
 ## Watching a growing series (2026-11-12, four pre-registered rounds; ships)
 
 The page and CLI answer "did this series change?" once. Most people with a metric want the other
@@ -6669,6 +6917,228 @@ label less reliably), two non-step shapes, independent loadings, one shocked don
 of stores or regions (short after-periods, where the word should help); a slope or pulse on two donors; a shape word
 read against the panel's own trend (detrended thirds) for long compounding series.
 
+### The shape word against the panel's own trend (2026-11-18, pre-registered; bar 1 fails by 0.4 points, not shipped)
+
+"A donor's own event that is not a step" ended: "a shape word read against the panel's own trend (detrended thirds)
+for long compounding series". On West Germany 1990, 12 of 16 placebos' gaps 'grew', because gaps in GDP per head
+compound for 14 years whatever happened, so the word named nearly everyone. `panelShapes` (synth-control.mjs) takes
+every unit's gap (treated and placebos), finds the median of log(last-third over first-third mean square), the
+panel's **centre**, and, when the centre itself reaches the frozen ratio 6 (the median unit would be called 'grew'),
+words each unit by how far it stands from the centre at the same ratio; otherwise the plain word stands. No new
+constant. An all-relative variant (always subtract the centre) was tried first in the exploratory run and cost the
+trendless panels' sensitivity, so it was not tested.
+
+`eval/synth-shape-trend-sim.mjs` (pre-registration `eval/synth-shape-trend-prereg-2026-11-18.md`, committed after
+the exploratory run at base 88000 and before the confirmatory one): three families at 11 and 16 units, one donor with
+its own step, slope or pulse. **Trendless**: the donor-shape cells, unchanged. **Wandering**: a random walk of step sd
+0.15 or 0.3 on top of noise. **Growing**: compounding levels like GDP per head, each unit with its own persistent
+growth deviation, calibrated so the median panel's centre is 6-8. Confirmatory, base 89000, 400 panels a cell
+(`eval/synth-shape-trend-confirm.out.txt`), pooled:
+
+| family | line | plain | hybrid |
+|---|---|---|---|
+| trendless | pulse 'faded' / step 'held' / big slope 'grew' | 90.3% / 93.2% / 77.0% | 90.3% / 93.2% / 76.8% |
+| trendless | clean units listed above given a word | 20.3% | 20.3% |
+| wandering | big slope 'grew' | 70.7% | **68.8%** |
+| wandering | clean units listed above given a word | 29.2% | 28.7% |
+| growing | clean units listed above given a word | **70.1%** | **41.6%** |
+| growing, panels where the rule switched on (49%) | clean units listed above given a word | 80.2% | **22.2%** |
+| growing | all placebos 'grew' | 51.1% | 27.2% |
+| growing | pulse 'faded' | 74.3% | 78.4% |
+| growing | slope 'grew' (1x / 2x the effect) | 86.9% / 96.0% | 32.7% / 33.0% |
+
+Bars: (1) hybrid within 1.5 points of plain on every trendless and wandering line: **fails** on one line, wandering
+big slope 'grew', 1.9 points (70.7% to 68.8%; the rule switched on in 1-3% of wandering panels and there it can
+read a donor's slope as the panel's own trend); every other line within 0.6. (2) the earlier bars under the hybrid
+word: 90.3%, 93.2%, 76.8%, 20.3%, all hold. (3) growing, clean units given a word at least 20 points fewer: 28.5,
+holds. (4) where the rule switched on, at most 30%: 22.2%, holds. (5) pulses still named: 78.4% against 74.3%,
+holds. (6) 'grew' at most 60% of plain's share: 27.2% against 51.1%, holds.
+
+**What it says.**
+- **On compounding panels the plain word names most units; read against the panel it names about one in five.**
+  Where the median gap grew six times or more, 80% of clean units listed above the treated one got a word, against
+  22% with the hybrid word, about the trendless panels' 20%.
+- **A donor's own slope cannot be told from the panel's growth.** With the hybrid word a slope donor in a growing
+  panel is called 'grew' about a third of the time, close to the 27% of all placebos that get it. The plain word's
+  86-96% was no better: 70% of clean units got a word too. On these panels, neither word picks out a slope.
+- **On West Germany 1990** (`eval/synth-shape-trend-real.mjs`, a description run after the confirmatory one): the
+  centre is 21.8 and the hybrid word calls 2 of 16 placebos 'grew' (Norway, Spain), 4 'faded' (Japan, Greece,
+  Australia, New Zealand: their gaps grew much less than the panel's) and 10 'held'; West Germany's own gap 'held'.
+  The Basque panel's centre is 2.4, so its words are unchanged.
+
+**Not shipped (decided in the pre-registration).** Bar 1 failed, so `panelShapes` and `relShape`, `shapeCentre`
+and `shapeRelative` on `synthControlTest`'s result stay in the module only. The CLI, page and `--json` keep the
+plain word and the existing "most share the word" note. `synth-shape-trend.test.mjs` pins `panelShapes`, the two
+real panels, the unchanged CLI output, and re-checks every bar against the confirmatory file.
+
+**Limits.** The growing family is one generator with one persistence (AR 0.9). Twelve points after the date. The
+switch is all or nothing at the centre 6. **Next:** a fresh pre-registration whose bar 1 is scored only on the
+panels where the rule switches on, with the wandering cost reported beside it; or the hybrid word offered as an
+option, not the default, with this table quoted.
+
+### The panel word as an option: `--shape-word panel` (2026-11-18, later; an opt-in, no new test)
+
+The section above ended with two ways forward; this takes the second. The pre-registration said a failed bar 1 keeps
+the panel-relative word off the default, and it stays off. But on a long compounding panel the default word is close
+to useless (80% of clean units listed above the treated one got a word where the rule switches on), and the one bar
+that failed was missed by 0.4 points on a line where the rule switched on in 1-3% of panels. So a person reading a
+GDP-per-head panel can now ask for the panel word, and the note tells them what it buys and what it costs, quoting the
+confirmatory file:
+
+- **CLI:** `--shape-word plain|panel` with `--donors` (default `plain`; anything else is refused; without `--donors`
+  it is refused like `--anticipation`).
+- **Library:** `synthResult({ ..., shapeWord: 'panel' })` words `above[].gapShape` and `placeboShapes` with
+  `relShape`, and adds `shapeWord`, `shapeCentre` (the median unit's last-third over first-third mean-square ratio) and
+  `shapeRelative` (whether that centre reached 6) to the result and `--json`. The default result has none of the three,
+  so existing `--json` readers see no change.
+- **Page:** a "Word the donors ranked above it" select beside the anticipation box, passed through the worker job.
+- **The note** (`synth-view.mjs` `panelShapeNote`, rates in `PANEL_SHAPE`, each pinned to its line in
+  `eval/synth-shape-trend-confirm.out.txt`): where the centre reached 6, it gives the centre, what each word now means,
+  the panel's own counts, and then the confirmatory rates: 22% of clean listed units worded against 80% for the plain
+  word; pulses still called 'faded' 78% (plain 74%); a donor's own big slope called 'grew' only 33%, about the 27% of
+  all placebos, so 'held' does not clear a unit of a slope; and the wandering-panel cost (68.8% against 70.7%) that kept
+  it off the default. Below a centre of 6 it says the plain words stand, and gives the plain note.
+- **The plain note** now ends its "most share the word" clause with a pointer to `--shape-word panel`.
+
+What it prints on West Germany 1990 (`node cli.mjs data/oecd-gdp-per-capita-1960-2003.csv --column WestGermany
+--known-date 1990 --donors all --window 1960:2003 --shape-word panel`): the centre is 21.8; of the two units ranked
+above West Germany, the Netherlands' gap 'held' and Norway's 'grew' (plain: both 'grew'); over all 16 placebos 4
+faded, 2 grew and 10 held (plain: 0, 12, 4). Rank 3 of 17 and p 0.176 are the same under either word: the word is a
+description and changes no p. The Basque Country 1970 (centre 2.36) reads the same either way.
+
+`synth-shape-trend.test.mjs` pins the West German and Basque outputs, that the test is identical under both words, the
+default `--json` unchanged, every `PANEL_SHAPE` rate against the confirmatory file, the refused values, and the
+option's path through the CLI, the worker job and the page.
+
+**Not done:** the fresh pre-registration scored only where the rule switches on, which would decide whether the panel
+word can become the default.
+
+### The panel word scored where it switches on (2026-11-18, pre-registered; bars 3 and 4 fail, the plain word stays the default)
+
+"The panel word as an option" left one thing undone: a fresh pre-registration scored only on the panels where the rule
+switches on, to decide whether `--shape-word panel` can be the default. The two words are identical on every panel
+where the panel's centre stays under 6, so the earlier bar 1, pooled over all wandering panels, was diluted by panels
+where nothing could differ. This round scores only the switched panels, and asks a question the earlier one did not:
+is a donor with its own event worded **more often than a clean unit** where the panel word is in force?
+
+`eval/synth-shape-switch-sim.mjs` (pre-registration `eval/synth-shape-switch-prereg-2026-11-18.md`, committed after
+the exploratory run at base 89000 and before the confirmatory one) runs every cell of the earlier simulation plus two
+growing generators it did not have (growth deviations AR(0.7) and AR(0.97)), 80 cells. Confirmatory, base 93000, 400
+panels a cell, 32,000 panels (`eval/synth-shape-switch-confirm.out.txt`). The rule switched on in 41.5% of growing
+panels (28.5% at AR(0.7), 50.7% at AR(0.97)), 0.8% of wandering ones and 1 of 8,000 trendless ones. On the 5,982
+switched growing panels:
+
+| line | plain | panel |
+|---|---|---|
+| clean units given a word (all placebos / listed above the treated one) | 67.5% / 80.1% | **28.9% / 22.6%** |
+| pulse donors called 'faded'; lift over clean units | 71.5%; 68.7 pts | **92.6%; 77.1 pts** |
+| slope donors called 'grew'; lift over clean units | 86.6%; 21.9 pts | **8.6%; -4.9 pts** |
+| slope donors given any word; lift over clean units | 87.8%; 20.3 pts | **14.2%; -14.7 pts** |
+| big slope (twice the effect) called 'held' | 7.2% | **89.6%** |
+| step donors called 'held' | 69.8% | 63.9% |
+
+Bars: (1) clean units worded at least 25 points less: 38.6, holds. (2) pulse lift at least plain's: 77.1 against 68.7,
+holds. (3) slope lift at least plain's minus 5: -4.9 against 21.9, **fails**. (4) slope flag lift at least 0: -14.7,
+**fails**. (5) bar 1 in each growing generator: 37.7, 35.0 and 41.3 points, holds. The exploratory run had predicted
+3 and 4 would fail (slope flag lift -13.7); the pre-registration said so and kept the bars.
+
+**What it says.**
+- **Where it is in force, the panel word hides a donor's own slope.** A slope from the date grows linearly; a
+  compounding gap grows faster, so against the panel's centre a slope looks ordinary and reads 'held'. A big slope was
+  called 'held' 90% of the time, and slope donors were worded less often than units with no event of their own. The
+  earlier test's 33% 'grew' was pooled over growing panels where the rule mostly stayed off; where it was on, 9%.
+- **It is better at everything else.** Clean units worded 29% against 68%, pulses named 92.6% against 71.5%.
+- **Neither word is enough alone.** The plain word flags slopes (lift 20 points) but words two thirds of clean units;
+  the panel word is quiet and names pulses but cannot see slopes. Reading both is what tells them apart.
+
+**Shipped (decided in the pre-registration).** The plain word stays the default. Under `--shape-word panel`:
+- every unit in `above` (and `--json`) carries `plainShape`, its plain word, beside `gapShape`; the default result
+  has no `plainShape`, so default `--json` readers see no change;
+- where the rule is on and the two words differ, the "ranked above" list gives both: on West Germany 1990, "the
+  Netherlands ... its own gap held against the panel's growth, but grew towards the end on its own reading";
+- the note quotes the switched-panel rates (`PANEL_SHAPE` in `synth-view.mjs`, each pinned to the confirmatory block
+  "growing-all | switched"), says a big slope was called 'held' 90% of the time (plain 7%), and that a unit held
+  against the panel that grew on its own reading is the one to look into for a slope. The earlier rates, pooled over
+  panels where the rule was off, are no longer quoted.
+
+`synth-shape-switch.test.mjs` re-checks every bar against the confirmatory file, pins `PANEL_SHAPE` to it, and the
+simulation's 80 cells; `synth-shape-trend.test.mjs` pins `plainShape` and the two-word wording on West Germany and the
+Basque Country (centre 2.36: the words agree, so nothing changes).
+
+**Limits.** Twelve points after the date and thirds of four points each: a slope and a compounding gap differ in
+curvature, which four-point thirds barely see. One shape of slope (linear from the date). Wandering panels switched in
+81 of 9,600, too few for a bar. **Next:** a word that reads curvature (the middle third against the line through the
+outer two) so a linear slope can be told from compounding growth, pre-registered on these cells.
+
+### A curvature word: a slope runs straight, a compounding gap bends (2026-11-18, pre-registered; all six bars passed, ships under `--shape-word panel`)
+
+"The panel word scored where it switches on" ended: "a word that reads curvature (the middle third against the line
+through the outer two) so a linear slope can be told from compounding growth, pre-registered on these cells." On
+growing panels where the panel word is in force, it called a donor's own big slope 'held' 90% of the time, while the
+plain word flagged slopes but also worded two thirds of the units with no event of their own.
+
+`gapBend` (synth-control.mjs) takes the after-gap's signed means over its first, middle and last thirds a, b, c and
+returns (b - (a + c) / 2) / (c - a): how far the middle third sits from the straight line through the outer two, as a
+share of that line's rise. 0 for a straight line, below 0 when the gap speeds up, above 0 when it slows.
+
+**What the exploratory run showed first** (`eval/synth-shape-curve-explore.out.txt`, base 95000, 8,000 panels): the
+idea as named was wrong in one way. Clean units' gaps on compounding panels are **not** systematically convex: the bend
+of the clean units the plain word calls 'grew' has median -0.07 and spreads from -0.31 to 0.16 (10th to 90th
+percentile). Their spread grows with time, but each gap is a smooth random path that bends either way. A donor's slope
+is a straight ramp added on top, so its bend stays near the line (-0.15 to 0.04). So the reading is two-sided:
+**straight** means the plain word is 'grew' and the bend lies in [-0.15, 0.10] (`STRAIGHT_BAND`, `gapStraight`), the
+band with the best odds ratio of nine candidates listed in the exploratory file, frozen in
+`eval/synth-shape-curve-prereg-2026-11-18.md` before the confirmatory run.
+
+`eval/synth-shape-curve-sim.mjs` runs the same 80 cells as the switched-panel re-test (trendless, wandering, three
+growing generators, 11 and 16 units, one donor with its own step, slope or pulse) and records every placebo's plain
+word, panel word and bend. Confirmatory, base 97000, 400 panels a cell, 32,000 panels
+(`eval/synth-shape-curve-confirm.out.txt`). On the 5,995 growing panels where the panel word was in force:
+
+| line | plain 'grew' | straight |
+|---|---|---|
+| slope donors flagged (shock 1 and 2) | 86.0% | 73.3% |
+| big slope (twice the effect) flagged | 91.5% | **82.6%** |
+| clean units flagged (all / listed above the treated one) | 64.6% / 78.6% | **36.7% / 51.7%** |
+| slope lift over clean units | 21.4 pts | **36.6 pts** |
+| odds ratio, slope donor against clean unit | 3.37 | **4.74** |
+| pulse donors flagged | 3.9% | 0.0% |
+| step donors flagged | 21.8% | 14.2% |
+| share of flagged units that are the slope donor (panels with one) | 10.1% | 14.1% |
+
+Bars: (1) lift at least plain + 8: 36.6 against 29.4, holds. (2) odds ratio at least 1.2x plain: 4.74 against 4.04,
+holds. (3) clean units flagged at least 20 points below plain: 27.9, holds. (4) big slope at least 75%: 82.6%, holds.
+(5) bar 1 in each growing generator: 34.6 against 28.0 (AR 0.9), 32.0 against 30.6 (AR 0.7, the closest), 41.4 against
+29.9 (AR 0.97), holds. (6) pulses at most 5%: 0.0%, holds.
+
+**What it says.**
+- **A straight line is a sharper pointer at a slope than "grew".** On compounding panels it keeps three quarters of a
+  donor's slopes and drops more than half of the clean units "grew" would flag; the odds that a flagged unit is a slope
+  donor rather than a clean one rise 1.4x.
+- **It is still only a pointer.** Half the clean units listed above the treated unit read straight too, and where a
+  panel had one slope donor among 10-15 others, 14% of the units read straight were that donor. A straight line says
+  which unit to look into first, not that it had an event.
+- **Off compounding panels it would cost.** On trendless panels "grew" already separates slopes well (odds ratio 13);
+  requiring a straight line halves the slopes found (50% to 23%). So the line is read only where the panel word is in
+  force, which on these cells is almost only the growing panels (7 of 8,000 trendless, 70 of 9,600 wandering).
+- **On West Germany 1990** (a description, not pre-registered): of the two units ranked above West Germany, the
+  Netherlands (held against the panel, grew on its own reading) has bend -0.001, a straight line; Norway (grew on
+  both) has bend -0.18, speeding up, the shape of an oil economy compounding rather than a ramp. The Basque Country 1970
+  (centre 2.36) is unchanged: the panel word is not in force there, so no line is read.
+
+**Shipped (decided in the pre-registration).** Under `--shape-word panel`, on panels where the panel word is in force,
+each unit listed above the treated one whose plain word is 'grew' is said to have grown "along a straight line from the
+date (the shape of a slope of its own)" or to be "bending like the panel's compounding gaps rather than along a
+straight line"; `above[]` gains `bend` and `straight` in that mode only (default `--json` unchanged); the note quotes the
+rates above (`CURVE` in `synth-view.mjs`, each pinned to the confirmatory block "growing-all | switched"), clean units
+and precision included. The default word and every p are unchanged. `synth-shape-curve.test.mjs` re-checks every bar,
+pins `CURVE`, `gapBend` on fixed shapes and the West German reading.
+
+**Limits.** One slope shape (linear from the date); a slope that itself compounds (a share taken month by month on a
+growing base) would read as bending. Twelve points after the date, thirds of four. **Next:** a real deployer's panel
+of stores or regions with a known slope event; the line read on wandering panels if a set switches there often enough
+to score.
+
 ## Currency pegs: the update-rate check against documented dates (2026-11-18, pre-registered; D1 fails, a hang fixed)
 
 The update-rate check ("When a series starts updating less often") had only ever been scored in
@@ -6733,3 +7203,870 @@ dated and finishing in milliseconds, Venezuela 2003, the cap, the committed verd
 Next: an update-rate check that can be wrong about a band, not only a fixed quote, needs a fresh
 labelled set of documented feed changes (a provider's announced switch from daily to weekly
 publication, a sensor's logged firmware change), not more pegs.
+
+## A provider's own schedule changes: US states moving to weekly COVID-19 reporting (2026-11-18, pre-registered; D1 and D2 pass)
+
+The peg round above asked for "a fresh labelled set of documented feed changes (a provider's announced
+switch from daily to weekly publication)". Johns Hopkins CSSE's COVID-19 repository keeps exactly that:
+its README's "Irregular Update Schedules" section records, state by state, when each health department
+moved to publishing fewer days a week ("Minnesota: Providing data once per week (Thursdays) (as of June
+30, 2022). ~~Providing data Monday-Friday.~~"). In JHU's daily time series a day with no publication
+repeats the day before, so Monday-Friday reporting repeats on about 2 days in 7 and weekly reporting on 6.
+
+`eval/update-rate-covid-schedules.mjs` (header committed in 6579a37ec before the script first ran on the
+series; only the README had been read) wrote down 27 primary events, every US line giving a dated switch
+to once a week *and* naming the more frequent schedule it replaced, and 19 secondary schedule changes,
+with the rules for leaving lines out (weekly to weekly, no prior schedule, state and county figures on
+different schedules, undated, too close to the series' end). It ran the shipped check, unchanged, on each
+state's cumulative confirmed cases (county rows summed, 2020-01-22 to 2023-03-09, 1,143 days;
+`sh eval/covid-schedules-fetch.sh covid-data`, 17.8 MB, not committed). Same scoring as the pegs: an event
+is dated when a change in the stated direction has a range within 10 days of it. Bars: D1, at least 19 of
+27 dated; D2, median range width at most 60 rows.
+
+**Verdict: D1 passes (20 of 27), D2 passes (median width 13.5 days)** (`eval/update-rate-covid-schedules.out.txt`).
+Sixteen of the twenty are dated within three days of the README's date (all within ten), most with repeats
+rising from 30-35% to 82-86%; the switches from a sparser schedule (Monday/Wednesday/Friday, Monday-Saturday;
+mostly about 60% repeats) to weekly are dated with wider ranges (17-31 days against 8-16), as the smaller jump predicts.
+Nothing in the check changes on this file.
+
+| | events | dated | typical move in repeats |
+|---|---|---|---|
+| Mon-Fri or daily to weekly (or Thursdays only) | 19 | 14 | 30% to 85% |
+| Mon/Wed/Fri, Tue+Fri or Mon-Sat to weekly | 8 | 6 | 59% to 84% |
+
+**The seven misses** (post hoc, read after the verdict, deciding nothing):
+
+- **The schedule never reached JHU's numbers (4).** California and Texas repeat on 0% of days through 2022
+  (the series moves every day, so whatever the state's own schedule, JHU's figures for it kept changing
+  daily, presumably from county sources; the README does not say); Missouri and New Hampshire stay at 22-47% repeats a
+  month, a Monday-Friday pattern, until 2023. The record has no switch to date, so silence is the right answer,
+  as for the yuan's 2008 re-peg.
+- **The record switched at another time (2).** District of Columbia and Kentucky rose to 55-74% repeats in
+  March-April 2022, then fell back to 20-55% for months; the lasting weekly pattern starts in October 2022, and
+  the check dates it there (DC 2022-10-14, Kentucky 2022-09-20).
+- **Two days outside the window (1).** South Dakota is weekly in the record from mid-March 2022; the check dates
+  2022-03-18 with a range to 03-31, the window opens on 04-02 (README date 04-12).
+
+**Secondary changes (D3, descriptive).** Moves to fewer days that are not weekly: 5 of 11 dated (Indiana and
+Idaho to Monday/Wednesday/Friday within six days; Alaska 2021-12; Oregon to Monday-Friday 2021-07, early
+by a week). Moves back to more days: **0 of 8**. They were short and small: Vermont, Arkansas and Alabama
+returned to daily publication in late summer 2021 (Delta) and repeats fell from 13-32% to 0% for a few months.
+At the shipped penalty (2 x 2 log n per cut, about 28 here) two cuts around a two-month stretch with no
+repeats inside a stretch averaging about 20% do not pay for themselves, so the check stays quiet. That is the
+cost of the setting chosen for 0.010 false changes a series in simulation: it dates large, lasting changes in
+how often a feed publishes and misses brief, modest ones.
+
+**Changes no event names (D4, descriptive).** On 16 of the 27 primary states the check dates a rise in repeats
+between 2021-04 and 2021-07 (six of them at 2021-07-02 to 07-04), mostly from 0-4% to about 30%. That is a
+Monday-Friday pattern starting in spring and summer 2021, six of them on the July 4 weekend, when many states stopped weekend reporting;
+the README lists most of those states as "Monday-Friday" without a date, so nothing here scores it.
+
+Test: `update-rate-covid.test.mjs` on `data/covid-schedules.csv` (six states, every day; CC BY 4.0, JHU CSSE,
+`data/SOURCE.md`): Minnesota, Utah and Vermont dated to the committed days; South Dakota's change two days
+before the window; California's empty 2022; Kentucky's autumn change; the committed verdict.
+
+Next: a moving-back check (more often) needs either a lower penalty for that direction, which would have
+to be pre-registered on simulated short returns first, or a set where publication resumes for longer than
+a few months.
+
+## Short returns to more frequent updates: a scan for them, pre-registered twice (2026-11-18; both rounds fail, not offered)
+
+The COVID-schedules round above dated 0 of the 8 documented moves *back* to more frequent publication:
+Vermont, Arkansas and Alabama resumed daily figures for a few months in late summer 2021, and two cuts at
+2 x 2 log n each do not pay for a two-month dip in repeats. Its "Next" asked for a lower penalty for that
+direction, pre-registered on simulated short returns first. This is that test.
+
+**The pass** (`shortReturns` and `bestReturn` in `update-rate.mjs`). Inside each stretch the shipped check
+finds, it looks for the single interval with fewer repeats than the rest of the stretch. The parts before and
+after share one two-state chain, because the old schedule came back. The pass costs one penalty, `m x 2 log n`,
+instead of two cuts. It never moves the shipped cuts. `eval/update-rate-returns.mjs` fixed the cells, the
+choice rule and the bars before any cell ran (commit 8875e1fa2). Null cells: the six chains of the original
+calibration at n 300 and 600, plus three publication schedules at n 1,100 (Monday-Friday, Monday/Wednesday/Friday,
+and daily turning into Monday-Friday for good). Power cells: Monday-Friday with 30, 60 or 90 days of daily
+publication, and independent repeats at 25% with 60 days at 2%. Choice: the smallest m whose false returns are at
+most 0.010 a series in every null cell. Confirmation bars: R1, false returns at most 0.020 in every null cell; R2, the
+60-day return found (start within 10 days) in at least 120 of 200 series; R3, at least 60 more than the shipped check
+alone finds.
+
+**Round 1, m from 0.5 to 2 (`eval/update-rate-returns.out.txt`): no m met the choice rule.** At m 2 the worst null
+cells were Monday/Wednesday/Friday 0.085, M60 at n 600 0.050 and B60 at n 300 0.045 false returns a series. Taking
+the best interval over every start and end is a scan statistic, and a scan needs a larger penalty than one cut.
+
+**Round 2, m from 2 to 4, fresh seeds (pre-registered after round 1's file, before it ran;
+`eval/update-rate-returns-2.out.txt`): m 3 chosen; R1 passes, R2 and R3 fail.**
+
+| confirmation seed 20261221, m 3 | found of 200 | shipped check alone |
+|---|---|---|
+| worst null cell, false returns a series | 0.000 | |
+| 30 days of daily inside Monday-Friday | 0 | 0 |
+| 60 days | **0** (bar 120) | 0 |
+| 90 days | 42 | 0 |
+| 60 days at 2% inside independent 25% | 23 | 1 |
+
+At the false-alarm budget the check already keeps (about 0.01 a series), a two-month return from 30% repeats to
+3% cannot be told from chance clumps in the same series. The calibration seed shows how steep the trade is: the
+60-day return is found in 105 of 200 at m 2 (0.090 false in the worst cell), 37 at m 2.5 (0.015) and 0 at m 3. The
+real check (J1, JHU's eight returns) ran only if R1 to R3 passed, so it did not run. `shortReturns` stays in the
+module with `SHORT_RETURNS.mult = null`, so it returns nothing unless a caller passes a penalty. Nothing the CLI or
+the page prints changes.
+
+**What binds** (post hoc, read off the two files, deciding nothing): the Monday/Wednesday/Friday null is the
+highest cell in both rounds (0.090 at m 2, 0.015 at m 2.5, where every other cell is at most 0.005). A two-state
+chain describes a fixed weekly schedule badly: whether today repeats depends on the day of the week, not on
+yesterday. The scan then finds intervals where chance happens to line up with the chain's misfit. Short returns
+cost that much because the cost model ignores the calendar, not because 60 days is too little data: a return to
+daily publication changes about 17 weekend days from repeating to moving.
+
+Next: a day-of-week repeat cost (one repeat probability per weekday in each stretch, for daily series with dates),
+pre-registered on the same cells. It should tighten the periodic nulls and sharpen exactly these returns. Then
+JHU's eight returns, which are seen data.
+
+Test: `update-rate-returns.test.mjs` (the pass finds a planted return and its edges, looks only for fewer repeats,
+is off by default, and both rounds' committed verdicts).
+
+## Short returns, with the day of the week: a weekday cost, pre-registered (2026-11-18; round 3 fails R2 by 4 series, not offered)
+
+The round above ended on its own diagnosis: the two-state chain ignores the calendar, so a fixed weekly
+schedule looks like clumps, and the penalty that silences those clumps also buries a two-month return. This
+round replaces the region model with the calendar. `bestReturnCost` in `update-rate.mjs` takes a weekday per
+step and one of two costs: `'dow'`, one repeat probability per weekday in each region (7 inside, 7 shared by
+the parts before and after), and `'dowchain'`, a two-state chain per weekday (14 a region). Its `'chain'` kind
+reproduces the shipped pass's gain to 1e-6. `eval/update-rate-returns-dow.mjs` (header and module committed
+in cc37d9d05 before any cell ran) kept rounds 1 and 2's 15 null cells, 4 power cells, FOUND rule and R1-R3
+bars, and set the grid (m 2 to 6), fresh seeds and the choice: per cost the smallest m with at most 0.010 false
+returns a series in every null cell, then the cost with more R60 finds at its m.
+
+**Calibration (seed 20261222, `eval/update-rate-returns-dow.out.txt`).** The weekday cost finds what the chain
+cannot: at m 3, 199 of 200 sixty-day returns and 161 of 200 thirty-day ones, against 0 and 0 for round 2's
+chain on the same series. It fails the null budget on the clumpy chains, not the schedules: M60 still raises
+0.020 false returns a series at m 6 (W3, round 2's worst cell, is at 0.000 from m 3). A weekday Bernoulli has no
+memory, so a run of repeats in a series that clumps reads as a calendar stretch. The weekday chain adds that
+memory and pays for 14 parameters a region: it meets the budget only at m 5, where R60 is found in 123 of 200.
+
+| calibration, found of 200 (worst null cell) | m 3 | m 4 | m 5 | m 6 |
+|---|---|---|---|---|
+| `'dow'` R60 | 199 (M60 0.575) | 199 (0.225) | 198 (0.075) | 170 (0.020) |
+| `'dowchain'` R60 | 184 (B60 0.780) | 184 (B60 0.060) | **123 (0.005)** | 7 (0.000) |
+| round 2's `'chain'`, m 3 | 0 (0.000) | | | |
+
+**Confirmation (seed 20261223, `'dowchain'` at m 5): R1 passes (no false return in any null cell), R3 passes
+(116 more than the shipped check's 0), R2 fails: 116 of 200, bar 120.** So the pass is not offered, and the
+JHU check (J1, the eight documented returns, seen data) did not run, as pre-registered. `SHORT_RETURNS.mult` stays
+null; nothing the CLI or the page prints changes. The thirty-day return is found in 0 and the independent-repeats
+cell I60 in 0 (it has no weekly pattern for the weekday cost to use, and the chain reference finds 31).
+
+**What binds** (post hoc, read off the file, deciding nothing): the two costs fail on different cells. `'dow'` has
+the power (199 of 200 at every m to 5) and loses only the clumpy chains with no weekly schedule; `'dowchain'` holds
+every null but spends its margin on parameters a fixed schedule does not need. That points at choosing the model
+per stretch rather than one cost for all: the weekday cost where the stretch shows a weekly pattern (a weekday
+share test on the stretch, the same kind of test that already chooses "rounding" over a stale feed), the chain
+where it does not. Pre-registered on fresh seeds, with these cells.
+
+Test: `update-rate-returns-dow.test.mjs` (the generic chain cost equals `bestReturn`, the weekday costs find the
+planted return with about twice the chain's gain or more, a fixed weekly schedule gains nothing, weekdays from ISO
+dates, and the committed verdict).
+
+## Short returns: the model chosen per stretch (2026-11-18, pre-registered; R1-R3 pass, the real check J1 fails 3 of 8, not offered)
+
+Round 3 above ended by pointing at a choice per stretch: the weekday cost where the stretch has a weekly
+pattern, the chain where it does not. This round tests exactly that. `weeklyPatternLR` in `update-rate.mjs`
+scores a stretch by the likelihood ratio of a two-state chain per weekday (14 parameters) against one two-state
+chain (2). Under a chain with no calendar it is about chi-square on 12 degrees of freedom, so clumps alone do not
+read as a schedule (the plain weekday-share test would: a sticky chain inflates it). `WEEKLY_TEST.crit` is the
+0.999 quantile, 32.909, fixed before any cell ran, not tuned. A stretch above it has its return scored with
+`'dow'`, any other with the fallback. `eval/update-rate-returns-auto.mjs` (header, rule and function committed in
+73e05bb58 before any cell ran) kept the 15 null cells, the 4 power cells, FOUND, R1-R3 and the J1 bar, with fresh
+seeds and two arms by fallback: `'dow|chain'` and `'dow|dowchain'`.
+
+**Calibration (seed 20261224, `eval/update-rate-returns-auto.out.txt`).** The test sorts the cells as intended:
+every Monday-Friday and Monday/Wednesday/Friday stretch reads as weekly, W5c's daily half does not, and at most
+0.5% of the chain-null stretches do. `'dow|chain'` meets the null budget at m 3 and finds 198 of 200 sixty-day
+returns there. `'dow|dowchain'` needs m 5 (196), so `'dow|chain'` at m 3 was chosen.
+
+**Confirmation (seed 20261225, `'dow|chain'` at m 3): all three simulation bars pass.**
+
+| confirmation, found of 200 | per stretch, m 3 | `'dow'` alone, m 3 | round 2's chain, m 3 |
+|---|---|---|---|
+| worst null cell, false returns a series | **0.000** (R1, bar 0.020) | 0.590 (M60 n600) | 0.000 |
+| 30 days of daily inside Monday-Friday | 167 | 167 | 0 |
+| 60 days | **200** (R2, bar 120) | 200 | 0 |
+| 90 days | 200 | 200 | 42 |
+| 60 days at 2% inside independent 25% | 23 | 8 | 23 |
+
+R3 passes too (200 more than the shipped check alone). So the real check ran, as pre-registered: JHU's eight
+documented returns to more frequent reporting, seen data (README "A provider's own schedule changes").
+
+**J1 fails: 3 of 8 dated, bar 4.** Idaho (Monday-Friday to daily, 2021-09-11) is dated 2021-09-06, a 62-day
+return with 3% repeats inside and 24% around; Vermont (2021-08-21) on the day; Michigan (Tuesday and Friday to
+Monday/Wednesday/Friday, 2021-08-09) the day before. Arkansas, Alaska, Nebraska and South Dakota are missed.
+Alabama's return is found but dated 2021-07-17, two months before the documented 2021-09-17, so it does not
+count. The pass stays in the module, off: `SHORT_RETURNS.mult` is still null, and nothing the CLI or the page
+prints changes.
+
+**What the real series show** (post hoc, read off J2, deciding nothing). Five of the twelve returns on the 27
+primary states have about the same share of repeats inside as around them (85% and 85% for Alaska 2022,
+Michigan 2022 and Utah's 20 days, 86% and 86% for Alabama 2022). They are not returns to more frequent
+publication at all. They are changes in *which* days publish. The weekday cost gains from any change in the
+weekday pattern, and the pass's only direction guard is that the raw share inside is lower, which a reshuffled
+schedule passes by a hair. The simulated nulls never moved publication from one set of days to another set of
+the same size, so the calibration could not see this. Next, pre-registered: a null cell that keeps the count of
+publication days and moves them (Tuesday/Friday to Monday/Thursday, and Wednesday to Monday), and a direction
+guard that asks for a real drop in repeats (for example, the repeat share inside at most half of the share
+around, fixed before it runs). Then J1 again. It is now seen twice, so it can only confirm, not choose.
+
+Test: `update-rate-returns-auto.test.mjs` (a Monday-Friday schedule reads as weekly and a clumpy chain does not,
+the statistic is a non-negative likelihood ratio, each stretch is scored with the cost its test picks, and the
+committed verdict).
+
+## Short returns: a real drop in repeats (2026-11-19, pre-registered; R1-R4 pass in simulation, J1 fails 2 of 8, not offered)
+
+Round 4 above passed its simulation bars and then, on JHU's eight documented returns, found five "returns" whose
+repeat share inside matched the share around (85% and 85%): changes in *which* days publish, which the weekday
+cost reads as a pattern change and the pass's only direction rule ("fewer repeats inside", by any margin) let
+through. No simulated null had moved publication between two sets of days of the same size. This round adds
+those nulls and a guard. `eval/update-rate-returns-guard.mjs` (header, cells, rules and `returnGuardPasses` with the
+`guard` option of `bestReturnCost` and `returnCandidates` in `update-rate.mjs`, committed in 41343d76f before any
+cell ran) kept round 4's per-stretch model and every earlier cell, and added four shift nulls at n 1100:
+Tuesday/Friday moved to Monday/Thursday for 60 days (S2t) or for good (S2p), and Wednesday moved to Monday for 60
+days (S1t) or for good (S1p). The guard replaces "fewer repeats inside" in the search itself, so another interval
+can win. Two guards: `half` (share inside at most half the share around) and `z01` (a one-sided pooled
+two-proportion z of the drop of at least 2.326). Choice on calibration, R1-R3 as before plus R4 (every shift cell
+at most 0.010 false returns a series), then J1 again. The header discloses that round 4's J2 shares had been read
+when the guards were written, and that Michigan 2021's documented return (58% inside, 66% around) fails `half`; so
+the choice was on simulation only, and J1 could only refuse.
+
+**Calibration (seed 20261226, `eval/update-rate-returns-guard.out.txt`).** The new nulls bite without a guard:
+round 4's pass reports a return in 98-100% of shift series at m 3 (S1t falls to 58% only at m 6). `half` removes
+every one of them at every m and costs nothing elsewhere: the power rows are identical to round 4's on the same
+series (R30 162, R60 199, R90 198, I60 23 at m 3). `z01` lets through 5% of the Wednesday-to-Monday shifts at m 3
+and meets the budget only at m 6, where R30 is 0. `half` at m 3 was chosen.
+
+**Confirmation (seed 20261227, `half` at m 3): all four simulation bars pass.**
+
+| confirmation | `half`, m 3 | round 4 (no guard), m 3 |
+|---|---|---|
+| worst null or shift cell, false returns a series | **0.005** (R1, bar 0.020; M60 n300) | 1.000 (S2t, S2p, S1p) |
+| worst shift cell | **0.000** (R4, bar 0.010) | 1.000 |
+| 30 days of daily inside Monday-Friday, found of 200 | 159 | 159 |
+| 60 days | **196** (R2, bar 120; R3 +196) | 196 |
+| 90 days | 197 | 197 |
+| 60 days at 2% inside independent 25% | 29 | 29 |
+
+**J1 fails: 2 of 8 dated, bar 4.** Idaho and Vermont are dated as in round 4. Michigan's Tuesday+Friday to
+Monday/Wednesday/Friday is lost, as the header said it would be: one more publishing day a week is a drop from about
+71% to 57% repeats, not a halving. The other five stay missed. The pass stays in the module, off
+(`SHORT_RETURNS.mult` null); nothing the CLI or the page prints changes.
+
+**What changed on the real series** (J2, post hoc, deciding nothing). The 12 returns on the 27 primary states fall
+to 6, and every one left is a real drop (0-20% repeats inside against 24-43% around: Alabama, Idaho, Indiana,
+Kentucky, Vermont, Washington). The five same-share "returns" and Kansas' and Michigan's 59/68% and 58/66% are gone.
+So the guard does what it was built for on real data too; what it cannot do is find the returns the pass never
+proposed. Read against the documented list (`eval/update-rate-covid-schedules.mjs`, SECONDARY), the other five misses
+are not two-month returns either: by the documented dates the move to more days lasted about four months in Alaska
+(2021-08-02 to 2021-12-07), eight in South Dakota (2021-08-16 to 2022-04-12), five and a half in Alabama
+(2021-09-17 to 2022-03-04, read from struck-through text; the data's drop is dated two months earlier), and has no
+listed end in Arkansas and Nebraska. Those are lasting changes of schedule, which the shipped partition should cut,
+and it misses them too (D3 in `eval/update-rate-covid-schedules.out.txt`). J1 as written counts only the return
+pass's finds, so it mixes two questions: short returns and lasting moves to more days.
+
+Next, pre-registered: why the shipped cut misses lasting moves to more days, with power cells no round has
+simulated (Wednesdays only to Monday-Friday, Monday/Wednesday/Friday to Monday-Friday, each for four to eight
+months), scored by the shipped check and the guarded pass together. A fraction-of-a-day guard (a drop of at least one
+publishing day a week, about 0.14 of the share) would keep Michigan, but it was seen here and needs fresh real
+returns to test.
+
+Test: `update-rate-returns-guard.test.mjs` (both guards on known shares, no guard leaves the search unchanged, a
+same-count shift is a return without the guard and none with it while a real return survives, the committed
+verdict, the pass off by default).
+
+## Lasting moves to more days: does the shipped cut have the power? (2026-11-19, pre-registered; H1 fails on one cell of nine)
+
+The round above found that five of JHU's eight documented moves back to more frequent reporting were, by the
+documented dates, lasting changes of schedule (four to eight months, or no listed end). The shipped partition
+should cut those, and it dated none of them. That round's "Next" asked why, with simulated cells no round had
+tried. `eval/update-rate-lasting-more.mjs` (header committed in 0b2fb6c07 before any cell ran; one amendment
+in the next commit, before any cell finished: Part A turns off the stale-feed verdict, which took 20 s a series
+and never moves a cut or its direction) asks it in two parts.
+
+**Part A, simulation (seed 20261228, 200 series a cell, n 1,100).** Three moves from the documented list, each
+starting at step 500 and lasting 120 days, 240 days or for good, under rounds 1-5's schedule model. One bar, H1:
+the shipped check alone finds the start (a 'more often' cut within 10 steps) in at least 180 of 200 in every cell.
+
+| move (repeats before to inside) | 120 days | 240 days | for good |
+|---|---|---|---|
+| Wednesdays only to Mon-Fri (82% to 29%) | 198 | 199 | 199 |
+| Mon/Wed/Fri to Mon-Fri (55% to 29%) | 191 | 182 | 186 |
+| Mon-Fri to daily (29% to 3%) | **13** (197 with the guarded pass) | 186 | 195 |
+
+**H1 fails, on one cell.** The shipped cut has the power for a lasting move to more days from a sparse schedule,
+and for a move from Monday-Friday to daily once it lasts eight months. It misses a four-month Monday-Friday to
+daily stretch (13 of 200), which round 5's guarded return pass finds (197 of 200, off by default). Ends are cut
+as reliably as starts (185-198 of 200 where the move ends; 14 for the four-month daily stretch). So at the lengths the documented record gives, the
+cut alone should have dated Alaska, Nebraska and South Dakota.
+
+**Part B, the eight real events (seen data; sorted by a rule fixed in the header).** Repeat shares in the 56
+days either side of each documented date, against what the two schedules imply:
+
+- **N, not in the data (3).** Alabama (11% to 0%; Monday-Friday implies 29%), Michigan (55% to 57%; the
+  weekday shares show the days moving, not a third day added) and Nebraska (46% to 36%; Wednesdays only
+  implies 82%). The schedule the record names before the date never shows in JHU's figures.
+- **E, cut elsewhere (1).** Arkansas (14% to 0%), sorted E only because the 2020 cut's range runs to
+  2021-06-26; the data show weekends half-repeating, so it is close to N.
+- **C, in the data, not cut (4).** Alaska (57% to 32%), Idaho (30% to 2%), South Dakota (66% to 30%) and
+  Vermont (32% to 0%). Each matches its documented schedules within a few points.
+
+**Why the four are missed** (post hoc, monthly shares read after the sort, deciding nothing). In every one the
+*short* leg is in the data, not the lasting one. Alaska's Monday/Wednesday/Friday spell is June-July 2021 (50%,
+58%; 27-35% either side), and South Dakota's Wednesdays-only spell is about July 2021 (77%; 30-48% either side):
+one to two months of *fewer* days before the documented return, so the lasting Monday-Friday that follows is the
+same schedule as the months before the spell. Idaho's and Vermont's daily stretches are about two months
+(September-October 2021, 3-10% and 0%), and round 5's pass already dates both. So the real series are short
+spells, not the cells Part A simulated, and Part A says the cut would have caught the lasting version.
+
+Nothing in the check changes. Next: the mirror of the return pass, a short spell of *fewer* publishing days
+inside a stretch (the guarded pass with the guard reversed: share inside at least twice the share around),
+pre-registered on simulated 30- to 60-day sparse spells with the round 5 nulls; then Alaska's and South Dakota's
+spells, which are seen.
+
+Test: `update-rate-lasting-more.test.mjs` (the nine cells, a Wednesdays-only move cut at both ends, the 120-day
+daily stretch needing the pass, the sorting rule, the committed verdict).
+
+## Short sparse spells: the return pass reversed (2026-11-19, pre-registered; S1-S4 and the real check K1 pass, an opt-in)
+
+The round above found that in each of JHU's four documented moves to more days that are in the data, the short
+leg is what the data show: one to two months of *fewer* publishing days just before the documented return
+(Alaska's Monday/Wednesday/Friday spell in June-July 2021, South Dakota's Wednesdays-only July). The shipped cut
+pays two cuts for such a spell and rarely gets them. This round tests the mirror of the return pass:
+`bestReturnCost(..., { sparse: true })` looks for the one interval with *more* repeats inside a stretch than in
+the parts around it, which share one model. `eval/update-rate-sparse-spells.mjs` (header and option committed in
+40cc79ce8 before any cell ran) kept round 5's per-stretch model and its 19 null and shift cells, read round 1's
+four return cells as nulls for this direction (a short return is not a sparse spell), and added five power cells:
+Monday-Friday with 30 or 60 days of Wednesdays only, 30 or 60 days of Monday/Wednesday/Friday, and daily with 60
+days of Monday-Friday. Two guards, round 5's mirrored: `twice` (share inside at least twice the share around)
+and `z01` (a one-sided z of the rise of at least 2.326). The header discloses that Alaska's monthly shares had been
+read and that its spell fails `twice` on them, so the choice was on simulation only and K1 could only refuse.
+The shipped check ran with the stale-feed verdict off, as in the round above (it never moves a cut); the whole
+round took 163 s.
+
+**Calibration (seed 20261229).** No guard raises a false spell in the chains, schedules or return cells at m 3
+except `z01`'s R90 cell (0.030); `z01` meets the budget at m 3.5. At their m, `twice` finds 563 of 600 in the
+three 60-day cells and `z01` 567, so `z01` at m 3.5 was chosen. Where they differ is the Monday/Wednesday/Friday
+spell: about 56% repeats against 29% around is a ratio just under 2, so `twice` finds 118 thirty-day spells at
+m 3.5 and `z01` 167.
+
+**Confirmation (seed 20261230, `z01` at m 3.5): all four bars pass.**
+
+| confirmation, found of 200 | pass + shipped | shipped alone |
+|---|---|---|
+| worst null cell, false spells a series | **0.015** (S1, bar 0.020; R90 read as a null) | |
+| worst shift cell | **0.005** (S4, bar 0.010) | |
+| Wednesdays only for 30 days inside Monday-Friday | 200 | 0 |
+| Wednesdays only for 60 days | **200** (S2, bar 120) | 17 |
+| Mon/Wed/Fri for 30 days | 172 | 0 |
+| Mon/Wed/Fri for 60 days | **195** | 162 |
+| Monday-Friday for 60 days inside daily | **157** | 10 |
+
+S3, the three 60-day cells' gain over the shipped check alone, is 363 (bar 60).
+
+**The real check K1 passes: both seen spells end in their documented return's window.** Alaska: a spell
+2021-06-08 to 2021-07-29 (52 days, 58% repeats inside, 32% around) against the documented return to Monday-Friday
+on 2021-08-02. South Dakota: 2021-07-03 to 2021-08-10 (39 days, 85% inside, 32% around) against 2021-08-16. Both
+were seen before the header was written, so this confirms; it does not choose.
+
+**Every spell on the 35 states** (K2, descriptive, deciding nothing): eight. Besides the two above, Arkansas has a
+30-day spell ending 2021-07-20 (27% repeats inside, 1% around), four days before its documented move back to
+daily (weekends resume, 2021-07-24): a documented event K1 did not name, dated by its spell. Kentucky's 27 days
+in March 2022 (85% inside, 30% around) is a spell of the same kind. Four are long (127-183 days) and sit next to
+a return the other pass finds: Idaho's 2021-03-28 to 2021-09-05 ends the day before its documented daily return
+starts, and Washington's 2021-07-03 to 2022-01-01 follows its return; inside one stretch the two passes model the
+same two-schedule split from either side. Alabama's and DC's 2022 spells match no documented event.
+
+**What ships.** `shortSpells(values, { days })` in `update-rate.mjs` with `SHORT_SPELLS` (`z01`, m 3.5): an opt-in
+for callers with a date per value (`daysFromDates`). As pre-registered, it is not a default line: nothing the CLI
+or the page prints changes in this round. The return pass stays off (`SHORT_RETURNS.mult` null). Next: offer the
+spell line behind a flag on the CLI and the page (dated series only), and a fresh real check on spells nobody has
+read, from another provider's documented schedule changes.
+
+Test: `update-rate-sparse-spells.test.mjs` (the reversed search finds a planted spell and leaves the default
+search unchanged, a Wednesdays-only spell is found with its edges while same-count shifts are not, the module
+function equals the eval file's, the committed verdict).
+
+## Short sparse spells on the CLI and page (2026-11-19, later)
+
+The spell search from the section above is now something a person can ask for, still off by default. CLI:
+`--spells` (text, `--json` as `shortSpells` and `spellsWarning`, and `--consensus`); page: the box "Look for short
+spells of fewer updates"; the printed change report carries the same line. It runs beside the mean, meanvar,
+trend and poisson models and never moves a cut. It needs a date (YYYY-MM-DD) on every row, because the search
+reads each step's weekday; an undated series is refused with that reason rather than given made-up weekdays. It
+stops at 4,000 points: the search is quadratic in each stretch (about 1 s on 1,143 daily values here), and the
+calibration only covered series of 500 to 1,100 steps.
+
+On South Dakota's committed JHU series (`data/covid-schedules.csv`):
+
+```
+node cli.mjs sd.csv --spells
+...
+Short spells of fewer updates: one spell where the series was refreshed on fewer days for a while and then went
+back to its old schedule: 2021-07-03 to 2021-08-10 (39 steps): the value repeated on 85% of steps inside, against
+32% before and after, read weekday by weekday because the stretch runs on a weekly schedule. ...
+```
+
+That is the K1 spell from the round above, ending six days before the documented return to Monday-Friday on
+2021-08-16. On the other five committed states it says "none found" for Minnesota, California, Utah and Vermont
+and dates Kentucky's 2022-03-05 to 2022-03-31 (the K2 spell; no documented event). Nothing here is new
+evidence: the setting and its checks are the round above's. Still open: a fresh real check on another
+provider's documented schedule changes, spells nobody has read.
+
+Test: `spells-cli.test.mjs` (South Dakota's spell in text, JSON and `--consensus`; off unless asked; undated and
+over-long series refused; Minnesota's "none found"; the page's box, its option and its note; the printed report).
+
+## Short spells on a second provider: The New York Times' state series (2026-11-19, pre-registered; N1 and N2 fail, a restated edge-spell line ships)
+
+The two sections above asked for a fresh real check of the spell search on another provider, on spells nobody
+had read. `eval/update-rate-spells-nyt.mjs` (header committed in 973ea2dbf before the script ran) ran the shipped
+`spellsResult` (the function behind `--spells`, unchanged) on The New York Times' covid-19-data `us-states.csv`:
+cumulative cases per state per day, NYT's own collection, independent of JHU's. No NYT state series had been read
+before. The labels are the same documented state schedule changes as the JHU rounds, since a health department's
+schedule is the state's, not the aggregator's. The NYT file is fetched by `eval/nyt-states-fetch.sh` and not
+committed (its terms are attribution, non-commercial; only derived verdicts are here).
+
+**Both bars fail** (`eval/update-rate-spells-nyt.out.txt`, 3 s):
+
+| bar | result |
+|---|---|
+| N1: a spell ending within 10 days of each of four documented returns after a short spell (bar 3 of 4) | **2 of 4** (South Dakota 2021-07-03..08-10 and Arkansas 2021-06-21..07-20, the same days as on JHU; Alaska and Nebraska missed) |
+| N2: spells with no documented event within 10 days of either end (bar at most 3; JHU had 1 of 8) | **5 of 9** (Idaho 372 days, Kentucky 185, Michigan 106, Nevada 95, Nebraska 178) |
+| N3, descriptive: the same spell on both providers | 3 of 8 JHU spells seen on NYT; 3 of 9 NYT spells seen on JHU |
+
+**Why, read afterwards** (`eval/update-rate-spells-nyt-why.mjs`, post hoc, deciding nothing about the search):
+
+- *Alaska is in NYT's series, and the default line already dates it.* Month by month NYT's Alaska is almost
+  JHU's (repeats 50% and 61% in June and July 2021, against 50% and 58%). But NYT's series starts on 2020-03-12,
+  not 2020-01-22, and with the shorter opening the default update-rate line cuts **2021-06-04 (fewer updates) and
+  2021-08-01 (back to more)**, the day before the documented return. The spell search looks *inside* that line's
+  stretches, so with both edges already cut it had nothing left to find, at any penalty down to m 2.5. The spell
+  was not missed by the tool a user runs; it was missed by the search, and the line said "none found". That
+  sentence was misleading.
+- *Nebraska's documented Wednesdays-only spell (2021-08-11 to 2021-09-25) is in neither series.* NYT's Nebraska
+  moved on every weekday through August and September 2021 (Mon 5/5, Tue 5/5, Wed 4/4, ... in August); JHU's sits
+  near 45% repeats throughout with no spell shape. Whatever the state published on its own dashboard, neither
+  aggregator's series shows a Wednesdays-only spell, so no search over these series could date it. This miss is
+  the label's, as far as the data can say.
+- *"Unexplained" is not "false" here.* Nebraska's 2022-05-06..10-30 spell is in both providers' series (repeats
+  55%, 50%, 52%, 52%, 43%, 74% from May to October on both, publishing on two to three weekdays a week, against
+  27% in April); it is a real schedule change JHU's README does not list. The other four NYT-only spells are long
+  (95-372 days) with small rises (e.g. Kentucky 17% inside against 5%), closer to slow drifts in the schedule than
+  to a short spell. Without a label for them, N2's bar counts them against the search, as it was written to.
+
+**What ships.** Nothing in the search or its setting changes, and it stays an opt-in: it failed a fresh provider.
+One reporting fix ships, because the Alaska case showed the line contradicting the default line beside it:
+`edgeSpellsOf` in `update-rate.mjs` restates the default update-rate line's own pair of changes, fewer updates
+then back to more within 120 steps (`EDGE_SPELL_MAX_STEPS`), as a spell, and the `--spells` line (CLI, page,
+printed report) now says so instead of "none found":
+
+```
+Short spells of fewer updates: none inside the update-rate line's stretches. The update-rate line already dates a
+spell as two changes, fewer updates and then back to more: 2021-06-04 to 2021-07-31 (58 steps, 59% repeats inside,
+31% before, 31% after).
+```
+
+It adds no test and no new p: it is the default line's two cuts, already printed, read together. On the 35
+states it fires on 0 JHU series and 2 NYT series: Alaska (next to the documented return) and Alabama 2021-05-29..
+07-12 (49% repeats inside, 0% before, 4% after; no documented event). The six committed JHU states print exactly
+what they printed before.
+
+Next: the spell search is fragile to where a series starts (Alaska's opening shifted the default cuts by enough to
+take the spell from the search); a check would plant the same spell in series with different openings and count
+how often it falls to the search, the default line, both, or neither. A provider that documents its own schedule
+changes (rather than JHU's labels reused) is still wanted.
+
+Test: `spells-edge.test.mjs` (a fewer-then-more pair is one edge spell, a long or same-direction pair is not; the
+line's new wording; the committed JHU states unchanged; the committed NYT verdicts).
+
+## Short spells under different series openings (2026-11-19, pre-registered; O3 and O4 pass, O1 and O2 fail, nothing changes)
+
+The section above found the spell search fragile to where a series starts: NYT's Alaska opens 50 days later than
+JHU's, the default line then cut both edges of the spell, and the search, which looks inside that line's
+stretches, had nothing left to find. `eval/update-rate-spells-openings.mjs` (header committed in c99ca0229 before
+any cell ran) plants the spells round's five spell shapes after six openings (120, 250, 500 or 800 steps of the
+base schedule, or a quiet start of 50 all-but-always-repeating steps, as a series that begins with its zeros, then
+250 or 500), 200 series a cell, and asks which line dates the spell: the search, the default line's two cuts
+(`edgeSpellsOf`, restated since the round above), both, or neither. It also gives the edge restatement the null
+check it shipped without, on four no-spell schedules (Monday-Friday, Monday/Wednesday/Friday, daily, and a lasting
+move to Wednesdays only) under the same six openings. Module functions unchanged; 142 s.
+
+**The edge restatement is needed, and costs nothing on the nulls (O3, O4 pass).** No null series at any opening
+printed a false spell or produced an edge spell (0.000 a series in all 24 null cells; bar 0.020). Meanwhile, on
+Alaska's own shape (Monday/Wednesday/Friday for 60 days inside Monday-Friday) the default line's two cuts are what
+date the spell in 149 to 186 of 200 series at every opening, the search in 10 to 43. Before the round above the
+line said "none found" for those. On South Dakota's shape (Wednesdays only, 60 days) the prediction from Alaska
+holds exactly: the shorter the opening, the more spells move from the search to the edges (edge only 98 of 200
+at 120 steps, 52 at 250, 19 at 500, 3 at 800), and the line a user reads dates all 200 at every opening. Spells
+the search and the edges both date: none in any cell, as built (the search never looks across a cut).
+
+| found of 200 by the `--spells` line | 120 | 250 | 500 | 800 | quiet + 250 | quiet + 500 |
+|---|---|---|---|---|---|---|
+| Wednesdays only, 30 days | 199 | 200 | 200 | 199 | 200 | 200 |
+| Wednesdays only, 60 days | 200 | 200 | 200 | 200 | 200 | 200 |
+| Mon/Wed/Fri, 30 days | 174 | **135** | 181 | 160 | **139** | **141** |
+| Mon/Wed/Fri, 60 days | 196 | 194 | 193 | 197 | 198 | 192 |
+| Monday-Friday inside daily, 60 days | **146** | **178** | **156** | **141** | **145** | **162** |
+
+**O1 fails** (each shape within 30 of its 500-step cell): the 30-day Mon/Wed/Fri spell falls to 135-141 at three
+openings. **O2 fails** (at most 20 of 200 with neither line, 60-day cells): the 60-day Monday-Friday spell inside
+daily has 22 to 59 at every opening; at the 500-step opening this is the spells round's own cell (157 there, 156
+here), so O2 was set above a power the confirmation had already measured. That bar was wrongly written, not a
+new loss.
+
+**Why O1 failed, read afterwards** (`eval/update-rate-spells-openings-why.mjs`, post hoc, deciding nothing,
+fresh seed): changing the opening's length also changed the spell's first weekday, and the three failing cells
+are the three whose spells start Friday, Saturday or Sunday. A Mon/Wed/Fri spell differs from Monday-Friday only on
+Tuesdays and Thursdays; 30 days hold 9 of them from a Monday to Thursday start and 8 otherwise. Holding the
+opening at 500 and moving only the first step over one week:
+
+| first day of the spell | Thu | Fri | Sat | Sun | Mon | Tue | Wed |
+|---|---|---|---|---|---|---|---|
+| Mon/Wed/Fri 30 days: informative days | 9 | 8 | 8 | 8 | 9 | 9 | 9 |
+| found of 200 | 164 | 146 | 120 | 139 | 163 | 167 | 174 |
+| Monday-Friday in daily, 60 days: weekend days | 18 | 18 | 18 | 17 | 16 | 16 | 17 |
+| found of 200 | 172 | 170 | 177 | 138 | 144 | 134 | 144 |
+
+One weekday's difference in where a spell starts moves its power as much as any opening did (120 to 174 at one
+opening). The 60-day shapes with many informative days (Wednesdays only: 34-35; Mon/Wed/Fri: 16-18 inside
+Monday-Friday, 195-199 found) do not move. So the opening matters to *which* line dates a spell, not to *whether*
+the line a user reads does; what limits the line is how many days inside the spell the two schedules differ on,
+about 16 or more for 60-day spells and more than a 30-day Mon/Wed/Fri spell's 8 or 9.
+
+**What ships.** Nothing in the search, the restatement or their settings changes; both stay behind `--spells`.
+The round adds the null check the edge restatement lacked (it passes) and a measured caveat for the line: a
+spell with fewer than about 16 days on which the schedules differ (a one-month spell of three publishing days
+inside five, or a two-month weekdays-only spell inside daily) is dated in 60-87% of series, depending on its
+weekdays. Next: a spell search that counts informative days directly (a score on the differing weekdays only),
+pre-registered against these cells; and still a provider that documents its own schedule changes.
+
+Test: `spells-openings.test.mjs` (the series builder; a Wednesdays-only spell after the shortest opening is dated
+by the line, and no printed edge spell overlaps a search spell; the committed verdicts and the post hoc table).
+
+## Short spells scored on the weekdays that differ (2026-11-19, pre-registered; C1-C5 and K1 pass, ships behind `--spells`)
+
+The round above found that what limits the `--spells` line is how many days inside a spell the two schedules
+differ on, and asked for a search that counts those days directly. The weekday search's gain is a sum over the
+seven weekdays of one likelihood ratio each (inside against around). On weekdays where the old and the spell
+schedule agree (a Mon/Wed/Fri spell inside Monday-Friday agrees on five of seven) that ratio is noise, and the
+penalty has to sit above the noise of all seven. A diagnostic of the shipped search on a scratch seed, read before
+the header and disclosed in it, showed both weak cells' misses: 11 of 11 missed one-month Mon/Wed/Fri spells had
+the search's best interval at the spell with gain 25-46 against a penalty of 49; 12 of 12 missed Monday-Friday
+spells inside daily had a weekday candidate at the spell, but the stretch failed the weekly-pattern test (it is
+daily outside the spell), so the two-state chain was used.
+
+`eval/update-rate-spells-weekdays.mjs` (header committed in 18bfdf885 before any cell ran) scores an interval by
+summing only the weekdays whose repeat share rises inside and whose ratio clears a floor beta, each less beta
+(`bestSpellWeekdays` in `update-rate.mjs`). Arm A keeps round 5's choice of model per stretch; arm B also tries the
+score where the weekly test says the stretch is not weekly. Beta in {0, 2, 4, 6}, m in {1.5 ... 5}: per arm and
+beta the smallest m with every null cell at most 0.010 false spells a series, then the most spells found. 394 s.
+
+**Calibration (seed 20261232): arm A, beta 4, m 2.5.** Arm A at beta 0 is close to the shipped search and needs its
+m 3.5 (926 of 1,000 found over the five spell cells); with beta 4 the weekdays that agree stop adding noise, the
+null budget is met at m 2.5, and 971 are found. Arm B raises false spells on the clumpy two-state chains (0.235
+a series at beta 0, m 3.5): on a stretch with no weekly pattern a weekday score reads clumps as a calendar, the
+reason round 5 chose the model per stretch. It was not chosen.
+
+**Confirmation (fresh seeds 20261233 and 20261234): all five bars pass.**
+
+| bar | result |
+|---|---|
+| C1 spells round's 23 null cells, false spells a series (bar 0.020) | worst **0.010** (S1p) |
+| C2 shift cells (bar 0.010) | worst **0.010** |
+| C3 openings round's 24 null cells, false spells the line prints (bar 0.020) | **0.000** in every cell |
+| C4 the 12 weak cells (one-month Mon/Wed/Fri, two-month Monday-Friday inside daily, six openings): line found, new minus shipped on the same series (bar 150) | **+283** |
+| C5 no spell cell loses more than 10 | **pass** (worst: P3w60 at P120, 196 vs 197) |
+| C6, reported: the openings round's O1 (each shape within 30 of its 500-step cell) | fails once: one-month Mon/Wed/Fri after a quiet start, 148 vs 184 |
+
+| line found of 200, new / shipped | 120 | 250 | 500 | 800 | quiet + 250 | quiet + 500 |
+|---|---|---|---|---|---|---|
+| Mon/Wed/Fri, 30 days | 177 / 167 | 158 / 141 | 184 / 177 | 178 / 155 | 148 / 131 | 154 / 134 |
+| Monday-Friday inside daily, 60 days | 186 / 144 | 187 / 171 | 194 / 173 | 184 / 131 | 188 / 145 | 190 / 176 |
+
+The other three shapes are unchanged within one series (Wednesdays only: 199-200 both; Mon/Wed/Fri 60 days:
+193-198 both). The Monday-Friday-inside-daily gain comes from arm A, which never applies the weekday score to a
+stretch the weekly test calls not weekly; but arm A applies the chosen penalty (m 2.5, was 3.5) to the chain
+search on those stretches too, which is one likely source. Which part of the gain is the chain's and which the
+score's was not measured. The one-month Mon/Wed/Fri spell is
+still the hardest shape (8 or 9 informative days); the score lifts it by 7 to 23 a cell, but it stays 30 below
+its own 500-step cell after a quiet start, so the measured caveat from the round above stands in a smaller form.
+
+**The real check K1 passes** (seen data): Alaska's spell 2021-06-04 to 2021-07-29 (four days earlier than the
+shipped search's start, 2021-06-08) and South Dakota's 2021-07-03 to 2021-08-10 both end in their documented
+return's window. On the 35 states (K2) the new search reports the same eight spells as the shipped one, with edges
+within 11 days of the old ones.
+
+**What ships.** `SHORT_SPELLS` is now `{ score: 'weekdays', arm: 'A', beta: 4, mult: 2.5 }`, still behind
+`--spells` and the page's box, still not a default line. The line names the weekdays it read: on South Dakota's
+Wednesdays-only spell inside Monday-Friday, "read on the weekdays where the schedule changed (Mondays, Tuesdays,
+Thursdays and Fridays)"; on Kentucky's March 2022 spell, Tuesdays, Wednesdays and Fridays. Kentucky's spell now
+runs to 2022-04-05 (was 03-31); the other committed states print what they printed. Round 5's search stays
+reachable as `score: 'dow'` (`SHORT_SPELLS_DOW`), and the earlier rounds' eval files now pass it, so their committed
+outputs reproduce. Simulated and seen evidence only; the NYT check that failed the shipped search has not been
+rerun on this score. Next: that rerun as a fresh pre-registered check (NYT's file is fetched, not committed), and
+still a provider that documents its own schedule changes.
+
+Test: `spells-weekdays.test.mjs` (beta 0 is the weekday gain less falling weekdays, beta 4 keeps Tuesdays and
+Thursdays on a planted Mon/Wed/Fri spell; the two arms; the committed verdicts; the shipped setting, South
+Dakota's spell under both scores, the weekday names in the line).
+
+## The weekday spell score on NYT's state series (2026-11-19, pre-registered; W1 passes, W2 fails 4 of 8, stays an opt-in)
+
+The section above shipped the weekday score behind `--spells` on simulated and seen evidence and asked for a fresh
+rerun of the NYT check that had failed the earlier `dow` search. `eval/update-rate-spells-weekdays-nyt.mjs` (header
+committed in d07f29184 before the script first ran) runs the shipped `spellsResult` (default `SHORT_SPELLS`:
+weekdays, arm A, beta 4, m 2.5; nothing changed) on the same NYT `us-states.csv`, with the same 35 states, labels,
++-10 day rule and "explained" rule, imported from the NYT round's script. What was known beforehand is disclosed in
+the header: Alaska's spell is dated by the default line's two cuts on NYT whatever the score does, and Nebraska's
+documented Wednesdays-only spell is in neither provider's series, so the old N1 (search only) could not pass. The
+bars were restated on the line a user reads. 4.5 s.
+
+| bar | result |
+|---|---|
+| W1: the line (search spells plus the edge spells it prints) ends a spell within 10 days of each documented return (bar 3 of 4) | **3 of 4: pass** (Alaska by the edge restatement 2021-06-04..07-31; South Dakota 2021-07-03..08-10 and Arkansas 2021-06-21..07-18 by the score; Nebraska missed, as disclosed) |
+| W2: unexplained search spells on the 35 states (bar at most 3; `dow` had 5 of 9) | **4 of 8: fail** (Idaho 372 days, Kentucky 182, Michigan 105, Nebraska 175) |
+| W3, reported: everything the line prints | 10 spells (8 search, 2 edge), 5 unexplained (the four above and Alabama's edge spell 2021-05-29..07-12) |
+| W4, reported: against `dow` on the same series | same spells within 4 days on eight states; Nevada's 95-day spell (2022-05-07..08-09, unexplained) is gone; 3 of 8 JHU spells seen on NYT, as before |
+
+So the weekday score is one false-looking spell better than the search it replaced on a fresh provider, and keeps
+both short spells the search had found, but it does not meet the bar the first NYT round set. The opt-in stays an
+opt-in; nothing in `update-rate.mjs` changes.
+
+**Read afterwards (post hoc, deciding nothing):** the four unexplained spells are the four longest the score
+reports (105-372 days), with small rises in repeats for three of them (Kentucky 17% inside against 5%, Idaho 33% against
+20%, Michigan 86% against 72%), and Nebraska 2022 is the real schedule change on both providers that the JHU
+README does not list (read in the first NYT round). Every documented spell that ends in a return runs 28-58 days.
+A length cap is the obvious next idea and the data already argue against it: at 120 days it would remove all four
+here but also DC's explained 126-day spell on NYT, and on JHU it would remove three of the seven explained spells
+(Alabama 130 days, DC 127, Idaho 162) with the one unexplained (Washington 184). What would settle it is a
+provider that documents its own schedule changes, including the slow ones, which is still the open item.
+
+Test: `spells-weekdays-nyt.test.mjs` (the line's spell list skips an edge the search overlaps; the committed
+verdicts).
+
+## A real carried-forward feed: last-trade prices (2026-11-19, pre-registered; B1 and B3 pass, B2 fails, the one-tick gate stays)
+
+Every round of the stale-feed test ("One-tick stale feeds", rounds one to five) was scored on simulation, and this
+README has asked since 2026-11-12 for "a real series with documented carry-forward to check a call against". A
+last-trade price sampled every D seconds is one: a sample with no trade in its D seconds repeats the last trade, and
+the trade times say exactly which samples were carried. The trade prints themselves, one step per trade, carry
+nothing forward, so they are the real null. Data: the trade samples of the R package highfrequency (Boudt, Kleen and
+Sjoerup 2022, GPL >= 2, fetched by `python3 eval/hf-trades-fetch.py <dir>`, not committed). Judged: one day of a
+European stock (33,488 trades, price about 39.5). Reported only: two days of a pseudonymised NYSE stock, because its
+package page calls the raw sample it was cleaned from "imaginary".
+
+`eval/stale-real-trades.mjs` (header committed in 7f6fe11f7 before the first run) calls the shipped
+`staleTestMarkov` (threshold 6.56) on non-overlapping 300-step windows at D = 1, 2 and 5 s and on the prints. It
+calls the test directly, because these prices move 2 to 4 ticks at the median and the shipped one-tick gate
+(median move <= 1.5 ticks) never runs it on them; the gate's verdict is recorded per window (it ran on none). Each
+window's truth is its share of steps with no trade. The fitted share is the Markov fit's stationary carry share.
+
+**Run 1 found a bug in the product, not the test.** The European file holds prices such as 39.8025 beside
+39.802499999999995, written after float arithmetic. The shipped `smallestStep` took their difference, 7e-15, as the
+tick, so every real move read as 10^12 ticks, the 50-tick guard refused the D = 1 and D = 2 windows, and B1 could not
+be scored (`eval/stale-real-trades-run1.out.txt`). Two values that agree to nine significant digits are now one value
+written twice: they set no tick and are no move (`floatNoise` in `update-rate.mjs`; exact repeats are still counted
+exactly). Any user file with such values had the same broken tick. Run 2 is the same script and bars, with the fix
+(`eval/stale-real-trades.out.txt`, 98 min on four threads):
+
+| bar (Europe) | result |
+|---|---|
+| B1 power: windows with carried share >= 0.30 called stale (bar 80%) | **84 of 85: pass** |
+| B2 size: trade-print windows (nothing carried) called stale (bar <= 10%) | **56 of 56: fail** |
+| B3 the estimate: fitted carry share within 0.10 of the true share, among windows called stale (bar 80%) | **112 of 119: pass** (median error 0.04 at D = 1, 0.05 at D = 2, 0.06 at D = 5) |
+| reported: carried share under 0.30 | 35 of 36 called stale (10 of 11 under 0.10) |
+| reported: the US sample | 12 of 48 carried windows called stale; most windows are refused by the 50-tick guard (ticks of 0.0005, moves of 20 to 40 ticks) |
+
+So on a real carried feed the test is sharp and its estimate is good: it says how much of the feed was carried
+forward to within about 0.05. But it says the same of the trade prints, where nothing was carried, with a fitted
+share of 0.27 against a truth of 0. By the pre-registered rule nothing ships and the gate stays as it is.
+
+**Read afterwards (post hoc, deciding nothing).** The prints show no catch-up. The move that ends a run of repeats
+is no bigger after a long run than after none (RMS 3.6 ticks after no repeat, 3.2 after three or more). In the
+carried D = 1 series it grows only from 4.8 to 5.6. What the prints do have is repeats: 40% of steps, far more than a
+walk with 3.5-tick steps would land on the same price by chance. M0 cannot make that many exact zeros without
+shrinking its step, and M1 can, so the likelihood ratio rewards M1 for excess repeats, not for catch-ups. In the
+one-tick regime the simulations covered, excess repeats beyond rounding do mean staleness, and that is what the gate
+protects. Above about 1.5 ticks the test is a test for zero inflation, and any market where the price sits at a
+quote (trades at the bid until the queue empties) is zero-inflated. So opening the gate would mislabel real tick
+data as stale, and the gate stays closed. A test for staleness at multi-tick moves would have to score the growth
+of the move after a run (round two's ratio idea) rather than the share of zeros. The prints here are the null to
+check it on.
+
+Tests: `stale-real-trades.test.mjs` (the sampling that labels each repeat, the windows, the bars, the float-noise
+tick rule and the committed verdicts).
+
+## A catch-up test for multi-tick feeds (2026-11-19, pre-registered; G1, G2 and R1 pass, R2 fails, not offered)
+
+The section above ends with the shipped stale test calling every real trade-print window stale (B2, 56 of 56):
+above about 1.5 ticks it scores excess exact repeats, and prices that sit at a quote have them with nothing carried.
+It named what a test at multi-tick moves would have to score instead: the growth of the move that ends a run, since
+a carried figure's next move sums the k + 1 hidden moves it missed and a quote's does not.
+
+`catchUpGrowth` (`update-rate.mjs`) is that test, with nothing fitted. For each move that ends a run, k is the
+repeats directly before it (0 after a move); it correlates the ranks of k and |move| (Pearson on mid-ranks). Under
+the null that the move does not depend on k, the permutation variance of that correlation is exactly 1 / (n - 1)
+whatever the ties, so z = r sqrt(n - 1) needs no simulation. Stale when z >= 1.645 (one-sided 5%), with at least 30
+moves, 10 of them after a run. It runs in microseconds a window; the likelihood test took about a minute.
+`eval/stale-growth.mjs` (header and code committed in aa5ebc85e before the first run) scored it on simulation and
+on the same highfrequency files, windows and plan as the section above (`eval/stale-growth.out.txt`):
+
+| bar | result |
+|---|---|
+| G1 size in simulation: zero-inflated walks (30% quote holds, 3.5-tick Gaussian or t3 steps) called stale (bar <= 7% each) | 5.0% and 5.7%: **pass** |
+| G2 power in simulation: a walk carried forward in runs (share 0.55) called stale (bar 80%) | 96.3%: **pass** |
+| R1 size on the real null: Europe trade-print windows called stale (bar <= 10%) | **1 of 56: pass** (the likelihood test: 56 of 56) |
+| R2 power on the real carried feed: Europe windows with carried share >= 0.30 called stale (bar 80%) | **22 of 85: fail** |
+| reported: share 0.30 carried, t3 steps, volatility regimes in the null | 85.5%, 97.0%, 1.4% |
+| reported: the US sample | prints 0 of 6; carried windows 2 of 48 |
+
+So the test does what the likelihood test could not: it leaves real trade prints alone (whole day pooled, z = -4.8:
+on the prints a move after repeats is if anything smaller). But on a real carried feed it misses most 300-step
+windows. By the pre-registered rule nothing changes in `updateRateChanges` or the lines; `catchUpGrowth` stays an
+exported function with no sentence.
+
+**Why the real feed is harder than the simulation (read afterwards, deciding nothing).** In simulation the mean
+correlation in a carried window is 0.31; on the real D = 1 feed it is 0.09 (whole day 0.08, z = 7.95 over 10,620
+moves). The simulated hidden price moves every second whether anyone trades or not. A real price moves in trade
+time: the seconds with no trade are mostly the seconds when nothing happened, so a carried run hides much less
+movement than k + 1 clock steps would. The growth is real but small, and it takes length to see.
+`eval/stale-growth-length.mjs` (post hoc, `eval/stale-growth-length.out.txt`) reruns the same test on longer windows:
+
+| Europe | 300 steps | 1,000 | 2,000 | 4,000 |
+|---|---|---|---|---|
+| D = 1, carried >= 0.30: called stale | 29 of 99 | 15 of 30 | 11 of 15 | 7 of 7 |
+| D = 2, carried >= 0.30 | 9 of 34 | 5 of 11 | 4 of 5 | 2 of 3 |
+| trade prints | 3 of 111 | 0 of 33 | 0 of 16 | 0 of 8 |
+
+A stale stretch with roughly a thousand moves in it (about 2,000 one-second samples here) is caught most of the
+time, and the prints stay clean at every length. The next item is a pre-registered round on fresh data with a bar
+stated by stretch length (moves >= 600, say), so a user is told the test's reach rather than given a coin flip on a
+short stretch. These prints and samples are now spent for choosing that length.
+
+Tests: `stale-growth.test.mjs` (run lengths, float-noise repeats, the standardised z, the simulation cells, the
+committed verdicts, and that `updateRateChanges` does not call the test).
+
+## The catch-up test by stretch length, on five fresh stocks (2026-11-19, pre-registered; L2 and L3 pass, L1 fails 29 of 38, not offered)
+
+The section above ends with a table read afterwards: on highfrequency's European stock, a carried stretch with
+about a thousand moves was caught most of the time and the prints stayed clean at every length. That table chose
+the length; this round asks whether it holds on data it has not seen, with the bar stated in moves rather than
+samples, so that a user could be told the test's reach.
+
+Data: LOBSTER's free sample files (lobsterdata.com; Nasdaq, 2012-06-21, 09:30 to 16:00; AAPL, AMZN, GOOG, INTC,
+MSFT), fetched from a public mirror by `node eval/lobster-fetch.mjs <dir>` and not committed. A trade is an
+execution message (visible or hidden); executions sharing a timestamp are one print at the last price. The series
+are the prints (the real null) and the last-trade price every 0.5, 1, 2 and 5 seconds (the print times say which
+samples were carried). `eval/stale-growth-lobster.mjs` (header and code committed in 7218ed4ab before the first
+run) cuts each series into consecutive stretches that each hold exactly M moves as `catchUpGrowth` counts them
+(M = 300, 600, 1000, 2000) and calls the unchanged test on each. Which stocks are judged was fixed by a rule
+before scoring: multi-tick when the day's median print move, in the file's own tick, is above 1.5. Output:
+`eval/stale-growth-lobster.out.txt` (one second to run).
+
+| bar (multi-tick stocks: AAPL, AMZN, GOOG, MSFT) | result |
+|---|---|
+| L1 power: grid stretches of 1,000 moves with carried share >= 0.30 called stale (bar 80%) | **29 of 38 (76%): fail** |
+| L2 size: print stretches of 1,000 moves called stale (bar <= 10%) | **2 of 25: pass** |
+| L3 size at every length (bar <= 10% each) | 300 moves 7 of 90, 600 3 of 45, 1,000 2 of 25, 2,000 1 of 12: **pass** |
+| reported: power at 300, 600 and 2,000 moves | 77 of 145, 49 of 70, 14 of 15 |
+| reported: INTC (one-tick by the rule) | carried 0 of 4 at 1,000 moves; prints 2 of 2 called stale |
+
+By the pre-registered rule nothing ships: `catchUpGrowth` stays an exported function with no sentence, and the
+update-rate line is unchanged.
+
+**Where the misses fall (read afterwards, deciding nothing;** `eval/stale-growth-lobster-read.mjs`,
+`eval/stale-growth-lobster-read.out.txt`**).** The files set a tick of half a cent, because hidden orders execute
+at the midpoint. That put MSFT past the gate with a median move of two half-cents, though it is a one-cent stock
+like INTC: in both, 43-52% of moves are an odd number of half-cents (1-2% in the others).
+
+| stock | price | median move | 1,000 moves: carried caught | prints called stale | 2,000 moves: carried | prints | whole day's prints, z |
+|---|---|---|---|---|---|---|---|
+| AAPL | 583 | 2 cents | 16 of 19 | 0 of 15 | 8 of 8 | 0 of 7 | -5.1 |
+| AMZN | 222 | 2 cents | 7 of 7 | 0 of 4 | 3 of 3 | 0 of 2 | -1.6 |
+| GOOG | 568 | 4 cents | 5 of 7 | 0 of 4 | 3 of 3 | 0 of 2 | -2.0 |
+| MSFT | 30 | 1 cent | 1 of 5 | 2 of 2 | 0 of 1 | 1 of 1 | +6.7 |
+| INTC | 27 | half a cent | 0 of 4 | 2 of 2 | 0 of 0 | 1 of 1 | +8.9 |
+
+On the three stocks that move several cents, the length rule held: 28 of 33 carried stretches caught at 1,000
+moves, 14 of 14 at 2,000, and none of 34 print stretches (23 at 1,000 moves, 11 at 2,000) called stale. On the two penny-spread stocks it reverses.
+Their prints bounce between bid, ask and midpoint, so a move after a run of same-price prints (a queue being worked
+at one side) is the jump across the spread, larger than the half-cent steps between midpoint prints: the prints
+grow with the run (z = 6.7 and 8.9 over the day) with nothing carried. And a carried run hides little, because the
+price is pinned inside a one-cent spread: whatever happened while it was carried, the catch-up is one cent. So the
+growth test is a test for staleness only where moves are several quoted ticks, which is what the gate was meant to
+select; a tick inferred from the data's smallest step (here half the quoted tick) selects the wrong stocks.
+
+Next: a fresh-data round that gates on the quoted tick (or on the share of odd half-tick moves) rather than the
+smallest step, judged at 2,000 moves. LOBSTER's five sample files are now spent for choosing that gate.
+
+Tests: `stale-growth-lobster.test.mjs` (the stretch cutting, the LOBSTER reader, the bars, the committed verdicts,
+and that `updateRateChanges` still does not call the growth test).
+
+## The catch-up test gated on the quoted tick, on twelve exchange pairs (2026-11-19, pre-registered; unscorable: every pair is one-tick, Q1 and Q2 fail)
+
+The section above asked for a fresh round that gates on the quoted tick rather than the data's smallest step,
+judged at 2,000 moves. `eval/stale-growth-quoted-tick.mjs` (header and code committed in 78928f6bf before any file
+was downloaded) takes Binance's public spot trades for one UTC day (2026-11-02) on twelve large USDT pairs, chosen
+before download to span prices from a few cents (DOGE) to about a hundred thousand dollars (BTC), and each pair's
+quoted tick (`PRICE_FILTER tickSize` from Binance's public market-data mirror). Data fetched by
+`node eval/binance-fetch.mjs <dir>`, not committed. Series, stretches and the test are the LOBSTER round's,
+unchanged. Gate: a pair is multi-tick when its prints' median move is above 1.5 quoted ticks.
+
+| bar | result |
+|---|---|
+| gate | **all 12 pairs one-tick**: median print move exactly 1 quoted tick on every pair; the smallest step equals the quoted tick on every pair |
+| Q1 power at 2,000 moves (multi-tick pairs, carried >= 0.30, bar 80%, n >= 10) | 0 of 0: unscorable, **fail** |
+| Q2 size at 2,000 moves (multi-tick prints, bar <= 10%, n >= 10) | 0 of 0: unscorable, **fail** |
+| reported: the one-tick pairs on the same rules | carried caught 7 of 234 at 2,000 moves (71 of 1,625 at 300); prints called stale 31 of 368 (124 of 2,474) |
+
+Nothing ships. What the round shows: on a venue whose ticks are small against its prices, every large pair trades
+one tick at a time, and from BTC to DOGE the prints sit on the bid or the ask. The multi-tick regime the growth test
+was built for, where Apple and Amazon were caught on LOBSTER, does not occur here, so the quoted-tick gate selects
+nothing. On these one-tick feeds the growth test is blind (a carried run's catch-up is pinned at one tick) and
+reads bounce as staleness on some pairs (XRP prints 19 of 40 at 1,000 moves, SOL 15 of 53), as it did on the two
+penny-spread stocks. One-tick stretches belong to the shipped likelihood route, and these pairs give that route its
+first real one-tick carried feed. That is the next section.
+
+## The shipped one-tick stale test on real one-tick feeds (2026-11-19, pre-registered; T1, T2 and T3 fail, a caveat ships)
+
+Rounds one to five of the stale test ("One-tick stale feeds") were scored on simulation only, and the one real
+carried feed so far moves 2-4 ticks, where the shipped gate never runs the test. The twelve Binance pairs above
+all move one quoted tick: the regime the shipped route serves. `eval/stale-one-tick-binance.mjs` (header and code
+committed in 8796a6d15 before any likelihood was computed on real data; amended twice before any result was read,
+both recorded in its header: 20 windows a series cut to 6 when the first run hit the session's time limit, and a
+worker-flag clash that made the second run compute each window twice and print nothing) runs the shipped
+`staleTestMarkov` (threshold 6.56) behind the shipped one-tick gate, in the quoted tick, on 300-step windows of
+the prints and of the last-trade price every 0.5, 1, 2 and 5 s: 6 evenly spaced windows a series, 360 in all, 299
+of them passed by the gate. Output `eval/stale-one-tick-binance.out.txt` (44 min on four threads).
+
+| bar (gated windows, pooled) | result |
+|---|---|
+| T1 power: carried share >= 0.30 called stale (bar 80%, n >= 10) | **128 of 164 (78%): fail** |
+| T2 size on the real null: trade-print windows called stale (bar <= 10%) | **16 of 68 (24%): fail** |
+| T3 the estimate: fitted carry share within 0.10, among grid windows called stale (bar 80%) | **93 of 143 (65%): fail** |
+| reported: carried share 0-0.1, 0.1-0.2, 0.2-0.3 | 3 of 36, 4 of 11, 8 of 20 called stale |
+| reported: windows the gate refuses | 61 of 360 (4 of them print windows) |
+
+So the shipped route fails on its first real feed, and fails worst where it matters most to a reader: about one
+window of real trade prints in four, with nothing carried, is called stale. By the pre-registered rule for a T2
+failure, the catch-up sentence (`updateRateLines`) now adds that trade prints resting at a bid or ask one tick wide
+can show the same pattern with nothing carried, and asks the reader of trade or quote data to check the source's
+own timestamps before reading it as a stale feed. The test and its threshold are unchanged.
+
+**Where it went wrong (read afterwards, deciding nothing).** The 16 false calls come from seven of the twelve
+pairs (ETH, SOL, XRP, DOGE, LINK, AVAX, DOT; none from BTC, BNB, ADA, LTC or TRX), on windows where 42-84% of
+prints repeat the last price, with fitted carry shares of 0.17 to 0.55. A print that sits on one side of a
+one-tick book until the queue there is worked off makes clumped exact repeats, which is what the Markov carry
+model was built to find; a rounded walk cannot make that many with steps as large as the bounce. This is the
+LOBSTER penny-spread finding again, now in the likelihood route rather than the growth test, so neither route
+tells resting at a quote from carrying forward on one-tick trade data. Power misses fall mostly on TRX (4 of 16)
+and SOL (4 of 10); AVAX, LINK and BNB were caught 34 of 34. A test that could separate the two would need
+something the prices alone do not hold, such as the trade side (the files carry the buyer-is-maker flag: a print
+resting at the bid is a run of sells), and its own pre-registered round on a fresh day.
+
+Tests: `stale-growth-quoted-tick.test.mjs` (the Binance reader, both rounds' bars, the window picker, the
+committed verdicts and the new clause) and `rounded-walk-heavy.test.mjs` (the clause in a produced line).

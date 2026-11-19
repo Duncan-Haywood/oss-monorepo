@@ -1,0 +1,1470 @@
+{
+ "versions": {
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "mujoco": "4.0.1"
+ },
+ "spec_mm": 0.03,
+ "rows": [
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.2,
+    -0.15
+   ],
+   "phi": 0,
+   "axis": 1,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 4.285285828446735,
+     "ask": 0.1,
+     "bind": "left_hip_yaw_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.07126281250226207,
+     "ask": 0.1,
+     "bind": "left_hip_roll_joint",
+     "n_hold": 45
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 42,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 4.345127866834954,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.005020899697337391,
+   "exact": true
+  },
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.2,
+    -0.15
+   ],
+   "phi": 0,
+   "axis": 3,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 4.281920809724871,
+     "ask": 0.1,
+     "bind": "right_hip_yaw_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.08604660020212695,
+     "ask": 0.1,
+     "bind": "left_knee_joint",
+     "n_hold": 45
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 40,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 4.303926559717126,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 9.990593322739353e-05,
+   "exact": true
+  },
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.2,
+    -0.15
+   ],
+   "phi": 0,
+   "axis": 4,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 4.252366697497673,
+     "ask": 0.1,
+     "bind": "left_hip_roll_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.04202648774772588,
+     "ask": 0.1,
+     "bind": "left_hip_roll_joint",
+     "n_hold": 45
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 41,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 4.3350464327036615,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.002194800046606684,
+   "exact": true
+  },
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.2,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 0,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.1924270210127905,
+     "ask": 0.1,
+     "bind": "left_ankle_pitch_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.08915214297076057,
+     "ask": 0.1,
+     "bind": "left_hip_yaw_joint",
+     "n_hold": 35
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 33,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 1.8436528202153175,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.0059353557954384285,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.2,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 1,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.1427670248396202,
+     "ask": 0.1,
+     "bind": "left_ankle_pitch_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.03089915661274978,
+     "ask": 0.1,
+     "bind": "right_hip_roll_joint",
+     "n_hold": 35
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 32,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 1.9078478525319413,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.005935355795438369,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.2,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 2,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.152088654279061,
+     "ask": 0.1,
+     "bind": "left_hip_yaw_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.0641033630837411,
+     "ask": 0.1,
+     "bind": "right_hip_roll_joint",
+     "n_hold": 35
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 33,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 1.8925504071009023,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.0013560490039166762,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.2,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 3,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.1831053915733514,
+     "ask": 0.1,
+     "bind": "right_hip_pitch_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.055947936499769146,
+     "ask": 0.1,
+     "bind": "left_hip_yaw_joint",
+     "n_hold": 35
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 33,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 1.8932235333267222,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.0013560490039167727,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.2,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 4,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.1552154488301465,
+     "ask": 0.1,
+     "bind": "left_ankle_pitch_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.04900257050301293,
+     "ask": 0.1,
+     "bind": "left_hip_yaw_joint",
+     "n_hold": 35
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 33,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 1.9059701221526,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.00132802671453956,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.2,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 5,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.1799785970222683,
+     "ask": 0.1,
+     "bind": "right_hip_pitch_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.07104872908049031,
+     "ask": 0.1,
+     "bind": "left_hip_pitch_joint",
+     "n_hold": 35
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 33,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 1.8721859147460584,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.0013280267145395154,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.0,
+    0.0
+   ],
+   "phi": 270,
+   "axis": 0,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.0332636065501726,
+     "ask": 0.1,
+     "bind": "left_hip_roll_joint",
+     "n_hold": 60
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.07567148791853359,
+     "ask": 0.1,
+     "bind": "left_ankle_pitch_joint",
+     "n_hold": 60
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 52,
+   "best": {
+    "sides": "+++-++",
+    "margin": 2.2706797872810447,
+    "flips": [
+     "left_hip_roll_joint",
+     "left_hip_yaw_joint",
+     "right_hip_roll_joint",
+     "right_hip_yaw_joint"
+    ]
+   },
+   "y": 2.159934015498466e-17,
+   "exact": true
+  },
+  {
+   "robot": "g1",
+   "H": 5.0,
+   "pose": [
+    1.0,
+    0.0
+   ],
+   "phi": 270,
+   "axis": 5,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.0358062572382005,
+     "ask": 0.1,
+     "bind": "left_hip_roll_joint",
+     "n_hold": 60
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.09988777310633043,
+     "ask": 0.1,
+     "bind": "left_ankle_pitch_joint",
+     "n_hold": 60
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 49,
+   "best": {
+    "sides": "+++-++",
+    "margin": 2.2512335365715597,
+    "flips": [
+     "left_hip_roll_joint",
+     "left_hip_yaw_joint",
+     "right_hip_roll_joint",
+     "right_hip_yaw_joint"
+    ]
+   },
+   "y": 9.719703069743096e-17,
+   "exact": true
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.2,
+    0.0
+   ],
+   "phi": 45,
+   "axis": 0,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "preload",
+     "t": 0.004133565226090097,
+     "ask": 0.1,
+     "bind": "left_ankle_roll_joint",
+     "n_hold": 52
+    },
+    {
+     "F": 50,
+     "stage": "ok",
+     "t": 0.20000000000000007,
+     "ask": 0.1,
+     "bind": "left_hip_pitch_joint",
+     "n_hold": 52
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 47,
+   "best": {
+    "sides": "---+++",
+    "margin": 2.8638403895294617,
+    "flips": [
+     "left_ankle_roll_joint",
+     "right_hip_yaw_joint"
+    ]
+   },
+   "y": 0.0003703241039174683,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.2,
+    0.0
+   ],
+   "phi": 45,
+   "axis": 1,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "preload",
+     "t": 0.05265388391219794,
+     "ask": 0.1,
+     "bind": "left_ankle_roll_joint",
+     "n_hold": 52
+    },
+    {
+     "F": 50,
+     "stage": "ok",
+     "t": 2.1248158105616533,
+     "ask": 0.1,
+     "bind": "left_ankle_pitch_joint",
+     "n_hold": 52
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 49,
+   "best": {
+    "sides": "---+++",
+    "margin": 2.920148863281158,
+    "flips": [
+     "left_ankle_roll_joint",
+     "right_hip_yaw_joint"
+    ]
+   },
+   "y": 0.0003703241039174764,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.2,
+    0.0
+   ],
+   "phi": 45,
+   "axis": 2,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "preload",
+     "t": 0.05319905714151707,
+     "ask": 0.1,
+     "bind": "left_ankle_roll_joint",
+     "n_hold": 52
+    },
+    {
+     "F": 50,
+     "stage": "ok",
+     "t": 0.20000000000000007,
+     "ask": 0.1,
+     "bind": "left_hip_pitch_joint",
+     "n_hold": 52
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 47,
+   "best": {
+    "sides": "++----",
+    "margin": 2.8776670544023433,
+    "flips": [
+     "left_hip_roll_joint",
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint",
+     "right_hip_roll_joint",
+     "right_ankle_roll_joint"
+    ]
+   },
+   "y": 0.0011159792972943513,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.2,
+    0.0
+   ],
+   "phi": 45,
+   "axis": 3,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "preload",
+     "t": 0.05949830976652026,
+     "ask": 0.1,
+     "bind": "left_ankle_roll_joint",
+     "n_hold": 52
+    },
+    {
+     "F": 50,
+     "stage": "ok",
+     "t": 0.20000000000000007,
+     "ask": 0.1,
+     "bind": "left_hip_pitch_joint",
+     "n_hold": 52
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 49,
+   "best": {
+    "sides": "---+++",
+    "margin": 2.943836271046247,
+    "flips": [
+     "left_ankle_roll_joint",
+     "right_hip_yaw_joint"
+    ]
+   },
+   "y": 0.0011159792972945952,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.2,
+    0.0
+   ],
+   "phi": 45,
+   "axis": 4,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "preload",
+     "t": 0.027330982171733798,
+     "ask": 0.1,
+     "bind": "left_ankle_roll_joint",
+     "n_hold": 52
+    },
+    {
+     "F": 50,
+     "stage": "ok",
+     "t": 0.20000000000000007,
+     "ask": 0.1,
+     "bind": "left_hip_pitch_joint",
+     "n_hold": 52
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 48,
+   "best": {
+    "sides": "---+++",
+    "margin": 2.8863245384822758,
+    "flips": [
+     "left_ankle_roll_joint",
+     "right_hip_yaw_joint"
+    ]
+   },
+   "y": 0.0006924803697507737,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.2,
+    0.0
+   ],
+   "phi": 45,
+   "axis": 5,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "preload",
+     "t": 0.029456466966554018,
+     "ask": 0.1,
+     "bind": "left_ankle_roll_joint",
+     "n_hold": 52
+    },
+    {
+     "F": 50,
+     "stage": "ok",
+     "t": 0.20000000000000007,
+     "ask": 0.1,
+     "bind": "left_hip_pitch_joint",
+     "n_hold": 52
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 49,
+   "best": {
+    "sides": "---+++",
+    "margin": 2.897664714328342,
+    "flips": [
+     "left_ankle_roll_joint",
+     "right_hip_yaw_joint"
+    ]
+   },
+   "y": 0.0006924803697509074,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.0,
+    0.0
+   ],
+   "phi": 90,
+   "axis": 2,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 0.7763262025997817,
+     "ask": 0.1,
+     "bind": "left_ankle_roll_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.08573589353895507,
+     "ask": 0.1,
+     "bind": "right_ankle_roll_joint",
+     "n_hold": 48
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 36,
+   "best": {
+    "sides": "+++---",
+    "margin": 2.8018727325865953,
+    "flips": [
+     "left_hip_roll_joint",
+     "left_hip_yaw_joint",
+     "right_hip_roll_joint",
+     "right_ankle_roll_joint"
+    ]
+   },
+   "y": 1.6940658945086007e-17,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.0,
+    0.0
+   ],
+   "phi": 90,
+   "axis": 3,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 0.8326420449452896,
+     "ask": 0.1,
+     "bind": "left_ankle_roll_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.09178772950374105,
+     "ask": 0.1,
+     "bind": "right_ankle_roll_joint",
+     "n_hold": 48
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 36,
+   "best": {
+    "sides": "+++---",
+    "margin": 2.801871562739563,
+    "flips": [
+     "left_hip_roll_joint",
+     "left_hip_yaw_joint",
+     "right_hip_roll_joint",
+     "right_ankle_roll_joint"
+    ]
+   },
+   "y": 1.1180834903756764e-16,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.0,
+    0.0
+   ],
+   "phi": 90,
+   "axis": 5,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 0.8050263606502639,
+     "ask": 0.1,
+     "bind": "left_ankle_roll_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.0897126094650289,
+     "ask": 0.1,
+     "bind": "right_ankle_roll_joint",
+     "n_hold": 48
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 41,
+   "best": {
+    "sides": "+++---",
+    "margin": 2.8348865831288372,
+    "flips": [
+     "left_hip_roll_joint",
+     "left_hip_yaw_joint",
+     "right_hip_roll_joint",
+     "right_ankle_roll_joint"
+    ]
+   },
+   "y": 6.733911930671688e-17,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    0.8,
+    -0.15
+   ],
+   "phi": 180,
+   "axis": 1,
+   "in51": false,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 5.235915409191442,
+     "ask": 0.1,
+     "bind": "right_ankle_pitch_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "hold",
+     "t": null,
+     "ask": null,
+     "bind": null,
+     "n_hold": 0
+    }
+   ],
+   "sides": "---+-+",
+   "n_plan": 0,
+   "best": null,
+   "y": null,
+   "exact": true
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    0.8,
+    -0.15
+   ],
+   "phi": 180,
+   "axis": 4,
+   "in51": false,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 5.244260545441358,
+     "ask": 0.1,
+     "bind": "left_hip_yaw_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "hold",
+     "t": null,
+     "ask": null,
+     "bind": null,
+     "n_hold": 0
+    }
+   ],
+   "sides": "---+-+",
+   "n_plan": 0,
+   "best": null,
+   "y": null,
+   "exact": true
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.0,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 0,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.8812710751513704,
+     "ask": 0.1,
+     "bind": "left_hip_yaw_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "hold",
+     "t": null,
+     "ask": null,
+     "bind": null,
+     "n_hold": 33
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 30,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 5.219251239537821,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.005271096933232359,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.0,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 1,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.849201217614261,
+     "ask": 0.1,
+     "bind": "left_hip_yaw_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "hold",
+     "t": null,
+     "ask": null,
+     "bind": null,
+     "n_hold": 32
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 30,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 5.035884142132566,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.005271096933232378,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.0,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 2,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.8619141599965356,
+     "ask": 0.1,
+     "bind": "right_hip_pitch_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "hold",
+     "t": null,
+     "ask": null,
+     "bind": null,
+     "n_hold": 33
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 31,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 5.130057137898207,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 2.3144625174159532e-05,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.0,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 3,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.8685581327691008,
+     "ask": 0.1,
+     "bind": "right_hip_pitch_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "hold",
+     "t": null,
+     "ask": null,
+     "bind": null,
+     "n_hold": 32
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 31,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 5.126072297925928,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 2.3144625174247624e-05,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.0,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 4,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.854416144433671,
+     "ask": 0.1,
+     "bind": "right_hip_pitch_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "hold",
+     "t": null,
+     "ask": null,
+     "bind": null,
+     "n_hold": 32
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 31,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 5.084891086571313,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.00033640037575032895,
+   "exact": false
+  },
+  {
+   "robot": "g1",
+   "H": 20.0,
+   "pose": [
+    1.0,
+    0.15
+   ],
+   "phi": 225,
+   "axis": 5,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 2.8760561483319655,
+     "ask": 0.1,
+     "bind": "right_hip_pitch_joint",
+     "n_hold": 48
+    },
+    {
+     "F": 50,
+     "stage": "hold",
+     "t": null,
+     "ask": null,
+     "bind": null,
+     "n_hold": 33
+    }
+   ],
+   "sides": "--++-+",
+   "n_plan": 31,
+   "best": {
+    "sides": "-+-+-+",
+    "margin": 5.171121652461307,
+    "flips": [
+     "left_hip_yaw_joint",
+     "left_ankle_roll_joint"
+    ]
+   },
+   "y": 0.0003364003757501949,
+   "exact": false
+  },
+  {
+   "robot": "h1",
+   "H": 5.0,
+   "pose": [
+    1.6,
+    0.0
+   ],
+   "phi": 180,
+   "axis": 0,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 1.8427522504418867,
+     "ask": [
+      0.086366735161902,
+      0.1
+     ],
+     "bind": "left_hip_roll",
+     "n_hold": 16
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.05405471472019063,
+     "ask": [
+      0.086366735161902,
+      0.1
+     ],
+     "bind": "right_hip_roll",
+     "n_hold": 9
+    }
+   ],
+   "sides": "-+-+",
+   "n_plan": 8,
+   "best": {
+    "sides": "+--+",
+    "margin": 3.2686491195580394,
+    "flips": [
+     "left_hip_yaw",
+     "left_hip_roll"
+    ]
+   },
+   "y": 0.010639063793391591,
+   "exact": false
+  },
+  {
+   "robot": "h1",
+   "H": 5.0,
+   "pose": [
+    1.6,
+    0.0
+   ],
+   "phi": 180,
+   "axis": 2,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 1.8266610455909422,
+     "ask": [
+      0.086366735161902,
+      0.1
+     ],
+     "bind": "left_hip_roll",
+     "n_hold": 16
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.050603635392962865,
+     "ask": [
+      0.086366735161902,
+      0.1
+     ],
+     "bind": "left_ankle",
+     "n_hold": 9
+    }
+   ],
+   "sides": "-+-+",
+   "n_plan": 8,
+   "best": {
+    "sides": "-+--",
+    "margin": 2.4684544852923267,
+    "flips": [
+     "right_hip_roll"
+    ]
+   },
+   "y": 0.0013509957260781035,
+   "exact": false
+  },
+  {
+   "robot": "h1",
+   "H": 5.0,
+   "pose": [
+    1.6,
+    0.0
+   ],
+   "phi": 180,
+   "axis": 3,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 1.838090054997945,
+     "ask": [
+      0.086366735161902,
+      0.1
+     ],
+     "bind": "left_hip_roll",
+     "n_hold": 16
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.062444113969897685,
+     "ask": [
+      0.086366735161902,
+      0.1
+     ],
+     "bind": "left_ankle",
+     "n_hold": 9
+    }
+   ],
+   "sides": "-+-+",
+   "n_plan": 8,
+   "best": {
+    "sides": "-+--",
+    "margin": 2.4811459922101307,
+    "flips": [
+     "right_hip_roll"
+    ]
+   },
+   "y": 0.0013509957260788928,
+   "exact": false
+  },
+  {
+   "robot": "h1",
+   "H": 5.0,
+   "pose": [
+    1.6,
+    0.0
+   ],
+   "phi": 180,
+   "axis": 4,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 1.8183632035171762,
+     "ask": [
+      0.086366735161902,
+      0.1
+     ],
+     "bind": "left_hip_roll",
+     "n_hold": 16
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.02783482468496823,
+     "ask": [
+      0.086366735161902,
+      0.1
+     ],
+     "bind": "left_ankle",
+     "n_hold": 9
+    }
+   ],
+   "sides": "-+-+",
+   "n_plan": 8,
+   "best": {
+    "sides": "-+--",
+    "margin": 2.472037499753675,
+    "flips": [
+     "right_hip_roll"
+    ]
+   },
+   "y": 0.0016086251255520163,
+   "exact": false
+  },
+  {
+   "robot": "h1",
+   "H": 5.0,
+   "pose": [
+    1.6,
+    0.0
+   ],
+   "phi": 180,
+   "axis": 5,
+   "in51": true,
+   "check_none": true,
+   "A": [
+    {
+     "F": 25.0,
+     "stage": "ok",
+     "t": 1.8463878970717182,
+     "ask": [
+      0.086366735161902,
+      0.1
+     ],
+     "bind": "right_hip_roll",
+     "n_hold": 16
+    },
+    {
+     "F": 50,
+     "stage": "preload",
+     "t": 0.01929224902849347,
+     "ask": [
+      0.086366735161902,
+      0.1
+     ],
+     "bind": "right_hip_roll",
+     "n_hold": 9
+    }
+   ],
+   "sides": "-+-+",
+   "n_plan": 8,
+   "best": {
+    "sides": "-+--",
+    "margin": 2.477562977748782,
+    "flips": [
+     "right_hip_roll"
+    ]
+   },
+   "y": 0.0016086251255515308,
+   "exact": false
+  }
+ ],
+ "C": {
+  "g1": {
+   "m52": 1342,
+   "recovered": 26,
+   "now": 1368,
+   "cases": 1368,
+   "coverage": 100.0,
+   "worst": [
+    [
+     0.016442958952513523,
+     0.016442958952513523
+    ],
+    [
+     0.010694527282186986,
+     0.010694527282186986
+    ],
+    [
+     0.010694527282186816,
+     0.010694527282186816
+    ]
+   ]
+  },
+  "h1": {
+   "m52": 1897,
+   "recovered": 5,
+   "now": 1902,
+   "cases": 1902,
+   "coverage": 100.0,
+   "worst": [
+    [
+     0.009887550582671321,
+     0.009887550582671321
+    ],
+    [
+     0.01399280526424007,
+     0.01399280526424007
+    ],
+    [
+     0.009887550582671434,
+     0.009887550582671434
+    ]
+   ]
+  }
+ },
+ "D": {
+  "H214": false,
+  "H215": false,
+  "H216": true
+ }
+}

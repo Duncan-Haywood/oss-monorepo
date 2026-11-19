@@ -495,16 +495,23 @@ class DeveloperChoiceTests(unittest.TestCase):
         return rd.develop(raw, rd.DevelopSettings(dcp=dcp, **kw))
 
     @unittest.skipUnless(has_numpy(), "numpy not installed")
-    def test_auto_is_directional_on_bayer_with_numpy(self):
+    def test_auto_is_noise_aware_on_bayer_with_numpy(self):
+        # since 2026-11-19 (eval/auto-noise-aware-2026-11-19.md); directional before
         raw = self.raw()
         _w, _h, px, rep = self.develop(raw, engine="numpy")
-        self.assertEqual(rep.demosaic, "directional")
+        self.assertEqual(rep.demosaic, "noise-aware")
         _, _, bil, rep_b = self.develop(raw, engine="numpy", demosaic="bilinear")
         self.assertEqual(rep_b.demosaic, "bilinear")
         self.assertEqual(len(px), len(bil))
         self.assertNotEqual(list(px), list(bil))
-        explicit = self.develop(raw, engine="numpy", demosaic="directional")
+        explicit = self.develop(raw, engine="numpy", demosaic="noise-aware")
         self.assertEqual(list(explicit[2]), list(px))
+        _, _, _, rep_d = self.develop(raw, engine="numpy", demosaic="directional")
+        self.assertEqual(rep_d.demosaic, "directional")  # the old default, by name
+        # half size bins each 2x2 block and demosaics nothing: auto reads no noise there
+        _, _, _, rep_h = self.develop(raw, engine="numpy", half=True)
+        self.assertEqual(rep_h.demosaic, "directional")
+        self.assertFalse(any("NoiseProfile" in n for n in rep_h.notes))
 
     @unittest.skipUnless(has_numpy(), "numpy not installed")
     def test_learned_is_an_opt_in_choice(self):
@@ -512,7 +519,7 @@ class DeveloperChoiceTests(unittest.TestCase):
         _w, _h, px, rep = self.develop(raw, engine="numpy", demosaic="learned")
         self.assertEqual(rep.demosaic, "learned")
         _, _, auto, rep_a = self.develop(raw, engine="numpy")
-        self.assertEqual(rep_a.demosaic, "directional")  # not the default
+        self.assertEqual(rep_a.demosaic, "noise-aware")  # not the default
         self.assertEqual(len(px), len(auto))
         with self.assertRaises(rd.DevelopError):
             self.develop(raw, engine="python", demosaic="learned")

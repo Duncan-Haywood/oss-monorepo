@@ -1,0 +1,75 @@
+name: xer-schedule-check
+description: >-
+  Free browser tool that reads a Primavera P6 XER export, recomputes the
+  critical path with P6's calendar, relationship, constraint and progress
+  rules (matching P6's stored dates on 91.5% of 19,822 activities in six
+  public files), and runs the DCMA 14-point schedule assessment with every
+  activity behind each finding. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-19 in a ventures run (deviation from the allocator's
+# ids-model-check row, whose remaining items need outside inputs; the brief
+# asks for new ventures too and the owner's top direction is construction).
+# No venture reads XER or runs DCMA checks (grep of ventures/ and open PRs).
+#
+# Why a tool and not a chatbot answer: an XER is 1-30 MB of tab-separated
+# tables; the 14 points need every activity's float on its own calendar, and
+# the critical path test needs a full CPM recompute. A chat reply cannot do
+# either on a real file.
+#
+# First visitor: owners' reps, claims consultants and schedulers searching
+# "DCMA 14 point assessment", "XER viewer", "open XER file without P6";
+# volume not measured with an external tool.
+#
+# Liability: screening metrics on the user's own file, not scheduling,
+# contractual or legal advice. Not affiliated with Oracle or the DCMA.
+
+hypotheses:
+  - claim: >-
+      People who receive P6 schedules without a P6 seat (owners' reps,
+      subcontractors, lenders' monitors) will check an XER in a no-install
+      browser tool and download the findings list; measured as the share of
+      schedule_checked events followed by findings_downloaded (local counters
+      only, no reading yet).
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Owners' reps reviewing a monthly pay application will open last month's
+      and this month's XER together, because the half-step split and the list
+      of edited actual dates and deleted logic answer the question they must
+      sign off on (did the contractor earn the progress, or move the goalposts);
+      measured as the share of updates_compared events among schedule_checked
+      events (local counters only, added 2026-11-19, no reading yet).
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      Schedulers and owners' reps asked "what is the chance we finish on time"
+      will run a free in-browser Monte Carlo on the XER they already have
+      rather than buy a seat of a schedule-risk product, because the P50/P80
+      dates and the criticality index come from the same file in seconds;
+      measured as the share of risk_run events among schedule_checked events
+      (local counters only, added 2026-11-19, no reading yet).
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a P6 file where the recomputed dates disagree with P6 because of an engine error that cannot be fixed.
+
+links:
+  production: https://marisstella.app/xer-schedule-check/
+  analytics: null

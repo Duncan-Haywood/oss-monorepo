@@ -270,3 +270,12 @@ test('index links one hop to the walk-in-shower-bid-calculator sibling', () => {
   );
   assert.match(html, /walk-in shower bid calculator/i);
 });
+
+test('the 11.78-hour FAQ does not say the default includes a tile surround', async () => {
+  // Quality audit 2026-11-19 (round 77): the FAQ said the default hours
+  // included "the surround" while the tile surround is off by default.
+  const fs = await import('node:fs');
+  const page = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(page, /connection, and the surround/);
+  assert.equal(page.split('with no new tile surround').length - 1, 2);
+});

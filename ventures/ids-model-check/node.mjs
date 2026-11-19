@@ -15,6 +15,7 @@ export function resources() {
       typeMap: load("ifc2x3-type-map.json"),
       psets: { IFC2X3: load("psets-ifc2x3.json"), IFC4: load("psets-ifc4.json"), IFC4X3: load("psets-ifc4x3.json") },
       measureUnits: load("measure-units.json"),
+      bsddUnits: load("bsdd-units.json"),
     };
   }
   return cache;
@@ -33,9 +34,15 @@ export function parseModel(text) {
 export { parseIds };
 
 // Reads a model file: .ifc (STEP), .ifcxml, or an .ifczip holding either.
-// Returns { name, text } where name is the file inside a zip, else the path.
+// Returns { name, bytes, text } where name is the file inside a zip, else
+// the path. Pass `bytes` to parseModel or check: a STEP file is then read
+// without ever becoming one string on the heap (219 MB of it on a 219 MB
+// export, eval/step-bytes-2026-11-18.md). `text` decodes the file each time
+// it is read.
 export async function readModel(path) {
-  const bytes = readFileSync(path);
-  if (isZip(bytes)) return unzipModel(new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length), (b) => inflateRawSync(b));
-  return { name: path, text: bytes.toString("utf8") };
+  const file = readFileSync(path);
+  let name = path, bytes = file;
+  if (isZip(file)) ({ name, bytes } = await unzipModel(new Uint8Array(file.buffer, file.byteOffset, file.length), (b) => inflateRawSync(b), { bytes: true }));
+  if (!Buffer.isBuffer(bytes)) bytes = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.length);
+  return { name, bytes, get text() { return bytes.toString("utf8"); } };
 }

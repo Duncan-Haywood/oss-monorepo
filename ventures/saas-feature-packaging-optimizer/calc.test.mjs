@@ -150,7 +150,32 @@ test("the search stays fast at the largest size", () => {
   const t = Date.now();
   const a = analyze({ tiers: "A, B, C", costs: "1, 2, 3", features: "f1, f2, f3, f4, f5, f6, f7, f8", survey: rows.join("\n"), current: "", currentPrices: "" });
   assert.ok(a.ok);
-  // ~14s on an idle core before the 2026-11-17 ladder pass, ~7s after; this guards
+  // ~14s on an idle core before the 2026-11-17 ladder pass, ~7s after, ~4.5s before and
+  // ~2.3s after the 2026-11-18 last-plan counting pass; this guards
   // against a blow-up (minutes), not a few seconds of scheduler noise.
   assert.ok(Date.now() - t < 90000, `took ${Date.now() - t}ms`);
+});
+
+test("the last-plan counting pass returns exactly what the plain loop returns", () => {
+  // Whole-number weights take the counting pass by default; sweep: false forces the plain loop. Small value ranges make
+  // many exact ties (equal surplus, a price equal to the plan below), the cases the tie rule and the lowest-candidate
+  // special case exist for.
+  const r = rnd(2026);
+  let checked = 0;
+  for (let trial = 0; trial < 60; trial++) {
+    const f = 2 + (trial % 5), k = 1 + (trial % 3), n = 5 + Math.floor(r() * 60), top = trial % 2 ? 6 : 40;
+    const rows = [];
+    for (let i = 0; i < n; i++) rows.push({ v: Array.from({ length: f }, () => (r() < 0.35 ? 0 : Math.round(r() * top))), w: 1 + Math.floor(r() * 3) });
+    const level = Array.from({ length: f }, () => Math.floor(r() * (k + 1)));
+    const costs = Array.from({ length: k }, (_, t) => (trial % 4 === 0 ? 0 : t + 1));
+    for (const exact of [false, true]) {
+      const a = priceLadder(rows, level, costs, { exact }), b = priceLadder(rows, level, costs, { exact, sweep: false });
+      assert.deepEqual(a, b, `trial ${trial} exact ${exact}`);
+      if (a) checked++;
+    }
+  }
+  assert.ok(checked > 60, `only ${checked} priced placements`);
+  // Fractional weights always take the plain loop, so the switch cannot change them.
+  const rows = [{ v: [10, 0], w: 0.5 }, { v: [10, 30], w: 1.5 }, { v: [4, 9], w: 2 }, { v: [7, 7], w: 1 }, { v: [3, 12], w: 1 }];
+  assert.deepEqual(priceLadder(rows, [1, 2], [0, 0], { exact: true }), priceLadder(rows, [1, 2], [0, 0], { exact: true, sweep: false }));
 });

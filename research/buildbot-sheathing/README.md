@@ -634,6 +634,154 @@ refuted. Statics.
 
 ![Worst common leg margin over the hose sweep per pose on three side rules, and each robot's worst residual along the wall](experiments/m48_loadside/figure.png)
 
+**Milestone 49: why do 8 poses have no plan under a backward hose?** The robot tips back; the solver is not wrong.
+At the 50 N press end of all 24 failing (pose, hose load) cells, no contact force balances the base inside the
+μ 0.5 friction cones (best cone slack &minus;23.77 to &minus;0.10 N), while the 25 N end balances at every cell and
+the preload margin LP solves at all 984 hold solutions there. Milestone 48's post hoc had misread its own table as a
+disagreement between two solvers. The soles' net horizontal load is at most 0.19 of the vertical, so it is not
+sliding: 13 of the G1's 18 cells do not balance even with unlimited friction. 20 N of backward drag lowers the top
+of the press window by about 15 N (G1 51.6 to 36.4 N, H1 58.7 to 42.8 N), below the 50 N firing press. Those poses
+need a forward lean that covers the drag, or a hose routed so it does not pull back. H199 and H200 refuted, H201 to
+H203 not tested (they were conditional on a solver fault). Statics.
+
+![Largest press the soles balance with and without each cell's hose drag, and the best friction-cone slack at a 50 N press](experiments/m49_backload/figure.png)
+
+**Milestone 50: can a forward lean fix it, and how much hose drag can a humanoid nailing a wall take?** No lean
+fixes it; the hose has to be managed. On a 5 mm grid of forward lean (0 to 150 mm, then refined), the worst
+friction-cone slack over 17 hose loads at a 25 and a 50 N press stays below zero at all 8 poses (best &minus;0.69 N
+for the G1 at 1.0 m grips, &minus;10.12 N at 1.2 m): leaning forward buys headroom against a hose pulling back and
+spends it against one pulling forward. At its current lean the G1 at 1.2 m grips tolerates only 4.0 to 4.2 N of hose
+tension pulling straight back, about 3 m of rubber air hose dragging on the floor at μ_f 0.5 (unsourced); at its
+best lean 11.4 to 13.4 N in every direction. The tolerated drag is linear in the press headroom, (top &minus; 50 N) / 0.78,
+to within 9% (H206 held); H204 and H205 refuted, H207 not tested. Statics.
+
+![Worst friction-cone slack over 17 hose loads against forward lean, and the hose tension each pose tolerates per direction](experiments/m50_relean/figure.png)
+
+**Milestone 51: does keeping the hose inside each pose's drag limit give every case a plan?** Not quite. Every swept
+case whose drag exceeds milestone 50's limit (at the pose or at the calibration pose) has no plan: 162 of 162 on the
+G1, 36 of 36 on the H1. Inside that envelope the G1 plans 93.0% of its cases (83.1% overall) and the H1 99.7%, and the
+worst residuals stay in spec (G1 0.016 / 0.011 / 0.011 mm, H1 0.010 / 0.014 / 0.010 mm at 0 / 5 / 20 N; H209 held).
+But 101 cases inside it still have no plan (H208 refuted): 75 of the G1's 96 come from its one calibration pose, 45 of
+them under 20 N pulling sideways, at 35% of the drag it balances, and with an exact sensor too. The rest are plan
+limits at the 1.0 to 1.6 m grips and sensor error (H210 held). So the G1 needs the calibration taken with the hose
+slack, as well as the per-pose drag limits. Statics.
+
+![Why the sweep drops cases (outside the drag envelope, or a plan limit inside it) and the worst residual inside the envelope](experiments/m51_envelope/figure.png)
+
+**Milestone 52: does calibrating with the hose slack fix the G1's coverage?** Yes. With the one calibration move made
+under the hanging hose's weight alone (each press keeps its hose load), the calibration plans at every sensor-error
+axis on both robots (H213 held), and inside milestone 51's drag envelope the G1 plans 1342 of 1368 cases, **98.1%
+(from 93.0%)**; the H1 stays at 99.7% (H211 held). No residual changes by as much as 5e-5 mm (H212 held: worst G1 0.016 mm,
+H1 0.014 mm): the compensator subtracts the hose load the wrist sensor measures, so the error the calibration absorbs
+is the sensor's bias alone, the same under any load. A practical rule: calibrate with the hose slack, then keep each
+pose inside its drag limit. What is left are plan limits at the poses themselves (21 G1 cases at the 1.0 and 1.2 m
+grips, 5 H1 at 1.6 m) and 5 G1 sensor-error cases. Statics; the sensor error is a constant bias (a gain error would
+make the calibration load-dependent and is not modelled).
+
+![Coverage inside the drag envelope with the calibration under load and with the hose slack, and the dropped cases that remain](experiments/m52_slackcal/figure.png)
+
+**Milestone 53: what fails at the last plan limits, and does choosing the hold sides per hose load fix them?** It
+does. At 20 of the 26 remaining plan limits the failing step is the leg preload, not the hold QP (H214 refuted): the
+pose's hold sides leave a common leg margin of only 0.004 to 0.092 N m on the G1 (0.019 to 0.062 N m on the H1)
+against the 0.1 N m asked, bound at an ankle roll or hip joint. Re-choosing the hold sides at each press from the
+measured load (keep the pose's sides when they plan, else the combination with the largest leg margin) gives a plan
+at 31 of the 33 dropped cases with 1.8 to 5.2 N m of margin, and inside milestone 51's drag envelope **both robots
+now plan every case: G1 1368 of 1368, H1 1902 of 1902**, with no worst residual changed (largest recovered 0.0106 mm;
+H216 held). The two left (H215 refuted) are G1 sensor-error cases outside milestone 51's envelope, where no side
+combination has a hold solution. The rule set: calibrate with the hose slack, keep each press inside its pose's drag
+limit, and pick the hold sides per measured load. Statics; the time and wear of switching sides between presses are
+not modelled.
+
+![Common leg margin on the pose's hold sides and on the sides chosen per load at each dropped case, and coverage inside the drag envelope for milestones 51 to 53](experiments/m53_loadside/figure.png)
+
+**Milestone 54: do the hose rules hold off the 8-direction grid?** Coverage does; accuracy, not quite. At 48
+Latin-hypercube hose loads (0 to 20 N, any direction; seed 54), with each pose's drag limit bisected at the sampled
+direction (the same test reproduces milestone 50's grid limits exactly), **both robots plan every case inside the
+drag limits: G1 4002 of 4002, H1 5436 of 5436** (H217 held; 116 of them by per-load sides). But **4 of those 9438
+cases leave the 0.03 mm spec, the worst 0.284 mm** (G1, 0.4 m grip, 13.2 N at 290 degrees; H1 0.032 to 0.042 mm at
+its 1.2 m grip; H218 refuted). Post hoc, each is one joint whose torque sits at the 0.2 N m friction threshold, so the
+plan (from the measured load) and the robot (under the true load) disagree on whether it is held: half a backlash gap
+of error on that joint, inside direction spans 2.75 to 4.75 degrees wide that a 45 degree grid steps over. Milestone
+53's per-load sides clear the 3 H1 cases but not the G1's, an arm joint. The grid's drag limits are also up to 2.17 N
+optimistic between directions (21 G1 pose-directions at the 0.4 to 0.8 m grips; H219 refuted), but only at limits
+above 23 N; the binding limits (G1 1.2 m, H1 1.6 m) sit straight back, on the grid. Next: a held-or-free margin
+that covers the sensor error on every joint. Statics; constant sensor bias.
+
+![Drag limit at each sampled direction against the grid's smaller neighbour, and the worst in-envelope residual at each Latin-hypercube hose load](experiments/m54_lhs/figure.png)
+
+**Milestone 55: does a held-or-free margin that covers the sensor error fix milestone 54's misses?** For the
+spec, yes; for coverage, at a cost. Planned-to-settled torque is linear in the load error (checked to 2e-13 N m), so
+each joint's worst change under a 0.2 N sensor error is r<sub>j</sub> = 0.2 N &times; ||G<sub>j</sub>||, up to
+0.27 N m. The robust rule plans only when every joint's torque at both press ends is more than r<sub>j</sub> from the
+0.2 N m friction torque, re-choosing the squeeze and, failing that, the hold sides. On milestone 54's 48 loads
+**every planned in-envelope case is inside spec, worst 0.011 mm** (from 0.284 mm; H220 held), with no held or side
+flip between plan and robot in 18 119 planned cases, and all 4 old misses plan in spec. But **coverage falls to
+96.4% (G1) and 96.6% (H1)** (H221 refuted), and on 48 fresh loads with off-axis sensor errors to 95.9% and 96.8%
+(H222 refuted; milestone 54's rule had no miss on that seed). Most drops bind on the G1's waist or the H1's torso,
+which neither the leg preload, the squeeze nor the hold sides can move, and every case the rule dropped on the
+fresh loads was in spec under the old rule (post hoc). Next: weight the margin by what a flip costs at the nose, or
+preload the waist. Statics; constant sensor bias.
+
+![Worst in-envelope residual per fresh hose load under milestone 54's rule and the robust rule, and coverage by section and robot](experiments/m55_robust/figure.png)
+
+**Milestone 56: can the margin be spent only where a flip costs accuracy?** Yes. The residual along the wall is
+linear in the joint error, so each joint's worst flip shifts the nose by c<sub>j</sub> = |w<sub>j</sub>| times the
+largest backlash-term change its torque band can reach (`preload.flip_cost`, 6 tests), and Y = &Sigma; c<sub>j</sub>
+bounds the backlash part of the residual. Planning when Y is at most half the 0.03 mm spec, **every planned
+in-envelope case stays in spec across three load sets (worst 0.0178 mm; H223 held), and coverage returns to 100% on
+the G1 and 99.6 to 99.9% on the H1** (H224 held; from 95.9 to 96.8%): paired with milestone 55, the rule plans every
+case it planned and wins back 637 of its 667 drops. Over 28 158 planned cases the flip shift never beats Y (H225
+held), and on single-joint flips it equals Y, so the bound is tight. The G1 waist and H1 torso that bound milestone
+55 cost nothing here; what is left is 42 H1 cases on the left knee (one flip costs 0.017 to 0.025 mm) or the right
+elbow (0.167 mm). Next: sweep the budget share on a held-out seed and give the z residual a budget too (milestone 57). Statics;
+constant sensor bias.
+
+![The flip bound Y against the flip shift the robot showed, and coverage under milestone 55's and 56's rules](experiments/m56_weighted/figure.png)
+
+**Milestone 57: how much of the spec should the flips get?** On 48 held-out loads (seed 57), the half-spec rule
+replicates (worst 0.0178 mm, coverage G1 99.93% and H1 99.54%; H226 held), but **the budget buys no coverage until
+&beta; = 0.75**: &beta; = 0, 0.25 and 0.5 plan exactly the same presses (H228 held), and &beta; = 0.75 wins back only
+the H1's 25 left-knee cases. At &beta; = 1 one H1 press leaves 0.0315 mm (H227 refuted): the bound held, but it used
+the whole spec and windup adds on top. **Every flip the budget lets through is a knee or ankle pitch joint that moves
+the nose 0.27 to 0.29 mm across the wall (z)**, a direction the rule never budgets; at &beta; = 0 the worst z is
+0.026 mm. On this seed &beta; = 0 dominates. Next: bound the y and z rows together. One seed; statics; constant
+sensor bias.
+
+![Coverage against the worst residual for each budget share, and the worst residual along and across the wall](experiments/m57_beta/figure.png)
+
+**Milestone 58: price each flip across the wall too.** Each joint's flip cost now goes through both in-plane rows of
+the nose Jacobian, along the wall (Y<sub>y</sub>) and across it (Y<sub>z</sub>), each with half of a 0.03 mm spec,
+and the squeeze and hold sides minimise the larger of the two. On 48 more held-out loads (seed 58), the y-only rule
+again leaves 4 G1 and 5 H1 presses over 0.03 mm across the wall (worst 0.27 and 0.29 mm; H231 held). **With both rows,
+every planned press is inside 0.03 mm in both directions (worst z 0.022 mm on the G1, 0.018 mm on the H1; H229
+held), and coverage does not move: 100% on the G1, 99.63% on the H1 (H230 held).** The z row moves plans to other
+hold sides rather than dropping them, and a looser 0.3 mm z spec gives the same plans. One seed; statics; constant
+sensor bias; the z spec is carried over from y, not sourced.
+
+![Worst residual along and across the wall, and coverage, under the y-only and two-row bounds](experiments/m58_tworow/figure.png)
+
+**Milestone 59: does the nail's angle need its own bound?** No, at these poses. The same flip cost was taken through
+the rows of the depth point, 44.4 mm along the nail (sheathing plus required penetration, where the stud bound is
+checked), as well as the nose's. On 48 more held-out loads (seed 59), **milestone 58's two-row bound already keeps the
+depth point inside 0.03 mm (worst 0.022 mm on the G1, 0.018 mm on the H1; H232 refuted), the nail axis tilts at most
+0.034 mrad, and the four-row bound plans exactly the same presses: 100% on the G1, 99.65% on the H1 (H233, H234
+held).** The flips the bound admits are leg joints whose lever arm is the whole body, so the extra 44.4 mm against a lever arm near a
+metre should change their rows by a few percent (an estimate, not computed row by row). One seed; statics; the depth spec is carried over from the nose, not sourced.
+
+![Worst residual at the nose and the depth point, and coverage, under the two-row and four-row bounds](experiments/m59_depth/figure.png)
+
+**Milestone 60: can a stronger leg preload plan the presses the bound refuses?** Mostly. Those presses fail because
+one leg joint's torque sits so close to its gearbox's holding threshold that the 0.2 N sensor error can flip it. For
+each such case the leg preload margin was raised from 0.1 N m up a ladder. On 48 more held-out loads (seed 60),
+**raising it to 0.12 to 0.18 N m plans 17 of the H1's 18 unplanned presses (all binding on the left knee), inside
+0.03 mm at the nose and the depth point with no flip, and lifts H1 coverage from 99.67% to 99.98% (H237 held)**. The
+controller's leg effort rises by a median 0.1% (at most 13.5%, at the 1.6 m pose). Four cases stay unplanned: one
+binding on an H1 elbow, which no leg preload reaches, and three G1 cases at one load with no plan on any side, so
+H235 is refuted; preloading only the binding joint plans the same 17 (H236 refuted; the right-ankle cases of the
+development seed did not recur). One seed; statics; the ladder's steps are chosen, not tuned.
+
+![Smallest raised preload that plans each unplanned press, and the residuals of those plans](experiments/m60_jointpreload/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

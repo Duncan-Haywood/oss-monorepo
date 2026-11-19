@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqydT7BX1Y6jToFK5bFY",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T18:39:04Z",
+  "ended": "2026-11-18T18:47:16Z",
+  "wall_minutes": 8.5,
+  "tokens_in": 4990931,
+  "tokens_out": 29134,
+  "cost_usd": 2.5216,
+  "tool_calls": 48,
+  "task": "research programme verified-dse, milestone 148: routed-pilot tau-b guard at the ff corner (milestone 147's Next)",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17389",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first draft of the test's synthetic rows lacked r1_cells and the other keys flow.scores reads",
+      "fix": "added the keys; 4 tests pass"
+    },
+    {
+      "what": "results.txt labelled the random row 'GC(r, a)' (name() treated 'rand' as a tuple)",
+      "fix": "fixed before committing results; no number changed"
+    }
+  ],
+  "integrity_issues": [
+    "AUC printed as 0.700 at 3 decimals while prediction (3) (>= 0.70) evaluated False; changed the print to 4 decimals (0.6998) so the record shows the miss",
+    "two post-hoc lines (perfect-detector ceiling, break-even rate) added after the first run read the results; labelled post hoc in code, results.txt, LOG and post"
+  ],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/LOG.md",
+      "issue": "milestone 147's Next proposed a pilot tau-b guard without noting milestone 111 had tested the same guard (G(p, tau0)) at tt and milestones 126-135 closed the probe-guard search; finding that took a grep through 148 headings"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/verified-dse/LOG.md (milestone 147 Next)",
+      "why": "Next asked for a threshold fixed on pooled ff tables then tested blind (a new flow run); the replay already showed no setting beats SWC even in sample, so a blind flow test of a guard that loses in sample would spend ~70 min of flow to confirm a negative",
+      "did": "replay with leave-one-milestone-out selection and pre-registered predictions instead of a blind flow run",
+      "result": "clear negative with a break-even explanation; next step redirected to the fall-back, not the alarm"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-verified-dse-pilot-guard-ff.md",
+    "research/verified-dse/LOG.md (milestone 148)",
+    "research/verified-dse/PAPER.md (fast-corner section)"
+  ],
+  "goal": null,
+  "notes": "Routed research (weighted draw), pick_track drew verified-dse; claim check HOLD on PR #17389. Predictions committed in 96d8bf418 before the script ran (19 s, stdlib). Result: LOMO guard 4.21% vs SWC 2.98% vs random 8.95% over 77 ff designs; 2 of 7 predictions held. Local checks: tests/test_pilot_tau_ff.py 4 passed, tests/test_addchain_delay.py passed (python3.13), research/_homepage/build.py ok, research_live_links ok, check_md_links ok, check_posts ok. No agent doc in docs/reports: the LOG entry carries the next step.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d011e7b8-5214-5d49-a1cd-0073e07db6b9",
+    "transcripts": 1,
+    "first": "2026-11-18T18:39:04Z",
+    "last": "2026-11-18T18:47:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 91,
+        "output": 29134,
+        "thinking": 6182,
+        "cache_read": 4870280,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120560,
+        "api_equivalent_usd": 2.5216,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 91,
+      "output": 29134,
+      "thinking": 6182,
+      "cache_read": 4870280,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120560,
+      "api_equivalent_usd": 2.5216,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 46,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.5,
+      "active_minutes": 8.5,
+      "model_minutes": 5.34,
+      "tool_minutes": 3.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design a pre-registered guard replay over four existing tables, write analysis, tests, log, paper paragraph and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 237.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

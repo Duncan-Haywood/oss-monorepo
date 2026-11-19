@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtH24jdp6PcG212ttko",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T09:05:59Z",
+  "ended": "2026-11-19T09:23:14Z",
+  "wall_minutes": 20.5,
+  "tokens_in": 6850751,
+  "tokens_out": 45860,
+  "cost_usd": 3.4379,
+  "tool_calls": 60,
+  "task": "changepoint-detector (flagship row 2): spell search scored on the weekdays that differ",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17609",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Piping a CSV into cli.mjs with a shell redirect printed the segment table cut off before the spells line, so my first check of the six committed states showed nothing",
+      "fix": "read the line from spellsResult/spellsLine directly, as spells-cli.test.mjs does"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Without --unshallow, both calls spent their 50 s fetch budget on the 7-day commit counts before printing; about 2 minutes lost across the two calls"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector next: was at 1993 of 2000 characters, so the landed item had to be restated in 40 characters; the tool's suggested edit would have parked the NYT item the new next step depends on"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/update-rate-spells-weekdays.mjs",
+      "why": "After the run, the eval's shipped-search comparisons were pinned to score 'dow', because shortSpells' default changed in the same PR",
+      "did": "edited three call sites to pass score: 'dow' (the exact function that ran) and said so in the README; did not spend 394 s on a rerun",
+      "result": "the committed output is what that code produces; the tests read its verdict lines"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took the allocator's research-style flagship item (a pre-registered statistical round) rather than one-click-deploy work, because the allocator named this row and the item needed no outside input",
+      "did": "pre-registered, calibrated and confirmed a change, then shipped it behind --spells",
+      "result": "a user-visible improvement to the --spells line: more spells found, and the line names the weekdays"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-spells-score-the-weekdays-that-differ.md",
+    "ventures/changepoint-detector/README.md (section 'Short spells scored on the weekdays that differ')"
+  ],
+  "goal": "deepen flagship changepoint-detector",
+  "notes": "Header with module option committed in 18bfdf885 before any cell ran. Calibration chose arm A, beta 4, m 2.5. Confirmation: C1 worst 0.010, C2 worst 0.010, C3 0.000, C4 +283 (bar 150), C5 pass; C6 (reported only) fails once (P3w30 after a quiet start plus 250 steps, 148 vs 184). K1: Alaska and South Dakota dated. Local checks: run_venture_tests.py changepoint-detector passed 965 tests in 278.8 s; check_posts ok; venture-preflight.mjs changepoint-detector: preflight clean. Before the header, a scratch diagnostic of the SHIPPED search was run and is disclosed there. No agent doc: the README section and the flagship next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0d6ed479-ebd1-587a-a88b-43545d725c5d",
+    "transcripts": 1,
+    "first": "2026-11-19T09:05:59Z",
+    "last": "2026-11-19T09:26:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 103,
+        "output": 45860,
+        "thinking": 11751,
+        "cache_read": 6703194,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147454,
+        "api_equivalent_usd": 3.4379,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 103,
+      "output": 45860,
+      "thinking": 11751,
+      "cache_read": 6703194,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147454,
+      "api_equivalent_usd": 3.4379,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 54,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.5,
+      "active_minutes": 20.5,
+      "model_minutes": 8.62,
+      "tool_minutes": 11.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, pre-registering, running and writing up one calibrated simulation round with a real-data check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 290.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

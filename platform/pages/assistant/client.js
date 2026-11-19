@@ -620,6 +620,10 @@ const CSS = `
 #pf-assistant .pa-how{display:block;margin-top:6px;font-size:12.5px;color:var(--pa-muted);white-space:normal}
 #pf-assistant .pa-bot a{color:inherit;text-decoration:underline}
 #pf-assistant .pa-bot ul{margin:6px 0 0;padding-left:18px;white-space:normal}
+#pf-assistant .pa-try{align-self:stretch;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0}
+#pf-assistant .pa-try span{font-size:13px;color:var(--pa-muted);margin-right:2px}
+#pf-assistant .pa-try button{border-radius:999px;padding:6px 12px;font-size:14px;text-align:left}
+#pf-assistant .pa-try button:hover{border-color:var(--pa-accent)}
 #pf-assistant .pa-row{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--pa-line);align-items:center}
 #pf-assistant .pa-row input[type=text]{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--pa-line);border-radius:8px;background:transparent}
 #pf-assistant .pa-status{padding:0 12px;font-size:13px;color:var(--pa-muted);min-height:0}
@@ -653,7 +657,7 @@ function el(tag, attrs = {}, ...children) {
 let panel = null;
 let opener = null;
 
-function build({ inline = false } = {}) {
+function build({ inline = false, suggestions = [] } = {}) {
   if (!document.getElementById('pf-assistant-css')) {
     document.head.append(el('style', { id: 'pf-assistant-css' }, CSS));
   }
@@ -698,9 +702,12 @@ function build({ inline = false } = {}) {
   };
   const you = (text) => { log.append(el('div', { class: 'pa-msg pa-you' }, text)); log.scrollTop = log.scrollHeight; };
 
+  let tryRow = null;
   async function submit(text, spoken = false) {
     text = text.trim();
     if (!text) return;
+    tryRow?.remove();
+    tryRow = null;
     you(text);
     count(spoken ? 'assistant_voice' : 'assistant_typed');
     try { await handle(text, ui, { spoken }); } catch (e) { ui.reply(`Something went wrong: ${e.message}`, { how: engineLabel() }); }
@@ -786,6 +793,13 @@ function build({ inline = false } = {}) {
     ? `I can fill in this calculator. Type or say your numbers, like “${fields.filter((f) => f.type === 'number').slice(0, 2).map((f, i) => `${f.label.replace(/\s*\(.*?\)\s*/g, ' ').trim().toLowerCase()} ${[40, 12][i]}`).join(', ') || 'price 40'}”, then ask “read the result”. I can also find other tools or answer from this page.`
     : 'Ask me to find a tool or explain something on this page. On any calculator I can fill in the form from what you type or say.',
   { how: engines.rules.label });
+  // Example questions under the greeting (the /ask/ page passes them): one tap
+  // asks it, and the row goes once anything is asked.
+  if (suggestions.length && !fields.length) {
+    tryRow = el('div', { class: 'pa-try', role: 'group', 'aria-label': 'Example questions' }, el('span', {}, 'Try:'),
+      ...suggestions.map((q) => el('button', { type: 'button', onclick: () => submit(q) }, q)));
+    log.append(tryRow);
+  }
   ui.input = input;
   ui.root = root;
   return ui;
@@ -889,9 +903,12 @@ export function open({ opener: from = null, voice = false } = {}) {
   if (voice) panel.root.querySelector('.pa-row button[aria-label="Speak"]')?.click();
 }
 
-/** Mount the assistant inline (the /ask/ page). */
-export function mount(container) {
-  panel = build({ inline: true });
+/**
+ * Mount the assistant inline (the /ask/ page). `suggestions`: example
+ * questions shown as buttons until the first thing is asked.
+ */
+export function mount(container, { suggestions = [] } = {}) {
+  panel = build({ inline: true, suggestions });
   container.replaceChildren(panel.root);
   count('assistant_opened');
   if (settings.engine === 'local' && settings.localReady) {

@@ -1,0 +1,2 @@
+take-short-n-2026-11-19.jsonl.gz: within 0.5 ms 39/66, off by more than 1 ms 7, mean abs 0.532 ms, instant builds off 0 by more than 0.5 ms 0, instant builds advised 0, builds advised 27, checks (3 ms and up) within 0.5 ms 16
+take-short-n-live9-2026-11-19.jsonl.gz: within 0.5 ms 49/66, off by more than 1 ms 3, mean abs 0.441 ms, instant builds off 0 by more than 0.5 ms 0, instant builds advised 0, builds advised 24, checks (3 ms and up) within 0.5 ms 17

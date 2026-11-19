@@ -366,3 +366,36 @@ test("formatSeconds", () => {
   assert.equal(formatSeconds(125), "2m 5s");
   assert.equal(formatSeconds(3725), "1h 2m 5s");
 });
+
+// Quality audit 2026-11-19: no test may be selected by two shards' commands.
+const prefixOverlap = (shards) => {
+  const all = shards.flatMap((s, i) => s.emit.args.map((a) => ({ a, i })));
+  return all.filter((x) => all.some((y) => y.i !== x.i && (y.a === x.a || x.a.startsWith(`${y.a}::`))));
+};
+
+test("jest and rspec never split a file across shards, whatever --group says", () => {
+  for (const f of ["jest.xml", "rspec.xml"]) {
+    for (const group of ["test", "class"]) {
+      const r = analyze([parseJUnit(fx(f))], { shards: 3, group });
+      assert.equal(r.group, "file", `${f} --group ${group}`);
+      assert.deepEqual(prefixOverlap(r.balanced.shards), [], `${f} --group ${group}`);
+      assert.ok(r.warnings.some((w) => /treated as --group file/.test(w)));
+      assert.ok(r.bottlenecks.every((b) => !b.splittable));
+    }
+  }
+});
+
+test("pytest --group class names module-level tests by node id, so a file's classes run once", () => {
+  const xml = `<testsuite>
+    <testcase classname="tests.test_m" name="test_a" file="tests/test_m.py" time="3"/>
+    <testcase classname="tests.test_m" name="test_b" file="tests/test_m.py" time="3"/>
+    <testcase classname="tests.test_m.TestMul" name="test_x" file="tests/test_m.py" time="2"/>
+    <testcase classname="tests.test_m.TestMul" name="test_y" file="tests/test_m.py" time="2"/>
+    <testcase classname="tests.test_n.TestAdd" name="test_z" file="tests/test_n.py" time="4"/>
+  </testsuite>`;
+  const r = analyze([parseJUnit(xml)], { shards: 3, group: "class", dialect: "pytest" });
+  const args = r.balanced.shards.flatMap((s) => s.emit.args);
+  assert.ok(!args.includes("tests/test_m.py"), args.join(" "));
+  assert.deepEqual(prefixOverlap(r.balanced.shards), []);
+  assert.ok(args.includes("tests/test_m.py::TestMul"));
+});

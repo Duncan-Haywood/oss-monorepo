@@ -411,12 +411,17 @@ test("string values keep their whitespace, as in the STEP file", () => {
   const xml = IFC2X3_XML.replace("<Name>Basic Wall</Name>", "<Name> Basic Wall </Name>");
   const p = parseIfcXml(xml, schemas.IFC2X3);
   assert.equal([...p.entities.values()].find((e) => e.xmlId === "i7").args[2], " Basic Wall ");
+  // An all-white-space string is two spaces, as IFCLABEL('  ') is in STEP.
+  const blank = parseIfcXml(IFC2X3_XML.replace("<Name>Basic Wall</Name>", "<Name>  </Name>"), schemas.IFC2X3);
+  assert.equal([...blank.entities.values()].find((e) => e.xmlId === "i7").args[2], "  ");
+  const empty = parseIfcXml(IFC2X3_XML.replace("<Name>Basic Wall</Name>", "<Name></Name>"), schemas.IFC2X3);
+  assert.equal([...empty.entities.values()].find((e) => e.xmlId === "i7").args[2], "");
 });
 
 // The nested IFC4 layout at scale (eval/ifc4-layout-scale-2026-11-18.md):
-// geometry nested inside a larger element is cut to a stub as it closes and
-// parsed again when the walk reaches it.
-test("the nested IFC4 layout reads back every entity, and lazy, eager and stubbed reads agree", async () => {
+// every entity nested inside a larger element is read as it closes, and
+// geometry stays lazy (read again from its span when a check asks).
+test("the nested IFC4 layout reads back every entity, and lazy and eager reads agree", async () => {
   const { writeIfc4Layout, roundTrip } = await import("./eval/ifc4-layout.mjs");
   const { parseStep } = await import("./step.mjs");
   const step = parseStep(file("samples/tiny-house.ifc"), { eager: true });
@@ -444,7 +449,7 @@ test("the nested IFC4 layout reads back every entity, and lazy, eager and stubbe
   }
 });
 
-test("a stubbed geometry element keeps its nested inline entities, hrefs and ids", () => {
+test("a geometry element read as it closes keeps its nested inline entities, hrefs and ids", () => {
   const xml = `<?xml version="1.0"?><ifcXML xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/final" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <IfcCartesianPoint id="p0" Coordinates="9 9 9"/>
   <IfcShapeRepresentation id="r1" RepresentationType="Curve"><Items>
@@ -454,8 +459,8 @@ test("a stubbed geometry element keeps its nested inline entities, hrefs and ids
   const lazy = parseIfcXml(xml, schemas.IFC4), eager = parseIfcXml(xml, schemas.IFC4, { eager: true });
   const rows = (p) => [...p.entities.values()].map((e) => [e.id, e.type, e.xmlId, e.args]);
   assert.deepEqual(rows(lazy), rows(eager));
-  assert.equal(lazy.stubbed, 5, "the polylines and the points written in them");
-  assert.equal(eager.stubbed, 0);
+  assert.equal(lazy.early, 5, "the polylines and the points written in them");
+  assert.equal(eager.early, 5);
   assert.ok([...lazy.entities.values()].filter((e) => e._s !== undefined).length >= 5, "read lazily");
   const pts = (p, x) => p.entities.get([...p.entities.values()].find((e) => e.xmlId === x).id).args[0].map((v) => p.entities.get(v.ref).args[0]);
   for (let k = 0; k < 2; k++) {
@@ -463,6 +468,51 @@ test("a stubbed geometry element keeps its nested inline entities, hrefs and ids
     assert.deepEqual(pts(lazy, "l2"), [[4, 5, 6], [7, 8, 9]]);
   }
   assert.deepEqual(lazy.errors, []);
+});
+
+// Nested entities are read as they close and numbered later, parent first
+// (eval/nested-early-2026-11-18.md). The expected rows are what the reader
+// gave before, when it held the tree under the root until the root closed:
+// ids, map order, a duplicate id skipped with everything in it, an href to
+// an element after the root, and the notes in walk order.
+test("nested entities read as they close keep the parent-first numbers and notes", () => {
+  const xml = `<?xml version="1.0"?><ifcXML xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<IfcProject id="p1" GlobalId="0001" Name="P"><IsDecomposedBy><IfcRelAggregates GlobalId="0002"><RelatedObjects>
+  <IfcBuildingStorey id="s1" GlobalId="0003" Name="L1" ELEVATION="3,5"><ContainsElements><IfcRelContainedInSpatialStructure GlobalId="0004"><RelatedElements>
+    <IfcWall id="w1" GlobalId="0005" Name="W1" PREDEFINEDTYPE="standard"><IsDefinedBy><IfcRelDefinesByProperties GlobalId="0006"><RelatingPropertyDefinition>
+      <IfcPropertySet GlobalId="0007" Name="Pset_WallCommon"><HasProperties>
+        <IfcPropertySingleValue Name="IsExternal"><NominalValue><IfcBoolean-wrapper>true</IfcBoolean-wrapper></NominalValue></IfcPropertySingleValue>
+        <IfcPropertySingleValue href="v9" xsi:nil="true"/>
+      </HasProperties></IfcPropertySet></RelatingPropertyDefinition></IfcRelDefinesByProperties></IsDefinedBy></IfcWall>
+    <IfcWall id="w1" GlobalId="0099" Name="duplicate"><IsDefinedBy><IfcRelDefinesByProperties GlobalId="0098"/></IsDefinedBy></IfcWall>
+    <IfcSlab id="b1" GlobalId="0008" Name="S1" PREDEFINEDTYPE="floor"/>
+  </RelatedElements></IfcRelContainedInSpatialStructure></ContainsElements></IfcBuildingStorey>
+</RelatedObjects></IfcRelAggregates></IsDecomposedBy></IfcProject>
+<IfcPropertySingleValue id="v9" Name="LoadBearing"><NominalValue><IfcBoolean-wrapper>false</IfcBoolean-wrapper></NominalValue></IfcPropertySingleValue>
+</ifcXML>`;
+  const p = parseIfcXml(xml, schemas.IFC4);
+  const refs = (e) => e.args.filter((a) => (a && a.ref !== undefined) || Array.isArray(a));
+  assert.deepEqual([...p.entities.values()].map((e) => [e.id, e.type, e.xmlId ?? null, refs(e)]), [
+    [1, "IFCPROJECT", "p1", []],
+    [2, "IFCRELAGGREGATES", null, [{ ref: 1 }, [{ ref: 3 }]]],
+    [3, "IFCBUILDINGSTOREY", "s1", []],
+    [4, "IFCRELCONTAINEDINSPATIALSTRUCTURE", null, [[{ ref: 5 }, { ref: 5 }, { ref: 10 }], { ref: 3 }]],
+    [5, "IFCWALL", "w1", []],
+    [6, "IFCRELDEFINESBYPROPERTIES", null, [[{ ref: 5 }], { ref: 7 }]],
+    [7, "IFCPROPERTYSET", null, [[{ ref: 8 }, { ref: 9 }]]],
+    [8, "IFCPROPERTYSINGLEVALUE", null, []],
+    [10, "IFCSLAB", "b1", []],
+    [9, "IFCPROPERTYSINGLEVALUE", "v9", []],
+  ]);
+  assert.ok(![...p.entities.values()].some((e) => e.args.some((a) => a && a.GlobalId === "0099")));
+  assert.equal(p.entities.get(3).args[9], 3.5);
+  assert.deepEqual(p.errors, [
+    'IFCBUILDINGSTOREY attribute "ELEVATION" read as Elevation (the name\'s case differs from the schema)',
+    'IFCWALL attribute "PREDEFINEDTYPE" read as PredefinedType (the name\'s case differs from the schema)',
+    'IFCSLAB attribute "PREDEFINEDTYPE" read as PredefinedType (the name\'s case differs from the schema)',
+    '1 number(s) written with a decimal comma (e.g. "3,5"), read with a decimal point',
+  ]);
+  assert.equal(p.early, 10, "every nested entity element, the duplicate wall and its relationship too");
 });
 
 function parseXmlTop(t) {

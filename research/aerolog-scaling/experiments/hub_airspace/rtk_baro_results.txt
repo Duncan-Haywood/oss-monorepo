@@ -1,0 +1,33 @@
+# Milestone 11an (--rtk): per-flight r = sqrt(FTE^2 + r_lin^2), r_lin = line-detrended RMS of baro minus RTK-fixed GNSS height (rtk_baro_2026.json, enroute set); P5 to P7 below are 11am's, P6 and P7 of 11an are the deliv h*_mix and old/mix rows
+# Milestone 11am: 11al's shared-field planner with height-keeping noise from 7 PX4 flights (mission, level, en route). Z = 7.62 m, H = 120 m, 30 spacings, best of 200 descents, 48 layouts
+# sigma_fleet = 1.058 m (gauss: N(0, 2 sigma_fleet^2)); mix: pair sd sqrt(r_i^2 + r_j^2) over 64 quantile pairs (median 1.381, p90 1.923, max 2.290 m). old = 11al's aware plan at sigma_n = 1.0 m.
+# Every plan scored under mix (the truth here). bands = distinct levels used.
+
+## M = 12 (24 layouts)
+  mission  h*_mix  bands  h*_gauss  same_h  gauss/mix  max     h*_old  same_h  old/mix  max
+  deliv     13.33   5.0    13.33    24/24   1.0000   1.0000   13.33  24/24   1.0000   1.0000
+  T30       13.33   5.0    13.33    24/24   1.0000   1.0000   13.33  24/24   1.0000   1.0000
+  T60       13.33   5.0    13.33    24/24   1.0000   1.0000   13.33  24/24   1.0000   1.0000
+  h*_mix distribution (h: layouts)
+    deliv  13.33: 24
+    T30    13.33: 24
+    T60    13.33: 24
+
+## M = 16 (24 layouts)
+  mission  h*_mix  bands  h*_gauss  same_h  gauss/mix  max     h*_old  same_h  old/mix  max
+  deliv     13.33   5.0    13.33    24/24   1.0000   1.0000   13.33  24/24   1.0000   1.0000
+  T30       13.33   5.0    13.33    24/24   1.0000   1.0000   13.33  24/24   1.0000   1.0000
+  T60       13.33   5.0    13.33    24/24   1.0000   1.0000   13.33  24/24   1.0000   1.0000
+  h*_mix distribution (h: layouts)
+    deliv  13.33: 24
+    T30    13.33: 24
+    T60    13.33: 24
+
+# predictions
+  P5 M=12 deliv median h*_mix <= 13.33: 13.33 -> held
+  P5 M=16 deliv median h*_mix <= 13.33: 13.33 -> held
+  P6 gauss/mix median <= 1.01 in every cell: worst cell median 1.0000 (all layouts max 1.0000) -> held
+  P7 M=12 deliv old/mix median <= 1.02: 1.0000 -> held
+  P7 M=16 deliv old/mix median <= 1.02: 1.0000 -> held
+
+# analysis CPU s per layout: median 75

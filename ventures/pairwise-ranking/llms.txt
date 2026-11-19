@@ -1,0 +1,29 @@
+# Pairwise ranking: Bradley-Terry ratings from head-to-head results, with draws, home advantage and rank ranges
+
+> Free online pairwise ranking tool. Paste head-to-head results (winner,loser; a,b,result; or home,away,home_score,away_score) and get Bradley-Terry ratings (Bradley & Terry 1952; Zermelo 1929) on Elo's scale with standard errors, the chance each player is really ahead of the next, simulated rank ranges and the chance of being top, draws by Davidson's (1970) tie model, a home or first-mover advantage (Davidson & Beaver 1977) with a likelihood-ratio test, win/draw/loss chances for any pairing, and Ford's (1957) check that a finite ranking exists. Checked against statsmodels and scipy on 30 independent fits. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Statistics from the results you supply, not betting, financial or professional advice. Not affiliated with any league, club, federation or rating body. One constant strength per player over the period.
+
+## Pages
+
+- [The tool](https://marisstella.app/pairwise-ranking/)
+
+## Use it from code
+
+- `node cli.mjs results.csv [--ties auto|davidson|half|drop] [--home auto|yes|no] [--predict "A,B"]`
+- Add `--csv` or `--json` for machine output; `--prior-sd`, `--level`, `--draws`, `--seed` adjust the fit.
+- `node platform/agents/tools.mjs call pairwise-ranking analyze --input '{"csv":"winner,loser\nA,B\nB,C\nC,A\n"}'`
+- From JavaScript: `analyze({csv})`, `fit(games)`, `fitMM(games)`, `predict(model, a, b, {home})`.
+
+## What it answers
+
+- Who is really the strongest team or player, given who they played?
+- How do I fit a Bradley-Terry model to paired comparison or taste-test data?
+- How sure is the ranking: what is each player's rank range?
+- How big is home advantage in my league, and is it real?
+- What are the win, draw and loss chances for this fixture?
+- Why is there no ranking when one player never lost?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pairwise-ranking): MIT licensed.

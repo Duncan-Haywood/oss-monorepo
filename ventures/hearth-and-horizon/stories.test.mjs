@@ -128,6 +128,14 @@ test('BIBLE.md holds no Done entries (run node bible_done.mjs)', async () => {
   assert.match(done, /## Shelf A\n\n- \*\(Done: X\.\)\* a\n  b\n- \*\(Done: Z\.\)\* f\n\n## Shelf B\n\n- \*\(Done: Y\.\)\* e\n$/);
 });
 
+test('BIBLE.md\'s setting timeline is in year order (run node bible_done.mjs)', async () => {
+  const { sortTimeline } = await import('./bible_done.mjs');
+  const bible = readFileSync(new URL('BIBLE.md', import.meta.url), 'utf8');
+  assert.ok(sortTimeline(bible) === bible, 'run node ventures/hearth-and-horizon/bible_done.mjs to sort it');
+  const sample = '## Setting timeline\n\nIntro.\n\n| Year | Fact |\n|---|---|\n| 2060s | a |\n| 2045-46 | b |\n| 2045 | c |\n| 1954 | d |\n\n## Next\n| 1 | x |\n';
+  assert.equal(sortTimeline(sample), '## Setting timeline\n\nIntro.\n\n| Year | Fact |\n|---|---|\n| 1954 | d |\n| 2045-46 | b |\n| 2045 | c |\n| 2060s | a |\n\n## Next\n| 1 | x |\n');
+});
+
 test('bible_done moves a Done marker written at the end of a proposal', async () => {
   const { split, leadDone } = await import('./bible_done.mjs');
   assert.deepEqual(leadDone(['- *Open:* c *(Done: Q, here, 2050.)*']), ['- *(Done: Q, here, 2050.)* *Open:* c']);

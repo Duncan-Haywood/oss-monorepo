@@ -23,6 +23,9 @@ This prints those PRs, sorted into the buckets land-your-work.md uses:
     `ci_starvation.py`);
   * **unfinished**: its own run record (`prompts/runs/*.json`) still has
     `outcome: null`, so the session died mid-run: finish the work, or close;
+  * **landed**: every file it changes is on main already, and at least
+    LANDED_SHARE of them byte for byte: the work merged by another route;
+    confirm and close it with that evidence;
   * **blocked**: its title or body names a blocker ("parked", "do not merge",
     "waiting on the owner", "[in progress]"): left open on purpose.
 
@@ -33,6 +36,16 @@ sessions had died with 5 of 6 audits done and a record whose `outcome` and `pr`
 were null. Marked ready, both went red on `promptctl validate` and had to go
 back to draft. Merging one means doing the missing work and filling the
 record, which is a run's task, not a merge.
+
+The landed bucket came from the next sweep (2026-11-18, process run): #8720
+and #8764, listed as "ready" and "no checks" after 29 days, had both reached
+main by other PRs. 57 of #8720's 62 files and 26 of #8764's 32 had the same
+git blob on origin/main, and the rest existed there with later edits. Checking
+that by hand took seconds. `supersede_check.py` on a month-old PR first
+deepens a shallow clone by thousands of commits (minutes), and the "ready"
+bucket would have had a run merge main into a no-op branch. The file list
+this already reads carries each file's blob id, so the check costs one local
+`git ls-tree` of origin/main.
 
 PRs still moving (pushed under 2 h ago, or a draft under 24 h) and PRs that
 touch a CODEOWNERS path (owner_held_prs.py) are left out. Fork PRs are skipped:
@@ -53,6 +66,7 @@ import base64
 import datetime as dt
 import json
 import re
+import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -69,8 +83,11 @@ BLOCKER = re.compile(
     r"|waiting (?:on|for) the owner|blocked (?:on|by)\b|needs the owner",
     re.I)
 
-ORDER = ["ready", "orphan draft", "unfinished", "red", "conflicted", "no checks", "pending", "blocked"]
+ORDER = ["landed", "ready", "orphan draft", "unfinished", "red", "conflicted", "no checks", "pending", "blocked"]
 WHAT = {
+    "landed": ("its files are on main already (column: identical/total): read the few that "
+               "differ, then close with that evidence; supersede_check.py is the full check "
+               "but deepens a shallow clone for minutes on an old PR"),
     "ready": ("read the diff (scope, disclaimer, usage tracking), then merge; "
               "a head quiet for days: merge main in first so CI runs on today's tree"),
     "orphan draft": "mark ready, merge main in, verify, merge; or close with a reason",
@@ -118,6 +135,43 @@ def classify(pr: dict, checks: str, head_time: dt.datetime, now: dt.datetime) ->
     return {"green": "ready", "red": "red", "pending": "pending", "none": "no checks"}[checks]
 
 
+LANDED_SHARE = 0.8  # #8720 had 57/62 identical, #8764 26/32
+
+
+def on_main(files: list[dict], main_blob) -> tuple[int, int] | None:
+    """(identical, total) over the files this PR adds or changes: how many
+    have the same git blob on main. None when one of them is missing from
+    main (work main does not have) or there is nothing to compare."""
+    same = total = 0
+    for f in files:
+        name, sha = f.get("filename", ""), f.get("sha")
+        if f.get("status") == "removed" or not sha:
+            continue
+        blob = main_blob(name)
+        if blob is None:
+            return None
+        total += 1
+        same += blob == sha
+    return (same, total) if total else None
+
+
+def landed(counts: tuple[int, int] | None) -> bool:
+    return bool(counts) and counts[0] >= LANDED_SHARE * counts[1]
+
+
+def main_blobs(ref: str = "origin/main") -> dict[str, str]:
+    """{path: blob id} for every file on `ref` in this clone ({} without it)."""
+    done = subprocess.run(["git", "-C", str(Path(__file__).resolve().parents[2]), "ls-tree",
+                           "-r", "--full-tree", ref], capture_output=True, text=True)
+    out = {}
+    for line in done.stdout.splitlines() if done.returncode == 0 else []:
+        meta, _, path = line.partition("\t")
+        parts = meta.split()
+        if len(parts) == 3 and parts[1] == "blob":
+            out[path] = parts[2]
+    return out
+
+
 RUN_RECORD = re.compile(r"^prompts/runs/[^/]+\.json$")
 
 
@@ -139,7 +193,7 @@ def unfinished_record(files: list[dict], sha: str, record_of) -> str | None:
 
 
 def stalled(prs: list[dict], files_of, detail_of, checks_of, head_time_of, rules,
-            now: dt.datetime, record_of=None) -> list[dict]:
+            now: dt.datetime, record_of=None, main_blob=None) -> list[dict]:
     """Rows for the same-repo open PRs that touch no owned path and are not
     moving, in ORDER then oldest first. `record_of(path, sha)` returns a run
     record's JSON at that commit; without it no PR is marked unfinished."""
@@ -167,10 +221,16 @@ def stalled(prs: list[dict], files_of, detail_of, checks_of, head_time_of, rules
             record = unfinished_record(files, sha, record_of)
             if record:
                 bucket = "unfinished"
+        counts = None
+        if bucket not in ("blocked", "unfinished") and main_blob is not None:
+            counts = on_main(files, main_blob)
+            if landed(counts):
+                bucket = "landed"
         return {"number": pr["number"], "title": pr.get("title", ""), "bucket": bucket,
                 "draft": bool(pr.get("draft")), "created_at": pr.get("created_at", ""),
                 "quiet_hours": round(quiet_h, 1), "branch": pr["head"].get("ref", ""),
-                **({"record": record} if record else {})}
+                **({"record": record} if record else {}),
+                **({"on_main": f"{counts[0]}/{counts[1]}"} if counts else {})}
 
     with ThreadPoolExecutor(max_workers=16) as pool:
         rows = [r for r in pool.map(one, unowned) if r]
@@ -192,7 +252,10 @@ def render(rows: list[dict]) -> str:
         for r in group:
             q = r["quiet_hours"]
             quiet = f"{q:.0f} h" if q < 48 else f"{q / 24:.0f} d"
-            out.append(f"| #{r['number']} | {quiet} | {r['title'].replace('|', '/')} |")
+            title = r['title'].replace('|', '/')
+            if bucket == "landed":
+                title += f" ({r['on_main']} identical on main)"
+            out.append(f"| #{r['number']} | {quiet} | {title} |")
         out.append("")
     return "\n".join(out)
 
@@ -203,6 +266,7 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
     rules = cpg.parse_codeowners(cpg.CODEOWNERS.read_text())
     repo = ohp.REPO
+    blobs = main_blobs()
     try:
         prs = ohp.pages(f"/repos/{repo}/pulls?state=open")
         rows = stalled(
@@ -217,6 +281,7 @@ def main(argv: list[str] | None = None) -> int:
             now=dt.datetime.now(dt.timezone.utc),
             record_of=lambda path, sha: json.loads(base64.b64decode(
                 ohp.get(f"/repos/{repo}/contents/{path}?ref={sha}")["content"])),
+            main_blob=blobs.get if blobs else None,
         )
     except Exception as e:  # network, proxy, rate limit
         print(f"stalled_prs: could not read GitHub ({e}); list open PRs by hand", file=sys.stderr)

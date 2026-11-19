@@ -13,8 +13,10 @@ released track:
    transcribed from a cited public-domain edition ([`corpus/`](corpus/README.md)).
 2. **Convert** (this slice): GABC to a MIDI choir line with Latin lyrics,
    transposed for men's voices and fitted to a grid.
-3. **Arrange:** genre templates (drums, bass, synths, guitars) built around
-   the line. Not built.
+3. **Arrange:** genre templates built around the line: drums, bass and
+   chords as MIDI in `genre.mjs` (`cli.mjs --genre NAME`, with `--sections`
+   for intro, verse, build, drop and outro from the chant's double bars).
+   Built as MIDI; recorded or rendered guitars and synth sounds are not.
 4. **Voice:** a real men's choir (recorded) or a singing synthesiser. A first synthesised choir that sings each syllable's opening consonants, vowel and final consonants is in `sing.mjs` (`render-cli.mjs --sing`, 2026-11-15); a real choir is not.
 5. **Release:** loudness (done, `master-cli.mjs`), metadata, credits and AI-disclosure checks before a
    distributor upload (done: `node release-cli.mjs release.json`, 7 tests, 2026-11-03).
@@ -150,8 +152,8 @@ wrote dies-irae.mid
   - the choir line (GM Choir Aahs) with one lyric event per syllable;
   - an optional drone on the final, an octave down (GM Church Organ).
 
-Tests: `node --test ventures/chant-forge/chant-forge.test.mjs` (8 tests,
-passing 2026-11-03). On 2026-11-03 the example's output was also read back with
+Tests: `node --test ventures/chant-forge/chant-forge.test.mjs` (14 tests,
+passing 2026-11-19). On 2026-11-03 the example's output was also read back with
 an independent parser (Python `mido` 1.x): 3 tracks, 3.87 s, lyrics in order.
 
 ## A second voice: `--organum` (2026-11-17)
@@ -1261,7 +1263,53 @@ cells the burst the reader finds has a 2.1-2.3 kHz centroid with 54-66% of its e
 on G2 and F3 read 33-44%. Where that energy comes from (the burst search's timing, or the vowel's release reaching
 into the 10 ms window) is the next thing to read, frame by frame, before any rule. Reader only; not listened to.
 
-#### Cluster onsets before -um: a murmur no reference can find (2026-11-17, latest; opt-in, not registered)
+#### Held out where the release lands (2026-11-19, latest; both rounds opt-in)
+
+The rounds below left `levelFade` and `longTilt` untested: on part d no vowel-only release reached the end of the
+reader's window. This round built a held-out part where it should.
+
+- **Part e, registered on `eval/release-cells-report.md`'s cells** (`eval/coda-check.mjs` header, twenty-ninth round,
+  committed as a1fa70e76 before e ran): 84 BPM, the one tempo of that table no other part uses, its twelve cells that
+  land 4 or more of 8, 32 syllables sung in no other part. The default read 14 of 384 vowel-only cells as a nasal, so
+  the test condition held. Neither rule moved any of them (control 370, 370 and 370 of 384), `longTilt` cost two
+  dark-vowel nasals (139 to 137 of 144), and none of the 14 fell on the table's 8-of-8 cells: all were /u/ on E4
+  eighths. **Both registrations failed; both rules stay opt-in.**
+- **The table measured the wrong rule.** `eval/e4-eighth-diag.mjs` shows the 14 are not the level rule's at all. They
+  are the murmur against the vowel just before it (NEAR), firing on a 55 ms run that starts 95 ms after the note has
+  ended, where a /u/ fades held-level and dark. Release-cells scores the level rule's band (5-25 dB under), and those
+  /u/ releases are already below it.
+- **The same fault on the development parts, and where it starts.** `node eval/level-tail-sweep.mjs --rule near`
+  (`eval/near-tail-sweep.txt`) lists every near-rule nasal on parts K-c. Of 196 right reads, 195 start 26-175 ms
+  *before* the note's end; of 50 wrong ones, 48 (all vowel-only /u/ or /o/) start 19-171 ms *after* it. That fits how
+  the choir sings: `sing.mjs` places a coda so it finishes with its note (`codaPlan`), so a murmur that only begins
+  after the note is over is the vowel's release, not a nasal.
+- **The rule** (`readCoda`'s `nearRelease`, opt-in; `--near-release on` in `eval/coda-check.mjs`, which now passes
+  every read the note's end as `noteEnd`): a near-rule run that starts at or after `noteEnd` is thrown out. Read off
+  the sweep, not tuned. Without `noteEnd` it does nothing.
+- **Development** (A-e): vowel-only controls +70 cells (K 343 to 360 of 360, O 356 to 360, R 238 to 240, S 246 to
+  250, W 338 to 346, X 292 to 300, Y 335 to 348, e 370 to 384), others +1 on K, L, O and W. It lost one sung *glum*
+  (c) and one *snum* (d). The corpus parts (B, D, E, F, H) are unchanged in every row.
+- **Part f, pre-registered** (thirtieth round, committed as 4f7edcc58 before f ran): 86 BPM, all thirteen table
+  pitches, quarters and eighths (26 cells), 32 new syllables.
+
+| f | default | `nearRelease` | wanted |
+|---|---|---|---|
+| vowel-only near-rule nasals (test condition: 3 or more) | 15 | 0 | 80% cleared: holds |
+| vowel-only control read as none (of 832) | 806 | 821 | 3 or more better: holds |
+| nasal rows together (of 520) | 504 | 502 | at most 1 fewer: **fails** |
+| stops and others read exactly (of 312); read as a nasal | 290; 1 | 290; 1 | no fewer; no more: holds |
+
+So `nearRelease` stays opt-in. It did what it was written to do: every vowel-only near-rule nasal on f (all /o/ on
+D3 quarters) went. The two it cost are sung *crun* and *frun* on E4 quarters. By default they were read as nasals
+from a near run starting 198 ms after the note's end, which is the right answer for the wrong reason: the real
+murmur inside the note was not caught. So the next step is in the reader's murmur search on E4 quarters, not this
+guard. f's other 11 vowel-only misses, every /u/ on C4 quarters, are the level rule's, and they start outside
+`levelFade`'s 6 frames. A further lesson for the next held-out part: pick its cells with a measure of the rule being
+tested. `near-release.test.mjs` (2 tests) keeps K's /o/ on A3 quarters (a near-rule nasal by default, none with the
+rule, unchanged without `noteEnd`) and K's and X's sung cells unmoved. Reader only; nothing in the synthesis changed.
+Not listened to.
+
+#### Cluster onsets before -um: a murmur no reference can find (2026-11-17; opt-in, not registered)
 
 Part c's misses were 21 dark-vowel nasals read as nothing, 18 of them after a two-consonant onset (*brum*, *glum*,
 *stum*, *flum*, *prun*, A#3-E4). Read frame by frame (`eval/dark-nasal-diag.mjs c`, and the new
@@ -1304,7 +1352,33 @@ The reference fix, measured but not registered:
   none with the rule) and c's C3 quarters (nasals still read, stops and others unmoved). Reader only; nothing in the
   synthesis changed. Not listened to.
 
-#### A murmur dark in every phase (2026-11-18, latest; opt-in)
+#### One voice at the chorus's level (2026-11-18, latest; opt-in)
+
+The round below left a question: the one-voice murmur gained on the dark-vowel parts but lost the Graduale nasals
+at final D3 (held-out D 12 to 8 of 12). `eval/murmur-one-diag.mjs` reads part D's final nasals both ways. All four
+losses are 242 ms eighth notes, and on each the one-voice murmur came out 7 to 11 dB louder against its vowel than
+the chorus's, too loud for the reader's level rule (a murmur more than 5 dB under the vowel). The cause is the
+divisor. `'one'` sets the voice at the chorus's *average* power, but on a short D3 note the five voices (0.6 to 2 Hz
+apart at the fundamental) barely drift in phase, so each note's chorus is frozen at one random alignment, its low
+band anywhere from near nothing to five times the average. The vowel shares that alignment; the one voice did not.
+
+`murmurSource: 'match'` (`--murmur match`) keeps the single voice but follows the chorus's low-passed power,
+averaged over 20 ms, and holds that gain from the moment a coda's murmur starts. Pre-registered before any other
+part was run with it ([`eval/murmur-match-check.md`](eval/murmur-match-check.md)), then the full read-back:
+
+- **More nasals read than either.** Summed over every nasal row: 2,220 against the default's 2,141 and `one`'s 2,163.
+  Held-out D 12 of 12, E 20 to 22 of 22, F 209 to 213 of 218, the dark-vowel parts a-d 116/133/123/136 to
+  134/137/135/141 of 144.
+- **No vowel-only control moved** (all 108 control and bare-vowel cells identical).
+- **But the registration partly failed.** R's nasal codas 48 to 47 of 48 and Z's 46 to 44 of 48, where it predicted no
+  loss, and the tuned set A 179 to 177 of 180 (E2 *am*, *an* read as a voiced labial stop). So it stays opt-in.
+
+Four of the five new misses read as a voiced labial stop: perhaps a held-level murmur fading with the release looks
+like a voice bar and a burst. Next: test that on fresh cells. Not listened to: `--murmur match` is the version to
+play first. `murmur-match.test.mjs` (2 tests): the level follows the chorus note by note (12 D3 seeds: `one` up to
+8 dB off, `match` within 5), and everything before the closure is the same samples.
+
+#### A murmur dark in every phase (2026-11-18; opt-in)
 
 The round above traced the cluster-onset -um misses to the synthesis: the murmur is the five detuned voices
 low-passed, the voices beat, and where the closure lands in the beating decides how dark the murmur is.
@@ -1324,9 +1398,7 @@ the same samples. Measured in [`eval/murmur-one-check.md`](eval/murmur-one-check
 - **Louder is worse.** At the level `nasalGain` assumes (the voice not divided), B's nasals fell 37 to 15 of 39: the
   reader needs the murmur well under the vowel.
 
-Next: find why the D3 Graduale nasals lose with a steady murmur (their misses, `eval/dark-nasal-diag.mjs` with
-`--opt`), then pre-register a rule or a level and run it on a part built on fresh cells. Not listened to:
-`--murmur one` is the comparison to play first. `murmur-one.test.mjs` (3 tests).
+Why the D3 Graduale nasals lose, and a level that fixes most of it: the round above. `murmur-one.test.mjs` (3 tests).
 
 #### A /u/ release read as a nasal (2026-11-17; registration untested, opt-in)
 
@@ -2398,7 +2470,7 @@ Open: the EBU's own WAVs (cases 5 and 6, programme material) and a real mix.
 ## Real Gregorio files (2026-11-03)
 
 Fixed after reading the format, tested on made-up strings shaped like real files
-(`real-files.test.mjs`, 6 tests), not yet run on a batch of GregoBase files:
+(`real-files.test.mjs`, 6 tests), not yet run on a batch of GregoBase files (on 2026-11-03; since run on 139, see "Not checked yet"):
 CRLF line endings no longer defeat `%` comment stripping (a comment's text was
 being sung as a lyric); `<sp>R/</sp>`, `<sp>V/</sp>` and `<sp>'ae</sp>` keep their
 signs; `<v>` (raw TeX) and `<alt>` text, `{}` centre braces, `*` and the cross
@@ -2848,6 +2920,40 @@ they were downloaded: 13 notes added on 236 staves, 13 of 13 real heads; two fal
 podatus) became plain heads; nothing moved or removed. Three predictions, three held. Details:
 `eval/fleck-check.md`.
 
+### Staff lines broken by a short white gap (2026-11-18, later)
+
+Of the three one-step cephalici listed as "small note read as a rhombus", two were not cephalicus
+faults: the place named was a climacus the alignment paired with them. 3421 *non* was never read,
+because leaf 434's staff 3 has a white break 5 px wide in every line after *re-*, and the reader kept
+only the longest unbroken stretch of a staff (gaps of 4 px allowed), dropping *gum, et non con-*.
+On the 323 tuning pages 21 staves had such a break of 0.4 spaces or less; the side lost held up to
+1,158 px of staff, and on some staves the clef (leaf 489 staff 2). Two stretches over 3 spaces long
+are now one staff across a gap of up to 0.5 spaces, unless one is a decorated initial's box (over
+35% inked between the lines; `STAFF_JOIN` in `scan.mjs`; `readPage(img, { staffJoin: false })`
+reads as before). It changes 17 of 2,411 staves, every one a real break looked at as a crop, and no
+initial. Tuning lists: notes agreeing 24,397 to 24,479, GABC only 572 to 569; differing +6, all on
+434 staff 3, whose F clef is read two steps low with or without the join (next). Held out, 72
+Graduale leaves no list reads, committed before they were downloaded: the join changed none of their
+530 staves, so the registered "2 to 20 staves" failed; nothing got worse. The breaks cluster in parts
+of the book the held-out pick barely sampled. Details: `eval/staff-gap-check.md`; look at a place
+with `node eval/one-step-rhombus-diag.mjs ITEM:LEAF:STAFF:X`.
+
+### An F clef whose stem stands apart from its blocks (2026-11-19)
+
+Leaf 434 staff 3 (3421 *Narraverunt*) was read two steps high from end to end. The 1908 F clef is a
+square with a stem down its right side, then the C clef's two blocks. `findClef` takes the first
+columns whose ink runs 0.9 spaces or more and spreads over the tall columns next to them; there a
+white gap two pixels wide parts the stem from the blocks' curve, so the stem alone was the clef and
+its middle rounded a line low. The run now crosses a gap of up to 0.15 spaces to more tall columns,
+unless their ink reaches the edge of the search window, as a page border's does (`CLEF_BRIDGE` in
+`scan.mjs`; `readPage(img, { clefBridge: false })` reads as before). Tuning lists: notes agreeing
+24,479 to 24,538, differing 89 to 73, GABC only 569 to 564, scan only 91 to 86, one-step cephalici 78
+to 80 of 85 (3421 *non*'s included). All 240 moved notes are on six staves, each an F clef with a
+parted stem, looked at as a crop. Held out, 60 Graduale leaves no list reads, committed before they
+were downloaded: no clef changed on their 473 staves; three predictions held, but there was nothing
+there to fix. Details: `eval/clef-bridge-check.md`; look at a staff's start with
+`node eval/clef-diag.mjs ITEM:LEAF:STAFF`.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
@@ -2858,7 +2964,7 @@ podatus) became plain heads; nothing moved or removed. Three predictions, three 
   `node eval/batch-check.mjs`, `batch.test.mjs`). Checked: no crash, no warning,
   pitches 36-84, no markup left in lyrics, valid MIDI, communions, tracts, hymns
   and sequences end on their mode final. Not checked: the notes against the page
-  scans (except the ones below), or by ear. 11 of the 59 end off the mode final (introits, graduals,
+  scans (except the ones below), or by ear. 10 of the 60 now in that folder end off the mode final (introits, graduals,
   alleluias and offertories finish on a psalm-tone differentia or a verse). `node eval/offfinal-report.mjs` lists them with last notes and syllables
   (`eval/offfinal-report.md`); 5 are introits ending on "euouae". Seven of the
   11 were read against the 1908 scan on 2026-11-13 (next section): their
@@ -2874,6 +2980,14 @@ podatus) became plain heads; nothing moved or removed. Three predictions, three 
 - `fuzz.test.mjs` throws 2000 random made-up GABC strings at the reader and
   MIDI writer (no crash, pitches in range); it says nothing about real files.
 - Nothing has been arranged, sung, mixed or published.
+- **Open from the 2026-11-19 quality audit** ([`portfolio/quality/audits/2026-11-19-chant-forge.json`](../../portfolio/quality/audits/2026-11-19-chant-forge.json)):
+  introit files sing their psalm-tone cue literally. A bare "Gloria Patri" and the vowel placeholder
+  "E u o u a e" (for *saeculorum. Amen*) become sung notes in the MIDI, cue sheet and `--sing` preview,
+  and the track ends on the differentia instead of the antiphon repeat (32 corpus files). The scan
+  reader also fills vertical white gaps of a fixed 3 px whatever the staff spacing, so a head that
+  clears a staff line by 1 to 3 px can be read as two notes (`scan.mjs:74`). The mode-2 pieces
+  ending on A (3426, 3429, 3434, 3451) are the transposed second mode ending on its affinal, not
+  differentiae; the mode check should accept them.
 
 ## Rules this project keeps
 

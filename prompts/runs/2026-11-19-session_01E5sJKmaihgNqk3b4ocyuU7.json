@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKmaihgNqk3b4ocyuU7",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T04:18:43Z",
+  "ended": "2026-11-19T04:47:11Z",
+  "wall_minutes": 28.8,
+  "tokens_in": 16778305,
+  "tokens_out": 87550,
+  "cost_usd": 7.0453,
+  "tool_calls": 98,
+  "task": "ids-model-check (flagship 12): read buildingSMART-community's Excel2IDS template workbooks as IDS, and write IDS into that template",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17538",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Running Excel2IDS's own Python tool (third-party GPL code cloned for the eval) was refused twice by the auto-mode permission classifier",
+      "fix": "Did not work around it; measured with a round trip IDS -> template -> IDS on 473 real/test IDS files instead, and listed the tool differences as read from its source, not measured"
+    },
+    {
+      "what": "First comparison counted false differences: facet sort ran before attribute keys were sorted, an entity pattern was upper-cased (would turn \\d into \\D), purposes/milestones with commas split into many files",
+      "fix": "Fixed in excel2ids.mjs and the eval before reporting numbers"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes reports pytest-based platform steps as UNRUN in a cloud container (pytest missing) even when the diff touches no Python; it cost a read to confirm they were unrelated"
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Lists 834 git-ignored eval/IDS files the local build would publish; harmless but noisy when an eval fetch script (eval/fetch-testcases.sh) is the venture's own documented step that puts them there"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Allocator row 7 (ids-model-check) noted its remaining next: items need outside inputs; instead of leaving, found a buildable item those inputs approximate: the one public, widely used requirements-table template (Excel2IDS)",
+      "did": "Built the Excel2IDS reader/writer as the 'BIM manager's real table' slice",
+      "result": "landed; 309 of 309 fitting public specs round-trip; filled real workbook still needed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-ids-model-check-excel2ids-workbooks.md",
+    "ventures/ids-model-check/eval/excel2ids-2026-11-19.md"
+  ],
+  "goal": "Deepen flagship ids-model-check: meet BIM managers in the spreadsheet template they already use",
+  "notes": "Verification: run_venture_tests.py ids-model-check ok (312 tests, 8 new); venture-preflight.mjs ids-model-check clean; GitHub CI on PR 17538 all green (23 check runs, 0 failed); Playwright page smoke (drop Excel2IDS sample, audit, download as Excel2IDS) with no console errors; check_posts ok; validate.py ok. run_workflow_locally --for-changes: pages.yml 6/6, portfolio-validate.yml 100/100 run steps passed with 6 pytest steps UNRUN (no pytest; Python code untouched); stopped waiting once GitHub CI was green. Finding: the Excel2IDS sample's 'External doors' column yields a requirement that every door be an IFCWALL; the audit flags it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7e9e565d-7317-5472-9d52-c261630264e0",
+    "transcripts": 1,
+    "first": "2026-11-19T04:18:43Z",
+    "last": "2026-11-19T04:47:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 174,
+        "output": 87550,
+        "thinking": 22172,
+        "cache_read": 16529678,
+        "cache_write_5m": 0,
+        "cache_write_1h": 248453,
+        "api_equivalent_usd": 7.0453,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 174,
+      "output": 87550,
+      "thinking": 22172,
+      "cache_read": 16529678,
+      "cache_write_5m": 0,
+      "cache_write_1h": 248453,
+      "api_equivalent_usd": 7.0453,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 98,
+    "tools": {
+      "Bash": 87,
+      "Write": 7,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.8,
+      "active_minutes": 28.8,
+      "model_minutes": 14.74,
+      "tool_minutes": 14.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a developer reading the Excel2IDS template and tool, writing reader+writer, tests, a 473-file round-trip eval and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 227.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

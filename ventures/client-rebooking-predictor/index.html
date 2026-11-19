@@ -166,7 +166,7 @@
       const plan = contactPlan(last, { perWeek: Number($("#per-week").value) || 10, weeks: Number($("#plan-weeks").value) || 4 }); /* zero-default: a plan of 0 contacts or 0 weeks lists nobody */
       plan.tpl = $("#tpl").value;
       plan_ = plan;
-      $("#plan-summary").textContent = plan.items.length ? `${plan.items.length} contacts: about ${num(plan.expectedReturns, 1)} expected to book within the window${plan.expectedRevenue === null ? "" : `, roughly ${money(plan.expectedRevenue)} of one visit each`}. An estimate from past behaviour, not a promise.` : "Nobody is overdue or due, so there is nothing to plan.";
+      $("#plan-summary").textContent = plan.items.length ? `${plan.items.length} contacts: about ${num(plan.expectedReturns, 1)} expected to book within the window${plan.expectedRevenue === null ? "" : `, roughly ${money(plan.expectedRevenue)} in total if each books one visit`}. An estimate from past behaviour, not a promise.` : "Nobody is overdue or due, so there is nothing to plan.";
       $("#t-plan tbody").innerHTML = plan.items.map((c) => `<tr><td class="n">${c.week}</td><td>${esc(c.client)}</td><td>${dayToIso(c.last)}</td><td class="n">${pct(c.pBack, 0)}</td><td class="n">${c.avg === null ? "—" : money(c.avg)}</td></tr>`).join("");
     }
     let plan_ = null;
@@ -184,7 +184,7 @@
       const s = r.summary;
       $("#notices").innerHTML = [...parsed.warnings, ...r.warnings].map((w) => `<div class="warn">${esc(w)}</div>`).join("");
       const big = [
-        [`${s.counts.overdue} overdue`, `Still likely active but late${r.hasAmount ? `; about ${money(s.overdueValuePerVisit)} of one more visit each, weighted by chance still active (${money(s.overdueValuePerYear)} a year if all returned to their rhythm)` : ""}`],
+        [`${s.counts.overdue} overdue`, `Still likely active but late${r.hasAmount ? `; about ${money(s.overdueValuePerVisit)} in total for one more visit from each, weighted by chance still active (${money(s.overdueValuePerYear)} a year if all returned to their rhythm)` : ""}`],
         [`${s.counts.due} due`, `At or near their usual gap, ready to book within the window`],
         [`${s.counts.lost} probably lost`, r.hasAmount ? `Used to be worth about ${money(s.lostValuePerYear)} a year` : "Under a 20% chance still active"],
         [`${num(s.medianGap)} days`, `Typical gap between visits across the shop; ${pct(s.pi, 0)} of visits are followed by another`],

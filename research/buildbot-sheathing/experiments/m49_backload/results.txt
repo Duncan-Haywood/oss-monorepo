@@ -1,0 +1,71 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 49, section A: the 24 cells of milestone 48's post hoc table 1, both window ends
+robot | pose | H | phi | F | balance+cones LP | best cone slack (N) | combos with a hold-margin LP | best hold margin (N m; the hold QP needs tau_f 0.2) | hold combos | max base residual | max cone viol | margin at the hold force (min, max) | LP statuses | LP with t bound 1e6 solves | largest |leg tau| (N m)
+  g1 [1.0, -0.15] | 20 | 135 | 25 | True | 13.05 | 64 | 6.763 | 48 | 5.7e-14 | 5.4e-12 | 0.0, 4.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 48 of 48 | 34.2
+  g1 [1.0, -0.15] | 20 | 135 | 50 | False | -0.22 | 0 | none | 0 | - 
+  g1 [1.0, -0.15] | 20 | 180 | 25 | True | 10.04 | 64 | 7.644 | 48 | 1.1e-13 | 1.5e-11 | 0.0, 1.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 48 of 48 | 46.5
+  g1 [1.0, -0.15] | 20 | 180 | 50 | False | -3.78 | 0 | none | 0 | - 
+  g1 [1.0, -0.15] | 20 | 225 | 25 | True | 9.89 | 64 | 5.542 | 51 | 5.7e-14 | 1.4e-10 | 0.0, 0.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 51 of 51 | 50.3
+  g1 [1.0, -0.15] | 20 | 225 | 50 | False | -0.10 | 0 | none | 0 | - 
+  g1 [1.0, 0.0] | 20 | 180 | 25 | True | 13.22 | 62 | 7.994 | 54 | 1.1e-13 | 1.2e-12 | 0.0, 0.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 54 of 54 | 12.9
+  g1 [1.0, 0.0] | 20 | 180 | 50 | False | -3.78 | 0 | none | 0 | - 
+  g1 [1.0, 0.15] | 20 | 180 | 25 | True | 16.22 | 64 | 8.186 | 48 | 1.1e-13 | 1.5e-13 | 0.0, 0.1 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 48 of 48 | 12.1
+  g1 [1.0, 0.15] | 20 | 180 | 50 | False | -3.78 | 0 | none | 0 | - 
+  g1 [1.2, -0.15] | 20 | 135 | 25 | True | 10.38 | 64 | 6.378 | 48 | 5.7e-14 | 2.9e-11 | 0.0, 1.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 48 of 48 | 38.5
+  g1 [1.2, -0.15] | 20 | 135 | 50 | False | -13.56 | 0 | none | 0 | - 
+  g1 [1.2, -0.15] | 20 | 180 | 25 | True | 7.74 | 64 | 7.608 | 48 | 5.7e-14 | 6.3e-11 | 0.0, 0.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 48 of 48 | 50.1
+  g1 [1.2, -0.15] | 20 | 180 | 50 | False | -23.77 | 0 | none | 0 | - 
+  g1 [1.2, -0.15] | 20 | 225 | 25 | True | 6.98 | 64 | 5.079 | 44 | 1.1e-13 | 9.1e-11 | 0.0, 0.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 44 of 44 | 52.6
+  g1 [1.2, -0.15] | 20 | 225 | 50 | False | -13.56 | 0 | none | 0 | - 
+  g1 [1.2, -0.15] | 20 | 270 | 25 | True | 8.60 | 64 | 4.849 | 37 | 5.7e-14 | 4.8e-11 | 0.0, 0.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 37 of 37 | 42.7
+  g1 [1.2, -0.15] | 20 | 270 | 50 | False | -1.14 | 0 | none | 0 | - 
+  g1 [1.2, -0.15] | 5 | 180 | 25 | True | 15.15 | 64 | 7.775 | 48 | 1.7e-13 | 5.5e-12 | 0.0, 2.3 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 48 of 48 | 27.5
+  g1 [1.2, -0.15] | 5 | 180 | 50 | False | -1.37 | 0 | none | 0 | - 
+  g1 [1.2, 0.0] | 20 | 135 | 25 | True | 13.08 | 64 | 6.077 | 52 | 5.7e-14 | 5.0e-13 | 0.0, 0.1 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 52 of 52 | 9.6
+  g1 [1.2, 0.0] | 20 | 135 | 50 | False | -13.43 | 0 | none | 0 | - 
+  g1 [1.2, 0.0] | 20 | 180 | 25 | True | 9.97 | 64 | 7.921 | 56 | 1.1e-13 | 1.5e-12 | 0.0, 0.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 56 of 56 | 18.9
+  g1 [1.2, 0.0] | 20 | 180 | 50 | False | -23.64 | 0 | none | 0 | - 
+  g1 [1.2, 0.0] | 20 | 225 | 25 | True | 10.62 | 64 | 5.379 | 52 | 5.7e-14 | 3.8e-12 | 0.0, 0.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 52 of 52 | 20.9
+  g1 [1.2, 0.0] | 20 | 225 | 50 | False | -13.43 | 0 | none | 0 | - 
+  g1 [1.2, 0.0] | 5 | 180 | 25 | True | 17.32 | 64 | 7.783 | 56 | 1.1e-13 | 8.3e-13 | 0.0, 0.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 56 of 56 | 13.4
+  g1 [1.2, 0.0] | 5 | 180 | 50 | False | -1.24 | 0 | none | 0 | - 
+  g1 [1.2, 0.15] | 20 | 135 | 25 | True | 15.11 | 64 | 5.787 | 56 | 1.1e-13 | 5.3e-13 | 0.0, 0.5 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 56 of 56 | 9.3
+  g1 [1.2, 0.15] | 20 | 135 | 50 | False | -13.34 | 0 | none | 0 | - 
+  g1 [1.2, 0.15] | 20 | 180 | 25 | True | 10.01 | 64 | 8.083 | 48 | 1.1e-13 | 5.0e-13 | 0.0, 0.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 48 of 48 | 12.2
+  g1 [1.2, 0.15] | 20 | 180 | 50 | False | -23.55 | 0 | none | 0 | - 
+  g1 [1.2, 0.15] | 20 | 225 | 25 | True | 14.25 | 64 | 5.691 | 48 | 5.7e-14 | 7.1e-12 | 0.0, 1.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 48 of 48 | 20.8
+  g1 [1.2, 0.15] | 20 | 225 | 50 | False | -13.34 | 0 | none | 0 | - 
+  g1 [1.2, 0.15] | 5 | 180 | 25 | True | 19.18 | 64 | 7.984 | 48 | 1.1e-13 | 9.7e-13 | 0.0, 0.1 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 48 of 48 | 12.1
+  g1 [1.2, 0.15] | 5 | 180 | 50 | False | -1.15 | 0 | none | 0 | - 
+  h1 [1.6, 0.0] | 20 | 135 | 25 | True | 15.16 | 16 | 37.130 | 16 | 1.1e-13 | 1.7e-12 | 0.0, 0.4 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 16 of 16 | 34.4
+  h1 [1.6, 0.0] | 20 | 135 | 50 | False | -1.75 | 0 | none | 0 | - 
+  h1 [1.6, 0.0] | 20 | 180 | 25 | True | 11.66 | 16 | 42.296 | 15 | 1.1e-13 | 1.8e-11 | 0.0, 0.6 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 15 of 15 | 60.3
+  h1 [1.6, 0.0] | 20 | 180 | 50 | False | -9.30 | 0 | none | 0 | - 
+  h1 [1.6, 0.0] | 20 | 225 | 25 | True | 15.01 | 16 | 34.367 | 15 | 1.1e-13 | 2.0e-09 | 0.0, 0.6 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 15 of 15 | 63.2
+  h1 [1.6, 0.0] | 20 | 225 | 50 | False | -1.75 | 0 | none | 0 | - 
+  h1 [1.6, 0.15] | 20 | 135 | 25 | True | 15.50 | 16 | 31.394 | 16 | 1.1e-13 | 4.5e-13 | 0.0, 0.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 16 of 16 | 19.8
+  h1 [1.6, 0.15] | 20 | 135 | 50 | False | -1.75 | 0 | none | 0 | - 
+  h1 [1.6, 0.15] | 20 | 180 | 25 | True | 11.66 | 16 | 38.032 | 16 | 1.1e-13 | 4.8e-13 | 0.0, 1.0 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 16 of 16 | 26.5
+  h1 [1.6, 0.15] | 20 | 180 | 50 | False | -9.30 | 0 | none | 0 | - 
+  h1 [1.6, 0.15] | 20 | 225 | 25 | True | 15.50 | 16 | 34.880 | 16 | 1.1e-13 | 2.6e-13 | 0.0, 1.7 | [(0, 'Optimization terminated successfully. (HiGHS Status 7: Optim')] | 16 of 16 | 29.6
+  h1 [1.6, 0.15] | 20 | 225 | 50 | False | -1.75 | 0 | none | 0 | - 
+cells: 48
+25 N end: 24 of 24 cells balance; hold solutions 984, margin LP solves 984 of them
+50 N end: 0 of 24 cells balance; best cone slack -23.77 to -0.10 N; hold solutions 0
+
+(run time 105 s)

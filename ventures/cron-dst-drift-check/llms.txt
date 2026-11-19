@@ -10,6 +10,12 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 - [This checker vs. checking a DST calendar by hand](https://duncan-haywood.github.io/oss-monorepo/cron-dst-drift-check/vs-checking-a-dst-calendar-by-hand.html)
 - [Why cron jobs break across daylight saving](https://duncan-haywood.github.io/oss-monorepo/cron-dst-drift-check/why-cron-jobs-break-across-dst.html)
 
+## Notes
+
+- Day-of-month and day-of-week follow Vixie cron and cronie: when both fields are restricted (neither starts with `*`), a date matches either one; otherwise both must match, so `0 0 */2 * MON` runs only on odd-numbered Mondays. The tool flags expressions that cron libraries read differently.
+- `@yearly`, `@monthly`, `@weekly`, `@daily`, `@midnight` and `@hourly` expand to their five-field form; `@reboot` has no clock time and is refused. `?` in a day field (Quartz, Spring) reads as `*`.
+- An expression that never fires, such as `0 0 31 2 *`, is reported as never firing, not as free of DST risk.
+
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cron-dst-drift-check): MIT licensed.

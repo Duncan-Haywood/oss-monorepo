@@ -1,0 +1,401 @@
+group,age,answer
+control,35,Neutral
+control,65,Strongly disagree
+brochure,32,Strongly agree
+control,20,Neutral
+control,36,Neutral
+brochure,56,Strongly agree
+workshop,75,Strongly agree
+brochure,20,Strongly agree
+control,69,Disagree
+workshop,39,Strongly agree
+control,29,Agree
+control,66,Neutral
+workshop,54,Neutral
+control,48,Neutral
+workshop,38,Neutral
+workshop,55,Neutral
+control,65,Disagree
+control,50,Strongly agree
+brochure,56,Neutral
+control,70,Disagree
+control,72,Disagree
+workshop,74,Disagree
+control,29,Agree
+workshop,23,Agree
+workshop,34,Agree
+control,18,Agree
+control,35,Strongly disagree
+control,30,Strongly agree
+workshop,62,Agree
+brochure,34,Strongly agree
+control,35,Strongly disagree
+brochure,50,Strongly disagree
+workshop,40,Agree
+control,32,Neutral
+brochure,19,Agree
+brochure,73,Strongly agree
+control,42,Neutral
+control,40,Strongly agree
+control,69,Agree
+brochure,73,Agree
+control,59,Neutral
+workshop,74,Disagree
+brochure,59,Agree
+brochure,46,Disagree
+brochure,71,Strongly agree
+workshop,39,Disagree
+control,66,Agree
+workshop,52,Strongly agree
+workshop,22,Neutral
+workshop,19,Strongly agree
+workshop,63,Agree
+brochure,66,Disagree
+control,63,Neutral
+brochure,56,Strongly agree
+workshop,46,Agree
+workshop,29,Neutral
+control,20,Strongly agree
+control,38,Agree
+control,38,Neutral
+workshop,28,Neutral
+workshop,49,Strongly agree
+control,28,Agree
+control,70,Agree
+brochure,58,Neutral
+control,21,Disagree
+control,73,Neutral
+control,68,Strongly disagree
+control,70,Strongly disagree
+control,26,Disagree
+control,19,Strongly agree
+workshop,66,Agree
+workshop,34,Strongly agree
+control,47,Neutral
+workshop,55,Neutral
+brochure,70,Agree
+control,22,Disagree
+workshop,63,Strongly agree
+control,57,Strongly disagree
+brochure,73,Agree
+control,34,Disagree
+control,21,Agree
+control,52,Neutral
+workshop,60,Agree
+workshop,28,Agree
+workshop,63,Agree
+brochure,51,Neutral
+brochure,52,Strongly agree
+workshop,44,Disagree
+workshop,50,Strongly disagree
+workshop,32,Agree
+workshop,52,Strongly agree
+brochure,74,Agree
+control,19,Neutral
+control,26,Agree
+control,39,Agree
+control,73,Neutral
+control,28,Agree
+workshop,50,Agree
+workshop,31,Agree
+workshop,68,Neutral
+control,61,Strongly agree
+brochure,72,Disagree
+brochure,70,Neutral
+control,40,Agree
+workshop,69,Neutral
+control,50,Agree
+control,67,Neutral
+brochure,23,Agree
+workshop,30,Agree
+workshop,59,Agree
+control,53,Neutral
+brochure,66,Disagree
+brochure,69,Strongly agree
+workshop,55,Strongly agree
+workshop,47,Neutral
+control,69,Neutral
+workshop,44,Strongly agree
+workshop,22,Strongly agree
+brochure,47,Neutral
+control,29,Neutral
+brochure,57,Strongly disagree
+control,28,Neutral
+brochure,42,Agree
+control,34,Agree
+brochure,33,Neutral
+control,59,Agree
+brochure,54,Agree
+brochure,42,Agree
+workshop,48,Agree
+brochure,70,Agree
+brochure,52,Strongly agree
+workshop,22,Agree
+control,62,Neutral
+control,25,Agree
+workshop,72,Strongly agree
+control,21,Disagree
+brochure,43,Agree
+control,21,Disagree
+workshop,23,Agree
+control,29,Agree
+brochure,72,Strongly disagree
+control,62,Agree
+brochure,56,Strongly disagree
+brochure,41,Disagree
+brochure,30,Strongly agree
+workshop,36,Strongly agree
+control,30,Strongly agree
+workshop,46,Strongly agree
+workshop,21,Agree
+brochure,55,Strongly disagree
+brochure,41,Agree
+control,73,Strongly agree
+control,36,Strongly disagree
+brochure,69,Agree
+brochure,23,Strongly agree
+brochure,28,Strongly disagree
+workshop,51,Agree
+brochure,21,Strongly agree
+brochure,32,Agree
+workshop,30,Agree
+brochure,55,Disagree
+brochure,30,Agree
+control,71,Neutral
+control,64,Agree
+brochure,31,Strongly agree
+brochure,45,Strongly agree
+brochure,49,Neutral
+control,54,Neutral
+control,26,Neutral
+control,30,Disagree
+workshop,55,Agree
+workshop,25,Agree
+workshop,69,Agree
+brochure,48,Neutral
+workshop,54,Strongly agree
+control,43,Neutral
+brochure,52,Agree
+control,47,Agree
+brochure,31,Agree
+workshop,65,Agree
+control,43,Agree
+brochure,46,Agree
+control,23,Disagree
+brochure,32,Strongly agree
+brochure,72,Strongly disagree
+workshop,43,Agree
+control,56,Strongly agree
+brochure,27,Strongly agree
+control,64,Agree
+brochure,60,Strongly disagree
+workshop,27,Agree
+workshop,74,Strongly agree
+control,44,Neutral
+control,60,Neutral
+control,36,Disagree
+control,53,Neutral
+control,59,Neutral
+control,47,Agree
+control,75,Disagree
+control,35,Neutral
+brochure,66,Disagree
+control,53,Strongly disagree
+workshop,30,Neutral
+workshop,40,Strongly agree
+brochure,36,Strongly agree
+workshop,25,Strongly agree
+control,39,Agree
+control,48,Agree
+control,52,Agree
+control,29,Agree
+control,24,Disagree
+control,27,Disagree
+control,48,Disagree
+workshop,55,Neutral
+brochure,62,Neutral
+control,39,Strongly disagree
+brochure,32,Neutral
+brochure,33,Strongly agree
+workshop,46,Strongly agree
+brochure,23,Neutral
+control,66,Disagree
+workshop,47,Strongly agree
+control,39,Neutral
+workshop,54,Strongly agree
+brochure,74,Agree
+control,46,Agree
+brochure,21,Agree
+workshop,50,Agree
+brochure,29,Strongly disagree
+workshop,62,Neutral
+control,34,Agree
+brochure,23,Disagree
+brochure,38,Agree
+control,62,Strongly disagree
+brochure,19,Strongly agree
+brochure,65,Neutral
+workshop,60,Disagree
+workshop,35,Agree
+brochure,39,Strongly disagree
+control,42,Agree
+workshop,45,Agree
+workshop,74,Neutral
+brochure,45,Agree
+control,59,Agree
+control,65,Agree
+workshop,56,Strongly agree
+control,24,Neutral
+brochure,60,Strongly agree
+control,52,Neutral
+workshop,60,Strongly agree
+control,29,Disagree
+control,31,Neutral
+control,72,Neutral
+brochure,30,Agree
+workshop,62,Neutral
+workshop,52,Agree
+workshop,37,Neutral
+brochure,56,Strongly agree
+workshop,33,Strongly agree
+brochure,57,Disagree
+control,41,Neutral
+control,57,Strongly disagree
+brochure,28,Agree
+control,50,Strongly disagree
+brochure,51,Neutral
+control,44,Disagree
+control,57,Neutral
+control,56,Neutral
+brochure,47,Neutral
+workshop,28,Agree
+brochure,30,Neutral
+brochure,23,Strongly agree
+workshop,37,Strongly agree
+workshop,22,Strongly agree
+control,48,Agree
+control,56,Neutral
+workshop,57,Agree
+brochure,71,Agree
+control,52,Disagree
+brochure,22,Agree
+control,51,Strongly disagree
+workshop,52,Strongly agree
+control,37,Strongly disagree
+control,21,Agree
+control,75,Disagree
+control,33,Strongly agree
+brochure,67,Agree
+control,39,Strongly disagree
+brochure,28,Agree
+control,54,Neutral
+control,23,Neutral
+control,59,Agree
+control,28,Disagree
+control,32,Strongly disagree
+brochure,60,Strongly agree
+control,21,Strongly agree
+control,66,Neutral
+workshop,43,Agree
+control,37,Neutral
+control,64,Strongly agree
+workshop,54,Neutral
+control,37,Disagree
+workshop,19,Agree
+control,48,Strongly disagree
+workshop,20,Strongly agree
+brochure,60,Agree
+control,35,Agree
+brochure,37,Agree
+brochure,56,Disagree
+control,75,Agree
+control,59,Agree
+brochure,36,Agree
+workshop,52,Agree
+control,46,Disagree
+workshop,24,Strongly agree
+brochure,42,Agree
+control,21,Disagree
+workshop,70,Agree
+control,56,Disagree
+workshop,34,Disagree
+control,45,Agree
+workshop,29,Neutral
+control,43,Disagree
+brochure,73,Neutral
+brochure,74,Neutral
+control,49,Neutral
+brochure,56,Agree
+control,53,Disagree
+workshop,42,Agree
+workshop,23,Neutral
+workshop,43,Agree
+brochure,55,Strongly agree
+control,29,Neutral
+workshop,30,Neutral
+workshop,38,Strongly agree
+brochure,30,Neutral
+brochure,36,Strongly disagree
+brochure,38,Strongly disagree
+workshop,70,Neutral
+control,54,Strongly disagree
+control,36,Agree
+brochure,27,Agree
+brochure,69,Disagree
+brochure,68,Disagree
+workshop,20,Neutral
+workshop,19,Strongly agree
+control,19,Neutral
+workshop,36,Strongly agree
+brochure,43,Agree
+workshop,26,Disagree
+control,49,Agree
+control,29,Neutral
+control,37,Agree
+brochure,30,Agree
+control,31,Neutral
+brochure,19,Strongly agree
+brochure,71,Strongly agree
+brochure,27,Agree
+workshop,48,Strongly agree
+brochure,47,Strongly agree
+workshop,22,Strongly agree
+brochure,47,Agree
+brochure,55,Neutral
+control,35,Agree
+workshop,43,Disagree
+brochure,75,Strongly agree
+brochure,46,Strongly agree
+brochure,63,Strongly agree
+workshop,57,Strongly agree
+brochure,52,Disagree
+brochure,26,Strongly agree
+workshop,46,Agree
+control,21,Strongly disagree
+control,38,Strongly disagree
+workshop,67,Agree
+control,18,Disagree
+workshop,25,Strongly agree
+workshop,39,Strongly disagree
+workshop,50,Strongly agree
+workshop,54,Strongly agree
+control,58,Neutral
+workshop,63,Strongly agree
+workshop,61,Agree
+brochure,74,Disagree
+brochure,57,Strongly agree
+workshop,28,Strongly agree
+workshop,53,Strongly agree
+control,32,Agree
+control,44,Strongly disagree
+control,20,Strongly agree
+control,73,Strongly disagree
+control,61,Agree
+control,28,Neutral
+workshop,47,Agree
+workshop,68,Neutral
+brochure,31,Strongly disagree
+brochure,28,Strongly disagree
+workshop,26,Neutral
+control,31,Neutral
+workshop,19,Strongly agree

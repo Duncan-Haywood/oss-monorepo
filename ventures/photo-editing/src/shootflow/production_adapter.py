@@ -1214,7 +1214,7 @@ def _materialize_ffmpeg_grade_production_outputs(
     )
     if is_raw_path(source_path) and not is_developable_path(source_path):
         raise ProductionAdapterError(
-            f"{source_path.name}: only DNG, Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Canon CR3 raw files are developed "
+            f"{source_path.name}: only DNG, Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, Minolta MRW, Phase One IIQ and Hasselblad 3FR and FFF raw files are developed "
             f"for grading; convert "
             f"{source_path.suffix.upper().lstrip('.')} to DNG (Adobe's free DNG Converter) and ingest the DNG"
         )

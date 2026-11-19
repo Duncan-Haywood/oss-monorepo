@@ -1,0 +1,75 @@
+# Milestone 18: correlated false reports against the reciprocity filter (recall 0.85, phi = 0.5), five Monte Carlo copies of 22 rules
+B = 500 joint draws; 5 copies; reference = 47 primary rules (milestone 15's set), never swapped
+share of (draw, family, rule) cells where a key rule beats the reference best: copies 0.0023-0.0054, pooled 0.0000
+
+## sanity: the 10 kappa = 0 rules against milestone 17's copies 0-4, max |difference| 4.88e-06
+
+## per rule: joint median per copy | pooled median [5%, 95% bootstrap] | MC se | beats perfect-census top degree
+  census-degree-r0.85-fp0.5-closure                    4.24 5.56 5.54 4.93 5.61 | 5.12 [3.96, 6.64] | 0.26 | 0.008
+  census-degree-r0.85-fp0.5-closure-recip              4.39 4.86 4.53 4.36 5.18 | 4.63 [3.49, 6.00] | 0.16 | 0.130
+  census-degree-r0.85-fp0.5-closure-recip-j0.25        4.21 4.39 4.60 4.68 4.58 | 4.49 [3.24, 5.87] | 0.08 | 0.218
+  census-degree-r0.85-fp0.5-closure-recip-j0.5         4.96 4.42 4.39 4.91 4.28 | 4.59 [3.43, 5.86] | 0.14 | 0.134
+  census-degree-r0.85-fp0.5-closure-recip-j1           4.42 5.44 5.22 5.02 4.80 | 4.96 [3.66, 6.50] | 0.18 | 0.042
+  census-degree-r0.85-fp0.5-uniform                    4.39 4.25 3.80 5.01 4.63 | 4.41 [3.39, 5.69] | 0.20 | 0.212
+  census-degree-r0.85-fp0.5-uniform-recip              5.07 4.38 4.10 4.67 4.95 | 4.57 [3.32, 6.07] | 0.18 | 0.192
+  census-degree-r0.85-fp0.5-uniform-recip-j0.5         4.82 4.67 4.74 4.58 4.42 | 4.58 [3.36, 6.14] | 0.07 | 0.152
+  census-degree-r0.85-fp0.5-uniform-recip-j1           4.49 4.14 4.23 4.49 4.21 | 4.28 [3.27, 5.56] | 0.07 | 0.314
+  census-dd-r0.85-fp0.5-closure                        2.68 2.37 3.33 3.45 2.54 | 2.78 [1.95, 4.06] | 0.22 | 0.954
+  census-dd-r0.85-fp0.5-closure-recip                  1.43 2.44 2.30 2.68 2.16 | 2.18 [1.33, 3.41] | 0.21 | 0.976
+  census-dd-r0.85-fp0.5-closure-recip-j0.25            3.01 2.19 2.80 2.41 2.06 | 2.39 [1.70, 3.62] | 0.18 | 0.978
+  census-dd-r0.85-fp0.5-closure-recip-j0.5             3.30 2.72 3.26 2.95 2.84 | 2.99 [2.10, 4.12] | 0.12 | 0.920
+  census-dd-r0.85-fp0.5-closure-recip-j1               3.30 3.41 3.93 3.26 3.41 | 3.41 [2.61, 4.56] | 0.12 | 0.876
+  census-dd-r0.85-fp0.5-uniform                        2.26 2.00 2.51 2.11 2.26 | 2.16 [1.47, 3.10] | 0.09 | 0.990
+  census-dd-r0.85-fp0.5-uniform-recip                  1.47 2.06 2.03 1.86 1.82 | 1.75 [1.16, 2.73] | 0.11 | 0.990
+  census-dd-r0.85-fp0.5-uniform-recip-j0.5             2.13 2.07 2.13 2.33 2.35 | 2.15 [1.44, 3.22] | 0.06 | 0.992
+  census-dd-r0.85-fp0.5-uniform-recip-j1               2.88 2.62 2.93 2.71 2.56 | 2.69 [2.00, 3.70] | 0.07 | 0.972
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure            3.25 2.72 2.92 3.04 2.74 | 2.89 [2.11, 3.99] | 0.10 | 0.960
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip      2.83 3.20 2.87 2.77 2.92 | 2.88 [2.10, 4.08] | 0.07 | 0.952
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-j1         3.71 3.46 2.85 2.77 3.37 | 3.18 [2.42, 4.34] | 0.18 | 0.904
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip-j1   3.40 3.60 3.44 3.77 3.62 | 3.56 [2.71, 4.69] | 0.07 | 0.806
+
+## reference rows (same reference): perfect census dd-0.05 1.18, census top degree 4.02
+
+## filter: filtered minus unfiltered (negative = the filter helps) (pooled, MC se from paired copies, z)
+  census-degree|closure|0                 : -0.48 (se 0.19, z -2.6)
+  census-degree|closure|0.25              : -0.63 (se 0.23, z -2.8)
+  census-degree|closure|0.5               : -0.53 (se 0.40, z -1.3)
+  census-degree|closure|1                 : -0.16 (se 0.17, z -0.9)
+  census-degree|uniform|0                 : +0.15 (se 0.17, z +0.9)
+  census-degree|uniform|0.5               : +0.17 (se 0.25, z +0.7)
+  census-degree|uniform|1                 : -0.13 (se 0.17, z -0.8)
+  census-dd|closure|0                     : -0.60 (se 0.23, z -2.6)
+  census-dd|closure|0.25                  : -0.39 (se 0.23, z -1.7)
+  census-dd|closure|0.5                   : +0.21 (se 0.19, z +1.1)
+  census-dd|closure|1                     : +0.63 (se 0.21, z +3.0)
+  census-dd|uniform|0                     : -0.41 (se 0.14, z -2.9)
+  census-dd|uniform|0.5                   : -0.02 (se 0.11, z -0.2)
+  census-dd|uniform|1                     : +0.52 (se 0.07, z +7.9)
+  adaptive-dd-0.5-s0.75|closure|0         : -0.01 (se 0.16, z -0.1)
+  adaptive-dd-0.5-s0.75|closure|1         : +0.37 (se 0.22, z +1.7)
+
+## correlation: filtered (or survey) regret, higher kappa minus lower (pooled, MC se from paired copies, z)
+  census-degree|closure|0->0.25           : -0.15 (se 0.17, z -0.9)
+  census-degree|closure|0.25->0.5         : +0.10 (se 0.19, z +0.6)
+  census-degree|closure|0.5->1            : +0.37 (se 0.28, z +1.3)
+  census-degree|uniform|0->0.5            : +0.01 (se 0.21, z +0.1)
+  census-degree|uniform|0.5->1            : -0.30 (se 0.09, z -3.5)
+  census-dd|closure|0->0.25               : +0.21 (se 0.35, z +0.6)
+  census-dd|closure|0.25->0.5             : +0.60 (se 0.08, z +7.6)
+  census-dd|closure|0.5->1                : +0.42 (se 0.13, z +3.1)
+  census-dd|uniform|0->0.5                : +0.39 (se 0.13, z +3.1)
+  census-dd|uniform|0.5->1                : +0.54 (se 0.11, z +4.9)
+  adaptive-dd-0.5-s0.75|closure|unfiltered|0->1: +0.29 (se 0.20, z +1.5)
+  adaptive-dd-0.5-s0.75|closure|filtered|0->1: +0.68 (se 0.10, z +6.8)
+
+## break-even kappa (filter gain crosses zero, linear interpolation of pooled gains; exploratory)
+  census-degree|closure: never (the filter helps at every kappa)   gains -0.48, -0.63, -0.53, -0.16
+  census-degree|uniform: 0.00   gains +0.15, +0.17, -0.13
+  census-dd|closure: 0.41   gains -0.60, -0.39, +0.21, +0.63
+  census-dd|uniform: 0.52   gains -0.41, -0.02, +0.52
+
+H51 (the filter survives half-correlated errors: census dd, closure, kappa = 0.5, filtered better by > 2 MC se): refuted; +0.21 (se 0.19)
+H52 (fully correlated errors make the filter a pure cost: census top degree, kappa = 1, filtered worse by > 2 MC se, both placements): refuted; closure: -0.16 (se 0.18), uniform: -0.13 (se 0.17)
+H53 (more correlation never helps the filter: no adjacent closure step falls by > 2 MC se, 6 tests): held
+H54 (correlation does not rescue the filter for the half survey: closure, kappa = 1, filtered not better by > 2 MC se): held; +0.38 (se 0.22)
+H55 (filtered census dd at closure, kappa = 1 beats perfect-census top degree in >= 90% of draws): refuted; 87.6%

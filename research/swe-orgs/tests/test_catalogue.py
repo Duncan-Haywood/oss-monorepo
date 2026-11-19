@@ -84,7 +84,7 @@ def test_headline_counts_match_the_data():
             assert (int(m.group(1)), int(m.group(2))) == want, rel
 
 
-def test_readme_counts_match_the_csvs():
+def test_readme_evidence_counts_match_the_csvs():
     import re
     readme = (Path(__file__).resolve().parents[1] / "README.md").read_text()
     practices, sources = read_csv("practices.csv"), read_csv("sources.csv")

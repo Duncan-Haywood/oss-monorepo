@@ -13,6 +13,38 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3s headline** (can a robot camera use only its *past* self-calibrations as a prior? 53 real TUM windows in
+recording order, a soft prior on k<sub>1</sub> and the principal point from the camera's *earlier* windows only, starting after
+five): **yes.** The pooled median focal error falls from **2.88% to 2.32%** (lower in 30 of 43 windows, paired Wilcoxon p = 0.0006),
+the scatter by a quarter to a half, windows more than 10% wrong from 9 to 4, and the median focal length moves under 0.7%: about
+two thirds of milestone 3r's leave-one-out gain, without looking ahead. Five earlier windows already help. Updating the memory
+from the prior-steadied estimates shrinks the prior to a near-pin on k<sub>1</sub> within ten windows; here that cost nothing
+(2.42%) and cut the 10%-wrong windows to 2, but it is a pin learned from the first five windows. All eight predictions held. [Log](LOG.md).
+
+![TUM windows in recording order with a causal prior: per-window focal error by model, and the k1 prior's centre and width as the robot goes](experiments/m3s_causal/causal.png)
+
+**Milestone 3r headline** (can a robot camera's memory of its own earlier self-calibrations steady the next one? 53 real TUM
+windows, rolling-shutter model, a soft prior on k<sub>1</sub> and the principal point set to the median and spread of the same
+camera's *other* windows, no target or reference value): **yes, for scatter.** The window-to-window focal scatter falls by a
+quarter to a half (robust sd 2.1 &rarr; 1.6%, 6.0 &rarr; 3.3%, 6.0 &rarr; 4.1%), the pooled median focal error from **3.06% to
+2.43%** (lower in 35 of 53 windows, paired Wilcoxon p = 0.002), windows more than 10% wrong from 9 to 4, and the median focal
+length moves under 1%. The images barely notice (cost +0.05%). A prior from the camera's *other* recording session works as well
+(median error 0.62&ndash;0.71&times;), and k<sub>1</sub> alone does all the work. It does not touch the Xtion's +2% bias. Five of
+seven predictions held. [Log](LOG.md).
+
+![TUM windows with and without a prior from the camera's other windows: focal error by model, and per-window error with against without](experiments/m3r_prior/prior.png)
+
+**Milestone 3q headline** (after the rolling-shutter term, is TUM's leftover focal error a bias or scatter? 53 real windows,
+no new solves, scored against three calibrations of the same cameras): **scatter, not bias, on the Kinect.** The windows' median
+focal length (524.1 px on fr1/desk, 517.9 on fr1/xyz) sits inside the 1.6% that the board, the dataset authors' published
+calibration and a target-free anchor disagree by, while single windows scatter by a robust 2&ndash;6%. Where a window lands tracks
+its own k<sub>1</sub> (Spearman +0.58 on the Kinect, +0.44 to +0.72 within each sequence) and its principal point (+0.42), much
+more than its solver sd (+0.29), and a k<sub>1</sub> correction learned on one session helps the other in only one direction
+(ratio 0.54 one way, 1.66 the other). The Xtion's median stays 1.3&ndash;2.5% high against every reference. Four of seven
+predictions held. [Log](LOG.md).
+
+![TUM windows after the shutter term: focal length per window against three references, and focal error against the window's k1](experiments/m3q_residual/residual.png)
+
 **Milestone 3p headline** (what is left of TUM's focal error after the rolling-shutter term: the camera's translation, or a
 timing offset? the real TUM RGB-D video, 53 windows, with the motion-capture linear velocity entered as a known input and the
 mocap&ndash;camera offset free): **neither moves the focal length, but the offset is real.** The true velocity fits the images
@@ -1194,6 +1226,19 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3s: a causal prior from the camera's earlier windows alone cuts the pooled focal error from 2.88% to 2.32%
+(p = 0.0006) and keeps two thirds of milestone 3r's leave-one-out gain; five earlier windows are enough to help; a recursive
+memory collapses to a near-pin on k<sub>1</sub> within ten windows, harmless here. Next: a bad-start test of the recursive
+memory (seed it with the worst five windows, or another camera's), and a floor on its width; whether the prior makes the pooled sd
+honest (re-run milestone 3d's pooling with it); the Xtion's +2.8% bias by a second board calibration; and the causal prior on
+milestone 4's accept/reject gate.
+
+After milestone 3q: on the Kinect the leftover error is window-to-window scatter along the f&ndash;k<sub>1</sub>&ndash;principal-point
+ridge, inside the references' own 1.6% disagreement; the Xtion keeps a 1.3&ndash;2.5% high median. Next: a prior on k<sub>1</sub> and
+the principal point drawn from the camera's earlier windows (not a fixed board value, which milestones 3f&ndash;3j showed hurts) to
+see whether it narrows the scatter; a second board calibration of the Xtion to tell whether its high median is the window or the
+reference; longer windows (2&ndash;4 s).
 
 After milestone 3p: on TUM the mocap velocity fits but does not move f, and the mocap&ndash;image offset is about +5 ms on both
 cameras whether or not the velocity is modelled; freeing it moves f about 0.5% either way. The 1.9&ndash;4.0% left after the shutter

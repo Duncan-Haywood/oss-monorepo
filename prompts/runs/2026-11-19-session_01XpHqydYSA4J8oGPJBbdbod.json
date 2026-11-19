@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydYSA4J8oGPJBbdbod",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T13:37:55Z",
+  "ended": "2026-11-19T14:03:26Z",
+  "wall_minutes": 25.68,
+  "tokens_in": 4869393,
+  "tokens_out": 30643,
+  "cost_usd": 2.5225,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17678",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "wait_for.py's default 100 s timeout returned early twice while the run was still going; --timeout 540 worked"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says TUM hosts often 403; this run cvg.cit.tum.de served all three sequences (1.3 GB) in about 90 s, as pick_track's HOSTS RECHECK said."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "Default timeout (100 s) is shorter than the docs imply for 'wait on a background job'; the right call is --timeout 540 with a 600000 ms tool timeout."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-a-camera-prior-from-only-its-past-windows.md",
+    "research/sensing-selfcal/LOG.md (milestone 3s planned + result)"
+  ],
+  "goal": null,
+  "notes": "Milestone 3s of sensing-selfcal: causal prior on k1 and principal point from earlier TUM windows only (est_c) and a recursive one (est_cr). Pre-registered H215-H222, all held. Pooled median |e| 2.88% -> 2.32% (p = 0.0006); recursive prior collapses to a near-pin on k1 within ~10 windows, harmless here. Local checks: pytest test_m3s.py + test_m3r.py 6 passed; build.py ok; check_md_links ok; check_posts ok; cite_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "af1fb0ee-e90b-5542-9e08-9bc8a6b8b3f3",
+    "transcripts": 1,
+    "first": "2026-11-19T13:37:55Z",
+    "last": "2026-11-19T14:03:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 93,
+        "output": 30643,
+        "thinking": 5303,
+        "cache_read": 4749378,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119922,
+        "api_equivalent_usd": 2.5225,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 93,
+      "output": 30643,
+      "thinking": 5303,
+      "cache_read": 4749378,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119922,
+      "api_equivalent_usd": 2.5225,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 39,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.68,
+      "active_minutes": 24.43,
+      "model_minutes": 5.12,
+      "tool_minutes": 19.31,
+      "waiting_on_human_minutes": 1.25,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

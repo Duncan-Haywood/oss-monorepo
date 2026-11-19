@@ -11,6 +11,7 @@
 
 import { temporalKind, temporalKey } from "./temporal.mjs";
 import { nearName } from "./audit.mjs";
+import { fixStructure } from "./fix.mjs";
 
 const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
 
@@ -38,11 +39,17 @@ function ancestors(S, cls) {
 // occurrence the type is for (IFCWALLTYPE carries Pset_WallCommon). IFC2X3
 // occurrences in the type mapping table also carry their type's sets
 // (IFCFLOWTERMINAL typed as an air terminal).
+// The template type (`tt`, IFC4 and IFC4X3) narrows that: an occurrence set
+// (PSET_/QTO_OCCURRENCEDRIVEN, Pset_FanOccurrence) is not offered on a type
+// object, and a performance set (PSET_PERFORMANCEDRIVEN, Pset_FanPHistory)
+// is offered on IFCPERFORMANCEHISTORY, which carries it, not on the fan. The
+// audit's pset-occurrence and pset-performance warnings read the same field.
 function setApplies(S, cls, set, typeMap) {
   if (!set.classes.length) return false;
   const anc = ancestors(S, cls);
+  if (set.tt === "PSET_PERFORMANCEDRIVEN") return anc.includes("IFCPERFORMANCEHISTORY");
   if (set.classes.some((c) => anc.includes(c))) return true;
-  if (cls.endsWith("TYPE")) {
+  if (cls.endsWith("TYPE") && !/OCCURRENCEDRIVEN$/.test(set.tt || "")) {
     for (const t of anc) {
       if (!t.endsWith("TYPE")) continue;
       const occ = t.slice(0, -4);
@@ -78,6 +85,40 @@ export function classesWithSets(psets, S, typeMap = null) {
 // applicability naming IFCWALL misses IFCWALLSTANDARDCASE unless both are listed.
 export function subclasses(S, cls) {
   return Object.keys(S.entities).filter((c) => c !== cls && !S.entities[c].abstract && ancestors(S, c).includes(cls)).sort();
+}
+
+// Classes a schema still defines but tells writers not to use: IFC 4.3
+// deprecates IfcWallStandardCase ("IfcWall with IfcMaterialLayerSetUsage is
+// used instead") and IfcElectricDistributionBoard ("Use IfcDistributionBoard
+// instead"; buildingSMART/IFC4.3.x-development docs). They are the only
+// deprecated element classes left in IFC4X3_ADD2 (the other IFC4 standard and
+// elemented cases were deleted), and no IFC4X3 export read has one
+// (eval/deprecated-subclasses-2026-11-19.md: 0 in 57 files), while IFC4
+// exports still carry IfcWallStandardCase (151 of 572 walls). IFC4 and IFC2X3
+// list none here.
+export const DEPRECATED = {
+  IFC4X3_ADD2: new Set(["IFCWALLSTANDARDCASE", "IFCELECTRICDISTRIBUTIONBOARD", "IFCELECTRICDISTRIBUTIONBOARDTYPE"]),
+};
+const NONE = new Set();
+// The deprecated classes a specification's subclass boxes leave out: the
+// page schema's, unless the specification also names an older schema in its
+// own ifcVersion (an "IFC4 IFC4X3_ADD2" specification checks IFC4 models,
+// where IFCWALLSTANDARDCASE is a quarter of the walls).
+export function deprecatedFor(S, spec) {
+  const d = (S && own(DEPRECATED, S.name)) || NONE;
+  if (!d.size) return d;
+  const ids = schemaIdsOf(spec && spec.ifcVersion);
+  return ids.some((id) => id !== "IFC4X3") ? NONE : d;
+}
+// What a ticked "and its subclasses" box writes for `cls`: its concrete
+// subclasses without the deprecated ones (`subs`), and the deprecated ones it
+// leaves out (`left`), which the page names beside the box. A model that does
+// carry one still gets the "would not check" warning (modelSubclassesLeftOut)
+// and its Add button.
+export function boxSubclasses(S, cls, spec) {
+  const all = S.entities[cls] ? subclasses(S, cls) : [];
+  const dep = deprecatedFor(S, spec);
+  return { subs: all.filter((c) => !dep.has(c)), left: all.filter((c) => dep.has(c)) };
 }
 
 // The class's PredefinedType enumeration members, or [].
@@ -232,7 +273,9 @@ function cardinalityAttr(c) {
 //   { kind: "partOf", relation, entity, cardinality }  (entity: a class name or an entity facet)
 // Names (set, name, system, predefinedType) may also be value objects.
 export function facetXml(f, S, inRequirements) {
-  const card = inRequirements ? cardinalityAttr(f.cardinality) : "";
+  // A bSDD uri: ids.xsd allows it on requirement property, classification
+  // and material facets only, before cardinality.
+  const card = inRequirements ? (f.uri && ["property", "classification", "material"].includes(f.kind) ? ` uri="${escAttr(f.uri)}"` : "") + cardinalityAttr(f.cardinality) : "";
   if (f.kind === "entity") {
     const ptx = f.predefinedType ? nameXml(f.predefinedType) : "";
     const pt = ptx ? `<predefinedType>${ptx}</predefinedType>` : "";
@@ -323,7 +366,7 @@ export function entityFacet(S, cls, { withSubclasses = false, predefinedType = n
 // buildIds() writes; importIds() turns an opened IDS file into it.
 
 export const blankReq = () => ({ kind: "property", set: "", name: "", custom: false, untyped: false, dataType: "", cardinality: "required", mode: "any", equals: "", oneOf: [], min: "", max: "", minEx: false, maxEx: false, pattern: "", system: "", relation: "IFCRELCONTAINEDINSPATIALSTRUCTURE", entity: "IFCBUILDINGSTOREY" });
-export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], withSub: true, predefinedType: "", reqs: [blankReq()], app: [] });
+export const blankSpec = () => ({ name: "", description: "", instructions: "", optionality: "required", cls: "", also: [], alsoSub: [], withSub: true, predefinedType: "", reqs: [blankReq()], app: [] });
 
 // ------------------------------------------------- several classes per spec --
 // A specification may apply to several classes (IFCSLAB, IFCBEAM, IFCCOLUMN):
@@ -342,8 +385,38 @@ export const specBases = (spec) => [...new Set([spec.cls, ...(spec.also || [])].
 // The exact class names the specification's entity facet writes, in order.
 export function specClassNames(S, spec) {
   if (!spec.cls) return [];
-  const first = spec.withSub && S.entities[spec.cls] ? [spec.cls, ...subclasses(S, spec.cls)] : [spec.cls];
-  return [...new Set([...first, ...(spec.also || []).filter(Boolean)])];
+  const first = spec.withSub && S.entities[spec.cls] ? [spec.cls, ...boxSubclasses(S, spec.cls, spec).subs] : [spec.cls];
+  const ticked = new Set(spec.alsoSub || []);
+  const rest = (spec.also || []).filter(Boolean).flatMap((c) => (ticked.has(c) && S.entities[c] ? [c, ...boxSubclasses(S, c, spec).subs] : [c]));
+  return [...new Set([...first, ...rest])];
+}
+
+// An entity facet's class list read back as the classes a person picked:
+// [{ cls, withSub }] in the file's order. A name whose concrete subclasses are
+// all in the list (and that is not itself below another such name) stands for
+// itself and its subclasses; the subclasses it covers are not listed again;
+// every other name is an exact class. So `IFCWALL IFCWALLSTANDARDCASE
+// IFCWALLELEMENTEDCASE IFCSLAB IFCSLABSTANDARDCASE IFCSLABELEMENTEDCASE`
+// opens as IFCWALL and IFCSLAB, each with its subclasses ticked, not as six
+// exact classes. The written facet names the same set of classes. A box
+// covers only the subclasses it writes (boxSubclasses: in IFC4X3 no
+// deprecated ones), so a deprecated class the list names stays an exact class
+// and is written back, and one the list leaves out does not stop the box
+// opening ticked (the bSDD templates' IFCBUILTELEMENT without
+// IFCWALLSTANDARDCASE). `spec` gives the ifcVersion (deprecatedFor).
+export function classListBases(S, names, spec = null) {
+  const up = [...new Set(names)];
+  const inList = new Set(up);
+  const subsOf = new Map();
+  for (const c of up) {
+    if (!S.entities[c]) continue;
+    const subs = boxSubclasses(S, c, spec).subs;
+    if (subs.length && subs.every((x) => inList.has(x))) subsOf.set(c, subs);
+  }
+  // Only the topmost: IFCBUILTELEMENT's group already holds IFCWALL's.
+  const top = [...subsOf.keys()].filter((c) => !ancestors(S, c).some((a) => a !== c && subsOf.has(a)));
+  const covered = new Set(top.flatMap((c) => subsOf.get(c)));
+  return up.filter((c) => top.includes(c) || !covered.has(c)).map((cls) => ({ cls, withSub: top.includes(cls) }));
 }
 
 // Classes in a loaded model (inv.classes: [{ cls, count }]) that are a
@@ -380,13 +453,39 @@ export function modelSpec(S, cls, invClasses) {
 // A specification with no class applies to every object the other
 // applicability facets select (IDS 1.0), so any standard set may be named:
 // every set a template gives to some class.
-export function commonSets(L, classes) {
+// With a predefinedType chosen, a set the templates give only to other types
+// of these classes is left out (setTypeLimit).
+export function commonSets(L, classes, predefinedType = "") {
   const cs = classes.filter(Boolean);
   if (!cs.length) return anySets(L.psets);
   if (!cs.every((c) => knownClass(L, c))) return [];
   let out = setsFor(L.psets, L.S, cs[0], L.tm);
   for (const c of cs.slice(1)) { const s = new Set(setsFor(L.psets, L.S, c, L.tm)); out = out.filter((x) => s.has(x)); }
+  if (predefinedType) {
+    const pt = predefinedType.toLowerCase();
+    out = out.filter((x) => { const lim = setTypeLimit(L, x, cs); return !lim || lim.some((v) => v.toLowerCase() === pt); });
+  }
   return out;
+}
+
+// The predefined types a standard set is limited to on `classes` (IFC4 and
+// IFC4X3 templates: Pset_ActuatorTypeElectricActuator is for
+// IFCACTUATOR/ELECTRICACTUATOR), or null when some class carries it whatever
+// its type. Classes with no PredefinedType attribute (IFC4's IfcMaterial/Concrete
+// names a category) are never limited. The audit's pset-predefined warning
+// reads the same `pt` field (audit.mjs, predefinedIssue).
+export function setTypeLimit(L, setName, classes) {
+  const set = own(L.psets, setName);
+  if (!set || !set.pt) return null;
+  const out = new Set();
+  for (const c of classes.filter(Boolean)) {
+    if (!predefinedTypes(L.S, c).length) return null;
+    const via = set.classes.filter((t) => setApplies(L.S, c, { classes: [t] }, L.tm));
+    if (!via.length) continue;
+    if (via.some((t) => !own(set.pt, t))) return null;
+    for (const t of via) for (const v of set.pt[t]) out.add(v);
+  }
+  return out.size ? [...out] : null;
 }
 
 // Attributes every one of `classes` has and the page can edit. Their types
@@ -787,7 +886,7 @@ function reqFacet(L, r, classes = []) {
     : r.mode === "oneOf" ? oneOfValue(r, temporal) : r.mode === "range" ? rangeValue(r, temporal) : r.mode === "pattern" ? { pattern: r.pattern } : null;
   const k = r.kind === "attribute" && value ? attributeValueKind(L.S, classes, r.name) : null;
   const base = k ? (k.kind === "number" && r.numBase) || k.base : undefined;
-  return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity };
+  return { kind: r.kind, set: r.set, name: r.name, dataType: p ? p.dataType : null, value, base, cardinality: r.cardinality, system: r.system, relation: r.relation, entity: r.entity, uri: r.uri };
 }
 
 // An applicability row: the same row as a requirement, written without a
@@ -949,6 +1048,7 @@ export function facetFromParsed(f) {
   if (f.kind === "classification") Object.assign(out, { system: valueOf(f.system), value: valueOf(f.value) });
   if (f.kind === "material") out.value = valueOf(f.value);
   if (f.kind === "partOf") Object.assign(out, { relation: f.relation, entity: f.entity ? facetFromParsed(f.entity) : null });
+  if (f.uri) out.uri = f.uri;
   return out;
 }
 
@@ -957,6 +1057,8 @@ export function facetFromParsed(f) {
 function editableRow(L, classes, f) {
   const cls = classes[0];
   const r = { ...blankReq(), kind: f.kind, cardinality: f.cardinality, oneOf: [] };
+  // A bSDD link rides along unchanged (the page does not edit it).
+  if (f.uri) r.uri = f.uri;
   if (f.kind === "property") {
     r.set = simpleOf(f.propertySet); r.name = simpleOf(f.baseName);
     if (!r.set || !r.name) return null;
@@ -1132,6 +1234,21 @@ export function idsSchemaChoices(parsed) {
   return common || [];
 }
 
+// An IDS file's text as the editor opens it: the ids.xsd faults with one right
+// answer (fix.mjs: IDS 0.9 names, a bare "&", IFC4X3 for IFC4X3_ADD2, children
+// out of order, a pattern in another regex dialect) repaired first, so facets
+// kept as written are written back valid and patterns mean in every checker
+// what their authors wrote (eval/editor-open-repair-2026-11-18.md).
+// `parse` is parseIds; the repair is used only when its result parses.
+// Returns { text, fixes: [{ code, line, message }], remaining: [structure findings] }.
+export function repairOnOpen(text, parse) {
+  let fx;
+  try { fx = fixStructure(text); } catch { return { text, fixes: [], remaining: [] }; }
+  if (fx.error || !fx.fixes.length || fx.text === text) return { text, fixes: [], remaining: fx.error ? [] : fx.remaining };
+  try { parse(fx.text); } catch { return { text, fixes: [], remaining: [] }; }
+  return { text: fx.text, fixes: fx.fixes, remaining: fx.remaining };
+}
+
 // An opened IDS file as page state. `parsed` is parseIds(text); `loadFor(id)`
 // returns { S, psets, tm } for "IFC2X3" | "IFC4" | "IFC4X3".
 // Returns { state, kept, rows, dropped }: `kept` counts the facets the page
@@ -1184,18 +1301,21 @@ export function importIdsAs(parsed, loadFor, schema) {
         const up = names ? [...new Set(names)] : [];
         // Otherwise several classes: the first named, then the rest as
         // written, each an exact class.
-        let cls = null, withSub = false, also = [];
+        // Each class whose concrete subclasses are all listed opens with its
+        // subclass box ticked (classListBases).
+        let cls = null, withSub = false, also = [], alsoSub = [];
         if (up.length === 1) cls = up[0];
         else if (up.length > 1) {
-          const base = up.find((c) => L.S.entities[c] && [c, ...subclasses(L.S, c)].sort().join() === [...up].sort().join());
-          if (base) { cls = base; withSub = true; }
-          else { cls = up[0]; also = up.slice(1); }
+          const bases = classListBases(L.S, up, spec);
+          cls = bases[0].cls; withSub = bases[0].withSub;
+          also = bases.slice(1).map((b) => b.cls);
+          alsoSub = bases.slice(1).filter((b) => b.withSub).map((b) => b.cls);
         }
         const pt = f.predefinedType.present ? simpleOf(f.predefinedType) : "";
         const known = cls && [cls, ...also].every((c) => knownClass(L, c));
         const ptOk = !f.predefinedType.present || (pt && cls && commonPredefinedTypes(L.S, [cls, ...also]).includes(pt));
         if (known && ptOk) {
-          spec.cls = cls; spec.also = also; spec.withSub = withSub; spec.predefinedType = pt;
+          spec.cls = cls; spec.also = also; spec.alsoSub = alsoSub; spec.withSub = withSub; spec.predefinedType = pt;
           rows++;
           continue;
         }

@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { FOLD, PEEK_PX, foldFailures } from './fold.mjs';
+import { FOLD, PEEK_PX, foldFailures, foldTable, parseWidths } from './fold.mjs';
 
 test('a card that starts with PEEK_PX to spare passes; one px later fails', () => {
   const edge = FOLD.height - PEEK_PX;
@@ -34,4 +34,26 @@ test('the height can be overridden for a shorter phone', () => {
 test('a fractional miss never reads as "starts at N, needs N"', () => {
   const [msg] = foldFailures([{ page: 'c/for-a', top: 764.4 }], { height: 780 });
   assert.match(msg, /starts at 765px; it needs to start by 764px/);
+});
+
+test('widths: a comma list, de-duplicated; empty falls back to WIDTH or the default', () => {
+  assert.deepEqual(parseWidths('320,360, 375,390,360'), [320, 360, 375, 390]);
+  assert.deepEqual(parseWidths(undefined), [FOLD.width]);
+  assert.deepEqual(parseWidths('', '360'), [360]);
+  for (const bad of ['abc', '0', '-320', '390.5', ',']) assert.throws(() => parseWidths(bad), /width/, bad);
+});
+
+test('the --all table lists every page, deepest first, with px to spare at each width', () => {
+  const edge = FOLD.height - PEEK_PX; // 828
+  const byWidth = new Map([
+    [320, [{ page: 'c/for-a', top: 700 }, { page: 'c/for-b', top: 840.2 }, { page: 'c/for-c', top: null }]],
+    [390, [{ page: 'c/for-a', top: 650 }, { page: 'c/for-b', top: 800 }]],
+  ]);
+  const [title, head, ...rows] = foldTable(byWidth);
+  assert.match(title, new RegExp(`${edge}px line`));
+  assert.match(head, /^page\s+320px\s+390px$/);
+  assert.equal(rows.length, 3);
+  assert.match(rows[0], /^c\/for-c\s+no card\s+not loaded$/);
+  assert.match(rows[1], /^c\/for-b\s+841 \(-13\)\s+800 \(\+28\)$/);
+  assert.match(rows[2], /^c\/for-a\s+700 \(\+128\)\s+650 \(\+178\)$/);
 });

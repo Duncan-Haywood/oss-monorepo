@@ -97,6 +97,7 @@ import {
   renderCatalog,
   externalCallExceptions,
   surfaceExternalFetchHosts,
+  isPlaceholderHost,
   CARD_FOOTER,
   CARD_FOOTER_EXCEPTION,
   EXCEPTION_NOUN,
@@ -133,6 +134,7 @@ import {
   SEARCH_INDEX_FILE,
   renderSearchIndex,
   isNodeOnlyScript,
+  CATCH_ALL_MAX,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
 import { STORIES_PATH, STORY_VENTURES } from './stories.mjs';
@@ -1966,6 +1968,24 @@ test('links that escape the site are repointed at the repository, not left broke
     'the escaping link should point at the file in the repository',
   );
   assert.ok(!built.includes('href="../cli.py"'));
+});
+
+test('a venture link to ../ stays the hub, not the repository folder', async () => {
+  // The hub is written after the repairs run, so `../` used to look like it
+  // left the site and became `.../blob/main/ventures`: a "More free tools"
+  // link that opened a GitHub directory listing. Isolated, like the case above.
+  const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-hub-root-'));
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-hub-out-'));
+  const siteDir = path.join(repoRoot, 'ventures', 'widget-co');
+  await fs.mkdir(siteDir, { recursive: true });
+  await fs.writeFile(path.join(siteDir, 'index.html'), '<a href="../">More free tools</a>');
+  const destination = path.join(outDir, 'widget-co');
+  await fs.mkdir(destination, { recursive: true });
+  await fs.copyFile(path.join(siteDir, 'index.html'), path.join(destination, 'index.html'));
+
+  const repairs = await repairLinks({ publishedDir: destination, sourceDir: siteDir, repoRoot, outDir });
+  assert.deepEqual(repairs, []);
+  assert.ok((await readText(path.join(destination, 'index.html'))).includes('href="../"'));
 });
 
 test('repair leaves working in-site links untouched', async () => {
@@ -4664,11 +4684,11 @@ test('surfaceExternalFetchHosts catches a browser-level third-party request an H
     `<!doctype html><html><head>
       <link rel="canonical" href="https://example.test/site/should-not-count/">
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter">
-      <script src="https://cdn.example.com/widget.js"></script>
+      <script src="https://cdn.widgetvendor.net/widget.js"></script>
     </head><body></body></html>`,
   );
   const hosts = await surfaceExternalFetchHosts(dir);
-  assert.deepEqual(hosts, ['cdn.example.com', 'fonts.googleapis.com']);
+  assert.deepEqual(hosts, ['cdn.widgetvendor.net', 'fonts.googleapis.com']);
 });
 
 test('surfaceExternalFetchHosts ignores an HTML file with no off-origin request', async () => {
@@ -4781,6 +4801,33 @@ test('surfaceExternalFetchHosts does not report an un-resolved template placehol
     }`,
   );
   assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
+});
+
+test('surfaceExternalFetchHosts drops parsing bases, reserved test names and XML namespaces, and keeps a local model', async () => {
+  // Six tool pages said "what you type here also goes to x" because their
+  // self-hosted server parses its path with `new URL(req.url, "http://x")`;
+  // llm-spend-guard said "proxy.local" for the same reason. None of these is a
+  // request a visitor's browser makes.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-reserved-'));
+  await fs.writeFile(
+    path.join(dir, 'server.mjs'),
+    `const url = new URL(req.url, "http://x");
+    const base = new URL(req.url, 'http://proxy.local');
+    const hook = "https://hook.example/in"; const t = "https://s.test/a";
+    const bad = "https://receiver.invalid/"; const ex = "https://www.example.com/";
+    const ns = "http://www.w3.org/2000/svg";
+    const ollama = "http://localhost:11434/api/chat";
+    const real = "https://api.resend.com/emails";
+    await fetch(real);`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), ['api.resend.com', 'localhost:11434']);
+});
+
+test('isPlaceholderHost keeps real hosts that only look like the reserved names', () => {
+  for (const url of ['https://examples.com/', 'https://example.co.uk/', 'https://www.w3.org/TR/', 'http://127.0.0.1:8080/', 'https://my.testing.org/'])
+    assert.equal(isPlaceholderHost(url), false, url);
+  for (const url of ['http://x', 'https://evil.example', 'https://a.test', 'http://foo.localhost', 'https://example.org/', 'http://www.w3.org/1999/xlink'])
+    assert.equal(isPlaceholderHost(url), true, url);
 });
 
 test('a category holding a documented external-call exception says so, not "nothing you type is uploaded" unconditionally', async () => {
@@ -4987,11 +5034,11 @@ test('the About page lede states the device-privacy claim honestly, with any doc
   const about = await read('about', 'index.html');
   const [, ledeOnly] = about.match(/<p class="lede">([^<]+)<\/p>/) ?? [];
   assert.ok(ledeOnly, 'About page has no .lede paragraph to check');
-  // The lede itself stays short; the named exceptions sit directly under it,
-  // in the hero, in a disclosure the lede points at. Both are read together:
-  // the claim and its exceptions must still be in the first thing a visitor sees.
-  const [, disclosure = ''] = about.match(/<details class="exceptions">([\s\S]*?)<\/details>/) ?? [];
-  const lede = `${ledeOnly} ${disclosure}`;
+  // The lede itself stays short and says the exceptions are "listed below";
+  // they are named once, in the list under the privacy panel. Both are read
+  // together: the claim and every exception it carves out.
+  const [, listing = ''] = about.match(/<h3 id="outside-services">[\s\S]*?<ul class="callers">([\s\S]*?)<\/ul>/) ?? [];
+  const lede = `${ledeOnly} ${listing}`;
 
   const exceptions = externalCallExceptions(surfaces);
   assert.ok(!lede.includes('nothing you type into them is uploaded anywhere'), 'lede still makes the old unconditional claim');
@@ -5043,9 +5090,34 @@ test('the About page privacy panel counts its exceptions instead of assuming one
     );
     assert.match(
       about,
-      /Besides the live API calls .+ make, above, the/,
+      /Besides the live API calls .+ make, the/,
       'plural exceptions need "calls ... make", not the singular "call ... makes"',
     );
+  }
+});
+
+test('the About page names each external-call exception once, in one list, not in every sentence', async () => {
+  // Regression target: the 54 exception names were spliced into four sentences
+  // (three panel lines and the press kit's facts) and a hero disclosure, which
+  // made the phone page 19,771 px, half of it the same list of links.
+  const { surfaces } = await site();
+  const about = await read('about', 'index.html');
+  const exceptions = externalCallExceptions(surfaces);
+  if (!exceptions.length) return;
+  const [main] = about.match(/<main class="prose">[\s\S]*?<\/main>/);
+  assert.match(main, /<h3 id="outside-services">/);
+  const [, list] = main.match(/<ul class="callers">([\s\S]*?)<\/ul>/) ?? [];
+  assert.ok(list, 'no list of the exceptions under the privacy panel');
+  assert.equal((list.match(/<li>/g) ?? []).length, exceptions.length);
+  for (const x of exceptions) {
+    const href = `href="../${x.slug}/"`;
+    const times = main.split(href).length - 1;
+    const most = exceptions.length > 3 ? 1 : 4;
+    assert.ok(times >= 1 && times <= most, `${x.slug} is linked ${times} times in About's main column (want 1 to ${most})`);
+  }
+  if (exceptions.length > 3) {
+    assert.ok(!/<details class="exceptions">/.test(about), 'the hero repeats the list the panel already shows');
+    assert.ok((main.match(/href="#outside-services"/g) ?? []).length >= 3, 'the panel lines should point at the list');
   }
 });
 
@@ -5279,7 +5351,7 @@ test('the catch-all holds only what no section claims', async () => {
   // came out coherent — which is the behaviour the paragraph above asks for,
   // arrived at independently three times.
   assert.ok(
-    more.items.length <= 5,
+    more.items.length <= CATCH_ALL_MAX,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
   );
 });
@@ -6345,7 +6417,7 @@ function scrollPass({ sheets, elements, matches = (sel) => elements.filter((e) =
   new Function('navigator', 'localStorage', 'document', 'addEventListener', 'getComputedStyle', 'requestAnimationFrame', 'setTimeout',
     renderChromeModule())(
     {}, { getItem: () => null, setItem() {} }, document, () => {},
-    (e) => { asked.push(e.id); return { overflowX: e.overflowX || 'visible' }; },
+    (e) => { asked.push(e.id); return { overflowX: e.overflowX || 'visible', display: e.display, backgroundColor: e.bg }; },
     (fn) => frames.push(fn), (fn) => timers.push(fn),
   );
   const flush = () => { while (frames.length || timers.length) { (frames.shift() || timers.shift())(); } };
@@ -6377,6 +6449,41 @@ test('the scroll pass asks only the elements a rule could make scroll, and after
   assert.deepEqual(page.asked.sort(), ['fits', 'inline', 'scroller'],
     'a <p> no overflow rule names is never asked; a rule inside @media is');
   assert.deepEqual(page.stops().sort(), ['inline', 'scroller'], 'only a box that really scrolls gets a tab stop');
+});
+
+/**
+ * A wide table in our own scrolling box, for the row-name pin
+ * (docs/reports/polish-2026-11-19-pinned-row-names.md).
+ */
+function pinBox(id, { firstWidth = 80, tableDisplay = 'table', rowDisplay = 'table-row', rowSpan = 1, boxBg = 'rgba(0, 0, 0, 0)' } = {}) {
+  const cell = (w, extra = {}) => ({ colSpan: 1, rowSpan: 1, offsetWidth: w, ...extra });
+  const rows = [0, 1, 2].map((r) => ({ id: `${id}-row`, display: rowDisplay, cells: [cell(firstWidth, r === 1 ? { rowSpan } : {}), cell(120), cell(120)] }));
+  const props = {};
+  const box = wide(id, {
+    className: 'pf-table-scroll', overflowX: 'auto', matches: ['.pf-table-scroll'], nodeType: 1, bg: boxBg,
+    style: { getPropertyValue: (k) => props[k] || '', setProperty: (k, v) => { props[k] = v; } },
+    parentElement: { id: `${id}-card`, nodeType: 1, bg: 'rgb(250, 248, 240)', parentElement: null },
+  });
+  const table = { id: `${id}-table`, tagName: 'TABLE', nodeType: 1, display: tableDisplay, rows, parentElement: box };
+  box.firstElementChild = table;
+  box.children = [table];
+  box.props = props;
+  return box;
+}
+
+test('a scrolling table keeps its row names in view, with the background it sits on', () => {
+  const elements = [
+    pinBox('ok'),
+    pinBox('widefirst', { firstWidth: 200 }),
+    pinBox('cards', { tableDisplay: 'block', rowDisplay: 'block' }),
+    pinBox('rowspan', { rowSpan: 2 }),
+  ];
+  const page = scrollPass({ sheets: [{ href: null, cssRules: [rule('.pf-table-scroll', 'auto')] }], elements });
+  page.flush();
+  assert.deepEqual(page.stops().sort(), ['cards', 'ok', 'rowspan', 'widefirst'], 'every scrolling box still gets its tab stop');
+  assert.deepEqual(elements.filter((e) => 'data-pf-pin' in e.attrs).map((e) => e.id), ['ok'],
+    'not when the first column is over half the box, a venture lays rows out as cards, or a cell spans rows');
+  assert.equal(elements[0].props['--pf-pin-bg'], 'rgb(250, 248, 240)', 'a transparent box is skipped for the card it sits in');
 });
 
 test('the scroll pass sweeps every element when a stylesheet hides its rules', () => {

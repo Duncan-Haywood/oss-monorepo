@@ -1,6 +1,6 @@
 # Earthwork cut and fill calculator
 
-> Free, open-source earthwork calculator: reads survey points (PNEZD, PENZD, NEZ or ENZ, with or without a header), builds a Delaunay TIN of existing ground, and computes exact cut and fill volumes against a flat or sloped pad or a proposed-grade TIN, inside an optional boundary of any shape. Adds topsoil strip, shrink and swell, the pad elevation that balances the site, and export or import in truckloads. Runs in the browser; nothing is uploaded.
+> Free, open-source earthwork calculator: reads survey points (PNEZD, PENZD, NEZ or ENZ, with or without a header), builds a Delaunay TIN of existing ground, and computes exact cut and fill volumes against a flat or sloped pad or a proposed-grade TIN, inside an optional boundary of any shape. Adds topsoil strip, shrink and swell, the pad elevation that balances the site, export or import in truckloads, and a least-haul plan (exact optimal transport between grid cells, proved optimal by LP duality): average haul, station-yards and every cell-to-cell move. Runs in the browser; nothing is uploaded.
 
 Free and open source (MIT). Results are estimates between two triangulated surfaces, not engineering or surveying advice; check them against the engineer's grading plan and your own takeoff.
 
@@ -15,10 +15,12 @@ Free and open source (MIT). Results are estimates between two triangulated surfa
 - Design: pad elevation with optional slopes in percent (rising east, rising north), held at the boundary's centroid; or proposed-grade points in the same format; or "find balance elevation".
 - Optional boundary (easting, northing per line), topsoil strip depth, longest triangle edge, shrink %, swell %, truck capacity.
 - Units: feet (volumes in cubic yards) or metres (cubic metres).
+- Haul plan: on by default on the page; optional grid cell size (automatic, at most 900 cells). CLI: `--haul [--cell 10]`.
 
 ## How it is checked
 
 - Closed-form cases (planar slope against a pad, balance with shrink, L-shaped boundary, two planar TINs) in `earthwork.test.mjs`.
+- `haul.test.mjs` and `check/haul_differential.py`: the haul solver matches an independent min-cost flow on 60 random instances, the mass-haul-curve area on 40 one-dimensional ones, and SciPy's HiGHS LP on six site grids up to 850 cells (3e-11 relative).
 - `check/differential.py`: same triangles as SciPy's Qhull and volumes equal to 1e-13 against an independent closed form, on five 800-point sets with state-plane coordinates.
 
 ## Source

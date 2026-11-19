@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVPrJ56cba4E5m7nJYN",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T02:06:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship league-schedule-generator: balanced teams from a player list",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 17499,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "teamsCsv shipped first without a spreadsheet formula-injection guard; check_csv_formula_guard.py caught it before merge."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route draws research even when the scheduled prompt itself asks for product work; no way to pass the run's own brief to the draw."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "promptctl route drew the research track, but the scheduled task's stored prompt asks for revenue-generating product work, so the run took the allocator's venture pick (flagship row 4, league-schedule-generator) instead.",
+      "did": "venture flagship work with the research route's trailer and record kept for the draw's bookkeeping",
+      "result": "one product feature, page and post shipped"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-fair-teams-from-a-sign-up-list-with-a-proof-of-evenness.md"
+  ],
+  "goal": null,
+  "notes": "New: teams.mjs (balanced teams: sizes within one, each tag split evenly, together/apart, least gap of team totals; floor shown, exhaustive search for <=16 players), balanced-teams.html, teams.test.mjs (9), page.test.mjs (+1), eval/balanced-teams-exact.{mjs,txt}: 417 of 417 feasible random 8-16 player lists at the exhaustive least (annealing alone 413), 40-200 players at the floor in <=343 ms; 400x32 gap 2 vs floor 1. Browser: Chromium 390 px over http, example/redraw/hand-off clicked, no console errors, no horizontal scroll. Venture suite: ok, 727 tests (240.9 s) via run_venture_tests.py. unwired_checks.py caught teams.mjs's CSV export with no formula-injection guard; fixed (apostrophe prefix, plain numbers kept) with a test; guard check ok.",
+  "corrections": [],
+  "redteam": null
+}

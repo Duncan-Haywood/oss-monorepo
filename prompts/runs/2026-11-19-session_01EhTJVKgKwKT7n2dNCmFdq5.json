@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVKgKwKT7n2dNCmFdq5",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "continue work on the repo (scheduled routine prompt)",
+  "input_sha256": "4a380dc351b89d45e6f67f19121f2388aed63372eea9ed8a46bb0397d31cb52b",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T05:01:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Saints by Candlelight episode 146",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": 17544,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The scheduled prompt asks for revenue-generating software while the router sends ~10% of runs to creative; the shelves already hold 146 episodes and ~480 stories, mostly text only, so the marginal creative piece is low ROI versus the stale audio cap (docs/reports/2026-11-13-audio-cap-is-stale.md) which still awaits the owner's prompt edit."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-saints-by-candlelight-abigail-and-the-loaves.md"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight; piece: abigail-and-the-loaves-on-the-mountain-path (episode 146, First Samuel 25), text only (audio 577 MB > 400 MB cap). Checks run here: generate.mjs --check-script ok; node --test 0 fail; post frontmatter/links/check_posts/similarity ok.",
+  "corrections": [],
+  "redteam": null
+}

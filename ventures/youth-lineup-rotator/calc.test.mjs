@@ -279,3 +279,35 @@ test("CSV cells a spreadsheet would run as a formula are neutralised", () => {
   for (const line of csv) assert.doesNotMatch(line, /^"?[=+\-@]/, line);
   assert.ok(csv.some((l) => l.startsWith("\"'=HYPERLINK")), csv.join("\n"));
 });
+
+test("late floors to whole periods and late: 0 means there from the start (redteam 2026-11-19)", () => {
+  const { slots } = parseSlots("A, B");
+  const r = parsePlayers("p | late: 0\nq | late: 0.9\nr | late: 1.9\ns | late: -2", slots, 3);
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.players.map((p) => p.late), [0, 0, 1, 0]);
+});
+
+test("unfilled positions name the 1-based period they are in (redteam 2026-11-19)", () => {
+  const r = buildLineup(make("GK, DEF", "A | not: DEF\nB | not: DEF", 2, { seed: 1 }));
+  assert.deepEqual(r.unfilled.map((u) => [u.period, u.position]), [[1, "DEF"], [2, "DEF"]]);
+  assert.match(r.warnings[0], /DEF in period 1, DEF in period 2/);
+});
+
+test("minPlayWarning shows the rule as a percentage (redteam 2026-11-19)", () => {
+  const short = [{ name: "A", played: 1, need: 2, avail: 4 }];
+  assert.match(minPlayWarning(short, 0.5), /^Minimum play of 50% /);
+  assert.match(minPlayWarning(short, "0.75"), /^Minimum play of 75% /);
+});
+
+test("a child allowed in no position is an error, not a silent full game on the bench (redteam 2026-11-19)", () => {
+  const { slots } = parseSlots("GK, DEF x2");
+  // An empty "can:" used to read as "can play nothing": Ann sat all game with only a sits-twice warning.
+  const empty = parsePlayers("Ann | can:\nBob\nCy", slots, 4);
+  assert.equal(empty.errors.length, 1);
+  assert.match(empty.errors[0], /^Ann: no position/);
+  const all = parsePlayers("Ann | not: GK, DEF\nBob\nCy", slots, 4);
+  assert.match(all.errors[0], /^Ann: no position/);
+  const clash = parsePlayers("Ann | can: GK | not: GK\nBob\nCy", slots, 4);
+  assert.match(clash.errors[0], /^Ann: no position/);
+  assert.deepEqual(parsePlayers("Ann | can: GK | not: DEF\nBob", slots, 4).errors, []);
+});

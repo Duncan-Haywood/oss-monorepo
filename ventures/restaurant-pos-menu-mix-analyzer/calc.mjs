@@ -28,7 +28,7 @@ const ALIASES = {
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
+  const neg = /\([^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -104,7 +104,7 @@ function findHeader(table) {
 const isTotal = (name) => /^(total|totals|subtotal|grand total|summary|all items)\b/i.test(name.trim());
 const truthy = (s) => /^(true|yes|y|1|void|voided|x)$/i.test(String(s).trim());
 
-// Export table -> { items, skipped, refundRows, columns, error }. An item row is
+// Export table -> { items, skipped, refundRows, columns, costPctAsFraction, error }. An item row is
 // { line, name, category, qty, sales, cost }: qty and sales keep their sign
 // (refunds are negative), cost is a per-unit plate cost or null when the row
 // carries none. Voided and modifier rows are skipped, not netted.
@@ -119,6 +119,20 @@ export function normalizeSales(table, { decimalComma = false } = {}) {
   for (const [f, at] of Object.entries(cols)) columns[f] = table[h][at].trim();
   const items = [], skipped = [];
   let refundRows = 0;
+  // A cost-% column written as fractions (0.38 for 38%) would otherwise read as 0.38%.
+  // When every readable value is between 0 and 1 and one is above 0, read them as fractions
+  // (a real plate at 1% food cost or under is implausible) and report it (quality audit 2026-11-19).
+  let pctScale = 1;
+  if (cols.costPct !== undefined) {
+    const ps = [];
+    for (let i = h + 1; i < table.length; i++) {
+      const raw = (table[i][cols.costPct] ?? "").trim();
+      if (isBlank(raw) || raw.includes("%")) { if (raw.includes("%")) ps.push(Infinity); continue; }
+      const p = parseNumber(raw, decimalComma);
+      if (Number.isFinite(p)) ps.push(Math.abs(p));
+    }
+    if (ps.length && ps.every((p) => p <= 1) && ps.some((p) => p > 0)) pctScale = 100;
+  }
   for (let i = h + 1; i < table.length; i++) {
     const line = table[i], lineNo = table[i].line ?? i + 1;
     const name = get(line, "item");
@@ -135,7 +149,7 @@ export function normalizeSales(table, { decimalComma = false } = {}) {
       const price = sales / qty;
       if (cols.cost !== undefined && !isBlank(get(line, "cost"))) cost = parseNumber(get(line, "cost"), decimalComma);
       else if (cols.costTotal !== undefined && !isBlank(get(line, "costTotal"))) { const t = parseNumber(get(line, "costTotal"), decimalComma); cost = Number.isFinite(t) ? t / qty : NaN; }
-      else if (cols.costPct !== undefined && !isBlank(get(line, "costPct"))) { const p = parseNumber(get(line, "costPct"), decimalComma); cost = Number.isFinite(p) ? (Math.abs(p) / 100) * price : NaN; }
+      else if (cols.costPct !== undefined && !isBlank(get(line, "costPct"))) { const p = parseNumber(get(line, "costPct"), decimalComma); cost = Number.isFinite(p) ? ((Math.abs(p) * pctScale) / 100) * price : NaN; }
       if (cost !== null && !Number.isFinite(cost)) { skipped.push({ line: lineNo, reason: "cost not readable" }); continue; }
       if (cost !== null) cost = Math.abs(cost);
     }
@@ -143,7 +157,7 @@ export function normalizeSales(table, { decimalComma = false } = {}) {
     items.push({ line: lineNo, name, category: get(line, "category"), qty, sales, cost });
   }
   if (!items.length) return { ...empty, skipped, columns, error: "No item rows could be read. " + (skipped.length ? `${skipped.length} row(s) were skipped (first: line ${skipped[0].line}, ${skipped[0].reason}).` : "") };
-  return { items, skipped, refundRows, columns };
+  return { items, skipped, refundRows, columns, costPctAsFraction: pctScale === 100 };
 }
 
 // Pasted "item,cost" list -> { map (normalised name -> per-unit cost), names, skipped }.

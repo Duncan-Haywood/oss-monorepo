@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVMd8Fg1Z9mU3L8wDjg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on revenue-generating products; merge when done)",
+  "input_sha256": "8130cb7b14c9ebd6a387a9cc1f8a9129aa9ac8ca540b02460fd23554baa5fe26",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T14:02:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "league-schedule-generator: team sign-ups (registration) on the self-hosted league page",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 17318,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator next: is nearly all solver research (bowling SAT tables, odd-orbit nights); the product-facing gaps (registration, payments) were only visible in the README's alternatives paragraph"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row 6 chant-forge: 16 earlier leavers judged its buildable OMR/coda items marginal and that still holds; took row 4 league-schedule-generator and a product feature (registration, which the README named as the reason to use a paid platform) instead of more combinatorial tuning from its next:",
+      "did": "built registration.mjs + server routes",
+      "result": "landed with 11 tests and a live server run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-rec-league-team-sign-ups-with-a-waitlist.md"
+  ],
+  "goal": "close the biggest gap against LeagueApps/SportsEngine on the self-hosted league page: team registration, without handling cards",
+  "notes": "registration.test.mjs 11/11 pass; live server run: /register 404 while closed; publish 4 teams, open sign-ups cap 5 -> '1 of 5 places left', 5th team signed up, 6th waitlisted (place 1), approve -> teams/rosters/contacts updated and team appears on published /league page; signups.csv correct. Dockerfile COPY updated (deploy.test checks it). Full venture suite: see PR body.",
+  "corrections": [],
+  "redteam": null
+}

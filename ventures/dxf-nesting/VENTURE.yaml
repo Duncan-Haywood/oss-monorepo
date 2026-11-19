@@ -1,0 +1,46 @@
+name: dxf-nesting
+description: >-
+  Free browser tool for laser, plasma, waterjet and CNC router shops: load DXF parts, set quantities, sheet size, gap and edge margin, and get
+  true-shape nested sheets as DXF (parts inside holes, rotation steps, several sheets), with utilisation, cut length, pierce counts and an
+  independent gap check. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-18 in an explore-track session. Nothing in ventures/ nests irregular parts from DXF: laser-cutting-engraving-job-price-calculator
+# grid-nests one rectangle, cut-list-optimizer does guillotine rectangles for saws, clothing-design-studio/nest.mjs nests garment outlines on cloth.
+# Paid incumbents: SigmaNEST, ProNest, Lantek, machine vendors' nesting modules (licences in the thousands); free: Deepnest/SVGnest (GPL desktop/SVG).
+#
+# First visitor: small fab and sign shops, makers with a desktop laser or a CNC plasma table, searching "free DXF nesting software",
+# "nest DXF parts online", "deepnest alternative". Volume not measured.
+#
+# Liability boundary: geometry in, geometry out; the user's CAM and operator check every nest before cutting; not engineering advice; the page says
+# what is not modelled (lead-ins, kerf compensation, common-line cutting) and carries the no-warranty and no-SLA clauses.
+#
+# Path to revenue (payment rails stay off): free tool and lead magnet. Paid paths needing the owner: a hosted batch API for quoting portals
+# (DXF in, sheets and cut length out), and a quote page for job shops that prices a nest from cut length, pierces and sheets.
+
+hypotheses:
+  - claim: >-
+      Small laser and plasma shops without a nesting module will load a job's DXF files into a no-signup browser nester and download the
+      nested sheets, because hand-arranging parts in CAD is slow and paid nesters cost thousands; measured as the share of sheets_nested
+      events followed by dxf_downloaded.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or feedback) engage with the tool within 90 days of it being reachable from the published site.
+
+links:
+  production: https://marisstella.app/dxf-nesting/
+  analytics: null

@@ -49,7 +49,7 @@ export const DEFAULTS = {
 function number(value, label, { min = 0, max = null, exclusiveMax = false } = {}) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed) || parsed < min) {
-    throw new Error(min === 0 ? `${label} must be zero or greater.` : `${label} must be at least ${min}.`);
+    throw new Error(min === 0 ? `${label} must be zero or greater.` : min === -Infinity ? `${label} must be a number.` : `${label} must be at least ${min}.`);
   }
   if (max !== null) {
     if (exclusiveMax && parsed >= max) throw new Error(`${label} must be below ${max}.`);

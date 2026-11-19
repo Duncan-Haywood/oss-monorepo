@@ -1,0 +1,224 @@
+[
+  {
+    "file": "sample.xer",
+    "project": "Task SE",
+    "resources": 0,
+    "levelledActivities": 0,
+    "finish": "2021-10-07 16:00",
+    "levelledFinish": "2021-10-07 16:00",
+    "extensionDays": 0,
+    "lowerBound": null,
+    "moved": 0,
+    "left": 0,
+    "passes": 1,
+    "ms": 4,
+    "selfCheckHours": 0,
+    "overHoursBefore": 0,
+    "overHoursAfter": 0,
+    "zeroLagLinks": 41,
+    "brokenLinks": 0,
+    "startedEarlier": 0,
+    "unlimitedEqualsCpm": "42 of 42",
+    "crews": [
+      {
+        "scale": 2,
+        "finish": "2021-10-07 16:00",
+        "extensionDays": 0
+      },
+      {
+        "scale": 4,
+        "finish": "2021-10-07 16:00",
+        "extensionDays": 0
+      }
+    ],
+    "warnings": []
+  },
+  {
+    "file": "hotel-project.xer",
+    "project": "HBTF-2",
+    "resources": 6,
+    "levelledActivities": 2278,
+    "finish": "2014-07-23 16:00",
+    "levelledFinish": "2021-03-15 16:00",
+    "extensionDays": 2079,
+    "lowerBound": {
+      "date": "2019-02-03 15:00",
+      "resource": "R-7"
+    },
+    "moved": 1119,
+    "left": 55,
+    "passes": 856,
+    "ms": 11671,
+    "selfCheckHours": 0,
+    "overHoursBefore": 41226,
+    "overHoursAfter": 4337,
+    "zeroLagLinks": 6250,
+    "brokenLinks": 0,
+    "startedEarlier": 0,
+    "unlimitedEqualsCpm": "4236 of 4236",
+    "crews": [
+      {
+        "scale": 2,
+        "finish": "2017-03-29 16:00",
+        "extensionDays": 839
+      },
+      {
+        "scale": 4,
+        "finish": "2015-07-06 16:00",
+        "extensionDays": 297
+      }
+    ],
+    "warnings": [
+      "3 resources (R-7, E.S.L-1, RW) have a limit of 1 unit per hour, P6's default for a new resource, but the schedule uses up to 40.818 at once: if that limit was never set on purpose, set the real crew or fleet size (RSRCRATE max units) before trusting the levelled dates",
+      "55 activities could not be levelled and stay over-allocated (listed with the reason)"
+    ]
+  },
+  {
+    "file": "terminal-building-airport.xer",
+    "project": "TERMINAL-2",
+    "resources": 0,
+    "levelledActivities": 0,
+    "finish": "2013-02-27 17:00",
+    "levelledFinish": "2013-02-27 17:00",
+    "extensionDays": 0,
+    "lowerBound": null,
+    "moved": 0,
+    "left": 0,
+    "passes": 1,
+    "ms": 1,
+    "selfCheckHours": 0,
+    "overHoursBefore": 0,
+    "overHoursAfter": 0,
+    "zeroLagLinks": 56,
+    "brokenLinks": 0,
+    "startedEarlier": 0,
+    "unlimitedEqualsCpm": "66 of 66",
+    "crews": [
+      {
+        "scale": 2,
+        "finish": "2013-02-27 17:00",
+        "extensionDays": 0
+      },
+      {
+        "scale": 4,
+        "finish": "2013-02-27 17:00",
+        "extensionDays": 0
+      }
+    ],
+    "warnings": []
+  },
+  {
+    "file": "example_xer_file.xer",
+    "project": "DEMO-001",
+    "resources": 26,
+    "levelledActivities": 1391,
+    "finish": "2027-05-06 16:59",
+    "levelledFinish": "2027-06-16 09:39",
+    "extensionDays": 27.2,
+    "lowerBound": {
+      "date": "2026-11-06 10:24",
+      "resource": "RES15"
+    },
+    "moved": 297,
+    "left": 16,
+    "passes": 18,
+    "ms": 90,
+    "selfCheckHours": 0,
+    "overHoursBefore": 4524,
+    "overHoursAfter": 3037,
+    "zeroLagLinks": 454,
+    "brokenLinks": 0,
+    "startedEarlier": 0,
+    "unlimitedEqualsCpm": "404 of 404",
+    "crews": [
+      {
+        "scale": 2,
+        "finish": "2027-06-16 09:20",
+        "extensionDays": 27.2
+      },
+      {
+        "scale": 4,
+        "finish": "2027-05-06 16:59",
+        "extensionDays": 0
+      }
+    ],
+    "warnings": [
+      "10 resources (RES14, RES11, RES24, RES27, RES10, ...) have a limit of 1 unit per hour, P6's default for a new resource, but the schedule uses up to 11.39 at once: if that limit was never set on purpose, set the real crew or fleet size (RSRCRATE max units) before trusting the levelled dates",
+      "16 activities could not be levelled and stay over-allocated (listed with the reason)"
+    ]
+  },
+  {
+    "file": "CCA_R03_dt_24Oct11SC.xer",
+    "project": "CCA R03 dt 24Oct11SC",
+    "resources": 104,
+    "levelledActivities": 19107,
+    "finish": "2013-06-22 16:59",
+    "levelledFinish": "2042-10-12 15:23",
+    "extensionDays": 9142.8,
+    "lowerBound": null,
+    "moved": 9943,
+    "left": 3368,
+    "passes": 1364,
+    "ms": 188125,
+    "selfCheckHours": 0,
+    "overHoursBefore": 533608,
+    "overHoursAfter": 2049368,
+    "zeroLagLinks": 29879,
+    "brokenLinks": 0,
+    "startedEarlier": 0,
+    "unlimitedEqualsCpm": "14270 of 14270",
+    "crews": [
+      {
+        "scale": 2,
+        "finish": "2043-03-18 16:59",
+        "extensionDays": 9278
+      },
+      {
+        "scale": 4,
+        "finish": "2043-02-07 16:01",
+        "extensionDays": 9243.9
+      }
+    ],
+    "warnings": [
+      "90 resources (LAB T&C, LAB STEEL.2ND, LAB DOOR AST, LAB WALL PAINT, QTY WALL PAINT, ...) have a limit of 1 unit per hour, P6's default for a new resource, but the schedule uses up to 352947.029 at once: if that limit was never set on purpose, set the real crew or fleet size (RSRCRATE max units) before trusting the levelled dates",
+      "3368 activities could not be levelled and stay over-allocated (listed with the reason)"
+    ]
+  },
+  {
+    "file": "Expressway_Project.xer",
+    "project": "BEW3",
+    "resources": 322,
+    "levelledActivities": 3518,
+    "finish": "2016-08-28 17:00",
+    "levelledFinish": "2045-05-01 15:30",
+    "extensionDays": 10472.8,
+    "lowerBound": null,
+    "moved": 562,
+    "left": 473,
+    "passes": 64,
+    "ms": 2731,
+    "selfCheckHours": 0,
+    "overHoursBefore": 444656,
+    "overHoursAfter": 372898,
+    "zeroLagLinks": 990,
+    "brokenLinks": 0,
+    "startedEarlier": 0,
+    "unlimitedEqualsCpm": "823 of 823",
+    "crews": [
+      {
+        "scale": 2,
+        "finish": "2040-11-29 09:00",
+        "extensionDays": 8858.2
+      },
+      {
+        "scale": 4,
+        "finish": "2030-06-24 10:30",
+        "extensionDays": 5047.4
+      }
+    ],
+    "warnings": [
+      "67 resources (SKL, HEL, MAS, CAR, SFI, ...) have a limit of 1 unit per hour, P6's default for a new resource, but the schedule uses up to 465.375 at once: if that limit was never set on purpose, set the real crew or fleet size (RSRCRATE max units) before trusting the levelled dates",
+      "473 activities could not be levelled and stay over-allocated (listed with the reason)"
+    ]
+  }
+]

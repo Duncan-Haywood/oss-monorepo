@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJ41qNH5HU7VrGV9oX",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T12:06:59Z",
+  "ended": "2026-11-19T13:51:19Z",
+  "wall_minutes": 104.62,
+  "tokens_in": 4710809,
+  "tokens_out": 31853,
+  "cost_usd": 2.4367,
+  "tool_calls": 53,
+  "task": "aerolog-scaling milestone 11aq: test 11ap's inferred arrangement mechanism by recording the aware planner's labellings",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17654",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Deleted the regenerable, untracked leak.pkl cache after the run (rebuilt in 0.15 s by level_leak_run.py --build); no effect on results",
+      "impact": "none"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/aerolog-scaling/experiments/hub_airspace (leak.pkl)",
+      "issue": "LEAK_CACHE=leak.pkl is written into the experiment directory and is not gitignored, so `git add -A` on the project would commit a 690 KB pickle; I had to remember to delete it."
+    },
+    {
+      "file": "research/aerolog-scaling/experiments/hub_airspace/speed_offset.py",
+      "issue": "Pool.map with M=16 layouts taking ~600 CPU s (vs 330 s at M=12) makes total wall time ~95 min for an 11-plan-per-layout run; LOG's per-layout median hides the M=16 doubling when estimating run time."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-aerolog-planner-sorts-operators-by-offset.md",
+    "research/aerolog-scaling/LOG.md (11aq entry)",
+    "research/aerolog-scaling/paper/airspace_layers.md section 6.7"
+  ],
+  "goal": null,
+  "notes": "Pre-registered 5 predictions in arrangement.py (pushed in 8ecf6c9a5 before any layout ran). Rerun of 11ao's aware planner reproduced its h* counts exactly. P1, P2 (M=16 by a hair: 0.1635 vs bar 0.1641), P4, P5 held; P3 refuted, explained post hoc by composition (24 m plans co-locate different offsets in one level, 107 of 107). Checks run here: project tests 269 passed; paper/check_airspace_numbers.py 98 of 98; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok. No new citations.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0802af86-518a-599d-a586-dec859065b21",
+    "transcripts": 1,
+    "first": "2026-11-19T12:06:59Z",
+    "last": "2026-11-19T13:51:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 86,
+        "output": 31853,
+        "thinking": 6259,
+        "cache_read": 4600827,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109896,
+        "api_equivalent_usd": 2.4367,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 86,
+      "output": 31853,
+      "thinking": 6259,
+      "cache_read": 4600827,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109896,
+      "api_equivalent_usd": 2.4367,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 48,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 104.62,
+      "active_minutes": 104.62,
+      "model_minutes": 6.46,
+      "tool_minutes": 98.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "design and run a permutation test over recorded planner labellings, post hoc split, paper section and post: about a working day for a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 328.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

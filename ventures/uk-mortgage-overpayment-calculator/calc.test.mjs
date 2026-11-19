@@ -73,3 +73,10 @@ test("summary names the saving and the disclaimer", () => {
   assert.match(t, /saving £36,/);
   assert.match(t, /Not financial advice/);
 });
+
+test("an open-ended range says '0 or more', not 'between 0 and Infinity'", () => {
+  // Button sweep, FILL=-1, 2026-11-19.
+  const r = compute({ ...SAMPLE, monthly: "-1" });
+  assert.ok(r.errors.includes("Monthly overpayment must be a number, 0 or more."), JSON.stringify(r.errors));
+  assert.ok(!r.errors.some((e) => /Infinity/.test(e)));
+});

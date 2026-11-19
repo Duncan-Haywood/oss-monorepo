@@ -573,6 +573,67 @@
 //    rebuilt on the shipped code match the development figures above. `levelFade` stays opt-in. At 92 BPM on d's six
 //    pitches no vowel-only release reached the window's last 30 ms at the level rule's depth; a fair test needs cells
 //    chosen where it does (README).
+// Twenty-ninth round (2026-11-19): levelFade and longTilt on cells where the release lands (README "Held out where the
+//    release lands"). Part d left levelFade untested: at 92 BPM on its pitches no vowel-only release reached the window's
+//    last 30 ms. Part e is built on eval/release-cells-report.md (frame levels of the vowel-only render, readCoda never
+//    run), at 84 BPM, the one tempo in that table no other part uses: every cell of its 84 BPM rows that lands 4 or more
+//    of 8, quarters on B2, G3, C4, D4 and eighths on G2, B2, D3, E3, F3, A3, B3, E4 (12 cells; the eighths on G2, B2,
+//    E3 and A3 land 8 of 8). Its 32 syllables are sung in no other part: 12 nasals after /u/ or /o/ (*grom crom trom
+//    frum drun prum blum clum spum flon plom brom*), 5 voiced stops (*trog brub frod clog crud*), 4 nasals after a bright
+//    vowel (*dram flem brin glen*), 4 n-clusters (*brant clonc plunt grons*), 3 voiceless stops (*frup clot drup*) and 4
+//    others (*brus frul clu dro*), sung and vowel-only. Three columns: the default, `levelFade: true`, `longTilt: true`.
+//    Pre-registered here and committed before part e was run with anything:
+//    (0) the test condition: the default reads at least 3 of the 384 vowel-only control cells as something other than
+//        none; if fewer, both rules are again untested and stay opt-in;
+//    (1) levelFade against the default: the vowel-only control read as none at least 3 more; nasals after /u/ or /o/
+//        (of 144), after a bright vowel (of 48) and n-clusters as their nasal (of 48) no fewer in any; voiced stops,
+//        voiceless stops and others read exactly no fewer in total; no more stop, other or vowel-only cell read as a nasal;
+//    (2) longTilt against the default: the vowel-only control read as none at least 3 more; the three nasal rows
+//        together at most 2 fewer; stops and others no fewer in total; no more stop, other or vowel-only cell read as a
+//        nasal. (Development cost it 2 to 5 dark-vowel nasals on each of a, b, d and Z, so this is expected to fail.)
+//    (3) where it lands: at least half of the default's vowel-only misses fall on the four 8-of-8 eighth cells.
+//    A rule whose (0) and (1) or (2) all hold becomes readCoda's default, with every other part rebuilt on it; otherwise
+//    it stays opt-in.
+//    Outcome (run 2026-11-19, after the registration above was committed as a1fa70e76): (0) held, the default read 14 of
+//    384 vowel-only cells as a nasal; (1) and (2) failed: the control 370, 370 and 370 of 384, every other row of
+//    levelFade identical, longTilt's dark-vowel nasals 139 to 137; (3) failed: all 14 fell on E4 eighths, a 4-of-8 cell.
+//    Both stay opt-in. Read with eval/e4-eighth-diag.mjs, the 14 are every /u/ sung on its vowel on E4 eighths, and the
+//    rule that fires is not the level rule but the murmur against the vowel before it (NEAR), on a run 55 ms long that
+//    starts 95 ms after the note's end: release-cells measured the wrong rule. See the thirtieth round.
+// Thirtieth round (2026-11-19): a near-rule murmur after the note's end (onsets.mjs readCoda `nearRelease`, README "Held
+//    out where the release lands"). eval/level-tail-sweep.mjs --rule near (K-c, report eval/near-tail-sweep.txt) lists
+//    every near-rule nasal with where its run starts against the note's end: of 196 right reads, 195 start 26 to 175 ms
+//    before it; of 50 wrong ones, 48, every one a vowel-only /u/ or /o/, start 19 to 171 ms after it. sing.mjs sings a
+//    coda so it finishes with its note (codaPlan), so a murmur after the note's end is not a coda. The rule: with the
+//    note's end passed in (`noteEnd`, every call in this script passes n.t1), a near-rule run that starts at or after it
+//    is thrown out (opt-in `nearRelease: true`; `--near-release on`). Read off that sweep, not tuned. Development (A-e,
+//    `--near-release on` against the default): vowel-only controls read as none +70 cells (K 343 to 360 of 360, O 356 to
+//    360, R 238 to 240, S 246 to 250, W 338 to 346, X 292 to 300, Y 335 to 348, e 370 to 384); others +1 on K, L, O and
+//    W; lost: one sung *glum* on c and one *snum* on d read as none. Every row of A, B, D, E, F, H, I and the corpus parts
+//    identical (their near-rule nasals start before the note's end). Pre-registered here and committed before part f was
+//    run with anything. Part f is new: 12 nasals after /u/ or /o/ (*fon blon cron con glun snom clon smum crun plon frun
+//    slun*), 5 voiced stops (*snug frub plud glob crod*), 4 nasals after a bright vowel (*pren len gran clen*), 4
+//    n-clusters (*banc flont spant snons*), 3 voiceless stops (*glop gluc brop*) and 4 others (*dor snor pu stur*), none
+//    sung in any other part, at 86 BPM (in no other part), on all thirteen pitches of eval/release-cells-report.md (E2,
+//    G2, A2, B2, D3, E3, F3, G3, A3, B3, C4, D4, E4), quarters and eighths (26 cells), sung and vowel-only. Against the
+//    default (f's first column), `nearRelease` (its second):
+//    (0) the test condition: the default reads at least 3 of the 832 vowel-only control cells as a nasal by the near
+//        rule; if fewer, nearRelease is untested and stays opt-in;
+//    (1) the vowel-only control read as none at least 3 more, and at least 80% of the default's vowel-only near-rule
+//        nasals cleared;
+//    (2) nasals after /u/ or /o/ (of 312), after a bright vowel (of 104) and n-clusters as their nasal (of 104): at most
+//        1 fewer together;
+//    (3) voiced stops (of 130), voiceless stops (of 78) and others (of 104) read exactly: no fewer in total; no more
+//        stop or other cell read as a nasal.
+//    If (0) to (3) all hold, nearRelease becomes readCoda's default (a no-op for a caller that passes no noteEnd), with
+//    every part rebuilt on it; otherwise it stays opt-in.
+//    Outcome (run 2026-11-19, after the registration above was committed as 4f7edcc58): failed on (2), by one. (0) held:
+//    the default read 15 vowel-only cells as a nasal by the near rule, all /o/ on D3 quarters; (1) held: the control 806
+//    to 821 of 832, all 15 cleared; (2) failed: nasals after /u/ or /o/ 300 to 298 of 312 (sung *crun* and *frun* on E4
+//    quarters, read by default from a near run 198 ms after the note's end, now none), bright-vowel 102 and 102 of 104,
+//    n-clusters 102 and 102, so 2 fewer together where at most 1 was allowed; (3) held: stops and others 290 and 290 of
+//    312, 1 and 1 read as a nasal. `nearRelease` stays opt-in. The other 11 vowel-only nasals on f, every /u/ on C4
+//    quarters, are the level rule's, starting outside levelFade's 6 frames.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';
@@ -584,7 +645,7 @@ const args = process.argv.slice(2);
 const outFile = args.includes('--out') ? args[args.indexOf('--out') + 1] : new URL('./coda-check-report.md', import.meta.url);
 // --parts ABDEHIFC (default all): which parts to run; --hide-misses F: print a part's score without its misses
 // (how a held-out set is scored before a round's changes without anyone reading what it gets wrong)
-const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWXYZabcdC';
+const PARTS = args.includes('--parts') ? args[args.indexOf('--parts') + 1] : 'ABDEHIFJKLMNOPQRSTUVWXYZabcdefC';
 // --voice-bar off: the choir sung with the fixed voice-bar gain (sing.mjs `voiceBarLevel: false`, before 2026-11-16's thirteenth round)
 const VOICEBAR = !(args.includes('--voice-bar') && args[args.indexOf('--voice-bar') + 1] === 'off');
 // --wall on: the voice bar low-passed through the walls (sing.mjs `voiceBarWall: true`; tried in 2026-11-16's fourteenth round, off by default)
@@ -594,7 +655,9 @@ const WALL = WALLARG === 'on' ? true : WALLARG === 'coda' ? 'coda' : false;
 // --local off: readCoda's closure and nasal levels against the reference alone (`localRef: false`, before the fourteenth round)
 // --murmur one: a nasal's murmur sung from one voice, not the beating chorus (sing.mjs `murmurSource: 'one'`, the
 // twenty-eighth round; README "A murmur dark in every phase")
-const MURMUR = args.includes('--murmur') && args[args.indexOf('--murmur') + 1] === 'one' ? 'one' : null;
+// --murmur match: the same voice, its level matched to the chorus's just before the murmur (`murmurSource: 'match'`,
+// README "One voice at the chorus's level")
+const MURMUR = args.includes('--murmur') && ['one', 'match'].includes(args[args.indexOf('--murmur') + 1]) ? args[args.indexOf('--murmur') + 1] : null;
 const LOCALARG = args.includes('--local') ? args[args.indexOf('--local') + 1] : '';
 // --anchor on: the closure rule against the last vowel-like frames, band by band (`closeAnchor: true`, the parallel rule)
 const ANCHORARG = args.includes('--anchor') ? args[args.indexOf('--anchor') + 1] : '';
@@ -642,7 +705,10 @@ const FADEOPT = FADEARG === 'on' ? { levelFade: true } : FADEARG && FADEARG !== 
 // round; README "A darkness reference over the beating"); --long-tilt span=0.5,gap=0.45 tries other settings
 const LTARG = args.includes('--long-tilt') ? args[args.indexOf('--long-tilt') + 1] : '';
 const LTOPT = LTARG === 'on' ? { longTilt: true } : LTARG && LTARG !== 'off' ? { longTilt: Object.fromEntries(LTARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {};
-const RC = { ...RC0, ...HOLDOPT, ...FADEOPT, ...LTOPT, ...(SHUTARG === 'on' ? { lipShut: true } : SHUTARG === 'off' ? { lipShut: false } : SHUTARG ? { lipShut: Object.fromEntries(SHUTARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {}), ...(VLEADARG === 'off' ? { voicedLead: false } : {}), ...(VLEADARG && VLEADARG !== 'off' ? { voicedLead: VLEADARG.startsWith('hold') ? { gap: Number(VLEADARG.slice(4)) || 2, hold: true } : VLEADARG.startsWith('bar') ? { gap: Number(VLEADARG.slice(3)) || 2, bar: true } : Number(VLEADARG) } : {}), ...(BBARG === 'off' ? { barBurst: false } : {}), ...(VLOWARG === 'off' ? { voicelessLow: false } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
+// --near-release on: readCoda throws out a near-rule murmur starting at or after the note's end (`nearRelease: true`,
+// the twenty-ninth round's finding; README "Held out where the release lands"); every call passes the note's end
+const NRELOPT = args.includes('--near-release') && args[args.indexOf('--near-release') + 1] === 'on' ? { nearRelease: true } : {};
+const RC = { ...RC0, ...NRELOPT, ...HOLDOPT, ...FADEOPT, ...LTOPT, ...(SHUTARG === 'on' ? { lipShut: true } : SHUTARG === 'off' ? { lipShut: false } : SHUTARG ? { lipShut: Object.fromEntries(SHUTARG.split(',').map((kv) => { const [k, v] = kv.split('='); return [k, Number(v)]; })) } : {}), ...(VLEADARG === 'off' ? { voicedLead: false } : {}), ...(VLEADARG && VLEADARG !== 'off' ? { voicedLead: VLEADARG.startsWith('hold') ? { gap: Number(VLEADARG.slice(4)) || 2, hold: true } : VLEADARG.startsWith('bar') ? { gap: Number(VLEADARG.slice(3)) || 2, bar: true } : Number(VLEADARG) } : {}), ...(BBARG === 'off' ? { barBurst: false } : {}), ...(VLOWARG === 'off' ? { voicelessLow: false } : {}), ...(VELARARG === 'on' ? { compactVelar: true } : {}), ...(BARARG && BARARG !== 'off' ? { barLead: Number(BARARG) } : {}), ...PREOPTS, ...(PREARG === 'off' ? { preObstruent: false } : {}), ...(AGAINARG === 'off' ? { againGap: false } : {}), ...(VFRICARG === 'off' ? { vfricHi5: false } : {}), ...(DEEPARG === 'on' ? { deepMurmur: true } : {}), ...(LOCALARG === 'off' ? { localRef: false } : {}), ...(ANCHORARG === 'on' ? { closeAnchor: true } : {}) };
 const rate = 44100, corpus = new URL('../corpus/', import.meta.url);
 const lines = [];
 const pct = (a, b) => `${a} of ${b} (${b ? ((100 * a) / b).toFixed(1) : '-'}%)`;
@@ -689,7 +755,7 @@ for (const [name, midi] of PITCHES) {
     SY.forEach((s, j) => {
       const n = notes[j], cd = latinCoda(s), want = expectedRead(cd[0]);
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25;
-      const got = readCoda(x, rate, n.t0 + 0.1, tEnd, RC);
+      const got = readCoda(x, rate, n.t0 + 0.1, tEnd, { ...RC, noteEnd: n.t1 });
       const sc = aScore[sing];
       sc[1]++;
       if (sing === true) { if (match(want, got)) { sc[0]++; row.true++; } else misses.push(`${name} *${s}* (${label(want)}) read as ${label(got)}`); if (want.cls === got.cls) sc[2]++; }
@@ -722,7 +788,7 @@ function scorePieces(list, hide = false) {
       const vAt = vowelStart(n, on), tEnd = nextSound(sungR.notes, k, firstOf);
       // the reference must be steady vowel: before the coda's room (35% of the note and its transition)
       if (vAt + 0.06 > n.t1 - 0.35 * (n.t1 - n.t0) - 0.045 || tEnd - vAt < 0.15) { t.skipped++; return; }
-      const got = readCoda(sungR.x, rate, vAt, tEnd, RC), gotC = readCoda(ctlR.x, rate, vAt, tEnd, RC);
+      const got = readCoda(sungR.x, rate, vAt, tEnd, { ...RC, noteEnd: n.t1 }), gotC = readCoda(ctlR.x, rate, vAt, tEnd, { ...RC, noteEnd: n.t1 });
       if (!cd.length) { t.bare[1]++; if (got.cls === 'none') t.bare[0]++; t.bareCtl[1]++; if (gotC.cls === 'none') t.bareCtl[0]++; return; }
       const nx = sungR.notes[k + 1], nxOn = nx && firstOf.has(nx) ? latinOnset(nx.lyric) : [];
       const want = expectedRead(cd[0]), ok = match(want, got);
@@ -805,7 +871,7 @@ const OTHER = !PARTS.includes('F') ? [] : readdirSync(corpus).filter((d) => d.st
       const on = firstOf.has(n) ? latinOnset(n.lyric) : [], vAt = vowelStart(n, on), tEnd = nextSound(sungR.notes, k, firstOf);
       if (vAt + 0.06 > n.t1 - 0.35 * (n.t1 - n.t0) - 0.045 || tEnd - vAt < 0.15) return;
       for (const [mode, tilt] of [['on', undefined], ['off', 0]]) {
-        const got = readCoda(sungR.x, rate, vAt, tEnd, { ...RC, murmurTilt: tilt });
+        const got = readCoda(sungR.x, rate, vAt, tEnd, { ...RC, murmurTilt: tilt, noteEnd: n.t1 });
         if (cd[0] === 'l') {
           const t = tally.l[mode]; t[2]++; if (got.cls === 'none') t[0]++; if (got.cls === 'nasal') t[1]++;
           if (mode === 'on' && got.cls !== 'none') lMiss.push(`${p} *${n.lyric}*: read as ${label(got)}`);
@@ -845,7 +911,7 @@ for (const pulses of [4, 2]) for (const midi of [40, 45, 50, 55, 60, 64]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
       for (const [mode, o] of [['on', RC], ['off', { ...RC, preObstruent: false }]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (mode === 'on' && !ok && grp === 'cluster') jMiss.push(`${pulses === 4 ? 'quarter' : 'eighth'} ${midi} *${s}* read as ${label(got)}`);
       }
@@ -876,7 +942,7 @@ for (const pulses of [4, 2]) for (const midi of [47, 53, 57, 59, 62]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
       for (const [mode, o] of [['on', RC], ['off', { ...RC, againGap: false }]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'other' && got.cls === 'nasal' && want.cls !== 'nasal') kNasal[mode] = (kNasal[mode] || 0) + 1;
         if (mode === 'on' && !ok && grp !== 'cluster') { const key = `${grp === 'other' ? s : `${s} (vowel only)`} as ${label(got)}`; kOther.set(key, (kOther.get(key) || 0) + 1); }
@@ -916,7 +982,7 @@ for (const pulses of [4, 2]) for (const midi of [43, 48, 51, 56, 61]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (IS.includes(s) ? 'i' : ZV.includes(s) ? 'zv' : 'other') : IS.includes(s) ? 'control i' : 'control';
       for (const [mode, o] of [['on', RC], ['off', { ...RC, vfricHi5: false }]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (mode === 'on' && !ok && !HIDE.includes('L')) { const key = `${sing === true ? s : `${s} (vowel only)`} as ${label(got)}`; lMiss.set(key, (lMiss.get(key) || 0) + 1); }
       }
@@ -954,7 +1020,7 @@ for (const pulses of [4, 2]) for (const midi of [43, 48, 52, 56, 61, 63]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (IS.includes(s) ? 'i' : OTH.includes(s) ? 'other' : s.endsWith('z') ? 'z' : 'v') : 'control';
       for (const [mode, o] of [['on', RC], ['off', { ...RC, vfricHi5: false }]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'control' && got.cls === 'fricative' && got.place === 'voiced') bump(`cvf ${mode}`, true);
         if (mode === 'on' && !ok && !HIDE.includes('M')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; lMiss.set(key, (lMiss.get(key) || 0) + 1); }
@@ -993,7 +1059,7 @@ for (const pulses of [4, 2]) for (const midi of [42, 49, 54, 58, 63, 64]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
       for (const [mode, o] of [['on', { ...RC, deepMurmur: true }], ['off', { ...RC, deepMurmur: false }]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'cluster' && pulses === 2 && midi >= 63) bump(`high ${mode}`, ok);
         if (grp === 'other' && VST.includes(s) && got.cls === 'nasal') nVst[mode] = (nVst[mode] || 0) + 1;
@@ -1032,7 +1098,7 @@ for (const pulses of [4, 2]) for (const midi of [41, 52, 57, 62, 63, 64]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
       for (const [mode, o] of [['on', { ...RC, deepMurmur: true }], ['off', { ...RC, deepMurmur: false }]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'cluster' && pulses === 2 && midi >= 62) bump(`high ${mode}`, ok);
         if (grp === 'other' && VST.includes(s) && got.cls === 'nasal') oVst[mode] = (oVst[mode] || 0) + 1;
@@ -1073,7 +1139,7 @@ for (const pulses of [4, 2]) for (const midi of [43, 50, 56, 61, 62, 65]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (POS.includes(s) ? 'cluster' : 'other') : 'control';
       for (const [mode, o] of [['on', RC], ['off', RCB]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'cluster' && pulses === 2 && midi >= 61) bump(`high ${mode}`, ok);
         if (grp === 'other' && VST.includes(s) && got.cls === 'nasal') pVst[mode] = (pVst[mode] || 0) + 1;
@@ -1111,7 +1177,7 @@ for (const pulses of [4, 2]) for (const midi of [45, 53, 58, 60, 63]) {
       const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (VST.includes(s) ? 'vst' : 'other') : 'control';
-      const got = readCoda(x, rate, vAt, tEnd, RC), ok = match(want, got);
+      const got = readCoda(x, rate, vAt, tEnd, { ...RC, noteEnd: n.t1 }), ok = match(want, got);
       bump(`${grp} ${mode}`, ok);
       if (grp === 'vst' && got.cls === 'none') qNone[mode] = (qNone[mode] || 0) + 1;
       if (mode === 'on' && !ok && !HIDE.includes('Q')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; qMiss.set(key, (qMiss.get(key) || 0) + 1); }
@@ -1150,7 +1216,7 @@ for (const pulses of [4, 2]) for (const midi of [46, 55, 61, 62, 64, 65]) {
       const grp = sing === true ? (VST.includes(s) ? 'vst' : NAS.includes(s) ? 'nasal' : 'other') : 'control';
       const modes = wall === WALL ? [['on', RC], ['off', { ...RC, localRef: false }]] : [['wall', RC]];
       for (const [mode, o] of modes) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'vst' && got.cls === 'none') rNone[mode] = (rNone[mode] || 0) + 1;
         if (grp === 'vst' && got.cls === 'nasal') rNas[mode] = (rNas[mode] || 0) + 1;
@@ -1191,7 +1257,7 @@ for (const pulses of [4, 2]) for (const midi of [44, 46, 52, 60, 65]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (VST.includes(s) ? 'vst' : 'other') : 'control';
       for (const [mode, o] of MODES) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'other' && got.cls === 'stop' && want.cls !== 'stop') sStop[mode] = (sStop[mode] || 0) + 1;
         if (mode === 'local' && !ok && !HIDE.includes('S')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; sMiss.set(key, (sMiss.get(key) || 0) + 1); }
@@ -1230,7 +1296,7 @@ for (const pulses of [4, 2]) for (const midi of [47, 54, 59, 62, 63, 64]) {
       const grp = sing === true ? (VST.includes(s) ? 'vst' : NAS.includes(s) ? 'nasal' : 'other') : 'control';
       const modes = wall ? [['wall', DEF], ['both', ANC]] : [['def', DEF], ['anchor', ANC]];
       for (const [mode, o] of modes) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'vst' && got.cls === 'none') tNone[mode] = (tNone[mode] || 0) + 1;
         if (grp === 'vst' && got.cls === 'nasal') tNas[mode] = (tNas[mode] || 0) + 1;
@@ -1272,7 +1338,7 @@ for (const pulses of [4, 2]) for (const midi of [45, 50, 56, 58, 61, 63]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (VST.includes(s) ? 'vst' : NAS.includes(s) ? 'nasal' : CLU.includes(s) ? 'cluster' : 'other') : 'control';
       for (const [mode, o] of [['def', DEF], ['bar', BAR]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'vst' && got.cls === 'none') uNone[mode] = (uNone[mode] || 0) + 1;
         if (grp === 'vst' && got.cls === 'nasal') uNas[mode] = (uNas[mode] || 0) + 1;
@@ -1314,7 +1380,7 @@ for (const pulses of [4, 2]) for (const midi of [43, 53, 55, 57, 59, 62]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (VEL.includes(s) ? 'vel' : LAB.includes(s) ? 'lab' : ALV.includes(s) ? 'alv' : 'other') : 'control';
       for (const [mode, o] of [['def', DEF], ['cv', CV]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'vel' && got.cls === 'stop' && got.place === 'lab') asLab[mode] = (asLab[mode] || 0) + 1;
         if (grp === 'lab' && got.cls === 'stop' && got.place === 'vel') asVel[mode] = (asVel[mode] || 0) + 1;
@@ -1357,7 +1423,7 @@ for (const pulses of [4, 2]) for (const midi of [45, 52, 56, 58, 59, 61]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (PL.includes(s) ? 'p' : KV.includes(s) ? 'k' : VD.includes(s) ? 'voiced' : ALV.includes(s) ? 'alv' : 'other') : 'control';
       for (const [mode, o] of [['def', DEF], ['vl', VL]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'p' && got.cls === 'stop' && got.place === 'vel') pAsK[mode] = (pAsK[mode] || 0) + 1;
         if (grp === 'k' && got.cls === 'stop' && got.place === 'lab') kAsP[mode] = (kAsP[mode] || 0) + 1;
@@ -1399,7 +1465,7 @@ for (const pulses of [4, 2]) for (const midi of [46, 55, 61, 62, 63, 64]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (VD.includes(s) ? 'voiced' : NAS.includes(s) ? 'nasal' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
       for (const [mode, o] of [['def', DEF], ['bb', BBON]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'voiced' && midi >= 61) { bump(`voicedhi ${mode}`, ok); if (got.cls === 'nasal' || got.cls === 'none') asNasNone[mode] = (asNasNone[mode] || 0) + 1; }
         if (grp === 'cluster' && got.cls === 'stop') clAsStop[mode] = (clAsStop[mode] || 0) + 1;
@@ -1442,7 +1508,7 @@ for (const pulses of [4, 2]) for (const midi of [44, 57, 60, 61, 62, 64]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (VD.includes(s) ? 'voiced' : NAS.includes(s) ? 'nasal' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
       for (const [mode, o] of [['def', OFF], ['vl', ON]]) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'voiced' && got.cls === 'nasal') asNas[mode] = (asNas[mode] || 0) + 1;
         if ((grp === 'nasal' || grp === 'cluster') && got.cls === 'stop' && got.voiced) nasAsStop[mode] = (nasAsStop[mode] || 0) + 1;
@@ -1485,7 +1551,7 @@ for (const pulses of [4, 2]) for (const midi of [45, 54, 59, 61, 63, 64]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (VD.includes(s) ? 'voiced' : NAS.includes(s) ? 'nasal' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
       for (const [mode, o] of MODES) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'voiced' && got.cls === 'nasal') asNas[mode] = (asNas[mode] || 0) + 1;
         if ((grp === 'nasal' || grp === 'cluster') && got.cls === 'stop') nasAsStop[mode] = (nasAsStop[mode] || 0) + 1;
@@ -1528,7 +1594,7 @@ for (const pulses of [4, 2]) for (const midi of [50, 56, 60, 62, 63, 64]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (DK.includes(s) ? 'dark' : VD.includes(s) ? 'voiced' : BR.includes(s) ? 'bright' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
       for (const [mode, o] of MODES) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'dark' && midi >= 62) bump(`darkhi ${mode}`, ok);
         if ((grp === 'voiced' || grp === 'voiceless' || grp === 'other' || grp === 'control') && got.cls === 'nasal') asNas[mode] = (asNas[mode] || 0) + 1;
@@ -1572,7 +1638,7 @@ for (const pulses of [4, 2]) for (const midi of [49, 57, 61, 62, 63, 64]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (DK.includes(s) ? 'dark' : VD.includes(s) ? 'voiced' : BR.includes(s) ? 'bright' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
       for (const [mode, o] of MODES) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'dark' && midi >= 62) bump(`darkhi ${mode}`, ok);
         if ((grp === 'voiced' || grp === 'voiceless' || grp === 'other' || grp === 'control') && got.cls === 'nasal') asNas[mode] = (asNas[mode] || 0) + 1;
@@ -1613,7 +1679,7 @@ for (const pulses of [4, 2]) for (const midi of [48, 58, 60, 62, 63, 64]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (DK.includes(s) ? 'dark' : VD.includes(s) ? 'voiced' : BR.includes(s) ? 'bright' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
       for (const [mode, o] of MODES) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if (grp === 'dark' && midi >= 62) bump(`darkhi ${mode}`, ok);
         if ((grp === 'voiced' || grp === 'voiceless' || grp === 'other' || grp === 'control') && got.cls === 'nasal') asNas[mode] = (asNas[mode] || 0) + 1;
@@ -1655,7 +1721,7 @@ for (const pulses of [4, 2]) for (const midi of [51, 52, 57, 58, 59, 61]) {
       const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
       const grp = sing === true ? (DK.includes(s) ? 'dark' : VD.includes(s) ? 'voiced' : BR.includes(s) ? 'bright' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
       for (const [mode, o] of MODES) {
-        const got = readCoda(x, rate, vAt, tEnd, o), ok = match(want, got);
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
         bump(`${grp} ${mode}`, ok);
         if ((grp === 'voiced' || grp === 'voiceless' || grp === 'other' || grp === 'control') && got.cls === 'nasal') asNas[mode] = (asNas[mode] || 0) + 1;
         if (!ok && !HIDE.includes('d')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; miss[mode].set(key, (miss[mode].get(key) || 0) + 1); }
@@ -1675,6 +1741,100 @@ lines.push('## d. Held out: a release read as a nasal (twenty-sixth round)', '',
   row('vowel-only control read as none', 'control'), cnt('stops, others and vowel-only control read as a nasal', asNas), '',
   'Misses, default (count over the twelve pitch and length cells):', '', list(miss.def), '',
   'Misses with `levelFade`:', '', list(miss.fade), '');
+}
+
+// The twenty-ninth round's held-out set (levelFade and longTilt, pre-registered in the header): the cells of
+// eval/release-cells-report.md's 84 BPM rows that land 4 or more of 8, none of its syllables sung before
+if (PARTS.includes('e')) {
+const DK = ['grom', 'crom', 'trom', 'frum', 'drun', 'prum', 'blum', 'clum', 'spum', 'flon', 'plom', 'brom'];
+const VD = ['trog', 'brub', 'frod', 'clog', 'crud'], BR = ['dram', 'flem', 'brin', 'glen'], CL = ['brant', 'clonc', 'plunt', 'grons'], VLS = ['frup', 'clot', 'drup'], NEG = ['brus', 'frul', 'clu', 'dro'];
+const SY = [...DK, ...VD, ...BR, ...CL, ...VLS, ...NEG], tally = {}, miss = { def: new Map(), fade: new Map(), tilt: new Map() }, asNas = {}, ctlCell = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const MODES = [['def', { ...RC, levelFade: false, longTilt: false }], ['fade', { ...RC, levelFade: true, longTilt: false }], ['tilt', { ...RC, levelFade: false, longTilt: true }]];
+const NAMES = { 43: 'G2', 47: 'B2', 50: 'D3', 52: 'E3', 53: 'F3', 55: 'G3', 57: 'A3', 59: 'B3', 60: 'C4', 62: 'D4', 64: 'E4' };
+const CELLS = [[4, 47], [4, 55], [4, 60], [4, 62], [2, 43], [2, 47], [2, 50], [2, 52], [2, 53], [2, 57], [2, 59], [2, 64]];
+const FULL = new Set(['2 43', '2 47', '2 52', '2 57']);
+for (const [pulses, midi] of CELLS) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 84, title: 'held-out release cells' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (DK.includes(s) ? 'dark' : VD.includes(s) ? 'voiced' : BR.includes(s) ? 'bright' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
+      for (const [mode, o] of MODES) {
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'control' && !ok) { const c = `${pulses === 4 ? 'quarter' : 'eighth'} ${NAMES[midi]}`; ctlCell[mode] = ctlCell[mode] || {}; ctlCell[mode][c] = (ctlCell[mode][c] || 0) + 1; if (FULL.has(`${pulses} ${midi}`)) bump(`full ${mode}`, true); }
+        if ((grp === 'voiced' || grp === 'voiceless' || grp === 'other' || grp === 'control') && got.cls === 'nasal') asNas[mode] = (asNas[mode] || 0) + 1;
+        if (!ok && !HIDE.includes('e')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; miss[mode].set(key, (miss[mode].get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+const row = (t, g) => `| ${t} | ${MODES.map(([m]) => cell(`${g} ${m}`)).join(' | ')} |`;
+const cnt = (t, o) => `| ${t} | ${MODES.map(([m]) => o[m] || 0).join(' | ')} |`;
+const list = (m) => HIDE.includes('e') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
+const cells = (m) => HIDE.includes('e') ? '- hidden' : Object.entries(ctlCell[m] || {}).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
+lines.push('## e. Held out: where the release lands (twenty-ninth round)', '', `Nasals after /u/ or /o/: ${DK.map((s) => `*${s}*`).join(', ')}; voiced stops: ${VD.map((s) => `*${s}*`).join(', ')}; nasals after a bright vowel: ${BR.map((s) => `*${s}*`).join(', ')}; n-clusters: ${CL.map((s) => `*${s}*`).join(', ')}; voiceless stops: ${VLS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. 84 BPM, each followed by a rest: quarters on B2, G3, C4, D4 and eighths on G2, B2, D3, E3, F3, A3, B3, E4 (eval/release-cells-report.md's 84 BPM cells that land 4 or more of 8).`, '',
+  '| | default | `levelFade: { tail: 6 }` | `longTilt: { span: 0.3, gap: 0.45 }` |', '|---|---|---|---|',
+  row('nasals after /u/ or /o/ read exactly', 'dark'),
+  row('nasals after a bright vowel read exactly', 'bright'), row('n-clusters read as their nasal', 'cluster'),
+  row('voiced stop codas read exactly', 'voiced'), row('voiceless stop codas read exactly', 'voiceless'), row('other syllables read exactly', 'other'),
+  row('vowel-only control read as none', 'control'), cnt('stops, others and vowel-only control read as a nasal', asNas),
+  `| vowel-only misses on the four 8-of-8 eighth cells | ${MODES.map(([m]) => (tally[`full ${m}`] || [0])[0]).join(' | ')} |`, '',
+  'Vowel-only misses by cell:', '', ...MODES.map(([m]) => `- ${m}: ${cells(m)}`), '',
+  'Misses, default (count over the twelve cells):', '', list(miss.def), '',
+  'Misses with `levelFade`:', '', list(miss.fade), '',
+  'Misses with `longTilt`:', '', list(miss.tilt), '');
+}
+
+// The thirtieth round's held-out set (nearRelease, pre-registered in the header): none of its syllables sung before, at
+// 86 BPM on every pitch of eval/release-cells-report.md, quarters and eighths
+if (PARTS.includes('f')) {
+const DK = ['fon', 'blon', 'cron', 'con', 'glun', 'snom', 'clon', 'smum', 'crun', 'plon', 'frun', 'slun'];
+const VD = ['snug', 'frub', 'plud', 'glob', 'crod'], BR = ['pren', 'len', 'gran', 'clen'], CL = ['banc', 'flont', 'spant', 'snons'], VLS = ['glop', 'gluc', 'brop'], NEG = ['dor', 'snor', 'pu', 'stur'];
+const SY = [...DK, ...VD, ...BR, ...CL, ...VLS, ...NEG], tally = {}, miss = { def: new Map(), rel: new Map() }, asNas = {}, ctlNear = {};
+const bump = (k, ok) => { tally[k] = tally[k] || [0, 0]; tally[k][1]++; if (ok) tally[k][0]++; };
+const MODES = [['def', { ...RC, nearRelease: false }], ['rel', { ...RC, nearRelease: true }]];
+const NAMES = ['E2', 'G2', 'A2', 'B2', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4'], PITCHES = [40, 43, 45, 47, 50, 52, 53, 55, 57, 59, 60, 62, 64];
+for (const pulses of [4, 2]) for (const midi of PITCHES) {
+  const ev = []; for (const s of SY) ev.push({ type: 'note', midi, pulses, syllable: s }, { type: 'bar', kind: 'full', pulses: 4 });
+  const mid = eventsToMidi(ev, { bpm: 86, title: 'held-out near-rule release' });
+  for (const sing of [true, 'vowels']) {
+    const { x, notes } = choir(mid, sing);
+    SY.forEach((s, j) => {
+      const n = notes[j], want = sing === true ? expectedRead(latinCoda(s)[0]) : { cls: 'none' };
+      const tEnd = notes[j + 1] ? Math.min(n.t1 + 0.25, notes[j + 1].t0) : n.t1 + 0.25, vAt = n.t0 + (pulses === 4 ? 0.1 : 0.045);
+      const grp = sing === true ? (DK.includes(s) ? 'dark' : VD.includes(s) ? 'voiced' : BR.includes(s) ? 'bright' : CL.includes(s) ? 'cluster' : VLS.includes(s) ? 'voiceless' : 'other') : 'control';
+      for (const [mode, o] of MODES) {
+        const got = readCoda(x, rate, vAt, tEnd, { ...o, noteEnd: n.t1 }), ok = match(want, got);
+        bump(`${grp} ${mode}`, ok);
+        if (grp === 'control' && got.cls === 'nasal' && got.rule === 'near') { const c = `${pulses === 4 ? 'quarter' : 'eighth'} ${NAMES[PITCHES.indexOf(midi)]}`; ctlNear[mode] = ctlNear[mode] || {}; ctlNear[mode][c] = (ctlNear[mode][c] || 0) + 1; }
+        if ((grp === 'voiced' || grp === 'voiceless' || grp === 'other' || grp === 'control') && got.cls === 'nasal') asNas[`${grp === 'control' ? 'ctl' : 'obs'} ${mode}`] = (asNas[`${grp === 'control' ? 'ctl' : 'obs'} ${mode}`] || 0) + 1;
+        if (!ok && !HIDE.includes('f')) { const key = `${grp === 'control' ? `${s} (vowel only)` : s} as ${label(got)}`; miss[mode].set(key, (miss[mode].get(key) || 0) + 1); }
+      }
+    });
+  }
+}
+const cell = (k) => pct(...(tally[k] || [0, 0]));
+const row = (t, g) => `| ${t} | ${MODES.map(([m]) => cell(`${g} ${m}`)).join(' | ')} |`;
+const cnt = (t, g) => `| ${t} | ${MODES.map(([m]) => asNas[`${g} ${m}`] || 0).join(' | ')} |`;
+const nearN = (m) => Object.values(ctlNear[m] || {}).reduce((a, b) => a + b, 0);
+const list = (m) => HIDE.includes('f') ? '- hidden' : [...m].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
+const cells = (m) => HIDE.includes('f') ? '- hidden' : Object.entries(ctlNear[m] || {}).map(([k, n]) => `${k} ${n}`).join('; ') || 'none';
+lines.push('## f. Held out: a near-rule murmur after the note\'s end (thirtieth round)', '', `Nasals after /u/ or /o/: ${DK.map((s) => `*${s}*`).join(', ')}; voiced stops: ${VD.map((s) => `*${s}*`).join(', ')}; nasals after a bright vowel: ${BR.map((s) => `*${s}*`).join(', ')}; n-clusters: ${CL.map((s) => `*${s}*`).join(', ')}; voiceless stops: ${VLS.map((s) => `*${s}*`).join(', ')}; others: ${NEG.map((s) => `*${s}*`).join(', ')}. Quarters and eighths at 86 BPM, each followed by a rest, on ${NAMES.join(', ')}.`, '',
+  '| | default | `nearRelease` |', '|---|---|---|',
+  row('nasals after /u/ or /o/ read exactly', 'dark'),
+  row('nasals after a bright vowel read exactly', 'bright'), row('n-clusters read as their nasal', 'cluster'),
+  row('voiced stop codas read exactly', 'voiced'), row('voiceless stop codas read exactly', 'voiceless'), row('other syllables read exactly', 'other'),
+  row('vowel-only control read as none', 'control'), cnt('vowel-only control read as a nasal', 'ctl'),
+  `| of them, by the near rule | ${MODES.map(([m]) => nearN(m)).join(' | ')} |`, cnt('stops and others read as a nasal', 'obs'), '',
+  'Vowel-only near-rule nasals by cell:', '', ...MODES.map(([m]) => `- ${m}: ${cells(m)}`), '',
+  'Misses, default (count over the 26 cells):', '', list(miss.def), '',
+  'Misses with `nearRelease`:', '', list(miss.rel), '');
 }
 
 // ---- C ----

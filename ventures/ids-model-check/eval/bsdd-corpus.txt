@@ -1,0 +1,159 @@
+58 distinct IDS files (30 byte-identical copies skipped), 53 with a facet uri, 344 uri attributes; 207 distinct bSDD requests (215 sent, retries included)
+files with a bSDD error: 7; with a warning: 15
+findings by level and code (every occurrence):
+  note bsdd-old-version: 30
+  note bsdd-not-bsdd: 22
+  warning bsdd-name: 11
+  warning bsdd-datatype: 9
+  error bsdd-not-found: 9
+  note bsdd-form: 7
+  warning bsdd-entity: 4
+  error bsdd-shape: 3
+  error bsdd-datatype: 1
+distinct findings (uri, code, message), with how often each occurs:
+  [warning] bsdd-datatype x1 http://identifier.buildingsmart.org/uri/buildingsmart/ifc-4.3/prop/outsidediameter
+      dataType IFCLENGTHMEASURE, but the IFC dictionary gives IFCPOSITIVELENGTHMEASURE for OutsideDiameter  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 125)
+  [warning] bsdd-datatype x1 https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/GlazingAreaFraction
+      dataType IFCREAL, but the IFC dictionary gives IFCPOSITIVERATIOMEASURE for GlazingAreaFraction  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_42-9.18i-Fysieke-elementen-Ifcwindow.ids, line 47)
+  [warning] bsdd-datatype x1 https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/GrossPlannedArea
+      dataType IFCREAL, but the IFC dictionary gives IFCAREAMEASURE for GrossPlannedArea  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_11-9.05a-Gebouw.ids, line 83)
+  [error] bsdd-datatype x1 https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/Name
+      dataType IFCLENGTHMEASURE cannot hold the bSDD property's String values, so a model that follows the dictionary fails this facet  (first: 255ribeiro__intro_ifc__docs_IDS_IDS_TEMPLATE.ids, line 16)
+  [warning] bsdd-datatype x1 https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/OccupancyNumberPeak
+      dataType IFCAREAMEASURE, but the IFC dictionary gives IFCCOUNTMEASURE for OccupancyNumberPeak  (first: buildingSMART-Japan__bSI_IDS_ja__Documentation_Examples_IDS_oma_input.ids, line 104)
+  [warning] bsdd-datatype x5 https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/ThermalTransmittance
+      dataType IFCREAL, but the IFC dictionary gives IFCTHERMALTRANSMITTANCEMEASURE for ThermalTransmittance  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_34-9.18a-Fysieke-elementen-IfcBeam.ids, line 47)
+  [warning] bsdd-entity x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Bouwlaaginhoud
+      bSDD relates Bouwlaaginhoud to IFCBUILDINGSTOREY, not IFCSPATIALZONE, IFCSPACE, IFCZONE  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_14-9.06b-Bouwlaaginhoud-voorheen-bouwlaagobject.ids, line 35)
+  [warning] bsdd-entity x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Bouwwerkperceel
+      bSDD relates Bouwwerkperceel to IFCSPATIALZONE, IFCSPACE, not IFCZONE  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_09-9.03b-Bouwwerkperceel.ids, line 35)
+  [warning] bsdd-entity x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Kadastraalperceel
+      bSDD relates Kadastraalperceel to IFCSPATIALZONE, IFCSPACE, not IFCZONE  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_10-9.04-Kadastraal-Perceel.ids, line 35)
+  [warning] bsdd-entity x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/TarraRuimte
+      bSDD relates TarraRuimte to IFCSPATIALZONE, not IFCZONE  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_33-9.17-Tarra-Ruimte.ids, line 34)
+  [note] bsdd-form x1 http://identifier.buildingsmart.org/uri/buildingsmart-ch/UCM-CH-Demo-1.0/prop/PUCM001
+      resolves, but bSDD writes this link as https://identifier.buildingsmart.org/uri/buildingsmart-ch/UCM-CH-Demo/1.0/prop/PUCM001  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 39)
+  [note] bsdd-form x1 http://identifier.buildingsmart.org/uri/buildingsmart-ch/UCM-CH-Demo-1.0/prop/PUCM002
+      resolves, but bSDD writes this link as https://identifier.buildingsmart.org/uri/buildingsmart-ch/UCM-CH-Demo/1.0/prop/PUCM002  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 81)
+  [note] bsdd-form x1 http://identifier.buildingsmart.org/uri/buildingsmart-ch/UCM-CH-Demo-1.0/prop/PUCM014
+      resolves, but bSDD writes this link as https://identifier.buildingsmart.org/uri/buildingsmart-ch/UCM-CH-Demo/1.0/prop/PUCM014  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 67)
+  [note] bsdd-form x2 http://identifier.buildingsmart.org/uri/buildingsmart/ifc-4.3/prop/Manufacturer
+      resolves, but bSDD writes this link as https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/Manufacturer  (first: BIMvoice__ifc-sheet__packages_ids_src_audit___fixtures___bsfiles_IDS_ucms_prefab_pipes_IFC2x3.ids, line 120)
+  [note] bsdd-form x1 http://identifier.buildingsmart.org/uri/buildingsmart/ifc-4.3/prop/outsidediameter
+      resolves, but bSDD writes this link as https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/OutsideDiameter  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 125)
+  [note] bsdd-form x1 http://identifier.buildingsmart.org/uri/etim/etim-8.0/prop/EF002169
+      resolves, but bSDD writes this link as https://identifier.buildingsmart.org/uri/etim/etim/8.0/prop/EF002169  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 53)
+  [warning] bsdd-name x1 http://identifier.buildingsmart.org/uri/buildingsmart-ch/UCM-CH-Demo-1.0/prop/PUCM001
+      baseName "medium" differs from the bSDD property's name "Medium" only in case; IDS compares names case-sensitively  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 39)
+  [warning] bsdd-name x1 http://identifier.buildingsmart.org/uri/buildingsmart-ch/UCM-CH-Demo-1.0/prop/PUCM002
+      baseName "component designation" differs from the bSDD property's name "Component designation" only in case; IDS compares names case-sensitively  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 81)
+  [warning] bsdd-name x1 http://identifier.buildingsmart.org/uri/buildingsmart/ifc-4.3/prop/outsidediameter
+      baseName "outside diameter_general" is not the linked bSDD property, "OutsideDiameter" (Out Side Diameter)  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 125)
+  [warning] bsdd-name x1 http://identifier.buildingsmart.org/uri/etim/etim-8.0/prop/EF002169
+      baseName "material" differs from the bSDD property's name "Material" only in case; IDS compares names case-sensitively  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 53)
+  [warning] bsdd-name x1 https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/Name
+      baseName "Width" is not the linked bSDD property, "Name"; IFC has Width at https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/Width  (first: 255ribeiro__intro_ifc__docs_IDS_IDS_TEMPLATE.ids, line 16)
+  [warning] bsdd-name x1 https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/OccupancyNumberPeak
+      baseName "AreaPerOccupant" is not the linked bSDD property, "OccupancyNumberPeak" (Occupancy Number Peak); IFC has AreaPerOccupant at https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/AreaPerOccupant  (first: buildingSMART-Japan__bSI_IDS_ja__Documentation_Examples_IDS_oma_input.ids, line 104)
+  [warning] bsdd-name x1 https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/ThermalTransmittance
+      baseName "Thermal Transmittance [ThermalTransmittance]" is not the linked bSDD property, "ThermalTransmittance" (Thermal Transmittance)  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_40-9.18g-Fysieke-elementen-IfcSlab.ids, line 71)
+  [warning] bsdd-name x1 https://identifier.buildingsmart.org/uri/etim/etim/8.0/prop/EF020000
+      baseName "DENSITY" differs from the bSDD property's name "Density" only in case; IDS compares names case-sensitively  (first: louistrue__lignum-dpp-bsdd__ifc_ids_POC.ids, line 116)
+  [warning] bsdd-name x3 https://identifier.buildingsmart.org/uri/LCA/LCA/3.0/prop/GWP_total
+      baseName "EPD_GWP_TOTAL_A1A3" is not the linked bSDD property, "GWP_total" (global warming potential - total)  (first: louistrue__lignum-dpp-bsdd__ifc_ids_POC.ids, line 93)
+  [note] bsdd-not-bsdd x1 https://example.org/dict/class/Y
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: marwiss__Dataregium__tests_fixtures_bsdd.ids, line 21)
+  [note] bsdd-not-bsdd x1 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/Accessories
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 269)
+  [note] bsdd-not-bsdd x1 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/ClearWidth
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 221)
+  [note] bsdd-not-bsdd x1 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/FireExit
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 213)
+  [note] bsdd-not-bsdd x3 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/FireRating
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 32)
+  [note] bsdd-not-bsdd x1 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/Grade
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 256)
+  [note] bsdd-not-bsdd x1 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/InstallationDate
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 248)
+  [note] bsdd-not-bsdd x1 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/LeafCount
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 234)
+  [note] bsdd-not-bsdd x3 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/LoadBearing
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 24)
+  [note] bsdd-not-bsdd x1 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/Manufacturer
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 277)
+  [note] bsdd-not-bsdd x1 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/SolarFactor
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 307)
+  [note] bsdd-not-bsdd x1 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/ThermalTransmittance
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 117)
+  [note] bsdd-not-bsdd x3 https://identifier.example.org/uri/ifc-lite-test/demo/1.0/prop/Thickness
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: LTplus-AG__ifc-lite__tests_fixtures_ids_generated-demo-dictionary.ids, line 47)
+  [note] bsdd-not-bsdd x3 https://www.igh.hr/en/reference/
+      uri is not a bSDD identifier (identifier.buildingsmart.org/uri/...), so it was not checked  (first: BIMvoice__ifc-sheet__packages_ids_src_audit___fixtures___bsfiles_IDS_ucms_prefab_pipes_IFC2x3.ids, line 76)
+  [error] bsdd-not-found x2 http://identifier.buildingsmart.org/uri/buildingsmart/ifc-2x3/prop/acousticrating
+      bSDD has no property at this uri; the IFC 4.3 dictionary has https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/AcousticRating  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_wooden-windows.ids, line 320)
+  [error] bsdd-not-found x1 https://identifier.buildingsmart.org/uri/demo2025/thermal-insulation-products/1.0.0/prop/Density
+      bSDD has no property at this uri  (first: louistrue__lignum-dpp-bsdd__ifc_ids_POC.ids, line 57)
+  [error] bsdd-not-found x1 https://identifier.buildingsmart.org/uri/demo2025/thermal-insulation-products/1.0.0/prop/ReactionToFire
+      bSDD has no property at this uri  (first: louistrue__lignum-dpp-bsdd__ifc_ids_POC.ids, line 42)
+  [error] bsdd-not-found x1 https://identifier.buildingsmart.org/uri/demo2025/thermal-insulation-products/1.0.0/prop/ThermalConductivity
+      bSDD has no property at this uri  (first: louistrue__lignum-dpp-bsdd__ifc_ids_POC.ids, line 28)
+  [error] bsdd-not-found x2 https://identifier.buildingsmart.org/uri/example/nosuch/1.0/class/X
+      bSDD has no class at this uri  (first: marwiss__Dataregium__tests_fixtures_bsdd.ids, line 17)
+  [error] bsdd-not-found x2 https://identifier.buildingsmart.org/uri/example/nosuch/1.0/prop/Bogus
+      bSDD has no property at this uri  (first: marwiss__Dataregium__tests_fixtures_bsdd.ids, line 35)
+  [note] bsdd-old-version x1 http://identifier.buildingsmart.org/uri/etim/etim-8.0/prop/EF002169
+      ETIM 8.0 is not the dictionary's latest version in bSDD  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_ucms_prefab_pipes_IFC4.3.ids, line 53)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Bedgebied
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_22-9.10e-Bedgebied.ids, line 35)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Bedruimte
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_27-9.12c-Bedruimte.ids, line 34)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Bouwlaaginhoud
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_14-9.06b-Bouwlaaginhoud-voorheen-bouwlaagobject.ids, line 35)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Bouwwerkperceel
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_09-9.03b-Bouwwerkperceel.ids, line 35)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Brandcompartiment
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_30-9.16a-Brandcompartiment.ids, line 34)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Buitengebied
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_24-9.11-Buitengebied.ids, line 36)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Buitenruimte
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_29-9.13-Buitenruimte.ids, line 48)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Functiegebied
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_18-9.10a-Functiegebied.ids, line 35)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Functieruimte
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_25-9.12a-Functieruimte.ids, line 34)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Gebouw
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_11-9.05a-Gebouw.ids, line 23)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Gebruikseenheid
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_15-9.07-Gebruikseenheid-voorheen-eigendom-en-gebruikseenheid.ids, line 38)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Gebruiksfunctie
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_16-9.08-Gebruiksfunctie.ids, line 35)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Gebruiksgebied
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_21-9.10d-Gebruiksgebied.ids, line 35)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Georeferentie
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_02-9.01a-Georeferentie.ids, line 23)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Kadastraalperceel
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_10-9.04-Kadastraal-Perceel.ids, line 35)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Project
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_07-9.02-Project.ids, line 23)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Restgebied
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_23-9.10f-Restgebied.ids, line 35)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Restruimte
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_28-9.12d-Restruimte.ids, line 34)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Subbrandcompartiment
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_31-9.16b-Subbrandcompartiment.ids, line 34)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/TarraRuimte
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_33-9.17-Tarra-Ruimte.ids, line 34)
+  [note] bsdd-old-version x2 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Verblijfsgebied
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_19-9.10b-Verblijfsgebied.ids, line 35)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Verblijfsruimte
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_26-9.12b-Verblijfsruimte.ids, line 34)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Verdieping
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_13-9.06a-Bouwlaag-voorheen-verdieping.ids, line 23)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/bsnl/Omgevingswet-Ruimten/0.2.0/class/Vluchtroute
+      Omgevingswet-Ruimten 0.2.0 is not the dictionary's latest version in bSDD  (first: peterrdf__VNG__VNGPortal_VNGPortal_SeedData_IDS_32-9.16c-Vluchtroute.ids, line 34)
+  [note] bsdd-old-version x1 https://identifier.buildingsmart.org/uri/etim/etim/8.0/prop/EF020000
+      ETIM 8.0 is not the dictionary's latest version in bSDD  (first: louistrue__lignum-dpp-bsdd__ifc_ids_POC.ids, line 116)
+  [note] bsdd-old-version x3 https://identifier.buildingsmart.org/uri/LCA/LCA/3.0/prop/GWP_total
+      LCA indicators and modules 3.0 is not the dictionary's latest version in bSDD  (first: louistrue__lignum-dpp-bsdd__ifc_ids_POC.ids, line 93)
+  [error] bsdd-shape x3 http://identifier.buildingsmart.org/uri/dummy-example/FireRating
+      uri names no bSDD property or class: a bSDD link ends in /prop/<code> or /class/<code>  (first: CBenghi__Xbim.Xids__Xbim.InformationSpecifications.NewTests_bsFiles_IDS_random_example.ids, line 90)

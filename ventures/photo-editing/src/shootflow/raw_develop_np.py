@@ -165,6 +165,13 @@ def _encode(r, g, b, hi, m, curve, lut_size, look):
 
 
 def _bilinear(norm, w, h, pat, mults, hi, m, curve, lut_size, look, sink=None, threads=None):
+    if sink is not None:
+        from shootflow import noise_native
+
+        # The sink path in C, bit for bit (2026-11-19, eval/noise-aware-native-blend-2026-11-19.md); this numpy
+        # code is the reference and the fallback.
+        if noise_native.bilinear(norm, pat, mults, hi, sink, threads=threads):
+            return None
     pad = np.zeros((h + 2, w + 2), dtype=np.float64)
     pad[1:-1, 1:-1] = norm
     inside = np.zeros((h + 2, w + 2), dtype=np.int64)
@@ -285,14 +292,9 @@ def _noise_aware_plane(plane, pat, hi, plane_noise):
     # is made (eval/noise-aware-full-frame-cost-2026-11-17.md, eval/noise-aware-float32-2026-11-17.md).
     b = np.empty((h, w, 3), dtype=np.float32)
     _bilinear(plane, w, h, pat, (1.0, 1.0, 1.0), 1e9, None, None, None, None, sink=b)
-    out = noise_aware(plane, pat, bilinear=b, directional_out=d, noise=plane_noise, out=b)
+    # clipped in the blend's own pass (2026-11-19, eval/noise-aware-native-blend-2026-11-19.md)
+    out = noise_aware(plane, pat, bilinear=b, directional_out=d, noise=plane_noise, out=b, clip_hi=hi)
     del d
-
-    def clip(y0, y1):
-        o = out[y0:y1]
-        o[...] = _clip(o, hi)
-
-    _run_bands(clip, h)
     return out
 
 

@@ -41,7 +41,6 @@
 </head>
 <body>
 <main>
-  <p class="muted"><a href="../">All tools</a> / <a href="./">IDS Model Check</a> / IDS Editor</p>
   <h1>Write an IDS from the standard property sets.</h1>
   <p class="lede">Pick an IFC class, then a standard property or quantity set that class can carry, then one of its properties. Or open the model you are writing for, and the editor offers the classes and sets it actually carries, your project's own sets included, and the values its objects hold (for properties, attributes such as Name or ObjectType, and the codes in each classification system), so a requirement can allow exactly those values or the model's range. The editor fills in the data type from buildingSMART's templates, offers the enumeration values the standard lists, and audits every specification as you write it. Download the .ids, or send it straight to the checker. Nothing is uploaded.</p>
 
@@ -78,10 +77,10 @@
   <pre id="xml" aria-label="IDS XML"></pre>
 
   <h2>How it works</h2>
-  <p>Already have an IDS? <strong>Open an IDS file</strong> reads it in. Everything the page's controls can hold without changing it becomes an editable row; anything else (a pattern on a class name, a range with two lower or two upper bounds, a non-standard Pset_ name) is kept as written: shown as its XML, written back unchanged, and removable. Opened and written back, 64 of 64 IDS files from public repositories (86.4% of their facets editable, a project's own property sets, conditions in the applicability, exclusive bounds and date ranges included) and all 187 of buildingSMART's passing test cases ask for the same thing as before, and none stops validating against ids.xsd. The one change: requirements on a prohibited specification, which IDS 1.0 cannot evaluate, are dropped and named when you open the file.</p>
+  <p>Already have an IDS? <strong>Open an IDS file</strong> reads it in. Everything the page's controls can hold without changing it becomes an editable row; anything else (a pattern on a class name, a range with two lower or two upper bounds, a non-standard Pset_ name) is kept as written: shown as its XML, written back unchanged, and removable. Opened and written back, 64 of 64 IDS files from public repositories (86.4% of their facets editable, a project's own property sets, conditions in the applicability, exclusive bounds and date ranges included) and all 187 of buildingSMART's passing test cases ask for the same thing as before, and none stops validating against ids.xsd. The one change: requirements on a prohibited specification, which IDS 1.0 cannot evaluate, are dropped and named when you open the file. Faults that break buildingSMART's ids.xsd and have one right answer (IDS 0.9 names, a bare &amp;, IFC4X3 for IFC4X3_ADD2, a pattern written for another regex engine such as <code>^...$</code>) are repaired as the file opens, and the page lists each change: of 65 public IDS files, 60 are written back valid with nothing left for a pattern engine to misread, up from 55.</p>
   <p><strong>Open a model to write for</strong> reads an IFC model (.ifc, .ifcxml or .ifczip) in a background thread of this tab, with the checker's own reader, and lists what it already carries: each class with how many of it, the property and quantity sets on them (standard or the project's own, with the data type the model writes each property in) and the classification systems in use. The editor then offers those first: the model's classes in the class list, and, on each requirement, the sets the model's objects of that class carry, with how many carry them. A set of the project's own (Acme_Wall, not a Pset_ or Qto_ set) becomes a row you can edit: its name, the property and a data type from the IFC schema, filled in from the model when it has the property. The model is not uploaded or kept: close the tab and it is gone.</p>
   <p><strong>Narrow it</strong> limits a specification to the elements that also match a condition: a property value (only walls whose Pset_WallCommon.IsExternal is true), an attribute (PredefinedType SOLIDWALL), a classification system, a material or a place. IDS calls these the applicability; an element that does not match is not checked at all, so "external walls must have a fire rating" does not fail internal walls. With a model open, each condition says how many of the class's objects it keeps, counted the way the checker counts them, and warns when it keeps none.</p>
-  <p>The class list is every non-abstract class in the IFC schema you pick that can carry at least one standard set; the set list is the sets whose templates apply to that class, its ancestors, or the occurrence a type object is for (Pset_WallCommon on IFCWALL, IFCWALLSTANDARDCASE and IFCWALLTYPE); the property list and data types are the template's. IDS matches exact classes, so a specification on IFCWALL misses IFCWALLSTANDARDCASE unless both are listed: tick <em>and its subclasses</em> to list them. A property whose template gives no single data type (a bounded value, a table, a list or a reference) is checked for presence only.</p>
+  <p>The class list is every non-abstract class in the IFC schema you pick that can carry at least one standard set; the set list is the sets whose templates apply to that class, its ancestors, or the occurrence a type object is for (Pset_WallCommon on IFCWALL, IFCWALLSTANDARDCASE and IFCWALLTYPE); the property list and data types are the template's. IDS matches exact classes, so a specification on IFCWALL misses IFCWALLSTANDARDCASE unless both are listed: tick <em>and its subclasses</em> to list them (each class in the list has its own box). A property whose template gives no single data type (a bounded value, a table, a list or a reference) is checked for presence only.</p>
   <p>Every choice the editor offers was written out and audited: for each of the three schemas, every offered class, every set it offers for that class and every property of the set, once on its own and once with a value of the right kind. That is 203,433 specifications (32,823 for IFC2X3, 46,516 for IFC4, 124,094 for IFC4X3), and the audit finds no error and no warning in any of them (<code>eval/editor-roundtrip.mjs</code>). A sample of 15,102 specifications, one per class and set plus every facet, value kind, cardinality and partOf relation the page writes, validates against buildingSMART's IDS 1.0 XML schema in IfcOpenShell's IfcTester (<code>eval/editor-xsd-check.py</code>).</p>
 
   <footer>
@@ -94,7 +93,7 @@
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
   import { Schema, parseIds } from "./ids.mjs";
   import { auditIds } from "./audit.mjs";
-  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, templateTypeRow, fileTypeRefused, renameSuggestion, renameRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
+  import { classesWithSets, setsFor, propertiesOf, predefinedTypes, subclasses, boxSubclasses, buildIds, PARTOF_RELATIONS, blankReq, blankSpec, stateToDoc, importIds, repairOnOpen, idsSchema, idsSchemaChoices, auditSchemaIds, schemaIdsOf, facetXml, editableAttributes, modelSets, valueTypes, ownSetName, specBases, specClassNames, commonSets, setTypeLimit, commonAttributes, attributeValueKind, commonPredefinedTypes, parseClassList, modelValueOffer, modelAttributes, modelCodes, appMatchCount, reqComplete, typeRow, untypeRow, templateTypeRow, fileTypeRefused, renameSuggestion, renameRow, temporalType, TEMPORAL_EXAMPLE, datePattern, modelSubclassesLeftOut, modelSpec, valueChoices, numberValueProblem } from "./editor.mjs";
   import { temporalKind } from "./temporal.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
 
@@ -155,7 +154,9 @@
     codeless.delete(key);
     if (r.kind === "property") {
       // With several classes, only the standard sets every one can carry.
-      const sets = commonSets(L, specBases(spec));
+      const sets = commonSets(L, specBases(spec), spec.predefinedType);
+      // A set the standard gives only some predefined types says which.
+      const lim = (x) => { const l = !spec.predefinedType && setTypeLimit(L, x, specBases(spec)); return l ? ` (${l.slice(0, 3).join(", ")}${l.length > 3 ? ", ..." : ""} only)` : ""; };
       // What the opened model's objects of this class carry (inventory.mjs).
       const inModel = inv && spec.cls ? modelSets(inv, specClasses(L, spec), sets) : [];
       const ofN = inModel.length ? inModel[0].of : 0;
@@ -165,8 +166,8 @@
       const setVal = !r.custom ? r.set : own.some((m) => m.name === r.set) ? "own:" + r.set : "__own";
       let so = opt("", sets.length || own.length ? "choose a set" : "pick a class first, or write your own", setVal);
       const carried = sets.filter((x) => inModel.some((m) => m.name === x));
-      if (carried.length) so += `<optgroup label="Standard sets the model carries">${carried.map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
-      if (sets.length) so += `<optgroup label="${carried.length ? "Other standard sets" : "Standard sets"}${spec.cls ? " for " + esc(specBases(spec).join(", ")) : ""}">${sets.filter((x) => !carried.includes(x)).map((x) => opt(x, x + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
+      if (carried.length) so += `<optgroup label="Standard sets the model carries">${carried.map((x) => opt(x, x + lim(x) + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
+      if (sets.length) so += `<optgroup label="${carried.length ? "Other standard sets" : "Standard sets"}${spec.cls ? " for " + esc(specBases(spec).join(", ")) : ""}">${sets.filter((x) => !carried.includes(x)).map((x) => opt(x, x + lim(x) + onN(inModel.find((m) => m.name === x)), setVal)).join("")}</optgroup>`;
       if (own.length) so += `<optgroup label="The model's own sets">${own.map((m) => opt("own:" + m.name, m.name + onN(m), setVal)).join("")}</optgroup>`;
       so += opt("__own", "a set of your own...", setVal);
       h += `<div><label for="${id("set")}">Property set</label><select id="${id("set")}" data-s="${si}" data-r="${ri}"${app ? ' data-w="app"' : ""} data-k="set">${so}</select></div>`;
@@ -416,13 +417,16 @@
     }
     return null;
   }
+  // Deprecated subclasses a box leaves out (boxSubclasses), named so a
+  // person who needs them for old exports can add them to "Also applies to".
+  const depNote = (left) => left.length ? ` (not ${esc(left.join(", "))}: deprecated in ${esc(doc.schema)}; add ${left.length > 1 ? "them" : "it"} to "Also applies to" if old exports still use ${left.length > 1 ? "them" : "it"})` : "";
   // The exact classes a specification names (IDS matches exact classes).
   const specClasses = (L, s) => specClassNames(L.S, s);
   // An opened property value with no dataType (kept that way, typeRow adds one).
   const UNTYPED_NOTE = "No dataType: the value is compared with whatever type the model holds, so TRUE may not match a true boolean and 3 may not match 3.0. With a value, IDS 1.0 expects a dataType and the audit warns.";
   function specHtml(L, s, si) {
     const known = !!(L.S.entities[s.cls] || (L.tm && L.tm[s.cls]));
-    const subs = L.S.entities[s.cls] ? subclasses(L.S, s.cls) : [];
+    const { subs, left: subsLeft } = boxSubclasses(L.S, s.cls, s);
     const bases = specBases(s);
     const also = s.also || [];
     const unknownAlso = also.filter((c) => !(L.S.entities[c] || (L.tm && L.tm[c])));
@@ -451,7 +455,14 @@
     if (!s.cls) h += (s.app || []).length || (s.fixedApp || []).length
       ? `<p class="muted" style="font-size:0.88rem">No class: this applies to every element, of any class, that matches the conditions below, and offers every standard set and every attribute some class has.</p>`
       : `<p class="warn" style="font-size:0.88rem">Pick a class, or narrow it with a property or attribute below: IDS needs at least one applicability condition.</p>`;
-    if (s.cls && known) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${also.length ? `every one of ${esc(bases.join(", "))}` : esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}</label>` : ""}</p>`;
+    if (s.cls && known) h += `<p class="muted" style="font-size:0.88rem">${nSets} standard set(s) apply to ${also.length ? `every one of ${esc(bases.join(", "))}` : esc(L.S.entities[s.cls] ? L.S.entities[s.cls].name : s.cls)}.${subs.length ? ` <label style="display:inline;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="withSub"${s.withSub ? " checked" : ""}> and its ${subs.length} subclass(es): ${esc(subs.slice(0, 6).join(", "))}${subs.length > 6 ? ", ..." : ""}${depNote(subsLeft)}</label>` : ""}</p>`;
+    // Each further class gets its own subclass box (IFCSLAB and its
+    // IFCSLABSTANDARDCASE as well as IFCWALL and its), not only the first.
+    if (s.cls && known) {
+      const ticked = new Set(s.alsoSub || []);
+      const boxes = also.filter((c) => L.S.entities[c]).map((c) => [c, boxSubclasses(L.S, c, s)]).filter(([, b]) => b.subs.length);
+      if (boxes.length) h += `<p class="muted" style="font-size:0.88rem">${boxes.map(([c, { subs: sc, left }]) => `<label style="display:inline-block;margin-right:1rem;color:var(--fg)"><input type="checkbox" data-s="${si}" data-k="alsoSub" data-c="${esc(c)}"${ticked.has(c) ? " checked" : ""}> ${esc(c)} and its ${sc.length} subclass(es): ${esc(sc.slice(0, 4).join(", "))}${sc.length > 4 ? ", ..." : ""}${depNote(left)}</label>`).join("")}</p>`;
+    }
     h += `<div class="grid"><div><label for="s-${si}-desc">Why it is needed (optional)</label><input id="s-${si}-desc" data-s="${si}" data-k="description" value="${esc(s.description)}"></div><div><label for="s-${si}-ins">Instructions for the modeller (optional)</label><input id="s-${si}-ins" data-s="${si}" data-k="instructions" value="${esc(s.instructions)}"></div></div>`;
     if (s.ifcVersion) h += `<p class="muted" style="font-size:0.88rem">This specification keeps its own ifcVersion, ${esc(s.ifcVersion.join(" "))}; it is audited against ${esc(schemaIdsOf(s.ifcVersion).join(" and ") || doc.schema)}${schemaIdsOf(s.ifcVersion).length > 1 ? ", and valid when any of them has what it asks" : ""}; the page offers ${esc(doc.schema)}'s classes and sets.</p>`;
     if (s.fixedApp && s.fixedApp.length) { h += `<p class="muted" style="font-size:0.88rem;margin-bottom:0">It also applies only to elements matching:</p>`; s.fixedApp.forEach((f, i) => { h += keptHtml(L, f, false, "del-app", si, i); }); }
@@ -536,9 +547,9 @@
     $("model").innerHTML = `<p class="muted">Reading ${esc(f.name)}...</p>`;
     try {
       const bytes = new Uint8Array(await f.arrayBuffer());
-      let text, inner = null;
-      if (isZip(bytes)) { const m = await unzipModel(bytes, inflateRawStream); text = m.text; inner = m.name; }
-      else text = new TextDecoder().decode(bytes);
+      // Sent as bytes: the worker reads STEP from them (eval/step-bytes-2026-11-18.md).
+      let text = bytes, inner = null;
+      if (isZip(bytes)) { const m = await unzipModel(bytes, inflateRawStream, { bytes: true }); text = m.bytes; inner = m.name; }
       inv = await inventoryOf(text);
       invName = f.name + (inner ? ` (${inner.split("/").pop()} inside)` : "");
       record("editor_model_opened");
@@ -574,6 +585,12 @@
       target.custom = t.value === "__own" || t.value.startsWith("own:");
       target.set = t.value === "__own" ? "" : t.value.replace(/^own:/, "");
       target.name = ""; target.dataType = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; target.untyped = false; delete target.fileType;
+      // A set the standard gives one predefined type only (Pset_ActuatorTypeElectricActuator):
+      // the specification takes that type, as the audit's pset-predefined warning asks.
+      if (!target.custom && target.set && !s.predefinedType) {
+        const L = loaded[doc.schema], lim = setTypeLimit(L, target.set, specBases(s));
+        if (lim && lim.length === 1 && commonPredefinedTypes(L.S, specBases(s)).includes(lim[0])) { s.predefinedType = lim[0]; record("editor_predefined_from_set"); }
+      }
       render();
       return;
     }
@@ -585,6 +602,13 @@
       const m = inv && modelSets(inv, specClasses(L, s), []).find((x) => x.name === target.set);
       const q = m && m.props.find((x) => x.name === target.name);
       if (q && q.dataType && L.S.types[q.dataType]) target.dataType = q.dataType;
+      render();
+      return;
+    }
+    if (k === "alsoSub") {
+      const c = t.dataset.c;
+      s.alsoSub = t.checked ? [...new Set([...(s.alsoSub || []), c])] : (s.alsoSub || []).filter((x) => x !== c);
+      record("editor_also_subclasses");
       render();
       return;
     }
@@ -604,6 +628,7 @@
     // A new class or set resets what depended on it.
     if (k === "also") {
       s.also = parseClassList(t.value).filter((c) => c !== s.cls);
+      s.alsoSub = (s.alsoSub || []).filter((c) => s.also.includes(c));
       // Keep only what every class still shares.
       const L = loaded[doc.schema], keep = commonSets(L, specBases(s));
       if (s.predefinedType && !commonPredefinedTypes(L.S, specBases(s)).includes(s.predefinedType)) s.predefinedType = "";
@@ -611,6 +636,7 @@
       render();
       return;
     }
+    if (k === "predefinedType") { const keep = commonSets(loaded[doc.schema], specBases(s), s.predefinedType); for (const r of [...s.reqs, ...(s.app || [])]) if (r.kind === "property" && !r.custom && !r.fixed && r.set && !keep.includes(r.set)) { r.set = ""; r.name = ""; } }
     if (k === "cls") { s.predefinedType = ""; for (const r of [...s.reqs, ...(s.app || [])]) if (r.kind === "property" && !r.custom) { r.set = ""; r.name = ""; } }
     if (k === "kind") { target.name = ""; target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; target.custom = false; target.set = ""; target.dataType = ""; }
     if (k === "dataType") { target.mode = "any"; target.oneOf = []; delete target.oneOfBase; delete target.numBase; }
@@ -702,6 +728,11 @@
   // kept as written, so saving it back asks for what the file asked.
   async function openIds(name, text) {
     let parsed;
+    // ids.xsd faults with one right answer (fix.mjs) are repaired as the file
+    // opens, so what the editor writes back validates and patterns mean what
+    // their authors wrote; the message lists each change.
+    const rep = repairOnOpen(text, parseIds);
+    text = rep.text;
     try { parsed = parseIds(text); } catch (e) { $("open-status").innerHTML = `<span class="err">Could not read ${esc(name)}: ${esc(e.message)}</span>`; return; }
     await Promise.all([idsSchema(parsed), ...idsSchemaChoices(parsed)].map(load));
     const r = importIds(parsed, (x) => loaded[x]);
@@ -715,6 +746,13 @@
     if (r.schemaRows) msg = `Opened ${esc(name)}: ${parsed.specs.length} specification(s), each written for ${esc(Object.keys(r.schemaRows).join(" and "))}; the page edits in ${esc(id)}, where the most facets are editable (${Object.entries(r.schemaRows).map(([k, v]) => `${esc(k)} ${v}`).join(", ")}), and audits each in every schema it names. ${r.rows} of ${total} facet(s) are editable here`;
     msg += r.kept ? `; ${r.kept} are kept as written (shown as XML, written back unchanged, removable), because the page's controls would change them (a pattern on a class name, a range with two lower bounds, a non-standard Pset_ name...).` : ".";
     if (r.dropped) msg += ` <span class="warn">${r.dropped} requirement(s) of prohibited specification(s) (${esc(r.droppedIn.join(", "))}) are not kept: IDS 1.0 cannot evaluate them, so move the condition into the applicability.</span>`;
+    if (rep.fixes.length) {
+      msg += ` <details><summary>${rep.fixes.length} fault${rep.fixes.length > 1 ? "s" : ""} repaired as it opened (breaks of buildingSMART's ids.xsd, patterns written for another regex engine)${rep.remaining.length ? `; ${rep.remaining.length} left for you (the audit below names them)` : ""}</summary><ul>`;
+      for (const x of rep.fixes.slice(0, 50)) msg += `<li>line ${x.line}: ${esc(x.message)}</li>`;
+      if (rep.fixes.length > 50) msg += `<li>and ${rep.fixes.length - 50} more</li>`;
+      msg += `</ul></details>`;
+      record("editor_opened_repaired");
+    }
     $("open-status").innerHTML = msg;
     record("editor_opened");
     await render();

@@ -3,8 +3,12 @@
 // checker runs on it unchanged.
 //
 // ifcXMLSchemaId(text) -> "IFC2X3" | "IFC4" | "IFC4X3" | null
-// parseIfcXml(text, schema, { eager }) -> { schema, entities: Map<id, {id, type, args}>, errors, stubbed }
-//   stubbed: nested geometry elements cut to their span as they closed
+// parseIfcXml(text, schema, { eager }): text may be the file's bytes (a
+//   Uint8Array), read without ever becoming one string on the heap
+//   (eval/ifcxml-bytes-2026-11-18.md); offsets are then byte offsets.
+// parseIfcXml(...) -> { schema, entities: Map<id, {id, type, args}>, errors, early }
+//   early: nested entity elements read as they closed (see "Read as it
+//   closes" below)
 //   schema: a Schema (ids.mjs) for that version; it gives each attribute's
 //   position and type, which ifcXML does not carry.
 //
@@ -43,15 +47,28 @@ import { EMPTY_LIST, SKIPPED_LIST } from "./step.mjs";
 // Only when those tags name no version is the rest of the head searched.
 const versionIn = (s) => (/IFC4X3|IFC4_3|IFC4x3/i.test(s) ? "IFC4X3" : /IFC2X3/i.test(s) ? "IFC2X3" : /IFC4/i.test(s) ? "IFC4" : null);
 const ROOT_TAG = /<(?:[\w.-]+:)?(?:iso_10303_28|ifcXML|uos)(?=[\s>\/])[^>]*>/gi;
+// text may be the file's bytes (a Uint8Array): only its head is decoded.
+// 4,000 characters are at most 16,000 UTF-8 bytes; a character cut at the end
+// decodes to U+FFFD and is sliced off with the rest past 4,000.
+const headOf = (text, chars) => (text instanceof Uint8Array ? new TextDecoder().decode(text.subarray(0, chars * 4)) : text).slice(0, chars);
 export function ifcXmlSchemaId(text) {
-  const head = text.slice(0, 4000);
+  const head = headOf(text, 4000);
   if (!/^\s*(\uFEFF)?\s*</.test(head)) return null;
   return versionIn((head.match(ROOT_TAG) || []).join(" ")) || versionIn(head);
 }
 
 export function looksLikeXml(text) {
-  return /^\s*(\uFEFF)?\s*<[?!a-zA-Z]/.test(text.slice(0, 200));
+  return /^\s*(\uFEFF)?\s*<[?!a-zA-Z]/.test(headOf(text, 200));
 }
+
+// A nested element read as it closed (parseIfcXml, "Read as it closes"): in
+// its parent's children in place of the element, with the record of what was
+// read (t) and its provisional or final number (p).
+class Read {
+  constructor(local, attrs, t, p) { this.local = local; this.attrs = attrs; this.t = t; this.p = p; }
+}
+Read.prototype.children = Object.freeze([]);
+Read.prototype.text = "";
 
 // A reference in shallowArgs: AttributeFacet.test asks only that it is one.
 const REF = Object.freeze({ ref: -1 });
@@ -78,10 +95,44 @@ export function parseIfcXml(text, schema, opts = {}) {
   let commaNumbers = 0, commaExample = null;
   const ids = new Map();
   let next = 1;
+  // While a nested element is read as it closes (`trace` set, see "Read as it
+  // closes" below), an id not yet numbered gets a provisional number (-2,
+  // -3, ...) and the read is recorded, so the walk can number it later in
+  // the same order as before.
+  let trace = null;
+  let nextP = -2;
+  const pendingIds = new Map(); // xml id -> provisional number
+  // provisional -> final number: final[-p - 2], grown as needed.
+  let finals = new Int32Array(1024);
+  const pmap = {
+    get: (p) => finals[-p - 2],
+    set(p, f) {
+      const i = -p - 2;
+      if (i >= finals.length) { const g = new Int32Array(Math.max(i + 1, finals.length * 2)); g.set(finals); finals = g; }
+      finals[i] = f;
+    },
+    clear() { finals.fill(0, 0, -nextP - 2); nextP = -2; },
+  };
+  // Start offsets of inline entities inside geometry read early: inlineIds
+  // holds their provisional numbers until the walk gives final ones.
+  let pendingAt = [];
   const num = (s) => {
     let n = ids.get(s);
-    if (n === undefined) ids.set(s, (n = next++));
+    if (n !== undefined) return n;
+    if (trace) {
+      let p = pendingIds.get(s);
+      if (p === undefined) pendingIds.set(s, (p = nextP--));
+      trace.push(s);
+      return p;
+    }
+    ids.set(s, (n = next++));
     return n;
+  };
+  // A note said once per key (a misspelt attribute name, a flat B-spline
+  // list): recorded during a deferred read, so notes come out in walk order.
+  const noteOnce = (set, key, msg) => {
+    if (trace) trace.push({ note: [set, key, msg] });
+    else if (!set.has(key)) { set.add(key); errors.push(msg); }
   };
   const backrefs = []; // [relationship id, attribute, parent id]
 
@@ -112,7 +163,7 @@ export function parseIfcXml(text, schema, opts = {}) {
     toJSON() { return this.xmlId !== undefined ? { id: this.id, type: this.type, args: this.args, xmlId: this.xmlId } : { id: this.id, type: this.type, args: this.args }; }
   }
   function reread(e) {
-    const root = parseXml(text.slice(e._s, e._e), { spans: true });
+    const root = parseXml(text instanceof Uint8Array ? text.subarray(e._s, e._e) : text.slice(e._s, e._e), { spans: true });
     hrefToRef(root);
     const saved = re;
     re = { root, base: e._s, out: null, id: e.id };
@@ -164,8 +215,9 @@ export function parseIfcXml(text, schema, opts = {}) {
           // A decimal comma: the writer formatted numbers in a locale that
           // uses one (41 of buildingSMART's IFC4 Annex E ifcXML examples). xs:double has no
           // such form; read it as a point and say so once.
-          if (!re) commaNumbers++;
-          if (!commaExample) commaExample = s;
+          if (re) { if (!commaExample) commaExample = s; }
+          else if (trace) trace.push({ comma: s });
+          else { commaNumbers++; if (!commaExample) commaExample = s; }
           return Number(s.replace(",", "."));
         }
         return Number.isNaN(n) && s !== "NaN" ? s : n;
@@ -265,7 +317,9 @@ export function parseIfcXml(text, schema, opts = {}) {
       return item(first, declared);
     }
     if (def.aggregate) return nest(splitText(el.text, declared), def);
-    if (!el.text.trim() && schema.prim(declared) === "string") return "";
+    // An all-white-space string stays as written: xs:string keeps white space,
+    // and STEP's IFCLABEL('  ') is two spaces too (eval/word-class-2026-11-18.md).
+    if (!el.text.trim() && schema.prim(declared) === "string") return el.text;
     return el.text.trim() === "" ? null : cast(el.text, declared);
   }
 
@@ -287,34 +341,50 @@ export function parseIfcXml(text, schema, opts = {}) {
     const lower = name.toLowerCase();
     const j = attrs.findIndex((a) => a.name.toLowerCase() === lower);
     if (j < 0) return undefined;
-    const key = type + "." + name;
-    if (!caseNoted.has(key)) { caseNoted.add(key); errors.push(`${type} attribute "${name}" read as ${attrs[j].name} (the name's case differs from the schema)`); }
+    noteOnce(caseNoted, type + "." + name, `${type} attribute "${name}" read as ${attrs[j].name} (the name's case differs from the schema)`);
     return j;
-  }
-
-  // A geometry element nested in a larger one, cut down as it closed to its
-  // span (see onClose below): parsed again from the text when the walk
-  // reaches it, so the tree under one top-level element is never held whole.
-  function expand(el) {
-    const sub = parseXml(text.slice(el.at, el.end), { spans: true, base: el.at });
-    hrefToRef(sub);
-    return sub;
   }
 
   // Builds an entity from an element; returns its id.
   function entity(el, type) {
-    if (el.stub) el = expand(el);
+    if (el instanceof Read) {
+      // Read when it closed: in a deferred read its record goes into this
+      // one's; in the walk it is numbered now, in the order it would have been.
+      const t = el.t;
+      el.t = undefined;
+      if (trace) { trace.push(t); return el.p; }
+      return finish(t, el.p);
+    }
     if (re && el !== re.root) {
       // A re-read builds only its own arguments; nested entities exist.
       return el.attrs.id !== undefined ? num(el.attrs.id) : inlineIds.get(re.base + el.at);
     }
-    const id = re ? re.id : el.attrs.id !== undefined ? num(el.attrs.id) : next++;
-    if (!re && entities.has(id)) return id;
+    const deferred = !re && trace !== null;
+    let id, outer = null, slot = -1;
+    if (re) id = re.id;
+    else if (deferred) {
+      const s = el.attrs.id;
+      if (s !== undefined) {
+        const known = ids.has(s);
+        id = num(s);
+        if (!known) trace.pop(); // the self token below numbers it
+        else if (entities.has(id)) return id;
+      } else id = nextP--;
+      outer = trace;
+      trace = [null]; // [0]: this entity's record, then what it holds
+      slot = outer.push(trace) - 1;
+    } else {
+      id = el.attrs.id !== undefined ? num(el.attrs.id) : next++;
+      if (entities.has(id)) return id;
+    }
     const attrs = schema.attrs(type);
     const args = attrs.map((a) => (a.derived ? { derived: true } : null));
     const rec = el.attrs.id !== undefined ? { id, type, args, xmlId: el.attrs.id } : { id, type, args };
     if (re) re.out = args;
-    else {
+    else if (deferred) {
+      trace[0] = rec;
+      if ((dropDepth || inGeometry) && el.attrs.id === undefined) { inlineIds.set(el.at, id); pendingAt.push(el.at); }
+    } else {
       entities.set(id, rec);
       if (dropDepth && el.attrs.id === undefined) inlineIds.set(el.at, id);
     }
@@ -325,14 +395,75 @@ export function parseIfcXml(text, schema, opts = {}) {
       if (isA(type, "IFCBSPLINESURFACE")) bsplineRows(rec, attrs);
     } finally {
       if (drop) dropDepth--;
+      if (deferred) {
+        // An entity that holds nothing to number is kept as its bare record;
+        // otherwise as an array cut to its length.
+        outer[slot] = trace.length === 1 ? trace[0] : trace.slice();
+        trace = outer;
+      }
     }
     if (drop) {
       const lazy = new LazyXmlEntity(id, type, el.attrs.id, el.at, el.end);
       lazy._sh = shallow(args);
-      entities.set(id, lazy);
+      if (deferred) {
+        const k = outer[slot];
+        if (Array.isArray(k)) k[0] = lazy;
+        else outer[slot] = lazy;
+      } else entities.set(id, lazy);
     }
     return id;
   }
+
+  // Numbers a deferred read's entities in the order the walk would have
+  // (each entity, then what it holds, in document order), adds them to the
+  // model, and puts final numbers in place of provisional ones. A trace holds
+  // ref ids (strings), entities ([record, ...what it holds], or a bare
+  // record when it holds nothing to number) and notes.
+  function finish(t, p) {
+    const recs = [];
+    if (t !== undefined) item1(t, recs);
+    const fix = (v) => {
+      if (Array.isArray(v)) { for (const x of v) fix(x); }
+      else if (v && v.ref !== undefined && v.ref < -1) v.ref = pmap.get(v.ref);
+    };
+    for (const r of recs) if (!(r instanceof LazyXmlEntity)) fix(r.args);
+    return p < -1 ? pmap.get(p) : p;
+  }
+  const fin = (x) => (x < -1 ? pmap.get(x) : x);
+  // Numbers one entity; false when an element with its id was read already
+  // (the walk skips it and everything in it, as before).
+  function numberRec(rec, recs) {
+    const f = rec.xmlId !== undefined ? num(rec.xmlId) : next++;
+    if (rec.id < -1) pmap.set(rec.id, f);
+    if (entities.has(f)) return false;
+    rec.id = f;
+    entities.set(f, rec);
+    recs.push(rec);
+    return true;
+  }
+  function item1(k, recs) {
+    if (typeof k === "string") {
+      const f = num(k), p = pendingIds.get(k);
+      if (p !== undefined) pmap.set(p, f);
+    } else if (Array.isArray(k)) {
+      if (!numberRec(k[0], recs)) return;
+      // Each part is let go once numbered, so the trace shrinks as the walk goes.
+      for (let i = 1; i < k.length; i++) { item1(k[i], recs); k[i] = 0; }
+    } else if (k.type !== undefined) numberRec(k, recs);
+    else if (k.back) backrefs.push([fin(k.back[0]), k.back[1], fin(k.back[2])]);
+    else if (k.note) {
+      const [set, key, msg] = k.note;
+      if (!set.has(key)) { set.add(key); errors.push(msg); }
+    } else if (k.comma !== undefined) {
+      commaNumbers++;
+      if (!commaExample) commaExample = k.comma;
+    }
+  }
+  const backref = (r, attr, id) => {
+    if (re) return;
+    if (trace) trace.push({ back: [r, attr, id] });
+    else backrefs.push([r, attr, id]);
+  };
 
   // An entity's arguments as an attribute test sees them: a list only as
   // empty or not (EMPTY_LIST, SKIPPED_LIST), a reference only as a reference
@@ -381,12 +512,12 @@ export function parseIfcXml(text, schema, opts = {}) {
         // <IsTypedBy GlobalId=".."><RelatingType ../></IsTypedBy>.
         if (xsiType(c) || c.attrs.id !== undefined || c.attrs.ref !== undefined || hasOwnValueAttrs(c)) {
           const v = c.attrs.ref !== undefined ? { ref: num(c.attrs.ref) } : { ref: entity(c, entityName(xsiType(c) || "") || inv[0]) };
-          if (!re) backrefs.push([v.ref, inv[1], id]);
+          backref(v.ref, inv[1], id);
           continue;
         }
         for (const r of c.children) {
           const v = item(r, inv[0]);
-          if (v && v.ref && !re) backrefs.push([v.ref, inv[1], id]);
+          if (v && v.ref) backref(v.ref, inv[1], id);
         }
       }
     }
@@ -421,10 +552,7 @@ export function parseIfcXml(text, schema, opts = {}) {
     const rows = count(at("UMultiplicities"), at("UDegree"));
     const cols = count(at("VMultiplicities"), at("VDegree"));
     if (!(rows >= 2 && cols >= 2 && rows * cols === list.length)) {
-      if (!bsplineNoted.has(e.type)) {
-        bsplineNoted.add(e.type);
-        errors.push(`${e.type} ControlPointsList written as ${list.length} points in one list; its knot data does not give the row length, so it is left flat`);
-      }
+      noteOnce(bsplineNoted, e.type, `${e.type} ControlPointsList written as ${list.length} points in one list; its knot data does not give the row length, so it is left flat`);
       return;
     }
     const cut = (l) => Array.from({ length: rows }, (_, r) => l.slice(r * cols, (r + 1) * cols));
@@ -441,33 +569,67 @@ export function parseIfcXml(text, schema, opts = {}) {
     if (a._c === undefined) a._c = !entityName(xsiType(a) || a.local) && !/header$/i.test(a.local);
     return a._c;
   };
-  // IFC4 writers nest a whole model under one element (the IfcProject's
+  // Read as it closes (2026-11-18, eval/nested-early-2026-11-18.md). IFC4
+  // writers nest a whole model under one element (the IfcProject's
   // IsDecomposedBy, ContainsElements, IsDefinedBy: 96-99.9% of the file in
   // GeometryGymIFC's output, buildingSMART's Annex E and
   // eval/ifc4-layout.mjs), so reading by top-level element alone held nearly
-  // the whole tree. A geometry element there is cut to a stub as it closes:
-  // its span, and only the attributes that say what it is. The walk still
-  // runs parent first, so entities are numbered as before.
-  let stubbed = 0;
-  const STUB_KEEP = (k) => k === "id" || k === "ref" || k === "href" || (local(k) === "type" && k.includes(":"));
-  function stub(node) {
+  // the whole tree. Each entity element nested in another is now read as it
+  // closes and its element emptied, keeping only what says what it is
+  // (`id`, `xsi:type`). Entities are numbered parent first, which a read
+  // from the inside out cannot do as it goes: it gives provisional numbers
+  // and records the order it met each id, and the walk from the top-level
+  // element numbers them in that order when it reaches the emptied element.
+  // So ids, the order of the entity map and the notes are as before, and
+  // reports, which print those numbers, do not change. An inline entity
+  // inside geometry also records where it starts, so a geometry read again
+  // from its text later gives it the same number.
+  let early = 0;
+  const isGeom = (a) => {
+    if (a._g === undefined) {
+      const t = entityName(xsiType(a) || a.local);
+      a._g = !!t && !keeps(t);
+    }
+    return a._g;
+  };
+  const KEEP = (k) => k === "id" || (local(k) === "type" && k.includes(":"));
+  const NO_ATTRS = Object.freeze({});
+  let inGeometry = false; // the element being read early sits inside geometry
+  function readEarly(node, parent, inGeom) {
     if (node.attrs.ref !== undefined || node.attrs.href !== undefined) return;
     const t = entityName(xsiType(node) || node.local);
-    if (!t || keeps(t)) return;
-    const attrs = {};
-    for (const k of Object.keys(node.attrs)) if (STUB_KEEP(k)) attrs[k] = node.attrs[k];
-    node.attrs = attrs;
-    node.children = [];
-    node.text = "";
-    node.stub = true;
-    stubbed++;
+    if (!t) return;
+    hrefToRef(node);
+    const holder = [];
+    trace = holder;
+    inGeometry = inGeom;
+    let p;
+    try {
+      p = entity(node, t);
+    } finally {
+      trace = null;
+      inGeometry = false;
+    }
+    // The element is swapped for a small record of what was read, which the
+    // walk finds in its place.
+    let attrs = NO_ATTRS;
+    for (const k of Object.keys(node.attrs)) if (KEEP(k)) { if (attrs === NO_ATTRS) attrs = {}; attrs[k] = node.attrs[k]; }
+    const kids = parent.children;
+    kids[kids.length - 1] = new Read(node.local, attrs, holder[0], p);
+    early++;
   }
   parseXml(text, {
     spans: !eager,
     onClose(node, stack) {
       if (stack.length < 2) return false; // the root element
-      for (let i = 2; i < stack.length; i++) if (!isContainer(stack[i])) {
-        if (!eager) stub(node);
+      let nested = false, inGeom = false;
+      for (let i = 2; i < stack.length; i++) {
+        if (isContainer(stack[i])) continue;
+        nested = true;
+        if (isGeom(stack[i])) { inGeom = true; break; }
+      }
+      if (nested) {
+        readEarly(node, stack[stack.length - 1], inGeom);
         return false;
       }
       const ent = entityName(xsiType(node) || node.local);
@@ -475,6 +637,14 @@ export function parseIfcXml(text, schema, opts = {}) {
         if (node.attrs.ref === undefined) {
           hrefToRef(node);
           entity(node, ent);
+          pendingIds.clear();
+          for (const at of pendingAt) {
+            const f = pmap.get(inlineIds.get(at));
+            if (f) inlineIds.set(at, f);
+            else inlineIds.delete(at); // in an element the walk skipped
+          }
+          pendingAt = [];
+          pmap.clear();
         }
         return true;
       }
@@ -496,5 +666,5 @@ export function parseIfcXml(text, schema, opts = {}) {
   }
   for (const s of ids.keys()) if (!entities.has(ids.get(s))) errors.push(`ref="${s}" points at no element`);
   if (commaNumbers) errors.push(`${commaNumbers} number(s) written with a decimal comma (e.g. "${commaExample}"), read with a decimal point`);
-  return { schema: null, entities, errors, stubbed };
+  return { schema: null, entities, errors, early };
 }

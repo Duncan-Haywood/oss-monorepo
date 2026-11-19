@@ -1,0 +1,23 @@
+cell-fidelity milestone 5zx: design-matched node-gain profiles, leave one design out. K = median late gain
+profile of the 3 nearest other designs (scaled design space), L = per-node line in anode thickness; T, NS, C
+as 5zw. 5zk's records, 40 designs, no new simulation. Set medians.
+
+set           n   levN   levT   levK   levL    eNS    eNT    eNK    eNL     eC    d3  NK<NS  NK<NT  NL<NS
+Ai2020        8   3.52   1.73   2.03   2.09  0.023  0.022  0.023  0.037  0.035  0.75      1      5      1
+Chen2020     12   5.08   3.70   3.47   4.22  0.054  0.065  0.065  0.067  0.039  0.61      8      8      8
+OKane2022    12   5.89   5.31   3.40   4.28  0.067  0.041  0.045  0.027  0.035  0.61      8      8      9
+NCA_Kim2011   8  23.24  19.41  17.97  10.67  0.030  0.042  0.041  0.015  0.010  0.74      5      4      6
+
+set-median |predicted - own late gain| at the separator node (20):
+  Ai2020      T 0.25  K 0.23  L 0.71
+  Chen2020    T 0.34  K 0.18  L 0.29
+  OKane2022   T 0.32  K 0.18  L 0.30
+  NCA_Kim2011 T 0.18  K 0.18  L 0.11
+
+(lev = |du(L_99) - du(L_2) - Mw_99| in mV; e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3, line through
+ cycles 2..10, q_S, no drift; d3 = distance to the third neighbour in the unit design cube)
+
+H244 (e_NK < e_NT on >= 3 of 4 sets): refuted (1 of 4)
+H245 (e_NK <= e_NS on Chen2020 and NCA_Kim2011): refuted (0 of 2)
+H246 (OKane2022 e_NK <= (e_NS + e_C)/2): supported
+H247 (NK < NS on >= 26 of 40): inconclusive (22 of 40; NL: 24)

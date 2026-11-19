@@ -44,12 +44,41 @@ open. MIT licensed, no dependencies, nothing uploaded.
   IDS-Audit-tool test set; on 64 IDS files from public repositories it found
   template faults in 21, among them `Lenght` in three quantity sets of buildingSMART
   Portugal's national requirements.
+- **Sets for one predefined type** (2026-11-19): the IFC4 and IFC4X3 templates
+  give 186 of 513 and 343 of 760 standard sets only to some predefined types
+  (`Pset_ActuatorTypeElectricActuator` is for `IfcActuator/ELECTRICACTUATOR`,
+  `Pset_SolidStratumCapacity` for `IfcGeotechnicalStratum/SOLID`). A
+  specification that requires one with no predefinedType, or with another
+  type, asks the other objects for a set the standard never gives them: the
+  audit warns (`pset-predefined`) and names the type to add. The editor marks
+  such sets "(ELECTRICACTUATOR only)", fills in the type when a set has one,
+  and stops offering a set once another type is chosen. All 1,008 limited
+  class/set pairs the editor offers draw the warning with no type and audit
+  clean with theirs (`eval/predefined-sets-2026-11-19.md`); 1 of 65 public IDS
+  files has one, sand strata picked by material.
+- **Where a set may sit** (2026-11-19): the templates' own template type
+  says whether a set goes on occurrences only (`PSET_OCCURRENCEDRIVEN`, 16 IFC4
+  and 105 IFC4X3 sets such as `Pset_FanOccurrence`; 14 IFC4X3 quantity sets),
+  or on the `IfcPerformanceHistory` that records an element's performance over
+  time (`PSET_PERFORMANCEDRIVEN`, 42 and 44 sets such as `Pset_FanPHistory`). A
+  specification requiring an occurrence set on a type object (`IFCFANTYPE`)
+  draws `pset-occurrence` and names the occurrence class; one requiring a
+  performance set on the element draws `pset-performance`. Requiring a
+  performance set on `IFCPERFORMANCEHISTORY`, where the standard puts it, was a
+  false `pset-class` error and now audits clean. The editor no longer offers
+  occurrence sets on type objects (647 pairs) and offers performance sets on
+  `IFCPERFORMANCEHISTORY` instead of the element. All 1,280 such pairs the
+  editor used to offer agree with the audit, and every pair it offers now
+  draws neither warning (`eval/template-types-2026-11-19.md`). No public IDS
+  file of the 65 read has either case.
 - **IDS editor** (`editor.html`, 2026-11-16): pick a class, then a standard
   set that class can carry, then a property; the editor writes the template's
   `dataType`, offers the standard's enumeration values, lists subclasses (IDS
   matches exact classes) and audits the IDS live. Every choice it offers was
   written out and audited: 203,433 specifications across the three schemas,
-  none with an error or a warning; a 15,102-specification sample validates
+  none with an error or a warning (2026-11-16; since 2026-11-19 a set limited
+  to some predefined types warns until the type is set, and the editor fills
+  it in for a one-type set); a 15,102-specification sample validates
   against buildingSMART's `ids.xsd` in IfcTester. Hands the file straight to the
   checker. `eval/editor-2026-11-16.md`.
   **Opens an existing IDS** (2026-11-16): what the page can edit becomes
@@ -76,6 +105,21 @@ open. MIT licensed, no dependencies, nothing uploaded.
   specifications in 11 public files, 81.1% of the public files' facets editable
   (was 79.4%), every file still writing back the same and none made invalid
   against `ids.xsd`. `eval/several-classes-2026-11-17.md`.
+  **A subclass box per class** (2026-11-18): every further class gets its own
+  "and its subclasses" box, not only the first, and an opened class list that
+  names a class with all its concrete subclasses opens with that box ticked
+  (`classListBases`). The two 147-class bSDD-Toolkit templates open as 79
+  classes, 11 ticked; on the public files the names listed fall from 506 to
+  368, every file still writing back the same.
+  `eval/also-subclasses-2026-11-18.md`.
+  **Deprecated subclasses** (2026-11-19): in IFC4X3 a ticked box leaves out
+  the classes IFC 4.3 deprecates (`IFCWALLSTANDARDCASE`,
+  `IFCELECTRICDISTRIBUTIONBOARD`) and names them beside the box; IFC4 keeps
+  them. 57 public IFC4X3 exports hold none (IFC4 exports: 151 of 572 walls), a
+  model that does carry one still gets the "would not check" warning, and the
+  bSDD templates now open as 30 classes, `IFCBUILTELEMENT` ticked; public files
+  list 270 names (was 368), all writing back the same.
+  `eval/deprecated-subclasses-2026-11-19.md`.
   **A model's values** (2026-11-17): with a model open, each property row
   says what values the model holds ("In the model: 3 different values: REI 60
   (12), ...") and offers them: **Allow exactly these values** writes a one-of
@@ -290,6 +334,7 @@ consultant's model checked against it before it is shared. Today the options are
 | Solibri Office, other commercial model checkers | seat licence (thousands a year) | Windows desktop install; does much more (clash detection, geometry rules) |
 | BIMcollab Zoom, usBIM.IDS-checker, other vendor tools | free tier or subscription | install or an account, and often an upload of the model |
 | IfcTester (IfcOpenShell) | free, LGPL | Python and a command line, or Bonsai/BlenderBIM |
+| Excel2IDS (buildingSMART community) | free, GPL-3.0 | Windows .exe to turn its Excel template into IDS; no checking, cannot read an IDS back |
 | **IDS Model Check** | free, MIT | a browser tab; or Node for CI |
 
 What this does better: nothing to install, nothing uploaded (the model is read
@@ -311,7 +356,14 @@ node cli.mjs model.ifcxml spec.ids              # ifcXML, or an .ifczip, the sam
 node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
+node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
+node cli.mjs --link-bsdd spec.ids -o linked.ids    # add the IFC 4.3 bSDD uri to standard properties (offline)
+node cli.mjs --from-bsdd https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcDoor -o door.ids
+                                                 # an IDS from a bSDD class's property list (goes online)
+node cli.mjs --fix spec.ids -o spec-fixed.ids   # repair its ids.xsd faults; exit 1 if some need a person
 node cli.mjs model.ifc spec.ids --no-audit      # run invalid specifications as written
+node cli.mjs --to-sheet spec.ids -o spec.xlsx   # the IDS as a spreadsheet, one row per facet (or .csv)
+node cli.mjs --from-sheet spec.xlsx -o spec.ids # a spreadsheet back to IDS 1.0; exit 1 names bad rows
 ```
 
 Library: `import { check } from "./node.mjs"; check(idsText, ifcText)` in Node,
@@ -329,6 +381,375 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### Facet links checked against bSDD (2026-11-19)
+
+An IDS property, classification or material facet may carry a `uri`: the
+buildingSMART Data Dictionary (bSDD) entry it asks for. `ids.xsd` does not tie
+the link to the facet, so an IDS can name `Width` and link IFC's `Name`, or ask
+for an `IFCLABEL` where the dictionary says Boolean; a model authored from the
+dictionary then fails for the IDS author's slip. `node cli.mjs --audit spec.ids
+--bsdd` (bsdd.mjs) looks every link up in bSDD's public API and reports:
+
+- **errors:** a link bSDD does not have (for an IFC link, the IFC 4.3 entry it
+  probably meant is named), a link that is not a property or class, a property
+  facet linking a class, a dataType that cannot hold the dictionary's values;
+- **warnings:** a baseName other than the linked code or name (naming the
+  baseName's own link when the dictionary has one: the uri was pasted from the
+  next row), the IFC dictionary naming another IFC type, values outside the
+  property's allowed values, a classification value, system or required class
+  the bSDD class does not match, an Inactive entry;
+- **notes:** a link bSDD writes another way (http, `ifc-4.3`, case), a
+  dictionary version that is not the latest, a uri outside bSDD.
+
+On every public IDS file with a bSDD link that GitHub code search finds (58
+distinct files, 197 distinct bSDD links), 7 files have a bSDD error and 15 a
+warning, each read by hand: links pasted from the wrong row (in a template and
+in a translation of buildingSMART's own example), a link to an IFC 2x3
+dictionary bSDD never had, case-only name differences, and the Dutch
+Omgevingswet sets relating classes to IFC classes their dictionary does not
+(`eval/bsdd-links-2026-11-19.md`). It is the one option that goes on the
+network: one GET per distinct link to api.bsdd.buildingsmart.org, with the
+link as the only thing sent. It is not on the page: bSDD's API sends no CORS
+header, so a browser cannot ask it.
+
+### bSDD links written for you (2026-11-19)
+
+Most IDS files carry no bSDD links at all: in 117 public IDS files, 316 of
+1,317 requirement property facets have a `uri`. For a standard IFC property
+the link needs no lookup, because the IFC 4.3 dictionary codes each template
+property by its name. `node cli.mjs --link-bsdd spec.ids -o linked.ids`
+(bsdd-suggest.mjs) adds `uri="https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/<Name>"`
+to every requirement property facet on a `Pset_` or `Qto_` template property
+that has none, lists them on stderr, and changes nothing else in the file.
+On the page, auditing an IDS shows the same list with a "Download IDS with
+bSDD links" button; it runs offline, so it works where the bSDD check cannot.
+
+On the public corpus it suggests 619 links in 54 files; for the 212 facets
+that already link the IFC dictionary it gives the same link 196 times, and
+the 2 where it differs are author slips the bSDD check had already found
+(`Width` linked to `Name`, `AreaPerOccupant` to `OccupancyNumberPeak`). It
+leaves alone facets with no standard set, patterns, misspelt names and
+classification or material facets. All 54 outputs are the input plus the
+attributes, byte for byte (`eval/bsdd-suggest-2026-11-19.md`).
+
+### An IDS from a bSDD class (2026-11-19)
+
+The usual way to write an IDS from a data dictionary is to copy rows by hand:
+open the class in bSDD, type each property set, property code and data type
+into an editor, then paste the property's link. That is how the slips in the
+section above get in. `node cli.mjs --from-bsdd CLASS_URI... -o spec.ids`
+(bsdd-spec.mjs) asks bSDD for each class with its property list and writes
+one specification per class:
+
+- **applicability:** for an IFC-dictionary class, its IFC entity (IfcWallSHEAR
+  is IFCWALL with predefined type SHEAR); for any other dictionary's class,
+  the IFC entities bSDD relates it to plus a classification facet (system =
+  the dictionary's name, value = the class code), so only objects classified
+  that way are checked. The specification is optional: a model need not
+  contain the class.
+- **requirements:** that classification again with the class's `uri`
+  (`ids.xsd` allows a `uri` on requirement facets only), then one property
+  facet per class property, with its set, its code as baseName, its bSDD
+  `uri`, a dataType, the allowed values (one-of), a fixed value or bounds,
+  and `cardinality` required where bSDD says `isRequired`, optional otherwise
+  (if the property is there, it must fit). bSDD's pseudo-set `Attributes`
+  becomes attribute facets, kept only where the entity has that attribute.
+- **dataType:** for a standard `Pset_`/`Qto_` property, the IFC templates'
+  type, which is what the audit holds a facet to; otherwise the IFC
+  dictionary's own note ("takes 'IfcLabel' as value"), asking bSDD for the
+  IFC property's entry when another dictionary reuses an IFC property;
+  otherwise bSDD's data type (Boolean, Integer, Real, String, Time as
+  IFCBOOLEAN, IFCINTEGER, IFCREAL, IFCLABEL, IFCDATETIME). A Real with a
+  unit or a dimension becomes the IFC measure it names (`mm` as
+  IFCLENGTHMEASURE, `W/(m²·K)` as IFCTHERMALTRANSMITTANCEMEASURE), with its
+  allowed values, fixed value and bounds written in SI, which is how IDS
+  compares a measure (a 50 to 400 mm thickness becomes 0.05 to 0.4). See
+  "Measure types from bSDD units" below.
+- Left out and said on stderr: complex properties (no IDS 1.0 facet reaches
+  inside one), Inactive properties, related IFC entities the schema does not
+  have. `--sets Pset_DoorCommon,...` keeps only the named sets.
+
+Measured on bSDD itself (`eval/bsdd-spec-2026-11-19.md`): from 185 classes in
+the 42 Active, latest-version dictionaries that list properties (IFC 4.3
+included), 9,198 requirement facets. 38 of 42 generated files have no audit
+error, and the 4 that do repeat their dictionary's own faults (a project set
+named `Pset_FM`, a quantity the IFC template lacks, languages as a Boolean's
+values). 42 of 42 pass the bSDD link check with no error. Five generator
+faults found on the way were fixed, the largest being bSDD's
+`"predefinedValue": "None"`, which 165 properties answer and which had been
+written as a required value.
+
+The editor now keeps a facet's `uri` when it opens a file. Before, it dropped
+every one: 0 of 344 links in 53 public files came back, now 344 of 344
+(`eval/editor-uri-roundtrip.txt`). A generated file can therefore be opened,
+edited and downloaded with its links intact.
+
+### Measure types from bSDD units (2026-11-19)
+
+bSDD types a length, a pressure or a U-value as plain "Real". Written as
+`IFCREAL`, the facet fails every model that stores the value as IFC intends,
+as an `IfcLengthMeasure` or `IfcThermalTransmittanceMeasure`, because IDS
+compares the value's type exactly. Each class property also carries its
+units and often its SI dimension exponents, so `--from-bsdd` now picks the
+measure (`bsdd-units.mjs`):
+
+- **The unit table** (`schema/bsdd-units.json`, built by
+  `schema/gen-bsdd-units.mjs`) joins bSDD's own unit list
+  (`/api/Unit/v1`: 616 codes, 417 linked to QUDT) to QUDT's conversion
+  factor, offset, dimension vector and quantity kinds (qudt.org, CC BY 4.0).
+  275 codes resolve. One bSDD link is wrong and is relinked: bSDD names `°`
+  "grad (angel degree)" and links it to QUDT `GRAD`, the gon (π/200 rad); the
+  symbol is the degree's.
+- **The measure:** the dimension vector picks the IFC measure (41 measures:
+  length to inductance). Where two measures share a dimension, QUDT's kind
+  picks, but only when the unit names none of the general kind: `m³` is a
+  Volume and a SectionModulus in QUDT and stays IFCVOLUMEMEASURE, `N·m` is
+  only a Torque and becomes IFCTORQUEMEASURE.
+- **Kept as IFCREAL, said on stderr:** no unit or dimension; a
+  dimensionless unit (`%`: IFC's ratio measures take 0.5 for 50 %, and the
+  dictionary may mean 50; a `dB` property whose name or physicalQuantity
+  does not say sound pressure or sound power level, such as a reduction index
+  `R_w`);
+  units of different measures; a unit against the property's own stated
+  dimension; a unit not in bSDD's list (`kg CO2 eq`, `W/mK`); and a value or
+  bound that cannot be put in SI because two units are listed (`mm, m`).
+  Integer properties are not touched, and a standard set's template type
+  still wins.
+
+Measured on bSDD (`eval/bsdd-units-2026-11-19.md`): of 1,625 Real class
+properties outside IFC in 22 dictionaries, 867 get a measure (18
+dictionaries), and on the same 188 classes the generated own-set facets typed
+as a measure go from 1 to 454, with the audit and the bSDD link check
+unchanged (39 of 43 files audit clean, 43 of 43 with no link error). On a
+built model (`eval/bsdd-units-model.mjs`), a 200 mm wall stored as
+`IfcLengthMeasure` failed the old IFCREAL facet and passes the new one, and a
+500 mm wall fails it; IfcTester 0.9.0 gives the same 9 verdicts. The bSDD
+link check (`--bsdd`) reads a measure facet's SI values against bSDD's values
+in the property's unit (18 false `bsdd-value` warnings on kPa strengths to 0).
+
+**Decibels (2026-11-19).** QUDT's `dB` is both a sound pressure and a sound
+power level, so a dB property used to stay IFCREAL, and a model storing
+`IfcSoundPressureLevelMeasure` as IFC means failed it. `levelOf` now reads
+which from the property: physicalQuantity or the name in words ("sound power
+level", Schalldruckpegel, geluidsvermogen, pression acoustique), else the ISO
+symbol its code starts with (`L_W`, `LWA`: power, ISO 3740; `LA_Fmax_nT`,
+`L'nT,w`, `LAeq`, `Ln,w`: pressure, ISO 16032, 717-2). Reduction indices and
+level differences (`R_w`, `DnT,w`, `C_tr`) are in dB but are neither and
+stay IFCREAL. On a built wall class (`eval/bsdd-db-model.mjs`,
+`eval/bsdd-db-model.txt`) a wall typed as IFC means fails the old file only on
+its type and passes the new one; a plain IfcReal now fails; IfcTester 0.9.0
+gives the same 6 verdicts. Not yet run over the 262 dB properties in bSDD (the
+bSDD API did not answer from this session): `node eval/bsdd-units-corpus.mjs
+DIR` on a fresh cache counts them.
+
+### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
+
+Many BIM managers already agree requirements in buildingSMART-community's
+[Excel2IDS](https://github.com/buildingsmart-community/Excel2IDS) template:
+asset categories in columns, one requirement per row, an `X` where a category
+needs a requirement. `excel2ids.mjs` reads that workbook as it stands, on the
+page (drop it where the IDS goes) or with `node cli.mjs --from-sheet book.xlsx
+-o out.ids`, and writes one IDS per purpose (`out_MEP.ids`, `out_STR.ids`;
+per phase too with `--by-phase`), each audited like any IDS. No Windows tool,
+nothing uploaded. The other way round, which Excel2IDS cannot do, `node
+cli.mjs --to-excel2ids spec.ids -o book.xlsx` (or *as an Excel2IDS workbook*
+after an audit) lays an IDS out in the template, a requirement shared by
+several categories written once, and names every specification the template
+cannot hold.
+
+On 64 public IDS files, 309 of 507 specifications fit the template and all
+309 come back with the same requirements; 256 of 256 on buildingSMART's test
+pairs, with the checker's verdict unchanged on 255 (the one that changes is a
+lower-case class name the reader upper-cases on purpose). What does not fit:
+`partOf` requirements, a material asked for with no name, ranges and lengths.
+The template's own sample, read by its rules, asks every external door to be
+an `IFCWALL`; the audit names it. Details, and where this reader differs from
+the Excel2IDS tool (booleans written `true`, `REPLACEME` rows keep their value
+and URI, no fixed `LOD400` milestone): `eval/excel2ids-2026-11-19.md`.
+
+**Where Excel2IDS's own tool would differ, cell by cell (2026-11-19).** After a
+workbook is read, the page lists every cell where the Excel2IDS tool (its
+source at `4eb7575`, read, not run) would write a different IDS or stop with
+none: a category with no purpose (the tool stops), a toggle typed as the text
+`FALSE` (on for the tool), a typed `TRUE` (written `True`, which matches
+nothing), a number in the matrix (the tool stops), a `REPLACEME` row that takes
+another row's instructions or hands its value to an earlier property facet,
+`Prohibited` read as required, a moved layout. The CLI prints the same on
+`--from-sheet`. The template's own sample has one: its "External doors"
+category asks for `IsExternal` = `True`, so the tool's MEP IDS selects no door.
+The rules also caught this venture's own download: 316 of 351 workbooks it
+wrote had an empty purpose row the tool cannot read; it now writes `General`
+(the tool's default) and 0 of 351 stop. Details: `eval/excel2ids-tool-2026-11-19.md`.
+
+**The tool run itself, side by side (2026-11-19).** The rules above were then
+checked by running the tool (imported unchanged, ifctester 0.9.0) on the same
+321 workbooks: no stops, `LOD400` in every file, the IFC version and the
+sample's `True` as predicted. Two things the source reading missed are now on
+the list: an empty version cell comes out as `<version>None</version>` (311
+of 321 files), and a carriage return in a cell comes out as the escape
+`_x000D_`, because openpyxl does not undo the escape Excel writes. The run
+also found a fault here: the reader wrote applicability facets in the
+template's column order, which broke ids.xsd on one public set (property
+before attribute); every spreadsheet path now writes ids.xsd's order. Details:
+`eval/excel2ids-sidebyside-2026-11-19.md`.
+
+### An IDS as a spreadsheet and back (2026-11-19)
+
+Requirements are often agreed in a table first and typed into an IDS by hand.
+`sheet.mjs` writes an IDS as one row per facet and reads such a table back
+into IDS 1.0, as `.xlsx` or CSV (comma, semicolon or tab). On the page, drop
+the spreadsheet where the IDS goes, or audit an IDS and press *Download as a
+spreadsheet*; on the command line, `--to-sheet` and `--from-sheet`.
+
+| spec | section | facet | name | ifcVersion | entity | propertySet | property | dataType | value | cardinality |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | specification | | Doors are fire rated | IFC4 | | | | | | required |
+| 1 | applicability | entity | | | IFCDOOR | | | | | |
+| 1 | requirements | property | | | | Pset_DoorCommon | FireRating | IFCLABEL | one of: EI30 \| EI60 | |
+
+A value cell is the exact value, or a restriction written as clauses joined by
+`;`: `one of: A | B`, `pattern: [A-Z]{2}\d+`, `>= 0; < 10` (dates and durations
+too), `length: 4`, `min length: 1`, `max length: 12`, `base: integer` when the
+base is not the one the bounds imply, `note: ...` for an `xs:annotation`. A
+leading backslash keeps a cell literal (`\one of: x`, `\=SUM(A1)`); inside a
+clause `;;` is a literal `;` and in a one-of list `||` a literal `|`. Info rows
+(`section` info, `facet` title, author, ...) fill `<info>`. The workbook has a
+*Read me* sheet with the same rules. A row that cannot become IDS is named by
+its row number. IDS 0.9 forms are repaired (`fix.mjs`) before the sheet is made.
+
+Measured (`eval/sheet-roundtrip-2026-11-19.md`): all 334 of buildingSMART's
+test IDS files come back with the same content through CSV and `.xlsx`, and
+the checker gives the same verdict on each pair, 334 of 334; 62 of 64 public
+IDS files on GitHub come back the same as written or as repaired (one uses
+`<n>` for `<name>`, one has no `<info>`); a workbook LibreOffice saved reads
+back the same as ours, except that CR LF line breaks inside two files'
+instructions become LF. Excel turns `1.10` into `1.1` when it opens a CSV, so
+prefer `.xlsx`.
+
+**Workbooks Excel saved (2026-11-19).** Excel stores what a person types as
+numbers, dates and booleans, so the reader shows each cell as Excel does:
+a date cell as ISO 8601 (`2024-01-01`, `15:30:18`, `2024-01-01T18:00:00`, from
+the cell's number format, with the 1904 date system), a number to Excel's
+15 digits (`0.938271604938272`, not the `0.93827160493827155` Excel saved),
+a boolean as IDS writes it (`true`, not `TRUE`, which matches no IfcBoolean),
+`_x000D_` escapes decoded. An `.xls` or a password-protected workbook is
+named instead of being read as CSV. On 321 workbooks from Apache POI's test
+files (282 saved by Excel), 65,537 of 65,548 cells now read as openpyxl
+reads them, up from 62,182; the rest are cells where no date exists
+(`eval/excel-workbooks-2026-11-19.md`). The downloaded workbook formats every
+cell, and the empty cells of each column, as Text, so a value a person types
+into it later stays as typed (`42.0`, `true`, `1.10`): retyped through
+LibreOffice Calc's input line, 56 of 56 public IDS files and 334 of 334
+buildingSMART test files come back the same, from 24 and 288 with the
+General format. A CSV opened in a spreadsheet still gets typed, so edit the
+`.xlsx`. Our workbook stores a CR inside a cell as `_x000D_`, as Excel does.
+
+### Dropdowns in the downloaded workbook (2026-11-19)
+
+The `.xlsx` the page and `--to-sheet -o spec.xlsx` write now offers each
+column's words as an in-cell dropdown (data validation, from a hidden *Lists*
+sheet). `section` takes only its four words; `facet`, `cardinality` and
+partOf `relation` warn on another word but let you keep it (a `min..max`
+cardinality is legal on a specification row); `entity`, `propertySet`,
+`dataType` and `ifcVersion` offer the IFC schema's concrete classes, standard
+set names and data types for the versions the IDS names, and take anything,
+so a restriction such as `one of: IFCWALL | IFCSLAB` still fits. Each column
+shows a one-line hint when selected.
+
+Measured (`eval/sheet-dropdowns-2026-11-19.md`): on 476 real and test IDS
+files, no `section` or `facet` cell falls outside its list; the only
+`relation` outside it is a lone `IFCRELFILLSELEMENT`, which ids.xsd refuses.
+LibreOffice Calc's *Mark Invalid Data* circles exactly the cells the script
+predicts in 476 of 476 workbooks, and the round trip is unchanged. Not
+measured in Microsoft Excel itself.
+
+### Repairing an IDS that validating tools refuse (2026-11-18)
+
+An IDS that breaks `ids.xsd` is refused whole by IfcTester, the
+IDS-Audit-tool and other tools that validate first; 12 of 65 public IDS
+files do, most of them IDS 0.9 exports. Most of those faults have one right
+answer, so `fix.mjs` makes the edit: IDS 0.9's `minOccurs` moved from
+`<specification>` to `<applicability>` and turned into `cardinality` on
+facets, `<name>` and `datatype` in a property facet renamed `<baseName>` and
+`dataType`, `IFC4X3` written `IFC4X3_ADD2`, the schema URL used as namespace
+replaced, bare text wrapped in `<simpleValue>`, children put in schema order,
+a bare `&` escaped. It edits the file's own text, so comments and layout stay,
+and lists each change by line. On the page: audit the IDS, then **Download
+repaired IDS**. On the command line: `node cli.mjs --fix spec.ids -o
+spec-fixed.ids`.
+
+Checked (`eval/fix-structure-2026-11-18.md`): files with no fault come back
+byte for byte (682 of 682); the checker reads the same specifications from
+every repaired copy as from its original (217 of 217); 198 of the 217 are
+valid against IfcTester's `ids.xsd` afterwards, and structure.mjs agrees with
+ids.xsd on all 217. Of the 12 public files, 6 come back valid and 4 keep one
+or two faults that need a person (an author that is not an e-mail address, a
+classification with no system). Building it found that the reader took three
+IDS 0.9 forms as "anything" (a property facet's `<name>`, `datatype`, a value
+with no `<simpleValue>`); it now reads them as written, which changes 48
+facets in 8 public files and nothing in buildingSMART's suite.
+
+### The editor repairs a file as it opens it (2026-11-18)
+
+**Open an IDS file** in the editor now runs the same repair first
+(`repairOnOpen` in `editor.mjs`) and lists each change in the open message.
+Before, a facet the editor keeps as written went back out with its fault, and
+a pattern such as `^\d{2}\.\d{3}$` kept anchors that XML Schema engines read as
+literal `^` and `$`. On 65 public IDS files the editor now writes back 60
+files that are valid and carry no pattern finding (was 55); the pattern
+findings in what it writes go from 9 to 0, and from 51 to 1 on the 80
+IDS-Audit-tool files. Facets editable and what each file asks for are
+unchanged apart from the rewritten patterns
+(`eval/editor-open-repair-2026-11-18.md`).
+
+### Patterns read the way IfcTester reads them (2026-11-18)
+
+IDS patterns are XML Schema regular expressions, and IfcTester reads them that
+way (through elementpath). This checker used to read them as JavaScript
+regexes, which part on text people really write: `^IFC.*SYSTEM` matched
+IFCPIPESYSTEM here and nothing in IfcTester, where `^` is a plain character;
+`(?:0[1-9]|1[0-2])` ran here and stops IfcTester. `xsdregex.mjs` now parses
+the XSD grammar and matches with its meaning (`\d` any digit, `\w` the XSD
+set, `[a-z-[aeiou]]` subtraction, block names), and the audit says where a
+pattern means something else elsewhere: an error for one that is not XSD (the
+specification reports INVALID), a warning for anchors, needless escapes like
+`\/`, and a bare `\w`, which IfcTester reads more narrowly than XSD. The
+repaired-file download rewrites them: `(?:` to `(`, anchors dropped,
+`{,3}` to `{0,3}`.
+
+Checked (`eval/xsd-regex-2026-11-18.md`): same valid/invalid verdict as
+elementpath on 78 of 78 distinct patterns in the public, IDS-Audit-tool and
+buildingSMART files, and the same match answer on every probe for 77 (the
+78th is `\w+`, below); on 9,000 random patterns over three seeds, every
+disagreement is one of two places elementpath departs from the XSD text (a
+bare `\w`, a range like `[\d-z]`). 37 of 65 public IDS files use patterns;
+4 have one that reads differently in different tools (`^2[ab]` in two BIM2SIM
+files, a DFE file's `(?:` date pattern). buildingSMART's suite stays 334 of
+334.
+
+### A bare `\w` or `\s`: pick the meaning, and every checker agrees (2026-11-18)
+
+IfcTester keeps a bare `\w` or `\s` (one outside `[...]`) as Python's own
+escape. The IDS standard gives both a different meaning. XSD's `\w` takes
+`+`, `€` and `°` but not `_`, so `W_01` fails `\w+` under the standard and
+passes in IfcTester. XSD's `\s` is only space, tab and line breaks, so a
+no-break space (common in text pasted from Excel or Word) fails `\s`. 4 of
+the 65 public IDS files write `-?\d{2}\s.*` for storey names. The audit warns
+on both (`pattern-word-class`, `pattern-space-class`). The repair box on the
+page then asks which meaning to keep. "As IfcTester reads it" writes
+`[\p{L}\p{Nd}_]` and `[\s\p{Z}]`. "As the standard says" writes
+`[^\p{P}\p{Z}\p{C}]` and `[\s]`. Either way, every checker reads the file the
+same way. The CLI does the same with `node cli.mjs --fix spec.ids --word-class
+letters|xsd`. With no choice, nothing is rewritten.
+
+Checked (`eval/word-class-2026-11-18.md`): on 1,500 random patterns and the 2
+corpus ones, elementpath reads both spellings as this checker does (1,500 of
+1,500 each). The standard's spelling gives IfcTester the standard's answer on
+every probe. IfcTester's spelling matches IfcTester's old reading on 1,330.
+The other 170 differ only on `²`, `Ⅳ` and the form feed. buildingSMART's 16
+`\w+` test pairs score 16 of 16 as written and after either repair.
+An ifcXML string holding only spaces now stays as written, as it does in STEP.
 
 ### On every commit: GitHub Action, JUnit and annotations (2026-11-17)
 
@@ -781,6 +1202,79 @@ text is now copied in runs. Every report is identical.
    is cut to its span as it closes. A 166 MB federated file peaks at
    1,770 MB before and 1,481 MB after, and fits a 768 MB heap, which it did
    not before; reports are identical.
+10. **Nested ifcXML read as it closes** (2026-11-18,
+   `eval/nested-early-2026-11-18.md`). Property sets, relationships and the
+   rest of the model under the root are now read into records as each
+   element closes; nothing under the root is kept as XML. Entities still get
+   the old parent-first numbers: an early read gives provisional numbers,
+   and the walk replays them in the old order. On 57 ifcXML files (864,346
+   entities) every number, argument, map position and note equals main's,
+   and the reports from 68 IDS files hash the same on five models. The
+   smallest heap that parses each single-project model fell from 160 to
+   96 MB (C20), 144 to 128 MB and 128 to 112 MB, and stayed at 160 MB on
+   FM_ARC_DigitalHub. A six-project federated file is unchanged at 704 MB,
+   where the kept records, not the tree, set the peak.
+11. **A smaller record per entity** (2026-11-18,
+   `eval/entity-table-2026-11-18.md`). A STEP entity's record dropped from
+   four fields to three (the argument offset and the read arguments share
+   one), and the entities are held by number in a plain array with the file
+   order in an `Int32Array`, not in a Map, whose hash table cost about as
+   much as the records. Heap kept after parsing: HHS MEP 93 to 65 MB, the
+   219 MB federated model 444 to 350 MB. The smallest heap that parses it:
+   704 to 576 MB (HHS MEP 144 to 112 MB); with the starter IDS files, 832 to
+   704 MB. Parsing is 20-30% faster. Reports from 68 IDS files hash the same
+   on four models.
+12. **The checks' own memory** (2026-11-18,
+   `eval/shared-values-2026-11-18.md`). Most of what 68 IDS files added to
+   the heap was arguments kept once read, in lists built by `push` (room for
+   16 items for every four). Lists are now copied to their length, repeated
+   small values (`IFCBOOLEAN(.T.)`, property names, enumerations) are shared
+   frozen objects, and relationships' arguments are not kept once indexed.
+   On the 219 MB federated model the smallest heap that parses it fell from
+   576 to 512 MB, with the starter IDS from 704 to 576 MB, and with all 68
+   IDS files from 896 to 704 MB. Reports hash the same on four models.
+13. **Property sets as one record each** (2026-11-18,
+   `eval/pset-records-2026-11-18.md`). The first read of a property set keeps
+   one flat list (the set's name, then each property's name and entity), and
+   the arguments of sets, properties and quantities are no longer kept; a
+   value is read from the text when a facet asks for it. What 68 IDS files
+   add to the heap of the 219 MB federated model fell from 137 to 71 MB, and
+   the smallest heap that parses it and runs all 68 from 704 to 608 MB
+   (HHS MEP after the checks: 119 to 107 MB). The checks take about as long
+   as before (federated 10.7-11.5 s on main, 11.4 s here). Reports hash the
+   same on five models.
+14. **STEP read from the file's bytes** (2026-11-18,
+   `eval/step-bytes-2026-11-18.md`). `readModel` returns the file's bytes
+   and the STEP reader scans them, decoding a record to a short string only
+   when its arguments are read, so the file is never one string on the V8
+   heap; the page and the editor post bytes to the worker. The smallest heap
+   that parses the 219 MB federated model fell from 512 to 304 MB, with the
+   starter IDS files from 544 to 352 MB, and with all 68 IDS files from 640
+   to 448 MB (HHS MEP parse 112 to 64 MB). A STEP file past V8's
+   536,870,888-character string limit, which main could not open, now reads:
+   a 670 MB federated model (11.0 million entities) checks against the
+   starter IDS in 13.9 s. Checks are about 5% slower (each read decodes its
+   record). Reports from 68 IDS files hash the same on four models.
+15. **ifcXML read from the file's bytes** (2026-11-18,
+   `eval/ifcxml-bytes-2026-11-18.md`). The XML reader runs over the bytes,
+   decoding each name, attribute value and text run on its own, and lazy
+   geometry is read again from its byte span, so an ifcXML file is no longer
+   one string on the heap. The smallest heap that parses HHS MEP as ifcXML
+   fell from 336 to 192 MB; the 374 MB federated ifcXML parses in 448 MB
+   (was 800) and checks against all 68 IDS files in 448 MB (was 832). A
+   680 MB ifcXML, which main refused (string length limit), checks against
+   the starter IDS in 25.6 s. Reports from 68 IDS files hash the same on
+   three models; times are unchanged within noise.
+16. **White space between XML elements skipped** (2026-11-18,
+   `eval/xml-whitespace-2026-11-18.md`). Inside an element that has had a
+   child element, a text run of only white space is not decoded or kept;
+   leaf text, CDATA and character references are kept exactly. On main, the
+   `<uos>` element's text grew by one piece per entity until the file ended.
+   The XML reader alone now needs 2-4 MB of working heap instead of 40-106 MB
+   and is 5-29% faster. The 455 MB indented federated ifcXML parses in 416 MB
+   (was 480) and checks against all 68 IDS files in 448 MB (was 512).
+   Reports from 68 IDS files hash the same on four models, flat and
+   indented.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
@@ -834,18 +1328,32 @@ faster than IfcTester; its point is needing no install.
 
 ## Limitations
 
+- `--from-bsdd` writes non-IFC Real properties as IFCREAL (bSDD's units
+  are not mapped to measure types yet) and leaves complex properties out;
+  like `--bsdd`, it runs from the command line only.
+- bSDD links (`--bsdd`) are checked from the command line only (bSDD's API
+  allows no browser calls) and not against the property set, which bSDD gives
+  only on a class's property list (`eval/bsdd-links-2026-11-19.md`, Limits).
+
 - ifcJSON is not read. ifcXML is checked on 9 real documents from about
   seven exporters and 43 IFC4 STEP/ifcXML twins, not on every tool's output,
   and on no real IFC4X3 file (none was found); an IfcBSplineSurface's control
   points written flat are cut into rows from its knot counts, and left flat
   (with a note) when the counts do not multiply out. The ifcXML reader streams
   (2026-11-18, `eval/lazy-ifcxml-2026-11-18.md`): a 374 MB ifcXML checks under a
-  1 GB heap, about twice the time of the same model as STEP; a file much past
-  500 MB cannot be read at all (a JavaScript string's length limit). In the
-  nested IFC4 layout, property sets and relationships under the root are held
-  until it closes (geometry is not, `eval/ifc4-layout-scale-2026-11-18.md`):
-  a 166 MB federated file peaks 1.4x higher than the same model as STEP.
-- The model's text is held in memory with a small record per entity; an
+  1 GB heap, about twice the time of the same model as STEP. Since
+  2026-11-18 both forms are read from the file's bytes, so files past a
+  JavaScript string's 537 MB limit open (`eval/step-bytes-2026-11-18.md`,
+  `eval/ifcxml-bytes-2026-11-18.md`: a 680 MB ifcXML checks in 25.6 s). In the
+  nested IFC4 layout every entity is read as its element closes
+  (`eval/nested-early-2026-11-18.md`), so the tree under the root is not
+  held; a 166 MB federated file still peaks about 1.4x higher than the same
+  model as STEP, set by the records kept per entity.
+- The model's bytes are held in memory (outside the JavaScript heap since
+  2026-11-18, `eval/step-bytes-2026-11-18.md`; ifcXML too,
+  `eval/ifcxml-bytes-2026-11-18.md`) with a small record per entity (48
+  bytes and 12 more in the number index, since 2026-11-18,
+  `eval/entity-table-2026-11-18.md`); an
   entity's arguments are read when a check first needs them, and geometry's
   are not kept (2026-11-17, `eval/heap-200mb-2026-11-17.md`). A 219 MB
   federated model built from seven real exports peaks at about 1 GB with the
@@ -856,11 +1364,18 @@ faster than IfcTester; its point is needing no install.
   needed 2 GB before, `eval/no-entity-facet-2026-11-17.md`). Models well past 500 MB may need the command line with
   `--max-old-space-size`. The ifcXML reader reads each element as it streams
   and keeps geometry only as where its text starts and ends.
-- The IDS audit does not validate the file against the IDS XML schema
-  (cardinality attributes, element order); the IDS-Audit-tool does. Property
-  set templates are checked for names, data types and applicable classes, not
-  for predefined types (`IfcSlab/TRACKSLAB` sets are allowed on any slab) or
-  property set template types (occurrence versus type driven).
+- The IDS audit checks the file against the IDS 1.0 XML schema (element
+  order, allowed attributes, cardinality and other fixed-list values;
+  2026-11-18, `structure.mjs`, `eval/ids-structure-2026-11-18.md`: the same
+  verdict as IfcTester's `ids.xsd` validation on 145 of 145 public and
+  test files and 2,935 of 2,935 mutated copies), but not every rule of the
+  imported XMLSchema.xsd inside an `xs:restriction`. Property
+  set templates are checked for names, data types, applicable classes and,
+  in IFC4 and IFC4X3, the predefined types a set is limited to (since
+  2026-11-19), and for where the template type puts a set (occurrences only,
+  or a performance history; since 2026-11-19); not in IFC2X3, whose templates
+  name classes without types or template types, and not for material and
+  profile sets, which are left to the class check.
 - Tested on five real models (and 65 public IDS files on four of them); every BIM authoring tool writes IFC a little
   differently, so check surprising results and report them.
 
@@ -885,7 +1400,6 @@ faster than IfcTester; its point is needing no install.
   `eval/template-type-2026-11-17.md`): a "did you mean" for a property the
   template lacks (Portugal's `Lenght` for Length, 8 facets);
   a real IFC4 export with dates to try the range on;
-  a subclass checkbox per class, not only the first;
   a "fix the dataType" hint built from the 21
   of 122 standard properties real exports write in another type.
 - More real models through the IfcTester cross-check: buildingSMART's IFC 4.3

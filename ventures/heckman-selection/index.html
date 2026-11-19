@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285e5a'/%3E%3Ctext%20x='16'%20y='22'%20font-size='15'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%CE%BB%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Heckman Selection Model Online: Two-Step and Maximum Likelihood</title>
+  <meta name="description" content="Free Heckman sample selection model in your browser. Upload a CSV where the outcome is seen only for some rows (wages for people in work, losses for approved loans) and get the selection probit, OLS on the selected rows, Heckman's two-step estimator with corrected standard errors and full maximum likelihood with robust or clustered errors, rho and its likelihood-ratio test, and checks on the exclusion restriction. Nothing is uploaded.">
+  <meta property="og:title" content="Heckman sample selection in your browser: two-step and maximum likelihood">
+  <meta property="og:description" content="Your outcome is only seen for the rows that were selected. The probit, Heckman two-step and maximum likelihood side by side with OLS, rho and its tests, and the identification checks a referee asks for. Free and private.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Heckman sample selection model: two-step and maximum likelihood", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Upload a CSV where the outcome is observed only for selected rows and get a selection probit, OLS on the selected rows, the Heckman two-step estimator with the Heckman-Greene corrected covariance, full maximum likelihood with conventional, robust or clustered standard errors, rho with Wald and likelihood-ratio tests, and exclusion-restriction and collinearity checks. Runs in the browser; nothing is uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
+    {"@type": "Question", "name": "What is sample selection bias?", "acceptedAnswer": {"@type": "Answer", "text": "The outcome you want to explain is recorded only for some units, and whether a unit is recorded depends on things that also move the outcome. Wages exist only for people who work; if the people who choose to work are those with unusually good offers, a regression on workers describes them, not everyone. The bias does not shrink with more data."}},
+    {"@type": "Question", "name": "What does the Heckman correction do?", "acceptedAnswer": {"@type": "Answer", "text": "It models selection with a probit and assumes the unobserved parts of selection and of the outcome are jointly normal with correlation rho. Selected rows then have an expected error of rho times sigma times the inverse Mills ratio, so adding that ratio to the regression (the two-step estimator) or fitting both equations together (maximum likelihood) removes the bias."}},
+    {"@type": "Question", "name": "Do I need an exclusion restriction?", "acceptedAnswer": {"@type": "Answer", "text": "In practice, yes: a variable that changes who is selected but has no direct effect on the outcome, such as young children for whether a woman works. Without one the model is identified only by the shape of the normal distribution, the inverse Mills ratio is nearly a linear function of the regressors, and estimates swing with small changes. The page warns when there is none and reports how collinear the ratio is."}},
+    {"@type": "Question", "name": "Should I report the two-step or the maximum likelihood estimates?", "acceptedAnswer": {"@type": "Answer", "text": "When the normal model holds, maximum likelihood is more efficient and its tests of rho are standard. The two-step estimator is simpler and somewhat less sensitive to how the likelihood is shaped, but its standard errors need the Heckman-Greene correction, which this page applies. Report both if they differ: a large gap is itself a sign that the model is fragile."}},
+    {"@type": "Question", "name": "How do I test whether there is selection bias at all?", "acceptedAnswer": {"@type": "Answer", "text": "Test rho = 0. The page gives the likelihood-ratio test (the selection model against a probit and a regression fitted separately), the Wald test on atanh(rho), and the t-test on the inverse Mills ratio in the two-step regression. Not rejecting does not prove there is no selection, especially with a weak exclusion restriction."}},
+    {"@type": "Question", "name": "Does it match Stata, R or Python?", "acceptedAnswer": {"@type": "Answer", "text": "On two specifications of the example data, the probit, OLS (conventional, HC1 and clustered) and the two-step coefficients and corrected standard errors agree with statsmodels and numpy within 1e-12. The maximum-likelihood estimates agree with an independent scipy maximisation within 1e-7 and all three kinds of standard error within 1e-5, the size of the error in the reference's numerical second derivatives. It has not been run against Stata heckman or R sampleSelection."}},
+    {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}
+  ]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #18262a; background: #f1f5f4; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #285e5a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d4542; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d4542; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5a5d; }
+    .card { background: #fff; border: 1px solid #d3dedc; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d454210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6b7c7e; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #285e5a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e1ebe9; color: #1d4542; }
+    button:disabled { opacity: .6; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eeec; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5a5d; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.bad { color: #a33b1f; font-weight: 700; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dedc; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #6b7c7e; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    #prob-chart svg { max-width: 680px; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .legend { font-size: .82rem; color: #4b5a5d; margin: 4px 0 0; }
+    .sw { display: inline-block; width: 12px; height: 12px; vertical-align: middle; margin: 0 4px 0 10px; border-radius: 2px; }
+    pre { background: #f3f7f6; border: 1px solid #dde6e4; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HECKMAN SELECTION MODEL · TWO-STEP · MAXIMUM LIKELIHOOD · INVERSE MILLS RATIO · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Your outcome is only seen for the rows that were selected. Does that bias the answer?</h1>
+    <p>A wage exists only for people in paid work, a loan's loss only for loans that were approved, a test score only for students who sat the test. If whatever decides who is selected also moves the outcome, a regression on the selected rows describes them and not the population, and more data does not fix it. The <strong>Heckman selection model</strong> fits an equation for who is selected next to the outcome equation, lets their unobserved parts be correlated (&rho;), and corrects for it.</p>
+    <p>Upload one row per unit, selected or not. You get the <strong>selection probit</strong>, <strong>OLS on the selected rows</strong> for comparison, <strong>Heckman's two-step estimator</strong> with the Heckman-Greene corrected standard errors, and <strong>full maximum likelihood</strong> with conventional, robust or <strong>clustered</strong> errors, plus &rho; with its <strong>likelihood-ratio and Wald tests</strong> and the two checks that decide whether to trust the correction: is there an <strong>exclusion restriction</strong>, and how collinear is the inverse Mills ratio with the regressors.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice, and not medical or policy advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">CSV with a header row: one row per unit, with the outcome blank (or NA) for rows that were not selected</label>
+    <textarea id="csv" spellcheck="false" placeholder="works,log_wage,educ,exper,kids_under6&#10;1,2.31,12,9,0&#10;0,,14,3,1&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 2,000 simulated women, 1,213 with a wage (true return to schooling 0.085)</button>
+    <p class="note" id="data-status">Paste data or load the example.</p>
+
+    <div class="grid">
+      <div><label for="outcome">Outcome (seen only when selected)</label><select id="outcome"></select></div>
+      <div><label for="selected">Selection indicator (0/1)</label><select id="selected"></select></div>
+      <div><label for="se">Standard errors</label><select id="se"><option value="conventional" selected>Conventional</option><option value="robust">Robust (sandwich)</option><option value="clustered">Clustered</option></select></div>
+      <div><label for="cluster">Cluster column (for clustered errors)</label><select id="cluster"></select></div>
+      <div><label for="estimator">Estimator for the reading</label><select id="estimator"><option value="mle" selected>Maximum likelihood</option><option value="twostep">Heckman two-step</option></select></div>
+    </div>
+    <label for="regressors">Outcome regressors (comma-separated; they enter the selection equation too; text columns become indicators; a constant is added)</label>
+    <input id="regressors" type="text" placeholder="educ, exper, exper_sq, region">
+    <label for="selection">Exclusion restrictions: variables that change who is selected but have no direct effect on the outcome</label>
+    <input id="selection" type="text" placeholder="kids_under6, kids_6_18, other_income">
+    <p class="note" id="column-hint"></p>
+    <button type="button" id="analyze">Estimate</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="warnings"></div>
+    <h3>Outcome equation (standard errors below)</h3>
+    <div class="scroll"><table id="coef-table"><thead><tr><th>Term</th><th class="n">OLS, selected rows</th><th class="n">Two-step</th><th class="n">Maximum likelihood</th></tr></thead><tbody></tbody></table></div>
+    <h3>Selection and correlation</h3>
+    <div class="scroll"><table id="aux-table"><thead><tr><th>Quantity</th><th class="n">Two-step</th><th class="n">Maximum likelihood</th><th class="n">ML interval</th></tr></thead><tbody></tbody></table></div>
+    <h3>Tests of &rho; = 0 (no selection bias)</h3>
+    <div class="scroll"><table id="test-table"><thead><tr><th>Test</th><th class="n">Statistic</th><th>Distribution</th><th class="n">p</th></tr></thead><tbody></tbody></table></div>
+    <h3>Selection equation</h3>
+    <div class="scroll"><table id="sel-table"><thead><tr><th>Term</th><th class="n">Probit</th><th class="n">p</th><th class="n">Maximum likelihood</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="diag"></p>
+    <h3>Fitted selection probabilities</h3>
+    <div id="prob-chart" role="img" aria-label="Histogram of fitted selection probabilities for selected and unselected rows"></div>
+    <p class="legend"><span class="sw" style="background:#285e5a"></span>selected rows <span class="sw" style="background:#c46a2f"></span>not selected. Little overlap means a strong selection equation; probabilities piled at 0 or 1 mean near-perfect prediction.</p>
+    <button type="button" class="secondary" id="download">Download the coefficient tables and tests (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>The model: a unit is selected when z&gamma; + u &gt; 0, and its outcome y = x&beta; + e is seen only then; (u, e) are bivariate normal with var(u) = 1, var(e) = &sigma;&sup2; and correlation &rho;. For a selected row E[y | x, selected] = x&beta; + &rho;&sigma;&lambda;(z&gamma;), with &lambda;(c) = &phi;(c)/&Phi;(c) the <strong>inverse Mills ratio</strong>, so OLS on the selected rows omits a regressor whenever &rho; &ne; 0. The selection equation holds the outcome regressors as well as the exclusion restrictions you list.</p>
+    <p><strong>Two-step</strong> (Heckman 1979): a probit of selection on z gives &gamma;; the regression of y on x and &lambda;(z&gamma;) in the selected rows gives &beta; and &beta;<sub>&lambda;</sub> = &rho;&sigma;; &sigma;&sup2; = e&prime;e/n<sub>1</sub> + &beta;<sub>&lambda;</sub>&sup2; mean(&delta;), &delta; = &lambda;(&lambda; + z&gamma;). The standard errors are Greene's (1981) correction for the induced heteroskedasticity and the estimated &gamma;: &sigma;&sup2;(X*&prime;X*)<sup>&minus;1</sup>[X*&prime;(I &minus; &rho;&sup2;D)X* + Q](X*&prime;X*)<sup>&minus;1</sup>, Q = &rho;&sup2;(X*&prime;DZ)V<sub>&gamma;</sub>(Z&prime;DX*). A two-step &rho; outside [&minus;1, 1] is set to &plusmn;1, as is usual.</p>
+    <p><strong>Maximum likelihood</strong> (Heckman 1974): log L sums log &Phi;(&minus;z&gamma;) over unselected rows and log &Phi;((z&gamma; + &rho;e/&sigma;)/&radic;(1 &minus; &rho;&sup2;)) &minus; log &sigma; + log &phi;(e/&sigma;) over selected rows, in atanh &rho; and log &sigma;. It is maximised by damped Newton steps with an analytic gradient and a finite-difference Hessian, from the two-step estimates and again from &rho; = 0, keeping the higher peak (and saying so if they differ). Conventional errors invert the Hessian; robust errors are the sandwich (White 1982); clustered errors sum each row's score within clusters (Liang &amp; Zeger 1986) with the factor G/(G &minus; 1). The intervals for &rho; and &sigma; are transformed from atanh &rho; and log &sigma;, so they stay in range.</p>
+    <p><strong>Checks</strong> (Puhani 2000): whether any variable enters selection without entering the outcome, and the R&sup2; of &lambda; on the outcome regressors in the selected rows; the page warns above 0.8 and 0.95. The CSV download carries a spreadsheet formula-injection guard on text cells.</p>
+    <p>Verified by tests in the source against <strong>statsmodels 0.15</strong> and <strong>scipy 1.18</strong> (run only as external programs to record reference numbers) on two specifications of the example: probit coefficients and standard errors, OLS with conventional, HC1 and clustered errors, the two-step coefficients and corrected standard errors (the correction recomputed separately in numpy) within 1e-12, and the maximum-likelihood estimates (within 1e-7) and standard errors of all three kinds (within 1e-5) against an independent scipy maximisation with statsmodels' numerical Hessian and scores. A Monte Carlo study of the intervals is in the source (<code>eval/coverage-output.txt</code>).</p>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>The exclusion restriction cannot be tested.</strong> That a variable changes who is selected and has no direct effect on the outcome is an argument you make. Without one, identification rests on the normal distribution alone: in this tool's simulation with no exclusion restriction, the two-step interval was ten times wider and the maximum-likelihood interval covered the true coefficient only 79% of the time, against about 95% with one.</li>
+      <li><strong>Normality matters.</strong> Both estimators assume jointly normal errors; if the selection error is not normal the correction can be wrong even with a good exclusion restriction. Semiparametric selection estimators are not offered.</li>
+      <li><strong>Coefficients are for the latent outcome.</strong> &beta; is the effect on y for everyone (for example the wage offer), not on the expected outcome among selected rows, which also moves through selection.</li>
+      <li><strong>One selection rule, binary.</strong> No ordered or multiple selection, no panel or fixed-effects versions, no weights; the two-step standard errors are the conventional ones only.</li>
+      <li><strong>Few clusters.</strong> Clustered errors are unreliable with fewer than about 30 to 50 clusters; the page warns below 30.</li>
+    </ul>
+    <h3>BibTeX</h3>
+    <pre>@article{heckman1979sample,
+  author = {Heckman, James J.}, title = {Sample Selection Bias as a Specification Error},
+  journal = {Econometrica}, volume = {47}, number = {1}, pages = {153--161}, year = {1979}, doi = {10.2307/1912352}
+}
+@article{greene1981sample,
+  author = {Greene, William H.}, title = {Sample Selection Bias as a Specification Error: A Comment},
+  journal = {Econometrica}, volume = {49}, number = {3}, pages = {795--798}, year = {1981}, doi = {10.2307/1911523}
+}
+@article{heckman1974shadow,
+  author = {Heckman, James J.}, title = {Shadow Prices, Market Wages, and Labor Supply},
+  journal = {Econometrica}, volume = {42}, number = {4}, pages = {679--694}, year = {1974}, doi = {10.2307/1913937}
+}
+@article{white1982maximum,
+  author = {White, Halbert}, title = {Maximum Likelihood Estimation of Misspecified Models},
+  journal = {Econometrica}, volume = {50}, number = {1}, pages = {1--25}, year = {1982}, doi = {10.2307/1912526}
+}
+@article{liang1986longitudinal,
+  author = {Liang, Kung-Yee and Zeger, Scott L.}, title = {Longitudinal Data Analysis Using Generalized Linear Models},
+  journal = {Biometrika}, volume = {73}, number = {1}, pages = {13--22}, year = {1986}, doi = {10.1093/biomet/73.1.13}
+}
+@article{puhani2000heckman,
+  author = {Puhani, Patrick A.}, title = {The Heckman Correction for Sample Selection and Its Critique},
+  journal = {Journal of Economic Surveys}, volume = {14}, number = {1}, pages = {53--68}, year = {2000}, doi = {10.1111/1467-6419.00104}
+}</pre>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is sample selection bias?</h3>
+    <p>The outcome you want to explain is recorded only for some units, and whether a unit is recorded depends on things that also move the outcome. Wages exist only for people who work; if the people who choose to work are those with unusually good offers, a regression on workers describes them, not everyone. The bias does not shrink with more data.</p>
+    <h3>What does the Heckman correction do?</h3>
+    <p>It models selection with a probit and assumes the unobserved parts of selection and of the outcome are jointly normal with correlation rho. Selected rows then have an expected error of rho times sigma times the inverse Mills ratio, so adding that ratio to the regression (the two-step estimator) or fitting both equations together (maximum likelihood) removes the bias.</p>
+    <h3>Do I need an exclusion restriction?</h3>
+    <p>In practice, yes: a variable that changes who is selected but has no direct effect on the outcome, such as young children for whether a woman works. Without one the model is identified only by the shape of the normal distribution, the inverse Mills ratio is nearly a linear function of the regressors, and estimates swing with small changes. The page warns when there is none and reports how collinear the ratio is.</p>
+    <h3>Should I report the two-step or the maximum likelihood estimates?</h3>
+    <p>When the normal model holds, maximum likelihood is more efficient and its tests of rho are standard. The two-step estimator is simpler and somewhat less sensitive to how the likelihood is shaped, but its standard errors need the Heckman-Greene correction, which this page applies. Report both if they differ: a large gap is itself a sign that the model is fragile.</p>
+    <h3>How do I test whether there is selection bias at all?</h3>
+    <p>Test rho = 0. The page gives the likelihood-ratio test (the selection model against a probit and a regression fitted separately), the Wald test on atanh(rho), and the t-test on the inverse Mills ratio in the two-step regression. Not rejecting does not prove there is no selection, especially with a weak exclusion restriction.</p>
+    <h3>Does it match Stata, R or Python?</h3>
+    <p>On two specifications of the example data, the probit, OLS (conventional, HC1 and clustered) and the two-step coefficients and corrected standard errors agree with statsmodels and numpy within 1e-12. The maximum-likelihood estimates agree with an independent scipy maximisation within 1e-7 and all three kinds of standard error within 1e-5, the size of the error in the reference's numerical second derivatives. It has not been run against Stata heckman or R sampleSelection.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician or econometrician. Results are statistical estimates from the data you enter under the model's assumptions; they do not by themselves establish what caused any outcome, and they are not medical or policy advice. You are responsible for how you use them.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the statsmodels, scipy or sampleSelection projects, Stata, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data.csv --outcome y --regressors x1,x2 --selection z1,z2</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/heckman-selection" rel="noopener">source</a>.</p>
+    <p>More causal and research tools on your own data: <a href="../instrumental-variables/">instrumental variables</a> when a regressor rather than the sample was chosen, <a href="../propensity-score/">propensity scores</a> when every confounder is measured, <a href="../regression-discontinuity/">regression discontinuity</a> for a treatment that switches on at a cutoff, and <a href="../difference-in-differences/">difference-in-differences</a> for changes adopted at different times.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv } from "./engine.mjs";
+    import { EXAMPLE_CSV, EXAMPLE_SPEC } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const fmt = (x, d = 4) => (Number.isFinite(x) ? x.toFixed(d) : "n/a");
+    const pfmt = (p) => (!Number.isFinite(p) ? "n/a" : p < 0.0001 ? "< 0.0001" : p.toFixed(4));
+    let parsed = null;
+    let last = null;
+    const opts = (list, none) => (none ? `<option value="">${esc(none)}</option>` : "") + list.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+    const values = (col) => parsed.records.slice(0, 500).map((r) => String(r[col] ?? "").trim()).filter((v) => v !== "" && !/^(na|nan|null|\.)$/i.test(v));
+    const isNum = (col) => values(col).every((v) => Number.isFinite(Number(v)));
+    const isFlag = (col) => { const v = values(col); return v.length > 0 && v.every((x) => x === "0" || x === "1"); };
+    function refreshColumns() {
+      const text = $("#csv").value;
+      if (!text.trim()) { parsed = null; $("#data-status").textContent = "Paste data or load the example."; return; }
+      try { parsed = parseCsv(text); } catch (e) { parsed = null; $("#data-status").textContent = e.message; return; }
+      const numeric = parsed.header.filter(isNum);
+      const prev = { y: $("#outcome").value, s: $("#selected").value, c: $("#cluster").value };
+      $("#outcome").innerHTML = opts(numeric);
+      $("#selected").innerHTML = opts(parsed.header.filter(isFlag), "none: a blank outcome means not selected");
+      $("#cluster").innerHTML = opts(parsed.header, "none");
+      $("#outcome").value = numeric.includes(prev.y) ? prev.y : numeric.find((c) => /(wage|earn|outcome|^y$|loss|score|log)/i.test(c)) || numeric[0] || "";
+      $("#selected").value = parsed.header.includes(prev.s) ? prev.s : "";
+      $("#cluster").value = parsed.header.includes(prev.c) ? prev.c : "";
+      $("#column-hint").textContent = `Columns: ${parsed.header.join(", ")}`;
+      $("#data-status").textContent = `${parsed.records.length} rows, ${parsed.header.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+    function inputs() {
+      return { csv: $("#csv").value, outcome: $("#outcome").value, selected: $("#selected").value || null, regressors: $("#regressors").value, selection: $("#selection").value, se: $("#se").value, cluster: $("#cluster").value || null, estimator: $("#estimator").value };
+    }
+    function probChart(el, r) {
+      const W = 560, H = 220, L = 40, R = 12, T = 10, B = 36;
+      const { bins, selected: cs, unselected: cu } = r.probit.histogram;
+      const ymax = Math.max(1, ...cs, ...cu);
+      const bw = (W - L - R) / bins, x = (i) => L + i * bw, y = (v) => T + (1 - v / ymax) * (H - T - B);
+      let g = "";
+      for (let i = 0; i < bins; i++) {
+        g += `<rect x="${(x(i) + 1).toFixed(1)}" y="${y(cs[i]).toFixed(1)}" width="${(bw / 2 - 1).toFixed(1)}" height="${(H - B - y(cs[i])).toFixed(1)}" fill="#285e5a"><title>${cs[i]} selected rows with probability ${(i / bins).toFixed(2)} to ${((i + 1) / bins).toFixed(2)}</title></rect>`;
+        g += `<rect x="${(x(i) + bw / 2).toFixed(1)}" y="${y(cu[i]).toFixed(1)}" width="${(bw / 2 - 1).toFixed(1)}" height="${(H - B - y(cu[i])).toFixed(1)}" fill="#c46a2f"><title>${cu[i]} unselected rows with probability ${(i / bins).toFixed(2)} to ${((i + 1) / bins).toFixed(2)}</title></rect>`;
+      }
+      g += `<line x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}" stroke="#6b7c7e"/>`;
+      for (let i = 0; i <= 4; i++) g += `<text x="${x((i * bins) / 4)}" y="${H - B + 16}" font-size="11" text-anchor="middle" fill="#4b5a5d">${(i / 4).toFixed(2)}</text>`;
+      g += `<text x="${L - 6}" y="${T + 10}" font-size="11" text-anchor="end" fill="#4b5a5d">${ymax}</text>`;
+      g += `<text x="${(L + W - R) / 2}" y="${H - 4}" font-size="11" text-anchor="middle" fill="#4b5a5d">fitted probability of being selected (probit)</text>`;
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+    }
+    function render(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#warnings").innerHTML = r.notes.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      const m = r.models;
+      const cell = (t) => `<td class="n">${fmt(t.coef)}<br><span class="note">(${fmt(t.se)})</span></td>`;
+      $("#coef-table").querySelector("tbody").innerHTML = m.ols.terms.map((t, i) => `<tr><td>${esc(t.name)}</td>${cell(t)}${cell(m.twostep.terms[i])}${cell(m.mle.terms[i])}</tr>`).join("");
+      const lam = m.twostep.terms[m.ols.terms.length];
+      const iv = (c) => `${fmt(c[0], 3)} to ${fmt(c[1], 3)}`;
+      $("#aux-table").querySelector("tbody").innerHTML = [
+        `<tr><td>&rho;, correlation of the unobservables</td><td class="n">${fmt(m.twostep.rho, 3)}${m.twostep.truncated ? " (set to the bound)" : ""}</td><td class="n">${fmt(m.mle.rho.coef, 3)}<br><span class="note">(${fmt(m.mle.rho.se, 3)})</span></td><td class="n">${iv(m.mle.rho.ci)}</td></tr>`,
+        `<tr><td>&sigma;, outcome error SD</td><td class="n">${fmt(m.twostep.sigma, 4)}</td><td class="n">${fmt(m.mle.sigma.coef, 4)}<br><span class="note">(${fmt(m.mle.sigma.se, 4)})</span></td><td class="n">${iv(m.mle.sigma.ci)}</td></tr>`,
+        `<tr><td>&lambda; = &rho;&sigma;, coefficient on the inverse Mills ratio</td><td class="n">${fmt(lam.coef)}<br><span class="note">(${fmt(lam.se)})</span></td><td class="n">${fmt(m.mle.lambda.coef)}<br><span class="note">(${fmt(m.mle.lambda.se)})</span></td><td class="n"></td></tr>`,
+        `<tr><td>Log-likelihood</td><td class="n"></td><td class="n">${fmt(m.mle.ll, 2)}</td><td class="n note">${m.mle.converged ? "converged" : "not converged"}</td></tr>`,
+      ].join("");
+      const t = m.mle.tests, a = r.options.alpha;
+      const row = (name, s, dist, p) => `<tr><td>${esc(name)}</td><td class="n">${fmt(s, 3)}</td><td>${esc(dist)}</td><td class="n${p < a ? " bad" : ""}">${pfmt(p)}</td></tr>`;
+      $("#test-table").querySelector("tbody").innerHTML = row("Likelihood ratio (maximum likelihood)", t.lr.stat, "chi2(1)", t.lr.p) + row("Wald on atanh(rho) (maximum likelihood)", t.wald.stat, "chi2(1)", t.wald.p) + row("t on lambda (two-step)", m.twostep.lambdaTest.stat, "normal", m.twostep.lambdaTest.p);
+      $("#sel-table").querySelector("tbody").innerHTML = r.probit.terms.map((p, i) => `<tr><td>${r.spec.exclusions.includes(p.name) ? `<strong>${esc(p.name)}</strong>` : esc(p.name)}</td>${cell(p)}<td class="n">${pfmt(p.p)}</td>${cell(m.mle.selection[i])}</tr>`).join("");
+      $("#diag").textContent = `Exclusion restrictions (in bold above): ${r.spec.exclusions.length ? r.spec.exclusions.join(", ") : "none"}. R² of the inverse Mills ratio on the outcome regressors: ${fmt(r.diagnostics.lambdaR2, 3)}. Probit pseudo R² ${fmt(r.probit.pseudoR2, 3)}. Selected rows' outcomes sit on average ${fmt(r.diagnostics.meanSelectionShift, 4)} above what the outcome equation predicts for a random unit with the same regressors.`;
+      probChart($("#prob-chart"), r);
+    }
+    function runAnalysis() {
+      $("#status").textContent = "";
+      try {
+        last = analyze(inputs());
+        render(last);
+        $("#status").textContent = `Done: ${last.n} rows (${last.n1} selected)${last.clusters ? ` in ${last.clusters} clusters` : ""}.`;
+        return true;
+      } catch (e) {
+        $("#results").hidden = true;
+        $("#status").textContent = e.message;
+        return false;
+      }
+    }
+    $("#analyze").addEventListener("click", () => {
+      $("#analyze").disabled = true;
+      $("#status").textContent = "Estimating...";
+      setTimeout(() => { if (runAnalysis()) record("analysis_run"); $("#analyze").disabled = false; }, 20);
+    });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#outcome").value = EXAMPLE_SPEC.outcome;
+      $("#selected").value = EXAMPLE_SPEC.selected;
+      $("#regressors").value = EXAMPLE_SPEC.regressors;
+      $("#selection").value = EXAMPLE_SPEC.selection;
+      $("#cluster").value = EXAMPLE_SPEC.cluster;
+      $("#se").value = "conventional";
+      if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: 2,000 simulated women, 1,213 in paid work. Unobserved drive raises both the chance of working and the wage, so OLS on workers says 0.0745 a year of school; the true return is 0.085."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const f = (v) => (Number.isFinite(v) ? v : "");
+      // spreadsheet formula-injection guard (as in cli.mjs), then CSV quoting
+      const q = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?(e[+-]?\d+)?$/i.test(s)) s = `'${s}`; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+      const lines = ["model,equation,term,coef,se,z,p_value,ci_low,ci_high"];
+      const add = (model, eq, terms) => { for (const t of terms) lines.push([q(model), q(eq), q(t.name), f(t.coef), f(t.se), f(t.z), f(t.p), f(t.ci[0]), f(t.ci[1])].join(",")); };
+      const m = last.models;
+      add("OLS (selected rows)", "outcome", m.ols.terms);
+      add("Heckman two-step", "outcome", m.twostep.terms);
+      add("Heckman two-step", "selection (probit)", m.twostep.selection);
+      add("Maximum likelihood", "outcome", m.mle.terms);
+      add("Maximum likelihood", "selection", m.mle.selection);
+      lines.push(["Maximum likelihood", "auxiliary", "rho", f(m.mle.rho.coef), f(m.mle.rho.se), "", "", f(m.mle.rho.ci[0]), f(m.mle.rho.ci[1])].join(","));
+      lines.push(["Maximum likelihood", "auxiliary", "sigma", f(m.mle.sigma.coef), f(m.mle.sigma.se), "", "", f(m.mle.sigma.ci[0]), f(m.mle.sigma.ci[1])].join(","));
+      lines.push("", "test,statistic,distribution,p_value");
+      lines.push(`likelihood ratio rho = 0,${f(m.mle.tests.lr.stat)},chi2(1),${f(m.mle.tests.lr.p)}`);
+      lines.push(`Wald atanh(rho) = 0,${f(m.mle.tests.wald.stat)},chi2(1),${f(m.mle.tests.wald.p)}`);
+      lines.push(`two-step t on lambda,${f(m.twostep.lambdaTest.stat)},normal,${f(m.twostep.lambdaTest.p)}`);
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
+      a.download = "heckman-selection.csv";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

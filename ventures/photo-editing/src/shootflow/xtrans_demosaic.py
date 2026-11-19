@@ -461,11 +461,38 @@ BLOCK = 24
 
 def _block_stat(a: np.ndarray, fn, block: int = BLOCK) -> np.ndarray:
     h, w = a.shape[:2]
-    hb, wb = max(1, h // block), max(1, w // block)
-    a = a[: hb * block, : wb * block] if h >= block and w >= block else a
-    bh, bw = (block, block) if h >= block and w >= block else (h, w)
+    if h >= block and w >= block:
+        hb, wb, bh, bw = h // block, w // block, block, block
+        a = a[: hb * block, : wb * block]
+    else:  # one block, the whole frame, as ``_block_detail`` takes it; until 2026-11-19 a frame under one block
+        # tall but over one wide (or the reverse) got hb = 1 but wb = w // block and failed to reshape
+        hb, wb, bh, bw = 1, 1, h, w
     tiles = a.reshape(hb, bh, wb, bw, *a.shape[2:]).swapaxes(1, 2).reshape(hb, wb, -1)
     return fn(tiles)
+
+
+def _block_level(c: np.ndarray) -> np.ndarray:
+    """Each block's mean of ``c`` clipped at 0: ``_block_stat(np.clip(c, 0.0, None), mean)``. Since 2026-11-19
+    in C when a compiler is there (``noise_native.block_mean_max``: one pass, no clipped or reshaped full-frame
+    copy, numpy's pairwise summation order, the same bits; eval/noise-aware-native-levels-2026-11-19.md)."""
+
+    from shootflow import noise_native
+
+    fast = noise_native.block_mean_max(c, BLOCK)
+    if fast is not None:
+        return fast[0]
+    return _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
+
+
+def _block_top(c: np.ndarray) -> np.ndarray:
+    """Each block's largest value of ``c``: ``_block_stat(c, max)``, in C as ``_block_level`` when it can be."""
+
+    from shootflow import noise_native
+
+    fast = noise_native.block_mean_max(c, BLOCK, mean=False, top=True)
+    if fast is not None:
+        return fast[1]
+    return _block_stat(c, lambda t: t.max(axis=-1))
 
 
 def _noise_model(level: np.ndarray, spread: np.ndarray, pct: float = 15.0) -> tuple[float, float]:
@@ -503,7 +530,22 @@ def _residual(c, pat, *, band: int = 240, threads: int | None = None) -> np.ndar
     pad never reaches a kept row, and at the frame's top and bottom the band's edge is the frame's edge. Every
     kept sample is the same arithmetic in the same order as one whole-frame pass, so neither the band height
     nor the thread count changes a bit; the working set is a band, not a dozen full-frame float64 planes
-    (eval/noise-aware-full-frame-cost-2026-11-17.md)."""
+    (eval/noise-aware-full-frame-cost-2026-11-17.md). Since 2026-11-19 the same arithmetic runs in C when a
+    compiler is there (``noise_native.residual``, 7.5x faster on four cores at 24 MP, the same bits;
+    ``_residual_np`` is the numpy reference, eval/noise-aware-native-spread-2026-11-19.md)."""
+
+    from shootflow import noise_native
+
+    c = np.asarray(c, dtype=np.float64)
+    fast = noise_native.residual(c, pat, band=band, threads=threads)
+    if fast is not None:
+        return fast  # the same arithmetic in C, bit for bit (eval/noise-aware-native-spread-2026-11-19.md)
+    return _residual_np(c, pat, band=band, threads=threads)
+
+
+def _residual_np(c, pat, *, band: int = 240, threads: int | None = None) -> np.ndarray:
+    """``_residual`` in numpy: the reference the C path (``noise_native.residual``) must equal bit for bit, and
+    the path taken without a C compiler or with ``SHOOTFLOW_NATIVE=0``."""
 
     from shootflow.raw_develop_np import _run_bands
 
@@ -538,9 +580,14 @@ def _block_spread(c, pat) -> tuple[np.ndarray, np.ndarray]:
     """Per BLOCK x BLOCK block of the mosaic ``c``: its mean level and its noise spread, the median of each
     sensel's leave-one-out residual against its same-colour neighbours (5 x 5, triangle-weighted) as a sigma."""
 
+    from shootflow import noise_native
+
     c = np.asarray(c, dtype=np.float64)
-    level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
-    spread = _block_stat(_residual(c, pat), lambda t: np.median(t, axis=-1))
+    level = _block_level(c)
+    resid = _residual(c, pat)
+    spread = noise_native.block_median(resid, BLOCK)  # bit for bit with the line below; None without C
+    if spread is None:
+        spread = _block_stat(resid, lambda t: np.median(t, axis=-1))
     return level, spread
 
 
@@ -633,7 +680,7 @@ def _unclipped(c) -> np.ndarray:
     # Blocks holding a sensel at the frame's top value are clipped (white or the white-balanced plane's cap),
     # and their spread reads near 0: a real Huawei VTR-L09 frame's top bin read 4e-16 and the ratio 3.5e13.
     top = float(c.max())
-    return (_block_stat(c, lambda t: t.max(axis=-1)) < top * (1.0 - 1e-9)).ravel()
+    return (_block_top(c) < top * (1.0 - 1e-9)).ravel()
 
 
 def profile_ratio(c, pat, noise, *, spread: tuple[np.ndarray, np.ndarray] | None = None) -> float:
@@ -777,7 +824,7 @@ def frame_measures(
     """
 
     c = np.asarray(c, dtype=np.float64)
-    level = _block_stat(np.clip(c, 0.0, None), lambda t: t.mean(axis=-1))
+    level = _block_level(c)
     planes = noise is not None and np.asarray(noise).shape == (3, 2)
     if noise is None:
         g, r = estimate_noise(c, pat)
@@ -822,6 +869,32 @@ LUMA_RAMPS = {6: (0.8, 2.0), 2: (0.8, 1.5)}
 LUMA_WEIGHTS = np.array([0.2126, 0.7152, 0.0722])  # Rec. 709; they sum to 1
 
 
+# ``lift_near_detail``'s k per CFA, the default of ``noise_aware`` since 2026-11-19: tuned on the raw.pixls.us
+# `fourth` set and passed a rule committed before the `first` set was scored (eval/near-clean-gate-2026-11-19.md).
+NEAR_DETAIL: dict[int, float | None] = {2: 12.0, 6: None}
+
+
+def lift_near_detail(q_blocks: np.ndarray, k: float) -> np.ndarray:
+    """Each block's ``q`` raised to at least its largest 3 x 3 neighbour's over ``k``.
+
+    ``blend`` spreads block weights to pixels by interpolating between block centres, so half of a detailed
+    block's area takes part of its smooth neighbour's bilinear weight. Near clean that leak is what loses: a
+    smooth block (q under ``q_low``) beside a block of q 30 pulls the detailed block's edge toward a bilinear
+    demosaic 10 dB worse than directional there (Pentax K-3 Mark III tile, SNR 200: -0.58 dB luma with the
+    true noise model, eval/near-clean-gate-2026-11-19.md). The lift lets a block keep its bilinear weight only
+    when no neighbour's q is over ``k`` times the ramp's; on noisy frames the neighbours' q are small and
+    nothing moves."""
+
+    q = np.asarray(q_blocks, dtype=np.float64)
+    h, w = q.shape
+    p = np.pad(q, 1, mode="edge")
+    m = q.copy()
+    for dy in range(3):
+        for dx in range(3):
+            np.maximum(m, p[dy:dy + h, dx:dx + w], out=m)
+    return np.maximum(q, m / k)
+
+
 def _interp_matrix(n: int, nb: int) -> np.ndarray:
     """(n, nb) weights that interpolate nb block-centre values linearly to n pixel centres, held flat past
     the first and last centre (``np.interp``'s rule)."""
@@ -852,6 +925,12 @@ def _interp_taps(n: int, nb: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     return j, j + 1, t
 
 
+def _ramp(q: np.ndarray, q_low: float, q_high: float) -> np.ndarray:
+    """Block weights: 0 at ``q_low``, 1 at ``q_high``, linear between."""
+
+    return np.clip((q - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0)
+
+
 def _weights(q_blocks: np.ndarray, q_low: float, q_high: float, h: int, w: int,
              rows: slice | None = None) -> np.ndarray:
     """Per-pixel blend weights (h, w), or only ``rows`` of them: ``_interp_matrix(h) @ ab @ _interp_matrix(w).T``
@@ -860,7 +939,7 @@ def _weights(q_blocks: np.ndarray, q_low: float, q_high: float, h: int, w: int,
     the dense product's blocking changed with the row count and moved 1 value in 1,000 by a last bit
     (eval/noise-aware-full-frame-cost-2026-11-17.md)."""
 
-    ab = np.clip((np.asarray(q_blocks, dtype=np.float64) - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0)
+    ab = _ramp(np.asarray(q_blocks, dtype=np.float64), q_low, q_high)
     jy, jy1, ty = _interp_taps(h, ab.shape[0])
     if rows is not None:
         jy, jy1, ty = jy[rows], jy1[rows], ty[rows]
@@ -872,6 +951,7 @@ def _weights(q_blocks: np.ndarray, q_low: float, q_high: float, h: int, w: int,
 def blend(
     bilinear: np.ndarray, directional_out: np.ndarray, q_blocks: np.ndarray, q_low: float, q_high: float,
     luma_ramp: tuple[float, float] | None = None, *, out: np.ndarray | None = None, threads: int | None = None,
+    clip_hi: float | None = None,
 ) -> np.ndarray:
     """``a * directional + (1 - a) * bilinear``, ``a`` per block from its ``q`` (0 at ``q_low``, 1 at ``q_high``,
     linear between), spread to pixels by bilinear interpolation between block centres.
@@ -883,13 +963,28 @@ def blend(
     Runs in bands of rows on a thread pool, each band's weights made for its rows only, so no full-frame
     weight map or (h, w, 3) temporary is held. ``out``: an (h, w, 3) float64 array to write into; it may be
     ``bilinear`` itself (each band reads its own rows before writing them), which the develop path passes to
-    save a frame (eval/noise-aware-full-frame-cost-2026-11-17.md)."""
+    save a frame (eval/noise-aware-full-frame-cost-2026-11-17.md).
 
-    from shootflow.raw_develop_np import _run_bands
+    The luma of D - B is ``(x0 * 0.2126 + x1 * 0.7152) + x2 * 0.0722`` in that order, elementwise. Until
+    2026-11-19 it was a matrix-vector product, whose BLAS fused multiply-adds in a CPU-dependent order, so the
+    same raw could develop to different last bits on different machines; the fixed order gives one answer
+    everywhere and lets ``noise_native.blend`` (tried first) copy it bit for bit
+    (eval/noise-aware-native-blend-2026-11-19.md). ``clip_hi``: clip the stored result to [0, clip_hi] as
+    ``raw_develop_np._clip`` does, in the same pass (the develop path's float32 image)."""
+
+    from shootflow import noise_native
+    from shootflow.raw_develop_np import _clip, _run_bands
 
     h, w = bilinear.shape[:2]
     if out is None:
         out = np.empty((h, w, 3), dtype=np.float64)
+    q = np.asarray(q_blocks, dtype=np.float64)
+    ab = _ramp(q, q_low, q_high)
+    abl = None if luma_ramp is None else _ramp(q, luma_ramp[0], luma_ramp[1])
+    if noise_native.blend(bilinear, directional_out, ab, abl, _interp_taps(h, q.shape[0]), _interp_taps(w, q.shape[1]),
+                          LUMA_WEIGHTS, out, clip_hi=clip_hi, band=_MEASURE_BAND, threads=threads):
+        return out
+
     def run(y0, y1):
         rows = slice(y0, y1)
         a = _weights(q_blocks, q_low, q_high, h, w, rows)[..., None]
@@ -897,9 +992,13 @@ def blend(
         res = a * d + (1.0 - a) * b
         if luma_ramp is not None:
             a_l = _weights(q_blocks, luma_ramp[0], luma_ramp[1], h, w, rows)
-            dy = (np.asarray(d, dtype=np.float64) - b) @ LUMA_WEIGHTS  # luma of D - B
+            x = np.asarray(d, dtype=np.float64) - b  # D - B
+            dy = (x[..., 0] * LUMA_WEIGHTS[0] + x[..., 1] * LUMA_WEIGHTS[1]) + x[..., 2] * LUMA_WEIGHTS[2]
             res = res + ((a_l - a[..., 0]) * dy)[..., None]
         out[rows] = res
+        if clip_hi is not None:
+            o = out[rows]
+            o[...] = _clip(o, clip_hi)
 
     _run_bands(run, h, band=_MEASURE_BAND, threads=threads)
     return out
@@ -909,6 +1008,7 @@ def noise_aware(
     c, pat, *, bilinear: np.ndarray | None = None, directional_out: np.ndarray | None = None,
     noise: tuple[float, float] | None = None, q_low: float | None = None, q_high: float | None = None,
     per_block: bool = True, luma_ramp: tuple[float, float] | None | bool = True, out: np.ndarray | None = None,
+    clip_hi: float | None = None, near_detail: float | None | bool = True,
 ) -> np.ndarray:
     """Directional where it adds detail above the noise, bilinear where it adds mostly noise.
 
@@ -923,7 +1023,10 @@ def noise_aware(
     2026-11-17. It applies only with ``per_block``. The luma ramp moves every channel of a pixel by the same
     ``(a_l - a) * Y(D - B)``, so a sensel's own channel is no longer its raw value; putting it back was
     measured and gave back most of the luma gain (eval/noise-aware-luma-ramp-2026-11-17.md). ``out``: passed to
-    ``blend`` (it may be ``bilinear``); with ``per_block=False`` it is ignored.
+    ``blend`` (it may be ``bilinear``); with ``per_block=False`` it is ignored, as is ``clip_hi`` (``blend``'s:
+    clip the stored result in the same pass). ``near_detail``: ``lift_near_detail``'s k, applied to the block
+    q before ``blend``: ``True`` (default) takes the CFA's ``NEAR_DETAIL``, a number sets one, ``None``/``False``
+    is off (the blend before 2026-11-19). Only with ``per_block``.
     """
 
     ramp = RAMPS[6 if len(pat) == 36 else 2]
@@ -931,6 +1034,10 @@ def noise_aware(
         luma_ramp = LUMA_RAMPS[6 if len(pat) == 36 else 2]
     elif luma_ramp is False:
         luma_ramp = None
+    if near_detail is True:
+        near_detail = NEAR_DETAIL[6 if len(pat) == 36 else 2]
+    elif near_detail is False:
+        near_detail = None
     q_low = ramp[0] if q_low is None else q_low
     q_high = ramp[1] if q_high is None else q_high
     c = np.asarray(c, dtype=np.float64)
@@ -951,4 +1058,6 @@ def noise_aware(
     if not per_block:
         a = float(np.clip((m["q"] - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0))
         return a * directional_out + (1.0 - a) * bilinear
-    return blend(bilinear, directional_out, m["q_blocks"], q_low, q_high, luma_ramp=luma_ramp, out=out)
+    q_blocks = m["q_blocks"] if near_detail is None else lift_near_detail(m["q_blocks"], near_detail)
+    return blend(bilinear, directional_out, q_blocks, q_low, q_high, luma_ramp=luma_ramp, out=out,
+                 clip_hi=clip_hi)

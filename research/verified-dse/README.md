@@ -161,6 +161,37 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **csum2's area-only miss is rare at ff (milestone 152, blind flow run on 15 fresh short add chains, four of seven predictions
+  held; the primary failed).** No fresh design repeats csum2's miss; area-only ranking (alpha = 0) has 6.15% mean regret against
+  SWC(1.25)'s 7.18% (interval -4.50 to +2.38), but a leave-one-milestone-out alpha over five ff folds still loses to the fixed
+  1.25 (4.04% against 3.66% on 92 designs):
+  [`experiments/addshort_ff/`](experiments/addshort_ff/results.txt).
+- **The clip's alpha should not be taken per corner (milestone 151, replay of 77 ff designs and 118 tt cells, five of seven
+  predictions held; the primary failed).** Chosen leave-one-milestone-out at ff over alpha in {0, 0.5, 0.8, 1, 1.25}, the rule
+  picks area-only on three folds and has 3.62% against SWC(1.25)'s 2.98%; one design (csum2, 66.6% under area-only) decides it.
+  On 118 tt cells every fold keeps 1.25, and area-only has 9.90% against 1.84% (worst cell 343%):
+  [`experiments/alpha_corner/`](experiments/alpha_corner/results.txt).
+- **No pre-routing signal flags the ladder's fast-corner losses well enough to pay (milestone 150, replay of 77 ff designs, one
+  of eight predictions held; the primary failed).** A signal read off the mapped pool has already spent the mapping, so its only
+  response is to route a different 8 mapped points. Chosen leave-one-milestone-out over eight features, every cut and three
+  responses, the detector has 3.61% against SWC's 2.98%, and the best in-sample searches sit inside their permutation nulls
+  (p = 0.25 and 0.88). SWC loses where its clip does not bind (median share 0.04 against 0.49). Post hoc, ranking by mapped area
+  alone beats SWC on its losers (6.25% against 13.06%) at a cost of 1.23 points elsewhere, 2.69% against 2.98% pooled
+  (interval -2.19 to +2.07, worst design 66.6%):
+  [`experiments/detector_ff/`](experiments/detector_ff/results.txt).
+- **Hedging the fall-back does not rescue the fast-corner guard (milestone 149, replay of 77 ff designs, two of seven predictions
+  held; the primary failed).** Keeping the cheap score's best 1 to 3 points of a mapped 8 to 32-point subset when the pilot
+  distrusts the ladder cuts what a false alarm costs from 9.89% to 7.07% regret but lifts the break-even ratio only from 0.17 to
+  0.24, while the pilots' false-alarm/hit ratios sit near 0.58. No hedged guard beats the unguarded ladder even in sample (best
+  4.04% against 2.98%), so the guard search closes at ff as at tt:
+  [`experiments/hedge_ff/`](experiments/hedge_ff/results.txt).
+- **A routed-pilot rank check does not fix the ladder's fast-corner losses (milestone 148, replay of 77 ff designs, two of seven
+  predictions held; the primary failed).** A guard that routes a few random points and falls back to random routing when the
+  clipped mapped score ranks them badly, chosen leave-one-milestone-out, has 4.21% mean regret against the unguarded SWC's 2.98%
+  (random 8.95%; difference +1.23 points, interval +0.12 to +3.09), and no setting beats SWC even in sample. The pilot does see
+  the weak rung (it falls back on 30% of draws where SWC loses, 18% elsewhere), but a fall-back costs 9.39 points where SWC wins
+  and saves only 6.77 where it loses, so a guard would need a false-alarm rate below 0.17 times its hit rate:
+  [`experiments/pilot_tau_ff/`](experiments/pilot_tau_ff/results.txt).
 - **On fresh designs neither add-chain structure nor short mapped delay explains the ladder's fast-corner losses (milestone 147,
   flow run, blind 2 x 2, three of eight predictions held; the primary failed).** At ff_n40C_1v95, a rule fixed in advance put fresh
   128-bit designs in four cells: add-chain or compare-chain amount, by a short (<= 15 ns) or long (>= 16.5 ns) mapped no-wire

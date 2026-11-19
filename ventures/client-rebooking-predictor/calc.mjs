@@ -26,13 +26,17 @@ const moneyNum = (s) => {
 
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
 // Day number since 1970-01-01 (UTC), or NaN. Accepts 2026-03-07, 3/7/2026, 3/7/26, 7 Mar 2026, optional time.
-export function parseDay(s) {
+// `order` is "mdy" or "dmy" for numeric dates whose day and month could swap; without it a
+// date is read day-first only when the first number cannot be a month.
+export function parseDay(s, order) {
   const t = String(s).trim();
   let y, m, d, x;
   if ((x = t.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[T\s].*)?$/))) { y = +x[1]; m = +x[2]; d = +x[3]; }
   else if ((x = t.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4}|\d{2})(?:[T\s,].*)?$/))) {
     let a = +x[1], b = +x[2]; y = +x[3]; if (y < 100) y += 2000;
-    if (a > 12 && b <= 12) { d = a; m = b; } else { m = a; d = b; }
+    if (a > 12 && b <= 12) { d = a; m = b; }
+    else if (b > 12 && a <= 12) { m = a; d = b; }
+    else if (order === "dmy") { d = a; m = b; } else { m = a; d = b; }
   } else if ((x = t.match(/^(\d{1,2})[\s-]([A-Za-z]{3})[a-z]*[\s-,]+(\d{4}|\d{2})/))) { d = +x[1]; m = MONTHS[x[2].toLowerCase()]; y = +x[3]; if (y < 100) y += 2000; }
   else if ((x = t.match(/^([A-Za-z]{3})[a-z]*\s+(\d{1,2}),?\s+(\d{4})/))) { m = MONTHS[x[1].toLowerCase()]; d = +x[2]; y = +x[3]; }
   else return NaN;
@@ -41,6 +45,23 @@ export function parseDay(s) {
   const back = new Date(ms);
   if (back.getUTCMonth() !== m - 1) return NaN;
   return Math.round(ms / DAY);
+}
+// One order for the whole file: a file that holds 25/12/2025 is day-first, so its 07/01/2026 is
+// 7 January, not 1 July (quality audit round 76). Returns "dmy", "mdy", or "mixed" when both kinds
+// of unambiguous date appear, and counts the dates whose order the file cannot settle.
+const NUMERIC_DATE = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4}|\d{2})(?:[T\s,].*)?$/;
+export function dateOrder(cells) {
+  let dmy = 0, mdy = 0, ambiguous = 0;
+  for (const c of cells) {
+    const x = String(c ?? "").trim().match(NUMERIC_DATE);
+    if (!x) continue;
+    const a = +x[1], b = +x[2];
+    if (a > 12 && b <= 12) dmy++;
+    else if (b > 12 && a <= 12) mdy++;
+    else if (a !== b) ambiguous++;
+  }
+  const order = dmy && mdy ? "mixed" : dmy ? "dmy" : "mdy";
+  return { order, dmy, mdy, ambiguous };
 }
 export const dayToIso = (n) => new Date(n * DAY).toISOString().slice(0, 10);
 
@@ -67,8 +88,10 @@ export function parseRows(text) {
   if (Number.isNaN(parseDay(first[1] ?? "")) && Number.isNaN(parseDay(first[0] ?? "")) && Number.isNaN(parseDay(first[2] ?? ""))) {
     const head = first.map((h) => h.toLowerCase());
     const find = (re) => head.findIndex((h) => re.test(h));
-    const dIdx = find(/date|day|visit|appointment|appt|when|time|service/);
-    const cIdx = find(/client|customer|name|patient|member|email|phone|guest|id/);
+    // A column called "date" beats one called "service" or "visit"; "paid" is not an "id".
+    const dFirst = find(/date|day|when/);
+    const dIdx = dFirst >= 0 ? dFirst : find(/visit|appointment|appt|time|service/);
+    const cIdx = find(/client|customer|name|patient|member|email|phone|guest|\bid\b/);
     const aIdx = find(/amount|total|spend|spent|price|revenue|sales|paid|charge|\$|fee/);
     ci = { client: cIdx >= 0 ? cIdx : 0, date: dIdx >= 0 ? dIdx : 1, amount: aIdx >= 0 ? aIdx : head.length >= 3 ? 2 : -1 };
     if (ci.date === ci.client) ci.date = ci.client === 0 ? 1 : 0;
@@ -78,9 +101,13 @@ export function parseRows(text) {
   if ((rows[0]?.length || 0) < 2) return { error: "Each row needs at least a client (name, email or id) and a visit date." };
   const out = [];
   let bad = 0;
+  const dates = dateOrder(rows.map((r) => r[ci.date]));
+  if (dates.order === "mixed") warnings.push(`The dates mix day-first (${dates.dmy}) and month-first (${dates.mdy}) rows; ambiguous ones like 03/04 are read month-first. Export with one date format, ideally YYYY-MM-DD.`);
+  else if (dates.order === "mdy" && dates.ambiguous) warnings.push(`${dates.ambiguous} date(s) such as 03/04 could be day-first or month-first and nothing in the file settles it, so they are read month-first (US). If your file is day-first, export dates as YYYY-MM-DD.`);
+  const order = dates.order === "dmy" ? "dmy" : "mdy";
   for (const r of rows) {
     const client = String(r[ci.client] ?? "").trim().toLowerCase();
-    const day = parseDay(r[ci.date] ?? "");
+    const day = parseDay(r[ci.date] ?? "", order);
     if (!client || Number.isNaN(day)) { bad++; continue; }
     let amount = null;
     if (ci.amount >= 0) { const a = moneyNum(r[ci.amount] ?? ""); if (a >= 0) amount = a; }
@@ -213,7 +240,6 @@ export function analyze(rows, o = {}) {
   const repeat = model.clients.filter((c) => c.visits.length >= 2).length;
   if (repeat / model.clients.length < 0.15) warnings.push(`Only ${pct(repeat / model.clients.length)} of clients have come back even once, so the model leans heavily on the shop-wide rhythm. Read individual rows as rough.`);
   if (model.sigmaW > 1.0) warnings.push("Gaps between visits are very irregular (a client's own intervals vary more than 2.7x). That is typical for one-off or seasonal services; 'overdue' will be a soft signal.");
-  if (lastDay < asOf - 1) { /* as-of later than data: fine */ }
   const staleDays = Math.max(0, Math.round(Date.now() / DAY) - asOf);
   if (!Number.isFinite(o.asOf) && staleDays > 60) warnings.push(`Your newest visit is ${staleDays} days old. "Overdue" is measured from ${dayToIso(asOf)}, the latest date in the file, not from today. Export fresh data, or set the as-of date.`);
 

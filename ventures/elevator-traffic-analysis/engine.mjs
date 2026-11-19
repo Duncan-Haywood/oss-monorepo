@@ -76,7 +76,7 @@ export function distanceTo(h, rises) {
 function num(x, name, { min = -Infinity, max = Infinity, integer = false } = {}) {
   const v = typeof x === 'string' ? Number(x) : x;
   if (typeof v !== 'number' || !Number.isFinite(v)) throw new Error(`${name} must be a number`);
-  if (v < min || v > max) throw new Error(`${name} must be between ${min} and ${max}`);
+  if (v < min || v > max) throw new Error(`${name} must be ${max === Infinity ? `${min} or more` : min === -Infinity ? `${max} or less` : `between ${min} and ${max}`}`);
   if (integer && !Number.isInteger(v)) throw new Error(`${name} must be a whole number`);
   return v;
 }

@@ -4,12 +4,12 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2392400e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EV%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cut and Fill Calculator from Survey Points | Earthwork Volumes, Balance Elevation</title>
-  <meta name="description" content="Free earthwork cut and fill calculator: drop in your survey shots (PNEZD or x,y,z), set a flat or sloped pad or load proposed grade, and get exact TIN cut and fill volumes, the pad elevation that balances the site with shrink, export or import and truckloads. Runs in your browser.">
+  <meta name="description" content="Free earthwork cut and fill calculator: drop in your survey shots (PNEZD or x,y,z), set a flat or sloped pad or load proposed grade, and get exact TIN cut and fill volumes, the balance pad elevation, the least average haul, export or import and truckloads. Runs in your browser.">
   <meta property="og:title" content="Earthwork Cut and Fill Calculator">
   <meta property="og:description" content="Survey points in, triangulated cut and fill volumes, a cut/fill map, the balance pad elevation and truckloads out. Nothing uploaded.">
   <link rel="canonical" href="./">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Earthwork Cut and Fill Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reads PNEZD, PENZD, NEZ and ENZ point files with or without a header; Delaunay TIN of existing ground; flat or sloped design pad, or a proposed-grade TIN; boundary polygon of any shape; exact cut and fill volumes between the surfaces; topsoil strip; shrink and swell; balance pad elevation; export or import and truckloads; cut/fill map; CSV export"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does this calculate cut and fill?","acceptedAnswer":{"@type":"Answer","text":"It joins your survey shots into a triangulated irregular network (a Delaunay TIN), the same kind of surface civil design software builds. Inside each triangle the ground is a plane and so is the design, so the depth between them changes linearly. The tool splits each triangle where that depth crosses zero and adds up the cut and fill parts exactly. There is no grid sampling on top of the triangulation."}},{"@type":"Question","name":"What is a balance elevation?","acceptedAnswer":{"@type":"Answer","text":"The pad elevation at which the material you cut is just enough to build the fill, so nothing is hauled off or brought in. Cut soil loses volume when it is compacted into fill, so with a shrink factor the balance point sits a little higher than where cut and fill volumes are equal."}},{"@type":"Question","name":"What are shrink and swell?","acceptedAnswer":{"@type":"Answer","text":"Shrink is the share of volume a cubic yard of undisturbed (bank) soil loses when it is placed and compacted as fill; 10 to 25 percent is common. Swell is the share it gains when dug and loaded loose in a truck; 15 to 40 percent is common for earth. Both depend on the soil and should come from the geotechnical report or your own experience on that material."}},{"@type":"Question","name":"What point file formats does it read?","acceptedAnswer":{"@type":"Answer","text":"Comma, tab, semicolon or space separated text. With a header row it finds Northing, Easting and Elevation (or X, Y, Z) by name. Without one, four or more columns are read as PNEZD (point, northing, easting, elevation, description), the usual data-collector and Civil 3D export, and three columns as easting, northing, elevation. You can force PENZD, NEZ or ENZ."}},{"@type":"Question","name":"Can I bid on these numbers?","acceptedAnswer":{"@type":"Answer","text":"Use them as a check, not as the only takeoff. A TIN is only as good as its shots: without breaklines it cuts straight across ditches, curbs and ridges between points, and it knows nothing about rock, unsuitable soil, over-excavation or the structural section under paving. Compare it with the engineer's grading plan and your own takeoff."}},{"@type":"Question","name":"Is my survey uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Files are read and every calculation runs in your browser. Your survey files and results are never sent anywhere. The hosted page counts one anonymous page view a day (the page, the day and the referring channel, never what you type; off under Do Not Track or Global Privacy Control, and described in the site footer). An optional anonymous counter in this browser's local storage records only which features were used and the day."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Earthwork Cut and Fill Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reads PNEZD, PENZD, NEZ and ENZ point files with or without a header; Delaunay TIN of existing ground; flat or sloped design pad, or a proposed-grade TIN; boundary polygon of any shape; exact cut and fill volumes between the surfaces; topsoil strip; shrink and swell; balance pad elevation; export or import and truckloads; least-haul plan with average haul, station-yards and every move; cut/fill map with haul arrows; CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does this calculate cut and fill?","acceptedAnswer":{"@type":"Answer","text":"It joins your survey shots into a triangulated irregular network (a Delaunay TIN), the same kind of surface civil design software builds. Inside each triangle the ground is a plane and so is the design, so the depth between them changes linearly. The tool splits each triangle where that depth crosses zero and adds up the cut and fill parts exactly. There is no grid sampling on top of the triangulation."}},{"@type":"Question","name":"What is a balance elevation?","acceptedAnswer":{"@type":"Answer","text":"The pad elevation at which the material you cut is just enough to build the fill, so nothing is hauled off or brought in. Cut soil loses volume when it is compacted into fill, so with a shrink factor the balance point sits a little higher than where cut and fill volumes are equal."}},{"@type":"Question","name":"What are shrink and swell?","acceptedAnswer":{"@type":"Answer","text":"Shrink is the share of volume a cubic yard of undisturbed (bank) soil loses when it is placed and compacted as fill; 10 to 25 percent is common. Swell is the share it gains when dug and loaded loose in a truck; 15 to 40 percent is common for earth. Both depend on the soil and should come from the geotechnical report or your own experience on that material."}},{"@type":"Question","name":"What point file formats does it read?","acceptedAnswer":{"@type":"Answer","text":"Comma, tab, semicolon or space separated text. With a header row it finds Northing, Easting and Elevation (or X, Y, Z) by name. Without one, four or more columns are read as PNEZD (point, northing, easting, elevation, description), the usual data-collector and Civil 3D export, and three columns as easting, northing, elevation. You can force PENZD, NEZ or ENZ."}},{"@type":"Question","name":"Where should the dirt go, and how far is the average haul?","acceptedAnswer":{"@type":"Answer","text":"Tick Plan the haul. The site is cut into square cells, cut and fill are computed exactly in each, and the tool solves for the plan that moves the spare cut to the cells short of fill with the least total volume times distance. That optimum is proved by linear-programming duality, not searched for. You get the average haul, the haul moment in station-yards (cubic yards times 100 feet), every cell-to-cell move as arrows and a CSV, and the centroid-to-centroid shortcut next to it. The shortcut can only ever come out at or under the real least haul, and on a site whose cut sits in the middle of its fill it can say zero. Distances are straight lines between cell centres, not haul roads, so treat the average haul as a floor when you price it."}},{"@type":"Question","name":"Can I bid on these numbers?","acceptedAnswer":{"@type":"Answer","text":"Use them as a check, not as the only takeoff. A TIN is only as good as its shots: without breaklines it cuts straight across ditches, curbs and ridges between points, and it knows nothing about rock, unsuitable soil, over-excavation or the structural section under paving. Compare it with the engineer's grading plan and your own takeoff."}},{"@type":"Question","name":"Is my survey uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Files are read and every calculation runs in your browser. Your survey files and results are never sent anywhere. The hosted page counts one anonymous page view a day (the page, the day and the referring channel, never what you type; off under Do Not Track or Global Privacy Control, and described in the site footer). An optional anonymous counter in this browser's local storage records only which features were used and the day."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f1d1a; background: #ece8e1; --accent: #92400e; --ink2: #57534e; --line: #cbc4b8; --panel: #fbfaf7; --cut: #b42318; --fill: #1d4ed8; }
     body { max-width: 1160px; margin: 0 auto; padding: 32px 16px; }
@@ -105,6 +105,10 @@
           <label>Swell, bank to loose (%) <input id="swell" type="number" step="1" min="0" value="25"></label>
           <label>Truck capacity (loose cu yd or m³) <input id="truck" type="number" step="any" min="0" value="12"></label>
         </div>
+        <div class="fields" style="margin-top:10px">
+          <label style="display:flex;gap:8px;align-items:center;font-weight:650"><input id="haul" type="checkbox" style="width:auto" checked> Plan the haul (least total haul distance)</label>
+          <label>Haul grid cell (optional) <input id="cell" type="number" step="any" min="0" placeholder="automatic"></label>
+        </div>
         <div class="actions">
           <button type="button" class="primary" id="run">Compute cut and fill</button>
           <button type="button" id="balance">Find balance elevation</button>
@@ -127,10 +131,21 @@
         <div id="warnings"></div>
         <div class="actions"><button type="button" id="download" disabled>Download summary CSV</button></div>
       </section>
+      <section id="haulBox" hidden>
+        <h2>Haul</h2>
+        <p class="muted" id="haulSummary"></p>
+        <div class="stats">
+          <div class="stat"><div class="k">Average haul (least possible)</div><div class="big" id="avgOut">–</div><div class="muted" id="avgNote"></div></div>
+          <div class="stat"><div class="k">Haul moment</div><div class="big" id="momentOut">–</div><div class="muted" id="momentNote"></div></div>
+          <div class="stat"><div class="k">Hauled between cells (bank)</div><div class="big" id="movedOut">–</div><div class="muted" id="movedNote"></div></div>
+          <div class="stat"><div class="k">Centroid shortcut</div><div class="big" id="centOut">–</div><div class="muted" id="centNote"></div></div>
+        </div>
+        <div class="actions"><button type="button" id="downloadHaul">Download haul moves CSV</button></div>
+      </section>
       <section>
         <h2>Cut and fill map</h2>
         <svg id="map" viewBox="0 0 600 420" role="img" aria-label="Plan view of the triangulated site coloured by cut and fill depth"></svg>
-        <div class="legend"><span><span class="sw" style="background:#b42318"></span>Cut</span><span><span class="sw" style="background:#1d4ed8"></span>Fill</span><span>Darker is deeper. Dots are shots; the dark outline is the boundary.</span></div>
+        <div class="legend"><span><span class="sw" style="background:#b42318"></span>Cut</span><span><span class="sw" style="background:#1d4ed8"></span>Fill</span><span>Darker is deeper. Dots are shots; the dark outline is the boundary. Arrows are the largest haul moves, thicker for more dirt.</span></div>
       </section>
     </div>
   </main>
@@ -145,6 +160,8 @@
     <p>Shrink is the share of volume a cubic yard of undisturbed (bank) soil loses when it is placed and compacted as fill; 10 to 25 percent is common. Swell is the share it gains when dug and loaded loose in a truck; 15 to 40 percent is common for earth. Both depend on the soil and should come from the geotechnical report or your own experience on that material.</p>
     <h3>What point file formats does it read?</h3>
     <p>Comma, tab, semicolon or space separated text. With a header row it finds Northing, Easting and Elevation (or X, Y, Z) by name. Without one, four or more columns are read as PNEZD (point, northing, easting, elevation, description), the usual data-collector and Civil 3D export, and three columns as easting, northing, elevation. You can force PENZD, NEZ or ENZ.</p>
+    <h3>Where should the dirt go, and how far is the average haul?</h3>
+    <p>Tick Plan the haul. The site is cut into square cells, cut and fill are computed exactly in each, and the tool solves for the plan that moves the spare cut to the cells short of fill with the least total volume times distance. That optimum is proved by linear-programming duality, not searched for. You get the average haul, the haul moment in station-yards (cubic yards times 100 feet), every cell-to-cell move as arrows and a CSV, and the centroid-to-centroid shortcut next to it. The shortcut can only ever come out at or under the real least haul, and on a site whose cut sits in the middle of its fill it can say zero. Distances are straight lines between cell centres, not haul roads, so treat the average haul as a floor when you price it.</p>
     <h3>Can I bid on these numbers?</h3>
     <p>Use them as a check, not as the only takeoff. A TIN is only as good as its shots: without breaklines it cuts straight across ditches, curbs and ridges between points, and it knows nothing about rock, unsuitable soil, over-excavation or the structural section under paving. Compare it with the engineer's grading plan and your own takeoff.</p>
     <h3>Is my survey uploaded?</h3>
@@ -159,6 +176,7 @@
 
   <script type="module">
     import { run, toCsv, exampleCsv, EXAMPLE_BOUNDARY } from './earthwork.mjs';
+    import { haulPlan, haulCsv } from './haul.mjs';
     import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
@@ -183,6 +201,10 @@
       const r = run(inputs(balance));
       if (r.error) { el('error').textContent = r.error; return; }
       if (balance && r.design.type === 'plane') el('padElev').value = r.design.elevation.toFixed(2);
+      if (el('haul').checked) {
+        r.haul = haulPlan(r.surface, r.designSurface, { boundary: r.boundary, strip: num('strip') || 0, shrink: num('shrink') || 0, cell: num('cell'), perVolume: r.units.perVolume });
+        count('haul_planned');
+      }
       last = r;
       show(r);
       el('download').disabled = false;
@@ -207,7 +229,27 @@
       el('stripNote').textContent = v.strip > 0 ? `plus ${fmt(v.strip)} ${u.volume} topsoil stripped` : '';
       const w = el('warnings'); w.replaceChildren();
       for (const t of r.warnings) { const p = document.createElement('p'); p.className = 'warn'; p.textContent = t; w.append(p); }
+      showHaul(r);
       drawMap(r);
+    }
+
+    function showHaul(r) {
+      const box = el('haulBox'), h = r.haul, u = r.units;
+      box.hidden = !h;
+      if (!h) return;
+      if (h.error) { el('haulSummary').textContent = h.error; for (const id of ['avgOut', 'momentOut', 'movedOut', 'centOut']) el(id).textContent = '–'; el('downloadHaul').disabled = true; return; }
+      el('downloadHaul').disabled = false;
+      el('haulSummary').textContent = `${h.cellCount} cells of ${fmt(h.cell, 2)} ${u.length}${h.enlarged ? ' (enlarged to stay under 900 cells)' : ''}: ${h.sources} with spare cut, ${h.sinks} short of fill. ` +
+        (h.optimal ? 'The plan is proved the least total haul on this grid (no cheaper swap exists, by LP duality).' : 'The solver stopped before proving the plan optimal; treat it as an upper bound.') +
+        ` Straight-line distance between cell centres, not a haul road.`;
+      el('avgOut').textContent = `${fmt(h.averageHaul)} ${u.length}`;
+      el('avgNote').textContent = `${h.moves.length} cell-to-cell moves`;
+      el('momentOut').textContent = u.length === 'ft' ? `${fmt(h.moment / 100, 1)} sta-yd` : `${fmt(h.moment)} m³·m`;
+      el('momentNote').textContent = u.length === 'ft' ? `${fmt(h.moment)} cu yd·ft (station-yards are cu yd × 100 ft)` : 'volume times distance';
+      el('movedOut').textContent = `${fmt(h.moved)} ${u.volume}`;
+      el('movedNote').textContent = `plus ${fmt(h.local, 1)} ${u.volume} used in its own cell` + (h.exported >= 0.05 ? `; ${fmt(h.exported)} ${u.volume} spare cut leaves` : '') + (h.imported >= 0.05 ? `; ${fmt(h.imported)} ${u.volume} brought in` : '');
+      el('centOut').textContent = `${fmt(h.centroidHaul)} ${u.length}`;
+      el('centNote').textContent = h.averageHaul > 0 ? `centre of cut to centre of fill: ${fmt(100 * (1 - h.centroidHaul / h.averageHaul), 1)}% short of the real least haul (it can never be over)` : '';
     }
 
     function drawMap(r) {
@@ -228,6 +270,12 @@
       }
       if (r.boundary) svg.append(mk('polygon', { points: r.boundary.map(([x, y]) => `${X(x)},${Y(y)}`).join(' '), fill: 'none', stroke: '#1f1d1a', 'stroke-width': '2' }));
       for (const p of P) svg.append(mk('circle', { cx: X(p.x), cy: Y(p.y), r: '1.6', fill: '#1f1d1a' }));
+      if (r.haul && !r.haul.error && r.haul.moves.length) {
+        const defs = mk('defs', {}); const mkr = mk('marker', { id: 'arrowhead', viewBox: '0 0 10 10', refX: '9', refY: '5', markerWidth: '5', markerHeight: '5', orient: 'auto-start-reverse' });
+        mkr.append(mk('path', { d: 'M0,0 L10,5 L0,10 z', fill: '#1f1d1a' })); defs.append(mkr); svg.append(defs);
+        const top = r.haul.moves.slice(0, 60), vmax = top[0].volume || 1;
+        for (const m of top) svg.append(mk('line', { x1: X(m.from[0]), y1: Y(m.from[1]), x2: X(m.to[0]), y2: Y(m.to[1]), stroke: '#1f1d1a', 'stroke-opacity': '0.7', 'stroke-width': (0.6 + 2.6 * m.volume / vmax).toFixed(2), 'marker-end': 'url(#arrowhead)' }));
+      }
       const n = mk('text', { x: W - 20, y: 24, 'font-size': '14', 'text-anchor': 'middle', fill: '#1f1d1a' }); n.textContent = 'N ↑'; svg.append(n);
     }
 
@@ -252,6 +300,13 @@
       a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: 'text/csv' })); a.download = 'cut-fill-summary.csv'; a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       count('csv_downloaded');
+    });
+    el('downloadHaul').addEventListener('click', () => {
+      if (!last || !last.haul || last.haul.error) return;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([haulCsv(last.haul, last.units)], { type: 'text/csv' })); a.download = 'haul-moves.csv'; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      count('haul_csv_downloaded');
     });
     try {
       const u = el('usageOptOut');

@@ -6,6 +6,7 @@
 // assignment by seeded simulated annealing -> outputs (tables, CSV, .ics, text) and an
 // independent validator that re-checks the finished schedule from its output alone.
 
+import { whistRotation } from "./whist.mjs";
 import { lowCarryOverRounds, lowCarryOverDoubleRounds, bestCarryOverRounds, carryOverSummary, carryOverKeepIndex, CARRY_OVER_PICK, carryOver } from "./carryover.mjs";
 import { waitFreeNights, seasonLayout, waitFreePossible, waitFreeProvedImpossible } from "./nights.mjs";
 
@@ -667,7 +668,95 @@ export function assignSlots(rounds, nTeams, courtCount, timeCount, seed = 1, ban
   }
   // restore the best state seen
   rounds.forEach((r, ri) => r.matches.forEach((m, i) => { m.slot = bestSlots[ri][i]; }));
+  // An exact pass for the limits (2026-11-18): a round where a limit is still broken but some
+  // assignment keeps every limit gets that assignment (bipartite matching of matches to open
+  // slots, starting from the current one so legal matches move only when they must). The
+  // annealing alone missed 1 of 3,033 such rounds on 300 random leagues (eval/limit-conflicts.txt).
+  if ((banned || bannedCourts) && !multi) {
+    const legal = (m, k) => [m.home, m.away].every((x) => !(banned && banned[x] && banned[x].includes(Math.floor(k / courtCount))) && !(bannedCourts && bannedCourts[x] && bannedCourts[x].includes(k % courtCount)));
+    let repaired = false;
+    rounds.forEach((r, ri) => {
+      if (r.matches.every((m) => legal(m, m.slot))) return;
+      const fixed = legalRoundSlots(r.matches, openOf[ri], legal);
+      if (!fixed) return;
+      r.matches.forEach((m, i) => { m.slot = fixed[i]; });
+      repaired = true;
+    });
+    if (repaired) {
+      for (const row of cc) row.fill(0);
+      for (const row of tc) row.fill(0);
+      for (const r of rounds) for (const m of r.matches) bump(m, m.slot, 1);
+      best = 0;
+      for (let x = 0; x < nTeams; x++) best += teamCost(x);
+    }
+  }
   return best;
+}
+
+/**
+ * Slots for one round's matches with every match on a slot `legal(match, slot)` allows, or null
+ * when none exists (Kuhn's augmenting paths; a match keeps its current slot when that is legal
+ * and no other match needs it).
+ */
+export function legalRoundSlots(matches, open, legal) {
+  const own = new Map();
+  for (const [i, m] of matches.entries()) if (open.includes(m.slot) && legal(m, m.slot) && !own.has(m.slot)) own.set(m.slot, i);
+  const at = matches.map((m) => (own.get(m.slot) === undefined ? -1 : m.slot));
+  matches.forEach((m, i) => { if (at[i] >= 0 && own.get(at[i]) !== i) at[i] = -1; });
+  const adj = matches.map((m) => open.filter((k) => legal(m, k)));
+  const aug = (i, seen) => {
+    for (const k of adj[i]) {
+      if (seen.has(k)) continue;
+      seen.add(k);
+      const j = own.get(k);
+      if (j === undefined || aug(j, seen)) { own.set(k, i); at[i] = k; return true; }
+    }
+    return false;
+  };
+  for (let i = 0; i < matches.length; i++) if (at[i] < 0 && !aug(i, new Set())) return null;
+  return at;
+}
+
+/**
+ * Time and court limits that no schedule can keep, found before the build (2026-11-18):
+ * - two limited teams with no allowed time (or court) in common still have to meet, so their
+ *   match breaks one team's limit wherever it goes;
+ * - more teams limited to a set of times than those times hold: k teams that can only play at
+ *   times T need ceil(k/2) of T's |T| x courts slots in a round even when they all play each
+ *   other, and k slots when none of them meet. Same for courts.
+ * Returns [{ kind: "pair" | "times" | "courts", teams: [names], text }].
+ */
+export function limitConflicts(teams, { times = [], courts = [], timeLimits = {}, courtLimits = {} } = {}) {
+  const out = [];
+  const allowedT = (t) => (timeLimits[t] || []).filter((x) => times.includes(x));
+  const allowedC = (t) => (courtLimits[t] || []).filter((x) => courts.includes(x));
+  const limT = Object.keys(timeLimits).map(Number).filter((t) => allowedT(t).length && allowedT(t).length < times.length);
+  const limC = Object.keys(courtLimits).map(Number).filter((t) => allowedC(t).length && allowedC(t).length < courts.length);
+  const lim = [...new Set([...limT, ...limC])].sort((a, b) => a - b);
+  for (const [i, a] of lim.entries()) for (const b of lim.slice(i + 1)) {
+    const ta = limT.includes(a) ? allowedT(a) : times, tb = limT.includes(b) ? allowedT(b) : times;
+    const ca = limC.includes(a) ? allowedC(a) : courts, cb = limC.includes(b) ? allowedC(b) : courts;
+    if (!ta.some((x) => tb.includes(x))) out.push({ kind: "pair", teams: [teams[a], teams[b]], text: `${teams[a]} only plays at ${ta.join(", ")} and ${teams[b]} only at ${tb.join(", ")}, so their match breaks one team's time limit wherever it goes. Give one of them a time the other can play.` });
+    else if (!ca.some((x) => cb.includes(x))) out.push({ kind: "pair", teams: [teams[a], teams[b]], text: `${teams[a]} only plays on ${ca.join(", ")} and ${teams[b]} only on ${cb.join(", ")}, so their match breaks one team's court limit wherever it goes. Give one of them a court the other can use.` });
+  }
+  const crowd = (kind, ids, allowed, all, perUnit, unitWord) => {
+    if (all.length > 12) return;
+    for (let mask = 1; mask < (1 << all.length) - 1; mask++) {
+      const set = all.filter((_, j) => mask & (1 << j));
+      const inside = ids.filter((t) => allowed(t).every((x) => set.includes(x)));
+      if (!inside.length) continue;
+      // report the smallest sets only: skip if a proper subset already reports a superset of these teams
+      const slots = set.length * perUnit;
+      if (inside.length <= slots) continue;
+      if (out.some((o) => o.kind === kind && o.teams.length >= inside.length && inside.every((t) => o.teams.includes(teams[t])))) continue;
+      const names = inside.map((t) => teams[t]);
+      const always = Math.ceil(inside.length / 2) > slots;
+      out.push({ kind, teams: names, text: `${names.length} teams (${names.join(", ")}) can only play ${unitWord} ${set.join(", ")}, which hold ${slots} match(es) a round: ${always ? "too few even when they all play each other, so every round breaks a limit" : "a round breaks a limit unless enough of them play each other that night"}. Free one of them or add a ${kind === "times" ? "court or time" : "court"}.` });
+    }
+  };
+  crowd("times", limT, allowedT, times, courts.length || 1, "at");
+  crowd("courts", limC, allowedC, courts, times.length || 1, "on");
+  return out;
 }
 
 // ---------------------------------------------------------------- building the schedule
@@ -1093,6 +1182,12 @@ export function buildSchedule(spec) {
     if (!ok.length) { notices.push(`${teams[t]} is limited to courts that are not among the league's courts, so the limit was ignored.`); continue; }
     bannedCourts[t] = courts.map((x, i) => (ok.includes(x) ? -1 : i)).filter((i) => i >= 0);
   }
+  const conflicts = limitConflicts(teams, {
+    times, courts,
+    timeLimits: Object.fromEntries(Object.keys(banned).map((t) => [t, times.filter((_, i) => !banned[t].includes(i))])),
+    courtLimits: Object.fromEntries(Object.keys(bannedCourts).map((t) => [t, courts.filter((_, i) => !bannedCourts[t].includes(i))])),
+  });
+  for (const c of conflicts) notices.push(`Limits that cannot all be kept: ${c.text}`);
   const closedByRound = rounds.map((r) => {
     const set = new Set();
     for (const ci of closedCourtsOn(r.day)) for (let t = 0; t < times.length; t++) set.add(t * courts.length + ci);
@@ -3085,6 +3180,100 @@ export function poolAdvancers(tables, perPool) {
 
 const nextPow2 = (k) => { let p = 1; while (p < k) p *= 2; return p; };
 
+/**
+ * Bracket round (1 = first round) in which the teams on bracket lines `i` and `j` (0-based positions
+ * in seedOrder) can first meet: the lowest level at which both sit in the same block.
+ */
+function meetRound(i, j) {
+  let r = 0;
+  while (i !== j) { i >>= 1; j >>= 1; r++; }
+  return r;
+}
+
+/**
+ * Crossover play-off seeds from pool tables: winners still come before runners-up, and so on, but
+ * within each place the order is chosen so teams from the same pool meet as late as the bracket
+ * allows (A1 v B2, B1 v A2 rather than a pool rematch in the first knockout round). The objective is
+ * lexicographic: fewest possible same-pool meetings in round 1, then round 2, ..., then the least
+ * movement from the best-record order of poolAdvancers (a move near the top weighs more). Swaps inside each place first, then an exact
+ * pruned search over the places' orderings (capped at SEED_SEARCH_NODES nodes; the swap answer
+ * stands if the cap is hit). Returns { seeds, pools (pool index per seed), meetings (same-pool pairings possible per
+ * round), plain (the same counts for the poolAdvancers order) }.
+ */
+const SEED_SEARCH_NODES = 300000;
+export function poolPlayoffSeeds(tables, perPool) {
+  const tiers = [];
+  for (let place = 0; place < perPool; place++) {
+    const tier = tables.map((t, p) => ({ row: t[place], p })).filter((x) => x.row)
+      .sort((x, y) => y.row.points - x.row.points || y.row.gd - x.row.gd || y.row.gf - x.row.gf || x.p - y.p)
+      .map((x) => ({ name: x.row.name, p: x.p }));
+    if (tier.length) tiers.push(tier);
+  }
+  const base = tiers.flat();
+  const n = base.length;
+  if (n < 2) return { seeds: base.map((x) => x.name), pools: base.map((x) => x.p), meetings: [], plain: [] };
+  const size = nextPow2(n);
+  const order = seedOrder(size);
+  const line = new Array(n + 1);
+  order.forEach((s, i) => { if (s <= n) line[s] = i; });
+  const rounds = Math.log2(size);
+  const homeSeed = new Map(base.map((x, i) => [x.name, i]));
+  const score = (arr) => {
+    const v = new Array(rounds + 1).fill(0);
+    for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) if (arr[a].p === arr[b].p) v[meetRound(line[a + 1], line[b + 1]) - 1]++;
+    v[rounds] = arr.reduce((s, x, i) => s + Math.abs(homeSeed.get(x.name) - i) * (n - Math.min(i, homeSeed.get(x.name))), 0); // moving a top seed costs more
+    return v;
+  };
+  const less = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] < y[i]; return false; };
+  const cur = base.slice();
+  let best = score(cur);
+  const starts = [];
+  let off = 0;
+  for (const t of tiers) { starts.push([off, off + t.length]); off += t.length; }
+  for (let guard = 0; guard < 10000; guard++) {
+    let move = null;
+    for (const [lo, hi] of starts) for (let a = lo; a < hi; a++) for (let b = a + 1; b < hi; b++) {
+      if (cur[a].p === cur[b].p) continue;
+      [cur[a], cur[b]] = [cur[b], cur[a]];
+      const v = score(cur);
+      [cur[a], cur[b]] = [cur[b], cur[a]];
+      if (less(v, move ? move.v : best)) move = { a, b, v };
+    }
+    if (!move) break;
+    [cur[move.a], cur[move.b]] = [cur[move.b], cur[move.a]];
+    best = move.v;
+  }
+  // Swaps can stall in a local optimum (3 pools x 4 advancers did), so an exact depth-first search
+  // over each place's orderings follows, pruned whenever a partial vector is already lex-worse than
+  // the best (every count only grows as seeds are added), and stopped after SEED_SEARCH_NODES nodes.
+  const tierOf = [];
+  starts.forEach(([lo, hi], t) => { for (let i = lo; i < hi; i++) tierOf[i] = t; });
+  const used = new Set();
+  const pick = new Array(n);
+  const v = new Array(rounds + 1).fill(0);
+  let nodes = 0;
+  const lexGreater = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] > y[i]; return false; };
+  const dfs = (a) => {
+    if (++nodes > SEED_SEARCH_NODES) return;
+    if (a === n) { if (less(v, best)) { best = v.slice(); for (let i = 0; i < n; i++) cur[i] = pick[i]; } return; }
+    const [lo, hi] = starts[tierOf[a]];
+    for (let m = lo; m < hi; m++) {
+      if (used.has(m)) continue;
+      const x = base[m];
+      const added = [];
+      for (let b = 0; b < a; b++) if (pick[b].p === x.p) { const r = meetRound(line[a + 1], line[b + 1]) - 1; v[r]++; added.push(r); }
+      const d = Math.abs(m - a) * (n - Math.min(a, m));
+      v[rounds] += d;
+      if (!lexGreater(v, best) && (a + 1 < n || less(v, best))) { used.add(m); pick[a] = x; dfs(a + 1); used.delete(m); }
+      v[rounds] -= d;
+      for (const r of added) v[r]--;
+    }
+  };
+  dfs(0);
+  return { seeds: cur.map((x) => x.name), pools: cur.map((x) => x.p), meetings: best.slice(0, rounds), plain: score(base).slice(0, rounds) };
+}
+
+
 /** Standard single-elimination seed order for a bracket of `size` (1 v size, 2 v size-1, ...). */
 export function seedOrder(size) {
   let order = [1];
@@ -3229,10 +3418,111 @@ export function doubleEliminationBracket(seedNames, { afterDay = null, weekdays 
 function slotText(s) {
   if (!s || s.none) return "BYE";
   if (s.loserOf) return `loser of ${s.loserOf}`;
-
-  if (!s) return "BYE";
   if (s.from) return `winner of ${s.from}`;
   return `#${s.seed} ${s.name}`;
+}
+
+/**
+ * Read one play-off result line against the bracket's teams. A play-off game needs a winner, so
+ * besides the league formats ("Hawks 3 - 1 Owls", "Hawks beat Owls 3-1", "Hawks w/o Owls") it takes
+ * "Hawks beat Owls" with no score, and a level score with the winner named in brackets:
+ * "Hawks 2 - 2 Owls (Hawks on penalties)". Returns { a, b, winner, score } (indexes into names) or { error }.
+ */
+function readPlayoffLine(line, names) {
+  const plain = line.replace(/[\u2212\u2012\u2013\u2014]/g, "-").replace(/[.\s]+$/, "");
+  const note = plain.match(/^(.*?)\s*\(([^()]*)\)$/);
+  const noScore = (note ? note[1] : plain).match(/^(.*?)\s+(?:beat|beats|defeated|def\.?|won against|knocked out)\s+(.*)$/i);
+  if (noScore && !/\d+\s*[-:]\s*\d+\s*$/.test(noScore[2])) {
+    const a = teamIndex(names, noScore[1]), b = teamIndex(names, noScore[2]);
+    if (a < 0 || b < 0) return { error: `"${a < 0 ? noScore[1] : noScore[2]}" is not in the play-off.` };
+    if (a === b) return { error: "a team cannot play itself." };
+    return { a, b, winner: a, score: null };
+  }
+  const pr = parseResults(plain, names, { walkover: [1, 0] });
+  if (pr.errors.length) return { error: pr.errors[0].replace(/^Result line \d+: /, "").replace(/"([^"]*)" is not one of the teams\./, '"$1" is not in the play-off.') };
+  if (!pr.results.length) return { error: 'write it like "Hawks 3 - 1 Owls" or "Hawks beat Owls".' };
+  const r = pr.results[0];
+  const score = r.walkover && r.ga === 1 && r.gb === 0 && /w\/o|walkover|\bwo\b/i.test(plain) ? "w/o" : `${r.ga} - ${r.gb}`;
+  if (r.ga !== r.gb) return { a: r.a, b: r.b, winner: r.ga > r.gb ? r.a : r.b, score };
+  const named = note ? [r.a, r.b].filter((t) => new RegExp(`(^|[^a-z0-9])${names[t].toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`).test(note[2].toLowerCase())) : [];
+  if (named.length !== 1) return { error: `a play-off game needs a winner: add it in brackets, like "${names[r.a]} ${r.ga} - ${r.gb} ${names[r.b]} (${names[r.a]} on penalties)".` };
+  return { a: r.a, b: r.b, winner: named[0], score: `${score} (${note[2].trim()})` };
+}
+
+/**
+ * Play the bracket forward from typed results, one game per line, in any order. Each line is matched
+ * to the earliest game in the bracket whose two teams are known and are the two named, so a pair that
+ * meets twice (a double-elimination final, or the grand final and its reset) takes its lines in the
+ * order typed. Winners and losers fill the slots that name their game; in double elimination the
+ * reset game is dropped when the winners-bracket team takes the grand final.
+ * Returns a copy of the bracket whose matches carry `teams` ([slot, slot], a slot null while
+ * unknown), `winner`/`loser` (slots) and `score`, plus `champion`, `runnerUp`, `third` (slots or null),
+ * `next` (games ready to play) and `errors` (lines that match no game due, with their line numbers).
+ */
+export function playBracket(bracket, text) {
+  const out = { ...bracket, rounds: bracket.rounds.map((r) => ({ ...r, matches: r.matches.map((m) => ({ ...m })) })) };
+  const all = out.rounds.flatMap((r) => r.matches);
+  const byId = new Map(all.map((m) => [m.id, m]));
+  const names = [];
+  for (const m of all) for (const s of [m.a, m.b]) if (s && s.name && !names.includes(s.name)) names.push(s.name);
+  const errors = [];
+  const lines = [];
+  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const r = readPlayoffLine(line, names);
+    if (r.error) errors.push(`Play-off line ${i + 1}: ${r.error}`);
+    else lines.push({ ...r, n: i + 1, used: false });
+  }
+  const resolve = (s) => {
+    if (!s || s.none) return null;
+    if (s.from) { const m = byId.get(s.from); return m && m.winner ? m.winner : null; }
+    if (s.loserOf) { const m = byId.get(s.loserOf); return m && m.loser ? m.loser : null; }
+    return s;
+  };
+  for (const m of all) {
+    if (m.bye || m.dead) continue;
+    m.teams = [resolve(m.a), resolve(m.b)];
+    if (m.id === "GF2") {
+      const gf = byId.get("GF1");
+      if (gf && gf.winner && gf.teams && gf.winner === gf.teams[0]) { m.skipped = true; continue; }
+    }
+    const [ta, tb] = m.teams;
+    if (!ta || !tb) continue;
+    const ia = names.indexOf(ta.name), ib = names.indexOf(tb.name);
+    const hit = lines.find((l) => !l.used && ((l.a === ia && l.b === ib) || (l.a === ib && l.b === ia)));
+    if (!hit) continue;
+    hit.used = true;
+    const aWon = hit.winner === ia;
+    m.winner = aWon ? ta : tb;
+    m.loser = aWon ? tb : ta;
+    m.score = hit.score === null ? null : hit.a === ia ? hit.score : hit.score.replace(/^(\d+) - (\d+)/, "$2 - $1");
+    m.line = hit.n;
+  }
+  for (const l of lines) if (!l.used) errors.push(`Play-off line ${l.n}: no game between ${names[l.a]} and ${names[l.b]} is due in the bracket (check the earlier rounds' results and the spelling).`);
+  let final = null;
+  if (bracket.type === "double") {
+    const gf2 = byId.get("GF2"), gf1 = byId.get("GF1");
+    final = gf2 && !gf2.skipped && gf2.winner ? gf2 : gf1 && gf1.winner && gf2 && gf2.skipped ? gf1 : null;
+  } else {
+    const last = out.rounds[out.rounds.length - 1].matches.find((m) => m.id !== "3P");
+    final = last && last.winner ? last : null;
+  }
+  const tp = byId.get("3P");
+  out.finalId = final ? final.id : null;
+  out.champion = final ? final.winner : null;
+  out.runnerUp = final ? final.loser : null;
+  out.third = tp && tp.winner ? tp.winner : null;
+  out.next = all.filter((m) => !m.bye && !m.dead && !m.skipped && !m.winner && m.teams && m.teams[0] && m.teams[1]);
+  out.errors = errors;
+  out.played = all.filter((m) => m.winner).length;
+  return out;
+}
+
+/** A slot for display once the bracket is played: the team when known, else what it waits on. */
+function playedSlotText(m, side) {
+  const t = m.teams ? m.teams[side] : null;
+  return t ? `#${t.seed} ${t.name}` : slotText(side ? m.b : m.a);
 }
 
 export function bracketText(bracket) {
@@ -3240,15 +3530,27 @@ export function bracketText(bracket) {
   for (const r of bracket.rounds) {
     const real = r.matches.filter((m) => !m.bye && !m.dead);
     if (real.length) lines.push(`${r.name}${r.day ? " - " + dayLabel(r.day) : ""}`);
-    for (const m of real) lines.push(`  ${m.id}: ${slotText(m.a)} vs ${slotText(m.b)}`);
+    for (const m of real) {
+      if (m.skipped) { lines.push(`  ${m.id}: not needed (${m.teams[0].name} won GF1)`); continue; }
+      if (m.winner) {
+        const [a, b] = m.teams;
+        const sc = !m.score ? "v" : m.score.startsWith("w/o") ? "w/o" : m.score.replace(/ \(.*$/, "");
+        const note = m.score && / \(/.test(m.score) ? " " + m.score.replace(/^[^(]*/, "") : "";
+        lines.push(`  ${m.id}: #${a.seed} ${a.name} ${sc} #${b.seed} ${b.name}${note} -> ${m.winner.name}${m.id === "3P" ? " (third place)" : m.id === bracket.finalId ? " (champion)" : ""}`);
+        continue;
+      }
+      lines.push(`  ${m.id}: ${m.teams ? playedSlotText(m, 0) : slotText(m.a)} vs ${m.teams ? playedSlotText(m, 1) : slotText(m.b)}`);
+    }
     for (const m of r.matches.filter((x) => x.bye)) lines.push(`  Bye: ${slotText(!m.a || m.a.none ? m.b : m.a)}`);
   }
+  if (bracket.champion) lines.push(`Champion: ${bracket.champion.name}. Runner-up: ${bracket.runnerUp.name}.${bracket.third ? ` Third: ${bracket.third.name}.` : ""}`);
+  else if (bracket.next && bracket.played) lines.push(`Next up: ${bracket.next.map((m) => `${m.id} ${m.teams[0].name} vs ${m.teams[1].name}`).join("; ")}.`);
   return lines.join("\n");
 }
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "balanceSeeds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact", "platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"];
+const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "balanceSeeds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "playoffResults", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact", "platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -3278,7 +3580,7 @@ export function decodeFields(text) {
       rounds: o.rounds === undefined || o.rounds === "" ? "" : String(o.rounds).slice(0, 4), balanceSeeds: o.balanceSeeds === true,
       gamesPerNight: /^[1-4]$/.test(String(o.gamesPerNight ?? "")) ? String(o.gamesPerNight) : "",
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
-      playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
+      playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true, playoffResults: str(o.playoffResults),
       pins: str(o.pins), rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), lateTeams: str(o.lateTeams), finishBy: /^\d{4}-\d{2}-\d{2}$/.test(str(o.finishBy)) ? o.finishBy : "", officials: str(o.officials), grounds: str(o.grounds), linked: str(o.linked), scoring: str(o.scoring),
       duties: str(o.duties), sheetTitle: str(o.sheetTitle), sheetContact: str(o.sheetContact),
       platformLocation: str(o.platformLocation), teamSnapDivision: str(o.teamSnapDivision), teamSnapArrival: str(o.teamSnapArrival), sportsEngineIds: str(o.sportsEngineIds),
@@ -3447,6 +3749,33 @@ export function swissText(players, round, roundNumber) {
 // ---------------------------------------------------------------- Americano
 
 /**
+ * Whether a whist rotation is worth using over the greedy one. Ghost seats sit out whole tables,
+ * so a design can leave courts idle: use it only when its rounds fill, on average, at least 90% of
+ * the courts the greedy search fills (min(courts, floor(n/4))). One ghost (4k+3 players) passes;
+ * two ghosts cost each player 2-3 games over the evening and fall back to greedy
+ * (eval/whist-vs-greedy.txt). 4k+2 players with a stored near-whist design (whist.mjs) use it with
+ * no ghost.
+ */
+/** Lower is better: repeat partnerships first, then the most times one pair meets as opponents, then how many pairs do. */
+function americanoScore(plan) {
+  const n = plan.partner.length;
+  let rep = 0, maxOpp = 0, atMax = 0;
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+    if (plan.partner[i][j] > 1) rep += plan.partner[i][j] - 1;
+    const o = plan.opponent[i][j];
+    if (o > maxOpp) { maxOpp = o; atMax = 1; } else if (o === maxOpp) atMax++;
+  }
+  return rep * 1e6 + maxOpp * 1e4 + atMax;
+}
+
+function whistWorthIt(n, courts, w) {
+  if (w.design.ghosts >= 2) return false;
+  const full = Math.min(courts, Math.floor(n / 4));
+  const games = w.rounds.reduce((s, r) => s + r.matches.length, 0) / w.rounds.length;
+  return games >= 0.9 * full;
+}
+
+/**
  * Rotating-partner doubles ("Americano", social padel / pickleball / badminton nights): every round
  * players are re-paired into teams of two and teams into matches, so each person partners and
  * opposes as many different people as the round count allows. Greedy by round: byes go to whoever
@@ -3454,11 +3783,48 @@ export function swissText(players, round, roundNumber) {
  * partners (heavily), then repeat opponents. Deterministic for a given seed.
  * Returns { rounds: [{ matches: [{ court, a: [i, j], b: [k, l] }], byes: [i] }], partner, opponent }.
  */
-export function americano(players, { courts = 1, rounds = null, seed = 1 } = {}) {
+export function americano(players, { courts = 1, rounds = null, seed = 1, whist = true } = {}) {
   const n = players.length;
   if (n < 4) throw new Error("Americano needs at least 4 players.");
   if (n > 64) throw new Error("Americano supports up to 64 players.");
   if (!(courts >= 1)) throw new Error("Americano needs at least 1 court.");
+  let whistHint = null;
+  if (whist) {
+    // A whist design (whist.mjs): every pair partners exactly once and opposes exactly twice over
+    // the full evening, where the greedy search below repeats partners from 20 players and never
+    // evens out opponents (eval/whist-vs-greedy.txt).
+    const r0 = mulberry32(seed);
+    const order = [...Array(n).keys()];
+    for (let i = n - 1; i > 0; i--) { const j = Math.floor(r0() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+    let w = whistRotation(n, { courts, rounds, order });
+    // Fewer courts than tables ("packed"): the whole design runs 2-3x the usual evening, and a
+    // prefix of it measured no better than the greedy search (eval/whist-vs-greedy.txt, 3 courts),
+    // so it is used only when the round count asked for is the whole design; otherwise the plan
+    // says how many rounds the whole design takes (whistHint) and the greedy search runs.
+    if (w && w.design.packed && rounds !== w.design.fullRounds) {
+      const whole = whistRotation(n, { courts, rounds: w.design.fullRounds, order });
+      if (whole && whistWorthIt(n, courts, whole)) whistHint = { rounds: w.design.fullRounds };
+      w = null;
+    }
+    if (w && whistWorthIt(n, courts, w)) {
+      const partner = Array.from({ length: n }, () => new Array(n).fill(0));
+      const opponent = Array.from({ length: n }, () => new Array(n).fill(0));
+      for (const round of w.rounds) for (const m of round.matches) {
+        const [a, b] = m.a, [x, y] = m.b;
+        partner[a][b]++; partner[b][a]++; partner[x][y]++; partner[y][x]++;
+        for (const [p, q] of [[a, x], [a, y], [b, x], [b, y]]) { opponent[p][q]++; opponent[q][p]++; }
+      }
+      const plan = { rounds: w.rounds, partner, opponent, design: w.design };
+      // A short night (a prefix of the design) measured no better than the greedy search, and at
+      // 28 players over 6 rounds slightly worse (eval/whist-vs-greedy.txt, "short nights"), so
+      // below the whole design both are built and the better one kept.
+      if (w.rounds.length < w.design.fullRounds) {
+        const g = americano(players, { courts, rounds: w.rounds.length, seed, whist: false });
+        if (americanoScore(g) < americanoScore(plan)) return g;
+      }
+      return plan;
+    }
+  }
   const roundCount = rounds ?? Math.max(1, n % 4 === 0 && n / 4 <= courts ? n - 1 : n);
   const rng = mulberry32(seed);
   const partner = Array.from({ length: n }, () => new Array(n).fill(0));
@@ -3510,7 +3876,7 @@ export function americano(players, { courts = 1, rounds = null, seed = 1 } = {})
     for (const i of byes) { sat[i]++; lastSat[i] = r; }
     out.push({ matches, byes });
   }
-  return { rounds: out, partner, opponent };
+  return whistHint ? { rounds: out, partner, opponent, whistHint } : { rounds: out, partner, opponent };
 }
 
 /** Check an Americano plan: nobody twice in a round, byes and games within one of even. Returns problems. */
@@ -3777,7 +4143,7 @@ export function nextSeasonFields(fields, { lastDay = null, gapWeeks = 8 } = {}) 
     f.start = dayIso(day);
   }
   f.seed = (Number(f.seed) || 0) + 1;
-  for (const k of ["skip", "blackouts", "results", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy"]) if (k in f) f[k] = "";
+  for (const k of ["skip", "blackouts", "results", "playoffResults", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy"]) if (k in f) f[k] = "";
   const dropped = String(fields.teams || "").split(/\n+/).map((t) => t.trim()).filter((t) => t && gone.has(t.toLowerCase()));
   return { fields: f, dropped, added: late.filter((t) => kept.includes(t)) };
 }

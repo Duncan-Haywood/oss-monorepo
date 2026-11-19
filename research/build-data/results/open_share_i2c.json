@@ -1,0 +1,216 @@
+{
+ "sf": {
+  "2017": {
+   "recent_threshold": 1966.1399999999994,
+   "all_years_threshold": 1081.0,
+   "recent_share_over_8y": 0.00696066596641949,
+   "n_open": 403390,
+   "share_open_over_3y": 0.8620689655172413,
+   "share_open_over_4y": 0.8304023401670839,
+   "share_open_over_5y": 0.8024145368006148
+  },
+  "2018": {
+   "recent_threshold": 1827.0,
+   "all_years_threshold": 1109.0,
+   "recent_share_over_8y": 0.006164373006210606,
+   "n_open": 419762,
+   "share_open_over_3y": 0.859103491978788,
+   "share_open_over_4y": 0.8275475150204163,
+   "share_open_over_5y": 0.7975185938698596
+  },
+  "2019": {
+   "recent_threshold": 1834.0,
+   "all_years_threshold": 1140.0,
+   "recent_share_over_8y": 0.006411315145418237,
+   "n_open": 437572,
+   "share_open_over_3y": 0.8573240518131873,
+   "share_open_over_4y": 0.8231079685171812,
+   "share_open_over_5y": 0.793170038302268
+  },
+  "2020": {
+   "recent_threshold": 1765.0,
+   "all_years_threshold": 1175.0,
+   "recent_share_over_8y": 0.006189538063453791,
+   "n_open": 454502,
+   "share_open_over_3y": 0.8577079968845022,
+   "share_open_over_4y": 0.82441221380764,
+   "share_open_over_5y": 0.7918028963568917
+  },
+  "2021": {
+   "recent_threshold": 1880.9299999999857,
+   "all_years_threshold": 1203.0,
+   "recent_share_over_8y": 0.0062358457465471594,
+   "n_open": 459491,
+   "share_open_over_3y": 0.8826375271768109,
+   "share_open_over_4y": 0.8474638241010162,
+   "share_open_over_5y": 0.8149626434467705
+  },
+  "2022": {
+   "recent_threshold": 1857.0,
+   "all_years_threshold": 1240.0,
+   "recent_share_over_8y": 0.004696118444645571,
+   "n_open": 465573,
+   "share_open_over_3y": 0.9071273463022984,
+   "share_open_over_4y": 0.8698313690871249,
+   "share_open_over_5y": 0.8356992351360581
+  },
+  "old_completions_by_year": {
+   "2010": 2,
+   "2011": 24,
+   "2012": 25,
+   "2013": 49,
+   "2014": 134,
+   "2015": 145,
+   "2016": 165,
+   "2017": 90,
+   "2018": 172,
+   "2019": 159,
+   "2020": 60,
+   "2021": 56,
+   "2022": 99
+  }
+ },
+ "seattle": {
+  "2017": {
+   "recent_threshold": 2025.1200000000208,
+   "all_years_threshold": 1640.0,
+   "recent_share_over_8y": 0.0033751476627102437,
+   "n_open": 19423,
+   "share_open_over_3y": 0.5153168923441281,
+   "share_open_over_4y": 0.4581681511609947,
+   "share_open_over_5y": 0.4130154970910776
+  },
+  "2018": {
+   "recent_threshold": 3720.980000000003,
+   "all_years_threshold": 2730.8800000000047,
+   "recent_share_over_8y": 0.0267293971667873,
+   "n_open": 20285,
+   "share_open_over_3y": 0.5208774956864678,
+   "share_open_over_4y": 0.4610796154794183,
+   "share_open_over_5y": 0.4081833867389697
+  },
+  "2019": {
+   "recent_threshold": 3761.600000000006,
+   "all_years_threshold": 2589.0,
+   "recent_share_over_8y": 0.02736098852603707,
+   "n_open": 22054,
+   "share_open_over_3y": 0.534732928266981,
+   "share_open_over_4y": 0.4746984673982044,
+   "share_open_over_5y": 0.42173755327831686
+  },
+  "2020": {
+   "recent_threshold": 3758.220000000005,
+   "all_years_threshold": 2479.5899999999965,
+   "recent_share_over_8y": 0.026539221444972498,
+   "n_open": 24135,
+   "share_open_over_3y": 0.5461363165527242,
+   "share_open_over_4y": 0.4842759477936607,
+   "share_open_over_5y": 0.4319867412471514
+  },
+  "2021": {
+   "recent_threshold": 1597.3199999999997,
+   "all_years_threshold": 2391.0,
+   "recent_share_over_8y": 0.002501067528823278,
+   "n_open": 25442,
+   "share_open_over_3y": 0.5951183083090952,
+   "share_open_over_4y": 0.5134816445248015,
+   "share_open_over_5y": 0.45739328669129786
+  },
+  "2022": {
+   "recent_threshold": 1652.0,
+   "all_years_threshold": 2308.850000000006,
+   "recent_share_over_8y": 0.00256107171000788,
+   "n_open": 27340,
+   "share_open_over_3y": 0.6231163130943672,
+   "share_open_over_4y": 0.5487198244330651,
+   "share_open_over_5y": 0.47527432333577174
+  },
+  "old_completions_by_year": {
+   "2010": 0,
+   "2011": 1,
+   "2012": 3,
+   "2013": 7,
+   "2014": 10,
+   "2015": 10,
+   "2016": 40,
+   "2017": 467,
+   "2018": 20,
+   "2019": 10,
+   "2020": 11,
+   "2021": 18,
+   "2022": 7
+  }
+ },
+ "austin": {
+  "2017": {
+   "recent_threshold": 1684.0,
+   "all_years_threshold": 1142.0,
+   "recent_share_over_8y": 0.004025226344330044,
+   "n_open": 136885,
+   "share_open_over_3y": 0.6823026628191547,
+   "share_open_over_4y": 0.6446287029258136,
+   "share_open_over_5y": 0.6077071994740111
+  },
+  "2018": {
+   "recent_threshold": 1401.0,
+   "all_years_threshold": 1141.0,
+   "recent_share_over_8y": 0.004085175326929753,
+   "n_open": 146537,
+   "share_open_over_3y": 0.672185181899452,
+   "share_open_over_4y": 0.6340514682298669,
+   "share_open_over_5y": 0.5994663463835073
+  },
+  "2019": {
+   "recent_threshold": 1208.0,
+   "all_years_threshold": 1141.0,
+   "recent_share_over_8y": 0.0035559678416821274,
+   "n_open": 152884,
+   "share_open_over_3y": 0.6847217498233955,
+   "share_open_over_4y": 0.6410415740038199,
+   "share_open_over_5y": 0.6054197954004343
+  },
+  "2020": {
+   "recent_threshold": 1155.1199999999953,
+   "all_years_threshold": 1145.0,
+   "recent_share_over_8y": 0.0033229447216504664,
+   "n_open": 161077,
+   "share_open_over_3y": 0.6859700640066552,
+   "share_open_over_4y": 0.6457905225451182,
+   "share_open_over_5y": 0.6058468931008152
+  },
+  "2021": {
+   "recent_threshold": 1120.0,
+   "all_years_threshold": 1138.0,
+   "recent_share_over_8y": 0.002723096430872846,
+   "n_open": 166852,
+   "share_open_over_3y": 0.7015918298851677,
+   "share_open_over_4y": 0.6597583487162275,
+   "share_open_over_5y": 0.6216946755208208
+  },
+  "2022": {
+   "recent_threshold": 1133.0,
+   "all_years_threshold": 1139.0,
+   "recent_share_over_8y": 0.002568164236207958,
+   "n_open": 180823,
+   "share_open_over_3y": 0.6859359705347218,
+   "share_open_over_4y": 0.6445750817097382,
+   "share_open_over_5y": 0.6068254591506611
+  },
+  "old_completions_by_year": {
+   "2010": 33,
+   "2011": 24,
+   "2012": 27,
+   "2013": 125,
+   "2014": 185,
+   "2015": 249,
+   "2016": 240,
+   "2017": 217,
+   "2018": 187,
+   "2019": 224,
+   "2020": 113,
+   "2021": 151,
+   "2022": 175
+  }
+ },
+ "note": "session 104: thresholds in days (0.99 quantile of issue-to-completion days); shares among permits issued before D = 1 January Y and open on D, never-completed permits counted open"
+}

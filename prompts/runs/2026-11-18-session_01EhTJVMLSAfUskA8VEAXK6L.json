@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVMLSAfUskA8VEAXK6L",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (ventures brief)",
+  "input_sha256": "1f1caa903ca2794b1523e8527f78c94372eca7ff0eae018e7391eccd4544e763",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T21:55:59Z",
+  "ended": "2026-11-18T22:04:01Z",
+  "wall_minutes": 24.98,
+  "tokens_in": 7135690,
+  "tokens_out": 27832,
+  "cost_usd": 2.8851,
+  "tool_calls": 69,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17438",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first before/after eval ran `git stash` in a background job, which stashed the working tree while I kept editing; recovered with stash pop plus a saved patch, no work lost. Measure baselines from a copied directory, never by stashing."
+  ],
+  "integrity_issues": [
+    "eval/bowling-many-limits.txt and eval/bowling-lane-avoid.txt on main were stale against current code (the repeat anneal changed repeats after they were written), so the README compares against a same-day baseline run of the previous bowling.mjs, not the committed files."
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pgrep/pkill hook refuses a bracketed pattern if the same word appears elsewhere in the command (e.g. in a file path), which cost a retry; worth a line next to the bracket advice."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-bowling-lane-limits-pick-the-most-even-dealing.md",
+    "ventures/league-schedule-generator/README.md section 'Five or more limited teams: the most even of several dealings'"
+  ],
+  "goal": null,
+  "notes": "Flagship row 4 (league-schedule-generator), NEXT.md item 'bowling, 5+ lane-limited teams: the most even dealing'. 112-season grid: five off the last pair 22->25 of 28 fully even, six off both ends 15->17 of 20, 0 limits broken, 1212->1634 ms/season (cap by size; uncapped 26/28, 18/20 at 1959 ms, 25 s worst). 142-season grid: in-target unchanged, repeats slightly down. Venture tests 702 pass (run_venture_tests.py). No agent doc in docs/reports: the README section and NEXT.md carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "73283add-c519-513b-a5a4-336312464ac1",
+    "transcripts": 1,
+    "first": "2026-11-18T21:55:59Z",
+    "last": "2026-11-18T22:20:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 122,
+        "output": 27832,
+        "thinking": 5966,
+        "cache_read": 7020069,
+        "cache_write_5m": 0,
+        "cache_write_1h": 115499,
+        "api_equivalent_usd": 2.8851,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 122,
+      "output": 27832,
+      "thinking": 5966,
+      "cache_read": 7020069,
+      "cache_write_5m": 0,
+      "cache_write_1h": 115499,
+      "api_equivalent_usd": 2.8851,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 67,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.98,
+      "active_minutes": 24.98,
+      "model_minutes": 4.65,
+      "tool_minutes": 20.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an OR engineer adding multi-start dealing selection with measurement on two grids",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 208.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

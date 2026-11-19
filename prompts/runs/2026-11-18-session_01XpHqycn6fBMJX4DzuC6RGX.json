@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqycn6fBMJX4DzuC6RGX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T15:39:02Z",
+  "ended": "2026-11-18T15:54:48Z",
+  "wall_minutes": 20.3,
+  "tokens_in": 12408148,
+  "tokens_out": 63076,
+  "cost_usd": 5.1964,
+  "tool_calls": 93,
+  "task": "photo-editing (flagship 7): every CR3 body on raw.pixls.us against LibRaw; the real tiled CR3s",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17345",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A heredoc file list lost its terminator, and the filter that cleaned it up dropped every line starting with EOS, so the first survey ran on 9 of 39 files",
+      "fix": "rewrote the list and ran the other 30"
+    },
+    {
+      "what": "Part of the second survey pass ran while cr3.py was being edited, so those rows mixed two builds",
+      "fix": "re-ran all 39 on the final code; only that JSONL is committed, and the before-state is described in the eval from the code on main"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/src/shootflow/cr3.py",
+      "issue": "It said the R5 class was where tiled CR3s would be, and CMP1's several-tiles flags were enforced against the grid. Both were guesses, and real files contradict them: the 2018-2023 bodies tile with the flags at 0. Corrected in this PR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pyenv.py hint worked. But a bare `python3 -m pytest` in the venture dir hits /usr/local/bin/python3, which has no pytest, while `/usr/bin/python3.13` has it. Took one wasted call."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-canon-cr3-tiles-were-on-the-older-cameras.md",
+    "ventures/photo-editing/eval/canon-cr3-every-body-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures/1; allocate.py picked photo-editing row 3. Ran 39 raw.pixls.us CR3s (21 cameras) through tools/cr3_libraw_check.py with LibRaw 0.22.2 / rawpy 0.28.0. Before: 17 refused (every 2018-2023 body's file except the Kiss M). After: 0 of 986,825,520 sensels differ, WB equal on all 39, ok on 33. 5 rows are not ok because LibRaw's black is wrong (R6 Mark III, PowerShot V1). 1 row (R50 C-RAW electronic) is 2 levels off at one position. Verification: run_venture_tests.py photo-editing ok (1352 tests, 9 skipped, site page checks ok); venture-preflight.mjs photo-editing clean; check_posts ok; router validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d214b0fe-b0ae-5c2f-bf3c-9be001371d2d",
+    "transcripts": 1,
+    "first": "2026-11-18T15:39:02Z",
+    "last": "2026-11-18T15:59:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 166,
+        "output": 63076,
+        "thinking": 20756,
+        "cache_read": 12221748,
+        "cache_write_5m": 0,
+        "cache_write_1h": 186234,
+        "api_equivalent_usd": 5.1964,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 166,
+      "output": 63076,
+      "thinking": 20756,
+      "cache_read": 12221748,
+      "cache_write_5m": 0,
+      "cache_write_1h": 186234,
+      "api_equivalent_usd": 5.1964,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 93,
+    "tools": {
+      "Bash": 85,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.3,
+      "active_minutes": 20.3,
+      "model_minutes": 9.94,
+      "tool_minutes": 10.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "survey of 39 raw files across 21 cameras, a reverse-engineered codec variant implemented and verified against LibRaw, black-level layout analysis, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 192.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

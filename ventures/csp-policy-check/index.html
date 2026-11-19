@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d4e89'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ECSP%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSP Checker: Test a Content-Security-Policy and See What It Blocks</title>
+<meta name="description" content="Free Content-Security-Policy checker: paste a CSP header or meta tag, see weaknesses like 'unsafe-inline' and missing base-uri, and test whether a script URL, inline script or eval would be allowed, using the CSP Level 3 rules. Runs in your browser.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/csp-policy-check/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="CSP Checker: test a Content-Security-Policy">
+<meta property="og:description" content="Paste a Content-Security-Policy, see its weaknesses, and test whether a given script, style, image or inline script would load. CSP Level 3 rules, all in your browser.">
+<meta property="og:url" content="https://example.invalid/csp-policy-check/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CSP Policy Check",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in a web browser); a Node.js CLI does the same checks",
+  "description": "Parses a Content-Security-Policy the way a browser does, lists weaknesses a strict-CSP review looks for, and answers whether a given resource URL, inline script, event handler, style or eval() would be allowed, following the W3C CSP Level 3 matching algorithms.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": [
+    "Reads a bare policy, a Content-Security-Policy header line, a curl -sI dump (CLI) or a <meta http-equiv> tag",
+    "Applies the CSP3 fallback chain (script-src-elem to script-src to default-src, worker-src to child-src to script-src) and shows which directive governs each resource type",
+    "Tests a URL against the CSP3 host, scheme, port, path and 'self' matching rules, with nonce and 'strict-dynamic' handling for scripts",
+    "Tests an inline script, event handler or style and prints the sha256 hash to add",
+    "Flags 'unsafe-inline' with no nonce or hash, wildcard and scheme-only script sources, data: in script-src, unquoted keywords, missing object-src and base-uri, 'strict-dynamic' with no nonce, short nonces, duplicate and misspelt directives, and directives a meta tag ignores",
+    "Nothing is uploaded: the policy is checked in your browser"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why is my script blocked when its host is in script-src?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The usual causes: the policy also has 'strict-dynamic', which makes browsers ignore host and scheme sources for scripts, so the <script> tag needs the nonce; a second policy (another header, or a comma in one header) blocks it, and every policy must allow a load; the source has a path without a trailing slash, which matches one file exactly; or the script is on a subdomain and the source names only the parent domain. Paste the policy above and test the URL to see which applies. The guide to the \"Refused to execute inline script\" error walks through the inline case."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does 'unsafe-inline' still work if I add a nonce?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. In CSP Level 2 and later, a nonce or hash source in the same list makes browsers ignore 'unsafe-inline'. Keeping it next to a nonce is a deliberate fallback for very old browsers, and modern browsers then run only the inline scripts carrying the nonce or matching a hash."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which directives does a <meta> CSP ignore?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "frame-ancestors, report-uri and sandbox have no effect in a <meta http-equiv=\"Content-Security-Policy\"> element (CSP Level 3, section 3.3). Send them as a response header. A meta policy also applies only to content after the meta element."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a policy with no high findings mean my site is safe from XSS?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. This tool reads the policy text; it cannot see your pages, whether nonces are really random per response, whether an allowed host serves JSONP or user uploads, or whether your own scripts pass untrusted strings to eval or innerHTML. A clean result says the policy avoids the specific weaknesses listed here, not that the site has no injection bugs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the rules based on?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The matching follows the W3C Content Security Policy Level 3 draft: parsing (section 2.2.1), the fallback lists (section 6.8), and URL, nonce, hash and inline matching (sections 6.6 and 6.7). The strict-policy advice follows Weichselbaum, Spagnuolo, Lekies and Janc, \"CSP Is Dead, Long Live CSP!\" (ACM CCS 2016). Browsers differ from the draft at the edges; the README lists the cases this tool does not model."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; --bg: #fbfbfd; --fg: #1b1d22; --muted: #5c6270; --line: #d5d8df; --card: #ffffff; --accent: #1d4e89; --high: #b3261e; --medium: #a15c00; --low: #44617d; --info: #5c6270; --ok: #11713f; font: 16px/1.55 system-ui, sans-serif; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #14161a; --fg: #e7e9ee; --muted: #a2a8b5; --line: #343944; --card: #1c1f25; --accent: #8cb8ef; --high: #ff8a80; --medium: #f0b45a; --low: #9fbbd8; --info: #a2a8b5; --ok: #6fd69a; } }
+  body { background: var(--bg); color: var(--fg); max-width: 960px; margin: 0 auto; padding: 1.25rem 16px 2rem; }
+  h1 { font-size: clamp(1.55rem, 4.5vw, 2.3rem); line-height: 1.2; margin: 0.4rem 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.8rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1rem 0 0.3rem; }
+  a { color: var(--accent); }
+  .lede { font-size: 1.08rem; color: var(--muted); margin-top: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0; }
+  label { display: block; font-weight: 600; margin: 0.6rem 0 0.25rem; }
+  label.inline { display: inline-flex; gap: 0.4rem; align-items: center; font-weight: 400; margin-right: 1rem; }
+  textarea, input[type=text], select { width: 100%; box-sizing: border-box; padding: 0.5rem 0.6rem; font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); }
+  textarea { min-height: 120px; resize: vertical; }
+  select { font-family: system-ui, sans-serif; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 1rem; }
+  button { font: inherit; padding: 0.45rem 0.95rem; cursor: pointer; margin: 0.6rem 0.5rem 0 0; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--fg); }
+  button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+  .summary { font-weight: 700; font-size: 1.05rem; margin: 0.2rem 0 0.6rem; }
+  ul.findings { list-style: none; padding: 0; margin: 0; }
+  ul.findings li { border-left: 4px solid var(--line); padding: 0.35rem 0.7rem; margin: 0.45rem 0; }
+  ul.findings li.high { border-color: var(--high); } ul.findings li.medium { border-color: var(--medium); } ul.findings li.low { border-color: var(--low); } ul.findings li.info { border-color: var(--info); }
+  .sev { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-right: 0.4rem; }
+  .sev.high { color: var(--high); } .sev.medium { color: var(--medium); } .sev.low { color: var(--low); } .sev.info { color: var(--info); }
+  .fix { color: var(--muted); font-size: 0.92rem; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; overflow-wrap: anywhere; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .verdict { font-weight: 700; } .verdict.ok { color: var(--ok); } .verdict.no { color: var(--high); }
+  .muted { color: var(--muted); font-size: 0.9rem; }
+  .error { color: var(--high); font-weight: 600; }
+  pre.cmd { background: var(--card); border: 1px solid var(--line); padding: 0.7rem 0.85rem; border-radius: 8px; overflow-x: auto; font-size: 0.86rem; }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: 0.86rem; color: var(--muted); }
+  footer p { margin: 0.6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>CSP checker: what does this Content-Security-Policy actually block?</h1>
+<p class="lede">Paste a <code>Content-Security-Policy</code> header or <code>&lt;meta&gt;</code> tag. You get its weaknesses in plain words, which directive governs each kind of resource, and a tester that answers "would this script, style, image or inline code be allowed?" using the CSP Level 3 matching rules browsers follow. It runs in your browser; nothing is uploaded.</p>
+
+<section class="card" aria-labelledby="policy-h">
+  <h2 id="policy-h" style="margin-top:0">1. The policy</h2>
+  <label for="policy">Policy, header line or meta tag</label>
+  <textarea id="policy" spellcheck="false" placeholder="script-src 'self' https://cdn.example.com; object-src 'none'"></textarea>
+  <div class="row">
+    <div>
+      <label for="delivery">Delivered as</label>
+      <select id="delivery">
+        <option value="auto">Work it out from what I pasted</option>
+        <option value="header">Content-Security-Policy header</option>
+        <option value="report-only">Content-Security-Policy-Report-Only header</option>
+        <option value="meta">&lt;meta http-equiv&gt; tag</option>
+      </select>
+    </div>
+    <div>
+      <label for="origin">Page URL (for 'self' and relative URLs)</label>
+      <input id="origin" type="text" value="https://example.com/" spellcheck="false" autocomplete="off">
+    </div>
+  </div>
+  <button type="button" class="primary" id="check">Check policy</button>
+  <button type="button" id="ex-weak">Load a weak example</button>
+  <button type="button" id="ex-strict">Load a strict example</button>
+</section>
+
+<section id="results" class="card" aria-live="polite" hidden>
+  <h2 style="margin-top:0">2. Findings</h2>
+  <p class="summary" id="summary"></p>
+  <ul class="findings" id="findings"></ul>
+  <h3>Which directive governs what</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">Resource</th><th scope="col">Decided by</th><th scope="col">Sources</th></tr></thead>
+    <tbody id="effective"></tbody>
+  </table></div>
+  <p class="muted" id="policy-count"></p>
+</section>
+
+<section class="card" aria-labelledby="test-h">
+  <h2 id="test-h" style="margin-top:0">3. Would it load?</h2>
+  <div class="row">
+    <div>
+      <label for="t-type">Resource type</label>
+      <select id="t-type">
+        <option value="script">script (&lt;script src&gt;)</option>
+        <option value="style">stylesheet</option>
+        <option value="image">image</option>
+        <option value="font">font</option>
+        <option value="connect">fetch / XHR / WebSocket</option>
+        <option value="frame">iframe</option>
+        <option value="worker">worker</option>
+        <option value="media">audio / video</option>
+        <option value="object">object / embed</option>
+        <option value="manifest">web app manifest</option>
+        <option value="form">form submission</option>
+        <option value="base">&lt;base href&gt;</option>
+      </select>
+    </div>
+    <div>
+      <label for="t-url">URL</label>
+      <input id="t-url" type="text" value="https://cdn.example.com/lib.js" spellcheck="false" autocomplete="off">
+    </div>
+    <div>
+      <label for="t-nonce">Nonce on the element (optional)</label>
+      <input id="t-nonce" type="text" spellcheck="false" autocomplete="off">
+    </div>
+  </div>
+  <label class="inline"><input type="checkbox" id="t-dynamic"> Added by another script (not in the HTML), as 'strict-dynamic' allows</label>
+  <label class="inline"><input type="checkbox" id="t-redirect"> Reached through a redirect (paths are not checked)</label>
+  <br><button type="button" id="t-run">Test this URL</button>
+  <div id="t-out" aria-live="polite"></div>
+
+  <h3>Inline code and eval</h3>
+  <div class="row">
+    <div>
+      <label for="i-kind">Kind</label>
+      <select id="i-kind">
+        <option value="script">inline &lt;script&gt; body</option>
+        <option value="handler">event handler (onclick="…")</option>
+        <option value="style">inline &lt;style&gt; body</option>
+        <option value="style-attr">style="…" attribute</option>
+      </select>
+    </div>
+    <div>
+      <label for="i-nonce">Nonce on the element (optional)</label>
+      <input id="i-nonce" type="text" spellcheck="false" autocomplete="off">
+    </div>
+  </div>
+  <label for="i-text">Exact content (whitespace counts for hashes)</label>
+  <textarea id="i-text" spellcheck="false" style="min-height:70px">alert('Hello, world.');</textarea>
+  <button type="button" id="i-run">Test inline code</button>
+  <button type="button" id="e-run">Test eval()</button>
+  <div id="i-out" aria-live="polite"></div>
+</section>
+
+<section aria-labelledby="cli-h">
+  <h2 id="cli-h">The same checks from a terminal or CI</h2>
+  <p>The CLI needs Node.js 20 or later and no install beyond the folder. It exits 1 on a high-severity finding or a blocked test, so it can gate a deploy.</p>
+  <pre class="cmd">curl -sI https://your-site.example | node cli.mjs
+node cli.mjs --url https://your-site.example --test script https://cdn.example.com/lib.js
+node cli.mjs "script-src 'self'" --inline script "alert('Hello, world.');"   # prints the hash to add</pre>
+  <p>Source and README: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/csp-policy-check">ventures/csp-policy-check</a>. Run <code>--url</code> only against sites you own or are authorised to test.</p>
+</section>
+
+<section aria-labelledby="faq-h">
+  <h2 id="faq-h">Questions</h2>
+  <h3>Why is my script blocked when its host is in script-src?</h3>
+  <p>The usual causes: the policy also has <code>'strict-dynamic'</code>, which makes browsers ignore host and scheme sources for scripts, so the <code>&lt;script&gt;</code> tag needs the nonce; a second policy (another header, or a comma in one header) blocks it, and every policy must allow a load; the source has a path without a trailing slash, which matches one file exactly; or the script is on a subdomain and the source names only the parent domain. Paste the policy above and test the URL to see which applies. The <a href="refused-to-execute-inline-script.html">guide to the "Refused to execute inline script" error</a> walks through the inline case.</p>
+  <h3>Does 'unsafe-inline' still work if I add a nonce?</h3>
+  <p>No. In CSP Level 2 and later, a nonce or hash source in the same list makes browsers ignore <code>'unsafe-inline'</code>. Keeping it next to a nonce is a deliberate fallback for very old browsers, and modern browsers then run only the inline scripts carrying the nonce or matching a hash.</p>
+  <h3>Which directives does a &lt;meta&gt; CSP ignore?</h3>
+  <p><code>frame-ancestors</code>, <code>report-uri</code> and <code>sandbox</code> have no effect in a <code>&lt;meta http-equiv="Content-Security-Policy"&gt;</code> element (CSP Level 3, section 3.3). Send them as a response header. A meta policy also applies only to content after the meta element.</p>
+  <h3>Does a policy with no high findings mean my site is safe from XSS?</h3>
+  <p>No. This tool reads the policy text; it cannot see your pages, whether nonces are really random per response, whether an allowed host serves JSONP or user uploads, or whether your own scripts pass untrusted strings to <code>eval</code> or <code>innerHTML</code>. A clean result says the policy avoids the specific weaknesses listed here, not that the site has no injection bugs.</p>
+  <h3>What are the rules based on?</h3>
+  <p>The matching follows the W3C <a href="https://www.w3.org/TR/CSP3/" rel="noopener">Content Security Policy Level 3</a> draft: parsing (section 2.2.1), the fallback lists (section 6.8), and URL, nonce, hash and inline matching (sections 6.6 and 6.7). The strict-policy advice follows Weichselbaum, Spagnuolo, Lekies and Janc, "CSP Is Dead, Long Live CSP!" (ACM CCS 2016). Browsers differ from the draft at the edges; the README lists the cases this tool does not model.</p>
+</section>
+</main>
+
+<footer>
+  <label class="inline"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+  <p><strong>Evidence, not a determination.</strong> The findings describe the policy text you pasted against the checks listed above. They are not a security assessment of the site that sends it.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not security, legal or professional advice, and it does not replace a qualified security review or penetration test. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for having authorisation to test any site you point the CLI at. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record.</p>
+  <p><strong>Nothing leaves your browser.</strong> The policy, URLs and code you type are checked on this page and never uploaded. There are no accounts, tracking cookies or analytics vendor. The only thing stored is an anonymous local count of which buttons were used and the day, in this browser's storage; turn it off with the checkbox above.</p>
+  <p>Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  <p>Related: <a href="../security-headers-check/">Security Headers checker</a> probes a live URL for missing headers and clickjacking protection; <a href="../sri-check/">Subresource Integrity checker</a> checks the integrity hashes on CDN scripts this policy allows; <a href="../cors-misconfig-check/">CORS misconfiguration checker</a> tests the other side of cross-origin trust.</p>
+</footer>
+
+<script type="module">
+  import { analyze, checkFetch, checkInline, checkEval, effectiveList, inlineHash } from './csp.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const count = (event) => recordUsage(usageStorage(), $('usageOptOut')?.checked ?? false, event);
+
+  const WEAK = "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://*.example-cdn.com data:; scirpt-src-elem 'self'; img-src *";
+  const STRICT = "Content-Security-Policy: script-src 'nonce-q8d1fXo2mZb7J3kVt9rLwA==' 'strict-dynamic' https: 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'; form-action 'self'";
+  const ROWS = [
+    ['Scripts (<script>)', 'script-src-elem'], ['Event handlers (onclick=)', 'script-src-attr'], ['eval()', 'script-src'],
+    ['Stylesheets', 'style-src-elem'], ['style= attributes', 'style-src-attr'], ['Images', 'img-src'], ['Fonts', 'font-src'],
+    ['fetch / XHR / WebSocket', 'connect-src'], ['iframes', 'frame-src'], ['Workers', 'worker-src'], ['Audio / video', 'media-src'],
+    ['object / embed', 'object-src'], ['Manifest', 'manifest-src'], ['<base href>', 'base-uri'], ['Form targets', 'form-action'], ['Who may frame this page', 'frame-ancestors'],
+  ];
+
+  let current = null;
+  function read() {
+    const d = $('delivery').value;
+    const opts = d === 'auto' ? {} : d === 'report-only' ? { delivery: 'header', reportOnly: true } : { delivery: d, reportOnly: false };
+    current = analyze($('policy').value, opts);
+    return current;
+  }
+
+  function render() {
+    const r = read();
+    $('results').hidden = false;
+    $('summary').textContent = r.summary;
+    $('findings').innerHTML = r.findings.map((f) => `<li class="${f.severity}"><span class="sev ${f.severity}">${f.severity}</span>${f.policy && r.policies.length > 1 ? `<span class="muted">policy ${f.policy + 1}: </span>` : ''}${esc(f.message)}${f.fix ? `<div class="fix">Fix: ${esc(f.fix)}</div>` : ''}</li>`).join('');
+    const p = r.policies[0];
+    $('effective').innerHTML = p ? ROWS.map(([label, eff]) => {
+      const e = effectiveList(p, eff);
+      return `<tr><td>${esc(label)}</td><td><code>${e ? esc(e.from) : '(none)'}</code></td><td class="mono">${e ? (e.list.length ? esc(e.list.join(' ')) : '(empty: blocks all)') : '<span class="muted">not restricted</span>'}</td></tr>`;
+    }).join('') : '';
+    $('policy-count').textContent = r.policies.length > 1 ? `The table shows the first of ${r.policies.length} policies; the tests below check all of them.` : '';
+    count('policy_checked');
+  }
+
+  function verdict(res, label) {
+    return `<p><span class="verdict ${res.allowed ? 'ok' : 'no'}">${res.allowed ? 'Allowed' : 'Blocked'}</span> ${esc(label)}</p><ul>${res.results.map((x, i) => `<li>${res.results.length > 1 ? `Policy ${i + 1}: ` : ''}${esc(x.why)}</li>`).join('')}</ul>`;
+  }
+  const guard = async (out, fn) => { try { $(out).innerHTML = await fn(); } catch (e) { $(out).innerHTML = `<p class="error">${esc(e.message)}</p>`; } };
+
+  $('check').addEventListener('click', render);
+  $('ex-weak').addEventListener('click', () => { $('policy').value = WEAK; $('delivery').value = 'auto'; render(); });
+  $('ex-strict').addEventListener('click', () => { $('policy').value = STRICT; $('delivery').value = 'auto'; render(); });
+  $('t-run').addEventListener('click', () => guard('t-out', () => {
+    const r = read();
+    const res = checkFetch(r.policies, $('t-type').value, $('t-url').value.trim(), { origin: $('origin').value.trim(), nonce: $('t-nonce').value.trim() || undefined, parserInserted: !$('t-dynamic').checked, redirected: $('t-redirect').checked });
+    count('url_tested');
+    return verdict(res, $('t-url').value.trim());
+  }));
+  $('i-run').addEventListener('click', () => guard('i-out', async () => {
+    const r = read();
+    const text = $('i-text').value;
+    const res = await checkInline(r.policies, $('i-kind').value, text, { nonce: $('i-nonce').value.trim() || undefined });
+    count('inline_tested');
+    return verdict(res, $('i-kind').selectedOptions[0].textContent) + `<p class="muted">sha256 of this exact text: <code>${esc(await inlineHash(text))}</code></p>`;
+  }));
+  $('e-run').addEventListener('click', () => guard('i-out', () => { const r = read(); count('eval_tested'); return verdict(checkEval(r.policies), 'eval() and new Function()'); }));
+
+  const usageControl = $('usageOptOut');
+  usageControl.checked = readOptOut(usageStorage());
+  usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
+</script>
+</body>
+</html>

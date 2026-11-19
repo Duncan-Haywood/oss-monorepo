@@ -1,0 +1,18 @@
+Cold-climate ranch over a conditioned basement (44°N, -5 °F winter design, ground surface design 25 °F)
+
+| basement | wall R | floor R | below-grade walls | basement floor | basement total heat | house heat | house heat, same house on its slab |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1,800 ft² | 0 | 0 | 9,468 | 2,350 | 16,709 | 53,021 | 42,033 |
+| 1,800 ft² | 10 | 0 | 2,943 | 2,350 | 10,184 | 45,844 | 42,033 |
+| 1,800 ft² | 15 | 0 | 2,242 | 2,350 | 9,483 | 45,073 | 42,033 |
+| 1,800 ft² | 15 | 10 | 2,242 | 1,746 | 8,879 | 44,408 | 42,033 |
+
+Skylights on the example ranch (36°N, July design day): two 2 x 4 ft skylights in the living room and kitchen
+
+| skylights | tilt, facing | house sensible peak | peak hour | skylight sun at peak | tons |
+| --- | --- | --- | --- | --- | --- |
+| none | - | 19,732 | 15:00 | 0 | 2.19 |
+| 2 x 8 ft² | 0°, flat | 21,255 | 14:00 | 1,260 | 2.32 |
+| 2 x 8 ft² | 18.4°, S | 21,284 | 14:00 | 1,287 | 2.32 |
+| 2 x 8 ft² | 18.4°, N | 21,091 | 14:00 | 1,111 | 2.31 |
+| 2 x 8 ft² | 18.4°, W | 21,420 | 14:00 | 1,410 | 2.33 |

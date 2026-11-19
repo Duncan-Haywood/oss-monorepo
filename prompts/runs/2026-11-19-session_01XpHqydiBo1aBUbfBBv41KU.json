@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydiBo1aBUbfBBv41KU",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T16:38:37Z",
+  "ended": "2026-11-19T16:54:42Z",
+  "wall_minutes": 16.36,
+  "tokens_in": 26682884,
+  "tokens_out": 183393,
+  "cost_usd": 12.9491,
+  "tool_calls": 269,
+  "task": "quality audit round 83 (mode sample)",
+  "projects": [
+    "ventures/einvoice-preflight",
+    "ventures/restaurant-pos-menu-mix-analyzer",
+    "ventures/retail-pilot-intel",
+    "research/buildbot-sheathing",
+    "research/robofab-solrefsafe"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17724",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "buildbot-sheathing: first highlight edit broke the 85-char Elsevier highlight limit and an abstract qualifier broke the 150-word abstract limit (tests/test_latex.py); shortened the highlight, reverted the abstract change"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Stop hook demanded committing an audit file while its subagent was still editing it; committed a draft and re-committed after, harmless but noisy"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "step 2 says spot-check at least one recomputation; for retail-pilot-intel I checked the live-page exclusion and the 1.05 arithmetic rather than rerunning the report CLI",
+      "did": "reran recomputations for 4 of 5 subjects, lighter checks for the fifth, stated so in the post",
+      "result": "post states which check was not rerun"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-quality-audit-round-83.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-19-j-4c63, round 83, mode sample. Subjects: ventures/einvoice-preflight (flagship, no), ventures/restaurant-pos-menu-mix-analyzer (yes), ventures/retail-pilot-intel (no, unfinished), research/buildbot-sheathing (yes), research/robofab-solrefsafe (no). Sampled share this round 2 of 4; all sampled 35 of 343 (Wilson 7%-14%). Seeded mutations caught 21 of 32. Fixes in PR #17724: einvoice toPrecision(12)->15 in 7 copies (high; IDR invoice test, suite 2169 pass 0 fail 139 skip); menu-mix fractional food cost %; robofab first_hold grid scan (13.26x/6.71x -> 1.06x/1.05x, counts unchanged, experiment rerun 25 s); buildbot highlight qualifier + check_numbers 420/420, pytest 222 pass; retail-pilot-intel dead live link, 1.05 sales/week, UTC wording (pnpm run ci green). Large defects recorded in einvoice NEXT.md, retail-pilot-intel and menu-mix README Known gaps.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cdb7a81f-085f-5e51-bfc9-d87164dda452",
+    "transcripts": 6,
+    "first": "2026-11-19T16:38:37Z",
+    "last": "2026-11-19T16:54:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 263,
+        "input": 536,
+        "output": 183393,
+        "thinking": 50183,
+        "cache_read": 25946816,
+        "cache_write_5m": 598182,
+        "cache_write_1h": 137350,
+        "api_equivalent_usd": 12.9491,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 263,
+      "input": 536,
+      "output": 183393,
+      "thinking": 50183,
+      "cache_read": 25946816,
+      "cache_write_5m": 598182,
+      "cache_write_1h": 137350,
+      "api_equivalent_usd": 12.9491,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 269,
+    "tools": {
+      "Bash": 250,
+      "Agent": 5,
+      "Write": 5,
+      "SubagentHandback": 5,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.36,
+      "active_minutes": 12.09,
+      "model_minutes": 6.55,
+      "tool_minutes": 5.54,
+      "waiting_on_human_minutes": 4.27,
+      "human_prompts": 8,
+      "stalls": 0,
+      "subagent_minutes": 33.39
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "five independent domain audits with recomputation and mutation testing (~2.5 h each) plus five small fixes with tests (~0.5 h each)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 123.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

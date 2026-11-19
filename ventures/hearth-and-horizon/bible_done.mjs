@@ -6,6 +6,11 @@
 //
 //   node bible_done.mjs           move every Done entry, print how many
 //   node bible_done.mjs --check   exit 1 if BIBLE.md still holds one
+//
+// It also sorts the "Setting timeline" table by year (sortTimeline): runs
+// appended rows at the end, so by 2026-11-18 the table was out of date order
+// after its first ten rows and "add a row" no longer said where (two run
+// records). Append a row anywhere; this puts it in place.
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { loadStories } from './generate.mjs';
@@ -67,6 +72,24 @@ export function leadDone(entry) {
   return [first ? `${done} ${first}` : done, ...rest.slice(1).filter((l) => l.trim())];
 }
 
+// Sort the rows of the table under "## Setting timeline" by the first year in
+// their first cell ("2060s" and "2045-46" sort as 2060 and 2045). The sort is
+// stable, so rows of one year keep their order. Other text is untouched.
+export function sortTimeline(bible) {
+  const lines = bible.split('\n');
+  const head = lines.indexOf('## Setting timeline');
+  if (head < 0) return bible;
+  const start = lines.findIndex((l, i) => i > head && l.startsWith('|'));
+  if (start < 0) return bible;
+  let end = start;
+  while (end < lines.length && lines[end].startsWith('|')) end++;
+  const year = (row) => Number((row.match(/^\|\s*(\d{3,4})/) || [])[1] ?? Infinity);
+  const rows = lines.slice(start + 2, end).map((row, i) => ({ row, i, y: year(row) }));
+  rows.sort((a, b) => a.y - b.y || a.i - b.i);
+  lines.splice(start + 2, rows.length, ...rows.map((r) => r.row));
+  return lines.join('\n');
+}
+
 // Append entries to DONE.md under "## <shelf>", creating the heading if needed.
 export function appendDone(done, moved) {
   let text = done || DONE_HEAD;
@@ -93,8 +116,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const story = stories.find((st) => text.toLowerCase().startsWith(st.title.toLowerCase()));
     return story && SHELVES.find((sh) => sh.id === story.shelf)?.title;
   };
-  const { bible, moved } = split(readFileSync(BIBLE, 'utf8'), shelfOf);
+  const before = readFileSync(BIBLE, 'utf8');
+  const { bible: rest, moved } = split(before, shelfOf);
+  const bible = sortTimeline(rest);
   if (process.argv.includes('--check')) {
+    if (sortTimeline(before) !== before) {
+      console.error('BIBLE.md\'s setting timeline is out of year order: run node ventures/hearth-and-horizon/bible_done.mjs');
+      process.exit(1);
+    }
     if (moved.length) {
       console.error(`BIBLE.md holds ${moved.length} Done entr${moved.length === 1 ? 'y' : 'ies'}: run node ventures/hearth-and-horizon/bible_done.mjs`);
       process.exit(1);
@@ -103,6 +132,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   } else {
     writeFileSync(DONE, appendDone(existsSync(DONE) ? readFileSync(DONE, 'utf8') : '', moved));
     writeFileSync(BIBLE, bible);
-    console.log(`moved ${moved.length} Done entr${moved.length === 1 ? 'y' : 'ies'} to DONE.md`);
+    console.log(`moved ${moved.length} Done entr${moved.length === 1 ? 'y' : 'ies'} to DONE.md; timeline sorted by year`);
   }
 }

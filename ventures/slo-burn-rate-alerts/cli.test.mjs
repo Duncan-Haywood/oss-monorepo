@@ -41,3 +41,10 @@ test("bad input exits 2", async () => {
   assert.equal((await run(["nope", "--slo", "99"])).exitCode, 2);
   assert.equal((await run(["plan", "--slo", "99", "--bogus"])).exitCode, 2);
 });
+
+test("rules exits 1 (still printing the file) when an alert can never fire", async () => {
+  const r = await run(["rules", "--slo", "90", "--name", "api", "--errors", "e", "--total", "t"]);
+  assert.equal(r.exitCode, 1);
+  assert.match(r.output, /groups:/);
+  assert.equal((await run(["rules", "--slo", "99", "--name", "api", "--errors", "e", "--total", "t"])).exitCode, 0);
+});

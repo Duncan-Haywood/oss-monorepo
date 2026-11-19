@@ -3091,6 +3091,37 @@ poor and it added nothing either. For Russian photos the advice stays `--rapidoc
 [`eval/receipt-ocr-ru-rus-vote-2026-11-18.md`](eval/receipt-ocr-ru-rus-vote-2026-11-18.md).
 Tests: `receipt-lead-vote.test.mjs`.
 
+### Russian slips: misread legal forms (2026-11-19)
+
+The seller on a Russian slip is the line that opens with a legal form, and the Cyrillic model
+sometimes misreads the form itself: `AD "…"` or `до "…"` for АО, `ИЛ ПЕТРОВА Ю.С.` for ИП, `ЗДО`
+for ЗАО, `ОБЦЕСТВО` for ОБЩЕСТВО, or a spelled-out ООО whose name wrapped to the next line. Each is
+now read, but only where what follows rules out an ordinary word (a quoted name after АО, a surname
+with initials after ИП). **Held-out test: seller right on 104 to 106 of 146 slips (72.6%)**; val
+113 to 117; no slip lost on either split; totals unchanged. Details:
+[`eval/receipt-ocr-ru-forms-2026-11-19.md`](eval/receipt-ocr-ru-forms-2026-11-19.md).
+
+### A second look for the seller (2026-11-19)
+
+When a Russian slip's first RapidOCR reading names no seller (no line opens with ИП, ООО, АО and
+the rest), `--rapidocr` now reads the photo again as three overlapping bands, top, middle and foot,
+each enlarged twice (`rapidocr_rows.py --bands`). A seller found there is taken as the merchant.
+Totals and items still come from the first reading. The seller is often printed small in the fiscal
+block under the items, not in the header, which is why the bands cover the whole slip.
+**Held-out test: seller right on 106 to 113 of 146 slips (77.4%)**; val 117 to 122; no slip lost
+on either split; totals unchanged. It costs a few more seconds, and only on the slips that need it
+(14% to 24% of Russian slips). Details:
+[`eval/receipt-ocr-ru-bands-2026-11-19.md`](eval/receipt-ocr-ru-bands-2026-11-19.md). Tests:
+`receipt-seller-bands.test.mjs`.
+
+The page does the same since 2026-11-19 (`photoocr.mjs` `withSecondLook`). It draws the three
+bands on a canvas and reads them with the same RapidOCR reader in the browser. **In headless
+Chromium, held-out test sellers went from 105 to 114 of 146 (78.1%) and val from 116 to 121, with
+none lost.** Every seller the bands put first was right, and totals did not change. The status
+line says when a slip was read again. Details:
+[`eval/receipt-ocr-ru-page-bands-2026-11-19.md`](eval/receipt-ocr-ru-page-bands-2026-11-19.md).
+Tests: `receipt-seller-bands-page.test.mjs`.
+
 ### Russian slips with a Cyrillic recogniser (2026-11-18)
 
 RapidOCR's default recognition model has no Cyrillic: on Russian slips it reads the totals well
@@ -3116,6 +3147,36 @@ card's bank and the fiscal data operator (ОФД) are skipped. Held-out test, sc
 unchanged. PaddleOCR's older `cyrillic_PP-OCRv3` read a sample slip as noise after conversion and
 was not scored. Details: [`eval/receipt-ocr-ru-eslav-2026-11-18.md`](eval/receipt-ocr-ru-eslav-2026-11-18.md).
 Tests: `receipt-russian-seller.test.mjs`.
+
+### Russian slips on the page (2026-11-19)
+
+The page's RapidOCR now has a "RapidOCR alphabet" choice: Latin (the default) or Cyrillic
+(Russian, Ukrainian, Belarusian, Bulgarian). Cyrillic loads the same East Slavic recogniser the
+CLI uses above, about 8 MB once, from Hugging Face at a pinned revision, and the page refuses the
+files unless they hash to the pinned sha256. On the 149 val slips, read in headless Chromium the
+way the page reads them: **totals 139 of 145, seller taken as the merchant 116 of 146, item names
+412 of 482**, against the CLI's Python reading 139, 117 and 412; the Latin model takes the seller on
+about 20. Details: [`eval/receipt-ocr-ru-page-2026-11-19.md`](eval/receipt-ocr-ru-page-2026-11-19.md).
+Tests: `rapidocr-worker.test.mjs`.
+
+### The receipt's alphabet, picked from the photo (2026-11-19)
+
+The "RapidOCR alphabet" choice now defaults to **From the photo**. Each photo is read with the
+Latin recogniser first; when that reading looks like a Cyrillic slip printed in Latin look-alikes
+(`receiptScript` in `receipts.mjs`: three or more words with a lower-case letter before two
+capitals, such as `CyMMA` for СУММА or `nPHXOA` for ПРИХОД), the page downloads the Cyrillic
+recogniser once and reads that photo again, and the Cyrillic reading leads. A batch of Latin
+receipts never downloads it. Picked right: Russian slips **147 of 149** (val) and **148 of 151**
+(test, held out); Latin receipts **200 of 200** (SRD, US), **100 of 100** (CORD, Indonesia,
+held out) and 470 of 472 (WildReceipt, held out; 472 after cutting glued quantities such as
+`1xBTL`, the cause of both misses); in the page's own browser reading, 29 of 29 and 28 of 28. For a visitor who leaves
+the default, held-out Russian sellers taken go from **16 to 106 of 146** and item names from 81
+to 379 of 459, the same as picking Cyrillic by hand; one total of 148 is lost on a short slip the
+rule left on Latin. Details: [`eval/receipt-script-2026-11-19.md`](eval/receipt-script-2026-11-19.md).
+The CLI's `receipts FILE --rapidocr` says when a reading looks Cyrillic and `RAPIDOCR_REC_MODEL`
+is unset. It also reads with RapidOCR again: the flag reader removes what it reads, so a lone `--rapidocr`
+(without `--four-pass`) was spent by the first test and the photo went to tesseract.
+Tests: `receipt-script.test.mjs`.
 
 ### WildReceipt: 472 held-out photos from a new source (2026-11-17)
 

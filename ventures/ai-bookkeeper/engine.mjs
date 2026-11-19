@@ -146,7 +146,7 @@ export function importStatement(booksIn, csv, account, opts = {}) {
   }
   // OFX, MT940 and CAMT files print no running balance per line, only the closing one: keep it for the reconcile check.
   if (!balanceCheck.checked && statement) books.statements = { ...(books.statements ?? {}), [account]: { closing: statement.cents, closingDate: statement.date } };
-  return { books: categorize(books, opts), added, skipped, problems, balanceCheck };
+  return { books: categorizeOwn(books, opts), added, skipped, problems, balanceCheck };
 }
 
 // Import an OFX/QFX file that holds several accounts. `map` sends each OFX
@@ -209,7 +209,13 @@ export function importCsvAccounts(booksIn, csv, map, opts = {}) {
 // Suggest an account for every open line, pair transfers, and auto-post what
 // is sure. Lines you already confirmed are never touched.
 export function categorize(booksIn, opts = {}) {
-  const books = clone(booksIn);
+  return categorizeOwn(clone(booksIn), opts);
+}
+
+// categorize on books the caller already copied and hands over (importStatement
+// and confirm each clone their input first): a second JSON copy of a year of
+// books was a third of the clone time.
+function categorizeOwn(books, opts) {
   const o = { ...DEFAULTS, ...opts };
   const model = modelFor(books, o.skipLayers);
   const map = accountMap(books.accounts);
@@ -249,24 +255,41 @@ export function pairTransfers(books, days = DEFAULTS.transferDays) {
   const outs = open.filter((t) => t.cents < 0 && bankCodes.has(t.account));
   const used = new Set();
   const pairs = [];
-  for (const a of ins) for (const b of outs) {
-    if (a.account === b.account) continue;
-    // Between a foreign-currency account and a base-currency one the two sides
-    // differ by the bank's own rate against the typed one: pair them when they
-    // are within FX_TRANSFER_TOLERANCE of each other (the difference is booked as
-    // realized exchange gain or loss, see journal()).
-    const diff = Math.abs(a.cents + b.cents);
-    if (diff !== 0) {
-      if (!a.foreign && !b.foreign) continue;
-      // Two foreign accounts: the same currency must move the same foreign amount
-      // (only the typed rates differ); different currencies are judged in base units.
-      if (a.foreign && b.foreign && a.foreign.currency === b.foreign.currency && a.foreign.cents + b.foreign.cents !== 0) continue;
-      if (diff > Math.max(a.cents, -b.cents) * FX_TRANSFER_TOLERANCE) continue;
+  // Only lines within `days` of each other can pair, so each inflow scans the
+  // outflows in its date window (outflows sorted by day, found by bisection)
+  // instead of every outflow: a year of 18,000 lines was 1.2 s of the
+  // quadratic loop. Each pair keeps its inflow and outflow index, and the sort
+  // below breaks (gap, diff) ties by them, so pairs come out in the order the
+  // all-pairs loop produced.
+  const outDay = outs.map((b) => dayNum(b.date));
+  const byDay = outs.map((_, j) => j).filter((j) => !Number.isNaN(outDay[j])).sort((x, y) => outDay[x] - outDay[y] || x - y);
+  const days0 = byDay.map((j) => outDay[j]);
+  const span = Number(days); // a typed "5" must widen the window, not concatenate
+  ins.forEach((a, i) => {
+    const da = dayNum(a.date);
+    if (Number.isNaN(da)) return;
+    let lo = 0, hi = days0.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (days0[mid] < da - span) lo = mid + 1; else hi = mid; }
+    for (let k = lo; k < days0.length && days0[k] <= da + span; k++) {
+      const j = byDay[k], b = outs[j];
+      if (a.account === b.account) continue;
+      // Between a foreign-currency account and a base-currency one the two sides
+      // differ by the bank's own rate against the typed one: pair them when they
+      // are within FX_TRANSFER_TOLERANCE of each other (the difference is booked as
+      // realized exchange gain or loss, see journal()).
+      const diff = Math.abs(a.cents + b.cents);
+      if (diff !== 0) {
+        if (!a.foreign && !b.foreign) continue;
+        // Two foreign accounts: the same currency must move the same foreign amount
+        // (only the typed rates differ); different currencies are judged in base units.
+        if (a.foreign && b.foreign && a.foreign.currency === b.foreign.currency && a.foreign.cents + b.foreign.cents !== 0) continue;
+        if (diff > Math.max(a.cents, -b.cents) * FX_TRANSFER_TOLERANCE) continue;
+      }
+      const gap = Math.abs(da - outDay[j]);
+      if (gap <= days) pairs.push([gap, diff, a, b, i, j]);
     }
-    const gap = Math.abs(dayNum(a.date) - dayNum(b.date));
-    if (gap <= days) pairs.push([gap, diff, a, b]);
-  }
-  pairs.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+  });
+  pairs.sort((x, y) => x[0] - y[0] || x[1] - y[1] || x[4] - y[4] || x[5] - y[5]);
   for (const [, , a, b] of pairs) {
     if (used.has(a.id) || used.has(b.id)) continue;
     used.add(a.id); used.add(b.id);
@@ -307,7 +330,7 @@ export function confirm(booksIn, choices) {
     t.posted = c;
     books.history.push(historyRecord(t, c));
   }
-  return categorize(books);
+  return categorizeOwn(books, {});
 }
 
 // Check a split against its bank line and fill in the one open part. Returns

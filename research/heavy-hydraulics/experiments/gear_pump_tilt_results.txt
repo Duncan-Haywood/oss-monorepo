@@ -1,0 +1,94 @@
+Milestone 7o: 7k's one-number idle rule with the drag read on the published pick weight tilted by each variant's own drag (kW_t, builder-side) against 7n's own-pick oracle kW_s; 7j's 22 idle conditions, 14 variants, 196 cells each, 4312 cells
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py; neutral readings as excavator_idle_standby.py)
+
+Tilt constant lambda (per kW; grid 0 to 20 in 0.05 steps), calibrated on the BASE families' own picks at the central condition:
+  all six                       2.15
+  without azpf                  2.15
+  without azpn                  2.15
+  without azpu                  2.35
+  without bench                 2.25
+  without casappa               2.20
+  without danfoss               0.00
+  without marzocchi             2.20
+  without rexroth               2.35
+
+Per variant at the central condition, lambda calibrated without the variant's maker family: tilted median (L/min; own-pick median in brackets), kW_w, kW_t, kW_s, kW_t/kW_w, kW_t/kW_s:
+  casappa                       lambda  2.20  median  72.0 ( 72.5)  kW_w 2.806  kW_t 2.746  kW_s 2.844  t/w 0.979  t/s 0.965
+  danfoss                       lambda  0.00  median  72.0 ( 63.5)  kW_w 3.152  kW_t 3.152  kW_s 2.466  t/w 1.000  t/s 1.278
+  marzocchi                     lambda  2.20  median  72.5 ( 71.0)  kW_w 2.848  kW_t 2.882  kW_s 2.832  t/w 1.012  t/s 1.018
+  bench                         lambda  2.25  median  73.5 ( 71.5)  kW_w 2.350  kW_t 2.416  kW_s 2.337  t/w 1.028  t/s 1.034
+  rexroth                       lambda  2.35  median  74.0 ( 72.5)  kW_w 2.081  kW_t 2.167  kW_s 2.057  t/w 1.041  t/s 1.053
+  azpu                          lambda  2.35  median  73.5 ( 69.0)  kW_w 2.009  kW_t 2.081  kW_s 1.941  t/w 1.036  t/s 1.072
+  azpf                          lambda  2.15  median  74.0 ( 71.5)  kW_w 2.137  kW_t 2.215  kW_s 2.111  t/w 1.037  t/s 1.050
+  azpf_spin                     lambda  2.15  median  72.0 ( 69.5)  kW_w 2.315  kW_t 2.270  kW_s 2.212  t/w 0.980  t/s 1.026
+  azpf_gear                     lambda  2.15  median  71.5 ( 69.5)  kW_w 2.423  kW_t 2.330  kW_s 2.293  t/w 0.962  t/s 1.016
+  azpf_gear98                   lambda  2.15  median  69.0 ( 68.0)  kW_w 2.641  kW_t 2.408  kW_s 2.294  t/w 0.911  t/s 1.049
+  azpn                          lambda  2.15  median  74.0 ( 75.5)  kW_w 2.047  kW_t 2.126  kW_s 1.945  t/w 1.039  t/s 1.093
+  azpn_spin                     lambda  2.15  median  73.0 ( 75.5)  kW_w 2.083  kW_t 2.113  kW_s 1.932  t/w 1.015  t/s 1.094
+  azpn_gear                     lambda  2.15  median  72.5 ( 75.5)  kW_w 2.125  kW_t 2.110  kW_s 1.918  t/w 0.993  t/s 1.100
+  azpn_gear98                   lambda  2.15  median  71.5 ( 75.5)  kW_w 2.210  kW_t 2.080  kW_s 1.883  t/w 0.941  t/s 1.104
+kappa_st (slope of kW_s on kW_t over the 14 variants; kW_t at the all-six lambda): pooled with condition fixed effects 1.161; per condition 1.092 to 1.209
+kappa_sw (slope of kW_s on kW_w over the 14 variants; kW_t at the all-six lambda): pooled with condition fixed effects 0.743; per condition 0.686 to 0.789
+
+Fits to all 4312 cells, kW_t at the all-six lambda 2.15 (coefficients; in-sample RMS over all cells and over the 308 diagonals):
+  owh   +0.8214, +0.0329, -0.4350, -0.0402;  cells 0.0043, diagonals 0.0045
+  owdw  +0.8208, +0.0359, -0.4350;  cells 0.0039, diagonals 0.0045
+  owds  +0.8240, +0.0356, -0.4350;  cells 0.0047, diagonals 0.0039
+  owht  +0.8219, +0.0384, -0.4350, -0.0377;  cells 0.0043, diagonals 0.0041
+  owdt  +0.8226, +0.0378, -0.4350;  cells 0.0043, diagonals 0.0041
+  -d/b (standby kW against drag kW, both per idle hour): owh 1.22, owht 0.98
+
+(A) leave-one-condition-and-maker-family-out, RMS over 308 diagonals (max per-condition RMS; mean bias):
+  owh   0.0056  (max 0.0064; bias +0.0000)
+  owdw  0.0056  (max 0.0069; bias -0.0000)
+  owds  0.0042  (max 0.0052; bias +0.0001)
+  owht  0.0053  (max 0.0065; bias -0.0009)
+  owdt  0.0053  (max 0.0061; bias -0.0008)
+
+(B1) nine half-idle-speed conditions held out together, RMS over 126 diagonals (mean bias):
+  owh   0.0059  (+0.0002)
+  owdw  0.0059  (+0.0006)
+  owds  0.0047  (+0.0005)
+  owht  0.0057  (-0.0013)
+  owdt  0.0057  (-0.0015)
+(B2) S = 0.20 and 0.50 held out together, RMS over 28 diagonals (mean bias):
+  owh   0.0057  (+0.0012)
+  owdw  0.0059  (-0.0011)
+  owds  0.0043  (-0.0007)
+  owht  0.0057  (-0.0023)
+  owdt  0.0055  (-0.0018)
+
+Per variant, (A) error pooled over the 22 conditions (RMS): owh / owdw / owds / owdt
+  casappa                       0.0031 / 0.0036 / 0.0012 / 0.0034
+  danfoss                       0.0061 / 0.0080 / 0.0067 / 0.0080
+  marzocchi                     0.0039 / 0.0020 / 0.0021 / 0.0016
+  bench                         0.0042 / 0.0040 / 0.0012 / 0.0015
+  rexroth                       0.0026 / 0.0028 / 0.0010 / 0.0010
+  azpu                          0.0041 / 0.0032 / 0.0013 / 0.0013
+  azpf                          0.0055 / 0.0051 / 0.0025 / 0.0029
+  azpf_spin                     0.0056 / 0.0049 / 0.0038 / 0.0049
+  azpf_gear                     0.0053 / 0.0045 / 0.0040 / 0.0054
+  azpf_gear98                   0.0027 / 0.0020 / 0.0041 / 0.0038
+  azpn                          0.0016 / 0.0013 / 0.0022 / 0.0032
+  azpn_spin                     0.0022 / 0.0018 / 0.0020 / 0.0034
+  azpn_gear                     0.0048 / 0.0050 / 0.0037 / 0.0057
+  azpn_gear98                   0.0145 / 0.0151 / 0.0110 / 0.0132
+
+Sensitivity (not scored): owdt (A) RMS with one fixed lambda in every fold:
+  lambda  0.0  0.0056
+  lambda  0.5  0.0051
+  lambda  1.0  0.0049
+  lambda  2.0  0.0049
+  lambda  4.0  0.0057
+  lambda  8.0  0.0096
+
+Predictions (LOG.md 7o):
+  PL1 lambda on all six BASE families positive: held (2.15 per kW)
+  PL2 Danfoss kW_t/kW_w below 0.90 (lambda without Danfoss): refuted (1.000; lambda 0.00)
+  PL3 kappa_st in [0.90, 1.10]: refuted (1.161)
+  PL4 owdt (A) below owh's: held (0.0053 against 0.0056; owds 0.0042)
+  PL5 owdt (A) at most 0.0049: refuted (0.0053)
+  PL6 owdt B1 and B2 both at most 0.0056: refuted (B1 0.0057, B2 0.0055)
+  PL7 owht d < 0 and -d/b in [0.90, 1.10]: held (d -0.0377, -d/b 0.98)
+
+Sources: as gear_pump_onerule.py (7j), gear_pump_ratio.py (7k) and gear_pump_ownpick.py (7n); kW_t read on each condition's own idle curves with the tilted weight fixed at the central condition.

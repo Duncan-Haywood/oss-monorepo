@@ -694,3 +694,32 @@ def test_injected_leak_shape_and_size():
     c = simulate.emitter_coef(0.015)
     assert abs(c - 2.1134) < 1e-3
     assert 14.5 < c * np.sqrt(49.2) < 15.1
+
+
+def _step27():
+    import importlib.util
+    path = Path(__file__).resolve().parents[1] / "experiments" / "step27-retimed" / "run.py"
+    spec = importlib.util.spec_from_file_location("step27", path)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def test_step27_rule_grid_vote_and_selection_tiebreaks():
+    """Step 27's plan: 17 rules in a fixed tie-break order (lags by |delta|, the later first; votes
+    by length, the earlier first); a vote takes the most-picked node, ties to the latest day's."""
+    m = _step27()
+    order = m.rule_order()
+    assert len(order) == 17 and order[0] == ("L", (0,))
+    assert [m.rule_name(r) for r in order[:5]] == ["L+0", "L+1", "L-1", "L+2", "L-2"]
+    assert m.rule_name(order[9]) == "V[-4,+0]" and m.rule_name(order[-1]) == "V[-7,+7]"
+    assert m.vote([(1, 3), (2, 5), (3, 3), (4, 5)]) == 5      # tie 2-2: the latest day's pick
+    assert m.vote([(1, 3), (2, 3), (3, 5)]) == 3
+    assert m.vote([(1, None), (2, None)]) is None
+    assert m.vote([(1, None), (2, 0)]) == 0                   # node 0 is a pick, not "none"
+    picks = {1: 7, 2: 8, 3: 8, 4: 9}
+    assert m.apply_rule(("L", (1,)), picks.get, 2) == 8
+    assert m.apply_rule(("V", (-1, 1)), picks.get, 2) == 8
+    hits = {r: 1 for r in order}
+    hits[order[3]] = hits[order[12]] = 4
+    assert m.select(hits, order) == order[3]

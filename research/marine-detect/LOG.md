@@ -1,5 +1,12 @@
 # Log
 
+## 2026-11-18 · Re-score with 8-connected obstacles and a 4-px floor (quality fix)
+
+- The 2026-11-17 quality audit found ground-truth obstacles labelled 4-connected with no size floor: 80 of 204 were single pixels, many from one diagonal pole. Now 8-connected and at least 4 px on both sides (false alarms already had the 4-px floor). MaSTr1325 archives re-downloaded; both SHA-256 matched the pinned values.
+- Counts on the 300 test frames: 204 (old rule), 141 (8-connected, no floor; 36 still single pixels), 80 (8-connected, >= 4 px). Objects of 16 px or more: 31 -> 32.
+- Retrained all nine runs and scored both rules on the same predictions. Old rule: 31.2% / 34.0% (first run 31.9% / 33.7%). New rule: 34.6% +- 7.2 / 35.0% +- 6.2 of 80; 16 px and up 61.5% / 64.6%. The headline (most floating obstacles missed) stands.
+- Changed: with augmentation, all-object recall no longer falls under fog (32-35%, was 34% -> 24%); the far-obstacle trend is withdrawn (nearest-horizon bin now 48%, no monotone pattern); the clean net's large-object loss under fog has a wide seed spread (t = 0.3: 29% +- 35).
+
 ## 2026-11-11 · Milestone 9a: MaSTr1325 baseline, fog, glint and object size
 
 - Question: does a CPU-trainable published segmentation network find the obstacles a USV must avoid, and how much do fog and sun glint cost? Data: MaSTr1325 (22 MB + 2 MB from data.vicos.si, CC BY 4.0), split by hashed blocks of 25 consecutive frames (1025 / 300).

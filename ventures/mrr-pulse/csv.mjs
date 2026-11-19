@@ -1,4 +1,4 @@
-// Subscription CSV -> subs, for the browser demo and for `node import.mjs`.
+// Subscription CSV -> subs, for the browser demo.
 // Reads the columns of Stripe's Subscriptions export (Dashboard > Billing >
 // Subscriptions > Export) by header name, in any order, and amounts in major
 // units (dollars), as that export writes them.
@@ -33,24 +33,31 @@ const ALIASES = {
   endedAt: ["ended at", "ended", "canceled at", "cancelled at", "end date", "ended utc", "canceled at utc"],
 };
 
+const STATUSES = new Set(["active", "past_due", "unpaid", "canceled", "incomplete", "incomplete_expired", "trialing", "paused"]);
+
 // Dates without a zone (Stripe exports write UTC) are read as UTC.
 const toMs = (v) => {
   const x = String(v || "").trim();
   if (!x) return null;
+  // Date.parse rolls 2026-02-30 into 2 March: check the day exists (red team 2026-11-18).
+  const ymd = /^(\d{4})-(\d{2})-(\d{2})/.exec(x);
+  if (ymd && +ymd[3] > new Date(Date.UTC(+ymd[1], +ymd[2], 0)).getUTCDate()) return null;
   const t = Date.parse(/[zZ]$|[+-]\d\d:?\d\d$/.test(x) ? x : `${x.replace(" ", "T")}${x.includes(":") ? "Z" : "T00:00:00Z"}`);
   return Number.isFinite(t) ? t : null;
 };
 
-// Returns {subs, skipped:[{line, why}], missing:[...]}.
+// Returns {subs, skipped:[{line, why}], missing:[...], currency}. Like the
+// server, it keeps one currency, the most common (a tie goes to the first
+// row's): adding yen to cents gave a headline in neither (red team 2026-11-19).
 export function subsFromCsv(text) {
   const rows = parseCsv(text);
-  if (rows.length < 2) return { subs: [], skipped: [], missing: ["header and at least one row"] };
+  if (rows.length < 2) return { subs: [], skipped: [], missing: ["header and at least one row"], currency: "usd" };
   const head = rows[0].map(norm);
   const col = {};
   for (const [k, names] of Object.entries(ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const missing = ["amount", "interval", "created"].filter((k) => col[k] < 0);
-  if (missing.length) return { subs: [], skipped: [], missing };
-  const subs = [], skipped = [];
+  if (missing.length) return { subs: [], skipped: [], missing, currency: "usd" };
+  const subs = [], skipped = [], byId = new Map(), lineOf = new Map();
   rows.slice(1).forEach((r, i) => {
     const get = (k) => (col[k] >= 0 ? (r[col[k]] ?? "").trim() : "");
     const amount = Number(get("amount").replace(/[$,£€\s]/g, ""));
@@ -64,11 +71,43 @@ export function subsFromCsv(text) {
     const currency = (get("currency") || "usd").toLowerCase();
     const mrr = monthlyAmount(Math.round(amount * 10 ** minorExponent(currency)), interval, Number(get("intervalCount")) || 1, quantity);
     if (!Object.hasOwn(PER_MONTH, interval) && amount > 0) return skipped.push({ line: i + 2, why: `unknown interval "${interval}"` });
+    // A filled-in date that does not parse must not read as "never ended" or
+    // "no trial", and a canceled row with no end date cannot be placed in the
+    // history (it would count as alive every month): flag both (red team 2026-11-18).
     const endedAt = toMs(get("endedAt"));
-    const status = (get("status") || (endedAt ? "canceled" : "active")).toLowerCase();
-    subs.push({ id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, trialEnd: toMs(get("trialEnd")), currency });
+    if (get("endedAt") && endedAt === null) return skipped.push({ line: i + 2, why: "ended at is not a date" });
+    if (get("trialEnd") && toMs(get("trialEnd")) === null) return skipped.push({ line: i + 2, why: "trial end is not a date" });
+    // Stripe's statuses, read the way a hand-made sheet or another billing
+    // tool writes them ("Cancelled", "Past due"). Any other word is skipped
+    // with a reason: it matched no rule downstream, so the row vanished from
+    // every month, its churn uncounted (red team 2026-11-19, second pass).
+    const rawStatus = get("status").toLowerCase().replace(/[\s-]+/g, "_");
+    const status = rawStatus ? (rawStatus === "cancelled" ? "canceled" : rawStatus) : endedAt ? "canceled" : "active";
+    if (!STATUSES.has(status)) return skipped.push({ line: i + 2, why: `unknown status "${get("status")}"` });
+    if (status === "canceled" && endedAt === null) return skipped.push({ line: i + 2, why: "canceled with no end date" });
+    const sub = { id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, trialEnd: toMs(get("trialEnd")), currency };
+    // A repeated id is another price line of the same subscription (an export
+    // or a hand-made sheet with one row per item): add its MRR to the first
+    // row's. Keyed maps downstream kept only the last line, so the headline
+    // dropped money the plan breakdown still counted (red team 2026-11-19).
+    // A repeat that disagrees on dates, status or currency cannot be merged.
+    const first = byId.get(sub.id);
+    if (first) {
+      if (["status", "created", "endedAt", "trialEnd", "currency"].some((k) => first[k] !== sub[k])) return skipped.push({ line: i + 2, why: `repeats subscription ${sub.id} with a different start, end, trial, status or currency` });
+      first.mrr += sub.mrr;
+      return;
+    }
+    byId.set(sub.id, sub);
+    lineOf.set(sub, i + 2);
+    subs.push(sub);
   });
-  return { subs, skipped, missing: [] };
+  const counts = new Map();
+  for (const s of subs) counts.set(s.currency, (counts.get(s.currency) || 0) + 1);
+  let currency = "usd", best = 0;
+  for (const [c, n] of counts) if (n > best) { currency = c; best = n; }
+  for (const s of subs) if (s.currency !== currency) skipped.push({ line: lineOf.get(s), why: `in ${s.currency.toUpperCase()}, not ${currency.toUpperCase()} (one currency at a time)` });
+  skipped.sort((a, b) => a.line - b.line);
+  return { subs: subs.filter((s) => s.currency === currency), skipped, missing: [], currency };
 }
 
 // Deterministic demo data: a small SaaS that grew for 18 months with some churn.

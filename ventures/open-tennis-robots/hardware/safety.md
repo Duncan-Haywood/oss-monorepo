@@ -1,7 +1,9 @@
 # Safety
 
-These are machines that throw hard objects at up to ~30 m/s (more than
-100 km/h) and robots that drive around people. Read this before you build
+These are machines that throw hard objects at up to about 47 m/s (about
+170 km/h) at the firmware's 7,000 rpm wheel limit (`firmware/esp32/controller.py`,
+`MAX_RPM`; 150 mm wheels at 0.85 efficiency), and robots that drive around
+people. Guard and net for that speed, not for typical rally speeds. Read this before you build
 or power one.
 
 **No warranty.** This design is provided free and as-is, without warranty
@@ -21,11 +23,18 @@ loss, damage or injury arising from its use.
   before you use the feeder alone. Since 2026-11-14 the feeder's ESP32 also
   senses the contactor's coil (GPIO 15), so a fob that drops it halts the
   board and clears its feed queue even though the button was never pressed.
+- **Reset at the machine** (feeder, 2026-11-18): releasing the e-stop or the
+  fob does not re-power the motors, and neither does any command from the Pi or
+  a phone. Someone must press and let go of RESET on the feeder, and power
+  returns 0.5 s after the button is let go; a RESET jammed down never powers
+  them (`electronics.md`, "Reset at the machine"). Test it on every build.
 - **Watchdog**: the ESP32 stops every motor if the Pi sends nothing for
   300 ms (`firmware/esp32/controller.py`).
 - **Feed interlock**: a ball is released only when both launcher wheels
-  are within 5 % of their commanded speed, so a stalled or slowing wheel
-  cannot throw a short, unpredictable ball.
+  have stayed within 3 % of their commanded speed for 150 ms (and at least six
+  revolutions of the slower wheel), so a stalled or slowing wheel cannot throw
+  a short, unpredictable ball (`controller.SteadyGate`; this said 5 % until
+  2026-11-18, the gate's figure before 2026-11-11).
 - **Command limits** in firmware: wheel rpm, aim angles, base speed and
   drive speed are clamped whatever the Pi sends.
 - **Collector bumpers**: contact stops forward motion; only reversing is

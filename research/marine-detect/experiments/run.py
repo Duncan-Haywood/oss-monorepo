@@ -39,6 +39,9 @@ def score(P, Y):
     pairs = [(r[1], r[2]) for r in recs]
     fa = [metrics.false_alarms(p, y) for p, y in zip(P, Y)]
     ious = metrics.iou(conf)
+    # the pre-2026-11-18 rule (4-connected, no size floor; false alarms 4-connected), same predictions
+    old = [f for p, y in zip(P, Y) for _, f in metrics.obstacle_recall(p, y, connectivity=4, min_area=1)]
+    old_fa = [metrics.false_alarms(p, y, connectivity=4) for p, y in zip(P, Y)]
     return {
         "iou_obstacle": float(ious[0]), "iou_water": float(ious[1]), "iou_sky": float(ious[2]),
         "miou": float(ious.mean()),
@@ -47,6 +50,9 @@ def score(P, Y):
         "recall_by_area": metrics.binned_recall(pairs),
         "false_alarms_per_frame": float(np.mean(fa)),
         "objects": recs,  # [frame, area px, found, covered fraction, waterline row]
+        "rule": {"connectivity": 8, "min_area": metrics.MIN_AREA},
+        "legacy_4conn": {"n_floating": len(old), "recall": float(np.mean(old)) if old else None,
+                         "false_alarms_per_frame": float(np.mean(old_fa))},
     }
 
 

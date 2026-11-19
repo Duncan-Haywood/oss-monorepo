@@ -31,6 +31,8 @@ const AI_LEVELS = ['none', 'assisted', 'generated'];
 const PD_OK = /public.?domain|pd\b|cc0/i;
 
 // io: { exists(path) -> boolean, bytes(path) -> Uint8Array, wav(path) -> { rate, channels } (throws on a bad file) }
+// and optionally analysis(path) -> analyze() of that same WAV, when the caller already has it
+// (releaseKit analyses each render for the report; the check need not run it again).
 export function checkReleaseWith(rel, io, opts = {}) {
   const out = [];
   const add = (ok, name, note, level = 'FAIL') => out.push({ ok, level: ok ? 'PASS' : level, name, note });
@@ -98,7 +100,7 @@ export function checkReleaseWith(rel, io, opts = {}) {
           add([44100, 48000, 88200, 96000].includes(w.rate), `${k} sample rate`, `${w.rate} Hz`);
           add(w.channels.length === 2, `${k} stereo`, `${w.channels.length} ch`, 'WARN');
           if (!opts.skipMaster) {
-            const a = analyze(w);
+            const a = (io.analysis && io.analysis(tr.audio)) || analyze(w);
             for (const c of a.checks) add(c.ok, `${k} ${c.name}`, c.note, 'FAIL');
           }
         } catch (e) { add(false, `${k} audio file`, `${tr.audio}: ${e.message}`); }

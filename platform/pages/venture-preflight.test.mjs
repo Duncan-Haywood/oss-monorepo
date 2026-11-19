@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import { buildProblem, localOnlyFiles, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckArgs, treeCheckProblem } from './venture-preflight.mjs';
+import { buildProblem, localOnlyFiles, localOnlySummary, splitLocalOnly, changedPostPaths, checkProblems, COUNT_CHECKS, countProblem, inheritedKeysProblem, launchedProblems, placementProblems, postProblem, routerProblem, SITE_BUILD_TESTS, siteTestFiles, siteTestProblem, touchesRouterInputs, treeCheckArgs, treeCheckProblem } from './venture-preflight.mjs';
 
 async function fixture(launched) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-'));
@@ -113,6 +113,13 @@ test('placementProblems fails a trade tool in the trades catch-all and notes the
   assert.equal(more.category, 'more');
   assert.deepEqual(more.failures, []);
   assert.match(more.notes[0], /CATEGORY_RULES/);
+  // At the cap, a new arrival fails (build.test.mjs would); one already counted does not.
+  const full = Array.from({ length: site.CATCH_ALL_MAX }, (_, i) => `tool-${i}`);
+  const over = placementProblems('zzz-unclaimed-slug', site, full);
+  assert.match(over.failures[0], new RegExp(`hold ${site.CATCH_ALL_MAX + 1} tools`));
+  assert.deepEqual(over.notes, []);
+  const counted = placementProblems('zzz-unclaimed-slug', site, [...full.slice(1), 'zzz-unclaimed-slug']);
+  assert.deepEqual(counted.failures, []);
 });
 
 test('router inputs: validate.py runs only when flagships.yaml or a VENTURE.yaml changed', () => {
@@ -186,4 +193,13 @@ test('splitLocalOnly demotes check.mjs lines on a local-only file, also under a 
   assert.deepEqual(real, [lines[1]]);
   assert.deepEqual(local, [lines[0], lines[2]]);
   assert.deepEqual(splitLocalOnly(lines, 'v', []).real, lines);
+});
+
+test('localOnlySummary groups local-only files by their first two directory levels, most first', () => {
+  const files = [
+    ...Array.from({ length: 834 }, (_, i) => `ventures/v/eval/IDS/f${i}.c`),
+    'ventures/v/covid-data/a.csv', 'ventures/v/covid-data/b.csv', 'ventures/v/eval/IDS/deep/x.c', 'ventures/v/notes.ppt',
+  ];
+  assert.equal(localOnlySummary(files, 'v'), 'Where: eval/IDS/ (835), covid-data/ (2), notes.ppt (1).');
+  assert.equal(localOnlySummary(files, 'v', 1), 'Where: eval/IDS/ (835), +2 more.');
 });

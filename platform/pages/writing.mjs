@@ -431,6 +431,15 @@ const longDate = (iso) => {
   return s;
 };
 
+// Post tables on a phone (polish, 2026-11-19): 10 px of side padding per cell
+// is 80 px of a 288 px box in a four-column table at 320 px, and one long word
+// then pushes a column out of sight behind a sideways scroll. Measured over all
+// 1,829 post tables: tables wider than their box went 190 -> 12 at 320 px,
+// 31 -> 1 at 360 and 6 -> 0 at 390. Hyphenation (the page is lang="en") only
+// splits words, never numbers, so the 12 left are figure tables that should
+// scroll. `overflow-wrap:anywhere` reached 0 but split amounts like $2,853.20.
+export const PHONE_TABLE_CSS = '@media (max-width:420px) { th, td { padding:6px; -webkit-hyphens:auto; hyphens:auto; } }';
+
 const STYLE = `
   :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
   @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
@@ -455,6 +464,7 @@ const STYLE = `
   table { border-collapse:collapse; width:100%; font-size:.9rem; background:var(--panel); }
   th, td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
   th { font-size:.8rem; color:var(--muted); font-weight:600; }
+  ${PHONE_TABLE_CSS}
   hr { border:0; border-top:1px solid var(--line); margin:2.4em 0; }
   .posts { list-style:none; padding:0; margin:0; }
   .posts li { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px 16px 22px; margin:0 0 14px;

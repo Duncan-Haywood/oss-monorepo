@@ -37,7 +37,8 @@ const HELP = [
   "next: computes the next N run times of a standard 5-field cron expression",
   "(minute hour day-of-month month day-of-week -- month and day-of-week accept",
   "the standard 3-letter names, JAN-DEC and SUN-SAT, case-insensitive,",
-  "anywhere a number is allowed), interpreted as a *local wall-clock* schedule",
+  "anywhere a number is allowed; @daily/@hourly/@weekly/@monthly/@yearly macros",
+  "and \"?\" in day fields also work), interpreted as a *local wall-clock* schedule",
   "in --tz, and flags any occurrence that falls in a spring-forward gap (the local time",
   "never happens) or a fall-back overlap (the local time happens twice).",
   "Exits 1 if any occurrence in the computed window is flagged.",
@@ -55,6 +56,7 @@ function renderNext(cronExpr, timeZone, result) {
   const { occurrences, flagged } = result;
   const { text } = summarizeRuns(result);
   const lines = [`${cronExpr} in ${timeZone}: ${text}`, ""];
+  if (result.dayRuleNote) lines.push(`Note: ${result.dayRuleNote}`, "");
   for (const occ of occurrences) {
     const l = occ.local;
     const flag = occ.ambiguous ? "  [AMBIGUOUS -- fires again or once, depending on scheduler]" : "";

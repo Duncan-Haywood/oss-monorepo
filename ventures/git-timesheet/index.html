@@ -146,8 +146,13 @@ node cli.mjs --repo . --since 2026-09-01 --max-hours 40   # exit 1 over the cap<
     ].join("\n");
     $("#load-example").addEventListener("click", () => { $("#log").value = EXAMPLE; $("#rate").value = 90; render(); record("example_loaded"); });
     $("#clear").addEventListener("click", () => { $("#log").value = ""; $("#status").textContent = ""; $("#report-card").hidden = true; });
-    $("#copy").addEventListener("click", () => navigator.clipboard?.writeText($("#cmd").textContent));
-    $("#copy-md").addEventListener("click", () => navigator.clipboard?.writeText($("#out").value));
+    // Say whether the copy worked: a refused clipboard used to fail silently.
+    const copyText = async (text, what) => {
+      try { await navigator.clipboard.writeText(text); $("#status").textContent = `${what} copied.`; }
+      catch { $("#status").textContent = `Your browser refused the copy; select the ${what.toLowerCase()} and copy it by hand.`; }
+    };
+    $("#copy").addEventListener("click", () => copyText($("#cmd").textContent, "Command"));
+    $("#copy-md").addEventListener("click", () => copyText($("#out").value, "Markdown"));
     $("#dl-csv").addEventListener("click", () => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));

@@ -1,0 +1,90 @@
+  (0, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [9, 53, 98, 123, 173, 227, 286, 351, 419], 'kept': 20}
+  (0, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [10, 36, 95, 128, 205, 289, 380, 480, 588], 'kept': 20}
+  (1, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [9, 21, 65, 94, 163, 237, 313, 393, 478], 'kept': 18}
+  (0, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [9, 9, 9, 14, 33, 65, 112, 172, 236], 'kept': 21}
+  (1, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [8, 12, 31, 47, 84, 126, 173, 225, 286], 'kept': 20}
+  (1, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [13, 44, 102, 137, 216, 306, 403, 504, 609], 'kept': 20}
+  (2, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [8, 8, 22, 41, 83, 133, 197, 266, 342], 'kept': 20}
+  (2, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [15, 21, 55, 75, 118, 164, 222, 290, 365], 'kept': 21}
+  (3, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [10, 10, 16, 29, 72, 132, 202, 278, 357], 'kept': 17}
+  (3, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 9, 'board_ms10': 0, 'rms_ppm': [33, 13, 66, 95, 155, 217, 287, 362, 442], 'kept': 19}
+  (2, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [21, 37, 103, 139, 213, 295, 387, 484, 586], 'kept': 21}
+  (3, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 9, 'board_ms10': 0, 'rms_ppm': [28, 13, 58, 86, 147, 217, 299, 390, 488], 'kept': 21}
+  (4, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [8, 9, 26, 47, 94, 147, 209, 278, 353], 'kept': 19}
+  (5, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 15, 'board_ms10': 0, 'rms_ppm': [27, 17, 21, 40, 88, 148, 212, 280, 350], 'kept': 20}
+  (4, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 9, 'board_ms10': 0, 'rms_ppm': [19, 12, 38, 65, 124, 188, 260, 342, 433], 'kept': 21}
+  (4, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 9, 'board_ms10': 0, 'rms_ppm': [20, 9, 37, 58, 106, 171, 239, 310, 391], 'kept': 19}
+  (5, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 10, 'board_ms10': 0, 'rms_ppm': [23, 21, 27, 50, 110, 180, 258, 339, 424], 'kept': 19}
+  (6, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 25, 'refined_ms10': 21, 'board_ms10': 0, 'rms_ppm': [55, 37, 14, 38, 98, 163, 230, 307, 389], 'kept': 19}
+  (5, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 10, 'board_ms10': 0, 'rms_ppm': [16, 15, 18, 40, 99, 163, 231, 312, 407], 'kept': 20}
+  (6, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 17, 'board_ms10': 0, 'rms_ppm': [10, 9, 9, 10, 42, 90, 145, 204, 266], 'kept': 20}
+  (6, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 25, 'refined_ms10': 22, 'board_ms10': 0, 'rms_ppm': [51, 26, 12, 24, 75, 135, 200, 270, 347], 'kept': 20}
+  (7, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 30, 'refined_ms10': 28, 'board_ms10': 0, 'rms_ppm': [12, 13, 13, 9, 39, 79, 129, 185, 249], 'kept': 21}
+  (7, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 30, 'refined_ms10': 27, 'board_ms10': 0, 'rms_ppm': [80, 54, 17, 16, 69, 134, 201, 270, 348], 'kept': 19}
+  (7, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 25, 'refined_ms10': 26, 'board_ms10': 0, 'rms_ppm': [45, 34, 11, 13, 39, 83, 141, 205, 273], 'kept': 21}
+  (8, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 30, 'refined_ms10': 34, 'board_ms10': 0, 'rms_ppm': [21, 21, 21, 19, 19, 57, 102, 149, 202], 'kept': 20}
+  (8, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 30, 'refined_ms10': 33, 'board_ms10': 0, 'rms_ppm': [148, 131, 68, 33, 46, 130, 219, 313, 411], 'kept': 20}
+  (8, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 30, 'refined_ms10': 34, 'board_ms10': 0, 'rms_ppm': [51, 49, 27, 15, 16, 49, 102, 163, 233], 'kept': 20}
+  (9, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 50, 'refined_ms10': 47, 'board_ms10': 0, 'rms_ppm': [65, 65, 64, 55, 41, 12, 56, 117, 182], 'kept': 17}
+  (9, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 50, 'refined_ms10': 47, 'board_ms10': 0, 'rms_ppm': [146, 147, 120, 104, 55, 19, 80, 166, 263], 'kept': 18}
+  (10, 0, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [8, 22, 66, 91, 141, 196, 258, 325, 397], 'kept': 21}
+  (9, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 50, 'refined_ms10': 47, 'board_ms10': 0, 'rms_ppm': [81, 81, 73, 65, 40, 13, 59, 117, 182], 'kept': 21}
+  (10, 0, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 12, 'board_ms10': 0, 'rms_ppm': [9, 9, 9, 14, 36, 66, 107, 168, 236], 'kept': 17}
+  (0, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [78, 83, 110, 131, 194, 280, 376, 479, 593], 'kept': 6}
+  (10, 0, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [8, 46, 99, 130, 202, 285, 376, 475, 579], 'kept': 20}
+  (0, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [61, 65, 120, 160, 262, 384, 515, 652, 793], 'kept': 11}
+  (0, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 30, 'refined_ms10': 28, 'board_ms10': 0, 'rms_ppm': [85, 84, 84, 84, 93, 118, 158, 253, 377], 'kept': 5}
+  (1, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [73, 73, 86, 108, 184, 276, 373, 478, 596], 'kept': 6}
+  (1, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 10, 'board_ms10': 0, 'rms_ppm': [68, 67, 72, 84, 130, 187, 262, 358, 460], 'kept': 5}
+  (1, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [62, 71, 112, 140, 219, 320, 433, 557, 687], 'kept': 12}
+  (2, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [82, 82, 96, 108, 154, 251, 364, 484, 607], 'kept': 4}
+  (2, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [70, 74, 109, 134, 206, 296, 401, 521, 650], 'kept': 11}
+  (2, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 8, 'board_ms10': 0, 'rms_ppm': [82, 80, 102, 123, 174, 237, 324, 421, 524], 'kept': 5}
+  (3, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 10, 'board_ms10': 0, 'rms_ppm': [68, 66, 74, 84, 126, 210, 307, 408, 522], 'kept': 5}
+  (3, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 10, 'board_ms10': 0, 'rms_ppm': [74, 55, 92, 125, 221, 330, 448, 572, 701], 'kept': 6}
+  (3, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 10, 'board_ms10': 0, 'rms_ppm': [70, 63, 79, 99, 158, 244, 350, 469, 596], 'kept': 11}
+  (4, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 17, 'board_ms10': 0, 'rms_ppm': [71, 71, 71, 71, 81, 135, 216, 314, 435], 'kept': 5}
+  (4, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 10, 'board_ms10': 0, 'rms_ppm': [101, 72, 128, 177, 300, 430, 569, 714, 865], 'kept': 6}
+  (4, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 11, 'board_ms10': 0, 'rms_ppm': [74, 62, 82, 107, 175, 269, 385, 511, 641], 'kept': 11}
+  (5, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 25, 'refined_ms10': 20, 'board_ms10': 0, 'rms_ppm': [81, 81, 80, 83, 100, 123, 179, 261, 362], 'kept': 6}
+  (5, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 18, 'board_ms10': 0, 'rms_ppm': [85, 67, 70, 99, 178, 274, 398, 538, 686], 'kept': 6}
+  (5, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 25, 'refined_ms10': 19, 'board_ms10': 0, 'rms_ppm': [62, 62, 61, 69, 109, 166, 239, 331, 441], 'kept': 11}
+  (6, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 25, 'refined_ms10': 23, 'board_ms10': 0, 'rms_ppm': [67, 67, 62, 64, 99, 165, 249, 353, 469], 'kept': 6}
+  (6, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 25, 'refined_ms10': 23, 'board_ms10': 0, 'rms_ppm': [96, 88, 75, 81, 138, 222, 330, 457, 600], 'kept': 6}
+  (6, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 25, 'refined_ms10': 21, 'board_ms10': 0, 'rms_ppm': [78, 69, 64, 68, 92, 143, 216, 302, 405], 'kept': 12}
+  (7, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 25, 'refined_ms10': 20, 'board_ms10': 0, 'rms_ppm': [75, 75, 75, 75, 77, 109, 154, 224, 332], 'kept': 6}
+  (7, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 30, 'refined_ms10': 28, 'board_ms10': 0, 'rms_ppm': [174, 139, 84, 78, 140, 243, 354, 474, 610], 'kept': 6}
+  (7, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 30, 'refined_ms10': 28, 'board_ms10': 0, 'rms_ppm': [106, 84, 62, 62, 81, 132, 201, 282, 372], 'kept': 8}
+  (8, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 40, 'refined_ms10': 36, 'board_ms10': 0, 'rms_ppm': [98, 97, 84, 75, 69, 96, 154, 233, 328], 'kept': 8}
+  (8, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 40, 'refined_ms10': 35, 'board_ms10': 0, 'rms_ppm': [137, 137, 109, 90, 89, 179, 297, 424, 566], 'kept': 8}
+  (8, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 30, 'refined_ms10': 32, 'board_ms10': 0, 'rms_ppm': [114, 100, 69, 61, 68, 100, 153, 225, 312], 'kept': 8}
+  (9, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 50, 'refined_ms10': 48, 'board_ms10': 0, 'rms_ppm': [181, 181, 181, 166, 113, 81, 126, 220, 340], 'kept': 9}
+  (9, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 50, 'refined_ms10': 49, 'board_ms10': 0, 'rms_ppm': [133, 133, 133, 133, 107, 63, 111, 208, 324], 'kept': 5}
+  (9, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 50, 'refined_ms10': 50, 'board_ms10': 0, 'rms_ppm': [155, 155, 149, 130, 91, 55, 82, 145, 235], 'kept': 5}
+  (10, 1, 0, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [82, 88, 110, 135, 215, 314, 424, 542, 669], 'kept': 5}
+  (10, 1, 1, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 15, 'refined_ms10': 8, 'board_ms10': 0, 'rms_ppm': [83, 83, 85, 90, 112, 154, 207, 282, 384], 'kept': 5}
+  (10, 1, 2, 0.58, 113): 22 survey wheels, board {'wheels': 22, 'least_ms10': 0, 'refined_ms10': 0, 'board_ms10': 0, 'rms_ppm': [63, 78, 130, 166, 256, 369, 497, 632, 772], 'kept': 11}
+held out, 2% alone: 48 builds told TAKE_US = 0; true take at most the bound on 46 (95.8%); instant builds 6, bound 1.5 ms on 4
+  0 ms: bounds [1.5 3 1.5 1.5 2.5 1.5]
+  0.1 ms: bounds [1.5 1.5 3 1.5 1.5 4]
+  0.5 ms: bounds [1.5 1.5 1.5 2.5 2.5 1.5]
+  0.9 ms: bounds [2.5 1.5 1.5 2.5 1.5 2.5]
+  1.3 ms: bounds [2.5 2.5 2.5 2.5]
+  1.6 ms: bounds [1.5 2.5 4 2.5 2.5]
+  2 ms: bounds [3 2.5 2.5 3 3 3]
+  2.4 ms: bounds [4 4 4 4]
+  2.8 ms: bounds [1.5 4]
+  3.5 ms: bounds [5 6 5]
+held out, max(2%, 2 ppm): 48 builds told TAKE_US = 0; true take at most the bound on 48 (100.0%); instant builds 6, bound 1.5 ms on 4
+  0 ms: bounds [1.5 3 1.5 1.5 3 1.5]
+  0.1 ms: bounds [1.5 1.5 3 1.5 1.5 4]
+  0.5 ms: bounds [1.5 1.5 1.5 2.5 2.5 1.5]
+  0.9 ms: bounds [2.5 1.5 1.5 2.5 1.5 2.5]
+  1.3 ms: bounds [2.5 2.5 2.5 2.5]
+  1.6 ms: bounds [2.5 2.5 4 2.5 2.5]
+  2 ms: bounds [3 2.5 3 4 3 3]
+  2.4 ms: bounds [4 4 4 4]
+  2.8 ms: bounds [4 5]
+  3.5 ms: bounds [5 6 5]
+  (a) coverage at least 95% and at least the 2%-alone 46 of 48: held; (b) bound 1.5 ms on at least half the instant builds: held
+Decision: the 2 ppm floor ships in host.take_survey_bound

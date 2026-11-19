@@ -74,7 +74,7 @@ export function parseNumber(v, decimalComma = false) {
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
   // En and em dashes count too: formatted reports and pasted PDF tables write
   // "–12.50" for a refund.
-  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
+  const neg = /\([^()]*\d[^()]*\)/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);

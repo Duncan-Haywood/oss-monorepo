@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23234d4a'/%3E%3Crect%20x='6'%20y='18'%20width='5'%20height='8'%20fill='%23fff'/%3E%3Crect%20x='13.5'%20y='8'%20width='5'%20height='18'%20fill='%23f2b33b'/%3E%3Crect%20x='21'%20y='13'%20width='5'%20height='13'%20fill='%23fff'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pairwise Ranking Calculator — Bradley-Terry ratings from head-to-head results, with ties and home advantage</title>
+  <meta name="description" content="Free pairwise ranking tool. Paste head-to-head results (winner,loser, a result column, or home and away scores) and get Bradley-Terry ratings with standard errors, the chance each is really ahead, 95% rank ranges, draws by the Davidson model, home advantage with a test, and win, draw and loss chances for any pairing. Runs in your browser.">
+  <meta property="og:title" content="Who is really the strongest? Bradley-Terry ratings from head-to-head results, with draws, home advantage and rank ranges">
+  <meta property="og:description" content="Ratings with standard errors from all the results at once, rank ranges by simulation, Davidson's tie model and a home-advantage test, checked against statsmodels and scipy on 30 fits. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pairwise ranking: Bradley-Terry ratings with ties and home advantage", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Ranks players, teams or items from head-to-head results by the Bradley-Terry model (Bradley & Terry 1952; Zermelo 1929), with draws by Davidson's (1970) model, a home or first-mover advantage (Davidson & Beaver 1977), standard errors, simulated rank ranges, Ford's (1957) existence check and win, draw and loss chances for any pairing. Runs in your browser.", "featureList": "Bradley-Terry model, paired comparison, pairwise comparison ranking, head-to-head ranking, Davidson tie model, draws, home advantage, Elo-scale ratings, rating standard errors, rank confidence intervals, win probability, match prediction, Ford existence condition, MM algorithm, sports power rankings, taste test ranking, CSV download", "citation": ["https://doi.org/10.2307/2334029", "https://doi.org/10.1007/BF01180541", "https://doi.org/10.1080/00029890.1957.11989117", "https://doi.org/10.1080/01621459.1970.10481082", "https://doi.org/10.2307/2529467", "https://doi.org/10.1214/aos/1079120141"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the Bradley-Terry model?", "acceptedAnswer": {"@type": "Answer", "text": "It gives every player a strength and says the chance that one beats another is its strength divided by the sum of the two. The strengths are chosen to make the results you actually saw as likely as possible, using every game at once, so beating a strong side counts for more than beating a weak one. Zermelo proposed it for chess tournaments in 1929; Bradley and Terry rediscovered it in 1952 for taste tests and other paired comparisons."}}, {"@type": "Question", "name": "How is this different from Elo ratings?", "acceptedAnswer": {"@type": "Answer", "text": "Elo updates a rating after each game, so the result depends on the order the games were played and on a K factor someone chose. Bradley-Terry fits all the results together and does not care about order. The ratings here are shown on Elo's scale (1500 for an average player, 400 points for 10 to 1 odds) so they read the same way, but they are maximum-likelihood estimates with standard errors."}}, {"@type": "Question", "name": "How are draws and ties handled?", "acceptedAnswer": {"@type": "Answer", "text": "By default with Davidson's (1970) model, which adds a tie parameter: two equal sides tie with probability nu / (2 + nu), and ties become rarer as the gap between the sides grows. You can instead count a tie as half a win for each side, or leave ties out."}}, {"@type": "Question", "name": "What does home advantage mean here?", "acceptedAnswer": {"@type": "Answer", "text": "The first-listed side in each row gets a multiplier on its strength, estimated from the data, with a likelihood-ratio test of whether it is there at all. It switches on when the columns are headed home and away. It works for any order effect: the home team, the player with white, the option shown first, the speaker who went first."}}, {"@type": "Question", "name": "Why does it say no finite ranking exists?", "acceptedAnswer": {"@type": "Answer", "text": "If some group of players never lost to anyone outside the group, the results are best explained by making them infinitely stronger, so the maximum-likelihood ratings do not exist (Ford 1957). The same happens when a home side won every game. The tool says which players cause it, then shows ratings from a penalised fit (a normal prior), whose gaps depend on that choice."}}, {"@type": "Question", "name": "How sure is the order?", "acceptedAnswer": {"@type": "Answer", "text": "Each rating has a standard error from the curvature of the likelihood. The tool also draws thousands of plausible sets of strengths from that uncertainty and ranks each one, giving every player a rank range and a chance of being top. In the 2023-24 Premier League example Manchester City finished first, but the results alone give them about a 59% chance of being the strongest side."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every fit is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17302e; background: #f1f5f4; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1f5f5a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #173f3c; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #173f3c; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #475b59; }
+    .card { background: #fff; border: 1px solid #d3dfdd; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #173f3c10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    label.inline { display: inline-flex; gap: 6px; align-items: center; font-weight: 500; }
+    label.inline input { width: auto; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #687c7a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f5f5a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e1ebe9; color: #173f3c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 6px 7px; border-bottom: 1px solid #e4ecea; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #475b59; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    table.matrix td, table.matrix th { font-size: .78rem; padding: 4px 5px; text-align: center; }
+    table.matrix th.row { text-align: left; white-space: nowrap; }
+    footer { margin-top: 28px; border-top: 1px solid #d3dfdd; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 200px; padding: 9px 10px; border: 1px solid #687c7a; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fbefd2; color: #5c450b; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .big { font-size: 1.1rem; font-weight: 600; }
+    pre { background: #f3f7f6; border: 1px solid #dae5e3; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PAIRWISE RANKING · BRADLEY-TERRY · DRAWS (DAVIDSON) · HOME ADVANTAGE · RATINGS WITH STANDARD ERRORS · RANK RANGES · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Who is really the strongest, from who beat whom?</h1>
+    <p>A league table counts points; it does not ask who you played. Paste head-to-head results (sports fixtures, chess games, a blind taste test, design A-or-B picks, a debate tournament) and this tool fits the <strong>Bradley-Terry model</strong> to all of them at once: a rating for each player with its standard error, the chance each is really ahead of the next, a <strong>rank range</strong>, <strong>draws</strong> by Davidson's model, a tested <strong>home advantage</strong>, and win, draw and loss chances for any pairing.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistics from the results you give, not betting, financial or professional advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Results, one game per row</h2>
+    <label for="csv">A CSV with a header row: winner,loser; or a,b,result (1/0/0.5, W/L/D, H/A/D or the winner's name); or home,away,home_score,away_score. An optional count column repeats a row; date and round columns are ignored.</label>
+    <textarea id="csv" spellcheck="false"></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.txt,.tsv,text/csv,text/plain">
+    <div class="grid">
+      <div><label for="ties">Draws and ties</label><select id="ties"><option value="auto">Davidson model (when there are ties)</option><option value="half">Half a win each</option><option value="drop">Leave them out</option></select></div>
+      <div><label for="home">Home (first-listed) advantage</label><select id="home"><option value="auto">Auto: on for home/away headers</option><option value="yes">On</option><option value="no">Off</option></select></div>
+      <div><label for="level">Confidence level</label><select id="level"><option value="0.8">80%</option><option value="0.9">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select></div>
+      <div><label for="prior">Prior SD on log-strength (0 = none)</label><input id="prior" type="number" min="0" max="100" step="0.1" value="0"></div>
+    </div>
+    <div>
+      <button type="button" class="secondary" id="ex-premier">Example: Premier League 2023-24 (380 games)</button>
+      <button type="button" class="secondary" id="ex-coffee">Example: coffee taste test (made up)</button>
+    </div>
+    <button type="button" id="analyze">Rank</button>
+    <span class="note" id="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="notes"></div>
+    <h3>Ratings, with intervals</h3>
+    <p class="note" id="legend">Each bar is a rating's confidence interval on Elo's scale (1500 = average, 400 points = 10 to 1 odds); the dot is the estimate.</p>
+    <div id="chart"></div>
+    <h3>The table</h3>
+    <div class="scroll"><table id="table"></table></div>
+    <div id="extras"></div>
+    <h3>Any pairing</h3>
+    <div class="grid">
+      <div><label for="pa">First (home) side</label><select id="pa"></select></div>
+      <div><label for="pb">Second side</label><select id="pb"></select></div>
+    </div>
+    <label class="inline" for="ph"><input id="ph" type="checkbox" checked> First side has the home advantage</label>
+    <p class="big" id="pout"></p>
+    <h3>Head to head: chance the row beats the column (neutral ground)</h3>
+    <div class="scroll"><table class="matrix" id="matrix"></table></div>
+    <button type="button" class="secondary" id="download">Download the ratings (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Example: the 2023-24 Premier League, re-ranked from its results</h2>
+    <p>Load the Premier League example: all 380 results of the 2023-24 season, from the public-domain openfootball data. Manchester City won the title by two points, and the model agrees they were the strongest side, but not by much: from these 38 games each, the chance City were really stronger than Arsenal is about 64%, and City top about 59% of simulated seasons. Home advantage is clear (likelihood-ratio p about 0.0003): between two equal sides the home team wins about 46%, draws 26% and loses 28%. Points tables cannot say any of this.</p>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is the Bradley-Terry model?</h3>
+    <p>It gives every player a strength and says the chance that one beats another is its strength divided by the sum of the two. The strengths are chosen to make the results you actually saw as likely as possible, using every game at once, so beating a strong side counts for more than beating a weak one. Zermelo proposed it for chess tournaments in 1929; Bradley and Terry rediscovered it in 1952 for taste tests and other paired comparisons.</p>
+    <h3>How is this different from Elo ratings?</h3>
+    <p>Elo updates a rating after each game, so the result depends on the order the games were played and on a K factor someone chose. Bradley-Terry fits all the results together and does not care about order. The ratings here are shown on Elo's scale (1500 for an average player, 400 points for 10 to 1 odds) so they read the same way, but they are maximum-likelihood estimates with standard errors.</p>
+    <h3>How are draws and ties handled?</h3>
+    <p>By default with Davidson's (1970) model, which adds a tie parameter: two equal sides tie with probability nu / (2 + nu), and ties become rarer as the gap between the sides grows. You can instead count a tie as half a win for each side, or leave ties out.</p>
+    <h3>What does home advantage mean here?</h3>
+    <p>The first-listed side in each row gets a multiplier on its strength, estimated from the data, with a likelihood-ratio test of whether it is there at all. It switches on when the columns are headed home and away. It works for any order effect: the home team, the player with white, the option shown first, the speaker who went first.</p>
+    <h3>Why does it say no finite ranking exists?</h3>
+    <p>If some group of players never lost to anyone outside the group, the results are best explained by making them infinitely stronger, so the maximum-likelihood ratings do not exist (Ford 1957). The same happens when a home side won every game. The tool says which players cause it, then shows ratings from a penalised fit (a normal prior), whose gaps depend on that choice.</p>
+    <h3>How sure is the order?</h3>
+    <p>Each rating has a standard error from the curvature of the likelihood. The tool also draws thousands of plausible sets of strengths from that uncertainty and ranks each one, giving every player a rank range and a chance of being top. In the 2023-24 Premier League example Manchester City finished first, but the results alone give them about a 59% chance of being the strongest side.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Every fit is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>The model.</strong> Player <code>i</code> has log-strength <code>λ_i</code>. In a game where <code>i</code> is listed first, with <code>h = 1</code> for a home or first-mover advantage, the chances of a win, a tie and a loss are proportional to <code>H π_i</code>, <code>ν √(H π_i π_j)</code> and <code>π_j</code>, where <code>π = e^λ</code>, <code>H = e^α</code> and <code>ν = e^δ</code>. Without ties and home advantage this is Bradley &amp; Terry (1952), first given by Zermelo (1929); the tie term is Davidson's (1970) and the order effect follows Davidson &amp; Beaver (1977), with <code>H</code> also inside the tie term so the model stays a softmax of utilities linear in the parameters.</p>
+    <p><strong>Fitting.</strong> In that form the log-likelihood is concave, so Newton-Raphson with step halving from zero reaches the maximum in a handful of iterations; the observed information gives the standard errors, and strengths are centred to average zero (the reported covariance is transformed to match). Hunter's (2004) MM algorithm, a different method, is in the engine as a check. Ratings are <code>1500 + 400 log10(π)</code>, Elo's (1978) display scale only. Rank ranges and the chance of being top come from simulating the strengths from their normal approximation (4,000 seeded draws). The home test is a likelihood ratio against the same model without <code>α</code>.</p>
+    <p><strong>When there is no answer.</strong> The maximum exists only if, however the players are split in two, someone on each side beat someone on the other (Ford 1957), checked here by strongly connected components of the who-beat-whom graph. With ties or a home term that check is necessary but not sufficient (one win and one tie between two players, or a home side that won every game, still pushes a parameter to infinity), so the fit also watches for a runaway parameter. Either way the tool says so and refits with a normal prior (standard deviation 1.5 on the log scale unless you set one).</p>
+    <p><strong>Checked</strong> against 30 independent fits made in Python (numpy, scipy and statsmodels, versions in <code>eval/reference.json</code>): statsmodels' binomial GLM on a ±1 design for the models without a tie parameter, and scipy's BFGS on Davidson's likelihood written out directly, with a numerical Hessian, for those with one. Strengths agree to 1e-7 (GLM) and 2e-5 (BFGS), standard errors to 1e-6 and 0.1%. Newton and the MM algorithm agree to 1e-9. Implemented from the papers; no third-party code was ported.</p>
+<pre>@article{bradley1952rank, author={Bradley, Ralph Allan and Terry, Milton E.}, title={Rank Analysis of Incomplete Block Designs: I. The Method of Paired Comparisons}, journal={Biometrika}, volume={39}, number={3/4}, pages={324--345}, year={1952}, doi={10.2307/2334029}}
+@article{zermelo1929berechnung, author={Zermelo, Ernst}, title={Die Berechnung der Turnier-Ergebnisse als ein Maximumproblem der Wahrscheinlichkeitsrechnung}, journal={Mathematische Zeitschrift}, volume={29}, pages={436--460}, year={1929}, doi={10.1007/BF01180541}}
+@article{ford1957solution, author={Ford, Jr., Lester R.}, title={Solution of a Ranking Problem from Binary Comparisons}, journal={The American Mathematical Monthly}, volume={64}, number={8}, pages={28--33}, year={1957}, doi={10.1080/00029890.1957.11989117}}
+@article{davidson1970extending, author={Davidson, Roger R.}, title={On Extending the Bradley-Terry Model to Accommodate Ties in Paired Comparison Experiments}, journal={Journal of the American Statistical Association}, volume={65}, number={329}, pages={317--328}, year={1970}, doi={10.1080/01621459.1970.10481082}}
+@article{davidson1977extending, author={Davidson, Roger R. and Beaver, Robert J.}, title={On Extending the Bradley-Terry Model to Incorporate Within-Pair Order Effects}, journal={Biometrics}, volume={33}, number={4}, pages={693--702}, year={1977}, doi={10.2307/2529467}}
+@article{hunter2004mm, author={Hunter, David R.}, title={MM Algorithms for Generalized Bradley-Terry Models}, journal={The Annals of Statistics}, volume={32}, number={1}, pages={384--406}, year={2004}, doi={10.1214/aos/1079120141}}
+@book{elo1978rating, author={Elo, Arpad E.}, title={The Rating of Chessplayers, Past and Present}, publisher={Arco Publishing}, address={New York}, year={1978}}</pre>
+    <p class="note">Example data: Premier League 2023-24 results from <a href="https://github.com/openfootball/football.json" rel="noopener">openfootball/football.json</a>, dedicated to the public domain by its authors; points deductions are not part of the results and are not applied. The coffee taste test is made up. Limits: up to 2,000 players and 200,000 rows; one strength per player, constant over the period (no form, injuries or transfers); intervals assume the normal approximation, which is rough for players with only a few games.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not betting, financial or professional advice, and its chances are estimates from past results under a simple model, not forecasts anyone guarantees. Results are statistics on the data you enter; a competition's own rules decide standings and tie-breaks. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, any league, club, federation or rating body, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs results.csv --predict "Arsenal,Liverpool"</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pairwise-ranking" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../ranked-ballot-counter/">ranked ballot counter</a> counts a ranked-choice vote and its head-to-head table, and <a href="../inter-rater-agreement/">inter-rater agreement</a> checks whether your judges agree beyond chance.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, toCsv, fmt, predictFromResult } from "./engine.mjs";
+    import { EXAMPLES } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const pct = (x, d = 0) => (x == null ? "—" : `${fmt(100 * x, d)}%`);
+    let last = null;
+    function inputs() {
+      return { csv: $("#csv").value, ties: $("#ties").value, home: $("#home").value, level: Number($("#level").value), priorSd: Number($("#prior").value) || 0 };
+    }
+    function chart(r) {
+      const P = r.players;
+      const rowH = 22, T = 26, B = 34, L = 190, R = 24, W = 900, H = T + B + rowH * P.length;
+      const z = P[0].se ? (P[0].upper - P[0].strength) / P[0].se : 0;
+      const lo = Math.min(...P.map((p) => (p.ratingSe == null ? p.rating : p.rating - z * p.ratingSe))), hi = Math.max(...P.map((p) => (p.ratingSe == null ? p.rating : p.rating + z * p.ratingSe)));
+      const x0 = Math.floor(lo / 100) * 100, x1 = Math.ceil(hi / 100) * 100;
+      const sx = (v) => L + ((v - x0) / (x1 - x0 || 1)) * (W - L - R);
+      let out = "";
+      for (let v = x0; v <= x1; v += 100) out += `<line x1="${sx(v).toFixed(1)}" y1="${T - 6}" x2="${sx(v).toFixed(1)}" y2="${H - B}" stroke="${v === 1500 ? "#8aa3a0" : "#e4ecea"}"/><text x="${sx(v).toFixed(1)}" y="${H - B + 16}" font-size="12" text-anchor="middle" fill="#475b59">${v}</text>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 4}" font-size="12" text-anchor="middle" fill="#475b59">rating (1500 = average; ${fmt(100 * r.settings.level, 0)}% interval)</text>`;
+      P.forEach((p, k) => {
+        const y = T + k * rowH + rowH / 2;
+        out += `<text x="${L - 8}" y="${y + 4}" font-size="12.5" text-anchor="end" fill="#17302e">${esc(p.player.length > 26 ? p.player.slice(0, 25) + "…" : p.player)}</text>`;
+        if (p.ratingSe != null) out += `<line x1="${sx(p.rating - z * p.ratingSe).toFixed(1)}" y1="${y}" x2="${sx(p.rating + z * p.ratingSe).toFixed(1)}" y2="${y}" stroke="#1f5f5a" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>`;
+        out += `<circle cx="${sx(p.rating).toFixed(1)}" cy="${y}" r="5" fill="#1f5f5a"><title>${esc(p.player)}: ${fmt(p.rating, 0)}${p.ratingSe != null ? ` ± ${fmt(p.ratingSe, 0)}` : ""}</title></circle>`;
+      });
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Each player's rating with its confidence interval">${out}</svg>`;
+    }
+    function fillPickers(r) {
+      const opts = r.players.map((p) => `<option value="${esc(p.player)}">${esc(p.player)}</option>`).join("");
+      $("#pa").innerHTML = opts;
+      $("#pb").innerHTML = opts;
+      $("#pa").value = r.players[0].player;
+      $("#pb").value = r.players[1].player;
+      $("#ph").disabled = !r.home;
+      $("#ph").checked = !!r.home;
+    }
+    function showPick() {
+      if (!last) return;
+      const a = $("#pa").value, b = $("#pb").value;
+      if (a === b) { $("#pout").textContent = "Pick two different sides."; return; }
+      const p = predictFromResult(last, a, b, { home: $("#ph").checked });
+      $("#pout").textContent = `${a}${p.home ? " (at home)" : ""} wins ${pct(p.win, 1)}${last.ties ? `, draw ${pct(p.tie, 1)}` : ""}, ${b} wins ${pct(p.loss, 1)}.`;
+    }
+    function show(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#notes").innerHTML = r.warnings.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      $("#chart").innerHTML = chart(r);
+      const L = fmt(100 * r.settings.level, 0);
+      $("#table").innerHTML = `<tr><th class="n">#</th><th>Player</th><th class="n">Rating</th><th class="n">±</th><th class="n">${L}% rank range</th><th class="n">Chance top</th><th class="n">W-T-L</th><th class="n">Score</th><th class="n">v average: win</th></tr>` +
+        r.players.map((p) => `<tr><td class="n">${p.rank}</td><td>${esc(p.player)}</td><td class="n">${fmt(p.rating, 0)}</td><td class="n">${p.ratingSe == null ? "—" : fmt(p.ratingSe, 0)}</td><td class="n">${p.rankLow == null ? "—" : p.rankLow === p.rankHigh ? p.rankLow : `${p.rankLow}–${p.rankHigh}`}</td><td class="n">${pct(p.pTop, p.pTop != null && p.pTop < 0.01 && p.pTop > 0 ? 1 : 0)}</td><td class="n">${fmt(p.wins, 0)}-${fmt(p.ties, 0)}-${fmt(p.losses, 0)}</td><td class="n">${fmt(p.actualScore, 1)}</td><td class="n">${pct(p.vsAverage.win)}</td></tr>`).join("");
+      let ex = "";
+      if (r.home) ex += `<h3>Home advantage</h3><p>Factor ${fmt(r.home.factor, 2)} on the first-listed side's strength (${L}% interval ${fmt(Math.exp(r.home.lower), 2)} to ${fmt(Math.exp(r.home.upper), 2)}), worth ${fmt(r.home.ratingPoints, 0)} rating points; likelihood-ratio test p ${r.home.p < 0.0001 ? "&lt; 0.0001" : "= " + fmt(r.home.p, 4)}. Between equal sides: home win ${pct(r.home.evenGame.win)}${r.ties ? `, draw ${pct(r.home.evenGame.tie)}` : ""}, away win ${pct(r.home.evenGame.loss)}.</p>`;
+      if (r.ties) ex += `<h3>Ties</h3><p>Davidson's ν = ${fmt(r.ties.nu, 3)} (${L}% interval ${fmt(r.ties.lower, 3)} to ${fmt(r.ties.upper, 3)}): two equal sides on neutral ground tie ${pct(r.ties.evenTie)} of the time, and less often the further apart they are.</p>`;
+      ex += `<p class="note">Read as ${esc(r.layout ? r.layout.type : "games")}${r.layout ? ` from columns ${r.layout.columns.map(esc).join(", ")}${r.layout.weight ? `, counts from ${esc(r.layout.weight)}` : ""}` : ""}. Log-likelihood ${fmt(r.fit.loglik, 3)}, ${r.fit.parameters} parameters, ${r.fit.iterations} Newton iterations.</p>`;
+      $("#extras").innerHTML = ex;
+      const M = r.matrix;
+      $("#matrix").innerHTML = `<tr><th></th>${M.players.map((p) => `<th title="${esc(p)}">${esc(p.slice(0, 3))}</th>`).join("")}</tr>` +
+        M.players.map((p, k) => `<tr><th class="row">${esc(p)}</th>${M.win[k].map((c) => `<td>${c ? fmt(100 * c.win, 0) : ""}</td>`).join("")}</tr>`).join("");
+      fillPickers(r);
+      showPick();
+    }
+    function run() {
+      const t0 = performance.now();
+      const r = analyze(inputs());
+      if (r.error) {
+        $("#status").textContent = r.error;
+        $("#results").hidden = true;
+        return;
+      }
+      $("#status").textContent = `Done in ${Math.round(performance.now() - t0)} ms.`;
+      show(r);
+      record("analysis_run");
+    }
+    function loadExample(key, quiet = false) {
+      const ex = EXAMPLES[key];
+      $("#csv").value = ex.csv;
+      $("#ties").value = "auto";
+      $("#home").value = "auto";
+      $("#prior").value = "0";
+      $("#status").textContent = ex.label;
+      if (quiet) {
+        const r = analyze(inputs());
+        if (!r.error) show(r);
+        return;
+      }
+      record("example_loaded");
+      run();
+    }
+    $("#analyze").addEventListener("click", run);
+    $("#ex-premier").addEventListener("click", () => loadExample("premier"));
+    $("#ex-coffee").addEventListener("click", () => loadExample("coffee"));
+    $("#pa").addEventListener("change", showPick);
+    $("#pb").addEventListener("change", showPick);
+    $("#ph").addEventListener("change", showPick);
+    $("#file").addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      if (f) { $("#csv").value = await f.text(); run(); }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "pairwise-ranking.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    const syncOpt = () => { $("#optout").textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+    $("#optout").addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); });
+    syncOpt();
+    loadExample("premier", true);
+  </script>
+</body>
+</html>

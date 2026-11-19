@@ -171,6 +171,8 @@ test('normalizeAnswer removes the cosmetic differences between resolvers', () =>
   assert.equal(normalizeAnswer('TXT', '"part-one" "part-two"'), 'part-onepart-two', 'split TXT chunks concatenate');
   assert.equal(normalizeAnswer('A', ' 192.0.2.1 '), '192.0.2.1');
   assert.equal(normalizeAnswer('A', undefined), '');
+  assert.equal(normalizeAnswer('MX', '0 .'), '0 .', 'RFC 7505 null MX keeps its root target (quality audit 2026-11-19)');
+  assert.equal(normalizeAnswer('TXT', '"two  spaces"'), 'two  spaces', 'TXT text is opaque');
 });
 
 test('a trailing-dot difference alone does not read as a change', () => {

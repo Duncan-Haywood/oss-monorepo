@@ -310,14 +310,18 @@ export async function checkEventModule(mod, reload) {
     fresh.toggleUsage(true);
   }
 
-  // 5. blocked or full storage never throws.
+  // 5. blocked or full storage never throws. "Reads that throw" added
+  // 2026-11-18: 36 of 39 copies let a throwing getItem out of usageAllowed(),
+  // so recordEvent() threw inside the page's render try and the calculator
+  // showed "SecurityError" instead of its answer; three copies had been fixed
+  // by hand on 2026-11-11 and the rest never were (platform/ci/copy_drift.mjs).
   const calls = [
     ["recordEvent", () => recordEvent("contract_a")],
     ["usageAllowed", () => usageAllowed()],
     ["toggleUsage(false)", () => toggleUsage(false)],
     ["toggleUsage(true)", () => toggleUsage(true)],
   ];
-  for (const [label, arrange] of [["blocked site data", blockStorage], ["writes that throw", () => reset(fakeStorage({ throwOnSet: true }))]]) {
+  for (const [label, arrange] of [["blocked site data", blockStorage], ["writes that throw", () => reset(fakeStorage({ throwOnSet: true }))], ["reads that throw", () => reset({ store: new Map(), getItem: readBoom, setItem: readBoom, removeItem: readBoom })]]) {
     for (const [name, call] of calls) {
       reset();
       arrange();
@@ -330,6 +334,10 @@ export async function checkEventModule(mod, reload) {
   }
   reset();
   return problems;
+}
+
+function readBoom() {
+  throw new Error("SecurityError");
 }
 
 // The third design (195 copies, 2026-11-17): recordUsage(storage, optedOut,

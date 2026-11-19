@@ -1,0 +1,308 @@
+% Milestone 7s (2026-11-18), Fig. 2 added in 7t, Fig. 1 (method) and first compile in 7zb (2026-11-19): the hull-ranking paper in IEEE conference format, for OCEANS (IEEE/MTS).
+% Draft, not submitted. Every number is copied from ../experiments/results_*.txt (named in the
+% text) via DRAFT.md; check_numbers.py checks each one against its file. Nothing new was run.
+% Build: python3 make_figures.py && pdflatex main && bibtex main && pdflatex main && pdflatex main
+% Needs texlive-latex-recommended, texlive-fonts-recommended and texlive-publishers (IEEEtran); first
+% compiled in 7zb and again in 7zc (references checked against Crossref), 5 pages, no errors, warnings or overfull boxes. main.pdf is gitignored: build it.
+\documentclass[conference]{IEEEtran}
+\usepackage{amsmath,booktabs,tikz,url}
+\usepackage[hidelinks]{hyperref}
+\begin{document}
+\title{Which Body Carries a Small Survey Payload Furthest per kWh?\\ A Swept Comparison of Seven Hull Types}
+\author{\IEEEauthorblockN{Programme \texttt{marine-hull}}
+\IEEEauthorblockA{Open research portfolio (MIT licensed); written with AI assistance (Claude Code).\\ Draft, not submitted.}}
+\maketitle
+
+\begin{abstract}
+Small autonomous survey craft of 100 to 500\,kg are usually chosen for deck area and stability,
+not endurance, and published comparisons fix one resistance method and one vehicle. We put seven
+body types (monohull, catamaran, SWATH, planing hull, hydrofoil, buoyancy glider and propeller
+AUV) on one energy basis, a 200\,kg craft with a 25\% battery mass fraction and a 30\,W payload,
+and sweep every input we cannot source. Against a 4\,m Wigley-form monohull the catamaran
+out-ranges it in 216 of 6{,}561 swept cases (3.3\%) and in none at equal length; SWATH, planing
+and hydrofoil rungs win 0 of 4{,}374, 48 and 2{,}916. With form factors bounded by yacht-series
+tank data the catamaran wins 0 of 6{,}561. The glider beats the AUV on energy per metre only
+through hotel load: at equal hotel load it wins 0 of 2{,}430 cases, against vendor-implied AUV
+loads it wins every case. The absolute range is not robust: hull-form constants together spread
+best range by 20.6\%, and with deck solar the 5\,m craft makes about 133 to 69\,km/day from the
+Equator to the Gulf of Alaska, each within about $\pm$10\%, with the site order unchanged in 500
+of 500 draws. One published Wigley tank point says our swept form-factor box is conservative for
+slender hulls. The ranking is the robust result; a buyer should measure hotel load before hull drag.
+\end{abstract}
+
+\section{Introduction}
+If the payload's fixed power draw dominates at survey speed, the hull matters little; if not, it
+matters a great deal. Surveys of unmanned surface vehicles catalogue hull types qualitatively
+\cite{manley2008,liu2016}, and the regression in common use for resistance \cite{holtrop1982} was
+fitted to ships of tens of metres, not to 3 to 5\,m craft. Nobody reports the region of inputs
+where the answer changes.
+
+We report that region. Contributions, stated narrowly: (i) a common energy-per-kilometre
+comparison of seven body types with every unsourced input swept on a grid and every sourced one
+named; (ii) the finding that the ranking is stable where the absolute range is not; (iii) a first
+contact with tank data, one Wigley point and 308 yacht-series points, showing the swept form-factor
+box is conservative for slender hulls and that Holtrop--Mennen over-predicts residuary resistance in
+the survey regime; (iv) a seeded artefact with one command per table, stdlib Python only.
+
+\section{Model}
+\emph{Displacement hulls.} Frictional resistance from the ITTC 1957 line \cite{ittc1957} times a
+form factor $(1+k)$, plus Michell thin-ship wave resistance \cite{michell1898} for Wigley hulls,
+with Havelock two-hull interference for the catamaran and an interference factor swept over the
+range measured by Insel and Molland \cite{insel1992,molland2011}. The wetted-surface constant
+$c_s$ (2.6 to 3.4), the form factor (0.10 to 0.40) and a wave-term scale are swept.
+\emph{Planing:} the Savitsky prismatic method \cite{savitsky1964}, without the mean-bottom-speed
+correction. \emph{Hydrofoil:} Prandtl lifting line plus flat-plate struts, no ventilation
+\cite{faltinsen2005}. \emph{Glider:} a steady glide at best-glide incidence with pump work
+$B\tan\gamma/(2\eta)$ per metre, independent of dive depth \cite{rudnick2004,eriksen2001}; the AUV
+is a same-mass, same-battery propeller body.
+
+\emph{Range} is battery energy over $(P_{\mathrm{prop}}/\eta + P_{\mathrm{hotel}})$ times speed,
+maximised over speed. At the best speed of a $v^3$ drag law the propulsive share of total power
+is one third; the computed share is 0.33 to 0.37 over the hull box
+(\texttt{results\_h1\_h5.txt}), so the best-range speed is set by the hotel load.
+Fig.~\ref{fig:energy} draws this model for the central monohull of Fig.~\ref{fig:rangespeed}
+(\texttt{results\_energy\_split.txt}). The hotel term falls as $1/v$; the friction term grows with
+log-log slope 1.81 between 0.5 and 2\,m/s, so the total has its minimum, 12.14\,Wh/km (823.7\,km), at
+1.00\,m/s, where the propulsive share is 0.314 and the wave term is 6.6\% of the hull resistance.
+Without the wave term the minimum is 11.80\,Wh/km at 1.10\,m/s with share 0.358, close to the friction-only
+value above; the wave term, rising past 1\,m/s, pulls the best speed down by 0.1\,m/s. At 0.5\,m/s the hotel term is 16.22 times
+the hull terms; by 2\,m/s (Froude number 0.32) the wave term is 31.1\% of the hull resistance and the
+hotel term only 0.23 of it.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{\input{fig_energy_split.tex}}
+\caption{The energy model: electrical energy per kilometre of the central 4\,m Wigley monohull
+(200\,kg, 10\,kWh, 30\,W hotel, $k=0.25$) split into ITTC 1957 friction, form factor and Michell wave
+terms (stacked bands, divided by the 0.47 drive efficiency) and the hotel term $P_h/v$ (dashed). Range
+is battery energy over the total, so its minimum is the best-range speed of Fig.~\ref{fig:rangespeed}a
+(\texttt{results\_energy\_split.txt}; drawn by \texttt{make\_figures.py}).}
+\label{fig:energy}
+\end{figure}
+\emph{Deck solar} adds a daily mean harvest from NASA POWER insolation at five sites, with module
+efficiency, temperature, soiling and electrical derates drawn jointly from their ranges.
+
+\section{Results}
+\subsection{Ranking against the monohull}\label{sec:rank}
+Table~\ref{tab:rank} compares each rung with the 4\,m Wigley monohull at its own best speed.
+The monohull's best range is 560 to 1{,}188\,km (median 836\,km) at a median 1.05\,m/s in the
+first sweep.
+
+\begin{table}[t]
+\caption{Rungs against the 4\,m Wigley monohull (200\,kg, 25\% battery, 30\,W hotel unless stated).}
+\label{tab:rank}
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrl@{}}
+\toprule
+Rung & Cases & Wins over the monohull \\
+\midrule
+Catamaran (Michell + Havelock) & 6{,}561 & 216 (3.3\%) \\
+\quad of which equal length & 2{,}187 & 0 \\
+Catamaran, tank-bound $k$ & 6{,}561 & 0 (ratio 0.74 to 0.97) \\
+SWATH & 4{,}374 & 0 (ratio 0.552 to 0.826) \\
+Planing (Savitsky) & 48 & 0 (ratio 0.055 to 0.138) \\
+Hydrofoil, foilborne & 2{,}916 & 0 (ratio 0.064 to 0.248) \\
+\midrule
+Glider vs AUV, equal hotel & 2{,}430 & glider 0 \\
+Glider vs REMUS-100-class AUV & 810 per row & glider longer in 100\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The catamaran's 216 wins all come from unequal lengths, and they rise with the monohull's form factor: its win
+share is 0.0\%, 2.5\% and 7.4\% at monohull $k$ of 0.1, 0.25 and 0.4
+(\texttt{results\_michell.txt}). With $k$ bounded to 0.03 to 0.15 for both hulls by the Delft
+yacht-series tank data (Section~\ref{sec:tank}) it wins 0 of 6{,}561 (median range ratio 0.85,
+max 0.97; \texttt{results\_lowk.txt}). With the Michell wave term in the same tank-bound box
+(729 cases) it wins 7 (1.0\%) and 0 of 243 at equal length (ratio 0.73 to 1.02;
+\texttt{results\_michell\_lowk.txt}); all 7 pair a 3\,m monohull with a longer catamaran at zero
+interference, a length effect, not a hull-type effect. The prediction of no equal-length win was
+logged before that run.
+
+Fig.~\ref{fig:rangespeed}a shows why the table comes out as it does: range against speed for each
+rung at the centre of its own swept box, on the common 10\,kWh, 30\,W basis
+(\texttt{results\_range\_speed.txt}). The monohull peaks at 823.7\,km at 1.00\,m/s, the catamaran at
+713.1\,km at 0.90\,m/s (ratio 0.866) and SWATH at 546.1\,km at 0.70\,m/s (0.663). The fast rungs
+cannot fly or plane at survey speed at all: the central foil carries the craft only from 9.00\,m/s
+and peaks at 116.4\,km at 10.25\,m/s (0.141), above its milestone's 10\,m/s grid, and the planing
+hull peaks at 80.3\,km at 3.25\,m/s (0.097), close to its lowest valid speed, where the Savitsky
+method is least reliable. The peaks fall in the table's order; the three displacement peaks sit at 0.70 to 1.00\,m/s, and the
+fast rungs are feasible only far to the right of that hotel-set speed. The ripples in the
+displacement curves are the Michell wave term's humps and hollows, not grid noise.
+Fig.~\ref{fig:rangespeed}b holds the monohull fixed and varies the hotel load: the best speed
+rises from 0.60\,m/s at 5\,W to 1.65\,m/s at 120\,W while range falls from 2{,}669.6 to 323.4\,km,
+a slope of about 0.32 in log speed against log hotel load, close to the $1/3$ of a $v^3$ drag law.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{\input{fig_range_speed.tex}}
+\caption{(a) Range against speed for each rung at the centre of its swept box (200\,kg, 10\,kWh,
+30\,W hotel); dots mark each peak, and curves are drawn only where the rung is feasible.
+(b) The 4\,m monohull at hotel loads of 5 to 120\,W; the dashed line joins the peaks
+(\texttt{results\_range\_speed.txt}; drawn by \texttt{make\_figures.py}).}
+\label{fig:rangespeed}
+\end{figure}
+
+SWATH, planing and foil rungs lose at survey speed by wide margins (Table~\ref{tab:rank}); SWATH
+still loses at a fixed 3\,m/s (median ratio 0.456; \texttt{results\_swath.txt}), and the foil's
+best speed sits at the 10\,m/s grid ceiling in 369 of 1{,}620 feasible cases
+(\texttt{results\_foil.txt}).
+
+\emph{Over what payload power does the ranking hold?} Every comparison above uses a 30\,W hotel
+load, and the hotel load sets the best speed. Re-running the central cases with the hotel load from
+1\,W to 10\,kW (Fig.~\ref{fig:hotelrank}; \texttt{results\_hotel\_ranking.txt}) leaves the monohull
+first at every load up to 200\,W, which covers every payload load sourced in this study (8\,W to
+175\,W). The catamaran never overtakes it (maximum ratio 0.969) nor does SWATH (0.733). The fast
+rungs do: the central hydrofoil at 659\,W and the planing hull at 1{,}068\,W. Over the hydrofoil's
+whole box (972 cases) against the monohull at $k$ 0.10, 0.25 and 0.40 the break-even load is
+291\,W at the lowest and 881\,W at the median ($k=0.25$), and none of the 972 nor of the 16 planing
+cases overtakes at or below 200\,W. Every crossing lies where the monohull's best speed has already
+passed Froude number 0.3 (from 215\,W), the regime in which our displacement and Michell models are
+not validated (Section~\ref{sec:tank}); so the table's ranking is a statement about low-power
+payloads, and the fast-rung crossover is indicative only. The planing figure is also a grid
+artefact: its peak sits at the 20\,m/s grid ceiling from 215\,W up, and a 40\,m/s grid moves its
+break-even to 798\,W at speeds where air and spray drag, omitted from these runs, are no longer small.
+Adding still-air drag $\tfrac12\rho_a C_DA\,u^2$ ($\rho_a=1.225$\,kg/m$^3$~\cite{iso2533}) to every rung, with
+$C_DA$ swept from 0 to 0.4\,m$^2$ since no measured drag area exists for these craft (bluff to faired bodies, $C_D$ about 1.2 to 0.3~\cite{hoerner1965})
+(\texttt{results\_air\_drag.txt}), leaves the monohull first up to 200\,W at every $C_DA$, in the
+central case and in all 972 hydrofoil cases. It moves the central hydrofoil's break-even from 659\,W
+to 700\,W at 0.1\,m$^2$ and 818\,W at 0.4\,m$^2$ (box median 935\,W and 1{,}063\,W, minimum 398\,W),
+and the planing hull's to 1{,}744\,W at 0.4\,m$^2$, where its best speed falls to 23.5\,m/s and the
+hydrofoil out-ranges it at every load. Air drag therefore sharpens the scope statement rather than
+changing it. Still air is the kind case for a slow hull: in a wind $w$ met on every heading, the
+heading-averaged along-track force $\tfrac12\rho_a C_DA\,\overline{|V_a|(u+w\cos\theta)}$ grows roughly as
+$1.5\,uw$ when $w\gg u$. Averaging it over 84{,}776 ten-minute NDBC buoy records (19 buoy-months, 2024,
+mean 5.68\,m/s~\cite{ndbc2024}; \texttt{results\_wind\_air\_drag.txt}) costs the monohull 2.21\% of its
+30\,W range at $C_DA=0.1$\,m$^2$ and 8.23\% at 0.4\,m$^2$, more than any other rung, yet moves the
+hydrofoil's break-even up, not down: 706\,W and 841\,W (box median 1{,}086\,W, minimum 420\,W), because at
+the crossover the monohull already runs at 2.3\,m/s and the foil's whole hull is in air. The
+200\,W scope holds in every case, with winds scaled by 0.86 or 1.5 (874\,W at 0.4\,m$^2$), and
+per buoy-month the break-even spans only 701 to 711\,W at 0.1\,m$^2$. Waves cost the slow hull more
+than wind. The ITTC STAWAVE-2 transfer function~\cite{ittc2021trials}, integrated over the ITTC 1978
+spectrum of each of 14{,}758 hourly NDBC sea states (20 buoy-months, 2024, mean $H_s$ 1.44\,m~\cite{ndbc2024};
+\texttt{results\_wave\_added\_resistance.txt}), costs the monohull 2.52\% of its 30\,W range when, as the
+procedure prescribes, only waves within $\pm45^\circ$ of the bow add resistance, and 9.37\% if every wave
+were met head-on; its best speed stays at 1.00\,m/s. The 4\,m hulls lie outside the method's validated
+range (length 50 to 400\,m, $B/T$ 2.2 to 9), so these figures are extrapolations. Even giving the hydrofoil
+no added resistance at all, the monohull still leads to 200\,W in every case, and the central crossover
+moves only from 659\,W to 651\,W (627\,W for all head seas; 698\,W with the measured wind as well), because
+at the crossover the monohull runs at 2.3\,m/s where its calm-water resistance dwarfs the wave term. The
+larger effect is on whether the foil can fly: only 2.4\% of the hours have $H_s$ at or below its 0.3\,m
+strut draft, 11.9\% at or below 0.5\,m and 37.0\% at or below 1\,m, and at the four Pacific buoys
+under 23\% of hours at or below 1\,m in either month. Because the hulls lie outside STAWAVE-2's range, we recomputed the motion term from the hull's own sections: Frank close-fit heave coefficients~\cite{frank1967oscillation} (irregular frequencies~\cite{john1950floating} interpolated over 1.3\% of the table), ordinary strip theory for heave and pitch, and the Gerritsma--Beukelman radiated-energy added resistance~\cite{gerritsma1972added} (\texttt{results\_strip\_added\_resistance.txt}). STAWAVE-2 is not conservative here: in the measured seas strip theory gives 2.13 times its motion term at 1\,m/s, and the 30\,W loss becomes 4.31\% in the bow sector (15.06\% all head-on). Strip theory also exceeds STAWAVE-2 on an in-range Wigley ($L/B$ 7, $B/T$ 2.5) by 2.61 times at the Fr 0.20 peak, so part of the gap is the methods' own. Tank data settle that part: on a slender modified Wigley inside STAWAVE-2's range ($L/B$ 6.67, $B/T$ 2.4, Fn 0.2; four measured series read from the vector figures of~\cite{kashiwagi2022enhanced}), strip theory peaks at 11.4 in $R_{aw}/(\rho g \zeta_a^2 B^2/L)$ against measured peaks of 9.2 to 13.2, while STAWAVE-2 peaks at 5.4. STAWAVE-2's area over $\lambda/L$ 0.3 to 2.0 still comes out close (0.94 of the measured mean; strip theory 0.96), but only because its reflection term is 2.5 times the measurement in short waves (\texttt{results\_wigley\_seakeeping\_tank.txt}). Against the four computed curves of the same paper, our strip code is within 5\% of its strip method in heave and 2\% at the added-resistance peak; its heave rms error over $\lambda/L$ 0.8 to 2.0 (0.166) lies inside the published methods' 0.145 to 0.375, while the forward-speed-corrected methods fit the added resistance better (rms 0.95 to 1.06 against our 1.55). The 26\% heave overshoot at resonance, which the published methods share, is carried by the speed-induced added-mass coupling $A_{35}$; with the measured added-mass coupling coefficients in their place it becomes a 10\% undershoot (\texttt{results\_kashiwagi\_baselines.txt}). The strip-theory excess comes from a heave/pitch resonance damped only by radiation (12.9\% of critical in heave): an equivalent viscous damping of 10\% of critical cuts the 1\,m/s ratio to 1.20 and 20\% removes it (\texttt{results\_strip\_viscous.txt}). Fitted to the tank data instead of to STAWAVE-2, the damping is 2.5\% of critical (0 to 6.8\% across the four series), and the loss on our hull is 3.69\% (3.09\% to 4.31\%), not the 2.90\% that taking STAWAVE-2 as truth gave. The same damping, fitted to the added resistance alone, also removes the heave overshoot (+3.3\% at resonance, rms 0.135), whereas dropping the added-mass coupling as well overdamps heave ($-$19.1\%); either reading gives a 30\,W loss of 3.69\% to 3.75\% (\texttt{results\_a0\_coupling\_transfer.txt}). Under either method the monohull leads to 200\,W and none of the 972 foil cases overtakes at or below it; the central crossover is 641\,W with the strip-theory term. Spray drag remains unmodelled.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{\input{fig_hotel_ranking.tex}}
+\caption{Peak range of each rung over the 4\,m monohull's against hotel load, central cases, 200\,kg,
+10\,kWh. Shaded: payload loads sourced in this study. Dotted: the monohull's best speed passes
+Froude number 0.3 to the right (\texttt{results\_hotel\_ranking.txt}; drawn by \texttt{make\_figures.py}).}
+\label{fig:hotelrank}
+\end{figure}
+
+\subsection{Glider against propeller AUV}
+At equal hotel load the AUV-over-glider energy-per-metre ratio has median 0.36 and the glider never
+has the longer range; the glider ties when the AUV's hotel load is a median 4.87 times its own
+(10th to 90th percentile 2.38 to 10.67; \texttt{results\_slocum.txt}). Against a REMUS-100-class
+AUV whose non-propulsion load is implied by vendor endurance (107.3 to 170.3\,W of 125 to 188\,W
+total), the glider is longer in every one of 810 cases per row (\texttt{results\_remus.txt}), at
+about a tenth of the speed. The glider's edge is a hotel-load edge, so the proposal's hypothesis of
+a speed crossover between 0.4 and 0.9\,m/s is refuted.
+
+Fig.~\ref{fig:gliderhotel} draws the same 2{,}430 cases as a curve in the hotel-load ratio
+(\texttt{results\_glider\_hotel\_curve.txt}). The share of cases the glider wins is the
+distribution of the break-even multiple: it passes 10\%, 50\% and 90\% at ratios of 2.38, 4.88
+and 10.83, and the median range ratio reaches 1 at 4.87. Below the crossover the AUV wins on
+hydrodynamics, since with almost no hotel load (ratio 0.1) the glider's median range is 0.083 of
+the AUV's. Above it the AUV pays for its hotel load by going faster, and the median range ratio
+grows with log-log slope 0.645 between ratios 1 and 10, close to the $2/3$ that minimising
+$c\,v^{1.8} + P/v$ gives. Over ratios 20 to 200 the slope is 0.850, because the swept AUV speed
+stops at 1.5\,m/s: its unconstrained best speed exceeds that in 55.6\% of cases at ratio 20.
+Rerun with AUV speeds up to 4\,m/s, the slope there is 0.653 and the crossover does not move
+(median ratio 1 at 4.87; 90\% of cases at 11.10). The ceiling therefore flatters the glider only
+where the glider already wins at least 99.88\% of cases. The REMUS-100 band (implied hotel 104.1 to 174.9\,W over the
+glider's 0.7 to 5\,W, ratios 20.8 to 249.8) lies where the glider wins at least 99.92\% of cases
+on the swept AUV hulls.
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{\input{fig_glider_hotel.tex}}
+\caption{Glider against propeller AUV over the 2{,}430 glider cases of Table~\ref{tab:rank}, with
+the AUV's hotel load set to a multiple of the glider's. (a) Range ratio glider/AUV at equal battery:
+median (solid) and 10th to 90th percentile (band) on the swept AUV speeds up to 1.5\,m/s;
+dashed, the median with AUV speeds up to 4\,m/s. The dotted lines mark ratio 1 and the
+break-even multiple. (b) Share of cases in which the glider has the longer range. Shaded: the
+REMUS-100 hotel band (\texttt{results\_glider\_hotel\_curve.txt}; drawn by \texttt{make\_figures.py}).}
+\label{fig:gliderhotel}
+\end{figure}
+
+\subsection{What the ranking does not fix: absolute range}
+With 27 combinations of $c_s$, $k$ and wave scale on one monohull, best range spans 763 to 921\,km
+(20.6\%), though each constant alone moves it under 10\% ($c_s$ 9.0\%, $k$ 8.1\%, wave scale 0.8\%;
+\texttt{results\_h1\_h5.txt}). Battery specific energy (150 to 250\,Wh/kg) swaps no pair in 2{,}187
+cases, because range is linear in pack energy for every hull at fixed mass; only a fixed energy per
+mission breaks that, and a catamaran-only overhead of 100\,Wh swaps 3 cases (0.1\%)
+(\texttt{results\_h5\_overhead.txt}).
+
+With deck solar, one-at-a-time sensitivity of km/day ranks hotel load ($-38.2$\% over 20 to
+45\,W) above module efficiency ($+25.6$\%), derate ($+20.4$\%), $c_s$ ($-9.2$\%), form factor
+($-8.2$\%) and wave scale ($-0.3$\%), while the best speed moves at most 0.2\,m/s
+(\texttt{results\_solar\_sensitivity.txt}). Fig.~\ref{fig:solar} shows km/day with every power-side
+input drawn jointly (500 draws): 133.4, 124.5, 97.2, 76.9 and 69.4\,km/day for the 5\,m craft from
+the Equator to the Gulf of Alaska, each band within $-10$\%/$+9$\% of its median, and the site
+order held in 500 of 500 draws (\texttt{results\_solar\_mc.txt}). The unsourced hull box adds
+roughly another $\pm$10\% (\texttt{results\_solar\_hull\_uncertainty.txt}).
+
+\begin{figure}[t]
+\centering
+\input{fig_solar_mc.tex}
+\caption{Deck-solar km/day of the 4\,m and 5\,m monohull at five NASA POWER sites: median of 500
+joint draws of the power-side inputs, whiskers 5\% to 95\% (\texttt{results\_solar\_mc.txt};
+drawn by \texttt{make\_figures.py}).}
+\label{fig:solar}
+\end{figure}
+
+\section{Tank data}\label{sec:tank}
+\emph{Wigley.} One published tank point, Ju (1983) \cite{ju1983} at Froude number 0.267 on a 4\,m Wigley hull,
+quoted by Wang et al.\ \cite{wang2017}, against Michell plus ITTC 1957: with no form factor the
+model is within $-1$\% to +5\% of the measured $C_T = 4.16\times10^{-3}$ over 10 to 25\,$^\circ$C,
+and the box's central $k=0.25$ is +18\% to +25\% high, so the swept box is conservative for
+slender hulls (\texttt{results\_wigley\_tank.txt}). The implied $k$ is near zero: $-0.06$ to
+$+0.01$ at this point, and a second laboratory's curve (Kajitani, via Ahmed et al.) gives $-0.04$ ($-0.13$ to $+0.05$) if its model is 1\,m long, a length we have not confirmed from the primary source.
+One Froude number constrains $C_F(1+k)$ more than the wave model.
+
+\emph{Holtrop--Mennen.} On the same point the 1982 method \cite{holtrop1982} is +19\% to +24\% high
+with its own wetted-area regression and +33\% to +39\% with the true area
+(\texttt{results\_holtrop.txt}); the excess is form factor and correlation allowance, not waves.
+On 308 points of 22 Delft yacht-series hulls, at the survey Froude numbers 0.125 to 0.2 the method
+over-predicts residuary resistance by a median 1.3 to 2.2 times in every swept case, an absolute gap
+of about 0.4 per mille of weight at Fn 0.15, while at Fn 0.2 to 0.3 it is within 20\% for 42\% to
+82\% of points (\texttt{results\_holtrop\_yacht.txt}). These are keeled sailing yachts read from a public mirror,
+with midship and waterplane coefficients swept, so the result is exploratory.
+
+\section{Threats to validity}
+The hull constants are validated against one Wigley point, one 1\,m model and 22 keeled yacht hulls,
+not against a resistance curve of a fuller, keel-less survey hull; that is the largest gap. Hotel-load,
+module and glider sources are vendor sheets or abstracts, several read only as search excerpts.
+Derate, soiling and temperature ranges are the authors' own, and are swept. Waves enter the ranking
+only as head-sea added resistance (STAWAVE-2 and strip theory, Section~\ref{sec:rank}), whose two
+methods differ by a factor of about two on these slender hulls; tank data on an in-range slender Wigley favour
+strip theory at the resonance, but no tank test at $L/B$ 10 exists here. In the
+solar km/day, waves enter only as a resistance multiplier (a factor of 2 costs 21\% of km/day while keeping the site
+order); there is no stability, roll or slamming analysis. The glider's range advantage is a persistence advantage: on
+one 1.5\,kWh pack it covers 7 to 70 times the AUV's range in roughly 33 to 550 times the days
+(\texttt{results\_endurance\_days.txt}), and in strong coastal currents it cannot hold its track.
+
+\section{Conclusion}
+For a 200\,kg, 4 to 5\,m survey craft the ranking of body types survives every unsourced input we
+could sweep: the displacement monohull leads, and the catamaran wins only through unequal length or
+an implausibly high monohull form factor. Absolute range does not survive: hull constants spread it
+by a fifth and hotel load moves solar km/day more than any hull input. A buyer should measure the
+payload's power draw before the hull's drag. Next: a slender survey-hull resistance curve below
+Froude number 0.3 to test the form-factor bound, and the companion results on learned solar
+corrections and wing-sail tack control, which are written up separately in the repository.
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+\end{document}

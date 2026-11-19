@@ -29,6 +29,7 @@ import json
 import math
 from array import array
 import os
+import sys
 
 import protocol as P
 
@@ -318,6 +319,40 @@ LOOP_SE_MAX = 0.01
 LOOP_UNSURE = 64
 TICK_LOG = 240        # control ticks LaunchCheck keeps per wheel for it: a 0.9 s stroke and the 0.25 s check are 115,
                       # and a slow wheel's watch past the verdict (EXTEND_MS) up to 120 more
+# A queued survey's tick logs, packed (2026-11-18, README "A queued survey's heap"). Each control tick logs a tuple
+# (edge count, us since that edge, the command). On the ESP32's MicroPython a 3-tuple takes two 16-byte heap blocks
+# and the command a boxed float of one more, so a wheel's log costs about 48 bytes a tick, and a survey waiting in the
+# queue held 11.1-12.8 KB on the simulator's drills (tests/survey_heap.py) on a heap that starts at 56 KB. Packed into
+# three arrays it is 12 bytes a tick, and a queued survey 3.4-4.0 KB. The values are unchanged: the counts and times are integers, and the board's floats are single
+# precision, which is what array "f" holds. On the host the command array is "d" so the simulator stays bit for bit.
+_TICK_FLOAT = "f" if sys.implementation.name == "micropython" else "d"
+
+
+class PackedTicks:
+    """One wheel's tick log as three arrays, iterated as the (edges, us, command) tuples it was made from."""
+
+    def __init__(self, log):
+        self.c = array("l", (t[0] for t in log))
+        self.us = array("l", (t[1] for t in log))
+        self.u = array(_TICK_FLOAT, (t[2] for t in log))
+
+    def __len__(self):
+        return len(self.c)
+
+    def __bool__(self):
+        return len(self.c) > 0
+
+    def __iter__(self):
+        c, us, u = self.c, self.us, self.u
+        for i in range(len(c)):
+            yield c[i], us[i], u[i]
+
+
+def pack_ticks(ticks):
+    """Both wheels' tick logs packed (`PackedTicks`); a log already packed is kept as it is."""
+    return [t if isinstance(t, PackedTicks) else PackedTicks(t) for t in ticks]
+
+
 # A slow wheel's watch past the verdict (2026-11-16, README "Slow wheels watched past the verdict"). The verdict comes
 # 250 ms after the stroke, about 0.39 s after the ball: three or four revolutions at 520-750 rpm, where the loop fit
 # wants `drop_from_commands_steps`' eight after its anchor. So when a launched stroke's turning wheel has fewer than
@@ -371,14 +406,28 @@ ESC_SURVEY_REFINE = 5
 # window, not noise, so no rms band could flag it). The snapshot to the verdict already holds 28-118 revolutions.
 # With 16: 42 of 42 design drills and 28 of 28 held-out drills (ESC 0-230 ms, wheel lags 0.35-0.6 s) within 15%
 # (tests/esc_survey_window.py; 8: 31 and 21). Each refit row costs the same, so a refit is about 1.6 times the work.
-# Short lags read a little low with it (40 ms: 36-37, 50 ms: 44-47), still within 15%. The record's own fit keeps 8.
+# Short lags read a little low with it (40 ms: 36-37, 50 ms: 44-47), still within 15%; that was the parabola's pick, not
+# the window (ESC_SURVEY_SPLINE). The record's own fit keeps 8.
 ESC_SURVEY_AFTER = 16
+# The ESC-lag survey's pick between grid lags (2026-11-18, README "The ESC-lag survey's pick between grid lags"): a
+# natural cubic spline through all seven sums on log(lag + 10 ms) (`survey_spline_pick`) in place of the three-point
+# parabola (`survey_pick`). Refit at 28 lags with the same window, the least residual sat on the true lag (40, 50 and
+# 90 ms builds, to the 5 ms step): the window was not biased, the parabola was. Within 5% of the true lag: 68 of 70
+# design drills (parabola 41) and, held out by its pre-registered rule, 39 of 44 (27), ESC 25-270 ms, wheel lags 0.45
+# and 0.65 s (eval/esc-survey-spline-2026-11-18.txt). No refit, frame or survey time changes; the take survey keeps
+# the parabola.
+ESC_SURVEY_SPLINE = True
 # Surveys waiting their turn (2026-11-18, same section). A new stroke used to cut the last ball's survey; now it only
 # pauses it (no survey step runs while a stroke is under way or a record's fit is pending), and the surveys queue, run
 # between strokes and after the drill. The oldest waiting beyond this many is dropped (`survey_cut`). Each holds one
 # ball's two snapshots and tick logs (up to TICK_LOG entries a wheel), so the depth is kept small for the ESP32's heap:
 # on the rally drill 2 surveyed 18-20 of 32 wheels, 3 got 20-22, 4 got 22-24 (the Pi's end wait, ESC_SURVEY_S, counted).
-SURVEY_QUEUE = 2
+# 3 since 2026-11-18 (README "A queued survey's heap"): with the tick logs packed (PACK_SURVEY_TICKS) a survey holds
+# 3.4-4.0 KB, not 11.1-12.8, so three pin at most 12.0 KB where two pinned 25.6 (tests/survey_heap.py, 9 drills), and
+# depth 3 surveyed 2 more wheels on each of the 9 drills.
+SURVEY_QUEUE = 3
+# Pack a survey's tick logs before it is queued (`PackedTicks`; README "A queued survey's heap").
+PACK_SURVEY_TICKS = True
 # A wheel whose best fit over the grid misses by more than this many times the median wheel's best is left out of the
 # sums (2026-11-16, README "One wheel's misses outvoted the drill"): with tach jitter one wheel in 56 could fit 30 times
 # worse than the rest, and its square alone set the pick (0 instead of 100 ms on 6 of 102 simulated builds). 3 / 5 / 10
@@ -393,7 +442,10 @@ SURVEY_KEEP = 128      # wheels whose residuals the board keeps for the median (
 # refitting each wheel at them and keeping the least did as well as the true contact time. Each fit costs four times the
 # exponentials of a step and keeps the tau refinement (36 steps a fit, not 15), about 5 s of control ticks a two-wheel
 # ball, so it runs only while the Pi has asked for it (SURVEY_TAKE, sent for a calibration drill, which then waits).
-TAKE_SURVEY_GRID_US = (0, 2000, 3000, 4000, 5000, 6000, 8000)
+# 2026-11-19 (README "An eight-point take grid", eval/take-grid-eight-2026-11-19.md): 7 ms added. With only 6 and 8 ms
+# to bend between, the parabola read 6.6 ms takes as 6.0 and 7.15 ms ones as 8.0; on three fresh held-out sets the
+# eight-point grid had 185 of 216 builds within 0.5 ms against 149, the same 15 large misses, by its pre-registered rule.
+TAKE_SURVEY_GRID_US = (0, 1500, 2500, 3000, 4000, 5000, 6000, 7000, 8000)
 # The take survey's t0 search depth (2026-11-18, README "The first-order take misfit traced"). At the record fit's 3
 # levels a noise-free wheel's first, coarse t0 grid now and then settled in the wrong basin, so its rms against tau had
 # cliffs (227 ppm at 300 ms, 42 at 305) and the golden section stopped at 277-330 ms on single candidates, with 3-12
@@ -419,14 +471,22 @@ TAKE_SURVEY_TRIM = 0
 # ball's take fits inside one revolution, so every candidate fits as the step does). It adds the same to every sum, so
 # it cannot move the pick, but it pulls the best / step share toward 1 and hides the advice; such wheels are left out.
 # 1 (or 0) keeps every wheel. Chosen on ten stored sets, held out on two fresh ones (eval/take-survey-blind-2026-11-18.md).
+# Rechecked on the nine-point grid by the Pi's own advice (2026-11-19, eval/take-blind-nine-2026-11-19.md): fresh jittery
+# sets AA and AB named 30 of 60 spread takes at 1.5 against 22 with every wheel kept; 3 tied at 30, so 1.5 stays.
 TAKE_SURVEY_BLIND = 1.5
+
+# The take survey's pick between grid sums (2026-11-18, eval/take-survey-fresh-2026-11-18.md): False refines the least
+# sum by `survey_pick`'s three-point parabola, True by `survey_spline_pick`'s natural spline on log(take + grid[1] / 2).
+# With the stretched offsets (TAKE_MATCH_SPREAD) the residual's own least sits on the true take on two fresh simulated
+# sets, and the parabola read off-grid takes about 0.5 ms below it on the capture tach (the spline 0.3-0.4).
+TAKE_SURVEY_SPLINE = False
 
 
 class ResidualSurvey:
     """Each surveyed wheel's squared residual rms per candidate on `grid` (the last SURVEY_KEEP wheels), summed over the
     wheels whose best fit is within `trim` times the median wheel's best (None reads SURVEY_TRIM; 0 sums every wheel),
     leaving out with `blind` > 1 a wheel whose worst candidate is within `blind` times its best (TAKE_SURVEY_BLIND),
-    and the least sum refined by `survey_pick`. The ESC-lag survey's arithmetic (LaunchCheck.survey_add /
+    and the least sum refined by `survey_pick` (or `survey_spline_pick` with TAKE_SURVEY_SPLINE). The ESC-lag survey's arithmetic (LaunchCheck.survey_add /
     _survey_sums) for another grid."""
 
     def __init__(self, grid, trim=None, blind=0):
@@ -468,19 +528,19 @@ class ResidualSurvey:
             self._sums, self._kept, self.trimmed, self._sums_n = sums, kept, len(self.wheels) - kept, self.n
         return self._sums
 
-    def report(self, unit_us):
+    def report(self, unit_us, per_ppm=1):
         """(wheels surveyed, the least sum's candidate and the refined one in `unit_us`, each candidate's mean rms in
-        1e-6 of the pre-ball speed) or None before the first wheel."""
+        1e-6 of the pre-ball speed, times `per_ppm`: 10 sends tenths of a ppm) or None before the first wheel."""
         if self.n == 0:
             return None
         sums = self.sums()
         if self.wheels == [] and self.blind_n:
             # every wheel so far take-blind: the count still goes out (the Pi waits on it), with no pick and no rms
             return (min(255, self.n), 0, 0, [0] * len(self.grid))
-        i, ref = survey_pick(self.grid, sums)
+        i, ref = (survey_spline_pick if TAKE_SURVEY_SPLINE else survey_pick)(self.grid, sums)
         if i is None:
             return None
-        rms = [min(65535, int(round(1e6 * math.sqrt(v / self._kept)))) for v in sums]
+        rms = [min(65535, int(round(1e6 * per_ppm * math.sqrt(v / self._kept)))) for v in sums]
         return (min(255, self.n), int(round(self.grid[i] / unit_us)), int(round(ref / unit_us)), rms)
 
 
@@ -506,6 +566,62 @@ def survey_pick(grid, sums):
     xm = (x[0] + x[1]) / 2 - d1 / (2 * curv)
     xm = min(max(xm, x[0]), x[2])
     return i, math.exp(xm) if lg else xm
+
+
+def survey_spline_pick(grid, sums, offset=None):
+    """(index of the least sum, a lag in us at the least of a natural cubic spline through every sum) or (None, None)
+    with no sums (2026-11-18, README "The ESC-lag survey's pick between grid lags"). The spline runs on log(lag +
+    `offset`), `offset` half of grid[1] when None, so the 0 lag has a place on the axis. Its least is found in closed
+    form on the two segments either side of the least sum, so the refined lag stays inside the neighbours' span, as
+    `survey_pick`'s does; at either end of the grid it is the grid point. The three-point parabola reads a V-shaped,
+    lopsided residual curve off the vertex: an untold 40-50 ms ESC read 36-47 and 210-250 ms read 222-271."""
+    if not sums or not any(sums):
+        return None, None
+    n = len(sums)
+    i = 0
+    for k in range(1, n):
+        if sums[k] < sums[i]:
+            i = k
+    if i == 0 or i == n - 1 or n < 3:
+        return i, float(grid[i])
+    c = grid[1] / 2 if offset is None else offset
+    x = [math.log(g + c) for g in grid]
+    y = sums
+    h = [x[k + 1] - x[k] for k in range(n - 1)]
+    # second derivatives M of the natural spline (M[0] = M[n-1] = 0): a tridiagonal solve
+    b = [1.0] * n
+    d = [0.0] * n
+    for k in range(1, n - 1):
+        b[k] = 2 * (h[k - 1] + h[k])
+        d[k] = 6 * ((y[k + 1] - y[k]) / h[k] - (y[k] - y[k - 1]) / h[k - 1])
+        w = (h[k - 1] if k > 1 else 0.0) / b[k - 1]
+        b[k] -= w * (h[k - 1] if k > 1 else 0.0)
+        d[k] -= w * d[k - 1]
+    m = [0.0] * n
+    for k in range(n - 2, 0, -1):
+        m[k] = (d[k] - h[k] * m[k + 1]) / b[k]
+    best_y, best_x = y[i], x[i]
+    for s in (i - 1, i):
+        q = h[s] * h[s] / 6
+        y0, y1, m0, m1 = y[s], y[s + 1], m[s], m[s + 1]
+        # dy/dt on t in [0, 1]: (y1 - y0) + q (-2 m0 - m1 + 6 m0 t + 3 (m1 - m0) t^2)
+        a2, a1, a0 = 3 * q * (m1 - m0), 6 * q * m0, (y1 - y0) - q * (2 * m0 + m1)
+        roots = []
+        if abs(a2) < 1e-30:
+            if a1 != 0:
+                roots.append(-a0 / a1)
+        else:
+            disc = a1 * a1 - 4 * a2 * a0
+            if disc >= 0:
+                r = math.sqrt(disc)
+                roots += [(-a1 - r) / (2 * a2), (-a1 + r) / (2 * a2)]
+        for t in roots:
+            if 0 < t < 1:
+                u = 1 - t
+                v = u * y0 + t * y1 + ((u * u * u - u) * m0 + (t * t * t - t) * m1) * q
+                if v < best_y:
+                    best_y, best_x = v, x[s] + h[s] * t
+    return i, math.exp(best_x) - c
 
 
 def _seg_int(u, hs, x, y, s, tau):
@@ -556,33 +672,72 @@ def _cmd_columns(T, j0, j1, segs, tau):
 ANCHOR_BACK = 0.9
 
 
-def _anchor(periods, back=None, steps=2):
+def _anchor(periods, back=None, steps=2, per=1):
     """The revolution `drop_from_commands_steps` anchors on: the longest period, walked back over a level run
-    (`back` None reads ANCHOR_BACK)."""
+    (`back` None reads ANCHOR_BACK). `per` (2026-11-19, README "More tach pulses a revolution"): the periods are
+    1 / per of a revolution each (already scaled to a whole revolution's length), so the revolution counts scale."""
     if back is None:
         back = ANCHOR_BACK
     k = 0
     for j in range(1, len(periods)):
         if periods[j] > periods[k]:
             k = j
-    if back <= 0 or k < 4:
+    if back <= 0 or k < 4 * per:
         return k
-    pb = sorted(periods[max(0, k - 8):k - 2])
+    pb = sorted(periods[max(0, k - 8 * per):k - 2 * per])
     base = pb[len(pb) // 2]
-    for _ in range(steps):
-        if k < 4 or periods[k - 1] - base <= back * (periods[k] - base):
+    for _ in range(steps * per):
+        if k < 4 * per or periods[k - 1] - base <= back * (periods[k] - base):
             break
         k -= 1
     return k
 
 
-def take_offsets(take_us, shape="halfsine", parts=4):
+def magnet_spacing(periods, per):
+    """Each magnet's share of a revolution, from a tach's periods at a steady or slowly changing speed (2026-11-19,
+    README "More tach pulses a revolution"). `periods` start at magnet 0's edge. Each period is taken over the mean of
+    the whole revolution ending with it and the one starting with it, which is exactly per times the period at its own
+    place on a linear change of speed, so a wheel still settling does not lean the shares; the shares are averaged by
+    magnet and scaled to sum to 1. Returns `per` shares, or None with fewer than three whole revolutions. A
+    once-a-revolution tach is [1.0]."""
+    n = len(periods)
+    if per == 1:
+        return [1.0]
+    if n < 3 * per:
+        return None
+    acc = [0.0] * per
+    cnt = [0] * per
+    for j in range(per - 1, n - per + 1):
+        back = sum(periods[j - per + 1:j + 1])
+        fwd = sum(periods[j:j + per])
+        acc[j % per] += periods[j] * 2.0 / (back + fwd)
+        cnt[j % per] += 1
+    sh = [acc[i] / cnt[i] for i in range(per)]
+    tot = sum(sh)
+    return [x / tot for x in sh]
+
+
+# Half-sine take offsets stretched to the profile's own spread (2026-11-18, README "The take fit's four parts and its
+# high reading"; on by its pre-registered rule). Four equal shares at the half-sine's quantile midpoints carry a
+# variance of 0.0397 T^2 against the profile's 0.0474 T^2, so the fit matched a true take with a contact time about 9%
+# longer: held out (tests/take_parts_refit.py, 54 simulated survey drills) the survey's residual least read off-grid
+# takes +0.31 ms high on the capture tach; stretched about T/2 by sqrt(0.0474 / 0.0397) it read -0.07 (16 parts: 0.00),
+# the board's verdict came within 0.5 ms on 46 builds of 54 against 41, and within 1 ms on 54 as before. The drop read
+# at the true contact time moved by 0.03 points or less (tests/take_parts_refit.py --drops). Same four fits a wheel.
+# False gives the midpoints as before; "front" is not stretched (not tested).
+TAKE_MATCH_SPREAD = True
+_HALF_SINE_VAR = 0.25 - 2.0 / (math.pi * math.pi)
+
+
+def take_offsets(take_us, shape="halfsine", parts=4, match_spread=None):
     """The offsets (us after first contact) of `parts` equal shares of a ball's take that lasts `take_us`, at the
     quantile midpoints of its force profile: "halfsine" (force rising and falling symmetrically) or "front" (force at
-    its peak at first contact, falling linearly). For drop_from_commands_steps(take=); 0 us gives () (one step)."""
+    its peak at first contact, falling linearly). For drop_from_commands_steps(take=); 0 us gives () (one step).
+    `match_spread` (default TAKE_MATCH_SPREAD) stretches the half-sine's offsets about the take's middle so that they
+    carry the profile's own variance."""
     if take_us <= 0:
         return ()
-    out = []
+    xs = []
     for i in range(parts):
         q = (i + 0.5) / parts
         if shape == "front":
@@ -591,8 +746,12 @@ def take_offsets(take_us, shape="halfsine", parts=4):
             x = math.acos(1.0 - 2.0 * q) / math.pi
         else:
             raise ValueError(shape)
-        out.append(x * take_us)
-    return tuple(out)
+        xs.append(x)
+    if shape == "halfsine" and (TAKE_MATCH_SPREAD if match_spread is None else match_spread):
+        var = sum((x - 0.5) * (x - 0.5) for x in xs) / parts
+        k = math.sqrt(_HALF_SINE_VAR / var) if var > 0 else 1.0
+        xs = [0.5 + (x - 0.5) * k for x in xs]
+    return tuple(x * take_us for x in xs)
 
 
 def _stopped(was, now):
@@ -601,7 +760,7 @@ def _stopped(was, now):
 
 
 def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, taus=LOOP_TAU_GRID_US, refine=5, levels=3,
-                             edges=False, back=None, polish=True, take=()):
+                             edges=False, back=None, polish=True, take=(), angles=None, per=1):
     """A ball's whole drop on one wheel from its revolution periods and the ESC commands the speed loop sent around it
     (2026-11-16, README "A recovery shaped by the loop's own commands").
 
@@ -630,19 +789,32 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     the vertex of the parabola through the grid's best point and its neighbours: no extra step, and on
     tests/fit_grid_floor.py's 755 noise-free wheels the readings' scatter about the true drop fell from 0.32% / 0.27%
     (first-order / ESC 50 ms plants) to 0.15% / 0.15%. The 3-level grid's last step, 1/64 of a revolution, was the
-    floor; a fourth level does as well again (0.12%) but costs 12 more steps a wheel."""
+    floor; a fourth level does as well again (0.12%) but costs 12 more steps a wheel.
+
+    `per` and `angles` (2026-11-19, README "More tach pulses a revolution"; host-side, the board still sends one
+    pulse a revolution): a tach with `per` magnets a revolution gives `per` periods a revolution, each the time the
+    wheel took to turn `angles[j]` of a revolution (the magnets' spacing, learnt at a steady speed by
+    `magnet_spacing`; None is 1 / per each). The spans stay the real times; each period's mean speed is angles[j] /
+    periods[j]; `pre`, `after`, the anchor's search and the ball's window are still counted in revolutions."""
     n = len(periods)
-    if n < pre + 4:
+    if angles is None and per == 1:
+        rp = periods
+    else:
+        if angles is None:
+            angles = [1.0 / per] * n
+        rp = [periods[j] / angles[j] for j in range(n)]   # each period stretched to a whole revolution's length
+    pre, after = pre * per, after * per
+    if n < pre + 4 * per:
         yield ("fit", None)
         return
-    k = _anchor(periods, back)
+    k = _anchor(rp, back, per=per)
     if k < pre + 1:
         yield ("fit", None)
         return
-    w0 = 3.0 / (periods[k - 4] + periods[k - 3] + periods[k - 2])
-    J = k - 1 if 1.0 / periods[k - 1] < w0 * (1.0 - min_fall) else k
+    w0 = 3.0 * per / sum(rp[k - 4 * per:k - per])
+    J = k - 1 if 1.0 / rp[k - 1] < w0 * (1.0 - min_fall) else k
     j0, j1 = k - 1 - pre, min(n, J + after)
-    if j1 - k < 3:
+    if j1 - k < 3 * per:
         yield ("fit", None)
         return
     T = [0.0]
@@ -663,8 +835,8 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
         return
     segs.insert(0, (ts, u0))
     # deficits below w0, as fractions of it: small numbers, so MicroPython's single-precision floats keep them
-    ys = [1.0 - 1.0 / (periods[j] * w0) for j in range(j0, j1)]
-    t_lo, t_hi = T[k - 1], T[k + 1]
+    ys = [1.0 - 1.0 / (rp[j] * w0) for j in range(j0, j1)]
+    t_lo, t_hi = T[max(0, k - per)], T[min(n, k + per)]
     if take:
         # first contact can come up to the take's last share before the revolution the fall shows in
         t_lo = max(T[j0], t_lo - take[-1])
@@ -867,6 +1039,18 @@ def drop_from_commands_steps(periods, ticks, min_fall=0.003, pre=4, after=8, tau
     num = sum((es[i] - es[i - 1]) ** 2 for i in range(1, nr))
     dw = num / sse if sse > 0 else 2.0
     yield ("fit", (drop, w0 * before * 60e6, j1 - k + 1, tau, rms, se, dw))
+
+
+# An ESC with its own speed loop (2026-11-18, README "An ESC with its own speed loop"). VESC-class firmware in a speed
+# mode takes the throttle as an rpm setpoint and holds it with a PI loop of its own. WheelLoop's proportional term,
+# tuned for a wheel that follows its throttle as a 0.2-0.8 s lag, then rings in cascade with it: on the simulator 49 of
+# 144 such wheels swung over 1% of target with no ball, the worst 139% (tests/speed_esc_sweep.py). With this on (main.py
+# reads config.ESC_SPEED_LOOP), WheelLoop drops its proportional term and keeps SPEED_ESC_KI_SHARE of its integral
+# gain, a slow trim for an ESC whose setpoint is not exactly throttle x WHEEL_RPM_FULL: 0 of 144 swung over 1% and the
+# worst mean error was 0.05%. 0.5 sits in the band (0.5-0.7) the sweep found flat; 1.0 rang on one wheel, 0.3 had not
+# trimmed a 22% map error within 5 s. Picked on the same cases it is measured on.
+ESC_SPEED_LOOP = False
+SPEED_ESC_KI_SHARE = 0.5
 
 
 def esc_lagged_ticks(periods, ticks, esc_tau_us, dt_us=1000):
@@ -1126,6 +1310,12 @@ BALL_DROP_SEEN = 0.03         # the wheel reads this far under target: the ball 
 # still lowering the target; LOOP_I_FF_MAX bounds it to that share of the feedforward (None: only i_max).
 LOOP_RAMP_HOLD = True
 LOOP_I_FF_MAX = 0.35
+# A ball's recovery with the plant gain the integrator has learned (2026-11-19, firmware/esp32/README.md "The ball
+# hold on a wheel faster than told"): when a stroke starts, the steady command over the feedforward, (ff + i) / ff,
+# is the told free speed over the true one, and the proportional (and integral) gains are scaled by it until the ball
+# hold ends, so a wheel 22% faster than WHEEL_RPM_FULL is not driven 1.22 times as hard. False: the gains as told;
+# "down": the scale capped at 1 (only a wheel faster than told gets softer gains).
+LOOP_BALL_GAIN = "down"
 
 
 class WheelLoop:
@@ -1164,8 +1354,17 @@ class WheelLoop:
     feedforward: enough for a wheel 22% off `rpm_full` (29%), not enough to switch the wheel off.
     """
 
-    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM, ball_band=-1.0, ball_ms=None, ramp_hold=None, i_ff_max=-1.0):
+    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM, ball_band=-1.0, ball_ms=None, ramp_hold=None, i_ff_max=-1.0,
+                 speed_esc=None, ball_gain=None):
         self.ff = 1.0 / rpm_full
+        self.ball_gain = LOOP_BALL_GAIN if ball_gain is None else ball_gain
+        self.gain = 1.0               # the gain scale latched at the stroke's start (ball_gain)
+        self.last_target = 0
+        if ESC_SPEED_LOOP if speed_esc is None else speed_esc:
+            # The ESC holds the speed itself (README "An ESC with its own speed loop"): the board's proportional term
+            # on a 4-revolution tach in cascade with it rang (+-15% at 2,500 rpm behind a 5 Hz ESC loop, no ball),
+            # so the board only trims the ESC's throttle-to-rpm map, slowly.
+            kp, ki = 0.0, ki * SPEED_ESC_KI_SHARE
         self.kp, self.ki, self.i_max = kp, ki, i_max
         self.low = low_rpm
         self.band = LOOP_BALL_BAND if ball_band == -1.0 else ball_band
@@ -1182,12 +1381,19 @@ class WheelLoop:
         climbed back to its target, its integrator only trims (README "A ball charged the integrator")."""
         if self.band is not None:
             self.recover, self.recover_ms, self.recover_target = 1, 0, None
+            if self.ball_gain and self.last_target > 0:
+                f = self.last_target * self.ff
+                self.gain = _clamp((f + self.i) / f, 0.5, 1.0 if self.ball_gain == "down" else 1.5)
 
     def update(self, target, measured, dt_ms, ramping=False):
         if target <= 0:
             self.i = 0.0
+            self.last_target = 0
             return 0.0
+        self.last_target = target
         g = target / self.low if self.low and target < self.low else 1.0
+        if self.recover:
+            g *= self.gain
         kp, ki = self.kp * g, self.ki * g
         err = target - measured
         if self.recover:
@@ -1200,6 +1406,8 @@ class WheelLoop:
                 self.recover = 2
             elif (self.recover == 2 and err <= 0) or self.recover_ms >= self.ball_ms:
                 self.recover = 0
+            if not self.recover:
+                self.gain = 1.0
         lim = min(self.i_max, self.i_ff * target * self.ff) if self.i_ff is not None else self.i_max
         self.i = _clamp(self.i, -lim, lim)
         raw = target * self.ff + kp * err + self.i
@@ -1971,6 +2179,11 @@ class LaunchCheck:
             self.record = (seq, int(round(speeds[0])), int(round(speeds[1])), min(32767, drops[0]),
                            min(32767, drops[1]), flags)
         if self.survey or (self.take_on and self.take_survey is not None):
+            if PACK_SURVEY_TICKS:
+                packed = pack_ticks(ticks)
+                if self.last_ticks is ticks:
+                    self.last_ticks = packed      # so the tuples are freed once the record's fit is done with them
+                ticks = packed
             self.queue_survey(self._survey(snap, ticks, edges0, targets))
 
     def queue_survey(self, survey):
@@ -2029,8 +2242,17 @@ class LaunchCheck:
 
     def take_report(self):
         """The contact-time survey for the TAKE_SURVEY frame: (wheels, least and refined contact time in 0.1 ms, each
-        candidate's mean rms in 1e-6 of the pre-ball speed), or None before its first wheel."""
-        return self.take_survey.report(100) if self.take_survey is not None else None
+        candidate's mean rms, the rms units per ppm), or None before its first wheel. The rms go in tenths of a ppm
+        (README "The take survey's rms in tenths of a ppm"), or whole ppm when one would reach 65535 tenths, so a
+        badly fitting wheel (over 6553 ppm) still reads rather than as "none"."""
+        if self.take_survey is None:
+            return None
+        per = P.TAKE_SURVEY_TENTHS
+        r = self.take_survey.report(100, per)
+        if r is not None and any(v >= 65535 for v in r[3]):
+            per = 1
+            r = self.take_survey.report(100, per)
+        return None if r is None else tuple(r) + (per,)
 
     def take_kept(self):
         """The take survey's wheels summed (not left out as take-blind), for the TAKE_SURVEY frame's last byte."""
@@ -2088,7 +2310,8 @@ class LaunchCheck:
         if not self.survey or self.survey_n == 0:
             return None
         self._survey_sums()
-        i, ref = survey_pick(self.survey, self.survey_sums)
+        pick = survey_spline_pick if ESC_SURVEY_SPLINE else survey_pick
+        i, ref = pick(self.survey, self.survey_sums)
         rms = [min(65535, int(round(1e6 * math.sqrt(v / self._kept)))) for v in self.survey_sums]
         return (min(255, self.survey_n), self.survey[i] // 1000, int(round(ref / 1000)), rms)
 
@@ -2292,8 +2515,9 @@ class Controller:
         if tv is not None:
             rms = (list(tv[4]) + [65535] * P.TAKE_SURVEY_TIMES)[:P.TAKE_SURVEY_TIMES]
             kept = tv[5] if len(tv) > 5 else 255
+            per = tv[6] if len(tv) > 6 else 1     # rms units per ppm (10: tenths, 2026-11-19); 1 for a whole-ppm report
             out += P.encode(P.TAKE_SURVEY, tv[0], min(65535, tv[1]), min(65535, tv[2]), min(65535, tv[3]), *rms,
-                            min(255, kept))
+                            min(255, kept), _clamp(per, 1, 255))
         # The lag the drop fit runs with rides along too (README "Checked before a calibration drill"): the Pi compares
         # it with the last survey before a drill's first ball, since a board told the wrong lag reads spin far off.
         tau = getattr(self.hw, "esc_tau_ms", None)

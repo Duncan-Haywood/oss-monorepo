@@ -1,0 +1,38 @@
+cell-fidelity milestone 7k: resume a cycle-10 DFN run to cycle 50 (16 designs from the 7h bench,
+PyBaMM 26.10.1.1, 3 workers on a shared cloud container; times from Simulation construction to end of solve).
+
+set            j     tA    tB1    tB2     tC    a/b  a_res/b  (B1+B2)/A   C/A     dLi B     dLi C
+Ai2020         9  25.94   9.78  21.50  21.76  14.20    13.22      1.206 0.839  1.82e-07  1.82e-07
+Ai2020        37  25.47   7.07  23.97  22.98   5.37    12.12      1.219 0.902  9.86e-07  9.86e-07
+Ai2020        48  26.90   9.56  23.38  23.25  12.06    13.93      1.225 0.864  1.47e-06  1.47e-06
+Ai2020        61  21.67   7.58  19.07  23.38  11.53    14.15      1.230 1.079  8.76e-07  8.76e-07
+Chen2020      46   4.36   1.87   3.85   4.77  19.99    21.71      1.310 1.094  7.10e-07  7.10e-07
+Chen2020      53   4.85   2.10   4.41   5.47  20.66    24.36      1.345 1.129  3.18e-06  3.18e-06
+Chen2020      55   4.21   1.58   3.37   5.23  13.94    11.09      1.174 1.242  6.31e-06  6.31e-06
+Chen2020      57   4.86   1.78   3.95   5.65  13.22    11.45      1.181 1.164  1.08e-05  1.08e-05
+OKane2022      8  18.98   7.11  16.56  21.26  13.98    15.82      1.247 1.120  1.83e-06  1.83e-06
+OKane2022     46  19.12   6.57  15.74  18.74  10.96    10.19      1.167 0.980  4.36e-06  4.36e-06
+OKane2022     47  19.08   6.57  15.10  18.80  11.03     8.32      1.136 0.986  1.40e-07  1.40e-07
+OKane2022     53  16.90   4.69  14.08  16.44   5.38     6.14      1.111 0.972  2.93e-06  2.93e-06
+NCA_Kim2011    9  16.31   4.48  14.61  17.23   5.14     9.38      1.170 1.056  7.80e-06  7.80e-06
+NCA_Kim2011   22   9.80   3.36   8.63  10.70  10.86    13.54      1.223 1.091  1.20e-06  1.20e-06
+NCA_Kim2011   46  10.20   4.28   9.73  10.92  18.92    25.77      1.374 1.071  2.95e-07  2.95e-07
+NCA_Kim2011   54   8.04   2.77   7.23   9.98  10.97    14.81      1.243 1.241  5.14e-05  5.14e-05
+(dLi: |cycle-50 total lithium lost, resumed - uninterrupted| / uninterrupted; B across processes, C in one)
+
+fresh fixed cost a/b: median 11.79 (IQR 10.93 to 14.03); 7j's estimate 5.66
+resume fixed cost a'/b across processes (load + build + solve): median 13.38 (IQR 10.87 to 15.07)
+resume fixed cost in one process: median 8.24 (IQR 3.75 to 11.27)
+with interpreter start and imports (whole process): a/b 17.93, a'/b 20.21
+(B1 + B2) / A: median 1.221 (IQR 1.173 to 1.244); C / A: median 1.075
+saved cycle-10 solution: median 904 MB, load 0.94 s, save 0.76 s
+A against the 7h bench's x-resolved run, cycle-50 lithium lost: max rel diff 0.00e+00
+cycle-50 discharge capacity, B against A: max rel diff 6.89e-05
+designs with b <= 0 (A no slower than B1; timing noise): 0
+
+H290 (state carries over): median 1.65e-06, max 5.14e-05 -> supported
+H291 (no second fixed cost): median a'/b 13.38 against median a/b 11.79 -> refuted
+H292 (continued saving survives): with a'/b = 13.38, triage saves -1.2% of U50's wall time (7j assumed 17.1%; break-even a'/b 12.5) -> refuted
+  units check (descriptive, not pre-registered): H292 mixes this bench's per-cycle cost (lean recorder) with 7j's
+  fixed cost (x-resolved recorder). In this bench's own units (c = 11.79, a' = 13.38) the saving is -1.1%; with a' scaled to 7j's runner (a' = 5.66 x 1.13) it is 8.3%
+saving against a'/b: 0.00 -> 17.1%, 10.87 -> 2.3%, 13.38 -> -1.2%, 15.07 -> -3.5%, 5.66 -> 9.4%

@@ -204,7 +204,9 @@ class FeederHw:
         self.target_rpm = (0, 0)
         self.esc_cmd = [0.0, 0.0]
         rpm_full = getattr(config, "WHEEL_RPM_FULL", 9000)
-        self.wheel_loops = (controller.WheelLoop(rpm_full), controller.WheelLoop(rpm_full))
+        speed_esc = getattr(config, "ESC_SPEED_LOOP", False)    # README "An ESC with its own speed loop"
+        self.wheel_loops = (controller.WheelLoop(rpm_full, speed_esc=speed_esc),
+                            controller.WheelLoop(rpm_full, speed_esc=speed_esc))
         ramp = (getattr(config, "WHEEL_SPINUP_W", 100.0), getattr(config, "WHEEL_INERTIA_KGM2", 0.00155),
                 getattr(config, "WHEEL_RAMP_MAX_RPM_S", 1500.0))
         self.wheel_ramps = (controller.SpinupRamp(*ramp), controller.SpinupRamp(*ramp))
@@ -275,11 +277,13 @@ class FeederHw:
 
     def take_survey_report(self):
         """(wheels, least, refined and the drop fit's own contact time in 0.1 ms, mean rms per candidate, wheels summed
-        after the take-blind ones were left out) for the TAKE_SURVEY frame, or None before the survey's first wheel."""
+        after the take-blind ones were left out, rms units per ppm) for the TAKE_SURVEY frame, or None before the
+        survey's first wheel."""
         if self.launch is None:
             return None
         r = self.launch.take_report()
-        return None if r is None else (r[0], r[1], r[2], self.launch.take_ms10(), r[3], self.launch.take_kept())
+        return None if r is None else (r[0], r[1], r[2], self.launch.take_ms10(), r[3], self.launch.take_kept(),
+                                       r[4] if len(r) > 4 else 1)
 
     def esc_tau_ms(self):
         """The ESC lag the drop fit runs with (config ESC_TAU_US), ms, for the ESC_TAU frame, or None with no launch check."""

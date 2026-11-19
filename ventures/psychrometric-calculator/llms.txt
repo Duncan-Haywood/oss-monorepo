@@ -1,0 +1,18 @@
+# Psychrometric Calculator: moist-air properties, coil ADP and bypass factor, mixing, with a chart
+
+> Free psychrometric calculator. Fix a point of moist air by any two of dry bulb, wet bulb, dew point, relative humidity, humidity ratio and enthalpy, at any altitude or barometric pressure, in IP or SI units, and get every other property (specific volume, density, vapour pressure, degree of saturation). Then run a process: adiabatic mixing of two airstreams (with fog detection), a cooling coil from entering and leaving air (total, sensible and latent load, sensible heat ratio, condensate, apparatus dew point, bypass factor) or from an ADP and bypass factor, sensible heating or cooling, or a direct evaporative cooler. Plots everything on a psychrometric chart drawn for the pressure. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are arithmetic from the ASHRAE Handbook Fundamentals Chapter 1 psychrometric equations (Hyland-Wexler saturation pressure, over ice below 0 °C) on the numbers typed in, not engineering advice. Not modelled: fan and duct heat, condensate enthalpy, coil performance at other airflows, psychrometer reading errors.
+
+## Pages
+
+- [The tool](https://marisstella.app/psychrometric-calculator/)
+- [Reading a cooling coil on the psychrometric chart: a worked example](https://marisstella.app/psychrometric-calculator/reading-a-cooling-coil.html)
+
+## For agents
+
+- Engine: `calc.mjs`, `analyze(input)` with string fields `{ units: "IP"|"SI", altitude (ft or m), pressure (psia or kPa, optional, overrides altitude), k1, v1, k2, v2 (point A: two of t, twb, tdp, rh, W, h; W in gr/lb or g/kg, h in Btu/lb or kJ/kg), process: "none"|"mix"|"coil"|"adp"|"heat"|"evap", bk1, bv1, bk2, bv2 (point B: second stream or leaving air), flowA, flowB (cfm or m³/h at each stream's own conditions), leaving (heat: leaving dry bulb), adpT, bypass (adp mode), eff (evaporative effectiveness %) }`. Missing fields fall back to `sampleInput()`, the page's example: an 80/67 °F coil leaving at 55/54 with 1,200 cfm. Lower level: `solvePoint`, `state`, `satPressure`, `wetBulb`, `dewPoint`, `mix`, `coil`, `coilFromAdp`, `evaporative`, `chartSvg`. Callable through `node platform/agents/tools.mjs call psychrometric-calculator analyze --input '{"process":"none","k1":"t","v1":"75","k2":"rh","v2":"50"}'` or the repository's MCP server (`call_tool`).
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/psychrometric-calculator): MIT licensed.

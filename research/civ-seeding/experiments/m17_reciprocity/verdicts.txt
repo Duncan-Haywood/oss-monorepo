@@ -1,0 +1,90 @@
+# Milestone 17: the reciprocity filter against false ties at recall 0.85, five Monte Carlo copies of 30 rules
+B = 500 joint draws; 5 copies; reference = 47 primary rules (milestone 15's set), never swapped
+share of (draw, family, rule) cells where a key rule beats the reference best: copies 0.0080-0.0128, pooled 0.0005
+
+## sanity: the 15 unfiltered rules against milestone 16's copies 0-4, max |difference| 4.96e-06
+
+## per rule: joint median per copy | pooled median [5%, 95% bootstrap] | MC se | beats perfect-census top degree
+  census-degree-r0.85                              4.56 4.07 4.22 4.53 4.35 | 4.33 [3.29, 5.69] | 0.09 | 0.298
+  census-dd-r0.85                                  1.79 2.35 2.19 1.69 1.27 | 1.82 [0.95, 3.05] | 0.19 | 0.984
+  adaptive-dd-0.5-s0.75-r0.85                      2.28 3.13 2.66 1.90 1.88 | 2.32 [1.52, 3.48] | 0.24 | 0.974
+  census-degree-r0.85-fp0.25-uniform               4.79 3.95 3.46 4.52 5.02 | 4.30 [3.25, 5.63] | 0.29 | 0.316
+  census-degree-r0.85-fp0.25-closure               5.04 5.14 4.77 5.25 5.26 | 5.09 [3.93, 6.37] | 0.09 | 0.028
+  census-degree-r0.85-fp0.5-uniform                4.39 4.25 3.80 5.01 4.63 | 4.41 [3.39, 5.69] | 0.20 | 0.212
+  census-degree-r0.85-fp0.5-closure                4.24 5.56 5.54 4.93 5.61 | 5.12 [3.96, 6.64] | 0.26 | 0.008
+  census-degree-r0.85-recip                        4.54 4.57 4.72 4.63 4.65 | 4.55 [3.46, 6.20] | 0.03 | 0.172
+  census-degree-r0.85-fp0.25-uniform-recip         4.49 4.67 3.71 4.69 4.43 | 4.34 [3.25, 5.74] | 0.18 | 0.274
+  census-degree-r0.85-fp0.25-closure-recip         4.30 5.15 4.89 4.51 4.55 | 4.62 [3.53, 6.02] | 0.15 | 0.118
+  census-degree-r0.85-fp0.5-uniform-recip          5.07 4.38 4.10 4.67 4.95 | 4.57 [3.32, 6.07] | 0.18 | 0.192
+  census-degree-r0.85-fp0.5-closure-recip          4.39 4.86 4.53 4.36 5.18 | 4.63 [3.49, 6.00] | 0.16 | 0.130
+  census-dd-r0.85-fp0.25-uniform                   2.44 1.95 1.43 2.33 1.37 | 1.81 [1.11, 2.78] | 0.22 | 0.988
+  census-dd-r0.85-fp0.25-closure                   1.96 2.11 1.97 1.70 2.35 | 1.92 [1.26, 2.98] | 0.11 | 0.984
+  census-dd-r0.85-fp0.5-uniform                    2.26 2.00 2.51 2.11 2.26 | 2.16 [1.47, 3.10] | 0.09 | 0.990
+  census-dd-r0.85-fp0.5-closure                    2.68 2.37 3.33 3.45 2.54 | 2.78 [1.95, 4.06] | 0.22 | 0.954
+  census-dd-r0.85-recip                            2.63 2.50 1.67 0.96 2.34 | 1.93 [1.01, 3.26] | 0.31 | 0.988
+  census-dd-r0.85-fp0.25-uniform-recip             1.50 2.07 1.34 1.79 1.70 | 1.61 [0.89, 2.62] | 0.12 | 0.994
+  census-dd-r0.85-fp0.25-closure-recip             1.92 1.72 2.89 2.60 2.17 | 2.20 [1.37, 3.58] | 0.22 | 0.970
+  census-dd-r0.85-fp0.5-uniform-recip              1.47 2.06 2.03 1.86 1.82 | 1.75 [1.16, 2.73] | 0.11 | 0.990
+  census-dd-r0.85-fp0.5-closure-recip              1.43 2.44 2.30 2.68 2.16 | 2.18 [1.33, 3.41] | 0.21 | 0.976
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform       2.20 3.04 2.37 2.34 2.58 | 2.42 [1.68, 3.57] | 0.15 | 0.974
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure       2.47 2.78 2.99 2.73 2.83 | 2.70 [1.90, 3.87] | 0.09 | 0.948
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform        2.63 2.92 2.84 2.80 2.26 | 2.60 [1.87, 3.79] | 0.12 | 0.960
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure        3.25 2.72 2.92 3.04 2.74 | 2.89 [2.11, 3.99] | 0.10 | 0.960
+  adaptive-dd-0.5-s0.75-r0.85-recip                2.47 2.23 2.83 3.16 2.27 | 2.52 [1.77, 3.68] | 0.18 | 0.956
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-uniform-recip 2.76 3.00 3.02 3.00 2.94 | 2.90 [2.12, 4.09] | 0.05 | 0.930
+  adaptive-dd-0.5-s0.75-r0.85-fp0.25-closure-recip 2.92 2.33 2.56 2.44 2.78 | 2.56 [1.72, 3.68] | 0.11 | 0.964
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-uniform-recip  2.95 3.10 2.90 3.08 2.33 | 2.81 [1.95, 4.09] | 0.14 | 0.948
+  adaptive-dd-0.5-s0.75-r0.85-fp0.5-closure-recip  2.83 3.20 2.87 2.77 2.92 | 2.88 [2.10, 4.08] | 0.07 | 0.952
+
+## reference rows (same reference): perfect census dd-0.05 1.18, census top degree 4.02
+
+## filter: filtered minus unfiltered at the same cell (negative = the filter helps) (pooled, MC se from paired copies, z)
+  census-degree|0|uniform                     : +0.23 (se 0.10, z +2.2)
+  census-degree|0.25|uniform                  : +0.04 (se 0.23, z +0.2)
+  census-degree|0.25|closure                  : -0.47 (se 0.20, z -2.4)
+  census-degree|0.5|uniform                   : +0.15 (se 0.17, z +0.9)
+  census-degree|0.5|closure                   : -0.48 (se 0.19, z -2.6)
+  census-dd|0|uniform                         : +0.11 (se 0.36, z +0.3)
+  census-dd|0.25|uniform                      : -0.20 (se 0.23, z -0.9)
+  census-dd|0.25|closure                      : +0.28 (se 0.28, z +1.0)
+  census-dd|0.5|uniform                       : -0.41 (se 0.14, z -2.9)
+  census-dd|0.5|closure                       : -0.60 (se 0.23, z -2.6)
+  adaptive-dd-0.5-s0.75|0|uniform             : +0.20 (se 0.34, z +0.6)
+  adaptive-dd-0.5-s0.75|0.25|uniform          : +0.48 (se 0.13, z +3.7)
+  adaptive-dd-0.5-s0.75|0.25|closure          : -0.14 (se 0.17, z -0.8)
+  adaptive-dd-0.5-s0.75|0.5|uniform           : +0.21 (se 0.06, z +3.9)
+  adaptive-dd-0.5-s0.75|0.5|closure           : -0.01 (se 0.16, z -0.1)
+
+## unfiltered: cost of false ties, phi minus phi = 0 (pooled, MC se from paired copies, z)
+  census-degree|0.25|uniform                  : -0.03 (se 0.23, z -0.1)
+  census-degree|0.25|closure                  : +0.77 (se 0.11, z +7.0)
+  census-degree|0.5|uniform                   : +0.09 (se 0.16, z +0.5)
+  census-degree|0.5|closure                   : +0.79 (se 0.34, z +2.3)
+  census-dd|0.25|uniform                      : -0.01 (se 0.28, z -0.0)
+  census-dd|0.25|closure                      : +0.10 (se 0.24, z +0.4)
+  census-dd|0.5|uniform                       : +0.34 (se 0.22, z +1.6)
+  census-dd|0.5|closure                       : +0.96 (se 0.29, z +3.3)
+  adaptive-dd-0.5-s0.75|0.25|uniform          : +0.10 (se 0.19, z +0.5)
+  adaptive-dd-0.5-s0.75|0.25|closure          : +0.39 (se 0.23, z +1.7)
+  adaptive-dd-0.5-s0.75|0.5|uniform           : +0.28 (se 0.18, z +1.6)
+  adaptive-dd-0.5-s0.75|0.5|closure           : +0.57 (se 0.29, z +2.0)
+
+## filtered: cost of false ties, phi minus phi = 0 (pooled, MC se from paired copies, z)
+  census-degree|0.25|uniform                  : -0.21 (se 0.20, z -1.0)
+  census-degree|0.25|closure                  : +0.07 (se 0.15, z +0.5)
+  census-degree|0.5|uniform                   : +0.01 (se 0.20, z +0.1)
+  census-degree|0.5|closure                   : +0.08 (se 0.16, z +0.5)
+  census-dd|0.25|uniform                      : -0.32 (se 0.32, z -1.0)
+  census-dd|0.25|closure                      : +0.27 (se 0.50, z +0.5)
+  census-dd|0.5|uniform                       : -0.17 (se 0.36, z -0.5)
+  census-dd|0.5|closure                       : +0.25 (se 0.48, z +0.5)
+  adaptive-dd-0.5-s0.75|0.25|uniform          : +0.39 (se 0.17, z +2.3)
+  adaptive-dd-0.5-s0.75|0.25|closure          : +0.05 (se 0.23, z +0.2)
+  adaptive-dd-0.5-s0.75|0.5|uniform           : +0.29 (se 0.17, z +1.7)
+  adaptive-dd-0.5-s0.75|0.5|closure           : +0.36 (se 0.23, z +1.6)
+
+H46 (the filter undoes closure errors: census dd at phi = 0.5 closure, filtered better than unfiltered by > 2 MC se): held; -0.60 (se 0.24)
+H47 (the filter is cheap with no false ties: census dd at phi = 0, filtered no more than 0.5 point worse): held; +0.11 (se 0.36)
+H48 (filtered census dd is flat in phi: phi = 0.5 minus phi = 0 within 2 MC se, both placements): held; uniform: -0.17 (se 0.36), closure: +0.25 (se 0.48)
+H49 (the filter helps the half survey: phi = 0.5 closure, filtered better by > 2 MC se): refuted; -0.01 (se 0.16)
+H50 (the filter helps census top degree: phi = 0.25 closure, filtered better by > 2 MC se): held; -0.47 (se 0.20)

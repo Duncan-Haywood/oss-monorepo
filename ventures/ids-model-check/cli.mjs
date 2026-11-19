@@ -3,33 +3,145 @@
 //
 //   node cli.mjs MODEL.ifc SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]
 //   node ci-cli.mjs --models GLOB --ids GLOB ...  # many files, for CI (action.yml)
-//   node cli.mjs --audit SPEC.ids [--json]     # check the IDS itself, no model
+//   node cli.mjs --audit SPEC.ids [--json] [--bsdd]
+//                                              # check the IDS itself, no model; --bsdd also looks each
+//                                              # facet uri up in buildingSMART's Data Dictionary (bsdd.mjs:
+//                                              # the only option that goes on the network)
+//   node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]
+//                                              # repair its ids.xsd faults (fix.mjs); stdout without -o;
+//                                              # --word-class also spells a bare \w in patterns as a class
+//                                              # every checker reads alike (xsdregex.mjs spellWordClass)
+//   node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]  # offline: add the IFC 4.3 bSDD uri to standard property
+//                                              # facets that have none (bsdd-suggest.mjs); list on stderr
+//   node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]   # one row per facet (sheet.mjs); CSV on stdout without -o
+//   node cli.mjs --from-sheet SHEET.xlsx|.csv|.tsv [-o OUT.ids] [--by-phase]
+//                                              # a table back to IDS 1.0; stdout without -o. An Excel2IDS
+//                                              # workbook (excel2ids.mjs) gives one IDS per purpose,
+//                                              # OUT_<purpose>.ids (and per phase with --by-phase)
+//   node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx  # the IDS in the Excel2IDS template layout
+//   node cli.mjs --from-bsdd CLASS_URI... [-o OUT.ids] [--sets Pset_A,Pset_B] [--schema IFC4]
+//                                              # one specification per bSDD class from its property list
+//                                              # (bsdd-spec.mjs; goes on the network like --bsdd); stdout
+//                                              # without -o; what could not be carried over on stderr
 //
 // MODEL may be a STEP .ifc, an .ifcxml, or an .ifczip holding either.
 //
 // Exit 0 when every specification passes, 1 when one fails, 2 on a usage or
-// read error. Nothing leaves the machine.
+// read error. Nothing leaves the machine, except the facet uris --bsdd looks up.
 import { readFileSync, writeFileSync } from "node:fs";
 import { check, resources, readModel } from "./node.mjs";
 import { textReport, auditReport } from "./report.mjs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
+import { checkBsdd, bsddReport } from "./bsdd.mjs";
+import { bsddIds } from "./bsdd-spec.mjs";
+import { suggestBsddLinks, addBsddLinks, suggestReport } from "./bsdd-suggest.mjs";
 import { bcfZip } from "./bcf.mjs";
 import { junitXml } from "./ci.mjs";
+import { fixStructure } from "./fix.mjs";
+import { sheetFromIds, rowsToCsv, rowsToXlsx, sheetToRows, rowsToIds, sheetLists, sheetVersions } from "./sheet.mjs";
+import { inflateRawSync } from "node:zlib";
+import { readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2ids.mjs";
 
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
-const files = args.filter((a, i) => !a.startsWith("--") && !["--bcf", "--junit", "--max-failures"].includes(args[i - 1]));
-if (flag("--audit") && files.length === 1) {
+const files = args.filter((a, i) => !a.startsWith("--") && a !== "-o" && !["--bcf", "--junit", "--max-failures", "--word-class", "--sets", "--schema", "-o"].includes(args[i - 1]));
+if (flag("--from-bsdd") && files.length) {
+  // Exit 0 when every class was found, 1 when one was not, 2 on a usage error.
+  const schemaId = opt("--schema");
+  if (schemaId !== undefined && !["IFC2X3", "IFC4", "IFC4X3"].includes(schemaId)) { console.error("--schema takes IFC2X3, IFC4 or IFC4X3 (for classes outside the IFC dictionary)"); process.exit(2); }
+  const R = resources();
+  const sets = opt("--sets") ? opt("--sets").split(",").map((x) => x.trim()).filter(Boolean) : null;
+  const r = await bsddIds(files, { schemas: R.schemas, psets: R.psets, units: R.bsddUnits, schema: R.schemas.IFC4X3, schemaId, sets });
+  for (const n of r.notes) console.error(`note: ${n}`);
+  console.error(`${r.specs.length} of ${files.length} class(es) written`);
+  if (opt("-o")) writeFileSync(opt("-o"), r.text); else process.stdout.write(r.text);
+  process.exitCode = r.specs.length === files.length ? 0 : 1;
+} else if (flag("--fix") && files.length === 1) {
+  // Exit 0 when the repaired file breaks ids.xsd nowhere, 1 when faults that
+  // need a person remain (listed on stderr), 2 when the file is not XML.
+  const wordClass = opt("--word-class");
+  if (wordClass !== undefined && !["xsd", "letters"].includes(wordClass)) { console.error("--word-class takes xsd (the XML Schema set) or letters (letters, digits, underscore)"); process.exit(2); }
+  const r = fixStructure(readFileSync(files[0], "utf8"), { wordClass });
+  if (r.error) { console.error(`error: ${r.error}`); process.exit(2); }
+  for (const x of r.fixes) console.error(`fixed  line ${x.line}: ${x.message}`);
+  for (const x of r.remaining) console.error(`left   line ${x.line ?? "?"}: ${x.message}`);
+  console.error(`${r.fixes.length} fixed, ${r.remaining.length} left for a person`);
+  if (opt("-o")) writeFileSync(opt("-o"), r.text); else process.stdout.write(r.text);
+  process.exitCode = r.remaining.length ? 1 : 0;
+} else if (flag("--link-bsdd") && files.length === 1) {
+  // Offline: adds the IFC 4.3 bSDD uri to each requirement property facet on a
+  // standard property that has none (bsdd-suggest.mjs). Lists them on stderr,
+  // writes the IDS to -o or stdout. Exit 0, or 2 when the file is not an IDS.
+  const text = readFileSync(files[0], "utf8");
+  let list;
+  try { list = suggestBsddLinks(text, { psets: resources().psets }); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  console.error(suggestReport(list));
+  const out = addBsddLinks(text, list);
+  if (opt("-o")) writeFileSync(opt("-o"), out); else process.stdout.write(out);
+} else if (flag("--to-sheet") && files.length === 1) {
+  // Exit 0, or 2 when the file is not an IDS.
+  let r;
+  try { r = sheetFromIds(readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  for (const x of r.fixes) console.error(`repaired first, line ${x.line}: ${x.message}`);
+  for (const n of r.notes) console.error(`not in the sheet: ${n}`);
+  const out = opt("-o");
+  if (!out) process.stdout.write(rowsToCsv(r.rows));
+  else if (/\.xlsx$/i.test(out)) {
+    // The dropdowns offer the classes, sets and data types of the versions the IDS names.
+    const load = (f) => JSON.parse(readFileSync(new URL("./schema/" + f, import.meta.url), "utf8"));
+    const v = sheetVersions(r.rows).map((x) => x.toLowerCase());
+    writeFileSync(out, rowsToXlsx(r.rows, { lists: sheetLists({ schemas: v.map((x) => load(x + ".json")), psets: v.map((x) => load("psets-" + x + ".json")) }) }));
+  } else writeFileSync(out, rowsToCsv(r.rows, /\.tsv$/i.test(out) ? "\t" : ","));
+} else if (flag("--from-sheet") && files.length === 1) {
+  // Exit 0 when the IDS was written, 1 when rows could not be read (listed on stderr), 2 on a read error.
+  let r;
+  try {
+    const bytes = readFileSync(files[0]);
+    r = await readRequirementSheet(new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length), (b) => inflateRawSync(b), { byPhase: flag("--by-phase") });
+  } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  if (r.format === "excel2ids") console.error(`read as an Excel2IDS workbook: ${r.files.length} IDS file(s)${r.phases.length && !flag("--by-phase") ? `; phases ${r.phases.join(", ")} named (--by-phase writes one file per phase)` : ""}`);
+  for (const w of r.warnings) console.error(`warning row ${w.row}: ${w.message}`);
+  // Where Excel2IDS's own tool would read this workbook differently (excel2idsToolNotes).
+  if (r.tool) for (const [kind, list] of [["stops", r.tool.stops], ["differs", r.tool.notes]]) for (const x of list) console.error(`excel2ids tool ${kind}${x.row ? ` (row ${x.row}${x.col ? `, col ${x.col}` : ""})` : ""}: ${x.message}`);
+  if (!r.files.length) { console.error("no specification has a requirement switched on (an X, or a REPLACEME value, in a column whose toggle is TRUE)"); process.exit(1); }
+  let failed = false;
+  const out = opt("-o");
+  if (!out && r.files.length > 1) { console.error("this workbook gives several IDS files; name one with -o OUT.ids and each is written as OUT_<purpose>.ids"); process.exit(2); }
+  for (const f of r.files) {
+    const tag = r.files.length > 1 ? `[${f.suffix}] ` : "";
+    for (const w of f.warnings) console.error(`${tag}warning row ${w.row}: ${w.message}`);
+    for (const x of f.errors) console.error(`${tag}error   row ${x.row}: ${x.message}`);
+    if (!f.text) { failed = true; continue; }
+    if (!out) { process.stdout.write(f.text); continue; }
+    const path = r.files.length > 1 || (r.format === "excel2ids" && f.suffix) ? out.replace(/(\.ids)?$/i, `_${f.suffix}.ids`) : out;
+    writeFileSync(path, f.text);
+    if (r.format === "excel2ids") console.error(`wrote ${path}`);
+  }
+  if (failed) process.exit(1);
+} else if (flag("--to-excel2ids") && files.length === 1) {
+  // Exit 0 when every specification fits the template, 1 when some are left out (listed), 2 on a read error.
+  let w;
+  try { w = idsToExcel2Ids(fixStructure(readFileSync(files[0], "utf8")).text || readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
+  for (const n of w.notes) console.error(`not in the workbook: ${n}`);
+  for (const n of w.tool) console.error(`for Excel2IDS's tool: ${n}`);
+  console.error(`${w.kept} of ${w.total} specification(s) in the workbook, ${w.requirementRows} requirement row(s)`);
+  if (!opt("-o")) { console.error("name the workbook with -o OUT.xlsx"); process.exit(2); }
+  writeFileSync(opt("-o"), excel2IdsToXlsx(w.rows));
+  process.exitCode = w.kept === w.total ? 0 : 1;
+} else if (flag("--audit") && files.length === 1) {
   let ids;
   try { ids = parseIds(readFileSync(files[0], "utf8")); } catch (e) { console.error(`error: ${e.message}`); process.exit(2); }
   const issues = auditIds(ids, resources());
-  if (flag("--json")) console.log(JSON.stringify({ title: ids.title, valid: !issues.some((x) => x.level === "error"), issues }, null, 2));
-  else console.log(auditReport(ids.title, ids.specs, issues));
-  process.exitCode = issues.some((x) => x.level === "error") ? 1 : 0;
+  // --bsdd: exit 1 also when a link is broken or its dataType cannot hold the
+  // dictionary's values (level "error"); warnings and notes do not fail.
+  const bsdd = flag("--bsdd") ? await checkBsdd(readFileSync(files[0], "utf8"), { schemas: resources().schemas, units: resources().bsddUnits }) : null;
+  if (flag("--json")) console.log(JSON.stringify({ title: ids.title, valid: !issues.some((x) => x.level === "error"), issues, ...(bsdd ? { bsdd } : {}) }, null, 2));
+  else console.log(auditReport(ids.title, ids.specs, issues) + (bsdd ? "\n" + bsddReport(bsdd) : ""));
+  process.exitCode = issues.some((x) => x.level === "error") || (bsdd && bsdd.findings.some((x) => x.level === "error")) ? 1 : 0;
 } else if (files.length !== 2 || flag("--help")) {
-  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json]");
+  console.error("usage: node cli.mjs MODEL.ifc|.ifcxml|.ifczip SPEC.ids [--json] [--bcf out.bcfzip] [--junit out.xml] [--max-failures N] [--no-audit]\n       node cli.mjs --audit SPEC.ids [--json] [--bsdd]\n       node cli.mjs --fix SPEC.ids [-o OUT.ids] [--word-class xsd|letters]\n       node cli.mjs --link-bsdd SPEC.ids [-o OUT.ids]\n       node cli.mjs --to-sheet SPEC.ids [-o OUT.xlsx|OUT.csv]\n       node cli.mjs --from-sheet SHEET.xlsx|.csv [-o OUT.ids] [--by-phase]\n       node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx");
   process.exit(2);
 } else {
   let [ifcPath, idsPath] = files;
@@ -38,7 +150,7 @@ if (flag("--audit") && files.length === 1) {
   try {
     const t0 = Date.now();
     const model = await readModel(ifcPath);
-    report = check(readFileSync(idsPath, "utf8"), model.text, { audit: !flag("--no-audit") });
+    report = check(readFileSync(idsPath, "utf8"), model.bytes, { audit: !flag("--no-audit") });
     if (model.name !== ifcPath) report.modelFile = model.name;
     report.seconds = (Date.now() - t0) / 1000;
   } catch (e) {

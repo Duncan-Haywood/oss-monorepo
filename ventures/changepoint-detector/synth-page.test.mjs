@@ -69,7 +69,7 @@ test('page: the donor and covariate boxes, the example button and the counted ru
 test('page: the points-seen-coming box backdates the fit, as the CLI\'s --anticipation does', () => {
   const html = read('./index.html');
   assert.match(html, /<input id="anticipation" type="text" value="0" pattern=/);
-  assert.match(html, /anticipation: \$\("#anticipation"\)\.value\.trim\(\) \|\| 0 \}/);
+  assert.match(html, /anticipation: \$\("#anticipation"\)\.value\.trim\(\) \|\| 0[,}]/);
   const h = analyzeJob({ kind: 'one', opts: { csv: PROP99_CSV, column: 'CA' }, synth: { ...synth, anticipation: '1' } }).result.synth;
   assert.equal(h.fitEnd, '1987');
   assert.equal(h.rank, 1);

@@ -1,0 +1,267 @@
+{
+ "date": "2026-11-19",
+ "subject": "ventures/sales-agent",
+ "stratum": "flagship",
+ "seed": "2026-11-19-h-cd32",
+ "round": 81,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior SDR / sales-ops lead who runs cold outbound for a small B2B team and knows CAN-SPAM, GDPR/PECR, CASL and deliverability (SPF/DKIM/DMARC, Google and Yahoo bulk-sender rules); first checks: does an opt-out ever get lost or a live lead get suppressed, are pause and retry dates right across holidays and date formats, does the SPF checker catch what makes receivers return permerror, is the warm-up ramp arithmetic right, and does anything send without approval",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed against sources the author did not write. (1) Holidays: python-holidays 0.109 (a newer release than the 0.108 fixture the tests pin) installed at /usr/bin/python3; dumped usFederalHolidays 2022-2032 and usStateHolidays for all 50 states + DC for 2029-2032 (years outside the pinned window) and compared date for date (scratchpad a/dump.mjs, a/cmp.py). Federal: identical apart from year attribution of a Saturday 1 January observed on 31 December (2022, 2027/2028, 2032), which the checker handles via its y+1 lookup. States: 45 of 51 identical; CA/FL/NY/WI (Susan B. Anthony Day) and TX (skeleton-crew days) differ only by the documented deliberate omissions; Virginia is wrong: Va. Code 2.2-3300 (cited by python-holidays) makes Election Day (since 2020) and the Friday after Thanksgiving legal holidays, and holidayChecker('us-va') returns false for 2026-11-03 and 2026-11-27, so the earlier 0.108 match was against a library that had the same gap. (2) Business-day math: addBusinessDays with holidayChecker for 6 cases (2026-11-25+1 us-business -> 11-27; 2026-12-23+3 -> 12-29; 2026-12-31+1 us -> 2027-01-04; 2026-12-24+1 gb-eng -> 12-29; 2027-04-01+2 gb-eng -> 04-05; 2027-12-23+2 us -> 12-28) all equal an independent Python loop over python-holidays calendars. (3) SPF counting vs RFC 7208 4.6.4: 'include include a mx ptr exists ip4 exp= -all' -> 6 lookups (exp and ip4 not counted), right; 10 includes warn, 11 error, right. But RFC 7208 permerror cases pass as clean: an unknown mechanism 'inclde:_spf.google.com' (5 / 4.6.1), 'ip4:192.0.2.0/33', and two redirect= modifiers (6) all return ok:true with no issue. (4) Ramp: plan({mailboxes:4,targetPerDay:150,startPerDay:8,stepPerDay:4,stepDays:2,capPerMailbox:35}) schedule 32,32,48,...,128,128,140, cumulative 1260, not reached (cap 140 < 150) equals an independent Python loop; but plan({mailboxes:5,targetPerDay:50}) reports 'First week: 50 emails' because firstWeekTotal sums only the days until target (1 day), not seven days (350). (5) Dates: 'back 12/11/2026' -> 2026-12-11 and 'back on 3/4/2027' -> 2027-03-04 still month-first with no flag; '25/12/2026' -> 2026-12-25, '2 wks' -> 2026-12-03 (= +14 days), 'Monday 23 November' -> 2026-11-23, right. Most outputs right, several narrow wrong ones: 3.",
+  "completeness": "Ran: inbox triage, daily run, call prep/follow-up, pre-send, sequence, list, auth, ramp checkers, holiday presets (US federal, us-business, 51 US state presets, UK 3 divisions, Canada federal + 13 provinces), mail-file reader, model merge (offline cache replay), self-host (60/60 tests including the real-servers suite files and OAuth setup tests). Live pages load: https://marisstella.app/sales-agent/ and the four checker/guide pages return 200 with disclaimer text. Disclosed open items (ROADMAP M2 hosted model, Gmail/Microsoft 365 live, CRM write-back, voice) are still open and labelled. No stubs found in the paths exercised. 3.",
+  "verification": "cd ventures/sales-agent && node --test '*.test.mjs': 528 tests, 528 pass, 3.0 s (226 on 2026-11-09). self-host: node --test '*.test.mjs' 60/60 pass, 1.0 s. Offline model replay reproduces the README's headline: 'node eval/model.mjs eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl --offline --cache eval/model-answers/qwen2.5-7b-q4km.json' -> rules 726/792, model 684/792, merged 735/792, close flags right 11 wrong 14. Five seeded mutations via quality_mutate.py: 3 caught (model opt-out -> flag rule in ai.mjs; US-only postal-address error in presend; Christmas Eve Monday rule in holidays), 2 survived (SPF 8-lookup warning threshold; ramp firstWeekTotal 7 -> 6 days). Holiday tests are strong (date-for-date fixtures); the standalone checkers are thinly pinned. 3.",
+  "craft": "Read holidays.mjs (374 lines, clear rule tables, sources and deliberate differences documented), authcheck.mjs, sendramp.mjs, presend.mjs, ai.mjs mergeTriage, engine.mjs date region. Good: pure functions, no send path, merge policy explained inline with the measurement behind each rule. Defects: engine.mjs has grown to 1,230 lines (770 on 11-09) of regex tables with dated patches; triage(reply, today) with a Date object or 'dd/mm/yyyy' today now returns date:null silently (no error, no flag) instead of the old RangeError, a silent fallback; checkSpf accepts any [a-z0-9]+ term name as a mechanism; firstWeekTotal's meaning changes with plan length. 2.",
+  "claims": "Checked: README model table (735/792 merged) reproduced from the committed cache; 'tested against a real Dovecot IMAP plus Postfix SMTP pair ... not yet Gmail or Microsoft 365' is stated with its limit and self-host/real-servers exists; holiday claims name their second source (python-holidays 0.108, GOV.UK, canada-holidays.ca) and say states were not read against statute text, which is accurate but the VA gap shows what that costs; served llms.txt (curl https://marisstella.app/sales-agent/llms.txt) has 0 github.io links, and served-copy.mjs reports no retired origin, so the old llms.txt defect is source-only; checker pages carry 'rules of thumb / not legal advice'. Gap: sendramp tells the user to add 'a one-click unsubscribe header if you send in bulk', but self-host/smtp.mjs:26 sends only a mailto List-Unsubscribe with no List-Unsubscribe-Post (RFC 8058), which is what Google and Yahoo mean by one-click. 3.",
+  "fitness": "Job walked through: a founder exports replies or connects IMAP, gets each sorted with the quoted sentence, suppressions, pauses, tasks for anything a model or the rules are unsure of, and drafts to approve; calls that ring out come back on the next working day off the prospect's own calendar. That works, and a model's opt-out or close is now a flag, not an action, which removes the worst silent-loss path (16 -> 3 lost silently on 792). But the honest-set score is 62/81 merged, a European dd/mm return date is still read month-first without a flag, Gmail/Microsoft 365 (where most SDR teams live) is tested only on fakes, and there is no CRM write-back. A careful, reviewed inbox sorter and good free checkers, not yet an agent a team would trust unattended: 2.",
+  "domain": "Compared against CAN-SPAM (opt-out, postal address), PECR/UWG/CASL consent regimes, RFC 7208, RFC 7489, RFC 8058 and Google/Yahoo 2024 bulk-sender rules, and state holiday statutes via python-holidays' citations. The method (permanent stops only from rules or a person, quote the sentence, drafts only, holiday-aware retries) is what a senior ops lead would want. Departures: compliance text per country still from memory with statutes unread; the pre-send opt-out test passes on the word 'unsubscribe' anywhere ('We help teams that unsubscribe from bloated tools' passes with no opt-out instruction); SPF checker misses permerror conditions a deliverability specialist checks first (unknown mechanism, duplicate redirect, bad CIDR); no RFC 8058 one-click header on its own sends; ramp defaults are unmeasured folklore. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "US state legal holidays 2029-2032, all 50 states + DC",
+   "method": "python-holidays 0.109 (vacanza/holidays, MIT; not the 0.108 fixture the tests pin), holidays.US(subdiv=..., observed=True), weekend dates dropped",
+   "command": "node scratchpad/a/dump.mjs > js.json && /usr/bin/python3 scratchpad/a/cmp.py js.json",
+   "expected": "identical except documented deliberate omissions",
+   "observed": "45/51 identical; CA/FL/NY/WI/TX differ only by documented omissions; VA missing Election Day and Day After Thanksgiving every year",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Virginia 2026 state holidays",
+   "method": "Va. Code 2.2-3300 as cited by python-holidays 0.109 (Election Day since 2020; Friday after Thanksgiving)",
+   "command": "node -e 'import(\"./holidays.mjs\").then(m=>{const c=m.holidayChecker(\"us-va\");console.log(c(\"2026-11-03\"),c(\"2026-11-27\"))})'",
+   "expected": "true true",
+   "observed": "false false",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "US federal holidays 2022-2032",
+   "method": "python-holidays 0.109 holidays.US(years=y)",
+   "command": "/usr/bin/python3 scratchpad/a/cmp.py js.json",
+   "expected": "same dates",
+   "observed": "same dates; only year attribution of 31 Dec observed New Year differs (2021-12-31, 2027-12-31), handled by holidayChecker's y+1 lookup",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "addBusinessDays across holidays, 6 cases (US business, US federal, England)",
+   "method": "independent Python loop over python-holidays calendars",
+   "command": "node -e (addBusinessDays(d,n,holidayChecker(s))) vs /usr/bin/python3 loop",
+   "expected": "2026-11-27, 2026-12-29, 2027-01-04, 2026-12-29, 2027-04-05, 2027-12-28",
+   "observed": "2026-11-27, 2026-12-29, 2027-01-04, 2026-12-29, 2027-04-05, 2027-12-28",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "SPF DNS-lookup count",
+   "method": "RFC 7208 4.6.4: include, a, mx, ptr, exists, redirect count; ip4/ip6/all/exp do not",
+   "command": "checkSpf('v=spf1 include:_spf.google.com include:sendgrid.net a mx ptr exists:%{i}._spf.example.com ip4:192.0.2.0/24 exp=explain.example.com -all')",
+   "expected": "6 lookups, ptr warning",
+   "observed": "6, ptr warning; 10 includes -> warn, 11 -> error",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "SPF permerror conditions",
+   "method": "RFC 7208 4.6.1/5 (unknown mechanism), 5.6 (CIDR > 32), 6 (redirect at most once): each is permerror",
+   "command": "checkSpf('v=spf1 inclde:_spf.google.com ~all'); checkSpf('v=spf1 ip4:192.0.2.0/33 ~all'); checkSpf('v=spf1 redirect=a.example.com redirect=b.example.com')",
+   "expected": "error on each",
+   "observed": "ok:true, no issues on all three",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "warm-up ramp schedule, non-default inputs",
+   "method": "independent Python loop: per = min(start + step*floor((d-1)/stepDays), cap); total = min(per*boxes, target)",
+   "command": "plan({mailboxes:4,targetPerDay:150,startPerDay:8,stepPerDay:4,stepDays:2,capPerMailbox:35})",
+   "expected": "15 days, 32,32,48,...,128,128,140, cumulative 1260, first week 368, target unreachable",
+   "observed": "same; daysToTarget null with mailbox warning",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'First week' total when target is reached early",
+   "method": "definition: seven days of sending at the plan's volumes",
+   "command": "plan({mailboxes:5,targetPerDay:50}).firstWeekTotal",
+   "expected": "350 (7 x 50)",
+   "observed": "50 (page prints 'First week: 50 emails')",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "numeric return dates from a European sender",
+   "method": "hand: '12/11/2026' is ambiguous (12 Nov in en-GB, 11 Dec in en-US)",
+   "command": "triage('Out of office, back 12/11/2026.','2026-11-19')",
+   "expected": "a flag or ambiguity note",
+   "observed": "date 2026-12-11, confidence clear, no flag (unchanged since 11-09)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suites",
+   "method": "run",
+   "command": "cd ventures/sales-agent && node --test '*.test.mjs'; cd self-host && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "528/528 in 3.0 s; 60/60 in 1.0 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README model table: merged 735/792, rules 726, model 684",
+   "method": "replay committed Qwen2.5-7B answers offline",
+   "command": "node eval/model.mjs eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl --offline --cache eval/model-answers/qwen2.5-7b-q4km.json",
+   "expected": "735/792 merged",
+   "observed": "rules 726/792, model 684/792, merged 735/792; close flags 11 right 14 wrong",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served llms.txt links (old defect)",
+   "method": "load served copy",
+   "command": "curl -sS https://marisstella.app/sales-agent/llms.txt | grep -c github.io; node platform/pages/served-copy.mjs sales-agent",
+   "expected": "0",
+   "observed": "0; 'no placeholder or retired origin left'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'one-click unsubscribe header if you send in bulk' advice vs the product's own sender",
+   "method": "RFC 8058 and Google/Yahoo 2024 rules: one-click needs List-Unsubscribe with an https URI plus List-Unsubscribe-Post",
+   "command": "grep -n List-Unsubscribe ventures/sales-agent/self-host/smtp.mjs",
+   "expected": "List-Unsubscribe-Post: List-Unsubscribe=One-Click",
+   "observed": "mailto-only List-Unsubscribe at smtp.mjs:26",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "pre-send opt-out detection (old defect)",
+   "method": "CAN-SPAM 15 U.S.C. 7704(a)(3): a functioning return address or mechanism, clearly and conspicuously displayed",
+   "command": "presend({subject:'Quick question about your billing',body:'Hi Sam,\\nWe help teams that unsubscribe from bloated tools. Is that you?\\nAlex, Acme, 100 Main Street, Springfield, IL 62701',country:'US',fromName:'Alex'})",
+   "expected": "opt-out error",
+   "observed": "ok:true, no errors",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live pages",
+   "method": "load",
+   "command": "curl -sSL https://marisstella.app/sales-agent/{,cold-email-auth-checker,cold-email-warmup-planner,cold-email-checker,how-to-handle-replies-to-cold-outreach}",
+   "expected": "200 with disclaimer",
+   "observed": "all 200, disclaimer / rules-of-thumb text present",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "authcheck.mjs:29",
+   "change": "else if (lookups >= 8) -> else if (lookups >= 9)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "sendramp.mjs:34",
+   "change": "days.slice(0, 7) -> days.slice(0, 6)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "presend.mjs:76",
+   "change": "(us ? e : w)(\"postal-address\" -> (w)(\"postal-address\"",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "holidays.mjs:257",
+   "change": "dow(y, 11, c) === 1 ? -3 : -1 -> dow(y, 11, c) === 1 ? -1 : -1",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "ai.mjs:43",
+   "change": "if (model.category === \"unsubscribe\" || model.category === \"bounce\") { -> if (model.category === \"bounce\") {",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Virginia preset (us-va) omits two legal holidays in Va. Code 2.2-3300: Election Day (Tuesday after the first Monday of November, since 2020) and the Friday after Thanksgiving; holidayChecker('us-va') is false on 2026-11-03 and 2026-11-27, so a call to a Virginia state office is scheduled on a closed day. The 'matches python-holidays 0.108' check passed because 0.108 had the same gap; 0.109 fixes it.",
+   "where": "ventures/sales-agent/holidays.mjs:246",
+   "category": "source-data",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17665"
+  },
+  {
+   "severity": "medium",
+   "what": "SPF checker reports clean for records receivers reject with permerror: an unknown mechanism (typo 'inclde:'), an ip4 CIDR over /32, and two redirect= modifiers (RFC 7208 sections 5, 5.6, 6). A typo'd include is the most common real SPF break and the tool says it is fine.",
+   "where": "ventures/sales-agent/authcheck.mjs:18-21",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Carried from 2026-11-09, still open: all-numeric dates are parsed month-first with no ambiguity flag ('back 12/11/2026' -> 2026-12-11, confidence clear).",
+   "where": "ventures/sales-agent/engine.mjs:118-119",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Carried from 2026-11-09, still open: the pre-send opt-out test passes when 'unsubscribe' or 'opt out' appears anywhere in the body ('We help teams that unsubscribe from bloated tools' -> ok:true); country compliance text is still from memory, statutes unread.",
+   "where": "ventures/sales-agent/presend.mjs:46",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Warm-up planner's 'First week: N emails' sums only the days until the target is reached: 5 mailboxes at 50/day prints 50, not 350. No test pins firstWeekTotal (mutant survived).",
+   "where": "ventures/sales-agent/sendramp.mjs:34",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17665"
+  },
+  {
+   "severity": "low",
+   "what": "Changed, not closed (from 2026-11-09): triage(reply, today) with a Date object or a non-ISO string no longer throws; it silently returns date:null for an explicit return date ('Monday 23 November'), with no error or flag.",
+   "where": "ventures/sales-agent/engine.mjs:40",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Ramp planner advises 'a one-click unsubscribe header if you send in bulk', but the self-host sender writes only a mailto List-Unsubscribe with no List-Unsubscribe-Post (RFC 8058), which is what Google/Yahoo mean by one-click.",
+   "where": "ventures/sales-agent/self-host/smtp.mjs:26",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "SPF 8-lookup warning threshold and the ramp's first-week total are untested: both seeded mutants survived.",
+   "where": "ventures/sales-agent/authcheck.mjs:29",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Carried from 2026-11-09 (disclosed limit): SPF count does not expand includes; DKIM key size inferred from base64 length.",
+   "where": "ventures/sales-agent/authcheck.mjs:28-29",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17665"],
+ "verdict": "Re-audit of the flagship after the Qwen 7B/14B eval, model-closes-as-flags merge, US state holiday presets, real Dovecot/Postfix round trip, IMAP STARTTLS, OAuth setup tests and ReDoS fix. Tests grew 226 -> 528 (plus 60 self-host), all pass in 3 s; the offline replay reproduces the README's 735/792 merged figure. Independently recomputed: federal and 45 of 51 state holiday calendars for 2029-2032 against python-holidays 0.109, six holiday-aware business-day offsets, an RFC 7208 lookup count and a non-default ramp schedule all match. New wrong outputs: Virginia misses Election Day and the day after Thanksgiving; the SPF checker passes permerror records (unknown mechanism, bad CIDR, duplicate redirect); 'first week' total is wrong when the target is reached early. Old defects: llms.txt github.io links closed in what ships (served copy rewritten; source-only); 'M2 model unmeasured / no real mail' partly closed (local 7B and 14B measured on 792, real Dovecot/Postfix tested; Gmail/M365, CRM and calls still untested); month-first numeric dates, opt-out-word-anywhere, and SPF include expansion still open; the triage(today) RangeError became a silent null date. Two of five seeded mutants survived, both in the standalone checkers. Meets the computed bar (correctness, claims, verification 3; median 3) with craft, fitness and domain at 2, unchanged from 11-09."
+}

@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKm6V5thQiERYgScvKq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T17:18:18Z",
+  "ended": "2026-11-18T17:27:34Z",
+  "wall_minutes": 9.45,
+  "tokens_in": 4180549,
+  "tokens_out": 25833,
+  "cost_usd": 2.2226,
+  "tool_calls": 45,
+  "task": "league-schedule-generator (flagship 9): captain links with two-captain score confirmation on the self-hosted league page",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17371",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First confirm.test.mjs run hung past the 120 s tool timeout: a failed assertion (expected an escaped apostrophe the page writes literally) left the test server open; fixed the expectation."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/Dockerfile",
+      "issue": "A new server module must be added to the Dockerfile COPY line by hand; deploy.test.mjs catches it, but nothing in the README's self-host section says so."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-rec-league-scores-confirmed-by-both-captains.md",
+    "ventures/league-schedule-generator/README.md (Captain links and confirmed scores)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, IDEAS.md and website requests empty; allocate.py picked flagship row 4. New confirm.mjs: per-team captain key = HMAC(ADMIN_KEY, team name), 22 base64url chars; reports keyed by fixture id; two matching reports append the result line and close the fixture; disputes and one-sided reports shown in /admin with use/clear buttons; optional email of captain links to team contacts. Verification: node --test on deploy, server, subs, registration, changes, availability and confirm tests: 52 pass, 0 fail; run_venture_tests.py league-schedule-generator: ok, 660 tests, 0 failed (309.8 s); venture-preflight.mjs: preflight clean. check_posts ok; validate.py ok. Not used by a real league yet.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fa89e7bb-0805-530b-8b7a-2ecc2568bcee",
+    "transcripts": 1,
+    "first": "2026-11-18T17:18:18Z",
+    "last": "2026-11-18T17:27:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 75,
+        "output": 25833,
+        "thinking": 3526,
+        "cache_read": 4068994,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111480,
+        "api_equivalent_usd": 2.2226,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 75,
+      "output": 25833,
+      "thinking": 3526,
+      "cache_read": 4068994,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111480,
+      "api_equivalent_usd": 2.2226,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 40,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.45,
+      "active_minutes": 9.45,
+      "model_minutes": 3.89,
+      "tool_minutes": 5.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a developer adding per-team links, a report/confirm state machine, admin views, emails and tests to an existing Node server",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 270.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -2703,7 +2703,8 @@ against 138 at whole microseconds. `tests/test_host.py` checks that ten take-bli
 ppm on two sets and 25 on another is not traced. And the deeper finding stands: the survey can only see a take on balls
 whose contact straddles a revolution's edge, a few wheels a drill, so a drill's verdict rests on those few. Next: a
 survey that scores only the wheels where some candidate's parts must straddle (or a model whose take is continuous), and
-the advised instant build.
+the advised instant build (traced 2026-11-19 to the frame's whole-ppm rounding: "The sub-8 advised instant build was the
+frame's rounding").
 
 ## The take survey skips take-blind wheels (2026-11-18, after "Take-blind rows traced"; on by its pre-registered rule)
 
@@ -2764,3 +2765,891 @@ either way and no take was invented. By the rule the minimum ships at 0: the cou
 near-repeats), and held out two right of two, so whether one informative wheel is too few is not settled by these
 sets; a minimum would need drill-level counts over more fresh sets. Still open from before: the sub-8 advised instant
 build, and whether `TAKE_SURVEY_BLIND`'s 1.5 suits a real wheel.
+
+## An ESC with its own speed loop (2026-11-18, after "The take survey's verdict needs two informative wheels"; the board's loop fixed, a drop fit for it tried and kept off)
+
+**The item.** Every fit above models the wheel as a lag of the throttle the board sends. A builder may instead run
+VESC-class firmware in a speed mode, where the throttle is an rpm setpoint and the ESC holds it with a PI loop of its
+own. The flagship's list named it: "an ESC with its own speed loop". What does the board do then?
+
+**The plant.** `tests/loop_residual_sweep.py`'s wheel gains a `speed_loop=(f, z, a_max)` ESC: setpoint = throttle x
+the ESC's map, a PI loop on its own (exact) speed sensor with closed-loop natural frequency f and damping z, the
+wheel's drag w / tau, the drive clamped to the motor's acceleration limit, 0.1 ms steps. Its revolutions advance at
+each millisecond's mean speed, not its end speed as the other plants' do: a fast loop moves the wheel a few per cent
+within a millisecond after a ball, and the end-speed rule alone read 1.5-3.5% low on a fit that is exact on its own
+model (the other plants keep the rule their recorded sweeps used, and their numbers did not move).
+
+**The board's own loop rang.** `WheelLoop`'s proportional term was tuned on a wheel that lags its throttle by
+0.2-0.8 s. On top of an ESC that reaches a setpoint in tens of milliseconds, seen through a 4-revolution tach, it is
+a loop gain of about 1.8 behind a delay. `tests/speed_esc_sweep.py` runs one wheel with no ball for 6 s, starting
+at its target with an empty integrator, over 12 ESC loops (2-20 Hz, damping 0.4 and 0.7) x 4 targets (600-6,000 rpm) x
+3 setpoint maps (7,000, 9,000 and 11,000 rpm at full throttle against the 9,000 the board is told), and reads the last
+second (eval/speed-esc-sweep-2026-11-18.txt):
+
+| board loop | swing over the last second, median / worst (% of target) | worst mean error | wheels swinging over 1% |
+| --- | --- | --- | --- |
+| today's PI | 0.00 / 147.7 | 3.22% | 48 of 144 |
+| no P, no I (feedforward only) | 0.00 / 0.00 | 22.2% (the map's error, untrimmed) | 0 |
+| no P, 0.3 x the integral gain | 0.00 / 0.41 | 0.69% (still trimming) | 0 |
+| no P, 0.5 x | 0.00 / 0.00 | 0.05% | 0 |
+| no P, 0.7 x | 0.00 / 0.00 | 0.04% | 0 |
+| no P, 1.0 x | 0.00 / 1.18 | 0.08% | 1 |
+
+**What shipped.** `config.ESC_SPEED_LOOP` (off by default; `main.py` passes it to both wheel loops) makes `WheelLoop`
+drop its proportional term and keep `controller.SPEED_ESC_KI_SHARE` (0.5) of its integral gain, a slow trim for an
+ESC whose setpoint is not exactly throttle x `WHEEL_RPM_FULL`. 0.5 is the low end of the flat band; 1.0 starts to
+ring on a 2 Hz, damping 0.4 loop. Picked on the same cases it is measured on. `tests/test_host.py` checks the gains
+and that the case the PI rings on (5 Hz, damping 0.4, 2,500 rpm, an 11,000 rpm map) swings over 5% with the PI and
+under 0.2% with this.
+
+**The drop fit marks it.** With the speed-ESC loop on, the board's loop-command fit on the speed plants read 75 drops
+more than 2% off and marked all 75 unsure (105 of 216 gave no fit at all; eval/loop-residual-speed-2026-11-18.txt; with
+the old PI on top, 64 of 64, eval/loop-residual-speed-board-pi-2026-11-18.txt). So a speed-mode ESC does not
+calibrate the launcher silently wrong; the Pi's warning (README "When the wheel is not a first-order lag") fires. It
+does not calibrate it at all, though, and `config.py` says to calibrate with the ESC in duty mode.
+
+**A fit for the speed loop, tried.** A PI loop answers a step in its error, from a setpoint step or a ball, with
+x(t) = e^-sig t (cos wd t - sig / wd sin wd t), and its integral has a closed form, X(t) = e^-sig t sin(wd t) / wd. So a
+revolution's mean deficit is linear in the drop for a given loop and ball time, and cheap enough for the board.
+`tests/speed_loop_fit.py` fits that (c, a transient from before the window, the setpoint steps the board sent, the
+drop), searching t0 as `drop_from_commands_steps` does. Told the true loop it reads its own model to 0.01%
+(`tests/test_speed_loop_fit.py`) and the simulator's wheels within 0.3% while the ESC's drive stays under its limit.
+But one ball cannot tell a big drop that recovers fast from a small one that recovers slowly, so on a per-wheel
+grid of loops it read up to 40% off; and the loop is the build's, so `tests/speed_loop_survey.py` picks it the way the
+ESC-lag survey picks a lag, summing every wheel's squared rms over a drill of 24 balls, then reads each ball at the
+pick. On 16 builds (2-20 Hz, damping 0.4 and 0.7, drag 0.2 and 0.8 s, the current limit at the motor's stall
+acceleration 9,000 / tau rpm/s), exact and 5 us tachs (eval/speed-loop-survey-2026-11-18.txt):
+
+| builds (two tachs each) | worst drop error at the survey's pick | marked unsure | worst unmarked |
+| --- | --- | --- | --- |
+| 2 Hz, drag 0.2 s (4) | 1.2-4.0% | 6-21 of 24 | 2.2% |
+| 2 Hz, drag 0.8 s (4) | 3.4-18.5% | 21-24 of 24 | 0.8% |
+| 5 Hz (8) | 3.2-55.5% | 3-24 of 24 | 6.2% |
+| 10 and 20 Hz (16) | 26-95% | 24 of 24 | 0% |
+
+Over all 768 balls, 592 read more than 2% off and 571 of those were marked; 95 read within 1%. The board's own
+loop-command fit on the same drills read 215 drops, marked all 164 of those more than 2% off, and marked a drop in all
+16 drills. Only a slow (2 Hz) loop on a light-drag wheel reads well, and a real speed loop is rarely that slow.
+
+**Why it fails: the current limit.** A 10% drop at 6,000 rpm is 600 rpm of error; a 10 Hz loop at damping 0.7 asks
+for 88 x 600 = 53,000 rpm/s, over a motor's 11,000-45,000. While the drive is clamped the wheel recovers on a ramp
+the linear kernel lacks. With the limit lifted, the same 10 Hz wheels read within 0.3% told the true loop (its damping raised by the drag's
+1 / (2 tau wn)). Modelling
+the ramp needs the limit (one more number per build, which a spin-up from rest at full current shows on the tach) and
+a fit no longer linear in the drop. Kept off the board: `controller.py` holds only the loop fix.
+
+**Not known.** All of this is one assumed ESC: a textbook PI on an exact sensor, an integrator frozen while clamped.
+VESC's speed loop has its own filters, ramps and anti-windup, and none of the gains here are a real ESC's. Next: log a
+real VESC in speed mode (its own rpm and current over UART, against the hall tach) through a ball, and see whether
+its recovery is the clamped ramp then the PI tail; a ramp-then-PI fit with the limit from a spin-up.
+
+## A ramp-then-PI drop fit for a speed-mode ESC (2026-11-18, after "An ESC with its own speed loop"; host-side, in `tests/`, not on the board)
+
+**The item.** The section above left a speed-mode ESC uncalibrated: its linear PI fit read up to 95% off because a
+ball drives a fast loop into the motor's current limit, and while the drive is clamped the wheel recovers on a ramp the
+PI curve lacks. The flagship's list named the next step: "a ramp-then-PI drop fit for a speed-mode ESC (limit from a
+spin-up)". `tests/speed_ramp_fit.py` is that fit, and it needs three readings per build that a ball cannot give.
+
+**The model.** The simulator's ESC (tests/loop_residual_sweep.py): a PI loop with natural frequency wn and damping z,
+its output an acceleration clamped at the limit a, the integrator frozen while clamped, and the wheel's drag w / tau.
+In shares of the speed w0 before a ball of share D:
+
+- *ramp:* e(t) = 1 - W - (1 - D - W) e^-t/tau with W = a tau / w0, while the proportional term plus the held integrator
+  (w0 / tau) asks for more than a, so until e falls to e* = (a - w0 / tau) / (2 z wn w0);
+- *tail:* from there the linear loop with the drag folded into its damping (z + 1 / (2 tau wn)), starting at e*.
+
+A ball under e* never clamps. Both pieces have closed-form revolution means, so the offset, a transient and the board's
+setpoint steps stay linear and D is a one-dimensional golden-section search per ball time. Two details mattered on the
+simulator:
+
+- The board's own trim (`ESC_SPEED_LOOP`, an integral-only loop) steps the setpoint while the ESC is clamped. The
+  clamped wheel ignores those steps, but they move the exit and leave the integrator below the new setpoint's resting
+  value. `BallResponse.plan` carries them through the clamp. Without it a 20 Hz, damping 0.4, drag 0.8 s build at
+  4,000 rpm read 10% drops 1.8-2.3% off; with it, 0.1-0.3%.
+- On a drag-bound wheel a setpoint step also moves the integrator's resting value by du / tau, so its error is
+  du (x + X / tau), not du x.
+
+**The three readings.**
+
+1. *The limit and the drag, from a spin-up* (`spinup_fit`). From rest at the current limit (VESC current mode, or a
+   setpoint above what the wheel can reach), dw/dt = a - w / tau, so the edge count is linear in a for each tau and tau is
+   a golden-section search. On 3 s spin-ups it read a and tau within 0.03% on every build, at 0 and 5 us of jitter.
+2. *The loop, from a setpoint step train* (`loop_from_steps`). The board moves its command up 2% and back four times (eight steps),
+   400 ms apart, at 1,500 rpm on a free wheel. The wheel's revolution means are closed-form in (f, z), linear in the
+   speed and the step's scale. The fit grids 1-40 Hz x 0.2-0.95, then refines. Picked within 1.5% in frequency and
+   0.05 in damping on all 32 build-tach pairs. `step_clamped` checks that a step stayed under the limit: a 2% step at
+   3,000 rpm clamped a 20 Hz, drag 0.8 s build and was read as 16 Hz, damping 0.92.
+3. *The ball,* read with both of those.
+
+**Picking the loop from the balls instead, tried first.** The ESC-lag survey picks its lag from the drill's own balls,
+so this did the same: the least summed squared rms over the 24-ball drill on a 24 x 16 grid, then refined. The loop is
+only weakly fixed by the balls, though. A 2 Hz loop picked at the grid's 1.90 Hz read drops up to 8% off. Refining
+helped there but moved a 5 Hz build from 4.97 to 5.07 Hz, which took its worst drop from 0.65% to 4.3%. The step train
+gives the loop with no balls at all.
+
+**Measured.** The same 16 builds and 24-ball drills as `tests/speed_loop_survey.py` (2-20 Hz, damping 0.4 and 0.7, drag
+0.2 and 0.8 s, the limit at the stall acceleration 9,000 / tau rpm/s; exact and 5 us tachs, so 768 balls).
+`tests/speed_ramp_survey.py`, with eval/speed-ramp-step-2026-11-18.txt (`--step`) and
+eval/speed-ramp-survey-2026-11-18.txt (the ball survey):
+
+| fit and loop pick | drops more than 2% off | of those unmarked | within 1% (unmarked) | worst unmarked |
+| --- | --- | --- | --- | --- |
+| linear PI, ball survey (the section above) | 592 | 21 | 95 (40) | 6.2% |
+| ramp-then-PI, ball survey | 225 | 85 | 406 (290) | 6.24% |
+| ramp-then-PI, step train | 88 | 11 | 581 (436) | 3.84% |
+| ramp-then-PI, told the true loop | 72 | 7 | 605 (450) | 2.62% |
+
+By loop, with the step train: 2 Hz builds worst 4.35% (unmarked 1.46%), 5 Hz 3.96% (2.75%), 10 Hz 18.0% (3.84%) and
+20 Hz 119% (2.76%). The linear fit's worst at its pick was 18.5%, 55%, 77% and 95%.
+
+**The mark.** A drop is marked unsure, as the board's fits are, when its standard error is over `LOOP_SE_MAX`. Two
+changes:
+
+- The standard error counts the ball's time as a fitted parameter.
+- A second gate, `SEEN_MIN` (0.05), measures how much of the ball the revolutions show: the rms over the window of the
+  part of dG/dD that no other column can stand in for, per unit drop.
+
+A 20 Hz loop on a light wheel at 1,500 rpm recovers inside the ball's own 40 ms revolution, and only the shape inside
+that revolution carries the drop. Those balls read 18-56% off with residuals of 2e-5. 0.05 was picked on these builds;
+told the true loop it keeps 351 of 384 exact-tach drops with the worst at 2.3%.
+
+**Held out.** 12 other builds (3, 7 and 14 Hz; damping 0.5 and 0.85; drag 0.3 and 0.5 s) and 24 other balls (1,200-5,000
+rpm, 4-12% drops), none of which any choice above was made on (eval/speed-ramp-step-heldout-2026-11-18.txt):
+
+- With the step train's pick, 446 drops were read of 576. 65 were more than 2% off and 60 of those were marked. The
+  worst unmarked was 2.17% (told the true loop, 1.38%).
+- The 130 unread balls are all at 1,200 rpm, where the simulator's 200 ms record before the ball holds 4 revolutions and
+  every fit here needs 5.
+
+**Not known, and not on the board.** This is still one assumed ESC: a textbook PI on an exact sensor, a hard current
+clamp, an integrator frozen while clamped. VESC's speed loop has its own filters, ramps and anti-windup, and none of the
+gains are a real ESC's. Nothing here runs on the ESP32 or the Pi. Porting it would need three things:
+
+- the board to run the spin-up and the step train and log them;
+- a frame to carry them;
+- `fit-launcher` to take the drops.
+
+That is worth doing only once a real VESC's log shows the clamped ramp and PI tail. The hardware test is unchanged: log
+a VESC in speed mode through a ball (its own rpm and current over UART, beside the hall tach). The same log gives the
+three readings above, so it checks this fit directly.
+
+    PYTHONPATH=src:tests:firmware/esp32 python tests/speed_ramp_survey.py --step [--heldout]
+    PYTHONPATH=src:tests:firmware/esp32 python -m unittest tests/test_speed_ramp_fit.py
+
+## A queued survey's heap (2026-11-18, after "A ramp-then-PI drop fit for a speed-mode ESC"; on by its pre-registered rule)
+
+**The item.** The ESC-lag and take surveys run one at a time, and the rest wait in `LaunchCheck.survey_queue`
+(section "The ESC-lag survey's search, traced"). The depth was set at 2 "for the ESP32's heap" without a byte count.
+The seventh lag then cost wheels, and section "The ESC-lag survey between 100 and 200 ms" left this open: "whether
+`SURVEY_QUEUE` 3 fits the ESP32's heap".
+
+**How it was counted.** No board was at hand, and building MicroPython in this session was not allowed. So
+`tests/survey_heap.py` sizes each queued survey on the simulator's drills by the layout of MicroPython 1.24's ESP32
+port, read from its source:
+
+- 16-byte heap blocks;
+- integers under 2^30 held in the pointer;
+- a float a boxed single, one block;
+- a tuple of n is 2 + n words;
+- a list is a 4-word header plus an items array that starts at 4 and doubles;
+- an array grows 8 items at a time.
+
+A class instance and a waiting generator are estimates (4 and 6 blocks).
+
+**What a survey held.** Each holds its ball's two period snapshots and two tick logs. The snapshots are small: up to
+128 integers a wheel, about 0.5 KB. The tick logs are not. Every control tick appends a tuple (edge count, us since
+that edge, command), and the command is a float. That is 2 blocks for the tuple, 1 for the float and a slot in the
+list: about 48 bytes a tick, 115 ticks a wheel on these drills. A waiting survey held 11.1-12.8 KB. At depth 2 the
+running survey and the waiting one pinned 25.6 KB, almost half of the 56 KB the ESP32 port starts its heap at. Depth 3
+with tuples would pin 38.4 KB.
+
+**The fix.** `controller.PackedTicks` stores a log as three arrays: two of 32-bit integers, and one of the board's own
+single floats ("f"; "d" on the host so the simulator stays bit for bit). That is 12 bytes a tick. It iterates as the
+same tuples, so no fit changed. `_loop_fit` packs the logs as it queues the survey (`PACK_SURVEY_TICKS`, on), and
+`last_ticks` takes the packed copy so the tuples are freed.
+
+**Pre-registered** (written in the script before the first run). Prediction: a survey with tuples holds 10-25 KB, and
+packed under 8 KB. Rule: depth 3 ships if, on every drill,
+
+- (a) depth 3 packed pins no more than depth 2 with tuples;
+- (b) packing changes nothing at depth 2 (wheels surveyed, the pick, cuts and every launch record);
+- (c) depth 3 surveys at least as many wheels as depth 2.
+
+The drills were rally, example and calibration, on three builds: a 0.4 s first-order wheel, a 50 ms ESC on a 0.6 s
+wheel, and a 3 us jittery tach. The first run's "ESC" build only told the board a lag, with no ESC in the plant, and it
+picked 0 ms. It was rerun with the ESC in the plant, and the jittery tach was added before that rerun.
+eval/survey-heap-2026-11-18.txt has the results:
+
+| form, depth | KB a queued survey | peak pinned KB | wheels surveyed (rally / example / calibration; first-order, ESC 50 ms, jittery) |
+| --- | --- | --- | --- |
+| tuples, 2 (as shipped) | 11.1-12.8 | 25.6-25.7 | 16/6/16, 20/6/22, 16/6/16 |
+| packed, 2 | 3.4-4.0 | 8.0 | the same, and every record the same |
+| tuples, 3 | 11.1-12.8 | 38.1-38.4 | 18/8/18, 22/8/24, 18/8/18 |
+| packed, 3 (ships) | 3.4-4.0 | 11.8-12.0 | 18/8/18, 22/8/24, 18/8/18 |
+
+All three clauses held on all 9 drills, and the prediction held. `SURVEY_QUEUE` is 3. Packing frees 13.6 KB at the
+old depth, and the new depth still needs less than half the heap the old one pinned. Two more wheels reach the survey
+on every drill: the ESC build's calibration drill now surveys 24 of 24, with none cut. The ESC build picks 46-47 ms
+at both depths.
+
+**A test that leaned on the old depth.** The extra queued survey makes the Pi's end-of-drill wait longer: 42.5 s
+in place of 37.5 s on `tests/test_host.py`'s four-shot drill. That is past the lift's 16 s run-on after the last
+ball, so the lift had rightly stopped when the test read its duty. The test now reads the duty inside the run-on.
+
+**Not known.** These are counts against a model of the layout, not a reading of a board's heap. The heap free with
+`main.py` loaded is not known, nor is how the split heap grows past 56 KB, and the running survey's working lists
+(one wheel's re-based and lagged ticks, an estimated 10 KB) are the same at any depth and not counted. The stroke's own
+live tick log (up to `TICK_LOG` = 240 tuples a wheel, about 23 KB for both) is still tuples, because it is appended every tick and
+packing it there would add an array append to the control loop. Next: `gc.mem_free()` on a real WROOM-32 after a
+rally drill, at depth 2 and 3. If the live log is the board's largest holder, pack it as it is logged.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/survey_heap.py
+
+## The ESC-lag survey's pick between grid lags (2026-11-18, after "A queued survey's heap"; on by its pre-registered rule)
+
+**The item.** Section "Long ESC lags" moved the survey's refits to 16 revolutions after the anchor and noted that short
+lags then read a little low: 40 ms read 36-37 and 50 ms read 44-47. 210-250 ms read 222-271. All were within 15%,
+but a builder sets `ESC_TAU_US` from this number.
+
+**The window or the pick?** Refit at 28 lags from 0 to 400 ms with the same 16-revolution window (the stored drills of
+`tests/esc_survey_window.py`), the least summed residual sat on the true lag for every 40, 50 and 90 ms build, to the
+5 ms step. So the window is not biased. The survey's refinement is: `survey_pick` draws a parabola through the least
+grid sum and its two neighbours in the lag's log. Near its least the residual curve is a V, steeper on one side
+than the other. A parabola through three points of a lopsided V puts its vertex off the true least, and which way it
+falls depends on where the true lag sits between the grid lags.
+
+**Tried on the design set** (those 70 drills, scored by the board's own sums, `ResidualSurvey`, on the shipped grid):
+
+| pick between grid lags | within 5% | within 10% | within 15% | max error | mean error |
+| --- | --- | --- | --- | --- | --- |
+| parabola, log axis (shipped) | 41 | 66 | 70 | 11.7% | 4.4% |
+| natural cubic spline through all 7 sums, log(lag + 10 ms) | 68 | 70 | 70 | 6.4% | 1.3% |
+
+Also tried and dropped: the parabola on rms, on log sums, and on square-root or linear lag axes (no better than 41;
+the linear axes 25-35); a four-point cubic (56); the spline on rms (55) or on a linear axis (35). Moving the seven grid
+lags was tried too: geometric grids with the parabola scored 24-41. A search over 4,368 seven-lag grids found 56 at
+best, by putting grid lags on the design set's own ESC lags (120 and 250 ms), which would not carry over. The spline's
+only setting is the offset that gives 0 ms a place on the log axis: a quarter of grid[1] scored 68, half 68, one 65
+and two 61, so half (10 ms) ships.
+
+**Held out.** The prediction and decision rule were committed before the capture ran (commit 3de646cbe, in
+`tests/esc_survey_spline.py`). The held-out set used ESC lags none of the design drills used (25 / 33 / 45 / 60 / 75 /
+110 / 130 / 160 / 185 / 220 / 270 ms), wheel lags 0.45 and 0.65 s, rally and calibration drills, seed 13, and the second
+true launcher: 44 drills, every one counted (20-26 wheels). The board's survey ran unchanged, and both picks were
+scored on the same sums (eval/esc-survey-spline-2026-11-18.txt):
+
+| held out (44 drills) | within 5% | within 15% | max error | mean error |
+| --- | --- | --- | --- | --- |
+| parabola | 27 | 40 | 48.1% | 7.1% |
+| spline | 39 | 42 | 48.1% | 4.1% |
+
+The rule held on all three of its clauses: more drills within 5%, as many within 15%, and a max error no larger.
+`controller.ESC_SURVEY_SPLINE` is True. The max error is the same for both picks because two of the four 270 ms drills
+had their least sum at the grid's 400 ms end. There both picks give the grid point, and the Pi already answers that
+pick by telling the builder to scope the ESC. The prediction held in part. The spline put 89% of drills within 5%
+(predicted 85% or more) and the parabola 61% (predicted under 65%). On the 25-75 ms drills the spline's mean signed
+error was -2.4% (predicted within 3%). The parabola's was +2.0%, though, where I had predicted below -4%: it read 25-33
+ms high (28-35) and 45-60 ms low (40-58), so its error changes sign between grid lags rather than always reading low.
+The spline's worst short reads are 25 ms as 23-24.
+
+**The cost.** None in the survey: the refits, the grid, the ESC_SURVEY frame and the survey's time are unchanged. A
+Pi and a board from either side of this change read each other's frames, and only the refined lag in the frame
+moves. The pick solves a 7-point tridiagonal system and two quadratics each time the report is built. The take survey
+keeps the parabola, since nothing here tested it there.
+
+**Not known.** All simulated: a first-order ESC behind a first-order wheel, one seed per set. The V's shape comes
+from that model, and a real ESC's step response may bend it differently. Next: a real ESC's lag on a scope; whether
+the take survey's pick between its contact times has the same lean.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/esc_survey_spline.py --score eval/esc-survey-spline-heldout-rows-2026-11-18.jsonl.gz
+
+## The take survey's pick between contact times (2026-11-18, after "The ESC-lag survey's pick between grid lags"; the parabola kept by its pre-registered rule)
+
+**The item.** The section above found that the ESC-lag survey's three-point parabola read a lopsided V-shaped residual
+curve off its least, and shipped a natural cubic spline. The take survey (`ResidualSurvey.report`) still draws the
+parabola through its least sum and two neighbours on the grid 0, 2, 3, 4, 5, 6 and 8 ms. Does it lean the same way?
+No stored take capture could say: every one had its true take on a grid point (0, 3, 4 and 6 ms).
+
+**How it was checked.** `tests/take_survey_pick.py` captures survey drills (the calibration drill with SURVEY_TAKE on,
+the board's grid, depth, window, trim and blind rule) with half-sine takes between grid points (1, 2.5, 3.5, 4.5, 5.5
+and 7 ms), with 3 and 6 ms on the grid as a check, and with an instant take. Each runs on the MCPWM capture tach at
+1/8 us and on the board's default jittery tach at 0.5 us, for each of the three launchers. It keeps every surveyed
+wheel's periods and ticks and refits each wheel offline every 0.25 ms from 0 to 8 ms with the board's own fit. The
+"dense least" is the candidate whose sum over the wheels the board kept is least: where the survey's own residual
+curve bottoms out. The picks come from the board's seven grid sums.
+
+**What it found.** Between interior grid points the pick barely leans. The fit itself reads high:
+
+| off-grid takes (18 a tach) | dense least - true | parabola - dense least | spline - dense least | within 0.5 ms of true: dense / parabola / spline |
+| --- | --- | --- | --- | --- |
+| design (lag 0.45 s, seed 29), capture | +0.38 ms | -0.13 | +0.01 | 16 / 12 / 11 |
+| design, jittery 0.5 us | +0.78 | -0.28 | -0.21 | 13 / 9 / 9 |
+| held out (lag 0.6 s, seed 31), capture | +0.31 | -0.22 | -0.10 | 18 / 12 / 11 |
+| held out, jittery 0.5 us | +0.21 | -0.14 | -0.03 | 17 / 12 / 11 |
+
+The spline follows the residual curve's own least more closely, as it did for the ESC lag. But the take fit's least
+sits 0.2-0.4 ms above the true take: four parts stand in for the simulator's continuous half-sine (section "Take-blind
+rows traced"). The parabola's small low lean happens to offset that, so the spline is no closer to the truth. Seven
+grids of seven to nine points were scored offline from the same dense refits (`--grids`). On the Pi's own test (the
+pick rounded to 0.5 ms, within 1 ms) every grid scored 46-47 of 53 on the design set, and none advised an instant build.
+
+The larger error is at the grid's ends. Every 7 ms take read 8.0 on both sets: the least grid sum is at 8, and there
+is no candidate above 8 to refine against. At 1 ms, 11 of 12 builds read 0. There the step candidate wins, and the
+share sits at 1.00, so no contact time is advised. Both errors are exactly 1 ms, the edge of the Pi's tolerance.
+
+**Held out.** The prediction and decision rule were committed before the capture ran (commit 759ce4dea, in
+`tests/take_survey_pick.py`'s docstring). The prediction held on all three clauses:
+(a) on the capture tach the spline sat -0.10 ms from the dense least (predicted within +-0.15), with the parabola
+below it at -0.22; (b) the dense least read high on both tachs; (c) the spline was within 1 ms of the true take on 53
+builds of 54 and the parabola on 54. By the rule (the spline needs more within 1 ms) the parabola stays. The nine-point
+grid (0 to 8 ms by 1) against the shipped one, both with the parabola: within 1 ms 53 against 54, so it fails the
+rule's first clause and the shipped grid stays. It did name and advise 37 of 48 spread takes against 35, and put 52
+within 0.5 ms against 41; a tighter tolerance than the Pi's would choose differently (eval/take-survey-pick-2026-11-18.md).
+
+**What shipped.** No firmware change. The Pi's advice now treats the grid's last contact time as the ESC-lag advice
+treats its last lag. When the survey picks 8 ms, `host.take_survey_advice` says the contact lasts about 7 ms or
+longer and that the survey cannot name it more closely, and still sets `TAKE_US = 8000` (`tests/test_host.py`).
+
+**Not known.** All simulated, one seed per set, an assumed half-sine profile. The fit's 0.2-0.4 ms high reading is
+consistent across sets, but nothing here shows that it carries to a real ball. Next: whether a take model with more
+parts, or a continuous one, removes that reading. Without that, a finer grid only sharpens a biased least.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-pick-heldout-rows-2026-11-18.jsonl.gz
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-pick-heldout-rows-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
+
+## The take fit's four parts and its high reading (2026-11-18, after "The take survey's pick between contact times"; on by its pre-registered rule)
+
+**The item.** The section above found the take survey's own residual curve bottoming out 0.2-0.4 ms above the
+simulator's true half-sine take, and named the four-part take model as the likely cause. Does a model with more parts
+remove that reading?
+
+**Why four parts read long.** The survey captures run the plant at 0.1 ms steps, so the simulator's own step adds
+only 0.01/12 ms² to the take's spread. A take a few milliseconds long reaches a revolution's period mostly through its
+centre and its spread. Every model here is centred on the take's middle, so the spread is what a contact time gets
+fitted against. A half-sine's variance is 0.0474 T². Four equal shares at its quantile midpoints (0.230, 0.420, 0.580
+and 0.770 of T) carry 0.0397 T², 16% less. To match a true take's spread the fit needs a T about
+sqrt(0.0474 / 0.0397) = 1.09 times longer: about +0.4 ms at 4 ms.
+
+**How it was checked.** `tests/take_parts_refit.py` refits every stored survey wheel of the previous section's rows
+(they keep each wheel's periods and ticks) at every contact time from 0 to 8 ms by 0.25 ms. It tries four models:
+the shipped midpoints, 8 and 16 parts, and `spread`, the four midpoints stretched about T/2 so that they carry the
+half-sine's own variance (offsets 0.205, 0.412, 0.588 and 0.795 of T: four fits a wheel, as now). Each model is
+scored on the wheels the board kept.
+
+**What it found.** Dense least minus true take on the off-grid takes (1, 2.5, 3.5, 4.5, 5.5 and 7 ms), signed mean,
+with builds within 0.25 ms of 18:
+
+| set, tach | shipped 4 | spread 4 | 8 parts | 16 parts |
+| --- | --- | --- | --- | --- |
+| design (lag 0.45 s, seed 29), capture | +0.38 (12) | +0.03 (16) | -0.04 (16) | +0.04 (17) |
+| design, jittery 0.5 us | +0.78 (8) | +0.39 (13) | +0.46 (13) | +0.33 (13) |
+| held out (lag 0.6 s, seed 31), capture | +0.31 (12) | -0.07 (18) | +0.10 (18) | +0.00 (18) |
+| held out, jittery 0.5 us | +0.21 (11) | -0.04 (17) | +0.04 (17) | +0.00 (18) |
+
+So the bias is the model's: with 16 parts the least lands on the true take. The board's verdict on the shipped grid
+(parabola, rounded to 0.5 ms), held out: within 0.5 ms on 46 builds of 54 with `spread` against 41; within 1 ms on 54
+for both; no instant build advised. On the design set within 0.5 ms 38 against 35, but within 1 ms 46 against 47,
+and the 3 ms takes on the grid read 0.65 ms low.
+
+**The drop.** On tests/take_fit.py's stored wheel fits (wheel lag 0.3 s, seed 7, true drops kept) the drop read at the
+true contact time scattered 0.15-0.20% about the truth with every model. The shipped model at the longer time its own
+survey names scattered just as little (6.5 ms on a 6 ms take: 0.18%). The high reading cost the drop nothing. It only
+mislabelled the contact time the Pi reports, and pushed long takes onto the grid's end (every 7 ms take read 8 ms in
+the section above).
+
+**Held out.** The prediction and decision rule were committed before the held-out rows were scored by any model but
+the shipped one (commit ad4bfdc4e, in the script's docstring). All three clauses held. (a) The shipped model read
++0.31 ms on the capture tach, above +0.15, and `spread` read -0.07, closer to zero. (b) 16 parts read 0.00. (c)
+`spread` had 46 builds within 0.5 ms against 41, and no instant build advised. With within 1 ms tied at 54, the rule
+passed.
+
+**What shipped.** `controller.take_offsets` stretches the half-sine's offsets to its own variance
+(`TAKE_MATCH_SPREAD = True`; `match_spread=False` gives the midpoints as before). The board still runs four fits a
+wheel. Scripts that call `take_offsets` with defaults, such as `take_survey_pick.py` and `take_fit.py`, now get the
+stretched offsets, so rerunning them will not reproduce their stored reports exactly. The front-loaded profile is not
+stretched, because it was not tested. `tests/test_host.py` checks the offsets' centre and variance.
+
+**Not known.** All simulated, with the simulator's continuous half-sine. One seed per set. The drop check is on one
+set. A real ball's force profile is not known to be a half-sine, so what this changes is the contact time the survey
+names *for a half-sine*. Held out, 33 of 48 spread takes were named and advised against 35; the rule did not count
+that. The jittery tach's reading is still high on the design set for every model (+0.33 to +0.78).
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_parts_refit.py --score eval/take-survey-pick-heldout-rows-2026-11-18.jsonl.gz
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_parts_refit.py --drops eval/take-fit-2026-11-17.jsonl.gz
+
+## A fresh take survey with the stretched offsets live (2026-11-18, after "The take fit's four parts and its high reading"; `TAKE_SURVEY_SPLINE` built, kept off by its pre-registered rule)
+
+**The item.** The section above refitted stored survey wheels offline. Do fresh survey drills, with the stretched
+offsets live on the simulated board, still read 7 ms takes at the grid's end (8 ms), and the 3 ms takes low?
+
+**How it was checked.** `tests/take_survey_pick.py --capture` (unchanged) on three sets no earlier run used: A (wheel
+lag 0.35 s, seed 37), B (0.8 s, seed 43) and C (0.5 s, seed 47), 54 drills each, none aborted. Four clauses were
+committed before A and B were captured (2ef796e6d); a second prediction and a decision rule for the pick were
+committed after A and B were scored and before C was captured (334f5ca1e). Everything is in
+`eval/take-survey-fresh-2026-11-18.md`.
+
+**What it found.** All four first clauses held. On the capture tach none of the six 7 ms builds read 8.0 (before the
+stretch every 7 ms take on the design set did); the residual's own least sat on the true take (+0.08 and -0.12 ms
+off-grid); the 3 ms takes came within 0.5 ms on 5 of 6; no instant build was advised. The stretch exposed the pick's
+own lean: the three-point parabola reads about 0.4-0.5 ms below the residual's least (off-grid, capture tach: -0.51,
+-0.50 and -0.38 ms against the true take on A, B and C). Before the stretch that low lean was partly hiding the fit's
+high reading.
+
+**The spline, held out on C.** The natural spline (`survey_spline_pick`, already shipped for the ESC-lag survey) leaned
+less (-0.27 against -0.38 on C) but tied the parabola once the Pi rounds to 0.5 ms: within 0.5 ms 48 of 54 each,
+within 1 ms 53 each, spread takes named and advised 38 of 48 each, no instant build advised. The rule needed more
+builds within 0.5 ms, so `TAKE_SURVEY_SPLINE` (`ResidualSurvey.report`'s pick) ships built and off. It also read the
+7 ms takes lower than the parabola (-0.54 against -0.42 on C).
+
+**The nine-point grid** (0-8 ms by 1, scored offline from the dense refits, not decided): within 0.5 ms 47, 52 and 49
+against the shipped grid's 43, 46 and 48; within 1 ms never worse. Adding 7 alone changed nothing; the likely source is
+the 1 ms point (1 ms takes read 0 on 16 of 18 builds on the shipped grid, all still within 1 ms and none advised).
+
+**Not known.** All simulated, with the simulator's continuous half-sine; one seed per set.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-fresh-c-2026-11-18.jsonl.gz
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-fresh-c-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
+
+## The nine-point take grid on its own held-out sets (2026-11-18, after "A fresh take survey with the stretched offsets live"; the shipped grid kept by its pre-registered rule)
+
+**The item.** On sets A to C the nine-point grid (0-8 ms by 1) scored more builds within 0.5 ms than the shipped one
+(0, 2, 3, 4, 5, 6, 8 ms), offline. Does it on sets no run has used?
+
+**A bias fixed first.** Two of A to C's six off-grid takes (1 and 7 ms) sat on the nine-point grid's added points.
+The fresh sets use takes on the half-millisecond (0.5 to 7.5 ms), off both grids, plus the instant build.
+`tests/take_survey_pick.py` gained `--takes` for this. `--grids` now also prints each take's verdicts on each grid.
+
+**How it was checked.** Sets D (wheel lag 0.4 s, seed 53), E (0.7 s, 59) and F (0.55 s, 61), 54 survey drills each,
+none aborted. Three predictions and a five-clause rule were committed before any of them was captured (663ca5f3d).
+Everything is in `eval/take-grid-nine-2026-11-18.md`.
+
+**What it found.** Within 0.5 ms the grids tied exactly on every set (48, 47, 46 each; 141 of 162 pooled), so the
+rule's first clause failed and `TAKE_SURVEY_GRID_US` stays as it is. The other clauses held: within 1 ms 152 against
+142, named and advised 93 against 92, no instant build advised. Outside the rule, on the same tables: the nine-point
+grid halves the builds off by more than 1 ms (10 against 20), mostly 1.5 ms takes the shipped grid reads as 0. The
+shipped grid reads every 7.5 ms take as 8.0 (18 of 18) and the 6.5 ms ones as 6.0. At half-millisecond takes the Pi's
+0.5 ms rounding counts both as within 0.5 ms. Mean absolute error 0.45 against 0.53 ms. Adopting on that measure
+would mean picking it after seeing the rows, so it needs a fresh set with the measure named first. The parabola's lean
+below the residual's least is still there on both grids (0.29 to 0.39 ms on the capture tach).
+
+**Not known.** All simulated. The nine-point verdicts are offline refits of wheels surveyed on the shipped grid, not a
+nine-candidate board run end to end.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.4 --seed 53 --takes "0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,0"
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-nine-d-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
+
+## The nine-point take grid with the large misses named first (2026-11-18, after "The nine-point take grid on its own held-out sets"; the shipped grid kept by its pre-registered rule)
+
+**The item.** On D to F the nine-point grid tied the shipped one within 0.5 ms but halved the builds off by more than
+1 ms (10 against 20). Does that hold on fresh sets with that measure named before the capture?
+
+**How it was checked.** Sets G (wheel lag 0.65 s, seed 67), H (0.42 s, 71) and I (0.75 s, 73), 54 survey drills each,
+none aborted. D to F's takes all sat on the half-millisecond; G to I drew one take uniformly in each millisecond
+(0.8, 1.75, 2.35, 3.15, 4.1, 5.4, 6.5, 7.45 ms, seed 20261118) plus the instant build. Four predictions and a six-clause
+rule, with builds off by more than 1 ms as the primary measure and a margin of 4, were committed before any capture
+(59750c686). `tests/take_survey_pick.py --grids` now prints both error measures. Everything is in
+`eval/take-grid-fresh-g-i-2026-11-18.md`.
+
+**What it found.** Builds off by more than 1 ms: 14 shipped against 12 nine-point, pooled, so the rule's first clause
+(at least 4 fewer) failed and `TAKE_SURVEY_GRID_US` stays as it is. The other clauses held (mean absolute error 0.448
+against 0.533 ms, within 1 ms 150 against 148, no instant build advised). The large misses are mostly the fit's, not
+the grid's: 10 of them are the same builds on both grids, all on takes under 2 ms (1.75 ms takes read 0, instant
+builds read 1.5 to 2.5 ms), where the residual curve itself bottoms out in the wrong place. Outside the rule, builds
+within 0.5 ms rose from 93 to 121 at these uniform takes (every 7.45 ms take read 8.0 on the shipped grid), against a
+tie on D to F; that measure needs its own fresh set, most cheaply as an eight-point grid that adds only 7 ms.
+
+**Not known.** All simulated, one seed per set, one draw of takes; the nine-point verdicts are offline refits.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.65 --seed 67 --takes "0.8,1.75,2.35,3.15,4.1,5.4,6.5,7.45,0"
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-fresh-g-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
+
+## An eight-point take grid (2026-11-19, after "The nine-point take grid with the large misses named first"; 7 ms added by its pre-registered rule)
+
+**The item.** On G to I the nine-point grid's gain within 0.5 ms (93 to 121) came mostly from the grid's end: every
+7.45 ms take read 8.0 on the shipped grid. Does adding only 7 ms (one more fit a wheel, not two) buy that on fresh
+sets, with builds within 0.5 ms named as the measure first?
+
+**How it was checked.** Sets J (wheel lag 0.48 s, seed 79), K (0.38 s, 83) and L (0.68 s, 89), 72 survey drills each,
+none aborted. A first one-per-millisecond take draw put no take between 6.5 and 7.5 ms, the only band the 7 ms point
+can move, so before any capture it was replaced by a stratified draw (one take a millisecond 0-5, one a half
+millisecond 5-8: 0.45, 1.5, 2.35, 3.25, 4.2, 5.1, 5.95, 6.1, 6.6, 7.15, 7.75 ms and the instant build). Four
+predictions and a six-clause rule (at least 6 more builds within 0.5 ms, no more large misses, no higher mean error,
+the same advice, no instant build advised, no set worse) were committed before the capture (d9bb7bb9e). Everything is
+in `eval/take-grid-eight-2026-11-19.md`.
+
+**What it found.** Within 0.5 ms 185 of 216 builds against 149 (+12, +13, +11 by set); builds off by more than 1 ms 15
+each, the same builds, all at takes of 2.35 ms or less; mean absolute error 0.373 against 0.463 ms; the same advice;
+no instant build advised. Every clause held, so `TAKE_SURVEY_GRID_US` is now **0, 2, 3, 4, 5, 6, 7, 8 ms**
+(`controller.py`, `config.py`), `host.TAKE_SURVEY_MS` and `protocol.TAKE_SURVEY_TIMES` (8) follow, and the Pi still
+decodes both seven-candidate frames of older firmware. The gain sits at 6.1 ms (8 to 16 of 18 within 0.5 ms), 6.6 ms
+(2 to 17) and 7.15 ms (5 to 18); below 5 ms every verdict is unchanged.
+
+**The cost.** One more refit a surveyed wheel: the simulated calibration drill held its balls 127.4 s for the surveys
+against 114.4 s (+11%), 10.6 s a ball under `host.TAKE_WAIT_S`'s 12 s, with no survey cut and the same 22 wheels
+summed. The TAKE_SURVEY frame is 24 bytes, not 22.
+
+**Not known.** All simulated; the eight-point verdicts are offline refits of seven-point surveys. Whether real takes
+fall in 6-7.5 ms at all is unmeasured. The large misses under 2.5 ms are the fit's, not the grid's, and remain.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.48 --seed 79 --takes "0.45,1.5,2.35,3.25,4.2,5.1,5.95,6.1,6.6,7.15,7.75,0"
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-eight-j-2026-11-19.jsonl.gz --grids "0,2,3,4,5,6,8;0,2,3,4,5,6,7,8"
+
+## Short takes: the fit sees them, the grid's end does not (2026-11-19, after "An eight-point take grid"; the shipped grid kept by its pre-registered rule)
+
+**The item.** On J to L every build off by more than 1 ms had a take of 2.35 ms or less, and the section above
+called those misses the fit's. Are they?
+
+**How it was checked.** `tests/take_short_blind.py` refits every surveyed wheel of J to L every 0.25 ms (the board's
+fit and depth, cached in `eval/take-dense-jkl-2026-11-19.jsonl.gz`) and sums the wheels the board keeps. The
+prediction (the summed curve's least within 0.5 ms of a 1.5 ms take on at least 12 of 18 builds) and a rule for an
+end-of-grid parabola (`end_pick`) were committed first (a541b2a93).
+
+**What it found.** The fit is not blind: the summed least is within 0.5 ms of true on 13 of 18 1.5 ms builds, 15 of 18
+at 2.35 ms and 197 of 216 overall. The curve is a flat shelf from 0 to about a millisecond below the take, then a
+valley; with points at 0, 2 and 3 ms the parabola reads a 1.5 ms valley as 0 or 1 and leans 2.35 ms takes into the
+shelf. `end_pick` failed (179 against 185 within 0.5 ms; 10 instant builds moved off 0 against 3). Chosen afterwards
+on J to L, a grid of 0, 1.5, 2.5, 3-8 ms scored 196 within 0.5 ms and 9 large misses against 185 and 16.
+
+**Held out.** Set M (lag 0.55 s, seed 97; 66 drills, takes stratified under 3 ms plus three checks), its rule
+committed before capture (9ead6721c): within 0.5 ms 48 against 41, large misses 3 against 11, mean error 0.373
+against 0.523 ms, checks 18 each, but one instant build read 0.80 ms (share 0.99, not advised) where the shipped
+grid read 0. The instant-read clause failed, so **`TAKE_SURVEY_GRID_US` stays at 0, 2, 3, 4, 5, 6, 7, 8 ms**.
+Everything is in `eval/take-short-2026-11-19.md`. `tests/take_survey_pick.py --score` reads seven-candidate captures
+again (it had printed only its header since the eight-point grid).
+
+**Not known.** All simulated, one seed a set. Whether real contacts are under 3 ms at all is unmeasured. A fresh set
+with the instant clause written on advice, not on the rounded read, is the next test; M cannot count toward it.
+
+## The ball hold on a wheel faster than told (2026-11-19, after "Short takes"; `LOOP_BALL_GAIN = "down"` on by its pre-registered rule)
+
+**The item.** "A ball charged the integrator" left one cost of the ball hold: on 0.2 s wheels, ball undershoots over
+2% went from 7 to 17 of 72, every one a wheel whose free speed is 11,000 rpm while the board is told
+`WHEEL_RPM_FULL` 9,000. The plant is 1.22 times stiffer than the loop assumes, so the proportional term overshoots on
+its own once the integrator is held.
+
+**The change.** The integrator already knows the mismatch: at a steady wheel the command is (ff + i), so
+(ff + i) / ff is the told free speed over the true one. `WheelLoop.ball()` now latches that ratio (clamped 0.5-1.0)
+when the stroke starts and scales both gains by it until the ball hold ends. A wheel 22% faster than told gets gains
+about 18% softer for its recovery; a wheel slower than told keeps the gains as told. Nothing changes outside a ball's
+recovery, and a build whose `WHEEL_RPM_FULL` is measured sees a ratio of about 1 and no change at all.
+
+**Two rules, both written before their runs** (`eval/ball-gain-rule-2026-11-19.md`; `tests/ball_gain_sweep.py`,
+same trial as `tests/ball_recovery_sweep.py`, four plants each). Five clauses against the loop without it: undershoots
+over 2% fall, mean time until the gate passes again no more than 0.05 s longer, no more balls over 3% off at the gate,
+worst overshoot no more than 0.5 points higher, no case lost.
+
+1. Scaling both ways (0.5-1.5) passed the 216-case development set (19 to 10 undershoots) and **failed** a 96-case
+   held-out set, 13 to 15: wheels slower than told, given stiffer gains, undershot more (0.15 s at 7,500 rpm: 1 to 3).
+   Kept off (`eval/ball-gain-sweep-2026-11-19.txt`).
+2. Capped at 1 ("down"), judged on the development set and a fresh 96-case set fixed after the first outcome
+   (eval/ball-gain-down-sweep-2026-11-19.txt); the first held-out set is reported, not judged:
+
+| set | undershoot > 2%, off / down | worst undershoot | mean back to the gate | worst overshoot | > 3% at the gate |
+| --- | --- | --- | --- | --- | --- |
+| development, 216 | 19 / 9 | 4.5% / 3.6% | 0.89 / 0.89 s | 6.0% / 4.8% | 1 / 0 |
+| fresh, 96 | 18 / 13 | 5.0% / 4.0% | 0.86 / 0.82 s | 6.4% / 5.4% | 0 / 0 |
+| first held-out, 96 (not judged) | 13 / 13 | 4.6% / 3.8% | 0.73 / 0.71 s | 5.7% / 4.8% | 0 / 0 |
+
+Every clause passed on both judged sets, so `LOOP_BALL_GAIN` ships as "down". On the fast wheels of the fresh set the
+mean recovery fell 0.10-0.12 s (0.18 s wheel at 10,800 rpm: 0.93 to 0.83 s); the 0.8 s wheels at 11,000 rpm took
+0.05 s longer on the development set, the one cell that got slower.
+
+**Not known.** The simulator's first-order wheel and ESC, as before; the held-out sets vary the pairs, lags and free
+speeds but not the ball model. What is left of the undershoot on the fastest wheels (10 of 24 cases at 0.15 s and
+10,500 rpm still over 2%) is not the gain: measuring `WHEEL_RPM_FULL` on the build is still the fix. Test:
+`test_ball_gain_softens_only_a_wheel_faster_than_told` (tests/test_host.py).
+
+## A 432-case replication of the faster-than-told ball hold (2026-11-19, after "The ball hold on a wheel faster than told"; `LOOP_BALL_GAIN` unchanged)
+
+**The item.** "down" was judged on the 216-case development grid and one 96-case fresh set; its first held-out set came
+out 13 to 13. A second session built the same idea in parallel (kp scaled continuously in the hold, ki untouched,
+`LOOP_BALL_KP_LEARN`, passed its own nine-clause rule) and found #17530 on `main` when it came to merge. It dropped its
+copy and ran the shipped "down" on its unused grid instead.
+
+**How it was checked.** `tests/ball_recovery_sweep.py --ball-gain off,down --heldout`: 432 cases (four plants, wheel
+lags 0.15 / 0.25 / 0.3 s, free 8,000 / 10,000 / 10,500 / 12,000 rpm, nine pairs). #17530's five clauses, a prediction
+and two identity checks were committed before the run (a0154030e). Everything is in `eval/ball-kp-learn-2026-11-19.md`.
+
+| | False | "down" |
+| --- | --- | --- |
+| undershoots over 2%: all 432 / faster than told (324) | 126 / 122 | 76 / 72 (predicted 65-85) |
+| gate passes again, mean / slowest | 0.817 / 2.78 s | 0.760 / 1.97 s |
+| over 3% off at the gate / worst overshoot | 4 / 6.3% | 2 / 4.9% |
+
+Every clause held. The 8,000 rpm rows came out identical, and so did the False rows against the session's earlier run.
+The parallel kp-only design scored within a case of "down" everywhere (73 faster-than-told undershoots, 0.769 s), so
+scaling ki as well buys little either way. **`LOOP_BALL_GAIN` stays "down".** 0.15 s wheels behind the 80 ms ESC
+still dip (53 of 144 at 0.15 s), which is the ESC's lag.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/ball_recovery_sweep.py --band 0.005 --ball-gain off,down --heldout --rows rows.jsonl
+
+## Short takes on a second held-out set (2026-11-19, after "Short takes: the fit sees them, the grid's end does not"; 1.5 and 2.5 ms in place of 2 by its pre-registered rule)
+
+**The item.** On set M the grid 0, 1.5, 2.5, 3-8 ms failed only its instant-read clause, on a build the Pi would not
+have advised. Does it pass a fresh set with that clause written on advice, decided before the capture?
+
+**How it was checked.** Set N (wheel lag 0.62 s, seed 101; 66 drills, takes 0.2-2.75 ms at points M did not use,
+3.3, 4.6, 7.4 ms as checks, and an instant build). The prediction and a four-clause rule (at least 4 more builds
+within 0.5 ms, no more off by more than 1 ms, no more instant builds advised, checks no worse) were committed first
+(7348979a6); a fail would have retired the candidate.
+
+**What it found.** Within 0.5 ms 45 of 66 against 40, off by more than 1 ms 6 against 6, no instant build advised or
+read off 0 on either, checks 16 each. Every clause held, so **`TAKE_SURVEY_GRID_US` is now 0, 1.5, 2.5, 3, 4, 5, 6,
+7, 8 ms** (`controller.py`, `config.py`); `host.TAKE_SURVEY_MS` and `protocol.TAKE_SURVEY_TIMES` (9) follow, and the
+Pi still decodes the eight- and seven-candidate frames of older boards. The prediction's "fewer large misses" did not
+happen (6 each). Set N captured again with the new grid live on the board: 49 of 66 within 0.5 ms against the old
+board's 39, large misses 3 against 7, checks 17 against 16.
+
+**The cost.** One more refit a wheel. The Pi's 12 s hold a ball (`host.TAKE_WAIT_S`) cut the unit test's surveys
+short, so it is now 14 s; on set N the balls were held 140.4 s a drill against 127.3 s (+10%), no survey cut. The
+TAKE_SURVEY frame is 26 bytes. Everything is in `eval/take-short-n-2026-11-19.md`.
+
+**Not known.** All simulated. Whether real contacts are under 3 ms is unmeasured. The large misses left are 1.4-1.9 ms
+takes reading 0.
+
+## Short takes that read 0: no ball saw them (2026-11-19, after "Short takes on a second held-out set"; the bound named in the Pi's advice by its pre-registered rule)
+
+**The item.** Set N's large misses were 1.4-1.9 ms takes reading 0, put down to "the summed curve's shelf hides the
+valley". NEXT.md asked for a check of those builds' curves before any new grid or pick.
+
+**What the curves say.** `tests/take_shelf_bound.py --trace` on the stored dense refits (J to L, M, N): of the 17
+builds at 1-2.5 ms off by more than 1 ms, 11 had no kept wheel whose fit at the true take beat the step's by 20% of
+its squared rms, and 3 had one. There is no valley under the shelf. With one tach pulse a revolution, a take shorter
+than a revolution moves a wheel's fit only when its contact straddles an edge ("Take-blind rows traced"), and those
+builds' balls happened not to. Instant builds' curves are flat to 1.5-2.25 ms on 11 of 30, the same shape, so no grid
+or pick can separate the two from those balls.
+
+**What shipped.** What the balls do give is an upper bound: the first candidate whose mean rms is more than 2% over
+the step's. When the Pi says TAKE_US = 0 it now names it (`host.take_survey_bound`, `TAKE_BOUND_TOL`): "these balls
+cannot tell an instant take from one up to X ms ... more balls narrow it". Chosen on the five stored sets (145 of 145
+told TAKE_US = 0 had the true take at most X), then held out on set O (lag 0.42 s, seed 109, 66 drills, committed
+first in 020e567c9): 47 of 49 within the bound (95.9%, the rule asked 95%) and the bound at 1.5 ms on 4 of 6 instant
+builds (half asked). Both held. The two misses were 2.0 ms takes at a 16-19 ppm step, where a whole ppm is 5-6%; a
+ppm floor on the tolerance is NEXT.md's next test. Set O also had two 5 ms builds told "keep 0" (best fit only 9-22%
+under the step's); they now read "up to 6 ms" and "up to 7 ms". No board number or verdict changed. Everything is in
+`eval/take-bound-o-2026-11-19.md`.
+
+## A ppm floor on the bound (2026-11-19, after "Short takes that read 0: no ball saw them"; shipped by its pre-registered rule)
+
+**The item.** The TAKE_US = 0 bound held on set O by one build; both misses were 2.0 ms takes at a 16-19 ppm step,
+where the frame's whole-ppm rounding is 5-6% and clears the 2% bar alone.
+
+**What shipped.** A candidate now counts as worse than the step only when it is more than 2% and at least 2 ppm over
+it (`host.TAKE_BOUND_FLOOR_PPM`). Chosen on J to L, M, N and O (2 ppm is the smallest floor covering all of O, at a
+looser bound on 3 of 30 instant builds), rule committed in 881d6c775, then held out on set P (lag 0.58 s, seed 113,
+66 drills): 48 of 48 builds told TAKE_US = 0 had the true take within the bound, against 46 of 48 at 2% alone, and the
+bound stayed 1.5 ms on 4 of 6 instant builds. Five of P's bounds moved up 0.5-2.5 ms, none down. Above about 100 ppm
+of step rms nothing changes. Everything is in `eval/take-bound-floor-p-2026-11-19.md`.
+
+## More tach pulses a revolution (2026-11-19, after "A ppm floor on the bound"; tested host-side, closed by its pre-registered rule)
+
+**The item.** With one magnet a revolution a take shorter than a revolution shows only on balls whose contact
+straddles an edge ("Short takes that read 0"). Would two or four magnets multiply the balls that see a 1-2.5 ms take?
+
+**What was built to ask.** `drop_from_commands_steps` takes `per` (periods a revolution) and `angles` (each period's
+share of a revolution): spans stay the real times, each period's speed is its share over its time, and the window and
+anchor stay counted in revolutions; `per=1` is the old fit exactly. `magnet_spacing` learns uneven magnets from a
+steady stretch, each period over the mean of the revolutions either side of it (exact on a linear speed change).
+`tests/tach_pulses_sweep.py` refits the same simulated ball with 1, 2 and 4 magnets (0.5 degree placement error, the
+1/8 us capture tach, the take survey's depth), so the control is identical and only the tach differs; 256 balls.
+
+**What it found.** Four magnets "saw" 46 of 128 short-take balls against 38 (the rule asked twice as many) and the
+per-ball bound held on 81% (it asked 95%), so **the board keeps one pulse a revolution**. Instant balls read off 0
+less often (7 of 32 against 16), and spacing must be learnt: taken as even, four magnets misfit by 1,500-3,200 ppm
+and saw 1 ball. Not asked: the ball's least within 0.5 ms went from 51 to 116 of 224, mostly at 3-6 ms takes and high
+speed, but the step's drop (TAKE_US = 0) got worse, 0.11% to 0.55% mean error (1.12% at 6,500 rpm), because short
+periods resolve the take's shape. Not judged either: with 0.5 us of sensor jitter one magnet saw 9 short-take balls and four 24, with a 3.5 ms median
+bound against none, so a jittery tach is where more magnets would pay. Everything is in
+`eval/tach-pulses-2026-11-19.md`.
+
+**Not known.** Point magnets on a first-order wheel; a real Hall edge's width and hysteresis would move each share
+with speed. Reopening it needs a survey-level test written first and an answer for the step's drop.
+
+
+## One informative wheel, counted by drill (2026-11-19, after "More tach pulses a revolution"; `TAKE_SURVEY_MIN_KEPT` kept at 0 by its pre-registered rule)
+
+**The item.** "The take survey's verdict needs two informative wheels" left the minimum at 0 and asked for drill-level
+counts over more fresh sets: prefixes of one drill are near-repeats, so 12 wrong one-wheel verdicts were two wrong
+drills.
+
+**A scorer fix first.** `tests/take_survey_kept.py` rescored stored rows on the board's grid, which went to nine points
+this morning, so it raised an IndexError on every stored set (seven candidates). It now takes each row's grid from its
+length (`GRIDS`: 7, 8 or 9) and reproduces the earlier held-out file line for line; `tests/test_take_survey_kept.py`
+covers it. `--drills` counts by drill and says what a minimum of two spares (a drill that told a wrong time with no
+minimum and never with it) and silences (a drill whose right advice it removes).
+
+**Design, then held out.** On the thirteen stored sets a one-kept-wheel verdict was wrong in 2 of 16 drills against 10
+of 528 on two or more; the minimum spared 2 and silenced 6. The rule, committed before capture (a9af0c377), asked six
+fresh jittery-tach sets (Q to V, lags 0.34-0.74 s, seeds 401-433, 432 drills) for at least 8 one-wheel drills, a
+wrong share three times the rest's with at least 2 wrong, at most 3 silenced per spared, and no loss at the drill's
+end. Only **6 of 432** drills ever rested a verdict on one kept wheel (1 wrong, against 1 of 149 on two or more), so
+the first clause was void and **`host.TAKE_SURVEY_MIN_KEPT` stays 0**. The other clauses held (1 spared, 0
+silenced, 134 right at the drill's end either way). The wrong one: set U's 6 ms build at 3 us of jitter read 8 ms on
+its one wheel from ball 16 to 19, then nothing at the end. Everything is in
+`eval/take-survey-kept-drills-2026-11-19.md`.
+
+**Not known.** Over all nineteen sets one-wheel verdicts were wrong in 3 of 22 drills and the rest in 11 of 677, the
+direction the minimum assumes, but they occur in about one drill in sixty, so the simulator cannot settle it and it
+barely matters there. A real wheel's blind rows will not tie as exactly, which may make one-wheel verdicts more or less
+common; the question reopens on real logs.
+
+## The sub-8 advised instant build was the frame's rounding (2026-11-19, after "Take-blind rows traced"; guard on by its pre-registered rule)
+
+**The item.** "Take-blind rows traced" left one instant build of 72 advised at 1/8 us (the first held-out capture set's
+launcher 1, 3.5 ms at share 0.57). `TAKE_SURVEY_BLIND = 1.5` later stopped advising it, without saying why.
+
+**A scorer fix first.** `tests/take_survey_blind.py`, `tests/take_survey_trim.py` and `take_misfit_trace.survey_score`
+rescored stored rows on the nine-point grid and raised an IndexError on every set captured with seven candidates.
+`GRIDS` and `grid_for` now live in `tests/take_survey_trim.py`, and each row is scored on its own grid; the blind and
+trim scorers reproduce their stored outputs.
+
+**Why it was advised.** The Pi reads the share from the TAKE_SURVEY frame's rms, sent in whole ppm. At 1/8 us the fit
+floor is a few ppm, so the rounding is a large part of each number: the frame carried 7 ppm for the step and 4 for
+3 ms, 0.571, where the board's own sums give **0.635**. The blind filter moved the rounded 4 to a 5 (0.714); the exact
+share stayed at 0.63. Over 38 stored capture files (5,012 scorings) the rounded and exact shares fall either side of
+0.6 nine times, eight of them within 0.011 of it.
+
+**What shipped.** `host.take_share_bound(rms)`, (min + 0.5) / (step - 0.5), the largest share the frame allows;
+`take_survey_advice` withholds a nonzero contact time when that bound exceeds `TAKE_ADVISE_RATIO`, and says the fits are
+too close to the frame's 1 ppm to tell. Pre-registered (eval/take-share-rounding-2026-11-19.md, committed before the
+capture) on a fresh capture set at 1/8 us (lag 0.57 s, seed 443): every clause held, 53 of 54 spread takes named and
+advised either way, no instant build advised, 0 verdicts changed (as predicted). On the stored sets the guard
+withholds 6 of 1,244 advices the exact share would give and removes the 2 the rounding added
+(`tests/take_share_rounding.py`).
+
+**Not known.** The fresh set shows the guard is free there, not that it helps; that rests on the traced build. Frames
+in tenths of a ppm would remove the cause (a protocol change, not done). A real tach's floor is likelier tens of ppm.
+
+
+## The sub-8 advised instant build, recaptured (2026-11-19, after "The sub-8 advised instant build was the frame's rounding"; the item closed by its pre-registered rule, nothing on the board changed)
+
+**The item.** The section above traced the advised build to the frame's whole-ppm rounding and shipped the share
+guard. A parallel session asked a different question about the same build: does today's tree, with the nine-point
+grid, stretched offsets, blind 1.5 and trim 0, still produce it? The rule was committed before the capture
+(f2e5f923a, eval/take-instant-sub8-2026-11-19.md).
+
+**Recaptured.** The four sub-8 capture sets, recaptured whole on today's tree and scored by the board's frame and
+`host.take_survey_advice` with the share guard (`tests/take_instant_sub8.py --score`):
+
+| set | instant advised (of 18) | spread takes named within 1 ms and advised (of 54), today / stored rows rescored | within 1 ms (of 72) |
+| --- | --- | --- | --- |
+| design (0.3 s, seed 7) | 0 | 37 / 44 | 67 |
+| first held out (0.45 s, seed 11) | 0 | 48 / 42 | 72 |
+| fresh (0.38 s, seed 13) | 0 | 54 / 54 | 68 |
+| third (0.52 s, seed 17) | 0 | 54 / 47 | 67 |
+
+Every clause held. No instant build was advised (0 of 72). The named build now picks 0 ms ("keep TAKE_US = 0", bound
+1.5 ms), and its rms climbs 6, 41, 84 ... 360 ppm across the grid where the stored row was flat to a few ppm. 193 of
+216 spread takes were named and advised against the README's 173 (194 without the guard, so the guard withholds one
+here). The stored row also shows the guard's cause from the other side: the 4 ms candidate won because it was the one
+with no ball where it alone fitted badly. Lone jumps like that (a fit that settled above what its candidate can reach)
+are still on today's rows, but they now sit under rms that climbs steeply with the take.
+
+**The design set's fall, traced in part.** One 3 ms build there read 87 / 59 / 11 ppm on 2026-11-18 and 12 / 8 / 9
+today. Changing one setting at a time on that build: `TAKE_MATCH_SPREAD` False made no difference, and the ball hold's
+gain scale off (`LOOP_BALL_GAIN = False`; "down" since "The ball hold on a wheel faster than told") read
+34 / 34 / 18 / 7, pick 2.9 ms. A paired capture of 96 builds (four sets, jitter 0 and 0.5 us;
+`tests/take_survey_ball_gain.py --compare`) put this in proportion: 66 of 72 named and advised with "down" against 68
+with it off, no instant build advised either way, and shares moving both ways. Two builds in 72 do not justify
+switching the gains off for calibration drills, so `LOOP_BALL_GAIN` stays. The rest of the design set's fall is at
+1-3 us of jitter, which the pair did not capture.
+
+**Not known.** All simulated, and the four sets reuse the stored sets' seeds and lags, so they test the tree, not a new
+plant.
+
+## The take survey's rms in tenths of a ppm (2026-11-19, after "The sub-8 advised instant build was the frame's rounding"; the frame's cause of the guard removed)
+
+**The item.** The share guard (`host.take_share_bound`) withholds a nonzero pick whenever the whole-ppm rounding could
+put the best / step share either side of `TAKE_ADVISE_RATIO`. That section named the fix for the cause: send the rms
+finer. This does it.
+
+**The frame.** TAKE_SURVEY gains a last byte, the rms slots' units per ppm (`protocol.FORMATS`, 27 bytes of payload
+against 26). The board sends 10, tenths of a ppm, unless a candidate's mean rms would reach 65535 tenths (6553.5 ppm:
+a wheel fitting that badly), and then 1, whole ppm, so a bad wheel still reads as a number rather than "none"
+(`LaunchCheck.take_report`). The Pi reads the byte, keeps `rms_ppm` in ppm (now with a decimal) and sets
+`rms_step_ppm` to 0.1; the guard's half-step shrinks from 0.5 to 0.05 ppm and the advice names the step it used. The
+nine-candidate whole-ppm frame of this morning is now the first of `protocol.OLDER_FORMATS` and reads as before, step
+1 ppm, as do the eight- and seven-candidate frames. A Pi from before this change drops the new frame as a wrong
+length (the same break every TAKE_SURVEY change has had): flash the board and update the Pi together.
+`TAKE_BOUND_FLOOR_PPM` (2) stays: it was set on whole-ppm rounding, but lowering it is a change of rule that needs its
+own held-out set.
+
+**What it buys, on every stored set.** `tests/take_share_tenths.py` rescores the 41 stored capture files with survey
+rows (2,964 drills, 2,310 nonzero picks) by the board's `ResidualSurvey` with the shipped trim and blind, and compares
+each verdict with the exact share from the board's sums (`eval/take-share-tenths-2026-11-19.txt`):
+
+| frame | verdicts unlike the exact share | spread takes named within 1 ms and advised (of 2,394) | instant builds advised (of 570) |
+| --- | --- | --- | --- |
+| exact (the board's sums) | 0 | 1,553 | 0 |
+| whole ppm with guard G (until now) | 6 | 1,547 | 0 |
+| tenths with its guard | 1 | 1,552 | 0 |
+
+All six verdicts the whole-ppm guard withheld were right: each named the true take within 1 ms, with exact shares of
+0.590 to 0.599. Five come back in tenths. The one still withheld has an exact share of 0.599 and a tenths bound of
+0.6002. None of the six was a small-rms build: their step rms were 29 to 196 ppm. So the earlier note that rounding
+"hardly matters" at tens of ppm was right about the share itself but not about the guard. The guard bites on shares
+near the margin at any rms, and a whole ppm on a 30 ppm step moves the bound by about 0.035.
+
+**Not known.** All simulated. The 41 files are the stored sets, not a fresh capture, so this checks the arithmetic of
+the frame on known rows rather than a new plant. On a real tach the shares near the margin are what matter, and how
+often a real drill lands within 0.04 of 0.6 is unmeasured.
+
+## The bound's ppm floor on tenths (2026-11-19, after "The take survey's rms in tenths of a ppm"; the floor kept at 2 by its pre-registered rule)
+
+**The item.** `TAKE_BOUND_FLOOR_PPM` (2) was set because whole-ppm rounding cleared the bound's 2% bar alone at a
+16-20 ppm step. The tenths frame removed that rounding, so the floor might no longer be needed.
+
+**Design (all seen).** `tests/take_bound_floor_tenths.py` rescores the stored J-L, M and N dense refits and the O and P
+captures into both frames from their per-wheel scores, using the board's `ResidualSurvey`. Of 242 builds told
+TAKE_US = 0, the true take is at most the bound on 235 at floor 0, 239 at 0.5, 240 at 1 and 242 at 2. The misses
+are real 1.6-3.5 ms takes whose first candidate past them is just over 2%, not rounding. Floor 2 on tenths bounds 27
+of 42 instant builds at 1.5 ms, against 25 on whole ppm. A relative bar alone does no better: 10-12% covers all 242
+but bounds only 24 instant builds at 1.5 ms. The floor is a noise margin, so the design kept it.
+
+**Held out (rule committed before capture; sets W, lag 0.46 s, seed 139, and X, lag 0.38 s, seed 151, 132 drills).**
+97 builds were told TAKE_US = 0, and floor 2 covered 97 of 97, with the bound at 1.5 ms on 9 of 12 instant builds.
+Both clauses held, so the floor stays 2. Every floor from 0 to 2 scored the same on W and X, so these sets confirm the
+floor costs nothing but cannot show it is needed. That evidence is the design's 7 misses. Everything is in
+`eval/take-bound-floor-tenths-2026-11-19.md`.
+
+## The bound's ppm floor on takes near 2 ms (2026-11-19, after "The bound's ppm floor on tenths"; the floor shown needed by its pre-registered rule)
+
+**The item.** W and X could not tell floors 0 to 2 apart: neither had a take near 2 ms whose candidate sat just over
+the 2% bar, the case behind the design sets' seven misses. So two fresh sets aimed at it.
+
+**Held out (rule committed before capture in 2005990fa; sets Y, lag 0.50 s, seed 157, and Z, lag 0.34 s, seed 163;
+takes 1.8-2.2 ms and 0, 72 drills).** 54 builds were told TAKE_US = 0. Floor 0 covered 51 (three Z builds at 1.9, 2.0
+and 2.1 ms bounded at 1.5 ms, step rms 6-8.7 ppm, where 2% is under 0.2 ppm); 1 ppm covered 52; 2 ppm covered 54 of
+54. Both clauses held, so the floor is shown needed and `host.TAKE_BOUND_FLOOR_PPM`'s comment cites Y and Z. Nothing on
+the board changed. The price is tightness on the same small-rms builds: 5 of 12 instant builds bounded at 1.5 ms
+against 8 at floor 0. A floor scaled to the survey's own noise is NEXT.md's next item. Everything is in
+`eval/take-bound-floor-near2-2026-11-19.md`.
+
+## A standard-error floor on the take bound (2026-11-19, after "The bound's ppm floor on takes near 2 ms"; closed on design, nothing changed)
+
+**The item.** The fixed 2 ppm floor is needed but loosens the bound on small-rms instant builds. NEXT.md asked whether
+a floor of k standard errors of the step's rms over the kept wheels, which the board could send, keeps the coverage
+and wins the tightness back.
+
+**Design (all nine stored sets, 393 builds told TAKE_US = 0, 66 instant).** `tests/take_bound_floor_se.py` tried
+three shapes: k step SEs, k paired SEs per candidate, and min(2 ppm, k step SEs). The least k that covers every build
+bounds 24 instant builds at 1.5 ms (step) or none (paired), against the fixed floor's 41. The capped shape at k 2 and
+above is the shipped bound exactly. The instant builds the fixed floor loosens and the real takes floor 0 misses
+overlap on both the 1.5 ms gap (0.2-1.9 against 0.3-1.8 ppm) and the SE (0.9-6.2 against 0.6-8.3 ppm), so no floor
+built from the step's noise separates them. No candidate beat the shipped floor, so no held-out pair was captured.
+`TAKE_BOUND_FLOOR_PPM` stays 2. Everything is in `eval/take-bound-floor-se-2026-11-19.md`.
+
+## The take-blind rule rechecked on the nine-point grid (2026-11-19, after "A standard-error floor on the take bound"; 1.5 kept by its pre-registered rule)
+
+**The item.** `TAKE_SURVEY_BLIND = 1.5` was chosen on the seven-point grid, scored by the old whole-ppm share test.
+The grid now has a 1.5 ms candidate near the step, the frame carries tenths, and the Pi's advice has the rounding
+guard, so the same 1.5 might leave out a different set of wheels.
+
+**Design and held out.** `tests/take_blind_nine.py` rebuilds each capture's frame at several blind values and judges
+it by `host.take_survey_advice`. On the seven stored nine-point sets the rule still pays (jittery tach: 57 of 180
+spread takes named with every wheel kept, 75 at 1.5, 79 at 3), and 3 was held out against 1.5 with the rule
+committed first. Fresh jittery-tach sets AA (lag 0.42 s, seed 167) and AB (lag 0.54 s, seed 173), 66 drills: 22 of
+60 named with every wheel kept, 30 at 1.5, 30 at 3, no instant build misadvised. A tie keeps 1.5, now shown on
+held-out nine-point data. The whole gain is at 2.4-5 ms takes (4 to 12 of 24); the 1.3-2 ms takes read as instant at
+every blind. `tests/take_survey_pick.py --capture` gained `--tach K`. Everything is in
+`eval/take-blind-nine-2026-11-19.md`.

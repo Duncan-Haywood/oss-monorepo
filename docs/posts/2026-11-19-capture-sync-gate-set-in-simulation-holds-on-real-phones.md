@@ -1,0 +1,21 @@
+---
+title: "Audio sync of phones: tuning the simulated room failed, but a gate set in simulation held on real phones"
+seo_title: "Audio sync: a confidence gate set in simulation, used on real phones"
+date: 2026-11-19
+description: "Fitting a simulated room to five real phones did not make it predict noise, but a 1% sync gate set in it held for 7 and 6 of 10 noise types on the phones."
+tags: [research, capture-sync, audio-sync, sim-to-real, digital-twin]
+---
+
+The [capture-sync](../../research/capture-sync/) programme asks how often a few seconds of sound can sync two free-running cameras or phones to within one video frame. Yesterday's step compared its simulated room with five real smartphones from the LibriWASN dataset. The simulation ranked ten kinds of noise correctly but was optimistic about how often sync fails. With white noise at -10 dB, 5-10% of real 2 s windows missed by more than a frame, against under 1% in simulation.
+
+The obvious fix is to tune the simulation. Its room has two settings that had never been checked against a phone: how loud the direct sound is next to the reverberation (the direct-to-reverberant ratio, DRR, fixed at 0 dB), and whether the microphone hears a noise floor (it heard none). This step fitted both to the real phones using white noise only. It then tested the tuned room on the nine real noise types the fit never saw: air conditioners, babble, doors, typing and the rest. Eight predictions were written down before the run. 124,000 simulated windows and 168,000 real ones were scored once.
+
+**The tuning failed.** No combination of the two settings behaves like the phones. In the simulation, reverberation is either harmless, or so strong that it breaks windows with no noise at all. At a DRR of -6 dB in the wetter room, 8-9% of noise-free windows were a frame off; on the phones 0.1-0.4% were. Yet the real phones lose 5-10% of windows as soon as white noise is added. The fit had to trade one against the other. In the drier room it picked the strongest reverberation on the grid, and its error on the other noise types grew from 5.0 to 20.4 percentage points. In the wetter room it stayed at 7.4. Four of the eight predictions failed, including the main one. Three held, and the eighth was exploratory, with no direction stated.
+
+**The gate held anyway.** What a rig needs from a simulation is less than a failure rate. It needs a confidence threshold: accept a window's sync estimate only when its peak-to-sidelobe ratio is high enough that at most 1% of accepted windows are wrong. We set that threshold using simulated windows only and applied it to real phone recordings it had never seen. It held 2% wrong among accepted for 7 and 6 of the 10 noise types, keeping 77% and 68% of windows. A gate set on real recordings in the previous step managed 7 and 6, keeping 78% and 65%. So the simulation is wrong about how often a window fails, but right about what a given confidence score means.
+
+The tuned, over-reverberant room turned out useful for a different reason: it is pessimistic. A gate set in it held 2% for all 10 noise types in the drier room, with 0.20% wrong overall, at the cost of keeping 67% of windows rather than 78%. In the wetter room no version of the simulation fixes speech-like noise: neighbours talking and babble still pass at 9-11% wrong.
+
+A check made after these results, and labelled as such, suggests where the real difference lies. The typical window has 97-99% of its power inside the 100-4000 Hz band the correlation uses, on phones and in simulation alike. But one real window in twenty has only 52-59% there, against 89-90% simulated. The Nexus phone picks up power above 4 kHz, and one Pixel picks up rumble below 100 Hz. On those windows, white noise scaled to the window's total power is several dB stronger inside the band. A per-phone microphone model is the next thing to try in the simulation.
+
+Limits: one dataset, played from a loudspeaker; noise added rather than recorded in the room; a coarse grid over two settings; phones, not cameras. The [README](../../research/capture-sync/README.md) has the tables, and [LOG.md](../../research/capture-sync/LOG.md) has the predictions as written before the run.

@@ -18,7 +18,8 @@ writes it. What a CR2 holds in TIFF IFDs, a CR3 holds in boxes:
   sample listing each tile, plane and subband with its byte count.
 * **Crop**: SensorInfo, as on a CR2 (the same rectangle as the CDI1/IAD1 box).
 * **Black level**: ColorData's PerChannelBlackLevel where its place is known
-  (R5, R3, R5 Mark II: equal to LibRaw on all nine real files of 2026-11-18),
+  (R5, R3, R5 Mark II: equal to LibRaw on all nine real files of 2026-11-18; by
+  ColorData length and version since the 39-file survey the same evening),
   else the median of the masked columns left of the image, per 2x2 position, as
   on a CR2 (on the R8 files the medians are within 1 of LibRaw's 2047/2048).
 * **White level**: clipped sensels when the frame has a pile at the top, else
@@ -49,10 +50,18 @@ which CMP1's tile size gives (every tile that size but the last of each row and 
 rest). The sample header then holds each tile's header (0xFF01, with its index) and its planes' headers in
 turn, and the data follows tile after tile; each tile's plane is an independent band at the tile's width.
 Full-quality tiles are read, and since 2026-11-16 C-RAW tiles too (``cr3_wavelet``: each tile its own
-wavelet decomposition plus the edge coefficients its neighbours lend). No public tiled CR3 could be fetched,
-so real one-tile R8 (and, for C-RAW, R3) files were re-stored as tiles and LibRaw 0.22 read them back to the
-original sensels (``tools/cr3_tiled_libraw_check.py``, ``eval/canon-cr3-tiled-2026-11-15.md``;
+wavelet decomposition plus the edge coefficients its neighbours lend). Until 2026-11-18 no public tiled CR3
+had been fetched, so real one-tile R8 (and, for C-RAW, R3) files were re-stored as tiles and LibRaw 0.22 read
+them back to the original sensels (``tools/cr3_tiled_libraw_check.py``, ``eval/canon-cr3-tiled-2026-11-15.md``;
 ``tools/cr3_craw_tiled_libraw_check.py``, ``eval/canon-cr3-craw-tiled-2026-11-16.md``).
+
+Real tiled files (2026-11-18, ``eval/canon-cr3-every-body-2026-11-18.md``): the older CR3 bodies on
+raw.pixls.us (EOS R, RP, M50/Kiss M, M50 Mark II, M6 Mark II, M200, 250D/SL3, 90D, 850D, R100; 6288-7128
+sensels wide) store a full frame as two tiles side by side, mostly with CMP1's several-tiles flags left 0,
+while the later bodies (R5, R6, R7, R3, R8, 1D X Mark III and on) store one tile even at 7128-8480 sensels.
+The older bodies' C-RAW is an older layout too (version 0x100 with wavelet levels, one fixed step per
+subband: ``cr3_wavelet``). This reader refused 17 of those 18 files before that day (the Kiss M's flags are
+set); all now match LibRaw sensel for sensel.
 """
 
 from __future__ import annotations
@@ -74,6 +83,15 @@ _AS_SHOT_INDEX[4528] = 0x69  # ColorData12 (version 64): R5 Mark II (raw.pixls.u
 # (512). On the R5 Mark II, IAD1's left optical black also takes in a darker strip (columns 0-131, about 470),
 # so a measured median lands 8-41 levels low; the stated level is what Canon and LibRaw use.
 _BLACK_INDEX = {3656: 0x157, 3973: 0x16B, 4528: 0x17F}
+# Where one length holds two layouts, ColorData's first entry (its version) tells them apart
+# (eval/canon-cr3-every-body-2026-11-18.md, 39 raw.pixls.us files): 3,778 entries is version 48 on the R7, R10,
+# R50, R6 Mark II and R8 (black at 0x16B, as the R3) but 65 on the PowerShot V1 and 66 on the R6 Mark III (at
+# 0x17F, as the R5 Mark II; LibRaw 0.22.2 reads 0-145 there). 1,816-1,824 entries (versions 16-19: EOS R, RP,
+# M50, M6 Mark II, M200, 250D, 90D, 850D, R100) hold it at 0x149, where LibRaw's value was found on 9 files.
+_BLACK_INDEX_BY_VERSION = {
+    (3778, 48): 0x16B, (3778, 65): 0x17F, (3778, 66): 0x17F,
+    (1816, 18): 0x149, (1816, 19): 0x149, (1820, 16): 0x149, (1824, 17): 0x149,
+}
 # A measured black further than this from the stated one is reported in the notes.
 _BLACK_GAP_NOTE = 4
 _CFA_LAYOUT = {0: "RGGB", 1: "GRBG", 2: "GBRG", 3: "BGGR"}
@@ -469,7 +487,9 @@ class Band:
 def check_supported(head: Cmp1) -> None:
     """Raise with the reason when this reader cannot decode the sensor data CMP1 describes."""
 
-    if not ((head.version == 0x100 and head.levels == 0) or (head.version == 0x200 and 1 <= head.levels <= 3)):
+    # Version 0x100 with wavelet levels is the older C-RAW (EOS R100, raw.pixls.us, 2026-11-18): one fixed
+    # step per subband instead of a QP grid (cr3_wavelet's old-style headers).
+    if not (head.version in (0x100, 0x200) and 0 <= head.levels <= 3) or (head.version == 0x200 and not head.levels):
         raise rd.DevelopError(
             f"CR3: codec version {head.version:#x} with {head.levels} wavelet levels is not supported; convert to DNG "
             "with Adobe's free DNG Converter"
@@ -504,8 +524,9 @@ def tile_grid(head: Cmp1) -> list[Tile]:
     cols, rows = -(-pw // tw), -(-ph // th)
     if cols > 0xFF or rows > 0xFF or pw - tw * (cols - 1) < 0x16 or ph - th * (rows - 1) < 0x16:
         raise rd.DevelopError(f"CR3: a {cols} x {rows} tile grid leaves an edge tile under 22 sensels; not valid")
-    if (cols > 1) != bool(head.tile_cols) or (rows > 1) != bool(head.tile_rows):
-        raise rd.DevelopError("CR3: CMP1's several-tiles flags do not match its tile size")
+    # CMP1's two several-tiles flags are not checked against the grid: the real EOS M200 RAW (raw.pixls.us,
+    # 2026-11-18) stores two tiles side by side with both flags 0, and LibRaw reads the grid from the sizes alone
+    # (eval/canon-cr3-every-body-2026-11-18.md).
     tiles: list[Tile] = []
     for r in range(rows):
         for c in range(cols):
@@ -652,7 +673,7 @@ def _stated_black(cd: tuple | None, bits: int, phase: str) -> list[float] | None
 
     if not cd:
         return None
-    idx = _BLACK_INDEX.get(len(cd))
+    idx = _BLACK_INDEX_BY_VERSION.get((len(cd), int(cd[0])), _BLACK_INDEX.get(len(cd)))
     if idx is None or idx + 4 > len(cd):
         return None
     r, g_red_row, g_blue_row, b = (float(v) for v in cd[idx : idx + 4])

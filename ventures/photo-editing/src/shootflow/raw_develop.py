@@ -978,8 +978,10 @@ class RawImage:
     # "nef" for a Nikon NEF read by ``shootflow.nef``, "orf" for an Olympus ORF read by ``shootflow.orf``, "rw2" for a
     # Panasonic RW2 read by ``shootflow.rw2``, "srw" for a Samsung SRW read by ``shootflow.srw`` or "pef" for a
     # Pentax PEF read by ``shootflow.pef``, "raf" for a Fujifilm RAF read by ``shootflow.raf``, "cr3" for a Canon
-    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``
-    # (DNG-equivalent tags, no colour matrix).
+    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``, "mrw" for a Minolta MRW read by ``shootflow.mrw``,
+    # "dcr" for a Kodak DCR read by ``shootflow.kodak`` (DNG-equivalent tags, no colour matrix); "iiq" for a Phase One IIQ read by ``shootflow.iiq`` (DNG-equivalent
+    # tags with a ColorMatrix1 from the file's own camera-to-ROMM matrix); "3fr" for a Hasselblad 3FR read by
+    # ``shootflow.hasselblad`` (the file's own ColorMatrix1 in IFD0).
     source: str = "dng"
     notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
     exif: Ifd | None = None  # the EXIF IFD (lens name, focal length), when the file has one
@@ -1085,10 +1087,14 @@ def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
 
 
 def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
-    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's or Canon CR3's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
+    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's, Canon CR3's, Minolta MRW's, Phase One IIQ's, Hasselblad 3FR's or Kodak DCR's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
 
-    from shootflow import arw, cr2, cr3, crw, nef, orf, pef, raf, rw2, srw
+    from shootflow import arw, cr2, cr3, crw, hasselblad, iiq, kodak, mrw, nef, orf, pef, raf, rw2, srw
 
+    if iiq.is_iiq(data):  # before the TIFF readers: an IIQ is a TIFF with its sensor in an IIII block
+        return iiq.parse_iiq(data)
+    if mrw.is_mrw(data):
+        return mrw.parse_mrw(data)
     if crw.is_crw(data):
         return crw.parse_crw(data)
     if cr3.is_cr3(data):
@@ -1109,6 +1115,10 @@ def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
         return pef.parse_pef(data)
     if srw.is_srw(data):
         return srw.parse_srw(data)
+    if hasselblad.is_3fr(data):
+        return hasselblad.parse_3fr(data)
+    if kodak.is_dcr(data):
+        return kodak.parse_dcr(data)
     reader = _Reader(data)
     ifds = _all_ifds(reader)
     if not ifds:
@@ -1813,7 +1823,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     profile = _profile(ifd0, ifd, settings.dcp, notes) if settings.colour == "dng" else None
     if settings.dcp is not None and profile is None:
         raise DevelopError("the camera profile has no ColorMatrix1")
-    if raw.source in ("crw", "cr2", "cr3", "arw", "nef", "orf", "rw2", "srw", "pef", "raf") and profile is None:
+    if raw.source in ("crw", "cr2", "cr3", "arw", "nef", "orf", "rw2", "srw", "pef", "raf", "mrw", "dcr") and profile is None:
         example = {
             "crw": "Canon EOS 10D",
             "cr2": "Canon EOS 5D Mark II",
@@ -1825,9 +1835,11 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             "srw": "Samsung NX1",
             "pef": "Pentax K-1 Mark II",
             "raf": "Fujifilm X-E1",
+            "mrw": "Konica Minolta DYNAX 7D",
+            "dcr": "Kodak DCS Pro SLR/n",
         }[raw.source]
         raise DevelopError(
-            f"a{'n' if raw.source in ('arw', 'nef', 'orf', 'rw2', 'srw') else ''} {raw.source.upper()} carries no colour matrix: pass the camera's "
+            f"a{'n' if raw.source in ('arw', 'mrw', 'nef', 'orf', 'rw2', 'srw') else ''} {raw.source.upper()} carries no colour matrix: pass the camera's "
             f".dcp profile with --dcp (Adobe's free DNG Converter installs one per camera, e.g. '{example} Adobe "
             "Standard.dcp' under CameraRaw/CameraProfiles), or convert the file to DNG"
         )
@@ -2062,7 +2074,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     np_engine = _numpy_engine(settings.engine) if (w >= 2 and h >= 2) else None
     if settings.engine == "numpy" and np_engine is None:
         raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
-    demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes)
+    demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes, half=settings.half)
     noise = None
     if demosaic == "noise-aware":
         noise = noise_profile_planes(ifd, ifd0)
@@ -2214,12 +2226,13 @@ def noise_profile_planes(ifd, ifd0=None) -> list[tuple[float, float]] | None:
     return None
 
 
-def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str]) -> str | None:
-    """The demosaic a CFA gets ("bilinear" or "directional"); None for LinearRaw. "auto" is directional
-    whenever the numpy engine runs: on X-Trans at full and half size (X-Trans half size demosaics at
-    full size, then averages; eval/xtrans-directional-demosaic-2026-11-14.md), and on Bayer at full size
-    since 2026-11-15 (eval/bayer-directional-demosaic-2026-11-15.md; Bayer half size bins each 2x2
-    block and demosaics nothing). "learned" (opt-in, Bayer): the directional demosaic with a per-sensel
+def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str],
+                     half: bool = False) -> str | None:
+    """The demosaic a CFA gets; None for LinearRaw. "auto" is noise-aware whenever the numpy engine runs
+    (since 2026-11-19, eval/auto-noise-aware-2026-11-19.md; directional before): on X-Trans at full and
+    half size (X-Trans half size demosaics at full size, then averages; eval/xtrans-directional-demosaic-2026-11-14.md),
+    and on Bayer at full size (eval/bayer-directional-demosaic-2026-11-15.md). Bayer half size bins each 2x2
+    block and demosaics nothing, so "auto" reports directional there as before and reads no noise. "learned" (opt-in, Bayer): the directional demosaic with a per-sensel
     Laplacian weight from a fitted model, 0.01-0.39 dB colour and 0.02-0.66 dB luma above the default on
     ten held-out frames, at 4-6x the time (eval/bayer-learned-laplace-2026-11-16.md); in C since 2026-11-16,
     bit-identical, 2.6-3.3x the default's time (eval/bayer-learned-native-2026-11-16.md). "noise-aware"
@@ -2249,7 +2262,7 @@ def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes
     # auto
     if w >= least and h >= least:
         if numpy_engine:
-            return "directional"
+            return "directional" if (half and not xtrans) else "noise-aware"
         if xtrans:  # (Bayer: report.demosaic says "bilinear"; its half size demosaics nothing, so no note)
             notes.append("bilinear X-Trans demosaic: the directional one needs the numpy engine")
     return "bilinear"
@@ -2539,13 +2552,13 @@ def still_for_review(source: Path | str, scratch: Path | str) -> Path | None:
     """A decodable picture of a RAW still for proxies and analysis.
 
     The camera's embedded JPEG preview when there is one (fast, and what the
-    camera showed); otherwise, for a DNG, a half-size development of its sensor
+    camera showed); otherwise, for a DNG or a 3FR, a half-size development of its sensor
     data written into ``scratch``. ``None`` when neither exists (a non-DNG RAW
     with no preview). Raises ``DevelopError`` when a preview-less DNG cannot be
     developed.
     """
 
-    from shootflow.raw_preview import extract_preview, is_dng_path
+    from shootflow.raw_preview import extract_preview, is_3fr_path, is_dng_path
 
     source, scratch = Path(source), Path(scratch)
     preview = extract_preview(source)
@@ -2553,7 +2566,7 @@ def still_for_review(source: Path | str, scratch: Path | str) -> Path | None:
         jpeg = scratch / "preview.jpg"
         jpeg.write_bytes(preview)
         return jpeg
-    if not is_dng_path(source):
+    if not (is_dng_path(source) or is_3fr_path(source)):
         return None
     developed = scratch / "developed-half.tif"
     develop_file(source, developed, DevelopSettings(half=True, preview_quality=True))

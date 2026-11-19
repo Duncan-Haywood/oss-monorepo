@@ -1,0 +1,28 @@
+# Species richness and diversity calculator: rarefaction, extrapolation, Chao1, ACE and Hill numbers (species-diversity)
+
+> Free online species richness and diversity estimator for abundance data. Paste counts of individuals per species (long: species and count, optionally a site column; raw: one row per individual; wide: one count column per site) or a list of counts, and get Chao1 with Chao's (1987) log-normal interval and ACE (Chao and Lee 1992) for the species still undetected; Hill numbers of order 0, 1 and 2 (richness, the exponential of Shannon entropy, inverse Simpson) observed and estimated (Chao-Wang-Jost 2013 entropy estimator); rarefaction and extrapolation curves by sample size (Chao et al. 2014) and by sample coverage (Chao and Jost 2012) with seeded bootstrap intervals; how many more individuals reach 95% or 99% coverage; and every site compared at a common coverage and a common sample size, as the iNEXT R package does. Checked against an independent Python reference (scipy hypergeometric probabilities, mpmath, scikit-bio) on 13 assemblages. Example: ten years of Portal Project desert rodent captures (CC0), 24 plots under three treatments. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). A statistical estimate, not environmental-impact, regulatory or other professional advice. Assumes individuals were sampled at random and independently; Chao1 is a lower bound.
+
+## Pages
+
+- [The tool](https://marisstella.app/species-diversity/)
+
+## Use it from code
+
+- `node cli.mjs counts.csv [--group COL] [--species COL] [--count COL] [--confidence 0.95] [--bootstrap 100] [--seed 1] [--knots 40] [--endpoint M] [--json]`
+- `node cli.mjs --counts 52,30,21,12,9,7,5,4,3,3,2,2,2,1,1,1,1,1`
+- `node platform/agents/tools.mjs call species-diversity analyze --input '{"counts":[52,30,21,12,1,1]}'` (or `{"assemblages":{"north":[...],"south":[...]}}`, `{"text":"site,species,count\n...","group":"site"}`)
+- From JavaScript: `analyze({text | counts | assemblages, group, species, count, confidence, bootstrap, seed, knots, endpoint})`, `report(result)`, `chao1(counts)`, `ace(counts)`, `curveFunction(counts, q)`, `coverageAt(counts, m)`, `sizeForCoverage(counts, C)`.
+
+## What it answers
+
+- How many species are there, counting the ones not yet found (Chao1, ACE)?
+- Is this site really richer than that one, or did we just sample it more (coverage-based rarefaction)?
+- What is the Shannon or Simpson diversity as an effective number of species?
+- How many more individuals do I need to sample to reach 99% coverage?
+- What does the species accumulation (rarefaction) curve look like, extrapolated to twice my sample?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/species-diversity): MIT licensed.

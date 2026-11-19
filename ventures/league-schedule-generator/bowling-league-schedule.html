@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bowling League Schedule Maker: Lane Pairs Rotated Evenly, Free</title>
-  <meta name="description" content="Make a bowling league schedule with every team rotated evenly across the lane pairs, position rounds and a vacancy for odd leagues. Free, in your browser.">
+  <title>Bowling League Schedule and Standings: Lanes, Handicaps, Free</title>
+  <meta name="description" content="Make a bowling league schedule with lane pairs rotated evenly, then type score sheets for averages, handicaps, points and standings. Free, in your browser.">
   <meta property="og:title" content="Bowling League Schedule Maker: Lane Pairs Rotated Evenly">
   <meta property="og:description" content="A repeated round robin for a bowling league, with each team on each lane pair as evenly as the season allows. Free, private, in your browser.">
   <link rel="canonical" href="./bowling-league-schedule.html">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you make a bowling league schedule?","acceptedAnswer":{"@type":"Answer","text":"List the teams, pick the first league night and the number of weeks, and say where your lanes start. The page plays a round robin, repeats it until the weeks run out, and puts every match on a lane pair so each team bowls on each pair as evenly as the season allows. Download it as a CSV or copy the text for the league sheet."}},{"@type":"Question","name":"How many lane pairs does a bowling league need?","acceptedAnswer":{"@type":"Answer","text":"One pair for every two teams: an 8-team league bowls on 4 pairs (8 lanes) every week, and a 12-team league on 6 pairs. An odd league adds a vacancy, so 9 teams still use 5 pairs and one team bowls against the vacancy each week."}},{"@type":"Question","name":"How do you rotate teams across lanes in a bowling league?","acceptedAnswer":{"@type":"Answer","text":"Count, for every team, how many weeks it has bowled on each pair, and give each week's matches the pairs that even those counts out. A team that bowls 30 weeks on 5 pairs can have each pair exactly 6 times; the page shows each team's counts and says when a team is one or two off that."}},{"@type":"Question","name":"What is a position round in bowling?","acceptedAnswer":{"@type":"Answer","text":"A week where the pairings come from the standings that night: 1st bowls 2nd, 3rd bowls 4th, and so on. Type the week numbers and the page holds those weeks for position rounds, shows which places bowl on which pair, and carries on the round robin after them."}},{"@type":"Question","name":"What happens with an odd number of teams?","acceptedAnswer":{"@type":"Answer","text":"The league bowls against a vacancy (also called a blind). The team drawn against it still bowls on its pair that week, and the vacancy moves round the schedule like any other team, so every team meets it equally often."}},{"@type":"Question","name":"Is my team list uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule is built in your browser and nothing you type is sent anywhere."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How is a bowling handicap worked out?","acceptedAnswer":{"@type":"Answer","text":"A percentage of the gap between a basis score and the bowler's average, with fractions dropped. At 90% of 220, a bowler averaging 160 gets 0.9 × 60 = 54 pins a game. Type each night's score sheets under League nights and the page keeps every average and handicap, scores each match with them and updates the standings; set the percentage, basis and points to your league's rules."}},{"@type":"Question","name":"How do you make a bowling league schedule?","acceptedAnswer":{"@type":"Answer","text":"List the teams, pick the first league night and the number of weeks, and say where your lanes start. The page plays a round robin, repeats it until the weeks run out, and puts every match on a lane pair so each team bowls on each pair as evenly as the season allows. Download it as a CSV or copy the text for the league sheet."}},{"@type":"Question","name":"How many lane pairs does a bowling league need?","acceptedAnswer":{"@type":"Answer","text":"One pair for every two teams: an 8-team league bowls on 4 pairs (8 lanes) every week, and a 12-team league on 6 pairs. An odd league adds a vacancy, so 9 teams still use 5 pairs and one team bowls against the vacancy each week."}},{"@type":"Question","name":"How do you rotate teams across lanes in a bowling league?","acceptedAnswer":{"@type":"Answer","text":"Count, for every team, how many weeks it has bowled on each pair, and give each week's matches the pairs that even those counts out. A team that bowls 30 weeks on 5 pairs can have each pair exactly 6 times; the page shows each team's counts and says when a team is one or two off that."}},{"@type":"Question","name":"What is a position round in bowling?","acceptedAnswer":{"@type":"Answer","text":"A week where the pairings come from the standings that night: 1st bowls 2nd, 3rd bowls 4th, and so on. Type the week numbers and the page holds those weeks for position rounds, shows which places bowl on which pair, and carries on the round robin after them."}},{"@type":"Question","name":"What happens with an odd number of teams?","acceptedAnswer":{"@type":"Answer","text":"The league bowls against a vacancy (also called a blind). The team drawn against it still bowls on its pair that week, and the vacancy moves round the schedule like any other team, so every team meets it equally often."}},{"@type":"Question","name":"Is my team list uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The schedule is built in your browser and nothing you type is sent anywhere."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
     body { max-width: 860px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
@@ -32,7 +32,7 @@
     .err { color: #9b1c1c; }
     .off { background: #fdecc8; }
     footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
-    @media print { .tool form, .noprint, footer, .guide { display: none; } body { max-width: none; } }
+    @media print { .tool form, .noprint, footer, .guide, #recap-tool .row, #recap-tool label, #recap-tool textarea, #recap-tool > button { display: none; } body { max-width: none; } }
   </style>
 </head>
 <body>
@@ -40,7 +40,7 @@
   <p class="noprint"><a href="./">&larr; League schedule generator</a></p>
   <h1>Bowling league schedule maker: every team rotated evenly across the lane pairs</h1>
   <p>A bowling league bowls the same night every week on the same lanes, and the round robin repeats until the season ends: a 30-week season of 10 teams plays every opponent three times and a third. The part a hand-made sheet gets wrong is the lanes. Bowlers notice when one team keeps getting the pair by the wall or the pair with the dead approach, so each team should bowl on each lane pair about as often as every other pair, and not on the same pair two weeks running.</p>
-  <p>This page builds that schedule in your browser: the round robin, real dates (skipping holidays), a lane pair for every match chosen so the counts come out even, weeks held for position rounds, and a vacancy for an odd league. Nothing is uploaded.</p>
+  <p>This page builds that schedule in your browser: the round robin, real dates (skipping holidays), a lane pair for every match chosen so the counts come out even, weeks held for position rounds, and a vacancy for an odd league. Then, through the season, type each night's score sheets and it keeps the averages, handicaps, points and standings. Nothing is uploaded.</p>
 
   <section class="tool">
     <form id="form" onsubmit="return false">
@@ -80,6 +80,43 @@ Rolling Thunder</textarea>
         <button type="button" class="secondary" id="copy">Copy as text</button>
         <button type="button" class="secondary" id="print">Print</button>
       </p>
+      <section id="recap-tool" >
+        <h2>League nights: scores, averages, handicaps and standings</h2>
+        <p>Type each night's score sheets and the page does the secretary's sums: every bowler's average and handicap, each match's games with handicap, points per game and for the series, the standings, and who bowls whom on a position round (1st v 2nd by the standings before that night). It uses the schedule above for who bowls whom, so build that first. The rules below are a common handicap league's; set them to your league's own.</p>
+        <div class="row">
+          <div><label for="r-games">Games a night</label><input id="r-games" type="number" min="1" max="5" value="3"></div>
+          <div><label for="r-size">Bowlers a team</label><input id="r-size" type="number" min="1" max="8" value="4"></div>
+          <div><label for="r-pct">Handicap % <small>0 = scratch</small></label><input id="r-pct" type="number" min="0" max="100" value="90"></div>
+          <div><label for="r-basis">Handicap basis</label><input id="r-basis" type="number" min="100" max="300" value="220"></div>
+          <div><label for="r-max">Highest handicap <small>blank = none</small></label><input id="r-max" type="number" min="0" max="300" value=""></div>
+        </div>
+        <div class="row">
+          <div><label for="r-ppg">Points a game</label><input id="r-ppg" type="number" min="0" max="10" value="2"></div>
+          <div><label for="r-pser">Points for the series</label><input id="r-pser" type="number" min="0" max="10" value="2"></div>
+          <div><label for="r-absent">Absent: average minus</label><input id="r-absent" type="number" min="0" max="100" value="10"></div>
+          <div><label for="r-blind">Blind score <small>empty spot, a game</small></label><input id="r-blind" type="number" min="0" max="300" value="150"></div>
+        </div>
+        <label for="r-entering">Entering averages <small>optional; last season's book average for the first night: "Ana 165, Ben Ortiz 142"</small></label>
+        <textarea id="r-entering" style="min-height:3.5em" placeholder="Ana 165, Ben Ortiz 142"></textarea>
+        <label for="r-scores">Score sheets <small>a "Week 1" line, then one line per team: "Pin Pals: Ana 180 165 201, Ben 140 152 133, Cy absent"</small></label>
+        <textarea id="r-scores" style="min-height:12em" placeholder="Week 1&#10;Pin Pals: Ana 180 165 201, Ben 140 152 133, Cy absent, Dee 150 160 170&#10;Rolling Thunder: Eve 170 158 190, Finn 133 141 129, Gus 160 172 155, Hal 201 189 177"></textarea>
+        <button type="button" id="r-run">Work out the standings</button>
+        <button type="button" class="secondary" id="r-sample">Fill in sample nights</button>
+        <p id="r-status" role="status"></p>
+        <div id="r-out" hidden>
+          <h3>Standings</h3>
+          <div class="scroll"><table id="r-standings"></table></div>
+          <h3 id="r-night-h">Last night</h3>
+          <div class="scroll"><table id="r-night"></table></div>
+          <h3>Bowlers: average and handicap for next week</h3>
+          <div class="scroll"><table id="r-bowlers"></table></div>
+          <p class="noprint">
+            <button type="button" id="r-copy">Copy the recap as text</button>
+            <button type="button" class="secondary" id="r-csv-s">Standings CSV</button>
+            <button type="button" class="secondary" id="r-csv-b">Bowlers CSV</button>
+          </p>
+        </div>
+      </section>
     </div>
   </section>
 
@@ -89,21 +126,21 @@ Rolling Thunder</textarea>
   <div class="scroll"><table>
     <thead><tr><th>Week</th><th>Night</th><th>Lanes 1-2</th><th>Lanes 3-4</th><th>Lanes 5-6</th><th>Lanes 7-8</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td>Tue 8 Sep 2026</td><td>Pin Pals v Rolling Thunder</td><td>Gutter Gang v Lucky Strikes</td><td>Ten Pin Titans v Split Happens</td><td>Alley Cats v Spare Me</td></tr>
-      <tr><td>2</td><td>Tue 15 Sep 2026</td><td>Lucky Strikes v Ten Pin Titans</td><td>Rolling Thunder v Alley Cats</td><td>Spare Me v Gutter Gang</td><td>Split Happens v Pin Pals</td></tr>
-      <tr><td>3</td><td>Tue 22 Sep 2026</td><td>Gutter Gang v Alley Cats</td><td>Split Happens v Rolling Thunder</td><td>Pin Pals v Lucky Strikes</td><td>Ten Pin Titans v Spare Me</td></tr>
-      <tr><td>4</td><td>Tue 29 Sep 2026</td><td>Lucky Strikes v Split Happens</td><td>Spare Me v Pin Pals</td><td>Alley Cats v Ten Pin Titans</td><td>Rolling Thunder v Gutter Gang</td></tr>
-      <tr><td>5</td><td>Tue 6 Oct 2026</td><td>Pin Pals v Alley Cats</td><td>Ten Pin Titans v Gutter Gang</td><td>Lucky Strikes v Rolling Thunder</td><td>Split Happens v Spare Me</td></tr>
-      <tr><td>6</td><td>Tue 13 Oct 2026</td><td>Rolling Thunder v Ten Pin Titans</td><td>Spare Me v Lucky Strikes</td><td>Alley Cats v Split Happens</td><td>Gutter Gang v Pin Pals</td></tr>
-      <tr><td>7</td><td>Tue 20 Oct 2026</td><td>Lucky Strikes v Alley Cats</td><td>Pin Pals v Ten Pin Titans</td><td>Split Happens v Gutter Gang</td><td>Spare Me v Rolling Thunder</td></tr>
-      <tr><td>8</td><td>Tue 27 Oct 2026</td><td>Ten Pin Titans v Split Happens</td><td>Alley Cats v Spare Me</td><td>Pin Pals v Rolling Thunder</td><td>Gutter Gang v Lucky Strikes</td></tr>
-      <tr><td>9</td><td>Tue 3 Nov 2026</td><td>Spare Me v Gutter Gang</td><td>Split Happens v Pin Pals</td><td>Lucky Strikes v Ten Pin Titans</td><td>Rolling Thunder v Alley Cats</td></tr>
-      <tr><td>10</td><td>Tue 10 Nov 2026</td><td>Split Happens v Rolling Thunder</td><td>Gutter Gang v Alley Cats</td><td>Ten Pin Titans v Spare Me</td><td>Pin Pals v Lucky Strikes</td></tr>
-      <tr><td>11</td><td>Tue 17 Nov 2026</td><td>Spare Me v Pin Pals</td><td>Lucky Strikes v Split Happens</td><td>Rolling Thunder v Gutter Gang</td><td>Alley Cats v Ten Pin Titans</td></tr>
-      <tr><td>12</td><td>Tue 24 Nov 2026</td><td>Split Happens v Spare Me</td><td>Ten Pin Titans v Gutter Gang</td><td>Pin Pals v Alley Cats</td><td>Lucky Strikes v Rolling Thunder</td></tr>
-      <tr><td>13</td><td>Tue 1 Dec 2026</td><td>Gutter Gang v Pin Pals</td><td>Rolling Thunder v Ten Pin Titans</td><td>Spare Me v Lucky Strikes</td><td>Alley Cats v Split Happens</td></tr>
-      <tr><td>14</td><td>Tue 8 Dec 2026</td><td>Spare Me v Rolling Thunder</td><td>Lucky Strikes v Alley Cats</td><td>Split Happens v Gutter Gang</td><td>Pin Pals v Ten Pin Titans</td></tr>
-      <tr><td>15</td><td>Tue 15 Dec 2026</td><td>Gutter Gang v Lucky Strikes</td><td>Pin Pals v Rolling Thunder</td><td>Alley Cats v Spare Me</td><td>Ten Pin Titans v Split Happens</td></tr>
+      <tr><td>1</td><td>Tue 8 Sep 2026</td><td>Alley Cats v Spare Me</td><td>Gutter Gang v Lucky Strikes</td><td>Ten Pin Titans v Split Happens</td><td>Pin Pals v Rolling Thunder</td></tr>
+      <tr><td>2</td><td>Tue 15 Sep 2026</td><td>Split Happens v Pin Pals</td><td>Rolling Thunder v Alley Cats</td><td>Spare Me v Gutter Gang</td><td>Lucky Strikes v Ten Pin Titans</td></tr>
+      <tr><td>3</td><td>Tue 22 Sep 2026</td><td>Ten Pin Titans v Spare Me</td><td>Pin Pals v Lucky Strikes</td><td>Split Happens v Rolling Thunder</td><td>Gutter Gang v Alley Cats</td></tr>
+      <tr><td>4</td><td>Tue 29 Sep 2026</td><td>Rolling Thunder v Gutter Gang</td><td>Alley Cats v Ten Pin Titans</td><td>Spare Me v Pin Pals</td><td>Lucky Strikes v Split Happens</td></tr>
+      <tr><td>5</td><td>Tue 6 Oct 2026</td><td>Split Happens v Spare Me</td><td>Lucky Strikes v Rolling Thunder</td><td>Ten Pin Titans v Gutter Gang</td><td>Pin Pals v Alley Cats</td></tr>
+      <tr><td>6</td><td>Tue 13 Oct 2026</td><td>Gutter Gang v Pin Pals</td><td>Alley Cats v Split Happens</td><td>Spare Me v Lucky Strikes</td><td>Rolling Thunder v Ten Pin Titans</td></tr>
+      <tr><td>7</td><td>Tue 20 Oct 2026</td><td>Spare Me v Rolling Thunder</td><td>Pin Pals v Ten Pin Titans</td><td>Split Happens v Gutter Gang</td><td>Lucky Strikes v Alley Cats</td></tr>
+      <tr><td>8</td><td>Tue 27 Oct 2026</td><td>Gutter Gang v Lucky Strikes</td><td>Alley Cats v Spare Me</td><td>Pin Pals v Rolling Thunder</td><td>Ten Pin Titans v Split Happens</td></tr>
+      <tr><td>9</td><td>Tue 3 Nov 2026</td><td>Rolling Thunder v Alley Cats</td><td>Split Happens v Pin Pals</td><td>Lucky Strikes v Ten Pin Titans</td><td>Spare Me v Gutter Gang</td></tr>
+      <tr><td>10</td><td>Tue 10 Nov 2026</td><td>Pin Pals v Lucky Strikes</td><td>Ten Pin Titans v Spare Me</td><td>Gutter Gang v Alley Cats</td><td>Split Happens v Rolling Thunder</td></tr>
+      <tr><td>11</td><td>Tue 17 Nov 2026</td><td>Alley Cats v Ten Pin Titans</td><td>Rolling Thunder v Gutter Gang</td><td>Lucky Strikes v Split Happens</td><td>Spare Me v Pin Pals</td></tr>
+      <tr><td>12</td><td>Tue 24 Nov 2026</td><td>Lucky Strikes v Rolling Thunder</td><td>Split Happens v Spare Me</td><td>Pin Pals v Alley Cats</td><td>Ten Pin Titans v Gutter Gang</td></tr>
+      <tr><td>13</td><td>Tue 1 Dec 2026</td><td>Alley Cats v Split Happens</td><td>Gutter Gang v Pin Pals</td><td>Rolling Thunder v Ten Pin Titans</td><td>Spare Me v Lucky Strikes</td></tr>
+      <tr><td>14</td><td>Tue 8 Dec 2026</td><td>Pin Pals v Ten Pin Titans</td><td>Spare Me v Rolling Thunder</td><td>Lucky Strikes v Alley Cats</td><td>Split Happens v Gutter Gang</td></tr>
+      <tr><td>15</td><td>Tue 15 Dec 2026</td><td>Gutter Gang v Lucky Strikes</td><td>Ten Pin Titans v Split Happens</td><td>Pin Pals v Rolling Thunder</td><td>Alley Cats v Spare Me</td></tr>
       <tr><td>16</td><td>Tue 22 Dec 2026</td><td>1st place v 2nd place</td><td>3rd place v 4th place</td><td>5th place v 6th place</td><td>7th place v 8th place</td></tr>
     </tbody>
   </table></div>
@@ -111,21 +148,21 @@ Rolling Thunder</textarea>
   <div class="scroll"><table>
     <thead><tr><th>Team</th><th>Lanes 1-2</th><th>Lanes 3-4</th><th>Lanes 5-6</th><th>Lanes 7-8</th></tr></thead>
     <tbody>
-      <tr><td>Pin Pals</td><td>4</td><td>4</td><td>3</td><td>4</td></tr>
-      <tr><td>Alley Cats</td><td>3</td><td>4</td><td>4</td><td>4</td></tr>
-      <tr><td>Split Happens</td><td>4</td><td>3</td><td>4</td><td>4</td></tr>
-      <tr><td>Gutter Gang</td><td>4</td><td>4</td><td>4</td><td>3</td></tr>
-      <tr><td>Lucky Strikes</td><td>4</td><td>4</td><td>4</td><td>3</td></tr>
+      <tr><td>Pin Pals</td><td>4</td><td>4</td><td>4</td><td>3</td></tr>
+      <tr><td>Alley Cats</td><td>4</td><td>4</td><td>3</td><td>4</td></tr>
+      <tr><td>Split Happens</td><td>3</td><td>4</td><td>4</td><td>4</td></tr>
+      <tr><td>Gutter Gang</td><td>4</td><td>3</td><td>4</td><td>4</td></tr>
+      <tr><td>Lucky Strikes</td><td>4</td><td>3</td><td>4</td><td>4</td></tr>
       <tr><td>Ten Pin Titans</td><td>3</td><td>4</td><td>4</td><td>4</td></tr>
-      <tr><td>Spare Me</td><td>4</td><td>3</td><td>4</td><td>4</td></tr>
-      <tr><td>Rolling Thunder</td><td>4</td><td>4</td><td>3</td><td>4</td></tr>
+      <tr><td>Spare Me</td><td>4</td><td>4</td><td>3</td><td>4</td></tr>
+      <tr><td>Rolling Thunder</td><td>4</td><td>4</td><td>4</td><td>3</td></tr>
     </tbody>
   </table></div>
   <p>The tables come from the same code the tool runs and a test recomputes them, so they cannot drift from it.</p>
 
   <h2>How the lanes are chosen, and how even it gets</h2>
   <p>Who bowls whom each week is the circle-method round robin. Each week's matches are then put on pairs as an assignment problem: the price of a pair for a match is how much it would push its two teams' counts away from even, plus a little for bowling the same pair as last week. The Hungarian method solves each week exactly given every other week, the page sweeps the season until no week improves, and then re-deals a few weeks at random and sweeps again, keeping the most even season it finds.</p>
-  <p>We measured it on 36 seasons (6 to 24 teams, 26 to 34 weeks). Every team got the most even split possible in all 36: no team bowls on any pair more than one week more than on any other, and where the weeks divide evenly every team gets every pair exactly the same number of times. A hand rotation (move every match one pair along each week) got every team even in 1 of the 36 and left some team 13 weeks off. For the hardest season lengths the page carries assignments a SAT solver found ahead of time, checked again in your browser before they are used. Some lengths cannot be made perfectly even at all (for example a season exactly as many weeks long as there are lane pairs); the solver proves it, and the page then gets as close as it can. The numbers, and the scripts that reproduce them, are in the project's <code>eval/bowling-lanes.txt</code> and <code>eval/bowling-lane-table.txt</code>.</p>
+  <p>We measured it on 36 seasons (6 to 24 teams, 26 to 34 weeks). Every team got the most even split possible in all 36: no team bowls on any pair more than one week more than on any other, and where the weeks divide evenly every team gets every pair exactly the same number of times. A hand rotation (move every match one pair along each week) got every team even in 1 of the 36 and left some team 13 weeks off. For the hardest season lengths the page carries assignments a SAT solver found ahead of time, checked again in your browser before they are used. Some lengths cannot be made perfectly even at all (for example a season exactly as many weeks long as there are lane pairs); the solver proves it, and the page then gets as close as it can. Once the split is even, a last pass cuts the weeks a team bowls the same pair two weeks running without making any count less even: over the same 36 seasons those repeats fell from 392 to 148, and 13 seasons have none (a 12-team league over 30 weeks bowls every pair exactly five times and never the same pair twice in a row). The numbers, and the scripts that reproduce them, are in the project's <code>eval/bowling-lanes.txt</code> and <code>eval/bowling-lane-table.txt</code>.</p>
   <p>When a schedule shows a team two off, "Try another lane deal" runs the search from a different start; the round robin itself stays the same.</p>
   <p>Some seasons cannot be made even at all, and the page says so when it meets one. A SAT solver checked every season the search missed for leagues of 4 to 32 teams and 1 to 60 round-robin weeks, and proved 44 of them out of reach: no lane deal gives every team its even split. The most common is a season exactly as long as the lane pairs (8 teams on 4 pairs for 4 weeks, 16 teams for 8): each team would need every pair once, and the round robin's first weeks never allow it at any size from 4 to 30 teams. A 4-team league is out of reach whenever its round-robin weeks are 2, 3 or 4 more than a multiple of 6. The list is in the project's <code>eval/bowling-bound-proof.txt</code>.</p>
 
@@ -133,7 +170,19 @@ Rolling Thunder</textarea>
   <p>Some leagues have a team that cannot use one pair: the end pair by the wall where a bowler with a walker has no room on the approach, the pair nearest the bar, or the pair with the ball return that jams. Type it under "Lane limits", one team per line (<code>Pin Pals: 7-8</code>, <code>Spare Me: last</code>, <code>Gutter Gang: ends</code> for both end pairs). The page then never puts that team on that pair, in any week; it is a hard rule inside the search, not a fix-up afterwards. The team rotates evenly over the pairs it may use, and the other teams take the avoided pair a little more often, as evenly as the weeks allow. If the usual order of the round robin leaves a week with no deal, the page deals the teams to other places in the rotation (everyone still meets everyone as often) until every week has one: ten teams with five of them off the end pair now get a season. If no order works (in a 4-team league three teams avoiding the same pair, say), the page names the week instead of building a schedule that breaks a limit.</p>
   <p>We measured it on 144 seasons (6 to 24 teams, 26 to 34 weeks, four kinds of limit) against the fix an organiser makes by hand: build the even schedule, then each week the team lands on its pair, swap its match with the nearest one. The search alone put every team inside its fair share in 133 of the 142 seasons where the limits can hold every week, and never broke a limit. The hand fix got every team inside its share in none of them, left 3,345 counts off it in total (the search: 24), and in 3 weeks found no swap that kept the limit at all. Of the search's 9 misses, a SAT solver proved 5 out of reach (6 teams on 3 pairs with two teams off the end pair, for example) and found that 3 others, all 20 teams over 30 weeks, have a deal the search did not find. For those and the other hard season lengths the page now carries solver answers for the common kinds of limit (one team off a pair, two teams off the same pair, one team off both ends, and a few more), worked out once and fitted to your teams by renaming: the limited teams take the round-robin slots the answer was built for, so who plays whom is still a plain round robin. With them the page puts every team inside its share in 137 of the 142 seasons, and a solver proves the other 5 cannot be done. The numbers are in the project's <code>eval/bowling-lane-avoid.txt</code> and <code>eval/bowling-avoid-shapes.txt</code>. Position rounds put 1st v 2nd on the first pair, and their teams are known only on the night, so check a limited team's pair on those weeks.</p>
 
+  <h2>Averages, handicaps and points: the weekly sums</h2>
+  <p>Under the schedule, "League nights" does what a league secretary does with the score sheets each week. Type a <code>Week 1</code> line, then one line per team with each bowler's games (<code>Pin Pals: Ana 150 160 170, Ben 200 210 220</code>), and the page works out:</p>
+  <ul>
+    <li><strong>Averages:</strong> total pins over games bowled, fractions dropped, counting every night before this one. A new bowler uses the entering average you type (last season's book average); with none, their first night's games set it for that night.</li>
+    <li><strong>Handicap:</strong> a percentage of the gap between a basis and the average, fractions dropped. At 90% of 220, Ana's 160 average gives 0.9 &times; 60 = 54 pins a game; a 165 average gives 49 (49.5 rounded down); 220 or more gives none. Set the percentage to 0 for a scratch league.</li>
+    <li><strong>Absent bowlers and empty spots:</strong> an absent bowler (<code>Cy absent</code>) scores their average minus 10 each game plus their handicap, and those games never count toward their average. Absent with no average yet, or a team short of bowlers, counts as a blind: 150 pins a game with no handicap. All three numbers are yours to change.</li>
+    <li><strong>Points and standings:</strong> 2 points for each game won on handicap totals and 2 for the series (a tie splits them), standings by points won and then pins with handicap. A position-round week is paired from the standings before that night. In an odd league, the team drawn against the Vacancy bowls against its own par (each bowler's average plus handicap), so it earns points by beating its average.</li>
+  </ul>
+  <p>The score sheets stay in this browser (they come back on your next visit) and are never uploaded. Copy the recap as text for the league notice board or group chat, or download the standings and the bowlers' averages as CSV files. These are one common set of rules, not a sanctioning body's: your league's rules and its association's rules (USBC or other) decide averages, handicaps, absentee scores and points, so check the settings against them. The page has no lineup changes in mid-night, no split handicap by game, no sanctioned-average or award reports; for those, your association's league secretary software does it.</p>
+
   <h2>Questions</h2>
+  <h3>How is a bowling handicap worked out?</h3>
+  <p>A percentage of the gap between a basis score and the bowler's average, with fractions dropped. At 90% of 220, a bowler averaging 160 gets 0.9 × 60 = 54 pins a game. Type each night's score sheets under League nights and the page keeps every average and handicap, scores each match with them and updates the standings; set the percentage, basis and points to your league's rules.</p>
   <h3>How do you make a bowling league schedule?</h3>
   <p>List the teams, pick the first league night and the number of weeks, and say where your lanes start. The page plays a round robin, repeats it until the weeks run out, and puts every match on a lane pair so each team bowls on each pair as evenly as the season allows. Download it as a CSV or copy the text for the league sheet.</p>
   <h3>How many lane pairs does a bowling league need?</h3>
@@ -157,20 +206,45 @@ Rolling Thunder</textarea>
   import { bowlingSchedule, laneReport, validateBowling, bowlingCsv, bowlingText, parseWeekList } from "./bowling.mjs";
   import { parseDate, parseDateList, dayLabel } from "./calc.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { bowlingRecap, recapText, standingsCsv, bowlersCsv } from "./bowling-recap.mjs";
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-  let last = null, seed = 1;
-  function build() {
-    const status = $("#status");
+  let last = null, seed = 1, job = 0, worker = null, ticker = null;
+  // Reads the form; returns the spec to build or the input errors to show.
+  function readSpec() {
     const weeks = Number($("#weeks").value);
     const skip = parseDateList($("#skip").value);
     const pos = parseWeekList($("#positions").value, Number.isInteger(weeks) && weeks > 0 ? weeks : 60);
     const start = parseDate($("#start").value);
-    const s = bowlingSchedule({ teams: $("#teams").value, weeks, start, skipDays: skip.days, positionWeeks: pos.weeks, firstLane: Number($("#firstLane").value || 1), seed, laneAvoid: $("#avoid").value });
-    const errors = [...(s.errors || []), ...skip.errors, ...pos.errors];
-    if (errors.length) { status.innerHTML = errors.map((e) => `<span class="err">${esc(e)}</span>`).join("<br>"); $("#out").hidden = true; return false; }
-    const problems = validateBowling(s);
-    const r = laneReport(s);
+    return { errors: [...skip.errors, ...pos.errors], spec: { teams: $("#teams").value, weeks, start, skipDays: skip.days, positionWeeks: pos.weeks, firstLane: Number($("#firstLane").value || 1), seed, laneAvoid: $("#avoid").value } };
+  }
+  function showErrors(errors) {
+    $("#status").innerHTML = errors.map((e) => `<span class="err">${esc(e)}</span>`).join("<br>");
+    $("#out").hidden = true;
+    return false;
+  }
+  function onMain(spec) {
+    const season = bowlingSchedule(spec);
+    return season.errors?.length ? { season } : { season, report: laneReport(season), problems: validateBowling(season) };
+  }
+  // The lane search runs in a Web Worker (bowling-worker.mjs), so a long season (several seconds
+  // with five or more limited teams) leaves the page scrolling and clickable; a newer click stops
+  // the older search. Where a worker can't start (an old browser, a file:// copy) it runs here.
+  function compute(spec) {
+    if (worker) { worker.terminate(); worker = null; }
+    const fallback = () => new Promise((ok) => setTimeout(() => ok(onMain(spec)), 20));
+    let w;
+    try { w = new Worker("./bowling-worker.mjs", { type: "module" }); } catch { return fallback(); }
+    worker = w;
+    return new Promise((ok, fail) => {
+      w.onmessage = (e) => { w.terminate(); if (worker === w) worker = null; if (e.data.ok) ok(e.data); else fail(new Error(e.data.error)); };
+      w.onerror = (e) => { e.preventDefault(); w.terminate(); if (worker === w) worker = null; fallback().then(ok, fail); };
+      w.postMessage(spec);
+    });
+  }
+  function render({ season: s, report: r, problems }) {
+    const status = $("#status");
+    if (s.errors?.length) return showErrors(s.errors);
     last = s;
     $("#sched").innerHTML = `<thead><tr><th>Week</th><th>Night</th>${s.labels.map((l) => `<th>${esc(l)}</th>`).join("")}</tr></thead><tbody>` +
       s.weeks.map((wk) => `<tr><td>${wk.week}</td><td>${esc(dayLabel(wk.day))}${wk.kind === "position" ? "<br><small>position round</small>" : ""}</td>` +
@@ -188,15 +262,95 @@ Rolling Thunder</textarea>
     $("#out").hidden = false;
     return true;
   }
-  const later = (fn) => { $("#status").textContent = "Dealing the lanes..."; setTimeout(fn, 20); };
-  $("#build").addEventListener("click", () => later(() => { seed = 1; if (build()) record("bowling_built"); }));
-  $("#again").addEventListener("click", () => later(() => { seed++; if (build()) record("bowling_reshuffled"); }));
+  async function build(event) {
+    const { errors, spec } = readSpec();
+    if (errors.length) return showErrors(errors);
+    const mine = ++job, t0 = Date.now();
+    clearInterval(ticker);
+    $("#status").textContent = "Dealing the lanes...";
+    ticker = setInterval(() => { if (mine === job) $("#status").textContent = `Dealing the lanes... ${Math.round((Date.now() - t0) / 1000)} s (the page stays usable; a long season with many lane limits can take 10 s)`; }, 1000);
+    let result;
+    try { result = await compute(spec); }
+    catch (e) { if (mine !== job) return false; clearInterval(ticker); return showErrors([e.message]); }
+    if (mine !== job) return false; // a newer click took over
+    clearInterval(ticker);
+    if (!render(result)) return false;
+    if (event) record(event);
+    return true;
+  }
+  $("#build").addEventListener("click", () => { seed = 1; build("bowling_built"); });
+  $("#again").addEventListener("click", () => { seed++; build("bowling_reshuffled"); });
   $("#csv").addEventListener("click", () => { if (!last) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bowlingCsv(last)], { type: "text/csv" })); a.download = "bowling-league-schedule.csv"; a.click(); record("bowling_csv"); });
   $("#copy").addEventListener("click", async () => { if (!last) return; try { await navigator.clipboard.writeText(bowlingText(last)); $("#status").textContent = "Copied."; record("bowling_text"); } catch { $("#status").textContent = "Copy was blocked by the browser; use the CSV instead."; } });
   $("#print").addEventListener("click", () => window.print());
   $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "off"; $("#optout").disabled = true; });
   if (usageOptedOut()) { $("#optout").textContent = "off"; $("#optout").disabled = true; }
-  build();
+  // ---- league nights: scores to averages, handicaps, points and standings (bowling-recap.mjs)
+  const RKEY = "league-schedule-generator-bowling-recap";
+  const rFields = { gamesPerNight: "#r-games", teamSize: "#r-size", handicapPct: "#r-pct", basis: "#r-basis", maxHandicap: "#r-max", pointsPerGame: "#r-ppg", pointsSeries: "#r-pser", absentPenalty: "#r-absent", blindScore: "#r-blind" };
+  let lastRecap = null;
+  const pt = (x) => (Number.isInteger(x) ? String(x) : x.toFixed(1));
+  function recapInput() {
+    const rules = {};
+    for (const [k, sel] of Object.entries(rFields)) rules[k] = $(sel).value.trim();
+    return { rules, entering: $("#r-entering").value, scores: $("#r-scores").value };
+  }
+  function saveRecap() { try { localStorage.setItem(RKEY, JSON.stringify(recapInput())); } catch { /* storage blocked: the form still works */ } }
+  function loadRecap() {
+    try {
+      const v = JSON.parse(localStorage.getItem(RKEY) || "null");
+      if (!v) return;
+      for (const [k, sel] of Object.entries(rFields)) if (v.rules?.[k] !== undefined) $(sel).value = v.rules[k];
+      $("#r-entering").value = v.entering ?? ""; $("#r-scores").value = v.scores ?? "";
+    } catch { /* nothing stored, or storage blocked */ }
+  }
+  function runRecap(event) {
+    if (!last) { $("#r-status").textContent = "Build the schedule first."; return; }
+    saveRecap();
+    const r = bowlingRecap(last, recapInput());
+    if (r.errors.length) { $("#r-status").innerHTML = r.errors.slice(0, 12).map((e) => `<span class="err">${esc(e)}</span>`).join("<br>"); $("#r-out").hidden = true; return; }
+    if (!r.nights.length) { $("#r-status").textContent = "No scores typed yet."; $("#r-out").hidden = true; return; }
+    lastRecap = r;
+    $("#r-standings").innerHTML = "<thead><tr><th>Place</th><th>Team</th><th>Won</th><th>Lost</th><th>Pins (scratch)</th><th>Pins (hdcp)</th><th>High game</th><th>High series</th></tr></thead><tbody>" +
+      r.standings.map((x) => `<tr><td>${x.place}</td><td>${esc(x.team)}</td><td>${pt(x.won)}</td><td>${pt(x.lost)}</td><td>${x.scratchPins}</td><td>${x.hdcpPins}</td><td>${x.highGame}</td><td>${x.highSeries}</td></tr>`).join("") + "</tbody>";
+    const n = r.nights[r.nights.length - 1], G = r.rules.gamesPerNight;
+    $("#r-night-h").textContent = `Week ${n.week}, ${dayLabel(n.day)}${n.kind === "position" ? " (position round)" : ""}`;
+    const sideRows = (side, pts) => side.lines.map((l) => `<tr><td></td><td>${esc(l.name)}${l.kind === "absent" ? " <small>(absent)</small>" : l.kind === "blind" ? " <small>(blind)</small>" : l.retro ? " <small>(average set tonight)</small>" : ""}</td><td>${l.average ?? "&ndash;"}</td><td>${l.handicap}</td>${l.scores.map((x) => `<td>${x}</td>`).join("")}<td>${l.scores.reduce((a, b) => a + b, 0)}</td><td></td></tr>`).join("") +
+      `<tr><td></td><td><strong>${esc(side.team)}</strong> with handicap ${side.handicap}</td><td></td><td></td>${side.games.map((x) => `<td><strong>${x}</strong></td>`).join("")}<td><strong>${side.series}</strong></td><td><strong>${pt(pts)}</strong></td></tr>`;
+    $("#r-night").innerHTML = `<thead><tr><th>Lanes</th><th>Bowler</th><th>Avg</th><th>Hdcp</th>${Array.from({ length: G }, (_, g) => `<th>G${g + 1}</th>`).join("")}<th>Series</th><th>Points</th></tr></thead><tbody>` +
+      n.matches.map((m) => `<tr><td colspan="${G + 6}"><strong>${esc(m.lanes)}</strong></td></tr>` + sideRows(m.a, m.points[0]) + (m.b ? sideRows(m.b, m.points[1]) : `<tr><td></td><td>Vacancy: ${esc(m.a.team)} bowls to its par</td><td></td><td></td>${Array.from({ length: G }, () => `<td>${m.a.par}</td>`).join("")}<td>${m.a.par * G}</td><td>${pt(m.points[1])}</td></tr>`)).join("") + "</tbody>";
+    $("#r-bowlers").innerHTML = "<thead><tr><th>Bowler</th><th>Team</th><th>Games</th><th>Average</th><th>Handicap</th><th>High game</th><th>High series</th><th>Absent</th></tr></thead><tbody>" +
+      r.bowlers.map((b) => `<tr><td>${esc(b.name)}</td><td>${esc(b.team)}</td><td>${b.games}</td><td>${b.average ?? "&ndash;"}</td><td>${b.handicap}</td><td>${b.highGame}</td><td>${b.highSeries}</td><td>${b.absences}</td></tr>`).join("") + "</tbody>";
+    $("#r-status").textContent = `${r.nights.length} night${r.nights.length === 1 ? "" : "s"} worked out.`;
+    $("#r-out").hidden = false;
+    if (event) record(event);
+  }
+  function download(text, name) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/csv" })); a.download = name; a.click(); }
+  // Sample nights on the sample teams: invented bowlers and scores, for a first look.
+  function sampleScores() {
+    if (!last) return "";
+    const real = last.teams.filter((t) => t !== "Vacancy");
+    let x = 7; const rnd = () => ((x = (x * 1103515245 + 12345) % 2147483648) / 2147483648);
+    const first = ["Ana", "Ben", "Cara", "Dev", "Eli", "Fay", "Gus", "Hana", "Ivo", "Jen", "Kai", "Lou", "Mo", "Nia", "Oz", "Pia", "Quin", "Rex", "Sol", "Tia", "Uma", "Vic", "Wes", "Xan", "Yara", "Zed", "Abe", "Bea", "Cal", "Dot", "Ezra", "Flo"];
+    const size = Number($("#r-size").value) || 4, G = Number($("#r-games").value) || 3;
+    const lines = [];
+    for (let w = 1; w <= Math.min(3, last.weeks.length); w++) {
+      lines.push(`Week ${w}`);
+      real.forEach((t, i) => {
+        const people = Array.from({ length: size }, (_, k) => { const name = first[(i * size + k) % first.length] + (i * size + k >= first.length ? String(i) : ""); const base = 120 + ((i * 37 + k * 23) % 90); return w === 2 && k === size - 1 && i % 3 === 0 ? `${name} absent` : `${name} ${Array.from({ length: G }, () => Math.min(300, Math.round(base + (rnd() - 0.5) * 60))).join(" ")}`; });
+        lines.push(`${t}: ${people.join(", ")}`);
+      });
+    }
+    return lines.join("\n");
+  }
+  $("#r-run").addEventListener("click", () => runRecap("bowling_recap"));
+  $("#r-sample").addEventListener("click", () => { if (!last) { $("#r-status").textContent = "Build the schedule first."; return; } $("#r-scores").value = sampleScores(); runRecap("bowling_recap_sample"); });
+  $("#r-copy").addEventListener("click", async () => { if (!lastRecap) return; try { await navigator.clipboard.writeText(recapText(lastRecap)); $("#r-status").textContent = "Copied."; record("bowling_recap_text"); } catch { $("#r-status").textContent = "Copy was blocked by the browser; use a CSV instead."; } });
+  $("#r-csv-s").addEventListener("click", () => { if (lastRecap) { download(standingsCsv(lastRecap), "bowling-standings.csv"); record("bowling_recap_csv"); } });
+  $("#r-csv-b").addEventListener("click", () => { if (lastRecap) { download(bowlersCsv(lastRecap), "bowling-averages.csv"); record("bowling_recap_csv"); } });
+  loadRecap();
+  // A league's typed nights come back on the next visit (this browser only), worked out again.
+  build().then((ok) => { if (ok && $("#r-scores").value.trim()) runRecap(); });
 </script>
 </body>
 </html>

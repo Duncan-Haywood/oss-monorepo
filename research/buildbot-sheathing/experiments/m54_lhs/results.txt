@@ -1,0 +1,214 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 54: milestone 53's three hose rules at Latin-hypercube hose loads, and the drag envelope between grid directions
+LHS loads: 48 (H in [0, 20] N, phi in [0, 360) deg, seed 54; same loads for both robots)
+  11.76 N @ 190.9; 9.30 N @ 185.7; 7.01 N @ 249.8; 3.62 N @ 123.4; 10.14 N @ 268.6; 17.81 N @ 245.7; 6.15 N @ 201.8; 16.74 N @ 262.1; 0.48 N @ 129.4; 4.75 N @ 305.5; 14.78 N @ 225.6; 4.28 N @ 47.0; 2.44 N @ 78.6; 13.74 N @ 154.6; 17.92 N @ 350.7; 8.35 N @ 70.6; 15.60 N @ 148.6; 1.59 N @ 98.5; 2.62 N @ 219.1; 16.13 N @ 320.6; 13.23 N @ 290.2; 5.30 N @ 14.6; 5.46 N @ 175.7; 6.34 N @ 274.8; 19.16 N @ 280.3; 14.49 N @ 24.5; 1.14 N @ 17.7; 3.80 N @ 108.6; 19.39 N @ 353.9; 7.20 N @ 296.6; 2.03 N @ 163.8; 19.62 N @ 202.6; 0.32 N @ 3.9; 3.00 N @ 325.5; 8.08 N @ 169.7; 12.62 N @ 210.5; 17.20 N @ 61.9; 18.71 N @ 114.8; 11.52 N @ 44.8; 9.67 N @ 334.2; 7.88 N @ 53.3; 16.42 N @ 311.3; 10.96 N @ 92.0; 10.63 N @ 139.6; 15.17 N @ 344.4; 14.11 N @ 85.6; 12.44 N @ 36.0; 8.99 N @ 239.4
+
+## A0. Reproduction: the bisection at the 8 grid directions against milestone 50's limits (largest |difference|, N, over every pose and direction; None must match None)
+  largest |difference| 0.00e+00 N; None mismatches 0
+
+## A. Drag limit at the sampled directions against the grid read by the smaller neighbour: robot | pose | samples | limit below the smaller neighbour by more than 0.5 N | largest shortfall (N, at phi) | smallest limit over the samples (N, at phi) | smallest grid limit (N)
+  g1 | [0.4, -0.15] | 48 | 6 | +2.17 (202.6) | 26.44 (202.6) | 28.61
+  g1 | [0.4, 0.0] | 48 | 4 | +1.94 (210.5) | 45.53 (210.5) | 47.47
+  g1 | [0.4, 0.15] | 48 | 0 | +0.00 (311.3) | 58.19 (3.9) | 58.06
+  g1 | [0.6, -0.15] | 48 | 3 | +0.75 (190.9) | 23.39 (190.9) | 24.14
+  g1 | [0.6, 0.0] | 48 | 5 | +1.85 (201.8) | 34.29 (3.9) | 34.22
+  g1 | [0.6, 0.15] | 48 | 0 | +0.00 (268.6) | 34.29 (3.9) | 34.22
+  g1 | [0.8, -0.15] | 48 | 0 | +0.12 (185.7) | 19.98 (185.7) | 20.11
+  g1 | [0.8, 0.0] | 48 | 3 | +1.96 (245.7) | 22.57 (3.9) | 22.52
+  g1 | [0.8, 0.15] | 48 | 0 | -0.05 (3.9) | 22.57 (3.9) | 22.52
+  g1 | [1.0, -0.15] | 48 | 0 | -0.04 (175.7) | 12.91 (175.7) | 12.87
+  g1 | [1.0, 0.0] | 48 | 0 | -0.05 (3.9) | 17.07 (175.7) | 17.01
+  g1 | [1.0, 0.15] | 48 | 0 | -0.05 (3.9) | 17.07 (175.7) | 17.01
+  g1 | [1.2, -0.15] | 48 | 0 | -0.01 (175.7) | 4.02 (175.7) | 4.01
+  g1 | [1.2, 0.0] | 48 | 0 | -0.02 (175.7) | 4.12 (175.7) | 4.10
+  g1 | [1.2, 0.15] | 48 | 0 | -0.02 (175.7) | 4.18 (175.7) | 4.17
+  h1 | [0.4, 0.0] | 48 | 0 | +0.00 (353.9) | 60.00 (3.9) | 60.00
+  h1 | [0.4, 0.15] | 48 | 0 | +0.00 (353.9) | 60.00 (3.9) | 60.00
+  h1 | [0.6, -0.15] | 48 | 0 | +0.00 (311.3) | 59.42 (3.9) | 59.29
+  h1 | [0.6, 0.0] | 48 | 0 | +0.00 (311.3) | 59.42 (3.9) | 59.29
+  h1 | [0.6, 0.15] | 48 | 0 | +0.00 (311.3) | 59.42 (3.9) | 59.29
+  h1 | [0.8, -0.15] | 48 | 0 | +0.10 (185.7) | 41.58 (3.9) | 41.49
+  h1 | [0.8, 0.0] | 48 | 0 | +0.00 (268.6) | 41.58 (3.9) | 41.49
+  h1 | [0.8, 0.15] | 48 | 0 | +0.00 (268.6) | 41.58 (3.9) | 41.49
+  h1 | [1.0, -0.15] | 48 | 0 | +0.04 (225.6) | 30.87 (3.9) | 30.81
+  h1 | [1.0, 0.0] | 48 | 0 | +0.00 (268.6) | 30.87 (3.9) | 30.81
+  h1 | [1.0, 0.15] | 48 | 0 | +0.00 (268.6) | 30.87 (3.9) | 30.81
+  h1 | [1.2, -0.15] | 48 | 0 | -0.05 (3.9) | 23.73 (3.9) | 23.68
+  h1 | [1.2, 0.0] | 48 | 0 | -0.05 (3.9) | 23.73 (3.9) | 23.68
+  h1 | [1.2, 0.15] | 48 | 0 | -0.05 (3.9) | 23.73 (3.9) | 23.68
+  h1 | [1.4, -0.15] | 48 | 0 | -0.05 (3.9) | 21.80 (175.7) | 21.73
+  h1 | [1.4, 0.0] | 48 | 0 | -0.05 (3.9) | 21.80 (175.7) | 21.73
+  h1 | [1.4, 0.15] | 48 | 0 | -0.05 (3.9) | 21.80 (175.7) | 21.73
+  h1 | [1.6, 0.0] | 48 | 0 | -0.04 (175.7) | 11.99 (175.7) | 11.95
+  h1 | [1.6, 0.15] | 48 | 0 | -0.04 (175.7) | 11.99 (175.7) | 11.95
+
+## B. Per robot: pose-cases | inside milestone 51's envelope (at the sampled phi): cases / planned on the pose's sides / planned by per-load sides / no plan / coverage | pose-only envelope: cases / planned / coverage | outside both: cases / planned | worst |y| inside m51 envelope (mm, at) | worst |y| inside pose-only (mm)
+  g1 | 4320 | 4002 / 3943 / 59 / 0 / 100.0% | 4056 / 4056 / 100.0% | 264 / 0 | 0.2841 (([0.4, -0.15], 13.23, 290.2)) | 0.2841   (slack calibration with no plan: 0)
+  h1 | 5472 | 5436 / 5379 / 57 / 0 / 100.0% | 5436 / 5436 / 100.0% | 36 / 0 | 0.0423 (([1.2, -0.15], 4.75, 305.5)) | 0.0423   (slack calibration with no plan: 0)
+
+## B1. Per-load side recoveries inside the pose-only envelope: robot | H | phi | pose | axis | sides flipped | common leg margin (N m) | |y| (mm)
+  g1 | 11.76 | 190.9 | [1.0, -0.15] | 0 | left_hip_yaw_joint, left_ankle_roll_joint | 3.904 | 0.0052
+  g1 | 11.76 | 190.9 | [1.0, -0.15] | 1 | left_hip_yaw_joint, left_ankle_roll_joint | 3.821 | 0.0052
+  g1 | 11.76 | 190.9 | [1.0, -0.15] | 2 | left_hip_yaw_joint, left_ankle_roll_joint | 3.859 | 0.0009
+  g1 | 11.76 | 190.9 | [1.0, -0.15] | 3 | left_hip_yaw_joint, left_ankle_roll_joint | 3.872 | 0.0009
+  g1 | 11.76 | 190.9 | [1.0, -0.15] | 4 | left_hip_yaw_joint, left_ankle_roll_joint | 3.839 | 0.0002
+  g1 | 11.76 | 190.9 | [1.0, -0.15] | 5 | left_hip_yaw_joint, left_ankle_roll_joint | 3.892 | 0.0002
+  g1 | 3.62 | 123.4 | [1.2, 0.0] | 4 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 1.773 | 0.0007
+  g1 | 16.74 | 262.1 | [1.2, 0.15] | 0 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 1.892 | 0.0059
+  g1 | 16.74 | 262.1 | [1.2, 0.15] | 1 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint | 2.311 | 0.0059
+  g1 | 16.74 | 262.1 | [1.2, 0.15] | 2 | left_hip_yaw_joint, right_hip_yaw_joint | 1.856 | 0.0014
+  g1 | 16.74 | 262.1 | [1.2, 0.15] | 3 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint | 2.306 | 0.0014
+  g1 | 16.74 | 262.1 | [1.2, 0.15] | 4 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint | 2.326 | 0.0013
+  g1 | 16.74 | 262.1 | [1.2, 0.15] | 5 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 1.900 | 0.0013
+  g1 | 14.78 | 225.6 | [1.0, -0.15] | 1 | left_ankle_roll_joint | 3.633 | 0.0052
+  g1 | 14.78 | 225.6 | [1.0, -0.15] | 2 | left_ankle_roll_joint | 3.645 | 0.0009
+  g1 | 14.78 | 225.6 | [1.0, -0.15] | 3 | left_ankle_roll_joint | 3.619 | 0.0009
+  g1 | 14.78 | 225.6 | [1.0, -0.15] | 4 | left_ankle_roll_joint | 3.634 | 0.0002
+  g1 | 13.74 | 154.6 | [1.0, -0.15] | 0 | left_hip_roll_joint, left_ankle_roll_joint | 3.717 | 0.0052
+  g1 | 13.74 | 154.6 | [1.0, -0.15] | 1 | left_hip_roll_joint, left_ankle_roll_joint | 3.689 | 0.0052
+  g1 | 13.74 | 154.6 | [1.0, 0.0] | 1 | left_hip_yaw_joint | 3.462 | 0.0000
+  g1 | 13.74 | 154.6 | [1.0, -0.15] | 2 | left_hip_roll_joint, left_ankle_roll_joint | 3.710 | 0.0009
+  g1 | 13.74 | 154.6 | [1.0, -0.15] | 3 | left_hip_roll_joint, left_ankle_roll_joint | 3.696 | 0.0009
+  g1 | 13.74 | 154.6 | [1.0, -0.15] | 4 | left_hip_roll_joint, left_ankle_roll_joint | 3.691 | 0.0002
+  g1 | 13.74 | 154.6 | [1.0, -0.15] | 5 | left_hip_roll_joint, left_ankle_roll_joint | 3.715 | 0.0002
+  g1 | 15.60 | 148.6 | [1.0, 0.0] | 4 | left_hip_yaw_joint | 3.355 | 0.0000
+  g1 | 1.59 | 98.5 | [1.2, 0.0] | 0 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 2.100 | 0.0004
+  g1 | 6.34 | 274.8 | [1.0, 0.0] | 1 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint | 2.208 | 0.0000
+  g1 | 3.80 | 108.6 | [1.2, 0.0] | 0 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 2.090 | 0.0004
+  g1 | 2.03 | 163.8 | [1.0, -0.15] | 0 | left_hip_yaw_joint, left_ankle_roll_joint | 4.279 | 0.0052
+  g1 | 3.00 | 325.5 | [1.0, 0.0] | 2 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 2.642 | 0.0000
+  g1 | 3.00 | 325.5 | [1.0, 0.0] | 3 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 2.577 | 0.0000
+  g1 | 3.00 | 325.5 | [1.2, 0.15] | 4 | left_hip_roll_joint, left_hip_yaw_joint, left_ankle_roll_joint, right_hip_roll_joint, right_hip_yaw_joint | 1.974 | 0.0013
+  g1 | 3.00 | 325.5 | [1.0, 0.0] | 5 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 2.610 | 0.0000
+  g1 | 12.62 | 210.5 | [1.0, -0.15] | 0 | left_hip_yaw_joint, left_ankle_roll_joint | 3.904 | 0.0052
+  g1 | 12.62 | 210.5 | [1.0, -0.15] | 1 | left_hip_yaw_joint, left_ankle_roll_joint | 3.866 | 0.0052
+  g1 | 12.62 | 210.5 | [1.0, -0.15] | 2 | left_hip_yaw_joint, left_ankle_roll_joint | 3.889 | 0.0009
+  g1 | 12.62 | 210.5 | [1.0, -0.15] | 3 | left_hip_yaw_joint, left_ankle_roll_joint | 3.881 | 0.0009
+  g1 | 12.62 | 210.5 | [1.0, -0.15] | 4 | left_hip_yaw_joint, left_ankle_roll_joint | 3.873 | 0.0002
+  g1 | 12.62 | 210.5 | [1.0, -0.15] | 5 | left_hip_yaw_joint, left_ankle_roll_joint | 3.897 | 0.0002
+  g1 | 9.67 | 334.2 | [1.2, 0.15] | 5 | left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 1.350 | 0.0013
+  g1 | 10.96 | 92.0 | [1.0, 0.0] | 0 | left_hip_roll_joint, left_hip_yaw_joint, left_ankle_roll_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 3.009 | 0.0000
+  g1 | 10.96 | 92.0 | [1.0, 0.0] | 1 | left_hip_roll_joint, left_hip_yaw_joint, left_ankle_roll_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 3.004 | 0.0000
+  g1 | 10.96 | 92.0 | [1.0, 0.0] | 4 | left_hip_roll_joint, left_hip_yaw_joint, left_ankle_roll_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 3.007 | 0.0000
+  g1 | 10.96 | 92.0 | [1.0, 0.0] | 5 | left_hip_roll_joint, left_hip_yaw_joint, left_ankle_roll_joint, right_hip_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 3.006 | 0.0000
+  g1 | 14.11 | 85.6 | [1.0, 0.0] | 1 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_ankle_roll_joint | 2.673 | 0.0000
+  g1 | 14.11 | 85.6 | [1.0, 0.0] | 2 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_ankle_roll_joint | 2.703 | 0.0000
+  g1 | 14.11 | 85.6 | [1.0, 0.0] | 3 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_ankle_roll_joint | 2.703 | 0.0000
+  g1 | 14.11 | 85.6 | [1.0, 0.0] | 4 | left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_ankle_roll_joint | 2.670 | 0.0000
+  g1 | 8.99 | 239.4 | [1.2, 0.15] | 0 | left_hip_yaw_joint, left_ankle_roll_joint | 1.901 | 0.0059
+  g1 | 8.99 | 239.4 | [1.2, -0.15] | 1 | left_hip_yaw_joint, left_ankle_roll_joint | 4.205 | 0.0050
+  g1 | 8.99 | 239.4 | [1.2, 0.15] | 1 | left_hip_yaw_joint, left_ankle_roll_joint | 1.916 | 0.0059
+  g1 | 8.99 | 239.4 | [1.2, -0.15] | 2 | left_hip_yaw_joint, left_ankle_roll_joint | 4.211 | 0.0001
+  g1 | 8.99 | 239.4 | [1.2, 0.15] | 2 | left_hip_yaw_joint, left_ankle_roll_joint | 1.921 | 0.0014
+  g1 | 8.99 | 239.4 | [1.2, -0.15] | 3 | left_hip_yaw_joint, left_ankle_roll_joint | 4.165 | 0.0001
+  g1 | 8.99 | 239.4 | [1.2, 0.15] | 3 | left_hip_yaw_joint, left_ankle_roll_joint | 1.919 | 0.0014
+  g1 | 8.99 | 239.4 | [1.2, -0.15] | 4 | left_hip_yaw_joint, left_ankle_roll_joint | 4.195 | 0.0022
+  g1 | 8.99 | 239.4 | [1.2, 0.15] | 4 | left_hip_yaw_joint, left_ankle_roll_joint | 1.918 | 0.0013
+  g1 | 8.99 | 239.4 | [0.8, 0.0] | 5 | left_hip_yaw_joint, left_ankle_roll_joint, right_hip_yaw_joint, right_ankle_roll_joint | 2.170 | 0.0010
+  g1 | 8.99 | 239.4 | [1.2, 0.15] | 5 | left_hip_yaw_joint, left_ankle_roll_joint | 1.920 | 0.0013
+  h1 | 11.76 | 190.9 | [1.6, 0.0] | 0 | right_hip_yaw, right_hip_roll | 2.260 | 0.0026
+  h1 | 11.76 | 190.9 | [1.6, 0.15] | 0 | right_hip_yaw, right_hip_roll | 7.088 | 0.0099
+  h1 | 11.76 | 190.9 | [1.6, 0.0] | 1 | right_hip_yaw, right_hip_roll | 1.063 | 0.0026
+  h1 | 11.76 | 190.9 | [1.6, 0.15] | 1 | right_hip_yaw, right_hip_roll | 7.015 | 0.0099
+  h1 | 11.76 | 190.9 | [1.6, 0.0] | 2 | right_hip_yaw, right_hip_roll | 1.696 | 0.0014
+  h1 | 11.76 | 190.9 | [1.6, 0.15] | 2 | right_hip_yaw, right_hip_roll | 7.051 | 0.0019
+  h1 | 11.76 | 190.9 | [1.6, 0.0] | 3 | right_hip_yaw, right_hip_roll | 1.628 | 0.0014
+  h1 | 11.76 | 190.9 | [1.6, 0.15] | 3 | right_hip_yaw, right_hip_roll | 7.073 | 0.0019
+  h1 | 11.76 | 190.9 | [1.6, 0.0] | 4 | right_hip_yaw, right_hip_roll | 1.493 | 0.0016
+  h1 | 11.76 | 190.9 | [1.6, 0.15] | 4 | right_hip_yaw, right_hip_roll | 7.046 | 0.0002
+  h1 | 11.76 | 190.9 | [1.6, 0.0] | 5 | right_hip_yaw, right_hip_roll | 1.830 | 0.0016
+  h1 | 11.76 | 190.9 | [1.6, 0.15] | 5 | right_hip_yaw, right_hip_roll | 7.078 | 0.0002
+  h1 | 9.30 | 185.7 | [1.6, 0.0] | 0 | right_hip_yaw, right_hip_roll | 5.557 | 0.0026
+  h1 | 9.30 | 185.7 | [1.6, 0.0] | 1 | right_hip_yaw, right_hip_roll | 5.833 | 0.0026
+  h1 | 9.30 | 185.7 | [1.6, 0.0] | 2 | right_hip_yaw, right_hip_roll | 5.710 | 0.0014
+  h1 | 9.30 | 185.7 | [1.6, 0.0] | 3 | right_hip_yaw, right_hip_roll | 5.710 | 0.0014
+  h1 | 9.30 | 185.7 | [1.6, 0.0] | 4 | right_hip_yaw, right_hip_roll | 5.753 | 0.0016
+  h1 | 9.30 | 185.7 | [1.6, 0.0] | 5 | right_hip_yaw, right_hip_roll | 5.666 | 0.0016
+  h1 | 17.81 | 245.7 | [1.6, 0.0] | 4 | left_hip_yaw, left_hip_roll | 3.587 | 0.0016
+  h1 | 6.15 | 201.8 | [1.6, 0.0] | 0 | left_hip_yaw, left_hip_roll | 3.165 | 0.0026
+  h1 | 6.15 | 201.8 | [1.6, 0.0] | 5 | left_hip_yaw, left_hip_roll | 3.274 | 0.0016
+  h1 | 2.44 | 78.6 | [1.2, 0.0] | 3 | left_hip_yaw, left_hip_roll, right_hip_yaw, right_hip_roll | 2.027 | 0.0035
+  h1 | 5.46 | 175.7 | [1.6, 0.0] | 0 | left_hip_yaw, left_hip_roll | 3.040 | 0.0026
+  h1 | 1.14 | 17.7 | [1.2, 0.0] | 2 | left_hip_yaw, left_hip_roll, right_hip_yaw, right_hip_roll | 2.062 | 0.0035
+  h1 | 1.14 | 17.7 | [1.2, 0.0] | 5 | left_hip_yaw, left_hip_roll, right_hip_yaw, right_hip_roll | 2.032 | 0.0014
+  h1 | 8.08 | 169.7 | [1.6, 0.0] | 0 | right_hip_yaw, right_hip_roll | 4.676 | 0.0026
+  h1 | 8.08 | 169.7 | [1.6, 0.0] | 1 | right_hip_yaw, right_hip_roll | 4.982 | 0.0026
+  h1 | 8.08 | 169.7 | [1.6, 0.0] | 2 | right_hip_yaw, right_hip_roll | 4.829 | 0.0014
+  h1 | 8.08 | 169.7 | [1.6, 0.0] | 3 | right_hip_yaw, right_hip_roll | 4.829 | 0.0014
+  h1 | 8.08 | 169.7 | [1.6, 0.0] | 4 | right_hip_yaw, right_hip_roll | 4.873 | 0.0016
+  h1 | 8.08 | 169.7 | [1.6, 0.0] | 5 | right_hip_yaw, right_hip_roll | 4.785 | 0.0016
+  h1 | 18.71 | 114.8 | [1.6, 0.0] | 0 | right_hip_yaw, right_hip_roll | 3.712 | 0.0026
+  h1 | 18.71 | 114.8 | [1.6, 0.15] | 0 | right_hip_yaw, right_hip_roll | 3.712 | 0.0099
+  h1 | 18.71 | 114.8 | [1.6, 0.0] | 1 | right_hip_yaw, right_hip_roll | 4.018 | 0.0026
+  h1 | 18.71 | 114.8 | [1.6, 0.15] | 1 | right_hip_yaw, right_hip_roll | 4.018 | 0.0099
+  h1 | 18.71 | 114.8 | [1.6, 0.0] | 2 | right_hip_yaw, right_hip_roll | 3.865 | 0.0014
+  h1 | 18.71 | 114.8 | [1.6, 0.15] | 2 | right_hip_yaw, right_hip_roll | 3.865 | 0.0019
+  h1 | 18.71 | 114.8 | [1.6, 0.0] | 3 | right_hip_yaw, right_hip_roll | 3.865 | 0.0014
+  h1 | 18.71 | 114.8 | [1.6, 0.15] | 3 | right_hip_yaw, right_hip_roll | 3.865 | 0.0019
+  h1 | 18.71 | 114.8 | [1.6, 0.0] | 4 | right_hip_yaw, right_hip_roll | 3.909 | 0.0016
+  h1 | 18.71 | 114.8 | [1.6, 0.15] | 4 | right_hip_yaw, right_hip_roll | 3.909 | 0.0002
+  h1 | 18.71 | 114.8 | [1.6, 0.0] | 5 | right_hip_yaw, right_hip_roll | 3.821 | 0.0016
+  h1 | 18.71 | 114.8 | [1.6, 0.15] | 5 | right_hip_yaw, right_hip_roll | 3.821 | 0.0002
+  h1 | 9.67 | 334.2 | [1.2, 0.0] | 0 | right_hip_yaw | 1.477 | 0.0011
+  h1 | 9.67 | 334.2 | [1.2, 0.0] | 5 | right_hip_yaw | 1.471 | 0.0014
+  h1 | 10.63 | 139.6 | [1.6, 0.0] | 0 | right_hip_yaw, right_hip_roll | 4.550 | 0.0026
+  h1 | 10.63 | 139.6 | [1.6, 0.15] | 0 | right_hip_yaw, right_hip_roll | 4.550 | 0.0099
+  h1 | 10.63 | 139.6 | [1.6, 0.0] | 1 | right_hip_yaw, right_hip_roll | 4.856 | 0.0026
+  h1 | 10.63 | 139.6 | [1.6, 0.15] | 1 | right_hip_yaw, right_hip_roll | 4.856 | 0.0099
+  h1 | 10.63 | 139.6 | [1.6, 0.0] | 2 | right_hip_yaw, right_hip_roll | 4.703 | 0.0014
+  h1 | 10.63 | 139.6 | [1.6, 0.15] | 2 | right_hip_yaw, right_hip_roll | 4.703 | 0.0019
+  h1 | 10.63 | 139.6 | [1.6, 0.0] | 3 | right_hip_yaw, right_hip_roll | 4.703 | 0.0014
+  h1 | 10.63 | 139.6 | [1.6, 0.15] | 3 | right_hip_yaw, right_hip_roll | 4.703 | 0.0019
+  h1 | 10.63 | 139.6 | [1.6, 0.0] | 4 | right_hip_yaw, right_hip_roll | 4.747 | 0.0016
+  h1 | 10.63 | 139.6 | [1.6, 0.15] | 4 | right_hip_yaw, right_hip_roll | 4.747 | 0.0002
+  h1 | 10.63 | 139.6 | [1.6, 0.0] | 5 | right_hip_yaw, right_hip_roll | 4.659 | 0.0016
+  h1 | 10.63 | 139.6 | [1.6, 0.15] | 5 | right_hip_yaw, right_hip_roll | 4.659 | 0.0002
+
+## B2. No plan inside the pose-only envelope: robot | H | phi | pose | sensor axis | inside m51 envelope | side combinations whose full plan solves
+
+## B3. Worst |y| by drag band inside milestone 51's envelope (robot | [0, 5) | [5, 10) | [10, 15) | [15, 20] N, mm; planned cases)
+  g1 | 0.0164 (1080) | 0.0233 (1008) | 0.2841 (990) | 0.0107 (924)
+  h1 | 0.0423 (1368) | 0.0126 (1368) | 0.0322 (1356) | 0.0154 (1344)
+
+## C. Hypotheses (registered in LOG.md before this run)
+H217 (every LHS pose-case inside milestone 51's envelope has a plan): g1 4002 of 4002, h1 5436 of 5436 -> held
+H218 (every planned in-envelope LHS pose-case at most 0.03 mm): worst g1 0.2841, h1 0.0423 -> refuted
+H219 (no sampled limit more than 0.5 N below the smaller neighbouring grid limit): 21 (pose, direction) pairs below -> refuted
+  ('g1', 0.4, -0.15): phi 190.9, limit 27.16 N, smaller neighbour 28.61 N, shortfall 1.45 N
+  ('g1', 0.4, -0.15): phi 185.7, limit 27.91 N, smaller neighbour 28.61 N, shortfall 0.71 N
+  ('g1', 0.4, -0.15): phi 201.8, limit 26.45 N, smaller neighbour 28.61 N, shortfall 2.16 N
+  ('g1', 0.4, -0.15): phi 219.1, limit 27.54 N, smaller neighbour 28.61 N, shortfall 1.07 N
+  ('g1', 0.4, -0.15): phi 202.6, limit 26.44 N, smaller neighbour 28.61 N, shortfall 2.17 N
+  ('g1', 0.4, -0.15): phi 210.5, limit 26.65 N, smaller neighbour 28.61 N, shortfall 1.96 N
+  ('g1', 0.4, 0.0): phi 201.8, limit 45.90 N, smaller neighbour 47.47 N, shortfall 1.57 N
+  ('g1', 0.4, 0.0): phi 219.1, limit 46.28 N, smaller neighbour 47.47 N, shortfall 1.18 N
+  ('g1', 0.4, 0.0): phi 202.6, limit 45.82 N, smaller neighbour 47.47 N, shortfall 1.65 N
+  ('g1', 0.4, 0.0): phi 210.5, limit 45.53 N, smaller neighbour 47.47 N, shortfall 1.94 N
+  ('g1', 0.6, -0.15): phi 190.9, limit 23.39 N, smaller neighbour 24.14 N, shortfall 0.75 N
+  ('g1', 0.6, -0.15): phi 185.7, limit 23.62 N, smaller neighbour 24.14 N, shortfall 0.52 N
+  ('g1', 0.6, -0.15): phi 201.8, limit 23.62 N, smaller neighbour 24.14 N, shortfall 0.52 N
+  ('g1', 0.6, 0.0): phi 190.9, limit 40.75 N, smaller neighbour 42.51 N, shortfall 1.76 N
+  ('g1', 0.6, 0.0): phi 185.7, limit 41.36 N, smaller neighbour 42.51 N, shortfall 1.15 N
+  ('g1', 0.6, 0.0): phi 201.8, limit 40.67 N, smaller neighbour 42.51 N, shortfall 1.85 N
+  ('g1', 0.6, 0.0): phi 202.6, limit 40.72 N, smaller neighbour 42.51 N, shortfall 1.79 N
+  ('g1', 0.6, 0.0): phi 210.5, limit 41.78 N, smaller neighbour 42.51 N, shortfall 0.74 N
+  ('g1', 0.8, 0.0): phi 249.8, limit 38.96 N, smaller neighbour 40.66 N, shortfall 1.70 N
+  ('g1', 0.8, 0.0): phi 245.7, limit 38.70 N, smaller neighbour 40.66 N, shortfall 1.96 N
+  ('g1', 0.8, 0.0): phi 239.4, limit 38.72 N, smaller neighbour 40.66 N, shortfall 1.94 N
+
+(run time 461 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

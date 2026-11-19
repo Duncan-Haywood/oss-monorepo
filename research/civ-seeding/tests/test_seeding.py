@@ -413,3 +413,118 @@ def test_m12_per_tie_recall_reports_only_recallable_ties():
         _, _, seen = sd.survey_recall(v, 1.0, np.random.default_rng(seed), recall=P)
         got += [seen[H == h].mean() for h in range(3)]
     assert np.allclose(got / 30, 1 - (1 - rates) ** 2, atol=0.03)
+
+
+# ---- milestone 16: false-positive ties ----
+
+def test_m16_fp_zero_keeps_earlier_draws():
+    v = _m9_village()
+    for design, split in (("uniform", None), ("adaptive", 0.75)):
+        a = sd.survey_recall(v, 0.5, np.random.default_rng(5), design, split, 0.85)
+        c = sd.survey_recall(v, 0.5, np.random.default_rng(5), design, split, 0.85, 0.0, "closure")
+        assert all(np.array_equal(x, y) for x, y in zip(a, c))
+
+
+@pytest.mark.parametrize("mode", ["uniform", "closure"])
+def test_m16_false_reports_rate_and_placement(mode):
+    v = _m9_village()
+    A = v.A > 0
+    fof = (A.astype(int) @ A.astype(int)) > 0
+    tot = 0
+    for seed in range(30):
+        F = sd.false_reports(v, np.random.default_rng(seed), 0.25, mode)
+        assert not (F & A).any() and not F.diagonal().any()
+        if mode == "closure":
+            assert not (F & ~fof).any()
+        tot += F.sum()
+    # mean false reports per household close to 0.25 x degree (pools here are far larger than m_i)
+    assert abs(tot / 30 / v.deg.sum() - 0.25) < 0.02
+
+
+def test_m16_census_with_false_ties_sees_extra_ties():
+    v = _m9_village()
+    s, est, seen = sd.survey_recall(v, 1.0, np.random.default_rng(0), recall=1.0, fp=0.5)
+    assert np.array_equal(seen, seen.T)
+    assert (seen >= v.A).all() and seen.sum() > v.A.sum()
+    assert np.all(est == seen.sum(1))
+    b = int(v.leader.sum())
+    assert sd.rule_recall_dd(v, b, np.random.default_rng(1), 0.5, "adaptive", 0.75, 0.85,
+                             fp=0.25, fp_mode="closure").sum() == b
+
+
+# ---- milestone 17: the reciprocity filter ----
+
+def test_m17_recip_census_keeps_only_mutual_reports():
+    v = _m9_village()
+    A = v.A > 0
+    # perfect recall, no false ties: the filter changes nothing
+    a = sd.survey_recall(v, 1.0, np.random.default_rng(3), recall=1.0)
+    b = sd.survey_recall(v, 1.0, np.random.default_rng(3), recall=1.0, recip=True)
+    assert all(np.array_equal(x, y) for x, y in zip(a, b))
+    # recall 0.85: a census keeps a true tie with probability 0.85^2, not 1 - 0.15^2
+    kept = sum(sd.survey_recall(v, 1.0, np.random.default_rng(s), recall=0.85, recip=True)[2][A].mean()
+               for s in range(20)) / 20
+    assert abs(kept - 0.85 ** 2) < 0.02
+    # false ties: the filtered census sees a subset of the unfiltered one, under the same draws
+    for mode in ("uniform", "closure"):
+        _, _, s0 = sd.survey_recall(v, 1.0, np.random.default_rng(7), recall=0.85, fp=0.5, fp_mode=mode)
+        _, est, s1 = sd.survey_recall(v, 1.0, np.random.default_rng(7), recall=0.85, fp=0.5, fp_mode=mode,
+                                      recip=True)
+        assert np.array_equal(s1, s1.T) and (s1 <= s0).all() and np.all(est == s1.sum(1))
+        assert (s1.astype(bool) & ~A).sum() < 0.1 * (s0.astype(bool) & ~A).sum()
+
+
+def test_m17_recip_half_survey_keeps_one_sided_reports():
+    v = _m9_village()
+    s, est, seen = sd.survey_recall(v, 0.5, np.random.default_rng(2), "adaptive", 0.75, 0.85,
+                                    fp=0.25, recip=True)
+    s0, est0, seen0 = sd.survey_recall(v, 0.5, np.random.default_rng(2), "adaptive", 0.75, 0.85, fp=0.25)
+    assert np.array_equal(s, s0)
+    one = s[:, None] ^ s[None, :]
+    assert np.array_equal(seen[one], seen0[one])            # unverifiable ties kept as reported
+    assert np.array_equal(est[~s], est0[~s])                 # stage-1 estimates unfiltered
+
+
+# ---- milestone 18: correlated false reports ----
+
+def test_m18_joint_zero_keeps_milestone17_draws():
+    v = _m9_village()
+    for f, design in ((1.0, "uniform"), (0.5, "adaptive")):
+        a = sd.survey_recall(v, f, np.random.default_rng(4), design, 0.75, 0.85, fp=0.5, fp_mode="closure",
+                             recip=True)
+        b = sd.survey_recall(v, f, np.random.default_rng(4), design, 0.75, 0.85, fp=0.5, fp_mode="closure",
+                             recip=True, fp_joint=0.0)
+        assert all(np.array_equal(x, y) for x, y in zip(a, b))
+
+
+def test_m18_unfiltered_census_is_invariant_to_joint_reports():
+    # the echo adds no new pair, so an unfiltered census sees exactly the same ties and degrees
+    v = _m9_village()
+    for mode in ("uniform", "closure"):
+        for kappa in (0.5, 1.0):
+            a = sd.survey_recall(v, 1.0, np.random.default_rng(9), recall=0.85, fp=0.5, fp_mode=mode)
+            b = sd.survey_recall(v, 1.0, np.random.default_rng(9), recall=0.85, fp=0.5, fp_mode=mode,
+                                 fp_joint=kappa)
+            assert all(np.array_equal(x, y) for x, y in zip(a, b))
+
+
+def test_m18_joint_reports_survive_the_filter_at_rate_kappa():
+    v = _m9_village()
+    A = v.A > 0
+    for kappa in (0.0, 0.5, 1.0):
+        fr = []
+        for s in range(10):
+            _, _, s0 = sd.survey_recall(v, 1.0, np.random.default_rng(s), recall=0.85, fp=0.5, fp_mode="closure",
+                                        fp_joint=kappa)
+            _, _, s1 = sd.survey_recall(v, 1.0, np.random.default_rng(s), recall=0.85, fp=0.5, fp_mode="closure",
+                                        recip=True, fp_joint=kappa)
+            assert (s1 <= s0).all()
+            fr.append((s1.astype(bool) & ~A).sum() / (s0.astype(bool) & ~A).sum())
+        assert abs(np.mean(fr) - kappa) < 0.06
+    # at kappa = 1 the filtered census keeps every false tie and loses only true ones
+    _, _, s0 = sd.survey_recall(v, 1.0, np.random.default_rng(1), recall=0.85, fp=0.5, fp_mode="closure",
+                                fp_joint=1.0)
+    _, _, s1 = sd.survey_recall(v, 1.0, np.random.default_rng(1), recall=0.85, fp=0.5, fp_mode="closure",
+                                recip=True, fp_joint=1.0)
+    assert np.array_equal(s1.astype(bool) & ~A, s0.astype(bool) & ~A)
+    assert (s1.astype(bool) & A).sum() < (s0.astype(bool) & A).sum()

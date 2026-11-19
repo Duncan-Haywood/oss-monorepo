@@ -1,8 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of grams of storage carried against number of cameras, for cards only (one copy) and for nightly offload to two SSD copies within one evening hour; the offload plan is heavier and stops being feasible beyond seven cameras (one reader per card, at most eight readers)">
 <rect width="640" height="380" fill="#fff"/>
 <text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Storage weight by rig size: cards only vs nightly offload to two SSDs</text>
+<line x1="64" x2="624" y1="309.6" y2="309.6" stroke="#ddd"/><text x="58" y="313.6" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="271.2" y2="271.2" stroke="#ddd"/><text x="58" y="275.2" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
 <line x1="64" x2="624" y1="242.2" y2="242.2" stroke="#ddd"/><text x="58" y="246.2" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="213.1" y2="213.1" stroke="#ddd"/><text x="58" y="217.1" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="174.7" y2="174.7" stroke="#ddd"/><text x="58" y="178.7" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
 <line x1="64" x2="624" y1="145.7" y2="145.7" stroke="#ddd"/><text x="58" y="149.7" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="116.6" y2="116.6" stroke="#ddd"/><text x="58" y="120.6" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="78.2" y2="78.2" stroke="#ddd"/><text x="58" y="82.2" text-anchor="end" font-family="sans-serif" font-size="11">500</text>
 <text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
 <text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
 <text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>

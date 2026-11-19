@@ -4,11 +4,11 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230e7490'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Room-by-Room HVAC Load Calculator | Heating and Cooling Load, Free</title>
-  <meta name="description" content="Free room-by-room heating and cooling load calculator for houses: walls by direction, windows, attic, slab, air leakage and ventilation in; each room's Btu/h, peak hour and airflow, plus the whole-house tonnage, out. Open method, runs in your browser.">
+  <meta name="description" content="Free room-by-room heating and cooling load calculator for houses: walls by direction, windows, attic, slab or basement, skylights, air leakage and ventilation in; each room's Btu/h, peak hour and airflow, plus the whole-house tonnage, out. Open method, runs in your browser.">
   <meta property="og:title" content="Room-by-Room HVAC Load Calculator">
   <meta property="og:description" content="How big should the heat pump or AC be? A room-by-room load from sun angles, insulation and air leakage, with every formula shown. Free, open source, nothing uploaded.">
   <link rel="canonical" href="./">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Room-by-Room HVAC Load Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Room-by-room heating load; 24-hour cooling design day with sun position, window SHGC and wall sol-air temperature; attic temperature; slab edge loss; air leakage from a blower-door ACH50; ventilation with heat or energy recovery; latent load from the design dew point; altitude correction; whole-house peak versus sum of room peaks; room airflow; JSON import and export; CLI"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Room-by-Room HVAC Load Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Room-by-room heating load; 24-hour cooling design day with sun position, window SHGC and wall sol-air temperature; attic temperature; slab edge loss; basement walls and floors below grade; skylights; air leakage from a blower-door ACH50; ventilation with heat or energy recovery; latent load from the design dew point; altitude correction; whole-house peak versus sum of room peaks; room airflow; JSON import and export; CLI"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this a Manual J?","acceptedAnswer":{"@type":"Answer","text":"No. ACCA Manual J is a proprietary procedure with its own tables, and many permits ask for a report from approved software. This tool uses an open first-principles method (sun geometry, U-values, air leakage, psychrometrics) with every formula shown. Use it to sanity-check a quote or a design before paying for a full report, not in place of one."}},{"@type":"Question","name":"Why is the answer smaller than 1 ton per 500 square feet?","acceptedAnswer":{"@type":"Answer","text":"Because rules of thumb date from leaky, poorly insulated houses. A house with R-13 walls, an R-38 attic and low-e windows often needs one ton per 700 to 1,000 square feet. Oversized equipment short-cycles, removes less humidity and costs more."}},{"@type":"Question","name":"Why is the whole-house load less than the sum of the rooms?","acceptedAnswer":{"@type":"Answer","text":"Rooms peak at different times: east rooms in the morning, west rooms late in the afternoon. The equipment sees the hour when the sum is largest, which is smaller than adding every room's own worst hour. Ducts and room airflow are sized from each room's own peak."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a calculation ran and the day."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2228; background: #e9eef0; --accent: #0e7490; --accent2: #155e75; --ink2: #52606b; --line: #c4ced3; --panel: #fbfcfc; --heat: #c2410c; }
@@ -79,6 +79,8 @@
           <label>Indoor winter (°F) <input id="indoorHeatF" type="number" step="1"></label>
           <label>Indoor summer (°F) <input id="indoorCoolF" type="number" step="1"></label>
           <label>Indoor summer RH (%) <input id="indoorRH" type="number" step="1"></label>
+          <label>Annual mean outdoor (°F) <input id="annualMeanF" type="number" step="1"></label>
+          <label>Ground surface swing (°F) <input id="groundAmplitudeF" type="number" step="1"></label>
         </div>
       </section>
 
@@ -98,6 +100,11 @@
           <label>Window SHGC <input id="windowSHGC" type="number" step="0.01"></label>
           <label>Inside blinds <select id="interiorShade"><option value="1">None counted</option><option value="0.8">Blinds half used</option><option value="0.65">Blinds or drapes drawn</option></select></label>
           <label>Door U-factor <input id="doorU" type="number" step="0.01"></label>
+          <label>Skylight U-factor <input id="skylightU" type="number" step="0.01"></label>
+          <label>Skylight SHGC <input id="skylightSHGC" type="number" step="0.01"></label>
+          <label>Basement wall insulation R <input id="basementWallR" type="number" step="1"></label>
+          <label>Basement floor insulation R <input id="basementFloorR" type="number" step="1"></label>
+          <label>Soil conductivity (Btu/h·ft·°F) <input id="soilK" type="number" step="0.1"></label>
           <label>Air leakage ACH50 <input id="ach50" type="number" step="0.5"></label>
           <label>N factor <input id="nFactor" type="number" step="1"></label>
           <label>Ventilation (cfm) <input id="ventCFM" type="number" step="5"></label>
@@ -107,12 +114,12 @@
           <label>Duct heat gain (%) <input id="ductCoolPct" type="number" step="1"></label>
           <label>Supply ΔT (°F) <input id="supplyDeltaT" type="number" step="1"></label>
         </div>
-        <p class="muted">Window U and SHGC are on the NFRC sticker. ACH50 comes from a blower-door test (about 3 for a new code-built house, 7 to 15 for older ones). Ducts inside the conditioned space lose 0%; ducts in a vented attic commonly 10 to 25%.</p>
+        <p class="muted">Window U and SHGC are on the NFRC sticker. ACH50 comes from a blower-door test (about 3 for a new code-built house, 7 to 15 for older ones). Ducts inside the conditioned space lose 0%; ducts in a vented attic commonly 10 to 25%. Basements lose heat to the ground surface at the annual mean temperature less its seasonal swing (the swing is roughly 15 to 25 °F across the US); moist soil conducts about 0.8, dry sand nearer 0.2 to 0.4. Skylight U-factors on the NFRC label are higher than windows' because they are rated tilted.</p>
       </section>
 
       <section>
         <h2>3. Rooms</h2>
-        <p class="hint">List the walls that face outdoors, with the direction each one faces and the window and door area in it. Interior walls don't count. The slab perimeter is the length of exposed slab edge under that room.</p>
+        <p class="hint">List the walls that face outdoors, with the direction each one faces and the window and door area in it. Interior walls don't count. The slab perimeter is the length of exposed slab edge under that room. For a basement room, list only the walls above grade (with their above-grade height) as outside walls, and give the depth and length of wall below grade separately.</p>
         <div id="rooms"></div>
         <div class="actions">
           <button type="button" id="addRoom">Add a room</button>
@@ -199,6 +206,7 @@
     <p><strong>No warranty. This is an estimate, not engineering advice and not an ACCA Manual J report.</strong> It uses an open first-principles method with simplifications described on <a href="./how-it-works.html">how it works</a>. Many permits require a load calculation from approved software; buy equipment on a full calculation by a qualified designer.</p>
     <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
     <p>Worried the same wall will get wet inside in winter? The <a href="../wall-condensation-check/">wall condensation check</a> runs a month-by-month dew point check on its layers &mdash; nothing uploaded.</p>
+    <p>Need the air side of the same job? The <a href="../psychrometric-calculator/">psychrometric calculator</a> reads a cooling coil's load, sensible heat ratio, apparatus dew point and bypass factor from the air entering and leaving it, at your altitude.</p>
     <p>Plumbing the same house? The <a href="../water-supply-sizing/">water supply pipe sizing calculator</a> works out peak water demand and copper or PEX sizes segment by segment &mdash; nothing uploaded.</p>
     <p>Pricing a ductless install once you know the load? The <a href="../mini-split-bid-calculator/">mini-split bid calculator</a> prices heads, line sets and labour &mdash; nothing uploaded.</p>
     <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc">Source, CLI and README</a>. If it saved you a bad quote, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
@@ -210,7 +218,7 @@
 
     const el = id => document.getElementById(id);
     const SITE = Object.keys(DEFAULTS.site);
-    const ENV = ['wallCavityR', 'studDepthIn', 'wallContinuousR', 'wallColor', 'wallMass', 'ceilingR', 'roofColor', 'floorR', 'slabF', 'windowU', 'windowSHGC', 'interiorShade', 'doorU', 'ach50', 'nFactor', 'ventCFM', 'ventSensibleRecovery', 'ventLatentRecovery', 'ductHeatPct', 'ductCoolPct', 'supplyDeltaT'];
+    const ENV = ['wallCavityR', 'studDepthIn', 'wallContinuousR', 'wallColor', 'wallMass', 'ceilingR', 'roofColor', 'floorR', 'slabF', 'windowU', 'windowSHGC', 'interiorShade', 'doorU', 'skylightU', 'skylightSHGC', 'basementWallR', 'basementFloorR', 'soilK', 'ach50', 'nFactor', 'ventCFM', 'ventSensibleRecovery', 'ventLatentRecovery', 'ductHeatPct', 'ductCoolPct', 'supplyDeltaT'];
     const TEXT_FIELDS = new Set(['wallColor', 'wallMass', 'roofColor']);
     const fmt = x => Math.round(x).toLocaleString('en-US');
     let rooms = [];
@@ -252,9 +260,35 @@
       box.replaceChildren();
       rooms.forEach((r, i) => {
         const floor = make('select');
-        for (const [v, t] of [['conditioned', 'Over conditioned space'], ['slab', 'Slab on grade'], ['crawl', 'Over crawl/garage']]) floor.append(make('option', { value: v, text: t }));
+        for (const [v, t] of [['conditioned', 'Over conditioned space'], ['slab', 'Slab on grade'], ['crawl', 'Over crawl/garage'], ['basement', 'Basement (below grade)']]) floor.append(make('option', { value: v, text: t }));
         floor.value = r.floor || 'conditioned';
-        floor.addEventListener('change', () => { r.floor = floor.value; });
+        floor.addEventListener('change', () => {
+          r.floor = floor.value;
+          if (r.floor === 'basement') r.basement ||= { depthFt: Math.min(6, r.ceilingFt ?? 8), wallLengthFt: 40, widthFt: 24 };
+          drawRooms();
+        });
+        const basement = make('div');
+        if (r.floor === 'basement') {
+          const b = (r.basement ||= { depthFt: Math.min(6, r.ceilingFt ?? 8), wallLengthFt: 40, widthFt: 24 });
+          basement.append(make('div', { class: 'wall' }, [
+            field('Depth below grade ft', b.depthFt, v => { b.depthFt = v; }, 'number', '0.5'),
+            field('Below-grade wall length ft', b.wallLengthFt ?? 0, v => { b.wallLengthFt = v; }, 'number', '0.5'),
+            field('Basement shortest width ft', b.widthFt, v => { b.widthFt = v; }, 'number', '0.5'),
+          ]));
+        }
+        const skylights = make('div');
+        (r.skylights ||= []).forEach((k, j) => {
+          const facing = make('select');
+          for (const f of Object.keys(FACINGS)) facing.append(make('option', { value: f, text: f }));
+          facing.value = k.facing ?? 'S';
+          facing.addEventListener('change', () => { k.facing = facing.value; });
+          skylights.append(make('div', { class: 'wall' }, [
+            field('Skylight ft²', k.areaFt2, v => { k.areaFt2 = v; }),
+            field('Tilt °', k.tiltDeg ?? 0, v => { k.tiltDeg = v; }),
+            make('label', {}, ['Slopes toward', facing]),
+            make('button', { type: 'button', class: 'small', text: 'Remove', 'aria-label': `Remove skylight ${j + 1} of ${r.name || 'room'}`, on: { click: () => { r.skylights.splice(j, 1); drawRooms(); } } }),
+          ]));
+        });
         const attic = make('input', { type: 'checkbox' });
         attic.checked = !!r.ceilingToAttic;
         attic.addEventListener('change', () => { r.ceilingToAttic = attic.checked; });
@@ -286,9 +320,12 @@
             field('Appliances Btu/h', r.applianceBtuh ?? 0, v => { r.applianceBtuh = v; }, 'number', '100'),
             make('label', { class: 'check' }, [attic, 'Attic above']),
           ]),
+          basement,
           walls,
+          skylights,
           make('div', { class: 'actions' }, [
             make('button', { type: 'button', class: 'small', text: 'Add an outside wall', on: { click: () => { r.walls.push({ facing: 'S', lengthFt: 10, windowFt2: 0, doorFt2: 0 }); drawRooms(); } } }),
+            make('button', { type: 'button', class: 'small', text: 'Add a skylight', on: { click: () => { r.skylights.push({ areaFt2: 8, tiltDeg: 18, facing: 'S' }); drawRooms(); } } }),
             make('button', { type: 'button', class: 'small', text: 'Remove room', on: { click: () => { rooms.splice(i, 1); drawRooms(); } } }),
           ]),
         ]));
@@ -331,12 +368,12 @@
       body.replaceChildren();
       for (const x of r.rooms) body.append(make('tr', {}, [x.name, fmt(x.heating.total), fmt(x.cooling.sensible), String(x.cooling.peakHour), fmt(x.cooling.latent), fmt(x.airflow.design)].map(t => make('td', { text: t }))));
       const sumH = k => r.rooms.reduce((a, x) => a + x.heating[k], 0), cc = c.components;
-      const rows = [['Walls', sumH('walls'), cc.walls], ['Windows (conduction)', sumH('windows'), cc.windows], ['Windows (sun)', 0, cc.windowSolar], ['Doors', sumH('doors'), cc.doors], ['Ceiling to attic', sumH('ceiling'), cc.ceiling], ['Floor / slab edge', sumH('floor'), 0], ['Air leakage', sumH('infiltration'), cc.infiltration], ['People and appliances', 0, cc.internal], ['Ventilation', h.heating.ventilation, cc.ventilation], ['Ducts', h.heating.ducts, cc.ducts], ['Latent (moisture)', 0, c.latent]];
+      const rows = [['Walls', sumH('walls'), cc.walls], ['Windows (conduction)', sumH('windows'), cc.windows], ['Windows (sun)', 0, cc.windowSolar], ['Doors', sumH('doors'), cc.doors], ['Skylights (conduction)', sumH('skylights'), cc.skylights], ['Skylights (sun)', 0, cc.skylightSolar], ['Ceiling to attic', sumH('ceiling'), cc.ceiling], ['Floor / slab edge', sumH('floor'), 0], ['Basement walls below grade', sumH('belowGrade'), 0], ['Air leakage', sumH('infiltration'), cc.infiltration], ['People and appliances', 0, cc.internal], ['Ventilation', h.heating.ventilation, cc.ventilation], ['Ducts', h.heating.ducts, cc.ducts], ['Latent (moisture)', 0, c.latent]];
       const bd = el('breakdown');
       bd.replaceChildren();
       for (const [name, a, b] of rows) bd.append(make('tr', {}, [name, fmt(a), fmt(b)].map(t => make('td', { text: t }))));
       const as = r.assumptions;
-      el('assumptions').textContent = `Wall U ${as.wallU.toFixed(3)}, ceiling U ${as.ceilingU.toFixed(3)}, crawl floor U ${as.floorU.toFixed(3)} Btu/h·ft²·°F. Natural air change ${as.naturalACH.toFixed(2)} per hour = ${fmt(as.infiltrationCFM)} cfm over ${fmt(as.volumeFt3)} ft³. Moisture: outdoor ${as.outdoorGrains.toFixed(0)} vs indoor ${as.indoorGrains.toFixed(0)} grains per lb. Attic peaks ${as.atticRiseF} °F over outdoor. Air density ${(as.densityRatio * 100).toFixed(1)}% of sea level.`;
+      el('assumptions').textContent = `Wall U ${as.wallU.toFixed(3)}, ceiling U ${as.ceilingU.toFixed(3)}, crawl floor U ${as.floorU.toFixed(3)} Btu/h·ft²·°F. Natural air change ${as.naturalACH.toFixed(2)} per hour = ${fmt(as.infiltrationCFM)} cfm over ${fmt(as.volumeFt3)} ft³. Moisture: outdoor ${as.outdoorGrains.toFixed(0)} vs indoor ${as.indoorGrains.toFixed(0)} grains per lb. Attic peaks ${as.atticRiseF} °F over outdoor. Air density ${(as.densityRatio * 100).toFixed(1)}% of sea level. Ground surface design temperature ${as.groundSurfaceF.toFixed(0)} °F (basements).`;
       drawChart(r);
     }
 

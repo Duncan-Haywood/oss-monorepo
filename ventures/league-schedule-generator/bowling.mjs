@@ -48,11 +48,11 @@ export function hungarian(cost) {
     const used = new Array(n + 1).fill(false);
     do {
       used[j0] = true;
-      const i0 = p[j0];
+      const i0 = p[j0], row = cost[i0 - 1], ui = u[i0];
       let delta = INF, j1 = 0;
       for (let j = 1; j <= n; j++) {
         if (used[j]) continue;
-        const cur = cost[i0 - 1][j - 1] - u[i0] - v[j];
+        const cur = row[j - 1] - ui - v[j];
         if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
         if (minv[j] < delta) { delta = minv[j]; j1 = j; }
       }
@@ -98,7 +98,7 @@ const BALANCE = 8;
  *       "greedy" (week-by-week assignment priced on counts so far),
  *       "polished" (greedy, then the iterated local search below; the default).
  */
-export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 1, iterations = null, avoid = null, shapes = true } = {}) {
+export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 1, iterations = null, avoid = null, shapes = true, anneal = true } = {}) {
   const ban = banMatrix(nTeams, nPairs, avoid);
   if (mode === "naive") return rounds.map((wk) => wk.map(([a, b], k) => [a, b, k]));
   if (mode === "rotate") return rounds.map((wk, w) => wk.map(([a, b], k) => [a, b, (k + w) % nPairs]));
@@ -126,15 +126,17 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
   const lim = laneLimits(plan, nTeams, nPairs, avoid);
   const kicks = iterations ?? kicksFor(plan.length, nPairs);
   const stored = tablePlan(rounds, nTeams, nPairs, seed, avoid) ?? (ban && shapes && shapePlan(rounds, nTeams, nPairs, seed, avoid));
-  if (stored) return polishLanes(stored, nTeams, nPairs, seed, kicks, lim);
+  const steps = anneal ? annealStepsFor(plan.length, nPairs) : 0;
+  const finish = (p) => (steps > 0 ? cutRepeats(p, nTeams, nPairs, seed, steps, lim) : p);
+  if (stored) return finish(polishLanes(stored, nTeams, nPairs, seed, kicks, lim));
   const polished = polishLanes(plan, nTeams, nPairs, seed, kicks, lim);
-  if (offBound(polished, nTeams, nPairs, avoid) === 0) return polished;
+  if (offBound(polished, nTeams, nPairs, avoid) === 0) return finish(polished);
   // The week re-solves stall a few counts short of the bound on some sizes. A focused walk on the
   // out-of-bounds cells closes most of those; its result is polished again for repeats only (the
   // polish never lets an out-of-bounds count back in).
   const walked = walkLanes(polished, nTeams, nPairs, seed, walkStepsFor(plan.length, nPairs), lim);
   if (offBound(walked, nTeams, nPairs, avoid) >= offBound(polished, nTeams, nPairs, avoid)) return polished;
-  return polishLanes(walked, nTeams, nPairs, seed, kicks, lim);
+  return finish(polishLanes(walked, nTeams, nPairs, seed, kicks, lim));
 }
 
 // A team that must never bowl on a pair (the end pair by the wall, a pair whose approach a bowler
@@ -202,7 +204,7 @@ export function laneTargets(games, nPairs, avoid = null) {
   return { lo, hi, ban, share: x };
 }
 
-function laneLimits(plan, nTeams, nPairs, avoid) {
+export function laneLimits(plan, nTeams, nPairs, avoid) {
   const games = new Array(nTeams).fill(0);
   for (const wk of plan) for (const [a, b] of wk) { games[a]++; games[b]++; }
   return laneTargets(games, nPairs, avoid);
@@ -366,51 +368,134 @@ function walkStepsFor(weeks, nPairs) {
 // the best plan seen is returned.
 const NOISE = 0.2;
 function walkLanes(source, nTeams, nPairs, seed, steps, lim) {
+  // Flat typed arrays and reused move buffers (perf, 2026-11-19): the same moves, ties and random
+  // draws in the same order as the nested-array version, so the same walk.
   const plan = source.map((wk) => wk.map((m) => m.slice()));
-  const W = plan.length, rnd = mulberry32(seed * 7919 + 17);
-  const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
-  const at = Array.from({ length: nTeams }, () => new Array(W).fill(-1)); // team -> week -> match index
-  plan.forEach((wk, w) => wk.forEach(([a, b, p], i) => { cnt[a][p]++; cnt[b][p]++; at[a][w] = i; at[b][w] = i; }));
-  const { lo, hi, ban } = lim;
-  const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
-  const move = (t, p, q) => off(t, p, cnt[t][p] - 1) - off(t, p, cnt[t][p]) + off(t, q, cnt[t][q] + 1) - off(t, q, cnt[t][q]);
-  const banned = (t, p) => ban !== null && ban[t][p];
+  const W = plan.length, P = nPairs, T = nTeams, rnd = mulberry32(seed * 7919 + 17);
+  const cnt = new Int32Array(T * P);
+  const at = new Int32Array(T * W).fill(-1); // team * W + week -> match index
+  plan.forEach((wk, w) => wk.forEach(([a, b, p], i) => { cnt[a * P + p]++; cnt[b * P + p]++; at[a * W + w] = i; at[b * W + w] = i; }));
+  const lo = new Int32Array(T * P), hi = new Int32Array(T * P);
+  const ban = lim.ban === null ? null : new Uint8Array(T * P);
+  for (let t = 0; t < T; t++) for (let p = 0; p < P; p++) {
+    lo[t * P + p] = lim.lo[t][p]; hi[t * P + p] = lim.hi[t][p];
+    if (ban !== null && lim.ban[t][p]) ban[t * P + p] = 1;
+  }
+  const off = (i, c) => Math.max(0, c - hi[i]) + Math.max(0, lo[i] - c);
+  const move = (t, p, q) => { const i = t * P + p, k = t * P + q; return off(i, cnt[i] - 1) - off(i, cnt[i]) + off(k, cnt[k] + 1) - off(k, cnt[k]); };
+  const banned = (t, p) => ban !== null && ban[t * P + p] === 1;
   let f = 0;
-  for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) f += off(t, p, cnt[t][p]);
+  for (let i = 0; i < T * P; i++) f += off(i, cnt[i]);
   let best = f, bestPlan = plan.map((wk) => wk.map((m) => m.slice()));
-  const cells = [];
+  // the plan mirrored flat for the step loop: match m of week w is entry w * P + m
+  const ta = new Int32Array(W * P), tb = new Int32Array(W * P), pr = new Int32Array(W * P);
+  plan.forEach((wk, w) => wk.forEach(([a, b, p], m) => { ta[w * P + m] = a; tb[w * P + m] = b; pr[w * P + m] = p; }));
+  const cells = new Int32Array(T * P);
+  const moves = new Int32Array(3 * W * P), bestMoves = new Int32Array(3 * W * P);
+  const swap = (u, q, r) => {
+    const iq = u * P + q, ir = u * P + r;
+    f -= off(iq, cnt[iq]) + off(ir, cnt[ir]); cnt[iq]--; cnt[ir]++; f += off(iq, cnt[iq]) + off(ir, cnt[ir]);
+  };
   for (let step = 0; step < steps && f > 0; step++) {
-    cells.length = 0;
-    for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) if (off(t, p, cnt[t][p])) cells.push(t * nPairs + p);
-    const cell = cells[Math.floor(rnd() * cells.length)];
-    const t = Math.floor(cell / nPairs), p = cell % nPairs, over = cnt[t][p] > hi[t][p];
-    const moves = [];
-    let bestDelta = Infinity, bestMoves = [];
+    let nCells = 0;
+    for (let i = 0; i < T * P; i++) if (off(i, cnt[i])) cells[nCells++] = i;
+    const cell = cells[Math.floor(rnd() * nCells)];
+    const t = Math.floor(cell / P), p = cell % P, over = cnt[cell] > hi[cell];
+    let nMoves = 0, nBest = 0, bestDelta = Infinity;
     for (let w = 0; w < W; w++) {
-      const i = at[t][w];
+      const i = at[t * W + w];
       if (i < 0) continue;
-      const A = plan[w][i];
-      if (over ? A[2] !== p : A[2] === p) continue;
-      for (let j = 0; j < nPairs; j++) {
+      const ai = w * P + i, q = pr[ai];
+      if (over ? q !== p : q === p) continue;
+      const a0 = ta[ai], a1 = tb[ai];
+      for (let j = 0; j < P; j++) {
         if (j === i) continue;
-        const B = plan[w][j];
-        if (!over && B[2] !== p) continue;
-        const q = A[2], r = B[2];
-        if (banned(A[0], r) || banned(A[1], r) || banned(B[0], q) || banned(B[1], q)) continue;
-        const d = move(A[0], q, r) + move(A[1], q, r) + move(B[0], r, q) + move(B[1], r, q);
-        moves.push(w, i, j);
-        if (d < bestDelta) { bestDelta = d; bestMoves = [w, i, j]; } else if (d === bestDelta) bestMoves.push(w, i, j);
+        const bj = w * P + j, r = pr[bj];
+        if (!over && r !== p) continue;
+        const b0 = ta[bj], b1 = tb[bj];
+        if (banned(a0, r) || banned(a1, r) || banned(b0, q) || banned(b1, q)) continue;
+        const d = move(a0, q, r) + move(a1, q, r) + move(b0, r, q) + move(b1, r, q);
+        moves[nMoves++] = w; moves[nMoves++] = i; moves[nMoves++] = j;
+        if (d < bestDelta) { bestDelta = d; nBest = 0; }
+        if (d === bestDelta) { bestMoves[nBest++] = w; bestMoves[nBest++] = i; bestMoves[nBest++] = j; }
       }
     }
-    if (!moves.length) continue;
-    const pool = rnd() < NOISE ? moves : bestMoves;
-    const k = 3 * Math.floor(rnd() * (pool.length / 3));
+    if (!nMoves) continue;
+    const noisy = rnd() < NOISE;
+    const pool = noisy ? moves : bestMoves, len = noisy ? nMoves : nBest;
+    const k = 3 * Math.floor(rnd() * (len / 3));
     const w = pool[k], i = pool[k + 1], j = pool[k + 2];
     const A = plan[w][i], B = plan[w][j], q = A[2], r = B[2];
-    for (const u of [A[0], A[1]]) { f -= off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); cnt[u][q]--; cnt[u][r]++; f += off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); }
-    for (const u of [B[0], B[1]]) { f -= off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); cnt[u][r]--; cnt[u][q]++; f += off(u, q, cnt[u][q]) + off(u, r, cnt[u][r]); }
-    A[2] = r; B[2] = q;
+    swap(A[0], q, r); swap(A[1], q, r);
+    swap(B[0], r, q); swap(B[1], r, q);
+    A[2] = r; B[2] = q; pr[w * P + i] = r; pr[w * P + j] = q;
     if (f < best) { best = f; bestPlan = plan.map((wk) => wk.map((m) => m.slice())); }
+  }
+  return bestPlan;
+}
+
+// Back-to-back repeats on a balanced season (2026-11-18). The polish never lets a count leave its
+// target, so on a season where every count is pinned (P divides W: every team on every pair exactly
+// W/P times, the stored SAT answers) it can only trade repeats inside moves that keep every count,
+// and there are almost none: one swap of two matches in a week moves four teams' counts. This
+// anneal lets counts leave the target for a while. A move is the same swap; its price is
+// OFF_WEIGHT per out-of-bounds count plus one per repeat, accepted by the Metropolis rule at a
+// temperature falling linearly to near zero. Only seasons with every count in target are kept, so
+// the result is never less balanced than the input (with no out-of-bounds count, every team's
+// squared spread is fixed too: its counts are floor or ceil and sum to its weeks). Deterministic
+// per seed; a step budget, not a clock.
+const OFF_WEIGHT = 1;
+// Anneal steps: a fixed budget (each step is a constant amount of work), none for a season too
+// short to have repeats worth cutting. ANNEAL_STEPS is exported for the tests and eval scripts.
+export const ANNEAL_STEPS = 600000;
+function annealStepsFor(weeks, nPairs) {
+  return weeks < 3 || nPairs < 2 ? 0 : ANNEAL_STEPS;
+}
+export function cutRepeats(source, nTeams, nPairs, seed, steps, lim, { t0 = 0.6, t1 = 0.05, runs = 1 } = {}) {
+  let cur = source;
+  for (let k = 0; k < runs; k++) cur = annealRepeats(cur, nTeams, nPairs, seed + 7 * k, Math.floor(steps / runs), lim, t0, t1);
+  return cur;
+}
+function annealRepeats(source, nTeams, nPairs, seed, steps, lim, t0, t1) {
+  const plan = source.map((wk) => wk.map((m) => m.slice()));
+  const W = plan.length;
+  if (W < 2 || nPairs < 2) return plan;
+  const rnd = mulberry32(seed * 6151 + 29);
+  const cnt = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
+  const pos = Array.from({ length: W }, () => new Array(nTeams).fill(-1));
+  plan.forEach((wk, w) => wk.forEach(([a, b, p]) => { cnt[a][p]++; cnt[b][p]++; pos[w][a] = p; pos[w][b] = p; }));
+  const { lo, hi, ban } = lim;
+  const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
+  let o = 0, r = 0;
+  for (let t = 0; t < nTeams; t++) for (let p = 0; p < nPairs; p++) o += off(t, p, cnt[t][p]);
+  for (let w = 1; w < W; w++) for (let t = 0; t < nTeams; t++) if (pos[w][t] >= 0 && pos[w][t] === pos[w - 1][t]) r++;
+  if (o > 0) return plan; // only balanced seasons are annealed
+  let best = r, bestPlan = plan.map((wk) => wk.map((m) => m.slice()));
+  const rep = (w, t, p) => (w > 0 && pos[w - 1][t] === p ? 1 : 0) + (w < W - 1 && pos[w + 1][t] === p ? 1 : 0);
+  // change of (off, repeats) when team t moves from pair p to pair q in week w
+  // With lo <= hi: off(c - 1) - off(c) is -1 above hi, +1 at or below lo, else 0; off(c + 1) - off(c)
+  // is +1 at or above hi, -1 below lo, else 0 (the same values off() gives, without four calls).
+  const dOff = (t, p, q) => {
+    const ct = cnt[t], c = ct[p], d = ct[q];
+    return (c > hi[t][p] ? -1 : c <= lo[t][p] ? 1 : 0) + (d >= hi[t][q] ? 1 : d < lo[t][q] ? -1 : 0);
+  };
+  const dRep = (w, t, p, q) => rep(w, t, q) - rep(w, t, p);
+  for (let step = 0; step < steps && best > 0; step++) {
+    const w = Math.floor(rnd() * W);
+    const i = Math.floor(rnd() * nPairs);
+    let j = Math.floor(rnd() * (nPairs - 1)); if (j >= i) j++;
+    const A = plan[w][i], B = plan[w][j], q = A[2], s = B[2];
+    if (ban !== null && (ban[A[0]][s] || ban[A[1]][s] || ban[B[0]][q] || ban[B[1]][q])) continue;
+    const dO = dOff(A[0], q, s) + dOff(A[1], q, s) + dOff(B[0], s, q) + dOff(B[1], s, q);
+    const dR = dRep(w, A[0], q, s) + dRep(w, A[1], q, s) + dRep(w, B[0], s, q) + dRep(w, B[1], s, q);
+    const d = OFF_WEIGHT * dO + dR;
+    const T = t0 + (t1 - t0) * step / steps;
+    if (d > 0 && rnd() >= Math.exp(-d / T)) continue;
+    for (const u of [A[0], A[1]]) { cnt[u][q]--; cnt[u][s]++; pos[w][u] = s; }
+    for (const u of [B[0], B[1]]) { cnt[u][s]--; cnt[u][q]++; pos[w][u] = q; }
+    A[2] = s; B[2] = q;
+    o += dO; r += dR;
+    if (o === 0 && r < best) { best = r; bestPlan = plan.map((wk) => wk.map((m) => m.slice())); }
   }
   return bestPlan;
 }
@@ -438,13 +523,35 @@ function polishLanes(plan, nTeams, nPairs, seed, kicks, lim) {
   for (let w = 0; w < W; w++) put(w, 1);
   const off = (t, p, c) => Math.max(0, c - hi[t][p]) + Math.max(0, lo[t][p] - c);
   const OFF = 4096, SQ = 16;
-  const price = (w, t, p) => {
-    const c = cnt[t][p];
-    return (ban !== null && ban[t][p] ? FORBID : 0) + OFF * (off(t, p, c + 1) - off(t, p, c)) + SQ * (2 * c + 1) + (w > 0 && pos[w - 1][t] === p ? 1 : 0) + (w < W - 1 && pos[w + 1][t] === p ? 1 : 0);
-  };
+  // The price of a match on pair p is, for each of its two teams t with count c there:
+  //   FORBID if banned + OFF * (off(c + 1) - off(c)) + SQ * (2c + 1) + 1 per neighbouring week on p.
+  // With lo <= hi, off(c + 1) - off(c) is +1 when c >= hi, -1 when c < lo and 0 between, so the
+  // loop below prices it without calling off(), with each team's rows looked up once per match
+  // instead of once per pair (the per-cell closure was 57% of a stored season's time). Same
+  // integers, so the Hungarian step sees the same matrix.
   const resolve = (w) => {
     put(w, -1);
-    const cost = plan[w].map(([a, b]) => Array.from({ length: nPairs }, (_, p) => price(w, a, p) + price(w, b, p)));
+    const wk = plan[w], prev = w > 0 ? pos[w - 1] : null, next = w < W - 1 ? pos[w + 1] : null;
+    const cost = new Array(wk.length);
+    for (let k = 0; k < wk.length; k++) {
+      const a = wk[k][0], b = wk[k][1];
+      const ca = cnt[a], cb = cnt[b], la = lo[a], lb = lo[b], ha = hi[a], hb = hi[b];
+      const ba = ban !== null ? ban[a] : null, bb = ban !== null ? ban[b] : null;
+      const pa = prev !== null ? prev[a] : -1, pb = prev !== null ? prev[b] : -1;
+      const na = next !== null ? next[a] : -1, nb = next !== null ? next[b] : -1;
+      const row = new Array(nPairs);
+      for (let p = 0; p < nPairs; p++) {
+        const x = ca[p], y = cb[p];
+        let v = OFF * ((x >= ha[p] ? 1 : x < la[p] ? -1 : 0) + (y >= hb[p] ? 1 : y < lb[p] ? -1 : 0)) + SQ * (2 * x + 2 * y + 2);
+        if (pa === p) v++;
+        if (na === p) v++;
+        if (pb === p) v++;
+        if (nb === p) v++;
+        if (ba !== null) { if (ba[p]) v += FORBID; if (bb[p]) v += FORBID; }
+        row[p] = v;
+      }
+      cost[k] = row;
+    }
     const col = hungarian(cost);
     plan[w].forEach((m, k) => { m[2] = col[k]; });
     put(w, 1);
@@ -567,25 +674,29 @@ function weekShortfall(matches, ban, nPairs) {
  * not raise the summed shortfall, with seeded restarts. Identity first, so a season that already
  * has a deal every week is unchanged.
  */
-export function feasibleDealing(nTeams, rrWeeks, avoid, nPairs, { tries = null, seed = 1 } = {}) {
+export function feasibleDealing(nTeams, rrWeeks, avoid, nPairs, { tries = null, seed = 1, shuffle = false } = {}) {
   const ban = banMatrix(nTeams, nPairs, avoid);
   if (!ban) return null;
   const cycle = roundRobin(nTeams);
   const used = cycle.slice(0, Math.min(rrWeeks, cycle.length)).map((r) => r.matches);
   const cost = (deal) => used.reduce((s, ms) => s + weekShortfall(ms.map(([a, b]) => [deal[a], deal[b]]), ban, nPairs), 0);
   let deal = Array.from({ length: nTeams }, (_, t) => t);
+  const limited = new Set(deal.filter((t) => ban[t].some(Boolean)));
+  const rnd = mulberry32(seed * 7919 + nTeams * 131 + rrWeeks);
+  // shuffle: start from a seeded random dealing, so seeds 2, 3, ... give other legal dealings for
+  // evenDealing to compare; without it identity comes first and a feasible season is unchanged.
+  const reshuffle = () => { for (let j = nTeams - 1; j > 0; j--) { const k = Math.floor(rnd() * (j + 1)); [deal[j], deal[k]] = [deal[k], deal[j]]; } };
+  if (shuffle && limited.size) reshuffle();
   let c = cost(deal);
   if (c === 0) return deal;
-  const limited = new Set(deal.filter((t) => ban[t].some(Boolean)));
   if (limited.size === 0) return null;
   // A work budget, not a clock, so the same input gives the same season on any machine: about
   // 3e7 matching steps (well under a second), capped at 4,000 swaps.
   if (tries === null) tries = Math.max(50, Math.min(4000, Math.floor(3e7 / (used.length * nPairs * nPairs))));
-  const rnd = mulberry32(seed * 7919 + nTeams * 131 + rrWeeks);
   const restartEvery = Math.max(200, 20 * nTeams);
   for (let i = 0; i < tries; i++) {
     if (i > 0 && i % restartEvery === 0) {
-      for (let j = nTeams - 1; j > 0; j--) { const k = Math.floor(rnd() * (j + 1)); [deal[j], deal[k]] = [deal[k], deal[j]]; }
+      reshuffle();
       c = cost(deal);
       if (c === 0) return deal;
     }
@@ -598,6 +709,55 @@ export function feasibleDealing(nTeams, rrWeeks, avoid, nPairs, { tries = null, 
     if (c2 <= c) { c = c2; if (c === 0) return deal; } else [deal[x], deal[y]] = [deal[y], deal[x]];
   }
   return null;
+}
+
+// How many legal dealings bowlingSchedule compares at most when a lane-limited season with no stored
+// shape answer leaves a team off its target: the first plus seeded others. Each is a full lane
+// search, so dealingsFor caps it by the season's size (weeks x pairs^2, the search's work): six on a
+// 10-team league, two on 24 teams x 26 weeks, where one search takes about 2 s.
+export const DEALINGS = 6;
+export function dealingsFor(weeks, nPairs) {
+  return Math.min(DEALINGS, Math.max(2, Math.floor(8000 / (weeks * nPairs * nPairs))));
+}
+
+/** A season's evenness, smaller is better: [teams off their lane target, summed off-target counts, back-to-back repeats]. */
+export function dealingScore(plan, nTeams, nPairs, avoid) {
+  const c = Array.from({ length: nTeams }, () => new Array(nPairs).fill(0));
+  const games = new Array(nTeams).fill(0), last = new Array(nTeams).fill(-1);
+  let rep = 0;
+  for (const wk of plan) for (const [a, b, p] of wk) for (const t of [a, b]) { c[t][p]++; games[t]++; if (last[t] === p) rep++; last[t] = p; }
+  const { lo, hi } = laneTargets(games, nPairs, avoid);
+  let teamsOff = 0, off = 0;
+  for (let t = 0; t < nTeams; t++) {
+    let o = 0;
+    for (let p = 0; p < nPairs; p++) o += Math.max(0, c[t][p] - hi[t][p]) + Math.max(0, lo[t][p] - c[t][p]);
+    off += o; if (o) teamsOff++;
+  }
+  return [teamsOff, off, rep];
+}
+
+const better = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] < y[i]; return false; };
+
+/**
+ * The most even of several legal dealings. The first dealing (identity, or feasibleDealing's first
+ * find) is kept unless another legal one, from feasibleDealing with seeds 2, 3, ... started from a
+ * shuffle, scores better on dealingScore. Stops at a season with every team in target. build(deal)
+ * runs the lane search for a dealing. Deterministic: the same input gives the same season.
+ */
+export function evenDealing(firstPlan, firstDeal, build, nTeams, rrWeeks, avoid, nPairs, count = DEALINGS) {
+  let best = { plan: firstPlan, deal: firstDeal, score: dealingScore(firstPlan, nTeams, nPairs, avoid), tried: 1 };
+  const seen = new Set([String(firstDeal ?? Array.from({ length: nTeams }, (_, t) => t))]);
+  for (let seed = 2; best.score[0] > 0 && best.tried < count && seed < count + 8; seed++) {
+    const deal = feasibleDealing(nTeams, rrWeeks, avoid, nPairs, { seed, shuffle: true });
+    if (!deal || seen.has(String(deal))) continue;
+    seen.add(String(deal));
+    const plan = build(deal);
+    best.tried++;
+    if (avoidViolations(plan, avoid).length) continue;
+    const score = dealingScore(plan, nTeams, nPairs, avoid);
+    if (better(score, best.score)) best = { plan, deal, score, tried: best.tried };
+  }
+  return best;
 }
 
 export function bowlingSchedule(spec) {
@@ -649,21 +809,32 @@ export function bowlingSchedule(spec) {
   // as often); with none, slot t is team t as before.
   // Failing that, if slot t = team t leaves a week with no legal deal, the limited teams are dealt
   // slots where every week has one (feasibleDealing); a season that already has one is unchanged.
-  const slotTeam = (avoid && modeOf(spec) === "polished" && avoidShapeSlots(n, rrWeeks, avoid, nPairs))
-    || (avoid && feasibleDealing(n, rrWeeks, avoid, nPairs)) || null;
-  const redealt = slotTeam !== null && slotTeam.some((t, i) => t !== i);
-  const rrRounds = [];
+  const shapeSlots = avoid && modeOf(spec) === "polished" && avoidShapeSlots(n, rrWeeks, avoid, nPairs);
+  let slotTeam = shapeSlots || (avoid && feasibleDealing(n, rrWeeks, avoid, nPairs)) || null;
   const roundOf = [];
   let k = 0;
   for (let w = 1; w <= weeks; w++) {
     if (positionSet.has(w)) continue;
-    const r = cycle[k % cycle.length];
-    rrRounds.push(slotTeam ? r.matches.map(([a, b]) => [slotTeam[a], slotTeam[b]]) : r.matches);
     roundOf.push({ week: w, cycle: Math.floor(k / cycle.length) + 1, round: (k % cycle.length) + 1 });
     k++;
   }
+  const roundsFor = (deal) => roundOf.map((_, i) => {
+    const r = cycle[i % cycle.length];
+    return deal ? r.matches.map(([a, b]) => [deal[a], deal[b]]) : r.matches;
+  });
   const labels = pairLabels(nPairs, firstLane);
-  const plan = assignLanes(rrRounds, n, nPairs, { mode: modeOf(spec), seed: spec.seed ?? 1, avoid });
+  const laneSeed = spec.seed ?? 1;
+  let plan = assignLanes(roundsFor(slotTeam), n, nPairs, { mode: modeOf(spec), seed: laneSeed, avoid });
+  // No stored shape answer (five or more limited teams, or a shape not stored) and some team off its
+  // target: the dealing decides which teams meet in the weeks the limits squeeze, so other legal
+  // dealings are built too and the most even season kept (evenDealing below). A season already at
+  // its target, or with a stored answer, is unchanged.
+  let dealingsTried = 1;
+  if (avoid && !shapeSlots && modeOf(spec) === "polished" && !avoidViolations(plan, avoid).length) {
+    const best = evenDealing(plan, slotTeam, (deal) => assignLanes(roundsFor(deal), n, nPairs, { mode: "polished", seed: laneSeed, avoid }), n, rrWeeks, avoid, nPairs, spec.dealings ?? dealingsFor(rrWeeks, nPairs));
+    plan = best.plan; slotTeam = best.deal; dealingsTried = best.tried;
+  }
+  const redealt = slotTeam !== null && slotTeam.some((t, i) => t !== i);
   if (avoid) {
     const bad = avoidViolations(plan, avoid);
     if (bad.length) {
@@ -687,8 +858,8 @@ export function bowlingSchedule(spec) {
     out.push({ week: w, day, kind: "round", cycle: info.cycle, round: info.round, matches });
     ri++;
   }
-  const boundProvedOutOfReach = !odd && boundOutOfReach(n, rrRounds.length);
-  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach: boundProvedOutOfReach && !avoid, avoid, redealt };
+  const boundProvedOutOfReach = !odd && boundOutOfReach(n, roundOf.length);
+  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach: boundProvedOutOfReach && !avoid, avoid, redealt, dealingsTried };
 }
 
 function ordinal(i) {

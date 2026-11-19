@@ -37,3 +37,11 @@ test("start above cap is clamped to cap", () => {
   const r = plan({ mailboxes: 1, targetPerDay: 100, startPerDay: 90, capPerMailbox: 30 });
   assert.equal(r.schedule[0].total, 30);
 });
+
+test("first week totals seven days even when the target is reached on day 1 (quality audit 2026-11-19)", () => {
+  const r = plan({ mailboxes: 5, targetPerDay: 50 });
+  assert.equal(r.schedule.length, 1);
+  assert.equal(r.firstWeekTotal, 350);
+  const long = plan({ mailboxes: 1, targetPerDay: 40 });
+  assert.equal(long.firstWeekTotal, long.schedule.slice(0, 7).reduce((a, x) => a + x.total, 0) + Math.max(0, 7 - long.schedule.length) * long.finalPerDay);
+});

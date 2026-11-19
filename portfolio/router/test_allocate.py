@@ -168,8 +168,9 @@ class DeepenTests(unittest.TestCase):
             with mock.patch("allocate.subprocess.run", side_effect=fake) as m:
                 return deepen_to_window(7), m.call_count
         self.assertEqual(run(False), (False, 2))  # rev-parse, rev-list
-        # rev-parse, rev-list, git log, then shallow_repair.fetch: locate .git/shallow, fetch, locate again
-        self.assertEqual(run(True), (True, 6))
+        # rev-parse, rev-list, git log, then shallow_repair.fetch: locate the git dir (stale
+        # shallow.lock check), locate .git/shallow, fetch, locate again
+        self.assertEqual(run(True), (True, 7))
 
     def test_fetch_timeout_returns_false_instead_of_blocking(self):
         import subprocess
@@ -958,6 +959,20 @@ class StartHereTests(unittest.TestCase):
         self.assertEqual(start_here(queue, None, now=now), (1, "claimed"))
         self.assertIsNone(start_here(queue[1:2] + queue[3:], claims, now=now))
 
+    def test_a_claim_older_than_any_merge_frees_its_row(self):
+        # 100 merged PRs (2026-11-19) took 1-140 min from open to merge; a
+        # 6 h old open PR is stalled and no longer holds its row for a day.
+        from datetime import datetime, timezone
+        from allocate import CLAIM_FRESH_HOURS
+        now = datetime(2026, 11, 19, 14, 0, tzinfo=timezone.utc)
+        queue = [{"venture": "a", "flagship": True, "task": "Deepen (flagship 1): x"}]
+        stalled = {"a": [(17310, "a: stalled", "2026-11-19T08:00:00Z")]}
+        live = {"a": [(17594, "a: live", "2026-11-19T13:00:00Z")]}
+        self.assertLess(CLAIM_FRESH_HOURS, 6)
+        self.assertEqual(start_here(queue, stalled, now=now), (1, "a"))
+        self.assertIsNone(start_here(queue, live, now=now))
+        self.assertIn("older open PRs: #17310", claim_note(stalled["a"], now=now))
+
     def test_session_spreads_concurrent_runs_over_free_rows(self):
         from datetime import datetime, timezone
         now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
@@ -1017,6 +1032,17 @@ class DateGateTests(unittest.TestCase):
         self.assertEqual(picks, {(2, "ok")})
         # Still named when nothing else is free.
         self.assertEqual(start_here(queue[:1], {}, now=now, declined={"left"}), (1, "left"))
+        # A spread wider than the free rows does not pull a declined or dated
+        # row into the session-hash pool (chant-forge, 2026-11-18).
+        dated = {"venture": "dated", "flagship": True,
+                 "task": "Deepen (flagship 3): BUILDABLE HERE: a (NOT YET: after 2099-01-01) -- Context: z"}
+        picks = {start_here(queue + [dated], {}, now=now, session=f"s{n}", spread=6,
+                            declined={"left"}) for n in range(40)}
+        self.assertEqual(picks, {(2, "ok")})
+        # With only declined and dated rows free, the dated one comes first.
+        picks = {start_here([queue[0], dated], {}, now=now, session=f"s{n}", spread=6,
+                            declined={"left"}) for n in range(40)}
+        self.assertEqual(picks, {(2, "dated")})
 
     def test_declined_rows_needs_more_leaves_than_works(self):
         from allocate import declined_rows
@@ -1230,7 +1256,34 @@ class ClaimCheckTest(unittest.TestCase):
     def test_no_pr_of_mine_yields_to_any_fresh_claim(self):
         prs = [self.pr(1, "x: theirs", "2026-11-12T14:00:00Z")]
         self.assertEqual(self.decide(prs, "x")["verdict"], "YIELD")
-        self.assertEqual(self.decide([], "x")["verdict"], "HOLD")
+        self.assertEqual(self.decide([], "x")["verdict"], "UNCLAIMED")
+
+    def test_the_17257_17258_check_before_the_pr_is_not_a_hold(self):
+        # #17258's session checked before its own PR existed and read HOLD; #17257
+        # opened 8 s earlier. Before: UNCLAIMED (not yours). After opening: YIELD.
+        from claim_check import report, main
+        theirs = self.pr(17257, "photo-editing: cull 10% pans", "2026-11-12T13:58:41Z")
+        item = "cull finer window grid for 6% and 10% pans"
+        before = self.decide([], "photo-editing", item=item)
+        self.assertEqual(before["verdict"], "UNCLAIMED")
+        lines = report(before, "photo-editing", self.NOW, 24, item)
+        self.assertTrue(any(l.startswith("UNCLAIMED") and "run this again" in l for l in lines), lines)
+        self.assertFalse(any(l.startswith("HOLD") for l in lines), lines)
+        mine = self.pr(17258, "photo-editing: cull finer window grid for 6% and 10% pans",
+                       "2026-11-12T13:58:49Z")
+        after = self.decide([theirs, mine], "photo-editing", mine=17258, item=item)
+        self.assertEqual(after["verdict"], "YIELD")
+        import claim_check
+        orig = claim_check.open_prs, claim_check.recently_closed, claim_check.current_branch
+        try:
+            claim_check.open_prs = lambda: []
+            claim_check.recently_closed = lambda: []
+            claim_check.current_branch = lambda: "claude/nobody"
+            import io, contextlib
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main(["photo-editing"]), 3)
+        finally:
+            claim_check.open_prs, claim_check.recently_closed, claim_check.current_branch = orig
 
     def test_no_pr_of_mine_prints_the_empty_commit_claim(self):
         from claim_check import report
@@ -1264,6 +1317,31 @@ class ClaimCheckTest(unittest.TestCase):
         self.assertEqual(r["verdict"], "YIELD")
         self.assertEqual(r["sharing"], [])
 
+    def test_one_shared_flagship_word_shares_two_still_block(self):
+        # 2026-11-18: #17403 (3FR reader) made the IIQ S reader session YIELD; both merged.
+        kw = "photo-editing"
+        merged = [self.merged_pr(17360, "photo-editing: Minolta MRW reader, every sensel equal to LibRaw",
+                                 "2026-11-12T09:00:00Z", "2026-11-12T10:00:00Z"),
+                  self.merged_pr(17196, "photo-editing: Coolpix NRW reader, 13 real files",
+                                 "2026-11-12T08:00:00Z", "2026-11-12T09:00:00Z")]
+        prs = [self.pr(17403, "photo-editing: Hasselblad 3FR reader (claim)", "2026-11-12T14:00:00Z"),
+               self.pr(17420, "photo-editing: IIQ S reader (claim)", "2026-11-12T14:05:00Z")]
+        r = self.decide(prs, kw, mine=17420, item="IIQ S reader", merged=merged)
+        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual([x["number"] for x in r["sharing"]], [17403])
+        # Without enough titles to call "reader" vocabulary, one word still blocks.
+        self.assertEqual(self.decide(prs, kw, mine=17420, item="IIQ S reader")["verdict"], "YIELD")
+        # #17257/#17258: "cull" and "pans" both flagship words, but two shared words block.
+        cull = merged + [self.merged_pr(17199, "photo-editing: cull 6% pans group",
+                                        "2026-11-12T07:00:00Z", "2026-11-12T08:00:00Z"),
+                         self.merged_pr(17213, "photo-editing: cull burst grouping pans",
+                                        "2026-11-12T06:00:00Z", "2026-11-12T07:00:00Z")]
+        prs = [self.pr(17257, "photo-editing: cull 10% pans (claim)", "2026-11-12T14:00:00Z"),
+               self.pr(17258, "photo-editing: cull finer window grid (claim)", "2026-11-12T14:00:08Z")]
+        r = self.decide(prs, kw, mine=17258, item="cull finer window grid for 6% and 10% pans",
+                        merged=cull)
+        self.assertEqual(r["verdict"], "YIELD")
+
     def test_item_words_drop_slug_and_claim_vocabulary(self):
         from claim_check import item_words, overlap
         self.assertEqual(item_words("ai-bookkeeper: claim (WIP) + post", "ai-bookkeeper"), set())
@@ -1279,6 +1357,7 @@ class ClaimCheckTest(unittest.TestCase):
         self.assertTrue(any(l.startswith("SHARE:") for l in lines), lines)
         self.assertTrue(any("#1 " in l for l in lines), lines)
         self.assertIn('--item "sales reader"', claim_recipe("x", "sales reader"))
+        self.assertIn("no `checkout -b`", claim_recipe("x"))  # the harness made the branch
         slug_only = report(self.decide(prs, "x", mine=2), "x", self.NOW, 24)
         self.assertTrue(any("--item" in l for l in slug_only), slug_only)
 
@@ -1333,7 +1412,7 @@ class ClaimCheckTest(unittest.TestCase):
         clone = datetime(2026, 11, 16, 13, 30, tzinfo=timezone.utc)  # main already holds #16574
         r = decide([], "open-tennis-robots", now=now, item="edge-time drop fit", merged=merged,
                    main_at=clone)
-        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual(r["verdict"], "UNCLAIMED")  # not LANDED; no open PR of mine
         self.assertEqual([x["number"] for x in r["merged"]], [16635])
         r = decide([], "open-tennis-robots", now=now, item="edge-time drop fit", merged=merged,
                    main_at=datetime(2026, 11, 16, 12, 0, tzinfo=timezone.utc))
@@ -1348,7 +1427,7 @@ class ClaimCheckTest(unittest.TestCase):
                                  repo="someone/fork"),
                   self.merged_pr(3, "x: closure anchor", "2026-11-16T16:00:00Z", "2026-11-16T16:58:00Z")]
         r = decide([], "x", mine=3, now=now, item="closure anchor", merged=merged)
-        self.assertEqual(r["verdict"], "HOLD")
+        self.assertEqual(r["verdict"], "UNCLAIMED")  # not LANDED; #3 merged, so no open claim
         self.assertEqual(r["landed"] + r["merged"], [])
 
     def test_an_open_older_claim_still_wins_over_landed(self):
@@ -1359,6 +1438,89 @@ class ClaimCheckTest(unittest.TestCase):
         r = self.decide(prs, "x", mine=2, item="closure anchor", merged=merged)
         self.assertEqual(r["verdict"], "YIELD")
         self.assertEqual([x["number"] for x in r["landed"]], [0])
+
+
+class PathOverlapTest(unittest.TestCase):
+    """claim_check.path_overlap: same files under a different title."""
+
+    from datetime import datetime as _dt, timezone as _tz
+    NOW = _dt(2026, 11, 19, 7, 30, tzinfo=_tz.utc)
+    EGG = [".gitignore"] + [f"ventures/v{i}/src/v.egg-info/PKG-INFO" for i in range(3)]
+
+    @staticmethod
+    def pr(n, title, created, branch=None, merged=None, repo="duncan-haywood/oss-monorepo"):
+        return {"number": n, "title": title, "created_at": created, "merged_at": merged,
+                "head": {"ref": branch or f"b{n}", "repo": {"full_name": repo}}}
+
+    def run_overlap(self, paths, prs, files, **kw):
+        from claim_check import path_overlap
+        return path_overlap(paths, prs, now=self.NOW, files=lambda n: files.get(n, []), **kw)
+
+    def test_the_17578_case_a_title_with_other_words_still_overlaps(self):
+        # #17578 "ci: untrack generated *.egg-info" opened 40 min before a second
+        # session made the same 18-file change while thinking of run_workflow_locally.
+        theirs = self.pr(17578, "ci: untrack generated *.egg-info", "2026-11-19T06:50:00Z")
+        mine = self.pr(17590, "process: run_workflow_locally sweeps", "2026-11-19T07:25:00Z", branch="me")
+        ov = self.run_overlap(self.EGG, [theirs, mine], {17578: self.EGG + ["docs/posts/x.md"]}, branch="me")
+        self.assertEqual([r["number"] for r in ov["rows"]], [17578])
+        self.assertTrue(ov["rows"][0]["strong"] and ov["rows"][0]["older"])
+        # the same PR, merged after my clone, still overlaps
+        merged = dict(theirs, merged_at="2026-11-19T07:22:43Z")
+        ov = self.run_overlap(self.EGG, [mine], {17578: self.EGG}, branch="me", merged=[merged],
+                              main_at=self._dt(2026, 11, 19, 7, 17, tzinfo=self._tz.utc))
+        self.assertTrue(ov["rows"][0]["strong"] and ov["rows"][0]["older"])
+        # ... but not once my clone already holds it
+        ov = self.run_overlap(self.EGG, [mine], {17578: self.EGG}, branch="me", merged=[merged],
+                              main_at=self._dt(2026, 11, 19, 7, 23, tzinfo=self._tz.utc))
+        self.assertEqual(ov["rows"], [])
+
+    def test_hubs_forks_stale_and_my_own_pr_never_count(self):
+        prs = [self.pr(1, "a", "2026-11-19T07:00:00Z"), self.pr(2, "b", "2026-11-19T07:01:00Z"),
+               self.pr(3, "c", "2026-11-19T07:02:00Z"),
+               self.pr(4, "fork", "2026-11-19T07:03:00Z", repo="x/fork"),
+               self.pr(5, "stale", "2026-11-15T07:00:00Z"),
+               self.pr(6, "mine", "2026-11-19T07:04:00Z", branch="me")]
+        hot = "ventures/v/index.html"
+        files = {1: [hot, "portfolio/flagships.yaml"], 2: [hot], 3: [hot], 4: ["ventures/v/app.js"],
+                 5: ["ventures/v/app.js"], 6: ["ventures/v/app.js"]}
+        ov = self.run_overlap([hot, "ventures/v/app.js", "portfolio/flagships.yaml",
+                               "prompts/runs/r.json"], prs, files, branch="me")
+        self.assertEqual(ov["hubs"], [hot])
+        self.assertEqual(ov["paths"], ["ventures/v/app.js"])
+        self.assertEqual(ov["rows"], [])
+
+    def test_a_small_overlap_is_listed_not_strong_and_newer_prs_are_not_older(self):
+        mine = self.pr(9, "mine", "2026-11-19T07:00:00Z", branch="me")
+        newer = self.pr(10, "later", "2026-11-19T07:10:00Z")
+        older = self.pr(8, "earlier", "2026-11-19T06:00:00Z")
+        paths = ["a", "b", "c", "d", "e"]
+        ov = self.run_overlap(paths, [mine, newer, older], {10: paths, 8: ["a"]}, branch="me")
+        rows = {r["number"]: r for r in ov["rows"]}
+        self.assertTrue(rows[10]["strong"] and not rows[10]["older"])
+        self.assertTrue(rows[8]["older"] and not rows[8]["strong"])
+
+    def test_main_exits_4_on_overlap_only_when_titles_found_no_claim(self):
+        import claim_check, io, contextlib
+        saved = (claim_check.open_prs, claim_check.recently_closed, claim_check.current_branch,
+                 claim_check.pr_files)
+        theirs = self.pr(17578, "ci: untrack generated *.egg-info",
+                         "2026-11-19T06:50:00Z")
+        theirs["created_at"] = claim_check.datetime.now(claim_check.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        try:
+            claim_check.open_prs = lambda: [theirs]
+            claim_check.recently_closed = lambda: []
+            claim_check.current_branch = lambda: "claude/nobody"
+            claim_check.pr_files = lambda n: list(self.EGG)
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(claim_check.main(["--paths-only", "--paths", *self.EGG]), 4)
+            self.assertIn("OVERLAP", out.getvalue())
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(claim_check.main(["egg-info", "--paths", *self.EGG]), 1)  # title YIELD wins
+                self.assertEqual(claim_check.main(["other", "--no-paths"]), 3)
+                self.assertEqual(claim_check.main(["--paths-only", "--paths", "elsewhere.py"]), 0)
+        finally:
+            (claim_check.open_prs, claim_check.recently_closed, claim_check.current_branch,
+             claim_check.pr_files) = saved
 
 
 class RequestsLineTest(unittest.TestCase):
@@ -1502,6 +1664,78 @@ class FoldedRowsTests(unittest.TestCase):
         self.assertNotIn("\n... and ", full.getvalue())
         self.assertEqual(len(full.getvalue().splitlines()) - len(text.splitlines()),
                          folded - sum(1 for l in text.splitlines() if l.startswith("... and ")))
+
+
+class YieldRedirectTest(unittest.TestCase):
+    """claim_check.py: a YIELD on a flagship names the free rows to go to instead."""
+
+    from datetime import datetime as _dt, timezone as _tz
+    NOW = _dt(2026, 11, 19, 12, 0, tzinfo=_tz.utc)
+    YAML = """flagships:
+  - venture: alpha
+    next: a
+  - venture: beta
+    inputs_only: a real customer file
+    next: b
+  - venture: gamma
+    next: c
+  - venture: delta
+    not_before: 2099-01-01
+    next: d
+  - venture: eps
+    next: e
+"""
+
+    def setUp(self):
+        self.dir = tempfile.TemporaryDirectory()
+        self.path = Path(self.dir.name) / "flagships.yaml"
+        self.path.write_text(self.YAML)
+
+    def tearDown(self):
+        self.dir.cleanup()
+
+    @staticmethod
+    def pr(n, title, created):
+        return {"number": n, "title": title, "created_at": created,
+                "head": {"ref": f"b{n}", "repo": {"full_name": "duncan-haywood/oss-monorepo"}}}
+
+    def free(self, prs, kw):
+        from claim_check import free_flagships
+        return free_flagships(prs, kw, self.NOW, path=self.path)
+
+    def test_skips_own_row_inputs_only_dated_and_freshly_claimed_rows(self):
+        prs = [self.pr(1, "alpha: item one", "2026-11-19T11:57:38Z"),
+               self.pr(2, "gamma: thing", "2026-11-19T10:00:00Z")]
+        self.assertEqual(self.free(prs, "alpha"), ["eps"])
+
+    def test_a_claim_older_than_the_start_here_window_frees_the_row(self):
+        prs = [self.pr(2, "gamma: thing", "2026-11-19T06:00:00Z")]  # 6 h > CLAIM_FRESH_HOURS
+        self.assertEqual(self.free(prs, "alpha"), ["gamma", "eps"])
+
+    def test_not_a_flagship_gives_none(self):
+        self.assertIsNone(self.free([], "research/water-leaks"))
+        self.assertIsNone(self.free([], "process"))
+
+    def test_redirect_line_picks_by_session_and_handles_none_free(self):
+        from claim_check import redirect_line
+        line = redirect_line(["gamma", "eps"], None)
+        self.assertIn("Go to gamma", line)
+        self.assertIn("allocate.py --venture gamma", line)
+        picks = {redirect_line(["gamma", "eps"], f"session_{i}").split("Go to ")[1].split(" ")[0]
+                 for i in range(20)}
+        self.assertEqual(picks, {"gamma", "eps"})
+        self.assertIn("another item on this row", redirect_line([], "s"))
+
+    def test_report_prints_the_redirect_only_on_yield(self):
+        from claim_check import decide, report
+        prs = [self.pr(1, "alpha: item one", "2026-11-19T11:57:38Z"),
+               self.pr(2, "alpha: item one", "2026-11-19T11:57:38Z")]
+        y = decide(prs, "alpha", mine=2, now=self.NOW)
+        self.assertEqual(y["verdict"], "YIELD")
+        lines = report(y, "alpha", self.NOW, 24, None, "Go to eps")
+        self.assertIn("Go to eps", lines)
+        h = decide(prs, "alpha", mine=1, now=self.NOW)
+        self.assertNotIn("Go to eps", report(h, "alpha", self.NOW, 24, None, "Go to eps"))
 
 
 if __name__ == "__main__":

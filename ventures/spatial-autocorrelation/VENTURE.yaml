@@ -1,0 +1,58 @@
+name: spatial-autocorrelation
+description: >-
+  Free browser tool, CLI and agent call for spatial autocorrelation: global
+  Moran's I, Geary's C and Getis-Ord General G with analytic and two-sided
+  permutation p-values, local Moran's I (LISA) clusters and outliers with an
+  optional false-discovery-rate cut-off, Getis-Ord Gi* hot spots and a Moran
+  correlogram, from places with coordinates or a neighbour list. Nothing is
+  uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-18 on an explore run as a research-algorithm tool: no venture
+# README or engine mentioned Moran's I, Geary, Getis-Ord or LISA (searched all
+# 1,406 venture directories). Implemented from Moran 1950, Geary 1954, Cliff &
+# Ord 1981, Getis & Ord 1992, Ord & Getis 1995, Anselin 1995, Sokal et al.
+# 1998 and Benjamini & Hochberg 1995; no third-party code was ported.
+#
+# First visitor: searches such as "moran's i calculator", "spatial
+# autocorrelation online", "LISA cluster map without GIS", "hot spot analysis
+# Getis-Ord Gi* online", "moran's i excel". Volume not measured with an
+# external tool.
+#
+# Alternatives: GeoDa (free desktop), PySAL/esda and R spdep (code), ArcGIS
+# and QGIS plugins. Differentiators: no install, coordinates or a neighbour
+# list pasted from a spreadsheet, a two-sided permutation p (the one-sided
+# convention rejects a true null about 10% of the time at 0.05, measured in
+# eval/calibration-output.txt), an FDR cut-off that raises the permutations
+# it needs, every column analysed at once.
+#
+# Liability: describes a pattern, not a cause; not public-health or planning
+# advice. Data never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Students and analysts in public health, criminology, economics and
+      ecology who have a CSV of places but no GIS will use a no-install page
+      for Moran's I and LISA maps.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a statistic that differs from PySAL or GeoDa with the same weights and data, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/spatial-autocorrelation/
+  analytics: null

@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the set-median gain fitted over cycles 3 to 99 on the law's uniform stoichiometry shift, by anode node from the current collector (1) to the separator (20), for four PyBaMM parameter sets; the leave-one-design-out lever T carries the other designs' median profile. Set-median cycle-99 forecast error, T against the uniform lever: Ai2020 2.2% vs 2.3%, Chen2020 6.5% vs 5.4%, OKane2022 4.1% vs 6.7%, NCA_Kim2011 4.2% vs 3.0%.">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Late (cycles 3 to 99) gain on the node lever's shift, by anode node</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="279.4" y2="279.4" stroke="#ddd"/><text x="58" y="283.4" text-anchor="end" font-family="sans-serif" font-size="11">0.5</text>
+<line x1="64" x2="624" y1="234.8" y2="234.8" stroke="#ddd"/><text x="58" y="238.8" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="190.2" y2="190.2" stroke="#ddd"/><text x="58" y="194.2" text-anchor="end" font-family="sans-serif" font-size="11">1.5</text>
+<line x1="64" x2="624" y1="145.6" y2="145.6" stroke="#ddd"/><text x="58" y="149.6" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="101.0" y2="101.0" stroke="#ddd"/><text x="58" y="105.0" text-anchor="end" font-family="sans-serif" font-size="11">2.5</text>
+<line x1="64" x2="624" y1="56.5" y2="56.5" stroke="#ddd"/><text x="58" y="60.5" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="181.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">5</text>
+<text x="329.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">10</text>
+<text x="476.6" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">15</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">20</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">anode node (1 collector, 20 separator)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">set median late gain on the shift</text>
+<polyline points="64.0,248.2 93.5,247.7 122.9,247.3 152.4,246.9 181.9,246.0 211.4,248.2 240.8,246.9 270.3,245.1 299.8,243.3 329.3,241.5 358.7,239.7 388.2,238.4 417.7,236.6 447.2,235.3 476.6,233.0 506.1,225.9 535.6,222.3 565.1,224.1 594.5,226.8 624.0,228.6" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="248.2" r="3" fill="#c0392b"/>
+<circle cx="93.5" cy="247.7" r="3" fill="#c0392b"/>
+<circle cx="122.9" cy="247.3" r="3" fill="#c0392b"/>
+<circle cx="152.4" cy="246.9" r="3" fill="#c0392b"/>
+<circle cx="181.9" cy="246.0" r="3" fill="#c0392b"/>
+<circle cx="211.4" cy="248.2" r="3" fill="#c0392b"/>
+<circle cx="240.8" cy="246.9" r="3" fill="#c0392b"/>
+<circle cx="270.3" cy="245.1" r="3" fill="#c0392b"/>
+<circle cx="299.8" cy="243.3" r="3" fill="#c0392b"/>
+<circle cx="329.3" cy="241.5" r="3" fill="#c0392b"/>
+<circle cx="358.7" cy="239.7" r="3" fill="#c0392b"/>
+<circle cx="388.2" cy="238.4" r="3" fill="#c0392b"/>
+<circle cx="417.7" cy="236.6" r="3" fill="#c0392b"/>
+<circle cx="447.2" cy="235.3" r="3" fill="#c0392b"/>
+<circle cx="476.6" cy="233.0" r="3" fill="#c0392b"/>
+<circle cx="506.1" cy="225.9" r="3" fill="#c0392b"/>
+<circle cx="535.6" cy="222.3" r="3" fill="#c0392b"/>
+<circle cx="565.1" cy="224.1" r="3" fill="#c0392b"/>
+<circle cx="594.5" cy="226.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="228.6" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">Ai2020</text>
+<polyline points="64.0,269.2 93.5,268.7 122.9,268.3 152.4,266.9 181.9,265.1 211.4,263.4 240.8,260.2 270.3,256.7 299.8,252.2 329.3,246.4 358.7,240.6 388.2,234.4 417.7,229.0 447.2,225.5 476.6,234.4 506.1,242.0 535.6,240.6 565.1,238.4 594.5,230.4 624.0,220.1" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="269.2" r="3" fill="#1f6fb2"/>
+<circle cx="93.5" cy="268.7" r="3" fill="#1f6fb2"/>
+<circle cx="122.9" cy="268.3" r="3" fill="#1f6fb2"/>
+<circle cx="152.4" cy="266.9" r="3" fill="#1f6fb2"/>
+<circle cx="181.9" cy="265.1" r="3" fill="#1f6fb2"/>
+<circle cx="211.4" cy="263.4" r="3" fill="#1f6fb2"/>
+<circle cx="240.8" cy="260.2" r="3" fill="#1f6fb2"/>
+<circle cx="270.3" cy="256.7" r="3" fill="#1f6fb2"/>
+<circle cx="299.8" cy="252.2" r="3" fill="#1f6fb2"/>
+<circle cx="329.3" cy="246.4" r="3" fill="#1f6fb2"/>
+<circle cx="358.7" cy="240.6" r="3" fill="#1f6fb2"/>
+<circle cx="388.2" cy="234.4" r="3" fill="#1f6fb2"/>
+<circle cx="417.7" cy="229.0" r="3" fill="#1f6fb2"/>
+<circle cx="447.2" cy="225.5" r="3" fill="#1f6fb2"/>
+<circle cx="476.6" cy="234.4" r="3" fill="#1f6fb2"/>
+<circle cx="506.1" cy="242.0" r="3" fill="#1f6fb2"/>
+<circle cx="535.6" cy="240.6" r="3" fill="#1f6fb2"/>
+<circle cx="565.1" cy="238.4" r="3" fill="#1f6fb2"/>
+<circle cx="594.5" cy="230.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="220.1" r="3" fill="#1f6fb2"/>
+<rect x="135.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="155.2" y="41" font-family="sans-serif" font-size="11">Chen2020</text>
+<polyline points="64.0,277.6 93.5,274.5 122.9,271.8 152.4,271.8 181.9,275.4 211.4,275.4 240.8,274.5 270.3,277.2 299.8,262.5 329.3,254.4 358.7,261.6 388.2,262.5 417.7,238.8 447.2,233.5 476.6,250.4 506.1,254.0 535.6,254.0 565.1,246.9 594.5,259.8 624.0,233.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="277.6" r="3" fill="#2e8b57"/>
+<circle cx="93.5" cy="274.5" r="3" fill="#2e8b57"/>
+<circle cx="122.9" cy="271.8" r="3" fill="#2e8b57"/>
+<circle cx="152.4" cy="271.8" r="3" fill="#2e8b57"/>
+<circle cx="181.9" cy="275.4" r="3" fill="#2e8b57"/>
+<circle cx="211.4" cy="275.4" r="3" fill="#2e8b57"/>
+<circle cx="240.8" cy="274.5" r="3" fill="#2e8b57"/>
+<circle cx="270.3" cy="277.2" r="3" fill="#2e8b57"/>
+<circle cx="299.8" cy="262.5" r="3" fill="#2e8b57"/>
+<circle cx="329.3" cy="254.4" r="3" fill="#2e8b57"/>
+<circle cx="358.7" cy="261.6" r="3" fill="#2e8b57"/>
+<circle cx="388.2" cy="262.5" r="3" fill="#2e8b57"/>
+<circle cx="417.7" cy="238.8" r="3" fill="#2e8b57"/>
+<circle cx="447.2" cy="233.5" r="3" fill="#2e8b57"/>
+<circle cx="476.6" cy="250.4" r="3" fill="#2e8b57"/>
+<circle cx="506.1" cy="254.0" r="3" fill="#2e8b57"/>
+<circle cx="535.6" cy="254.0" r="3" fill="#2e8b57"/>
+<circle cx="565.1" cy="246.9" r="3" fill="#2e8b57"/>
+<circle cx="594.5" cy="259.8" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="233.9" r="3" fill="#2e8b57"/>
+<rect x="218.8" y="32" width="14" height="10" fill="#2e8b57"/><text x="238.8" y="41" font-family="sans-serif" font-size="11">OKane2022</text>
+<polyline points="64.0,228.1 93.5,228.6 122.9,231.7 152.4,235.7 181.9,238.8 211.4,242.4 240.8,242.8 270.3,242.8 299.8,239.3 329.3,236.2 358.7,233.5 388.2,231.7 417.7,229.5 447.2,226.8 476.6,224.1 506.1,220.1 535.6,213.9 565.1,209.8 594.5,204.1 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="228.1" r="3" fill="#8e44ad"/>
+<circle cx="93.5" cy="228.6" r="3" fill="#8e44ad"/>
+<circle cx="122.9" cy="231.7" r="3" fill="#8e44ad"/>
+<circle cx="152.4" cy="235.7" r="3" fill="#8e44ad"/>
+<circle cx="181.9" cy="238.8" r="3" fill="#8e44ad"/>
+<circle cx="211.4" cy="242.4" r="3" fill="#8e44ad"/>
+<circle cx="240.8" cy="242.8" r="3" fill="#8e44ad"/>
+<circle cx="270.3" cy="242.8" r="3" fill="#8e44ad"/>
+<circle cx="299.8" cy="239.3" r="3" fill="#8e44ad"/>
+<circle cx="329.3" cy="236.2" r="3" fill="#8e44ad"/>
+<circle cx="358.7" cy="233.5" r="3" fill="#8e44ad"/>
+<circle cx="388.2" cy="231.7" r="3" fill="#8e44ad"/>
+<circle cx="417.7" cy="229.5" r="3" fill="#8e44ad"/>
+<circle cx="447.2" cy="226.8" r="3" fill="#8e44ad"/>
+<circle cx="476.6" cy="224.1" r="3" fill="#8e44ad"/>
+<circle cx="506.1" cy="220.1" r="3" fill="#8e44ad"/>
+<circle cx="535.6" cy="213.9" r="3" fill="#8e44ad"/>
+<circle cx="565.1" cy="209.8" r="3" fill="#8e44ad"/>
+<circle cx="594.5" cy="204.1" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="308.6" y="32" width="14" height="10" fill="#8e44ad"/><text x="328.6" y="41" font-family="sans-serif" font-size="11">NCA_Kim2011</text>
+</svg>

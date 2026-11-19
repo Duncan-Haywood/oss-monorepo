@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { choose, describe, FILES } from './usage-data.mjs';
+import { choose, describe, FILES, topPages } from './usage-data.mjs';
 import { execFileSync, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -35,6 +35,26 @@ test('describe says what each file covers', () => {
   assert.equal(FILES.length, 4);
 });
 
+test('topPages ranks page keys only, over the window ending on the newest day', () => {
+  const days = {
+    '2026-11-01': { old: 50 },
+    '2026-11-10': { a: 2, b: 5, d: 1, 'geo:US': 8, 'dev:desktop': 8, 'bot:headless': 90, 'botpage:a': 40, 'x:odd': 7 },
+    '2026-11-11': { a: 4, about: 9, 'botpage:a': 1, 'botpage:b': 3 },
+  };
+  const t = topPages(days, { days: 2 });
+  assert.equal(t.from, '2026-11-10');
+  assert.equal(t.to, '2026-11-11');
+  assert.equal(t.covered, 2);
+  assert.equal(t.loads, 21);
+  assert.equal(t.beacons, 90);
+  assert.deepEqual(t.rows, [['about', 9, 1, 'site'], ['a', 6, 2, 'tool'], ['b', 5, 1, 'tool'], ['d', 1, 1, 'tool']]);
+  assert.deepEqual(topPages(days, { days: 2, tools: true, n: 1 }).rows, [['a', 6, 2, 'tool']]);
+  assert.deepEqual(topPages(days, { days: 2, bots: true }).rows, [['a', 41, 2, 'tool'], ['b', 3, 1, 'tool']]);
+  assert.equal(topPages(days, { days: 30 }).from, '2026-11-01', 'the window starts no earlier than the first row');
+  assert.equal(topPages(days, { days: 30 }).rows[0][0], 'old');
+  assert.equal(topPages({}).rows.length, 0);
+});
+
 // The CLI, run for real: a copy of this directory in a temp repo whose `origin`
 // is a local repo holding the `usage-data` branch (2026-11-14, red team: every
 // mutant in main() and the entry guard survived the tests above).
@@ -49,7 +69,7 @@ function fixture({ branch = true } = {}) {
   fs.mkdirSync(origin);
   fs.mkdirSync(path.join(work, 'platform', 'counter'), { recursive: true });
   fs.mkdirSync(path.join(work, 'portfolio', 'usage'), { recursive: true });
-  for (const f of ['usage-data.mjs', 'pull.mjs', 'core.mjs']) {
+  for (const f of ['usage-data.mjs', 'pull.mjs', 'core.mjs', 'engagement-report.mjs']) {
     fs.copyFileSync(path.join(HERE, f), path.join(work, 'platform', 'counter', f));
   }
   const g = (cwd, ...a) => execFileSync('git', [...ID, ...a], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -136,4 +156,30 @@ test('importing the module runs no command', (t) => {
   const r = spawnSync(process.execPath, [script], { cwd: fx.work, encoding: 'utf8' });
   assert.equal(r.status, 0, r.stderr);
   assert.equal(r.stdout, '4\n');
+});
+
+test('top reads the branch copy merged with main and ranks it; bad flags exit 2', (t) => {
+  const fx = fixture();
+  t.after(() => fs.rmSync(fx.dir, { recursive: true, force: true }));
+  fx.publish({ 'site-visits.json': { days: { '2026-11-02': { tool: 4, 'geo:US': 4 } } } });
+  fs.writeFileSync(fx.local('site-visits.json'), JSON.stringify({ days: { '2026-11-01': { tool: 1, other: 2 } } }));
+  const r = fx.run('top', '--days', '7');
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /origin\/usage-data merged with main: 2026-11-01\.\.2026-11-02, 2 day\(s\)/);
+  assert.match(r.stdout, /^ +5 +2 +tool +tool$/m);
+  assert.doesNotMatch(r.stdout, /US/);
+  assert.equal(fs.readFileSync(fx.local('site-visits.json'), 'utf8').includes('2026-11-02'), false, 'top writes nothing');
+  assert.equal(fx.run('top', '--days', '0').status, 2);
+  assert.equal(fx.run('top', '--wat').status, 2);
+});
+
+test('top falls back to main with a warning when the branch is missing', (t) => {
+  const fx = fixture({ branch: false });
+  t.after(() => fs.rmSync(fx.dir, { recursive: true, force: true }));
+  fx.publish({ 'x.json': {} });
+  fs.writeFileSync(fx.local('site-visits.json'), JSON.stringify({ days: { '2026-11-01': { tool: 3 } } }));
+  const r = fx.run('top');
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stderr, /reading main's copy only/);
+  assert.match(r.stdout, /^ +3 +1 +tool +tool$/m);
 });

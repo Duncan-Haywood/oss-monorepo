@@ -1,0 +1,18 @@
+Small lists: search vs exhaustive (least spread under the same hard rules)
+Shipped = annealing, then the exhaustive search when n <= 16 and the bound is not met. annealing-alone = exhaustive fallback off.
+n  k  cases  infeasible  shipped-equal  shipped-worse  faults  proved  annealing-alone-equal
+8 2  60  1  59  0  0  58  57
+10 2  60  0  60  0  0  60  58
+12 3  60  1  59  0  0  58  59
+12 4  60  1  59  0  0  59  59
+13 3  60  0  60  0  0  60  60
+14 2  60  0  60  0  0  60  60
+16 4  60  0  60  0  0  60  60
+
+Big lists: spread vs lower bound, and time (ratings 1-10, 8 requests)
+n  k  spread  lower-bound  proved  faults  ms
+40 4  0  0  true  0  31
+80 8  1  1  true  0  94
+120 10  1  1  true  0  194
+200 16  1  1  true  0  343
+400 32  2  1  false  0  1101

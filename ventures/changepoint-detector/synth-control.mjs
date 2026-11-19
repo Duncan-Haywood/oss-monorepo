@@ -205,7 +205,50 @@ export function gapShape(after) {
   const t = Math.floor(m / 3), ms = (a) => a.reduce((s, e) => s + e * e, 0) / a.length;
   const early = ms(after.slice(0, t)), late = ms(after.slice(m - t));
   const shape = early >= GAP_SHAPE_RATIO * late ? 'faded' : late >= GAP_SHAPE_RATIO * early ? 'grew' : 'held';
-  return { shape, early: Math.sqrt(early), late: Math.sqrt(late) };
+  return { shape, early: Math.sqrt(early), late: Math.sqrt(late), bend: gapBend(after) };
+}
+
+// How a gap after the date bends (README "A curvature word"): the signed mean of the middle third against the line
+// through the first and last thirds' signed means, as a share of that line's rise. 0 for a straight line from the
+// date (a slope), below 0 when the gap speeds up (compounding: the middle sits nearer the start), above 0 when it
+// slows (a pulse wearing off, a level reached). Between -0.5 and 0.5 when the middle third lies between the outer two;
+// null when the outer thirds are equal or there are fewer than 6 points. A description; it changes no p.
+export function gapBend(after) {
+  const m = after.length;
+  if (m < 6) return null;
+  const t = Math.floor(m / 3), mean = (a) => a.reduce((s, e) => s + e, 0) / a.length;
+  const a = mean(after.slice(0, t)), b = mean(after.slice(t, m - t)), c = mean(after.slice(m - t));
+  const rise = c - a;
+  if (!(Math.abs(rise) > 1e-12 * (Math.abs(a) + Math.abs(c)))) return null;
+  return (b - (a + c) / 2) / rise;
+}
+// 'straight' (README "A curvature word"): the plain word is 'grew' and the bend lies in STRAIGHT_BAND, a gap that grew
+// along a straight line from the date, the shape of a slope of the unit's own, rather than bending like a compounding
+// panel's gaps (each a smooth random path that bends either way). The band was read off an exploratory run
+// (eval/synth-shape-curve-explore.out.txt) and frozen in eval/synth-shape-curve-prereg-2026-11-18.md; all six bars held
+// on the confirmatory run. A pointer for the "ranked above" note under --shape-word panel; it changes no p.
+export const STRAIGHT_BAND = [-0.15, 0.1];
+export function gapStraight(shape) {
+  return !!shape && shape.shape === 'grew' && shape.bend != null && shape.bend >= STRAIGHT_BAND[0] && shape.bend <= STRAIGHT_BAND[1];
+}
+
+// The same word read against the panel's own trend (README "The shape word against the panel's own trend"). On series
+// whose gaps spread with time (GDP that compounds, a growth rate that wanders), most units' gaps grow whatever
+// happened, so gapShape calls most of them 'grew' (12 of West Germany's 16 placebos). panelShapes takes every unit's
+// gapShape (treated and placebos, so the centre is a symmetric function of the panel) and finds the median of
+// log(late / early mean square), the panel's centre. When the centre itself reaches GAP_SHAPE_RATIO (the median unit
+// would be called 'grew'), each unit is worded by how far its own log ratio sits from the centre, at the same ratio:
+// 'grew' (faster than the panel's gaps) at log 6 above it, 'faded' at log 6 below, else 'held'; otherwise the plain
+// word stands. No new constant: the switch and the cut are the frozen GAP_SHAPE_RATIO. Returns { centre (a ratio of
+// mean squares), relative (whether the centre was used), shapes: [word or null] }.
+export function panelShapes(list) {
+  const lr = list.map((q) => (q ? 2 * Math.log(Math.max(q.late, 1e-300) / Math.max(q.early, 1e-300)) : null));
+  const ok = lr.filter((v) => v !== null).sort((a, b) => a - b);
+  if (!ok.length) return { centre: null, relative: false, shapes: list.map(() => null) };
+  const m = ok.length >> 1, c = ok.length % 2 ? ok[m] : (ok[m - 1] + ok[m]) / 2, cut = Math.log(GAP_SHAPE_RATIO);
+  const relative = c >= cut - 1e-12;
+  const shapes = list.map((q, i) => (q === null ? null : !relative ? q.shape : lr[i] - c >= cut ? 'grew' : c - lr[i] >= cut ? 'faded' : 'held'));
+  return { centre: Math.exp(c), relative, shapes };
 }
 
 // The test. y: the treated series; donors: { name: series }; k: date index. Returns the fit, the gap after the date,
@@ -275,13 +318,18 @@ export function synthControlTest(y, donors, k, { minBefore = 5, minAfter = 2, fi
   const preSorted = placebos.map((q) => q.preRmspe).sort((a, b) => a - b);
   const preRankShare = preSorted.filter((v) => v < fit.preRmspe).length / preSorted.length;
   const after = fit.gap.slice(k);
+  // each gap's word against the panel's own trend (panelShapes), the treated unit's included in the centre
+  const ownShape = gapShape(after);
+  const rel = panelShapes([ownShape, ...placebos.map((q) => q.gapShape)]);
+  placebos.forEach((q, i) => { if (q.gapShape) q.gapShape.relShape = rel.shapes[i + 1]; });
+  if (ownShape) ownShape.relShape = rel.shapes[0];
   const weights = names.map((s, j) => ({ name: s, weight: fit.weights[j] })).filter((e) => e.weight >= 0.001).sort((a, b) => b.weight - a.weight);
   return {
     k, n, donors: names.length, weights, donorWeights: Object.fromEntries(names.map((s, j) => [s, fit.weights[j]])), synth: fit.synth, gap: fit.gap, v: fit.v ?? null, predictorRmse: fit.predictorRmse ?? null,
     preRmspe: fit.preRmspe, postRmspe: fit.postRmspe, ratio: fit.ratio,
     effectAverage: after.reduce((s, e) => s + e, 0) / after.length, effectAtEnd: after[after.length - 1],
     rank, p, statistic, tests, floor, minP: 1 / (names.length + 1), placebos,
-    preFitShare: preRankShare, fitWarning: preRankShare >= fitWarnQuantile,
+    preFitShare: preRankShare, fitWarning: preRankShare >= fitWarnQuantile, gapShape: ownShape, shapeCentre: rel.centre, shapeRelative: rel.relative,
   };
 }
 

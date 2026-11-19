@@ -1,0 +1,51 @@
+PART A, seed 20261228, 200 series a cell, n 1100; move to more days from step 500 for D steps
+  cell             repeats before -> inside   start found: shipped alone   + guarded pass (half, m 3)   end found (shipped)
+  W1>W5 120         82% ->  29%              198                    198                        198
+  W1>W5 240         82% ->  29%              199                    200                        198
+  W1>W5 good        82% ->  29%              199                    199                          -
+  W3>W5 120         55% ->  29%              191                    191                        191
+  W3>W5 240         55% ->  29%              182                    182                        196
+  W3>W5 good        56% ->  29%              186                    186                          -
+  W5>W7 120         29% ->   3%               13                    197                         14
+  W5>W7 240         29% ->   3%              186                    190                        185
+  W5>W7 good        29% ->   3%              195                    195                          -
+
+H1 shipped alone finds the start in >= 180 of 200 in every cell: FAIL
+
+PART B (seen, descriptive): JHU's 8 documented 'more often' events; 56 rows either side of the documented date
+E Arkansas      2021-07-24 Mon-Fri -> daily (weekends resume) repeats  14% ->   0% (schedules imply 29% -> 3%)
+    by weekday before Sun 50, Mon 0, Tue 0, Wed 0, Thu 0, Fri 0, Sat 50
+    by weekday after  Sun 0, Mon 0, Tue 0, Wed 0, Thu 0, Fri 0, Sat 0
+    shipped stretches within 120 rows: 2020-03-13..2022-07-23 2%
+    'more often' cut within 60 rows: 2020-03-13 [2020-03-07..2021-06-26]
+C Alaska        2021-08-02 Mon/Wed/Fri -> Mon-Fri             repeats  57% ->  32% (schedules imply 56% -> 29%)
+    by weekday before Sun 100, Mon 13, Tue 88, Wed 0, Thu 100, Fri 13, Sat 88
+    by weekday after  Sun 100, Mon 13, Tue 0, Wed 13, Thu 0, Fri 0, Sat 100
+    shipped stretches within 120 rows: 2021-03-31..2021-12-02 38%
+N Alabama       2021-09-17 Mon-Fri -> daily                   repeats  11% ->   0% (schedules imply 29% -> 3%)
+    by weekday before Sun 13, Mon 0, Tue 13, Wed 13, Thu 13, Fri 13, Sat 13
+    by weekday after  Sun 0, Mon 0, Tue 0, Wed 0, Thu 0, Fri 0, Sat 0
+    shipped stretches within 120 rows: 2021-05-04..2022-07-28 18%
+C Idaho         2021-09-11 Mon-Fri -> daily                   repeats  30% ->   2% (schedules imply 29% -> 3%)
+    by weekday before Sun 100, Mon 13, Tue 0, Wed 0, Thu 0, Fri 0, Sat 100
+    by weekday after  Sun 0, Mon 13, Tue 0, Wed 0, Thu 0, Fri 0, Sat 0
+    shipped stretches within 120 rows: 2020-12-25..2022-04-14 22%
+N Michigan      2021-08-09 Tue+Fri -> Mon/Wed/Fri             repeats  55% ->  57% (schedules imply 69% -> 56%)
+    by weekday before Sun 100, Mon 63, Tue 0, Wed 63, Thu 63, Fri 0, Sat 100
+    by weekday after  Sun 100, Mon 13, Tue 88, Wed 0, Thu 100, Fri 0, Sat 100
+    shipped stretches within 120 rows: 2020-08-21..2021-07-01 17%; 2021-07-02..2022-03-31 60%
+N Nebraska      2021-09-25 Wednesdays only -> Mon-Fri         repeats  46% ->  36% (schedules imply 82% -> 29%)
+    by weekday before Sun 100, Mon 100, Tue 13, Wed 13, Thu 25, Fri 25, Sat 50
+    by weekday after  Sun 100, Mon 38, Tue 13, Wed 13, Thu 0, Fri 25, Sat 63
+    shipped stretches within 120 rows: 2021-05-15..2022-10-06 40%
+C South Dakota  2021-08-16 Wednesdays only -> Mon-Fri         repeats  66% ->  30% (schedules imply 82% -> 29%)
+    by weekday before Sun 100, Mon 75, Tue 75, Wed 0, Thu 50, Fri 63, Sat 100
+    by weekday after  Sun 100, Mon 13, Tue 0, Wed 0, Thu 0, Fri 0, Sat 100
+    shipped stretches within 120 rows: 2021-04-04..2022-03-17 38%
+C Vermont       2021-08-21 Mon-Fri -> daily                   repeats  32% ->   0% (schedules imply 29% -> 3%)
+    by weekday before Sun 100, Mon 25, Tue 0, Wed 0, Thu 0, Fri 0, Sat 100
+    by weekday after  Sun 0, Mon 0, Tue 0, Wed 0, Thu 0, Fri 0, Sat 0
+    shipped stretches within 120 rows: 2020-03-17..2021-06-04 3%; 2021-06-05..2022-05-17 21%
+
+Sorted: N (not in the data) 3, E (cut elsewhere) 1, C (in the data, not cut) 4
+(76.7 s)

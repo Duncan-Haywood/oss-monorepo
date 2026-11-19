@@ -1,0 +1,32 @@
+public IDS files on GitHub (eval/corpus/real): 64 files; 309 of 507 specifications fit the template, 309 of 309 come back the same; 12 of 64 files whole; requirement rows 438 for 600 facets (shared rows); verdicts same 0 of 0
+IDS-Audit-tool test files: 75 files; 334 of 807 specifications fit the template, 334 of 334 come back the same; 26 of 75 files whole; requirement rows 571 for 847 facets (shared rows); verdicts same 0 of 0
+buildingSMART test pairs (suite 870f9c4): 334 files; 256 of 334 specifications fit the template, 256 of 256 come back the same; 256 of 334 files whole; requirement rows 257 for 257 facets (shared rows); verdicts same 255 of 256
+
+Entity names written in upper case (counted the same): 7
+
+Why specifications were left out (count of specifications, each reason list as written):
+   92 a partOf requirement
+   78 a material requirement with no value (the template needs one)
+   52 attribute value: "..." (a range, length or typed restriction); attribute value: "..." (a range, length or typed restriction)
+   44 no requirements (the template writes a specification only when it has some, or is prohibited)
+   17 property value: "..." (a range, length or typed restriction)
+   12 two property facets in the applicability
+    8 attribute value: "base: boolean; pattern: true|false" (a range, length or typed restriction)
+    6 a partOf requirement; property value: "note: Value has to start with 'RAL'. Anything (even nothing) can be behind it. Valid examples are 'RA
+    5 attribute value: "..." (a range, length or typed restriction)
+    5 property value: "base: double; note:" (a range, length or typed restriction)
+    5 a second specification named "..." (the template merges them)
+    5 property value: "..." (a word the template's matrix reserves)
+    4 applicability entity: <n> is not kept; requirements attribute: <n> is not kept; an entity with no name
+    4 applicability entity: <n> is not kept; an entity with no name
+    4 property value: "base: boolean; pattern: true|false" (a range, length or typed restriction)
+    4 attribute value: ">= 0; <= 10" (a range, length or typed restriction)
+    4 attribute value: "min length: 2; max length: 3" (a range, length or typed restriction)
+    3 applicability cardinality 1..1
+    3 spaces at the ends of the identifier; a material requirement with no value (the template needs one)
+    3 no applicability facets
+    3 info purpose "..." is not kept: the template reads a comma, semicolon or line break in it as several purposes, one IDS each
+    3 a partOf facet
+    3 info description has spaces at the ends, which the template trims
+    3 attribute value: "..." (a range, length or typed restriction); attribute value: "..." (a range, length or typed restriction); attribute valu
+    3 attribute value: "base: dateTime; one of: 2026-12-31T07:09:11" (a range, length or typed restriction); attribute value: "base: dateTime; one

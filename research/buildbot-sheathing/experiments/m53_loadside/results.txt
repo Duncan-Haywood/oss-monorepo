@@ -1,0 +1,105 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 53: milestone 52's remaining drops, failing stage and hold sides per measured load
+drops read from milestone 52: 33; all still without a plan on the pose's sides: True
+## A. robot | H | pose | phi | axis | class (m52) | pose sides | per window end 25 N; 50 N: stage [margin_lp t / preload asked, binding leg joint] (combos with a hold solution of 2^n)
+  g1 |  5.0 | [1.2, -0.15] | 0 | 1 | sensor error | --++-+ | ok [4.2853 / 0.1000, left_hip_yaw_joint] (48); preload [0.0713 / 0.1000, left_hip_roll_joint] (45)
+  g1 |  5.0 | [1.2, -0.15] | 0 | 3 | sensor error | --++-+ | ok [4.2819 / 0.1000, right_hip_yaw_joint] (48); preload [0.0860 / 0.1000, left_knee_joint] (45)
+  g1 |  5.0 | [1.2, -0.15] | 0 | 4 | sensor error | --++-+ | ok [4.2524 / 0.1000, left_hip_roll_joint] (48); preload [0.0420 / 0.1000, left_hip_roll_joint] (45)
+  g1 |  5.0 | [1.2, 0.15] | 225 | 0 | plan limit | --++-+ | ok [2.1924 / 0.1000, left_ankle_pitch_joint] (48); preload [0.0892 / 0.1000, left_hip_yaw_joint] (35)
+  g1 |  5.0 | [1.2, 0.15] | 225 | 1 | plan limit | --++-+ | ok [2.1428 / 0.1000, left_ankle_pitch_joint] (48); preload [0.0309 / 0.1000, right_hip_roll_joint] (35)
+  g1 |  5.0 | [1.2, 0.15] | 225 | 2 | plan limit | --++-+ | ok [2.1521 / 0.1000, left_hip_yaw_joint] (48); preload [0.0641 / 0.1000, right_hip_roll_joint] (35)
+  g1 |  5.0 | [1.2, 0.15] | 225 | 3 | plan limit | --++-+ | ok [2.1831 / 0.1000, right_hip_pitch_joint] (48); preload [0.0559 / 0.1000, left_hip_yaw_joint] (35)
+  g1 |  5.0 | [1.2, 0.15] | 225 | 4 | plan limit | --++-+ | ok [2.1552 / 0.1000, left_ankle_pitch_joint] (48); preload [0.0490 / 0.1000, left_hip_yaw_joint] (35)
+  g1 |  5.0 | [1.2, 0.15] | 225 | 5 | plan limit | --++-+ | ok [2.1800 / 0.1000, right_hip_pitch_joint] (48); preload [0.0710 / 0.1000, left_hip_pitch_joint] (35)
+  g1 |  5.0 | [1.0, 0.0] | 270 | 0 | sensor error | --++-+ | ok [2.0333 / 0.1000, left_hip_roll_joint] (60); preload [0.0757 / 0.1000, left_ankle_pitch_joint] (60)
+  g1 |  5.0 | [1.0, 0.0] | 270 | 5 | sensor error | --++-+ | ok [2.0358 / 0.1000, left_hip_roll_joint] (60); preload [0.0999 / 0.1000, left_ankle_pitch_joint] (60)
+  g1 | 20.0 | [1.2, 0.0] | 45 | 0 | plan limit | --++-+ | preload [0.0041 / 0.1000, left_ankle_roll_joint] (52); ok [0.2000 / 0.1000, left_hip_pitch_joint] (52)
+  g1 | 20.0 | [1.2, 0.0] | 45 | 1 | plan limit | --++-+ | preload [0.0527 / 0.1000, left_ankle_roll_joint] (52); ok [2.1248 / 0.1000, left_ankle_pitch_joint] (52)
+  g1 | 20.0 | [1.2, 0.0] | 45 | 2 | plan limit | --++-+ | preload [0.0532 / 0.1000, left_ankle_roll_joint] (52); ok [0.2000 / 0.1000, left_hip_pitch_joint] (52)
+  g1 | 20.0 | [1.2, 0.0] | 45 | 3 | plan limit | --++-+ | preload [0.0595 / 0.1000, left_ankle_roll_joint] (52); ok [0.2000 / 0.1000, left_hip_pitch_joint] (52)
+  g1 | 20.0 | [1.2, 0.0] | 45 | 4 | plan limit | --++-+ | preload [0.0273 / 0.1000, left_ankle_roll_joint] (52); ok [0.2000 / 0.1000, left_hip_pitch_joint] (52)
+  g1 | 20.0 | [1.2, 0.0] | 45 | 5 | plan limit | --++-+ | preload [0.0295 / 0.1000, left_ankle_roll_joint] (52); ok [0.2000 / 0.1000, left_hip_pitch_joint] (52)
+  g1 | 20.0 | [1.0, 0.0] | 90 | 2 | plan limit | --++-+ | ok [0.7763 / 0.1000, left_ankle_roll_joint] (48); preload [0.0857 / 0.1000, right_ankle_roll_joint] (48)
+  g1 | 20.0 | [1.0, 0.0] | 90 | 3 | plan limit | --++-+ | ok [0.8326 / 0.1000, left_ankle_roll_joint] (48); preload [0.0918 / 0.1000, right_ankle_roll_joint] (48)
+  g1 | 20.0 | [1.0, 0.0] | 90 | 5 | plan limit | --++-+ | ok [0.8050 / 0.1000, left_ankle_roll_joint] (48); preload [0.0897 / 0.1000, right_ankle_roll_joint] (48)
+  g1 | 20.0 | [0.8, -0.15] | 180 | 1 | sensor error, pose-only | ---+-+ | ok [5.2359 / 0.1000, right_ankle_pitch_joint] (48); hold (0)
+  g1 | 20.0 | [0.8, -0.15] | 180 | 4 | sensor error, pose-only | ---+-+ | ok [5.2443 / 0.1000, left_hip_yaw_joint] (48); hold (0)
+  g1 | 20.0 | [1.0, 0.15] | 225 | 0 | plan limit | --++-+ | ok [2.8813 / 0.1000, left_hip_yaw_joint] (48); hold (33)
+  g1 | 20.0 | [1.0, 0.15] | 225 | 1 | plan limit | --++-+ | ok [2.8492 / 0.1000, left_hip_yaw_joint] (48); hold (32)
+  g1 | 20.0 | [1.0, 0.15] | 225 | 2 | plan limit | --++-+ | ok [2.8619 / 0.1000, right_hip_pitch_joint] (48); hold (33)
+  g1 | 20.0 | [1.0, 0.15] | 225 | 3 | plan limit | --++-+ | ok [2.8686 / 0.1000, right_hip_pitch_joint] (48); hold (32)
+  g1 | 20.0 | [1.0, 0.15] | 225 | 4 | plan limit | --++-+ | ok [2.8544 / 0.1000, right_hip_pitch_joint] (48); hold (32)
+  g1 | 20.0 | [1.0, 0.15] | 225 | 5 | plan limit | --++-+ | ok [2.8761 / 0.1000, right_hip_pitch_joint] (48); hold (33)
+  h1 |  5.0 | [1.6, 0.0] | 180 | 0 | plan limit | -+-+ | ok [1.8428 / 0.0864/0.1000, left_hip_roll] (16); preload [0.0541 / 0.0864/0.1000, right_hip_roll] (9)
+  h1 |  5.0 | [1.6, 0.0] | 180 | 2 | plan limit | -+-+ | ok [1.8267 / 0.0864/0.1000, left_hip_roll] (16); preload [0.0506 / 0.0864/0.1000, left_ankle] (9)
+  h1 |  5.0 | [1.6, 0.0] | 180 | 3 | plan limit | -+-+ | ok [1.8381 / 0.0864/0.1000, left_hip_roll] (16); preload [0.0624 / 0.0864/0.1000, left_ankle] (9)
+  h1 |  5.0 | [1.6, 0.0] | 180 | 4 | plan limit | -+-+ | ok [1.8184 / 0.0864/0.1000, left_hip_roll] (16); preload [0.0278 / 0.0864/0.1000, left_ankle] (9)
+  h1 |  5.0 | [1.6, 0.0] | 180 | 5 | plan limit | -+-+ | ok [1.8464 / 0.0864/0.1000, right_hip_roll] (16); preload [0.0193 / 0.0864/0.1000, right_hip_roll] (9)
+  first failing stage counts (robot | class | stage | n):
+  g1 | plan limit | hold | 6
+  g1 | plan limit | preload | 15
+  g1 | sensor error | hold | 2
+  g1 | sensor error | preload | 5
+  h1 | plan limit | preload | 5
+
+## B/C. Per-load rule: robot | H | pose | phi | axis | combos whose full plan solves (of 2^n) | chosen sides (joints flipped from the pose's) | common leg margin (N m) | |y| slack calibration (mm)
+  g1 |  5.0 | [1.2, -0.15] | 0 | 1 | 42 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 4.3451 | 0.0050
+  g1 |  5.0 | [1.2, -0.15] | 0 | 3 | 40 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 4.3039 | 0.0001
+  g1 |  5.0 | [1.2, -0.15] | 0 | 4 | 41 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 4.3350 | 0.0022
+  g1 |  5.0 | [1.2, 0.15] | 225 | 0 | 33 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 1.8437 | 0.0059
+  g1 |  5.0 | [1.2, 0.15] | 225 | 1 | 32 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 1.9078 | 0.0059
+  g1 |  5.0 | [1.2, 0.15] | 225 | 2 | 33 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 1.8926 | 0.0014
+  g1 |  5.0 | [1.2, 0.15] | 225 | 3 | 33 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 1.8932 | 0.0014
+  g1 |  5.0 | [1.2, 0.15] | 225 | 4 | 33 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 1.9060 | 0.0013
+  g1 |  5.0 | [1.2, 0.15] | 225 | 5 | 33 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 1.8722 | 0.0013
+  g1 |  5.0 | [1.0, 0.0] | 270 | 0 | 52 | +++-++ (left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint) | 2.2707 | 0.0000
+  g1 |  5.0 | [1.0, 0.0] | 270 | 5 | 49 | +++-++ (left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_hip_yaw_joint) | 2.2512 | 0.0000
+  g1 | 20.0 | [1.2, 0.0] | 45 | 0 | 47 | ---+++ (left_ankle_roll_joint, right_hip_yaw_joint) | 2.8638 | 0.0004
+  g1 | 20.0 | [1.2, 0.0] | 45 | 1 | 49 | ---+++ (left_ankle_roll_joint, right_hip_yaw_joint) | 2.9201 | 0.0004
+  g1 | 20.0 | [1.2, 0.0] | 45 | 2 | 47 | ++---- (left_hip_roll_joint, left_hip_yaw_joint, left_ankle_roll_joint, right_hip_roll_joint, right_ankle_roll_joint) | 2.8777 | 0.0011
+  g1 | 20.0 | [1.2, 0.0] | 45 | 3 | 49 | ---+++ (left_ankle_roll_joint, right_hip_yaw_joint) | 2.9438 | 0.0011
+  g1 | 20.0 | [1.2, 0.0] | 45 | 4 | 48 | ---+++ (left_ankle_roll_joint, right_hip_yaw_joint) | 2.8863 | 0.0007
+  g1 | 20.0 | [1.2, 0.0] | 45 | 5 | 49 | ---+++ (left_ankle_roll_joint, right_hip_yaw_joint) | 2.8977 | 0.0007
+  g1 | 20.0 | [1.0, 0.0] | 90 | 2 | 36 | +++--- (left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_ankle_roll_joint) | 2.8019 | 0.0000
+  g1 | 20.0 | [1.0, 0.0] | 90 | 3 | 36 | +++--- (left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_ankle_roll_joint) | 2.8019 | 0.0000
+  g1 | 20.0 | [1.0, 0.0] | 90 | 5 | 41 | +++--- (left_hip_roll_joint, left_hip_yaw_joint, right_hip_roll_joint, right_ankle_roll_joint) | 2.8349 | 0.0000
+  g1 | 20.0 | [0.8, -0.15] | 180 | 1 | 0 | none | -
+  g1 | 20.0 | [0.8, -0.15] | 180 | 4 | 0 | none | -
+  g1 | 20.0 | [1.0, 0.15] | 225 | 0 | 30 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 5.2193 | 0.0053
+  g1 | 20.0 | [1.0, 0.15] | 225 | 1 | 30 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 5.0359 | 0.0053
+  g1 | 20.0 | [1.0, 0.15] | 225 | 2 | 31 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 5.1301 | 0.0000
+  g1 | 20.0 | [1.0, 0.15] | 225 | 3 | 31 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 5.1261 | 0.0000
+  g1 | 20.0 | [1.0, 0.15] | 225 | 4 | 31 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 5.0849 | 0.0003
+  g1 | 20.0 | [1.0, 0.15] | 225 | 5 | 31 | -+-+-+ (left_hip_yaw_joint, left_ankle_roll_joint) | 5.1711 | 0.0003
+  h1 |  5.0 | [1.6, 0.0] | 180 | 0 | 8 | +--+ (left_hip_yaw, left_hip_roll) | 3.2686 | 0.0106
+  h1 |  5.0 | [1.6, 0.0] | 180 | 2 | 8 | -+-- (right_hip_roll) | 2.4685 | 0.0014
+  h1 |  5.0 | [1.6, 0.0] | 180 | 3 | 8 | -+-- (right_hip_roll) | 2.4811 | 0.0014
+  h1 |  5.0 | [1.6, 0.0] | 180 | 4 | 8 | -+-- (right_hip_roll) | 2.4720 | 0.0016
+  h1 |  5.0 | [1.6, 0.0] | 180 | 5 | 8 | -+-- (right_hip_roll) | 2.4776 | 0.0016
+
+## C. Inside milestone 51's envelope: robot | planned m52 | recovered | planned now | cases | coverage | worst |y| at 0 / 5 / 20 N (m52 -> now, mm)
+  g1 | 1342 | 26 | 1368 | 1368 | 100.0% | 0.0164 -> 0.0164 / 0.0107 -> 0.0107 / 0.0107 -> 0.0107
+  h1 | 1897 | 5 | 1902 | 1902 | 100.0% | 0.0099 -> 0.0099 / 0.0140 -> 0.0140 / 0.0099 -> 0.0099
+  pose-only envelope extras recovered: 0 of 2
+
+## D. Hypotheses (registered in LOG.md before this run)
+H214 (hold QP is the failing stage at more than 13 of the 26 plan-limit cases): 6 of 26 -> refuted
+H215 (per-load rule plans every one of the 33 drops): 31 recovered, left [('g1', 20.0, [0.8, -0.15], 180, 1), ('g1', 20.0, [0.8, -0.15], 180, 4)] -> refuted
+H216 (every recovered |y| at most 0.03 mm): largest 0.0106 -> held
+
+(run time 117 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

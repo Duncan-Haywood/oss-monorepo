@@ -252,6 +252,13 @@ test("growth is null, not Infinity, when the prior month had no MRR", () => {
   const s = summarize([{ month: "2026-09", mrr: 0, startMrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, churnCount: 0, startCustomers: 0 },
     { month: "2026-10", mrr: 500, startMrr: 0, customers: 1, new: 500, expansion: 0, contraction: 0, churn: 0, reactivation: 0, churnCount: 0, startCustomers: 0 }]);
   assert.equal(s.growthPct, null);
+  // A basis month that started at zero MRR has no retention rate: null, not 0/0 = NaN.
+  assert.equal(s.rates.nrr, null); assert.equal(s.rates.grr, null); assert.equal(s.rates.revenueChurn, null);
+});
+
+test("breakdown counts a subscription worth one minor unit", () => {
+  const b = breakdown([{ id: "s1", customer: "c1", status: "active", mrr: 1 }]);
+  assert.equal(b.total, 1); assert.equal(b.plans.length, 1);
 });
 
 test("an empty cohort carries zero MRR", async () => {
@@ -288,4 +295,70 @@ test("concentration top10 sums exactly ten subscriptions", () => {
   const c = concentration(Object.fromEntries(Array.from({ length: 12 }, (_, i) => [`s${i}`, 100])));
   assert.ok(Math.abs(c.top10 - 10 / 12) < 1e-12);
   assert.ok(Math.abs(c.top5 - 5 / 12) < 1e-12);
+});
+
+test("edge amounts and defaults (red team 2026-11-18)", async () => {
+  const { cohorts } = await import("./metrics.mjs");
+  const now = Date.UTC(2026, 5, 15);
+  // A one-cent subscription is still revenue in the rebuilt history.
+  assert.deepEqual(mapAt([{ id: "a", mrr: 1, status: "active", created: Date.UTC(2026, 0, 1) }], now), { a: 1 });
+  // backfill and cohorts default to twelve months.
+  assert.equal(backfill([], now).months.length, 12);
+  assert.equal(cohorts([], now).length, 12);
+  // A rate over a zero base is null, not NaN.
+  const zero = { month: "2026-05", mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0 };
+  assert.equal(summarize([zero, { ...zero, month: "2026-06" }]).rates.logoChurn, null);
+  assert.equal(summarize([{ ...zero, startCustomers: 4, churnCount: 1 }]).rates.logoChurn, 0.25);
+  // Concentration ranks the largest customer first whatever the input order.
+  const subs = [10, 30, 20].map((mrr, i) => ({ id: `s${i}`, customer: `c${i}`, mrr, status: "active" }));
+  const b = breakdown(subs);
+  assert.equal(b.concentration.largest, 30);
+  assert.equal(b.concentration.top1, 0.5);
+});
+
+// Red team 2026-11-18: every concentration test fed subscriptions already in
+// descending order, so a broken sort (`b + a`) still passed. Shuffled input.
+test("concentration ranks subscriptions largest first whatever order they arrive in", () => {
+  const c = concentration({ a: 100, b: 500, c: 300, d: 100 });
+  assert.equal(c.top1, 0.5);
+  assert.deepEqual(c.top, [0.5, 0.3, 0.1, 0.1]);
+  assert.equal(c.risk, "high");
+});
+
+// Stripe gives an incomplete_expired subscription an ended_at about 23 hours
+// after creation. Straddling a month end, it read as new MRR then churn.
+test("incomplete_expired from the API is neither new MRR nor churn, nor a cohort member", async () => {
+  const { cohorts } = await import("./metrics.mjs");
+  const s = { id: "x", mrr: 5000, status: "incomplete_expired", created: D(2026, 3, 31) + 12 * 3600e3, endedAt: D(2026, 4, 1) + 11 * 3600e3 };
+  assert.deepEqual(mapAt([s], D(2026, 4, 1) - 1), {});
+  const { months } = backfill([s], D(2026, 6, 15), 4);
+  assert.ok(months.every((m) => m.new === 0 && m.churn === 0 && m.mrr === 0));
+  assert.ok(cohorts([s], D(2026, 6, 15), 4).every((r) => r.size === 0));
+});
+
+test("backfill counts a subscription paid from the last millisecond before the window as standing, not new (red team 2026-11-19)", () => {
+  const edge = D(2026, 8, 1) - 1; // 2026-07-31T23:59:59.999Z, the instant the window opens from
+  const subs = [{ id: "a", mrr: 500, status: "active", created: edge, endedAt: null }];
+  const { months } = backfill(subs, D(2026, 10, 15), 3);
+  assert.equal(months[0].month, "2026-08");
+  assert.equal(months[0].startMrr, 500);
+  assert.equal(months[0].new, 0);
+});
+
+test("logo churn is a rate with a single starting customer, not null (red team 2026-11-19)", () => {
+  const row = { mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 900, reactivation: 0, newCount: 0, churnCount: 1, reactivationCount: 0, startMrr: 900, startCustomers: 1 };
+  const s = summarize([{ ...row, month: "2026-09" }, { ...row, month: "2026-10", churn: 0, churnCount: 0, startMrr: 0, startCustomers: 0 }]);
+  assert.equal(s.rates.logoChurn, 1);
+  assert.equal(s.rates.revenueChurn, 1);
+});
+
+test("concentration: the largest subscription decides 'high', not the top two together", () => {
+  // top1 = 20% (moderate), top2 = 40%: a mutant reading share(2) said high.
+  assert.equal(concentration({ a: 200, b: 200, ...Object.fromEntries(Array.from({ length: 6 }, (_, i) => [`s${i}`, 100])) }).risk, "moderate");
+});
+
+test("breakdown of no paying subscriptions reports nothing, not a phantom largest customer", () => {
+  const b = breakdown([{ id: "t", status: "trialing", mrr: 500, created: 1 }]);
+  assert.deepEqual(b.concentration, { customers: 0, top1: 0, top5: 0, topN: 5, largest: 0 });
+  assert.equal(b.total, 0);
 });

@@ -24,6 +24,10 @@ function cleanLines(text) {
   return String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
 }
 
+// "$25", "£ 27.50" and "€30" are what people type in a price column: drop one
+// leading currency sign before reading the number. A sign alone stays empty.
+const amount = (v) => String(v ?? "").replace(/^[$£€]\s*/, "");
+
 const norm = (s) => String(s).trim().toLowerCase().replace(/\s+/g, " ");
 
 export function parseSlots(text, defaults = {}) {
@@ -50,8 +54,8 @@ export function parseSlots(text, defaults = {}) {
     const name = f[cols.slot] || "";
     const capacity = Number(f[cols.capacity]);
     const minRaw = cols.min >= 0 && f[cols.min] !== undefined && f[cols.min] !== "" ? Number(f[cols.min]) : defaults.min ?? 1;
-    const cost = Number(f[cols.cost]);
-    if (!name || !Number.isInteger(capacity) || capacity < 1 || !Number.isInteger(minRaw) || minRaw < 1 || minRaw > capacity || !Number.isFinite(cost) || cost < 0 || f[cols.cost] === "") { bad++; continue; }
+    const cost = Number(amount(f[cols.cost]));
+    if (!name || !Number.isInteger(capacity) || capacity < 1 || !Number.isInteger(minRaw) || minRaw < 1 || minRaw > capacity || !Number.isFinite(cost) || cost < 0 || amount(f[cols.cost]) === "") { bad++; continue; }
     if (seen.has(norm(name))) { bad++; continue; }
     seen.add(norm(name));
     slots.push({ name, capacity, min: minRaw, cost });
@@ -72,9 +76,9 @@ export function parseStudents(text) {
   for (const line of lines) {
     const f = splitLine(line);
     const name = f[0];
-    const price = Number(f[1]);
+    const price = Number(amount(f[1]));
     const avail = f.slice(2).join(";").split(/[;|]/).map((s) => s.trim()).filter(Boolean);
-    if (!name || !Number.isFinite(price) || price <= 0 || f[1] === "" || !avail.length) { bad++; continue; }
+    if (!name || !Number.isFinite(price) || price <= 0 || amount(f[1]) === "" || !avail.length) { bad++; continue; }
     students.push({ name, price, avail });
   }
   if (bad) warnings.push(`${bad} student row(s) skipped: each needs a name, a price above 0, and at least one available slot.`);
@@ -84,42 +88,67 @@ export function parseStudents(text) {
 
 // ---- min-cost flow -------------------------------------------------------
 
-function seat(open, slots, students, idx) {
-  // open: array of slot indices; idx: Map(normalised slot name -> slot index)
+function seat(open, slots, students) {
+  // open: array of slot indices, ascending. Edges are laid out in the same
+  // order as a plain adjacency-list build (edge e and its reverse e ^ 1), and
+  // each node's edges are visited in insertion order, so the shortest-path
+  // search below takes the same augmenting paths and returns the same seating
+  // as the array-of-arrays version it replaced (pinned in calc.test.mjs).
   const n = students.length, m = open.length;
-  const S = 0, T = 1 + n + m;
-  const to = [], cap = [], cost = [], adj = Array.from({ length: T + 1 }, () => []);
+  const S = 0, T = 1 + n + m, N = T + 1;
+  const pos = new Int32Array(slots.length).fill(-1);
+  for (let k = 0; k < m; k++) pos[open[k]] = k;
+  let E = 2 * n;
+  for (let i = 0; i < n; i++) for (const a of students[i].availIdx) if (pos[a] >= 0) E += 2;
+  for (let k = 0; k < m; k++) E += slots[open[k]].capacity > slots[open[k]].min ? 4 : 2;
+  const to = new Int32Array(E), cap = new Int32Array(E), cost = new Float64Array(E), from = new Int32Array(E);
+  let ne = 0;
   const add = (u, v, c, w) => {
-    adj[u].push(to.length); to.push(v); cap.push(c); cost.push(w);
-    adj[v].push(to.length); to.push(u); cap.push(0); cost.push(-w);
+    from[ne] = u; to[ne] = v; cap[ne] = c; cost[ne] = w; ne++;
+    from[ne] = v; to[ne] = u; cap[ne] = 0; cost[ne] = -w; ne++;
   };
-  const pos = new Map(open.map((s, k) => [s, k]));
-  const stuEdges = students.map(() => []);
-  students.forEach((st, i) => {
+  const stuE = new Int32Array(E), stuA = new Int32Array(E), stuStart = new Int32Array(n + 1);
+  let ns = 0;
+  for (let i = 0; i < n; i++) {
+    const st = students[i];
+    stuStart[i] = ns;
     add(S, 1 + i, 1, -st.price);
     for (const a of st.availIdx) {
-      if (pos.has(a)) { stuEdges[i].push([to.length, a]); add(1 + i, 1 + n + pos.get(a), 1, 0); }
+      if (pos[a] >= 0) { stuE[ns] = ne; stuA[ns] = a; ns++; add(1 + i, 1 + n + pos[a], 1, 0); }
     }
-  });
-  open.forEach((s, k) => {
-    const sl = slots[s];
+  }
+  stuStart[n] = ns;
+  for (let k = 0; k < m; k++) {
+    const sl = slots[open[k]];
     add(1 + n + k, T, sl.min, -BIG);
     if (sl.capacity > sl.min) add(1 + n + k, T, sl.capacity - sl.min, 0);
-  });
-  const N = T + 1;
+  }
+  // compressed adjacency, each node's edges in insertion order
+  const head = new Int32Array(N + 1), adj = new Int32Array(E);
+  for (let e = 0; e < E; e++) head[from[e] + 1]++;
+  for (let u = 0; u < N; u++) head[u + 1] += head[u];
+  const fill = head.slice(0, N);
+  for (let e = 0; e < E; e++) adj[fill[from[e]]++] = e;
+  const dist = new Float64Array(N), prevE = new Int32Array(N), inQ = new Uint8Array(N), q = new Int32Array(N);
   for (;;) {
-    const dist = new Array(N).fill(Infinity), prevE = new Array(N).fill(-1), inQ = new Array(N).fill(false);
+    dist.fill(Infinity); prevE.fill(-1);
     dist[S] = 0;
-    const q = [S];
-    inQ[S] = true;
-    for (let h = 0; h < q.length; h++) {
-      const u = q[h];
-      inQ[u] = false;
-      for (const e of adj[u]) {
-        if (cap[e] > 0 && dist[u] + cost[e] < dist[to[e]] - EPS) {
-          dist[to[e]] = dist[u] + cost[e];
-          prevE[to[e]] = e;
-          if (!inQ[to[e]]) { inQ[to[e]] = true; q.push(to[e]); }
+    // FIFO ring: a node is queued at most once at a time (inQ), so N slots suffice
+    let qh = 0, qt = 0, qn = 1;
+    q[qt++] = S; inQ[S] = 1;
+    while (qn > 0) {
+      const u = q[qh]; qh = qh + 1 === N ? 0 : qh + 1; qn--;
+      inQ[u] = 0;
+      const du = dist[u];
+      for (let j = head[u], je = head[u + 1]; j < je; j++) {
+        const e = adj[j];
+        if (cap[e] > 0) {
+          const v = to[e], nd = du + cost[e];
+          if (nd < dist[v] - EPS) {
+            dist[v] = nd;
+            prevE[v] = e;
+            if (!inQ[v]) { inQ[v] = 1; q[qt] = v; qt = qt + 1 === N ? 0 : qt + 1; qn++; }
+          }
         }
       }
     }
@@ -128,9 +157,9 @@ function seat(open, slots, students, idx) {
   }
   const seatOf = new Array(n).fill(-1);
   const load = new Map(open.map((s) => [s, 0]));
-  stuEdges.forEach((es, i) => {
-    for (const [e, a] of es) if (cap[e] === 0) { seatOf[i] = a; load.set(a, load.get(a) + 1); }
-  });
+  for (let i = 0; i < n; i++) {
+    for (let j = stuStart[i]; j < stuStart[i + 1]; j++) if (cap[stuE[j]] === 0) { seatOf[i] = stuA[j]; load.set(stuA[j], load.get(stuA[j]) + 1); }
+  }
   let feasible = true, revenue = 0, runCost = 0;
   for (const s of open) {
     if (load.get(s) < slots[s].min) feasible = false;
@@ -158,14 +187,37 @@ export function search(slots, students, { seed = 7, restarts = 12, exactLimit = 
     if (cache.has(mask)) return cache.get(mask);
     const open = [];
     for (let i = 0; i < m; i++) if (mask & (1 << i)) open.push(i);
-    const r = open.length ? seat(open, slots, stu, idx) : { feasible: true, profit: 0, revenue: 0, runCost: 0, seatOf: stu.map(() => -1), load: new Map() };
+    const r = open.length ? seat(open, slots, stu) : { feasible: true, profit: 0, revenue: 0, runCost: 0, seatOf: stu.map(() => -1), load: new Map() };
     cache.set(mask, r);
     return r;
+  };
+  // Upper bound on a mask's profit without solving the flow: at most the
+  // students who can reach an open slot, capped by the open seats and taken
+  // dearest first, all pay, minus the run cost. -Infinity when the reachable
+  // students cannot cover the open minimums. A mask whose bound cannot beat
+  // `ref` by EPS is never chosen, so skipping its flow changes no answer.
+  const order = stu.map((_, i) => i).sort((a, b) => stu[b].price - stu[a].price || a - b);
+  const bound = (mask) => {
+    let seats = 0, mins = 0, runCost = 0;
+    for (let i = 0; i < m; i++) if (mask & (1 << i)) { seats += slots[i].capacity; mins += slots[i].min; runCost += slots[i].cost; }
+    let reach = 0, revenue = 0;
+    for (const i of order) {
+      if (reach === seats) break;
+      for (const a of stu[i].availIdx) if (mask & (1 << a)) { reach++; revenue += stu[i].price; break; }
+    }
+    return reach < mins ? -Infinity : revenue - runCost;
+  };
+  // true when mask's profit is above ref + EPS; solves the flow only if it might be
+  const beats = (mask, ref) => {
+    if (cache.has(mask)) return cache.get(mask).profit > ref + EPS;
+    const b = bound(mask);
+    if (b + 1e-7 * (1 + Math.abs(b)) <= ref) return false;
+    return evalMask(mask).profit > ref + EPS;
   };
   let best = 0, exact = false;
   if (m <= exactLimit) {
     exact = true;
-    for (let mask = 0; mask < 1 << m; mask++) if (evalMask(mask).profit > evalMask(best).profit + EPS) best = mask;
+    for (let mask = 0; mask < 1 << m; mask++) if (beats(mask, evalMask(best).profit)) best = mask;
   } else {
     if (m > 30) throw new Error("At most 30 slots are supported.");
     const rnd = mulberry32(seed);
@@ -174,16 +226,14 @@ export function search(slots, students, { seed = 7, restarts = 12, exactLimit = 
       for (;;) {
         let bm = mask, bv = cur;
         for (let i = 0; i < m; i++) {
-          const v = evalMask(mask ^ (1 << i)).profit;
-          if (v > bv + EPS) { bv = v; bm = mask ^ (1 << i); }
+          if (beats(mask ^ (1 << i), bv)) { bv = evalMask(mask ^ (1 << i)).profit; bm = mask ^ (1 << i); }
         }
         // swaps: close one open slot, open one closed slot
         if (bm === mask) {
           for (let i = 0; i < m; i++) for (let j = 0; j < m; j++) {
             if (!(mask & (1 << i)) || (mask & (1 << j))) continue;
             const t = (mask ^ (1 << i)) | (1 << j);
-            const v = evalMask(t).profit;
-            if (v > bv + EPS) { bv = v; bm = t; }
+            if (beats(t, bv)) { bv = evalMask(t).profit; bm = t; }
           }
         }
         if (bm === mask) return mask;
@@ -194,7 +244,7 @@ export function search(slots, students, { seed = 7, restarts = 12, exactLimit = 
     for (let r = 0; r < restarts; r++) { let k = 0; for (let i = 0; i < m; i++) if (rnd() < 0.5) k |= 1 << i; starts.push(k); }
     for (const s of starts) {
       const mask = climb(evalMask(s).feasible ? s : 0);
-      if (evalMask(mask).profit > evalMask(best).profit + EPS) best = mask;
+      if (beats(mask, evalMask(best).profit)) best = mask;
     }
   }
   return { best, evalMask, stu, exact };
@@ -234,7 +284,8 @@ export function analyze(slots, students, opts = {}) {
   const everything = evalMask(all);
   // running every slot with no minimum is the "do nothing clever" baseline
   const relaxed = slots.map((s) => ({ ...s, min: 1 }));
-  const bs = search(relaxed, students, { seed: 1 }).evalMask(all);
+  // one seating with every slot open; a full search would only read this mask
+  const bs = m ? seat([...slots.keys()], relaxed, stu) : evalMask(0);
   const baseProfit = bs.revenue - bs.runCost;
   if (!exact) warnings.push(`${m} slots is too many to try every combination (limit ${EXACT_LIMIT}), so this is the best of a seeded local search. It is a good plan, not proven best.`);
   if (!Number.isFinite(plan.profit) || plan.profit <= 0) warnings.push("No schedule earns a profit with these prices and costs. Raise prices, cut run costs, or widen availability.");

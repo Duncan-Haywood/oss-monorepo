@@ -1,4 +1,4 @@
-// node eval/one-step-check.mjs [--cache DIR] [--out FILE] [--before off|gap|fleck] MANIFEST.json...
+// node eval/one-step-check.mjs [--cache DIR] [--out FILE] [--before off|gap|fleck|join|bridge] MANIFEST.json...
 //
 // The one-step cephalicus rule (scan.mjs oneStepCephalicus, ONE_STEP;
 // eval/one-step-cephalicus-check.md) read both ways on the piece lists given
@@ -32,7 +32,11 @@ const NAMES = 'abcdefghijklm';
 // (oneStepGap: false, eval/one-step-hollow-check.md) instead of the rule off
 // --before fleck: compare against the reader without the split-head join
 // (fleck: false, eval/fleck-check.md)
-const BEFORE = { gap: { oneStepGap: false }, fleck: { fleck: false } }[opt('--before', 'off')] ?? { oneStep: false };
+// --before join: compare against the reader without the staff-gap join
+// (staffJoin: false, eval/staff-gap-check.md)
+// --before bridge: compare against findClef without the F clef's stem-to-blocks bridge
+// (clefBridge: false, eval/clef-bridge-check.md)
+const BEFORE = { gap: { oneStepGap: false }, fleck: { fleck: false }, join: { staffJoin: false }, bridge: { clefBridge: false } }[opt('--before', 'off')] ?? { oneStep: false };
 
 const lists = manifests.map((f) => ({ file: f, pieces: JSON.parse(readFileSync(f, 'utf8')).pieces }));
 await prefetch(lists.flatMap((l) => l.pieces.flatMap((p) => p.pages.map((pg) => [p.archive, pg.leaf]))));

@@ -9,7 +9,9 @@ const { readModel, parseModel, check } = await import(dir + "/node.mjs");
 let peak = 0; const tick = () => { peak = Math.max(peak, process.memoryUsage().heapUsed); };
 const iv = setInterval(tick, 20);
 const t0 = performance.now();
-const { text } = await readModel(model);
+// The file's bytes where the checker gives them (eval/step-bytes-2026-11-18.md), else its text.
+const read = await readModel(model);
+const text = read.bytes ?? read.text;
 const m = parseModel(text); tick();
 const h = createHash("sha256");
 let errs = 0;

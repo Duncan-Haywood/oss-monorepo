@@ -111,6 +111,30 @@
    "by": "9d92f5600",
    "at": "2026-11-17T14:11:57Z",
    "note": "README line 62 names register-tool.mjs; reports after it were sessions started before #16932 merged"
+  },
+  {
+   "file": "research/sensing-selfcal/tests/test_m4k.py",
+   "match": "nfev",
+   "verdict": "fixed",
+   "by": "test_m4k compares nfev with a same-process cold solve",
+   "at": "2026-11-18T14:17:26Z",
+   "note": "stored nfev not reproducible across SciPy builds (22/41 cold match)"
+  },
+  {
+   "file": "platform/ci/wait_for.py",
+   "match": "until with a 7000",
+   "verdict": "by-design",
+   "by": "platform/ci/wait_for.py main()",
+   "at": "2026-11-18T16:30:09Z",
+   "note": "rechecked 2026-11-18: --until 'false' --timeout 3 exits 1 with 'still failing'; an exit 0 comes from a pipe or chained command, which the docstring already warns against"
+  },
+  {
+   "file": "platform/ci/run_workflow_locally.py",
+   "match": "stops at the post front-matter check",
+   "verdict": "by-design",
+   "by": "run_workflow_locally.py POST_PRECHECK_STOP",
+   "at": "2026-11-18T16:30:09Z",
+   "note": "stopping before a multi-minute sweep on a quarter-second failure is the point; --no-post-check sweeps anyway"
   }
  ]
 }

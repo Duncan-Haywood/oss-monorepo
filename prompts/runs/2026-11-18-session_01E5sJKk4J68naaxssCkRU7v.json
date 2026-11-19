@@ -1,0 +1,421 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKk4J68naaxssCkRU7v",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T22:18:28Z",
+  "ended": "2026-11-18T22:20:11Z",
+  "wall_minutes": 5.45,
+  "tokens_in": 2564887,
+  "tokens_out": 15612,
+  "cost_usd": 1.3899,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17447",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 0's open list held 12 entries, 11 of them control-plane fixes waiting on owner approval and one deliberately deferred (help-keeper stem); re-checking them each run costs time with nothing actionable. The list could mark entries 'waiting: control plane' so they sort apart."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets --probe 20` with no --under prints nothing filterable quickly; I had to use --under per venture to see suite times."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0: did not fix the 11 open control-plane entries (own PR + owner approval each, several already have patches/PRs) nor the help-keeper stem change (prior run measured it as mixed and deferred it).",
+      "did": "left them open, spent the run on seeding and a real-bug hunt in mrr-pulse",
+      "result": "one real defect found and patched"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 4b: no new automated guard; the defect was a product-logic status rule, not a class a lint can see.",
+      "did": "consolidated the never-paid statuses into one set used by mapAt and cohorts, pinned by tests",
+      "result": "tests run in ventures-tests CI on every mrr-pulse change"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-redteam-the-subscription-that-never-paid.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: mrr-pulse/metrics.mjs 7/10, sql-migration-lock-check/engine.mjs 6/8; after triage+tests 18/18 (3 equivalent). Local verification: node --test *.test.mjs in mrr-pulse 87 pass 0 fail; lock checker engine.test.mjs 82 pass; check_posts.py ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/mrr-pulse/metrics.mjs",
+        "test": "node --test ventures/mrr-pulse/**/*.test.mjs  (in .)",
+        "seed": 146277761,
+        "commit": "89dd4c9c8",
+        "sites": 274,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 74,
+            "col": 91,
+            "operator": "const-plus-one",
+            "before": "const end = i === 0 ? now : Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - i + 1, 1) - 1;",
+            "after": "const end = i === 0 ? now : Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - i + 1, 1) - 2;",
+            "line_text": "    const end = i === 0 ? now : Date.UTC(d.getUTCFullYear(), d.getUTCMonth() - i + 1, 1) - 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 83,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "export function backfill(subs, now, months = 12) {",
+            "after": "export function backfill(subs, now, months = 13) {",
+            "line_text": "export function backfill(subs, now, months = 12) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 111,
+            "col": 33,
+            "operator": "div-to-times",
+            "before": "const pct = (a, b) => (b > 0 ? a / b : null);",
+            "after": "const pct = (a, b) => (b > 0 ? a * b : null);",
+            "line_text": "const pct = (a, b) => (b > 0 ? a / b : null);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 130,
+            "col": 80,
+            "operator": "div-to-times",
+            "before": "nrr: start > 0 ? (start + base.expansion - base.contraction - base.churn) / start : null,",
+            "after": "nrr: start > 0 ? (start + base.expansion - base.contraction - base.churn) * start : null,",
+            "line_text": "      nrr: start > 0 ? (start + base.expansion - base.contraction - base.churn) / start : null,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 164,
+            "col": 48,
+            "operator": "and-to-or",
+            "before": "const eligible = subs.filter((s) => s.mrr > 0 && s.created && [\"active\", \"past_due\", \"canceled\", \"incomplete_expired\"].includes(s.status) && !neverPaid(s));",
+            "after": "const eligible = subs.filter((s) => s.mrr > 0 || s.created && [\"active\", \"past_due\", \"canceled\", \"incomplete_expired\"].includes(s.status) && !neverPaid(s));",
+            "line_text": "  const eligible = subs.filter((s) => s.mrr > 0 && s.created && [\"active\", \"past_due\", \"canceled\", \"incomplete_expired\"].includes(s.status) && !neverPaid(s));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 172,
+            "col": 29,
+            "operator": "div-to-times",
+            "before": "logo.push(alive.length / members.length);",
+            "after": "logo.push(alive.length * members.length);",
+            "line_text": "      logo.push(alive.length / members.length);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 200,
+            "col": 119,
+            "operator": "const-plus-one",
+            "before": "const byPlan = Object.values(plans).sort((a, b) => b.mrr - a.mrr).map((p) => ({ ...p, share: total ? p.mrr / total : 0 }));",
+            "after": "const byPlan = Object.values(plans).sort((a, b) => b.mrr - a.mrr).map((p) => ({ ...p, share: total ? p.mrr / total : 1 }));",
+            "line_text": "  const byPlan = Object.values(plans).sort((a, b) => b.mrr - a.mrr).map((p) => ({ ...p, share: total ? p.mrr / total : 0 }));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "byPlan is only non-empty when some sub with mrr > 0 was added, so total > 0 whenever the ternary is reached; the 0 branch is unreachable."
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 213,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "if (months.length < 2) return null;",
+            "after": "if (months.length < 3) return null;",
+            "line_text": "  if (months.length < 2) return null;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "with exactly two months, usable = months.slice(0,-1) has one entry, so the later usable.length < 2 returns null anyway; < 2 vs < 3 gives the same result for every input."
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 225,
+            "col": 104,
+            "operator": "min-to-max",
+            "before": "low: { adds: Math.min(...rows.map((r) => r.adds)), loss: Math.max(...rows.map((r) => r.loss)), exp: Math.min(...rows.map((r) => r.exp)) },",
+            "after": "low: { adds: Math.min(...rows.map((r) => r.adds)), loss: Math.max(...rows.map((r) => r.loss)), exp: Math.max(...rows.map((r) => r.exp)) },",
+            "line_text": "    low: { adds: Math.min(...rows.map((r) => r.adds)), loss: Math.max(...rows.map((r) => r.loss)), exp: Math.min(...rows.map((r) => r.exp)) },",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 243,
+            "col": 70,
+            "operator": "minus-to-plus",
+            "before": "const v = Object.values(live).filter((x) => x > 0).sort((a, b) => b - a);",
+            "after": "const v = Object.values(live).filter((x) => x > 0).sort((a, b) => b + a);",
+            "line_text": "  const v = Object.values(live).filter((x) => x > 0).sort((a, b) => b - a);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "all concentration tests fed values already sorted descending; added a shuffled-input test in metrics.test.mjs."
+          }
+        ]
+      },
+      {
+        "target": "ventures/sql-migration-lock-check/engine.mjs",
+        "test": "node --test ventures/sql-migration-lock-check/**/*.test.mjs  (in .)",
+        "seed": 414720188,
+        "commit": "89dd4c9c8",
+        "sites": 81,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 130,
+            "col": 69,
+            "operator": "true-to-false",
+            "before": "if (/^\\s*REINDEX\\b/.test(s) && !/\\bCONCURRENTLY\\b/.test(s)) return true;",
+            "after": "if (/^\\s*REINDEX\\b/.test(s) && !/\\bCONCURRENTLY\\b/.test(s)) return false;",
+            "line_text": "  if (/^\\s*REINDEX\\b/.test(s) && !/\\bCONCURRENTLY\\b/.test(s)) return true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 222,
+            "col": 23,
+            "operator": "false-to-true",
+            "before": "let sessionAtBegin = false;",
+            "after": "let sessionAtBegin = true;",
+            "line_text": "  let sessionAtBegin = false;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a stray ROLLBACK before any BEGIN restores sessionAtBegin; no test covered it. Added one in engine.test.mjs."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 226,
+            "col": 26,
+            "operator": "false-to-true",
+            "before": "let reportedManyLocks = false;",
+            "after": "let reportedManyLocks = true;",
+            "line_text": "  let reportedManyLocks = false;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "inTransaction becomes true only after a BEGIN outside a block or a COMMIT AND CHAIN, and both reset reportedManyLocks to false before any exclusive statement is counted, so its initial value is never read."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 380,
+            "col": 86,
+            "operator": "and-to-or",
+            "before": "if (/^\\s*(VACUUM\\s+FULL|CLUSTER)\\b/i.test(upper) || (/^\\s*REINDEX\\b/i.test(upper) && !/\\bCONCURRENTLY\\b/i.test(upper))) {",
+            "after": "if (/^\\s*(VACUUM\\s+FULL|CLUSTER)\\b/i.test(upper) || (/^\\s*REINDEX\\b/i.test(upper) || !/\\bCONCURRENTLY\\b/i.test(upper))) {",
+            "line_text": "    if (/^\\s*(VACUUM\\s+FULL|CLUSTER)\\b/i.test(upper) || (/^\\s*REINDEX\\b/i.test(upper) && !/\\bCONCURRENTLY\\b/i.test(upper))) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 490,
+            "col": 44,
+            "operator": "eq-flip",
+            "before": "warn: findings.filter((f) => f.severity === WARN).length,",
+            "after": "warn: findings.filter((f) => f.severity !== WARN).length,",
+            "line_text": "    warn: findings.filter((f) => f.severity === WARN).length,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 522,
+            "col": 44,
+            "operator": "eq-flip",
+            "before": "risk: findings.filter((f) => f.severity === RISK).length,",
+            "after": "risk: findings.filter((f) => f.severity !== RISK).length,",
+            "line_text": "    risk: findings.filter((f) => f.severity === RISK).length,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 529,
+            "col": 25,
+            "operator": "gt-to-ge",
+            "before": "verdict: counts.risk > 0 ? 'can-block' : counts.warn > 0 ? 'review' : 'clean',",
+            "after": "verdict: counts.risk >= 0 ? 'can-block' : counts.warn > 0 ? 'review' : 'clean',",
+            "line_text": "    verdict: counts.risk > 0 ? 'can-block' : counts.warn > 0 ? 'review' : 'clean',",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 529,
+            "col": 59,
+            "operator": "const-plus-one",
+            "before": "verdict: counts.risk > 0 ? 'can-block' : counts.warn > 0 ? 'review' : 'clean',",
+            "after": "verdict: counts.risk > 0 ? 'can-block' : counts.warn > 1 ? 'review' : 'clean',",
+            "line_text": "    verdict: counts.risk > 0 ? 'can-block' : counts.warn > 0 ? 'review' : 'clean',",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/mrr-pulse/metrics.mjs",
+        "issue": "incomplete_expired subscriptions (first payment never succeeded) counted as revenue: from the CSV their end date was dropped so they read as live MRR forever (repro: $500 never-paid row, backfill MRR 60000 vs liveMap 10000 for 7 months); from the API they read as new MRR then churn when the ~23 h straddled a month end. Fixed: NEVER_PAID_STATUS excluded in mapAt and cohorts, tests in csv.test.mjs and metrics.test.mjs.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bf1eda65-b93d-5f40-b57f-0851a5b71f35",
+    "transcripts": 1,
+    "first": "2026-11-18T22:18:28Z",
+    "last": "2026-11-18T22:23:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 65,
+        "output": 15612,
+        "thinking": 4492,
+        "cache_read": 2492455,
+        "cache_write_5m": 0,
+        "cache_write_1h": 72367,
+        "api_equivalent_usd": 1.3899,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 65,
+      "output": 15612,
+      "thinking": 4492,
+      "cache_read": 2492455,
+      "cache_write_5m": 0,
+      "cache_write_1h": 72367,
+      "api_equivalent_usd": 1.3899,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.45,
+      "active_minutes": 5.45,
+      "model_minutes": 3.67,
+      "tool_minutes": 1.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: mutation triage, bug repro and fix, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 215.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

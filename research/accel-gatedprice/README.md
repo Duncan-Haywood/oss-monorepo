@@ -36,6 +36,14 @@ python3 experiments/figure.py            # needs matplotlib; writes experiments/
 - The accumulator width G = 24 is the 24-bit partial sum of the earlier projects; other grouping choices (G = 1 to 576) are in `results.txt`. Only 4-bit weights, P = 8, two layer shapes.
 - GF180 is read at one corner (`tt_025C`) and only its flop and gate; the SKY130 SRAM macros are the only memory prices.
 
+## Known gaps (quality audit, 2026-11-19)
+
+From [`portfolio/quality/audits/2026-11-19-accel-gatedprice.json`](../../portfolio/quality/audits/2026-11-19-accel-gatedprice.json), not yet addressed:
+
+- **Only the extra (B-1)×P accumulators are gated.** A gated weight-stationary design gates all B accumulators per lane, because the one being written rotates, so P more gates are clocked every cycle. For the 64x70 layer at B=2 that roughly doubles the break-even weight energy at 24 flops per gate (0.080 to 0.159 pJ); the auditor's recount moves the winners from 63 to 62 of 64 and the largest flops-per-gate from 27 to 29. The headline holds, but the numbers above use the narrower model.
+- **Table energies are means over every input slew**, up to 8.6 ns in GF180, which inflates GF180 flop energy by about 30 to 60%. At a realistic slew the "7.5 to 27 times SKY130" range is nearer 5 to 17; the gate-to-flop ratio stays about 1.
+- **No clock-gating prior work is cited**, and gating idle registers is standard practice; the contribution is the per-macro pricing, not the idea.
+
 ## Next steps
 Write the gated WS engine in RTL (one `dlclkp` per accumulator) and synthesise it to count the extra cells; add the enable logic to the cost; find or generate a GF180 or ASAP7 SRAM estimate to give a second-node verdict; resolve the OpenRAM per-edge reading with ngspice.
 

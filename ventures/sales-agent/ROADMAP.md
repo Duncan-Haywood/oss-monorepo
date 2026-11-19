@@ -67,3 +67,16 @@ and each is measured before the next one leans on it.
 - 2026-11-09: the pre-send checker (`presend.mjs`) knew only 2-letter codes, so a recipient country typed as "Germany" or "United States" fell through to "no rule recorded" and the consent hold was lost silently, and the page capped the field at 2 characters. `regime()` now maps names and common aliases (UK, USA, Deutschland, the Netherlands and the EU states); test in `presend.test.mjs`; sales-agent suite passes. Found by trying realistic inputs. No real emails.
 
 - 2026-11-09: the pre-send checker flagged "no opt-out" on real phrasings: "let me know and I'll remove you from my list", `reply 'stop'` (a quote between "reply" and "stop"), "tell me to stop", and German, French and Spanish unsubscribe words; and flagged "no address" on a German street-then-number ("Musterstr. 1", "Hauptstraße 12") or "10115 Berlin". Widened both patterns; tests in `presend.test.mjs` (15). Found by trying realistic drafts. Keyword rules from memory, not scored on real email.
+
+## Known gaps (quality audit 2026-11-19)
+
+From `portfolio/quality/audits/2026-11-19-sales-agent.json` (round 81). Fixed in the same PR: Virginia's
+Election Day and day after Thanksgiving, and the warm-up planner's first-week total. Still open:
+
+- The SPF checker (`authcheck.mjs`) passes records receivers reject under RFC 7208: an unknown mechanism
+  (`inclde:`), an ip4 prefix over 32, two `redirect=` modifiers. Validate mechanism names and prefixes.
+- The warm-up planner advises "a one-click unsubscribe header", but `self-host/smtp.mjs` writes only a mailto
+  `List-Unsubscribe`, no `List-Unsubscribe-Post` (RFC 8058).
+- All-numeric dates are read month-first with no flag ("back 12/11/2026" -> 2026-12-11).
+- The pre-send opt-out check passes on "unsubscribe" anywhere in the body.
+- `triage(reply, today)` with a non-ISO `today` silently returns no date instead of an error.

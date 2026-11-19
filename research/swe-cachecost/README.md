@@ -20,6 +20,8 @@ All numbers are from `experiments/results.txt`: 893 of 1,659 records in `prompts
 
 ## Limitations
 
+- **The headline split uses a wrong cache-read price** (quality audit 2026-11-19, [audit file](../../portfolio/quality/audits/2026-11-19-swe-cachecost.json)). `prompts/pricing.json` lists Sonnet 5.5 cache reads at $0.20 per million tokens; Anthropic's published price is $0.10, and 853 of the 895 runs are Sonnet 5.5. At the published price the median run's cost is about 29.5% cache reads, 52% one-hour cache writes and 16.5% output, so one-hour writes, not reads, are the largest part. Token counts, slopes and the context fit do not depend on prices and stand. `run.py` also has no date cutoff, so rerunning it today reads every later record; the numbers above reproduce at the commit that merged PR #8821.
+
 - **API-equivalent, not a bill.** Runs are on a subscription; shares depend on the list prices of 2026-10-06, and cache-read pricing differs by model.
 - **The context model is crude:** R² 0.31 for the per-request fit. Runs differ in their starting context, compaction and subagents; a single linear growth rate hides that. It says what dominates, not a law.
 - **Cache writes are 1-hour only here** (5-minute writes are zero), a property of this harness's setup, so the 41% share may not carry to other setups.

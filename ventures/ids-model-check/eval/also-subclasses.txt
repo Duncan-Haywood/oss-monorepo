@@ -1,0 +1,3 @@
+public IDS files: 29 specifications open with several classes; 4 in 4 file(s) open differently; names listed 506 -> 368; subclass boxes ticked on further classes 24
+IDS-Audit-tool ValidFiles: 0 specifications open with several classes; 0 in 0 file(s) open differently; names listed 0 -> 0; subclass boxes ticked on further classes 0
+buildingSMART pass cases: 0 specifications open with several classes; 0 in 0 file(s) open differently; names listed 0 -> 0; subclass boxes ticked on further classes 0

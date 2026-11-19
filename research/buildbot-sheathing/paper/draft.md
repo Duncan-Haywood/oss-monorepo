@@ -10,7 +10,7 @@ corresponding author are left for the owner to fill in before any submission.*
 
 - The 1/8 in panel gap shrinks a joint nail's window from ±3.93 to ±3.14 mm.
 - Bowed studs cap single-2x joints at 87% clean sheets, even with perfect reads.
-- Doubled joint studs give 99.94% clean sheets with one read a stud, 76–216 s a sheet.
+- Doubled joint studs give 99.94% clean sheets with one read a stud (94% at high warp).
 - A G1 on a lift base beats a hand crew in only 37% of draws at 100 houses a year.
 - Decayed-wall tests fit only with end nails at about a quarter of their NDS strength.
 
@@ -738,6 +738,96 @@ no stack cost. At 8 of 34 poses no side has a plan with 20 N of drag pulling bac
 press, and those keep the per-robot sides. The worst residuals are over the cases that have a plan:
 the G1 has none in 258 of 1530 swept pose-cases (17%), the H1 in 41 of 1938, a coverage the G1 figures
 since milestone 41 also carry.
+
+Those missing plans are a stance limit (milestone 49). At the 50 N press end of all 24 failing cells
+no contact force balances the base inside the friction cones (best cone slack −23.77 to −0.10 N),
+while the 25 N end balances at every cell; the soles' net horizontal load stays at most 0.189 of the
+vertical, so the robot tips back rather than slides. With 20 N of drag pulling straight back, the
+largest press the G1 balances at its 1.2 m grips falls from 51.6 to 36.4 N, and the H1's at 1.6 m from
+58.7 to 42.8 N, below the 50 N press. A pose's lean must leave headroom above 50 N for the hose.
+
+No lean does that for a hose pulling in every direction (milestone 50). Over forward leans of 0 to
+150 mm, the worst friction-cone slack over the 17 hose loads at 25 and 50 N peaks at −0.69 N for the
+G1 at 1.0 m grips and −10.12 N at 1.2 m: what the lean gives to a hose pulling back it takes from one
+pulling forward. The drag a pose tolerates straight back is its press headroom over 50 N divided by
+0.78, to within 9% at all 8 poses; the G1 at its 1.2 m grips tolerates 4.0 N at its current lean and
+11.4 N in every direction at its best. A dragged rubber hose reaches 4.0 N with about 3 m on the
+floor (μ_f 0.5, unsourced), so at high grips the hose has to be fed or carried, not dragged.
+
+Those limits are the right hose rule as far as balance goes, but not all of it (milestone 51). In the
+sweep of section 5.11, every case whose drag passes the limit at its pose or at the calibration pose has
+no plan (162 of 162 on the G1, 36 of 36 on the H1), and inside the limits the G1 plans 1272 of 1368
+cases (93.0%) and the H1 1897 of 1902, with worst residuals unchanged (G1 0.016 mm, H1 0.014 mm). Of the
+101 cases inside with no plan, 75 are on the G1 and come from its one calibration pose: 45 under 20 N
+pulling sideways, at 35% of the drag that pose balances, with no plan even for an exact sensor. Because
+one calibration serves every pose, the calibration should be taken with the hose slack.
+
+Taking it slack works (milestone 52). With the calibration move made under the hanging hose's weight
+alone, it plans at every sensor-error axis on both robots, and the G1 plans 1342 of the
+1368 cases inside the limits (98.1%, from 93.0%); the H1 is unchanged at 1897 of 1902. The slack
+calibration changes no residual: the compensator subtracts the load the wrist sensor measures, so the
+error left at the calibration pose is the sensor's bias alone, the same under any hose load. What remains
+are 21 plan limits at the G1's 1.0 and 1.2 m grips, 5 at the H1's 1.6 m grip, and 5 G1 sensor-error cases.
+
+Those last cases are a leg-preload limit, and choosing the hold sides per load clears them (milestone 53).
+At 20 of the 26 plan limits the hold QP solves on the pose's sides but leaves a common leg margin of only
+0.004 to 0.092 N m on the G1 (0.019 to 0.062 N m on the H1), below the 0.1 N m preload, bound at an ankle
+roll or hip joint; at 6 the hold QP itself fails. Re-choosing the hold sides at each press from the measured
+load, among the 2<sup>n</sup> combinations whose full plan solves, recovers 31 of the 33 drops with 1.8 to 5.2 N m
+of margin. Inside the drag limits both robots then plan every case (G1 1368 of 1368, H1 1902 of 1902), and the
+largest recovered residual is 0.0106 mm, so no worst residual moves. The two cases left lie outside the
+limits at the calibration pose, and no side combination has a hold solution there. One side set per pose
+(milestones 46 to 48) cannot hold under every hose load; one per measured load can.
+
+Off the grid the coverage holds but the spec does not, quite (milestone 54). At 48 Latin-hypercube hose
+loads (0 to 20 N, any direction), with the drag limit bisected at each sampled direction, both robots plan
+every case inside the limits (G1 4002 of 4002, H1 5436 of 5436). But 4 of those 9438 cases leave the
+0.03 mm spec, the worst 0.284 mm on the G1. Each is one joint whose torque sits at the 0.2 N m friction
+threshold, so the plan from the measured load and the robot under the true load disagree on whether it is
+held; the excess lives in direction spans 2.75 to 4.75 degrees wide, which a 45 degree grid steps over.
+Per-load sides clear the 3 H1 cases but not the G1's, an arm joint. The grid's drag limits are also up to
+2.17 N optimistic between directions on the G1's low grips, though only at limits above 23 N.
+
+A held-or-free margin sized from the sensor bound closes those misses, at a coverage cost (milestone 55).
+Planned-to-settled torque is linear in the load error, so a 0.2 N bound moves each joint by at most
+r<sub>j</sub> = 0.2 N &times; ||G<sub>j</sub>||, up to 0.27 N m. Planning only when every joint sits further than
+that from the friction torque at both press ends, with the squeeze and the hold sides re-chosen, every planned
+in-envelope case on the same 48 loads is in spec (worst 0.0107 mm on the G1) with no held or side flip between
+plan and robot, but coverage falls to 96.4% (G1) and 96.6% (H1), and to 95.9% and 96.8% on 48 fresh loads with
+off-axis sensor errors. Most drops bind on the G1 waist or the H1 torso, which no preload in the model reaches,
+and the dropped cases were inside spec under the old rule, so the margin should be weighted by a flip's cost.
+
+Weighting the margin by each flip's cost at the nose recovers the coverage and keeps the spec (milestone 56). The
+residual along the wall is linear in the joint error, so the largest change of each joint's backlash term over
+the held states its torque band can reach, times its entry in the wall row of the nose Jacobian, bounds what its
+flip can do, and the sum Y bounds them all. Planning when Y is at most half the spec, every planned in-envelope
+case stays inside 0.03 mm in three load sets (worst 0.0178 mm), coverage is 100% on the G1 and 99.6% to 99.9% on
+the H1, 637 of the 667 cases milestone 55 dropped are won back, and in 28 158 planned cases the flip shift never
+beats Y. The waist and torso cost nothing at this budget; the H1's left knee and right elbow are what still bind.
+
+The half-spec budget replicates on a held-out load set but buys little (milestone 57). On 48 new loads with new
+sensor errors, the rule with &beta; = 0.5 keeps every planned case inside 0.03 mm (worst 0.0178 mm) and plans
+99.93% of in-envelope cases on the G1 and 99.54% on the H1. Sweeping &beta; over 0, 0.25, 0.5, 0.75 and 1, coverage
+does not move between 0 and 0.5; 0.75 recovers the H1's 25 left-knee cases, and at 1 one H1 case leaves 0.0315 mm,
+because the bound then spends the whole spec and the windup term adds to it. The flips the budget admits are on knee
+and ankle pitch joints, which move the nose little along the wall and 0.27 to 0.29 mm across it, a direction the
+bound leaves out; with no budget the worst residual across the wall is 0.026 mm. The bound should carry both rows.
+
+Carrying both rows closes the gap at no cost (milestone 58). Pricing each flip through the across-wall row as well,
+with half of a 0.03 mm spec for each direction, on a second held-out set of 48 loads, the y-only rule again leaves
+presses 0.2713 mm (G1) and 0.2865 mm (H1) across the wall, while the two-row rule keeps every planned case inside
+0.03 mm in both directions (worst 0.0220 mm across) and plans the same share, 100% on the G1 and 99.63% on the H1.
+The second row changes which hold sides and squeeze are chosen, not whether a plan exists.
+The nail's angle needs no rows of its own here (milestone 59). Carrying the same flip cost through the rows of the
+depth point, 44.4 mm along the nail, on a third held-out set of 48 loads, the two-row rule already leaves the depth
+point at worst 0.0220 mm (G1) and 0.0177 mm (H1), the nail axis tilts at most 0.034 mrad, and the four-row rule plans
+the same presses (100% on the G1, 99.65% on the H1).
+A raised leg preload plans most of what is left (milestone 60). On a fourth held-out set of 48 loads, the four-row
+rule leaves 18 H1 cases unplanned, 17 of them binding on the left knee. Raising that case's leg preload margin from
+0.1 N m to 0.12, 0.16 or 0.18 N m plans all 17, inside 0.03 mm at both points (worst 0.0181 mm at the depth point),
+with no flip between plan and robot, and lifts H1 coverage from 99.67% to 99.98%. The controller's leg effort rises
+by a median 0.1% and at most 13.5%, at the 1.6 m pose. Raising the left knee's margin alone plans the same 17. The
+four cases left are an H1 elbow, which no leg preload moves, and three G1 cases with no plan on any side.
 
 ### 5.12 What the remedies cost (milestone 13)
 

@@ -1,3 +1,4 @@
+import math
 import re
 import subprocess
 import sys
@@ -121,6 +122,15 @@ class LineFig(unittest.TestCase):
                                 xticks=[0, 0.5, 1.0])
         self.assertIn(">0.5<", svg)
         self.assertNotIn(">0.853125<", svg)
+
+    def test_logy_under_three_decades_gets_readable_ticks(self):
+        svg = linefig.svg_lines("t", "a", "x", "y", [("s", [1, 2, 3], [0.17, 1, 2.2])], logy=True, hline=1)
+        labels = re.findall(r'text-anchor="end" font-family="sans-serif" font-size="11">([^<]*)<', svg)
+        self.assertEqual(labels, ["0.2", "0.5", "1", "2"])
+        self.assertEqual(linefig._log_ticks(-3, 2), [0.001, 0.01, 0.1, 1, 10, 100])
+        narrow = linefig._log_ticks(math.log10(1.1), math.log10(1.8))
+        self.assertGreaterEqual(len(narrow), 3)
+        self.assertTrue(all(1.1 <= v <= 1.8 for v in narrow))
 
     def test_hline_at_zero_is_drawn(self):
         # a zero reference line (effects that change sign) was dropped because 0 is falsy

@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtLWYL7g8vZ3RpMpm8a",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T13:07:14Z",
+  "ended": "2026-11-19T13:22:10Z",
+  "wall_minutes": 30.35,
+  "tokens_in": 11111911,
+  "tokens_out": 35696,
+  "cost_usd": 4.1732,
+  "tool_calls": 99,
+  "task": null,
+  "projects": [
+    "ai-bookkeeper",
+    "cron-dst-drift-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17674",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/supersede_check.py",
+      "issue": "Took over 60 s per PR (three runs hit timeout) and for #14012 reported 'added lines absent' although the same change had merged as #14189 with a reworded lead; a merged-title search answered faster."
+    },
+    {
+      "file": "platform/ci/stalled_prs.py",
+      "issue": "The conflicted bucket says 'merge main in and resolve', but 7 of 9 checked were already on main by another PR; the byte-for-byte landed test cannot see reworded duplicates, so the first step should be checking main for the behaviour."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "'A conflict is not a reason to close: merge main in and resolve it.' For 7 conflicted PRs main already had the work (reworded) or later evidence contradicted it, so merging would have duplicated or reintroduced a wrong claim.",
+      "did": "Closed them with evidence; ported only the two whose bugs still reproduce on main onto my own branch (I may push only there).",
+      "result": "Two live user-facing bugs fixed; 7 stale PRs closed."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "Taking over a stalled PR normally means landing its branch; I can push only to this session's branch.",
+      "did": "Re-applied each PR's own diff onto today's main on my branch, credited the source PR, and dropped its stale run record.",
+      "result": "Landed in one PR."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-ai-bookkeeper-cli-refuses-non-numeric-flags.md",
+    "docs/posts/2026-11-19-cron-checker-reads-daily-macros-and-says-when-a-job-never-runs.md",
+    "docs/reports/process-2026-11-19-conflicted-pr-sweep.md"
+  ],
+  "goal": null,
+  "notes": "Process/1 Critique. Backlog: only owner rows (no ids touched). main_health 293/293 green. friction_rank --live --ungated: top cluster (post front-matter caps) already has --limits and three earlier fixes, so I didn't re-fix it. Lens: the stalled-PR conflicted bucket (16 PRs). Checks: run_venture_tests.py ai-bookkeeper ok (3424 tests); run_venture_tests.py cron-dst-drift-check ok; node --test cron 89 pass; check_posts ok on both posts; check_post_frontmatter ok on the report. run_workflow_locally --for-changes: 11/11 selected workflows passed (agent-cross-review and portfolio-pages gate/deploy jobs selected but not runnable locally). Closed as superseded with evidence: #14012, #11730, #12119, #13116, #13070, #13074, #8649; #11151 and #7341 to close after merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fd1bac48-dbad-5c37-88e4-4e2fcf92a706",
+    "transcripts": 1,
+    "first": "2026-11-19T13:07:14Z",
+    "last": "2026-11-19T13:37:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 156,
+        "output": 35696,
+        "thinking": 7547,
+        "cache_read": 10953257,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158498,
+        "api_equivalent_usd": 4.1732,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 156,
+      "output": 35696,
+      "thinking": 7547,
+      "cache_read": 10953257,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158498,
+      "api_equivalent_usd": 4.1732,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 99,
+    "tools": {
+      "Bash": 74,
+      "mcp__github__add_issue_comment": 9,
+      "mcp__github__update_pull_request": 7,
+      "mcp__github__pull_request_read": 4,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.35,
+      "active_minutes": 30.35,
+      "model_minutes": 7.61,
+      "tool_minutes": 22.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "triage of 9 stale PRs against main plus porting and narrowing two CLI fixes with tests and posts",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 119.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

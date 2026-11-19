@@ -186,8 +186,9 @@
   }
 
   function render(report) {
-    const dangerCount = report.syntaxErrors.length + report.shadowed.length;
-    const noticeCount = report.unmatched.length + report.uncovered.length;
+    const redundantCount = report.shadowed.filter((s) => s.sameOwners).length;
+    const dangerCount = report.syntaxErrors.length + report.shadowed.length - redundantCount;
+    const noticeCount = report.unmatched.length + report.uncovered.length + redundantCount;
     els.verdict.className = `verdict ${dangerCount > 0 ? 'bad' : 'ok'}`;
     if (dangerCount > 0) {
       els.verdict.textContent = `${dangerCount} danger-level finding(s), ${noticeCount} notice(s).`;
@@ -208,7 +209,12 @@
     }
     for (const s of report.shadowed) {
       const overriders = s.overriddenBy.map((o) => `line ${o.rule.line} ("${o.rule.pattern}", ${o.paths.length} file(s))`).join(', ');
-      findings.push({
+      findings.push(s.sameOwners ? {
+        severity: 'notice',
+        title: `Line ${s.rule.line}: redundant rule ("${s.rule.pattern}")`,
+        detail: `Matched ${s.matchedPathCount} file(s) in your list, but a later rule naming the same owners always overrode it: ${overriders}. No file loses a reviewer; the line can go.`,
+        evidence: s.rule.raw,
+      } : {
         severity: 'danger',
         title: `Line ${s.rule.line}: rule never wins ("${s.rule.pattern}")`,
         detail: `Matched ${s.matchedPathCount} file(s) in your list, but a later rule always overrode it: ${overriders}.`,

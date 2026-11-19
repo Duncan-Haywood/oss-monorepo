@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245b4f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E@%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why Is My .gitattributes Not Working? Five Lines Git Ignores</title>
+  <meta name="description" content="Five reasons a .gitattributes line does nothing: a docs/ folder pattern, a ! negative pattern, an [attr] macro in a subfolder, an invalid or misspelled name or value, and files committed before the rule. With git's own output and the fix for each.">
+  <meta property="og:title" content="Why is my .gitattributes not working? Five lines git ignores">
+  <meta property="og:description" content="docs/ patterns, ! lines, subfolder macros, eol=CRLF and files committed before the rule: what git does with each, and the fix.">
+  <link rel="canonical" href="./why-gitattributes-not-working.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why is docs/ linguist-documentation not working?", "acceptedAnswer": {"@type": "Answer", "text": "Because a pattern that ends in a slash matches only the folder itself, and attributes are looked up for each file. docs/ linguist-documentation gives the folder docs the attribute and none of the files inside it. Write docs/** linguist-documentation instead. The one attribute that does work on a folder pattern is export-ignore, because git archive checks folders."}}, {"@type": "Question", "name": "Can I use ! in .gitattributes like in .gitignore?", "acceptedAnswer": {"@type": "Answer", "text": "No. A line whose pattern starts with ! is dropped with the warning Negative patterns are ignored in git attributes. To exempt a path, add a later line for it that switches the attribute off with a minus, or back to unspecified with an exclamation mark in front of the attribute name rather than the pattern."}}, {"@type": "Question", "name": "Why does git say [attr] not allowed?", "acceptedAnswer": {"@type": "Answer", "text": "Macro definitions such as [attr]generated linguist-generated -diff are only read from the top-level .gitattributes, .git/info/attributes and the global and system attribute files. In a .gitattributes inside a subfolder git prints not allowed and skips the line, and lines that use the macro name then set only an attribute of that name."}}, {"@type": "Question", "name": "Why did changing text or eol in .gitattributes not change my files?", "acceptedAnswer": {"@type": "Answer", "text": "Git applies line-ending rules when it stores or checks out a file, so files already committed keep what they were stored with. Run git add --renormalize . and commit, then check the files out again. Also check the spelling: eol=CRLF and text=true are not values git knows, and git ignores them."}}]}</script>
+  <style>
+    :root { font: 17px/1.6 system-ui, sans-serif; color: #17231f; background: #f2f6f4; }
+    body { max-width: 760px; margin: auto; padding: 28px; }
+    a { color: #1d6b58; }
+    h1 { font-size: clamp(1.7rem, 4.5vw, 2.4rem); line-height: 1.12; color: #183f36; }
+    h2 { font-size: 1.2rem; margin-top: 30px; color: #183f36; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    code { font: .9em ui-monospace, Menlo, Consolas, monospace; background: #e3ece8; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #142b25; color: #eefaf5; padding: 14px; border-radius: 10px; overflow-x: auto; font: 13.5px/1.5 ui-monospace, Menlo, Consolas, monospace; }
+    pre code { background: none; padding: 0; }
+    .note, footer { font-size: .86rem; color: #4b5c56; }
+    footer { margin-top: 36px; border-top: 1px solid #d5e1dc; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./">.gitattributes Explainer</a> · guide</p>
+  <h1>Why is my .gitattributes not working? Five lines git ignores</h1>
+  <p>Git rarely complains about a <code>.gitattributes</code> line it cannot use. Most of the time it does nothing, or prints one warning during an unrelated command and moves on. These are the five causes we see, each shown with what <code>git check-attr -a</code> (git 2.43) printed for it. The <a href="./">explainer</a> finds the first four in a pasted file and shows which line set each attribute of every path.</p>
+
+  <h2>1. A trailing slash: <code>docs/</code> matches the folder, not the files</h2>
+<pre><code>$ cat .gitattributes
+docs/ linguist-documentation
+$ git check-attr -a docs/guide.md docs/
+docs/: linguist-documentation: set</code></pre>
+  <p>Nothing is printed for <code>docs/guide.md</code>. Attributes are looked up for each file, and a pattern ending in <code>/</code> only matches folders, so the folder gets the attribute and no file does. Write <code>docs/** linguist-documentation</code>. The exception is <code>export-ignore</code>: <code>git archive</code> checks folders, so <code>docs/ export-ignore</code> does leave the folder out of an archive (and, unlike <code>docs/**</code>, leaves no empty folder behind).</p>
+
+  <h2>2. A <code>!</code> pattern: the whole line is dropped</h2>
+<pre><code>vendor/** linguist-vendored
+!vendor/ours/** linguist-vendored
+warning: Negative patterns are ignored in git attributes
+Use '\!' for literal leading exclamation.</code></pre>
+  <p>Unlike <code>.gitignore</code>, attribute files have no negative patterns. To take a path out of a broad rule, add a later line for it that changes the attribute: <code>vendor/ours/** -linguist-vendored</code> (unset) or <code>vendor/ours/** !linguist-vendored</code> (back to unspecified; the <code>!</code> goes on the attribute, not the pattern).</p>
+
+  <h2>3. An <code>[attr]</code> macro in a subfolder</h2>
+<pre><code>$ cat web/.gitattributes
+[attr]generated linguist-generated -diff
+*.snap generated
+$ git check-attr -a web/app.snap
+[attr]generated linguist-generated -diff not allowed: web/.gitattributes:1
+web/app.snap: generated: set</code></pre>
+  <p>Macros are read only from the top-level <code>.gitattributes</code>, <code>.git/info/attributes</code> and the global and system files. In a subfolder git skips the definition, and <code>*.snap generated</code> then sets an attribute called <code>generated</code> that nothing reads. Move the <code>[attr]</code> line to the root file.</p>
+
+  <h2>4. One invalid name, or a value git does not know</h2>
+<pre><code>*.z a/b ok
+a/b is not a valid attribute name: .gitattributes:1
+*.bat text eol=CRLF
+a.bat: eol: CRLF        (set, but git converts only for eol=crlf)</code></pre>
+  <p>Names may use letters, digits, <code>-</code>, <code>.</code> and <code>_</code>, and one bad name drops every attribute on the line. Values are compared exactly: git understands <code>eol=lf</code> and <code>eol=crlf</code> in lower case, and <code>text</code>, <code>-text</code>, <code>text=auto</code>; <code>eol=CRLF</code> and <code>text=true</code> are stored but ignored, and <code>ls-files --eol</code> shows the difference (<code>attr/text</code> instead of <code>attr/text eol=crlf</code>). Names are case-sensitive too: <code>Diff=html</code> is not <code>diff=html</code>. A pattern containing a space needs double quotes, or the rest of the name is read as an attribute.</p>
+
+  <h2>5. Files committed before the rule</h2>
+  <p>Line-ending rules act when git stores or checks out a file, so a file committed with CRLF before you added <code>* text=auto</code> stays CRLF in the repository. Re-store everything under the new rules and commit:</p>
+<pre><code>git add --renormalize .
+git commit -m "Normalize line endings"</code></pre>
+  <p>This command comes from the gitattributes manual. For Git LFS, the same applies to files committed before <code>git lfs track</code>; that needs <code>git lfs migrate</code>, which rewrites history, so read its documentation first.</p>
+
+  <h2>How git picks the winning line</h2>
+  <p>For each attribute separately, the first line that decides it wins, read in this order: <code>.git/info/attributes</code>; the <code>.gitattributes</code> in the file's own folder, then each parent up to the root; the global file (<code>core.attributesFile</code>, by default <code>~/.config/git/attributes</code>); the system file. Inside a file the last matching line wins, and on one line a later attribute beats an earlier one, so <code>*.png text binary</code> leaves <code>text</code> unset while <code>*.png binary text</code> leaves it set. The <a href="./">explainer</a> lists every matching line for a path in exactly that order.</p>
+
+  <h3>Why is docs/ linguist-documentation not working?</h3>
+  <p>Because a pattern that ends in a slash matches only the folder itself, and attributes are looked up for each file. docs/ linguist-documentation gives the folder docs the attribute and none of the files inside it. Write docs/** linguist-documentation instead. The one attribute that does work on a folder pattern is export-ignore, because git archive checks folders.</p>
+  <h3>Can I use ! in .gitattributes like in .gitignore?</h3>
+  <p>No. A line whose pattern starts with ! is dropped with the warning Negative patterns are ignored in git attributes. To exempt a path, add a later line for it that switches the attribute off with a minus, or back to unspecified with an exclamation mark in front of the attribute name rather than the pattern.</p>
+  <h3>Why does git say [attr] not allowed?</h3>
+  <p>Macro definitions such as [attr]generated linguist-generated -diff are only read from the top-level .gitattributes, .git/info/attributes and the global and system attribute files. In a .gitattributes inside a subfolder git prints not allowed and skips the line, and lines that use the macro name then set only an attribute of that name.</p>
+  <h3>Why did changing text or eol in .gitattributes not change my files?</h3>
+  <p>Git applies line-ending rules when it stores or checks out a file, so files already committed keep what they were stored with. Run git add --renormalize . and commit, then check the files out again. Also check the spelling: eol=CRLF and text=true are not values git knows, and git ignores them.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind, express or implied. They are not legal, security or professional advice. Check what your own git does, for example with <code>git check-attr -a</code>, before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Independent.</strong> Not affiliated with or endorsed by the Git project, GitHub, GitLab, Git LFS or any other vendor. Git is a trademark of the Software Freedom Conservancy.</p>
+  <p>Sources: the <a href="https://git-scm.com/docs/gitattributes" rel="noopener">gitattributes manual</a>, and the outputs above, from git 2.43.0.</p>
+  <p class="support">Free and open source under an MIT licence — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

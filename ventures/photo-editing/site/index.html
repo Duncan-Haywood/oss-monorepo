@@ -144,9 +144,9 @@
   <section aria-labelledby="fmt">
     <h2 id="fmt">Camera raw files it reads</h2>
     <ul class="chips" aria-label="Raw formats">
-      <li>DNG</li><li>CR3</li><li>CR2</li><li>CRW</li><li>ARW</li><li>NEF</li><li>RAF</li><li>ORF</li><li>RW2</li><li>RWL</li><li>PEF</li><li>SRW</li>
+      <li>DNG</li><li>CR3</li><li>CR2</li><li>CRW</li><li>ARW</li><li>NEF</li><li>RAF</li><li>ORF</li><li>RW2</li><li>RWL</li><li>PEF</li><li>SRW</li><li>MRW</li><li>3FR</li>
     </ul>
-    <p>Canon, Sony, Nikon, Fujifilm (X-Trans and compressed included), Olympus and OM System, Panasonic Lumix, Leica, Pentax and Samsung, each checked on real camera files against LibRaw. The card copy also takes 27 raw formats, HEIF stills, MXF and M2TS video and XMP sidecars; a format with no reader is culled from its embedded preview and asks to be converted to DNG before grading. <a href="camera-raw-formats.html">Which cameras were checked, and what is still refused</a>.</p>
+    <p>Canon, Sony, Nikon, Fujifilm (X-Trans and compressed included), Olympus and OM System, Panasonic Lumix, Leica, Pentax, Samsung, Minolta, Kodak DCS Pro, Phase One and Hasselblad, each checked on real camera files against LibRaw. The card copy also takes 27 raw formats, HEIF stills, MXF and M2TS video and XMP sidecars; a format with no reader is culled from its embedded preview and asks to be converted to DNG before grading. <a href="camera-raw-formats.html">Which cameras were checked, and what is still refused</a>.</p>
   </section>
 
   <section aria-labelledby="limits">
@@ -201,7 +201,7 @@ PYTHONPATH=src python3 -m shootflow.cli run-local-pipeline \
     <h3>Can it write Lightroom or Bridge ratings?</h3>
     <p>Yes, with <code>--write-xmp</code> it writes sidecar files: keeper 4 stars, alternate 2, reject -1.</p>
     <h3>Can it develop raw files without Lightroom?</h3>
-    <p>Yes. <code>develop</code> turns DNG, Canon CR3, CR2 and CRW, Sony ARW, Nikon NEF, Fujifilm RAF, Olympus ORF, Panasonic RW2, Leica RWL, Pentax PEF and Samsung SRW files into neutral 16-bit TIFF masters. Formats other than DNG need the camera's <code>.dcp</code> profile. Other formats can go through Adobe's free DNG Converter first.</p>
+    <p>Yes. <code>develop</code> turns DNG, Canon CR3, CR2 and CRW, Sony ARW, Nikon NEF, Fujifilm RAF, Olympus ORF, Panasonic RW2, Leica RWL, Pentax PEF, Samsung SRW, Minolta MRW and Hasselblad 3FR files into neutral 16-bit TIFF masters. Formats other than DNG and 3FR need the camera's <code>.dcp</code> profile. Other formats can go through Adobe's free DNG Converter first.</p>
     <h3>Does it render video or grade images yet?</h3>
     <p>Yes, through local ffmpeg: graded masters, review proxies, reels and carousels, with your LUT. It has been tested on synthetic media and small sets, not yet on a full real shoot, and there is no app yet. Treat it as a tested core.</p>
     <h3>Has the culling been tested on real shoots?</h3>

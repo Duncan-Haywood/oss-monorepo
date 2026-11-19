@@ -27,7 +27,10 @@ const TOKENS = ["\n", "\r\n", "\r", ",", ";", "\t", "\"", "\"\"", ":", "-", ".",
 
 export function rng(seed = 1) {
   let s = seed >>> 0 || 1;
-  return (n) => { s = (Math.imul(s, 1103515245) + 12345) & 0x7fffffff; return s % n; };
+  // Scale the high bits, never `s % n`: the low bit of a power-of-two LCG alternates on every call, so
+  // `% 6` fixed each choice's parity by its position and three of the six operations never ran alone
+  // (quality audit 2026-11-19).
+  return (n) => { s = (Math.imul(s, 1103515245) + 12345) & 0x7fffffff; return Math.floor((s / 0x80000000) * n); };
 }
 
 export function mutate(text, rnd, tokens = TOKENS) {
@@ -110,6 +113,8 @@ if (process.argv[1] && import.meta.url === (await import("node:url")).pathToFile
   let seed;
   const si = args.indexOf("--seed");
   if (si >= 0) { seed = Number(args[si + 1]); args.splice(si, 2); }
+  if (!Number.isInteger(iterations) || iterations < 0) { console.error(`--n must be a whole number of 0 or more, got ${JSON.stringify(String(iterations))}`); process.exit(2); }
+  if (seed !== undefined && !Number.isInteger(seed)) { console.error("--seed must be a whole number"); process.exit(2); }
   const slugs = args.length ? args : readdirSync(root).filter((d) => {
     const f = join(root, d, "calc.mjs");
     if (!existsSync(f)) return false;
@@ -120,7 +125,7 @@ if (process.argv[1] && import.meta.url === (await import("node:url")).pathToFile
   for (const slug of slugs) {
     const mod = await import(pathToFileURL(join(root, slug, "calc.mjs")));
     const t0 = performance.now();
-    const f = checkRepair(mod, { iterations, ...(seed ? { seed } : {}) });
+    const f = checkRepair(mod, { iterations, ...(seed !== undefined ? { seed } : {}) });
     const ms = Math.round(performance.now() - t0);
     if (f.length) bad++;
     console.log(`${f.length ? "FAIL" : "ok  "} ${slug} (${ms} ms)${f.length ? "\n" + describe(f).replace(/^/gm, "    ") : ""}`);

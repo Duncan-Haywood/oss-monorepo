@@ -310,8 +310,12 @@ class RealCorpusTest(unittest.TestCase):
 class ChangesSinceTest(unittest.TestCase):
     """queue's 'changed since audit' note: a fix can land without fix_prs (PR #14329, photo-editing)."""
 
-    def fake(self, log="", boundary_date=None, has_ref=True, shallow=None):
+    def fake(self, log="", boundary_date=None, has_ref=True, shallow=None, added="", calls=None):
         def git(args):
+            if calls is not None:
+                calls.append(args)
+            if args[:2] == ["log", "--diff-filter=A"]:
+                return added
             if args[0] == "rev-parse" and args[1] == "--verify":
                 return "abc\n" if has_ref else ""
             if args[:2] == ["rev-parse", "--git-path"]:
@@ -344,6 +348,22 @@ class ChangesSinceTest(unittest.TestCase):
     def test_untouched_and_no_git(self):
         self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake(""))["status"], "untouched")
         self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake("", has_ref=False))["status"], "unknown")
+
+    def test_the_audits_own_commit_is_not_a_change_since_it(self):
+        calls = []
+        out = m.changes_since("research/x", "2026-11-17", audit_path="portfolio/quality/audits/2026-11-17-x.json",
+                              git=self.fake("", added="cens1\n", calls=calls))
+        self.assertEqual(out["status"], "untouched")
+        span = [c for c in calls if c[0] == "log" and "--" in c and c[-1] == "research/x"][0]
+        self.assertIn("cens1..origin/main", span)  # starts after the census commit, not at the audit date
+        self.assertFalse(any(a.startswith("--since") for a in span))
+
+    def test_without_the_audits_commit_it_falls_back_to_the_date(self):
+        calls = []
+        m.changes_since("research/x", "2026-11-17", audit_path="portfolio/quality/audits/gone.json",
+                        git=self.fake("", calls=calls))
+        span = [c for c in calls if c[0] == "log" and c[-1] == "research/x"][0]
+        self.assertIn("--since=2026-11-17 00:00", span)
 
     def test_deepen_fetches_back_to_the_oldest_audit_once(self):
         calls = []

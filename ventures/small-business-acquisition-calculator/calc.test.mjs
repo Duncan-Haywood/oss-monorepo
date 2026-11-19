@@ -102,3 +102,17 @@ test("money and pct format", () => {
   assert.equal(money(-1500), "-$1,500");
   assert.equal(pct(12.34), "12.3%");
 });
+
+// Quality audit 2026-11-19: two seeded bugs in shown numbers survived; these pin them.
+test("sensitivity base row equals the headline surplus, and cash-on-cash divides surplus by cash in", () => {
+  const r = evaluate(sampleInputs());
+  assert.ok(Math.abs(r.sensitivity[0].cashAfter - r.surplus) < 0.01, `${r.sensitivity[0].cashAfter} vs ${r.surplus}`);
+  assert.ok(Math.abs(r.surplus - 71715.65) < 0.05, String(r.surplus));
+  assert.ok(Math.abs(r.cashOnCash - 71715.65 / 218000) < 1e-4, String(r.cashOnCash));
+});
+
+test("parseInputs rejects suffixes like 90k or 1.2M instead of reading 90 or 1.2", () => {
+  assert.match(parseInputs({ salary: "90k" }).error, /Salary/i);
+  assert.match(parseInputs({ price: "1.2M" }).error, /Asking price/);
+  assert.equal(parseInputs({ price: "$1,200,000" }).values.price, 1200000);
+});

@@ -95,6 +95,60 @@ const cells = (line) =>
   line.trim().replace(/^\|/, '').replace(/(?<!\\)\|$/, '').split(/(?<!\\)\|/).map((c) => c.trim().replace(/\\\|/g, '|'));
 
 /**
+ * Whether a table reads better as one card per row on a phone (`.stack`, styled in
+ * `pf-site.css` by `STACK_TABLE_CSS`). Measured over the blog's 1,597 pages with tables at
+ * 390 px on 2026-11-19: 108 of 202 tables with five to seven columns ran past their scroller,
+ * against 8 of 350 four-column tables, and those 8 were the wordy ones. A long table stays a
+ * table: thirty cards are harder to compare than one sideways scroll.
+ */
+export function stackTable(cols, rows) {
+  if (rows.length === 0 || rows.length > STACK_MAX_ROWS) return false;
+  if (cols >= 5) return true;
+  if (cols < 4) return false;
+  return meanCellChars(rows, 0) >= STACK_WORDY_CELL;
+}
+export const STACK_MAX_ROWS = 15;
+export const STACK_WORDY_CELL = 18;
+/**
+ * Below this mean (scores, counts, yes/no), a stacked card sets its label / value pairs two to
+ * a line (`.stack.compact`): a nine-column score table went from 262 px to 1,454 px as one
+ * pair per line, and to about half that two-up.
+ */
+export const STACK_COMPACT_CELL = 10;
+
+// `from` = 1 skips the row-name column, which becomes the card's title.
+const meanCellChars = (rows, from = 1) => {
+  const body = rows.flatMap((r) => r.slice(from)).map((c) => String(c).replace(/<[^>]+>/g, '').trim());
+  return body.reduce((n, c) => n + c.length, 0) / Math.max(1, body.length);
+};
+
+/** A cell's label for `data-label`: the header's text, without markup, attribute-safe. */
+const labelOf = (cellHtml) =>
+  String(cellHtml).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().replace(/"/g, '&quot;');
+
+/**
+ * One GFM table. A `.stack` table carries ARIA table roles (Safari drops table semantics
+ * from `display:block` rows) and labels every body cell with its column's header.
+ */
+export function renderTable(headHtml, rowsHtml) {
+  if (!stackTable(headHtml.length, rowsHtml)) {
+    return (
+      `<div class="scroll"><table><thead><tr>${headHtml.map((c) => `<th>${c}</th>`).join('')}</tr></thead><tbody>` +
+      rowsHtml.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('') +
+      '</tbody></table></div>'
+    );
+  }
+  const labels = headHtml.map(labelOf);
+  return (
+    `<div class="scroll"><table class="stack${meanCellChars(rowsHtml) < STACK_COMPACT_CELL ? ' compact' : ''}" role="table"><thead role="rowgroup"><tr role="row">${headHtml.map((c) => `<th role="columnheader">${c}</th>`).join('')}</tr></thead><tbody role="rowgroup">` +
+    rowsHtml
+      .map((r) => `<tr role="row">${r.map((c, j) => `<td role="cell"${labels[j] ? ` data-label="${labels[j]}"` : ''}>${c}</td>`).join('')}</tr>`)
+      .join('') +
+    '</tbody></table></div>'
+  );
+}
+
+/**
  * Block-level rendering. Handles headings, fenced code, lists, tables, quotes and paragraphs.
  *
  * The page owns `<h1>`. With `dropTitle` the source's `# ` title is that h1,
@@ -143,11 +197,7 @@ export function renderMarkdown(src, { fromPath = '', dropTitle = false, shift = 
       i += 2;
       const rows = [];
       while (i < lines.length && lines[i].includes('|') && lines[i].trim()) rows.push(cells(lines[i++]));
-      html.push(
-        `<div class="scroll"><table><thead><tr>${head.map((c) => `<th>${inline(c, fromPath)}</th>`).join('')}</tr></thead><tbody>` +
-          rows.map((r) => `<tr>${r.map((c) => `<td>${inline(c, fromPath)}</td>`).join('')}</tr>`).join('') +
-          '</tbody></table></div>',
-      );
+      html.push(renderTable(head.map((c) => inline(c, fromPath)), rows.map((r) => r.map((c) => inline(c, fromPath)))));
       continue;
     }
     if (/^\s*>/.test(line)) {

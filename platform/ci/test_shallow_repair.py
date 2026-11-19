@@ -1,7 +1,11 @@
 """Tests for shallow_repair.py, on a throwaway local repository (no network)."""
+import os
+import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -75,6 +79,77 @@ class ShallowRepairTest(unittest.TestCase):
         self.assertEqual(sr.main(["--check"], cwd=self.repo), 1)
         self.assertEqual(sr.main([], cwd=self.repo), 0)
         self.assertEqual(sr.main(["--check"], cwd=self.repo), 0)
+
+
+class LockTest(unittest.TestCase):
+    """A timed-out fetch must not strand .git/shallow.lock (SIGKILL skipped git's cleanup, and every
+    later fetch failed on the lock; run records 2026-11-16 and 11-18)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.repo = Path(self.tmp.name)
+        git(self.repo, "init", "-q")
+        self.lock = self.repo / ".git" / "shallow.lock"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_timeout_sends_sigterm_so_the_child_cleans_its_lock(self):
+        # Stands in for git: takes a lock, removes it on SIGTERM as git's lockfile code does.
+        script = f"trap 'rm -f {self.lock}; exit 143' TERM; touch {self.lock}; sleep 30 & wait"
+        with self.assertRaises(subprocess.TimeoutExpired):
+            sr.run_gently(["bash", "-c", script], timeout=1)
+        self.assertFalse(self.lock.exists())
+
+    def test_a_child_that_ignores_sigterm_is_killed_after_the_grace(self):
+        start = time.monotonic()
+        with self.assertRaises(subprocess.TimeoutExpired):
+            sr.run_gently(["bash", "-c", "trap '' TERM; sleep 30 & wait"], timeout=1, grace=1)
+        self.assertLess(time.monotonic() - start, 20)
+
+    def test_run_gently_returns_output_like_subprocess_run(self):
+        done = sr.run_gently(["bash", "-c", "cat; echo err >&2; exit 3"], input="hi\n")
+        self.assertEqual((done.returncode, done.stdout, done.stderr), (3, "hi\n", "err\n"))
+
+    @unittest.skipUnless(Path("/proc").is_dir(), "needs /proc")
+    def test_a_lock_no_git_process_owns_is_removed(self):
+        self.lock.write_text("x")
+        self.assertTrue(sr.clear_stale_lock(self.repo))
+        self.assertFalse(self.lock.exists())
+        self.assertFalse(sr.clear_stale_lock(self.repo))  # nothing left to remove
+
+    @unittest.skipUnless(Path("/proc").is_dir() and shutil.which("sleep"), "needs /proc and sleep")
+    def test_a_lock_is_kept_while_a_git_process_runs_in_the_repo(self):
+        # A shell script, not a copy of the sleep binary: the kernel names a script's process
+        # after the script file, so /proc/<pid>/comm starts with "git". A copied `sleep` fails on
+        # runners whose coreutils is a multicall binary (uutils) that dispatches on its own name
+        # and exits at once as "git-sleeper" (red on GitHub's runner, green locally, 2026-11-19).
+        fake = self.repo / "git-sleeper"
+        fake.write_text('#!/bin/sh\nsleep "$1"\n')
+        fake.chmod(0o755)
+        self.lock.write_text("x")
+        p = subprocess.Popen([str(fake), "30"], cwd=self.repo / ".git", start_new_session=True)
+        try:
+            for _ in range(100):
+                if sr.git_processes_in(self.repo):
+                    break
+                time.sleep(0.05)
+            self.assertTrue(sr.git_processes_in(self.repo), "the fake git process never showed up in /proc")
+            self.assertFalse(sr.clear_stale_lock(self.repo))
+            self.assertTrue(self.lock.exists())
+        finally:
+            os.killpg(p.pid, signal.SIGKILL)
+            p.wait()
+
+    def test_no_proc_means_nothing_is_called_stale(self):
+        self.assertIsNone(sr.git_processes_in(self.repo, proc=self.repo / "no-proc"))
+
+    def test_cli_clears_a_stale_lock(self):
+        if not Path("/proc").is_dir():
+            self.skipTest("needs /proc")
+        self.lock.write_text("x")
+        self.assertEqual(sr.main([], cwd=self.repo), 0)
+        self.assertFalse(self.lock.exists())
 
 
 if __name__ == "__main__":

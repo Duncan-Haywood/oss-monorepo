@@ -111,5 +111,31 @@ class Tests(unittest.TestCase):
             pt._HEADS.clear(); pt._HEADS.update(saved[1]); pt._FORK.clear(); pt._FORK.update(saved[2])
 
 
+CHAIN_LOG = """## 2026-11-18 · Milestone 6c: third knob
+## 2026-11-17 · Milestone 6b: second knob
+## 2026-11-17 · Milestone 6b: second knob, outcome
+## 2026-11-16 · Paper step: DRAFT.md section 2 carries 6a
+## 2026-11-15 · Milestone 6a: first knob
+## 2026-11-14 · Milestone 6: the question
+## 2026-11-10 · Milestone 5z: earlier number
+"""
+
+
+class ChainTest(unittest.TestCase):
+    def test_counts_distinct_labels_under_newest_number(self):
+        num, n, first, last, d0, d1, since = rl.chain(CHAIN_LOG)
+        self.assertEqual((num, n, first, last), ("6", 4, "6", "6c"))
+        self.assertEqual((d0, d1), ("2026-11-14", "2026-11-18"))
+        self.assertEqual(since, 3)
+
+    def test_model_term_paper_is_not_a_paper_step(self):
+        text = "## 2026-11-15 · Milestone 11w: census paper weights\n## 2026-11-14 · Milestone 11v: x\n"
+        self.assertIsNone(rl.chain(text)[6])
+        self.assertIn("no paper/ directory", rl.chain_report(text, has_paper_dir=False)[1])
+
+    def test_too_few_labels(self):
+        self.assertIsNone(rl.chain("## 2026-11-15 · Milestone 1: only\n"))
+
+
 if __name__ == "__main__":
     unittest.main()

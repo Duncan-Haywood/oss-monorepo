@@ -28,18 +28,26 @@ import sys
 
 sys.path.insert(0, __import__("os").path.join(__import__("os").path.dirname(__file__), "..", "firmware", "esp32"))
 from feeder_sim import controller     # noqa: E402  (puts protocol on the path for controller)
+import speed_loop_fit     # noqa: E402
 
 
 def wheel(rpm, drop, tau_s, free_rpm=9000.0, ball_ms=1500.4, total_ms=1900, a_max=None, tau_esc=None, gamma=1.0,
-          slip=None, jitter_us=0.0, seed=0):
+          slip=None, jitter_us=0.0, seed=0, speed_loop=None, loop=None, settled=True, speeds=None):
     rng = random.Random(seed)
-    tach, loop = controller.PeriodTach(), controller.WheelLoop(9000)
+    tach = controller.PeriodTach()
+    # a speed-loop ESC gets the board's speed-ESC loop (no proportional term) unless --board-pi asks for today's PI
+    loop = loop or controller.WheelLoop(9000, speed_esc=bool(speed_loop) and "--board-pi" not in sys.argv)
     cmd = (rpm / free_rpm) ** (1 / gamma)
-    loop.i = cmd - rpm / 9000
+    loop.i = cmd - rpm / 9000 if settled else 0.0
     w, rev, last_true, last_seen = float(rpm), 0.0, 0, 0
     drive = cmd                     # the ESC's own lagged command (tau_esc)
     seen = 0.0                      # extra slip deficit of the magnet's shaft, decays in 20 ms
     periods, ticks, e0 = [], [], None
+    esc_i = 0.0                     # a speed-loop ESC's own integrator (rpm/s), speed_loop=(f_hz, zeta, a_max)
+    if speed_loop:
+        f_hz, zeta, sl_max = speed_loop
+        wn = 2 * math.pi * f_hz
+        esc_i = w / tau_s           # holding the speed against the wheel's own drag
     for ms in range(total_ms):
         if ms == int(ball_ms):
             w *= 1 - drop
@@ -49,13 +57,31 @@ def wheel(rpm, drop, tau_s, free_rpm=9000.0, ball_ms=1500.4, total_ms=1900, a_ma
             drive += (cmd - drive) * 0.001 / tau_esc
         else:
             drive = cmd
-        acc = (free_rpm * drive ** gamma - w) / tau_s
-        if a_max is not None:
-            acc = max(-a_max, min(a_max, acc))
-        w += acc * 0.001
+        w_start = w
+        if speed_loop:
+            # The command is a speed setpoint (free_rpm x cmd); the ESC holds it with a PI loop on its own sensor,
+            # closed-loop natural frequency f_hz, damping zeta, its current limit as sl_max rpm/s. 0.1 ms steps.
+            for _ in range(10):
+                e = free_rpm * drive - w
+                u = 2 * zeta * wn * e + esc_i
+                ucl = max(-sl_max, min(sl_max, u))
+                if ucl == u:
+                    esc_i += wn * wn * e * 0.0001
+                w += (ucl - w / tau_s) * 0.0001
+            acc = None
+        else:
+            acc = (free_rpm * drive ** gamma - w) / tau_s
+            if a_max is not None:
+                acc = max(-a_max, min(a_max, acc))
+            w += acc * 0.001
         seen *= math.exp(-1 / 20)
+        if speeds is not None:
+            speeds.append(w)
         before = rev
-        rev += max(w - seen, 0.0) / 60000.0
+        # a speed-loop ESC moves the wheel a few % within a millisecond after a ball: its revolutions advance at the
+        # step's mean speed (the other plants keep the end-of-step speed their recorded sweeps used)
+        w_rev = (w_start + w) / 2 if speed_loop else w
+        rev += max(w_rev - seen, 0.0) / 60000.0
         if int(rev) > int(before):
             e = ms * 1000 + int((int(rev) - before) / (rev - before) * 1000)
             e_seen = e + (int(round(rng.gauss(0, jitter_us))) if jitter_us else 0)
@@ -79,10 +105,17 @@ PLANTS = [("first", {}), ("hall 5us", {"jitter_us": 5}), ("hall 20us", {"jitter_
           ("torque 20k", {"a_max": 20000.0}), ("torque 8k", {"a_max": 8000.0}),
           ("esc 30ms", {"tau_esc": 0.03}), ("esc 80ms", {"tau_esc": 0.08}),
           ("curve 1.25", {"gamma": 1.25}), ("slip x3", {"slip": 3.0}), ("torque 3k", {"a_max": 3000.0})]
+# An ESC running its own speed loop (2026-11-18, README "An ESC with its own speed loop"): VESC-class firmware in a
+# speed mode maps throttle to an rpm setpoint and holds it, so a ball's drop recovers on the ESC's loop, not the
+# wheel's tau. f is the closed loop's natural frequency, z its damping, the last the current limit in rpm/s.
+SPEED_PLANTS = [(f"speed {f}Hz z{z}", {"speed_loop": (f, z, 40000.0)}) for f in (2, 5, 10, 20) for z in (0.7, 0.4)]
+if "--speed" in sys.argv:
+    PLANTS = PLANTS[:1] + SPEED_PLANTS
 CASES = [(rpm, drop, tau) for rpm in (1500, 2500, 4000, 6000) for drop in (0.06, 0.10) for tau in (0.2, 0.4, 0.8)]
 
 
 EDGES = "--edges" in sys.argv
+SPEED_FIT = "--speed-fit" in sys.argv     # fit every plant with drop_from_speed_loop instead
 
 
 def run():
@@ -91,7 +124,8 @@ def run():
         for i, (rpm, drop, tau) in enumerate(CASES):
             ball = 1500.0 + (i * 0.37) % 1 * 10            # ball at varied phases of the 10 ms tick
             ps, tk = wheel(rpm, drop, tau, ball_ms=ball, seed=i, **kw)
-            got = controller.drop_from_commands(ps, tk, edges=EDGES)
+            got = (speed_loop_fit.drop_from_speed_loop(ps, tk) if SPEED_FIT else
+                   controller.drop_from_commands(ps, tk, edges=EDGES))
             par = controller.drop_from_periods(ps)
             rows.append((name, rpm, drop, tau, got[0] / drop if got else None, got[4] if got else None, got[5] if got else None, got[6] if got else None,
                          par[0] / drop if par else None))

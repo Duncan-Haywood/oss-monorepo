@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tennis League Schedule: Early-Only Teams and Court Limits</title>
+  <meta name="description" content="Make a tennis league schedule where some teams can only play the early slot or one court: an 8-team, 2-court example with every limit kept, and the clashes no schedule can fix.">
+  <meta property="og:title" content="Tennis League Schedule: Early-Only Teams and Court Limits">
+  <meta property="og:description" content="An 8-team tennis league with early-only teams and a one-court team, every limit kept. Free, private, in your browser.">
+  <link rel="canonical" href="./tennis-league-schedule.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you make a tennis league schedule when some teams can only play early?","acceptedAnswer":{"@type":"Answer","text":"List each team's allowed start times next to its name (Aces: 18:30), then build the round robin. The tool puts every limited team's match in an allowed slot whenever the round has room for it, and shares the remaining early and late slots out among the other teams."}},{"@type":"Question","name":"What if two teams can only play at different times?","acceptedAnswer":{"@type":"Answer","text":"Then their match cannot keep both limits: one team plays outside its window whichever slot it gets. The tool names the pair before the season is built, so you can ask one captain to move rather than finding out in week 5."}},{"@type":"Question","name":"How many teams can be limited to the early slot?","acceptedAnswer":{"@type":"Answer","text":"No more than the early slot holds. Two courts at 18:30 hold two matches, so up to four early-only teams fit only in weeks when they play each other; with two or fewer, every week works. The tool counts this for you and says which teams crowd which times."}},{"@type":"Question","name":"Can a team be limited to one court?","acceptedAnswer":{"@type":"Answer","text":"Yes: write Team name: Court 2 in the court limits box, for a team whose players need the lit court or the court near the clubhouse. Court limits and time limits are checked together."}},{"@type":"Question","name":"How long is a tennis league night with 90-minute matches?","acceptedAnswer":{"@type":"Answer","text":"Two start times 90 minutes apart, 18:30 and 20:00, finish at 21:30. Eight teams on two courts need four court-and-time slots a night, so two courts at two start times fit the whole league each week."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>Tennis league schedule: early-only teams and court limits</h1>
+  <p>Every club tennis league has captains who ask for the early slot: players with children at home, or a long drive. Some teams need the lit court. A hand-made schedule handles the first two requests and then quietly breaks the third. This page shows a season where every request is kept, and how to tell when a set of requests cannot all be kept.</p>
+  <p><a class="cta" href="./">Open the free schedule tool</a> (paste your teams, add the time and court limits, get dates and a CSV or calendar file)</p>
+  <h2>A worked example: 8 teams, 2 courts, two start times</h2>
+  <p>Eight invented teams play a single round robin on Tuesdays from 6 April 2027, with 90-minute matches at 18:30 and 20:00 on two courts. Three captains asked for limits:</p>
+  <pre>Aces: 18:30
+Topspin: 18:30</pre>
+  <p>in the time limits box, and <code>Slice Squad: Court 2</code> in the court limits box. Home team is listed first.</p>
+  <table>
+    <thead><tr><th>Round</th><th>Date</th><th>Matches (court and time)</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>2027-04-06</td><td>Topspin v Love All (Court 1 18:30), Aces v Drop Volleys (Court 2 18:30), Deuce Crew v Net Rushers (Court 1 20:00), Baseliners v Slice Squad (Court 2 20:00)</td></tr>
+      <tr><td>2</td><td>2027-04-13</td><td>Net Rushers v Aces (Court 1 18:30), Slice Squad v Topspin (Court 2 18:30), Drop Volleys v Baseliners (Court 1 20:00), Love All v Deuce Crew (Court 2 20:00)</td></tr>
+      <tr><td>3</td><td>2027-04-20</td><td>Aces v Love All (Court 1 18:30), Topspin v Baseliners (Court 2 18:30), Net Rushers v Drop Volleys (Court 1 20:00), Deuce Crew v Slice Squad (Court 2 20:00)</td></tr>
+      <tr><td>4</td><td>2027-04-27</td><td>Drop Volleys v Topspin (Court 1 18:30), Slice Squad v Aces (Court 2 18:30), Baseliners v Deuce Crew (Court 1 20:00), Love All v Net Rushers (Court 2 20:00)</td></tr>
+      <tr><td>5</td><td>2027-05-04</td><td>Deuce Crew v Topspin (Court 1 18:30), Aces v Baseliners (Court 2 18:30), Love All v Drop Volleys (Court 1 20:00), Net Rushers v Slice Squad (Court 2 20:00)</td></tr>
+      <tr><td>6</td><td>2027-05-11</td><td>Topspin v Aces (Court 1 18:30), Drop Volleys v Deuce Crew (Court 2 18:30), Baseliners v Net Rushers (Court 1 20:00), Slice Squad v Love All (Court 2 20:00)</td></tr>
+      <tr><td>7</td><td>2027-05-18</td><td>Aces v Deuce Crew (Court 1 18:30), Net Rushers v Topspin (Court 2 18:30), Love All v Baseliners (Court 1 20:00), Slice Squad v Drop Volleys (Court 2 20:00)</td></tr>
+    </tbody>
+  </table>
+  <p>Aces and Topspin play at 18:30 every week, Slice Squad is always on Court 2, every team plays every other team once and no court is booked twice. The other six teams share the 20:00 slot four or five times each. The table comes from the same code the page runs, and a test recomputes it, so it cannot drift from the tool.</p>
+  <h2>Requests that cannot all be kept</h2>
+  <p>Suppose a fourth captain asks for <code>Night Owls: 20:00</code>. Aces and Night Owls still have to play each other, and no slot is both 18:30 and 20:00, so one of them plays outside its window. The tool says so before anything is sent round: <em>Aces only plays at 18:30 and Night Owls only at 20:00, so their match breaks one team's time limit wherever it goes.</em> It also counts crowding: five early-only teams cannot fit two courts at 18:30 in a week when they do not play each other.</p>
+  <p>When the requests can all be kept, they are. On 300 random leagues with 1 to 5 limits, every round that had a legal assignment got one (3,033 of 3,033); the tool checks each night exactly after its search for an even share of slots. The leagues where some round could not keep every limit were named before the build in 87 of 90 cases.</p>
+  <p><a class="cta" href="./">Build your own schedule</a></p>
+  <h2>Questions</h2>
+  <h3>How do you make a tennis league schedule when some teams can only play early?</h3>
+  <p>List each team's allowed start times next to its name (Aces: 18:30), then build the round robin. The tool puts every limited team's match in an allowed slot whenever the round has room for it, and shares the remaining early and late slots out among the other teams.</p>
+  <h3>What if two teams can only play at different times?</h3>
+  <p>Then their match cannot keep both limits: one team plays outside its window whichever slot it gets. The tool names the pair before the season is built, so you can ask one captain to move rather than finding out in week 5.</p>
+  <h3>How many teams can be limited to the early slot?</h3>
+  <p>No more than the early slot holds. Two courts at 18:30 hold two matches, so up to four early-only teams fit only in weeks when they play each other; with two or fewer, every week works. The tool counts this for you and says which teams crowd which times.</p>
+  <h3>Can a team be limited to one court?</h3>
+  <p>Yes: write Team name: Court 2 in the court limits box, for a team whose players need the lit court or the court near the clubhouse. Court limits and time limits are checked together.</p>
+  <h3>How long is a tennis league night with 90-minute matches?</h3>
+  <p>Two start times 90 minutes apart, 18:30 and 20:00, finish at 21:30. Eight teams on two courts need four court-and-time slots a night, so two courts at two start times fit the whole league each week.</p>
+  <p>Related: <a href="./pickleball-league-schedule.html">pickleball league schedules on shared courts</a>, <a href="./how-to-schedule-a-league-with-limited-courts-and-time-slots.html">scheduling with limited courts and time slots</a>, <a href="./how-to-run-a-ladder-league.html">how a challenge ladder works</a> and <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>.</p>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing and date before you announce it; your league's own rules and tie-breaks apply. The example teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

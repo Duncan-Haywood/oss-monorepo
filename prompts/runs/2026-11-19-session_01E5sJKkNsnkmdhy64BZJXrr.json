@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKkNsnkmdhy64BZJXrr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T06:28:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10) open-tennis-robots: why 1.4-1.9 ms takes still read 0 (NEXT.md buildable item)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17566",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/NEXT.md",
+      "issue": "The item framed the misses as 'the summed curve's shelf hides the valley'; the dense refits showed no valley at all (11 of 17 large misses had no kept wheel that saw the true take). A hypothesis written as a finding steered the next run toward pick/grid changes."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-short-contacts-no-ball-saw-them.md",
+    "ventures/open-tennis-robots/eval/take-bound-o-2026-11-19.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (section 'Short takes that read 0: no ball saw them')"
+  ],
+  "goal": null,
+  "notes": "Trace on stored dense refits (J-L, M, N): 11 of 17 large misses at 1-2.5 ms had no kept wheel seeing the true take; instant builds show the same shelf (11 of 30 flat to 1.5-2.25 ms). Shipped a host-side upper bound in the TAKE_US = 0 advice, pre-registered in 020e567c9 before fresh set O (lag 0.42 s, seed 109, 66 drills) was captured: 47 of 49 within the bound (95.9% vs 95% needed), 4 of 6 instant builds bounded at 1.5 ms (3 needed). Both held. The two misses are whole-ppm rounding at a 16-19 ppm step; a ppm floor is parked in NEXT.md for a fresh set. Local checks: open-tennis-robots venture tests (run_venture_tests.py), check_posts.py, flagships validate.py; output summarised in the PR.",
+  "corrections": [],
+  "redteam": null
+}

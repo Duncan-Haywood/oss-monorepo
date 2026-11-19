@@ -158,3 +158,15 @@ test('a wall height is checked: text, zero or a skyscraper is refused, not turne
   assert.ok(Number.isFinite(calculate(wall(12)).house.heating.total));
   assert.deepEqual(calculate(wall('abc')).errors.length > 0, true);
 });
+
+// Red-team 2026-11-19: with no cooling load at any hour the house peak is reported at hour 1, not a later tie.
+test('a house with no cooling load reports its peak at the first hour', () => {
+  const r = calculate({
+    site: { coolingOutdoorF: 60, dailyRangeF: 10, coolingDewPointF: 40, indoorCoolF: 75 },
+    envelope: { ventCFM: 0 },
+    rooms: [{ name: 'Core', areaFt2: 100, floor: 'conditioned', walls: [] }],
+  });
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.house.cooling.sensible, 0);
+  assert.equal(r.house.cooling.peakHour, 1);
+});

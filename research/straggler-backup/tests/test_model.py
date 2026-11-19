@@ -97,6 +97,26 @@ class T(unittest.TestCase):
         self.assertAlmostEqual(sums[0] / R - truth, bias_plain, delta=0.02)      # exact bias formula
         self.assertAlmostEqual(sums[1] / R, truth, delta=0.03)                   # HT unbiased
 
+    def test_pareto_finite_mean_boundary(self):
+        # the d-th largest of n Pareto(alpha) has a finite mean iff (d+1)*alpha > 1 (audit 2026-11-19)
+        self.assertEqual(pareto_order_mean(20, 19, 1.0, 0.5), math.inf)   # d=1, 2*0.5 = 1: infinite
+        self.assertTrue(math.isfinite(pareto_order_mean(20, 18, 1.0, 0.5)))  # d=2: finite
+        self.assertEqual(pareto_order_mean(20, 20, 1.0, 1.0), math.inf)   # alpha=1, wait for all: infinite
+
+    def test_estimators_by_hand(self):
+        theta, pis = [1.0, 2.0, 4.0], [0.5, 0.25, 1.0]
+        plain, ht, hajek = estimators(theta, pis, [0, 1], [0.0, 0.0, 0.0])
+        self.assertAlmostEqual(plain, 1.5)
+        self.assertAlmostEqual(ht, (2.0 + 8.0) / 3)
+        self.assertAlmostEqual(hajek, (2.0 + 8.0) / 6)
+
+    def test_sgd_rounds_large_step_does_not_crash(self):
+        self.assertEqual(sgd_rounds(4, 1.0, 2.5, 1.0, 1.0, 0.05), math.inf)   # |rho| = 1.5 diverges
+        self.assertEqual(sgd_rounds(4, 1.0, 2.0, 1.0, 1.0, 0.05), math.inf)   # rho = -1 does not contract
+        self.assertEqual(sgd_rounds(4, 1.0, 1.0, 0.01, 1.0, 0.05), 1)         # rho = 0: one step to the noise floor
+        r = sgd_rounds(4, 1.0, 1.5, 0.01, 1.0, 0.05)                          # rho = -0.5 still contracts
+        self.assertTrue(math.isfinite(r) and r >= 1)
+
 
 if __name__ == "__main__":
     unittest.main()

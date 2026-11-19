@@ -1,0 +1,12 @@
+IFC4: 513 standard sets; template types kept: PSET_PERFORMANCEDRIVEN 42, PSET_OCCURRENCEDRIVEN 16
+  editor offered 3095 class/set pairs before, 2939 now
+  occurrence set on a type object: 118 pairs offered before; warned 118 (before: 0); no longer offered 118; the occurrence class audits clean 118 of 118
+  performance set on its element: 80 pairs offered before; warned 80
+  performance set on IFCPERFORMANCEHISTORY: 42 sets; pset-class error before 42, audit clean now 42, offered now 42
+  pairs offered now with a template type: 192; drawing pset-occurrence, pset-performance or pset-class: 0
+IFC4X3: 760 standard sets; template types kept: PSET_OCCURRENCEDRIVEN 105, PSET_PERFORMANCEDRIVEN 44, PSET_MATERIALDRIVEN 19, PSET_PROFILEDRIVEN 3, QTO_OCCURRENCEDRIVEN 14
+  editor offered 8610 class/set pairs before, 8009 now
+  occurrence set on a type object: 529 pairs offered before; warned 529 (before: 0); no longer offered 529; the occurrence class audits clean 529 of 529
+  performance set on its element: 116 pairs offered before; warned 116
+  performance set on IFCPERFORMANCEHISTORY: 44 sets; pset-class error before 44, audit clean now 44, offered now 44
+  pairs offered now with a template type: 1055; drawing pset-occurrence, pset-performance or pset-class: 0

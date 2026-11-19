@@ -7,23 +7,46 @@
 // Optional reminders on your own mail account (off unless SMTP_HOST is set): SMTP_HOST, SMTP_PORT,
 // SMTP_USER, SMTP_PASS, SMTP_FROM, and REMINDER_TO (the organiser's address, copied on every reminder).
 // Two days before a game, a team still short of players gets one email (mailer.mjs).
+// Schedule-change emails (changes.mjs): saving a published league with "Email teams" ticked sends each
+// team whose upcoming games moved, were cancelled or were added one email listing only those games.
+// Captain links (confirm.mjs): /league?t=LEAGUE_TOKEN&c=KEY, one key per team (an HMAC of its name under
+// ADMIN_KEY). Two captains who report the same score put the result in the table without the organiser.
+// Move requests (reschedule.mjs): a captain asks to move a game later, the other captain agrees, the
+// organiser approves and the Rainouts line is written for them.
+// Notices (announcements.mjs): the organiser posts a dated notice for the league page or one team's
+// captain page, optionally emailed to the team contacts.
+// Free agents (freeagents.mjs): /join is public while the organiser takes free agents; /admin places them on teams.
+// Team sign-ups (registration.mjs): /register is public while the organiser has sign-ups open in /admin.
+// Waivers (waivers.mjs): the organiser's own text, versioned by its hash; players sign at /league/waiver,
+// captains on the sign-up form, and /admin shows who on each roster has not signed.
+// Sportsmanship ratings (spirit.mjs): off by default; each captain rates the other team after a game from
+// their captain link, the organiser sees averages, low ratings with comments and who has not rated.
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS } from "./calc.mjs";
+import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, playBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS, dayLabel } from "./calc.mjs";
 import { pathToFileURL } from "node:url";
 import { upcomingGames, parseAvailability, recordAvailability, availabilityHtml, shortTeamsHtml, dayNumber, parseRosters, parseContacts, availabilityCsv, remindersDue, EMAIL, REMINDER_DAYS } from "./availability.mjs";
 import { smtpConfig, sendMail } from "./mailer.mjs";
+import { parseSubOffer, recordSub, placeSub, subsHtml, placeButtonsHtml, freeSubsLine } from "./subs.mjs";
+import { scheduleChanges, changeEmails, changeSummary } from "./changes.mjs";
+import { captainKey, captainTeam, reportableGames, parseReport, recordReport, reportLine, settle, openReports, adminReportsHtml, captainLinksHtml, captainHtml, captainLinkEmail } from "./confirm.mjs";
+import { movableGames, tryMove, parseMoveRequest, recordMove, pruneMoves, openMoves, adminMovesHtml, captainMovesHtml, moveAskedEmail } from "./reschedule.mjs";
+import { parseNotice, addNotice, removeNotice, noticesHtml, adminNoticesHtml, noticeEmails } from "./announcements.mjs";
+import { spiritSettings, parseSpirit, recordSpirit, pruneSpirit, spiritTable, captainSpiritHtml, leagueSpiritHtml, adminSpiritHtml, spiritCsv, SPIRIT_MODES } from "./spirit.mjs";
+import { cleanWaiverText, currentVersion, rememberVersion, parseSignature, parseWaiverForm, recordSignature, removeSignature, waiverFormHtml, registerWaiverHtml, waiverLinkHtml, adminWaiversHtml, waiversCsv, versionText } from "./waivers.mjs";
+import { MAX_TAG_QUESTIONS, MAX_SHEET, faSettings, faClosedReason, parseFreeAgent, allowJoin, addFreeAgent, suggestPlacements, placeFreeAgent, removeFreeAgent, placedEmails, freeAgentsCsv, joinFormHtml, joinedHtml, adminFreeAgentsHtml } from "./freeagents.mjs";
+import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
-const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts"];
+const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts", "playoffResults"];
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
-export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], availability: {}, remindersSent: {} }; }
+export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], reports: {}, moves: {}, availability: {}, subs: {}, remindersSent: {}, notices: [], noticeSeq: 0, registrations: [], approvedSignups: [], regSeq: 0, freeAgents: [], placedAgents: [], faSeq: 0, waivers: [], waiverVersions: {}, waiverSeq: 0, spirit: {} }; }
 
 const MAX_PENDING = 100;
 /** A score a team captain sends from the league page, as a pending request: team indexes and goals, nothing free-form. */
@@ -56,7 +79,10 @@ export function buildLeague(f) {
     seeds = table.map((r) => r.name);
   }
   const want = Math.trunc(Number(f.playoff) || 0);
-  if (want >= 2 && want <= s.teams.length) bracket = playoffBracket(seeds.slice(0, want), { afterDay: s.stats.lastDay, weekdays: s.config.weekdays, skipDays: s.config.skipDays });
+  if (want >= 2 && want <= s.teams.length) {
+    bracket = playoffBracket(seeds.slice(0, want), { afterDay: s.stats.lastDay, weekdays: s.config.weekdays, skipDays: s.config.skipDays });
+    if (String(f.playoffResults || "").trim()) { bracket = playBracket(bracket, f.playoffResults); warnings.push(...bracket.errors); }
+  }
   return { schedule: s, table, bracket, warnings };
 }
 
@@ -84,42 +110,82 @@ export function calendarLinks(base, token, team) {
   return `<a href="${esc(webcal)}">subscribe</a> · <a href="${esc(google)}" rel="noopener">Google Calendar</a> · ${dl} · <input readonly value="${esc(feed)}" aria-label="Calendar address" style="width:auto;min-width:16rem;font-size:.8rem" onfocus="this.select()">`;
 }
 
-function leaguePage(state, token, base = null, today = dayNumber(Date.now())) {
+function leaguePage(state, token, base = null, today = dayNumber(Date.now()), captain = null) {
   const out = buildLeague(state.fields);
   if (out.error) return page("League", `<p>The organiser has not published a valid league yet.</p>`);
   const html = leaguePageHtml(out.schedule, { title: "League schedule", table: out.table, bracket: out.bracket });
   const cal = `<li><strong>Whole league</strong>: ${calendarLinks(base, token, null)}</li>` + out.schedule.teams.map((n, i) => `<li>${esc(n)}: ${calendarLinks(base, token, i)}</li>`).join("");
   const calNote = `<p class="note">Subscribe once and your calendar app re-reads this feed on its own schedule (each app decides how often), so a rained-out game moves without anyone re-sending anything. A downloaded file is a copy: after a change, download it again and re-import it. Every game keeps the same event id all season, so an app that matches events by id, as the iCalendar standard expects, updates the moved games instead of adding copies. Anyone with the calendar address can read the schedule, the same as this page.</p>`;
   const opts = out.schedule.teams.map((n, i) => `<option value="${i}">${esc(n)}</option>`).join("");
-  const form = `<h2>Report a score</h2><form method="post" action="/league/result?t=${esc(token)}"><label>Home <select name="home">${opts}</select></label> <input name="hs" type="number" min="0" max="999" required style="width:5rem" aria-label="Home score"> - <input name="as" type="number" min="0" max="999" required style="width:5rem" aria-label="Away score"> <label>Away <select name="away">${opts}</select></label> <button>Send to organiser</button></form><p class="note">The organiser checks every score before it reaches the table.</p>`;
+  const form = `<h2>Report a score</h2><form method="post" action="/league/result?t=${esc(token)}"><label>Home <select name="home">${opts}</select></label> <input name="hs" type="number" min="0" max="999" required style="width:5rem" aria-label="Home score"> - <input name="as" type="number" min="0" max="999" required style="width:5rem" aria-label="Away score"> <label>Away <select name="away">${opts}</select></label> <button>Send to organiser</button></form><p class="note">The organiser checks every score sent here before it reaches the table. Captains with their team's captain link report there instead: two matching captain reports go in by themselves.</p>`;
   const rosters = parseRosters(state.fields.rosters, out.schedule.teams).rosters;
-  const avail = availabilityHtml(state.availability || {}, upcomingGames(out.schedule, today), { token, minPlayers: state.fields.minPlayers, rosters });
-  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("<footer>", `${avail}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
+  const games = upcomingGames(out.schedule, today);
+  const avail = availabilityHtml(state.availability || {}, games, { token, minPlayers: state.fields.minPlayers, rosters });
+  const subs = subsHtml(state.subs || {}, games, { token });
+  const cap = captain ? captainHtml(state.reports || {}, reportableGames(out.schedule, today), captain.team, out.schedule.teams, { token, cap: captain.key }) + captainMovesHtml(state.moves || {}, movableGames(out.schedule, today), captain.team, { token, cap: captain.key }) : "";
+  const news = noticesHtml(state.notices, today, captain ? out.schedule.teams[captain.team] : null);
+  const waiver = waiverLinkHtml(state, token, captain ? { team: out.schedule.teams[captain.team], rosters } : {});
+  const sp = spiritSettings(state.fields);
+  const spirit = (captain && sp.mode ? captainSpiritHtml(state.spirit || {}, reportableGames(out.schedule, today), captain.team, sp.mode, { token, cap: captain.key }) : "") + (sp.show ? leagueSpiritHtml(spiritTable(state.spirit || {}, out.schedule, sp.mode), sp.mode) : "");
+  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("</h1>", `</h1>${news}`).replace("<footer>", `${cap}${spirit}${waiver}${avail}${subs}<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
 }
 
-function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = process.env) {
+function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = process.env, base = null) {
   const f = state.fields, k = esc(key);
   const built = buildLeague(f), names = built.schedule?.teams ?? [];
   const rp = parseRosters(f.rosters, names), cp = parseContacts(f.contacts, names);
   const games = built.schedule && state.published ? upcomingGames(built.schedule, today) : [];
-  const short = games.length ? shortTeamsHtml(state.availability || {}, games, f.minPlayers, rp.rosters) : "";
+  const av = state.availability || {}, pool = state.subs || {};
+  const short = games.length ? shortTeamsHtml(av, games, f.minPlayers, rp.rosters, { extra: (r) => placeButtonsHtml(pool, av, games, r, key), subsLine: (r) => freeSubsLine(pool, av, games, r.day) }) : "";
   const csv = games.length ? `<p><a href="/admin/availability.csv?key=${k}">Download everyone's answers (CSV)</a> for the next games, with roster players who have not answered.</p>` : "";
   const smtp = smtpConfig(env);
   const mailNote = !smtp ? "Reminder emails are off: set SMTP_HOST, SMTP_FROM (and SMTP_USER, SMTP_PASS) on the server to send them from your own mail account." : smtp.error ? `Reminder emails are off: ${smtp.error}.` : `Reminder emails are on: a team still short ${REMINDER_DAYS} days out gets one email at these addresses${EMAIL.test(env.REMINDER_TO || "") ? ", copied to " + env.REMINDER_TO : ""}. ${Object.keys(state.remindersSent || {}).length} sent for the next games.`;
-  const parseNotes = [...rp.errors, ...cp.errors].slice(0, 8).map((e) => `<li>${esc(e)}</li>`).join("");
+  const parseNotes = [...rp.errors, ...cp.errors, ...(built.bracket?.errors ?? [])].slice(0, 8).map((e) => `<li>${esc(e)}</li>`).join("");
   const pending = (state.pending || []).map((r, i) => names[r.a] === undefined || names[r.b] === undefined ? "" : `<li>${esc(resultLine(names, r))} <form method="post" action="/admin/result?key=${k}" style="display:inline"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Approve</button><button name="act" value="decline">Decline</button></form></li>`).join("");
-  const waiting = pending ? `<h2>Scores waiting for you</h2><ul>${pending}</ul>` : "";
+  const waiting = (pending ? `<h2>Scores waiting for you</h2><ul>${pending}</ul>` : "") + (built.schedule && state.published ? adminReportsHtml(openReports(state.reports || {}, built.schedule), key) + adminMovesHtml(openMoves(state.moves || {}, built.schedule), key) : "");
+  const token = env.LEAGUE_TOKEN || "", capBase = base;
+  const capLinks = names.length && token ? captainLinksHtml(names, key, token, capBase) + (smtp && !smtp.error ? `<form method="post" action="/admin/captain-links?key=${k}"><button>Email each team its captain link</button> <span class="note">to the team's contacts below</span></form>` : "") : "";
   const area = (name, label) => `<label>${label}<textarea name="${name}">${esc(f[name] ?? "")}</textarea></label>`;
-  return page("League admin", `${note}${waiting}${short}${csv}${parseNotes ? `<ul class="err">${parseNotes}</ul>` : ""}
+  const rs = regSettings(f), signups = adminRegistrationsHtml(state, key), fs = faSettings(f);
+  const freeAgents = adminFreeAgentsHtml(state, key, names.length ? names : String(f.teams || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean));
+  const notices = adminNoticesHtml(state, key, names, today, { canEmail: !!(smtp && !smtp.error) });
+  const waivers = adminWaiversHtml(state, key, rp.rosters, names);
+  const sp = spiritSettings(f);
+  const spiritAdmin = sp.mode && built.schedule && state.published ? adminSpiritHtml(state.spirit || {}, built.schedule, sp.mode, today, key) : "";
+  const spiritOpts = [["", "Off"], ...Object.entries(SPIRIT_MODES).map(([v, m]) => [v, m.label])].map(([v, l]) => `<option value="${v}"${(sp.mode || "") === v ? " selected" : ""}>${esc(l)}</option>`).join("");
+  return page("League admin", `${note}${signups}${freeAgents}${waiting}${short}${csv}${parseNotes ? `<ul class="err">${parseNotes}</ul>` : ""}
 <form method="post" action="/admin/save?key=${k}">
 <label>Season start (YYYY-MM-DD)<input name="start" value="${esc(f.start)}"></label>
 <label>Weekdays, comma separated (${WEEKDAYS.join(" ")})<input name="weekdays" value="${esc((f.weekdays || []).join(", "))}"></label>
 <label>Play-off spots (0 for none)<input name="playoff" value="${esc(f.playoff ?? 0)}"></label>
 <label>Players a team needs on the night (0 = do not flag short teams)<input name="minPlayers" inputmode="numeric" value="${esc(f.minPlayers ?? 0)}"></label>
 <label><input type="checkbox" name="double" value="1" style="width:auto" ${f.double ? "checked" : ""}> Double round robin</label>
-${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}${area("rosters", "Rosters (optional), e.g. Hawks: Ana, Ben, Cara. Players pick their name from the list, and you see who has not answered")}${area("contacts", "Team contacts for reminder emails (optional), e.g. Hawks: captain@example.org")}<p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
+${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}${area("playoffResults", "Play-off results, e.g. Hawks 2 - 1 Owls or Hawks 1 - 1 Owls (Hawks on penalties). They fill the bracket and never touch the table")}${area("rosters", "Rosters (optional), e.g. Hawks: Ana, Ben, Cara. Players pick their name from the list, and you see who has not answered")}${area("contacts", "Team contacts for reminder emails (optional), e.g. Hawks: captain@example.org")}
+<fieldset><legend>Team sign-ups</legend>
+<label><input type="checkbox" name="regOpen" value="1" style="width:auto" ${rs.open ? "checked" : ""}> Open sign-ups at <code>/register</code> (a public page: share it anywhere)</label>
+<label>Fee per team, as you want it shown (optional), e.g. $450<input name="regFee" maxlength="60" value="${esc(f.regFee ?? "")}"></label>
+<label>Your payment page (optional, https), e.g. a Stripe, Square or PayPal payment link you made<input name="regPayUrl" value="${esc(f.regPayUrl ?? "")}"></label>
+<label>Most teams (0 = no cap; past it, sign-ups go on a waitlist)<input name="regMaxTeams" inputmode="numeric" value="${esc(f.regMaxTeams ?? 0)}"></label>
+<label>Sign-ups close after (YYYY-MM-DD, optional)<input name="regCloses" value="${esc(f.regCloses ?? "")}"></label>
+<p class="note">Approve adds the team to Teams, its players to Rosters and the captain's email to Contacts. Fees are paid on your own payment page; this server never sees a card, and you tick Paid by hand.${f.regPayUrl && !rs.payUrl ? " The payment page address is not a plain https link, so it is not shown." : ""}</p></fieldset>
+<fieldset><legend>Free agents (players with no team)</legend>
+<label><input type="checkbox" name="faOpen" value="1" style="width:auto" ${fs.open ? "checked" : ""}> Take free agents at <code>/join</code> (a public page: share it anywhere)</label>
+<label>Fee per player, as you want it shown (optional), e.g. $60<input name="faFee" maxlength="60" value="${esc(f.faFee ?? "")}"></label>
+<label>Roster size to fill teams up to (0 = no limit; a team at this size is not suggested)<input name="faTarget" inputmode="numeric" value="${esc(f.faTarget ?? 0)}"></label>
+<label>Free-agent sign-ups close after (YYYY-MM-DD, optional)<input name="faCloses" value="${esc(f.faCloses ?? "")}"></label>
+<label>Ask free agents to tick these, so they are spread evenly across teams (optional, up to ${MAX_TAG_QUESTIONS}), e.g. <code>Woman=F, Goalie=G</code><input name="faTags" maxlength="300" value="${esc(f.faTags ?? "")}"></label>
+<label>Ratings sheet for rostered players (optional): paste the balanced-teams page's CSV (Team, Player, Rating, Tag). Named players count at their rating and tags; free agents' experience is mapped onto the sheet's range<textarea name="faSheet" maxlength="${MAX_SHEET}" style="min-height:4rem">${esc(f.faSheet ?? "")}</textarea></label>
+<p class="note">Placing a free agent adds them to that team's Rosters line and, with email on, sends the player their team and the team's contacts the player's details.</p></fieldset>
+<fieldset><legend>Waiver (optional)</legend>
+<label>Your waiver, release or code-of-conduct text, as players should read it. Leave empty for none<textarea name="waiverText" maxlength="12000" style="min-height:8rem;font-family:inherit">${esc(f.waiverText ?? "")}</textarea></label>
+<p class="note">Players sign at <code>/league/waiver?t=LEAGUE_TOKEN</code> (linked from the league page) and captains on the sign-up form. Each signature keeps the exact text it agreed to: changing the text starts a new version, and earlier signatures show as "signed an earlier version". This page records who agreed to text you wrote; it does not write a waiver and is not legal advice. Whether a waiver holds, and the age at which a player can sign for themselves, depend on where you play: ask a lawyer or your league's insurer.</p></fieldset>
+<fieldset><legend>Sportsmanship ratings (optional)</legend>
+<label>After each game, each captain rates the other team from their captain link<select name="spiritMode">${spiritOpts}</select></label>
+<label><input type="checkbox" name="spiritShow" value="1" style="width:auto" ${f.spiritShow ? "checked" : ""}> Show the sportsmanship table (averages only, never comments) on the league page</label>
+<p class="note">The five-category scale follows the shape of the score sheet ultimate leagues use (rules, fouls and contact, fair-mindedness, attitude, communication; 0 to 4 each, 2 for a normal game). Switching the scale starts the averages again; earlier ratings stay in the state file.</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
+<label><input type="checkbox" name="notify" value="1" style="width:auto"${state.published ? "" : " disabled"}> Email teams whose upcoming games this save moves, cancels or adds (one email per team, to its contacts${smtp && !smtp.error ? "" : "; needs SMTP, see above"})</label>
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
-<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code></p>`);
+${spiritAdmin}${notices}${waivers}${capLinks}<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}). Free agents: <code>/join</code> (${fs.open ? "open" : "closed"}).</p>`);
 }
 
 async function readForm(req) {
@@ -128,19 +194,71 @@ async function readForm(req) {
   return new URLSearchParams(Buffer.concat(chunks).toString("utf8"));
 }
 
-export function handler(state, save, env = process.env, clock = Date.now) {
+export function handler(state, save, env = process.env, clock = Date.now, mail = sendMail) {
   const adminKey = env.ADMIN_KEY || "", token = env.LEAGUE_TOKEN || "";
   // Throttle guessing of the two URL secrets: MAX_FAILS wrong links from one address in WINDOW_MS locks it out for the rest of the window.
-  const MAX_FAILS = 10, WINDOW_MS = 15 * 60 * 1000, fails = new Map();
+  const MAX_FAILS = 10, WINDOW_MS = 15 * 60 * 1000, fails = new Map(), signups = new Map(), joins = new Map();
+  const today = () => new Date(clock()).toISOString().slice(0, 10);
+  // The public sign-up page: no secret in the link, so it is closed unless the organiser opened it,
+  // and capped per address, per store and with a honeypot field.
+  async function register(req, send, who) {
+    const title = "Sign up a team";
+    const why = closedReason(state.fields, today());
+    const formHtml = (values = {}) => registerFormHtml(state, today(), values).replace("<button>Sign up</button>", `${registerWaiverHtml(state, values)}<button>Sign up</button>`);
+    if (req.method === "GET") return send(why ? 404 : 200, page(title, formHtml() + (faClosedReason(state.fields, today()) ? "" : `<p>No team? <a href="/join">Join as a free agent</a> and the organiser places you on one.</p>`)));
+    if (req.method !== "POST") return send(405, "method not allowed\n", "text/plain", { allow: "GET, POST" });
+    if (why) return send(404, page(title, `<p>${esc(why)}</p>`));
+    const form = await readForm(req);
+    if (!form) return send(413, "too large\n", "text/plain");
+    const r = parseRegistration(form, namesInUse(state.fields, state.registrations || []));
+    if (r.spam) return send(200, page("Signed up", "<p class=\"ok\">Thanks.</p>"));
+    const values = Object.fromEntries(["team", "captain", "email", "phone", "players", "note", "w_fullname", "w_minor", "w_guardian", "w_signature"].map((k) => [k, String(form.get(k) ?? "")]));
+    if (r.error) return send(400, page(title, `<p class="err">${esc(r.error)}</p>${formHtml(values)}`));
+    const sig = currentVersion(state) ? parseSignature(form, { prefix: "w_" }) : null;
+    if (sig?.error) return send(400, page(title, `<p class="err">Waiver: ${esc(sig.error)}</p>${formHtml(values)}`));
+    if (!allowSignup(signups, who, clock())) return send(429, page(title, `<p class="err">Too many sign-ups from this connection in the last hour. Try again later.</p>`));
+    const a = addRegistration(state, r.req, clock());
+    if (a.error) return send(429, page(title, `<p class="err">${esc(a.error)}</p>`));
+    if (sig) recordSignature(state, { team: a.reg.team, ...sig.sig, email: sig.sig.email || a.reg.email, via: "signup" }, clock());
+    save();
+    const cfg = smtpConfig(env);
+    if (cfg && !cfg.error) {
+      const base = publicBase(req, env);
+      Promise.resolve().then(() => mail(cfg, signupEmail(state, a.reg, { organiser: EMAIL.test(env.REMINDER_TO || "") ? env.REMINDER_TO : "", registerUrl: base ? `${base}/register` : "" })))
+        .catch((e) => console.error(`sign-up email for ${a.reg.team} not sent: ${e.message}`));
+    }
+    return send(200, page(a.reg.status === "waitlist" ? "On the waitlist" : "Signed up", registeredHtml(state, a.reg)));
+  }
+  // The public free-agent page: same guards as /register (off until opened, per-address cap, honeypot, store cap).
+  async function join(req, send, who) {
+    const title = "Join as a free agent";
+    const why = faClosedReason(state.fields, today());
+    if (req.method === "GET") return send(why ? 404 : 200, page(title, joinFormHtml(state, today())));
+    if (req.method !== "POST") return send(405, "method not allowed\n", "text/plain", { allow: "GET, POST" });
+    if (why) return send(404, page(title, `<p>${esc(why)}</p>`));
+    const form = await readForm(req);
+    if (!form) return send(413, "too large\n", "text/plain");
+    const r = parseFreeAgent(form, state.freeAgents || [], state.fields);
+    if (r.spam) return send(200, page("Joined", "<p class=\"ok\">Thanks.</p>"));
+    const values = { ...Object.fromEntries(["name", "email", "phone", "level", "with", "note"].map((k) => [k, String(form.get(k) ?? "")])), tags: form.getAll("tag").map(String) };
+    if (r.error) return send(400, page(title, `<p class="err">${esc(r.error)}</p>${joinFormHtml(state, today(), values)}`));
+    if (!allowJoin(joins, who, clock())) return send(429, page(title, `<p class="err">Too many sign-ups from this connection in the last hour. Try again later.</p>`));
+    const a = addFreeAgent(state, r.req, clock());
+    if (a.error) return send(429, page(title, `<p class="err">${esc(a.error)}</p>`));
+    save();
+    return send(200, page("On the free-agent list", joinedHtml(a.agent)));
+  }
   return async (req, res) => {
     const send = (code, body, type = "text/html; charset=utf-8", extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
     if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
     if (!adminKey || !token) return send(503, "Set ADMIN_KEY and LEAGUE_TOKEN.\n", "text/plain");
     const isAdmin = url.pathname.startsWith("/admin"), isLeague = url.pathname.startsWith("/league");
-    if (!isAdmin && !isLeague) return send(404, "not found\n", "text/plain");
     const hops = String(req.headers["x-forwarded-for"] || "").split(",").map((h) => h.trim()).filter(Boolean);
     const who = hops.length ? hops[hops.length - 1] : req.socket.remoteAddress, now = Date.now();
+    if (url.pathname === "/register") return register(req, send, who);
+    if (url.pathname === "/join") return join(req, send, who);
+    if (!isAdmin && !isLeague) return send(404, "not found\n", "text/plain");
     let rec = fails.get(who);
     if (rec && now > rec.until) { fails.delete(who); rec = undefined; }
     if (rec && rec.n >= MAX_FAILS) return send(429, "too many wrong links; try again later\n", "text/plain", { "retry-after": String(Math.ceil((rec.until - now) / 1000)) });
@@ -152,7 +270,112 @@ export function handler(state, save, env = process.env, clock = Date.now) {
     }
     const t = url.searchParams.get("t");
     if (isLeague) {
-      if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t, publicBase(req, env), dayNumber(clock())) : page("League", "<p>No schedule has been published yet.</p>"));
+      // A captain link carries c=KEY: a wrong key counts as a wrong link, like a wrong token.
+      let captain = null;
+      const c = url.searchParams.get("c");
+      if (c !== null && state.published) {
+        const built = buildLeague(state.fields), ti = built.error ? -1 : captainTeam(adminKey, built.schedule.teams, c);
+        if (ti < 0) {
+          if (!rec) fails.set(who, rec = { n: 0, until: now + WINDOW_MS });
+          rec.n++;
+          return send(401, "this captain link is not valid (the team may have been renamed; ask the organiser for the new one)\n", "text/plain");
+        }
+        captain = { team: ti, key: c };
+      }
+      if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t, publicBase(req, env), dayNumber(clock()), captain) : page("League", "<p>No schedule has been published yet.</p>"));
+      if (req.method === "POST" && url.pathname === "/league/report") {
+        if (!captain) return send(401, "captain link required\n", "text/plain");
+        const out = buildLeague(state.fields);
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const back = `<p><a href="/league?t=${esc(encodeURIComponent(t))}&amp;c=${esc(encodeURIComponent(c))}#captain">Back to your team's page</a></p>`;
+        const games = reportableGames(out.schedule, dayNumber(clock()));
+        const r = parseReport(body, games, captain.team);
+        if (r.error) return send(400, page("Score not sent", `<p class="err">${esc(r.error)}</p>${back}`));
+        state.reports = state.reports || {};
+        const w = recordReport(state.reports, r.req, clock());
+        if (w.error) { save(); return send(409, page("Score not sent", `<p class="err">${esc(w.error)}</p>${back}`)); }
+        const g = games.find((x) => x.fixture === r.req.fixture), line = reportLine(g, r.req);
+        let msg = `Sent: ${line}. Waiting for the other captain; the same score from them puts it in the table.`;
+        if (w.status === "confirmed") {
+          const prev = String(state.fields.results || "").replace(/\s+$/, "");
+          state.fields.results = (prev ? prev + "\n" : "") + line;
+          settle(state.reports, r.req.fixture, line);
+          msg = `Confirmed by both captains: ${line} is in the table.`;
+        } else if (w.status === "disputed") msg = `Sent: ${line}. The other captain sent a different score, so the organiser will decide. If yours was a typo, send it again.`;
+        save();
+        return send(200, page(w.status === "confirmed" ? "Result in the table" : "Score sent", `<p class="${w.status === "disputed" ? "err" : "ok"}">${esc(msg)}</p>${back}`));
+      }
+      if (req.method === "POST" && url.pathname === "/league/spirit") {
+        if (!captain) return send(401, "captain link required\n", "text/plain");
+        const sp = spiritSettings(state.fields), out = buildLeague(state.fields);
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const back = `<p><a href="/league?t=${esc(encodeURIComponent(t))}&amp;c=${esc(encodeURIComponent(c))}#spirit">Back to your team's page</a></p>`;
+        const games = reportableGames(out.schedule, dayNumber(clock()));
+        const r = parseSpirit(body, games, captain.team, sp.mode);
+        if (r.error) return send(400, page("Rating not sent", `<p class="err">${esc(r.error)}</p>${back}`));
+        state.spirit = state.spirit || {};
+        pruneSpirit(state.spirit, out.schedule);
+        const w = recordSpirit(state.spirit, r.req, sp.mode, clock());
+        save();
+        const total = r.req.scores.reduce((a, b) => a + b, 0);
+        return send(200, page("Rating sent", `<p class="ok">${w.replaced ? "Rating changed" : "Rating sent"}: ${esc(out.schedule.teams[r.req.rated])}, ${total} of ${SPIRIT_MODES[sp.mode].total}. Only the organiser sees it.</p>${back}`));
+      }
+      if (req.method === "POST" && url.pathname === "/league/move") {
+        if (!captain) return send(401, "captain link required\n", "text/plain");
+        const out = buildLeague(state.fields), day = dayNumber(clock());
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const back = `<p><a href="/league?t=${esc(encodeURIComponent(t))}&amp;c=${esc(encodeURIComponent(c))}#moves">Back to your team's page</a></p>`;
+        const games = movableGames(out.schedule, day);
+        const r = parseMoveRequest(body, games, captain.team, day);
+        if (r.error) return send(400, page("Not sent", `<p class="err">${esc(r.error)}</p>${back}`));
+        state.moves = state.moves || {};
+        pruneMoves(state.moves, out.schedule, day);
+        const g = games.find((x) => x.fixture === r.req.fixture);
+        let fit = null;
+        if (r.req.act === "ask") {
+          fit = tryMove(state.fields, buildLeague, r.req.fixture, r.req.to);
+          if (fit.error) return send(409, page("Date does not fit", `<p class="err">${esc(fit.error)}</p><p>Try another date.</p>${back}`));
+        }
+        const w = recordMove(state.moves, r.req, clock());
+        if (w.error) return send(409, page("Not sent", `<p class="err">${esc(w.error)}</p>${back}`));
+        save();
+        const other = r.req.side === "home" ? g.awayName : g.homeName;
+        const msgs = {
+          asked: `Asked: ${g.homeName} v ${g.awayName} on ${dayLabel(r.req.to ?? 0)}${fit ? ` (${fit.game.time ? fit.game.time + ", " : ""}${fit.game.court})` : ""}. ${other}'s captain answers from their link; then the organiser approves.`,
+          agreed: `Agreed. The organiser approves the move, then the league page and calendars follow.`,
+          declined: `Declined. The game stays where it is.`,
+          withdrawn: `Withdrawn. The game stays where it is.`,
+        };
+        const cfg = smtpConfig(env), base = publicBase(req, env);
+        if (w.status === "asked" && cfg && !cfg.error) {
+          const contacts = parseContacts(state.fields.contacts, out.schedule.teams).contacts;
+          const to = Object.prototype.hasOwnProperty.call(contacts, other) && Array.isArray(contacts[other]) ? contacts[other] : [];
+          if (to.length) {
+            const msg = moveAskedEmail(g, state.moves[g.fixture], to, base ? `${base}/league?t=${encodeURIComponent(token)}&c=${captainKey(adminKey, other)}#moves` : "");
+            Promise.resolve().then(() => mail(cfg, msg)).catch((err) => console.error(`move request email for ${other} not sent: ${err.message}`));
+          }
+        }
+        return send(200, page("Move request", `<p class="${w.status === "declined" || w.status === "withdrawn" ? "note" : "ok"}">${esc(msgs[w.status])}</p>${back}`));
+      }
+      if (url.pathname === "/league/waiver") {
+        const out = buildLeague(state.fields), back = `<p><a href="/league?t=${esc(encodeURIComponent(t))}">Back to the league</a></p>`;
+        if (out.error || !currentVersion(state)) return send(404, page("Waiver", `<p>The organiser has not set a waiver for this league.</p>${back}`));
+        const teams = out.schedule.teams;
+        if (req.method === "GET") return send(200, page("League waiver", waiverFormHtml(state, teams, t) + back));
+        if (req.method !== "POST") return send(405, "method not allowed\n", "text/plain", { allow: "GET, POST" });
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const values = Object.fromEntries(["team", "fullname", "email", "minor", "guardian", "signature"].map((k) => [k, String(body.get(k) ?? "")]));
+        const r = parseWaiverForm(body, teams);
+        if (r.error) return send(400, page("League waiver", `<p class="err">${esc(r.error)}</p>${waiverFormHtml(state, teams, t, values)}${back}`));
+        const w = recordSignature(state, r.req, clock());
+        if (w.error) return send(429, page("League waiver", `<p class="err">${esc(w.error)}</p>${back}`));
+        save();
+        return send(200, page("Waiver signed", `<p class="ok">${w.replaced ? "Signed again" : "Signed"}: ${esc(w.sig.name)}${w.sig.minor ? ` (by ${esc(w.sig.guardian)}, parent or guardian)` : ""} for ${esc(w.sig.team)}, version ${esc(w.sig.version)}, ${esc(new Date(w.sig.at).toISOString().replace("T", " ").slice(0, 16))} UTC.</p><p class="note">The organiser keeps this record. Ask them if you need a copy of the text you signed.</p>${back}`));
+      }
       if (req.method === "GET" && url.pathname === "/league/ics") {
         const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
         const raw = url.searchParams.get("team"), all = raw === "all", i = Number(raw);
@@ -189,6 +412,26 @@ export function handler(state, save, env = process.env, clock = Date.now) {
         const g = games.find((x) => x.fixture === r.req.fixture);
         return send(200, page("Answer saved", `<p class="ok">${w.replaced ? "Changed" : "Saved"}: ${esc(r.req.name)} is ${esc(r.req.status === "in" ? "in" : r.req.status === "out" ? "out" : "a maybe")} for ${esc(r.req.team)} v ${esc(r.req.team === g.homeName ? g.awayName : g.homeName)}.</p>${back}`));
       }
+      if (req.method === "POST" && url.pathname === "/league/sub") {
+        const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
+        if (out.error) return send(404, "not found\n", "text/plain");
+        const body = await readForm(req);
+        if (!body) return send(413, "too large\n", "text/plain");
+        const games = upcomingGames(out.schedule, dayNumber(clock()));
+        const back = `<p><a href="/league?t=${esc(t)}">Back to the league</a></p>`;
+        const r = parseSubOffer(body, games);
+        if (r.error) return send(400, page("Not saved", `<p class="err">${esc(r.error)}</p>${back}`));
+        state.subs = state.subs || {};
+        state.availability = state.availability || {};
+        const w = recordSub(state.subs, state.availability, r.req, games, clock());
+        if (w.error) return send(r.req.act === "withdraw" ? 404 : 429, page("Not saved", `<p class="err">${esc(w.error)}</p>${back}`));
+        save();
+        const when = dayLabel(r.req.day);
+        const msg = r.req.act === "withdraw"
+          ? `${r.req.name} is off the sub list for ${when}.${w.placed ? ` You were placed with ${w.placed.team}: they show one fewer In now, so tell the organiser.` : ""}`
+          : w.already ? `${r.req.name} is already on the sub list for ${when}${w.placed ? `, placed with ${w.placed.team}` : ""}.` : `${r.req.name} is on the sub list for ${when}. The organiser places subs with teams that are short.`;
+        return send(200, page("Sub list", `<p class="ok">${esc(msg)}</p>${back}`));
+      }
       return send(404, "not found\n", "text/plain");
     }
     let form = new URLSearchParams();
@@ -199,7 +442,7 @@ export function handler(state, save, env = process.env, clock = Date.now) {
     const here = `/admin?key=${encodeURIComponent(adminKey)}`;
     if (req.method === "GET" && url.pathname === "/admin") {
       const note = url.searchParams.get("note");
-      return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : "", dayNumber(clock()), env));
+      return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : "", dayNumber(clock()), env, publicBase(req, env)));
     }
     if (req.method === "GET" && url.pathname === "/admin/availability.csv") {
       const out = buildLeague(state.fields);
@@ -215,14 +458,218 @@ export function handler(state, save, env = process.env, clock = Date.now) {
       f.double = form.get("double") === "1";
       f.playoff = Math.trunc(Number(form.get("playoff")) || 0);
       f.minPlayers = Math.min(99, Math.max(0, Math.trunc(Number(form.get("minPlayers")) || 0)));
+      f.regOpen = form.get("regOpen") === "1";
+      for (const k of ["regFee", "regPayUrl", "regCloses"]) f[k] = String(form.get(k) ?? "").trim().slice(0, 500);
+      f.regMaxTeams = regSettings({ regMaxTeams: form.get("regMaxTeams") }).maxTeams;
+      f.faOpen = form.get("faOpen") === "1";
+      for (const k of ["faFee", "faCloses"]) f[k] = String(form.get(k) ?? "").trim().slice(0, 500);
+      f.faTarget = faSettings({ faTarget: form.get("faTarget") }).target;
+      f.faTags = String(form.get("faTags") ?? "").trim().slice(0, 300);
+      f.faSheet = String(form.get("faSheet") ?? "").slice(0, MAX_SHEET);
+      f.waiverText = cleanWaiverText(form.get("waiverText"));
+      f.spiritMode = SPIRIT_MODES[form.get("spiritMode")] ? String(form.get("spiritMode")) : "";
+      f.spiritShow = form.get("spiritShow") === "1";
+      const wasPublished = state.published, prev = wasPublished ? buildLeague(state.fields) : null;
       state.fields = f;
+      rememberVersion(state, clock());
       const out = buildLeague(f);
       if (form.get("act") === "publish") {
-        if (out.error) { save(); return send(400, adminPage(state, adminKey, `<p class="err">${esc(out.error)}</p>`, dayNumber(clock()), env)); }
+        if (out.error) { save(); return send(400, adminPage(state, adminKey, `<p class="err">${esc(out.error)}</p>`, dayNumber(clock()), env, publicBase(req, env))); }
         state.published = true;
       }
       save();
-      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(out.error ? "Saved, but: " + out.error : "Saved." + (out.warnings.length ? " " + out.warnings.length + " warning(s): " + out.warnings[0] : ""))}` });
+      let changeNote = "";
+      if (wasPublished && prev && !prev.error && !out.error) {
+        const changes = scheduleChanges(prev.schedule, out.schedule, dayNumber(clock()));
+        if (changes.length) {
+          changeNote = ` ${changeSummary(changes)}.`;
+          const cfg = smtpConfig(env);
+          if (form.get("notify") !== "1") changeNote += " Teams were not emailed (tick \"Email teams\" when you save to send them).";
+          else if (!cfg || cfg.error) changeNote += " Teams were not emailed: reminder email (SMTP) is off.";
+          else {
+            const base = env.PUBLIC_URL && /^https?:\/\/[A-Za-z0-9.-]+(:\d+)?\/?$/.test(env.PUBLIC_URL) ? env.PUBLIC_URL.replace(/\/$/, "") : publicBase(req, env);
+            const emails = changeEmails(changes, {
+              contacts: parseContacts(f.contacts, out.schedule.teams).contacts,
+              organiser: EMAIL.test(env.REMINDER_TO || "") ? env.REMINDER_TO : "",
+              leagueUrl: base && token ? `${base}/league?t=${encodeURIComponent(token)}` : "",
+            });
+            const missing = new Set(changes.flatMap((c) => [c.before, c.after]).filter(Boolean).flatMap((g) => [g.home, g.away]));
+            for (const e of emails) missing.delete(e.team);
+            changeNote += ` Emailing ${emails.length} team${emails.length === 1 ? "" : "s"}.${missing.size ? ` No contact address for ${[...missing].slice(0, 6).join(", ")}: tell them yourself.` : ""}`;
+            for (const e of emails) Promise.resolve().then(() => mail(cfg, e)).catch((err) => console.error(`change email for ${e.team} not sent: ${err.message}`));
+          }
+        }
+      }
+      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent((out.error ? "Saved, but: " + out.error : "Saved." + (out.warnings.length ? " " + out.warnings.length + " warning(s): " + out.warnings[0] : "")) + changeNote)}` });
+    }
+    if (req.method === "GET" && url.pathname === "/admin/spirit.csv") {
+      const out = buildLeague(state.fields);
+      if (out.error) return send(404, "fix the league first\n", "text/plain");
+      return send(200, "\ufeff" + spiritCsv(state.spirit || {}, out.schedule, spiritSettings(state.fields).mode), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="sportsmanship.csv"', "cache-control": "no-store" });
+    }
+    if (req.method === "GET" && url.pathname === "/admin/waivers.csv") {
+      return send(200, "\ufeff" + waiversCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="waivers.csv"', "cache-control": "no-store" });
+    }
+    if (req.method === "GET" && url.pathname === "/admin/waiver.txt") {
+      const txt = versionText(state, url.searchParams.get("v"));
+      return txt ? send(200, txt, "text/plain; charset=utf-8", { "cache-control": "no-store" }) : send(404, "no such version\n", "text/plain");
+    }
+    if (req.method === "POST" && url.pathname === "/admin/waiver") {
+      const r = removeSignature(state, Number(form.get("id")));
+      if (!r.error) save();
+      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(r.error || `Removed ${r.sig.name}'s signature for ${r.sig.team}.`)}` });
+    }
+    if (req.method === "GET" && url.pathname === "/admin/free-agents.csv") {
+      return send(200, "\ufeff" + freeAgentsCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="free-agents.csv"', "cache-control": "no-store" });
+    }
+    if (req.method === "POST" && url.pathname === "/admin/free-agent") {
+      const go = (n) => send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(n)}` });
+      const out = buildLeague(state.fields);
+      const teams = out.schedule?.teams ?? String(state.fields.teams || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const act = form.get("act");
+      if (act === "remove") {
+        const r = removeFreeAgent(state, Number(form.get("id")));
+        if (r.error) return go(r.error);
+        save();
+        return go(`${r.agent.name} taken off the free-agent list (not emailed; tell them yourself).`);
+      }
+      if (act !== "place" && act !== "place-all") return go("Unknown action.");
+      const plan = act === "place" ? [[Number(form.get("id")), String(form.get("team") || "")]] : [...suggestPlacements(state, teams).picks];
+      const done = [], errs = [];
+      for (const [id, team] of plan) { const r = placeFreeAgent(state, id, team, teams, clock()); if (r.error) errs.push(r.error); else done.push(r.agent); }
+      if (done.length) save();
+      let note = done.length ? `Placed ${done.map((a) => `${a.name} on ${a.team}`).slice(0, 8).join(", ")}${done.length > 8 ? ` and ${done.length - 8} more` : ""}.` : "";
+      if (errs.length) note += ` ${errs.slice(0, 3).join(" ")}`;
+      if (done.length) {
+        const cfg = smtpConfig(env);
+        if (!cfg || cfg.error) note += " Not emailed: reminder email (SMTP) is off, so tell the players and captains yourself.";
+        else {
+          const base = publicBase(req, env), organiser = EMAIL.test(env.REMINDER_TO || "") ? env.REMINDER_TO : "";
+          const leagueUrl = base && token && state.published ? `${base}/league?t=${encodeURIComponent(token)}` : "";
+          let noContact = [];
+          for (const a of done) {
+            const msgs = placedEmails(state, a, teams, { organiser, leagueUrl });
+            if (!msgs.some((m) => m.kind === "team")) noContact.push(a.team);
+            for (const m of msgs) Promise.resolve().then(() => mail(cfg, m)).catch((err) => console.error(`free-agent email for ${a.name} not sent: ${err.message}`));
+          }
+          noContact = [...new Set(noContact)];
+          note += ` Emailing ${done.length} player${done.length === 1 ? "" : "s"} their team.${noContact.length ? ` No contact address for ${noContact.slice(0, 6).join(", ")}: tell that captain yourself.` : ""}`;
+        }
+      }
+      return go(note.trim() || "Nothing to place.");
+    }
+    if (req.method === "GET" && url.pathname === "/admin/signups.csv") {
+      return send(200, "\ufeff" + registrationsCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="signups.csv"', "cache-control": "no-store" });
+    }
+    if (req.method === "POST" && url.pathname === "/admin/signup") {
+      const id = Number(form.get("id")), act = form.get("act");
+      const r = act === "approve" ? approveRegistration(state, id) : act === "decline" ? declineRegistration(state, id) : act === "paid" ? togglePaid(state, id) : { error: "Unknown action." };
+      if (r.error) return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(r.error)}` });
+      save();
+      let note = act === "approve" ? `${r.reg.team} added to Teams, Rosters and Contacts.` : act === "decline" ? `${r.reg.team} declined (the captain is not emailed; tell them yourself).` : `${r.reg.team} marked ${r.reg.paid ? "paid" : "not paid"}.`;
+      if (act === "approve") {
+        const out = buildLeague(state.fields);
+        if (out.error) note += ` The league does not build yet: ${out.error}`;
+        else if (state.published) note += " The league is published, so the schedule now includes this team. If the season has started, add a Late teams line (YYYY-MM-DD Team) so its earlier games move instead of being missed.";
+      }
+      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(note)}` });
+    }
+    if (req.method === "POST" && url.pathname === "/admin/sub") {
+      const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
+      if (out.error) return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent("Publish the league first.")}` });
+      const games = upcomingGames(out.schedule, dayNumber(clock()));
+      state.subs = state.subs || {};
+      state.availability = state.availability || {};
+      const p = placeSub(state.subs, state.availability, { fixture: String(form.get("fixture") ?? ""), teamIndex: Number(form.get("team")), name: String(form.get("name") ?? "") }, games, clock());
+      if (p.ok) save();
+      const note = p.error || `${p.name} placed with ${p.team} for ${dayLabel(p.game.day)}; they now count as In (sub). Let them know.`;
+      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(note)}` });
+    }
+    if (req.method === "POST" && url.pathname === "/admin/report") {
+      const fixture = String(form.get("fixture") ?? ""), act = String(form.get("act") ?? "");
+      const e = (state.reports || {})[fixture], out = buildLeague(state.fields);
+      const go = (n) => send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(n)}` });
+      if (!e || e.done || out.error) return go("That report is no longer open.");
+      if (act === "clear") { delete state.reports[fixture]; save(); return go("Reports cleared; either captain can report again."); }
+      const s = act === "home" || act === "away" ? e[act] : null;
+      const g = reportableGames(out.schedule, Infinity, Infinity).find((x) => x.fixture === fixture);
+      if (!s || !g) return go("That report is no longer open.");
+      const line = reportLine(g, s), prev = String(state.fields.results || "").replace(/\s+$/, "");
+      state.fields.results = (prev ? prev + "\n" : "") + line;
+      settle(state.reports, fixture, line);
+      save();
+      return go(`Added to results: ${line}`);
+    }
+    if (req.method === "POST" && url.pathname === "/admin/move") {
+      const fixture = String(form.get("fixture") ?? ""), act = String(form.get("act") ?? "");
+      const go = (n) => send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(n)}` });
+      const prev = buildLeague(state.fields);
+      state.moves = state.moves || {};
+      if (prev.error) return go(`Fix the league first: ${prev.error}`);
+      pruneMoves(state.moves, prev.schedule, dayNumber(clock()));
+      const e = state.moves[fixture];
+      if (!e || (e.status !== "asked" && e.status !== "agreed")) { save(); return go("That move request is no longer open."); }
+      if (act === "refuse") { e.status = "refused"; save(); return go("Move refused; both captains see it on their page. The game stays where it is."); }
+      if (act !== "approve" || e.status !== "agreed") return go("Only a move both captains agreed can be approved.");
+      const fit = tryMove(state.fields, buildLeague, fixture, e.to);
+      if (fit.error) { e.status = "refused"; save(); return go(`Not moved: ${fit.error} The request is closed; the captains can ask for another date.`); }
+      state.fields = fit.fields;
+      delete state.moves[fixture];
+      save();
+      const g = fit.game;
+      let note = `Moved ${g.homeName} v ${g.awayName} to ${dayLabel(g.day)}${g.time ? " " + g.time : ""}, ${g.court}. Rainouts now ends with that line.`;
+      const changes = scheduleChanges(prev.schedule, buildLeague(state.fields).schedule, dayNumber(clock()));
+      const cfg = smtpConfig(env);
+      if (state.published && changes.length && cfg && !cfg.error) {
+        const base = publicBase(req, env);
+        const emails = changeEmails(changes, { contacts: parseContacts(state.fields.contacts, prev.schedule.teams).contacts, organiser: EMAIL.test(env.REMINDER_TO || "") ? env.REMINDER_TO : "", leagueUrl: base ? `${base}/league?t=${encodeURIComponent(token)}` : "" });
+        note += ` Emailing ${emails.length} team${emails.length === 1 ? "" : "s"}.`;
+        for (const m of emails) Promise.resolve().then(() => mail(cfg, m)).catch((err) => console.error(`change email for ${m.team} not sent: ${err.message}`));
+      }
+      return go(note);
+    }
+    if (req.method === "POST" && url.pathname === "/admin/notice") {
+      const go = (n) => send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(n)}` });
+      if (form.get("act") === "remove") {
+        const ok = removeNotice(state, Number(form.get("id")));
+        if (ok) save();
+        return go(ok ? "Notice removed." : "That notice is already gone.");
+      }
+      const out = buildLeague(state.fields), teams = out.schedule?.teams ?? [];
+      const p = parseNotice(form, teams, dayNumber(clock()), clock());
+      if (p.error) return go(p.error);
+      const n = addNotice(state, p.notice);
+      let note = `Notice posted${n.team ? ` for ${n.team} (on their captain page)` : " on the league page"}${state.published ? "" : "; players see it once the league is published"}.`;
+      if (form.get("email") === "1") {
+        const cfg = smtpConfig(env), base = publicBase(req, env);
+        if (!cfg || cfg.error) note += " Not emailed: reminder email (SMTP) is off.";
+        else {
+          const { emails, missing } = noticeEmails(n, parseContacts(state.fields.contacts, teams).contacts, teams, { leagueUrl: base && token ? `${base}/league?t=${encodeURIComponent(token)}` : "" });
+          n.emailed = emails.length;
+          note += ` Emailing ${emails.length} team${emails.length === 1 ? "" : "s"}.${missing.length ? ` No contact address for ${missing.slice(0, 6).join(", ")}${missing.length > 6 ? " and others" : ""}: tell them yourself.` : ""}`;
+          for (const m of emails) Promise.resolve().then(() => mail(cfg, m)).catch((err) => console.error(`notice email for ${m.team} not sent: ${err.message}`));
+        }
+      }
+      save();
+      return go(note);
+    }
+    if (req.method === "POST" && url.pathname === "/admin/captain-links") {
+      const out = buildLeague(state.fields), cfg = smtpConfig(env);
+      const go = (n) => send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(n)}` });
+      if (out.error) return go(`Fix the league first: ${out.error}`);
+      if (!cfg || cfg.error) return go("Reminder email (SMTP) is off, so links cannot be emailed. Copy them from Captain links instead.");
+      const base = publicBase(req, env);
+      if (!base) return go("Set PUBLIC_URL on the server so the emailed links have an address.");
+      const contacts = parseContacts(state.fields.contacts, out.schedule.teams).contacts, missing = [];
+      let n = 0;
+      for (const team of out.schedule.teams) {
+        const to = Object.prototype.hasOwnProperty.call(contacts, team) && Array.isArray(contacts[team]) ? contacts[team] : [];
+        if (!to.length) { missing.push(team); continue; }
+        const msg = captainLinkEmail(team, `${base}/league?t=${encodeURIComponent(token)}&c=${captainKey(adminKey, team)}`, to);
+        n++;
+        Promise.resolve().then(() => mail(cfg, msg)).catch((err) => console.error(`captain link for ${team} not sent: ${err.message}`));
+      }
+      return go(`Emailing captain links to ${n} team${n === 1 ? "" : "s"}.${missing.length ? ` No contact address for ${missing.slice(0, 6).join(", ")}: copy their link from Captain links.` : ""}`);
     }
     if (req.method === "POST" && url.pathname === "/admin/result") {
       const i = Number(form.get("i")), r = (state.pending || [])[i];
@@ -262,6 +709,7 @@ export async function runReminders(state, save, env = process.env, clock = Date.
     minPlayers: state.fields.minPlayers, today, sent: state.remindersSent,
     contacts: parseContacts(state.fields.contacts, out.schedule.teams).contacts,
     rosters: parseRosters(state.fields.rosters, out.schedule.teams).rosters,
+    subsLine: (r) => freeSubsLine(state.subs || {}, state.availability || {}, games, r.day),
     organiser: EMAIL.test(env.REMINDER_TO || "") ? env.REMINDER_TO : "",
     leagueUrl: base && env.LEAGUE_TOKEN ? `${base}/league?t=${encodeURIComponent(env.LEAGUE_TOKEN)}` : "",
   });

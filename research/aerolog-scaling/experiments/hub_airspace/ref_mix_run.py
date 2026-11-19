@@ -1,6 +1,6 @@
 """Milestone 11aj driver (predictions in ref_mix.py's docstring). Needs numpy. Reuses 11ai's input cache:
 
-    OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 level_leak_run.py --build      # 11ai's W, X, A, B (about 2 h 20 min)
+    OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 level_leak_run.py --build      # 11ai's W, X, A, B (seconds: read from leak_inputs.json.gz)
     OMP_NUM_THREADS=1 LEAK_CACHE=leak.pkl python3 ref_mix_run.py > ref_mix_results.txt
 REFMIX_KEEP=1 also writes ref_mix_res.pkl (per-layout plans) next to this file."""
 import importlib.util

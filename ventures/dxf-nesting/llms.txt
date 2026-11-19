@@ -1,0 +1,19 @@
+# DXF Nesting
+
+> Free true-shape nesting of DXF parts on rectangular sheets, in the browser: load DXF files, set quantities, sheet size, gap and edge margin, and get nested sheets as R12 DXF with utilisation, cut length and pierce counts. Parts go inside the holes of other parts. Every gap is checked independently after nesting. Nothing is uploaded.
+
+Free and open source (MIT). For laser, plasma, waterjet and CNC router shops quoting or cutting small batches. A greedy grid nester, not an optimiser: commercial nesters with search usually fit a few percent more. Not engineering advice; check every nest in your CAM before cutting.
+
+## Pages
+
+- [The tool](https://marisstella.app/dxf-nesting/): load DXF, nest, download sheets and a CSV report.
+
+## What it reads and writes
+
+- Reads ASCII DXF: LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE, INSERT/MINSERT of blocks (scale, rotation, mirroring, arrays), arbitrary-axis (0,0,-1) extrusion. Skips and counts text, dimensions and hatches. Binary DXF is refused.
+- Writes R12 DXF with layers CUT_OUTER, CUT_INNER, MARK and SHEET, and $INSUNITS carried over.
+- Command line: `node cli.mjs part.dxf:20 --sheet 2500x1250 --gap 5 --margin 10 --rot 0,90,180,270 --out nest.dxf`
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dxf-nesting): MIT licensed.

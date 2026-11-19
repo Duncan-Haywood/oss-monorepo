@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyeMhXGL9pmw4HZE7nS",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T01:38:02Z",
+  "ended": "2026-11-19T02:15:05Z",
+  "wall_minutes": 37.23,
+  "tokens_in": 6408254,
+  "tokens_out": 33677,
+  "cost_usd": 2.9773,
+  "tool_calls": 60,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17494",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "`PY=$(python3 platform/ci/pyenv.py pytest numpy)` printed /usr/bin/python3.13 while bare python3 lacked numpy; worked, but the two interpreters on PATH cost a minute to notice."
+    },
+    {
+      "file": "ventures/open-tennis-robots/tests/test_host.py",
+      "issue": "EstopResetTest.test_bom_lists_the_latch_and_the_button imports build123d without the skip guard the other 58 CAD tests use, so run_venture_tests.py fails in a container without build123d (CI installs it)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/open-tennis-robots/eval/take-grid-fresh-g-i-2026-11-18.md",
+      "why": "The predecessor's design drew one take per millisecond; the first such draw (seed 20261119) put no take in 6.5-7.5 ms, the only band the 7 ms point can move, so the test could not answer its question.",
+      "did": "Replaced it before any capture with a stratified draw (seed 20261120, one take per ms 0-5 and per half ms 5-8) and said so in the pre-registration.",
+      "result": "The test answered: +36 builds within 0.5 ms, rule passed, grid shipped."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-tennis-feeder-one-more-grid-point-passed-its-test.md",
+    "ventures/open-tennis-robots/eval/take-grid-eight-2026-11-19.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (An eight-point take grid)"
+  ],
+  "goal": null,
+  "notes": "Flagship open-tennis-robots (allocate row 5). Pre-registered (d9bb7bb9e) then captured sets J/K/L (216 simulated survey drills, none aborted). Eight-point grid passed all six clauses; firmware/Pi/protocol updated with older frames still decoded. Local checks: tests/test_host.py 140 passed; run_venture_tests.py open-tennis-robots 437 of 438 (1 error: build123d missing in container, unrelated); check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "81a0ca06-5b35-57f7-8e60-7952570cfbdd",
+    "transcripts": 1,
+    "first": "2026-11-19T01:38:02Z",
+    "last": "2026-11-19T02:15:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 112,
+        "output": 33677,
+        "thinking": 9001,
+        "cache_read": 6277158,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130984,
+        "api_equivalent_usd": 2.9773,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 112,
+      "output": 33677,
+      "thinking": 9001,
+      "cache_read": 6277158,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130984,
+      "api_equivalent_usd": 2.9773,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 55,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 37.23,
+      "active_minutes": 37.23,
+      "model_minutes": 5.54,
+      "tool_minutes": 31.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "pre-registering, running and scoring three simulated test sets, a firmware/protocol change with backward-compatible decoding, tests and write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 201.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

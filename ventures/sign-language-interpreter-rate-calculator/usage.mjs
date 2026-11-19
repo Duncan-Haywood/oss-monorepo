@@ -15,7 +15,14 @@ export function usageAllowed() {
   }
   const ls = storage();
   if (!ls) return false;
-  return ls.getItem(OPT_OUT) !== 'true';
+  // recordEvent() calls this outside its own try/catch, and the page calls
+  // recordEvent() inside the try that renders the result: a getItem that throws
+  // (storage blocked or corrupted) must not replace the answer with an error.
+  try {
+    return ls.getItem(OPT_OUT) !== 'true';
+  } catch {
+    return false;
+  }
 }
 
 export function recordEvent(event = 'quote-calculated') {

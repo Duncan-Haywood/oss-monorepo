@@ -118,6 +118,12 @@
       .tabs, .actions, footer label, header p { display: none; }
       section { box-shadow: none; break-inside: avoid; }
       .sheet-card { break-inside: avoid; }
+      /* Printers drop the dark fill, which left this panel's cream text at
+         2.5:1 on white paper (platform/pages/paper.mjs). Dark ink instead. */
+      .summary { background: #fff; color: #20241d; border-color: #24392b; }
+      .summary .big { color: #24392b; }
+      .bar { border-top-color: #d6d0c3; }
+      .tag-buy { background: #fff; color: #24392b; border: 1px solid #24392b; }
     }
   </style>
 </head>

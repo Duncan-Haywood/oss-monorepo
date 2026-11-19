@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Collect Player Waivers For A Rec League, Free</title>
+  <meta name="description" content="Collect signed player waivers for a rec league without a paid waiver app: your own text, versioned, guardians for minors, and a per-team list of who has not signed.">
+  <meta property="og:title" content="How To Collect Player Waivers For A Rec League, Free">
+  <meta property="og:description" content="Your own waiver text, signed from the league link, checked against each roster. Self-hosted and free.">
+  <link rel="canonical" href="./how-to-collect-player-waivers-for-a-rec-league.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I collect waivers without a paid waiver app?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, if you already run the self-hosted league page. Paste your own waiver text in the organiser page and players sign from the league link with their name, a tick and a typed signature. A minor's parent or guardian signs with their own name. You download every signature as a CSV."}}, {"@type": "Question", "name": "What happens to signatures when I change the waiver text?", "acceptedAnswer": {"@type": "Answer", "text": "Each distinct text is a version, named by the start of its SHA-256 hash and kept with the date it was first set. A signature points at the version it agreed to. After an edit, earlier signers show as signed an earlier version, so you can ask them to sign the new text."}}, {"@type": "Question", "name": "How do I see who has not signed?", "acceptedAnswer": {"@type": "Answer", "text": "The organiser page compares signatures with each team's roster and lists, per team, who has signed the current text, who signed an older one and who has not signed. A captain's page shows the same list for their own team."}}, {"@type": "Question", "name": "Does this write the waiver for me or make it enforceable?", "acceptedAnswer": {"@type": "Answer", "text": "No. You supply the words, ideally from your league's insurer, governing body or a lawyer. The page records who agreed to which words and when. Whether a release holds, and the age at which a player can sign for themselves, depend on where you play."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to collect player waivers for a rec league</h1>
+  <p>Most rec leagues ask every player to agree to a waiver or code of conduct before they play. The usual ways are a paper sheet at the first game, a form tool whose answers you match to rosters by hand, a dedicated waiver app on a monthly plan, or a league platform that bundles waivers with registration. The hard part is rarely the signing. It is knowing, the night before week one, who on each team still has not signed.</p>
+  <p>The free, self-hosted league page now does this. You paste your own text; players sign from the same link they use for fixtures; the organiser page shows, team by team, who is missing.</p>
+  <p><a class="cta" href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator#run-your-own-league-page-self-hosted" rel="noopener">Run your own league page</a> (MIT licensed, one small Node server, your own disk)</p>
+  <h2>How it works</h2>
+  <ol>
+    <li><strong>Paste your text.</strong> In the organiser page, under Waiver, paste the release or code of conduct your league uses. The page does not write one for you.</li>
+    <li><strong>Players sign from the league link.</strong> The league page links to the waiver. A player picks their team, types their full name, ticks that they have read and agree, and types their name again as the signature. For a minor, the parent or guardian signs with their own name.</li>
+    <li><strong>Captains sign when they enter the team.</strong> With a waiver set, the team sign-up form asks the captain to sign before the team is sent for approval.</li>
+    <li><strong>See who is missing.</strong> The organiser page matches signatures to each roster and lists who has not signed. Captains see the same list for their own team, so they chase their players instead of you.</li>
+    <li><strong>Keep the record.</strong> Download every signature as a CSV with the time, team, name, guardian, email and the version of the text agreed to. Any version's exact text can be downloaded as it was signed.</li>
+  </ol>
+  <h2>A worked example: one team, one text change</h2>
+  <p>The Hawks' roster is <code>Ben, Cara, Dev, Eli</code>. Ben Ong and Cara Lee sign the first text. The organiser adds a line about alcohol at the venue, which makes a new version. Dev Rao then signs the new text. Eli has not signed anything.</p>
+  <table>
+    <thead><tr><th>Roster entry</th><th>Status on the organiser page</th></tr></thead>
+    <tbody>
+      <tr><td>Ben</td><td>signed an earlier version</td></tr>
+      <tr><td>Cara</td><td>signed an earlier version</td></tr>
+      <tr><td>Dev</td><td>signed</td></tr>
+      <tr><td>Eli</td><td>not signed</td></tr>
+    </tbody>
+  </table>
+  <p>A roster entry of a first name matches a signature from the same team whose first name it is, but only when one person on that team has that first name. Two Bens who both sign, against a roster line of just "Ben", stay unmatched rather than guessed; write their full names on the roster. A test recomputes this table from the same code the server runs.</p>
+  <h2>What it does not do</h2>
+  <p>It does not draft legal text, check identity, collect a drawn signature or decide whether a waiver is enforceable. It keeps no IP addresses. If you need ID checks, drawn signatures or a vendor that answers for the record, a paid waiver service is the right tool.</p>
+  <h2>Questions</h2>
+  <h3>Can I collect waivers without a paid waiver app?</h3>
+  <p>Yes, if you already run the self-hosted league page. Paste your own waiver text in the organiser page and players sign from the league link with their name, a tick and a typed signature. A minor's parent or guardian signs with their own name. You download every signature as a CSV.</p>
+  <h3>What happens to signatures when I change the waiver text?</h3>
+  <p>Each distinct text is a version, named by the start of its SHA-256 hash and kept with the date it was first set. A signature points at the version it agreed to. After an edit, earlier signers show as signed an earlier version, so you can ask them to sign the new text.</p>
+  <h3>How do I see who has not signed?</h3>
+  <p>The organiser page compares signatures with each team's roster and lists, per team, who has signed the current text, who signed an older one and who has not signed. A captain's page shows the same list for their own team.</p>
+  <h3>Does this write the waiver for me or make it enforceable?</h3>
+  <p>No. You supply the words, ideally from your league's insurer, governing body or a lawyer. The page records who agreed to which words and when. Whether a release holds, and the age at which a player can sign for themselves, depend on where you play.</p>
+  <p>Related: <a href="./season-pack-for-league-organisers.html">the season pack for league organisers</a> and <a href="./how-to-reschedule-a-rained-out-league-game.html">how to reschedule a rained-out game</a>.</p>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal advice: the tool records who agreed to text you wrote, and whether a waiver holds depends on where you play and its wording. Ask a lawyer or your league's insurer. The example players are invented.</p>
+    <p>The schedule tool runs in your browser. Waivers live on the league page you host yourself, in one state file on your own server; nothing is sent to us. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

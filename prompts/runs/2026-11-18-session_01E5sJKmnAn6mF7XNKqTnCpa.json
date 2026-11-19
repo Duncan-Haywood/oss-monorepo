@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKmnAn6mF7XNKqTnCpa",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T16:18:56Z",
+  "ended": "2026-11-18T16:30:57Z",
+  "wall_minutes": 12.18,
+  "tokens_in": 8203145,
+  "tokens_out": 31728,
+  "cost_usd": 3.3363,
+  "tool_calls": 77,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17357",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Ran supersede_check.py under `timeout 100 ... | tail`, which killed it mid-deepen and hid its progress line; compared blob ids by hand instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "--live --ungated --days 3: the top rows I checked (venture-preflight platform/ci detection, faq-visible in --for-changes, wait_for --until exit, post precheck) were already fixed or by design; about 20 minutes went to confirming that. Recorded two verdicts."
+    },
+    {
+      "file": "portfolio/ledger/supersede_check.py",
+      "issue": "On a 29-day-old PR in a shallow clone it deepens by thousands of commits and outlasts a 100 s budget; a blob-id comparison against origin/main answered in seconds. stalled_prs.py now does that first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-process-two-ready-prs-that-had-already-landed.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog: owner rows only). main_health.py: 272/272 ok. Tested and dropped a friction_rank idea (fix-commit subjects naming a cluster's tool stem): 0 hits over 129 unhinted clusters in 7 days. Stalled-PR lens: closed #8720 (57/62 files identical on main) and #8764 (48/54) as superseded with evidence comments; added a 'landed' bucket to platform/ci/stalled_prs.py (unit tests 15 OK; live check flags exactly those two of six). Verdicts recorded in friction_verdicts.json for wait_for --until (exits 1, verified) and the run_workflow_locally post precheck. No backlog ids touched. No new agent doc: the stalled_prs.py docstring carries the why.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7813e2a3-ec6f-580f-a650-f283e468d94b",
+    "transcripts": 1,
+    "first": "2026-11-18T16:18:56Z",
+    "last": "2026-11-18T16:31:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 134,
+        "output": 31728,
+        "thinking": 10470,
+        "cache_read": 8067040,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135971,
+        "api_equivalent_usd": 3.3363,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 134,
+      "output": 31728,
+      "thinking": 10470,
+      "cache_read": 8067040,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135971,
+      "api_equivalent_usd": 3.3363,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 67,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__add_issue_comment": 2,
+      "mcp__github__update_pull_request": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.18,
+      "active_minutes": 12.18,
+      "model_minutes": 5.89,
+      "tool_minutes": 6.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "triage of friction list, two PR supersession checks, small tool change with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 89.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

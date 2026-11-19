@@ -1,0 +1,439 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyed1mWeYbKJCutaFLm",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T21:38:49Z",
+  "ended": "2026-11-18T21:40:25Z",
+  "wall_minutes": 21.16,
+  "tokens_in": 2600553,
+  "tokens_out": 12857,
+  "cost_usd": 1.3168,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17439",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 0's open list is 11/12 control-plane items a venture branch cannot land; a redteam run has nothing it can fix there, yet the step reads as mandatory first work. A filter (redteam.py open --fixable) would save the re-check."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 4b asks for an automated class guard; the defect (an unchecked YYYY-MM query param) had no sibling in rev-rec and a repo-wide lint for text-compared query params would be noisy",
+      "did": "fixed the instance with a shared MONTH regex for both params and a test",
+      "result": "defect closed; no new lint"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-rev-rec-journal-through-march-exported-every-month.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: revrec.mjs 7/10 caught (2 equivalent, 1 gap at line 53, January close), csv.mjs 10/10. rerun: gap caught_after_fix true. Local: run_workflow_locally --for-changes passed ventures-tests 5/5, portfolio-validate 100/100, pages 6/6, portfolio-pages 12/12, readme-live-links 4/4; prompts-ci failed only on this record before it was filled in. No agent doc: nothing the next run needs beyond this record.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/rev-rec/revrec.mjs",
+        "test": "node --test ventures/rev-rec/**/*.test.mjs  (in .)",
+        "seed": 393440384,
+        "commit": "e60ffb27f",
+        "sites": 107,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 6,
+            "col": 64,
+            "operator": "const-plus-one",
+            "before": "export const monthOf = (ms) => new Date(ms).toISOString().slice(0, 7);",
+            "after": "export const monthOf = (ms) => new Date(ms).toISOString().slice(1, 7);",
+            "line_text": "export const monthOf = (ms) => new Date(ms).toISOString().slice(0, 7);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 18,
+            "col": 24,
+            "operator": "gt-to-ge",
+            "before": "const days = line.end > line.start ? Math.max(1, Math.round((line.end - line.start) / DAY)) : 1;",
+            "after": "const days = line.end >= line.start ? Math.max(1, Math.round((line.end - line.start) / DAY)) : 1;",
+            "line_text": "  const days = line.end > line.start ? Math.max(1, Math.round((line.end - line.start) / DAY)) : 1;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "end == start: Math.max(1, round(0)) = 1, the same as the else branch"
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 20,
+            "col": 63,
+            "operator": "times-to-div",
+            "before": "for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "after": "for (let i = 0; i < days; i++) { const m = monthOf(start + i / DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "line_text": "  for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 20,
+            "col": 98,
+            "operator": "or-to-and",
+            "before": "for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "after": "for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] && 0) + 1; }",
+            "line_text": "  for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 20,
+            "col": 101,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "after": "for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 1) + 1; }",
+            "line_text": "  for (let i = 0; i < days; i++) { const m = monthOf(start + i * DAY); perMonth[m] = (perMonth[m] || 0) + 1; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 53,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "if (closedThrough != null && !/^\\d{4}-(0[1-9]|1[0-2])$/.test(closedThrough)) throw new Error(`closedThrough must be YYYY-MM, got ${closedThrough}`);",
+            "after": "if (closedThrough != null && !/^\\d{5}-(0[1-9]|1[0-2])$/.test(closedThrough)) throw new Error(`closedThrough must be YYYY-MM, got ${closedThrough}`);",
+            "line_text": "  if (closedThrough != null && !/^\\d{4}-(0[1-9]|1[0-2])$/.test(closedThrough)) throw new Error(`closedThrough must be YYYY-MM, got ${closedThrough}`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 53,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (closedThrough != null && !/^\\d{4}-(0[1-9]|1[0-2])$/.test(closedThrough)) throw new Error(`closedThrough must be YYYY-MM, got ${closedThrough}`);",
+            "after": "if (closedThrough != null && !/^\\d{4}-(0[2-9]|1[0-2])$/.test(closedThrough)) throw new Error(`closedThrough must be YYYY-MM, got ${closedThrough}`);",
+            "line_text": "  if (closedThrough != null && !/^\\d{4}-(0[1-9]|1[0-2])$/.test(closedThrough)) throw new Error(`closedThrough must be YYYY-MM, got ${closedThrough}`);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "nothing closed through a January; revrec.test.mjs now closes through 2026-01 and 2025-12"
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 92,
+            "col": 76,
+            "operator": "gt-to-ge",
+            "before": "const push = (date, memo, dr, cr, n) => { if (n === 0) return; out.push(n > 0 ? { date, memo, account: dr, debit: major(n), credit: \"\" } : { date, memo, account: dr, debit: \"\", credit: major(n) }, n > 0 ? { date, memo, account: cr, debit: \"\", credit: major(n) } : { date, memo, account: cr, debit: major(n), credit: \"\" }); };",
+            "after": "const push = (date, memo, dr, cr, n) => { if (n === 0) return; out.push(n >= 0 ? { date, memo, account: dr, debit: major(n), credit: \"\" } : { date, memo, account: dr, debit: \"\", credit: major(n) }, n > 0 ? { date, memo, account: cr, debit: \"\", credit: major(n) } : { date, memo, account: cr, debit: major(n), credit: \"\" }); };",
+            "line_text": "  const push = (date, memo, dr, cr, n) => { if (n === 0) return; out.push(n > 0 ? { date, memo, account: dr, debit: major(n), credit: \"\" } : { date, memo, account: dr, debit: \"\", credit: major(n) }, n > 0 ? { date, memo, account: cr, debit: \"\", credit: major(n) } : { date, memo, account: cr, debit: major(n), credit: \"\" }); };",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "push returns early on n === 0, so n >= 0 and n > 0 agree on every value that reaches the ternary"
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 115,
+            "col": 68,
+            "operator": "const-plus-one",
+            "before": "backlog: backlog(rows, asOf).reduce((a, r) => a + r.recognized, 0),",
+            "after": "backlog: backlog(rows, asOf).reduce((a, r) => a + r.recognized, 1),",
+            "line_text": "    backlog: backlog(rows, asOf).reduce((a, r) => a + r.recognized, 0),",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 131,
+            "col": 22,
+            "operator": "div-to-times",
+            "before": "const major = minor / 10 ** minorExponent(currency);",
+            "after": "const major = minor * 10 ** minorExponent(currency);",
+            "line_text": "  const major = minor / 10 ** minorExponent(currency);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/rev-rec/csv.mjs",
+        "test": "node --test ventures/rev-rec/**/*.test.mjs  (in .)",
+        "seed": 690672537,
+        "commit": "e60ffb27f",
+        "sites": 117,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 14,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && s[i + 1] === \"\\n\") i++; row.push(cur); if (row.some((x) => x.trim())) rows.push(row); row = []; cur = \"\"; }",
+            "after": "else if (c !== \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && s[i + 1] === \"\\n\") i++; row.push(cur); if (row.some((x) => x.trim())) rows.push(row); row = []; cur = \"\"; }",
+            "line_text": "    else if (c === \"\\n\" || c === \"\\r\") { if (c === \"\\r\" && s[i + 1] === \"\\n\") i++; row.push(cur); if (row.some((x) => x.trim())) rows.push(row); row = []; cur = \"\"; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 69,
+            "col": 31,
+            "operator": "ge-to-gt",
+            "before": "const get = (k) => (col[k] >= 0 ? (r[col[k]] ?? \"\").trim() : \"\");",
+            "after": "const get = (k) => (col[k] > 0 ? (r[col[k]] ?? \"\").trim() : \"\");",
+            "line_text": "    const get = (k) => (col[k] >= 0 ? (r[col[k]] ?? \"\").trim() : \"\");",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 70,
+            "col": 54,
+            "operator": "plus-to-minus",
+            "before": "if (!get(\"amount\")) return skipped.push({ line: i + 2, why: \"amount is blank\" });",
+            "after": "if (!get(\"amount\")) return skipped.push({ line: i - 2, why: \"amount is blank\" });",
+            "line_text": "    if (!get(\"amount\")) return skipped.push({ line: i + 2, why: \"amount is blank\" });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 74,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "if (!Number.isFinite(raw)) return skipped.push({ line: i + 2, why: \"amount is not a number\" });",
+            "after": "if (!Number.isFinite(raw)) return skipped.push({ line: i + 3, why: \"amount is not a number\" });",
+            "line_text": "    if (!Number.isFinite(raw)) return skipped.push({ line: i + 2, why: \"amount is not a number\" });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 75,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "if (billedAt === null) return skipped.push({ line: i + 2, why: \"billing date is not a date\" });",
+            "after": "if (billedAt !== null) return skipped.push({ line: i + 2, why: \"billing date is not a date\" });",
+            "line_text": "    if (billedAt === null) return skipped.push({ line: i + 2, why: \"billing date is not a date\" });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 80,
+            "col": 52,
+            "operator": "plus-to-minus",
+            "before": "if (end === null) return skipped.push({ line: i + 2, why: \"period end is not a date\" });",
+            "after": "if (end === null) return skipped.push({ line: i - 2, why: \"period end is not a date\" });",
+            "line_text": "    if (end === null) return skipped.push({ line: i + 2, why: \"period end is not a date\" });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 95,
+            "col": 72,
+            "operator": "plus-to-minus",
+            "before": "for (const l of lines) counts[l.currency] = (counts[l.currency] || 0) + 1;",
+            "after": "for (const l of lines) counts[l.currency] = (counts[l.currency] || 0) - 1;",
+            "line_text": "  for (const l of lines) counts[l.currency] = (counts[l.currency] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 96,
+            "col": 78,
+            "operator": "or-to-and",
+            "before": "const currency = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || \"usd\";",
+            "after": "const currency = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] && \"usd\";",
+            "line_text": "  const currency = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || \"usd\";",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 106,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < 40; i++) {",
+            "after": "for (let i = 1; i < 40; i++) {",
+            "line_text": "  for (let i = 0; i < 40; i++) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/csv.mjs",
+            "line": 107,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const start = now - (30 + ((i * 53) % 480)) * DAY, annual = i % 4 === 0, price = annual ? 290 : [29, 79, 249][i % 3];",
+            "after": "const start = now - (31 + ((i * 53) % 480)) * DAY, annual = i % 4 === 0, price = annual ? 290 : [29, 79, 249][i % 3];",
+            "line_text": "    const start = now - (30 + ((i * 53) % 480)) * DAY, annual = i % 4 === 0, price = annual ? 290 : [29, 79, 249][i % 3];",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/rev-rec/server.mjs",
+        "issue": "GET /v1/journal.csv?through= was never validated and months compare as text, so through=2026-3 or through=March exported every month (including after the asked-for one) with a 200; now a 400 like closed_through, test in server.test.mjs",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b0ec195e-2efa-5f36-88da-b4a3d9adb698",
+    "transcripts": 1,
+    "first": "2026-11-18T21:38:49Z",
+    "last": "2026-11-18T21:59:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 68,
+        "output": 12857,
+        "thinking": 3216,
+        "cache_read": 2531339,
+        "cache_write_5m": 0,
+        "cache_write_1h": 69146,
+        "api_equivalent_usd": 1.3168,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 68,
+      "output": 12857,
+      "thinking": 3216,
+      "cache_read": 2531339,
+      "cache_write_5m": 0,
+      "cache_write_1h": 69146,
+      "api_equivalent_usd": 1.3168,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.16,
+      "active_minutes": 21.16,
+      "model_minutes": 2.43,
+      "tool_minutes": 18.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "reading the venture, seeding and triaging 20 faults, one fix with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 151.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

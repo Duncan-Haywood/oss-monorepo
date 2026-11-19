@@ -38,7 +38,7 @@ def compare(prices, rows, scale, case, adder=0.0, hp_months=(11, 12, 1, 2, 3), f
     s, n, w, name = case
     p_store = cheapest_mean(prices, w, frac) + adder
     p_hp = heating_season_mean(prices, rows, hp_months) + adder
-    r = store_lcoh(td, "sand", scale, SCALES[scale], n, s, p_store, charge_frac=frac)
+    r = store_lcoh(td, "sand", scale, SCALES[scale], n, s, p_store, charge_frac=frac, accounting="first-charge")  # pinned: see energy-thermal-cost README, known gap
     hc, he = hp_lcoh(td, scale, SCALES[scale], p_hp)
     return p_store, p_hp, r["total"], hc + he
 

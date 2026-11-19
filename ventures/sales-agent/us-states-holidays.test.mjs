@@ -1,11 +1,11 @@
 // US state holiday presets (added 2026-11-12): the rules in holidays.mjs against a second source, python-holidays
-// 0.108 (MIT), for every weekday holiday of 2022-2028 in 50 states and DC, and the federal rules against the same.
+// 0.109 (MIT; 0.108 lacked Virginia's Election Day and day after Thanksgiving, quality audit 2026-11-19), for every weekday holiday of 2022-2028 in 50 states and DC, and the federal rules against the same.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { usStateHolidays, usFederalHolidays, easter, holidayChecker, upcomingHolidays, theirDaysOff } from "./holidays.mjs";
 
-const ref = JSON.parse(readFileSync(new URL("./fixtures/us-state-holidays-python-holidays-0.108.json", import.meta.url)));
+const ref = JSON.parse(readFileSync(new URL("./fixtures/us-state-holidays-python-holidays-0.109.json", import.meta.url)));
 const YEARS = [2022, 2023, 2024, 2025, 2026, 2027, 2028];
 const weekday = (d) => { const w = new Date(`${d}T00:00:00Z`).getUTCDay(); return w > 0 && w < 6; };
 const inRange = (d) => d >= "2022-01-01" && d <= "2028-12-31";
@@ -44,7 +44,7 @@ test("50 states and DC match python-holidays date for date, 2022-2028, but for t
     shared += have.size; skipped += missing.length;
   }
   // Pinned so a change to either side shows up as a number, not only a pass.
-  assert.equal(shared, 4166);
+  assert.equal(shared, 4180);
   assert.equal(skipped, 50);
 });
 
@@ -75,4 +75,11 @@ test("a prospect's US region means the business six, not the state's office cale
   assert.equal(read({}, { holidays: "us-tx", region: "US-TX" }).spec, "us-tx", "the holidays column wins");
   assert.ok(!read({}, { region: "US-TX" }).isOff("2026-12-24"));
   assert.ok(read({}, { holidays: "us-tx" }).isOff("2026-12-24"));
+});
+
+test("Virginia closes on Election Day every year and the day after Thanksgiving (Va. Code 2.2-3300)", () => {
+  const va = holidayChecker("us-va");
+  assert.ok(va("2026-11-03") && va("2027-11-02"), "Election Day, odd and even years");
+  assert.ok(va("2026-11-27"), "the Friday after Thanksgiving");
+  assert.ok(!usStateHolidays(2019, "va").some((h) => h.name === "Election Day"), "not before 2020");
 });

@@ -1,0 +1,47 @@
+drill | build | depth/form | surveys queued | KB each (min-max) | peak pinned KB | wheels | cut | pick ms
+drill.rally.json       | first-order 0.4 s  | 2 tuples |  16 |  12.5- 12.8 |   25.6 | 16 | 8 | 0
+drill.rally.json       | first-order 0.4 s  | 2 packed |  16 |   3.8-  4.0 |    8.0 | 16 | 8 | 0
+drill.rally.json       | first-order 0.4 s  | 3 tuples |  16 |  12.5- 12.8 |   38.4 | 18 | 7 | 0
+drill.rally.json       | first-order 0.4 s  | 3 packed |  16 |   3.8-  4.0 |   12.0 | 18 | 7 | 0
+  (a) depth 3 packed pins no more than depth 2 tuples: True; (b) packing lossless: True; (c) depth 3 surveys as many wheels: True
+drill.example.json     | first-order 0.4 s  | 2 tuples |   4 |  12.5- 12.8 |   25.6 | 6 | 1 | 0
+drill.example.json     | first-order 0.4 s  | 2 packed |   4 |   3.8-  4.0 |    8.0 | 6 | 1 | 0
+drill.example.json     | first-order 0.4 s  | 3 tuples |   4 |  12.5- 12.8 |   38.1 | 8 | 0 | 0
+drill.example.json     | first-order 0.4 s  | 3 packed |   4 |   3.8-  4.0 |   11.8 | 8 | 0 | 0
+  (a) depth 3 packed pins no more than depth 2 tuples: True; (b) packing lossless: True; (c) depth 3 surveys as many wheels: True
+drill.calibration.json | first-order 0.4 s  | 2 tuples |  12 |  11.1- 12.8 |   25.6 | 16 | 4 | 0
+drill.calibration.json | first-order 0.4 s  | 2 packed |  12 |   3.4-  4.0 |    8.0 | 16 | 4 | 0
+drill.calibration.json | first-order 0.4 s  | 3 tuples |  12 |  11.1- 12.8 |   38.3 | 18 | 3 | 0
+drill.calibration.json | first-order 0.4 s  | 3 packed |  12 |   3.4-  4.0 |   12.0 | 18 | 3 | 0
+  (a) depth 3 packed pins no more than depth 2 tuples: True; (b) packing lossless: True; (c) depth 3 surveys as many wheels: True
+drill.rally.json       | ESC 50 ms, 0.6 s   | 2 tuples |  16 |  12.5- 12.9 |   25.7 | 20 | 6 | 46
+drill.rally.json       | ESC 50 ms, 0.6 s   | 2 packed |  16 |   3.8-  4.0 |    8.0 | 20 | 6 | 46
+drill.rally.json       | ESC 50 ms, 0.6 s   | 3 tuples |  16 |  12.5- 12.9 |   38.4 | 22 | 5 | 47
+drill.rally.json       | ESC 50 ms, 0.6 s   | 3 packed |  16 |   3.8-  4.0 |   12.0 | 22 | 5 | 47
+  (a) depth 3 packed pins no more than depth 2 tuples: True; (b) packing lossless: True; (c) depth 3 surveys as many wheels: True
+drill.example.json     | ESC 50 ms, 0.6 s   | 2 tuples |   4 |  12.5- 12.8 |   25.6 | 6 | 1 | 46
+drill.example.json     | ESC 50 ms, 0.6 s   | 2 packed |   4 |   3.8-  4.0 |    8.0 | 6 | 1 | 46
+drill.example.json     | ESC 50 ms, 0.6 s   | 3 tuples |   4 |  12.5- 12.8 |   38.1 | 8 | 0 | 46
+drill.example.json     | ESC 50 ms, 0.6 s   | 3 packed |   4 |   3.8-  4.0 |   11.8 | 8 | 0 | 46
+  (a) depth 3 packed pins no more than depth 2 tuples: True; (b) packing lossless: True; (c) depth 3 surveys as many wheels: True
+drill.calibration.json | ESC 50 ms, 0.6 s   | 2 tuples |  12 |  11.1- 12.8 |   25.6 | 22 | 1 | 46
+drill.calibration.json | ESC 50 ms, 0.6 s   | 2 packed |  12 |   3.4-  4.0 |    8.0 | 22 | 1 | 46
+drill.calibration.json | ESC 50 ms, 0.6 s   | 3 tuples |  12 |  11.1- 12.8 |   38.3 | 24 | 0 | 46
+drill.calibration.json | ESC 50 ms, 0.6 s   | 3 packed |  12 |   3.4-  4.0 |   12.0 | 24 | 0 | 46
+  (a) depth 3 packed pins no more than depth 2 tuples: True; (b) packing lossless: True; (c) depth 3 surveys as many wheels: True
+drill.rally.json       | tach 3 us, 0.4 s   | 2 tuples |  16 |  12.5- 12.8 |   25.6 | 16 | 8 | 0
+drill.rally.json       | tach 3 us, 0.4 s   | 2 packed |  16 |   3.8-  4.0 |    8.0 | 16 | 8 | 0
+drill.rally.json       | tach 3 us, 0.4 s   | 3 tuples |  16 |  12.5- 12.8 |   38.4 | 18 | 7 | 0
+drill.rally.json       | tach 3 us, 0.4 s   | 3 packed |  16 |   3.8-  4.0 |   12.0 | 18 | 7 | 0
+  (a) depth 3 packed pins no more than depth 2 tuples: True; (b) packing lossless: True; (c) depth 3 surveys as many wheels: True
+drill.example.json     | tach 3 us, 0.4 s   | 2 tuples |   4 |  12.5- 12.8 |   25.6 | 6 | 1 | 0
+drill.example.json     | tach 3 us, 0.4 s   | 2 packed |   4 |   3.8-  4.0 |    8.0 | 6 | 1 | 0
+drill.example.json     | tach 3 us, 0.4 s   | 3 tuples |   4 |  12.5- 12.8 |   38.1 | 8 | 0 | 0
+drill.example.json     | tach 3 us, 0.4 s   | 3 packed |   4 |   3.8-  4.0 |   11.8 | 8 | 0 | 0
+  (a) depth 3 packed pins no more than depth 2 tuples: True; (b) packing lossless: True; (c) depth 3 surveys as many wheels: True
+drill.calibration.json | tach 3 us, 0.4 s   | 2 tuples |  12 |  11.1- 12.8 |   25.6 | 16 | 4 | 0
+drill.calibration.json | tach 3 us, 0.4 s   | 2 packed |  12 |   3.4-  4.0 |    8.0 | 16 | 4 | 0
+drill.calibration.json | tach 3 us, 0.4 s   | 3 tuples |  12 |  11.1- 12.8 |   38.3 | 18 | 3 | 0
+drill.calibration.json | tach 3 us, 0.4 s   | 3 packed |  12 |   3.4-  4.0 |   12.0 | 18 | 3 | 0
+  (a) depth 3 packed pins no more than depth 2 tuples: True; (b) packing lossless: True; (c) depth 3 surveys as many wheels: True
+ALL: (a) True  (b) True  (c) True

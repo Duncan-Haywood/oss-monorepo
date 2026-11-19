@@ -1558,7 +1558,12 @@
       try { localStorage.setItem(savedKey, JSON.stringify(readInputs())); } catch { /* private mode */ }
     }
     function downloadScenarios() {
-      const csv = repricingCsv(calculateRepricingTable(readInputs()));
+      // A blank or zero field (units, price) makes the table throw; say so by the
+      // button instead of leaving the click silent with an uncaught error.
+      const note = document.getElementById('downloadNote');
+      let csv;
+      try { csv = repricingCsv(calculateRepricingTable(readInputs())); note.textContent = ''; }
+      catch (error) { note.textContent = `No CSV yet: ${error.message}.`; return; }
       const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
       const link = document.createElement('a');
       link.href = url;
@@ -1585,7 +1590,7 @@
     }));
     document.getElementById('usageOptOut').addEventListener('change', update);
     const actions = document.createElement('p');
-    actions.innerHTML = '<button type="button" id="share">Copy shareable link</button> <button type="button" id="download">Download repricing CSV</button> <button type="button" id="reset">Reset saved inputs</button>';
+    actions.innerHTML = '<button type="button" id="share">Copy shareable link</button> <button type="button" id="download">Download repricing CSV</button> <button type="button" id="reset">Reset saved inputs</button> <span id="downloadNote" class="note" role="status"></span>';
     document.querySelector('section:first-child').append(actions);
     document.getElementById('share').addEventListener('click', shareLink);
     document.getElementById('download').addEventListener('click', downloadScenarios);

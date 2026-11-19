@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVNtEd4vQJwdHUAuVdB",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-19T13:02:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "xer-schedule-check flagship item (4): written schedule review an owner's rep can print to PDF and send",
+  "projects": [
+    "xer-schedule-check"
+  ],
+  "pr": 17667,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "what": "dcma.mjs critical path test reported a fail (0 of 600 days) when the driving path held only a milestone, which it cannot delay; found by reading the hotel file's review",
+      "fix": "reports 'could not run' (value n/a) and names the milestone; review asks at medium"
+    }
+  ],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-a-schedule-review-you-can-send.md",
+    "ventures/xer-schedule-check/eval/review-report-2026-11-19.md"
+  ],
+  "goal": "Package the DCMA assessment and update comparison into the document a reviewer actually sends, the venture's stated first paid path.",
+  "notes": "report.mjs (reviewItems, reviewHtml), page card with print/download, CLI --report. node --test: 48 of 48 pass; run_venture_tests.py xer-schedule-check: 1 suite, 0 failed. Six public XER files: 2-11 corrections each, 4-13 printed pages (eval/review-report-2026-11-19.md). Page checked in Chromium at 390 px: no console errors, no horizontal scroll, print window and HTML download both work.",
+  "corrections": [],
+  "redteam": null
+}

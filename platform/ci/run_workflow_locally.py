@@ -2115,6 +2115,14 @@ def run_for_changes(args) -> int:
             print(POST_PRECHECK_STOP, flush=True)
             return 1
 
+    if not args.list and not getattr(args, "no_browser_sweeps", False):
+        code, output = browser_sweep_precheck(changed)
+        if output:
+            print(output, flush=True)
+        if code == 1:
+            print(BROWSER_SWEEP_STOP, flush=True)
+            return 1
+
     selected, held = pick_workflows(lambda _n, wf: selects(wf, changed))
 
     workflows = {name for name, *_ in selected} | {name for name, *_ in held}
@@ -2191,6 +2199,44 @@ def post_precheck(changed, repo: str = REPO) -> tuple[bool, str]:
     if done.returncode == 0:
         return False, ""
     return True, (done.stdout + done.stderr).rstrip()
+
+
+# Seven browser sweeps (platform/ci/check_*.js) found 40-odd live venture bugs
+# on 2026-11-18/19 ($Infinity, NaN, dead buttons, 13 pages rendering visitor
+# text as HTML) and nothing ran them again: no workflow, test or runner named
+# them. CI runners have no Playwright, cloud sessions do, so the place they can
+# run is here, on the ventures the diff touches (~12 s for one venture).
+BROWSER_SWEEP_STOP = (
+    "Stopped before the sweep: a browser sweep above found a defect on a venture "
+    "page this diff touches. Fix it, or run again with --no-browser-sweeps if the "
+    "hit is a false positive (say which in the run record).")
+BROWSER_SWEEP_MAX = 10
+
+
+def browser_sweep_precheck(changed, repo: str = REPO, timeout: int = 420) -> tuple[int, str]:
+    """(exit code, output) of venture_sweeps.py on the diff's ventures.
+
+    (0, "") when the diff touches no venture page; (2, note) when the sweeps
+    cannot run here (no Playwright: CI runners), which never stops the sweep."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import venture_sweeps
+    except ImportError:
+        return 0, ""
+    finally:
+        sys.path.pop(0)
+    slugs = venture_sweeps.touched_ventures(changed, repo)
+    if not slugs:
+        return 0, ""
+    script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "venture_sweeps.py")
+    try:
+        done = subprocess.run([sys.executable, script, "--max", str(BROWSER_SWEEP_MAX), *slugs],
+                              cwd=repo, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return 2, f"venture_sweeps: timed out after {timeout} s; not swept."
+    except OSError as e:
+        return 2, f"venture_sweeps: could not start ({e}); not swept."
+    return done.returncode, (done.stdout + done.stderr).rstrip()
 
 
 # A foreground tool call in a cloud session is cut off at 600 s. Runs kept
@@ -2768,6 +2814,9 @@ def _main(argv=None) -> int:
                     help="with --for-changes: sweep even when a changed post "
                          "fails check_post_frontmatter (by default the sweep "
                          "stops first; see POST_PRECHECK_STOP)")
+    ap.add_argument("--no-browser-sweeps", action="store_true",
+                    help="with --for-changes: skip the venture browser sweeps "
+                         "(venture_sweeps.py) run on the ventures the diff touches")
     ap.add_argument("--timeout", type=int, default=900,
                     help="per-step timeout in seconds (default 900)")
     ap.add_argument("--workflow-timeout", type=int, default=300,

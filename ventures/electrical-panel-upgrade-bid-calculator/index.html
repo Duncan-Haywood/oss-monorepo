@@ -396,14 +396,18 @@
     }
 
     function applyPanelCost(force) {
-      const rates = suggestedPanelCost(el('panelStyle').value, el('newAmps').value);
+      // A blank or zero size throws; leave the current rates alone and let update() show the message.
+      let rates;
+      try { rates = suggestedPanelCost(el('panelStyle').value, el('newAmps').value); } catch { return; }
       for (const [key, value] of Object.entries(rates)) {
         if (force || !el(key).dataset.edited) el(key).value = value;
       }
     }
 
     function applyServiceKit(force) {
-      const rates = suggestedServiceKit(el('service').value);
+      // A blank or zero size throws; leave the current rates alone and let update() show the message.
+      let rates;
+      try { rates = suggestedServiceKit(el('service').value); } catch { return; }
       for (const [key, value] of Object.entries(rates)) {
         if (force || !el(key).dataset.edited) el(key).value = value;
       }

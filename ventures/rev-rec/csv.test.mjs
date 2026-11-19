@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { linesFromCsv, sampleCsv, parseCsv, oneCurrency } from "./csv.mjs";
+import { linesFromCsv, sampleCsv, parseCsv, oneCurrency, parseAmount } from "./csv.mjs";
 import { schedule } from "./revrec.mjs";
 
 test("reads Stripe-style headers in any order, parentheses as negatives", () => {
@@ -105,4 +105,45 @@ test("a period end that is not a date is skipped, not read as a one-off (red tea
   const r = linesFromCsv("amount,date,period start,period end\n1200,2026-01-01,2026-01-01,2027-13-01\n5,2026-01-01,2026-01-01,\n");
   assert.deepEqual(r.skipped, [{ line: 2, why: "period end is not a date" }]);
   assert.equal(r.lines.length, 1, "a blank period end is still a one-off charge");
+});
+
+test("an impossible calendar date is skipped, not rolled into the next month (red team 2026-11-18)", () => {
+  // Date.parse reads 2026-02-30 as 2 March; a typo must be flagged, not moved.
+  const r = linesFromCsv("amount,date,period start,period end\n10,2026-02-30,2026-02-01,2026-03-01\n10,2026-02-01,2026-02-31,2026-03-01\n10,2026-02-01,2026-02-01,2026-04-31\n10,2024-02-29,2024-02-29,2024-03-29");
+  assert.deepEqual(r.skipped.map((s) => s.why), ["billing date is not a date", "period start is not a date", "period end is not a date"]);
+  assert.equal(r.lines.length, 1, "29 Feb in a leap year is a real date");
+});
+
+test("an amount with more decimals than its currency is skipped, not read 1000x too small (red team 2026-11-18)", () => {
+  // "€ 1.000" in a European export is a thousand euros; reading it as 1.00 would
+  // shrink the schedule silently, so a third decimal in a two-decimal currency is flagged.
+  const r = linesFromCsv("amount,date,period start,currency\n€ 1.000,2026-01-01,2026-01-01,eur\n1.250,2026-01-01,2026-01-01,kwd\n12.5,2026-01-01,2026-01-01,usd\n100.5,2026-01-01,2026-01-01,jpy\n5000.00,2026-01-01,2026-01-01,jpy");
+  assert.deepEqual(r.skipped.map((s) => [s.line, s.why]), [[2, "amount has more decimals than EUR allows (is . a thousands separator?)"], [5, "amount has more decimals than JPY allows (is . a thousands separator?)"]]);
+  assert.deepEqual(r.lines.map((l) => l.amount), [1250, 1250, 5000]);
+});
+
+test("accounting-format negatives are credits wherever the currency sign sits (red team 2026-11-18)", () => {
+  const { lines, skipped } = linesFromCsv("amount,date,period start\n($100.00),2026-01-01,2026-01-01\n$(100.00),2026-01-01,2026-01-01\n$ (100.00),2026-01-01,2026-01-01\n(100.00) USD,2026-01-01,2026-01-01\n");
+  assert.deepEqual(skipped, []);
+  assert.deepEqual(lines.map((l) => l.amount), [-10000, -10000, -10000, -10000]);
+});
+
+test("amounts with a currency code or any currency sign before the number parse (red team 2026-11-18, second run)", () => {
+  // Every row was skipped as "not a number": only $, £ and € were stripped, and only a trailing code.
+  const rows = [["\u00a512,000", "jpy", 12000], ["\u20b91,499.00", "inr", 149900], ["USD 100", "usd", 10000], ["CHF 100.50", "chf", 10050], ["R$ 49,90", "brl", 4990], ["\u20a950000", "krw", 50000], ["-USD 5", "usd", -500], ["(CHF 5)", "chf", -500], ["100 CHF", "chf", 10000], ["kr 99", "sek", 9900], ["99 kr", "sek", 9900]];
+  const csv = "amount,currency,date,period start\n" + rows.map(([a, c]) => `"${a}",${c},2026-01-01,2026-01-01`).join("\n");
+  const r = linesFromCsv(csv);
+  assert.deepEqual(r.skipped, []);
+  assert.deepEqual(r.lines.map((l) => l.amount), rows.map((x) => x[2]));
+  // Letters inside a number, or a one-letter suffix like "5k", are still not a number.
+  assert.deepEqual(linesFromCsv("amount,date,period start\n12abc34,2026-01-01,2026-01-01\n5k,2026-01-01,2026-01-01\nN/A,2026-01-01,2026-01-01").skipped.map((s) => s.why), ["amount is not a number", "amount is not a number", "amount is not a number"]);
+});
+
+test("LF then CR ends rows without eating a character, and a 4-letter suffix is not a currency code (red team 2026-11-18, second run)", () => {
+  assert.deepEqual(parseCsv("a,b\n\rxy,2"), [["a", "b"], ["xy", "2"]]);
+  assert.ok(Number.isNaN(parseAmount("100 EURO")) && Number.isNaN(parseAmount("100 abcd")));
+});
+
+test("the demo's sample data is pinned to its documented default date, so every sample test checks what the page loads", () => {
+  assert.equal(sampleCsv(), sampleCsv(Date.UTC(2026, 9, 15)));
 });

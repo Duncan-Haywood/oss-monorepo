@@ -263,7 +263,7 @@ export function analyze(events, opts = {}) {
   } else if (last.status === "watch") {
     findings.push({ severity: "medium", title: `${last.key}: ${pc(last.ratio)} is above your early-warning line`, detail: `${last.disputes} disputes on ${last.txns} charges. Under your elevated line of ${pc(o.elevated)}, with room for ${Math.max(0, room[1].headroom)} more disputes this month before it is reached.` });
   } else {
-    findings.push({ severity: "info", title: `${last.key}: ${last.ratio === null ? "no sales" : pc(last.ratio)}, under your early-warning line`, detail: `${last.disputes} disputes on ${last.txns} charges. ${room[0].headroom} more disputes would reach the ${pc(o.warn)} watch line this month.` });
+    findings.push({ severity: "info", title: `${last.key}: ${last.ratio === null ? "no sales" : pc(last.ratio)}, under your early-warning line`, detail: `${last.disputes} disputes on ${last.txns} charges. ${room[0].headroom + 1} more disputes would reach the ${pc(o.warn)} watch line this month.` });
   }
   if (last.txns > 0 && last.txns < 200) {
     findings.push({ severity: "info", title: "Small month: one dispute moves the ratio a lot", detail: `With ${last.txns} charges, a single dispute is ${pc(1 / last.txns)} of the denominator. Read this month together with the trend, and know that programs usually also require a minimum number of disputes before any ratio counts.` });

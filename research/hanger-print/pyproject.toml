@@ -10,5 +10,8 @@ requires-python = ">=3.9"
 license = { text = "MIT" }
 dependencies = []
 
+[project.optional-dependencies]
+split = ["manifold3d>=3.0"]
+
 [tool.setuptools.packages.find]
 where = ["src"]

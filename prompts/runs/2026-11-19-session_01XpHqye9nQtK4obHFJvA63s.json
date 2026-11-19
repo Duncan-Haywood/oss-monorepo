@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqye9nQtK4obHFJvA63s",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T02:38:49Z",
+  "ended": "2026-11-19T03:03:02Z",
+  "wall_minutes": 27.92,
+  "tokens_in": 7378399,
+  "tokens_out": 35579,
+  "cost_usd": 3.2243,
+  "tool_calls": 62,
+  "task": "changepoint-detector (flagship row 2): steps beside a closure; re-score round 1's closed-day fill against a never-shut baseline and pre-register a 1-week fill",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17510",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "changed-ventures CI: test_csv_thousands_split flagged closedList's replace(/,/g) on a date list (false positive); switched to split(/[,\\n]/); unwired_checks.py 239/239 locally."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/eval/closed-days.prereg.md",
+      "issue": "Round 1's K4b compared the fill with the closures-as-zeros arm, whose alerts at a closure counted as step catches (13 of 75); the bar measured the wrong baseline. Fixed in eval/closed-steps.prereg.md with a never-shut arm."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Each 200-series replay simulation here takes ~35 min on 4 cores; nothing in the docs warns that venture eval sims can dominate a run's wall time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/closed-days.prereg.md",
+      "why": "Round 1 said --closed would also ship on the agent tool; no agent tool for the watch was found in the tree, so round 2's pre-registration names watch.mjs only.",
+      "did": "shipped --closed on watch.mjs (one column, --columns, --suggest)",
+      "result": "CLI ships; page and agent tool unchanged, said in README"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-closed-days-steps-beside-closures.md",
+    "ventures/changepoint-detector/README.md (Steps beside a closure)"
+  ],
+  "goal": null,
+  "notes": "Diagnosis on round 1's seeds reproduced zeros 75 / fill 70 and found a never-shut shop catches 67. Fresh seeds 20261120 (pre-registered, committed 29f37ecb4 before the run): fill1 S1 16 vs placebo 21 PASS, S2 52 vs 57-5 PASS (at the line), S3 52 vs 51 PASS. Real shop rerun reported: fill1 also loses the 2011-09-01 build-up alert. Verification: node --test closed-days.test.mjs 8/8; run_venture_tests.py changepoint-detector: ok, 938 tests, 218.7 s; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "388d4999-8891-5e1d-a75a-9d9ef106f9b0",
+    "transcripts": 1,
+    "first": "2026-11-19T02:38:49Z",
+    "last": "2026-11-19T03:06:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 123,
+        "output": 35579,
+        "thinking": 7287,
+        "cache_read": 7245377,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132899,
+        "api_equivalent_usd": 3.2243,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 123,
+      "output": 35579,
+      "thinking": 7287,
+      "cache_read": 7245377,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132899,
+      "api_equivalent_usd": 3.2243,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 55,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.92,
+      "active_minutes": 11.63,
+      "model_minutes": 5.74,
+      "tool_minutes": 5.88,
+      "waiting_on_human_minutes": 16.3,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design a corrected simulation baseline, pre-register, run ~1,600 replays, wire a CLI flag with tests, write README section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 310.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

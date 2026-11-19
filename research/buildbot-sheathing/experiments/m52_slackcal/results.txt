@@ -1,0 +1,86 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 52: milestone 48's sweep with the calibration taken with the hose slack (calibration force = hanging hose weight only, same sensor error; each pose keeps its loaded press)
+calibration pose: [('g1', 1.0, 0.0), ('h1', 1.0, 0.0)]
+## A. robot | H | pose-cases | planned (slack cal) | planned (loaded cal, milestone 51) | inside m51 envelope: cases / planned slack / planned loaded | inside pose-only envelope: cases / planned slack | worst |y| inside m51 envelope, slack cal (mm, at) | worst |y| all planned, slack cal (mm)
+  g1 |  0.0 | 90 | 90 | 90 | 90 / 90 / 90 | 90 / 90 | 0.0164 (('[1.2, 0.15]', 0)) | 0.0164
+  g1 |  5.0 | 720 | 691 | 663 | 702 / 691 / 663 | 702 / 691 | 0.0107 (('[0.4, 0.0]', 270)) | 0.0107
+  g1 | 20.0 | 720 | 613 | 519 | 576 / 561 / 519 | 630 / 613 | 0.0107 (('[0.4, 0.0]', 0)) | 0.0107
+  h1 |  0.0 | 114 | 114 | 114 | 114 / 114 / 114 | 114 / 114 | 0.0099 (('[1.6, 0.15]', 0)) | 0.0099
+  h1 |  5.0 | 912 | 907 | 907 | 912 / 907 / 907 | 912 / 907 | 0.0140 (('[1.6, 0.0]', 270)) | 0.0140
+  h1 | 20.0 | 912 | 876 | 876 | 876 / 876 / 876 | 876 / 876 | 0.0099 (('[1.6, 0.15]', 45)) | 0.0099
+  g1: planned 1394 of 1530 with the slack calibration (91.1%), 1272 with the loaded one (83.1%); inside milestone 51's envelope 1342 of 1368 (98.1%; loaded 93.0%); inside the pose-only envelope 1394 of 1422 (98.0%)
+  h1: planned 1897 of 1938 with the slack calibration (97.9%), 1897 with the loaded one (97.9%); inside milestone 51's envelope 1897 of 1902 (99.7%; loaded 99.7%); inside the pose-only envelope 1897 of 1902 (99.7%)
+
+## A1. Slack calibration with no plan (robot: (H, phi, sensor axis)):
+  g1: []
+  h1: []
+
+## B. |y| slack calibration minus |y| loaded calibration, pose-cases planned under both (robot | H | count | min | median | max of the change, mm | worst |y| loaded, slack)
+  g1 |  0.0 | 90 | +0.0000 | +0.0000 | +0.0000 | 0.0164, 0.0164
+  g1 |  5.0 | 663 | -0.0000 | +0.0000 | +0.0000 | 0.0107, 0.0107
+  g1 | 20.0 | 519 | -0.0000 | +0.0000 | +0.0000 | 0.0107, 0.0107
+  h1 |  0.0 | 114 | +0.0000 | +0.0000 | +0.0000 | 0.0099, 0.0099
+  h1 |  5.0 | 907 | -0.0000 | +0.0000 | +0.0000 | 0.0140, 0.0140
+  h1 | 20.0 | 876 | -0.0000 | +0.0000 | +0.0000 | 0.0099, 0.0099
+
+## C. Pose-cases with no plan under the slack calibration, inside either envelope: robot | H | pose | phi | sensor axis | calibration plans | pose plans | pose plans with an exact sensor | in m51 envelope | in pose-only envelope
+  g1 | 5.0 | [1.2, -0.15] | 0 | 1 | True | False | True | True | True
+  g1 | 5.0 | [1.2, -0.15] | 0 | 3 | True | False | True | True | True
+  g1 | 5.0 | [1.2, -0.15] | 0 | 4 | True | False | True | True | True
+  g1 | 5.0 | [1.2, 0.15] | 225 | 0 | True | False | False | True | True
+  g1 | 5.0 | [1.2, 0.15] | 225 | 1 | True | False | False | True | True
+  g1 | 5.0 | [1.2, 0.15] | 225 | 2 | True | False | False | True | True
+  g1 | 5.0 | [1.2, 0.15] | 225 | 3 | True | False | False | True | True
+  g1 | 5.0 | [1.2, 0.15] | 225 | 4 | True | False | False | True | True
+  g1 | 5.0 | [1.2, 0.15] | 225 | 5 | True | False | False | True | True
+  g1 | 5.0 | [1.0, 0.0] | 270 | 0 | True | False | True | True | True
+  g1 | 5.0 | [1.0, 0.0] | 270 | 5 | True | False | True | True | True
+  g1 | 20.0 | [1.2, 0.0] | 45 | 0 | True | False | False | True | True
+  g1 | 20.0 | [1.2, 0.0] | 45 | 1 | True | False | False | True | True
+  g1 | 20.0 | [1.2, 0.0] | 45 | 2 | True | False | False | True | True
+  g1 | 20.0 | [1.2, 0.0] | 45 | 3 | True | False | False | True | True
+  g1 | 20.0 | [1.2, 0.0] | 45 | 4 | True | False | False | True | True
+  g1 | 20.0 | [1.2, 0.0] | 45 | 5 | True | False | False | True | True
+  g1 | 20.0 | [1.0, 0.0] | 90 | 2 | True | False | False | True | True
+  g1 | 20.0 | [1.0, 0.0] | 90 | 3 | True | False | False | True | True
+  g1 | 20.0 | [1.0, 0.0] | 90 | 5 | True | False | False | True | True
+  g1 | 20.0 | [0.8, -0.15] | 180 | 1 | True | False | True | False | True
+  g1 | 20.0 | [0.8, -0.15] | 180 | 4 | True | False | True | False | True
+  g1 | 20.0 | [1.0, 0.15] | 225 | 0 | True | False | False | True | True
+  g1 | 20.0 | [1.0, 0.15] | 225 | 1 | True | False | False | True | True
+  g1 | 20.0 | [1.0, 0.15] | 225 | 2 | True | False | False | True | True
+  g1 | 20.0 | [1.0, 0.15] | 225 | 3 | True | False | False | True | True
+  g1 | 20.0 | [1.0, 0.15] | 225 | 4 | True | False | False | True | True
+  g1 | 20.0 | [1.0, 0.15] | 225 | 5 | True | False | False | True | True
+  h1 | 5.0 | [1.6, 0.0] | 180 | 0 | True | False | False | True | True
+  h1 | 5.0 | [1.6, 0.0] | 180 | 2 | True | False | False | True | True
+  h1 | 5.0 | [1.6, 0.0] | 180 | 3 | True | False | False | True | True
+  h1 | 5.0 | [1.6, 0.0] | 180 | 4 | True | False | False | True | True
+  h1 | 5.0 | [1.6, 0.0] | 180 | 5 | True | False | False | True | True
+  counts (robot | envelope | class | n):
+  g1 | m51 | own pose, plan limit | 21
+  g1 | m51 | own pose, sensor error | 5
+  g1 | pose-only only | own pose, sensor error | 2
+  h1 | m51 | own pose, plan limit | 5
+
+## D. Hypotheses (registered in LOG.md before this run)
+H211 (G1 plans more than 98% of its pose-cases inside milestone 51's envelope): 1342 of 1368 = 98.1% (milestone 51: 93.0%) -> held
+H212 (worst residual inside milestone 51's envelope at most 0.03 mm, slack calibration): g1 0 N 0.0164, g1 5 N 0.0107, g1 20 N 0.0107, h1 0 N 0.0099, h1 5 N 0.0140, h1 20 N 0.0099 -> held
+H213 (the slack calibration plans at every sensor-error axis on both robots): 0 cases with no calibration plan -> held
+
+(run time 208 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

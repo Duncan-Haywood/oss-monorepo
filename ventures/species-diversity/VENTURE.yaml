@@ -1,0 +1,59 @@
+name: species-diversity
+description: >-
+  Free browser tool, CLI and agent call for species richness and diversity
+  from abundance counts: Chao1 and ACE for undetected species, Hill numbers
+  of order 0, 1 and 2, rarefaction and extrapolation by sample size and by
+  sample coverage, and sites compared at equal coverage with bootstrap
+  intervals. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-18 on an explore run as a research-algorithm tool: no
+# venture README mentioned rarefaction, Chao1, species richness, Hill
+# numbers or Shannon diversity (searched the READMEs of all 1,408 other
+# venture directories). Implemented from Hill 1973, Chao 1984 and 1987, Chao & Lee 1992,
+# Chao & Jost 2012, Chao, Wang & Jost 2013, Chao et al. 2014, Good 1953 and
+# Hurlbert 1971; conventions follow the iNEXT R package (Hsieh, Ma & Chao
+# 2016, GPL-3), whose formulas were re-derived and none of whose code was
+# ported.
+#
+# First visitor: searches such as "rarefaction curve calculator", "chao1
+# calculator", "species richness estimator online", "shannon diversity index
+# calculator", "inext online", "compare species diversity between sites".
+# Volume not measured with an external tool.
+#
+# Alternatives: iNEXT (R, and the iNEXT Online Shiny app), EstimateS
+# (Windows), vegan (R), scikit-bio (Python). Differentiators: no install,
+# coverage-based comparison by default, the result in words, a CLI and an
+# agent call, nothing uploaded.
+#
+# Liability: a statistical estimate, not environmental-impact or regulatory
+# advice; the page states the sampling assumptions. Data never leave the
+# browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Ecology students, field technicians and microbiome analysts will use a
+      no-install page that compares sites at equal sample coverage and says
+      in words how many species are still undetected.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that differs from iNEXT with the same data and settings beyond bootstrap noise, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/species-diversity/
+  analytics: null

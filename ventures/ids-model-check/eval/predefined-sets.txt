@@ -1,0 +1,10 @@
+IFC4: 186 of 513 standard sets limited to predefined types somewhere
+  editor offers 2939 class/set pairs; 338 limited on that class (338 to one type, 0 to several; 0 with no property, skipped)
+  no predefinedType: warned 338 of 338
+  the set's own type: audit clean 316 of 316 (22 limited to ObjectType text such as "Wire loop", not an enumeration member: not filled in)
+  another type: warned 336 of 336; set hidden by the editor 336 of 336
+IFC4X3: 343 of 760 standard sets limited to predefined types somewhere
+  editor offers 8009 class/set pairs; 651 limited on that class (629 to one type, 22 to several; 0 with no property, skipped)
+  no predefinedType: warned 651 of 651
+  the set's own type: audit clean 651 of 651 (0 limited to ObjectType text such as "Wire loop", not an enumeration member: not filled in)
+  another type: warned 647 of 647; set hidden by the editor 647 of 647

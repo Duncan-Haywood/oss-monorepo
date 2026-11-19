@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtHrZWWriKz1efpooJn",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T13:06:55Z",
+  "ended": "2026-11-18T14:37:05Z",
+  "wall_minutes": 90.45,
+  "tokens_in": 6825824,
+  "tokens_out": 36571,
+  "cost_usd": 3.1789,
+  "tool_calls": 59,
+  "task": "research/codesign-cant milestone 7z: 75 ms tuning floor scored on the stress and response tests",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17305",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First smoke run used the default python3 (3.11), which cannot parse the f-strings in m7x_knee/run.py; switched to /usr/bin/python3.13.",
+    "Pool could not pickle functions of the importlib-loaded m7x module; wrapped train/evaluate in the m7z module.",
+    "results.json rounding to 5 significant digits (7y's rnd) turned certified rho 0.99999x into 1.0, so verdicts first read 9 of 12 certified; caught against results.txt, run.py fixed to keep stress results full precision, scoring rerun from cache (identical counts)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py printed /usr/bin/python3.13 even though it lacked matplotlib at first; the 3.13 requirement (codesign-cant f-strings need >= 3.12) is not stated in the project README's reproduce block."
+    },
+    {
+      "file": "research/codesign-cant/experiments/m7y_response/run.py",
+      "issue": "rise90 is argmax of a boolean, so a flight that never gets within 10 cm reads 0 s instead of never; m7z's analysis censors it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-tune-drone-for-75-ms-motor-only-if-slower.md",
+    "research/codesign-cant/LOG.md (7z entry)",
+    "research/codesign-cant/README.md (7z section)"
+  ],
+  "goal": null,
+  "notes": "7 predictions committed before the full run (commit 6220f4f6f); 4 held (Z1, Z3, Z5, Z6). Training 3799 s on 4 cores, stress 402 s. Checks: 7x's lag60 designs reproduce 7x counts and 7y response exactly. Local checks: codesign-cant pytest 59 passed 1 skipped; research build ok; research_live_links ok; check_md_links ok; check_posts ok; cite_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d13769ab-72c3-55c0-9f12-49c20893eac1",
+    "transcripts": 1,
+    "first": "2026-11-18T13:06:55Z",
+    "last": "2026-11-18T14:37:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 112,
+        "output": 36571,
+        "thinking": 6787,
+        "cache_read": 6687010,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138702,
+        "api_equivalent_usd": 3.1789,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 112,
+      "output": 36571,
+      "thinking": 6787,
+      "cache_read": 6687010,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138702,
+      "api_equivalent_usd": 3.1789,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 90.45,
+      "active_minutes": 90.45,
+      "model_minutes": 6.85,
+      "tool_minutes": 83.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "experiment design, 1.2 h compute run, analysis and write-up of one milestone by a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 314.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

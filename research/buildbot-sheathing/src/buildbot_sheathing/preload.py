@@ -111,3 +111,31 @@ def flips(t, t_hat, tau_f):
     """Joints whose held status or side differs between the robot's torques t and the plan t_hat."""
     h, hh = held(t[0], t[1], tau_f), held(t_hat[0], t_hat[1], tau_f)
     return (h != hh) | (h & hh & (np.sign(t[1]) != np.sign(t_hat[1])))
+
+
+def reachable_states(t_lo, t_hi, r_lo, r_hi, tau_f):
+    """Per joint, which held states the robot can reach when its torque at each press end lies anywhere in
+    ``[t - r, t + r]`` (the ends taken independently, so the list is exact for independent ends and a superset
+    otherwise). Returns three boolean arrays: held positive, held negative, free (milestone 56)."""
+    lo0, hi0 = np.asarray(t_lo, float) - r_lo, np.asarray(t_lo, float) + r_lo
+    lo1, hi1 = np.asarray(t_hi, float) - r_hi, np.asarray(t_hi, float) + r_hi
+    pos = (hi0 >= tau_f) & (hi1 >= tau_f)
+    neg = (lo0 <= -tau_f) & (lo1 <= -tau_f)
+    inside = ((lo0 < tau_f) & (hi0 > -tau_f)) | ((lo1 < tau_f) & (hi1 > -tau_f))
+    split = ((hi0 > 0) & (lo1 < 0)) | ((lo0 < 0) & (hi1 > 0))
+    return pos, neg, inside | split
+
+
+def flip_cost(t_lo, t_hi, r_lo, r_hi, tau_f, gap, w):
+    """Per-joint worst change of the nose residual (same units as ``w`` times radians) a backlash flip can make
+    when the torque at each end may move by up to ``r``: ``|w_j| max |hb - hb_planned|`` over the reachable held
+    states, hb the ``held_bias`` term (-gap/2 held positive, +gap/2 held negative, 0 free). The sum over joints
+    bounds the backlash part of the residual by the triangle inequality, because the residual is linear in the
+    joint error. Joints whose band holds no other state cost 0 (milestone 56)."""
+    gap = np.broadcast_to(np.asarray(gap, float), np.shape(t_lo))
+    hb0 = held_bias(t_lo, t_hi, tau_f, gap)
+    pos, neg, free = reachable_states(t_lo, t_hi, r_lo, r_hi, tau_f)
+    d = np.zeros_like(hb0)
+    for ok, hb in ((pos, -gap / 2.0), (neg, gap / 2.0), (free, np.zeros_like(gap))):
+        d = np.where(ok, np.maximum(d, np.abs(hb - hb0)), d)
+    return np.abs(np.asarray(w, float)) * d

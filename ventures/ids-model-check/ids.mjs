@@ -13,7 +13,9 @@
 import { parseStep } from "./step.mjs";
 import { parseIfcXml, ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
 import { parseXml, kids, kid } from "./xml.mjs";
+import { compileXsdRegex } from "./xsdregex.mjs";
 import { auditIds } from "./audit.mjs";
+import { structureIssues } from "./structure.mjs";
 import { temporalKind, temporalKey } from "./temporal.mjs";
 export { temporalKind, temporalKey };
 
@@ -85,6 +87,9 @@ const SI_PREFIX = { EXA: 1e18, PETA: 1e15, TERA: 1e12, GIGA: 1e9, MEGA: 1e6, KIL
 
 export class Model {
   constructor(text, schemas) {
+    // The file's bytes (a Uint8Array) are read as they are, STEP and ifcXML
+    // alike, so the file is never one string on the heap
+    // (eval/step-bytes-2026-11-18.md, eval/ifcxml-bytes-2026-11-18.md).
     // An ifcXML model is read by its schema's attribute order (ifcxml.mjs).
     const xmlId = looksLikeXml(text) ? ifcXmlSchemaId(text) || "(not found in the ifcXML header)" : null;
     const xs = xmlId && schemas[xmlId];
@@ -102,9 +107,17 @@ export class Model {
     if (p.policy) {
       const keep = new Map();
       const S = this.schema;
+      // Geometry is not kept (see step.mjs), nor are relationships: _index
+      // below reads each one once into its maps, and no check reads a
+      // relationship's arguments again (36 MB on the 219 MB federated model,
+      // eval/shared-values-2026-11-18.md).
+      // Property sets, properties and quantities are not kept either: the
+      // first read of a set keeps one compact record of its name and
+      // properties (psetRecord), and a property's value is read from the
+      // text when a facet asks for it (eval/pset-records-2026-11-18.md).
       p.policy.keep = (t) => {
         let k = keep.get(t);
-        if (k === undefined) keep.set(t, (k = !S.isA(t, "IFCREPRESENTATIONITEM")));
+        if (k === undefined) keep.set(t, (k = !S.isA(t, "IFCREPRESENTATIONITEM") && !S.isA(t, "IFCRELATIONSHIP") && !PROPERTY_ROOTS.some((r) => S.isA(t, r))));
         return k;
       };
     }
@@ -191,6 +204,10 @@ export class Model {
         for (const o of this.refs(e, "RelatedResourceObjects")) if (ref) this._push(this.extRefs, o.id, ref);
       }
     }
+    // Lists built by push carry V8's growth slack: a one-item list holds room
+    // for 16 (about 150 bytes). Copied to their length once indexing is done
+    // (eval/shared-values-2026-11-18.md).
+    for (const map of [this.psetRels, this.classRels, this.matRels, this.materialProps, this.extRefs, ...Object.values(this.parents), this.byType]) for (const [k, l] of map) map.set(k, l.slice());
     this._units();
   }
   _units() {
@@ -253,7 +270,15 @@ function parseDouble(text) {
 }
 
 // XSD regular expressions are anchored and use a few classes JS lacks.
+// A pattern's matcher: the XSD meaning (xsdregex.mjs, the reading IfcTester
+// and the IDS text use) when the text is an XSD regex; otherwise the looser
+// JavaScript reading below, so a check still runs while the audit reports the
+// pattern (pattern-not-xsd); null when neither reads it.
 export function xsdRegex(p) {
+  return compileXsdRegex(p) || jsRegex(p);
+}
+
+export function jsRegex(p) {
   let s = p.replace(/\\i/g, "[A-Za-z_:]").replace(/\\c/g, "[-.0-9A-Za-z_:]").replace(/\\I/g, "[^A-Za-z_:]").replace(/\\C/g, "[^-.0-9A-Za-z_:]");
   try { return new RegExp("^(?:" + s + ")$", "u"); } catch { try { return new RegExp("^(?:" + s + ")$"); } catch { return null; } }
 }
@@ -305,6 +330,9 @@ export class IdsValue {
     const sv = kid(node, "simpleValue");
     if (sv) { this.simple = sv.text.trim() === sv.text ? sv.text : sv.text; return; }
     const r = kid(node, "restriction");
+    // Bare text with no <simpleValue> breaks ids.xsd (structure.mjs says so);
+    // read it as the value its author wrote rather than as "any value".
+    if (!r && !node.children.some((c) => c.local) && node.text.trim() !== "") { this.simple = node.text.trim(); return; }
     if (r) {
       const base = (r.attrs.base || "").replace(/^\w+:/, "");
       const get = (n) => kids(r, n).map((k) => k.attrs.value);
@@ -558,24 +586,56 @@ export const QUANTITY_MEASURE = {
   IFCQUANTITYNUMBER: ["NumberValue", "IFCNUMERICMEASURE"],
 };
 
-// One property set's name and properties: {name, props: Map(name ->
-// propEntity)}; name is null when the set has no string Name, which psetsOf
-// skips. Not cached: on a 219 MB federated model a cache of every set kept
-// the run from fitting a 1 GB heap (eval/psets-cache-2026-11-18.md).
-export function psetInfo(model, pset) {
-  const name = model.attr(pset, "Name");
-  const props = new Map();
+// The classes whose arguments the Model does not keep once read (besides
+// geometry and relationships): sets of properties and what they hold. Names
+// a schema lacks match nothing.
+const PROPERTY_ROOTS = ["IFCPROPERTYABSTRACTION", "IFCPROPERTY", "IFCPHYSICALQUANTITY", "IFCPROPERTYSETDEFINITION", "IFCMATERIALPROPERTIES", "IFCPROFILEPROPERTIES"];
+
+// One property set read once, as one flat list: [name, name1, property1,
+// name2, property2, ...], name null when the set has no string Name (psetsOf
+// skips it), each property the entity (or for a predefined set {predefined,
+// owner, attr, value}), in the set's order. Kept per model by set number. It
+// stands in for the set's and its properties' kept arguments: 12 MB of
+// records where the arguments took about 79 MB on the 219 MB federated model
+// after 68 IDS files, and the names are read once, not once per element
+// (eval/pset-records-2026-11-18.md).
+export function psetRecord(model, pset) {
+  let recs = model._psetRecs;
+  if (!recs) recs = model._psetRecs = new Map();
+  let r = recs.get(pset.id);
+  if (r) return r;
+  const args = pset.args;
+  const nameAt = model.schema.attrs(pset.type).index.get("Name");
+  const name = nameAt === undefined ? undefined : args[nameAt];
+  const r2 = [typeof name === "string" ? name : null];
   if (pset.type === "IFCPROPERTYSET" || pset.type === "IFCELEMENTQUANTITY" || pset.type === "IFCMATERIALPROPERTIES" || pset.type === "IFCEXTENDEDMATERIALPROPERTIES" || pset.type === "IFCPROFILEPROPERTIES") {
     const listName = pset.type === "IFCELEMENTQUANTITY" ? "Quantities" : pset.type === "IFCEXTENDEDMATERIALPROPERTIES" ? "ExtendedProperties" : pset.type === "IFCPROPERTYSET" ? "HasProperties" : "Properties";
-    for (const p of model.refs(pset, listName)) {
+    const at = model.schema.attrs(pset.type).index.get(listName);
+    const list = at === undefined ? undefined : args[at];
+    for (const ref of Array.isArray(list) ? list : [list]) {
+      const p = model.get(ref);
+      if (!p) continue;
       const pn = model.attr(p, "Name");
-      if (typeof pn === "string") props.set(pn, p);
+      if (typeof pn === "string") r2.push(pn, p);
     }
   } else if (model.isA(pset, "IFCPREDEFINEDPROPERTYSET")) {
     const attrs = model.schema.attrs(pset.type);
-    for (let i = 4; i < attrs.length; i++) props.set(attrs[i].name, { predefined: true, owner: pset, attr: attrs[i], value: pset.args[i] });
+    for (let i = 4; i < attrs.length; i++) r2.push(attrs[i].name, { predefined: true, owner: pset, attr: attrs[i], value: args[i] });
   }
-  return { name: typeof name === "string" ? name : null, props };
+  // Copied to its length: a list built by push keeps room for 16.
+  r = r2.slice();
+  recs.set(pset.id, r);
+  return r;
+}
+
+// One property set's name and properties: {name, props: Map(name ->
+// propEntity)}, a new Map on each call (psetsOf changes it), from the set's
+// record (psetRecord). A later property of the same name wins, as before.
+export function psetInfo(model, pset) {
+  const r = psetRecord(model, pset);
+  const props = new Map();
+  for (let i = 1; i < r.length; i += 2) props.set(r[i], r[i + 1]);
+  return { name: r[0], props };
 }
 
 // The property sets psetsOf reads for an element, in its order (later ones
@@ -602,7 +662,10 @@ export function psetHolders(model) {
     if (!e || seen.has(e.id)) return;
     seen.add(e.id);
     psetSources(model, e, (p) => {
-      const n = model.attr(p, "Name");
+      // The name alone: the record (properties too) is read only for sets a
+      // facet's name takes.
+      const r = model._psetRecs && model._psetRecs.get(p.id);
+      const n = r ? r[0] : model.attr(p, "Name");
       if (typeof n !== "string") return;
       let l = out.get(n);
       if (!l) out.set(n, (l = []));
@@ -636,16 +699,25 @@ export class PropertyFacet {
   constructor(node) {
     this.kind = "property";
     this.propertySet = new IdsValue(kid(node, "propertySet"));
-    this.baseName = new IdsValue(kid(node, "baseName"));
+    // IDS 0.9 wrote <name> and datatype; read them as 1.0's baseName and
+    // dataType (structure.mjs still reports them, fix.mjs rewrites them).
+    this.baseName = new IdsValue(kid(node, "baseName") || kid(node, "name"));
     this.value = new IdsValue(kid(node, "value"));
-    this.dataType = (node.attrs.dataType || "").toUpperCase() || null;
+    this.dataType = (node.attrs.dataType ?? node.attrs.datatype ?? "").toUpperCase() || null;
+    // The bSDD link (ids.xsd: requirement facets only); kept so the editor
+    // writes it back. The checker does not read it (bsdd.mjs does).
+    this.uri = node.attrs.uri ?? null;
   }
   // The values one property holds, each {v, type} with v converted to SI units.
   values(model, p) {
     const S = model.schema;
     const out = [];
+    // The property's arguments, read once: properties are not kept
+    // (psetRecord), so each model.attr would read the text again.
+    const A = p.predefined ? null : p.args;
+    const at = (name) => { const k = S.attrs(p.type).index.get(name); return k === undefined ? undefined : A[k]; };
     const unitOf = (p, type) => {
-      const u = model.get(model.attr(p, "Unit"));
+      const u = p ? model.get(at("Unit")) : undefined;
       if (u) return model.unitScale(u);
       const ut = own(model.measureUnits, type);
       return (ut && model.unitFactor.get(ut)) || { scale: 1, offset: 0 };
@@ -670,13 +742,13 @@ export class PropertyFacet {
       return { values: out };
     }
     switch (p.type) {
-      case "IFCPROPERTYSINGLEVALUE": push(model.attr(p, "NominalValue"), p); break;
-      case "IFCPROPERTYENUMERATEDVALUE": for (const x of model.attr(p, "EnumerationValues") || []) push(x, p); break;
-      case "IFCPROPERTYLISTVALUE": for (const x of model.attr(p, "ListValues") || []) push(x, p); break;
+      case "IFCPROPERTYSINGLEVALUE": push(at("NominalValue"), p); break;
+      case "IFCPROPERTYENUMERATEDVALUE": for (const x of at("EnumerationValues") || []) push(x, p); break;
+      case "IFCPROPERTYLISTVALUE": for (const x of at("ListValues") || []) push(x, p); break;
       case "IFCPROPERTYBOUNDEDVALUE": {
-        const lo = model.attr(p, "LowerBoundValue");
-        const hi = model.attr(p, "UpperBoundValue");
-        const sp = model.attr(p, "SetPointValue");
+        const lo = at("LowerBoundValue");
+        const hi = at("UpperBoundValue");
+        const sp = at("SetPointValue");
         const r = { values: [], bounded: true };
         const tmp = [];
         const before = out.length;
@@ -691,13 +763,13 @@ export class PropertyFacet {
         return r;
       }
       case "IFCPROPERTYTABLEVALUE":
-        for (const x of model.attr(p, "DefiningValues") || []) push(x, p);
-        for (const x of model.attr(p, "DefinedValues") || []) push(x, p);
+        for (const x of at("DefiningValues") || []) push(x, p);
+        for (const x of at("DefinedValues") || []) push(x, p);
         break;
       default:
         if (own(QUANTITY_MEASURE, p.type)) {
           const [an, mt] = own(QUANTITY_MEASURE, p.type);
-          const v = model.attr(p, an);
+          const v = at(an);
           if (v !== null && v !== undefined) {
             let x = v && v.typed ? v.value : v;
             if (typeof x === "number" && own(model.measureUnits, mt)) {
@@ -785,6 +857,7 @@ export class ClassificationFacet {
     this.kind = "classification";
     this.system = new IdsValue(kid(node, "system"));
     this.value = new IdsValue(kid(node, "value"));
+    this.uri = node.attrs.uri ?? null;
   }
   test(e, model) {
     const refs = classificationsOf(model, e);
@@ -832,6 +905,7 @@ export class MaterialFacet {
   constructor(node) {
     this.kind = "material";
     this.value = new IdsValue(kid(node, "value"));
+    this.uri = node.attrs.uri ?? null;
   }
   test(e, model) {
     const names = materialNames(model, e);
@@ -917,7 +991,7 @@ function readFacets(node) {
 export const INFO_FIELDS = ["title", "copyright", "version", "description", "author", "date", "purpose", "milestone"];
 
 export function parseIds(text) {
-  const root = parseXml(text);
+  const root = parseXml(text, { spans: true });
   if (root.local !== "ids") throw new Error(`not an IDS file: root element is <${root.name}>`);
   const info = kid(root, "info");
   const title = info && kid(info, "title") ? kid(info, "title").text.trim() : null;
@@ -945,7 +1019,11 @@ export function parseIds(text) {
       requirementsDescription: req && req.attrs.description,
     });
   }
-  return { title, info: infoFields, specs };
+  const out = { title, info: infoFields, specs };
+  // Where the file breaks ids.xsd (structure.mjs), for the audit; not
+  // enumerable, so JSON reports and the editor's state stay as they were.
+  Object.defineProperty(out, "structure", { value: structureIssues(root, text) });
+  return out;
 }
 
 function versionMatches(spec, model) {
@@ -1330,9 +1408,14 @@ export function checkIds(idsText, ifcText, opts = {}) {
     // (national requirement sets extend Pset_DoorCommon and the like), so the
     // specification runs and the finding is shown as a warning.
     const templateOnly = (x) => x.level === "error" && x.code.startsWith("pset-");
-    const warns = mine.filter((x) => x.level === "warning" || templateOnly(x)).map((x) => (templateOnly(x) ? "not standard IFC (an IDS audit rejects this): " : "") + x.message);
+    // A break of ids.xsd (structure.mjs) makes validating tools refuse the
+    // file, but this reader still reads what the author meant (IDS 0.9's
+    // minOccurs on <specification>, ifcVersion IFC4X3), so the specification
+    // runs and the finding is a warning, as for template errors.
+    const xsdOnly = (x) => x.level === "error" && x.structure;
+    const warns = mine.filter((x) => x.level === "warning" || templateOnly(x) || xsdOnly(x)).map((x) => (templateOnly(x) ? "not standard IFC (an IDS audit rejects this): " : xsdOnly(x) ? "not valid IDS 1.0, so validating tools refuse the file: " : "") + x.message);
     if (warns.length) s.auditWarnings = warns;
-    const errors = mine.filter((x) => x.level === "error" && !templateOnly(x));
+    const errors = mine.filter((x) => x.level === "error" && !templateOnly(x) && !xsdOnly(x));
     if (errors.length) {
       s.status = "invalid";
       s.invalid = errors.map((x) => x.message);

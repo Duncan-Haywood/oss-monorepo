@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtKrFCrhLJEAurwETXG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T21:06:44Z",
+  "ended": "2026-11-18T21:31:32Z",
+  "wall_minutes": 32.69,
+  "tokens_in": 13499674,
+  "tokens_out": 72027,
+  "cost_usd": 5.765,
+  "tool_calls": 97,
+  "task": "photo-editing flagship (allocate.py row 3): Hasselblad Phocus .fff files through the 3FR reader (NEXT.md item)",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17425",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First neutral fix scaled every .fff's AsShotNeutral by AnalogBalance; the LibRaw develop check then moved the H4D-50 and H5D-40 from 0.0002/0.0001 to 0.028/0.032. Caught before merge and replaced with a data test (empty-code share = 1 - 1/gain per channel), which scales 6 of 11 files.",
+    "Three backgrounded curls ran in the venture directory (an & chain after cd), leaving two 3FRs (290 MB) there; noticed in git status and deleted before the commit.",
+    "First synthetic gain test used 640 x 640 frames, 97 sensels a code, under the detector's 100 floor; enlarged to 800 x 800."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/tools/hasselblad_develop_check.py",
+      "issue": "Its 0.02 gate against LibRaw assumes LibRaw is a fair colour reference; for AnalogBalance-scaled .fff files it is not (LibRaw keeps the cast), so the tool exits 1 on the X1D II and the matrixless H4D-40 by design. Documented in the eval rather than changing the 3FR gate."
+    },
+    {
+      "file": "ventures/photo-editing/NEXT.md",
+      "issue": "The .fff item listed H5D-40/H5D-50c/CFV-50/H6D/X2D but not that half the files carry no colour matrix or that Phocus rescales the data; the item read as a pure decoder task when the decoder already worked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-phocus-fff-files-keep-the-old-white-balance.md",
+    "ventures/photo-editing/eval/hasselblad-fff-reader-2026-11-18.md"
+  ],
+  "goal": "Deepen the photo-editing flagship: a stranger's Phocus .fff files develop with correct colour in the batch pipeline",
+  "notes": "Checks run here: tools/hasselblad_libraw_check.py on 11 .fff (0 sensels differ on all, exit 0) and on the 3 comparison 3FRs (exit 0); tools/hasselblad_fff_pair_check.py on 2 pairs (gap 0.00008 / 0.00004, exit 0); tools/hasselblad_develop_check.py (as-written bodies within 0.0007 of LibRaw; scaled bodies 0.0054-0.0228 apart from LibRaw by design, exit 1 documented); unittest tests.test_hasselblad 21 OK; run_venture_tests.py photo-editing 1407 tests OK before and after the gain-gating change (final: 213.8 s, 1407 OK, 10 skipped); node platform/pages/venture-preflight.mjs photo-editing: preflight clean, exit 0. IFD0 of all ten 3FR-run files read by HTTP range to confirm the camera-name rule changes one name (CFV-50c).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "de9beeee-c518-51f1-a6ff-d6b88031c3d8",
+    "transcripts": 1,
+    "first": "2026-11-18T21:06:44Z",
+    "last": "2026-11-18T21:39:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 172,
+        "output": 72027,
+        "thinking": 17500,
+        "cache_read": 13291317,
+        "cache_write_5m": 0,
+        "cache_write_1h": 208185,
+        "api_equivalent_usd": 5.765,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 172,
+      "output": 72027,
+      "thinking": 17500,
+      "cache_read": 13291317,
+      "cache_write_5m": 0,
+      "cache_write_1h": 208185,
+      "api_equivalent_usd": 5.765,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 90,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 32.69,
+      "active_minutes": 32.69,
+      "model_minutes": 13.33,
+      "tool_minutes": 19.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a RAW-format engineer: fetch 14 files, compare against LibRaw and paired 3FRs, find the AnalogBalance rescale and a data test for it, code, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 173.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

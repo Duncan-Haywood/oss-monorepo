@@ -1,0 +1,44 @@
+public IDS files: 65 files, 12 break ids.xsd as published, 14 repaired on open (160 fixes), 51 opened unchanged
+  opened: 64 as written, 64 repaired first
+  written back by the editor and breaking ids.xsd: 5 as written, 4 repaired first
+  xs:pattern findings (audit) in the written-back files: 9 as written, 0 repaired first
+  written back clean (ids.xsd and patterns): 55 as written, 60 repaired first
+  facets editable 1871 -> 1871, kept as written 141 -> 141
+  written back asking what the opened file asks: 14 of 14 as written, 14 of 14 repaired first
+  repaired files asking what the original asked: 14 of 14 (4 differ only in the patterns fix.mjs rewrote to mean what their authors wrote)
+  corpus/real/BIM2SIM__bim2sim-test-resources__ids_check_2LSB.ids: 1 repaired [pattern-xsd]; opened, 3 rows/1 kept, written back valid, 1 pattern finding(s) -> 3 rows/1 kept, written back valid; left for a person in the file: 0
+  corpus/real/BIM2SIM__bim2sim__bim2sim_plugins_PluginIFCCheck_bim2sim_ifccheck_ifc_bps.ids: 1 repaired [pattern-xsd]; opened, 15 rows/13 kept, written back valid, 1 pattern finding(s) -> 15 rows/13 kept, written back valid; left for a person in the file: 0
+  corpus/real/Blue-Room-Innovation__digital-nexus-ontology__BIM_Casa Martirana.ids: 1 repaired [pattern-xsd]; opened, 3 rows/1 kept, written back valid, 1 pattern finding(s) -> 3 rows/1 kept, written back valid; left for a person in the file: 0
+  corpus/real/CedricDriesen92__RulebookProcessing__ids_output_section_0_2_1_shapes_ids.ids: 20 repaired [xsd-attribute, xsd-text, xsd-element]; opened, 7 rows/3 kept, written back breaks ids.xsd (1) -> 7 rows/3 kept, written back breaks ids.xsd (1: xsd-text); left for a person in the file: 1
+  corpus/real/CedricDriesen92__RulebookProcessing__ids_output_section_2_2_1_shapes_ids.ids: 9 repaired [xsd-attribute, xsd-element]; opened, 3 rows/3 kept, written back breaks ids.xsd (1) -> 3 rows/3 kept, written back breaks ids.xsd (1: xsd-text); left for a person in the file: 1
+  corpus/real/DFE-EducationEstates__InformationModelAssurance__Grouped_Stage_5_5_08_17-18-Object.ids: 6 repaired [pattern-xsd]; opened, 18 rows/0 kept, written back valid, 6 pattern finding(s) -> 18 rows/0 kept, written back valid; left for a person in the file: 0
+  corpus/real/I-Sokolov__RDFApps__IDSChecker_CHEK_CHEK.ids: 28 repaired [xsd-root, xsd-attribute, xsd-element]; opened, 19 rows/0 kept, written back valid -> 19 rows/0 kept, written back valid; left for a person in the file: 0
+  corpus/real/I-Sokolov__RDFApps__IDSChecker_CHEK_bim2gis-limitations.ids: 36 repaired [xsd-root, xsd-attribute, xsd-element]; opened, 25 rows/1 kept, written back valid -> 25 rows/1 kept, written back valid; left for a person in the file: 0
+  corpus/real/OpenAEC-Foundation__OpenAEC-BIM-validator__claude-code_fixtures_NL_BIM_Basis_ILS.ids: no repair; written back breaks ids.xsd (16: xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing, xsd-missing)
+  corpus/real/SSoLDAC2024__What-the-check__IDS_VTV_Accessibility_usbim.ids: 1 repaired [xsd-attribute-value]; opened, 5 rows/1 kept, written back breaks ids.xsd (1) -> 5 rows/1 kept, written back valid; left for a person in the file: 0
+  corpus/real/buildingsmart-community__Community-Sample-Test-Files__IFC 2.3.0.1 (IFC 2x3)_Molio_Molio_Example.ids: 13 repaired [xsd-attribute, xsd-element]; opened, 14 rows/0 kept, written back breaks ids.xsd (1) -> 14 rows/0 kept, written back breaks ids.xsd (1: xsd-missing); left for a person in the file: 1
+  corpus/real/ertugangenel75__EGBIM__data_validation_ids_wall_minimal.ids: 3 repaired [xsd-root, xsd-text]; opened, 1 rows/0 kept, written back valid -> 1 rows/0 kept, written back valid; left for a person in the file: 2
+  corpus/real/imagemnl__IMAGEM-GeoBIM-IDS__IDS_IBRO_FI_IMAGEM.ids: 1 repaired [xml-ampersand]; opened, 60 rows/17 kept, written back valid -> 60 rows/17 kept, written back valid; left for a person in the file: 0
+  corpus/real/skoglidigital__valitapp__ids_renholds.ids: 28 repaired [xsd-attribute, xsd-attribute-value, xsd-element]; opened, 8 rows/5 kept, written back valid -> 8 rows/5 kept, written back valid; left for a person in the file: 0
+  corpus/real/sthebigai__IDS_Norma-de-Objetos-BIM__NormaObjetos_Geral.ids: 12 repaired [xsd-attribute, xsd-element]; opened, 12 rows/2 kept, written back valid -> 12 rows/2 kept, written back valid; left for a person in the file: 0
+IDS-Audit-tool files: 80 files, 19 break ids.xsd as published, 7 repaired on open (57 fixes), 73 opened unchanged
+  opened: 75 as written, 75 repaired first
+  written back by the editor and breaking ids.xsd: 7 as written, 6 repaired first
+  xs:pattern findings (audit) in the written-back files: 51 as written, 1 repaired first
+  written back clean (ids.xsd and patterns): 65 as written, 68 repaired first
+  facets editable 2430 -> 2430, kept as written 271 -> 271
+  written back asking what the opened file asks: 6 of 7 as written, 6 of 7 repaired first
+  repaired files asking what the original asked: 7 of 7 (3 differ only in the patterns fix.mjs rewrote to mean what their authors wrote)
+  corpus/IDS-Audit-tool/testing.shared/InvalidFiles/InvalidElementInvalidContent.ids: no repair; written back breaks ids.xsd (1: xsd-missing)
+  corpus/IDS-Audit-tool/testing.shared/InvalidFiles/InvalidIfcOccurs.ids: no repair; written back breaks ids.xsd (4: xsd-attribute-value, xsd-attribute-value, xsd-attribute-value, xsd-attribute-value)
+  corpus/IDS-Audit-tool/testing.shared/InvalidFiles/InvalidIfcVersion.ids: no repair; written back breaks ids.xsd (1: xsd-attribute-value)
+  corpus/IDS-Audit-tool/testing.shared/InvalidFiles/InvalidRestrictions.ids: no repair; written back breaks ids.xsd (1: xsd-missing)
+  corpus/IDS-Audit-tool/testing.shared/InvalidFiles/InvalidSchemaLocation.ids: 2 repaired [xsd-attribute]; opened, 2 rows/0 kept, written back valid -> 2 rows/0 kept, written back valid; left for a person in the file: 0
+  corpus/IDS-Audit-tool/testing.shared/InvalidFiles/invalidPropertyMeasures.ids: 1 repaired [xsd-attribute-value]; opened, 2 rows/3 kept, written back valid -> 2 rows/3 kept, written back valid; left for a person in the file: 0
+  corpus/IDS-Audit-tool/testing.shared/IssueFiles/Issue 08 - Regex pattern.ids: 1 repaired [pattern-xsd]; opened, 1 rows/2 kept, written back valid, 1 pattern finding(s) -> 1 rows/2 kept, written back valid, 1 pattern finding(s); left for a person in the file: 0
+  corpus/IDS-Audit-tool/testing.shared/IssueFiles/Issue 14 - ids file test.ids: 2 repaired [xsd-attribute]; opened, 2 rows/1 kept, written back valid -> 2 rows/1 kept, written back valid; left for a person in the file: 0
+  corpus/IDS-Audit-tool/testing.shared/IssueFiles/Issue 52 - Error 306 - not clear.ids: no repair; written back breaks ids.xsd (1: xsd-missing)
+  corpus/IDS-Audit-tool/testing.shared/IssueFiles/Issue 55 - RelationConstraintFail.ids: no repair; written back breaks ids.xsd (1: xsd-attribute-value)
+  corpus/IDS-Audit-tool/testing.shared/IssueFiles/Issue 61/IDS - TEST for Architectural Requriements.ids: 3 repaired [pattern-xsd]; opened, 176 rows/0 kept, written back valid, 3 pattern finding(s) -> 176 rows/0 kept, written back valid; left for a person in the file: 0
+  corpus/IDS-Audit-tool/testing.shared/IssueFiles/Issue 61/IDS - TEST for Mechanical Requirements.ids: 47 repaired [pattern-xsd]; opened, 227 rows/48 kept, written back valid, 47 pattern finding(s) -> 227 rows/48 kept, written back valid; left for a person in the file: 0
+  corpus/IDS-Audit-tool/testing.shared/ValidFiles/CanonicalVersions/canonical-0.9.7.ids: 1 repaired [xsd-attribute-value]; opened, 2 rows/0 kept, written back breaks ids.xsd (1) -> 2 rows/0 kept, written back valid; left for a person in the file: 0

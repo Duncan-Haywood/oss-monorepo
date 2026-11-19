@@ -7,8 +7,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { parseUtterance, tokenize, checkValue, validateFills, mergeFills, extractJson, fieldSchema, describeFills } from './assistant/fill.mjs';
-import { ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, ASSISTANT_FILES, renderAskPage, renderAssistantFiles, scoreEvals } from './assistant.mjs';
-import { SITE_NAV } from './site-nav.mjs';
+import { ASK_SUGGESTIONS, ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, ASSISTANT_FILES, renderAskPage, renderAssistantFiles, scoreEvals } from './assistant.mjs';
+import { SITE_NAV, renderSiteStyle } from './site-nav.mjs';
 import { renderChromeStyle } from './build.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -225,7 +225,7 @@ test('the Ask page prints the score the build measured, and says where words go'
   });
   const { rounds } = scoreEvals();
   const r = rounds[rounds.length - 1];
-  assert.ok(html.includes(`<td>${r.cases}</td><td>${r.passed}</td><td>${r.wrong_writes}</td>`));
+  assert.ok(html.includes(`<td role="cell" data-label="Sentences">${r.cases}</td><td role="cell" data-label="Fully right">${r.passed}</td><td role="cell" data-label="Wrong value written">${r.wrong_writes}</td>`));
   assert.match(html, /No warranty/);
   assert.match(html, /Cloud speech recognition is never used/);
   assert.match(html, /290 MB/);
@@ -271,4 +271,31 @@ test("the floating mic's rules ride in pf-chrome.css, not in a <style> added aft
   assert.doesNotMatch(ASSISTANT_LAUNCHER_JS, /createElement\('style'\)/);
   assert.match(ASSISTANT_LAUNCHER_JS, /link\[href\$="pf-chrome\.css"\]/);
   assert.ok(renderChromeStyle().includes(ASSISTANT_VOICE_CSS));
+});
+
+test('the Ask page tables stack as labelled cards on phones, and the panel gets example questions', () => {
+  const html = renderAskPage({
+    baseUrl: 'https://example.test/',
+    siteName: 'Site',
+    toolCount: 10,
+    chrome: { style: '', styleLink: '', header: '<nav></nav>', disclaimer: '', footerNav: '', script: '' },
+  });
+  const tables = [...html.matchAll(/<table class="stack"[\s\S]*?<\/table>/g)].map((m) => m[0]);
+  assert.equal(tables.length, 2);
+  for (const t of tables) {
+    const heads = [...t.matchAll(/<th[^>]*>([^<]*)<\/th>/g)].map((m) => m[1]);
+    for (const row of t.match(/<tr role="row"><td[\s\S]*?<\/tr>/g)) {
+      // Every cell is labelled with its own column's header, in order.
+      assert.deepEqual([...row.matchAll(/data-label="([^"]*)"/g)].map((m) => m[1]), heads);
+    }
+  }
+  // The card layout lives in the shared pf-site.css now (STACK_TABLE_CSS), which the page links.
+  assert.match(renderSiteStyle(), /@media \(max-width:600px\)\{[^@]*table\.stack td::before\{content:attr\(data-label\)/);
+  assert.ok(ASK_SUGGESTIONS.length >= 2);
+  const call = /mount\(document\.getElementById\('ask-app'\), \{ suggestions: (\[[^\n]*\]) \}\)/.exec(html);
+  assert.ok(call, 'the Ask page no longer passes its example questions to mount()');
+  assert.deepEqual(JSON.parse(call[1]), ASK_SUGGESTIONS);
+  const client = readFileSync(path.join(HERE, 'assistant/client.js'), 'utf8');
+  assert.match(client, /export function mount\(container, \{ suggestions = \[\] \} = \{\}\)/);
+  assert.match(client, /tryRow\?\.remove\(\)/, 'the example row should go once something is asked');
 });

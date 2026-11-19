@@ -180,3 +180,63 @@ entries:
         four seeded bugs caught; driven in headless Chromium with no console
         errors and no overflow at 375 px. Not yet used on a real pour.
     mrr_end: 0
+  - venture: csp-policy-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/csp-policy-check, a free
+        browser page and Node CLI that parses a Content-Security-Policy with
+        the W3C CSP Level 3 algorithms, lists strict-CSP weaknesses with fixes,
+        and tests whether a URL, inline script, handler, style or eval() would
+        be allowed. Guide page for the "Refused to execute inline script" error,
+        llms.txt, post. Tests pin the spec's hash example; four of five seeded
+        bugs caught, the fifth now tested. Survey of the repository's own 23
+        server CSP headers: 7 allow every inline script (eval/). Not yet used
+        by anyone outside the repository.
+    mrr_end: 0
+  - venture: dxf-nesting
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/dxf-nesting, free
+        true-shape nesting of DXF parts on sheets in the browser and a Node
+        CLI (LINE, ARC, CIRCLE, bulged polylines, ELLIPSE, SPLINE, blocks in;
+        R12 DXF out). Conservative raster plus a k-cell border proves the gap;
+        an edge-distance check re-measures it. Reader matches ezdxf's areas on
+        6 of 6 fixture parts within 0.05%; worked example nests 72 parts on
+        one 2500 x 1250 sheet. Not yet used by anyone outside the repository.
+    mrr_end: 0
+  - venture: gitattributes-explainer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/gitattributes-explainer,
+        a browser page and Node CLI that resolves .gitattributes the way git
+        check-attr does and names the line and macro behind every attribute
+        of every path, flags lines git drops (! patterns, subfolder [attr]
+        macros, invalid or builtin_ names), docs/ folder patterns, LFS lines
+        without -text, and gives each file's line-ending outcome. Matches git
+        check-attr and ls-files --eol on 3,000 random repositories and real
+        add/checkout round trips in 342 of 342 cases; pins the gitattributes(5)
+        worked example. Guide page, llms.txt, post. Not yet used by anyone
+        outside the repository.
+    mrr_end: 0
+  - venture: gtfs-feed-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/gtfs-feed-check, a
+        browser page and zero-dependency Node CLI that checks a GTFS Schedule
+        zip against the GTFS reference (revised 2026-04-27): files, values,
+        keys, references, stop-time order, calendar coverage, plus labelled
+        speed and outlier sanity limits; 88 finding codes, each explained on
+        a guide page. On four real feeds: Google's 2007 sample has a misspelt
+        drop_off_time column and 13 short rows; BART's feed_info ends four
+        months before its calendar; 0 errors and no sanity-limit hits on
+        BART, Halifax Transit and TriMet (3.0 million stop times). Post,
+        llms.txt. Not yet used by anyone outside the repository.
+    mrr_end: 0

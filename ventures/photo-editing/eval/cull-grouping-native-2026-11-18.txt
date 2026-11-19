@@ -1,0 +1,26 @@
+200 frames, index: 139 groups, best of 3: 0.37 s
+200 frames, native: 139 groups, best of 3: 0.03 s
+200 frames, plain: 139 groups, best of 3: 0.43 s
+identical groups: True
+500 frames, index: 227 groups, best of 3: 1.19 s
+500 frames, native: 227 groups, best of 3: 0.05 s
+500 frames, plain: 227 groups, best of 3: 2.13 s
+identical groups: True
+2000 frames, index: 274 groups, best of 3: 7.89 s
+2000 frames, native: 274 groups, best of 3: 0.35 s
+2000 frames, plain: 274 groups, best of 3: 36.17 s
+identical groups: True
+5000 frames, index: 261 groups, best of 1: 34.44 s
+5000 frames, native: 261 groups, best of 1: 1.86 s
+identical groups: True
+10000 frames, index: 248 groups, best of 1: 114.56 s
+10000 frames, native: 248 groups, best of 1: 5.78 s
+identical groups: True
+SHOOTFLOW_THREADS=1:
+2000 frames, native: 274 groups, best of 1: 1.01 s
+SHOOTFLOW_THREADS=1:
+10000 frames, native: 248 groups, best of 1: 21.17 s
+SHOOTFLOW_THREADS=1:
+20000 frames, native: 234 groups, best of 1: 81.10 s
+20000 frames, native: 234 groups, best of 1: 21.71 s
+30000 frames, native: 225 groups, best of 1: 47.13 s

@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKjqRgNzsuPLQGBtuko",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T08:18:32Z",
+  "ended": "2026-11-19T08:43:54Z",
+  "wall_minutes": 65.95,
+  "tokens_in": 5698913,
+  "tokens_out": 24979,
+  "cost_usd": 2.5049,
+  "tool_calls": 57,
+  "task": "research programme lowcomm-training, milestone 6ad (free-choice redraw after water-leaks was host-blocked)",
+  "projects": [
+    "lowcomm-training"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17598",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "pick_track.py drew water-leaks; its next step (a detector on the oracle residual D) needs L-TOWN_Real.inp, Zenodo returns 403 through the proxy and neither GitHub mirror in data.py carries that file, so the programme could not run here"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "It printed 'HOSTS RECHECK water-leaks: still refused here: zenodo.org' yet still drew water-leaks as the programme; a programme whose next step needs a host the check just found refused could be skipped automatically before the draw instead of after the agent reads the log."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "torch from PyPI (CUDA build, CPU only) took about 30 min and 5.3 GB plus 2.9 GB pip cache while download.pytorch.org is refused; the doc says CPU wheel 'since 2026-10-28' installs in a few min, which did not apply here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "why": "water-leaks' data host is refused in this container",
+      "did": "redrew with --new (free choice) and took lowcomm-training's Next (1), least contended, CPU-runnable, data on raw.githubusercontent",
+      "result": "step ran and landed"
+    },
+    {
+      "file": "research/lowcomm-training/LOG.md",
+      "why": "6ac's Next (1) named unc and keep 1/4 only (8 runs); a 4-core pool of 12 runs costs one more wave and lets the shared-seed reading be tested with two compressed arms",
+      "did": "added keep 1/8 seeds 4-7 (H6ad-iv, vi)",
+      "result": "vi held at the threshold (r 0.53), iv held"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-diloco-keep-quarter-eight-seeds-h32-lowcomm.md",
+    "research/lowcomm-training/LOG.md (milestone 6ad plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "12 runs, 17.5-20 min each on 4 cores. H6ad-i held (2 bit-exact), ii refuted (-0.0072, 1.8 se), iii held, iv held, v refuted (0.0011), vi held (r +0.53). Project tests 13 passed (torch 2.15.0+cu132 venv); research/_homepage/build.py ok; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1999bc48-b18a-567f-9363-a53a7666bfa4",
+    "transcripts": 1,
+    "first": "2026-11-19T08:18:32Z",
+    "last": "2026-11-19T09:24:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 104,
+        "output": 24979,
+        "thinking": 4482,
+        "cache_read": 5587890,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110919,
+        "api_equivalent_usd": 2.5049,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 104,
+      "output": 24979,
+      "thinking": 4482,
+      "cache_read": 5587890,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110919,
+      "api_equivalent_usd": 2.5049,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 65.95,
+      "active_minutes": 65.95,
+      "model_minutes": 5.82,
+      "tool_minutes": 60.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an ML researcher writing the plan, running and pooling 12 CPU trainings and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 199.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

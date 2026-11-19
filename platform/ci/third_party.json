@@ -1,0 +1,221 @@
+{
+  "_doc": "Inventory of third-party material, read by check_third_party.py and rendered as THIRD_PARTY.md. Each entry: name, paths (fnmatch globs; * crosses /), license (SPDX), source, notice (a tracked file, or \"inline\" when the notice is in the file itself), and copyleft_ok when the licence is copyleft or non-commercial. not_third_party lists files that trip a signal but hold no third-party material, each with why.",
+  "owner_holders": [
+    "Duncan Haywood",
+    "Maris Stella Labs",
+    "AI Engineering Academy contributors"
+  ],
+  "entries": [
+    {
+      "name": "TweetNaCl.js 1.0.3",
+      "paths": [
+        "platform/deploy/vendor/nacl-fast.mjs",
+        "platform/deploy/vendor/TWEETNACL-LICENSE"
+      ],
+      "license": "Unlicense",
+      "source": "https://github.com/dchest/tweetnacl-js (nacl-fast.js, wrapped as an ES module, code unchanged)",
+      "notice": "platform/deploy/vendor/TWEETNACL-LICENSE"
+    },
+    {
+      "name": "blakejs 1.2.1",
+      "paths": [
+        "platform/deploy/vendor/blake2b.mjs",
+        "platform/deploy/vendor/BLAKEJS-LICENSE"
+      ],
+      "license": "MIT",
+      "source": "https://github.com/dcposch/blakejs (util.js and blake2b.js, wrapped as an ES module, code unchanged)",
+      "notice": "platform/deploy/vendor/BLAKEJS-LICENSE"
+    },
+    {
+      "name": "PGLib-OPF power grid cases",
+      "paths": [
+        "research/infra-dcopf/data/pglib/pglib_opf_*.m",
+        "research/infra-dcopf/data/pglib/LICENSE"
+      ],
+      "license": "CC-BY-4.0 AND MIT",
+      "source": "https://github.com/power-grid-lib/pglib-opf (case data CC BY 4.0, each file names its own holders; software MIT)",
+      "notice": "research/infra-dcopf/data/pglib/LICENSE"
+    },
+    {
+      "name": "buildingSMART IFC 4.3 sample models",
+      "paths": [
+        "ventures/ids-model-check/samples/bsi-ifc43/*"
+      ],
+      "license": "CC-BY-4.0",
+      "source": "https://github.com/buildingSMART/Sample-Test-Files at 80d976a9 (Simple-Scene), unmodified",
+      "notice": "ventures/ids-model-check/samples/bsi-ifc43/LICENSE.md"
+    },
+    {
+      "name": "buildingSMART IFC sample files (wall framing fixtures)",
+      "paths": [
+        "ventures/wall-framing-takeoff/fixtures/bsi-*.ifc",
+        "ventures/wall-framing-takeoff/fixtures/BSI-LICENSE.md"
+      ],
+      "license": "CC-BY-4.0",
+      "source": "https://github.com/buildingSMART/Sample-Test-Files, unmodified",
+      "notice": "ventures/wall-framing-takeoff/fixtures/BSI-LICENSE.md"
+    },
+    {
+      "name": "flufl.bounce test messages",
+      "paths": [
+        "ventures/sales-agent/eval/bounce-corpus/*"
+      ],
+      "license": "Apache-2.0",
+      "source": "https://gitlab.com/warsaw/flufl.bounce (tests/data), 117 messages copied unmodified",
+      "notice": "ventures/sales-agent/eval/bounce-corpus/LICENSE"
+    },
+    {
+      "name": "mail gem multipart-report fixtures",
+      "paths": [
+        "ventures/sales-agent/eval/bounce-corpus-mail/*"
+      ],
+      "license": "MIT",
+      "source": "https://github.com/mikel/mail (spec/fixtures/emails/multipart_report_emails), five messages copied unmodified",
+      "notice": "ventures/sales-agent/eval/bounce-corpus-mail/LICENSE"
+    },
+    {
+      "name": "email_reply_parser test emails",
+      "paths": [
+        "ventures/sales-agent/eval/real-threads/email_*.txt",
+        "ventures/sales-agent/eval/real-threads/LICENSE-email_reply_parser"
+      ],
+      "license": "MIT",
+      "source": "https://github.com/github/email_reply_parser (test/emails/)",
+      "notice": "ventures/sales-agent/eval/real-threads/LICENSE-email_reply_parser"
+    },
+    {
+      "name": "talon standard reply (Android)",
+      "paths": [
+        "ventures/sales-agent/eval/real-threads/talon-android.eml",
+        "ventures/sales-agent/eval/real-threads/LICENSE-talon"
+      ],
+      "license": "Apache-2.0",
+      "source": "https://github.com/mailgun/talon (standard_replies/)",
+      "notice": "ventures/sales-agent/eval/real-threads/LICENSE-talon"
+    },
+    {
+      "name": "nfelib NF-e samples",
+      "paths": [
+        "ventures/einvoice-preflight/eval/nfe-corpus/nfelib/*"
+      ],
+      "license": "MIT",
+      "source": "https://github.com/akretion/nfelib at d1b0fbe9 (nfelib/nfe/samples/v4_0/), unchanged",
+      "notice": "ventures/einvoice-preflight/eval/nfe-corpus/nfelib/LICENSE-nfelib"
+    },
+    {
+      "name": "sped-nfe NF-e fixtures",
+      "paths": [
+        "ventures/einvoice-preflight/eval/nfe-corpus/sped-nfe/*"
+      ],
+      "license": "LGPL-3.0-or-later OR MIT",
+      "source": "https://github.com/nfephp-org/sped-nfe at ff80086a (tests/fixtures/xml/), unchanged",
+      "notice": "ventures/einvoice-preflight/eval/nfe-corpus/README.md",
+      "copyleft_ok": "dual-licensed by its authors; these copies are taken under the MIT option, whose text the corpus README quotes."
+    },
+    {
+      "name": "NAV Online Számla sample invoices",
+      "paths": [
+        "ventures/einvoice-preflight/fixtures/hungary-nav/*"
+      ],
+      "license": "MIT",
+      "source": "https://github.com/nav-gov-hu/Online-Invoice (sample/), credentials in one API sample replaced",
+      "notice": "ventures/einvoice-preflight/fixtures/hungary-nav/LICENCE-NAV.md"
+    },
+    {
+      "name": "fontoxpath 3.34.0 with xspattern 3.1.0 and prsc 4.0.0 (bundled)",
+      "paths": [
+        "ventures/einvoice-preflight/plain/fontoxpath.esm.js",
+        "ventures/einvoice-preflight/plain/*.LICENSE.txt"
+      ],
+      "license": "MIT",
+      "source": "npm fontoxpath, xspattern and prsc, bundled and minified by build-plain-rules.mjs",
+      "notice": "ventures/einvoice-preflight/plain/fontoxpath.LICENSE.txt"
+    },
+    {
+      "name": "E-invoicing Schematron rules compiled to JSON",
+      "paths": [
+        "ventures/einvoice-preflight/plain/*.json",
+        "ventures/einvoice-preflight/plain/NOTICE.txt"
+      ],
+      "license": "EUPL-1.2 AND Apache-2.0 AND MPL-2.0 AND LGPL-3.0-only",
+      "source": "ConnectingEurope/eInvoicing-EN16931, itplr-kosit/xrechnung-schematron, OpenPEPPOL, phive-rules and others; NOTICE.txt names each set and its upstream commit",
+      "notice": "ventures/einvoice-preflight/plain/NOTICE.txt",
+      "copyleft_ok": "each rule set is a separate data file that stays under its upstream licence, named per set in NOTICE.txt; no MIT code is copied into them, and the MIT licence does not cover them."
+    },
+    {
+      "name": "name-suggestion-index brand names",
+      "paths": [
+        "ventures/ai-bookkeeper/brands.mjs"
+      ],
+      "license": "BSD-3-Clause",
+      "source": "https://github.com/osmlab/name-suggestion-index 8.0.20261101, regenerated by brands-build.mjs",
+      "notice": "inline"
+    },
+    {
+      "name": "TCPDBench metrics (ported)",
+      "paths": [
+        "ventures/changepoint-detector/eval/tcpd-metrics.mjs"
+      ],
+      "license": "MIT",
+      "source": "https://github.com/alan-turing-institute/TCPDBench (analysis/scripts/metrics.py), ported line for line",
+      "notice": "inline"
+    },
+    {
+      "name": "SureSim interval code (copied)",
+      "paths": [
+        "research/sim2real-inference/experiments/m7u_suresim_code/suresim_code.py"
+      ],
+      "license": "MIT",
+      "source": "https://github.com/irom-princeton/rapid-policy-evaluation at e9e6cb5 (src/suresim/intervals/ppi.py), three functions",
+      "notice": "inline"
+    }
+  ],
+  "not_third_party": [
+    {
+      "name": "heavy-hydraulics experiments",
+      "paths": [
+        "research/heavy-hydraulics/experiments/*.py"
+      ],
+      "why": "they name the CC BY-NC-SA 4.0 licence of the fuxi-robot/excavator-motion dataset, which is fetched at run time and never committed; only derived statistics are."
+    },
+    {
+      "name": "marine-hull Wigley run",
+      "paths": [
+        "research/marine-hull/experiments/run_wigley_ju.py"
+      ],
+      "why": "cites a CC BY-NC-ND paper for four published numbers; nothing is copied."
+    },
+    {
+      "name": "changepoint-detector fetch scripts",
+      "paths": [
+        "ventures/changepoint-detector/eval/*-fetch.sh"
+      ],
+      "why": "they download benchmark data outside git and name its licence; the data is never committed."
+    },
+    {
+      "name": "licence tooling and its tests",
+      "paths": [
+        "ventures/license-compat-check/engine.test.mjs",
+        "ventures/license-drift-check/engine.mjs",
+        "ventures/license-drift-check/engine.test.mjs",
+        "ventures/ig-media-pipeline/tests/test_music.py"
+      ],
+      "why": "tools whose job is to read licence names; the names are test inputs, not notices."
+    },
+    {
+      "name": "name-suggestion-index build script",
+      "paths": [
+        "ventures/ai-bookkeeper/brands-build.mjs"
+      ],
+      "why": "original code that writes the upstream BSD notice into brands.mjs."
+    },
+    {
+      "name": "this check and its tests",
+      "paths": [
+        "platform/ci/check_third_party.py",
+        "platform/ci/test_check_third_party.py"
+      ],
+      "why": "the patterns that find licence banners contain the banners' words."
+    }
+  ]
+}

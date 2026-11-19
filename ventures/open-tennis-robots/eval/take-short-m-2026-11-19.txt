@@ -1,0 +1,20 @@
+shipped   0,2,3,4,5,6,7,8         : within 0.5 ms 41/66, off by more than 1 ms 11, mean abs 0.523 ms, instant builds off 0 by more than 0.5 ms 0, checks (3 ms and up) within 0.5 ms 18
+candidate 0,1.5,2.5,3,4,5,6,7,8   : within 0.5 ms 48/66, off by more than 1 ms 3, mean abs 0.373 ms, instant builds off 0 by more than 0.5 ms 1, checks (3 ms and up) within 0.5 ms 18
+
+By take: shipped verdicts | candidate verdicts
+  0 ms | [0 0 0 0 0 0] | [0 1 0 0 0 0]
+  0.3 ms | [0 0 0 0 0 0] | [0 0 0 0 0 0]
+  0.8 ms | [0 0 0 0 2.5 0] | [0 0 0 0 1 0]
+  1.2 ms | [0 0 0 0 0 0] | [1 0 1 0 1 1]
+  1.7 ms | [1 1 1 1 0 1] | [1 1 1 1 0 1]
+  2.1 ms | [1.5 1.5 1.5 1.5 1 1] | [2 2 2 1.5 1.5 1.5]
+  2.6 ms | [2.5 2.5 2.5 2.5 2.5 2.5] | [2.5 2.5 2.5 3 2.5 2.5]
+  2.9 ms | [2.5 2.5 0 2.5 2.5 2.5] | [3 3 2 3 2.5 3]
+  3.6 ms | [3.5 3.5 3.5 3.5 3.5 3.5] | [3.5 3.5 3.5 3.5 3.5 3.5]
+  5.4 ms | [5 5 5 5 5 5.5] | [5 5 5 5 5 5.5]
+  6.8 ms | [6.5 6.5 6.5 6.5 6.5 6.5] | [6.5 6.5 6.5 6.5 6.5 6.5]
+  at least 4 more within 0.5 ms: held
+  no more off by more than 1 ms: held
+  no more instant builds moved: FAILED
+  checks no worse: held
+Decision: the shipped grid stays

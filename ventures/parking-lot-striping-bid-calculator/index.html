@@ -484,6 +484,12 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    // A bad field (a negative stall count) makes the comparison throw; show the
+    // reason where the table would go instead of a silent click.
+    function safeCompare(show) {
+      try { show(); } catch (error) { el('compare').textContent = `Can't compare yet: ${error.message}.`; }
+    }
+
     function showLayoutCompare() {
       const rows = compareLayout(readInput());
       el('compare').innerHTML = `<table><thead><tr><th>Layout</th><th>Price</th><th>Hours</th><th>vs cheapest</th></tr></thead><tbody>${
@@ -530,9 +536,9 @@
         el('summaryStatus').textContent = error.message;
       }
     });
-    el('compareLayout').addEventListener('click', showLayoutCompare);
-    el('compareAda').addEventListener('click', showAdaCompare);
-    el('compareCoats').addEventListener('click', showCoatCompare);
+    el('compareLayout').addEventListener('click', () => safeCompare(showLayoutCompare));
+    el('compareAda').addEventListener('click', () => safeCompare(showAdaCompare));
+    el('compareCoats').addEventListener('click', () => safeCompare(showCoatCompare));
 
     applyJob(JOB_PRESETS[0]);
 

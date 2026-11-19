@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Submittal Register from Spec Book PDF — free submittal log generator</title>
+<meta name="description" content="Drop a construction project manual PDF and get a submittal register: every Part 1 submittal by spec section, typed and phased, as a CSV. Free, in your browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23a8461a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+<link rel="canonical" href="https://marisstella.app/submittal-register/">
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1f22;--mut:#5b6068;--line:#dcd8cf;--card:#fff;--acc:#a8461a;--acc2:#7d3311;--chip:#f1ede4;--ok:#2f6b3a}
+@media (prefers-color-scheme:dark){:root{--bg:#141516;--fg:#ecebe8;--mut:#a5a9b0;--line:#34363a;--card:#1c1d1f;--acc:#e0834f;--acc2:#f0a274;--chip:#26282b;--ok:#7cc48a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:72rem;margin:0 auto;padding:1.25rem 16px 3rem}
+h1{font-size:1.9rem;line-height:1.2;margin:.4rem 0 .5rem}
+h2{font-size:1.25rem;margin:2rem 0 .5rem}
+h3{font-size:1.02rem;margin:1.2rem 0 .3rem}
+p{margin:.4rem 0 .8rem}
+a{color:var(--acc)}
+.lede{color:var(--mut);max-width:48rem}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:1.4rem;background:var(--card);text-align:center}
+.drop.over{border-color:var(--acc)}
+button,.btn{font:inherit;border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:8px;padding:.5rem .9rem;cursor:pointer}
+button.secondary{background:transparent;color:var(--acc)}
+button:disabled{opacity:.5;cursor:default}
+input[type=file]{max-width:100%}
+.row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+.chip{background:var(--chip);border-radius:999px;padding:.15rem .65rem;font-size:.88rem}
+.note{color:var(--mut);font-size:.92rem}
+#status{min-height:1.5rem;color:var(--mut)}
+.warn{border-left:3px solid var(--acc);padding:.3rem .7rem;background:var(--card);margin:.4rem 0;font-size:.93rem}
+select,input[type=search]{font:inherit;padding:.35rem .5rem;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card);margin-top:.6rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:.45rem .55rem;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:var(--card);font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:var(--mut)}
+td.desc{min-width:18rem}
+.tag{display:inline-block;font-size:.72rem;border:1px solid var(--line);border-radius:4px;padding:0 .3rem;margin:.1rem .2rem 0 0;color:var(--mut)}
+.sec{white-space:nowrap;font-variant-numeric:tabular-nums}
+details{margin:.4rem 0}
+small{color:var(--mut)}
+@media print{.noprint{display:none!important}body{background:#fff;color:#000}.tablewrap{border:0}th{position:static}}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Submittal Register","url":"https://marisstella.app/submittal-register/","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in the browser)","description":"Reads a construction project manual (spec book) PDF in the browser and lists every Part 1 submittal requirement by specification section, typed (product data, shop drawings, samples, certificates, O&M, warranties) and phased (action, informational, closeout), with a CSV export. Nothing is uploaded.","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a submittal register from a spec book?", "acceptedAnswer": {"@type": "Answer", "text": "Choose the project manual PDF, or every volume at once. The tool finds each SECTION heading, reads the submittal articles in Part 1 (ACTION, INFORMATIONAL, CLOSEOUT and MAINTENANCE MATERIAL SUBMITTALS, or UFGS SD-01 to SD-11 lists) and lists one row per requirement. Download the CSV and open it in Excel, Google Sheets or your project-management tool's import."}}, {"@type": "Question", "name": "Is my project manual uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The PDF is read by code running in this tab; nothing is sent anywhere. A 2,000-page book takes about half a minute on a laptop."}}, {"@type": "Question", "name": "Which spec formats does it read?", "acceptedAnswer": {"@type": "Answer", "text": "CSI SectionFormat books with numbered articles and lettered paragraphs, which is how most commercial and public project manuals are laid out, and UFGS books with SD lists and the G Government-approval mark (kept in the Approval column, with any reviewer code after it). A scanned PDF with no text layer needs OCR first; the tool says so when it sees one."}}, {"@type": "Question", "name": "How accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "On 690 Unified Facilities Guide Specification sections whose XML tags each submittal, it found 99.3% of the 12,952 tagged items with 99.9% precision. Printed to PDF and read back the way this page reads a book, 98.8% to 99.1%. It has not yet been measured on a commercial (SectionFormat) project manual, so check every section by hand before relying on the list. How it was checked."}}, {"@type": "Question", "name": "Does it find submittals mentioned in Part 2 or Part 3?", "acceptedAnswer": {"@type": "Answer", "text": "Not yet. It reads the Part 1 submittal articles, which is where SectionFormat puts them. A requirement written only in Part 3 (\"submit test reports to the Architect\") is not listed, and Division 01 general requirements apply on top of every section."}}, {"@type": "Question", "name": "Can I run it on my own machine or server?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is MIT-licensed, has no dependencies and runs from a folder: node cli.mjs project-manual.pdf --csv register.csv. Source and instructions are on GitHub."}}]}</script>
+</head>
+<body>
+<main>
+<p class="note noprint"><a href="../">All tools</a></p>
+<h1>Submittal register from a spec book PDF</h1>
+<p class="lede">Building a submittal log by hand means reading every section of a 600-page project manual. Drop the PDF here and get the list in seconds: every Part 1 submittal requirement, by spec section, typed (product data, shop drawings, samples, certificates, O&amp;M, warranty) and phased (action, informational, closeout). Download it as a CSV. Free, and the file never leaves your browser.</p>
+
+<div class="drop noprint" id="drop">
+  <p><label><b>Project manual PDF</b> (one book or several volumes; a .txt export also works)<br><input id="file" type="file" accept=".pdf,.txt,application/pdf,text/plain" multiple></label></p>
+  <p class="row" style="justify-content:center"><button type="button" class="secondary" id="sample">Try a sample book</button></p>
+  <p class="note">Reads CSI SectionFormat ("1.3 ACTION SUBMITTALS" / "A. Product Data:") and UFGS ("SD-03 Product Data", "; G") books with a text layer.</p>
+</div>
+<p id="status" aria-live="polite"></p>
+<div id="warnings"></div>
+
+<section id="result" hidden>
+  <div class="chips" id="summary"></div>
+  <div class="row noprint">
+    <input type="search" id="q" placeholder="Search section, title or text" aria-label="Search">
+    <select id="phase" aria-label="Phase"><option value="">All phases</option><option>Action</option><option>Informational</option><option>Closeout</option></select>
+    <select id="type" aria-label="Type"><option value="">All types</option></select>
+    <button type="button" id="csv">Download CSV</button>
+    <button type="button" class="secondary" id="print">Print</button>
+  </div>
+  <p class="note" id="shown"></p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>No.</th><th>Section</th><th>Type</th><th>Phase</th><th>Requirement</th><th>Page</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <details class="noprint"><summary>Sections with no submittal list found</summary><p class="note" id="empty"></p></details>
+</section>
+
+<h2>What you get</h2>
+<p>One row per requirement with the spec section number and title, the article and paragraph it came from (for example <code>1.3 ACTION SUBMITTALS</code>, <code>B</code>), the submittal type on one scale (the UFGS SD-01 to SD-11 descriptions most Division 01 sections echo), the phase, the full requirement text and the PDF page. Rows are flagged when the text asks for a delegated design or engineer-sealed calculations, a sustainability (LEED, VOC, recycled content) document, or a submittal only "if requested". The CSV adds blank Status and date columns so it can serve as the working log.</p>
+
+<h2>Questions</h2>
+<h3>How do I make a submittal register from a spec book?</h3>
+<p>Choose the project manual PDF, or every volume at once. The tool finds each <code>SECTION</code> heading, reads the submittal articles in Part 1 (ACTION, INFORMATIONAL, CLOSEOUT and MAINTENANCE MATERIAL SUBMITTALS, or UFGS SD-01 to SD-11 lists) and lists one row per requirement. Download the CSV and open it in Excel, Google Sheets or your project-management tool's import.</p>
+<h3>Is my project manual uploaded?</h3>
+<p>No. The PDF is read by code running in this tab; nothing is sent anywhere. A 2,000-page book takes about half a minute on a laptop.</p>
+<h3>Which spec formats does it read?</h3>
+<p>CSI SectionFormat books with numbered articles and lettered paragraphs, which is how most commercial and public project manuals are laid out, and UFGS books with SD lists and the <code>G</code> Government-approval mark (kept in the Approval column, with any reviewer code after it). A scanned PDF with no text layer needs OCR first; the tool says so when it sees one.</p>
+<h3>How accurate is it?</h3>
+<p>On 690 Unified Facilities Guide Specification sections whose XML tags each submittal, it found 99.3% of the 12,952 tagged items with 99.9% precision. Printed to PDF and read back the way this page reads a book, 98.8% to 99.1%. It has not yet been measured on a commercial (SectionFormat) project manual, so check every section by hand before relying on the list. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/submittal-register#how-it-was-checked">How it was checked</a>.</p>
+<h3>Does it find submittals mentioned in Part 2 or Part 3?</h3>
+<p>Not yet. It reads the Part 1 submittal articles, which is where SectionFormat puts them. A requirement written only in Part 3 ("submit test reports to the Architect") is not listed, and Division 01 general requirements apply on top of every section.</p>
+<h3>Can I run it on my own machine or server?</h3>
+<p>Yes. It is MIT-licensed, has no dependencies and runs from a folder: <code>node cli.mjs project-manual.pdf --csv register.csv</code>. Source and instructions are on <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/submittal-register">GitHub</a>.</p>
+
+<p class="noprint">Related: <a href="../ids-model-check/">IDS model check</a> for BIM deliverables, the <a href="../xer-schedule-check/">XER schedule check</a> (DCMA 14-point check of a P6 schedule), and the <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
+<p class="noprint"><small id="usage"></small> <button type="button" class="secondary" id="optout" style="font-size:.8rem;padding:.2rem .5rem">Turn usage counting off</button></p>
+<p><small><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, construction, engineering or professional advice, and it does not replace a qualified professional or the design team. It reads the text of the book you give it and can miss or misread requirements; the contract documents and the architect's and engineers' instructions govern. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</small></p>
+</main>
+<script type="module">
+import { buildRegister, linesFromText, toCsv } from "./engine.mjs";
+import { SAMPLE_TEXT } from "./sample.mjs";
+import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+let reg = null;
+let bookName = "submittal-register";
+
+function show(r) {
+  reg = r;
+  $("#result").hidden = false;
+  const s = r.summary;
+  $("#summary").innerHTML = [`<span class="chip"><b>${s.total}</b> submittals</span>`, `<span class="chip">${s.sections} of ${r.sections.length} sections</span>`]
+    .concat(Object.entries(s.byPhase).map(([k, v]) => `<span class="chip">${esc(k)} ${v}</span>`))
+    .concat(s.approval ? [`<span class="chip">G (Government approval) ${s.approval}</span>`] : []).join("");
+  const types = Object.entries(s.byType).sort((a, b) => b[1] - a[1]);
+  $("#type").innerHTML = `<option value="">All types</option>` + types.map(([k, v]) => `<option value="${esc(k)}">${esc(k)} (${v})</option>`).join("");
+  $("#warnings").innerHTML = r.warnings.map((w) => `<div class="warn">${esc(w)}</div>`).join("");
+  const empty = r.sections.filter((x) => !x.count);
+  $("#empty").textContent = empty.length ? empty.map((x) => `${x.number} ${x.title}`).join("; ") : "None.";
+  render();
+}
+
+function render() {
+  if (!reg) return;
+  const q = $("#q").value.trim().toLowerCase(), ph = $("#phase").value, ty = $("#type").value;
+  const rows = reg.items.filter((i) => (!ph || i.phase === ph) && (!ty || i.type === ty) && (!q || `${i.section} ${i.sectionTitle} ${i.label} ${i.description}`.toLowerCase().includes(q)));
+  $("#shown").textContent = rows.length === reg.items.length ? "" : `Showing ${rows.length} of ${reg.items.length}.`;
+  $("#rows").innerHTML = rows.slice(0, 3000).map((i) => `<tr><td class="sec">${esc(i.id)}</td><td><span class="sec">${esc(i.section)}</span><br><small>${esc(i.sectionTitle)}</small></td><td>${esc(i.type)}${i.sd ? `<br><small>${esc(i.sd)}</small>` : ""}</td><td>${esc(i.phase)}${i.approval ? `<br><span class="tag">${esc(i.approval)}${i.reviewer ? ", " + esc(i.reviewer) : ""}</span>` : ""}</td><td class="desc"><b>${esc(i.label)}</b><br>${esc(i.description)}${i.flags.map((f) => `<span class="tag">${esc(f)}</span>`).join("")}<br><small>${esc(i.article)}${i.para ? " " + esc(i.para) : ""}</small></td><td class="sec">${i.file && reg.files > 1 ? esc(i.file) + " " : ""}p. ${esc(i.filePage ?? i.page)}</td></tr>`).join("") + (rows.length > 3000 ? `<tr><td colspan="6">First 3,000 rows shown; the CSV has all ${rows.length}.</td></tr>` : "");
+}
+
+async function readFiles(files) {
+  $("#status").textContent = "Reading…";
+  $("#warnings").innerHTML = "";
+  bookName = files[0].name.replace(/\.[^.]+$/, "") || "submittal-register";
+  const payload = await Promise.all([...files].map(async (f) => ({ name: f.name, buffer: await f.arrayBuffer() })));
+  const notes = [];
+  const t0 = performance.now();
+  const lines = await new Promise((resolve, reject) => {
+    let w;
+    try { w = new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" }); } catch (e) { reject(e); return; }
+    w.onmessage = (e) => {
+      if (e.data.progress) $("#status").textContent = e.data.progress;
+      if (e.data.note) notes.push(e.data.note);
+      if (e.data.lines) { resolve(e.data.lines); w.terminate(); }
+      if (e.data.error) { reject(new Error(e.data.error)); w.terminate(); }
+    };
+    w.onerror = (e) => { reject(e); w.terminate(); };
+    w.postMessage({ files: payload }, payload.map((p) => p.buffer));
+  });
+  const r = buildRegister(lines);
+  r.files = files.length;
+  r.warnings = notes.concat(r.warnings);
+  $("#status").textContent = `Read ${files.length > 1 ? files.length + " files" : esc(files[0].name)} in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+  record("book_read");
+  if (r.items.length) record("register_built");
+  show(r);
+}
+
+$("#file").addEventListener("change", (e) => { if (e.target.files.length) readFiles(e.target.files).catch((err) => { $("#status").textContent = "Could not read the file: " + err.message; }); });
+const drop = $("#drop");
+drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); if (e.dataTransfer.files.length) readFiles(e.dataTransfer.files).catch((err) => { $("#status").textContent = "Could not read the file: " + err.message; }); });
+$("#sample").addEventListener("click", () => { bookName = "sample-book"; const r = buildRegister(linesFromText(SAMPLE_TEXT)); r.files = 1; $("#status").textContent = "Sample: a short made-up project manual (three sections)."; record("sample_loaded"); show(r); });
+for (const id of ["#q", "#phase", "#type"]) $(id).addEventListener("input", render);
+$("#csv").addEventListener("click", () => {
+  if (!reg) return;
+  const blob = new Blob([toCsv(reg)], { type: "text/csv;charset=utf-8" });
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: `${bookName}-submittal-register.csv` });
+  document.body.append(a); a.click(); a.remove();
+  record("csv_downloaded");
+});
+$("#print").addEventListener("click", () => { record("register_printed"); window.print(); });
+$("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; });
+if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+$("#usage").textContent = "Anonymous counts of features used stay in this browser; nothing is sent.";
+record("page_viewed");
+</script>
+</body>
+</html>

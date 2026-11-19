@@ -1,6 +1,6 @@
 """Measured stereo depth instead of assumed depth noise, fed into the two-view novel-view warp.
 
-    python experiments/run.py            # about a minute; writes experiments/results.txt
+    python experiments/run.py            # about 10 s; writes experiments/results.txt
 """
 import sys
 from pathlib import Path

@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyfR8RYxR8hpm6YbsTU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T20:37:39Z",
+  "ended": "2026-11-18T21:09:19Z",
+  "wall_minutes": 36.08,
+  "tokens_in": 7743534,
+  "tokens_out": 34652,
+  "cost_usd": 3.1757,
+  "tool_calls": 73,
+  "task": "ids-model-check (flagship 12): skip white-space-only text runs in the XML reader",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17418",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "eval/xml-reader-cost.mjs first dropped the root element too (onClose returned true for every element), so its first eight rows failed with 'no root element'; fixed and re-run.",
+    "First bench script called /usr/bin/time, which the container lacks; re-run without it.",
+    "A draft whitespace test assumed ifcXML reads an all-space string as spaces; main reads it as \"\" (ifcxml.mjs attrValue), so the test was moved to the XML tree level and the behaviour noted as an open item."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/lazy-ifcxml-2026-11-18.md / flagships.yaml next",
+      "issue": "'strings keep whitespace' reads as if all-white-space ifcXML strings are kept; ifcxml.mjs attrValue returns \"\" for them. Cost a test rewrite."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A hook rejects pkill -f '[b]ench.sh' when the pattern also appears elsewhere in the command line; the note about bracketing does not mention the one-command-per-call need."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "PRODUCT_PLAYBOOK.md / CLAUDE.md (llms.txt and marketing page kept current)",
+      "why": "The change is an internal reader optimisation with no new user-facing feature; llms.txt already describes ifcXML reading.",
+      "did": "Left llms.txt and the marketing page unchanged.",
+      "result": "No user-facing claim went stale."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-ids-model-check-the-indentation-was-a-rope.md",
+    "ventures/ids-model-check/eval/xml-whitespace-2026-11-18.md"
+  ],
+  "goal": "Deepen flagship 12 (ids-model-check): XML reader memory",
+  "notes": "Verification (all local, Node v22.23.5, 4 vCPU): node --test *.test.mjs 262 pass 0 fail. 68 IDS reports hash identically main vs branch on HHS MEP and the 374 MB federated model, flat and indented (8ada0722d8343e8e, c273964046439ba3). XML reader alone: working heap 40-106 MB to 2-4 MB, 5-29% faster. Smallest heap: indented federated parse 480 to 416 MB, all 68 IDS 512 to 448 MB. Page smoke in Chromium: no console errors, 113 MB indented Schultz model reported. node platform/pages/venture-preflight.mjs ids-model-check: preflight clean (EXIT 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "28a09823-e94e-518a-82e8-dcc935182727",
+    "transcripts": 1,
+    "first": "2026-11-18T20:37:39Z",
+    "last": "2026-11-18T21:13:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 133,
+        "output": 34652,
+        "thinking": 7589,
+        "cache_read": 7623724,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119677,
+        "api_equivalent_usd": 3.1757,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 133,
+      "output": 34652,
+      "thinking": 7589,
+      "cache_read": 7623724,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119677,
+      "api_equivalent_usd": 3.1757,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 64,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.08,
+      "active_minutes": 36.08,
+      "model_minutes": 6.43,
+      "tool_minutes": 29.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior engineer profiling a streaming XML reader, writing the rule and tests, and running main-vs-branch heap searches on four large models",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 188.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -11,7 +11,8 @@
 // probability does not depend on how long parties stay (only on the mean), so the simulator is tested against the closed form.
 
 export const MAX_TYPES = 6;
-// Run time grows with the number of parties simulated (about 1.6 s at 300 and 5 s at 1,000 on a laptop), and an extra
+// Run time grows with the number of parties simulated (about 0.3 s at 300 and 0.4 s at 600 for the example room, Node 22,
+// 2026-11-19; it was 1.4 s and 2.2 s before the free-count simulator), and an extra
 // zero used to hang the tab. Above this the page asks for one section or a shorter window instead of guessing.
 export const MAX_PARTIES = 600;
 export const PARTY_SIZES = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -96,51 +97,68 @@ export function drawServices({ n, seed, windowMin, ratePerMin, sizeCdf }) {
 // ---------- one service ----------
 // tables: [{seats}], one entry per physical table. dwellMin[k] is the mean stay for party size index k.
 // Returns { guests, parties, lost, waitMin (sum over seated), seatMinutes }.
+//
+// Tables with the same number of seats are interchangeable (only `seats` is read), so the room is kept as a free count per
+// distinct seat size. A party takes the smallest free table that holds it; failing that (and if allowed) the pair with the
+// fewest seats that holds it, the smaller first table winning a tie, which is the pair a scan over the tables sorted by
+// seats finds first. A pick that fails for a party of size s fails for any larger party until something is freed, so a
+// pass over the waiting line skips those parties.
 export function runService(parties, tables, sizes, dwellMin, patienceMin, combine) {
-  const free = tables.map(() => true);
-  const order = tables.map((t, i) => i).sort((a, b) => tables[a].seats - tables[b].seats);
-  const deps = []; // [time, tableIdxA, tableIdxB|-1]
+  const vals = [];
+  for (const t of tables) if (!vals.includes(t.seats)) vals.push(t.seats);
+  vals.sort((a, b) => a - b);
+  const V = vals.length;
+  const free = new Array(V).fill(0);
+  for (const t of tables) free[vals.indexOf(t.seats)] += 1;
+  const deps = []; // [time, seatIdxA, seatIdxB|-1], sorted by time; ties keep insertion order
   const queue = []; // [deadline, arrival, k, dwell]
   const r = { guests: 0, parties: parties.length, lost: 0, waitMin: 0, seated: 0, seatMinutes: 0 };
+  let pa = -1, pb = -1;
 
   const pick = (size) => {
-    for (const i of order) if (free[i] && tables[i].seats >= size) return [i, -1];
-    if (!combine) return null;
-    let best = null;
+    for (let v = 0; v < V; v++) if (free[v] > 0 && vals[v] >= size) { pa = v; pb = -1; return true; }
+    if (!combine) return false;
     let bestSeats = Infinity;
-    for (let x = 0; x < order.length; x++) {
-      const a = order[x];
-      if (!free[a]) continue;
-      for (let y = x + 1; y < order.length; y++) {
-        const b = order[y];
-        if (!free[b]) continue;
-        const seats = tables[a].seats + tables[b].seats;
-        if (seats >= size && seats < bestSeats) { best = [a, b]; bestSeats = seats; }
+    pa = -1;
+    for (let v = 0; v < V; v++) {
+      if (free[v] === 0) continue;
+      for (let w = v; w < V; w++) {
+        if (free[w] === 0 || (w === v && free[v] < 2)) continue;
+        const seats = vals[v] + vals[w];
+        if (seats >= size && seats < bestSeats) { pa = v; pb = w; bestSeats = seats; }
       }
     }
-    return best;
+    return pa >= 0;
   };
   const seat = (now, arrival, k, dwell) => {
     const size = sizes[k];
-    const slot = pick(size);
-    if (!slot) return false;
-    free[slot[0]] = false;
-    if (slot[1] >= 0) free[slot[1]] = false;
+    if (!pick(size)) return false;
+    free[pa] -= 1;
+    if (pb >= 0) free[pb] -= 1;
     const t = now + dwell;
-    let lo = 0;
-    while (lo < deps.length && deps[lo][0] <= t) lo++;
-    deps.splice(lo, 0, [t, slot[0], slot[1]]);
+    let lo = 0, hi = deps.length; // first departure later than t
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (deps[mid][0] <= t) lo = mid + 1; else hi = mid; }
+    deps.splice(lo, 0, [t, pa, pb]);
     r.guests += size;
     r.seated += 1;
     r.waitMin += now - arrival;
-    r.seatMinutes += dwell * (tables[slot[0]].seats + (slot[1] >= 0 ? tables[slot[1]].seats : 0));
+    r.seatMinutes += dwell * (vals[pa] + (pb >= 0 ? vals[pb] : 0));
     return true;
   };
+  // The line is in arrival order, and every deadline is arrival + patience, so the parties who gave up are a prefix.
+  // Once even the smallest party size cannot be seated, nobody further down the line can be.
+  let minSize = Infinity;
+  for (const z of sizes) if (z < minSize) minSize = z;
   const drain = (now) => {
-    for (let q = 0; q < queue.length; ) {
-      if (queue[q][0] < now) { r.lost += 1; queue.splice(q, 1); continue; }
-      if (seat(now, queue[q][1], queue[q][2], queue[q][3])) queue.splice(q, 1);
-      else q++;
+    let gone = 0;
+    while (gone < queue.length && queue[gone][0] < now) gone++;
+    if (gone) { r.lost += gone; queue.splice(0, gone); }
+    let failSize = Infinity;
+    for (let q = 0; q < queue.length && failSize > minSize; ) {
+      const size = sizes[queue[q][2]];
+      if (size < failSize && seat(now, queue[q][1], queue[q][2], queue[q][3])) { queue.splice(q, 1); continue; }
+      if (size < failSize) failSize = size;
+      q++;
     }
   };
 
@@ -150,9 +168,9 @@ export function runService(parties, tables, sizes, dwellMin, patienceMin, combin
     const nextDep = deps.length ? deps[0][0] : Infinity;
     if (nextDep <= nextArr) {
       const d = deps.shift();
-      free[d[1]] = true;
-      if (d[2] >= 0) free[d[2]] = true;
-      drain(d[0]);
+      free[d[1]] += 1;
+      if (d[2] >= 0) free[d[2]] += 1;
+      if (queue.length) drain(d[0]);
     } else {
       const [t, k, mult] = parties[a++];
       const dwell = dwellMin[k] * mult;
@@ -302,6 +320,27 @@ export function search(types, area, scoreOf, start) {
   return { counts: cur, score: curScore };
 }
 
+export const ENUMERATE_LIMIT = 5000;
+
+// Every feasible mix (area and per-type caps), or null when there are more than `limit`.
+export function enumerateMixes(types, area, limit) {
+  const out = [];
+  const cur = types.map(() => 0);
+  let over = false;
+  const rec = (i, used) => {
+    if (over) return;
+    if (i === types.length) { out.push(cur.slice()); if (out.length > limit) over = true; return; }
+    for (let c = 0; c <= types[i].max; c++) {
+      const u = used + c * types[i].sqft;
+      if (u > area + 1e-9) break;
+      cur[i] = c; rec(i + 1, u);
+    }
+    cur[i] = 0;
+  };
+  rec(0, 0);
+  return over ? null : out;
+}
+
 export const SEARCH_SERVICES = 60;
 export const REPORT_SERVICES = 300;
 
@@ -338,6 +377,18 @@ export function analyze(tableRows, partyRows, shared) {
     if (!best || r.score > best.score) best = r;
   }
   if (!best) best = search(types, n.areaSqFt, scoreOnSearch, types.map(() => 0));
+  // Local search can stop at a local optimum (with combining off on the example it
+  // picked a mix 4.4 guests a service short). When the room is small enough, check
+  // every feasible mix so the answer is the best one on the search set.
+  const all = enumerateMixes(types, n.areaSqFt, ENUMERATE_LIMIT);
+  if (all) {
+    for (const c of all) {
+      const sc = scoreOnSearch(c) - 1e-6 * footprint(c, types);
+      if (sc > best.score + 1e-9) best = { counts: c, score: sc };
+    }
+  }
+  const exhaustive = Boolean(all);
+  if (!exhaustive) warnings.push(`More than ${ENUMERATE_LIMIT.toLocaleString("en-US")} table mixes fit this floor, so the recommendation is the best found by local search, not a check of every mix. Setting a maximum count for each table type narrows it.`);
   const recCounts = best.counts;
 
   const cur = evaluate(currentCounts, types, reportSet, sizes, dwellMin, n.patienceMin, n.combine);
@@ -376,6 +427,7 @@ export function analyze(tableRows, partyRows, shared) {
     significant: Math.abs(dMean) > 2 * dSe,
     areaUsedCur: footprint(currentCounts, types),
     areaUsedRec: footprint(recCounts, types),
+    exhaustive,
     monthlyRevenue,
     monthlyContribution: monthlyRevenue * (n.marginPct / 100),
     demandGuests: n.partiesPerService * (sizes.reduce((s, z, k) => s + z * n.shares[k], 0) / total),

@@ -1,0 +1,85 @@
+Milestone 7s: 7r's bend table rebuilt with four shapes of synthetic bend (each gives b = P_idle(79)/P_idle(64) = beta exactly): p power pivot 64 (7r), h hinge above 64, v power pivot 79, x exponential; grid beta 1.2 .. 1.9, donors outside the held-out maker group at 7p's e_m; 7j's 22 idle conditions, 14 variants, 4312 cells
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py; neutral readings as excavator_idle_standby.py). The bent curves are synthetic: a sensitivity, not a measured family.
+
+Danfoss-fold row median pick (L/min) by beta and shape, donors at e_m 0.8075:
+  beta       p       h       v       x
+  1.2    74.5    74.5    73.0    74.5
+  1.3    73.0    73.0    72.5    73.0
+  1.4    72.0    72.0    72.5    72.0
+  1.5    71.0    71.0    72.0    71.0
+  1.6    69.5    70.0    72.0    70.0
+  1.7    68.5    68.5    72.0    69.0
+  1.8    68.0    68.0    72.0    68.0
+  1.9    67.0    67.5    71.5    67.5
+
+Per variant at the central condition: b, grid beta, own-pick median at e_m; kW_shape/kW_s for p / h / v / x:
+  casappa                       b 1.373  beta 1.4  median  72.0  0.955 / 0.955 / 0.958 / 0.955
+  danfoss                       b 1.781  beta 1.8  median  58.5  1.197 / 1.208 / 1.305 / 1.202
+  marzocchi                     b 1.295  beta 1.3  median  69.5  0.998 / 0.996 / 0.988 / 0.999
+  bench                         b 1.288  beta 1.3  median  71.0  0.993 / 0.991 / 0.982 / 0.995
+  rexroth                       b 1.314  beta 1.3  median  73.5  1.004 / 1.002 / 0.993 / 1.005
+  azpu                          b 1.341  beta 1.3  median  70.0  1.034 / 1.032 / 1.023 / 1.035
+  azpf                          b 1.295  beta 1.3  median  72.0  1.011 / 1.009 / 1.000 / 1.012
+  azpf_spin                     b 1.403  beta 1.4  median  71.0  1.020 / 1.020 / 1.023 / 1.021
+  azpf_gear                     b 1.395  beta 1.4  median  69.5  1.028 / 1.028 / 1.030 / 1.029
+  azpf_gear98                   b 1.381  beta 1.4  median  68.0  1.116 / 1.116 / 1.118 / 1.117
+  azpn                          b 1.281  beta 1.3  median  75.5  1.056 / 1.053 / 1.041 / 1.057
+  azpn_spin                     b 1.302  beta 1.3  median  75.5  1.082 / 1.079 / 1.065 / 1.083
+  azpn_gear                     b 1.366  beta 1.4  median  75.5  1.081 / 1.079 / 1.081 / 1.082
+  azpn_gear98                   b 1.497  beta 1.5  median  75.5  1.103 / 1.105 / 1.125 / 1.103
+Danfoss kW_shape/kW_m at the central condition: p 1.193, h 1.204, v 1.301, x 1.198
+
+(A) leave-one-condition-and-maker-family-out, RMS over 308 diagonals (max per-condition RMS; mean bias):
+  owh     0.0056  (max 0.0064; bias +0.0000)
+  owdm    0.0047  (max 0.0056; bias -0.0001)
+  owdtp   0.0061  (max 0.0076; bias -0.0020)
+  owdb    0.0052  (max 0.0060; bias -0.0020)
+  owdbh   0.0053  (max 0.0060; bias -0.0020)
+  owdbv   0.0059  (max 0.0072; bias -0.0023)
+  owdbx2  0.0053  (max 0.0060; bias -0.0021)
+
+(B1) nine half-idle-speed conditions held out together, RMS over 126 diagonals (mean bias):
+  owh     0.0059  (+0.0002)
+  owdm    0.0049  (+0.0002)
+  owdtp   0.0064  (-0.0016)
+  owdb    0.0056  (-0.0015)
+  owdbh   0.0056  (-0.0015)
+  owdbv   0.0062  (-0.0018)
+  owdbx2  0.0056  (-0.0016)
+(B2) S = 0.20 and 0.50 held out together, RMS over 28 diagonals (mean bias):
+  owh     0.0057  (+0.0012)
+  owdm    0.0047  (-0.0009)
+  owdtp   0.0067  (-0.0029)
+  owdb    0.0055  (-0.0029)
+  owdbh   0.0056  (-0.0029)
+  owdbv   0.0064  (-0.0032)
+  owdbx2  0.0056  (-0.0030)
+
+Per variant, (A) error pooled over the 22 conditions (RMS): owh / owdm / owdtp / owdb / owdbh / owdbv / owdbx2
+  casappa                       0.0031 / 0.0024 / 0.0020 / 0.0021 / 0.0021 / 0.0020 / 0.0021
+  danfoss                       0.0061 / 0.0066 / 0.0122 / 0.0063 / 0.0066 / 0.0110 / 0.0065
+  marzocchi                     0.0039 / 0.0011 / 0.0012 / 0.0020 / 0.0019 / 0.0015 / 0.0021
+  bench                         0.0042 / 0.0016 / 0.0023 / 0.0014 / 0.0015 / 0.0018 / 0.0013
+  rexroth                       0.0026 / 0.0011 / 0.0013 / 0.0010 / 0.0010 / 0.0011 / 0.0010
+  azpu                          0.0041 / 0.0010 / 0.0010 / 0.0011 / 0.0011 / 0.0009 / 0.0011
+  azpf                          0.0055 / 0.0022 / 0.0029 / 0.0020 / 0.0021 / 0.0024 / 0.0019
+  azpf_spin                     0.0056 / 0.0034 / 0.0030 / 0.0029 / 0.0029 / 0.0028 / 0.0029
+  azpf_gear                     0.0053 / 0.0040 / 0.0029 / 0.0028 / 0.0028 / 0.0027 / 0.0027
+  azpf_gear98                   0.0027 / 0.0041 / 0.0022 / 0.0023 / 0.0023 / 0.0024 / 0.0023
+  azpn                          0.0016 / 0.0026 / 0.0028 / 0.0035 / 0.0034 / 0.0031 / 0.0035
+  azpn_spin                     0.0022 / 0.0029 / 0.0034 / 0.0046 / 0.0045 / 0.0040 / 0.0047
+  azpn_gear                     0.0048 / 0.0049 / 0.0065 / 0.0067 / 0.0067 / 0.0068 / 0.0068
+  azpn_gear98                   0.0145 / 0.0127 / 0.0163 / 0.0151 / 0.0152 / 0.0159 / 0.0151
+Post hoc (not registered): (A) RMS over the 286 diagonals of the 13 variants other than Danfoss: owh 0.0056, owdm 0.0045, owdtp 0.0053, owdb 0.0052, owdbh 0.0052, owdbv 0.0053, owdbx2 0.0052
+
+Predictions (LOG.md 7s):
+  PS1 owdb reproduces 7r's 0.0052 in (A): held (0.0052)
+  PS2 owdbh (A) below owh: held (0.0053 against 0.0056)
+  PS3 owdbv (A) below owh: refuted (0.0059 against 0.0056)
+  PS4 owdbx2 (A) below owh: held (0.0053 against 0.0056)
+  PS5 the four shapes' (A) span at most 0.0005: refuted (0.0007)
+  PS6 all four shapes' (A) below owdtp: held (0.0052, 0.0053, 0.0059, 0.0053 against 0.0061)
+  PS7 hinge row median at beta 1.8 at least 68.0: held (68.0)
+  PS8 at least three shapes beat owh in A, B1 and B2: held (owdb, owdbh, owdbx2)
+
+Sources: as gear_pump_bendtable.py (7r); every feature read on each condition's own idle curves with the pick weight fixed at the central setting.

@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqycqnfMdfQQW3XxwGXe",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T06:39:02Z",
+  "ended": "2026-11-19T06:48:19Z",
+  "wall_minutes": 9.42,
+  "tokens_in": 5137595,
+  "tokens_out": 40928,
+  "cost_usd": 3.0054,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17570",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Ran the marine-hull suite with plain unittest first: 11 pytest/numpy-style modules failed to import; reran with /usr/bin/python3.13 -m pytest (437 passed)."
+  ],
+  "integrity_issues": [
+    "Pre-registered plan said 12 buoys; the file has 11 buoys / 20 buoy-months. Noted as a miscount in the LOG outcome, not edited out of the plan."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/experiments/fetch_waveglider.py",
+      "issue": "Docstring says ndbc_waves_2024.csv covers twelve open-water buoys; the file holds 11 buoys (20 buoy-months), which propagated into my plan text."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-marine-hull-ocean-waves-hydrofoil-operability.md",
+    "research/marine-hull/LOG.md (milestone 7y)"
+  ],
+  "goal": null,
+  "notes": "Programme marine-hull milestone 7y: ITTC 7.5-04-01-01.1 (2021) Annex G.2 STAWAVE-2 implemented stdlib (src/marine_hull/waves.py, A&S Bessel), integrated over the ITTC 1978 spectrum for 14,758 hourly NDBC sea states. All 8 pre-registered expectations held. Monohull 30 W range -2.52% (bow-sector share 0.25) / -9.37% (all head seas); 200 W scope holds in all 12 H_lim x share rows (0 of 972 foil cases); foil crossover 659 -> 651 W; foilborne share at Hs<=0.3 m 2.4%. Checks: marine-hull pytest 437 passed; build.py ok; research_live_links 0 updates; check_md_links ok; check_posts ok; paper/check_numbers ok; cite_check ok. ITTC PDF fetched from ittc.info (reachable through proxy).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b78eda42-d259-59b0-aeee-714a0d833a6c",
+    "transcripts": 1,
+    "first": "2026-11-19T06:39:02Z",
+    "last": "2026-11-19T06:48:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 81,
+        "output": 40928,
+        "thinking": 12261,
+        "cache_read": 4988917,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148597,
+        "api_equivalent_usd": 3.0054,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 81,
+      "output": 40928,
+      "thinking": 12261,
+      "cache_read": 4988917,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148597,
+      "api_equivalent_usd": 3.0054,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 41,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.42,
+      "active_minutes": 9.42,
+      "model_minutes": 6.2,
+      "tool_minutes": 3.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "implementing and checking STAWAVE-2 from the ITTC procedure, running the sweep, paper paragraph and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 332.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

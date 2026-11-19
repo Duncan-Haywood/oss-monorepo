@@ -32,6 +32,31 @@ def row(name, d):
             + f"  {S.loop_stress(d):5.2f}")
 
 
+def split_section(cad):
+    """Two-piece rack hangers (bolted half-lap at the hub): STL per half and the joint check."""
+    from hanger_print import split  # needs manifold3d (requirements.txt)
+    D = split.SPLIT_DEPTH
+    out = ["== D. Two-piece rack hangers: half-lap joint at the hub, two M4 bolts, depth "
+           f"{D:g} mm (laps {D / 2:g} mm); smallest square bed for each half (best turn, deg); joint check",
+           f"{'design':<10} {'A_bed_mm':>9} {'B_bed_mm':>9} {'A_g':>5} {'B_g':>5} {'bolt_N':>7} {'bear_SF':>8} {'lap_SF':>7} {'notch_SF':>9}"]
+    for w in RACK + [25.8]:
+        d = geom.Design(w=w, **SHAPE, depth=D)
+        a, b = split.halves(d)
+        va, fa = split.to_mesh(a)
+        vb, fb = split.to_mesh(split.for_print(b, D))
+        sa, sb = split.min_square(va), split.min_square(vb)
+        j = split.joint_check(d)
+        name = f"rack w{w:g}" if w in RACK else f"adj XXL {w:g}"
+        out.append(f"{name:<10} {sa[0]:7.1f}@{sa[1]:<2d}{sb[0]:7.1f}@{sb[1]:<2d}"
+                   f"{a.volume() * S.RHO:5.0f} {b.volume() * S.RHO:5.0f} {j['bolt_force_N']:7.1f} "
+                   f"{j['bearing_sf']:8.1f} {j['lap_sf']:7.1f} {j['notch_sf']:9.1f}")
+        if w in RACK:
+            (cad / f"rack_w{w}_A.stl").write_text(mesh.stl([("A", (va, fa))], f"rack_w{w}_A"))
+            (cad / f"rack_w{w}_B.stl").write_text(mesh.stl([("B", (vb, fb))], f"rack_w{w}_B"))
+    out.append("(A_g, B_g: solid PLA mass, before slicing; bearing, lap and notch SF against the same assumed 40 MPa allowable)")
+    return out
+
+
 def main():
     out = ["assumptions: PLA E 3500 MPa, allowable 40 MPa in plane, Kt 2, dynamic x2, design garment 1.5 kg, depth 12 mm unless stated",
            "== A. Printed designs: safety factor at depth 12 mm; depth needed for SF 3 (mass uses at least 6 mm); tip deflection; sliced mass at that depth; fits a 220 / 256 mm bed whole, and one arm with its hub on 220 (best turn, deg); loop stress MPa",
@@ -53,10 +78,11 @@ def main():
     out.append("== C. Tip deflection against the shape error hanger-fit reports")
     out.append("deflection of the printed adjustable arm at 12 mm depth, M size: "
                f"{S.tip_deflection(geom.Design(w=22.8, **SHAPE)):.3f} mm; hanger-fit's adjustable error: 1.6 mm (0.16 cm)")
-    (HERE / "results.txt").write_text("\n".join(out) + "\n")
-
     cad = HERE / "cad"
     cad.mkdir(exist_ok=True)
+    out += split_section(cad)
+    (HERE / "results.txt").write_text("\n".join(out) + "\n")
+
     for w in RACK:
         d = geom.Design(w=w, **SHAPE, depth=round(max(S.depth_for_sf(geom.Design(w=w, **SHAPE)), 6.0), 1))
         (cad / f"rack_w{w}.stl").write_text(mesh.stl(mesh.hanger_mesh(d), f"rack_w{w}"))

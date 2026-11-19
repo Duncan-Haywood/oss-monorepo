@@ -43,6 +43,41 @@ class SarTests(unittest.TestCase):
             for x in json.load(open(p))["designs"]:
                 self.assertEqual(len(x), 5)
 
+    # Added 2026-11-18 after the quality census (portfolio/quality/audits/2026-11-17-codesign-sar.json): the old
+    # evolution-strategies search returned its start policy for 93% of designs and no test noticed.
+    def test_training_beats_the_default_policy(self):
+        x = [90, 320, 0, 0.6, 5]
+        train = range(100, 106)
+        p = S.train_policy(x)
+        self.assertGreater(S.policy_value(x, p, train), S.policy_value(x, S.DEFAULT_POLICY, train) + 0.05)
+        self.assertNotEqual(tuple(p), S.DEFAULT_POLICY)
+
+    def test_trained_policy_is_best_on_a_training_grid(self):
+        # no approach speed on a fine grid beats the trained policy on the training terrains
+        x = [90, 180, 0, 0.5, 5]
+        train = range(100, 106)
+        p = S.train_policy(x)
+        v = S.policy_value(x, p, train)
+        for k in range(5, 151, 5):
+            self.assertLessEqual(S.policy_value(x, (1.5, k / 100, 0.4), train), v + 1e-12)
+
+    def test_pinned_objective_values(self):
+        # recomputed by the 2026-11-17 audit's independent grid search: 0.862 for this design
+        self.assertAlmostEqual(S.evaluate([90, 320, 0, 0.6, 5])["J"], 0.862, places=3)
+        self.assertAlmostEqual(S.evaluate([90, 120, 0, 0.5, 5])["J"], 0.792, places=3)
+
+    def test_short_body_must_slow_down_for_drops(self):
+        # tip-forward on a 40 mm drop limits approach speed for a 120 mm body without a flipper
+        p = S.train_policy([90, 120, 0, 0.5, 5])
+        self.assertLess(p[1], 1.0)
+        self.assertGreater(S.evaluate([90, 120, 150, 0.5, 5])["J"], S.evaluate([90, 120, 0, 0.5, 5])["J"] + 0.05)
+
+    def test_momentum_cannot_lift_a_wheel_over_a_step_above_its_axle(self):
+        segs = [("flat", 0.0, 0.9), ("up", 0.03, 0.9)] + [("flat", 0.0, 0.9)] * 38
+        r = S.run([25, 200, 0, 2.0, 20], (1.5, 1.5, 0.4), segs)
+        self.assertEqual(r["distance_m"], 0.5)
+        self.assertEqual(r["stuck"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()

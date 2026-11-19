@@ -176,3 +176,9 @@ test('index links one hop to the concrete-maturity sibling', () => {
     'index must link ../concrete-maturity/ so crawlers reach the maturity calculator in one hop',
   );
 });
+
+// The rebar in the pour: without this link the bar bending schedule tool has
+// no sibling pointing at it (platform/pages/siblings.mjs --check).
+test('index links one hop to the rebar-schedule sibling', () => {
+  assert.match(html, /href="\.\.\/rebar-schedule\/"/, 'index must link ../rebar-schedule/');
+});

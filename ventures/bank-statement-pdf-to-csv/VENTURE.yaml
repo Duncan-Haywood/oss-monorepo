@@ -34,6 +34,10 @@ owner: duncan
 # because it runs on the visitor's machine at no per-user cost, and is the main reason someone with a paper
 # statement would pick this over a paid converter. Batch conversion stays the paid candidate.
 #
+# 2026-11-18: OFX/QFX/QBO/QIF export and batch (a year of statements joined, month-to-month balance check)
+# built in bankfile.mjs and shipped free: like OCR it costs nothing per user, and per-page converters
+# charge for exactly these two things. Paid candidates left: saved bank profiles, hosted support.
+#
 # Liability: it writes a file from the user's own statement, shows every check it ran and what it cannot
 # check, and carries the no-warranty, independent-of-banks-and-vendors and financial-data clauses.
 #

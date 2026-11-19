@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKkvhxp2Byp3w64K2Ev",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T22:09:49Z",
+  "ended": "2026-11-18T22:16:59Z",
+  "wall_minutes": 7.37,
+  "tokens_in": 3924785,
+  "tokens_out": 30470,
+  "cost_usd": 2.1623,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17444",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "`git checkout -b` failed: the harness had already created the work branch; switched to committing on it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The For Other Minds proposal had 'parish appeal ... 400 households' but a bequest is one of the 180 gifts and not a household; the draft first said '180 households' and '220 non-givers' until the re-read caught it (179 households + an estate, 221 non-givers). Proposals with counts should say what the unit is."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "My own new overfitting proposal first claimed a fourth-degree curve 'still swings wildly'; computing it gave $4,422, sensible. The 'work the numbers before proposing' rule caught it only because I ran polyfit; worth keeping explicit for proposals too, not only stories."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio over the 400 MB cap (577 MB), so text only as the prompt directs; listed for completeness, not a departure.",
+      "did": "Landed text, pages, feeds, no MP3.",
+      "result": "Tests pass; no audio added."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-for-other-minds-the-average-gift.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, shelf for-other-minds (drawn by platform/ci/creative_due.py). Piece: the-average-gift (~3,570 words, text only). Claimed via BIBLE.md Drafting marker in draft PR #17444 before drafting; searched 'average gift' PRs before and after the claim (none). Every figure computed from the printed gift list (scratch script): total 38,160, mean 212, median 60, 151 below mean, top3 42%, mean w/o bequest 157.32, 122 gifts <=100 total 5,910; weekdays and the 32nd Sunday OT Year B (12 Nov 2051) computed. Added a new For Other Minds proposal (overfitting, numbers from numpy.polyfit). Verification: node --test in ventures/hearth-and-horizon 20/20 pass; node generate.mjs clean; check_posts.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8895b469-990e-5cb1-93d6-045899e64115",
+    "transcripts": 1,
+    "first": "2026-11-18T22:09:49Z",
+    "last": "2026-11-18T22:17:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 30470,
+        "thinking": 11314,
+        "cache_read": 3826291,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98415,
+        "api_equivalent_usd": 2.1623,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 30470,
+      "thinking": 11314,
+      "cache_read": 3826291,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98415,
+      "api_equivalent_usd": 2.1623,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 39,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.37,
+      "active_minutes": 7.37,
+      "model_minutes": 6.34,
+      "tool_minutes": 1.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

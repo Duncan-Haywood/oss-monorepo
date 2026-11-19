@@ -11,9 +11,9 @@ there until a browser or tool trips on it.
 from __future__ import annotations
 
 import json
-import subprocess
 import sys
 from pathlib import Path
+from repo_files import ls_files
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -36,9 +36,7 @@ def classify(text: str) -> str:
 
 
 def tracked() -> list[str]:
-    out = subprocess.check_output(
-        ["git", "ls-files", "*.json", "*.webmanifest"], cwd=REPO_ROOT, text=True)
-    return [x for x in out.splitlines() if x]
+    return ls_files(REPO_ROOT, "*.json", "*.webmanifest")
 
 
 def main() -> int:

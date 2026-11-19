@@ -1,4 +1,16 @@
 {
+ "arxiv:1703.06907": {
+  "checked": "2026-11-19",
+  "title": "Domain Randomization for Transferring Deep Neural Networks from Simulation to the Real World (2017)"
+ },
+ "arxiv:1710.06537": {
+  "checked": "2026-11-19",
+  "title": "Sim-to-Real Transfer of Robotic Control with Dynamics Randomization (2017)"
+ },
+ "arxiv:1904.04762": {
+  "checked": "2026-11-19",
+  "title": "Active Domain Randomization (2019)"
+ },
  "arxiv:2103.02142": {
   "checked": "2026-11-12",
   "title": "Learning to Fly -- a Gym Environment with PyBullet Physics for Reinforcement Learning of Multi-agent Quadcopter Control (2021)"

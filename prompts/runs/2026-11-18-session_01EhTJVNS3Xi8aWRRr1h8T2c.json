@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVNS3Xi8aWRRr1h8T2c",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T18:17:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector (flagship 4): gap-shape word read against the panel's own trend",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17376",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-changepoint-shape-word-against-panel-trend.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registered round (eval/synth-shape-trend-prereg-2026-11-18.md committed in 95bbcef5e before the confirmatory run, base 89000, 400 panels a cell). Bars 2-6 hold; bar 1 fails by 0.4 points (wandering big slope 'grew' 70.7% -> 68.8%, limit 1.5), so per the pre-registration panelShapes stays module-only and the CLI/page keep the plain word. Headline: on compounding panels where the rule switches on, clean units wrongly worded fall from 80.2% to 22.2%. Verification: node --test synth-*.test.mjs 63 pass 0 fail; run_venture_tests.py changepoint-detector ok (893 tests, 182 s); check_posts ok; validate.py ok. Negative result recorded honestly; the module function and the finding are the deliverable.",
+  "corrections": [],
+  "redteam": null
+}

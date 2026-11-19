@@ -32,7 +32,8 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
 - **MRR**: active and past-due subscriptions; every price normalised to a
   month (yearly / 12, weekly × 4.348 (30.4375 / 7), interval counts and seat quantities
   applied); percent-off coupons netted.
-- **Not counted**: trials, paused subscriptions, metered usage, tiered
+- **Not counted**: trials, paused subscriptions, incomplete and
+  incomplete-expired subscriptions (the first payment never succeeded), metered usage, tiered
   (graduated or volume) prices, fixed-amount
   coupons. (`COUNT_PAST_DUE=false` also drops past-due.)
 - **Movements**: new, expansion, contraction, churned and reactivated MRR,
@@ -69,7 +70,22 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
   Shares only, no customer or subscription ids. A customer with several
   subscriptions counts once per subscription.
 - One currency per instance (`CURRENCY`, default: your most common); other
-  subscriptions are left out and the dashboard says how many.
+  subscriptions are left out and the dashboard says how many. A CSV in the
+  browser demo does the same: rows in other currencies are listed as skipped.
+- **CSV import is strict** (the browser demo): a date that
+  does not exist (2026-02-30), a filled-in end or trial date that is not a
+  date, and a canceled row with no end date are listed as skipped with the
+  reason. Read as "never ended", any of them would count that subscription as
+  alive in every month of the rebuilt history.
+- **Statuses** are read the way a hand-made sheet writes them ("Cancelled",
+  "Past due" and Stripe's `canceled`, `past_due` all work). A status that is
+  not one of Stripe's eight (`active`, `past_due`, `unpaid`, `canceled`,
+  `incomplete`, `incomplete_expired`, `trialing`, `paused`) is listed as
+  skipped with the reason, rather than dropped from the history unseen.
+- **Repeated subscription ids** in a CSV are read as extra price lines of one
+  subscription and their MRR is added together. A repeat whose start, end,
+  trial, status or currency differs from the first row is skipped with the
+  reason, since it cannot be both.
 
 ## Run it
 

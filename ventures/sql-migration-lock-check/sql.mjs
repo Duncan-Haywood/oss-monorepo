@@ -23,8 +23,14 @@
 // Everything outside those is code, and only a semicolon in code ends a
 // statement.
 
-/** Characters PostgreSQL accepts in a dollar-quote tag. */
-const TAG = /[A-Za-z0-9_-￿]/;
+/** Characters PostgreSQL accepts in a dollar-quote tag (written with escapes:
+ * the raw U+0080 this class used to hold is invisible in an editor). */
+const TAG = /[A-Za-z0-9_\u0080-\uFFFF]/;
+
+/** Characters that continue an unquoted identifier. PostgreSQL allows `$`
+ * after the first character (`a$b$c` is one name), so a `$` right after one
+ * of these is part of the name, not the start of a dollar quote. */
+const IDENT = TAG;
 
 /**
  * Strip comments and blank a copy of every string/dollar-quoted body, keeping
@@ -92,10 +98,16 @@ export function maskNonCode(text) {
       continue;
     }
 
-    // 'literal', with '' as the escape
+    // 'literal', with '' as the escape. An E'...' escape string also takes
+    // backslash escapes, so `E'it\'s'` is one literal: reading `\'` as its
+    // end opened a string at the next quote that swallowed every statement
+    // after it, and a blocking `CREATE INDEX` there went unreported.
     if (c === "'") {
+      const prev = text[i - 1];
+      const escapes = (prev === 'E' || prev === 'e') && !(i >= 2 && IDENT.test(text[i - 2]));
       let j = i + 1;
       while (j < n) {
+        if (escapes && text[j] === '\\') { j += 2; continue; }
         if (text[j] === "'" && text[j + 1] === "'") { j += 2; continue; }
         if (text[j] === "'") { j += 1; break; }
         j += 1;
@@ -127,8 +139,9 @@ export function maskNonCode(text) {
       continue;
     }
 
-    // $tag$ ... $tag$ / $$ ... $$
-    if (c === '$') {
+    // $tag$ ... $tag$ / $$ ... $$ -- unless the `$` continues a name: with
+    // `a$b$c` read as the quote `$b$`, the rest of the file was blanked.
+    if (c === '$' && !(i > 0 && IDENT.test(text[i - 1]))) {
       let j = i + 1;
       while (j < n && TAG.test(text[j])) j += 1;
       if (text[j] === '$') {

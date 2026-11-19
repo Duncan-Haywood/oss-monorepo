@@ -98,6 +98,8 @@ node cli.mjs --robots-file ./robots.txt --llms-file ./llms.txt</code></pre>
     <p>No. <code>robots.txt</code> is a request, not an enforcement mechanism, and this tool only reports what your file says. Reputable operators state that they honor it for the tokens listed here, but nothing stops a request that lies about its own user-agent, and robots.txt cannot verify who is really asking.</p>
     <h3>What does "partially blocked" mean?</h3>
     <p>The crawler is allowed on some of the paths checked and blocked on others — most often because it falls through to your wildcard (<code>User-agent: *</code>) group, which usually blocks more than the root path.</p>
+    <h3>How does it decide which rule applies?</h3>
+    <p>By RFC 9309, the way Google's open-source robots.txt parser applies it: every group that names the crawler is merged (or every <code>User-agent: *</code> group if none does), the <code>User-agent</code> value is cut to its product token (<code>CCBot/2.0</code> counts as CCBot), the longest matching pattern wins and a tie goes to Allow. Google's leniencies are honoured too: common typos such as <code>Dissallow</code>, a missing colon, a byte-order mark. The verdict column names the deciding line. 71 test cases restating that parser's own tests check it on every change.</p>
     <h3>Is my robots.txt uploaded anywhere?</h3>
     <p>No. The browser page parses the text you paste entirely in your own browser and never sends it anywhere. The CLI fetches only the domain you name, or reads a local file.</p>
     <h3>What is llms.txt?</h3>
@@ -167,7 +169,7 @@ node cli.mjs --robots-file ./robots.txt --llms-file ./llms.txt</code></pre>
         : "No Sitemap: directive found in robots.txt.";
       els.rows.innerHTML = rows.map((r) => {
         const rule = r.results[0].matchedRule;
-        const ruleText = rule ? `${rule.allow ? "Allow" : "Disallow"}: ${rule.pattern || "(root)"}` : "(no matching rule — default)";
+        const ruleText = rule ? `${rule.allow ? "Allow" : "Disallow"}: ${rule.pattern || "(root)"}${rule.line ? ` (line ${rule.line})` : ""}` : "(no matching rule — default)";
         return `<tr>
           <td><strong>${escapeHtml(r.token)}</strong></td>
           <td>${escapeHtml(r.operator)}</td>

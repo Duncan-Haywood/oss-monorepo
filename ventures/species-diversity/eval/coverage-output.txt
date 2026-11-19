@@ -1,0 +1,22 @@
+# 1000 samples per scenario, 100 bootstrap replicates each, nominal 95% intervals
+scenario,n,quantity,truth,mean_estimate,coverage_of_95pct_interval
+"uneven: 120 species, lognormal sigma 1.5",200,richness,120.00,82.59,0.495
+"uneven: 120 species, lognormal sigma 1.5",200,S(n/2),41.28,41.26,0.919
+"uneven: 120 species, lognormal sigma 1.5",200,S(2n),72.37,71.14,0.874
+"uneven: 120 species, lognormal sigma 1.5",200,exp(H),45.56,44.32,0.854
+"uneven: 120 species, lognormal sigma 1.5",200,1/sum p^2,26.78,27.05,0.895
+"uneven: 120 species, lognormal sigma 1.5",800,richness,120.00,107.56,0.819
+"uneven: 120 species, lognormal sigma 1.5",800,S(n/2),72.37,72.35,0.944
+"uneven: 120 species, lognormal sigma 1.5",800,S(2n),100.60,99.81,0.908
+"uneven: 120 species, lognormal sigma 1.5",800,exp(H),45.56,45.45,0.935
+"uneven: 120 species, lognormal sigma 1.5",800,1/sum p^2,26.78,26.91,0.941
+"even: 40 species, lognormal sigma 0.5",100,richness,40.00,40.21,0.926
+"even: 40 species, lognormal sigma 0.5",100,S(n/2),26.28,26.28,0.950
+"even: 40 species, lognormal sigma 0.5",100,S(2n),38.13,38.24,0.964
+"even: 40 species, lognormal sigma 0.5",100,exp(H),34.71,34.86,0.941
+"even: 40 species, lognormal sigma 0.5",100,1/sum p^2,31.07,31.48,0.902
+"even: 40 species, lognormal sigma 0.5",400,richness,40.00,40.26,0.547
+"even: 40 species, lognormal sigma 0.5",400,S(n/2),38.13,38.14,0.977
+"even: 40 species, lognormal sigma 0.5",400,S(2n),39.98,40.08,0.987
+"even: 40 species, lognormal sigma 0.5",400,exp(H),34.71,34.78,0.959
+"even: 40 species, lognormal sigma 0.5",400,1/sum p^2,31.07,31.22,0.941

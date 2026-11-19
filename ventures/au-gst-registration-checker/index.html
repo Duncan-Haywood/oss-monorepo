@@ -165,7 +165,8 @@
     }
     function labels() {
       const y = Number($("#lastYear").value), n = Number($("#lastMonth").value);
-      if (!Number.isInteger(y) || !(n >= 1 && n <= 12)) return;
+      // A blank year reads as 0 and gave "undefined -1"; until both are set, keep the plain labels.
+      if (!Number.isInteger(y) || y < 1 || !(n >= 1 && n <= 12)) { for (let k = 1; k <= 12; k++) $("#ml" + k).textContent = `month ${k}`; return; }
       for (let k = 1; k <= 12; k++) { const idx = y * 12 + (n - 1) - (12 - k); $("#ml" + k).textContent = `${MONTH_NAMES[idx % 12]} ${Math.floor(idx / 12)}`; }
     }
     $("#lastYear").addEventListener("input", labels);

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b5e4a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ET%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GTFS Feed Checker: Validate a Transit Feed Zip in Your Browser</title>
+  <meta name="description" content="Free GTFS validator for small transit agencies and feed vendors: drop a GTFS zip and see missing files, broken trip and stop references, stop times that run backwards, expired calendars, impossible speeds and swapped coordinates, with file and line numbers. Nothing is uploaded.">
+  <meta property="og:title" content="GTFS Feed Check: free, private, in your browser">
+  <meta property="og:description" content="Check a GTFS schedule zip against the GTFS reference before you publish it: file and line for every problem, and the date your service runs out.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "GTFS Feed Check", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; Node 20 or newer for the CLI", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free GTFS Schedule feed checker: missing files and fields, broken references between trips, routes, stops and services, stop times that run backwards, expired calendars, days with no service, impossible speeds between stops and swapped coordinates, each with its file and line. Runs in the browser; the feed is not uploaded."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does a trip planner show no service from my GTFS feed?", "acceptedAnswer": {"@type": "Answer", "text": "The most common reason is that the feed has expired: every service_id in calendar.txt has an end_date in the past, so no trip runs on today's date. The checker reports the last date with any service and warns when it is less than 7 days away, the minimum the GTFS reference asks for."}}, {"@type": "Question", "name": "What does the checker look at?", "acceptedAnswer": {"@type": "Answer", "text": "The required files and fields; every value's type (times, dates, colours, time zones, URLs, coordinates, enums); unique keys; references between trips, routes, stops, shapes, services and agencies; the order of stop times within each trip; the calendar's coverage of the next 30 days; and two sanity checks the reference does not set: straight-line speeds between stops above a per-mode ceiling, and stops hundreds of kilometres from the rest of the feed."}}, {"@type": "Question", "name": "Is my feed uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The zip is opened in this browser tab with the browser's own decompression, and a test in the code asserts the page and the engine make no network calls."}}, {"@type": "Question", "name": "Does a clean result mean Google Maps or another app will accept the feed?", "acceptedAnswer": {"@type": "Answer", "text": "No. Each consumer has its own rules and review. This tool checks the feed against the published GTFS Schedule Reference and a few sanity limits, and tells you which rule each finding comes from."}}, {"@type": "Question", "name": "How is this different from the MobilityData validator?", "acceptedAnswer": {"@type": "Answer", "text": "The MobilityData GTFS Validator is the canonical, much larger rule set, and the right tool before you submit a feed. This checker covers fewer rules but runs instantly in a browser tab or as a zero-dependency Node script, with no install, account or upload, which suits a quick check on every export or a CI step."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17231f; background: #f1f5f3; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1b5e4a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #123f32; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #123f32; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46574f; }
+    .card { background: #fff; border: 1px solid #d5e0db; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #123f3210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #9fbcb0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1b5e4a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0ece7; color: #123f32; }
+    .finding { border-bottom: 1px solid #e6eeea; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
+    .finding ul { margin: 6px 0 0; padding-left: 20px; font: 13px ui-monospace, monospace; overflow-wrap: anywhere; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #fde8e8; color: #9a3412; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e3ebe8; color: #123f32; }
+    .stats { font-size: .95rem; color: #2e3d37; margin-bottom: 10px; }
+    .drop { border: 2px dashed #9fbcb0; border-radius: 12px; padding: 18px; text-align: center; }
+    .drop.over { background: #e0ece7; }
+    code { font-size: .9em; }
+    footer { margin-top: 28px; border-top: 1px solid #d5e0db; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e6eeea; font-size: .92rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">GTFS FEED CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Check a GTFS feed before you publish it</h1>
+    <p>Drop the <strong>GTFS schedule zip</strong> your scheduling software exported and get every problem <strong>with its file and line</strong>: missing files and fields, trips pointing at routes, stops or services that do not exist, <strong>stop times that run backwards</strong>, the <strong>date your service runs out</strong>, buses that would have to travel at 900 km/h, and stops with latitude and longitude swapped.</p>
+    <p class="note">For small transit agencies, demand-response and campus shuttles, and the vendors who build their feeds. The zip is opened in this tab and never leaves your device. Rules from the GTFS Schedule Reference (revised 2026-04-27); each finding says which rule it is.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Your feed</h2>
+    <div class="drop" id="drop">
+      <label for="file">Choose a GTFS .zip (or the .txt files from it)</label>
+      <input type="file" id="file" accept=".zip,.txt,application/zip" multiple>
+      <p class="note">Or drag the zip onto this box.</p>
+    </div>
+    <label for="today">Judge expiry against</label>
+    <input type="date" id="today">
+    <p>
+      <button type="button" id="validate">Check feed</button>
+      <button type="button" class="secondary" id="load-example">Load a clean example</button>
+      <button type="button" class="secondary" id="load-broken">Load an example with errors</button>
+    </p>
+    <p class="note" id="form-status" role="status">Choose a feed, then click Check feed.</p>
+  </section>
+
+  <section class="card" id="report" aria-live="polite" hidden>
+    <h2>Result</h2>
+    <p class="stats" id="report-stats"></p>
+    <div id="report-findings"></div>
+    <p><button type="button" class="secondary" id="download-csv">Download findings as CSV</button></p>
+  </section>
+
+  <section class="card">
+    <h2>A worked example</h2>
+    <p>The "example with errors" button loads a made-up four-stop bus line with seventeen kinds of problem planted in it. Among them:</p>
+    <ul>
+      <li><code>agency_timezone=America/Chicgo</code>: a misspelt time zone. Every time in the feed is read in that zone, so a consumer cannot place any trip in time.</li>
+      <li>Stop <code>LIB</code> at 0,0 and stop <code>PARK</code> at latitude -87.62, longitude 41.89: a missing position written as zeros, and a swapped pair that lands the stop in the Southern Ocean, 14,831 km from the others.</li>
+      <li>Trip <code>1-0700</code> leaves stop 2 at 07:03 and reaches stop 3 at 07:02, and has no times at its last stop.</li>
+      <li>Trip <code>1-0800</code> runs on service <code>WKND</code>, which no calendar defines, so it never runs; trip <code>9-0900</code> belongs to a route that does not exist.</li>
+      <li>The only calendar ended on 2024-12-31, so the whole feed shows no service today.</li>
+    </ul>
+    <p>Each one comes back with its file, line and the rule it breaks. The same checks on four real published feeds, and what they found, are in the <a href="gtfs-errors-explained.html">list of every check</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>What it checks, and what it leaves out</h2>
+    <ul>
+      <li><strong>Files:</strong> agency, routes, trips, stop_times, stops (unless locations.geojson), and calendar or calendar_dates; files at the zip's root, not in a folder; file and field names in the right case.</li>
+      <li><strong>Values:</strong> times (HH:MM:SS, past 24:00 allowed), dates, colours, IANA time zones, URLs, emails, language codes, coordinates and every enum in the files below.</li>
+      <li><strong>Keys and references:</strong> unique IDs; every trip's route, service and shape; every stop time's trip and stop; parent stations of the right type; agencies on routes when there is more than one.</li>
+      <li><strong>Stop times:</strong> stop_sequence unique per trip; times at the first and last stop; arrival before departure; no time earlier than the stop before; shape_dist_traveled never going down.</li>
+      <li><strong>Calendar:</strong> the first and last date with service, a warning under 7 days left and a note under 30 (the reference's publishing practice), days in the next 30 with no service at all, and a feed_info end date that disagrees with the calendar.</li>
+      <li><strong>Sanity limits this tool sets</strong> (the reference has none): straight-line speed between consecutive stops above 150 km/h for a bus (other modes in the list), stops over 100 km from the rest, platforms over 1 km from their station, route text colour below 3:1 contrast.</li>
+      <li><strong>Not checked yet:</strong> fares (v1 and v2), transfers, pathways and levels, flex (locations.geojson, booking rules), translations, stops far from their trip's shape, and block overlaps. Use the <a href="https://gtfs-validator.mobilitydata.org/" rel="noopener">MobilityData GTFS Validator</a> for the complete rule set before you submit a feed.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Check every export in CI</h2>
+    <p><code>cli.mjs</code> is the same engine for a terminal or a CI job, with no dependencies (Node 20 or newer). It reads the zip from disk and sends nothing anywhere.</p>
+    <pre class="scroll"><code>node cli.mjs gtfs.zip              # exit 1 if there are errors
+node cli.mjs gtfs.zip --strict     # warnings fail too
+node cli.mjs gtfs/ --json          # a folder of .txt files, machine-readable
+node cli.mjs gtfs.zip --today=2026-12-01</code></pre>
+    <p class="note">A 2.6-million-stop-time feed (TriMet's, 210 MB unzipped) takes about 8 seconds in Node. In a browser tab the same feed needs a few hundred MB of memory; for feeds that size the CLI is the better fit.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does a trip planner show no service from my GTFS feed?</h3>
+    <p>The most common reason is that the feed has expired: every service_id in calendar.txt has an end_date in the past, so no trip runs on today's date. The checker reports the last date with any service and warns when it is less than 7 days away, the minimum the GTFS reference asks for.</p>
+    <h3>What does the checker look at?</h3>
+    <p>The required files and fields; every value's type (times, dates, colours, time zones, URLs, coordinates, enums); unique keys; references between trips, routes, stops, shapes, services and agencies; the order of stop times within each trip; the calendar's coverage of the next 30 days; and two sanity checks the reference does not set: straight-line speeds between stops above a per-mode ceiling, and stops hundreds of kilometres from the rest of the feed.</p>
+    <h3>Is my feed uploaded?</h3>
+    <p>No. The zip is opened in this browser tab with the browser's own decompression, and a test in the code asserts the page and the engine make no network calls.</p>
+    <h3>Does a clean result mean Google Maps or another app will accept the feed?</h3>
+    <p>No. Each consumer has its own rules and review. This tool checks the feed against the published GTFS Schedule Reference and a few sanity limits, and tells you which rule each finding comes from.</p>
+    <h3>How is this different from the MobilityData validator?</h3>
+    <p>The MobilityData GTFS Validator is the canonical, much larger rule set, and the right tool before you submit a feed. This checker covers fewer rules but runs instantly in a browser tab or as a zero-dependency Node script, with no install, account or upload, which suits a quick check on every export or a CI step.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, regulatory, engineering or professional advice, and it does not replace any trip planner's own validation or the MobilityData validator. Results depend entirely on the feed you provide. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and a clean result is not a promise that any app will accept or correctly show the feed. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Not affiliated with any platform.</strong> This tool is independent and is not sponsored, endorsed or connected to Google, MobilityData, any transit agency or any other organisation named. Names are used only to say which feed or behaviour is meant. Rules were read from the GTFS Schedule Reference revised 2026-04-27 and may since have changed.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your feed is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>feed_checked</code>, <code>example_loaded</code>, <code>findings_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related tools: the <a href="../gpx-track-check/">GPX track check</a> for GPS tracks, the <a href="../ics-calendar-check/">ICS calendar check</a> for calendar files, and the <a href="../route-stop-optimizer/">route stop optimizer</a> for planning a day's stops.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { checkFeed, findingsCsv, sampleFeed, sampleBrokenFeed } from "./calc.mjs";
+    import { feedTextsFromZip, isZip } from "./zip.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const plural = (n, w) => `${n.toLocaleString()} ${w}${n === 1 ? "" : "s"}`;
+    const day = (s) => (s ? `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6)}` : "none");
+    let lastResult = null, dropped = null;
+    const now = new Date();
+    $("#today").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+
+    function show(r) {
+      lastResult = r;
+      const s = r.summary, st = r.stats;
+      $("#report-stats").innerHTML = `<strong>${plural(s.errors, "error")}</strong>, ${plural(s.warnings, "warning")}, ${plural(s.infos, "note")} · ${plural(st.agencies, "agency").replace("agencys", "agencies")}, ${plural(st.routes, "route")}, ${plural(st.trips, "trip")}, ${plural(st.stops, "stop")}, ${plural(st.stopTimes, "stop time")} · service from ${day(st.firstServiceDate)} to ${day(st.lastServiceDate)}, ${st.daysWithServiceNext30} of the next 30 days`;
+      $("#report-findings").innerHTML = r.findings.map((f) => {
+        const ex = f.examples.map((e) => `<li>${e.line ? `line ${e.line}` : ""}${e.line && e.detail ? ": " : ""}${esc(e.detail)}</li>`).join("");
+        const more = f.count > f.examples.length && f.examples.length ? `<li>…${(f.count - f.examples.length).toLocaleString()} more</li>` : "";
+        return `<div class="finding"><h3><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${esc(f.file)}: ${esc(f.code)}${f.count > 1 ? ` (${f.count.toLocaleString()}×)` : ""}</h3><p>${esc(f.message)}</p>${ex || more ? `<ul>${ex}${more}</ul>` : ""}</div>`;
+      }).join("") || "<p>No problems found by these checks.</p>";
+      report.hidden = false;
+      status.textContent = s.errors ? `Found ${plural(s.errors, "error")}.` : "No errors found by these checks.";
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+
+    async function textsFrom(fileList) {
+      const files = [...fileList];
+      if (files.length === 1 && isZip(new Uint8Array(await files[0].slice(0, 4).arrayBuffer()))) return feedTextsFromZip(new Uint8Array(await files[0].arrayBuffer()));
+      const out = {};
+      for (const f of files) if (/\.(txt|geojson)$/i.test(f.name)) out[f.name] = await f.text();
+      return out;
+    }
+
+    function today() { return $("#today").value || undefined; }
+
+    async function run(fileList) {
+      status.textContent = "Reading the feed…";
+      try {
+        const texts = await textsFrom(fileList);
+        if (!Object.keys(texts).length) { status.textContent = "No GTFS .txt files found. Choose the feed's .zip, or the .txt files inside it."; return; }
+        status.textContent = "Checking…";
+        await new Promise((r) => setTimeout(r, 0));
+        show(checkFeed(texts, { today: today() }));
+        record("feed_checked");
+      } catch (e) {
+        status.textContent = `Could not read the feed: ${e.message}`;
+      }
+    }
+
+    $("#validate").addEventListener("click", () => {
+      const fl = dropped || $("#file").files;
+      if (!fl || !fl.length) { status.textContent = "Choose a GTFS zip first."; return; }
+      run(fl);
+    });
+    $("#file").addEventListener("change", () => { dropped = null; });
+    const drop = $("#drop");
+    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+    drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); dropped = e.dataTransfer.files; status.textContent = `${plural(dropped.length, "file")} dropped; click Check feed.`; });
+    $("#load-example").addEventListener("click", () => { show(checkFeed(sampleFeed(), { today: today() })); record("example_loaded"); status.textContent = "Worked example: a made-up four-stop bus line with no problems."; });
+    $("#load-broken").addEventListener("click", () => { show(checkFeed(sampleBrokenFeed(), { today: today() })); record("example_loaded"); status.textContent = "Worked example: the same line with seventeen kinds of problem planted in it."; });
+    $("#download-csv").addEventListener("click", () => {
+      if (!lastResult) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([findingsCsv(lastResult)], { type: "text/csv" }));
+      a.download = "gtfs-findings.csv";
+      a.click();
+      record("findings_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

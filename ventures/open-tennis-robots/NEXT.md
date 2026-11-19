@@ -6,3 +6,18 @@
 
 - (2026-11-17) find where a real actuator's cable leaves its housing and bend a built lead through the travel
 - (2026-11-17) measure the lift gearmotor's shaft and body (75 mm face to back at most) and press F626s into the printed fit ring (lift_bearing_fit_ring), run `fit-ring` and set lift_bearing_fit_mm. Scope GPIO 39 at part duty. Actuator's lead: cut 220 mm, 209-231 fits
+
+## Needing a person (added 2026-11-18)
+
+- Log a VESC in speed mode on the bench: a 3 s spin-up from rest at the current limit, eight 2% setpoint steps 400 ms apart (up and back four times) at 1,500 rpm on the free wheel, and a few balls, with the VESC's own rpm and current over UART beside the hall tach. Run `tests/speed_ramp_fit.py` (`spinup_fit`, `loop_from_steps`, `drop_from_speed_ramp`) on it to see whether a real recovery is the clamped ramp then the PI tail (firmware/esp32/README.md, "A ramp-then-PI drop fit for a speed-mode ESC").
+
+## Buildable here (added 2026-11-18)
+
+- (2026-11-19) More tach pulses a revolution: tested host-side and closed by its pre-registered rule
+  (eval/tach-pulses-2026-11-19.md: four magnets saw 46 of 128 short-take balls against 38, not twice; the step's drop
+  error rose 0.11% to 0.55%). Reopen only with a survey-level test written first (the board sums ~22 wheels) and a plan
+  for the step's drop. Best lead: with 0.5 us sensor jitter (not judged) four magnets saw 24 short-take balls against 9
+  and bounded them at a median 3.5 ms against none, so test it on a jittery tach first; `drop_from_commands_steps(per=, angles=)` and `magnet_spacing` are ready for it.
+- (2026-11-19) One informative wheel, counted by drill: closed for simulated sets (eval/take-survey-kept-drills-2026-11-19.md:
+  6 of 432 fresh drills rested a verdict on one kept wheel, too few for the rule; `TAKE_SURVEY_MIN_KEPT` stays 0). Reopen
+  on a real wheel's logs with `tests/take_survey_kept.py --drills`.

@@ -510,7 +510,10 @@ export function sampleCsv() {
 // as decimal comma, as before. `table` is the parsed rows, header included.
 export function detectDecimalComma(table, delim = ",") {
   let comma = 0, dot = 0;
-  for (const row of table) {
+  // parseCsv here returns { rows, lines }, not a bare array; reading it as an array threw
+  // "table is not iterable" on every file from 2026-11-14 to 2026-11-19.
+  const rows = Array.isArray(table) ? table : Array.isArray(table?.rows) ? table.rows : [];
+  for (const row of rows) {
     for (const cell of row) {
       const s = String(cell ?? "").trim();
       if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;

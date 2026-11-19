@@ -40,3 +40,55 @@ export function foldFailures(rows, { height = FOLD.height, peek = PEEK_PX } = {}
   }
   return out;
 }
+
+/**
+ * Screen widths for one fold-check run, from `--widths 320,360,375,390` or
+ * WIDTHS (a comma list) or WIDTH (one). A polish run comparing four phone
+ * widths used to need four runs (friction 2026-11-18); one browser can do all.
+ * Throws on anything that is not a positive whole number of CSS px.
+ */
+export function parseWidths(text, fallback = FOLD.width) {
+  const raw = String(text ?? '').trim();
+  if (!raw) return [Number(fallback)];
+  const out = [];
+  for (const part of raw.split(',').map((s) => s.trim()).filter(Boolean)) {
+    const n = Number(part);
+    if (!Number.isInteger(n) || n <= 0) throw new Error(`not a screen width in CSS px: ${JSON.stringify(part)}`);
+    if (!out.includes(n)) out.push(n);
+  }
+  if (!out.length) throw new Error(`no screen widths in ${JSON.stringify(raw)}`);
+  return out;
+}
+
+/**
+ * Every page's first-card top at every width, as text table lines, deepest
+ * first (by the worst width), with how many px each has to spare (negative:
+ * how far it misses). `byWidth` maps width -> rows `{ page, top }`.
+ * Before/after numbers for a polish change used to need a separate per-page
+ * probe, because the check printed only failures and the deepest page
+ * (friction 2026-11-18).
+ */
+export function foldTable(byWidth, { height = FOLD.height, peek = PEEK_PX } = {}) {
+  const widths = [...byWidth.keys()];
+  const pages = new Map();
+  for (const w of widths) {
+    for (const { page, top } of byWidth.get(w)) {
+      if (!pages.has(page)) pages.set(page, new Map());
+      pages.get(page).set(w, top);
+    }
+  }
+  const spare = (top) => (top == null || !Number.isFinite(top) ? -Infinity : height - peek - Math.ceil(top));
+  const worst = (m) => Math.min(...widths.map((w) => spare(m.get(w))));
+  const cell = (top) => {
+    if (top === undefined) return 'not loaded';
+    if (top == null || !Number.isFinite(top)) return 'no card';
+    const s = spare(top);
+    return `${Math.ceil(top)} (${s >= 0 ? '+' : ''}${s})`;
+  };
+  const rows = [...pages.entries()].sort((a, b) => worst(a[1]) - worst(b[1]) || a[0].localeCompare(b[0]));
+  const head = ['page', ...widths.map((w) => `${w}px`)];
+  const body = rows.map(([page, m]) => [page, ...widths.map((w) => cell(m.get(w)))]);
+  const width = head.map((_, i) => Math.max(...[head, ...body].map((r) => r[i].length)));
+  const line = (r) => r.map((c, i) => c.padEnd(width[i])).join('  ').trimEnd();
+  return [`first tool card top, px (spare to the ${height - peek}px line), height ${height}:`, line(head), ...body.map(line)];
+}

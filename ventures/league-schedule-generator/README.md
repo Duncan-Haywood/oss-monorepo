@@ -15,7 +15,7 @@ team, a plain-text version to paste into a group chat, and a share link that car
 
 - **A spreadsheet or a hand-drawn grid:** free, but home/away balance, byes in odd leagues and court sharing are easy to get wrong, and a rainout means redoing the sheet.
 - **League-management platforms** (TeamSnap, LeagueApps, SportsEngine and similar): registration, payments, team messaging and score apps, usually on a paid plan and with accounts for every team. This tool only makes and maintains the schedule: no signup, no upload, free.
-- **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. If you need registration or payments, use a platform and paste this schedule into it.
+- **What this adds:** a fair round robin with the fewest possible home/away breaks, real dates with blackouts and holidays, calendar files per team, and rainout moves that change nothing else. The self-hosted league page (below) adds team sign-ups with a team cap, a waitlist and a fee paid on the organiser's own payment link; player waivers are signed on the same page (below); for card processing inside the sign-up, use a platform and paste this schedule into it.
 - **Next season in one click:** "Start next season from this league" keeps the teams (minus withdrawals, plus late entrants), courts, times and weekdays, clears the old dates and results, and sets the start to the next chosen weekday eight weeks after the last match, so a returning organiser does not retype anything.
 
 ## Run your own league page (self-hosted)
@@ -26,8 +26,9 @@ play-off bracket, and add their own team's schedule to their calendar (`.ics`). 
 third party: zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** TeamSnap, LeagueApps and SportsEngine hold your players' data behind per-team accounts and
-  paid plans. This is only the publish-fixtures-and-table loop for one league, MIT-licensed. It has no registration,
-  payments or messaging; use one of them if you need those.
+  paid plans. This is the sign-up, publish-fixtures-and-table loop for one league, MIT-licensed. Team sign-ups take
+  the fee on the organiser's own payment link (it never handles a card); waivers, notices, availability and
+  sportsmanship ratings are below. It has no in-app chat or card processing; use one of them if you need those.
 - **Secrets:** `ADMIN_KEY` unlocks `/admin`; `LEAGUE_TOKEN` is the secret in the player link. The server refuses to
   serve without both. Put it behind HTTPS (Fly and Render do); keys are in the URL, so do not share admin links. Ten wrong links from one address lock it out for 15 minutes (HTTP 429); behind a proxy the last `X-Forwarded-For` hop is used.
 - **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
@@ -35,7 +36,83 @@ third party: zero dependencies, one JSON file on a disk you own.
   secrets). Nothing runs on the author's accounts.
 - **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
+- **Captain links and confirmed scores (2026-11-18, `confirm.mjs`):** `/admin` lists one captain link per team (`/league?t=LEAGUE_TOKEN&c=KEY`; the key is an HMAC of the team name under `ADMIN_KEY`, 22 characters, nothing stored), and with SMTP on, **Email each team its captain link** sends each team's link to its contacts only. A captain's page shows their team's games from the last 21 days, each with its state and a score form. When the other captain sends the same score, the line (`Hawks 3 - 1 Owls`, home first) goes into Results straight away and the game is closed, so it cannot be added twice (reports are keyed by fixture id, which follows a rained-out game). Different scores, and games only one captain has reported, wait in `/admin` under **Captain reports** with both scores side by side and **Use Hawks's** / **Use Owls's** / **Clear reports** buttons; a captain can resend to fix a typo until the game is closed. A wrong captain key counts as a wrong link for the lockout. What this replaces: the organiser typing or approving every score, which is the chore score-confirmation in paid league apps exists to remove. Limits: anyone holding a team's captain link can report for that team (the same trust as the league link), a score the organiser typed by hand is not matched to a fixture, so do not also approve that game from captain reports, and nothing here is a dispute process: the organiser's choice is final. Tested in `confirm.test.mjs` (keys, confirm and dispute, the 21-day window, the full server flow and the emails); not yet used by a real league.
+- **Player waivers (2026-11-18, latest, `waivers.mjs`):** under **Waiver** in `/admin` the organiser pastes their own
+  release or code-of-conduct text. Each distinct text is a version (the first 16 hex characters of its SHA-256), kept
+  with the date it was first set, so every signature points at the exact words agreed to; `/admin/waiver.txt?v=ID`
+  returns any version as signed. Players sign at `/league/waiver?t=LEAGUE_TOKEN` (linked from the league page): team,
+  full name, optional email, a tick, and the full name typed again as the signature; for a minor the parent or guardian
+  signs with their own name. With a waiver set, the captain signs on the `/register` form too. `/admin` matches
+  signatures to each roster (a first-name roster entry matches only when one signer on that team has that first name,
+  never a guess between two) and lists per team who signed, who signed an earlier version and who has not; a captain's
+  page shows the same for their team. **Download every signature (CSV)** has time, team, name, guardian, email,
+  version, whether it is current and where it was signed; a mistaken signature can be removed. Signing again replaces
+  that person's row for the same version. No IP addresses are kept.
+  What it replaces: a paper sheet at week one, a form tool matched to rosters by hand, or a waiver app on a monthly plan.
+  What it does not do: draft legal text, check identity, take a drawn signature or judge enforceability (that and the
+  age at which a player signs for themselves depend on where you play: ask a lawyer or your league's insurer). Tested in
+  `waivers.test.mjs` (versions, signatures, roster matching, the version cap and the full server flow); not yet used
+  by a real league. Guide: `how-to-collect-player-waivers-for-a-rec-league.html`.
+- **Sportsmanship ratings (2026-11-18, latest, `spirit.mjs`):** off until the organiser picks a scale under
+  **Sportsmanship ratings** in `/admin`: five categories scored 0 to 4 (rules knowledge and use, fouls and body
+  contact, fair-mindedness, positive attitude and self-control, communication; the shape of the spirit sheet ultimate
+  leagues use, 2 each and 10 in all for a normal game) or one score from 1 to 5. Each captain's page then lists their
+  games from the last 21 days with a rating form for the other team, starting at a normal game, with an optional
+  comment for the organiser only (300 characters); a captain can change their rating while the game is in the window.
+  `/admin` shows the table (games rated, average, per-category averages, low ratings, ratings given and the average
+  each team gives, so a hard marker shows), the low ratings (a 0 anywhere or 6 or less in total; 2 or less on the 1-5
+  scale) with their comments, and per team the games it has not rated; **Download every rating (CSV)**
+  (`/admin/spirit.csv`) has one row per rating, formula cells guarded. Tick **Show the sportsmanship table** and the
+  league page gets each team's games rated and average, never comments. Ratings are keyed by fixture id and side, so
+  they follow a rained-out game; a withdrawn team's games are pruned; switching the scale starts the averages again
+  (old ratings stay in the state file).
+  - Alternatives: a paper or Google Form spirit sheet typed into a spreadsheet each week; the spirit-score features in
+    paid league platforms. This collects them from the captain link teams already use for scores, and points out the
+    hard marker as well as the low score.
+  - Checked: `spirit.test.mjs` (6 tests: settings, form checks, the table with categories, given averages and a changed
+    rating, scales kept apart, pruning, the unrated list and its window, escaping, the CSV and its formula guard, and
+    through the HTTP server: off by default, turned on from the admin form, two captains rating, a change, a third team
+    and the plain link refused, the admin table and CSV, the public table only when ticked and with no comments, and a
+    scale switch). The guide's worked table is recomputed in `page.test.mjs`. No real league has used it yet.
+- **Notices from the organiser (2026-11-18, `announcements.mjs`):** `/admin` has a **Notices** form: up to
+  1,000 characters, **Who sees it** (everyone, on the league page under "From the organiser", or one team, on that
+  team's captain page only), **Show until** (a date; blank means two weeks), and **Also email it to the team
+  contacts** (needs SMTP). Each notice is listed in `/admin` with who it was for, when it ends and how many teams were
+  emailed, with a **Remove** button. Text is escaped; plain `https://` links become clickable, nothing else. Emails go
+  one per team to that team's Contacts, carry the plain league link (never a captain key) and name the teams with no
+  address so the organiser tells them by hand. At most 30 notices are kept.
+  - Alternatives: the organiser's group chat or a mass email, which players lose and late joiners never see; TeamSnap,
+    LeagueApps and SportsEngine messaging, on paid plans with an account per player. This puts the notice where
+    players already look for the schedule, with an end date so old news drops off by itself.
+  - Checked: `announcements.test.mjs` (6 tests: input checks, the cap, audience and end-date filtering, escaping and
+    link rules, per-team emails, and through the HTTP server: post, see it on the league page, a one-team notice only
+    on that captain's page, emails to the teams with contacts, removal, and SMTP off). Not yet used by a real league.
+- **Move requests (2026-11-18, `reschedule.mjs`):** a captain's page lists their team's next 12 games, each
+  with **Ask to move this game**: pick a later date (up to 180 days on) and an optional note. The date is checked
+  against the live season before the request is stored: the season is rebuilt with the Rainouts line the organiser
+  would type (`2026-10-20 Hawks, Owls -> 2026-10-22`), and the request is refused with the reason unless the game
+  lands on that date (both teams free, not blacked out, a court and slot open, the team limits kept) and no other game
+  moves. The other captain sees the request on their own captain link, with the note, and clicks **Agree** or
+  **Decline**; with SMTP on, their team's contacts get one email with their captain link. An agreed move shows in
+  `/admin` under **Move requests** with **Approve the move** and **Refuse**. Approve re-checks the date against the
+  season as it is now, appends the line to Rainouts (so it stays visible and editable), and, with SMTP on, sends both
+  teams the usual change email; a date that no longer fits closes the request with the reason. Only later dates
+  (the rainout mover's rule); a night when either team plays twice is refused, since a rainout line names teams, not one
+  game. Requests are keyed by fixture id and dropped when the game passes or another edit moves it. Captains can
+  withdraw their own; one open request per game; 200 at most in the state file.
+  - Alternatives: LeagueApps and TeamSnap handle reschedules as messages between coaches and an admin who edits the
+    game by hand; a group chat does the same with no check that the new date is free. This checks the date first, gets
+    both captains' agreement in the open, and turns the organiser's part into one click.
+  - Checked: `reschedule.test.mjs` (9 tests: a free day lands with no other fixture moved and the schedule valid; a
+    night either team plays, an earlier date, a blacked-out team and a doubleheader night are refused; the request
+    state machine (only the other captain answers, only the asker withdraws, one open request a game, re-asking after a
+    decline); pruning; escaping of the note; and through the HTTP server: ask, agree, approve with the line written,
+    the game on its new date and three emails sent; a misfit date refused at once; another team's captain and the plain
+    link refused; approval before agreement refused; refuse shown to captains; a blackout added after agreement making
+    approval fail). No real league has used it yet.
 - **Who's playing (2026-11-18):** the player page lists the games on the next two match days with a count per team (`5 in of 7, 1 maybe, 2 out`, then the names), and one form: pick the game and team, type a first name, choose In, Maybe or Out. The same name (any case) answering again changes its answer; answers are keyed by the fixture id, so they follow a rained-out game to its new date; answers for games no longer coming up are pruned on every write, and a team takes at most 60 names a game, so the state file stays small. In `/admin`, set **Players a team needs on the night**: the admin page then lists every team below it for those games (`Owls: 3 in, short 4; 2 maybe, 1 out`) with a message to paste into that team's chat, so a forfeit is seen days ahead, not at the court. Anyone with the player link can answer for any name, the same trust as the link itself; there are no accounts. `availability.mjs`, tests in `availability.test.mjs`.
+- **Subs (2026-11-18):** the player page has a **Subs** section: anyone free on one of the next match nights types a first name and clicks **I can sub** (or **Take me off**). In `/admin`, every team short of players shows the subs free that night, each with a **Place** button; placing one writes an In answer for that team's game marked `(sub)`, so the team stops showing as short, the counts on the league page include them, and the CSV says `in (sub)`. A sub already In for their own team that night, or already placed, is not offered again. The copy-ready nudge and the reminder email list the free subs too (`Subs free that night: Dee, Eli.`). A placed sub who takes themselves off also comes off that team, so the team shows short again. The pool keeps only the coming nights and at most 40 names a night. `subs.mjs`, tests in `subs.test.mjs`.
+- **Alternatives for subs:** a spreadsheet or group chat of "sub list" names, matched by hand to whoever is short; team apps track RSVPs per team, not a pool across the league. This matches the pool to the short teams by night.
 - **Alternatives for availability:** TeamSnap, SportsEngine and Spond track RSVPs per player account (TeamSnap's free tier caps it; paid plans per team); a group-chat poll has no minimum and no per-game view across the league. This is the per-game count and the short-team list, with nothing but a name.
 - **Rosters, answers CSV and reminders (2026-11-18):** three follow-ups to availability, all in `/admin`.
   - **Rosters** (optional): `Hawks: Ana, Ben, Cara`, one team per line. On the player page the name box then suggests the picked team's names (a `<datalist>` per team, switched by a few lines of script; with no script, or for a sub, any name is still taken), and each team's line ends with *No answer yet: Cara*. The organiser's paste-ready message names them too (`Not heard from: Cara.`). Unknown teams and bad names are listed on the admin page, not guessed; 40 names a team at most.
@@ -43,7 +120,84 @@ third party: zero dependencies, one JSON file on a disk you own.
   - **Reminder emails** on the deployer's own mail account, off unless `SMTP_HOST` is set (`SMTP_PORT`, default 587; `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`; `REMINDER_TO` is the organiser's address, copied on every reminder; `PUBLIC_URL` puts the league link in the email). At start and every hour the server sends one email per team per game to any team still short of the minimum two days out or less, to that team's contacts (*Team contacts for reminder emails*: `Hawks: captain@example.org`) and the organiser, naming the count, the maybes and the roster players not heard from. A sent reminder is remembered in the state file, so a team gets one per game; a failed send is retried next hour. The client (`mailer.mjs`, no dependencies) uses TLS on 465 or STARTTLS when offered, and never sends a password over an unencrypted connection except to localhost. Contacts accept plain addresses only, and the subject and headers are stripped of line breaks, so nothing typed can add a mail header. Contacts stay in the state file and never reach the player page.
   - Checked: `availability-roster.test.mjs` (parsing, the no-answer lists, the CSV, which reminders are due and to whom, once-only sending, a fake SMTP server for AUTH PLAIN, a refused recipient and a refused login, the server's CSV route) and a Chromium run of the player page (the name box follows the picked team's roster; a team with no roster takes free text; the answer saves). Not checked: STARTTLS and TLS against a real provider (the tests' fake server is plain text), and real inbox delivery. On Fly with `min_machines_running = 0` the hourly check only runs while the machine is awake.
   - Alternatives: TeamSnap and Spond send RSVP reminders to every player account (TeamSnap's free tier limits it); this sends one email only when a team is short, from the league's own mail account, with no player accounts.
-- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs`.
+- **Schedule-change emails (2026-11-18, latest):** when you save a published league, the server compares the season
+  before and after the save fixture by fixture (each match keeps its id through rainouts, withdrawals, late teams and
+  any other edit) and lists the upcoming games that moved, were cancelled or were added (`5 upcoming games changed for
+  6 teams (Hawks, Owls, ...)`). Tick *Email teams whose upcoming games this save moves* and each affected team gets
+  **one** email, to its contacts with the organiser copied, listing only its own games from its side (`- vs Owls
+  (home): was Tue 13 Oct 2026 18:00, Court 1, now Tue 27 Oct 2026 19:00, Court 2`; `- at Kites (away): Tue 3 Nov 2026 is cancelled`),
+  with the league link. Past games are never reported; a team with no contact address is named in the admin note so
+  you can tell it yourself; past 40 changes the email lists the first 40 and points to the page. Unticked, or with
+  SMTP off, the note still shows the summary and nothing is sent. `changes.mjs`, tests in `changes.test.mjs` (moved,
+  cancelled and added fixtures, past games ignored, one email per team with only its games, the box unticked, SMTP
+  off, a second save with no change sending nothing).
+  - Alternatives: TeamSnap, LeagueApps and SportsEngine notify every player account of a schedule change on their
+    paid plans; a spreadsheet league re-sends the whole sheet and leaves each team to spot its own moved game. This
+    sends each team its own changed games only, from the league's own mail account, with no accounts.
+- **Team sign-ups (2026-11-18):** tick *Open sign-ups* in `/admin` and share `/register` (a public page, no secret in
+  the link) in the club newsletter or group chat. A captain types the team name, their name, email, optional phone,
+  the players and a note. Each sign-up waits in `/admin` ("Sign-ups waiting for you"): **Approve** adds the team to
+  Teams, the captain and players to Rosters and the captain's email to Contacts (so availability and the short-team
+  reminders work for the new team at once), **Decline** drops it.
+  - **Cap and waitlist:** set *Most teams*; once the teams listed plus the sign-ups waiting reach it, the form says the
+    league is full and later sign-ups go on a numbered waitlist, shown apart in `/admin`. *Sign-ups close after* shuts
+    the form at the end of that date (UTC).
+  - **Fee:** type the fee as you want it shown (`$450`) and, optionally, your own payment page (a Stripe, Square or
+    PayPal payment link you made; only plain `https://` links are shown). After signing up, the captain sees the fee,
+    the link and the team name to put in the payment's note; you tick **Mark paid** per team, before or after
+    approving, and the "Approved, fee not marked paid" list shows who still owes. This server never sees a card, a key
+    or a payment status.
+  - **Emails:** with SMTP set (the same settings as reminders), the captain gets a confirmation (copied to
+    `REMINDER_TO`) with the fee link; a decline sends nothing, so tell the team yourself.
+  - **Records:** *Download every sign-up (CSV)* (`/admin/signups.csv?key=...`) lists approved, waiting and waitlisted
+    teams with captain, email, phone, players, paid and the time they signed up (cells a spreadsheet would run as a
+    formula are prefixed with `'`).
+  - **Abuse limits:** the page is off until you open it; five sign-ups per address per hour (HTTP 429), 200 waiting at
+    most, a hidden honeypot field, a 64 KB form cap, and team names limited to what the schedule, results and roster
+    lines read back (no `:` `,` `;` `<` `>` or quotes, no leading list number, at least one letter, 40 characters).
+  - **Approving after you publish** rebuilds the round robin with the new team. If the season has started, also add a
+    Late teams line (`2026-11-03 Newbies`) so its earlier games move rather than fall in the past; `/admin` says so.
+  - Alternatives: LeagueApps, SportsEngine and TeamSnap run registration with card processing and waivers on paid
+    plans or a per-transaction fee; a Google Form plus a payment link is free but leaves the organiser to copy each
+    team into the schedule and rosters by hand. This is the Google-Form route with the copying, the cap and the
+    waitlist done for you.
+  - Checked: `registration.test.mjs` (11 tests: team-name rules that the schedule, results and roster parsers read
+    back; required fields, duplicates and the honeypot; cap and waitlist order; closing date; approve into Teams,
+    Rosters and Contacts with the league still building and a result for the new team parsed; the paid tick; the CSV
+    and its formula guard; the per-address limit; the payment-link filter; the confirmation email; and through the
+    HTTP server: closed by default, sign-up, waitlist, kept values on a bad form, admin approve, decline, paid and CSV,
+    and saving the settings). No real league has used it yet.
+- **Free agents: players with no team (2026-11-18, latest, `freeagents.mjs`):** tick *Take free agents at `/join`*
+  in `/admin` and share `/join` (public, like `/register`, which links to it while it is open). A player types their
+  name, email, optional phone, how much they have played (new, a season or two, experienced), optionally a friend who
+  is also signing up on their own, and a note (nights they cannot play, a position). Each waits in `/admin` under
+  **Free agents waiting** with a team already picked in a drop-down: groups (a player and the friend they named, by
+  full name or by a first name only one waiting player has; never a guess between two Sams; at most four) go most
+  experienced first, each to the team with the fewest players (its Rosters line plus players suggested so far), ties
+  to the team that has had the least experience from free agents, and no team past the *roster size to fill up to*
+  (0 = no limit); a group that fits no team says why. **Place** (with the pick or another team) or **Place all as
+  suggested** adds the name to that team's Rosters line, so the availability counts, the short-team reminders, the
+  waiver list and the captain page see the player at once. With SMTP on, the player gets one email with their team,
+  the team's contact address and the league link, and the team's contacts get the player's name, email, phone,
+  experience and note (both copied to `REMINDER_TO`); a team with no contact is named in the admin note. **Remove**
+  takes a player off without an email. *Download every free agent (CSV)* lists placed and waiting players with their
+  team and times (formula cells guarded). An optional fee is shown as text; it is paid however the organiser says.
+  Same abuse limits as `/register`: off until opened, a closing date, five joins per address per hour, a honeypot, 300
+  waiting at most; a name already on that team's roster, or a full roster (40), is refused rather than renamed.
+  - Alternatives: LeagueApps, SportsEngine and TeamSnap take free-agent registrations on paid plans and leave the
+    organiser to assign them by hand; a Google Form gives a list to copy into rosters, with no view of which team is
+    short. This keeps the list next to the rosters, picks a fair team for each player and does the copying and the
+    introductions.
+  - Checked: `freeagents.test.mjs` (8 tests: form checks and the honeypot; settings and the per-address limit; friend
+    groups by full name, a unique first name and the four-player cap, two Sams left alone; suggestions on six sample
+    teams: three experienced players spread over the three short teams, a pair kept together on the next-smallest, the
+    size cap leaving a pair unplaced with the reason; placing into an existing line, an empty line and a team with no
+    line, all read back by the league's own roster parser, a roster name clash and a full roster refused; both emails
+    and the one-email case with no contact; the CSV formula guard and escaping in the admin list; and through the HTTP
+    server: closed by default, opened from the admin form, two joins with a friend link, a bad form keeping what was
+    typed, place-all landing the pair on the smallest roster with four emails, the CSV, a single placement, a removal,
+    a wrong admin key, and SMTP off). No real league has used it yet.
+- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs registration.test.mjs confirm.test.mjs reschedule.test.mjs spirit.test.mjs freeagents.test.mjs`.
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
@@ -187,7 +341,7 @@ MIT licence, see `LICENSE`.
 
 **Double-elimination play-offs.** Tick "Double elimination" next to the play-off size (three or more teams) and the bracket becomes winners and losers brackets, a grand final, and a reset game that is played only if the losers-bracket team wins the grand final. A team is out after two losses; byes in an uneven field are carried through the losers bracket so no match is left without an opponent. Tests play every field from 3 to 17 teams, including random results, and check one champion, every other team out on exactly two losses, and 2k-2 games (one more with a reset) (`doubleEliminationBracket` in `calc.mjs`).
 
-**Americano (rotating partners).** For social padel, pickleball, badminton and tennis nights, "Build rotation" takes the players, the number of courts and rounds, and re-pairs everyone each round so people partner and oppose as many different players as possible. Sit-outs and games are shared within one of even, repeat partnerships are minimised by a seeded search and counted, and a validator re-checks the plan (`americano`, `validateAmericano`, `americanoStats`, `americanoText` in `calc.mjs`; tested for every size from 4 to 24 players). Not an official rating system: it does not score or rank the night.
+**Americano (rotating partners).** For social padel, pickleball, badminton and tennis nights, "Build rotation" takes the players, the number of courts and rounds, and re-pairs everyone each round so people partner and oppose as many different players as possible. With a court for every four players and 4k or 4k+1 players it is a whist design: everyone partners everyone else exactly once and faces each of them exactly twice (section "Americano: partner everyone once, face everyone twice"). Sit-outs and games are shared within one of even, repeat partnerships are otherwise minimised by a seeded search and counted, and a validator re-checks the plan (`americano`, `validateAmericano`, `americanoStats`, `americanoText` in `calc.mjs`; tested for every size from 4 to 24 players). Not an official rating system: it does not score or rank the night.
 
 **Mexicano (draw from the table).** For padel and pickleball nights where each round is drawn from the standings, "Draw next round" takes the players, the courts and every finished game (`Ana & Ben 21-17 Cy & Dee`), credits each player with their side's points, and pairs the leaders together: 1 & 4 against 2 & 3 in each group of four, or a split that avoids repeating a partner. The player who has played most sits out, and round one with no scores is a seeded random draw (`parseMexicanoScores`, `mexicanoStandings`, `mexicanoNextRound`, `mexicanoText` in `calc.mjs`; tested for 4 to 20 players on 1 to 3 courts, with games staying within one of even). A format helper, not a rating system.
 
@@ -197,7 +351,666 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Five or more limited teams: a refused week re-dealt (2026-11-18, latest)
+## Whist designs for 52 and 57: two more group structures, and why the shortcuts can't work (2026-11-19, latest)
+
+52 and 57 players are the two whist sizes up to 64 with no stored design (52 plays design 53 with an
+empty seat; 57 falls back to the greedy search, which repeats 89 partnerships over 57 rounds at 14
+courts). Every search so far used one base round on a cyclic group (Z51 + infinity, Z57). This run
+tried two structures that search cannot reach, and checked the literature on why the shortcuts fail.
+
+**Why multipliers and patterned starters fail here (literature, not new).** A base round whose
+partner pairs are all {x, -x} is a *patterned starter* (Finizio's term), the shape the -1
+multiplier forces (the section below). For 4k+1 players it exists only if the size is 1 or 5 mod 12
+(Hu and Ge 2012, confirming Zhang and Chang 2009 and Abel, Anderson and Finizio 2011): 57 is 9 mod 12,
+so none exists. For 4k players on Z_v + infinity with v = 3 mod 12, it needs v = 3^(2a+1) v1 with
+v1 = 1 mod 12 (Hu and Ge): 51 = 3 x 17 and 17 is 5 mod 12, so none exists for 52 either. That
+explains, and proves, what the search found below. Source: the survey in Section 2.1 of
+arXiv:1911.07189 ("Partitionable sets, almost partitionable sets and their applications"), which
+cites those results. A whist design exists for every 4k and 4k+1 size (settled in the 1970s, same survey), so 52 and
+57 are a search problem, not an impossibility.
+
+**Two structures searched** (`eval/whist-orbits.c`, tabu search as in `eval/whist-anneal.c`, but over
+several base rounds or a non-abelian group; results in `eval/whist-orbits.txt`, found lines
+re-checked pair by pair with `checkWhist` by `eval/whist-orbits-check.mjs`):
+
+- **Non-abelian group Z19 x| Z3** (57 players; (a,b)(c,d) = (a + 7^b c, b + d)). Round g is g times
+  the base round. On the small case, Z7 x| Z3 (21 players), it finds a design in 68 ms. At 57 it
+  reached cost 2 (one difference class one game over, another one under) in every one of six runs:
+  2 x 20 min and 4 x 15 min, tenures 3 to 10, restarts every 1,000 to 50,000 steps, about 100 CPU-min.
+  At cost 2 the class over and the class under had different images in Z3 in 4 of 5 dumped states.
+  The level counts that image implies were checked and are satisfiable, so it is not that simple
+  an obstruction.
+- **Three levels, Z17 x {0,1,2} + infinity** (52 players) and Z19 x {0,1,2} (57): three base rounds,
+  each developed mod 17 or 19. It finds 16 players (Z5 x 3 + infinity) but nothing at 21, 28, 33 or
+  40 in 60 s, and its best at 52 in 2 x 20 min was cost 12. This is worse than the plain cyclic
+  search, so drop it.
+- **The base round fixed by (a,b) -> (-a,b)** on the non-abelian group (`WHIST_SIGMA`): 21 is never
+  found (3 x 20 s, cost 2-4), so this symmetry likely carries an obstruction like the -1
+  multiplier's. Not tried at 57.
+
+**57 on design 60 with three empty seats** (`eval/ghost-seats.mjs`, `eval/ghost-seats.txt`): of the
+34,220 choices of 3 ghost seats, 1,298 leave every real player within one game of the rest, with 0
+repeat partners. But each ghost sits at 59 tables and each pair of ghosts shares 3, so at most
+59 x 15 - (177 - 9) = 717 games are left. That is 12.15 busy courts a round of 14, under the 90% that
+`whistWorthIt` asks for (12.6), whichever seats are chosen. So the greedy search stays for 57.
+
+Nothing changes on the page. Next for 57: a SAT encoding on Z19 x| Z3 (the near-whist SAT in
+`eval/near-whist-sat.py` is the template), or a design built from smaller ones (product theorems,
+Anderson, Finizio and Leonard 1999) rather than more tabu hours.
+
+## Tabu search finds whist designs for 48 and 60 players, and near-whist designs for 46, 54 and 62 (2026-11-19, later)
+
+The sizes below were left on a fallback because 20 CPU-minutes of backtracking (`eval/whist-search.c`)
+found nothing for 48, 52, 57 or 60, and 15 minutes of annealing (`eval/near-whist-search.mjs`) nothing
+for 46 or 54. `eval/whist-anneal.c` searches the same base round a different way: the state is a
+permutation of the points (each four in a row are a table), the cost is how far the partner and
+opponent difference counts are from a whist design (or the near-whist conditions for 4k+2 players),
+and each step makes the best swap of two players at different tables, with the two players just
+moved barred from moving again for a few steps (tabu search; `WHIST_TABU=<steps barred>`). Plain
+simulated annealing in the same program kept stalling at cost 2, one difference class over and one
+under; the tabu walk climbs out of those.
+
+Results (`eval/whist-anneal.txt`, every base re-checked pair by pair by `checkWhist` or
+`checkNearWhist` when `eval/whist-bases-build.mjs` and `eval/near-whist-bases-build.mjs` store it):
+
+| players | group | found | before |
+|---|---|---|---|
+| 48 | Z47 + infinity | 1.5 s (tenure 4) | design 49 with an empty seat, one idle court each round |
+| 60 | Z59 + infinity | 15 s (tenure 4) | design 61 with an empty seat, one idle court each round |
+| 46 | Z46, near-whist | 9 s (tenure 4) | greedy |
+| 54 | Z54, near-whist | 9 s (tenure 6, restarts every 50,000 steps; tenure 4 found nothing in 10 min) | greedy |
+| 62 | Z62, near-whist | 148 s (tenure 4) | greedy |
+| 52 | Z51 + infinity | nothing in 60 CPU-min (four runs, tenures 3, 4, 5, 7) | unchanged: design 53 with an empty seat |
+| 57 | Z57 | nothing in 55 CPU-min (four runs, tenures 4, 5, 8) | unchanged: greedy |
+| 58 | Z58, near-whist | nothing in 25 CPU-min (tenures 4, 6) | unchanged: greedy |
+
+Also tried for 52: requiring the base round to be fixed by multiplying by 4 (a unit of order 4 mod 51
+that, unlike -1, has no parity obstruction; fixed points 0, 17, 34 join infinity's table), through
+`multiplierSearch` in `eval/whist-multiplier.mjs`: nothing in 7 minutes.
+
+What it changes on the page, with a court for every four players (`eval/whist-vs-greedy.txt`):
+
+- **48 players, 12 courts:** 47 rounds, 47 games each, every pair partners exactly once and meets as
+  opponents exactly twice, every court used every round. Before: 49 rounds of design 49 with one court
+  idle each round, 45 games each, 48 partnerships never used.
+- **47 players, 11 courts:** design 48 with one empty seat: 47 rounds, 44 games each, no partner
+  twice, every pair meets once or twice. Before: greedy.
+- **60 and 59 players** the same way (design 60; 59 with one empty seat).
+- **46 players, 11 courts:** near-whist: 46 rounds, 44 games each, no partner twice, each player
+  misses exactly one partner. Before: greedy. **54 and 62** the same way.
+
+Stored now: every 4k and 4k+1 size from 4 to 49, plus 53, 56, 60, 61 and 64; near-whist every 4k+2
+from 6 to 54, plus 62. Still not stored: 52 (plays 53 with an empty seat), 57 and near-whist 58: the
+two whist sizes are the two left whose group order is 3 times a prime (51, 57), though 21, 33 and 39
+were found, so that is a pattern to test, not a proof. Tested in `whist.test.mjs` (48 and 60
+full-court nights use their own design with no idle court; 47 and 59 play 48 and 60 with one empty
+seat; 46, 54 and 62 among the stored near-whist sizes).
+
+## Americano whist designs for 40 to 64 players: a field construction and multipliers (2026-11-19)
+
+The plain backtracking search below stopped at 37 players plus 44: 40, 41, 45, 48 and 49 found nothing in
+25 minutes each, so big socials (the card takes up to 64) fell back to greedy, which at 48 players on 12
+courts repeats 45 partnerships over the cycle. Two kinds of structure instead of search
+(`eval/whist-multiplier.mjs`, results in `eval/whist-multiplier.txt`, every base checked pair by pair with
+`eval/whist-multiplier-check.mjs`):
+
+- **4k+1 players, no search at all.** Take the field (or product of fields) R of that size and an E with
+  E^2 = -1; multiplying by E splits the nonzero elements into foursomes {a, Ea, -a, -Ea}. Seat each foursome
+  as a & -a vs Ea & -Ea. Partner differences are 2a times the foursome and opponent differences (1-E)a
+  times it, twice, so as long as 2 and 1-E are units every pair partners once and meets twice. That needs
+  each prime-power factor of the size to be 1 mod 4: **41** (GF(41)), **45** (GF(9) x GF(5), stored on
+  Z3 x Z3 x Z5), **49** (GF(49) on Z7 x Z7), **53** and **61**. Checked from 5 to 101 in `whist.test.mjs`.
+- **4k players: search one table per orbit.** Require the base round on Z_{4k-1} + infinity to be mapped
+  onto itself by multiplying by a unit of order 3. For 40 players (Z39, unit 16) that fixes 0, 13 and 26,
+  which must join infinity at its table; the other 9 tables come in 3 orbits, so only 3 tables are
+  searched. **40** is found in about 1 s and **64** (Z63, unit 4) in about 4 s.
+
+What does not work, and why (so the next run does not retry it): with the multiplier -1 every table must
+be a & -a vs b & -b, and summing the squares of the opponent differences forces x^2 = 1^2 + 2^2 + ... +
+h^2 (mod v) for the class x at infinity's table (h = (v-1)/2), or that sum = 0 (mod v) with no infinity.
+Neither holds for Z47, Z51, Z55, Z59 (48, 52, 56, 60 players) or Z57 (57 players); the search agreed on
+every small size (none for 8 to 24, found at once for 28 and 40, where the condition holds). Those groups
+have no other usable multiplier, so 48, 52, 56, 57 and 60 need the plain search: `eval/whist-search.c` is
+that search in C, about 60 times faster than the JavaScript one (29 players in 0.6 s against 37 s).
+Run for 20 CPU-minutes each (`eval/whist-search-c.txt`), it found **56** (Z55, 191 s) and nothing for
+48, 52, 57 or 60.
+
+Stored now: every 4k and 4k+1 size from 4 to 45, plus 49, 53, 56, 61 and 64. The existing one-empty-seat
+rule (use the next design up when its rounds fill at least 90% of the courts) now also covers 39, 55 and 63
+players, and 48, 52 and 60, where it costs a court: 48 players on 12 courts play design 49 with one empty
+seat, so one court sits idle each round. Over the cycle that is 0 repeat partners and every pair meeting
+once or twice, against greedy's 45 repeat partners and pairs meeting up to 5 times, but 45 games each in
+49 rounds instead of 47 in 47 (`eval/whist-vs-greedy.txt`). Still on greedy: 47, 51, 57 and 59 players.
+Tested in `whist.test.mjs` (stored sizes, full-court nights at 40, 41, 45, 49, 56 and 64, one-seat nights
+at 39 and 63, the field construction from 5 to 101).
+
+## Near-whist designs by SAT: slower than tabu, and two shortcuts ruled out (2026-11-19)
+
+The annealing search below stalled at 46 and 54 players (15 and 10 minutes, nothing). A SAT model of the same
+base round, `eval/near-whist-sat.py` (python-sat, CaDiCaL), finds **46** in 107 s (the tabu search above, landed the same day, found it in 9 s and its base is the one
+stored), and the developed design passes `checkNearWhist` (`eval/near-whist-check-line.mjs` checks a result line without storing it). It encodes
+pairs, not seats, so the table order and the eight seatings of a table never enter the search: P(p,q) for
+partners, T(p,q) for sharing a table (transitive, three table-mates each, so the tables are 4-cliques), opponents
+as T and not P, exactly two points out (point 0 fixed out by translation), and each distance 1..2k a
+cardinality constraint (partners exactly once, opponents at most twice, the half-circle distance never as
+partners and exactly once as opponents). On sizes already stored it takes 0.04 s (14), 0.4 s (22), 4 s (30),
+0.9 s (34) and 5 s (38) against annealing's 0.01 s, 1 s, 11 s, 4 s and 108 s; 42 with seed 0 found nothing in
+300 s, so run times are heavy-tailed and seeds matter (`eval/near-whist-sat.txt`).
+
+Two shortcuts that do not work, so the next run does not retry them:
+
+- **A design mapped onto itself by x -> c - x (a mirror) does not exist for any 4k+2.** The solver says UNSAT in
+  milliseconds for 6 to 30; the reason is short. A mirror sends a partner pair {a, b} to {c-a, c-b}, at the same
+  distance. Every distance is used once, so each partner pair must be its own mirror image, b = c - a, and its
+  distance c - 2a (or n minus it) has the parity of c, because n is even. The distances 1..2k include both
+  parities, so the other parity is never covered. (For whist designs on an odd
+  group, as in the section above, 2 is a unit and this parity argument does not apply.)
+- **A multiplier.** On Z46, Z58 and Z62 every unit of order above 2 fixes only 0 and n/2, and the half-circle
+  opponent pair would then repeat once per orbit (it must appear exactly once). Z54 has the order-3 unit 37
+  with 18 fixed points; the model with that symmetry is UNSAT in 0.3 s.
+
+**Which two points sit out.** A partner pair at an odd distance joins an even and an odd point; there are k
+odd distances in 1..2k. With 2k+1 even and 2k+1 odd points, the seated evens and odds pair up only if the
+two points out are an odd distance apart when k is even and an even distance apart when k is odd (every
+stored base agrees, `whist.test.mjs`). Multiplying a design by a unit gives another one, so the second point
+out can also be taken to be a divisor of n: `--out2 d` fixes it, which leaves one case for 62 (d = 2), two for
+58 (1, 29) and three for 54 (2, 6, 18).
+
+**Where SAT loses.** Plain runs of 50 minutes (54 with two seeds, 58, 62) and the `--out2` cases of 40 minutes
+(54 with d = 2, 58 with 1 and 29, 62 with 2) found nothing and proved nothing (`eval/near-whist-sat.txt`),
+while tabu found 54 in 9 s and 62 in 148 s. So for these sizes the local search is the tool, and SAT is
+worth it only for a proof of impossibility, which it did not reach. 58 is the one near-whist size up to 62
+that neither method has. The same restriction in the tabu search (`WHIST_OUT2=d` in `eval/whist-anneal.c`:
+the two points out fixed to 0 and d) did not change that: 58 with d = 1 and 29, tenures 4 and 6, restarts every
+50,000 steps, 15 minutes each on four cores, found nothing (`eval/whist-anneal.txt`).
+
+## Americano for 4k+2 players: near-whist designs (2026-11-19)
+
+The whist designs below cover 4k and 4k+1 players (and 4k+3 with one empty seat). 6, 10, 14, 18, 22 ...
+players stayed on the greedy search, because two empty seats idle a court. A whist design for 4k+2
+players cannot exist: there are (4k+2)(4k+1)/2 pairs, an odd number, and every game uses two
+partnerships. So the best possible night leaves some pairs unpartnered, and for everyone to play the
+same number of games the unpartnered pairs must form a perfect matching: each player misses exactly
+one partner.
+
+`whist.mjs` now plays exactly that bound, a **near-whist design**, built cyclically on Z_{4k+2} from one
+stored base round (`near-whist-bases.mjs`): k tables seat 4k of the 4k+2 points and two sit out; round g
+adds g to every seat. A pair at distance d (1 to 2k) recurs once per base occurrence; distance 2k+1
+(half the circle) only every other round, which is what makes the matching {x, x+2k+1}. The base round
+needs partner distances 1..2k exactly once and never 2k+1, opponent distances 1..2k at most twice and
+2k+1 exactly once (4k opponent slots, so exactly one distance is used once). Over 4k+2 rounds:
+
+- nobody partners anyone twice; each player partners 4k of their 4k+1 others;
+- the one they miss, they face exactly twice; everyone else they face once or twice (no pair never meets);
+- everyone plays 4k games and sits out exactly twice.
+
+`eval/near-whist-search.mjs` finds the bases by simulated annealing on the base round (swap moves,
+short restarts): 6 to 34 in under 12 s each, 38 in 108 s, 42 in 45 s, 50 in 8.6 min; 46 found nothing in 15 min
+(seed 1) and 54 nothing in 10 min (`eval/near-whist-search.txt`). 46, 54 and 62 have designs since (tabu search,
+section "Tabu search finds whist designs ..." above; 46 also by SAT).
+`eval/near-whist-bases-build.mjs` keeps only bases whose developed design passes `checkNearWhist`, an
+independent pair-by-pair check. Stored: 6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54 and 62 players. Against the greedy search on the same
+players, courts and rounds (`eval/whist-vs-greedy.txt`, a court for every four players):
+
+| players | greedy repeat partners | greedy never partner | greedy opponents | near-whist repeat partners | near-whist never partner | near-whist opponents |
+|---|---|---|---|---|---|---|
+| 6 | 0 | 3 | 1-4 | 0 | 3 | 1-2 |
+| 10 | 2 | 7 | 0-3 | 0 | 5 | 1-2 |
+| 14 | 1 | 8 | 1-3 | 0 | 7 | 1-2 |
+| 18 | 1 | 10 | 1-4 | 0 | 9 | 1-2 |
+| 22 | 1 | 12 | 0-4 | 0 | 11 | 1-2 |
+| 26 | 1 | 14 | 1-4 | 0 | 13 | 1-2 |
+| 30 | 5 | 20 | 0-4 | 0 | 15 | 1-2 |
+| 34 | 11 | 28 | 0-4 | 0 | 17 | 1-2 |
+| 38 | 15 | 34 | 0-5 | 0 | 19 | 1-2 |
+| 42 | 24 | 45 | 0-5 | 0 | 21 | 1-2 |
+| 46 | 37 | 60 | 0-5 | 0 | 23 | 1-2 |
+
+With fewer courts than tables the design is dealt into rounds as before (26 players on 3 courts: 52
+rounds, 0 repeats, against greedy's 25 on the same 52 rounds), and the page hints that round count.
+A shorter night still keeps the better of the design's first rounds and the greedy search. The page
+says which it used ("Built from a near-whist design ..."). Tested in `whist.test.mjs` (every stored
+size checked, 4k+2 nights from 6 to 30 players, broken designs rejected). An annealing try at the
+missing 4k and 4k+1 whist sizes (40, 41, 45, 48, 49) did not reach even 29, 32 and 33 in 25 s each
+(the exact "twice" condition leaves no slack), so it was dropped (not kept in eval/). 40, 41, 45 and 49 have
+designs since (section "Americano whist designs for 40 to 64 players").
+
+## Americano: partner everyone once, face everyone twice (whist designs, 2026-11-19)
+
+The Americano card (rotating partners for padel, pickleball, badminton and tennis nights) used a greedy
+round-by-round search. Over a full cycle with a court for every four players it repeats partners from 20
+players up (20: 2 repeats, 24: 4, 28: 6, 32: 15, 48: 45) and never evens out opponents: some pairs meet
+four or five times while others never face each other (`eval/whist-vs-greedy.txt`).
+
+The fix is a **whist tournament**: rounds of tables a&b vs x&y in which every pair partners exactly once
+and plays against each other exactly twice. They exist for every 4k and 4k+1 players. `whist.mjs` builds
+them cyclically from one stored base round per size (`whist-bases.mjs`): for 4k+1 players the players are
+the elements of an abelian group and round g adds g to every seat of the base round; for 4k players one
+fixed player ("infinity") joins a group of order 4k-1. `eval/whist-search.mjs` finds the base rounds by
+randomised backtracking on the difference counts (partner differences once, opponent differences twice);
+9 players has no Z9 base (exhaustive), so it uses Z3 x Z3. `eval/whist-bases-build.mjs` stores only bases
+whose developed design passes `checkWhist`. Stored by this search: 4, 5, 8, 9, 12, 13, 16, 17, 20, 21, 24, 25, 28, 29, 32, 33, 36, 37 and 44 players (more in the section above). Search times are in
+`eval/whist-search.txt` (seconds up to 28; 37 s to 19 min from 29 on, eleven processes sharing four cores). 40, 41,
+45, 48 and 49 found nothing in 25 minutes each (4e8-node budget); all but 48 are stored now by other means
+(section "Americano whist designs for 40 to 64 players").
+
+How `americano()` uses them (the greedy search stays as the fallback and the comparison):
+
+- **A court for every four players, whole cycle:** the design. 16 players on 4 courts play 15 rounds,
+  everyone partners all 15 others once and faces each of them twice; greedy gave opponents 1-4.
+- **4k+3 players (7, 11, 15, 19, 23, 27 ...):** the next design up with one empty seat; the table holding
+  it sits out. Same games per player as greedy, no repeat partner, every pair meets once or twice
+  (greedy 0-4).
+- **4k+2 players (6, 10, 14 ...):** a near-whist design (section above, 2026-11-19); two empty seats in a
+  bigger design would idle a court and cost each player 2-3 games (18 players: 13-14 against 16).
+- **Fewer courts than tables (20 players on 3 courts):** the design's games are dealt into rounds of at
+  most 3, least-played players first. The whole design then takes 32 rounds instead of 19; the page says
+  so ("set Rounds to 32") and uses it when asked. A prefix measured no better than greedy, so a blank
+  round count stays on greedy.
+- **A shorter night than the whole design:** both are built and the better kept (repeat partners, then
+  the most times one pair meets as opponents). Measured honestly: on 6- and 8-round nights the two tie
+  (max 2 meetings, no repeats, 12-28 players, 20 seeds each), and at 28 players over 6 rounds greedy is
+  slightly better (max 1). The design's edge is the full cycle: multi-week social leagues, long club
+  nights, and anyone who wants the guarantee in writing.
+
+Seeds still change who gets which seat, so the same seed gives the same sheet. Tested in `whist.test.mjs`
+(every stored design checked pair by pair, the four cases above, a broken design rejected). Guide:
+`how-to-run-an-americano-tournament.html` ("Partner everyone once, face everyone twice"; its 8-player
+worked example is now the whist design and still recomputed by `page.test.mjs`). Not yet used by a real
+club night.
+
+## Bowling league nights: averages, handicaps, points and standings (2026-11-19, latest)
+
+The bowling page scheduled the lanes and stopped there, but a bowling league's weekly job is the
+secretary's sums: each bowler's average and handicap, every match's games with handicap, points
+won, and the standings sheet, then next week's position round from those standings. Leagues do it in
+a spreadsheet they maintain themselves, or in paid desktop league secretary software, or on their
+centre's scoring system if it has a league module. The page now does it from typed score sheets,
+in the browser, on the schedule it just built (`bowling-recap.mjs`).
+
+- **Input:** a `Week 1` line, then one line per team: `Pin Pals: Ana 180 165 201, Ben 140 152 133,
+  Cy absent`. Optional entering averages (`Ana 165, Ben Ortiz 142`). Rules, all editable: games a
+  night (3), bowlers a team (4), handicap % (90) of basis (220), highest handicap (none), points a
+  game (2) and for the series (2), absent penalty (10), blind score (150).
+- **Rules applied:** average = pins / games through last week, fractions dropped; a bowler with no
+  games uses the entering average, else the night's own games (retroactive first night). Handicap =
+  floor(pct x (basis - average) / 100), floor 0, capped; 0% is a scratch league. Absent bowlers
+  score average - penalty plus handicap and the games never count to their average; absent with no
+  average, or a short lineup, is a blind with no handicap. Ties split points. Against the Vacancy a
+  team bowls to its par (each spot's average plus handicap). Standings: points won, then handicap pins.
+  Position rounds are paired from the standings before that night (`1st place` v `2nd place` on the
+  schedule becomes two team names).
+- **Output:** standings, the last night match by match (each bowler's average, handicap, games and
+  series, team totals and points), bowlers' averages and next week's handicap, highs and absences;
+  copy as text, standings CSV and bowlers CSV (formula cells guarded). The typed nights stay in that
+  browser's `localStorage` and are worked out again on the next visit; nothing is uploaded.
+- **Checked:** `bowling-recap.test.mjs` (7 tests): handicap arithmetic (90% of 220: 160 gives 54,
+  165 gives 49, cap, scratch); two nights worked by hand (retroactive average, absent at average - 10,
+  absent with no average as a blind, 16-0 points, averages that skip absences); split points on ties
+  with entering averages; a position round paired from night one's standings; a Vacancy match against
+  par (tie, loss, win, tied series); typing slips named (no week line, unknown team, wrong game count,
+  over 300, missing opponent, one bowler on two teams, a week past the season, too many bowlers);
+  names with spaces and a team name inside another. In Chromium at 390 px: sample nights on the
+  8-team sample season fill the tables, no sideways scroll, the nights return on reload, no console
+  errors. Not yet used by a real league.
+- **Not done:** split handicaps per game, mid-night substitutions, USBC sanctioned-average reports,
+  awards and the prize fund; the league's own and its association's rules decide.
+
+## Pool play into a knockout bracket, seeded so poolmates meet late (2026-11-19, latest)
+
+Pool play listed its play-off seeds by record alone: every pool winner (best record first), then every
+runner-up, and so on. Fed into a standard bracket (1 v 4, 2 v 3), that often pairs two teams from the
+same pool in the first knockout round, a rematch nobody wants: with two pools of three and two
+advancing, `b1, a1, a2, b2` puts b1 against b2 in the semifinal. Tournaments avoid this with a
+crossover (A1 v B2, B1 v A2).
+
+- **`poolPlayoffSeeds(tables, perPool)`** (`calc.mjs`) keeps the places in order (every winner is
+  still seeded above every runner-up) and reorders teams inside each place so that poolmates can
+  meet as late as the bracket allows. The objective is lexicographic: fewest possible same-pool
+  meetings in round 1, then round 2, and so on, then the least movement from the record order, with
+  a move near the top weighing more. It climbs by swaps inside a place, then runs an exact
+  depth-first search over the places' orderings, pruned whenever a partial count is already worse
+  (counts only grow as seeds are placed) and capped at 300,000 nodes. It returns the seeds, each
+  seed's pool, and the possible poolmate meetings per round for the new order and the record order.
+- **The pool card** now prints each seed's pool, a one-line note when the crossover changed the
+  order, and the knockout bracket itself (single or double elimination and the third-place game,
+  from the step 4 play-off options; play-off results typed in step 4 fill it in).
+- **Checked:** the tests compare the result with a brute force over every ordering for 2 to 5
+  pools; a swap-only version stalled in a local optimum on 3 pools x 4 and 4 pools x 4 (rounds-1-2
+  counts 0, 1 against 0, 0), which is why the exact search follows. `eval/crossover-seeds.mjs`
+  draws 500 random pool tables per shape: by record order, poolmates could meet in the first
+  knockout round in 29 to 86% of draws (2 x 4: 383 of 500; 4 x 4: 428), and in rounds 1-2 in up to
+  every draw; the crossover order has 0 in round 1 for every shape, and 0 in rounds 1-2 for every
+  shape with three or more pools (`eval/crossover-seeds.txt`). Two pools can't keep poolmates out of
+  rounds 1-2: each half of the bracket holds at least two teams of one pool, and they meet by round 2.
+- **Not done:** pools with uneven strength (a pool's winner may deserve a lower seed than another
+  pool's runner-up); places stay in order, the usual convention.
+
+## Balanced teams from a player list (2026-11-19)
+
+Before a league can be scheduled it needs teams. Rec, coed and "hat" leagues draft them from a sign-up
+list, usually by hand in a spreadsheet. `balanced-teams.html` (page) and `teams.mjs` (engine, zero
+dependencies) do that draft:
+
+- **Input:** one player per line, `Name, rating, tag` (any rating scale, decimals allowed; the tag is
+  optional, e.g. `F`/`M` for a coed league or `G` for goalies), pasted straight from spreadsheet columns
+  (a header row is skipped). `together: Ana, Ben` keeps a group whole; `apart: Cy, Dee` splits a pair. A
+  missing rating counts at the list's median and the page names who.
+- **Hard rules:** team sizes within one; every tag split so its count per team differs by at most one;
+  together groups whole; apart pairs split. A rule that cannot be kept (a together group bigger than a
+  team, the same pair asked together and apart) is named, never silently dropped; `checkTeams` re-reads
+  the output and confirms each rule independently of the search.
+- **Objective:** inside those rules, the least gap between the strongest and weakest team rating total,
+  then the least sum of squared distances from the mean total. Search: a per-tag snake draft, then
+  simulated annealing on unit swaps and moves (a together group is one unit), six restarts, seeded and
+  deterministic ("Another fair draw" changes the seed). For up to 16 players, when the gap is above the
+  floor, an exhaustive search (with symmetry cut and a 3 million node cap) settles it.
+- **Proof shown on the page:** `spreadLowerBound` (integer ratings whose total does not divide by k force
+  a gap of 1; one unit stronger than the rest combined forces `big - (T - big)/(k - 1)`). When the gap
+  meets that floor, or the exhaustive search finished, the page says "proved the most even possible";
+  otherwise it prints the floor.
+- **Hand-off:** "Build a schedule for these teams" opens the main page with the team names filled in
+  (a share link, `encodeFields`), so the draft flows straight into a round robin.
+
+**How it was checked** (`eval/balanced-teams-exact.mjs`, output `eval/balanced-teams-exact.txt`; invented
+random lists, ratings 1-5, about 40% tagged F, 0-3 random together/apart requests): on 420 lists of 8 to
+16 players (2 to 4 teams), 3 had no split keeping every rule; on the other 417 the shipped search found the
+exhaustive least gap on all 417 with no rule broken. The annealing alone (exhaustive fallback off) found it
+on 413 of 417, which is why the fallback ships. Big lists (ratings 1-10, 8 requests): 40, 80, 120 and 200
+players into 4-16 teams reached the floor (proved least) in 31-343 ms; 400 players into 32 teams ended at
+a gap of 2 against a floor of 1 (1.1 s), not proved. Tests: `teams.test.mjs` (9: parsing, duplicates,
+median fill, the coed example proved, determinism, 40 random lists against the exhaustive search, a
+200-player run, a too-big group named, outputs), and `page.test.mjs` checks the page's disclaimer, usage
+events and FAQ. Clicked through in Chromium at 390 px over http (example, re-draw, hand-off to the
+schedule page): no console errors, no horizontal scroll.
+
+Limits: the rating is whatever the organiser types, so "even on paper" is only as good as those numbers;
+totals are compared, so with uneven team sizes the larger team may carry a higher total. Two tags and late
+sign-ups landed the same day (next section).
+
+### Two tags per player, and late sign-ups onto announced teams (2026-11-19, later)
+
+- **Two tags at once.** The tag cell can hold several tags (`F G`, `F/G`, `F+G`; `splitTags`), so a woman
+  who keeps goal counts toward both splits. Each tag is spread on its own (count per team within one), which
+  covers "one goalie and two women per team" without a separate quota syntax. The CSV writes both tags back
+  and `parseTeamsCsv` reads them. Tested against the exhaustive search on 40 random two-tag lists
+  (`teams.test.mjs`).
+- **Late sign-ups.** Paste the announced teams (the page's CSV, or `Team, Player, Rating, Tag` columns; quotes
+  and the formula-guard apostrophe handled) and put only the new players in the players box. `addLateSignups`
+  pins every announced player to their team (`balanceTeams(..., { fixed, maxMoves, teamNames })`), keeps the
+  team names and order, and places the newcomers with the same hard rules and objective. "Announced players
+  who may switch teams" (default 0) lets the search move up to that many; among equal gaps it moves the
+  fewest, and the page names every new placement, move and `drop: Name` leaver. A re-listed announced player
+  updates their rating or tag. For up to 16 players the exhaustive search runs with the pins (no symmetry cut,
+  since named teams differ). `checkTeams(parsed, result, before)` re-reads the output and also faults a
+  renamed team or more switches than allowed. "Use the teams above" copies a fresh draft in, so a second
+  round of late sign-ups is two clicks.
+- **How it was checked** (`eval/late-signups.mjs`, output `eval/late-signups.txt`; invented lists, ratings
+  1-5, ~40% F, ~20% also G; announced teams drafted by `balanceTeams`, then 3-12 late players):
+  - with 0 moves, on every case where a least-filled rule (smallest team first, ties to the lowest total; the
+    rule `freeagents.mjs` uses) kept the size and tag split, the shipped placement matched its mean gap
+    exactly (e.g. 1.84 vs 1.84 at 9 players, 2.36 vs 2.36 at 40). Least-filled broke the coed or goalie split
+    where the shipped placement kept it in 8, 7 and 22 of 40 small cases, 14 of 30 at 40 players, 15 of 20 at
+    80 and 10 of 10 at 160. So with nobody moved the gain is the rules, not the gap.
+  - allowing 2 moves cuts the mean gap from 2.02-2.52 to 0.65-0.72 at 9-12 players (a full redraft: 0.65-0.70)
+    and 2.50 to 0.87 at 40 (redraft 0.80), moving 0.8-1.1 players on average. At 160 players and 12 late
+    sign-ups on 16 teams 2 moves are not enough (4.40 to 3.60, redraft 0.80).
+  - annealing alone (exhaustive fallback off) equalled the pinned exhaustive search on 95 of 95 small cases
+    with a valid placement; 0 rule faults in any run; 160 players placed in 0.4 s at most.
+  - Tests: `teams.test.mjs` 16 (7 new: tag splitting, two-tag lists against the exhaustive search, CSV read
+    back, pinned placement, pins with and without moves, drops and re-rated players). Clicked through in
+    Chromium at 390 px over http (example, use the teams above, three late players with a drop, 0 then 2
+    moves, bad inputs): no console errors, no horizontal scroll.
+
+Limits: a late player is placed by rating only, like the draft; with tags already uneven on the announced
+teams and no moves allowed the page names the team that is off instead of fixing it. Next: a real league's
+sign-up sheet and late list. The `/join` free agents went onto this search the same day (next section).
+
+### Free agents from `/join` placed by the late-sign-up search (2026-11-19, latest)
+
+The self-hosted league page used to pre-pick each free agent's team by a least-filled rule (smallest roster
+first, ties to the least free-agent experience). It now runs `addLateSignups` from `teams.mjs`:
+
+- **Rostered players are pinned**, free agents are the late sign-ups, friend pairs are `together` groups.
+  Team sizes are evened up (the shortest rosters fill first), each team is capped at the organiser's
+  "Roster size to fill teams up to" (`balanceTeams(..., { capacity })`, a new hard rule that the annealing
+  and the exhaustive check both read), then the gap between the strongest and weakest team total is made as
+  small as it can be.
+- **Tag questions on `/join`.** The organiser types `Woman=F, Goalie=G` (up to 4; a plain label works too)
+  and `/join` shows a checkbox for each. Each tag is spread so its count per team differs by at most one,
+  like the balanced-teams page. The `/admin` list shows each player's answers and the CSV gains a `tags`
+  column.
+- **Optional ratings sheet.** Paste the balanced-teams page's CSV (`Team, Player, Rating, Tag`) in `/admin`:
+  named rostered players count at their rating and tags, and a free agent's experience (1-3) is mapped onto
+  the sheet's range (1 = lowest, 3 = highest). Without it rostered players count as 2 and carry no tags.
+- **Kept only when it is no worse.** Who can be placed at all is still decided by the old rule (a group too
+  big for any team's room stays unplaced with the reason). The search's answer replaces the old picks only
+  if it keeps every tag at least as evenly (tag excess, the sum over tags of how far each tag's per-team
+  spread goes past one) and its gap is no larger; the `/admin` note shows both gaps.
+- **How it was checked** (`eval/free-agent-fit.mjs`, output `eval/free-agent-fit.txt`; invented leagues of
+  4-16 teams with rosters of 6-11, 3-30 free agents, levels 1-3, ~40% ticking Woman and ~10% Goalie, ~20%
+  in friend pairs, half with a cap of 12; 420 cases):
+  - no sheet: cases with a tag split unevenly fall from 25-34 of 60 to 12 (4-6 teams), 32 to 13 of 40
+    (8 teams), 26 to 11 of 30 (12) and 17 to 6 of 20 (16); mean tag excess 0.47-1.23 to 0.20-0.37; mean gap
+    2.58-3.50 to 2.35-3.25.
+  - with a sheet (ratings 1-10, rostered tags random, so most rosters are already uneven): mean gap 21.4-31.0
+    to 18.3-25.6, mean tag excess 3.0-6.2 to 2.1-5.3.
+  - the cap was never broken and friend pairs never split (0 of 420); the search's answer was kept in 410 of
+    420 cases (in the rest the old picks stood). One suggestion took at most 302 ms (16 teams, 30 free
+    agents); the `/admin` page computes it on each load.
+  - Tests: `freeagents.test.mjs` 11 (3 new: tag questions and the form, the fit spreading tagged players
+    under a cap with a pair kept together, a ratings sheet), the server test now sets a tag question through
+    `/admin`, ticks it on `/join` and reads it back in `/admin`.
+
+Limits: the ratings are what the organiser types or a 1-3 self-rating; size and tag rules are weighed the same,
+so with a sheet the smallest roster after placing averaged 0.05-0.15 players smaller than the old rule in
+three of the five sheet rows (it traded a short roster for a tag split). Placing still happens one click at a
+time or all at once; nobody already on a roster is ever moved. Next: a real league's free-agent list.
+
+## Play-off results fill the bracket (2026-11-18, latest)
+
+Until now the bracket stopped at seeding: every later game read "winner of R1M1" for the whole play-off, and the
+organiser redrew the bracket by hand each week. Now a **Play-off results** box (page section 4, the self-hosted
+`/admin` form, and the share link) takes the games as they are played, and the bracket fills in.
+
+- **What you type.** One game per line, any order: `Hawks 2 - 1 Owls`, `Hawks beat Owls` (no score),
+  `Hawks w/o Owls`, the league formats (`Owls lost to Hawks 1-2`), or a level score with the winner in brackets,
+  `Hawks 1 - 1 Owls (Hawks on penalties)`. A level score with no winner named is refused, since a play-off game
+  needs one. Names are matched case-blind against the play-off teams.
+- **How a line finds its game.** `playBracket(bracket, text)` in `calc.mjs` walks the bracket in round order and
+  gives each game whose two teams are known the first unused line naming that pair. So lines can be pasted in any
+  order, and a pair that meets twice (in double elimination: a winners-bracket game and the grand final, or the
+  grand final and its reset) takes its lines in the order typed. Winners fill `winner of` slots, losers fill
+  `loser of` slots (the losers' bracket and the third-place game), and the reset game is marked *not needed* when the
+  winners-bracket team takes the grand final.
+- **What it shows.** Each played game as `R1M2: #2 Owls 1 - 1 #3 Lynx (Lynx on penalties) -> Lynx`, later games with
+  the teams now known (`R2M1: #1 Hawks vs #3 Lynx`), then `Next up: ...` or, once decided, `Champion: Hawks.
+  Runner-up: Lynx. Third: Owls.` The same text goes to the league page download, the plain-text export and the
+  self-hosted `/league` page. A line that fits no game due is named with its line number (`no game between Hawks and
+  Bears is due in the bracket (check the earlier rounds' results and the spelling)`) on the page and in `/admin`.
+- **Kept apart from the table.** Play-off results never reach the standings, so the seeding cannot move under the
+  bracket once the play-off starts. "Start next season" clears them with the other results.
+- **Alternatives:** Challonge and similar bracket sites (a separate account and a second place to type the results),
+  or redrawing the bracket in a spreadsheet each round; league platforms do this on paid plans. Here the bracket
+  seeded from your own table carries on to the champion in the same page.
+- **Checked:** `playoff-results.test.mjs` (6 tests). Every single-elimination size from 2 to 24 teams, with and
+  without a third-place game, played out with random winners in five typing styles: every game played exactly once,
+  one champion with no losses, every other team out after one loss (two for the third-place loser), and the same
+  bracket text when the lines are shuffled. Double elimination at 3 to 20 teams, six random play-outs each (108):
+  the champion lost at most once and every other team exactly twice, the reset played or dropped as the grand final
+  fell (both seen), the game count equal to `games` or `maxGames`, and the same champion from shuffled lines. Plus
+  the error lines, penalties, the share link, and the self-hosted `buildLeague` path; and clicked in Chromium (6 teams,
+  4-team play-off with a third-place game: champion, runner-up, third and the bad line shown). Made-up leagues only;
+  no real league has used it yet.
+
+## Promotion and relegation into next season (2026-11-18)
+
+Leagues with tiers (Premier, Division 1, Division 2: darts, pool, squash, social football, pickleball ladders)
+end every season the same way: the organiser reads the tables, moves the top team of each division up and the
+bottom team down, handles the play-off, drops the teams that are not coming back, slots in new entrants, and
+retypes every division. On the multi-division page this is now one box under the play-off seeding.
+
+- **What it does.** `divisionsPromotion(schedule, standings, { ladder, up, down, playoff, winners, leaving, joining })`
+  in `divisions.mjs` takes the standings (`divisionsStandings`) and a ladder (`Premier > Division 1 > Division 2`;
+  blank means every division in the order listed). The top `up` teams of each division below the top move up one
+  tier and the bottom `down` teams of each division above the last move down one; up and down can differ (two up,
+  one down grows the top division). Divisions not in the ladder (age groups) are copied unchanged, and `(double)`
+  stays on its division. With `playoff`, each line also gets a play-off between the last team that stays up and
+  the first that stays down; until a winner is named the upper team keeps its place and the play-off is listed as
+  still to play. It returns the text for the divisions box, a line per move with the reason (`A5: Premier ->
+  Division 1 (place 5 of 5, relegated)`), and warnings.
+- **Never guesses.** Games still to play in a ladder division, and two teams level on every tie-break at a
+  promotion, relegation or play-off line (the tie-break notes' "entry order" case), come back as warnings to settle
+  first. A move that would put two teams of one name in a division, a count larger than the division, a division
+  left with fewer than two teams, an unknown ladder division or play-off winner: an error, and no text is made.
+- **Page.** "Next season: promotion and relegation" on `multi-division-league-schedule.html`: ladder, numbers up
+  and down, the play-off tick and winners, teams not returning, new teams; **Show next season's divisions**, then
+  **Start next season with these divisions** puts them in step 1 and clears results, rainouts, blackouts and the
+  start date. CLI: `node divisions.mjs spec.json --results results.txt --promote [N]` (spec fields `ladder`,
+  `promote`, `relegate`, `playoff`, `playoffWinners`, `leaving`, `joining`).
+- **Alternatives.** A spreadsheet the organiser edits by hand; League Republic, Pitchero and similar club sites
+  carry tables and fixtures across seasons on their own accounts and plans. This is the move itself, checked, from
+  the table you already have, with nothing uploaded.
+- **Checked.** `promotion.test.mjs` (6 tests on a made-up three-tier league plus an age-group division: one up and
+  one down with every team once and sizes kept; two up and one down; play-off pending and decided; games left and a
+  boundary level on every tie-break warned; leaving, joining, a name clash and impossible counts refused; the CLI),
+  and clicked in Chromium (`eval/promotion-click.mjs`, output in `eval/promotion-click.txt`: show, start next season,
+  the box holds the moved teams and the new entrant, results cleared, the new season builds). Made-up leagues only;
+  no real league's end-of-season moves compared yet.
+
+## Time and court limits: kept exactly, and the impossible ones named first (2026-11-18, latest)
+
+A captain's request ("Aces can only play at 18:30", "Slice Squad needs Court 2") was a heavy penalty inside the slot annealing: usually kept, never guaranteed, and when a set of requests could not all be kept the page only said afterwards that a team "only plays at 20:00, but is at 18:30", without saying why.
+
+- **Exact per round.** After the annealing, any round that still breaks a limit is checked exactly: matches against the round's open slots as a bipartite matching (`legalRoundSlots`, Kuhn's augmenting paths starting from the annealed slots, so legal matches move only when they must). If a legal assignment exists the round takes it. One-game nights only; doubleheader nights keep the annealing (their team-clash rule is not a matching).
+- **Named before the build.** `limitConflicts(teams, { times, courts, timeLimits, courtLimits })` finds limits no schedule can keep: two limited teams with no time (or court) in common, whose match breaks one limit wherever it goes; and more teams limited to a set of times than those times hold (k teams need ceil(k/2) slots even when all paired together, k when none are). Each becomes the first notice on the page ("Limits that cannot all be kept: Aces only plays at 18:30 and Topspin only at 20:00, ... Give one of them a time the other can play.").
+
+Measured on 300 random leagues (6-16 teams, 1-3 courts, 1-5 random time or court limits; `node eval/limit-conflicts.mjs`, `eval/limit-conflicts.txt`): rounds with a legal assignment that kept a limit broken, 1 of 3,033 before and 0 of 3,033 after. Of the 90 leagues where some round could not keep every limit, 87 are named by `limitConflicts` before the build and 3 are not (crowding that depends on which teams meet in a round); no league was named that could keep every limit. Of the 149 rounds that could not, 139 hold a pair with no shared time or court and 10 are crowded. Tests: `limit-conflicts.test.mjs`. New guide: `tennis-league-schedule.html` (8 teams, two early-only teams and a one-court team, every limit kept; a test rebuilds its table).
+
+## Bowling: fewer weeks on the same pair running, balance kept (2026-11-18)
+
+A bowler notices two things about lanes: getting one pair more often than the others, and getting
+the same pair two weeks running. The page put balance first, so its seasons with the hardest
+balance had the most repeats: the stored SAT answers (seasons where the weeks divide evenly by the
+pairs, so every team must bowl every pair exactly W/P times) came out of the solver with 9 to 39
+repeats against 6 to 21 for the search's own seasons. The polish could not fix that: it never lets
+a count leave its target, and when every count is pinned a single swap of two matches in a week
+moves four teams' counts. Two changes:
+
+- **A repeat anneal** (`cutRepeats` in `bowling.mjs`, on by default; `assignLanes(..., { anneal:
+  false })` turns it off). Same move (two matches of one week trade pairs), priced 1 per
+  out-of-bounds count plus 1 per back-to-back repeat, accepted by the Metropolis rule at a
+  temperature falling from 0.6 to 0.05 over 600,000 steps (`ANNEAL_STEPS`). Counts may leave the
+  target on the way; only seasons with every count back in target are kept, so the result is
+  never less balanced than the input (and with every count at floor or ceil, each team's squared
+  spread is fixed too). Weights and temperature were tuned on the 36-season grid (weight 3: 369
+  repeats; 2: 332; 1: 269, at 200,000 steps). Deterministic per seed, a step budget not a clock.
+  Lane limits stay hard: a move onto a banned pair is never taken.
+- **Stored answers re-solved with a cap on repeats** (`eval/bowling-repeat-sat.py`): the
+  encoding of `eval/bowling-lane-table.py` plus one indicator per team, week and pair for "this
+  pair this week and the next", counted by a totalizer, and the cap lowered one solve at a time
+  until UNSAT or a 400 s timeout. `eval/bowling-repeat-merge.mjs` keeps, per season, the answer
+  with fewer repeats, re-checked at the bound. Six seasons the search already reached at the
+  bound but with many repeats were added (6 x 30, 8 x 32, 10 x 30, 18 x 26, 20 x 32, 14 x 34).
+  Each entry was then judged on the season the page builds from it (`eval/bowling-repeat-table.mjs`
+  run on main and here): three were not kept (20 x 40, where the old entry's page season has
+  fewer; 24 x 26 and 24 x 34, where the search's own seasons beat the stored answers).
+
+**Measured** (`eval/bowling-repeat-sat.txt`, `eval/bowling-repeat-anneal.txt`,
+`eval/bowling-lanes.txt`):
+
+| | seasons | every team at the bound | back-to-back repeats |
+|---|---|---|---|
+| 36-season grid (6-24 teams x 26-34 weeks), before | 36 | 36 | 392 |
+| same, now | 36 | 36 | **148** (13 seasons with none) |
+| stored-answer and pinned seasons (38), before | 38 | 38 | 787 |
+| same, now | 38 | 38 | **439** (8 with none) |
+
+12 teams over 18, 24 and 30 weeks, and 10 teams over 30, now have every team on every pair exactly
+equally often **and never on the same pair two weeks running** (they had 12, 17, 13 and 25). The
+solver proved the least for this round-robin dealing on 9 seasons (0 on seven; 1 for 14 x 14; 4 for
+6 x 30, which had 23). The anneal costs about 0.1 to 0.35 s a season (625 ms to 744 ms on
+average over the grid, `eval/bowling-repeat-anneal.txt`).
+
+Not done: the seasons the solver did not move in 400 s (18 x 27, 20 x 30, 20 x 40, 22 x 23, 24 x
+35: still 18 to 44) need a longer run or a better model (symmetry breaking on the repeat
+indicators, or the count model of eval/bowling-count-model.py with repeats); lane-limit shape
+answers (`bowling-avoid-shapes.mjs`) were not re-solved for repeats; the lane-limit grids
+(`eval/bowling-lane-avoid.txt`, `eval/bowling-avoid-shapes.txt`) were not re-measured for
+repeats (their balance cannot change: the anneal keeps only in-target seasons).
+
+## The bowling page builds in a worker (2026-11-18, latest)
+
+The bowling page ran `bowlingSchedule` on the page thread. Since the most-even-dealing change
+below, a season with five or more limited teams can run several full lane searches, and on the
+slowest measured season (24 teams x 26 weeks, six teams off both end pairs) the tab froze for the
+whole build: no scrolling, no clicks, and the "Dealing the lanes..." line was the only sign of life.
+
+The search now runs in a Web Worker (`bowling-worker.mjs`: `bowlingSchedule`, `laneReport` and
+`validateBowling`, results posted back as plain data). The page shows a seconds counter while it
+works, a newer click (Build again, Reshuffle) terminates the older search so its result never
+lands, and where a worker cannot start (an old browser, a page opened from disk) it builds on the
+page thread as before. Same inputs, same season: the worker calls the same function.
+
+**Measured** (`node eval/browser-bowling.mjs`, `eval/browser-bowling.txt`, headless Chromium in
+this container; the script runs a 50 ms timer in the page and records the longest gap between
+ticks while the slow season builds):
+
+| | build time | longest page-thread gap |
+|---|---|---|
+| before (page thread; same script on the previous page) | 7,287 ms | 7,291 ms |
+| after (worker) | 7,172 ms | 53 ms |
+
+The build itself is no faster; the page stays usable while it runs. The script also checks that a
+second click during a search replaces its result (19 checks, all pass). Not done: a Stop button
+(a new click is the only way to cancel), and the round-robin page's other long builds were already
+in workers.
+
+## Five or more limited teams: the most even of several dealings (2026-11-18)
+
+With five or more teams under lane limits there is no stored shape answer, so the page deals teams
+to round-robin slots by search (`feasibleDealing`, below) and used to keep the first dealing whose
+every week had a legal lane deal. Which teams meet in the weeks the limits squeeze decides how
+close each team gets to its even share of pairs, so the first legal dealing was often not the best:
+five teams off the last pair in a 10-team, 26-week season left 2 of 10 teams off target.
+
+`evenDealing` (in `bowling.mjs`) now builds the season on several legal dealings (the first, then
+`feasibleDealing` with seeds 2, 3, ... started from a seeded shuffle) and keeps the one with the
+fewest teams off target, then the fewest off-target counts, then the fewest back-to-back repeats
+(`dealingScore`). It runs only when the first season has a team off target and no stored shape
+answer applies, stops as soon as every team is in target, and caps the number of dealings by the
+season's size (`dealingsFor`: weeks x pairs^2, six on 10 teams, two on 24 teams x 26 weeks), since
+each is a full lane search. Same input, same season. `bowlingSchedule` reports `dealingsTried`;
+`spec.dealings` overrides the cap.
+
+**Measured** (`node eval/bowling-many-limits.mjs`, `eval/bowling-many-limits.txt`; the same 112
+seasons as below, 8 still refused as out of reach; before is the same script on the previous
+`bowling.mjs`, run the same day):
+
+| kind | seasons with every team in target | off-target counts | repeats | ms per season (all kinds) |
+|---|---|---|---|---|
+| five teams, last pair (28) | 22 -> 25 | 11 -> 4 | 409 -> 360 | |
+| six teams, both ends (20 built) | 15 -> 17 | 23 -> 8 | 297 -> 285 | |
+| five or eight teams, a random pair each (56) | 56 -> 56 | 0 -> 0 | 370 -> 370 | |
+| all 104 built | | | | 1,212 -> 1,634 (slowest 5.0 s -> 10.7 s, 24 x 26 six off both ends) |
+
+Seasons that moved: 10 x 26 and 10 x 30 five off the last pair 8/10 -> 10/10, 18 x 26 16/18 ->
+18/18, six off both ends 14 x 30 11/14 -> 12/14, 16 x 30 12/16 -> 16/16, 18 x 30 15/18 -> 18/18,
+24 x 26 20/24 -> 21/24. No season got worse on teams in target; 0 limits broken. With no cap
+(six dealings everywhere) the totals were 26 of 28 and 18 of 20, at 1,959 ms per season and up to
+25 s on one season; the cap keeps the page's wait near what it was. The 142-season grid (at most
+three limited teams, `eval/bowling-lane-avoid.mjs`, before and after run the same day) keeps every
+in-target count (36, 35, 35 and 33 seasons by kind); repeats 528 -> 524 (two teams off the last
+pair) and 370 -> 366 (three random), the rest identical; 947 -> 1,103 ms per season. It uses stored
+shape answers almost everywhere, so the change touches it only on the few seasons without one.
+Tests: `bowling.test.mjs` ("the most even of several legal dealings": 10 x 26 five off the last
+pair, teams off target fall with the default against `dealings: 1`, limits kept, validated, same
+season twice).
+
+Open: the remaining misses (10 x 32, 10 x 34 one team off; 24 x 26 three; 14 x 30 two) with more
+dealings or SAT answers for the 5+ shapes; the bowling page now builds in a worker (section above).
+
+## Five or more limited teams: a refused week re-dealt (2026-11-18)
 
 The stored shape answers cover up to four limited teams; with five or more the page runs the
 search on slot t = team t of the circle method. That dealing can make a week impossible that
@@ -232,7 +1045,7 @@ are every team in target in 56 of 56. Tests: `bowling.test.mjs` (10 x 26 five of
 and 16 x 30 seven off both ends built and still round robins, a feasible season untouched, 8
 teams four off the last pair refused with the new message, its 6-week season dealt).
 
-Open: the dealing search picks the first legal dealing, not the most even one (five teams off
+Open (picking the most even dealing landed the same day, section above): the dealing search picked the first legal dealing, not the most even one (five teams off
 the last pair: 22 of 28 in target); scoring dealings by the search's balance, or SAT answers for
 5+ limited shapes on the misses (14, 16, 18 x 30 with six off both ends).
 

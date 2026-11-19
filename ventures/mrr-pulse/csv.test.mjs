@@ -45,8 +45,9 @@ test("Ended At wins over an earlier Canceled At column, and Created over Start D
 });
 
 test("a JPY export is not multiplied by 100 (red team 2026-11-17)", () => {
-  const { subs } = subsFromCsv("id,amount,interval,created,currency\na,5000,month,2026-01-01,jpy\nb,50,month,2026-01-01,usd\n");
-  assert.deepEqual(subs.map((s) => s.mrr), [5000, 5000]);
+  const read = (row) => subsFromCsv(`id,amount,interval,created,currency\n${row}\n`).subs.map((s) => s.mrr);
+  assert.deepEqual(read("a,5000,month,2026-01-01,jpy"), [5000]);
+  assert.deepEqual(read("b,50,month,2026-01-01,usd"), [5000]);
 });
 
 test("a Trial End (UTC) column is read, so history starts MRR when the trial ends (red team 2026-11-18)", () => {
@@ -87,4 +88,113 @@ test("quantity and blank amount get their own reasons; quantity 0 is a $0 subscr
     { line: 5, why: "amount is empty" },
     { line: 7, why: 'unknown interval "fortnight"' },
   ]);
+});
+
+test("a filled-in end or trial date that is not a date is skipped, not read as still alive (red team 2026-11-18)", () => {
+  const { subs, skipped } = subsFromCsv("id,status,amount,interval,created,ended at,trial end\na,canceled,10,month,2026-01-01,2026-02-30,\nb,canceled,10,month,2026-01-01,soon,\nc,active,10,month,2026-01-01,,2026-13-01\nd,canceled,10,month,2026-01-01,,\ne,canceled,10,month,2026-01-01,2026-03-01,\n");
+  assert.deepEqual(skipped.map((s) => [s.line, s.why]), [[2, "ended at is not a date"], [3, "ended at is not a date"], [4, "trial end is not a date"], [5, "canceled with no end date"]]);
+  assert.deepEqual(subs.map((s) => s.id), ["e"]);
+});
+
+test("an impossible created date is skipped, not rolled into the next month (red team 2026-11-18)", () => {
+  const { subs, skipped } = subsFromCsv("id,amount,interval,created\na,10,month,2025-02-29\nb,10,month,2024-02-29\n");
+  assert.deepEqual(skipped.map((s) => s.why), ["created is not a date"]);
+  assert.deepEqual(subs.map((s) => s.id), ["b"]);
+});
+
+// Red team 2026-11-18 (second pass): an incomplete_expired subscription is one
+// whose first payment never succeeded, so it was never revenue. From the CSV
+// export its end date was dropped (only "canceled" kept one) and mapAt then
+// counted it as live MRR every month from its creation: a $500 row that never
+// paid sat in the headline MRR for seven months.
+test("an incomplete_expired row never counts as MRR", () => {
+  const { subs } = subsFromCsv("id,status,amount,interval,created,ended at\nsub_a,active,100,month,2026-01-05,\nsub_b,incomplete_expired,500,month,2026-03-10,2026-03-11\n");
+  const { months } = backfill(subs, Date.UTC(2026, 9, 15), 10);
+  assert.deepEqual(months.map((m) => m.mrr), Array(10).fill(10000));
+  assert.ok(months.every((m) => m.new <= 10000 && m.churn === 0));
+});
+
+test("rows sharing a subscription id are one subscription with several price lines, not a lost line (red team 2026-11-19)", async () => {
+  const { liveMap, breakdown } = await import("./metrics.mjs");
+  const { subs, skipped } = subsFromCsv("id,status,amount,interval,created\nsub_1,active,10,month,2026-01-05\nsub_1,active,20,month,2026-01-05\nsub_2,active,5,month,2026-02-01\n");
+  assert.equal(skipped.length, 0);
+  assert.equal(subs.length, 2);
+  assert.equal(subs[0].mrr, 3000);
+  const live = liveMap(subs);
+  assert.equal(live.sub_1, 3000);
+  // The headline and the plan breakdown count the same money.
+  assert.equal(Object.values(live).reduce((a, b) => a + b, 0), breakdown(subs).total);
+});
+
+test("a repeated subscription id with a different start, end, status or currency is skipped with a reason (red team 2026-11-19)", () => {
+  const { subs, skipped } = subsFromCsv("id,status,amount,interval,created,ended at,currency\nsub_1,active,10,month,2026-01-05,,usd\nsub_1,active,20,month,2026-03-05,,usd\nsub_1,canceled,20,month,2026-01-05,2026-04-01,usd\nsub_1,active,20,month,2026-01-05,,eur\n");
+  assert.equal(subs.length, 1);
+  assert.equal(subs[0].mrr, 1000);
+  assert.deepEqual(skipped.map((s) => s.line), [3, 4, 5]);
+  assert.ok(skipped.every((s) => /sub_1/.test(s.why)));
+});
+
+// Red team 2026-11-19: the CSV path added MRR across currencies, so $100 and
+// 10,000 yen read as "$200" in the browser demo. The server keeps one currency.
+test("a CSV with two currencies keeps the most common one and skips the rest by line", () => {
+  const { subs, skipped, currency } = subsFromCsv("id,status,amount,interval,created,currency\na,active,100,month,2026-01-05,usd\nb,active,10000,month,2026-01-05,jpy\nc,active,50,month,2026-02-05,USD\n");
+  assert.equal(currency, "usd");
+  assert.deepEqual(subs.map((s) => s.id), ["a", "c"]);
+  assert.equal(skipped.length, 1);
+  assert.equal(skipped[0].line, 3);
+  assert.match(skipped[0].why, /JPY/);
+  const s = summarize(backfill(subs, Date.UTC(2026, 10, 19), 12).months);
+  assert.equal(s.mrr, 15000);
+});
+
+test("a one-currency CSV reports that currency, and a tie goes to the first row's", () => {
+  assert.equal(subsFromCsv("amount,interval,created,currency\n500,month,2026-01-05,jpy\n").currency, "jpy");
+  assert.equal(subsFromCsv("amount,interval,created\n5,month,2026-01-05\n").currency, "usd");
+  const tie = subsFromCsv("amount,interval,created,currency\n5,month,2026-01-05,eur\n5,month,2026-01-05,gbp\n");
+  assert.equal(tie.currency, "eur");
+  assert.equal(tie.subs.length, 1);
+});
+
+test("a status spelled the British way or with a space is read, and an unknown one is skipped, never dropped silently (red team 2026-11-19, second pass)", () => {
+  // "Cancelled" kept the row out of every month: the churned subscription's
+  // MRR vanished from history and its churn was never counted.
+  const { subs, skipped } = subsFromCsv("id,status,amount,interval,created,ended at\na,Cancelled,20,month,2026-01-05,2026-06-10\nb,Past Due,10,month,2026-01-05,\nc,expired,10,month,2026-01-05,2026-03-01\nd,active,10,month,2026-01-05,\n");
+  assert.deepEqual(subs.map((s) => [s.id, s.status, s.endedAt !== null]), [["a", "canceled", true], ["b", "past_due", false], ["d", "active", false]]);
+  assert.deepEqual(skipped, [{ line: 4, why: 'unknown status "expired"' }]);
+  const hist = backfill(subs, Date.UTC(2026, 9, 15), 12).months;
+  assert.equal(hist.find((m) => m.month === "2026-03").mrr, 4000);
+  assert.equal(hist.find((m) => m.month === "2026-06").churn, 2000);
+});
+
+test("a lone CR ends a row without eating the next row's second character", () => {
+  assert.deepEqual(parseCsv("a\rb\nc"), [["a"], ["b"], ["c"]]);
+  assert.deepEqual(parseCsv("x,y\r\n1,2\r\n"), [["x", "y"], ["1", "2"]]);
+});
+
+test("skipped rows come back in line order, currency skips merged with row skips", () => {
+  const { skipped } = subsFromCsv("id,amount,interval,created,currency\na,10,month,2026-01-01,eur\nb,x,month,2026-01-01,usd\nc,10,month,2026-01-01,usd\nd,10,month,2026-01-01,usd\ne,10,month,2026-01-01,eur\nf,y,month,2026-01-01,usd\ng,10,month,2026-01-01,usd\n");
+  assert.deepEqual(skipped.map((s) => s.line), [2, 3, 6, 7]);
+});
+
+// The class behind the "Cancelled" defect: a row that is neither counted nor
+// listed as skipped. Every non-blank row lands in exactly one of the two, and an
+// imported row carries a status the metrics understand.
+test("no row vanishes: every data row is imported or skipped with a reason (fuzzed)", () => {
+  let seed = 11; const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) % 10000) / 10000;
+  const pick = (a) => a[Math.floor(rnd() * a.length)];
+  const statuses = ["active", "Active", "canceled", "Cancelled", "past due", "Past_Due", "trialing", "paused", "unpaid", "incomplete", "incomplete_expired", "expired", "ended", "", "churned"];
+  const amounts = ["10", "0", "", "-5", "abc", "1,200.50", "$29"];
+  const intervals = ["month", "year", "week", "day", "fortnight", ""];
+  const dates = ["2026-01-05", "2026-02-30", "", "soon", "2025-07-01 10:00"];
+  const currencies = ["usd", "eur", ""];
+  for (let round = 0; round < 50; round++) {
+    const n = 1 + Math.floor(rnd() * 12);
+    const lines = ["id,status,amount,interval,created,ended at,trial end,currency"];
+    for (let k = 0; k < n; k++) lines.push([`s${k}`, pick(statuses), `"${pick(amounts)}"`, pick(intervals), pick(dates.slice(0, 4)), pick(dates), rnd() < 0.8 ? "" : pick(dates), pick(currencies)].join(","));
+    const { subs, skipped } = subsFromCsv(lines.join("\n"));
+    assert.equal(subs.length + skipped.length, n, lines.join("\n"));
+    for (const s of skipped) assert.ok(s.why, "every skip says why");
+    // An imported row whose status no rule downstream knows is dropped there.
+    for (const s of subs) assert.ok(["active", "past_due", "unpaid", "canceled", "incomplete", "incomplete_expired", "trialing", "paused"].includes(s.status), `status ${s.status}`);
+  }
 });

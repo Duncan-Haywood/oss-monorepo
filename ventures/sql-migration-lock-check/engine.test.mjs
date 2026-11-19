@@ -659,3 +659,85 @@ test('plain DROP INDEX needs a lock_timeout and counts toward one transaction\'s
   assert.ok(has('DROP INDEX i;', 'no-lock-timeout'));
   assert.ok(has("SET lock_timeout='3s';\nBEGIN;\nDROP INDEX i;\nTRUNCATE b;\nCOMMIT;", 'many-locks-one-transaction'));
 });
+
+// Red team 2026-11-18 (second pass): a stray ROLLBACK before any BEGIN
+// restores the timeout state "at BEGIN", which must start as off. Seeding
+// `sessionAtBegin = true` made the stray ROLLBACK switch the timeout on and
+// silenced every later finding; no test noticed.
+test('a stray ROLLBACK before any BEGIN does not invent a lock_timeout', () => {
+  assert.ok(has(`ROLLBACK;\n${RENAME}`, 'no-lock-timeout'));
+});
+
+// Red team 2026-11-19: every TRUNCATE test above sets a lock_timeout, so
+// TRUNCATE could stop counting as an exclusive-lock statement unseen.
+test('TRUNCATE with no lock_timeout gets the no-lock-timeout risk', () => {
+  assert.ok(has('TRUNCATE audit_log;', 'no-lock-timeout'));
+  assert.ok(!has("SET lock_timeout = '3s';\nTRUNCATE audit_log;", 'no-lock-timeout'));
+});
+
+// Red team 2026-11-19, real defect: setsLockTimeout read the raw statement,
+// comments included, so a comment above `SET lock_timeout` (how most
+// hand-written migrations explain it) hid the SET and every exclusive-lock
+// statement after it got a false no-lock-timeout risk.
+test('a comment before SET lock_timeout does not hide it', () => {
+  for (const sql of [
+    "-- give up fast rather than queue\nSET lock_timeout = '3s';\nDROP TABLE t;",
+    "/* fail fast */ SET lock_timeout = '3s';\nDROP TABLE t;",
+    "SET lock_timeout = /* 3 s */ '3s';\nDROP TABLE t;",
+    "-- one\n-- two\nBEGIN;\n-- local\nSET LOCAL lock_timeout TO '2s';\nDROP TABLE t;\nCOMMIT;",
+  ]) assert.ok(!has(sql, 'no-lock-timeout'), sql);
+});
+
+// Red team 2026-11-19, real defect: only `0`, `0ms`, `0s` and `0min` read as
+// "off", so `'0us'`, `'0h'`, `'0d'`, `'0.0'` and `00` -- all of which
+// PostgreSQL takes as lock_timeout = 0, no timeout -- silenced the risk.
+test('every spelling of a zero lock_timeout counts as no timeout', () => {
+  for (const v of ['0', '00', '0.0', "'0us'", "'0ms'", "'0 ms'", "'0s'", "'0min'", "'0h'", "'0d'", "'0.4ms'", "'400us'", 'DEFAULT', "'-1'"]) {
+    assert.ok(has(`SET lock_timeout = ${v};\nDROP TABLE t;`, 'no-lock-timeout'), v);
+  }
+  for (const v of ['1', "'3s'", "'2 s'", "'1.5s'", "'500ms'", "'1min'", "'1h'", "'1500us'", '3000', "'0.6ms'"]) {
+    assert.ok(!has(`SET lock_timeout = ${v};\nDROP TABLE t;`, 'no-lock-timeout'), v);
+  }
+});
+
+// Red team 2026-11-19. DISCARD ALL resets every session setting, lock_timeout
+// included, exactly as RESET ALL does: a timeout set above it no longer
+// protects what follows.
+test('DISCARD ALL turns lock_timeout off like RESET ALL', () => {
+  assert.ok(has(`SET lock_timeout='3s';\nDISCARD ALL;\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(has(`SET lock_timeout='3s';\ndiscard all\n;\n${RENAME}`, 'no-lock-timeout'));
+  // DISCARD PLANS / SEQUENCES / TEMP leave settings alone.
+  assert.ok(!has(`SET lock_timeout='3s';\nDISCARD PLANS;\n${RENAME}`, 'no-lock-timeout'));
+});
+
+// Red team 2026-11-19. set_config('lock_timeout', v, is_local) is the function
+// form of SET (is_local true = SET LOCAL); a file that used it got a false
+// no-lock-timeout on every exclusive statement below.
+test("SELECT set_config('lock_timeout', ...) counts as SET / SET LOCAL", () => {
+  assert.ok(!has(`SELECT set_config('lock_timeout', '3s', false);\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(!has(`select pg_catalog.set_config( 'lock_timeout' , '5000' , true );\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(has(`SET lock_timeout='3s';\nSELECT set_config('lock_timeout', '0', false);\n${RENAME}`, 'no-lock-timeout'));
+  // is_local true ends at COMMIT, like SET LOCAL.
+  assert.ok(has(`BEGIN;\nSELECT set_config('lock_timeout', '3s', true);\nCOMMIT;\n${RENAME}`, 'no-lock-timeout'));
+  // Another setting is not a lock_timeout.
+  assert.ok(has(`SELECT set_config('statement_timeout', '3s', false);\n${RENAME}`, 'no-lock-timeout'));
+});
+
+// Red team 2026-11-19 (escaped mutants engine.mjs:156 and :215).
+test("lock_timeout in seconds is 1000 ms: '0.0005s' rounds to 0, '0.0006s' to 1 ms", () => {
+  assert.ok(has(`SET lock_timeout = '0.0005s';\n${RENAME}`, 'no-lock-timeout'));
+  assert.ok(!has(`SET lock_timeout = '0.0006s';\n${RENAME}`, 'no-lock-timeout'));
+});
+
+test('a statement of exactly 160 characters is quoted whole; 161 is shortened to 160', () => {
+  const quote = (len) => {
+    const pad = 'x'.repeat(len - 'ALTER TABLE t DROP COLUMN '.length);
+    return analyzeSql(`SET lock_timeout='3s';\nALTER TABLE t DROP COLUMN ${pad};`).findings.find((f) => f.id === 'drop-column').statement;
+  };
+  const at160 = quote(160);
+  assert.equal(at160.length, 160);
+  assert.ok(!at160.endsWith('…'));
+  const at161 = quote(161);
+  assert.equal(at161.length, 160);
+  assert.ok(at161.endsWith('…'));
+});

@@ -1,0 +1,25 @@
+72 survey drills; each grid's verdicts from the dense refits (trim, blind rule and margin as the board's); within 0.5 / 1 ms of true (of builds with a verdict), spread takes named within 1 ms and advised, instant builds advised
+  0,2,3,4,5,6,8            parabola: within 0.5 ms 50/72, within 1 ms 66/72, named and advised 50/66, instant advised 0/6
+  0,2,3,4,5,6,8            spline  : within 0.5 ms 55/72, within 1 ms 66/72, named and advised 50/66, instant advised 0/6
+  0,2,3,4,5,6,7,8          parabola: within 0.5 ms 62/72, within 1 ms 66/72, named and advised 50/66, instant advised 0/6
+  0,2,3,4,5,6,7,8          spline  : within 0.5 ms 66/72, within 1 ms 66/72, named and advised 50/66, instant advised 0/6
+
+Error measures, all builds with a verdict (the Pi's verdicts, rounded to 0.5 ms): builds off by more than 1 ms, mean absolute error, and the same on the spread takes alone
+  0,2,3,4,5,6,8            parabola: off by more than 1 ms 6/72, mean abs 0.443 ms; spread takes off by more than 1 ms 6/66, mean abs 0.483 ms
+  0,2,3,4,5,6,8            spline  : off by more than 1 ms 6/72, mean abs 0.393 ms; spread takes off by more than 1 ms 6/66, mean abs 0.429 ms
+  0,2,3,4,5,6,7,8          parabola: off by more than 1 ms 6/72, mean abs 0.353 ms; spread takes off by more than 1 ms 6/66, mean abs 0.385 ms
+  0,2,3,4,5,6,7,8          spline  : off by more than 1 ms 6/72, mean abs 0.286 ms; spread takes off by more than 1 ms 6/66, mean abs 0.312 ms
+
+By take, parabola (the Pi's verdicts, rounded to 0.5 ms), each grid: within 0.5 ms, then the verdicts
+  0 ms | 0,2,3,4,5,6,8: 6/6 [0 0 0 0 0 0] | 0,2,3,4,5,6,7,8: 6/6 [0 0 0 0 0 0]
+  0.45 ms | 0,2,3,4,5,6,8: 6/6 [0 0 0 0 0 0] | 0,2,3,4,5,6,7,8: 6/6 [0 0 0 0 0 0]
+  1.5 ms | 0,2,3,4,5,6,8: 1/6 [0 0 0 0 1 0] | 0,2,3,4,5,6,7,8: 1/6 [0 0 0 0 1 0]
+  2.35 ms | 0,2,3,4,5,6,8: 2/6 [2 1.5 2 1 1.5 1.5] | 0,2,3,4,5,6,7,8: 2/6 [2 1.5 2 1 1.5 1.5]
+  3.25 ms | 0,2,3,4,5,6,8: 6/6 [3 3 3 3 3 3] | 0,2,3,4,5,6,7,8: 6/6 [3 3 3 3 3 3]
+  4.2 ms | 0,2,3,4,5,6,8: 6/6 [4 4 4 4.5 4 4] | 0,2,3,4,5,6,7,8: 6/6 [4 4 4 4.5 4 4]
+  5.1 ms | 0,2,3,4,5,6,8: 5/6 [5 5 5 5 5 4.5] | 0,2,3,4,5,6,7,8: 5/6 [5 5 5 5 5 4.5]
+  5.95 ms | 0,2,3,4,5,6,8: 6/6 [5.5 5.5 5.5 6 5.5 5.5] | 0,2,3,4,5,6,7,8: 6/6 [5.5 5.5 5.5 6 5.5 5.5]
+  6.1 ms | 0,2,3,4,5,6,8: 3/6 [5.5 5.5 6 5.5 6 6] | 0,2,3,4,5,6,7,8: 6/6 [6 6 6 6 6.5 6]
+  6.6 ms | 0,2,3,4,5,6,8: 2/6 [6 6 6 6.5 6 6.5] | 0,2,3,4,5,6,7,8: 6/6 [6.5 6.5 6.5 6.5 6.5 6.5]
+  7.15 ms | 0,2,3,4,5,6,8: 1/6 [8 8 6.5 8 7 8] | 0,2,3,4,5,6,7,8: 6/6 [7 7 7 7 7 7]
+  7.75 ms | 0,2,3,4,5,6,8: 6/6 [8 8 8 8 8 8] | 0,2,3,4,5,6,7,8: 6/6 [8 8 8 8 8 7.5]

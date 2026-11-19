@@ -12,7 +12,7 @@ tennis practice better:
   machine or a coach, and stays out of keep-out zones around the player and
   the feeder.
 
-**Try the shot planner and route demo in your browser:**
+**Try the shot planner, the drill builder and the route demo in your browser:**
 https://marisstella.app/open-tennis-robots/
 
 Everything is MIT-licensed. You can build it, change it, and **sell it**
@@ -123,6 +123,9 @@ tennisbots collect --balls 60 --practice
 # On the feeder's Raspberry Pi: run a drill on the machine over its serial port
 pip install "tennisbots[serial]"   # or pip install pyserial
 tennisbots run drill.example.json --port /dev/ttyAMA0
+
+# ...or serve a page on the Pi and send drills to it from the drill builder on a phone
+tennisbots serve --port /dev/ttyAMA0     # prints the page's address and the key that starts a drill
 ```
 
 Coordinates are metres. The origin is the centre of the net, x points
@@ -166,6 +169,89 @@ drill.json ──> launcher.aim ──> wheel rpm, angles      catcher.plan (cro
                                                          (controller.py: limits, watchdog, e-stop)
 collector camera ──> vision.Homography ──> collector.Planner ──> drive.PurePursuit ──> ESP32
 ```
+
+## Drill builder on the page (2026-11-18)
+
+The page has a drill builder (`drill.mjs`, `#drills`): tap the court to add balls,
+edit each one's speed, spin and pause, start from five ready-made drills, save the
+`drill.json` that `tennisbots run` plays, open one, or share it as a link (the drill
+is base64 in the link's `#fragment`, so it never reaches a server). Every ball is
+checked the way `host.plan_drill` checks it (the same flight model, the head's
+-15..45 deg / +-30 deg range that the firmware clamps to, the 500-7,000 rpm wheel
+window), but every bad ball is listed at once instead of stopping at the first.
+
+It also estimates how soon after one ball the machine can feed the next, from the
+firmware's own figures: the shuttle's back stroke, the turntable's trapezoidal move
+(60 deg/s, 120 deg/s^2), the elevation actuator's travel through the CAD geometry
+under its pot loop (full speed, then proportional, then the 0.35 duty floor), the
+wheels' power-capped ramp plus a 0.4 s lag and the 150 ms steady hold, and the
+runner's hold after a slow wheel's ball. A pause more than 0.3 s shorter than that
+is marked "may run late"; the runner never feeds early, so such a drill just runs
+slower than written. `drill.test.mjs` pins every constant to `config.py`,
+`host.py` and `controller.py`, and checks the ramp against a step-by-step run of
+the firmware's `WheelRamp` law.
+
+Checked against the real firmware on the simulated feeder (`tests/drill_gap_check.py`,
+every drill's pauses forced to 0.1 s so the machine sets the pace;
+`eval/drill-gap-check-2026-11-18.txt`): on the five presets the estimate of each
+release-to-release time ran 0.20 s long on average (-0.11 to +0.81 s, short on 6
+of 33); on 42 gaps from six seeded random drills written after the model, 0.23 s
+long on average (-0.34 to +0.65 s, short on 9, within 0.3 s on 25). Two model
+fixes came from the first run and are in the shipped estimate: a constant
+9 deg/s tilt read up to 0.9 s short (the pot loop slows over the last 12.5 mm),
+and leaving out the board's 6-revolution steady gate before each stroke read
+every gap short. The wheel term runs long because the board's speed loop follows
+the ramp closer than a plain 0.4 s lag; a 0.25 s lag would centre it on these
+drills, but that would be fitting the simulator, whose wheel physics is itself an
+assumption, so it was left at the simulator's own value. The repository's own
+`drill.example.json` gets one "may run late" mark at 3 s (ball 4, a 3,400 rpm
+change on the top wheel); the simulator feeds it on time, about 0.6 s inside the
+estimate. Not measured on a built machine.
+
+The same work found a crash in the page's shot planner: `sim.mjs`'s `aim` lacked
+`launcher.aim`'s 2026-11-11 check for a bracket that spans a jump (just below,
+the ball hits the net; just above, it lands past the target), so a short, fast
+shot across the court from an offset machine (for example 1 m past the net at
+65-80 km/h from 4 m left) showed "Cannot read properties of undefined". It now
+gives `launcher.aim`'s message, and `sim.test.mjs` checks three such shots.
+
+## Running a drill from the page (2026-11-18)
+
+`tennisbots serve` (`src/tennisbots/remote.py`) runs a small web server on the feeder's
+Pi (Python's standard library, nothing to install past pyserial). The drill builder's
+**Send to my machine** button opens that server's page with the drill in the link's
+fragment (`http://raspberrypi.local:8080/#drill=...`, the same code as a share link).
+A page served over HTTPS cannot call a plain-HTTP address on a home network, so the
+builder hands the drill over by opening the Pi's own page rather than calling it, and
+the drill never touches this site's server.
+
+The Pi's page re-checks the drill with `host.plan_drill` (the runner's own planner) and
+shows each ball's aim and wheel speeds, then runs it with `host.run_drill` on a thread:
+the same aim, settle, feed and release-confirm loop as `tennisbots run`, the same aborts,
+the same calibration-drill hold and shot log (`--shot-log`). It shows a live runner log
+and the result, including the ESC-lag and contact-time survey advice.
+
+- **Stop needs nothing.** Anyone who can open the page can stop the machine. Stop makes
+  the runner's next tick raise its abort, so it sends `ESTOP` (wheels halted, a queued ball
+  dropped). The stop stays latched; **Clear stop** sends `CLEAR_ESTOP`, which the firmware
+  refuses while the physical e-stop or the fob is down, and the page says so.
+- **Start needs a key.** The server makes a random key at start-up and prints it on the
+  Pi's terminal; the page asks for it once. `--no-key` turns that off for a bench with
+  nobody else on the network.
+- **Other web pages cannot drive it.** POSTs must be `application/json` (a cross-site page
+  cannot send that without a CORS pre-flight, which the server never grants), an `Origin`
+  must be the server's own, and the `Host` must be an IP address, `localhost`, a `.local`
+  name or one given with `--allow-host` (which stops DNS rebinding). The page has a strict
+  content security policy.
+
+Tested against the firmware on the simulated feeder (`tests/test_remote.py`, 9 tests): a
+page drill runs clean (4 of 4 balls); Stop after the first ball sends `ESTOP`, no queued
+ball leaves in the next 3 s, Clear is refused with the button held and accepted after,
+and the drill then runs again; a silent board aborts with "no telemetry"; and over real
+HTTP, a missing or wrong key (401), `text/plain` (415), a foreign `Origin` (403) and a
+foreign `Host` (421) each start nothing, while Stop works without the key. Checked in a
+browser against that simulated feeder at phone width. Not yet run on a built machine.
+The physical e-stop and the fob remain the safety stop; this page is a convenience.
 
 ## Running a drill on the machine (2026-11-11)
 
@@ -380,7 +466,9 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
    gives a measured `ReturnDistribution` to replace the guess.
 5. Build the moving base and net. Compare the measured catch rate with the
    simulation.
-6. Phone app for drills (Web Bluetooth or a local web server on the Pi).
+6. Phone app for drills: the page's drill builder (2026-11-18, below) plans, checks
+   and saves drills; sending one straight to the machine (Web Bluetooth or a local
+   web server on the Pi) is still open.
 7. Spin estimation from longer tracks, to cut prediction error on topspin
    returns (the main error source; see `tests/test_robots.py`).
 8. UWB or line-based localisation for the collector on unlit courts.
@@ -394,15 +482,22 @@ catch rate untested, and the base target unclamped in firmware. Both were
 fixed on 2026-11-14: tests now pin the catch window, hand-computed drag and
 Magnus accelerations, exact study counts and the README's 3.0 m / 2.5 m/s
 cell (274 of 300), and `SET_BASE` clamps the target to the +/- 4.0 m rail.
-Still open:
+Both items the audit left open are now closed:
 
-- **The feed interlock** (wheels within 5% of target before a ball is
-  released) lives only in the board layer, `firmware/esp32/main.py`, which
-  no test drives; `safety.md` relies on it.
-- **E-stop reset** takes the button released plus a `CLEAR_ESTOP` from the
-  Pi. That is a separate reset after release, but it can come from a phone
-  or script away from the machine; a reset at the machine (a button on the
-  feeder that must be pressed after release) is the safer design.
+- **The feed interlock** (wheels held within 3% of target before a ball is
+  released; `safety.md` said 5%, the gate's figure before 2026-11-11, until
+  2026-11-18) is driven through `firmware/esp32/main.py` by the simulated board
+  (`tests/feeder_sim.py`): `tests/test_host.py` holds the gate shut after a FEED
+  and checks no ball leaves until it reopens, and caps the wait.
+- **E-stop reset at the machine** (2026-11-18). Releasing the e-stop or the fob
+  no longer re-powers the feeder's motors, and no command from the Pi or a phone
+  can: a latch relay after them is set only by a RESET button on the feeder, and
+  power returns 0.5 s after RESET is let go, never while it is held
+  ([`hardware/electronics.md`](hardware/electronics.md), "Reset at the machine").
+  The CAD build checks the logic (`Feeder.check_estop_reset`), the BOM carries the
+  relay and the button, and the simulated feeder, the drill runner and the phone
+  page all know it (`tests/test_host.py` `ResetAtTheMachineTest`,
+  `tests/test_remote.py`). Not yet wired on a built machine.
 
 ## Safety, warranty, privacy
 

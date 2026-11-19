@@ -4,16 +4,17 @@
 // any NaN/Infinity/undefined/[object Object] that newly appears in visible text, or a
 // new uncaught page error. Only text that was absent before the edit is reported.
 // Usage: [VALS="1e308|99999999999999999999"] node platform/ci/check_input_edges.js out.json [limit]  (VALS: pipe-separated values, default blank|0|-1)
-const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
+// SWEEP_ROOT=ventures/<slug> sweeps one venture. Pages are served over http:// by sweep_server.js: module scripts (1,384 of 1,408 pages) do not load from file:// (2026-11-19).
+const {chromium}=require('playwright');const {serve}=require('./sweep_server.js');const fs=require('fs');const path=require('path');
 const root=process.cwd();
-let files=require('child_process').execSync("find ventures -name index.html -not -path '*/node_modules/*' -maxdepth 3").toString().trim().split('\n').sort();
+let files=require('child_process').execSync(`find ${process.env.SWEEP_ROOT||"ventures"} -name index.html -not -path '*/node_modules/*' -maxdepth 3`).toString().trim().split('\n').sort();
 if(process.argv[3])files=files.slice(0,+process.argv[3]);
 const BAD=/.{0,30}\b(NaN|Infinity|undefined|\[object Object\])\b.{0,30}/;
-(async()=>{const b=await chromium.launch();const ctx=await b.newContext();
-await ctx.route('**/*',r=>r.request().url().startsWith('file:')?r.continue():r.abort());
+(async()=>{const srv=await serve(root);const b=await chromium.launch();const ctx=await b.newContext();
+await ctx.route('**/*',r=>r.request().url().startsWith(srv.base)?r.continue():r.abort());
 const hits=[];let withInputs=0;const q=[...files];
 async function w(){const p=await ctx.newPage();while(q.length){const f=q.shift();const errs=[];p.removeAllListeners('pageerror');p.on('pageerror',e=>errs.push(e.message));
-try{await p.goto('file://'+path.join(root,f),{timeout:8000,waitUntil:'load'});await p.waitForTimeout(100);
+try{await p.goto(srv.url(f),{timeout:8000,waitUntil:'load'});await p.waitForTimeout(100);
 const base=await p.evaluate(()=>document.body?document.body.innerText:'');
 const n=await p.evaluate(()=>[...document.querySelectorAll('input')].filter(i=>['number','text','range',''].includes(i.type)&&!i.readOnly&&!i.disabled).length);
 if(!n)continue;withInputs++;errs.length=0;
@@ -26,4 +27,4 @@ for(const v of (process.env.VALS?process.env.VALS.split('|'):['','0','-1'])){
 }catch(e){}}
 await p.close();}
 await Promise.all(Array.from({length:8},w));
-fs.writeFileSync(process.argv[2],JSON.stringify(hits,null,1));console.log('pages',files.length,'with inputs',withInputs,'hits',hits.length);await b.close();})();
+fs.writeFileSync(process.argv[2],JSON.stringify(hits,null,1));console.log('pages',files.length,'with inputs',withInputs,'hits',hits.length);await b.close();await srv.close();})();

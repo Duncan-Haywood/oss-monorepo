@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtLYMi8rjiJq839MX9U",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T20:07:36Z",
+  "ended": "2026-11-18T20:11:57Z",
+  "wall_minutes": 28.53,
+  "tokens_in": 3807745,
+  "tokens_out": 23634,
+  "cost_usd": 2.0142,
+  "tool_calls": 37,
+  "task": "Deepen (flagship 4) changepoint-detector: per-stretch weekday-or-chain choice for the short-returns pass (README round 3's Next)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17411",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "python3 platform/ci/run_venture_tests.py changepoint-detector exceeds the 120 s foreground timeout (exit 124); the note lists ai-bookkeeper as fine but not this venture's 200+ test files, so I re-ran it in the background."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-changepoint-short-returns-per-stretch.md",
+    "ventures/changepoint-detector/README.md (section 'Short returns: the model chosen per stretch')"
+  ],
+  "goal": null,
+  "notes": "Pre-registered round 4 (commit 73e05bb58 before any cell ran): a weekly-pattern LR (14-param weekday chain vs 2-param chain, chi2(12) 0.999 = 32.909) picks 'dow' or the fallback per stretch. Calibration chose 'dow|chain' at m 3 (R60 198). Confirmation seed 20261225: R1 worst null 0.000, R2 200/200, R3 +200 -> pass. Real seen check J1 on JHU's 8 'more often' events: 3 of 8 (Idaho, Vermont, Michigan), bar 4 -> FAIL, so not offered; SHORT_RETURNS.mult stays null. Post hoc: 5 of 12 J2 returns are same-share weekday reshuffles (85% vs 85%), a null the sims lacked; next round adds a same-count day-shift null and a real-drop guard. Eval took 1218 s on 4 cores. Agent doc: none beyond the README section and flagships.yaml next (the README is this venture's agent doc). Local verification: run_venture_tests.py changepoint-detector ok (903 tests, 207.7 s); check_posts ok; portfolio/router/validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "db82e0d6-3ee0-5aa7-b5bd-18a86d973fea",
+    "transcripts": 1,
+    "first": "2026-11-18T20:07:36Z",
+    "last": "2026-11-18T20:36:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 78,
+        "output": 23634,
+        "thinking": 4943,
+        "cache_read": 3707710,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99957,
+        "api_equivalent_usd": 2.0142,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 78,
+      "output": 23634,
+      "thinking": 4943,
+      "cache_read": 3707710,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99957,
+      "api_equivalent_usd": 2.0142,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.53,
+      "active_minutes": 8.74,
+      "model_minutes": 4.7,
+      "tool_minutes": 4.03,
+      "waiting_on_human_minutes": 19.8,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, pre-register and run a simulation round plus real-data check and write-up, as a statistician would",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 297.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

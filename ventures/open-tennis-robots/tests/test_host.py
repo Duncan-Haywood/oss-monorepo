@@ -46,8 +46,23 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
         sim.run_ms(20)
         self.assertEqual(sim.hw.target_rpm, (0, 0))      # wheels told to stop at the end
         self.assertFalse(sim.ctl.estop)
-        # the ball lift runs on for the balls still coming back, at the duty held to 24 V / the 25.6 V pack reading
-        self.assertEqual(sim.hw.lift_pwm.duty, int(24000 / sim.pack_mv * 65535))
+        # the ball lift runs on for the balls still coming back, at the duty held to 24 V / the 25.6 V pack reading.
+        # Checked inside the run-on: since 2026-11-18 (SURVEY_QUEUE 3, README "A queued survey's heap") the Pi's wait
+        # for the last balls' surveys can outlast the 16 s after the last ball, and the lift has then rightly stopped.
+        on_s = sim.clock() - sim.released[-1][0]
+        if on_s < 15.9:
+            self.assertEqual(sim.hw.lift_pwm.duty, int(24000 / sim.pack_mv * 65535))
+        else:
+            self.assertEqual(sim.hw.lift_pwm.duty, 0)
+            sim2, wait = SimFeeder(elev_mode=mode), host.ESC_SURVEY_S
+            host.ESC_SURVEY_S = 0.0                  # the same drill without the end wait: the lift still running
+            try:
+                r2, _ = run(sim2, drill())
+            finally:
+                host.ESC_SURVEY_S = wait
+            self.assertTrue(r2.ok, r2.aborted)
+            self.assertLess(sim2.clock() - sim2.released[-1][0], 15.9)
+            self.assertEqual(sim2.hw.lift_pwm.duty, int(24000 / sim2.pack_mv * 65535))
         sim.run_ms(3100)
         self.assertEqual(sim.hw.agit_pwm.duty, 0)        # the agitator stops once no ball is wanted
 
@@ -109,8 +124,12 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
         self.assertEqual(sim.hw.az_enable.v, 1)
         self.assertFalse(sim.hw.azim.homed)
         self.assertEqual(sim.hw.feeding, 0)
-        sim.fob_cut = False                               # fob released: the bus returns, but nothing was queued
+        sim.fob_cut = False                               # fob released: the bus stays off until RESET (2026-11-18)
         sim.run_ms(2000)
+        self.assertTrue(sim.hw.flags() & P.FLAG_BUS_OFF)
+        sim.press_reset()                                 # RESET at the machine: the bus returns, but nothing was queued
+        sim.run_ms(2000)
+        self.assertFalse(sim.hw.flags() & P.FLAG_BUS_OFF)
         self.assertEqual(len(sim.released), 2)
 
     def test_lost_feed_frame_aborts_and_drops_the_queued_ball(self):
@@ -195,6 +214,55 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
             host.plan_drill({"shots": [{"x": 9.5, "y": 0, "speed": 20}, {"x": 9.5, "y": 0, "speed": 80}]})
 
 
+class ResetAtTheMachineTest(unittest.TestCase):
+    """2026-11-18 (hardware/electronics.md "Reset at the machine"): after the e-stop or the fob, releasing it and a
+    CLEAR_ESTOP from the Pi are not enough to power the motors; RESET pressed at the feeder is."""
+
+    def _estop_and_release(self, sim, what):
+        res, _ = run(sim, drill()[:1])
+        self.assertTrue(res.ok, res.aborted)
+        setattr(sim, what, True)
+        sim.run_ms(200)
+        setattr(sim, what, False)
+        sim.write(P.encode(P.CLEAR_ESTOP))
+        sim.run_ms(1000)
+
+    def test_release_and_clear_leave_the_bus_off_and_a_drill_says_press_reset(self):
+        for what in ("estop_button", "fob_cut"):
+            sim = SimFeeder()
+            self._estop_and_release(sim, what)
+            self.assertFalse(sim.ctl.estop)                       # the board's own stop is cleared
+            self.assertTrue(sim.hw.flags() & P.FLAG_BUS_OFF)      # but the contactor is open
+            n = len(sim.released)
+            res, _ = run(sim, drill())
+            self.assertFalse(res.ok)
+            self.assertIn("press and let go of RESET on the feeder", res.aborted)
+            self.assertEqual(len(sim.released), n)
+            sim.run_ms(20)
+            self.assertTrue(sim.ctl.estop)                        # the aborted connect sent ESTOP, as any abort does
+            sim.press_reset()                                     # RESET at the machine, then Clear stop as usual
+            sim.write(P.encode(P.CLEAR_ESTOP))
+            sim.run_ms(300)
+            res, _ = run(sim, drill())
+            self.assertTrue(res.ok, res.aborted)
+            self.assertEqual(len(sim.released), n + 4)
+
+    def test_reset_does_nothing_while_the_estop_is_down(self):
+        sim = SimFeeder()
+        sim.estop_button = True
+        sim.press_reset()
+        sim.estop_button = False
+        sim.run_ms(500)
+        self.assertTrue(sim.hw.flags() & P.FLAG_BUS_OFF)
+
+    def test_old_wiring_comes_back_on_release(self):
+        sim = SimFeeder(reset_latch=False)
+        self._estop_and_release(sim, "estop_button")
+        self.assertFalse(sim.hw.flags() & P.FLAG_BUS_OFF)
+        res, _ = run(sim, drill())
+        self.assertTrue(res.ok, res.aborted)
+
+
 class ShuttleTimesTest(unittest.TestCase):
     def test_simulated_shuttle_moves_at_the_cad_stroke_times(self):
         import feeder_sim
@@ -274,6 +342,29 @@ class WheelLoopTest(unittest.TestCase):
             self.assertEqual(loop.update(8500, 0, 10), 1.0)
         self.assertEqual(loop.i, 0.0)
 
+    def test_speed_esc_drops_the_proportional_term(self):
+        # README "An ESC with its own speed loop": in cascade with an ESC that holds its own speed the board only trims
+        loop = controller.WheelLoop(9000, speed_esc=True)
+        self.assertAlmostEqual(loop.update(3000, 2900, 10) - 3000 / 9000,
+                               6e-7 * controller.SPEED_ESC_KI_SHARE * 100 * 10)
+        self.assertEqual(controller.WheelLoop(9000).kp, 2e-4)      # off by default (controller.ESC_SPEED_LOOP)
+
+    def test_speed_esc_loop_holds_a_speed_loop_wheel_the_pi_rings(self):
+        # tests/speed_esc_sweep.py's case: a 5 Hz, damping 0.4 ESC loop at 2,500 rpm whose map is 11,000 rpm at full
+        # throttle against the 9,000 the board is told
+        import loop_residual_sweep as sweep
+        def swing(speed_esc):
+            ws = []
+            sweep.wheel(2500, 0.0, 0.4, free_rpm=11000.0, ball_ms=10 ** 9, total_ms=6000, speed_loop=(5, 0.4, 22500.0),
+                        loop=controller.WheelLoop(9000, speed_esc=speed_esc), settled=False, speeds=ws)
+            last = ws[-1000:]
+            return (max(last) - min(last)) / 2500, sum(last) / len(last) / 2500 - 1
+        rings, _ = swing(False)
+        held, err = swing(True)
+        self.assertGreater(rings, 0.05)
+        self.assertLess(held, 0.002)
+        self.assertLess(abs(err), 0.002)
+
     def test_slow_targets_scale_the_gains(self):
         # README "Slow wheels need slower gains": under LOOP_LOW_RPM both gains shrink with the target
         fast, slow = controller.WheelLoop(9000), controller.WheelLoop(9000)
@@ -318,6 +409,34 @@ class WheelLoopTest(unittest.TestCase):
         self.assertEqual(moved.recover, 2)
         moved.update(4000, 2100, 10)               # the Pi sent the next shot's speeds: the hold ends
         self.assertEqual(moved.recover, 0)
+
+    def test_ball_gain_softens_only_a_wheel_faster_than_told(self):
+        # firmware/esp32/README.md "The ball hold on a wheel faster than told": the stroke latches (ff + i) / ff and
+        # scales the gains by it, capped at 1 ("down"), until the hold ends
+        fast = controller.WheelLoop(9000, ball_gain="down", low_rpm=0)
+        fast.update(3000, 3000, 10)
+        fast.i = -0.2 * 3000 / 9000                 # the integrator learned a wheel 1.25x faster than told
+        fast.ball()
+        self.assertAlmostEqual(fast.gain, 0.8)
+        cmd = fast.update(3000, 2000, 10)
+        self.assertAlmostEqual(cmd, 3000 / 9000 + 0.8 * fast.kp * 1000 + fast.i, places=9)
+        fast.update(3000, 3000, 10)                 # back at target: the hold ends, so do the scaled gains
+        self.assertEqual((fast.recover, fast.gain), (0, 1.0))
+        slow = controller.WheelLoop(9000, ball_gain="down")
+        slow.update(3000, 3000, 10)
+        slow.i = 0.2 * 3000 / 9000                  # slower than told: "down" leaves its gains alone
+        slow.ball()
+        self.assertEqual(slow.gain, 1.0)
+        both = controller.WheelLoop(9000, ball_gain=True)
+        both.update(3000, 3000, 10)
+        both.i = 0.2 * 3000 / 9000
+        both.ball()
+        self.assertAlmostEqual(both.gain, 1.2)
+        off = controller.WheelLoop(9000, ball_gain=False)
+        off.update(3000, 3000, 10)
+        off.i = -0.1
+        off.ball()
+        self.assertEqual(off.gain, 1.0)
 
     def test_braking_does_not_wind_the_integrator(self):
         # README "A ball charged the integrator", braking: while the ramp lowers the target the integrator holds, and
@@ -610,6 +729,7 @@ class LiftJamTest(unittest.TestCase):
         sim.estop_button = True                      # a person presses the e-stop: the contactor drops the bus
         self._beat(sim, 200)
         sim.estop_button = False
+        sim.press_reset()
         sim.write(P.encode(P.CLEAR_ESTOP))
         self._beat(sim, 400)
         self.assertFalse(hw.flags() & P.FLAG_LIFT_JAM)
@@ -665,6 +785,7 @@ class LiftJamTest(unittest.TestCase):
             sim.estop_button = True
             self._beat(sim, 200)
             sim.estop_button = False
+            sim.press_reset()
             sim.write(P.encode(P.CLEAR_ESTOP))
             self._beat(sim, 600)
             logs = []
@@ -1503,6 +1624,23 @@ class EscSurveyTest(unittest.TestCase):
         self.assertEqual(i, 1)
         self.assertTrue(0 <= ref <= 50000)
 
+    def test_spline_pick_finds_a_v_between_grid_lags(self):
+        # README "The ESC-lag survey's pick between grid lags": a V-shaped, lopsided sum curve (as the residuals are)
+        # with its least at 40 ms: the spline reads it within 5%
+        import math
+        g = controller.ESC_SURVEY_GRID_US
+        sums = [(1.0 + 30 * abs(math.log((v + 10000) / 50000.0))) ** 2 for v in g]
+        self.assertEqual(controller.survey_spline_pick(g, [0.0] * 7), (None, None))
+        self.assertEqual(controller.survey_spline_pick(g, [1, 2, 3, 4, 5, 6, 7]), (0, 0.0))
+        self.assertEqual(controller.survey_spline_pick(g, [7, 6, 5, 4, 3, 2, 1]), (6, 400000.0))
+        i, ref = controller.survey_spline_pick(g, sums)
+        self.assertEqual(i, 2)
+        self.assertTrue(20000 <= ref <= 100000)                     # inside the neighbours' span
+        self.assertLess(abs(ref - 40000), 0.05 * 40000)
+        # an exact parabola in log(lag + 10 ms) has its least where the spline says
+        sq = [(math.log(v + 10000) - math.log(70000)) ** 2 + 1 for v in g]
+        self.assertAlmostEqual(controller.survey_spline_pick(g, sq)[1], 60000, delta=3000)
+
     def test_board_surveys_a_drill_and_the_pi_reads_it(self):
         import esc_survey_sweep as S
         sim = S.sim_for({"esc_tau_s": 0.08}, 0.4, 0.95, 0.65)
@@ -1553,6 +1691,37 @@ class EscSurveyTest(unittest.TestCase):
         self.assertEqual(len(list(it)), 9)
         self.assertEqual(lc.survey_cut, cut)
 
+    def test_packed_ticks_read_back_as_the_tuples(self):
+        # 2026-11-18 (README "A queued survey's heap"): a queued survey's tick logs are packed into arrays; they must
+        # iterate as the very tuples they were made from, and an empty log stays falsy.
+        log = [(12, 340, 0.4125), (13, 0, 0.5), (15, 1999, 0.0)]
+        packed = controller.PackedTicks(log)
+        self.assertEqual(list(packed), log)
+        self.assertEqual(len(packed), 3)
+        self.assertFalse(controller.PackedTicks([]))
+        both = controller.pack_ticks([log, packed])
+        self.assertIs(both[1], packed)
+        self.assertEqual(list(both[0]), log)
+
+    def test_queued_surveys_hold_packed_ticks(self):
+        import esc_survey_sweep as S
+        sim = S.sim_for({}, 0.4, 0.95, 0.65)
+        lc = sim.hw.launch
+        held = []
+        orig = controller.LaunchCheck.queue_survey
+
+        def queue(self, survey):
+            held.append(survey.gi_frame.f_locals["ticks"])
+            return orig(self, survey)
+        controller.LaunchCheck.queue_survey = queue
+        try:
+            S.drill(sim, "drill.example.json")
+        finally:
+            controller.LaunchCheck.queue_survey = orig
+        self.assertTrue(held)
+        self.assertTrue(all(isinstance(t, controller.PackedTicks) for ticks in held for t in ticks))
+        self.assertTrue(all(isinstance(t, controller.PackedTicks) for t in lc.last_ticks))
+
     def test_waiting_surveys_queue_and_the_oldest_gives_way(self):
         import esc_survey_sweep as S
         lc = S.sim_for({}, 0.4, 0.95, 0.65).hw.launch
@@ -1563,12 +1732,13 @@ class EscSurveyTest(unittest.TestCase):
                 ran.append(name)
                 yield None
         lc.queue_survey(survey("a", 2))
-        for name in "bcd":                        # b and c each give way to the next; d waits behind a
+        names = [chr(ord("b") + i) for i in range(controller.SURVEY_QUEUE + 1)]
+        for name in names:                        # the first two give way to later ones; the rest wait behind a
             lc.queue_survey(survey(name, 1))
         self.assertEqual((lc.survey_cut, len(lc.survey_queue)), (2, controller.SURVEY_QUEUE - 1))
         while lc.step():
             pass
-        self.assertEqual(ran, ["a", "a", "d"])
+        self.assertEqual(ran, ["a", "a"] + names[2:])
         self.assertIsNone(lc.surveying)           # the running survey, then each waiting one, ran to the end
 
     def test_advice_waits_for_enough_wheels_and_frame_round_trips(self):
@@ -1895,21 +2065,33 @@ class SpreadTakeTest(unittest.TestCase):
         _, front = self._take(4.0, "front")
         self.assertLess(front[0], half[0])                         # 7/16 of it in the first ms against 15%
 
+    def test_half_sine_offsets_carry_the_profiles_spread(self):
+        # 2026-11-18, firmware/esp32/README.md "The take fit's four parts and its high reading"
+        half_sine_var = 0.25 - 2.0 / math.pi ** 2
+        for parts in (4, 8):
+            xs = [o / 4000 for o in controller.take_offsets(4000, "halfsine", parts)]
+            self.assertAlmostEqual(sum(xs) / parts, 0.5, places=9)               # centred on the take's middle
+            self.assertAlmostEqual(sum((x - 0.5) ** 2 for x in xs) / parts, half_sine_var, places=9)
+            self.assertTrue(all(0 < x < 1 for x in xs))
+        old = [o / 4000 for o in controller.take_offsets(4000, match_spread=False)]
+        self.assertAlmostEqual(sum((x - 0.5) ** 2 for x in old) / 4, 0.0397, places=4)  # the midpoints, as before
+        self.assertEqual(controller.take_offsets(0), ())
+
 
 class TakeSurveyTest(unittest.TestCase):
     """2026-11-17, firmware/esp32/README.md "The contact time surveyed on the board": with SURVEY_TAKE on, the board
-    refits each launched wheel at seven contact times, the TAKE_SURVEY frame carries the sums to the Pi, and the Pi says
+    refits each launched wheel at nine contact times (seven before 2026-11-19, then eight that day), the TAKE_SURVEY frame carries the sums to the Pi, and the Pi says
     which TAKE_US the balls pick."""
 
     def test_frames_round_trip(self):
         (cmd, vals), = list(P.Decoder().feed(P.encode(P.SURVEY_TAKE, 1)))
         self.assertEqual((cmd, vals), (P.SURVEY_TAKE, (1,)))
-        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 650, 620, 600, 590, 588, 640, 9)
+        frame = P.encode(P.TAKE_SURVEY, 24, 60, 57, 0, 700, 640, 625, 620, 600, 590, 588, 610, 640, 9, 10)
         (cmd, vals), = list(P.Decoder().feed(frame))
-        self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 5 + P.TAKE_SURVEY_TIMES))
-        self.assertEqual(vals[-1], 9)                              # wheels summed (2026-11-18)
+        self.assertEqual((cmd, vals[:4], len(vals)), (P.TAKE_SURVEY, (24, 60, 57, 0), 6 + P.TAKE_SURVEY_TIMES))
+        self.assertEqual(vals[-2:], (9, 10))                       # wheels summed (2026-11-18), tenths (2026-11-19)
         self.assertEqual(len(controller.TAKE_SURVEY_GRID_US), P.TAKE_SURVEY_TIMES)
-        self.assertEqual(tuple(g // 1000 for g in controller.TAKE_SURVEY_GRID_US), host.TAKE_SURVEY_MS)
+        self.assertEqual(tuple(g / 1000 for g in controller.TAKE_SURVEY_GRID_US), host.TAKE_SURVEY_MS)
 
     def test_advice(self):
         sv = {"wheels": 24, "least_ms10": 60, "refined_ms10": 57, "board_ms10": 0,
@@ -1924,6 +2106,58 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("keep TAKE_US = 0", host.take_survey_advice(flat))
         self.assertIn("only 25% less", host.take_survey_advice(flat))
         self.assertIn("set TAKE_US = 0", host.take_survey_advice(dict(sv, least_ms10=0, refined_ms10=0, board_ms10=40)))
+        # the grid's last contact time (2026-11-18, README "The take survey's pick between contact times"): 7 ms read 8
+        end = dict(sv, least_ms10=80, refined_ms10=80, rms_ppm=[136, 130, 120, 110, 100, 90, 40])
+        self.assertIn("about 7 ms or longer", host.take_survey_advice(end))
+        self.assertIn("set TAKE_US = 8000", host.take_survey_advice(end))
+        self.assertIn("already matches", host.take_survey_advice(dict(end, board_ms10=80)))
+
+    def test_share_bound_from_whole_ppm(self):
+        # the sub-8 instant build (2026-11-19, README "The sub-8 advised instant build was the frame's rounding"): the
+        # frame carried 7 and 4 ppm, 0.571, where the board's sums gave 0.635; the frame allows up to 4.5 / 6.5
+        self.assertAlmostEqual(host.take_share_bound([7, 8, 6, 4, 26, 54, 132]), 4.5 / 6.5)
+        self.assertGreater(host.take_share_bound([7, 8, 6, 4, 26, 54, 132]), host.TAKE_ADVISE_RATIO)
+        self.assertLess(host.take_share_bound([136, 140, 119, 98, 95, 50, 112]), host.TAKE_ADVISE_RATIO)
+        self.assertEqual(host.take_share_bound([0, 0, 0]), 1.0)
+        self.assertEqual(host.take_share_bound([]), 1.0)
+        # shipped by its pre-registered rule (eval/take-share-rounding-2026-11-19.md): no advice on that build
+        sv = {"wheels": 22, "least_ms10": 30, "refined_ms10": 35, "board_ms10": 0, "rms_ppm": [7, 8, 6, 4, 26, 54, 132]}
+        got = host.take_survey_advice(sv)
+        self.assertIn("keep TAKE_US = 0", got)
+        self.assertIn("too close to the frame's 1 ppm", got)
+        self.assertNotIn("set TAKE_US = 3", got)
+
+    def test_instant_verdict_names_its_bound(self):
+        # 2026-11-19 (README "Short takes that read 0: no ball saw them"): a TAKE_US = 0 verdict names the first
+        # candidate that fits clearly worse than the step, the longest take these balls cannot tell from an instant one
+        shelf = {"wheels": 22, "least_ms10": 0, "refined_ms10": 0, "board_ms10": 0,
+                 "rms_ppm": [100, 100, 112, 128, 160, 200, 250, 300, 350]}
+        self.assertEqual(host.take_survey_bound(shelf), 2.5)
+        a = host.take_survey_advice(shelf)
+        self.assertIn("keep TAKE_US = 0", a)
+        self.assertIn("up to 2.5 ms", a)
+        self.assertIn("up to 1.5 ms", host.take_survey_advice(dict(shelf, rms_ppm=[100, 103] + [150] * 7)))
+        # a share over the margin is told TAKE_US = 0 too, and carries the bound
+        flat = dict(shelf, least_ms10=30, refined_ms10=26, rms_ppm=[100, 99, 95, 90, 101, 120, 150, 180, 200])
+        self.assertIn("up to 5 ms", host.take_survey_advice(flat))
+        # every candidate within the tolerance: the balls bound nothing, and the line says nothing more
+        self.assertIsNone(host.take_survey_bound(dict(shelf, rms_ppm=[100] * 9)))
+        self.assertNotIn("up to", host.take_survey_advice(dict(shelf, rms_ppm=[100] * 9)))
+        # older frames read on their own grid (eight: 0, 2-8 ms)
+        self.assertEqual(host.take_survey_bound(dict(shelf, rms_ppm=[100, 101, 130, 140, 150, 160, 170, 180])), 3.0)
+        # a pick the Pi acts on is not given a bound
+        self.assertNotIn("up to", host.take_survey_advice(dict(shelf, least_ms10=40, refined_ms10=40,
+                                                               rms_ppm=[100, 90, 80, 50, 30, 60, 90, 120, 150])))
+        # a ppm floor (2026-11-19, README "A ppm floor on the bound"): at a 16 ppm step, 17 (at 2.5 ms) is 6% over but one ppm
+        # of the frame's rounding, so the bound moves on to the first candidate at least 2 ppm over
+        low = dict(shelf, rms_ppm=[16, 16, 17, 19, 21, 25, 30, 35, 40])
+        self.assertEqual(host.take_survey_bound(low), 3.0)
+        self.assertIn("up to 3 ms", host.take_survey_advice(low))
+        import take_shelf_bound
+        for rms in ([100, 100, 112, 128, 160, 200, 250, 300, 350], [100, 103] + [150] * 7, [100] * 9,
+                    [16, 16, 17, 19, 21, 25, 30, 35, 40]):
+            self.assertEqual(host.take_survey_bound(dict(shelf, rms_ppm=rms)),
+                             take_shelf_bound.bound_ms(rms, host.TAKE_SURVEY_MS))
 
     def test_verdict_needs_two_summed_wheels(self):
         # 2026-11-18, README "The take survey's verdict needs two informative wheels": with the minimum at 2, 24 wheels
@@ -1943,9 +2177,90 @@ class TakeSurveyTest(unittest.TestCase):
         finally:
             host.TAKE_SURVEY_MIN_KEPT = saved
 
+    def _older_link(self, fmt, *vals):
+        body = struct.pack(fmt, *vals)
+        b = bytes([P.TAKE_SURVEY, len(body)]) + body
+        frame = bytes([P.SYNC]) + b + bytes([P.crc8(b)])
+
+        class Port:
+            def __init__(self):
+                self.data = frame
+
+            def read(self):
+                d, self.data = self.data, b""
+                return d
+
+            def write(self, _):
+                pass
+        link = host.FeederLink(Port(), lambda: 0.0)
+        link.poll()
+        return link
+
+    def test_seven_candidate_frame_still_reads(self):
+        # firmware from 2026-11-18 to 2026-11-19 sends seven candidates (no 7 ms) and the summed-wheel byte
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][2], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112, 9)
+        self.assertEqual(link.take_survey["kept"], 9)
+        self.assertEqual(link.take_survey["rms_ppm"], [136, 140, 119, 98, 95, 50, 112])
+        self.assertIn("set TAKE_US = 5500", host.take_survey_advice(link.take_survey))
+
+    def test_eight_candidate_frame_still_reads(self):
+        # firmware on 2026-11-19 before the short-take grid sends eight candidates (0, 2-8 ms) and the summed-wheel byte
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][1], 24, 70, 68, 0, 136, 140, 119, 98, 95, 70, 50, 112, 9)
+        self.assertEqual(link.take_survey["kept"], 9)
+        self.assertEqual(link.take_survey["rms_ppm"], [136, 140, 119, 98, 95, 70, 50, 112])
+        self.assertIn("set TAKE_US = 7000", host.take_survey_advice(link.take_survey))
+
+    def test_nine_candidate_frame_reads(self):
+        # the short-take grid (2026-11-19, README "Short takes on a second held-out set"): 0, 1.5, 2.5, 3-8 ms, in whole
+        # ppm before the tenths frame
+        link = self._older_link(P.OLDER_FORMATS[P.TAKE_SURVEY][0], 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140,
+                                150, 9)
+        self.assertEqual(link.take_survey["kept"], 9)
+        self.assertEqual(link.take_survey["rms_ppm"][:2], [136, 60])
+        self.assertEqual(link.take_survey["rms_step_ppm"], 1)
+        self.assertIn("set TAKE_US = 1500", host.take_survey_advice(link.take_survey))
+
+    def test_tenths_frame_reads(self):
+        # 2026-11-19, README "The take survey's rms in tenths of a ppm": a last byte gives the units per ppm
+        frame = P.encode(P.TAKE_SURVEY, 24, 15, 14, 0, 1360, 600, 1190, 1250, 1280, 1300, 1350, 1400, 65535, 9, 10)
+        self.assertEqual(len(frame), 4 + 1 + 2 * 3 + 2 * 9 + 2)
+        link = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 15, 14, 0, 1361, 604, 1190, 1250, 1280, 1300, 1350, 1400,
+                                65535, 9, 10)
+        sv = link.take_survey
+        self.assertEqual((sv["kept"], sv["rms_step_ppm"]), (9, 0.1))
+        self.assertEqual(sv["rms_ppm"][:2], [136.1, 60.4])
+        self.assertIsNone(sv["rms_ppm"][-1])                         # 65535 still means none
+        self.assertIn("set TAKE_US = 1500", host.take_survey_advice(sv))
+        whole = self._older_link(P.FORMATS[P.TAKE_SURVEY], 24, 15, 14, 0, 136, 60, 119, 125, 128, 130, 135, 140, 150, 9, 1)
+        self.assertEqual((whole.take_survey["rms_ppm"][:2], whole.take_survey["rms_step_ppm"]), ([136, 60], 1))
+
+    def test_tenths_lift_the_rounding_guard(self):
+        # the traced sub-8 build (README "The sub-8 advised instant build was the frame's rounding"): 4 / 7 whole ppm
+        # sits inside the margin but the frame cannot tell it from 0.6, so the guard withholds it; in tenths the same
+        # fits read 4.4 / 6.9 (0.638) and are judged on their share, and a true 3.9 / 7.1 (0.549) is advised
+        sv = {"wheels": 24, "least_ms10": 30, "refined_ms10": 35, "board_ms10": 0, "kept": 20}
+        whole = host.take_survey_advice(dict(sv, rms_ppm=[7, 6, 5, 4, 8, 9, 10, 11, 12], rms_step_ppm=1))
+        self.assertIn("too close to the frame's 1 ppm", whole)
+        tenths = host.take_survey_advice(dict(sv, rms_ppm=[6.9, 6.0, 5.1, 4.4, 8, 9, 10, 11, 12], rms_step_ppm=0.1))
+        self.assertIn("miss only", tenths)
+        good = host.take_survey_advice(dict(sv, rms_ppm=[7.1, 6.0, 5.1, 3.9, 8, 9, 10, 11, 12], rms_step_ppm=0.1))
+        self.assertIn("set TAKE_US = 3500", good)
+        self.assertAlmostEqual(host.take_share_bound([7.1, 3.9], 0.1), 3.95 / 7.05)
+
+    def test_board_sends_tenths_and_falls_back_to_whole_ppm(self):
+        launch = controller.LaunchCheck(1e-3, 0.057, 0.05, 0.033, 0.9, 0.9, take_grid=(0, 3000, 6000))
+        ts = launch.take_survey
+        ts.add([(4.04e-6) ** 2, (2.0e-6) ** 2, (1.0e-6) ** 2])
+        r = launch.take_report()
+        self.assertEqual((r[3], r[4]), ([40, 20, 10], P.TAKE_SURVEY_TENTHS))
+        ts.add([(12000e-6) ** 2, (8000e-6) ** 2, (1.0e-6) ** 2])    # mean rms over 6553 ppm: tenths would clip
+        r = launch.take_report()
+        self.assertEqual(r[4], 1)
+        self.assertTrue(all(v < 65535 for v in r[3]))
+
     def test_older_frame_still_reads(self):
         # firmware before 2026-11-18 sends the frame without the summed-wheel byte: it decodes, and the Pi has no count
-        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
+        body = struct.pack(P.OLDER_FORMATS[P.TAKE_SURVEY][3], 24, 60, 57, 0, 136, 140, 119, 98, 95, 50, 112)
         b = bytes([P.TAKE_SURVEY, len(body)]) + body
         frame = bytes([P.SYNC]) + b + bytes([P.crc8(b)])
 
@@ -1993,9 +2308,10 @@ class TakeSurveyTest(unittest.TestCase):
         # 2026-11-18, README "Take-blind rows traced": take-blind wheels fit every candidate alike and well; a wheel
         # whose take straddles a revolution's edge tells them apart but fits worse at every candidate. SURVEY_TRIM's
         # 5 x the median best drops it and the pick falls to the step; the take survey sums every wheel.
-        blind = [(3e-6 + 1e-7 * i) ** 2 for i in range(7)]          # 3.0-3.6 ppm, the step least
-        straddle = [(300e-6 - 40e-6 * i) ** 2 for i in range(6)] + [(200e-6) ** 2]   # 6 ms (index 5) at 100 ppm
-        for trim, pick, dropped in ((None, 0, 1), (controller.TAKE_SURVEY_TRIM, 5, 0)):
+        n, k = len(controller.TAKE_SURVEY_GRID_US), controller.TAKE_SURVEY_GRID_US.index(6000)
+        blind = [(3e-6 + 1e-7 * i) ** 2 for i in range(n)]          # 3.0-3.8 ppm, the step least
+        straddle = [(300e-6 - 40e-6 * i) ** 2 for i in range(k + 1)] + [(200e-6) ** 2] * (n - k - 1)   # 6 ms least
+        for trim, pick, dropped in ((None, 0, 1), (controller.TAKE_SURVEY_TRIM, k, 0)):
             rs = controller.ResidualSurvey(controller.TAKE_SURVEY_GRID_US, trim)
             for _ in range(10):
                 rs.add(blind)
@@ -2011,8 +2327,9 @@ class TakeSurveyTest(unittest.TestCase):
         # same to every sum, so it cannot move the pick but pulls the best / step share toward 1. Leaving such wheels
         # out (TAKE_SURVEY_BLIND) keeps the pick and sharpens the share; a wheel that tells them apart stays in.
         grid = controller.TAKE_SURVEY_GRID_US
-        blind = [(30e-6 * (1 + 1e-3 * i)) ** 2 for i in range(7)]   # 30 ppm, every candidate within 0.6% of the step
-        tells = [(60e-6 - 8e-6 * i) ** 2 for i in range(6)] + [(40e-6) ** 2]   # 6 ms (index 5) at 20 ppm, step 60
+        k = grid.index(6000)
+        blind = [(30e-6 * (1 + 1e-3 * i)) ** 2 for i in range(len(grid))]   # 30 ppm, every candidate within 0.8% of the step
+        tells = [(60e-6 - 7e-6 * i) ** 2 for i in range(k + 1)] + [(40e-6) ** 2] * (len(grid) - k - 1)   # 6 ms at 18 ppm
         shares = {}
         for b in (0, controller.TAKE_SURVEY_BLIND):
             rs = controller.ResidualSurvey(grid, 0, b)
@@ -2021,7 +2338,7 @@ class TakeSurveyTest(unittest.TestCase):
             for _ in range(3):
                 rs.add(tells)
             n, least, _, rms = rs.report(100)
-            self.assertEqual((n, least), (23, grid[5] // 100))     # every wheel counts as surveyed; the pick holds
+            self.assertEqual((n, least), (23, grid[k] // 100))     # every wheel counts as surveyed; the pick holds
             self.assertEqual(rs.blind_n, 20 if b else 0)
             shares[b] = min(rms) / rms[0]
         self.assertGreater(shares[0], 0.6)                          # diluted: host.TAKE_ADVISE_RATIO would not advise
@@ -2034,6 +2351,23 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertIn("keep TAKE_US = 3000", host.take_survey_advice(sv))
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_grid=grid)
         self.assertEqual(lc.take_survey.blind, controller.TAKE_SURVEY_BLIND)
+
+    def test_take_survey_spline_flag_picks_the_report(self):
+        grid = (0, 2000, 3000, 4000, 5000, 6000, 8000)    # the seven-point grid shipped before 2026-11-19
+        sums = [9.0, 6.0, 4.0, 2.5, 1.2, 1.0, 1.4]          # least at 6 ms, a shallow side toward 8
+        saved = controller.TAKE_SURVEY_SPLINE
+        try:
+            got = {}
+            for flag in (False, True):
+                controller.TAKE_SURVEY_SPLINE = flag
+                rs = controller.ResidualSurvey(grid, 0)
+                rs.add(sums)
+                got[flag] = rs.report(100)[2]
+            self.assertEqual(got[False], int(round(controller.survey_pick(grid, sums)[1] / 100)))
+            self.assertEqual(got[True], int(round(controller.survey_spline_pick(grid, sums)[1] / 100)))
+            self.assertEqual((got[False], got[True]), (61, 57))     # the two picks differ by 0.4 ms here
+        finally:
+            controller.TAKE_SURVEY_SPLINE = saved
 
     def test_take_us_sets_the_record_fit(self):
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_us=6000)

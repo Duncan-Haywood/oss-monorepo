@@ -197,7 +197,7 @@ export function caProvincialHolidays(y, prov) {
 // US states and DC (added 2026-11-12, last). Each state's legal holidays: the days its own offices close. Private
 // firms mostly keep "us-business"; these are for a prospect at a state agency, a county, a school district or a firm
 // that follows the state's calendar. Written as rules here (not copied), then checked date for date, every weekday of
-// 2022-2028, against python-holidays 0.108 (MIT; fixtures/us-state-holidays-python-holidays-0.108.json), an
+// 2022-2028, against python-holidays 0.109 (MIT; fixtures/us-state-holidays-python-holidays-0.109.json), an
 // open-source library, not the states' own pages (comptroller.texas.gov and opm.gov refused this host 2026-11-12).
 // Deliberate differences from that library, each listed in holidays.test.mjs: Susan B. Anthony Day (CA, FL, NY, WI)
 // is left out because it is a day of commemoration, not a closure; Texas's four skeleton-crew days (Confederate
@@ -243,14 +243,14 @@ export function usStateHolidays(y, st) {
   add(ymd(y, 10, thanks), "Thanksgiving Day");
   add(obs(y, 11, 25), "Christmas Day");
   // The day after Thanksgiving, under whatever name the state gives it.
-  const dat = { ca: "Day After Thanksgiving", de: "Day After Thanksgiving", fl: "Friday After Thanksgiving", ga: "State Holiday", in: "Lincoln's Birthday", md: "American Indian Heritage Day", mi: "Day After Thanksgiving", nc: "Day After Thanksgiving", nh: "Day After Thanksgiving", nm: "Presidents' Day", nv: "Family Day", ok: "Day After Thanksgiving", pa: "Day After Thanksgiving", tx: "Friday After Thanksgiving", wa: "Native American Heritage Day", wv: "Day After Thanksgiving" }[s];
+  const dat = { ca: "Day After Thanksgiving", de: "Day After Thanksgiving", fl: "Friday After Thanksgiving", ga: "State Holiday", in: "Lincoln's Birthday", md: "American Indian Heritage Day", mi: "Day After Thanksgiving", nc: "Day After Thanksgiving", nh: "Day After Thanksgiving", nm: "Presidents' Day", nv: "Family Day", ok: "Day After Thanksgiving", pa: "Day After Thanksgiving", tx: "Friday After Thanksgiving", va: "Day After Thanksgiving", wa: "Native American Heritage Day", wv: "Day After Thanksgiving" }[s];
   if (dat) add(ymd(y, 10, thanks + 1), dat);
   if (has("ct", "de", "ga", "in", "ky", "la", "nc", "nj", "tn")) add(shift(y, em, ed, -2), s === "ga" ? "State Holiday" : "Good Friday");
   if (s === "la") add(shift(y, em, ed, -47), "Mardi Gras");
   if (has("ct", "ia", "il", "nj", "ny")) add(observed(y, 1, 12), "Lincoln's Birthday");
-  // Election Day, the Tuesday after the first Monday of November: every year in IN and NY, even years elsewhere.
+  // Election Day, the Tuesday after the first Monday of November: every year in IN and NY, and in VA from 2020 (Va. Code 2.2-3300), even years elsewhere.
   const elec = ymd(y, 10, nth(y, 10, 1, 1) + 1);
-  if (has("in", "ny") || (y % 2 === 0 && has("de", "hi", "il", "la", "mi", "mt", "nh", "nj", "wv"))) add(elec, "Election Day");
+  if (has("in", "ny") || (s === "va" && y >= 2020) || (y % 2 === 0 && has("de", "hi", "il", "la", "mi", "mt", "nh", "nj", "wv"))) add(elec, "Election Day");
   if (s === "in") add(ymd(y, 4, nth(y, 4, 1, 1) + 1), "Primary Election Day");
   // Christmas Eve: the weekday before the observed Christmas. New Year's Eve: 31 December, or Friday 30th when the
   // 31st is a Saturday; none when the 31st is a Sunday or is already New Year's Day observed.

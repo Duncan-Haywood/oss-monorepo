@@ -32,8 +32,7 @@ An open first-principles method, every step in `load.mjs` and on
   different hours); room airflow is shared by each room's own peak.
 
 It is **not ACCA Manual J** and uses none of ACCA's tables. Simplifications
-(no side fins, trees or neighbours' shade, no basements or skylights, instant
-window gain) are
+(no side fins, trees or neighbours' shade, instant window gain) are
 listed on the how-it-works page.
 
 ## Use
@@ -42,7 +41,7 @@ listed on the how-it-works page.
   Import and export the house as JSON; download the room table as CSV.
 - CLI: `node cli.mjs house.json` (the same JSON the page exports) or
   `node cli.mjs --example --json`.
-- Tests: `node --test load.test.mjs page.test.mjs duct.test.mjs overhang.test.mjs` (hand-calculated U-values,
+- Tests: `node --test load.test.mjs page.test.mjs duct.test.mjs overhang.test.mjs basement.test.mjs` (hand-calculated U-values,
   solar geometry, psychrometrics, room heating sums, diversity, validation).
 
 ## Overhangs (added 2026-11-18)
@@ -65,6 +64,62 @@ south rooms fall more: kitchen/dining 4,276 to 3,959 (7%), bedroom 3 1,615 to
 1,398 (13%), and their peak hour moves from noon to 1 pm. The west-facing
 rooms barely move, because the afternoon sun is low enough to pass under a
 2 ft eave. A 3 ft eave takes the house to 18,690 (5.3%).
+
+## Basements and skylights (added 2026-11-19)
+
+**Basements.** A room's floor can be `basement`, with
+`basement: { depthFt, wallLengthFt, widthFt }` (depth of the floor below
+grade, length of wall below grade, shortest width). Walls above grade stay in
+the room's `walls` with their above-grade `heightFt`. Below-grade wall and
+floor U-factors come from the path-length method of Latta and Boileau (1969)
+in the closed form ASHRAE Fundamentals gives (`belowGradeWallU`,
+`basementFloorU` in `load.mjs`), with soil conductivity `envelope.soilK`
+(default 0.8 Btu/h·ft·°F), 8 in. concrete walls and a 4 in. slab plus
+`basementWallR` / `basementFloorR`. They act on the ground surface design
+temperature, `site.annualMeanF − site.groundAmplitudeF` (defaults 55 and 20 °F;
+never above the indoor temperature). Summer gains below grade are zero.
+
+**How the closed forms were checked.** `eval/basement-fd.mjs` solves 2-D steady
+conduction in the soil around a long basement by finite volumes (0.25 ft cells,
+Jacobi-preconditioned conjugate gradients, energy balance closes to 1e-10) and
+compares the wall's and floor's loss with the closed forms
+(`eval/basement-fd.txt`). Block (a) is the closed forms' own model (ground
+surface the only sink, far sides insulated 80 ft out); block (b) holds the
+deep ground 30 ft down at the annual mean.
+
+- Walls: the closed form reads **10-11% low** on bare concrete at depths of 2,
+  4 and 7 ft (16% low when the floor is insulated and its heat no longer
+  shares the wall's soil), and **within 5%** with R-10 on the wall (+3%, -5%).
+- Floors: it reads **5-43% low** against (a): the closed form treats the floor
+  as if the wall were not there, but heat from the floor's edge leaves through
+  the soil beside the wall, more so when the wall is insulated (-43% with R-10
+  walls, -5% with R-10 under the floor). Against (b), with the deep ground
+  warmer, it runs from 31% low to 24% high. In the cold-climate example below the
+  floor is 4% of the house's heating load, so the gap is about 1% of the total;
+  it is not corrected, and is stated on the how-it-works page.
+- Grid check: at 0.5, 0.25 and 0.125 ft cells the 24 x 7 ft bare wall reads
+  0.1957, 0.1962 and 0.1958; the floor rises 0.0362 to 0.0391 (it depends on
+  the soil block's size more than the grid: 0.0274 at 20 ft, 0.0404 at 160 ft,
+  0.0407 at 320 ft).
+
+What it does (`node eval/basement-example.mjs`, `eval/basement-example.txt`):
+the example ranch moved to 44°N (-5 °F winter design, annual mean 45 °F) over a
+1,800 ft² conditioned basement 6 ft below grade needs 53,021 Btu/h of heat with
+bare concrete, against 42,033 for the same house on its slab; R-10 on the
+basement walls cuts the basement's below-grade wall loss from 9,468 to 2,943
+and the house to 45,844. Illustrative inputs, not a measured house.
+
+**Skylights.** `skylights: [{ areaFt2, tiltDeg, facing, uFactor?, shgc? }]` on a
+room (defaults `envelope.skylightU` 0.55 and `skylightSHGC` 0.3, flat, facing
+S). Heating is U × area × ΔT; cooling is conduction plus sun on the glass at
+its tilt and facing, through the SHGC with the window angle modifier; the area
+comes out of the room's attic ceiling. The light shaft through the attic is not
+modelled. On the example ranch two 8 ft² skylights raise the sensible peak
+from 19,732 to 21,091-21,420 Btu/h (2.19 to 2.31-2.33 tons) and move the peak
+from 3 pm to 2 pm. Tests: `basement.test.mjs` (closed forms by hand, strips
+summing to the whole wall, the 1/R limit, a coarse 2-D solve within 15%, room
+sums, ground temperature clamp, skylight heating, flat-skylight noon gain,
+validation).
 
 ## Duct sizing
 

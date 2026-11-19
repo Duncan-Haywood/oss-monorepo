@@ -33,12 +33,16 @@ naming it and when work on it last landed on main. To edit a `next:` (or
 (or `--set FILE`): it matches the unfolded text, rewraps without breaking at
 a hyphen (a hand-wrapped `wall-framing-` / `takeoff` reads back as
 `wall-framing- takeoff`; `validate.py` now fails on one). A `next:` edit that
-would pass the 2,000-character cap parks open items from the end of the row
+would pass the 2,000-character cap first moves dated results sitting before
+the row's last open marker into `ventures/<slug>/HISTORY.md` (down to 1,700),
+then, if still over, parks open items from the end of the row
 (never your own new text, the clause before it, or a clause reporting landed
 work) into `ventures/<slug>/NEXT.md`, just enough to fit, and says up front how
 many it moved. `--dry-run` previews that without writing, `--park ITEM` picks
-the item yourself, `--no-make-room` refuses instead, and `--make-room` or
-`--trim` parks down to 1,700 for headroom. Above the table, a "Website requests" line says which
+the item yourself, `--history TEXT` moves a finished result you name (any
+span, dated or not) to HISTORY.md in the same call, `--no-make-room` refuses
+instead, and `--make-room` or `--trim` parks down to 1,700 for headroom. A
+refusal lists the row's result-like items as ready `--history` flags. Above the table, a "Website requests" line says which
 open entries in `portfolio/requests/requests.json` are flagship rows, so a
 run need not reconcile prompt.md's request-first order with the pick by hand.
 

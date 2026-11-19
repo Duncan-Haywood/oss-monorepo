@@ -20,6 +20,33 @@ the organizer can play without seeing who drew whom.
 - Exchange date as a calendar file, full list as CSV or text for organizers who
   would rather see it.
 
+## White elephant game host (2026-11-18)
+
+`white-elephant.html` runs a white elephant (Yankee swap) game on one screen:
+drawn turn order, open or steal, gifts frozen after N steals, no stealing
+straight back, an optional cap on steals per turn, and player one's final swap.
+Every greyed-out steal says why. Saved in local storage after each move, with
+undo; CSV or text of the final gifts.
+
+- `elephant.mjs` - the engine: pure functions over a JSON state (`newGame`,
+  `apply`, `moves`, `stealBlock`, `maxMoves`, `simulate`).
+- `elephant.test.mjs` - 3,000 random games with random house rules, invariants
+  checked after every move (no one holds two gifts, everyone who has gone holds
+  one, no gift past its limit, refused steals carry a reason, length within
+  `maxMoves`).
+- `white-elephant-rules-steal-limits.html` - the rules, and a table from
+  `eval/elephant-length.mjs` (output in `eval/elephant-length.txt`): 2,000
+  simulated games per row under a toy policy (steal with probability 0.5 when
+  allowed). At 20 players a two-steal freeze leaves the median at 38 moves, the
+  same as three; one steal per turn cuts it to 30 and the 90th percentile from
+  47 to 33. The page test checks every row against the script.
+
+Why: this product had the most page loads on the site in the two weeks to
+2026-11-18 (198, `usage-data` branch, `site-visits.json`), with the
+gift-exchange season ahead; white elephant is the other gift game people search
+for in December. Not yet measured: whether visitors use it (`we_*` counters are
+local only).
+
 Open `index.html` over any static server (it is an ES module page). No build
 step, no dependencies. `node --test *.test.mjs` runs the suite.
 

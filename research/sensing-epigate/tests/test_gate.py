@@ -25,8 +25,36 @@ def test_mismatch_kinds_displace_only_masked_visible_observations():
         out, mask = mismatch(kind, clean, vis, 0.2, np.random.default_rng(1), cams, pts)
         assert not mask[~vis].any() and 0.1 < mask.sum() / vis.sum() < 0.3
         assert (out[~mask] == clean[~mask]).all() and (out[mask] != clean[mask]).any()
-    d = np.linalg.norm(out[mask] - clean[mask], axis=1)
-    assert d.min() >= 9.99 and d.max() <= 40.01
+        if kind != "uniform":  # near and along are shifted 10 to 40 px (checked for both, not only the last kind)
+            d = np.linalg.norm(out[mask] - clean[mask], axis=1)
+            assert d.min() >= 9.99 and d.max() <= 40.01
+
+
+# Quality audit 2026-11-19 (round 75): removing the rank-2 step and dropping Sampson denominator terms passed every test.
+def test_fitted_fundamental_is_rank_two():
+    _, _, vis, clean = _rig()
+    both = np.flatnonzero(vis[0] & vis[1])
+    rng = np.random.default_rng(3)
+    x1 = clean[0, both] + rng.normal(0, 0.5, (len(both), 2))
+    x2 = clean[1, both] + rng.normal(0, 0.5, (len(both), 2))
+    F = fundamental_ransac(x1, x2, 2.0, 200, np.random.default_rng(0))[0]
+    s = np.linalg.svd(F, compute_uv=False)
+    assert s[2] / s[0] < 1e-9
+
+
+def test_sampson_matches_hartley_zisserman_eq_11_9():
+    _, _, vis, clean = _rig()
+    both = np.flatnonzero(vis[0] & vis[1])
+    F = fundamental_ransac(clean[0, both], clean[1, both], 0.5, 100, np.random.default_rng(0))[0]
+    rng = np.random.default_rng(4)
+    x1 = clean[0, both] + rng.normal(0, 3.0, (len(both), 2))
+    x2 = clean[1, both]
+    ref = []
+    for p, q in zip(x1, x2):
+        a, b = np.r_[p, 1.0], np.r_[q, 1.0]
+        Fa, Ftb = F @ a, F.T @ b
+        ref.append((b @ F @ a) ** 2 / (Fa[0] ** 2 + Fa[1] ** 2 + Ftb[0] ** 2 + Ftb[1] ** 2))
+    np.testing.assert_allclose(sampson(F, x1, x2), np.array(ref), rtol=1e-9)
 
 
 def test_along_mismatch_lies_on_epipolar_line_of_one_view_only():

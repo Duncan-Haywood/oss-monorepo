@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqybqhgX84Rh2YjNf3F8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T19:38:46Z",
+  "ended": "2026-11-18T19:47:34Z",
+  "wall_minutes": 9.03,
+  "tokens_in": 5145163,
+  "tokens_out": 28984,
+  "cost_usd": 2.5636,
+  "tool_calls": 50,
+  "task": "research/buildbot-sheathing milestone 53: failing stage at the last plan limits and hold sides per measured load",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17404",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/buildbot-sheathing/experiments (m38 to m52 import chain)",
+      "issue": "each milestone patches the previous one's module (plan, GQ, PL, SIDE, TIER, CUR); finding which global a side or preload override reads took six file reads. A short README in experiments/ mapping the patch chain would save the next run time."
+    },
+    {
+      "file": "research/buildbot-sheathing (M1.PLANS)",
+      "issue": "the plan cache is keyed without the hold sides, so any per-case side override must clear it or silently reuse a stale plan; not documented anywhere but the code."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-sheathing-robot-hold-sides-per-hose-load.md",
+    "research/buildbot-sheathing/LOG.md (milestone 53 planned + result)"
+  ],
+  "goal": null,
+  "notes": "Hypotheses H214-H216 registered and pushed (draft PR claim) before the run. Run 117 s on 4 processes with /usr/bin/python3.13 (mujoco 4.0.1, numpy 2.5.3, same as m52). Local checks: paper/check_numbers.py 394 of 394 ok; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok; project pytest 216 passed, 4 skipped. H214 refuted (preload binds at 20 of 26), H215 refuted (31 of 33; 2 pose-only cases have no hold solution on any side), H216 held (largest recovered 0.0106 mm). Coverage inside m51 envelope 100% on both robots.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a86e275d-596f-56b4-9bb7-829d6edfb62c",
+    "transcripts": 1,
+    "first": "2026-11-18T19:38:46Z",
+    "last": "2026-11-18T19:47:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 91,
+        "output": 28984,
+        "thinking": 6580,
+        "cache_read": 5022695,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122377,
+        "api_equivalent_usd": 2.5636,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 91,
+      "output": 28984,
+      "thinking": 6580,
+      "cache_read": 5022695,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122377,
+      "api_equivalent_usd": 2.5636,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.03,
+      "active_minutes": 9.03,
+      "model_minutes": 4.96,
+      "tool_minutes": 4.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a robotics PhD student writing the stage diagnosis, side search and write-ups on an existing sim harness",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 390.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

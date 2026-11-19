@@ -135,7 +135,7 @@ function takesExclusiveLock(masked) {
  * `SET lock_timeout` / `SET LOCAL lock_timeout` / `RESET`: returns null for
  * any other statement, else `{ local, on }` (on = a non-zero timeout).
  *
- * Reads the *raw* statement text, not the masked copy, and that is the whole
+ * Reads the statement's `display` text (comments removed, literals kept), not the masked copy, and that is the whole
  * subtlety: the idiomatic spelling is `SET lock_timeout = '3s'`, and the
  * masker blanks string literals — so against masked text this function sees
  * `SET lock_timeout =` with the value gone, decides no timeout was set, and
@@ -145,15 +145,39 @@ function takesExclusiveLock(masked) {
 function setsLockTimeout(raw) {
   const t = raw.trim();
   // `RESET lock_timeout` and `RESET ALL` put it back to the default, 0: off.
-  if (/^RESET\s+(?:lock_timeout|ALL)\s*;?$/i.test(t)) return { local: false, on: false };
+  // `DISCARD ALL` runs RESET ALL among other things (red team 2026-11-19: it
+  // left the timeout "on" for every statement below it).
+  if (/^(?:RESET\s+(?:lock_timeout|ALL)|DISCARD\s+ALL)\s*;?$/i.test(t)) return { local: false, on: false };
+  // The function form: set_config('lock_timeout', value, is_local), where
+  // is_local true behaves like SET LOCAL. Unrecognised before 2026-11-19, so
+  // a file using it got a false no-lock-timeout below.
+  const f = /^SELECT\s+(?:pg_catalog\.)?set_config\s*\(\s*'lock_timeout'\s*,\s*'([^']*)'\s*,\s*(true|false)\s*\)\s*;?$/i.exec(t);
+  if (f) return { local: /^true$/i.test(f[2]), on: timeoutIsOn(f[1].trim()) };
   const m = /^\s*SET\s+(LOCAL\s+|SESSION\s+)?lock_timeout\s*(?:=|TO)\s*(.+)$/i.exec(t);
   if (!m) return null;
   const value = m[2].trim().replace(/;$/, '').replace(/^'|'$/g, '').trim();
-  // `SET lock_timeout = 0` disables it, which is the default and is not a
-  // timeout. Treating it as one would let a migration silence this check by
-  // explicitly asking for the dangerous behaviour.
-  const on = !/^0(\s*(ms|s|min))?$/i.test(value) && value.toLowerCase() !== 'default';
-  return { local: /^LOCAL/i.test(m[1] || ''), on };
+  return { local: /^LOCAL/i.test(m[1] || ''), on: timeoutIsOn(value) };
+}
+
+/** lock_timeout's units, in milliseconds (PostgreSQL's time units for a GUC). */
+const TIMEOUT_UNIT_MS = { us: 0.001, ms: 1, s: 1000, min: 60000, h: 3600000, d: 86400000 };
+
+/**
+ * Does this lock_timeout value set a timeout? `0` (in any unit or spelling:
+ * `00`, `'0.0'`, `'0us'`, `'0h'`) disables it, which is the default, and so
+ * does `DEFAULT`. Treating either as a timeout let a migration silence this
+ * check by explicitly asking for the dangerous behaviour. lock_timeout is an
+ * integer of milliseconds and PostgreSQL rounds a fraction to the nearest
+ * one (half to even), so `'0.4ms'` and `'400us'` are 0 too. A value this
+ * cannot parse is taken as a timeout, as before: PostgreSQL rejects garbage,
+ * and a false all-clear on a typo beats a false finding on a unit we missed.
+ */
+function timeoutIsOn(value) {
+  if (value.toLowerCase() === 'default') return false;
+  const m = /^([+-]?(?:\d+\.?\d*|\.\d+))\s*(us|ms|s|min|h|d)?$/i.exec(value);
+  if (!m) return true;
+  const ms = Number(m[1]) * TIMEOUT_UNIT_MS[(m[2] || 'ms').toLowerCase()];
+  return ms > 0.5;
 }
 
 function tableOf(masked) {
@@ -270,7 +294,9 @@ export function analyzeSql(text) {
     const s = st.masked;
     const upper = s.toUpperCase();
 
-    const timeout = setsLockTimeout(st.text);
+    // `display`: comments gone (a comment above the SET hid it), string
+    // literals kept (the value is usually one, `'3s'`).
+    const timeout = setsLockTimeout(st.display ?? st.text);
     if (timeout) {
       // SET LOCAL outside an explicit block is kept for the rest of the file:
       // a migration runner usually wraps the whole file in its own transaction.

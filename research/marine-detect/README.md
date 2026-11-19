@@ -9,39 +9,51 @@ fog and sun glint do to that. Research code, not a certified perception system.
 
 **Live page:** https://marisstella.app/research/marine-detect/
 
-## Result (300 held-out frames from 16 sequence blocks, 204 floating obstacles, 3 seeds, mean and 95% t-interval)
+## Result (300 held-out frames from 16 sequence blocks, 80 floating obstacles, 3 seeds, mean and 95% t-interval)
 
-| model | mIoU | obstacle IoU | floating obstacles found | of those at least 16 px (n = 31) | false alarms per frame |
+| model | mIoU | obstacle IoU | floating obstacles found | of those at least 16 px (n = 32) | false alarms per frame |
 |---|---|---|---|---|---|
-| pixel MLP (colour, saturation, row) | 0.848 | 0.642 | 8.0% | 10.8% | 2.25 |
-| LR-ASPP MobileNetV3, clean training | 0.967 +- 0.004 | 0.919 | 31.9% +- 4.9 | 60.2% +- 12.2 | 0.08 |
-| LR-ASPP, fog + glint augmentation | 0.967 +- 0.000 | 0.920 | 33.7% +- 6.2 | 64.5% +- 16.0 | 0.09 |
+| pixel MLP (colour, saturation, row) | 0.845 | 0.635 | 9.2% +- 1.8 | 11.5% | 2.09 |
+| LR-ASPP MobileNetV3, clean training | 0.967 +- 0.002 | 0.921 | 34.6% +- 7.2 | 61.5% +- 17.9 | 0.06 |
+| LR-ASPP, fog + glint augmentation | 0.967 +- 0.001 | 0.920 | 35.0% +- 6.2 | 64.6% +- 4.5 | 0.08 |
+
+Re-scored on 2026-11-18 (retrained, same code and data) after the
+[2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-marine-detect.json) found that obstacles were
+4-connected with no size floor, which cut one diagonal pole into a run of 1-pixel "obstacles" (204 components, 80 of
+them single pixels). Obstacles are now 8-connected and at least 4 px, the same floor false alarms always had. Scored
+the old way on the same new predictions, recall is 31.2% +- 4.9 and 34.0% +- 4.6 of 204, matching the first run's
+31.9% and 33.7%, so the change of rule, not retraining noise, accounts for the differences below. The old run's files
+are in [`experiments/runs-4conn/`](experiments/runs-4conn/) and
+[`experiments/results-4conn.txt`](experiments/results-4conn.txt).
 
 ![Recall and false alarms against fog and glint](experiments/fig_degradation.png)
 
 - **A 0.97 mIoU hides a detector that misses most floating obstacles.** Pixel IoU is dominated by water, sky and
-  shore. Of the 204 obstacle components surrounded by water, the network covers half the pixels of only a third.
-  173 of them are under 16 pixels at 320x240 (41 px in the 512x384 originals): distant buoys and swimmers, and
-  fragments of thin structures (poles, mooring lines); recall there is 27%. Larger objects: 60% (32 to 256 px 48 to
-  64%, over 256 px 100%; n = 31, so the object-sampling interval alone is about +-17 points).
-  Read the all-object figure with care: components are labelled with 4-connectivity and no minimum size, so 80 of the
-  204 are single pixels (117 are 3 px or less), many of them fragments of one diagonal pole or line. The 16 px-and-up
-  figure (60%, n = 31) is the more reliable one until a re-score with 8-connectivity (see "Known gaps").
-- **Fog costs the clean-trained network most of its large-object recall.** At transmission 0.3 (an object at 31% of
-  the visibility range) recall of objects of at least 16 px falls from 60% to 28%, and to 23% at t = 0.15, while
-  mIoU only drops from 0.967 to 0.884. The pixel MLP finds nothing at t = 0.5.
-- **Fog augmentation makes recall almost fog-invariant, but on the same fog model it was trained on.** With fog and
-  glint in training, large-object recall stays at 61 to 65% across every fog level, and all-object recall falls only
-  from 34% to 24%. Real fog thickens with range and is not this uniform affine change, so this is an upper bound on
-  what augmentation buys.
+  shore. Of the 80 obstacle components surrounded by water, the network covers half the pixels of about a third
+  (35%). The result holds under both counting rules (31 to 35%). 48 of the 80 are 4 to 15 pixels at 320x240 (10 to
+  40 px in the 512x384 originals): distant buoys and swimmers and short thin structures; recall there is 15 to 17%.
+  Larger objects: 62 to 65% (32 to 256 px 53 to 72%, over 256 px 93 to 100%; n = 32, so the object-sampling interval
+  alone is about +-17 points). 61 components of 1 to 3 px are no longer counted; at that size an object cannot be
+  told from annotation noise.
+- **Fog costs the clean-trained network most of its large-object recall, with a wide seed spread.** At transmission
+  0.3 (an object at 31% of the visibility range) recall of objects of at least 16 px falls from 62% to 29% +- 35, and
+  to 23% +- 60 at t = 0.15, while mIoU only drops from 0.967 to 0.876. Each seed loses large-object recall under fog;
+  how much varies a lot between seeds. The pixel MLP finds nothing at t = 0.3.
+- **Fog augmentation makes recall fog-invariant, but on the same fog model it was trained on.** With fog and glint in
+  training, large-object recall stays at 62 to 66% across every fog level and all-object recall at 32 to 35%. The
+  first version reported all-object recall falling from 34% to 24%; that fall came from single-pixel fragments and is
+  gone under the new rule. Real fog thickens with range and is not this uniform affine change, so this is an upper
+  bound on what augmentation buys.
 - **Glint does not hide obstacles; it creates false ones.** Recall is flat under glint for every model, but the
-  clean-trained network's false alarms on open water rise from 0.08 to 0.28 per frame at glint strength 0.9 (3.6x);
-  with augmentation they stay at 0.09.
-- **Far obstacles are missed first.** Objects within 10 rows of the water edge (far away on a flat sea) are found
-  10 to 26% of the time; those more than 40 rows below it 46 to 50% (clean frames). At t = 0.15 the near group also
-  falls, to 12% (clean training) and 19% (augmented).
-- Full tables, by size and by rows below the water edge: [`experiments/results.txt`](experiments/results.txt).
-  Training takes 12 to 13 minutes per LR-ASPP run on 4 CPU cores. CPU training is not bit-reproducible.
+  clean-trained network's false alarms on open water rise from 0.06 to 0.27 per frame at glint strength 0.9 (4.6x);
+  with augmentation they stay at 0.08 to 0.09.
+- **No clear range trend.** The first version found obstacles within 10 rows of the water edge (far away on a flat
+  sea) 10 to 26% of the time. Under the new rule the nearest-horizon group (under 5 rows, n = 28) is found 48% of the
+  time, 5 to 10 rows 14 to 16%, 10 to 20 rows 30%, 20 to 40 rows 57% (n = 7). With bins this small and no monotone
+  pattern, the range claim is withdrawn.
+- Full tables, by size and by rows below the water edge, and the old rule on the same predictions:
+  [`experiments/results.txt`](experiments/results.txt). Training takes 11 to 12 minutes per LR-ASPP run on 4 CPU
+  cores. CPU training is not bit-reproducible.
 
 ## Method and reproduce
 
@@ -59,7 +71,8 @@ python3 experiments/aggregate.py > experiments/results.txt
 python3 experiments/figure.py
 ```
 
-SHA-256 of the two archives used here are in `src/marine_detect/data.py`.
+SHA-256 of the two archives used here are pinned in `src/marine_detect/data.py`; `data.verify_archive(<zip>)` checks
+a download against them (both matched on 2026-11-18).
 
 - **Data.** MaSTr1325 (Bovcon et al. 2019): 1325 frames at 512x384 from a small USV in the Gulf of Koper, with
   per-pixel labels obstacle/environment, water, sky and unknown (ignored). Frames come from sequences, so a random
@@ -70,10 +83,12 @@ SHA-256 of the two archives used here are in `src/marine_detect/data.py`.
   fog and glint augmentation (each applied with probability 0.5, t from 0.15 to 1, glint 0 to 0.9). A per-pixel MLP on
   colour, saturation and image row is the classical rung (3 epochs). Three seeds each.
 - **Scores.** Pixel IoU per class, and two detection-style scores in the spirit of MODS (Bovcon et al. 2022), which
-  MaSTr1325 has no boxes for: a *floating obstacle* is an obstacle component that does not touch the frame and whose
-  3-pixel ring (unknown pixels skipped) is mostly water; it is *found* when at least half its pixels are predicted
-  obstacle. A *false alarm* is a predicted obstacle blob of at least 4 pixels lying wholly on ground-truth water.
-  The test blocks hold 204 floating obstacles.
+  MaSTr1325 has no boxes for: a *floating obstacle* is an 8-connected obstacle component of at least 4 pixels that
+  does not touch the frame and whose 3-pixel ring (unknown pixels skipped) is mostly water; it is *found* when at least
+  half its pixels are predicted obstacle. A *false alarm* is an 8-connected predicted obstacle blob of at least 4
+  pixels lying wholly on ground-truth water; a blob touching an unknown pixel is not counted (it may be an unlabelled
+  object). The 4-pixel floor and the half-cover rule are this study's choices, not the MODS protocol, which scores
+  boxes. The test blocks hold 80 floating obstacles (204 under the first version's 4-connected, no-floor rule).
 - **Fog** is the atmospheric scattering model I = J t + A (1 - t) (Koschmieder 1924; Narasimhan and Nayar 2002;
   synthetic fog for segmentation as in Sakaridis et al. 2018), with uniform transmission t and airlight 0.8. With
   the 2% contrast threshold an object seen through transmission t sits at d / V = -ln(t) / 3.912 of the
@@ -123,9 +138,7 @@ AI-assisted (Claude Code).
 
 From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-marine-detect.json):
 
-- `metrics.py` labels obstacle components with scipy's default 4-connectivity and no minimum area, so a diagonal
-  8-pixel line counts as 8 obstacles. The "32% of 204" headline rests on that count; switching to 8-connectivity
-  needs the dataset to re-score.
-- Ground-truth obstacles count from 1 px, but predicted blobs under 4 px never count as false alarms.
-- Five of six seeded bugs survived the tests; `aggregate.py` and `model.py` have none.
+- Fixed 2026-11-18: 4-connected obstacles with no size floor (now 8-connected, at least 4 px on both the ground-truth
+  and false-alarm side; re-scored above). The tests now pin the connectivity, the size floor, the half-cover
+  threshold, the water-ring filter, the fog midpoint and the t-quantile; `model.py` (training) is still untested.
 - eWaSR (Teršek et al. 2023), the closest lightweight-network result on MODS/MaSTr1325, is not cited.

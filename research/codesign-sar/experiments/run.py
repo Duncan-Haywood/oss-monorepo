@@ -10,6 +10,7 @@ from codesign_sar import optimisers as O
 
 BUDGET, SEEDS = 40, 20
 POINTS = (10, 20, 30, 40)
+THRESH = 0.86   # 0.78 before the 2026-11-18 policy-search fix, when untrained policies capped J at 0.783
 METHODS = {"random search": O.random_search, "CMA-ES": O.cma_es, "Bayesian opt (GP-EI)": O.bayes_opt}
 
 
@@ -39,16 +40,16 @@ if __name__ == "__main__":
     for n in METHODS:
         c = np.array(curves[n])
         lines.append(f"{n}: {(c[:, -1] >= ab - 1e-9).sum()} of {SEEDS}")
-    lines += ["", "Evaluations to first reach J >= 0.78 (median over seeds that reach it; seeds that never do in brackets):"]
+    lines += ["", f"Evaluations to first reach J >= {THRESH} (median over seeds that reach it; seeds that never do in brackets):"]
     for n in METHODS:
         first = []
         for nn, s, rs in out:
             if nn != n: continue
-            hit = [i + 1 for i, r in enumerate(rs) if r["J"] >= 0.78]
+            hit = [i + 1 for i, r in enumerate(rs) if r["J"] >= THRESH]
             first.append(hit[0] if hit else None)
         got = [f for f in first if f]
         lines.append(f"{n}: {np.median(got) if got else 'never'} ({first.count(None)} of {SEEDS} never)")
-    ag = [i + 1 for i, r in enumerate(agent) if r["J"] >= 0.78]
+    ag = [i + 1 for i, r in enumerate(agent) if r["J"] >= THRESH]
     lines.append(f"session agent: {ag[0] if ag else 'never'}")
     lines += ["", "Fraction of evaluations over the cost cap:"]
     for n in METHODS:

@@ -36,6 +36,20 @@ class T(unittest.TestCase):
         r = solve(16)
         self.assertLess(abs(r["peak_centroid"] - r["exact_at_peak_centroid"]), 0.01)
 
+    def test_von_mises_slope_at_peak_is_minus_8_5(self):
+        # The peak read is von Mises; sigma_rr rises at 3 sigma/a into the plate, so
+        # d(vM)/dr = -7 - 3/2 = -8.5 sigma/a, not the hoop slope -7 (audit 2026-11-19).
+        from simdesign_kirsch.model import _vm
+        g = lambda y: float(_vm(*kirsch_stress(np.array(1e-300), np.array(y))))
+        self.assertAlmostEqual((g(1 + 1e-7) - g(1 - 0.0)) / 1e-7, -8.5, places=4)
+
+    def test_results_bias_uses_von_mises_slope(self):
+        import json
+        res = json.load(open(os.path.join(os.path.dirname(__file__), "..", "experiments", "results.json")))
+        self.assertAlmostEqual(res["vm_slope"], -8.5, places=4)
+        for r in res["rows"]:
+            self.assertAlmostEqual(r["bias_over_slope_h"], (3 - r["peak_centroid"]) / (8.5 * r["h_hole"]), places=3)
+
 
 if __name__ == "__main__":
     unittest.main()

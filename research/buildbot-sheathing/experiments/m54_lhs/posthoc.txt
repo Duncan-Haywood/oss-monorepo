@@ -1,0 +1,89 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 54 post hoc (not registered): in-envelope LHS pose-cases with |y| over 0.02 mm
+
+## g1 [0.4, -0.15] | H 13.23 N | phi 290.2 | sensor axis 2 | |y| 0.2841 mm
+  P1 sweep +-6 deg (0.25 deg): 49 of 49 plan; |y| median 0.0091, max 0.2841 mm; over 0.03 mm at offsets -3.25 to +0.50 deg (10 points)
+  P1 |y| by offset: -6.0:0.009 -5.0:0.009 -4.0:0.009 -3.0:0.009 -2.0:0.009 -1.0:0.009 +0.0:0.284 +1.0:0.009 +2.0:0.009 +3.0:0.009 +4.0:0.009 +5.0:0.009 +6.0:0.009
+  P2 joints moving |y| most (|y| drop when that joint's error takes its sweep median; error now / median, rad): right_shoulder_yaw_joint +0.2750 mm (-7.30e-04 / -2.56e-06); right_hip_roll_joint +0.0000 mm (9.37e-06 / 9.37e-06); right_hip_yaw_joint +0.0000 mm (6.72e-07 / 6.72e-07)
+  P2 that joint's torque at 25 / 50 N: planned -0.5198 / -0.2256 N m, settled -0.4942 / -0.2000 N m; squeeze -0.050 N
+  P3 per-load side rule applied anyway: pose sides +----+ -> -+-+-+, common leg margin 5.994 N m, |y| 0.2841 mm (over spec)
+
+## h1 [1.2, -0.15] | H 4.75 N | phi 305.5 | sensor axis 0 | |y| 0.0423 mm
+  P1 sweep +-6 deg (0.25 deg): 49 of 49 plan; |y| median 0.0058, max 0.0423 mm; over 0.03 mm at offsets -1.75 to +3.00 deg (20 points)
+  P1 |y| by offset: -6.0:0.006 -5.0:0.006 -4.0:0.006 -3.0:0.006 -2.0:0.006 -1.0:0.042 +0.0:0.042 +1.0:0.042 +2.0:0.042 +3.0:0.042 +4.0:0.006 +5.0:0.006 +6.0:0.006
+  P2 joints moving |y| most (|y| drop when that joint's error takes its sweep median; error now / median, rad): left_hip_pitch +0.0365 mm (7.45e-04 / 1.73e-05); left_hip_roll +0.0000 mm (-1.60e-07 / -1.60e-07); right_shoulder_yaw +0.0000 mm (-4.09e-06 / -4.09e-06)
+  P2 that joint's torque at 25 / 50 N: planned -0.1000 / -11.7159 N m, settled -0.2732 / -11.8891 N m; squeeze -10.000 N
+  P3 per-load side rule applied anyway: pose sides --++ -> -+--, common leg margin 5.640 N m, |y| 0.0058 mm (in spec)
+
+## h1 [1.2, -0.15] | H 4.75 N | phi 305.5 | sensor axis 2 | |y| 0.0336 mm
+  P1 sweep +-6 deg (0.25 deg): 49 of 49 plan; |y| median 0.0029, max 0.0336 mm; over 0.03 mm at offsets -2.75 to +1.25 deg (17 points)
+  P1 |y| by offset: -6.0:0.003 -5.0:0.003 -4.0:0.003 -3.0:0.003 -2.0:0.034 -1.0:0.034 +0.0:0.034 +1.0:0.034 +2.0:0.003 +3.0:0.003 +4.0:0.003 +5.0:0.003 +6.0:0.003
+  P2 joints moving |y| most (|y| drop when that joint's error takes its sweep median; error now / median, rad): left_hip_pitch +0.0307 mm (7.39e-04 / 1.17e-05); right_hip_yaw +0.0000 mm (1.92e-06 / 1.92e-06); left_hip_yaw +0.0000 mm (3.01e-06 / 3.01e-06)
+  P2 that joint's torque at 25 / 50 N: planned -0.1000 / -11.6982 N m, settled -0.2167 / -11.8150 N m; squeeze -10.000 N
+  P3 per-load side rule applied anyway: pose sides --++ -> -+--, common leg margin 5.647 N m, |y| 0.0029 mm (in spec)
+
+## h1 [1.2, -0.15] | H 12.62 N | phi 210.5 | sensor axis 0 | |y| 0.0322 mm
+  P1 sweep +-6 deg (0.25 deg): 49 of 49 plan; |y| median 0.0058, max 0.0322 mm; over 0.03 mm at offsets -1.50 to +1.25 deg (12 points)
+  P1 |y| by offset: -6.0:0.006 -5.0:0.006 -4.0:0.006 -3.0:0.006 -2.0:0.006 -1.0:0.032 +0.0:0.032 +1.0:0.032 +2.0:0.006 +3.0:0.006 +4.0:0.006 +5.0:0.006 +6.0:0.006
+  P2 joints moving |y| most (|y| drop when that joint's error takes its sweep median; error now / median, rad): left_knee +0.0264 mm (7.42e-04 / 1.49e-05); right_hip_roll +0.0000 mm (-5.01e-07 / -5.01e-07); left_hip_yaw +0.0000 mm (1.78e-06 / 1.78e-06)
+  P2 that joint's torque at 25 / 50 N: planned +17.0386 / +0.3000 N m, settled +16.8896 / +0.1510 N m; squeeze -10.000 N
+  P3 per-load side rule applied anyway: pose sides --++ -> ---+, common leg margin 3.810 N m, |y| 0.0011 mm (in spec)
+
+## g1 [1.2, 0.15] | H 11.52 N | phi 44.8 | sensor axis 3 | |y| 0.0251 mm
+  P1 sweep +-6 deg (0.25 deg): 49 of 49 plan; |y| median 0.0014, max 0.0251 mm; over 0.03 mm at offsets none
+  P1 |y| by offset: -6.0:0.001 -5.0:0.001 -4.0:0.001 -3.0:0.001 -2.0:0.025 -1.0:0.025 +0.0:0.025 +1.0:0.025 +2.0:0.001 +3.0:0.001 +4.0:0.001 +5.0:0.001 +6.0:0.001
+  P2 joints moving |y| most (|y| drop when that joint's error takes its sweep median; error now / median, rad): right_hip_pitch_joint +0.0238 mm (7.39e-04 / 1.23e-05); right_shoulder_roll_joint +0.0000 mm (6.96e-06 / 6.96e-06); waist_yaw_joint +0.0000 mm (5.37e-06 / 5.37e-06)
+  P2 that joint's torque at 25 / 50 N: planned +6.3840 / +0.3000 N m, settled +6.2613 / +0.1773 N m; squeeze -10.000 N
+  P3 per-load side rule applied anyway: pose sides --++-+ -> -+-+-+, common leg margin 2.627 N m, |y| 0.0014 mm (in spec)
+
+## h1 [1.2, -0.15] | H 14.78 N | phi 225.6 | sensor axis 3 | |y| 0.0235 mm
+  P1 sweep +-6 deg (0.25 deg): 49 of 49 plan; |y| median 0.0029, max 0.0235 mm; over 0.03 mm at offsets none
+  P1 |y| by offset: -6.0:0.003 -5.0:0.003 -4.0:0.003 -3.0:0.003 -2.0:0.003 -1.0:0.003 +0.0:0.023 +1.0:0.003 +2.0:0.003 +3.0:0.003 +4.0:0.003 +5.0:0.003 +6.0:0.003
+  P2 joints moving |y| most (|y| drop when that joint's error takes its sweep median; error now / median, rad): left_knee +0.0206 mm (-7.39e-04 / -1.15e-05); torso +0.0000 mm (6.30e-06 / 6.30e-06); left_hip_yaw +0.0000 mm (-3.01e-06 / -3.01e-06)
+  P2 that joint's torque at 25 / 50 N: planned +14.3973 / +0.1000 N m, settled +14.5120 / +0.2147 N m; squeeze -10.000 N
+  P3 per-load side rule applied anyway: pose sides --++ -> ---+, common leg margin 3.393 N m, |y| 0.0029 mm (in spec)
+
+## h1 [1.2, -0.15] | H 14.78 N | phi 225.6 | sensor axis 2 | |y| 0.0235 mm
+  P1 sweep +-6 deg (0.25 deg): 49 of 49 plan; |y| median 0.0029, max 0.0235 mm; over 0.03 mm at offsets none
+  P1 |y| by offset: -6.0:0.003 -5.0:0.003 -4.0:0.003 -3.0:0.003 -2.0:0.003 -1.0:0.003 +0.0:0.023 +1.0:0.003 +2.0:0.003 +3.0:0.003 +4.0:0.003 +5.0:0.003 +6.0:0.003
+  P2 joints moving |y| most (|y| drop when that joint's error takes its sweep median; error now / median, rad): left_knee +0.0206 mm (7.39e-04 / 1.15e-05); right_shoulder_pitch +0.0000 mm (2.35e-06 / 2.35e-06); left_hip_roll +0.0000 mm (1.39e-06 / 1.39e-06)
+  P2 that joint's torque at 25 / 50 N: planned +14.6617 / +0.3134 N m, settled +14.5470 / +0.1987 N m; squeeze -10.000 N
+  P3 per-load side rule applied anyway: pose sides --++ -> ---+, common leg margin 3.485 N m, |y| 0.0029 mm (in spec)
+
+## h1 [1.2, -0.15] | H 11.76 N | phi 190.9 | sensor axis 2 | |y| 0.0235 mm
+  P1 sweep +-6 deg (0.25 deg): 49 of 49 plan; |y| median 0.0235, max 0.0235 mm; over 0.03 mm at offsets none
+  P1 |y| by offset: -6.0:0.003 -5.0:0.003 -4.0:0.023 -3.0:0.023 -2.0:0.023 -1.0:0.023 +0.0:0.023 +1.0:0.023 +2.0:0.023 +3.0:0.023 +4.0:0.023 +5.0:0.023 +6.0:0.023
+  P2 joints moving |y| most (|y| drop when that joint's error takes its sweep median; error now / median, rad): torso +0.0000 mm (-6.30e-06 / -6.30e-06); left_hip_roll +0.0000 mm (1.39e-06 / 1.39e-06); right_hip_roll +0.0000 mm (1.46e-06 / 1.46e-06)
+  P2 that joint's torque at 25 / 50 N: planned +12.4834 / +21.9482 N m, settled +12.5464 / +22.0113 N m; squeeze -10.000 N
+  P3 per-load side rule applied anyway: pose sides --++ -> ---+, common leg margin 4.177 N m, |y| 0.0029 mm (in spec)
+
+## g1 [0.8, 0.0] | H 8.99 N | phi 239.4 | sensor axis 2 | |y| 0.0233 mm
+  P1 sweep +-6 deg (0.25 deg): 38 of 49 plan; |y| median 0.0127, max 0.0233 mm; over 0.03 mm at offsets none
+  P1 |y| by offset: -6.0:- -5.0:0.023 -4.0:0.023 -3.0:0.023 -2.0:- -1.0:- +0.0:0.023 +1.0:0.023 +2.0:0.002 +3.0:0.002 +4.0:0.002 +5.0:0.002 +6.0:0.002
+  P2 joints moving |y| most (|y| drop when that joint's error takes its sweep median; error now / median, rad): left_hip_pitch_joint +0.0106 mm (7.42e-04 / 3.79e-04); right_elbow_joint +0.0000 mm (1.10e-06 / 1.10e-06); right_shoulder_yaw_joint +0.0000 mm (-3.10e-06 / -3.10e-06)
+  P2 that joint's torque at 25 / 50 N: planned +14.6007 / +0.3000 N m, settled +14.4490 / +0.1483 N m; squeeze -4.550 N
+  P3 per-load side rule applied anyway: pose sides ++---- -> +-+-++, common leg margin 2.242 N m, |y| 0.0021 mm (in spec)
+
+## g1 [1.0, 0.15] | H 13.74 N | phi 154.6 | sensor axis 3 | |y| 0.0226 mm
+  P1 sweep +-6 deg (0.25 deg): 49 of 49 plan; |y| median 0.0226, max 0.0226 mm; over 0.03 mm at offsets none
+  P1 |y| by offset: -6.0:0.000 -5.0:0.023 -4.0:0.023 -3.0:0.023 -2.0:0.023 -1.0:0.023 +0.0:0.023 +1.0:0.023 +2.0:0.000 +3.0:0.000 +4.0:0.000 +5.0:0.000 +6.0:0.000
+  P2 joints moving |y| most (|y| drop when that joint's error takes its sweep median; error now / median, rad): waist_yaw_joint +0.0000 mm (6.17e-06 / 6.17e-06); right_wrist_yaw_joint +0.0000 mm (1.45e-06 / 1.45e-06); waist_roll_joint +0.0000 mm (-4.20e-06 / -4.20e-06)
+  P2 that joint's torque at 25 / 50 N: planned -0.1539 / -0.3042 N m, settled -0.2156 / -0.3659 N m; squeeze -10.000 N
+  P3 per-load side rule applied anyway: pose sides --++-+ -> -+-+-+, common leg margin 1.869 N m, |y| 0.0000 mm (in spec)
+
+(run time 99 s)

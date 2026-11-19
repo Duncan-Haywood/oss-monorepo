@@ -311,6 +311,22 @@ class ImportState:
         return [row_to_item(row) for row in rows]
 
 
+def needs_duplicate_check(item: ImportItem) -> bool:
+    """Whether Photos must check duplicates when importing this item.
+
+    Only an item that has never been sent to Photos may skip the check.
+    ``item`` is the row as claimed (status and attempts from before the
+    claim's increment), so a fresh manifest row is ``pending`` with 0
+    attempts. A row that was claimed before and then reset to ``pending``
+    (recover_importing after a crash, watchdog kill or timeout;
+    reset_failed_transient_to_pending; a relaunch-Photos retry) carries
+    attempts >= 1: Photos may already hold it, so the check stays on.
+    Keying on status alone re-imported those rows with the check off
+    (quality audit 2026-11-17-photos-import-tools.json, defect 1).
+    """
+    return item.status != "pending" or item.attempts > 0
+
+
 def row_to_item(row: sqlite3.Row) -> ImportItem:
     return ImportItem(
         path=Path(str(row["path"])),
@@ -655,7 +671,7 @@ class PhotosImporter:
             return
 
         paths = [item.path for item in batch]
-        duplicate_check = any(item.status != "pending" for item in batch)
+        duplicate_check = any(needs_duplicate_check(item) for item in batch)
         try:
             self.import_paths_osascript(paths, duplicate_check=duplicate_check)
             for item in batch:
@@ -693,7 +709,7 @@ class PhotosImporter:
         scratch_path = self.scratch_dir / item.path.name if self.scratch_dir else None
         try:
             import_path = self.resolve_import_path(item.path)
-            self.import_paths_osascript([import_path], duplicate_check=item.status != "pending")
+            self.import_paths_osascript([import_path], duplicate_check=needs_duplicate_check(item))
             # Mark imported before cleanup: Photos already has the file at
             # this point, so a cleanup_scratch failure below must not undo
             # the bookkeeping -- that would leave the item "importing"
@@ -1175,9 +1191,16 @@ def main(argv: Iterable[str] = sys.argv[1:]) -> int:
             print(format_summary("Initialized", state.summary()))
             return 0
         if args.command == "status":
-            recovered = recover_interrupted(state)
-            if recovered:
-                print(f"Recovered {recovered} interrupted file(s) to pending.")
+            # Read-only: a worker may be importing right now, and resetting
+            # its 'importing' rows here would let a second run claim them
+            # again. `run` recovers interrupted rows itself at start (quality
+            # audit 2026-11-17-photos-import-tools.json, defect 6).
+            in_flight = state.summary()["importing"]
+            if in_flight:
+                print(
+                    f"{in_flight} file(s) marked importing: in progress if a worker is running, "
+                    "otherwise interrupted (the next `run` retries them with duplicate checking on)."
+                )
             print(f"Media type: {args.media_type} manifest={manifest_path.name}")
             print(format_summary("Status", state.summary()))
             recent = summarize_recent_errors(error_log)

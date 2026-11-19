@@ -1,0 +1,17 @@
+# Milestone 11an post hoc: line-detrended RMS of baro - RTK after a centred running mean (m), 27 flights
+  enroute (7 flights)
+    raw  median 0.826 (p25 0.632, p75 1.243, max 1.763); sqrt(mean sq) 1.058
+    s1   median 0.610 (p25 0.466, p75 0.991, max 1.682); sqrt(mean sq) 0.907
+    s2   median 0.540 (p25 0.393, p75 0.942, max 1.640); sqrt(mean sq) 0.864
+    s5   median 0.420 (p25 0.354, p75 0.906, max 1.566); sqrt(mean sq) 0.814
+    s10  median 0.396 (p25 0.309, p75 0.876, max 1.505); sqrt(mean sq) 0.779
+  hover (22 flights)
+    raw  median 0.345 (p25 0.290, p75 0.898, max 2.897); sqrt(mean sq) 1.032
+    s1   median 0.228 (p25 0.193, p75 0.631, max 2.862); sqrt(mean sq) 0.994
+    s2   median 0.192 (p25 0.156, p75 0.567, max 2.820); sqrt(mean sq) 0.978
+    s5   median 0.179 (p25 0.112, p75 0.533, max 2.692); sqrt(mean sq) 0.950
+    s10  median 0.182 (p25 0.094, p75 0.533, max 2.388); sqrt(mean sq) 0.902
+  speed-binned mean of detrended baro - RTK minus the flight's hover mean (m)
+    1-5    m/s: -1.38, -0.42, -0.01, +0.01, +0.03, +0.23, +0.28, +0.30, +0.32, +0.74, +0.93
+    5-10   m/s: -6.77, -1.38, -0.22, +0.52
+  check: raw RMS recomputed equals the committed r_lin in 29 of 29 flight-sets

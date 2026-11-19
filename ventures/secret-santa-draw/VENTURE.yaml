@@ -38,6 +38,14 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: >-
+      Visitors who arrive for a Secret Santa draw will also use a one-screen
+      white elephant host (added 2026-11-18) that enforces steal limits and
+      frozen gifts, measured as the share of we_started events that reach
+      we_finished (local counters only, no reading yet).
+    status: untested
+    checked: null
+    evidence: in-repo
 
 economics:
   currency: USD

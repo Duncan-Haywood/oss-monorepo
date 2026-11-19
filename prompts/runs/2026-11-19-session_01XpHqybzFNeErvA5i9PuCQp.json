@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqybzFNeErvA5i9PuCQp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T00:39:05Z",
+  "ended": "2026-11-19T00:49:15Z",
+  "wall_minutes": 17.59,
+  "tokens_in": 10170703,
+  "tokens_out": 51369,
+  "cost_usd": 4.2465,
+  "tool_calls": 81,
+  "task": "flagship 4 changepoint-detector: one-day closures (--closed dates treated as missing), pre-registered on a fresh shop year",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17481",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First simulation run was single-threaded and would have outlived the 30-minute background limit; killed and re-run as 4 shards (same seed, same 200 series).",
+      "cost_minutes": 10
+    },
+    {
+      "what": "pkill -f with the script name repeated in the same command line was refused by the hook; split into its own call.",
+      "cost_minutes": 1
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill/pgrep bracket advice does not mention that the hook also refuses the command when the unbracketed name appears anywhere else in the same command line (e.g. a later node invocation); it cost one retry."
+    },
+    {
+      "file": "prompts/promptctl.py route",
+      "issue": "Router printed '4784/40 runs toward the next review', which reads like a bug in the review counter (more runs than the threshold, yet no review routed)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/closed-days.prereg.md",
+      "why": "Pre-registered 'all four bars pass: --closed ships'; K1 failed, so the CLI/page/agent wiring I had drafted was reverted and only the module function landed.",
+      "did": "Kept fillClosed in watch-core.mjs with 5 pinned tests; README documents the negative result.",
+      "result": "Honest negative; the option is not offered."
+    },
+    {
+      "file": "eval/closed-days.prereg.md",
+      "why": "The prereg said the 200-series simulation would be one run; it was run as 4 shards that each draw all 200 series from the one seed and replay every 4th, so the set is identical.",
+      "did": "Added sim K k / simsum modes to eval/closed-days.mjs.",
+      "result": "Same 200 series, ~4x faster."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-changepoint-closed-days-bank-holidays.md",
+    "ventures/changepoint-detector/README.md#closed-days-filled-as-missing"
+  ],
+  "goal": "Deepen flagship 4 with a pre-registered real-data test of the next listed item.",
+  "notes": "Flagship 4 item 'one-day closures (--closed)'. Pre-registered (eval/closed-days.prereg.md) on a fresh year of the same UK shop (UCI Online Retail II 2009-10, fetched from archive.ics.uci.edu, which answered this time). Fresh year: closure alerts 10->2 (K1 bar 0, FAIL), Quiet 31->22 (K2 PASS), 36/42 other alerts kept (K3 PASS); sim 200 series: 99->8 of 100 near closure (K4a bar 2, FAIL; chance rate ~18), steps caught 75->70 (K4b FAIL). Not offered; fillClosed kept as a module function with 5 tests. Verification: run_venture_tests.py changepoint-detector -> ok, 930 tests, 276.5s; check_posts ok; validate.py ok. Container restarted mid-preflight; reran unwired_checks and venture-preflight.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c07196a5-25d1-50d3-b107-4d7b50304b33",
+    "transcripts": 1,
+    "first": "2026-11-19T00:39:05Z",
+    "last": "2026-11-19T00:56:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 145,
+        "output": 51369,
+        "thinking": 10780,
+        "cache_read": 10018707,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151851,
+        "api_equivalent_usd": 4.2465,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 145,
+      "output": 51369,
+      "thinking": 10780,
+      "cache_read": 10018707,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151851,
+      "api_equivalent_usd": 4.2465,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 76,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.59,
+      "active_minutes": 17.43,
+      "model_minutes": 8.3,
+      "tool_minutes": 9.13,
+      "waiting_on_human_minutes": 0.16,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician: fetch and reshape a second year, pre-register, code a fill rule, a real-data and a 200-series simulation run, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 141.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -194,28 +194,32 @@
    "what": "Per-design policy search is inert: train_policy returns its start (0.6, 0.4, 0.4) in 2,246 of 2,417 feasible evaluations and all 40 agent ones; a training-terrain grid over the same policy class gives test J 0.862 for [90,320,0,0.6,5], so the 0.783 'ceiling', the 'one-dimensional problem' and the optimiser ranking rest on an untrained controller",
    "where": "research/codesign-sar/src/codesign_sar/sar.py:148",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17459"
   },
   {
    "severity": "high",
    "what": "README attributes the 0.689 vs 0.783 gap to policy-search noise between 'identical-physics' designs; both used the identical default policy and the designs differ in mass at a torque-limited 40 mm step",
    "where": "research/codesign-sar/README.md:23",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17459"
   },
   {
    "severity": "medium",
    "what": "'Wheelbase, flipper length and battery size did not change J' and the 0.783 ceiling are artefacts of the inert policy: with a high approach speed long-wheelbase designs reach 0.862 and short ones tip (0.092)",
    "where": "research/codesign-sar/README.md:10",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17459"
   },
   {
    "severity": "medium",
    "what": "Kinetic-energy rule is OR-ed after the h >= R guard, so a 25 mm wheel crosses a 30 mm step at 1.5 m/s",
    "where": "research/codesign-sar/src/codesign_sar/sar.py:93",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17459"
   },
   {
    "severity": "medium",
@@ -229,7 +233,8 @@
    "what": "5 of 7 seeded bugs in core logic survive, including disabling policy training; no test pins a J, a policy, or that training improves on its start",
    "where": "research/codesign-sar/tests/test_sar.py:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17459"
   },
   {
    "severity": "low",
@@ -244,7 +249,8 @@
    "what": "T is described as torque per wheel but traction T/R is set against per-axle load with one motor costed per axle, so the model's T is per-axle torque",
    "where": "research/codesign-sar/README.md:20",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17459"
   },
   {
    "severity": "low",
@@ -255,6 +261,6 @@
    "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17046"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17046"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17046", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17459"],
  "verdict": "A tidy, byte-reproducible stylised study with honest caveats (AI assistance, unsourced BOM, agent calibration prior, simulation not a safety case) and step-climbing statics that match an independent free-body solve. But its central mechanism, a per-design trained controller, does not train: the evolution-strategies search returns its initial guess for 93% of feasible designs and every agent design, so the reported 0.783 ceiling, the 'one-dimensional' design space and the 'policy noise' explanation are artefacts; choosing the same three policy numbers on the training terrains alone gives J 0.862 with a long wheelbase. Five of seven seeded bugs survive the tests. Below the bar on correctness, claims and verification; the optimiser comparison should be rerun after the policy search is fixed."
 }

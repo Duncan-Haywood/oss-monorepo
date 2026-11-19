@@ -120,25 +120,79 @@ const ruTotalLine = (l) => (RU_TOTAL_RE.test(l) ? l.replace(/(\d)\s+-\s?(\d{2})(
 // Cyrillic; the rest of the name is kept as read, up to the next column gap.
 const RU_LOOK = { A: "А", B: "В", C: "С", E: "Е", H: "Н", K: "К", M: "М", O: "О", P: "Р", T: "Т", X: "Х", Y: "У", 0: "О", Ё: "Е" };
 const ruFold = (s) => s.toUpperCase().replace(/[ABCEHKMOPTXY0Ё]/g, (c) => RU_LOOK[c]);
-const RU_FORM_RE = /^(ИНДИВИДУАЛЬНЫЙ ПРЕДПРИНИМАТЕЛЬ|АКЦИОНЕРНОЕ ОБ[ЩШ]ЕСТВО|ОБ[ЩШ]ЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ|ФГУП|ГУП|МУП|ПАО|ЗАО|ОАО|ООО|АО|ИП)(?=[\s"«“”'*.,]|$)/;
+const RU_FORM_RE = /^(ИНДИВИДУАЛЬНЫЙ ПРЕДПРИНИМАТЕЛЬ|АКЦИОНЕРНОЕ ОБ[ЩШЦ]ЕСТВО|ОБ[ЩШЦ]ЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТ(?:ЬЮ)?|ФГУП|ГУП|МУП|ПАО|ЗАО|ОАО|ООО|АО|ИП)(?=[\s"«“”'*.,]|$)/;
+// Forms the engine misreads, each taken only where what follows rules out an ordinary word:
+// ЗДО for ЗАО (no Russian word), АD, АД or ДО for АО before a quoted name (ДО alone is "until"),
+// and ИЛ for ИП before a surname with initials or a full name (ИЛ ИВАНОВА Ю.С.). Val's misses
+// (eval/receipt-ocr-ru-forms-2026-11-19.md).
+const RU_MISREAD = [
+  [/^З[ДD]О(?=\s+\p{L}{2})/u, "ЗАО"],
+  [/^(?:А[DД]|[DД]О)(?=\s*["«“])/u, "АО"],
+  [/^ИЛ(?=\s+\p{Lu}[\p{L}-]+\s+(?:\p{Lu}\.\s?\p{Lu}\.?|\p{Lu}\p{Ll}+\s+\p{Lu}\p{Ll}+)(?:\s|$))/u, "ИП"],
+];
+function ruForm(t) {
+  const f = ruFold(t);
+  const m = f.match(RU_FORM_RE);
+  if (m) return { len: m[1].length, form: m[1] };
+  // only the form's own token is folded: the name after it keeps its case (initials, a capital)
+  const head = t.match(/^\S+/)?.[0] ?? "";
+  const g = ruFold(head) + t.slice(head.length);
+  for (const [re, form] of RU_MISREAD) if (re.test(g)) return { len: head.length, form };
+  return null;
+}
+// Which recogniser a receipt photo wants, from a reading by the Latin one: "cyrillic" or "latin".
+// A Latin recogniser reads a Cyrillic slip in look-alikes, and Cyrillic's lower-case а е о р с у х
+// come out as Latin lower case inside upper-case words: CyMMA (СУММА), nPHXOA (ПРИХОД), KACCOBbIA
+// (КАССОВЫЙ). A lower-case letter followed by two capitals is rare on Latin receipts, whose glued
+// words go lower-to-Capital-lower (ChickenFried) and whose brand prefixes (McDONALD'S, iPHONE,
+// eBAY) are set aside below. Three such words mark the slip as Cyrillic: on val's 149 Russian
+// photos read by RapidOCR's Latin model, 147 have three or more (the other two are a near-blank
+// photo and a 33-word one with two); on the 200 SRD photos (US) none has more than two
+// (eval/receipt-script-2026-11-19.md). Text already in Cyrillic (ten letters or more) is Cyrillic.
+// A quantity glued to an item name (1xBTL) is cut off first: it was the cause of the only two
+// Latin receipts taken for Cyrillic, 2 of WildReceipt's 472 (found there, so that set is no
+// longer held out for this cut).
+const BRAND_PREFIX = /^(?:Ma?c(?=[A-Z])|[ie](?=(?:PHONE|PAD|MAC|POD|BAY|TUNES|CLOUD|WATCH)))/;
+export function receiptScript(text) {
+  const t = String(text || "");
+  if ((t.match(/[\u0400-\u04ff]/g) || []).length >= 10) return "cyrillic";
+  // a quantity glued to the item ("1xBTL", "10xTVA") is not a word: WildReceipt's two misses
+  const words = (t.match(/[A-Za-z0-9]{3,}/g) || []).map((w) => w.replace(/^\d+x(?=[A-Z])/, "").replace(BRAND_PREFIX, ""));
+  return words.filter((w) => /[a-z][A-Z]{2}/.test(w)).length >= 3 ? "cyrillic" : "latin";
+}
+const looksRussian = (lines) => (lines.join("\n").match(/[а-яё]/gi) ?? []).length >= 20 || lines.some((l) => RU_TOTAL_RE.test(l));
+// A Russian slip whose reading names no seller: worth a second, enlarged look (ocr.mjs reads
+// the photo again in bands, rapidocr_rows.py --bands).
+export const needsSellerLook = (text) => { const lines = String(text ?? "").split("\n"); return looksRussian(lines) && !russianSeller(lines); };
+// The seller from that second look, put on the reading's first line so the parser takes it;
+// the reading is otherwise unchanged (totals and items still come from the first look).
+// On val 117 to 122 of 146 sellers, none lost (README, "A second look for the seller").
+export function withBandSeller(text, bandText) {
+  const lines = String(text ?? "").split("\n");
+  if (!needsSellerLook(text)) return text;
+  const seller = russianSeller([...String(bandText ?? "").split("\n"), ...lines]);
+  return seller ? `${seller}\n${text}` : text;
+}
 export function russianSeller(lines) {
-  const text = lines.join("\n");
-  if ((text.match(/[а-яё]/gi) ?? []).length < 20 && !lines.some((l) => RU_TOTAL_RE.test(l))) return null;
-  for (const l of lines) {
+  if (!looksRussian(lines)) return null;
+  for (const [li, l] of lines.entries()) {
     const segs = l.split(/\s{2,}/);
     for (const [i, seg] of segs.entries()) {
       let t = seg.replace(/^[^\p{L}\d"«]+/u, "").replace(/[\s*]+$/, "");
-      const m = ruFold(t).match(RU_FORM_RE);
+      const fm = ruForm(t);
       // the engine left a column gap after a spelled-out form: АКЦИОНЕРНОЕ ОБЩЕСТВО  ТОРГОВЫЙ ДОМ ...
-      if (m && m[1].length > 3 && t.length === m[1].length && segs[i + 1]) t = `${t} ${segs[i + 1].replace(/[\s*]+$/, "")}`;
+      if (fm && fm.len > 3 && t.length === fm.len && segs[i + 1]) t = `${t} ${segs[i + 1].replace(/[\s*]+$/, "")}`;
+      // ... or the name wrapped to the next line, sometimes taking the form's last letters with it:
+      // ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТ / ЬЮ "МОСВОДОСТРОЙ"
+      else if (fm && fm.len > 3 && t.length === fm.len && i === segs.length - 1 && lines[li + 1]) t = `${t} ${lines[li + 1].split(/\s{2,}/)[0].replace(/^ЬЮ\s*/, "").replace(/[\s*]+$/, "")}`;
       // a form with nothing after it, or only digits (an ИНН line, "ИП 0000"), is no name
-      if (!m || !/\p{L}{2}/u.test(t.slice(m[1].length))) continue;
+      if (!fm || !/\p{L}{2}/u.test(t.slice(fm.len))) continue;
       // the slip also names the bank that took the card (ПАО СБЕРБАНК) and the fiscal data
       // operator (ОФД: ООО "Ярус", ООО "ПЕТЕР-СЕРВИС СПЕЦТЕХНОЛОГИИ", Такском, Тензор): not the seller
       if (/БАНК|ОФД|ПЕТЕР-СЕРВИС|ЯРУС|ТАКСКОМ|ТЕНЗОР|ЭВОТОР|КОНТУР/.test(ruFold(l))) continue;
       // a quoted name ends at its closing quote: 000 "КЛАУДС БАР" 191036, г. ... is the bar
       const name = t.match(/^\S+(?:\s+\S+){0,3}?\s*["«“].*?["»”](?=\s|$)/u)?.[0] ?? t;
-      return (m[1] + name.slice(m[1].length)).replace(/ОБШЕСТВО/, "ОБЩЕСТВО").slice(0, 60);
+      return (fm.form.replace(/ОТВЕТСТВЕННОСТ$/, "ОТВЕТСТВЕННОСТЬЮ") + name.slice(fm.len)).replace(/ОБ[ШЦ]ЕСТВО/, "ОБЩЕСТВО").slice(0, 60);
     }
   }
   return null;
