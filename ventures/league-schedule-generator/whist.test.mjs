@@ -173,6 +173,27 @@ test("americano: 52 and near-whist 58 (eval/whist-starter.c) play their own desi
   }
 });
 
+test("americano: 57 players on 14 courts play the Singer design (eval/whist-singer.c): every pair partners once, meets twice", () => {
+  assert.ok(whistSizes().includes(57));
+  assert.ok(checkWhist(57, whistDesign(57)));
+  const P = names(57);
+  const plan = americano(P, { courts: 14, seed: 57 });
+  assert.equal(plan.design?.size, 57);
+  assert.equal(plan.rounds.length, 57);
+  assert.deepEqual(validateAmericano(P, plan), []);
+  const st = americanoStats(P, plan);
+  assert.equal(st.repeatPartners, 0);
+  assert.equal(st.unmetPartners, 0);
+  assert.deepEqual(opponentRange(plan, 57), [2, 2]);
+  assert.ok(plan.rounds.every((r) => r.matches.length === 14), "every court used every round");
+});
+
+test("whist 57: every table of the stored base lies on one line of the Singer plane {0,1,3,13,32,36,43,52} + s", () => {
+  const D = [0, 1, 3, 13, 32, 36, 43, 52];
+  const lines = Array.from({ length: 57 }, (_, s) => new Set(D.map((d) => (d + s) % 57)));
+  for (const t of whistDesign(57)[0].tables) assert.ok(lines.some((L) => t.every((p) => L.has(p))), `table ${t}`);
+});
+
 test("americano: 4k+2 players play a near-whist design: one missed partner each, every pair meets", () => {
   for (const n of nearWhistSizes().filter((m) => m <= 30)) {
     const P = names(n);

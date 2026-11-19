@@ -351,7 +351,51 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Whist designs for 52 and near-whist for 58, by starter and table matching (2026-11-19, newest)
+## 57 players: a whist design from the projective plane of order 7 (2026-11-19, newest)
+
+57 was the last whist size up to 64 with no stored design: 3.7 CPU-hours of starters and table matching,
+55 CPU-minutes of tabu search and 100 CPU-minutes on Z19 x| Z3 found nothing (sections below), so a
+57-player Americano night on 14 courts fell back to the greedy search. The search was the wrong tool;
+a structure finds it in seconds.
+
+**The construction.** 57 = 7^2 + 7 + 1, the number of points of the projective plane of order 7, and that
+plane has a cyclic model: its 57 lines are the translates D + s of the Singer difference set
+D = {0, 1, 3, 13, 32, 36, 43, 52} in Z57 (every nonzero difference of D occurs exactly once, so any two
+points lie on exactly one line). A line has 8 points, and 8 players have a whist design of their own
+(Wh(8), already stored). Seat that Wh(8) on every line the same way, shifted with the line. Then each
+pair of players, lying on exactly one line, partners exactly once and meets exactly twice across the
+whole season, which is what a whist design asks. What is left is fitting it into rounds: the base round
+must be the 14 tables of the Wh(8) on D, table i moved by its own shift t_i, with the 14 moved tables
+disjoint and covering every player but 0. Developing that base round over Z57 puts on each line D + s
+exactly the Wh(8) shifted by s. Choosing the shifts is an exact-cover problem (14 tables x 53 allowed
+shifts against 56 players), solved by dancing links; the seating of the Wh(8) on D is free, so the
+program tries random seatings until one has a cover.
+
+**Result** (`eval/whist-singer.c`, `eval/whist-singer.txt`): 10 of 10 seeds find a base round, after 1 to
+49 seatings, in 0.05 to 22 s (median under 4 s) on one core. The stored base passes `checkWhist` pair
+by pair when `eval/whist-bases-build.mjs` builds `whist-bases.mjs`, and a test checks that every one of
+its tables lies on a Singer line.
+
+Why the earlier searches missed it, as far as can be said: they searched base rounds with no structure,
+where a design is a needle (the starter section estimates about 0.5 designs per starter, and the tree's
+heavy tail ate the budget). Here every pair condition holds by construction, and only a disjointness
+problem with tens of solutions per seating remains.
+
+What it changes on the page (57 players, 14 courts, `americano` with and without designs, seed 57):
+
+| | rounds | games each | repeat partners | pairs never partnered | times a pair meets |
+|---|---|---|---|---|---|
+| before (greedy) | 57 | 56 | 87 | 87 | 0 to 5 |
+| now (design 57) | 57 | 56 | 0 | 0 | exactly 2 |
+
+It builds in 9 ms instead of about 300 ms. Stored now: every whist size from 4 to 64 (52 by the starter
+search, 57 by this construction); 51 still plays design 52 with one empty seat and near-whist covers
+every 4k+2 from 6 to 62. The same idea needs a projective plane whose lines hold a multiple of 4
+points, more than 4: order 3 fails (a Wh(4) table is a whole line, and two lines always meet), order 11 gives 133
+players, past the 64 the card takes. Tested in `whist.test.mjs` ("57 players on 14 courts play the
+Singer design", "every table of the stored base lies on one line").
+
+## Whist designs for 52 and near-whist for 58, by starter and table matching (2026-11-19)
 
 Every earlier search (`eval/whist-search.c`, `eval/whist-anneal.c`, `eval/whist-orbits.c`, the near-whist
 SAT) moved single players around the whole base round, and none found 52, 57 or near-whist 58 in 25 to
