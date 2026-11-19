@@ -1,0 +1,246 @@
+{
+ "date": "2026-11-19",
+ "subject": "research/sensing-mixgate",
+ "stratum": "research",
+ "seed": "2026-11-19-n-5b9b",
+ "round": 87,
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior computer-vision researcher in multi-view geometry and structure-from-motion (robust estimation, geometric verification, bundle adjustment); first checks: does the simulated 'along-epipolar' mismatch mean the same thing in a 12-view orbit as in the stereo pair it was measured on, are the headline numbers robust to single failed seeds, is the comparison against what SfM pipelines actually do (COLMAP/Bundler geometric verification, RANSAC, E rather than F when intrinsics are known, gate + RANSAC together), and is prior work (Hartley & Zisserman 2004; Lowe 2004; Schonberger & Frahm 2016; Jin et al. 2021 Image Matching Benchmark) and the in-repo duplicates cited",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The arithmetic is right and exactly reproducible: a rerun of experiments/run.py in a private copy (scratchpad mg/, /usr/bin/python3.13 with scipy, 10m19s on 4 cores) wrote a results.txt byte-identical to the committed one (diff empty). Independently: (1) an own numpy check of the mismatch generator (chk/along.py) builds each pair's F from the camera matrices by Hartley & Zisserman eq. 9.1 (F = [e']x P' P^+) and confirms every 'along' error lies on some other view's true epipolar line (max distance 9.7e-13 px) at 10.0-39.6 px, and the 0.8 mix draws along/near/far at 0.380/0.295/0.325 against 0.386/0.287/0.327 (n=5874); (2) an own recomputation of results_seeds.txt from results_seeds.json (chk/seeds.py: own percentile bootstrap, exact sign test) matches every median, fail share and win count, and its seed 0-5 means equal results.txt table A/B/C to 4 decimals; (3) MIXES equals sensing-matchreal results.txt table A2 row for row; (4) the 0.7/0.6/0.8 numbers agree within seed noise with two independently written duplicates of this experiment (sensing-gatemix, 8 seeds: RANSAC 0.013/0.0049/0.0036 vs gate 0.008/0.0032/0.0027; sensing-matchmix 0.7: 0.0060 vs 0.0038). But the reported conclusions rest on a fragile statistic: the headline 6-seed means flip at ratio 0.9 (mean gate 0.130 vs RANSAC 0.082, while 24-seed medians are 0.057 vs 0.071 and the gate wins 11/24) and inflate the 0.8 margin (2.65x by means, 1.26x by medians, 17/24 wins, sign-test p = 0.064). Scored 2: correct computation, headline quantities that the project's own 24-seed data does not support.",
+  "completeness": "Claimed and checked: the mixed generator (works, verified above), tables A/B/C (rerun identical), the 24-seed rerun with medians/intervals/win counts (recomputed from the json, matches), the figure script and SVG (present), the 4 tests (pass), the reproduce commands (work, with PYTHONPATH including sensing-baoutlier as stated; runtime 10 min here vs 'about 6 minutes'). No paper/ directory and no literature section; the live page returned 000 through the proxy (not checked). Everything the README says is done exists and runs. Scored 3.",
+  "verification": "`cd research/sensing-mixgate && PYTHONPATH=src:../sensing-baoutlier/src /usr/bin/python3.13 -m pytest -q`: 4 passed in 2.49 s. quality_mutate.py: swapping the along/near kind labels survived (the test checks only that both give 10-40 px); swapping along and far shares in MIXES['0.8'] survived (tests check only that shares sum to 1); making run_mixed ignore the measured rate (frac default 0.1) survived; dropping '& vis' from the mask was caught. 3 of 4 survive, and nothing tests the experiment scripts or the bootstrap. Scored 1.",
+  "craft": "Files read: src/sensing_mixgate/mix.py (57 lines), __init__.py, experiments/run.py, run_seeds.py, tests/test_mix.py, and the imported sensing-epigate/src/sensing_epigate/gate.py. Short and readable, seeded, parallel. Defects: the experiment works by monkeypatching the module global gate.mismatch (restored in finally, but fragile and process-global); sys.path.insert into siblings rather than declared dependencies (pyproject declares numpy/scipy only; tests need ../sensing-baoutlier/src on PYTHONPATH); MIXES hand-copied from sensing-matchreal instead of parsed (sensing-gatemix parses it); run_seeds.py docstring says about 25 minutes, README says 45. Scored 2.",
+  "claims": "Headline (README.md:3) and project.json lede/summary quote 6-seed means: 'worse than the RANSAC start only at a loose 0.9 ratio test (0.130 against 0.082), where every method is above 0.08' is contradicted by the project's own 24-seed rerun (medians 0.057 gate vs 0.071 RANSAC, 11/24, both below 0.08); '0.0078 against 0.0207 at 0.8' is a 2.65x gap the medians put at 1.26x with overlapping intervals. README.md:3 contains a botched edit ('...at 10% uniform mismatches, The 24-seed rerun shows...'). README.md:35 says the gate 'fails more on a pure-uniform population at the same rates (table B)', but results.txt table B recall is 0.90-0.94 against 0.83-0.84 for the measured mixes: it removes uniform errors better; and the '0.79 to 0.87' it attributes to sensing-epigate are recalls over 8/12/24 views at 10% along, not removal rates of near and along errors. README.md:39 still calls table B erratic and unestablished while README.md:55 says it is not; project.json still says 'An all-uniform control ... is reported as unestablished' and '6 seeds, no intervals'. Backed: tables match results.txt and results_seeds.txt; Table B/C 24-seed statements at README.md:55-56 match the json; limitations are candid about synthetic geometry, one scene and independent draws. No disclaimer issue (research). Scored 1.",
+  "fitness": "A researcher building on this would find the same experiment three times in the repo: research/sensing-gatemix (8 seeds, parses the mixes) and research/sensing-matchmix (6 seeds, adds gate + RANSAC and homography mixes) ask the identical question on the identical rig and none of the three cites the others; matchmix reaches a different headline ('RANSAC start as good within noise' at 0.8 and tighter; RANSAC wins at 0.9). (Sibling sensing-gatecorr, audited separately, builds on sensing-gatemix, not this project.) No external literature is cited at all: not the ratio test (Lowe 2004), the F-matrix gate (Hartley & Zisserman 2004, ch. 11), SfM geometric verification (Snavely et al. 2006; Schonberger & Frahm 2016, COLMAP), or the Image Matching Benchmark (Jin et al. 2021, IJCV) that measures matcher + robust estimator + downstream pose on real data. The result is a small, synthetic, already-replicated step. Scored 1.",
+  "domain": "An SfM researcher would first check the along-epipolar class. Measured on a rectified stereo pair, an 'along' error lies on the epipolar line of the pair that produced the match; here it lies on the line of a random other view w, and the gate only checks pairs at offsets +-1..3, so in chk/along.py 0.596 (n=297; 6/11 = 0.545 expected) of 'along' errors are along for a pair the gate tests and the rest look like ordinary near errors to it. That makes the measured mixes, dominated by 'along' at tight ratio tests (0.62-0.74), easier for the gate than the stereo measurement implies, and it is not stated in Limitations (which name offset sizes and track correlation only). Baselines: no gate + RANSAC start (matchmix has it), no essential-matrix gate though intrinsics are known, no gate using the approximate poses, gate thresholds untuned. Good practice: the 24-seed rerun with bootstrap intervals of the median, paired win counts and fail shares, and honest self-correction of the table B claim. Scored 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "rerun experiments/run.py (tables A, B, C, 6 seeds)",
+   "method": "same code in a private copy of the subject and its siblings",
+   "command": "cd scratchpad/mg/research/sensing-mixgate && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/sensing-mixgate/experiments/results.txt",
+   "expected": "committed results.txt",
+   "observed": "byte-identical (10m19s on 4 cores)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'along' mismatches lie on another view's true epipolar line, 10-40 px",
+   "method": "own F from camera matrices, Hartley & Zisserman 2004 eq. 9.1, own point-line distance",
+   "command": "cd /home/user/oss-monorepo && /usr/bin/python3.13 -I scratchpad/chk/along.py",
+   "expected": "min distance ~0 px, displacement 10-40 px",
+   "observed": "max min-distance 9.66e-13 px, displacement 10.0-39.6 px (n=297)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "kind shares drawn at the 0.8 mix",
+   "method": "classify each corrupted observation geometrically (own F), compare to multinomial shares",
+   "command": "cd /home/user/oss-monorepo && /usr/bin/python3.13 -I scratchpad/chk/along.py",
+   "expected": "0.386 / 0.287 / 0.327",
+   "observed": "0.380 / 0.295 / 0.325 (n=5874)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "24-seed medians, fail shares, win counts; 6-seed means vs results.txt",
+   "method": "own numpy recomputation from results_seeds.json with an independent bootstrap RNG",
+   "command": "cd /home/user/oss-monorepo && /usr/bin/python3.13 -I scratchpad/chk/seeds.py",
+   "expected": "results_seeds.txt and results.txt values",
+   "observed": "all medians, fail shares and wins match; seeds 0-5 means equal results.txt (e.g. A 0.8: 0.4265 0.0207 0.0078); intervals agree to bootstrap noise",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "MIXES vs the measurement",
+   "method": "compare to sensing-matchreal experiments/results.txt table A2",
+   "command": "sed -n 16,22p research/sensing-matchreal/experiments/results.txt",
+   "expected": "rate and shares per ratio test",
+   "observed": "identical for all five rows",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "gate vs RANSAC start at ratios 0.8/0.7/0.6 against independent implementations",
+   "method": "sensing-gatemix (8 seeds) and sensing-matchmix (6 seeds) READMEs, same rig, separately written code",
+   "command": "sed -n 25,31p research/sensing-gatemix/README.md; sed -n 27p research/sensing-matchmix/README.md",
+   "expected": "same ordering within noise",
+   "observed": "gatemix 0.013/0.0049/0.0036 vs 0.008/0.0032/0.0027; matchmix 0.7 0.0060 vs 0.0038: consistent with 24-seed medians here",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline: gate worse than RANSAC start at 0.9 (0.130 vs 0.082), all methods above 0.08",
+   "method": "project's own 24-seed per-seed data",
+   "command": "cd /home/user/oss-monorepo && /usr/bin/python3.13 -I scratchpad/chk/seeds.py",
+   "expected": "RANSAC start better at 0.9",
+   "observed": "medians gate 0.0565 vs RANSAC 0.0712, gate wins 11/24 (sign p 0.84): a tie, both below 0.08",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline: gate best at 0.8 (0.0078 vs 0.0207)",
+   "method": "24-seed medians and exact two-sided sign test",
+   "command": "cd /home/user/oss-monorepo && /usr/bin/python3.13 -I scratchpad/chk/seeds.py",
+   "expected": "clear win",
+   "observed": "0.0084 vs 0.0106 (1.26x, intervals overlap), 17/24 wins, sign p 0.064; established only at 0.7 (p 0.002) and 0.6 (p 0.007)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "README.md:35 'fails more on a pure-uniform population (table B)'",
+   "method": "read recall column of results.txt tables A and B",
+   "command": "sed -n 4,18p research/sensing-mixgate/experiments/results.txt",
+   "expected": "lower recall in B",
+   "observed": "B recall 0.90-0.94 vs A 0.83-0.84 at 0.9-0.6: higher",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "project.json lede/summary current with the 24-seed rerun",
+   "method": "read",
+   "command": "cat research/sensing-mixgate/project.json",
+   "expected": "24-seed statements",
+   "observed": "still 'uniform control ... unestablished' and '6 seeds, no intervals'",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "share of 'along' errors that are along for a pair the gate actually tests",
+   "method": "own epipolar-line classification of the along view vs gate offsets +-1..3",
+   "command": "cd /home/user/oss-monorepo && /usr/bin/python3.13 -I scratchpad/chk/along.py",
+   "expected": "1.0 if the stereo 'along' class transfers",
+   "observed": "0.596 (n=297; 6/11 = 0.545 by construction)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run",
+   "command": "cd research/sensing-mixgate && PYTHONPATH=src:../sensing-baoutlier/src /usr/bin/python3.13 -m pytest -q",
+   "expected": "pass",
+   "observed": "4 passed in 2.49s",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior and duplicate work cited",
+   "method": "grep README for Lowe, Hartley, COLMAP, Schonberger, Snavely, Jin, gatemix, matchmix",
+   "command": "grep -n -i 'hartley\\|lowe\\|schonberger\\|snavely\\|jin et\\|gatemix\\|matchmix' research/sensing-mixgate/README.md",
+   "expected": "citations",
+   "observed": "none (COLMAP named only in Owner steps)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/sensing-mixgate/",
+   "expected": "200",
+   "observed": "000 (proxy), not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/sensing_mixgate/mix.py:33",
+   "change": "kind = (\"along\", \"near\", \"uniform\")[k] -> kind = (\"near\", \"along\", \"uniform\")[k]",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src:../sensing-baoutlier/src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/sensing_mixgate/mix.py:18",
+   "change": "\"0.8\": (0.102, 0.386, 0.287, 0.327) -> \"0.8\": (0.102, 0.327, 0.287, 0.386)",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src:../sensing-baoutlier/src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/sensing_mixgate/mix.py:53",
+   "change": "frac=kw.pop(\"frac\", rate) -> frac=kw.pop(\"frac\", 0.1)",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src:../sensing-baoutlier/src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/sensing_mixgate/mix.py:28",
+   "change": "mask = (rng.random(vis.shape) < frac) & vis -> mask = (rng.random(vis.shape) < frac)",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src:../sensing-baoutlier/src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Headline and project.json lede quote 6-seed means that the project's own 24-seed rerun contradicts: at ratio 0.9 the gate is not worse than the RANSAC start (medians 0.057 vs 0.071, 11/24 wins, both below 0.08), and at 0.8 the 2.65x gap (0.0078 vs 0.0207) is 1.26x by medians with overlapping intervals and sign-test p 0.064",
+   "where": "research/sensing-mixgate/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17808"
+  },
+  {
+   "severity": "medium",
+   "what": "The stereo 'along-epipolar' class does not transfer: each along error is on the epipolar line of a random one of 11 other views, but the gate tests only offsets +-1..3, so about 40% (0.596 measured on the gate's pairs) look like plain near errors to it; this flatters the gate exactly where the measured mixes are along-dominated (0.62-0.74 at ratios 0.7-0.6) and is not in Limitations",
+   "where": "research/sensing-epigate/src/sensing_epigate/gate.py:37",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Duplicate research: sensing-gatemix and sensing-matchmix run the same experiment on the same rig with the same mixes, none of the three cites the others, and matchmix's headline differs (RANSAC start as good within noise at 0.8 and tighter); no external literature cited (Lowe 2004, Hartley & Zisserman 2004, Schonberger & Frahm 2016, Jin et al. 2021)",
+   "where": "research/sensing-mixgate/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "'it fails more on a pure-uniform population at the same rates (table B)' is contradicted by results.txt (table B recall 0.90-0.94 vs 0.83-0.84 on the measured mixes); the '0.79 to 0.87 (sensing-epigate)' quoted as removal of near/along errors are epigate's recalls at 8/12/24 views for 10% along",
+   "where": "research/sensing-mixgate/README.md:35",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17808"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests miss the core: swapping the along/near labels, swapping shares in MIXES, or ignoring the measured rate in run_mixed all leave 4/4 tests green; nothing checks MIXES against sensing-matchreal or the experiment scripts",
+   "where": "research/sensing-mixgate/tests/test_mix.py:26",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Stale and contradictory text after the 24-seed rerun: README.md:3 has a botched sentence join ('mismatches, The 24-seed rerun'); README.md:39 still calls table B erratic and unestablished while README.md:55 says it is not; project.json says the uniform control is 'unestablished' and '6 seeds, no intervals'; run_seeds.py docstring 25 min vs README 45 min",
+   "where": "research/sensing-mixgate/project.json:4",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17808"
+  },
+  {
+   "severity": "low",
+   "what": "Missing baselines a reviewer expects: gate followed by the RANSAC start, an essential-matrix gate (intrinsics are known), a gate using the approximate poses; gate threshold and vote untuned",
+   "where": "research/sensing-mixgate/README.md:13",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Sibling code reached by sys.path.insert and a monkeypatched module global (gate.mismatch) instead of declared dependencies and a parameter; pyproject omits the sibling packages the tests need",
+   "where": "research/sensing-mixgate/src/sensing_mixgate/mix.py:13",
+   "category": "repo-hygiene",
+   "origin": "build"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17808"],
+ "verdict": "Small, clean and exactly reproducible: run.py rewrites results.txt byte for byte, the mismatch generator checks out against an independent Hartley-Zisserman F (along errors on a true epipolar line to 1e-12 px, kind shares within sampling error), and every 24-seed median, fail share and win count recomputes from the committed per-seed json. The problem is what the page says with those numbers. The headline still quotes 6-seed means that the project's own 24-seed rerun overturns: at ratio 0.9 the gate ties the RANSAC start (11/24) rather than losing, and at 0.8 the 2.65x margin is 1.26x by medians with sign-test p 0.064, so the gate's advantage is established only at 0.7 and 0.6. One README claim about table B recall is the reverse of results.txt, and project.json was not updated after the rerun. In design, the stereo 'along' class is transplanted onto a 12-view orbit where about 40% of those errors are not along for any pair the gate tests, which flatters the gate where the mixes are along-dominated. Three of four seeded bugs survive the tests. The same experiment exists twice more in the repo (sensing-gatemix, sensing-matchmix), uncited, and no external literature is cited. Does not meet the bar."
+}

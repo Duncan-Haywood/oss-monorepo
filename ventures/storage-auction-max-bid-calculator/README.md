@@ -12,7 +12,7 @@ Open `index.html` directly, or serve this directory with `python3 -m http.server
 - **"What it's worth" and "what it nets you" are different numbers, twice over.** A flat percentage is usually applied to an eyeballed retail value. Liquidating a stranger's unit on a deadline realizes a fraction of that as used goods with no provenance, and whatever it does fetch is then cut again by the resale channel's own fees. On the default $4,000 retail estimate, a realistic 35% recovery and 15% blended resale fees net $1,190 — not $4,000, and not even the $1,400 before fees.
 - **Cleanout has its own cash cost, and it does not scale with the contents' value.** Dump loads, a truck, labor hours, and months of holding cost to resell through are the same rough size whether the unit holds antiques or a sofa nobody wants. A percentage-of-value rule has no room for a fixed cost stack at all — which is exactly backwards on a small or hard-to-sell unit, the outcome you cannot rule out sight-unseen. On the worked example that stack is $650, more than half of the $1,190 net resale revenue before a single dollar is bid.
 
-Put together, the default worked example's flat 20%-of-value rule says bid up to $800 — well past the unit's own $482.14 break-even bid, a guaranteed loss before cleanout even starts. The real math supports a $57.14 hammer bid at a 40% target margin.
+Put together, the default worked example's flat 20%-of-value rule says bid up to $800 — well past the unit's own $482.14 break-even bid, a guaranteed loss of $356 once the $650 cleanout is counted. The real math supports a $57.14 hammer bid at a 40% target margin.
 
 ## What it reports
 
@@ -42,3 +42,12 @@ node --test ventures/storage-auction-max-bid-calculator/*.test.mjs
 ## Limitations
 
 This is planning arithmetic, not an appraisal or a guarantee of resale. It cannot see inside the unit — the recovery rate, dump loads, and cleanout hours are all your own estimate from the doorway, and the tool is only as good as that estimate. It does not know a given facility's or state's own lien-sale terms, removal window, or deposit policy, which vary by operator and by law; verify those directly before you bid. It does not add sales tax, income tax, or the time spent researching and listing items beyond the hourly labor rate you enter, and it does not place a bid for you.
+
+### Known gaps (quality audit 2026-11-19)
+
+From [`portfolio/quality/audits/2026-11-19-storage-auction-max-bid-calculator.json`](../../portfolio/quality/audits/2026-11-19-storage-auction-max-bid-calculator.json), not yet fixed:
+
+- **No sales-tax input.** Facilities usually collect sales tax on the purchase unless the buyer has a resale certificate; for a bidder without one the ceiling is too high by the tax rate.
+- **No buyer's-premium minimum.** Some platforms charge a flat minimum on small bids (e.g. $10 under a threshold), so a small worked bid underprices the premium. The 12% default is below the 15% standard rate of the two largest online platforms.
+- **The removal-window check assumes round-the-clock access.** It divides person-hours by crew size and compares with the window; facilities only allow access in gate hours.
+- **The cleaning deposit is left out of "Total out-of-pocket"** although it is cash due on auction day (it is correctly kept out of profit).

@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKm6P8a8GLRdR1Mm2eC",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T22:18:10Z",
+  "ended": "2026-11-19T22:40:31Z",
+  "wall_minutes": 22.71,
+  "tokens_in": 22216386,
+  "tokens_out": 166054,
+  "cost_usd": 12.2544,
+  "tool_calls": 243,
+  "task": "quality audit round 87 (sample mode)",
+  "projects": [
+    "ventures/league-schedule-generator",
+    "ventures/3pl-quote-normalizer",
+    "ventures/storage-auction-max-bid-calculator",
+    "research/sensing-gatecorr",
+    "research/sensing-mixgate"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17808",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    "/usr/bin/python3.13 lacked scipy, which sensing-baoutlier needs; an auditor installed it with platform/ci/pyenv.py pytest numpy scipy"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "git merge origin/main refused 'unrelated histories' on the shallow clone until git fetch --deepen=50; the hint is in CLAUDE.md 'Duplicate PRs' but not where a fresh branch first merges main."
+    },
+    {
+      "file": "research/sensing-gatecorr/README.md",
+      "issue": "README said about 8 min for run.py; it took 13.6 min (sensing-mixgate said 6, took 10.3). Runtime notes in research READMEs drift; the 120 s tool timeout makes these matter."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-quality-audit-round-87.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-19-n-5b9b, round 87, mode sample. Subjects: ventures/league-schedule-generator (flagship), ventures/3pl-quote-normalizer, ventures/storage-auction-max-bid-calculator, research/sensing-gatecorr, research/sensing-mixgate (no platform drawn: all audited in 90 days). Share meeting the bar: 0 of 5 (sampled overall 35 of 359, Wilson 7% to 13%); all 5 finished. Seeded mutations caught 15 of 25. One auditor agent per subject in parallel; I reran one recomputation from each (all reproduced) and reran the independent 10.2% near-miss trial for sensing-gatecorr myself (g_cauchy 0.0037, ri_cauchy 0.0056, recall 0.838) before quoting it. Fix PRs: https://github.com/Duncan-Haywood/oss-monorepo/pull/17808 (this PR): 3pl break-even 'none' not 0 (high); storage-auction unclamped overbid flags, banner, two wrong claims; league sit-out credit rounding and double-RR break claim; sensing-gatecorr capped-rate disclosure and rate test; sensing-mixgate headline from 24-seed medians (high) with a headline-vs-results test. Mutation checks: new tests catch the sit-out rounding revert, the 17% rate mutant and a revert of the mixgate headline. Large defects logged in README Known gaps / NEXT.md / Limitations. Local checks: node --test in each venture (139, 71, night.test 12 pass), pytest in both research projects (5 and 5 pass), research build ok, check_md_links ok, check_posts ok, quality_audit validate 0 problems; full run_venture_tests for the three slugs in the background, result below.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2124012d-2ff3-5449-a7fc-a3a6806c0903",
+    "transcripts": 6,
+    "first": "2026-11-19T22:18:10Z",
+    "last": "2026-11-19T22:40:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 234,
+        "input": 486,
+        "output": 166054,
+        "thinking": 39013,
+        "cache_read": 21369853,
+        "cache_write_5m": 703665,
+        "cache_write_1h": 142382,
+        "api_equivalent_usd": 12.2544,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 234,
+      "input": 486,
+      "output": 166054,
+      "thinking": 39013,
+      "cache_read": 21369853,
+      "cache_write_5m": 703665,
+      "cache_write_1h": 142382,
+      "api_equivalent_usd": 12.2544,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 243,
+    "tools": {
+      "Bash": 216,
+      "Agent": 5,
+      "SubagentHandback": 5,
+      "ToolSearch": 4,
+      "Write": 4,
+      "WebSearch": 4,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.71,
+      "active_minutes": 8.74,
+      "model_minutes": 6.54,
+      "tool_minutes": 2.2,
+      "waiting_on_human_minutes": 13.97,
+      "human_prompts": 10,
+      "stalls": 0,
+      "subagent_minutes": 49.2
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "five independent expert audits with recomputations and seeded bugs (~3-4 h each) plus fixes, tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 195.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

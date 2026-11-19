@@ -140,3 +140,26 @@ test("page wires the module, carries the disclaimer, tracking and links", () => 
   assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /americano-night\.html/);
   assert.match(readFileSync(new URL("./llms.txt", import.meta.url), "utf8"), /americano-night\.html/);
 });
+
+test("average sit-out credit uses the unrounded average (quality audit 2026-11-19)", () => {
+  // 5 players on 1 court over 10 rounds: everyone sits out twice. Uneven scores make averages non-round.
+  let night = newNight({ players: names(5), courts: 1, rounds: 10, target: 24, sitOut: "average" });
+  const scores = [[16, 9], [15, 13], [17, 7], [14, 10], [13, 11], [16, 8], [15, 9], [17, 11], [12, 12], [16, 7]];
+  for (let r = 0; r < 10; r++) night = setScore(night, r, 1, ...scores[r]).night;
+  let checked = 0;
+  for (const row of leaderboard(night)) {
+    assert.equal(row.satOut, 2);
+    const exact = Math.round((row.pf / row.played) * row.satOut * 10) / 10;
+    assert.equal(row.credit, exact);
+    if (Math.round(row.avg * row.satOut * 10) / 10 !== exact) checked++;
+  }
+  assert.ok(checked > 0, "the scores should include a case where rounding first would differ");
+});
+
+
+test("README does not claim minimum breaks for the mirrored double round robin unqualified", () => {
+  // Mirrored double: 3(n-2) breaks; reversing leg one's rounds gives 2(n-2) (quality audit 2026-11-19).
+  const readme = readFileSync(new URL("./README.md", import.meta.url), "utf8");
+  assert.doesNotMatch(readme, /\(the minimum possible breaks\)/);
+  assert.match(readme, /mirrored double has 3\(n−2\)/);
+});
