@@ -291,7 +291,48 @@ export function assess(xer, opts = {}) {
     compared++;
     const ok = sameDate(t, parseDate(t.row.early_end_date), r.ef) && sameDate(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null && Math.abs(stored(t) - r.tf) < 0.01;
     if (ok) matched++;
-    else stale.push({ code: t.code, name: t.name, why: `file: finish ${t.row.early_end_date}, float ${stored(t) === null ? "not stored" : `${round1(stored(t))} h`}; recomputed: finish ${formatDate(r.ef)}, float ${round1(r.tf)} h` });
+    else stale.push({ id: t.id, code: t.code, name: t.name, why: `file: finish ${t.row.early_end_date}, float ${stored(t) === null ? "not stored" : `${round1(stored(t))} h`}; recomputed: finish ${formatDate(r.ef)}, float ${round1(r.tf)} h` });
+  }
+
+  // Durations edited after the last schedule run. P6 writes an unstarted
+  // activity's early start and finish with its remaining duration between
+  // them; when the work between the stored dates is not the duration the file
+  // now holds, someone changed the duration and exported without rescheduling.
+  // Harbour Pointe (P6 17.12): 8 such activities explain all 25 of its 113
+  // open activities that differ; none on the six files P6 had just scheduled
+  // (eval/edited-durations-2026-11-19.md). Rescheduling with the durations
+  // the stored dates imply says how many differences the edits account for.
+  const edited = [];
+  if (stale.length && xer.format !== "mspdi") {
+    for (const t of normal) {
+      // an expected finish sets the duration itself when the project uses them
+      if (t.status !== "TK_NotStart" || (p.useExpectedFinish && t.expEnd !== null)) continue;
+      const s = parseDate(t.row.early_start_date), f = parseDate(t.row.early_end_date), d = num(t.row.remain_drtn_hr_cnt);
+      if (s === null || f === null || d === null || f < s) continue;
+      const spanH = t.cal.workBetween(s, f) / 60;
+      if (Math.abs(spanH - d) > 0.01) edited.push({ t, spanH, d });
+    }
+  }
+  let explained = null;
+  if (edited.length && !opts.result) {
+    const implied = new Map(edited.map((e) => [e.t.id, e.spanH]));
+    const TASK = (xer.tables.TASK || []).map((r) => (implied.has(r.task_id) ? { ...r, remain_drtn_hr_cnt: String(implied.get(r.task_id)) } : r));
+    const again = schedule({ ...xer, tables: { ...xer.tables, TASK } }).tasks;
+    explained = 0;
+    for (const s of stale) {
+      const t = model.tasks.get(s.id), r = again.get(s.id);
+      if (!r || r.lf === undefined) continue;
+      if (sameDate(t, parseDate(t.row.early_end_date), r.ef) && sameDate(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null && Math.abs(stored(t) - r.tf) < 0.01) {
+        explained++;
+        s.why += "; agrees once the edited durations are put back";
+      }
+    }
+  }
+  for (const s of stale) delete s.id;
+  if (edited.length) {
+    const items = edited.map(({ t, spanH, d }) => ({ code: t.code, name: t.name, why: `remaining duration ${round1(days(t, d))} d; the stored dates ${t.row.early_start_date} to ${t.row.early_end_date} span ${round1(days(t, spanH))} d` }));
+    extra.push({ id: "edited-durations", name: "Durations edited after the last schedule run", count: items.length, pass: false, items, explained, differ: stale.length,
+      note: `The stored early dates of each activity listed span a different amount of work than its remaining duration, so the duration was changed after P6 last scheduled and the file was exported without rescheduling.${explained === null ? "" : ` Rescheduled with the durations the stored dates imply, ${explained} of the ${stale.length} activities whose stored dates disagree with the logic agree.`}` });
   }
 
   // every open activity as recomputed, with what the file stores beside it

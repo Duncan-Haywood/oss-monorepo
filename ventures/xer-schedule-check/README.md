@@ -302,6 +302,16 @@ run as a formula in Excel or Sheets.
   assignment's remaining work sets the late start of an activity with no
   remaining duration, unspent SS lag into a finished node, as late as possible
   on started work, and a future actual start that has spent no lag).
+- **A seventh P6 file, and edited durations** (`eval/edited-durations-2026-11-19.md`):
+  Harbour Pointe Assisted Living Center (P6 17.12, a public copy found by a
+  size-split code search) matched on 88 of 113 at first. All 25 that differ
+  trace to 8 unstarted activities whose duration was changed after P6 last
+  scheduled the file; with the durations the stored dates imply, **113 of
+  113** agree. The assessment now lists such activities ("Durations edited
+  after the last schedule run") and says how many stored-date differences the
+  edits account for. Checked with 300 planted edits on the six files: 300
+  found, 0 extra, every difference they caused explained; none of the six
+  lists anything as found.
 - **Free float against P6** (`eval/free-float-2026-11-19.md`): the same files,
   **19,810 of 19,822 (99.94%)** equal P6's stored free float (19,809 before the
   fourth CPM pass), up from 18,537
