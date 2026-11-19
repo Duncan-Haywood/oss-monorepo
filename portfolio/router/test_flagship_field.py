@@ -727,3 +727,86 @@ def test_park_files_results_in_history_and_open_items_in_next(tmp_path, capsys):
     nxt = tmp_path / "ventures" / "a" / "NEXT.md"
     assert not nxt.exists() or res not in nxt.read_text()
     assert "a result rather than an open item" in capsys.readouterr().err
+
+
+# --- --history: the run names a finished result, the tool moves it ---------
+
+@pytest.mark.parametrize("value, piece, want", [
+    ("a; R done; b.", "R done", "a; b."),
+    ("Pointer. R done. Next: x.", "R done.", "Pointer. Next: x."),
+    ("Pointer. R done; b.", "R done", "Pointer. b."),
+    ("a; R done. Next: x.", "R done", "a. Next: x."),
+    ("R done; b.", "R done", "b."),
+    ("a; R done.", "R done", "a."),
+    ("a; R\n      done; b.", "R done", "a; b."),  # folded text matches unfolded
+])
+def test_remove_text_keeps_separators_tidy(value, piece, want):
+    assert ff.remove_text(value, piece) == want
+
+
+def test_remove_text_refuses_text_not_in_the_row():
+    with pytest.raises(ValueError, match="--history: not found"):
+        ff.remove_text("a; b.", "zz")
+
+
+def _row(tmp_path, value):
+    f = tmp_path / "flagships.yaml"
+    f.write_text("flagships:\n  - venture: a\n    next: >-\n      " + value + "\n")
+    (tmp_path / "ventures" / "a").mkdir(parents=True)
+    return f, ["--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
+
+
+def test_history_moves_a_result_with_the_replace_and_no_park(tmp_path, capsys):
+    # The 2026-11-19 refusal: a row of undated results the heuristics cannot see.
+    res = "X reader (README): 63 of 64 right " + "r" * 400
+    value = "History: README. Next: (a) " + "a" * 1200 + "; " + res + "; (b) b item."
+    assert len(value) < ff.FLAGSHIP_NEXT_MAX
+    f, extra = _row(tmp_path, value)
+    rc = ff.main(["a", "--replace", "(b) b item", "(b) b item; (c) " + "c" * 500,
+                  "--history", res] + extra)
+    assert rc == 0
+    got = ff.read_value(f.read_text(), "a", "next")
+    assert res not in got and "a" * 1200 in got and "c" * 500 in got
+    assert not (tmp_path / "ventures" / "a" / "NEXT.md").exists()  # no open item parked
+    hist = (tmp_path / "ventures" / "a" / "HISTORY.md").read_text()
+    assert res in hist and ff.HISTORY_HEADING in hist
+    assert "moved 1 result(s)" in capsys.readouterr().out
+
+
+def test_history_alone_and_dry_run(tmp_path, capsys):
+    f, extra = _row(tmp_path, "History: README. Next: a; R done; b.")
+    before = f.read_text()
+    assert ff.main(["a", "--history", "R done", "--dry-run"] + extra) == 0
+    assert f.read_text() == before and "1 to HISTORY.md" in capsys.readouterr().out
+    assert ff.main(["a", "--history", "R done"] + extra) == 0
+    assert ff.read_value(f.read_text(), "a", "next") == "History: README. Next: a; b."
+
+
+def test_history_on_another_field_is_a_usage_error(tmp_path):
+    f, extra = _row(tmp_path, "History: README. Next: a.")
+    with pytest.raises(SystemExit):
+        ff.main(["a", "--field", "buildable", "--history", "a"] + extra)
+
+
+def test_refusal_names_history_flags(tmp_path, capsys):
+    # every item is a result or the run's own text, so nothing can be parked
+    # undated results before the open marker: never parked, never auto-moved
+    items = [f"R{i} reader passed {i} of 9 " + "x" * 300 for i in range(6)]
+    value = "History: README. " + "; ".join(items) + ". Next: own item."
+    f, extra = _row(tmp_path, value)
+    before = f.read_text()
+    for flag in ("--no-make-room", "--make-room"):
+        rc = ff.main(["a", "--replace", "own item", "own item " + "y" * 300, flag] + extra)
+        err = capsys.readouterr().err
+        assert rc == 1 and f.read_text() == before, flag
+        assert "--history 'R0 reader passed 0 of 9" in err and "check each is done" in err, flag
+    # and the flags it names make the same call fit
+    rc = ff.main(["a", "--replace", "own item", "own item " + "y" * 300,
+                  "--history", items[1], "--history", items[2]] + extra)
+    assert rc == 0
+
+
+def test_history_candidates_skip_pointer_and_own_text():
+    v = "History and every measurement: README. Next: A passed 3 of 4; next a real file; B ships."
+    got = ff.history_candidates(v, keep=("B ships",))
+    assert got == ["A passed 3 of 4"]
