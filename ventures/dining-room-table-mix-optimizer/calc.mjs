@@ -320,6 +320,27 @@ export function search(types, area, scoreOf, start) {
   return { counts: cur, score: curScore };
 }
 
+export const ENUMERATE_LIMIT = 5000;
+
+// Every feasible mix (area and per-type caps), or null when there are more than `limit`.
+export function enumerateMixes(types, area, limit) {
+  const out = [];
+  const cur = types.map(() => 0);
+  let over = false;
+  const rec = (i, used) => {
+    if (over) return;
+    if (i === types.length) { out.push(cur.slice()); if (out.length > limit) over = true; return; }
+    for (let c = 0; c <= types[i].max; c++) {
+      const u = used + c * types[i].sqft;
+      if (u > area + 1e-9) break;
+      cur[i] = c; rec(i + 1, u);
+    }
+    cur[i] = 0;
+  };
+  rec(0, 0);
+  return over ? null : out;
+}
+
 export const SEARCH_SERVICES = 60;
 export const REPORT_SERVICES = 300;
 
@@ -356,6 +377,18 @@ export function analyze(tableRows, partyRows, shared) {
     if (!best || r.score > best.score) best = r;
   }
   if (!best) best = search(types, n.areaSqFt, scoreOnSearch, types.map(() => 0));
+  // Local search can stop at a local optimum (with combining off on the example it
+  // picked a mix 4.4 guests a service short). When the room is small enough, check
+  // every feasible mix so the answer is the best one on the search set.
+  const all = enumerateMixes(types, n.areaSqFt, ENUMERATE_LIMIT);
+  if (all) {
+    for (const c of all) {
+      const sc = scoreOnSearch(c) - 1e-6 * footprint(c, types);
+      if (sc > best.score + 1e-9) best = { counts: c, score: sc };
+    }
+  }
+  const exhaustive = Boolean(all);
+  if (!exhaustive) warnings.push(`More than ${ENUMERATE_LIMIT.toLocaleString("en-US")} table mixes fit this floor, so the recommendation is the best found by local search, not a check of every mix. Setting a maximum count for each table type narrows it.`);
   const recCounts = best.counts;
 
   const cur = evaluate(currentCounts, types, reportSet, sizes, dwellMin, n.patienceMin, n.combine);
@@ -394,6 +427,7 @@ export function analyze(tableRows, partyRows, shared) {
     significant: Math.abs(dMean) > 2 * dSe,
     areaUsedCur: footprint(currentCounts, types),
     areaUsedRec: footprint(recCounts, types),
+    exhaustive,
     monthlyRevenue,
     monthlyContribution: monthlyRevenue * (n.marginPct / 100),
     demandGuests: n.partiesPerService * (sizes.reduce((s, z, k) => s + z * n.shares[k], 0) / total),
