@@ -147,3 +147,19 @@ test("the page offers the mode, links carry it, and the MaxDiff page is wired wi
   assert.ok(!page.includes("<!--N30-->"), "30-option rows filled in");
   for (const f of ["rank.html", "index.html"]) assert.ok(read(f).includes('href="maxdiff-best-worst.html"'), f);
 });
+
+// Quality round 86 (portfolio/quality/audits/2026-11-19-quick-pick-survey.json):
+// reading the worst tap over the whole screen, and a tie weight of 0.6, both
+// passed every test. Pin the likelihood to the sequential best-worst formula
+// (Marley & Louviere 2005) and the tie as half a win each way, written out by hand.
+test("answerTerms' log likelihood is the sequential best-worst formula, with a tie as half a win", () => {
+  const mu = [0.9, 0.2, -0.3, -1.1];
+  const lse = (xs) => Math.log(xs.reduce((s, x) => s + Math.exp(x), 0));
+  const screen = { set: [0, 1, 2, 3], best: 0, worst: 3 };
+  // best over all four, then worst among the three left (not the four)
+  const expected = mu[0] - lse(mu) + (-mu[3]) - lse([-mu[1], -mu[2], -mu[3]]);
+  assert.ok(Math.abs(answerTerms(4, [screen], mu).ll - expected) < 1e-12);
+  const p = 1 / (1 + Math.exp(-(mu[1] - mu[2])));
+  const tie = 0.5 * Math.log(p) + 0.5 * Math.log(1 - p);
+  assert.ok(Math.abs(answerTerms(4, [[1, 2, true]], mu).ll - tie) < 1e-12);
+});
