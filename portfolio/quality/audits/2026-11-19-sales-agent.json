@@ -201,7 +201,8 @@
    "what": "Virginia preset (us-va) omits two legal holidays in Va. Code 2.2-3300: Election Day (Tuesday after the first Monday of November, since 2020) and the Friday after Thanksgiving; holidayChecker('us-va') is false on 2026-11-03 and 2026-11-27, so a call to a Virginia state office is scheduled on a closed day. The 'matches python-holidays 0.108' check passed because 0.108 had the same gap; 0.109 fixes it.",
    "where": "ventures/sales-agent/holidays.mjs:246",
    "category": "source-data",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17665"
   },
   {
    "severity": "medium",
@@ -229,7 +230,8 @@
    "what": "Warm-up planner's 'First week: N emails' sums only the days until the target is reached: 5 mailboxes at 50/day prints 50, not 350. No test pins firstWeekTotal (mutant survived).",
    "where": "ventures/sales-agent/sendramp.mjs:34",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17665"
   },
   {
    "severity": "low",
@@ -260,6 +262,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17665"],
  "verdict": "Re-audit of the flagship after the Qwen 7B/14B eval, model-closes-as-flags merge, US state holiday presets, real Dovecot/Postfix round trip, IMAP STARTTLS, OAuth setup tests and ReDoS fix. Tests grew 226 -> 528 (plus 60 self-host), all pass in 3 s; the offline replay reproduces the README's 735/792 merged figure. Independently recomputed: federal and 45 of 51 state holiday calendars for 2029-2032 against python-holidays 0.109, six holiday-aware business-day offsets, an RFC 7208 lookup count and a non-default ramp schedule all match. New wrong outputs: Virginia misses Election Day and the day after Thanksgiving; the SPF checker passes permerror records (unknown mechanism, bad CIDR, duplicate redirect); 'first week' total is wrong when the target is reached early. Old defects: llms.txt github.io links closed in what ships (served copy rewritten; source-only); 'M2 model unmeasured / no real mail' partly closed (local 7B and 14B measured on 792, real Dovecot/Postfix tested; Gmail/M365, CRM and calls still untested); month-first numeric dates, opt-out-word-anywhere, and SPF include expansion still open; the triage(today) RangeError became a silent null date. Two of five seeded mutants survived, both in the standalone checkers. Meets the computed bar (correctness, claims, verification 3; median 3) with craft, fitness and domain at 2, unchanged from 11-09."
 }
