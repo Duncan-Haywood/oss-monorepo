@@ -47,7 +47,7 @@ test("every input has a label and nothing is sent anywhere", () => {
     const id = tag.match(/\sid="([^"]+)"/)?.[1];
     assert.ok(id && html.includes(`<label for="${id}">`), `unlabelled: ${tag}`);
   }
-  for (const f of ["index.html", "xer.mjs", "calendar.mjs", "cpm.mjs", "dcma.mjs", "compare.mjs", "usage.mjs"]) {
+  for (const f of ["index.html", "xer.mjs", "calendar.mjs", "cpm.mjs", "dcma.mjs", "compare.mjs", "risk.mjs", "usage.mjs"]) {
     assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/, f);
   }
 });

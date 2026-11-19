@@ -1,0 +1,18 @@
+# eval/whist-anneal.c, 2026-11-19: WHIST_TABU=<tenure> ./whist-anneal N <seconds> <seed> 0 0 <steps per restart>, up to four processes on four cores. Found:
+{"n":48,"mods":[47],"ms":1483,"method":"tabu (C)","seed":4,"restarts":1,"moves":7416,"tables":[[34,12,35,43],[6,41,28,23],[2,25,26,46],[18,0,33,31],[4,1,37,44],[17,13,10,11],[42,16,7,38],[27,14,19,8],[40,-1,30,45],[21,15,36,3],[29,20,9,39],[24,5,22,32]]}
+{"n":60,"mods":[59],"ms":15027,"method":"tabu (C)","seed":4,"restarts":1,"moves":44842,"tables":[[22,33,15,53],[55,42,21,18],[30,46,29,28],[3,58,50,52],[49,20,17,34],[57,47,24,43],[41,5,16,48],[56,6,39,45],[14,0,27,19],[11,36,12,51],[2,35,25,40],[9,4,13,1],[-1,23,54,32],[44,37,7,31],[8,26,38,10]]}
+{"n":46,"mods":[46],"kind":"near","ms":9441,"method":"tabu (C)","seed":4,"restarts":1,"moves":47444,"tables":[[34,12,40,20],[11,44,13,23],[24,5,15,8],[2,14,29,28],[37,22,21,18],[31,42,39,9],[26,30,19,1],[38,33,16,10],[7,32,41,27],[17,0,6,4],[36,45,35,43]]}
+{"n":54,"mods":[54],"kind":"near","ms":9217,"method":"tabu (C)","seed":21,"restarts":1,"moves":33913,"tables":[[8,50,34,15],[12,3,25,4],[16,26,28,39],[1,33,37,35],[44,31,49,48],[45,51,36,11],[5,43,53,19],[2,52,27,13],[46,18,41,24],[10,17,38,7],[14,9,30,6],[21,29,40,22],[20,23,47,32]]}
+{"n":62,"mods":[62],"kind":"near","ms":148187,"method":"tabu (C)","seed":13,"restarts":5,"moves":400815,"tables":[[48,25,45,30],[42,50,4,15],[46,19,1,61],[33,52,54,2],[24,58,11,57],[49,36,13,43],[47,18,8,7],[26,9,34,60],[28,32,0,37],[12,17,5,55],[16,22,38,20],[44,6,14,35],[39,59,56,53],[31,40,41,27],[51,29,10,3]]}
+# Not found (every run listed):
+{"n":52,"mods":[51],"ms":600238,"method":"tabu (C)","seed":4,"restarts":26,"moves":2524577,"tables":null}
+{"n":52,"mods":[51],"ms":900037,"method":"tabu (C)","seed":7,"restarts":13,"moves":3751553,"tables":null}
+{"n":52,"mods":[51],"ms":900034,"method":"tabu (C)","seed":3,"restarts":13,"moves":3752577,"tables":null}
+{"n":52,"mods":[51],"ms":1200206,"method":"tabu (C)","seed":11,"restarts":102,"moves":5054097,"tables":null}
+{"n":57,"mods":[57],"ms":600184,"method":"tabu (C)","seed":4,"restarts":21,"moves":2071681,"tables":null}
+{"n":57,"mods":[57],"ms":600009,"method":"tabu (C)","seed":5,"restarts":21,"moves":2068609,"tables":null}
+{"n":57,"mods":[57],"ms":900259,"method":"tabu (C)","seed":8,"restarts":11,"moves":3102401,"tables":null}
+{"n":57,"mods":[57],"ms":1200019,"method":"tabu (C)","seed":12,"restarts":84,"moves":4184817,"tables":null}
+{"n":54,"mods":[54],"kind":"near","ms":600193,"method":"tabu (C)","seed":4,"restarts":22,"moves":2191137,"tables":null}
+{"n":58,"mods":[58],"kind":"near","ms":600051,"method":"tabu (C)","seed":4,"restarts":19,"moves":1888065,"tables":null}
+{"n":58,"mods":[58],"kind":"near","ms":900066,"method":"tabu (C)","seed":22,"restarts":57,"moves":2847105,"tables":null}

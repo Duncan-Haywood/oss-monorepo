@@ -2,7 +2,7 @@
 
     PYTHONPATH=src python3 experiments/run_wigley_ju.py > experiments/results_wigley_ju.txt
 
-Source: Wang, Belibassakis et al., "Wave-resistance computation via CFD and IGA-BEM solvers: a
+Source: Wang, Chouliaras, Kaklis et al., "Wave-resistance computation via CFD and IGA-BEM solvers: a
 comparative study", OPEC 2017, Zenodo 10.5281/zenodo.1169033 (CC BY-NC-ND 4.0; read only, nothing
 copied). It quotes the tank result of Ju (1983) for the Wigley hull: L = 4.0 m, B = 0.4 m,
 T = 0.25 m, Fn 0.267 (U0 = 1.67 m/s), Aw = Cs L (2D + B) with Cs = 0.661, CT = 4.16e-3.

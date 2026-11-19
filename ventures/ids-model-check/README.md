@@ -357,6 +357,7 @@ node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
 node cli.mjs --audit spec.ids --bsdd            # also look each facet uri up in bSDD (goes online)
+node cli.mjs --link-bsdd spec.ids -o linked.ids    # add the IFC 4.3 bSDD uri to standard properties (offline)
 node cli.mjs --from-bsdd https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/class/IfcDoor -o door.ids
                                                  # an IDS from a bSDD class's property list (goes online)
 node cli.mjs --fix spec.ids -o spec-fixed.ids   # repair its ids.xsd faults; exit 1 if some need a person
@@ -411,6 +412,26 @@ Omgevingswet sets relating classes to IFC classes their dictionary does not
 network: one GET per distinct link to api.bsdd.buildingsmart.org, with the
 link as the only thing sent. It is not on the page: bSDD's API sends no CORS
 header, so a browser cannot ask it.
+
+### bSDD links written for you (2026-11-19)
+
+Most IDS files carry no bSDD links at all: in 117 public IDS files, 316 of
+1,317 requirement property facets have a `uri`. For a standard IFC property
+the link needs no lookup, because the IFC 4.3 dictionary codes each template
+property by its name. `node cli.mjs --link-bsdd spec.ids -o linked.ids`
+(bsdd-suggest.mjs) adds `uri="https://identifier.buildingsmart.org/uri/buildingsmart/ifc/4.3/prop/<Name>"`
+to every requirement property facet on a `Pset_` or `Qto_` template property
+that has none, lists them on stderr, and changes nothing else in the file.
+On the page, auditing an IDS shows the same list with a "Download IDS with
+bSDD links" button; it runs offline, so it works where the bSDD check cannot.
+
+On the public corpus it suggests 619 links in 54 files; for the 212 facets
+that already link the IFC dictionary it gives the same link 196 times, and
+the 2 where it differs are author slips the bSDD check had already found
+(`Width` linked to `Name`, `AreaPerOccupant` to `OccupancyNumberPeak`). It
+leaves alone facets with no standard set, patterns, misspelt names and
+classification or material facets. All 54 outputs are the input plus the
+attributes, byte for byte (`eval/bsdd-suggest-2026-11-19.md`).
 
 ### An IDS from a bSDD class (2026-11-19)
 
@@ -487,7 +508,9 @@ measure (`bsdd-units.mjs`):
   only a Torque and becomes IFCTORQUEMEASURE.
 - **Kept as IFCREAL, said on stderr:** no unit or dimension; a
   dimensionless unit (`%`: IFC's ratio measures take 0.5 for 50 %, and the
-  dictionary may mean 50; `dB`, a sound pressure or a sound power level);
+  dictionary may mean 50; a `dB` property whose name or physicalQuantity
+  does not say sound pressure or sound power level, such as a reduction index
+  `R_w`);
   units of different measures; a unit against the property's own stated
   dimension; a unit not in bSDD's list (`kg CO2 eq`, `W/mK`); and a value or
   bound that cannot be put in SI because two units are listed (`mm, m`).
@@ -504,6 +527,21 @@ built model (`eval/bsdd-units-model.mjs`), a 200 mm wall stored as
 500 mm wall fails it; IfcTester 0.9.0 gives the same 9 verdicts. The bSDD
 link check (`--bsdd`) reads a measure facet's SI values against bSDD's values
 in the property's unit (18 false `bsdd-value` warnings on kPa strengths to 0).
+
+**Decibels (2026-11-19).** QUDT's `dB` is both a sound pressure and a sound
+power level, so a dB property used to stay IFCREAL, and a model storing
+`IfcSoundPressureLevelMeasure` as IFC means failed it. `levelOf` now reads
+which from the property: physicalQuantity or the name in words ("sound power
+level", Schalldruckpegel, geluidsvermogen, pression acoustique), else the ISO
+symbol its code starts with (`L_W`, `LWA`: power, ISO 3740; `LA_Fmax_nT`,
+`L'nT,w`, `LAeq`, `Ln,w`: pressure, ISO 16032, 717-2). Reduction indices and
+level differences (`R_w`, `DnT,w`, `C_tr`) are in dB but are neither and
+stay IFCREAL. On a built wall class (`eval/bsdd-db-model.mjs`,
+`eval/bsdd-db-model.txt`) a wall typed as IFC means fails the old file only on
+its type and passes the new one; a plain IfcReal now fails; IfcTester 0.9.0
+gives the same 6 verdicts. Not yet run over the 262 dB properties in bSDD (the
+bSDD API did not answer from this session): `node eval/bsdd-units-corpus.mjs
+DIR` on a fresh cache counts them.
 
 ### Excel2IDS workbooks in, Excel2IDS workbooks out (2026-11-19)
 

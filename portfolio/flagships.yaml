@@ -198,11 +198,12 @@ flagships:
       alert was the holiday's zero (README "A closure in the week before a step"));
       (a) ar1 + floor 2 failed on 5 fresh bee dances (0.244 vs 0.337, README; muted
       note ships); update-rate: pegs 4 of 7 dated; NYT failed (N1 2/4, N2 5/9,
-      README "Short spells on a second provider"), edge-spell line ships; weekday
-      score ships; next a provider that documents its own changes. Stale feeds: real
-      carry-forward 84/85 caught but prints 56/56 false; growth test (README "A
-      catch-up test for multi-tick feeds"): prints 1/56, carried 22/85 at 300 steps,
-      7/7 at 4000; next a fresh-data round with a bar by stretch length. joint drift
+      README "Short spells on a second provider"), edge-spell line ships; next a
+      provider that documents its own changes. Stale feeds: real carry-forward 84/85
+      caught but prints 56/56 false; growth test by moves (README "The catch-up test
+      by stretch length", LOBSTER): 1,000 moves 29/38 (fail); AAPL/AMZN/GOOG 28/33,
+      prints 0/34; penny-spread stocks reverse (the half-cent tick passes the gate);
+      next a fresh round gated on the quoted tick, 2,000 moves. joint drift
       (measured, not offered) and its 2x penalty on fresh multi-column labelled
       data. Open: (0) drift model: t-walk increments, biweight on fresh data, why it
       absorbs seat belts and quality control 4, its AR(1) term; notes quote it.
@@ -332,9 +333,9 @@ flagships:
       export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
       5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; whether `auto` should pick noise-aware (patch PCA in C,
-      fixed order 2026-11-19: same bytes, 1.26x directional's time,
-      eval/noise-pca-native-*). More open items: NEXT.md.
+      evenly lit frame; a near-clean gate in the blend's ramps (auto = noise-aware
+      since 2026-11-19, 1.34x directional's time; 0.78% of 6,008 rows lose >0.1 dB,
+      worst -0.58, eval/auto-noise-aware-*). More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -395,12 +396,13 @@ flagships:
       on 3 sessions 0 waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits
       (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
-      (odd-orbit.py, 9,849 s). Bowling bounds and lane limits: README 2026-11-18
-      sections (eval/bowling-*). Americano whist designs 2026-11-19 (whist.mjs;
+      (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
       eval/whist-vs-greedy.txt); 4k+2 near-whist designs 2026-11-19 (one missed
       partner each, 0 repeats, opponents 1-2; eval/near-whist-search.mjs annealing);
-      Whist 40-64 2026-11-19 (README); next: 48, 52, 57, 60 (C search 20 min none;
-      -1 multiplier impossible), 4k+2 bases 46, 54-62. More open items: NEXT.md.
+      Whist 48, 60 and near-whist 46, 54, 62 by tabu search 2026-11-19
+      (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h each none; order-4
+      multiplier on Z51 none) and near-whist 58 (25 min none). More open items:
+      NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
@@ -495,7 +497,6 @@ flagships:
       test pairs (IfcTester 0.9.0.post1: 312/334); same failing elements as
       IfcTester on five real models except multiple xs:patterns (XSD: alternatives).
     buildable: >-
-      bSDD: suggested links back; dB as pressure/power level (bsdd-units).
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
       rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
@@ -509,27 +510,25 @@ flagships:
       History and every measurement: README ("How it was checked") and HISTORY.md.
       Next, most valuable first: Editor repair on open, bare \w/\s, subclass boxes
       2026-11-18/19 (eval/editor-open-repair-*, eval/word-class-*,
-      eval/deprecated-subclasses-*). Excel-saved workbooks 2026-11-19
-      (eval/excel-workbooks-2026-11-19.md: 65,537 of 65,548 cells agree with
-      openpyxl). Excel2IDS template workbooks both ways 2026-11-19 (excel2ids.mjs,
-      eval/excel2ids-2026-11-19.md: 309 of 309 public specs that fit come back the
-      same; partOf, unnamed material, ranges do not fit). Excel2IDS tool differences
-      cell by cell 2026-11-19 (eval/excel2ids-tool-2026-11-19.md: page and CLI list
-      where the .exe writes another IDS or stops; download fills purpose General,
-      tool stops 316 to 0 of 351; sample's External doors asks True). Tool run side
-      by side 2026-11-19 (eval/excel2ids-sidebyside-2026-11-19.md: 321 workbooks, 0
-      stops; added version None, _x000D_; applicability in ids.xsd order). bSDD
-      links 2026-11-19 (bsdd.mjs, cli --audit --bsdd, eval/bsdd-links-2026-11-19.md:
-      58 public IDS, 197 bSDD links; 7 files with an error, 15 a warning, all read
-      by hand). IDS from a bSDD class 2026-11-19 (--from-bsdd, bsdd-spec.mjs,
+      eval/deprecated-subclasses-*). Tool run side by side 2026-11-19
+      (eval/excel2ids-sidebyside-2026-11-19.md: 321 workbooks, 0 stops; added
+      version None, _x000D_; applicability in ids.xsd order). bSDD links 2026-11-19
+      (bsdd.mjs, cli --audit --bsdd, eval/bsdd-links-2026-11-19.md: 58 public IDS,
+      197 bSDD links; 7 files with an error, 15 a warning, all read by hand). IDS
+      from a bSDD class 2026-11-19 (--from-bsdd, bsdd-spec.mjs,
       eval/bsdd-spec-2026-11-19.md: 185 classes in 42 dictionaries, 38 of 42 audit
       clean, 42 of 42 bSDD-check clean; editor keeps uris, 0 to 344 of 344). bSDD
       units to measure types 2026-11-19 (bsdd-units.mjs,
       eval/bsdd-units-2026-11-19.md: 867 of 1,625 non-IFC Reals get a measure,
-      values in SI; IfcTester agrees 9 of 9). next: a page route for bSDD if its API
-      ever allows CORS; a BIM manager's real table or filled Excel2IDS workbook via
-      --from-sheet; Excel itself typing into the download; an RVB/ILS author on \s;
-      a Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.
+      values in SI; IfcTester agrees 9 of 9; dB as pressure/power level 2026-11-19,
+      eval/bsdd-db-2026-11-19.md, 6 of 6; count on a bSDD cache). bSDD links written
+      offline 2026-11-19 (--link-bsdd, bsdd-suggest.mjs,
+      eval/bsdd-suggest-2026-11-19.md: 619 in 54 public files; 196 of 198 match
+      authors' links, 2 author slips); next: --bsdd over its 54 outputs where bSDD
+      is reachable; a page route for bSDD if its API ever allows CORS; a BIM
+      manager's real table or filled Excel2IDS workbook via --from-sheet; Excel
+      itself typing into the download; an RVB/ILS author on \s; a Revit/ARCHICAD
+      IFC4X3 export to confirm. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
@@ -564,4 +563,13 @@ flagships:
       real file; (4) written review shipped 2026-11-19 (report.mjs, print to PDF;
       eval/review-report-2026-11-19.md: 2-11 ranked corrections on six real files);
       next a real reviewer's reading of one and a full-list appendix option; (5)
-      resource levelling and expected finish dates.
+      Monte Carlo finish risk shipped 2026-11-19 (risk.mjs: P10-P90, chance of
+      forecast and must-finish, criticality index; zero-width run = CPM on six
+      files, eval/risk-check-2026-11-19.md); risk register events shipped 2026-11-19
+      (risks: probability x delay on named activities, P80 with/without, events
+      ranked; eval/risk-register-check-2026-11-19.md: 207 of 207 planted events =
+      CPM); risk in the written review shipped 2026-11-19 (report.mjs riskItems;
+      eval/review-risk-check-2026-11-19.md: CCA's 18 near-critical activities all
+      carry 15.7-18.7 d float, none in a float<10 d filter); next: ranges from a P6
+      UDF or the three-point columns, probabilistic branches; (6) resource levelling
+      and expected finish dates.

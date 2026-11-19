@@ -27,7 +27,7 @@ test("whist: every stored base develops into a design where each pair partners o
 
 test("near-whist: every stored 4k+2 base develops into a design that passes checkNearWhist", () => {
   const sizes = nearWhistSizes();
-  for (const m of [6, 10, 14, 18, 22, 26, 30, 34, 38]) assert.ok(sizes.includes(m), `size ${m} stored`);
+  for (const m of [6, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 62]) assert.ok(sizes.includes(m), `size ${m} stored`);
   for (const m of sizes) {
     const d = whistDesign(m);
     assert.equal(d.length, m, `round count for ${m}`);
@@ -66,9 +66,9 @@ test("americano: a court for every four players gives the exact whist guarantee"
   }
 });
 
-test("americano: 39, 40, 41, 45, 49, 56, 63 and 64 players (eval/whist-multiplier.mjs, eval/whist-search.c) get the guarantee", () => {
-  for (const m of [40, 41, 45, 49, 53, 56, 61, 64]) assert.ok(whistSizes().includes(m), `size ${m} stored`);
-  for (const n of [40, 41, 45, 49, 56, 64]) {
+test("americano: 39 to 64 players (eval/whist-multiplier.mjs, eval/whist-search.c, eval/whist-anneal.c) get the guarantee", () => {
+  for (const m of [40, 41, 44, 45, 48, 49, 53, 56, 60, 61, 64]) assert.ok(whistSizes().includes(m), `size ${m} stored`);
+  for (const n of [40, 41, 45, 48, 49, 56, 60, 64]) {
     const P = names(n);
     const plan = americano(P, { courts: Math.floor(n / 4), seed: n });
     assert.ok(plan.design, `n=${n} uses a design`);
@@ -78,11 +78,19 @@ test("americano: 39, 40, 41, 45, 49, 56, 63 and 64 players (eval/whist-multiplie
     assert.equal(st.unmetPartners, 0, `n=${n}`);
     assert.deepEqual(opponentRange(plan, n), [2, 2], `n=${n}`);
   }
-  for (const n of [39, 63]) { // 4k+3: the next design up with one empty seat
+  for (const n of [39, 47, 59, 63]) { // 4k+3: the next design up with one empty seat
     const P = names(n);
     const plan = americano(P, { courts: Math.floor(n / 4), seed: n });
     assert.ok(plan.design, `n=${n} uses a design`);
     assert.equal(americanoStats(P, plan).repeatPartners, 0, `n=${n}`);
+    assert.equal(plan.design.size, n + 1, `n=${n} plays design ${n + 1}`);
+  }
+  for (const n of [48, 60]) { // their own designs now, not the next size up with an idle court
+    const plan = americano(names(n), { courts: n / 4, seed: 1 });
+    assert.equal(plan.design.size, n);
+    assert.equal(plan.design.ghosts, 0);
+    assert.equal(plan.rounds.length, n - 1);
+    assert.ok(plan.rounds.every((r) => r.matches.length === n / 4), `n=${n}: every court used every round`);
   }
 });
 

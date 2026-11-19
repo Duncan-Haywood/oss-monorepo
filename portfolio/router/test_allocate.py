@@ -1357,6 +1357,7 @@ class ClaimCheckTest(unittest.TestCase):
         self.assertTrue(any(l.startswith("SHARE:") for l in lines), lines)
         self.assertTrue(any("#1 " in l for l in lines), lines)
         self.assertIn('--item "sales reader"', claim_recipe("x", "sales reader"))
+        self.assertIn("no `checkout -b`", claim_recipe("x"))  # the harness made the branch
         slug_only = report(self.decide(prs, "x", mine=2), "x", self.NOW, 24)
         self.assertTrue(any("--item" in l for l in slug_only), slug_only)
 

@@ -259,13 +259,18 @@ export function schedule(xer, options = {}) {
   const active = (t) => t.status === "TK_Active";
   const V = { doneNode: true, ssFromRem: false, activeSSRem: true, bwActiveSS: "rem", lagFromDone: false, ssActivePred: "maxleft", ssDoneNode: true, bwSSActivePred: "rem", bwDoneNode: true, bwDoneSS: "nolag", bwDoneFS: "nolag", bwDoneSuccLag: ["PR_FS"], bwRsrcRemain: "zero", bwDoneSSLeft: true, alapActive: true, activeSSLeft: "future", ffOpenEnd: "early", ffDoneSucc: true, ffSSActivePred: true, ffFloor: true, ...(options.variant || {}) };
   const delay = options.delay || null; // { taskId, minutes }: added remaining duration (critical path test)
+  // options.durations: Map(task id -> remaining minutes) in place of the file's
+  // (risk.mjs's sampled durations); options.forwardOnly: stop after the
+  // forward pass and the project finish (early dates only, ~half the time)
+  const durs = options.durations || null;
+  const remainOf = (t) => (durs && durs.has(t.id) ? durs.get(t.id) : t.remain);
 
   // ---- forward pass
   for (const id of order) {
     const t = tasks.get(id);
     const p = proj(t);
     const cal = t.cal;
-    const remain = t.remain + (delay && delay.taskId === id ? delay.minutes : 0);
+    const remain = remainOf(t) + (delay && delay.taskId === id ? delay.minutes : 0);
     const dd = p.dataDate ?? -Infinity;
     const starts = [dd];
     if (!active(t) && p.plannedStart !== null && p.plannedStart !== undefined) starts.push(p.plannedStart);
@@ -389,6 +394,7 @@ export function schedule(xer, options = {}) {
     if (p.finish === -Infinity) p.finish = null;
     p.lateEnd = p.mustFinish !== null && p.useProjectEndForFloat ? p.mustFinish : p.finish;
   }
+  if (options.forwardOnly) return { model, tasks: res, projects, loops, order, warnings: model.warnings };
 
   // ---- backward pass
   for (let k = order.length - 1; k >= 0; k--) {
@@ -398,7 +404,7 @@ export function schedule(xer, options = {}) {
     if (done(t) && !V.bwDoneNode) continue;
     const p = proj(t);
     const cal = t.cal;
-    let remain = t.remain + (delay && delay.taskId === id ? delay.minutes : 0);
+    let remain = remainOf(t) + (delay && delay.taskId === id ? delay.minutes : 0);
     if (V.bwRsrcRemain && t.rsrcRemain && (V.bwRsrcRemain === "all" || (t.remain === 0 && active(t))) && t.rsrcRemain > remain) remain = t.rsrcRemain;
     const fins = [];
     const starts = [];
@@ -574,11 +580,11 @@ export function schedule(xer, options = {}) {
     const ff = freeFloat(t, r);
     if (ff <= 0) continue;
     const shift = Math.round(ff * 60);
-    if (t.type === "TT_FinMile" || t.type === "TT_Mile" || t.remain === 0) {
+    if (t.type === "TT_FinMile" || t.type === "TT_Mile" || remainOf(t) === 0) {
       r.es = r.remES = r.ef = t.cal.addWork(r.ef, shift);
     } else {
       r.ef = t.cal.addWork(r.ef, shift);
-      r.es = r.remES = t.cal.nextStart(t.cal.subWork(r.ef, t.remain));
+      r.es = r.remES = t.cal.nextStart(t.cal.subWork(r.ef, remainOf(t)));
     }
     // a started activity's remaining work moves; its start stays the actual start
     if (active(t)) r.es = t.actStart ?? r.es;

@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqydttxoE9tR3YVYYBwW",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T14:39:10Z",
+  "ended": "2026-11-19T14:55:43Z",
+  "wall_minutes": 21.69,
+  "tokens_in": 15352212,
+  "tokens_out": 44480,
+  "cost_usd": 5.4052,
+  "tool_calls": 104,
+  "task": "photo-editing flagship 7: whether --demosaic auto should pick noise-aware",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17696",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First pytest run used /usr/local/bin/python3 (3.11, no pytest); pyenv.py had named /usr/bin/python3.13. Second run lacked PYTHONPATH=src. Third run worked.",
+    "The first three cost rows were timed while the C helpers were compiling after a container restart (and while pytest ran). Re-timed after; the JSONL carries the second timing."
+  ],
+  "integrity_issues": [
+    "The quality half of the decision rule summarises rows that earlier runs had already scored, and this run tabulated them per cell before writing the rule. The note says so. Only the cost half is a test made before its data existed.",
+    "q2 ('at most 1% of rows') was read as pooled (0.78%). One of the three sets alone is 1.42%. The note and post both say this."
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says PY=$(python3 platform/ci/pyenv.py pytest numpy) finds an interpreter. A bare python3 here is 3.11 without pytest, so the printed path (/usr/bin/python3.13) has to be used directly. Easy to miss when the call runs in the background."
+    },
+    {
+      "file": "ventures/photo-editing/tools/noise_aware_cost.py",
+      "issue": "Recorded only noise-aware's peak memory, so no note compared the two demosaics' memory. Added --peaks."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Committed the provisional auto switch before the cost rule was tested, because the Stop hook asked for uncommitted changes to be pushed. The commit message says it would be reverted if the rule failed.",
+      "did": "Pushed it as provisional, then measured.",
+      "result": "The rule passed, so no revert was needed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-photo-editing-noise-aware-becomes-the-default.md",
+    "ventures/photo-editing/eval/auto-noise-aware-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; route drew ventures/2; allocate.py row 3 photo-editing. Rule committed before the cost run (commit 3c224aee6). Five of five tests pass: time 1.34x directional (median, 53 raws), 0.062 s/MP added; memory 1.015x (max 1.21x); quality q1-q3 pass on 6,008 earlier rows. Switching auto ran the test suite into 23 failures from a real crash in xtrans_demosaic._block_stat on frames under one 24-px block in one dimension; fixed, with a regression test. Local checks: photo-editing pytest 1,439 passed, 10 skipped; venture-preflight.mjs photo-editing clean; check_posts.py ok; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6a7d52c0-4b91-5982-b1e6-663593a281b3",
+    "transcripts": 1,
+    "first": "2026-11-19T14:39:10Z",
+    "last": "2026-11-19T15:00:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 105,
+        "input": 214,
+        "output": 44480,
+        "thinking": 8449,
+        "cache_read": 15166820,
+        "cache_write_5m": 0,
+        "cache_write_1h": 185178,
+        "api_equivalent_usd": 5.4052,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 105,
+      "input": 214,
+      "output": 44480,
+      "thinking": 8449,
+      "cache_read": 15166820,
+      "cache_write_5m": 0,
+      "cache_write_1h": 185178,
+      "api_equivalent_usd": 5.4052,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 104,
+    "tools": {
+      "Bash": 88,
+      "Monitor": 10,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.69,
+      "active_minutes": 11.92,
+      "model_minutes": 8.64,
+      "tool_minutes": 3.28,
+      "waiting_on_human_minutes": 9.77,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a senior imaging engineer writing the rule, timing 53 raws for both demosaics, finding and fixing the thin-frame crash, and writing the note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 148.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
