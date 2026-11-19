@@ -83,3 +83,9 @@ def test_manuscript_stays_near_journal_length():
     # that belongs in supplement.md is creeping back.
     words = len((PAPER / "manuscript.md").read_text().split())
     assert words <= 7500, words
+
+
+def test_subsection_numbers_are_not_printed_twice():
+    # LaTeX numbers \subsection itself; the markdown's "3.6 " prefix used to print as "3.6 3.6".
+    tex, _ = build_tex.convert("# T\n\n## 3. Results\n\n### 3.6 Drag as a second number\n\ntext\n")
+    assert r"\subsection{Drag as a second number}" in tex
