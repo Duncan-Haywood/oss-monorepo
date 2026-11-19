@@ -546,13 +546,16 @@ flagships:
       The six public XER files in eval/cpm-vs-p6-2026-11-19.md (git clone the four
       repos named there): CCA residual down to 14 of 14,270 (three late-finish
       chains, eval/cpm-vs-p6-2026-11-19.md, What is left) with node
-      eval/cpm-vs-p6.mjs; free float on the 24.12 file (361 of 404).
+      eval/cpm-vs-p6.mjs; free float 19,809 of 19,822
+      (eval/free-float-2026-11-19.md): 9 left in the 24.12 file where P6 stores 0
+      against a positive gap; more hand-made or converter XERs (no data date, no
+      PROJECT, blank calendars) through node cli.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
-      (1) CCA rules 10-11 shipped 2026-11-19 (no lag back from finished nodes,
-      unspent SS lag; 99.9%, 19,807 of 19,822 overall); next the 14 left: three
-      late-finish chains where P6 is 3-20 days earlier
+      (1) CCA rules 10-11 and free float shipped 2026-11-19 (99.9%, 19,808 of 19,822
+      overall; free float 19,809, eval/free-float-2026-11-19.md; recomputed-schedule
+      CSV); next the 14 left: three late-finish chains where P6 is 3-20 days earlier
       (eval/cpm-vs-p6-2026-11-19.md, "What is left"); (2) update comparison shipped
       2026-11-19 (compare.mjs, half-step split; eval/compare-check-2026-11-19.md:
       720 of 720 planted edits on six real files); next a real pair of consecutive
