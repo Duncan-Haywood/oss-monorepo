@@ -161,6 +161,11 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **csum2's area-only miss is rare at ff (milestone 152, blind flow run on 15 fresh short add chains, four of seven predictions
+  held; the primary failed).** No fresh design repeats csum2's miss; area-only ranking (alpha = 0) has 6.15% mean regret against
+  SWC(1.25)'s 7.18% (interval -4.50 to +2.38), but a leave-one-milestone-out alpha over five ff folds still loses to the fixed
+  1.25 (4.04% against 3.66% on 92 designs):
+  [`experiments/addshort_ff/`](experiments/addshort_ff/results.txt).
 - **The clip's alpha should not be taken per corner (milestone 151, replay of 77 ff designs and 118 tt cells, five of seven
   predictions held; the primary failed).** Chosen leave-one-milestone-out at ff over alpha in {0, 0.5, 0.8, 1, 1.25}, the rule
   picks area-only on three folds and has 3.62% against SWC(1.25)'s 2.98%; one design (csum2, 66.6% under area-only) decides it.
