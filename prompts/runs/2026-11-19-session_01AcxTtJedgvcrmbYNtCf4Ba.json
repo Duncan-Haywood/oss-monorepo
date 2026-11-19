@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01AcxTtJedgvcrmbYNtCf4Ba",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T00:07:18Z",
+  "ended": "2026-11-19T00:21:33Z",
+  "wall_minutes": 14.66,
+  "tokens_in": 7610731,
+  "tokens_out": 86142,
+  "cost_usd": 4.672,
+  "tool_calls": 64,
+  "task": "Explore: new research-algorithm tool ventures/roc-analysis (ROC/AUC, DeLong paired test, cut-offs, partial AUC, decision curves)",
+  "projects": [
+    "roc-analysis"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17475",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 32,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/register-tool.mjs",
+      "issue": "Very useful: it listed every out-of-folder registration and the CSV formula-guard fix in one pass. Its --check exits 2 with 'registrations complete', which reads as a usage error."
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The 'skip audits already clean' list is long, and none of it applies to a build-a-tool run. A one-line pointer to portfolio/research-tools/README.md as the usual explore output would have saved some orientation time."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-two-tests-with-auc-0967-and-0975-are-a-tie.md",
+    "ventures/roc-analysis/README.md"
+  ],
+  "goal": null,
+  "notes": "Idea: ROC analysis as a research-algorithm tool. 0 of 1,412 venture READMEs mentioned DeLong, Youden or decision curves; probability-calibration reports only a bare AUC. Engine verified against scipy 1.18.1 Mann-Whitney and a direct O(mn) DeLong computation (numpy 2.5.3) on 3 cases (AUC 1e-12, covariance 1e-14, chi-square 1e-7). Hanley & McNeil 1982 rating data give AUC 0.8932 against the published 0.893. Example: UCI WDBC (CC BY 4.0). Worst perimeter and worst concave points cannot be told apart (paired p = 0.24); a cross-validated combined model beats both (p <= 0.0001). Local checks: node --test on 4 roc-analysis test files plus probability-calibration's page.test, 32+ passing; headless Chromium load with 0 console errors and no horizontal scroll at 390 px; register-tool --check clean; check_posts clean; venture-preflight run (result in PR). No separate agent doc: the README's Verification and Limits sections cover what a later run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "57f73ef7-7111-53f4-8ff9-427276dfd1b0",
+    "transcripts": 1,
+    "first": "2026-11-19T00:07:18Z",
+    "last": "2026-11-19T00:21:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 112,
+        "output": 86142,
+        "thinking": 8712,
+        "cache_read": 7427725,
+        "cache_write_5m": 0,
+        "cache_write_1h": 182894,
+        "api_equivalent_usd": 4.672,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 112,
+      "output": 86142,
+      "thinking": 8712,
+      "cache_read": 7427725,
+      "cache_write_5m": 0,
+      "cache_write_1h": 182894,
+      "api_equivalent_usd": 4.672,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 53,
+      "Write": 7,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.66,
+      "active_minutes": 14.66,
+      "model_minutes": 13.25,
+      "tool_minutes": 1.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "estimate: a statistician implementing and verifying DeLong + cut-off tables + page in JS from scratch",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 513.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
