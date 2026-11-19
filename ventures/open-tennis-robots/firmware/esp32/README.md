@@ -3292,3 +3292,29 @@ fall in 6-7.5 ms at all is unmeasured. The large misses under 2.5 ms are the fit
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.48 --seed 79 --takes "0.45,1.5,2.35,3.25,4.2,5.1,5.95,6.1,6.6,7.15,7.75,0"
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-eight-j-2026-11-19.jsonl.gz --grids "0,2,3,4,5,6,8;0,2,3,4,5,6,7,8"
+
+## Short takes: the fit sees them, the grid's end does not (2026-11-19, after "An eight-point take grid"; the shipped grid kept by its pre-registered rule)
+
+**The item.** On J to L every build off by more than 1 ms had a take of 2.35 ms or less, and the section above
+called those misses the fit's. Are they?
+
+**How it was checked.** `tests/take_short_blind.py` refits every surveyed wheel of J to L every 0.25 ms (the board's
+fit and depth, cached in `eval/take-dense-jkl-2026-11-19.jsonl.gz`) and sums the wheels the board keeps. The
+prediction (the summed curve's least within 0.5 ms of a 1.5 ms take on at least 12 of 18 builds) and a rule for an
+end-of-grid parabola (`end_pick`) were committed first (a541b2a93).
+
+**What it found.** The fit is not blind: the summed least is within 0.5 ms of true on 13 of 18 1.5 ms builds, 15 of 18
+at 2.35 ms and 197 of 216 overall. The curve is a flat shelf from 0 to about a millisecond below the take, then a
+valley; with points at 0, 2 and 3 ms the parabola reads a 1.5 ms valley as 0 or 1 and leans 2.35 ms takes into the
+shelf. `end_pick` failed (179 against 185 within 0.5 ms; 10 instant builds moved off 0 against 3). Chosen afterwards
+on J to L, a grid of 0, 1.5, 2.5, 3-8 ms scored 196 within 0.5 ms and 9 large misses against 185 and 16.
+
+**Held out.** Set M (lag 0.55 s, seed 97; 66 drills, takes stratified under 3 ms plus three checks), its rule
+committed before capture (9ead6721c): within 0.5 ms 48 against 41, large misses 3 against 11, mean error 0.373
+against 0.523 ms, checks 18 each, but one instant build read 0.80 ms (share 0.99, not advised) where the shipped
+grid read 0. The instant-read clause failed, so **`TAKE_SURVEY_GRID_US` stays at 0, 2, 3, 4, 5, 6, 7, 8 ms**.
+Everything is in `eval/take-short-2026-11-19.md`. `tests/take_survey_pick.py --score` reads seven-candidate captures
+again (it had printed only its header since the eight-point grid).
+
+**Not known.** All simulated, one seed a set. Whether real contacts are under 3 ms at all is unmeasured. A fresh set
+with the instant clause written on advice, not on the rounded read, is the next test; M cannot count toward it.
