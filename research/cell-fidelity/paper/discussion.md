@@ -74,6 +74,15 @@ bench's lean recorder), so the cycle-10 run plus its resume took 1.22 times one 
 in, the continued saving is about &minus;1% in that bench's units and 8% scaled to 7j's runner, not 17%.
 The saving needs a runner that keeps the built model between the look and the extension.
 
+**Tested again in milestone 7l, and the condition is easy to meet.** Kept alive, one `Simulation` built
+with a 10-cycle experiment and solved again from its own last solution reaches cycle 50 in a median 1.000
+times one uninterrupted run (IQR 0.95 to 1.06; extra cost 0.02 cycle equivalents against a fixed cost of
+6.34), with a bit-identical cycle-50 state; a 1-cycle-chunk runner pays 0.03 cycles per extra call
+(`experiments/keep7l`). The rebuild, not the continuation, was 7k's cost. With continuation free the
+triage saves 16.9% of wall time in that bench's units and 17.1% on 7j's runner. Because the absolute
+threshold scores a lone design, each design's process can take the cycle-10 look and stop or extend by
+itself, with no checkpoint written to disk.
+
 In absolute terms the numbers are small for one search and large for a design office. On the shared
 three-worker cloud container that ran 7g and 7h, a 100-cycle x-resolved DFN run took a median 8.9 s
 (`Chen2020`) to 29.1 s (`Ai2020`). Running 1000 designs to cycle 50 then costs 1.3 to 4.3 CPU-hours, and
@@ -107,5 +116,5 @@ with the uninterrupted runs.
 
 For the paper, in order of value: (1) a fifth and sixth parameter set, since across-chemistry spread,
 not the number of pools, now limits the main claim (section 4.6, finding 2); (2) the continuation test
-above; (3) the measured-cell check of the rankings (`PROPOSAL.md`, milestone 6), an owner step that needs
+above, now done (7k, 7l: free if the runner keeps the `Simulation`; packaging that runner is the artefact step); (3) the measured-cell check of the rankings (`PROPOSAL.md`, milestone 6), an owner step that needs
 built pouch cells and certified test equipment.

@@ -306,10 +306,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
-      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend near clean:
-      the true model loses 0.58 dB on a K-3 III tile at SNR 200; a ramp gate on the
-      card sets' tiles (eval/noise-card-floor-rank-2026-11-18.md). DNG 1.7.1.0 spec
-      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise blend: the 11
+      Bayer rows still losing >0.1 dB are over-read noise (D780, D600;
+      eval/near-clean-gate-2026-11-19.md, tools/near_clean_gate.py); X-Trans k
+      unset. DNG 1.7.1.0 spec PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README, HISTORY.md and eval/ (ingest to
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
@@ -333,9 +333,11 @@ flagships:
       export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
       5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
-      evenly lit frame; a near-clean gate in the blend's ramps (auto = noise-aware
-      since 2026-11-19, 1.34x directional's time; 0.78% of 6,008 rows lose >0.1 dB,
-      worst -0.58, eval/auto-noise-aware-*). More open items: NEXT.md.
+      evenly lit frame; Bayer's near-clean leak closed 2026-11-19 (lift_near_detail,
+      k 12: held-out losers 18 to 11, worst SNR 200 -0.27 to -0.14,
+      eval/near-clean-gate-2026-11-19.md); next the 11 left, all over-read noise
+      (D780, D600 tiles), an X-Trans tune pass for its own k. More open items:
+      NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -397,21 +399,19 @@ flagships:
       (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT alone,
       eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0 waits
       (odd-orbit.py, 9,849 s). Americano whist designs 2026-11-19 (whist.mjs;
-      eval/whist-vs-greedy.txt); 4k+2 near-whist designs 2026-11-19 (one missed
-      partner each, 0 repeats, opponents 1-2; eval/near-whist-search.mjs annealing);
-      Whist 48, 60 and near-whist 46, 54, 62 by tabu search 2026-11-19
-      (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h each none; order-4
-      multiplier on Z51 none) and near-whist 58 (25 min none). More open items:
-      NEXT.md.
+      eval/whist-vs-greedy.txt); Whist 48, 60 and near-whist 46, 54, 62 by tabu
+      search 2026-11-19 (eval/whist-anneal.c, .txt); next: 52, 57 (tabu ~1 CPU-h
+      each none; order-4 multiplier on Z51 none) and near-whist 58 (tabu 25+60
+      CPU-min, SAT 2.2 h none; sit-out parity and mirror proof: README "Near-whist
+      designs by SAT"). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The bound's ppm floor on tenths"
-      (2026-11-19: floor 2 kept as a noise margin; design 7 of 242 missed at floor
-      0, held out W+X 97 of 97 at every floor;
-      eval/take-bound-floor-tenths-2026-11-19.md). Next: a fresh set with 1.8-2.2 ms
-      takes to show whether the floor is needed on tenths; TAKE_SURVEY_BLIND's 1.5
-      rechecked on a fresh jittery-tach set at the nine-point grid.
+      see firmware/esp32/README.md, latest "The bound's ppm floor on takes near 2
+      ms" (2026-11-19: floor 2 shown needed, Y+Z floor 0 missed 3 of 54, floor 2
+      none; eval/take-bound-floor-near2-2026-11-19.md). Next: a floor scaled to the
+      survey's noise (NEXT.md); TAKE_SURVEY_BLIND's 1.5 rechecked on a fresh
+      jittery-tach set at the nine-point grid.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -568,8 +568,10 @@ flagships:
       files, eval/risk-check-2026-11-19.md); risk register events shipped 2026-11-19
       (risks: probability x delay on named activities, P80 with/without, events
       ranked; eval/risk-register-check-2026-11-19.md: 207 of 207 planted events =
-      CPM); risk in the written review shipped 2026-11-19 (report.mjs riskItems;
-      eval/review-risk-check-2026-11-19.md: CCA's 18 near-critical activities all
-      carry 15.7-18.7 d float, none in a float<10 d filter); next: ranges from a P6
-      UDF or the three-point columns, probabilistic branches; (6) resource levelling
-      and expected finish dates.
+      CPM); next: ranges from a P6 UDF or the three-point columns, probabilistic
+      branches; (6) resource levelling shipped 2026-11-19 (level.mjs, --level:
+      serial pass by early start, the file's priority list, crew-size what-if;
+      eval/level-check-2026-11-19.md: 0 h over a limit from placed work on six
+      files, 37,670 of 37,670 links hold, x1e6 limits = CPM); next: a P6-levelled
+      XER to compare dates with, levelling in the written review and the risk run;
+      (7) expected finish dates.

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245b4f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E@%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>.gitattributes Explainer — Why Does My .gitattributes Line Do Nothing?</title>
+  <meta name="description" content="Free .gitattributes checker: paste your attribute files and a file list to see which line sets every attribute of every path, the way git check-attr does. Finds lines git ignores, docs/ patterns that never reach a file, LFS lines without -text, and what git does to line endings. In your browser.">
+  <meta property="og:title" content=".gitattributes Explainer — free, private, in your browser">
+  <meta property="og:description" content="Which line sets this attribute? Why is my .gitattributes line ignored? Git's own resolution, line by line, plus the line-ending outcome for every file.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": ".gitattributes Explainer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Resolves .gitattributes files the way git does and names the line that sets every attribute of every path, through macros, nested files and .git/info/attributes. Finds lines git ignores, folder patterns that never reach a file, Git LFS lines without -text and misspelled attributes, and says what git will do to each file's line endings. Runs in your browser.", "featureList": "git check-attr compatible resolution, macro expansion, nested .gitattributes, .git/info/attributes, line-ending decision per file with core.autocrlf and core.eol, dropped-line detection, folder-pattern detection, Git LFS check, typo and value lint, CSV download, command-line version with self-check against git"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my .gitattributes line do nothing?", "acceptedAnswer": {"@type": "Answer", "text": "The five usual causes: the pattern ends in a slash (docs/ matches the folder, never the files in it; write docs/**), the line starts with ! (negative patterns are not allowed in .gitattributes, so git drops the line), it defines an [attr] macro in a .gitattributes below the root (macros only work at the top level), it has a misspelled or invalid attribute name (one invalid name drops the whole line), or it changes line endings for files that were committed before it, which git does not rewrite until you run git add --renormalize. The tool flags the first four and shows, path by path, which line decided each attribute."}}, {"@type": "Question", "name": "How do I exclude one path from a .gitattributes rule?", "acceptedAnswer": {"@type": "Answer", "text": "Not with !: .gitattributes has no negative patterns. Add a line for the path after the broad one and switch the attribute off with a minus, as in vendor/ours/** -linguist-vendored, or back to unspecified with an exclamation mark before the attribute name, as in vendor/ours/** !linguist-vendored. Later lines win within a file, and a deeper .gitattributes wins over the root one."}}, {"@type": "Question", "name": "Which line in .gitattributes wins?", "acceptedAnswer": {"@type": "Answer", "text": "For each attribute separately, git takes the first line that decides it in this order: .git/info/attributes, then the .gitattributes in the path's own folder, then each parent folder up to the root, then your global attributes file and the system one. Within a file the last matching line wins, and on one line a later attribute beats an earlier one. git check-attr -a path prints the result for one path; this tool prints it for every path, with the deciding line."}}, {"@type": "Question", "name": "Why are my line endings not changing after I edited .gitattributes?", "acceptedAnswer": {"@type": "Answer", "text": "Attributes apply when git reads or writes a file, so files committed earlier keep the line endings they were stored with. Run git add --renormalize . and commit to re-store them under the new rules, then check out again to rewrite your working copy. Also check the value: git only understands eol=lf and eol=crlf in lower case, and text=auto or text, so eol=CRLF or text=true is ignored."}}, {"@type": "Question", "name": "What should a Git LFS line in .gitattributes look like?", "acceptedAnswer": {"@type": "Answer", "text": "git lfs track writes pattern filter=lfs diff=lfs merge=lfs -text. The -text matters: without it, a broader * text=auto line can apply line-ending conversion to the file. The tool flags LFS lines that leave text set."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The checker runs entirely in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17231f; background: #f2f6f4; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d6b58; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.6rem); line-height: 1.08; margin: 0 0 14px; color: #183f36; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #183f36; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #e3ece8; padding: 1px 4px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #4b5c56; }
+    .card { background: #fff; border: 1px solid #d5e1dc; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #183f3610; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8a81; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 12em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d6b58; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0ebe7; color: #183f36; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #e3ece8; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5c56; }
+    td code { white-space: pre-wrap; word-break: break-all; }
+    .finding { border-bottom: 1px solid #e3ece8; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding ul { margin: 6px 0 0; padding-left: 20px; font: .85rem ui-monospace, Menlo, Consolas, monospace; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #6e520c; }
+    .pill.low, .pill.info { background: #e0ebe7; color: #183f36; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #edf3f0; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #183f36; }
+    pre.fix { background: #142b25; color: #eefaf5; padding: 14px; border-radius: 10px; overflow-x: auto; font: 13.5px ui-monospace, Menlo, Consolas, monospace; }
+    .scroll { overflow-x: auto; }
+    .row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+    .row > div { flex: 1 1 260px; }
+    ol.steps { padding-left: 20px; font-size: .94rem; }
+    .lost { color: #6a7a74; text-decoration: line-through; }
+    footer { margin-top: 28px; border-top: 1px solid #d5e1dc; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">.GITATTRIBUTES EXPLAINER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which line sets this attribute, and why does my <code>.gitattributes</code> line do nothing?</h1>
+    <p>Paste your <code>.gitattributes</code> files and a list of paths. For every path you get <strong>every attribute and the line that set it</strong>, resolved the way <code>git check-attr</code> resolves it: macros such as <code>binary</code> expanded, deeper files beating shallower ones, <code>.git/info/attributes</code> on top. The tool flags the <strong>lines git silently drops</strong> (a <code>!</code> pattern, an <code>[attr]</code> macro in a subfolder, one invalid name), <strong><code>docs/</code> patterns that never reach a file</strong>, Git LFS lines without <code>-text</code>, misspelled attributes, and says <strong>what git will do to each file's line endings</strong> under your <code>core.autocrlf</code>.</p>
+    <p class="note">Nothing you paste leaves this browser tab. Checked against <code>git check-attr</code> and <code>git ls-files --eol</code> on thousands of random repositories, and against real commits and checkouts for line endings (see the README); still, your own git is the final word.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Your attribute files</h2>
+    <p class="note">Paste your root <code>.gitattributes</code>. For more files, start each with a line <code>==&gt; path/to/.gitattributes &lt;==</code> (what <code>head</code> prints for several files, so <code>head -n 1000 $(git ls-files '*.gitattributes')</code> gives you the whole lot). <code>==&gt; .git/info/attributes &lt;==</code> and <code>==&gt; core.attributesFile &lt;==</code> (your global file) work too.</p>
+    <label for="gitMode">Your git version</label>
+    <select id="gitMode"><option value="modern">2.52 or later (git --version)</option><option value="mid">2.44 to 2.51</option><option value="old">2.43 or earlier</option></select>
+    <p class="note">Two corners differ by version: git 2.44 started rejecting attribute names that begin with <code>builtin_</code>, and git 2.52 changed how a <code>**</code> glued to text (<code>/a**/b</code>) matches.</p>
+    <label for="sources">Attribute files</label>
+    <textarea id="sources" spellcheck="false" placeholder="* text=auto&#10;*.png binary&#10;docs/** linguist-documentation"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. The paths to check, and your line-ending settings</h2>
+    <label for="paths">Paths, one per line</label>
+    <textarea id="paths" spellcheck="false" placeholder="README.md&#10;docs/guide.md&#10;logo.png"></textarea>
+    <p class="note">From <code>git ls-files</code> (or <code>git ls-files --eol</code>, whose columns are read too). End a line with <code>/</code> to check a folder itself.</p>
+    <div class="grid">
+      <div><label for="autocrlf">core.autocrlf</label><select id="autocrlf"><option value="false">false (Linux and macOS default)</option><option value="true">true (Git for Windows installer default)</option><option value="input">input</option></select></div>
+      <div><label for="coreEol">core.eol</label><select id="coreEol"><option value="native">native (not set)</option><option value="lf">lf</option><option value="crlf">crlf</option></select></div>
+      <div><label for="platform">Your system</label><select id="platform"><option value="unix">Linux or macOS</option><option value="windows">Windows</option></select></div>
+    </div>
+    <p class="note"><code>git config core.autocrlf</code> and <code>git config core.eol</code> print yours; nothing printed means the default.</p>
+    <p>
+      <button type="button" id="run">Explain</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>Report</h2>
+    <div class="big" id="totals"></div>
+    <h3>Findings</h3>
+    <div id="findings"></div>
+    <h3>Every path</h3>
+    <div class="row">
+      <div><label for="filter">Filter paths</label><input id="filter" type="search" placeholder="part of a path"></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="csv">Download CSV</button></div>
+    </div>
+    <div class="scroll"><table><thead><tr><th>Path</th><th>Attributes, and the line that set each</th><th>Line endings</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Why does one path get these attributes?</h2>
+    <p class="note">Every line that matches the path, in the order git reads them, and what each attribute on it did.</p>
+    <div class="row">
+      <div><label for="whyPath">Path</label><input id="whyPath" type="text" spellcheck="false" placeholder="web/__snapshots__/app.snap"></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="why">Show the lines</button></div>
+    </div>
+    <ol class="steps" id="whySteps"></ol>
+    <p id="whyResult"></p>
+  </section>
+
+  <section class="card">
+    <h2>From a terminal</h2>
+    <p>The same engine runs over a whole repository, with no install and no network: it reads every <code>.gitattributes</code>, <code>.git/info/attributes</code>, your global attributes file, <code>core.autocrlf</code>, <code>core.eol</code> and the file list itself. <code>--verify</code> asks your own git about every path and reports any answer that differs.</p>
+    <pre class="fix">node ventures/gitattributes-explainer/cli/check.mjs             # report
+node ventures/gitattributes-explainer/cli/check.mjs --why path  # every attribute of one path, and why
+node ventures/gitattributes-explainer/cli/check.mjs --verify    # compare with git check-attr
+node ventures/gitattributes-explainer/cli/check.mjs --strict    # exit 1 on a high finding (CI)</pre>
+    <p class="note">Clone <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitattributes-explainer" rel="noopener">the source</a>, then run it from inside your own repository with the path to <code>cli/check.mjs</code>. Node 18 or later.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>Why does my .gitattributes line do nothing?</h3>
+    <p>The five usual causes: the pattern ends in a slash (docs/ matches the folder, never the files in it; write docs/**), the line starts with ! (negative patterns are not allowed in .gitattributes, so git drops the line), it defines an [attr] macro in a .gitattributes below the root (macros only work at the top level), it has a misspelled or invalid attribute name (one invalid name drops the whole line), or it changes line endings for files that were committed before it, which git does not rewrite until you run git add --renormalize. The tool flags the first four and shows, path by path, which line decided each attribute.</p>
+    <h3>How do I exclude one path from a .gitattributes rule?</h3>
+    <p>Not with !: .gitattributes has no negative patterns. Add a line for the path after the broad one and switch the attribute off with a minus, as in vendor/ours/** -linguist-vendored, or back to unspecified with an exclamation mark before the attribute name, as in vendor/ours/** !linguist-vendored. Later lines win within a file, and a deeper .gitattributes wins over the root one.</p>
+    <h3>Which line in .gitattributes wins?</h3>
+    <p>For each attribute separately, git takes the first line that decides it in this order: .git/info/attributes, then the .gitattributes in the path's own folder, then each parent folder up to the root, then your global attributes file and the system one. Within a file the last matching line wins, and on one line a later attribute beats an earlier one. git check-attr -a path prints the result for one path; this tool prints it for every path, with the deciding line.</p>
+    <h3>Why are my line endings not changing after I edited .gitattributes?</h3>
+    <p>Attributes apply when git reads or writes a file, so files committed earlier keep the line endings they were stored with. Run git add --renormalize . and commit to re-store them under the new rules, then check out again to rewrite your working copy. Also check the value: git only understands eol=lf and eol=crlf in lower case, and text=auto or text, so eol=CRLF or text=true is ignored.</p>
+    <h3>What should a Git LFS line in .gitattributes look like?</h3>
+    <p>git lfs track writes pattern filter=lfs diff=lfs merge=lfs -text. The -text matters: without it, a broader * text=auto line can apply line-ending conversion to the file. The tool flags LFS lines that leave text set.</p>
+    <h3>Is anything I paste uploaded?</h3>
+    <p>No. The checker runs entirely in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls.</p>
+  </section>
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security or professional advice. Results come from the text you paste, resolved by this tool's own reimplementation of git's rules; it does not run git. You are responsible for reviewing and verifying its output, for example with <code>git check-attr -a</code>, before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by the Git project, GitHub, GitLab, Git LFS or any other vendor. Git is a trademark of the Software Freedom Conservancy. <code>linguist-*</code> attributes are read by GitHub's Linguist library, not by git; this tool resolves them the way git does, which is what was tested.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>attributes_checked</code>, <code>example_loaded</code>, <code>why_shown</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Fighting <code>.gitignore</code> instead? The <a href="../gitignore-explainer/">.gitignore explainer</a> does the same for ignore rules. Guide: <a href="why-gitattributes-not-working.html">five reasons a .gitattributes line does nothing</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, why, reportCsv, showValue, DEFAULTS } from "./gitattributes.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+    const status = $("#form-status");
+    let last = null;
+    const settings = () => ({ autocrlf: $("#autocrlf").value, eol: $("#coreEol").value, platform: $("#platform").value });
+    const at = (r) => `<span class="note">${esc(r.source)}:${r.line}</span>`;
+    const attrCell = (a) => `<code>${esc(a.name)}: ${esc(a.shown)}</code> ${at(a.rule)}${a.via.length ? ` <span class="note">via ${esc(a.via.join(" › "))}</span>` : ""}`;
+    function renderRows() {
+      if (!last) return;
+      const q = $("#filter").value.trim().toLowerCase();
+      const rows = last.paths.filter((r) => !q || r.path.toLowerCase().includes(q)).slice(0, 2000);
+      $("#rows").innerHTML = rows.map((r) => `<tr><td><code>${esc(r.path)}${r.isDir ? "/" : ""}</code></td><td>${r.attrs.length ? r.attrs.map(attrCell).join("<br>") : '<span class="note">no attributes</span>'}</td><td>${r.eol ? `<code>${esc(r.eol.label || "nothing set")}</code><br><span class="note">${esc(r.eol.summary)}</span>` : '<span class="note">folder</span>'}</td></tr>`).join("") +
+        (last.paths.length > rows.length && !q ? `<tr><td colspan="3" class="note">Showing the first 2,000 of ${last.paths.length.toLocaleString("en-US")} paths; filter or download the CSV for the rest.</td></tr>` : "");
+    }
+    function run() {
+      const input = { sources: $("#sources").value, paths: $("#paths").value, git: $("#gitMode").value, settings: settings() };
+      if (!input.sources.trim()) { status.textContent = "Paste at least one .gitattributes."; return; }
+      const t0 = performance.now();
+      last = analyze(input);
+      const t = last.totals;
+      status.textContent = `Checked ${t.paths.toLocaleString("en-US")} paths against ${t.rules} lines in ${Math.round(performance.now() - t0)} ms.`;
+      $("#totals").innerHTML = [
+        ["Lines git ignores", t.dropped], ["High findings", t.high], ["Always text", t.eol.text], ["Text if git sees text", t.eol.auto], ["Not text", t.eol.binary], ["Git LFS files", t.lfs],
+      ].map(([k, v]) => `<div><strong>${v.toLocaleString("en-US")}</strong>${k}</div>`).join("");
+      $("#findings").innerHTML = last.findings.length ? last.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${md(f.title)}</h4><p class="note">${esc(f.source)}:${f.line} <code>${esc(f.text)}</code></p><p>${md(f.detail)}</p>${f.paths ? `<ul>${f.paths.slice(0, 10).map((p) => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}</div>`).join("") : "<p>No findings: git reads every line, and nothing looks miswritten.</p>";
+      renderRows();
+      $("#report").hidden = false;
+      record("attributes_checked");
+    }
+    function showWhy() {
+      const res = why({ sources: $("#sources").value, path: $("#whyPath").value, git: $("#gitMode").value, settings: settings() });
+      $("#whySteps").innerHTML = res.steps.map((s) => `<li><code>${esc(s.rule.text)}</code> ${at(s.rule)}<br>${s.tokens.map((t) => t.decided ? `<code>${esc(t.name)}: ${esc(showValue(t.value))}</code>${t.via.length ? ` <span class="note">via ${esc(t.via.join(" › "))}</span>` : ""}` : `<span class="lost"><code>${esc(t.name)}: ${esc(showValue(t.value))}</code></span> <span class="note">already decided by ${esc(t.by.source)}:${t.by.line}</span>`).join(", ") || '<span class="note">no attributes on this line</span>'}</li>`).join("") || (res.path ? "<li>No line matches this path.</li>" : "<li>Type a path.</li>");
+      $("#whyResult").innerHTML = res.eol ? `<strong>Line endings:</strong> ${esc(res.eol.summary)}` : "";
+      record("why_shown");
+    }
+    $("#run").addEventListener("click", run);
+    $("#example").addEventListener("click", () => {
+      $("#sources").value = DEFAULTS.sources; $("#paths").value = DEFAULTS.paths;
+      $("#whyPath").value = "release.zip";
+      record("example_loaded");
+      run();
+    });
+    $("#clear").addEventListener("click", () => { for (const id of ["sources", "paths", "whyPath"]) $("#" + id).value = ""; $("#report").hidden = true; status.textContent = ""; last = null; });
+    $("#filter").addEventListener("input", renderRows);
+    $("#why").addEventListener("click", showWhy);
+    for (const id of ["autocrlf", "coreEol", "platform", "gitMode"]) $("#" + id).addEventListener("change", () => { if (last) run(); });
+    $("#csv").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "gitattributes-report.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
