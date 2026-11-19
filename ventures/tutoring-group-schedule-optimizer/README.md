@@ -17,7 +17,7 @@ After using this, you can **decide which group sessions to run from your student
 
 ## Verification
 
-`node --test` compares the exact path against an exhaustive oracle (every student in every slot or nowhere) on 60 random instances, checks that reported plans are valid seatings that sum to the reported profit, and keeps local search within 2% of the exact answer on 12-slot instances. Not tested against a real centre's timetable.
+`node --test` compares the exact path against an exhaustive oracle (every student in every slot or nowhere) on 60 random instances, checks that reported plans are valid seatings that sum to the reported profit, and keeps local search within 2% of the exact answer on 12-slot instances. `search-pinned.test.mjs` pins the faster solver (typed-array flow, a profit bound that skips slot sets which cannot win, one seating for the baseline) to inline copies of the code it replaced: same seatings, same chosen plan. A 30-slot, 250-student timetable takes about 0.6 s, down from 40 s (`docs/history/ci-perf-2026-11-19-tutoring-schedule-bound.md`). Not tested against a real centre's timetable.
 
 ## Limits
 
