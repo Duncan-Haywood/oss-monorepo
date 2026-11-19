@@ -499,7 +499,8 @@ flagships:
     buildable: >-
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
-      rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
+      rerun it after excel2ids.mjs changes. bSDD answers here (2026-11-19): rerun
+      eval/bsdd-template-sweep.mjs. IFC4X3 ifcXML: none public (searched
       2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md); more real exports through
       eval/model-inventory.mjs and eval/model-attr-ranges.mjs; IFC4/IFC4X3 STEP
@@ -524,13 +525,14 @@ flagships:
       eval/bsdd-db-2026-11-19.md, 6 of 6; count on a bSDD cache). bSDD links written
       offline 2026-11-19 (--link-bsdd, bsdd-suggest.mjs,
       eval/bsdd-suggest-2026-11-19.md: 619 in 54 public files; 196 of 198 match
-      authors' links, 2 author slips); next: --bsdd over its 54 outputs where bSDD
-      is reachable; a page route for bSDD if its API ever allows CORS; a BIM
-      manager's real table or filled Excel2IDS workbook via --from-sheet; Excel
-      itself typing into the download (dropdown lists in it 2026-11-19,
-      eval/sheet-dropdowns-2026-11-19.md: 0 strict-list cells out on 476 IDS,
-      LibreOffice agrees 476 of 476); an RVB/ILS author on \s; a Revit/ARCHICAD
-      IFC4X3 export to confirm. More open items: NEXT.md.
+      authors' links, 2 author slips; looked up live 2026-11-19,
+      eval/bsdd-suggest-live-2026-11-19.md: 617 of 617 resolve, Reference skipped,
+      eval/bsdd-template-sweep.mjs checks all 760 sets); next: a page route for bSDD
+      if its API ever allows CORS; a BIM manager's real table or filled Excel2IDS
+      workbook via --from-sheet; Excel itself typing into the download (dropdown
+      lists in it 2026-11-19, eval/sheet-dropdowns-2026-11-19.md: 0 strict-list
+      cells out on 476 IDS, LibreOffice agrees 476 of 476); an RVB/ILS author on \s;
+      a Revit/ARCHICAD IFC4X3 export to confirm. More open items: NEXT.md.
   # Added 2026-11-19 on its first commit, under the owner's construction
   # direction (prompts/goals.md, "Direction: industrial, energy and
   # construction"): a P6 schedule engine is a hard, open-ended engineering
