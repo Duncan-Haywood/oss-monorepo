@@ -1969,6 +1969,47 @@ headless-Chromium upload of the same files on the page filled the staff box with
 Field names come from the MIT communityds/deputy-api-wrapper models (Deputy's reference did not answer from the
 session; `eval/deputy-staff-format-2026-11-19.md`); no Deputy account, token or real response was used.
 
+## Deputy time off: unavailability and approved leave (2026-11-19, later)
+
+With `--week-start <Monday>` (and `--weeks <n>` for more than one), `--import-deputy-staff` also reads Deputy's
+`EmployeeAvailability/QUERY` and `Leave/QUERY` answers and writes what falls in those weeks as a dated `off:` cell on
+each person's line, which the build subtracts from their availability:
+
+```
+Ana Silva, 24, 40, 0, any, off: 2026-11-18 9-13:30
+Ben Ng, 22, 40, 0, any, off: 2026-11-20; 2026-11-21
+```
+
+`--fetch-deputy-staff --week-start <Monday>` adds the two queries (six instead of four): unavailability blocks starting
+from two days before the first Monday to a day after the last Sunday by Unix time, and leave whose dates touch the weeks.
+On the page, pick the week first, then choose the saved JSON in the staff-import box.
+
+- **What an EmployeeAvailability row is.** Deputy's own guide, "Setting an Employees Unavailability"
+  (developer.deputy.com, updated 2025-11-10, which answered from this session), documents it: a block the person
+  *cannot* work, `StartTime` to `EndTime` in Unix seconds with `StartTimeLocalized`/`EndTimeLocalized` on the location's
+  clock, `Type` 0 one-off or 1 recurring, and a recurring pattern expanded into one row per occurrence up to
+  `MaxDateRecurringGenerated`. So a weekly lecture arrives as one row per week and is read like a one-off; when the
+  generated rows stop before the planned weeks end, a note says so.
+- **Clock.** The localized time first, else the Unix time at the offset of the row's `Date`, else `--tz <zone>`, else
+  UTC with a note (the same order as the roster reader). A block over midnight is split into its two days; overlapping
+  blocks merge; a day covered end to end is written as the bare date.
+- **Leave.** Deputy's "Leave" page lists `Status` 0 awaiting approval, 1 approved, 2 declined, 3 cancelled, 4 date only
+  approved, 5 pay approved. 1, 4 and 5 block whole days from `DateStart` to `DateEnd`; awaiting requests are counted in
+  a note, not applied; a part-day request (`AllDay` false) blocks the whole day, with a note, because the hours are not
+  read.
+- **Without a week** the rows are counted and not applied, with a note: a dated entry means nothing until the week is
+  known. The roster reader (`--import-deputy`) no longer mistakes an unavailability row for a roster (both carry
+  `StartTime` and `EndTime`; the unavailability row has `Type` and `Schedule` and no `OperationalUnit`), so one folder of
+  saved answers can feed both.
+
+Checked: `import-deputy-staff.test.mjs` (6 more tests, 15 in all: blocks split at midnight and applied by `parseStaff`
+with `--week-start`, recurring and next-week blocks, approved, awaiting, declined and part-day leave, overlap merging,
+no week, a non-Monday week, `--weeks 2`, Unix-only blocks at the `Date` offset, a named zone and UTC, unavailability rows
+ignored by the roster reader, the fetch's two extra queries against a stub). The CLI on invented files wrote the two
+lines above, and a build of one 9-5 shift a day from them kept Ana off Wednesday and Ben off Friday and Saturday (7 of
+7 covered). Field shapes are from Deputy's documented sample response; no Deputy account, token or real response was
+used (`eval/deputy-time-off-format-2026-11-19.md`).
+
 ## Reading Deputy directly (2026-11-17)
 
 `--import-deputy rosters.json` reads saved answers from Deputy's resource API (`POST /api/v1/resource/Roster/QUERY`, plus

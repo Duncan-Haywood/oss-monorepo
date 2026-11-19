@@ -23,7 +23,10 @@ import { importShiftsCsv } from "./import-shifts.mjs";
 import { readWiwTime } from "./import-wheniwork.mjs";
 
 const pad2 = (n) => String(n).padStart(2, "0");
-const isRoster = (x) => x && typeof x === "object" && !Array.isArray(x) && ("StartTime" in x || "StartTimeLocalized" in x) && ("EndTime" in x || "EndTimeLocalized" in x);
+// An EmployeeAvailability row (an unavailability block, read by import-deputy-staff.mjs) also has StartTime and EndTime; it
+// has Type and Schedule or MaxDateRecurringGenerated and no OperationalUnit, so a mixed folder of saved answers is safe.
+export const isDeputyUnavailability = (x) => x && typeof x === "object" && !Array.isArray(x) && "Employee" in x && ("StartTime" in x || "StartTimeLocalized" in x) && !("OperationalUnit" in x) && ("MaxDateRecurringGenerated" in x || ("Type" in x && "Schedule" in x));
+const isRoster = (x) => x && typeof x === "object" && !Array.isArray(x) && ("StartTime" in x || "StartTimeLocalized" in x) && ("EndTime" in x || "EndTimeLocalized" in x) && !isDeputyUnavailability(x);
 const isUnit = (x) => x && typeof x === "object" && "OperationalUnitName" in x;
 const isCompany = (x) => x && typeof x === "object" && "CompanyName" in x && !("OperationalUnitName" in x) && !isRoster(x);
 
@@ -73,7 +76,7 @@ const unixMs = (v) => (typeof v === "number" || (typeof v === "string" && /^\d{9
 
 // One end of a roster on the wall clock, best source first: the localized ISO time; the Unix time with a time zone
 // the caller names; the Unix time with the offset of the roster's own `Date`; the Unix time in UTC (flagged).
-function readEnd(r, which, tz) {
+export function readEnd(r, which, tz) {
   const loc = r[which + "TimeLocalized"];
   if (typeof loc === "string" && loc) { const a = readWiwTime(loc); if (a) return { ...a, how: "localized" }; }
   const ms = unixMs(r[which + "Time"]);
