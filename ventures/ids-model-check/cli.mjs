@@ -17,6 +17,10 @@
 //                                              # workbook (excel2ids.mjs) gives one IDS per purpose,
 //                                              # OUT_<purpose>.ids (and per phase with --by-phase)
 //   node cli.mjs --to-excel2ids SPEC.ids -o OUT.xlsx  # the IDS in the Excel2IDS template layout
+//   node cli.mjs --from-bsdd CLASS_URI... [-o OUT.ids] [--sets Pset_A,Pset_B] [--schema IFC4]
+//                                              # one specification per bSDD class from its property list
+//                                              # (bsdd-spec.mjs; goes on the network like --bsdd); stdout
+//                                              # without -o; what could not be carried over on stderr
 //
 // MODEL may be a STEP .ifc, an .ifcxml, or an .ifczip holding either.
 //
@@ -28,6 +32,7 @@ import { textReport, auditReport } from "./report.mjs";
 import { parseIds } from "./ids.mjs";
 import { auditIds } from "./audit.mjs";
 import { checkBsdd, bsddReport } from "./bsdd.mjs";
+import { bsddIds } from "./bsdd-spec.mjs";
 import { bcfZip } from "./bcf.mjs";
 import { junitXml } from "./ci.mjs";
 import { fixStructure } from "./fix.mjs";
@@ -38,8 +43,19 @@ import { readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2i
 const args = process.argv.slice(2);
 const flag = (n) => args.includes(n);
 const opt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
-const files = args.filter((a, i) => !a.startsWith("--") && a !== "-o" && !["--bcf", "--junit", "--max-failures", "--word-class", "-o"].includes(args[i - 1]));
-if (flag("--fix") && files.length === 1) {
+const files = args.filter((a, i) => !a.startsWith("--") && a !== "-o" && !["--bcf", "--junit", "--max-failures", "--word-class", "--sets", "--schema", "-o"].includes(args[i - 1]));
+if (flag("--from-bsdd") && files.length) {
+  // Exit 0 when every class was found, 1 when one was not, 2 on a usage error.
+  const schemaId = opt("--schema");
+  if (schemaId !== undefined && !["IFC2X3", "IFC4", "IFC4X3"].includes(schemaId)) { console.error("--schema takes IFC2X3, IFC4 or IFC4X3 (for classes outside the IFC dictionary)"); process.exit(2); }
+  const R = resources();
+  const sets = opt("--sets") ? opt("--sets").split(",").map((x) => x.trim()).filter(Boolean) : null;
+  const r = await bsddIds(files, { schemas: R.schemas, psets: R.psets, schema: R.schemas.IFC4X3, schemaId, sets });
+  for (const n of r.notes) console.error(`note: ${n}`);
+  console.error(`${r.specs.length} of ${files.length} class(es) written`);
+  if (opt("-o")) writeFileSync(opt("-o"), r.text); else process.stdout.write(r.text);
+  process.exitCode = r.specs.length === files.length ? 0 : 1;
+} else if (flag("--fix") && files.length === 1) {
   // Exit 0 when the repaired file breaks ids.xsd nowhere, 1 when faults that
   // need a person remain (listed on stderr), 2 when the file is not XML.
   const wordClass = opt("--word-class");
