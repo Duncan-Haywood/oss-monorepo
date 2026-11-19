@@ -35,3 +35,14 @@ test('the bars: B1 power where carried >= 0.30, B2 size on trade prints, B3 fitt
   assert.deepEqual([t.B3.k, t.B3.n], [2, 3]);
   assert.equal(t.B1.pass || t.B2.pass || t.B3.pass, false);
 });
+
+test('two writings of one price set no tick and are no move; exact repeats still repeat', async () => {
+  const { smallestStep, medianMoveTicks, floatNoise, repeatIndicators } = await import('./update-rate.mjs');
+  const v = [39.8025, 39.802499999999995, 39.805, 39.805, 39.8075];
+  assert.equal(floatNoise(39.8025, 39.802499999999995), true);
+  assert.equal(floatNoise(39.8025, 39.805), false);
+  assert.equal(smallestStep(v), 0.0025);
+  assert.equal(medianMoveTicks(v, 1, v.length - 1, 0.0025), 1);
+  assert.deepEqual(repeatIndicators(v), [0, 0, 1, 0]);
+  assert.equal(smallestStep([1e-12, 2e-12, 3e-12]), 1e-12);
+});
