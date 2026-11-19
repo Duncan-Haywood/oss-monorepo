@@ -2135,7 +2135,28 @@ def run_for_changes(args) -> int:
     note = uncommitted_note(changed)
     if note:
         print(note, flush=True)
-    return _run_selected(args, selected, held, changed=changed)
+    rc = _run_selected(args, selected, held, changed=changed)
+    if not args.list and not getattr(args, "no_research_tests", False):
+        rc = research_tests(changed) or rc
+    return rc
+
+
+# No workflow runs a research project's own tests (research-ci.yml builds the
+# homepage and checks programmes), so a research PR was green whatever its
+# suite did. A sweep runs the suites of the projects the diff touches, with an
+# interpreter pyenv.py finds (run_research_tests.py's docstring has the why).
+def research_tests(changed, repo: str = REPO) -> int:
+    """Run run_research_tests.py on the diff's research projects; its exit code, 0 if none."""
+    script = os.path.join(repo, "platform", "ci", "run_research_tests.py")
+    projects = sorted({"/".join(p.split("/")[:2]) for p in changed
+                       if p.startswith("research/") and p.count("/") >= 2
+                       and not p.split("/")[1].startswith(("_", "."))
+                       and os.path.isdir(os.path.join(repo, *p.split("/")[:2], "tests"))})
+    if not projects or not os.path.isfile(script):
+        return 0
+    print(f"research project tests ({len(projects)}; no CI workflow runs them; "
+          "--no-research-tests skips):", flush=True)
+    return subprocess.run([sys.executable, script, *projects], cwd=repo).returncode
 
 
 # Workflows are picked from the working tree, but a step that diffs
@@ -2810,6 +2831,8 @@ def _main(argv=None) -> int:
                          "run either, so include them in TEXT if it needs them")
     ap.add_argument("--force", action="store_true",
                     help="allow a workflow that is not verification-only")
+    ap.add_argument("--no-research-tests", action="store_true",
+                    help="with --for-changes, skip the diff's research projects' own test suites")
     ap.add_argument("--no-post-check", action="store_true",
                     help="with --for-changes: sweep even when a changed post "
                          "fails check_post_frontmatter (by default the sweep "
