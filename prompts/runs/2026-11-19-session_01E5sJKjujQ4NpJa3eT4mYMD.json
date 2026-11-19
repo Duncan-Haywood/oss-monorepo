@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01E5sJKjujQ4NpJa3eT4mYMD",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T00:18:43Z",
+  "ended": "2026-11-19T00:29:17Z",
+  "wall_minutes": 10.74,
+  "tokens_in": 4972728,
+  "tokens_out": 24167,
+  "cost_usd": 2.2085,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17478",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "run_gently used Popen, bypassing test_allocate's subprocess.run mock (2 failures, real fetch attempted)",
+      "fix": "use run_gently only when run is the real function (types.FunctionType check)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Names friction_rank --live --ungated as the quick finder but it lives at platform/ci/friction_rank.py, not prompts/; the first call failed on the path."
+    },
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "The top three live clusters I checked (flagship_field parking, build.mjs share-card message, csv guard flake) were already fixed on main; the clusters stay listed because the fixing commit predates the last report, so a run spends lookups re-confirming fixes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/CODEOWNERS / prompts/promptctl.py",
+      "why": "promptctl measure's fetch has the same SIGKILL fault but prompts/ is owner-gated",
+      "did": "left it out of this PR so it can merge now; noted in the post and PR",
+      "result": "the next helper-backed fetch clears any lock it leaves"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-a-timed-out-fetch-no-longer-locks-the-clone.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: no agent-owned item; critique from friction_rank cluster 16 (allocate.py shallow.lock). Verified: lock leak reproduced (4 s timeout), gone with SIGTERM; planted stale lock cleared and fetch rc 0. Tests: test_shallow_repair 12 OK, test_allocate 131 OK, test_friction_rank+test_quality_audit 19 OK, test_quality_metrics/test_workctl/test_pick_track OK, prompts unittest 136 OK, promptctl validate ok, main_health 273/273 before change.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1e1ea526-563c-57d8-b517-c72409093201",
+    "transcripts": 1,
+    "first": "2026-11-19T00:18:43Z",
+    "last": "2026-11-19T00:29:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 102,
+        "output": 24167,
+        "thinking": 5273,
+        "cache_read": 4879008,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93618,
+        "api_equivalent_usd": 2.2085,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 102,
+      "output": 24167,
+      "thinking": 5273,
+      "cache_read": 4879008,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93618,
+      "api_equivalent_usd": 2.2085,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.74,
+      "active_minutes": 10.74,
+      "model_minutes": 5.13,
+      "tool_minutes": 5.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reproduce lock leak, write helper + 7 tests, wire 3 callers, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 135.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
