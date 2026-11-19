@@ -18,6 +18,9 @@ This prints those PRs, sorted into the buckets land-your-work.md uses:
   * **ready**: non-draft, green, mergeable, quiet 2+ h: read the diff, merge;
   * **orphan draft**: a draft quiet 24+ h: mark ready, verify, merge, or close
     with a reason;
+  * **unknown merge**: would be ready, but GitHub still had not computed
+    `mergeable` after a few reads (it does so lazily); a null was once taken
+    for "no conflict" and sent conflicted PRs to ready (2026-11-19);
   * **red** / **conflicted** / **no checks**: quiet 2+ h but needs work first
     (merge main in, fix forward, or verify locally when CI was starved:
     `ci_starvation.py`);
@@ -68,6 +71,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -83,7 +87,7 @@ BLOCKER = re.compile(
     r"|waiting (?:on|for) the owner|blocked (?:on|by)\b|needs the owner",
     re.I)
 
-ORDER = ["landed", "ready", "orphan draft", "unfinished", "red", "conflicted", "no checks", "pending", "blocked"]
+ORDER = ["landed", "ready", "unknown merge", "orphan draft", "unfinished", "red", "conflicted", "no checks", "pending", "blocked"]
 WHAT = {
     "landed": ("its files are on main already (column: identical/total): read the few that "
                "differ, then close with that evidence; supersede_check.py is the full check "
@@ -97,6 +101,7 @@ WHAT = {
     "red": "classify with ci_starvation.py --run <id>; fix forward or close",
     "conflicted": "merge main in and resolve (a conflict is not a reason to close)",
     "no checks": "CI never ran on this head: verify locally or push a merge of main",
+    "unknown merge": "green and quiet, but GitHub had not computed mergeability after 4 reads: run again, or merge main in first",
     "pending": "checks still running on a quiet branch: look again later",
     "blocked": "left open on purpose: leave it",
 }
@@ -192,8 +197,28 @@ def unfinished_record(files: list[dict], sha: str, record_of) -> str | None:
     return None
 
 
+MERGEABLE_TRIES = 4  # GitHub's docs: poll again when `mergeable` is null
+
+
+def settled_detail(number: int, detail_of, nap=time.sleep, tries: int = MERGEABLE_TRIES) -> dict:
+    """The single-PR object, asked again (2 s apart) while `mergeable` is null.
+
+    GitHub computes mergeability lazily, in the background, after the first
+    request since the base moved, so a first read on a quiet PR often says
+    null. classify() took null for "no conflict": on 2026-11-19 #17310 was
+    listed "ready" (merge it) and #10600 "red", and a second read a minute
+    later said `mergeable: false, dirty` for both."""
+    detail = detail_of(number)
+    for _ in range(tries - 1):
+        if detail.get("mergeable") is not None:
+            break
+        nap(2.0)
+        detail = detail_of(number)
+    return detail
+
+
 def stalled(prs: list[dict], files_of, detail_of, checks_of, head_time_of, rules,
-            now: dt.datetime, record_of=None, main_blob=None) -> list[dict]:
+            now: dt.datetime, record_of=None, main_blob=None, nap=time.sleep) -> list[dict]:
     """Rows for the same-repo open PRs that touch no owned path and are not
     moving, in ORDER then oldest first. `record_of(path, sha)` returns a run
     record's JSON at that commit; without it no PR is marked unfinished."""
@@ -213,7 +238,10 @@ def stalled(prs: list[dict], files_of, detail_of, checks_of, head_time_of, rules
         elif quiet_h < QUIET_READY_H:
             return None  # still moving: skip the costlier calls
         else:
-            bucket = classify(detail_of(pr["number"]), checks_state(checks_of(sha)), head_time, now)
+            detail = settled_detail(pr["number"], detail_of, nap)
+            bucket = classify(detail, checks_state(checks_of(sha)), head_time, now)
+            if bucket == "ready" and detail.get("mergeable") is None:
+                bucket = "unknown merge"
         if bucket is None:
             return None
         record = None
