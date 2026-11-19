@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01XpHqyenVHF9ZDW6kAt1iKf",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T05:38:49Z",
+  "ended": "2026-11-19T05:42:03Z",
+  "wall_minutes": 3.36,
+  "tokens_in": 2385239,
+  "tokens_out": 14516,
+  "cost_usd": 1.4095,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17556",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says to search PRs with search_pull_requests, which is not in the cloud MCP tool set; gh api search/issues worked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-martha-for-children.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, Little Lamps (drawn by creative_due.py). Piece: martha-and-the-busy-kitchen-at-bethany (Luke 10, John 11-12), text only because audio is 577 MB of the 400 MB cap. Decree Prot. N. 35/21 read on vatican.va; quoted phrases checked against it. Added a new Little Lamps proposal (Stephen, 26 Dec) since the shelf's list was empty after Martha. node --test in ventures/hearth-and-horizon: 20 pass, 0 fail; check_posts ok. No agent doc: nothing new for the next run beyond the BIBLE proposal.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9405cc53-4358-5491-9eb4-9318d163881c",
+    "transcripts": 1,
+    "first": "2026-11-19T05:38:49Z",
+    "last": "2026-11-19T05:42:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 57,
+        "output": 14516,
+        "thinking": 2275,
+        "cache_read": 2302889,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82293,
+        "api_equivalent_usd": 1.4095,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 57,
+      "output": 14516,
+      "thinking": 2275,
+      "cache_read": 2302889,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82293,
+      "api_equivalent_usd": 1.4095,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 24,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.36,
+      "active_minutes": 3.36,
+      "model_minutes": 2.44,
+      "tool_minutes": 0.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researching, drafting and noting a 1,600-word sourced children's story plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 283.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
