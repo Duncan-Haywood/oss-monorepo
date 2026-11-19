@@ -74,6 +74,16 @@ indivisible-test flag.
 
 ## Limits
 
+Jest and RSpec shard commands name files, so for those runners `--group class`
+and `--group test` are treated as `--group file` (with a warning): a file split
+across shards would otherwise run in full on each. Fixed after the
+[quality audit of 2026-11-19](../../portfolio/quality/audits/2026-11-19-ci-test-shard-balancer.json),
+along with pytest `--group class`, which now names module-level tests by node
+id so a file's classes are not selected twice. Still open from that audit:
+`--max-imbalance-pct` without `--current-from-reports` measures an equal-count
+split in name order rather than the split you run, and Go subtest times are
+summed across duplicate reports.
+
 It is a heuristic over the timings in the reports you give it. Test timings
 vary from run to run and with the machine, so real shards will not match the
 prediction exactly, and nothing here is a guarantee of a wall-clock or billing

@@ -456,7 +456,8 @@ export function emitShard(dialect, group, items) {
   const sortedKeys = items.map((u) => u.key).sort();
   if (dialect === "pytest") {
     const args = group === "test" ? uniq(members.map((t) => t.id)).sort()
-      : group === "class" ? uniq(members.map((t) => t.path + (t.cls ? `::${t.cls}` : ""))).sort()
+      // A module-level test is named by its node id: the bare file path would also run every class in the file.
+      : group === "class" ? uniq(members.map((t) => (t.cls ? `${t.path}::${t.cls}` : t.id))).sort()
         : uniq(members.map((t) => t.path)).sort();
     return { args, command: args.length ? `pytest ${args.map(shellQuote).join(" ")}` : "" };
   }
@@ -519,7 +520,7 @@ function shardView(shard, i, dialect, group, total, withEmit) {
 // reports: array of arrays of parsed test cases (one array per report file).
 export function analyze(reports, opts = {}) {
   const {
-    shards: nOpt = 4, setupSeconds = 0, group = "file", dialect = "auto",
+    shards: nOpt = 4, setupSeconds = 0, group: groupOpt = "file", dialect = "auto",
     currentFromReports = false, targetSeconds = null, maxShards = 32, runsPerMonth = null,
     maxImbalancePct = null,
   } = opts;
@@ -529,11 +530,20 @@ export function analyze(reports, opts = {}) {
   if (!Number.isFinite(setup) || setup < 0) throw new Error("setup seconds must be 0 or more");
   const all = reports.flat();
   if (!all.length) throw new Error("no <testcase> elements found; is this a JUnit XML report?");
-  const built = buildUnits(all, { dialect, group });
+  let group = groupOpt;
+  let built = buildUnits(all, { dialect, group });
+  // Jest and RSpec shard commands can only name files, so a finer grouping would put
+  // one file on several shards and run it in full on each (quality audit 2026-11-19).
+  const fileOnly = (built.dialect === "jest" || built.dialect === "rspec") && group !== "file";
+  if (fileOnly) {
+    group = "file";
+    built = buildUnits(all, { dialect: built.dialect, group });
+  }
   const { units } = built;
   const total = units.reduce((s, u) => s + u.time, 0);
   if (total <= 0) throw new Error("every test has a time of 0; the report has no timings to balance");
   const warnings = [];
+  if (fileOnly) warnings.push(`${built.dialect === "jest" ? "Jest" : "RSpec"} shard commands name files, so --group ${groupOpt} was treated as --group file: splitting a file across shards would run it in full on each.`);
   if (built.noFile) warnings.push("Some Jest test cases carry no file path, so the file list below falls back to the suite name. Set JEST_JUNIT_ADD_FILE_ATTRIBUTE=true (jest-junit) so shard lists name real files.");
   if (built.dialect === "unknown") warnings.push("The report did not look like pytest, Jest, Go, Maven/Gradle or RSpec output, so shard lists are plain unit names.");
   if (units.length < n) warnings.push(`Only ${units.length} unit(s) for ${n} shards: ${n - units.length} shard(s) would sit empty. Try a finer grouping (--group test) or fewer shards.`);
@@ -592,7 +602,7 @@ export function analyze(reports, opts = {}) {
     .slice(0, 10)
     .map((u) => ({
       key: u.key, seconds: u.time, tests: u.count, pctOfIdeal: (u.time / ideal) * 100,
-      splittable: group !== "test" && u.count > 1,
+      splittable: group !== "test" && u.count > 1 && built.dialect !== "jest" && built.dialect !== "rspec",
     }));
   if (bottlenecks.length) {
     const b = bottlenecks[0];
