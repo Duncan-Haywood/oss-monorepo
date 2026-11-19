@@ -335,3 +335,19 @@ test("incomplete_expired from the API is neither new MRR nor churn, nor a cohort
   assert.ok(months.every((m) => m.new === 0 && m.churn === 0 && m.mrr === 0));
   assert.ok(cohorts([s], D(2026, 6, 15), 4).every((r) => r.size === 0));
 });
+
+test("backfill counts a subscription paid from the last millisecond before the window as standing, not new (red team 2026-11-19)", () => {
+  const edge = D(2026, 8, 1) - 1; // 2026-07-31T23:59:59.999Z, the instant the window opens from
+  const subs = [{ id: "a", mrr: 500, status: "active", created: edge, endedAt: null }];
+  const { months } = backfill(subs, D(2026, 10, 15), 3);
+  assert.equal(months[0].month, "2026-08");
+  assert.equal(months[0].startMrr, 500);
+  assert.equal(months[0].new, 0);
+});
+
+test("logo churn is a rate with a single starting customer, not null (red team 2026-11-19)", () => {
+  const row = { mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 900, reactivation: 0, newCount: 0, churnCount: 1, reactivationCount: 0, startMrr: 900, startCustomers: 1 };
+  const s = summarize([{ ...row, month: "2026-09" }, { ...row, month: "2026-10", churn: 0, churnCount: 0, startMrr: 0, startCustomers: 0 }]);
+  assert.equal(s.rates.logoChurn, 1);
+  assert.equal(s.rates.revenueChurn, 1);
+});
