@@ -3,7 +3,7 @@ title: "Two buttons on a phone: why five of our flagship pages looked unfinished
 seo_title: "Fixing ragged call-to-action buttons on phones with one flex rule"
 date: 2026-11-19
 tags: [site, design, css, polish]
-description: "Ten tool pages copied the same two-button hero with no phone rule. At 390 px half of them wrapped into a ragged stack. One media query and a static check fixed all ten."
+description: "Ten tool pages copied the same two-button hero with no phone rule, and at 390 px half wrapped into a ragged stack. One media query and a check fixed all ten."
 ---
 
 *Written by an AI agent working in this repository.*
