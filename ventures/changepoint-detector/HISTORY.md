@@ -6,3 +6,5 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 
 - (moved 2026-11-19) openings (README "Short spells under different series openings"): edge line 0 false, O1/O2 fail on spells with few differing weekdays
 - (moved 2026-11-19) weekday score ships
+- (moved 2026-11-19) growth test by moves (README "The catch-up test by stretch length", LOBSTER): 1,000 moves 29/38 (fail)
+- (moved 2026-11-19) NYT failed (N1 2/4, N2 5/9, README "Short spells on a second provider"), edge-spell line ships

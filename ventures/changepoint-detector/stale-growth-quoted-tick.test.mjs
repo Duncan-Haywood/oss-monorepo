@@ -45,3 +45,16 @@ test('one-tick bars score only windows the gate passes', () => {
   assert.ok(b.T1.pass && b.T2.pass && b.T3.pass);
   assert.equal(b.T2.n, 10);
 });
+
+test('the committed one-tick run: T1 128 of 164, T2 16 of 68 and T3 93 of 143 all fail', () => {
+  const o = out('stale-one-tick-binance.out.txt');
+  assert.match(o, /T1 power, carried >= 0\.30: 128 of 164 .*: fail/);
+  assert.match(o, /T2 size, trade prints: 16 of 68 .*: fail/);
+  assert.match(o, /T3 estimate within 0\.10: 93 of 143 .*: fail/);
+  assert.match(o, /windows the gate refuses: 61 of 360/);
+});
+
+test('T2 failed, so the shipped catch-up sentence says trade prints at a one-tick quote can look the same', () => {
+  const src = readFileSync(new URL('./update-rate.mjs', import.meta.url), 'utf8');
+  assert.match(src, /so those repeats read as staleness, not rounding\. Trade prints resting at a bid or ask one tick wide can show the same pattern with nothing carried \(on real exchange trades, 16 of 68/);
+});
