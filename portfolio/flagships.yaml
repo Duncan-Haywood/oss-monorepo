@@ -577,7 +577,8 @@ flagships:
       --level: serial pass by early start, the file's priority list, crew-size
       what-if; eval/level-check-2026-11-19.md: 0 h over a limit from placed work on
       six files, 37,670 of 37,670 links hold, x1e6 limits = CPM); (7) expected
-      finish dates; (8) Microsoft Project XML read 2026-11-19 (mspdi.mjs; 2,406 of
-      2,491 tasks = Project's dates on 102 files,
-      eval/cpm-vs-project-2026-11-19.md); next a real construction .xml, task
-      splits. More open items: NEXT.md.
+      finish dates shipped 2026-11-19 (cpm.mjs rule + finding;
+      eval/expected-finish-2026-11-19.md: 21 of 21 durations, 404 of 404 with 80 h
+      planted); next a second P6 file using them, a risk-page switch to sample them;
+      (8) MSPDI: next a real construction .xml, task splits. More open items:
+      NEXT.md.

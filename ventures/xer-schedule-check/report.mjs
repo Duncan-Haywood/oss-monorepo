@@ -45,6 +45,7 @@ const DCMA_ACTION = {
 const EXTRA_ACTION = {
   loops: ["high", "Break each logic loop listed; P6 refuses to schedule a loop and the dates around it are not valid."],
   "out-of-sequence": ["medium", "Correct the out-of-sequence progress listed: either the logic is wrong or the actual dates are; retained logic and progress override give different finish dates here."],
+  "expected-finish": ["medium", "Replace each expected finish listed with a remaining duration estimated from the work left, or clear the ones already passed; an expected finish absorbs predecessor delay instead of passing it on."],
   "open-finish": ["low", "Add a finish-side successor to each activity listed; with only start-to-start successors it can run long without moving anything."],
 };
 

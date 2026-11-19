@@ -3,7 +3,8 @@
 Open a **Primavera P6 `.xer` export** in the browser and get the **DCMA 14-point
 schedule assessment** with every activity behind each failing point, a critical
 path recomputed from the logic, the critical path test, and the faults the 14
-points miss: logic loops, out-of-sequence progress, open finishes, and stored
+points miss: logic loops, out-of-sequence progress, open finishes, expected
+finish dates that hide delay, and stored
 float that no longer matches the logic. MIT licensed, no dependencies, nothing
 uploaded.
 
@@ -145,6 +146,27 @@ on each date), and a
 **crew size** multiplier to see what crew holds the date. It warns when a
 file still carries P6's default limit of 1 per hour on resources used far
 above it. Checked on the public files in eval/level-check-2026-11-19.md.
+
+**Expected finish dates** (2026-11-19, `cpm.mjs`, the "Expected finish dates
+setting durations" finding): when a project schedules with P6's "use expected
+end dates", an activity with an expected finish gets the remaining duration
+that ends it on that date, from wherever its remaining work starts; a date at
+or before that start is ignored and the stored duration stands. The engine now
+does the same in every run (assessment, critical path test, comparison and
+half-step, windows, risk, levelling), so a slip upstream is absorbed by such an
+activity as it is in P6. The finding lists each one with the duration the date
+set against the original, and, where the file says how far along it is, the
+time left at the rate so far (a task 2% done after 22 days whose expected
+finish leaves it 6 days); dates already passed are listed to clear. On the
+public P6 24.12 file (23 activities with one): the stored remaining duration is
+the time to the expected finish on 21 of 21, the 2 dates already passed are
+ignored as P6 ignored them, and after adding 80 h to each of the 21 stored
+durations the engine still reproduces P6's dates on 404 of 404 open
+activities with the rule on (0 of 404 with it off). A 10-day slip on a
+predecessor moves 2 of those activities 0 days instead of 10
+(eval/expected-finish-2026-11-19.md). In the risk run an activity with an
+expected finish keeps its date, as in P6, so its sampled duration does not
+count; that is said in the eval, not yet on the page.
 
 ## Why someone would use it
 
@@ -316,8 +338,9 @@ run as a formula in Excel or Sheets.
 ## Limits
 
 Screening metrics, not a verdict: a schedule can pass all fourteen and still be
-unrealistic, and some failures are justified. Not modelled:
-expected finish dates, "make open-ended activities critical", multiple float
+unrealistic, and some failures are justified. Expected finish dates are
+checked on one public file only (23 activities; the rule is read from the
+durations P6 stored, not from a second P6 run). Not modelled: "make open-ended activities critical", multiple float
 paths (resource levelling is the separate `level.mjs` step; the checks always
 use the unlevelled dates; it is a serial pass like P6's, not P6's code, so its
 dates can differ from a P6 levelled run, which no public file stores). 2 activities of the heavily progressed CCA file still differ (early
