@@ -459,7 +459,7 @@ def false_reports(v, rng, fp: float, mode: str = "uniform"):
 
 def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None,
                   recall: "float | np.ndarray" = 0.85, fp: float = 0.0, fp_mode: str = "uniform",
-                  recip: bool = False, fp_joint: float = 0.0):
+                  recip: bool = False, fp_joint: float = 0.0, recip_w: float = 0.0):
     """A survey whose respondents forget ties (milestone 11). Each surveyed household i reports
     each true tie (i, j) independently with probability `recall` (R[i, j], drawn once per survey
     after stage 1); a tie is seen if a surveyed end reported it. uniform: k random households.
@@ -482,7 +482,14 @@ def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None
     after `false_reports`, so the reciprocity filter cannot remove it. The echo adds no new
     unordered pair, so the set of false ties an unfiltered census sees is unchanged: fp still
     fixes the number of distinct false ties, and fp_joint only decides how many of them look
-    mutual. fp_joint = 0 draws nothing extra."""
+    mutual. fp_joint = 0 draws nothing extra.
+    recip_w (milestone 19): the soft reciprocity filter. With recip, a checkable tie that only one
+    end names is kept at weight recip_w instead of dropped (mutual and uncheckable ties keep weight
+    1), so `seen` becomes a weighted adjacency and a surveyed household's degree is its weighted
+    seen degree. recip_w = 0 is milestone 17's hard filter and recip_w = 1 keeps every report
+    (the unfiltered census); like the filter itself, it uses no random draws."""
+    if not 0.0 <= recip_w <= 1.0:
+        raise ValueError(recip_w)
     if design not in ("uniform", "adaptive"):
         raise ValueError(design)
     n = v.n
@@ -512,7 +519,12 @@ def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None
     seen = rep | rep.T
     if recip:
         both = s[:, None] & s[None, :]
-        seen &= ~both | (R & R.T)
+        if recip_w > 0:
+            one = both & seen & ~(R & R.T)
+            seen = seen.astype(float)
+            seen[one] = recip_w
+        else:
+            seen &= ~both | (R & R.T)
     seen = seen.astype(v.A.dtype)
     est = np.where(s, seen.sum(1), named / (k1 / n))
     return s, est.astype(float), seen
@@ -520,15 +532,15 @@ def survey_recall(v, f, rng, design: str = "uniform", split: float | None = None
 
 def rule_recall_degree(v, b, rng, f: float, design: str = "uniform", split: float | None = None,
                        recall: float = 0.85, fp: float = 0.0, fp_mode: str = "uniform",
-                       recip: bool = False, fp_joint: float = 0.0):
-    _, est, _ = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip, fp_joint)
+                       recip: bool = False, fp_joint: float = 0.0, recip_w: float = 0.0):
+    _, est, _ = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip, fp_joint, recip_w)
     return _top(est, b)
 
 
 def rule_recall_dd(v, b, rng, f: float, design: str = "uniform", split: float | None = None,
                    recall: float = 0.85, p: float = 0.05, fp: float = 0.0, fp_mode: str = "uniform",
-                   recip: bool = False, fp_joint: float = 0.0):
-    _, est, seen = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip, fp_joint)
+                   recip: bool = False, fp_joint: float = 0.0, recip_w: float = 0.0):
+    _, est, seen = survey_recall(v, f, rng, design, split, recall, fp, fp_mode, recip, fp_joint, recip_w)
     return _dd_pick(est, seen, b, p)
 
 
