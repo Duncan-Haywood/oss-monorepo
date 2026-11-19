@@ -627,6 +627,13 @@
 //        stop or other cell read as a nasal.
 //    If (0) to (3) all hold, nearRelease becomes readCoda's default (a no-op for a caller that passes no noteEnd), with
 //    every part rebuilt on it; otherwise it stays opt-in.
+//    Outcome (run 2026-11-19, after the registration above was committed as 4f7edcc58): failed on (2), by one. (0) held:
+//    the default read 15 vowel-only cells as a nasal by the near rule, all /o/ on D3 quarters; (1) held: the control 806
+//    to 821 of 832, all 15 cleared; (2) failed: nasals after /u/ or /o/ 300 to 298 of 312 (sung *crun* and *frun* on E4
+//    quarters, read by default from a near run 198 ms after the note's end, now none), bright-vowel 102 and 102 of 104,
+//    n-clusters 102 and 102, so 2 fewer together where at most 1 was allowed; (3) held: stops and others 290 and 290 of
+//    312, 1 and 1 read as a nasal. `nearRelease` stays opt-in. The other 11 vowel-only nasals on f, every /u/ on C4
+//    quarters, are the level rule's, starting outside levelFade's 6 frames.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { parseGabc, fitToBars, transposeToFinal } from '../gabc.mjs';
 import { eventsToMidi } from '../midi.mjs';

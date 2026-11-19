@@ -1261,7 +1261,53 @@ cells the burst the reader finds has a 2.1-2.3 kHz centroid with 54-66% of its e
 on G2 and F3 read 33-44%. Where that energy comes from (the burst search's timing, or the vowel's release reaching
 into the 10 ms window) is the next thing to read, frame by frame, before any rule. Reader only; not listened to.
 
-#### Cluster onsets before -um: a murmur no reference can find (2026-11-17, latest; opt-in, not registered)
+#### Held out where the release lands (2026-11-19, latest; both rounds opt-in)
+
+The rounds below left `levelFade` and `longTilt` untested: on part d no vowel-only release reached the end of the
+reader's window. This round built a held-out part where it should.
+
+- **Part e, registered on `eval/release-cells-report.md`'s cells** (`eval/coda-check.mjs` header, twenty-ninth round,
+  committed as a1fa70e76 before e ran): 84 BPM, the one tempo of that table no other part uses, its twelve cells that
+  land 4 or more of 8, 32 syllables sung in no other part. The default read 14 of 384 vowel-only cells as a nasal, so
+  the test condition held. Neither rule moved any of them (control 370, 370 and 370 of 384), `longTilt` cost two
+  dark-vowel nasals (139 to 137 of 144), and none of the 14 fell on the table's 8-of-8 cells: all were /u/ on E4
+  eighths. **Both registrations failed; both rules stay opt-in.**
+- **The table measured the wrong rule.** `eval/e4-eighth-diag.mjs` shows the 14 are not the level rule's at all. They
+  are the murmur against the vowel just before it (NEAR), firing on a 55 ms run that starts 95 ms after the note has
+  ended, where a /u/ fades held-level and dark. Release-cells scores the level rule's band (5-25 dB under), and those
+  /u/ releases are already below it.
+- **The same fault on the development parts, and where it starts.** `node eval/level-tail-sweep.mjs --rule near`
+  (`eval/near-tail-sweep.txt`) lists every near-rule nasal on parts K-c. Of 196 right reads, 195 start 26-175 ms
+  *before* the note's end; of 50 wrong ones, 48 (all vowel-only /u/ or /o/) start 19-171 ms *after* it. That fits how
+  the choir sings: `sing.mjs` places a coda so it finishes with its note (`codaPlan`), so a murmur that only begins
+  after the note is over is the vowel's release, not a nasal.
+- **The rule** (`readCoda`'s `nearRelease`, opt-in; `--near-release on` in `eval/coda-check.mjs`, which now passes
+  every read the note's end as `noteEnd`): a near-rule run that starts at or after `noteEnd` is thrown out. Read off
+  the sweep, not tuned. Without `noteEnd` it does nothing.
+- **Development** (A-e): vowel-only controls +70 cells (K 343 to 360 of 360, O 356 to 360, R 238 to 240, S 246 to
+  250, W 338 to 346, X 292 to 300, Y 335 to 348, e 370 to 384), others +1 on K, L, O and W. It lost one sung *glum*
+  (c) and one *snum* (d). The corpus parts (B, D, E, F, H) are unchanged in every row.
+- **Part f, pre-registered** (thirtieth round, committed as 4f7edcc58 before f ran): 86 BPM, all thirteen table
+  pitches, quarters and eighths (26 cells), 32 new syllables.
+
+| f | default | `nearRelease` | wanted |
+|---|---|---|---|
+| vowel-only near-rule nasals (test condition: 3 or more) | 15 | 0 | 80% cleared: holds |
+| vowel-only control read as none (of 832) | 806 | 821 | 3 or more better: holds |
+| nasal rows together (of 520) | 504 | 502 | at most 1 fewer: **fails** |
+| stops and others read exactly (of 312); read as a nasal | 290; 1 | 290; 1 | no fewer; no more: holds |
+
+So `nearRelease` stays opt-in. It did what it was written to do: every vowel-only near-rule nasal on f (all /o/ on
+D3 quarters) went. The two it cost are sung *crun* and *frun* on E4 quarters. By default they were read as nasals
+from a near run starting 198 ms after the note's end, which is the right answer for the wrong reason: the real
+murmur inside the note was not caught. So the next step is in the reader's murmur search on E4 quarters, not this
+guard. f's other 11 vowel-only misses, every /u/ on C4 quarters, are the level rule's, and they start outside
+`levelFade`'s 6 frames. A further lesson for the next held-out part: pick its cells with a measure of the rule being
+tested. `near-release.test.mjs` (2 tests) keeps K's /o/ on A3 quarters (a near-rule nasal by default, none with the
+rule, unchanged without `noteEnd`) and K's and X's sung cells unmoved. Reader only; nothing in the synthesis changed.
+Not listened to.
+
+#### Cluster onsets before -um: a murmur no reference can find (2026-11-17; opt-in, not registered)
 
 Part c's misses were 21 dark-vowel nasals read as nothing, 18 of them after a two-consonant onset (*brum*, *glum*,
 *stum*, *flum*, *prun*, A#3-E4). Read frame by frame (`eval/dark-nasal-diag.mjs c`, and the new
