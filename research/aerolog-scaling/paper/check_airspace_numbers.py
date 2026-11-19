@@ -140,6 +140,22 @@ CHECKS = [
     ("sort_rule_posthoc_results.txt", "  16  1     96   12 of 96", "19 and 12 of 96"),
     ("sort_rule_posthoc_results.txt", "  12  2     96   58 of 96         76 of 96", "76 and 65 of 96"),
     ("sort_rule_posthoc_results.txt", "  16  2     96   43 of 96         65 of 96", "76 and 65 of 96"),
+    # 11as greedy operator-level rule
+    ("greedy_rule_results.txt", "max relative difference from its F 0.00e+00 over 384 draws", "every aware score reproduces exactly over 384 draws"),
+    ("greedy_rule_results.txt", "  1     1.0342   1.0995   1.0628   1.1229", "**1.1229** (12 operators)"),
+    ("greedy_rule_results.txt", "  1     1.0183   1.1279   1.0716   1.1402", "**1.1402** (16)"),
+    ("greedy_rule_results.txt", "17 of 96", "17 and 7 of 96"),
+    ("greedy_rule_results.txt", " 7 of 96", "17 and 7 of 96"),
+    ("greedy_rule_results.txt", "  2     1.1631   1.1623   1.0520   1.0985", "**1.0985** and **1.1054**"),
+    ("greedy_rule_results.txt", "  2     1.1296   1.1725   1.0605   1.1054", "**1.0985** and **1.1054**"),
+    ("greedy_rule_results.txt", "1.1547   1.0408", "**1.0408** and **1.0528**"),
+    ("greedy_rule_results.txt", "1.1936   1.0528", "**1.0408** and **1.0528**"),
+    ("greedy_rule_results.txt", "75 of 96", "75 and 68 of 96"),
+    ("greedy_rule_results.txt", "68 of 96", "75 and 68 of 96"),
+    ("greedy_rule_results.txt", "0.9624", "0.9624 and 0.9593"),
+    ("greedy_rule_results.txt", "0.9593", "0.9624 and 0.9593"),
+    ("greedy_rule_results.txt", "greedy passes (3 per spacing and draw) per layout: median 0.16 s", "median 0.16 CPU s per layout"),
+    ("greedy_rule_results.txt", "G3 M=12 s=1 greedy-off(o) < sort(o): 1.1229 vs 1.0995 -> refuted", "would beat the band sort at both offset sizes"),
 ]
 
 

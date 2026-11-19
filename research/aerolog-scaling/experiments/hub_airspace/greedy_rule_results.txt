@@ -1,0 +1,33 @@
+# Milestone 11as: an operator-level greedy rule against the aware search (greedy_rule.py's docstring). deliv ages, Z = 7.62 m, 5-flight offsets (-4.70, -1.44, +0.81, +1.06, +1.55 m at 10 m/s), 4 draws, s = 1, 2, 30 spacings
+# blind, sort, sdesc (sort+descent) = 11ar's; g-off = greedy insertion in offset order (better of ascending and descending); g-deg = in conflict-weight order; g-offd = one descent from g-off; (o) = the spacing with the lowest F
+# check: 11aq's aware labels rescored here, max relative difference from its F 0.00e+00 over 384 draws
+
+## M = 12 (24 layouts x 4 draws); median ratio to the aware search's F (11aq); p90 / max for greedy-off
+  s    blind    sort(o)  sdesc(o) g-off(o) p90      max      g-deg(o) g-offd(o) off/deg  bands: aware g-off  off<blind  offd<blind
+  1     1.0342   1.0995   1.0628   1.1229   1.2478   1.4250   1.1810   1.0637    0.9770    5.0    5.0  17 of 96   26 of 96
+  2     1.1631   1.1623   1.0520   1.0985   1.2317   1.3411   1.1547   1.0408    0.9624    3.0    3.0  61 of 96   75 of 96
+    s=1 greedy-off (o) spacing m x count: 13.33: 62, 17.14: 33, 23: 1; descending order chosen in 56 of 96
+    s=2 greedy-off (o) spacing m x count: 11: 1, 13: 2, 13.33: 28, 15: 1, 17.14: 9, 23: 18, 24: 36, 37: 1; descending order chosen in 45 of 96
+
+## M = 16 (24 layouts x 4 draws); median ratio to the aware search's F (11aq); p90 / max for greedy-off
+  s    blind    sort(o)  sdesc(o) g-off(o) p90      max      g-deg(o) g-offd(o) off/deg  bands: aware g-off  off<blind  offd<blind
+  1     1.0183   1.1279   1.0716   1.1402   1.2948   1.5373   1.2165   1.0705    0.9680    5.0    5.0   7 of 96   31 of 96
+  2     1.1296   1.1725   1.0605   1.1054   1.2639   1.6241   1.1936   1.0528    0.9593    3.0    3.0  53 of 96   68 of 96
+    s=1 greedy-off (o) spacing m x count: 9.23: 1, 11: 1, 13: 3, 13.33: 61, 17.14: 30; descending order chosen in 38 of 96
+    s=2 greedy-off (o) spacing m x count: 11: 1, 13: 2, 13.33: 21, 17.14: 9, 21: 1, 23: 18, 24: 44; descending order chosen in 40 of 96
+
+# predictions
+  G1 M=12 s=1 greedy-off(o) > blind: 1.1229 vs 1.0342 -> held
+  G1 M=16 s=1 greedy-off(o) > blind: 1.1402 vs 1.0183 -> held
+  G2 M=12 s=2 greedy-off(o) < blind: 1.0985 vs 1.1631 -> held
+  G2 M=16 s=2 greedy-off(o) < blind: 1.1054 vs 1.1296 -> held
+  G3 M=12 s=1 greedy-off(o) < sort(o): 1.1229 vs 1.0995 -> refuted
+  G3 M=12 s=2 greedy-off(o) < sort(o): 1.0985 vs 1.1623 -> held
+  G3 M=16 s=1 greedy-off(o) < sort(o): 1.1402 vs 1.1279 -> refuted
+  G3 M=16 s=2 greedy-off(o) < sort(o): 1.1054 vs 1.1725 -> held
+  G4 M=12 s=2 greedy-off+descent(o) <= sort+descent(o): 1.0408 vs 1.0520 -> held
+  G4 M=16 s=2 greedy-off+descent(o) <= sort+descent(o): 1.0528 vs 1.0605 -> held
+  G5 M=12 s=2 median greedy-off/greedy-deg < 1: 0.9624 -> held
+  G5 M=16 s=2 median greedy-off/greedy-deg < 1: 0.9593 -> held
+
+# analysis CPU s per layout: median 220; greedy passes (3 per spacing and draw) per layout: median 0.16 s
