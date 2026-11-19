@@ -8546,6 +8546,9 @@ function customDevHead({ title, description, url, toRoot, baseUrl, extraHead = '
   <meta property="og:url" content="${escapeHtml(url)}">
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
   <meta name="twitter:card" content="summary_large_image">${extraHead ? `\n  ${extraHead}` : ''}
   <style>${CATEGORY_STYLE}${ABOUT_STYLE}${FEEDBACK_STYLE.replace(/#fb\b/g, '#cdf')}${CUSTOM_DEV_STYLE}  </style>
   ${siteStyleLink(toRoot)}
@@ -8780,7 +8783,34 @@ ${built ? '' : `      <h2>What has been built this way</h2>
  * its project and anything to try, and the form preset to "feedback on a
  * preview" for this request. Indexed: a requester shares this link.
  */
-export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, requests = [], directions, feedbackUrl = SITE_FEEDBACK_URL }) {
+/**
+ * The picture at the top of a request's own page: the tool it became, with its
+ * worked example loaded, from the same showcase still the custom-development
+ * page's "Built from requests so far" card uses. A requester who shares the
+ * link shows what was built, not only a status
+ * (polish-2026-11-19-custom-dev-built.md, item 3). Empty when the request has
+ * no published tool or the tool has no still.
+ */
+export function renderRequestFigure({ request: r, surfaces = [], shots = [], toRoot = '../../' }) {
+  if (!r || r.status === 'declined') return '';
+  const slug = requestToolSlug(r, surfaces);
+  const shot = slug && shots.find((s) => s.slug === slug);
+  if (!shot) return '';
+  const surface = surfaces.find((s) => s.slug === slug);
+  const name = surface ? cardName(surface.title).split(': ')[0] : slug;
+  const href = `${toRoot}${slug}/`;
+  const src = `${toRoot}${SHOWCASE_DIR}/${shot.hero || shot.file}`;
+  const dims = shot.hero ? 'width="600" height="375"' : 'width="960" height="600"';
+  const srcset = shot.hero && shot.heroWide ? ` srcset="${escapeHtml(src)} 600w, ${escapeHtml(`${toRoot}${SHOWCASE_DIR}/${shot.heroWide}`)} 1200w" sizes="(max-width: 760px) 92vw, 720px"` : '';
+  return `
+      <figure class="cd-req-shot">
+        <a href="${escapeHtml(href)}" tabindex="-1" aria-hidden="true"><img src="${escapeHtml(src)}"${srcset} ${dims} decoding="async" fetchpriority="high" alt=""></a>
+        <figcaption><strong><a href="${escapeHtml(href)}">${escapeHtml(name)}</a></strong>, as published now: ${escapeHtml(shot.caption.charAt(0).toLowerCase() + shot.caption.slice(1))}. <a href="${escapeHtml(href)}">Try it with the worked example</a></figcaption>
+      </figure>
+`;
+}
+
+export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, requests = [], directions, feedbackUrl = SITE_FEEDBACK_URL, showcase = { shots: [] } }) {
   const toRoot = '../../';
   const url = `${baseUrl}${customRequestPath(r.id)}`;
   const title = `${r.id}: ${r.title}`;
@@ -8808,7 +8838,7 @@ export function renderCustomRequestPage({ request: r, surfaces = [], baseUrl, re
       <p class="cd-ask">From ${escapeHtml(REQUEST_SOURCES[r.source] || r.source)}, received ${escapeHtml(r.received)}, last updated ${escapeHtml(r.updated)}.</p>
     </header>
 
-    <main class="prose">
+    <main class="prose">${renderRequestFigure({ request: r, surfaces, shots: showcase.shots, toRoot })}
       <h2>Where it is</h2>
       ${renderRequestStepper(r.status)}
       ${note ? requestNoteHtml(r.status === 'declined' ? 'Why' : 'Where it stands', note) : ''}
@@ -8894,6 +8924,11 @@ const CUSTOM_DEV_STYLE = `
     .cd-built-card h3 a:hover, .cd-built-card h3 a:focus-visible { text-decoration: underline; }
     .cd-built-card > .cd-built-cap { color: var(--muted); font-size: .92em; line-height: 1.5; margin-top: 4px; flex: 1; }
     .cd-built-card > .cd-built-links { padding-top: 10px; padding-bottom: 14px; font-size: .92em; }
+    .prose .cd-req-shot { margin: 4px 0 28px; }
+    .cd-req-shot > a { display: block; aspect-ratio: 16 / 10; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+    .cd-req-shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+    .cd-req-shot figcaption { color: var(--muted); font-size: .92em; line-height: 1.5; margin-top: 8px; }
+    .cd-req-shot figcaption strong a { color: var(--ink); }
     @media (max-width: 700px) { .cd-steps { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 600px) {
       .cd-table thead { display: none; }
@@ -13381,7 +13416,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     if (!/^R-\d{4}$/.test(request.id || '')) continue;
     const dir = path.join(outDir, customRequestPath(request.id));
     await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(path.join(dir, 'index.html'), renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: customRequests, directions: researchDirs }));
+    await fs.writeFile(path.join(dir, 'index.html'), renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: customRequests, directions: researchDirs, showcase }));
   }
 
   // The assistant's own page, and the files every page lazy-loads it from.
