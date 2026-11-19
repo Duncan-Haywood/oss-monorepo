@@ -1,0 +1,13 @@
+GP3  10: axis 18 x 1 = 18 kW; pressures [20, 50, 100, 140, 180, 220, 270]; lines from 393 to 3198 r/min (table 400 to 3200); leak 0.0041 L/min/bar; Q(n_max, p2max) built 31.3 vs table 31.9 (-2.0%)
+GP3  13: axis 13 x 2 = 26 kW; pressures [20, 50, 90, 140, 190, 240, 290]; lines from 500 to 3199 r/min (table 400 to 3200); leak 0.0050 L/min/bar; Q(n_max, p2max) built 42.5 vs table 43.4 (-2.1%)
+GP3  17: axis 16 x 2 = 32 kW; pressures [20, 50, 100, 140, 190, 230, 290]; lines from 351 to 3197 r/min (table 350 to 3200); leak 0.0065 L/min/bar; Q(n_max, p2max) built 53.6 vs table 54.8 (-2.1%)
+GP3  22: axis 22 x 2 = 44 kW; pressures [20, 50, 100, 150, 200, 240, 290]; lines from 501 to 2999 r/min (table 350 to 3200); leak 0.0082 L/min/bar; Q(n_max, p2max) built 69.3 vs table 70.8 (-2.1%)
+GP3  27: axis 11 x 5 = 55 kW; pressures [20, 50, 100, 150, 200, 250, 290]; lines from 346 to 3192 r/min (table 350 to 3200); leak 0.0100 L/min/bar; Q(n_max, p2max) built 85.0 vs table 86.8 (-2.1%)
+GP3  34: axis 12 x 5 = 60 kW; pressures [20, 50, 100, 140, 190, 240, 290]; lines from 349 to 3000 r/min (table 350 to 3000); leak 0.0123 L/min/bar; Q(n_max, p2max) built 98.3 vs table 100.6 (-2.3%)
+GP3  43: axis 14 x 5 = 70 kW; pressures [20, 50, 100, 140, 190, 230, 280]; lines from 349 to 2499 r/min (table 350 to 3000); leak 0.0164 L/min/bar; Q(n_max, p2max) built 125.5 vs table 119.9 (+4.7%)
+GP3  51: axis 15 x 5 = 75 kW; pressures [20, 50, 100, 140, 190, 250, 270]; lines from 355 to 2500 r/min (table 350 to 3000); leak 0.0199 L/min/bar; Q(n_max, p2max) built 148.6 vs table 131.7 (+12.8%)
+GP3  61: axis 15 x 5 = 75 kW; pressures [20, 50, 100, 150, 200, 250]; lines from 347 to 2006 r/min (table 350 to 2500); leak 0.0259 L/min/bar; Q(n_max, p2max) built 147.0 vs table 145.6 (+0.9%)
+GP3  71: axis 15 x 5 = 75 kW; pressures [20, 50, 100, 140, 180, 230]; lines from 348 to 1800 r/min (table 350 to 2500); leak 0.0327 L/min/bar; Q(n_max, p2max) built 169.4 vs table 153.9 (+10.0%)
+GP3  82: axis 14 x 5 = 70 kW; pressures [20, 50, 75, 100, 125, 150, 200]; lines from 347 to 1802 r/min (table 350 to 2000); leak 0.0430 L/min/bar; Q(n_max, p2max) built 154.3 vs table 161.3 (-4.4%)
+GP3 100: axis 14 x 5 = 70 kW; pressures [20, 50, 75, 100, 125, 150, 180]; lines from 345 to 1811 r/min (table 350 to 1800); leak 0.0582 L/min/bar; Q(n_max, p2max) built 168.3 vs table 177.3 (-5.1%)
+wrote 2524 rows to data/argo_gp3_curves.csv
