@@ -71,7 +71,10 @@ Options:
                             recovery. Do not list days the shop is always shut (a Saturday): --period 7 handles those.
                             On 100 simulated shops it took series with an alert at a closure from 100 to 16, the chance
                             rate (21 at random dates), and kept steps that start just before a closure (52 caught
-                            against 57 had the shop never shut). README, "Steps beside a closure".
+                            against 57 had the shop never shut). A closure 1 to 7 days before a step costs about
+                            1 step in 100 (179 of 300 caught against 183); left as zeros it lends alerts instead
+                            (122 of 274 'catches' were only the closure). README, "Steps beside a closure" and
+                            "A closure in the week before a step".
   --detector <name>         which detector's changes to alert on: bocpd-ar1-window (default for --model mean: the Bayesian
                             detections allowing for sticky, autocorrelated noise, probability summed over 5 neighbouring
                             points), bocpd-ar1, bocpd (default for poisson and meanvar), bocpd-window, or pelt (finds

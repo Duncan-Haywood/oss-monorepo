@@ -124,3 +124,19 @@ test('recent: 3 is prefix-honest', () => {
   const whole = fillClosed(v, l, shut, { recent: 3, lags: 1 }).values;
   for (let n = 10; n <= 70; n++) assert.deepEqual(fillClosed(v.slice(0, n), l.slice(0, n), shut, { recent: 3, lags: 1 }).values, whole.slice(0, n), `prefix ${n}`);
 });
+
+// README "A closure in the week before a step" (eval/closed-before.prereg.md, real part): the design year's 2011-09-01
+// orders alert (the Christmas build-up) is sent only while the 2011-08-29 bank holiday, three days earlier, is a zero.
+test('design year orders: the 2011-09-01 build-up alert comes from the 2011-08-29 zero, not the rise alone', () => {
+  const csv = readFileSync(new URL('./data/online-retail-daily.csv', import.meta.url), 'utf8');
+  const { labels, values } = parseSeries(csv, 'orders', null);
+  const closed = labels.filter((d, i) => new Date(`${d}T00:00:00Z`).getUTCDay() !== 6 && values[i] === 0);
+  assert.ok(closed.includes('2011-08-29'));
+  const h = labels.indexOf('2011-08-29');
+  const sept = (v) => replayWatch(v, labels, { model: 'poisson', period: 7, detector: 'bocpd' }).alerts.filter((a) => a.label === '2011-09-01').length;
+  const fill = (list) => fillClosed(values, labels, list, { period: 7, round: true, lags: 1 }).values;
+  assert.equal(sept(fill(closed.filter((d) => d !== '2011-08-29'))), 1, 'with the holiday as a zero, Quiet sends it');
+  assert.equal(sept(fill(closed)), 0, 'with --closed (fill1), it does not');
+  const open = fill(closed); open[h] = Math.round((values[h - 7] + values[h + 7]) / 2);
+  assert.equal(sept(open), 0, 'with the Monday read as an ordinary open Monday, it does not either');
+});
