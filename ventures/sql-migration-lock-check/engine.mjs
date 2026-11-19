@@ -145,7 +145,14 @@ function takesExclusiveLock(masked) {
 function setsLockTimeout(raw) {
   const t = raw.trim();
   // `RESET lock_timeout` and `RESET ALL` put it back to the default, 0: off.
-  if (/^RESET\s+(?:lock_timeout|ALL)\s*;?$/i.test(t)) return { local: false, on: false };
+  // `DISCARD ALL` runs RESET ALL among other things (red team 2026-11-19: it
+  // left the timeout "on" for every statement below it).
+  if (/^(?:RESET\s+(?:lock_timeout|ALL)|DISCARD\s+ALL)\s*;?$/i.test(t)) return { local: false, on: false };
+  // The function form: set_config('lock_timeout', value, is_local), where
+  // is_local true behaves like SET LOCAL. Unrecognised before 2026-11-19, so
+  // a file using it got a false no-lock-timeout below.
+  const f = /^SELECT\s+(?:pg_catalog\.)?set_config\s*\(\s*'lock_timeout'\s*,\s*'([^']*)'\s*,\s*(true|false)\s*\)\s*;?$/i.exec(t);
+  if (f) return { local: /^true$/i.test(f[2]), on: timeoutIsOn(f[1].trim()) };
   const m = /^\s*SET\s+(LOCAL\s+|SESSION\s+)?lock_timeout\s*(?:=|TO)\s*(.+)$/i.exec(t);
   if (!m) return null;
   const value = m[2].trim().replace(/;$/, '').replace(/^'|'$/g, '').trim();
