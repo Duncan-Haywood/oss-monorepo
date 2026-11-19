@@ -138,6 +138,7 @@ function readInputs() {
   };
 }
 
+const escHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function renderSchedule(schedule) {
   const body = el('scheduleBody');
   body.textContent = '';
@@ -145,7 +146,7 @@ function renderSchedule(schedule) {
     const tr = document.createElement('tr');
     const replaced = row.componentsReplacedThisYear.length ? row.componentsReplacedThisYear.join(', ') : '—';
     const status = row.specialAssessmentTriggered ? 'Shortfall' : 'OK';
-    tr.innerHTML = `<td>${row.year}</td><td>${money(row.balance)}</td><td>${(row.percentFunded * 100).toFixed(0)}%</td><td>${replaced}</td><td class="${row.specialAssessmentTriggered ? 'warn' : 'ok'}">${status}</td>`;
+    tr.innerHTML = `<td>${row.year}</td><td>${money(row.balance)}</td><td>${(row.percentFunded * 100).toFixed(0)}%</td><td>${escHtml(replaced)}</td><td class="${row.specialAssessmentTriggered ? 'warn' : 'ok'}">${status}</td>`;
     body.appendChild(tr);
   }
 }

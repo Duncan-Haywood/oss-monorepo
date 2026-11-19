@@ -178,15 +178,16 @@
       $("verdict").textContent = "Name at least one provider to compare.";
       return;
     }
+    const escHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const { ranked, cheapestName } = compareProviders(providers);
     for (const r of ranked) {
       const isCheapest = r.name === cheapestName && ranked.length > 1;
       const div = document.createElement("div");
       div.className = "provider" + (isCheapest ? " cheapest" : "");
-      div.innerHTML = `<h3>${r.name}${isCheapest ? '<span class="badge">Cheapest</span>' : ""}</h3><strong class="total">${money(r.total)}</strong><span class="small">per month</span>`;
+      div.innerHTML = `<h3>${escHtml(r.name)}${isCheapest ? '<span class="badge">Cheapest</span>' : ""}</h3><strong class="total">${money(r.total)}</strong><span class="small">per month</span>`;
       grid.appendChild(div);
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${r.name}</td><td>${money(r.storageCost)}</td><td>${money(r.queryCost)}</td><td>${money(r.total)}</td>`;
+      tr.innerHTML = `<td>${escHtml(r.name)}</td><td>${money(r.storageCost)}</td><td>${money(r.queryCost)}</td><td>${money(r.total)}</td>`;
       tbody.appendChild(tr);
     }
     const header = document.createElement("tr");

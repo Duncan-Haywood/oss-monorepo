@@ -355,7 +355,7 @@
       loadCompany,
       saveCompany,
       forgetCompany,
-      renderProposalHtml,
+      renderProposalHtml, escapeHtml,
     } from './proposal.mjs';
     import { encodeShare, decodeShare } from './share.mjs';
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
@@ -570,7 +570,7 @@
         : lines
           .slice()
           .sort((a, b) => b.share - a.share)
-          .map(row => `<li><span>${row.label}</span><span>${row.share.toFixed(0)}% of hours</span>
+          .map(row => `<li><span>${escapeHtml(row.label)}</span><span>${row.share.toFixed(0)}% of hours</span>
             <span class="bar"><span style="width:${row.share.toFixed(1)}%"></span></span></li>`)
           .join('');
 
