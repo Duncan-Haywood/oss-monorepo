@@ -224,3 +224,19 @@ entries:
         worked example. Guide page, llms.txt, post. Not yet used by anyone
         outside the repository.
     mrr_end: 0
+  - venture: gtfs-feed-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/gtfs-feed-check, a
+        browser page and zero-dependency Node CLI that checks a GTFS Schedule
+        zip against the GTFS reference (revised 2026-04-27): files, values,
+        keys, references, stop-time order, calendar coverage, plus labelled
+        speed and outlier sanity limits; 88 finding codes, each explained on
+        a guide page. On four real feeds: Google's 2007 sample has a misspelt
+        drop_off_time column and 13 short rows; BART's feed_info ends four
+        months before its calendar; 0 errors and no sanity-limit hits on
+        BART, Halifax Transit and TriMet (3.0 million stop times). Post,
+        llms.txt. Not yet used by anyone outside the repository.
+    mrr_end: 0
