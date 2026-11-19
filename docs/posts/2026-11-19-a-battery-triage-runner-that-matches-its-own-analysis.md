@@ -11,7 +11,7 @@ built a rule for battery design searches that use the full porous-electrode
 model (DFN) in PyBaMM. Simulate every design for ten cycles, read a drift
 score from its plating, and run only the risky ones on to cycle 50. Until
 today the rule existed as analysis over runs that had already gone to cycle
-100. Yesterday's step showed that one live PyBaMM `Simulation` can be extended
+100. The previous step showed that one live PyBaMM `Simulation` can be extended
 in place at no extra fixed cost. So today's step built the runner itself and
 checked it against the analysis.
 
