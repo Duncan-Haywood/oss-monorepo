@@ -362,3 +362,24 @@ test("breakdown of no paying subscriptions reports nothing, not a phantom larges
   assert.deepEqual(b.concentration, { customers: 0, top1: 0, top5: 0, topN: 5, largest: 0 });
   assert.equal(b.total, 0);
 });
+
+// Red team 2026-11-19: three mutants escaped this file's tests.
+test("applySync opens a new month with every movement at zero before folding the sync in", () => {
+  const st = { months: {}, last: { a: 100 }, ever: { a: 1 }, lastSyncAt: null };
+  applySync(st, { a: 100, n: 10 }, D(2026, 10, 15));
+  const r = st.months["2026-10"];
+  for (const k of ["expansion", "contraction", "churn", "reactivation", "churnCount", "reactivationCount"]) assert.equal(r[k], 0, k);
+  assert.equal(r.new, 10); assert.equal(r.newCount, 1);
+});
+
+test("forecast reads the last three complete months by default", () => {
+  const ms = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06"].map((m) => mo(m, 1000));
+  assert.deepEqual(forecast(ms).basis, ["2026-03", "2026-04", "2026-05"]);
+  assert.deepEqual(forecast(ms, { window: 5 }).basis, ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05"]);
+});
+
+test("concentration leaves out zero-MRR subscriptions", () => {
+  const c = concentration({ a: 300, b: 100, free: 0 });
+  assert.equal(c.subscriptions, 2);
+  assert.deepEqual(c.top, [0.75, 0.25]);
+});
