@@ -267,7 +267,12 @@ function round1(x) { return x === null || x === undefined || !Number.isFinite(x)
 // One CSV row per change, for a spreadsheet or a letter to the contractor.
 export function compareCsv(rep) {
   const rows = [["section", "activity", "name", "was", "now", "detail"]];
-  const q = (v) => { const s = v === null || v === undefined ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (v) => {
+    let s = v === null || v === undefined ? "" : String(v);
+    // a cell a spreadsheet would read as a formula (CSV injection) is written as text; plain numbers stay numbers
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
   const push = (...r) => rows.push(r);
   for (const x of rep.progress.actualsEdited) push("actual date edited", x.code, x.name, x.was, x.now, `${x.field}, ${x.days} working days`);
   for (const x of rep.progress.futureActuals) push("actual after data date", x.code, x.name, "", x.date, x.field);
