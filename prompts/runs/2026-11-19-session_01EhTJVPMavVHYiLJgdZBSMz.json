@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVPMavVHYiLJgdZBSMz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief).",
+  "input_sha256": "face00b0e71fa78cbe18defc615c166b7850c07028c7a0dae8c2672e3f8269c6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T02:55:58Z",
+  "ended": "2026-11-19T03:10:48Z",
+  "wall_minutes": 14.98,
+  "tokens_in": 5999570,
+  "tokens_out": 32918,
+  "cost_usd": 2.8801,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17515",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py printed /usr/bin/python3.13 but plain python3 on PATH lacked numpy; the first profile run failed until I called /usr/bin/python3.13 directly."
+    },
+    {
+      "file": "tools/noise_aware_cost.py",
+      "issue": "--compare's 'per MP, new' column is added peak GB per MP, not seconds; the header does not say so and I first misread it as time."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-19-a-blas-call-made-our-raw-developer-machine-dependent.md",
+    "ventures/photo-editing/eval/noise-aware-native-blend-2026-11-19.md"
+  ],
+  "goal": null,
+  "notes": "Flagship photo-editing (allocate row 3): noise-aware bilinear image and blend in C. numpy's luma matvec (OpenBLAS FMA, machine-dependent) replaced by a fixed elementwise order in the reference. 14/14 sample raws same bytes vs main; extra over directional 0.094->0.053 s/MP median; noise-aware 1.74x->1.46x directional; added peak -16%. Tests: photo-editing suite 1432 passed, 10 skipped; tests/test_noise_native.py 9 passed. venture-preflight run (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0b2dd78c-d72d-5226-9b49-a03a35787f4f",
+    "transcripts": 1,
+    "first": "2026-11-19T02:55:58Z",
+    "last": "2026-11-19T03:10:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 100,
+        "output": 32918,
+        "thinking": 6467,
+        "cache_read": 5868513,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130957,
+        "api_equivalent_usd": 2.8801,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 100,
+      "output": 32918,
+      "thinking": 6467,
+      "cache_read": 5868513,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130957,
+      "api_equivalent_usd": 2.8801,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.98,
+      "active_minutes": 14.98,
+      "model_minutes": 5.69,
+      "tool_minutes": 9.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: bit-exact C port of two numpy kernels plus FMA investigation, tests, 14-file benchmark and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 347.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
