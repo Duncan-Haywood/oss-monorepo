@@ -351,6 +351,43 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## Bowling league nights: averages, handicaps, points and standings (2026-11-19, latest)
+
+The bowling page scheduled the lanes and stopped there, but a bowling league's weekly job is the
+secretary's sums: each bowler's average and handicap, every match's games with handicap, points
+won, and the standings sheet, then next week's position round from those standings. Leagues do it in
+a spreadsheet they maintain themselves, or in paid desktop league secretary software, or on their
+centre's scoring system if it has a league module. The page now does it from typed score sheets,
+in the browser, on the schedule it just built (`bowling-recap.mjs`).
+
+- **Input:** a `Week 1` line, then one line per team: `Pin Pals: Ana 180 165 201, Ben 140 152 133,
+  Cy absent`. Optional entering averages (`Ana 165, Ben Ortiz 142`). Rules, all editable: games a
+  night (3), bowlers a team (4), handicap % (90) of basis (220), highest handicap (none), points a
+  game (2) and for the series (2), absent penalty (10), blind score (150).
+- **Rules applied:** average = pins / games through last week, fractions dropped; a bowler with no
+  games uses the entering average, else the night's own games (retroactive first night). Handicap =
+  floor(pct x (basis - average) / 100), floor 0, capped; 0% is a scratch league. Absent bowlers
+  score average - penalty plus handicap and the games never count to their average; absent with no
+  average, or a short lineup, is a blind with no handicap. Ties split points. Against the Vacancy a
+  team bowls to its par (each spot's average plus handicap). Standings: points won, then handicap pins.
+  Position rounds are paired from the standings before that night (`1st place` v `2nd place` on the
+  schedule becomes two team names).
+- **Output:** standings, the last night match by match (each bowler's average, handicap, games and
+  series, team totals and points), bowlers' averages and next week's handicap, highs and absences;
+  copy as text, standings CSV and bowlers CSV (formula cells guarded). The typed nights stay in that
+  browser's `localStorage` and are worked out again on the next visit; nothing is uploaded.
+- **Checked:** `bowling-recap.test.mjs` (7 tests): handicap arithmetic (90% of 220: 160 gives 54,
+  165 gives 49, cap, scratch); two nights worked by hand (retroactive average, absent at average - 10,
+  absent with no average as a blind, 16-0 points, averages that skip absences); split points on ties
+  with entering averages; a position round paired from night one's standings; a Vacancy match against
+  par (tie, loss, win, tied series); typing slips named (no week line, unknown team, wrong game count,
+  over 300, missing opponent, one bowler on two teams, a week past the season, too many bowlers);
+  names with spaces and a team name inside another. In Chromium at 390 px: sample nights on the
+  8-team sample season fill the tables, no sideways scroll, the nights return on reload, no console
+  errors. Not yet used by a real league.
+- **Not done:** split handicaps per game, mid-night substitutions, USBC sanctioned-average reports,
+  awards and the prize fund; the league's own and its association's rules decide.
+
 ## Pool play into a knockout bracket, seeded so poolmates meet late (2026-11-19, latest)
 
 Pool play listed its play-off seeds by record alone: every pool winner (best record first), then every
