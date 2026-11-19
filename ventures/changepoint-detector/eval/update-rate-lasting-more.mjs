@@ -43,6 +43,12 @@
 //   C "in the data, not cut": otherwise.
 // The README reports the counts and each state's line. Nothing in the check changes on this file whatever the
 // counts; a later round that acts on them needs its own pre-registration.
+// AMENDMENT (after the first launch, before any cell finished; no result was seen): the first run printed no
+// cell in 30 minutes. One series took 20 s in updateRateChanges, all of it in the rounding verdict's stale-feed
+// likelihood (staleTestMarkov), which runs because valuesFrom makes every move one tick. That verdict labels a
+// change (rounding or catch-up); it never moves a cut or its direction, which is all Part A scores. So Part A
+// calls the shipped check with `catchUp: { method: null }` (same cuts, same directions, verdict by median move
+// alone). Part B, on the real series, runs the shipped check unchanged.
 // usage: node eval/update-rate-lasting-more.mjs [covid-data] > eval/update-rate-lasting-more.out.txt
 import { updateRateChanges, repeatIndicators, daysFromDates } from '../update-rate.mjs';
 import { makeRng } from './update-rate-sim.mjs';
@@ -69,7 +75,7 @@ export function runCell(ci, reps = REPS, seed = SEED) {
   const { name, D, gen } = CELLS[ci], rnd = makeRng(seed + 7919 * ci);
   let shipped = 0, both = 0, end = 0, share = [0, 0];
   for (let r = 0; r < reps; r++) {
-    const z = gen(rnd), v = valuesFrom(z), u = updateRateChanges(v), days = z.map((_, s) => s % 7);
+    const z = gen(rnd), v = valuesFrom(z), u = updateRateChanges(v, { catchUp: { method: null } }), days = z.map((_, s) => s % 7);
     const s = u.changes.some((c) => c.direction === 'more often' && Math.abs(c.index - 1 - START) <= TOL);
     const g = s || guardedCandidates(v, days, GUARDS.half, { u }).some((q) => q.gain > pen(z.length, M) && Math.abs(q.a - START) <= TOL);
     if (D !== Infinity && u.changes.some((c) => c.direction === 'less often' && Math.abs(c.index - 1 - (START + D)) <= TOL)) end++;
