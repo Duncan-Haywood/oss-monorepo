@@ -33,7 +33,15 @@ clone a repo mid-cutover.
 cosmetic differences from the wire format (trailing dots, TXT quoting). The
 browser normalises what it receives, so two browser captures always compare
 cleanly; mixing a CLI capture with a browser one can show a cosmetic `changed`
-on a record that did not move. Capture both halves the same way.
+on a record that did not move. Capture both halves the same way. Worse, the resolver is part of each observation's identity, and the browser
+names its resolvers `cloudflare` and `google` while a CLI plan names them by
+address (`1.1.1.1`), so in a mixed comparison every row comes out
+`inconclusive` unless the CLI plan uses the same ids (quality audit
+[2026-11-19](../../portfolio/quality/audits/2026-11-19-dns-configuration-evidence.json)).
+Two more gaps from that audit: a dangling CNAME is recorded as
+`CNAME <target>` in an A row by the CLI and as nothing by the browser, and
+NXDOMAIN (the name is gone) and NODATA (only that type is gone) are both stored
+as an empty answer.
 
 ## Run
 
