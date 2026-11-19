@@ -36,13 +36,21 @@ def emit(row: dict) -> None:
     sys.stdout.flush()
 
 
-def arms(c, pat, b, d, model, ks) -> dict:
+def arms(c, pat, b, d, model, ks, eigs=(), reads: dict | None = None) -> dict:
+    """The scored arms. ``eigs``: further ``frame_noise`` arms, one per patch-PCA eigenvalue read
+    (``noise_pca.EIG_READS``), named by it (eval/noise-pca-min-eigen-2026-11-19.md). ``reads``, when given,
+    receives each estimated arm's sigma at 18% grey."""
+
     from shootflow import xtrans_demosaic as xd
 
     cfa = 6 if len(pat) == 36 else 2
     ramp, luma = xd.RAMPS[cfa], xd.LUMA_RAMPS[cfa]
     out = {"D": d}
-    for name, noise in (("true", model), ("ship", xd.frame_noise(c, pat))):
+    models = [("true", model), ("ship", xd.frame_noise(c, pat))] + [(e, xd.frame_noise(c, pat, eig=e)) for e in eigs]
+    if reads is not None:
+        for name, m in models[1:]:
+            reads[name] = round(float(max(m[0] * 0.18 + m[1], 0.0) ** 0.5), 6)
+    for name, noise in models:
         q = xd.frame_measures(c, pat, b, d, noise=noise, blocks=True)["q_blocks"]
         out[name] = xd.blend(b, d, q, ramp[0], ramp[1], luma_ramp=luma)
         for k in ks:
@@ -59,7 +67,9 @@ def sweep(argv) -> int:
     ap.add_argument("--cards", help="tools/card_scenes.py output: skip repeat scenes")
     ap.add_argument("--ks", help="comma-separated k (default KS)")
     ap.add_argument("--no-raw-grain", action="store_true", help="skip truth_grain18 (two extra LibRaw passes a file)")
+    ap.add_argument("--eigs", default="", help="comma-separated further eigenvalue reads to score as arms (mp, mpc)")
     args = ap.parse_args(argv)
+    eigs = tuple(e for e in args.eigs.split(",") if e)
     ks = tuple(float(x) for x in args.ks.split(",")) if args.ks else KS
     cards = json.load(open(args.cards)) if args.cards else None
 
@@ -118,14 +128,16 @@ def sweep(argv) -> int:
                         model, _ = carries(raw_model, gains)
                     b = chk.ours_bilinear(c, pat)
                     d = directional(c, pat)
-                    cps, lps = {}, {}
-                    for arm, arr in arms(c, pat, b, d, model, ks).items():
+                    cps, lps, reads = {}, {}, {}
+                    for arm, arr in arms(c, pat, b, d, model, ks, eigs, reads).items():
                         s = chk.scores(arr, truth)
                         cps[arm], lps[arm] = s["cpsnr"], s["lpsnr"]
                     emit({"layout": "bayer" if args.bayer else "xtrans", "file": name,
                           "card": card_of(name, cards), "split": split_of(card_of(name, cards)),
                           "tile": [ty, tx], "snr": snr, "scenario": sc, "truth_sigma18": truth_sigma18,
-                          "truth_grain18": grain.get((ty, tx)), "cpsnr": cps, "lpsnr": lps,
+                          "truth_grain18": grain.get((ty, tx)), "sigma18": reads,
+                          "true_sigma18": round(float(max(model[0] * 0.18 + model[1], 0.0) ** 0.5), 6) if np.ndim(model) == 1 else None,
+                          "cpsnr": cps, "lpsnr": lps,
                           "s": round(time.perf_counter() - t0, 2)})
     return 0
 
@@ -233,9 +245,93 @@ def rule(argv) -> int:
     return 0
 
 
+# The six held-out rows of eval/near-clean-truth-noise-2026-11-19.md that lose on clean truths (file, tile, snr,
+# scenario): the over-read noise on fine foliage and wallpaper that eval/noise-pca-min-eigen-2026-11-19.md tests.
+NAMED = (("Nikon_D780__DSC_0336.NEF", (0, 0), 60.0, "equal"), ("Nikon_D780__DSC_0336.NEF", (0, 0), 60.0, "wb"),
+         ("Nikon_D780__DSC_0336.NEF", (0, 0), 25.0, "wb"), ("Nikon_D780__DSC_0338.NEF", (0, 0), 60.0, "wb"),
+         ("Nikon_D780__DSC_0334.NEF", (0, 0), 60.0, "wb"), ("Nikon_D600__DSC_3294.NEF", (0, 1026), 60.0, "equal"))
+
+
+def worse(rows, arm) -> np.ndarray:
+    return np.minimum(g(rows, "l", arm), g(rows, "c", arm))
+
+
+def pick(argv) -> int:
+    """eval/noise-pca-min-eigen-2026-11-19.md's pick: of the ``--eigs`` reads, the one whose +k arm gains most
+    (mean luma + colour over D) with no more losers than ship+k."""
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("rows", nargs="+")
+    ap.add_argument("--k", type=float, default=12.0)
+    ap.add_argument("--eigs", default="mp,mpc")
+    ap.add_argument("--clean-truths", action="store_true")
+    args = ap.parse_args(argv)
+    rows = load(args.rows, clean_truths=args.clean_truths)
+    k = f"{args.k:g}"
+    print(f"{len(rows)} rows")
+    table_arms(rows, ["ship+" + k] + [f"{e}+{k}" for e in args.eigs.split(",")])
+    base = len(losers(rows, "ship+" + k))
+    ok = [(float((g(rows, "l", f"{e}+{k}") + g(rows, "c", f"{e}+{k}")).mean()), e) for e in args.eigs.split(",")
+          if len(losers(rows, f"{e}+{k}")) <= base]
+    print("pick:", max(ok)[1] if ok else "none (every read has more losers than ship): stop")
+    return 0
+
+
+def table_arms(rows, names) -> None:
+    print(f"{'arm':10s} {'luma':>8s} {'colour':>8s} {'losers':>6s} {'worst':>6s}")
+    for arm in names:
+        print(f"{arm:10s} {g(rows, 'l', arm).mean():+8.4f} {g(rows, 'c', arm).mean():+8.4f} "
+              f"{len(losers(rows, arm)):6d} {worse(rows, arm).min():+6.2f}")
+
+
+def compare(argv) -> int:
+    """eval/noise-pca-min-eigen-2026-11-19.md's test of an eigenvalue read's +k arm against ship+k (h1 to h3)."""
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("rows", nargs="+")
+    ap.add_argument("--eig", required=True)
+    ap.add_argument("--k", type=float, default=12.0)
+    ap.add_argument("--clean-truths", action="store_true")
+    args = ap.parse_args(argv)
+    rows = load(args.rows, clean_truths=args.clean_truths)
+    k = f"{args.k:g}"
+    ship, cand = "ship+" + k, f"{args.eig}+{k}"
+    print(f"{len(rows)} rows")
+    table_arms(rows, [ship, cand])
+    dl, dc = g(rows, "l", cand, ship), g(rows, "c", cand, ship)
+    cells = defaultdict(list)
+    for i, r in enumerate(rows):
+        cells[(r["snr"], r["scenario"])].append(i)
+    worst_cell = min(float(min(dl[ix].mean(), dc[ix].mean())) for ix in cells.values())
+    for key in sorted(cells):
+        ix = cells[key]
+        print(f"   SNR {key[0]:>5g} {key[1]:5s} n={len(ix):4d}  {cand} - {ship}: luma {dl[ix].mean():+.4f}  colour {dc[ix].mean():+.4f}")
+    ls, lc = losers(rows, ship), losers(rows, cand)
+    new = lc - ls
+    for i in sorted(ls | lc):
+        r = rows[i]
+        print(f"   loser {r['file']} {r['tile']} SNR {r['snr']:g} {r['scenario']}: {ship} {worse([r], ship)[0]:+.2f}, "
+              f"{cand} {worse([r], cand)[0]:+.2f}; sigma18 {r.get('sigma18')}, true {r.get('true_sigma18')}")
+    named = [r for r in rows if (r["file"], tuple(r["tile"]), r["snr"], r["scenario"]) in set(NAMED)]
+    h = {
+        "h1 means within 0.005 dB of ship, every cell within 0.02 dB":
+            dl.mean() >= -0.005 and dc.mean() >= -0.005 and worst_cell >= -0.02,
+        "h2 fewer rows lose > 0.1 dB to D, none new": len(lc) < len(ls) and not new,
+        f"h3 the {len(named)} named rows' mean worse gain improves":
+            bool(named) and worse(named, cand).mean() > worse(named, ship).mean(),
+    }
+    print(f"means: luma {dl.mean():+.4f}, colour {dc.mean():+.4f}; worst cell {worst_cell:+.4f}; losers {len(ls)} -> "
+          f"{len(lc)}, new {len(new)}; named rows {worse(named, ship).mean() if named else float('nan'):+.3f} -> "
+          f"{worse(named, cand).mean() if named else float('nan'):+.3f}")
+    for label, passed in h.items():
+        print(("PASS " if passed else "FAIL ") + label)
+    print("verdict:", f"ship {args.eig}" if all(h.values()) else "what ships stays")
+    return 0
+
+
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
-    cmd = {"sweep": sweep, "tune": tune, "rule": rule}.get(argv[0] if argv else "")
+    cmd = {"sweep": sweep, "tune": tune, "rule": rule, "pick": pick, "compare": compare}.get(argv[0] if argv else "")
     if cmd is None:
         print(__doc__)
         return 2
