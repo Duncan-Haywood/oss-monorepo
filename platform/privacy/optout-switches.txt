@@ -1150,6 +1150,7 @@ ventures/studio-class-slot-optimizer/usage.mjs
 ventures/stump-grinding-price-calculator/usage.mjs
 ventures/subcontractor-cashflow-planner/usage.mjs
 ventures/subdomain-takeover-check/usage.mjs
+ventures/submittal-register/usage.mjs
 ventures/subpath-robots-check/usage.mjs
 ventures/subscription-audit-from-statement/usage.mjs
 ventures/subscription-price-impact/usage.mjs
