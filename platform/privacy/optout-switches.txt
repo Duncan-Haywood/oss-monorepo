@@ -601,6 +601,7 @@ ventures/ics-calendar-check/usage.mjs
 ventures/icu-message-check/usage.mjs
 ventures/ids-model-check/usage.mjs
 ventures/ie-self-employed-tax-set-aside-calculator/usage.mjs
+ventures/ifc-quantity-takeoff/usage.mjs
 ventures/ifta-quarterly-fuel-tax-calculator/usage.mjs
 ventures/in-freelancer-advance-tax-set-aside-calculator/usage.mjs
 ventures/incident-postmortem-timeline/usage.mjs

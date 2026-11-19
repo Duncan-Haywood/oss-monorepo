@@ -45,7 +45,7 @@ export function readUnits(model) {
   const factorOf = (u, depth = 0) => {
     if (!u || depth > 10) return null;
     if (u.type === "IFCSIUNIT") {
-      const p = u.args[2] && u.args[2].enum ? SI_PREFIX[u.args[2].enum] ?? 1 : 1;
+      const p = u.args[2] && u.args[2].enum ? (Object.hasOwn(SI_PREFIX, u.args[2].enum) ? SI_PREFIX[u.args[2].enum] : 1) : 1;
       const name = u.args[3] && u.args[3].enum;
       let f = p;
       if (name === "SQUARE_METRE") f = p * p;
@@ -63,7 +63,7 @@ export function readUnits(model) {
   };
   for (const r of ua.args[0] || []) {
     const u = factorOf(E.get(refId(r)));
-    if (u && u.type && u.type in out) { out[u.type] = u.f; out.names[u.type] = u.name; }
+    if (u && u.type && Object.hasOwn(out, u.type) && u.type !== "names") { out[u.type] = u.f; out.names[u.type] = u.name; }
   }
   return out;
 }
@@ -226,14 +226,14 @@ export function takeoff(model, opts = {}) {
       const setName = str(set.args[2]);
       for (const q of set.args[5] || []) {
         const qe = E.get(refId(q));
-        if (!qe || !QTY[qe.type]) continue;
-        const [kind, unitType] = QTY[qe.type];
+        if (!qe || !Object.hasOwn(QTY, qe.type)) continue;
+        const [kind, unitType] = Object.hasOwn(QTY, qe.type) ? QTY[qe.type] : [null, null];
         let v = numOf(qe.args[3]);
         if (v == null) continue;
         let factor = unitType ? units[unitType] : 1;
         const own = E.get(refId(qe.args[2]));
         if (own && own.type === "IFCSIUNIT") {
-          const pf = own.args[2] && own.args[2].enum ? SI_PREFIX[own.args[2].enum] ?? 1 : 1;
+          const pf = own.args[2] && own.args[2].enum ? (Object.hasOwn(SI_PREFIX, own.args[2].enum) ? SI_PREFIX[own.args[2].enum] : 1) : 1;
           factor = kind === "area" ? pf * pf : kind === "volume" ? pf ** 3 : kind === "weight" && own.args[3]?.enum === "GRAM" ? pf / 1000 : pf;
         }
         const name = str(qe.args[0]);
