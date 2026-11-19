@@ -869,6 +869,9 @@ LUMA_RAMPS = {6: (0.8, 2.0), 2: (0.8, 1.5)}
 LUMA_WEIGHTS = np.array([0.2126, 0.7152, 0.0722])  # Rec. 709; they sum to 1
 
 
+NEAR_DETAIL: float | None = None  # set by the held-out test in eval/near-clean-gate-2026-11-19.md
+
+
 def lift_near_detail(q_blocks: np.ndarray, k: float) -> np.ndarray:
     """Each block's ``q`` raised to at least its largest 3 x 3 neighbour's over ``k``.
 
@@ -877,8 +880,8 @@ def lift_near_detail(q_blocks: np.ndarray, k: float) -> np.ndarray:
     smooth block (q under ``q_low``) beside a block of q 30 pulls the detailed block's edge toward a bilinear
     demosaic 10 dB worse than directional there (Pentax K-3 Mark III tile, SNR 200: -0.58 dB luma with the
     true noise model, eval/near-clean-gate-2026-11-19.md). The lift lets a block keep its bilinear weight only
-    when no neighbour's detail stands over ``k`` times its own noise ratio's scale; on noisy frames the
-    neighbours' q are small and nothing moves."""
+    when no neighbour's q is over ``k`` times the ramp's; on noisy frames the neighbours' q are small and
+    nothing moves."""
 
     q = np.asarray(q_blocks, dtype=np.float64)
     h, w = q.shape
@@ -1003,7 +1006,7 @@ def noise_aware(
     c, pat, *, bilinear: np.ndarray | None = None, directional_out: np.ndarray | None = None,
     noise: tuple[float, float] | None = None, q_low: float | None = None, q_high: float | None = None,
     per_block: bool = True, luma_ramp: tuple[float, float] | None | bool = True, out: np.ndarray | None = None,
-    clip_hi: float | None = None,
+    clip_hi: float | None = None, near_detail: float | None = None,
 ) -> np.ndarray:
     """Directional where it adds detail above the noise, bilinear where it adds mostly noise.
 
@@ -1019,7 +1022,8 @@ def noise_aware(
     ``(a_l - a) * Y(D - B)``, so a sensel's own channel is no longer its raw value; putting it back was
     measured and gave back most of the luma gain (eval/noise-aware-luma-ramp-2026-11-17.md). ``out``: passed to
     ``blend`` (it may be ``bilinear``); with ``per_block=False`` it is ignored, as is ``clip_hi`` (``blend``'s:
-    clip the stored result in the same pass).
+    clip the stored result in the same pass). ``near_detail``: ``lift_near_detail``'s k, applied to the block
+    q before ``blend`` (``None``: off; ``NEAR_DETAIL`` is the default the develop path passes).
     """
 
     ramp = RAMPS[6 if len(pat) == 36 else 2]
@@ -1047,5 +1051,6 @@ def noise_aware(
     if not per_block:
         a = float(np.clip((m["q"] - q_low) / max(q_high - q_low, 1e-9), 0.0, 1.0))
         return a * directional_out + (1.0 - a) * bilinear
-    return blend(bilinear, directional_out, m["q_blocks"], q_low, q_high, luma_ramp=luma_ramp, out=out,
+    q_blocks = m["q_blocks"] if near_detail is None else lift_near_detail(m["q_blocks"], near_detail)
+    return blend(bilinear, directional_out, q_blocks, q_low, q_high, luma_ramp=luma_ramp, out=out,
                  clip_hi=clip_hi)

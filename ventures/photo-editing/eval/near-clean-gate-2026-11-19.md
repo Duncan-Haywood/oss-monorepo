@@ -54,3 +54,25 @@ same truths, tiles and noise seeds as the 2026-11-18 sweeps: `D` (directional), 
   is Bayer only and this note says which failed.
 - **Cost**: the lift works on the block grid (a 36 MP frame has about 63,000 blocks); timed on one full frame.
 
+## Tune: k = 12 (committed before the held-out rows were read)
+
+`python tools/near_clean_gate.py tune eval/near-clean-gate-tune-2026-11-19.jsonl` (696 rows, 87 tiles of the
+`fourth` set; output `near-clean-gate-tune-2026-11-19.txt`). The unlifted `ship` arm reproduces the 2026-11-18
+sweep to the last digit (+0.6961 luma, +0.4719 colour, 5 rows losing over 0.1 dB), so the tool draws the same
+noise on the same tiles.
+
+| arm | mean luma over D | mean colour | rows losing > 0.1 dB | worst row | SNR 200 luma | SNR 12 luma |
+|---|---|---|---|---|---|---|
+| `true` (oracle, unlifted) | +0.9521 | +0.4354 | 6 | -0.58 | +0.2690 | +1.6003 |
+| `true+12` | +0.9554 | +0.4385 | 1 | -0.12 | +0.2777 | +1.6003 |
+| `true+8` | +0.9562 | +0.4397 | 0 | -0.02 | +0.2786 | +1.6003 |
+| `ship` (what ships) | +0.6960 | +0.4719 | 5 | -0.58 | +0.2032 | +1.1379 |
+| `ship+4` | +0.6889 | +0.4681 | 0 | -0.05 | +0.2110 | +1.1344 |
+| `ship+12` (pick) | +0.6996 | +0.4741 | 0 | -0.07 | +0.2135 | +1.1379 |
+| `ship+48` | +0.6964 | +0.4722 | 3 | -0.41 | +0.2047 | +1.1379 |
+
+The rule picks k = 12 for `ship` (mean luma + colour +1.1737 against +1.1679 unlifted). Every k from 4 to 16
+removes all 5 losing rows of what ships. Small k lifts too much (k 4 gives back 0.004 dB at SNR 12); large k
+lifts too little (k 48 keeps 3 losers). The oracle's best is k 8, and with k 12 one oracle row still loses
+0.12 dB; the rule scores what ships, so it stays 12.
+

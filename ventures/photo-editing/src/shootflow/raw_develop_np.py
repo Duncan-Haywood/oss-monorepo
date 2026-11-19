@@ -274,7 +274,7 @@ def _encode_image(img, hi, m, curve, lut_size, look, mults=None, threads=None):
 def _noise_aware_plane(plane, pat, hi, plane_noise):
     """The noise-aware blend of the white-balanced plane under ``plane_noise`` ((shot, read) on its scale), clipped."""
 
-    from shootflow.xtrans_demosaic import noise_aware
+    from shootflow.xtrans_demosaic import NEAR_DETAIL, noise_aware
 
     h, w = plane.shape
     if len(pat) == 4:
@@ -293,7 +293,8 @@ def _noise_aware_plane(plane, pat, hi, plane_noise):
     b = np.empty((h, w, 3), dtype=np.float32)
     _bilinear(plane, w, h, pat, (1.0, 1.0, 1.0), 1e9, None, None, None, None, sink=b)
     # clipped in the blend's own pass (2026-11-19, eval/noise-aware-native-blend-2026-11-19.md)
-    out = noise_aware(plane, pat, bilinear=b, directional_out=d, noise=plane_noise, out=b, clip_hi=hi)
+    out = noise_aware(plane, pat, bilinear=b, directional_out=d, noise=plane_noise, out=b, clip_hi=hi,
+                      near_detail=NEAR_DETAIL)
     del d
     return out
 
