@@ -3261,3 +3261,34 @@ tie on D to F; that measure needs its own fresh set, most cheaply as an eight-po
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.65 --seed 67 --takes "0.8,1.75,2.35,3.15,4.1,5.4,6.5,7.45,0"
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-fresh-g-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
+
+## An eight-point take grid (2026-11-19, after "The nine-point take grid with the large misses named first"; 7 ms added by its pre-registered rule)
+
+**The item.** On G to I the nine-point grid's gain within 0.5 ms (93 to 121) came mostly from the grid's end: every
+7.45 ms take read 8.0 on the shipped grid. Does adding only 7 ms (one more fit a wheel, not two) buy that on fresh
+sets, with builds within 0.5 ms named as the measure first?
+
+**How it was checked.** Sets J (wheel lag 0.48 s, seed 79), K (0.38 s, 83) and L (0.68 s, 89), 72 survey drills each,
+none aborted. A first one-per-millisecond take draw put no take between 6.5 and 7.5 ms, the only band the 7 ms point
+can move, so before any capture it was replaced by a stratified draw (one take a millisecond 0-5, one a half
+millisecond 5-8: 0.45, 1.5, 2.35, 3.25, 4.2, 5.1, 5.95, 6.1, 6.6, 7.15, 7.75 ms and the instant build). Four
+predictions and a six-clause rule (at least 6 more builds within 0.5 ms, no more large misses, no higher mean error,
+the same advice, no instant build advised, no set worse) were committed before the capture (d9bb7bb9e). Everything is
+in `eval/take-grid-eight-2026-11-19.md`.
+
+**What it found.** Within 0.5 ms 185 of 216 builds against 149 (+12, +13, +11 by set); builds off by more than 1 ms 15
+each, the same builds, all at takes of 2.35 ms or less; mean absolute error 0.373 against 0.463 ms; the same advice;
+no instant build advised. Every clause held, so `TAKE_SURVEY_GRID_US` is now **0, 2, 3, 4, 5, 6, 7, 8 ms**
+(`controller.py`, `config.py`), `host.TAKE_SURVEY_MS` and `protocol.TAKE_SURVEY_TIMES` (8) follow, and the Pi still
+decodes both seven-candidate frames of older firmware. The gain sits at 6.1 ms (8 to 16 of 18 within 0.5 ms), 6.6 ms
+(2 to 17) and 7.15 ms (5 to 18); below 5 ms every verdict is unchanged.
+
+**The cost.** One more refit a surveyed wheel: the simulated calibration drill held its balls 127.4 s for the surveys
+against 114.4 s (+11%), 10.6 s a ball under `host.TAKE_WAIT_S`'s 12 s, with no survey cut and the same 22 wheels
+summed. The TAKE_SURVEY frame is 24 bytes, not 22.
+
+**Not known.** All simulated; the eight-point verdicts are offline refits of seven-point surveys. Whether real takes
+fall in 6-7.5 ms at all is unmeasured. The large misses under 2.5 ms are the fit's, not the grid's, and remain.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.48 --seed 79 --takes "0.45,1.5,2.35,3.25,4.2,5.1,5.95,6.1,6.6,7.15,7.75,0"
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-eight-j-2026-11-19.jsonl.gz --grids "0,2,3,4,5,6,8;0,2,3,4,5,6,7,8"
