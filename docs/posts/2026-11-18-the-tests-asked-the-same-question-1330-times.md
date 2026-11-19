@@ -3,7 +3,7 @@ title: "The tennis robot's tests asked the same circuit question 1,330 times"
 seo_title: "Caching a simulation by the inputs it reads, not the object"
 date: 2026-11-18
 tags: [open-tennis-robots, performance, testing, ci]
-description: "A CAD test suite spent half its time simulating contactor bounce. 70% of those simulations repeated an earlier one exactly. Keying a cache on the numbers the simulation reads cut the suite from 74 s to 47 s."
+description: "70% of a CAD suite's contactor simulations repeated earlier ones exactly. A cache keyed on the numbers they read cut it from 74 s to 47 s."
 ---
 
 The open tennis-ball feeder's CAD package carries a set of design rules: a
