@@ -7,7 +7,8 @@
 //   Wall B   4000 x 200, top cut by a plane from 3000 mm high at one end to
 //            2000 mm at the other: 0.2 x 4 x 2.5 = 2.0 m3 (stored, right)
 //   Wall C   3000 x 200 x 3000 on each of two levels, one wall split by level:
-//            each piece stores the whole wall's 3.6 m3 (the split-by-level fault)
+//            each piece stores the whole wall's 3.6 m3 and 18 m2 side area
+//            (the split-by-level fault); each piece's side is 3 x 3 = 9 m2
 //   Slab     5000 x 4000 x 250: 5.0 m3 (stored, right)
 //   Column   round, radius 150, 3000 high: pi x 0.15^2 x 3 = 0.212058 m3 (none stored)
 //   Beam     IPE 200 (100 x 200, web 5.6, flange 8.5, root radius 12), 4000 long:
@@ -122,12 +123,14 @@ for (const [id, storeyPl] of [[300, 51], [320, 53]]) {
   e(id + 7, `IFCRECTANGLEPROFILEDEF(.AREA.,$,#${id + 8},3000.,200.)`);
   e(id + 8, `IFCAXIS2PLACEMENT2D(#${id + 9},$)`);
   e(id + 9, "IFCCARTESIANPOINT((1500.,0.))");
-  e(id + 10, `IFCELEMENTQUANTITY(G,$,'Qto_WallBaseQuantities',$,$,(#${id + 11},#${id + 12},#${id + 13},#${id + 14}))`);
+  e(id + 10, `IFCELEMENTQUANTITY(G,$,'Qto_WallBaseQuantities',$,$,(#${id + 11},#${id + 12},#${id + 13},#${id + 14},#${id + 16}))`);
   e(id + 11, "IFCQUANTITYLENGTH('Length',$,$,3000.,$)");
   e(id + 12, "IFCQUANTITYLENGTH('Height',$,$,6000.,$)");
   e(id + 13, "IFCQUANTITYLENGTH('Width',$,$,200.,$)");
   e(id + 14, "IFCQUANTITYVOLUME('GrossVolume',$,$,3.6,$)");
   e(id + 15, `IFCRELDEFINESBYPROPERTIES(G,$,$,$,(#${id}),#${id + 10})`);
+  // and the whole wall's side area, 3 x 6 = 18 m2, on each 9 m2 piece
+  e(id + 16, "IFCQUANTITYAREA('GrossSideArea',$,$,18.,$)");
 }
 
 // Slab

@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-19",
+  "session": "https://claude.ai/code/session_01EhTJVNULhSNqXMSuWue1A1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled ventures brief: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing brief in prompts/ventures/prompt-1.md)",
+  "input_sha256": "4f1a5ffc445680f11ea3c4e72df97af86a85109e816ea70f52f6f868a1718050",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-19T22:55:42Z",
+  "ended": "2026-11-19T23:11:57Z",
+  "wall_minutes": 16.9,
+  "tokens_in": 12163857,
+  "tokens_out": 72464,
+  "cost_usd": 5.5152,
+  "tool_calls": 76,
+  "task": "Deepen (flagship 14) ifc-quantity-takeoff: item (1), areas computed from geometry and checked like volumes",
+  "projects": [
+    "ifc-quantity-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17817",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First plan-area rule chose the thinnest direction over the extrusion axis; it dropped 226 agreeing GrossArea/NetArea pairs across the corpus (204 of them schependomlaan coverings), so it was reverted to the extrusion (the quantity-set definition: the extruded profile)",
+      "fixed": true
+    },
+    {
+      "what": "unit-slip test with powers of ten x 10.7639 at 2% matched chance ratios on small parts (a 10x windowsill-frame at 1.2% off); narrowed to 10^k or 10.7639^+-1 at 0.5%",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here picked xer-schedule-check, whose remaining buildable items are single-residual CPM chases; ifc-quantity-takeoff (1 commit, a whole open item (1)) was a better use of the run, and the table offered no signal for item size."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A Bash command combining a backgrounded subshell and a heredoc of JS was refused by the rm-safety check though it deleted nothing; writing the script with Write and running the server with run_in_background worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Took flagship row 9 (ifc-quantity-takeoff) instead of the Start-here row 8 (xer-schedule-check): row 9's top item was a complete feature with no PR open, row 8's were narrow residuals.",
+      "did": "built areas from geometry for ifc-quantity-takeoff",
+      "result": "shipped: 6,509 of 7,883 stored areas checked against geometry, 1,100 disagreements named"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-ifc-stored-areas-against-geometry.md",
+    "ventures/ifc-quantity-takeoff/eval/areas-vs-stored-2026-11-19.md"
+  ],
+  "goal": "Land flagship 14 item (1): areas from geometry, checked like volumes, on the page, CLI and BoQ",
+  "notes": "Plane sections of the signed convex pieces (geom.mjs sectionArea/thinnestNormal; solids now carry the extrusion axis). qto.mjs computeAreas/checkAreas/explainAreas; BoQ area uses the computed area where the stored one is untrusted or missing. Corpus: 13 public models (opensourceBIM/IFC-files cb96c50, ThatOpen/engine_web-ifc 5ba2467). Volume eval rerun: 3 kleine_Wohnung roof volumes now unit-slip (ft2 factor), unexplained 221 -> 218. Local checks: node --test in the venture 30/30; platform/ci/check_posts.py ok; portfolio/router/validate.py ok; page loaded in Chromium with the sample, no console errors, area rows render. Preflight result in the PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5e604d80-7ff1-55bf-9d08-fd1e6a4b6ddc",
+    "transcripts": 1,
+    "first": "2026-11-19T22:55:42Z",
+    "last": "2026-11-19T23:12:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 139,
+        "output": 72464,
+        "thinking": 21612,
+        "cache_read": 11954411,
+        "cache_write_5m": 0,
+        "cache_write_1h": 209307,
+        "api_equivalent_usd": 5.5152,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 139,
+      "output": 72464,
+      "thinking": 21612,
+      "cache_read": 11954411,
+      "cache_write_5m": 0,
+      "cache_write_1h": 209307,
+      "api_equivalent_usd": 5.5152,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 71,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.9,
+      "active_minutes": 16.9,
+      "model_minutes": 12.71,
+      "tool_minutes": 4.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an engineer implementing exact plane sections over a polyhedral decomposition, the area quantity rules and causes, and running/writing up an 8-model corpus check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 290.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

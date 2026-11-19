@@ -27,7 +27,7 @@ spreadsheet guess from lot size alone.
 Small lawn-care operators are told to bid by lot size or price per acre.
 That rule cannot see the shape of the stop. A 10,000 sq ft suburban lawn
 mows in about half an hour at a common residential rate, but 350 sq ft of
-beds at 400 sq ft per hour is another 50 minutes, and an 18-minute drive
+beds at 400 sq ft per hour is another 52 minutes, and an 18-minute drive
 each way is 36 minutes of loaded labor on every visit. The mow is often the
 smallest slice. A per-acre bid on that stop is a route the operator is
 locked into for a season at a loss.
@@ -84,7 +84,8 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `service_added`, `service_removed`,
-`proposed_price_compared`, `summary_copied`. The copied draft includes the
+`proposed_price_compared`, `summary_copied`, `share_copied`,
+`proposal_printed`, `company_forgotten`. The copied draft includes the
 calculated walk-away monthly cost and monthly profit so the operator can review
 the guardrail alongside the proposed price.
 
@@ -95,6 +96,15 @@ the guardrail alongside the proposed price.
   not priced separately yet.
 - "Other service" rows are labelled `Service N` rather than a custom name.
 - Service weeks are a single annual count, not a week-by-week calendar.
+- **Known gap (quality audit 2026-11-19, high):** equipment and other monthly
+  costs are charged only in the service months, so on a 32-week season a $40
+  a month equipment share recovers $295 a year instead of $480. Until this is
+  fixed, enter the in-season share (the annual cost divided by the months you
+  service). See
+  [`portfolio/quality/audits/2026-11-19-lawn-care-bid-calculator.json`](../../portfolio/quality/audits/2026-11-19-lawn-care-bid-calculator.json).
+- **Known gap (same audit, medium):** a crew of two is charged the round-trip
+  drive once, not once per person on the truck, and a blank cost field reads
+  as zero.
 
 ## Disclaimer
 

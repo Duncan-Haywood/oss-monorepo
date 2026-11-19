@@ -128,3 +128,64 @@ test("explanations: a stored volume a power of ten off is a unit slip", () => {
   assert.equal(rows[0].trustStored, false);
   assert.equal(rows[1].check.gross.reason, "unexplained");
 });
+
+// ---- areas cut from the geometry --------------------------------------------
+
+test("sample: every area cut from the geometry equals the hand calculation", () => {
+  const res = sample();
+  const [a] = byName(res, "Wall A");
+  close(a.computed.areas.side.gross, 5 * 3); // elevation of the middle plane: 15 m2
+  close(a.computed.areas.side.net, 15 - 1 * 2.1); // less the 1000 x 2100 door: 12.9 m2
+  close(a.computed.areas.side.width, 0.2);
+  close(a.computed.areas.footprint.gross, 5 * 0.2); // plan at the base: 1.0 m2
+  close(a.computed.areas.footprint.net, (5 - 1) * 0.2); // the door reaches the floor: 0.8 m2
+  const [b] = byName(res, "Wall B");
+  close(b.computed.areas.side.gross, 4 * (3 + 2) / 2); // a trapezoid, 3 m falling to 2 m: 10 m2
+  for (const c of byName(res, "Wall C")) close(c.computed.areas.side.gross, 3 * 3);
+  close(byName(res, "Floor slab")[0].computed.areas.plan.gross, 5 * 4);
+  close(byName(res, "Column 300")[0].computed.areas.cross.gross, Math.PI * 0.15 ** 2, 1e-4); // circle sampled at 360 segments, area-preserving
+  close(byName(res, "Beam IPE 200")[0].computed.areas.cross.gross, (2 * 100 * 8.5 + 183 * 5.6 + (4 - Math.PI) * 144) * 1e-6, 1e-4);
+});
+
+test("sample: stored areas are checked, and the split wall's whole-wall side area is named", () => {
+  const res = sample();
+  const [a] = byName(res, "Wall A");
+  assert.equal(a.areaCheck.NetSideArea.agree, true);
+  for (const c of byName(res, "Wall C")) {
+    const k = c.areaCheck.GrossSideArea;
+    assert.equal(k.agree, false);
+    assert.equal(k.reason, "split");
+    assert.equal(k.trust, false);
+  }
+  assert.equal(byName(res, "Floor slab")[0].areaCheck.GrossArea.agree, true);
+  assert.equal(byName(res, "Beam IPE 200")[0].areaCheck.CrossSectionArea.agree, true);
+});
+
+test("bill of quantities: a wall area is the stored one, the computed one where the stored is wrong or missing", () => {
+  const walls = boq(sample().rows, ["class"]).find((l) => l.key[0] === "IfcWall");
+  // A stores NetSideArea 12.9 (right); B stores none (10 computed); C's pieces
+  // store the whole wall's 18 each (9 each computed)
+  close(walls.area, 12.9 + 10 + 9 + 9);
+  assert.equal(walls.areaComputed, 3);
+});
+
+test("geometry: a section of a unit cube is 1 anywhere inside it, and 0 on a face", async () => {
+  const { sectionArea, solid } = await import("./geom.mjs");
+  const cube = solid([{ s: 1, faces: prism([[0, 0], [1, 0], [1, 1], [0, 1]], [0, 0, 1]) }]);
+  close(sectionArea(cube, [0, 0, 1]), 1);
+  close(sectionArea(cube, [1, 1, 0]), Math.SQRT2); // the diagonal plane through the middle
+  close(sectionArea(cube, [0, 0, 1], 0.3), 1);
+  assert.equal(sectionArea(cube, [0, 0, 1], 1), 0);
+  // a cube with a hole: the signed term takes its section out
+  const holed = solid([...cube.terms, { s: -1, faces: prism([[0.25, 0.25], [0.75, 0.25], [0.75, 0.75], [0.25, 0.75]], [0, 0, 1]) }]);
+  close(sectionArea(holed, [0, 0, 1]), 0.75);
+  close(sectionArea(holed, [1, 0, 0]), 0.5);
+  assert.equal(sectionArea(solid([], 1), [0, 0, 1]), null); // faceted: no section
+});
+
+test("explanations: an area off by the square-foot factor is a unit slip; a near-miss is not", async () => {
+  const { unitSlip, SQFT } = await import("./qto.mjs");
+  close(unitSlip(59.8815, 59.8815 / SQFT), 1 / SQFT); // kleine_Wohnung's roof GrossArea
+  assert.equal(unitSlip(0.06031, 0.59611), null); // 10x but 1.2% off: chance, not a slip
+  assert.equal(unitSlip(2, 2), null);
+});

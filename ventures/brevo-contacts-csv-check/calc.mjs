@@ -104,8 +104,13 @@ const dateShape = (v) => {
   const t = v.trim();
   if (/^\d{4}-\d{2}-\d{2}([T ][\d:.]+(Z|[+-]\d{2}:?\d{2})?)?$/.test(t)) return "iso";
   const m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})$/.exec(t);
-  if (m) return Number(m[1]) <= 12 && Number(m[2]) <= 12 ? "ambiguous" : "slash";
-  return "";
+  if (!m) return "";
+  // A first part over 12 can only be a day, a second part over 12 only a day in
+  // month-first order; both 12 or under fits either order. Day-first and
+  // month-first are different formats; an ambiguous value conflicts with neither.
+  if (Number(m[1]) > 12) return "dmy";
+  if (Number(m[2]) > 12) return "mdy";
+  return "ambiguous";
 };
 
 export function validate(input) {
@@ -195,7 +200,7 @@ export function validate(input) {
       if (SCI.test(sms)) add("error", "sms-excel", L, `SMS "${sms}" was turned into scientific notation`, "Excel stores long digit strings as numbers and the original digits are lost. Re-enter the number from the source and format the column as Text before saving.");
       else if (!/^[+\d][\d\s().-]{5,}$/.test(sms)) add("warning", "sms-shape", L, `SMS "${trunc(sms)}" does not look like a phone number`, "Expected digits, optionally with a leading + and spaces, brackets or dashes. Letters and extensions are usually the cause.");
       else if (!/^(\+|00)/.test(sms)) add("warning", "sms-country-code", L, `SMS "${trunc(sms)}" has no country code`, "Brevo expects an SMS number in international form with the country code, such as +33612345678. A national number with a leading 0 is read against whatever country you pick at import, or rejected. Safe fixes do not add a country code because only you know which country each number belongs to.");
-      else if (!SCI.test(sms) && sms.replace(/\D/g, "").length > 15) add("warning", "sms-length", L, `SMS "${trunc(sms)}" has more than 15 digits`, "International phone numbers are at most 15 digits including the country code; this is probably two numbers or a pasted extension.");
+      else if (!SCI.test(sms) && sms.replace(/^\s*(\+|00)/, "").replace(/\D/g, "").length > 15) add("warning", "sms-length", L, `SMS "${trunc(sms)}" has more than 15 digits`, "International phone numbers are at most 15 digits including the country code; this is probably two numbers or a pasted extension.");
     }
     for (const ci of consentCols) {
       const v = (r[ci] ?? "").trim();
@@ -207,9 +212,10 @@ export function validate(input) {
   }
   dateCols.forEach((ci, k) => {
     const m = dateShapes[k];
-    const kinds = [...m.keys()];
-    if (kinds.length > 1) add("warning", "date-mixed", 0, `"${header[ci]}" mixes date formats`, `The column holds ${kinds.map((x) => `${m.get(x)} ${x === "iso" ? "ISO (2026-03-31)" : x === "other" ? "unrecognised" : "day/month/year style"}`).join(" and ")} values. Brevo cannot tell day-first from month-first in a mixed column; use one format, and set the date attribute's format in Brevo to match.`);
-    else if (m.get("ambiguous")) add("info", "date-ambiguous", 0, `"${header[ci]}" has day/month dates that can be read two ways`, "Values like 03/04/2026 are 3 April or March 4 depending on who reads them. This tool will not reorder dates for you.");
+    const kinds = [...m.keys()].filter((x) => x !== "ambiguous" || ![...m.keys()].some((y) => y === "dmy" || y === "mdy"));
+    const label = { iso: "ISO (2026-03-31)", other: "unrecognised", dmy: "day-first (31/03/2026)", mdy: "month-first (03/31/2026)", ambiguous: "day/month (03/04/2026)" };
+    if (kinds.length > 1) add("warning", "date-mixed", 0, `"${header[ci]}" mixes date formats`, `The column holds ${kinds.map((x) => `${m.get(x)} ${label[x]}`).join(" and ")} values. Brevo cannot tell day-first from month-first in a mixed column; use one format, and set the date attribute's format in Brevo to match.`);
+    else if (kinds[0] === "ambiguous") add("info", "date-ambiguous", 0, `"${header[ci]}" has day/month dates that can be read two ways`, "Values like 03/04/2026 are 3 April or March 4 depending on who reads them. This tool will not reorder dates for you.");
   });
   if (blank) add("info", "blank-rows", 0, `${blank} blank row${blank === 1 ? "" : "s"} skipped`, "Blank rows are harmless but usually mean a spreadsheet range was exported wider than the data.");
   add("info", "consent-note", 0, "Importing does not prove permission to market", "Brevo asks you to confirm that your contacts have opted in before an import, and its terms restrict importing purchased, rented or scraped lists. That confirmation is about your records, not this file. Only import people who opted in, such as a signup form or a prior platform's subscription list. This tool checks formatting and never creates or changes consent. Messaging people who did not opt in can breach laws such as CAN-SPAM, GDPR, PECR and the TCPA for SMS.");

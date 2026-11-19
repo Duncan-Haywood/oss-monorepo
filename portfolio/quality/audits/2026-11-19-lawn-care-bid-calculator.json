@@ -1,0 +1,242 @@
+{
+  "date": "2026-11-19",
+  "subject": "ventures/lawn-care-bid-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-19-o-8854",
+  "round": 88,
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "an owner-operator of a lawn-care company who bids residential and small-commercial weekly mowing routes with one- and two-person crews",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Recomputed the shipped default stop by hand (scratchpad checks.mjs): on-property 10000/20000 + 25/60 + 350/400 = 1.7917 h, +0.6 h travel = 2.3917 h; 52/12 visits/month; labour 2.3917*4.3333*18*1.25 = 233.19; +fuel 34.67 +equipment 40 = 307.86; *1.12 = 344.80; /0.75 = 459.73; per visit 106.09; annual 106.09*32 = 3,394.92; /12 = 282.91. Engine matches to the cent, and profit/price = 0.25 exactly (margin on price, markup on cost 33.3%). Acres convert at 43,560. The mow-only stop prices $42.53/visit for 0.23 acre, inside the $30-$85 per-visit range published for 1/8-1/4 acre lots (HomeGuide via search, Joist $45-$90). Turf preset 20,000 sq ft/h is close to the ASABE field-capacity estimate for a 21-inch push mower (21 in * 3 mph * 0.8 / 99 = 0.51 ac/h = 22,176 sq ft/h), far below a 36-61 inch walk-behind or ZTR (44k-161k sq ft/h); it is labelled a ballpark, acceptable. Two modelling errors make real outputs wrong: (1) equipmentMonthly/otherMonthly are charged per in-season month only, so a $40/mo mower share over a 32-week season recovers $295.38 a year, not $480 (38% short) -- the tool's own 'do not invent winter' annual drops the winter fixed costs; (2) travel person-hours ignore crew size: a 2-person crew riding 36 min round trip is 1.2 person-hours, the engine charges 0.6 and the monthly stays $459.73. Also a blank wage field prices labour at $0 ($25.73/visit shown) instead of erroring. Arithmetic right, outputs understated in common cases: 2.",
+    "completeness": "README/index claims walked in Chromium (scratchpad walk.cjs): per-service rows with presets, add/remove service, acres unit, travel, crew clock time, overhead, margin pricing, per-visit/in-season monthly/honest annual/year-round equivalent, price per acre, effective hourly, walk-away monthly and per visit, proposed-price verdict (red below break-even), hour split bars, Copy bid summary, Copy share link (round-trip reproduced $156.49/$678.13 exactly), printable proposal with company/client/deposit/validity/signature, usage opt-out stored. All worked; no console errors; 375 px viewport has no horizontal scroll; guide and vs pages load with working relative links. README Limitations disclose one-off jobs, tax, single annual week count. No stubs or TODOs.",
+    "verification": "node --test '*.test.mjs' in the subject root: tests 119, pass 119, fail 0 (0.25 s). Five seeded mutants with quality_mutate.py: travel round trip halved caught; annual -> monthly*12 caught; overhead base change caught; acres constant 43560 -> 43500 caught; belowBreakEven < -> <= SURVIVED (no equality-boundary test). The tests pin the shipped model, so they would not catch the two domain errors (they encode them), but they do catch real arithmetic regressions: 3.",
+    "craft": "Read calc.mjs (197 lines), index.html script, usage.mjs, proposal block. Pure engine, validated inputs with named errors, margin >=100 refused, zero-visit and zero-hour divisions guarded, localStorage access wrapped. Defects: number() treats '' as 0 via Number(''), so a cleared wage/burden/fuel field silently prices at zero (calc.mjs:39-46, 93); summary text labels the calculated price 'Proposed price per visit' (index.html:465) although 'proposed' elsewhere means the user's typed price; visitsPerWeek 0 shows a $59.73 monthly with n/a per visit and $0 annual. Otherwise a reviewer would accept it.",
+    "claims": "Backed: every FAQ dollar figure ($459.73, $282.91, $344.80, $254.80 loss on $90, 1.79/0.90 h) and the vs-a-flat-rate-per-acre worked example ($184.30, $802.82/acre, 2.4 h, 4.8x, $275.43, $160.49, 79.1%) reproduce from calc.mjs. LMN/Granum description (LMN, SingleOps, Greenius under Granum, 2025) matches the PR Newswire launch release. Disclaimer present on index footer, every guide page, README and the printed proposal; usage tracking present (usage.mjs, opt-out, DNT/GPC). served-copy reports no placeholder origin in llms.txt/sitemap. Unbacked/wrong: index FAQ (index.html:13 JSON-LD and :267) says travel at 25% of hours is 'more than either the edging or the bed-weeding line' -- bed weeding is 0.875 of 2.39 h = 36.6%, larger than travel; the printed proposal labels the in-season monthly amount 'Total price' with no '/month' (customer can read $459.73 as the season total); README events list (README.md:86) omits share_copied, proposal_printed and company_forgotten that index.html records; '350 sq ft at 400 sq ft/h is another 50 minutes' is 52.5 min (rounding, minor).",
+    "fitness": "Walked the job as the operator: priced the default suburban stop, added a 120 linear ft hedge row, switched to a 2-person crew, typed a $400 monthly quote and got a clear red loss verdict ($108.60/month under $508.60 walk-away), copied the summary, shared the link, printed the proposal. A solo operator can finish a defensible weekly bid. A two-person crew underprices every stop's windshield time by half, equipment and insurance carried year-round are under-recovered on any seasonal route, and travel is modelled as a shop round trip per stop rather than drive time between consecutive stops on a route (the operator must know to enter half the hop). No deck-width or mower choice to derive the turf rate. Usable with care: 2.",
+    "domain": "Compared with standard landscape-estimating practice (loaded labour rate = wage * (1 + burden); overhead recovered on direct cost or per man-hour; price = cost / (1 - margin); production rates by equipment; fixed annual costs spread over billable visits, e.g. LMN-style budgeting where annual overhead/equipment is divided by annual billable hours). Matches: margin vs markup, burden, 52/12 visits, per-service production rates, travel as labour, walk-away price. Departs: monthly fixed costs recovered only in season (annual fixed cost / annual visits is the practice); drive time is labour for every person on the truck; no equipment-based mowing rate; no trimming/string-line row preset for the mow (folded into edging minutes, acceptable). A senior operator would sign off on the structure but not on the seasonal fixed-cost handling or crew-travel math."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Default stop: hours, cost, monthly, per visit, annual, year-round equivalent",
+      "method": "hand arithmetic from first principles (loaded wage, 52/12 visits, overhead on direct, price = cost/(1-m)); author-independent",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/0020ff3a-50dd-5c5c-8ef2-ee9ba3993330/scratchpad/lawn-care/checks.mjs",
+      "expected": "1.7917 h, 2.3917 h, cost 344.80, monthly 459.73, per visit 106.09, annual 3394.92, smoothed 282.91",
+      "observed": "1.7917 2.3917 344.80 459.73 106.09 3394.92 282.91",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Margin, not markup",
+      "method": "textbook margin = profit / price",
+      "command": "checks.mjs line 2",
+      "expected": "profit/price 0.25 (markup on cost 0.3333)",
+      "observed": "0.2500 / 0.3333",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Year-round fixed costs recovered over a 32-week season",
+      "method": "accounting: a $40/mo equipment share is $480 a year whatever the season length; annual price at 0% margin/overhead must recover it",
+      "command": "calculateBid({...base, services:[{quantity:0,productionRate:1}], oneWayMinutes:0, fuelPerVisit:0, overheadRate:0, targetMargin:0}).annualPrice",
+      "expected": "480.00",
+      "observed": "295.38",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Travel person-hours for a two-person crew",
+      "method": "drive time is paid labour for each person in the truck: 2 * 0.6 h = 1.2 person-hours",
+      "command": "calculateBid({...base, crewSize:2})",
+      "expected": "hoursPerVisit 2.9917, monthly above 459.73",
+      "observed": "hoursPerVisit 2.3917, monthly 459.73",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Turf production preset against mower field capacity",
+      "method": "ASABE field-capacity formula acres/h = width(in) * mph * efficiency / 99",
+      "command": "checks.mjs section 7",
+      "expected": "21-in push mower about 22,000 sq ft/h; preset 20,000 should be in the push-mower band",
+      "observed": "21in 22,176; 36in 44,352; 52in ZTR 120,120 sq ft/h; preset 20,000 = push-mower band, labelled ballpark",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Mow-only 10,000 sq ft weekly stop against published per-visit prices",
+      "method": "published guides via web search: HomeGuide 1/8-1/4 acre $30-$85, Joist 1/4 acre $45-$90",
+      "command": "calculateBid({...base, services:[turf 10000 @ 20000], oneWayMinutes:0}).pricePerVisit",
+      "expected": "inside $30-$85",
+      "observed": "$42.53",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "Blank wage field",
+      "method": "Playwright: clear #hourlyWage",
+      "command": "node walk.cjs (scratchpad)",
+      "expected": "error asking for a wage",
+      "observed": "prices labour at $0: $25.73 per visit, $111.50 monthly",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "FAQ: travel share is more than either edging or bed weeding",
+      "method": "hour split from the engine on defaults",
+      "command": "checks.mjs default services: hoursShare",
+      "expected": "travel share greater than bed-weeding share",
+      "observed": "travel 25.1%, bed weeding 36.6%, edging 17.4%",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-a-flat-rate-per-acre worked example",
+      "method": "engine reproduction",
+      "command": "checks.mjs section 6 and default",
+      "expected": "$184.30, $802.82/acre, $459.73, $275.43, $160.49, 79.1%",
+      "observed": "184.30, 802.82, 459.73, 275.43, 160.49, 79.1%",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "LMN by Granum description",
+      "method": "PR Newswire 'LMN, SingleOps, and Greenius Unite as Granum' (2025) via web search",
+      "command": "WebSearch 'LMN Granum SingleOps Greenius 2025'",
+      "expected": "LMN, SingleOps, Greenius under Granum in 2025",
+      "observed": "confirmed",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, usage tracking, served URLs",
+      "method": "grep plus node platform/pages/served-copy.mjs lawn-care-bid-calculator",
+      "command": "node platform/pages/served-copy.mjs lawn-care-bid-calculator",
+      "expected": "disclaimer on every page; usage.mjs with opt-out; no placeholder origin",
+      "observed": "footer disclaimer on index and three guide pages, proposal disclaimer; usage counted with opt-out, DNT/GPC; no placeholder or retired origin",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Printed proposal price label",
+      "method": "Playwright print preview text",
+      "command": "node walk.cjs (scratchpad)",
+      "expected": "monthly amount labelled per month",
+      "observed": "'Total price $400.00' with only a scope line saying billed monthly",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "run in subject root",
+      "command": "node --test '*.test.mjs'",
+      "expected": "green",
+      "observed": "tests 119, pass 119, fail 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Share link round trip and proposal print",
+      "method": "Playwright: copy share link, open in new page; print proposal with window.print stubbed",
+      "command": "node walk.cjs (scratchpad)",
+      "expected": "same price on the shared page; proposal shows company, customer, scope, price, validity, signature",
+      "observed": "$156.49/$678.13 both sides; proposal complete, no wages on it",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {"where": "calc.mjs:104", "change": "(oneWayMinutes * 2) / 60 -> oneWayMinutes / 60", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:145", "change": "pricePerVisit * annualVisits -> monthlyPrice * 12", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:140", "change": "overhead on directCost -> on (directCost - equipmentMonthly)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:194", "change": "belowBreakEven: proposedPrice < monthlyCost -> <=", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "calc.mjs:52", "change": "quantity * SQFT_PER_ACRE -> quantity * 43500", "caught": true, "test_cmd": "node --test '*.test.mjs'"}
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Monthly fixed costs (equipment share, other) are recovered only in in-season months: annual price = per-visit * season visits, so a $40/mo mower share on the default 32-week season recovers $295.38 of $480 a year (38% short) and every seasonal bid is understated",
+      "where": "ventures/lawn-care-bid-calculator/calc.mjs:139",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Travel person-hours ignore crew size: a two-person crew's 36-minute round trip is charged as 0.6 person-hours, not 1.2; the FAQ then tells operators adding a second person never changes the price",
+      "where": "ventures/lawn-care-bid-calculator/calc.mjs:104",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "A blank wage, burden, fuel or other cost field is silently read as 0 (Number('') === 0), so clearing the wage shows a $25.73 per-visit price with no labour in it",
+      "where": "ventures/lawn-care-bid-calculator/calc.mjs:40",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "FAQ claims travel (25% of hours on defaults) is more than either the edging or the bed-weeding line; bed weeding is 36.6%, so the claim is false for the tool's own figures (also in the FAQPage JSON-LD)",
+      "where": "ventures/lawn-care-bid-calculator/index.html:267",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
+    },
+    {
+      "severity": "medium",
+      "what": "Printed proposal labels the in-season monthly amount 'Total price' with no per-month unit; a customer can read $459.73 as the season total",
+      "where": "platform/proposal/proposal.mjs:442",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Copied summary labels the calculated price 'Proposed price per visit' though 'proposed' elsewhere is the operator's typed price",
+      "where": "ventures/lawn-care-bid-calculator/index.html:465",
+      "category": "code-craft",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
+    },
+    {
+      "severity": "low",
+      "what": "README events list omits share_copied, proposal_printed and company_forgotten, which the page records",
+      "where": "ventures/lawn-care-bid-calculator/README.md:86",
+      "category": "stale-docs",
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
+    },
+    {
+      "severity": "low",
+      "what": "Travel is a shop round trip per stop; on a route the cost driver is drive time between consecutive stops, and no hint tells the operator to enter the hop, not the shop distance",
+      "where": "ventures/lawn-care-bid-calculator/index.html:159",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "No test at the break-even equality boundary: belowBreakEven < -> <= survives",
+      "where": "ventures/lawn-care-bid-calculator/calc.test.mjs:1",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "'350 sq ft of beds at 400 sq ft per hour is another 50 minutes' is 52.5 minutes",
+      "where": "ventures/lawn-care-bid-calculator/how-to-price-lawn-mowing.html:38",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"],
+  "verdict": "A tidy, private, well-tested recurring-stop calculator whose arithmetic reproduces by hand to the cent (default $459.73/month, $106.09/visit, margin on price) and whose guide-page figures all reproduce. It does not meet the bar: correctness and claims are 2. Its signature 'honest annual' drops year-round fixed costs (a $40/mo equipment share recovers $295 of $480 on a 32-week season), a two-person crew's windshield time is charged once, a blank wage prices labour at zero, an FAQ claim about travel share is false on the tool's own numbers, and the proposal calls a monthly amount 'Total price'. 119 tests pass and 4 of 5 seeded mutants were caught. Finished (completeness 3), not senior-operator grade until the fixed-cost and crew-travel handling are fixed."
+}

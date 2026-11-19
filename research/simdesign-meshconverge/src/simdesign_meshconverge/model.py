@@ -7,7 +7,7 @@ free end of the horizontal arm (x = L). The inner corner has fillet radius ``r``
 from dataclasses import dataclass
 import numpy as np
 import scipy.sparse.linalg as spla
-from scipy.spatial import Delaunay
+from scipy.spatial import Delaunay, cKDTree
 from matplotlib.path import Path
 from skfem import MeshTri, Basis, ElementTriP2, ElementVector, asm, LinearForm
 from skfem.models.elasticity import linear_elasticity, lame_parameters
@@ -68,7 +68,9 @@ def make_mesh(p: Params, h: float = 1.5) -> MeshTri:
     grid = np.c_[gx.ravel(), gy.ravel()]
     path = Path(poly)
     # keep interior grid points at least 0.6 h from the boundary
-    d = np.min(np.linalg.norm(grid[:, None, :] - bnd[None, ::1, :], axis=2), axis=1) if len(grid) * len(bnd) < 4e7 else None
+    # nearest-boundary distance by KD-tree: the dense pairwise form returned None (and
+    # crashed below) once len(grid) * len(bnd) passed 4e7, at about h <= 0.3 mm
+    d = cKDTree(bnd).query(grid)[0]
     inside = path.contains_points(grid)
     keep = inside & (d > 0.6 * h)
     pts = np.vstack([bnd, grid[keep]])
@@ -102,9 +104,7 @@ def solve(p: Params, mat: Material = Material(), h: float = 1.5, return_field: b
     lam = 2 * lam * mu / (lam + 2 * mu)  # plane-stress effective lambda
     K = asm(linear_elasticity(lam, mu), basis) * p.b
     # traction on the end face x = L, total force F downward (per unit depth: F / (w*b))
-    fb = basis.boundary(lambda x: np.isclose(x[0], p.L) & (x[1] < p.w + 1e-9)) if False else None
     facets = mesh.facets_satisfying(lambda x: np.isclose(x[0], p.L, atol=1e-6))
-    fb = basis.boundary(facets=facets) if hasattr(basis, "boundary") else None
     from skfem import FacetBasis
     fbasis = FacetBasis(mesh, basis.elem, facets=facets)
 
