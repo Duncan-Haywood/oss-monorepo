@@ -80,6 +80,18 @@ list, or as a range (`MON-FRI`). Minute, hour, and day-of-month stay
 numeric, matching every real cron implementation. Day-of-month and
 day-of-week follow the standard cron OR rule when both are restricted,
 matching real cron daemon behavior rather than the more commonly assumed AND.
+"Restricted" means the field does not start with `*`, exactly as Vixie cron
+and cronie decide it (cronie `src/entry.c` sets `DOM_STAR`/`DOW_STAR` from the
+field's first character; `src/cron.c` then ANDs the two day sets when either
+flag is set). So `0 0 */2 * MON` runs only on odd-numbered days that are
+Mondays. Some cron libraries read that expression as OR instead; when an
+expression hits this case, the page, the CLI and the `--json` output
+(`dayRuleNote`) say so.
+
+`cronie-oracle.test.mjs` checks this against an independent brute-force
+matcher written from cronie's rule: 400 seeded random expressions in UTC,
+over 2,000 run times, no differences. Before the 2026-11-19 fix, 85 of those
+400 expressions differed, all through a stepped `*` day field.
 
 ## Disclaimers
 

@@ -55,6 +55,7 @@ function renderNext(cronExpr, timeZone, result) {
   const { occurrences, flagged } = result;
   const { text } = summarizeRuns(result);
   const lines = [`${cronExpr} in ${timeZone}: ${text}`, ""];
+  if (result.dayRuleNote) lines.push(`Note: ${result.dayRuleNote}`, "");
   for (const occ of occurrences) {
     const l = occ.local;
     const flag = occ.ambiguous ? "  [AMBIGUOUS -- fires again or once, depending on scheduler]" : "";
