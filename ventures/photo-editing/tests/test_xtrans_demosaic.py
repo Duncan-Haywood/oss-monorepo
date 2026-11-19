@@ -204,11 +204,13 @@ class DeveloperChoiceTests(unittest.TestCase):
         return rd.develop(raw, rd.DevelopSettings(dcp=dcp, **kw))
 
     @unittest.skipUnless(has_numpy(), "numpy not installed")
-    def test_auto_is_directional_on_xtrans_with_numpy(self):
+    def test_auto_is_noise_aware_on_xtrans_with_numpy(self):
+        # since 2026-11-19 (eval/auto-noise-aware-2026-11-19.md); directional before. X-Trans half size
+        # demosaics at full size, so it takes noise-aware too.
         raw = self.raw()
         for half in (False, True):
             w, h, px, rep = self.develop(raw, engine="numpy", half=half)
-            self.assertEqual(rep.demosaic, "directional")
+            self.assertEqual(rep.demosaic, "noise-aware")
             _, _, bil, rep_b = self.develop(raw, engine="numpy", half=half, demosaic="bilinear")
             self.assertEqual(rep_b.demosaic, "bilinear")
             self.assertEqual(len(px), len(bil))
@@ -217,9 +219,9 @@ class DeveloperChoiceTests(unittest.TestCase):
     @unittest.skipUnless(has_numpy(), "numpy not installed")
     def test_explicit_equals_auto(self):
         raw = self.raw(width=31, height=26)
-        a = self.develop(raw, engine="numpy", demosaic="directional")
+        a = self.develop(raw, engine="numpy", demosaic="noise-aware")
         b = self.develop(raw, engine="numpy")
-        self.assertEqual(b[3].demosaic, "directional")
+        self.assertEqual(b[3].demosaic, "noise-aware")
         self.assertEqual(list(a[2]), list(b[2]))
 
     def test_python_engine_falls_back_to_bilinear(self):
