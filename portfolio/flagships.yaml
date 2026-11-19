@@ -569,7 +569,9 @@ flagships:
       next a real reviewer's reading of one and a full-list appendix option; (5)
       Monte Carlo finish risk shipped 2026-11-19 (risk.mjs: P10-P90, chance of
       forecast and must-finish, criticality index; zero-width run = CPM on six
-      files, eval/risk-check-2026-11-19.md); next: risk register events (probability
-      x impact on named activities), ranges from a P6 UDF or the three-point
-      columns, risk in the written review; (6) resource levelling and expected
+      files, eval/risk-check-2026-11-19.md); risk register events shipped 2026-11-19
+      (risks: probability x delay on named activities, P80 with/without, events
+      ranked; eval/risk-register-check-2026-11-19.md: 207 of 207 planted events =
+      CPM); next: ranges from a P6 UDF or the three-point columns, risk in the
+      written review, probabilistic branches; (6) resource levelling and expected
       finish dates.

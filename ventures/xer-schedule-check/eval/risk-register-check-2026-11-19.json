@@ -1,0 +1,298 @@
+{
+  "planted": 40,
+  "runs": 300,
+  "files": [
+    {
+      "file": "CCA_R03_dt_24Oct11SC.xer",
+      "openNonMilestone": 14189,
+      "planted": 40,
+      "plantedExact": 40,
+      "plantedMoved": 2,
+      "underFloat": 33,
+      "underFloatHeld": 33,
+      "misses": [],
+      "crnSame": true,
+      "p80Without": 569.3,
+      "p80With": 572.9,
+      "p80Contingency": 3.6,
+      "eventDelay": {
+        "mean": 3.7,
+        "p80": 7.5,
+        "noDelay": 0.67
+      },
+      "events": [
+        {
+          "id": "rework (longest on path)",
+          "target": "BAFTS01801G0",
+          "occurred": 0.173,
+          "finishShift": 13.4,
+          "noise": 3.1,
+          "notNoise": true
+        },
+        {
+          "id": "late design (path start)",
+          "target": "BAFTS01801G0",
+          "occurred": 0.3,
+          "finishShift": 6.9,
+          "noise": 2.5,
+          "notNoise": true
+        },
+        {
+          "id": "supplier (near-critical)",
+          "target": "DP1PA09201C0",
+          "occurred": 0.457,
+          "finishShift": 0,
+          "noise": 2.3,
+          "notNoise": false
+        }
+      ],
+      "nearCriticalFloatDays": 2.9,
+      "seconds": {
+        "plain": 45.113,
+        "withRegister": 72.33
+      }
+    },
+    {
+      "file": "Expressway_Project.xer",
+      "openNonMilestone": 821,
+      "planted": 40,
+      "plantedExact": 40,
+      "plantedMoved": 1,
+      "underFloat": 39,
+      "underFloatHeld": 39,
+      "misses": [],
+      "crnSame": true,
+      "p80Without": 1401.3,
+      "p80With": 1408.4,
+      "p80Contingency": 7.1,
+      "eventDelay": {
+        "mean": 4.9,
+        "p80": 14.2,
+        "noDelay": 0.687
+      },
+      "events": [
+        {
+          "id": "late design (path start)",
+          "target": "BEW/CL/GEN/1010",
+          "occurred": 0.3,
+          "finishShift": 18,
+          "noise": 7.8,
+          "notNoise": true
+        },
+        {
+          "id": "rework (longest on path)",
+          "target": "BEW/PR/FC/1040",
+          "occurred": 0.173,
+          "finishShift": 6.1,
+          "noise": 9.4,
+          "notNoise": false
+        },
+        {
+          "id": "supplier (near-critical)",
+          "target": "BEW/PR/FC/1000",
+          "occurred": 0.457,
+          "finishShift": -5.9,
+          "noise": 7.1,
+          "notNoise": false
+        }
+      ],
+      "nearCriticalFloatDays": 32.9,
+      "seconds": {
+        "plain": 1.215,
+        "withRegister": 2.199
+      }
+    },
+    {
+      "file": "example_xer_file.xer",
+      "openNonMilestone": 365,
+      "planted": 40,
+      "plantedExact": 40,
+      "plantedMoved": 10,
+      "underFloat": 36,
+      "underFloatHeld": 30,
+      "misses": [],
+      "crnSame": true,
+      "p80Without": 236.8,
+      "p80With": 242.3,
+      "p80Contingency": 5.5,
+      "eventDelay": {
+        "mean": 5,
+        "p80": 10.3,
+        "noDelay": 0.543
+      },
+      "events": [
+        {
+          "id": "late design (path start)",
+          "target": "A12930",
+          "occurred": 0.3,
+          "finishShift": 8,
+          "noise": 2.4,
+          "notNoise": true
+        },
+        {
+          "id": "rework (longest on path)",
+          "target": "A10770",
+          "occurred": 0.173,
+          "finishShift": 13.6,
+          "noise": 2.9,
+          "notNoise": true
+        },
+        {
+          "id": "supplier (near-critical)",
+          "target": "A10430",
+          "occurred": 0.457,
+          "finishShift": 0.7,
+          "noise": 2.2,
+          "notNoise": false
+        }
+      ],
+      "nearCriticalFloatDays": 9,
+      "seconds": {
+        "plain": 0.236,
+        "withRegister": 0.419
+      }
+    },
+    {
+      "file": "hotel-project.xer",
+      "openNonMilestone": 3954,
+      "planted": 40,
+      "plantedExact": 40,
+      "plantedMoved": 7,
+      "underFloat": 31,
+      "underFloatHeld": 31,
+      "misses": [],
+      "crnSame": true,
+      "p80Without": 727.5,
+      "p80With": 732.3,
+      "p80Contingency": 4.8,
+      "eventDelay": {
+        "mean": 4.1,
+        "p80": 10.3,
+        "noDelay": 0.61
+      },
+      "events": [
+        {
+          "id": "late design (path start)",
+          "target": "H0010",
+          "occurred": 0.3,
+          "finishShift": 10.2,
+          "noise": 2.8,
+          "notNoise": true
+        },
+        {
+          "id": "rework (longest on path)",
+          "target": "HEPSS00010",
+          "occurred": 0.173,
+          "finishShift": 0.8,
+          "noise": 3.4,
+          "notNoise": false
+        },
+        {
+          "id": "supplier (near-critical)",
+          "target": "HCSWSSZ5000",
+          "occurred": 0.457,
+          "finishShift": 0.2,
+          "noise": 2.6,
+          "notNoise": false
+        }
+      ],
+      "nearCriticalFloatDays": 1,
+      "seconds": {
+        "plain": 6.012,
+        "withRegister": 11.147
+      }
+    },
+    {
+      "file": "sample.xer",
+      "openNonMilestone": 30,
+      "planted": 15,
+      "plantedExact": 15,
+      "plantedMoved": 15,
+      "underFloat": 0,
+      "underFloatHeld": 0,
+      "misses": [],
+      "crnSame": true,
+      "p80Without": 159.1,
+      "p80With": 170.1,
+      "p80Contingency": 11,
+      "eventDelay": {
+        "mean": 5.9,
+        "p80": 12.6,
+        "noDelay": 0.62
+      },
+      "events": [
+        {
+          "id": "late design (path start)",
+          "target": "A5050",
+          "occurred": 0.313,
+          "finishShift": 13.2,
+          "noise": 2.3,
+          "notNoise": true
+        },
+        {
+          "id": "rework (longest on path)",
+          "target": "A1000",
+          "occurred": 0.12,
+          "finishShift": 21.2,
+          "noise": 3.3,
+          "notNoise": true
+        }
+      ],
+      "nearCriticalFloatDays": null,
+      "seconds": {
+        "plain": 0.05,
+        "withRegister": 0.043
+      }
+    },
+    {
+      "file": "terminal-building-airport.xer",
+      "openNonMilestone": 63,
+      "planted": 32,
+      "plantedExact": 32,
+      "plantedMoved": 21,
+      "underFloat": 8,
+      "underFloatHeld": 8,
+      "misses": [],
+      "crnSame": true,
+      "p80Without": 325,
+      "p80With": 332.7,
+      "p80Contingency": 7.7,
+      "eventDelay": {
+        "mean": 5.2,
+        "p80": 10.8,
+        "noDelay": 0.613
+      },
+      "events": [
+        {
+          "id": "rework (longest on path)",
+          "target": "BA-P4-100",
+          "occurred": 0.173,
+          "finishShift": 16.6,
+          "noise": 2.9,
+          "notNoise": true
+        },
+        {
+          "id": "late design (path start)",
+          "target": "BA-P4-170",
+          "occurred": 0.3,
+          "finishShift": 9.3,
+          "noise": 2.4,
+          "notNoise": true
+        },
+        {
+          "id": "supplier (near-critical)",
+          "target": "BA-P1-30",
+          "occurred": 0.457,
+          "finishShift": -0.1,
+          "noise": 2.2,
+          "notNoise": false
+        }
+      ],
+      "nearCriticalFloatDays": 1,
+      "seconds": {
+        "plain": 0.047,
+        "withRegister": 0.077
+      }
+    }
+  ]
+}
