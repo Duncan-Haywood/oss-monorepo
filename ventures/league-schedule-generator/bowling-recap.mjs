@@ -293,6 +293,8 @@ export function recapText(recap, { allNights = false } = {}) {
   return out.join("\n") + "\n";
 }
 
+// Every cell goes through calc.mjs csvCell, the formula-injection guard (a cell starting =, +, -,
+// @, tab or CR gets an apostrophe), so a bowler named "=SUM(...)" stays text in a spreadsheet.
 export function standingsCsv(recap) {
   const rows = [["Place", "Team", "Points won", "Points lost", "Nights", "Scratch pins", "Pins with handicap", "High game (hdcp)", "High series (hdcp)"]];
   for (const s of recap.standings) rows.push([s.place, s.team, s.won, s.lost, s.nights, s.scratchPins, s.hdcpPins, s.highGame, s.highSeries]);
