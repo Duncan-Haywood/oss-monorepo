@@ -105,3 +105,42 @@ Nothing at the board's end of the fit can see a take on a ball that did not stra
 
 **Not known.** Simulated only, one jittery tach model, three launchers, four fresh seeds and twelve instant-only ones. A
 real wheel's counts arrive in the TAKE_SURVEY frame's last two bytes.
+
+## Replicated on 108 more builds (2026-11-19, a second session)
+
+A second session built the same vote in parallel (PR 17772, unmerged: same item, same candidate, its own code) and
+pre-registered its own held-out test before this one landed. It used the same seeds for AI-AL and ten of the
+instant-only captures, plus two standard sets and fourteen instant-only seeds this test did not use. Only those are new
+evidence for the shipped rule, and they are stored here:
+
+- AM (lag 0.46 s, seed 307) and AN (0.60 s, seed 311), the 11 standard takes (`--takes "0.1,...,5.0,0"`, jittery
+  tach), as eval/take-straddle-long-am/an-2026-11-19.jsonl.gz. Seeds 307 and 311 were used above only for instant-only
+  captures.
+- 14 instant-only captures (lag 0.52 s; seeds 379, 383, 389, 397, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503), as
+  eval/take-straddle-long-inst2-2026-11-19.jsonl.gz.
+
+The captures were made on the other session's tree, whose frame named the counts `straddle2_for` / `straddle2_against`.
+They are renamed here to `straddle_long_for` / `straddle_long_against` so the scorer's board-count assert runs.
+
+**The two builds agree to the bit.** On the 162 builds both sessions captured (same seeds: AI-AL and instant seeds
+313-373), every wheel's nine rms and the board's 2.5 ms counts were identical. Two independent implementations of the
+board's count gave the same frames, so the shipped one is checked against a second.
+
+**The shipped rule (2.5 ms first, margin 2; 1.5 ms vote at 2) on the new builds**
+(eval/take-straddle-long-replication-2026-11-19.txt):
+
+| 2.5 ms margin | named (of 60 spread) | instant told to set a take (of 48) | right that off was not | wrong that off got right |
+| --- | --- | --- | --- | --- |
+| 0 (off) | 32 | 0 | - | - |
+| 1 | 43 | 1 | 11 | 1 |
+| **2 (shipped)** | **34** | **0** | **2** | **0** |
+| 3 | 32 | 0 | 0 | 0 |
+
+The board-count asserts held on all 108 frames. All four clauses of the rule above hold again, now on 108 builds
+neither test's design saw. The instant-build harm at margin 2 is 0 of 96 over the two held-out readings (margin 1:
+3 of 96). The gain is small again: 2 of 60 (a 2.8 ms and a 3.5 ms build). Neither 1.3 ms nor 1.6 ms was named on
+these sets by any margin (0 of 12): with one tach pulse a revolution, too few of their balls straddle an edge.
+
+The other session's design reading, with "the larger lead wins, ties to 1.5 ms" instead of "2.5 ms first", matched the
+one above (355 of 540 against 356). On its own 270-build held-out pool (AI-AN plus 24 instant seeds) that rule named
+102 → 110 of 180, with 0 of 90 instant builds misadvised. The order changes so few builds that the shipped one stands.

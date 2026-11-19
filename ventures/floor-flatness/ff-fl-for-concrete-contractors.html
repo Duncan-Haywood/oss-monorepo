@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23475569'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EF%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FF and FL Numbers Explained for Concrete Contractors, with a Worked Example</title>
+  <meta name="description" content="How FF flatness and FL levelness F-numbers are calculated from 12-inch readings, a line worked by hand, and how to check your own floor before the tester does.">
+  <link rel="canonical" href="ff-fl-for-concrete-contractors.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is FF 50 twice as flat as FF 25?","acceptedAnswer":{"@type":"Answer","text":"Yes. FF is a constant divided by the spread of the curvature values, so halving every bump doubles FF. The same holds for FL and the 10-ft differences."}},{"@type":"Question","name":"How many readings does a test need?","acceptedAnswer":{"@type":"Answer","text":"Far more than one line. A line under 11 readings gives no FL at all, and a handful of values swings widely. A real test section pools many lines read in two directions, hundreds of curvatures; the calculator flags samples under 30 values."}},{"@type":"Question","name":"Can I use this instead of the testing agency?","acceptedAnswer":{"@type":"Answer","text":"No. Use it to check your own work before the test or to read raw data a second way. When the contract names a testing agency, their E1155 report governs acceptance."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2125; background: #e9ebee; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.03em; }
+    h2 { margin-top: 28px; font-size: 1.2rem; }
+    code, pre { font-family: ui-monospace, Menlo, monospace; font-size: .85rem; }
+    pre { background: #fbfbfc; border: 1px solid #c7ccd3; border-radius: 8px; padding: 12px; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #d5d9de; }
+    .tablewrap { overflow-x: auto; }
+    .cta { display: inline-block; background: #334155; color: #fff; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 650; }
+    a { color: #1e40af; }
+    footer { margin-top: 32px; font-size: .82rem; color: #555c63; }
+  </style>
+</head>
+<body>
+  <p><a href="./">FF/FL floor flatness calculator</a></p>
+  <h1>FF and FL numbers for concrete contractors, worked by hand</h1>
+  <p>For finishers, flatwork foremen, slab subcontractors and the general contractors who hold their retainage. A warehouse, a cold store or a floor under racking often comes with a spec like "FF 35 / FL 25 overall, 24 / 17 minimum local", and the number arrives a day or two after the pour from a testing agency. Running your own readings through the same arithmetic tells you before that report whether the finishing crew's method is working, which bays are dragging the number down and roughly how much grinding a miss would take.</p>
+  <p><a class="cta" href="./">Open the calculator</a></p>
+
+  <h2>What the two numbers measure</h2>
+  <p>Both come from elevations read every 12 inches along straight sample lines (ASTM E1155 is the US method).</p>
+  <ul>
+    <li><strong>FF, flatness</strong>, looks at <em>curvature</em>: for each set of three neighbouring readings, how much the slope changes from one foot to the next, <code>q = (z₃ − z₂) − (z₂ − z₁)</code>. Bumps, trowel ridges and dips push it down.</li>
+    <li><strong>FL, levelness</strong>, looks at the elevation difference between readings 10 ft apart, <code>d = z₁₁ − z₁</code>. A sag between columns or a slab that runs downhill pushes it down. A floor sloped on purpose for drainage is not tested for FL.</li>
+  </ul>
+  <p>Each number is a constant divided by "three standard deviations plus the absolute mean" of those values, all in inches:</p>
+  <pre>FF = 4.57 / (3 × S_q + |mean q|)
+FL = 12.5 / (3 × S_d + |mean d|)</pre>
+  <p>So the scale is linear: halve every bump and FF doubles. These are the equations given by the published secondary sources we could check; the standard itself is sold by ASTM, so check against your copy for contract work.</p>
+
+  <h2>A line worked by hand</h2>
+  <p>Thirteen readings, 12 inches apart, in inches above a datum (made-up numbers, chosen to be easy to follow):</p>
+  <pre>0.00  0.04  0.06  0.04  0.00  -0.02  0.00  0.05  0.08  0.06  0.03  0.02  0.04</pre>
+  <p>The 12-inch steps are +0.04, +0.02, −0.02, −0.04, −0.02, +0.02, +0.05, +0.03, −0.02, −0.03, −0.01, +0.02. Each curvature is the change from one step to the next:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>q values (in)</th><th>count</th><th>mean</th><th>standard deviation</th></tr></thead>
+    <tbody><tr><td>−0.02 −0.04 −0.02 +0.02 +0.04 +0.03 −0.02 −0.05 −0.01 +0.02 +0.03</td><td>11</td><td>−0.0018</td><td>0.0309</td></tr></tbody>
+  </table></div>
+  <pre>FF = 4.57 / (3 × 0.0309 + 0.0018) = 4.57 / 0.0946 = 48.3</pre>
+  <p>Thirteen readings give three 10-ft differences (+0.03, −0.02, −0.02), far too few for a meaningful FL; the calculator says so instead of printing a number you might quote. A real test section pools many lines, hundreds of curvatures, read in two directions.</p>
+  <p>Paste those thirteen numbers into the calculator in "Sample lines" format and it returns FF 48.3. One of its tests repeats this hand calculation.</p>
+
+  <h2>What the calculator adds to the arithmetic</h2>
+  <ul>
+    <li><strong>Three ways in.</strong> Sample lines as typed or exported from a profiler; a grid of elevations from a laser level or total station, read along every row and column; or a laser-scan point cloud as x y z text, resampled onto a 12-inch lattice.</li>
+    <li><strong>Sections and an overall.</strong> Start a section with <code>## Bay 3, area 2400</code>; each section pools its own lines, and the overall number is area-weighted.</li>
+    <li><strong>The spec check</strong> against specified overall and minimum local values, pass or fail.</li>
+    <li><strong>A 10 ft straightedge</strong> (or any length) laid along every line at every reading, resting on the high points, with the largest gap and where it is. Useful when the spec, or the flooring installer, talks in gaps rather than F-numbers.</li>
+    <li><strong>A heat map</strong> of the grid against its mean, so the low bay or the high joint is visible at a glance, and a profile of any line.</li>
+    <li><strong>A grind estimate.</strong> Give a target FF and it lowers the readings that stand highest above their neighbours until the section reaches it, then reports how many readings, how deep and roughly how much concrete. It is a sizing of the job, not a grind plan.</li>
+  </ul>
+
+  <h2>When to use something else</h2>
+  <ul>
+    <li><strong>Acceptance testing.</strong> If the contract names a testing agency, their report governs. Use this to check your own work in advance, or to read their raw data a second way.</li>
+    <li><strong>Very narrow aisle floors.</strong> Defined-traffic floors under very narrow aisle trucks are usually specified by a wheel-track method (for example the Concrete Society's TR34 property limits in the UK, or a Waviness Index), which this tool does not compute.</li>
+    <li><strong>Metric readings at 300 mm.</strong> ASTM E1155M uses its own constants for 300 mm spacing; this tool converts your readings to inches and assumes 12-inch spacing, about 1.6% off on spacing.</li>
+  </ul>
+
+  <h2>Questions</h2>
+  <h3>Is FF 50 twice as flat as FF 25?</h3>
+  <p>Yes. FF is a constant divided by the spread of the curvature values, so halving every bump doubles FF. The same holds for FL and the 10-ft differences.</p>
+  <h3>How many readings does a test need?</h3>
+  <p>Far more than one line. A line under 11 readings gives no FL at all, and a handful of values swings widely. A real test section pools many lines read in two directions, hundreds of curvatures; the calculator flags samples under 30 values.</p>
+  <h3>Can I use this instead of the testing agency?</h3>
+  <p>No. Use it to check your own work before the test or to read raw data a second way. When the contract names a testing agency, their E1155 report governs acceptance.</p>
+
+  <p><a class="cta" href="./">Check a floor now</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool and page are provided as-is, without warranty of any kind. They are not engineering, construction, legal or financial advice, and not a test to ASTM E1155 by a qualified testing agency. You are responsible for verifying any result before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+    <p>Nothing leaves your browser: readings are calculated on your device and never uploaded. Free and open source under the <a href="LICENSE">MIT licence</a>; <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/floor-flatness">source and CLI</a>.</p>
+  </footer>
+</body>
+</html>
