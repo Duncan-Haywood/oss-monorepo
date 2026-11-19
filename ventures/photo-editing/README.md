@@ -1513,6 +1513,14 @@ That, not the ramps, was the -0.58 dB tile. Each block's q is now raised to at l
 level's mean drops. X-Trans passed two of the three tests but not the third, so it is unchanged. `near_detail=False`
 gives the old blend.
 
+**X-Trans tuned on its own, and a noisy-reference check (2026-11-19, eval/near-clean-gate-xtrans-tune-2026-11-19.md).**
+A tune pass on 53 fresh sample raws (51 bodies, github.com/drewnoakes/metadata-extractor-images) on the X-Trans
+layout found no row losing over 0.1 dB to directional at any k, so there is nothing for the lift to fix and X-Trans
+keeps the old blend. On the Bayer layout all 15 losing rows were one ISO 1600, 30 s Pentax K-1 Mark II frame whose
+binned reference is itself at SNR 7 to 17. Sweep rows now carry the reference's own noise (`truth_sigma18`), and
+`near_clean_gate.py tune|rule --clean-truths` drops rows whose reference is noisier than the noise added. On the
+352 rows left, what ships loses over 0.1 dB on none.
+
 `shootflow develop FILE.dng --demosaic noise-aware` (numpy, Bayer and X-Trans; opt-in until 2026-11-19) blends the
 directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
 directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
