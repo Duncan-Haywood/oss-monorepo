@@ -383,7 +383,7 @@ What changes on the page (57 players, 14 courts, seed 57; `americano` with and w
 | pairs who never partner | 87 | 0 |
 | times each pair meets as opponents | 0 to 5 | exactly 2 |
 
-Every whist size from 4 to 64 now has a stored design. Tested in `whist.test.mjs` ("57 plays its own
+Every whist size from 4 to 64 now has a stored design. Past the page's 64-player cap, the same rule (m = 22: 1 mod 3, -1 mod 23) found a design for 69 in 100 CPU-s, and 77 (m = 43 or 34) got to cost 4 and 6 in 120 s without one (`eval/whist-involution-over64.txt`, one seed each, kept out of `whist-bases.mjs`). Tested in `whist.test.mjs` ("57 plays its own
 whist design"), which also checks that the stored base round is fixed by x -> 37x. Not yet used at a
 real 57-player night.
 
