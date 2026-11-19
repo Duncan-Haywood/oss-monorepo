@@ -1,0 +1,3926 @@
+[
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 1,
+  "activities": 14270,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 6.4,
+     "revisions": 0,
+     "slip": "T12CO04407C0",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 6.4,
+     "progress": 6.4,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 4.6,
+     "slip": null,
+     "lag": "T16P109503C0 -> T16P109907C0",
+     "nominal": {
+      "progress": 0,
+      "revisions": 4
+     }
+    },
+    "got": {
+     "moved": 4.6,
+     "progress": 0,
+     "revisions": 4.6
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 3.4,
+     "slip": null,
+     "lag": "T16P109205C0 -> T16P109901C0",
+     "nominal": {
+      "progress": 0,
+      "revisions": 3
+     }
+    },
+    "got": {
+     "moved": 3.4,
+     "progress": 0,
+     "revisions": 3.4
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 14.4,
+   "sumOfWindows": 14.4,
+   "progress": 6.4,
+   "revisions": 8,
+   "firstFinish": "2013-06-22 16:59",
+   "lastFinish": "2013-07-09 11:11"
+  },
+  "addsUp": true,
+  "ms": 10020,
+  "warnings": 0
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 2,
+  "activities": 14270,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 12.4,
+     "revisions": 0,
+     "slip": "T12CO04403C0",
+     "lag": null,
+     "nominal": {
+      "progress": 4,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 12.4,
+     "progress": 12.4,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 3,
+     "slip": null,
+     "lag": "duration T20TS01801C0",
+     "nominal": {
+      "progress": 0,
+      "revisions": 3
+     }
+    },
+    "got": {
+     "moved": 3,
+     "progress": 0,
+     "revisions": 3
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 1,
+     "revisions": 5,
+     "slip": "T15CO04405C0",
+     "lag": "T20R109503C0 -> T20R122027C0",
+     "nominal": {
+      "progress": 1,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 6,
+     "progress": 1,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 21.4,
+   "sumOfWindows": 21.4,
+   "progress": 13.4,
+   "revisions": 8,
+   "firstFinish": "2013-06-22 16:59",
+   "lastFinish": "2013-07-17 10:48"
+  },
+  "addsUp": true,
+  "ms": 9408,
+  "warnings": 0
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 3,
+  "activities": 14270,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 13.4,
+     "revisions": 0,
+     "slip": "T12CO04403C0",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 13.4,
+     "progress": 13.4,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 5,
+     "slip": null,
+     "lag": "T20R109201C0 -> T20R122011C0",
+     "nominal": {
+      "progress": 0,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 0,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 2,
+     "revisions": 5,
+     "slip": "T15CO04405C0",
+     "lag": "TGNCZ01090G0 -> MGNSO00103M0",
+     "nominal": {
+      "progress": 2,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 7,
+     "progress": 2,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 25.4,
+   "sumOfWindows": 25.4,
+   "progress": 15.4,
+   "revisions": 10,
+   "firstFinish": "2013-06-22 16:59",
+   "lastFinish": "2013-07-22 10:48"
+  },
+  "addsUp": true,
+  "ms": 9330,
+  "warnings": 0
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 4,
+  "activities": 14270,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": "T12CO04405C0",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 1,
+     "slip": null,
+     "lag": "duration T16P109205C0",
+     "nominal": {
+      "progress": 0,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 2,
+     "slip": null,
+     "lag": "T16P109907C0 -> T16TS01808C0",
+     "nominal": {
+      "progress": 0,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 0,
+     "revisions": 2
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 3,
+   "sumOfWindows": 3,
+   "progress": 0,
+   "revisions": 3,
+   "firstFinish": "2013-06-22 16:59",
+   "lastFinish": "2013-06-25 16:59"
+  },
+  "addsUp": true,
+  "ms": 8466,
+  "warnings": 0
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 5,
+  "activities": 14270,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": "T12CO04405C0",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 3,
+     "slip": null,
+     "lag": "T16P109901C0 -> T16P109501C0",
+     "nominal": {
+      "progress": 0,
+      "revisions": 2
+     }
+    },
+    "got": {
+     "moved": 3,
+     "progress": 0,
+     "revisions": 3
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 1,
+     "slip": null,
+     "lag": "T16P109205C0 -> T16P109901C0",
+     "nominal": {
+      "progress": 0,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 4,
+   "sumOfWindows": 4,
+   "progress": 0,
+   "revisions": 4,
+   "firstFinish": "2013-06-22 16:59",
+   "lastFinish": "2013-06-26 16:59"
+  },
+  "addsUp": true,
+  "ms": 8508,
+  "warnings": 0
+ },
+ {
+  "file": "CCA_R03_dt_24Oct11SC.xer",
+  "seed": 6,
+  "activities": 14270,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 10.4,
+     "revisions": 0,
+     "slip": "T12CO04407C0",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 10.4,
+     "progress": 10.4,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 4,
+     "slip": null,
+     "lag": "duration T16P101005C0",
+     "nominal": {
+      "progress": 0,
+      "revisions": 4
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 4,
+     "slip": null,
+     "lag": "T16P109501C0 -> T16P109601C0",
+     "nominal": {
+      "progress": 0,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 18.4,
+   "sumOfWindows": 18.4,
+   "progress": 10.4,
+   "revisions": 8,
+   "firstFinish": "2013-06-22 16:59",
+   "lastFinish": "2013-07-14 11:11"
+  },
+  "addsUp": true,
+  "ms": 8020,
+  "warnings": 0
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 1,
+  "activities": 823,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 2,
+     "revisions": 0,
+     "slip": "BEW/MO/EF/1010",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 2,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 5,
+     "slip": null,
+     "lag": "BEW/PR/FC/1040 -> BEW/CL/GEN/1010",
+     "nominal": {
+      "progress": 0,
+      "revisions": 4
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 0,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 4,
+     "revisions": 0,
+     "slip": "BEW/MO/EF/1010",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 4,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 11,
+   "sumOfWindows": 11,
+   "progress": 6,
+   "revisions": 5,
+   "firstFinish": "2016-08-28 17:00",
+   "lastFinish": "2016-09-08 17:00"
+  },
+  "addsUp": true,
+  "ms": 804,
+  "warnings": 0
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 2,
+  "activities": 823,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": "BEW/MO/NC/1030",
+     "lag": null,
+     "nominal": {
+      "progress": 4,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 1,
+     "revisions": 0,
+     "slip": "BEW/PR/FC/1040",
+     "lag": null,
+     "nominal": {
+      "progress": 1,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 1,
+     "progress": 1,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 1,
+   "sumOfWindows": 1,
+   "progress": 1,
+   "revisions": 0,
+   "firstFinish": "2016-08-28 17:00",
+   "lastFinish": "2016-08-29 17:00"
+  },
+  "addsUp": true,
+  "ms": 749,
+  "warnings": 0
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 3,
+  "activities": 823,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": "BEW/MO/NC/1030",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 2,
+     "revisions": 0,
+     "slip": "BEW/PR/FC/1040",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 2,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 2,
+   "sumOfWindows": 2,
+   "progress": 2,
+   "revisions": 0,
+   "firstFinish": "2016-08-28 17:00",
+   "lastFinish": "2016-08-30 17:00"
+  },
+  "addsUp": true,
+  "ms": 779,
+  "warnings": 0
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 4,
+  "activities": 823,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": "BEW/MO/NC/1030",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 1,
+     "revisions": 0,
+     "slip": "BEW/PR/FC/1040",
+     "lag": null,
+     "nominal": {
+      "progress": 1,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 1,
+     "progress": 1,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 1,
+   "sumOfWindows": 1,
+   "progress": 1,
+   "revisions": 0,
+   "firstFinish": "2016-08-28 17:00",
+   "lastFinish": "2016-08-29 17:00"
+  },
+  "addsUp": true,
+  "ms": 809,
+  "warnings": 0
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 5,
+  "activities": 823,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": "BEW/MO/NC/1030",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 3,
+     "revisions": 0,
+     "slip": "BEW/PR/FC/1040",
+     "lag": null,
+     "nominal": {
+      "progress": 3,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 3,
+     "progress": 3,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 3,
+   "sumOfWindows": 3,
+   "progress": 3,
+   "revisions": 0,
+   "firstFinish": "2016-08-28 17:00",
+   "lastFinish": "2016-08-31 17:00"
+  },
+  "addsUp": true,
+  "ms": 698,
+  "warnings": 0
+ },
+ {
+  "file": "Expressway_Project.xer",
+  "seed": 6,
+  "activities": 823,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 7,
+     "revisions": 0,
+     "slip": "BEW/MO/EF/1010",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 7,
+     "progress": 7,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 2,
+     "slip": null,
+     "lag": "duration BEW/PR/FC/1040",
+     "nominal": {
+      "progress": 0,
+      "revisions": 4
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 0,
+     "revisions": 2
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 5,
+     "revisions": 0,
+     "slip": "BEW/MO/EF/1010",
+     "lag": null,
+     "nominal": {
+      "progress": 4,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 5,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 14,
+   "sumOfWindows": 14,
+   "progress": 12,
+   "revisions": 2,
+   "firstFinish": "2016-08-28 17:00",
+   "lastFinish": "2016-09-11 17:00"
+  },
+  "addsUp": true,
+  "ms": 848,
+  "warnings": 0
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 1,
+  "activities": 404,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 2,
+     "revisions": 0,
+     "slip": "A10390",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 2,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 4,
+     "slip": null,
+     "lag": "A10760 -> A10770",
+     "nominal": {
+      "progress": 0,
+      "revisions": 4
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 5,
+     "revisions": 3,
+     "slip": "A10400",
+     "lag": "A10710 -> A10740",
+     "nominal": {
+      "progress": 5,
+      "revisions": 3
+     }
+    },
+    "got": {
+     "moved": 8,
+     "progress": 5,
+     "revisions": 3
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 14,
+   "sumOfWindows": 14,
+   "progress": 7,
+   "revisions": 7,
+   "firstFinish": "2027-05-06 16:59",
+   "lastFinish": "2027-05-27 16:59"
+  },
+  "addsUp": true,
+  "ms": 110,
+  "warnings": 0
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 2,
+  "activities": 404,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 4,
+     "revisions": 0,
+     "slip": "A10390",
+     "lag": null,
+     "nominal": {
+      "progress": 4,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 4,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 3,
+     "slip": null,
+     "lag": "duration A10780",
+     "nominal": {
+      "progress": 0,
+      "revisions": 3
+     }
+    },
+    "got": {
+     "moved": 3,
+     "progress": 0,
+     "revisions": 3
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 1,
+     "revisions": 5,
+     "slip": "A10400",
+     "lag": "A10780 -> A12930",
+     "nominal": {
+      "progress": 1,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 6,
+     "progress": 1,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 13,
+   "sumOfWindows": 13,
+   "progress": 5,
+   "revisions": 8,
+   "firstFinish": "2027-05-06 16:59",
+   "lastFinish": "2027-05-26 16:59"
+  },
+  "addsUp": true,
+  "ms": 107,
+  "warnings": 0
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 3,
+  "activities": 404,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 5,
+     "revisions": 0,
+     "slip": "A10390",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 5,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 5,
+     "slip": null,
+     "lag": "A10420 -> A10690",
+     "nominal": {
+      "progress": 0,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 0,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 5,
+     "slip": "A10400",
+     "lag": "A12930 -> MS3350",
+     "nominal": {
+      "progress": 2,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 0,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 15,
+   "sumOfWindows": 15,
+   "progress": 5,
+   "revisions": 10,
+   "firstFinish": "2027-05-06 16:59",
+   "lastFinish": "2027-05-28 16:59"
+  },
+  "addsUp": true,
+  "ms": 104,
+  "warnings": 0
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 4,
+  "activities": 404,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 2,
+     "revisions": 0,
+     "slip": "A10390",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 2,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 1,
+     "slip": null,
+     "lag": "duration A10700",
+     "nominal": {
+      "progress": 0,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 1,
+     "revisions": 1,
+     "slip": "A10690",
+     "lag": "A10700 -> A10710",
+     "nominal": {
+      "progress": 1,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 1,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 5,
+   "sumOfWindows": 5,
+   "progress": 3,
+   "revisions": 2,
+   "firstFinish": "2027-05-06 16:59",
+   "lastFinish": "2027-05-13 16:59"
+  },
+  "addsUp": true,
+  "ms": 113,
+  "warnings": 0
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 5,
+  "activities": 404,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 5,
+     "revisions": 0,
+     "slip": "A10390",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 5,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 2,
+     "slip": null,
+     "lag": "A10700 -> A10710",
+     "nominal": {
+      "progress": 0,
+      "revisions": 2
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 0,
+     "revisions": 2
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 3,
+     "revisions": 1,
+     "slip": "A10400",
+     "lag": "A12930 -> MS3350",
+     "nominal": {
+      "progress": 3,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 3,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 11,
+   "sumOfWindows": 11,
+   "progress": 8,
+   "revisions": 3,
+   "firstFinish": "2027-05-06 16:59",
+   "lastFinish": "2027-05-21 16:59"
+  },
+  "addsUp": true,
+  "ms": 101,
+  "warnings": 0
+ },
+ {
+  "file": "example_xer_file.xer",
+  "seed": 6,
+  "activities": 404,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 5,
+     "revisions": 0,
+     "slip": "A10390",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 5,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 4,
+     "slip": null,
+     "lag": "duration A10690",
+     "nominal": {
+      "progress": 0,
+      "revisions": 4
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 4,
+     "revisions": 5,
+     "slip": "A10400",
+     "lag": "A10760 -> A10770",
+     "nominal": {
+      "progress": 4,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 9,
+     "progress": 4,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 18,
+   "sumOfWindows": 18,
+   "progress": 9,
+   "revisions": 9,
+   "firstFinish": "2027-05-06 16:59",
+   "lastFinish": "2027-06-02 16:59"
+  },
+  "addsUp": true,
+  "ms": 99,
+  "warnings": 0
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 1,
+  "activities": 4217,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": 0,
+   "revisions": 0,
+   "firstFinish": "2014-07-23 16:00",
+   "lastFinish": "2014-07-23 16:00"
+  },
+  "addsUp": true,
+  "ms": 1231,
+  "warnings": 0
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 2,
+  "activities": 4217,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": 0,
+   "revisions": 0,
+   "firstFinish": "2014-07-23 16:00",
+   "lastFinish": "2014-07-23 16:00"
+  },
+  "addsUp": true,
+  "ms": 1359,
+  "warnings": 0
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 3,
+  "activities": 4217,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": 0,
+   "revisions": 0,
+   "firstFinish": "2014-07-23 16:00",
+   "lastFinish": "2014-07-23 16:00"
+  },
+  "addsUp": true,
+  "ms": 1465,
+  "warnings": 0
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 4,
+  "activities": 4217,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": 0,
+   "revisions": 0,
+   "firstFinish": "2014-07-23 16:00",
+   "lastFinish": "2014-07-23 16:00"
+  },
+  "addsUp": true,
+  "ms": 1426,
+  "warnings": 0
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 5,
+  "activities": 4217,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": 0,
+   "revisions": 0,
+   "firstFinish": "2014-07-23 16:00",
+   "lastFinish": "2014-07-23 16:00"
+  },
+  "addsUp": true,
+  "ms": 1161,
+  "warnings": 0
+ },
+ {
+  "file": "hotel-project.xer",
+  "seed": 6,
+  "activities": 4217,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 0,
+   "sumOfWindows": 0,
+   "progress": 0,
+   "revisions": 0,
+   "firstFinish": "2014-07-23 16:00",
+   "lastFinish": "2014-07-23 16:00"
+  },
+  "addsUp": true,
+  "ms": 1233,
+  "warnings": 0
+ },
+ {
+  "file": "sample.xer",
+  "seed": 1,
+  "activities": 42,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 2,
+     "revisions": 0,
+     "slip": "A2010",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 2,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 4,
+     "slip": null,
+     "lag": "A4040 -> A4050",
+     "nominal": {
+      "progress": 0,
+      "revisions": 4
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 5,
+     "revisions": 3,
+     "slip": "A3000",
+     "lag": "A4000 -> A4010",
+     "nominal": {
+      "progress": 5,
+      "revisions": 3
+     }
+    },
+    "got": {
+     "moved": 8,
+     "progress": 5,
+     "revisions": 3
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 14,
+   "sumOfWindows": 14,
+   "progress": 7,
+   "revisions": 7,
+   "firstFinish": "2021-10-07 16:00",
+   "lastFinish": "2021-10-27 16:00"
+  },
+  "addsUp": true,
+  "ms": 8,
+  "warnings": 3
+ },
+ {
+  "file": "sample.xer",
+  "seed": 2,
+  "activities": 42,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 4,
+     "revisions": 0,
+     "slip": "A1040",
+     "lag": null,
+     "nominal": {
+      "progress": 4,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 4,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 3,
+     "slip": null,
+     "lag": "duration A5010",
+     "nominal": {
+      "progress": 0,
+      "revisions": 3
+     }
+    },
+    "got": {
+     "moved": 3,
+     "progress": 0,
+     "revisions": 3
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 1,
+     "revisions": 5,
+     "slip": "A3000",
+     "lag": "A5010 -> A5020",
+     "nominal": {
+      "progress": 1,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 6,
+     "progress": 1,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 13,
+   "sumOfWindows": 13,
+   "progress": 5,
+   "revisions": 8,
+   "firstFinish": "2021-10-07 16:00",
+   "lastFinish": "2021-10-26 16:00"
+  },
+  "addsUp": true,
+  "ms": 8,
+  "warnings": 3
+ },
+ {
+  "file": "sample.xer",
+  "seed": 3,
+  "activities": 42,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 5,
+     "revisions": 0,
+     "slip": "A1040",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 5,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 5,
+     "slip": null,
+     "lag": "EM02 -> SM03",
+     "nominal": {
+      "progress": 0,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 0,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 2,
+     "revisions": 5,
+     "slip": "A2050",
+     "lag": "A5040 -> A5050",
+     "nominal": {
+      "progress": 2,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 7,
+     "progress": 2,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 17,
+   "sumOfWindows": 17,
+   "progress": 7,
+   "revisions": 10,
+   "firstFinish": "2021-10-07 16:00",
+   "lastFinish": "2021-11-01 16:00"
+  },
+  "addsUp": true,
+  "ms": 7,
+  "warnings": 3
+ },
+ {
+  "file": "sample.xer",
+  "seed": 4,
+  "activities": 42,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 2,
+     "revisions": 0,
+     "slip": "A1050",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 2,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 1,
+     "slip": null,
+     "lag": "duration A3030",
+     "nominal": {
+      "progress": 0,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 1,
+     "revisions": 1,
+     "slip": "A3020",
+     "lag": "A3040 -> A3050",
+     "nominal": {
+      "progress": 1,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 1,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 5,
+   "sumOfWindows": 5,
+   "progress": 3,
+   "revisions": 2,
+   "firstFinish": "2021-10-07 16:00",
+   "lastFinish": "2021-10-14 16:00"
+  },
+  "addsUp": true,
+  "ms": 6,
+  "warnings": 3
+ },
+ {
+  "file": "sample.xer",
+  "seed": 5,
+  "activities": 42,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 5,
+     "revisions": 0,
+     "slip": "A1050",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 5,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 2,
+     "slip": null,
+     "lag": "A3040 -> A3050",
+     "nominal": {
+      "progress": 0,
+      "revisions": 2
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 0,
+     "revisions": 2
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 3,
+     "revisions": 1,
+     "slip": "A2050",
+     "lag": "A5040 -> A5050",
+     "nominal": {
+      "progress": 3,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 3,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 11,
+   "sumOfWindows": 11,
+   "progress": 8,
+   "revisions": 3,
+   "firstFinish": "2021-10-07 16:00",
+   "lastFinish": "2021-10-22 16:00"
+  },
+  "addsUp": true,
+  "ms": 6,
+  "warnings": 3
+ },
+ {
+  "file": "sample.xer",
+  "seed": 6,
+  "activities": 42,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 5,
+     "revisions": 0,
+     "slip": "A2010",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 5,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 4,
+     "slip": null,
+     "lag": "duration A3010",
+     "nominal": {
+      "progress": 0,
+      "revisions": 4
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 4,
+     "revisions": 5,
+     "slip": "A3000",
+     "lag": "A4030 -> A4040",
+     "nominal": {
+      "progress": 4,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 9,
+     "progress": 4,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 18,
+   "sumOfWindows": 18,
+   "progress": 9,
+   "revisions": 9,
+   "firstFinish": "2021-10-07 16:00",
+   "lastFinish": "2021-11-02 16:00"
+  },
+  "addsUp": true,
+  "ms": 8,
+  "warnings": 3
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 1,
+  "activities": 66,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 2,
+     "revisions": 0,
+     "slip": "BA-P2-10",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 2,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 4,
+     "slip": null,
+     "lag": "BA-P4-130 -> BA-P4-140",
+     "nominal": {
+      "progress": 0,
+      "revisions": 4
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 5,
+     "revisions": 3,
+     "slip": "BA-P4-10",
+     "lag": "BA-P4-50 -> BA-P4-60",
+     "nominal": {
+      "progress": 5,
+      "revisions": 3
+     }
+    },
+    "got": {
+     "moved": 8,
+     "progress": 5,
+     "revisions": 3
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 14,
+   "sumOfWindows": 14,
+   "progress": 7,
+   "revisions": 7,
+   "firstFinish": "2013-02-27 17:00",
+   "lastFinish": "2013-03-13 17:00"
+  },
+  "addsUp": true,
+  "ms": 17,
+  "warnings": 3
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 2,
+  "activities": 66,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 4,
+     "revisions": 0,
+     "slip": "BA-P1-10",
+     "lag": null,
+     "nominal": {
+      "progress": 4,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 4,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 3,
+     "slip": null,
+     "lag": "duration BA-P4-160",
+     "nominal": {
+      "progress": 0,
+      "revisions": 3
+     }
+    },
+    "got": {
+     "moved": 3,
+     "progress": 0,
+     "revisions": 3
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 1,
+     "revisions": 5,
+     "slip": "BA-P4-10",
+     "lag": "BA-P4-140 -> BA-P4-160",
+     "nominal": {
+      "progress": 1,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 6,
+     "progress": 1,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 13,
+   "sumOfWindows": 13,
+   "progress": 5,
+   "revisions": 8,
+   "firstFinish": "2013-02-27 17:00",
+   "lastFinish": "2013-03-12 17:00"
+  },
+  "addsUp": true,
+  "ms": 17,
+  "warnings": 0
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 3,
+  "activities": 66,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 5,
+     "revisions": 0,
+     "slip": "BA-P1-10",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 5,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 5,
+     "slip": null,
+     "lag": "BA-P4-30 -> BA-P4-40",
+     "nominal": {
+      "progress": 0,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 0,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 2,
+     "revisions": 5,
+     "slip": "BA-P4-10",
+     "lag": "A3450 -> A5800",
+     "nominal": {
+      "progress": 2,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 7,
+     "progress": 2,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 17,
+   "sumOfWindows": 17,
+   "progress": 7,
+   "revisions": 10,
+   "firstFinish": "2013-02-27 17:00",
+   "lastFinish": "2013-03-16 17:00"
+  },
+  "addsUp": true,
+  "ms": 18,
+  "warnings": 2
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 4,
+  "activities": 66,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 2,
+     "revisions": 0,
+     "slip": "BA-P1-10",
+     "lag": null,
+     "nominal": {
+      "progress": 2,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 2,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 1,
+     "slip": null,
+     "lag": "duration BA-P4-50",
+     "nominal": {
+      "progress": 0,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 0,
+     "revisions": 1,
+     "slip": "BA-P4-20",
+     "lag": "BA-P4-30 -> BA-P4-40",
+     "nominal": {
+      "progress": 1,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 1,
+     "progress": 0,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": false,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 4,
+   "sumOfWindows": 4,
+   "progress": 2,
+   "revisions": 2,
+   "firstFinish": "2013-02-27 17:00",
+   "lastFinish": "2013-03-03 17:00"
+  },
+  "addsUp": true,
+  "ms": 14,
+  "warnings": 3
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 5,
+  "activities": 66,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 5,
+     "revisions": 0,
+     "slip": "BA-P1-10",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 5,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 2,
+     "slip": null,
+     "lag": "BA-P4-60 -> BA-P4-70",
+     "nominal": {
+      "progress": 0,
+      "revisions": 2
+     }
+    },
+    "got": {
+     "moved": 2,
+     "progress": 0,
+     "revisions": 2
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 3,
+     "revisions": 1,
+     "slip": "BA-P4-10",
+     "lag": "A3450 -> A5800",
+     "nominal": {
+      "progress": 3,
+      "revisions": 1
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 3,
+     "revisions": 1
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 11,
+   "sumOfWindows": 11,
+   "progress": 8,
+   "revisions": 3,
+   "firstFinish": "2013-02-27 17:00",
+   "lastFinish": "2013-03-10 17:00"
+  },
+  "addsUp": true,
+  "ms": 12,
+  "warnings": 2
+ },
+ {
+  "file": "terminal-building-airport.xer",
+  "seed": 6,
+  "activities": 66,
+  "ordered": true,
+  "rows": [
+   {
+    "window": 1,
+    "expect": {
+     "progress": 0,
+     "revisions": 0,
+     "slip": null,
+     "lag": null,
+     "nominal": {
+      "progress": 0,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 0,
+     "progress": 0,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 2,
+    "expect": {
+     "progress": 5,
+     "revisions": 0,
+     "slip": "BA-P2-10",
+     "lag": null,
+     "nominal": {
+      "progress": 5,
+      "revisions": 0
+     }
+    },
+    "got": {
+     "moved": 5,
+     "progress": 5,
+     "revisions": 0
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 3,
+    "expect": {
+     "progress": 0,
+     "revisions": 4,
+     "slip": null,
+     "lag": "duration BA-P4-40",
+     "nominal": {
+      "progress": 0,
+      "revisions": 4
+     }
+    },
+    "got": {
+     "moved": 4,
+     "progress": 0,
+     "revisions": 4
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   },
+   {
+    "window": 4,
+    "expect": {
+     "progress": 4,
+     "revisions": 5,
+     "slip": "BA-P4-10",
+     "lag": "BA-P4-80 -> BA-P4-110",
+     "nominal": {
+      "progress": 4,
+      "revisions": 5
+     }
+    },
+    "got": {
+     "moved": 9,
+     "progress": 4,
+     "revisions": 5
+    },
+    "splitExact": true,
+    "side": true,
+    "nominal": true,
+    "named": true
+   }
+  ],
+  "asPlannedZero": true,
+  "asPlannedDrivers": 0,
+  "total": {
+   "moved": 18,
+   "sumOfWindows": 18,
+   "progress": 9,
+   "revisions": 9,
+   "firstFinish": "2013-02-27 17:00",
+   "lastFinish": "2013-03-17 17:00"
+  },
+  "addsUp": true,
+  "ms": 15,
+  "warnings": 3
+ }
+]
