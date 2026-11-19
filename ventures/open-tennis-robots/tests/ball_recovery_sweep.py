@@ -2,11 +2,11 @@
 "A ball charged the integrator").
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/ball_recovery_sweep.py [--band off,0,0.005,0.01] [--quick]
-        [--kp-learn off,0.6] [--heldout] [--rows out.jsonl]
+        [--ball-gain off,down,both] [--heldout] [--rows out.jsonl]
 
-`--kp-learn` (2026-11-19, README "The ball hold on a wheel faster than told") runs each band with
-`controller.LOOP_BALL_KP_LEARN` off and at each floor given. `--heldout` swaps the grid for one no earlier run used:
-wheel lags 0.15 / 0.25 / 0.3 s and free speeds 8,000, 10,000, 10,500 and 12,000 rpm (432 cases).
+`--ball-gain` (2026-11-19, README "The ball hold on a wheel faster than told", "A 432-case replication") runs each
+band with `controller.LOOP_BALL_GAIN` at each value given (off: False). `--heldout` swaps the grid for a 432-case one:
+wheel lags 0.15 / 0.25 / 0.3 s and free speeds 8,000, 10,000, 10,500 and 12,000 rpm.
 
 "The slow drill's release timeout" left a 0.8 s wheel at 526 rpm settling 3-4% low after a ball and taking about 2 s to
 creep back. Each case here spins a wheel pair up from rest on the firmware's own tach, loop, ramp and gate, lets it sit
@@ -44,9 +44,9 @@ def _step(sim):
     sim.run_ms(10)
 
 
-def trial(band, pair, plant, tau, free, after_s=10.0, kp_learn=None):
+def trial(band, pair, plant, tau, free, after_s=10.0, ball_gain=None):
     sim = SimFeeder(wheel_tau_s=tau, wheel_max_rpm=free, **plant)
-    sim.hw.wheel_loops = tuple(controller.WheelLoop(9000, ball_band=band, kp_learn=kp_learn) for _ in range(2))
+    sim.hw.wheel_loops = tuple(controller.WheelLoop(9000, ball_band=band, ball_gain=ball_gain) for _ in range(2))
     sim.write(P.encode(P.HEARTBEAT) + P.encode(P.SET_WHEELS, *pair) + P.encode(P.SET_AIM, 1000, 0))
     t0 = sim.clock()
     while not (sim.hw.wheels_steady.steady and sim.hw.aim_settled()):
@@ -93,7 +93,7 @@ def cases(quick, heldout=False):
 
 def run_one(args):
     (band, kl), quick, heldout = args
-    return (band, kl), [(c[0], c[2], c[4], trial(band, c[4], c[1], c[2], c[3], kp_learn=kl), c[3])
+    return (band, kl), [(c[0], c[2], c[4], trial(band, c[4], c[1], c[2], c[3], ball_gain=kl), c[3])
                         for c in cases(quick, heldout)]
 
 
@@ -115,8 +115,9 @@ def main():
     if "--band" in sys.argv:
         bands = [None if x == "off" else float(x) for x in sys.argv[sys.argv.index("--band") + 1].split(",")]
     kls = [None]
-    if "--kp-learn" in sys.argv:
-        kls = [None if x == "off" else float(x) for x in sys.argv[sys.argv.index("--kp-learn") + 1].split(",")]
+    if "--ball-gain" in sys.argv:
+        kls = [False if x == "off" else (True if x == "both" else x)
+               for x in sys.argv[sys.argv.index("--ball-gain") + 1].split(",")]
     heldout = "--heldout" in sys.argv
     tasks = [(b, k) for b in bands for k in kls]
     with multiprocessing.Pool(min(len(tasks), multiprocessing.cpu_count())) as pool:
@@ -125,12 +126,12 @@ def main():
         with open(sys.argv[sys.argv.index("--rows") + 1], "w") as f:
             for (b, k), rows in results.items():
                 for pname, tau, pair, res, free in rows:
-                    f.write(json.dumps({"band": b, "kp_learn": k, "plant": pname, "tau": tau, "free": free,
+                    f.write(json.dumps({"band": b, "ball_gain": k, "plant": pname, "tau": tau, "free": free,
                                         "pair": pair, "result": res}) + "\n")
     for t in tasks:
         b, k = t
         rows = results[t]
-        print(f"\nLOOP_BALL_BAND {'off' if b is None else b}, LOOP_BALL_KP_LEARN {'off' if k is None else k}: "
+        print(f"\nLOOP_BALL_BAND {'off' if b is None else b}, LOOP_BALL_GAIN {'shipped' if k is None else k}: "
               f"all {summary([r[3] for r in rows])}")
         for free in sorted({r[4] for r in rows}):
             print(f"  free {free:5d}: {summary([r[3] for r in rows if r[4] == free])}")

@@ -1270,12 +1270,12 @@ BALL_DROP_SEEN = 0.03         # the wheel reads this far under target: the ball 
 # still lowering the target; LOOP_I_FF_MAX bounds it to that share of the feedforward (None: only i_max).
 LOOP_RAMP_HOLD = True
 LOOP_I_FF_MAX = 0.35
-# During a ball's recovery, scale the proportional gain by the plant gain the integrator has already learned
-# (2026-11-19, firmware/esp32/README.md "The ball hold on a wheel faster than told"): a negative integrator says the
-# wheel is faster than WHEEL_RPM_FULL, so kp shrinks by (feedforward + integrator) / feedforward, never below this
-# floor and never above 1 (a slower wheel keeps kp). On by its pre-registered rule (eval/ball-kp-learn-2026-11-19.md);
-# None turns it off.
-LOOP_BALL_KP_LEARN = 0.6
+# A ball's recovery with the plant gain the integrator has learned (2026-11-19, firmware/esp32/README.md "The ball
+# hold on a wheel faster than told"): when a stroke starts, the steady command over the feedforward, (ff + i) / ff,
+# is the told free speed over the true one, and the proportional (and integral) gains are scaled by it until the ball
+# hold ends, so a wheel 22% faster than WHEEL_RPM_FULL is not driven 1.22 times as hard. False: the gains as told;
+# "down": the scale capped at 1 (only a wheel faster than told gets softer gains).
+LOOP_BALL_GAIN = "down"
 
 
 class WheelLoop:
@@ -1315,9 +1315,11 @@ class WheelLoop:
     """
 
     def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3, low_rpm=LOOP_LOW_RPM, ball_band=-1.0, ball_ms=None, ramp_hold=None, i_ff_max=-1.0,
-                 speed_esc=None, kp_learn=-1.0):
+                 speed_esc=None, ball_gain=None):
         self.ff = 1.0 / rpm_full
-        self.kp_learn = LOOP_BALL_KP_LEARN if kp_learn == -1.0 else kp_learn
+        self.ball_gain = LOOP_BALL_GAIN if ball_gain is None else ball_gain
+        self.gain = 1.0               # the gain scale latched at the stroke's start (ball_gain)
+        self.last_target = 0
         if ESC_SPEED_LOOP if speed_esc is None else speed_esc:
             # The ESC holds the speed itself (README "An ESC with its own speed loop"): the board's proportional term
             # on a 4-revolution tach in cascade with it rang (+-15% at 2,500 rpm behind a 5 Hz ESC loop, no ball),
@@ -1339,12 +1341,19 @@ class WheelLoop:
         climbed back to its target, its integrator only trims (README "A ball charged the integrator")."""
         if self.band is not None:
             self.recover, self.recover_ms, self.recover_target = 1, 0, None
+            if self.ball_gain and self.last_target > 0:
+                f = self.last_target * self.ff
+                self.gain = _clamp((f + self.i) / f, 0.5, 1.0 if self.ball_gain == "down" else 1.5)
 
     def update(self, target, measured, dt_ms, ramping=False):
         if target <= 0:
             self.i = 0.0
+            self.last_target = 0
             return 0.0
+        self.last_target = target
         g = target / self.low if self.low and target < self.low else 1.0
+        if self.recover:
+            g *= self.gain
         kp, ki = self.kp * g, self.ki * g
         err = target - measured
         if self.recover:
@@ -1357,11 +1366,10 @@ class WheelLoop:
                 self.recover = 2
             elif (self.recover == 2 and err <= 0) or self.recover_ms >= self.ball_ms:
                 self.recover = 0
+            if not self.recover:
+                self.gain = 1.0
         lim = min(self.i_max, self.i_ff * target * self.ff) if self.i_ff is not None else self.i_max
         self.i = _clamp(self.i, -lim, lim)
-        if self.recover and self.kp_learn is not None and self.i < 0.0:
-            ffc = target * self.ff
-            kp *= max(self.kp_learn, (ffc + self.i) / ffc)
         raw = target * self.ff + kp * err + self.i
         if (0.0 < raw < 1.0 or (raw >= 1.0 and err < 0) or (raw <= 0.0 and err > 0)) and not (ramping and self.ramp_hold):
             e = _clamp(err, -self.band * target, self.band * target) if self.recover else err

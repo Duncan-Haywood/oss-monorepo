@@ -381,9 +381,9 @@ flagships:
       promotion.test.mjs; play-off results fill the bracket
       (playoff-results.test.mjs); league page (availability, subs, sign-ups, free
       agents, waivers, ratings: README; next: a real league's use); 2026-11-19
-      balanced teams, two tags, late sign-ups (teams.mjs, eval/late-signups.txt;
-      next: /join free agents by it); bowling seasons, lane pairs rotated evenly: 36
-      of 36 at the bound, repeats 392 to 148 (eval/bowling-repeat-sat.txt)). 3-game
+      balanced teams, two tags, late sign-ups, /join free agents placed by it
+      (eval/free-agent-fit.txt); bowling seasons, lane pairs rotated evenly: 36 of
+      36 at the bound, repeats 392 to 148 (eval/bowling-repeat-sat.txt)). 3-game
       nights (eval/three-game-nights.txt): SAT session designs (session-designs.mjs)
       take every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7
       on 1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on
@@ -406,9 +406,8 @@ flagships:
       sub-2.5 ms takes, the grid end misses them; grid 0,1.5,2.5,3-8 ms on set M 48
       vs 41 of 66 within 0.5 ms, failed on one unadvised instant read). Next: that
       grid on a fresh set, instant clause on advice; a drill-level check of
-      one-wheel verdicts on more fresh sets; the sub-8 advised instant build; a
-      whole drill on a build faster than told (ball-hold kp from the integrator
-      2026-11-19: 0.2 s undershoots 17 to 8 of 72; held out 122 to 73).
+      one-wheel verdicts on more fresh sets; the sub-8 advised instant build. Ball
+      hold on fast wheels: LOOP_BALL_GAIN shipped 2026-11-19.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -469,13 +468,12 @@ flagships:
       Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
       Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
       levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
-      thickness; next: worn pages (new GABC needed), mottled squares, hollow small
-      notes bridged 2026-11-18 (77 of 84, eval/one-step-hollow-check.md), split
-      heads joined 2026-11-18 (FLECK: podatus tops, quilismas, flecked squares; held
-      out 13 of 13 real, eval/fleck-check.md); 3439/3357 were not liquescentTail;
-      staff lines broken by a white gap joined 2026-11-18 (+82 agreeing; held out 0
-      of 530 staves changed, eval/staff-gap-check.md); next 434:3's F clef, 3524's
-      stemless cephalicus, 3408's strokes. More open items: NEXT.md.
+      thickness; 3439/3357 were not liquescentTail; staff lines broken by a white
+      gap joined 2026-11-18 (+82 agreeing; held out 0 of 530 staves changed,
+      eval/staff-gap-check.md); F clef with a parted stem read on its line
+      2026-11-19 (+59 agreeing, eval/clef-bridge-check.md); next 652:2's border in
+      the clef search, 3524's stemless cephalicus, 3408's strokes. More open items:
+      NEXT.md.
     buildable: >-
       Coda reader, no outside input: a held-out part built on
       eval/release-cells-report.md's cells (picked before any reader runs) to
@@ -483,7 +481,7 @@ flagships:
       -um", "A /u/ release read as a nasal"). Level-matched murmur (murmurSource
       'match', opt-in, eval/murmur-match-check.md): 2,220 nasals vs default 2,141,
       but R, Z, A lose 1-2; next: fresh cells for the voiced-labial misreads. OMR
-      (scan.mjs): 434 staff 3's F clef read 2 steps low (findClef), 3524's stemless
+      (scan.mjs): 652 staff 2's clef read off a border (findClef), 3524's stemless
       cephalicus, 3741's place, 3408's strokes (eval/staff-gap-check.md, What is
       left).
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0

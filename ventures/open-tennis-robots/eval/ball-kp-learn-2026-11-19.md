@@ -82,7 +82,11 @@ undershoot 4.5% to 3.6%; slowest recovery 2.43 to 2.17 s.
 By free speed, undershoots over 2% of 108: 10,000 rpm 28 to 19, 10,500 rpm 36 to 24, 12,000 rpm 58 to 30. The gain
 grows with the mismatch, as the mechanism says it should. Slowest recovery 2.78 to 1.97 s.
 
-**Every clause held, so `LOOP_BALL_KP_LEARN` is now 0.6** (`firmware/esp32/controller.py`).
+Every clause held. **It did not ship**: while these sweeps ran, PR #17530 landed the same idea on `main` as
+`LOOP_BALL_GAIN = "down"` (the ratio latched at the stroke's start, both gains scaled, clamped 0.5-1.0; README "The
+ball hold on a wheel faster than told"). Two mechanisms for one job is worse than one, so this branch took main's,
+dropped `LOOP_BALL_KP_LEARN`, and used its untouched 432-case grid to test the shipped change instead (below). The
+candidate's rows stay here (`kp_learn` 0.6 in the `.jsonl.gz` files) for comparison.
 
 ### What is left
 
@@ -95,3 +99,24 @@ grows with the mismatch, as the mechanism says it should. Slowest recovery 2.78 
 - All simulated: the simulator's first-order wheel and ESC. A real ESC's throttle curve is not linear, so the
   integrator's offset at one speed is a local, not global, gain estimate; the candidate uses it only in the second or
   two of a ball's recovery at the speed it was learned at.
+
+## A replication of the shipped `LOOP_BALL_GAIN = "down"` on the 432-case grid
+
+PR #17530 judged "down" on a 216-case development grid (the same one as clause 1 above) and one fresh 96-case set
+fixed after its first rule failed; its first held-out set (96) came out 13 to 13, reported, not judged. The 432-case
+grid above was never run against "down". It partly overlaps #17530's cells (it used 0.15 s wheels and 10,500 rpm
+among others) but not its pairs-by-plant layout, and it is four times larger.
+
+**Rule, committed before the run (the same five clauses #17530 used, on all 432):** "down" holds up if, against
+`LOOP_BALL_GAIN` False, (a) undershoots over 2% fall, (b) mean time until the gate passes again is no more than
+0.05 s longer, (c) no more balls over 3% off at the gate, (d) worst overshoot no more than 0.5 points higher, (e) no
+case lost. Also, (f) the 8,000 rpm rows identical (the cap at 1 cannot touch them), and (g) the False rows identical
+to this file's "shipped (candidate off)" held-out rows (a determinism check: both are the loop before either change).
+If (a)-(e) fail, the README says so and `LOOP_BALL_GAIN` goes back to a fresh test; this run does not change it.
+
+**Prediction.** Faster-than-told undershoots over 2% fall from 122 to between 65 and 85 (the kp-only candidate's 73,
+give or take the integral gain's share).
+
+### Replication result
+
+(filled in after the run)

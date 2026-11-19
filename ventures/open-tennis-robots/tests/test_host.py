@@ -410,21 +410,33 @@ class WheelLoopTest(unittest.TestCase):
         moved.update(4000, 2100, 10)               # the Pi sent the next shot's speeds: the hold ends
         self.assertEqual(moved.recover, 0)
 
-    def test_ball_kp_learn_shrinks_kp_only_in_the_hold_on_a_fast_wheel(self):
-        # README "The ball hold on a wheel faster than told": the integrator's learned offset scales kp in the hold
-        def cmd(loop, i, recover, target=3000, meas=2700):
-            loop.i, loop.recover, loop.recover_target, loop.recover_ms = i, recover, target, 0
-            return loop.update(target, meas, 10)
-        ffc = 3000 / 9000
-        on = controller.WheelLoop(9000, ki=0.0, kp_learn=0.6)
-        off = controller.WheelLoop(9000, ki=0.0, kp_learn=None)
-        fast = -0.18 * ffc                           # a wheel ~1.22x faster than told
-        self.assertAlmostEqual(cmd(off, fast, 2) - (ffc + fast), 2e-4 * 300)
-        self.assertAlmostEqual(cmd(on, fast, 2) - (ffc + fast), 2e-4 * 300 * 0.82)
-        self.assertAlmostEqual(cmd(on, fast, 0), cmd(off, fast, 0))     # outside the hold: unchanged
-        self.assertAlmostEqual(cmd(on, 0.1 * ffc, 2), cmd(off, 0.1 * ffc, 2))  # a slower wheel keeps kp
-        loose = controller.WheelLoop(9000, ki=0.0, kp_learn=0.6, i_ff_max=None)
-        self.assertAlmostEqual(cmd(loose, -0.9 * ffc, 2) - 0.1 * ffc, 2e-4 * 300 * 0.6)   # the floor
+    def test_ball_gain_softens_only_a_wheel_faster_than_told(self):
+        # firmware/esp32/README.md "The ball hold on a wheel faster than told": the stroke latches (ff + i) / ff and
+        # scales the gains by it, capped at 1 ("down"), until the hold ends
+        fast = controller.WheelLoop(9000, ball_gain="down", low_rpm=0)
+        fast.update(3000, 3000, 10)
+        fast.i = -0.2 * 3000 / 9000                 # the integrator learned a wheel 1.25x faster than told
+        fast.ball()
+        self.assertAlmostEqual(fast.gain, 0.8)
+        cmd = fast.update(3000, 2000, 10)
+        self.assertAlmostEqual(cmd, 3000 / 9000 + 0.8 * fast.kp * 1000 + fast.i, places=9)
+        fast.update(3000, 3000, 10)                 # back at target: the hold ends, so do the scaled gains
+        self.assertEqual((fast.recover, fast.gain), (0, 1.0))
+        slow = controller.WheelLoop(9000, ball_gain="down")
+        slow.update(3000, 3000, 10)
+        slow.i = 0.2 * 3000 / 9000                  # slower than told: "down" leaves its gains alone
+        slow.ball()
+        self.assertEqual(slow.gain, 1.0)
+        both = controller.WheelLoop(9000, ball_gain=True)
+        both.update(3000, 3000, 10)
+        both.i = 0.2 * 3000 / 9000
+        both.ball()
+        self.assertAlmostEqual(both.gain, 1.2)
+        off = controller.WheelLoop(9000, ball_gain=False)
+        off.update(3000, 3000, 10)
+        off.i = -0.1
+        off.ball()
+        self.assertEqual(off.gain, 1.0)
 
     def test_braking_does_not_wind_the_integrator(self):
         # README "A ball charged the integrator", braking: while the ramp lowers the target the integrator holds, and

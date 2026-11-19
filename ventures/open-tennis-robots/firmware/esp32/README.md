@@ -3319,41 +3319,41 @@ again (it had printed only its header since the eight-point grid).
 **Not known.** All simulated, one seed a set. Whether real contacts are under 3 ms at all is unmeasured. A fresh set
 with the instant clause written on advice, not on the rounded read, is the next test; M cannot count toward it.
 
-## The ball hold on a wheel faster than told (2026-11-19, after "A ball charged the integrator"; `LOOP_BALL_KP_LEARN` on by its pre-registered rule)
+## The ball hold on a wheel faster than told (2026-11-19, after "Short takes"; `LOOP_BALL_GAIN = "down"` on by its pre-registered rule)
 
-**The item.** "A ball charged the integrator" shipped the ball hold with one named regression: on 0.2 s wheels the
-ball's undershoots over 2% went from 7 to 17 of 72, every one a wheel whose free speed is 11,000 rpm against the
-9,000 told. The proportional term then works on a plant 1.22 times stronger than the loop assumes, and the
-integrator's charge no longer cushions it. Its fix was "measure `WHEEL_RPM_FULL` on the build". Can the board
-measure it itself, where it matters?
+**The item.** "A ball charged the integrator" left one cost of the ball hold: on 0.2 s wheels, ball undershoots over
+2% went from 7 to 17 of 72, every one a wheel whose free speed is 11,000 rpm while the board is told
+`WHEEL_RPM_FULL` 9,000. The plant is 1.22 times stiffer than the loop assumes, so the proportional term overshoots on
+its own once the integrator is held.
 
-**The change.** Before a ball, the integrator has already learned the wheel's offset from the feedforward, and that
-is a gain measurement: true / told = feedforward / (feedforward + integrator). While the ball hold is armed, and only
-when the integrator is negative (a faster wheel), `WheelLoop` multiplies kp by that ratio, floored at 0.6
-(`LOOP_BALL_KP_LEARN`; `LOOP_I_FF_MAX` already keeps it at 0.65 or more). Slower wheels keep their kp, and spin-ups,
-braking and everything outside the hold are untouched. No value was tuned.
+**The change.** The integrator already knows the mismatch: at a steady wheel the command is (ff + i), so
+(ff + i) / ff is the told free speed over the true one. `WheelLoop.ball()` now latches that ratio (clamped 0.5-1.0)
+when the stroke starts and scales both gains by it until the ball hold ends. A wheel 22% faster than told gets gains
+about 18% softer for its recovery; a wheel slower than told keeps the gains as told. Nothing changes outside a ball's
+recovery, and a build whose `WHEEL_RPM_FULL` is measured sees a ratio of about 1 and no change at all.
 
-**How it was checked.** `tests/ball_recovery_sweep.py --kp-learn off,0.6` on the shipped 216-case grid and on a
-held-out grid no run had used (`--heldout`: wheel lags 0.15 / 0.25 / 0.3 s, free 8,000 / 10,000 / 10,500 / 12,000 rpm,
-432 cases). Predictions and a nine-clause rule were committed before either ran (bb8522601). Everything is in
-`eval/ball-kp-learn-2026-11-19.md`.
+**Two rules, both written before their runs** (`eval/ball-gain-rule-2026-11-19.md`; `tests/ball_gain_sweep.py`,
+same trial as `tests/ball_recovery_sweep.py`, four plants each). Five clauses against the loop without it: undershoots
+over 2% fall, mean time until the gate passes again no more than 0.05 s longer, no more balls over 3% off at the gate,
+worst overshoot no more than 0.5 points higher, no case lost.
 
-| | shipped grid: off | 0.6 | held-out: off | 0.6 |
-| --- | --- | --- | --- | --- |
-| undershoots over 2% (0.2 s wheels / faster-than-told wheels) | 17 of 72 | 8 | 122 of 324 | 73 |
-| undershoots over 2%, all | 19 of 216 | 8 | 126 of 432 | 77 |
-| gate passes again, mean / slowest | 0.893 / 2.43 s | 0.890 / 2.17 s | 0.817 / 2.78 s | 0.769 / 1.97 s |
-| over 3% off at the gate | 1 | 0 | 4 | 1 |
-| worst overshoot / worst undershoot | 6.0 / 4.5% | 4.9 / 3.6% | 6.3 / 5.7% | 4.9 / 4.2% |
+1. Scaling both ways (0.5-1.5) passed the 216-case development set (19 to 10 undershoots) and **failed** a 96-case
+   held-out set, 13 to 15: wheels slower than told, given stiffer gains, undershot more (0.15 s at 7,500 rpm: 1 to 3).
+   Kept off (`eval/ball-gain-sweep-2026-11-19.txt`).
+2. Capped at 1 ("down"), judged on the development set and a fresh 96-case set fixed after the first outcome
+   (eval/ball-gain-down-sweep-2026-11-19.txt); the first held-out set is reported, not judged:
 
-Every clause held (the prediction was about 9 of 72; it was 8), and the slower-than-told rows are identical on both
-grids. **`LOOP_BALL_KP_LEARN` is 0.6.** The gain grows with the mismatch: held-out undershoots at 10,000 rpm 28 to 19,
-at 12,000 rpm 58 to 30 of 108. Test: `test_ball_kp_learn_shrinks_kp_only_in_the_hold_on_a_fast_wheel`.
+| set | undershoot > 2%, off / down | worst undershoot | mean back to the gate | worst overshoot | > 3% at the gate |
+| --- | --- | --- | --- | --- | --- |
+| development, 216 | 19 / 9 | 4.5% / 3.6% | 0.89 / 0.89 s | 6.0% / 4.8% | 1 / 0 |
+| fresh, 96 | 18 / 13 | 5.0% / 4.0% | 0.86 / 0.82 s | 6.4% / 5.4% | 0 / 0 |
+| first held-out, 96 (not judged) | 13 / 13 | 4.6% / 3.8% | 0.73 / 0.71 s | 5.7% / 4.8% | 0 / 0 |
 
-**Not known.** All simulated. 0.15 s wheels behind an 80 ms ESC still dip; that is the ESC's lag, not the gain. The
-whole drills run at the told free speed, where this is close to a no-op, so a drill on a mismatched build is still to
-do. A real ESC's throttle curve is not linear, so the integrator's offset is a local gain estimate at the speed it
-was learned; the change uses it only there, for the second or two of a ball's recovery.
+Every clause passed on both judged sets, so `LOOP_BALL_GAIN` ships as "down". On the fast wheels of the fresh set the
+mean recovery fell 0.10-0.12 s (0.18 s wheel at 10,800 rpm: 0.93 to 0.83 s); the 0.8 s wheels at 11,000 rpm took
+0.05 s longer on the development set, the one cell that got slower.
 
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/ball_recovery_sweep.py --band 0.005 --kp-learn off,0.6 --rows rows.jsonl
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/ball_recovery_sweep.py --band 0.005 --kp-learn off,0.6 --heldout --rows rows.jsonl
+**Not known.** The simulator's first-order wheel and ESC, as before; the held-out sets vary the pairs, lags and free
+speeds but not the ball model. What is left of the undershoot on the fastest wheels (10 of 24 cases at 0.15 s and
+10,500 rpm still over 2%) is not the gain: measuring `WHEEL_RPM_FULL` on the build is still the fix. Test:
+`test_ball_gain_softens_only_a_wheel_faster_than_told` (tests/test_host.py).
